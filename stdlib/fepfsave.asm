@@ -17,12 +17,9 @@
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId
-     LIB FileEprAllocFilePtr
-     LIB FileEprFreeSpace
-     LIB FlashEprFileDelete
-     LIB FlashEprWriteBlock
-     LIB CheckBattLow
+     LIB FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
+     LIB FileEprAllocFilePtr, FileEprFreeSpace
+     LIB SafeBHLSegment
 
      include "error.def"
      include "fileio.def"
@@ -39,6 +36,7 @@
           IObufSize ds.w 1              ; Size of I/O buffer
           Fhandle   ds.w 1              ; Handle of openend file
           FileEntry ds.p 1              ; pointer to File Entry
+          CardSlot  ds.b 1              ; slot number of File Eprom Card
           Heap                          ; Internal Workspace
      }
 
@@ -47,38 +45,44 @@
 ;
 ; Standard Z88 File Eprom Format (using Flash Eprom Card).
 ;
-; Save single file to Flash Eprom (in slot 3).
+; Save single file to Flash Eprom in slot A.
 ;
 ; The routine does NOT handle automatical "deletion" of existing files
 ; that matches the filename (excl. device). This must be used by a call
 ; to <FlashEprFileDelete>.
 ;
 ; Should the actual process of blowing the file image fail, the new 
-; File Entry will be marked as deleted (if possible).
+; File Entry will be marked as deleted, if possible.
 ;
-; This routine will temporarily set the Vpp pin while blowing the file
-; to the Flash Eprom.
+; Important: 
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
+; to successfully blow data to the memory chip. If the Flash Eprom card 
+; is inserted in slot 1 or 2, this routine will report a programming failure. 
+;
+; It is the responsibility of the application (before using this call) to 
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
+; this type of unnecessary error can be avoided.
 ;
 ; IN:
+;          A = slot number (0, 1, 2 or 3)
 ;         DE = pointer to I/O buffer, in segment 0.
 ;         BC = size of I/O buffer.
 ;
 ;         HL = pointer to filename string (null-terminated), in segment 0.
 ;              Filename may contain wildcards (to find first match)
-;
 ; OUT:
 ;         Fc = 0, File successfully saved to Flash File Eprom.
-;              BHL = pointer to created File Entry in slot 3.
+;              BHL = pointer to created File Entry in slot A.
 ;
 ;         Fc = 1,
-;              File (Flash) Eprom not available in slot 3:
+;              File (Flash) Eprom not available in slot A:
 ;                   A = RC_Onf (Object not found)
 ;              Not sufficient space to store file (and File Entry Header):
 ;                   A = RC_Room
 ;              Flash Eprom Write Errors:
 ;                   If possible, the new File Entry is marked as deleted.
 ;                   A = RC_VPL, RC_BWR (see "flashepr.def" for details)
-;                   A = RC_Wp (Write-protected - batteries are low...)
 ;
 ;              RAM File was not found, or other filename related problems:
 ;                   A = RC_Onf
@@ -90,7 +94,7 @@
 ;    AFB...HL/.... different
 ;
 ; -------------------------------------------------------------------------
-; Design & Programming, Gunther Strube, InterLogic, Dec 1997 - Apr 1998
+; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sep 2004
 ; -------------------------------------------------------------------------
 ;
 .FlashEprFileSave
@@ -98,21 +102,6 @@
                     PUSH DE
                     PUSH BC                       ; preserve CDE
 
-                    PUSH BC
-                    PUSH HL
-                    LD   C,3                      ; check presence of FE in slot 3
-                    CALL FlashEprCardId
-                    POP  HL
-                    POP  BC
-                    JR   NC, process_file         ; Flash File Eprom was found...
-
-                    LD   A, RC_Onf
-                    SCF
-.exit_completed     POP  DE
-                    LD   C,E                      ; original C restored
-                    POP  DE
-                    POP  IX
-                    RET                           ; Flash File Eprom was not found in slot 3
 
 .process_file       PUSH IY                       ; preserve original IY
                     EXX                           ; use alternate registers temporarily
@@ -123,14 +112,13 @@
                     LD   SP,IY
                     PUSH HL                       ; preserve a copy of original SP on return
                     EXX
-
+                    
+                    AND  @00000011
+                    LD   (IY + CardSlot),A        ; preserve slot number of File Eprom Card
                     LD   (IY + IObuffer),E
                     LD   (IY + IObuffer+1),D      ; preserve pointer to external IO buffer
                     LD   (IY + IObufSize),C
                     LD   (IY + IObufSize+1),B     ; preserve size of external IO buffer
-
-                    CALL CheckBatteryStatus
-                    JR   C, end_filesave          ; abort operation if batteries are low
 
                     PUSH HL                       ; preserve ptr. to filename...
                     PUSH IY
@@ -181,7 +169,7 @@
                     PUSH HL
                     PUSH BC
 
-                    LD   C,3                      ; scan File Eprom in slot 3 for free space
+                    LD   C,(IY + CardSlot)        ; scan File Eprom in slot X for free space
                     CALL FileEprFreeSpace         ; returned in DEBC (Fc = 0, Eprom available...)
 
                     LD   H,B
@@ -212,13 +200,18 @@
                     LD   L,(IY + FileEntry)
                     LD   H,(IY + FileEntry+1)
                     LD   B,(IY + FileEntry+2)     ; return pointer to new File Entry...
-
-.end_filesave       EXX
+.end_filesave       
+                    EXX
                     POP  HL
                     LD   SP,HL                    ; install original SP
                     EXX
                     POP  IY                       ; original IY restored
-                    JP   exit_completed           ; return to caller...
+
+                    POP  DE
+                    LD   C,E                      ; original C restored
+                    POP  DE
+                    POP  IX
+                    RET
 
 .no_room            POP  HL                       ; remove redundant pointer to File Entry in buffer...
                     CALL_OZ(Gn_Cl)                ; close file (not going to be saved...)
@@ -234,25 +227,24 @@
 ;
 .SaveToFlashEpr     
                     PUSH HL
-                    LD   C,3
-                    CALL FileEprAllocFilePtr      ; BHL = ptr. to free file space on File Eprom
+                    LD   C,(IY + CardSlot)
+                    CALL FileEprAllocFilePtr      ; BHL = ptr. to free file space on File Eprom Card
                     LD   (IY + FileEntry),L
                     LD   (IY + FileEntry+1),H
                     LD   (IY + FileEntry+2),B     ; preserve pointer to new File Entry
-
                     POP  DE
                     CALL SaveFileEntry
-                    JR   C, exit_save             ; saving of File Entry failed...
+                    RET  C                        ; saving of File Entry failed...
 .save_file_loop
                     CALL LoadBuffer               ; Load block of bytes from file into external buffer
-                    JR   Z, exit_save             ; EOF reached...
+                    RET  Z                        ; EOF reached...
 
-                    LD   C, MS_S1                 ; use segment 1 to blow bytes...
+                    PUSH HL
+                    CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes...
+                    POP  HL                       ; (but don't touch the generic HL bank offset!)
                     CALL FlashEprWriteBlock       ; blow buffer to Flash Eprom at BHL...
                     JR   NC, save_file_loop
-
                     CALL C,MarkDeleted            ; File was not blown properly...
-.exit_save          
                     RET
 
 
@@ -283,10 +275,12 @@
                     PUSH BC                       ; DE = ptr. to File Entry
                     POP  IX                       ; length of File Entry in IX
                     POP  BC                       ; BHL = pointer to free space on Eprom
-                    LD   C, MS_S1                 ; use segment 1 to blow bytes...
+                    PUSH HL
+                    CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes...
+                    POP  HL                       ; (but don't touch the generic HL bank offset!)
                     CALL FlashEprWriteBlock       ; blow File Entry to Flash Eprom
                     RET  NC
-                    CALL C,MarkDeleted            ; File Entry was not blown properly
+                    CALL C,MarkDeleted            ; File Entry was not blown properly, marf it as 'deleted'...
                     RET
 
 
@@ -311,26 +305,6 @@
                     LD   B,(IY + FileEntry+2)     ; return pointer to new File Entry...
                     CALL FlashEprFileDelete       ; mark entry as deleted
                     POP  AF
-                    RET
-
-
-
-; *****************************************************************************
-;
-; Check for Battery Low status and report to user, if enabled.
-;
-; IN:
-;    None.
-;
-; Out:
-;    Fc = 1, if Battery Low Status is enabled
-;         A = RC_Wp
-;    Fc = 0, Battery Power is operational for Flash Eprom action
-;
-.CheckBatteryStatus CALL CheckBattLow
-                    RET  NC
-                    LD   A, RC_Wp                 ; indicate that Flash Eprom is write
-                    SCF                           ; protected when batteries are low
                     RET
 
 
