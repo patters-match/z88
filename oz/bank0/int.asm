@@ -225,7 +225,7 @@ xref    ReadRTC
 ;       handle spurious interrupts
 
 .int_11
-        call    OZ_SCF                          ; 'scf; ret'
+        call    OZ_INT                          ; 'scf; ret'
         jr      c, int_x                        ; so always just exit
         jr      nz, int_x
 
