@@ -14,7 +14,7 @@
 
 
 ;       !! Use application DOR null-pointer for these.
-;       !! It makes clear these are dummy entries.
+;       !! It makes clear they are dummy entries.
 
 .IndexHelp
         defb    0
@@ -173,7 +173,7 @@
         defb    0
         defb    10,$20,$5A,0,$DD,$6B,$20,$C5,0,10               ; Mark Block
         defb    12,$21,$51,0,$43,$8B,$8C,$20,$DD,$6B,0,12       ; Clear Mark
-        defb    8,$22,$42,$43,0,$DE,0,8                         ; Copy
+        defb     8,$22,$42,$43,0,$DE,0,8                        ; Copy
         defb    11,$23,$42,$4D,0,$4D,$6F,$76,$65,0,11           ; Move
         defb    10,$24,$42,$44,0,$44,$C7,$AF,0,10               ; Delete
         defb    13,$25,$42,$4C,0,$4C,$69,$73,$74,$2F,$FE,0,13   ; List/Print
@@ -182,75 +182,73 @@
         defb    10,$27,$42,$4E,$4D,0,$97,$F7,0,10               ; Next Match
         defb    10,$28,$42,$50,$4D,0,$98,$F7,0,10               ; Previous Match
         defb    1
-        defb    8,$F5,$F5,0,$DF,$A9,0,8 ; End of Line
+        defb     8,$F5,$F5,0,$DF,$A9,0,8 			; End of Line
         defb    12,$F4,$F4,0,$53,$74,$8C,$84,$89,$A9,0,12       ; Start of Line
-        defb    8,$30,$F7,0,$F8,$A9,0,8 ; First Line
+        defb     8,$30,$F7,0,$F8,$A9,0,8			; First Line
         defb    10,$2F,$F6,0,$4C,$61,$CA,$A9,0,10               ; Last Line
-        defb    10,$2B,$43,$53,$50,0,$BD,$BE,0,10
-        defb    13,$2C,$43,$52,$50,0,$C8,$73,$74,$8F,$BE,0,13
-        defb    7,$0D,$E1,0,$D2,0,7
-        defb    8,$F9,$F9,0,$97,$D3,1,8
-        defb    8,$F8,$F8,0,$98,$D3,0,8
-        defb    8,$32,$FB,0,$D4,$B9,0,8
-        defb    8,$31,$FA,0,$D4,$AC,0,8
-        defb    7,$FD,$FD,0,$A7,0,7
-        defb    7,$FC,$FC,0,$A8,0,7
-        defb    7,$2E,$FF,0,$DA,0,7
-        defb    7,$2D,$FE,0,$DB,0,7
-        defb    9,$2A,$E2,0,$54,$41,$42,1,9
-        defb    11,$33,$43,$54,0,$54,$6F,$64,$FB,0,11
-        defb    11,$39,$43,$46,$41,$44,0,$F8,$AD,0,11
-        defb    13,$38,$43,$4C,$41,$44,0,$4C,$61,$CA,$AD,0,13
-        defb    8,$36,$F1,0,$97,$AD,0,8
-        defb    8,$37,$F0,0,$98,$AD,0,8
-        defb    9,$35,$F3,0,$98,$44,$FB,0,9
-        defb    9,$34,$F2,0,$97,$44,$FB,0,9
+        defb    10,$2B,$43,$53,$50,0,$BD,$BE,0,10		; Save position
+        defb    13,$2C,$43,$52,$50,0,$C8,$73,$74,$8F,$BE,0,13	; Restore position
+        defb     7,$0D,$E1,0,$D2,0,7				; ENTER
+        defb     8,$F9,$F9,0,$97,$D3,1,8			; Next Word
+        defb     8,$F8,$F8,0,$98,$D3,0,8			; Previous Word
+        defb     8,$32,$FB,0,$D4,$B9,0,8			; Screen Up
+        defb     8,$31,$FA,0,$D4,$AC,0,8			; Screen Down
+        defb     7,$FD,$FD,0,$A7,0,7				; Cursor Right
+        defb     7,$FC,$FC,0,$A8,0,7				; Cursor Left
+        defb     7,$2E,$FF,0,$DA,0,7				; Cursor Up
+        defb     7,$2D,$FE,0,$DB,0,7				; Cursor Down
+        defb     9,$2A,$E2,0,$54,$41,$42,1,9			; Tab
+        defb    11,$33,$43,$54,0,$54,$6F,$64,$FB,0,11		; Today
+        defb    11,$39,$43,$46,$41,$44,0,$F8,$AD,0,11		; First Active Day
+        defb    13,$38,$43,$4C,$41,$44,0,$4C,$61,$CA,$AD,0,13	; Last Active Day
+        defb     8,$36,$F1,0,$97,$AD,0,8			; Next Active Day
+        defb     8,$37,$F0,0,$98,$AD,0,8			; Previous Active Day
+        defb     9,$35,$F3,0,$98,$44,$FB,0,9			; Previous Day
+        defb     9,$34,$F2,0,$97,$44,$FB,0,9			; Next Day
         defb    1
-        defb    7,$7F,$E3,0,$E0,0,7
-        defb    8,7,$47,0,$96,$E9,0,8
-        defb    6,7,$D3,0,4,6
-        defb    8,$15,$55,0,$CB,$E9,0,8
-        defb    8,$14,$54,0,$96,$D3,0,8
-        defb    10,4,$44,0,$96,$BB,$DF,$A9,0,10
-        defb    8,$3A,$59,0,$96,$A9,0,8
-        defb    6,$3A,$C3,0,4,6
-        defb    8,$3C,$4E,0,$CB,$A9,0,8
-        defb    7,$16,$56,0,$EA,1,7
-        defb    7,$13,$53,0,$FF,0,7
-        defb    8,$3F,$4A,0,$97,$EC,0,8
-        defb    16,$3E,$45,$4D,$46,0,$4D,$65,$6D,$8F,$D6,$46,$8D,$65,0,16
-        defb    13,$3D,$45,$53,$4C,0,$53,$D9,$69,$84,$A9,1,13
-        defb    13,$3B,$45,$4A,$4C,0,$4A,$6F,$A3,$A9,$73,0,13
+        defb     7,$7F,$E3,0,$E0,0,7				; Rubout
+        defb     8,7,$47,0,$96,$E9,0,8				; Delete Character
+        defb     6,7,$D3,0,4,6					; 
+        defb     8,$15,$55,0,$CB,$E9,0,8			; Insert Character
+        defb     8,$14,$54,0,$96,$D3,0,8			; Delete Word
+        defb    10,4,$44,0,$96,$BB,$DF,$A9,0,10			; Delete to End of Line
+        defb    8,$3A,$59,0,$96,$A9,0,8				; Delete Line
+        defb    6,$3A,$C3,0,4,6					; 
+        defb    8,$3C,$4E,0,$CB,$A9,0,8				; Insert Line
+        defb    7,$16,$56,0,$EA,1,7				; Insert/Overtype
+        defb    7,$13,$53,0,$FF,0,7				; Swap Case
+        defb    8,$3F,$4A,0,$97,$EC,0,8				; Next Option
+        defb    16,$3E,$45,$4D,$46,0,$4D,$65,$6D,$8F,$D6,$46,$8D,$65,0,16	; Memory Free
+        defb    13,$3D,$45,$53,$4C,0,$53,$D9,$69,$84,$A9,1,13	; Split Line
+        defb    13,$3B,$45,$4A,$4C,0,$4A,$6F,$A3,$A9,$73,0,13	; Join Lines
         defb    1
-        defb    8,$40,$46,$4C,0,$E1,0,8
-        defb    9,$41,$46,$53,0,$BD,$65,0,9
+        defb    8,$40,$46,$4C,0,$E1,0,8				; Load
+        defb    9,$41,$46,$53,0,$BD,$65,0,9			; Save
         defb    0
 
-;       BB00
+.PrinterEdTopics
         defb    0
         defb    4,$DC,0,4
         defb    4,$FD,0,4
         defb    0
-
-;       BB0A
-        defb    0
-        defb    8,$26,$4A,0,$97,$EC,0,8                                 ; Next Option
-        defb    7,$0D,$E1,0,$D2,0,7                                     ; ENTER
-        defb    7,$1B,$1B,0,$B1,0,7                                     ; ESCAPE
-        defb    7,$FD,$FD,0,$A7,1,7                                     ; Cursor LRUD
-        defb    7,$FC,$FC,0,$A8,0,7
-        defb    7,$24,$FF,0,$DA,0,7
-        defb    7,$25,$FE,0,$DB,0,7
-        defb    14,$27,$FB,0,$50,$61,$67,$65,$20,$31,$2F,$32,1,14       ; Page  1/2
-        defb    14,$28,$FA,0,$50,$61,$67,$65,$20,$31,$2F,$32,0,14       ; Page  2/2
-        defb    24,$2E,$49,$53,$4F,0,$49,$53,$4F,$20,$54,$72            ; ISO   Translations
-        defb    $61,$6E,$73,$6C,$61,$74,$69,$6F,$6E,$73,0,24
-        defb    1
-        defb    8,$29,$46,$4C,0,$E1,0,8
-        defb    9,$2A,$46,$53,0,$BD,$65,0,9
-        defb    10,$2B,$46,$43,0,$4E,$ED,$65,0,10
-        defb    12,$2C,$46,$4E,$45,$57,0,$4E,$65,$77,0,12
-        defb    16,$2D,$46,$55,0,$B9,$64,$91,$82,$44,$72,$69,$76,$86,0,16
+.PrinterEdCommands
+        defm    0
+        defm    8,$26,$4A,0,$97,$EC,0,8                                 ; Next Option
+        defm    7,$0D,$E1,0,$D2,0,7                                     ; ENTER
+        defm    7,$1B,$1B,0,$B1,0,7                                     ; ESCAPE
+        defm    7,$FD,$FD,0,$A7,1,7                                     ; Cursor LRUD
+        defm    7,$FC,$FC,0,$A8,0,7
+        defm    7,$24,$FF,0,$DA,0,7
+        defm    7,$25,$FE,0,$DB,0,7
+        defm    14,$27,$FB,0,"Page 1/2",1,14       ; Page 1/2
+        defm    14,$28,$FA,0,"Page 1/2",0,14       ; Page 1/2  !! should be 2/2?
+        defm    24,$2E,$49,$53,$4F,0,"ISO Translations",0,24            ; ISO Translations
+        defm    1
+        defm    8,$29,$46,$4C,0,$E1,0,8
+        defm    9,$2A,$46,$53,0,$BD,$65,0,9
+        defm    10,$2B,$46,$43,0,$4E,$ED,$65,0,10
+        defm    12,$2C,$46,"NEW",0,"New",0,12
+        defm    16,$2D,$46,$55,0,$B9,$64,$91,$82,$44,$72,$69,$76,$86,0,16
         defb    0
 
 ;       BBAA
