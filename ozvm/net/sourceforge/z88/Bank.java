@@ -1,7 +1,5 @@
 package net.sourceforge.z88;
 
-import java.io.*;
-
 /**
  * @author gstrube
  *
@@ -14,8 +12,9 @@ import java.io.*;
  */
 public class Bank {
 	public static final int RAM = 0;		// 32Kb, 128Kb, 512Kb, 1Mb
-	public static final int EPROM = 1;		// 32Kb, 128Kb & 256Kb
-	public static final int FLASH = 2;		// 1Mb Flash
+	public static final int ROM = 1;		// 128Kb 
+	public static final int EPROM = 2;		// 32Kb, 128Kb & 256Kb
+	public static final int FLASH = 3;		// 1Mb Flash
 	public static final int SIZE = 16384;	// Always 16384 bytes in a bank
 		
 	private int type;
