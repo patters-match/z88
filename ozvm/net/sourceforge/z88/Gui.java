@@ -10,7 +10,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
@@ -22,18 +21,18 @@ import javax.swing.UIManager;
  */
 public class Gui extends JFrame {
 
-	private javax.swing.JPanel z88Screen = null;  //  @jve:visual-info  decl-index=0 visual-constraint="344,19"
+	private javax.swing.JPanel z88Screen = null;  
 	private javax.swing.JMenuBar jJMenuBar = null;
-	private javax.swing.JMenu jMenu = null;  //  @jve:visual-info  decl-index=0 visual-constraint="70,150"
+	private javax.swing.JMenu jMenu = null;  
 	private javax.swing.JMenu jMenu1 = null;
-	private javax.swing.JPanel jPanel1 = null;  //  @jve:visual-info  decl-index=0 visual-constraint="365,177"
-	private javax.swing.JTextArea cmdOutput = null;  //  @jve:visual-info  decl-index=0 visual-constraint="674,10"
-	private javax.swing.JTextField jTextField = null;  //  @jve:visual-info  decl-index=0 visual-constraint="691,108"
-	private javax.swing.JTextArea rtmMessages = null;  //  @jve:visual-info  decl-index=0 visual-constraint="798,183"
-	private javax.swing.JFrame jFrame = null;  //  @jve:visual-info  decl-index=0 visual-constraint="705,105"
+	private javax.swing.JPanel jPanel1 = null;  
+	private javax.swing.JTextArea cmdOutput = null;  
+	private javax.swing.JTextField jTextField = null;  
+	private javax.swing.JTextArea rtmMessages = null;  
+	private javax.swing.JFrame jFrame = null;  
 	private javax.swing.JPanel jContentPane = null;
 	private javax.swing.JButton jButton = null;
-	private javax.swing.JScrollPane jScrollPane = null;  //  @jve:visual-info  decl-index=0 visual-constraint="845,488"
+	private javax.swing.JScrollPane jScrollPane = null;  
 	private javax.swing.JScrollPane jScrollPane1 = null;
 	private javax.swing.JScrollPane jScrollPane2 = null;
 	private javax.swing.JTextArea rtmOutputArea = null;
@@ -69,7 +68,6 @@ public class Gui extends JFrame {
 
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
-				System.out.println("windowClosing()");
 				System.exit(0);
 			}
 		});
@@ -84,7 +82,7 @@ public class Gui extends JFrame {
 			z88Screen = new javax.swing.JPanel();
 			z88Screen.setPreferredSize(new Dimension(640, 64));
 			z88Screen.setLayout(new BorderLayout());
-			z88Screen.setToolTipText("Use TAB key to get keyboard focus to this window.");
+			z88Screen.setToolTipText("Use F12 to get keyboard focus to this window.");
 			z88Screen.setFocusable(true);
 		}
 		return z88Screen;
