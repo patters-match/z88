@@ -103,6 +103,7 @@ DEFC VppBit = 1
                     CALL FlashEprBlockErase  ; erase top sector of card, and downwards...
                     JR   C, exit_FlashEprCardErase
                     DEC  B
+                    LD   A,B
                     CP   -1
                     JR   NZ, erase_28F_card_blocks
                     JR   exit_FlashEprCardErase
