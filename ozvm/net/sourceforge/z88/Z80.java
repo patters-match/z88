@@ -38,8 +38,6 @@ public abstract class Z80 {
     public Z80() {
         tstatesCounter = 0;
         instructionCounter = 0;
-		cachedInstruction = 0;
-		cachedOpcodes = 0;
 
         parity = new boolean[256];
         for (int i = 0; i < 256; i++) {
@@ -83,9 +81,6 @@ public abstract class Z80 {
     private boolean z80Halted = false;
 	private boolean z80Stopped = false;
     private boolean singleStepping = false;
-
-	private int cachedInstruction = 0;
-	private int cachedOpcodes = 0;
 
     private final int IM0 = 0;
     private final int IM1 = 1;
@@ -169,8 +164,6 @@ public abstract class Z80 {
 	}
 	
     public final void PC(int word) {
-		cachedInstruction = cachedOpcodes = 0;		// Program counter change invalidates the cache
-
         _PC = (char) word;
     }
 
@@ -418,7 +411,7 @@ public abstract class Z80 {
 
     /** Index register access */
     private final int ID_d() {
-        return ((ID() + (byte) nxtpcb()) & 0xffff);
+        return ((ID() + (byte) readByte(_PC++)) & 0xffff);
     }
 
     /** Stack access, push 16bit value */
@@ -437,29 +430,11 @@ public abstract class Z80 {
         return w;
     }
 
-    /** Program Counter Byte Access */
-    private final int nxtpcb() {
-    	if (cachedOpcodes == 0) {
-    		cachedOpcodes = 4;
-    		cachedInstruction = readWord(_PC) | (readWord(_PC+2) << 16);				// fetch and cache a new 4 bytes sequence
-    	}
-
-        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
-		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
-		cachedOpcodes--;					// one less instruction opcode		
-		_PC++;
-
-		return b;
-
-//		return readByte(_PC++);
-    }
 
 	/** Program Counter Word Access */
     private final int nxtpcw() {
-//		_PC += 2;
-//        return readWord(_PC - 2);
-    	
-    	return  nxtpcb() | (nxtpcb() << 8);  
+		_PC += 2;
+        return readWord(_PC - 2);    	
     }
 
     /** Reset all registers to power on state */
@@ -584,7 +559,7 @@ public abstract class Z80 {
             REFRESH(1);
 			instructionCounter++;
 
-            switch (nxtpcb()) {				// decode first byte from Z80 instruction cache
+            switch (readByte(_PC++)) {				// decode first byte from Z80 instruction cache
 
                 case 0 : /* NOP */ {
                         tstatesCounter += 4;
@@ -600,7 +575,7 @@ public abstract class Z80 {
 
                         B(b = qdec8(B()));
                         if (b != 0) {
-                            byte d = (byte) nxtpcb();
+                            byte d = (byte) readByte(_PC++);
                             PC((PC() + d) & 0xffff);
                             tstatesCounter += 13;
                         } else {
@@ -610,7 +585,7 @@ public abstract class Z80 {
                         break;
                     }
                 case 24 : /* JR dis */ {
-                        byte d = (byte) nxtpcb();
+                        byte d = (byte) readByte(_PC++);
                         PC((PC() + d) & 0xffff);
                         tstatesCounter += 12;
                         break;
@@ -618,7 +593,7 @@ public abstract class Z80 {
                     /* JR cc,dis */
                 case 32 : /* JR NZ,dis */ {
                         if (!Zset()) {
-                            byte d = (byte) nxtpcb();
+                            byte d = (byte) readByte(_PC++);
                             PC((PC() + d) & 0xffff);
                             tstatesCounter += 12;
                         } else {
@@ -629,7 +604,7 @@ public abstract class Z80 {
                     }
                 case 40 : /* JR Z,dis */ {
                         if (Zset()) {
-                            byte d = (byte) nxtpcb();
+                            byte d = (byte) readByte(_PC++);
                             PC((PC() + d) & 0xffff);
                             tstatesCounter += 12;
                         } else {
@@ -640,7 +615,7 @@ public abstract class Z80 {
                     }
                 case 48 : /* JR NC,dis */ {
                         if (!Cset()) {
-                            byte d = (byte) nxtpcb();
+                            byte d = (byte) readByte(_PC++);
                             PC((PC() + d) & 0xffff);
                             tstatesCounter += 12;
                         } else {
@@ -651,7 +626,7 @@ public abstract class Z80 {
                     }
                 case 56 : /* JR C,dis */ {
                         if (Cset()) {
-                            byte d = (byte) nxtpcb();
+                            byte d = (byte) readByte(_PC++);
                             PC((PC() + d) & 0xffff);
                             tstatesCounter += 12;
                         } else {
@@ -876,42 +851,42 @@ public abstract class Z80 {
 
                     /* LD *,N */
                 case 6 : /* LD B,n */ {
-                        B(nxtpcb());
+                        B(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 14 : /* LD C,n */ {
-                        C(nxtpcb());
+                        C(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 22 : /* LD D,n */ {
-                        D(nxtpcb());
+                        D(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 30 : /* LD E,n */ {
-                        E(nxtpcb());
+                        E(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 38 : /* LD H,n */ {
-                        H(nxtpcb());
+                        H(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 46 : /* LD L,n */ {
-                        L(nxtpcb());
+                        L(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 54 : /* LD (HL),n */ {
-                        writeByte(HL(), nxtpcb());
+                        writeByte(HL(), readByte(_PC++));
                         tstatesCounter += 10;
                         break;
                     }
                 case 62 : /* LD A,n */ {
-                        A(nxtpcb());
+                        A(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
@@ -1834,12 +1809,12 @@ public abstract class Z80 {
                         break;
                     }
                 case 211 : /* OUT (n),A */ {
-                        outByte(nxtpcb(), A(), A());
+                        outByte(readByte(_PC++), A(), A());
                         tstatesCounter += 11;
                         break;
                     }
                 case 219 : /* IN A,(n) */ {
-                        A(inByte(nxtpcb(), A()));
+                        A(inByte(readByte(_PC++), A()));
                         tstatesCounter += 11;
                         break;
                     }
@@ -2020,42 +1995,42 @@ public abstract class Z80 {
 
                     /* op A,N */
                 case 198 : /* ADD A,N */ {
-                        add_a(nxtpcb());
+                        add_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 206 : /* ADC A,N */ {
-                        adc_a(nxtpcb());
+                        adc_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 214 : /* SUB N */ {
-                        sub_a(nxtpcb());
+                        sub_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 222 : /* SBC A,N */ {
-                        sbc_a(nxtpcb());
+                        sbc_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 230 : /* AND N */ {
-                        and_a(nxtpcb());
+                        and_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 238 : /* XOR N */ {
-                        xor_a(nxtpcb());
+                        xor_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 246 : /* OR N */ {
-                        or_a(nxtpcb());
+                        or_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
                 case 254 : /* CP N */ {
-                        cp_a(nxtpcb());
+                        cp_a(readByte(_PC++));
                         tstatesCounter += 7;
                         break;
                     }
@@ -2118,7 +2093,7 @@ public abstract class Z80 {
 
         REFRESH(1);
 
-        switch (nxtpcb()) {
+        switch (readByte(_PC++)) {
 
             case 0 : /* NOP */
             case 1 :
@@ -2718,7 +2693,7 @@ public abstract class Z80 {
     private final int execute_cb() {
         REFRESH(1);
 
-        switch (nxtpcb()) {
+        switch (readByte(_PC++)) {
 
             case 0 : /* RLC B */ {
                     B(rlc(B()));
@@ -3809,7 +3784,7 @@ public abstract class Z80 {
 
         REFRESH(1);
 
-        switch (nxtpcb()) {
+        switch (readByte(_PC++)) {
 
             case 0 : /* NOP */
             case 1 :
@@ -4071,16 +4046,16 @@ public abstract class Z80 {
                 }
 
             case 38 : /* LD IDH,n */ {
-                    IDH(nxtpcb());
+                    IDH(readByte(_PC++));
                     return 11;
                 }
             case 46 : /* LD IDL,n */ {
-                    IDL(nxtpcb());
+                    IDL(readByte(_PC++));
                     return 11;
                 }
             case 54 : /* LD (ID+d),n */ {
                     int z = ID_d();
-                    writeByte(z, nxtpcb());
+                    writeByte(z, readByte(_PC++));
                     return 19;
                 }
 
@@ -4365,7 +4340,7 @@ public abstract class Z80 {
                     // Get index address (offset byte is first)
                     int z = ID_d();
                     // Opcode comes after offset byte
-                    int op = nxtpcb();
+                    int op = readByte(_PC++);
                     execute_id_cb(op, z);
                     // Bit instructions take 20 T states, rest 23
                     return (((op & 0xc0) == 0x40) ? 20 : 23);
