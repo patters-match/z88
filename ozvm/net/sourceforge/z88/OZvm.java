@@ -249,24 +249,20 @@ public class OZvm {
 
 				if (arg<args.length && (args[arg].compareTo("kbl") == 0)) {
 					if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en")	== 0) {
-						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
+						Gui.getInstance().getUkLayoutMenuItem().doClick();
 						Gui.displayRtmMessage("Using English (UK) keyboard layout.");
 					}
 					if (args[arg+1].compareTo("fr")	== 0) {
-						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+						Gui.getInstance().getFrLayoutMenuItem().doClick();
 						Gui.displayRtmMessage("Using French keyboard layout.");
 					}
 					if (args[arg+1].compareTo("dk")	== 0) {
-						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+						Gui.getInstance().getDkLayoutMenuItem().doClick();
 						Gui.displayRtmMessage("Using Danish keyboard layout.");
 					}
-					if (args[arg+1].compareTo("se")	== 0) {
-						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
-						Gui.displayRtmMessage("Using Swedish keyboard layout.");
-					}
-					if (args[arg+1].compareTo("fi")	== 0) {
-						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
-						Gui.displayRtmMessage("Using Finish keyboard layout.");
+					if (args[arg+1].compareTo("se")	== 0 | args[arg+1].compareTo("fi")	== 0) {
+						Gui.getInstance().getSeLayoutMenuItem().doClick();
+						Gui.displayRtmMessage("Using Swedish/Finish keyboard layout.");
 					}
 					arg+=2;
 					continue;
