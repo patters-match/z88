@@ -1,5 +1,6 @@
 package net.sourceforge.z88;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.io.IOException;
@@ -971,11 +972,13 @@ public final class Blink extends Z80 {
 		byte bankBuffer[] = new byte[Bank.SIZE];
 		// allocate intermediate load buffer
 
-		InputStream is = jarConnection.getInputStream();		
+		InputStream is = jarConnection.getInputStream();
+		BufferedInputStream bis = new BufferedInputStream( is, Bank.SIZE );
+		
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
 			romBanks[curBank] = new Bank(Bank.ROM);
-			is.read(bankBuffer, 0, Bank.SIZE); 			// load 16K from file, sequentially
-			romBanks[curBank].loadBytes(bankBuffer, 0); // and load fully into bank
+			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
+			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
 
 		// complete ROM image now loaded into container
