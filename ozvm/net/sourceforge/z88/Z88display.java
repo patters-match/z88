@@ -555,6 +555,8 @@ public class Z88display extends JPanel {
 
 	/**
 	 * Render Z88 Display each X ms (runtime adjusted)...
+	 * If Z80 engine has stopped, then don't blink the cursor (which
+	 * otherwise gives a feel of a running Z80 engine).
 	 */
 	private class RenderPerMs extends TimerTask {
 		public void run() {
