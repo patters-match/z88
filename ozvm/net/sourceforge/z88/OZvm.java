@@ -31,6 +31,8 @@ public class OZvm {
 	private Thread z80Thread = null;
 	private boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
+	private JTextArea runtimeOutput = null;
+
 	/**
 	 * The Breakpoint manager instance.
 	 */
@@ -45,6 +47,8 @@ public class OZvm {
 	public OZvm(JPanel canvas, JTextField cmdInput, JTextArea cmdOutput, JTextArea rtmOutput) {
 		
 		try {
+			runtimeOutput = rtmOutput;
+			
 			z88 = new Blink(canvas, rtmOutput); 
 
 			z88.insertRamCard(32 * 1024, 0);	// 32K RAM in slot (standard machine)	
@@ -58,7 +62,7 @@ public class OZvm {
 			z88.setBreakPointManager(breakp);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("\n\nCouldn't initialize Z88 virtual machine.");
+			rtmOutput.append("\n\nCouldn't initialize Z88 virtual machine.\n");
 		}
 	}
 
@@ -103,7 +107,7 @@ public class OZvm {
 					     args[arg].compareToIgnoreCase("s3") != 0 &
 						 args[arg].compareToIgnoreCase("kbl") != 0 &
 						 args[arg].compareToIgnoreCase("debug") != 0) {
-						System.out.println("Loading '" + args[arg] + "' into ROM space in slot 0.");
+						runtimeOutput.append("Loading '" + args[arg] + "' into ROM space in slot 0.\n");
 						rom = new RandomAccessFile(args[0], "r");		
 						z88.loadRomBinary(rom);
 						rom.close();
@@ -113,7 +117,7 @@ public class OZvm {
 					
 					if (arg<args.length && (args[arg].compareToIgnoreCase("s2") == 0)) {
 						card = new RandomAccessFile(args[arg+1], "r");		
-						System.out.println("Loading '" + args[arg+1] + "' into slot 2.");
+						runtimeOutput.append("Loading '" + args[arg+1] + "' into slot 2.\n");
 						z88.loadCardBinary(2, card);
 						card.close();					
 						arg+=2;
@@ -121,7 +125,7 @@ public class OZvm {
 					}
 
 					if (arg<args.length && (args[arg].compareToIgnoreCase("s3") == 0)) {
-						System.out.println("Loading '" + args[arg+1] + "' into slot 3.");
+						runtimeOutput.append("Loading '" + args[arg+1] + "' into slot 3.\n");
 						card = new RandomAccessFile(args[arg+1], "r");		
 						z88.loadCardBinary(3, card);
 						card.close();
@@ -138,23 +142,23 @@ public class OZvm {
 					if (arg<args.length && (args[arg].compareToIgnoreCase("kbl") == 0)) {
 						if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en") == 0) {
 							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
-							System.out.println("Using English (UK) keyboard layout.");
+							runtimeOutput.append("Using English (UK) keyboard layout.\n");
 						}
 						if (args[arg+1].compareToIgnoreCase("fr") == 0) {
 							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
-							System.out.println("Using French keyboard layout.");
+							runtimeOutput.append("Using French keyboard layout.\n");
 						}
 						if (args[arg+1].compareToIgnoreCase("dk") == 0) {
 							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
-							System.out.println("Using Danish keyboard layout.");
+							runtimeOutput.append("Using Danish keyboard layout.\n");
 						}
 						if (args[arg+1].compareToIgnoreCase("se") == 0) {
 							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
-							System.out.println("Using Swedish keyboard layout.");
+							runtimeOutput.append("Using Swedish keyboard layout.\n");
 						}
 						if (args[arg+1].compareToIgnoreCase("fi") == 0) {
 							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
-							System.out.println("Using Finish keyboard layout.");
+							runtimeOutput.append("Using Finish keyboard layout.\n");
 						}
 						arg+=2;	
 						continue;				
@@ -163,7 +167,7 @@ public class OZvm {
 			}			
 
 			if (loadedRom == false) {
-				System.out.println("No external ROM image specified, using default Z88.rom (V4.0 UK)");
+				runtimeOutput.append("No external ROM image specified, using default Z88.rom (V4.0 UK)\n");
 				z88.loadRomBinary(z88.getClass().getResource("/Z88.rom"));
 			}
 			return true;
@@ -561,6 +565,8 @@ public class OZvm {
 	}
 	
 	private Thread run() {
+		runtimeOutput.append("Z88 virtual machine was started.\n");
+		
 		Thread thread = new Thread() {
 			public void run() {
 				int breakpointProgramCounter = -1;
@@ -619,5 +625,4 @@ public class OZvm {
 	private void setBreakpointManager(Breakpoints breakpoints) {
 		breakp = breakpoints;
 	}
-
 }
