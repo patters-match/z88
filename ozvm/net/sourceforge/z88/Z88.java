@@ -26,12 +26,11 @@ import java.io.*;
 
 public class Z88 extends Z80 {
 
-	public static int BLINKREG_SR0 = 0xD0;
-	public static int BLINKREG_SR1 = 0xD1;
-	public static int BLINKREG_SR2 = 0xD2;
-	public static int BLINKREG_SR3 = 0xD3;
+	public static final int BLINKREG_SR0 = 0xD0;
+	public static final int BLINKREG_SR1 = 0xD1;
+	public static final int BLINKREG_SR2 = 0xD2;
+	public static final int BLINKREG_SR3 = 0xD3;
 
-	
 	public  int     refreshRate = 1;  // refresh every 'n' interrupts
 
 	private int     interruptCounter = 0;
@@ -56,9 +55,9 @@ public class Z88 extends Z80 {
 	
     /**
      * System bank for lower 8K of segment 0.
-     * References bank 0x00 or 0x20. 
+     * References bank 0x00 or 0x20 of slot 0. 
      */
-	private Bank RAMS;			
+	private Bank RAMS;
 
 	/**
 	 * Null bank. This is used in for unassigned banks,
@@ -67,6 +66,16 @@ public class Z88 extends Z80 {
 	 * write-protected (just as an empty bank in an Eprom).
 	 */
 	private Bank nullBank;
+
+	/**
+	 * The container for the current loaded card entities
+	 * in the Z88 memory system for slot 0, 1, 2 and 3.
+	 * 
+	 * Slot 0 will only keep a RAM Card in top 512K address space 
+	 * The ROM "Card" is only loaded once at OZvm boot 
+	 * and is never removed.
+	 */
+	private Bank slotCards[][];
 	
 	/**
 	 * Segment register array for SR0 - SR3
@@ -81,6 +90,19 @@ public class Z88 extends Z80 {
 	 */
 	private int sR[];	
 
+	/**
+	 * Blink Command register, port $B0
+	 */
+	private int COM;
+	private static final int BM_COMSRUN = 0x80;		// Bit 7, SRUN 
+	private static final int BM_COMSBIT = 0x40;		// Bit 6, SBIT
+	private static final int BM_COMOVERP = 0x20; 	// Bit 5, OVERP
+	private static final int BM_COMRESTIM = 0x10; 	// Bit 4, RESTIM
+	private static final int BM_COMPROGRAM = 0x08; 	// Bit 3, PROGRAM
+	private static final int BM_COMRAMS = 0x04; 	// Bit 2, RAMS
+	private static final int BM_COMVPPON = 0x02; 	// Bit 1, VPPON
+	private static final int BM_COMLCDON = 0x01; 	// Bit 0, LCDON
+	
 	
 	/**
 	 * Constructor.
@@ -96,13 +118,49 @@ public class Z88 extends Z80 {
 		sR = new int[4];					// the segment register SR0 - SR3
 		z88Memory = new Bank[256];			// The Z88 memory addresses 256 banks = 4MB!
 		nullBank = new Bank(Bank.EPROM);
+		slotCards = new Bank[4][];			// Instantiate the slot containers for Cards...
 		
 		// Initialize Z88 Memory address space.
-		for (int i=0; i<z88Memory.length; i++) z88Memory[i] = nullBank;
-		insertRamCard(128*1024, 0);	// 128K RAM in slot 0
+		for (int bank=0; bank<z88Memory.length; bank++) z88Memory[bank] = nullBank;
+		for (int slot=0; slot<4; slot++) slotCards[slot] = null; // nothing available in slots..
+		
+		insertRamCard(128*1024, 0);			// Insert 128K RAM in slot 0 (top 512K address space)
+	}
+
+	
+	public void hardReset() {
+		reset();				// reset Z80 registers
+		COM = 0;				// reset COM register
+		RAMS = z88Memory[0];	// point at ROM bank $00
+		
+		for (int segment=0; segment < sR.length; segment++) {
+			sR[segment] = 0;	// all segment registers points at ROM bank 0 
+		}
+
+		resetRam();				// reset memory of all available RAM in Z88 memory
+		execute();				// then full steam ahead... 
 	}
 
 
+	/**
+	 * Scan available slots for Ram Cards, and reset them..
+	 */
+	private void resetRam() {
+		for (int slot=0; slot<slotCards.length; slot++) {
+			// look at bottom bank in Card for type; only reset RAM Cards... 
+			if (slotCards[slot] != null && slotCards[slot][0].getType() == Bank.RAM) {
+				// reset all banks in Card of current slot
+				for (int cardBank=0; cardBank<slotCards[slot].length; cardBank++) {
+					Bank b = slotCards[slot][cardBank]; 
+					for (int bankOffset = 0; bankOffset<Bank.SIZE; bankOffset++) {
+						b.writeByte(bankOffset, 0);
+					}
+				}
+			}
+		}
+	}
+	
+	
 	/**
 	 * Insert RAM Card into Z88 memory system.
 	 * Size must be in modulus 32Kb (even numbered 16Kb banks).
@@ -128,7 +186,8 @@ public class Z88 extends Z80 {
 			ramBanks[curBank] = new Bank(Bank.RAM);
 		}
 	
-		loadCard(ramBanks, slot);	// load the physical card into Z88 memory
+		slotCards[slot] = ramBanks;		// remember Ram Card for future reference...
+		loadCard(ramBanks, slot);		// load the physical card into Z88 memory
 	}
 
 
@@ -308,7 +367,7 @@ public class Z88 extends Z80 {
 	 * disassembly.
 	 */
 	public void disassemble( int addr ) {
-		String dzOpcode[] = new String[1];
+		final String dzOpcode[] = new String[1];
 		
 		dz.getInstrAscii(dzOpcode, addr, true);
 		System.out.println(dzOpcode[0]);	// display executing instruction in shell
@@ -347,6 +406,16 @@ public class Z88 extends Z80 {
 	 */
 	public void outByte( int port, int outByte) {
 		switch(port) {
+			case 0xB0:	// COM
+				COM = outByte;
+				if ( (COM & BM_COMRAMS) == BM_COMRAMS) 
+					// RAM is bound into lower 8K of segment 0
+					RAMS = z88Memory[0x20];
+				else
+					// ROM bank 0 is bound into lower 8K of segment 0
+					RAMS = z88Memory[0x00];
+				break;
+				
 			case 0xD0:	// SR0
 				bindBank(0, outByte);
 				break;
