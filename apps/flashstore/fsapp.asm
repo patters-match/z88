@@ -4,7 +4,7 @@
 ; FlashStore, Application edition, V1.6.x
 ; (C) Gunther Strube (gbs@users.sourceforge.net) & Thierry Peycru (pek@free.fr), 1997-2004
 ;
-; FlashStore is free software; you can redistribute it and/or modify it under the terms of the 
+; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; FlashStore is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -13,8 +13,8 @@
 ; You should have received a copy of the GNU General Public License along with FlashStore;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ; ********************************************************************************************
 
@@ -22,19 +22,20 @@
 ; *****************************************************************************
 ; DEBUGGING OPTION:
 ;
-; FlashStore may be executed by Intuition debugger application (#ZI) and run in
-; the debugger "ugly" application RAM.
+; FlashStore may be executed inside the "debugapp" application that can be installed
+; into OZvm
 ;
 ; Compile as:
 ;    mpm -DDEBUG -a -i fsapp
 ;
-; The code will be compiled for $8000, removing application header. 
-; Activate #ZI, then:
-;    1) use .ML 8000
-;    2) PC 8000
-;    3) .T
-;    4) .B <address>
-;    and FlashStore is ready to be monitored!
+; The code will be compiled for $C200, removing application header.
+; Run OZvm and install debugapp:
+;       java -jar z88.jar s2 debugapp.epr epr3 1024 28f debug
+; (The example also inserts a new 1Mb Intel Flash Eprom in slot3)
+; You're now in debug mode. use the ldc command, eg.
+;       ldc fsapp.bin bfc200
+;       (load the binary application code at ORG C200 in top bank of slot 2)
+; type the run command, and OZvm boots the virtual Z88 system.
 ;
 ; *****************************************************************************
 
@@ -73,8 +74,8 @@ lib FileEprFileSize           ; Return file size of current File Entry on File E
 lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
 
-if DEBUG
-     ORG $8000
+IF DEBUG
+     ORG $C200
 ELSE
      ORG $C000
 ENDIF
@@ -86,7 +87,7 @@ DEFVARS $2000
 {
      BufferStart    ds.b 1024
      buf1           ds.b $40
-     buf2           ds.b $80            ; filename buffer...     
+     buf2           ds.b $80            ; filename buffer...
      buf3           ds.b $80            ; for expanded filenames
 }
 DEFC BufferSize = buf1-BufferStart      ; buffer for file I/O at $2000
@@ -96,7 +97,7 @@ IF DEBUG
 ELSE
      DEFVARS $1FFE - SafeWorkSpaceSize
 ENDIF
-{         
+{
      linecnt        ds.b 1
      nlen           ds.b 1              ; length of filename
      flen           ds.l 1              ; length of file (32bit)
@@ -155,7 +156,7 @@ IF !DEBUG
 .NameEnd0           DEFB $FF
 .DOREnd0
 
-.FS_Help            DEFM $7F 
+.FS_Help            DEFM $7F
                     DEFM "Freeware utility by",$7F
                     DEFM "Thierry Peycru (Zlab) & Gunther Strube (InterLogic)",$7F
                     DEFM $7F
@@ -264,7 +265,7 @@ ENDIF
                     ld   hl, menu_ms
                     call_oz(Gn_Sop)
                     RET
-.cmds_banner        
+.cmds_banner
                     defm "Commands",0
 .menu_ms
                     defm 1,"3@",32,32
@@ -297,7 +298,7 @@ ENDIF
 ; Scan external slots and display available File Eprom's from which the
 ; user selects an item.
 ;
-; If no File Eprom Area was found, then slot 3 is examined for a Flash 
+; If no File Eprom Area was found, then slot 3 is examined for a Flash
 ; Eprom Card to be created with a File Eprom Area (whole card or part).
 ; If found and user acknowledges, then slot 3 will be created with a File
 ; Eprom Area and selected as default.
@@ -330,12 +331,12 @@ ENDIF
                          ld   (hl),0         ; indicate no file eprom
                          inc  hl
                          push hl
-.next_slot                         
+.next_slot
                     inc  c
                     ld   a,c
                     cp   4
                     jr   nz, poll_loop
-                    
+
                     pop  hl
                     ld   hl, availslots
                     ld   (hl),e              ; store total of File Eprom's found
@@ -357,16 +358,16 @@ ENDIF
                          call DispErrMsg
                          scf
                          ret
-.chip_found                                       ; a Flash Eprom was found, 
+.chip_found                                       ; a Flash Eprom was found,
                          CALL greyscr
-                         CALL DispCtlgWindow 
+                         CALL DispCtlgWindow
                          call format_main         ; format Flash Eprom for new File Eprom Area
                          ret
 .select_slot
                     ld   a,e
                     cp   1
                     jr   z, select_default
-                    
+
                     call SelectSlot          ; User selects a slot from a list...
                     jr   c, check_slot3      ; user aborted selection, ask user to create file area
                     ret
@@ -386,7 +387,7 @@ ENDIF
                     ld   (curslot),a         ; current slot selected...
                     cp   a
                     ret
-                    
+
 
 ; ****************************************************************************
 ;
@@ -401,13 +402,13 @@ ENDIF
 
                     ld   a,1                 ; begin from slot 1
                     ld   (curslot),a
-.disp_slot_loop     
+.disp_slot_loop
                     ld   hl, slottxt
                     call_oz(Gn_Sop)
                     ld   a,(curslot)
                     add  a,48
                     call_oz(OS_Out)          ; display slot number
-                    ld   a, ' ' 
+                    ld   a, ' '
                     call_oz(OS_Out)
 
                     ld   a,(curslot)
@@ -479,7 +480,7 @@ ENDIF
                     CALL DispEprSize
 
                     ld   hl,size2delm
-                    call_oz(Gn_Sop)               
+                    call_oz(Gn_Sop)
                     ret
 
 .selslot_banner     defm "SELECT FILE AREA",0
@@ -504,7 +505,7 @@ ENDIF
                CP   IN_ESC                        ; ESC?
                JR   Z, abort_select
                CP   IN_ENT                        ; ENTER?
-               RET  Z                             
+               RET  Z
                CP   IN_DWN                        ; Cursor Down ?
                JR   Z, MVbar_down
                CP   IN_UP                         ; Cursor Up ?
@@ -517,7 +518,7 @@ ENDIF
                LD   (HL),A
                CP   A
                RET
-.abort_select  
+.abort_select
                SCF
                RET
 .MVbar_down    LD   A,(HL)                        ; get Y position of menu bar
@@ -631,15 +632,15 @@ ENDIF
                          ld   hl, nofepr_ms
                          call_oz (Gn_Sop)
                          ret
-.cont_statistics                   
+.cont_statistics
                     ld   a,(curslot)
                     ld   c,a
-                    push bc                       ; preserve slot number                    
+                    push bc                       ; preserve slot number
                     call FileEprCntFiles          ; files on current File Eprom
                     add  hl,de                    ; total files = active + deleted
                     ld   (file),hl
                     ld   (fdel),de
-     
+
                     pop  bc
                     push bc
                     call FileEprFirstFile
@@ -790,7 +791,7 @@ ENDIF
 ;
 ; Display slot selection window to choose another Flash Eprom Device
 ;
-.device_main        
+.device_main
                     CALL greyscr
                     ld   a,(curslot)
                     ld   c,a
@@ -799,7 +800,7 @@ ENDIF
                     pop  bc
                     jp   c, suicide          ; no File Eprom's available, kill FlashStore popdown...
                     ret  z                   ; user selected a device...
-                    
+
                     ld   a,c
                     ld   (curslot),a         ; user aborted selection, restore original slot...
                     ret
@@ -1174,7 +1175,7 @@ ENDIF
 
 .fetch_br           DEFM "FETCH FROM EPROM",0
 .exct_ms            DEFM " Enter exact filename (no wildcard).",0
-                                        
+
 
 
 ; **************************************************************************
@@ -1194,10 +1195,10 @@ ENDIF
                     ld   a,c
                     or   d
                     or   e                   ; is file empty (zero lenght)?
-                    jr   nz, get_name        
+                    jr   nz, get_name
                          ld   a, RC_EOF
                          scf                 ; indicate empty file...
-                         ret                      
+                         ret
 .get_name
                     ld   hl,ffet_ms          ; get destination filename from user...
                     CALL_OZ gn_sop
@@ -1330,7 +1331,7 @@ ENDIF
                     LD   C,A
                     CALL FileEprFirstFile    ; get pointer to first file on Eprom
                     JR   C, no_files         ; Ups - the card was empty or not present...
-.restore_loop       
+.restore_loop
                     CALL FileEprFilename     ; get filename at (DE)
                     JR   C, restore_completed; all file entries scanned...
                     JR   Z, fetch_next       ; File Entry marked as deleted, get next...
@@ -1365,7 +1366,7 @@ ENDIF
                          jr   nz, restore_file    ; file doesn't exist (or in use)
                               POP  HL
                               POP  BC
-                              CP   A         ; restore command aborted.                             
+                              CP   A         ; restore command aborted.
                               RET
 .restore_ignored
                     CALL_OZ(Gn_Nln)
@@ -1461,7 +1462,7 @@ ENDIF
 ;    Fc = 1,
 ;         file doesn't exists or
 ;         or user aborted with ESC (during Yes/No) prompt.
-;         
+;
 ;
 ; Registers changed after return:
 ;    ..BCDEHL/IXIY same
@@ -1632,7 +1633,7 @@ ENDIF
 .new_page
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprRequest                   
+                    call FileEprRequest
                     jr   nc,ok_new_page
                     ld   a,rc_fail
                     CALL_OZ gn_err
@@ -1687,18 +1688,18 @@ ENDIF
                     call FormatCard
                     ret  c
                     ret  nz
-                    
+
                     call save_null_file           ; save the hidden "null" file to avoid FE bootstrapping
                     ret  c                        ; return errors state
-                    
+
                     ld   a,3
                     ld   (curslot),a              ; automatically select slot 3 as new default...
                     cp   a                        ; otherwise indicate "Flash Eprom formatted"...
                     ret
-.FormatCard                   
+.FormatCard
                     call CheckBatteryStatus       ; don't format Flash Eprom
                     ret  c                        ; if Battery Low is enabled...
-                    
+
                     ld   c,3
                     CALL FlashEprCardId
                     JP   C, unkn_chip             ; Ups - Flash Eprom not available in slot 3
@@ -1714,11 +1715,11 @@ ENDIF
                          JR   C, displ_noaplepr
                               LD   HL,fmt2_ms     ; "No File Area on Application Rom."
                               CALL sopnln
-                              JR   ackn_format                                                 
+                              JR   ackn_format
 .displ_noaplepr
                               LD   HL,fmt1_ms     ; "No File Area on Flash Eprom."
                               CALL sopnln
-                              JR   ackn_format                   
+                              JR   ackn_format
 .area_found
                          LD   HL,fmt3_ms          ; "Re-format File Area (All data will be lost)."
                          CALL sopnln
@@ -1767,8 +1768,8 @@ ENDIF
                     ld   c, MS_S1            ; use segment 1 to blow the bytes...
                     ld   ix,6                ; Initial File Entry is 6 bytes long...
                     call FlashEprWriteBlock
-                    ret                 
-.nullfile           
+                    ret
+.nullfile
                     defb 1, 0, 0, 0, 0, 0
 
 .hdrerr_ms          defm "Header not written properly!",$0D,$0A,0
@@ -1782,7 +1783,7 @@ ENDIF
 .fmt2_ms            DEFM 1,"BNo File Area on Application Rom.",1,"B",0
 .fmt3_ms            DEFM 1,"BRe-format File Area in slot 3 (All data will be lost).",1,"B",0
 .cbad_ms            defm 1,"BFlash Eprom not found in slot 3.",1,"B",0
-                    
+
 
 
 ; ****************************************************************************
@@ -1816,7 +1817,7 @@ ENDIF
 .cls
                     PUSH AF
                     PUSH HL
-                    
+
                     LD   HL, clsvdu
                     CALL_OZ Gn_Sop
 
@@ -1902,7 +1903,7 @@ ENDIF
 
 ; ****************************************************************************
 ;
-; Convert integer in HL (or BC) to Ascii string, which is written to (buf1) 
+; Convert integer in HL (or BC) to Ascii string, which is written to (buf1)
 ; and null-terminated.
 ;
 ; HL points at Ascii string, null-terminated.
@@ -2114,7 +2115,7 @@ ENDIF
                     CALL_OZ(Gn_Sop)
                     RET
 
-.InterLogic_logo    defb 1, 138, '=', 'L', @10000000, @10000000, @10000000, @10000000, @10000000, @10000000, @10000000, @10000000 
+.InterLogic_logo    defb 1, 138, '=', 'L', @10000000, @10000000, @10000000, @10000000, @10000000, @10000000, @10000000, @10000000
                     defb 1, 138, '=', 'M', @10000000, @10000000, @10000000, @10010000, @10010001, @10000010, @10010000, @10010000
                     defb 1, 138, '=', 'N', @10000000, @10000000, @10000000, @10000000, @10000000, @10101011, @10010000, @10000000
                     defb 1, 138, '=', 'O', @10000000, @10000000, @10000000, @10100000, @10100001, @10111011, @10100001, @10100000
