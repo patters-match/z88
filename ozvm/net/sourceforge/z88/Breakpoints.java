@@ -29,25 +29,34 @@ import java.util.Iterator;
  */
 public class Breakpoints {
     private Map breakPoints = null;
-    private Blink blink;
+    private Memory memory = null;
 	private Breakpoint bpSearchKey = null;
 
+	private static final class singletonContainer {
+		static final Breakpoints singleton = new Breakpoints();  
+	}
+	
+	public static Breakpoints getInstance() {
+		return singletonContainer.singleton;
+	}
+	
     /**
      * Just instantiate this Breakpoint Manager
      */
-    Breakpoints(Blink b) {
+    public Breakpoints() {
         breakPoints = new HashMap();
-        blink = b;
+        memory = Memory.getInstance();
         
 		bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (to be used later) 
     }
 
     /**
-     * Instantiate this Breakpoint Manager with the
+     * Instantiate the Breakpoint Manager with the
      * first breakpoint.
      */
-    Breakpoints(Blink b, int offset, int bank) {
-        this(b);
+    Breakpoints(int offset, int bank) {
+    	breakPoints = new HashMap();
+        memory = Memory.getInstance();
         toggleBreakpoint(offset, bank);
     }
 
@@ -197,9 +206,9 @@ public class Breakpoints {
                 int bank = bp.getBpAddress() >>> 16;
 
                 if (bp.stop == true) {
-					blink.setByte(offset, bank, 0x40);	// use "LD B,B" as stop breakpoint
+					memory.setByte(offset, bank, 0x40);	// use "LD B,B" as stop breakpoint
                 } else {
-					blink.setByte(offset, bank, 0x49);	// use "LD C,C" as display breakpoint
+					memory.setByte(offset, bank, 0x49);	// use "LD C,C" as display breakpoint
                 }
             }
         }
@@ -224,7 +233,7 @@ public class Breakpoints {
                 int bank = bp.getBpAddress() >>> 16;
 
                 // restore the original opcode bit pattern...
-                blink.setByte(offset, bank, bp.getCopyOfOpcode() & 0xFF);
+                memory.setByte(offset, bank, bp.getCopyOfOpcode() & 0xFF);
             }
         }
     }
@@ -249,7 +258,7 @@ public class Breakpoints {
             addressKey = (bank << 16) | offset;
 
             // the original 1 byte opcode bit pattern in Z88 memory.
-            setCopyOfOpcode(blink.getByte(offset, bank));
+            setCopyOfOpcode(memory.getByte(offset, bank));
         }
 
 		/**
@@ -265,7 +274,7 @@ public class Breakpoints {
 			addressKey = bpAddress;
 
 			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(blink.getByte(bpAddress));
+			setCopyOfOpcode(memory.getByte(bpAddress));
 		}
 
 		Breakpoint(int offset, int bank, boolean stopAtAddress) {
@@ -276,7 +285,7 @@ public class Breakpoints {
 			addressKey = (bank << 16) | offset;
 
 			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(blink.getByte(offset, bank));
+			setCopyOfOpcode(memory.getByte(offset, bank));
 		}
 
         private void setBpAddress(int bpAddress) {
