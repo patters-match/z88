@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId, FlashEprWriteBlock
+     LIB SafeSegmentMask, FlashEprCardId, FlashEprWriteBlock
 
      INCLUDE "saverst.def"
      INCLUDE "memory.def"
@@ -122,7 +122,10 @@
 
                     PUSH IX
                     POP  DE                       ; start of File Eprom Header
-                    LD   C, MS_S1                 ; use segment 1 to blow bytes
+                    CALL SafeSegmentMask          ; get a safe segment (not this executing segment!)
+                    RLCA
+                    RLCA                     
+                    LD   C,A                      ; use segment x to blow bytes
                     LD   HL, $3FC0                ; blown at address B,$3FC0
                     LD   IY, 64                   ; of size
 
