@@ -48,7 +48,6 @@
      xref IntAscii                 ; filestat.asm
      xref DispErrMsg               ; errmsg.asm
      xref disp_no_filearea_msg     ; errmsg.asm
-     xref DispIntelSlotErr         ; errmsg.asm
      xref ReportStdError           ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
      xref disp_empty_flcard_msg    ; errmsg.asm
@@ -191,7 +190,6 @@
 
                     CALL GetDefaultPanelRamDev    ; Get the default RAM device slot number from the system Panel
                     CALL greyscr
-                    CALL DispCtlgWindow
 
                     CALL PollFileEproms      ; user selects a File Eprom Area in one of the ext. slots.
                     JP   C, suicide          ; no File Area available, or Flash didn't have write support in found slot
@@ -311,6 +309,11 @@
 ; *************************************************************************************
 ;
 .DispCmdWindow
+                    push af
+                    call dispcw
+                    pop  af
+                    ret
+.dispcw
                     ld   a,'1' | 128
                     ld   bc,$0000
                     ld   de,$080F
@@ -580,24 +583,24 @@
 ; *************************************************************************************
 ; Text & VDU constants.
 ;
-.catalog_banner     DEFM "FLASHSTORE V1.7.rc3, (C) 1997-2004 Zlab & InterLogic",0
+.catalog_banner     DEFM "FLASHSTORE V1.7.rc5, (C) 1997-2005 Zlab & InterLogic",0
 
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
-                    DEFM 1, "2-G", 1, "2+T", 1,"3@",32,32
-                    DEFM " CATALOG FILES",$0D,$0A
-                    DEFM " SELECT CARD",$0D,$0A
-                    DEFM " SAVE FILES",$0D,$0A
-                    DEFM " FETCH FILES",$0D,$0A
-                    DEFM " BACKUP RAM",$0D,$0A
-                    DEFM " RESTORE RAM",$0D,$0A
-                    DEFM " DEFAULT RAM"
+                    DEFM 1, "2-G", 1, "2+T"
+                    DEFM 1,"3@",32+1,32+0, "CATALOG FILES"
+                    DEFM 1,"3@",32+1,32+1, "SELECT CARD"
+                    DEFM 1,"3@",32,32+2, " SAVE FILES    "
+                    DEFM 1,"3@",32+1,32+3, "FETCH FILES"
+                    DEFM 1,"3@",32,32+4, " BACKUP RAM    "
+                    DEFM 1,"3@",32+1,32+5, "RESTORE RAM"
+                    DEFM 1,"3@",32+1,32+6, "DEFAULT RAM"
                     DEFM 1,"2-C"
                     defb 0
 
 .grey_wrercmds      DEFM 1, "2+G"
-                    DEFM 1, "3@", 32, 32+2, 1, "2E", 32+12
-                    DEFM 1, "3@", 32, 32+4, 1, "2E", 32+12
+                    DEFM 1, "3@", 32+0, 32+2, 1, "2E", 32+15
+                    DEFM 1, "3@", 32+0, 32+4, 1, "2E", 32+15
                     DEFM 1, "2-G", 0
 
 .grey_msg           DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G+",0
