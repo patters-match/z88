@@ -23,15 +23,21 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import com.imagero.util.ThreadManager;
+
 import net.sourceforge.z88.Blink;
+import net.sourceforge.z88.Gui;
 import net.sourceforge.z88.Memory;
 
 /**
@@ -53,12 +59,6 @@ public class Z88display extends JLabel implements MouseListener {
 
 	/** The Z88 display height in pixels */
 	public static final int Z88SCREENHEIGHT = 64;
-
-	/** The image (based on pixel data array) to be rendered onto Swing Component */
-	private BufferedImage image = null;
-
-	/** Screen dump counter */
-	private int scrdumpCounter = 0;
 
 	/** Size of Z88 Screen Base File (in bytes) */
 	private static final int SBRSIZE = 2048;
@@ -108,6 +108,33 @@ public class Z88display extends JLabel implements MouseListener {
 	/** Lores cursor (6x8 pixel inverse flashing) */
 	private static final int attrCursor = attrHrs | attrRev | attrFls;
 
+	/** separate Thread to manage movie recording of screen activity */
+	private ThreadManager movieHelper = new ThreadManager(1);  
+
+	/** output stream to animated Gif movie */
+	private OutputStream movieOutputStream;
+	
+	/** The Gif frame that will be updated with the proper display delay */
+	private DirectGif89Frame previousFrame;
+	
+	/** The image (based on pixel data array) to be rendered onto Swing Component */
+	private BufferedImage image = null;
+
+	/** Screen dump counter */
+	private int scrdumpCounter = 0;
+
+	/** Animated Gif Movie Counter */
+	private int movieCounter = 0;
+
+	/** The currently recording screen movie */
+	private Gif89Encoder screenMovie; 
+
+	/** 
+	 * Accumulated time in ms since last displayed frame,
+	 * produced by renderDisplay().
+	 */
+	private int frameDelay = 0;
+	
 	/** Cyclic counter that identifies number of frames displayed per second */
 	private int frameCounter = 0;
 
@@ -119,6 +146,9 @@ public class Z88display extends JLabel implements MouseListener {
 
 	/** The internal screen frame renderer */
 	private RenderPerMs renderPerMs = null;
+
+	/** identifies whether screen activity is being recorded or not */	
+	private boolean recordingMovie = false;
 
 	/** is the screen being updated at the moment, or not... */	
 	private boolean renderRunning = false;
@@ -144,6 +174,7 @@ public class Z88display extends JLabel implements MouseListener {
 	/** bank references to the font pixels in OZ */
 	private int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 
+	
 	/** constructor */
 	private Z88display() {
 		super();
@@ -204,14 +235,83 @@ public class Z88display extends JLabel implements MouseListener {
 		BufferedImage img = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
 		img.setRGB(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, 0,	Z88SCREENWIDTH);
 		
-		File file = new File("z88screen" + scrdumpCounter++ + ".png");
+		File file = new File(System.getProperty("user.dir") + File.separator + 
+								"z88screen" + scrdumpCounter++ + ".png");
 		try {
 			ImageIO.write(img, "PNG", file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Enable/disable recording of Z88 screen into GIF movie.
+	 * @throws IOException
+	 * @throws IOException
+	 */
+	public void toggleMovieRecording() {
+		if (recordingMovie == false) {
+			// enable screen recording
+			try {
+				previousFrame = null;
+				screenMovie = new Gif89Encoder();
+				String movieFilename = System.getProperty("user.dir") + File.separator + 
+										"z88movie" + movieCounter++ + ".gif";
+				movieOutputStream = new BufferedOutputStream(new FileOutputStream(movieFilename), 128*1024);
+				recordingMovie = true;
+				Gui.displayRtmMessage("Screen recording to '" + movieFilename + "' activated.");
+			} catch (IOException e) {
+				screenMovie = null;
+				movieOutputStream = null;
+				recordingMovie = false;
+				System.out.println("Could not create animated Gif file.");
+			}			
+		} else {
+			// stop screen recording, and close current recorded GIF file 
+			recordingMovie = false;
+			try {
+				//write GIF TRAILER
+				movieOutputStream.write((int) ';');
+				movieOutputStream.close();
+				Gui.displayRtmMessage("Screen recording stopped.");
+			} catch (IOException e) {
+				Gui.displayRtmMessage("An error occurred when screen recording was stopped.");
+			}
+			screenMovie = null;			
+			movieOutputStream = null;
+		}
+	}
 
+	/**
+	 * Add current rendered screen frame to animated Gif movie.
+	 * 
+	 * @param img
+	 * @param frameDelay
+	 */
+	private void recordFrame(final int scrWidth, final int scrHeight, final int[] screen, final int frameDelay) {		
+		movieHelper.addTask( new Runnable() {
+			public void run() {
+				try {
+					DirectGif89Frame newFrame = new DirectGif89Frame(scrWidth, scrHeight, screen);
+					
+					if (previousFrame == null) {
+						// first frame in movie 
+						previousFrame = newFrame;
+					} else { 								
+						previousFrame.setDelay(frameDelay); // define the display delay of this frame on the previous frame
+						previousFrame.setDisposalMode(Gif89Frame.DM_LEAVE);
+						previousFrame.setInterlaced(false);
+							
+						screenMovie.encodeFrame(movieOutputStream, previousFrame);
+						previousFrame = newFrame;
+					}							
+				} catch (IOException e) {
+						System.out.println("Error occurred when writing screen frame to Gif file.");
+				}	
+			}
+		});							
+	}
+			
 	/**
 	 * Get a copy of the current screen frame
 	 * @return BufferedImage
@@ -317,7 +417,13 @@ public class Z88display extends JLabel implements MouseListener {
 		if (screenChanged == true) {
 			// pixels changed on the screen. Create an image, based on pixel
 			// matrix, and render it to the Awt/Swing component
-			renderImageToComponent();
+			
+			renderImageToComponent();			
+			if (recordingMovie == true)
+				//recordFrame(Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, frameDelay/10);
+				recordFrame(Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, frameDelay/10);
+
+			frameDelay = 0; // new frame to be displayed, reset acc. time frame counter 			
 		}
 
 		Thread.yield();
@@ -586,6 +692,7 @@ public class Z88display extends JLabel implements MouseListener {
 			cursorInverse = false; // rest of the time, cursor is invisible
 	}
 
+	
 	/**
 	 * Render Z88 Display each X ms (runtime adjusted) as long as the Z80 engine
 	 * is running (The Z80 engine automatically stops the Z88 Display renderer,
@@ -593,6 +700,8 @@ public class Z88display extends JLabel implements MouseListener {
 	 */
 	private class RenderPerMs extends TimerTask {		
 		public void run() {
+			frameDelay += (1000 / fps);
+			
 			// update cursor flash and ordinary flash counters
 			if (blink.isZ80running() == true)
 				flashCounter();
