@@ -12,11 +12,12 @@ import gameframe.GameFrameException;
  * Main entry of the Z88 virtual machine.
  * 
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
- * $Id$
+ * CMDLINEPROMPTId: OZvm.java,v 1.41 2003/07/12 13:39:47 gstrube Exp CMDLINEPROMPT
  * 
  */
 public class OZvm {
-
+	private static final String CMDLINEPROMPT = "OZvm$";
+	
 	Blink z88 = null;
     DisplayBlinkStatus blinkStatus;
 	private MonitorZ80 z80Speed = null;
@@ -226,7 +227,7 @@ public class OZvm {
 			}
 				
 			if (cmdLineTokens[0].length() == 0) {
-				System.out.print("$");	// the command line prompt...
+				System.out.print(CMDLINEPROMPT);	// the command line prompt...
 				cmdline = in.readLine();
 				if (cmdline == null) 
 					cmdLineTokens[0] = "exit";	// program aborted during input...
@@ -282,7 +283,7 @@ public class OZvm {
                 dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 			} else {
 				System.out.println("Illegal argument.");
-				System.out.print("$");
+				System.out.print(CMDLINEPROMPT);
 				dzCmdline = in.readLine();
 				return dzCmdline;
 			}			
@@ -295,7 +296,7 @@ public class OZvm {
 				System.out.println(dzLine);
 			}
 			
-			System.out.print("$");
+			System.out.print(CMDLINEPROMPT);
 			dzCmdline = in.readLine();
 			if (dzCmdline == null) dzCmdline = "exit";	// program aborted during input...
 			
@@ -383,7 +384,7 @@ public class OZvm {
                 memAddr &= 0xFFFF;	// preserve local address look, makes it easier identify..
 			} else {
 				System.out.println("Illegal argument.");
-				System.out.print("$");
+				System.out.print(CMDLINEPROMPT);
 				memCmdline = in.readLine();
 				return memCmdline;
 			}			
@@ -396,7 +397,7 @@ public class OZvm {
 				System.out.println(memLine);
 			}
 			
-			System.out.print("$");
+			System.out.print(CMDLINEPROMPT);
 			memCmdline = in.readLine();
 			if (memCmdline == null) memCmdline = "exit";	// program aborted during input...
 			
