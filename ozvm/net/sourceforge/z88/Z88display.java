@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.TimerTask;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
@@ -262,15 +263,29 @@ public class Z88display extends JLabel implements MouseListener {
 	 * format is png. The screen dump is saved to directory location where OZvm
 	 * were executed.
 	 */
-	public void grabScreenFrame() {
+	public void grabScreenFrameToFile() {
+		BufferedImage img = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
+		img.setRGB(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, 0,	Z88SCREENWIDTH);
+		
 		File file = new File("z88screen" + scrdumpCounter++ + ".png");
 		try {
-			javax.imageio.ImageIO.write(image, "PNG", file);
+			ImageIO.write(img, "PNG", file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Get a copy of the current screen frame
+	 * @return BufferedImage
+	 */
+	public BufferedImage getScreenFrame() {
+		BufferedImage img = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
+		img.setRGB(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, 0,	Z88SCREENWIDTH);		
+
+		return img;
+	}
+	
 	private void renderNoScreenFrame() {
 		timeMs = System.currentTimeMillis();
 
