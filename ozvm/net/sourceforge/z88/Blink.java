@@ -497,16 +497,16 @@ public final class Blink extends Z80 {
 	 */
 	public int getBlinkKbd(int row) {
 		int keyColumn = 0xFF;	// Default to no keys pressed...
+
+        if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
+            // all rows are read by hardware when in snooze...
+            row = 0;
+        }
         
 		do {
             // F5 was pressed, get out of here!
             if (stopZ88 == true) return 0xFF;
-
-            if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
-                // in snooze, any keypress will get us out...
-                row = 0;
-            }
-
+            
             switch(row) {
                 case 0x7F:	// Row 01111111:
                             //			| D7     D6      D5      D4      D3      D2      D1      D0
@@ -564,26 +564,26 @@ public final class Blink extends Z80 {
                             keyColumn = keybRowA8;
                             break;
                 case 0x00:
-                    if (keybRowA15 != 0xFF) return keyColumn = keybRowA15; 
-                    if (keybRowA14 != 0xFF) return keyColumn = keybRowA14;
-                    if (keybRowA13 != 0xFF) return keyColumn = keybRowA13;
-                    if (keybRowA12 != 0xFF) return keyColumn = keybRowA12;
-                    if (keybRowA11 != 0xFF) return keyColumn = keybRowA11;
-                    if (keybRowA10 != 0xFF) return keyColumn = keybRowA10;
-                    if (keybRowA9 != 0xFF) return keyColumn = keybRowA9;
-                    if (keybRowA8 != 0xFF) return keyColumn = keybRowA8;
+                    if (keybRowA15 != 0xFF) { keyColumn = keybRowA15; }
+                    if (keybRowA14 != 0xFF) { keyColumn = keybRowA14; }
+                    if (keybRowA13 != 0xFF) { keyColumn = keybRowA13; }
+                    if (keybRowA12 != 0xFF) { keyColumn = keybRowA12; }
+                    if (keybRowA11 != 0xFF) { keyColumn = keybRowA11; }
+                    if (keybRowA10 != 0xFF) { keyColumn = keybRowA10; }
+                    if (keybRowA9 != 0xFF) { keyColumn = keybRowA9; }
+                    if (keybRowA8 != 0xFF) { keyColumn = keybRowA8; }
                     break;
             }		
-
-            if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
-                // Z80 snoozes... (we wait for 5ms, then ask again for key press from Blink)
+            
+            if ( (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xff ) {
+                // Z80 snoozes... (wait a little bit, then ask again for key press from Blink)
                 // (interrupts still occurs in Blink where keyboard is scanned each 10ms)
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.out);
                 }			
-            }
+            }           
         }
 		// Only get out of loop if we have INT.KWAIT (snooze) and a key was pressed...
 		while( singleSteppingMode() == false && (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xFF);
@@ -966,15 +966,15 @@ public final class Blink extends Z80 {
 				break;
 				
 			case 0xB5:
-                if ((INT & BM_INTGINT) == BM_INTGINT) {
-                    if ((INT & BM_INTTIME) == BM_INTTIME) {
+//                if ((INT & BM_INTGINT) == BM_INTGINT) {
+//                    if ((INT & BM_INTTIME) == BM_INTTIME) {
                         res = getBlinkTsta();	// RTC interrupts are enabled, so TSTA is active...
-                    } else {
-                        res = 0;			// RTC interrupts are disabled...
-                    }
-                } else {
-                    res = 0; 	// no interrupts gets out of BLINK
-                }                
+//                    } else {
+//                        res = 0;			// RTC interrupts are disabled...
+//                    }
+//                } else {
+//                    res = 0; 	// no interrupts gets out of BLINK
+//                }                
 				break;
 
             case 0xD0:
@@ -1676,8 +1676,12 @@ public final class Blink extends Z80 {
 		 *	-------------------------------------------------------------------------
 		 * </PRE>
 		 */ 
-		private int scanKeyboard() {
+		private void scanKeyboard() {
 			int currentKey = z88Keyboard.getCurrentlyPressedKey();			
+            if (currentKey == java.awt.event.KeyEvent.VK_F5) {
+                stopZ88 = true;
+                return;
+            }
 
 			int row = 0xFE;		// start with A8, then upwards..
             int keyColumn = 0xFF;
@@ -1725,12 +1729,12 @@ public final class Blink extends Z80 {
 								switch(currentKey) {
 									// D7
 									case java.awt.event.KeyEvent.VK_SPACE: keybRowA13 = keyColumn = 0xBF; break;	// SPACE (10111111)
-									// D5
-									// D4
-									// D3
-									// D2
-									// D1
-									// D0
+                                    case java.awt.event.KeyEvent.VK_1: keybRowA13 = keyColumn = 0xDF; break;
+                                    case java.awt.event.KeyEvent.VK_Q: keybRowA13 = keyColumn = 0xEF; break;
+                                    case java.awt.event.KeyEvent.VK_A: keybRowA13 = keyColumn = 0xF7; break;
+                                    case java.awt.event.KeyEvent.VK_Z: keybRowA13 = keyColumn = 0xFB; break;
+                                    case java.awt.event.KeyEvent.VK_L: keybRowA13 = keyColumn = 0xFD; break;
+                                    case java.awt.event.KeyEvent.VK_0: keybRowA13 = keyColumn = 0xFE; break;
 									default: keybRowA13 = 0xFF;	// no keys pressed in row...
 								}												
 						break;
@@ -1742,12 +1746,12 @@ public final class Blink extends Z80 {
 								switch(currentKey) {
 									// D7
 									case java.awt.event.KeyEvent.VK_LEFT: keybRowA12 = keyColumn = 0xBF; break;		// LEFT CURSOR (10111111)
-									// D5
-									// D4
-									// D3
-									// D2
-									// D1
-									// D0
+                                    case java.awt.event.KeyEvent.VK_2: keybRowA12 = keyColumn = 0xDF; break;
+                                    case java.awt.event.KeyEvent.VK_W: keybRowA12 = keyColumn = 0xEF; break;
+                                    case java.awt.event.KeyEvent.VK_S: keybRowA12 = keyColumn = 0xF7; break;
+                                    case java.awt.event.KeyEvent.VK_X: keybRowA12 = keyColumn = 0xFB; break;
+                                    case java.awt.event.KeyEvent.VK_M: keybRowA12 = keyColumn = 0xFD; break;
+                                    case java.awt.event.KeyEvent.VK_P: keybRowA12 = keyColumn = 0xFE; break;                                    
 									default: keybRowA12 = 0xFF;	// no keys pressed in row...
 								}
 						break;
@@ -1759,12 +1763,12 @@ public final class Blink extends Z80 {
 								switch(currentKey) {
 									// D7
 									case java.awt.event.KeyEvent.VK_RIGHT: keybRowA11 = keyColumn = 0xBF; break;	// RIGHT CURSOR (10111111)
-									// D5
-									// D4
-									// D3
-									// D2
-									// D1
-									// D0
+                                    case java.awt.event.KeyEvent.VK_3: keybRowA11 = keyColumn = 0xDF; break;
+                                    case java.awt.event.KeyEvent.VK_E: keybRowA11 = keyColumn = 0xEF; break;
+                                    case java.awt.event.KeyEvent.VK_D: keybRowA11 = keyColumn = 0xF7; break;
+                                    case java.awt.event.KeyEvent.VK_C: keybRowA11 = keyColumn = 0xFB; break;
+                                    case java.awt.event.KeyEvent.VK_K: keybRowA11 = keyColumn = 0xFD; break;
+                                    case java.awt.event.KeyEvent.VK_9: keybRowA11 = keyColumn = 0xFE; break;
 									default: keybRowA11 = 0xFF;	// no keys pressed in row...
 								}
 						break;
@@ -1776,12 +1780,12 @@ public final class Blink extends Z80 {
 								switch(currentKey) {
 									// D7
 									case java.awt.event.KeyEvent.VK_DOWN: keybRowA10 = keyColumn = 0xBF; break;		// DOWN CURSOR (10111111)
-									// D5
-									// D4
-									// D3
-									// D2
-									// D1
-									// D0
+                                    case java.awt.event.KeyEvent.VK_4: keybRowA10 = keyColumn = 0xDF; break;
+                                    case java.awt.event.KeyEvent.VK_R: keybRowA10 = keyColumn = 0xEF; break;
+                                    case java.awt.event.KeyEvent.VK_F: keybRowA10 = keyColumn = 0xF7; break;
+                                    case java.awt.event.KeyEvent.VK_V: keybRowA10 = keyColumn = 0xFB; break;
+                                    case java.awt.event.KeyEvent.VK_J: keybRowA10 = keyColumn = 0xFD; break;
+                                    case java.awt.event.KeyEvent.VK_O: keybRowA10 = keyColumn = 0xFE; break;
 									default: keybRowA10 = 0xFF;	// no keys pressed in row...
 								}
 						break;
@@ -1793,12 +1797,12 @@ public final class Blink extends Z80 {
 								switch(currentKey) {
 									// D7
 									case java.awt.event.KeyEvent.VK_UP: keybRowA9 = keyColumn = 0xBF; break;		// UP CURSOR
-									// D5
-									// D4
-									// D3
-									// D2
-									// D1
-									// D0
+                                    case java.awt.event.KeyEvent.VK_5: keybRowA9 = keyColumn = 0xDF; break;
+                                    case java.awt.event.KeyEvent.VK_T: keybRowA9 = keyColumn = 0xEF; break;
+                                    case java.awt.event.KeyEvent.VK_G: keybRowA9 = keyColumn = 0xF7; break;
+                                    case java.awt.event.KeyEvent.VK_B: keybRowA9 = keyColumn = 0xFB; break;
+                                    case java.awt.event.KeyEvent.VK_U: keybRowA9 = keyColumn = 0xFD; break;
+                                    case java.awt.event.KeyEvent.VK_I: keybRowA9 = keyColumn = 0xFE; break;                                    
 									default: keybRowA9 = 0xFF;	// no keys pressed in row...
 								}
 						break;
@@ -1810,12 +1814,12 @@ public final class Blink extends Z80 {
 								switch(currentKey) {
 									case java.awt.event.KeyEvent.VK_BACK_SPACE: keybRowA8 = keyColumn = 0x7F; break; 	// DEL
 									case java.awt.event.KeyEvent.VK_ENTER: keybRowA8 = keyColumn = 0xBF; break;			// ENTER
-									// D5
-									// D4
-									// D3
-									// D2
-									// D1
-									// D0
+                                    case java.awt.event.KeyEvent.VK_6: keybRowA8 = keyColumn = 0xDF; break;
+                                    case java.awt.event.KeyEvent.VK_Y: keybRowA8 = keyColumn = 0xEF; break;
+                                    case java.awt.event.KeyEvent.VK_H: keybRowA8 = keyColumn = 0xF7; break;
+                                    case java.awt.event.KeyEvent.VK_N: keybRowA8 = keyColumn = 0xFB; break;
+                                    case java.awt.event.KeyEvent.VK_7: keybRowA8 = keyColumn = 0xFD; break;
+                                    case java.awt.event.KeyEvent.VK_8: keybRowA8 = keyColumn = 0xFE; break;
 									default: keybRowA8 = 0xFF;	// no keys pressed in row...
 								}
 						break;
@@ -1825,18 +1829,12 @@ public final class Blink extends Z80 {
 				row |= 1;		// make sure that left shift always contains 1 at bit 0...
 				row &= 0xFF;	// only 8bit boundary...
 			}
-		
-			if (currentKey == KeyboardDevice.NO_KEYS_PRESSED) {
-				return 0xFF;
-			} else {				
-                if (currentKey == java.awt.event.KeyEvent.VK_F5) stopZ88 = true;
-                
+            
+			if (currentKey != KeyboardDevice.NO_KEYS_PRESSED) {                
 				if ( (keyColumn != 0xFF) && ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
                     // If keyboard interrupts are enabled, then signal that a key was pressed.
 					STA |= BM_STAKEY;
 				}
-                
-                return keyColumn;
 			}			
 		}
 
