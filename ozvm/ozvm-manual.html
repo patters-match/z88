@@ -105,7 +105,7 @@ side.<br>
 <p align="left">OZvm just needs Java
 Runtime Environment (JRE) V1.4.x, or if you're going to compile Java
 programs your self, the Java Development Kit (JDK) V1.4.x. OZvm does
-not run on older versions like V1.3 or less.<br>
+not run on older versions like V1.3 or earlier.<br>
 <br>
 If you haven't
 already installed it, then grab it from
@@ -359,6 +359,14 @@ line (only when debug mode is active)</b></font></font></font></p>
     </tr>
   </tbody>
 </table>
+<p style="margin-bottom: 0cm;" align="left">When you're running OZvm in
+debugging mode you have a debugging command line (blinking cursor at
+the bottom of the OZvm window) where you enter commands to monitor and
+alter the execution environment of virtual Z88. The debugging command
+line is available also when Z88 is running. If you need to transfer the
+keyboard focus to the Z88, either press the F12 key or click on the Z88
+screen with the mouse.<br>
+</p>
 <p style="margin-bottom: 0cm;" align="left">Another issue with keyboard
 access is that the Z88 has been implemented in several different
 localized versions for France, Germany, Denmark, Norway, Sweden,
@@ -597,7 +605,11 @@ available when the Z88 is being executed. That means that you can
 monitor execution by looking at Z80 registers, viewing memory, and
 disassemble Z80 instructions while the Z88 is running. At all times
 you can switch keyboard focus between the OZvm debug command line and
-the Z88 screen input by pressing the F12 key. When the Z88 screen has
+the Z88 screen input by pressing the F12 key or just click with the
+mouse on the Z88 screen if you need the Z88 to be aware of the PC
+keyboard. <br>
+</p>
+<p style="margin-bottom: 0cm;" align="left">When the Z88 screen has
 input focus (all keyboard input from your PC keyboard gets typed in
 the Z88), you can press F5 to halt Z80 the processor at any time (or
 use the 'stop' command in the debug command line) . A small message
