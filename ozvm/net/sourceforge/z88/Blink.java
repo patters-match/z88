@@ -15,6 +15,7 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  * Blink chip, the "mind" of the Z88.
@@ -35,7 +36,7 @@ public final class Blink extends Z80 {
 	 * @param canvas
 	 * @param rtmOutput
 	 */
-	Blink(JPanel canvas, JTextArea rtmOutput) throws GameFrameException {
+	Blink(JPanel canvas, JTextField cmdInput, JTextArea rtmOutput) throws GameFrameException {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.
@@ -65,7 +66,7 @@ public final class Blink extends Z80 {
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
 
 		z88Display = new Z88display(this, canvas);		// create window, but without activity yet...
-		z88Keyboard = new Z88Keyboard(this, canvas);
+		z88Keyboard = new Z88Keyboard(this, canvas, cmdInput);
 
 		runtimeOutput = rtmOutput;		// reference to runtime output window text area.
 	}
