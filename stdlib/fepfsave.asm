@@ -242,7 +242,11 @@
                     PUSH HL
                     CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes...
                     POP  HL                       ; (but don't touch the generic HL bank offset!)
+                    PUSH IY
+                    PUSH IX
+                    POP  IY
                     CALL FlashEprWriteBlock       ; blow buffer to Flash Eprom at BHL...
+                    POP  IY
                     JR   NC, save_file_loop
                     CALL C,MarkDeleted            ; File was not blown properly...
                     RET
@@ -264,23 +268,25 @@
 ;         A = RC_xxx error code
 ;
 ; Registers changed on return:
-;    ....DE../..IY same
-;    AFBC..HL/IX.. different
+;    ....DE../IXIY same
+;    AFBC..HL/.... different
 ;
-.SaveFileEntry      PUSH BC
+.SaveFileEntry      PUSH IY                   
+                    PUSH BC                    
                     LD   A,(DE)                   ; length of filename
                     ADD  A,4+1                    ; total size = length of filename + 1 (file length byte)
                     LD   B,0                      ;              + 4 (32bit file length)
                     LD   C,A
                     PUSH BC                       ; DE = ptr. to File Entry
-                    POP  IX                       ; length of File Entry in IX
+                    POP  IY                       ; length of File Entry in IY
                     POP  BC                       ; BHL = pointer to free space on Eprom
                     PUSH HL
                     CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes...
                     POP  HL                       ; (but don't touch the generic HL bank offset!)
                     CALL FlashEprWriteBlock       ; blow File Entry to Flash Eprom
+                    POP  IY
                     RET  NC
-                    CALL C,MarkDeleted            ; File Entry was not blown properly, marf it as 'deleted'...
+                    CALL C,MarkDeleted            ; File Entry was not blown properly, mark it as 'deleted'...
                     RET
 
 
