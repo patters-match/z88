@@ -2,7 +2,7 @@
               FlashStore Application Version 1.7
 *********************************************************************
 
-User Manual, 2nd. edition, updated 23rd January 2005.
+User Manual, 2nd. edition, updated 24th January 2005.
 (revised from 1st edition, Paris, 29 September 1997)
 
 
@@ -56,6 +56,7 @@ Flash card is formatted and is displayed in the right-hand window.
 INTEL stopped making Flash EPROM chips which were suitable for the Z88
 in 2002 but at the end of 2004 AMD made a simular chip that we could use
 if the FlashStore core software was changed.
+
 Gunter Strube re-wrote this program so the Flash card could still be
 used on the Z88 and added more features whilst he was at it. After the
 INTEL stocks are exhausted, the AMD versions will appear and the only
@@ -71,20 +72,19 @@ and ZIP utilities to use up the spare space.
 
 Details of some of the Applications on Forever and ZIP utilities are:
 
+
 XYModem
 
-This useful popdown allows you to transfer files (text or binary)
-between your Z88 and any other computer using the common Xmodem
-protocol, which is available on virtually all computers.
+A Z88 popdown application for transfering files using the Xmodem and 
+Ymodem protocols. Transfer speed around 3300 cps at 38400 bps using 1K 
+blocks. Currently supported features are checksum and crc error 
+detection, 128 byte and 1K blocksize in any combination, streaming -G 
+mode (only for sending). Mailbox function to send a file marked in 
+Filer. Batch sending with wildcards. Use :*//* to send all files in all 
+directories on all :RAM devices. Ymodem preserves name, size and 
+modification date/time of transfered files. User interface similar to 
+[]X Imp-Export.
 
-It operates in a similar manner to the built-in Imp-Export utility,
-with speeds of up to 19200 baud catered for.
-
-Press C to toggle CRC/Checksum modes, and K to toggle between 128-byte
-and 1K block sizes.
-
-You cannot abort a transfer using ESCape, but instead you can
-disconnect the cable and wait for a timeout to occur.
 
 EP-Fetch2 - new version
 
