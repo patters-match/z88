@@ -8,6 +8,7 @@ package net.sourceforge.z88;
 
 import gameframe.GameFrame;
 
+import java.awt.Dimension;
 import java.io.IOException;
 
 import javax.swing.JFrame;
@@ -21,8 +22,6 @@ import javax.swing.JFrame;
 public class Gui extends JFrame {
 
 	private javax.swing.JPanel jContentPane = null;
-
-	private java.awt.Canvas canvas = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -36,9 +35,9 @@ public class Gui extends JFrame {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(648, 96);
 		this.setContentPane(getJContentPane());
 		this.setTitle("OZvm");
+		this.pack();
 		this.addWindowListener(new java.awt.event.WindowAdapter() { 
 			public void windowClosing(java.awt.event.WindowEvent e) {    
 				System.out.println("windowClosing()"); // TODO Auto-generated Event stub windowClosing()
@@ -54,29 +53,9 @@ public class Gui extends JFrame {
 	private javax.swing.JPanel getJContentPane() {
 		if (jContentPane == null) {
 			jContentPane = new javax.swing.JPanel();
-			jContentPane.setLayout(new java.awt.BorderLayout());
-			jContentPane.add(getCanvas(), java.awt.BorderLayout.CENTER);
+			jContentPane.setPreferredSize(new Dimension(640, 64));
 		}
 		return jContentPane;
-	}
-	/**
-	 * This method initializes canvas
-	 * 
-	 * @return java.awt.Canvas
-	 */
-	private java.awt.Canvas getCanvas() {
-		if(canvas == null) {
-			canvas = new java.awt.Canvas();
-			canvas.setSize(640,64);
-			canvas.setVisible(true);
-		}
-		return canvas;
-	}
-	/**
-	 * @param canvas
-	 */
-	public void setCanvas(java.awt.Canvas canvas) {
-		this.canvas = canvas;
 	}
 
 	public static void main(String[] args) {
@@ -85,7 +64,7 @@ public class Gui extends JFrame {
 		Gui gg = new Gui();
 		gg.show();
 
-		OZvm ozvm = new OZvm(gg.getCanvas());
+		OZvm ozvm = new OZvm(gg.getJContentPane());
 		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);

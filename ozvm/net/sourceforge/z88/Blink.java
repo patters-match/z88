@@ -11,6 +11,8 @@ import java.net.JarURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.JPanel;
+
 /**
  * Blink chip, the "mind" of the Z88.
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
@@ -22,7 +24,7 @@ public final class Blink extends Z80 {
 	/**
 	 * Blink class default constructor.
 	 */
-	Blink(java.awt.Canvas canvas) throws GameFrameException {
+	Blink(JPanel canvas) throws GameFrameException {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.

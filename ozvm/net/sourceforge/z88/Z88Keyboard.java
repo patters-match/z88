@@ -5,6 +5,8 @@ import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.HashMap;
 
+import javax.swing.JPanel;
+
 
 /**
  * Bind host operating system keyboard events to Z88 keyboard
@@ -72,7 +74,7 @@ public class Z88Keyboard implements KeyListener {
      * Create the instance to bind the blink and SWT widget together.
      * 
      */
-	public Z88Keyboard(Blink bl, java.awt.Canvas cnv) {
+	public Z88Keyboard(Blink bl, JPanel cnv) {
 		blink = bl;
 		
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix

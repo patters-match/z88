@@ -2,6 +2,8 @@ package net.sourceforge.z88;
 
 import java.util.TimerTask;
 
+import javax.swing.JPanel;
+
 import gameframe.graphics.*;
 import gameframe.*;
 
@@ -57,7 +59,7 @@ public class Z88display
 	int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 	
 
-    Z88display(Blink z88Blink, java.awt.Canvas canvas) throws GameFrameException {
+    Z88display(Blink z88Blink, JPanel canvas) throws GameFrameException {
 		GameFrameSettings settings = new GameFrameSettings(); 
 		settings.setTitle("Z88");
 		settings.setRequestedGraphicsMode( new GraphicsMode(Z88SCREENWIDTH, Z88SCREENHEIGHT));
