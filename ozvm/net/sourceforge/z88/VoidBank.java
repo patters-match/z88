@@ -26,7 +26,7 @@ import java.util.Random;
  * the Blink hardware in an empty slot. Reading a byte from an empty slot returns
  * random data. Writing a byte to an empty slot has no effect.
  */
-public class VoidBank extends Bank {
+public final class VoidBank extends Bank {
 	private Random generator = new Random();
 
 	public VoidBank() {

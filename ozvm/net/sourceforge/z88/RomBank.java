@@ -23,7 +23,7 @@ package net.sourceforge.z88;
  * This class represents the 16Kb ROM Bank. The characteristics of a ROM bank is
  * chip memory that can be read at all times and never written (Read Only Memory). 
  */
-public class RomBank extends Bank {
+public final class RomBank extends Bank {
 	
 	/**
 	 * Assign the Rom bank to the 4Mb memory model.

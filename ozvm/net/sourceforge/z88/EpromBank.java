@@ -24,7 +24,7 @@ package net.sourceforge.z88;
  * chip memory that can be read at all times and only be written when the BLINK 
  * hardware has been properly setup for slot 3.
  */
-public class EpromBank extends Bank {
+public final class EpromBank extends Bank {
 	/** The Blink hardware is capable of blowing a particular type of Eprom chip that is used in 32K Eprom Cards */
 	public static final int VPP32KB = 0x7E;
 

@@ -23,7 +23,7 @@ package net.sourceforge.z88;
  * This class represents the 16Kb RAM Bank. The characteristics of a RAM bank is
  * that RAM chip memory can be read and written directly by the processor.
  */
-public class RamBank extends Bank {
+public final class RamBank extends Bank {
 	/**
 	 * Assign the Ram bank to the 4Mb memory model.
 	 * 
