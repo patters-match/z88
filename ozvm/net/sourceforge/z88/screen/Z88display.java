@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.LinkedList;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
@@ -113,10 +114,7 @@ public class Z88display extends JLabel implements MouseListener {
 
 	/** output stream to animated Gif movie */
 	private OutputStream movieOutputStream;
-	
-	/** The Gif frame that will be updated with the proper display delay */
-	private DirectGif89Frame previousFrame;
-	
+		
 	/** The image (based on pixel data array) to be rendered onto Swing Component */
 	private BufferedImage image = null;
 
@@ -127,13 +125,65 @@ public class Z88display extends JLabel implements MouseListener {
 	private int movieCounter = 0;
 
 	/** The currently recording screen movie */
-	private Gif89Encoder screenMovie; 
+	private Gif89Encoder gifEncoder = new Gif89Encoder(); 
 
+	private class ScreenFrameAction {
+		private static final int actionEncodeFrame = 1;
+		private static final int actionCloseGifFile = 2;
+
+		/** the output file stream */
+		private OutputStream outStream;
+		
+		/** the action to be taken: encode a frame or close file stream */
+		private int fileAction;
+		
+		/** the Gif frame that is to be encoded to the animated Gif file */
+		private DirectGif89Frame gifFrame;
+				
+		/** the constructor for closing the animated Gif File */
+		public ScreenFrameAction(OutputStream out) {
+			// close the Gif file, no need for screen data
+			outStream = out;
+			fileAction = actionCloseGifFile;			
+		}
+		
+		public ScreenFrameAction(OutputStream out, int scrWidth, int scrHeight, int[] screen) {
+			// encode the frame to the Gif file.
+			outStream = out;
+			fileAction = actionEncodeFrame;
+			gifFrame = new DirectGif89Frame(scrWidth, scrHeight, screen);
+			gifFrame.setDelay(50); // default delay is 0.5 sec
+		}
+
+		/** set the display delay in 1/100 sec for this frame */ 
+		public void setFrameDelay(int frameDelay) {
+			if (gifFrame != null)
+				gifFrame.setDelay(frameDelay);
+		}
+				
+		/** execute the action */
+		public void action() throws IOException {
+			if (fileAction == actionEncodeFrame) {
+				gifEncoder.encodeFrame(outStream, gifFrame);
+			}
+
+			if (fileAction == actionCloseGifFile) {
+				// the write GIF TRAILER
+				outStream.write((int) ';');
+				outStream.close();			
+			}			
+		}
+	}
+	
+	
 	/** 
 	 * Accumulated time in ms since last displayed frame,
 	 * produced by renderDisplay().
 	 */
 	private int frameDelay = 0;
+	
+	/** queue of frames to be encoded as animated Gif's */
+	private LinkedList screenFrameQueue = new LinkedList();	
 	
 	/** Cyclic counter that identifies number of frames displayed per second */
 	private int frameCounter = 0;
@@ -253,61 +303,38 @@ public class Z88display extends JLabel implements MouseListener {
 		if (recordingMovie == false) {
 			// enable screen recording
 			try {
-				previousFrame = null;
-				screenMovie = new Gif89Encoder();
 				String movieFilename = System.getProperty("user.dir") + File.separator + 
 										"z88movie" + movieCounter++ + ".gif";
-				movieOutputStream = new BufferedOutputStream(new FileOutputStream(movieFilename), 128*1024);
+				// create a 16K buffered output stream to the animated Gif file
+				movieOutputStream = new BufferedOutputStream(new FileOutputStream(movieFilename), 16*1024);
 				recordingMovie = true;
 				Gui.displayRtmMessage("Screen recording to '" + movieFilename + "' activated.");
 			} catch (IOException e) {
-				screenMovie = null;
-				movieOutputStream = null;
 				recordingMovie = false;
 				System.out.println("Could not create animated Gif file.");
 			}			
 		} else {
-			// stop screen recording, and close current recorded GIF file 
+			// stop screen recording; append Gif trailer and close GIF file
+			// (executed later by background thread)
 			recordingMovie = false;
-			try {
-				//write GIF TRAILER
-				movieOutputStream.write((int) ';');
-				movieOutputStream.close();
-				Gui.displayRtmMessage("Screen recording stopped.");
-			} catch (IOException e) {
-				Gui.displayRtmMessage("An error occurred when screen recording was stopped.");
-			}
-			screenMovie = null;			
-			movieOutputStream = null;
+			ScreenFrameAction frameAction = new ScreenFrameAction(movieOutputStream);
+			screenFrameQueue.add(frameAction);				
+			Gui.displayRtmMessage("Screen recording stopped.");
 		}
 	}
 
 	/**
-	 * Add current rendered screen frame to animated Gif movie.
-	 * 
-	 * @param img
-	 * @param frameDelay
+	 * Add the frame execution to the ThreadManager, which will
+	 * enqueue the task and execute it when ready (first executing
+	 * previously registered tasks). 
 	 */
-	private void recordFrame(final int scrWidth, final int scrHeight, final int[] screen, final int frameDelay) {		
+	private void scheduleFrameAction(final ScreenFrameAction frame) {		
 		movieHelper.addTask( new Runnable() {
 			public void run() {
 				try {
-					DirectGif89Frame newFrame = new DirectGif89Frame(scrWidth, scrHeight, screen);
-					
-					if (previousFrame == null) {
-						// first frame in movie 
-						previousFrame = newFrame;
-					} else { 								
-						previousFrame.setDelay(frameDelay); // define the display delay of this frame on the previous frame
-						previousFrame.setDisposalMode(Gif89Frame.DM_LEAVE);
-						previousFrame.setInterlaced(false);
-							
-						screenMovie.encodeFrame(movieOutputStream, previousFrame);
-						previousFrame = newFrame;
-					}							
+					frame.action();
 				} catch (IOException e) {
-						System.out.println("Error occurred when writing screen frame to Gif file.");
-				}	
+				}
 			}
 		});							
 	}
@@ -416,16 +443,34 @@ public class Z88display extends JLabel implements MouseListener {
 
 		if (screenChanged == true) {
 			// pixels changed on the screen. Create an image, based on pixel
-			// matrix, and render it to the Awt/Swing component
-			
+			// matrix, and render it to the Awt/Swing component			
 			renderImageToComponent();			
-			if (recordingMovie == true)
-				//recordFrame(Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, frameDelay/10);
-				recordFrame(Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, frameDelay/10);
+			
+			if (recordingMovie == true) {
+				if (screenFrameQueue.size() > 0)
+					// update the 'newest' frame in the queu with the correct display delay
+					((ScreenFrameAction) screenFrameQueue.getLast()).setFrameDelay(frameDelay/10);
 
+				// then add this screen latest frame
+				ScreenFrameAction newFrameAction = new ScreenFrameAction(movieOutputStream, 
+						Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix);
+				screenFrameQueue.add(newFrameAction);
+			}
+				
 			frameDelay = 0; // new frame to be displayed, reset acc. time frame counter 			
 		}
 
+		if (screenFrameQueue.size() > 0) {
+			if (recordingMovie == true & screenFrameQueue.size() == 1) {
+				// do not schedule the first frame; it needs the frame delay from the next frame
+				return;
+			}
+
+			// schedule item on the screen frame queue to be executed by a background thread...
+			scheduleFrameAction((ScreenFrameAction) screenFrameQueue.removeFirst());
+		}
+
+		// end of this screen rendering poll
 		Thread.yield();
 	}
 
