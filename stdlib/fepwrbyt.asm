@@ -183,6 +183,16 @@ DEFC VppBit = 1
                                         
           
 ; ***************************************************************
+; Program byte in A at (HL) on an INTEL I28Fxxxx Flash Memory
+;
+; In:
+;    A = byte to blow
+;    HL = pointer to memory location in Flash Memory
+; Out:
+;    Fc = 0 & Fz = 0, 
+;        byte successfully blown to Flash Memory
+;    Fc = 1, 
+;        A = RC_BWR, byte not blown
 ;
 .FEP_ExecBlowbyte_28F
                     PUSH AF
