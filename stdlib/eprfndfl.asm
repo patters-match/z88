@@ -64,13 +64,11 @@
                     PUSH DE                       ; preserve ptr to filename 
                     LD   E,C                      ; preserve slot number
                     CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot C
-                    LD   C,L
                     POP  HL
                     JR   C,no_eprom
                     JR   NZ,no_eprom              ; File Eprom not available in slot...
 
-                    LD   C,E                 
-                    LD   A,C
+                    LD   A,E
                     AND  @00000011                ; slots (0), 1, 2 or 3 possible
                     RRCA
                     RRCA                          ; converted to Slot mask $40, $80 or $C0
