@@ -1858,12 +1858,10 @@ public final class Blink extends Z80 {
 		}
 
 
+		/**
+		 * Send an INT each 10ms to the Z80 processor...
+		 */
 		private final class Int10ms extends TimerTask {
-			/**
-			 * Send an INT each 10ms to the Z80 processor...
-			 * 
-			 * @see java.lang.Runnable#run()
-			 */
 			public void run() {
                 scanKeyboard();  // Blink always scans the keyboard...
                 
@@ -1875,7 +1873,6 @@ public final class Blink extends Z80 {
 
 		/**
 		 * Stop the 10ms interrupt. 
-		 * (INT.GINT = 0, no interrupts get out of BLINK)
 		 */
 		public void stop() {
 			if (intIm1 != null) {
