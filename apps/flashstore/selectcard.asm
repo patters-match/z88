@@ -97,10 +97,23 @@ Module SelectCard
 .poll_for_ram_card
                     call RamDevFreeSpace
                     jr   c, poll_for_rom_card
-                         LD   (free),A       ; size of RAM card in 16K banks
+                         LD   (free),A       ; A = size of RAM card in 16K banks, DE = free 256 byte pages
                          LD   HL,ramdev
                          XOR  A
                          CALL DisplayCard
+                         dec  b
+                         inc  c
+                         inc  c
+                         CALL VduCursor
+                         EX   DE,HL          ; HL = free 256 bytes pages on RAM Card
+                         LD   DE,64          ; HL / 64 = free 16K banks
+                         CALL_OZ(GN_D16)
+                         LD   H,L
+                         PUSH HL
+                         LD   HL, freetxt
+                         CALL_OZ(Gn_Sop)
+                         POP  AF
+                         CALL DispSlotSize                                                 
                          jp   nextline
 .poll_for_rom_card
                     ld   a,(curslot)
@@ -127,7 +140,7 @@ Module SelectCard
                          pop  bc
                          jr   c, eprom_nofiles    ; the Eprom Application Card had no file area...
                          jr   nz, eprom_nofiles
-                         ld   hl, filestxt
+                         ld   hl, freetxt
                          call_oz(Gn_Sop)          ; display size of sub file area in K on Eprom
                          call DispFreeSpace
                          jp   nextline
@@ -148,7 +161,7 @@ Module SelectCard
                          inc  c
                          inc  c
                          CALL VduCursor
-                         ld   hl, filestxt        ; display "Files xxxxK"
+                         ld   hl, freetxt        ; display "Files xxxxK"
                          call_oz(Gn_Sop)
                          ld   a,(free)
                          call DispFreeSpace
@@ -200,7 +213,7 @@ Module SelectCard
                     pop  bc
                     jr   c, flash_nofiles
                     jr   nz, flash_nofiles
-                         ld   hl, filestxt
+                         ld   hl, freetxt
                          call_oz(Gn_Sop)
                          call DispFreeSpace
                          jr   nextline
@@ -214,8 +227,7 @@ Module SelectCard
                     jp   nz, disp_slot_loop
 
                     ; Now, user selects card (if possible) ...
-                    ld   a,1
-                    ld   (curslot),a              ; set menu bar at "slot 1"
+                    CALL select_default           ; preset menu bar at first available card file area 
 .select_slot_loop
                     call UserMenu
                     ret  c                        ; user aborted selection
@@ -261,16 +273,19 @@ Module SelectCard
                     RET
 .DispSlotSize
                     push bc
+                    push de
                     push hl
+                    
                     LD   H,0
                     LD   L,A
                     CALL m16
                     EX   DE,HL          ; size in DE...
                     CALL DispKSize
-
                     ld   a,'K'
                     call_oz(OS_Out)
+                    
                     pop  hl
+                    pop  de
                     pop  bc
                     ret
 .DispFreeSpace
@@ -438,7 +453,7 @@ Module SelectCard
                     ld   hl, selslot_banner
                     call SelectFileArea          ; User selects a slot from a list...
                     ret
-.select_default                              ; select the only File Eprom available
+.select_default                              ; select the first available Card File Area
                     ld   hl, availslots+1
                     ld   b,3
                     ld   c,1
@@ -455,7 +470,6 @@ Module SelectCard
                     cp   a
                     ret
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************
@@ -687,7 +701,7 @@ Module SelectCard
 .epromdev           DEFM 1,"2+T", "EPROM ", 0
 .flashdev           DEFM 1,"2+T", "FLASH ", 0
 .ramdev             DEFM 1,"2+T", "RAM ",0
-.filestxt           DEFM 1,"2+T", " FREE ", 0
+.freetxt            DEFM 1,"2+T", " FREE ", 0
 .appstxt            DEFM 1,"2+T", "APPLICATIONS",0
 .nofilestxt         DEFM 1,"2+T", "NO FILE AREA",0
 .slottxt1           DEFM "SLOT ",0
