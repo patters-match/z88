@@ -25,7 +25,8 @@ package net.sourceforge.z88;
  * internal memory of the Z88), an Eprom card or a 1MB Flash Card.
  * 
  * Further, the memory I/O characteristics of the bank can change if it
- * is located inside slot 3 and Eprom Programming is enabled in Blink:
+ * is located inside slot 3 and Eprom Programming is enabled in Blink
+ * (the VPP Pin is enabled on the chip that is inserted in slot 3):
  * Depending on the bank type, all memory I/O will behave as the specified
  * hardware (U/V Eproms or Flash Card) when VPP is set (by the Blink).
  * 
@@ -34,15 +35,16 @@ package net.sourceforge.z88;
  * words (lower byte at BankX, offset 3FFFh and high byte at BankY, offset 0000h).
  */
 public final class Bank {
-	public static final int RAM = 0; // 32Kb, 128Kb, 512Kb, 1Mb
-	public static final int ROM = 1; // 128Kb
-	public static final int EPROM = 2; // 32Kb, 128Kb & 256Kb
-	public static final int FLASH = 3; // 1Mb Flash
+	public static final int VOID = 0; // This bank represent an empty space (no card inserted in slot)
+	public static final int RAM = 1; // 32Kb, 128Kb, 512Kb, 1Mb
+	public static final int ROM = 2; // 128Kb
+	public static final int EPROM = 3; // 32Kb, 128Kb & 256Kb
+	public static final int FLASH = 4; // 1Mb Flash
 	public static final int SIZE = 16384; // Always 16384 bytes in a bank
 
 	private int type;
 	private int bankMem[];
-	private boolean vpp = false;	// Bank I/O memory characteristics depend on COM.VPP in Blink 
+	private boolean vppPin = false; 
 
 	public Bank() {
 		type = Bank.RAM;
@@ -100,11 +102,11 @@ public final class Bank {
 	}
 
 	/**
+	 * Get byte from bank, always. 
+	 * 
 	 * NB: Internal method: Only used by OZvm debug command line!
 	 * This method overrides all memory charateristics as defined
 	 * by the Blink hardware that is managing the Z88 virtual memory. 
-	 * 
-	 * Get byte from, always. 
 	 * 
 	 * @param addr is a 16bit word that points into the 16K address space of the bank.
 	 * @param b is the byte to be "set" at specific address
@@ -115,18 +117,19 @@ public final class Bank {
 	}
 	
 	/**
+	 * Write byte to bank, always. 
+	 * 
 	 * NB: Internal method: Only used by OZvm debug command line!
 	 * This method overrides all memory charateristics as defined
-	 * by the Blink hardware that is managing the Z88 virtual memory. 
-	 * 
-	 * Write byte to bank, always. 
+	 * by the Blink hardware that is managing the Z88 virtual memory 
+	 * (except when this bank represents an empty space).
 	 * 
 	 * @param addr is a 16bit word that points into the 16K address space of the bank.
 	 * @param b is the byte to be "set" at specific address
 	 * 
 	 */
 	public final void setByte(final int addr, final int b) {
-		bankMem[addr & 0x3FFF] = b & 0xFF;
+		if (type != Bank.VOID) bankMem[addr & 0x3FFF] = b & 0xFF;
 	}
 	
 	/**
@@ -146,24 +149,28 @@ public final class Bank {
 	}
 	
 	/**
-	 * Check if Bank is part of a Eprom or Flash Card programming session
+	 * Check if Eprom or Flash Card VPP Pin is enabled
+	 * (all banks of a card in slot 3 reflects this state).  
 	 * 
-	 * @return Returns the VPP status of this bank.
+	 * @return Returns the VPP pin status of this bank's chip.
 	 */
-	public final boolean isVpp() {
-		return vpp;
+	public final boolean isVppPinEnabled() {
+		return vppPin;
 	}
 
 	/**
-	 * Set the Eprom or Flash Card programming mode.
+	 * Set the Eprom or Flash Card programming mode, by enabling the
+	 * VPP pin on the Eprom chip.
+	 * 
 	 * This mode will only be called by the Blink hardware, when
 	 * Z80 request OUT instructions executes the COM.VPP Blink register.
 	 * 
-	 * (this call has no effect if the Bank is part of a Ram Card)
+	 * (this call has no effect if the Bank is part of a Ram Card or
+	 * represent an empty space in any slot)
 	 * 
-	 * @param vpp The VPP mode to set for this bank.
+	 * @param vpp The VPP pin state to set for this chip.
 	 */
-	public final void setVpp(final boolean vpp) {
-		this.vpp = vpp;
+	public final void setVppPin(final boolean vpp) {
+		if (type != Bank.RAM & type != Bank.VOID) this.vppPin = vpp;
 	}
 } /* Bank */
