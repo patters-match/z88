@@ -502,7 +502,7 @@ public class FileArea {
 	}
 
 	/**
-	 * Create/reformat a file area. Return <b>true </b> if a file area was
+	 * Create/reformat a file area in specified slot. Return <b>true </b> if a file area was
 	 * formatted/created. A file area can only be created on Eprom or Flash
 	 * Cards.
 	 * 
@@ -522,7 +522,10 @@ public class FileArea {
 	 * @return <b>true </b> if file area was formatted/created, otherwise
 	 *         <b>false </b>
 	 */
-	public boolean createFileArea() {
+	public static boolean create(int slotNumber) {
+		Memory memory = Memory.getInstance();
+		SlotInfo slotinfo = SlotInfo.getInstance();
+		
 		byte[] nullFile = {1, 0, 0, 0, 0, 0};	// null-file for Intel Flash Card		
 		int bottomBankNo = slotNumber << 6;
 
@@ -579,8 +582,6 @@ public class FileArea {
 				}
 			}
 
-			filesList = null;
-			
 			if (bank instanceof IntelFlashBank == true) {
 				// A null file is needed as the first file in the file area
 				// for Intel Flash Cards to avoid undocumented behaviour 
@@ -589,64 +590,10 @@ public class FileArea {
 				
 				for (int offset = 0; offset < nullFile.length; offset++)
 					memory.setByte(extAddress++, nullFile[offset]);
-
-				refreshFileList(); // establish file list with first entry..
 			}
 			
 			return true;
 		}
-	}
-
-	/**
-	 * Mark file entry as deleted, using specified filename (in "oz" filename format).
-	 *    
-	 * @param fileName
-	 * @return true, if file entry was found and marked as deleted, else false
-	 * @throws FileAreaNotFoundException
-	 */
-	public boolean markAsDeleted(String fileName) throws FileAreaNotFoundException {
-		if (isFileAreaAvailable() == false)
-			throw new FileAreaNotFoundException();
-		else {
-			FileEntry fe = getFileEntry(fileName);
-			if (fe == null)
-				return false; // file entry wasn't found
-			else {
-				int feMemPtr = fe.getFileEntryPtr();
-				feMemPtr = memory.getNextExtAddress(feMemPtr); // first byte of filename
-				memory.setByte(feMemPtr, 0); // mark entry as deleted
-
-				// point again at start of entry in memory for rescan...  
-				feMemPtr = fe.getFileEntryPtr();
-				// make a new File Entry object (that now is 'marked as deleted')
-				FileEntry feDeleted = new FileEntry(feMemPtr);
-				// replace old File Entry with new in list...
-				filesList.set(filesList.indexOf(fe), feDeleted); 				
-			}
-		}
-
-		return true;
-	}
-	
-	/**
-	 * Format file area with FF's, beginning from bottom of card, until bank of
-	 * file header.
-	 * 
-	 * @param bank
-	 *            the starting bank of the file area
-	 * @param topBank
-	 *            the top bank of the file area including the header at $3FC0
-	 */
-	private void formatFileArea(int bank, int topBank) {
-		// format file area from bottom bank, upwards...
-		do {
-			for (int offset = 0; offset < 0x4000; offset++)
-				memory.setByte(offset, bank, 0xFF);
-		} while (++bank < topBank);
-
-		// top bank is only formatted until file header...
-		for (int offset = 0; offset < 0x3FC0; offset++)
-			memory.setByte(offset, bank, 0xFF);
 	}
 
 	/**
@@ -698,6 +645,61 @@ public class FileArea {
 			return false;
 		}
 	}
+
+	/**
+	 * Mark file entry as deleted, using specified filename (in "oz" filename format).
+	 *    
+	 * @param fileName
+	 * @return true, if file entry was found and marked as deleted, else false
+	 * @throws FileAreaNotFoundException
+	 */
+	public boolean markAsDeleted(String fileName) throws FileAreaNotFoundException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			FileEntry fe = getFileEntry(fileName);
+			if (fe == null)
+				return false; // file entry wasn't found
+			else {
+				int feMemPtr = fe.getFileEntryPtr();
+				feMemPtr = memory.getNextExtAddress(feMemPtr); // first byte of filename
+				memory.setByte(feMemPtr, 0); // mark entry as deleted
+
+				// point again at start of entry in memory for rescan...  
+				feMemPtr = fe.getFileEntryPtr();
+				// make a new File Entry object (that now is 'marked as deleted')
+				FileEntry feDeleted = new FileEntry(feMemPtr);
+				// replace old File Entry with new in list...
+				filesList.set(filesList.indexOf(fe), feDeleted); 				
+			}
+		}
+
+		return true;
+	}
+	
+	/**
+	 * Format file area with FF's, beginning from bottom of card, until bank of
+	 * file header.
+	 * 
+	 * @param bank
+	 *            the starting bank of the file area
+	 * @param topBank
+	 *            the top bank of the file area including the header at $3FC0
+	 */
+	private static void formatFileArea(int bank, int topBank) {
+		Memory memory = Memory.getInstance();
+		
+		// format file area from bottom bank, upwards...
+		do {
+			for (int offset = 0; offset < 0x4000; offset++)
+				memory.setByte(offset, bank, 0xFF);
+		} while (++bank < topBank);
+
+		// top bank is only formatted until file header...
+		for (int offset = 0; offset < 0x3FC0; offset++)
+			memory.setByte(offset, bank, 0xFF);
+	}
+
 	
 	/**
 	 * Convert the extended address for the current slot to a calculable integer.
