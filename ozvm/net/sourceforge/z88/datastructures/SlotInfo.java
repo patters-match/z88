@@ -17,7 +17,9 @@
  *
  */
 
-package net.sourceforge.z88;
+package net.sourceforge.z88.datastructures;
+
+import net.sourceforge.z88.Memory;
 
 /**
  * Information about what is available in a specified slot;
@@ -26,30 +28,23 @@ package net.sourceforge.z88;
  */
 public class SlotInfo {
 	
+	private static final class singletonContainer {
+		static final SlotInfo singleton = new SlotInfo();  
+	}
+	
+	public static SlotInfo getInstance() {
+		return singletonContainer.singleton;
+	}
+	
 	/** reference to available memory hardware and functionality */
 	private Memory memory = null;
-	
+		
 	/**
 	 * Initialise slot information with getting access to
 	 * the Z88 memory model
 	 */
-	public SlotInfo() {
+	private SlotInfo() {
 		memory = Memory.getInstance();
-	}
-
-	/**
-	 * Return the size of inserted Application- or File Card in 16K banks.
-	 * If no card is available in specified slot, -1 is returned.
-	 * 
-	 * @return number of 16K banks in inserted Card
-	 */
-	public int getCardSize(final int slotno) {		
-		if (isApplicationCard(slotno) == true || isFileCard(slotno) == true)
-			// byte at 0x3FFC in top bank of slot defines total banks in card...
-			return memory.getBank(((slotno & 3) << 6) | 0x3F).getByte(0x3FFC); 
-		else 
-			// no card available in slot...
-			return -1;
 	}
 
 	/**
@@ -57,13 +52,18 @@ public class SlotInfo {
 	 * 
 	 * @return true if Application Card is available in slot, otherwise false
 	 */
-	public boolean isApplicationCard(final int slotno) {
-		// point to watermark in top bank of slot, offset 0x3Fxx
-		int bankNo = ((slotno & 3) << 6) | 0x3F;
+	public boolean isApplicationCard(final int slotNo) {
+		int bankNo;
 		
-		if (memory.getBank(bankNo).getByte(0x3FFB) == 0x80 &
-			memory.getBank(bankNo).getByte(0x3FFE) == 'O' &
-			memory.getBank(bankNo).getByte(0x3FFF) == 'Z')
+		// point to watermark in top bank of slot, offset 0x3Fxx
+		if (slotNo == 0) 
+			bankNo = bankNo = 0x1F;	// top bank of slot 0 512K ROM Area
+		else
+			bankNo = ((slotNo & 3) << 6) | 0x3F;
+		
+		if ( (memory.getByte(0x3FFB, bankNo) == 0x80 | memory.getByte(0x3FFB, bankNo) == 0x81) &
+			memory.getByte(0x3FFE, bankNo) == 'O' &
+			memory.getByte(0x3FFF, bankNo) == 'Z')
 			return true;
 		else
 			return false;
@@ -78,21 +78,11 @@ public class SlotInfo {
 		// point to watermark in top bank of slot, offset 0x3Fxx
 		int bankNo = ((slotno & 3) << 6) | 0x3F;
 		
-		if (memory.getBank(bankNo).getByte(0x3FF7) == 0x01 &
-			memory.getBank(bankNo).getByte(0x3FFE) == 'o' &
-			memory.getBank(bankNo).getByte(0x3FFF) == 'z')
+		if (memory.getByte(0x3FF7, bankNo) == 0x01 &
+			memory.getByte(0x3FFE, bankNo) == 'o' &
+			memory.getByte(0x3FFF, bankNo) == 'z')
 			return true;
 		else
 			return false;
-	}
-
-	/**
-	 * Check if specified slot is empty;
-	 * no Application, File or Ram Cards available.
-	 * 
-	 * @return true if slot is empty, otherwise false
-	 */
-	public boolean isSlotEmpty(final int slotno) {		
-		return memory.isSlotEmpty(slotno);
 	}
 }
