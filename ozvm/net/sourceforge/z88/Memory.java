@@ -716,6 +716,7 @@ public final class Memory {
 	public void loadBankFilesOnCard(int slot, int size, String eprType, String fileNameBase) throws IOException {
 		int totalEprBanks, totalSlotBanks, curBank;
 		int eprSubType = 0;
+		int bankNo;
 
 		slot &= 3; // allow only slots 0 - 3 range.
 		size -= (size % (Bank.SIZE/1024));
@@ -762,8 +763,15 @@ public final class Memory {
 		String bankFileNames[] = bankFiles.list(bfFilter);
 		if (bankFileNames != null) {
 			for(int n=0; n<bankFileNames.length; n++) {
-				int bankNo = Integer.parseInt(bankFileNames[n].
+				try {
+					bankNo = Integer.parseInt(bankFileNames[n].
 									substring(bankFileNames[n].lastIndexOf(".")+1));
+				} catch (NumberFormatException e) {
+					// ignore this file (and get the next file)
+					// this file extension is not a number...
+					continue;
+				}
+				
 				if (bankNo > 63) {
 					throw new IOException("Bank file number > 63!");
 				}
