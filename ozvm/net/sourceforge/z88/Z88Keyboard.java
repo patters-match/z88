@@ -460,7 +460,7 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_COLON, 0x07FB); keyboardLayout.put(new Integer(KeyEvent.VK_COLON), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_DOLLAR, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_DOLLAR), (KeyPress) keyp);		
 
-		keyp = new KeyPress(KeyEvent.VK_NUMBER_SIGN, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMBER_SIGN), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_DEAD_CIRCUMFLEX, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_DEAD_CIRCUMFLEX), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
 
 
@@ -468,11 +468,12 @@ public class Z88Keyboard implements KeyListener {
 		// Row 10111111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
+		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ;       M       ù
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_COMMA, 0x06FB); keyboardLayout.put(new Integer(KeyEvent.VK_COMMA), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_SEMICOLON, 0x06FD); keyboardLayout.put(new Integer(KeyEvent.VK_SEMICOLON), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_QUOTE, 0x06FE); keyboardLayout.put(new Integer(KeyEvent.VK_QUOTE), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_SEMICOLON, 0x06FB); keyboardLayout.put(new Integer(KeyEvent.VK_SEMICOLON), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_M, 0x06FD); keyboardLayout.put(new Integer(KeyEvent.VK_M), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'ù'), 0x06FE); keyboardLayout.put(new Integer((0x10000 | 'ù')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | '%'), 0x06FE); keyboardLayout.put(new Integer((0x10000 | '%')), (KeyPress) keyp); // SHIFT 'ù' = '%'
 		// --------------------------------------------------------------------------------------------------------------------------
 
 
@@ -480,19 +481,21 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11011111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A13 (#5) | [      SPACE   1       Q       A       Z       L       0
+		// A13 (#5) | *      SPACE   &       A       Q       W       L       à
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_OPEN_BRACKET, 0x057F); keyboardLayout.put(new Integer(KeyEvent.VK_OPEN_BRACKET), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_ASTERISK, 0x057F); keyboardLayout.put(new Integer(KeyEvent.VK_ASTERISK), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_1, 0x05DF); keyboardLayout.put(new Integer(KeyEvent.VK_1), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_AMPERSAND, 0x05DF); keyboardLayout.put(new Integer(KeyEvent.VK_AMPERSAND), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD1, 0x05DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD1), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_Q, 0x05EF); keyboardLayout.put(new Integer(KeyEvent.VK_Q), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_A, 0x05F7); keyboardLayout.put(new Integer(KeyEvent.VK_A), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_Z, 0x05FB); keyboardLayout.put(new Integer(KeyEvent.VK_Z), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_A, 0x05EF); keyboardLayout.put(new Integer(KeyEvent.VK_A), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_Q, 0x05F7); keyboardLayout.put(new Integer(KeyEvent.VK_Q), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_W, 0x05FB); keyboardLayout.put(new Integer(KeyEvent.VK_W), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_L, 0x05FD); keyboardLayout.put(new Integer(KeyEvent.VK_L), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_0, 0x05FE); keyboardLayout.put(new Integer(KeyEvent.VK_0), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'à'), 0x05FE); keyboardLayout.put(new Integer((0x10000 | 'à')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 128), 0x05FE); keyboardLayout.put(new Integer((0x10000 | 128)), (KeyPress) keyp); // CTRL à 
+		keyp = new KeyPress((0x10000 | KeyEvent.VK_0), 0x05FE); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_0)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD0, 0x05FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD0), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -501,17 +504,19 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11101111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------			
-		// A12 (#4) | ]      LFT     2       W       S       X       M       P
+		// A12 (#4) | =      LFT     é       Z       S       X       ,       P
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_CLOSE_BRACKET, 0x047F); keyboardLayout.put(new Integer(KeyEvent.VK_CLOSE_BRACKET), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_EQUALS, 0x047F); keyboardLayout.put(new Integer(KeyEvent.VK_EQUALS), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_2, 0x04DF); keyboardLayout.put(new Integer(KeyEvent.VK_2), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'é'), 0x04DF); keyboardLayout.put(new Integer((0x10000 | 'é')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | KeyEvent.VK_2), 0x04DF); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_2)), (KeyPress) keyp); // With Shift
+		keyp = new KeyPress((0x10000 | 137), 0x04DF); keyboardLayout.put(new Integer((0x10000 | 137)), (KeyPress) keyp); // With DIAMOND
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD2, 0x04DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD2), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_W, 0x04EF); keyboardLayout.put(new Integer(KeyEvent.VK_W), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_Z, 0x04EF); keyboardLayout.put(new Integer(KeyEvent.VK_Z), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_S, 0x04F7); keyboardLayout.put(new Integer(KeyEvent.VK_S), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_X, 0x04FB); keyboardLayout.put(new Integer(KeyEvent.VK_X), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_M, 0x04FD); keyboardLayout.put(new Integer(KeyEvent.VK_M), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_COMMA, 0x04FD); keyboardLayout.put(new Integer(KeyEvent.VK_COMMA), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_P, 0x04FE); keyboardLayout.put(new Integer(KeyEvent.VK_P), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -520,11 +525,11 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11110111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0			
 		// -------------------------------------------------------------------------
-		// A11 (#3) | -      RGT     3       E       D       C       K       9
+		// A11 (#3) | )      RGT     "       E       D       C       K       ç
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x037F); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_RIGHT_PARENTHESIS, 0x037F); keyboardLayout.put(new Integer(KeyEvent.VK_RIGHT_PARENTHESIS), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_3, 0x03DF); keyboardLayout.put(new Integer(KeyEvent.VK_3), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_QUOTEDBL, 0x03DF); keyboardLayout.put(new Integer(KeyEvent.VK_QUOTEDBL), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD3, 0x03DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD3), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_E, 0x03EF); keyboardLayout.put(new Integer(KeyEvent.VK_E), (KeyPress) keyp);
@@ -532,7 +537,9 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_C, 0x03FB); keyboardLayout.put(new Integer(KeyEvent.VK_C), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_K, 0x03FD); keyboardLayout.put(new Integer(KeyEvent.VK_K), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_9, 0x03FE); keyboardLayout.put(new Integer(KeyEvent.VK_9), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'ç'), 0x03FE); keyboardLayout.put(new Integer((0x10000 | 'ç')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 135), 0x03FE); keyboardLayout.put(new Integer((0x10000 | 135)), (KeyPress) keyp); // CTRL ç 
+		keyp = new KeyPress((0x10000 | KeyEvent.VK_9), 0x03FE); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_9)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD9, 0x03FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD9), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -541,11 +548,11 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11111011
 		//			| D7     D6      D5      D4      D3      D2      D1      D0			
 		// -------------------------------------------------------------------------
-		// A10 (#2) | =      DWN     4       R       F       V       J       O
+		// A10 (#2) | -      DWN     '       R       F       V       J       O
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_EQUALS, 0x027F); keyboardLayout.put(new Integer(KeyEvent.VK_EQUALS), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x027F); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_4, 0x02DF); keyboardLayout.put(new Integer(KeyEvent.VK_4), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_QUOTE, 0x02DF); keyboardLayout.put(new Integer(KeyEvent.VK_QUOTE), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD4, 0x02DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD4), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_R, 0x02EF); keyboardLayout.put(new Integer(KeyEvent.VK_R), (KeyPress) keyp);
@@ -560,11 +567,11 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11111101
 		//			| D7     D6      D5      D4      D3      D2      D1      D0			
 		// -------------------------------------------------------------------------
-		// A9  (#1) | \      UP      5       T       G       B       U       I
+		// A9  (#1) | <      UP      (       T       G       B       U       I
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_BACK_SLASH, 0x017F); keyboardLayout.put(new Integer(KeyEvent.VK_BACK_SLASH), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_LESS, 0x017F); keyboardLayout.put(new Integer(KeyEvent.VK_LESS), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_5, 0x01DF); keyboardLayout.put(new Integer(KeyEvent.VK_5), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_LEFT_PARENTHESIS, 0x01DF); keyboardLayout.put(new Integer(KeyEvent.VK_LEFT_PARENTHESIS), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD5, 0x01DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD5), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_T, 0x01EF); keyboardLayout.put(new Integer(KeyEvent.VK_T), (KeyPress) keyp);
@@ -579,19 +586,26 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11111110
 		//			| D7     D6      D5      D4      D3      D2      D1      D0			
 		// -------------------------------------------------------------------------
-		// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
+		// A8  (#0) | DEL    ENTER   §       Y       H       N       è       !
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_6, 0x00DF); keyboardLayout.put(new Integer(KeyEvent.VK_6), (KeyPress) keyp);
+		
+		// '§' is impossible to implement with french host keyboard and Z88, so we use the
+		// '²' key to get single key § for Z88, and indirectly the ^ key with CTRL 
+		keyp = new KeyPress((0x10000 | '²'), 0x00DF); keyboardLayout.put(new Integer((0x10000 | '²')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | KeyEvent.VK_6), 0x00DF); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_6)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD6, 0x00DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD6), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_Y, 0x00EF); keyboardLayout.put(new Integer(KeyEvent.VK_Y), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_H, 0x00F7); keyboardLayout.put(new Integer(KeyEvent.VK_H), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_N, 0x00FB); keyboardLayout.put(new Integer(KeyEvent.VK_N), (KeyPress) keyp);
 
-		keyp = new KeyPress(KeyEvent.VK_7, 0x00FD); keyboardLayout.put(new Integer(KeyEvent.VK_7), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'è'), 0x00FD); keyboardLayout.put(new Integer((0x10000 | 'è')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 136), 0x00FD); keyboardLayout.put(new Integer((0x10000 | 136)), (KeyPress) keyp); // CTRL è 
+		keyp = new KeyPress((0x10000 | KeyEvent.VK_7), 0x00FD); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_7)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD7, 0x00FD); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD7), (KeyPress) keyp);
-
-		keyp = new KeyPress(KeyEvent.VK_8, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_8), (KeyPress) keyp);
+		
+		keyp = new KeyPress(KeyEvent.VK_UNDERSCORE, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_UNDERSCORE), (KeyPress) keyp);  // [_ 8] on host keyboard gives [§ 8] on Z88 
+		keyp = new KeyPress(KeyEvent.VK_EXCLAMATION_MARK, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_EXCLAMATION_MARK), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD8, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD8), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -685,7 +699,8 @@ public class Z88Keyboard implements KeyListener {
 	 * This event is fired whenever a key press is recognised on the java.awt.Canvas.
 	 */
 	public void keyPressed(KeyEvent e) {
-		System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		KeyPress kp = null;
+		// System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -726,10 +741,36 @@ public class Z88Keyboard implements KeyListener {
 				pressZ88key(z88RshKey);
 				pressZ88key(z88ArrowDownKey);
 				break;
+
+			case KeyEvent.VK_NUMPAD0:
+			case KeyEvent.VK_NUMPAD1:
+			case KeyEvent.VK_NUMPAD2:
+			case KeyEvent.VK_NUMPAD3:
+			case KeyEvent.VK_NUMPAD4:
+			case KeyEvent.VK_NUMPAD5:
+			case KeyEvent.VK_NUMPAD6:
+			case KeyEvent.VK_NUMPAD7:
+			case KeyEvent.VK_NUMPAD8:
+			case KeyEvent.VK_NUMPAD9:
+				if (currentLayout == z88Keyboards[Z88Keyboard.COUNTRY_FR]) {
+					// those pesky french keyboards!!!
+					pressZ88key(z88RshKey);
+				}
+				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
+				pressZ88key(kp);
+				break;
+
+			case 0:
+				// Special characters 
+				kp = (KeyPress) currentLayout.get(new Integer((0x10000 | e.getKeyChar())));
+				if (kp != null) {
+					pressZ88key(kp);
+				}
+				break;
 				
 			default:
 				// All other keypresses are available in keyboard map layout
-				KeyPress kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
+				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
 				if (kp != null) {
 					pressZ88key(kp);
 				}
@@ -742,7 +783,9 @@ public class Z88Keyboard implements KeyListener {
 	 * This event is fired whenever a key is released on the java.awt.canvas.
 	 */
 	public void keyReleased(KeyEvent e) {
-		System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		KeyPress kp = null;
+		
+		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -764,6 +807,24 @@ public class Z88Keyboard implements KeyListener {
 				releaseZ88key(z88RshKey);
 				break;
 
+			case KeyEvent.VK_NUMPAD0:
+			case KeyEvent.VK_NUMPAD1:
+			case KeyEvent.VK_NUMPAD2:
+			case KeyEvent.VK_NUMPAD3:
+			case KeyEvent.VK_NUMPAD4:
+			case KeyEvent.VK_NUMPAD5:
+			case KeyEvent.VK_NUMPAD6:
+			case KeyEvent.VK_NUMPAD7:
+			case KeyEvent.VK_NUMPAD8:
+			case KeyEvent.VK_NUMPAD9:
+				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
+				releaseZ88key(kp);
+				if (currentLayout == z88Keyboards[Z88Keyboard.COUNTRY_FR]) {
+					// those pesky french keyboards!!!
+					releaseZ88key(z88RshKey);
+				}
+				break;
+				
 			case KeyEvent.VK_HOME:
 				releaseZ88key(z88ArrowLeftKey);
 				releaseZ88key(z88DiamondKey);
@@ -783,10 +844,18 @@ public class Z88Keyboard implements KeyListener {
 				releaseZ88key(z88ArrowDownKey);
 				releaseZ88key(z88RshKey);
 				break;
-								
+
+			case 0:
+				// Special characters
+				kp = (KeyPress) currentLayout.get(new Integer((0x10000 | e.getKeyChar())));
+				if (kp != null) {
+					releaseZ88key(kp);
+				}
+				break;
+												
 			default:
 				// All other key releases are available in keyboard map layout
-				KeyPress kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
+				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
 				if (kp != null) {
 					releaseZ88key(kp);
 				}
@@ -795,6 +864,6 @@ public class Z88Keyboard implements KeyListener {
 	}
 
 	public void keyTyped(KeyEvent e) {
-		System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		//System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 	}
 }
