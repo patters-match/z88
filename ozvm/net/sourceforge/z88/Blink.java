@@ -136,8 +136,6 @@ public final class Blink extends Z80 {
 	 * @param bits
 	 */
 	public void setBlinkInt(int bits) {
-//		System.out.println(((bits & Blink.BM_INTKWAIT) == Blink.BM_INTKWAIT) ? "INT.KWAIT enabled" : "INT.KWAIT disabled");
-//		System.out.println(((bits & Blink.BM_INTKEY) == Blink.BM_INTKEY) ? "INT.KEY enabled" : "INT.KEY disabled");
 		INT = bits;
 	}
 
@@ -194,6 +192,7 @@ public final class Blink extends Z80 {
 		ACK = bits;
 		
 		STA &= ~bits;	// reset Blink occurred interrupts according to acknowledge...
+        STA |= 1;       // force GINT = 1
 	}
 
    	/**
@@ -251,6 +250,7 @@ public final class Blink extends Z80 {
 	 * </PRE>
 	 */
 	public int getBlinkSta() {
+        STA |= 1;       // force GINT = 1
 		return STA;
 	}
 	
@@ -501,8 +501,11 @@ public final class Blink extends Z80 {
 		do {
             // F5 was pressed, get out of here!
             if (stopZ88 == true) return 0xFF;
-            // an interrupt has been signalled, go execute it!
-            if (interruptTriggered() == true) return 0xFF;
+
+            if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
+                // in snooze, any keypress will get us out...
+                row = 0;
+            }
 
             switch(row) {
                 case 0x7F:	// Row 01111111:
@@ -510,7 +513,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------
                             // A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
                             keyColumn = keybRowA15;
-                            // System.out.println("keybRowA15=" + Dz.byteToHex(keyColumn, true));
                             break;
 
                 case 0xBF:	// 10111111
@@ -518,7 +520,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------
                             // A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
                             keyColumn = keybRowA14;
-                            // System.out.println("keybRowA14=" + Dz.byteToHex(keyColumn, true));
                             break;
 
                 case 0xDF:	// 11011111
@@ -526,7 +527,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------
                             // A13 (#5) | [      SPACE   1       Q       A       Z       L       0
                             keyColumn = keybRowA13;
-                            // System.out.println("keybRowA13=" + Dz.byteToHex(keyColumn, true));
                             break;
 
                 case 0xEF:	// 11101111
@@ -534,7 +534,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------			
                             // A12 (#4) | ]      LFT     2       W       S       X       M       P
                             keyColumn = keybRowA12;
-                            // System.out.println("keybRowA12=" + Dz.byteToHex(keyColumn, true));
                             break;
 
                 case 0xF7:	// 11110111
@@ -542,7 +541,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------
                             // A11 (#3) | -      RGT     3       E       D       C       K       9
                             keyColumn = keybRowA11;
-                            // System.out.println("keybRowA11=" + Dz.byteToHex(keyColumn, true));
                             break;
 
                 case 0xFB:	// 11111011
@@ -550,7 +548,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------
                             // A10 (#2) | =      DWN     4       R       F       V       J       O
                             keyColumn = keybRowA10;
-                            // System.out.println("keybRowA10=" + Dz.byteToHex(keyColumn, true));
                             break;
 
                 case 0xFD:	// 11111101
@@ -558,7 +555,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------
                             // A9  (#1) | \      UP      5       T       G       B       U       I
                             keyColumn = keybRowA9;
-                            // System.out.println("keybRowA9=" + Dz.byteToHex(keyColumn, true));
                             break;
 
                 case 0xFE:	// 11111110
@@ -566,7 +562,6 @@ public final class Blink extends Z80 {
                             // -------------------------------------------------------------------------
                             // A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
                             keyColumn = keybRowA8;
-                            // System.out.println("keybRowA8=" + Dz.byteToHex(keyColumn, true));
                             break;
                 case 0x00:
                     if (keybRowA15 != 0xFF) return keyColumn = keybRowA15; 
@@ -582,7 +577,7 @@ public final class Blink extends Z80 {
 
             if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
                 // Z80 snoozes... (we wait for 5ms, then ask again for key press from Blink)
-                // (interrupts still occurs in Blink, and are signalled if EI interrupt state enabled)
+                // (interrupts still occurs in Blink where keyboard is scanned each 10ms)
                 try {
                     Thread.sleep(5);
                 } catch (InterruptedException e) {
@@ -959,11 +954,11 @@ public final class Blink extends Z80 {
 
 		switch (addrA8) {
 			case 0xB1:				
-                if ((INT & BM_INTGINT) == BM_INTGINT) {
+//                if ((INT & BM_INTGINT) == BM_INTGINT) {
                     res = getBlinkSta();		// STA, Main Blink Interrupt Status
-                } else {
-                    res = 0;            // no interrupts gets out of BLINK
-                }
+//                } else {
+//                    res = 0;            // no interrupts gets out of BLINK
+//                }
 				break;
 				
 			case 0xB2:
@@ -1091,8 +1086,6 @@ public final class Blink extends Z80 {
 		// Let the Blink know that a HALT instruction occured
 		// so that the Z88 enters the correct state (coma, snooze, ...)
 
-		System.out.println("HALT start");		
-
 		long w = System.currentTimeMillis();		
 		do {
 			try {
@@ -1104,7 +1097,6 @@ public final class Blink extends Z80 {
 		// Only get out of coma if an interrupt occurred..
 		while(interruptTriggered() == false);
 		w = System.currentTimeMillis() - w;
-		System.out.println("HALT end: " + w + " ms");
 		
 		// (back to main Z80 decode loop)
 	}
@@ -1842,7 +1834,6 @@ public final class Blink extends Z80 {
 				if ( (keyColumn != 0xFF) && ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
                     // If keyboard interrupts are enabled, then signal that a key was pressed.
 					STA |= BM_STAKEY;
-					System.out.println("INT.KEY interrupts enabled, and key pressed");
 				}
                 
                 return keyColumn;
@@ -1857,26 +1848,11 @@ public final class Blink extends Z80 {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
-
-// Testing...
-//				if (scanKeyboard() != 0xFF) {   // Blink scans the keyboard...
-//                    setNmi(true);                // a key was pressed, RST 66H
-//                    setInterruptSignal();
-//                    return;
-//                }
-
                 scanKeyboard();  // Blink always scans the keyboard...
                 
-				if (!IFF1()) {
-					// Maskable interrupt occurred, but cannot get out because Z80 is in DI...
-//                  System.out.println("Blink RST 38H, but signal to Z80 blocked (DI): " + System.currentTimeMillis());
-					return;
-                } else {
-					// signal Maskable interrupt occurred, since we're in EI state...
-                    setNmi(false);
-					setInterruptSignal();
-                    System.out.println("Blink RST 38H in EI, signal to Z80: " + System.currentTimeMillis());
-                }
+                // signal Maskable interrupt to be executed, as soon as Z80 is ready to grab it...
+                setNmi(false);
+                setInterruptSignal();
 			}
 		}
 		

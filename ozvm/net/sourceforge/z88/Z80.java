@@ -500,18 +500,17 @@ public abstract class Z80 {
     /** Interrupt handler */
     public final void setInterruptSignal() {
         externIntSignal = true;
-		z80Halted = false;
     }
 
     /** Interrupt handler */
     private final void acknowledgeInterrupt() {
         externIntSignal = false;
-		z80Halted = false;
     }
 
     /** process interrupt */
     private boolean execInterrupt() {
-
+        acknowledgeInterrupt();
+        
         if (getNmi() == true) {
             // non maskable interrupt occurred... (overrides DI)
             pushw(_PC);
@@ -521,11 +520,6 @@ public abstract class Z80 {
             tstatesCounter += 13;
             setNmi(false);
             return true;                
-        }
-
-        if (!IFF1()) {
-            // DI interrupt state enabled, maskable interrupts will not be executed.
-            return false;
         }
 
         switch (IM()) {
@@ -565,14 +559,15 @@ public abstract class Z80 {
     
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
     public final void run(boolean singleStep) {
+                
         singleStepping = singleStep;
         
         do {
 			if (abortZ80() == true) return;
 						
-            // INT occurred
-            if (interruptTriggered() == true) {
-                if (execInterrupt() == true) acknowledgeInterrupt();
+            if (IFF1() == true && interruptTriggered() == true) {
+                // a maskable interrupt want's to be executed...
+                execInterrupt();
             }
 
             REFRESH(1);
@@ -1856,9 +1851,11 @@ public abstract class Z80 {
                         break;
                     }
                 case 251 : /* EI */ {
-						IFF1(true);
-						IFF2(true);
                         tstatesCounter += 4;
+                        run(true);  // execute a single instruction after EI...
+                        singleStepping = false;
+						IFF1(true); // open up for interrupts again...
+						IFF2(true);                        
                         break;
                     }
 
@@ -2554,10 +2551,8 @@ public abstract class Z80 {
 
                         tstatesCounter += 21;
                         REFRESH(2);
-                        if (interruptTriggered() == true) {
-                            if (execInterrupt() == true) {
-                                acknowledgeInterrupt();
-                            }
+                        if (IFF1() == true && interruptTriggered() == true) {
+                            execInterrupt();
                         }
                     } while (count != 0);
                     if (count != 0) {
@@ -2639,11 +2634,8 @@ public abstract class Z80 {
 
                         tstatesCounter += 21;
                         REFRESH(2);
-                        if (interruptTriggered() == true) {
-                            if (execInterrupt() == true) {
-                                acknowledgeInterrupt();
-                                break;
-                            }
+                        if (IFF1() == true && interruptTriggered() == true) {
+                            execInterrupt();
                         }
                     } while (count != 0);
                     if (count != 0) {
