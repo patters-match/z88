@@ -280,7 +280,7 @@ public final class Memory {
 			// dump ROM (lower 512K address range)
 			dumpBanksToFile(0x00, getInternalRomSize()-1, dirName, "rom.bin");
 			// dump RAM (upper 512K address range)
-			dumpBanksToFile(0x20, getInternalRamSize()-1, dirName, "ram.bin");			
+			dumpBanksToFile(0x20, 0x20 + getInternalRamSize()-1, dirName, "ram.bin");			
 		} else {
 			if (isSlotEmpty(slotNumber) == false) {
 				if (bankFileFormat == false) {
