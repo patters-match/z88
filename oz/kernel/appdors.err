@@ -1,0 +1,15 @@
+File 'appdors.asm', Module 'APPSTATIC', at line 358, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 367, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 383, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 408, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 433, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 458, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 493, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 510, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 519, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 535, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 341, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 392, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 417, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 442, Warning: offset reaches beyond 16K boundary
+File 'appdors.asm', Module 'APPSTATIC', at line 467, Warning: offset reaches beyond 16K boundary
