@@ -42,7 +42,7 @@ DEFC VppBit = 1
 ; Write a byte (in A) to the Flash Memory Card in slot x, at address BHL.
 ; -----------------------------------------------------------------------
 ;
-; BHL points to an absolute bank (which is part of the slot that the Flash 
+; BHL points to a bank, offset (which is part of the slot that the Flash 
 ; Memory Card have been inserted into).
 ;
 ; The routine can OPTIONALLY be told which programming algorithm to use 
