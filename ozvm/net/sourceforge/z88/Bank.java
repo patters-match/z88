@@ -1,5 +1,6 @@
-import java.io.*;
+package net.sourceforge.z88;
 
+import java.io.*;
 
 /**
  * @author gstrube

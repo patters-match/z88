@@ -1,9 +1,13 @@
-/*
- * @(#)Z88.java 1.1 Gunther Strube
- */
+
+package net.sourceforge.z88;
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
+
+/*
+ * @(#)Z88.java 1.1 Gunther Strube
+ */
 
 /**
  * The Z88 class extends the Z80 class implementing the supporting

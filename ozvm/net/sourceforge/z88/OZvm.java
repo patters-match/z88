@@ -1,7 +1,12 @@
+package net.sourceforge.z88;
+
 /**
  * @author Gunther Strube
  *
  * Main entry of the Z88 virtual machine.
+ * 
+ * $Id$
+ * 
  */
 public class OZvm {
 
