@@ -68,11 +68,7 @@ public final class Blink extends Z80 {
 	 * The 640x64 pixel display (here a window).
 	 */
 	private Z88display z88Display;
-	
-	public Z88display getDisplay() {
-		return z88Display;
-	}
-		
+			
 	/**
 	 * The keyboard hardware (wich will be mapped to IN port)
 	 */
@@ -477,88 +473,103 @@ public final class Blink extends Z80 {
 	 * @return int
 	 */
 	public int getKbd(int row) {
-		int keyColumn = 0xFF;	// Defualt to no keys pressed...
-								
-		switch(row) {
-			case 0x7F:	// Row 01111111:
-						//			| D7     D6      D5      D4      D3      D2      D1      D0
-						// -------------------------------------------------------------------------
-						// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
-						keyColumn = keybRowA15;
-						// System.out.println("keybRowA15=" + Dz.byteToHex(keyColumn, true));
-						break;
+		int keyColumn = 0xFF;	// Default to no keys pressed...
 
-			case 0xBF:	// 10111111
-						//			| D7     D6      D5      D4      D3      D2      D1      D0
-						// -------------------------------------------------------------------------
-						// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
-						keyColumn = keybRowA14;
-						// System.out.println("keybRowA14=" + Dz.byteToHex(keyColumn, true));
-						break;
+        if (stopZ88 == true) return keyColumn;
+        
+		do {
+            switch(row) {
+                case 0x7F:	// Row 01111111:
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0
+                            // -------------------------------------------------------------------------
+                            // A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
+                            keyColumn = keybRowA15;
+                            // System.out.println("keybRowA15=" + Dz.byteToHex(keyColumn, true));
+                            break;
 
-			case 0xDF:	// 11011111
-						//			| D7     D6      D5      D4      D3      D2      D1      D0
-						// -------------------------------------------------------------------------
-						// A13 (#5) | [      SPACE   1       Q       A       Z       L       0
-						keyColumn = keybRowA13;
-						// System.out.println("keybRowA13=" + Dz.byteToHex(keyColumn, true));
-						break;
+                case 0xBF:	// 10111111
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0
+                            // -------------------------------------------------------------------------
+                            // A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
+                            keyColumn = keybRowA14;
+                            // System.out.println("keybRowA14=" + Dz.byteToHex(keyColumn, true));
+                            break;
 
-			case 0xEF:	// 11101111
-						//			| D7     D6      D5      D4      D3      D2      D1      D0
-						// -------------------------------------------------------------------------			
-						// A12 (#4) | ]      LFT     2       W       S       X       M       P
-						keyColumn = keybRowA12;
-						// System.out.println("keybRowA12=" + Dz.byteToHex(keyColumn, true));
-						break;
-				
-			case 0xF7:	// 11110111
-						//			| D7     D6      D5      D4      D3      D2      D1      D0			
-						// -------------------------------------------------------------------------
-						// A11 (#3) | -      RGT     3       E       D       C       K       9
-						keyColumn = keybRowA11;
-						// System.out.println("keybRowA11=" + Dz.byteToHex(keyColumn, true));
-						break;
-										
-			case 0xFB:	// 11111011
-						//			| D7     D6      D5      D4      D3      D2      D1      D0			
-						// -------------------------------------------------------------------------
-						// A10 (#2) | =      DWN     4       R       F       V       J       O
-						keyColumn = keybRowA10;
-						// System.out.println("keybRowA10=" + Dz.byteToHex(keyColumn, true));
-						break;
-				
-			case 0xFD:	// 11111101
-						//			| D7     D6      D5      D4      D3      D2      D1      D0			
-						// -------------------------------------------------------------------------
-						// A9  (#1) | \      UP      5       T       G       B       U       I
-						keyColumn = keybRowA9;
-						// System.out.println("keybRowA9=" + Dz.byteToHex(keyColumn, true));
-						break;
-				
-			case 0xFE:	// 11111110
-						//			| D7     D6      D5      D4      D3      D2      D1      D0			
-						// -------------------------------------------------------------------------
-						// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
-						keyColumn = keybRowA8;
-						// System.out.println("keybRowA8=" + Dz.byteToHex(keyColumn, true));
-						break;
-			case 0x00:
-				if (keybRowA15 != 0xFF) return keyColumn = keybRowA15; 
-				if (keybRowA14 != 0xFF) return keyColumn = keybRowA14;
-				if (keybRowA13 != 0xFF) return keyColumn = keybRowA13;
-				if (keybRowA12 != 0xFF) return keyColumn = keybRowA12;
-				if (keybRowA11 != 0xFF) return keyColumn = keybRowA11;
-				if (keybRowA10 != 0xFF) return keyColumn = keybRowA10;
-				if (keybRowA9 != 0xFF) return keyColumn = keybRowA9;
-				if (keybRowA8 != 0xFF) return keyColumn = keybRowA8;
-				break;
-		}		
+                case 0xDF:	// 11011111
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0
+                            // -------------------------------------------------------------------------
+                            // A13 (#5) | [      SPACE   1       Q       A       Z       L       0
+                            keyColumn = keybRowA13;
+                            // System.out.println("keybRowA13=" + Dz.byteToHex(keyColumn, true));
+                            break;
+
+                case 0xEF:	// 11101111
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0
+                            // -------------------------------------------------------------------------			
+                            // A12 (#4) | ]      LFT     2       W       S       X       M       P
+                            keyColumn = keybRowA12;
+                            // System.out.println("keybRowA12=" + Dz.byteToHex(keyColumn, true));
+                            break;
+
+                case 0xF7:	// 11110111
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
+                            // -------------------------------------------------------------------------
+                            // A11 (#3) | -      RGT     3       E       D       C       K       9
+                            keyColumn = keybRowA11;
+                            // System.out.println("keybRowA11=" + Dz.byteToHex(keyColumn, true));
+                            break;
+
+                case 0xFB:	// 11111011
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
+                            // -------------------------------------------------------------------------
+                            // A10 (#2) | =      DWN     4       R       F       V       J       O
+                            keyColumn = keybRowA10;
+                            // System.out.println("keybRowA10=" + Dz.byteToHex(keyColumn, true));
+                            break;
+
+                case 0xFD:	// 11111101
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
+                            // -------------------------------------------------------------------------
+                            // A9  (#1) | \      UP      5       T       G       B       U       I
+                            keyColumn = keybRowA9;
+                            // System.out.println("keybRowA9=" + Dz.byteToHex(keyColumn, true));
+                            break;
+
+                case 0xFE:	// 11111110
+                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
+                            // -------------------------------------------------------------------------
+                            // A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
+                            keyColumn = keybRowA8;
+                            // System.out.println("keybRowA8=" + Dz.byteToHex(keyColumn, true));
+                            break;
+                case 0x00:
+                    if (keybRowA15 != 0xFF) return keyColumn = keybRowA15; 
+                    if (keybRowA14 != 0xFF) return keyColumn = keybRowA14;
+                    if (keybRowA13 != 0xFF) return keyColumn = keybRowA13;
+                    if (keybRowA12 != 0xFF) return keyColumn = keybRowA12;
+                    if (keybRowA11 != 0xFF) return keyColumn = keybRowA11;
+                    if (keybRowA10 != 0xFF) return keyColumn = keybRowA10;
+                    if (keybRowA9 != 0xFF) return keyColumn = keybRowA9;
+                    if (keybRowA8 != 0xFF) return keyColumn = keybRowA8;
+                    break;
+            }		
+
+            if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
+                try {
+                    Thread.sleep(5);		// Z80 snoozes for 5ms ... (interrupts still occurs in Blink)
+                } catch (InterruptedException e) {
+                    e.printStackTrace(System.out);
+                }			
+            }
+        }
+		// Only get out of loop if we have INT.KWAIT (snooze) and a key was pressed...
+		while( (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xFF);
 		
+        if ((INT & BM_INTKWAIT) == BM_INTKWAIT) System.out.println("Snooze state exited, returning keycolumn " + Integer.toBinaryString(keyColumn) + ".");
 		return keyColumn;
 	}
 
-	
+    
 	/**
 	 * System bank for lower 8K of segment 0.
 	 * References bank 0x00 or 0x20 of slot 0.
@@ -1018,12 +1029,21 @@ public final class Blink extends Z80 {
 		}
 	}
 
+    /** 
+     * Internal signal that F5 key was pressed while Blink was reading the keyboard
+     */
+    private boolean stopZ88 = false;
 
+    /** 
+     * Check if F5 key was pressed while Blink was reading the keyboard
+     */
 	public boolean abortZ80() {
-		if (z88Keyboard.getCurrentlyPressedKey() == java.awt.event.KeyEvent.VK_F5)
-			return true;
-		else
-			return false;
+        if (stopZ88 == true) {
+            stopZ88 = false;
+            return true;
+        } else {
+            return false;
+        }
 	}
 	
 	
@@ -1036,17 +1056,17 @@ public final class Blink extends Z80 {
 		long w = System.currentTimeMillis();		
 		do {
 			try {
-				Thread.sleep(10);		// Z80 "sleeps" for 10ms ... (interrupts still occurs in Blink)
+				Thread.sleep(5);		// Z80 "sleeps" for 5ms ... (interrupts still occurs in Blink)
 			} catch (InterruptedException e) {
 				e.printStackTrace(System.out);
 			}			
 		}
-		// Only get out of snooze if we have INT.KWAIT with keyboard interrupts enabled and a key was pressed...
-		while( ((INT & BM_INTKWAIT) == BM_INTKWAIT) & ((INT & BM_INTKEY) == BM_INTKEY) & ((STA & BM_STAKEY) == BM_STAKEY));
+		// Only get out of coma if an interrupt occurred..
+		while(interruptTriggered() == false);
 		w = System.currentTimeMillis() - w;
 		System.out.println("HALT end: " + w + " ms");
 		
-		// If INT.KWAIT is not enabled, then just halt for 10ms and let the machine evaluate if an interrupt occurred.		
+		// If INT.KWAIT is not enabled, then just halt for 5ms and let the machine evaluate if an interrupt occurred.		
 		// (back to main Z80 decode loop)
 	}
 
@@ -1364,11 +1384,15 @@ public final class Blink extends Z80 {
 	public void startInterrupts() {
 		System.out.println("Starting Blink interrupts to Z80");
 		z80Int.start();
+        System.out.println("Starting Z88 Screen renderer.");
+        z88Display.start();
 	}
 
 	public void stopInterrupts() {
 		System.out.println("Stopping Blink interrupts to Z80");
 		z80Int.stop();
+		System.out.println("Stopping Z88 Screen renderer.");
+        z88Display.stop();
 	}
 
 	/** 
@@ -1596,10 +1620,11 @@ public final class Blink extends Z80 {
 		 *	-------------------------------------------------------------------------
 		 * </PRE>
 		 */ 
-		private void scanKeyboard() {
+		private int scanKeyboard() {
 			int currentKey = z88Keyboard.getCurrentlyPressedKey();			
 
 			int row = 0xFE;		// start with A8, then upwards..
+            int keyColumn = 0xFF;
 			for (int scanRow=0; scanRow<8; scanRow++) {
 				switch(row) {
 					case 0x7F:	// Row 01111111:
@@ -1607,11 +1632,11 @@ public final class Blink extends Z80 {
 								// -------------------------------------------------------------------------
 								// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
 								switch(currentKey) {
-									case java.awt.event.KeyEvent.VK_F12: keybRowA15 = 0x7F; break; 		// RIGHT SHIFT
-									case java.awt.event.KeyEvent.VK_ALT: keybRowA15 = 0xBF; break;		// []
-									case java.awt.event.KeyEvent.VK_ESCAPE: keybRowA15 = 0xDF; break;	// ESC
-									case java.awt.event.KeyEvent.VK_F2: keybRowA15 = 0xEF; break;		// INDEX
-									case java.awt.event.KeyEvent.VK_CAPS_LOCK: keybRowA15 = 0xF7; break;// CAPS LOCK
+									case java.awt.event.KeyEvent.VK_F12: keybRowA15 = keyColumn = 0x7F; break; 		// RIGHT SHIFT
+									case java.awt.event.KeyEvent.VK_ALT: keybRowA15 = keyColumn = 0xBF; break;		// SQUARE (10111111)
+									case java.awt.event.KeyEvent.VK_ESCAPE: keybRowA15 = keyColumn = 0xDF; break;	// ESC
+									case java.awt.event.KeyEvent.VK_F2: keybRowA15 = keyColumn = 0xEF; break;		// INDEX
+									case java.awt.event.KeyEvent.VK_CAPS_LOCK: keybRowA15 = keyColumn = 0xF7; break;// CAPS LOCK
 									// D2
 									// D1
 									// D0
@@ -1624,12 +1649,12 @@ public final class Blink extends Z80 {
 								// -------------------------------------------------------------------------
 								// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
 								switch(currentKey) {
-									case java.awt.event.KeyEvent.VK_F1: keybRowA14 = 0x7F; break; 		// HELP
-									case java.awt.event.KeyEvent.VK_F12: keybRowA14 = 0xBF; break;		// LEFT SHIFT  (F12 = both shift keys down)
-									case java.awt.event.KeyEvent.VK_SHIFT: keybRowA14 = 0xBF; break;	// LEFT SHIFT  (Generic SHIFT)
-									case java.awt.event.KeyEvent.VK_TAB: keybRowA14 = 0xDF; break;		// TAB
-									case java.awt.event.KeyEvent.VK_CONTROL: keybRowA14 = 0xEF; break;	// <> 
-									case java.awt.event.KeyEvent.VK_F3: keybRowA14 = 0xF7; break;		// MENU 
+									case java.awt.event.KeyEvent.VK_F1: keybRowA14 = keyColumn = 0x7F; break; 		// HELP
+									case java.awt.event.KeyEvent.VK_F12: keybRowA14 = keyColumn = 0xBF; break;		// LEFT SHIFT (10111111) (F12 = both shift keys down)
+									case java.awt.event.KeyEvent.VK_SHIFT: keybRowA14 = keyColumn = 0xBF; break;	// LEFT SHIFT  (Generic SHIFT)
+									case java.awt.event.KeyEvent.VK_TAB: keybRowA14 = keyColumn = 0xDF; break;		// TAB
+									case java.awt.event.KeyEvent.VK_CONTROL: keybRowA14 = keyColumn = 0xEF; break;	// <> 
+									case java.awt.event.KeyEvent.VK_F3: keybRowA14 = keyColumn = 0xF7; break;		// MENU 
 									// D2
 									// D1
 									// D0
@@ -1643,7 +1668,7 @@ public final class Blink extends Z80 {
 								// A13 (#5) | [      SPACE   1       Q       A       Z       L       0
 								switch(currentKey) {
 									// D7
-									case java.awt.event.KeyEvent.VK_SPACE: keybRowA13 = 0xBF; break;	// SPACE
+									case java.awt.event.KeyEvent.VK_SPACE: keybRowA13 = keyColumn = 0xBF; break;	// SPACE (10111111)
 									// D5
 									// D4
 									// D3
@@ -1660,7 +1685,7 @@ public final class Blink extends Z80 {
 								// A12 (#4) | ]      LFT     2       W       S       X       M       P
 								switch(currentKey) {
 									// D7
-									case java.awt.event.KeyEvent.VK_LEFT: keybRowA12 = 0xBF; break;		// LEFT CURSOR
+									case java.awt.event.KeyEvent.VK_LEFT: keybRowA12 = keyColumn = 0xBF; break;		// LEFT CURSOR (10111111)
 									// D5
 									// D4
 									// D3
@@ -1677,7 +1702,7 @@ public final class Blink extends Z80 {
 								// A11 (#3) | -      RGT     3       E       D       C       K       9
 								switch(currentKey) {
 									// D7
-									case java.awt.event.KeyEvent.VK_RIGHT: keybRowA11 = 0xBF; break;	// RIGHT CURSOR
+									case java.awt.event.KeyEvent.VK_RIGHT: keybRowA11 = keyColumn = 0xBF; break;	// RIGHT CURSOR (10111111)
 									// D5
 									// D4
 									// D3
@@ -1694,7 +1719,7 @@ public final class Blink extends Z80 {
 								// A10 (#2) | =      DWN     4       R       F       V       J       O
 								switch(currentKey) {
 									// D7
-									case java.awt.event.KeyEvent.VK_DOWN: keybRowA10 = 0xBF; break;		// DOWN CURSOR
+									case java.awt.event.KeyEvent.VK_DOWN: keybRowA10 = keyColumn = 0xBF; break;		// DOWN CURSOR (10111111)
 									// D5
 									// D4
 									// D3
@@ -1711,7 +1736,7 @@ public final class Blink extends Z80 {
 								// A9  (#1) | \      UP      5       T       G       B       U       I
 								switch(currentKey) {
 									// D7
-									case java.awt.event.KeyEvent.VK_UP: keybRowA9 = 0xBF; break;		// UP CURSOR
+									case java.awt.event.KeyEvent.VK_UP: keybRowA9 = keyColumn = 0xBF; break;		// UP CURSOR
 									// D5
 									// D4
 									// D3
@@ -1727,8 +1752,8 @@ public final class Blink extends Z80 {
 								// -------------------------------------------------------------------------
 								// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
 								switch(currentKey) {
-									case java.awt.event.KeyEvent.VK_BACK_SPACE: keybRowA8 = 0x7F; break; 	// DEL
-									case java.awt.event.KeyEvent.VK_ENTER: keybRowA8 = 0xBF; break;			// ENTER
+									case java.awt.event.KeyEvent.VK_BACK_SPACE: keybRowA8 = keyColumn = 0x7F; break; 	// DEL
+									case java.awt.event.KeyEvent.VK_ENTER: keybRowA8 = keyColumn = 0xBF; break;			// ENTER
 									// D5
 									// D4
 									// D3
@@ -1747,14 +1772,16 @@ public final class Blink extends Z80 {
 		
 			// If keyboard interrupts are enabled, then signal that a key was pressed.
 			if (currentKey == KeyboardDevice.NO_KEYS_PRESSED) {
-				return;
+				return 0xFF;
 			} else {				
-				if ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) {
+                if (currentKey == java.awt.event.KeyEvent.VK_F5) stopZ88 = true;
+                
+				if ( (keyColumn != 0xFF) && ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
 					STA |= BM_STAKEY;
-					System.out.println("K-Ints ON, and key pressed");
-				} else {
-					System.out.println("Key pressed, but K-Ints OFF");
+					System.out.println("INT.KEY interrupts enabled, and key pressed");
 				}
+                
+                return keyColumn;
 			}			
 		}
 
@@ -1766,16 +1793,23 @@ public final class Blink extends Z80 {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
-				scanKeyboard();	// Blink always scans the keyboard...
-				
+//				if (scanKeyboard() != 0xFF) {   // Blink scans the keyboard...
+//                    setNmi(true);                // a key was pressed, RST 66H
+//                    setInterruptSignal();
+//                    return;
+//                }
+
+                scanKeyboard();  // Blink always scans the keyboard...
+                
 				if (!IFF1()) 
 					// Maskable interrupt occurred, but cannot get out because Z80 is in DI...
 					return;
-				else
-					// Maskable interrupt occurred, 
-					// but signal it only to Z80 if EI...
-					setInterruptSignal();
-			}			
+				else {
+					// signal Maskable interrupt occurred, and we're in EI state...
+                    setNmi(false);
+					setInterruptSignal();       // RST 38H
+                }
+			}
 		}
 		
 		/**
