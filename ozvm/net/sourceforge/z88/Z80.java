@@ -397,6 +397,9 @@ public abstract class Z80 {
 	/** External implemenation of Read instruction from the Z80 virtual memory model */
 	public abstract int readInstruction(final int addr);
 
+	/** External implemenation of action to be taken when a display breakpoint is encountered */
+	public abstract void breakPointAction();
+		
     /** IO ports */
     public abstract void outByte(int addrA8, int addrA15, int bits);
 
@@ -950,7 +953,7 @@ public abstract class Z80 {
                     /* LD B,* */
                 case 64 : /* LD B,B */ {
                         // Break point
-                        PC(PC() - 1);	// Program Counter is placed at point of breakpoint.
+                        PC(PC() - 1);	// Program Counter is placed at breakpoint.
                         z80Stopped = true;
                         tstatesCounter += 4;
                         break;
@@ -998,6 +1001,8 @@ public abstract class Z80 {
                         break;
                     }
                 case 73 : /* LD C,C */ {
+						// Display breakpoint 
+						breakPointAction();
                         tstatesCounter += 4;
                         break;
                     }
