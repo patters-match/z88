@@ -168,6 +168,74 @@ public class CommandLine implements KeyListener {
 			cmdHelp();
 		}
 
+		if (cmdLineTokens[0].compareToIgnoreCase("storevm") == 0) {
+			SaveRestoreVM srVm = new SaveRestoreVM();
+			try {
+				if (z80Thread == null) {
+					if (cmdLineTokens.length == 1)
+						srVm.storeSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
+					else 
+						srVm.storeSnapShot(cmdLineTokens[1]);
+					
+					displayCmdOutput("Snapshot successfully stored.");
+				} else {
+					if (z80Thread.isAlive()	== true)
+						displayCmdOutput("Snapshot can only be saved when Z88 is not running.");
+					else {
+						if (cmdLineTokens.length == 1)
+							srVm.storeSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
+						else 
+							srVm.storeSnapShot(cmdLineTokens[1]);
+						
+						displayCmdOutput("Snapshot successfully stored.");
+					}
+				}							
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("loadvm") == 0) {
+			SaveRestoreVM srVm = new SaveRestoreVM();
+			boolean restoreSucceeded = false;
+			
+			if (z80Thread == null) {
+				if (cmdLineTokens.length == 1)
+					restoreSucceeded = srVm.loadSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
+				else 
+					restoreSucceeded = srVm.loadSnapShot(cmdLineTokens[1]);
+
+				if (restoreSucceeded == true) {
+					displayCmdOutput("Snapshot successfully restored.");
+				} else {
+			    	// loading of snapshot failed - define a default Z88 system
+			    	// as fall back plan.
+					displayCmdOutput("Snapshot restore failed. Z88 preset to default system.");
+			    	memory.setDefaultSystem();
+			    	z88.reset();				
+				}				
+			} else {
+				if (z80Thread.isAlive()	== true)
+					displayCmdOutput("Loading of snapshot only possible when Z88 is not running.");
+				else {
+					if (cmdLineTokens.length == 1)
+						restoreSucceeded = srVm.loadSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
+					else 
+						restoreSucceeded = srVm.loadSnapShot(cmdLineTokens[1]);
+
+					if (restoreSucceeded == true) {
+						displayCmdOutput("Snapshot successfully restored.");
+					} else {
+				    	// loading of snapshot failed - define a default Z88 system
+				    	// as fall back plan.
+						displayCmdOutput("Snapshot restore failed. Z88 preset to default system.");
+				    	memory.setDefaultSystem();
+				    	z88.reset();				
+					}				
+				}				
+			}						
+		}
+		
 		if (cmdLineTokens[0].compareToIgnoreCase("cls")	== 0) {
 			commandOutput.setText("");
 		}
