@@ -410,26 +410,26 @@ public abstract class Z80 {
 
     /** Program Counter Byte Access */
     private final int nxtpcb() {
-//    	if (cachedOpcodes == 0)
-//			fetchInstruction();				// fetch and cache a new 4 bytes sequence
-//
-//        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
-//		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
-//		cachedOpcodes--;					// one less instruction opcode
+    	if (cachedOpcodes == 0)
+			fetchInstruction();				// fetch and cache a new 4 bytes sequence
 
-		int b = readByte(_PC);
-		_PC = ++_PC & 0xffff;				// update Program Counter
+        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
+		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
+		cachedOpcodes--;					// one less instruction opcode
+
+//		int b = readByte(_PC);
+//		_PC = ++_PC & 0xffff;				// update Program Counter
         
         return b;
     }
 
 	/** Program Counter Word Access */
     private final int nxtpcw() {
-//        int w = nxtpcb();		// the get LSB from current PC
-//        w |= nxtpcb() << 8;		// the get MSB from current PC
+        int w = nxtpcb();		// the get LSB from current PC
+        w |= nxtpcb() << 8;		// the get MSB from current PC
 
-		int w = readWord(_PC);
-		_PC = (_PC + 2) & 0xFFFF;
+//		int w = readWord(_PC);
+//		_PC = (_PC + 2) & 0xFFFF;
 		
         return w;
     }
