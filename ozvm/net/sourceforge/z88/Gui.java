@@ -150,6 +150,7 @@ public class Gui extends JFrame {
 	private javax.swing.JTextArea cmdlineOutputArea() {
 		if(cmdOutput == null) {
 			cmdOutput = new javax.swing.JTextArea(30,80);
+			cmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			cmdOutput.setBackground(Color.BLACK);
 			cmdOutput.setForeground(Color.GREEN);
 			cmdOutput.setEditable(false);
@@ -167,6 +168,7 @@ public class Gui extends JFrame {
 	private javax.swing.JTextField cmdLineInputArea() {
 		if(jTextField == null) {
 			jTextField = new javax.swing.JTextField();
+			jTextField.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			jTextField.setPreferredSize(new Dimension(640,20));
 			jTextField.setToolTipText("Type your debugging commands here");
 			jTextField.setVisible(true);
@@ -257,7 +259,7 @@ public class Gui extends JFrame {
 	private javax.swing.JTextArea rtmOutArea() {
 		if(rtmOutputArea == null) {
 			rtmOutputArea = new javax.swing.JTextArea(30,80);
-			rtmOutputArea.setFont(new java.awt.Font("Courier",java.awt.Font.PLAIN, 11));
+			rtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			rtmOutputArea.setEditable(false);
 		}
 		return rtmOutputArea;
