@@ -418,7 +418,7 @@ public abstract class Z80 {
 		cachedOpcodes--;					// one less instruction opcode
 
 //		int b = readByte(_PC);
-//		_PC = ++_PC & 0xffff;				// update Program Counter
+		_PC = ++_PC & 0xffff;				// update Program Counter
         
         return b;
     }
