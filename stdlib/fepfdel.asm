@@ -27,21 +27,31 @@
 ;
 ; Standard Z88 File Eprom Format (using Flash Eprom Card).
 ;
-; Mark File Entry as deleted on File Eprom (in slot 3), identified
-; by BHL pointer (B=00h-3Fh, HL=0000h-3FFFh).
+; Mark File Entry as deleted on File Eprom Card, identified by
+; BHL pointer, B=00h-FFh (bits 7,6 is the slot mask), HL=0000h-3FFFh is
+; the bank offset.
 ;
-; This routine will temporarily set the Vpp pin while marking the
-; file as deleted.
+; Important: 
+; Third generation AMD Flash Memory chips may be programmed in all 
+; available slots (1-3). Only INTEL I28Fxxxx series Flash chips require 
+; the 12V VPP pin in slot 3 to successfully mark the File Entry as deleted 
+; on the memory chip. If the Flash Eprom card is inserted in slot 1 or 2, 
+; this routine will report a programming failure. 
+;
+; It is the responsibility of the application (before using this call) to 
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
+; this type of unnecessary error can be avoided.
 ;
 ; IN:
-;         BHL = pointer to File Entry
-;
+;         BHL = pointer to File Entry (B=00h-FFh, HL=0000h-3FFFh bank offset)
+;               (bits 7,6 of B is the slot mask)
 ; OUT:
 ;         Fc = 0,
 ;              Marked as deleted.
 ;
 ;         Fc = 1,
-;              A = RC_Onf, File (Flash) Eprom or File Entry not found in slot 3
+;              A = RC_Onf, File (Flash) Eprom or File Entry not found in slot
 ;              A = RC_VPL, RC_BWR, Flash Eprom Write Error
 ;
 ; Registers changed on return:
@@ -49,7 +59,7 @@
 ;    .F....../.... different
 ;
 ; --------------------------------------------------------------------------
-; Design & Programming, Gunther Strube, InterLogic, Dec 1997 - Apr 1998
+; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sept 2004
 ; --------------------------------------------------------------------------
 ;
 .FlashEprFileDelete
@@ -60,19 +70,6 @@
 
                     PUSH BC
                     PUSH HL                       ; preserve File Entry pointer...
-                    LD   C,3                      
-                    CALL FlashEprCardId           ; check FE in slot 3
-                    POP  HL
-                    POP  BC                    
-                    JR   C, err_delfile           ; Flash Eprom not identified!
-
-                    SET  7,B                      ; slot 3 mask
-                    SET  6,B                      ; bank in slot 3
-                    RES  7,H
-                    SET  6,H                      ; (offset bound into segment 1 temporarily)
-
-                    PUSH BC
-                    PUSH HL
                     CALL FileEprFileEntryInfo
                     POP  HL
                     POP  BC
