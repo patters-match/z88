@@ -48,12 +48,14 @@ DEFC VppBit = 1
 ; The routine can OPTIONALLY be told which programming algorithm to use 
 ; (by specifying the FE_28F or FE_29F mnemonic in A'); these parameters
 ; can be fetched when investigated which Flash Memory chip is available 
-; in the slot, using the FlashEprCardId routine that reports these constant 
+; in the slot, using the FlashEprCardId routine that reports these constants 
 ; back to the caller.
 ;
 ; However, if neither of the constants are provided in A', the routine will 
 ; internally ask the Flash Memory for identification and intelligently use 
-; the correct programming algorithm.
+; the correct programming algorithm. The identified FE_28F or FE_29F constant
+; is returned to the caller in A' for future reference (when the byte was
+; successfully programmed to the card).
 ;
 ; Important: 
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
@@ -72,6 +74,7 @@ DEFC VppBit = 1
 ; Out:
 ;         Success:
 ;              Fc = 0
+;              A' = FE_28F or FE_29F (depending on Flash Memory type in slot)
 ;         Failure:
 ;              Fc = 1
 ;              A = RC_BWR (programming of byte failed)
@@ -151,6 +154,7 @@ DEFC VppBit = 1
                     JR   NZ, use_29F_programming ; and this one may be programmed in any slot...
                     LD   A,3
                     CP   C                   ; when chip is FE_28F series, we need to be in slot 3
+                    LD   A,FE_28F            ; restore fetched constant that is returned to the caller..
                     JR   Z,use_28F_programming ; to make a successful "write" of the byte...
                     SCF
                     LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
