@@ -140,10 +140,10 @@ public class OZvm {
 			return true;
 
 		} catch (FileNotFoundException e) {
-			System.out.println("Couldn't load ROM/EPROM image.\nOzvm terminated.");
+			System.out.println("Couldn't load ROM/EPROM image:\n" + e.getMessage() + "\nOzvm terminated.");
 			return false;
 		} catch (IOException e) {
-			System.out.println("Problem with ROM/EPROM image or I/O.\nOzvm terminated.");
+			System.out.println("Problem with ROM/EPROM image or I/O:\n" + e.getMessage() + "\nOzvm terminated.");
 			return false;
 		}		
 	}
