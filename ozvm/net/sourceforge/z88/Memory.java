@@ -20,6 +20,8 @@
 package net.sourceforge.z88;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -235,6 +237,7 @@ public final class Memory {
 		}
 	}
 
+	
 	/**
 	 * Remove inserted card, ie. null'ify the banks for the specified slot.
 	 *   
@@ -243,18 +246,97 @@ public final class Memory {
 	public void removeCard(int slot) {		
 	}
 	
+	
 	/**
-	 * Check if slot is empty (ie. no cards inserted)
-	 *
-	 * @param slotNo
-	 * @return true, if slot is empty
+	 * Dump the contents of specified slot as a file, or as a collection of 16K bank files.
+	 * When a slot is dumped as 16K bank files, the convention of Garry Lancaster's ROMCombiner
+	 * is followed; the slot is dumped from the top of the slot downwards, using the bank number
+	 * as a filename extension. Bank numbers are slot relative, ie. 63 (3Fh) as top bank and 
+	 * downwards.
+	 * 
+	 * <i>Slot 0 is handled differently</i>.<br>
+	 * Since slot 0 is not a container for removable cards and is physically divided as two separate 
+	 * 512K addressable memory ranges, two files are generated: "rom.bin" for the lower half 1Mb 
+	 * range (that contains the boot ROM) and "ram.bin" for the upper half 1Mb range (that contains 
+	 * the default system RAM).
+	 * <p>Both filenames for slot 0 overrides the <b>fileName</b> argument. Also, slot 0 is not  
+	 * dumped as 16K bank files (<b>bankFileFormat</b> argument is overridden). <b>dirName</b>  
+	 * are used to identify where the slot 0 contents will be dumped.</p>  
+	 *  
+	 * @param slotNumber 0-3
+	 * @param bankFileFormat <b>true</b> - dump slot as 16K bank files, otherwise as one file 
+	 * @param dirName base directory to store files, or ""
+	 * @param fileName core filename for slot/bank file(s)
+	 * @throws IOException if file(s) can't get created or storage error
+	 * @throws FileNotFoundException if there's a problem with the dir/filename(s)
 	 */
-	public final boolean isSlotEmpty(final int slotNo) {
-		// convert slot number to top bank number of specified slot
-		// if top bank of slot is of type NullBank, then we know it's empty...
-		return memory[(((slotNo & 3) << 6) | 0x3F)] == nullBank;
+	public void dumpSlot(int slotNumber, final boolean bankFileFormat, final String dirName, final String fileName) 
+						throws IOException, FileNotFoundException {
+		int bottomBank, topBank;
+		slotNumber &= 3;
+		
+		if (slotNumber == 0) {
+			// dump ROM (lower 512K address range)
+			dumpBanksToFile(0x00, getInternalRomSize()-1, dirName, "rom.bin");
+			// dump RAM (upper 512K address range)
+			dumpBanksToFile(0x20, getInternalRamSize()-1, dirName, "ram.bin");			
+		} else {
+			if (isSlotEmpty(slotNumber) == false) {
+				if (bankFileFormat == false) {
+					// dump slot as a single file...
+					bottomBank = slotNumber << 6;
+					topBank = bottomBank + getExternalCardSize(slotNumber)-1;
+					dumpBanksToFile(bottomBank, topBank, dirName, fileName);
+				} else {
+					// dump slot from top bank (63 / 0x3F), downwards...
+					topBank = ((slotNumber & 3) << 6 | 0x3F);
+					bottomBank = topBank - getExternalCardSize(slotNumber)-1;
+					for (int bankNo=topBank; bankNo >= bottomBank; bankNo--) {
+						dumpBanksToFile(bankNo, bankNo, dirName, fileName + "." + (bankNo & 0x3F));
+					}																	
+				}							
+			}
+		}
 	}
 
+	/**
+	 * Internal helper method to dump the memory contents of one or several
+	 * banks to the file system.
+	 *  
+	 * @param bottomBank
+	 * @param topBank
+	 * @param dirName
+	 * @param fileName
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 */
+	private void dumpBanksToFile(final int bottomBank, final int topBank, final String dirName, final String fileName) 
+								throws IOException, FileNotFoundException {
+		RandomAccessFile expSlotFile;
+
+		expSlotFile = new RandomAccessFile(dirName + File.separator + fileName, "rw");
+		for (int bankNo=bottomBank; bankNo <= topBank; bankNo++) {
+			expSlotFile.write(getBank(bankNo).dumpBytes(0, Bank.SIZE));
+		}							
+		expSlotFile.close();		
+	}	
+	
+	
+	/**
+	 * Check if specified slot is empty (or not).
+	 * 
+	 * @return true if slot is empty (no cards inserted), otherwise false
+	 */
+	public boolean isSlotEmpty(final int slotNo) {
+		if (slotNo == 0) 
+			return false;	// slot 0 always contains stuff (RAM/ROM) 
+		else {
+			int bankNo = ((slotNo & 3) << 6); // bottom bank of slot
+			return Memory.getInstance().getBank(bankNo) instanceof VoidBank;
+		}
+	}
+
+	
 	/**
 	 * Scan available slots for Ram Cards, and reset them..
 	 */
@@ -268,6 +350,7 @@ public final class Memory {
 			}
 		}
 	}
+	
 	
 	/**
 	 * Insert empty Eprom Card into Z88 memory system, slots 0 - 3. 
@@ -692,13 +775,60 @@ public final class Memory {
 		Blink.getInstance().setRAMS(getBank(0));	// point at ROM bank 0
 	}
 
+	
 	/**
-	 * Return the size of inserted Eprom/Rom/Flash Cards in 16K banks.
+	 * Return the size of installed ROM in slot 0, motherboard 
+	 * (lower 512K address space, bank 0x00 - 0x1F)
+	 * 
+	 * @return number of 16K banks of ROM in slot 0
+	 */
+	public int getInternalRomSize() {
+		int cardSize = 1;
+		int bankNo = 0x00;		
+		
+		Bank bottomBank = getBank(bankNo);
+		while (++bankNo <= 0x1F) {
+			if (getBank(bankNo) != bottomBank) 
+				cardSize++;
+			else 
+				break;				
+		}
+		
+		return cardSize;
+	}
+
+	
+	/**
+	 * Return the size of installed RAM in slot 0, motherboard 
+	 * (upper 512K address space, banks 0x20 - 0x3F)
+	 * 
+	 * @return number of 16K banks of RAM in slot 0
+	 */
+	public int getInternalRamSize() {
+		int cardSize = 1;
+		int bankNo = 0x20;		
+		
+		Bank bottomBank = getBank(bankNo);
+		while (++bankNo <= 0x3F) {
+			if (getBank(bankNo) != bottomBank) 
+				cardSize++;
+			else 
+				break;				
+		}
+		
+		return cardSize;
+	}
+
+	
+	/**
+	 * Return the size of inserted Ram/Eprom/Rom/Flash Cards in 
+	 * specified external slot 1-3, in 16K banks.<br>
 	 * If no card is available in specified slot, -1 is returned.
 	 * 
 	 * @return number of 16K banks of inserted Card
 	 */
-	public int getCardSize(final int slotNo) {		
+	public int getExternalCardSize(final int slotNo) {
+		int cardSize = -1;					// preset to "no card available"...
 		int bankNo = ((slotNo & 3) << 6);	// bottom bank number of slot
 		int bottomBankNo = bankNo;
 		int maxBanks;
@@ -706,21 +836,20 @@ public final class Memory {
 		if (isSlotEmpty(slotNo) == true)
 			return -1;
 		else {
-			if (slotNo == 0) 
-				maxBanks = 32;	// internal ROM may be max 512K (banks 00 - 1F)
-			else
+			if (slotNo > 0) { 
 				maxBanks = 64;	// each external slot has 1Mb address range
 			
-			Bank bottomBank = getBank(bottomBankNo);
-			int cardSize = 1;
-			while (++bankNo < (bottomBankNo+maxBanks)) {
-				if (getBank(bankNo) != bottomBank) 
-					cardSize++;
-				else 
-					break;				
+				Bank bottomBank = getBank(bottomBankNo);
+				cardSize = 1;
+				while (++bankNo < (bottomBankNo+maxBanks)) {
+					if (getBank(bankNo) != bottomBank) 
+						cardSize++;
+					else 
+						break;				
+				}
 			}
 			
 			return cardSize;			
 		}
-	}
+	}	
 }
