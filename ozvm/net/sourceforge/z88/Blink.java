@@ -677,29 +677,57 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Decode Z80 Address Space to extended Blink Address (offset,bank).
+	 * Decode Z80 Address Space to extended Blink Address (bank,offset).
 	 *
 	 * @param pc 16bit word that points into Z80 64K Address Space
-	 * @return int 24bit extended address
+	 * @return int 24bit extended address (bank number, bank offset)
 	 */
-	public int decodeLocalAddress(final int pc) {
+	public int decodeLocalAddress(int pc) {
 		int bankno;
 
-		if (pc >= 0x2000) {
+		if (pc > 0x3FFF) {
 			bankno = sR[(pc >>> 14) & 0x03];
 		} else {
-			// return lower 8K Bank binding
-			// Lower 8K is System Bank 0x00 (ROM on hard reset)
-			// or 0x20 (RAM for Z80 stack and system variables)
-			if ((COM & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
-				bankno = 0x20;	// RAM Bank 20h
-			else
-				bankno = 0x00;	// ROM bank 00h
+			if (pc < 0x2000)
+				// return lower 8K Bank binding
+				// Lower 8K is System Bank 0x00 (ROM on hard reset)
+				// or 0x20 (RAM for Z80 stack and system variables)
+				if ((COM & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
+					bankno = 0x20;	// RAM Bank 20h
+				else
+					bankno = 0x00;	// ROM bank 00h
+			else {
+				// 0x2000 <= pc <= 0x3FFF
+				bankno = sR[0] & 0xFE; // banks are always even in SR0.. 
+				if ((sR[0] & 1) == 0) {
+					// lower 8K of even bank bound into upper 8K of segment 0
+					// (relocate bank offset pointer to lower 8K)
+					pc &= 0x1FFF;
+				}
+			}
 		}
 
-		return bankno << 16 | pc;
+		return bankno << 16 | (pc & 0x3FFF);
 	}
 
+	/**
+	 * Decode Z88 Extended Blink Address (bank,offset) into 
+	 * specified Z80 Address Space segment (0 - 3) 
+	 * 
+	 * @param extaddr 24bit extended address (bank number & bank offset)
+	 * @return int 16bit word that points into Z80 64K Address Space
+	 */
+	public int decodeExtendedAddress(int extaddr, int segment) {
+		int bankNo = extaddr >>> 16;
+		segment &= 0x03; // there's only 4 segments in Z80 address space..
+
+		if (segment > 0) {
+			return (extaddr & 0x003fff) | (segment << 14);
+		} else{
+			return (extaddr & 0x001fff) | 0x2000;
+		}
+	}
+	
 	/**
 	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word
 	 * that points into the Z80 64K address space.
