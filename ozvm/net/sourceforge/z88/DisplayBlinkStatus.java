@@ -59,9 +59,9 @@ public class DisplayBlinkStatus {
         displayBlinkSta();
         displayBlinkAck();           
         displayBlinkTimers();  // TIM0, TIM1, TIM2, TIM3 & TIM4
-//        blinkTack();
-//        blinkTmk();     
-//        blinkTsta();    
+		displayBlinkTsta();     
+		displayBlinkTmk();
+		displayBlinkTack();
 //        blinkScreen();  // PB0, PB1, PB2, PB3 & SBR
 //        blinkSegment();  // SR0 - SR3
     }
@@ -239,4 +239,53 @@ public class DisplayBlinkStatus {
 
         System.out.println("ACK (B6h): " + blinkAckFlags);
     }    
+
+	/**
+	 * Display bit status of Blink TSTA register.
+	 */
+	public void displayBlinkTsta() {
+		int blTstaReg = z88.getBlinkTsta();
+		StringBuffer blinkTstaFlags = new StringBuffer(128);
+		if ( ((blTstaReg & Blink.Rtc.BM_TSTAMIN) == Blink.Rtc.BM_TSTAMIN) )
+			blinkTstaFlags.append("MIN");
+		if ( ((blTstaReg & Blink.Rtc.BM_TSTASEC) == Blink.Rtc.BM_TSTASEC) )
+			blinkTstaFlags.append(",SEC");
+		if ( ((blTstaReg & Blink.Rtc.BM_TSTATICK) == Blink.Rtc.BM_TSTATICK) )
+			blinkTstaFlags.append(",TICK");
+
+		System.out.println("TSTA (B5h): " + blinkTstaFlags);
+	}    
+
+	/**
+	 * Display bit status of Blink TSTA register.
+	 */
+	public void displayBlinkTmk() {
+		int blTmkReg = z88.getBlinkTmk();
+		StringBuffer blinkTmkFlags = new StringBuffer(128);
+		if ( ((blTmkReg & Blink.Rtc.BM_TMKMIN) == Blink.Rtc.BM_TMKMIN) )
+			blinkTmkFlags.append("MIN");
+		if ( ((blTmkReg & Blink.Rtc.BM_TMKSEC) == Blink.Rtc.BM_TMKSEC) )
+			blinkTmkFlags.append(",SEC");
+		if ( ((blTmkReg & Blink.Rtc.BM_TMKTICK) == Blink.Rtc.BM_TMKTICK) )
+			blinkTmkFlags.append(",TICK");
+
+		System.out.println("Tmk (B5h): " + blinkTmkFlags);
+	}    
+
+	/**
+	 * Display bit status of Blink TSTA register.
+	 */
+	public void displayBlinkTack() {
+		int blTackReg = z88.getBlinkTack();
+		StringBuffer blinkTackFlags = new StringBuffer(128);
+		if ( ((blTackReg & Blink.Rtc.BM_TACKMIN) == Blink.Rtc.BM_TACKMIN) )
+			blinkTackFlags.append("MIN");
+		if ( ((blTackReg & Blink.Rtc.BM_TACKSEC) == Blink.Rtc.BM_TACKSEC) )
+			blinkTackFlags.append(",SEC");
+		if ( ((blTackReg & Blink.Rtc.BM_TACKTICK) == Blink.Rtc.BM_TACKTICK) )
+			blinkTackFlags.append(",TICK");
+
+		System.out.println("Tack (B4h): " + blinkTackFlags);
+	}    
+
 }
