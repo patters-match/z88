@@ -1187,7 +1187,7 @@ public class Z88Keyboard implements KeyListener {
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_F5:
-				blink.stopZ80Execution();
+				if (blink.isDebugMode() == true) blink.stopZ80Execution();
 				break;
 
 			case KeyEvent.VK_SHIFT:
