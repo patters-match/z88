@@ -30,6 +30,8 @@ public abstract class Z80 {
     public Z80() {
         tstatesCounter = 0;
         instructionCounter = 0;
+		cachedInstruction = 0;
+		cachedOpcodes = 0;
 
         parity = new boolean[256];
         for (int i = 0; i < 256; i++) {
@@ -74,7 +76,8 @@ public abstract class Z80 {
 	private boolean z80Stopped = false;
 
 	private int cachedInstruction = 0;
-
+	private int cachedOpcodes = 0;
+	
     private final int IM0 = 0;
     private final int IM1 = 1;
     private final int IM2 = 2;
@@ -145,10 +148,12 @@ public abstract class Z80 {
         _HL = word;
     }
 
-    private final int PC() {
+    public final int PC() {
         return _PC;
     }
-    private final void PC(int word) {
+    public final void PC(int word) {
+		cachedInstruction = cachedOpcodes = 0;		// Program counter change invalidates the cache
+
         _PC = word;
     }
 
@@ -397,23 +402,41 @@ public abstract class Z80 {
 
     /** Program Counter Byte Access */
     private final int nxtpcb() {
-        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
-		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
-        _PC = ++_PC & 0xffff;				// update Program Counter
+//    	if (cachedOpcodes == 0)
+//			fetchInstruction();				// fetch and cache a new 4 bytes sequence
+//
+//        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
+//		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
+//		cachedOpcodes--;					// one less instruction opcode
+
+		int b = readByte(_PC);
+		_PC = ++_PC & 0xffff;				// update Program Counter
         
         return b;
     }
 
 	/** Program Counter Word Access */
     private final int nxtpcw() {
-        int w = cachedInstruction & 0xFF;	// the get LSB from current PC
-		cachedInstruction >>>= 8;			// get ready for next byte fetch...
-        w |= (cachedInstruction & 0xFF) << 8;
-		cachedInstruction >>>= 8;			// get ready for next byte fetch...
-		_PC = (_PC + 2) & 0xffff;			// update Program Counter
+//        int w = nxtpcb();		// the get LSB from current PC
+//        w |= nxtpcb() << 8;		// the get MSB from current PC
 
+		int w = readWord(_PC);
+		_PC = (_PC + 2) & 0xFFFF;
+		
         return w;
     }
+    
+	/**
+	 * Pre-fetch a 4 byte Z80 instruction sequence from the 
+	 * Z80 virtual memory model at current PC (Program Counter).
+	 * 
+	 * The internal Get Next Byte At PC, nxtpcb(), and
+	 * Get Next Word At PC, nxtpcw(), will fetch from this cache.
+	 */
+	private final void fetchInstruction() {
+		cachedInstruction = readInstruction(_PC);
+		cachedOpcodes = 4;	
+	}
 
     /** Reset all registers to power on state */
     public void reset() {
@@ -497,17 +520,6 @@ public abstract class Z80 {
         }
     }
 
-	/**
-	 * Pre-fetch a 4 byte Z80 instruction sequence from the 
-	 * Z80 virtual memory model at current PC (Program Counter).
-	 * 
-	 * The internal Get Next Byte At PC, nxtpcb(), and
-	 * Get Next Word At PC, nxtpcw(), will fetch from this cache.
-	 */
-	private final void fetchInstruction() {
-		cachedInstruction = readInstruction(_PC);
-		instructionCounter++;
-	}
 	
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
     public final void run() {
@@ -530,8 +542,9 @@ public abstract class Z80 {
                 continue;                   // back to main decode loop and wait for external interrupt
             }
 
-			fetchInstruction();				// pre-fetch and cache a 4 bytes sequence at PC
-            switch (nxtpcb()) {				// then decode first byte from Z80 instruction cache
+			instructionCounter++;
+
+            switch (nxtpcb()) {				// decode first byte from Z80 instruction cache
 
                 case 0 : /* NOP */ {
                         tstatesCounter += 4;
