@@ -21,7 +21,7 @@ package net.sourceforge.z88;
 
 /**
  * The Z80 class emulates the Zilog Z80 microprocessor.
- * Optimized and added with new feature for Z88 virtual machine.
+ * Optimized and added with new features for Z88 virtual machine.
  *
  * -------------------------------------------------------------------------------------
  * Original implementation of Z80 emulation by Adam Davidson & Andrew Pollard.
