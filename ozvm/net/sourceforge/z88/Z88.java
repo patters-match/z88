@@ -119,28 +119,48 @@ public class Z88 extends Z80 {
 	 * (bottom 512K address space in slot 0 is reserved for ROM, banks 00-1F)
 	 */
 	public void insertRamCard(int size, int slot) {
-		int totalRamBanks, totalSlotBanks, curBank, slotBank;
+		int totalRamBanks, totalSlotBanks, curBank;
 		
 		slot %= 3;						// allow only slots 0 - 3 range.
 		size %= 32768;					// allow only modulus 32Kb RAM.
 		totalRamBanks = size / 16384;	// number of 16K banks in Ram Card
-		
-		if (slot == 0) {
-			slotBank = 0x20;
-			totalSlotBanks = 32;	// slot 0 has 32 * 16Kb = 512K address space for RAM
-		} else {
-			slotBank = slot << 6;	// convert slot number to bottom bank of slot
-			totalSlotBanks = 64;	// slots 1 - 3 have 64 * 16Kb = 1Mb address space for RAM
-		}
-				
-		Bank ramBanks[] = new Bank[totalRamBanks];	// the RAM card (transferred into memory)
+						
+		Bank ramBanks[] = new Bank[totalRamBanks];	// the RAM card container
 		for (curBank=0; curBank<totalRamBanks; curBank++) {
 			ramBanks[curBank] = new Bank(Bank.RAM);
-			z88Memory[slotBank++] = ramBanks[curBank];	// "insert" 16Kb bank into Z88 memory	
+		}
+	
+		loadCard(ramBanks, slot);	// load the physical card into Z88 memory
+	}
+
+	
+	/**
+	 * Load Card (RAM/ROM/EPROM) into Z88 memory system.
+	 * Size is in modulus 32Kb (even numbered 16Kb banks).
+	 * Slot 0 (512Kb): banks 00 - 1F (ROM), banks 20 - 3F (RAM)
+	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
+	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
+	 * Slot 3 (1Mb):   banks C0 - FF (RAM or EPROM)
+	 */ 
+	private void loadCard(Bank card[], int slot) {
+		int totalSlotBanks, slotBank, curBank;
+
+		if (slot == 0) {
+			// Define bottom bank for ROM/RAM
+			slotBank = (card[0].getType() != Bank.RAM) ? 0x00 : 0x20;	
+			// slot 0 has 32 * 16Kb = 512K address space for RAM or ROM
+			totalSlotBanks = 32;	
+		} else {
+			slotBank = slot << 6;	// convert slot number to bottom bank of slot
+			totalSlotBanks = 64;	// slots 1 - 3 have 64 * 16Kb = 1Mb address space
+		}
+
+		for (curBank=0; curBank<card.length; curBank++) {
+			z88Memory[slotBank++] = card[curBank];	// "insert" 16Kb bank into Z88 memory	
 			--totalSlotBanks;
 		}
 		
-		// - the bottom of the slot has been loaded with the RAM Card.
+		// - the bottom of the slot has been loaded with the Card.
 		// Now, we need to fill the 1MB address space in the slot with the card.
 		// Note, that most cards and the internal memory do not exploit 
 		// the full lMB addressing range, but only decode the lower address lines. 
@@ -153,13 +173,13 @@ public class Z88 extends Z80 {
 		// by looking at the bank at the bottom of the 1MB address range and the bank 
 		// at the top respectively. 
 		while (totalSlotBanks > 0) {
-			for (curBank=0; curBank<totalRamBanks; curBank++) {
-				z88Memory[slotBank++] = ramBanks[curBank];	// "shadow" banks into remaining slot
+			for (curBank=0; curBank<card.length; curBank++) {
+				z88Memory[slotBank++] = card[curBank];	// "shadow" card banks into remaining slot
 				--totalSlotBanks;
 			}
 		}
 	}
-	
+
 	
 	/** 
 	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word 
