@@ -71,7 +71,6 @@ DEFC VppBit = 1
 ;         BHL = pointer to Flash Memory address (B=00h-FFh, HL=0000h-3FFFh)
 ; Out:
 ;         Success:
-;              A = A(in)
 ;              Fc = 0
 ;         Failure:
 ;              Fc = 1
@@ -224,8 +223,50 @@ DEFC VppBit = 1
 
 
 ; ***************************************************************
+; Program byte in A at (HL) on an AMD AM29Fxxxx Flash Memory
+;
+; In:
+;    A = byte to blow
+;    HL = pointer to memory location in Flash Memory
+; Out:
+;    Fc = 0 & Fz = 0, 
+;        byte successfully blown to Flash Memory
+;    Fc = 1, 
+;        A = RC_BWR, byte not blown
 ;
 .FEP_ExecBlowbyte_29F
-                    ; insert code here for AMD AM29Fxxx byte programming...
+                    PUSH HL                  ; preserve byte program address
+                    LD   HL, $4555
+                    LD   DE, $42AA
+
+                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
+                    EX   DE,HL
+                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
+                    EX   DE,HL
+                    LD   (HL),$A0            ; A0 -> (XX555), Byte Program Mode
+                    POP  HL
+                    LD   (HL),A              ; program byte to Flash Memory Address
+                    LD   B,A                 ; preserve a copy of byte for later verification
+.toggle_wait_loop
+                    LD   A,(HL)              ; get first DQ6 programming status
+                    LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
+                    XOR  (HL)                ; get second DQ6 programming status
+                    BIT  6,A                 ; toggling? 
+                    JR   Z,toggling_done     ; no, programming completed successfully!
+                    BIT  5,C                 ; 
+                    JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
+                    
+                    LD   A,(HL)              ; DQ5 went high, we need to get two successive status
+                    XOR  (HL)                ; toggling reads to determine if we're still toggling 
+                    BIT  6,A                 ; which then indicates a programming error...
+                    JR   NZ,program_err_29f  ; damn, byte NOT programmed successfully!
+.toggling_done                    
+                    LD   A,(HL)              ; we're back in Read Array Mode
+                    CP   B                   ; verify programmed byte (just in case!)
+                    RET  Z                   ; byte was successfully programmed!
+.program_err_29f
+                    LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
+                    SCF
+                    LD   A, RC_BWR           ; signal byte write error to application
                     RET
 .end_FEP_ExecBlowbyte_29F
