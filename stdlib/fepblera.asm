@@ -17,13 +17,12 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB FlashEprCardId, MemDefBank, ExecRoutineOnStack
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
      INCLUDE "interrpt.def"
 
-     DEFC VppBit = 1
 
 ; ==========================================================================================
 ; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
@@ -31,30 +30,30 @@
 DEFC FE_RST = $FF           ; reset chip in read array mode
 DEFC FE_RSR = $70           ; read status register
 DEFC FE_CSR = $50           ; clear status register
-DEFC FE_ERA = $20           ; erase block (64Kb) command
+DEFC FE_ERA = $20           ; erase sector (64Kb) command
 DEFC FE_CON = $D0           ; confirm erasure
+DEFC VppBit = 1
 ; ==========================================================================================
 
 
 ; ***************************************************************
 ;
-; Erase Flash Eprom 64K Block number, defined in A (0 - xx)
-; (16 blocks in total define the 1MB chip size)
-;
-; This routine will temporarily set the Vpp pin while the block is 
-; being erased.
+; Erase 64K Sector (Block) defined in A (0 - xx), in Flash Memory 
+; inserted in slot C. 
 ;
 ; IN:
-;         A = 64K Block number on chip to be erased (0 - xx)
-;              (available block numbers depend on chip size)
+;         B = 64K block/sector number on chip to be erased (0 - xx)
+;             (available sector numbers depend on chip size)
+;         C = slot number (1, 2 or 3) of Flash Memory Card
 ;
 ; OUT:
 ;         Success:
 ;              Fc = 0
-;              A = 0
 ;         Failure:
 ;              Fc = 1
-;              A = RC_BER
+;              A = RC_NFE (not a recognized Flash Memory Chip)
+;              A = RC_BER (error occurred when erasing block/sector)
+;              A = RC_VPL (Vpp Low Error)
 ;
 ; Registers changed on return:
 ;    ..BCDEHL/IXIY ........ same
@@ -62,7 +61,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by:
-;    Gunther Strube, InterLogic, Dec 1997 - Apr 1998
+;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Aug 2004
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------
 ;
@@ -71,89 +70,125 @@ DEFC FE_CON = $D0           ; confirm erasure
                     PUSH DE
                     PUSH HL
 
+                    LD   A,B
                     AND  @00001111           ; number range is only 0 - 15...
-                    ADD  A,A                 ; block number * 4
-                    ADD  A,A                 ; (convert to first bank no of block)
-                    OR   $C0                 ; bank located in slot 3...
+                    ADD  A,A                 ; sector number * 4
+                    ADD  A,A                 ; (convert to first bank no of sector)
                     LD   B,A
+                    LD   A,C
+                    AND  @00000011           ; only slots 0, 1, 2 or 3 possible
+                    RRCA
+                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
+                    OR   B                   ; we've got the absolute bank which is the bottom of the sector
+                    LD   D,A                 ; preserve a copy of bank number in D
+                    LD   E,C                 ; preserve a copy of slot number in E
 
-                    LD   HL,$4000
-                    LD   C,MS_S1             ; use segment 1 for block erasing
-                    CALL MemDefBank          ; bind bank...
-                    CALL DisableInt
+                    CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
+                    JR   C, exit_FlashEprBlockErase
+                    EX   AF,AF'              ; preserve FE Programming type in A'
+                    LD   A,D
+                    AND  @00111111           
+                    INC  A                   ; this is the X'th bank of the card..
+                    LD   C,A
+                    LD   A,B                 ; make sure that the Flash Memory Card 
+                    SUB  C                   ; contains the sector (to be erased)
+                    JR   NC, sector_exists   ; (total_banks_on_card - sector_bank < 0) ...
+                    LD   A,RC_BER            ; Fc = 1, sector not available (could not erase block/sector)
+                    JR   exit_FlashEprBlockErase
+.sector_exists                                        
+                    LD   B,D                 ; bind beginning (first bank) of sector to segment 1
+                    LD   C,MS_S1             ; that are specified to be erased
+                    CALL MemDefBank
+                    PUSH BC                  ; preserve old bank binding
 
-                    CALL FEP_EraseBlock
+                    CALL OZ_DI               ; disable IM 1 interrupts
+                    EX   AF,AF'              ; FE Programming type in A, old interrupt status in AF'
+                    CALL FEP_EraseBlock      ; erase sector in slot C
+                    EX   AF,AF'              ; get old interrupt status in AF
+                    CALL OZ_EI               ; enable IM 1 interrupts...
+                    EX   AF,AF'              ; return AF error status of sector erasing...
 
-                    CALL EnableInt
+                    POP  BC
                     CALL MemDefBank          ; Restore previous Bank bindings
-
-                    CP   A                   ; Preset Fc = 0 (success)
-                    LD   B,0                 ; No error code
-                    BIT  3,A
-                    CALL NZ,vpp_error
-                    BIT  5,A
-                    CALL NZ,erase_error
-                    LD   A,B                 ; return error code
-
+                    
+.exit_FlashEprBlockErase
                     POP  HL
                     POP  DE
                     POP  BC
                     RET
 
-.vpp_error          LD   B, RC_VPL
-                    SCF
-                    RET
-.erase_error        LD   B, RC_BER
-                    SCF
-                    RET
-
 
 ; ***************************************************************
 ;
-; Erase block, identified by bank B, using segment 1, at slot 3.
+; Erase block, identified by bank A, using segment 1.
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
-;    B = first bank of block in Flash Eprom
-;    HL = pointer to first memory location in block
+;    A = FE_28F or FE_29F (depending on Flash Memory type in slot)
+;    E = slot number (1, 2 or 3) of Flash Memory Card
 ; Out:
-;    A = Intel Chip Status Register flags
+;    Success:
+;        Fc = 0
+;    Failure:
+;        Fc = 1
+;        A = RC_BER (error occurred when erasing block/sector)
+;        A = RC_VPL (Vpp Low Error)
 ;
 ; Registers changed after return:
 ;    ..BCDEHL/IXIY same
 ;    AF....../.... different
 ;
 .FEP_EraseBlock
-                    PUSH BC
-                    EXX
-                    LD   HL,0
-                    ADD  HL,SP
-                    EX   DE,HL
-                    LD   HL, -(RAM_code_end - RAM_code_start)
-                    ADD  HL,SP
-                    LD   SP,HL               ; buffer for routine ready...
-                    PUSH DE                  ; preserve original SP
+                    CP   FE_28F
+                    JR   Z, erase_28F_block
+                    CP   FE_29F
+                    JR   Z, erase_29F_block
+                    RET
+.erase_28F_block
+                    LD   A,3
+                    CP   E                   ; when chip is FE_28F series, we need to be in slot 3
+                    JR   Z,_erase_28F_block  ; to make a successful sector erase
+                    SCF
+                    LD   A, RC_BER           ; Ups, not in slot 3, signal error!
+                    RET                      
+._erase_28F_block
+                    PUSH IX                    
+                    LD   IX, FEP_EraseBlock_28F
+                    LD   BC, end_FEP_EraseBlock_28F - FEP_EraseBlock_28F
+                    CALL ExecRoutineOnStack
+
+                    POP  IX
+                    RET                    
+.erase_29F_block
+                    PUSH IX                    
+                    LD   IX, FEP_EraseBlock_29F
+                    LD   BC, end_FEP_EraseBlock_29F - FEP_EraseBlock_29F
+                    CALL ExecRoutineOnStack
+                    POP  IX
+                    RET
                     
-                    PUSH HL
-                    EX   DE,HL               ; DE points at <RAM_code_start>
-                    LD   HL, RAM_code_start
-                    LD   BC, RAM_code_end - RAM_code_start
-                    LDIR                     ; copy RAM routine...
-                    LD   HL,exit_eraseblock
-                    EX   (SP),HL
-                    PUSH HL
-                    EXX
-                    RET                      ; CALL RAM_code_start
-.exit_eraseblock
-                    EXX
-                    POP  HL                  ; original SP
-                    LD   SP,HL
-                    EXX
-                    POP  BC
-                    RET            
-          
-; 38 bytes on stack to be executed... 
-.RAM_code_start     
+
+; ***************************************************************
+;
+; Erase block on an INTEL 28Fxxxx Flash Memory, which is bound
+; into segment 1 ($4000 - $7FFF).
+;
+; In:
+;    -
+; Out:
+;    Success:
+;        Fc = 0
+;        A = undefined
+;    Failure:
+;        Fc = 1
+;        A = RC_BER (error occurred when erasing block/sector)
+;        A = RC_VPL (Vpp Low Error)
+;
+; Registers changed after return:
+;    ....DE../IXIY same
+;    AFBC..HL/.... different
+;
+.FEP_EraseBlock_28F
                     PUSH AF
                     LD   BC,$04B0            ; Address of soft copy of COM register
                     LD   A,(BC)
@@ -162,17 +197,24 @@ DEFC FE_CON = $D0           ; confirm erasure
                     OUT  (C),A               ; Enable Vpp in slot 3
                     POP  AF
 
+                    LD   HL,$4000            ; point into start of Flash Memory Sector
                     LD   (HL), FE_ERA
                     LD   (HL), FE_CON
-.erase_busy_loop
+.erase_28f_busy_loop
                     LD   (HL), FE_RSR        ; (R)equest for (S)tatus (R)egister
                     LD   A,(HL)
                     BIT  7,A
-                    JR   Z,erase_busy_loop   ; Chip still erasing the block...
+                    JR   Z,erase_28f_busy_loop ; Chip still erasing the sector...
+
+                    BIT  3,A
+                    JR   NZ,vpp_error
+                    BIT  5,A
+                    JR   NZ,erase_error
+                    CP   A                   ; Preset Fc = 0 (success)
 
                     LD   (HL), FE_CSR        ; Clear Flash Eprom Status Register
                     LD   (HL), FE_RST        ; Reset Flash Eprom to Read Array Mode
-
+.exit_FEP_EraseBlock_28F
                     PUSH AF
                     LD   BC,$04B0            ; Address of soft copy of COM register
                     LD   A,(BC)
@@ -181,18 +223,72 @@ DEFC FE_CON = $D0           ; confirm erasure
                     OUT  (C),A               ; Disable Vpp in slot 3
                     POP  AF
                     RET
-.RAM_code_end
+.vpp_error          
+                    LD   A, RC_VPL
+                    SCF
+                    JR   exit_FEP_EraseBlock_28F
+.erase_error        
+                    LD   A, RC_BER
+                    SCF
+                    JR   exit_FEP_EraseBlock_28F
+.end_FEP_EraseBlock_28F
 
-.DisableInt         PUSH AF
-                    CALL OZ_DI
-                    PUSH AF
-                    POP  DE                  ; preserve Interrupt status in DE...
-                    POP  AF
-                    RET
 
-.EnableInt          PUSH AF
-                    PUSH DE
-                    POP  AF                  ; get old interrupt status
-                    CALL OZ_EI               ; restore interrupts...
-                    POP  AF
+; ***************************************************************
+;
+; Erase block on an AMD 29Fxxxx Flash Memory, which is bound
+; into segment 1 ($4000 - $7FFF).
+;
+; In:
+;    -
+; Out:
+;    Success:
+;        Fc = 0
+;        A = undefined
+;    Failure:
+;        Fc = 1
+;        A = RC_BER (block/sector was not erased)
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+.FEP_EraseBlock_29F
+                    LD   HL, $4555
+                    LD   DE, $42AA
+
+                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
+                    EX   DE,HL
+                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
+                    EX   DE,HL
+                    LD   (HL),$80            ; 80 -> (XX555), Erase Mode
+                                             ; sub command...
+                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
+                    EX   DE,HL
+                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
+                                        
+                    LD   HL,$4000            ; address within sector to be erased...
+                    LD   (HL),$30            ; 30 -> (XXXXX), begin format of sector...
+.toggle_wait_loop
+                    LD   A,(HL)              ; get first DQ6 programming status
+                    LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
+                    XOR  (HL)                ; get second DQ6 programming status
+                    BIT  6,A                 ; toggling? 
+                    JR   Z,toggling_done     ; no, erasing the sector completed successfully!
+                    BIT  5,C                 ; 
+                    JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
+                    
+                    LD   A,(HL)              ; DQ5 went high, we need to get two successive status
+                    XOR  (HL)                ; toggling reads to determine if we're still toggling 
+                    BIT  6,A                 ; which then indicates a sector erase error...
+                    JR   NZ,erase_err_29f    ; damn, sector was NOT erased!
+.toggling_done                    
+                    LD   A,(HL)              ; we're back in Read Array Mode
+                    CP   B                   ; verify programmed byte (just in case!)
+                    RET  Z                   ; byte was successfully programmed!
+.erase_err_29f
+                    LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
+                    SCF
+                    LD   A, RC_BER           ; signal sector erase error to application
                     RET
+.end_FEP_EraseBlock_29F
