@@ -727,7 +727,7 @@ public final class Blink extends Z80 {
 	 */
 	public final int readByte(final int addr) {
 		if (addr > 0x3FFF) {
-			return memory.getBank(sR[addr >>> 14]).readByte(addr);
+			return memory.getBank(sR[(addr >>> 14) & 3]).readByte(addr);
 		} else {
 			if (addr < 0x2000)
 				// return lower 8K Bank binding
@@ -763,10 +763,10 @@ public final class Blink extends Z80 {
 	 */
 	public final int readWord(int addr) {
 		Bank bank;
-
+		
 		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
-				bank = memory.getBank(sR[addr >>> 14]);
+				bank = memory.getBank(sR[(addr >>> 14) & 3]);
 				return (bank.readByte(addr+1) << 8) | bank.readByte(addr);
 			} else {
 				if (addr < 0x2000) {
@@ -810,7 +810,7 @@ public final class Blink extends Z80 {
 
 		if (addr > 0x3FFF) {
 			// write byte to segments 1 - 3
-			memory.getBank(sR[addr >>> 14]).writeByte(addr, b);
+			memory.getBank(sR[(addr >>> 14) & 3]).writeByte(addr, b);
 		} else {
 			if (addr < 0x2000) {
 				// return lower 8K Bank binding
@@ -850,7 +850,7 @@ public final class Blink extends Z80 {
 
 		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
-				bank = memory.getBank(sR[addr >>> 14]);
+				bank = memory.getBank(sR[(addr >>> 14) & 3]);
 				bank.writeByte(addr, w);
 				bank.writeByte(addr+1, w >>> 8);
 			} else {
