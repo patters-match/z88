@@ -265,7 +265,8 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {			
-			if ( (1+fileName.length()+4+fileImage.length) > getFreeSpace())
+			if ( (1+fileName.length()+4+fileImage.length) > getFreeSpace() )
+				// not enough free space for file entry header and file image
 				throw new FileAreaExhaustedException();
 			else {
 				// first find a matching entry (if available) and mark it as deleted
