@@ -44,6 +44,7 @@ import com.imagero.util.ThreadManager;
  */
 public class RubberKeyboard extends JPanel {
 		
+	private Hashtable kbStdIcons = new Hashtable();
 	private Hashtable kbLanguageIconsUk = new Hashtable(); 
 	private Hashtable kbLanguageIconsSe = new Hashtable();
 	private Hashtable kbLanguageIconsDk = new Hashtable();
@@ -136,6 +137,11 @@ public class RubberKeyboard extends JPanel {
 		setBackground(Color.BLACK);
 		setLayout(null);
 
+		cacheKeyStdIcons();
+		cacheKeyIcons(kbLanguageIconsUk, "uk");
+		cacheKeyIcons(kbLanguageIconsSe, "se");
+		cacheKeyIcons(kbLanguageIconsDk, "dk");
+		
 		add(getEscKeyButton());
 		add(getNumKey1Button());
 		add(getNumKey2Button());
@@ -199,11 +205,7 @@ public class RubberKeyboard extends JPanel {
 		add(getCapslockKeyButton());
 		add(getDownArrowKeyButton());
 		add(getLeftArrowKeyButton());
-		add(getRightArrowKeyButton());
-		
-		cacheKeyIcons(kbLanguageIconsUk, "uk");
-		cacheKeyIcons(kbLanguageIconsSe, "se");
-		cacheKeyIcons(kbLanguageIconsDk, "dk");
+		add(getRightArrowKeyButton());		
 	}
 
 	private JButton getTabKeyButton()
@@ -217,7 +219,7 @@ public class RubberKeyboard extends JPanel {
 			tabKeyButton.setPreferredSize(new Dimension(56, 32));
 			tabKeyButton.setMargin(new Insets(2, 13, 2, 12));
 			tabKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			tabKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/tab.gif")));
+			tabKeyButton.setIcon((ImageIcon) kbStdIcons.get("tab"));
 
 			tabKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -576,7 +578,7 @@ public class RubberKeyboard extends JPanel {
 			enterKeyButton.setForeground(Color.WHITE);
 			enterKeyButton.setBackground(Color.BLACK);
 			enterKeyButton.setBounds(584, 49, 57, 74);
-			enterKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/enter.gif")));
+			enterKeyButton.setIcon((ImageIcon) kbStdIcons.get("enter"));
 
 			enterKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -632,7 +634,7 @@ public class RubberKeyboard extends JPanel {
 			diamondKeyButton.setBounds(7, 91, 63, 32);
 			diamondKeyButton.setMargin(new Insets(2, 22, 2, 10));
 			diamondKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			diamondKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/diamond.gif")));
+			diamondKeyButton.setIcon((ImageIcon) kbStdIcons.get("diamond"));
 
 			diamondKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -961,7 +963,7 @@ public class RubberKeyboard extends JPanel {
 			leftShiftKeyButton.setBounds(7, 133, 82, 32);
 			leftShiftKeyButton.setMargin(new Insets(2, 22, 2, 10));
 			leftShiftKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			leftShiftKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/shift.gif")));
+			leftShiftKeyButton.setIcon((ImageIcon) kbStdIcons.get("shift"));
 
 			leftShiftKeyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -1256,7 +1258,7 @@ public class RubberKeyboard extends JPanel {
 			rightShiftKeyButton.setBounds(516, 133, 82, 32);
 			rightShiftKeyButton.setMargin(new Insets(2, 24, 2, 10));
 			rightShiftKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			rightShiftKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/shift.gif")));
+			rightShiftKeyButton.setIcon((ImageIcon) kbStdIcons.get("shift"));
 
 			rightShiftKeyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -1280,7 +1282,7 @@ public class RubberKeyboard extends JPanel {
 			upArrowKeyButton.setBackground(Color.BLACK);
 			upArrowKeyButton.setBounds(609, 133, 32, 32);
 			upArrowKeyButton.setMargin(new Insets(2, 1, 2, 1));
-			upArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowup.gif")));
+			upArrowKeyButton.setIcon((ImageIcon) kbStdIcons.get("arrowup"));
 
 			upArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1307,7 +1309,7 @@ public class RubberKeyboard extends JPanel {
 			indexKeyButton.setBackground(Color.BLACK);
 			indexKeyButton.setBounds(7, 174, 32, 32);
 			indexKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			indexKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/index.gif")));
+			indexKeyButton.setIcon((ImageIcon) kbStdIcons.get("index"));
 
 			indexKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1335,7 +1337,7 @@ public class RubberKeyboard extends JPanel {
 			menuKeyButton.setBackground(Color.BLACK);
 			menuKeyButton.setBounds(48, 174, 32, 32);
 			menuKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			menuKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/menu.gif")));
+			menuKeyButton.setIcon((ImageIcon) kbStdIcons.get("menu"));
 
 			menuKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1363,7 +1365,7 @@ public class RubberKeyboard extends JPanel {
 			helpKeyButton.setBackground(Color.BLACK);
 			helpKeyButton.setBounds(89, 174, 32, 32);
 			helpKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			helpKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/help.gif")));
+			helpKeyButton.setIcon((ImageIcon) kbStdIcons.get("help"));
 
 			helpKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1391,7 +1393,7 @@ public class RubberKeyboard extends JPanel {
 			squareKeyButton.setBackground(Color.BLACK);
 			squareKeyButton.setBounds(130, 174, 32, 32);
 			squareKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			squareKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/square.gif")));
+			squareKeyButton.setIcon((ImageIcon) kbStdIcons.get("square"));
 
 			squareKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1448,7 +1450,7 @@ public class RubberKeyboard extends JPanel {
 			capslockKeyButton.setBackground(Color.BLACK);
 			capslockKeyButton.setBounds(484, 174, 32, 32);
 			capslockKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			capslockKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/capslock.gif")));
+			capslockKeyButton.setIcon((ImageIcon) kbStdIcons.get("capslock"));
 
 			capslockKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1475,7 +1477,7 @@ public class RubberKeyboard extends JPanel {
 			downArrowKeyButton.setBackground(Color.BLACK);
 			downArrowKeyButton.setBounds(609, 174, 32, 32);
 			downArrowKeyButton.setMargin(new Insets(2, 1, 2, 1));
-			downArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowdwn.gif")));
+			downArrowKeyButton.setIcon((ImageIcon) kbStdIcons.get("arrowdwn"));
 
 			downArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1503,7 +1505,7 @@ public class RubberKeyboard extends JPanel {
 			leftArrowKeyButton.setBackground(Color.BLACK);
 			leftArrowKeyButton.setBounds(526, 174, 32, 32);
 			leftArrowKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			leftArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowlft.gif")));
+			leftArrowKeyButton.setIcon((ImageIcon) kbStdIcons.get("arrowlft"));
 
 			leftArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1531,7 +1533,7 @@ public class RubberKeyboard extends JPanel {
 			rightArrowKeyButton.setBackground(Color.BLACK);
 			rightArrowKeyButton.setBounds(567, 174, 32, 32);
 			rightArrowKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			rightArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowrgt.gif")));
+			rightArrowKeyButton.setIcon((ImageIcon) kbStdIcons.get("arrowrgt"));
 
 			rightArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1561,7 +1563,7 @@ public class RubberKeyboard extends JPanel {
 			escKeyButton.setPreferredSize(new Dimension(32, 32));
 			escKeyButton.setMargin(new Insets(2, 2, 2, 2));
 			escKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			escKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/esc.gif")));
+			escKeyButton.setIcon((ImageIcon) kbStdIcons.get("esc"));
 
 			escKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1954,7 +1956,8 @@ public class RubberKeyboard extends JPanel {
 			delKeyButton.setBounds(609, 7, 32, 32);
 			delKeyButton.setPreferredSize(new Dimension(32, 32));
 			delKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			delKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/del.gif")));
+			delKeyButton.setIcon((ImageIcon) kbStdIcons.get("del"));
+			
 			delKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x00, 0x7F);
@@ -1973,6 +1976,53 @@ public class RubberKeyboard extends JPanel {
 		return delKeyButton;
 	}
 
+	private void cacheKeyStdIcons() {
+		String path = "/pixel/keys/std/";
+		Class c = Blink.getInstance().getClass();
+
+		kbStdIcons.put("del", new ImageIcon(c.getResource(path + "del.gif")));
+		kbStdIcons.put("esc", new ImageIcon(c.getResource(path + "esc.gif")));
+		kbStdIcons.put("tab", new ImageIcon(c.getResource(path + "tab.gif")));
+		kbStdIcons.put("enter", new ImageIcon(c.getResource(path + "enter.gif")));
+		kbStdIcons.put("diamond", new ImageIcon(c.getResource(path + "diamond.gif")));
+		kbStdIcons.put("shift", new ImageIcon(c.getResource(path + "shift.gif")));
+		kbStdIcons.put("index", new ImageIcon(c.getResource(path + "index.gif")));
+		kbStdIcons.put("menu", new ImageIcon(c.getResource(path + "menu.gif")));
+		kbStdIcons.put("help", new ImageIcon(c.getResource(path + "help.gif")));
+		kbStdIcons.put("square", new ImageIcon(c.getResource(path + "square.gif")));
+		kbStdIcons.put("capslock", new ImageIcon(c.getResource(path + "capslock.gif")));
+		kbStdIcons.put("arrowup", new ImageIcon(c.getResource(path + "arrowup.gif")));
+		kbStdIcons.put("arrowdwn", new ImageIcon(c.getResource(path + "arrowdwn.gif")));
+		kbStdIcons.put("arrowrgt", new ImageIcon(c.getResource(path + "arrowrgt.gif")));
+		kbStdIcons.put("arrowlft", new ImageIcon(c.getResource(path + "arrowlft.gif")));
+		kbStdIcons.put("q", new ImageIcon(c.getResource(path + "q.gif")));
+		kbStdIcons.put("w", new ImageIcon(c.getResource(path + "w.gif")));
+		kbStdIcons.put("e", new ImageIcon(c.getResource(path + "e.gif")));
+		kbStdIcons.put("r", new ImageIcon(c.getResource(path + "r.gif")));
+		kbStdIcons.put("t", new ImageIcon(c.getResource(path + "t.gif")));
+		kbStdIcons.put("y", new ImageIcon(c.getResource(path + "y.gif")));
+		kbStdIcons.put("u", new ImageIcon(c.getResource(path + "u.gif")));
+		kbStdIcons.put("i", new ImageIcon(c.getResource(path + "i.gif")));
+		kbStdIcons.put("o", new ImageIcon(c.getResource(path + "o.gif")));
+		kbStdIcons.put("p", new ImageIcon(c.getResource(path + "p.gif")));
+		kbStdIcons.put("a", new ImageIcon(c.getResource(path + "a.gif")));
+		kbStdIcons.put("s", new ImageIcon(c.getResource(path + "s.gif")));
+		kbStdIcons.put("d", new ImageIcon(c.getResource(path + "d.gif")));
+		kbStdIcons.put("f", new ImageIcon(c.getResource(path + "f.gif")));
+		kbStdIcons.put("g", new ImageIcon(c.getResource(path + "g.gif")));
+		kbStdIcons.put("h", new ImageIcon(c.getResource(path + "h.gif")));
+		kbStdIcons.put("j", new ImageIcon(c.getResource(path + "j.gif")));
+		kbStdIcons.put("k", new ImageIcon(c.getResource(path + "k.gif")));
+		kbStdIcons.put("l", new ImageIcon(c.getResource(path + "l.gif")));
+		kbStdIcons.put("z", new ImageIcon(c.getResource(path + "z.gif")));
+		kbStdIcons.put("x", new ImageIcon(c.getResource(path + "x.gif")));
+		kbStdIcons.put("c", new ImageIcon(c.getResource(path + "c.gif")));
+		kbStdIcons.put("v", new ImageIcon(c.getResource(path + "v.gif")));
+		kbStdIcons.put("b", new ImageIcon(c.getResource(path + "b.gif")));
+		kbStdIcons.put("n", new ImageIcon(c.getResource(path + "n.gif")));
+		kbStdIcons.put("m", new ImageIcon(c.getResource(path + "m.gif")));
+	}
+	
 	private void cacheKeyIcons(Hashtable ht, String kbLanguageCountryCode) {
 		String path = "/pixel/keys/" + kbLanguageCountryCode + "/";
 		Class c = Blink.getInstance().getClass();
@@ -1990,37 +2040,11 @@ public class RubberKeyboard extends JPanel {
 		ht.put("key037f", new ImageIcon(c.getResource(path + "key037f.gif")));
 		ht.put("key027f", new ImageIcon(c.getResource(path + "key027f.gif")));
 		ht.put("key017f", new ImageIcon(c.getResource(path + "key017f.gif")));
-		ht.put("q", new ImageIcon(c.getResource(path + "q.gif")));
-		ht.put("w", new ImageIcon(c.getResource(path + "w.gif")));
-		ht.put("e", new ImageIcon(c.getResource(path + "e.gif")));
-		ht.put("r", new ImageIcon(c.getResource(path + "r.gif")));
-		ht.put("t", new ImageIcon(c.getResource(path + "t.gif")));
-		ht.put("y", new ImageIcon(c.getResource(path + "y.gif")));
-		ht.put("u", new ImageIcon(c.getResource(path + "u.gif")));
-		ht.put("i", new ImageIcon(c.getResource(path + "i.gif")));
-		ht.put("o", new ImageIcon(c.getResource(path + "o.gif")));
-		ht.put("p", new ImageIcon(c.getResource(path + "p.gif")));
 		ht.put("key057f", new ImageIcon(c.getResource(path + "key057f.gif")));
 		ht.put("key047f", new ImageIcon(c.getResource(path + "key047f.gif")));
 		ht.put("key07fe", new ImageIcon(c.getResource(path + "key07fe.gif")));
-		ht.put("a", new ImageIcon(c.getResource(path + "a.gif")));
-		ht.put("s", new ImageIcon(c.getResource(path + "s.gif")));
-		ht.put("d", new ImageIcon(c.getResource(path + "d.gif")));
-		ht.put("f", new ImageIcon(c.getResource(path + "f.gif")));
-		ht.put("g", new ImageIcon(c.getResource(path + "g.gif")));
-		ht.put("h", new ImageIcon(c.getResource(path + "h.gif")));
-		ht.put("j", new ImageIcon(c.getResource(path + "j.gif")));
-		ht.put("k", new ImageIcon(c.getResource(path + "k.gif")));
-		ht.put("l", new ImageIcon(c.getResource(path + "l.gif")));
 		ht.put("key06fd", new ImageIcon(c.getResource(path + "key06fd.gif")));
 		ht.put("key06fe", new ImageIcon(c.getResource(path + "key06fe.gif")));
-		ht.put("z", new ImageIcon(c.getResource(path + "z.gif")));
-		ht.put("x", new ImageIcon(c.getResource(path + "x.gif")));
-		ht.put("c", new ImageIcon(c.getResource(path + "c.gif")));
-		ht.put("v", new ImageIcon(c.getResource(path + "v.gif")));
-		ht.put("b", new ImageIcon(c.getResource(path + "b.gif")));
-		ht.put("n", new ImageIcon(c.getResource(path + "n.gif")));
-		ht.put("m", new ImageIcon(c.getResource(path + "m.gif")));
 		ht.put("key06fb", new ImageIcon(c.getResource(path + "key06fb.gif")));
 		ht.put("key07fb", new ImageIcon(c.getResource(path + "key07fb.gif")));
 		ht.put("key07fd", new ImageIcon(c.getResource(path + "key07fd.gif")));
@@ -2058,37 +2082,37 @@ public class RubberKeyboard extends JPanel {
 				getKey037fButton().setIcon((ImageIcon) keyIcons.get("key037f"));
 				getKey027fButton().setIcon((ImageIcon) keyIcons.get("key027f"));
 				getKey017fButton().setIcon((ImageIcon) keyIcons.get("key017f"));
-				getKey05EfButton().setIcon((ImageIcon) keyIcons.get("q"));
-				getKey04EfButton().setIcon((ImageIcon) keyIcons.get("w"));
-				getKey03EfButton().setIcon((ImageIcon) keyIcons.get("e"));
-				getKey02EfButton().setIcon((ImageIcon) keyIcons.get("r"));
-				getKey01EfButton().setIcon((ImageIcon) keyIcons.get("t"));
-				getKey00EfButton().setIcon((ImageIcon) keyIcons.get("y"));
-				getKey01FdButton().setIcon((ImageIcon) keyIcons.get("u"));
-				getKey01FeButton().setIcon((ImageIcon) keyIcons.get("i"));
-				getKey02FeButton().setIcon((ImageIcon) keyIcons.get("o"));
-				getKey04FeButton().setIcon((ImageIcon) keyIcons.get("p"));
+				getKey05EfButton().setIcon((ImageIcon) kbStdIcons.get("q"));
+				getKey04EfButton().setIcon((ImageIcon) kbStdIcons.get("w"));
+				getKey03EfButton().setIcon((ImageIcon) kbStdIcons.get("e"));
+				getKey02EfButton().setIcon((ImageIcon) kbStdIcons.get("r"));
+				getKey01EfButton().setIcon((ImageIcon) kbStdIcons.get("t"));
+				getKey00EfButton().setIcon((ImageIcon) kbStdIcons.get("y"));
+				getKey01FdButton().setIcon((ImageIcon) kbStdIcons.get("u"));
+				getKey01FeButton().setIcon((ImageIcon) kbStdIcons.get("i"));
+				getKey02FeButton().setIcon((ImageIcon) kbStdIcons.get("o"));
+				getKey04FeButton().setIcon((ImageIcon) kbStdIcons.get("p"));
 				getKey057fButton().setIcon((ImageIcon) keyIcons.get("key057f"));
 				getKey047fButton().setIcon((ImageIcon) keyIcons.get("key047f"));
 				getKey07FeButton().setIcon((ImageIcon) keyIcons.get("key07fe"));
-				getKey05F7Button().setIcon((ImageIcon) keyIcons.get("a"));
-				getKey04F7Button().setIcon((ImageIcon) keyIcons.get("s"));
-				getKey03F7Button().setIcon((ImageIcon) keyIcons.get("d"));
-				getKey02F7Button().setIcon((ImageIcon) keyIcons.get("f"));
-				getKey01F7Button().setIcon((ImageIcon) keyIcons.get("g"));
-				getKey00F7Button().setIcon((ImageIcon) keyIcons.get("h"));
-				getKey02FdButton().setIcon((ImageIcon) keyIcons.get("j"));
-				getKey03FdButton().setIcon((ImageIcon) keyIcons.get("k"));
-				getKey05FdButton().setIcon((ImageIcon) keyIcons.get("l"));
+				getKey05F7Button().setIcon((ImageIcon) kbStdIcons.get("a"));
+				getKey04F7Button().setIcon((ImageIcon) kbStdIcons.get("s"));
+				getKey03F7Button().setIcon((ImageIcon) kbStdIcons.get("d"));
+				getKey02F7Button().setIcon((ImageIcon) kbStdIcons.get("f"));
+				getKey01F7Button().setIcon((ImageIcon) kbStdIcons.get("g"));
+				getKey00F7Button().setIcon((ImageIcon) kbStdIcons.get("h"));
+				getKey02FdButton().setIcon((ImageIcon) kbStdIcons.get("j"));
+				getKey03FdButton().setIcon((ImageIcon) kbStdIcons.get("k"));
+				getKey05FdButton().setIcon((ImageIcon) kbStdIcons.get("l"));
 				getKey06FdButton().setIcon((ImageIcon) keyIcons.get("key06fd"));
 				getKey06FeButton().setIcon((ImageIcon) keyIcons.get("key06fe"));
-				getKey05FbButton().setIcon((ImageIcon) keyIcons.get("z"));
-				getKey04FbButton().setIcon((ImageIcon) keyIcons.get("x"));
-				getKey03FbButton().setIcon((ImageIcon) keyIcons.get("c"));
-				getKey02FbButton().setIcon((ImageIcon) keyIcons.get("v"));
-				getKey01FbButton().setIcon((ImageIcon) keyIcons.get("b"));
-				getKey00FbButton().setIcon((ImageIcon) keyIcons.get("n"));
-				getKey04FdButton().setIcon((ImageIcon) keyIcons.get("m"));
+				getKey05FbButton().setIcon((ImageIcon) kbStdIcons.get("z"));
+				getKey04FbButton().setIcon((ImageIcon) kbStdIcons.get("x"));
+				getKey03FbButton().setIcon((ImageIcon) kbStdIcons.get("c"));
+				getKey02FbButton().setIcon((ImageIcon) kbStdIcons.get("v"));
+				getKey01FbButton().setIcon((ImageIcon) kbStdIcons.get("b"));
+				getKey00FbButton().setIcon((ImageIcon) kbStdIcons.get("n"));
+				getKey04FdButton().setIcon((ImageIcon) kbStdIcons.get("m"));
 				getKey06FbButton().setIcon((ImageIcon) keyIcons.get("key06fb"));
 				getKey07FbButton().setIcon((ImageIcon) keyIcons.get("key07fb"));
 				getKey07FdButton().setIcon((ImageIcon) keyIcons.get("key07fd"));
