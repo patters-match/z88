@@ -650,6 +650,15 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * Get Bank, referenced by it's number [0-255] in the BLINK memory model
+	 *
+	 * @return Bank
+	 */
+	public final Bank getBank(final int bankNo) {
+		return memory.getBank(bankNo);
+	}
+	
+	/**
 	 * Bind bank [0-255] to segments [0-3] in the Z80 address space.
 	 *
 	 * On the Z88, the 64K is split into 4 sections of 16K segments. Any of the
@@ -1219,6 +1228,70 @@ public final class Blink extends Z80 {
 		return COM;
 	}
 
+
+	/**
+	 * Insert Eprom Card into Z88 memory system, slots 0 - 3. 
+	 * Eprom Card is loaded from bottom bank of slot and upwards.
+	 * 
+	 * Slot 0 (512Kb): banks 00 - 1F
+	 * Slot 1 (1Mb):   banks 40 - 7F
+	 * Slot 2 (1Mb):   banks 80 - BF
+	 * Slot 3 (1Mb):   banks C0 - FF
+	 * 
+	 * Slot 0 is special; max 512K Memory in bottom 512K address space.
+	 * (bottom 512K address space in slot 0 is reserved for ROM/EPROM, banks 00-1F)
+	 * 
+	 * @param size
+	 * @param slot
+	 * @param eprType "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
+	 * @return true, if card was inserted, false, if illegal size and type
+	 */
+	public boolean insertEprCard(int size, int slot, String eprType) {
+		int totalEprBanks, totalSlotBanks, curBank;
+		int eprSubType = 0;
+
+		slot %= 4; // allow only slots 0 - 3 range.
+		size -= (size % Memory.BANKSIZE);
+		totalEprBanks = size / Memory.BANKSIZE; // number of 16K banks in Eprom Card
+		if (eprType.compareToIgnoreCase("27C") == 0) {
+			// Traditional UV Eproms (all size configurations allowed)
+			if (totalEprBanks <= 2) 
+				eprSubType = EpromBank.VPP32KB;
+			else
+				eprSubType = EpromBank.VPP128KB;			
+		}
+		if (eprType.compareToIgnoreCase("28F") == 0) {
+			// Intel Flash Eprom Cards exists in 512K and 1MB configurations
+			switch(totalEprBanks) {
+				case 32: eprSubType = IntelFlashBank.I28F004S5; break;
+				case 64: eprSubType = IntelFlashBank.I28F008S5; break;
+				default:
+					return false; // Only 512K or 1MB Intel Flash Cards are allowed.
+			}
+		}
+		if (eprType.compareToIgnoreCase("29F") == 0) {
+			// Amd Flash Eprom Cards exists in 128K, 512K and 1MB configurations 
+			switch(totalEprBanks) {
+				case 8: eprSubType = AmdFlashBank.AM29F010B; break;
+				case 32: eprSubType = AmdFlashBank.AM29F040B; break;
+				case 64: eprSubType = AmdFlashBank.AM29F080B; break;
+				default:
+					return false; // Only 128K, 512K or 1MB Amd Flash Cards are allowed.
+			}
+		}
+			
+		Bank banks[] = new Bank[totalEprBanks]; // the card container
+		for (curBank = 0; curBank < totalEprBanks; curBank++) {
+			if (eprType.compareToIgnoreCase("27C") == 0) banks[curBank] = new EpromBank(this,eprSubType); 
+			if (eprType.compareToIgnoreCase("28F") == 0) banks[curBank] = new IntelFlashBank(this, eprSubType);
+			if (eprType.compareToIgnoreCase("29F") == 0) banks[curBank] = new AmdFlashBank(this, eprSubType);
+		}
+
+		memory.insertCard(banks, slot); // insert the physical card into Z88 memory		
+		return true;
+	}
+
+	
 	/**
 	 * Insert RAM Card into Z88 memory system.
 	 * RAM may be inserted into slots 0 - 3.
@@ -1238,9 +1311,9 @@ public final class Blink extends Z80 {
 		size -= (size % Memory.BANKSIZE);
 		totalRamBanks = size / Memory.BANKSIZE; // number of 16K banks in Ram Card
 
-		Bank ramBanks[] = new Bank[totalRamBanks]; // the RAM card container
+		Bank ramBanks[] = new RamBank[totalRamBanks]; // the RAM card container
 		for (curBank = 0; curBank < totalRamBanks; curBank++) {
-			ramBanks[curBank] = new RamBank(-1); // bank is assigned to the card, not the Z88 memory model...
+			ramBanks[curBank] = new RamBank(); // bank is assigned to the card, not yet to the Z88 memory model...
 		}
 
 		memory.insertCard(ramBanks, slot); // insert the physical card into Z88 memory
@@ -1267,7 +1340,7 @@ public final class Blink extends Z80 {
 		// allocate intermediate load buffer
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			romBanks[curBank] = new RomBank(-1); // bank is assigned to the card, not the Z88 memory model...
+			romBanks[curBank] = new RomBank(); // bank is assigned to the card, not yet to the Z88 memory model...
 			rom.readFully(bankBuffer); // load 16K from file, sequentially
 			romBanks[curBank].loadBytes(bankBuffer, 0);
 			// and load fully into bank
@@ -1314,24 +1387,24 @@ public final class Blink extends Z80 {
 			
 			case 1:
 			case 2:
-				cardBanks[curBank] = new EpromBank(this, -1, EpromBank.VPP32KB);
+				cardBanks[curBank] = new EpromBank(this, EpromBank.VPP32KB);
 				break;
 			case 8:
-				cardBanks[curBank] = new EpromBank(this, -1, AmdFlashBank.AM29F010B);
+				cardBanks[curBank] = new EpromBank(this, AmdFlashBank.AM29F010B);
 				break;
 			case 16:
-				cardBanks[curBank] = new EpromBank(this, -1, EpromBank.VPP128KB);
+				cardBanks[curBank] = new EpromBank(this, EpromBank.VPP128KB);
 				break;
 			case 32:
-				cardBanks[curBank] = new EpromBank(this, -1, IntelFlashBank.I28F004S5);
+				cardBanks[curBank] = new EpromBank(this, IntelFlashBank.I28F004S5);
 				break;
 			case 64:
-				cardBanks[curBank] = new EpromBank(this, -1, AmdFlashBank.AM29F080B);
+				cardBanks[curBank] = new EpromBank(this, AmdFlashBank.AM29F080B);
 				break;
 			default:
 				// all other sizes will be interpreted as UV EPROM's 
 				// that can be programmed using 128K type specs.
-				cardBanks[curBank] = new EpromBank(this, -1, EpromBank.VPP128KB);
+				cardBanks[curBank] = new EpromBank(this, EpromBank.VPP128KB);
 				break;
 			}
 
@@ -1416,7 +1489,7 @@ public final class Blink extends Z80 {
 		BufferedInputStream bis = new BufferedInputStream( is, Memory.BANKSIZE );
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			romBanks[curBank] = new RomBank(-1); // bank is assigned to the card, not the Z88 memory model...
+			romBanks[curBank] = new RomBank(); // bank is assigned to the card, not yet to the Z88 memory model...
 			int bytesRead = bis.read(bankBuffer, 0, Memory.BANKSIZE);	// load 16K from file, sequentially
 			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
