@@ -44,7 +44,7 @@ public class MakeApp {
 				
 				while (arg < args.length) {
 					RandomAccessFile binaryFile =  new RandomAccessFile(args[arg++], "r");
-					int offset = Integer.parseInt(args[arg++], 16);
+					int offset = Integer.parseInt(args[arg++], 16) & 0x3FFF;
 					
 					byte codeBuffer[] = new byte[(int) binaryFile.length()];
 					binaryFile.readFully(codeBuffer);
@@ -55,9 +55,9 @@ public class MakeApp {
 				bankFile.write(bankDump);
 				bankFile.close();
 			} else {
-				System.out.println("Usage: Load binary files a into 16K memory area, and");
-				System.out.println("save contents to a new file. Offsets are specified in hex:");
-				System.out.println("java -jar loadbin.jar outfile.epr {file.bin offset}");
+				System.out.println("Usage: Load binary files a into 16K memory area, and save contents");
+				System.out.println("to a new file. Offsets are specified in hex (truncated to 16K offsets)");
+				System.out.println("Example: java -jar makeapp.jar appl.epr code.bin c000 file2.bin 3fc0");
 			}
 		} catch (FileNotFoundException e) {
 			System.out.println("Couldn't load file image:\n" + e.getMessage() + "\nprogram terminated.");
