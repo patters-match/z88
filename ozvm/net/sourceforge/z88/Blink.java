@@ -20,7 +20,6 @@
 package net.sourceforge.z88;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -101,12 +100,6 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
-	private void displayRtmMessage(final String msg, final boolean displayTimeStamp) {
-		final Date curDateTime = new Date();
-
-		if (displayTimeStamp == true) OZvm.displayRtmMessage(sdf.format(curDateTime) + ":");
-		OZvm.displayRtmMessage(msg);
-	}
 
 	private boolean debugMode = false;
 
@@ -603,7 +596,7 @@ public final class Blink extends Z80 {
 		if ( (INT & BM_INTKWAIT) != 0) {
 			// Z80 snoozes... (wait a little bit, then ask for key press from Blink)
 			try {
-				Thread.sleep(1);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {}
 		}
 
@@ -942,9 +935,9 @@ public final class Blink extends Z80 {
 
 			default :
 				if (OZvm.debugMode == true) {
-					displayRtmMessage("WARNING:\n" +
+					Gui.displayRtmMessage("WARNING:\n" +
 									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-									   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);
+									   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
 				}
 				res = 0;
 		}
@@ -980,11 +973,11 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0xB3 : // EPR, Eprom programming (not yet implemented)
-				if (OZvm.debugMode == true) {
-					displayRtmMessage("WARNING:\n" +
-									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-									   "Eprom programming emulation not yet implemented.", true);			
-				}
+//				if (OZvm.debugMode == true) {
+//					displayRtmMessage("WARNING:\n" +
+//									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+//									   "Eprom programming emulation not yet implemented.", true);			
+//				}
 				break;
 
 			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
@@ -1023,9 +1016,9 @@ public final class Blink extends Z80 {
 			case 0xE3 : // TXD, Transmit Data (not yet implemented)
 			case 0xE4 : // TXC, Transmit Control (not yet implemented)
 				if (OZvm.debugMode == true) {	
-					displayRtmMessage("WARNING:\n" +
+					Gui.displayRtmMessage("WARNING:\n" +
 									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-									   "UART Serial Port emulation not yet implemented.", true);
+									   "UART Serial Port emulation not yet implemented.");
 				}
 				break;
 			case 0xE5 : // UMK, UART int. mask (not yet implemented)
@@ -1034,9 +1027,9 @@ public final class Blink extends Z80 {
 			
 			default:
 				if (OZvm.debugMode == true) {
-					displayRtmMessage("WARNING:\n" +
+					Gui.displayRtmMessage("WARNING:\n" +
 									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-									   "Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);
+									   "Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
 				}
 		}
 	}
@@ -1056,7 +1049,7 @@ public final class Blink extends Z80 {
 	public boolean isZ80Stopped() {
         if (stopZ88 == true) {
             stopZ88 = false;
-			displayRtmMessage("Z88 virtual machine was stopped at " + Dz.extAddrToHex(decodeLocalAddress(getInstrPC()), true), true);
+            Gui.displayRtmMessage("Z88 virtual machine was stopped at " + Dz.extAddrToHex(decodeLocalAddress(getInstrPC()), true));
             return true;
         } else {
             return false;
@@ -1072,7 +1065,7 @@ public final class Blink extends Z80 {
 		// wait until an INT signal is fired...
 		do {
 			try {
-				Thread.sleep(5);		// Z80 "sleeps" ... (interrupts still occurs in Blink)
+				Thread.sleep(10);		// Z80 "sleeps" ... (interrupts still occurs in Blink)
 			} catch (InterruptedException e) {
 				e.printStackTrace(System.out);
 			}						
@@ -1411,11 +1404,11 @@ public final class Blink extends Z80 {
 			// a breakpoint was defined for that address; 
 			// don't stop the processor if it's only a display breakpoint... 
 			memory.setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily)
-			displayRtmMessage((new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString(), true); // dissassemble original instruction, with Z80 main reg dump
+			Gui.displayRtmMessage((new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString()); // dissassemble original instruction, with Z80 main reg dump
 			memory.setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter
 			if (Breakpoints.getInstance().isActive(bpAddress) == true && Breakpoints.getInstance().isStoppable(bpAddress) == true) {
 				PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
-				displayRtmMessage("Z88 virtual machine was stopped at breakpoint.", false);
+				Gui.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");
 				return true;
 			}			
 		} 
