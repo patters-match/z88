@@ -511,6 +511,81 @@
 ; *************************************************************************************
 
 
+; *************************************************************************************
+; Return no of formatable file areas, available in inserted Flash Cards in slots 1-3.
+;
+; IN:
+;     None.
+; OUT:
+;     A = formatable file areas (on for each slot, 1 - 3).
+;     C = slot number for a default formatable File Area (if A>0)
+;
+.PollFileFormatSlots
+                    push de
+                    push bc
+                    push hl
+
+                    ld   hl, availslots+1    ; point to counter of available slots
+                    push hl
+                    ld   c,1                 ; begin with external slot 1
+                    ld   e,0                 ; counter of available file eproms
+.poll_format_loop
+                    push bc                  ; preserve slot number...
+                    call FileEprRequest      ; File Eprom Card or area available in slot C?
+                    ld   a,c
+                    pop  bc
+                    jr   c, check_empty_fep
+                         call FlashWriteSupport ; active or potential file area found, check if there's format support
+                         jr   c, no_feprformat
+.found_feprformat        inc  e              ; Formatable Flash Card found in slot
+                         pop  hl
+                         ld   (hl),a         ; size of Flash File Area in 16K banks
+                         inc  hl
+                         push hl
+                         jr   next_feprslot
+.check_empty_fep                         
+                         call FlashWriteSupport
+                         jr   c, no_feprformat
+                         call CheckFlashCardID
+                         ld   a,b            ; empty, formattable flash card has B banks available...
+                         jr   found_feprformat
+.no_feprformat
+                         pop  hl
+                         ld   (hl),0         ; indicate no formatable flash file area
+                         inc  hl
+                         push hl
+.next_feprslot
+                    inc  c
+                    ld   a,c
+                    cp   4
+                    jr   nz, poll_format_loop
+
+                    ld   a,e
+                    pop  hl
+                    ld   (availslots),a      ; store total of Formatable Flash File Areas
+                    or   a
+                    jr   z, end_pollformat   ; no formatable file areas found...
+
+                    ld   hl,availslots+3
+                    dec  c                   ; get default formatable slot in c, starting at 3...
+.check_default_loop
+                    ld   b,(hl)
+                    inc  b
+                    dec  b
+                    jr   nz, end_pollformat
+                    dec  hl
+                    dec  c
+                    jr   nz,check_default_loop
+.end_pollformat
+                    pop  hl
+                    pop  de
+                    ld   b,d                 ; orignal B restored
+                    pop  de
+                    cp   a                   ; Fc = 0
+                    ret
+; *************************************************************************************
+
+
 
 ; *************************************************************************************
 ;
@@ -985,6 +1060,7 @@
 ; *************************************************************************************
 
 
+
 ; *************************************************************************************
 ;
 ; Save file to Flash Eprom, filename at (buf2), null-terminated.
@@ -1071,6 +1147,7 @@
 ; *************************************************************************************
 
 
+
 ; *************************************************************************************
 ;
 ; Find file on current File Eprom, identified by DE pointer string (null-terminated),
@@ -1118,6 +1195,7 @@
                     RET  C                        ; File Eprom not found or write error...
                     RET
 ; *************************************************************************************
+
 
 
 ; *************************************************************************************
@@ -1193,6 +1271,7 @@
 .delfile_err_ms     DEFM 13,10, " File Eprom or File not found.", 0
 .filedel_ms         DEFM 13,10, " File was successfully marked as deleted.", 0
 ; *************************************************************************************
+
 
 
 ; *************************************************************************************
@@ -1787,7 +1866,7 @@
 
 ; *************************************************************************************
 ;
-; Format Flash Eprom and write "oz" File Eprom Header.
+; Format Flash Card / (Re)Create File Area.
 ;
 ; Out:
 ;         Fc = 0,
@@ -1797,31 +1876,33 @@
 ;
 .format_main
                     call cls
-.init_format_main
-                    call FormatCard
+                    call PollFileFormatSlots      ; investigate slots 1-3 for Flash Cards that can be formatted
+                    or   a
+                    jr   z, no_format_available   ; no available Flash Cards available that may be formatted... 
+                    call FormatFileArea
                     ret  c                        ; format failed, or Intel Flash format not functional in slot..
                     ret  nz
 
-                    call save_null_file           ; save the hidden "null" file to avoid FE bootstrapping
+                    call save_null_file           ; save the hidden "null" file to avoid Intel FE bootstrapping
                     ret
-.FormatCard
-                    ld   a,(curslot)
-                    ld   c,a
-                    call FlashWriteSupport        ; check if Flash Card in current slot supports formatting?
-                    call c,DispIntelSlotErr
-                    ret  c                        ; it didn't...
-                    ret  nz                       ; (and flash chip was not found in slot!)
-
-                    call CheckBatteryStatus       ; don't format Flash Eprom
+.no_format_available
+                    LD   HL, noformat_ms
+                    CALL DispErrMsg
+                    scf
+                    ret                    
+.FormatFileArea
+                    cp   1
+                    jr   z, format_default
+                    ; select slot to format...      
+.format_default                    
+                    ld   a,c
+                    ld   (curslot),a              ; the selected slot...
+                    call CheckBatteryStatus       ; don't format Flash Card
                     ret  c                        ; if Battery Low is enabled...
 
                     ld   hl,ffm1_br
                     call wbar                     ; "Format Flash eprom" head line
 
-                    ld   A,(curslot)
-                    LD   C,A
-                    CALL CheckFlashCardID
-                    JP   C, unkn_chip             ; Ups - Flash Eprom not available in current slot
                     PUSH BC
                     CALL FileEprRequest           ; C = slot number...
                     POP  BC
@@ -1876,6 +1957,18 @@
                          LD   HL, hdrerr_ms
                          CALL DispErrMsg
                     RET
+                    
+.hdrerr_ms          defm "Header not written properly!",$0D,$0A,0
+.applc_full_ms      defm "No room for File Area on Application Card.",$0D,$0A,0
+.fferr_ms           defm "File Area was not formatted/erased properly!",$0D,$0A,0
+.ffm1_br            defm "FORMAT FLASH CARD",0
+.ffm2_br            defm "Formatting Flash Card - please wait...",0
+.wroz_ms            defm " Writing File Eprom Header...",$0D,$0A,0
+.noflash_ms         defm 1,"BNo Flash Cards were found in slots 1-3.",1,"B",0
+.noformat_ms        defm 1,"BNo Flash Cards were available to be formatted.",1,"B",0                    
+; *************************************************************************************
+
+
 
 ; *************************************************************************************
 ; Due to a strange side effect with Intel Flash Chips, a special "NULL" file is saved
@@ -1909,14 +2002,6 @@
                     ret
 .nullfile
                     defb 1, 0, 0, 0, 0, 0
-
-.hdrerr_ms          defm "Header not written properly!",$0D,$0A,0
-.applc_full_ms      defm "No room for File Area on Application Card.",$0D,$0A,0
-.fferr_ms           defm "File Area was not formatted/erased properly!",$0D,$0A,0
-.ffm1_br            defm "FORMAT FLASH CARD",0
-.ffm2_br            defm "Formatting Flash Card - please wait...",0
-.wroz_ms            defm " Writing File Eprom Header...",$0D,$0A,0
-.noflash_ms         defm 1,"BNo Flash Cards were found in slots 1-3.",1,"B",0
 ; *************************************************************************************
 
 
