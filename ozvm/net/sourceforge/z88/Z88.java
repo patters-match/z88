@@ -1,6 +1,7 @@
 package net.sourceforge.z88;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,7 +30,7 @@ public class Z88 extends Z80 {
 	 * Constructor.
 	 * Initialize Z88 Hardware.
 	 */
-	public Z88() throws Exception {
+	public Z88() {
 		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster...)
 		// This emulator runs at the speed it can get and provides external
 		// interrupt signals each 10ms from BLINK to Z80 through INT pin
@@ -37,13 +38,8 @@ public class Z88 extends Z80 {
 
 		blink = new Blink(this); // initialize BLINK chip
 
-		slotCards = new Bank[4][];
-		// Instantiate the slot containers for Cards...
-		for (int slot = 0; slot < 4; slot++)
-			slotCards[slot] = null; // nothing available in slots..
-
-		insertRamCard(128 * 1024, 0);
 		// Insert 128K RAM in slot 0 (top 512K address space)
+		blink.insertRamCard(128 * 1024, 0);
 
 		z80Speed = new MonitorZ80();	// finally, set up a monitor that display current Z80 speed
 	}
@@ -61,20 +57,10 @@ public class Z88 extends Z80 {
 	 */
 	private static final StringBuffer dzBuffer = new StringBuffer(64);
 
-	/**
-	 * The container for the current loaded card entities in the Z88 memory
-	 * system for slot 0, 1, 2 and 3.
-	 *
-	 * Slot 0 will only keep a RAM Card in top 512K address space
-	 * The ROM "Card" is only loaded once at OZvm boot
-	 * and is never removed.
-	 */
-	private Bank slotCards[][];
-
 	public void hardReset() {
 		reset(); // reset Z80 registers
 		blink.setCom(0); // reset COM register
-		resetRam(); // reset memory of all available RAM in Z88 memory
+		blink.resetRam(); // reset memory of all available RAM in Z88 memory
 	}
 
 	public void haltInstruction() {
@@ -82,144 +68,10 @@ public class Z88 extends Z80 {
 		// so that the Z88 enters the correct state (coma, snooze, ...)
 	}
 
-	/**
-	 * Scan available slots for Ram Cards, and reset them..
-	 */
-	private void resetRam() {
-		for (int slot = 0; slot < slotCards.length; slot++) {
-			// look at bottom bank in Card for type; only reset RAM Cards...
-			if (slotCards[slot] != null
-				&& slotCards[slot][0].getType() == Bank.RAM) {
-				// reset all banks in Card of current slot
-				for (int cardBank = 0;
-					cardBank < slotCards[slot].length;
-					cardBank++) {
-					Bank b = slotCards[slot][cardBank];
-					for (int bankOffset = 0;
-						bankOffset < Bank.SIZE;
-						bankOffset++) {
-						b.writeByte(bankOffset, 0);
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Insert RAM Card into Z88 memory system.
-	 * Size must be in modulus 32Kb (even numbered 16Kb banks).
-	 * RAM may be inserted into slots 0 - 3.
-	 * RAM is loaded from bottom bank of slot and upwards.
-	 * Slot 0 (512Kb): banks 20 - 3F
-	 * Slot 1 (1Mb):   banks 40 - 7F
-	 * Slot 2 (1Mb):   banks 80 - BF
-	 * Slot 3 (1Mb):   banks C0 - FF
-	 *
-	 * Slot 0 is special; max 512K RAM in top 512K address space.
-	 * (bottom 512K address space in slot 0 is reserved for ROM, banks 00-1F)
-	 */
-	public void insertRamCard(int size, int slot) {
-		int totalRamBanks, totalSlotBanks, curBank;
-
-		slot %= 4; // allow only slots 0 - 3 range.
-		size -= (size % 32768); // allow only modulus 32Kb RAM.
-		totalRamBanks = size / 16384; // number of 16K banks in Ram Card
-
-		Bank ramBanks[] = new Bank[totalRamBanks]; // the RAM card container
-		for (curBank = 0; curBank < totalRamBanks; curBank++) {
-			ramBanks[curBank] = new Bank(Bank.RAM);
-		}
-
-		slotCards[slot] = ramBanks;
-		// remember Ram Card for future reference...
-		loadCard(ramBanks, slot); // load the physical card into Z88 memory
-	}
-
-	/**
-	 * Load externally specified ROM image into Z88 memory system, slot 0.
-	 *
-	 * @param filename
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public void loadRom(String filename)
+	public void loadRom(String filename) 
 		throws FileNotFoundException, IOException {
-		RandomAccessFile rom = new RandomAccessFile(filename, "r");
-
-		if (rom.length() > (1024 * 512)) {
-			throw new IOException("Max 512K ROM!");
-		}
-		if (rom.length() % (Bank.SIZE * 2) > 0) {
-			throw new IOException("ROM must be in even banks!");
-		}
-
-		Bank romBanks[] = new Bank[(int) rom.length() / Bank.SIZE];
-		// allocate ROM container
-		byte bankBuffer[] = new byte[Bank.SIZE];
-		// allocate intermediate load buffer
-
-		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			romBanks[curBank] = new Bank(Bank.ROM);
-			rom.readFully(bankBuffer); // load 16K from file, sequentially
-			romBanks[curBank].loadBytes(bankBuffer, 0);
-			// and load fully into bank
-		}
-
-		// complete ROM image now loaded into container
-		// insert container into Z88 memory, slot 0, banks $00 onwards.
-		loadCard(romBanks, 0);
-	}
-
-	/**
-	 * Load Card (RAM/ROM/EPROM) into Z88 memory system.
-	 * Size is in modulus 32Kb (even numbered 16Kb banks).
-	 * Slot 0 (512Kb): banks 00 - 1F (ROM), banks 20 - 3F (RAM)
-	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
-	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
-	 * Slot 3 (1Mb):   banks C0 - FF (RAM or EPROM)
-	 *
-	 * @param card
-	 * @param slot
-	 */
-	private void loadCard(Bank card[], int slot) {
-		int totalSlotBanks, slotBank, curBank;
-
-		if (slot == 0) {
-			// Define bottom bank for ROM/RAM
-			slotBank = (card[0].getType() != Bank.RAM) ? 0x00 : 0x20;
-			// slot 0 has 32 * 16Kb = 512K address space for RAM or ROM
-			totalSlotBanks = 32;
-		} else {
-			slotBank = slot << 6; // convert slot number to bottom bank of slot
-			totalSlotBanks = 64;
-			// slots 1 - 3 have 64 * 16Kb = 1Mb address space
-		}
-
-		for (curBank = 0; curBank < card.length; curBank++) {
-			blink.setBank(card[curBank], slotBank++);
-			// "insert" 16Kb bank into Z88 memory
-			--totalSlotBanks;
-		}
-
-		// - the bottom of the slot has been loaded with the Card.
-		// Now, we need to fill the 1MB address space in the slot with the card.
-		// Note, that most cards and the internal memory do not exploit
-		// the full lMB addressing range, but only decode the lower address lines.
-		// This means that memory will appear more than once within the lMB range.
-		// The memory of a 32K card in slot 1 would appear at banks $40 and $41,
-		// $42 and $43, ..., $7E and $7F. Alternatively a 128K EPROM in slot 3 would
-		// appear at $C0 to $C7, $C8 to $CF, ..., $F8 to $FF.
-		// This way of addressing is assumed by the system.
-		// Note that the lowest and highest bank in an EPROM can always be addressed
-		// by looking at the bank at the bottom of the 1MB address range and the bank
-		// at the top respectively.
-		while (totalSlotBanks > 0) {
-			for (curBank = 0; curBank < card.length; curBank++) {
-				blink.setBank(card[curBank], slotBank++);
-				// "shadow" card banks into remaining slot
-				--totalSlotBanks;
-			}
-		}
+		
+		blink.loadRom(filename);
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package net.sourceforge.z88;
 
+import java.io.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,6 +30,11 @@ public final class Blink {
 		for (int bank = 0; bank < memory.length; bank++)
 			memory[bank] = nullBank;
 
+		slotCards = new Bank[4][];
+		// Instantiate the slot containers for Cards...
+		for (int slot = 0; slot < 4; slot++)
+			slotCards[slot] = null; // nothing available in slots..
+
 		timerDaemon = new Timer(true);
 		
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
@@ -56,6 +62,16 @@ public final class Blink {
 	 * The 10ms interupt line to the Z80 processor.
 	 */
 	private Z80interrupt z80Int;
+
+	/**
+	 * The container for the current loaded card entities in the Z88 memory
+	 * system for slot 0, 1, 2 and 3.
+	 *
+	 * Slot 0 will only keep a RAM Card in top 512K address space
+	 * The ROM "Card" is only loaded once at OZvm boot
+	 * and is never removed.
+	 */
+	private Bank slotCards[][];
 
 	/**
 	 * Main Blink Interrrupts (INT).
@@ -438,6 +454,64 @@ public final class Blink {
 		sR[segment & 0x03] = (BankNo & 0xFF);
 	}
 
+
+	/**
+	 * Decode the correct bank defined by the 16bit (0-65535) address pointer.
+	 * 
+	 * @param addr
+	 * @return Bank
+	 */
+	private Bank bankDecode(final int addr) {		
+		if (addr > 0x3FFF) {
+			// return Bank bound in segments 1 - 3
+			return memory[sR[addr >>> 14]];			
+		} else {
+			if (addr < 0x2000)
+				// return lower 8K Bank binding
+				// Lower 8K is System Bank 0x00 (ROM on hard reset)
+				// or 0x20 (RAM for Z80 stack and system variables)
+				return RAMS;
+			else
+				return memory[sR[0] & 0xFE];	
+		}
+	}
+
+	/**
+	 * Decode the correct bank offset, defined by the 64K address 
+	 * pointer being within segment 0 or not.
+	 * 
+	 * @param addr
+	 * @return int
+	 */
+	private int offsetDecode(final int addr) {
+		if (addr > 0x3FFF) {
+			// return full offset range [0-16383] for Banks bound in segments 1 - 3
+			return addr & 0x3FFF;			
+		} else {
+			// check the address range 0000h - 3FFFh (segment 0)
+			
+			if (addr < 0x2000)
+				// lower 8K Bank, address is already a bank offset, 
+				// and within lower 8K of segment 0
+				return addr;
+			else {
+				// check the upper 8K bank binding of segment 0
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF
+					// (upper half of bank)
+					return addr;
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					return addr & 0x1FFF;
+				}
+			}
+		}
+	}
+
+
 	/**
 	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word
 	 * that points into the Z80 64K address space.
@@ -447,38 +521,28 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public final int readByte(final int addr) {
-		int segment = addr >>> 14; // bit 15 & 14 identifies segment
-
-		// the OZ spends most of the time in segments 1 - 3,
-		// therefore we should ask for this first...
-		if (segment > 0) {
-			return memory[sR[segment]].readByte(addr);
+	public final int readByte(int addr) {
+		Bank bankNo;
+		
+		if (addr > 0x3FFF) {
+			// return Bank bound in segments 1 - 3
+			bankNo = memory[sR[addr >>> 14]];
+			addr &= 0x3FFF;			
 		} else {
-			// Bank 0 is split into two 8K blocks.
-			// Lower 8K is System Bank 0x00 (ROM on hard reset)
-			// or 0x20 (RAM for Z80 sTACK and system variables)
-			if (addr < 0x2000) {
-				return RAMS.readByte(addr);
-			} else {
-				// determine which 8K of bank has been bound into
-				// upper half of segment 0. Only even numbered banks
-				// can be bound into upper segment 0.
-				// (to implement this hardware feature, we strip bit 0
-				// of the bank number with the bit mask 0xFE)
-				if ((sR[0] & 1) == 1) {
-					// bit 0 is set in even bank number, ie. upper half of
-					// 8K bank is bound into upper segment 0...
-					// address is already in range of 0x2000 - 0x3FFF
-					// (upper half of bank)
-					return memory[sR[0] & 0xFE].readByte(addr);
-				} else {
-					// lower half of 8K bank is bound into upper segment 0...
-					// force address to read in the range 0 - 0x1FFF of bank
-					return memory[sR[0] & 0xFE].readByte(addr & 0x1FFF);
+			if (addr < 0x2000)
+				// return lower 8K Bank binding
+				// Lower 8K is System Bank 0x00 (ROM on hard reset)
+				// or 0x20 (RAM for Z80 stack and system variables)
+				bankNo = RAMS;
+			else {
+				if ((sR[0] & 1) == 0) {
+					addr &= 0x1FFF;		
 				}
+				bankNo = memory[sR[0] & 0xFE];	
 			}
 		}
+
+		return bankNo.bank[offsetDecode(addr)];
 	}
 
 	/**
@@ -491,37 +555,7 @@ public final class Blink {
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
 	public final int readWord(final int addr) {
-		int segment = addr >>> 14; // bit 15 & 14 identifies segment
-
-		// the OZ spends most of the time in segments 1 - 3,
-		// therefore we should ask for this first...
-		if (segment > 0) {
-			return memory[sR[segment]].readWord(addr);
-		} else {
-			// Bank 0 is split into two 8K blocks.
-			// Lower 8K is System Bank 0x00 (ROM on hard reset)
-			// or 0x20 (RAM for Z80 sTACK and system variables)
-			if (addr < 0x2000) {
-				return RAMS.readWord(addr);
-			} else {
-				// determine which 8K of bank has been bound into
-				// upper half of segment 0. Only even numbered banks
-				// can be bound into upper segment 0.
-				// (to implement this hardware feature, we strip bit 0
-				// of the bank number with the bit mask 0xFE)
-				if ((sR[0] & 1) == 1) {
-					// bit 0 is set in even bank number, ie. upper half of
-					// 8K bank is bound into upper segment 0...
-					// address is already in range of 0x2000 - 0x3FFF
-					// (upper half of bank)
-					return memory[sR[0] & 0xFE].readWord(addr);
-				} else {
-					// lower half of 8K bank is bound into upper segment 0...
-					// force address to read in the range 0 - 0x1FFF of bank
-					return memory[sR[0] & 0xFE].readWord(addr & 0x1FFF);
-				}
-			}
-		}
+		return (readByte(addr+1) << 8) | readByte(addr); 					
 	}
 
 	/**
@@ -540,39 +574,11 @@ public final class Blink {
 	 * @return int 4 byte Z80 instruction 
 	 */
 	public final int readInstruction(final int addr) {
-		int segment = addr >>> 14; // bit 15 & 14 identifies segment
-
-		// the OZ spends most of the time in segments 1 - 3,
-		// therefore we should ask for this first...
-		if (segment > 0) {
-			return memory[sR[segment]].readInstruction(addr);
-		} else {
-			// Bank 0 is split into two 8K blocks.
-			// Lower 8K is System Bank 0x00 (ROM on hard reset)
-			// or 0x20 (RAM for Z80 sTACK and system variables)
-			if (addr < 0x2000) {
-				return RAMS.readInstruction(addr);
-			} else {
-				// determine which 8K of bank has been bound into
-				// upper half of segment 0. Only even numbered banks
-				// can be bound into upper segment 0.
-				// (to implement this hardware feature, we strip bit 0
-				// of the bank number with the bit mask 0xFE)
-				if ((sR[0] & 1) == 1) {
-					// bit 0 is set in even bank number, ie. upper half of
-					// 8K bank is bound into upper segment 0...
-					// address is already in range of 0x2000 - 0x3FFF
-					// (upper half of bank)
-					return memory[sR[0] & 0xFE].readInstruction(addr);
-				} else {
-					// lower half of 8K bank is bound into upper segment 0...
-					// force address to read in the range 0 - 0x1FFF of bank
-					return memory[sR[0] & 0xFE].readInstruction(addr & 0x1FFF);
-				}
-			}
-		}
+		return (readByte(addr + 3) << 24) |
+	           (readByte(addr + 2) << 16) |
+	           (readByte(addr + 1) << 8) |  
+			   readByte(addr);
 	}
-
 
 	/**
 	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
@@ -584,37 +590,7 @@ public final class Blink {
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
 	public final void writeByte(final int addr, final int b) {
-		int segment = addr >>> 14; // bit 15 & 14 identifies segment
-
-		// the OZ spends most of the time in segments 1 - 3,
-		// therefore we should ask for this first...
-		if (segment > 0) {
-			memory[sR[segment]].writeByte(addr, b);
-		} else {
-			// Bank 0 is split into two 8K blocks.
-			// Lower 8K is System Bank 0x00 (ROM on hard reset)
-			// or 0x20 (RAM for Z80 stack and system variables)
-			if (addr < 0x2000) {
-				RAMS.writeByte(addr, b);
-			} else {
-				// determine which 8K of bank has been bound into
-				// upper half of segment 0. Only even numbered banks
-				// can be bound into upper segment 0.
-				// (to implement this hardware feature, we strip bit 0
-				// of the bank number with the bit mask 0xFE)
-				if ((sR[0] & 1) == 1) {
-					// bit 0 is set in even bank number, ie. upper half of
-					// 8K bank is bound into upper segment 0...
-					// address is already in range of 0x2000 - 0x3FFF
-					// (upper half of bank)
-					memory[sR[0] & 0xFE].writeByte(addr, b);
-				} else {
-					// lower half of 8K bank is bound into upper segment 0...
-					// force address to read in the range 0 - 0x1FFF of bank
-					memory[sR[0] & 0xFE].writeByte(addr & 0x1FFF, b);
-				}
-			}
-		}
+		bankDecode(addr).bank[offsetDecode(addr)] = b & 0xFF;
 	}
 
 	/**
@@ -627,37 +603,8 @@ public final class Blink {
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
 	public final void writeWord(final int addr, final int w) {
-		int segment = addr >>> 14; // bit 15 & 14 identifies segment
-
-		// the OZ spends most of the time in segments 1 - 3,
-		// therefore we should ask for this first...
-		if (segment > 0) {
-			memory[sR[segment]].writeWord(addr, w);
-		} else {
-			// Bank 0 is split into two 8K blocks.
-			// Lower 8K is System Bank 0x00 (ROM on hard reset)
-			// or 0x20 (RAM for Z80 stack and system variables)
-			if (addr < 0x2000) {
-				RAMS.writeWord(addr, w);
-			} else {
-				// determine which 8K of bank has been bound into
-				// upper half of segment 0. Only even numbered banks
-				// can be bound into upper segment 0.
-				// (to implement this hardware feature, we strip bit 0
-				// of the bank number with the bit mask 0xFE)
-				if ((sR[0] & 1) == 1) {
-					// bit 0 is set in even bank number, ie. upper half of
-					// 8K bank is bound into upper segment 0...
-					// address is already in range of 0x2000 - 0x3FFF
-					// (upper half of bank)
-					memory[sR[0] & 0xFE].writeWord(addr, w);
-				} else {
-					// lower half of 8K bank is bound into upper segment 0...
-					// force address to read in the range 0 - 0x1FFF of bank
-					memory[sR[0] & 0xFE].writeWord(addr & 0x1FFF, w);
-				}
-			}
-		}
+		bankDecode(addr).bank[offsetDecode(addr)] = w & 0xFF;
+		bankDecode(addr+1).bank[offsetDecode(addr+1)] = (w >>> 8) & 0xFF;
 	}
 
 	/**
@@ -669,10 +616,10 @@ public final class Blink {
 	 * @param bank number of the 4MB memory model (0-255). 
 	 * @param bits to be written.
 	 */
-	public void setByte(final int offset, final int bank, final int bits) {
-		if (memory[bank] != nullBank) {
+	public void setByte(final int offset, final int bankno, final int bits) {
+		if (memory[bankno] != nullBank) {
 			// we can only write to a real memory bank, not to an empty slot...
-			memory[bank].setByte(offset,bits);
+			memory[bankno].bank[0x3FFF & offset] = bits & 0xFF;
 		}
 	}
 
@@ -685,8 +632,8 @@ public final class Blink {
 	 * @param bits
 	 * @return int
 	 */
-	public int getByte(final int offset, final int bank, final int bits) {
-		return memory[bank].readByte(offset);
+	public int getByte(final int offset, final int bankno, final int bits) {
+		return memory[bankno].bank[0x3FFF & offset];
 	}
 
 	/**
@@ -752,6 +699,196 @@ public final class Blink {
 			// Slot 0 ROM bank 0 is bound into lower 8K of segment 0
 			RAMS = memory[0x00];
 	}
+
+	/**
+	 * Insert RAM Card into Z88 memory system.
+	 * Size must be in modulus 32Kb (even numbered 16Kb banks).
+	 * RAM may be inserted into slots 0 - 3.
+	 * RAM is loaded from bottom bank of slot and upwards.
+	 * Slot 0 (512Kb): banks 20 - 3F
+	 * Slot 1 (1Mb):   banks 40 - 7F
+	 * Slot 2 (1Mb):   banks 80 - BF
+	 * Slot 3 (1Mb):   banks C0 - FF
+	 *
+	 * Slot 0 is special; max 512K RAM in top 512K address space.
+	 * (bottom 512K address space in slot 0 is reserved for ROM, banks 00-1F)
+	 */
+	public void insertRamCard(int size, int slot) {
+		int totalRamBanks, totalSlotBanks, curBank;
+
+		slot %= 4; // allow only slots 0 - 3 range.
+		size -= (size % 32768); // allow only modulus 32Kb RAM.
+		totalRamBanks = size / 16384; // number of 16K banks in Ram Card
+
+		Bank ramBanks[] = new Bank[totalRamBanks]; // the RAM card container
+		for (curBank = 0; curBank < totalRamBanks; curBank++) {
+			ramBanks[curBank] = new Bank(Bank.RAM);
+		}
+
+		slotCards[slot] = ramBanks;
+		// remember Ram Card for future reference...
+		loadCard(ramBanks, slot); // load the physical card into Z88 memory
+	}
+
+	/**
+	 * Load externally specified ROM image into Z88 memory system, slot 0.
+	 *
+	 * @param filename
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void loadRom(String filename)
+		throws FileNotFoundException, IOException {
+		RandomAccessFile rom = new RandomAccessFile(filename, "r");
+
+		if (rom.length() > (1024 * 512)) {
+			throw new IOException("Max 512K ROM!");
+		}
+		if (rom.length() % (Bank.SIZE * 2) > 0) {
+			throw new IOException("ROM must be in even banks!");
+		}
+
+		Bank romBanks[] = new Bank[(int) rom.length() / Bank.SIZE];
+		// allocate ROM container
+		byte bankBuffer[] = new byte[Bank.SIZE];
+		// allocate intermediate load buffer
+
+		for (int curBank = 0; curBank < romBanks.length; curBank++) {
+			romBanks[curBank] = new Bank(Bank.ROM);
+			rom.readFully(bankBuffer); // load 16K from file, sequentially
+			romBanks[curBank].loadBytes(bankBuffer, 0);
+			// and load fully into bank
+		}
+
+		// complete ROM image now loaded into container
+		// insert container into Z88 memory, slot 0, banks $00 onwards.
+		loadCard(romBanks, 0);
+	}
+
+	/**
+	 * Load Card (RAM/ROM/EPROM) into Z88 memory system.
+	 * Size is in modulus 32Kb (even numbered 16Kb banks).
+	 * Slot 0 (512Kb): banks 00 - 1F (ROM), banks 20 - 3F (RAM)
+	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
+	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
+	 * Slot 3 (1Mb):   banks C0 - FF (RAM or EPROM)
+	 *
+	 * @param card
+	 * @param slot
+	 */
+	private void loadCard(Bank card[], int slot) {
+		int totalSlotBanks, slotBank, curBank;
+
+		if (slot == 0) {
+			// Define bottom bank for ROM/RAM
+			slotBank = (card[0].getType() != Bank.RAM) ? 0x00 : 0x20;
+			// slot 0 has 32 * 16Kb = 512K address space for RAM or ROM
+			totalSlotBanks = 32;
+		} else {
+			slotBank = slot << 6; // convert slot number to bottom bank of slot
+			totalSlotBanks = 64;
+			// slots 1 - 3 have 64 * 16Kb = 1Mb address space
+		}
+
+		for (curBank = 0; curBank < card.length; curBank++) {
+			setBank(card[curBank], slotBank++);
+			// "insert" 16Kb bank into Z88 memory
+			--totalSlotBanks;
+		}
+
+		// - the bottom of the slot has been loaded with the Card.
+		// Now, we need to fill the 1MB address space in the slot with the card.
+		// Note, that most cards and the internal memory do not exploit
+		// the full lMB addressing range, but only decode the lower address lines.
+		// This means that memory will appear more than once within the lMB range.
+		// The memory of a 32K card in slot 1 would appear at banks $40 and $41,
+		// $42 and $43, ..., $7E and $7F. Alternatively a 128K EPROM in slot 3 would
+		// appear at $C0 to $C7, $C8 to $CF, ..., $F8 to $FF.
+		// This way of addressing is assumed by the system.
+		// Note that the lowest and highest bank in an EPROM can always be addressed
+		// by looking at the bank at the bottom of the 1MB address range and the bank
+		// at the top respectively.
+		while (totalSlotBanks > 0) {
+			for (curBank = 0; curBank < card.length; curBank++) {
+				setBank(card[curBank], slotBank++);
+				// "shadow" card banks into remaining slot
+				--totalSlotBanks;
+			}
+		}
+	}
+
+	/**
+	 * Scan available slots for Ram Cards, and reset them..
+	 */
+	public void resetRam() {
+		for (int slot = 0; slot < slotCards.length; slot++) {
+			// look at bottom bank in Card for type; only reset RAM Cards...
+			if (slotCards[slot] != null
+				&& slotCards[slot][0].getType() == Bank.RAM) {
+				// reset all banks in Card of current slot
+				for (int cardBank = 0;
+					cardBank < slotCards[slot].length;
+					cardBank++) {
+					Bank b = slotCards[slot][cardBank];
+					for (int bankOffset = 0;
+						bankOffset < Bank.SIZE;
+						bankOffset++) {
+						b.bank[bankOffset] = 0;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * This class represents a 16K memory block or bank of memory.
+	 * The characteristics of a bank can be that it's part of a Ram card (or the
+	 * internal memory of the Z88), an Eprom card or a 1MB Flash Card.
+	 */
+	private final class Bank {
+		private static final int RAM = 0;		// 32Kb, 128Kb, 512Kb, 1Mb
+		private static final int ROM = 1;		// 128Kb 
+		private static final int EPROM = 2;		// 32Kb, 128Kb & 256Kb
+		private static final int FLASH = 3;		// 1Mb Flash
+		private static final int SIZE = 16384;	// Always 16384 bytes in a bank
+		
+		private int type;
+		private int bank[];
+	
+		Bank() {
+			type = Bank.RAM;
+			bank = new int[Bank.SIZE];	// all default memory cells are 0.
+		}
+	
+		Bank(int banktype) {
+			type = banktype;
+			bank = new int[Bank.SIZE];
+		
+			if (type != Bank.RAM) {
+				for (int i=0; i<memory.length; i++)
+					bank[i] = 0xFF;	// empty Eprom or Flash stores FF's
+			}
+		}
+	
+		private int getType() {
+			return type;
+		}
+	
+		/**
+		 * Load bytes from buffer array of block.length
+		 * to bank offset, onwards.
+		 * Naturally, loading is only allowed inside 16Kb boundary.
+		 */
+		private void loadBytes(byte[] block, int offset) {
+			offset %= Bank.SIZE;	// stay within boundary..
+			int length = (offset+block.length) > Bank.SIZE ? Bank.SIZE-offset : block.length;
+
+			int bufidx=0;
+			while(length-- > 0)
+				bank[offset++] = block[bufidx++] & 0xFF;
+		}
+	} /* Bank */
+
 
 	/** 
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
