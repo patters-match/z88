@@ -15,7 +15,6 @@ DEFC FE_INTEL_MFCD = $89    ; INTEL Manufacturer code
 
 ; Unique Flash Memory ID, 28Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 2nd generation Flash chips require 12V for programming and erasure (in z88 slot 3 only)
-DEFC FE_I28F020 = $89BD     ; 256Kb memory, 4 x 64K erasable sectors, 16 x 16K banks (z88 memory model)
 DEFC FE_I28F004S5 = $89A7   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
 DEFC FE_I28F008SA = $89A2   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
 DEFC FE_I28F008S5 = $89A6   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
