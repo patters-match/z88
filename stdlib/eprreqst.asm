@@ -129,6 +129,7 @@
 ; then Fc = 1 is returned.
 ;
 ; IN:
+;         E = total of physical 16K banks on application card
 ;         B = number of banks reserved (used) for ROM applications
 ;         C = slot number
 ; OUT:
@@ -145,12 +146,12 @@
 ;              A = RC_ROOM (No room for File Eprom Area)
 ;
 ; Registers changed after return:
-;    ....DEHL/IXIY same
-;    AFBC..../.... different
+;    .....EHL/IXIY same
+;    AFBCD.../.... different
 ;
 .DefHeaderPosition
-                    LD   A,$40
-                    SUB  B                   ; $40 - <ROM banks> = lowest bank of ROM area
+                    LD   A,E
+                    SUB  B                   ; <Total banks> - <ROM banks> = lowest bank of ROM area
                     LD   D,A
                     PUSH BC
                     CALL FlashEprCardId
