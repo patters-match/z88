@@ -80,6 +80,7 @@ public class Gui extends JFrame {
 		content.add(panel, BorderLayout.NORTH);
 		
 		this.setTitle("OZvm V" + OZvm.VERSION);
+		this.setResizable(false);
 		this.pack();
 		this.setVisible(true);
 		this.setForeground(java.awt.Color.green);
