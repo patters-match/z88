@@ -1116,7 +1116,7 @@ public final class Blink extends Z80 {
 		// wait until an INT signal is fired...
 		do {
 			try {
-				Thread.sleep(5);		// Z80 "sleeps" ... (interrupts still occurs in Blink)
+				Thread.sleep(1);		// Z80 "sleeps" ... (interrupts still occurs in Blink)
 			} catch (InterruptedException e) {
 				e.printStackTrace(System.out);
 			}						
