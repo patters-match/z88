@@ -17,8 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank, PointerNextByte
-     LIB FlashEprCardId, ExecRoutineOnStack
+     LIB MemDefBank, FlashEprCardId, ExecRoutineOnStack
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -43,11 +42,16 @@ DEFC VppBit = 1
 ; automatically continued on the next adjacent bank of the card.
 ; On return, BHL points at the byte after the last written byte.
 ;
-; This routine is used by the File Eprom Management libraries, but is well
+; The routine will internally ask the Flash Memory for identification and 
+; intelligently use the correct programming algorithm for the appropriate
+; chip.
+;
+; The routine is used by the File Eprom Management libraries, but is well
 ; suited for other application purposes.
 ;
-; Use segment specifier C to blow the block of bytes (MS_S0 - MS_S3), which
-; has to be in a different segment than DE is pointing to.
+; Use segment specifier C (where BHL memory will be bound into the Z80 
+; address space) to blow the block of bytes (MS_S0 - MS_S3), which has to be 
+; in a different segment than DE is referring.
 ;
 ; BHL points to an absolute bank (which is part of the slot that the Flash 
 ; Memory Card have been inserted into).
@@ -67,16 +71,17 @@ DEFC VppBit = 1
 ;
 ; In :
 ;         DE = local pointer to start of block (located in available segment)
-;         C = MS_Sx segment specifier
+;         C = MS_Sx segment specifier for BHL
 ;         BHL = extended address to start of destination (pointer into card)
-;         IY = size of block to blow
+;         IY = size of block (at DE) to blow
 ; Out:
 ;         Success:
 ;              Fc = 0
 ;              BHL updated
 ;         Failure:
 ;              Fc = 1
-;              A = RC_BWR
+;              A = RC_BWR (block not blown properly)
+;              A = RC_NFE (not a recognized Flash Memory Chip)
 ;
 ; Registers changed on return:
 ;    A..CDE../IXIY same
@@ -136,7 +141,7 @@ DEFC VppBit = 1
                     CP   A                             ; signal success (Fc = 0)
 .return
                     RES  7,H
-                    RES  6,H                           ; return offset in range 0000h - 3fffh only
+                    RES  6,H                           ; return pure bank offset (0000h - 3fffh) only
 
                     POP  DE
                     LD   C,E                           ; original C register restored...
@@ -163,7 +168,7 @@ DEFC VppBit = 1
 ;         BHL = points at next free byte on Flash Eprom
 ;         DE = points beyond last byte of buffer
 ;    Fc = 1, 
-;         A = RC_ error code, block not blown properly
+;         A = RC_BWR  (block not blown properly)
 ;         DE,BHL points at byte not blown properly
 ;
 ; Registers changed after return:
@@ -207,6 +212,8 @@ DEFC VppBit = 1
 
           
 ; ***************************************************************
+; Program block of data on an INTEL I28Fxxxx Flash Memory.
+; (this routine is copied on the stack and executed there)
 ;
 .FEP_ExecWriteBlock_28F
                     EXX
@@ -310,6 +317,8 @@ DEFC VppBit = 1
 
 
 ; ***************************************************************
+; Program block of data on an AMD AM29Fxxxx Flash Memory
+; (this routine is copied on the stack and executed there)
 ;
 .FEP_ExecWriteBlock_29F
                     EXX
