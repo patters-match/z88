@@ -21,7 +21,7 @@ public class Z88display
 	public static final int Z88SCREENHEIGHT = 64;
 	private static final int SBRSIZE = 2048;				// Size of Screen Base File (bytes) 
 	
-	private static final int PXCOLON = 0xff4C166D;			// Trying to get as close as possibly to the LCD colors...
+	private static final int PXCOLON = 0xff461B7D;			// Trying to get as close as possibly to the LCD colors...
 	private static final int PXCOLGREY = 0xff90B0A7;
 	private static final int PXCOLOFF = 0xffD2E0B9;
 	
