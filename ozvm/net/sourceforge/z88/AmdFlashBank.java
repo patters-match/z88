@@ -31,8 +31,11 @@ import java.util.Vector;
  * The emulation of the AMD Flash Memory solely implements the chip command 
  * mode programming, since the Z88 Flash Cards only responds to those
  * command sequenses (and not the hardware pin manipulation). Erase Suspend and
- * Erase Resume commands are also not implemented. The essential 
- * emulation is implemented to respond to the Standard Flash Eprom Library.  
+ * Erase Resume commands are also not implemented. 
+ * 
+ * The essential emulation is implemented to respond to the Standard Flash Eprom 
+ * Library (which implements all Flash chip manipulation, issuing commands 
+ * on a bank, typically specified indirectly using the BHL Z80 registers). 
  */
 public class AmdFlashBank extends Bank {
 	
@@ -52,11 +55,10 @@ public class AmdFlashBank extends Bank {
 	 * Read Array Mode<p>
 	 * True = Amd Flash Memory behaves like an Eprom, False = command mode
 	 * 
-	 * For each slot on the Z88, a Read Array Mode state is available
-	 * (we need to keep track of the individual card status inserted
-	 * into the Z88 slots).
+	 * Read Array Mode state applies for the complete slot which this bank
+	 * is part of.
 	 */
-	private static final boolean readArrayMode[] = {true, true, true, true};	// slot 0, 1, 2 & 3
+	private boolean readArrayMode = true;
 	
 	/**
 	 * A command sequence consists of two unlock cycles, followed by a
@@ -114,15 +116,15 @@ public class AmdFlashBank extends Bank {
 	 * @param bankNo the bank number (0-255) which this bank is assigned to
 	 * @param dc the Flash Memory Device Code (AM29F010B, AM29F040B or AM29F080B) 
 	 */
-	public AmdFlashBank(Blink b, int bankNo, int dc) {
-		super(bankNo);		
+	public AmdFlashBank(Blink b, int dc) {
+		super(-1);		
 		blink = b;
 		deviceCode = dc;
 		
 		for (int i = 0; i < Memory.BANKSIZE-1; i++) setByte(i, 0xFF); // empty Flash Memory contain FF's
         
 		// When a card is inserted into a slot, the Flash chip is always in Ready Array Mode by default
-		setSlotReadArrayMode(true);	// bits 7,6 of this bank (number) is the embedded slot number
+		readArrayMode = true;
 	}
 		
 	/**
@@ -130,7 +132,7 @@ public class AmdFlashBank extends Bank {
 	 * the 16K address space of the bank.
 	 */
 	public final int readByte(final int addr) {
-		if (getSlotReadArrayMode() == true) 
+		if (readArrayMode == true) 
 			return getByte(addr);	// The chip is in Read Array Mode, get byte data at address..
 		else
 			return getCommandStatus(addr);	// The chip is in Command Mode, get status of current command
@@ -164,12 +166,12 @@ public class AmdFlashBank extends Bank {
 	 */
 	private final void setSlotReadArrayMode(boolean rdam) {
 		if (rdam == true) {
-			if (getSlotReadArrayMode() == false) {
+			if (readArrayMode == false) {
 				// we're in Command Mode
 				if (isCommandExecuting == false) {
 					// Flash memory isn't executing an Erase or Blow Byte command...
 					// (but a command is getting accumulated)
-					readArrayMode[getBankNumber() >>> 6] = true; // abort command and set chip in Read Array Mode
+					readArrayMode = true; // abort command and set chip in Read Array Mode
 					isCommandAccumulating = false;
 					isCommandExecuting = false;
 					executingCommand = 0;
@@ -177,20 +179,13 @@ public class AmdFlashBank extends Bank {
 				}				
 			}
 		} else {
-			readArrayMode[getBankNumber() >>> 6] = false;
+			if (readArrayMode == true) {
+				commandSequense = resetPendingCommand();
+				readArrayMode = false;
+			}			
 		}
 	}
 	
-	/**
-	 * Return the chip status mode for the AMD Flash Memory chip that is inserted into
-	 * the current slot (which this bank is part of).<p>
-	 * <b>true</b> = Read Array Mode, <b>false</b> = Command Mode
-	 * 
-	 * @returns a boolean
-	 */
-	private final boolean getSlotReadArrayMode() {
-		return readArrayMode[getBankNumber() >>> 6]; // convert bank number to slot number and return Ready Array Mode status for the slot
-	}
 	
 	/**
 	 * Fetch success/failure status from executing Flash Memory command (Auto Select, Erase & Program).
