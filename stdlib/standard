@@ -80,6 +80,7 @@ mmrdptr
 mmrdlong
 enblint
 disblint
+execstck
 fepblera
 fepwrbyt
 fepwrblk
