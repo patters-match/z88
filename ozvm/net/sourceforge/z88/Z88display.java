@@ -1,5 +1,7 @@
 package net.sourceforge.z88;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
@@ -18,7 +20,7 @@ import javax.swing.JPanel;
  * $Id$
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  */
-public class Z88display {
+public class Z88display extends JPanel {
 	public static final int Z88SCREENWIDTH = 640; // The Z88 display dimensions
 	public static final int Z88SCREENHEIGHT = 64;
 
@@ -94,21 +96,27 @@ public class Z88display {
 	private boolean flashTextEmpty = false;
 	// start text flash as dark, ie. text looks normal for 1 sec.
 
-	private JPanel canvas;
 	private int[] displayMatrix = null;
 	// the actual low level pixel video data
 
 	int lores0, lores1, hires0, hires1, sbr;
 	int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 
-	Z88display(Blink z88Blink, JPanel cnv) {
-		blink = z88Blink;
-		// The Z88 Display needs to access the Blink hardware...
-		canvas = cnv;
+	Z88display() {
+		super();
 
 		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
 		renderRunning = false;
 
+		this.setPreferredSize(new Dimension(640, 64));
+		this.setLayout(new BorderLayout());
+		this.setToolTipText("Use F12 to get keyboard focus to this window.");
+		this.setFocusable(true);
+
+		this.setDoubleBuffered(false);
+	}
+
+	public void init() {
 		// Setup the used Graphics rendering hints
 		grfxSettings = new Hashtable();
 		grfxSettings.put(
@@ -136,8 +144,7 @@ public class Z88display {
 			RenderingHints.KEY_TEXT_ANTIALIASING,
 			RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-		canvas.setDoubleBuffered(false);
-		displayGrfx = (Graphics2D) canvas.getGraphics();
+		displayGrfx = (Graphics2D) this.getGraphics();
 		displayGrfx.setRenderingHints(grfxSettings);
 		displayGrfx.setClip(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT);
 
@@ -162,9 +169,14 @@ public class Z88display {
 		frontBufferGrfx.setRenderingHints(grfxSettings);
 	}
 
+	public void setBlink(Blink bl) {
+		// The Z88 Display needs to access the Blink hardware...
+		blink = bl;
+	}
+	
 	/**
 	 * The core Z88 Display renderer. This code is called by RenderPerMs.<br>
-	 * May be called manually (ie. to refresh window in an out-of-focus scenario).
+	 * called manually (ie. to refresh window during focus and paint events).
 	 */
 	public void renderDisplay() {
 		lores0 = blink.getBlinkPb0Address();
@@ -532,36 +544,13 @@ public class Z88display {
 	private void flashCounter() {
 		if (frameCounter++ > fps[curRenderSpeedIndex]) { // 1 second has passed
 			frameCounter = 0;
-			flashTextEmpty = !flashTextEmpty;
-			// invert current text flashing mode
+			flashTextEmpty = !flashTextEmpty; // invert current text flashing mode
 		}
 
 		if (frameCounter < fcd[curRenderSpeedIndex])
 			cursorInverse = true; // most of the time, cursor is black
 		else
-			cursorInverse = false;
-		// rest of the time, cursor is invisible (normal text)
-	}
-
-	/**
-	 * A focus listener, hooked into the GameFrame Window, so that we can refresh
-	 * the Z88 screen during focus lost/gained events.
-	 */
-	private final class Z88DisplayFocusListener
-		implements java.awt.event.FocusListener {
-		public void focusGained(java.awt.event.FocusEvent e) {
-			if (renderRunning == false) {
-				// The Z88 screen rendering is disabled, so draw the screen manually
-				renderDisplay();
-			}
-		}
-
-		public void focusLost(java.awt.event.FocusEvent e) {
-			if (renderRunning == false) {
-				// The Z88 screen rendering is disabled, so draw the screen manually
-				renderDisplay();
-			}
-		}
+			cursorInverse = false; // rest of the time, cursor is invisible (normal text)
 	}
 
 	/**
@@ -569,7 +558,7 @@ public class Z88display {
 	 */
 	private class RenderPerMs extends TimerTask {
 		public void run() {
-			flashCounter(); // update cursor flash and ordinary flash counters
+			if (blink.isZ80running() == true) flashCounter(); // update cursor flash and ordinary flash counters
 			renderDisplay(); // then render display...
 		}
 	}
