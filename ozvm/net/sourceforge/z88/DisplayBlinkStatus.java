@@ -61,7 +61,7 @@ public class DisplayBlinkStatus {
 		displayBlinkTmk();
 		displayBlinkTack();
 		displayBlinkScreen();	// PB0, PB1, PB2, PB3 & SBR
-//        blinkSegment();  // SR0 - SR3
+		displayBlinkSegments();
     }
 
     
@@ -305,8 +305,21 @@ public class DisplayBlinkStatus {
 		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkPb2Address(),true) + "), ");
 		blinkScreenRegs.append("PB3 (HIRES1): ");
 		blinkScreenRegs.append(Dz.addrToHex(z88.getBlinkPb3(),true));
-		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkPb3Address(),true) + ")\n");
+		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkPb3Address(),true) + ")");
 		
 		System.out.println(blinkScreenRegs);
+	} 
+
+	/**
+	 * Display Segment registers (SR0 -SR3)
+	 */
+	public void displayBlinkSegments() {
+		StringBuffer blinkSegmentRegs = new StringBuffer(128);
+		blinkSegmentRegs.append("SR0: " + Dz.byteToHex(z88.getSegmentBank(0), true) + ", ");
+		blinkSegmentRegs.append("SR1: " + Dz.byteToHex(z88.getSegmentBank(1), true) + ", ");
+		blinkSegmentRegs.append("SR2: " + Dz.byteToHex(z88.getSegmentBank(2), true) + ", ");
+		blinkSegmentRegs.append("SR3: " + Dz.byteToHex(z88.getSegmentBank(3), true));
+		
+		System.out.println(blinkSegmentRegs);
 	} 
 }
