@@ -32,10 +32,11 @@ Module FetchFile
      lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
 
      xref FilesAvailable
+     xref CheckFreeRam, GetDefaultRamDevice
      xref PromptOverWrFile
      xref disp_no_filearea_msg, no_files, DispErrMsg
      xref cls, wbar, sopnln
-     xref fnam_msg
+     xref fnam_msg, failed_msg
 
      ; system definitions
      include "stdio.def"
@@ -84,6 +85,8 @@ Module FetchFile
                     LD   BC,$4001
                     LD   L,$20
                     CALL_OZ gn_sip
+                    ld   a,b
+                    ld   (linecnt),a
                     jr   c,sip_error
                     CALL_OZ gn_nln
 
@@ -120,7 +123,9 @@ Module FetchFile
                     ld   (fbnk),a
                     ld   (fadr),hl           ; preserve pointer to found File Entry...
                     call FileEprFileSize
+                    ld   (free),de
                     ld   a,c
+                    ld   (free+2),a
                     or   d
                     or   e                   ; is file empty (zero lenght)?
                     jr   nz, get_name
@@ -130,6 +135,21 @@ Module FetchFile
 .get_name
                     ld   hl,ffet_msg          ; get destination filename from user...
                     CALL_OZ gn_sop
+
+                    ld   hl, buf1
+                    ld   de, buf3
+                    ld   a,(linecnt)         ; size of input
+                    ld   b,0
+                    ld   c,a
+                    ldir
+                    CALL GetDefaultRamDevice ; default ram to buf1 (6 chars)
+                    ld   hl, buf3
+                    ld   de, buf1+6
+                    ld   a,(linecnt)
+                    ld   b,0
+                    ld   c,a
+                    ldir                     ; append filename after default RAM device.
+
                     ld   de,buf1
                     LD   A,@00100011         ; buffer has filename
                     LD   BC,$4000
@@ -138,7 +158,8 @@ Module FetchFile
                     jr   nc,open_file
                     cp   rc_susp
                     jr   z,get_name
-                    ret  c                   ; user aborted...
+                    cp   a
+                    ret                      ; user aborted...
 .open_file
                     CALL_OZ(GN_Nln)
                     ld   hl,buf1
@@ -155,19 +176,22 @@ Module FetchFile
 .create_file
                     ld   bc,$80
                     ld   hl,buf1
-                    ld   de,buf3             ; generate expanded filename...
+                    ld   de,buf2             ; generate expanded filename...
                     CALL_OZ (Gn_Fex)
                     ret  c                   ; invalid filename...
 
+                    call CheckFreeRam
+                    JR   C, no_room
+
                     ld   b,0                 ; (local pointer)
-                    ld   hl,buf3             ; pointer to filename...
+                    ld   hl,buf2             ; pointer to filename...
                     call CreateFilename      ; create file with and path
                     ret  c
 
                     CALL_OZ gn_nln           ; IX = handle of created file...
                     ld   hl,fetf_msg
                     CALL_OZ gn_sop
-                    ld   hl,buf3
+                    ld   hl,buf2
                     call sopnln              ; display created RAM filename (expanded)...
 
                     LD   A,(fbnk)
@@ -182,6 +206,11 @@ Module FetchFile
                     LD   HL, done_msg
                     CALL DispErrMsg
                     CP   A                   ; Fc = 0, File successfully fetched into RAM...
+                    RET
+.no_room
+                    CALL_OZ(Gn_Err)          ; report fatal error and exit to main menu...
+                    LD   HL, failed_msg
+                    CALL DispErrMsg
                     RET
 
 .disp_exis_msg      LD   HL, exis_msg
