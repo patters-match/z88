@@ -32,8 +32,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 /**
- * The display renderer of the Z88 virtual machine, called each 5ms, 10ms or
- * 25ms depending on speed of JVM.
+ * The display renderer of the Z88 virtual machine, updating
+ * the Z88 screen 25 frames per second (
  */
 public class Z88display extends JLabel implements MouseListener {
 
@@ -45,175 +45,109 @@ public class Z88display extends JLabel implements MouseListener {
 		return singletonContainer.singleton;
 	}
 
-	/**
-	 * The Z88 display width in pixels.
-	 */
+	/** The Z88 display width in pixels */
 	public static final int Z88SCREENWIDTH = 640;
 
-	/**
-	 * The Z88 display height in pixels.
-	 */
+	/** The Z88 display height in pixels */
 	public static final int Z88SCREENHEIGHT = 64;
 
-	/**
-	 * The image (based on pixel data array) to be rendered onto Swing Component
-	 */
+	/** The image (based on pixel data array) to be rendered onto Swing Component */
 	private BufferedImage image = null;
 
-	/**
-	 * Screen dump counter
-	 */
+	/** Screen dump counter */
 	private int scrdumpCounter = 0;
 
-	/**
-	 * Size of Z88 Screen Base File (in bytes).
-	 */
+	/** Size of Z88 Screen Base File (in bytes) */
 	private static final int SBRSIZE = 2048;
 
-	/**
-	 * Runtime selection of Z88 screen frames per second.
-	 */
-	private static final int fps[] = new int[] { 5, 10, 25 /* , 50 */};
+	/** Z88 screen frames per second */
+	private static final int fps = 25;
 
-	/**
-	 * Flash cursor duration frame counter (speed of each frame is controlled in
-	 * fps[]).
-	 */
-	private static final int fcd[] = new int[] { 3, 7, 18 /* , 35 */};
+	/** Flash cursor duration frame counter */
+	private static final int fcd = 18;
 
-	/**
-	 * Enabled pixel.
-	 */
+	/** Enabled pixel */
 	private static final int PXCOLON = 0xff461B7D;
 
-	/**
-	 * Grey enabled pixel.
-	 */
+	/** Grey enabled pixel */
 	private static final int PXCOLGREY = 0xff90B0A7;
 
-	/**
-	 * Empty pixel, when screen is switched on.
-	 */
+	/** Empty pixel, when screen is switched on */
 	private static final int PXCOLOFF = 0xffD2E0B9;
 
-	/**
-	 * Empty pixel, screen is switched off.
-	 */
+	/** Empty pixel, screen is switched off */
 	private static final int PXCOLSCROFF = 0xffE0E0E0;
 
-	/**
-	 * Font attribute Bold Mask (LORES1).
-	 */
+	/** Font attribute Bold Mask (LORES1) */
 	private static final int attrBold = 0x80;
 
-	/**
-	 * Font attribute Tiny Mask (LORES1).
-	 */
+	/** Font attribute Tiny Mask (LORES1) */
 	private static final int attrTiny = 0x40;
 
-	/**
-	 * Font attribute Hires Mask (HIRES1).
-	 */
+	/** Font attribute Hires Mask (HIRES1) */
 	private static final int attrHrs = 0x20;
 
-	/**
-	 * Font attribute Reverse Mask (LORES1 & HIRES1).
-	 */
+	/** Font attribute Reverse Mask (LORES1 & HIRES1) */
 	private static final int attrRev = 0x10;
 
-	/**
-	 * Font attribute Flash Mask (LORES1 & HIRES1).
-	 */
+	/** Font attribute Flash Mask (LORES1 & HIRES1) */
 	private static final int attrFls = 0x08;
 
-	/**
-	 * Font attribute Grey Mask (all).
-	 */
+	/** Font attribute Grey Mask (all) */
 	private static final int attrGry = 0x04;
 
-	/**
-	 * Font attribute Underline Mask (LORES1).
-	 */
+	/** Font attribute Underline Mask (LORES1) */
 	private static final int attrUnd = 0x02;
 
-	/**
-	 * Null character (6x8 pixel blank).
-	 */
+	/** Null character (6x8 pixel blank) */
 	private static final int attrNull = attrHrs | attrRev | attrGry;
 
-	/**
-	 * Lores cursor (6x8 pixel inverse flashing).
-	 */
+	/** Lores cursor (6x8 pixel inverse flashing) */
 	private static final int attrCursor = attrHrs | attrRev | attrFls;
 
-	private static int cursorFlashCounter = 0;
+	/** Cyclic counter that identifies number of frames displayed per second */
+	private int frameCounter = 0;
 
-	/**
-	 * points at the current framerate group
-	 */
-	private static int curRenderSpeedIndex = 0;
-
-	private static int frameCounter = 0;
-
-	/**
-	 * The current System Time in Ms.
-	 */
-	private long timeMs;
-
-	/**
-	 * Accumulated rendering speed during 3 seconds.
-	 */
-	private static long renderTimeTotal = 0;
-
-	/**
-	 * Access to Blink hardware (screen, keyboard, timers...)
-	 */
+	/** Access to Blink hardware (screen, keyboard, timers...) */
 	private Blink blink = null;
 
-	/**
-	 * Access to Memory model.
-	 */
+	/**Access to Memory model */
 	private Memory memory = null;
 
+	/** The internal screen frame renderer */
 	private RenderPerMs renderPerMs = null;
 
-	private RenderSupervisor renderSupervisor = null;
-
+	/** is the screen being updated at the moment, or not... */	
 	private boolean renderRunning = false;
 
-	/**
-	 * Start cursor flash as dark.
-	 */
+	/** Start cursor flash as dark */
 	private boolean cursorInverse = true;
 
-	/**
-	 * Start text flash as dark, ie. text looks normal for 1 sec.
-	 */
+	/** Start text flash as dark, ie. text looks normal for 1 sec */
 	private boolean flashTextEmpty = false;
 
-	/**
-	 * The actual low level pixel video data (used to create the AWT Image)
-	 */
+	/** The actual low level pixel video data (used to create the AWT Image) */
 	private int[] displayMatrix = null;
 
-	/**
-	 * A copy of the previously rendered pixel matrix frame.
-	 */
+	/** A copy of the previously rendered pixel matrix frame. */
 	private int[] cpyDisplayMatrix = null;
 
-	/**
-	 * Set to true, if a pixel was changed since the last screen frame
-	 * rendering.
-	 */
+	/** Set to true, if a pixel was changed since the last screen frame rendering */
 	private boolean screenChanged = false;
 
+	/** bank offset pointers to the font pixels in OZ */
 	private int lores0, lores1, hires0, hires1, sbr;
 
+	/** bank references to the font pixels in OZ */
 	private int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 
+	/** constructor */
 	private Z88display() {
 		super();
 
+		blink = Blink.getInstance();
+		memory = Memory.getInstance();
+		
 		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
 		cpyDisplayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
 
@@ -286,9 +220,10 @@ public class Z88display extends JLabel implements MouseListener {
 		return img;
 	}
 	
+	/**
+	 * Render a "Z88 screen is switched off" image.
+	 */
 	private void renderNoScreenFrame() {
-		timeMs = System.currentTimeMillis();
-
 		// assume that screen hasn't changed (status might change inside
 		// writePixels() method)...
 		screenChanged = false;
@@ -302,14 +237,13 @@ public class Z88display extends JLabel implements MouseListener {
 			// and render it via double buffering to the Awt/Swing component
 			renderImageToComponent();
 		}
-
-		// remember the time it took to render the complete screen, accumulated
-		renderTimeTotal += System.currentTimeMillis() - timeMs;
 	}
 
+	/**
+	 * Scan the Screen file in OZ, and render a pixel image, if a change
+	 * was identified since the last displayed pixel image. 
+	 */
 	private void renderScreenFrame() {
-		timeMs = System.currentTimeMillis();
-
 		// assume that screen hasn't changed (status might change inside
 		// writePixels() method)...
 		screenChanged = false;
@@ -379,17 +313,16 @@ public class Z88display extends JLabel implements MouseListener {
 
 		if (screenChanged == true) {
 			// pixels changed on the screen. Create an image, based on pixel
-			// matrix,
-			// and render it to the Awt/Swing component
+			// matrix, and render it to the Awt/Swing component
 			renderImageToComponent();
 		}
-
-		// remember the time it took to render the complete screen, accumulated
-		renderTimeTotal += System.currentTimeMillis() - timeMs;
 
 		Thread.yield();
 	}
 
+	/**
+	 * Update the JLabel with a new pixel image of the Z88 screen.
+	 */
 	private void renderImageToComponent() {
 		image = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT,
 				BufferedImage.TYPE_4BYTE_ABGR);
@@ -635,20 +568,19 @@ public class Z88display extends JLabel implements MouseListener {
 	 * Keep flash counters updated according to FPS settings. <br>
 	 * Ordinary text flashing changes state each second (text appears one sec.
 	 * then disappears one sec). Cursor flash inverts 6x8 LORES char 70% of 1
-	 * sec, remaining 30% renders the char as normal.
+	 * second, remaining 30% renders the char as normal.
 	 */
 	private void flashCounter() {
-		if (frameCounter++ > fps[curRenderSpeedIndex]) { // 1 second has passed
+		if (frameCounter++ > fps) { // 1 second has passed
 			frameCounter = 0;
 			flashTextEmpty = !flashTextEmpty; // invert current text flashing
 			// mode
 		}
 
-		if (frameCounter < fcd[curRenderSpeedIndex])
+		if (frameCounter < fcd)
 			cursorInverse = true; // most of the time, cursor is black
 		else
 			cursorInverse = false; // rest of the time, cursor is invisible
-		// (normal text)
 	}
 
 	/**
@@ -666,83 +598,21 @@ public class Z88display extends JLabel implements MouseListener {
 	}
 
 	/**
-	 * Stop the fps Z88 screen renderer (and supervisor). This is always called
-	 * when the Z80 execution engine is being stopped.
+	 * Stop the fps Z88 screen renderer. 
 	 */
 	public void stop() {
 		if (renderPerMs != null) {
 			renderPerMs.cancel();
 		}
-		if (renderSupervisor != null) {
-			renderSupervisor.cancel();
-		}
-		renderRunning = false;
 	}
 
 	/**
-	 * Start fps Z88 screen renderer (and supervisor). This is always called
-	 * when the Z80 execution engine is being started.
+	 * Start fps Z88 screen renderer. 
 	 */
 	public void start() {
-		blink = Blink.getInstance();
-		memory = Memory.getInstance();
-
 		if (renderRunning == false) {
 			renderPerMs = new RenderPerMs();
-			blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 0,
-					1000 / fps[curRenderSpeedIndex]);
-
-			renderTimeTotal = 0;
-			renderSupervisor = new RenderSupervisor();
-			blink.getTimerDaemon().scheduleAtFixedRate(renderSupervisor, 3000,
-					3000);
-			// poll every 3rd second
-			renderRunning = true;
-		}
-	}
-
-	/**
-	 * The Z88 Display Render supervisor. <br>
-	 * Called each 3 seconds, it monitors the rendering speed, and adjusts the
-	 * framerate, if it is slower or faster to render a frame than the current
-	 * fps timing.
-	 */
-	private class RenderSupervisor extends TimerTask {
-		public void run() {
-			int avgRenderSpeed = (int) renderTimeTotal
-					/ fps[curRenderSpeedIndex];
-			// System.out.println("Avg Frame Render Speed: " + avgRenderSpeed +
-			// " ms");
-
-			if (avgRenderSpeed * 1.4 > 1000 / fps[curRenderSpeedIndex]) {
-				// current average render speed and safety margin takes longer
-				// than the time interval between frames.
-				// Choose a one-step lower frame rate, if possible...
-				if (curRenderSpeedIndex > 0) {
-					curRenderSpeedIndex--;
-					// choose a lower framerate, then restart screen
-					// rendering...
-					stop();
-					start();
-					return;
-				}
-			}
-			if (avgRenderSpeed * 1.4 < 1000 / fps[curRenderSpeedIndex]) {
-				// current average render speed and safety margin is faster than
-				// the time interval between frames.
-				// Choose a one-step higher frame rate, if possible...
-				if (curRenderSpeedIndex < fps.length - 1) {
-					curRenderSpeedIndex++;
-					// choose a higher framerate, then restart screen
-					// rendering...
-					stop();
-					start();
-					return;
-				}
-			}
-
-			// no change in framerate, clear accumulated framerate...
-			renderTimeTotal = 0;
+			blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 0, 1000 / fps);
 		}
 	}
 
