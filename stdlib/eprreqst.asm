@@ -40,8 +40,8 @@
 ;    On partial success, if a Header is not found, the returned pointer 
 ;    indicates that the card might hold a file area, beginning at this location.
 ;
-;    If the routine returns HL = @3FC0, it's an "oz" File Eprom Header 
-;    (64 byte header)
+;    If the routine returns HL = $3FC0, it's an "oz" File Eprom Header 
+;    (pointing to 64 byte header)
 ;
 ; In:
 ;         C = slot number (1, 2 or 3)
@@ -63,8 +63,7 @@
 ;    Failure:
 ;         Fc = 1,
 ;              RC_ONF:
-;                   FlashStore File Area not available (possibly no ROM card)
-;                   nor any std. File Eprom "oz" header.
+;                   File Eprom Card / Area not available (possibly no card in slot)
 ;              RC_ROOM, No room for File Area (all banks used for applications)
 ;
 ; Registers changed after return:
