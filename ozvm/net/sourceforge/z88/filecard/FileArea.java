@@ -237,6 +237,57 @@ public class FileArea {
 			return fileAreaHdr.getSize() * Bank.SIZE - 64;
 		}
 	}
+
+	/**
+	 * Get the total number of active files in the file area, ie.
+	 * only those which are not marked as deleted.
+	 * 
+	 * @return total of active files in file area
+	 * @throws FileAreaNotFoundException
+	 */
+	public int getActiveFileCount() throws FileAreaNotFoundException {
+		int activeFiles = 0;
+
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (filesList != null & filesList.size() > 0) {
+				// scan the file list for active files...
+				for(int f=0; f<filesList.size(); f++) {
+					FileEntry fe = (FileEntry) filesList.get(f);
+					if (fe.isDeleted() == false) 
+						activeFiles++;  
+				}				
+			}
+		}
+		
+		return activeFiles;
+	}
+			
+	/**
+	 * Get the total number of deleted files in the file area.
+	 * 
+	 * @return total of deleted files in file area
+	 * @throws FileAreaNotFoundException
+	 */
+	public int getDeletedFileCount() throws FileAreaNotFoundException {
+		int deletedFiles = 0;
+
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (filesList != null & filesList.size() > 0) {
+				// scan the file list for deleted files...
+				for(int f=0; f<filesList.size(); f++) {
+					FileEntry fe = (FileEntry) filesList.get(f);
+					if (fe.isDeleted() == true) 
+						deletedFiles++;  
+				}				
+			}
+		}
+		
+		return deletedFiles;
+	}
 	
 	/**
 	 * Get pointer to first free space in File Area (where to store a new file).
