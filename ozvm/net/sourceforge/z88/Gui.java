@@ -65,7 +65,7 @@ public class Gui extends JFrame {
 		}
 		Container content = getContentPane();
 
-		this.setJMenuBar(getOZvmMenuBar());
+		// this.setJMenuBar(getOZvmMenuBar());
 		this.setSize(640, 480);
 		content.add(z88Screen(), BorderLayout.NORTH);
 		
