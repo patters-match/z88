@@ -380,7 +380,7 @@ public abstract class Z80 {
     public abstract void haltZ80();
     
 	/** External implementation stop Z80 execution (back to command line or other state */
-	public abstract boolean abortZ80();
+	public abstract boolean isZ80Stopped();
 
     /** External implemenation of Read Byte from the Z80 virtual memory model */
     public abstract int readByte(int addr);
@@ -563,8 +563,8 @@ public abstract class Z80 {
         singleStepping = singleStep;
         
         do {
-			if (abortZ80() == true) return;
-						
+			if (isZ80Stopped() == true) return;
+
             if (IFF1() == true && interruptTriggered() == true) {
                 // a maskable interrupt want's to be executed...
                 execInterrupt();
