@@ -41,8 +41,6 @@ import net.sourceforge.z88.filecard.FileEntry;
  */
 public class CommandLine implements KeyListener {
 
-	private static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
-
 	private	DebugGui debugGui;
 	private	Blink z88;	
 
@@ -176,7 +174,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("savevm") == 0) {
 			SaveRestoreVM srVm = new SaveRestoreVM();
-			String vmFileName = defaultVmFile;
+			String vmFileName = OZvm.defaultVmFile;
 			
 			if (cmdLineTokens.length > 1) {
 				vmFileName = cmdLineTokens[1];
@@ -192,7 +190,7 @@ public class CommandLine implements KeyListener {
 					if (z80Thread.isAlive()	== true)
 						displayCmdOutput("Snapshot can only be saved when Z88 is not running.");
 					else {
-						srVm.storeSnapShot(defaultVmFile);						
+						srVm.storeSnapShot(OZvm.defaultVmFile);						
 						displayCmdOutput("Snapshot successfully saved to " + vmFileName);
 					}
 				}							
@@ -203,7 +201,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("loadvm") == 0) {
 			SaveRestoreVM srVm = new SaveRestoreVM();
-			String vmFileName = defaultVmFile;
+			String vmFileName = OZvm.defaultVmFile;
 
 			if (cmdLineTokens.length > 1) {
 				vmFileName = cmdLineTokens[1];
