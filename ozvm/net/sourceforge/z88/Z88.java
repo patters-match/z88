@@ -28,6 +28,12 @@ import java.net.*;
 
 public class Z88 extends Z80 {
 
+	public static int BLINKREG_SR0 = 0xD0;
+	public static int BLINKREG_SR1 = 0xD1;
+	public static int BLINKREG_SR2 = 0xD2;
+	public static int BLINKREG_SR3 = 0xD3;
+
+	
 	public  int     refreshRate = 1;  // refresh every 'n' interrupts
 
 	private int     interruptCounter = 0;
@@ -186,13 +192,27 @@ public class Z88 extends Z80 {
 	/**
 	 * Z80 hardware interface
 	 */
-	public int inb( int port ) {
+	public int inByte( int port ) {
 		int res = 0xff;
 
 		return(res);
 	}
 
-	public void outb( int port, int outByte, int tstates ) {
+	public void outByte( int port, int outByte) {
+		switch(port) {
+			case 0xD0:	// SR0
+				bindBank(0, outByte);
+				break;
+			case 0xD1:	// SR1
+				bindBank(1, outByte);
+				break;
+			case 0xD2:	// SR2
+				bindBank(2, outByte);
+				break;
+			case 0xD3:	// SR3
+				bindBank(2, outByte);
+				break;
+		}
 	}
 
 	public final int interrupt() {
