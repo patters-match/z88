@@ -172,7 +172,7 @@ public class Z88display
         
 		int offset = ((charAttr & 1) << 8) | scrChar;
 		if (offset >= 0x1c0) { 
-			offset = lores0 + (offset << 3);	// User defined graphics, default in RAM.0
+			offset = lores0 + ((scrChar & 0x3F) << 3); // User defined graphics
 			bank = bankLores0;
 		}
 		else {
