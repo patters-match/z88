@@ -79,7 +79,7 @@ char *date;                             /* pointer to datestring calculated from
 
 
 /* externally defined variables */
-extern int ASSEMBLE_ERROR, ERRORS, TOTALERRORS;
+extern int ASSEMBLE_ERROR, ERRORS, TOTALERRORS, WARNINGS, TOTALWARNINGS;
 extern enum flag datestamp, verbose, useothersrcext;
 extern enum flag uselistingfile, createlibrary, asmerror, mpmbin, mapref;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
@@ -255,6 +255,7 @@ main (int argc, char *argv[])
 
   PAGELEN = 66;
   TOTALERRORS = 0;
+  TOTALWARNINGS = 0;
   TOTALLINES = 0;
 
   if ((CURRENTMODULE = NewModule ()) == NULL)
@@ -297,6 +298,7 @@ main (int argc, char *argv[])
 
       codeptr = codearea;       /* Pointer (PC) to store instruction opcode */
       ERRORS = 0;
+      WARNINGS = 0;
       ASSEMBLE_ERROR = -1;      /* General error flag */
 
       if (modsrcfile == NULL)
@@ -459,6 +461,9 @@ main (int argc, char *argv[])
 
   if (asmerror)
     ReportError (NULL, 0, Err_Status);
+
+  if (TOTALWARNINGS > 0)
+    ReportWarning (NULL, 0, Warn_Status);
 
   if (asmerror)
       return 1;
