@@ -17,7 +17,6 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprRequest
      LIB FileEprFileEntryInfo
      LIB PointerNextByte
      LIB MemReadByte
@@ -133,20 +132,4 @@
                     LD   (DE),A                   ; null-terminate filename
 
                     POP  AF
-                    RET
-
-; ************************************************************************
-;
-.CheckFileEprom
-                    PUSH BC
-                    PUSH DE
-                    PUSH HL
-                    
-                    CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot C
-                    JR   Z,exit_fileepr           ; found...
-                    SCF                           ; not found
-.exit_fileepr
-                    POP  HL
-                    POP  DE
-                    POP  BC
                     RET
