@@ -83,7 +83,7 @@ extern unsigned long PC, oldPC;
 extern unsigned long EXPLICIT_ORIGIN;
 extern unsigned char *codearea, *codeptr, PAGELEN;
 extern size_t CODESIZE;
-extern int ASSEMBLE_ERROR, ERRORS;
+extern int ASSEMBLE_ERROR, ERRORS, WARNINGS;
 extern int PAGENO, LINENO, TOTALERRORS;
 extern long listfileptr, TOTALLINES;
 extern modules_t *modulehdr;
@@ -268,6 +268,7 @@ AssembleSourceFile (void)
         puts ("Pass2...");
       SourceFilePass2 ();
     }
+
   if (listfile != NULL)
     {
       fseek (listfile, 0, SEEK_END);
@@ -277,8 +278,10 @@ AssembleSourceFile (void)
       if (ERRORS != 0 && lstfilename != NULL)
         remove (lstfilename);   /* remove incomplete list file */
     }
+
   fclose (objfile);
   objfile = NULL;
+
   if (ERRORS != 0 && objfilename != NULL)
     remove (objfilename);       /* remove incomplete object file */
 
@@ -286,7 +289,7 @@ AssembleSourceFile (void)
     {
       fclose (errfile);
       errfile = NULL;
-      if (ERRORS == 0 && errfilename != NULL)
+      if (ERRORS == 0 && WARNINGS == 0 && errfilename != NULL)
         remove (errfilename);   /* remove empty error file */
     }
 
@@ -411,10 +414,14 @@ SourceFilePass2 (void)
                     break;
 
                   case RANGE_16OFFSET:
-                    if (constant >= 0 && constant <= 16383)
-                      StoreWord((unsigned short) constant, patchptr);
+                    if ( (constant < 0) || (constant > 65535) )
+                       ReportError (pass2expr->srcfile, pass2expr->curline, Err_ExprOutOfRange);
                     else
-                      ReportError (pass2expr->srcfile, pass2expr->curline, Err_ExprOutOfRange);
+                      {
+                        StoreWord((unsigned short) constant, patchptr);
+                        if (constant >= 16384)
+                          ReportWarning (pass2expr->srcfile, pass2expr->curline, Warn_OffsetBoundary);
+                      }
                     break;
 
                   case RANGE_32SIGN:
