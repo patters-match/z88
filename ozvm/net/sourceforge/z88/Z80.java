@@ -408,9 +408,6 @@ public abstract class Z80 {
 	/** External implemenation of Write Word to the Z80 virtual memory model */
 	public abstract void writeWord(final int addr, final int w);
 
-	/** External implemenation of Read instruction from the Z80 virtual memory model */
-	public abstract int readInstruction(final int addr);
-
 	/** External implemenation of action to be taken when a display breakpoint is encountered */
 	public abstract void breakPointAction();
 
@@ -465,18 +462,6 @@ public abstract class Z80 {
 
         return w;
     }
-
-	/**
-	 * Pre-fetch a 4 byte Z80 instruction sequence from the
-	 * Z80 virtual memory model at current PC (Program Counter).
-	 *
-	 * The internal Get Next Byte At PC, nxtpcb(), and
-	 * Get Next Word At PC, nxtpcw(), will fetch from this cache.
-	 */
-	private final void fetchInstruction() {
-		cachedInstruction = readInstruction(_PC);
-		cachedOpcodes = 4;
-	}
 
     /** Reset all registers to power on state */
     public void reset() {
