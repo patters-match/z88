@@ -1,9 +1,7 @@
 package net.sourceforge.z88;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -33,6 +31,8 @@ public class OZvm {
 	private boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
 	private JTextArea runtimeOutput = null;
+	private JTextArea commandOutput = null;
+	private JTextField commandInput = null;
 
 	/**
 	 * The Breakpoint manager instance.
@@ -49,18 +49,30 @@ public class OZvm {
 
 		try {
 			runtimeOutput = rtmOutput;
-
+			commandInput = cmdInput;
+			commandOutput = cmdOutput;
+			
 			z88 = new Blink(canvas, rtmOutput);
 			z88.hardReset();
 
 			z80Speed = new MonitorZ80(z88);
 			dz = new Dz(z88); // the disassembly engine, linked to the memory model
 			breakp = new Breakpoints(z88);
-            blinkStatus = new DisplayStatus(z88);
+            blinkStatus = new DisplayStatus(z88, commandOutput);
 			z88.setBreakPointManager(breakp);
+			
+			commandInput.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					// parse command line
+					parseCommandLine(e);					
+				}
+			});
+
+			displayCmdOutput("Type 'h' or 'help' for available debugging commands");
+			
 		} catch (Exception e) {
 			e.printStackTrace();
-			rtmOutput.append("\n\nCouldn't initialize Z88 virtual machine.\n");
+			rtmOutput.append("\n\nCouldn't initialize Z88 virtual machine.");
 		}
 	}
 
@@ -81,7 +93,7 @@ public class OZvm {
 	}
 
 	/**
-	 * Dump current Z80 Registers and instruction disassembly to stdout.
+	 * Dump current Z80 Registers and instruction disassembly to command output window.
 	 */
 	private void z80Status() {
 		StringBuffer dzBuffer = new StringBuffer(64);
@@ -90,7 +102,7 @@ public class OZvm {
 		blinkStatus.displayZ80Registers();
 
 		dz.getInstrAscii(dzBuffer, z88.PC(), true);
-		System.out.println(Dz.byteToHex(bank, false) + dzBuffer);
+		displayCmdOutput( Dz.byteToHex(bank, false) + dzBuffer);
 	}
 
 	public boolean boot(String[] args) {
@@ -119,6 +131,7 @@ public class OZvm {
 						int ramSlotNumber = args[arg].charAt(3) - 48;
 						ramSizeArg = Integer.parseInt(args[arg+1], 10);
 						z88.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM specified for slot x...
+						if (ramSlotNumber == 0) ramSlot0 = true; 
 						runtimeOutput.append("RAM" + ramSlotNumber + " set to " + ramSizeArg + "K.\n");
 						arg+=2;
 						continue;
@@ -204,193 +217,170 @@ public class OZvm {
 		}
 	}
 
-	private void cmdHelp() {
-		System.out.println("All arguments are in Hex: Local address = 64K address space,\nExtended address = 24bit address, eg. 073800 (bank 07h, offset 3800h)\n");
-		System.out.println("Commands:");
-		System.out.println("exit - end OZvm application");
-		System.out.println("run - execute Z88 machine from PC");
-		System.out.println("z - run z88 machine and break at next instruction");
-		System.out.println(". - Single step instruction at PC");
-		System.out.println("d - Disassembly at PC");
-		System.out.println("d [local address | extended address] - Disassemble at address");
-		System.out.println("wb <extended address> <byte> [<byte>] - Write byte(s) to memory");
-		System.out.println("m - View memory at PC");
-		System.out.println("m [local address | extended address] - View memory at address");
-		System.out.println("bp - List breakpoints");
-		System.out.println("bl - Display Blink register contents");
-		System.out.println("bp <extended address> - Toggle stop breakpoint");
-		System.out.println("bpd <extended address> - Toggle display breakpoint");
-		System.out.println("sr - Blink: Segment Register Bank Binding");
-		System.out.println("r - Display current Z80 Registers");
+	private void displayCmdOutput(String msg) {
+		commandOutput.append(msg + "\n");
+		commandOutput.setCaretPosition(commandOutput.getDocument().getLength());
 	}
 
-	public void commandLine() throws IOException {
-		int breakpointProgramCounter = -1;
+	private void cmdHelp() {
+		displayCmdOutput("All arguments are in Hex: Local address = 64K address space,\nExtended address = 24bit address, eg. 073800 (bank 07h, offset 3800h)");
+		displayCmdOutput("Commands:");
+		displayCmdOutput("exit - end OZvm application");
+		displayCmdOutput("run - execute Z88 machine from PC");
+		displayCmdOutput("z - run z88 machine and break at next instruction");
+		displayCmdOutput(". - Single step instruction at PC");
+		displayCmdOutput("d - Disassembly at PC");
+		displayCmdOutput("d [local address | extended address] - Disassemble at address");
+		displayCmdOutput("wb <extended address> <byte> [<byte>] - Write byte(s) to memory");
+		displayCmdOutput("m - View memory at PC");
+		displayCmdOutput("m [local address | extended address] - View memory at address");
+		displayCmdOutput("bp - List breakpoints");
+		displayCmdOutput("bl - Display Blink register contents");
+		displayCmdOutput("bp <extended address> - Toggle stop breakpoint");
+		displayCmdOutput("bpd <extended address> - Toggle display breakpoint");
+		displayCmdOutput("sr - Blink: Segment Register Bank Binding");
+		displayCmdOutput("r - Display current Z80 Registers");
+	}
 
-		String cmdline = "";
+	private void parseCommandLine(java.awt.event.ActionEvent e) {
+		String cmdline = commandInput.getText();
+		commandInput.setText("");
+				
 		String[] cmdLineTokens = cmdLineTokens = cmdline.split(" ");
 
-		BufferedReader in =
-			new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Type 'h' or 'help' for command line options\n");
-		z80Status();
+		if (z80Thread != null && z80Thread.isAlive() == false) {
+			z80Thread = null;	// garbage collect dead thread...
+		}
 
-		StringBuffer prevCmdline = new StringBuffer();
-		do {
-			if (z80Thread != null && z80Thread.isAlive() == false) {
-				z80Thread = null;	// garbage collect dead thread...
-			}
+		if (cmdLineTokens[0].equalsIgnoreCase("h") == true || cmdLineTokens[0].equalsIgnoreCase("help") == true) {
+			cmdHelp();
+		}
 
-			if (cmdLineTokens[0].equalsIgnoreCase("h") == true || cmdLineTokens[0].equalsIgnoreCase("help") == true) {
-				cmdHelp();
-				cmdline = ""; // wait for a new command...
-				cmdLineTokens = cmdline.split(" ");
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
-				if (z80Thread == null) {
-					 z80Thread = run();
-				} else {
-					if (z80Thread.isAlive() == true)
-						System.out.println("Z88 is already running.");
-					else
-						z80Thread = run();
-				}
-
-                cmdline = "";
-				cmdLineTokens = cmdline.split(" "); // wait for a new command...
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("stop") == true) {
-				z88.stopZ80Execution();
-
-				cmdline = "";
-				cmdLineTokens = cmdline.split(" "); // wait for a new command...
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase(".") == true) {
-				z88.run(true);		// single stepping (no interrupts running)...
-				System.out.println(blinkStatus.dzPcStatus());
-
-				cmdLineTokens[0] = ""; // wait for a new command...
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("z") == true) {
-				if (z80Thread != null) {
-					if (z80Thread.isAlive() == true)
-						System.out.println("Z88 is already running.");
-
-						cmdLineTokens[0] = ""; // wait for a new command...
-						continue;
-				}
-
-				Breakpoints origBreakPoints = this.getBreakpointManager();	// get the current breakpoints
-				Breakpoints singleBreakpoint = new Breakpoints(z88);
-				int nextInstrAddress = dz.getNextInstrAddress(z88.PC());
-				nextInstrAddress = z88.decodeLocalAddress(nextInstrAddress);	// convert 16bit address to 24bit address
-				singleBreakpoint.toggleBreakpoint(nextInstrAddress);  // set breakpoint at next instruction
-
-				this.setBreakPointManager(singleBreakpoint);	// use this single breakpoint
-				z88.setBreakPointManager(singleBreakpoint);
-				z80Thread = run();	// let Z80 engine run until breakpoint is reached...
-				while(z80Thread.isAlive() == true) {
-					try {
-						Thread.sleep(1);	// wait for Z88 to reach breakpoint...
-					} catch (InterruptedException e) {}
-				}
-				z88.setBreakPointManager(origBreakPoints);	// restore user defined break points
-				this.setBreakPointManager(origBreakPoints);
-
-				System.out.println(blinkStatus.dzPcStatus());
-				cmdLineTokens[0] = ""; // wait for a new command...
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("d") == true) {
-				cmdline = dzCommandline(in, cmdLineTokens);
-				// sub commands return new command line...
-				cmdLineTokens = cmdline.split(" ");
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("m") == true) {
-				cmdline = viewMemory(in, cmdLineTokens);
-				// sub commands return new command line...
-				cmdLineTokens = cmdline.split(" ");
-			}
-
-  			if (cmdLineTokens[0].equalsIgnoreCase("bl") == true) {
-				blinkStatus.displayBlinkRegisters();
-				cmdline = ""; // wait for a new command...
-				cmdLineTokens = cmdline.split(" ");
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("sr") == true) {
-				blinkStatus.displayBankBindings();
-				cmdline = ""; // wait for a new command...
-				cmdLineTokens = cmdline.split(" ");
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("r") == true) {
-				blinkStatus.displayZ80Registers();
-				cmdline = ""; // wait for a new command...
-				cmdLineTokens = cmdline.split(" ");
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("bp") == true) {
-				bpCommandline(cmdLineTokens);
-				cmdLineTokens[0] = ""; // wait for a new command...
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("bpd") == true) {
-				bpdCommandline(cmdLineTokens);
-				cmdLineTokens[0] = ""; // wait for a new command...
-			}
-
-			if (cmdLineTokens[0].equalsIgnoreCase("wb") == true) {
-				putByte(cmdLineTokens);
-				cmdLineTokens[0] = ""; // wait for a new command...
-			}
-
-			if (cmdLineTokens[0].length() > 0 &&
-				cmdLineTokens[0].equalsIgnoreCase(".") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("d") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("r") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("h") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("m") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("wb") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("help") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("z") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("stop") == false &&
-			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("bpd") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("sr") == false &&
-                cmdLineTokens[0].equalsIgnoreCase("bl") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("exit") == false
-			   ) {
-			   	// unknown commands get cleared so that we can
-			   	// read a new command...
-			   	System.out.println("Unknown command.");
-				cmdLineTokens[0] = "";
-			}
-
-			if (cmdLineTokens[0].length() == 0) {
-				System.out.print(CMDLINEPROMPT);	// the command line prompt...
-				cmdline = in.readLine();
-				if (cmdline == null)
-					cmdLineTokens[0] = "exit";	// program aborted during input...
+		if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
+			if (z80Thread == null) {
+				 z80Thread = run();
+			} else {
+				if (z80Thread.isAlive() == true)
+					displayCmdOutput("Z88 is already running.");
 				else
-					cmdLineTokens = cmdline.split(" ");
+					z80Thread = run();
 			}
-		} while (cmdLineTokens[0].equalsIgnoreCase("exit") == false);
+		}
 
-		if (z80Thread != null && z80Thread.isAlive() == true) z88.stopZ80Execution();
+		if (cmdLineTokens[0].equalsIgnoreCase("stop") == true) {
+			z88.stopZ80Execution();
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase(".") == true) {
+			if (z80Thread != null) {
+				if (z80Thread.isAlive() == true)
+					displayCmdOutput("Z88 is already running.");
+					return;
+			}
+			
+			z88.run(true);		// single stepping (no interrupts running)...
+			displayCmdOutput(blinkStatus.dzPcStatus().toString());
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("z") == true) {
+			if (z80Thread != null) {
+				if (z80Thread.isAlive() == true)
+					displayCmdOutput("Z88 is already running.");
+			}
+
+			Breakpoints origBreakPoints = this.getBreakpointManager();	// get the current breakpoints
+			Breakpoints singleBreakpoint = new Breakpoints(z88);
+			int nextInstrAddress = dz.getNextInstrAddress(z88.PC());
+			nextInstrAddress = z88.decodeLocalAddress(nextInstrAddress);	// convert 16bit address to 24bit address
+			singleBreakpoint.toggleBreakpoint(nextInstrAddress);  // set breakpoint at next instruction
+
+			this.setBreakPointManager(singleBreakpoint);	// use this single breakpoint
+			z88.setBreakPointManager(singleBreakpoint);
+			z80Thread = run();	// let Z80 engine run until breakpoint is reached...
+			while(z80Thread.isAlive() == true) {
+				try {
+					Thread.sleep(1);	// wait for Z88 to reach breakpoint...
+				} catch (InterruptedException err) {}
+			}
+			z88.setBreakPointManager(origBreakPoints);	// restore user defined break points
+			this.setBreakPointManager(origBreakPoints);
+
+			displayCmdOutput(blinkStatus.dzPcStatus().toString());
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("d") == true) {
+			dzCommandline(cmdLineTokens);
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("m") == true) {
+			viewMemory(cmdLineTokens);
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("bl") == true) {
+			blinkStatus.displayBlinkRegisters();
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("sr") == true) {
+			blinkStatus.displayBankBindings();
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("r") == true) {
+			blinkStatus.displayZ80Registers();
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("bp") == true) {
+			try {
+				bpCommandline(cmdLineTokens);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("bpd") == true) {
+			try {
+				bpdCommandline(cmdLineTokens);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("wb") == true) {
+			try {
+				putByte(cmdLineTokens);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+		if (cmdLineTokens[0].equalsIgnoreCase("exit") == true) {
+			System.exit(0);
+		}		
+
+		if (cmdLineTokens[0].length() > 0 &&
+			cmdLineTokens[0].equalsIgnoreCase(".") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("d") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("r") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("h") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("m") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("wb") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("help") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("run") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("z") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("stop") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("bpd") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("sr") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("bl") == false &&
+			cmdLineTokens[0].equalsIgnoreCase("exit") == false
+		   ) {
+			displayCmdOutput("Unknown command.");
+		}
 	}
-
 
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
 		if (cmdLineTokens.length == 2) {
 			if (z80Thread != null && z80Thread.isAlive() == true) {
-				System.out.println("Breakpoints cannot be edited while Z88 is running.");
+				displayCmdOutput("Breakpoints cannot be edited while Z88 is running.");
 				return;
 			} else {
 				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
@@ -408,7 +398,7 @@ public class OZvm {
 	private void bpdCommandline(String[] cmdLineTokens) throws IOException {
 		if (cmdLineTokens.length == 2) {
 			if (z80Thread != null && z80Thread.isAlive() == true) {
-				System.out.println("Display Breakpoints cannot be edited while Z88 is running.");
+				displayCmdOutput("Display Breakpoints cannot be edited while Z88 is running.");
 				return;
 			} else {
 				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
@@ -423,10 +413,9 @@ public class OZvm {
 		}
 	}
 
-	private String dzCommandline(BufferedReader in, String[] cmdLineTokens) throws IOException {
+	private void dzCommandline(String[] cmdLineTokens) {
 		int dzAddr = 0, dzBank = 0;
 		StringBuffer dzLine = new StringBuffer(64);
-		String dzCmdline = null;
 
 		if (cmdLineTokens.length == 2) {
 			// one argument; the local Z80 64K address or a compact 24bit extended address
@@ -452,28 +441,20 @@ public class OZvm {
                 dzBank = (dzAddr >>> 16) & 0xFF;
                 dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code..
 			} else {
-				System.out.println("Illegal argument.");
-				System.out.print(CMDLINEPROMPT);
-				dzCmdline = in.readLine();
-				return dzCmdline;
+				displayCmdOutput("Illegal argument.");
+				return;
 			}
 		}
 
-		do {
-			for (int dzLines = 0;  dzLines < 16; dzLines++) {
-				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, true);
-				dzAddr &= 0xFFFF;
-				System.out.println(Dz.byteToHex(dzBank,false) + dzLine);
-			}
-
-			System.out.print(CMDLINEPROMPT);
-			dzCmdline = in.readLine();
-			if (dzCmdline == null) dzCmdline = "exit";	// program aborted during input...
-
+		for (int dzLines = 0;  dzLines < 16; dzLines++) {
+			dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, true);
+			dzAddr &= 0xFFFF;
+			displayCmdOutput(Dz.byteToHex(dzBank,false) + dzLine);
 		}
-		while (dzCmdline.length() == 0);
 
-		return dzCmdline;
+		commandInput.setText("d " + Dz.byteToHex(dzBank,false) + Dz.addrToHex(dzAddr,false));
+		commandInput.setCaretPosition(commandInput.getDocument().getLength());
+		commandInput.selectAll();
 	}
 
 
@@ -508,26 +489,25 @@ public class OZvm {
 				argByte[aByte] = Integer.parseInt(cmdLineTokens[2 + aByte], 16);
 			}
 		} else {
-			System.out.println("Illegal argument(s).");
+			displayCmdOutput("Illegal argument(s).");
 			return;
 		}
 
 		StringBuffer memLine = new StringBuffer(256);
 		temp = getMemoryAscii(memLine, memAddress, memBank);
-		System.out.println("Before:\n" + memLine);
+		displayCmdOutput("Before:\n" + memLine);
 		for (aByte= 0; aByte < cmdLineTokens.length - 2; aByte++) {
 			z88.setByte(memAddress + aByte, memBank, argByte[aByte]);
 		}
 
 		temp = getMemoryAscii(memLine, memAddress, memBank);
-		System.out.println("After:\n" + memLine);
+		displayCmdOutput("After:\n" + memLine);
 	}
 
 
-	private String viewMemory(BufferedReader in, String[] cmdLineTokens) throws IOException {
+	private void viewMemory(String[] cmdLineTokens) {
 		int memAddr = 0, memBank = 0;
 		StringBuffer memLine = new StringBuffer(256);
-		String memCmdline = null;
 
 		if (cmdLineTokens.length == 2) {
 			// one argument; the local Z80 64K address or 24bit compact ext. address
@@ -553,28 +533,20 @@ public class OZvm {
                 memBank = (memAddr >>> 16) & 0xFF;
                 memAddr &= 0xFFFF;	// preserve local address look, makes it easier identify..
 			} else {
-				System.out.println("Illegal argument.");
-				System.out.print(CMDLINEPROMPT);
-				memCmdline = in.readLine();
-				return memCmdline;
+				displayCmdOutput("Illegal argument.");
+				return;
 			}
 		}
 
-		do {
-			for (int memLines = 0;  memLines < 16; memLines++) {
-				memAddr = getMemoryAscii(memLine, memAddr, memBank);
-				memAddr &= 0xFFFF;
-				System.out.println(memLine);
-			}
-
-			System.out.print(CMDLINEPROMPT);
-			memCmdline = in.readLine();
-			if (memCmdline == null) memCmdline = "exit";	// program aborted during input...
-
+		for (int memLines = 0;  memLines < 16; memLines++) {
+			memAddr = getMemoryAscii(memLine, memAddr, memBank);
+			memAddr &= 0xFFFF;
+			displayCmdOutput(memLine.toString());
 		}
-		while (memCmdline.length() == 0);
 
-		return memCmdline;
+		commandInput.setText("m " + Dz.byteToHex(memBank,false) + Dz.addrToHex(memAddr,false));
+		commandInput.setCaretPosition(commandInput.getDocument().getLength());		
+		commandInput.selectAll();
 	}
 
 	public void bootZ88Rom() {

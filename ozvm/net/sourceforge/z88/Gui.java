@@ -6,16 +6,12 @@
  */
 package net.sourceforge.z88;
 
-import gameframe.GameFrame;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.io.IOException;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
 /**
@@ -39,6 +35,7 @@ public class Gui extends JFrame {
 	private javax.swing.JButton jButton = null;
 	private javax.swing.JScrollPane jScrollPane = null;  //  @jve:visual-info  decl-index=0 visual-constraint="845,488"
 	private javax.swing.JScrollPane jScrollPane1 = null;
+	private javax.swing.JScrollPane jScrollPane2 = null;
 	private javax.swing.JTextArea rtmOutputArea = null;
 	/**
 	 * This is the default constructor
@@ -63,7 +60,7 @@ public class Gui extends JFrame {
 		this.setJMenuBar(getJJMenuBar());
 		this.setSize(640, 480);
 		content.add(z88Screen(), BorderLayout.NORTH);
-		// content.add(commandArea(), BorderLayout.SOUTH);
+		content.add(commandArea(), BorderLayout.SOUTH);
 		this.setTitle("OZvm");
 		this.pack();
 		this.setVisible(true);
@@ -106,21 +103,12 @@ public class Gui extends JFrame {
 			System.exit(0);
 		}
 
-		if (ozvm.isDebugMode() == true) {
-			// Run OZvm in debugging mode, ie. start with command line mode and allow debugging
-			try {
-				ozvm.commandLine();
-
-				System.out.println("Ozvm terminated.");
-				GameFrame.exit(0);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
+		if (ozvm.isDebugMode() == false) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
 			ozvm.bootZ88Rom();
 		}
 	}
+
 	/**
 	 * This method initializes jJMenuBar
 	 *
@@ -169,7 +157,7 @@ public class Gui extends JFrame {
 	private javax.swing.JPanel commandArea() {
 		if(jPanel1 == null) {
 			jPanel1 = new javax.swing.JPanel(new BorderLayout());
-			jPanel1.add(new JScrollPane(cmdlineOutputArea()), BorderLayout.CENTER);
+			jPanel1.add(cmdLineOutputArea(), BorderLayout.CENTER);
 			jPanel1.add(cmdLineInputArea(), BorderLayout.SOUTH);
 			jPanel1.setVisible(true);
 		}
@@ -182,8 +170,7 @@ public class Gui extends JFrame {
 	 */
 	private javax.swing.JTextArea cmdlineOutputArea() {
 		if(cmdOutput == null) {
-			cmdOutput = new javax.swing.JTextArea();
-			cmdOutput.setPreferredSize(new Dimension(0,400));
+			cmdOutput = new javax.swing.JTextArea(30,80);
 			cmdOutput.setBackground(Color.BLACK);
 			cmdOutput.setForeground(Color.GREEN);
 			cmdOutput.setEditable(false);
@@ -217,7 +204,7 @@ public class Gui extends JFrame {
 			jContentPane = new javax.swing.JPanel();
 			jContentPane.setLayout(new java.awt.BorderLayout());
 			jContentPane.add(btnClearRtmMessages(), java.awt.BorderLayout.NORTH);
-			jContentPane.add(getJScrollPane1(), java.awt.BorderLayout.CENTER);
+			jContentPane.add(scrollRtmOutput(), java.awt.BorderLayout.CENTER);
 		}
 		return jContentPane;
 	}
@@ -256,17 +243,31 @@ public class Gui extends JFrame {
 		}
 		return jButton;
 	}
+	
 	/**
 	 * This method initializes jScrollPane1
 	 *
 	 * @return javax.swing.JScrollPane
 	 */
-	private javax.swing.JScrollPane getJScrollPane1() {
+	private javax.swing.JScrollPane scrollRtmOutput() {
 		if(jScrollPane1 == null) {
 			jScrollPane1 = new javax.swing.JScrollPane();
 			jScrollPane1.setViewportView(rtmOutArea());
 		}
 		return jScrollPane1;
+	}
+
+	/**
+	 * This method initializes jScrollPane2
+	 *
+	 * @return javax.swing.JScrollPane
+	 */
+	private javax.swing.JScrollPane cmdLineOutputArea() {
+		if(jScrollPane2 == null) {
+			jScrollPane2 = new javax.swing.JScrollPane();
+			jScrollPane2.setViewportView(cmdlineOutputArea());
+		}
+		return jScrollPane2;
 	}
 
 	/**
