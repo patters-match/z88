@@ -30,9 +30,9 @@ public class DisplayStatus {
 	JTextArea commandOutput = null;
 
     /** Creates a new instance of DisplayStatus, with default command output window */
-    public DisplayStatus(Blink b, JTextArea cmdOutput) {
-        z88 = b;
-		commandOutput = cmdOutput;
+    public DisplayStatus() {
+        z88 = Blink.getInstance();
+		commandOutput = Gui.getInstance().getCmdlineOutputArea();
     }
 
 	/** Creates a new instance of DisplayStatus, without command output window */
@@ -88,7 +88,7 @@ public class DisplayStatus {
 	 * @return
 	 */
 	public StringBuffer dzPcStatus(int pc) {
-		Dz dz = new Dz(z88);
+		Dz dz = Dz.getInstance();
 		StringBuffer dzLine = new StringBuffer(128);
 		dz.getInstrAscii(dzLine, pc, false, true);
 

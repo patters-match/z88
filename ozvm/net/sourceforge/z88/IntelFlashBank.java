@@ -83,9 +83,9 @@ public class IntelFlashBank extends Bank {
 	 * @param bankNo the bank number (0-255) which this bank is assigned to
 	 * @param the Flash Memory Device Code (I28F004S5 or I28F008S5) 
 	 */
-	public IntelFlashBank(Blink b, int dc) {		
+	public IntelFlashBank(int dc) {		
 		super(-1);		
-		blink = b;
+		blink = Blink.getInstance();
 		deviceCode = dc;
 		
 		eraseBank(); // Flash Memory Bank is empty by default...
@@ -308,7 +308,7 @@ public class IntelFlashBank extends Bank {
 		}
 
 		for (int thisBank = bottomBankOfBlock; thisBank <= (bottomBankOfBlock+3); thisBank++) {
-			IntelFlashBank b = (IntelFlashBank) blink.getBank(thisBank);
+			IntelFlashBank b = (IntelFlashBank) Memory.getInstance().getBank(thisBank);
 			b.eraseBank();
 		} 
 		
