@@ -1328,7 +1328,7 @@ public final class Blink extends Z80 {
 				defaultType = Memory.Bank.EPROM_128KB;
 				break;
 			case 64:
-				defaultType = Memory.Bank.FLASH;
+				defaultType = Memory.Bank.FLASH_1MB_INTEL;
 				break;
 			default:
 				// all other sizes will be interpreted as UV EPROM's 
