@@ -1,20 +1,29 @@
-package net.sourceforge.z88;
+/*
+ * Blink.java
+ * This file is part of OZvm.
+ * 
+ * OZvm is free software; you can redistribute it and/or modify it under the terms of the 
+ * GNU General Public License as published by the Free Software Foundation;
+ * either version 2, or (at your option) any later version.
+ * OZvm is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with OZvm;
+ * see the file COPYING. If not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 
+ * @author <A HREF="mailto:gstrube@users.sourceforge.net">Gunther Strube</A>
+ * $Id$  
+ *
+ */
 
+package net.sourceforge.z88;
 
 /**
  * The Z80 class emulates the Zilog Z80 microprocessor.
+ * Optimized and added with new feature for Z88 virtual machine.
  *
- * Optimized for Z88 virtual machine by Gunther Strube, gstrube@tiscali.dk.
- *
- * Only abstract, reset() and run() methods are now public. Register getter and
- * setter methods will be made public later for implementation of debugging
- * features.
- *
- * New, optimized instruction pre-fetch and cache algorithm (avoids reading
- * bytewise fetches of the opcodes from the Z80 virtual memory model, getting
- * the opcodes from the internal cache). Implemented 16bit read/write databus
- * where possible (getting 16bits in one "cycle", in stead of normal 2 x byte).
- *
+ * -------------------------------------------------------------------------------------
  * Original implementation of Z80 emulation by Adam Davidson & Andrew Pollard.
  *
  * @version 1.1 27 Apr 1997
@@ -22,10 +31,8 @@ package net.sourceforge.z88;
  *
  * @see Jasper
  * @see Spectrum
- *
- * $Id$
+ * -------------------------------------------------------------------------------------
  */
-
 public abstract class Z80 {
 
     public Z80() {
