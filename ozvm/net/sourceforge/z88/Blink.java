@@ -669,6 +669,18 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * Check if slot is empty (ie. no cards inserted)
+	 *
+	 * @param slotNo
+	 * @return true, if slot is empty
+	 */
+	public boolean isSlotEmpty(final int slotNo) {
+		// convert slot number to top bank number of specified slot
+		// if top bank of slot is of type NullBank, then we know it's empty...
+		return memory[(((slotNo & 3) << 6) | 0x3F)] == nullBank;
+	}
+	
+	/**
 	 * Segment register array for SR0 - SR3.
 	 *
 	 * <PRE>
@@ -1112,6 +1124,10 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0xB3 : // EPR, Eprom programming (not yet implemented)
+				displayRtmMessage("WARNING:\n" +
+								   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+								   "Eprom programming emulation not yet implemented.", true);			
+			
 				break;
 
 			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
@@ -1147,17 +1163,13 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0xE2 : // RXC, Receiver Control (not yet implemented)
-				break;
-
 			case 0xE3 : // TXD, Transmit Data (not yet implemented)
-				break;
-
 			case 0xE4 : // TXC, Transmit Control (not yet implemented)
+				displayRtmMessage("WARNING:\n" +
+								   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+								   "UART Serial Port emulation not yet implemented.", true);						
 				break;
-
 			case 0xE5 : // UMK, UART int. mask (not yet implemented)
-				break;
-
 			case 0xE6 : // UAK, UART acknowledge int. mask (not yet implemented)
 				break;
 			
@@ -1394,12 +1406,37 @@ public final class Blink extends Z80 {
 			// and load fully into bank
 		}
 
+		// Check for Z88 Application Card Watermark
+		if (cardBanks[cardBanks.length-1].bank[0x3FFB] == 0x80 &
+			cardBanks[cardBanks.length-1].bank[0x3FFE] == 'O' &
+			cardBanks[cardBanks.length-1].bank[0x3FFF] == 'Z') {
+			displayRtmMessage("Application Card was inserted into slot " + slot, false);
+		} else {
+			// Check for Z88 File Card Watermark
+			if (cardBanks[cardBanks.length-1].bank[0x3FFE] == 'o' &
+				cardBanks[cardBanks.length-1].bank[0x3FFF] == 'z') {
+				displayRtmMessage("File Card was inserted into slot " + slot, false);
+			} else {
+				throw new IOException("This is not a Z88 Application Card nor a File Card.");
+			}
+		}
+
 		// complete Card image now loaded into container
 		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
 		loadCard(cardBanks, slot);
 	}
 
-
+	/**
+	 * Remove inserted card, ie. null'ify the banks for the specified slot.
+	 * This call also simulates the Blink Hardware Card Flap Open, 
+	 * Blink Edge connector sensing and finally Card Flap Close, so that OZ
+	 * is made aware of the Card removal.. 
+	 *   
+	 * @param slot (1-3)
+	 */
+	private void removeCard(int slot) {		
+	}
+	
 	/**
 	 * Load ROM image (from opened file ressource inside JAR)
 	 * into Z88 memory system, slot 0.
