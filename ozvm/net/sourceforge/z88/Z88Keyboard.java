@@ -73,8 +73,6 @@ public class Z88Keyboard {
 	private KeyPress z88MenuKey = null;
 	private KeyPress z88SpaceKey = null;
 
-	private Blink blink = null;
-
 	private static final class singletonContainer {
 		static final Z88Keyboard singleton = new Z88Keyboard();  
 	}
@@ -101,7 +99,6 @@ public class Z88Keyboard {
      *
      */
 	private Z88Keyboard() {
-		blink = Blink.getInstance();
 		z88Display = Z88display.getInstance();
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
@@ -1152,7 +1149,7 @@ public class Z88Keyboard {
 
 				case KeyEvent.VK_F5:
 					if (OZvm.debugMode == true) {
-						blink.stopZ80Execution();
+						Blink.getInstance().stopZ80Execution();
 						if (commandInput != null) commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
 					}
 					break;
