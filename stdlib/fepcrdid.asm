@@ -80,9 +80,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH BC                  ; preserve old bank binding..
                     
                     CALL CheckRam
-                    JR   C, unknown_device   ; RAM card in slot C, abort...
+                    JR   C, unknown_device   ; abort, if RAM card was found in slot C...
 
-                    CALL FetchCardID         ; get info of Flash Memory chip in HL...                    
+                    CALL FetchCardID         ; get info of Flash Memory chip in HL (if avail in slot C)...
+                    JR   C, unknown_device   ; no ID's were polled from a (potential FE card) 
 
                     POP  BC
                     CALL MemDefBank          ; restore original bank in segment 1
@@ -90,7 +91,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  AF                  ; old interrupt status
                     CALL OZ_EI               ; enable IM 1 interrupts again...
                     
-                    CALL VerifyCardID        ; verify Flash Memory ID with know Manufacturer & Device Codes
+                    CALL VerifyCardID        ; verify Flash Memory ID with known Manufacturer & Device Codes
                     JR   C, unknown_device
                                              ; H = Manufacturer Code, L = Device Code 
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
@@ -131,32 +132,53 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    -
 ; 
 ; Out:
-;    H = manufacturer code (at $00 0000 on chip)
-;    L = device code (at $00 0001 on chip)
+;    Fc = 0 (FE was recognized in slot C)
+;         H = manufacturer code (at $00 0000 on chip)
+;         L = device code (at $00 0001 on chip)
+;    Fc = 1 (FE was NOT recognized in slot C)
 ;
 ; Registers changed on return:
-;    AFBCDE../IXIY ........ same
-;    ......HL/.... afbcdehl different
+;    A.BCDE../IXIY ........ same
+;    .F....HL/.... afbcdehl different
 ;
-.FetchCardID        
-                    PUSH AF
+.FetchCardID
                     PUSH BC
+                    PUSH AF
                     PUSH DE
                     PUSH IX
                     
                     ; get contents of (at $00 0000) and ($00 0001) in DE
                     ; before polling those addresses for the Intel Flash Memory
+                    LD   HL, $4000
+                    LD   D,(HL)              
+                    INC  HL                  ; get a copy into DE of the slot contents at the location 
+                    LD   E,(HL)              ; where the ID is fetched (through the FE command interface)
                     
                     LD   IX, Fetch_I28F0xxxx_ID
                     LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
                     CALL ExecPollRoutineOnStack
                     
-                    ; if the ID in HL is different from DE
+                    CP   A                   ; Assume that no INTEL Flash Memory ID is stored at that location!
+                    SBC  HL,DE               ; if the ID in HL is different from DE
+                    JR   NZ, found_FetchCardID; then an ID was fetched from an INTEL FlashFile Memory...
                     
+                    LD   IX, Fetch_AM29F0xxx_ID 
+                    LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID 
+                    CALL ExecPollRoutineOnStack
+
+                    CP   A                   
+                    SBC  HL,DE               
+                    JR   NZ, found_FetchCardID ; if the ID in HL is equal to DE
+                    SCF                        ; then no AMD Flash Memory responded to the ID request...
+                    JR   exit_FetchCardID
+.found_FetchCardID
+                    CP   A  
+.exit_FetchCardID
                     POP  IX
                     POP  DE
+                    POP  BC                    ; get preserved AF
+                    LD   A,B                   ; restore original A
                     POP  BC
-                    POP  AF
                     RET
 
 
@@ -169,8 +191,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;     HL = Flash Memory chip ID
 ;
 ; Registers changed on return:
-;    A.BC..../IXIY ........ same
-;    .F..DEHL/.... afbcdehl different
+;    A.BCDE../IXIY ........ same
+;    .F....HL/.... afbcdehl different
 ;
 .ExecPollRoutineOnStack
                     PUSH BC
@@ -205,7 +227,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
 ; ***************************************************************
 ;
-; Polling code for INTEL 28F0xxxx FlashFile Memory Chip ID 
+; Polling code for I28F0xxxx (INTEL) FlashFile Memory Chip ID 
 ; (code will be executed on stack...)
 ;
 ; In:
@@ -216,10 +238,11 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    L = device code (at $00 0001 on chip)
 ;
 ; Registers changed on return:
-;    AFBC..../IXIY same
-;    ....DEHL/.... different
+;    AFBCDE../IXIY same
+;    ......HL/.... different
 ;
 .Fetch_I28F0xxxx_ID
+                    PUSH DE
                     LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
                     LD   (HL), FE_IID        ; FlashFile Memory Card ID command
                     LD   D,(HL)              ; D = Manufacturer Code (at $00 0000)
@@ -227,9 +250,56 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   E,(HL)              ; E = Device Code (at $00 0001)
                     LD   (HL), FE_RST        ; Reset Flash Memory Chip to read array mode
                     EX   DE,HL
+                    POP  DE
                     RET
 .end_Fetch_I28F0xxxx_ID
 
+
+; ***************************************************************
+;
+; Polling code for AM29F0xxx (AMD) Flash Memory Chip ID 
+; (code will be executed on stack...)
+;
+; In:
+;    -
+; 
+; Out:
+;    H = manufacturer code (at $00 0000 on chip)
+;    L = device code (at $00 0001 on chip)
+;
+; Registers changed on return:
+;    AFBCDE../IXIY same
+;    ......HL/.... different
+;
+.Fetch_AM29F0xxx_ID
+                    PUSH AF
+                    PUSH BC
+                    PUSH DE
+                    
+                    LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
+                    LD   DE, $42AA
+                    LD   BC, $4555
+
+                    LD   A,$AA
+                    LD   (BC),A              ; AA -> (555), first unlock cycle
+                    LD   A,$55
+                    LD   (DE),A              ; 55 -> (2AA), second unlock cycle
+                    LD   A,$90
+                    LD   (BC),A              ; 90 -> (555), autoselect mode
+
+                    LD   D,(HL)              
+                    INC  HL
+                    LD   E,(HL)              ; H = Manufacturer Code (at $00 XX00)
+                    EX   DE,HL               ; L = Device Code (at $00 XX01)
+                    
+                    LD   A,$F0
+                    LD   (BC),A              ; F0 -> (XXX), back to Read Array Mode
+                    
+                    POP  DE
+                    POP  BC
+                    POP  AF
+                    RET
+.end_Fetch_AM29F0xxx_ID
 
 
 ; ***************************************************************
