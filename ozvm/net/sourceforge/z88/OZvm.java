@@ -17,7 +17,7 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.3";
+	public static final String VERSION = "0.3.1";
 
 	private Blink z88 = null;
     private DisplayStatus blinkStatus;
