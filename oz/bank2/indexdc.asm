@@ -109,6 +109,7 @@ defc    CLIS_PRTTOPEN           =4
 defc    CLIS_OUTTOPEN           =2
 defc    CLIS_INTOPEN            =1
 
+mem_1fd6			=$1fd6		; 3*12 bytes
 
         org     $c000                           ; c000-d7ff, 6144 bytes
 
@@ -134,14 +135,14 @@ defc    CLIS_INTOPEN            =1
         pop     iy
         pop     bc
         ld      a, c
-        ld      ($4D2), a
+        ld      (BLSC_SR2), a
         out     (BL_SR2), a
         pop     af
         pop     af
         pop     bc
         pop     de
         pop     hl
-        jp      $48
+        jp      OZ_RET1
 
 .Index
         xor     a
@@ -212,7 +213,7 @@ defc    CLIS_INTOPEN            =1
 
 .OpenBootCli
         ld      hl, BootCLI_txt
-        ld      de, 3                           ; NUL?
+        ld      de, 3                           ; NUL, ignore name
         ld      bc, $FF
         OZ      GN_Opf                          ; open - BHL=name, A=mode, DE=exp. name buffer, C=buflen
         ret
@@ -1155,7 +1156,7 @@ defc    CLIS_INTOPEN            =1
 
         ld      bc, NQ_Ain
         OZ      OS_Nq                           ; get app info
-        bit     7, a                            ; AT_Boot
+        bit     AT_B_Boot, a
         jr      z, initkeys_2
 
         ld      hl, (pIdxAutoRunAppl)
@@ -1256,7 +1257,7 @@ defc    CLIS_INTOPEN            =1
         OZ      GN_Sop
         pop     af
         add     a, $20
-        OZ      OS_Out                          ; write a byte to std. output
+        OZ      OS_Out
         pop     hl
         ret
 
@@ -1391,7 +1392,7 @@ defc    CLIS_INTOPEN            =1
         cp      '+'
         jr      nz, dcalt_1
         ld      a, (ubIdxFlags2)
-        and     255-IDXF2_ALTMINUS
+        and     ~IDXF2_ALTMINUS
         or      IDXF2_ALTPLUS
         jr      dcalt_5
 
@@ -1401,7 +1402,7 @@ defc    CLIS_INTOPEN            =1
         cp      '-'
         jr      nz, dcalt_2
         ld      a, (ubIdxFlags2)
-        and     255-IDXF2_ALTPLUS
+        and     ~IDXF2_ALTPLUS
         or      IDXF2_ALTMINUS
         jr      dcalt_5
 
@@ -1409,7 +1410,7 @@ defc    CLIS_INTOPEN            =1
         OZ      GN_Cls                          ; Classify a character
         jr      nc, dcalt_3                     ; not [a-zA-Z]
 
-        and     $DF                             ; upper
+        and     $df                             ; upper
         ld      (iy+OSFrame_A), a               ; store for later use
         ld      c, a
         ld      a, (ubIdxFlags2)                ; was it prefixed by + or -
@@ -1428,7 +1429,7 @@ defc    CLIS_INTOPEN            =1
 
 .dcalt_3
         ld      a, (ubIdxFlags2)                ; clear DC_Alt bits
-        and     255-(IDXF2_ALTMINUS | IDXF2_ALTPLUS | IDXF2_ZCOUNT)
+        and     ~(IDXF2_ALTMINUS|IDXF2_ALTPLUS|IDXF2_ZCOUNT)
         ld      (ubIdxFlags2), a
         jp      dcalt_err2                      ; return syntax error
 
@@ -1454,7 +1455,7 @@ defc    CLIS_INTOPEN            =1
 
 .dcalt_7
         ld      a, (ubIdxFlags2)                ; clear DC_Alt flags
-        and     255-(IDXF2_ALTMINUS | IDXF2_ALTPLUS | IDXF2_ZCOUNT)
+        and     ~(IDXF2_ALTMINUS | IDXF2_ALTPLUS | IDXF2_ZCOUNT)
         ld      (ubIdxFlags2), a
 
         ld      a, (iy+OSFrame_A)
@@ -1569,8 +1570,8 @@ defc    CLIS_INTOPEN            =1
 .dcalt_er3
         pop     iy
 .dcalt_err2
-        ld      a, RC_Sntx                      ; Syntax Error
-        set     6, (iy+OSFrame_F)
+        ld      a, RC_Sntx
+        set     Z80F_B_Z, (iy+OSFrame_F)
 .dcalt_err1
         call    SetOsfError
 .dcalt_x
@@ -1691,7 +1692,7 @@ defc    CLIS_INTOPEN            =1
 
 .dcalt_31
         ld      a, (ubIdxFlags2)
-        and     255-(IDXF2_ALTPLUS | IDXF2_ALTMINUS)
+        and     ~(IDXF2_ALTPLUS | IDXF2_ALTMINUS)
         ld      (ubIdxFlags2), a
         pop     iy
         jp      dcalt_err2                      ; syntax error
@@ -1719,7 +1720,7 @@ defc    CLIS_INTOPEN            =1
 
 .open_3
         pop     af
-        ld      de, 3                           ; NULL?
+        ld      de, 3                           ; NUL, ignore name
         ld      bc, $FF
         OZ      GN_Opf
         pop     bc
@@ -2744,7 +2745,7 @@ defc    CLIS_INTOPEN            =1
         ld      c, 2
         OZ      OS_Mpb
         push    bc
-        set     7, d                            ; fix high byte and copy link from next to current
+        set     7, d                            ; S2 fix and copy link from next to current
         res     6, d
         ld      a, (de)
         ld      (iy+0), a
@@ -2794,7 +2795,7 @@ defc    CLIS_INTOPEN            =1
 
 .SetOsfError
         ld      (iy+OSFrame_A), a
-        set     0, (iy+OSFrame_F)
+        set     Z80F_B_C, (iy+OSFrame_F)
         ret
 
 ;       ----
@@ -2997,45 +2998,45 @@ defc    CLIS_INTOPEN            =1
         jr      c, dcrbd_8
         ld      a, c                            ; !! use djnz
 
-        cp      0                               ; input stream
+        cp      RB_IN                           ; input stream
         jr      nz, dcrbd_1
         ld      bc, cli_instream
-        ld      a, 8
+        ld      a, CLIS_INOPEN
         jr      dcrbd_7
 
 .dcrbd_1
-        cp      1                               ; output stream
+        cp      RB_OUT                          ; output stream
         jr      nz, dcrbd_2
         ld      bc, cli_outstream
-        ld      a, $10
+        ld      a, CLIS_OUTOPEN
         jr      dcrbd_7
 
 .dcrbd_2
-        cp      2                               ; printer stream
+        cp      RB_PRT                          ; printer stream
         jr      nz, dcrbd_3
         ld      bc, cli_prtstream
-        ld      a, $20 ; ' '
+        ld      a, CLIS_PRTOPEN
         jr      dcrbd_7
 
 .dcrbd_3
-        cp      3                               ; input stream T
+        cp      RB_INT                          ; input stream T
         jr      nz, dcrbd_4
         ld      bc, cli_instreamT
-        ld      a, 1
+        ld      a, CLIS_INTOPEN
         jr      dcrbd_7
 
 .dcrbd_4
-        cp      4                               ; output stream T
+        cp      RB_OPT                          ; output stream T
         jr      nz, dcrbd_5
         ld      bc, cli_outstreamT
-        ld      a, 2
+        ld      a, CLIS_OUTTOPEN
         jr      dcrbd_7
 
 .dcrbd_5
-        cp      5                               ; printer stream T
+        cp      RB_PTT                          ; printer stream T
         jr      nz, dcrbd_6
         ld      bc, cli_prtstreamT
-        ld      a, 4
+        ld      a, CLIS_PRTTOPEN
         jr      dcrbd_7
 
 .dcrbd_6
@@ -3174,7 +3175,7 @@ defc    CLIS_INTOPEN            =1
 .dcpol_3
         pop     iy
         jr      c, dcpol_4
-        set     6, (iy+OSFrame_F)               ; Fz=1
+        set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1
 
 .dcpol_4
         pop     bc
@@ -3225,7 +3226,7 @@ defc    CLIS_INTOPEN            =1
         bit     CLIF_B_IGNOREMETA, (iy+cli_Flags)       ; .J, skip meta chars
         jr      nz, dcin_9
 
-        cp      13
+        cp      CR
         jr      nz, dcin_4
         res     CLIF_B_NOTBOL, (iy+cli_Flags)   ; line start
         jr      dcin_3
@@ -3277,7 +3278,7 @@ defc    CLIS_INTOPEN            =1
 
         OZ      GN_Cls                          ; Classify a character
         jr      nc, dcin_9                      ; not alpha
-        and     $DF                             ; upper
+        and     $df                             ; upper
 
         cp      'S'                             ; ~S
         jr      nz, dcin_9
@@ -3293,7 +3294,7 @@ defc    CLIS_INTOPEN            =1
         ld      d, a                            ; meta flags
 
         ld      a, (iy+cli_Flags)               ; clear meta flags !! xor (iy+cli_Flags)
-        and     255-( CLIF_SHIFT | CLIF_DIAMOND | CLIF_SQUARE | CLIF_META )
+        and     ~( CLIF_SHIFT | CLIF_DIAMOND | CLIF_SQUARE | CLIF_META )
         ld      (iy+cli_Flags), a
 
         ld      a, CL_MBC
@@ -3312,7 +3313,7 @@ defc    CLIS_INTOPEN            =1
         jr      nc, dcin_12
 
         call    ldIX_00
-        ld      a, 1
+        ld      a, CLIS_INTOPEN
         ld      bc, cli_instreamT
         call    RebindStream
         ld      a, (iy+cli_StreamFlags)
@@ -3444,12 +3445,12 @@ defc    CLIS_INTOPEN            =1
         ld      a, c
         cp      ' '
         jr      nc, dcout_5
-        cp      $1B                             ; esc
+        cp      ESC
         jr      z, dcout_5
         cp      $0E
         jr      nc, dcout_3
-        cp      7                               ; bell
-        jr      nc, dcout_5
+        cp      7
+        jr      nc, dcout_5			; 07-0D
 
 .dcout_3
         ld      (iy+cli_outprefix), c
@@ -3568,7 +3569,7 @@ defc    CLIS_INTOPEN            =1
         ccf
         jr      nc, k2c_5
 
-        bit     0, d                            ; shift
+        bit     QUAL_B_SHIFT, d
         jr      z, k2c_1
         ld      a, '~'
         call    PutWithTimeout
@@ -3578,21 +3579,21 @@ defc    CLIS_INTOPEN            =1
         jr      c, k2c_5
 
 .k2c_1
-        bit     1, d                            ; <>
+        bit     QUAL_B_CTRL, d                  ; <>
         jr      z, k2c_2
         ld      a, '|'
         call    PutWithTimeout
         jr      c, k2c_5
 
 .k2c_2
-        bit     2, d                            ; []
+        bit     QUAL_B_ALT, d                   ; []
         jr      z, k2c_3
         ld      a, '#'
         call    PutWithTimeout
         jr      c, k2c_5
 
 .k2c_3
-        bit     3, d                            ; special
+        bit     QUAL_B_SPECIAL, d
         jr      z, k2c_4
         ld      a, '~'
         call    PutWithTimeout
@@ -3629,22 +3630,22 @@ defc    CLIS_INTOPEN            =1
         OZ      OS_Mpb                          ; bind CLI in S1
 
         call    ldIX_00                         ; close all streams
-        ld      a, 8
+        ld      a, CLIS_INOPEN
         ld      bc, cli_instream
         call    RebindStream
-        ld      a, 1
+        ld      a, CLIS_INTOPEN
         ld      bc, cli_instreamT
         call    RebindStream
-        ld      a, $10
+        ld      a, CLIS_OUTOPEN
         ld      bc, cli_outstream
         call    RebindStream
-        ld      a, 2
+        ld      a, CLIS_OUTTOPEN
         ld      bc, cli_outstreamT
         call    RebindStream
-        ld      a, $20
+        ld      a, CLIS_PRTOPEN
         ld      bc, cli_prtstream
         call    RebindStream
-        ld      a, 4
+        ld      a, CLIS_PRTTOPEN
         ld      bc, cli_prtstreamT
         call    RebindStream
 
@@ -3684,7 +3685,7 @@ defc    CLIS_INTOPEN            =1
         ret     c
         OZ      GN_Cls                          ; Classify a character
         jr      nc, fc_1                        ; not alpha
-        and     $DF                             ; upper
+        and     $df                             ; upper
 
 .fc_1
         cp      'J'
@@ -3713,9 +3714,9 @@ defc    CLIS_INTOPEN            =1
 
 .fc_4
         ld      c, 0
-        OZ      GN_Cls                          ; Classify a character
+        OZ      GN_Cls
         jr      nc, fc_5                        ; not alpha
-        and     $DF                             ; upper
+        and     $df                             ; upper
 
         cp      'T'
         jr      nz, fc_5
@@ -3831,7 +3832,7 @@ defc    CLIS_INTOPEN            =1
         jr      c, fc_16
         jr      z, fc_16
         ld      b, a
-        ld      de, 2
+        ld      de, 2				; return in BC
         OZ      GN_Gdn                          ; ASCII to integer conversion
         jr      c, fc_15
         OZ      OS_Dly                          ; delay a given period
@@ -3848,7 +3849,7 @@ defc    CLIS_INTOPEN            =1
 .SkipLine
         call    ReadCliChar
         ret     c
-        cp      13
+        cp      CR
         jr      nz, SkipLine
         res     CLIF_B_NOTBOL, (iy+cli_Flags)
         ret
@@ -3903,7 +3904,7 @@ defc    CLIS_INTOPEN            =1
         ld      a, CL_ACK
         OZ      OS_Cli                          ; restore flags
         pop     de
-        bit     1, d                            ; <>
+        bit     QUAL_B_CTRL, d                  ; <>
         jr      nz, gcli_3
         call    FreeCli                         ; ESC - abort
 
@@ -3946,7 +3947,7 @@ defc    CLIS_INTOPEN            =1
         ex      (sp), ix
         OZ      OS_Cl                           ; close file/stream
         pop     ix
-        ld      a, $FF                          ; !! ld a,c; cpl
+        ld      a, $FF                          ; !! 'ld a,c; cpl'
         sub     c
         and     (iy+cli_StreamFlags)
         ld      (iy+cli_StreamFlags),   a
@@ -4033,7 +4034,7 @@ defc    CLIS_INTOPEN            =1
         OZ      OS_Gbt                          ; get byte with timeout
         pop     bc
         jr      c, fcb_3
-        cp      13
+        cp      CR
         jr      z, fcb_2
         cp      $20
         jr      c, fcb_1
@@ -4042,7 +4043,7 @@ defc    CLIS_INTOPEN            =1
         ld      (de), a
         inc     de
         inc     (iy+cli_bytesleft)
-        cp      13
+        cp      CR
         jr      z, fcb_3                        ; end at CR
         djnz    fcb_1
 
@@ -4071,11 +4072,11 @@ defc    CLIS_INTOPEN            =1
 ;       ----
 
 .cmd_card
-        ld      hl, $1FD6
+        ld      hl, mem_1fd6
         ld      b, 36
         call    ZeroMem
         ld      d, 3                            ; slot #
-        ld      iy, $1FFA
+        ld      iy, mem_1fd6+3*12
 
 .crd_1
         ld      bc, -12
@@ -4086,13 +4087,13 @@ defc    CLIS_INTOPEN            =1
         ld      bc, NQ_Slt
         OZ      OS_Nq                           ; read slot type information
         jr      c, crd_7                        ; no card?
-        and     $BF
+        and     ~$40
         jr      z, crd_6
 
         bit     7, a                            ; available RAM
         push    af
 
-        ld      bc, $600                        ; find lowest set bit
+        ld      bc, 6<<8|0                      ; find lowest set bit
 .crd_3
         rrca                                    ; !! pre-increment
         jr      c, crd_4
@@ -4213,7 +4214,7 @@ defc    CLIS_INTOPEN            =1
         ld      a, $40
         OZ      GN_Pdn                          ; BC to ASCII, 4 chars
         ld      a, 'K'
-        OZ      OS_Out                          ; write a byte to std. output
+        OZ      OS_Out
 
 .pcs_2
         pop     de
@@ -4227,7 +4228,7 @@ defc    CLIS_INTOPEN            =1
 ;       point IY to data of card A
 
 .GetCardData
-        ld      iy, $1FCA
+        ld      iy, mem_1fd6-12
         inc     a
         ld      bc, 12
         ld      d, 0
