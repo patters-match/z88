@@ -55,7 +55,11 @@ xref    MS1BankA
 .SetInitialTime
         push    af
         ld      de, 1992
+ IF     OZ40001=0
         ld      bc, 8<<8|3                      ; August 3rd
+ ELSE
+        ld      bc, 3<<8|15                     ; March 15th
+ ENDIF
         OZ      GN_Dei                          ; convert to internal format
         ld      hl, 2                           ; date in ABC
         OZ      GN_Pmd                          ; set machine date

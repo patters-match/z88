@@ -256,6 +256,7 @@ defc    FREE_THIS       =7
         ret     z
         ret     c
         call    BadSetup
+ IF	OZ40001=0
         ld      c, a
         add     a, e
         sub     l
@@ -267,6 +268,19 @@ defc    FREE_THIS       =7
 
         ld      a, c
         cp      b
+ ELSE
+        add     a, e
+        sub     l
+        ld      b, a
+        ld      c, e
+
+.bsf_2
+        push    bc
+        push    hl
+
+        ld      a, l
+        cp      c
+ ENDIF
         jr      c, bsf_4
         call    sub_C3F8                        ; ld a,bank; cp 1
         jr      c, bsf_4                        ; bank 0? don't free
@@ -318,6 +332,7 @@ defc    FREE_THIS       =7
         dec     c
         jr      nz, abr2_5                      ; not zero? skip
 
+ IF	OZ40001=0
         push    af
         ld      a, (ubAppContRAM)
         sub     b
@@ -329,7 +344,9 @@ defc    FREE_THIS       =7
 .abr2_4
         ld      c, a
         pop     af
-
+ ELSE
+        ld      c, e
+ ENDIF
 .abr2_5
         push    bc
         push    de
@@ -348,9 +365,13 @@ defc    FREE_THIS       =7
         pop     de
 
         push    af
+ IF     OZ40001=0
         ld      a, (ubAppContRAM)
         sub     d
         add     a, $20
+ ELSE
+        ld      a, l
+ ENDIF
         inc     e
         dec     e
         call    nz, bsf_1                       ; free all allocated blocks

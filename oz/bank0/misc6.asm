@@ -172,7 +172,11 @@ xref    Reset5
 ;       error   "OZBuffCallTable crosses page bundary"
 ; endif
 
-        defs    5 ($ff)
+ IF	OZ40001=0
+ 	defs	5 ($ff)
+ ELSE
+        defs    26 ($ff)
+ ENDIF
 
 ; if    $PC <> OZCALLTBL
 ;       error   "OZCALL table moved"
