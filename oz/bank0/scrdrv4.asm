@@ -10,45 +10,58 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
-xdef    ScreenOpen
-xdef    ScreenClose
-xdef    MoveToXY
-xdef    ScrDrvGetAttrBits
-xdef    FindSDCmd
-xdef    SetScrAttr
-xdef    ResetScrAttr
-xdef    ToggleScrDrvFlags
+xdef    Beep_X
 xdef    CallFuncDE
-xdef    PutBoxChar
-xdef    ScreenCR
+xdef    ClearCarry
+xdef    ClearEOL
+xdef    ClearEOW
+xdef    ClearScr
+xdef    CursorDown
 xdef    CursorLeft
 xdef    CursorRight
 xdef    CursorUp
-xdef    CursorDown
-xdef    ClearEOW
-xdef    ClearScr
+xdef    FindSDCmd
 xdef    GetWdStartXY
-xdef    ClearCarry
+xdef    MoveToXY
 xdef    NewXValid
 xdef    NewYValid
 xdef    OSBlp
-xdef    Beep_X
-xdef    ScreenBL
 xdef    OSSr
+xdef    PutBoxChar
+xdef    ResetScrAttr
 xdef    RestoreScreen
 xdef    SaveScreen
+xdef    ScrDrvGetAttrBits
+xdef    ScreenBL
+xdef    ScreenClose
+xdef    ScreenCR
+xdef    ScreenOpen
+xdef    ScrollDown
+xdef    ScrollUp
+xdef    SetScrAttr
+xdef    ToggleScrDrvFlags
 
-xref    MS1BankA
+;       bank 0
+
 xref    AtoN_upper
 xref    Delay300Kclocks
-xref    OSFramePush
-xref    OSFramePop
 xref    DrawOZwd
+xref    MS1BankA
+xref    OSFramePop
+xref    OSFramePush
 xref    RdHeaderedData
 xref    WrHeaderedData
 
+;       bank 7
+
+xref    OSSR_main
+xref    ScrD_GetNewXY
+xref    ScrD_PutChar
+xref    ScrDrvAttrTable
+xref    Zero_ctrlprefix
+
+;       ----
 
 ; bind screen into S1, $7800-$7fff
 
@@ -115,6 +128,7 @@ xref    WrHeaderedData
         ret
 
 ;       ----
+
 ; out: Fc=0, DE=func
 ;  Fc=1, not found
 .FindSDCmd

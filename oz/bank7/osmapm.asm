@@ -10,13 +10,26 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    OSMapMain
 
-xref	GetCurrentWdInfo
-xref	RestoreActiveWd
+;       bank 0
 
+xref    Chk128KB
+xref    GetWindowFrame
+xref    KPrint
+xref    PeekHLinc
+xref    PokeBHL
+xref    PutOSFrame_BC
+xref    ScreenClose
+xref    ScreenOpen
+
+;       bank 7
+
+xref    GetCurrentWdInfo
+xref    RestoreActiveWd
+
+;       ----
 
 .OSMapMain
         ld      b, c

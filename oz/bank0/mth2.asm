@@ -10,8 +10,8 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
+xdef    aRom_Help
 xdef    AddBHL_DE
 xdef    ChgHelpFile
 xdef    CopyAppPointers
@@ -32,6 +32,7 @@ xdef    GetRealCmdPosition
 xdef    InputEmpty
 xdef    MayMTHPrint
 xdef    MTHPrint
+xdef    MTHPrintKeycode
 xdef    MTHPrintTokenized
 xdef    NextAppDOR
 xdef    PrevAppDOR
@@ -42,22 +43,35 @@ xdef    SetActiveAppDOR
 xdef    SetHlpAppChgFile
 xdef    SkipNTopics
 
-xref    ResetToggles
-xref    ScrDrv_SOH_A
+;       bank 0
+
+xref    AtoN_upper
+xref    fsMS2BankB
+xref    fsRestoreS2
+xref    Get2ndCmdHelp
 xref    Get2ndTopicHelp
 xref    GetFirstCmdHelp
-xref    Get2ndCmdHelp
-xref    MTH_ToggleLT
-xref    MayWrt
-xref    OSWrt
-xref    ZeroHandleIX
-xref    fsMS2BankB
 xref    GetHandlePtr
-xref    MS2BankK1
-xref    fsRestoreS2
-xref    KPrint
 xref    GetTpcAttrByNum
-xref    AtoN_upper
+xref    KPrint
+xref    MayWrt
+xref    MS2BankK1
+xref    MTH_ToggleLT
+xref    OSWrt
+xref    ResetToggles
+xref    ScrDrv_SOH_A
+xref    ZeroHandleIX
+
+;       bank 7
+
+xref    DrawMenuWd2
+xref    Help2Wd_bottom
+xref    Help2Wd_Top
+xref    InitHandle
+xref    InitHelpWd
+xref    OpenAppHelpFile
+
+;       ----
 
 ;       BHL+=DE
 ;       adjusts B to keep HL<$4000

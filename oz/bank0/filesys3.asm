@@ -10,49 +10,54 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
 
-xdef    SetMemHandlePos
-xdef    InitFsMemHandle
-xdef    InitMemHandle
-xdef    AllocFirstBlock
-xdef    SetFhnFirstBlock
-xdef    RewindFile
-xdef    FreeMemData0
-xdef    FreeMemData
-xdef    AllocHandleBlock
-xdef    FilePtr2MemPtr
-xdef    MemPtr2FilePtr
 xdef    AddAvailableFsBlock
+xdef    AllocFirstBlock
+xdef    AllocHandleBlock
 xdef    AllocMemFile_SizeHL
+xdef    FilePtr2MemPtr
+xdef    FreeMemData
+xdef    FreeMemData0
 xdef    fsMS2BankB
 xdef    fsRestoreS2
-xdef    WrHeaderedData
-xdef    MvToFile
-xdef    RdHeaderedData
-xdef    MvFromFile
-xdef    SaveAllAppData
-xdef    RestoreAllAppData
 xdef    GetFileEOF
-xdef    GetFileSize
 xdef    GetFilePos
-xdef    SeekFileMayExpand
-xdef    SetFileSize
-xdef    WrFileByte
+xdef    GetFileSize
+xdef    InitFsMemHandle
+xdef    InitMemHandle
+xdef    MemPtr2FilePtr
+xdef    MvFromFile
+xdef    MvToFile
 xdef    RdFileByte
+xdef    RdHeaderedData
+xdef    RestoreAllAppData
+xdef    RewindFile
+xdef    SaveAllAppData
+xdef    SeekFileMayExpand
+xdef    SetFhnFirstBlock
+xdef    SetFileSize
+xdef    SetMemHandlePos
+xdef    WrFileByte
+xdef    WrHeaderedData
 
-xref    MS2BankA
-xref    MS1BankA
-xref    MS2BankB
-xref    MS12BankCB
+;       bank 0
+
 xref    AllocHandle
-xref    SaveScreen
-xref    RestoreScreen
-xref    OZwd__fail
 xref    FPtr2MemPtrBindS2
+xref    MS12BankCB
+xref    MS1BankA
+xref    MS2BankA
+xref    MS2BankB
+xref    OZwd__fail
+xref    RestoreScreen
+xref    SaveScreen
 
+;       bank 7
 
+xref    FreeMemHandle
+
+;       ----
 
 .SetMemHandlePos
         ld      ix, pFsMemPool

@@ -10,11 +10,19 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    OSCliMain
 
+;       bank 0
 
+xref    ApplyQualifiers
+xref    AtoN_upper
+xref    PutOSFrame_BC
+xref    PutOSFrame_DE
+xref    RdKbBuffer
+xref    SetPendingOZwd
+
+;       ----
 
 .OSCliMain
         ld      hl, ubCLIActiveCnt

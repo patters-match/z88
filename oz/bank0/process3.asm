@@ -10,46 +10,60 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
+        include "bank7\lowram.def"
 
-xdef    OSExit
-xdef    OSEnt
 xdef    ApplCaps
+xdef    InitHlpActiveCmd
+xdef    InitHlpActiveHelp
+xdef    SetHlpActiveHelp
+xdef    OSBye
+xdef    OSEnt
+xdef    OSExit
 xdef    OSStk
 xdef    OSUse
-xdef    loc_C9C6
-xdef    loc_C9C8
-xdef    InitActiveCommand
-xdef    OSBye
 
+;       bank 0
 
-xref    RestoreAllAppData
-xref    AllocMemFile_SizeHL
-xref    MS2BankK1
-xref    CancelOZcmd
-xref    ScreenOpen
-xref    ScreenClose
-xref    BadAllocAndSwap
-xref    InitApplWd
-xref    sub_C39F
-xref    ostin_4
-xref    sub_C2F3
-xref    FreeBadRAM
-xref    SetActiveAppDOR
-xref    MS1BankB
-xref    IsBadUgly
 xref    AllocBadRAM1
-xref    OSFramePush
-xref    loc_EECE
-xref    DrawOZwd
-xref    SaveAllAppData
-xref    PutOSFrame_BHL
-xref    GetFileSize
-xref    DORHandleFreeDirect
+xref    AllocMemFile_SizeHL
+xref    BadAllocAndSwap
 xref    BadSwapAndFree
+xref    CancelOZcmd
+xref    DORHandleFreeDirect
+xref    DrawOZwd
+xref    FreeBadRAM
+xref    GetFileSize
+xref    InitApplWd
+xref    IsBadUgly
+xref    loc_EECE
+xref    MS1BankB
+xref    MS2BankK1
+xref    OSFramePush
+xref    ostin_4
+xref    PutOSFrame_BHL
+xref    RestoreAllAppData
+xref    SaveAllAppData
+xref    ScreenClose
+xref    ScreenOpen
+xref    SetActiveAppDOR
+xref    sub_C2F3
+xref    sub_C39F
+
+;       bank 7
+
+xref    ChkStkLimits
+xref    ClearMemDE_HL
+xref    ClearUnsafeArea
+xref    CopyMTHHelp_App
+xref    DrawTopicWd
+xref    InitUserAreaGrey
+xref    Mailbox2Stack
+xref    OpenAppHelpFile
+xref    OSSr_Fus
 
 defc    AT_B_POPD       =3
 
+;       ----
 
 ;       quit process (application)
 
@@ -166,7 +180,7 @@ defc    AT_B_POPD       =3
         bit     AT_B_POPD, a
         call    z, ApplCaps                     ; not popdown? restore flags (Fc=0)
 
-        call    DrawAppTopicWd
+        call    DrawTopicWd
 
         ld      e, 0                            ; free bad app extra swap memory
         call    sub_C39F
@@ -224,7 +238,7 @@ defc    AT_B_POPD       =3
         ld      (uwAppStaticHnd), ix
         ld      a, (uwAppStaticHnd)
         call    SetActiveAppDOR
-        call    CopyMTH1_2
+        call    CopyMTHHelp_App
         ld      bc, NQ_Ain
         OZ      OS_Nq                           ; enquire (fetch) parameter
         ld      (ubAppDORFlags), a
@@ -239,7 +253,7 @@ defc    AT_B_POPD       =3
         ld      (pAppHelpHandle), ix
         ld      a, (ix+fhnd_Bank)
         ld      (ubAppHelpBank), a
-        call    CopyMTH1_2
+        call    CopyMTHHelp_App
 .osent_13
         pop     ix
         ld      hl, $1FFE
@@ -463,7 +477,7 @@ defc    AT_B_POPD       =3
         inc     hl
         inc     hl
         ld      a, (ubAppBindings+3)
-        call    JumpToAHL
+        call    JpAHL
 
         ex      af, af'
         jr      nc, arm_1
@@ -515,16 +529,15 @@ defc    AT_B_POPD       =3
 .InitAppMTH
         ld      (ubHlpActiveApp), a
 
-.loc_C9C6
+.InitHlpActiveHelp
         ld      a, 1
 
-.loc_C9C8
+.SetHlpActiveHelp
         ld      (ubHlpActiveHelp), a
         ld      a, 1
         ld      (ubHlpActiveTpc), a
 
-.InitActiveCommand
+.InitHlpActiveCmd
         ld      a, 1
         ld      (ubHlpActiveCmd), a
         ret
-

@@ -10,13 +10,24 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    Reset2                                  ; Reset1
 
-xref	InitData
-xref	LowRAMcode
-xref	LowRAMcode_e
+;       bank 0
+
+xref    InitBufKBD_RX_TX
+xref    KPrint
+xref    Reset3
+xref    ResetHandles
+xref    ResetTimeout
+
+;       bank 7
+
+xref    InitData
+xref    LowRAMcode
+xref    LowRAMcode_e
+
+;       ----
 
 .Reset2
         xor     a

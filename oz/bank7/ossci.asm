@@ -10,10 +10,16 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    OsSci
 
+;       bank 0
+
+xref    InitSBF
+xref    ScreenClose
+xref    ScreenOpen
+
+;       ----
 
 .Table
         defb 0, 3, 6, 7, 5, 5                   ; #low bits ignored

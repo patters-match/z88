@@ -10,8 +10,29 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
+ IF     FINAL=0
+
+defc    INTEntry                =$dead
+defc    NMIEntry                =$dead
+defc    CallErrorHandler        =$dead
+defc    OZBuffCallTable         =$dead
+defc    OZCallTable             =$dead
+
+ ELSE
+        include "kernel.def"
+ ENDIF
+
+
+xdef    DefErrHandler
+xdef    INTReturn
+xdef    JpAHL
+xdef    OZ_BUF
+xdef    OZ_SCF
+xdef    OZCallJump
+xdef    OZCallReturn1
+xdef    OZCallReturn2
+xdef    OZCallReturn3
 
 ; this code is copied to 0000 - 01A4
 
@@ -73,9 +94,11 @@
 
         jp      OZCallReturn1                   ; 0048
         jp      OZCallReturn0                   ; 004B
+.OZ_BUF
         jp      OZBUFmain                       ; 004E
         jp      OZDImain                        ; 0051
         jp      OZEImain                        ; 0054
+.OZ_SCF
         jp      OZSCFmain                       ; 0057
 
         defs    4*3 ($ff)
@@ -119,7 +142,6 @@
         ret
 
 ; 0095
-
 .OZCallJump
         pop     af                              ; restore S3
         ld      (BLSC_SR3), a
@@ -128,8 +150,7 @@
         ret
 
 ; 009d
-
-.INTret
+.INTReturn
         pop     af                              ; restore S3
         ld      (BLSC_SR3), a
         out     (BL_SR3), a
@@ -202,7 +223,6 @@
         ret
 
 ; 00d4
-
 .JpAHL
         call    MS3BankA
         ex      af, af'

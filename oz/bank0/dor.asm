@@ -10,39 +10,44 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
-xdef    OSDor
 xdef    DORHandleFree                           ; get rid of these two stubs 
 xdef    DORHandleFreeDirect
-xdef    GetHandlePtr
 xdef    DORHandleInUse
+xdef    GetHandlePtr
 xdef    loc_CD42                                ; move this to InitHandle (misc1.asm)
+xdef    OSDor
 xdef    VerifyHandleBank
 
+;       bank 0
 
-xref    OSFramePush
-xref    OSFramePop
-xref    PeekHLinc
-xref    PeekHL
-xref    AllocHandle
-xref    PutOSFrame_BC
-xref    MS2HandleBank
-xref    FreeHandle
-xref    AllocHandleBlock
-xref    MS2BankB
-xref    MemPtr2FilePtr
-xref    FreeMemData
-xref    AddAvailableFsBlock
 xref    _MS2BankA
+xref    AddAvailableFsBlock
+xref    AllocHandle
+xref    AllocHandleBlock
 xref    ClearMemHL_A
 xref    CopyMemDE_HL
 xref    CopyMemHL_DE
-xref    GetOSFrame_DE
 xref    FindHandle
+xref    FreeHandle
+xref    FreeMemData
+xref    GetOSFrame_DE
+xref    MemPtr2FilePtr
 xref    MS2BankA
+xref    MS2BankB
+xref    MS2HandleBank
+xref    OSFramePop
+xref    OSFramePush
+xref    PeekHL
+xref    PeekHLinc
+xref    PutOSFrame_BC
 xref    VerifyHandle
 
+;       bank 7
+
+xref    InitHandle
+
+;       ----
 
 .OSDor
         call    OSFramePush

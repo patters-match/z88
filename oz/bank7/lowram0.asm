@@ -6,11 +6,11 @@
 
         Module LowRAM0
 
-xdef	LowRAMcode
-xdef	LowRAMcode_e
+xdef    LowRAMcode
+xdef    LowRAMcode_e
 
 .LowRAMcode
 
-        binary  "lowram.bin"
+        binary  "bank7/lowram.bin"
 
 .LowRAMcode_e

@@ -9,4 +9,4 @@
         org     $8000                           ; 3840 bytes
 
 
-        binary  "font.dat"
+        binary  "bank7/font.dat"

@@ -10,7 +10,6 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
 xdef    OSGth
 xdef    OSFth

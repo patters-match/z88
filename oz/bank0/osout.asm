@@ -8,15 +8,21 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
         org     $c449                           ; 22 bytes
 
 xdef    OSOut
 
+;       bank 0
+
 xref    OSFramePush
 xref    osfpop_1
 
+;       bank 7
+
+xref    OSOutMain
+
+;       ----
 
 ;       write   character to standard output
 

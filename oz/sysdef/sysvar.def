@@ -626,3 +626,11 @@ defc	IN_MEN		=$E5
 defc	IN_IDX		=$E6
 defc	IN_HLP		=$E7
 defc	IN_LOCK		=$E8
+
+;	should get rid of these later
+
+defc	PrntChar		=$afc0
+defc	PrntCtrlSeq		=$afc3
+defc	PrntInit		=$afc6
+
+defc	RS232code		=$a500

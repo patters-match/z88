@@ -10,12 +10,19 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    Reset5                                  ; Reset4
 
-xref	TimeReset
+;       bank 0
 
+xref    MountAllRAM
+xref    OSSp_PAGfi
+
+;       bank 7
+
+xref    TimeReset
+
+;       ----
 
 .Reset5
         call    TimeReset

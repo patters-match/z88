@@ -10,7 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
+        include "bank7\lowram.def"
 
 xdef    OSEsc
 xdef    TestEsc

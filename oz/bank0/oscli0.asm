@@ -10,12 +10,20 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
+        include "bank7\lowram.def"
 
 xdef    OSCli
 
-xref    OSFramePush
+;       bank 0
+
 xref    OSFramePop
+xref    OSFramePush
+
+;       bank 7
+
+xref    OSCliMain
+
+;       ----
 
 .OSCli                                          
         ex      af, af'

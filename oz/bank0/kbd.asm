@@ -10,22 +10,30 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
 ;       !! do not modify this code
 ;       !! it's all rewritten already
 
-xdef    KbdMain
 xdef    ApplyQualifiers
 xdef    DoLocalized
+xdef    KbdMain
 
-xref    MS2BankK1
-xref    UpdateRnd
-xref    MS2BankA
-xref    MaySetEsc
+;       bank 0
+
 xref    BufWriteC
 xref    DrawOZwd
+xref    MaySetEsc
+xref    MS2BankA
+xref    MS2BankK1
 xref    SwitchOff
+xref    UpdateRnd
+
+;       bank 7
+
+xref    KbdDeadKeys
+xref    Key2Code
+
+;       ----
 
 .KbdMain
         ld      a, (BLSC_SR2)

@@ -6,5 +6,5 @@
 
         Module AddDORs0
 
-        binary  "appdors.bin"
+        binary  "bank7/appdors.bin"
 

@@ -10,15 +10,22 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
-xdef    InitSBF
 xdef    InitApplWd
+xdef    InitSBF
 xdef    InitWindowFrame
+xdef    ResetWdAttrs
 
-xref    KPrint
+;       bank 0
+
 xref    DrawOZwd
+xref    KPrint
 
+;       bank 7
+
+xref    Zero_ctrlprefix
+
+;       ----
 
 .InitOZwd
         call    KPrint

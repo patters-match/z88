@@ -10,7 +10,6 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 
 xdef    DoHelp
@@ -26,7 +25,52 @@ xdef    DrawTopicWd
 xdef    InitTopicWd
 xdef    InitHelpWd
 
-xref	InitUserAreaGrey
+xref    InitUserAreaGrey
+
+xref    aRom_Help
+xref    Beep_X
+xref    ChgHelpFile
+xref    CopyAppPointers
+xref    DORHandleFree
+xref    DrawCmdHelpWd
+xref    DrawTopicHelpWd
+xref    FilenameDOR
+xref    Get2ndTopicHelp
+xref    GetCmdAttrByNum
+xref    GetFirstCmdHelp
+xref    GetFirstNonInfoTopic
+xref    GetFirstTopicHelp
+xref    GetHlp_sub
+xref    GetHlpHelp
+xref    GetNextCmdHelp
+xref    GetNextNonInfoTopic
+xref    GetNextTopicHelp
+xref    GetNonInfoTopicByNum
+xref    GetTpcAttrByNum
+xref    InitHlpActiveCmd
+xref    InitHlpActiveHelp
+xref    InputEmpty
+xref    KPrint
+xref    DrawMenuWd
+xref    MayMTHPrint
+xref    MTH_ToggleLT
+xref    MTHPrintKeycode
+xref    MTHPrint
+xref    MTHPrintTokenized
+xref    NextAppDOR
+xref    PrevAppDOR
+xref    PrintTopic
+xref    PrntAppname
+xref    RdStdinNoTO
+xref    ReserveStkBuf
+xref    SetActiveAppDOR
+xref    SetHlpActiveHelp
+xref    SetHlpAppChgFile
+xref    sub_EF92
+xref    sub_EFBB
+xref    GetNextCmdAttr
+
+;       ----
 
 ; handle menu/help/index from OSTin
 
@@ -203,7 +247,7 @@ xref	InitUserAreaGrey
 
         ld      a, IN_ENTER
 .dmwd_2
-        call    MTHExpandChar                   ; 3. line - action/detail
+        call    MTHPrintKeycode                   ; 3. line - action/detail
         inc     hl
         OZ      GN_Sop                          ; write string to std. output
         ret

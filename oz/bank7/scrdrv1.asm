@@ -10,7 +10,6 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 ;       most of these xdefs/xrefs go away if all screen code is moved to bank 7
 ;       second part of code is at $f90c-fdf4
@@ -23,7 +22,7 @@ xdef    OSIsq                                   ; Printer driver
 xdef    OSWsq
 xdef    StorePrefixed                           ; Printer driver
 xdef    InitUserAreaGrey                        ; MTH, OS_Ent
-xdef	ScrD_GetMargins				; NqSp
+xdef    ScrD_GetMargins                         ; NqSp
 
 xdef    VDU2ChrCode                             ; NqRDS    all these are screen related code in b00
 xdef    GetCrsrYX                               ; NqRDS
@@ -33,7 +32,40 @@ xdef    ScrD_GetNewXY                           ; screen driver code reference
 xdef    GetWindowNum                            ; screen driver code reference
 xdef    ScrDrvAttrTable                         ; screen driver code reference
 
+;       bank 0
 
+xref    AtoN_upper
+xref    CallFuncDE
+xref    Chk128KB
+xref    ClearCarry
+xref    ClearEOL
+xref    ClearEOW
+xref    ClearScr
+xref    CopyMemDE_BHL
+xref    CursorDown
+xref    CursorLeft
+xref    CursorRight
+xref    CursorUp
+xref    InitWindowFrame
+xref    KPrint
+xref    MoveToXY
+xref    NewXValid
+xref    NewYValid
+xref    OSBlp
+xref    PutBoxChar
+xref    ResetScrAttr
+xref    ResetWdAttrs
+xref    ScrDrvGetAttrBits
+xref    ScreenBL
+xref    ScreenClose
+xref    ScreenCR
+xref    ScreenOpen
+xref    ScrollDown
+xref    ScrollUp
+xref    SetScrAttr
+xref    FindSDCmd
+xref    TogglePrFilter
+xref    ToggleScrDrvFlags
 
 ;       ----
 
@@ -467,7 +499,7 @@ xdef    ScrDrvAttrTable                         ; screen driver code reference
 .oprfx_3
         ld      a, (sbf_VDUbuffer)
         ld      de, ScrDrvCmdTable
-        call    sub_FB26                        ; find cmd in table, return func in DE
+        call    FindSDCmd                       ; find cmd in table, return func in DE
         jr      oprfx_2
 
 ;       ----

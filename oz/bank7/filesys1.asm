@@ -10,7 +10,6 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    IsSpecialHandle
 xdef    OpenMem
@@ -18,8 +17,22 @@ xdef    OSRen
 xdef    OSDel
 xdef    FileNameDate
 
-xref	FreeMemHandle
+;       bank 0
 
+xref    AllocHandle
+xref    CopyMemHL_DE
+xref    DORHandleFree
+xref    DORHandleFreeDirect
+xref    DORHandleInUse
+xref    GetOSFrame_HL
+xref    InitMemHandle
+xref    RewindFile
+xref    MvToFile
+xref    VerifyHandle
+
+;       bank 7
+
+xref    FreeMemHandle
 
 ;       ----
 
@@ -51,7 +64,7 @@ xref	FreeMemHandle
         ld      b, 0
         call    MvToFile
         ld      (ix+fhnd_attr), 7
-        jp      nc, loc_F245
+        jp      nc, RewindFile
 .omem_1
         jp      FreeMemHandle
 .omem_2

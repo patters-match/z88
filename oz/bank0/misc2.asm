@@ -8,7 +8,7 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
+        include "bank7\lowram.def"
 
         org     $c101                           ; 261 bytes
 
@@ -21,18 +21,27 @@ xdef    OSPrt
 xdef    OSPrtMain
 xdef    OzCallInvalid
 
-xref    MS2BankB
-xref    OSFramePushMain
-xref    MS2BankA
-xref    MS2BankK1
-xref    OSFramePush
-xref    ScreenOpen
-xref    ScreenClose
-xref    OSFramePop
-xref    PrFilterCall
+;       bank 0
+
 xref    GetOSFrame_BC
-xref    SetPendingOZwd
+xref    MS2BankA
+xref    MS2BankB
+xref    MS2BankK1
 xref    osfpop_1
+xref    OSFramePop
+xref    OSFramePush
+xref    OSFramePushMain
+xref    PrFilterCall
+xref    ScreenClose
+xref    ScreenOpen
+xref    SetPendingOZwd
+
+;       bank 7
+
+xref    OSAlmMain
+xref    OSEprTable
+xref    OSIsq
+xref    StorePrefixed
 
 ;       ----
 

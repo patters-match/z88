@@ -8,39 +8,45 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
         org     $c206                           ; 579 bytes
 
 ;       mostly bad application memory routines
 
+xdef    AllocBadRAM1
+xdef    BadAllocAndSwap
+xdef    BadSwapAndFree
+xdef    FreeBadRAM
+xdef    IsBadUgly
 xdef    NQAin
 xdef    OSDom
-xdef    AllocBadRAM1
-xdef    FreeBadRAM
-xdef    BadAllocAndSwap
 xdef    sub_C2F3
-xdef    BadSwapAndFree
 xdef    sub_C39F
-xdef    IsBadUgly
 
-xref    GetAppDOR
-xref    PutOSFrame_DE
-xref    PutOSFrame_BHL
-xref    FirstFreeRAM
+;       bank 0
+
 xref    Chk128KB
-xref    FollowPageN
-xref    MarkPageAsAllocated
-xref    MATPtrToPagePtr
-xref    PageNToPagePtr
 xref    Chk128KBslot0
-xref    MS1BankA
+xref    FirstFreeRAM
+xref    FollowPageN
 xref    fsMS2BankB
 xref    fsRestoreS2
+xref    GetAppDOR
+xref    MarkPageAsAllocated
+xref    MATPtrToPagePtr
+xref    MS1BankA
 xref    MS2BankA
+xref    PageNToPagePtr
+xref    PutOSFrame_BHL
+xref    PutOSFrame_DE
 
+;       bank 7
+
+xref    CopyMTHApp_Help
 
 defc    FREE_THIS       =7
+
+;       ----
 
 ;IN:    IX=application ID
 ;OUT:   application data: A=flags, C=key, BHL=name, BDE=DOR
@@ -76,7 +82,7 @@ defc    FREE_THIS       =7
         OZ      OS_Box                          ; Restore bindings after OS_Bix
         or      a
 .nqain_x
-        jp      loc_9FE6                        ; copy 15 bytes from $03d4 to $028c and ret
+        jp      CopyMTHApp_Help                 ; copy app pointers over help pointers
 
 ;       ----
 

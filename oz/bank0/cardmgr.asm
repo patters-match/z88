@@ -10,19 +10,26 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
-xdef    IntFlap
 xdef    AddRAMCard
+xdef    IntFlap
 
-xref    MS2BankK1
+;       bank 0
+
 xref    Delay300Kclocks
-xref    NMIMain
-xref    MS12BankCB
-xref    InitSlotRAM
 xref    ExpandMachine
+xref    InitSlotRAM
 xref    MountAllRAM
+xref    MS12BankCB
+xref    MS2BankK1
+xref    NMIMain
 
+;       bank 7
+
+xref    ChkCardChange
+xref    StoreCardIDs
+
+;       ----
 
 .IntFlap                                        
         ld      bc, (BLSC_SR1)                  ; remember S1/S2

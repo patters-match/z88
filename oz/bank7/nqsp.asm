@@ -10,14 +10,44 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    OSSpMain
 xdef    OSNqMain
+xdef    RstRdPanelAttrs
 
-xref	ScrD_GetMargins
-xref	GetCrsrYX
-xref	OSNqProcess
+;       bank 0
+
+xref    ClearMemHL_A
+xref    CopyMemDE_HL
+xref    FreeMemData
+xref    GetOSFrame_DE
+xref    GetOSFrame_HL
+xref    GetWdStartXY
+xref    GetWindowFrame
+xref    InitFsMemHandle
+xref    NqRDS
+xref    NqSp_ret
+xref    OSNqMemory
+xref    OSSp_89
+xref    OSSp_PAGfi
+xref    PeekHLinc
+xref    PokeHLinc
+xref    PutOSFrame_BC
+xref    PutOSFrame_DE
+xref    PutOSFrame_HL
+xref    RdFileByte
+xref    ScreenClose
+xref    ScreenOpen
+xref    SetMemHandlePos
+xref    WrFileByte
+
+;       bank 7
+
+xref    ScrD_GetMargins
+xref    GetCrsrYX
+xref    OSNqProcess
+
+;       ----
 
 .OSNqWindow
         cp      9                               ; range check
@@ -195,7 +225,7 @@ xref	OSNqProcess
         call    SetMemHandlePos
 
 .nqp_3
-        call    RdFile                          ; attribute ID
+        call    RdFileByte                          ; attribute ID
         jr      c, nqp_ret                      ; error? exit
         or      a
         jr      z, nqp_def                      ; end of data? use default value
@@ -206,7 +236,7 @@ xref	OSNqProcess
         jr      nqp_3
 
 .nqp_4
-        call    RdFile                          ; attribute length
+        call    RdFileByte                          ; attribute length
         jr      c, nqp_ret
         ld      c, a                            ; store
         call    NqGetDest                       ; get destination buffer
@@ -217,7 +247,7 @@ xref	OSNqProcess
 
         push    af                              ; remember return code
 .nqp_5
-        call    RdFile                          ; read byte and put it into buffer
+        call    RdFileByte                          ; read byte and put it into buffer
         call    PokeHLinc
         dec     c
         jr      nz, nqp_5                       ; loop until C bytes done
@@ -313,14 +343,14 @@ xref	OSNqProcess
 ;       ----
 
 .SkipAttr
-        call    RdFile
+        call    RdFileByte
         ret     c                               ; error? exit
         ld      b, a                            ; length to B, exit if 0
         or      a
         ret     z
 
 .ska_1
-        call    RdFile
+        call    RdFileByte
         ret     c
         djnz    ska_1
         ret
@@ -361,11 +391,11 @@ xref	OSNqProcess
         ret     c
 .RestoreWrByte
         call    RestoreVars
-        jp      WrFile
+        jp      WrFileByte
 
 .SaveRdByte
         call    SaveVars
-        jp      RdFile
+        jp      RdFileByte
 
 ;       ----
 
@@ -472,11 +502,11 @@ xref	OSNqProcess
 
         ld      c, -1
         ld      a, (iy+OSFrame_C)                ; reason
-        call    WrFile
+        call    WrFileByte
         jr      c, spp_11
 
         ld      a, (iy+OSFrame_A)               ; length
-        call    WrFile
+        call    WrFileByte
         jr      c, spp_11
         or      a
         jr      z, spp_10                       ; length zero? done
@@ -486,14 +516,14 @@ xref	OSNqProcess
 .spp_9
         push    bc
         call    PeekHLinc                       ; read data
-        call    WrFile                          ; write to file
+        call    WrFileByte                          ; write to file
         pop     bc
         jr      c, spp_11
         djnz    spp_9                           ; until all done
 
 .spp_10
         xor     a                               ; trailing zero
-        call    WrFile
+        call    WrFileByte
         jr      c, spp_11
 
         ld      de, (uwPanelFilePtr)

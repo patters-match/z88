@@ -10,10 +10,15 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    TimeReset                               ; Reset5
 
+;       bank 0
+
+xref    IntSecond
+xref    MS1BankA
+
+;       ----
 
 .TimeReset
         ld      a, $21                          ; bind in b21

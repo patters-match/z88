@@ -10,11 +10,13 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    KbdDeadKeys
 xdef    Key2Code
 
+;       bank 0
+
+xref    DrawOZwd
 
 
 .KbdDeadKeys

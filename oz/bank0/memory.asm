@@ -10,13 +10,14 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
+        include "bank7\lowram.def"
 
         org     $df2a                           ; 2143 bytes
 
 xdef    FollowPageN
 xdef    InitRAM
 xdef    InitSlotRAM
+xdef    MarkPageAsAllocated
 xdef    MarkSwapRAM
 xdef    MarkSystemRAM
 xdef    MATPtrToPagePtr
@@ -36,22 +37,29 @@ xdef    OSNqMemory
 xdef    OSSp_89
 xdef    PageNToPagePtr
 xdef    VerifySlotType
-xdef    MarkPageAsAllocated
 
-xref    AllocHandle
-xref    VerifyHandle
-xref    FreeHandle
-xref    OZwd__fail
-xref    MS1BankA
-xref    PutOSFrame_BHL
-xref    MS2BankA
-xref    MemPtr2FilePtr
-xref    FilePtr2MemPtr
-xref    KPrint
+;       bank 0
+
 xref    AddAvailableFsBlock
-xref    OSFramePush
+xref    AllocHandle
+xref    FilePtr2MemPtr
+xref    FreeHandle
+xref    KPrint
+xref    MemPtr2FilePtr
+xref    MS1BankA
+xref    MS2BankA
 xref    OSFramePop
+xref    OSFramePush
+xref    OZwd__fail
+xref    PutOSFrame_BHL
 xref    PutOSFrame_DE
+xref    VerifyHandle
+
+;       bank 7
+
+xref    MemCallAttrVerify
+
+
 
 defc    DM_RAM                  =$81
 
@@ -162,7 +170,7 @@ defc    DM_RAM                  =$81
 ;       Fc=1, A=error if failed
 
 .OSMalMain
-        call    MemCallSizeVerify
+        call    MemCallAttrVerify
         ret     c                               ; bad size? exit
         jr      z, osmal_page                   ; size=256? allocate whole page
 
@@ -202,7 +210,7 @@ defc    DM_RAM                  =$81
         call    ValidatePage
         jr      c, MemFail1                     ; invalid? crash
 
-        ld      c, (iy+OSFrame_C)               ; size, possibly fixed in MemCallSizeVerify
+        ld      c, (iy+OSFrame_C)               ; size, possibly fixed in MemCallAttrVerify
         push    de                              ; ptr to MATentry
         call    AllocChunk                      ; HL=memory if succesfull
         push    af
@@ -443,7 +451,7 @@ defc    DM_RAM                  =$81
 
 .OSMfrMain
 
-        call    MemCallSizeVerify
+        call    MemCallAttrVerify
         jr      c, mfr_err                      ; bad size? exit
         jr      z, mfr_page                     ; size=256? free whole page
 

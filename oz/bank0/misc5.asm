@@ -10,7 +10,6 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
 xdef    AtoN_upper
 xdef    ClearMemHL_A

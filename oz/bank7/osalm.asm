@@ -10,10 +10,18 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    OSAlmMain
 
+;       bank 0
+
+xref    AllocHandle
+xref    CopyMemHL_DE
+xref    DecActiveAlm
+xref    FreeHandle
+xref    GetOSFrame_HL
+xref    IncActiveAlm
+xref    MaySetPendingAlmTask
 
 ;       ----
 

@@ -10,11 +10,11 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
 xdef    OSSp_PAGfi
 
 xref    PrFilterCall
+xref    RstRdPanelAttrs
 
 .OSSp_PAGfi
         push    ix

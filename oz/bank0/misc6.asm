@@ -10,86 +10,101 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
-xdef    Reset4
-xdef    MountAllRAM
-xdef    OZBuffCallTable
 xdef    Chk128KB
 xdef    Chk128KBslot0
 xdef    FirstFreeRAM
+xdef    MountAllRAM
+xdef    OZBuffCallTable
+xdef    OZCallTable
+xdef    Reset4
 
+;       bank 0
 
-xref    MS2BankK1
-xref    MS1BankA
-xref    BufWrite
-xref    BufRead
-xref    BfPbt
 xref    BfGbt
-xref    BfSta
+xref    BfPbt
 xref    BfPur
-xref    OzCallInvalid
-xref    OSFramePop
-xref    CallOS2byte
-xref    CallGN
+xref    BfSta
+xref    BufRead
+xref    BufWrite
 xref    CallDC
-xref    OSBye
-xref    OSPrt
-xref    OSOut
-xref    OSIn
-xref    OSTin
-xref    OSXin
-xref    OSPur
-xref    OSGb
-xref    OSPb
-xref    OSGbt
-xref    OSPbt
-xref    OSMv
-xref    OSFrm
-xref    OSFwm
-xref    OSMop
-xref    OsMcl
-xref    OSMal
-xref    OSMfr
-xref    OSMgb
-xref    OSMpb
+xref    CallGN
+xref    CallOS2byte
+xref    CopyMemBHL_DE
+xref    MS1BankA
+xref    MS2BankK1
+xref    OSAlm
+xref    OSAxp
+xref    OSBde
 xref    OSBix
+xref    OSBlp
 xref    OSBox
-xref    OSNq
-xref    OSSp
-xref    OSSr
-xref    OSEsc
+xref    OSBye
+xref    OSCl
+xref    OSCli
+xref    OSDly
+xref    OSDom
+xref    OSDor
+xref    OSEnt
+xref    OSEpr
 xref    OSErc
 xref    OSErh
-xref    OSUst
-xref    OSFn
-xref    OSWait
-xref    OSAlm
-xref    OSCli
-xref    OSDor
-xref    OSFc
-xref    OSSi
-xref    OSWtb
-xref    OSWrt
-xref    OSAxp
-xref    OSDly
-xref    OSBlp
-xref    OSBde
-xref    CopyMemBHL_DE
-xref    OSFth
-xref    OSVth
-xref    OSGth
-xref    OSCl
-xref    OSOp
-xref    OSOff
-xref    OSUse
-xref    OSEpr
-xref    OSHt
-xref    OSMap
+xref    OSEsc
 xref    OSExit
+xref    OSFc
+xref    OSFn
+xref    OSFramePop
+xref    OSFrm
+xref    OSFth
+xref    OSFwm
+xref    OSGb
+xref    OSGbt
+xref    OSGth
+xref    OSHt
+xref    OSIn
+xref    OSMal
+xref    OSMap
+xref    OsMcl
+xref    OSMfr
+xref    OSMgb
+xref    OSMop
+xref    OSMpb
+xref    OSMv
+xref    OSNq
+xref    OSOff
+xref    OSOp
+xref    OSOut
+xref    OSPb
+xref    OSPbt
+xref    OSPrt
+xref    OSPur
+xref    OSSi
+xref    OSSp
+xref    OSSr
 xref    OSStk
-xref    OSEnt
-xref    OSDom
+xref    OSTin
+xref    OSUse
+xref    OSUst
+xref    OSWait
+xref    OSWrt
+xref    OSWtb
+xref    OSVth
+xref    OSXin
+xref    OzCallInvalid
+
+;       bank 7
+
+xref    OSDel
+xref    OSIsq
+xref    OSPoll
+xref    OSRen
+xref    OSSci
+xref    OSWsq
+xref    RAMDORtable
+xref    RAMxDOR
+xref    Reset5
+
+;       ----
 
 .Reset4
         call    MS2BankK1
@@ -157,7 +172,7 @@ xref    OSDom
         defs    5 ($ff)
 
 ;       org     $ff00
-
+.OZCallTable
         jp      OzCallInvalid
         jp      OSFramePop
         jp      CallOS2byte

@@ -10,35 +10,43 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
-xdef    RdStdinNoTO
-xdef    RdStdin
-xdef    RdKbBuffer
-xdef    OSTin
-xdef    OSIn
-xdef    loc_EECE                                ; !! get rid of this
-xdef    ostin_4
-xdef    sub_EF92
-xdef    ub_EFBB
 xdef    CancelOZcmd
+xdef    loc_EECE                                ; !! get rid of this
+xdef    OSIn
+xdef    OSTin
+xdef    ostin_4
 xdef    PutOZwdBuf
+xdef    RdKbBuffer
+xdef    RdStdin
+xdef    RdStdinNoTO
+xdef    sub_EF92
+xdef    sub_EFBB
 
-xref    UpdateRnd
-xref    ResetTimeout
-xref    MaySetEsc
-xref    OSFramePush
-xref    PutOSFrame_BC
-xref    OSFramePop
-xref    DoAlarms
-xref    MayDrawOZwd
+;       bank 0
+
 xref    ApplyQualifiers
-xref    FindCmd
-xref    DoLocalized
-xref    DrawOZwd
 xref    AtoN_upper
 xref    BfGbt
+xref    DoAlarms
+xref    DoLocalized
+xref    DrawOZwd
+xref    FindCmd
+xref    MayDrawOZwd
+xref    MaySetEsc
+xref    OSFramePop
+xref    OSFramePush
+xref    PutOSFrame_BC
+xref    ResetTimeout
+xref    UpdateRnd
 
+;       bank 7
+
+xref    Chr2ScreenCode
+xref    DoHelp
+xref    Key2Chr_tbl
+
+;       ----
 
 .RdStdinNoTO
         ld      bc, -1

@@ -10,9 +10,14 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
 xdef    OSMap
+
+;       bank 7
+
+xref    OSMapMain
+
+;       ----
 
 ; high resolution graphics manipulation
 

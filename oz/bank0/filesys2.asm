@@ -10,8 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
-
+        include "bank7\lowram.def"
 
 xdef    _MS2BankA
 xdef    MS2HandleBank
@@ -20,10 +19,12 @@ xdef    OSFrm
 xdef    OSFwm
 xdef    OSGb
 xdef    OSGbt
+xdef    OSMv
 xdef    OSOp
 xdef    OSPb
 xdef    OSPbt
-xdef    OSMv
+
+;       bank 0
 
 xref    AllocFirstBlock
 xref    ChgHandleType
@@ -58,6 +59,14 @@ xref    SetFileSize
 xref    VerifyHandle
 xref    VerifyHandleBank
 xref    WrFileByte
+
+;       bank 7
+
+xref    FileNameDate
+xref    IsSpecialHandle
+xref    OpenMem
+xref    OSDel
+xref    OSOutMain
 
 ;       ----
 

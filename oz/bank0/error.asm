@@ -10,7 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
+        include "bank7\lowram.def"
 
 xdef    CallErrorHandler
 xdef    OSErc
@@ -76,13 +76,13 @@ xdef    OSErh
         ld      hl, (pAppErrorHandler)
         pop     af                              ; bank
         push    af
-        call    JumpToAHL
+        call    JpAHL
         pop     af
         ex      af, af'                         ; error/flags from AppErrorHandler
         jr      c, cerh_4
         jr      z, cerh_3                       ; not fatal? exit
         ex      af, af'
-        call    JumpToAHL
+        call    JpAHL
         jr      $PC                             ; crash
 
 .cerh_3

@@ -10,10 +10,19 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 xdef    StoreCardIDs
 xdef    ChkCardChange
+
+;       bank 0
+
+xref    AddRAMCard
+xref    DrawOZwd
+xref    MS1BankA
+xref    OZwd__fail
+xref    OZwd_card
+xref    OZwd_index
+xref    S2VerifySlotType
 
 
 ;       ----
@@ -142,10 +151,10 @@ xdef    ChkCardChange
         exx
         jr      nz, ccc_5                       ; card was active? show "card"
 
-        ld      a, (pMTHTmpHandle+1)
+        ld      a, (pMTHHelpHandle+1)
         or      a
         jr      z, ccc_insert
-        ld      ix, (pMTHTmpHandle)
+        ld      ix, (pMTHHelpHandle)
         ld      a, (ix+$0D)                     ; check if slot matches
         and     $C0
         cp      c

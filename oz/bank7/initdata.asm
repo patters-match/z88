@@ -10,7 +10,7 @@
 
         include "all.def"
 
-xdef	InitData
+xdef    InitData
 
 .InitData
         defb    BL_SR2, 7                       ; SR2=b07

@@ -10,7 +10,6 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
 
 xdef    OSEprTable

@@ -10,16 +10,37 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank0.def"
 
+xdef    OSSR_main
 xdef    OSSr_Sus
 xdef    OSSr_Fus                                ; OS_Ent
 xdef    FreeMemHandle                           ; OpenMem, sub_F669
 
-xref	GetCurrentWdInfo
-xref	InitTopicWd
-xref	DrawTopicWd
-xref	RestoreActiveWd
+;       bank 0
+
+xref    AllocHandle
+xref    CopyMemBHL_DE
+xref    CopyMemDE_BHL
+xref    FixPtr
+xref    FreeHandle
+xref    FreeMemData0
+xref    InitMemHandle
+xref    RewindFile
+xref    MTHPrint
+xref    PutOSFrame_BC
+xref    PutOSFrame_DE
+xref    RestoreScreen
+xref    SaveScreen
+xref    VerifyHandle
+
+;       bank 7
+
+xref    DrawTopicWd
+xref    GetCurrentWdInfo
+xref    InitTopicWd
+xref    RestoreActiveWd
+
+;       ----
 
 .OSSr_Err
         ld      a, RC_Fail
@@ -67,7 +88,7 @@ xref	RestoreActiveWd
         ld      a, HND_PROC
         call    VerifyHandle
         ret     c
-        call    loc_F245
+        call    RewindFile
         call    RestoreScreen
         or      a
         jr      sr_1
@@ -140,7 +161,7 @@ xref	RestoreActiveWd
 
 .FreeMemHandle
         push    af
-        call    sub_F25D
+        call    FreeMemData0
         ld      a, (ix+hnd_Type)
         call    FreeHandle
         pop     af

@@ -8,15 +8,22 @@
 
         org $f1ac                               ; 19 bytes
 
-        include "bank7.def"
 
-xdef    OSSp
-xdef    ret_F1B5
+xdef    NqSp_ret
 xdef    OSNq
+xdef    OSSp
 
-xref    OSFramePush
+;       bank 0
+
 xref    OSFramePop
+xref    OSFramePush
 
+;       bank 7
+
+xref    OSNqMain
+xref    OSSpMain
+
+;       ----
 
 ; set Panel and PrinterEd values
 
@@ -25,7 +32,7 @@ xref    OSFramePop
         call    OSSpMain
         jp      OSFramePop
 
-.ret_F1B5
+.NqSp_ret
         ret
 
 ; read Panel and PrinterEd values

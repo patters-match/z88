@@ -8,23 +8,31 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
         org     $c07b                           ; 134 bytes
 
-xdef    Reset1
 xdef    Bootstrap2
-xdef    Reset3
 xdef    ExpandMachine
+xdef    Reset1
+xdef    Reset3
 
-xref    VerifySlotType
-xref    InitRAM
-xref    MarkSystemRAM
-xref    MarkSwapRAM
-xref    MS2BankK1
-xref    Reset4
+;       bank 0
+
 xref    Chk128KB
 xref    FirstFreeRAM
+xref    InitRAM
+xref    MarkSwapRAM
+xref    MarkSystemRAM
+xref    MS2BankK1
+xref    Reset4
+xref    VerifySlotType
+
+;       bank 7
+
+xref    Reset2
+xref    RstRdPanelAttrs
+
+;       ----
 
 ;       code in ROM, SP points to ROM too
 

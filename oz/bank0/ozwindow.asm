@@ -8,7 +8,6 @@
 
         include "all.def"
         include "sysvar.def"
-        include "bank7.def"
 
         org     $f9d2                           ; 280 bytes
 
