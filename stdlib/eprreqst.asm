@@ -17,9 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB ApplEprType
-     LIB SafeSegmentMask
-     LIB MemReadByte
+     LIB ApplEprType, MemReadByte
 
      include "error.def"
      include "memory.def"
@@ -215,11 +213,7 @@
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
                     OR   B                   
                     LD   B,A                 ; bank B of slot C...
-
-                    CALL SafeSegmentMask     ; Get a safe segment address mask
-                    OR   $3F                 ; address $3Fxx in bank B
-                    LD   H,A
-                    LD   L,0                 ; address $3F00 in bank B of slot C
+                    LD   HL, $3F00
 
                     LD   A,$FC
                     CALL MemReadByte
