@@ -85,6 +85,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     JR   C, no_flashcard     ; no ID's were polled from a (potential FE card) 
 
                     CALL MemDefBank          ; restore original bank in segment 1
+                    POP  AF                  ; old interrupt status
+                    CALL OZ_EI               ; enable IM 1 interrupts again...
                     
                     CALL VerifyCardID        ; verify Flash Memory ID with known Manufacturer & Device Codes
                     JR   C, unknown_flashmem
@@ -95,10 +97,9 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     RET                      ; Fc = 0, Fz = 1
 .no_flashcard
                     CALL MemDefBank          ; restore original bank in segment 1 (defined in BC)
-.unknown_flashmem
                     POP  AF                  ; old interrupt status
                     CALL OZ_EI               ; enable IM 1 interrupts again...
-                    
+.unknown_flashmem                    
                     LD   A, RC_NFE
                     SCF                      ; signal error...
 
