@@ -1169,13 +1169,11 @@ public final class Blink extends Z80 {
 		}
 
 		if ( ((bits & Blink.BM_COMLCDON) == Blink.BM_COMLCDON) && ((COM & Blink.BM_COMLCDON) == 0)) {
-			System.out.println("LCD enabled.");
 			z88Display.start();
 		}
 
 		if ( ((bits & Blink.BM_COMLCDON) == 0) && ((COM & Blink.BM_COMLCDON) == Blink.BM_COMLCDON)) {
 			z88Display.stop();
-			System.out.println("LCD disabled.");
 		}
 
 		COM = bits;
@@ -1428,26 +1426,14 @@ public final class Blink extends Z80 {
 
 
 	public void startInterrupts() {
-		System.out.println("Starting Blink interrupts to Z80");
 		z80Int.start();
-
-        System.out.println("Starting Rtc");
-		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) {
-			rtc.start();
-		}
-        
-        System.out.println("Starting Z88 Screen renderer.");
+		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) rtc.start();        
         z88Display.start();
 	}
 
 	public void stopInterrupts() {
-		System.out.println("Stopping Blink interrupts to Z80");
-		z80Int.stop();
-        
-        System.out.println("Stopping Rtc");
-        rtc.stop();
-        
-        System.out.println("Stopping Z88 Screen renderer.");
+		z80Int.stop();        
+        rtc.stop();        
         z88Display.stop();
 	}
 

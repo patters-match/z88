@@ -276,7 +276,7 @@ public class OZvm {
 		dzRegisters.append(" ").append("R=").append(z88.R()).append("\n");
 		z88.ex_af_af();
 		
-		System.out.println(dzRegisters);
+		System.out.println("\n" + dzRegisters);
 	}
 	
 	/**
