@@ -395,6 +395,8 @@ public abstract class Z80 {
 
 		REFRESH( 1 );
 
+		disassemble(PC());		// display some instruction stuff to the console, if enabled...
+		
 		switch ( nxtpcb() ) {
 
 		case 0:    /* NOP */
