@@ -7,11 +7,11 @@ import gameframe.input.*;
 import gameframe.*;
 
 /**
- * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
- *
- * The display renderer of the Z88 virtual machine.
+ * The display renderer of the Z88 virtual machine, called each 10ms, 20ms or 40ms,
+ * depending on speed of JVM.
  * 
  * $Id$
+ * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  * 
  */
 
@@ -34,7 +34,7 @@ public class Z88display
 	private static final int attrUnd = 0x02;	// Font attribute Underline Mask (LORES1)
 	private static final int attrNull = attrHrs | attrRev | attrGry;	// Null character (6x8 pixel blank)
 
-	private Blink blink; 						// access to Blink hardware (memory, screen, keyboard, timers...)
+	private Blink blink = null;					// access to Blink hardware (memory, screen, keyboard, timers...)
 	private TimerTask renderPerMs = null;
 
 	private GraphicsEngine gfxe = null;
@@ -85,15 +85,14 @@ public class Z88display
 	 * 
 	 * May be called manually (ie. to refresh window in an out-of-focus scenario).
 	 */
-	public void renderDisplay() throws GameFrameException {
-				
+	public void renderDisplay() throws GameFrameException {				
 		lores0 = blink.getPb0();	// Memory base address of 6x8 pixel user defined fonts.		
 		lores1 = blink.getPb1();	// Memory base address of 6x8 pixel fonts (normal, bold, Tiny)
 		hires0 = blink.getPb2();	// Memory base address of PipeDream Map (max 256x64 pixels)
 		hires1 = blink.getPb3();	// Memory base address of 8x8 pixel fonts for OZ window
 		sbr = blink.getSbr();		// Memory base address of Screen Base File (2K) 
 		
-		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) return;		// LCD enabled, but the Screen Registers hasn't been setup yet...
+		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) return;		// LCD enabled, but one of the Screen Registers hasn't been setup yet...
 						 		
 		bankLores0 = lores0 >>> 16; lores0 &= 0x3FFF;  // convert to bank, offset
 		bankLores1 = lores1 >>> 16; lores1 &= 0x3FFF;
@@ -118,10 +117,7 @@ public class Z88display
 						drawHiresChar(scrBaseCoordX, scrBaseCoordY, scrCharAttr, scrChar);
 						scrBaseCoordX += 8;							
 					}
-				}
-                
-                // safety: if 640 - X coordinate is less than 6 pixels, then abort inner loop..
-                if (Z88SCREENWIDTH - scrBaseCoordX < 6) break;
+				}                
 			}
 						
 			// when a complete row (8 pixels deep) has been rendered,
@@ -141,15 +137,15 @@ public class Z88display
 			scrBaseCoordX = 0;
 		}
 		
-		if (cbm != null) cbm.finalize();			// release the bitmap to the system; it's been dumped to video previously and is now useless...			
-		cbm = gfxe.createBitmap(displayMap, true);	// then, create a new bitmap with our screen pixel data
-		cbm.drawTo(0,0); 							// and paint to back buffer
+		if (cbm != null) cbm.finalize();            // release the bitmap to the system; it's been dumped to video previously and is now useless...
+		cbm = gfxe.createBitmap(displayMap, true); // then, create a new bitmap with our screen pixel data
+		cbm.drawTo(0,0);                          // and paint to back buffer
 		gfxe.flip();								// finally, make back buffer visible...		
 	}
 
 	
 	private void drawLoresChar(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
-		int bank, bit, y; 
+        int bank, bit, y; 
 		int pxOn, pxColor;
 
 		int offset = ((charAttr & 1) << 8) | scrChar;
@@ -165,7 +161,10 @@ public class Z88display
 		// define pixel colour; clear ON or GREY
 		pxOn = ((charAttr & attrGry) == 0) ? PXCOLON : PXCOLGREY;
 
-		// render 8 pixel rows of scrChar
+        // safety: if 640 - X coordinate is less than 6 pixels, then abort...
+        if (Z88SCREENWIDTH - scrBaseCoordX < 6) return;
+
+		// render 8 pixel rows of 6 pixel wide scrChar
 		for(y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
 			int charBits = blink.getByte(offset++, bank);	// fetch current pixel row of char
 			if ( (charAttr & attrRev) == attrRev) charBits = ~charBits;
@@ -205,7 +204,10 @@ public class Z88display
 		// define pixel colour; clear ON or GREY
 		pxOn = ((charAttr & attrGry) == 0) ? PXCOLON : PXCOLGREY;
 
-		// render 8 pixel rows of scrChar
+        // safety: if 640 - X coordinate is less than 8 pixels, then abort...
+        if (Z88SCREENWIDTH - scrBaseCoordX < 8) return;
+
+        // render 8 pixel rows of 8 pixel wide scrChar
 		for(int y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {				
 			int charBits = blink.getByte(offset++, bank);	// fetch current pixel row of char
 			if ( (charAttr & attrRev) == attrRev) charBits = ~charBits;
@@ -216,8 +218,7 @@ public class Z88display
 		}			 			
 	}
     
-    private void flashCounter() {
-    	
+    private void flashCounter() {    	
     }
 	
 	private final class RenderPerMs extends TimerTask {
