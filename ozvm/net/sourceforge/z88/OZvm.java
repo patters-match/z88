@@ -34,7 +34,7 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.3.5.3";
+	public static final String VERSION = "0.3.5.4";
 	public static boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
 	private Blink z88 = null;
@@ -288,7 +288,7 @@ public class OZvm implements KeyListener {
 		displayCmdOutput("bpd <extended address> - Toggle display breakpoint");
 		displayCmdOutput("sr - Blink: Segment Register Bank Binding");
 		displayCmdOutput("r - Display current Z80 Registers");
-		displayCmdOutput("f/F - Display current Z80 Flag Register");
+		displayCmdOutput("f/F - Display current Z80 Flag Register");		
 		displayCmdOutput("cls - Clear command output area\n");
 		displayCmdOutput("Registers are edited using upper case, ex. A 01 and SP 1FFE");
 		displayCmdOutput("Alternate registers are specified with ', ex. A' 01 and BC' C000");
@@ -906,10 +906,10 @@ public class OZvm implements KeyListener {
 			for (int dzLines = 0;  dzLines < 16; dzLines++) {
 				int origAddr = dzAddr; 
 				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, false, true);
-				displayCmdOutput(Dz.extAddrToHex(origAddr,false) + " " + dzLine);
+				displayCmdOutput(Dz.extAddrToHex((dzBank << 16) | origAddr,false) + " " + dzLine);
 			}
 
-			commandInput.setText("d " + Dz.extAddrToHex(dzAddr,false));
+			commandInput.setText("d " + Dz.extAddrToHex((dzBank << 16) | dzAddr,false));
 		}		
 		commandInput.setCaretPosition(commandInput.getDocument().getLength());
 		commandInput.selectAll();			
@@ -988,7 +988,8 @@ public class OZvm implements KeyListener {
 
 			if (memAddr > 65535) {
 				memBank = (memAddr >>> 16) & 0xFF;
-				memAddr &= 0x3FFF;
+				memAddr &= 0xFFFF;
+				localAddressing = false;
 			} else {
 				if (cmdLineTokens[1].length() == 6) {
 					// bank defined as '00'
@@ -1024,11 +1025,11 @@ public class OZvm implements KeyListener {
 			for (int memLines = 0;  memLines < 16; memLines++) {
 				int origAddr = memAddr; 				
 				memAddr = getMemoryAscii(memLine, memAddr, memBank);
-				memAddr &= 0x3FFF; // stay within bank boundary..
-				displayCmdOutput(Dz.extAddrToHex(origAddr,false) + " " + memLine.toString());
+				memAddr &= 0xFFFF; // stay within bank boundary..
+				displayCmdOutput(Dz.extAddrToHex((memBank << 16) | origAddr,false) + " " + memLine.toString());
 			}
 
-			commandInput.setText("m " + Dz.extAddrToHex(memAddr,false));
+			commandInput.setText("m " + Dz.extAddrToHex((memBank << 16) | memAddr,false));
 		}
 		
 		commandInput.setCaretPosition(commandInput.getDocument().getLength());		
