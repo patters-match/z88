@@ -118,8 +118,7 @@ Module SelectCard
                          CALL DispSlotSize
                          jp   nextline
 .poll_for_rom_card
-                    ld   a,(curslot)
-                    ld   c,a
+                    ld   h,c                      ; preserve a copy of slot nubmer...
                     call ApplEprType
                     jr   c, poll_for_eprom_card
                          ld   hl, epromdev
@@ -151,6 +150,7 @@ Module SelectCard
                          call_oz(Gn_Sop)
                          jp   nextline
 .poll_for_eprom_card
+                    ld   c,h                      ; poll slot C...
                     call FileEprRequest
                     jr   c, empty_slot
                     jr   nz, empty_slot
