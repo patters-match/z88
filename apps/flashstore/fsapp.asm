@@ -310,7 +310,7 @@ ENDIF
                     jr   nz, no_fileepr      ; no header was found, but a card was available of some sort
                          inc  e              ; File Eprom found
                          pop  hl
-                         ld   (hl),d         ; size of file eprom in 16K banks
+                         ld   (hl),c         ; size of file eprom in 16K banks
                          inc  hl
                          push hl
                          jr   next_slot
@@ -1758,7 +1758,7 @@ ENDIF
                          LD   C,3
                          CALL ApplEprType
                          JR   C, displ_noaplepr
-                              LD   HL,fmt2_ms     ; "No File Area on Application Rom."
+                              LD   HL,fmt2_ms     ; "No File Area on Application Card."
                               CALL sopnln
                               JR   ackn_format
 .displ_noaplepr
@@ -1818,16 +1818,16 @@ ENDIF
                     defb 1, 0, 0, 0, 0, 0
 
 .hdrerr_ms          defm "Header not written properly!",$0D,$0A,0
-.applc_full_ms      defm "No room for File Area on Application Rom.",$0D,$0A,0
+.applc_full_ms      defm "No room for File Area on Application Card.",$0D,$0A,0
 .fferr_ms           defm "File Area was not formatted/erased properly!",$0D,$0A,0
-.ffm1_br            defm "FORMAT FLASH EPROM",0
-.ffm2_br            defm "Formatting Flash Eprom - please wait...",0
+.ffm1_br            defm "FORMAT FLASH CARD",0
+.ffm2_br            defm "Formatting Flash Card - please wait...",0
 .sure_ms            defm 1,"2+C",13,"Format (or create new) area in slot 3? ",0
 .wroz_ms            DEFM " Writing File Eprom Header...",$0D,$0A,0
-.fmt1_ms            DEFM 1,"BNo File Area on Flash Eprom.",1,"B",0
-.fmt2_ms            DEFM 1,"BNo File Area on Application Rom.",1,"B",0
+.fmt1_ms            DEFM 1,"BNo File Area on Flash Card.",1,"B",0
+.fmt2_ms            DEFM 1,"BNo File Area on Application Card.",1,"B",0
 .fmt3_ms            DEFM 1,"BRe-format File Area in slot 3 (All data will be lost).",1,"B",0
-.cbad_ms            defm 1,"BFlash Eprom not found in slot 3.",1,"B",0
+.cbad_ms            defm 1,"BFlash Card not found in slot 3.",1,"B",0
 
 
 
