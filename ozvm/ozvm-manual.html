@@ -130,9 +130,9 @@ haven't tested OZvm on other processor architectures like PowerPC
 (the Mac computers), or Sun's SPARC, so we don't know how OZvm
 performs on those boxes.<br>
 <br>
-The OZvm application behaves well your operating system. It
+The OZvm application behaves well in your operating system. It
 typically uses 5% or less processing power of your computer in idle
-state (waiting for keyboard input), and 10-20% when processing
+state (waiting for keyboard input), and 50% - 100% when processing
 actual Z80 machine code.<br>
 <br>
 <br>
@@ -972,6 +972,26 @@ display breakpoints (if no
 address), otherwise
 toggle display breakpoint at specified
 address.</font></big></font> </big></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><big><font size="2"><big><font
+ color="#3f5fbf"> </font></big></font></big><font color="#3f5fbf"><font
+ face="Courier"><font size="2"><b>apps</b></font></font></font></td>
+      <td style="vertical-align: top;"><big><font color="#3f5fbf"><font
+ size="2"><big>Display a list
+of current installed applications and podowns in the operating system and on
+external application cards. The list show the name of the application
+and entry point (when OZ enters the application). The 24bit entry pointer
+is useful for debugging purposes when it is needed to catch the
+execution of the running application.<br>
+      <br>
+This command will be extended with display of&nbsp; further information
+from the application DOR.<br>
+      </big></font></font></big></td>
     </tr>
     <tr valign="top">
       <td width="31%">
