@@ -95,7 +95,7 @@ public class SlotInfo {
 	 * @param slotNo (1-3)
 	 * @return bank number of found file header in slot, or -1 if no file header was found.
 	 */
-	public int getFileHeader(final int slotNo) {
+	public int getFileHeaderBank(final int slotNo) {
 		// start scan at bottom of card, then upwards...
 		int bankNo = ((slotNo & 3) << 6) ; 
 		Bank bank = memory.getBank(bankNo);
