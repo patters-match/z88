@@ -1,7 +1,7 @@
 package net.sourceforge.z88;
 
 /**
- * @author gstrube
+ * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  *
  * This class represents a 16K memory block or bank of memory
  * The characteristics of a bank can be that it's part of

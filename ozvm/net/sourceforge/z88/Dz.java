@@ -1,8 +1,10 @@
 package net.sourceforge.z88;
 
-/*
- * Z88 (Z80) Disassembler. All Z88 OZ manifests are recognised.
- * Code converted & improved from C source, as part of the DZasm 0.22 utility.
+/**
+ * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
+ * 
+ * Z88 (Z80) Disassembler. All Z88 OZ manifests are recognised. Code converted &
+ * improved from C source, as part of the DZasm 0.22 utility.
  *
  * All 'undocumented' Z80 instructions are recognized, eg. SLL or LD  ixh,ixl.
  */
