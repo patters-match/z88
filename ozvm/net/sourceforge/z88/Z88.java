@@ -39,22 +39,36 @@ public class Z88 extends Z80 {
 	public  long    timeOfLastInterrupt = 0;
 	private long    timeOfLastSample = 0;
 
-	private Bank z88Memory[];	// array for 256 16K banks = 4Mb memory
-	private Bank RAMS;			// reference bank bank 0x00 or 0x20 
+    /**
+     * The Z88 memory organisation.
+     * Array for 256 16K banks = 4Mb memory
+     */
+	private Bank z88Memory[];	
 	
-	// Segment register array for SR0 - SR3
-	// Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
-	// Segment register 1, SR1, bank binding for 0x4000 - 0x7FFF
-	// Segment register 2, SR2, bank binding for 0x8000 - 0xBFFF	
-	// Segment register 3, SR3, bank binding for 0xC000 - 0xFFFF
-	//
-	// any of the registers contains a bank number, 0 - 255 that
-	// is currently bound into the corresponding segment in the
-	// Z80 address space. 
+    /**
+     * System bank for lower 8K of segment 0.
+     * References bank 0x00 or 0x20. 
+     */
+	private Bank RAMS;			
+	
+	/**
+	 * Segment register array for SR0 - SR3
+	 * Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
+	 * Segment register 1, SR1, bank binding for 0x4000 - 0x7FFF
+	 * Segment register 2, SR2, bank binding for 0x8000 - 0xBFFF	
+	 * Segment register 3, SR3, bank binding for 0xC000 - 0xFFFF
+	 *
+	 * Any of the registers contains a bank number, 0 - 255 that
+	 * is currently bound into the corresponding segment in the
+	 * Z80 address space. 
+	 */
 	private int sR[];	
 
 	
-	// **************  Initialize Z88 Hardware ************************
+	/**
+	 * Constructor.
+	 * Initialize Z88 Hardware .
+	 */
 	public Z88() throws Exception {
 		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster...)
 		super( 3.2768 );
@@ -63,7 +77,6 @@ public class Z88 extends Z80 {
 		z88Memory = new Bank[256];	// The Z88 memory addresses 256 banks = 4MB!
 		sR = new int[4];			// the segment register SR0 - SR3
 	}
-	// *****************************************************************
 
 	
 	/** 
@@ -74,9 +87,9 @@ public class Z88 extends Z80 {
 	 * Any of the 256 16K banks can be bound into the address space 
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes. 
-	 **/
+	 */
 	public int readByte( int addr ) {
-		int segment = (addr & 0xC000) >>> 14; // bit 15 & 14 identifies segment
+		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 		
 		// the Z88 spends most of the time in segments 1 - 3,
 		// therefore we should ask for this first...
@@ -118,9 +131,9 @@ public class Z88 extends Z80 {
 	 * Any of the 256 16K banks can be bound into the address space 
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes. 
-	 **/
+	 */
 	public void writeByte ( int addr, int b ) {
-		int segment = (addr & 0xC000) >>> 14; // bit 15 & 14 identifies segment
+		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 		
 		// the Z88 spends most of the time in segments 1 - 3,
 		// therefore we should try this first...
@@ -160,7 +173,7 @@ public class Z88 extends Z80 {
 	 * Any of the 256 16K banks can be bound into the address space 
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes. 
-	 **/
+	 */
 	private void bindBank(int segment, int bank) {
 		// no fuzz with segments here. The segment logic for bank 0
 		// is handled in readByte() and writeByte().
@@ -181,8 +194,6 @@ public class Z88 extends Z80 {
 
 	public void outb( int port, int outByte, int tstates ) {
 	}
-
-	/** Byte access */
 
 	public final int interrupt() {
 		if ( pauseAtNextInterrupt ) {
@@ -248,30 +259,5 @@ public class Z88 extends Z80 {
 
 	public void reset() {
 		super.reset();
-	}
-
-
-	private int readBytes( InputStream is, int a[], int off, int n ) throws Exception {
-		try {
-			BufferedInputStream bis = new BufferedInputStream( is, n );
-
-			byte buff[] = new byte[ n ];
-			int toRead = n;
-			while ( toRead > 0 ) {
-				int	nRead = bis.read( buff, n-toRead, toRead );
-				toRead -= nRead;
-			}
-
-			for ( int i = 0; i < n; i++ ) {
-				a[ i+off ] = (buff[i]+256)&0xff;
-			}
-
-			return n;
-		}
-		catch ( Exception e ) {
-			System.err.println( e );
-			e.printStackTrace();
-			throw e;
-		}
 	}
 }
