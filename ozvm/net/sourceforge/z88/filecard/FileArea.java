@@ -528,9 +528,9 @@ public class FileArea {
 
 		// get bottom bank of slot to determine card type...
 		Bank bank = memory.getBank(bottomBankNo);
-		if ((bank instanceof EpromBank == true)
-				| (bank instanceof AmdFlashBank == true)
-				| (bank instanceof IntelFlashBank == true)) {
+		if ((bank instanceof EpromBank == false)
+				& (bank instanceof AmdFlashBank == false)
+				& (bank instanceof IntelFlashBank == false)) {
 			// A file area can't be created on a Ram card or in an empty slot...
 			return false;
 		} else {
@@ -642,7 +642,7 @@ public class FileArea {
 		do {
 			for (int offset = 0; offset < 0x4000; offset++)
 				memory.setByte(offset, bank, 0xFF);
-		} while (bank++ < topBank);
+		} while (++bank < topBank);
 
 		// top bank is only formatted until file header...
 		for (int offset = 0; offset < 0x3FC0; offset++)
