@@ -25,10 +25,12 @@ import java.util.Map;
 import java.util.HashMap;
 import javax.swing.JTextField;
 
+
 /**
  * Bind host operating system keyboard events to Z88 keyboard.
  */ 
 public class Z88Keyboard {
+
 	// Index of HashMap array entries for Z88 keyboard layouts.
 	public static final int COUNTRY_US = 0;		// English/US Keyboard layout
 	public static final int COUNTRY_FR = 1;		// French Keyboard layout
@@ -73,6 +75,14 @@ public class Z88Keyboard {
 
 	private Blink blink = null;
 
+	private static final class singletonContainer {
+		static final Z88Keyboard singleton = new Z88Keyboard();  
+	}
+	
+	public static Z88Keyboard getInstance() {
+		return singletonContainer.singleton;
+	}
+	
 	// The Key.
 	private class KeyPress {
 		private int keyCode;		// The unique host 'key' for this entity, typically a SWT.xxx constant
@@ -90,9 +100,9 @@ public class Z88Keyboard {
      * Create the instance to bind the blink and Swing widget together.
      *
      */
-	public Z88Keyboard(Blink bl, Z88display z88Screen) {
-		blink = bl;
-		z88Display = z88Screen;
+	private Z88Keyboard() {
+		blink = Blink.getInstance();
+		z88Display = Z88display.getInstance();
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
 
