@@ -16,7 +16,6 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
 /**
@@ -188,7 +187,7 @@ public class Gui extends JFrame {
 			cmdOutput.setBackground(Color.BLACK);
 			cmdOutput.setForeground(Color.GREEN);
 			cmdOutput.setEditable(false);
-			cmdOutput.setToolTipText("This area is used for Debugging output.");
+			cmdOutput.setToolTipText("This area displays debug command output.");
 			cmdOutput.setVisible(true);
 		}
 		return cmdOutput;
