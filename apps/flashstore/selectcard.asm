@@ -689,7 +689,7 @@ Module SelectCard
 .ramdev             DEFM 1,"2+T", "RAM ",0
 .filestxt           DEFM 1,"2+T", " FREE ", 0
 .appstxt            DEFM 1,"2+T", "APPLICATIONS",0
-.nofilestxt         DEFM 1,"2+T", "  NO FILES",0
+.nofilestxt         DEFM 1,"2+T", "NO FILE AREA",0
 .slottxt1           DEFM "SLOT ",0
 .slottxt2           DEFM ": ",0
 .emptytxt           DEFM 1,"2+T", "EMPTY SLOT", 1,"2-T", 0
