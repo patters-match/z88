@@ -53,6 +53,10 @@ public final class Blink extends Z80 {
 	 * to the Z80 virtual processor.
 	 */
 	private Timer timerDaemon = null;
+	
+	public Timer getTimerDaemon() {
+		return timerDaemon;
+	}
 
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
