@@ -430,7 +430,7 @@ public class Gui extends JFrame {
 			frLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
-					getKeyboardPanel().setKeyboardCountrySpecificIcons("uk");
+					getKeyboardPanel().setKeyboardCountrySpecificIcons("fr");
 					getZ88Display().grabFocus();
 				}
 			});

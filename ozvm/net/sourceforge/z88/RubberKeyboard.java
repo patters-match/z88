@@ -48,6 +48,7 @@ public class RubberKeyboard extends JPanel {
 	private Hashtable kbLanguageIconsUk = new Hashtable(); 
 	private Hashtable kbLanguageIconsSe = new Hashtable();
 	private Hashtable kbLanguageIconsDk = new Hashtable();
+	private Hashtable kbLanguageIconsFr = new Hashtable();
 
 	ThreadManager threadMgr = new ThreadManager(1);
 	private JLabel z88Display;
@@ -141,6 +142,7 @@ public class RubberKeyboard extends JPanel {
 		cacheKeyIcons(kbLanguageIconsUk, "uk");
 		cacheKeyIcons(kbLanguageIconsSe, "se");
 		cacheKeyIcons(kbLanguageIconsDk, "dk");
+		cacheKeyIcons(kbLanguageIconsFr, "fr");		
 		
 		add(getEscKeyButton());
 		add(getNumKey1Button());
@@ -2048,6 +2050,8 @@ public class RubberKeyboard extends JPanel {
 		ht.put("key06fb", new ImageIcon(c.getResource(path + "key06fb.gif")));
 		ht.put("key07fb", new ImageIcon(c.getResource(path + "key07fb.gif")));
 		ht.put("key07fd", new ImageIcon(c.getResource(path + "key07fd.gif")));
+		if (kbLanguageCountryCode.compareTo("fr") == 0)
+			ht.put("key04fd", new ImageIcon(c.getResource(path + "key04fd.gif")));
 	}
 	
 	/**
@@ -2066,6 +2070,8 @@ public class RubberKeyboard extends JPanel {
 					keyIcons = kbLanguageIconsSe;
 				else if (countryCode.compareTo("dk") == 0)
 					keyIcons = kbLanguageIconsDk;
+				else if (countryCode.compareTo("fr") == 0)
+					keyIcons = kbLanguageIconsFr;
 				else
 					keyIcons = kbLanguageIconsUk;
 
@@ -2082,8 +2088,6 @@ public class RubberKeyboard extends JPanel {
 				getKey037fButton().setIcon((ImageIcon) keyIcons.get("key037f"));
 				getKey027fButton().setIcon((ImageIcon) keyIcons.get("key027f"));
 				getKey017fButton().setIcon((ImageIcon) keyIcons.get("key017f"));
-				getKey05EfButton().setIcon((ImageIcon) kbStdIcons.get("q"));
-				getKey04EfButton().setIcon((ImageIcon) kbStdIcons.get("w"));
 				getKey03EfButton().setIcon((ImageIcon) kbStdIcons.get("e"));
 				getKey02EfButton().setIcon((ImageIcon) kbStdIcons.get("r"));
 				getKey01EfButton().setIcon((ImageIcon) kbStdIcons.get("t"));
@@ -2095,7 +2099,6 @@ public class RubberKeyboard extends JPanel {
 				getKey057fButton().setIcon((ImageIcon) keyIcons.get("key057f"));
 				getKey047fButton().setIcon((ImageIcon) keyIcons.get("key047f"));
 				getKey07FeButton().setIcon((ImageIcon) keyIcons.get("key07fe"));
-				getKey05F7Button().setIcon((ImageIcon) kbStdIcons.get("a"));
 				getKey04F7Button().setIcon((ImageIcon) kbStdIcons.get("s"));
 				getKey03F7Button().setIcon((ImageIcon) kbStdIcons.get("d"));
 				getKey02F7Button().setIcon((ImageIcon) kbStdIcons.get("f"));
@@ -2106,13 +2109,26 @@ public class RubberKeyboard extends JPanel {
 				getKey05FdButton().setIcon((ImageIcon) kbStdIcons.get("l"));
 				getKey06FdButton().setIcon((ImageIcon) keyIcons.get("key06fd"));
 				getKey06FeButton().setIcon((ImageIcon) keyIcons.get("key06fe"));
-				getKey05FbButton().setIcon((ImageIcon) kbStdIcons.get("z"));
 				getKey04FbButton().setIcon((ImageIcon) kbStdIcons.get("x"));
 				getKey03FbButton().setIcon((ImageIcon) kbStdIcons.get("c"));
 				getKey02FbButton().setIcon((ImageIcon) kbStdIcons.get("v"));
 				getKey01FbButton().setIcon((ImageIcon) kbStdIcons.get("b"));
 				getKey00FbButton().setIcon((ImageIcon) kbStdIcons.get("n"));
-				getKey04FdButton().setIcon((ImageIcon) kbStdIcons.get("m"));
+				
+				if (countryCode.compareTo("fr") == 0) {
+					getKey05EfButton().setIcon((ImageIcon) kbStdIcons.get("a"));
+					getKey04EfButton().setIcon((ImageIcon) kbStdIcons.get("z"));
+					getKey05F7Button().setIcon((ImageIcon) kbStdIcons.get("q"));
+					getKey05FbButton().setIcon((ImageIcon) kbStdIcons.get("w"));
+					getKey04FdButton().setIcon((ImageIcon) keyIcons.get("key04fd"));
+				} else {
+					getKey05EfButton().setIcon((ImageIcon) kbStdIcons.get("q"));
+					getKey04EfButton().setIcon((ImageIcon) kbStdIcons.get("w"));
+					getKey05F7Button().setIcon((ImageIcon) kbStdIcons.get("a"));
+					getKey05FbButton().setIcon((ImageIcon) kbStdIcons.get("z"));
+					getKey04FdButton().setIcon((ImageIcon) kbStdIcons.get("m"));
+				}
+				
 				getKey06FbButton().setIcon((ImageIcon) keyIcons.get("key06fb"));
 				getKey07FbButton().setIcon((ImageIcon) keyIcons.get("key07fb"));
 				getKey07FdButton().setIcon((ImageIcon) keyIcons.get("key07fd"));
