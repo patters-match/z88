@@ -1,0 +1,438 @@
+; -----------------------------------------------------------------------------
+; $Id$
+; -----------------------------------------------------------------------------
+
+;	variable prefix:
+;
+;	a	ASCII string
+;	c	character code
+;	p	pointer (16 bits)
+;	e	extended pointer (24 bits)
+;	f	float (40 bits)
+;
+;	sl	signed long (32 bits)
+;	ul	unsigned long (32 bits)
+;	sw	signed word (16 bits)
+;	uw	unsigned word (16 bits)
+;	sb	signed byte (8 bits)
+;	ub	unsigned byte (8 bits)
+;
+
+;Constants are all uppercase
+
+defc	uwRandom1		=$01fc
+defc	uwRandom2		=$01fe
+
+
+defc	ubResetType		=$0200
+defc	ubBadSize		=$0205
+defc	ubScreenBase		=$020b
+defc	KbdData			=$0216			; data on both negative and positive side
+defc	SerTXHandle		=$0229			; on negative side!
+defc	SerRXHandle		=$0233			; on negative side!
+defc	uwSmallTimer		=$0238
+defc	pFsMemPool		=$0244
+defc	word_024A		=$024a
+defc	pMTHScreenSave		=$024e
+defc	pMTHTmpHandle		=$0250
+defc	word_0252		=$0252
+defc	uwPanelFilePtr		=$0256
+defc	ubSysFlags1		=$0258
+defc	ubCLIActiveCnt		=$0265
+defc	ubNextAlmSeconds	=$0266
+defc	uwNextAlmMinutes	=$0267
+defc	ubAlmDisableCnt		=$026E
+defc	ubAlmActionCnt		=$0271
+defc	pPrefs1			=$0276
+defc	pPrefs2			=$0278
+defc	ulSlot1ID		=$027b
+defc	ulSlot2ID		=$027f
+defc	ulSlot3ID		=$0283
+defc	ubNextAlmMinutesB	=$0269
+defc	ubSoundActive		=$026a
+defc	pFirstAlarm		=$0272
+defc	pNextAlmHandle		=$0274
+
+defc	uwAppStaticHnd		=$03b0
+defc	uwApplDynID		=$03b2
+defc	ubAppDORFlags		=$03b6
+defc	pAppStackPtr		=$03ba
+defc	pUnSafeArea		=$03bc
+defc	pAppExtrastackArea	=$03be
+defc	pAppBadMemHandle	=$03c0
+defc	ubAppContRAM		=$03c2
+defc	ubAppS0Binding		=$03c3
+defc	pMailbox		=$03c8
+defc	ubMailboxSize		=$03ca
+defc	ubCallLevel		=$03cf
+defc	uwFreeRAMPages		=$03f2
+defc	ubIntTaskToDo		=$03f6
+defc	ubIntStatus		=$03f7
+defc	ubSlotRamSize		=$03fc
+defc	ubSlot0RamSize		=$03fc		; get rid of this
+defc	ubSlotRAMoffset		=$03f8
+
+
+;	0b00-0bff	buffers
+
+defc	KbdBuffer		=$0b00
+defc	SerTXBuffer		=$0b20
+defc	SerRXBuffer		=$0b80
+
+;	0db8-0dc2	EPROM
+
+defc	ubEpr_SubType		=$0db8
+							; $0db9 unused
+defc	ubEpr_FirstBank		=$0dba			; relative to end
+defc	ubEpr_NameLen		=$0dbb
+defc	ubEpr_Fstype		=$0dbc
+defc	pEpr_PrgTable		=$0dbd
+defc	pEpr_Parsedname		=$0dbf
+defc	pEpr_FileHandle		=$0dc1
+
+;	0e10-0ec9	Index
+
+defc	ubIdxPubFlags		=$0e10			; was Flags1
+defc	ubIdxFlags2		=$0e11
+defc	ubIdxTopProcess		=$0e12
+defc	ubIdxNProcDisplayed	=$0e13
+defc	ubIdxTopApplication	=$0e14
+defc	ubIdxNApplDisplayed	=$0e15
+defc	ubIdxSelectorPos	=$0e16
+defc	ubIdxActiveWindow	=$0e17
+defc	Byte_0E18		=$0e18			; !! unused
+defc	ubIdxErrorCode		=$0e19
+defc	ubIdxProcRmCount	=$0e1a
+defc	ubIdxDynamicID		=$0e1b
+defc	ubIdxOldProcRmCount	=$0e1c
+defc	byte_0E1D		=$0e1d			; !! written to once but unused in Index/DC
+defc	pIdxMemHandle		=$0e1e
+defc	pIdxCurrentProcHandle	=$0e20
+defc	pIdxMyProcHandle	=$0e22			; static handle of Index
+							; was IndexProcHandle
+defc	pIdxRunProcIX		=$0e24
+defc	pIdxAutoRunAppl		=$0e26
+defc	eIdxCliList		=$0e28
+defc	eIdxProcList		=$0e2b
+defc	eIdxIndexProc		=$0e2e
+defc	eIdxRunProc		=$0e31
+defc	IdxKeyTable		=$0e34
+defc	IdxZKeyTable		=$0e66
+defc	IdxZZKeyTable		=$0e98
+				;$0eca
+
+;	ubIdxPubFlags
+
+defc	IDXF1_B_INSIDEOZ	=0			; inside OS_In
+defc	IDXF1_B_INIT		=1			; need init
+
+defc	IDXF1_INSIDEOS		=1
+defc	IDXF1_INIT		=2
+
+
+;	qualifiers
+
+defc	QUAL_B_SHIFT		=0		; use these instead of CLM_xxx as these are global
+defc	QUAL_B_CTRL		=1
+defc	QUAL_B_ALT		=2
+defc	QUAL_B_SPECIAL		=3
+
+defc	QUAL_SHIFT		=1
+defc	QUAL_CTRL		=2
+defc	QUAL_ALT		=4
+defc	QUAL_SPECIAL		=8
+
+;	ubIntStatus
+
+defc	IST_B_CLISHIFT		=0
+defc	IST_B_CLIDMND		=1
+defc	IST_B_2			=2		; selects which prefs pointer to use
+defc	IST_B_HASPREFS		=3
+defc	IST_B_ALARM		=4
+defc	IST_B_ALMTIMEOK		=5		; time until next alarm is valid
+defc	IST_B_BATLOW		=6		; show 'bat low' indicator
+
+defc	IST_CLISHIFT		=$01
+defc	IST_CLIDMND		=$02
+defc	IST_ALARM		=$10
+defc	IST_ALMTIMEOK		=$20
+defc	IST_BATLOW		=$40
+
+;	ubIntTaskToDo
+
+defc	ITSK_B_BUFFER		=0
+defc	ITSK_B_TIMER		=1
+defc	ITSK_B_SHUTDOWN		=2
+defc	ITSK_B_PREEMPTION	=3
+defc	ITSK_B_ESC		=4
+defc	ITSK_B_ALARM		=5
+defc	ITSK_B_OZWINDOW		=7
+
+defc	ITSK_BUFFER		=1
+defc	ITSK_TIMER		=2
+defc	ITSK_SHUTDOWN		=4
+defc	ITSK_PREEMPTION		=8
+defc	ITSK_ESC		=$10
+defc	ITSK_ALARM		=$20
+defc	ITSK_OZWINDOW		=$80
+
+;	ubSysFlags1
+
+defc	SF1_B_0			=0
+defc	SF1_B_1			=1
+defc	SF1_B_2			=2
+defc	SF1_B_3			=3
+defc	SF1_B_OZDMND		=4
+defc	SF1_B_OZSQUARE		=5
+defc	SF1_B_6			=6
+defc	SF1_B_NOTOKENS		=7
+defc	SF1_OZDMND		=$10
+defc	SF1_OZSQUARE		=$20
+
+
+;	printer filter 
+
+defc	PrtSeqPrefix		=$7ee9
+defc	PrtSequence		=$7eea
+defc	PrtSeqBuf		=$7eec
+
+
+;	screen/window related
+
+defc	SBF_PAGE		=$78
+
+defc	Wd1Frame		=$78e6
+defc	sbf_ActiveWd		=$7FE7
+defc	sbf_CtrlPrefix		=$7FE9
+defc	sbf_PrefixSeq		=$7FEA
+defc	sbf_VDUbuffer		=$7FEC
+defc	sbf_VDU1		=$7FED
+defc	sbf_VDU2		=$7FEE
+defc	sbf_VDU3		=$7FEF
+defc	sbf_VDU4		=$7FF0
+defc	sbf_VDU5		=$7FF1
+defc	sbf_VDU6		=$7FF2
+
+;	window
+
+defc	wdf_f2			=$F2
+defc	wdf_flagsHi		=$F3
+defc	wdf_OpenFlags		=$F4		; was wdf_f4
+defc	wdf_flagsLo		=$F5
+defc	wdf_f6			=$F6		; !! unused, always zero
+defc	wdf_crsrattr		=$F7
+defc	wdf_crsrx		=$F8
+defc	wdf_crsry		=$F9
+defc	wdf_rmargin		=$FA
+defc	wdf_lmargin		=$FB
+defc	wdf_endx		=$FC
+defc	wdf_endy		=$FD
+defc	wdf_startx		=$FE
+defc	wdf_starty		=$FF
+
+;	flags lo
+defc	WDFL_B_BOLD		=7
+defc	WDFL_B_TINY		=6
+defc	WDFL_B_REVERSE		=4
+defc	WDFL_B_FLASH		=3
+defc	WDFL_B_GREY		=2
+defc	WDFL_B_ULINE		=1
+
+defc	WDFL_BOLD		=$80
+defc	WDFL_TINY		=$40
+defc	WDFL_REVERSE		=$10
+defc	WDFL_FLASH		=$08
+defc	WDFL_GREY		=$04
+defc	WDFL_ULINE		=$02
+
+;	flags hi
+defc	WDFH_B_CURSOR		=7
+defc	WDFH_B_CURSORON		=6
+defc	WDFH_B_VSCROLL		=5
+defc	WDFH_B_CAPS		=4
+defc	WDFH_B_DELAY		=3
+defc	WDFH_B_HSCROLL		=2
+
+defc	WDFH_CURSOR		=$80
+defc	WDFH_CURSORON		=$40
+defc	WDFH_VSCROLL		=$20
+defc	WDFH_CAPS		=$10
+defc	WDFH_DELAY		=$08
+defc	WDFH_HSCROLL		=$04
+defc	WDFH_JUSTIFICATION	=$03
+
+;	flags f2 f4(fo)
+
+defc	WDF2_B_INITIALIZED	=7	; other bits unused
+
+
+defc	WDFO_B_6		=6
+defc	WDFO_B_5		=5
+defc	WDFO_B_GREY		=4	; set during +G cls
+defc	WDFO_B_UNGREY		=3	; set during -G cls
+defc	WDFO_B_BRACKETS		=1	; shelf brackets
+defc	WDFO_B_BORDERS		=0	; left/right vertical bars
+
+;	LCD hardware attributes
+
+defc	LCDA_B_HIRES		=5
+defc	LCDA_B_REVERSE		=4
+defc	LCDA_B_FLASH		=3
+defc	LCDA_B_GREY		=2
+defc	LCDA_B_UNDERLINE	=1
+defc	LCDA_B_CH8		=0
+
+defc	LCDA_TINY		=$80	; software flag
+defc	LCDA_HIRES		=$20
+defc	LCDA_REVERSE		=$10
+defc	LCDA_FLASH		=$08
+defc	LCDA_GREY		=$04
+defc	LCDA_UNDERLINE		=$02
+defc	LCDA_CH8		=$01
+
+defc	LCDA_LORESCURSOR	=$38
+defc	LCDA_NULLCHAR		=$34
+
+
+
+;	application DOR offsets
+
+defc	ADOR_PARENT	=$00
+defc	ADOR_BROTHER	=$03
+defc	ADOR_SON	=$06
+defc	ADOR_TYPE	=$09
+defc	ADOR_LENGTH	=$0a
+defc	ADOR_INFOTYPE	=$0b
+defc	ADOR_INFOLENGTH	=$0c
+defc	ADOR_RESERVED	=$0d
+defc	ADOR_APPKEY	=$0f
+defc	ADOR_BADSIZE	=$10
+defc	ADOR_ENVSIZE	=$11
+defc	ADOR_UNSAFE	=$13
+defc	ADOR_SAFE	=$15
+defc	ADOR_ENTRY	=$17
+defc	ADOR_BINDINGS	=$19
+defc	ADOR_FLAGS	=$1d
+defc	ADOR_FLAGS2	=$1e
+defc	ADOR_HELPTYPE	=$1f
+defc	ADOR_HELPLENGTH	=$20
+defc	ADOR_TOPICS	=$21
+defc	ADOR_COMMANDS	=$24
+defc	ADOR_HELP	=$27
+defc	ADOR_TOKENS	=$2a
+defc	ADOR_NAMETYPE	=$2d
+defc	ADOR_NAMELENGTH	=$2e
+defc	ADOR_NAME	=$2f
+
+defc	OSFrame_IY		= $00
+defc	OSFrame_S3		= $02
+defc	OSFrame_S2		= $03
+defc	OSFrame_OZCall		= $04
+defc	OSFrame_F		= $06
+defc	OSFrame_A		= $07
+defc	OSFrame_C		= $08
+defc	OSFrame_B		= $09
+defc	OSFrame_E		= $0A
+defc	OSFrame_D		= $0B
+defc	OSFrame_L		= $0C
+defc	OSFrame_H		= $0D
+defc	OSFrame__S3		= $0E
+defc	OSFrame__S2		= $0F
+
+
+
+;	buffer  !! remove unused bytes, size drops to 5 bytes
+
+defc	buf_f6			=$F6
+defc	buf_func		=$F7
+defc	buf_funcH		=$F8
+defc	buf_end			=$FA
+defc	buf_start		=$FB
+defc	buf_bufpage		=$FC
+defc	buf_wrpos		=$FE
+defc	buf_rdpos		=$FF
+
+
+defc	HND_DEV			=1
+defc	HND_FILE		=2
+defc	HND_MEM			=3
+defc	HND_PROC		=4
+defc	HND_ALRM		=5
+
+defc	fhnd_type		=2
+defc	fhnd_attr		=9
+
+defc	dhnd_flags	=$0A
+defc	dhnd_DOR	=$0B
+defc	dhnd_DORH	=$0C
+defc	dhnd_DORBank	=$0D
+defc	dhnd_ApplBase	=$0E
+defc	dhnd_DeviceID	=$0F
+
+;	AlarmHandle
+defc	ahnd_Next		=$00
+defc	ahnd_NextH		=$01
+defc	ahnd_Type		=$02
+defc	ahnd_3			=$03
+defc	ahnd_NextAlarmL		=$04
+defc	ahnd_NextAlarmH		=$05
+defc	ahnd_Flags		=$06
+defc	ahnd_Date		=$07
+defc	ahnd_DateM		=$08
+defc	ahnd_DateH		=$09
+defc	ahnd_Time		=$0A
+defc	ahnd_TimeM		=$0B
+defc	ahnd_TimeH		=$0C
+defc	ahnd_FuncL		=$0D
+defc	ahnd_FuncH		=$0E
+defc	ahnd_FuncB		=$0F
+
+defc	ALMF_B_ACTIVE		=7
+
+
+
+;	----
+;	memory related
+
+;	MemHandle
+
+defc	mhnd_AllocFlags		=$04
+defc	mhnd_ExclusiveBank	=$05
+defc	mhnd_Slot0		=$08		; PageN of first allocation for each slot
+defc	mhnd_Slot1		=$0A
+defc	mhnd_Slot2		=$0C
+defc	mhnd_Slot3		=$0E
+
+;	out-of-memory flags
+
+defc	OOM_B_NORMAL		=0
+defc	OOM_B_FIXED		=1
+defc	OOM_NORMAL		=1
+defc	OOM_FIXED		=2
+
+;	MAT entry flags
+
+defc	MAT_B_SYSTEM		=0		; this 'flag' in low byte!
+defc	MAT_B_LAST		=4
+defc	MAT_B_FULL		=5
+defc	MAT_B_ALLOCFIXED	=6
+defc	MAT_B_SWAP		=7
+defc	MAT_SYSTEM		=$01		; this 'flag' in low byte!
+defc	MAT_LAST		=$10
+defc	MAT_FULL		=$20
+defc	MAT_ALLOCFIXED		=$40
+defc	MAT_SWAP		=$80
+
+;	allocation flag bit defines - should be in memory.def
+
+defc	MM_B_FIX		=1
+defc	MM_B_SLT		=2
+defc	MM_B_MUL		=5
+
+
+;	kernel module banks
+
+defc	OZBANK_0	=0
+defc	OZBANK_DC	=2
+defc	OZBANK_GN	=3
+defc	OZBANK_7	=7
