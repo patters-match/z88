@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 public class OZvm implements KeyListener {
 
 	public static final String VERSION = "0.3.5";
+	public static boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
 	private Blink z88 = null;
     private DisplayStatus blinkStatus;
@@ -46,7 +47,6 @@ public class OZvm implements KeyListener {
 	private Dz dz;
 
 	private Thread z80Thread = null;
-	private boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
 	private JTextArea runtimeOutput = null;
 	private JTextArea commandOutput = null;
