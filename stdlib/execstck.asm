@@ -31,8 +31,8 @@
 ;     Register changes are subroutine dependent
 ;
 ; Registers changed on return:
-;    ......../.... ........ same
-;    ????????/???? afbcdehl different
+;    ......../.... af...... same
+;    ????????/???? ..bcdehl different
 ;
 .ExecRoutineOnStack
                     PUSH BC
