@@ -298,64 +298,133 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Pixel Base Register 0
+	 * LORES0 (PB0, 16bits).<br>
+	 * The 6 * 8 pixel per char User Defined Fonts.
 	 */
 	private int PB0;
 
 	/**
-	 * Pixel Base Register 0
+	 * Set LORES0 (PB0, 16bits).<br>
+	 * The 6 * 8 pixel per char User Defined Fonts.
 	 */
 	public void setPb0(int bits) {
 		PB0 = bits;
 	}
+
+	/**
+	 * Get Address of LORES0 (PB0) in 24bit extended address format.<br>
+	 * The 6 * 8 pixel per char User Defined Fonts.
+	 */	
+	public int getPb0() {
+		int extAddressBank = (PB0 << 3) & 0xF700;
+		int extAddressOffset = (PB0 << 1) & 0x003F;
+
+		return (extAddressBank | extAddressOffset) << 8;
+	}
 	
 	/**
-	 * Pixel Base Register 1
+	 * LORES1 (PB1, 16bits).<br>
+	 * The 6 * 8 pixel per char fonts.
 	 */
 	private int PB1;
 
 	/**
-	 * Pixel Base Register 1
+	 * Set LORES1 (PB1, 16bits).<br>
+	 * The 6 * 8 pixel per char fonts.
 	 */
 	public void setPb1(int bits) {
 		PB1 = bits;
 	}
+
+	/**
+	 * Get Address of LORES1 (PB1) in 24bit extended address format.<br>
+	 * The 6 * 8 pixel per char fonts.
+	 */	
+	public int getPb1() {
+		int extAddressBank = (PB1 << 6) & 0xFF00;
+		int extAddressOffset = (PB1 << 4) & 0x0030;
+
+		return (extAddressBank | extAddressOffset) << 8;
+	}
 	
 	/**
-	 * Pixel Base Register 2
+	 * HIRES0 (PB2) (16bits)
+     * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
 	 */
 	private int PB2;
 
 	/**
-	 * Pixel Base Register 2
+	 * Set HIRES0 (PB2) (16bits)
+	 * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
 	 */
 	public void setPb2(int bits) {
 		PB2 = bits;
 	}
+
+	/**
+	 * Get Address of HIRES0 (PB2) in 24bit extended address format.
+	 * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
+	 */	
+	public int getPb2() {
+		int extAddressBank = (PB2 << 7) & 0xFE00;
+		int extAddressOffset = (PB2 << 5) & 0x10;
+
+		return (extAddressBank | extAddressOffset) << 8;
+	}
 	
 	/**
-	 * Pixel Base Register 3
+	 * HIRES1 (PB3) (16bits)
+	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */
 	private int PB3;
 
 	/**
-	 * Set Pixel Base Register 3
+	 * Set HIRES1 (PB3) (16bits)
+	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */
 	public void setPb3(int bits) {
 		PB3 = bits;
 	}
+
+	/**
+	 * Get Address of HIRES1 (PB3) in 24bit extended address format.
+	 * (The 8 * 8 pixel per char fonts for the OZ window)
+	 */	
+	public int getPb3() {
+		int extAddressBank = (PB3 << 5) & 0xE000;
+		int extAddressOffset = (PB3 << 3) & 0x0031;
+
+		return (extAddressBank | extAddressOffset) << 8;
+	}
 	
 	/**
-	 * Screen Base Register
+	 * Screen Base Register (16bits)
+	 * (The Screen base File (2K size), containing char info about screen)
+	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
 	private int SBR;
 
 	/**
-	 * Set Screen Base Register
+	 * Set Screen Base Register (16bits)
+	 * (The Screen base File (2K size), containing char info about screen)
+	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
 	public void setSbr(int bits) {
 		SBR = bits;
 	}
+
+	/**
+	 * Get Screen Base in 24bit extended address format.
+	 * (The Screen base File (2K size), containing char info about screen)
+	 * If this register is 0, then the system cannot render the pixel screen.
+	 */	
+	public int getSbr() {
+		int extAddressBank = (PB3 << 5) & 0xE000;
+		int extAddressOffset = (PB3 << 3) & 0x0031;
+
+		return (extAddressBank | extAddressOffset) << 8;
+	}
+
 	
 	/**
 	 * Keyboard matrix.
@@ -812,29 +881,33 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
-				System.out.println("PB0, Pixel Base Register 0 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
-
-				setPb0(outByte);
+				System.out.print("PB0, LORES0 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
+				setPb0((addrA15 << 8) | outByte);
+				System.out.println( " (ext.address = " + Integer.toHexString(getPb0()) + ")");
 				break;				
 
 			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
-				System.out.println("PB1, Pixel Base Register 1 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
-				setPb1(outByte);
+				System.out.print("PB1, LORES1 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
+				setPb1((addrA15 << 8) | outByte);
+				System.out.println( " (ext.address = " + Integer.toHexString(getPb1()) + ")");
 				break;				
 
 			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
-				System.out.println("PB2, Pixel Base Register 2 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
-				setPb2(outByte);
+				System.out.print("PB2, HIRES0 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
+				setPb2((addrA15 << 8) | outByte);
+				System.out.println( " (ext.address = " + Integer.toHexString(getPb2()) + ")");
 				break;				
 
 			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
-				System.out.println("PB3, Pixel Base Register 3 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
-				setPb3(outByte);
+				System.out.print("PB3, HIRES1 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
+				setPb3((addrA15 << 8) | outByte);
+				System.out.println( " (ext.address = " + Integer.toHexString(getPb3()) + ")");
 				break;				
 
 			case 0x74 : // SBR, Screen Base Register 
-				System.out.println("SBR, Screen Base Register = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
-				setSbr(outByte);
+				System.out.print("SBR, Screen Base Register = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
+				setSbr((addrA15 << 8) | outByte);
+				System.out.println( " (ext.address = " + Integer.toHexString(getSbr()) + ")");
 				break;				
 		}
 	}
