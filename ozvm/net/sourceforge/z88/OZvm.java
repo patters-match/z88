@@ -68,7 +68,6 @@ public class OZvm implements KeyListener {
 			z88 = Blink.getInstance();
 			memory = Memory.getInstance();
 			z88Screen = Z88display.getInstance();			
-			z88Screen.init();
 			z88Screen.start();
 
 			dz = Dz.getInstance(); // the disassembly engine...
