@@ -183,6 +183,9 @@ public class SaveRestoreVM {
 		String snapshotPngFile = System.getProperty("user.dir") + File.separator + "snapshot.png";
 		Properties properties = new Properties();
 	
+		if (snapshotFileName.toLowerCase().lastIndexOf(".z88") == -1)
+			snapshotFileName += ".z88"; // '.z88' extension is missing.
+		
         // save Z80 & Blink registers to properties collection
         storeZ80Regs(properties);
         storeBlinkRegs(properties);
@@ -255,12 +258,15 @@ public class SaveRestoreVM {
 	/**
 	 * Restore virtual machine from snapshot file.
 	 * 
-	 * @param fileName
+	 * @param snapshotFileName
 	 */
-	public boolean loadSnapShot(String fileName) {
+	public boolean loadSnapShot(String snapshotFileName) {
 		ZipFile zf;
 		ZipEntry ze;
 		Properties properties = new Properties();
+		
+		if (snapshotFileName.toLowerCase().lastIndexOf(".z88") == -1)
+			snapshotFileName += ".z88"; // '.z88' extension is missing.
 		
 		// Remove all current active memory and reset Blink before restoring a snapshot.
 		memory.setVoidMemory();
@@ -268,7 +274,7 @@ public class SaveRestoreVM {
 		
 	    try {
 	        // Open the snapshot (Zip) file
-	        zf = new ZipFile(fileName);
+	        zf = new ZipFile(snapshotFileName);
 	    
 	        // start with loading the properties...
 	        ze = zf.getEntry("snapshot.settings");
