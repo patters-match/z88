@@ -212,20 +212,19 @@
 .no_inp_err
                     CP   IN_ESC
                     JP   Z, suicide
-                    OR   $20
-                    CP   's'
+                    CP   FlashStore_CC_fs         ; Save Files to File Card
                     JP   Z, SaveFilesCommand
-                    CP   'f'
+                    CP   FlashStore_CC_fl         ; Fetch File from File Card
                     JP   Z, FetchFileCommand
-                    CP   'r'
+                    CP   FlashStore_CC_rf         ; Restore Files
                     JP   Z, RestoreFilesCommand
-                    CP   'c'
+                    CP   FlashStore_CC_cf
                     JP   Z, CatalogCommand
-                    CP   '!'
+                    CP   FlashStore_CC_format
                     JP   Z, FormatCommand
-                    CP   'v'
+                    CP   FlashStore_CC_sc
                     JP   Z, SelectCardCommand
-                    CP   'd'
+                    CP   FlashStore_CC_fe
                     JP   Z, DeleteFileCommand
                     JR   inp_main
 ; *************************************************************************************
@@ -237,7 +236,7 @@
 .DispCmdWindow
                     ld   a,'1' | 128
                     ld   bc,$0000
-                    ld   de,$080D
+                    ld   de,$080F
                     ld   hl, cmds_banner
                     call CreateWindow
 
@@ -264,7 +263,7 @@
                     push hl
 
                     ld   a,'2' | 128
-                    ld   bc,$000F
+                    ld   bc,$0011
                     ld   de,$0837
                     ld   hl, catalog_banner
                     call CreateWindow
@@ -479,16 +478,17 @@
 ;
 .catalog_banner     DEFM "FLASHSTORE V1.7.rc2, (C) 1997-2004 Zlab & InterLogic",0
 
-.cmds_banner        DEFM "Commands",0
+.cmds_banner        DEFM "COMMANDS",0
 .menu_msg
                     DEFM 1, "2-G", 1,"3@",32,32
-                    DEFM 1,"B C",1,"Batalogue",$0D,$0A
-                    DEFM 1,"B S",1,"Bave file",$0D,$0A
-                    DEFM 1,"B F",1,"Betch file",$0D,$0A
-                    DEFM 1,"B R",1,"Bestore",$0D,$0A
-                    DEFM " De", 1,"BV",1,"Bice",$0D,$0A
-                    DEFM 1,"B D",1,"Belete file",$0D,$0A
-                    DEFM 1,"B ! ",1,"BFormat"
+                    DEFM " Catalogue files",$0D,$0A
+                    DEFM " Select Card",$0D,$0A
+                    DEFM " Save files",$0D,$0A
+                    DEFM " Erase file",$0D,$0A
+                    DEFM " Fetch files",$0D,$0A
+                    DEFM " Backup files",$0D,$0A
+                    DEFM " Restore files",$0D,$0A
+                    DEFM " Default RAM"
                     DEFM 1,"2-C"
                     defb 0
 
