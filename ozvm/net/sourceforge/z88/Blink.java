@@ -15,8 +15,8 @@ public final class Blink {
 	 * Blink class default constructor.
 	 */
 	Blink(Z88 vm) {
-		z88vm = vm;		// know about the processor environment outside the BLINK
-		
+		z88vm = vm; // know about the processor environment outside the BLINK
+
 		// the segment register SR0 - SR3
 		sR = new int[4];
 		// all segment registers points at ROM bank 0
@@ -24,11 +24,13 @@ public final class Blink {
 			sR[segment] = 0;
 		}
 
-		memory = new Bank[256];          // The Z88 memory addresses 256 banks = 4MB!
+		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!
 		nullBank = new Bank(Bank.EPROM);
-		for (int bank=0; bank<memory.length; bank++) memory[bank] = nullBank;
+		for (int bank = 0; bank < memory.length; bank++)
+			memory[bank] = nullBank;
 
 		rtc = new Rtc(); // start the Real Time Clock...
+		z80Int = new Z80interrupt(); // start the INT signals each 10ms to Z80
 	}
 
 	/**
@@ -38,9 +40,87 @@ public final class Blink {
 	private Z88 z88vm;
 
 	/**
-	 * The Real Time Clock (RTC) inside the BLINK...
+	 * The Real Time Clock (RTC) inside the BLINK.
 	 */
 	private Rtc rtc;
+
+	/**
+	 * The 10ms interupt line to the Z80 processor.
+	 */
+	private Z80interrupt z80Int;
+
+	/**
+	 * Main Blink Interrrupts (INT).
+	 * 
+	 * BIT 7, KWAIT  If set, reading the keyboard will Snooze
+	 * BIT 6, A19    If set, an active high on A19 will exit Coma
+	 * BIT 5, FLAP   If set, flap interrupts are enabled
+	 * BIT 4, UART   If set, UART interrupts are enabled
+	 * BIT 3, BTL    If set, battery low interrupts are enabled
+	 * BIT 2, KEY    If set, keyboard interrupts (Snooze or Coma) are enabl.
+	 * BIT 1, TIME   If set, RTC interrupts are enabled
+	 * BIT 0, GINT   If clear, no interrupts get out of blink
+	 */
+	private int INT = 0;
+
+	public static final int BM_INTKWAIT = 0x80;	// If set, reading the keyboard will Snooze
+	public static final int BM_INTA19 = 0x40;	// If set, an active high on A19 will exit Coma
+	public static final int BM_INTFLAP = 0x20;	// If set, flap interrupts are enabled
+	public static final int BM_INTUART = 0x10;	// If set, UART interrupts are enabled
+	public static final int BM_INTBTL = 0x08;	// If set, battery low interrupts are enabled
+	public static final int BM_INTKEY = 0x04;	// If set, keyboard interrupts (Snooze or Coma) are enabl.
+	public static final int BM_INTTIME = 0x02;	// If set, RTC interrupts are enabled
+	public static final int BM_INTGINT = 0x01;	// If clear, no interrupts get out of blink
+
+	/**
+	 * Set main Blink Interrrupts (INT), Z80 OUT Write Register 
+	 * 
+	 * @param bits
+	 */
+	public void setInt(int bits) {
+		INT = bits;
+	}
+	
+	/**
+	 * Return Timer Interrupt Status
+	 * BIT 2, MIN, Set if minute interrupt has occurred
+	 * BIT 1, SEC, Set if second interrupt has occurred
+	 * BIT 0, TICK, Set if tick interrupt has occurred
+	 * 
+	 * @return int
+	 */
+	public int getTsta() {
+		if ( (INT & BM_INTTIME) == BM_INTTIME) {
+			return rtc.TSTA;	// RTC interrupts are enabled...
+		} else {
+			return 0;			// RTC interrupts are disabled...
+		}
+	}
+
+	/**
+	 * Set Timer interrupt acknowledge (TACK), Z80 OUT Write Register
+	 * 
+	 * BIT 2, MIN, Set to acknowledge minute interrupt
+	 * BIT 1, SEC, Set to acknowledge
+	 * BIT 0, TICK, Set to acknowledge tick interrupt
+	 */
+	public void setTack(int bits) {
+		rtc.TACK = bits;
+
+		// reset TSTA bits (the prev. raised interrupt get cleared) 
+		rtc.TSTA &= ~bits;
+	}
+
+	/**
+	 * Set Timer Interrupt Mask (TMK), Z80 OUT Write Register
+	 *  
+	 * BIT 2, MIN, Set to enable minute interrupt
+	 * BIT 1, SEC, Set to enable second interrupt
+	 * BIT 0, TICK, Set enable tick interrupt
+	 */
+	public void setTmk(int bits) {
+		rtc.TMK = bits;
+	}
 
 	/**
 	 * Get current TIM0 register from the RTC.
@@ -48,7 +128,7 @@ public final class Blink {
 	 * @return int
 	 */
 	public int getTim0() {
-		return rtc.getTim0();
+		return rtc.TIM0;
 	}
 
 	/**
@@ -57,7 +137,7 @@ public final class Blink {
 	 * @return int
 	 */
 	public int getTim1() {
-		return rtc.getTim1();
+		return rtc.TIM1;
 	}
 
 	/**
@@ -66,7 +146,7 @@ public final class Blink {
 	 * @return int
 	 */
 	public int getTim2() {
-		return rtc.getTim2();
+		return rtc.TIM2;
 	}
 
 	/**
@@ -75,7 +155,7 @@ public final class Blink {
 	 * @return int
 	 */
 	public int getTim3() {
-		return rtc.getTim3();
+		return rtc.TIM3;
 	}
 
 	/**
@@ -84,7 +164,7 @@ public final class Blink {
 	 * @return int
 	 */
 	public int getTim4() {
-		return rtc.getTim4();
+		return rtc.TIM4;
 	}
 
 	/**
@@ -111,7 +191,7 @@ public final class Blink {
 	public void setBank(Bank bank, int bankNo) {
 		memory[bankNo % 256] = bank;
 	}
-	
+
 	/**
 	 * Segment register array for SR0 - SR3
 	 * Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
@@ -174,7 +254,7 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public int readByte( int addr ) {
+	public int readByte(int addr) {
 		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 
 		// the OZ spends most of the time in segments 1 - 3,
@@ -184,7 +264,7 @@ public final class Blink {
 		} else {
 			// Bank 0 is split into two 8K blocks.
 			// Lower 8K is System Bank 0x00 (ROM on hard reset)
-			// or 0x20 (RAM for Z80 stack and system variables)
+			// or 0x20 (RAM for Z80 sTACK and system variables)
 			if (addr < 0x2000) {
 				return RAMS.readByte(addr);
 			} else {
@@ -217,7 +297,7 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public void writeByte ( int addr, int b ) {
+	public void writeByte(int addr, int b) {
 		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 
 		// the OZ spends most of the time in segments 1 - 3,
@@ -250,7 +330,7 @@ public final class Blink {
 			}
 		}
 	}
-	
+
 	/**
 	 * BLINK Command Register
 	 * 
@@ -265,51 +345,6 @@ public final class Blink {
 	 */
 	private int COM;
 
-	/**
-	 * Set Blink Command Register flags, port $B0
-	 *	Bit	 7, SRUN
-	 *	Bit	 6, SBIT
-	 *	Bit	 5, OVERP
-	 *	Bit	 4, RESTIM
-	 *	Bit	 3, PROGRAM
-	 *	Bit	 2, RAMS
-	 *	Bit	 1, VPPON
-	 *	Bit	 0, LCDON
-	 *
-	 *	@param bits
-	 */
-	public void setCOM(int bits) {
-		COM = bits;
-
-		if ( rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
-			// Stop Real Time Clock (RESTIM = 1)
-			rtc.stop();
-			rtc.reset();
-		}
-
-		if ( rtc.isRunning() == false && ((bits & Blink.BM_COMRESTIM) == 0)) {
-			// Real Time Clock is not running, and is asked to start (RESTIM = 0)... 
-			rtc.reset();	// reset counters before starting RTC
-			rtc.start();
-		}
-		
-		if ( (bits & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
-			// RAM is bound into lower 8K of segment 0
-			RAMS = memory[0x20];
-		else
-			// ROM bank 0 is bound into lower 8K of segment 0
-			RAMS = memory[0x00];		
-	}
-
-	/**
-	 * Get Command Register status.
-	 * 
-	 * @return int
-	 */
-	public int getCOM() {
-		return COM;
-	}
-
 	public static final int BM_COMSRUN = 0x80; // Bit 7, SRUN
 	public static final int BM_COMSBIT = 0x40; // Bit 6, SBIT
 	public static final int BM_COMOVERP = 0x20; // Bit 5, OVERP
@@ -319,6 +354,43 @@ public final class Blink {
 	public static final int BM_COMVPPON = 0x02; // Bit 1, VPPON
 	public static final int BM_COMLCDON = 0x01; // Bit 0, LCDON
 
+	/**
+	 * Set Blink Command Register flags, port $B0
+	 *	Bit	7, SRUN
+	 *	Bit	6, SBIT
+	 *	Bit	5, OVERP
+	 *	Bit	4, RESTIM
+	 *	Bit	3, PROGRAM
+	 *	Bit	2, RAMS
+	 *	Bit	1, VPPON
+	 *	Bit	0, LCDON
+	 *
+	 *	@param bits
+	 */
+	public void setCom(int bits) {
+		COM = bits;
+
+		if (rtc.isRunning() == true
+			&& ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
+			// Stop Real Time Clock (RESTIM = 1)
+			rtc.stop();
+			rtc.reset();
+		}
+
+		if (rtc.isRunning() == false && ((bits & Blink.BM_COMRESTIM) == 0)) {
+			// Real Time Clock is not running, and is asked to start (RESTIM = 0)... 
+			rtc.reset(); // reset counters before starting RTC
+			rtc.start();
+		}
+
+		if ((bits & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
+			// Slot 0 RAM Bank 0x20 will be bound into lower 8K of segment 0
+			RAMS = memory[0x20];
+		else
+			// Slot 0 ROM bank 0 is bound into lower 8K of segment 0
+			RAMS = memory[0x00];
+	}
+
 	/** 
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
@@ -326,61 +398,82 @@ public final class Blink {
 
 		Timer countRtc = null;
 
-		private int tim0 = 0; // 5 millisecond period, counts to 199
-		private int tim1 = 0; // 1 second period, counts to 59
-		private int tim2 = 0; // 1 minutes period, counts to 255
-		private int tim3 = 0; // 256 minutes period, counts to 255
-		private int tim4 = 0; // 64K minutes period, counts to 31
+		/**
+		 * Internal counter, 2 ticks = 1/100 second (10ms)
+		 */
+		private int tick = 0;
+
+		/**
+		 * TIM0, 5 millisecond period, counts to 199, Z80 IN Register
+		 */
+		private int TIM0 = 0;
+		
+		/**
+		 * TIM1, 1 second period, counts to 59, Z80 IN Register
+		 */
+		private int TIM1 = 0;
+		 
+		/**
+		 * TIM2, 1 minutes period, counts to 255, Z80 IN Register
+		 */
+		private int TIM2 = 0;
+		
+		/**
+		 * TIM3, 256 minutes period, counts to 255, Z80 IN Register
+		 */
+		private int TIM3 = 0;
+
+		/**
+		 * TIM4, 64K minutes period, counts to 31, Z80 IN Register
+		 */
+		private int TIM4 = 0;
+		
+		/**
+		 * TSTA, Timer interrupt status, Z80 IN Read Register
+		 */
+		private int TSTA = 0;
+
+		// Set if minute interrupt has occurred
+		public static final int BM_TSTAMIN = 0x04;
+		// Set if second interrupt has occurred
+		public static final int BM_TSTASEC = 0x02;
+		// Set if tick interrupt has occurred
+		public static final int BM_TSTATICK = 0x01;
+
+		/**
+		 * TMK, Timer interrupt mask, Z80 OUT Write Register
+		 */
+		private int TMK = 0;
+		 
+		// Set to enable minute interrupt
+		public static final int BM_TMKMIN = 0x04;
+		// Set to enable second interrupt
+		public static final int BM_TMKSEC = 0x02;
+		// Set to enable tick interrupt
+		public static final int BM_TMKTICK = 0x01;
+
+		/**
+		 * TACK, Timer interrupt acknowledge, Z80 OUT Write Register
+		 */
+		private int TACK = 0;
+		
+		// Set to acknowledge minute interrupt
+		public static final int BM_TACKMIN = 0x04; 
+		// Set to acknowledge second interrupt
+		public static final int BM_TACKSEC = 0x02; 
+		// Set to acknowledge tick interrupt
+		public static final int BM_TACKTICK = 0x01;
 
 		private boolean rtcRunning = false; // Rtc counting?
 
 		private Rtc() {
+			TMK = BM_TMKMIN | BM_TMKSEC | BM_TMKTICK;
+			// enable minute, second and 1/100 second interrups
+			TSTA = TACK = 0;
+			TACK = BM_TACKMIN | BM_TACKSEC | BM_TACKTICK;
+			// first interrupt events needs an acknowledge!
+
 			start();
-		}
-
-		/**
-		 * Get current TIM0 counter from the RTC.
-		 * 
-		 * @return int
-		 */
-		public int getTim0() {
-			return tim0;
-		}
-
-		/**
-		 * Get current TIM1 counter from the RTC.
-		 * 
-		 * @return int
-		 */
-		public int getTim1() {
-			return tim1;
-		}
-
-		/**
-		 * Get current TIM2 counter from the RTC.
-		 * 
-		 * @return int
-		 */
-		public int getTim2() {
-			return tim2;
-		}
-
-		/**
-		 * Get current TIM3 counter from the RTC.
-		 * 
-		 * @return int
-		 */
-		public int getTim3() {
-			return tim3;
-		}
-
-		/**
-		 * Get current TIM4 counter from the RTC.
-		 * 
-		 * @return int
-		 */
-		public int getTim4() {
-			return tim4;
 		}
 
 		/**
@@ -408,7 +501,7 @@ public final class Blink {
 		 * Reset time counters. Performed when COM.RESTIM = 1.
 		 */
 		public void reset() {
-			tim0 = tim1 = tim2 = tim3 = tim4 = 0;
+			TIM0 = TIM1 = TIM2 = TIM3 = TIM4 = 0;
 		}
 
 		/**
@@ -426,18 +519,61 @@ public final class Blink {
 		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
-			if (rtcRunning == true) {
-				if (++tim0 > 199) {
-					tim0 = 0; // 1 second has passed...
-					if (++tim1 > 59) {
-						tim1 = 0; // 1 minute has passed
-						if (++tim2 > 255) {
-							tim2 = 0; // 256 minutes has passed
-							if (++tim3 > 255) {
-								tim3 = 0; // 65536 minutes has passed
-								if (++tim4 > 31) {
-									tim4 = 0; // 65536 * 32 minutes has passed
-								}
+			if (rtcRunning == false)
+				return;
+
+			if (++tick > 1) {
+				// 1/100 second has passed
+				tick = 0;
+				if ((TMK & BM_TMKTICK) == BM_TMKTICK) {
+					// 1/100 second interrupts (ticks) are enabled...
+					// flag that a tick interrupted, but only
+					// if a previous tick interrupt has been acknowledged...
+					// (ie. TSTA.BM_TSTATICK = 0)
+					if ((TSTA & BM_TSTATICK) == 0) {
+						// a previous tick interrupt has been acknowledged
+						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
+						TACK &= ~BM_TACKTICK; // TACK.BM_TACKTICK = 0 (reset prev. acknowledge)
+					}
+				}
+			}
+
+			if (++TIM0 > 199) {
+				// 1 second has passed...
+				TIM0 = 0;
+				if ((TMK & BM_TMKSEC) == BM_TMKSEC) {
+					// second interrupts are enabled...
+					// flag that a second interrupted, but only
+					// if a previous interrupt has been acknowledged...
+					// (ie. TSTA.BM_TSTASEC = 0)
+					if ((TSTA & BM_TSTASEC) == 0) {
+						// a previous second interrupt has been acknowledged
+						TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
+						TACK &= ~BM_TACKSEC; // TACK.BM_TACKSEC = 0 (reset prev. acknowledge)
+					}
+				}
+
+				if (++TIM1 > 59) {
+					// 1 minute has passed
+					TIM1 = 0;
+					if ((TMK & BM_TMKMIN) == BM_TMKMIN) {
+						// minute interrupts are enabled...
+						// flag that a minute interrupted, but only
+						// if a previous interrupt has been acknowledged...
+						// (ie. TSTA.BM_TSTAMIN = 0)
+						if ((TSTA & BM_TSTAMIN) == 0) {
+							// a previous minute interrupt has been acknowledged
+							TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
+							TACK &= ~BM_TACKMIN; // TACK.BM_TACKMIN = 0 (reset prev. acknowledge)
+						}
+					}
+
+					if (++TIM2 > 255) {
+						TIM2 = 0; // 256 minutes has passed
+						if (++TIM3 > 255) {
+							TIM3 = 0; // 65536 minutes has passed
+							if (++TIM4 > 31) {
+								TIM4 = 0; // 65536 * 32 minutes has passed
 							}
 						}
 					}
@@ -445,4 +581,47 @@ public final class Blink {
 			}
 		}
 	} /* Rtc class */
+
+	/** 
+	 * The BLINK supplies the INT signal to the Z80 processor.
+	 * An INT is fired each 10ms, which the Z80 responds to through IM 1
+	 * (executing an RST 38H instruction).
+	 */
+	private class Z80interrupt extends TimerTask {
+
+		Timer intIm1 = null;
+
+		private Z80interrupt() {
+			start();
+		}
+
+		/**
+		 * Stop the 10ms interrupt. 
+		 * (INT.GINT = 0, no interrupts get out of BLINK)
+		 */
+		public void stop() {
+			if (intIm1 != null)
+				intIm1.cancel();
+		}
+
+		/**
+		 * Start the Rtc counter immediately, and execute the run() method every
+		 * 5 millisecond.
+		 */
+		public void start() {
+			intIm1 = new Timer(true); // create Timer as a daemon...
+			intIm1.scheduleAtFixedRate(this, 0, 10);
+		}
+
+		/**
+		 * Send an INT each 10ms to the Z80 processor...
+		 * 
+		 * @see java.lang.Runnable#run()
+		 */
+		public void run() {
+			if (z88vm.interruptTriggered() == false)
+				// signal only if no interrupt is being executed...
+				z88vm.setInterruptSignal();
+		}
+	} /* Z80interrupt class */
 }
