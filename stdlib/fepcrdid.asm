@@ -127,7 +127,7 @@
                     RRCA
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
                     LD   B,A
-                    LD   C, $01           
+                    LD   C, MS_S1           
                     CALL MemDefBank          ; Get bottom Bank of slot 3 into segment 1
                     PUSH BC                  ; preserve old bank binding
 
@@ -159,7 +159,7 @@
 ;
 .GetTotalBlocks     PUSH AF
 
-                    LD   HL, FlashEprTypes
+                    LD   HL, DeviceCodeTable
                     LD   B,(HL)                   ; no. of Flash Memory Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
@@ -172,7 +172,7 @@
 .exit_getblocks
                     POP  AF
                     RET
-.FlashEprTypes
+.DeviceCodeTable
                     DEFB 5
                     DEFB fe_i020, 16               ; 4 x 64K blocks or 16 x 16K banks (256Kb)
                     DEFB fe_i004, 32               ; 8 x 64K blocks or 32 x 16K banks (512Kb)
