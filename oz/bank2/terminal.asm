@@ -6,12 +6,12 @@
 
         Module Terminal
 
-        include "stdio.def"
-        include "fileio.def"
         include "char.def"
-        include "error.def"
-        include "syspar.def"
         include "director.def"
+        include "error.def"
+        include "fileio.def"
+        include "stdio.def"
+        include "syspar.def"
 
         org     $e7f0                           ; $e7f0-$e997
 

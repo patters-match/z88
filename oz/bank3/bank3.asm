@@ -2,13 +2,11 @@
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module GN
+        Module Bank3
 
         org     $C000
+	binary "gn.bin"
 
-
-; this file is here just to give binary correct name
 
 ; to assemble:
-;       mpm -b -nv -IC:\cvs\oz\sysdef @gn.prj
-
+;       mpm -bvg -IC:\cvs\oz\sysdef @bank3.prj

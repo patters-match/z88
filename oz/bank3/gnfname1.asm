@@ -8,7 +8,9 @@
 
         org $d9fe                               ; 223 bytes
 
-        include "all.def"
+	include "fileio.def"
+	include "memory.def"
+	include "syspar.def"
         include "sysvar.def"
 
 ;       ----

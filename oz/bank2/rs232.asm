@@ -117,6 +117,7 @@ defc    TDRH_B_STOP2            =2
 
 defc    TDRH_START              =1
 
+ IF	FINAL=0
 
 ;       ----
 
@@ -689,3 +690,7 @@ defc    TDRH_START              =1
         ld      b, (ix+shnd_Timeout+1)          ; use this if BC(in) = -1
         ld      c, (ix+shnd_Timeout)
         ret
+
+ ELSE
+	binary "rs232.bin"
+ ENDIF

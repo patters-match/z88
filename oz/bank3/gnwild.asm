@@ -8,9 +8,15 @@
 
         org $dadd                               ; 573 bytes
 
-        include "all.def"
-        include "sysvar.def"
+
+	include "director.def"
+	include "dor.def"
+	include	"error.def"
+	include "fileio.def"
+	include "memory.def"
+
         include "gndef.def"
+        include "sysvar.def"
 
 ;       ----
 

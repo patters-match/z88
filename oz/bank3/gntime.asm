@@ -8,7 +8,13 @@
 
         org $c891                               ; 737 bytes
 
-        include "all.def"
+	include "alarm.def"
+	include	"error.def"
+	include "memory.def"
+	include "stdio.def"
+	include "syspar.def"
+	include "time.def"
+
         include "sysvar.def"
 
 ;       ----

@@ -2,7 +2,7 @@
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module GN
+        Module Bank2
 
         org     $C000
 
@@ -10,5 +10,5 @@
 ; this file is here just to give binary correct name
 
 ; to assemble:
-;       mpm -b -nv -IC:\cvs\oz\sysdef @gn.prj
-
+;	mpm -bvg -IC:\CVS\oz\sysdef rs232.asm
+;       mpm -bvg -DFINAL -IC:\CVS\oz\sysdef @bank2.prj

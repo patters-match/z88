@@ -6,7 +6,12 @@
 
         module  Calculator
 
-        include "all.def"
+	include "blink.def"
+	include "director.def"
+	include "error.def"
+	include "fpp.def"
+	include "stdio.def"
+
         org     $f300
 
 defvars 0

@@ -8,7 +8,13 @@
 
         org $cfb3                               ; 1039 bytes
 
-        include "all.def"
+
+	include "char.def"
+	include "error.def"
+	include "memory.def"
+	include "stdio.def"
+	include "syspar.def"
+
         include "sysvar.def"
 
 ;       ----

@@ -8,7 +8,6 @@
 
         org $cb72                               ; 35 bytes
 
-        include "all.def"
         include "sysvar.def"
 
 ;       ----

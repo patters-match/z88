@@ -8,7 +8,12 @@
 
         org $c108                               ; 1929 bytes
 
-        include "all.def"
+	include "error.def"
+	include "filter.def"
+	include "integer.def"
+	include "memory.def"
+	include "syspar.def"
+	include "time.def"
         include "sysvar.def"
         include "gndef.def"
 

@@ -9,7 +9,6 @@
         org     $e7ee                           ; 4773 bytes
 
         include "alarm.def"
-        include "ctrlchar.def"
         include "director.def"
         include "error.def"
         include "integer.def"
@@ -17,8 +16,8 @@
         include "saverst.def"
         include "stdio.def"
         include "syspar.def"
-        include "sysvar.def"
         include "time.def"
+        include "sysvar.def"
 
 
 defvars $1fd6 {

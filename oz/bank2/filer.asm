@@ -6,10 +6,24 @@
 
         Module Filer
 
-        include "all.def"
 
         org $eab1               ; eab1-ff6e, 5310 bytes
 
+
+
+	include "blink.def"
+	include "char.def"
+	include "director.def"
+	include "dor.def"
+	include "error.def"
+	include "fileio.def"
+	include "integer.def"
+	include "memory.def"
+	include "saverst.def"
+	include "stdio.def"
+	include "syspar.def"
+	include "time.def"
+	include "sysvar.def"
 
 defc    f_Vars          = $1dce
 defc    NBUFSIZE        = 240

@@ -8,7 +8,8 @@
 
         org $d4bc                               ; 427 bytes
 
-        include "all.def"
+	include "memory.def"
+	include "error.def"
         include "sysvar.def"
 
 ;       ----

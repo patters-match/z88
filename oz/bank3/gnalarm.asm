@@ -8,7 +8,13 @@
 
         org $e4da                               ; 871 bytes
 
-        include "all.def"
+	include "alarm.def"
+	include "ctrlchar.def"
+	include "director.def"
+	include "error.def"
+	include "memory.def"
+	include "syspar.def"
+	include "time.def"
         include "sysvar.def"
 
 ;       ----

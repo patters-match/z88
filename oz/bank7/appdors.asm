@@ -8,9 +8,15 @@
 
 	include	"director.def"
 
-;       !! org in segment 3 as that's where it's used
+        org $33ff   ; 3073 bytes
 
-        org $f3ff   ; 3073 bytes
+xdef	PrinterEdTopics
+xdef	PrinterEdCommands
+xdef	PrinterEdHelp
+
+xdef	PanelTopics
+xdef	PanelCommands
+xdef	PanelHelp
 
 
 ;       !! Use application DOR null-pointer for these.
@@ -21,7 +27,11 @@
 .PipeDreamHelp
         defb    0
 .DiaryHelp
-        defb    0,0,0
+        defb    0
+.PrinterEdHelp
+	defb	0
+.PanelHelp
+	defb	0
 .FilerHelp
         defb    0
 .TerminalHelp
@@ -252,12 +262,15 @@
         defb    0
 
 ;       BBAA
+
+.PanelTopics
         defb    0
         defb    4,$DC,0,4
         defb    4,$FD,0,4
         defb    0
 
 ;       BBB4
+.PanelCommands
         defb    0
         defb    8,$26,$4A,0,$97,$EC,0,8
         defb    7,$0D,$E1,0,$D2,0,7
@@ -302,7 +315,7 @@
         defb    11,$2D,$4E,$4D,0,$4E,$ED,$82,$F7,0,11                   ; Name Match
         defb    0
 
- .TerminalTopics
+.TerminalTopics
         defb    0
         defb    4,$D8,0,4
         defb    0
@@ -325,7 +338,7 @@
 
 .AlarmDOR
         defp    0,0                     ; parent
-        defp    FilerDor,7              ; brother
+        defp    FilerDor|$c000,7              ; brother
 .AlarmTCH
         defp    0,0                     ; son
         defb    $83,AlarmDORe-$PC       ; DOR type, sizeof
@@ -339,9 +352,9 @@
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    AlarmTCH&$3fff,7        ; topics
-        defp    AlarmTCH&$3fff,7        ; commands
-        defp    AlarmTCH&$3fff,7        ; help
+        defp    AlarmTCH,7        ; topics
+        defp    AlarmTCH,7        ; commands
+        defp    AlarmTCH,7        ; help
         defp    $8000,7                 ; token base
 
         defb    'N',AlarmDORe-$PC-1     ; name, length
@@ -364,9 +377,9 @@
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    FilerTopics&$3fff,7     ; topics
-        defp    FilerCommands&$3fff,7   ; commands
-        defp    FilerHelp&$3fff,7       ; help
+        defp    FilerTopics,7     ; topics
+        defp    FilerCommands,7   ; commands
+        defp    FilerHelp,7       ; help
         defp    $8000,7                 ; token base
 
         defb    'N',FilerDORe-$PC-1     ; name, length
@@ -376,7 +389,7 @@
 
 .IndexDOR
         defp    0,0                     ; parent
-        defp    DiaryDOR,7              ; brother
+        defp    DiaryDOR|$c000,7              ; brother
         defp    0,0                     ; son
         defb    $83,IndexDORe-$PC       ; DOR type, sizeof
 
@@ -389,9 +402,9 @@
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    IndexTopics&$3fff,7     ; topics
-        defp    IndexCommands&$3fff,7   ; commands
-        defp    IndexHelp&$3fff,7       ; help
+        defp    IndexTopics,7     ; topics
+        defp    IndexCommands,7   ; commands
+        defp    IndexHelp,7       ; help
         defp    $8000,7                 ; token base
 
         defb    'N',IndexDORe-$PC-1     ; name, length
@@ -401,7 +414,7 @@
 
 .DiaryDOR
         defp    0,0                     ; parent
-        defp    PipeDreamDOR,7          ; brother
+        defp    PipeDreamDOR|$c000,7          ; brother
         defp    0,0                     ; son
         defb    $83,DiaryDORe-$PC       ; DOR type, sizeof
 
@@ -414,9 +427,9 @@
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    DiaryTopics&$3fff,7     ; topics
-        defp    DiaryCommands&$3fff,7   ; commands
-        defp    DiaryHelp&$3fff,7       ; help
+        defp    DiaryTopics,7     ; topics
+        defp    DiaryCommands,7   ; commands
+        defp    DiaryHelp,7       ; help
         defp    $8000,7                 ; token base
 
         defb    'N',DiaryDORe-$PC-1     ; name, length
@@ -426,7 +439,7 @@
 
 .PipeDreamDOR
         defp    0,0                     ; parent
-        defp    BasicDOR,7              ; brother
+        defp    BasicDOR|$c000,7              ; brother
         defp    0,0                     ; son
         defb    $83,PipeDreamDORe-$PC   ; DOR type, sizeof
 
@@ -439,9 +452,9 @@
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    PipeDreamTopics&$3fff,7 ; topics
-        defp    PipeDreamCommands&$3fff,7       ; commands
-        defp    PipeDreamHelp&$3fff,7   ; help
+        defp    PipeDreamTopics,7 ; topics
+        defp    PipeDreamCommands,7       ; commands
+        defp    PipeDreamHelp,7   ; help
         defp    $8000,7                 ; token base
 
         defb    'N',PipeDreamDORe-$PC-1 ; name, length
@@ -451,7 +464,7 @@
 
 .BasicDOR
         defp    0,0                     ; parent
-        defp    CalculatorDOR,7         ; brother
+        defp    CalculatorDOR|$c000,7         ; brother
 .BasicTCH
         defp    0,0                     ; son
         defb    $83,BasicDORe-$PC       ; DOR type, sizeof
@@ -465,9 +478,9 @@
         defb    AT2_Cl                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    BasicTCH&$3fff,7        ; topics
-        defp    BasicTCH&$3fff,7        ; commands
-        defp    BasicTCH&$3fff,7        ; help
+        defp    BasicTCH,7        ; topics
+        defp    BasicTCH,7        ; commands
+        defp    BasicTCH,7        ; help
         defp    0,0                     ; token base
 
         defb    'N',BasicDORe-$PC-1     ; name, length
@@ -491,9 +504,9 @@
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    CalculatorTCH&$3fff,7   ; topics
-        defp    CalculatorTCH&$3fff,7   ; commands
-        defp    CalculatorTCH&$3fff,7   ; help
+        defp    CalculatorTCH,7   ; topics
+        defp    CalculatorTCH,7   ; commands
+        defp    CalculatorTCH,7   ; help
         defp    $8000,7                 ; token base
 
         defb    'N',CalculatorDORe-$PC-1        ; name, length
@@ -516,9 +529,9 @@
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    TerminalTopics&$3fff,7  ; topics
-        defp    TerminalCommands&$3fff,7        ; commands
-        defp    TerminalHelp&$3fff,7    ; help
+        defp    TerminalTopics,7  ; topics
+        defp    TerminalCommands,7        ; commands
+        defp    TerminalHelp,7    ; help
         defp    $8000,7                 ; token base
 
         defb    'N',TerminalDORe-$PC-1  ; name, length
@@ -533,7 +546,7 @@
 ;       $BFC0
         defp    0,0                     ; parent
         defp    0,0                     ; brother
-        defp    IndexDor,7              ; son
+        defp    IndexDor|$c000,7              ; son
         defb    $13,8                   ; DOR type, sizeof
 
         defb    $4e,$05                 ; name, length

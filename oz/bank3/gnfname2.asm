@@ -8,8 +8,12 @@
 
         org $ded3                               ; 1543 bytes
 
-        include "all.def"
+	include "dor.def"
+	include "error.def"
+	include "fileio.def"
+	include "memory.def"
         include "sysvar.def"
+
         include "gndef.def"
 
 ;       ----

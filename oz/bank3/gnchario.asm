@@ -8,7 +8,7 @@
 
         org $cf40                               ; 115 bytes
 
-        include "all.def"
+	include "stdio.def"
         include "sysvar.def"
 
 ;       ----

@@ -8,7 +8,7 @@
 
         org $e841                               ; 42 bytes
 
-        include "all.def"
+	include "error.def"
         include "sysvar.def"
 
 ;       ----

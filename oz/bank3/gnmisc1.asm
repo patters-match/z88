@@ -8,7 +8,8 @@
 
         org $c000                               ; 264 bytes
 
-        include "all.def"
+	include "blink.def"
+
         include "sysvar.def"
 
 ;       ----

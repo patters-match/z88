@@ -6,9 +6,21 @@
 
         Module Filer
 
-        include "all.def"
+	include	"blink.def"
+	include "char.def"
+	include "director.def"
+	include "error.def"
+	include "fileio.def"
+	include "integer.def"
+	include "memory.def"
+	include "misc.def"
+	include "serintfc.def"
+	include "stdio.def"
+	include "syspar.def"
+	include "time.def"
         include "sysvar.def"
 
+	include	"..\bank7\lowram.def"
 
 
 ; ubIdxFlags2
@@ -109,7 +121,7 @@ defc    CLIS_PRTTOPEN           =4
 defc    CLIS_OUTTOPEN           =2
 defc    CLIS_INTOPEN            =1
 
-mem_1fd6			=$1fd6		; 3*12 bytes
+defc	mem_1fd6		=$1fd6		; 3*12 bytes
 
         org     $c000                           ; c000-d7ff, 6144 bytes
 

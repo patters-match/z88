@@ -8,7 +8,7 @@
 
         org $d3fd                               ; 191 bytes
 
-        include "all.def"
+	include "memory.def"
         include "sysvar.def"
 
 ;       ----

@@ -8,7 +8,12 @@
 
         org $d667                               ; 919 bytes
 
-        include "all.def"
+	include "blink.def"
+	include "ctrlchar.def"
+	include "director.def"
+	include "error.def"
+	include "misc.def"
+	include "saverst.def"
         include "sysvar.def"
 
 ;       ----

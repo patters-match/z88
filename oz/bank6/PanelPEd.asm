@@ -6,9 +6,22 @@
 
         Module  PanelPEd
 
+	include "blink.def"
+	include "char.def"
+	include "director.def"
+	include "error.def"
+	include "fileio.def"
+	include "fpp.def"
+	include "integer.def"
+	include "memory.def"
+	include "stdio.def"
+	include "syspar.def"
+	include "sysvar.def"
+
+	include	"..\bank2\bank2.def"
+
         org     $c000                           ; c000-d1ff, 5310 bytes
 
-        include "all.def"
 
 
 ;       !! get rid of IY-based variables, use absolute addressing
@@ -1578,7 +1591,7 @@ p_ubFlags               ds.b    1
         ld      hl, PrEdPg2Tbl
         cp      PRED_PAGE2
         jr      z, ged_1
-        ld      hl, $2998                       ; PrEdTransTbl
+        ld      hl, PrEdTransTbl&$3fff
         cp      PRED_PAGE3
         jr      z, ged_1
         ld      hl, PanelTbl

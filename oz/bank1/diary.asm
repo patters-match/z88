@@ -8,7 +8,18 @@
 
         org $C000
 
-        include "all.def"
+	include "blink.def"
+	include "char.def"
+	include "director.def"
+	include "error.def"
+	include "fileio.def"
+	include "integer.def"
+	include "memory.def"
+	include "misc.def"
+	include "saverst.def"
+	include "stdio.def"
+	include "syspar.def"
+	include "time.def
         include "sysvar.def"
 
 defc    dix_eCurrentDatePrev    =$00

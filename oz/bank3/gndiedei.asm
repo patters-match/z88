@@ -8,7 +8,8 @@
 
         org $e86b                               ; 1126 bytes
 
-        include "all.def"
+	include "memory.def"
+	include "time.def"
         include "sysvar.def"
 
 ;       ----
