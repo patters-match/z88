@@ -23,15 +23,15 @@ import javax.swing.JTextArea;
  * $Id$
  */
 public final class Blink extends Z80 {
-	
+
 	/**
-	 * Time format used when displaying a runtime system message 
+	 * Time format used when displaying a runtime system message
 	 */
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH.mm.ss.SSS");
 
 	/**
 	 * Blink class default constructor.
-	 * 
+	 *
 	 * @param canvas
 	 * @param rtmOutput
 	 */
@@ -39,7 +39,7 @@ public final class Blink extends Z80 {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.
-		
+
 		// the segment register SR0 - SR3
 		sR = new int[4];
 		// all segment registers points at ROM bank 0
@@ -66,7 +66,7 @@ public final class Blink extends Z80 {
 
 		z88Display = new Z88display(this, canvas);		// create window, but without activity yet...
 		z88Keyboard = new Z88Keyboard(this, canvas);
-		
+
 		runtimeOutput = rtmOutput;		// reference to runtime output window text area.
 	}
 
@@ -81,27 +81,28 @@ public final class Blink extends Z80 {
 	}
 
 	private JTextArea runtimeOutput;
-	
-	private void displayRtmMessage(final String msg) {
+
+	private void displayRtmMessage(final String msg, final boolean displayTimeStamp) {
 		final Date curDateTime = new Date();
-		
+
 		Thread displayMsgThread = new Thread() {
 			public void run() {
 				// Make sure the new text is visible, even if there
 				// was a selection in the text area.
-				runtimeOutput.append(sdf.format(curDateTime) + ":\n" + msg + "\n");
-				runtimeOutput.setCaretPosition(runtimeOutput.getDocument().getLength());		
+				if (displayTimeStamp == true) runtimeOutput.append(sdf.format(curDateTime) + ":\n");
+				runtimeOutput.append(msg + "\n");
+				runtimeOutput.setCaretPosition(runtimeOutput.getDocument().getLength());
 			}
 		};
 
 		displayMsgThread.setPriority(Thread.MIN_PRIORITY);
-		displayMsgThread.start();		
+		displayMsgThread.start();
 	}
-	
+
 	private Breakpoints breakPoints = null;
 
 	private boolean debugMode = false;
-	
+
 	/**
 	 * The 640x64 pixel display.
 	 */
@@ -111,7 +112,7 @@ public final class Blink extends Z80 {
 	 * The keyboard hardware (receiving input from Host OS keyboard).
 	 */
 	private Z88Keyboard z88Keyboard;
-	
+
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
 	 */
@@ -134,7 +135,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Main Blink Interrrupts (INT).
-	 * 
+	 *
 	 * <PRE>
 	 * BIT 7, KWAIT  If set, reading the keyboard will Snooze
 	 * BIT 6, A19    If set, an active high on A19 will exit Coma
@@ -170,7 +171,7 @@ public final class Blink extends Z80 {
 	 * BIT 1, TIME   If set, RTC interrupts are enabled
 	 * BIT 0, GINT   If clear, no interrupts get out of blink
 	 * </pre>
-	 * 
+	 *
 	 * @param bits
 	 */
 	public void setBlinkInt(int bits) {
@@ -183,13 +184,13 @@ public final class Blink extends Z80 {
 //		if ((bits & BM_INTKEY) != 0) System.out.println("INT.BM_INTKEY");
 //		if ((bits & BM_INTTIME) != 0) System.out.println("INT.BM_INTTIME");
 //		if ((bits & BM_INTGINT) != 0) System.out.println("INT.BM_INTGINT");
-//		
-		INT = bits;		
+//
+		INT = bits;
 	}
 
 	/**
-	 * Get main Blink Interrrupts (INT), Z80 OUT Write Register. 
-	 * 
+	 * Get main Blink Interrrupts (INT), Z80 OUT Write Register.
+	 *
 	 * <pre>
 	 * BIT 7, KWAIT  If set, reading the keyboard will Snooze
 	 * BIT 6, A19    If set, an active high on A19 will exit Coma
@@ -209,9 +210,9 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Acknowledge Main Blink Interrrupts (ACK)
-	 * 
+	 *
 	 * <PRE>
-	 * BIT 6, A19    Acknowledge active high on A19 
+	 * BIT 6, A19    Acknowledge active high on A19
 	 * BIT 5, FLAP   Acknowledge Flap interrupts
 	 * BIT 3, BTL    Acknowledge battery low interrupt
 	 * BIT 2, KEY    Acknowledge keyboard interrupt
@@ -224,37 +225,37 @@ public final class Blink extends Z80 {
 	public static final int BM_ACKBTL = 0x08;	// Bit 3, Acknowledge battery low interrupt
 	public static final int BM_ACKKEY = 0x04;	// Bit 2, Acknowledge keyboard interrupt
 	public static final int BM_ACKTIME = 0x01;	// Bit 0, Acknowledge TIME interrupt
-	
+
 	/**
 	 * Set Main Blink Interrupt Acknowledge (ACK), Z80 OUT Register
-	 * 
+	 *
 	 * <PRE>
-	 * BIT 6, A19    Acknowledge active high on A19 
+	 * BIT 6, A19    Acknowledge active high on A19
 	 * BIT 5, FLAP   Acknowledge Flap interrupts
 	 * BIT 3, BTL    Acknowledge battery low interrupt
 	 * BIT 2, KEY    Acknowledge keyboard interrupt
 	 * </PRE>
-	 * 
+	 *
 	 * @param bits
 	 */
 	public void setBlinkAck(int bits) {
 		// System.out.println("Blink, Acknowledge interrupts: " + Integer.toBinaryString(bits));
-		if ((bits & BM_ACKA19) == BM_ACKA19) STA &= ~BM_STAA19; 
-		if ((bits & BM_ACKBTL) == BM_ACKBTL) STA &= ~BM_STABTL; 
-		if ((bits & BM_ACKFLAP) == BM_ACKFLAP) STA &= ~BM_STAFLAP;  
-		if ((bits & BM_ACKTIME) == BM_ACKTIME) STA &= ~BM_STATIME; 
+		if ((bits & BM_ACKA19) == BM_ACKA19) STA &= ~BM_STAA19;
+		if ((bits & BM_ACKBTL) == BM_ACKBTL) STA &= ~BM_STABTL;
+		if ((bits & BM_ACKFLAP) == BM_ACKFLAP) STA &= ~BM_STAFLAP;
+		if ((bits & BM_ACKTIME) == BM_ACKTIME) STA &= ~BM_STATIME;
 	}
 
    	/**
 	 * Get Main Blink Interrupt Acknowledge (ACK), Z80 OUT Register
 	 *
 	 * <PRE>
-	 * BIT 6, A19    Acknowledge active high on A19 
+	 * BIT 6, A19    Acknowledge active high on A19
 	 * BIT 5, FLAP   Acknowledge Flap interrupts
 	 * BIT 3, BTL    Acknowledge battery low interrupt
 	 * BIT 2, KEY    Acknowledge keyboard interrupt
 	 * </PRE>
-	 * 
+	 *
 	 * @param bits
 	 */
 	public int getBlinkAck() {
@@ -263,7 +264,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Main Blink Interrupt Status (STA)
-	 * 
+	 *
 	 * <PRE>
 	 * Bit 7, FLAPOPEN, If set, flap open, else flap closed
 	 * Bit 6, A19, If set, high level on A19 occurred during coma
@@ -277,17 +278,17 @@ public final class Blink extends Z80 {
 	 */
 	private int STA;
 
-	public static final int BM_STAFLAPOPEN = 0x80;	// Bit 7, If set, flap open, else flap closed 
+	public static final int BM_STAFLAPOPEN = 0x80;	// Bit 7, If set, flap open, else flap closed
 	public static final int BM_STAA19 = 0x40;	// Bit 6, If set, high level on A19 occurred during coma
 	public static final int BM_STAFLAP = 0x20;	// Bit 5, If set, positive edge has occurred on FLAPOPEN
 	public static final int BM_STAUART = 0x10;	// Bit 4, If set, an enabled UART interrupt is active
 	public static final int BM_STABTL = 0x08;	// Bit 3, If set, battery low pin is active
 	public static final int BM_STAKEY = 0x04;	// Bit 2, If set, a column has gone low in snooze (or coma)
 	public static final int BM_STATIME = 0x01;	// Bit 1, If set, an enabled TSTA interrupt is active
-	
+
 	/**
 	 * Get Main Blink Interrupt Status (STA).
-	 * 
+	 *
 	 * <PRE>
 	 * Bit 7, FLAPOPEN, If set, flap open, else flap closed
 	 * Bit 6, A19, If set, high level on A19 occurred during coma
@@ -310,19 +311,19 @@ public final class Blink extends Z80 {
 //		if ((STA & BM_STAKEY) != 0) System.out.println("STA.BM_STAKEY");
 //		if ((STA & BM_STATIME) != 0) System.out.println("STA.BM_STATIME");
 //		if ((STA & BM_STAGINT) != 0) System.out.println("STA.BM_STAGINT");
-		
+
 		return STA;
 	}
-	
+
 	/**
 	 * Return Timer Interrupt Status (TSTA).
-	 * 
+	 *
 	 * <PRE>
 	 * BIT 2, MIN, Set if minute interrupt has occurred
 	 * BIT 1, SEC, Set if second interrupt has occurred
 	 * BIT 0, TICK, Set if tick interrupt has occurred
 	 * </PRE>
-	 * 
+	 *
 	 * @return TSTA
 	 */
 	public int getBlinkTsta() {
@@ -331,7 +332,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Set Timer Interrupt Acknowledge (TACK), Z80 OUT Write Register.
-	 * 
+	 *
 	 * <PRE>
 	 * BIT 2, MIN, Set to acknowledge minute interrupt
 	 * BIT 1, SEC, Set to acknowledge second interrupt
@@ -344,13 +345,13 @@ public final class Blink extends Z80 {
 		if ((bits & Rtc.BM_TACKMIN) == Rtc.BM_TACKMIN) rtc.TSTA &= ~Rtc.BM_TACKMIN;
 		if ((bits & Rtc.BM_TACKSEC) == Rtc.BM_TACKSEC) rtc.TSTA &= ~Rtc.BM_TACKSEC;
 		if ((bits & Rtc.BM_TACKTICK) == Rtc.BM_TACKTICK) rtc.TSTA &= ~Rtc.BM_TACKTICK;
-		
-		STA &= ~BM_STATIME;			// also acknowledge enabled STA.TIME interrupt		
+
+		STA &= ~BM_STATIME;			// also acknowledge enabled STA.TIME interrupt
 	}
 
 	/**
 	 * Get Timer interrupt acknowledge (TACK), Z80 OUT Write Register.
-	 * 
+	 *
 	 * <PRE>
 	 * BIT 2, MIN, Set to acknowledge minute interrupt
 	 * BIT 1, SEC, Set to acknowledge
@@ -363,7 +364,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Set Timer Interrupt Mask (TMK), Z80 OUT Write Register
-	 *  
+	 *
 	 * <PRE>
 	 * BIT 2, MIN, Set to enable minute interrupt
 	 * BIT 1, SEC, Set to enable second interrupt
@@ -376,7 +377,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Get Timer Interrupt Mask (TMK), Z80 OUT Write Register
-	 *  
+	 *
 	 * <PRE>
 	 * BIT 2, MIN, Set to enable minute interrupt
 	 * BIT 1, SEC, Set to enable second interrupt
@@ -389,7 +390,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Get current TIM0 register from the RTC.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getBlinkTim0() {
@@ -398,7 +399,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Get current TIM1 register from the RTC.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getBlinkTim1() {
@@ -407,7 +408,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Get current TIM2 register from the RTC.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getBlinkTim2() {
@@ -416,7 +417,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Get current TIM3 register from the RTC.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getBlinkTim3() {
@@ -425,7 +426,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Get current TIM4 register from the RTC.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getBlinkTim4() {
@@ -457,14 +458,14 @@ public final class Blink extends Z80 {
 	/**
 	 * Get Address of LORES0 (PB0 16bits register) in 24bit extended address format.<br>
 	 * The 6 * 8 pixel per char User Defined Fonts.
-	 */	
+	 */
 	public int getBlinkPb0Address() {
 		int extAddressBank = (PB0 << 3) & 0xF700;
 		int extAddressOffset = (PB0 << 1) & 0x003F;
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
-	
+
 	/**
 	 * LORES1 (PB1, 16bits register).<br>
 	 * The 6 * 8 pixel per char fonts.
@@ -485,19 +486,19 @@ public final class Blink extends Z80 {
 	 */
 	public int getBlinkPb1() {
 		return PB1;
-	} 
-	
+	}
+
 	/**
 	 * Get Address of LORES1 (PB1 16bits register) in 24bit extended address format.<br>
 	 * The 6 * 8 pixel per char fonts.
-	 */	
+	 */
 	public int getBlinkPb1Address() {
 		int extAddressBank = (PB1 << 6) & 0xFF00;
 		int extAddressOffset = (PB1 << 4) & 0x0030;
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
-	
+
 	/**
 	 * HIRES0 (PB2 16bits register)
      * (The 8 * 8 pixel per char PipeDream Map)
@@ -530,7 +531,7 @@ public final class Blink extends Z80 {
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
-	
+
 	/**
 	 * HIRES1 (PB3, 16bits register)
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
@@ -556,19 +557,19 @@ public final class Blink extends Z80 {
 	/**
 	 * Get Address of HIRES1 (PB3 16bits register) in 24bit extended address format.
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
-	 */	
+	 */
 	public int getBlinkPb3Address() {
 		int extAddressBank = (PB3 << 5) & 0xFF00;
 		int extAddressOffset = (PB3 << 3) & 0x0038;
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
-	
+
 	/**
 	 * Screen Base Register (16bits register)
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
-	 */	
+	 */
 	private int SBR;
 
 	/**
@@ -624,12 +625,12 @@ public final class Blink extends Z80 {
 			if ( ((INT & Blink.BM_INTKEY) != 0) ) {
 				// If keyboard interrupts are enabled, then signal that a key was pressed.
 				STA |= BM_STAKEY;
-			}			
+			}
         }
-		
+
 		return keyCol;
 	}
-    
+
 	/**
 	 * System bank for lower 8K of segment 0.
 	 * References bank 0x00 or 0x20 of slot 0.
@@ -637,8 +638,8 @@ public final class Blink extends Z80 {
 	private Bank RAMS;
 
 	/**
-	 * Get Bank, referenced by it's number [0-255] in the BLINK memory model 
-	 * 
+	 * Get Bank, referenced by it's number [0-255] in the BLINK memory model
+	 *
 	 * @return Bank
 	 */
 	public Bank getBank(final int bankNo) {
@@ -647,7 +648,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Install Bank entity into BLINK 16K memory system [0-255].
-	 *  
+	 *
 	 * @param bank
 	 * @param bankNo
 	 */
@@ -657,7 +658,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Segment register array for SR0 - SR3.
-	 * 
+	 *
 	 * <PRE>
 	 * Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
 	 * Segment register 1, SR1, bank binding for 0x4000 - 0x7FFF
@@ -686,13 +687,13 @@ public final class Blink extends Z80 {
 	private Bank nullBank;
 
 	/**
-	 * Get current bank [0; 255] binding in segments [0; 3]. 
+	 * Get current bank [0; 255] binding in segments [0; 3].
 	 *
 	 * On the Z88, the 64K is split into 4 sections of 16K segments.
 	 * Any of the 256 16K banks can be bound into the address space
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getSegmentBank(final int segment) {
@@ -701,7 +702,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Bind bank [0-255] to segments [0-3] in the Z80 address space.
-	 * 
+	 *
 	 * On the Z88, the 64K is split into 4 sections of 16K segments. Any of the
 	 * 256 x 16K banks can be bound into the address space on the Z88. Bank 0 is
 	 * special, however. Please refer to hardware section of the Developer's
@@ -713,13 +714,13 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Decode Z80 Address Space to extended Blink Address (offset,bank).
-	 * 
+	 *
 	 * @param pc 16bit word that points into Z80 Local Address Space
-	 * @return int 24bit extended address 
+	 * @return int 24bit extended address
 	 */
 	public int decodeLocalAddress(final int pc) {
 		int bankno;
-		
+
 		if (pc >= 0x2000) {
 			bankno = sR[(pc >>> 14) & 0x03];
 		} else {
@@ -734,7 +735,7 @@ public final class Blink extends Z80 {
 
 		return bankno << 16 | pc;
 	}
-	
+
 	/**
 	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word
 	 * that points into the Z80 64K address space.
@@ -754,8 +755,8 @@ public final class Blink extends Z80 {
 				// or 0x20 (RAM for Z80 stack and system variables)
 				return RAMS.bank[addr];
 			else {
-				if ((sR[0] & 1) == 0) 
-					// lower 8K of even bank bound into upper 8K of segment 0					
+				if ((sR[0] & 1) == 0)
+					// lower 8K of even bank bound into upper 8K of segment 0
 					return memory[sR[0] & 0xFE].bank[addr & 0x1FFF];
 				else
 					// upper 8K of even bank bound into upper 8K of segment 0
@@ -766,7 +767,7 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Read word (16bits) from Z80 virtual memory model. 
+	 * Read word (16bits) from Z80 virtual memory model.
 	 * <addr> is a 16bit word that points into the Z80 64K address space.
 	 *
 	 * On the Z88, the 64K is split into 4 sections of 16K segments.
@@ -776,8 +777,8 @@ public final class Blink extends Z80 {
 	 */
 	public final int readWord(int addr) {
 		Bank bankNo;
-		
-		if ( (addr & 0x3FFF) != 0x3FFF ) { 
+
+		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
 				bankNo = memory[sR[addr >>> 14]];
 				addr &= 0x3FFF;
@@ -792,7 +793,7 @@ public final class Blink extends Z80 {
 					bankNo = memory[sR[0] & 0xFE];
 					if ((sR[0] & 1) == 0) {
 						// lower 8K of even bank bound into upper 8K of segment 0
-						addr &= 0x1FFF; 
+						addr &= 0x1FFF;
 						return bankNo.bank[addr+1] << 8 | bankNo.bank[addr];
 					} else {
 						// upper 8K of even bank bound into upper 8K of segment 0
@@ -813,18 +814,18 @@ public final class Blink extends Z80 {
 	 * the Z80 64K address space. Z80 instructions varies between 1 and 4 bytes,
 	 * but here a complete 4 byte sequence is cached in the return argument,
 	 * without knowing the actual length.
-	 * 
-	 * The instruction is returned as a 32bit integer for compactness, in MSB order, 
-	 * ie. lowest 8bit of int is the first byte of the instruction, highest 8bit 
+	 *
+	 * The instruction is returned as a 32bit integer for compactness, in MSB order,
+	 * ie. lowest 8bit of int is the first byte of the instruction, highest 8bit
 	 * of 32bit integer is the 4th byte of the instruction.
-	 *  
+	 *
 	 * @param addr address offset in bank
-	 * @return int 4 byte Z80 instruction 
+	 * @return int 4 byte Z80 instruction
 	 */
 	public final int readInstruction(int addr) {
 		Bank bankNo;
-		
-		if ( (addr & 0x3FFF)+3 <= 0x3FFF ) { 
+
+		if ( (addr & 0x3FFF)+3 <= 0x3FFF ) {
 			if (addr > 0x3FFF) {
 				bankNo = memory[sR[addr >>> 14]];
 				addr &= 0x3FFF;
@@ -871,7 +872,7 @@ public final class Blink extends Z80 {
 	 */
 	public final void writeByte(final int addr, final int b) {
 		Bank bankNo;
-		
+
 		if (addr > 0x3FFF) {
 			// write byte to segments 1 - 3
 			bankNo = memory[sR[addr >>> 14]];
@@ -885,8 +886,8 @@ public final class Blink extends Z80 {
 			} else {
 				bankNo = memory[sR[0] & 0xFE];
 				if (bankNo.type == Bank.RAM) {
-					if ((sR[0] & 1) == 0) { 
-						// lower 8K of even bank bound into upper 8K of segment 0 
+					if ((sR[0] & 1) == 0) {
+						// lower 8K of even bank bound into upper 8K of segment 0
 						bankNo.bank[addr & 0x1FFF] = b & 0xFF;
 					} else {
 						// upper 8K of even bank bound into upper 8K of segment 0
@@ -909,30 +910,30 @@ public final class Blink extends Z80 {
 	 */
 	public final void writeWord(int addr, final int w) {
 		Bank bankNo;
-		
-		if ( (addr & 0x3FFF) != 0x3FFF ) { 
+
+		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
 				bankNo = memory[sR[addr >>> 14]];
 				addr &= 0x3FFF;
 				if (bankNo.type == Bank.RAM) {
-					bankNo.bank[addr] = w & 0xFF; 
+					bankNo.bank[addr] = w & 0xFF;
 					bankNo.bank[addr+1] = (w >>> 8) & 0xFF;
-				} 
+				}
 			} else {
 				if (addr < 0x2000) {
 					// return lower 8K Bank binding
 					// Lower 8K is System Bank 0x00 (ROM on hard reset)
 					// or 0x20 (RAM for Z80 stack and system variables)
-					if (RAMS.type == Bank.RAM) { 
+					if (RAMS.type == Bank.RAM) {
 						RAMS.bank[addr] = w & 0xFF;
 						RAMS.bank[addr+1] = (w >>> 8) & 0xFF;
-					} 
+					}
 				} else {
 					bankNo = memory[sR[0] & 0xFE];
 					if (bankNo.type == Bank.RAM) {
 						if ((sR[0] & 1) == 0) {
-							addr &= 0x1FFF; 
-							// lower 8K of even bank bound into upper 8K of segment 0 
+							addr &= 0x1FFF;
+							// lower 8K of even bank bound into upper 8K of segment 0
 							bankNo.bank[addr] = w & 0xFF;
 							bankNo.bank[addr+1] = (w >>> 8) & 0xFF;
 						} else {
@@ -955,9 +956,9 @@ public final class Blink extends Z80 {
 	 * The "internal" write byte method to be used in
 	 * the OZvm debugging environment, allowing complete
 	 * write permission.
-	 * 
+	 *
 	 * @param offset within the 16K memory bank.
-	 * @param bank number of the 4MB memory model (0-255). 
+	 * @param bank number of the 4MB memory model (0-255).
 	 * @param bits to be written.
 	 */
 	public void setByte(final int offset, final int bankno, final int bits) {
@@ -971,7 +972,7 @@ public final class Blink extends Z80 {
 	 * The "internal" write byte method to be used in
 	 * the OZvm debugging environment, allowing complete
 	 * write permission.
-	 * 
+	 *
 	 * @param extAddress 24bit extended address
 	 * @param bits to be written.
 	 */
@@ -980,9 +981,9 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * The "internal" read byte method to be used in the OZvm 
+	 * The "internal" read byte method to be used in the OZvm
 	 * debugging environment.
-	 * 
+	 *
 	 * @param extAddress 24bit extended address
 	 * @return int the byte at extended address
 	 */
@@ -991,9 +992,9 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * The "internal" read byte method to be used in the OZvm 
+	 * The "internal" read byte method to be used in the OZvm
 	 * debugging environment.
-	 * 
+	 *
 	 * @param offset
 	 * @param bank
 	 * @return int
@@ -1003,22 +1004,22 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Implement Z88 input port BLINK hardware 
+	 * Implement Z88 input port BLINK hardware
 	 * (Registers STA, KBD, TSTA, TIM0-TIM4, RXD, RXE, UIT).
-	 * 
+	 *
 	 * @param addrA8 Port number (low byte address)
 	 * @param addrA15 high byte address
-	 */	
+	 */
 	public final int inByte(int addrA8, int addrA15) {
 		int res = 0;
 
-		Thread.yield();	// let the Java System work on the other thread for a short while... 
-		
+		Thread.yield();	// let the Java System work on the other thread for a short while...
+
 		switch (addrA8) {
-			case 0xB1:				
+			case 0xB1:
                 res = getBlinkSta();		// STA, Main Blink Interrupt Status
 				break;
-				
+
 			case 0xB2:
 				res = getBlinkKbd(addrA15);	// KBD, get Keyboard column for specified row.
 				break;
@@ -1030,23 +1031,23 @@ public final class Blink extends Z80 {
 				break;
 
             case 0xD0:
-				res = getBlinkTim0();	// TIM0, 5ms period, counts to 199  
+				res = getBlinkTim0();	// TIM0, 5ms period, counts to 199
 				break;
-				
+
 			case 0xD1:
-				res = getBlinkTim1();	// TIM1, 1 second period, counts to 59  
+				res = getBlinkTim1();	// TIM1, 1 second period, counts to 59
 				break;
-				
+
 			case 0xD2:
-				res = getBlinkTim2();	// TIM2, 1 minute period, counts to 255  
+				res = getBlinkTim2();	// TIM2, 1 minute period, counts to 255
 				break;
-				
+
 			case 0xD3:
-				res = getBlinkTim3();	// TIM3, 256 minutes period, counts to 255     
+				res = getBlinkTim3();	// TIM3, 256 minutes period, counts to 255
 				break;
-				
+
 			case 0xD4:
-				res = getBlinkTim4();	// TIM4, 64K minutes Period, counts to 31        
+				res = getBlinkTim4();	// TIM4, 64K minutes Period, counts to 31
 				break;
 
 			default :
@@ -1057,15 +1058,15 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Implement Z88 output port Blink hardware. 
+	 * Implement Z88 output port Blink hardware.
 	 * (RTC, Screen, Keyboard, Memory model, Serial port, CPU state).
-	 * 
+	 *
 	 * @param addrA8 LSB of port address
 	 * @param addrA15 MSB of port address
 	 * @param outByte the data to send to the hardware
 	 */
 	public final void outByte(final int addrA8, final int addrA15, final int outByte) {
-		Thread.yield();	// let the Java System work on the other thread for a short while... 
+		Thread.yield();	// let the Java System work on the other thread for a short while...
 
 		switch (addrA8) {
 			case 0xD0 : // SR0, Segment register 0
@@ -1091,7 +1092,7 @@ public final class Blink extends Z80 {
 				setBlinkTmk(outByte);
 				break;
 
-			case 0xB6 : // ACK, Acknowledge Main Interrupts				
+			case 0xB6 : // ACK, Acknowledge Main Interrupts
 				setBlinkAck(outByte);
 				break;
 
@@ -1117,7 +1118,7 @@ public final class Blink extends Z80 {
 		}
 	}
 
-    /** 
+    /**
      * Internal signal for stopping the Z80 execution engine
      */
     private boolean stopZ88 = false;
@@ -1125,37 +1126,37 @@ public final class Blink extends Z80 {
 	public void stopZ80Execution() {
 		stopZ88 = true;
 	}
-	
-    /** 
+
+    /**
      * Check if F5 key was pressed, or a stop was issued at command line.
      */
 	public boolean isZ80Stopped() {
         if (stopZ88 == true) {
             stopZ88 = false;
-			displayRtmMessage("Z88 virtual machine was stopped.");
+			displayRtmMessage("Z88 virtual machine was stopped at " + Dz.extAddrToHex(decodeLocalAddress(PC()), true), true);
             return true;
         } else {
             return false;
         }
 	}
-	
-	
+
+
 	public void haltZ80() {
 		// Let the Blink know that a HALT instruction occured
 		// so that the Z88 enters the correct state (coma, snooze, ...)
 
-		long w = System.currentTimeMillis();		
+		long w = System.currentTimeMillis();
 		do {
 			try {
 				Thread.sleep(5);		// Z80 "sleeps" for 5ms ... (interrupts still occurs in Blink)
 			} catch (InterruptedException e) {
 				e.printStackTrace(System.out);
-			}			
+			}
 		}
 		// Only get out of coma if an interrupt occurred..
 		while(interruptTriggered() == false);
 		w = System.currentTimeMillis() - w;
-		
+
 		// (back to main Z80 decode loop)
 	}
 
@@ -1191,7 +1192,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Set Blink Command Register flags, port $B0.
-	 * 
+	 *
 	 * <PRE>
 	 *	Bit	7, SRUN
 	 *	Bit	6, SBIT
@@ -1214,7 +1215,7 @@ public final class Blink extends Z80 {
 		}
 
 		if (rtc.isRunning() == false && ((bits & Blink.BM_COMRESTIM) == 0)) {
-			// Real Time Clock is not running, and is asked to start (RESTIM = 0)... 
+			// Real Time Clock is not running, and is asked to start (RESTIM = 0)...
 			if (singleSteppingMode() == false) rtc.start();
 		}
 
@@ -1239,7 +1240,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Get Blink Command Register flags, port $B0.
-	 * 
+	 *
 	 * <PRE>
 	 *	Bit	7, SRUN
 	 *	Bit	6, SBIT
@@ -1256,7 +1257,7 @@ public final class Blink extends Z80 {
 	public final int getBlinkCom() {
 		return COM;
 	}
-	
+
 	/**
 	 * Insert RAM Card into Z88 memory system.
 	 * Size must be in modulus 32Kb (even numbered 16Kb banks).
@@ -1286,11 +1287,11 @@ public final class Blink extends Z80 {
 		// remember Ram Card for future reference...
 		loadCard(ramBanks, slot); // load the physical card into Z88 memory
 	}
-		
+
 	/**
 	 * Load ROM image (from opened file ressource) into Z88 memory system, slot 0.
 	 *
-	 * @param rom 
+	 * @param rom
 	 * @throws IOException
 	 */
 	public void loadRomBinary(RandomAccessFile rom) throws IOException {
@@ -1315,11 +1316,11 @@ public final class Blink extends Z80 {
 
 		// Finally, check for Z88 ROM Watermark
 		if (romBanks[romBanks.length-1].bank[0x3FFB] != 0x81 &
-		    romBanks[romBanks.length-1].bank[0x3FFE] != 'O' & 
+		    romBanks[romBanks.length-1].bank[0x3FFE] != 'O' &
 		    romBanks[romBanks.length-1].bank[0x3FFF] != 'Z') {
 				throw new IOException("This is not a Z88 ROM");
 	    }
-		
+
 		// complete ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
 		loadCard(romBanks, 0);
@@ -1328,11 +1329,11 @@ public final class Blink extends Z80 {
 
 
 	/**
-	 * Load Card Image (from opened file ressource) into Z88 memory system, 
+	 * Load Card Image (from opened file ressource) into Z88 memory system,
 	 * at defined slot.
 	 *
-	 * @param slot 
-	 * @param card 
+	 * @param slot
+	 * @param card
 	 * @throws IOException
 	 */
 	public void loadCardBinary(int slot, RandomAccessFile card) throws IOException {
@@ -1362,15 +1363,15 @@ public final class Blink extends Z80 {
 
 
 	/**
-	 * Load ROM image (from opened file ressource inside JAR) 
+	 * Load ROM image (from opened file ressource inside JAR)
 	 * into Z88 memory system, slot 0.
 	 *
-	 * @param jarRessource 
+	 * @param jarRessource
 	 * @throws IOException
 	 */
 	public void loadRomBinary(URL jarRessource) throws IOException {
 		JarURLConnection jarConnection = (JarURLConnection)jarRessource.openConnection();
-				
+
 		if (jarConnection.getJarEntry().getSize() > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}
@@ -1385,7 +1386,7 @@ public final class Blink extends Z80 {
 
 		InputStream is = jarConnection.getInputStream();
 		BufferedInputStream bis = new BufferedInputStream( is, Bank.SIZE );
-		
+
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
 			romBanks[curBank] = new Bank(Bank.ROM);
 			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
@@ -1455,7 +1456,7 @@ public final class Blink extends Z80 {
 	 */
 	public void resetRam() {
 		RAMS = memory[0];	// RAMS now points at cards' bank 0
-		
+
 		for (int slot = 0; slot < slotCards.length; slot++) {
 			// look at bottom bank in Card for type; only reset RAM Cards...
 			if (slotCards[slot] != null
@@ -1474,7 +1475,7 @@ public final class Blink extends Z80 {
 			}
 		}
 	}
-	
+
 	/**
 	 * This class represents a 16K memory block or bank of memory.
 	 * The characteristics of a bank can be that it's part of a Ram card (or the
@@ -1482,33 +1483,33 @@ public final class Blink extends Z80 {
 	 */
 	private final class Bank {
 		private static final int RAM = 0;		// 32Kb, 128Kb, 512Kb, 1Mb
-		private static final int ROM = 1;		// 128Kb 
+		private static final int ROM = 1;		// 128Kb
 		private static final int EPROM = 2;		// 32Kb, 128Kb & 256Kb
 		private static final int FLASH = 3;		// 1Mb Flash
 		private static final int SIZE = 16384;	// Always 16384 bytes in a bank
-		
+
 		private int type;
 		private int bank[];
-	
+
 		Bank() {
 			type = Bank.RAM;
 			bank = new int[Bank.SIZE];	// all default memory cells are 0.
 		}
-	
+
 		Bank(int banktype) {
 			type = banktype;
 			bank = new int[Bank.SIZE];
-		
+
 			if (type != Bank.RAM) {
 				for (int i=0; i<memory.length; i++)
 					bank[i] = 0xFF;	// empty Eprom or Flash stores FF's
 			}
 		}
-	
+
 		private int getType() {
 			return type;
 		}
-	
+
 		/**
 		 * Load bytes from buffer array of block.length
 		 * to bank offset, onwards.
@@ -1527,24 +1528,24 @@ public final class Blink extends Z80 {
 
 	public void startInterrupts() {
 		z80Int.start();
-		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) rtc.start();        
+		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) rtc.start();
         z88Display.start();
 	}
 
 	public void stopInterrupts() {
-		z80Int.stop();        
-        rtc.stop();        
+		z80Int.stop();
+        rtc.stop();
         z88Display.stop();
 	}
 
-	/** 
+	/**
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
 	public final class Rtc {
 
 		private Rtc() {
 			rtcRunning = false;
-			
+
 			// enable minute, second and 1/100 second interrups
 			TMK = BM_TMKMIN | BM_TMKSEC | BM_TMKTICK;
 			TSTA = TACK = 0;
@@ -1554,7 +1555,7 @@ public final class Blink extends Z80 {
 			/**
 			 * Execute the RTC counter each 5ms, and set the various RTC interrupts
 			 * if they are enabled, but only if INT.TIME = 1.
-			 * 
+			 *
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
@@ -1565,7 +1566,7 @@ public final class Blink extends Z80 {
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKTICK) == BM_TMKTICK)) {
 						// INT.TIME interrupts are enabled and TMK.TICK interrupts are enabled:
 						// Signal that a tick interrupt occurred
-						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1						
+						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
 						STA |= BM_STATIME;
 					}
 				}
@@ -1573,7 +1574,7 @@ public final class Blink extends Z80 {
 				if (++TIM0 > 199) {
 					// 1 second has passed...
 					TIM0 = 0;
-										
+
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKSEC) == BM_TMKSEC)) {
 						// INT.TIME interrupts are enabled and TMK.SEC interrupts are enabled:
 						// Signal that a second interrupt occurred
@@ -1606,7 +1607,7 @@ public final class Blink extends Z80 {
 		}
 
 		TimerTask countRtc = null;
-		
+
 		/**
 		 * Internal counter, 2 ticks = 1/100 second (10ms)
 		 */
@@ -1616,17 +1617,17 @@ public final class Blink extends Z80 {
 		 * TIM0, 5 millisecond period, counts to 199, Z80 IN Register
 		 */
 		private int TIM0 = 0;
-		
+
 		/**
 		 * TIM1, 1 second period, counts to 59, Z80 IN Register
 		 */
 		private int TIM1 = 0;
-		 
+
 		/**
 		 * TIM2, 1 minutes period, counts to 255, Z80 IN Register
 		 */
 		private int TIM2 = 0;
-		
+
 		/**
 		 * TIM3, 256 minutes period, counts to 255, Z80 IN Register
 		 */
@@ -1636,7 +1637,7 @@ public final class Blink extends Z80 {
 		 * TIM4, 64K minutes period, counts to 31, Z80 IN Register
 		 */
 		private int TIM4 = 0;
-		
+
 		/**
 		 * TSTA, Timer interrupt status, Z80 IN Read Register
 		 */
@@ -1653,7 +1654,7 @@ public final class Blink extends Z80 {
 		 * TMK, Timer interrupt mask, Z80 OUT Write Register
 		 */
 		private int TMK = 0;
-		 
+
 		// Set to enable minute interrupt
 		public static final int BM_TMKMIN = 0x04;
 		// Set to enable second interrupt
@@ -1665,11 +1666,11 @@ public final class Blink extends Z80 {
 		 * TACK, Timer interrupt acknowledge, Z80 OUT Write Register
 		 */
 		private int TACK = 0;
-		
+
 		// Set to acknowledge minute interrupt
-		public static final int BM_TACKMIN = 0x04; 
+		public static final int BM_TACKMIN = 0x04;
 		// Set to acknowledge second interrupt
-		public static final int BM_TACKSEC = 0x02; 
+		public static final int BM_TACKSEC = 0x02;
 		// Set to acknowledge tick interrupt
 		public static final int BM_TACKTICK = 0x01;
 
@@ -1705,7 +1706,7 @@ public final class Blink extends Z80 {
 
 		/**
 		 * Is the RTC running?
-		 * 
+		 *
 		 * @return boolean
 		 */
 		public boolean isRunning() {
@@ -1714,7 +1715,7 @@ public final class Blink extends Z80 {
 
 	} /* Rtc class */
 
-	/** 
+	/**
 	 * The BLINK supplies the INT signal to the Z80 processor.
 	 * An INT is fired each 10ms, which the Z80 responds to through IM 1
 	 * (executing a RST 38H instruction).
@@ -1726,7 +1727,7 @@ public final class Blink extends Z80 {
 		 * Send an INT each 10ms to the Z80 processor...
 		 */
 		private final class Int10ms extends TimerTask {
-			public void run() {                
+			public void run() {
                 // signal Maskable interrupt to be executed, as soon as Z80 is ready to grab it...
                 setNmi(false);
                 setInterruptSignal();
@@ -1734,7 +1735,7 @@ public final class Blink extends Z80 {
 		}
 
 		/**
-		 * Stop the 10ms interrupt. 
+		 * Stop the 10ms interrupt.
 		 */
 		public void stop() {
 			if (intIm1 != null) {
@@ -1747,7 +1748,7 @@ public final class Blink extends Z80 {
 		 * method every 10 millisecond.
 		 */
 		public void start() {
-			intIm1 = new Int10ms();			
+			intIm1 = new Int10ms();
 			timerDaemon.scheduleAtFixedRate(intIm1, 0, 10);
 		}
 	}
@@ -1758,7 +1759,7 @@ public final class Blink extends Z80 {
 	public Z88Keyboard getZ88Keyboard() {
 		return z88Keyboard;
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -1774,21 +1775,24 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Handle action on encountered display breakpoint.<p>
-	 * 
+	 * Handle action on encountered breakpoint.<p>
+	 *
 	 * @return true, if Z80 engine is to be stopped.
 	 */
 	public void breakPointAction() {
-		PC(PC() - 1);	// Program Counter is placed at breakpoint (so that we can display correct PC).
+		PC(PC() - 1);	// Program Counter is placed at breakpoint (so that we can display correct PC for disassembly and command line).
 
 		int bpAddress = decodeLocalAddress(PC());
 		int bpOpcode = getByte(bpAddress);	// remember the breakpoint instruction opcode
 		int z80Opcode = breakPoints.getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
-		setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily) 
-		displayRtmMessage((new DisplayStatus(this)).dzPcStatus().toString()); // dissassemble original instruction, with Z80 main reg dump
-		setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter 
-		
-		PC(PC() + 1);	// Program Counter ready for next instruction. 
+		setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily)
+		displayRtmMessage((new DisplayStatus(this)).dzPcStatus().toString(), true); // dissassemble original instruction, with Z80 main reg dump
+		setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter
+		if (breakPoints.isStoppable(bpAddress) == true) {
+			displayRtmMessage("Z88 virtual machine was stopped at breakpoint.", false);
+		} else {
+			PC(PC() + 1); 											// We encountered a Display Breakpoint, continue to execute next instruction...
+		}
 	}
 
 	/**
