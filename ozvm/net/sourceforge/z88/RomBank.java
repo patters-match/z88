@@ -30,8 +30,8 @@ public class RomBank extends Bank {
 	 * 
 	 * @param bankNo
 	 */
-	public RomBank(int bankNo) {		
-		super(bankNo);		
+	public RomBank() {		
+		super(-1);		
 
 		for (int i = 0; i < Memory.BANKSIZE-1; i++) setByte(i, 0xFF); // empty Rom contain FF's
 	}

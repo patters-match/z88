@@ -29,8 +29,8 @@ public class RamBank extends Bank {
 	 * 
 	 * @param bankNo
 	 */
-	public RamBank(int bankNo) {
-		super(bankNo);		
+	public RamBank() {
+		super(-1);		
 	}
 
 	/**

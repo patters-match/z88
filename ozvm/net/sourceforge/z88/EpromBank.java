@@ -44,8 +44,8 @@ public class EpromBank extends Bank {
 	 * @param bankNo the bank number (0-255) which this bank is assigned to
 	 * @param ept the Eprom type (VPP32KB or VPP128KB) 
 	 */
-	public EpromBank(Blink b, int bankNo, int ept) {		
-		super(bankNo);		
+	public EpromBank(Blink b, int ept) {		
+		super(-1);		
 		blink = b;
 		eprType = ept;
 		

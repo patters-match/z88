@@ -49,8 +49,8 @@ public class IntelFlashBank extends Bank {
 	 * @param bankNo the bank number (0-255) which this bank is assigned to
 	 * @param flt the Flash Memory type (I28F004S5 or I28F008S5) 
 	 */
-	public IntelFlashBank(Blink b, int bankNo, int flt) {		
-		super(bankNo);		
+	public IntelFlashBank(Blink b, int flt) {		
+		super(-1);		
 		blink = b;
 		flashType = flt;
 		
