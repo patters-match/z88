@@ -17,7 +17,7 @@ public class OZvm {
 	private static final String CMDLINEPROMPT = "OZvm$";
 	
 	private Blink z88 = null;
-    private DisplayBlinkStatus blinkStatus;
+    private DisplayStatus blinkStatus;
 	private MonitorZ80 z80Speed = null;
 
 	/**
@@ -44,7 +44,7 @@ public class OZvm {
 			z80Speed = new MonitorZ80(z88);
 			dz = new Dz(z88); // the disassembly engine, linked to the memory model
 			breakp = new Breakpoints(z88);
-            blinkStatus = new DisplayBlinkStatus(z88);
+            blinkStatus = new DisplayStatus(z88);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("\n\nCouldn't initialize Z88 virtual machine.");
@@ -72,11 +72,12 @@ public class OZvm {
 	 */
 	private void z80Status() {
 		StringBuffer dzBuffer = new StringBuffer(64);
+		int bank = ((z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000)) >>> 16) & 0xFF;
 
 		blinkStatus.displayZ80Registers();
 						
 		dz.getInstrAscii(dzBuffer, z88.PC(), true);
-		System.out.println(dzBuffer);
+		System.out.println(Dz.byteToHex(bank, false) + dzBuffer);
 	}
 	
 	public boolean boot(String[] args) {
@@ -362,7 +363,7 @@ public class OZvm {
 			for (int dzLines = 0;  dzLines < 16; dzLines++) {
 				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, true);
 				dzAddr &= 0xFFFF;
-				System.out.println(dzLine);
+				System.out.println(Dz.byteToHex(dzBank,false) + dzLine);
 			}
 			
 			System.out.print(CMDLINEPROMPT);
