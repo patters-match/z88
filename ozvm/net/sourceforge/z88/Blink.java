@@ -227,6 +227,21 @@ public final class Blink extends Z80 {
 	private Z80interrupt z80Int;
 
 	/**
+	 * Reset Blink Registers to Power-On-State.
+	 */
+	public void resetBlinkRegisters() {
+		PB0 = PB1 = PB2 = PB3 = SBR = 0;
+		COM = INT = STA = 0;
+		rtc.TACK = rtc.TMK = rtc.TSTA = ACK = 0; 
+		rtc.TIM0 = rtc.TIM1 = rtc.TIM2 = rtc.TIM3 = rtc.TIM4 = 0;
+		
+		// SR0, SR1, SR2, SR3 = 0
+		for (int segment = 0; segment < sR.length; segment++) {
+			sR[segment] = 0;
+		}
+	}
+	
+	/**
 	 * Main Blink Interrrupts (INT).
 	 *
 	 * <PRE>
