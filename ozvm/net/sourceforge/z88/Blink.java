@@ -1739,11 +1739,12 @@ public final class Blink extends Z80 {
 	 * @return true, if Z80 engine is to be stopped.
 	 */
 	public void breakPointAction() {
-		int bpAddress = decodeLocalAddress(getInstrPC());
+		PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
+		int bpAddress = decodeLocalAddress(PC());
 		int bpOpcode = getByte(bpAddress);	// remember the breakpoint instruction opcode
 		int z80Opcode = breakPoints.getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
 		setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily)
-		displayRtmMessage((new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString(), true); // dissassemble original instruction, with Z80 main reg dump
+		displayRtmMessage((new DisplayStatus(this)).dzPcStatus(PC()).toString(), true); // dissassemble original instruction, with Z80 main reg dump
 		setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter
 		if (breakPoints.isStoppable(bpAddress) == true) {
 			displayRtmMessage("Z88 virtual machine was stopped at breakpoint.", false);
