@@ -142,6 +142,26 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * Get main Blink Interrrupts (INT), Z80 OUT Write Register. 
+	 * 
+	 * <pre>
+	 * BIT 7, KWAIT  If set, reading the keyboard will Snooze
+	 * BIT 6, A19    If set, an active high on A19 will exit Coma
+	 * BIT 5, FLAP   If set, flap interrupts are enabled
+	 * BIT 4, UART   If set, UART interrupts are enabled>
+	 * BIT 3, BTL    If set, battery low interrupts are enabled
+	 * BIT 2, KEY    If set, keyboard interrupts (Snooze or Coma) are enabled
+	 * BIT 1, TIME   If set, RTC interrupts are enabled
+	 * BIT 0, GINT   If clear, no interrupts get out of blink
+	 * </pre>
+	 * 
+	 * @return INT Blink Register
+	 */
+   	public int getInt() {
+		return INT;
+	}
+
+	/**
 	 * Acknowledge Main Blink Interrrupts (ACK)
 	 * 
 	 * <PRE>
@@ -215,11 +235,7 @@ public final class Blink extends Z80 {
 	 * </PRE>
 	 */
 	public int getSta() {
-		if ((INT & BM_INTGINT) == BM_INTGINT) {
-			return STA;
-		} else {
-			return 0; 	// no interrupts gets out of BLINK
-		}				
+		return STA;
 	}
 	
 	/**
@@ -231,18 +247,10 @@ public final class Blink extends Z80 {
 	 * BIT 0, TICK, Set if tick interrupt has occurred
 	 * </PRE>
 	 * 
-	 * @return int
+	 * @return TSTA
 	 */
 	public int getTsta() {
-		if ((INT & BM_INTGINT) == BM_INTGINT) {
-			if ((INT & BM_INTTIME) == BM_INTTIME) {
-				return rtc.TSTA;	// RTC interrupts are enabled, so TSTA is active...
-			} else {
-				return 0;			// RTC interrupts are disabled...
-			}
-		} else {
-			return 0; 	// no interrupts gets out of BLINK
-		}
+        return rtc.TSTA;
 	}
 
 	/**
@@ -558,8 +566,10 @@ public final class Blink extends Z80 {
             }		
 
             if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
+                // Z80 snoozes... (we wait for 5ms, then ask again for key press from Blink)
+                // (interrupts still occurs in Blink, and are signalled if EI interrupt state enabled)
                 try {
-                    Thread.sleep(5);		// Z80 snoozes for 5ms ... (interrupts still occurs in Blink)
+                    Thread.sleep(5);
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.out);
                 }			
@@ -924,16 +934,40 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Implement Z88 input port BLINK hardware 
-	 * (RTC, Keyboard, Flap, Batt Low, Serial port).
+	 * (Registers STA, KBD, TSTA, TIM0-TIM4, RXD, RXE, UIT).
 	 * 
-	 * @param addrA8
-	 * @param addrA15
+	 * @param addrA8 Port number (low byte address)
+	 * @param addrA15 high byte address
 	 */	
 	public final int inByte(int addrA8, int addrA15) {
 		int res = 0;
 
 		switch (addrA8) {
-			case 0xD0:
+			case 0xB1:				
+                if ((INT & BM_INTGINT) == BM_INTGINT) {
+                    res = getSta();		// STA, Main Blink Interrupt Status
+                } else {
+                    res = 0;            // no interrupts gets out of BLINK
+                }
+				break;
+				
+			case 0xB2:
+				res = getKbd(addrA15);	// KBD, get Keyboard column for specified row.
+				break;
+				
+			case 0xB5:
+                if ((INT & BM_INTGINT) == BM_INTGINT) {
+                    if ((INT & BM_INTTIME) == BM_INTTIME) {
+                        res = getTsta();	// RTC interrupts are enabled, so TSTA is active...
+                    } else {
+                        res = 0;			// RTC interrupts are disabled...
+                    }
+                } else {
+                    res = 0; 	// no interrupts gets out of BLINK
+                }                
+				break;
+
+            case 0xD0:
 				res = getTim0();	// TIM0, 5ms period, counts to 199  
 				break;
 				
@@ -952,21 +986,9 @@ public final class Blink extends Z80 {
 			case 0xD4:
 				res = getTim4();	// TIM4, 64K minutes Period, counts to 31        
 				break;
-				
-			case 0xB1:
-				res = getSta();		// STA, Main Blink Interrupt Status
-				break;
-				
-			case 0xB2:
-				res = getKbd(addrA15);	// KBD, Keyboard matrix for specified row.
-				break;
-				
-			case 0xB5:
-				res = getTsta(); 	// TSTA, RTC Interrupt Status
-				break;
-				
+
 			default :
-				res = 0;			// all other ports in BLINK not yet implemented...
+				res = 0;			// RXD, RXE, UIT not yet implemented in BLINK ...
 		}
 
 		return res;
@@ -988,7 +1010,7 @@ public final class Blink extends Z80 {
 			case 0xD3 : // SR3, Segment register 3
 				setSegmentBank(addrA8, outByte);
 				break;
-			
+
 			case 0xB0 : // COM, Set Command Register
 				setCom(outByte);
 				break;
@@ -1004,7 +1026,7 @@ public final class Blink extends Z80 {
 			case 0xB5 : // TMK, Set Timer interrupt Mask
 				setTmk(outByte);
 				break;
-							
+
 			case 0xB6 : // ACK, Acknowledge Main Interrupts				
 				setAck(outByte);
 				break;
@@ -1036,6 +1058,7 @@ public final class Blink extends Z80 {
      */
     private boolean stopZ88 = false;
 
+    
     /** 
      * Check if F5 key was pressed while Blink was reading the keyboard
      */
@@ -1068,7 +1091,6 @@ public final class Blink extends Z80 {
 		w = System.currentTimeMillis() - w;
 		System.out.println("HALT end: " + w + " ms");
 		
-		// If INT.KWAIT is not enabled, then just halt for 5ms and let the machine evaluate if an interrupt occurred.		
 		// (back to main Z80 decode loop)
 	}
 
@@ -1772,13 +1794,13 @@ public final class Blink extends Z80 {
 				row &= 0xFF;	// only 8bit boundary...
 			}
 		
-			// If keyboard interrupts are enabled, then signal that a key was pressed.
 			if (currentKey == KeyboardDevice.NO_KEYS_PRESSED) {
 				return 0xFF;
 			} else {				
                 if (currentKey == java.awt.event.KeyEvent.VK_F5) stopZ88 = true;
                 
 				if ( (keyColumn != 0xFF) && ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
+                    // If keyboard interrupts are enabled, then signal that a key was pressed.
 					STA |= BM_STAKEY;
 					System.out.println("INT.KEY interrupts enabled, and key pressed");
 				}
@@ -1795,6 +1817,8 @@ public final class Blink extends Z80 {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
+
+// Testing...
 //				if (scanKeyboard() != 0xFF) {   // Blink scans the keyboard...
 //                    setNmi(true);                // a key was pressed, RST 66H
 //                    setInterruptSignal();
@@ -1803,13 +1827,15 @@ public final class Blink extends Z80 {
 
                 scanKeyboard();  // Blink always scans the keyboard...
                 
-				if (!IFF1()) 
+				if (!IFF1()) {
 					// Maskable interrupt occurred, but cannot get out because Z80 is in DI...
+//                  System.out.println("Blink RST 38H, but signal to Z80 blocked (DI): " + System.currentTimeMillis());
 					return;
-				else {
-					// signal Maskable interrupt occurred, and we're in EI state...
+                } else {
+					// signal Maskable interrupt occurred, since we're in EI state...
                     setNmi(false);
-					setInterruptSignal();       // RST 38H
+					setInterruptSignal();
+                    System.out.println("Blink RST 38H in EI, signal to Z80: " + System.currentTimeMillis());
                 }
 			}
 		}
