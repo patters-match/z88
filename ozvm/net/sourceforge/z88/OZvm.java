@@ -32,8 +32,6 @@ public class OZvm {
 		}
 	}
 	
-	static private final String defaultRomImage = "Z88.rom";
-
 	Blink z88 = null;
 
 	private MonitorZ80 z80Speed = null;
@@ -113,7 +111,7 @@ public class OZvm {
 		try {
 			if (args.length == 0) {
 				System.out.println("No external ROM image specified, using default Z88.rom (V4.01 UK)");
-				z88.loadRomBinary(z88.getClass().getResource("/" + defaultRomImage));				
+				z88.loadRomBinary(z88.getClass().getResource("/Z88.rom"));				
 			} else {
 				System.out.println("Loading '" + args[0] + "'");
 				RandomAccessFile rom = new RandomAccessFile(args[0], "r");		
@@ -132,13 +130,13 @@ public class OZvm {
 
 	private void commandLine() throws IOException {
 		String cmdline = "";
+		String[] cmdLineTokens = null;
 		
 		BufferedReader in =
 			new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("Type 'h' or 'help' for command line options\n");
 		z80Status();
 		
-		StringBuffer dzLine = new StringBuffer(64);
 		StringBuffer prevCmdline = new StringBuffer();
 		System.out.print("$");
 		while ((cmdline = in.readLine()).equalsIgnoreCase("exit") == false) {
@@ -147,26 +145,53 @@ public class OZvm {
 			if (cmdline.length() == 0)
 				cmdline = prevCmdline.toString();
 				
-			if (cmdline.equalsIgnoreCase("run") == true) {
+			cmdLineTokens = cmdline.split(" "); 
+			if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
 				System.out.println("Executing Z88 Virtual Machine...");		
 				z80Speed.start();
 				z88.startInterrupts();
 				z88.run();
 			}
 			
-			if (cmdline.equalsIgnoreCase("d") == true) {
-				int dzAddr = z88.PC();
-				for (int dzLines = 0;  dzLines < 16; dzLines++) {
-					dzAddr = dz.getInstrAscii(dzLine, dzAddr, true);
-					System.out.println(dzLine);
-				}
+			if (cmdLineTokens[0].equalsIgnoreCase("d") == true) {
+				cmdline = dzCommandline(in, cmdLineTokens);
 			}
 			
 			if (cmdline.length() > 0)
 				prevCmdline.replace(0, 64, cmdline);
 		}		
 	}
+
+	private String dzCommandline(BufferedReader in, String[] cmdLineTokens) throws IOException {
+		int dzAddr = 0, dzBank = 0;		
+		StringBuffer dzLine = new StringBuffer(64);
+		String dzCmdline = null;
+	
+		if (cmdLineTokens.length == 1) {
+			// no arguments, use PC in current bank binding
+			dzAddr = z88.PC();
+			dzBank = z88.getSegmentBank(dzAddr >>> 14);
+		}
+
+		if (cmdLineTokens.length == 2) {
+			// one arguments, the local Z80 64K address 
+			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
+			dzBank = z88.getSegmentBank(dzAddr >>> 14);
+		}
+
+		do {		
+			for (int dzLines = 0;  dzLines < 16; dzLines++) {
+				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, true);
+				System.out.println(dzLine);
+			}
+			
+			System.out.print("$");
+		}
+		while ((dzCmdline = in.readLine()).length() == 0);
 		
+		return dzCmdline;
+	}
+	
 	public static void main(String[] args) throws IOException {		
 		System.out.println("OZvm V0.01, Z88 Virtual Machine");
 
