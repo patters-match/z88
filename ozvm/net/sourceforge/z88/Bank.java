@@ -76,7 +76,7 @@ public final class Bank {
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
 	public final int readByte(final int addr) {
-		// TODO insert logic here for Vpp logic...		
+		// TODO insert logic here for Vpp programming...		
 		return bankMem[addr & 0x3FFF];
 	}
 
@@ -93,7 +93,39 @@ public final class Bank {
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
 	public final void writeByte(final int addr, final int b) {
-		// TODO insert logic here for Vpp logic...
+		// TODO insert logic here for Vpp programming...
+		if (type == Bank.RAM) {
+			bankMem[addr & 0x3FFF] = b & 0xFF;
+		}
+	}
+
+	/**
+	 * NB: Internal method: Only used by OZvm debug command line!
+	 * This method overrides all memory charateristics as defined
+	 * by the Blink hardware that is managing the Z88 virtual memory. 
+	 * 
+	 * Get byte from, always. 
+	 * 
+	 * @param addr is a 16bit word that points into the 16K address space of the bank.
+	 * @param b is the byte to be "set" at specific address
+	 * 
+	 */
+	public final int getByte(final int addr) {
+		return bankMem[addr & 0x3FFF];
+	}
+	
+	/**
+	 * NB: Internal method: Only used by OZvm debug command line!
+	 * This method overrides all memory charateristics as defined
+	 * by the Blink hardware that is managing the Z88 virtual memory. 
+	 * 
+	 * Write byte to bank, always. 
+	 * 
+	 * @param addr is a 16bit word that points into the 16K address space of the bank.
+	 * @param b is the byte to be "set" at specific address
+	 * 
+	 */
+	public final void setByte(final int addr, final int b) {
 		bankMem[addr & 0x3FFF] = b & 0xFF;
 	}
 	
