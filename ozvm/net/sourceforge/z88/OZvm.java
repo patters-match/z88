@@ -122,7 +122,7 @@ public class OZvm implements KeyListener {
 		RandomAccessFile file;
 		boolean loadedRom = false;
 		boolean ramSlot0 = false;
-		int ramSizeArg = 0;
+		int ramSizeArg = 0, eprSizeArg = 0;
 
 		try {
 			if (args.length >= 1) {
@@ -130,10 +130,11 @@ public class OZvm implements KeyListener {
 				while (arg<args.length) {
 					if ( args[arg].compareTo("ram0") != 0 & args[arg].compareTo("ram1") != 0 &
 						 args[arg].compareTo("ram2") != 0 & args[arg].compareTo("ram3") != 0 &
+						 args[arg].compareTo("epr1") != 0 & args[arg].compareTo("epr2") != 0 & args[arg].compareTo("epr3") != 0 &						 
 						 args[arg].compareTo("s1") != 0 & args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") != 0 &
 						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug") != 0 &
 						 args[arg].compareTo("initdebug") != 0) {
-						displayRtmMessage("Loading '" + args[arg] + "' into ROM space in slot 0.");
+						displayRtmMessage("Loading '" + args[0] + "' into ROM space in slot 0.");
 						file = new RandomAccessFile(args[0], "r");
 						z88.loadRomBinary(file);
 						file.close();
@@ -144,13 +145,28 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].startsWith("ram") == true)) {
 						int ramSlotNumber = args[arg].charAt(3) - 48;
 						ramSizeArg = Integer.parseInt(args[arg+1], 10);
-						z88.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM specified for slot x...
+						z88.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM Card specified for slot x...
 						if (ramSlotNumber == 0) ramSlot0 = true; 
 						displayRtmMessage("RAM" + ramSlotNumber + " set to " + ramSizeArg + "K.");
 						arg+=2;
 						continue;
 					}
 
+					if (arg<args.length && (args[arg].startsWith("epr") == true)) {
+						int eprSlotNumber = args[arg].charAt(3) - 48;
+						eprSizeArg = Integer.parseInt(args[arg+1], 10);
+						if (z88.insertEprCard(eprSizeArg * 1024, eprSlotNumber, args[arg+2]) == true) {
+							String insertEprMsg = "Inserted " + eprSlotNumber + " set to " + eprSizeArg + "K.";
+							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K UV Eprom Card in slot " + eprSlotNumber; 
+							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
+							if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Amd Flash Card in slot " + eprSlotNumber;
+							displayRtmMessage(insertEprMsg);
+						} else
+							displayRtmMessage("Eprom Card size/type configuration is illegal.");
+						arg+=3;
+						continue;
+					}
+					
 					if (arg<args.length && (args[arg].compareTo("s1") == 0)) {
 						file = new RandomAccessFile(args[arg+1], "r");
 						displayRtmMessage("Loading '" + args[arg+1] + "' into slot 1.");
