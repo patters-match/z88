@@ -19,6 +19,7 @@
 
 package net.sourceforge.z88;
 
+
 /**
  * Z88 (Z80) Disassembler. All Z88 OZ manifests are recognised. Code converted &
  * improved from C source, as part of the DZasm V0.22 utility.
@@ -27,7 +28,7 @@ package net.sourceforge.z88;
  * 
  */
 public class Dz {
-
+	
 	private static final char[] hexcodes =
 		{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -3997,7 +3998,19 @@ public class Dz {
 		"FPP  FP_BAS", /* DF A2 */
 		"FPP  UNKNOWN" };
 
-	private final Blink blink;
+	private static final class singletonContainer {
+		static final Dz singleton = new Dz();  
+	}
+	
+	public static Dz getInstance() {
+		return singletonContainer.singleton;
+	}
+
+	private Dz() {
+		memory = Memory.getInstance();
+	}
+
+	private final Memory memory;
 
 	/**
 	 * Return Hex 8bit string in XXh zero prefixed format.
@@ -4053,11 +4066,6 @@ public class Dz {
 		return hexString.toString();
 	}
 
-	public Dz(Blink z88Blink) {
-		blink = z88Blink;
-	}
-
-
 	/**
 	 * Disassemble Z80 instruction at extended address offset, bank.
 	 *
@@ -4074,10 +4082,10 @@ public class Dz {
 	 * @return int offset of following instruction in bank
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispAddr, boolean dispOpcode) {
-		int i = blink.getByte(offset+3,bank) << 24 |
-				blink.getByte(offset+2,bank) << 16 |
-				blink.getByte(offset+1,bank) << 8 |
-				blink.getByte(offset+0,bank);
+		int i = memory.getByte(offset+3,bank) << 24 |
+				memory.getByte(offset+2,bank) << 16 |
+				memory.getByte(offset+1,bank) << 8 |
+				memory.getByte(offset+0,bank);
 
 		offset += dzInstrAscii(mnemonic, offset, i, dispAddr, dispOpcode);
 
@@ -4101,7 +4109,7 @@ public class Dz {
 	 * @return int address of following instruction
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispAddr, boolean dispOpcode) {
-		int instrOpcode = (blink.readWord(pc+2) << 16) | blink.readWord(pc);		
+		int instrOpcode = (Blink.getInstance().readWord(pc+2) << 16) | Blink.getInstance().readWord(pc);		
 		pc += dzInstrAscii(mnemonic, pc, instrOpcode, dispAddr, dispOpcode);
 
 		return pc;
@@ -4330,10 +4338,10 @@ public class Dz {
 	 * @return int address of following instruction
 	 */
 	public final int getNextInstrAddress(int offset, int bank) {
-		int i = blink.getByte(offset+3,bank) << 24 |
-				blink.getByte(offset+2,bank) << 16 |
-				blink.getByte(offset+1,bank) << 8 |
-				blink.getByte(offset+0,bank);
+		int i = memory.getByte(offset+3,bank) << 24 |
+				memory.getByte(offset+2,bank) << 16 |
+				memory.getByte(offset+1,bank) << 8 |
+				memory.getByte(offset+0,bank);
 
 		offset += calcInstrOpcodeSize(i);
 
@@ -4350,7 +4358,7 @@ public class Dz {
 	 * @return address of following instruction
 	 */
 	public final int getNextInstrAddress(int pc) {
-		int instrOpcode = (blink.readWord(pc+2) << 16) | blink.readWord(pc);
+		int instrOpcode = (Blink.getInstance().readWord(pc+2) << 16) | Blink.getInstance().readWord(pc);
 		pc += calcInstrOpcodeSize(instrOpcode);
 
 		return pc;
