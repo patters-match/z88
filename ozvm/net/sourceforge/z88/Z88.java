@@ -39,8 +39,7 @@ public class Z88 extends Z80 {
 	public  long    timeOfLastInterrupt = 0;
 	private long    timeOfLastSample = 0;
 
-	// **************  Z88 Hardware ************************
-	private Bank z88Memory[];	// array for 256 16K banks, addressing 4Mb
+	private Bank z88Memory[];	// array for 256 16K banks = 4Mb memory
 	private Bank RAMS;			// reference bank bank 0x00 or 0x20 
 	
 	// Segment register array for SR0 - SR3
@@ -65,6 +64,7 @@ public class Z88 extends Z80 {
 		sR = new int[4];			// the segment register SR0 - SR3
 	}
 	// *****************************************************************
+
 	
 	/** 
 	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word 
@@ -108,6 +108,7 @@ public class Z88 extends Z80 {
 			}
 		}
 	}
+
 	
 	/** 
 	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word 
@@ -152,6 +153,23 @@ public class Z88 extends Z80 {
 		}
 	}
 
+	/** 
+	 * Bind bank [0; 255] to segments [0; 3] in the Z80 address space.
+	 * 
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space 
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes. 
+	 **/
+	private void bindBank(int segment, int bank) {
+		// no fuzz with segments here. The segment logic for bank 0
+		// is handled in readByte() and writeByte().
+		
+		// only segments values 0 - 3 and bank numbers 0 - 255!
+		sR[segment % 4] = bank % 256;
+	}
+	
+	
 	/**
 	 * Z80 hardware interface
 	 */
