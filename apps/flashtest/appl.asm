@@ -19,11 +19,8 @@
 
      ORG $C000
      
-     lib MemDefbank, MemReadByte
-     lib SafeSegmentMask
-     lib FlashEprBlockErase
-     lib FlashEprCardId
-     lib FlashEprWriteByte
+     lib FlashEprBlockErase, FlashEprWriteBlock
+     lib FlashEprCardId, FlashEprWriteByte
      lib CheckBattLow
      lib CreateWindow, GreyApplWindow
      lib IntHex
@@ -209,10 +206,9 @@ endif
                     LD   HL, ProgramMsg
                     CALL_OZ Gn_Sop
 
-                    CALL FlashEprInfo
-                    SLA  B
-                    SLA  B
-                    LD   C,B                 ; Total of banks = sectors * 4
+				LD   C,3
+                    CALL FlashEprCardId
+                    LD   C,B                 ; Total of banks on card
                     LD   B,$C0               ; start programming of bank $C0
 
                     XOR  A
@@ -237,28 +233,27 @@ endif
                     CALL_OZ Gn_Sop
                     POP  HL
                     POP  BC
-
-                    EX   AF,AF'
-                    XOR  A 
-                    EX   AF,AF'              ; make sure that the library recognises the chip
                     
-                    LD   DE, $4000           ; blow 16K...
+                    LD   E, 16               ; blow 10 * 1024 = 16K...
                     LD   HL, 0               ; start of bank (of B)
 .prog_bank_loop
+                    PUSH DE
                     CALL CheckBatteries
                     JR   C, exit_programming ; batteries low - abort...
 
                     PUSH BC
-                    XOR  A
-                    CALL FlashEprWriteByte
+                    LD   C, MS_S2            ; blow the 1024 bytes block in segment 2
+                    LD   DE, testblock       ; blow source block to Flash Card Bank
+                    LD   IY, 1024
+                    CALL FlashEprWriteBlock
                     POP  BC
                     CALL C, SetErrorFlag
                     CALL C, AddrProgError    ; display address of programming error
-                    INC  HL                  ; ready for next address on bank
+                    LD   DE, 1024
+                    ADD  HL,DE               ; ready for next block address on bank
 
-                    DEC  DE
-                    LD   A,D
-                    OR   E
+                    POP  DE
+                    DEC  E
                     JR   NZ, prog_bank_loop
 
                     PUSH HL
@@ -348,7 +343,7 @@ endif
                     PUSH DE
                     PUSH HL
 
-                    CALL FlashEprInfo        ; B = returned number of blocks on card
+                    CALL FlashEprInfo        ; B = returned number of sectors on card
 .format_loop
                     PUSH BC
                     PUSH HL
@@ -753,16 +748,16 @@ endif
                     DEFW FE_I28F004S5, 8, mnem_i004
                     DEFW FE_I28F008SA, 16, mnem_i008
                     DEFW FE_I28F008S5, 16, mnem_i8s5
-                    DEFW FE_AM29F010B, 2, mnem_am010b
+                    DEFW FE_AM29F010B, 8, mnem_am010b
                     DEFW FE_AM29F040B, 8, mnem_am040b
                     DEFW FE_AM29F080B, 16, mnem_am080b
 
 .mnem_i004          DEFM "INTEL 28F004S5 (512Kb, 8 x 64Kb sectors)", 0
 .mnem_i008          DEFM "INTEL 28F008SA (1024Kb, 16 x 64Kb sectors)", 0
 .mnem_i8S5          DEFM "INTEL 28F008S5 (1024Kb, 16 x 64Kb sectors)", 0
-.mnem_am010b        DEFM "AMD AM29F010B (128Kb, 2 x 64K sectors)", 0
+.mnem_am010b        DEFM "AMD AM29F010B (128Kb, 8 x 16K sectors)", 0
 .mnem_am040b        DEFM "AMD AM29F040B (512Kb, 8 x 64K sectors)", 0
-.mnem_am080b        DEFM "AMD AM29F080B (1024Kb, 8 x 64K sectors)", 0
+.mnem_am080b        DEFM "AMD AM29F080B (1024Kb, 16 x 64K sectors)", 0
 
 .Errmsg_lookup      DEFW Error_msg_00
                     DEFW Error_msg_01
@@ -773,3 +768,5 @@ endif
 .Error_msg_01       DEFM "Battery Low - operation aborted", 0
 .Error_msg_02       DEFM "Flash Eprom Sector couldn't be formatted.", 0
 .Error_msg_03       DEFM "Flash Eprom was not available in slot.", 0
+
+.testblock          DS 1024
