@@ -74,10 +74,10 @@ extern labels_t *addresses;
 /* globally defined variables */
 enum symbols sym, ssym[] =
 {space, bin_and, dquote, squote, semicolon, comma, fullstop,
- lparen, lcurly, rcurly, rparen, plus, minus, multiply, divi, mod, bin_xor,
+ lparen, lcurly, lexpr, rexpr, rcurly, rparen, plus, minus, multiply, divi, mod, bin_xor,
  assign, bin_or, bin_nor, bin_not,less, greater, log_not, hash, constexpr};
 
-char separators[] = " &\"\';,.({})+-*/%^=|:~<>!#?";
+char separators[] = " &\"\';,.({[]})+-*/%^=|:~<>!#?";
 char ident[255];
 
 

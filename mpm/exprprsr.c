@@ -769,14 +769,15 @@ Factor (expression_t *pfixexpr)
       break;
 
     case lparen:
-      *pfixexpr->infixptr++ = separators[lparen];      /* store '(' in infix expr */
+    case lexpr:
+      *pfixexpr->infixptr++ = separators[sym];      /* store '(' or '[' in infix expr */
       GetSym ();
 
       if (Condition (pfixexpr))
         {
-          if (sym == rparen)
+          if (sym == rparen || sym == rexpr)
             {
-              *pfixexpr->infixptr++ = separators[rparen];      /* store '(' in infix expr */
+              *pfixexpr->infixptr++ = separators[sym];      /* store ')' or ']' in infix expr */
               GetSym ();
               break;
             }
