@@ -55,7 +55,8 @@ public class Z88display {
 	private static final int PXCOLON = 0xff461B7D;
 	// Trying to get as close as possibly to the LCD colors...
 	private static final int PXCOLGREY = 0xff90B0A7;
-	private static final int PXCOLOFF = 0xffD2E0B9;
+	private static final int PXCOLOFF = 0xffD2E0B9;		// Empty pixel, when screen is switched on
+	private static final int PXCOLSCROFF = 0xffE0E0E0;	// Empty pixel, screen is switched off	
 
 	private static final int attrBold = 0x80;
 	// Font attribute Bold Mask (LORES1)
@@ -177,10 +178,34 @@ public class Z88display {
 		sbr = blink.getBlinkSbrAddress();
 		// Memory base address of Screen Base File (2K)
 
-		// LCD enabled, but one of the Screen Registers hasn't been setup yet...
-		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0)
-			return;
+		if ((blink.getBlinkCom() & Blink.BM_COMLCDON) != 0) {
+			if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) {
+				// Don't render frame if one of the Screen Registers hasn't been setup yet...
+				renderNoScreenFrame();  
+			} else {
+				// screen is ON and Blink registers are all pointing to font areas...
+				renderScreenFrame();
+			}
+		} else {
+			// Screen has been switched off (usually by using the SHIFT keys) 
+			renderNoScreenFrame();
+		}
+	}
 
+	private void renderNoScreenFrame() {
+		long timeMs = System.currentTimeMillis();
+
+		for (int x = 0; x < (Z88SCREENHEIGHT * Z88SCREENWIDTH); x++) displayMatrix[x] = PXCOLSCROFF;
+
+		// create an image, based on pixel matrix, and render it via double buffering to 
+		// the Awt/Swing component 
+		renderImageToComponent();
+
+		// remember the time it took to render the complete screen, accumulated
+		renderTimeTotal += System.currentTimeMillis() - timeMs;
+	}
+			
+	private void renderScreenFrame() {
 		long timeMs = System.currentTimeMillis();
 
 		bankLores0 = lores0 >>> 16;
@@ -258,8 +283,18 @@ public class Z88display {
 			scrBaseCoordX = 0;
 		}
 
+		// create an image, based on pixel matrix, and render it via double buffering to 
+		// the Awt/Swing component 
+		renderImageToComponent();
+
+		// remember the time it took to render the complete screen, accumulated
+		renderTimeTotal += System.currentTimeMillis() - timeMs;
+	}
+
+	private void renderImageToComponent() {
 		if (image != null) {
-			// release the bitmap to the system; it's been dumped to video previously and is now useless...
+			// release previous bitmap to the system; 
+			// it's been dumped to video already and is now useless...
 			image.flush();
 			image = null;
 		}
@@ -281,12 +316,9 @@ public class Z88display {
 		// draw image into back buffer
 		backBufferGrfx.drawImage(image, 0, 0, null);
 		// flip back buffer with front buffer which displays current screen frame...
-		flip();
-
-		// remember the time it took to render the complete screen, accumulated
-		renderTimeTotal += System.currentTimeMillis() - timeMs;
+		flip();		
 	}
-
+	
 	/** Switch the display front and backbuffers */
 	private void flip() {
 		BufferedImage tempImage = frontBufferImg;
@@ -586,6 +618,8 @@ public class Z88display {
 		public void run() {
 			int avgRenderSpeed =
 				(int) renderTimeTotal / fps[curRenderSpeedIndex];
+			// System.out.println("Avg Frame Render Speed: " + avgRenderSpeed + " ms");
+			
 			if (avgRenderSpeed * 1.4 > 1000 / fps[curRenderSpeedIndex]) {
 				// current average render speed and safety margin takes longer than the time interval
 				// between frames. Choose a one-step lower frame rate, if possible...
