@@ -5,12 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import gameframe.GameFrame;
 import gameframe.GameFrameException;
 
@@ -35,10 +29,9 @@ public class OZvm {
 			z88.insertRamCard(128 * 1024, 1);	// Insert 128K RAM in slot 1			
 			z88.hardReset();
 
-			z80Speed = new MonitorZ80();
-			
+			z80Speed = new MonitorZ80(z88);
 			dz = new Dz(z88); // the disassembly engine, linked to the memory model
-			breakp = new Breakpoints();
+			breakp = new Breakpoints(z88);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("\n\nCouldn't initialize Z88 virtual machine.");
@@ -324,7 +317,7 @@ public class OZvm {
 		System.out.println("Commands:");
 		System.out.println("exit - end OZvm application");
 		System.out.println("run - execute Z88 machine from PC");
-		System.out.println(". - Single step instruction at PC");		
+		System.out.println(". - Single step instruction at PC");
 		System.out.println("d - Disassembly at PC");
 		System.out.println("d [local address | extended address] - Disassemble at address");
 		System.out.println("wb <extended address> <byte> [<byte>] - Write byte(s) to memory");
@@ -375,8 +368,7 @@ public class OZvm {
 				// when we're getting back, a breakpoint was encountered...
 				breakpointProgramCounter = z88.PC();	// remember breakpoint address
 				 
-				System.out.println(blinkBankBindings() + "\n");	// display bank bindings
-				z80Status();									// display Z80 register status
+				z80Status();	// display Z80 register status
                 cmdline = "";
 				cmdLineTokens = cmdline.split(" "); // wait for a new command...
 			}
@@ -480,7 +472,7 @@ public class OZvm {
 		String dzCmdline = null;
 			
 		if (cmdLineTokens.length == 2) {
-			// one arguments; the local Z80 64K address or a compact 24bit extended address
+			// one argument; the local Z80 64K address or a compact 24bit extended address
 			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
 			if (dzAddr > 65535) {
 				dzBank = (dzAddr >>> 16) & 0xFF;
@@ -527,6 +519,7 @@ public class OZvm {
 		return dzCmdline;
 	}
 
+    
 	private int getMemoryAscii(StringBuffer memLine, int memAddr, int memBank) {
 		int memHex, memAscii;
 		
@@ -593,7 +586,7 @@ public class OZvm {
 				} else {
                     memAddr = z88.decodeLocalAddress(memAddr) | (memAddr & 0xF000);
                     memBank = (memAddr >>> 16) & 0xFF;
-                    memAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
+                    memAddr &= 0xFFFF;	// preserve local address look, makes it easier to identify..
 				}
 			}
 		} else {
@@ -601,7 +594,7 @@ public class OZvm {
 				// no arguments, use PC in current bank binding
                 memAddr = z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000);
                 memBank = (memAddr >>> 16) & 0xFF;
-                memAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
+                memAddr &= 0xFFFF;	// preserve local address look, makes it easier identify..
 			} else {
 				System.out.println("Illegal argument.");
 				System.out.print("$");
@@ -641,207 +634,4 @@ public class OZvm {
 		System.out.println("Ozvm terminated.");
 		GameFrame.exit(0);
 	}
-
-	/** 
-	 * BreakPoint management in OZvm.
-	 */
-	private class Breakpoints {
-		private Map breakPoints = null;
-		
-		/**
-		 * Just instantiate this Breakpoint Manager
-		 */
-		Breakpoints() {
-			breakPoints = new HashMap(); 
-		}
-		
-		/**
-		 * Instantiate this Breakpoint Manager with the
-		 * first breakpoint.
-		 */
-		Breakpoints(int offset, int bank) {
-			this();
-			toggleBreakpoint(offset, bank);
-		}
-
-		/**
-		 * Add (if not created) or remove breakpoint (if prev. created).
-		 * 
-		 * @param offset
-		 * @param bank
-		 */
-		private void toggleBreakpoint(int offset, int bank) {
-			Breakpoint bp = new Breakpoint(offset, bank);
-			if (breakPoints.containsKey( (Breakpoint) bp) == false) 
-				breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
-			else
-				breakPoints.remove((Breakpoint) bp);
-				
-			listBreakpoints();
-		}
-
-		/**
-		 * List breakpoints to console.
-		 */
-		private void listBreakpoints() {
-			if (breakPoints.isEmpty() == true) {
-				System.out.println("No Breakpoints defined.");
-			} else {
-				Iterator keyIterator = breakPoints.entrySet().iterator();
-	
-				while(keyIterator.hasNext()) {
-					Map.Entry e = (Map.Entry) keyIterator.next();   
-					Breakpoint bp = (Breakpoint) e.getKey();
-	
-					int offset = bp.getAddress() & 0xFFFF;
-					int bank = bp.getAddress() >>> 16;
-					System.out.print(Dz.addrToHex(offset,false) + "," + Dz.byteToHex(bank,false) + "\t"); 
-				}
-				System.out.println();
-			}
-		}
-
-		/**
-		 * Set the "breakpoint" instruction in Z88 memory for all 
-		 * currently defined breakpoints.
-		 */		
-		private void setBreakpoints() {
-			// now, set the breakpoint at the extended address; 
-			// the instruction opcode 40 ("LD B,B"; quite useless!).
-			// which this virtual machine identifies as a "suspend" Z80 exection. 
-			if (breakPoints.isEmpty() == false) {
-				Iterator keyIterator = breakPoints.entrySet().iterator();
-		
-				while(keyIterator.hasNext()) {
-					Map.Entry e = (Map.Entry) keyIterator.next();   
-					Breakpoint bp = (Breakpoint) e.getKey();
-	
-					int offset = bp.getAddress() & 0x3FFF;
-					int bank = bp.getAddress() >>> 16;
-					z88.setByte(offset, bank, 0x40);
-				}
-			}
-		}
-		
-		/**
-		 * Clear the "breakpoint" instruction; ie. restore original bitpattern
-		 * that was overwritten by the "breakpoint" instruction in Z88 memory.
-		 */
-		private void clearBreakpoints() {
-			// restore at the extended address; 
-			// the original instruction opcode that is preserved inside 
-			// the BreakPoint object 
-			if (breakPoints.isEmpty() == false) {
-				Iterator keyIterator = breakPoints.entrySet().iterator();
-		
-				while(keyIterator.hasNext()) {
-					Map.Entry e = (Map.Entry) keyIterator.next();   
-					Breakpoint bp = (Breakpoint) e.getKey();
-	
-					int offset = bp.getAddress() & 0x3FFF;
-					int bank = bp.getAddress() >>> 16;
-					
-					// restore the original opcode bit pattern... 
-					z88.setByte(offset, bank, bp.getInstruction() & 0xFF);
-				}
-			}			
-		}
-
-		// The breakpoint container.
-		private class Breakpoint {
-			int addressKey;			// the 24bit address of the breakpoint
-			int instr;				// the original 16bit opcode at breakpoint
-			
-			Breakpoint(int offset, int bank) {
-				// the encoded key for the SortedSet...
-				addressKey = (bank << 16) | offset;
-			
-				// the original 1 byte opcode bit pattern in Z88 memory.
-				setInstruction(z88.getByte(offset, bank));
-			}
-			
-			private int setAddress() {
-				return addressKey;
-			}
-
-			private int getAddress() {
-				return addressKey;
-			}
-						
-			private void setInstruction(int z80instr) {
-				instr = z80instr;				
-			}
-			
-			private int getInstruction() {
-				return instr; 
-			}
-			
-			// override interface with the actual implementation for this object. 
-			public int hashCode() {
-				return addressKey;	// the unique key is a perfect hash code
-			}
-			
-			// override interface with the actual implementation for this object. 
-			public boolean equals(Object bp) {
-				if (!(bp instanceof Breakpoint)) {
-					return false;
-				}
-
-				Breakpoint aBreakpoint = (Breakpoint) bp; 
-				if (addressKey == aBreakpoint.addressKey)
-					return true;
-				else 
-					return false; 
-			}
-		}
-	}
-	
-	/** 
-	 * Z80 instruction speed monitor. 
-	 * Polls each second for the execution speed and displays it to std out.
-	 */
-	private class MonitorZ80 {
-
-		Timer timer = null;
-		TimerTask monitor = null;
-		private long oldTimeMs = 0;
-
-		private class SpeedPoll extends TimerTask {
-			/**
-			 * Request poll each second, or try to hit the 1 sec time frame...
-			 * 
-			 * @see java.lang.Runnable#run()
-			 */
-			public void run() {
-				float realMs = System.currentTimeMillis() - oldTimeMs;
-				int ips = (int) (z88.getInstructionCounter() * realMs/1000);
-				int tps = z88.getTstatesCounter();
-
-				// System.out.println( "IPS=" + ips + ",TPS=" + tps);
-
-				oldTimeMs = System.currentTimeMillis();
-			}			
-		}
-		
-		private MonitorZ80() {
-			timer = new Timer(true);
-		}
-
-		/**
-		 * Stop the Z80 Speed Monitor.
-		 */
-		public void stop() {
-			if (timer != null)
-				monitor.cancel();
-		}
-
-		/**
-		 * Speed polling monitor asks each second for Z80 speed status.
-		 */
-		public void start() {
-			monitor = new SpeedPoll();
-			oldTimeMs = 0;
-			timer.scheduleAtFixedRate(monitor, 0, 1000);
-		}
-	} 
 }
