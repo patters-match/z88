@@ -361,7 +361,7 @@ shortcut)</b></font></font></font></p>
       </td>
       <td width="69%">
       <p align="left"><font color="#3f5fbf"><font face="Courier"><font
- size="2"><b>0 &#8211;
+ size="2"><b>0 &ndash;
 9 (useful on a french Z88
 keyboard!)</b></font></font></font></p>
       </td>
@@ -383,7 +383,7 @@ Sweden, Finland, Spain, Turkey, etc. All these localizations exists
 on individual ROM's. Running one of those in OZvm is no problem.
 OZvm emulates the Z88 hardware and therefore they work. However,
 each of those ROM's have different keyboard scanning routines that
-handles ISO characters and &#8221;dead keys&#8221;. Each ROM is not
+handles ISO characters and &rdquo;dead keys&rdquo;. Each ROM is not
 defined with a country code inside the watermark of the ROM header.
 You need to specify the keyboard layout that this ROM uses.
 Therefore, you cannot completely use your english / american PC
@@ -391,7 +391,7 @@ keyboard layout on a Z88 running inside OZvm that expects input
 from a french keyboard layout.</p>
 <p style="margin-bottom: 0cm;" align="left">Firstly, you have to
 specify the keyboard layout at the command line, if you're going to
-use a &#8221;foreign&#8221; Z88 ROM (also specified at the command
+use a &rdquo;foreign&rdquo; Z88 ROM (also specified at the command
 line). Secondly, you need to activate similar keyboard layout in
 your operating system. For example, if you as an english user want
 to play with a french Z88 ROM, you need to specify the following at
@@ -403,7 +403,7 @@ ROM&gt; kbl fr</font></p>
 <p style="margin-bottom: 0cm;" align="left">Finally, you need to
 change to a french keyboard layout on your PC. Yes, it's very
 cumbersome, but it's the only way. Using this method will enable an
-almost one-to-one key mapping between the &#8221;host&#8221;
+almost one-to-one key mapping between the &rdquo;host&rdquo;
 keyboard and the Z88 keyboard.</p>
 <p style="margin-bottom: 0cm;" align="left">OZvm will in a later
 version be implemented with a graphical keyboard below the screen
@@ -552,13 +552,21 @@ Intel Flash Card (available sizes are 512 &amp;
       <td style="vertical-align: top;"><font color="#3f5fbf"><font
  face="Courier"><font size="2"><b>fcdX
 &lt;size&gt;
-&lt;type&gt;</b></font></font></font></td>
+&lt;type&gt; [-f file] [-d directory]<br>
+      </b></font></font></font></td>
       <td> <big><font color="#3f5fbf"><font size="2"><big>Insert
 an empty File Card in slot X (1-3) of size in KB and
 of &lt;type&gt;, for example: fcd1 1024 29f means that an empty
 1Mb
 Amd Flash Card will be inserted into slot 1 and preset with a 'oz'
 File Header at the top of the card.<br>
+      <br>
+You can optionally import files from the host operating system into the
+file area. There's two methods; either specify each file using the -f <span
+ style="font-style: italic;">filename</span> option (one or more), or
+specifying a directory on the host operating system using the -d <span
+ style="font-style: italic;">directory-path</span> option (load all
+files in host directory into file area).<br>
       <br>
 Available
 types:<br>
@@ -721,10 +729,10 @@ or &lt;Down&gt; arrow keys to browse the command history. Just
 press ENTER at the command, you wish to re-execute.</p>
 <p style="margin-bottom: 0cm;" align="left">When specifying an
 address for the various commands that needs an address, you can
-either use the local 64K address range, eg. 0000h &#8211; FFFFh, or
+either use the local 64K address range, eg. 0000h &ndash; FFFFh, or
 use extended addressing that enables you to get access to the full
 4MB memory range of the Z88. An extended address is first specified
-with a bank number (00h &#8211; FFh), followed by the 16K bank
+with a bank number (00h &ndash; FFh), followed by the 16K bank
 offset (full 64K absolute address may be used as well), eg 203800
 (bank 20h, offset 3800h). You may use a segment mask in the bank
 offset; it makes it easier to read in various output but is
@@ -1165,7 +1173,7 @@ that accesses the OZ static data structures: application card info
     <p style="margin-bottom: 0cm;" align="left">Tool to build
 Application Card and File Card Eproms. This will be the
 functionally equivalent of Garry Lancasters
-&#8221;RomCombiner&#8221;.</p>
+&rdquo;RomCombiner&rdquo;.</p>
   </li>
 </ul>
 <p style="margin-bottom: 0cm;" align="left"><br>
@@ -1183,7 +1191,7 @@ doesn't always work when running OZvm on Windows. This is not a
 bug, but a side-effect, since the ALT key (that is being used for
 emulating the Square key on the Z88) triggers the Window menu. Try
 press the Down Arrow Key immediately after an ALT key press (and
-release) &#8211; you will see a pop-up menu where you can move or
+release) &ndash; you will see a pop-up menu where you can move or
 resize the window with the keyboard. This problem only happens when
 you single-press the ALT key, and then want to press a letter (a
 key shortcut to activate an application). The shortcut always works
@@ -1201,7 +1209,7 @@ english/american keyboard layout). Always use a keyboard layout on
 your PC that matches the keyboard layout of the Z88. We will
 implement a keyboard below the OZvm screen where you can press
 those special keys using the mouse to click on the
-&#8221;key&#8221; buttons.</p>
+&rdquo;key&rdquo; buttons.</p>
   </li>
   <li>
     <p style="margin-bottom: 0cm;" align="left">There's no menus.
@@ -1223,7 +1231,7 @@ Also, alarms doesn't automtically switch the Z88 on when previously
   <li>
     <p style="margin-bottom: 0cm;" align="left">OZvm doesn't apparently
 switch the Z88 properly off. When having pressed both SHIFT keys to
-turn the Z88 off (at least switch the &#8221;screen&#8221; off),
+turn the Z88 off (at least switch the &rdquo;screen&rdquo; off),
 the active screen flickers occasionally through the switched-off
 screen. However, you can easily turn the machine on again with both
 SHIFT keys. High priority.</p>
@@ -1231,7 +1239,7 @@ SHIFT keys. High priority.</p>
   <li>
     <p style="margin-bottom: 0cm;" align="left">UV Eprom Programming
 (32K, 128K and 256K cards) is not yet emulated. So you cannot
-&#8221;blow&#8221; files to a 32K, 128K or 256K File Eprom yet in
+&rdquo;blow&rdquo; files to a 32K, 128K or 256K File Eprom yet in
 the slot 3.&nbsp; You will also notice warning messages in the
 Runtime Window that the particular Z80 hardware I/O port hasn't
 been implemented yet. Medium priority.</p>
@@ -1260,7 +1268,7 @@ Z88.<br>
   <li>
     <p style="margin-bottom: 0cm;" align="left">Sound has not been
 implemented yet. Though the Z88 has a primitive
-&#8221;beeper&#8221;, we'll add it to make a complete emulation.
+&rdquo;beeper&rdquo;, we'll add it to make a complete emulation.
 Low priority.</p>
   </li>
 </ul>
