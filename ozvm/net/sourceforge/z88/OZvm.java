@@ -148,6 +148,7 @@ public class OZvm {
 		dzRegisters.append("'A=").append(dz.byteToHex(z88.A(),false)).append(" ");
 		dzRegisters.append("'F=").append(z80Flags()).append(" ");
 		dzRegisters.append(" ").append("R=").append(z88.R()).append("\n");
+		z88.ex_af_af();
 		
 		System.out.println(dzRegisters);
 	}
@@ -158,7 +159,6 @@ public class OZvm {
 	private void z80Status() {
 		StringBuffer dzBuffer = new StringBuffer(64);
 
-		System.out.println(blinkBankBindings() + "\n");
 		displayZ80Registers();
 						
 		dz.getInstrAscii(dzBuffer, z88.PC(), true);
@@ -207,6 +207,7 @@ public class OZvm {
 		BufferedReader in =
 			new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("Type 'h' or 'help' for command line options\n");
+		System.out.println(blinkBankBindings() + "\n");		
 		z80Status();
 		
 		StringBuffer prevCmdline = new StringBuffer();
@@ -221,12 +222,19 @@ public class OZvm {
 				breakp.setBreakpoints();
 				z80Speed.start();
 				z88.startInterrupts();
-				z88.run();
+				z88.run(false);		// no single stepping...
 				z88.stopInterrupts();
 				z80Speed.stop();
 				breakp.clearBreakpoints();
 				
 				// when we're getting back, a breakpoint was encountered...
+				System.out.println(blinkBankBindings() + "\n");
+				z80Status();
+				cmdLineTokens[0] = ""; // wait for a new command...
+			}
+
+			if (cmdLineTokens[0].equalsIgnoreCase(".") == true) {
+				z88.run(true);		// single stepping (no interrupts running)...				
 				z80Status();
 				cmdLineTokens[0] = ""; // wait for a new command...
 			}
@@ -524,7 +532,6 @@ public class OZvm {
 		private class Breakpoint {
 			int addressKey;			// the 24bit address of the breakpoint
 			int instr;				// the original 16bit opcode at breakpoint
-			boolean singleStep;		// is this a temporary, single step break point?
 			
 			Breakpoint(int offset, int bank) {
 				// the encoded key for the SortedSet...
@@ -532,16 +539,6 @@ public class OZvm {
 			
 				// the original 2 byte opcode bit pattern in Z88 memory.
 				setInstruction(z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank));
-				singleStep = false;				
-			}
-
-			Breakpoint(int offset, int bank, boolean stbp) {
-				// the encoded key for the SortedSet...
-				addressKey = bank << 16 | offset;
-			
-				// the original 2 byte opcode bit pattern in Z88 memory.
-				setInstruction(z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank));
-				singleStep = stbp;				
 			}
 			
 			private int setAddress() {
@@ -551,15 +548,7 @@ public class OZvm {
 			private int getAddress() {
 				return addressKey;
 			}
-			
-			private void setSingleStepBreakpoint(boolean stbp) {
-				singleStep = stbp;
-			}
-
-			private boolean getSingleStepBreakpoint() {
-				return singleStep;
-			}
-			
+						
 			private void setInstruction(int z80instr) {
 				instr = z80instr;				
 			}
@@ -609,7 +598,7 @@ public class OZvm {
 				int ips = (int) (z88.getInstructionCounter() * realMs/1000);
 				int tps = z88.getTstatesCounter();
 
-				System.out.println( "IPS=" + ips + ",TPS=" + tps);
+				// System.out.println( "IPS=" + ips + ",TPS=" + tps);
 
 				oldTimeMs = System.currentTimeMillis();
 			}			
