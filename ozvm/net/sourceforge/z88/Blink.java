@@ -1745,20 +1745,28 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Handle action on encountered breakpoint.<p>
+	 * (But ignore it, if the processor is just executing a LD B,B (T-Touch on the Z88 does it)!
 	 *
-	 * @return true, if Z80 engine is to be stopped.
+	 * @return true, if Z80 engine is to be stopped (a real breakpoint were found).
 	 */
-	public void breakPointAction() {
-		PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
-		int bpAddress = decodeLocalAddress(PC());
+	public boolean breakPointAction() {
+		int bpAddress = decodeLocalAddress(getInstrPC());
 		int bpOpcode = getByte(bpAddress);	// remember the breakpoint instruction opcode
 		int z80Opcode = breakPoints.getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
-		setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily)
-		displayRtmMessage((new DisplayStatus(this)).dzPcStatus(PC()).toString(), true); // dissassemble original instruction, with Z80 main reg dump
-		setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter
-		if (breakPoints.isStoppable(bpAddress) == true) {
-			displayRtmMessage("Z88 virtual machine was stopped at breakpoint.", false);
-		}
+		if (z80Opcode != -1) {
+			// a breakpoint was defined for that address; 
+			// don't stop the processor if it's only a display breakpoint... 
+			setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily)
+			displayRtmMessage((new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString(), true); // dissassemble original instruction, with Z80 main reg dump
+			setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter
+			if (breakPoints.isStoppable(bpAddress) == true) {
+				PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
+				displayRtmMessage("Z88 virtual machine was stopped at breakpoint.", false);
+				return true;
+			}			
+		} 
+		
+		return false; // don't stop; either no breakpoint were found, or it's just a display breakpoint.. 
 	}
 
 	/**
