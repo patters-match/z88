@@ -38,7 +38,6 @@
 ;
 ; *****************************************************************************
 
-if MSDOS | LINUX
      include "error.def"
      include "syspar.def"
      include "director.def"
@@ -50,7 +49,6 @@ if MSDOS | LINUX
      include "interrpt.def"
      include "flashepr.def"
      include "dor.def"
-endif
 
 ; Library references
 ;
@@ -62,9 +60,7 @@ lib ApplEprType               ; check for prescence application card in slot
 lib CheckBattLow              ; Check Battery Low condition
 lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
 lib FlashEprCardId            ; Return Intel Flash Eprom Device Code (if card available)
-lib FlashEprBlockErase        ; Format Flash Eprom Block (64K)
 lib FlashEprWriteBlock        ; Write a block of byte to Flash Eprom
-lib FlashEprStdFileHeader     ; Write std. File Eprom Header on Flash Eprom.
 lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
 lib FlashEprFileSave          ; Save RAM file to Flash Eprom
 lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -418,7 +414,7 @@ ENDIF
                     ld   c,a
                     call FileEprRequest
                     jr   c, poll_for_ram_card
-                         ld   hl, eprdev          ; d = size of File Area in 16K banks
+                         ld   hl, eprdev          ; C = size of File Area in 16K banks
                          jr   slotsize
 .poll_for_ram_card
                     ld   a,(curslot)
@@ -638,8 +634,7 @@ ENDIF
 .cont_statistics                   
                     ld   a,(curslot)
                     ld   c,a
-                    push bc                       ; preserve slot number
-                    
+                    push bc                       ; preserve slot number                    
                     call FileEprCntFiles          ; files on current File Eprom
                     add  hl,de                    ; total files = active + deleted
                     ld   (file),hl
@@ -1034,6 +1029,7 @@ ENDIF
                     ld   hl,byte_ms
                     CALL_OZ gn_sop
 
+                    ld   a,3                           ; slot 3
                     ld   bc, BufferSize
                     ld   de, BufferStart
                     ld   hl, buf3
@@ -1194,8 +1190,6 @@ ENDIF
                     ld   a,b                 ; File entry found
                     ld   (fbnk),a
                     ld   (fadr),hl           ; preserve pointer to found File Entry...
-                    LD   A,(curslot)
-                    LD   C,A
                     call FileEprFileSize
                     ld   a,c
                     or   d
@@ -1250,8 +1244,6 @@ ENDIF
                     LD   A,(fbnk)
                     LD   B,A
                     LD   HL,(fadr)
-                    LD   A,(curslot)
-                    LD   C,A
                     CALL FileEprFetchFile    ; fetch file from current File Eprom
                     PUSH AF                  ; to RAM file, identified by IX handle
                     CALL_OZ(Gn_Cl)           ; then, close file.
@@ -1339,8 +1331,6 @@ ENDIF
                     CALL FileEprFirstFile    ; get pointer to first file on Eprom
                     JR   C, no_files         ; Ups - the card was empty or not present...
 .restore_loop       
-                    LD   A,(curslot)
-                    LD   C,A                 
                     CALL FileEprFilename     ; get filename at (DE)
                     JR   C, restore_completed; all file entries scanned...
                     JR   Z, fetch_next       ; File Entry marked as deleted, get next...
@@ -1394,8 +1384,6 @@ ENDIF
                     POP  BC                  ; restore pointer to current File Entry
                     JR   C, filecreerr       ; not possible to create file, exit restore...
 
-                    LD   A,(curslot)
-                    LD   C,A                 
                     CALL FileEprFetchFile    ; fetch file from File Eprom
                     PUSH AF                  ; to RAM file, identified by IX handle
                     CALL_OZ(Gn_Cl)           ; then, close file.
@@ -1408,9 +1396,7 @@ ENDIF
                     CALL_OZ(GN_Sop)          ; "Done"
                     POP  HL
                     POP  BC
-.fetch_next
-                    LD   A,(curslot)
-                    LD   C,A                 
+.fetch_next                                  ; BHL = current File Entry
                     CALL FileEprNextFile     ; get pointer to next File Entry...
                     JR   NC, restore_loop
 .restore_completed
@@ -1557,7 +1543,6 @@ ENDIF
                     or   e
                     pop  de
                     jr   nz, dispfirstentry       ; is it the hidden system file entry?
-                         ld   c,e
                          call FileEprNextFile     ; yes, skip it and display rest of filenames...
 .dispfirstentry
                     ld   a,b
@@ -1588,8 +1573,6 @@ ENDIF
                     ld   a,(fbnk)
                     ld   b,a
                     ld   hl,(fadr)
-                    ld   a,(curslot)
-                    ld   c,a
                     ld   de, buf3            ; write filename at (DE), null-terminated
                     call FileEprFilename     ; copy filename from current file entry
                     jp   c, end_cat          ; Ups - last file(name) has been displayed...
@@ -1614,8 +1597,6 @@ ENDIF
                     pop  bc
                     push bc
                     push hl
-                    ld   a,(curslot)
-                    ld   c,a
                     call FileEprFileSize     ; get size of File Entry in CDE
                     ld   (flen),de
                     ld   b,0
@@ -1756,6 +1737,7 @@ ENDIF
                     LD   HL,wroz_ms
                     CALL sopnln
 
+                    LD   C,3
                     CALL FlashEprFileFormat       ; blow "oz" header on top of Card
                     JR   C, WriteHdrError         ; or at top of free area.
 
@@ -1779,7 +1761,7 @@ ENDIF
                          CALL DispErrMsg
                     RET
 .save_null_file
-                    ld   b,0
+                    ld   b,$80
                     ld   hl,0                ; blow null file at bottom of card
                     ld   de, nullfile
                     ld   c, MS_S1            ; use segment 1 to blow the bytes...
