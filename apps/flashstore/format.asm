@@ -99,6 +99,7 @@ Module FileAreaFormat
 
                     call ungreyscr
                     CALL FileEpromStatistics
+                    CALL DispCtlgWindow
                     call cls
                     ld   hl,ffm1_bnr
                     call wbar                     ; "Format Flash eprom" head line
@@ -127,7 +128,6 @@ Module FileAreaFormat
                     ret  nz
 
                     call cls
-
                     ld   hl,ffm1_bnr
                     call wbar                     ; "Format Flash eprom" head line
 
@@ -139,8 +139,12 @@ Module FileAreaFormat
                     CALL FlashEprFileFormat       ; erase blocks of file area & blow "oz" header at top
                     JR   C, formaterr             ; or at top of free area.
 
-                    LD   HL,done_msg
+                    call cls
+                    ld   hl,ffm1_bnr
+                    call wbar                     ; "Format Flash eprom" head line
+                    ld   hl,ffm3_msg
                     CALL_OZ GN_Sop
+
                     LD   HL, wroz_msg
                     CALL_OZ GN_Sop
                     LD   HL,done_msg
@@ -150,8 +154,9 @@ Module FileAreaFormat
                     CP   A                        ; Signal success (Fc = 0, Fz = 1)
                     RET
 .formaterr                                        ; current block was not formatted properly...
-                    LD   HL, failed_msg
-                    CALL sopnln
+                    call cls
+                    ld   hl,ffm1_bnr
+                    call wbar                     ; "Format Flash eprom" head line
                     LD   HL, fferr_msg
                     CALL DispErrMsg
                     RET
@@ -404,7 +409,8 @@ Module FileAreaFormat
 
 .fferr_msg          DEFM "File Area not formatted properly!",$0D,$0A,0
 .ffm1_bnr           DEFM "FORMAT FILE AREA ON FLASH CARD",0
-.ffm2_msg           DEFM 13, 10, " Formatting File Area ... ",0
+.ffm2_msg           DEFM 13, 10, 1, "F Formatting File Area ... ", 1, "F", 0
+.ffm3_msg           DEFM 13, 10, " File Area formatted.", 13, 10, 0
 .wroz_msg           DEFM " Writing File Area Header... ",0
 
 .reformat_msgs      DEFW reformat1_msg
