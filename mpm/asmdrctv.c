@@ -773,7 +773,6 @@ DEFC (void)
 void
 ORG (void)
 {
-
   expression_t *postfixexpr;
   unsigned long orgaddr;
 
@@ -786,7 +785,10 @@ ORG (void)
       else
         {
           orgaddr = EvalPfixExpr (postfixexpr);        /* ORG expression must not contain undefined symbols */
-          CURRENTMODULE->origin = orgaddr;
+          if (orgaddr >= 0 && orgaddr <= 65535)
+            CURRENTMODULE->origin = orgaddr;
+          else
+            ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IntegerRange);
         }
       RemovePfixlist (postfixexpr);
     }
