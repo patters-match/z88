@@ -20,14 +20,18 @@
 
 ;Constants are all uppercase
 
+defc	ubRandomPtr		=$01fb
 defc	uwRandom1		=$01fc
 defc	uwRandom2		=$01fe
 
-
 defc	ubResetType		=$0200
+defc	ubTimeout		=$0201
+defc	cSound			=$0204
 defc	ubBadSize		=$0205
 defc	ubScreenBase		=$020b
 defc	KbdData			=$0216			; data on both negative and positive side
+defc	ubKbdFlags		=$021d			; !! get rid of this def - part of KbdData
+defc	ubKbdLastkey		=$021e			; !! get rid of this def - part of KbdData
 defc	SerTXHandle		=$0229			; on negative side!
 defc	SerRXHandle		=$0233			; on negative side!
 defc	uwSmallTimer		=$0238
@@ -38,10 +42,18 @@ defc	pMTHTmpHandle		=$0250
 defc	word_0252		=$0252
 defc	uwPanelFilePtr		=$0256
 defc	ubSysFlags1		=$0258
+defc	OZcmdBuf		=$025a
+defc	pNMIStackPtr		=$0260
+defc	ubWaitCount1		=$0262
+defc	ubWaitCount2		=$0263
+defc	ubTimeoutCnt		=$0264
 defc	ubCLIActiveCnt		=$0265
 defc	ubNextAlmSeconds	=$0266
 defc	uwNextAlmMinutes	=$0267
-defc	ubAlmDisableCnt		=$026E
+defc	ubSoundCount		=$026b
+defc	ubAlmDisableCnt		=$026e
+defc	ubAlmDisplayCnt		=$026f
+defc	ubNumActiveAlm		=$0270
 defc	ubAlmActionCnt		=$0271
 defc	pPrefs1			=$0276
 defc	pPrefs2			=$0278
@@ -78,6 +90,12 @@ defc	ubSlotRAMoffset		=$03f8
 defc	KbdBuffer		=$0b00
 defc	SerTXBuffer		=$0b20
 defc	SerRXBuffer		=$0b80
+
+;	0c00		NMI/wait
+
+defc	uwTimecounter		=$0c00
+defc	ubTimecounterSoft	=$0c02
+defc	NMIStackTop		=$0c33
 
 ;	0db8-0dc2	EPROM
 
@@ -201,19 +219,36 @@ defc	PrtSeqBuf		=$7eec
 
 defc	SBF_PAGE		=$78
 
-defc	Wd1Frame		=$78e6
-defc	sbf_ActiveWd		=$7FE7
-defc	sbf_CtrlPrefix		=$7FE9
-defc	sbf_PrefixSeq		=$7FEA
-defc	sbf_VDUbuffer		=$7FEC
-defc	sbf_VDU1		=$7FED
-defc	sbf_VDU2		=$7FEE
-defc	sbf_VDU3		=$7FEF
-defc	sbf_VDU4		=$7FF0
-defc	sbf_VDU5		=$7FF1
-defc	sbf_VDU6		=$7FF2
+defc	SBF_ADDRESS		=SBF_PAGE<<8
 
-;	window
+defc	LCD_ozrow1		=SBF_ADDRESS+$d2
+defc	LCD_ozrow2		=LCD_ozrow1+$100
+defc	LCD_ozrow3		=LCD_ozrow1+$200
+defc	LCD_ozrow4		=LCD_ozrow1+$300
+defc	LCD_ozrow5		=LCD_ozrow1+$400
+defc	LCD_ozrow6		=LCD_ozrow1+$500
+defc	LCD_ozrow7		=LCD_ozrow1+$600
+defc	LCD_ozrow8		=LCD_ozrow1+$700
+
+defc	Wd1Frame		=SBF_ADDRESS+$e6
+
+defc	sbf_ActiveWd		=SBF_ADDRESS+$7e7
+
+defvars	SBF_ADDRESS+$7e9
+{
+sbf_CtrlPrefix		ds.b	1
+sbf_PrefixSeq		ds.b	1
+sbf_PrefixLen		ds.b	1
+sbf_VDUbuffer		ds.b	1
+sbf_VDU1		ds.b	1
+sbf_VDU2		ds.b	1
+sbf_VDU3		ds.b	1
+sbf_VDU4		ds.b	1
+sbf_VDU5		ds.b	1
+sbf_VDU6		ds.b	1
+}
+
+;	window - negative offsets
 
 defc	wdf_f2			=$F2
 defc	wdf_flagsHi		=$F3
@@ -435,4 +470,37 @@ defc	MM_B_MUL		=5
 defc	OZBANK_0	=0
 defc	OZBANK_DC	=2
 defc	OZBANK_GN	=3
+defc	OZBANK_PRFILTER	=3
 defc	OZBANK_7	=7
+
+
+;	keyboard
+
+defc	kbd_rawkey	=0		; current key, internal code
+defc	kbd_rlscnt	=1		; release counter
+defc	kbd_keyflags	=2		; state bits: KB_xxx
+defc	kbd_prevkey	=3		; as above for previous key
+defc	kbd_prevrlscnt	=4
+defc	kbd_prevflags	=5
+defc	kbd_repeatcnt	=6		; repeat counter
+defc	kbd_flags	=7		; flag bits:
+defc	kbd_lastkey	=8		; used in dead-key handling
+
+
+defc	KBF_B_CAPSE	=0		; 1-CAPS enable
+defc	KBF_B_CAPS	=1		; 1-caps 0-CAPS
+defc	KBF_B_SCAN	=2		; 1-keybard scan active
+defc	KBF_B_BEEP	=3		; 1-do keyclick
+defc	KBF_B_DMND	=4		; 1-<> down
+defc	KBF_B_KEY	=5		; 1-any (not <>/[]) key down
+defc	KBF_B_SQR	=6		; 1-[] down
+defc	KBF_B_LOCKED	=7		; 1-locked
+
+defc	KBF_CAPSE	=1
+defc	KBF_CAPS	=2
+defc	KBF_SCAN	=4
+defc	KBF_BEEP	=8
+defc	KBF_DMND	=16
+defc	KBF_KEY		=32
+defc	KBF_SQR		=64
+defc	KBF_LOCKED	=128
