@@ -973,6 +973,8 @@ public final class Blink extends Z80 {
 	public final int inByte(int addrA8, int addrA15) {
 		int res = 0;
 
+		Thread.yield();	// let the Java System work on the other thread for a short while... 
+		
 		switch (addrA8) {
 			case 0xB1:				
                 res = getBlinkSta();		// STA, Main Blink Interrupt Status
@@ -1024,6 +1026,8 @@ public final class Blink extends Z80 {
 	 * @param outByte the data to send to the hardware
 	 */
 	public final void outByte(final int addrA8, final int addrA15, final int outByte) {
+		Thread.yield();	// let the Java System work on the other thread for a short while... 
+
 		switch (addrA8) {
 			case 0xD0 : // SR0, Segment register 0
 			case 0xD1 : // SR1, Segment register 1
@@ -1689,12 +1693,12 @@ public final class Blink extends Z80 {
 		}
 
 		/**
-		 * Start interrupt to the Z80 after a 10ms delay, and execute the run()
+		 * Start interrupt to the Z80, and execute the run()
 		 * method every 10 millisecond.
 		 */
 		public void start() {
-			intIm1 = new Int10ms();
-			timerDaemon.scheduleAtFixedRate(intIm1, 10, 10);
+			intIm1 = new Int10ms();			
+			timerDaemon.scheduleAtFixedRate(intIm1, 0, 10);
 		}
 	}
 }
