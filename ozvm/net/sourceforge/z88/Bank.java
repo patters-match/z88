@@ -33,6 +33,9 @@ package net.sourceforge.z88;
  * description.  
  */
 public abstract class Bank {
+	/** A bank contains 16384 bytes */
+	public static final int SIZE = 16384; 
+	
 	private int bankNo;
 	private int bankMem[];
 	
@@ -47,7 +50,7 @@ public abstract class Bank {
 	 */	
 	public Bank(int bankNo) {
 		this.bankNo = bankNo;
-		this.bankMem = new int[Memory.BANKSIZE];  // contents are default 0
+		this.bankMem = new int[Bank.SIZE];  // contents are default 0
 	}
 	
 	/**
@@ -74,7 +77,7 @@ public abstract class Bank {
 	 * @param addr is a 16bit word that points into the 16K address space of the bank.
 	 */
 	public int getByte(final int addr) {
-		return bankMem[addr & (Memory.BANKSIZE-1)] & 0xFF;
+		return bankMem[addr & (Bank.SIZE-1)] & 0xFF;
 	}
 	
 	/**
@@ -89,7 +92,7 @@ public abstract class Bank {
 	 * 
 	 */
 	public void setByte(final int addr, final int b) {
-		bankMem[addr & (Memory.BANKSIZE-1)] = b & 0xFF;
+		bankMem[addr & (Bank.SIZE-1)] = b & 0xFF;
 	}
 	
 	/**
@@ -97,17 +100,31 @@ public abstract class Bank {
 	 * Naturally, loading is only allowed inside 16Kb boundary.
 	 */
 	public final void loadBytes(byte[] block, int offset) {
-		offset %= Memory.BANKSIZE; // stay within boundary..
+		offset %= Bank.SIZE; // stay within boundary..
 		int length =
-			(offset + block.length) > Memory.BANKSIZE
-				? Memory.BANKSIZE - offset
+			(offset + block.length) > Bank.SIZE
+				? Bank.SIZE - offset
 				: block.length;
 
 		int bufidx = 0;
 		while (length-- > 0)
 			bankMem[offset++] = block[bufidx++] & 0xFF;
 	}
+
+	/**
+	 * Dump bytes from bank into a byte array from bank offset, length.
+	 * Parameters must stay within 16Kb boundary.
+	 */
+	public final byte[] dumpBytes(int offset, int length) {
+		byte dump[] = new byte[length];
+		int bufidx = 0;
 		
+		while (length-- > 0)
+			dump[bufidx++] = (byte) (bankMem[offset++] & 0xFF);
+		
+		return dump;
+	}
+	
 	/**
 	 * @return the absolute bank number (0-255) where this bank is located in the 4Mb memory model
 	 */
