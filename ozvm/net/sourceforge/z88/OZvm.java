@@ -153,14 +153,19 @@ public class OZvm {
 					if (arg<args.length && (args[arg].startsWith("crd") == true)) {
 						int eprSlotNumber = args[arg].charAt(3)	- 48;
 						eprSizeArg = Integer.parseInt(args[arg+1], 10);
-						file = new RandomAccessFile(args[arg+3], "r");
-						memory.loadImageOnCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
-						String insertEprMsg = "";
-						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
-						Gui.displayRtmMessage(insertEprMsg);
-						arg+=4;
+						if (args[arg+3].compareToIgnoreCase("-b") == 0) {
+							memory.loadBankFilesOnCard(eprSlotNumber, eprSizeArg, args[arg+2], args[arg+4]);
+							arg+=5;
+						} else {
+							file = new RandomAccessFile(args[arg+3], "r");
+							memory.loadImageOnCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
+							String insertEprMsg = "";
+							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
+							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
+							if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
+							Gui.displayRtmMessage(insertEprMsg);
+							arg+=4;
+						}
 						continue;
 					}
 
