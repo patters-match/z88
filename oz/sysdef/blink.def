@@ -1,0 +1,378 @@
+lstoff
+
+; BLINK.DEF
+; v1.0 - 30 june 1999
+; Z88 Operating System manifests
+; by Thierry Peycru and Gunther Strube
+;
+; Conventions v1.12 (02.08.99, TP):
+;
+; - All the Blink ports begin with BL_ (read or write)
+; - A port bit flag begins with BB_ (7 to 0)
+; - A softcopy begins with SC_
+; - Some combinations of bits are especially defined (eg. baud rates)
+; - Combinations of bit mask flags are ORed (with '|')
+;
+; v1.13 (04.08.99, GBS)
+; - A port bit flag mask, eg. $80 for fit 7, begins with BM_
+;
+; v1.14 (15.08.99, GBS)
+; Several name conflicts fixed (tested in Z80asm)
+; All BB_ and BM_ definitions have been preceeded with their UART register name.
+; SC_ changed to BLSC_, since SC_ is already used by OS_Esc ...
+
+; *** General Definitions ***
+
+DEFC BLSC_PAGE =    $04            ; softcopy page is at $0400
+
+; -----------------------------------------------------------------------------
+; Screen Registers
+DEFC BL_PB0    =    $70                 ;pixel base 0 (Lores 0)
+DEFC BL_PB1    =    $71                 ;pixel base 1 (Lores 1)
+DEFC BL_PB2    =    $72                 ;pixel base 1 (Hires 0)
+DEFC BL_PB3    =    $73                 ;pixel base 1 (Hires 1)
+DEFC BL_SBR    =    $74                 ;screen base file
+
+DEFC BLSC_PB0H =    $0460               ;PB0 softcopy high byte
+DEFC BLSC_PB0L =    $0470               ;PB0 softcopy low byte
+DEFC BLSC_PB1H =    $0461               ;PB1 softcopy high byte
+DEFC BLSC_PB1L =    $0471               ;PB1 softcopy low byte
+DEFC BLSC_PB2H =    $0462               ;PB2 softcopy high byte
+DEFC BLSC_PB2L =    $0472               ;PB2 softcopy low byte
+DEFC BLSC_PB3H =    $0463               ;PB3 softcopy high byte
+DEFC BLSC_PB3L =    $0473               ;PB3 softcopy low byte
+DEFC BLSC_SBRH =    $0464               ;SBR softcopy high byte
+DEFC BLSC_SBRL =    $0474               ;SBR softcopy low byte
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_COM    =    $B0                 ; COM - controls various BLINK operations (Write)
+DEFC BLSC_COM  =    $04B0
+     ;Bits
+     DEFC BB_COMSRUN     = 7            ; speaker source (0:SBIT/ 1:TXD or 3200Hz)
+     DEFC BB_COMSBIT     = 6            ; hilo if SBIT or TXD/3200Hz
+     DEFC BB_COMOVERP    = 5            ; overprogram eproms
+     DEFC BB_COMRESTIM   = 4            ; reset RTC if set
+     DEFC BB_COMPROGRAM  = 3            ; enable eprom programming mode
+     DEFC BB_COMRAMS     = 2            ; lower 8K (0:ROM $00, 1:RAM $20)
+     DEFC BB_COMVPPON    = 1            ; enable 12V eprom programming VPP voltage
+     DEFC BB_COMLCDON    = 0            ; set to turn LCD on
+     ; Bit masks
+     DEFC BM_COMSRUN     = $80          ; speaker source (0:SBIT/ 1:TXD or 3200Hz)
+     DEFC BM_COMSBIT     = $40          ; hilo if SBIT or TXD/3200Hz
+     DEFC BM_COMOVERP    = $20          ; overprogram eproms
+     DEFC BM_COMRESTIM   = $10          ; reset RTC if set
+     DEFC BM_COMPROGRAM  = $08          ; enable eprom programming mode
+     DEFC BM_COMRAMS     = $04          ; lower 8K (0:ROM $00, 1:RAM $20)
+     DEFC BM_COMVPPON    = $02          ; enable 12V eprom programming VPP voltage
+     DEFC BM_COMLCDON    = $01          ; set to turn LCD on
+
+     ;Speaker combination bit masks
+     DEFC SPK_LOW        = $00          ;speaker low
+     DEFC SPK_HIGH       = $40          ;speaker high
+     DEFC SPK_3200       = $80          ;speaker oscillates at 3200 Hz
+     DEFC SPK_TXD        = $C0          ;speaker attached to TX data
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_INT    =    $B1                 ; controls which interrupts are enabled (Write)
+DEFC BLSC_INT  =    $04B1
+     DEFC BB_INTKWAIT    =    7         ; If set, reading the keyboard will Snooze
+     DEFC BB_INTA19      =    6         ; If set, an active high on A19 will exit Coma
+     DEFC BB_INTFLAP     =    5         ; If set, flap interrupts are enabled
+     DEFC BB_INTUART     =    4         ; If set, UART interrupts are enabled
+     DEFC BB_INTBTL      =    3         ; If set, battery low interrupts are enabled
+     DEFC BB_INTKEY      =    2         ; If set, keyboard interrupts (Snooze or Coma) are enabled
+     DEFC BB_INTTIME     =    1         ; If set, RTC interrupts are enabled
+     DEFC BB_INTGINT     =    0         ; If clear, no interrupts get out of blink
+     ; Bit masks for INT, ACK
+     DEFC BM_INTKWAIT    =    $80       ; If set, reading the keyboard will Snooze
+     DEFC BM_INTA19      =    $40       ; If set, an active high on A19 will exit Coma
+     DEFC BM_INTFLAP     =    $20       ; If set, flap interrupts are enabled
+     DEFC BM_INTUART     =    $10       ; If set, UART interrupts are enabled
+     DEFC BM_INTBTL      =    $08       ; If set, battery low interrupts are enabled
+     DEFC BM_INTKEY      =    $04       ; If set, keyboard interrupts (Snooze or Coma) are enabl.
+     DEFC BM_INTTIME     =    $02       ; If set, RTC interrupts are enabled
+     DEFC BM_INTGINT     =    $01       ; If clear, no interrupts get out of blink
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_ACK    =    $B6                 ; used to acknowledge and thus clear an interrupt (Write)
+DEFC BLSC_ACK  =    $04B6
+     ; Bits for INT, ACK
+     ; bit 7                  -
+     DEFC BB_ACKA19      =    6         ; Acknowledge A19 interrupt
+     DEFC BB_ACKFLAP     =    5         ; Acknowledge FLAP interrupt
+     ; bit 4                  -
+     DEFC BB_ACKBTL      =    3         ; Acknowledge Battery Low interrupt
+     DEFC BB_ACKKEY      =    2         ; Acknowledge keyboard interrupt
+     ; bit 1                  -
+     ; bit 0
+     ;
+     ; bit masks
+     DEFC BM_ACKA19      =    $40       ; Acknowledge A19 interrupt
+     DEFC BM_ACKFLAP     =    $20       ; Acknowledge FLAP interrupt
+     DEFC BM_ACKBTL      =    $08       ; Acknowledge Battery Low interrupt
+     DEFC BM_ACKKEY      =    $04       ; Acknowledge keyboard interrupt
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_STA    =    $B1                 ; Interrupt Status (Read)
+     ;Bits
+     DEFC BB_STAFLAPOPEN =    7         ; If set, flap open else flap closed
+     DEFC BB_STAA19      =    6         ; If set, high level on A19 occurred during coma
+     DEFC BB_STAFLAP     =    5         ; If set, positive edge has occurred on FLAPOPEN
+     DEFC BB_STAUART     =    4         ; If set, an enabled UART interrupt is active
+     DEFC BB_STABTL      =    3         ; If set, battery low pin is active
+     DEFC BB_STAKEY      =    2         ; If set, a column has gone low in snooze (or coma)
+     ; -       -                        ; none
+     DEFC BB_STATIME     =    0         ; If set, an enabled TIME interrupt is active
+     ; Bit masks
+     DEFC BM_STAFLAPOPEN =    $80       ; If set, flap open else flap closed
+     DEFC BM_STAA19      =    $40       ; If set, high level on A19 occurred during coma
+     DEFC BM_STAFLAP     =    $20       ; If set, positive edge has occurred on FLAPOPEN
+     DEFC BM_STAUART     =    $10       ; If set, an enabled UART interrupt is active
+     DEFC BM_STABTL      =    $08       ; If set, battery low pin is active
+     DEFC BM_STAKEY      =    $04       ; If set, a column has gone low in snooze (or coma)
+     DEFC BM_STATIME     =    $01       ; If set, an enabled TIME interrupt is active
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_KBD    =    $B2                 ; Read Keyboard Row
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+; EPR - Eprom Programming Register
+DEFC BL_EPR    =    $B3                 ; EPROM programming register (Write)
+DEFC BLSC_EPR  =    $04B3
+     ;Bits
+     DEFC BB_EPRPD1      =    7         ; Two bits representing the length of delay period
+     DEFC BB_EPRPD0      =    6
+     DEFC BB_EPRPGMD     =    5         ; State of program pulse during delay period
+     DEFC BB_EPREOED     =    4         ; State of EOE during delay period
+     DEFC BB_EPRSE3D     =    3         ; State of slot 3 select during delay period
+     DEFC BB_EPRPGMP     =    2         ; State of program pulse during porch period
+     DEFC BB_EPREOEP     =    1         ; State of EOE during porch period
+     DEFC BB_EPRSE3P     =    0         ; State of slot 3 select during porch period
+     ; Bit masks
+     DEFC BM_EPRPD1      =    $80       ; Two bits representing the length of delay period
+     DEFC BM_EPRPD0      =    $40
+     DEFC BM_EPRPGMD     =    $20       ; State of program pulse during delay period
+     DEFC BM_EPREOED     =    $10       ; State of EOE during delay period
+     DEFC BM_EPRSE3D     =    $08       ; State of slot 3 select during delay period
+     DEFC BM_EPRPGMP     =    $04       ; State of program pulse during porch period
+     DEFC BM_EPREOEP     =    $02       ; State of EOE during porch period
+     DEFC BM_EPRSE3P     =    $01       ; State of slot 3 select during porch period
+
+     ; Delay period
+     DEFC PD_5us         =    $00       ; 4.88 us
+     DEFC PD_312us       =    $40       ; 312.5 us
+     DEFC PD_2ms         =    $80       ; 2.5 ms
+     DEFC PD_10ms        =    $C0       ; 10 ms
+
+     ; EPROM standard types
+     DEFC EP_32K         =    $48
+     DEFC EP_128K        =    $69
+     DEFC EP_256K        =    $69
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+; Segment Registers (Write)
+DEFC BL_SR0    =    $D0                 ;segment 0 register
+DEFC BL_SR1    =    $D1                 ;segment 1 register
+DEFC BL_SR2    =    $D2                 ;segment 2 register
+DEFC BL_SR3    =    $D3                 ;segment 3 register
+DEFC BLSC_SR0  =    $04D0               ;softcopy of the segment 0 register
+DEFC BLSC_SR1  =    $04D1               ;softcopy of the segment 1 register
+DEFC BLSC_SR2  =    $04D2               ;softcopy of the segment 2 register
+DEFC BLSC_SR3  =    $04D3               ;softcopy of the segment 3 register
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+; RTC (Real Time Clock) (Read registers - no soft copy)
+DEFC BL_TIM0   =    $D0                 ; 5ms          199       8
+DEFC BL_TIM1   =    $D1                 ; 1 second     59        6
+DEFC BL_TIM2   =    $D2                 ; 1 minute     255       8
+DEFC BL_TIM3   =    $D3                 ; 256 minutes  255       8
+DEFC BL_TIM4   =    $D4                 ; 64K minutes  31        5
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_TACK   =    $B4                 ; Timer interrupt acknowledge (Write)
+DEFC BLSC_TACK =    $04B4               ; its softcopy
+     ; Bits 7-3 not defined
+     DEFC BB_TACKMIN     =    2         ; Set to acknowledge minute interrupt
+     DEFC BB_TACKSEC     =    1         ; Set to acknowledge second interrupt
+     DEFC BB_TACKTICK    =    0         ; Set to acknowledge tick interrupt
+     ; Bit masks
+     DEFC BM_TACKMIN     =    $04       ; Set to acknowledge minute interrupt
+     DEFC BM_TACKSEC     =    $02       ; Set to acknowledge second interrupt
+     DEFC BM_TACKTICK    =    $01       ; Set to acknowledge tick interrupt
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_TSTA   =    $B5                 ; Timer interrupt status (Read)
+     ; Bits 7-3 not defined
+     DEFC BB_TSTAMIN     =    2         ; Set if minute interrupt has occurred
+     DEFC BB_TSTASEC     =    1         ; Set if second interrupt has occurred
+     DEFC BB_TSTATICK    =    0         ; Set if tick interrupt has occurred
+     ; Bit masks
+     DEFC BM_TSTAMIN     =    $04       ; Set if minute interrupt has occurred
+     DEFC BM_TSTASEC     =    $02       ; Set if second interrupt has occurred
+     DEFC BM_TSTATICK    =    $01       ; Set if tick interrupt has occurred
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_TMK    =    $B5                 ; Timer interrupt mask (Write)
+DEFC BLSC_TMK  =    $04B5               ; softcopy of TMK
+     ; Bits 7-3 not defined
+     DEFC BB_TMKMIN      =    2         ; Set to enable minute interrupt
+     DEFC BB_TMKSEC      =    1         ; Set to enable second interrupt
+     DEFC BB_TMKTICK     =    0         ; Set to enable tick interrupt
+     ; Bit masks
+     DEFC BM_TMKMIN      =    $04       ; Set to enable minute interrupt
+     DEFC BM_TMKSEC      =    $02       ; Set to enable second interrupt
+     DEFC BM_TMKTICK     =    $01       ; Set to enable tick interrupt
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_RXD    =    $E0                 ; UART receive data register (Read)
+DEFC BLSC_RXD  =    $04E0               ; its softcopy
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_RXE    =    $E1                 ; extended receive data register (Read)
+DEFC BLSC_RXE  =    $04E1               ; its softcopy
+     ;Bits of BL_RXE (bits 6-7 always clear)
+     DEFC BB_RXEFE       =    5         ; Frame error, set if error
+     DEFC BB_RXERXD      =    4         ; Value of RXD pin on BLINK
+     DEFC BB_RXETCLK     =    3         ; Internal transmit clock
+     DEFC BB_RXERCLK     =    2         ; Internal receince clock
+     DEFC BB_RXEPAR      =    1         ; Parity or first stop bit
+     DEFC BB_RXESTART    =    0         ; Start bit (should be zero)
+     ; Bit masks
+     DEFC BM_RXEFE       =    $20       ; Frame error, set if error
+     DEFC BM_RXERXD      =    $10       ; Value of RXD pin on BLINK
+     DEFC BM_RXETCLK     =    $08       ; Internal transmit clock
+     DEFC BM_RXERCLK     =    $04       ; Internal receince clock
+     DEFC BM_RXEPAR      =    $02       ; Parity or first stop bit
+     DEFC BM_RXESTART    =    $01       ; Start bit (should be zero)
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_RXC    =    $E2                 ; Receive Control Register (Write)
+DEFC BLSC_RXC  =    $04E2               ; its softcopy
+     ;Bits of BL_RXC
+     DEFC BB_RXCSHTW          =    7    ; Set to select short word mode
+     DEFC BB_RXCLOOP          =    6    ; Set to connect transmit to receive (used for testing)
+     DEFC BB_RXCUART          =    5    ; Set to hold UART in RESET
+     DEFC BB_RXCARTS          =    4    ; Auto RTS mode
+     DEFC BB_RXCIRTS          =    3    ; Invert RTS
+     DEFC BB_RXCBAUD2         =    2    ; These three bits define receiver baud rate
+     DEFC BB_RXCBAUD1         =    1
+     DEFC BB_RXCBAUD0         =    0
+     ; Bit masks
+     DEFC BM_RXCSHTW          =    $80  ; Set to select short word mode
+     DEFC BM_RXCLOOP          =    $40  ; Set to connect transmit to receive (used for testing)
+     DEFC BM_RXCUART          =    $20  ; Set to hold UART in RESET
+     DEFC BM_RXCARTS          =    $10  ; Auto RTS mode
+     DEFC BM_RXCIRTS          =    $08  ; Invert RTS
+     DEFC BM_RXCBAUD2         =    $04  ; These three bits define receiver baud rate
+     DEFC BM_RXCBAUD1         =    $02
+     DEFC BM_RXCBAUD0         =    $01
+
+     ;Baud rates
+     DEFC BR_75          =    0
+     DEFC BR_300         =    1
+     DEFC BR_600         =    2
+     DEFC BR_1200        =    3
+     DEFC BR_2400        =    4
+     DEFC BR_9600        =    5
+     DEFC BR_19K         =    6
+     DEFC BR_38K         =    7
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_TXD    =    $E3                 ; Transmit data register (Write)
+DEFC BLSC_TXD  =    $04E3               ; its softcopy
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_TXC    =    $E4                 ; Transmit control register (Write)
+DEFC BLSC_TXC  =    $04E4               ; its softcopy
+     ;Bits of BL_TXC
+     DEFC BB_TXCUTEST    =    7         ; Set fast baud rate for receive and transmit
+     DEFC BB_TXCDCDI     =    6         ; If set, DCD interrupts when low (else when high)
+     DEFC BB_TXCCTSI     =    5         ; If set, CTS interrupts when low (else when high)
+     DEFC BB_TXCATX      =    4         ; Auto transmit mode
+     DEFC BB_TXCITX      =    3         ; Invert Tx data output pin
+     ; BB_BAUD2                           These three bits define transmit baud reate
+     ; BB_BAUD1                           (See above table for baud rates)
+     ; BB_BAUD0
+     ;
+     DEFC BM_TXCUTEST    =    $80       ; Set fast baud rate for receive and transmit
+     DEFC BM_TXCDCDI     =    $40       ; If set, DCD interrupts when low (else when high)
+     DEFC BM_TXCCTSI     =    $20       ; If set, CTS interrupts when low (else when high)
+     DEFC BM_TXCATX      =    $10       ; Auto transmit mode
+     DEFC BM_TXCITX      =    $08       ; Invert Tx data output pin
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_UIT    =    $E5                 ; UART interrupt status register (Read)
+DEFC BLSC_UIT  =    $04E5               ; its softcopy
+     DEFC BB_UITRSRD     =    7         ; Receive shift register full (cleared when ready)
+     DEFC BB_UITDCDI     =    6         ; DCD interrupt
+     DEFC BB_UITCTSI     =    5         ; CTS interrupt
+     DEFC BB_UITTDRE     =    4         ; Transmit data register empty
+     ; bit 3                  -
+     DEFC BB_UITRDRF     =    2         ; Receive data register full
+     DEFC BB_UITDCD      =    1         ; State of DCD line
+     DEFC BB_UITCTS      =    0         ; State of CTS line
+     ; Bit masks
+     DEFC BM_UITRSRD     =    $80       ; Receive shift register full (cleared when ready)
+     DEFC BM_UITDCDI     =    $40       ; DCD interrupt
+     DEFC BM_UITCTSI     =    $20       ; CTS interrupt
+     DEFC BM_UITTDRE     =    $10       ; Transmit data register empty
+     DEFC BM_UITRDRF     =    $04       ; Receive data register full
+     DEFC BM_UITDCD      =    $02       ; State of DCD line
+     DEFC BM_UITCTS      =    $01       ; State of CTS line
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_UMK    =    $E5                 ; UART interrupt mask register (Write)
+DEFC BLSC_UMK  =    $04E5               ; its softcopy
+     ; bit 7                  -
+     DEFC BB_UMKDCD      =    6         ; If set, DCD interrupts are enabled
+     DEFC BB_UMKCTS      =    5         ; If set, CTS interrupts are enabled
+     DEFC BB_UMKTDRE     =    4         ; If set, Transmit Data Register Empty Interrupt enabled
+     ; bit 3                  -
+     DEFC BB_UMKRDRF     =    2         ; If set, Receive Data Register Empty Interrupt enabled
+     ; bit 1                  -
+     ; bit 0                  -
+     ;
+     ; Bit masks
+     DEFC BM_UMKDCD      =    $40       ; If set, DCD interrupts are enabled
+     DEFC BM_UMKCTS      =    $20       ; If set, CTS interrupts are enabled
+     DEFC BM_UMKTDRE     =    $10       ; If set, Transmit Data Register Empty Interrupt enabled
+     ; bit 3                  -
+     DEFC BM_UMKRDRF     =    $02       ; If set, Receive Data Register Empty Interrupt enabled
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+DEFC BL_UAK    =    $E6                 ; UART interrupt acknowledge register (Write)
+DEFC BLSC_UAK  =    $04E6               ; its softcopy
+     ; bit 7                  -
+     DEFC BB_UAKDCD      =    6         ; Set to acknowledge DCD interrupt
+     DEFC BB_UAKCTS      =    5         ; Set to acknowledge CTS interrupt
+     ; bit 4                  -
+     ; bit 3                  -
+     ; bit 2                  -
+     ; bit 1                  -
+     ; bit 0                  -
+     ;
+     ; Bit masks
+     DEFC BM_UAKDCD      =    $40       ; Set to acknowledge DCD interrupt
+     DEFC BM_UAKCTS      =    $20       ; Set to acknowledge CTS interrupt
+; -----------------------------------------------------------------------------
+
+lston

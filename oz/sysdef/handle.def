@@ -1,0 +1,27 @@
+lstoff
+
+; HANDLE.DEF
+; v1.0 - 30 june 1999
+; Z88 Operating System manifests
+; by Thierry Peycru
+
+;common
+     defc HN_LEN    =    $10       ;a hn is 16 bytes
+
+;handle types
+     defc HN_FREE   =    $00       ;free handle type
+     defc HN_DEV    =    $01       ;device
+     defc HN_FILE   =    $02       ;file/directory
+     defc HN_MEM    =    $03       ;memory
+     defc HN_PROC   =    $04       ;process
+     defc HN_ALM    =    $05       ;alarm
+     defc HN_TRI    =    $06       ;tri-handle
+     defc HN_TEMP   =    $FA       ;temporary data
+     defc HN_SER    =    $FB       ;serial port
+
+;tri-handle subtypes
+     defc TH_FILT   =    $F0       ;filter
+     defc TH_WMG    =    $F1       ;wildcard
+     defc TH_ALM    =    $F2       ;alarm
+
+lston

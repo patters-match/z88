@@ -1,0 +1,24 @@
+lstoff
+
+; BUFFER.DEF
+; v1.0 - 30 june 1999
+; Z88 Operating System manifests
+; by Thierry Peycru
+
+;buffer type
+     defc BT_KBD    =    $0216               ;keyboard buffer frame
+     defc BT_RX     =    $0233               ;serial recieve
+     defc BT_TX     =    $0229               ;serial transmit
+
+;buffer routine
+     defc OZ_BUFF   =    $004E               ;it is a simple call
+
+;routine reasons (in L, IX is buffer type)
+     defc BF_PB     =    $00                 ;write to buffer
+     defc BF_GB     =    $03                 ;read from buffer
+     defc BF_PBT    =    $06                 ;PB with timeout
+     defc BF_GBT    =    $09                 ;GB with timeout
+     defc BF_STA    =    $0C                 ;Get buffer status
+     defc BF_PUR    =    $0F                 ;purge buffer
+
+lston
