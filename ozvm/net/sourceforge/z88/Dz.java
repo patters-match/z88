@@ -9,6 +9,9 @@ package net.sourceforge.z88;
 
 public class Dz {
 
+	private static final char[] hexcodes = 
+		{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+	
 	private static final String mainStrMnem[] = {
 		"NOP", /* 00 */
 		"LD   BC,{0}", /* 01 */
@@ -3977,17 +3980,48 @@ public class Dz {
 
 	private final Z80 z80vm;
 
+	private final String byteToHex(int b) {
+		StringBuffer hexString = new StringBuffer(3);
+		
+		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]).append('h');
+		return hexString.toString();		
+	}
+	
+	private final String addrToHex(int addr) {
+		int msb = addr/256, lsb = addr%256;
+		StringBuffer hexString = new StringBuffer(5);
+		
+		hexString.append(hexcodes[msb/16]).append(hexcodes[msb%16]);
+		hexString.append(hexcodes[lsb/16]).append(hexcodes[lsb%16]).append('h');
+		return hexString.toString();
+	}
+	
 	public Dz(Z80 vm) {
 		z80vm = vm;
 	}
 
-	public final int getInstrAscii(String[] opcode, int pc, boolean dispaddr) {
+	/**
+	 * Disassemble Z80 instruction at address pc. The Ascii string
+	 * is generated into the opcode argument, which the caller
+	 * can display appropriately.
+	 * The address of the next instruction is returned, when 
+	 * disassembly has completed. You can therefore use this method
+	 * in a loop and perform continous disassembly.
+	 * 
+	 * @param opcode (StringBuffer, the container for the Ascii disassembly)
+	 * @param pc (int, the current address (Program Counter of Z80 instruction)
+	 * @param dispaddr (boolean, - display Hex address as part of disassembly)
+	 * @return int (address of following instruction)
+	 */
+	public final int getInstrAscii(StringBuffer opcode, int pc, boolean dispaddr) {
 		int i, addr;
 		byte relidx;
-		StringBuffer tmpstr = new StringBuffer(32);
 		String strMnem[] = null;
 		int argsMnem[] = null;
 
+		opcode.setLength(1);
+		opcode.setLength(32);	// StringBuffer cleaned.
+		
 		addr = pc;
 
 		i = z80vm.readByte(pc++);
@@ -4085,24 +4119,24 @@ public class Dz {
 		}
 
 		if (dispaddr == true) {
-			tmpstr.append(Integer.toHexString(addr)).append(' ');
+			opcode.append(addrToHex(addr)).append(' ');
 		}
 		
 		if (argsMnem != null) {
-			tmpstr.append(strMnem[i]);	// the instruction opcode string with replace macro
-			int replaceMacro = tmpstr.indexOf("{0}");
+			opcode.append(strMnem[i]);	// the instruction opcode string with replace macro
+			int replaceMacro = opcode.indexOf("{0}");
 			
 			switch (argsMnem[i]) {
 				case 2 :
 					addr = z80vm.readByte(pc);
 					addr += 256 * z80vm.readByte(pc + 1);
 										
-					tmpstr.replace(replaceMacro, replaceMacro+3, Integer.toHexString(addr));
+					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(addr));
 					pc += 2; /* move past opcode */
 					break;
 
 				case 1 :
-					tmpstr.replace(replaceMacro, replaceMacro+3, Integer.toHexString(z80vm.readByte(pc)));
+					opcode.replace(replaceMacro, replaceMacro+3, byteToHex(z80vm.readByte(pc)));
 					pc++; /* move past opcode */
 					break;
 
@@ -4113,7 +4147,7 @@ public class Dz {
 				case -1 : /* relative jump addressing (+/- 128 byte range) */
 					byte reljmp = (byte) z80vm.readByte(pc);
 					int reladdr = (pc + 1 + reljmp) & 0xFFFF;
-					tmpstr.replace(replaceMacro, replaceMacro+3, Integer.toHexString(reladdr));
+					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr));
 
 					pc++; /* move past opcode */
 					break;
@@ -4121,23 +4155,23 @@ public class Dz {
 				case -2 : /* ix/iy bit manipulation */
 					relidx = (byte) z80vm.readByte(pc);
 					if (relidx >= 0)
-						tmpstr.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
+						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
-						tmpstr.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
+						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 
 					pc += 2; /* move past opcode */
 					break;
 
 				case -3 : /* LD (IX/IY+r),n */
-					int replaceOperand = tmpstr.indexOf("{1}");
+					int replaceOperand = opcode.indexOf("{1}");
 					relidx = (byte) z80vm.readByte(pc++);
 
 					if (relidx >= 0)
-						tmpstr.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
+						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
-						tmpstr.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
+						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 						
-					tmpstr.replace(replaceOperand, replaceOperand+3, Integer.toHexString(z80vm.readByte(pc++)));
+					opcode.replace(replaceOperand, replaceOperand+3, Integer.toHexString(z80vm.readByte(pc++)));
 					break;
 
 				case -4 :
@@ -4145,14 +4179,13 @@ public class Dz {
 					relidx = (byte) z80vm.readByte(pc++);
 
 					if (relidx >= 0)
-						tmpstr.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
+						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
-						tmpstr.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
+						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 
 					break;
 			}
 		}
-		opcode[0] = tmpstr.toString();	// return disassembled opcode as ASCII to caller
 
 		return pc; // return the location of the next instruction
 	}
