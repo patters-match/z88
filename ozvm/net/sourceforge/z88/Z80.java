@@ -68,6 +68,7 @@ public abstract class Z80 {
 
     private boolean externIntSignal = false;
     private boolean z80Halted = false;
+	private boolean z80Stopped = false;
 
     private final int IM0 = 0;
     private final int IM1 = 1;
@@ -354,9 +355,6 @@ public abstract class Z80 {
     /** External implemenation of Write byte to virtual memory model */
     public abstract void writeByte(int addr, int b);
 
-    /** External implemenation of Generic disassembly */
-    public abstract void disassemble(int addr);
-
     /** IO ports */
     public abstract void outByte(int addrA8, int addrA15, int bits);
 
@@ -396,28 +394,20 @@ public abstract class Z80 {
         return t;
     }
 
-    /** Call stack */
-    private final void pushpc() {
-        pushw(PC());
-    }
-
-    private final void poppc() {
-        PC(popw());
-    }
-
     /** Program access */
     private final int nxtpcb() {
-        int pc = PC();
-        int t = readByte(pc);
-        PC(++pc & 0xffff);
+        int t = readByte(_PC);
+        _PC = ++_PC & 0xffff;
+        
         return t;
     }
 
     private final int nxtpcw() {
-        int pc = PC();
-        int t = readByte(pc);
-        t |= (readByte(++pc & 0xffff) << 8);
-        PC(++pc & 0xffff);
+        int t = readByte(_PC);
+		_PC = ++_PC & 0xffff;
+        t |= (readByte(_PC) << 8);
+		_PC = ++_PC & 0xffff;
+
         return t;
     }
 
@@ -477,21 +467,21 @@ public abstract class Z80 {
 
         switch (IM()) {
             case IM0 :
-                pushpc();
+                pushw(_PC);
                 IFF1(false);
                 IFF2(false);
                 PC(0x66);
                 tstatesCounter += 13;
                 return true;
             case IM1 :
-                pushpc();
+                pushw(_PC);
                 IFF1(false);
                 IFF2(false);
                 PC(0x38);
                 tstatesCounter += 13;
                 return true;
             case IM2 :
-                pushpc();
+                pushw(_PC);
                 IFF1(false);
                 IFF2(false);
                 int t = (I() << 8) | 0x00ff;
@@ -504,10 +494,15 @@ public abstract class Z80 {
     }
 
     /** Z80 fetch/execute loop */
-    public final void execute() {
+    public final void run() {
 
         while (true) {
 
+			if (z80Stopped == true) {
+				// a breakpoint was encountered
+				break;
+			}
+			
             // INT occurred
             if (interruptTriggered() == true) {
                 if (execInterrupt() == true) {
@@ -523,7 +518,7 @@ public abstract class Z80 {
             }
 
             instructionCounter++;
-
+			
             switch (nxtpcb()) {
 
                 case 0 : /* NOP */ {
@@ -1570,7 +1565,7 @@ public abstract class Z80 {
                     /* RET cc */
                 case 192 : /* RET NZ */ {
                         if (!Zset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1579,7 +1574,7 @@ public abstract class Z80 {
                     }
                 case 200 : /* RET Z */ {
                         if (Zset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1588,7 +1583,7 @@ public abstract class Z80 {
                     }
                 case 208 : /* RET NC */ {
                         if (!Cset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1597,7 +1592,7 @@ public abstract class Z80 {
                     }
                 case 216 : /* RET C */ {
                         if (Cset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1606,7 +1601,7 @@ public abstract class Z80 {
                     }
                 case 224 : /* RET PO */ {
                         if (!PVset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1615,7 +1610,7 @@ public abstract class Z80 {
                     }
                 case 232 : /* RET PE */ {
                         if (PVset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1624,7 +1619,7 @@ public abstract class Z80 {
                     }
                 case 240 : /* RET P */ {
                         if (!Sset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1633,7 +1628,7 @@ public abstract class Z80 {
                     }
                 case 248 : /* RET M */ {
                         if (Sset()) {
-                            poppc();
+                            PC(popw());
                             tstatesCounter += 11;
                         } else {
                             tstatesCounter += 5;
@@ -1648,7 +1643,7 @@ public abstract class Z80 {
                         break;
                     }
                 case 201 : /* RET */ {
-                        poppc();
+                        PC(popw());
                         tstatesCounter += 10;
                         break;
                     }
@@ -1809,7 +1804,7 @@ public abstract class Z80 {
                 case 196 : /* CALL NZ,nn */ {
                         if (!Zset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1821,7 +1816,7 @@ public abstract class Z80 {
                 case 204 : /* CALL Z,nn */ {
                         if (Zset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1833,7 +1828,7 @@ public abstract class Z80 {
                 case 212 : /* CALL NC,nn */ {
                         if (!Cset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1845,7 +1840,7 @@ public abstract class Z80 {
                 case 220 : /* CALL C,nn */ {
                         if (Cset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1857,7 +1852,7 @@ public abstract class Z80 {
                 case 228 : /* CALL PO,nn */ {
                         if (!PVset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1869,7 +1864,7 @@ public abstract class Z80 {
                 case 236 : /* CALL PE,nn */ {
                         if (PVset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1881,7 +1876,7 @@ public abstract class Z80 {
                 case 244 : /* CALL P,nn */ {
                         if (!Sset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1893,7 +1888,7 @@ public abstract class Z80 {
                 case 252 : /* CALL M,nn */ {
                         if (Sset()) {
                             int t = nxtpcw();
-                            pushpc();
+                            pushw(_PC);
                             PC(t);
                             tstatesCounter += 17;
                         } else {
@@ -1911,7 +1906,7 @@ public abstract class Z80 {
                     }
                 case 205 : /* CALL nn */ {
                         int t = nxtpcw();
-                        pushpc();
+                        pushw(_PC);
                         PC(t);
                         tstatesCounter += 17;
                         break;
@@ -1992,49 +1987,49 @@ public abstract class Z80 {
 
                     /* RST n */
                 case 199 : /* RST 0 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(0);
                         tstatesCounter += 11;
                         break;
                     }
                 case 207 : /* RST 8 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(8);
                         tstatesCounter += 11;
                         break;
                     }
                 case 215 : /* RST 16 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(16);
                         tstatesCounter += 11;
                         break;
                     }
                 case 223 : /* RST 24 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(24);
                         tstatesCounter += 11;
                         break;
                     }
                 case 231 : /* RST 32 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(32);
                         tstatesCounter += 11;
                         break;
                     }
                 case 239 : /* RST 40 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(40);
                         tstatesCounter += 11;
                         break;
                     }
                 case 247 : /* RST 48 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(48);
                         tstatesCounter += 11;
                         break;
                     }
                 case 255 : /* RST 56 */ {
-                        pushpc();
+                        pushw(_PC);
                         PC(56);
                         tstatesCounter += 11;
                         break;
@@ -2115,9 +2110,8 @@ public abstract class Z80 {
             case 61 :
             case 62 :
             case 63 :
-
             case 127 :
-            case 128 :
+            
             case 129 :
             case 130 :
             case 131 :
@@ -2167,6 +2161,10 @@ public abstract class Z80 {
                 {
                     return 8;
                 }
+
+			case 128 :
+				// Break point
+				
 
                 /* IN r,(c) */
             case 64 : /* IN B,(c) */ {
@@ -2325,14 +2323,14 @@ public abstract class Z80 {
             case 101 : /* RETN */
             case 117 : /* RETN */ {
                     IFF1(IFF2());
-                    poppc();
+                    PC(popw());
                     return (14);
                 }
             case 77 : /* RETI */
             case 93 : /* RETI */
             case 109 : /* RETI */
             case 125 : /* RETI */ {
-                    poppc();
+                    PC(popw());
                     return (14);
                 }
 
