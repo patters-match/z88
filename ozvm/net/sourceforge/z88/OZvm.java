@@ -586,9 +586,8 @@ public class OZvm {
 
 		Thread thread = new Thread() {
 			public void run() {
-				int breakpointProgramCounter = -1;
 
-				if (z88.PC() == breakpointProgramCounter) {
+				if (breakp.isStoppable(z88.decodeLocalAddress(z88.PC())) == true) {
 					// we need to use single stepping mode to
 					// step past the break point at current instruction
 					z88.run(true);
@@ -602,10 +601,6 @@ public class OZvm {
 				z88.stopInterrupts();
 				z80Speed.stop();
 				breakp.clearBreakpoints();
-
-				// a breakpoint was encountered, or an external source asked for stop...
-				breakpointProgramCounter = z88.PC();
-				// remember breakpoint address
 			}
 		};
 
