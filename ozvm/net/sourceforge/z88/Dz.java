@@ -4069,16 +4069,17 @@ public class Dz {
 	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
 	 * @param offset the 16bit offset within bank
 	 * @param bank the bank number (0-255)
-	 * @param dispaddr boolean, display Hex address as part of disassembly
+	 * @param dispAddr boolean, display Hex address as part of disassembly
+	 * @param dispOpcode boolean, display instruction byte opcode as part of disassembly
 	 * @return int offset of following instruction in bank
 	 */
-	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispaddr) {
+	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispAddr, boolean dispOpcode) {
 		int i = blink.getByte(offset+3,bank) << 24 |
 				blink.getByte(offset+2,bank) << 16 |
 				blink.getByte(offset+1,bank) << 8 |
 				blink.getByte(offset+0,bank);
 
-		offset += dzInstrAscii(mnemonic, offset, i, dispaddr);
+		offset += dzInstrAscii(mnemonic, offset, i, dispAddr, dispOpcode);
 
 		return offset;
 	}
@@ -4095,12 +4096,13 @@ public class Dz {
 	 *
 	 * @param opcode StringBuffer, the container for the Ascii disassembly
 	 * @param pc int, the current address (Program Counter of Z80 instruction
-	 * @param dispaddr boolean, display Hex address as part of disassembly
+	 * @param dispAddr boolean, display Hex address as part of disassembly
+	 * @param dispOpcode boolean, display instruction byte opcode as part of disassembly
 	 * @return int address of following instruction
 	 */
-	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispaddr) {
+	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispAddr, boolean dispOpcode) {
 		int instrOpcode = (blink.readWord(pc+2) << 16) | blink.readWord(pc);		
-		pc += dzInstrAscii(mnemonic, pc, instrOpcode, dispaddr);
+		pc += dzInstrAscii(mnemonic, pc, instrOpcode, dispAddr, dispOpcode);
 
 		return pc;
 	}
@@ -4117,10 +4119,10 @@ public class Dz {
 	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
 	 * @param origPc int, a display address (possibly the Program Counter of Z80 instruction)
 	 * @param instrOpcode int, the 4 byte instruction opcode, packed in MSB order
-	 * @param dispaddr boolean, display Program Counter Hex address as part of disassembly
+	 * @param dispAddr boolean, display Program Counter Hex address as part of disassembly
 	 * @return int the actual size of instruction opcode
 	 */
-	public static final int dzInstrAscii(final StringBuffer mnemonic, final int origPc, int instrOpcode, final boolean dispaddr) {
+	public static final int dzInstrAscii(final StringBuffer mnemonic, final int origPc, int instrOpcode, final boolean dispAddr, final boolean dispOpcode) {
 		int i, instrOpcodeOffset = 0;
 		byte relidx;
 		String strMnem[] = null;
@@ -4298,10 +4300,13 @@ public class Dz {
 			}
 		}
 
-		if (dispaddr == true) {
-			// display address and opcodes, before instruction mnemonic...
+		if (dispAddr == true) {
+			// display address, before instruction mnemonic...			
+			mnemonic.insert(0, addrToHex(origPc, false) + " ");
+		}
+		if (dispOpcode == true) {		
+			// display opcodes, before instruction mnemonic...
 			StringBuffer instrBytes = new StringBuffer(24);
-			instrBytes.append(addrToHex(origPc, false)).append(' ');
 
 			for(int p=0; p<instrOpcodeOffset; p++)
 				instrBytes.append(byteToHex(opcode[p], false)).append(' ');
@@ -4314,7 +4319,6 @@ public class Dz {
 
 		return instrOpcodeOffset; // return the size of bytes of this instruction
 	}
-
 
 
 	/**
