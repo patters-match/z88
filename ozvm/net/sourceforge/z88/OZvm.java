@@ -37,8 +37,8 @@ public class OZvm {
 
 		try {
 			if (args.length == 0) {
-				System.out.println("Loading Z88.rom from JAR.");
-				z88.loadRom(Z88.class.getResource("/" + defaultRomImage));
+				System.out.println("No external ROM image specified, using default Z88.rom (V4.01 UK)");
+				z88.loadRom(z88.getClass().getResource("/" + defaultRomImage));
 			} else {
 				System.out.println("Loading '" + args[0] + "'");
 				z88.loadRom(args[0]);
@@ -58,15 +58,35 @@ public class OZvm {
 		BufferedReader in =
 			new BufferedReader(new InputStreamReader(System.in));
 		System.out.print("Type 'h' or 'help' for command line options\n$");
+		
+		StringBuffer dzLine = new StringBuffer(64);
+		StringBuffer prevCmdline = new StringBuffer();
 		while ((cmdline = in.readLine()).equalsIgnoreCase("exit") == false) {
 			System.out.print("$");
+			
+			if (cmdline.length() == 0)
+				cmdline = prevCmdline.toString();
+				
 			if (cmdline.equalsIgnoreCase("run") == true) {
 				System.out.println("Executing Z88 Virtual Machine...");		
 				z88.startZ80SpeedPolling();
+				z88.startInterrupts();
 				z88.run();
 			}
+			
+			if (cmdline.equalsIgnoreCase("d") == true) {
+				int dzAddr = z88.PC();
+				for (int dzLines = 0;  dzLines < 16; dzLines++) {
+					dzAddr = dz.getInstrAscii(dzLine, dzAddr, true);
+					System.out.println(dzLine);
+				}
+			}
+			
+			if (cmdline.length() > 0)
+				prevCmdline.replace(0, 64, cmdline);
 		}
 		
 		System.out.println("Ozvm terminated.");
+		System.exit(0);
 	}
 }
