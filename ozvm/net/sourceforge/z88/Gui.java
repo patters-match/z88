@@ -159,7 +159,7 @@ public class Gui extends JFrame {
 	 */
 	public javax.swing.JTextArea getCmdlineOutputArea() {
 		if(jCmdOutput == null) {
-			jCmdOutput = new javax.swing.JTextArea(30,80);
+			jCmdOutput = new javax.swing.JTextArea(20,80);
 			jCmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			jCmdOutput.setBackground(Color.BLACK);
 			jCmdOutput.setForeground(Color.GREEN);
@@ -239,7 +239,7 @@ public class Gui extends JFrame {
 	 */
 	public javax.swing.JTextArea getRtmOutputArea() {
 		if(jRtmOutputArea == null) {
-			jRtmOutputArea = new javax.swing.JTextArea(7,80);
+			jRtmOutputArea = new javax.swing.JTextArea(6,80);
 			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			jRtmOutputArea.setEditable(false);
 		}
