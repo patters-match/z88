@@ -25,11 +25,11 @@
 ; The subroutine must be ended with a RET instruction.
 ;
 ; IN:
-;     BC = size of routine.
+;     BC' = size of routine.
 ;     IX = pointer to routine.
 ;
-;     Available parameter registers for the executing routine:
-;          A, A', DE, HL & IY
+;     Available input parameter registers for the executing routine:
+;          A, A', BC, DE, HL & IY
 ;
 ; OUT:
 ;     Register changes are subroutine dependent
@@ -39,15 +39,13 @@
 ;    ????????/???? ..bcdehl different
 ;
 .ExecRoutineOnStack
-                    PUSH BC
-                    EXX
-                    POP  BC                  ; length of routine
+                    EXX                                             
                     LD   HL,0
                     ADD  HL,SP
                     LD   D,H
                     LD   E,L                 ; current SP in DE...
                     CP   A                   ; Fc = 0
-                    SBC  HL,BC               ; make room for routine on stack (which moves downwards...)
+                    SBC  HL,BC               ; BC' = length of routine, make room on stack (which moves downwards...)
                     LD   SP,HL               ; new SP defined, space for buffer for routine ready...
                     EX   DE,HL               ; HL = old SP (top of buffer), DE = new SP (destination)
                     PUSH HL                  ; original SP will be restored after routine has completed
