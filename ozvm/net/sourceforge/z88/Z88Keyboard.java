@@ -1114,7 +1114,10 @@ public class Z88Keyboard implements KeyListener {
 				break;
 
 			case KeyEvent.VK_F5:
-				if (blink.isDebugMode() == true) blink.stopZ80Execution();
+				if (blink.isDebugMode() == true) {
+					blink.stopZ80Execution();
+					commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
+				}
 				break;
 
 			case KeyEvent.VK_F12:
