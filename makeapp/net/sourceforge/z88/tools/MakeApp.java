@@ -37,8 +37,9 @@ public class MakeApp {
 	public static void main(String[] args) {
 		int appCardBanks = 1;
 		int appCardSize = 16; 
-		RomBank[] banks = new RomBank[appCardBanks]; // the default 16K card container
-
+		RomBank[] banks = new RomBank[appCardBanks]; 	// the default 16K card container
+		banks[0] = new RomBank(); 						// with a default 16K bank
+		
 		try {
 			if (args.length >= 1) {
 				int arg = 0;
@@ -53,6 +54,7 @@ public class MakeApp {
 					}
 						
 					banks = new RomBank[appCardBanks]; // the card container
+					for (int b=0; b<appCardBanks; b++) banks[b] = new RomBank(); // container filled with memory... 
 					arg += 2;
 				}
 				
@@ -61,7 +63,7 @@ public class MakeApp {
 				while (arg < args.length) {
 					RandomAccessFile binaryFile =  new RandomAccessFile(args[arg++], "r");
 					int offset = Integer.parseInt(args[arg++], 16);
-					int bankNo = (offset & 0x3f0000) & (appCardBanks-1);
+					int bankNo = ((offset & 0x3f0000) >>> 16) & (appCardBanks-1);
 					offset &= 0x3fff;
 					
 					byte codeBuffer[] = new byte[(int) binaryFile.length()];
