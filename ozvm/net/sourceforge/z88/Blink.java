@@ -771,7 +771,7 @@ public final class Blink extends Z80 {
 	 * Notes.
 	 */
 	public void setSegmentBank(final int segment, final int BankNo) {
-		sR[segment & 0x03] = (BankNo & 0xFF);
+		sR[segment & 0x03] = BankNo;
 	}
 
 	/**
