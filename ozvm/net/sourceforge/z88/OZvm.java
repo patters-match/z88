@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-import gameframe.GameFrame;
-import gameframe.GameFrameException;
 
 /**
  * Main entry of the Z88 virtual machine.
@@ -64,8 +62,9 @@ public class OZvm {
 	/**
 	 * The Z88 disassembly engine
 	 */
-	Dz dz;
+	private Dz dz;
     
+	private Thread z80Thread = null;
 	
 	/**
 	 * Dump current Z80 Registers and instruction disassembly to stdout.  
@@ -127,6 +126,14 @@ public class OZvm {
 							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
 							System.out.println("Using Danish keyboard layout.");
 						}
+						if (args[arg+1].compareToIgnoreCase("se") == 0) {
+							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+							System.out.println("Using Swedish keyboard layout.");
+						}
+						if (args[arg+1].compareToIgnoreCase("fi") == 0) {
+							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
+							System.out.println("Using Finish keyboard layout.");
+						}
 						arg+=2;	
 						continue;				
 					}					
@@ -166,7 +173,7 @@ public class OZvm {
 		System.out.println("r - Display current Z80 Registers");
 	}
 	
-	private void commandLine() throws IOException {
+	public void commandLine() throws IOException {
 		int breakpointProgramCounter = -1;
 		
 		String cmdline = "";
@@ -179,6 +186,11 @@ public class OZvm {
 		
 		StringBuffer prevCmdline = new StringBuffer();
 		do {
+			if (z80Thread != null && z80Thread.isAlive() == false) {
+				z80Thread = null;	// garbage collect dead thread...
+				System.out.println("Z88 stopped running");
+			}
+
 			if (cmdLineTokens[0].equalsIgnoreCase("h") == true || cmdLineTokens[0].equalsIgnoreCase("help") == true) {
 				cmdHelp();
 				cmdline = ""; // wait for a new command...
@@ -186,25 +198,16 @@ public class OZvm {
 			}
 
 			if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
-				if (z88.PC() == breakpointProgramCounter) {
-					// we need to use single stepping mode to 
-					// step past the break point at current instruction
-					z88.run(true);
-				}
+				z80Thread = run();				
 				
-				breakp.setBreakpoints();   // restore (patch) breakpoints into code
-				z80Speed.start();		    // enable execution speed monitor
-				z88.startInterrupts();	    // enable Z80/Z88 core interrupts 
-				z88.run(false);				// execute Z80 code at full speed until breakpoint is encountered...
-				z88.stopInterrupts();
-				z80Speed.stop();
-				breakp.clearBreakpoints();
-				
-				// when we're getting back, a breakpoint was encountered...
-				breakpointProgramCounter = z88.PC();	// remember breakpoint address
-				 
-				z80Status();	// display Z80 register status
                 cmdline = "";
+				cmdLineTokens = cmdline.split(" "); // wait for a new command...
+			}
+
+			if (cmdLineTokens[0].equalsIgnoreCase("stop") == true) {
+				z88.stopZ80Execution();				
+				
+				cmdline = "";
 				cmdLineTokens = cmdline.split(" "); // wait for a new command...
 			}
 
@@ -263,6 +266,7 @@ public class OZvm {
 				cmdLineTokens[0].equalsIgnoreCase("wb") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("help") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("stop") == false &&
 			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("blsr") == false &&
                 cmdLineTokens[0].equalsIgnoreCase("bl") == false &&
@@ -283,16 +287,23 @@ public class OZvm {
 					cmdLineTokens = cmdline.split(" ");
 			} 
 		} while (cmdLineTokens[0].equalsIgnoreCase("exit") == false);
+		
+		if (z80Thread != null && z80Thread.isAlive() == true) z88.stopZ80Execution();
 	}
 
     
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
 		if (cmdLineTokens.length == 2) {
-			int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
-			int bpBank = (bpAddress >>> 16) & 0xFF;
-			bpAddress &= 0xFFFF; 
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				System.out.println("Breakpoints cannot be edited while Z88 is running.");
+				return;
+			} else {
+				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
+				int bpBank = (bpAddress >>> 16) & 0xFF;
+				bpAddress &= 0xFFFF; 
 			
-			breakp.toggleBreakpoint(bpAddress, bpBank);
+				breakp.toggleBreakpoint(bpAddress, bpBank);
+			}
 		}
 
 		if (cmdLineTokens.length == 1) {
@@ -455,56 +466,35 @@ public class OZvm {
 		return memCmdline;
 	}
 
-	public void run() {
+	private Thread run() {
 		Thread thread = new Thread() {
 			public void run() {
 				int breakpointProgramCounter = -1;
 
-				//breakp.toggleBreakpoint(0xd8f0, 0x00);
-
-				while(true) {
-					if (z88.PC() == breakpointProgramCounter) {
-						// we need to use single stepping mode to
-						// step past the break point at current instruction
-						z88.run(true);
-					}
-					// restore (patch) breakpoints into code
-					breakp.setBreakpoints();
-					z80Speed.start(); // enable execution speed monitor
-					z88.startInterrupts(); // enable Z80/Z88 core interrupts
-					z88.run(false);
-					// execute Z80 code at full speed until breakpoint is encountered...
-					z88.stopInterrupts();
-					z80Speed.stop();
-					breakp.clearBreakpoints();
-
-					// when we're getting back, a breakpoint was encountered...
-					breakpointProgramCounter = z88.PC();
-					// remember breakpoint address
-
-					// do something at the breakpoint, then continue executing...
-					z80Status(); // display Z80 register status
+				if (z88.PC() == breakpointProgramCounter) {
+					// we need to use single stepping mode to
+					// step past the break point at current instruction
+					z88.run(true);
 				}
+				// restore (patch) breakpoints into code
+				breakp.setBreakpoints();
+				z80Speed.start(); // enable execution speed monitor
+				z88.startInterrupts(); // enable Z80/Z88 core interrupts
+				z88.run(false);
+				// execute Z80 code at full speed until breakpoint is encountered...
+				z88.stopInterrupts();
+				z80Speed.stop();
+				breakp.clearBreakpoints();
 
+				// a breakpoint was encountered, or an external source asked for stop...
+				breakpointProgramCounter = z88.PC();
+				// remember breakpoint address				
 			}
 		};
 
 		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
-	}
-	
-	public static void main(String[] args) throws IOException, GameFrameException {		
-		System.out.println("OZvm V0.1, Z88 Virtual Machine");
-
-//		OZvm ozvm = new OZvm();
-//		if (ozvm.loadRoms(args) == false) {
-//			System.out.println("Ozvm terminated.");
-//			System.exit(0);
-//		}
-//				
-//		ozvm.commandLine();
 		
-		System.out.println("Ozvm terminated.");
-		GameFrame.exit(0);
+		return thread;
 	}
 }
