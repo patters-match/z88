@@ -41,7 +41,7 @@ import net.sourceforge.z88.filecard.FileEntry;
  */
 public class CommandLine implements KeyListener {
 
-	private	Gui gui;
+	private	DebugGui gui;
 	private	Blink z88;	
 
 	/** The Z88 disassembly engine */
@@ -64,7 +64,7 @@ public class CommandLine implements KeyListener {
 	 * Constructor 
 	 */
 	public CommandLine() {
-		gui = Gui.getInstance();
+		gui = DebugGui.getInstance();
 		z88 = Blink.getInstance();
 		memory = Memory.getInstance();
 		
