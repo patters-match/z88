@@ -151,6 +151,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   D,(HL)              
                     INC  HL                  ; get a copy into DE of the slot contents at the location 
                     LD   E,(HL)              ; where the ID is fetched (through the FE command interface)
+                    DEC  HL                  ; back at $00 0000
                     
                     LD   IX, Fetch_I28F0xxxx_ID
                     EXX                    
