@@ -166,6 +166,30 @@ SkipLine (FILE *fptr)
 }
 
 
+void FetchProjectFilename(FILE *fptr, char *filename)
+{
+  int c = 0;
+  filename[0] = '\0';           /* null-terminate file name */
+  
+  for (;;)
+    {               /* Ignore leading white spaces, if any... */
+      if (feof (fptr))
+        {
+          break;
+        }
+      else
+        {
+          c = GetChar (fptr);
+          if ((c == '\n') || (c == EOF) || (c == '\x1A'))
+            {
+            }
+          else
+            if (!isspace (c)) break;
+        }
+    }}
+
+
+
 void
 Fetchfilename (FILE *fptr, char *filename)
 {
