@@ -51,34 +51,14 @@ public final class Memory {
 	 * The contents of this bank contains 0xFF and is
 	 * write-protected (just as an empty bank in an Eprom).
 	 */
-	private Bank nullBank;
+	private VoidBank nullBank;
 	
 	public Memory() {
 		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!		
 
-		nullBank = new Bank(Bank.VOID, -1);
+		nullBank = new VoidBank();
 		for (int bank = 0; bank < memory.length; bank++)
 			memory[bank] = nullBank;
-	}
-
-	/**
-	 * Create a new Bank instance of type VOID, RAM, ROM, EPROM or FLASH.
-	 * (Default bank number is set to -1)
-	 *
-	 * @return Memory.Bank
-	 */
-	public final Bank createBank(int type) {
-		return new Bank(type, -1); 
-	}
-	
-	/**
-	 * Create a new Bank instance of type VOID, RAM, ROM, EPROM or FLASH,
-	 * pre-assigned with bank number (the location in memory for this bank). 
-	 *
-	 * @return Memory.Bank
-	 */
-	public final Bank createBank(int type, int bankNo) {
-		return new Bank(type, bankNo); 
 	}
 	
 	/**
@@ -117,7 +97,7 @@ public final class Memory {
 
 		if (slot == 0) {
 			// Define bottom bank for ROM/RAM
-			slotBank = (card[0].getType() == Bank.RAM) ? 0x20: 0x00;
+			slotBank = (card[0] instanceof RamBank) ? 0x20: 0x00;
 			totalSlotBanks = 32; // inserting RAM or ROM can be max 32 * 16Kb = 512Kb
 		} else {
 			slotBank = slot << 6; // convert slot number to bottom bank of slot
@@ -176,209 +156,12 @@ public final class Memory {
 	 */
 	public void resetRam() {
 		for (int bankNo = 0; bankNo < memory.length; bankNo++) {
-			if ( memory[bankNo].getType() == Bank.RAM) {
+			if ( memory[bankNo] instanceof RamBank == true) {
 				// reset ...
 				for (int bankOffset = 0; bankOffset < Memory.BANKSIZE; bankOffset++) {
 					memory[bankNo].setByte(bankOffset, 0);
 				}
 			}
 		}
-	}
-
-	/**
-	 * Enable VPP pin on Eprom / Flash chip in slot 3, if available.
-	 */ 
-	public void enableSlot3Vpp() {
-		int cardType = memory[0xFF].getType();
-		if (memory[0xFF].isVppPinEnabled() == false & 
-			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH_1MB_INTEL)) {
-			for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(true);
-		}		
-	}
-
-	/**
-	 * Disable VPP pin on Eprom / Flash chip in slot 3, if available.
-	 */ 
-	public void disableSlot3Vpp() {
-		int cardType = memory[0xFF].getType();
-		if (memory[0xFF].isVppPinEnabled() == true & 
-			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH_1MB_INTEL)) {
-			for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(false);
-		}		
-	}
-	
-	/** 
-	 * This class represents the 16Kb Bank. The characteristics of a bank can be 
-	 * that it's part of a Ram card (or the internal memory of the Z88), 
-	 * an Eprom card or a 1MB Flash Card.
-	 */
-	public final class Bank {
-		public static final int VOID = 0; // This bank represent an empty space (no card inserted in slot)
-		public static final int RAM = 1; // 32Kb, 128Kb, 512Kb, 1Mb
-		public static final int ROM = 2; // 128Kb, read-only
-		public static final int EPROM_32KB = 3; // U/V Erasable 32Kb EPROM
-		public static final int EPROM_128KB = 4; // U/V Erasable 128Kb/256Kb EPROM
-		public static final int FLASH_1MB_INTEL = 5; // 1Mb EEPROM, Intel 28F008S5 Flash Eprom Chip 
-		public static final int FLASH_1MB_AMD = 6; // 1Mb EEPROM, Amd 29F080B Flash Eprom Chip (5V, programmable in all slots)
-	
-		private int type;
-		private int bankNo;
-		private int bankMem[];
-		private boolean vppPin = false; 
-		
-		public Bank(int banktype, int bankNo) {
-			this.bankNo = bankNo;
-			this.type = banktype;
-			this.bankMem = new int[BANKSIZE];
-	
-			if (type != Bank.RAM) {
-				for (int i = 0; i < bankMem.length; i++)
-					bankMem[i] = 0xFF; // empty Eprom or Flash stores FF's
-			}
-		}
-	
-		/**
-		 * Get Bank type, ie. identify the type of card that is inserted into
-		 * a particular slot.
-		 * 
-		 * @return type of Bank (type of Card) (VOID, RAM, ROM, EPROM, FLASH)  
-		 */
-		public int getType() {
-			return type;
-		}
-	
-		/**
-		 * Set Bank type, ie. set the identify of the card that is inserted into
-		 * a particular slot. This method must be used with equal types for all
-		 * banks in particular slot (that defines the card).
-		 * 
-		 * @param type (type of Card) (VOID, RAM, ROM, EPROM, FLASH)  
-		 */
-		public void setType(int type) {
-			this.type = type;
-		}
-		
-		/**
-		 * Read byte from bank. <addr> is a 16bit word
-		 * that points into the 16K address space of the bank.
-		 *
-		 * On the Z88, the 64K is split into 4 sections of 16K segments.
-		 * Any of the 256 16K banks can be bound into the address space
-		 * on the Z88. Bank 0 is special, however.
-		 * 
-		 * Read behaviour from bank depends on Eprom Programming mode (Vpp).
-		 *  
-		 * Please refer to hardware section of the Developer's Notes.
-		 */
-		public final int readByte(final int addr) {
-			// TODO insert logic here for Vpp programming...		
-			return bankMem[addr & 0x3FFF];
-		}
-	
-		/**
-		 * Write byte to bank. <addr> is a 16bit word
-		 * that points into the 16K address space of the bank.
-		 *
-		 * On the Z88, the 64K is split into 4 sections of 16K segments.
-		 * Any of the 256 16K banks can be bound into the address space
-		 * on the Z88. Bank 0 is special, however.
-		 * 
-		 * Write behaviour to bank depends on Eprom Programming mode (Vpp) 
-		 * 
-		 * Please refer to hardware section of the Developer's Notes.
-		 */
-		public final void writeByte(final int addr, final int b) {
-			// TODO insert logic here for Vpp programming...
-			if (type == Bank.RAM) {
-				bankMem[addr & 0x3FFF] = b & 0xFF;
-			}
-		}
-	
-		/**
-		 * Get byte from bank, always. 
-		 * 
-		 * NB: Internal method: Only used by OZvm debug command line!
-		 * This method overrides all memory charateristics as defined
-		 * by the Blink hardware that is managing the Z88 virtual memory. 
-		 * 
-		 * @param addr is a 16bit word that points into the 16K address space of the bank.
-		 * @param b is the byte to be "set" at specific address
-		 * 
-		 */
-		public final int getByte(final int addr) {
-			return bankMem[addr & 0x3FFF];
-		}
-		
-		/**
-		 * Write byte to bank, always. 
-		 * 
-		 * NB: Internal method: Only used by OZvm debug command line!
-		 * This method overrides all memory charateristics as defined
-		 * by the Blink hardware that is managing the Z88 virtual memory 
-		 * (except when this bank represents an empty space).
-		 * 
-		 * @param addr is a 16bit word that points into the 16K address space of the bank.
-		 * @param b is the byte to be "set" at specific address
-		 * 
-		 */
-		public final void setByte(final int addr, final int b) {
-			if (type != Bank.VOID) bankMem[addr & 0x3FFF] = b & 0xFF;
-		}
-		
-		/**
-		 * Load bytes from buffer array of block.length to bank offset, onwards.
-		 * Naturally, loading is only allowed inside 16Kb boundary.
-		 */
-		public void loadBytes(byte[] block, int offset) {
-			offset %= BANKSIZE; // stay within boundary..
-			int length =
-				(offset + block.length) > BANKSIZE
-					? BANKSIZE - offset
-					: block.length;
-	
-			int bufidx = 0;
-			while (length-- > 0)
-				bankMem[offset++] = block[bufidx++] & 0xFF;
-		}
-		
-		/**
-		 * Check if Eprom or Flash Card VPP Pin is enabled
-		 * (all banks of a card in slot 3 reflects this state).  
-		 * 
-		 * @return Returns the VPP pin status of this bank's chip.
-		 */
-		public final boolean isVppPinEnabled() {
-			return vppPin;
-		}
-	
-		/**
-		 * Set the Eprom or Flash Card programming mode, by enabling the
-		 * VPP pin on the Eprom chip.
-		 * 
-		 * This mode will only be called by the Blink hardware, when
-		 * Z80 request OUT instructions executes the COM.VPP Blink register.
-		 * 
-		 * (this call has no effect if the Bank is part of a Ram Card or
-		 * represent an empty space in any slot)
-		 * 
-		 * @param vpp The VPP pin state to set for this chip.
-		 */
-		public final void setVppPin(final boolean vpp) {
-			if (type != Bank.RAM & type != Bank.ROM & type != Bank.VOID) this.vppPin = vpp;
-		}
-		
-		/**
-		 * @return the absolute bank number (0-255) where this bank is located in the memory model
-		 */
-		public int getBankNumber() {
-			return bankNo;
-		}
-		
-		/**
-		 * Define the bank number (0-255) where this bank is located in the memory model
-		 */
-		public void setBankNumber(int bankNo) {
-			this.bankNo = bankNo;
-		}
-	} /* Bank */
+	}	
 } /* Memory */
