@@ -3,16 +3,17 @@ package net.sourceforge.z88;
 /**
  * The Z80 class emulates the Zilog Z80 microprocessor.
  *
- * Modified for Z88 virtual machine by Gunther Strube, gstrube@tiscali.dk.
+ * Optimized for Z88 virtual machine by Gunther Strube, gstrube@tiscali.dk.
  *
- * Only abstract, reset() and execute() methods are now public. Register getter
- * and setter methods will be made public later for implementation of debugging
+ * Only abstract, reset() and run() methods are now public. Register getter and
+ * setter methods will be made public later for implementation of debugging
  * features.
+ * 
+ * New, optimized instruction pre-fetch and cache algorithm (avoids reading
+ * bytewise fetches of the opcodes from the Z80 virtual memory model, getting
+ * the opcodes from the internal cache). Implemented 16bit read/write databus
+ * where possible (getting 16bits in one "cycle", in stead of normal 2 x byte).
  *
- * $Id$
- */
-
-/*
  * Original implementation of Z80 emulation by Adam Davidson & Andrew Pollard.
  *
  * @version 1.1 27 Apr 1997
@@ -20,6 +21,8 @@ package net.sourceforge.z88;
  *
  * @see Jasper
  * @see Spectrum
+ * 
+ * $Id$
  */
 
 public abstract class Z80 {
@@ -49,8 +52,8 @@ public abstract class Z80 {
      */
     public int getTstatesCounter() {
         int c = tstatesCounter;
-
         tstatesCounter = 0;
+        
         return c;
     }
 
@@ -61,14 +64,16 @@ public abstract class Z80 {
      */
     public int getInstructionCounter() {
         int i = instructionCounter;
-
         instructionCounter = 0;
+        
         return i;
     }
 
     private boolean externIntSignal = false;
     private boolean z80Halted = false;
 	private boolean z80Stopped = false;
+
+	private int cachedInstruction = 0;
 
     private final int IM0 = 0;
     private final int IM1 = 1;
@@ -349,66 +354,65 @@ public abstract class Z80 {
     /** External implementation of HALT instruction */
     public abstract void haltInstruction();
 
-    /** External implemenation of Byte access to virtual memory model */
+    /** External implemenation of Read Byte from the Z80 virtual memory model */
     public abstract int readByte(int addr);
 
-    /** External implemenation of Write byte to virtual memory model */
+    /** External implemenation of Write byte to the Z80 virtual memory model */
     public abstract void writeByte(int addr, int b);
+
+	/** External implemenation of Read Word from the Z80 virtual memory model */
+	public abstract int readWord(final int addr);
+
+	/** External implemenation of Write Word to the Z80 virtual memory model */
+	public abstract void writeWord(final int addr, final int w);
+
+	/** External implemenation of Read instruction from the Z80 virtual memory model */
+	public abstract int readInstruction(final int addr);
 
     /** IO ports */
     public abstract void outByte(int addrA8, int addrA15, int bits);
 
     public abstract int inByte(int addrA8, int addrA15);
 
-    /** Word access */
-    private void pokew(int addr, int word) {
-        writeByte(addr, word & 0xff);
-        addr++;
-        writeByte(addr & 0xffff, word >> 8);
-    }
-
-    private final int peekw(int addr) {
-        int t = readByte(addr);
-        addr++;
-        return t | (readByte(addr & 0xffff) << 8);
-    }
-
     /** Index register access */
     private final int ID_d() {
         return ((ID() + (byte) nxtpcb()) & 0xffff);
     }
 
-    /** Stack access */
+    /** Stack access, push 16bit value */
     private final void pushw(int word) {
-        int sp = ((SP() - 2) & 0xffff);
+        int sp = (SP() - 2) & 0xffff;
         SP(sp);
-        pokew(sp, word);
+        writeWord(sp, word);
     }
 
+	/** Stack access, pop 16bit value */
     private final int popw() {
         int sp = SP();
-        int t = readByte(sp);
-        sp++;
-        t |= (readByte(sp & 0xffff) << 8);
-        SP(++sp & 0xffff);
-        return t;
-    }
-
-    /** Program access */
-    private final int nxtpcb() {
-        int t = readByte(_PC);
-        _PC = ++_PC & 0xffff;
+        int w = readWord(sp);
+        SP((sp + 2) & 0xffff);
         
-        return t;
+        return w;
     }
 
-    private final int nxtpcw() {
-        int t = readByte(_PC);
-		_PC = ++_PC & 0xffff;
-        t |= (readByte(_PC) << 8);
-		_PC = ++_PC & 0xffff;
+    /** Program Counter Byte Access */
+    private final int nxtpcb() {
+        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
+		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
+        _PC = ++_PC & 0xffff;				// update Program Counter
+        
+        return b;
+    }
 
-        return t;
+	/** Program Counter Word Access */
+    private final int nxtpcw() {
+        int w = cachedInstruction & 0xFF;	// the get LSB from current PC
+		cachedInstruction >>>= 8;			// get ready for next byte fetch...
+        w |= (cachedInstruction & 0xFF) << 8;
+		cachedInstruction >>>= 8;			// get ready for next byte fetch...
+		_PC = (_PC + 2) & 0xffff;			// update Program Counter
+
+        return w;
     }
 
     /** Reset all registers to power on state */
@@ -485,7 +489,7 @@ public abstract class Z80 {
                 IFF1(false);
                 IFF2(false);
                 int t = (I() << 8) | 0x00ff;
-                PC(peekw(t));
+                PC(readWord(t));
                 tstatesCounter += 19;
                 return true;
             default :
@@ -493,7 +497,19 @@ public abstract class Z80 {
         }
     }
 
-    /** Z80 fetch/execute loop */
+	/**
+	 * Pre-fetch a 4 byte Z80 instruction sequence from the 
+	 * Z80 virtual memory model at current PC (Program Counter).
+	 * 
+	 * The internal Get Next Byte At PC, nxtpcb(), and
+	 * Get Next Word At PC, nxtpcw(), will fetch from this cache.
+	 */
+	private final void fetchInstruction() {
+		cachedInstruction = readInstruction(_PC);
+		instructionCounter++;
+	}
+	
+    /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
     public final void run() {
 
         while (true) {
@@ -505,21 +521,17 @@ public abstract class Z80 {
 			
             // INT occurred
             if (interruptTriggered() == true) {
-                if (execInterrupt() == true) {
-                    acknowledgeInterrupt();
-                }
+                if (execInterrupt() == true) acknowledgeInterrupt();
             }
 
             REFRESH(1);
 
             if (z80Halted == true) {
-                tstatesCounter += 4;        // perform a simulated NOP, but PC is same address
                 continue;                   // back to main decode loop and wait for external interrupt
             }
 
-            instructionCounter++;
-			
-            switch (nxtpcb()) {
+			fetchInstruction();				// pre-fetch and cache a 4 bytes sequence at PC
+            switch (nxtpcb()) {				// then decode first byte from Z80 instruction cache
 
                 case 0 : /* NOP */ {
                         tstatesCounter += 4;
@@ -661,12 +673,12 @@ public abstract class Z80 {
                         break;
                     }
                 case 34 : /* LD (nn),HL */ {
-                        pokew(nxtpcw(), HL());
+                        writeWord(nxtpcw(), HL());
                         tstatesCounter += 16;
                         break;
                     }
                 case 42 : /* LD HL,(nn) */ {
-                        HL(peekw(nxtpcw()));
+                        HL(readWord(nxtpcw()));
                         tstatesCounter += 16;
                         break;
                     }
@@ -1171,11 +1183,11 @@ public abstract class Z80 {
                         break;
                     }
                 case 118 : /* HALT */ {
+					    // let the external system know about HALT instruction
+					    // Z80 processor execution now performs simulated NOP's and
+					    // awaits external interrupt to wake processor execution up again.
                         haltInstruction();
                         z80Halted = true;
-                        // let the external system know about HALT instruction
-                        // Z80 processor execution now performs simulated NOP's and
-                        // awaits external interrupt to wake processor execution up again.
                         tstatesCounter += 4;
                         break;
                     }
@@ -1754,7 +1766,7 @@ public abstract class Z80 {
 
                     /* Various */
                 case 195 : /* JP nn */ {
-                        PC(peekw(PC()));
+                        PC(nxtpcw());
                         tstatesCounter += 10;
                         break;
                     }
@@ -1773,17 +1785,17 @@ public abstract class Z80 {
                         break;
                     }
                 case 227 : /* EX (SP),HL */ {
-                        int t = HL();
+                        int hl = HL();
                         int sp = SP();
-                        HL(peekw(sp));
-                        pokew(sp, t);
+                        HL(readWord(sp));
+                        writeWord(sp, hl);
                         tstatesCounter += 19;
                         break;
                     }
                 case 235 : /* EX DE,HL */ {
-                        int t = HL();
+                        int hl = HL();
                         HL(DE());
-                        DE(t);
+                        DE(hl);
                         tstatesCounter += 4;
                         break;
                     }
@@ -1803,9 +1815,9 @@ public abstract class Z80 {
                     /* CALL cc,nn */
                 case 196 : /* CALL NZ,nn */ {
                         if (!Zset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1815,9 +1827,9 @@ public abstract class Z80 {
                     }
                 case 204 : /* CALL Z,nn */ {
                         if (Zset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1827,9 +1839,9 @@ public abstract class Z80 {
                     }
                 case 212 : /* CALL NC,nn */ {
                         if (!Cset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1839,9 +1851,9 @@ public abstract class Z80 {
                     }
                 case 220 : /* CALL C,nn */ {
                         if (Cset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1851,9 +1863,9 @@ public abstract class Z80 {
                     }
                 case 228 : /* CALL PO,nn */ {
                         if (!PVset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1863,9 +1875,9 @@ public abstract class Z80 {
                     }
                 case 236 : /* CALL PE,nn */ {
                         if (PVset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1875,9 +1887,9 @@ public abstract class Z80 {
                     }
                 case 244 : /* CALL P,nn */ {
                         if (!Sset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1887,9 +1899,9 @@ public abstract class Z80 {
                     }
                 case 252 : /* CALL M,nn */ {
                         if (Sset()) {
-                            int t = nxtpcw();
+                            int nn = nxtpcw();
                             pushw(_PC);
-                            PC(t);
+                            PC(nn);
                             tstatesCounter += 17;
                         } else {
                             PC((PC() + 2) & 0xffff);
@@ -1905,9 +1917,9 @@ public abstract class Z80 {
                         break;
                     }
                 case 205 : /* CALL nn */ {
-                        int t = nxtpcw();
+                        int nn = nxtpcw();
                         pushw(_PC);
-                        PC(t);
+                        PC(nn);
                         tstatesCounter += 17;
                         break;
                     }
@@ -1986,55 +1998,54 @@ public abstract class Z80 {
                     }
 
                     /* RST n */
-                case 199 : /* RST 0 */ {
+                case 199 : /* RST 00h */ {
                         pushw(_PC);
                         PC(0);
                         tstatesCounter += 11;
                         break;
                     }
-                case 207 : /* RST 8 */ {
+                case 207 : /* RST 08h */ {
                         pushw(_PC);
                         PC(8);
                         tstatesCounter += 11;
                         break;
                     }
-                case 215 : /* RST 16 */ {
+                case 215 : /* RST 10h */ {
                         pushw(_PC);
                         PC(16);
                         tstatesCounter += 11;
                         break;
                     }
-                case 223 : /* RST 24 */ {
+                case 223 : /* RST 18h */ {
                         pushw(_PC);
                         PC(24);
                         tstatesCounter += 11;
                         break;
                     }
-                case 231 : /* RST 32 */ {
+                case 231 : /* RST 20h */ {
                         pushw(_PC);
                         PC(32);
                         tstatesCounter += 11;
                         break;
                     }
-                case 239 : /* RST 40 */ {
+                case 239 : /* RST 28h */ {
                         pushw(_PC);
                         PC(40);
                         tstatesCounter += 11;
                         break;
                     }
-                case 247 : /* RST 48 */ {
+                case 247 : /* RST 30h */ {
                         pushw(_PC);
                         PC(48);
                         tstatesCounter += 11;
                         break;
                     }
-                case 255 : /* RST 56 */ {
+                case 255 : /* RST 38h */ {
                         pushw(_PC);
                         PC(56);
                         tstatesCounter += 11;
                         break;
                     }
-
             }
 
         } // end while
@@ -2272,35 +2283,35 @@ public abstract class Z80 {
 
                 /* LD (nn),ss, LD ss,(nn) */
             case 67 : /* LD (nn),BC */ {
-                    pokew(nxtpcw(), BC());
+                    writeWord(nxtpcw(), BC());
                     return (20);
                 }
-            case 75 : /* LD BC(),(nn) */ {
-                    BC(peekw(nxtpcw()));
+            case 75 : /* LD BC,(nn) */ {
+                    BC(readWord(nxtpcw()));
                     return (20);
                 }
             case 83 : /* LD (nn),DE */ {
-                    pokew(nxtpcw(), DE());
+                    writeWord(nxtpcw(), DE());
                     return (20);
                 }
             case 91 : /* LD DE,(nn) */ {
-                    DE(peekw(nxtpcw()));
+                    DE(readWord(nxtpcw()));
                     return (20);
                 }
             case 99 : /* LD (nn),HL */ {
-                    pokew(nxtpcw(), HL());
+                    writeWord(nxtpcw(), HL());
                     return (20);
                 }
             case 107 : /* LD HL,(nn) */ {
-                    HL(peekw(nxtpcw()));
+                    HL(readWord(nxtpcw()));
                     return (20);
                 }
             case 115 : /* LD (nn),SP */ {
-                    pokew(nxtpcw(), SP());
+                    writeWord(nxtpcw(), SP());
                     return (20);
                 }
             case 123 : /* LD SP,(nn) */ {
-                    SP(peekw(nxtpcw()));
+                    SP(readWord(nxtpcw()));
                     return (20);
                 }
 
@@ -3965,11 +3976,11 @@ public abstract class Z80 {
                     return (14);
                 }
             case 34 : /* LD (nn),ID */ {
-                    pokew(nxtpcw(), ID());
+                    writeWord(nxtpcw(), ID());
                     return (20);
                 }
             case 42 : /* LD ID,(nn) */ {
-                    ID(peekw(nxtpcw()));
+                    ID(readWord(nxtpcw()));
                     return (20);
                 }
             case 35 : /* INC ID */ {
@@ -4311,8 +4322,8 @@ public abstract class Z80 {
             case 227 : /* EX (SP),ID */ {
                     int t = ID();
                     int sp = SP();
-                    ID(peekw(sp));
-                    pokew(sp, t);
+                    ID(readWord(sp));
+                    writeWord(sp, t);
                     return (23);
                 }
 
