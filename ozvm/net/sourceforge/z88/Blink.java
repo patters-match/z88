@@ -280,6 +280,19 @@ public final class Blink {
 	 */
 	public void setCOM(int bits) {
 		COM = bits;
+
+		if ( rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
+			// Stop Real Time Clock (RESTIM = 1)
+			rtc.stop();
+			rtc.reset();
+		}
+
+		if ( rtc.isRunning() == false && ((bits & Blink.BM_COMRESTIM) == 0)) {
+			// Real Time Clock is not running, and is asked to start (RESTIM = 0)... 
+			rtc.reset();	// reset counters before starting RTC
+			rtc.start();
+		}
+		
 		if ( (bits & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
 			// RAM is bound into lower 8K of segment 0
 			RAMS = memory[0x20];
@@ -394,7 +407,7 @@ public final class Blink {
 		/**
 		 * Reset time counters. Performed when COM.RESTIM = 1.
 		 */
-		public void resetRtc() {
+		public void reset() {
 			tim0 = tim1 = tim2 = tim3 = tim4 = 0;
 		}
 
@@ -413,9 +426,7 @@ public final class Blink {
 		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
-			if (rtcRunning == false) {
-				resetRtc(); // counters must be 0 when not counting...
-			} else {
+			if (rtcRunning == true) {
 				if (++tim0 > 199) {
 					tim0 = 0; // 1 second has passed...
 					if (++tim1 > 59) {
