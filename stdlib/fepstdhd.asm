@@ -87,7 +87,7 @@
 
                     PUSH HL
                     LD   A,sr_rnd
-                    call_oz os_sr
+                    CALL_OZ OS_SR
                     POP  HL
                     LD   (HL),E
                     INC  HL
