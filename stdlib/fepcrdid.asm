@@ -77,31 +77,25 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   B,A
                     LD   C, MS_S1           
                     CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
-                    PUSH BC                  ; preserve old bank binding..
-                    
+                                             ; old bank binding in BC...                    
                     CALL CheckRam
-                    JR   C, unknown_device   ; abort, if RAM card was found in slot C...
+                    JR   C, no_flashcard     ; abort, if RAM card was found in slot C...
 
                     CALL FetchCardID         ; get info of Flash Memory chip in HL (if avail in slot C)...
-                    JR   C, unknown_device   ; no ID's were polled from a (potential FE card) 
+                    JR   C, no_flashcard     ; no ID's were polled from a (potential FE card) 
 
-                    POP  BC
                     CALL MemDefBank          ; restore original bank in segment 1
-
-                    POP  AF                  ; old interrupt status
-                    CALL OZ_EI               ; enable IM 1 interrupts again...
                     
                     CALL VerifyCardID        ; verify Flash Memory ID with known Manufacturer & Device Codes
-                    JR   C, unknown_device
+                    JR   C, unknown_flashmem
                                              ; H = Manufacturer Code, L = Device Code 
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
                     LD   C,E                 ; original C restored
                     POP  DE                  ; original DE restored
                     RET                      ; Fc = 0, Fz = 1
-.unknown_device
-                    POP  BC
-                    CALL MemDefBank          ; restore original bank in segment 1
-
+.no_flashcard
+                    CALL MemDefBank          ; restore original bank in segment 1 (defined in BC)
+.unknown_flashmem
                     POP  AF                  ; old interrupt status
                     CALL OZ_EI               ; enable IM 1 interrupts again...
                     
@@ -159,15 +153,19 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     CALL ExecPollRoutineOnStack
                     
                     CP   A                   ; Assume that no INTEL Flash Memory ID is stored at that location!
+                    PUSH HL
                     SBC  HL,DE               ; if the ID in HL is different from DE
+                    POP  HL
                     JR   NZ, found_FetchCardID; then an ID was fetched from an INTEL FlashFile Memory...
                     
                     LD   IX, Fetch_AM29F0xxx_ID 
                     LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID 
                     CALL ExecPollRoutineOnStack
 
-                    CP   A                   
+                    CP   A 
+                    PUSH HL                  
                     SBC  HL,DE               
+                    POP  HL
                     JR   NZ, found_FetchCardID ; if the ID in HL is equal to DE
                     SCF                        ; then no AMD Flash Memory responded to the ID request...
                     JR   exit_FetchCardID
@@ -200,17 +198,17 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  BC                  ; length of routine
                     LD   HL,0
                     ADD  HL,SP
-                    EX   DE,HL               ; current SP in DE...
+                    LD   D,H
+                    LD   E,L                 ; current SP in DE...
                     CP   A                   ; Fc = 0
-                    INC  BC
                     SBC  HL,BC               ; make room for routine on stack (which moves downwards...)
                     LD   SP,HL               ; new SP defined, space for buffer for routine ready...
-                    EX   DE,HL               ; HL = old SP (top of buffer), DE = new SP (destination)                    
+                    EX   DE,HL               ; HL = old SP (top of buffer), DE = new SP (destination)
                     PUSH HL                  ; original SP will be restored after polling routine has completed
                     PUSH DE                  ; execute polling routine by a RET instruction
 
                     PUSH IX
-                    POP  HL                  
+                    POP  HL   
                     LDIR                     ; copy polling routine to stack buffer...
                     LD   HL,exit_fetchid
                     EX   (SP),HL             ; the RET at the end of the polling routine will jump to
@@ -367,6 +365,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 .VerifyCardID       PUSH HL
                     PUSH DE
+                    PUSH BC
                     PUSH AF
                     
                     EX   DE,HL
@@ -391,12 +390,15 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     DJNZ find_loop                ; and check for new Device Code
 
                     POP  AF                       ; Ups, Manufacturer and Device Code wasn't verified
-                    SCF
+                    SCF                           ; indicate error
+                    POP  BC                       ; restore original BC on error
                     POP  DE
                     POP  HL
                     RET
 .verified_id
-                    POP  DE                       ; ignore old AF...
+                    POP  DE                       ; ignore old AF, return FE_28F or FE29F in A
+                    POP  DE
+                    LD   C,E                      ; restore original C (B hold total banks of card
                     POP  DE
                     POP  HL
                     RET
