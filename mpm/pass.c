@@ -77,7 +77,6 @@ extern enum symbols sym;
 extern enum flag uselistingfile, verbose, writeline;
 extern enum flag pass1, symtable, deforigin, EOL;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
-extern char MPMobjhdr[];
 extern unsigned long PC, oldPC;
 extern unsigned long EXPLICIT_ORIGIN;
 extern unsigned char *codearea, *codeptr, PAGELEN;
@@ -231,7 +230,7 @@ AssembleSourceFile (void)
     }
   if ((objfile = fopen (objfilename, "w+b")) != NULL)           /* Create relocatable object file */
     {
-      fwrite (MPMobjhdr, sizeof (char), strlen (MPMobjhdr), objfile);
+      fwrite (MPMOBJECTHEADER, sizeof (char), strlen (MPMOBJECTHEADER), objfile);
       fwrite (objhdrprefix, sizeof (char), strlen (objhdrprefix), objfile);
     }
   else

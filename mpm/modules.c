@@ -63,7 +63,6 @@ extern char line[], ident[];
 extern char *objfilename, *errfilename, *libfilename;
 extern const char objext[], binext[], mapext[], errext[], libext[], defext[];
 extern char binfilename[];
-extern char MPMobjhdr[];
 extern enum symbols sym, GetSym (void);
 extern enum flag uselistingfile, symtable, autorelocate, codesegment;
 extern enum flag verbose, deforigin, createglobaldeffile, EOL, uselibraries, asmerror, expl_binflnm;
@@ -360,7 +359,7 @@ LinkModules (void)
           break;
         }
 
-      if (strcmp (fheader, MPMobjhdr) != 0)
+      if (strcmp (fheader, MPMOBJECTHEADER) != 0)
         {                       /* compare header of file */
           ReportError (objfilename, 0, Err_Objectfile);
           fclose (srcasmfile);

@@ -68,7 +68,6 @@ const char asmext[] = ".asm", lstext[] = ".lst", objext[] = ".obj", defext[] = "
 const char mapext[] = ".map", errext[] = ".err", libext[] = ".lib";
 char srcext[5];                 /* contains default source file extension */
 char binfilename[255];          /* -o explicit filename buffer */
-char MPMobjhdr[] = MPMOBJECTHEADER;
 
 long listfileptr;
 unsigned char *codearea, *codeptr;
@@ -153,7 +152,7 @@ GetModuleSize (void)
       fread (fheader, 1U, SIZEOF_MPMOBJHDR, objfile);       /* read watermark header from object file */
       fheader[SIZEOF_MPMOBJHDR] = '\0';
 
-      if (strcmp (fheader, MPMobjhdr) != 0)
+      if (strcmp (fheader, MPMOBJECTHEADER) != 0)
         {                                                   /* compare header of file */
           ReportError (objfilename, 0, Err_Objectfile);     /* not an object file */
           fclose (objfile);
