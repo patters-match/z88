@@ -218,6 +218,8 @@ main (int argc, char *argv[])
 {
   int asmflag;
   char argument[254];
+  int pathsepCount = 0;
+  int b;
 
   DefineEndianLayout();
 
@@ -329,8 +331,16 @@ main (int argc, char *argv[])
             }
         }
 
-      if (strchr(argument,'.') != NULL) *(strchr(argument, '.')) ='\0';
-
+      /* scan filename backwards and truncate extension, if found, but before a pathname separator */
+      for (b=strlen(argument)-1; b>=0; b--) {
+          if (argument[b] == '\\' || argument[b] == '/') pathsepCount++; /* Ups, we've scanned past the short filename */
+          
+          if (argument[b] == '.' && pathsepCount == 0) {
+               argument[b] = '\0'; /* truncate file extension */
+               break;
+          }
+      }
+      
       srcfilename = AddFileExtension((const char *) argument, srcext);
       if (srcfilename == NULL)
         {

@@ -190,8 +190,8 @@ FetchModuleFilename(FILE *projectfile, char *filename)
           c = GetChar (projectfile);
           switch(c) 
           {
-          	case '\n':
-          	case '\x1A': /* end of line, get first char on next line */
+               case '\n':
+               case '\x1A': /* end of line, get first char on next line */
               break;
 
             case ';':    /* a comment, skip and prepare for start of next line */
@@ -971,7 +971,7 @@ WriteSymbolTable (char *msg, avltree_t * root)
   fseek (listfile, 0, SEEK_END); /* get to the end of the listing file */
   
   LINENO = PAGELEN+1;
-  LineCounter();				/* top of new page */
+  LineCounter();                   /* top of new page */
 
   fputc ('\n', listfile);
   fprintf (listfile, "%s", msg);
@@ -1075,12 +1075,24 @@ char *
 AddFileExtension(const char *oldfilename, const char *extension)
 {
   char *newfilename;
+  int b;
+  int pathsepCount = 0;
 
   if ((newfilename = AllocIdentifier (strlen (oldfilename) + strlen(extension) + 1)) != NULL)
     {
       strcpy (newfilename, oldfilename);
-      if (strrchr(newfilename, '.') != NULL)
-        strcpy ( strrchr(newfilename,'.'), extension); /* replace old extension with new */
+ 
+      /* scan filename backwards and find extension, but before a pathname separator */
+      for (b=strlen(newfilename)-1; b>=0; b--) {
+          if (newfilename[b] == '\\' || newfilename[b] == '/') pathsepCount++; /* Ups, we've scanned past the short filename */
+          
+          if (newfilename[b] == '.' && pathsepCount == 0) {
+               break; /* we found an extension before a path separator! */
+          }
+      }
+ 
+      if (b > 0)
+        strcpy ( (newfilename+b), extension); /* replace old extension with new */
       else
         strcat( newfilename, extension);   /* missing extension, concatanate new */
     }
