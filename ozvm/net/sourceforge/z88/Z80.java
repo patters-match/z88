@@ -1850,10 +1850,12 @@ public abstract class Z80 {
                         tstatesCounter += 4;
                         break;
                     }
-                case 251 : /* EI */ {
+                case 251 : /* EI */ {                		
                         tstatesCounter += 4;
-                        run(true);  // execute a single instruction after EI...
-                        singleStepping = false;
+                        if (singleStepping == false) {
+							run(true);  // execute a single instruction after EI...
+							singleStepping = false;
+                        }
 						IFF1(true); // open up for interrupts again...
 						IFF2(true);                        
                         break;
