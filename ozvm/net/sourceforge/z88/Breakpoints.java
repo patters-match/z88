@@ -141,11 +141,12 @@ public class Breakpoints {
 	}
 
     /**
-     * List breakpoints to stdout console.
+     * List breakpoints into String, so that caller decides to display them.
      */
-    public void listBreakpoints() {
+    public String listBreakpoints() {
+    	StringBuffer output = new StringBuffer(1024);
         if (breakPoints.isEmpty() == true) {
-            System.out.println("No Breakpoints defined.");
+            return new String("No Breakpoints defined.");
         } else {
             Iterator keyIterator = breakPoints.entrySet().iterator();
 
@@ -153,10 +154,14 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                System.out.print(Dz.extAddrToHex(bp.getBpAddress(),false) + (bp.stop == false ? "[d]" : "") + "\t");
+				output.append(Dz.extAddrToHex(bp.getBpAddress(),false));
+				output.append(bp.stop == false ? "[d]" : "");
+				output.append("\t");
             }
-            System.out.println();
+			output.append("\n");
         }
+        
+        return output.toString();
     }
 
     /**
