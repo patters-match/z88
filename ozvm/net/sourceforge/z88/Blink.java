@@ -771,21 +771,21 @@ public final class Blink extends Z80 {
 	 */
 	public final int readByte(final int addr) {
 		if (addr > 0x3FFF) {
-			return memory[sR[addr >>> 14]].bank[addr & 0x3FFF];
+			return memory[sR[addr >>> 14]].readByte(addr);
 		} else {
 			if (addr < 0x2000)
 				// return lower 8K Bank binding
 				// Lower 8K is System Bank 0x00 (ROM on hard reset)
 				// or 0x20 (RAM for Z80 stack and system variables)
-				return RAMS.bank[addr];
+				return RAMS.readByte(addr);
 			else {
 				if ((sR[0] & 1) == 0)
 					// lower 8K of even bank bound into upper 8K of segment 0
-					return memory[sR[0] & 0xFE].bank[addr & 0x1FFF];
+					return memory[sR[0] & 0xFE].readByte(addr & 0x1FFF);
 				else
 					// upper 8K of even bank bound into upper 8K of segment 0
 					// addr <= 0x3FFF...
-					return memory[sR[0] & 0xFE].bank[addr];
+					return memory[sR[0] & 0xFE].readByte(addr);
 			}
 		}
 	}
@@ -805,85 +805,31 @@ public final class Blink extends Z80 {
 		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
 				bankNo = memory[sR[addr >>> 14]];
-				addr &= 0x3FFF;
-				return bankNo.bank[addr+1] << 8 | bankNo.bank[addr];
+				return (bankNo.readByte(addr+1) << 8) | bankNo.readByte(addr);
 			} else {
 				if (addr < 0x2000) {
 					// return lower 8K Bank binding
 					// Lower 8K is System Bank 0x00 (ROM on hard reset)
 					// or 0x20 (RAM for Z80 stack and system variables)
-					return RAMS.bank[addr+1] << 8 | RAMS.bank[addr];
+					return (RAMS.readByte(addr+1) << 8) | RAMS.readByte(addr);
 				} else {
 					bankNo = memory[sR[0] & 0xFE];
 					if ((sR[0] & 1) == 0) {
 						// lower 8K of even bank bound into upper 8K of segment 0
 						addr &= 0x1FFF;
-						return bankNo.bank[addr+1] << 8 | bankNo.bank[addr];
-					} else {
-						// upper 8K of even bank bound into upper 8K of segment 0
-						// addr = [0x2000 - 0x3FFF]...
-						return bankNo.bank[addr+1] << 8 | bankNo.bank[addr];
 					}
+					// else 
+					// upper 8K of even bank bound into upper 8K of segment 0
+					// addr = [0x2000 - 0x3FFF]...
+					return (bankNo.readByte(addr+1) << 8) | bankNo.readByte(addr);
 				}
 			}
 		} else {
 			// bank boundary will be crossed...
-			return readByte(addr+1) << 8 | readByte(addr);
+			return (readByte(addr+1) << 8) | readByte(addr);
 		}
 	}
 
-	/**
-	 * Read Z80 instruction as a 4 byte entity from Z80 virtual memory model,
-	 * starting from offset, onwards. <addr> is a 16bit word that points into
-	 * the Z80 64K address space. Z80 instructions varies between 1 and 4 bytes,
-	 * but here a complete 4 byte sequence is cached in the return argument,
-	 * without knowing the actual length.
-	 *
-	 * The instruction is returned as a 32bit integer for compactness, in MSB order,
-	 * ie. lowest 8bit of int is the first byte of the instruction, highest 8bit
-	 * of 32bit integer is the 4th byte of the instruction.
-	 *
-	 * @param addr address offset in bank
-	 * @return int 4 byte Z80 instruction
-	 */
-	public final int readInstruction(int addr) {
-		Bank bankNo;
-
-		if ( (addr & 0x3FFF)+3 <= 0x3FFF ) {
-			if (addr > 0x3FFF) {
-				bankNo = memory[sR[addr >>> 14]];
-				addr &= 0x3FFF;
-				// fetch instruction from segments 1 - 3
-				return 	bankNo.bank[addr+3] << 24 | bankNo.bank[addr+2] << 16 |
-						bankNo.bank[addr+1] << 8 | bankNo.bank[addr];
-			} else {
-				if (addr < 0x2000) {
-					// return lower 8K Bank binding
-					// Lower 8K is System Bank 0x00 (ROM on hard reset)
-					// or 0x20 (RAM for Z80 stack and system variables)
-					return RAMS.bank[addr+3] << 24 | RAMS.bank[addr+2] << 16 |
-					       RAMS.bank[addr+1] << 8 | RAMS.bank[addr];
-				} else {
-					bankNo = memory[sR[0] & 0xFE];
-					if ((sR[0] & 1) == 0) {
-						addr &= 0x1FFF;
-						// lower 8K of even bank bound into upper 8K of segment 0
-						return 	bankNo.bank[addr+3] << 24 | bankNo.bank[addr+2] << 16 |
-								bankNo.bank[addr+1] << 8 | bankNo.bank[addr];
-					} else {
-						// upper 8K of even bank bound into upper 8K of segment 0
-						// addr <= 0x3FFF...
-						return 	bankNo.bank[addr+3] << 24 | bankNo.bank[addr+2] << 16 |
-								bankNo.bank[addr+1] << 8 | bankNo.bank[addr];
-					}
-				}
-			}
-		} else {
-			// bank boundary will be crossed...
-			return readByte(addr + 3) << 24 | readByte(addr + 2) << 16 |
-				   readByte(addr + 1) << 8 | readByte(addr);
-		}
-	}
 
 	/**
 	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
@@ -900,24 +846,22 @@ public final class Blink extends Z80 {
 		if (addr > 0x3FFF) {
 			// write byte to segments 1 - 3
 			bankNo = memory[sR[addr >>> 14]];
-			if (bankNo.type == Bank.RAM) bankNo.bank[addr & 0x3FFF] = b & 0xFF;
+			bankNo.writeByte(addr, b);
 		} else {
 			if (addr < 0x2000) {
 				// return lower 8K Bank binding
 				// Lower 8K is System Bank 0x00 (ROM on hard reset)
 				// or 0x20 (RAM for Z80 stack and system variables)
-				if (RAMS.type == Bank.RAM) RAMS.bank[addr] = b & 0xFF;
+				RAMS.writeByte(addr, b);
 			} else {
 				bankNo = memory[sR[0] & 0xFE];
-				if (bankNo.type == Bank.RAM) {
-					if ((sR[0] & 1) == 0) {
-						// lower 8K of even bank bound into upper 8K of segment 0
-						bankNo.bank[addr & 0x1FFF] = b & 0xFF;
-					} else {
-						// upper 8K of even bank bound into upper 8K of segment 0
-						// addr <= 0x3FFF...
-						bankNo.bank[addr] = b & 0xFF;
-					}
+				if ((sR[0] & 1) == 0) {
+					// lower 8K of even bank bound into upper 8K of segment 0
+					bankNo.writeByte(addr & 0x1FFF, b);
+				} else {
+					// upper 8K of even bank bound into upper 8K of segment 0
+					// addr <= 0x3FFF...
+					bankNo.writeByte(addr, b);
 				}
 			}
 		}
@@ -938,41 +882,26 @@ public final class Blink extends Z80 {
 		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
 				bankNo = memory[sR[addr >>> 14]];
-				addr &= 0x3FFF;
-				if (bankNo.type == Bank.RAM) {
-					bankNo.bank[addr] = w & 0xFF;
-					bankNo.bank[addr+1] = (w >>> 8) & 0xFF;
-				}
+				bankNo.writeByte(addr, w);
+				bankNo.writeByte(addr+1, w >>> 8);
 			} else {
 				if (addr < 0x2000) {
 					// return lower 8K Bank binding
 					// Lower 8K is System Bank 0x00 (ROM on hard reset)
 					// or 0x20 (RAM for Z80 stack and system variables)
-					if (RAMS.type == Bank.RAM) {
-						RAMS.bank[addr] = w & 0xFF;
-						RAMS.bank[addr+1] = (w >>> 8) & 0xFF;
-					}
+					RAMS.writeByte(addr, w);
+					RAMS.writeByte(addr+1, w >>> 8);
 				} else {
 					bankNo = memory[sR[0] & 0xFE];
-					if (bankNo.type == Bank.RAM) {
-						if ((sR[0] & 1) == 0) {
-							addr &= 0x1FFF;
-							// lower 8K of even bank bound into upper 8K of segment 0
-							bankNo.bank[addr] = w & 0xFF;
-							bankNo.bank[addr+1] = (w >>> 8) & 0xFF;
-						} else {
-							// upper 8K of even bank bound into upper 8K of segment 0
-							// addr <= 0x3FFF...
-							bankNo.bank[addr] = w & 0xFF;
-							bankNo.bank[addr+1] = (w >>> 8) & 0xFF;
-						}
-					}
+					if ((sR[0] & 1) == 0) addr &= 0x1FFF; // lower 8K of even bank bound into upper 8K of segment 0
+					bankNo.writeByte(addr, w);
+					bankNo.writeByte(addr+1, w >>> 8);
 				}
 			}
 		} else {
 			// bank boundary will be crossed...
-			writeByte(addr, w & 0xFF);
-			writeByte(addr+1, (w >>> 8) & 0xFF);
+			writeByte(addr, w);
+			writeByte(addr+1, w >>> 8);
 		}
 	}
 
@@ -988,7 +917,7 @@ public final class Blink extends Z80 {
 	public void setByte(final int offset, final int bankno, final int bits) {
 		if (memory[bankno] != nullBank) {
 			// we can only write to a real memory bank, not to an empty slot...
-			memory[bankno].bank[0x3FFF & offset] = bits & 0xFF;
+			memory[bankno].setByte(offset, bits);
 		}
 	}
 
@@ -1024,7 +953,7 @@ public final class Blink extends Z80 {
 	 * @return int
 	 */
 	public int getByte(final int offset, final int bankno) {
-		return memory[bankno].bank[offset & 0x3FFF];
+		return memory[bankno].getByte(offset);
 	}
 
 	/**
@@ -1365,9 +1294,9 @@ public final class Blink extends Z80 {
 		}
 
 		// Finally, check for Z88 ROM Watermark
-		if (romBanks[romBanks.length-1].bank[0x3FFB] != 0x81 &
-		    romBanks[romBanks.length-1].bank[0x3FFE] != 'O' &
-		    romBanks[romBanks.length-1].bank[0x3FFF] != 'Z') {
+		if (romBanks[romBanks.length-1].getByte(0x3FFB) != 0x81 &
+		    romBanks[romBanks.length-1].getByte(0x3FFE) != 'O' &
+		    romBanks[romBanks.length-1].getByte(0x3FFF) != 'Z') {
 				throw new IOException("This is not a Z88 ROM");
 	    }
 
@@ -1407,14 +1336,14 @@ public final class Blink extends Z80 {
 		}
 
 		// Check for Z88 Application Card Watermark
-		if (cardBanks[cardBanks.length-1].bank[0x3FFB] == 0x80 &
-			cardBanks[cardBanks.length-1].bank[0x3FFE] == 'O' &
-			cardBanks[cardBanks.length-1].bank[0x3FFF] == 'Z') {
+		if (cardBanks[cardBanks.length-1].getByte(0x3FFB) == 0x80 &
+			cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'O' &
+			cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'Z') {
 			displayRtmMessage("Application Card was inserted into slot " + slot, false);
 		} else {
 			// Check for Z88 File Card Watermark
-			if (cardBanks[cardBanks.length-1].bank[0x3FFE] == 'o' &
-				cardBanks[cardBanks.length-1].bank[0x3FFF] == 'z') {
+			if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'o' &
+				cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'z') {
 				displayRtmMessage("File Card was inserted into slot " + slot, false);
 			} else {
 				throw new IOException("This is not a Z88 Application Card nor a File Card.");
@@ -1541,65 +1470,13 @@ public final class Blink extends Z80 {
 					cardBank < slotCards[slot].length;
 					cardBank++) {
 					Bank b = slotCards[slot][cardBank];
-					for (int bankOffset = 0;
-						bankOffset < Bank.SIZE;
-						bankOffset++) {
-						b.bank[bankOffset] = 0;
+					for (int bankOffset = 0; bankOffset < Bank.SIZE; bankOffset++) {
+						b.setByte(bankOffset, 0);
 					}
 				}
 			}
 		}
 	}
-
-	/**
-	 * This class represents a 16K memory block or bank of memory.
-	 * The characteristics of a bank can be that it's part of a Ram card (or the
-	 * internal memory of the Z88), an Eprom card or a 1MB Flash Card.
-	 */
-	private final class Bank {
-		private static final int RAM = 0;		// 32Kb, 128Kb, 512Kb, 1Mb
-		private static final int ROM = 1;		// 128Kb
-		private static final int EPROM = 2;		// 32Kb, 128Kb & 256Kb
-		private static final int FLASH = 3;		// 1Mb Flash
-		private static final int SIZE = 16384;	// Always 16384 bytes in a bank
-
-		private int type;
-		private int bank[];
-
-		Bank() {
-			type = Bank.RAM;
-			bank = new int[Bank.SIZE];	// all default memory cells are 0.
-		}
-
-		Bank(int banktype) {
-			type = banktype;
-			bank = new int[Bank.SIZE];
-
-			if (type != Bank.RAM) {
-				for (int i=0; i<memory.length; i++)
-					bank[i] = 0xFF;	// empty Eprom or Flash stores FF's
-			}
-		}
-
-		private int getType() {
-			return type;
-		}
-
-		/**
-		 * Load bytes from buffer array of block.length
-		 * to bank offset, onwards.
-		 * Naturally, loading is only allowed inside 16Kb boundary.
-		 */
-		private void loadBytes(byte[] block, int offset) {
-			offset %= Bank.SIZE;	// stay within boundary..
-			int length = (offset+block.length) > Bank.SIZE ? Bank.SIZE-offset : block.length;
-
-			int bufidx=0;
-			while(length-- > 0)
-				bank[offset++] = block[bufidx++] & 0xFF;
-		}
-	} /* Bank */
-
 
 	public void startInterrupts() {
 		z80Int.start();
