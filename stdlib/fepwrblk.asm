@@ -155,7 +155,7 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Write Block to BHL (bound into segment C), in slot x, of BC' length.
+; Write Block to BHL (to be bound into segment C), in slot x, of IY length.
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
