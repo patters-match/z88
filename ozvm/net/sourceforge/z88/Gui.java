@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import javax.swing.JLabel;
 import java.awt.Dimension;
+
+import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -39,6 +41,7 @@ import java.awt.Color;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ButtonGroup;
@@ -48,6 +51,8 @@ import javax.swing.ButtonGroup;
  */
 public class Gui extends JFrame {
 
+	private JMenuItem createSnapshotMenuItem;
+	private JMenuItem loadSnapshotMenuItem;
 	private static final class singletonContainer {
 		static final Gui singleton = new Gui();
 	}
@@ -245,6 +250,12 @@ public class Gui extends JFrame {
 			fileMenu.setText("File");
 
 			fileMenu.add(getFileDebugMenuItem());
+
+			fileMenu.addSeparator();
+			fileMenu.add(getLoadSnapshotMenuItem());
+			fileMenu.add(getCreateSnapshotMenuItem());
+
+			fileMenu.addSeparator();
 			fileMenu.add(getFileExitMenuItem());
 		}
 
@@ -446,6 +457,54 @@ public class Gui extends JFrame {
 		return seLayoutMenuItem;
 	}
 
+	private JMenuItem getLoadSnapshotMenuItem() {
+		if (loadSnapshotMenuItem == null) {
+			loadSnapshotMenuItem = new JMenuItem();
+			loadSnapshotMenuItem.setText("Load snapshot");
+			
+			loadSnapshotMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					SaveRestoreVM srVM = new SaveRestoreVM();  
+					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
+					chooser.setDialogTitle("Load Z88 snaphot");
+					chooser.setMultiSelectionEnabled(false);
+					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					chooser.setFileFilter(srVM.getSnapshotFilter());
+					Blink.getInstance().stopZ80Execution();
+					
+					int returnVal = chooser.showOpenDialog(getContentPane().getParent());
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						String fileName = chooser.getSelectedFile().getAbsolutePath();
+						
+						if (srVM.loadSnapShot(fileName) == true)
+							displayRtmMessage("Snapshot successfully installed from " + fileName);
+						else {
+							displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");
+					    	Memory.getInstance().setDefaultSystem();
+					    	Blink.getInstance().reset();				
+					    	Blink.getInstance().resetBlinkRegisters();							
+						}					
+					}					
+
+					OZvm.getInstance().runZ80Engine(-1);
+				}
+			});
+		}
+		return loadSnapshotMenuItem;
+	}
+	
+	private JMenuItem getCreateSnapshotMenuItem() {
+		if (createSnapshotMenuItem == null) {
+			createSnapshotMenuItem = new JMenuItem();
+			createSnapshotMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+				}
+			});
+			createSnapshotMenuItem.setText("Create snapshot");
+		}
+		return createSnapshotMenuItem;
+	}
+	
 	/**
 	 * This method initializes the main z88 window with screen menus,
 	 * runtime messages and keyboard.
@@ -484,5 +543,5 @@ public class Gui extends JFrame {
 				System.exit(0);
 			}
 		});
-	}
+	}	
 }
