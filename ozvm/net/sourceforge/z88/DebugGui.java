@@ -109,6 +109,7 @@ public class DebugGui extends JFrame {
 			jCmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			jCmdOutput.setBackground(Color.BLACK);
 			jCmdOutput.setForeground(Color.GREEN);
+			jCmdOutput.setTabSize(1);
 			jCmdOutput.setEditable(false);
 			jCmdOutput.setToolTipText("This area displays debug command output.");
 			jCmdOutput.setVisible(true);
