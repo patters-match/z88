@@ -1185,18 +1185,18 @@ public final class Blink extends Z80 {
 		rtcElapsedTime += getBlinkTim4() * 65536 * 60 * 1000;  // convert from 64K min to ms.
 		rtcElapsedTime += (System.currentTimeMillis() - getZ88StoppedAtTime()); // add host system elapsed time...
 		
-	    setBlinkTim4((int) (rtcElapsedTime / 65536 / 60 / 1000));
+	    setBlinkTim4( ((int) (rtcElapsedTime / 65536 / 60 / 1000)) & 0xFF);
 	    
-		setBlinkTim3((int) (((rtcElapsedTime / 1000 / 60) - (getBlinkTim4() * 65536)) / 256));
+		setBlinkTim3( ((int) (((rtcElapsedTime / 1000 / 60) - (getBlinkTim4() * 65536)) / 256)) & 0xFF);
 		
-		setBlinkTim2((int) (((rtcElapsedTime / 1000 / 60) - (getBlinkTim4() * 65536)) - (getBlinkTim3() * 256)));
+		setBlinkTim2( ((int) (((rtcElapsedTime / 1000 / 60) - (getBlinkTim4() * 65536)) - (getBlinkTim3() * 256))) & 0xFF);
 		
-		setBlinkTim1((int) (((rtcElapsedTime / 1000) - (getBlinkTim4() * 65536 * 60)) - 
-						(getBlinkTim3() * 256 * 60) - getBlinkTim2() * 60));
+		setBlinkTim1( ((int) (((rtcElapsedTime / 1000) - (getBlinkTim4() * 65536 * 60)) - 
+						(getBlinkTim3() * 256 * 60) - getBlinkTim2() * 60)) & 0xFF);
 		
-		setBlinkTim0( (int) (((rtcElapsedTime - (getBlinkTim4() * 65536 * 60 * 1000)) - 
+		setBlinkTim0( ((int) (((rtcElapsedTime - (getBlinkTim4() * 65536 * 60 * 1000)) - 
 						(getBlinkTim3() * 256 * 60 * 1000) - (getBlinkTim2() * 60 * 1000) - 
-						(getBlinkTim1() * 1000)) / 5));
+						(getBlinkTim1() * 1000)) / 5)) & 0xFF);
 	}
 	
     /**
