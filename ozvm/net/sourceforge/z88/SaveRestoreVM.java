@@ -29,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileFilter;
 
 import net.sourceforge.z88.datastructures.SlotInfo;
 
@@ -291,15 +292,22 @@ public class SaveRestoreVM {
 	    
 	        // start with loading the properties...
 	        ze = zf.getEntry("snapshot.settings");
-	        properties.load(zf.getInputStream(ze));
+	        if (ze != null)
+	        	properties.load(zf.getInputStream(ze));
+	        else 
+	        	return false;
 	        
 	        ze = zf.getEntry("rom.bin"); // default slot 0 ROM
 	        if (ze != null) 
 	        	memory.loadRomBinary((int) ze.getSize(), zf.getInputStream(ze));
+	        else
+	        	return false;
 
 	        ze = zf.getEntry("ram.bin"); // default slot 0 RAM
 	        if (ze != null) 
 	        	memory.loadCardBinary(0, (int) ze.getSize(), SlotInfo.RamCard, zf.getInputStream(ze));
+	        else
+	        	return false;
 			
 	        for (int slotNo=1; slotNo<=3; slotNo++) {
 		        ze = zf.getEntry("slot" + slotNo + ".bin");
@@ -348,10 +356,87 @@ public class SaveRestoreVM {
 	        	Gui.getInstance().displayZ88Keyboard(dispZ88Kb);
 	        }      
 	        
+	        zf.close();
 	        return true;
 	        
 	    } catch (IOException e) {
 	    	return false;
 	    }		
+	}	
+
+	/** 
+	 * Get a JFileChooser filter for Z88 snapshot files
+	 */
+	public SnapshotFilter getSnapshotFilter() {
+		return new SnapshotFilter();
+	}
+	
+	/**
+	 * JFileChooser filter to validate z88 snapshot files
+	 */
+	private class SnapshotFilter extends FileFilter {
+
+	    /** Accept all directories and z88 files */
+	    public boolean accept(File f) {
+	        if (f.isDirectory()) {
+	            return true;
+	        }
+
+	        String extension = getExtension(f);
+	        if (extension != null) {
+	            if (extension.equalsIgnoreCase("z88") == true) {
+	        		ZipFile zf;
+	        		ZipEntry ze;
+	        		Properties properties = new Properties();
+	        		
+	        		try {
+	        	        // Try to open the snapshot (Zip) file
+	        	        zf = new ZipFile(f);
+	        	    
+//	        	        // try to load the properties...
+//	        	        ze = zf.getEntry("snapshot.settings");
+//	        	        if (ze != null)
+//	        	        	properties.load(zf.getInputStream(ze));
+//	        	        else 
+//	        	        	return false;
+//	        	        
+//	        	        ze = zf.getEntry("rom.bin");
+//	        	        if (ze == null) 
+//	        	        	return false;
+	        	        
+	        	        zf.close();
+	        		} catch (IOException e) {
+	        			return false;
+	        		}
+
+	        		// the Zip file was polled successfully.
+	            	return true;
+	            	
+	            } else {
+	            	// ignore files that doesn't use the 'z88' extension.
+	                return false;
+	            }
+	        }
+
+	        // file didn't have an extension...
+	        return false;
+	    }
+
+	    /** The description of this filter */
+	    public String getDescription() {
+	        return "Z88 snapshot files";
+	    }
+
+	    /** Get the extension of a file */  
+	    private String getExtension(File f) {
+	        String ext = null;
+	        String s = f.getName();
+	        int i = s.lastIndexOf('.');
+
+	        if (i > 0 &&  i < s.length() - 1) {
+	            ext = s.substring(i+1).toLowerCase();
+	        }
+	        return ext;
+	    }	    
 	}	
 }
