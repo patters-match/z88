@@ -25,6 +25,8 @@
      lib CreateWindow, GreyApplWindow
      lib IntHex
 
+     xdef FlashTest_DOR
+     
      include "stdio.def"
      include "fileio.def"
      include "flashepr.def"
@@ -66,7 +68,7 @@ IF !DEBUG
                     DEFW 0                        ;
                     DEFW 0                        ; Unsafe workspace
                     DEFW 0                        ; Safe workspace
-                    DEFW AppEntry                 ; Entry point of code in seg. 3
+                    DEFW FlashTest_AppEntry       ; Entry point of code in seg. 3
                     DEFB 0                        ; bank binding to segment 0 (none)
                     DEFB 0                        ; bank binding to segment 1 (none)
                     DEFB 0                        ; bank binding to segment 2 (none)
@@ -98,12 +100,39 @@ endif
 
 ; ******************************************************************************
 ;
-.AppEntry
+.FlashTest_AppEntry
+                    
                     CALL CheckFlashCard
                     JP   C, exit_application ; no Eprom in slot 3...
 
-                    CALL CreateLogFile       ; Create CLI "/eprlog"
                     CALL EprTestWindow       ; Create Window with banner
+
+                    LD   HL, check_msg
+                    CALL_OZ(Gn_Sop)          ; user must enter 'asdf' or press ESC to abort
+                    LD   HL,Buffer           
+                    LD   (HL),0
+                    EX   DE,HL
+
+                    LD   A,@00100011
+                    LD   BC,$2000
+                    LD   L,$20
+                    CALL_OZ gn_sip           ; the actual keyboard input...
+                    JP   C, exit_application
+
+                    LD   HL, Buffer          ; validate the input 
+                    LD   DE, inputvalidate   ; with the 'asdf' sequence
+.check_loop
+                    LD   A,(DE)
+                    OR   A
+                    JR   Z, start_flashtest  ; found the zero byte terminator, user input OK
+                    CP   (HL)
+                    INC  HL
+                    INC  DE
+                    JR   Z, check_loop      ; match found, check next letter.
+                    JP   exit_application
+                    
+.start_flashtest
+                    CALL CreateLogFile       ; Create CLI "/eprlog"
 
                     CALL_OZ(Gn_Nln)
                     CALL_OZ(Gn_Nln)
@@ -122,6 +151,9 @@ endif
                     CALL_OZ(OS_In)
                     JP   exit_application
 
+.inputvalidate      DEFM "asdf", 0
+.check_msg          DEFM "This will erase your flash chip in slot 3.", 13, 10
+                    DEFM "Type ESC to QUIT, or enter 'asdf' to acknowledge the test.", 13, 10, 0
 
 ; ******************************************************************
 ; Perform the test of the inserted Flash Card...
