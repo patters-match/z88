@@ -49,7 +49,6 @@ if MSDOS | LINUX
      include "fileio.def"
      include "interrpt.def"
      include "flashepr.def"
-     include "flstore.def"
      include "dor.def"
 endif
 
@@ -59,7 +58,7 @@ endif
 lib CreateFilename            ; Create file(name) (OP_OUT) with path
 lib CreateWindow              ; Create windows...
 lib RamDevFreeSpace           ; poll for free space on RAM device
-lib ApplEprType               ; check for prescence application card
+lib ApplEprType               ; check for prescence application card in slot
 lib CheckBattLow              ; Check Battery Low condition
 lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
 lib FlashEprCardId            ; Return Intel Flash Eprom Device Code (if card available)
@@ -68,7 +67,7 @@ lib FlashEprWriteBlock        ; Write a block of byte to Flash Eprom
 lib FlashEprStdFileHeader     ; Write std. File Eprom Header on Flash Eprom.
 lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
 lib FlashEprFileSave          ; Save RAM file to Flash Eprom
-lib FileEprType               ; Check for presence of Standard File Eprom (format)
+lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
 lib FileEprFreeSpace          ; Return free space on File Eprom
 lib FileEprCntFiles           ; Return total of active and deleted files
 lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
@@ -320,7 +319,7 @@ ENDIF
                     ld   e,0                 ; counter of available file eproms
 .poll_loop
                     ld   c,d
-                    call FileEprType
+                    call FileEprRequest      ; File Eprom Card or area available in slot C?
                     jr   c, no_fileepr
                          inc  e              ; File Eprom found
                          pop  hl
@@ -415,7 +414,7 @@ ENDIF
 
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprType
+                    call FileEprRequest
                     jr   c, poll_for_ram_card
                          ld   hl, eprdev          ; c = size of File Area
                          jr   slotsize
@@ -629,7 +628,7 @@ ENDIF
 
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprType
+                    call FileEprRequest
                     jr   nc, cont_statistics
                          ld   hl, nofepr_ms
                          call_oz (Gn_Sop)
@@ -715,7 +714,7 @@ ENDIF
 
                     ld   a,(curslot)
                     ld   c,a
-                    CALL FileEprType
+                    CALL FileEprRequest
 
                     LD   H,0
                     LD   L,C            ; total of banks as defined by File Eprom Header
@@ -826,7 +825,7 @@ ENDIF
 .init_save_main
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprType
+                    call FileEprRequest
                     ret  c
 
                     ld   hl,0
@@ -1134,7 +1133,7 @@ ENDIF
 .fetch_main
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprType
+                    call FileEprRequest
                     ret  c
 
                     call cls
@@ -1276,7 +1275,7 @@ ENDIF
 .restore_main
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprType
+                    call FileEprRequest
                     ret  c
 
                     CALL cls
@@ -1542,7 +1541,7 @@ ENDIF
 .catalog_main
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprType
+                    call FileEprRequest
                     ret  c                        ; abort - FE apparently not available...
 
                     call cls
@@ -1650,7 +1649,7 @@ ENDIF
 .new_page
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprType                   
+                    call FileEprRequest                   
                     jr   nc,ok_new_page
                     ld   a,rc_fail
                     CALL_OZ gn_err
@@ -1725,7 +1724,7 @@ ENDIF
                     call wbar                     ; "Format Flash eprom" head line
 
                     LD   C,3
-                    CALL FileEprType
+                    CALL FileEprRequest
                     JR   NC, area_found
                          LD   C,3
                          CALL ApplEprType
