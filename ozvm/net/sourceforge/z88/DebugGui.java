@@ -29,14 +29,6 @@ import javax.swing.JFrame;
  * Gui framework OZvm debugging mode.
  */
 public class DebugGui extends JFrame {
-
-	private static final class singletonContainer {
-		static final DebugGui singleton = new DebugGui();  
-	}
-	
-	public static DebugGui getInstance() {
-		return singletonContainer.singleton;
-	}
 	
 	private javax.swing.JMenuBar jJMenuBar = null;
 	private javax.swing.JMenu jFileMenu = null;  
@@ -67,7 +59,13 @@ public class DebugGui extends JFrame {
 		this.setForeground(java.awt.Color.green);
 		this.pack();
 		this.setVisible(true);
-		
+
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			public void windowClosing(java.awt.event.WindowEvent e) {
+				OZvm.getInstance().commandLine(false);
+			}
+		});		
+				
 		getCmdLineInputArea().grabFocus();	// make sure that caret is blinking in command line area...		
 	}
 	

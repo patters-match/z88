@@ -63,8 +63,10 @@ public class CommandLine implements KeyListener {
 	/**
 	 * Constructor 
 	 */
-	public CommandLine() {
-		debugGui = DebugGui.getInstance();
+	public CommandLine(Thread z80Engine) {
+		z80Thread = z80Engine;
+		
+		debugGui = new DebugGui();
 		z88 = Blink.getInstance();
 		memory = Memory.getInstance();
 		
@@ -75,6 +77,10 @@ public class CommandLine implements KeyListener {
 		initDebugMode();
 	}
 
+	public DebugGui getDebugGui() {
+		return debugGui;
+	}
+	
 	private	void initDebugMode() {
 		commandInput = debugGui.getCmdLineInputArea();
 		commandInput.addActionListener(new java.awt.event.ActionListener() {

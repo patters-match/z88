@@ -1169,7 +1169,7 @@ public class Z88Keyboard {
 
 				case KeyEvent.VK_F12:
 					if (OZvm.debugMode == true) { 
-						DebugGui.getInstance().getCmdLineInputArea().grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
+						OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
 					}
 					break;
 

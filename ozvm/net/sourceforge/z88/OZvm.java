@@ -50,6 +50,7 @@ public class OZvm {
 	private	Blink z88 = null;
 	private	Memory memory =	null;
 	private CommandLine cmdLine = null;
+	private Thread z80Engine = null;
 
 	private OZvm() {
 		z88 = Blink.getInstance();
@@ -190,24 +191,22 @@ public class OZvm {
 					}
 
 					if (arg<args.length && (args[arg].compareTo("debug") ==	0)) {
-						debugMode = true;
-						cmdLine = new CommandLine();
+						commandLine(true);
 						arg++;
 						continue;
 					}
 
 					if (arg<args.length && (args[arg].compareTo("initdebug") == 0))	{
-						debugMode = true;
-						cmdLine = new CommandLine();
+						commandLine(true);
 
 						file = new RandomAccessFile(args[arg+1], "r");
-						DebugGui.getInstance().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
+						cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
 						String cmd = null;
 						while (	(cmd = file.readLine())	!= null) {
 							cmdLine.parseCommandLine(cmd);
 							Thread.yield();
 						}
-						DebugGui.getInstance().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
+						cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
 						file.close();
 						Gui.displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
 
@@ -268,6 +267,22 @@ public class OZvm {
 		}
 	}
 
+	public void commandLine(boolean status) {				
+		if (status == true) {
+			if (debugMode == true)
+				cmdLine.getDebugGui().getCmdLineInputArea().grabFocus();
+			else
+				cmdLine = new CommandLine(z80Engine);
+		} else
+			cmdLine = null;
+		
+		debugMode = status;
+	}
+	
+	public CommandLine getCommandLine() {
+		return cmdLine; 
+	}
+
 	/**
 	 * Execute a Z80 thread.
 	 * 
@@ -278,7 +293,7 @@ public class OZvm {
 		Gui.displayRtmMessage("Z88 virtual machine was started.");
 		System.gc(); //	try to garbage collect...
 		
-		Thread thread =	new Thread() {
+		z80Engine =	new Thread() {
 			public void run() {
 				Breakpoints breakPointManager = Breakpoints.getInstance();
 
@@ -302,19 +317,19 @@ public class OZvm {
 
 				if (cmdLine != null) {
 					cmdLine.displayCmdOutput(Z88Info.dzPcStatus(z88.PC()));
-					DebugGui.getInstance().getCmdLineInputArea().setText(Dz.getNextStepCommand());
-					DebugGui.getInstance().getCmdLineInputArea().setCaretPosition(DebugGui.getInstance().getCmdLineInputArea().getDocument().getLength());
-					DebugGui.getInstance().getCmdLineInputArea().selectAll();
-					DebugGui.getInstance().getCmdLineInputArea().grabFocus();	// Z88 is stopped, get focus to	debug command line.
+					cmdLine.getDebugGui().getCmdLineInputArea().setText(Dz.getNextStepCommand());
+					cmdLine.getDebugGui().getCmdLineInputArea().setCaretPosition(cmdLine.getDebugGui().getCmdLineInputArea().getDocument().getLength());
+					cmdLine.getDebugGui().getCmdLineInputArea().selectAll();
+					cmdLine.getDebugGui().getCmdLineInputArea().grabFocus();	// Z88 is stopped, get focus to	debug command line.
 				}
 			}
 		};
 
-		thread.setPriority(Thread.NORM_PRIORITY	- 1); // execute the Z80 engine	just below normal thread priority...
-		thread.start();
+		z80Engine.setPriority(Thread.NORM_PRIORITY	- 1); // execute the Z80 engine	just below normal thread priority...
+		z80Engine.start();
 		Thread.yield();	// the command line is not that	important right	now...
 
-		return thread;
+		return z80Engine;
 	}
 
 
@@ -323,7 +338,7 @@ public class OZvm {
 	 * (No breakpoints are defined by default)
 	 */
 	public void bootZ88Rom() {
-		runZ80Engine(-1);
+		z80Engine = runZ80Engine(-1);
 	}
 	
 	public static void main(String[] args) {
@@ -346,7 +361,7 @@ public class OZvm {
 			ozvm.bootZ88Rom();
 			Z88display.getInstance().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
-			DebugGui gg = DebugGui.getInstance();
+			ozvm.commandLine(true);
 		}
 	}
 }

@@ -2121,7 +2121,17 @@ public class Gui extends JFrame {
 		if (fileDebugMenuItem == null) {
 			fileDebugMenuItem = new JMenuItem();
 			fileDebugMenuItem.setMnemonic(KeyEvent.VK_D);
-			fileDebugMenuItem.setText("Debug Mode");
+			fileDebugMenuItem.setText("Debug Command Line");
+			
+			fileDebugMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (OZvm.getInstance().getCommandLine() == null)
+						OZvm.getInstance().commandLine(true);
+					else {
+						OZvm.getInstance().getCommandLine().getDebugGui().toFront();
+					}
+				}
+			});
 		}
 		
 		return fileDebugMenuItem;
@@ -2130,6 +2140,11 @@ public class Gui extends JFrame {
 	private JMenuItem getFileExitMenuItem() {
 		if (fileExitMenuItem == null) {
 			fileExitMenuItem = new JMenuItem();
+			fileExitMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					System.exit(0);
+				}
+			});
 			fileExitMenuItem.setMnemonic(KeyEvent.VK_E);
 			fileExitMenuItem.setText("Exit");
 		}
