@@ -1241,13 +1241,15 @@ public final class Blink extends Z80 {
 		if ((bits & Blink.BM_COMVPPON) == Blink.BM_COMVPPON) {
 			// Enable VPP pin on Eprom / Flash chip in slot 3, if available.
 			if (memory[0xFF].isVppPinEnabled() == false & 
-				(memory[0xFF].getType() == Bank.EPROM | memory[0xFF].getType() == Bank.FLASH)) {
+				(memory[0xFF].getType() == Bank.EPROM_32KB | 
+				memory[0xFF].getType() == Bank.EPROM_128KB  | memory[0xFF].getType() == Bank.FLASH)) {
 				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(true);
 			}
 		} else {
 			// Disable VPP pin on Eprom / Flash chip in slot 3, if available and previously enabled...
 			if (memory[0xFF].isVppPinEnabled() == true & 
-					(memory[0xFF].getType() == Bank.EPROM | memory[0xFF].getType() == Bank.FLASH)) {
+				(memory[0xFF].getType() == Bank.EPROM_32KB | 
+				memory[0xFF].getType() == Bank.EPROM_128KB  | memory[0xFF].getType() == Bank.FLASH)) {
 				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(false);
 			}			
 		}
@@ -1305,6 +1307,7 @@ public final class Blink extends Z80 {
 		loadCard(ramBanks, slot); // load the physical card into Z88 memory
 	}
 
+
 	/**
 	 * Load ROM image (from opened file ressource) into Z88 memory system, slot 0.
 	 *
@@ -1354,6 +1357,8 @@ public final class Blink extends Z80 {
 	 * @throws IOException
 	 */
 	public void loadCardBinary(int slot, RandomAccessFile card) throws IOException {
+		int defaultType = Bank.EPROM_128KB;
+		
 		if (card.length() > (1024 * 1024)) {
 			throw new IOException("Max 1024K Card!");
 		}
@@ -1366,8 +1371,27 @@ public final class Blink extends Z80 {
 		byte bankBuffer[] = new byte[Bank.SIZE];
 		// allocate intermediate load buffer
 
+		switch(cardBanks.length) {
+			case 1:
+			case 2:
+				defaultType = Bank.EPROM_32KB;
+				break;
+			case 8:
+			case 16:
+				defaultType = Bank.EPROM_128KB;
+				break;
+			case 64:
+				defaultType = Bank.FLASH;
+				break;
+			default:
+				// all other sizes will be interpreted as UV EPROM's 
+				// that can be programmed using 128K type specs.
+				defaultType = Bank.EPROM_128KB;
+				break;
+		}
+		
 		for (int curBank = 0; curBank < cardBanks.length; curBank++) {
-			cardBanks[curBank] = new Bank(Bank.EPROM);
+			cardBanks[curBank] = new Bank(defaultType);
 			card.readFully(bankBuffer); // load 16K from file, sequentially
 			cardBanks[curBank].loadBytes(bankBuffer, 0);
 			// and load fully into bank
