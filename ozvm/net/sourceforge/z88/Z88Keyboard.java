@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 
 /**
@@ -32,6 +33,8 @@ public class Z88Keyboard implements KeyListener {
 	public static final int COUNTRY_CH = 11;	// Keyboard layout for Schweiz
 	public static final int COUNTRY_TR = 12;	// Keyboard layout for Turkey
 
+	private JTextField commandInput = null;
+	
     private Map currentLayout = null;
     private Map[] z88Keyboards = null;			// country specific keyboard layouts
 
@@ -71,11 +74,12 @@ public class Z88Keyboard implements KeyListener {
 
 
     /**
-     * Create the instance to bind the blink and SWT widget together.
+     * Create the instance to bind the blink and Swing widget together.
      *
      */
-	public Z88Keyboard(Blink bl, JPanel cnv) {
+	public Z88Keyboard(Blink bl, JPanel cnv, JTextField cmdInput) {
 		blink = bl;
+		commandInput = cmdInput;
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
 
@@ -1109,6 +1113,14 @@ public class Z88Keyboard implements KeyListener {
 				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) pressZ88key(z88RshKey);
 				break;
 
+			case KeyEvent.VK_F5:
+				if (blink.isDebugMode() == true) blink.stopZ80Execution();
+				break;
+
+			case KeyEvent.VK_F12:
+				commandInput.grabFocus();		// Use F12 to toggle between debugger command input and Z88 kb input 
+				break;
+
 			case KeyEvent.VK_CONTROL:
 				pressZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key
 				break;
@@ -1188,9 +1200,6 @@ public class Z88Keyboard implements KeyListener {
 		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
-			case KeyEvent.VK_F5:
-				if (blink.isDebugMode() == true) blink.stopZ80Execution();
-				break;
 
 			case KeyEvent.VK_SHIFT:
 				// check if left or right SHIFT were pressed
