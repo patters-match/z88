@@ -135,7 +135,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @param bits
 	 */
-	public void setInt(int bits) {
+	public void setBlinkInt(int bits) {
 //		System.out.println(((bits & Blink.BM_INTKWAIT) == Blink.BM_INTKWAIT) ? "INT.KWAIT enabled" : "INT.KWAIT disabled");
 //		System.out.println(((bits & Blink.BM_INTKEY) == Blink.BM_INTKEY) ? "INT.KEY enabled" : "INT.KEY disabled");
 		INT = bits;
@@ -157,7 +157,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @return INT Blink Register
 	 */
-   	public int getInt() {
+   	public int getBlinkInt() {
 		return INT;
 	}
 
@@ -190,7 +190,25 @@ public final class Blink extends Z80 {
 	 * 
 	 * @param bits
 	 */
-	public void setAck(int bits) {
+	public void setBlinkAck(int bits) {
+		ACK = bits;
+		
+		STA &= ~bits;	// reset Blink occurred interrupts according to acknowledge...
+	}
+
+   	/**
+	 * Get Main Blink Interrupt Acknowledge (ACK), Z80 OUT Register
+	 * 
+	 * <PRE>
+	 * BIT 6, A19    Acknowledge active high on A19 
+	 * BIT 5, FLAP   Acknowledge Flap interrupts
+	 * BIT 3, BTL    Acknowledge battery low interrupt
+	 * BIT 2, KEY    Acknowledge keyboard interrupt
+	 * </PRE>
+	 * 
+	 * @param bits
+	 */
+	public void getBlinkAck(int bits) {
 		ACK = bits;
 		
 		STA &= ~bits;	// reset Blink occurred interrupts according to acknowledge...
@@ -234,7 +252,7 @@ public final class Blink extends Z80 {
 	 * Bit 0, not defined.
 	 * </PRE>
 	 */
-	public int getSta() {
+	public int getBlinkSta() {
 		return STA;
 	}
 	
@@ -249,7 +267,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @return TSTA
 	 */
-	public int getTsta() {
+	public int getBlinkTsta() {
         return rtc.TSTA;
 	}
 
@@ -262,7 +280,7 @@ public final class Blink extends Z80 {
 	 * BIT 0, TICK, Set to acknowledge tick interrupt
 	 * </PRE>
 	 */
-	public void setTack(int bits) {
+	public void setBlinkTack(int bits) {
 		rtc.TACK = bits;
 
 		rtc.TSTA &= ~bits; 		// reset appropriate TSTA bits (the prev. raised interrupt get cleared) 
@@ -278,7 +296,7 @@ public final class Blink extends Z80 {
 	 * BIT 0, TICK, Set enable tick interrupt
 	 * </PRE>
 	 */
-	public void setTmk(int bits) {
+	public void setBlinkTmk(int bits) {
 		rtc.TMK = bits;
 	}
 
@@ -287,7 +305,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @return int
 	 */
-	public int getTim0() {
+	public int getBlinkTim0() {
 		return rtc.TIM0;
 	}
 
@@ -296,7 +314,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @return int
 	 */
-	public int getTim1() {
+	public int getBlinkTim1() {
 		return rtc.TIM1;
 	}
 
@@ -305,7 +323,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @return int
 	 */
-	public int getTim2() {
+	public int getBlinkTim2() {
 		return rtc.TIM2;
 	}
 
@@ -314,7 +332,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @return int
 	 */
-	public int getTim3() {
+	public int getBlinkTim3() {
 		return rtc.TIM3;
 	}
 
@@ -323,7 +341,7 @@ public final class Blink extends Z80 {
 	 * 
 	 * @return int
 	 */
-	public int getTim4() {
+	public int getBlinkTim4() {
 		return rtc.TIM4;
 	}
 
@@ -337,7 +355,7 @@ public final class Blink extends Z80 {
 	 * Set LORES0 (PB0, 16bits).<br>
 	 * The 6 * 8 pixel per char User Defined Fonts.
 	 */
-	public void setPb0(int bits) {
+	public void setBlinkPb0(int bits) {
 		PB0 = bits;
 	}
 
@@ -345,7 +363,7 @@ public final class Blink extends Z80 {
 	 * Get Address of LORES0 (PB0) in 24bit extended address format.<br>
 	 * The 6 * 8 pixel per char User Defined Fonts.
 	 */	
-	public int getPb0() {
+	public int getBlinkPb0() {
 		int extAddressBank = (PB0 << 3) & 0xF700;
 		int extAddressOffset = (PB0 << 1) & 0x003F;
 
@@ -362,7 +380,7 @@ public final class Blink extends Z80 {
 	 * Set LORES1 (PB1, 16bits).<br>
 	 * The 6 * 8 pixel per char fonts.
 	 */
-	public void setPb1(int bits) {
+	public void setBlinkPb1(int bits) {
 		PB1 = bits;
 	}
 
@@ -370,7 +388,7 @@ public final class Blink extends Z80 {
 	 * Get Address of LORES1 (PB1) in 24bit extended address format.<br>
 	 * The 6 * 8 pixel per char fonts.
 	 */	
-	public int getPb1() {
+	public int getBlinkPb1() {
 		int extAddressBank = (PB1 << 6) & 0xFF00;
 		int extAddressOffset = (PB1 << 4) & 0x0030;
 
@@ -387,7 +405,7 @@ public final class Blink extends Z80 {
 	 * Set HIRES0 (PB2) (16bits)
 	 * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
 	 */
-	public void setPb2(int bits) {
+	public void setBlinkPb2(int bits) {
 		PB2 = bits;
 	}
 
@@ -395,7 +413,7 @@ public final class Blink extends Z80 {
 	 * Get Address of HIRES0 (PB2) in 24bit extended address format.
 	 * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
 	 */	
-	public int getPb2() {
+	public int getBlinkPb2() {
 		int extAddressBank = (PB2 << 7) & 0xFF00;
 		int extAddressOffset = (PB2 << 5) & 0x0020;
 
@@ -412,7 +430,7 @@ public final class Blink extends Z80 {
 	 * Set HIRES1 (PB3) (16bits)
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */
-	public void setPb3(int bits) {
+	public void setBlinkPb3(int bits) {
 		PB3 = bits;
 	}
 
@@ -420,7 +438,7 @@ public final class Blink extends Z80 {
 	 * Get Address of HIRES1 (PB3) in 24bit extended address format.
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */	
-	public int getPb3() {
+	public int getBlinkPb3() {
 		int extAddressBank = (PB3 << 5) & 0xFF00;
 		int extAddressOffset = (PB3 << 3) & 0x0038;
 
@@ -439,7 +457,7 @@ public final class Blink extends Z80 {
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
-	public void setSbr(int bits) {
+	public void setBlinkSbr(int bits) {
 		SBR = bits;
 	}
 
@@ -448,13 +466,12 @@ public final class Blink extends Z80 {
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
-	public int getSbr() {
+	public int getBlinkSbr() {
 		int extAddressBank = (SBR << 5) & 0xFF00;
 		int extAddressOffset = (SBR << 3) & 0x0038;
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
-
 
 	private int keybRowA15 = 0xFF;	// Keyboard scan Row 7F (01111111)
 	private int keybRowA14 = 0xFF;	// Keyboard scan Row BF (10111111)
@@ -480,7 +497,7 @@ public final class Blink extends Z80 {
 	 * @param row
 	 * @return int
 	 */
-	public int getKbd(int row) {
+	public int getBlinkKbd(int row) {
 		int keyColumn = 0xFF;	// Default to no keys pressed...
         
 		do {
@@ -945,20 +962,20 @@ public final class Blink extends Z80 {
 		switch (addrA8) {
 			case 0xB1:				
                 if ((INT & BM_INTGINT) == BM_INTGINT) {
-                    res = getSta();		// STA, Main Blink Interrupt Status
+                    res = getBlinkSta();		// STA, Main Blink Interrupt Status
                 } else {
                     res = 0;            // no interrupts gets out of BLINK
                 }
 				break;
 				
 			case 0xB2:
-				res = getKbd(addrA15);	// KBD, get Keyboard column for specified row.
+				res = getBlinkKbd(addrA15);	// KBD, get Keyboard column for specified row.
 				break;
 				
 			case 0xB5:
                 if ((INT & BM_INTGINT) == BM_INTGINT) {
                     if ((INT & BM_INTTIME) == BM_INTTIME) {
-                        res = getTsta();	// RTC interrupts are enabled, so TSTA is active...
+                        res = getBlinkTsta();	// RTC interrupts are enabled, so TSTA is active...
                     } else {
                         res = 0;			// RTC interrupts are disabled...
                     }
@@ -968,23 +985,23 @@ public final class Blink extends Z80 {
 				break;
 
             case 0xD0:
-				res = getTim0();	// TIM0, 5ms period, counts to 199  
+				res = getBlinkTim0();	// TIM0, 5ms period, counts to 199  
 				break;
 				
 			case 0xD1:
-				res = getTim1();	// TIM1, 1 second period, counts to 59  
+				res = getBlinkTim1();	// TIM1, 1 second period, counts to 59  
 				break;
 				
 			case 0xD2:
-				res = getTim2();	// TIM2, 1 minute period, counts to 255  
+				res = getBlinkTim2();	// TIM2, 1 minute period, counts to 255  
 				break;
 				
 			case 0xD3:
-				res = getTim3();	// TIM3, 256 minutes period, counts to 255     
+				res = getBlinkTim3();	// TIM3, 256 minutes period, counts to 255     
 				break;
 				
 			case 0xD4:
-				res = getTim4();	// TIM4, 64K minutes Period, counts to 31        
+				res = getBlinkTim4();	// TIM4, 64K minutes Period, counts to 31        
 				break;
 
 			default :
@@ -1012,43 +1029,43 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0xB0 : // COM, Set Command Register
-				setCom(outByte);
+				setBlinkCom(outByte);
 				break;
 
 			case 0xB1 : // INT, Set Main Blink Interrupts
-				setInt(outByte);
+				setBlinkInt(outByte);
 				break;
 
 			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
-				setTack(outByte);
+				setBlinkTack(outByte);
 				break;
 
 			case 0xB5 : // TMK, Set Timer interrupt Mask
-				setTmk(outByte);
+				setBlinkTmk(outByte);
 				break;
 
 			case 0xB6 : // ACK, Acknowledge Main Interrupts				
-				setAck(outByte);
+				setBlinkAck(outByte);
 				break;
 
 			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
-				setPb0((addrA15 << 8) | outByte);
+				setBlinkPb0((addrA15 << 8) | outByte);
 				break;				
 
 			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
-				setPb1((addrA15 << 8) | outByte);
+				setBlinkPb1((addrA15 << 8) | outByte);
 				break;				
 
 			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
-				setPb2((addrA15 << 8) | outByte);
+				setBlinkPb2((addrA15 << 8) | outByte);
 				break;				
 
 			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
-				setPb3((addrA15 << 8) | outByte);
+				setBlinkPb3((addrA15 << 8) | outByte);
 				break;				
 
 			case 0x74 : // SBR, Screen Base Register 
-				setSbr((addrA15 << 8) | outByte);
+				setBlinkSbr((addrA15 << 8) | outByte);
 				break;				
 		}
 	}
@@ -1140,7 +1157,7 @@ public final class Blink extends Z80 {
 	 *
 	 *	@param bits
 	 */
-	public void setCom(int bits) {
+	public void setBlinkCom(int bits) {
 
 		if (rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
 			// Stop Real Time Clock (RESTIM = 1)
@@ -1175,7 +1192,23 @@ public final class Blink extends Z80 {
 		COM = bits;
 	}
 
-	public final int getCom() {
+	/**
+	 * Get Blink Command Register flags, port $B0.
+	 * 
+	 * <PRE>
+	 *	Bit	7, SRUN
+	 *	Bit	6, SBIT
+	 *	Bit	5, OVERP
+	 *	Bit	4, RESTIM
+	 *	Bit	3, PROGRAM
+	 *	Bit	2, RAMS
+	 *	Bit	1, VPPON
+	 *	Bit	0, LCDON
+	 * </PRE>
+	 *
+	 *	@return COM
+	 */
+	public final int getBlinkCom() {
 		return COM;
 	}
 	
