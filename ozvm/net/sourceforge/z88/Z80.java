@@ -129,8 +129,8 @@ public abstract class Z80 {
         return (A() << 8) | F();
     }
     private final void AF(int word) {
-        A(word >> 8);
-        F(word & 0xff);
+        A(word >>> 8);
+        F(word);
     }
 
     public final int BC() {
