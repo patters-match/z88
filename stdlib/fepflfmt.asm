@@ -94,7 +94,7 @@
                     JR   C,format_error
 
                     LD   HL,$3FC0                 ; BHL = absolute pointer to "oz" header in slot
-                    CP   A                        ; Fc = 0, C = Number of 16K banks of File Eprom
+                    CP   A                        ; Fc = 0, C = Number of 16K banks of File Area
                     POP  DE                       ; ignore old HL
                     POP  DE                       ; ignore old BC
                     POP  DE                       ; original DE restored
