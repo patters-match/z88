@@ -27,7 +27,7 @@ public class Z88display
 	private static final int attrNull = attrHrs | attrRev | attrGry;	// Null character (6x8 pixel blank)
 
 	private Blink blink; 						// access to Blink hardware (memory, screen, keyboard, timers...)
-	private TimerTask render10ms = null;
+	private TimerTask renderPerMs = null;
 
 	private GraphicsEngine gfxe = null;
 	private KeyboardDevice keyboard = null;
@@ -203,8 +203,11 @@ public class Z88display
 		}			 			
 	}
     
+    private void flashCounter() {
+    	
+    }
 	
-	private final class Render10ms extends TimerTask {
+	private final class RenderPerMs extends TimerTask {
 		/**
 		 * Render Z88 Display each 10ms ...
 		 * 
@@ -212,7 +215,8 @@ public class Z88display
 		 */
 		public void run() {
 			try {
-				renderDisplay();
+				flashCounter();		// update cursor flash and ordinary flash counters 
+				renderDisplay();	// then render display...
 			} catch (GameFrameException e) {}
 		}			
 	}
@@ -222,18 +226,18 @@ public class Z88display
 	 * Stop the 10ms screen render polling. 
 	 */
 	public void stop() {
-		if (render10ms != null) {
-			render10ms.cancel();
+		if (renderPerMs != null) {
+			renderPerMs.cancel();
 		}
 	}
 
 
 	/**
 	 * Start screen render polling which executes the run()
-	 * method each 10ms. 
+	 * method each X ms. 
 	 */
 	public void start() {
-		render10ms = new Render10ms();
-		blink.getTimerDaemon().scheduleAtFixedRate(render10ms, 10, 10);
+		renderPerMs = new RenderPerMs();
+		blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 10, 10);
 	}    
 }
