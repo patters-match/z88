@@ -229,9 +229,6 @@ public class Z88Keyboard implements KeyListener {
 		// ESC = ESC, row 7 (0x7F), column 5 (0xDF, 11011111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_ESCAPE), (KeyPress) z88EscKey);
 
-		// CAPS LOCK = CAPS LOCK, row 7 (0x7F), column 3 (0xF7, 11110111)
-		keyboardLayout.put(new Integer(KeyEvent.VK_CAPS_LOCK), (KeyPress) z88CapslockKey);
-
 		// HELP = F1, row 6 (0xBF), column 7 (0x7F, 01111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_F1), (KeyPress) z88HelpKey);
 
