@@ -678,5 +678,36 @@ public final class Memory {
 		insertCard(romBanks, 0);
 		Blink.getInstance().setRAMS(getBank(0));	// point at ROM bank 0
 	}
-	
-} /* Memory */
+
+	/**
+	 * Return the size of inserted Eprom/Rom/Flash Cards in 16K banks.
+	 * If no card is available in specified slot, -1 is returned.
+	 * 
+	 * @return number of 16K banks in inserted Card
+	 */
+	public int getCardSize(final int slotNo) {		
+		int bankNo = ((slotNo & 3) << 6);	// bottom bank number of slot
+		int bottomBankNo = bankNo;
+		int maxBanks;
+
+		if (isSlotEmpty(slotNo) == true)
+			return -1;
+		else {
+			if (slotNo == 0) 
+				maxBanks = 32;	// ROM may be max 512K (banks 00 - 1F)
+			else
+				maxBanks = 64;	// each slot has 1Mb address range
+			
+			Bank bottomBank = getBank(bottomBankNo);
+			int cardSize = 1;
+			while (++bankNo < (bottomBankNo+maxBanks)) {
+				if (getBank(bankNo) != bottomBank) 
+					cardSize++;
+				else 
+					break;				
+			}
+			
+			return cardSize;			
+		}
+	}
+}
