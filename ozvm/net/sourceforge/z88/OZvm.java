@@ -12,7 +12,7 @@ import gameframe.GameFrameException;
  * Main entry of the Z88 virtual machine.
  * 
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
- * CMDLINEPROMPTId: OZvm.java,v 1.41 2003/07/12 13:39:47 gstrube Exp CMDLINEPROMPT
+ * $Id$
  * 
  */
 public class OZvm {
@@ -79,23 +79,53 @@ public class OZvm {
 		System.out.println(dzBuffer);
 	}
 	
-	private boolean loadRom(String[] args) {
+	private boolean loadRoms(String[] args) {
+		RandomAccessFile card, rom;
+		boolean loadedRom = false;
+		
 		try {
-			if (args.length == 0) {
-				System.out.println("No external ROM image specified, using default Z88.rom (V4.0 UK)");
-				z88.loadRomBinary(z88.getClass().getResource("/Z88.rom"));				
-			} else {
-				System.out.println("Loading '" + args[0] + "'");
-				RandomAccessFile rom = new RandomAccessFile(args[0], "r");		
-				z88.loadRomBinary(rom);
+			if (args.length >= 1) {
+				int arg = 0;
+				while (arg<args.length) {
+					if ( args[arg].compareToIgnoreCase("s2") != 0 & args[arg].compareToIgnoreCase("s3") != 0) {
+						System.out.println("Loading '" + args[arg] + "' into ROM space in slot 0.");
+						rom = new RandomAccessFile(args[0], "r");		
+						z88.loadRomBinary(rom);
+						rom.close();
+						loadedRom = true;
+						arg++;
+					}
+					
+					if (args[arg].compareToIgnoreCase("s2") == 0) {
+						card = new RandomAccessFile(args[arg+1], "r");		
+						System.out.println("Loading '" + args[arg+1] + "' into slot 2.");
+						z88.loadCardBinary(2, card);
+						card.close();					
+						arg+=2;
+						continue;
+					}
+					if (args[arg].compareToIgnoreCase("s3") == 0) {
+						System.out.println("Loading '" + args[arg+1] + "' into slot 3.");
+						card = new RandomAccessFile(args[arg+1], "r");		
+						z88.loadCardBinary(3, card);
+						card.close();
+						arg+=2;	
+						continue;				
+					}
+				}
 			}			
+
+			if (loadedRom == false) {
+				System.out.println("No external ROM image specified, using default Z88.rom (V4.0 UK)");
+				z88.loadRomBinary(z88.getClass().getResource("/Z88.rom"));
+			}
 			return true;
 
 		} catch (FileNotFoundException e) {
-			System.out.println("Couldn't load ROM image.\nOzvm terminated.");
+			System.out.println("Couldn't load ROM/EPROM image.\nOzvm terminated.");
 			return false;
 		} catch (IOException e) {
-			System.out.println("Problem with ROM image or I/O.\nOzvm terminated.");
+			System.out.println("Problem with ROM/EPROM image or I/O.\nOzvm terminated.");
 			return false;
 		}		
 	}
@@ -411,7 +441,7 @@ public class OZvm {
 		System.out.println("OZvm V0.1, Z88 Virtual Machine");
 
 		OZvm ozvm = new OZvm();
-		if (ozvm.loadRom(args) == false) {
+		if (ozvm.loadRoms(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
 		}
