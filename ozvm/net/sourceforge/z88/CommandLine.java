@@ -21,6 +21,7 @@ package net.sourceforge.z88;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ListIterator;
@@ -30,6 +31,7 @@ import javax.swing.JTextField;
 
 import net.sourceforge.z88.datastructures.ApplicationDor;
 import net.sourceforge.z88.datastructures.ApplicationInfo;
+import net.sourceforge.z88.datastructures.SlotInfo;
 import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
 import net.sourceforge.z88.filecard.FileAreaNotFoundException;
@@ -110,7 +112,6 @@ public class CommandLine implements KeyListener {
 		dz.getInstrAscii(dzBuffer, z88.PC(), true, true);
 		displayCmdOutput( Dz.byteToHex(bank, false) + dzBuffer);
 	}
-
 	
 	private	void cmdHelp() {
 		displayCmdOutput("\nUse	F12 to toggle keyboard focus between debug command line	and Z88	window.");
@@ -135,6 +136,16 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("rg - Display current Z80 Registers");
 		displayCmdOutput("f/F -	Display	current	Z80 Flag Register");
 		displayCmdOutput("cls -	Clear command output area\n");
+		displayCmdOutput("dmpslot X -b [directory] - Dump slot as 16K banks, optionally to directory\n");
+		displayCmdOutput("dmpslot X [filename]- Dump slot as file with 'filename', or 'slotX.epr'\n");
+		displayCmdOutput("fcdX format - Create or re-format a file area in specified slot\n");
+		displayCmdOutput("fcdX reclaim - Preserve active files and reclaim space of deleted files\n");
+		displayCmdOutput("fcdX del filename - Mark 'oz' file in slot X file area as deleted\n");
+		displayCmdOutput("fcdX ipf host-filename - Import file from OS file system into the file area\n");
+		displayCmdOutput("fcdX ipd host-path - Import files from OS directory into the file area\n");
+		displayCmdOutput("fcdX xpf filename host-dir - Export file to the operating system host-dir\n");
+		displayCmdOutput("fcdX xpc host-dir - Export file card to host operating system host-dir\n");
+		displayCmdOutput("");
 		displayCmdOutput("Registers are	edited using their name, ex. A 01 or sp	1FFE");
 		displayCmdOutput("Alternate registers are specified with ', ex.	a' 01 or BC' C000");
 		displayCmdOutput("Flags	are toggled using FZ, FC, FN, FS, FV and FH commands or");
@@ -283,6 +294,72 @@ public class CommandLine implements KeyListener {
 			displayCmdOutput("");
 		}
 
+		if (cmdLineTokens[0].compareToIgnoreCase("dmpslot")	== 0) {
+			boolean exportAsBanks = false;
+			int slotNumber = Integer.parseInt(cmdLineTokens[1]);
+			String dumpFilename = "slot" + cmdLineTokens[1] + ".epr";
+			String dumpDir = System.getProperty("user.dir");
+			
+			if (cmdLineTokens.length == 2) {
+				// dmpslot X, dump the specified slot as a complete file
+				// using a default "slotX.epr" filename				
+			} else if (cmdLineTokens.length == 3) {
+				// either "-b" specified or a filename
+				if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0) {
+					dumpFilename = "slot" + cmdLineTokens[1] + "bank";
+					exportAsBanks = true;
+				} else {
+					dumpFilename = cmdLineTokens[2]; 
+				}
+			} else if (cmdLineTokens.length == 4) {
+				if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0) { 
+					exportAsBanks = true;
+					dumpFilename = "slot" + cmdLineTokens[1] + "bank";
+				}
+				dumpDir = cmdLineTokens[3];
+			}
+							
+			if (SlotInfo.getInstance().isSlotEmpty(slotNumber) == false) {
+				// dump slot as a single file...
+				Memory memory = Memory.getInstance();
+				RandomAccessFile expSlotFile;
+				
+				if (exportAsBanks == false) {
+					try {
+						expSlotFile = new RandomAccessFile(dumpDir + File.separator + dumpFilename, "rw");
+						for (int bankNo=((slotNumber & 3) << 6), n = bankNo+memory.getCardSize(slotNumber); bankNo<n; bankNo++) {
+							expSlotFile.write(memory.getBank(bankNo).dumpBytes(0, Bank.SIZE));
+						}							
+						expSlotFile.close();
+						displayCmdOutput("Slot dumped to file " + dumpDir + File.separator + dumpFilename);
+					} catch (FileNotFoundException e) {
+						displayCmdOutput("Couldn't create file!");
+					} catch (IOException e) {
+						displayCmdOutput("I/O error while dumping slot!");
+					}										
+				} else {
+					try {
+						int bankNo=((slotNumber & 3) << 6 | 0x3F); // top bank of card
+						int n = memory.getCardSize(slotNumber);
+						while(n > 0) {						
+							expSlotFile = new RandomAccessFile(dumpDir + File.separator + dumpFilename + "." + (bankNo & 0x3F), "rw");
+							expSlotFile.write(memory.getBank(bankNo).dumpBytes(0, Bank.SIZE));
+							displayCmdOutput("Slot Bank dumped to file " + dumpDir + File.separator + dumpFilename + "." + (bankNo & 0x3F));
+							expSlotFile.close();
+							n--;
+							bankNo--;
+						}												
+					} catch (FileNotFoundException e) {
+						displayCmdOutput("Couldn't create bank file!");
+					} catch (IOException e) {
+						displayCmdOutput("I/O error while dumping slot to bank files!");
+					}															
+				}				
+			} else {
+				displayCmdOutput("Slot is empty!");
+			}
+		}
+		
 		if (cmdLineTokens[0].compareToIgnoreCase("f") == 0) {
 			displayCmdOutput("F=" +	Z88Info.z80Flags());
 		}
