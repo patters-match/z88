@@ -482,7 +482,7 @@ public class Gui extends JFrame {
 			key057fButton.setBounds(493, 49, 32, 32);
 			key057fButton.setPreferredSize(new Dimension(32, 32));
 			key057fButton.setMargin(new Insets(2, 2, 2, 2));
-			key057fButton.setText("[");
+			key057fButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key057f.gif")));
 			
 			key057fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -511,7 +511,7 @@ public class Gui extends JFrame {
 			key047fButton.setBounds(535, 49, 32, 32);
 			key047fButton.setPreferredSize(new Dimension(32, 32));
 			key047fButton.setMargin(new Insets(2, 2, 2, 2));
-			key047fButton.setText("]");
+			key047fButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key047f.gif")));
 			
 			key047fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -564,7 +564,7 @@ public class Gui extends JFrame {
 			key07FeButton.setBackground(Color.BLACK);
 			key07FeButton.setBounds(541, 91, 32, 32);
 			key07FeButton.setMargin(new Insets(2, 2, 2, 2));
-			key07FeButton.setText("£");
+			key07FeButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key07fe.gif")));
 			
 			key07FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -876,7 +876,7 @@ public class Gui extends JFrame {
 			key06FdButton.setBackground(Color.BLACK);
 			key06FdButton.setBounds(456, 91, 32, 32);
 			key06FdButton.setMargin(new Insets(2, 2, 2, 2));
-			key06FdButton.setText(";");
+			key06FdButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key06fd.gif")));
 			
 			key06FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -905,7 +905,7 @@ public class Gui extends JFrame {
 			key06FeButton.setBackground(Color.BLACK);
 			key06FeButton.setBounds(498, 91, 32, 32);
 			key06FeButton.setMargin(new Insets(2, 2, 2, 2));
-			key06FeButton.setText("'");
+			key06FeButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key06fe.gif")));
 			
 			key06FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1153,7 +1153,7 @@ public class Gui extends JFrame {
 			key06FbButton.setBackground(Color.BLACK);
 			key06FbButton.setBounds(389, 133, 32, 32);
 			key06FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key06FbButton.setText(",");
+			key06FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key06fb.gif")));
 			
 			key06FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1180,7 +1180,7 @@ public class Gui extends JFrame {
 			key07FbButton.setBackground(Color.BLACK);
 			key07FbButton.setBounds(431, 133, 32, 32);
 			key07FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key07FbButton.setText(".");
+			key07FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key07fb.gif")));
 			
 			key07FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1209,7 +1209,7 @@ public class Gui extends JFrame {
 			key07FdButton.setBackground(Color.BLACK);
 			key07FdButton.setBounds(473, 133, 32, 32);
 			key07FdButton.setMargin(new Insets(2, 2, 2, 2));
-			key07FdButton.setText("/");
+			key07FdButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key07fd.gif")));
 			
 			key07FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
