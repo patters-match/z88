@@ -28,8 +28,8 @@
 ; Standard Z88 File Eprom Format, including support for sub File Eprom
 ; area in application cards (below application banks in first free 64K boundary)
 ;
-; Return pointer to free space in File Eprom Area, inserted in slot C.
-; (B=00h-3Fh, HL=0000h-3FFFh)
+; Return BHL pointer to free space in File Eprom Area, inserted in slot C.
+; (B=00h-FFh, HL=0000h-3FFFh).
 ;
 ; IN:
 ;    C = slot number containing File Eprom Area
