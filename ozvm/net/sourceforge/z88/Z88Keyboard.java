@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.HashMap;
-import javax.swing.JTextField;
+
 
 
 /**
@@ -47,7 +47,6 @@ public class Z88Keyboard {
 	public static final int COUNTRY_CH = 11;	// Keyboard layout for Schweiz
 	public static final int COUNTRY_TR = 12;	// Keyboard layout for Turkey
 
-	private JTextField commandInput = null;		// Reference to the debug mode command line text field...
 	private Z88display z88Display = null;
 	
     private Map currentLayout = null;
@@ -1151,7 +1150,7 @@ public class Z88Keyboard {
 
 				case KeyEvent.VK_F12:
 					if (OZvm.debugMode == true) { 
-						if (commandInput != null) commandInput.grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
+						Gui.getInstance().getCmdLineInputArea().grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
 					}
 					break;
 
