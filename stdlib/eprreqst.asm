@@ -57,6 +57,7 @@
 ;                   D undefined
 ;    Failure:
 ;         Fc = 1,
+;              C = C(in)
 ;              A = RC_ONF (File Eprom Card/Area not available; possibly no card in slot)
 ;              A = RC_ROOM (No room for File Area; all banks used for applications)
 ;
@@ -82,13 +83,12 @@
 .eval_applrom
                     LD   D,C                 ; copy of slot number
                     CALL ApplEprType
-                    JR   C,no_appldor        ; Application ROM Header not present...
+                    JR   C,no_fstepr         ; Application ROM Header not present either...
                     CP   $82                 ; Front Dor located in RAM Card?
                     JR   Z,no_fstepr         ; Yes - indicate Card Not Available...
                                              ; B = app card banks, C = total size of card in banks
                     LD   E,C                 ; preserve card size in E
                     LD   C,D                 ; C = slot number
-  
   
                     CALL DefHeaderPosition   ; locate and validate File Eprom Header
                     JR   C, no_filespace     ; whole card used for Applications...
@@ -98,25 +98,16 @@
                     LD   HL,$3FC0            ; BHL = absolute pointer to "oz" File Header below applications in slot
                     RET                      ; A = File Eprom sub type, Fc = 0, Fz = indicated by DefHeaderPosition
 .no_filespace
+                    LD   C,D                 ; restore original C (slot number)
                     POP  DE
                     SCF
                     LD   A,RC_ROOM
                     RET
-.no_fstepr                                   ; the slot cannot hold a File Area.
+.no_fstepr                                   ; the slot cannot hold a File Area, or card is empty.
+                    LD   C,D                 ; restore original C (slot number)
                     POP  DE
                     SCF
                     LD   A,RC_ONF
-                    RET
-.no_appldor                                  ; the slot is empty, but might be used for File Eprom
-                    LD   A,D
-                    AND  @00000011           ; only slots 0, 1, 2 or 3 possible
-                    RRCA
-                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    OR   $3F                 ; Fc = 0, Fz = 0, indicate no header found
-                    LD   B,A
-                    LD   C,$FF               ; size of card unknown
-                    LD   HL,$3FC0            ; absolute pointer to potential File Eprom Card
-                    POP  DE
                     RET
                                         
 
@@ -148,8 +139,8 @@
 ;              A = RC_ROOM (No room for File Eprom Area)
 ;
 ; Registers changed after return:
-;    .....E../IXIY same
-;    AFBCD.HL/.... different
+;    ....DEHL/IXIY same
+;    AFBC..../.... different
 ;
 .DefHeaderPosition
                     LD   A,$40
