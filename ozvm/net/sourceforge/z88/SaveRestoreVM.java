@@ -225,6 +225,9 @@ public class SaveRestoreVM {
     	// remember the Host computer system time 
     	// when a snapshot is installed and the Blink TIMx register are adjusted to "lost" time...
     	properties.setProperty("z88StoppedAtTime", "" + blink.getZ88StoppedAtTime());
+    	
+    	// remember the current Z88 keyboard layout
+    	properties.setProperty("z88KbLayout", "" + Z88Keyboard.getInstance().getKeyboardLayout());
 		
     	// save the properties to a temp. file
 	    File pf = new File(propfilename);
@@ -305,6 +308,11 @@ public class SaveRestoreVM {
 	        loadBlinkRegs(properties); // restore Blink hardware registers
 	        
 	        blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("z88StoppedAtTime")));
+	        
+	        if (properties.getProperty("z88KbLayout") != null) {
+		        Z88Keyboard.getInstance().setKeyboardLayout(Integer.parseInt(properties.getProperty("z88KbLayout")));
+	        }      
+	        
 	        return true;
 	        
 	    } catch (IOException e) {
