@@ -38,14 +38,27 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Erase 64K Sector (Block) defined in A (0 - xx), in Flash Memory 
-; inserted in slot C. 
+; Erase 64K Sector (Block) defined in B (00h-0Fh), on Flash 
+; Memory Card inserted in slot C. 
+;
+; The routine will internally ask the Flash Memory for identification 
+; and intelligently use the correct erasing algorithm. 
+;
+; Important: 
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
+; to successfully erase a block/sector on the memory chip. If the 
+; Flash Eprom card is inserted in slot 1 or 2, this routine will 
+; automatically report a sector erase failure error.
+;
+; It is the responsibility of the application (before using this call)
+; to evaluate the Flash Memory (using the FlashEprCardId routine) and 
+; warn the user that an INTEL Flash Memory Card requires the Z88 
+; slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; IN:
-;         B = 64K block/sector number on chip to be erased (0 - xx)
+;         B = 64K block/sector number on chip to be erased (00h - 0Fh)
 ;             (available sector numbers depend on chip size)
 ;         C = slot number (1, 2 or 3) of Flash Memory Card
-;
 ; OUT:
 ;         Success:
 ;              Fc = 0
@@ -135,8 +148,8 @@ DEFC VppBit = 1
 ;        A = RC_VPL (Vpp Low Error)
 ;
 ; Registers changed after return:
-;    ..BCDEHL/IXIY same
-;    AF....../.... different
+;    ......../IXIY same
+;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock
                     CP   FE_28F
@@ -189,13 +202,11 @@ DEFC VppBit = 1
 ;    AFBC..HL/.... different
 ;
 .FEP_EraseBlock_28F
-                    PUSH AF
                     LD   BC,$04B0            ; Address of soft copy of COM register
                     LD   A,(BC)
                     SET  VppBit,A            ; Vpp On
                     LD   (BC),A
                     OUT  (C),A               ; Enable Vpp in slot 3
-                    POP  AF
 
                     LD   HL,$4000            ; point into start of Flash Memory Sector
                     LD   (HL), FE_ERA
@@ -210,10 +221,10 @@ DEFC VppBit = 1
                     JR   NZ,vpp_error
                     BIT  5,A
                     JR   NZ,erase_error
-                    CP   A                   ; Preset Fc = 0 (success)
+                    CP   A                   ; Sector successfully erased, Fc = 0
 
-                    LD   (HL), FE_CSR        ; Clear Flash Eprom Status Register
-                    LD   (HL), FE_RST        ; Reset Flash Eprom to Read Array Mode
+                    LD   (HL), FE_CSR        ; Clear Status Register
+                    LD   (HL), FE_RST        ; Reset Flash Memory to Read Array Mode
 .exit_FEP_EraseBlock_28F
                     PUSH AF
                     LD   BC,$04B0            ; Address of soft copy of COM register
@@ -267,7 +278,7 @@ DEFC VppBit = 1
                     EX   DE,HL
                     LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
                                         
-                    LD   HL,$4000            ; address within sector to be erased...
+                    LD   HL,$4000            ; point into start of Flash Memory Sector
                     LD   (HL),$30            ; 30 -> (XXXXX), begin format of sector...
 .toggle_wait_loop
                     LD   A,(HL)              ; get first DQ6 programming status
