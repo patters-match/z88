@@ -62,7 +62,7 @@ public final class Blink extends Z80 {
 		}
 
 		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!
-		nullBank = new Bank(Bank.EPROM);
+		nullBank = new Bank(Bank.VOID);
 		for (int bank = 0; bank < memory.length; bank++)
 			memory[bank] = nullBank;
 
@@ -739,7 +739,7 @@ public final class Blink extends Z80 {
 	/**
 	 * Decode Z80 Address Space to extended Blink Address (offset,bank).
 	 *
-	 * @param pc 16bit word that points into Z80 Local Address Space
+	 * @param pc 16bit word that points into Z80 64K Address Space
 	 * @return int 24bit extended address
 	 */
 	public int decodeLocalAddress(final int pc) {
@@ -767,7 +767,11 @@ public final class Blink extends Z80 {
 	 * On the Z88, the 64K is split into 4 sections of 16K segments.
 	 * Any of the 256 16K banks can be bound into the address space
 	 * on the Z88. Bank 0 is special, however.
+	 * 
 	 * Please refer to hardware section of the Developer's Notes.
+	 * 
+	 * @param addr 16bit word that points into Z80 64K Address Space
+	 * @return byte at bank, mapped into segment for specified address
 	 */
 	public final int readByte(final int addr) {
 		if (addr > 0x3FFF) {
@@ -794,10 +798,16 @@ public final class Blink extends Z80 {
 	 * Read word (16bits) from Z80 virtual memory model.
 	 * <addr> is a 16bit word that points into the Z80 64K address space.
 	 *
+	 * 16bit word fetches across bank boundaries are automatically handled.
+	 * 
 	 * On the Z88, the 64K is split into 4 sections of 16K segments.
 	 * Any of the 256 16K banks can be bound into the address space
 	 * on the Z88. Bank 0 is special, however.
+	 * 
 	 * Please refer to hardware section of the Developer's Notes.
+	 * 
+	 * @param addr 16bit word that points into Z80 64K Address Space
+	 * @return word at bank, mapped into segment for specified address
 	 */
 	public final int readWord(int addr) {
 		Bank bankNo;
@@ -838,7 +848,11 @@ public final class Blink extends Z80 {
 	 * On the Z88, the 64K is split into 4 sections of 16K segments.
 	 * Any of the 256 16K banks can be bound into the address space
 	 * on the Z88. Bank 0 is special, however.
+	 * 
 	 * Please refer to hardware section of the Developer's Notes.
+	 * 
+	 * @param addr 16bit word that points into Z80 64K Address Space
+	 * @param b byte to be written into Z80 64K Address Space
 	 */
 	public final void writeByte(final int addr, final int b) {
 		Bank bankNo;
@@ -868,13 +882,18 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Write word (16bits) to Z80 virtual memory model. <addr> is a 16bit word
-	 * that points into the Z80 64K address space.
+	 * Write word (16bits) to Z80 virtual memory model. 
 	 *
+	 * 16bit word write across bank boundaries are automatically handled.
+	 * 
 	 * On the Z88, the 64K is split into 4 sections of 16K segments.
 	 * Any of the 256 16K banks can be bound into the address space
 	 * on the Z88. Bank 0 is special, however.
+	 * 
 	 * Please refer to hardware section of the Developer's Notes.
+	 * 
+	 * @param addr 16bit word that points into Z80 64K Address Space
+	 * @param w word to be written into Z80 64K Address Space
 	 */
 	public final void writeWord(int addr, final int w) {
 		Bank bankNo;
@@ -905,6 +924,7 @@ public final class Blink extends Z80 {
 		}
 	}
 
+	
 	/**
 	 * The "internal" write byte method to be used in
 	 * the OZvm debugging environment, allowing complete
@@ -921,6 +941,7 @@ public final class Blink extends Z80 {
 		}
 	}
 
+	
 	/**
 	 * The "internal" write byte method to be used in
 	 * the OZvm debugging environment, allowing complete
@@ -933,6 +954,7 @@ public final class Blink extends Z80 {
 		setByte(extAddress & 0x3FFF, extAddress >>> 16, bits);
 	}
 
+	
 	/**
 	 * The "internal" read byte method to be used in the OZvm
 	 * debugging environment.
@@ -944,6 +966,7 @@ public final class Blink extends Z80 {
 		return getByte(extAddress & 0x3FFF, extAddress >>> 16);
 	}
 
+	
 	/**
 	 * The "internal" read byte method to be used in the OZvm
 	 * debugging environment.
@@ -956,6 +979,7 @@ public final class Blink extends Z80 {
 		return memory[bankno].getByte(offset);
 	}
 
+	
 	/**
 	 * Implement Z88 input port BLINK hardware
 	 * (Registers STA, KBD, TSTA, TIM0-TIM4, RXD, RXE, UIT).
