@@ -27,7 +27,6 @@ import java.net.JarURLConnection;
 import java.net.URL;
 
 import net.sourceforge.z88.filecard.FileArea;
-import net.sourceforge.z88.filecard.FileAreaNotFoundException;
 
 
 /**
@@ -347,18 +346,7 @@ public final class Memory {
 	 */
 	public boolean insertFileEprCard(int slot, int size, String eprType) {
 		if (insertEprCard(slot, size, eprType) == true) {
-			// make File Header at top of Card...
-			if (FileArea.createFileHeader(((slot & 3) << 6) | 0x3F) == true) {
-				try {
-					FileArea fa = new FileArea(slot);
-					fa.createFileArea(); // format file area...
-				} catch (FileAreaNotFoundException e) {
-					// this shouldn't happen...
-					return false;
-				}
-			}
-
-			return true;
+			return FileArea.create(slot); // format file area...
 		} else {
 			return false;
 		}

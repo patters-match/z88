@@ -719,8 +719,7 @@ public class CommandLine implements KeyListener {
 				}
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("fmt") == 0) {
 				// create or (re)format file area
-				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
-				if (fa.createFileArea() == true) 
+				if (FileArea.create((int) (cmdLineTokens[0].getBytes()[3]-48)) == true) 
 					displayCmdOutput("File area were created/formatted.");
 				else
 					displayCmdOutput("File area could not be created/formatted.");
