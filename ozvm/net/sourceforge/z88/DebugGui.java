@@ -40,7 +40,7 @@ public class DebugGui extends JFrame {
 	
 	private javax.swing.JMenuBar jJMenuBar = null;
 	private javax.swing.JMenu jFileMenu = null;  
-	private javax.swing.JMenu jHelpMenu = null;
+	
 	private javax.swing.JTextArea jCmdOutput = null;  
 	private javax.swing.JTextField jCmdlineInput = null;  
 	private javax.swing.JScrollPane jCmdLineScrollPane = null;
@@ -80,7 +80,6 @@ public class DebugGui extends JFrame {
 		if(jJMenuBar == null) {
 			jJMenuBar = new javax.swing.JMenuBar();
 			jJMenuBar.add(getFileMenu());
-			jJMenuBar.add(getHelpMenu());
 		}
 		return jJMenuBar;
 	}
@@ -100,19 +99,6 @@ public class DebugGui extends JFrame {
 		return jFileMenu;
 	}
 	
-	/**
-	 * This method initializes main Help Menu dropdown
-	 *
-	 * @return javax.swing.JMenu
-	 */
-	private javax.swing.JMenu getHelpMenu() {
-		if(jHelpMenu == null) {
-			jHelpMenu = new javax.swing.JMenu();
-			jHelpMenu.setText("Help");
-			jHelpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
-		}
-		return jHelpMenu;
-	}
 	
 	/**
 	 * This method initializes the OZvm Command Debugging Output Area
