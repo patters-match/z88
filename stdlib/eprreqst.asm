@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB ApplEprType, MemReadByte
+     LIB ApplEprType, MemReadByte, MemWriteByte
 
      include "error.def"
      include "memory.def"
@@ -233,15 +233,41 @@
                     LD   C,A                 ; get sub type of File Eprom
                     LD   A,$FE
                     CALL MemReadByte
-                    LD   D,A                 ; 'o'
+                    LD   D,A                 ; D <-- 'o'?
                     LD   A,$FF
                     CALL MemReadByte
-                    LD   E,A                 ; 'z'
+                    LD   E,A                 ; E <-- 'z'?
 
+                    PUSH BC
+                    PUSH DE
+                    LD   C,0
+                    LD   A,$FE
+                    CALL MemWriteByte        ; 0 --> ($3FFE)
+                    INC  A
+                    CALL MemWriteByte        ; 0 --> ($3FFF)
+                    CALL MemReadByte
+                    LD   E,A                 ; E <-- ($3FFF)  
+                    LD   A,$FE
+                    CALL MemReadByte
+                    LD   D,A                 ; D <-- ($3FFE)
+                    
                     CP   A
                     LD   HL,$6F7A
-                    SBC  HL,DE               ; 'oz' ?
-                    JR   NZ,no_fileeprom
+                    SBC  HL,DE               ; $(3FFE) = 'oz' ?
+                    JR   Z, fileeprom_found  ; 0 was written at $(3FFE) and 'oz' was still returned!
+                                             
+                    POP  DE                  ; we might have written to a RAM card... 
+                    LD   C,D                 ; get original values from $3FFE
+                    LD   A,$FE               ; and write them back...
+                    CALL MemWriteByte        ; D --> ($3FFE)
+                    LD   C,E
+                    LD   A,$FF
+                    CALL MemWriteByte        ; E --> ($3FFE)
+                    POP  BC
+                    JR   no_fileeprom        
+.fileeprom_found
+                    POP  DE
+                    POP  BC
                     LD   A,C                 ; A = sub type of File Eprom
                     CP   A                   ; return Fc = 0
                     POP  DE                  ; B = absolute bank no of hdr, 
