@@ -4006,11 +4006,8 @@ public class Dz {
 		return singletonContainer.singleton;
 	}
 
-	private Dz() {
-		memory = Memory.getInstance();
+	private Dz() {		
 	}
-
-	private final Memory memory;
 
 	/**
 	 * Return Hex 8bit string in XXh zero prefixed format.
@@ -4082,10 +4079,10 @@ public class Dz {
 	 * @return int offset of following instruction in bank
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispAddr, boolean dispOpcode) {
-		int i = memory.getByte(offset+3,bank) << 24 |
-				memory.getByte(offset+2,bank) << 16 |
-				memory.getByte(offset+1,bank) << 8 |
-				memory.getByte(offset+0,bank);
+		int i = Memory.getInstance().getByte(offset+3,bank) << 24 |
+				Memory.getInstance().getByte(offset+2,bank) << 16 |
+				Memory.getInstance().getByte(offset+1,bank) << 8 |
+				Memory.getInstance().getByte(offset+0,bank);
 
 		offset += dzInstrAscii(mnemonic, offset, i, dispAddr, dispOpcode);
 
@@ -4338,10 +4335,10 @@ public class Dz {
 	 * @return int address of following instruction
 	 */
 	public final int getNextInstrAddress(int offset, int bank) {
-		int i = memory.getByte(offset+3,bank) << 24 |
-				memory.getByte(offset+2,bank) << 16 |
-				memory.getByte(offset+1,bank) << 8 |
-				memory.getByte(offset+0,bank);
+		int i = Memory.getInstance().getByte(offset+3,bank) << 24 |
+				Memory.getInstance().getByte(offset+2,bank) << 16 |
+				Memory.getInstance().getByte(offset+1,bank) << 8 |
+				Memory.getInstance().getByte(offset+0,bank);
 
 		offset += calcInstrOpcodeSize(i);
 
