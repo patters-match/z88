@@ -34,14 +34,9 @@
 ;         Success:
 ;              Fc = 0
 ;              Fz = 1
-;              H = Flash Memory Manufacturer Code
-;                   FE_INTEL_MFCD
-;              L = Flash Memory Device Code
-;                   FE_i28F016S5 (2048Kb)
-;                   FE_i28F008SA (1024Kb)
-;                   FE_i28F008S5 (1024Kb)
-;                   FE_i28F004S5 (512Kb)
-;                   FE_i28F0020 (256Kb)
+;              HL = Flash Memory ID
+;                   H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD, FE_ATMEL_MFCD)
+;                   L = Device Code (refer to flashepr.def) 
 ;              B = total of 16K banks on Flash Memory Chip.
 ;
 ;         Failure:
@@ -153,7 +148,7 @@
 ; ***************************************************************
 ;
 ; IN:
-;    A = Flash Memory Device code
+;    L = Flash Memory Device Code
 ;
 ; OUT:
 ;    B = total of 16K banks on Flash Memory
@@ -163,18 +158,22 @@
 ;    .B...HL/.... different
 ;
 .GetTotalBlocks     PUSH AF
-
+                    PUSH HL
+                    
+                    LD   A,L
                     LD   HL, DeviceCodeTable
                     LD   B,(HL)                   ; no. of Flash Memory Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
-                    INC  HL
+                    INC  HL                       ; points at manufacturer code
+                    INC  HL                       ; points at bank size
                     JR   NZ, get_next
                          LD   B,(HL)              ; B = total of block on Flash Eprom
                          JR   exit_getblocks      ; Fc = 0, Flash Eprom data returned...
-.get_next           INC  HL
-                    DJNZ find_loop                ; point at next entry...
+.get_next           INC  HL                       ; point at next entry...
+                    DJNZ find_loop                ; and check for new Device Code
 .exit_getblocks
+                    POP  HL
                     POP  AF
                     RET
 .DeviceCodeTable
