@@ -34,6 +34,8 @@
      include "director.def"
      include "memory.def"
      include "error.def"
+	include "time.def"
+	include "syspar.def"
 
 
 
@@ -48,6 +50,7 @@ DEFVARS $1800
      LogFileHandle       ds.w 1              ; preserve the handle of the log file
      ErrorFlag           ds.b 1              ; Global Error Condition Flag
      ExtAddr             ds.p 1
+     testtime            ds.b 4
      Buffer              ds.b 32
 }
 
@@ -95,7 +98,7 @@ IF !DEBUG
                     DEFM "Flash Card Testing Tool for",$7F
                     DEFM "Intel I28F00xS5 and Amd AM29F0x0B devices", $7F
                     DEFM $7F
-                    DEFM "Release V1.1, (C) G. Strube, Sept. 2004", 0
+                    DEFM "Release V1.1, (C) G. Strube, November 2004", 0
 endif
 
 ; ******************************************************************************
@@ -106,6 +109,9 @@ endif
                     JP   C, exit_application ; no Eprom in slot 3...
 
                     CALL EprTestWindow       ; Create Window with banner
+
+                    LD   HL, Release_msg                    
+                    CALL_OZ(Gn_Sop)
 
                     LD   HL, check_msg
                     CALL_OZ(Gn_Sop)          ; user must enter 'asdf' or press ESC to abort
@@ -137,7 +143,9 @@ endif
                     CALL_OZ(Gn_Nln)
                     CALL_OZ(Gn_Nln)
 
+                    CALL Get_time
                     CALL FlashCardTest
+                    CALL Display_testtime
 
                     CALL CloseLogFile        ; Terminate CLI re-direction...
 
@@ -153,7 +161,9 @@ endif
 
 .inputvalidate      DEFM "asdf", 0
 .check_msg          DEFM "This will erase your flash chip in slot 3.", 13, 10
-                    DEFM "Type ESC to QUIT, or enter 'asdf' to acknowledge the test.", 13, 10, 0
+                    DEFM "Type ESC to QUIT, or enter ", 1, "Basdf", 1, "B ", 1, SD_ENT
+                    DEFM " to acknowledge the test.", 13, 10, 0
+
 
 ; ******************************************************************
 ; Perform the test of the inserted Flash Card...
@@ -418,8 +428,8 @@ endif
 ;
 .EprTestWindow
                     LD   A, 64 | '2'
-                    LD   BC, $0011
-                    LD   DE, $0840
+                    LD   BC, $0015
+                    LD   DE, $0845
                     CALL CreateWindow
                     LD   HL, vdu
                     CALL_OZ(Gn_Sop)
@@ -739,10 +749,55 @@ endif
                     CALL_OZ(Dc_Rbd)
                     RET
 
+; ***********************************************************************
+;
+.Get_time           LD   C,0
+                    LD   DE,0
+                    CALL_OZ(GN_Gmt)                    ; current internal machine time
+                    LD   (testtime),BC
+                    LD   (testtime+2),A                ; current machine time
+                    RET                                ; in ABC
+
+
+; ***********************************************************************
+;
+.Display_testtime   PUSH AF
+                    LD   C,0
+                    LD   DE,0
+                    CALL_OZ(GN_Gmt)                    ; current internal machine time
+                    LD   H,B
+                    LD   L,C
+                    LD   BC,(testtime)
+                    SBC  HL,BC
+                    LD   D,A
+                    LD   A,(testtime+2)                ; elapsed time = current - previous
+                    LD   E,A
+                    LD   A,D
+                    SBC  A,E
+                    LD   (testtime),HL
+                    LD   (testtime+2),A                ; AHL = elapsed time in centiseconds
+
+                    LD   BC, NQ_OHN
+                    CALL_OZ(Os_Nq)                     ; get handle in IX for standard output
+
+                    LD   HL, time1_msg
+                    CALL_OZ(Gn_Sop)                    ; "Tested in '
+                    LD   DE,0                          ; write time to window...
+                    LD   HL, testtime                  ; pointer to internal time
+                    LD   A, @00110111                  ; time display format
+                    CALL_OZ(Gn_Ptm)                    ; display elapsed time...
+                    LD   HL, time2_msg
+                    CALL_OZ(Gn_Sop)
+                    CALL_OZ(Gn_Nln)
+                    POP  AF
+                    RET
+
 
 ; ***********************************************************************************************
 ; Text constants
 ; ***********************************************************************************************
+.time1_msg          DEFM "Flash Card tested in", 0
+.time2_msg          DEFM "minutes", 0
 
 .CLI_file           DEFM "/eprlog", 0            ; standard CLI logfile 1, 5 bytes long
 .CLI_command        DEFM ".S", 0
@@ -800,5 +855,9 @@ endif
 .Error_msg_01       DEFM "Battery Low - operation aborted", 0
 .Error_msg_02       DEFM "Flash Card Sector couldn't be formatted.", 0
 .Error_msg_03       DEFM "Flash Card was not found in slot 3.", 0
+
+.Release_msg      
+                    DEFM "Flash Card Testing Tool for Intel I28F00xS5 & Amd AM29F0x0B devices", 13, 10
+                    DEFM "Release V1.1, (C) G. Strube, November 2004", 13, 10, 13, 10, 0
 
 .testblock          DS 1024
