@@ -403,66 +403,30 @@ public class Z88Keyboard implements KeyListener {
 
 
 	/**
-	 * Scans a particular Z88 hardware keyboard row, and returns the 
-	 * corresponding key column.<br>
+	 * Scans Z88 hardware keyboard row(s), and returns the 
+	 * corresponding key column(s).<br>
 	 * 
-	 * @param row, of Z88 keyboard to be scanned
+	 * Typically, only a single row is scanned, eg. @10111111, 
+	 * but several columns might be polled for simultaneously,
+	 * eg @00111111 (this example would catch left & right SHIFT's
+	 * simultaneously).
+	 * 
+	 * If the Z88 wanted to check for a key press in all rows,
+	 * 0 would be specified. 
+	 * 
+	 * @param row, of Z88 keyboard to be scanned, eg @10111111
 	 * @return keyColumn, the column containing one or several key presses.
 	 */
 	public int scanKeyRow(int row) {
-		int col = 0xFF;
-				
-		switch(row) {
-			case 0x7F:
-				col = keyRows[7]; // Row 01111111
-				break;
-			case 0xBF: 
-				col = keyRows[6]; // Row 10111111
-				break;
-			case 0xDF: 
-				col = keyRows[5]; // Row 11011111
-				break;
-			case 0xEF: 
-				col = keyRows[4]; // Row 11101111
-				break;
-			case 0xF7: 
-				col = keyRows[3]; // Row 11110111
-				break;
-			case 0xFB: 
-				col = keyRows[2]; // Row 11111011
-				break;				
-			case 0xFD: 
-				col = keyRows[1]; // Row 11111101
-				break;				
-			case 0xFE: 
-				col = keyRows[0]; // Row 11111110
-				break;
-			default: 
-				col = 0xFF; // This should never get called!
+		int columns = 0xFF; int mask = 1;
+
+		for (int bit = 0; bit < 8; bit++) {
+			if ((row & mask) == 0) columns &= keyRows[bit];
+			mask <<= 1;
 		}
 
-		return col;
+		return columns;
 	}
-		
-
-	/**
-	 * Scans the Z88 hardware keyboard, and returns true if one or several keys
-	 * were pressed.<p> 
-	 *
-	 * The keyRows[] property contains all current keycolumns of this scan.<br>
-	 * 
-	 * @return active keyrow, if one or several keys were pressed during scan.
-	 */ 
-	public int getActiveKeyRow() {
-		int keyRow = 0xFF;
-
-		for (int scanRow = 0; scanRow < keyRows.length; scanRow++) {
-			if ( keyRows[scanRow] != 0xFF ) keyRow = keyRows[scanRow];
-		}  		
-
-		return keyRow; 
-	}
-
 
 	/**
 	 * Type a Z88 key into the Z88 hardware keyboard matrix.
@@ -491,7 +455,7 @@ public class Z88Keyboard implements KeyListener {
 	 * This event is fired whenever a key press is recognised on the java.awt.Canvas.
 	 */
 	public void keyPressed(KeyEvent e) {
-		System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		// System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 				
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -548,7 +512,7 @@ public class Z88Keyboard implements KeyListener {
 	 * This event is fired whenever a key is released on the java.awt.canvas.
 	 */
 	public void keyReleased(KeyEvent e) {
-		System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -601,6 +565,6 @@ public class Z88Keyboard implements KeyListener {
 	}
 
 	public void keyTyped(KeyEvent e) {
-		System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		// System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 	}
 }
