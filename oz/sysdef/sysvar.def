@@ -69,11 +69,17 @@ defc	ubNextAlmMinutesB	=$0269
 defc	ubSoundActive		=$026a
 defc	pFirstAlarm		=$0272
 defc	pNextAlmHandle		=$0274
-defc	ubActiveCommand		=$0287
-defc	ubActiveTopic		=$0288
-defc	byte_0289		=$0289
-defc	pActiveAppPtr		=$028a
-defc	pAppDOR			=$028c
+
+defc	ubHlpActiveCmd		=$0287		; was ubActiveCommand
+defc	ubHlpActiveTpc		=$0288		; was ubActiveTopic
+defc	ubHlpActiveHelp		=$0289		; was byte_0289
+defc	ubHlpActiveApp		=$028A		; was pActiveAppPtr
+defc	eHlpAppDOR		=$028C		; was pAppDOR
+defc	eHlpTopics		=$028F
+defc	eHlpCommands		=$0292
+defc	eHlpHelp		=$0295
+defc	eHlpTokens		=$0298
+
 defc	pOSEntHandle		=$02ad
 
 ;	uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
@@ -100,6 +106,11 @@ defc	ubAppCallLevel		=$03cf		; was ubCallLevel
 defc	ubOldCallLevel		=$03d0
 defc	pAppHelpHandle		=$03d1
 defc	ubAppHelpBank		=$03d3
+defc	eAppDOR_2		=$03D4
+defc	eAppTopics_2		=$03D7
+defc	eAppCommands_2		=$03DA
+defc	eAppHelp_2		=$03DD
+defc	eAppTokens_2		=$03E0
 
 defc	pAppEnvHandle		=$03f0
 defc	uwFreeRAMPages		=$03f2
@@ -233,7 +244,7 @@ defc	ITSK_OZWINDOW		=$80
 
 defc	SF1_B_0			=0
 defc	SF1_B_1			=1
-defc	SF1_B_2			=2
+defc	SF1_B_INPUTPENDING	=2
 defc	SF1_B_3			=3
 defc	SF1_B_OZDMND		=4
 defc	SF1_B_OZSQUARE		=5
@@ -394,6 +405,15 @@ defc	ADOR_TOKENS	=$2a
 defc	ADOR_NAMETYPE	=$2d
 defc	ADOR_NAMELENGTH	=$2e
 defc	ADOR_NAME	=$2f
+
+defc	CMDF_B_COLUMN	=0
+defc	TPCF_B_AN	=0			; unused? if so, there's error in docs
+defc	TPCF_B_INFO	=1
+defc	CMDF_B_HIDDEN	=2
+defc	CMDF_B_SAFE	=3
+defc	CMDF_B_HELP	=4
+
+defc	CMDF_HELP	=$10
 
 defc	OSFrame_IY		= $00
 defc	OSFrame_S2		= $02
@@ -579,3 +599,28 @@ defc	KBF_DMND	=16
 defc	KBF_KEY		=32
 defc	KBF_SQR		=64
 defc	KBF_LOCKED	=128
+
+defc	IN_ASPC		=$B0
+defc	IN_AESC		=$B4
+defc	IN_AMEN		=$B5
+defc	IN_AIDX		=$B6
+defc	IN_AHEL		=$B7
+defc	IN_SQU		=$B8
+defc	IN_DSPC		=$C0
+defc	IN_DESC		=$C4
+defc	IN_DMEN		=$C5
+defc	IN_DIDX		=$C6
+defc	IN_DHEL		=$C7
+defc	IN_DIA		=$C8
+defc	IN_SESC		=$D4
+defc	IN_SMEN		=$D5
+defc	IN_SIDX		=$D6
+defc	IN_SHEL		=$D7
+defc	IN_SHI		=$D8
+defc	IN_ENTER	=$E1
+defc	IN_TAB0		=$E2
+defc	IN_DELX		=$E3
+defc	IN_MEN		=$E5
+defc	IN_IDX		=$E6
+defc	IN_HLP		=$E7
+defc	IN_LOCK		=$E8
