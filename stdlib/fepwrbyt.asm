@@ -75,11 +75,12 @@ DEFC VppBit = 1
 ;              Fc = 0
 ;         Failure:
 ;              Fc = 1
-;              A = RC_BWR
+;              A = RC_BWR (programming of byte failed)
+;              A = RC_NFE (not a recognized Flash Memory Chip)
 ;
 ; Registers changed on return:
-;    A.BCDEHL/IXIY ........ same
-;    .F....../.... afbcdehl different
+;    ..BCDEHL/IXIY ........ same
+;    AF....../.... afbcdehl different
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
@@ -95,14 +96,13 @@ DEFC VppBit = 1
 
                     RES  7,H
                     SET  6,H                 ; HL will be working in segment 1...
-
+                    LD   D,B                 ; copy of bank number
+                    
                     LD   C,MS_S1
                     CALL MemDefBank          ; bind bank B into segment...
-
-                    CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
+                    PUSH BC
                     CALL FEP_BlowByte        ; blow byte in A to (BHL) address
-                    CALL EnableInt           ; enable maskable interrupts
-
+                    POP  BC
                     CALL MemDefBank          ; restore original bank binding
 
                     POP  IX
@@ -114,30 +114,74 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Blow byte in Flash Eprom at (HL), segment 1, slot 3.
+; Blow byte in Flash Eprom at (HL), segment 1, slot x
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
 ;    A = byte to blow
-;    HL = pointer to memory location in Flash Eprom
+;    D = bank of pointer
+;    HL = pointer to memory location in Flash Memory
 ; Out:
-;    Fc = 0, byte blown successfully to the Flash Card
-;    Fc = 1, A = RC_ error code, byte not blown
+;    Fc = 0, 
+;        byte blown successfully to the Flash Memory
+;    Fc = 1, 
+;        A = RC_ error code, byte not blown
 ;
 ; Registers changed after return:
 ;    A.BCDEHL/IXIY same
 ;    .F....../.... different
 ;
 .FEP_Blowbyte       
-                    LD   IX, FEP_ExecBlowbyte
-                    LD   BC, end_FEP_ExecBlowbyte - FEP_ExecBlowbyte
+                    EX   AF,AF'              ; check for pre-defined Flash Memory programming...
+                    CP   FE_28F
+                    JR   Z, use_28F_programming
+                    CP   FE_29F
+                    JR   Z, use_29F_programming
+                                             
+                    LD   A,D                 ; no predefined programming was specified, let's find out...
+                    AND  @11000000
+                    RLCA
+                    RLCA                     
+                    LD   C,A                 ; poll slot C for Flash Memory                     
+                    EX   DE,HL               ; preserve HL (pointer to write byte)
+                    CALL FlashEprCardId
+                    EX   DE,HL               
+                    RET  C                   ; Fc = 1, A = RC error code (Flash Memory not found)
+                    
+                    CP   FE_28F              ; now, we've got the chip series
+                    JR   NZ, use_29F_programming ; and this one may be programmed in any slot...
+                    LD   A,3
+                    CP   C                   ; when chip is FE_28F series, we need to be in slot 3
+                    JR   Z,use_28F_programming ; to make a successful "write" of the byte...
+                    SCF
+                    LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
+                    RET                      
+                                        
+.use_28F_programming
+                    CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
+                    PUSH IX
+                    EX   AF,AF'              ; byte to be blown...
+                    LD   IX, FEP_ExecBlowbyte_28F
+                    LD   BC, end_FEP_ExecBlowbyte_28F - FEP_ExecBlowbyte_28F
                     CALL ExecRoutineOnStack
+                    POP  IX
+                    CALL EnableInt           ; enable maskable interrupts
+                    RET
+.use_29F_programming
+                    CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
+                    PUSH IX
+                    EX   AF,AF'              ; byte to be blown...
+                    LD   IX, FEP_ExecBlowbyte_29F
+                    LD   BC, end_FEP_ExecBlowbyte_29F - FEP_ExecBlowbyte_29F
+                    CALL ExecRoutineOnStack
+                    POP  IX
+                    CALL EnableInt           ; enable maskable interrupts
                     RET
                                         
           
 ; ***************************************************************
 ;
-.FEP_ExecBlowbyte
+.FEP_ExecBlowbyte_28F
                     PUSH AF
                     LD   BC,$04B0            ; Address of soft copy of COM register
                     LD   A,(BC)
@@ -176,4 +220,12 @@ DEFC VppBit = 1
                     OUT  (C),A               ; Disable Vpp in slot 3
                     POP  AF
                     RET
-.end_FEP_ExecBlowbyte
+.end_FEP_ExecBlowbyte_28F
+
+
+; ***************************************************************
+;
+.FEP_ExecBlowbyte_29F
+                    ; insert code here for AMD AM29Fxxx byte programming...
+                    RET
+.end_FEP_ExecBlowbyte_29F
