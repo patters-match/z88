@@ -21,9 +21,9 @@ package net.sourceforge.z88;
 
 /**
  * This class represents the 4Mb addressable memory model in the Z88, comprised 
- * of 16K memory blocks or banks of memory. The
- * characteristics of a bank can be that it's part of a Ram card (or the
- * internal memory of the Z88), an Eprom card or a 1MB Flash Card.
+ * of 16K memory blocks or banks of memory. The characteristics of a bank can be 
+ * that it's part of a Ram card (or the internal memory of the Z88), 
+ * an Eprom card or a 1MB Flash Card.
  * 
  * Further, the memory I/O characteristics of the bank can change if it
  * is located inside slot 3 and Eprom Programming is enabled in Blink
@@ -31,7 +31,7 @@ package net.sourceforge.z88;
  * Depending on the bank type, all memory I/O will behave as the specified
  * hardware (U/V Eproms or Flash Card) when VPP is set (by the Blink).
  * 
- * Databus access to bank is byte-wide (8 bits, Z80 hardware). Therefore, the Blink
+ * Databus access to bank is 8 bits, Z80 hardware. Therefore, the Blink
  * is responsible for reading 16bit values and getting cross bank boundary
  * words (lower byte at BankX, offset 3FFFh and high byte at BankY, offset 0000h).
  */
@@ -67,7 +67,7 @@ public final class Memory {
 	 * @return Memory.Bank
 	 */
 	public final Bank createBank(int type) {
-		return new Memory.Bank(type); 
+		return new Bank(type); 
 	}
 	
 	/**
@@ -100,7 +100,13 @@ public final class Memory {
 		// if top bank of slot is of type NullBank, then we know it's empty...
 		return memory[(((slotNo & 3) << 6) | 0x3F)] == nullBank;
 	}
+
 	
+	/** 
+	 * This class represents the 16Kb Bank. The characteristics of a bank can be 
+	 * that it's part of a Ram card (or the internal memory of the Z88), 
+	 * an Eprom card or a 1MB Flash Card.
+	 */
 	public final class Bank {
 		public static final int VOID = 0; // This bank represent an empty space (no card inserted in slot)
 		public static final int RAM = 1; // 32Kb, 128Kb, 512Kb, 1Mb
