@@ -43,10 +43,11 @@ defc	pFsMemPool		=$0244
 defc	uwFsAvailBlock		=$0246
 defc	word_024A		=$024a
 defc	pMTHScreenSave		=$024e
-defc	pMTHTmpHandle		=$0250
+defc	pMTHHelpHandle		=$0250			; was pMTHTmpHandle
 defc	word_0252		=$0252
 defc	uwPanelFilePtr		=$0256
 defc	ubSysFlags1		=$0258
+defc	cExtendedChar		=$0259
 defc	OZcmdBuf		=$025a
 defc	pNMIStackPtr		=$0260
 defc	ubWaitCount1		=$0262
@@ -73,13 +74,14 @@ defc	pNextAlmHandle		=$0274
 defc	ubHlpActiveCmd		=$0287		; was ubActiveCommand
 defc	ubHlpActiveTpc		=$0288		; was ubActiveTopic
 defc	ubHlpActiveHelp		=$0289		; was byte_0289
-defc	ubHlpActiveApp		=$028A		; was pActiveAppPtr
-defc	eHlpAppDOR		=$028C		; was pAppDOR
-defc	eHlpTopics		=$028F
+defc	ubHlpActiveApp		=$028a		; was pActiveAppPtr
+defc	eHlpAppDOR		=$028c		; was pAppDOR
+defc	eHlpTopics		=$028f
 defc	eHlpCommands		=$0292
 defc	eHlpHelp		=$0295
 defc	eHlpTokens		=$0298
-
+defc	ActiveAppHandle		=$029b		; actual handle structure
+defc	uwOSTinTimeout		=$02ab
 defc	pOSEntHandle		=$02ad
 
 ;	uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
@@ -106,11 +108,11 @@ defc	ubAppCallLevel		=$03cf		; was ubCallLevel
 defc	ubOldCallLevel		=$03d0
 defc	pAppHelpHandle		=$03d1
 defc	ubAppHelpBank		=$03d3
-defc	eAppDOR_2		=$03D4
-defc	eAppTopics_2		=$03D7
-defc	eAppCommands_2		=$03DA
-defc	eAppHelp_2		=$03DD
-defc	eAppTokens_2		=$03E0
+defc	eAppDOR_2		=$03d4
+defc	eAppTopics_2		=$03d7
+defc	eAppCommands_2		=$03da
+defc	eAppHelp_2		=$03dd
+defc	eAppTokens_2		=$03e0
 
 defc	pAppEnvHandle		=$03f0
 defc	uwFreeRAMPages		=$03f2
@@ -193,7 +195,6 @@ defc	IDXF1_B_INIT		=1			; need init
 defc	IDXF1_INSIDEOS		=1
 defc	IDXF1_INIT		=2
 
-
 ;	qualifiers
 
 defc	QUAL_B_SHIFT		=0		; use these instead of CLM_xxx as these are global
@@ -245,7 +246,7 @@ defc	ITSK_OZWINDOW		=$80
 defc	SF1_B_0			=0
 defc	SF1_B_1			=1
 defc	SF1_B_INPUTPENDING	=2
-defc	SF1_B_3			=3
+defc	SF1_B_XTNDCHAR		=3		; was	SF1_B_3
 defc	SF1_B_OZDMND		=4
 defc	SF1_B_OZSQUARE		=5
 defc	SF1_B_6			=6
@@ -296,20 +297,20 @@ sbf_VDU6		ds.b	1
 
 ;	window - negative offsets
 
-defc	wdf_f2			=$F2
-defc	wdf_flagsHi		=$F3
-defc	wdf_OpenFlags		=$F4		; was wdf_f4
-defc	wdf_flagsLo		=$F5
-defc	wdf_f6			=$F6		; !! unused, always zero
-defc	wdf_crsrattr		=$F7
-defc	wdf_crsrx		=$F8
-defc	wdf_crsry		=$F9
-defc	wdf_rmargin		=$FA
-defc	wdf_lmargin		=$FB
-defc	wdf_endx		=$FC
-defc	wdf_endy		=$FD
-defc	wdf_startx		=$FE
-defc	wdf_starty		=$FF
+defc	wdf_f2			=-14
+defc	wdf_flagsHi		=-13
+defc	wdf_OpenFlags		=-12		; was wdf_f4
+defc	wdf_flagsLo		=-11
+defc	wdf_f6			=-10		; !! unused, always zero
+defc	wdf_crsrattr		=-9
+defc	wdf_crsrx		=-8
+defc	wdf_crsry		=-7
+defc	wdf_rmargin		=-6
+defc	wdf_lmargin		=-5
+defc	wdf_endx		=-4
+defc	wdf_endy		=-3
+defc	wdf_startx		=-2
+defc	wdf_starty		=-1
 
 ;	flags lo
 defc	WDFL_B_BOLD		=7
@@ -451,6 +452,7 @@ defc	HND_MEM			=3
 defc	HND_PROC		=4
 defc	HND_ALRM		=5
 defc	HND_TRHN		=6
+defc    HND_TEMP       		=250
 
 ;	generic handle
 
