@@ -366,22 +366,22 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     DEFB 7
                     
                     DEFW FE_I28F004S5
-                    DEFB 32, FE_28F               ; 8 x 64K blocks / 32 x 16K banks (512Kb)
+                    DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
                     
                     DEFW FE_I28F008SA
-                    DEFB 64, FE_28F               ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
+                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
                     
                     DEFW FE_I28F008S5
-                    DEFB 64, FE_28F               ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
+                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
                     
                     DEFW FE_I28F016S5
-                    DEFB 64, FE_28F               ; 32 x 64K blocks / 128 x 16K banks (2048Kb) (appears like FE_I28F008S5)
+                    DEFB 64, FE_28F               ; 32 x 64K sectors / 128 x 16K banks (2048Kb) (appears like FE_I28F008S5)
                     
                     DEFW FE_AM29F010B
-                    DEFB 8, FE_29F                ; 2 x 64K blocks / 8 x 16K banks (128Kb)
+                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
                     
                     DEFW FE_AM29F040B
-                    DEFB 32, FE_29F               ; 8 x 64K blocks / 32 x 16K banks (512Kb)
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
                     
                     DEFW FE_AM29F080B
-                    DEFB 64, FE_29F               ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
+                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
