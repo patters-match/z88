@@ -203,10 +203,7 @@ endif
                     CALL CheckBatteries
                     RET  C                   ; batteries are low - abort...
 
-                    LD   HL, ProgramMsg
-                    CALL_OZ Gn_Sop
-
-				LD   C,3
+                    LD   C,3
                     CALL FlashEprCardId
                     LD   C,B                 ; Total of banks on card
                     LD   B,$C0               ; start programming of bank $C0
@@ -722,8 +719,7 @@ endif
 .CardNotFound       defm "Flash Card not found in slot 3.", 13, 10, 0
 .formatmsg          defm "Formatting sector ", 0
 .formaterrmsg       defm "Could not format sector ", 0
-.ProgramMsg         defm "Programming Card...", 13, 10, 0
-.ProgramBankMsg     defm "Programming Bank ", 13, 10, 0
+.ProgramBankMsg     defm "Programming Bank ", 0
 .report_banner      DEFM "Report:", 0
 .fltst_prompt       DEFM "Messages are available in ", '"', "/eprlog", '"', " file.", 0
 .Error_banner       DEFM "Error:", 0
