@@ -1,5 +1,22 @@
      XLIB MemAbsPtr
 
+; **************************************************************************************************
+; This file is part of the Z88 Standard Library.
+;
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
+;
+;***************************************************************************************************
+
      LIB SafeSegmentMask
 
 ; ************************************************************************
@@ -8,22 +25,6 @@
 ; pointer, addressed for safe bank binding segment.
 ;
 ; Internal Support Library Routine.
-;
-; ----------------------------------------------------------------------
-;
-; Design & programming by Gunther Strube, InterLogic, April 1998
-;
-; ----------------------------------------------------------------------
-; Version History:
-;
-; $Header$
-;
-; $History: MmAbsPtr.asm $
-; 
-; *****************  Version 1  *****************
-; User: Gbs          Date: 16-04-98   Time: 21:21
-; Created in $/Z88/StdLib/Memory
-; ----------------------------------------------------------------------
 ;
 ; IN:
 ;    A = slot number (0 to 3)
@@ -35,6 +36,10 @@
 ; Registers changed after return:
 ;    ...CDE../IXIY same
 ;    AFB...HL/.... different
+;
+; ----------------------------------------------------------------------
+; Design & programming by Gunther Strube, InterLogic, April 1998
+; ----------------------------------------------------------------------
 ;
 .MemAbsPtr
                     AND  @00000011                ; only 0 - 3 allowed...

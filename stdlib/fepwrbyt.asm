@@ -1,5 +1,22 @@
      XLIB FlashEprWriteByte
 
+; **************************************************************************************************
+; This file is part of the Z88 Standard Library.
+;
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
+;
+;***************************************************************************************************
+
      LIB MemDefBank
      LIB EnableInt, DisableInt
 
@@ -17,53 +34,6 @@
 ;
 ; This routine will temporarily set Vpp while blowing the byte.
 ;
-; --------------------------------------------------------------------------
-;
-; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997, Jan '98 - Apr '98
-;    Thierry Peycru, Zlab, Dec 1997
-;
-; --------------------------------------------------------------------------
-;
-; $Header$
-;
-; $History: FepWrByt.asm $
-; 
-; *****************  Version 5  *****************
-; User: Gbs          Date: 27-04-98   Time: 10:26
-; Updated in $/Z88/StdLib/FlashEprom
-; Small change: 
-; $FF byte now being blown by the Flash Eprom processor, since the byte
-; if verifed anyway (manually) by this routine. This makes sure to report
-; an error back to the caller, if $FF was tried to be blown on a byte
-; already changed on the Eprom.
-; 
-; *****************  Version 4  *****************
-; User: Gbs          Date: 27-04-98   Time: 9:03
-; Updated in $/Z88/StdLib/FlashEprom
-; Bug fixed in FEP_BlowByte:
-; BC register wasn't preserved, which created an incorrect restore of the
-; original bank binding status in segment 1 on exit of the library
-; routine.
-; 
-; *****************  Version 3  *****************
-; User: Gbs          Date: 26-04-98   Time: 16:10
-; Updated in $/Z88/StdLib/FlashEprom
-; Now clones it's core write-byte routine to the stack (in RAM) and
-; executes there during Vpp/Write operations on the Flash Eprom.
-; 
-; *****************  Version 2  *****************
-; User: Gbs          Date: 24-01-98   Time: 20:41
-; Updated in $/Z88/StdLib/FlashEprom
-; INCLUDE directives optimized (if any)
-; 
-; *****************  Version 1  *****************
-; User: Gbs          Date: 20-01-98   Time: 8:58
-; Created in $/Z88/StdLib/FlashEprom
-; Added to SourceSafe
-;
-; --------------------------------------------------------------------------
-;
 ; In:
 ;         A = byte
 ;         BHL = pointer to Flash Eprom address (B=00h-3Fh, HL=0000h-3FFFh)
@@ -78,6 +48,12 @@
 ; Registers changed on return:
 ;    A.BCDEHL/IXIY ........ same
 ;    .F....../.... afbcdehl different
+;
+; --------------------------------------------------------------------------
+; Design & programming by
+;    Gunther Strube, InterLogic, Dec 1997, Jan '98 - Apr '98
+;    Thierry Peycru, Zlab, Dec 1997
+; --------------------------------------------------------------------------
 ;
 .FlashEprWriteByte
                     PUSH BC

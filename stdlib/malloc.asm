@@ -1,11 +1,27 @@
      XLIB Malloc
 
+; **************************************************************************************************
+; This file is part of the Z88 Standard Library.
+;
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
+;
+;***************************************************************************************************
+
      XREF  pool_index                        ; (byte) current pool handle index
      XREF  allocated_mem                     ; (long) currently allocated memory in bytes
      XREF  MAX_POOLS                         ; (constant) max. number of allowed open pools
 
      LIB Bind_bank_s1, Get_pool_entity, Alloc_new_pool
-
 
      DEFC POOL_OPEN = 0, POOL_CLOSED = $FF
 
@@ -19,8 +35,6 @@
 ; ATTENTION: This routine may not be called before a OZ memory is initialized
 ; by the .Init_malloc library routine.
 ;
-; Design & programming by Gunther Strube, Copyright (C) InterLogic 1995
-;
 ;  IN: A   = number of bytes required (MAX 253 bytes)
 ; OUT: Fc  = 0, memory allocated
 ;      Fc  = 1, no memory left in Z88
@@ -32,6 +46,10 @@
 ; Register status on return:
 ; ...CDE../IXIY  same
 ; AFB...HL/....  different
+;
+; ------------------------------------------------------------------------
+; Design & programming by Gunther Strube, Copyright (C) InterLogic 1995
+; ------------------------------------------------------------------------
 ;
 .Malloc             PUSH IY                         ; preserve IY register
                     PUSH IX                         ; preserve IX register

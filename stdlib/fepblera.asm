@@ -1,5 +1,22 @@
      XLIB FlashEprBlockErase
 
+; **************************************************************************************************
+; This file is part of the Z88 Standard Library.
+;
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
+;
+;***************************************************************************************************
+
      LIB MemDefBank
 
      INCLUDE "flashepr.def"
@@ -16,42 +33,6 @@
 ; This routine will temporarily set the Vpp pin while the block is 
 ; being erased.
 ;
-; ---------------------------------------------------------------
-;
-; Design & programming by:
-;    Gunther Strube, InterLogic, Dec 1997 - Apr 1998
-;    Thierry Peycru, Zlab, Dec 1997
-;
-; ---------------------------------------------------------------
-;
-; $Header$
-;
-; $History: FepBlEra.asm $
-; 
-; *****************  Version 4  *****************
-; User: Gbs          Date: 27-04-98   Time: 11:03
-; Updated in $/Z88/StdLib/FlashEprom
-; FEP_EraseBlock:
-; Flash Eprom is reset to Read Array Mode when block has been erased.
-; 
-; *****************  Version 3  *****************
-; User: Gbs          Date: 26-04-98   Time: 16:09
-; Updated in $/Z88/StdLib/FlashEprom
-; Now clones it's core erasing routine to the stack (in RAM) and executes
-; there during Vpp/Write operations on the Flash Eprom.
-; 
-; *****************  Version 2  *****************
-; User: Gbs          Date: 24-01-98   Time: 20:41
-; Updated in $/Z88/StdLib/FlashEprom
-; INCLUDE directives optimized (if any)
-; 
-; *****************  Version 1  *****************
-; User: Gbs          Date: 20-01-98   Time: 8:58
-; Created in $/Z88/StdLib/FlashEprom
-; Added to SourceSafe
-;
-; ---------------------------------------------------------------
-;
 ; IN:
 ;         A = 64K Block number on chip to be erased (0 - xx)
 ;              (available block numbers depend on chip size)
@@ -67,6 +48,12 @@
 ; Registers changed on return:
 ;    ..BCDEHL/IXIY ........ same
 ;    AF....../.... afbcdehl different
+;
+; ---------------------------------------------------------------
+; Design & programming by:
+;    Gunther Strube, InterLogic, Dec 1997 - Apr 1998
+;    Thierry Peycru, Zlab, Dec 1997
+; ---------------------------------------------------------------
 ;
 .FlashEprBlockErase
                     PUSH BC

@@ -1,20 +1,29 @@
-
      XLIB CreateWindow
 
-if UNIX | MSDOS
+; **************************************************************************************************
+; This file is part of the Z88 Standard Library.
+;
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
+;
+;***************************************************************************************************
+
      INCLUDE "stdio.def"
      INCLUDE "map.def"
-else
-     INCLUDE ":*//stdio.def"
-     INCLUDE ":*//map.def"
-endif
 
 
 ; **********************************************************************************************************
 ;
 ; Standard window create with banner and bottom line.
-;
-; Design & programming by Gunther Strube, Copyright (C) InterLogic 1995
 ;
 ; Cursor and vertical scrolling is enabled when window created.
 ; Window "1" is a base window for the extended window and will always be defined with max. screen size.
@@ -39,24 +48,9 @@ endif
 ; ......../IXIY  same
 ; AFBCDEHL/....  different
 ;
-; Definitions used only by CreateWindow:
-;
-.base_window        DEFM 1,"7#1",32,32,32+94,32+8,128,1,"2H1" ; window VDU definitions
-                    DEFM 1,"4-SCR",0              ; reset any settings
-.def_window         DEFM 1,"7#",0                 ; define window
-.ResetWindow        DEFM 1,"2C",0                 ; window id
-.EnableCurScroll    DEFM 1,"3+CS",0
-.BannerAttributes   DEFM 1,"4+TUR"                ; set underline, tiny font in reverse
-                    DEFM 1,"2JC"                  ; centre text
-                    DEFM 1,"3@",$20,$20,0         ; set cursor at (0,0) in window
-
-.ApplyToggles       DEFM 1,"3@",$20,$20
-                    DEFM 1,"2A",0                 ; apply attributes for banner width
-
-.xypos              DEFM 1,"3@",0                 ; VDU cursor position (x and y sent later)
-.bot_left_corner    DEFM 1,"2*",73,0              ; VDU bottom left corner
-.draw_line          DEFM 1,"3N",0                 ; VDU repeat char sequense (for bottom line)
-.bot_right_corner   DEFM 1,"2*",76,0              ; VDU bottom right corner
+; ----------------------------------------------------------------------
+; Design & programming by Gunther Strube, Copyright (C) InterLogic 1995
+; ----------------------------------------------------------------------
 ;
 .CreateWindow       BIT  7,A
                     JR   NZ, extended_window           ; create extended window (banner, bottom line)
@@ -303,3 +297,24 @@ endif
                     ADD  A,32
                     CALL_OZ(Os_Out)                     ; height
                     RET
+
+; Definitions used only by CreateWindow:
+;
+.base_window        DEFM 1,"7#1",32,32,32+94,32+8,128,1,"2H1" ; window VDU definitions
+                    DEFM 1,"4-SCR",0              ; reset any settings
+.def_window         DEFM 1,"7#",0                 ; define window
+.ResetWindow        DEFM 1,"2C",0                 ; window id
+.EnableCurScroll    DEFM 1,"3+CS",0
+.BannerAttributes   DEFM 1,"4+TUR"                ; set underline, tiny font in reverse
+                    DEFM 1,"2JC"                  ; centre text
+                    DEFM 1,"3@",$20,$20,0         ; set cursor at (0,0) in window
+
+.ApplyToggles       DEFM 1,"3@",$20,$20
+                    DEFM 1,"2A",0                 ; apply attributes for banner width
+
+.xypos              DEFM 1,"3@",0                 ; VDU cursor position (x and y sent later)
+.bot_left_corner    DEFM 1,"2*",73,0              ; VDU bottom left corner
+.draw_line          DEFM 1,"3N",0                 ; VDU repeat char sequense (for bottom line)
+.bot_right_corner   DEFM 1,"2*",76,0              ; VDU bottom right corner
+;
+                    

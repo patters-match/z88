@@ -1,5 +1,22 @@
      XLIB FlashEprFileFormat
 
+; **************************************************************************************************
+; This file is part of the Z88 Standard Library.
+;
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
+;
+;***************************************************************************************************
+
      LIB SafeSegmentMask
      LIB MemDefBank, MemReadByte, MemReadPointer, MemAbsPtr
      LIB FlashEprVppOn, FlashEprVppOff
@@ -10,7 +27,6 @@
      LIB FlashStore_CheckPartitionID
      LIB FlashStore_NextPartitionID
      
-     INCLUDE "flstore.def"
      INCLUDE "time.def"
      INCLUDE "saverst.def"
      INCLUDE "memory.def"
@@ -32,10 +48,6 @@
 ; Hence, ROM Front DOR definitions should always define bank reserved 
 ; for applications in modulus 64K, eg. 4 banks, 8, 12, etc...
 ;
-; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Apr 1998
-; ----------------------------------------------------------------------
-;
 ; IN:
 ;    A = reason code:
 ;         FSFMT_CRPT     CReate ParTition
@@ -43,6 +55,10 @@
 ;         FSFMT_ERPT     ERase ParTition
 ;         FSFMT_RMPT     ReMove ParTitions/erase whole File Area
 ;         FSFMT_FRPT     Get FRee void space for PaRtition
+;
+; ----------------------------------------------------------------------
+; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Apr 1998
+; ----------------------------------------------------------------------
 ;
 .FlashEprFileFormat
                     CP   FSFMT_CRPT               ; Create partition function?
