@@ -60,7 +60,6 @@ static void ReleaseLibrariesIndex (void);
 extern enum flag verbose, deforigin, EOL, createlibrary, uselibraries, asmerror;
 extern module_t *CURRENTMODULE;
 extern modules_t *modulehdr;
-extern char MPMobjhdr[];
 extern char *errfilename, *libfilename;
 extern const char objext[], errext[], libext[];
 extern char line[];
@@ -117,13 +116,14 @@ CreateLib (void)
   do
     {
       fname = AddFileExtension((const char *) CURRENTFILE->fname, objext);
+      
       if (fname == NULL)
         {
           ReportError (NULL, 0, Err_Memory);   /* No more room */
           break;
         }
 
-      if ((objectfile = fopen (CURRENTFILE->fname, "rb")) != NULL)
+      if ((objectfile = fopen (fname, "rb")) != NULL)
         {
           fseek(objectfile, 0L, SEEK_END);   /* file pointer to end of file */
           Codesize = ftell(objectfile);      /* - to get size... */
@@ -140,7 +140,7 @@ CreateLib (void)
           fread (filebuffer, sizeof (char), Codesize, objectfile);      /* load object file */
           fclose (objectfile);
 
-          if (memcmp (filebuffer, MPMobjhdr, SIZEOF_MPMOBJHDR) == 0)
+          if (memcmp (filebuffer, MPMOBJECTHEADER, SIZEOF_MPMOBJHDR) == 0)
             {
               if (verbose)
                 printf ("<%s> module at %04lX.\n", CURRENTFILE->fname, ftell (libfile));
