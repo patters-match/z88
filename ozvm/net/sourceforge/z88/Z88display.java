@@ -25,6 +25,8 @@ import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
 import java.io.File;
@@ -39,7 +41,7 @@ import javax.swing.JPanel;
  * called each 5ms, 10ms, 25ms or 50ms, depending on speed of JVM.
  *
  */
-public class Z88display extends JPanel {
+public class Z88display extends JPanel implements MouseListener {
 
 	private static final class singletonContainer {
 		static final Z88display singleton = new Z88display();  
@@ -142,8 +144,9 @@ public class Z88display extends JPanel {
 		this.setPreferredSize(new Dimension(640, 64));
 		this.setIgnoreRepaint(true);
 		this.setOpaque(true);
-		this.setToolTipText("Use F12 to get keyboard focus to this window.");
+		this.setToolTipText("Click with the mouse on this window or use F12 to get Z88 keyboard focus.");
 		this.setFocusable(true);
+		this.addMouseListener(this);
 
 		this.setDoubleBuffered(false);
 		blink = Blink.getInstance();
@@ -685,5 +688,36 @@ public class Z88display extends JPanel {
 			// no change in framerate, clear accumulated framerate...
 			renderTimeTotal = 0;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent arg0) {
+		grabFocus();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent arg0) {		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	public void mouseExited(MouseEvent arg0) {		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
+	public void mousePressed(MouseEvent arg0) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent arg0) {
 	}
 }
