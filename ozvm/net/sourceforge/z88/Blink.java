@@ -1170,10 +1170,12 @@ public final class Blink extends Z80 {
 	public void haltZ80() {
 		// Z80 "Clock" is now stopped, but Blink "Clock" keeps running:
 		// wait until an INT signal is fired...
+		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 		do {
 			Thread.yield();
 		} // Only get out of snooze/coma if an interrupt occurred..
 		while(interruptTriggered() == false);
+		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 
 		// (back to main Z80 decode loop)
 	}
@@ -1288,7 +1290,7 @@ public final class Blink extends Z80 {
 			TSTA = TACK = 0;
 		}
 
-		private final class Counter extends TimerTask {
+		private final class Counter extends TimerTask {			
 			/**
 			 * Execute the RTC counter each 5ms, and set the various RTC interrupts
 			 * if they are enabled, but only if INT.TIME = 1.
