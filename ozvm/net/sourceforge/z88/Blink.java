@@ -54,8 +54,8 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */	
-	public int setSegmentBank(int segment, int BankNo) {
-		return sR[segment % 4] = (BankNo % 256);
+	public void setSegmentBank(int segment, int BankNo) {
+		sR[segment % 4] = (BankNo % 256);
 	}
 
 	/**
