@@ -37,6 +37,7 @@
 ; OUT:
 ;    Fc = 0, File Eprom available
 ;         BHL = pointer to first byte of free space
+;         (B = absolute bank of slot C)
 ;
 ;    Fc = 1, File Eprom was not found in slot C
 ;
@@ -65,7 +66,7 @@
                     SUB  D                             ; D = total banks of File Eprom Area
                     INC  A
                     LD   B,A                           ; B is now bottom bank of File Eprom
-                    LD   HL,$4000                      ; BHL points at first File Entry...
+                    LD   HL,$0000                      ; BHL points at first File Entry...
 .scan_eprom
                     CALL FileEprFileEntryInfo          ; scan all file entries, to point at first free byte
                     JR   NC, scan_eprom
@@ -78,8 +79,6 @@
                     POP  BC
                     LD   B,A                           ; BHL points at first free byte...
 
-                    RES  7,B
-                    RES  6,B
                     RES  7,H
-                    RES  6,H                           ; strip physical attributes of pointer...
+                    RES  6,H                           ; strip segment attributes of bank offset, if any...
                     RET
