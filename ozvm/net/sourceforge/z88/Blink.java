@@ -70,6 +70,22 @@ public final class Blink extends Z80 {
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
 	}
 
+	
+	/**
+	 * execute a single Z80 instruction and return
+	 */
+	public void singleStepZ80() {
+		run(true);
+	}
+	
+	/**
+	 * execute Z80 instructions until a breakpoint is reached,
+	 * stop command is entered or F5 was pressed in Z88 screen
+	 */
+    public void execZ80() {
+    	run(false);			// run until we drop dread!
+    }
+	
 	/**
 	 * Access to the Z88 Memory Model 
 	 */
@@ -91,8 +107,6 @@ public final class Blink extends Z80 {
 		if (displayTimeStamp == true) OZvm.displayRtmMessage(sdf.format(curDateTime) + ":");
 		OZvm.displayRtmMessage(msg);
 	}
-
-	private Breakpoints breakPoints = null;
 
 	private boolean debugMode = false;
 
@@ -1058,7 +1072,7 @@ public final class Blink extends Z80 {
 		// wait until an INT signal is fired...
 		do {
 			try {
-				Thread.sleep(1);		// Z80 "sleeps" ... (interrupts still occurs in Blink)
+				Thread.sleep(5);		// Z80 "sleeps" ... (interrupts still occurs in Blink)
 			} catch (InterruptedException e) {
 				e.printStackTrace(System.out);
 			}						
@@ -1069,15 +1083,6 @@ public final class Blink extends Z80 {
 		// (back to main Z80 decode loop)
 	}
 
-	/**
-	 * Perform a hard reset on the Z88 (clear all RAM and reboot the
-	 * ROM).
-	 */
-	public void hardReset() {
-		reset(); 					// reset Z80 registers
-		RAMS = memory.getBank(0);	// RAMS now points at ROM, bank 0 (reset code)
-		memory.resetRam(); 			// reset memory of all available RAM in Z88 memory
-	}
 
 	/**
 	 * BLINK Command Register.
@@ -1391,24 +1396,24 @@ public final class Blink extends Z80 {
 		}
 	}
 
-
 	/**
 	 * Handle action on encountered breakpoint.<p>
 	 * (But ignore it, if the processor is just executing a LD B,B (T-Touch on the Z88 does it)!
 	 *
 	 * @return true, if Z80 engine is to be stopped (a real breakpoint were found).
 	 */
-	public boolean breakPointAction() {
+	public boolean breakPointAction() {		
 		int bpAddress = decodeLocalAddress(getInstrPC());
 		int bpOpcode = memory.getByte(bpAddress);	// remember the breakpoint instruction opcode
-		int z80Opcode = breakPoints.getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
+		
+		int z80Opcode = Breakpoints.getInstance().getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
 		if (z80Opcode != -1) {
 			// a breakpoint was defined for that address; 
 			// don't stop the processor if it's only a display breakpoint... 
 			memory.setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily)
 			displayRtmMessage((new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString(), true); // dissassemble original instruction, with Z80 main reg dump
 			memory.setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter
-			if (breakPoints.isStoppable(bpAddress) == true) {
+			if (Breakpoints.getInstance().isActive(bpAddress) == true && Breakpoints.getInstance().isStoppable(bpAddress) == true) {
 				PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
 				displayRtmMessage("Z88 virtual machine was stopped at breakpoint.", false);
 				return true;
@@ -1416,14 +1421,6 @@ public final class Blink extends Z80 {
 		} 
 		
 		return false; // don't stop; either no breakpoint were found, or it's just a display breakpoint.. 
-	}
-
-	/**
-	 * Install the breakpoint manager which the Z80 engine is going to use.
-	 * @param breakpoints
-	 */
-	public void setBreakPointManager(Breakpoints bpm) {
-		breakPoints = bpm;
 	}
 	
 	/**
