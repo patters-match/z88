@@ -1,5 +1,8 @@
 Z88 Service Manual Corrections, Modifications log
 
+SM 1.2.2 (DG, April 2004)
+- Added JEDEC modification figures 4.1 and 4.2
+
 SM 1.2.1 (DG, 31.10.99)
 - Corrected EPROM type NEC 27Cl000D-20
 
@@ -10,6 +13,6 @@ SM 1.2.0 (TP, 14.10.99)
 SM 1.1.0 (TP, June 1998)
 - OCRed and HTML port
 
-SM 1.0.0 (Bravemay Ltd, January 1985)
+SM 1.0.0 (Bravemay Ltd, November 1987)
 - Original version
 - Thanks to JP CATTIN who lend it to me
