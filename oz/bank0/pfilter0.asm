@@ -8,14 +8,14 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
         org     $f9a5                           ; 45 bytes
 
-defc    MS2BankA        =$d721
-defc    PrntChar        =$afc0
-
 xdef    PrFilterCall
 xdef    TogglePrFilter
+
+xref    MS2BankA
 
 ; Call printer filter in bank 3
 ; 

@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSDor
 xdef    DORHandleFree                           ; get rid of these two stubs 
@@ -20,28 +21,27 @@ xdef    loc_CD42                                ; move this to InitHandle (misc1
 xdef    VerifyHandleBank
 
 
-defc    OSFramePush             =$d555
-defc    OSFramePop              =$d582
-defc    PeekHLinc               =$d7e2
-defc    PeekHL                  =$d7f6
-defc    AllocHandle             =$d642
-defc    InitHandle              =$9680
-defc    PutOSFrame_BC           =$d6ec
-defc    MS2HandleBank           =$d1f2
-defc    FreeHandle              =$d628
-defc    sub_F2D0                =$f2d0
-defc    MS2BankB                =$d719
-defc    MemPtr2FilePtr          =$f382
-defc    FreeMemData             =$f275
-defc    AddAvailableFsBlock     =$f389
-defc    _MS2BankA               =$d1f5
-defc    ClearMemHL_A            =$d76f
-defc    CopyMemDE_HL            =$d781
-defc    CopyMemHL_DE            =$d793
-defc    GetOSFrame_DE           =$d6de
-defc    FindHandle              =$d683
-defc    MS2BankA                =$d721
-defc    VerifyHandle            =$d6c6
+xref    OSFramePush
+xref    OSFramePop
+xref    PeekHLinc
+xref    PeekHL
+xref    AllocHandle
+xref    PutOSFrame_BC
+xref    MS2HandleBank
+xref    FreeHandle
+xref    AllocHandleBlock
+xref    MS2BankB
+xref    MemPtr2FilePtr
+xref    FreeMemData
+xref    AddAvailableFsBlock
+xref    _MS2BankA
+xref    ClearMemHL_A
+xref    CopyMemDE_HL
+xref    CopyMemHL_DE
+xref    GetOSFrame_DE
+xref    FindHandle
+xref    MS2BankA
+xref    VerifyHandle
 
 
 .OSDor
@@ -222,7 +222,7 @@ defc    VerifyHandle            =$d6c6
         ret     c                               ; couldn't get handle? exit
         ld      (ix+fhnd_attr), h               ; parent flags
 
-        call    sub_F2D0
+        call    AllocHandleBlock
         jr      c, DORHandleFree                ; error? exit
 
         call    PutHandleBHL_S2                 ; set BHL, fixed for S2 addressing

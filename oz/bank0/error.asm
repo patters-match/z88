@@ -10,14 +10,11 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
-xdef    OSErh   
 xdef    CallErrorHandler
-
-defc    DefErrHandler           =$00e0
-defc    JumpToAHL               =$00d4
-defc    OZCallReturn2           =$00ac
-
+xdef    OSErc
+xdef    OSErh   
 
 ;       set error handler
 

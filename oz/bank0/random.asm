@@ -9,6 +9,7 @@
         org     $dafd                           ; 573 bytes
 
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    UpdateRnd
 

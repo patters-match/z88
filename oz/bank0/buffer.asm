@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    BfGbt                   ;OsTin
 xdef    BfPbt
@@ -23,15 +24,12 @@ xdef    OsDly
 xdef    OSPur
 xdef    OSXin
 
-defc    CancelOZcmd     =$f0a1
-defc    OSWaitMain      =$cefb
-defc    DoAlarms        =$cd6d
-defc    MayDrawOZwd     =$cda5
-defc    TestEsc         =$d12c
-defc    PutOSFrame_BC   =$d6ec
-defc    OZCallReturn1   =$ab
-defc    OZCallReturn2   =$ac
-defc    OZCallReturn3   =$ad
+xref    CancelOZcmd
+xref    OSWaitMain
+xref    DoAlarms
+xref    MayDrawOZwd
+xref    TestEsc
+xref    PutOSFrame_BC
 
 ;       ----
 
@@ -347,8 +345,8 @@ defc    OZCallReturn3   =$ad
         call    MayDrawOZwd                     ; and draw OZwd if necessary
 
         ld      a, (ubSysFlags1)
-        bit     SF1_B_3, a
-        jr      nz, osxin_1                     ; input busy? exit
+        bit     SF1_B_XTNDCHAR, a
+        jr      nz, osxin_1                     ; have extended char? exit
 
         ld      a, (ubIntTaskToDo)
         bit     ITSK_B_PREEMPTION, a

@@ -10,13 +10,14 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSHt
 xdef    ReadRTC
 
-defc    GetOSFrame_HL           =$d6e5
-defc    PokeHLinc               =$d84c
-defc    PutOSFrame_HL           =$d6fd
+xref    GetOSFrame_HL
+xref    PokeHLinc
+xref    PutOSFrame_HL
 
 .OSHt
         ld      b, a

@@ -10,19 +10,17 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    GetWindowFrame
 xdef    NqRDS
 
-defc    GetWindowNum            = $b052
-defc    GetOSFrame_HL           = $d6e5
-defc    GetOSFrame_DE           = $d6de
-defc    GetCrsrYX               = $b044
-defc    VDU2ChrCode             = $ad28
-defc    ScreenClose             = $faf6
-defc    PokeHLinc               = $d84c
-defc    ScreenOpen              = $faea
-defc    CursorRight             = $fbf1
+xref    GetOSFrame_HL
+xref    GetOSFrame_DE
+xref    ScreenClose
+xref    PokeHLinc
+xref    ScreenOpen
+xref    CursorRight
 
 
 .GetWindowFrame

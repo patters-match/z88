@@ -10,13 +10,13 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSEsc
 xdef    TestEsc
 xdef    MaySetEsc
 
-defc    ResetTimeout            =$cee0
-defc    OZCallReturn2           =$00ac
+xref    ResetTimeout
 
 defc    AKBD_ESCENABLED         =$80
 defc    AKBD_B_ESCENABLED       =7

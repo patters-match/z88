@@ -10,55 +10,56 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
+xdef    AtoN_upper
+xdef    ClearMemHL_A
+xdef    CopyMemBHL_DE
+xdef    CopyMemDE_BHL
+xdef    CopyMemDE_HL
+xdef    CopyMemHL_DE
+xdef    FPtr2MemPtrBindS2
 xdef    GetOSFrame_BC
 xdef    GetOSFrame_DE
 xdef    GetOSFrame_HL
-xdef    PutOSFrame_BC
-xdef    PutOSFrame_DE
-xdef    PutOSFrame_BHL
-xdef    PutOSFrame_HL
-xdef    MS12BankCB
-xdef    MS1BankB
-xdef    MS1BankA
-xdef    FPtr2MemPtrBindS2
-xdef    MS2BankB
-xdef    S2VerifySlotType
-xdef    MS2BankK1
-xdef    MS2BankA
-xdef    AtoN_upper
+xdef    IncBHL
 xdef    KPrint
-xdef    ScrDrv_ToggleLT
-xdef    ScrDrv_SOH_7F
-xdef    ScrDrv_SOH_A
-xdef    ClearMemHL_A
-xdef    CopyMemDE_HL
+xdef    MS12BankCB
+xdef    MS1BankA
+xdef    MS1BankB
+xdef    MS2BankA
+xdef    MS2BankB
+xdef    MS2BankK1
 xdef    OSBde
-xdef    CopyMemDE_BHL
-xdef    CopyMemHL_DE
-xdef    CopyMemBHL_DE
-xdef    ReserveStkBuf
 xdef    OSFn
+xdef    PeekBHL
+xdef    PeekBHLinc
+xdef    PeekHL
 xdef    PeekHLinc
 xdef    PeekIncHL
-xdef    PeekBHLinc
-xdef    PeekBHL
-xdef    PeekHL
-xdef    IncBHL
-xdef    PokeBHLinc
-xdef    PokeHLinc
-xdef    PokeHL
 xdef    PokeBHL
+xdef    PokeBHLinc
+xdef    PokeHL
+xdef    PokeHLinc
+xdef    PutOSFrame_BC
+xdef    PutOSFrame_BHL
+xdef    PutOSFrame_DE
+xdef    PutOSFrame_HL
+xdef    ReserveStkBuf
+xdef    S2VerifySlotType
+xdef    ResetToggles
+xdef    ScrDrv_SOH_A
+xdef    MTH_ToggleLT
 xdef    FixPtr
 
 
-defc    FilePtr2MemPtr                  =$f368
-defc    VerifySlotType                  =$e757
-defc    OSFramePush                     =$d555
-defc    OSFramePop                      =$d582
-defc    AllocHandle                     =$d642
-defc    VerifyHandle                    =$d6c6
-defc    FreeHandle                      =$d628
+xref    FilePtr2MemPtr
+xref    VerifySlotType
+xref    OSFramePush
+xref    OSFramePop
+xref    AllocHandle
+xref    VerifyHandle
+xref    FreeHandle
 
 
 .GetOSFrame_BC
@@ -215,7 +216,7 @@ defc    FreeHandle                      =$d628
 
 ;       ----
 
-.ScrDrv_ToggleLT
+.MTH_ToggleLT
         call    KPrint
         defb    1, 'L'
         defb    1, 'T'
@@ -223,8 +224,8 @@ defc    FreeHandle                      =$d628
         ret
 
 
-.ScrDrv_SOH_7F
-        ld      a, $7F
+.ResetToggles
+        ld      a, SD_DTS
 
 .ScrDrv_SOH_A
         push    af

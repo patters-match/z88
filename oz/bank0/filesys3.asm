@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 
 xdef    SetMemHandlePos
@@ -41,16 +42,15 @@ xdef    SetFileSize
 xdef    WrFileByte
 xdef    RdFileByte
 
-defc    MS2BankA                =$d721
-defc    MS1BankA                =$d710
-defc    MS2BankB                =$d719
-defc    MS12BankCB              =$d704
-defc    AllocHandle             =$d642
-defc    SaveScreen              =$fe39
-defc    FreeMemHandle           =$b224
-defc    RestoreScreen           =$fe35
-defc    OZwd__fail              =$f9e7
-defc    FPtr2MemPtrBindS2       =$d716
+xref    MS2BankA
+xref    MS1BankA
+xref    MS2BankB
+xref    MS12BankCB
+xref    AllocHandle
+xref    SaveScreen
+xref    RestoreScreen
+xref    OZwd__fail
+xref    FPtr2MemPtrBindS2
 
 
 

@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    INTEntry
 xdef    IntSecond
@@ -17,15 +18,13 @@ xdef    IncActiveAlm
 xdef    DecActiveAlm
 xdef    MaySetPendingAlmTask
 
-defc    ResetTimeout            =$cee0
-defc    BothShifts              =$cdc3
-defc    KbdMain                 =$db0d
-defc    IntUART                 =$d52c
-defc    IntFlap                 =$c9d6
-defc    OZ_SCF                  =$0057
-defc    INTReturn               =$009d
-defc    MS2BankA                =$d721
-defc    ReadRTC                 =$d501
+xref    ResetTimeout
+xref    BothShifts
+xref    KbdMain
+xref    IntUART
+xref    IntFlap
+xref    MS2BankA
+xref    ReadRTC
 
 ;IN:    A= interrupt status
 
@@ -233,7 +232,7 @@ defc    ReadRTC                 =$d501
 
 .int_12
         ld      hl, 0
-        ld      (ubWaitCount1), hl		; ubWaitCount1, ubWaitCount1
+        ld      (ubWaitCount1), hl              ; ubWaitCount1, ubWaitCount1
         call    ResetTimeout
 
 .int_x

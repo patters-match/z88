@@ -8,30 +8,31 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
         org     $c101                           ; 261 bytes
 
-defc    MS2BankB                =$d719
-defc    OSFramePushMain         =$d55c
-defc    MS2BankA                =$d721
-defc    MS2BankK1               =$d71f
-defc    OZCallJump              =$0095
-defc    OZCallReturn2           =$00ac
-defc    OSFramePush             =$d555
-defc    ScreenOpen              =$faea
-defc    ScreenClose             =$faf6
-defc    OSFramePop              =$d582
-defc    OSIsq                   =$adb8
-defc    StorePrefixed           =$adcc
-defc    PrFilterCall            =$f9a5
-defc    OSEprTable              =$8f00
-defc    GetOSFrame_BC           =$d6d7
-defc    OSAlmMain               =$983e
-defc    SetPendingOZwd          =$cdb2
-defc    osfpop_1                =$d584
+xdef    CallDC
+xdef    CallGN
+xdef    CallOS2byte
+xdef    OsAlm
+xdef    OSEpr
+xdef    OSPrt
+xdef    OSPrtMain
+xdef    OzCallInvalid
 
-defc    PrntCtrlSeq             =$afc3
-defc    PrntChar                =$afc0
+xref    MS2BankB
+xref    OSFramePushMain
+xref    MS2BankA
+xref    MS2BankK1
+xref    OSFramePush
+xref    ScreenOpen
+xref    ScreenClose
+xref    OSFramePop
+xref    PrFilterCall
+xref    GetOSFrame_BC
+xref    SetPendingOZwd
+xref    osfpop_1
 
 ;       ----
 

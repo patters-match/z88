@@ -8,15 +8,14 @@
 
         org $f1ac                               ; 19 bytes
 
+        include "bank7.def"
 
 xdef    OSSp
 xdef    ret_F1B5
 xdef    OSNq
 
-defc    OSFramePush     = $d555
-defc    OSFramePop      = $d582
-defc    OSSpMain        = $a73e
-defc    OSNqMain        = $a774
+xref    OSFramePush
+xref    OSFramePop
 
 
 ; set Panel and PrinterEd values

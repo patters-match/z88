@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 
 xdef    BothShifts
@@ -23,11 +24,11 @@ xdef    nmi_5
 xdef    HW_NMI2
 xdef    NMIEntry
 
-defc    DrawOZwd                =$fa11
-defc    OSFramePush             =$d555
-defc    osfpop_1                =$d584
-defc    MayDrawOZwd             =$cda5
-defc    Halt                    =$c012
+xref    DrawOZwd
+xref    OSFramePush
+xref    osfpop_1
+xref    MayDrawOZwd
+xref    Halt
 
 
 defc    NMI_HALT        =1

@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSGth
 xdef    OSFth
@@ -22,7 +23,7 @@ xdef    FindHandle
 xdef    ChgHandleType
 xdef    VerifyHandle
 
-defc    PutOSFrame_HL           =$d6fd
+xref    PutOSFrame_HL
 
 ;       allocate tri-handle
 ;IN:    A=subtype, B=func bank, H=func page, L=func segment

@@ -10,13 +10,12 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSCli
 
-defc    OSFramePush     =$d555
-defc    OSCliMain       =$99cb
-defc    OSFramePop      =$d582
-defc    OZCallReturn2   =$00ac
+xref    OSFramePush
+xref    OSFramePop
 
 .OSCli                                          
         ex      af, af'

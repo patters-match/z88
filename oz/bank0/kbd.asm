@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 ;       !! do not modify this code
 ;       !! it's all rewritten already
@@ -18,20 +19,13 @@ xdef    KbdMain
 xdef    ApplyQualifiers
 xdef    DoLocalized
 
-defc    MS2BankK1       =$d71f
-defc    UpdateRnd       =$dafd
-defc    MS2BankA        =$d721
-defc    Key2Code        =$9dc3
-defc    MaySetEsc       =$d137
-defc    KbdDeadKeys     =$9d6e
-defc    BufWriteC       =$c5fb
-defc    DrawOZwd        =$fa11
-defc    SwitchOff       =$ce2e
-
-defc    IN_DIA          =$c8
-defc    IN_SQU          =$b8
-defc    IN_LOCK         =$e8
-
+xref    MS2BankK1
+xref    UpdateRnd
+xref    MS2BankA
+xref    MaySetEsc
+xref    BufWriteC
+xref    DrawOZwd
+xref    SwitchOff
 
 .KbdMain
         ld      a, (BLSC_SR2)

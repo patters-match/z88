@@ -10,24 +10,24 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    InitSBF
-xdef    loc_F925
+xdef    InitApplWd
 xdef    InitWindowFrame
 
-defc    KPrint                  = $d74d
-defc    Zero_ctrlprefix         = $ade8
-defc    DrawOZwd                = $fa11
+xref    KPrint
+xref    DrawOZwd
 
 
-.sub_F90C
+.InitOZwd
         call    KPrint
         defm    1,"7#8",$80+104,$20+0,$20+4,$20+8,$40   ; window 8 @+104,0 4x8 $40
         defm    1,"2C8"                                 ; select & clear 8
         defm    1,"6#7",$80+0,$20+0,$20+10,$20+8        ; window 7 @+0,0 10x8
         defm    0
 
-.loc_F925
+.InitApplWd
         call    KPrint
         defm    1,"6#1",$80+10,$20+0,$20+94,$20+8       ; window 1 @abs10,0 94x8
         defm    1,"2I1"                                 ; select & init 1
@@ -38,7 +38,7 @@ defc    DrawOZwd                = $fa11
         ld      hl, Wd1Frame
         ld      (sbf_ActiveWd), hl
         call    Zero_ctrlprefix
-        call    sub_F90C
+        call    InitOZwd
         call    KPrint
         defm    1,"3+CS"
         defm    0

@@ -10,10 +10,11 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    DoAlarms
 
-defc    OSOff                   =$ce21
+xref    OSOff
 
 ;       ----
 .DoAlarms

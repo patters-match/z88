@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    RdStdinNoTO
 xdef    RdStdin
@@ -23,23 +24,20 @@ xdef    ub_EFBB
 xdef    CancelOZcmd
 xdef    PutOZwdBuf
 
-defc    UpdateRnd               =$DAFD
-defc    ResetTimeout            =$CEE0
-defc    MaySetEsc               =$D137
-defc    OSFramePush             =$D555
-defc    PutOSFrame_BC           =$D6EC
-defc    OSFramePop              =$D582
-defc    DoAlarms                =$CD6D
-defc    MayDrawOZwd             =$CDA5
-defc    DoHelp                  =$9F4C
-defc    ApplyQualifiers         =$DCD9
-defc    FindCmd                 =$F0DF
-defc    DoLocalized             =$DD7E
-defc    Key2Chr_tbl             =$AD3F
-defc    Chr2ScreenCode          =$AD2B
-defc    DrawOZwd                =$FA11
-defc    AtoN_upper              =$D727
-defc    BfGbt                   =$c4ba
+xref    UpdateRnd
+xref    ResetTimeout
+xref    MaySetEsc
+xref    OSFramePush
+xref    PutOSFrame_BC
+xref    OSFramePop
+xref    DoAlarms
+xref    MayDrawOZwd
+xref    ApplyQualifiers
+xref    FindCmd
+xref    DoLocalized
+xref    DrawOZwd
+xref    AtoN_upper
+xref    BfGbt
 
 
 .RdStdinNoTO

@@ -8,6 +8,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
         org     $c206                           ; 579 bytes
 
@@ -23,21 +24,20 @@ xdef    BadSwapAndFree
 xdef    sub_C39F
 xdef    IsBadUgly
 
-defc    GetAppDOR               =$ea2b
-defc    PutOSFrame_DE           =$d6f3
-defc    PutOSFrame_BHL          =$d6fa
-defc    loc_9FE6                =$9fe6
-defc    FirstFreeRAM            =$ffab
-defc    Chk128KB                =$ff9f
-defc    FollowPageN             =$e375
-defc    MarkPageAsAllocated     =$e055
-defc    MATPtrToPagePtr         =$e360
-defc    PageNToPagePtr          =$e35d
-defc    Chk128KBslot0           =$ffa5
-defc    MS1BankA                =$d710
-defc    Fs_MS2BankB             =$f4c9
-defc    Fs_RestoreS2            =$f4db
-defc    MS2BankA                =$d721
+xref    GetAppDOR
+xref    PutOSFrame_DE
+xref    PutOSFrame_BHL
+xref    FirstFreeRAM
+xref    Chk128KB
+xref    FollowPageN
+xref    MarkPageAsAllocated
+xref    MATPtrToPagePtr
+xref    PageNToPagePtr
+xref    Chk128KBslot0
+xref    MS1BankA
+xref    fsMS2BankB
+xref    fsRestoreS2
+xref    MS2BankA
 
 
 defc    FREE_THIS       =7
@@ -124,7 +124,7 @@ defc    FREE_THIS       =7
 
 ;       set bindings as needed
 
-        ld      hl, ubAppS0Binding
+        ld      hl, ubAppBindings
         ld      (hl), $21                       ; S0 b20 upper half - first 8KB of bad app RAM
         cp      16*4
         jr      c, acr_5                        ; less than 16KB? done
@@ -352,7 +352,7 @@ defc    FREE_THIS       =7
 
 .abr2_8
         ld      bc, (ubAppContRAM-1)            ; ld b,(ubAppContRAM)
-        ld      hl, (pAppExtrastackArea)
+        ld      hl, (pAppBadMemTable)
 .abr2_9
         res     FREE_THIS, (hl)
         inc     hl
@@ -462,18 +462,18 @@ defc    FREE_THIS       =7
         push    iy
         ld      bc, (ubSlotRAMoffset-1)         ; ld b,(ubSlotRAMoffset)
         inc     b                               ; $21 always?
-        call    Fs_MS2BankB                     ; remember S1/S2 and do MS2BankB
+        call    fsMS2BankB                      ; remember S1/S2 and do MS2BankB
         ld      bc, (ubAppContRAM-1)            ; ld b,(ubAppContRAM)
         ld      c, 0
         ld      ix, (pAppBadMemHandle)
-        ld      iy, (pAppExtrastackArea)
+        ld      iy, (pAppBadMemTable)
         jr      loc_C423
 
 ;       undo previous
 
 .BadRestore
         pop     hl                              ; return address
-        call    Fs_RestoreS2
+        call    fsRestoreS2
         pop     iy
         pop     ix
 

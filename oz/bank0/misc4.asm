@@ -10,16 +10,17 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
+xdef    OSFramePush
 xdef    OSFramePushMain
 xdef    OSFramePop
 xdef    osfpop_1
 xdef    OSBox
 xdef    OSBix
 
-defc    MS2BankA                =$d721
-defc    OZCallReturn1           =$00ab
-defc    MS12BankCB              =$d704
+xref    MS2BankA
+xref    MS12BankCB
 
 .OSFramePush
         pop     hl                              ; caller PC

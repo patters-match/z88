@@ -10,12 +10,13 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSUst
 
-defc    OSFramePush             =$d555
-defc    PutOSFrame_BC           =$d6ec
-defc    OSFramePop              =$d582
+xref    OSFramePush
+xref    PutOSFrame_BC
+xref    OSFramePop
 
 ;       update small timer
 ; 

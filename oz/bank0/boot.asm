@@ -8,16 +8,17 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
         org     $c000                           ; 123 bytes
 
 xdef    Halt
 
-defc    Delay2Mclocks           =$cdb8
-defc    nmi_5                   =$cfa7
-defc    Reset1                  =$c07b
-defc    Bootstrap2              =$c082
-defc    HW_NMI2                 =$d00e
+xref    Delay300Kclocks
+xref    nmi_5
+xref    Reset1
+xref    Bootstrap2
+xref    HW_NMI2
 
 ; reset code at $0000
 
@@ -59,7 +60,7 @@ defc    HW_NMI2                 =$d00e
 .rint_0
         di
         ld      sp, ROMstack&$3fff              ; read return PC from ROM
-        call    Delay2Mclocks                   ; ret to Reset1
+        call    Delay300Kclocks                 ; ret to Reset1
         defb    $FF,$FF,$FF,$FF,$FF
 
 ;       0038

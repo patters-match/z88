@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    Reset4
 xdef    MountAllRAM
@@ -19,88 +20,76 @@ xdef    Chk128KBslot0
 xdef    FirstFreeRAM
 
 
-defc    MS2BankK1                       =$d71f
-defc    Reset5                          =$9816
-defc    RAMDORtable                     =$9670
-defc    MS1BankA                        =$d710
-defc    RAMxDOR                         =$9803
-
-defc    BufWriteA                       =$c5fa
-defc    BufRead                         =$c639
-defc    BfPbt                           =$c538
-defc    BfGbt                           =$c4ba
-defc    BfSta                           =$c470
-defc    BfPur                           =$c493
-
-defc    OzCallInvalid                   =$c149
-defc    OSFramePop                      =$d582
-defc    CallOS2byte                     =$c10b
-defc    CallGN                          =$c105
-defc    CallDC                          =$c101
-defc    OzCall_OS_Bye                   =$c95a
-defc    OSPrt                           =$c150
-defc    OSOut                           =$c449
-defc    OzCall2A_OS_In                  =$eec2
-defc    OzCall2D_OS_Tin                 =$eeb7
-defc    OSXin                           =$c59c
-defc    OSPur                           =$c5e2
-defc    OSGb                            =$d351
-defc    OSPb                            =$d384
-defc    OSGbt                           =$d35c
-defc    OSPbt                           =$d38f
-defc    OSMv                            =$d2ec
-defc    OSFrm                           =$d3ba
-defc    OSFwm                           =$d476
-defc    OSMop                           =$e584
-defc    OsMcl                           =$e58d
-defc    OSMal                           =$e596
-defc    OSMfr                           =$e5ab
-defc    OSMgb                           =$e5c0
-defc    OSMpb                           =$e5df
-defc    OSBix                           =$d59a
-defc    OSBox                           =$d593
-defc    OSNq                            =$f1b6
-defc    OSSp                            =$f1ac
-defc    OSSr                            =$fe29
-defc    OSEsc                           =$d0cc
-defc    OSErc                           =$d07d
-defc    OSErh                           =$d05d
-defc    OSUst                           =$fe6d
-defc    OSFn                            =$d7c3
-defc    OSWait                          =$ceed
-defc    OSAlm                           =$c1eb
-defc    OSCli                           =$c6c9
-defc    OSDor                           =$ca25
-defc    OSFc                            =$e608
-defc    OSSi                            =$d526
-
-defc    OSWtb                           =$edbd
-defc    OSWrt                           =$edde
-defc    OSWsq                           =$adc4
-defc    OSIsq                           =$adb8
-defc    OSAxp                           =$e148
-defc    OSSci                           =$9506
-defc    OSDly                           =$c45f
-defc    OSBlp                           =$fdf5
-defc    OSBde                           =$d784
-defc    CopyMemBHL_DE                   =$d795
-defc    OSFth                           =$d5e5
-defc    OSVth                           =$d5eb
-defc    OSGth                           =$d5d1
-defc    OSRen                           =$9d0c
-defc    OSDel                           =$9d1f
-defc    OSCl                            =$d2a8
-defc    OSOp                            =$d1f8
-defc    OSOff                           =$ce21
-defc    OSUse                           =$c9a9
-defc    OSEpr                           =$c1ca
-defc    OSHt                            =$d4bb
-defc    OSMap                           =$df22
-defc    OSExit                          =$c6e4
-defc    OSStk                           =$c926
-defc    OSEnt                           =$c6e8
-defc    OSPoll                          =$9aeb
-defc    OSDom                           =$c23a
+xref    MS2BankK1
+xref    MS1BankA
+xref    BufWrite
+xref    BufRead
+xref    BfPbt
+xref    BfGbt
+xref    BfSta
+xref    BfPur
+xref    OzCallInvalid
+xref    OSFramePop
+xref    CallOS2byte
+xref    CallGN
+xref    CallDC
+xref    OSBye
+xref    OSPrt
+xref    OSOut
+xref    OSIn
+xref    OSTin
+xref    OSXin
+xref    OSPur
+xref    OSGb
+xref    OSPb
+xref    OSGbt
+xref    OSPbt
+xref    OSMv
+xref    OSFrm
+xref    OSFwm
+xref    OSMop
+xref    OsMcl
+xref    OSMal
+xref    OSMfr
+xref    OSMgb
+xref    OSMpb
+xref    OSBix
+xref    OSBox
+xref    OSNq
+xref    OSSp
+xref    OSSr
+xref    OSEsc
+xref    OSErc
+xref    OSErh
+xref    OSUst
+xref    OSFn
+xref    OSWait
+xref    OSAlm
+xref    OSCli
+xref    OSDor
+xref    OSFc
+xref    OSSi
+xref    OSWtb
+xref    OSWrt
+xref    OSAxp
+xref    OSDly
+xref    OSBlp
+xref    OSBde
+xref    CopyMemBHL_DE
+xref    OSFth
+xref    OSVth
+xref    OSGth
+xref    OSCl
+xref    OSOp
+xref    OSOff
+xref    OSUse
+xref    OSEpr
+xref    OSHt
+xref    OSMap
+xref    OSExit
+xref    OSStk
+xref    OSEnt
+xref    OSDom
 
 .Reset4
         call    MS2BankK1
@@ -158,7 +147,7 @@ defc    OSDom                           =$c23a
         ret
 
 .OZBuffCallTable
-        jp      BufWriteA
+        jp      BufWrite
         jp      BufRead
         jp      BfPbt
         jp      BfGbt
@@ -180,11 +169,11 @@ defc    OSDom                           =$c23a
         jp      OzCallInvalid
         jp      OzCallInvalid
         jp      OzCallInvalid
-        jp      OzCall_OS_Bye
+        jp      OSBye
         jp      OSPrt
         jp      OSOut
-        jp      OzCall2A_OS_In
-        jp      OzCall2D_OS_Tin
+        jp      OSIn
+        jp      OSTin
         jp      OSXin
         jp      OSPur
         jp      OzCallInvalid                   ; Os_Ugb

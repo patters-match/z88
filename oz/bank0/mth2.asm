@@ -10,57 +10,54 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    AddBHL_DE
-xdef    MTHPrint
-xdef    PrintChar
-xdef    DrawTopicHelpWd
+xdef    ChgHelpFile
+xdef    CopyAppPointers
 xdef    DrawCmdHelpWd
-xdef    PrntAppname
-xdef    PrintTopic
-xdef    MTHPrintTokenized
+xdef    DrawMenuWd
+xdef    DrawTopicHelpWd
+xdef    FilenameDOR
+xdef    GetAppCommands
+xdef    GetAppDOR
+xdef    GetAttr
+xdef    GetCmdTopicByNum
+xdef    GetHlp_sub
+xdef    GetHlpCommands
+xdef    GetHlpHelp
+xdef    GetHlpTokens
+xdef    GetHlpTopics
+xdef    GetRealCmdPosition
 xdef    InputEmpty
 xdef    MayMTHPrint
-xdef    CopyAppPointers
-xdef    FilenameDOR
+xdef    MTHPrint
+xdef    MTHPrintTokenized
 xdef    NextAppDOR
 xdef    PrevAppDOR
+xdef    PrintChar
+xdef    PrintTopic
+xdef    PrntAppname
 xdef    SetActiveAppDOR
-xdef    GetAppDOR
-xdef    GetHlpHelp
-xdef    GetHlpTopics
-xdef    GetHlpCommands
-xdef    GetHlp_sub
-xdef    SkipNTopics
-xdef    GetCmdTopicByNum
-xdef    GetRealCmdPosition
-xdef    GetAttr
 xdef    SetHlpAppChgFile
-xdef    ChgHelpFile
-xdef    DrawMenuWd
+xdef    SkipNTopics
 
-defc    ResetToggles            =$D764
-defc    ScrDrv_SOH_A            =$D766
-defc    InitHelpWd              =$A64B
-defc    Help2Wd_Top             =$A485
-defc    Get2ndTopicHelp         =$F13F
-defc    GetFirstCmdHelp         =$F133
-defc    Help2Wd_bottom          =$A4B3
-defc    Get2ndCmdHelp           =$F12D
-defc    MTH_ToggleLT            =$D75B
-defc    MayWrt                  =$EDDB
-defc    OSWrt                   =$EDDE
-defc    ZeroHandleIX            =$D673
-defc    InitHandle              =$9680
-defc    fsMS2BankB              =$F4C9
-defc    GetHandlePtr            =$CCE3
-defc    MS2BankK1               =$D71F
-defc    fsRestoreS2             =$F4DB
-defc    OpenAppHelpFile         =$A418
-defc    KPrint                  =$D74D
-defc    GetTpcAttrByNum         =$F160
-defc    DrawMenuWd2             =$A00D
-defc    AtoN_upper              =$D727
+xref    ResetToggles
+xref    ScrDrv_SOH_A
+xref    Get2ndTopicHelp
+xref    GetFirstCmdHelp
+xref    Get2ndCmdHelp
+xref    MTH_ToggleLT
+xref    MayWrt
+xref    OSWrt
+xref    ZeroHandleIX
+xref    fsMS2BankB
+xref    GetHandlePtr
+xref    MS2BankK1
+xref    fsRestoreS2
+xref    KPrint
+xref    GetTpcAttrByNum
+xref    AtoN_upper
 
 ;       BHL+=DE
 ;       adjusts B to keep HL<$4000

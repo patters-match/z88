@@ -10,17 +10,18 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSWtb
 xdef    MayWrt
 xdef    OSWrt
 
-defc    PutOSFrame_BHL          =$d6fa
-defc    FixPtr                  =$d8a2
-defc    GetHlpTokens            =$eaac
-defc    fsMS2BankB              =$f4c9
-defc    fsRestoreS2             =$f4db
-defc    PrintChar               =$e7fe
+xref    PutOSFrame_BHL
+xref    FixPtr
+xref    GetHlpTokens
+xref    fsMS2BankB
+xref    fsRestoreS2
+xref    PrintChar
 
 
 .OSWtb

@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    ScreenOpen
 xdef    ScreenClose
@@ -39,19 +40,14 @@ xdef    OSSr
 xdef    RestoreScreen
 xdef    SaveScreen
 
-defc    MS1BankA                = $d710
-defc    ScrD_GetNewXY           = $aead
-defc    AtoN_upper              = $d727
-defc    ScrD_PutChar            = $acc3
-defc    Delay2Mclocks           = $cdb8
-defc    Zero_ctrlprefix         = $ade8
-defc    OSFramePush             = $d555
-defc    OSSR_main               = $b1a6
-defc    OSFramePop              = $d582
-defc    DrawOZwd                = $fa11
-defc    ReadBuffer              = $f64f
-defc    WrACB_buffer            = $f4e1
-defc    ScrDrvAttrTable         = $b123
+xref    MS1BankA
+xref    AtoN_upper
+xref    Delay300Kclocks
+xref    OSFramePush
+xref    OSFramePop
+xref    DrawOZwd
+xref    RdHeaderedData
+xref    WrHeaderedData
 
 
 ; bind screen into S1, $7800-$7fff
@@ -352,7 +348,7 @@ defc    ScrDrvAttrTable         = $b123
         bit     WDFH_B_DELAY, (ix+wdf_flagsHi)
         jr      z, lf_2
         ex      de, hl
-        call    Delay2Mclocks
+        call    Delay300Kclocks
         ex      de, hl
 
 .lf_2
@@ -791,11 +787,11 @@ defc    ScrDrvAttrTable         = $b123
         push    de
         inc     e
         jr      z, srscr_wline
-        call    ReadBuffer
+        call    RdHeaderedData
         pop     de
         ret
 
 .srscr_wline
-        call    WrACB_buffer
+        call    WrHeaderedData
         pop     de
         ret

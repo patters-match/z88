@@ -10,41 +10,48 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
         org     $df2a                           ; 2143 bytes
 
-xdef    PageNToPagePtr
-xdef    OSMopMain
-xdef    OSMclMain
-xdef    OSMalMain
-xdef    OSMfrMain
-xdef    OSAxp
+xdef    FollowPageN
 xdef    InitRAM
 xdef    InitSlotRAM
 xdef    MarkSwapRAM
 xdef    MarkSystemRAM
+xdef    MATPtrToPagePtr
+xdef    OSAxp
+xdef    OSFc
+xdef    OSMal
+xdef    OSMalMain
+xdef    OsMcl
+xdef    OSMclMain
+xdef    OSMfr
+xdef    OSMfrMain
+xdef    OSMgb
 xdef    OSMop
-xdef    OSSp_89
+xdef    OSMopMain
+xdef    OSMpb
 xdef    OSNqMemory
+xdef    OSSp_89
+xdef    PageNToPagePtr
 xdef    VerifySlotType
+xdef    MarkPageAsAllocated
 
-defc    AllocHandle             =$d642
-defc    VerifyHandle            =$d6c6
-defc    FreeHandle              =$d628
-defc    OZwd__fail              =$f9e7
-defc    MemCallSizeVerify       =$9f23          ; was MemCallAttrVerify
-defc    MS1BankA                =$d710
-defc    PutOSFrame_BHL          =$d6fa
-defc    MS2BankA                =$d721
-defc    MemPtr2FilePtr          =$f382
-defc    FilePtr2MemPtr          =$f368
-defc    KPrint                  =$d74d
-defc    AddAvailableFsBlock     =$f389
-defc    OSFramePush             =$d555
-defc    OSFramePop              =$d582
-defc    OZCallReturn1           =$00ab
-defc    OZCallReturn2           =$00ac
-defc    PutOSFrame_DE           =$d6f3
+xref    AllocHandle
+xref    VerifyHandle
+xref    FreeHandle
+xref    OZwd__fail
+xref    MS1BankA
+xref    PutOSFrame_BHL
+xref    MS2BankA
+xref    MemPtr2FilePtr
+xref    FilePtr2MemPtr
+xref    KPrint
+xref    AddAvailableFsBlock
+xref    OSFramePush
+xref    OSFramePop
+xref    PutOSFrame_DE
 
 defc    DM_RAM                  =$81
 

@@ -10,12 +10,13 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    MayDrawOZwd
 xdef    SetPendingOZwd
 xdef    Delay300Kclocks
 
-defc    DrawOZwd                =$fa11
+xref    DrawOZwd
 
 
 ;       draw OZ window if needed

@@ -10,55 +10,43 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSExit
 xdef    OSEnt
 xdef    ApplCaps
 xdef    OSStk
-xdef    OzCall_OS_Bye
 xdef    OSUse
 xdef    loc_C9C6
 xdef    loc_C9C8
 xdef    InitActiveCommand
+xdef    OSBye
 
 
-defc    RestoreAllAppData               =$f6bd
-defc    ClearUnsafeArea                 =$9afd
-defc    AllocMemFile_SizeHL             =$f4a8
-defc    MS2BankK1                       =$d71f
-defc    CancelOZcmd                     =$f0a1
-defc    ScreenOpen                      =$faea
-defc    ScreenClose                     =$faf6
-defc    BadAllocAndSwap                 =$c2b1
-defc    InitApplWd                      =$f925
-defc    DrawAppTopicWd                  =$a553
-defc    sub_C39F                        =$c39f
-defc    OSSr_Fus                        =$b21e
-defc    ostin_4                         =$ef19
-defc    sub_C2F3                        =$c2f3
-defc    FreeBadRAM                      =$c29f
-defc    SetActiveAppDOR                 =$EA28
-defc    CopyMTH1_2                      =$9FEE
-defc    InitUserAreaGrey                =$AFA8
-defc    MS1BankB                        =$D70F
-defc    OpenAppHelpFile                 =$A418
-defc    IsBadUgly                       =$C3ED
-defc    ClearMemDE_HL                   =$9B04
-defc    AllocBadRAM1                    =$C242
-defc    OSFramePush                     =$D555
-defc    loc_EECE                        =$EECE
-defc    ChkStkLimits                    =$9B16
-defc    DrawOZwd                        =$FA11
-defc    Mailbox2Stack                   =$9B3F
-defc    SaveAllAppData                  =$F669
-defc    PutOSFrame_BHL                  =$D6FA
-defc    GetFileSize                     =$F785
-defc    DORHandleFreeDirect             =$CB1A
-defc    BadSwapAndFree                  =$C2F8
-
-
-defc    JumpToAHL                       =$00d4
-defc    DefErrHandler                   =$00e0
+xref    RestoreAllAppData
+xref    AllocMemFile_SizeHL
+xref    MS2BankK1
+xref    CancelOZcmd
+xref    ScreenOpen
+xref    ScreenClose
+xref    BadAllocAndSwap
+xref    InitApplWd
+xref    sub_C39F
+xref    ostin_4
+xref    sub_C2F3
+xref    FreeBadRAM
+xref    SetActiveAppDOR
+xref    MS1BankB
+xref    IsBadUgly
+xref    AllocBadRAM1
+xref    OSFramePush
+xref    loc_EECE
+xref    DrawOZwd
+xref    SaveAllAppData
+xref    PutOSFrame_BHL
+xref    GetFileSize
+xref    DORHandleFreeDirect
+xref    BadSwapAndFree
 
 defc    AT_B_POPD       =3
 
@@ -303,7 +291,7 @@ defc    AT_B_POPD       =3
         ld      de, ADOR_BINDINGS
         add     hl, de
         ld      de, ubAppBindings
-        ld      a, (pAppDOR+2)
+        ld      a, (eHlpAppDOR+2)
         and     $0C0                            ; slot base
         ld      c, a
         ld      b, 4
@@ -525,18 +513,18 @@ defc    AT_B_POPD       =3
 ;       ----
 
 .InitAppMTH
-        ld      (pActiveAppPtr), a
+        ld      (ubHlpActiveApp), a
 
 .loc_C9C6
         ld      a, 1
 
 .loc_C9C8
-        ld      (byte_0289), a
+        ld      (ubHlpActiveHelp), a
         ld      a, 1
-        ld      (ubActiveTopic), a
+        ld      (ubHlpActiveTpc), a
 
 .InitActiveCommand
         ld      a, 1
-        ld      (ubActiveCommand), a
+        ld      (ubHlpActiveCmd), a
         ret
 

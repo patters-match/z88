@@ -10,19 +10,18 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    IntFlap
 xdef    AddRAMCard
 
-defc    MS2BankK1               =$d71f
-defc    StoreCardIDs            =$9bbe
-defc    Delay300Kclocks         =$cdb8
-defc    NMIMain                 =$cf3e
-defc    ChkCardChange           =$9bef
-defc    MS12BankCB              =$d704
-defc    InitSlotRAM             =$e183
-defc    ExpandMachine           =$c0d4
-defc    MountAllRAM             =$fe9d
+xref    MS2BankK1
+xref    Delay300Kclocks
+xref    NMIMain
+xref    MS12BankCB
+xref    InitSlotRAM
+xref    ExpandMachine
+xref    MountAllRAM
 
 
 .IntFlap                                        

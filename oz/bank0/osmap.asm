@@ -10,10 +10,9 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSMap
-
-defc    OSMapMain               =$9e03
 
 ; high resolution graphics manipulation
 

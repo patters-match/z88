@@ -10,13 +10,12 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 xdef    OSSi
 xdef    IntUART
 
-defc    OZCallReturn1           =$00ab
-defc    MS2BankA                =$d721
-defc    RS232code               =$a500
+xref    MS2BankA
 
 
 ;IN:    L=reason code - see rs232.asm for arguments

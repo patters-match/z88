@@ -8,6 +8,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
         org     $f9d2                           ; 280 bytes
 
@@ -17,8 +18,8 @@ xdef    OZwd__fail
 xdef    OZwd_fail
 xdef    DrawOZwd
 
-defc    ScreenOpen              =$faea
-defc    ScreenClose             =$faf6
+xref    ScreenOpen
+xref    ScreenClose
 
 
 .OZwd_card

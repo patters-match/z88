@@ -10,59 +10,54 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank7.def"
 
 
-xdef    MS2HandleBank
 xdef    _MS2BankA
-xdef    OSOp
+xdef    MS2HandleBank
 xdef    OSCl
-xdef    SMv
-xdef    OSGb
-xdef    OSGbt
-xdef    OSPb
-xdef    OSPbt
 xdef    OSFrm
 xdef    OSFwm
+xdef    OSGb
+xdef    OSGbt
+xdef    OSOp
+xdef    OSPb
+xdef    OSPbt
+xdef    OSMv
 
-defc    RdKbBuffer              =$eeab
-defc    OSOutMain               =$ac5b
-defc    OSPrtMain               =$c176
-defc    PokeHLinc               =$d84c
-defc    PeekHLinc               =$d7e2
-defc    MS2BankA                =$d721
-defc    VerifyHandleBank        =$cd5a
-defc    FileNameDate            =$9d24
-defc    RewindFile              =$f245
-defc    GetHandlePtr            =$cce3
-defc    loc_F234                =$f234
-defc    ChgHandleType           =$d6be
-defc    OpenMem                 =$9ce9
-defc    OSDel                   =$9d1f
-defc    GetFileSize             =$f785
-defc    MS2BankK1               =$d71f
-defc    sub_F25D                =$f25d
-defc    DORHandleFreeDirect     =$cb1a
-defc    OSFramePush             =$d555
-defc    OSFramePop              =$d582
-defc    IsSpecialHandle         =$9cdd
-defc    GetOSFrame_DE           =$d6de
-defc    GetOSFrame_HL           =$d6e5
-defc    PutOSFrame_HL           =$d6fd
-defc    MvToFile                =$f4f1
-defc    MvFromFile              =$f665
-defc    PutOSFrame_DE           =$d6f3
-defc    PutOSFrame_BC           =$d6ec
-defc    VerifyHandle            =$d6c6
-defc    RdFile                  =$f8a0
-defc    WrFile                  =$f89d
-defc    GetFilePos              =$f79a
-defc    FindHandle              =$d683
-defc    GetFileEOF              =$f759
-defc    Chk128KB                =$ff9f
-defc    OZ_BUF                  =$004e
-defc    CopyMemHL_DE            =$d793
-defc    SeekFileMayExpand       =$f7f5
-defc    SetFileSize             =$f7fb
+xref    AllocFirstBlock
+xref    ChgHandleType
+xref    Chk128KB
+xref    CopyMemHL_DE
+xref    DORHandleFreeDirect
+xref    FindHandle
+xref    FreeMemData0
+xref    GetFileEOF
+xref    GetFilePos
+xref    GetFileSize
+xref    GetHandlePtr
+xref    GetOSFrame_DE
+xref    GetOSFrame_HL
+xref    MS2BankA
+xref    MS2BankK1
+xref    MvFromFile
+xref    MvToFile
+xref    OSFramePop
+xref    OSFramePush
+xref    OSPrtMain
+xref    PeekHLinc
+xref    PokeHLinc
+xref    PutOSFrame_BC
+xref    PutOSFrame_DE
+xref    PutOSFrame_HL
+xref    RdFileByte
+xref    RdKbBuffer
+xref    RewindFile
+xref    SeekFileMayExpand
+xref    SetFileSize
+xref    VerifyHandle
+xref    VerifyHandleBank
+xref    WrFileByte
 
 ;       ----
 
@@ -349,7 +344,7 @@ defc    SetFileSize             =$f7fb
         ld      (ix+fhnd_attr), h
         ld      (ix+fhnd_flags), h
 
-        call    loc_F234                        ; allocate first block?
+        call    AllocFirstBlock                        ; allocate first block?
         jr      c, opout_err                    ; error? exit
 
         ld      a, DR_WR                        ; write DOR record
@@ -481,7 +476,7 @@ defc    SetFileSize             =$f7fb
 
 .oscl_2
         bit     FATR_B_MEMORY, (ix+fhnd_attr)
-        call    nz, sub_F25D                    ; memory? free
+        call    nz, FreeMemData0                    ; memory? free
         jp      DORHandleFreeDirect
 
 .oscl_err
@@ -606,7 +601,7 @@ defc    SetFileSize             =$f7fb
         ld      a, RC_Rp
         scf
         ret     z                               ; not readable? rd protected
-        jp      RdFile
+        jp      RdFileByte
 
 ;       ----
 
@@ -646,7 +641,7 @@ defc    SetFileSize             =$f7fb
         ret     z                               ; not writable? wr protected
 
         ld      a, (iy+OSFrame_A)
-        call    WrFile
+        call    WrFileByte
         jp      SetFileWriteErrF                ; may set error flag
 
 ;       ----
