@@ -153,8 +153,8 @@
  
                     POP  IX                       ; restore registers...
                     POP  HL
-                    POP  BC
-                    LD   A,B                      ; A restored
+                    POP  DE                       ; original AF..
+                    LD   A,D                      ; A restored
                     POP  DE
                     LD   B,D                      ; original B restored (return C)
                     POP  DE                       ; original DE restored
