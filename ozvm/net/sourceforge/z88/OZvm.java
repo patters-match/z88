@@ -1,5 +1,7 @@
 package net.sourceforge.z88;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -13,7 +15,7 @@ import javax.swing.JTextField;
  * $Id$
  *
  */
-public class OZvm {
+public class OZvm implements KeyListener {
 
 	public static final String VERSION = "0.2.2";
 	private static final String CMDLINEPROMPT = "OZvm$";
@@ -33,6 +35,7 @@ public class OZvm {
 	private JTextArea runtimeOutput = null;
 	private JTextArea commandOutput = null;
 	private JTextField commandInput = null;
+	private JPanel z88Screen = null;
 
 	/**
 	 * The Breakpoint manager instance.
@@ -51,8 +54,9 @@ public class OZvm {
 			runtimeOutput = rtmOutput;
 			commandInput = cmdInput;
 			commandOutput = cmdOutput;
+			z88Screen = canvas;
 			
-			z88 = new Blink(canvas, rtmOutput);
+			z88 = new Blink(canvas, cmdInput, rtmOutput);
 			z88.hardReset();
 
 			z80Speed = new MonitorZ80(z88);
@@ -68,8 +72,10 @@ public class OZvm {
 				}
 			});
 
-			displayCmdOutput("Type 'h' or 'help' for available debugging commands");
+			commandInput.addKeyListener(this);
 			
+			displayCmdOutput("Type 'h' or 'help' for available debugging commands");
+			displayCmdOutput("Use F12 to toggle keyboard focus between debug command line and Z88 window.");			
 		} catch (Exception e) {
 			e.printStackTrace();
 			rtmOutput.append("\n\nCouldn't initialize Z88 virtual machine.");
@@ -223,10 +229,12 @@ public class OZvm {
 	}
 
 	private void cmdHelp() {
+		displayCmdOutput("Use F12 to toggle keyboard focus between debug command line and Z88 window."); 
 		displayCmdOutput("All arguments are in Hex: Local address = 64K address space,\nExtended address = 24bit address, eg. 073800 (bank 07h, offset 3800h)");
 		displayCmdOutput("Commands:");
 		displayCmdOutput("exit - end OZvm application");
-		displayCmdOutput("run - execute Z88 machine from PC");
+		displayCmdOutput("run - execute virtual Z88 from PC");
+		displayCmdOutput("stop - stop virtual Z88 (or press F5 when Z88 window has focus)");
 		displayCmdOutput("z - run z88 machine and break at next instruction");
 		displayCmdOutput(". - Single step instruction at PC");
 		displayCmdOutput("d - Disassembly at PC");
@@ -240,6 +248,7 @@ public class OZvm {
 		displayCmdOutput("bpd <extended address> - Toggle display breakpoint");
 		displayCmdOutput("sr - Blink: Segment Register Bank Binding");
 		displayCmdOutput("r - Display current Z80 Registers");
+		displayCmdOutput("cls - Clear command output area");
 	}
 
 	private void parseCommandLine(java.awt.event.ActionEvent e) {
@@ -252,11 +261,15 @@ public class OZvm {
 			z80Thread = null;	// garbage collect dead thread...
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("h") == true || cmdLineTokens[0].equalsIgnoreCase("help") == true) {
+		if (cmdLineTokens[0].compareTo("h") == 0 || cmdLineTokens[0].compareTo("help") == 0) {
 			cmdHelp();
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
+		if (cmdLineTokens[0].compareTo("cls") == 0) {
+			commandOutput.setText("");
+		}
+
+		if (cmdLineTokens[0].compareTo("run") == 0) {
 			if (z80Thread == null) {
 				 z80Thread = run();
 			} else {
@@ -267,11 +280,15 @@ public class OZvm {
 			}
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("stop") == true) {
+		if (cmdLineTokens[0].compareTo("stop") == 0) {
 			z88.stopZ80Execution();
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase(".") == true) {
+		if (cmdLineTokens[0].compareTo(".") == 0) {
+			commandInput.setText(".");
+			commandInput.setCaretPosition(commandInput.getDocument().getLength());
+			commandInput.selectAll();
+
 			if (z80Thread != null) {
 				if (z80Thread.isAlive() == true)
 					displayCmdOutput("Z88 is already running.");
@@ -282,7 +299,7 @@ public class OZvm {
 			displayCmdOutput(blinkStatus.dzPcStatus().toString());
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("z") == true) {
+		if (cmdLineTokens[0].compareTo("z") == 0) {
 			if (z80Thread != null) {
 				if (z80Thread.isAlive() == true)
 					displayCmdOutput("Z88 is already running.");
@@ -308,27 +325,27 @@ public class OZvm {
 			displayCmdOutput(blinkStatus.dzPcStatus().toString());
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("d") == true) {
+		if (cmdLineTokens[0].compareTo("d") == 0) {
 			dzCommandline(cmdLineTokens);
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("m") == true) {
+		if (cmdLineTokens[0].compareTo("m") == 0) {
 			viewMemory(cmdLineTokens);
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("bl") == true) {
+		if (cmdLineTokens[0].compareTo("bl") == 0) {
 			blinkStatus.displayBlinkRegisters();
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("sr") == true) {
+		if (cmdLineTokens[0].compareTo("sr") == 0) {
 			blinkStatus.displayBankBindings();
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("r") == true) {
+		if (cmdLineTokens[0].compareTo("r") == 0) {
 			blinkStatus.displayZ80Registers();
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("bp") == true) {
+		if (cmdLineTokens[0].compareTo("bp") == 0) {
 			try {
 				bpCommandline(cmdLineTokens);
 			} catch (IOException e1) {
@@ -336,7 +353,7 @@ public class OZvm {
 			}
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("bpd") == true) {
+		if (cmdLineTokens[0].compareTo("bpd") == 0) {
 			try {
 				bpdCommandline(cmdLineTokens);
 			} catch (IOException e1) {
@@ -344,7 +361,7 @@ public class OZvm {
 			}
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("wb") == true) {
+		if (cmdLineTokens[0].compareTo("wb") == 0) {
 			try {
 				putByte(cmdLineTokens);
 			} catch (IOException e1) {
@@ -352,26 +369,27 @@ public class OZvm {
 			}
 		}
 
-		if (cmdLineTokens[0].equalsIgnoreCase("exit") == true) {
+		if (cmdLineTokens[0].compareTo("exit") == 0) {
 			System.exit(0);
 		}		
 
 		if (cmdLineTokens[0].length() > 0 &&
-			cmdLineTokens[0].equalsIgnoreCase(".") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("d") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("r") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("h") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("m") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("wb") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("help") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("run") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("z") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("stop") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("bpd") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("sr") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("bl") == false &&
-			cmdLineTokens[0].equalsIgnoreCase("exit") == false
+			cmdLineTokens[0].compareTo("cls") != 0 &&
+			cmdLineTokens[0].compareTo(".") != 0 &&
+			cmdLineTokens[0].compareTo("d") != 0 &&
+			cmdLineTokens[0].compareTo("r") != 0 &&
+			cmdLineTokens[0].compareTo("m") != 0 &&
+			cmdLineTokens[0].compareTo("wb") != 0 &&
+			cmdLineTokens[0].compareTo("h") != 0 &&
+			cmdLineTokens[0].compareTo("help") != 0 &&
+			cmdLineTokens[0].compareTo("run") != 0 &&
+			cmdLineTokens[0].compareTo("z") != 0 &&
+			cmdLineTokens[0].compareTo("stop") != 0 &&
+			cmdLineTokens[0].compareTo("bp") != 0 &&
+			cmdLineTokens[0].compareTo("bpd") != 0 &&
+			cmdLineTokens[0].compareTo("sr") != 0 &&
+			cmdLineTokens[0].compareTo("bl") != 0 &&
+			cmdLineTokens[0].compareTo("exit") != 0
 		   ) {
 			displayCmdOutput("Unknown command.");
 		}
@@ -609,5 +627,23 @@ public class OZvm {
 	 */
 	private void setBreakPointManager(Breakpoints breakpoints) {
 		breakp = breakpoints;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+	 */
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_F12) {		
+			z88Screen.grabFocus();			
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+	 */
+	public void keyReleased(KeyEvent arg0) {
+	}
+
+	public void keyTyped(KeyEvent arg0) {
 	}
 }
