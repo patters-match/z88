@@ -91,7 +91,7 @@ public class DisplayStatus {
 		StringBuffer dzBuffer = new StringBuffer(128);
 		int bank = ((z88.decodeLocalAddress(pc) | (pc & 0xF000)) >>> 16) & 0xFF;
 		int instrOpcode = (z88.readWord(pc+2) << 16) | z88.readWord(pc);
-		Dz.dzInstrAscii(dzBuffer, pc, instrOpcode, true);
+		Dz.dzInstrAscii(dzBuffer, pc, instrOpcode, true, true);
 		for(int space=35 - dzBuffer.length(); space>0; space--)
 			dzBuffer.append(" ");		// pad with spaces, to right-align with Mnemonic
 		dzBuffer.append(quickZ80Dump());
