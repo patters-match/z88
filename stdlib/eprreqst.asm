@@ -20,7 +20,6 @@
      LIB ApplEprType
      LIB SafeSegmentMask
      LIB MemReadByte
-     LIB FlashEprCardId
 
      include "error.def"
      include "memory.def"
