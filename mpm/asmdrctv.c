@@ -876,7 +876,7 @@ DEFP (void)
         }
 
       GetSym ();
-      if (!ExprAddr16 (bytepos))
+      if (!ExprOffset16 (bytepos))
         break;                  /* syntax error - get next line from file... */
       PC += 2;                  /* DEFW allocated, update assembler PC */
       bytepos += 2;
