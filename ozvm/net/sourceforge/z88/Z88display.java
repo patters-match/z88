@@ -350,6 +350,8 @@ public class Z88display extends JPanel implements MouseListener {
 
 		// remember the time it took to render the complete screen, accumulated
 		renderTimeTotal += System.currentTimeMillis() - timeMs;
+		
+		Thread.yield();
 	}
 
 	private void renderImageToComponent() {
