@@ -32,8 +32,7 @@
 
      LIB GreyApplWindow
      LIB FlashEprWriteBlock, MemDefBank
-     LIB FlashEprVppOn, FlashEprVppOff
-     LIB FlashEprBlockErase, FlashEprCardId
+     LIB FlashEprBlockErase, FlashEprCardErase, FlashEprCardId
      LIB CheckBattLow
      LIB CreateWindow
 
@@ -95,22 +94,20 @@
                     CALL Check_Eprom                   ; eprom already used at range?
                     RET  C
 
-                    CALL FlashEprVppOn                 ; Enable VPP pin on chip
-
                     LD   A,(EprBank)                   ; get current EPROM bank to be blown...
+                    OR   $C0                           ; (bank B mapped to slot 3)
                     LD   B,A                           ; into
                     LD   C, MS_S2                      ; segment 2
                     PUSH BC
                     CALL Get_AbsRange                  ; get start ranges in HL, DE, length in BC
+                    PUSH IY
                     PUSH BC
-                    POP  IX                            ; IX = size of block
+                    POP  IY                            ; IY = size of block
                     POP  BC                            ; B = Bank of Eprom
                     EX   DE,HL                         ; DE = Source pointer, HL = dest. pointer
                     CALL FlashEprWriteBlock            ; blow to Flash Eprom
+                    POP  IY
 
-                    PUSH AF
-                    CALL FlashEprVppOff                ; Disable VPP pin on chip
-                    POP  AF
                     JR   NC, block_written
 
                     EX   DE,HL                         ; HL = Source pointer (in buffer), DE = dest. pointer
@@ -255,17 +252,11 @@
                     
 .format_all         LD   HL, format1_banner
                     CALL DispFormatMsg
-                    CALL FlashEprInfo                  ; B = total no. of banks to erase...
-                    DEC  B                             ; format block number B-1 to 0
-.format_loop        CALL CheckBatteries
+                    CALL CheckBatteries
                     RET  C                             ; Batteries went low
-                    LD   A,B
-                    CALL FlashEprBlockErase
+                    LD   C,3                           ; erase complete card in slot 3
+                    CALL FlashEprCardErase
                     JR   C, format_error
-                    DEC  B
-                    LD   A,$FF
-                    CP   B
-                    JR   NZ, format_loop
 .card_formatted
                     LD   BC,$0311                      ; position of window
                     LD   DE,$0530                      ; size of message window
@@ -306,11 +297,12 @@
 
                     PUSH DE
                     LD   HL, FlashEprTypes
-                    LD   DE, 4                    ; each table entry is 4 bytes
+                    LD   DE, 5                    ; each table entry is 5 bytes
                     LD   B,(HL)                   ; no. of Flash Eprom Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
                     JR   NZ, get_next
+                         INC  HL                  ; points at manufacturer code
                          INC  HL
                          LD   B,(HL)              ; B = total of block on Flash Eprom
                          INC  HL

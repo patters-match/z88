@@ -264,7 +264,7 @@ DEFVARS $1800
                     LD   HL, ProgramMsg
                     CALL_OZ Gn_Sop
 
-                    CALL FlashEprVppOn
+;                    CALL FlashEprVppOn
 
                     CALL FlashEprInfo
                     SLA  B
@@ -331,7 +331,7 @@ DEFVARS $1800
                     JR   NZ, prog_card_loop
 
 .exit_programming                            ; all banks manipulated
-                    CALL FlashEprVppOff      ; disable vpp pin on Flash Card
+;                    CALL FlashEprVppOff      ; disable vpp pin on Flash Card
                     RET
 
 
