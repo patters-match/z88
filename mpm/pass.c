@@ -73,7 +73,6 @@ extern FILE *srcasmfile, *errfile, *listfile, *objfile, *mapfile;
 extern char copyrightmsg[];
 extern char *date, ident[], separators[];
 extern char *srcfilename, *lstfilename, *objfilename, *errfilename;
-extern char objext[], binext[];
 extern enum symbols sym;
 extern enum flag uselistingfile, verbose, writeline;
 extern enum flag pass1, symtable, deforigin, EOL;
@@ -1014,6 +1013,30 @@ OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename)
     }
 
   return NULL;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+   char *AddFileExtension(const char *filename, char* extension)
+
+   Allocate a new filename and add/replace with extension.
+   Return NULL, if filename couldn't be allocated.
+   ------------------------------------------------------------------------------------------ */
+char *
+AddFileExtension(const char *oldfilename, const char *extension)
+{
+  char *newfilename;
+
+  if ((newfilename = AllocIdentifier (strlen (oldfilename) + strlen(extension) + 1)) != NULL)
+    {
+      strcpy (newfilename, oldfilename);
+      if (strrchr(newfilename, '.') != NULL)
+        strcpy ( strrchr(newfilename,'.'), extension); /* replace old extension with new */
+      else
+        strcat( newfilename, extension);   /* missing extension, concatanate new */
+    }
+
+  return newfilename;
 }
 
 

@@ -64,8 +64,8 @@ char PAGELEN;
 int PAGENO, LINENO;
 
 char *srcfilename, *lstfilename, *objfilename, *errfilename, *libfilename;
-char asmext[] = ".asm", lstext[] = ".lst", objext[] = ".obj", defext[] = ".def", binext[] = ".bin";
-char mapext[] = ".map", errext[] = ".err", libext[] = ".lib";
+const char asmext[] = ".asm", lstext[] = ".lst", objext[] = ".obj", defext[] = ".def", binext[] = ".bin";
+const char mapext[] = ".map", errext[] = ".err", libext[] = ".lib";
 char srcext[5];                 /* contains default source file extension */
 char binfilename[255];          /* -o explicit filename buffer */
 char MPMobjhdr[] = MPMOBJECTHEADER;
@@ -332,53 +332,35 @@ main (int argc, char *argv[])
 
       if (strchr(argument,'.') != NULL) *(strchr(argument, '.')) ='\0';
 
-      if ((srcfilename = AllocIdentifier (strlen (argument) + 5)) != NULL)
+      srcfilename = AddFileExtension((const char *) argument, srcext);
+      if (srcfilename == NULL)
         {
-          strcpy (srcfilename, argument);
-          strcat (srcfilename, srcext);         /* add '.asm' or '.xxx' extension */
-        }
-      else
-        {
-          ReportError (NULL, 0, Err_Memory);
+          ReportError (NULL, 0, Err_Memory);   /* No more room */
           break;
         }
-      if ((objfilename = AllocIdentifier (strlen (srcfilename) + 1)) != NULL)
+
+      objfilename = AddFileExtension((const char *) srcfilename, objext);
+      if (objfilename == NULL)
         {
-          /* overwrite '.asm' extension with '.obj' */
-          strcpy (objfilename, srcfilename);
-          strcpy (objfilename + strlen (srcfilename) - 4, objext);
-        }
-      else
-        {
-          ReportError (NULL, 0, Err_Memory);
-          break;                /* No more room */
+          ReportError (NULL, 0, Err_Memory);   /* No more room */
+          break;
         }
 
       if (uselistingfile == ON)
         {
-          if ((lstfilename = AllocIdentifier (strlen (srcfilename) + 1)) != NULL)
+          lstfilename = AddFileExtension((const char *) srcfilename, lstext);
+          if (lstfilename == NULL)
             {
-              strcpy (lstfilename, srcfilename);
-              /* overwrite '.asm' extension with '.lst' */
-              strcpy (lstfilename + strlen (srcfilename) - 4, lstext);
-            }
-          else
-            {
-              ReportError (NULL, 0, Err_Memory);
-              break;                /* No more room */
+              ReportError (NULL, 0, Err_Memory);   /* No more room */
+              break;
             }
         }
 
-      if ((errfilename = AllocIdentifier (strlen (srcfilename) + 1)) != NULL)
+      errfilename = AddFileExtension((const char *) srcfilename, errext);
+      if (errfilename == NULL)
         {
-          /* overwrite '.asm' extension with '.err' */
-          strcpy (errfilename, srcfilename);
-          strcpy (errfilename + strlen (srcfilename) - 4, errext);
-        }
-      else
-        {
-          ReportError (NULL, 0, Err_Memory);
-          break;                /* No more room */
+          ReportError (NULL, 0, Err_Memory);   /* No more room */
+          break;
         }
 
       if ((CURRENTMODULE = NewModule ()) == NULL)

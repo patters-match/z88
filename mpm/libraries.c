@@ -62,7 +62,7 @@ extern module_t *CURRENTMODULE;
 extern modules_t *modulehdr;
 extern char MPMobjhdr[];
 extern char *errfilename, *libfilename;
-extern char objext[], errext[], libext[];
+extern const char objext[], errext[], libext[];
 extern char line[];
 extern FILE *srcasmfile, *errfile, *libfile;
 extern avltree_t *globalroot;
@@ -99,15 +99,11 @@ CreateLib (void)
 
   CURRENTMODULE = modulehdr->first;
 
-  if ((errfilename = AllocIdentifier (strlen (libfilename) + 1)) != NULL)
+  errfilename = AddFileExtension((const char *) libfilename, errext);
+  if (errfilename == NULL)
     {
-      strcpy (errfilename, libfilename);
-      strcpy (errfilename + strlen (errfilename) - 4, errext);  /* overwrite '.lib' extension with '.err' */
-    }
-  else
-    {
-      ReportError (NULL, 0, Err_Memory);
-      return;                   /* No more room */
+      ReportError (NULL, 0, Err_Memory);   /* No more room */
+      return;
     }
 
   if ((errfile = fopen (errfilename, "w")) == NULL)
@@ -120,8 +116,12 @@ CreateLib (void)
 
   do
     {
-      fname = CURRENTFILE->fname;
-      strcpy (fname + strlen (fname) - 4, objext);      /* overwrite '.asm' extension with '.obj' */
+      fname = AddFileExtension((const char *) CURRENTFILE->fname, objext);
+      if (fname == NULL)
+        {
+          ReportError (NULL, 0, Err_Memory);   /* No more room */
+          break;
+        }
 
       if ((objectfile = fopen (CURRENTFILE->fname, "rb")) != NULL)
         {
@@ -134,6 +134,7 @@ CreateLib (void)
             {
               ReportError (CURRENTFILE->fname, 0, Err_Memory);
               fclose (objectfile);
+              free(fname);
               break;
             }
           fread (filebuffer, sizeof (char), Codesize, objectfile);      /* load object file */
@@ -159,6 +160,7 @@ CreateLib (void)
           else
             {
               free (filebuffer);
+              free(fname);
               ReportError (CURRENTFILE->fname, 0, Err_Objectfile);
               break;
             }
@@ -166,9 +168,11 @@ CreateLib (void)
       else
         {
           ReportError (CURRENTFILE->fname, 0, Err_FileIO);
+          free(fname);
           break;
         }
 
+      free(fname);
       CURRENTMODULE = CURRENTMODULE->nextmodule;
     }
   while (CURRENTMODULE != NULL);
@@ -191,39 +195,21 @@ CreateLibfile (char *filename)
   l = strlen (filename);
   if (l)
     {
-      if (strcmp (filename + (l - 4), libext) != 0)
-        {                       /* 'lib' extension not specified */
-          if ((libfilename = AllocIdentifier (l + 4 + 1)) != NULL)
-            {
-              strcpy (libfilename, filename);
-              strcat (libfilename, libext);     /* add '.lib' extension */
-            }
-          else
-            {
-              ReportError (NULL, 0, Err_Memory);
-              return;
-            }
-        }
-      else
+      libfilename = AddFileExtension((const char *) filename, libext);
+      if (libfilename == NULL)
         {
-          if ((libfilename = AllocIdentifier (l + 1)) != NULL)  /* 'lib' extension specified */
-            strcpy (libfilename, filename);
-          else
-            {
-              ReportError (NULL, 0, Err_Memory);
-              return;
-            }
+          ReportError (NULL, 0, Err_Memory);   /* No more room */
+          return;
         }
     }
   else
     {
       if ((filename = getenv (ENVNAME_STDLIBRARY)) != NULL)
         {
-          if ((libfilename = AllocIdentifier (strlen (filename))) != NULL)
-            strcpy (libfilename, filename);
-          else
+          libfilename = AddFileExtension((const char *) filename, libext);
+          if (libfilename == NULL)
             {
-              ReportError (NULL, 0, Err_Memory);
+              ReportError (NULL, 0, Err_Memory);   /* No more room */
               return;
             }
         }
@@ -259,28 +245,11 @@ GetLibfile (char *filename)
   l = strlen (filename);
   if (l>0)
     {
-      if (strcmp (filename + (l - 4), libext) != 0)
-        {                       /* 'lib' extension not specified */
-          if ((f = AllocIdentifier (l + 4 + 1)) != NULL)
-            {
-              strcpy (f, filename);
-              strcat (f, libext);       /* add '.lib' extension */
-            }
-          else
-            {
-              ReportError (NULL, 0, Err_Memory);
-              return;
-            }
-        }
-      else
+      f = AddFileExtension((const char *) filename, libext);
+      if (f == NULL)
         {
-          if ((f = AllocIdentifier (l + 1)) != NULL)    /* 'lib' extension specified */
-            strcpy (f, filename);
-          else
-            {
-              ReportError (NULL, 0, Err_Memory);
-              return;
-            }
+          ReportError (NULL, 0, Err_Memory);   /* No more room */
+          return;
         }
     }
   else
@@ -288,11 +257,10 @@ GetLibfile (char *filename)
       filename = getenv (ENVNAME_STDLIBRARY);
       if (filename != NULL)
         {
-          if ((f = AllocIdentifier (strlen (filename))) != NULL)
-            strcpy (f, filename);
-          else
+          f = AddFileExtension((const char *) filename, libext);
+          if (f == NULL)
             {
-              ReportError (NULL, 0, Err_Memory);
+              ReportError (NULL, 0, Err_Memory);   /* No more room */
               return;
             }
         }
