@@ -43,7 +43,7 @@ public final class Blink extends Z80 {
 		timerDaemon = new Timer(true);
 		
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
-		z80Int = new Z80interrupt(); 	// start the INT signals each 10ms to Z80
+		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
 	}
 
 	/**
@@ -1327,9 +1327,15 @@ public final class Blink extends Z80 {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
-				if (interruptTriggered() == false)
-					// signal only if no interrupt is being executed...
+				if (!IFF1()) {
+					// Maskable interrupt occurred, 
+					// but cannot get signalled because Z80 is in DI...
+					return;
+				} else {
+					// Maskable interrupt occurred, 
+					// but signal it only to Z80 if EI...
 					setInterruptSignal();
+				}
 			}			
 		}
 		
