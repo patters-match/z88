@@ -538,7 +538,7 @@ public abstract class Z80 {
     }
 
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
-    public final void run(boolean singleStep) {
+    public void run(boolean singleStep) {
 		z80Stopped = false;
 
         singleStepping = singleStep;
@@ -934,8 +934,9 @@ public abstract class Z80 {
                     }
 
                     /* LD B,? */
-                case 64 : /* LD B,B */ {                                                
-                		z80Stopped = breakPointAction(); // Stop at encountered breakpoint, if found...
+                case 64 : /* LD B,B */ {
+                		// Stop at encountered breakpoint, if found...
+                		if (singleStepping == false) z80Stopped = breakPointAction(); 
                         tstatesCounter += 4;
                         break;
                     }
@@ -982,8 +983,8 @@ public abstract class Z80 {
                         break;
                     }
                 case 73 : /* LD C,C */ {
-						// Dump Z80 info at breakpoint, then continue execution
-						breakPointAction();
+						// Dump Z80 register info at breakpoint, then continue execution
+            			if (singleStepping == false) breakPointAction();
                         tstatesCounter += 4;
                         break;
                     }
