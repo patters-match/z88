@@ -2553,9 +2553,6 @@ public abstract class Z80 {
 
                         tstatesCounter += 21;
                         REFRESH(2);
-                        if (IFF1() == true && interruptTriggered() == true) {
-                            execInterrupt();
-                        }
                     } while (count != 0);
                     if (count != 0) {
                         PC((PC() - 2) & 0xffff);
@@ -2636,9 +2633,6 @@ public abstract class Z80 {
 
                         tstatesCounter += 21;
                         REFRESH(2);
-                        if (IFF1() == true && interruptTriggered() == true) {
-                            execInterrupt();
-                        }
                     } while (count != 0);
                     if (count != 0) {
                         PC((PC() - 2) & 0xffff);
