@@ -39,7 +39,7 @@ import javax.swing.JTextField;
 public final class Blink extends Z80 {
 
 	/**
-	 * Time format used when displaying a runtime system message
+	 * "HH.mm.ss.SSS" Time format used when displaying a runtime system message
 	 */
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH.mm.ss.SSS");
 
