@@ -8,7 +8,7 @@ lstoff
 ; Interrupt calls:
 ; (performed as CALL OZ_DI or CALL OZ_EI)
 
-     DEFC OZ_DI = $0051       ; Disable IM 2 interrupts
-     DEFC OZ_EI = $0054       ; Enable IM 2 interrupts
+     DEFC OZ_DI = $0051       ; Disable IM 1 interrupts
+     DEFC OZ_EI = $0054       ; Enable IM 1 interrupts
 
 lston
