@@ -315,15 +315,17 @@ ENDIF
 .PollSlots
                     ld   hl, availslots+1    ; point to counter of available slots
                     push hl
-                    ld   d,1                 ; begin with external slot 1
+                    ld   c,1                 ; begin with external slot 1
                     ld   e,0                 ; counter of available file eproms
 .poll_loop
-                    ld   c,d
+                    push bc                  ; preserve slot number...
                     call FileEprRequest      ; File Eprom Card or area available in slot C?
+                    pop  bc
                     jr   c, no_fileepr
+                    jr   nz, no_fileepr      ; no header was found, but a card was available of some sort
                          inc  e              ; File Eprom found
                          pop  hl
-                         ld   (hl),c         ; size of file eprom in 16K banks
+                         ld   (hl),d         ; size of file eprom in 16K banks
                          inc  hl
                          push hl
                          jr   next_slot
@@ -333,8 +335,8 @@ ENDIF
                          inc  hl
                          push hl
 .next_slot                         
-                    inc  d              
-                    ld   a,d
+                    inc  c
+                    ld   a,c
                     cp   4
                     jr   nz, poll_loop
                     
@@ -416,7 +418,7 @@ ENDIF
                     ld   c,a
                     call FileEprRequest
                     jr   c, poll_for_ram_card
-                         ld   hl, eprdev          ; c = size of File Area
+                         ld   hl, eprdev          ; d = size of File Area in 16K banks
                          jr   slotsize
 .poll_for_ram_card
                     ld   a,(curslot)
@@ -424,7 +426,7 @@ ENDIF
                     call RamDevFreeSpace
                     jr   c, poll_for_rom_card
                          ld   hl, ramdev
-                         ld   c,a
+                         ld   d,a
                          jr   slotsize
 .poll_for_rom_card
                     ld   a,(curslot)
@@ -432,7 +434,7 @@ ENDIF
                     call ApplEprType
                     jr   c, empty_slot
                          ld   hl, romdev
-                         ld   c,b                 ; display size of card as defined by ROM header
+                         ld   d,b                 ; display size of card as defined by ROM header
                          jr   slotsize
 .empty_slot
                     ld   hl, emptytxt
@@ -445,7 +447,7 @@ ENDIF
                     ld   a,(curslot)
                     add  a,48
                     call_oz(Os_Out)     ; display device number (which is current slot number too)
-                    call DispSlotSize   ; C = size of slot in 16K banks
+                    call DispSlotSize   ; D = size of slot in 16K banks
 .nextline
                     call_oz(Gn_Nln)
                     ld   a,(curslot)
@@ -475,7 +477,7 @@ ENDIF
                     call_oz(Gn_Sop)
 
                     LD   H,0
-                    LD   L,C            
+                    LD   L,D
                     CALL m16
                     EX   DE,HL          ; size in DE...
                     CALL DispEprSize
@@ -717,7 +719,7 @@ ENDIF
                     CALL FileEprRequest
 
                     LD   H,0
-                    LD   L,C            ; total of banks as defined by File Eprom Header
+                    LD   L,D            ; D = total of banks as defined by File Eprom Header
                     CALL m16
                     EX   DE,HL          ; size in DE...
 
