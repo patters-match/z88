@@ -1178,18 +1178,10 @@ public final class Blink extends Z80 {
 
 		if ((bits & Blink.BM_COMVPPON) == Blink.BM_COMVPPON) {
 			// Enable VPP pin on Eprom / Flash chip in slot 3, if available.
-			cardType = memory.getBank(0xFF).getType();
-			if (memory.getBank(0xFF).isVppPinEnabled() == false & 
-				(cardType == Memory.Bank.EPROM_32KB | cardType == Memory.Bank.EPROM_128KB | cardType == Memory.Bank.FLASH)) {
-				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory.getBank(bnk).setVppPin(true);
-			}
+			memory.enableSlot3Vpp();			
 		} else {
 			// Disable VPP pin on Eprom / Flash chip in slot 3, if available and previously enabled...
-			cardType = memory.getBank(0xFF).getType();
-			if (memory.getBank(0xFF).isVppPinEnabled() == false & 
-				(cardType == Memory.Bank.EPROM_32KB | cardType == Memory.Bank.EPROM_128KB | cardType == Memory.Bank.FLASH)) {
-				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory.getBank(bnk).setVppPin(false);
-			}			
+			memory.disableSlot3Vpp();
 		}
 		
 		COM = bits;

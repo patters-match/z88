@@ -92,10 +92,10 @@ public final class Memory {
 	/**
 	 * Insert Card (RAM/ROM/EPROM) into Z88 memory system.
 	 * Size is in modulus 16Kb.
-	 * Slot 0 (512Kb): banks 00 - 1F (ROM), banks 20 - 3F (RAM)
-	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
-	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
-	 * Slot 3 (1Mb):   banks C0 - FF (RAM or EPROM)
+	 * Slot 0 (1Mb): banks 00 - 1F (ROM, 512Kb), banks 20 - 3F (RAM, 512Kb)
+	 * Slot 1 (1Mb): banks 40 - 7F (RAM or EPROM)
+	 * Slot 2 (1Mb): banks 80 - BF (RAM or EPROM)
+	 * Slot 3 (1Mb): banks C0 - FF (RAM or EPROM)
 	 *
 	 * @param card
 	 * @param slot
@@ -105,13 +105,11 @@ public final class Memory {
 
 		if (slot == 0) {
 			// Define bottom bank for ROM/RAM
-			slotBank = (card[0].getType() != Bank.RAM) ? 0x00 : 0x20;
-			// slot 0 has 32 * 16Kb = 512K address space for RAM or ROM
-			totalSlotBanks = 32;
+			slotBank = (card[0].getType() == Bank.RAM) ? 0x20: 0x00;
+			totalSlotBanks = 32; // inserting RAM or ROM can be max 32 * 16Kb = 512Kb
 		} else {
 			slotBank = slot << 6; // convert slot number to bottom bank of slot
-			totalSlotBanks = 64;
-			// slots 1 - 3 have 64 * 16Kb = 1Mb address space
+			totalSlotBanks = 64;  // slots 1 - 3 have 64 * 16Kb = 1Mb address space
 		}
 
 		for (curBank = 0; curBank < card.length; curBank++) {
@@ -143,9 +141,6 @@ public final class Memory {
 
 	/**
 	 * Remove inserted card, ie. null'ify the banks for the specified slot.
-	 * This call also simulates the Blink Hardware Card Flap Open, 
-	 * Blink Edge connector sensing and finally Card Flap Close, so that OZ
-	 * is made aware of the Card removal.. 
 	 *   
 	 * @param slot (1-3)
 	 */
@@ -176,6 +171,28 @@ public final class Memory {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Enable VPP pin on Eprom / Flash chip in slot 3, if available.
+	 */ 
+	public void enableSlot3Vpp() {
+		int cardType = memory[0xFF].getType();
+		if (memory[0xFF].isVppPinEnabled() == false & 
+			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH)) {
+			for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(true);
+		}		
+	}
+
+	/**
+	 * Disable VPP pin on Eprom / Flash chip in slot 3, if available.
+	 */ 
+	public void disableSlot3Vpp() {
+		int cardType = memory[0xFF].getType();
+		if (memory[0xFF].isVppPinEnabled() == true & 
+			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH)) {
+			for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(false);
+		}		
 	}
 	
 	/** 
