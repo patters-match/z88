@@ -59,7 +59,7 @@ public class Gui extends JFrame {
 		this.setJMenuBar(getJJMenuBar());
 		this.setSize(640, 480);
 		content.add(z88Screen(), BorderLayout.NORTH);
-		content.add(commandArea(), BorderLayout.SOUTH);
+		
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.pack();
 		this.setVisible(true);
@@ -267,7 +267,6 @@ public class Gui extends JFrame {
 		Gui gg = new Gui();
 		JFrame rtmOut = gg.getRtmOutputWindow();
 		gg.rtmOutArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
-		gg.show();
 
 		OZvm ozvm = new OZvm(gg.z88Screen(), gg.cmdLineInputArea(), gg.cmdlineOutputArea(), gg.rtmOutArea());
 		if (ozvm.boot(args) == false) {
@@ -277,9 +276,13 @@ public class Gui extends JFrame {
 
 		if (ozvm.isDebugMode() == false) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
+			gg.show();
 			ozvm.bootZ88Rom();
 			gg.z88Screen().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
+			gg.getContentPane().add(gg.commandArea(), BorderLayout.SOUTH);
+			gg.pack();
+			gg.show();
 			gg.cmdLineInputArea().grabFocus();	// make sure that caret is blinking in command line area...
 		}
 	}
