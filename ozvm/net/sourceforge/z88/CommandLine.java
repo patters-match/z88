@@ -725,17 +725,25 @@ public class CommandLine implements KeyListener {
 				else
 					displayCmdOutput("File area could not be created/formatted.");
 				
+			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("del") == 0) {
+				// mark file as deleted
+				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				if (fa.markAsDeleted(cmdLineTokens[2]) == true) 
+					displayCmdOutput("File was marked as deleted.");
+				else
+					displayCmdOutput("File not found.");
+				
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipf") == 0) {
 				// import file from host file system into file area...
 				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
 				fa.importHostFile(new File(cmdLineTokens[2]));
-				displayCmdOutput("File were imported successfully from " + cmdLineTokens[2]);
+				displayCmdOutput("File " + cmdLineTokens[2] + " was successfully imported.");
 				
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipd") == 0) {
 				// import all files from host file system directory into file area...
 				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
 				fa.importHostFiles(new File(cmdLineTokens[2]));
-				displayCmdOutput("Files were imported successfully from " + cmdLineTokens[2] + " directory");
+				displayCmdOutput("Directory '"+cmdLineTokens[2] + "' was successfully imported.");
 				
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("xpc") == 0) {
 				// export all files from file area to directory on host file system..
@@ -747,20 +755,43 @@ public class CommandLine implements KeyListener {
 					while (fileEntries.hasNext()) {
 						FileEntry fe = (FileEntry) fileEntries.next();
 
-						// strip the "oz" path of the filename
-						String hostFileName = fe.getFileName();
-						hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
-						// and build a complete file name for the host file system
-						hostFileName = cmdLineTokens[2] + File.separator + hostFileName;
-
-						// create a new file in specified host directory
-						RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
-						expFile.write(fe.getFileImage()); // export file image to host file system
-						expFile.close();
-						
-						displayCmdOutput("Exported " + fe.getFileName() + " to " + hostFileName);
+						if (fe.isDeleted() == false) {
+							// strip the "oz" path of the filename
+							String hostFileName = fe.getFileName();
+							hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
+							// and build a complete file name for the host file system
+							hostFileName = cmdLineTokens[2] + File.separator + hostFileName;
+	
+							// create a new file in specified host directory
+							RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
+							expFile.write(fe.getFileImage()); // export file image to host file system
+							expFile.close();
+							
+							displayCmdOutput("Exported " + fe.getFileName() + " to " + hostFileName);
+						}
 					}					
-				}				
+				} 
+				
+			} else if (cmdLineTokens.length == 4 & cmdLineTokens[1].compareToIgnoreCase("xpf") == 0) {
+				// export file from file area to directory on host file system
+				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				FileEntry fe = fa.getFileEntry(cmdLineTokens[2]);
+				if (fe == null) {
+					displayCmdOutput("File not found.");
+				} else {
+					// strip the "oz" path of the filename
+					String hostFileName = fe.getFileName();
+					hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
+					// and build a complete file name for the host file system
+					hostFileName = cmdLineTokens[3] + File.separator + hostFileName;
+
+					// create a new file in specified host directory
+					RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
+					expFile.write(fe.getFileImage()); // export file image to host file system
+					expFile.close();
+					
+					displayCmdOutput("Exported " + fe.getFileName() + " to " + hostFileName);
+				}
 			} else {
 				displayCmdOutput("Unknown file card command or missing arguments.");
 			}
@@ -769,7 +800,7 @@ public class CommandLine implements KeyListener {
 		} catch (FileAreaExhaustedException e) {
 			displayCmdOutput("No more room in file area. One or several files could not be imported.");
 		} catch (IOException e) {
-			displayCmdOutput("A file I/O error on the host file system occurred during import/export of files.");
+			displayCmdOutput("I/O error occurred during import/export of files.");
 		} 
 	}
 	
