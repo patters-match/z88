@@ -1,5 +1,6 @@
 package net.sourceforge.z88;
 
+
 /**
  * The Z80 class emulates the Zilog Z80 microprocessor.
  *
@@ -2065,6 +2066,8 @@ public abstract class Z80 {
             }
 
         } // end while
+        
+		z80Stopped = false;		// ready for a new run...
     }
 
     private final int execute_ed(int tstatesCounter) {
@@ -2189,9 +2192,12 @@ public abstract class Z80 {
                     return 8;
                 }
 
-			case 128 :
-				// Break point
-				
+			case 128 : {
+					// Break point
+					PC(PC() - 2);	// Program Counter is placed at point of breakpoint.
+					z80Stopped = true;
+					return 4;
+				}	
 
                 /* IN r,(c) */
             case 64 : /* IN B,(c) */ {
