@@ -25,7 +25,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.util.Random;
+
+import net.sourceforge.z88.filecard.FileArea;
 
 
 /**
@@ -307,33 +308,9 @@ public final class Memory {
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
 	public boolean insertFileEprCard(int slot, int size, String eprType) {
-		int offset;
-		Random generator = new Random();
-
-		size -= (size % (Bank.SIZE/1024));
-		int totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Eprom Card
-
 		if (insertEprCard(slot, size, eprType) == true) {
 			// make File Header at top of Card...
-			System.out.println(((slot & 3) << 6) | 0x3F);
-			Bank topFileEprBank = getBank( ((slot & 3) << 6) | 0x3F );	// top bank of slot	
-			for (offset = 0x3FC0; offset < 0x3FF7; offset++) topFileEprBank.setByte(offset, 0);
-			topFileEprBank.setByte(offset++, 0x01);						// 0x3FF7
-			topFileEprBank.setByte(offset++, generator.nextInt(255));	// 0x3FF8
-			topFileEprBank.setByte(offset++, generator.nextInt(255));	// 0x3FF9
-			topFileEprBank.setByte(offset++, generator.nextInt(255));	// 0x3FFA
-			topFileEprBank.setByte(offset++, generator.nextInt(255));	// 0x3FFB
-			topFileEprBank.setByte(offset++, totalEprBanks);			// 0x3FFC
-			
-			if (totalEprBanks == 32)
-				topFileEprBank.setByte(offset++, 0x7E);					// 0x3FFD
-			else
-				topFileEprBank.setByte(offset++, 0x7C);					// 0x3FFD
-			
-			topFileEprBank.setByte(offset++, 'o');						// 0x3FFE
-			topFileEprBank.setByte(offset++, 'z');						// 0x3FFF
-
-			return true;
+			return FileArea.createFileHeader(((slot & 3) << 6) | 0x3F) ;	// top bank of slot
 		} else {
 			return false;
 		}
@@ -683,7 +660,7 @@ public final class Memory {
 	 * Return the size of inserted Eprom/Rom/Flash Cards in 16K banks.
 	 * If no card is available in specified slot, -1 is returned.
 	 * 
-	 * @return number of 16K banks in inserted Card
+	 * @return number of 16K banks of inserted Card
 	 */
 	public int getCardSize(final int slotNo) {		
 		int bankNo = ((slotNo & 3) << 6);	// bottom bank number of slot
@@ -694,9 +671,9 @@ public final class Memory {
 			return -1;
 		else {
 			if (slotNo == 0) 
-				maxBanks = 32;	// ROM may be max 512K (banks 00 - 1F)
+				maxBanks = 32;	// internal ROM may be max 512K (banks 00 - 1F)
 			else
-				maxBanks = 64;	// each slot has 1Mb address range
+				maxBanks = 64;	// each external slot has 1Mb address range
 			
 			Bank bottomBank = getBank(bottomBankNo);
 			int cardSize = 1;
