@@ -28,7 +28,7 @@ import javax.swing.JTextField;
 /**
  * Bind host operating system keyboard events to Z88 keyboard.
  */ 
-public class Z88Keyboard implements KeyListener {
+public class Z88Keyboard {
 	// Index of HashMap array entries for Z88 keyboard layouts.
 	public static final int COUNTRY_US = 0;		// English/US Keyboard layout
 	public static final int COUNTRY_FR = 1;		// French Keyboard layout
@@ -101,9 +101,18 @@ public class Z88Keyboard implements KeyListener {
 		createKbLayouts();
 		currentLayout = z88Keyboards[COUNTRY_EN];	// use default UK keyboard layout for default UK V4 ROM.
 
-		// map Host keyboard events to this z88 keyboard, so that the emulator responds to keypresses.
-		z88Display.setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas
-		z88Display.addKeyListener(this);
+		Thread thread = new Thread() {
+			public void run() {
+				Z88KeyboardListener z88Kbl = new Z88KeyboardListener(); 
+				
+				// map Host keyboard events to this z88 keyboard, so that the emulator responds to keypresses.
+				z88Display.setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas
+				z88Display.addKeyListener(z88Kbl); // keyboard events are processed in isolated Thread..				
+			}
+		};
+
+		thread.setPriority(Thread.NORM_PRIORITY);
+		thread.start();		
     }
 
 	public void setDebugModeCmdLineField(JTextField cmdInput) {
@@ -1101,534 +1110,545 @@ public class Z88Keyboard implements KeyListener {
 
 
 	/**
-	 * This event is fired whenever a key press is recognised on the java.awt.Canvas.
+	 * This class is responsible for receiving java.awt.KeyEvent's from 
+	 * the real world PC keyboard and redistribute that into the Z88 
+	 * keyboard hardware that is polled by Z80 IN r,(B2h) instructions. 
+	 * 
+	 * Further, this class is executed in a separate Java Thread, avoiding
+	 * being suspended when the virtual Z80 processor goes into snooze mode
+	 * (simulated by a Thread.sleep() call).
 	 */
-	public void keyPressed(KeyEvent e) {
-		KeyPress kp = null;
+	private class Z88KeyboardListener implements KeyListener {
+		/**
+		 * This event is fired whenever a key press is recognised on the java.awt.Canvas.
+		 */
+		public void keyPressed(KeyEvent e) {
+			KeyPress kp = null;
 
-		//System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+			//System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
-		switch(e.getKeyCode()) {
-			
-			case KeyEvent.VK_F6:
-				// grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).
-				z88Display.grabScreenFrame();
-				break;
-			
-			case KeyEvent.VK_SHIFT:
-				// check if left or right SHIFT were pressed
-				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) pressZ88key(z88LshKey);
-				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) pressZ88key(z88RshKey);
-				break;
-
-			case KeyEvent.VK_F5:
-				if (OZvm.debugMode == true) {
-					blink.stopZ80Execution();
-					if (commandInput != null) commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
-				}
-				break;
-
-			case KeyEvent.VK_F12:
-				if (OZvm.debugMode == true) { 
-					if (commandInput != null) commandInput.grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
-				}
-				break;
-
-			case KeyEvent.VK_CONTROL:
-				pressZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key
-				break;
-
-			case KeyEvent.VK_ALT:
-				pressZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key
-				break;
+			switch(e.getKeyCode()) {
 				
-			case KeyEvent.VK_INSERT:
-				kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_V));
-				pressZ88key(z88DiamondKey);
-				pressZ88key(kp);				// INSERT executes Z88 DIAMOND V
-				break;
+				case KeyEvent.VK_F6:
+					// grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).
+					z88Display.grabScreenFrame();
+					break;
+				
+				case KeyEvent.VK_SHIFT:
+					// check if left or right SHIFT were pressed
+					if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) pressZ88key(z88LshKey);
+					if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) pressZ88key(z88RshKey);
+					break;
 
-			case KeyEvent.VK_DELETE:
-				pressZ88key(z88RshKey);
-				pressZ88key(z88DelKey);
-				break;
-
-			case KeyEvent.VK_HOME:
-				pressZ88key(z88DiamondKey);
-				pressZ88key(z88ArrowLeftKey);
-				break;
-
-			case KeyEvent.VK_END:
-				pressZ88key(z88DiamondKey);
-				pressZ88key(z88ArrowRightKey);
-				break;
-
-			case KeyEvent.VK_PAGE_UP:
-				pressZ88key(z88RshKey);
-				pressZ88key(z88ArrowUpKey);
-				break;
-
-			case KeyEvent.VK_PAGE_DOWN:
-				pressZ88key(z88RshKey);
-				pressZ88key(z88ArrowDownKey);
-				break;
-
-			case KeyEvent.VK_NUMPAD0:
-			case KeyEvent.VK_NUMPAD1:
-			case KeyEvent.VK_NUMPAD2:
-			case KeyEvent.VK_NUMPAD3:
-			case KeyEvent.VK_NUMPAD4:
-			case KeyEvent.VK_NUMPAD5:
-			case KeyEvent.VK_NUMPAD6:
-			case KeyEvent.VK_NUMPAD7:
-			case KeyEvent.VK_NUMPAD8:
-			case KeyEvent.VK_NUMPAD9:
-				if (currentLayout == z88Keyboards[Z88Keyboard.COUNTRY_FR]) {
-					// those pesky french keyboards!!!
-					pressZ88key(z88RshKey);
-				}
-				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
-				pressZ88key(kp);
-				break;
-
-			case 0:
-				// Special characters
-				kp = (KeyPress) currentLayout.get(new Integer((0x10000 | e.getKeyChar())));
-				if (kp != null) {
-					pressZ88key(kp);
-				}
-				break;
-
-			case KeyEvent.VK_6:
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					if ( e.getModifiers() == 0 ) {
-						// French PC '-' is mapped to Z88 -
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
+				case KeyEvent.VK_F5:
+					if (OZvm.debugMode == true) {
+						blink.stopZ80Execution();
+						if (commandInput != null) commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
 					}
+					break;
 
-					if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
-						// French PC SHIFT - is mapped to Z88 SHIFT § which gives an 6.
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+				case KeyEvent.VK_F12:
+					if (OZvm.debugMode == true) { 
+						if (commandInput != null) commandInput.grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
 					}
+					break;
+
+				case KeyEvent.VK_CONTROL:
+					pressZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key
+					break;
+
+				case KeyEvent.VK_ALT:
+					pressZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key
+					break;
 					
-					if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
-						// PC [ALT Gr '6'] = '|' converts to Z88 <>' = |
-						releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_4));					}
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}
-				if (kp != null) {
-					pressZ88key(kp);
-				}									
-				break;
-				
-			case KeyEvent.VK_8:
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					if ( e.getModifiers() == 0 ) {
-						// French PC '_' is mapped to Z88 SHIFT-
+				case KeyEvent.VK_INSERT:
+					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_V));
+					pressZ88key(z88DiamondKey);
+					pressZ88key(kp);				// INSERT executes Z88 DIAMOND V
+					break;
+
+				case KeyEvent.VK_DELETE:
+					pressZ88key(z88RshKey);
+					pressZ88key(z88DelKey);
+					break;
+
+				case KeyEvent.VK_HOME:
+					pressZ88key(z88DiamondKey);
+					pressZ88key(z88ArrowLeftKey);
+					break;
+
+				case KeyEvent.VK_END:
+					pressZ88key(z88DiamondKey);
+					pressZ88key(z88ArrowRightKey);
+					break;
+
+				case KeyEvent.VK_PAGE_UP:
+					pressZ88key(z88RshKey);
+					pressZ88key(z88ArrowUpKey);
+					break;
+
+				case KeyEvent.VK_PAGE_DOWN:
+					pressZ88key(z88RshKey);
+					pressZ88key(z88ArrowDownKey);
+					break;
+
+				case KeyEvent.VK_NUMPAD0:
+				case KeyEvent.VK_NUMPAD1:
+				case KeyEvent.VK_NUMPAD2:
+				case KeyEvent.VK_NUMPAD3:
+				case KeyEvent.VK_NUMPAD4:
+				case KeyEvent.VK_NUMPAD5:
+				case KeyEvent.VK_NUMPAD6:
+				case KeyEvent.VK_NUMPAD7:
+				case KeyEvent.VK_NUMPAD8:
+				case KeyEvent.VK_NUMPAD9:
+					if (currentLayout == z88Keyboards[Z88Keyboard.COUNTRY_FR]) {
+						// those pesky french keyboards!!!
 						pressZ88key(z88RshKey);
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
 					}
-
-					if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
-						// French PC SHIFT _ is mapped to Z88 SHIFT ! which gives an 8.
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
-					}
-					
-					if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
-						// PC [ALT Gr '8'] = '\' converts to Z88 <>& = \
-						releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_1));
-					}
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}
-				if (kp != null) {
+					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
 					pressZ88key(kp);
-				}									
-				break;
-				
-			case KeyEvent.VK_EXCLAMATION_MARK:
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					if ((e.getModifiers() == java.awt.Event.SHIFT_MASK)) {
-						// French PC SHIFT ! is mapped to Z88 single key § (6).
-						releaseZ88key(z88RshKey); // SHIFT (is already) pressed...
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+					break;
+
+				case 0:
+					// Special characters
+					kp = (KeyPress) currentLayout.get(new Integer((0x10000 | e.getKeyChar())));
+					if (kp != null) {
+						pressZ88key(kp);
+					}
+					break;
+
+				case KeyEvent.VK_6:
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						if ( e.getModifiers() == 0 ) {
+							// French PC '-' is mapped to Z88 -
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
+						}
+
+						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
+							// French PC SHIFT - is mapped to Z88 SHIFT § which gives an 6.
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+						}
+						
+						if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
+							// PC [ALT Gr '6'] = '|' converts to Z88 <>' = |
+							releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_4));					}
 					} else {
 						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
 					}
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}				
-				if (kp != null) {
-					pressZ88key(kp);
-				}									
-				break;
-
-			case KeyEvent.VK_ADD:
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					pressZ88key(z88RshKey);
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EQUALS));					
-				}
-				if (kp != null) {
-					pressZ88key(kp);
-				}
-				break;
-				
-			case KeyEvent.VK_SUBTRACT:
-				// Numerical Keyboard, '-' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));					
-				}
-				if (kp != null) {
-					pressZ88key(kp);
-				}
-				break;
-				
-			case KeyEvent.VK_MULTIPLY:
-				// Numerical Keyboard, '*' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_ASTERISK));					
-				}
-				if (kp != null) {
-					pressZ88key(kp);
-				}
-				break;
-
-			case KeyEvent.VK_DIVIDE:
-				// Numerical Keyboard, '/' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					pressZ88key(z88RshKey);
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_COLON));					
-				}
-				if (kp != null) {
-					pressZ88key(kp);
-				}
-				break;
-				
-			case KeyEvent.VK_DECIMAL:
-				// Numerical Keyboard, '.' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					pressZ88key(z88RshKey);
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_SEMICOLON));					
-				}
-				if (kp != null) {
-					pressZ88key(kp);
-				}
-				break;
-
-			default:
-				// All other keypresses are available in keyboard map layout			
-				
-				// Nightmare begins with ALT GRAPHIC PC key combinations that are mapped into the right z88 keyboard location...
-				if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
-					// ALT GR pressed down...
+					if (kp != null) {
+						pressZ88key(kp);
+					}									
+					break;
 					
+				case KeyEvent.VK_8:
 					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-						switch(e.getKeyCode()) {
-							case KeyEvent.VK_2:  // PC [ALT Gr '2'] = '~' converts to Z88 <>( = ~
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_5));
-								break;
-							case KeyEvent.VK_3:  // PC [ALT Gr '3'] = '#' converts to Z88 <>" = #
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_3));
-								break;
-							case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>è = {
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_7));
-								break;
-							case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ç = [
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_9));
-								break;
-							case KeyEvent.VK_7:  // PC [ALT Gr '7'] = '`' converts to Z88 <>) = `
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_RIGHT_PARENTHESIS));
-								break;
-							case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>§ = ^
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
-								break;
-							case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>é = @
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_2));
-								break;
-							case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>à = ]
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_0));
-								break;
-							case KeyEvent.VK_EQUALS:  // PC [ALT Gr '='] = '}' converts to Z88 <>! = }
-								releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
-								break;
+						if ( e.getModifiers() == 0 ) {
+							// French PC '_' is mapped to Z88 SHIFT-
+							pressZ88key(z88RshKey);
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
 						}
+
+						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
+							// French PC SHIFT _ is mapped to Z88 SHIFT ! which gives an 8.
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
+						}
+						
+						if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
+							// PC [ALT Gr '8'] = '\' converts to Z88 <>& = \
+							releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_1));
+						}
+					} else {
+						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
 					}
+					if (kp != null) {
+						pressZ88key(kp);
+					}									
+					break;
 					
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}
-				
-				if (kp != null) {
-					pressZ88key(kp);
-				}
-				break;
-		}
-	}
+				case KeyEvent.VK_EXCLAMATION_MARK:
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK)) {
+							// French PC SHIFT ! is mapped to Z88 single key § (6).
+							releaseZ88key(z88RshKey); // SHIFT (is already) pressed...
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+						} else {
+							kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
+						}
+					} else {
+						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
+					}				
+					if (kp != null) {
+						pressZ88key(kp);
+					}									
+					break;
 
-
-	/**
-	 * This event is fired whenever a key is released on the java.awt.canvas.
-	 */
-	public void keyReleased(KeyEvent e) {
-		KeyPress kp = null;
-
-		//System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
-
-		switch(e.getKeyCode()) {
-
-			case KeyEvent.VK_SHIFT:
-				// BUG in JVM:
-				// always release both SHIFT's on Z88, since this event doesn't 
-				// always properly signal left or right SHIFT releases in JVM. 
-				releaseZ88key(z88LshKey);
-				releaseZ88key(z88RshKey);
-				break;
-
-			case KeyEvent.VK_CONTROL:
-				releaseZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key
-				break;
-
-			case KeyEvent.VK_ALT:
-				releaseZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key
-				break;
-
-			case KeyEvent.VK_DELETE:
-				releaseZ88key(z88DelKey);
-				releaseZ88key(z88RshKey);
-				break;
-
-			case KeyEvent.VK_INSERT:
-				kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_V));
-				releaseZ88key(kp);
-				releaseZ88key(z88DiamondKey);		// INSERT executes Z88 DIAMOND V
-				break;
-
-			case KeyEvent.VK_NUMPAD0:
-			case KeyEvent.VK_NUMPAD1:
-			case KeyEvent.VK_NUMPAD2:
-			case KeyEvent.VK_NUMPAD3:
-			case KeyEvent.VK_NUMPAD4:
-			case KeyEvent.VK_NUMPAD5:
-			case KeyEvent.VK_NUMPAD6:
-			case KeyEvent.VK_NUMPAD7:
-			case KeyEvent.VK_NUMPAD8:
-			case KeyEvent.VK_NUMPAD9:
-				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
-				releaseZ88key(kp);
-				if (currentLayout == z88Keyboards[Z88Keyboard.COUNTRY_FR]) {
-					// those pesky french keyboards!!!
-					releaseZ88key(z88RshKey);
-				}
-				break;
-
-			case KeyEvent.VK_HOME:
-				releaseZ88key(z88ArrowLeftKey);
-				releaseZ88key(z88DiamondKey);
-				break;
-
-			case KeyEvent.VK_END:
-				releaseZ88key(z88ArrowRightKey);
-				releaseZ88key(z88DiamondKey);
-				break;
-
-			case KeyEvent.VK_PAGE_UP:
-				releaseZ88key(z88ArrowUpKey);
-				releaseZ88key(z88RshKey);
-				break;
-
-			case KeyEvent.VK_PAGE_DOWN:
-				releaseZ88key(z88ArrowDownKey);
-				releaseZ88key(z88RshKey);
-				break;
-
-			case 0:
-				// Special characters
-				kp = (KeyPress) currentLayout.get(new Integer((0x10000 | e.getKeyChar())));
-				if (kp != null) {
-					releaseZ88key(kp);
-				}
-				break;
-
-			case KeyEvent.VK_6:
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					if ( e.getModifiers() == 0 ) {
-						// French PC '-' is mapped to Z88 -
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
+				case KeyEvent.VK_ADD:
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						pressZ88key(z88RshKey);
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EQUALS));					
 					}
-
-					if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
-						// French PC SHIFT - is mapped to Z88 SHIFT § which gives an 6.
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+					if (kp != null) {
+						pressZ88key(kp);
 					}
+					break;
 					
+				case KeyEvent.VK_SUBTRACT:
+					// Numerical Keyboard, '-' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));					
+					}
+					if (kp != null) {
+						pressZ88key(kp);
+					}
+					break;
+					
+				case KeyEvent.VK_MULTIPLY:
+					// Numerical Keyboard, '*' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_ASTERISK));					
+					}
+					if (kp != null) {
+						pressZ88key(kp);
+					}
+					break;
+
+				case KeyEvent.VK_DIVIDE:
+					// Numerical Keyboard, '/' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						pressZ88key(z88RshKey);
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_COLON));					
+					}
+					if (kp != null) {
+						pressZ88key(kp);
+					}
+					break;
+					
+				case KeyEvent.VK_DECIMAL:
+					// Numerical Keyboard, '.' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						pressZ88key(z88RshKey);
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_SEMICOLON));					
+					}
+					if (kp != null) {
+						pressZ88key(kp);
+					}
+					break;
+
+				default:
+					// All other keypresses are available in keyboard map layout			
+					
+					// Nightmare begins with ALT GRAPHIC PC key combinations that are mapped into the right z88 keyboard location...
 					if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
-						// PC [ALT Gr '6'] = '|' converts to Z88 <>' = |
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_4));					}
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}
-				if (kp != null) {
+						// ALT GR pressed down...
+						
+						if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+							switch(e.getKeyCode()) {
+								case KeyEvent.VK_2:  // PC [ALT Gr '2'] = '~' converts to Z88 <>( = ~
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_5));
+									break;
+								case KeyEvent.VK_3:  // PC [ALT Gr '3'] = '#' converts to Z88 <>" = #
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_3));
+									break;
+								case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>è = {
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_7));
+									break;
+								case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ç = [
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_9));
+									break;
+								case KeyEvent.VK_7:  // PC [ALT Gr '7'] = '`' converts to Z88 <>) = `
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_RIGHT_PARENTHESIS));
+									break;
+								case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>§ = ^
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+									break;
+								case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>é = @
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_2));
+									break;
+								case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>à = ]
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_0));
+									break;
+								case KeyEvent.VK_EQUALS:  // PC [ALT Gr '='] = '}' converts to Z88 <>! = }
+									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
+									break;
+							}
+						}
+						
+					} else {
+						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
+					}
+					
+					if (kp != null) {
+						pressZ88key(kp);
+					}
+					break;
+			}
+		}
+
+
+		/**
+		 * This event is fired whenever a key is released on the java.awt.canvas.
+		 */
+		public void keyReleased(KeyEvent e) {
+			KeyPress kp = null;
+
+			//System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+
+			switch(e.getKeyCode()) {
+
+				case KeyEvent.VK_SHIFT:
+					// BUG in JVM:
+					// always release both SHIFT's on Z88, since this event doesn't 
+					// always properly signal left or right SHIFT releases in JVM. 
+					releaseZ88key(z88LshKey);
+					releaseZ88key(z88RshKey);
+					break;
+
+				case KeyEvent.VK_CONTROL:
+					releaseZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key
+					break;
+
+				case KeyEvent.VK_ALT:
+					releaseZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key
+					break;
+
+				case KeyEvent.VK_DELETE:
+					releaseZ88key(z88DelKey);
+					releaseZ88key(z88RshKey);
+					break;
+
+				case KeyEvent.VK_INSERT:
+					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_V));
 					releaseZ88key(kp);
-				}									
-				break;
-				
-			case KeyEvent.VK_8:
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					if ( e.getModifiers() == 0 ) {
-						// French PC '_' is mapped to Z88 SHIFT-
+					releaseZ88key(z88DiamondKey);		// INSERT executes Z88 DIAMOND V
+					break;
+
+				case KeyEvent.VK_NUMPAD0:
+				case KeyEvent.VK_NUMPAD1:
+				case KeyEvent.VK_NUMPAD2:
+				case KeyEvent.VK_NUMPAD3:
+				case KeyEvent.VK_NUMPAD4:
+				case KeyEvent.VK_NUMPAD5:
+				case KeyEvent.VK_NUMPAD6:
+				case KeyEvent.VK_NUMPAD7:
+				case KeyEvent.VK_NUMPAD8:
+				case KeyEvent.VK_NUMPAD9:
+					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
+					releaseZ88key(kp);
+					if (currentLayout == z88Keyboards[Z88Keyboard.COUNTRY_FR]) {
+						// those pesky french keyboards!!!
 						releaseZ88key(z88RshKey);
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
 					}
+					break;
 
-					if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
-						// French PC SHIFT _ is mapped to Z88 SHIFT ! which gives an 8.
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
+				case KeyEvent.VK_HOME:
+					releaseZ88key(z88ArrowLeftKey);
+					releaseZ88key(z88DiamondKey);
+					break;
+
+				case KeyEvent.VK_END:
+					releaseZ88key(z88ArrowRightKey);
+					releaseZ88key(z88DiamondKey);
+					break;
+
+				case KeyEvent.VK_PAGE_UP:
+					releaseZ88key(z88ArrowUpKey);
+					releaseZ88key(z88RshKey);
+					break;
+
+				case KeyEvent.VK_PAGE_DOWN:
+					releaseZ88key(z88ArrowDownKey);
+					releaseZ88key(z88RshKey);
+					break;
+
+				case 0:
+					// Special characters
+					kp = (KeyPress) currentLayout.get(new Integer((0x10000 | e.getKeyChar())));
+					if (kp != null) {
+						releaseZ88key(kp);
 					}
+					break;
 
-					if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
-						// PC [ALT Gr '8'] = '\' converts to Z88 <>& = \
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_1));
-					}
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}
-				
-				if (kp != null) {
-					releaseZ88key(kp);
-				}									
-				break;
+				case KeyEvent.VK_6:
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						if ( e.getModifiers() == 0 ) {
+							// French PC '-' is mapped to Z88 -
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
+						}
 
-			case KeyEvent.VK_EXCLAMATION_MARK:
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					if ((e.getModifiers() == java.awt.Event.SHIFT_MASK)) {
-						// French PC SHIFT ! is mapped to Z88 single key § (6).
-						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
+							// French PC SHIFT - is mapped to Z88 SHIFT § which gives an 6.
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+						}
+						
+						if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
+							// PC [ALT Gr '6'] = '|' converts to Z88 <>' = |
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_4));					}
 					} else {
 						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
 					}
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}				
-				if (kp != null) {
-					releaseZ88key(kp);
-				}									
-				break;
-
-			case KeyEvent.VK_ADD:
-				// Numerical Keyboard, '+' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					releaseZ88key(z88RshKey);
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EQUALS));					
-				}
-				if (kp != null) {
-					releaseZ88key(kp);
-				}
-				break;
-
-			case KeyEvent.VK_SUBTRACT:
-				// Numerical Keyboard, '-' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));					
-				}
-				if (kp != null) {
-					releaseZ88key(kp);
-				}
-				break;
-				
-			case KeyEvent.VK_MULTIPLY:
-				// Numerical Keyboard, '*' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_ASTERISK));					
-				}
-				if (kp != null) {
-					releaseZ88key(kp);
-				}
-				break;
-
-			case KeyEvent.VK_DIVIDE:
-				// Numerical Keyboard, '/' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					releaseZ88key(z88RshKey);
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_COLON));					
-				}
-				if (kp != null) {
-					releaseZ88key(kp);
-				}
-				break;
-
-			case KeyEvent.VK_DECIMAL:
-				// Numerical Keyboard, '.' key
-				if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-					releaseZ88key(z88RshKey);
-					kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_SEMICOLON));					
-				}
-				if (kp != null) {
-					releaseZ88key(kp);
-				}
-				break;
-
-			default:
-				// All other key releases are available in keyboard map layout
-				
-				// Nightmare begins with ALT GRAPHIC PC key combinations that are mapped into the right z88 keyboard location...
-				if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
-					// ALT GR pressed down...
+					if (kp != null) {
+						releaseZ88key(kp);
+					}									
+					break;
 					
+				case KeyEvent.VK_8:
 					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
-						switch(e.getKeyCode()) {
-							case KeyEvent.VK_2:  // PC [ALT Gr '2'] = '~' converts to Z88 <>( = ~ 
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_5));
-							    break;
-							case KeyEvent.VK_3:  // PC [ALT Gr '3'] = '#' converts to Z88 <>" = #
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_3));
-								break;
-							case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>è = {
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_7));
-							    break;
-							case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ç = [
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_9));
-								break;							    
-							case KeyEvent.VK_7:  // PC [ALT Gr '7'] = '`' converts to Z88 <>) = `
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_RIGHT_PARENTHESIS));
-								break;
-							case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>§ = ^
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
-								break;
-							case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>é = @
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_2));
-								break;
-							case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>à = ]
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_0));
-								break;
-							case KeyEvent.VK_EQUALS:  // PC [ALT Gr '='] = '}' converts to Z88 <>! = }
-								kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
-								break;
+						if ( e.getModifiers() == 0 ) {
+							// French PC '_' is mapped to Z88 SHIFT-
+							releaseZ88key(z88RshKey);
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));
 						}
-					}
-				} else {
-					kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
-				}
-			
-				if (kp != null) {
-					releaseZ88key(kp);
-				}
-				break;
-		}
-	}
 
-	public void keyTyped(KeyEvent e) {
-		//System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
+							// French PC SHIFT _ is mapped to Z88 SHIFT ! which gives an 8.
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
+						}
+
+						if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
+							// PC [ALT Gr '8'] = '\' converts to Z88 <>& = \
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_1));
+						}
+					} else {
+						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
+					}
+					
+					if (kp != null) {
+						releaseZ88key(kp);
+					}									
+					break;
+
+				case KeyEvent.VK_EXCLAMATION_MARK:
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK)) {
+							// French PC SHIFT ! is mapped to Z88 single key § (6).
+							kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+						} else {
+							kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
+						}
+					} else {
+						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
+					}				
+					if (kp != null) {
+						releaseZ88key(kp);
+					}									
+					break;
+
+				case KeyEvent.VK_ADD:
+					// Numerical Keyboard, '+' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						releaseZ88key(z88RshKey);
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EQUALS));					
+					}
+					if (kp != null) {
+						releaseZ88key(kp);
+					}
+					break;
+
+				case KeyEvent.VK_SUBTRACT:
+					// Numerical Keyboard, '-' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_MINUS));					
+					}
+					if (kp != null) {
+						releaseZ88key(kp);
+					}
+					break;
+					
+				case KeyEvent.VK_MULTIPLY:
+					// Numerical Keyboard, '*' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_ASTERISK));					
+					}
+					if (kp != null) {
+						releaseZ88key(kp);
+					}
+					break;
+
+				case KeyEvent.VK_DIVIDE:
+					// Numerical Keyboard, '/' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						releaseZ88key(z88RshKey);
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_COLON));					
+					}
+					if (kp != null) {
+						releaseZ88key(kp);
+					}
+					break;
+
+				case KeyEvent.VK_DECIMAL:
+					// Numerical Keyboard, '.' key
+					if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+						releaseZ88key(z88RshKey);
+						kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_SEMICOLON));					
+					}
+					if (kp != null) {
+						releaseZ88key(kp);
+					}
+					break;
+
+				default:
+					// All other key releases are available in keyboard map layout
+					
+					// Nightmare begins with ALT GRAPHIC PC key combinations that are mapped into the right z88 keyboard location...
+					if (e.getModifiers() == (java.awt.Event.CTRL_MASK + java.awt.Event.ALT_MASK)) {
+						// ALT GR pressed down...
+						
+						if (currentLayout == z88Keyboards[COUNTRY_FR]) {
+							switch(e.getKeyCode()) {
+								case KeyEvent.VK_2:  // PC [ALT Gr '2'] = '~' converts to Z88 <>( = ~ 
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_5));
+								    break;
+								case KeyEvent.VK_3:  // PC [ALT Gr '3'] = '#' converts to Z88 <>" = #
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_3));
+									break;
+								case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>è = {
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_7));
+								    break;
+								case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ç = [
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_9));
+									break;							    
+								case KeyEvent.VK_7:  // PC [ALT Gr '7'] = '`' converts to Z88 <>) = `
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_RIGHT_PARENTHESIS));
+									break;
+								case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>§ = ^
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_6));
+									break;
+								case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>é = @
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_2));
+									break;
+								case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>à = ]
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_0));
+									break;
+								case KeyEvent.VK_EQUALS:  // PC [ALT Gr '='] = '}' converts to Z88 <>! = }
+									kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_EXCLAMATION_MARK));
+									break;
+							}
+						}
+					} else {
+						kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));	
+					}
+				
+					if (kp != null) {
+						releaseZ88key(kp);
+					}
+					break;
+			}
+		}
+
+		public void keyTyped(KeyEvent e) {
+			//System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		}		
 	}
 }
