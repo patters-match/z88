@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 
@@ -72,9 +73,11 @@ public class Gui extends JFrame {
 		}
 		Container content = getContentPane();
 		
-		// this.setJMenuBar(getOZvmMenuBar());
-		this.setSize(640, 480);
-		content.add(Z88display.getInstance(), BorderLayout.NORTH);
+		//setJMenuBar(getOZvmMenuBar());
+		JPanel panel = new JPanel();
+		panel.add(Z88display.getInstance());
+		
+		content.add(panel, BorderLayout.NORTH);
 		
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.pack();
