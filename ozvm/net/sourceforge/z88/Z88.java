@@ -1,9 +1,7 @@
 
 package net.sourceforge.z88;
 
-import java.util.*;
 import java.io.*;
-import java.net.*;
 
 /*
  * @(#)Z88.java 1.1 Gunther Strube
@@ -121,8 +119,8 @@ public class Z88 extends Z80 {
 	public void insertRamCard(int size, int slot) {
 		int totalRamBanks, totalSlotBanks, curBank;
 		
-		slot %= 3;						// allow only slots 0 - 3 range.
-		size %= 32768;					// allow only modulus 32Kb RAM.
+		slot %= 4;						// allow only slots 0 - 3 range.
+		size -= (size % 32768);			// allow only modulus 32Kb RAM.
 		totalRamBanks = size / 16384;	// number of 16K banks in Ram Card
 						
 		Bank ramBanks[] = new Bank[totalRamBanks];	// the RAM card container
@@ -133,6 +131,38 @@ public class Z88 extends Z80 {
 		loadCard(ramBanks, slot);	// load the physical card into Z88 memory
 	}
 
+
+	/**
+	 * Load externally specified ROM image into Z88 memory system, slot 0.
+	 * 
+	 * @param filename
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void loadRom(String filename) throws FileNotFoundException, IOException {
+		RandomAccessFile rom = new RandomAccessFile(filename, "r");
+		
+		if (rom.length() > (1024*512)) {
+			throw new IOException("Max 512K ROM!");
+		}
+		if (rom.length() % (Bank.SIZE*2) > 0) {
+			throw new IOException("ROM must be in even banks!");
+		}
+		
+		Bank romBanks[] = new Bank[(int) rom.length() / Bank.SIZE];	// allocate ROM container
+		byte bankBuffer[] = new byte[Bank.SIZE]; 					// allocate intermediate load buffer
+		
+		for(int curBank=0; curBank<romBanks.length; curBank++) {
+			romBanks[curBank] = new Bank(Bank.ROM);		
+			rom.readFully(bankBuffer);					// load 16K from file, sequentially
+			romBanks[curBank].loadBytes(bankBuffer,0);	// and load fully into bank
+		}
+		
+		// complete ROM image now loaded into container
+		// insert container into Z88 memory, slot 0, banks $00 onwards.
+		loadCard(romBanks, 0); 
+	}
+
 	
 	/**
 	 * Load Card (RAM/ROM/EPROM) into Z88 memory system.
@@ -141,7 +171,10 @@ public class Z88 extends Z80 {
 	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
 	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
 	 * Slot 3 (1Mb):   banks C0 - FF (RAM or EPROM)
-	 */ 
+	 * 
+	 * @param card
+	 * @param slot
+	 */	
 	private void loadCard(Bank card[], int slot) {
 		int totalSlotBanks, slotBank, curBank;
 
