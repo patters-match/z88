@@ -827,9 +827,10 @@ DEFW (void)
 {
   long bytepos = 0;
 
-  AlignAddress(2);      /* make sure that 16bit words are address aligned before actually creating them */
-
+#ifdef ALIGN_ADRESSES
+  AlignAddress(2);              /* make sure that 16bit words are address aligned before actually creating them */
   bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
+#endif
 
   do
     {
@@ -863,8 +864,10 @@ DEFL (void)
 {
   long bytepos = 0;
 
+#ifdef ALIGN_ADRESSES
   AlignAddress(4);              /* make sure that 32bit words are address aligned before actually creating them */
   bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
+#endif
 
   do
     {
@@ -930,7 +933,7 @@ ASCII(enum flag nullterminate)
                     {
                       GetSym ();
 
-                      if (sym != strconq && sym != newline && sym != semicolon)
+                      if (sym != strconq && sym != comma && sym != newline && sym != semicolon)
                         {
                           ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
                           return;
@@ -951,7 +954,7 @@ ASCII(enum flag nullterminate)
           if (!ExprUnsigned8 (bytepos))
             break;              /* syntax error - get next line from file... */
 
-          if (sym != strconq && sym != newline && sym != semicolon)
+          if (sym != strconq && sym != comma && sym != newline && sym != semicolon)
             {
               ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);   /* expression separator not found */
               break;
