@@ -74,7 +74,7 @@ public abstract class Bank {
 	 * @param addr is a 16bit word that points into the 16K address space of the bank.
 	 */
 	public int getByte(final int addr) {
-		return bankMem[addr & (Memory.BANKSIZE-1)];
+		return bankMem[addr & (Memory.BANKSIZE-1)] & 0xFF;
 	}
 	
 	/**
