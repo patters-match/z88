@@ -1360,6 +1360,35 @@ public final class Blink extends Z80 {
 		memory.insertCard(cardBanks, slot);
 	}
 
+
+	/**
+	 * Load file image (from opened file ressource) into Z88 Bank offset.
+	 * The file image needs to fit within the 16K bank boundary. The specified
+	 * bank must be part of an existing memory resource, ie. it is not possible
+	 * to load a file binary into a bank that is part of an empty slot.
+	 *  
+	 * @param extAddress
+	 * @param file
+	 * @throws IOException
+	 */
+	public void loadBankBinary(final int extAddress, final RandomAccessFile file) throws IOException {
+		int bank = (extAddress >>> 16) & 0xFF;
+		int offset = extAddress & 0x3FFF;
+		Bank b = memory.getBank(bank); 
+		
+		if ( offset+file.length() > Memory.BANKSIZE) {
+			throw new IOException("File image exceeds Bank boundary!");
+		}
+
+		if (b instanceof VoidBank == true) {
+			throw new IOException("Bank is part of empty slot!");
+		}
+
+		byte bankBuffer[] = new byte[(int) file.length()];	// allocate intermediate load buffer
+		file.readFully(bankBuffer); 						// load file image into buffer
+		b.loadBytes(bankBuffer, offset);					// and move buffer into bank
+	}
+
 	
 	/**
 	 * Load ROM image (from opened file ressource inside JAR)
