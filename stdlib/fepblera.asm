@@ -285,7 +285,7 @@ DEFC VppBit = 1
                     LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
                     XOR  (HL)                ; get second DQ6 programming status
                     BIT  6,A                 ; toggling? 
-                    JR   Z,toggling_done     ; no, erasing the sector completed successfully!
+                    RET  Z                   ; no, erasing the sector completed successfully (also back in Read Array Mode)!
                     BIT  5,C                 ; 
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
                     
@@ -293,10 +293,7 @@ DEFC VppBit = 1
                     XOR  (HL)                ; toggling reads to determine if we're still toggling 
                     BIT  6,A                 ; which then indicates a sector erase error...
                     JR   NZ,erase_err_29f    ; damn, sector was NOT erased!
-.toggling_done                    
-                    LD   A,(HL)              ; we're back in Read Array Mode
-                    CP   B                   ; verify programmed byte (just in case!)
-                    RET  Z                   ; byte was successfully programmed!
+                    RET                      ; we're back in Read Array Mode, sector successfully erased!
 .erase_err_29f
                     LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
                     SCF
