@@ -4006,7 +4006,7 @@ public class Dz {
 	 * @return String
 	 */	
 	public final String addrToHex(int addr, boolean hexTrailer) {
-		int msb = addr/256, lsb = addr%256;
+		int msb = addr >>> 8, lsb = addr & 0xFF;
 		StringBuffer hexString = new StringBuffer(5);
 		
 		hexString.append(hexcodes[msb/16]).append(hexcodes[msb%16]);

@@ -301,6 +301,7 @@ public class OZvm {
 		do {		
 			for (int dzLines = 0;  dzLines < 16; dzLines++) {
 				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, true);
+				dzAddr &= 0xFFFF;
 				System.out.println(dzLine);
 			}
 			
