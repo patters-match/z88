@@ -17,7 +17,7 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.3.2";
+	public static final String VERSION = "0.3.3";
 
 	private Blink z88 = null;
     private DisplayStatus blinkStatus;
@@ -69,8 +69,9 @@ public class OZvm implements KeyListener {
 			
 			commandInput.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					// parse command line
-					parseCommandLine(e);					
+					String cmdline = commandInput.getText();
+					commandInput.setText("");			
+					parseCommandLine(cmdline);					
 				}
 			});
 
@@ -113,7 +114,7 @@ public class OZvm implements KeyListener {
 	}
 
 	public boolean boot(String[] args) {
-		RandomAccessFile card, rom;
+		RandomAccessFile file;
 		boolean loadedRom = false;
 		boolean ramSlot0 = false;
 		int ramSizeArg = 0;
@@ -125,11 +126,12 @@ public class OZvm implements KeyListener {
 					if ( args[arg].compareTo("ram0") != 0 & args[arg].compareTo("ram1") != 0 &
 						 args[arg].compareTo("ram2") != 0 & args[arg].compareTo("ram3") != 0 &
 						 args[arg].compareTo("s1") != 0 & args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") != 0 &
-						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug") != 0) {
+						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug") != 0 &
+						 args[arg].compareTo("initdebug") != 0) {
 						runtimeOutput.append("Loading '" + args[arg] + "' into ROM space in slot 0.\n");
-						rom = new RandomAccessFile(args[0], "r");
-						z88.loadRomBinary(rom);
-						rom.close();
+						file = new RandomAccessFile(args[0], "r");
+						z88.loadRomBinary(file);
+						file.close();
 						loadedRom = true;
 						arg++;
 					}
@@ -145,28 +147,28 @@ public class OZvm implements KeyListener {
 					}
 
 					if (arg<args.length && (args[arg].compareTo("s1") == 0)) {
-						card = new RandomAccessFile(args[arg+1], "r");
+						file = new RandomAccessFile(args[arg+1], "r");
 						runtimeOutput.append("Loading '" + args[arg+1] + "' into slot 1.\n");
-						z88.loadCardBinary(1, card);
-						card.close();
+						z88.loadCardBinary(1, file);
+						file.close();
 						arg+=2;
 						continue;
 					}
 
 					if (arg<args.length && (args[arg].compareTo("s2") == 0)) {
-						card = new RandomAccessFile(args[arg+1], "r");
+						file = new RandomAccessFile(args[arg+1], "r");
 						runtimeOutput.append("Loading '" + args[arg+1] + "' into slot 2.\n");
-						z88.loadCardBinary(2, card);
-						card.close();
+						z88.loadCardBinary(2, file);
+						file.close();
 						arg+=2;
 						continue;
 					}
 
 					if (arg<args.length && (args[arg].compareTo("s3") == 0)) {
 						runtimeOutput.append("Loading '" + args[arg+1] + "' into slot 3.\n");
-						card = new RandomAccessFile(args[arg+1], "r");
-						z88.loadCardBinary(3, card);
-						card.close();
+						file = new RandomAccessFile(args[arg+1], "r");
+						z88.loadCardBinary(3, file);
+						file.close();
 						arg+=2;
 						continue;
 					}
@@ -174,6 +176,22 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].compareTo("debug") == 0)) {
 						setDebugMode(true);
 						arg++;
+						continue;
+					}
+
+					if (arg<args.length && (args[arg].compareTo("initdebug") == 0)) {
+						setDebugMode(true);
+						file = new RandomAccessFile(args[arg+1], "r");
+						JTextArea tmpOutput = commandOutput;
+						commandInput.enable(false);	// don't allow command input while parsing file...
+						commandOutput = null;	// don't write command output while parsing commands from file...
+						String cmd = null;
+						while ( (cmd = file.readLine()) != null) parseCommandLine(cmd);
+						commandOutput = tmpOutput;
+						commandInput.enable(true); // ready for commands from the keyboard...
+						file.close();						
+						runtimeOutput.append("Parsed '" + args[arg+1] + "' command file.\n");
+						arg+=2;						
 						continue;
 					}
 
@@ -225,8 +243,10 @@ public class OZvm implements KeyListener {
 	}
 
 	private void displayCmdOutput(String msg) {
-		commandOutput.append(msg + "\n");
-		commandOutput.setCaretPosition(commandOutput.getDocument().getLength());
+		if (commandOutput != null) {
+			commandOutput.append(msg + "\n");
+			commandOutput.setCaretPosition(commandOutput.getDocument().getLength());
+		}
 	}
 
 	private void cmdHelp() {
@@ -249,17 +269,16 @@ public class OZvm implements KeyListener {
 		displayCmdOutput("bpd <extended address> - Toggle display breakpoint");
 		displayCmdOutput("sr - Blink: Segment Register Bank Binding");
 		displayCmdOutput("r - Display current Z80 Registers");
+		displayCmdOutput("f/F - Display current Z80 Flag Register");
 		displayCmdOutput("cls - Clear command output area\n");
 		displayCmdOutput("Registers are edited using upper case, ex. A 01 and SP 1FFE");
 		displayCmdOutput("Alternate registers are specified with ', ex. A' 01 and BC' C000");
-		displayCmdOutput("Flags are toggled using FZ, FC, FN, FS, FPV and FH commands.");
+		displayCmdOutput("Flags are toggled using FZ, FC, FN, FS, FPV and FH commands or");
+		displayCmdOutput("set/reset using 1 or 0 argument, eg. FZ 1 to enable Zero flag.");
 	}
 
-	private void parseCommandLine(java.awt.event.ActionEvent e) {
-		String cmdline = commandInput.getText();
-		commandInput.setText("");
-				
-		String[] cmdLineTokens = cmdLineTokens = cmdline.split(" ");
+	private void parseCommandLine(String cmdLineText) {				
+		String[] cmdLineTokens = cmdLineTokens = cmdLineText.split(" ");
 
 		if (z80Thread != null && z80Thread.isAlive() == false) {
 			z80Thread = null;	// garbage collect dead thread...
@@ -372,12 +391,24 @@ public class OZvm implements KeyListener {
 			}
 		}
 
+		if (cmdLineTokens[0].compareToIgnoreCase("f") == 0) {
+			displayCmdOutput("F=" + blinkStatus.z80Flags());
+		}
+
 		if (cmdLineTokens[0].compareTo("FZ") == 0) {
 			if (z80Thread != null && z80Thread.isAlive() == true) {
 				displayCmdOutput("Cannot change Zero flag while Z88 is running!");
 				return;
 			}
-			z88.fZ = !z88.fZ;
+			if (cmdLineTokens.length == 2) {
+				if (Integer.parseInt(cmdLineTokens[1], 16) == 0)
+					z88.fZ = false;
+				else
+					z88.fZ = true;
+			} else {
+				// toggle/invert flag status
+				z88.fZ = !z88.fZ;
+			}
 			displayCmdOutput("F=" + blinkStatus.z80Flags());
 		}
 
@@ -386,7 +417,15 @@ public class OZvm implements KeyListener {
 				displayCmdOutput("Cannot change Carry flag while Z88 is running!");
 				return;
 			}
-			z88.fC = !z88.fC;
+			if (cmdLineTokens.length == 2) {
+				if (Integer.parseInt(cmdLineTokens[1], 16) == 0)
+					z88.fC = false;
+				else
+					z88.fC = true;
+			} else {
+				// toggle/invert flag status
+				z88.fC = !z88.fC;
+			}
 			displayCmdOutput("F=" + blinkStatus.z80Flags());
 		}
 
@@ -395,7 +434,15 @@ public class OZvm implements KeyListener {
 				displayCmdOutput("Cannot change Sign flag while Z88 is running!");
 				return;
 			}
-			z88.fS = !z88.fS;
+			if (cmdLineTokens.length == 2) {
+				if (Integer.parseInt(cmdLineTokens[1], 16) == 0)
+					z88.fS = false;
+				else
+					z88.fS = true;
+			} else {
+				// toggle/invert flag status
+				z88.fS = !z88.fS;
+			}
 			displayCmdOutput("F=" + blinkStatus.z80Flags());
 		}
 
@@ -404,7 +451,15 @@ public class OZvm implements KeyListener {
 				displayCmdOutput("Cannot change Half Carry flag while Z88 is running!");
 				return;
 			}
-			z88.fH = !z88.fH;
+			if (cmdLineTokens.length == 2) {
+				if (Integer.parseInt(cmdLineTokens[1], 16) == 0)
+					z88.fH = false;
+				else
+					z88.fH = true;
+			} else {
+				// toggle/invert flag status
+				z88.fH = !z88.fH;
+			}
 			displayCmdOutput("F=" + blinkStatus.z80Flags());
 		}
 
@@ -413,7 +468,15 @@ public class OZvm implements KeyListener {
 				displayCmdOutput("Cannot change Add./Sub. flag while Z88 is running!");
 				return;
 			}
-			z88.fN = !z88.fN;
+			if (cmdLineTokens.length == 2) {
+				if (Integer.parseInt(cmdLineTokens[1], 16) == 0)
+					z88.fN = false;
+				else
+					z88.fN = true;
+			} else {
+				// toggle/invert flag status
+				z88.fN = !z88.fN;
+			}
 			displayCmdOutput("F=" + blinkStatus.z80Flags());
 		}
 
@@ -422,7 +485,15 @@ public class OZvm implements KeyListener {
 				displayCmdOutput("Cannot change Parity flag while Z88 is running!");
 				return;
 			}
-			z88.fPV = !z88.fPV;
+			if (cmdLineTokens.length == 2) {
+				if (Integer.parseInt(cmdLineTokens[1], 16) == 0)
+					z88.fPV = false;
+				else
+					z88.fPV = true;
+			} else {
+				// toggle/invert flag status
+				z88.fPV = !z88.fPV;
+			}
 			displayCmdOutput("F=" + blinkStatus.z80Flags());
 		}
 
@@ -743,13 +814,13 @@ public class OZvm implements KeyListener {
 			} else {
 				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
 				breakp.toggleBreakpoint(bpAddress);
-				breakp.listBreakpoints();
+				displayCmdOutput(breakp.listBreakpoints());
 			}
 		}
 
 		if (cmdLineTokens.length == 1) {
 			// no arguments, use PC in current bank binding
-			breakp.listBreakpoints();
+			displayCmdOutput(breakp.listBreakpoints());
 		}
 	}
 
@@ -761,13 +832,13 @@ public class OZvm implements KeyListener {
 			} else {
 				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
 				breakp.toggleBreakpoint(bpAddress, false);
-				breakp.listBreakpoints();
+				displayCmdOutput(breakp.listBreakpoints());
 			}
 		}
 
 		if (cmdLineTokens.length == 1) {
 			// no arguments, use PC in current bank binding
-			breakp.listBreakpoints();
+			displayCmdOutput(breakp.listBreakpoints());
 		}
 	}
 
@@ -820,7 +891,7 @@ public class OZvm implements KeyListener {
 		int memHex, memAscii;
 
 		memLine.delete(0,255);
-		memLine.append(Dz.addrToHex(memAddr,true)).append("  ");
+		memLine.append(Dz.byteToHex(memBank, false) + Dz.addrToHex(memAddr,true)).append("  ");
 		for (memHex=memAddr; memHex < memAddr+16; memHex++) {
 			memLine.append(Dz.byteToHex(z88.getByte(memHex,memBank),false)).append(" ");
 		}
@@ -969,18 +1040,12 @@ public class OZvm implements KeyListener {
 		breakp = breakpoints;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-	 */
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_F12) {		
 			z88Screen.grabFocus();			
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
-	 */
 	public void keyReleased(KeyEvent arg0) {
 	}
 
