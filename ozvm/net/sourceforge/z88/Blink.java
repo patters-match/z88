@@ -29,8 +29,10 @@ public final class Blink {
 		for (int bank = 0; bank < memory.length; bank++)
 			memory[bank] = nullBank;
 
-		rtc = new Rtc(); // start the Real Time Clock...
-		z80Int = new Z80interrupt(); // start the INT signals each 10ms to Z80
+		timerDaemon = new Timer(true);
+		
+		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
+		z80Int = new Z80interrupt(); 	// start the INT signals each 10ms to Z80
 	}
 
 	/**
@@ -38,6 +40,12 @@ public final class Blink {
 	 * (which the BLINK is collaborating with).
 	 */
 	private Z88 z88vm;
+
+	/**
+	 * The main Timer daemon that runs the Rtc clock and sends 10ms interrupts
+	 * to the Z80 virtual processor.
+	 */
+	Timer timerDaemon = null;
 
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
@@ -125,6 +133,8 @@ public final class Blink {
 	 */
 	public void setAck(int bits) {
 		ACK = bits;
+		
+		STA &= ~bits;	// reset Blink occurred interrupts according to acknowledge...
 	}
 
 	/**
@@ -328,6 +338,23 @@ public final class Blink {
 	 */	
 	public void setSbr(int bits) {
 		SBR = bits;
+	}
+	
+	/**
+	 * Keyboard matrix.
+	 */
+	private int KBD;
+	
+	/**
+	 * Fetch a keypress from the specified row matrix.
+	 * 
+	 * @param row
+	 * @return int
+	 */
+	public int getKbd(int row) {
+		// this one will get a lot more complex than just 
+		// returning a value from the register!
+		return KBD;
 	}
 	
 	/**
@@ -564,10 +591,91 @@ public final class Blink {
 	/** 
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
-	private class Rtc extends TimerTask {
+	private class Rtc {
 
-		Timer countRtc = null;
+		private Rtc() {
+			rtcRunning = false;
+			
+			// enable minute, second and 1/100 second interrups
+			TMK = BM_TMKMIN | BM_TMKSEC | BM_TMKTICK;
+			TSTA = TACK = 0;
 
+			// first interrupt events needs an acknowledge!
+			TACK = BM_TACKMIN | BM_TACKSEC | BM_TACKTICK;
+		}
+
+		private class Counter extends TimerTask {
+			/**
+			 * Execute the RTC counter each 5ms, and set the various RTC interrupts
+			 * if they are enabled, but only if INT.TIME = 1.
+			 * 
+			 * @see java.lang.Runnable#run()
+			 */
+			public void run() {
+
+				if (++tick > 1) {
+					// 1/100 second has passed
+					tick = 0;
+					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKTICK) == BM_TMKTICK)) {
+						// INT.TIME interrupts are enabled and TMK.TICK interrupts are enabled:
+						// Signal that a tick interrupt occurred, but only
+						// if a previous tick interrupt has been acknowledged...
+						// (ie. TSTA.BM_TSTATICK = 0)
+						if ((TSTA & BM_TSTATICK) == 0) {
+							// a previous tick interrupt has been acknowledged
+							TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
+							TACK &= ~BM_TACKTICK; // TACK.BM_TACKTICK = 0 (reset prev. acknowledge)
+						}
+					}
+				}
+
+				if (++TIM0 > 199) {
+					// 1 second has passed...
+					TIM0 = 0;
+										
+					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKSEC) == BM_TMKSEC)) {
+						// INT.TIME interrupts are enabled and TMK.SEC interrupts are enabled:
+						// Signal that a second interrupt occurred, but only
+						// if a previous interrupt has been acknowledged...
+						// (ie. TSTA.BM_TSTASEC = 0)
+						if ((TSTA & BM_TSTASEC) == 0) {
+							// a previous second interrupt has been acknowledged
+							TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
+							TACK &= ~BM_TACKSEC; // TACK.BM_TACKSEC = 0 (reset prev. acknowledge)
+						}
+					}
+
+					if (++TIM1 > 59) {
+						// 1 minute has passed
+						TIM1 = 0;
+						if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKMIN) == BM_TMKMIN)) {
+							// INT.TIME interrupts are enabled and TMK.MIN interrupts are enabled:
+							// Signal that a minute interrupt occurred, but only
+							// if a previous interrupt has been acknowledged...
+							// (ie. TSTA.BM_TSTAMIN = 0)
+							if ((TSTA & BM_TSTAMIN) == 0) {
+								// a previous minute interrupt has been acknowledged
+								TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
+								TACK &= ~BM_TACKMIN; // TACK.BM_TACKMIN = 0 (reset prev. acknowledge)
+							}
+						}
+
+						if (++TIM2 > 255) {
+							TIM2 = 0; // 256 minutes has passed
+							if (++TIM3 > 255) {
+								TIM3 = 0; // 65536 minutes has passed
+								if (++TIM4 > 31) {
+									TIM4 = 0; // 65536 * 32 minutes has passed
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		TimerTask countRtc = null;
+		
 		/**
 		 * Internal counter, 2 ticks = 1/100 second (10ms)
 		 */
@@ -636,17 +744,6 @@ public final class Blink {
 
 		private boolean rtcRunning = false; // Rtc counting?
 
-		private Rtc() {
-			// enable minute, second and 1/100 second interrups
-			TMK = BM_TMKMIN | BM_TMKSEC | BM_TMKTICK;
-			TSTA = TACK = 0;
-
-			// first interrupt events needs an acknowledge!
-			TACK = BM_TACKMIN | BM_TACKSEC | BM_TACKTICK;
-
-			start();
-		}
-
 		/**
 		 * Stop the Rtc counter, but don't reset the counters themselves.
 		 */
@@ -663,8 +760,8 @@ public final class Blink {
 		public void start() {
 			if (rtcRunning == false) {
 				rtcRunning = true;
-				countRtc = new Timer(true); // create Timer as a daemon...
-				countRtc.scheduleAtFixedRate(this, 0, 5);
+				countRtc = new Counter();
+				timerDaemon.scheduleAtFixedRate(countRtc, 0, 5);
 			}
 		}
 
@@ -684,74 +781,6 @@ public final class Blink {
 			return rtcRunning;
 		}
 
-		/**
-		 * Execute the RTC counter each 5ms, and set the various RTC interrupts
-		 * if they are enabled, but only if INT.TIME = 1.
-		 * 
-		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			if (rtcRunning == false)
-				return;
-
-			if (++tick > 1) {
-				// 1/100 second has passed
-				tick = 0;
-				if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKTICK) == BM_TMKTICK)) {
-					// INT.TIME interrupts are enabled and TMK.TICK interrupts are enabled:
-					// Signal that a tick interrupt occurred, but only
-					// if a previous tick interrupt has been acknowledged...
-					// (ie. TSTA.BM_TSTATICK = 0)
-					if ((TSTA & BM_TSTATICK) == 0) {
-						// a previous tick interrupt has been acknowledged
-						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
-						TACK &= ~BM_TACKTICK; // TACK.BM_TACKTICK = 0 (reset prev. acknowledge)
-					}
-				}
-			}
-
-			if (++TIM0 > 199) {
-				// 1 second has passed...
-				TIM0 = 0;
-				if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKSEC) == BM_TMKSEC)) {
-					// INT.TIME interrupts are enabled and TMK.SEC interrupts are enabled:
-					// Signal that a second interrupt occurred, but only
-					// if a previous interrupt has been acknowledged...
-					// (ie. TSTA.BM_TSTASEC = 0)
-					if ((TSTA & BM_TSTASEC) == 0) {
-						// a previous second interrupt has been acknowledged
-						TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
-						TACK &= ~BM_TACKSEC; // TACK.BM_TACKSEC = 0 (reset prev. acknowledge)
-					}
-				}
-
-				if (++TIM1 > 59) {
-					// 1 minute has passed
-					TIM1 = 0;
-					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKMIN) == BM_TMKMIN)) {
-                        // INT.TIME interrupts are enabled and TMK.MIN interrupts are enabled:
-						// Signal that a minute interrupt occurred, but only
-						// if a previous interrupt has been acknowledged...
-						// (ie. TSTA.BM_TSTAMIN = 0)
-						if ((TSTA & BM_TSTAMIN) == 0) {
-							// a previous minute interrupt has been acknowledged
-							TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
-							TACK &= ~BM_TACKMIN; // TACK.BM_TACKMIN = 0 (reset prev. acknowledge)
-						}
-					}
-
-					if (++TIM2 > 255) {
-						TIM2 = 0; // 256 minutes has passed
-						if (++TIM3 > 255) {
-							TIM3 = 0; // 65536 minutes has passed
-							if (++TIM4 > 31) {
-								TIM4 = 0; // 65536 * 32 minutes has passed
-							}
-						}
-					}
-				}
-			}
-		}
 	} /* Rtc class */
 
 	/** 
@@ -759,10 +788,23 @@ public final class Blink {
 	 * An INT is fired each 10ms, which the Z80 responds to through IM 1
 	 * (executing a RST 38H instruction).
 	 */
-	private class Z80interrupt extends TimerTask {
+	private class Z80interrupt {
 
-		Timer intIm1 = null;
+		TimerTask intIm1 = null;
 
+		private class Int10ms extends TimerTask {
+			/**
+			 * Send an INT each 10ms to the Z80 processor...
+			 * 
+			 * @see java.lang.Runnable#run()
+			 */
+			public void run() {
+				if (z88vm.interruptTriggered() == false)
+					// signal only if no interrupt is being executed...
+					z88vm.setInterruptSignal();
+			}			
+		}
+		
 		private Z80interrupt() {
 			start();
 		}
@@ -777,23 +819,12 @@ public final class Blink {
 		}
 
 		/**
-		 * Start interrupt to the Z8i0 after a 10ms delay, and execute the run()
+		 * Start interrupt to the Z80 after a 10ms delay, and execute the run()
 		 * method every 10 millisecond.
 		 */
 		public void start() {
-			intIm1 = new Timer(true); // create Timer as a daemon...
-			intIm1.scheduleAtFixedRate(this, 10, 10);
-		}
-
-		/**
-		 * Send an INT each 10ms to the Z80 processor...
-		 * 
-		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			if (z88vm.interruptTriggered() == false)
-				// signal only if no interrupt is being executed...
-				z88vm.setInterruptSignal();
+			intIm1 = new Int10ms();
+			timerDaemon.scheduleAtFixedRate(intIm1, 10, 10);
 		}
 	} /* Z80interrupt class */
 }
