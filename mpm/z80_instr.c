@@ -1,4 +1,4 @@
-/* --------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------------------
 
     MMMMM       MMMMM   PPPPPPPPPPPPP     MMMMM       MMMMM
      MMMMMM   MMMMMM     PPPPPPPPPPPPPPP   MMMMMM   MMMMMM
@@ -16,9 +16,7 @@
                           ZZZZZZZZZZZZZZ  8888888888888888    0000000000000
                         ZZZZZZZZZZZZZZ      888888888888        000000000
 
-   ------------------------------------------------------------------------------- */
 
-/*
   Copyright (C) 1991-2003, Gunther Strube
 
   This file is part of Mpm.
@@ -31,9 +29,10 @@
   You should have received a copy of the GNU General Public License along with Mpm;
   see the file COPYING.  If not, write to the
   Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/
 
-/* $Id$ */
+  $Id$
+
+ -------------------------------------------------------------------------------------------------*/
 
 
 
