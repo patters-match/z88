@@ -19,9 +19,24 @@
 
      LIB MemDefBank
      
+     INCLUDE "interrpt.def"
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
 
+; ==========================================================================================
+; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
+
+DEFC FE_RST = $FF           ; reset chip in read array mode
+DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer and device)
+DEFC FE_RSR = $70           ; read status register
+DEFC FE_CSR = $50           ; clear status register
+DEFC FE_ERA = $20           ; erase block (64Kb) command
+DEFC FE_CON = $D0           ; confirm erasure
+DEFC FE_SUS = $B0           ; suspend erasure
+DEFC FE_RES = $D0           ; resume erasure
+DEFC FE_WRI = $40           ; byte write command
+DEFC FE_ALW = $10           ; alternate byte write command
+; ==========================================================================================
 
 ; ***************************************************************
 ;
@@ -34,19 +49,19 @@
 ;         Success:
 ;              Fc = 0
 ;              Fz = 1
+;              A = FE_28F or FE_29F, defining the Flash Memory chip generation 
 ;              HL = Flash Memory ID
-;                   H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD, FE_ATMEL_MFCD)
+;                   H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD)
 ;                   L = Device Code (refer to flashepr.def) 
 ;              B = total of 16K banks on Flash Memory Chip.
 ;
 ;         Failure:
 ;              Fc = 1
-;              Fz = 0
-;              A = RC_NFE (not a recognised Flash Memory Chip)
+;              A = RC_NFE (not a recognized Flash Memory Chip)
 ;
 ; Registers changed on return:
-;    A..CDE../IXIY ........ same
-;    .FB...HL/.... afbcdehl different
+;    ...CDE../IXIY ........ same
+;    AFB...HL/.... afbcdehl different
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by
@@ -57,129 +72,255 @@
 .FlashEprCardId
                     PUSH DE
                     PUSH BC
-                    PUSH AF
+
+                    CALL OZ_DI               ; no IM 1 interrupts while we poll for Flash Memory stuff...
+                    PUSH AF                  ; preserve interupt status
+                    
+                    LD   A,C
+                    AND  @00000011           ; only slots 0, 1, 2 or 3 possible
+                    RRCA
+                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
+                    LD   B,A
+                    LD   C, MS_S1           
+                    CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
+                    PUSH BC                  ; preserve old bank binding..
+                    
+                    CALL CheckRam
+                    JR   C, unknown_device   ; RAM card in slot C, abort...
 
                     CALL FetchCardID         ; get info of Intel chip in HL...
-                    LD   A, FE_INTEL_MFCD    ; Intel FlashFile Memory?
-                    CP   H
-                    JR   NZ, unknown_device  ; not an Intel Chip...
-                    CALL GetTotalBlocks      ; return no. of 16K banks of Flash Memory in B
-                    POP  DE
-                    LD   A,D                 ; original A restored
-                    POP  DE                  ; H = Manufacturer Code, L = Device Code 
+
+                    POP  BC
+                    CALL MemDefBank          ; restore original bank in segment 1
+
+                    POP  AF                  ; old interrupt status
+                    CALL OZ_EI               ; enable IM 1 interrupts again...
+                    
+                    CALL VerifyCardID        ; return no. of 16K banks of Flash Memory in B
+                    JR   C, unknown_device
+                                             ; H = Manufacturer Code, L = Device Code 
+                    POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
                     LD   C,E                 ; original C restored
                     POP  DE                  ; original DE restored
                     RET                      ; Fc = 0, Fz = 1
-.unknown_device     
+.unknown_device
+                    POP  BC
+                    CALL MemDefBank          ; restore original bank in segment 1
+
+                    POP  AF                  ; old interrupt status
+                    CALL OZ_EI               ; enable IM 1 interrupts again...
+                    
                     LD   A, RC_NFE
-                    SCF
+                    SCF                      ; signal error...
+
                     POP  BC
                     POP  DE
-                    POP  HL
                     RET
 
 
 ; ***************************************************************
 ;
-; Get the Manufacturer and Device Code from the Intel chip.
-; This routine will clone itself on the stack and execute there.
+; Get the Manufacturer and Device Code from a Flash Eprom Chip
+; inserted in slot C (Bottom bank of slot C has already been 
+; bound into segment 1; address $0000 - $3FFF is bound at 
+; $4000 - $7FFF)
+;
+; This routine will poll for known Intel I28Fxxxx and AMD AM29Fxxx
+; Flash Memory chips and return the appropriate ID, if a card
+; is recognized.
+;
+; The core polling routines are cloned on the stack and 
+; executed there, which allowes this library routine to be 
+; executed on the card itself that are being polled.
 ;
 ; In:
-;    C = slot number (1, 2 or 3)
+;    -
 ; 
 ; Out:
 ;    H = manufacturer code (at $00 0000 on chip)
 ;    L = device code (at $00 0001 on chip)
 ;
 ; Registers changed on return:
-;    ......../IXIY same
-;    AFBCDEHL/.... different
+;    AFBCDE../IXIY ........ same
+;    ......HL/.... afbcdehl different
 ;
-.FetchCardID        EXX
+.FetchCardID        
+                    PUSH AF
+                    PUSH BC
+                    PUSH DE
+                    PUSH IX
+                    
+                    ; get contents of (at $00 0000) and ($00 0001) in DE
+                    ; before polling those addresses for the Intel Flash Memory
+                    
+                    LD   IX, Fetch_I28F0xxxx_ID
+                    LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
+                    CALL ExecPollRoutineOnStack
+                    
+                    ; if the ID in HL is different from DE
+                    
+                    POP  IX
+                    POP  DE
+                    POP  BC
+                    POP  AF
+                    RET
+
+; IN:
+;     BC = size of polling routine.
+;     IX = pointer to polling routine.
+; OUT:
+;     HL = Flash Memory chip ID
+;
+; Registers changed on return:
+;    A.BC..../IXIY ........ same
+;    .F..DEHL/.... afbcdehl different
+;
+.ExecPollRoutineOnStack
+                    PUSH BC
+                    EXX
+                    POP  BC                  ; length of routine
                     LD   HL,0
                     ADD  HL,SP
-                    EX   DE,HL
-                    LD   HL, -(RAM_code_end - RAM_code_start)
-                    ADD  HL,SP
-                    LD   SP,HL               ; buffer for routine ready...
-                    PUSH DE                  ; preserve original SP
-                    
-                    PUSH HL
-                    EX   DE,HL               ; DE points at <RAM_code_start>
-                    LD   HL, RAM_code_start
-                    LD   BC, RAM_code_end - RAM_code_start
-                    LDIR                     ; copy RAM routine...
+                    EX   DE,HL               ; current SP in DE...
+                    CP   A                   ; Fc = 0
+                    INC  BC
+                    SBC  HL,BC               ; make room for routine on stack (which moves downwards...)
+                    LD   SP,HL               ; new SP defined, space for buffer for routine ready...
+                    EX   DE,HL               ; HL = old SP (top of buffer), DE = new SP (destination)                    
+                    PUSH HL                  ; original SP will be restored after polling routine has completed
+                    PUSH DE                  ; execute polling routine by a RET instruction
+
+                    PUSH IX
+                    POP  HL                  
+                    LDIR                     ; copy polling routine to stack buffer...
                     LD   HL,exit_fetchid
-                    EX   (SP),HL
-                    PUSH HL
-                    EXX
-                    RET                      ; CALL RAM_code_start
+                    EX   (SP),HL             ; the RET at the end of the polling routine will jump to
+                    PUSH HL                  ; .exit_fetchid, which will restore the original SP and get
+                    EXX                      ; back to the outside world 
+                    RET                      ; (SP) = CALL Polling routine on stack...
 .exit_fetchid                 
                     EXX
-                    POP  HL                  ; original SP
-                    LD   SP,HL
+                    POP  HL
+                    LD   SP,HL               ; restore original SP (purge buffer routine on stack)
                     EXX
-                    RET                      ; return HL = Intel info...
+                    RET                      ; return HL = Flash Memory ID...
 
-; 40 bytes of code to be executed on stack...
-.RAM_code_start
-                    LD   A,C
-                    AND  @00000011           ; slots (0), 1, 2 or 3 possible
-                    RRCA
-                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    LD   B,A
-                    LD   C, MS_S1           
-                    CALL MemDefBank          ; Get bottom Bank of slot 3 into segment 1
-                    PUSH BC                  ; preserve old bank binding
 
+; ***************************************************************
+;
+; Polling code for INTEL 28F0xxxx FlashFile Memory Chip ID 
+; (code will be executed on stack...)
+;
+; In:
+;    -
+; 
+; Out:
+;    H = manufacturer code (at $00 0000 on chip)
+;    L = device code (at $00 0001 on chip)
+;
+; Registers changed on return:
+;    AFBC..../IXIY same
+;    ....DEHL/.... different
+;
+.Fetch_I28F0xxxx_ID
                     LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
-                    LD   (HL), FE_IID        ; Flash Memory Card ID command
+                    LD   (HL), FE_IID        ; FlashFile Memory Card ID command
                     LD   D,(HL)              ; D = Manufacturer Code (at $00 0000)
                     INC  HL
                     LD   E,(HL)              ; E = Device Code (at $00 0001)
                     LD   (HL), FE_RST        ; Reset Flash Memory Chip to read array mode
                     EX   DE,HL
-                    POP  BC
-                    CALL MemDefBank          ; restore original bank in segment 1
                     RET
-.RAM_code_end
+.end_Fetch_I28F0xxxx_ID
+
 
 
 ; ***************************************************************
 ;
 ; IN:
-;    L = Flash Memory Device Code
+;    -
 ;
 ; OUT:
-;    B = total of 16K banks on Flash Memory
+;    Fc = 0, empty slot or EPROM/FLASH Card in slot C
+;    Fc = 1, RAM card found in slot C
+;
+.CheckRam
+                    RET
+                                        
+
+; ***************************************************************
+;
+; IN:
+;    HL = Polled from potential Flash Memory Chip: 
+;         Manufacturer & Device Code
+;
+; OUT:
+;    Fc = 0
+;       ID was found (verified):
+;       A = chip generation (FE_28F or FE_29F)
+;       B = total of 16K banks on Flash Memory
+;    Fc = 1
+;      ID was not found (not verified)
 ;
 ; Registers changed on return:
-;   AF.CDE../IXIY same
-;    .B...HL/.... different
+;   ...CDEHL/IXIY same
+;   AFB...../.... different
 ;
-.GetTotalBlocks     PUSH AF
-                    PUSH HL
+.VerifyCardID       PUSH HL
+                    PUSH DE
+                    PUSH AF
                     
-                    LD   A,L
+                    EX   DE,HL
                     LD   HL, DeviceCodeTable
-                    LD   B,(HL)                   ; no. of Flash Memory Types in table
+                    LD   B,(HL)                   ; no. of Flash Memory ID's in table
                     INC  HL
-.find_loop          CP   (HL)                     ; device code found?
-                    INC  HL                       ; points at manufacturer code
-                    INC  HL                       ; points at bank size
-                    JR   NZ, get_next
-                         LD   B,(HL)              ; B = total of block on Flash Eprom
-                         JR   exit_getblocks      ; Fc = 0, Flash Eprom data returned...
-.get_next           INC  HL                       ; point at next entry...
+                    LD   A,E
+.find_loop          CP   (HL)                     ; Device Code found?
+                    INC  HL                       ; points at Manufacturer Code
+                    JR   NZ, get_next0
+                         LD   A,D
+                         CP   (HL)                     ; Manufacturer Code found?
+                         INC  HL                       ; points at no of banks of Flash Memory
+                         JR   NZ, get_next1
+                         LD   B,(HL)                   ; B = total of 16K banks on Flash Eprom
+                         INC  HL
+                         LD   A,(HL)                   ; A = chip generation
+                         JR   verified_id              ; Fc = 0, Flash Eprom data returned...
+.get_next0          INC  HL                       ; points at no of banks
+.get_next1          INC  HL                       ; points at chip generation                    
+                    INC  HL                       ; point at next entry...
                     DJNZ find_loop                ; and check for new Device Code
-.exit_getblocks
+
+                    POP  AF                       ; Ups, Manufacturer and Device Code wasn't verified
+                    SCF
+                    POP  DE
                     POP  HL
-                    POP  AF
+                    RET
+.verified_id
+                    POP  DE                       ; ignore old AF...
+                    POP  DE
+                    POP  HL
                     RET
 .DeviceCodeTable
-                    DEFB 5
-                    DEFW FE_I28F020, 16           ; 4 x 64K blocks / 16 x 16K banks (256Kb)
-                    DEFW FE_I28F004S5, 32         ; 8 x 64K blocks / 32 x 16K banks (512Kb)
-                    DEFW FE_I28F008SA, 64         ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
-                    DEFW FE_I28F008S5, 64         ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
-                    DEFW FE_I28F016S5, 64         ; 32 x 64K blocks / 128 x 16K banks (2048Kb) (appears like FE_I28F008S5)
+                    DEFB 7
+                    
+                    DEFW FE_I28F004S5
+                    DEFB 32, FE_28F               ; 8 x 64K blocks / 32 x 16K banks (512Kb)
+                    
+                    DEFW FE_I28F008SA
+                    DEFB 64, FE_28F               ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
+                    
+                    DEFW FE_I28F008S5
+                    DEFB 64, FE_28F               ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
+                    
+                    DEFW FE_I28F016S5
+                    DEFB 64, FE_28F               ; 32 x 64K blocks / 128 x 16K banks (2048Kb) (appears like FE_I28F008S5)
+                    
+                    DEFW FE_AM29F010B
+                    DEFB 8, FE_29F                ; 2 x 64K blocks / 8 x 16K banks (128Kb)
+                    
+                    DEFW FE_AM29F040B
+                    DEFB 32, FE_29F               ; 8 x 64K blocks / 32 x 16K banks (512Kb)
+                    
+                    DEFW FE_AM29F080B
+                    DEFB 64, FE_29F               ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
