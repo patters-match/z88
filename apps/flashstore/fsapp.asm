@@ -157,7 +157,7 @@ IF !DEBUG
 .DOREnd0
 
 .FS_Help            DEFM $7F
-                    DEFM "Freeware utility by",$7F
+                    DEFM "Freeware utility (GPL licence) by",$7F
                     DEFM "Thierry Peycru (Zlab) & Gunther Strube (InterLogic)",$7F
                     DEFM $7F
                     DEFM "Release V2.dev, October 2004",$7F
@@ -172,7 +172,7 @@ IF !DEBUG
 ;
 .FS_Entry
                     JP   app_main
-                    SCF
+                    SCF                           ; all RAM returned on popdown suicicide
                     RET
 ENDIF
 
@@ -234,10 +234,10 @@ ENDIF
                     JP   Z, catalog_main
                     CP   '!'
                     JP   Z, format_main
-                    CP   'd'
+                    CP   'v'
                     JP   Z, device_main
-                    CP   'q'
-                    JP   Z, suicide               ; exit this application deliberately...
+                    CP   'd'                      ; "Delete file"
+                    JP   Z, delete_main
                     JR   inp_main
 
 
@@ -269,13 +269,13 @@ ENDIF
                     defm "Commands",0
 .menu_ms
                     defm 1,"3@",32,32
-                    defm 1,"B C",1,"B Catalogue",$0D,$0A
-                    defm 1,"B S",1,"B Save",$0D,$0A
-                    defm 1,"B F",1,"B Fetch",$0D,$0A
-                    defm 1,"B R",1,"B Restore",$0D,$0A
-                    defm 1,"B D",1,"B Device",$0D,$0A
-                    defm 1,"B !",1,"B Format",$0D,$0A
-                    defm 1,"B Q",1,"B Quit"
+                    defm 1,"B C",1,"Batalogue",$0D,$0A
+                    defm 1,"B S",1,"Bave file",$0D,$0A
+                    defm 1,"B F",1,"Betch file",$0D,$0A
+                    defm 1,"B R",1,"Bestore",$0D,$0A
+                    defm " De", 1,"Bv",1,"Bice",$0D,$0A
+                    defm 1,"B D",1,"Belete file",$0D,$0A
+                    defm 1,"B ! ",1,"BFormat"
                     defm 1,"2-C"
                     defb 0
 
@@ -1094,6 +1094,69 @@ ENDIF
                     CALL FlashEprFileDelete       ; Mark old File Entry as deleted
                     RET  C                        ; File Eprom not found or write error...
                     RET
+
+; **************************************************************************
+;
+; Mark file as Deleted from File Eprom.
+; User enters name of file that will be searched for, and if found,
+; it will be marked as deleted.
+;
+.delete_main
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FileEprRequest
+                    ret  c
+
+                    call cls
+                    ld   hl,delfile_br
+                    call wbar
+                    ld   hl,exct_ms
+                    call sopnln
+                    ld   hl,fnam_ms
+                    CALL_OZ gn_sop
+
+                    LD   HL,buf1                  ; preset input line with '/'
+                    LD   (HL),'/'
+                    INC  HL
+                    LD   (HL),0
+                    DEC  HL
+                    EX   DE,HL
+
+                    LD   A,@00100011
+                    LD   BC,$4001
+                    LD   L,$20
+                    CALL_OZ gn_sip
+                    jp   c,sip_error
+                    CALL_OZ gn_nln
+
+                    CALL file_markdeleted
+                    RET
+
+.delfile_br         DEFM "MARK FILE AS DELETE ON EPROM",0
+
+; **************************************************************************
+;
+.file_markdeleted
+                    LD   A,(curslot)
+                    LD   C,A
+                    LD   DE,buf1
+                    CALL FileEprFindFile     ; search for <buf1> filename on File Eprom...
+                    JR   C, delfile_notfound ; File Eprom or File Entry was not available
+                    JR   NZ, delfile_notfound; File Entry was not found...
+
+                    CALL FlashEprFileDelete
+                    JR   NC, file_deleted                    
+.delfile_notfound
+                    LD   HL,delfile_err_ms
+                    CALL DispErrMsg
+                    RET
+.file_deleted
+                    LD   HL,filedel_ms
+                    CALL_OZ(GN_Sop)
+                    CALL pwait
+                    RET
+.delfile_err_ms     DEFM 13,10, " File Eprom or File not found.", 0
+.filedel_ms         DEFM 13,10, " File was successfully marked as deleted.", 0
 
 
 ; **************************************************************************
