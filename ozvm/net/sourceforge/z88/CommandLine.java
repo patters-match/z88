@@ -41,6 +41,8 @@ import net.sourceforge.z88.filecard.FileEntry;
  */
 public class CommandLine implements KeyListener {
 
+	private static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
+
 	private	DebugGui debugGui;
 	private	Blink z88;	
 
@@ -151,12 +153,16 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("fcdX xpf filename host-dir - Export file to the operating system host-dir");
 		displayCmdOutput("fcdX xpc host-dir - Export file card to host operating system host-dir");
 		displayCmdOutput("");
+		displayCmdOutput("savevm [filename] - save a snapshot of the current z88 to file.");
+		displayCmdOutput("loadvm [filename] - load a Z88 snapshot (replaces current virtual machine).");
+		displayCmdOutput("                    (default file is 'boot.z88'. Extension '.z88' is default)");
+		displayCmdOutput("");
 		displayCmdOutput("Registers are	edited using their name, ex. A 01 or sp	1FFE");
 		displayCmdOutput("Alternate registers are specified with ', ex.	a' 01 or BC' C000");
 		displayCmdOutput("Flags	are toggled using FZ, FC, FN, FS, FV and FH commands or");
 		displayCmdOutput("set/reset using 1 or 0 argument, eg. fz 1 to enable Zero flag.");
 	}
-
+	
 	public void parseCommandLine(String cmdLineText) {
 		String[] cmdLineTokens = cmdLineTokens = cmdLineText.split(" ");
 
@@ -168,70 +174,68 @@ public class CommandLine implements KeyListener {
 			cmdHelp();
 		}
 
-		if (cmdLineTokens[0].compareToIgnoreCase("storevm") == 0) {
+		if (cmdLineTokens[0].compareToIgnoreCase("savevm") == 0) {
 			SaveRestoreVM srVm = new SaveRestoreVM();
+			String vmFileName = defaultVmFile;
+			
+			if (cmdLineTokens.length > 1) {
+				vmFileName = cmdLineTokens[1];
+				if (vmFileName.toLowerCase().lastIndexOf(".z88") == -1)
+					vmFileName += ".z88"; // '.z88' extension was missing.
+			}
+
 			try {
 				if (z80Thread == null) {
-					if (cmdLineTokens.length == 1)
-						srVm.storeSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
-					else 
-						srVm.storeSnapShot(cmdLineTokens[1]);
-					
-					displayCmdOutput("Snapshot successfully stored.");
+					srVm.storeSnapShot(vmFileName);
+					displayCmdOutput("Snapshot successfully saved to " + vmFileName);
 				} else {
 					if (z80Thread.isAlive()	== true)
 						displayCmdOutput("Snapshot can only be saved when Z88 is not running.");
 					else {
-						if (cmdLineTokens.length == 1)
-							srVm.storeSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
-						else 
-							srVm.storeSnapShot(cmdLineTokens[1]);
-						
-						displayCmdOutput("Snapshot successfully stored.");
+						srVm.storeSnapShot(defaultVmFile);						
+						displayCmdOutput("Snapshot successfully saved to " + vmFileName);
 					}
 				}							
 			} catch (IOException e) {
-				e.printStackTrace();
+				displayCmdOutput("Saving snapshot failed.");
 			}
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("loadvm") == 0) {
 			SaveRestoreVM srVm = new SaveRestoreVM();
-			boolean restoreSucceeded = false;
-			
-			if (z80Thread == null) {
-				if (cmdLineTokens.length == 1)
-					restoreSucceeded = srVm.loadSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
-				else 
-					restoreSucceeded = srVm.loadSnapShot(cmdLineTokens[1]);
+			String vmFileName = defaultVmFile;
 
-				if (restoreSucceeded == true) {
-					displayCmdOutput("Snapshot successfully restored.");
+			if (cmdLineTokens.length > 1) {
+				vmFileName = cmdLineTokens[1];
+				if (vmFileName.toLowerCase().lastIndexOf(".z88") == -1)
+					vmFileName += ".z88"; // '.z88' extension was missing.
+			}
+
+			if (z80Thread == null) {
+				if (srVm.loadSnapShot(vmFileName) == true) {
+					displayCmdOutput("Snapshot successfully installed from " + vmFileName);
 				} else {
 			    	// loading of snapshot failed - define a default Z88 system
 			    	// as fall back plan.
-					displayCmdOutput("Snapshot restore failed. Z88 preset to default system.");
+					displayCmdOutput("Installation of snapshot failed. Z88 preset to default system.");
 			    	memory.setDefaultSystem();
 			    	z88.reset();				
+			    	z88.resetBlinkRegisters();
 				}				
 			} else {
 				if (z80Thread.isAlive()	== true)
-					displayCmdOutput("Loading of snapshot only possible when Z88 is not running.");
+					displayCmdOutput("Snapshot can only be installed when Z88 is not running.");
 				else {
-					if (cmdLineTokens.length == 1)
-						restoreSucceeded = srVm.loadSnapShot(System.getProperty("user.dir")+ File.separator + "boot.z88");
-					else 
-						restoreSucceeded = srVm.loadSnapShot(cmdLineTokens[1]);
-
-					if (restoreSucceeded == true) {
-						displayCmdOutput("Snapshot successfully restored.");
+					if (srVm.loadSnapShot(vmFileName) == true) {
+						displayCmdOutput("Snapshot successfully installed from " + vmFileName);
 					} else {
 				    	// loading of snapshot failed - define a default Z88 system
 				    	// as fall back plan.
-						displayCmdOutput("Snapshot restore failed. Z88 preset to default system.");
+						displayCmdOutput("Installation of snapshot failed. Z88 preset to default system.");
 				    	memory.setDefaultSystem();
 				    	z88.reset();				
-					}				
+				    	z88.resetBlinkRegisters();
+					}		
 				}				
 			}						
 		}
