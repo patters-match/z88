@@ -166,28 +166,50 @@ SkipLine (FILE *fptr)
 }
 
 
-void FetchProjectFilename(FILE *fptr, char *filename)
+/* ----------------------------------------------------------------
+   Fetch a module filename from a project file, @projectfilename.
+   Empty lines and comment lines are skipped until a real filename
+   is found.
+
+   return found filename in <filename> array (truncated to 255 chars)
+   ---------------------------------------------------------------- */
+void 
+FetchProjectFilename(FILE *projectfile, char *filename)
 {
   int c = 0;
-  filename[0] = '\0';           /* null-terminate file name */
+  filename[0] = '\0'; /* preset with null-terminate, in case no filename was found */
   
   for (;;)
-    {               /* Ignore leading white spaces, if any... */
-      if (feof (fptr))
+    {
+      if (feof (projectfile))
         {
-          break;
+          break; /* no more module filenames in project file */
         }
       else
         {
-          c = GetChar (fptr);
-          if ((c == '\n') || (c == EOF) || (c == '\x1A'))
-            {
-            }
-          else
-            if (!isspace (c)) break;
-        }
-    }}
+          c = GetChar (projectfile);
+          switch(c) 
+          {
+          	case '\n':
+          	case '\x1A': /* end of line, get first char on next line */
+              break;
 
+            case ';':    /* a comment, skip and prepare for start of next line */
+              EOL = OFF; /* always force a line skip in project file */
+              SkipLine(projectfile);
+              break;
+            
+            default:
+              if (!isspace (c)) 
+                { /* found a real char as first of a filename... */
+                  ungetc (c, projectfile); /* let Fetchfilename() do the work... */ 
+                  Fetchfilename (projectfile, filename); /* read file name, then skip to EOL */
+                  return;
+                }
+          }
+        }
+    }
+}
 
 
 void
@@ -203,8 +225,10 @@ Fetchfilename (FILE *fptr, char *filename)
           if ((c == '\n') || (c == EOF))
             break;
 
-          if (c != '"')
+          if (!isspace(c) && c != '"' && c != ';')
             {
+              /* read filename until a 'space', a comment or a double quote */
+              /* swallow '#', but use all other chars in filename */
               if (c != '#') filename[l++] = (char) c;
             }
           else
@@ -219,7 +243,7 @@ Fetchfilename (FILE *fptr, char *filename)
     }
   filename[l] = '\0';           /* null-terminate file name */
 
-  if (c != '\n') SkipLine (fptr); /* prepare for next line */
+  if (c != '\n') SkipLine (fptr); /* skip rest of line and get ready for first char of next line */
 }
 
 
