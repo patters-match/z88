@@ -14,7 +14,6 @@ public class DisplayBlinkStatus {
     public DisplayBlinkStatus(Blink b) {
         z88 = b;
     }
-
     
 	/**
 	 * Dump current Z80 Registers.  
@@ -48,7 +47,6 @@ public class DisplayBlinkStatus {
 		
 		System.out.println("\n" + dzRegisters);
 	}
-
     
     /**
      * Display contents of Blink Registers to console.
@@ -58,11 +56,11 @@ public class DisplayBlinkStatus {
         displayBlinkInt();
         displayBlinkSta();
         displayBlinkAck();           
-        displayBlinkTimers();  // TIM0, TIM1, TIM2, TIM3 & TIM4
+        displayBlinkTimers();  	// TIM0, TIM1, TIM2, TIM3 & TIM4
 		displayBlinkTsta();     
 		displayBlinkTmk();
 		displayBlinkTack();
-//        blinkScreen();  // PB0, PB1, PB2, PB3 & SBR
+		displayBlinkScreen();	// PB0, PB1, PB2, PB3 & SBR
 //        blinkSegment();  // SR0 - SR3
     }
 
@@ -288,4 +286,27 @@ public class DisplayBlinkStatus {
 		System.out.println("Tack (B4h): " + blinkTackFlags);
 	}    
 
+	/**
+	 * Display Screen registers (SBR, PB0-PB3)
+	 */
+	public void displayBlinkScreen() {
+		StringBuffer blinkScreenRegs = new StringBuffer(128);
+		blinkScreenRegs.append("SBR (Screen file): ");
+		blinkScreenRegs.append(Dz.addrToHex(z88.getBlinkSbr(),true));
+		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkSbrAddress(),true) + ")\n");
+		blinkScreenRegs.append("PB0 (LORES0): ");
+		blinkScreenRegs.append(Dz.addrToHex(z88.getBlinkPb0(),true));
+		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkPb0Address(),true) + "), ");
+		blinkScreenRegs.append("PB1 (LORES1): ");
+		blinkScreenRegs.append(Dz.addrToHex(z88.getBlinkPb1(),true));
+		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkPb1Address(),true) + ")\n");
+		blinkScreenRegs.append("PB2 (HIRES0): ");
+		blinkScreenRegs.append(Dz.addrToHex(z88.getBlinkPb2(),true));
+		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkPb2Address(),true) + "), ");
+		blinkScreenRegs.append("PB3 (HIRES1): ");
+		blinkScreenRegs.append(Dz.addrToHex(z88.getBlinkPb3(),true));
+		blinkScreenRegs.append(" (" + Dz.extAddrToHex(z88.getBlinkPb3Address(),true) + ")\n");
+		
+		System.out.println(blinkScreenRegs);
+	} 
 }
