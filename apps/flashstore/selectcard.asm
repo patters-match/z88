@@ -22,7 +22,7 @@ Module SelectCard
 ; window and cursor movement
 
      XDEF SelectFileArea, SelectCardCommand, SelectDefaultSlot, PollSlots, VduCursor
-     XDEF selslot_banner
+     XDEF selslot_banner, epromdev, DispSlotSize
 
      LIB CreateWindow, RamDevFreeSpace
      LIB FileEprRequest, FileEprFreeSpace, ApplEprType, FlashEprCardId
