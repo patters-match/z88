@@ -177,6 +177,17 @@ public class OZvm {
 		}		
 	}
 
+	private void cmdHelp() {
+		System.out.println("run - execute Z88 machine from PC.");
+		System.out.println("exit - exit OZvm.");
+		System.out.println("");
+		System.out.println("d - disassembly at current PC.");
+		System.out.println("d [address [bank]] - disassemble at specified address.");
+		System.out.println("bp - list breakpoints.");
+		System.out.println("bp [address bank] - toggle breakpoint.");
+		System.out.println("blsr - Blink: segment register bank binding.");
+	}
+	
 	private void commandLine() throws IOException {
 		String cmdline = "";
 		String[] cmdLineTokens = cmdLineTokens = cmdline.split(" ");
@@ -188,6 +199,12 @@ public class OZvm {
 		
 		StringBuffer prevCmdline = new StringBuffer();
 		do {
+			if (cmdLineTokens[0].equalsIgnoreCase("h") == true || cmdLineTokens[0].equalsIgnoreCase("help") == true) {
+				cmdHelp();
+				cmdline = ""; // wait for a new command...
+				cmdLineTokens = cmdline.split(" ");
+			}
+
 			if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
 				breakp.setBreakpoints();
 				z80Speed.start();
@@ -222,6 +239,8 @@ public class OZvm {
 			if (cmdLineTokens[0].length() > 0 &&
 				cmdLineTokens[0].equalsIgnoreCase(".") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("d") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("h") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("help") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
 			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("blsr") == false &&
