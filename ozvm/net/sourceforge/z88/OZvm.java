@@ -1,7 +1,6 @@
 package net.sourceforge.z88;
 
 import java.io.*;
-import java.net.URL;
 
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>

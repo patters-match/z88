@@ -1,7 +1,6 @@
 package net.sourceforge.z88;
 
 import java.io.*;
-import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
