@@ -32,6 +32,7 @@
 expression_t *ParseNumExpr (void);
 expressions_t *AllocExprHdr (void);
 int ExprAddr16 (int listoffset);
+int ExprOffset16 (int listoffset);
 int ExprLong (int listoffset);
 int ExprSigned8 (int listoffset);
 int ExprUnsigned8 (int listoffset);
