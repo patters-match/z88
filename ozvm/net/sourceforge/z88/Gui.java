@@ -86,18 +86,24 @@ public class Gui extends JFrame {
 		gg.show();
 
 		OZvm ozvm = new OZvm(gg.getCanvas());
-		if (ozvm.loadRoms(args) == false) {
+		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
 		}
 		
-		try {
-			ozvm.commandLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println("Ozvm terminated.");
-		GameFrame.exit(0);		
+		if (ozvm.isDebugMode() == true) {
+			// Run OZvm in debugging mode, ie. start with command line mode and allow debugging
+			try {
+				ozvm.commandLine();
+
+				System.out.println("Ozvm terminated.");
+				GameFrame.exit(0);						
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			// no debug mode, just boot the specified ROM and run the virtual Z88...
+			ozvm.bootZ88Rom();
+		}		
 	}
 }

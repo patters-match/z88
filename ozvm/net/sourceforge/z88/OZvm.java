@@ -16,14 +16,22 @@ import java.io.RandomAccessFile;
 public class OZvm {
 	private static final String CMDLINEPROMPT = "OZvm$";
 	
-	Blink z88 = null;
-    DisplayBlinkStatus blinkStatus;
+	private Blink z88 = null;
+    private DisplayBlinkStatus blinkStatus;
 	private MonitorZ80 z80Speed = null;
+
+	/**
+	 * The Z88 disassembly engine
+	 */
+	private Dz dz;
+    
+	private Thread z80Thread = null;
+	private boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
 	/**
 	 * The Breakpoint manager instance.
 	 */
-	Breakpoints breakp;
+	private Breakpoints breakp;
     
 	OZvm(java.awt.Canvas canvas) {
 		try {
@@ -58,13 +66,6 @@ public class OZvm {
 	public void stopInterrupts() {
 		z88.stopInterrupts();
 	}
-
-	/**
-	 * The Z88 disassembly engine
-	 */
-	private Dz dz;
-    
-	private Thread z80Thread = null;
 	
 	/**
 	 * Dump current Z80 Registers and instruction disassembly to stdout.  
@@ -78,7 +79,7 @@ public class OZvm {
 		System.out.println(dzBuffer);
 	}
 	
-	public boolean loadRoms(String[] args) {
+	public boolean boot(String[] args) {
 		RandomAccessFile card, rom;
 		boolean loadedRom = false;
 		
@@ -86,7 +87,10 @@ public class OZvm {
 			if (args.length >= 1) {
 				int arg = 0;
 				while (arg<args.length) {
-					if ( args[arg].compareToIgnoreCase("s2") != 0 & args[arg].compareToIgnoreCase("s3") != 0) {
+					if ( args[arg].compareToIgnoreCase("s2") != 0 & 
+					     args[arg].compareToIgnoreCase("s3") != 0 &
+						 args[arg].compareToIgnoreCase("kbl") != 0 &
+						 args[arg].compareToIgnoreCase("debug") != 0) {
 						System.out.println("Loading '" + args[arg] + "' into ROM space in slot 0.");
 						rom = new RandomAccessFile(args[0], "r");		
 						z88.loadRomBinary(rom);
@@ -110,6 +114,12 @@ public class OZvm {
 						z88.loadCardBinary(3, card);
 						card.close();
 						arg+=2;	
+						continue;				
+					}
+
+					if (arg<args.length && (args[arg].compareToIgnoreCase("debug") == 0)) {
+						setDebugMode(true);
+						arg++;	
 						continue;				
 					}
 
@@ -500,5 +510,19 @@ public class OZvm {
 		thread.start();
 		
 		return thread;
+	}
+	/**
+	 * @return
+	 */
+	public boolean isDebugMode() {
+		return debugMode;
+	}
+
+	/**
+	 * @param b
+	 */
+	public void setDebugMode(boolean b) {
+		z88.setDebugMode(b);
+		debugMode = b;
 	}
 }

@@ -25,6 +25,8 @@ public final class Blink extends Z80 {
 	Blink(java.awt.Canvas canvas) throws GameFrameException {
 		super();
 
+		debugMode = false;	// define the default running status of the virtul Machine.
+		
 		// the segment register SR0 - SR3
 		sR = new int[4];
 		// all segment registers points at ROM bank 0
@@ -63,6 +65,8 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
+	private boolean debugMode = false;
+	
 	/**
 	 * The 640x64 pixel display.
 	 */
@@ -1702,4 +1706,19 @@ public final class Blink extends Z80 {
 	public Z88Keyboard getZ88Keyboard() {
 		return z88Keyboard;
 	}
+	
+	/**
+	 * @return
+	 */
+	public boolean isDebugMode() {
+		return debugMode;
+	}
+
+	/**
+	 * @param b
+	 */
+	public void setDebugMode(boolean b) {
+		debugMode = b;
+	}
+
 }
