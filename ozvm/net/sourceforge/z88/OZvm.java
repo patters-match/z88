@@ -472,6 +472,7 @@ public class OZvm {
 			}
 		};
 
+		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
 	}
 	
