@@ -67,6 +67,8 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
+	private Breakpoints breakPoints = null;
+
 	private boolean debugMode = false;
 	
 	/**
@@ -705,7 +707,7 @@ public final class Blink extends Z80 {
 				bankno = 0x00;	// ROM bank 00h
 		}
 
-		return (bankno << 16) | (pc & 0x3FFF);
+		return bankno << 16 | pc;
 	}
 	
 	/**
@@ -787,10 +789,9 @@ public final class Blink extends Z80 {
 	 * but here a complete 4 byte sequence is cached in the return argument,
 	 * without knowing the actual length.
 	 * 
-	 * The instruction is returned as a 32bit integer for compactness, in low
-	 * byte, high byte order, ie. lowest 8bit is the first byte of the
-	 * instruction, highest 8bit of 32bit integer is the 4th byte of the
-	 * instruction.
+	 * The instruction is returned as a 32bit integer for compactness, in MSB order, 
+	 * ie. lowest 8bit of int is the first byte of the instruction, highest 8bit 
+	 * of 32bit integer is the 4th byte of the instruction.
 	 *  
 	 * @param addr address offset in bank
 	 * @return int 4 byte Z80 instruction 
@@ -939,6 +940,29 @@ public final class Blink extends Z80 {
 			// we can only write to a real memory bank, not to an empty slot...
 			memory[bankno].bank[0x3FFF & offset] = bits & 0xFF;
 		}
+	}
+
+	/**
+	 * The "internal" write byte method to be used in
+	 * the OZvm debugging environment, allowing complete
+	 * write permission.
+	 * 
+	 * @param extAddress 24bit extended address
+	 * @param bits to be written.
+	 */
+	public void setByte(final int extAddress, final int bits) {
+		setByte(extAddress & 0x3FFF, extAddress >>> 16, bits);
+	}
+
+	/**
+	 * The "internal" read byte method to be used in the OZvm 
+	 * debugging environment.
+	 * 
+	 * @param extAddress 24bit extended address
+	 * @return int the byte at extended address
+	 */
+	public int getByte(final int extAddress) {
+		return getByte(extAddress & 0x3FFF, extAddress >>> 16);
 	}
 
 	/**
@@ -1723,4 +1747,28 @@ public final class Blink extends Z80 {
 		debugMode = b;
 	}
 
+	/**
+	 * Handle action on encountered display breakpoint.<p>
+	 * 
+	 * @return true, if Z80 engine is to be stopped.
+	 */
+	public void breakPointAction() {
+		PC(PC() - 1);	// Program Counter is placed at breakpoint (so that we can display correct PC).
+
+		int bpAddress = decodeLocalAddress(PC());
+		int bpOpcode = getByte(bpAddress);	// remember the breakpoint instruction opcode
+		int z80Opcode = breakPoints.getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
+		setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily) 
+		System.out.println((new DisplayStatus(this)).dzPcStatus()); // dissassemble original instruction, with Z80 main reg dump
+		setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter 
+		
+		PC(PC() + 1);	// Program Counter ready for next instruction. 
+	}
+
+	/**
+	 * @param breakpoints
+	 */
+	public void setBreakPointManager(Breakpoints bpm) {
+		breakPoints = bpm;
+	}
 }
