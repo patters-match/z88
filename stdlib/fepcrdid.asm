@@ -141,8 +141,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH DE
                     PUSH IX
                     
-                    ; get contents of (at $00 0000) and ($00 0001) in DE
-                    ; before polling those addresses for the Intel Flash Memory
                     LD   HL, $4000
                     LD   D,(HL)              
                     INC  HL                  ; get a copy into DE of the slot contents at the location 
