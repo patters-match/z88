@@ -160,7 +160,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     
                     LD   IX, Fetch_AM29F0xxx_ID 
                     LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID 
-                    CALL ExecPollRoutineOnStack
+                    CALL ExecRoutineOnStack
 
                     CP   A 
                     PUSH HL                  
