@@ -1621,7 +1621,7 @@ public class Gui extends JFrame {
 			numKey1Button.setBounds(50, 7, 32, 32);
 			numKey1Button.setPreferredSize(new Dimension(32, 32));
 			numKey1Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey1Button.setText("1");
+			numKey1Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey1.gif")));
 			numKey1Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x05, 0xDF);
@@ -1649,7 +1649,7 @@ public class Gui extends JFrame {
 			numKey2Button.setBounds(93, 7, 32, 32);
 			numKey2Button.setPreferredSize(new Dimension(32, 32));
 			numKey2Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey2Button.setText("2");
+			numKey2Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey2.gif")));
 			numKey2Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x04, 0xDF);
@@ -1677,7 +1677,7 @@ public class Gui extends JFrame {
 			numKey3Button.setBounds(136, 7, 32, 32);
 			numKey3Button.setPreferredSize(new Dimension(32, 32));
 			numKey3Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey3Button.setText("3");
+			numKey3Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey3.gif")));
 			numKey3Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x03, 0xDF);
@@ -1705,7 +1705,7 @@ public class Gui extends JFrame {
 			numKey4Button.setBounds(179, 7, 32, 32);
 			numKey4Button.setPreferredSize(new Dimension(32, 32));
 			numKey4Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey4Button.setText("4");
+			numKey4Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey4.gif")));
 			numKey4Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x02, 0xDF);
@@ -1733,7 +1733,7 @@ public class Gui extends JFrame {
 			numKey5Button.setBounds(222, 7, 32, 32);
 			numKey5Button.setPreferredSize(new Dimension(32, 32));
 			numKey5Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey5Button.setText("5");
+			numKey5Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey5.gif")));
 			numKey5Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x01, 0xDF);
@@ -1761,7 +1761,7 @@ public class Gui extends JFrame {
 			numKey6Button.setBounds(265, 7, 32, 32);
 			numKey6Button.setPreferredSize(new Dimension(32, 32));
 			numKey6Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey6Button.setText("6");
+			numKey6Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey6.gif")));
 			numKey6Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x00, 0xDF);
@@ -1789,7 +1789,7 @@ public class Gui extends JFrame {
 			numKey7Button.setBounds(308, 7, 32, 32);
 			numKey7Button.setPreferredSize(new Dimension(32, 32));
 			numKey7Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey7Button.setText("7");
+			numKey7Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey7.gif")));
 			numKey7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x00, 0xFD);
@@ -1817,7 +1817,7 @@ public class Gui extends JFrame {
 			numKey8Button.setBounds(351, 7, 32, 32);
 			numKey8Button.setPreferredSize(new Dimension(32, 32));
 			numKey8Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey8Button.setText("8");
+			numKey8Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey8.gif")));
 			numKey8Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x00, 0xFE);
@@ -1845,7 +1845,7 @@ public class Gui extends JFrame {
 			numKey9Button.setBounds(394, 7, 32, 32);
 			numKey9Button.setPreferredSize(new Dimension(32, 32));
 			numKey9Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey9Button.setText("9");
+			numKey9Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey9.gif")));
 			numKey9Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x03, 0xFE);
@@ -1873,7 +1873,7 @@ public class Gui extends JFrame {
 			numKey0Button.setBounds(437, 7, 32, 32);
 			numKey0Button.setPreferredSize(new Dimension(32, 32));
 			numKey0Button.setMargin(new Insets(2, 2, 2, 2));
-			numKey0Button.setText("0");
+			numKey0Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/numkey0.gif")));
 			numKey0Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x05, 0xFE);
@@ -1901,7 +1901,7 @@ public class Gui extends JFrame {
 			key037fButton.setBounds(480, 7, 32, 32);
 			key037fButton.setPreferredSize(new Dimension(32, 32));
 			key037fButton.setMargin(new Insets(2, 2, 2, 2));
-			key037fButton.setText("-");
+			key037fButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key037f.gif")));
 			key037fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x03, 0x7F);
@@ -1929,7 +1929,7 @@ public class Gui extends JFrame {
 			key027fButton.setBounds(523, 7, 32, 32);
 			key027fButton.setPreferredSize(new Dimension(32, 32));
 			key027fButton.setMargin(new Insets(2, 2, 2, 2));
-			key027fButton.setText("=");
+			key027fButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key027f.gif")));
 			key027fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x02, 0x7F);
@@ -1957,7 +1957,7 @@ public class Gui extends JFrame {
 			key017fButton.setBounds(566, 7, 32, 32);
 			key017fButton.setPreferredSize(new Dimension(32, 32));
 			key017fButton.setMargin(new Insets(2, 2, 2, 2));
-			key017fButton.setText("\\");
+			key017fButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/uk/key017f.gif")));
 			key017fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x01, 0x7F);
