@@ -243,14 +243,20 @@ ReadExpr (long nextexpr, long endexpr)
                   break;
 
                 case 'O':
-                  if ((constant >= 0) && (constant <= 16383))
-                      StoreWord ((unsigned short) constant, patchptr);
-                  else
-                    {
-                      ReportError (CURRENTFILE->fname, 0, Err_ExprOutOfRange);
-                      WriteExprMsg ();
-                    }
-
+                    if ( (constant < 0) || (constant > 65535) )
+                      {
+                        ReportError (CURRENTFILE->fname, 0, Err_ExprOutOfRange);
+                        WriteExprMsg ();
+                      }
+                    else
+                      {
+                        StoreWord((unsigned short) constant, patchptr);
+                        if (constant >= 16384)
+                          {
+                            ReportWarning (CURRENTFILE->fname, 0, Warn_OffsetBoundary);
+                            WriteExprMsg ();
+                          }
+                      }
                   break;
 
                 case 'L':
@@ -278,7 +284,7 @@ RedefinedMsg (void)
 static void
 WriteExprMsg (void)
 {
-  fprintf (errfile, "Error in expression %s\n\n", line);
+  fprintf (errfile, "Error/Warning in expression %s\n\n", line);
 }
 
 
