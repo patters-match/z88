@@ -1,2 +1,2 @@
 del standard.lib
-mpm -I..\oz\sysdef -xstandard.lib @standard
+..\..\csrc\mpm\mpm -I..\oz\sysdef -xstandard.lib @standard
