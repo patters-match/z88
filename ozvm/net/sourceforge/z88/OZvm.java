@@ -202,6 +202,8 @@ public class OZvm {
 	}
 	
 	private void commandLine() throws IOException {
+		int breakpointProgramCounter = -1;
+		
 		String cmdline = "";
 		String[] cmdLineTokens = cmdLineTokens = cmdline.split(" ");
 		
@@ -220,17 +222,25 @@ public class OZvm {
 			}
 
 			if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
-				breakp.setBreakpoints();
-				z80Speed.start();
-				z88.startInterrupts();
-				z88.run(false);		// no single stepping...
+				if (z88.PC() == breakpointProgramCounter) {
+					// we need to use single stepping mode to 
+					// step past the break point at current instruction
+					z88.run(true);
+				}
+				
+				breakp.setBreakpoints();	// restore (patch) breakpoints into code
+				z80Speed.start();			// enable execution speed monitor
+				z88.startInterrupts();		// enable Z80/Z88 core interrupts 
+				z88.run(false);				// execute Z80 code at full speed until breakpoint is encountered...
 				z88.stopInterrupts();
 				z80Speed.stop();
 				breakp.clearBreakpoints();
 				
 				// when we're getting back, a breakpoint was encountered...
-				System.out.println(blinkBankBindings() + "\n");
-				z80Status();
+				breakpointProgramCounter = z88.PC();	// remember breakpoint address
+				 
+				System.out.println(blinkBankBindings() + "\n");	// display bank bindings
+				z80Status();									// display Z80 register status
 				cmdLineTokens[0] = ""; // wait for a new command...
 			}
 
