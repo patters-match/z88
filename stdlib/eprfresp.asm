@@ -57,7 +57,8 @@
 
                     LD   A,B
                     EXX
-                    LD   B,A                      ; preserve bank number of header
+                    AND  @00111111                
+                    LD   B,A                      ; preserve relative bank number of header
                     EXX
                     
                     LD   A,E
@@ -65,19 +66,14 @@
                     RRCA
                     RRCA                          ; converted to Slot mask $40, $80 or $C0
                     OR   B
-                    SUB  D                        ; D = total banks of File Eprom Area
+                    SUB  C                        ; C = total banks of File Eprom Area
                     INC  A
                     LD   B,A                      ; B is now bottom bank of File Eprom
                     LD   HL,$0000                 ; BHL points at first address of File Eprom
-                                                  ; (using segment 1 specifier
+
                     ; scan all file entries, to point at first free byte
 .scan_eprom         CALL FileEprFileEntryInfo
                     JR   NC, scan_eprom
-
-                    RES  7,B
-                    RES  6,B
-                    RES  7,H
-                    RES  6,H                      ; strip physical attributes of pointer...
 
                     EXX
                     LD   HL,$3FC0
@@ -86,6 +82,10 @@
                     PUSH BC
                     EXX
 
+                    RES  7,B
+                    RES  6,B
+                    RES  7,H
+                    RES  6,H                      ; strip physical attributes of pointer...
                     CALL ConvPtrToAddr            ; BHL (ptr to free space) => DEBC absolute address
                     CP   A
                     POP  HL
