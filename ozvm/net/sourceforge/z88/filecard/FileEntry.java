@@ -48,6 +48,11 @@ public class FileEntry {
 	
 	/** Indicates whether the file entry is marked as deleted or not. */
 	private boolean deleted;
+	
+	/**
+	 * The File Entry pointer
+	 */
+	private int fileEntryPtr;
 
 	/** Pointer to beginning of file image */
 	private int fileImagePtr;
@@ -60,6 +65,9 @@ public class FileEntry {
 	public FileEntry(int extAddress) {
 		memory = Memory.getInstance();
 		slotinfo = SlotInfo.getInstance();
+		
+		// remember the pointer to this File Entry 
+		fileEntryPtr = extAddress;
 		
 		// read memory contents at pointer into property variables...
 		int flnmLength = memory.getByte(extAddress);
@@ -146,5 +154,12 @@ public class FileEntry {
 	 */
 	public int getFileImagePtr() {
 		return fileImagePtr;
+	}
+	
+	/**
+	 * @return the Pointer in the File Area to this File Entry.
+	 */
+	public int getFileEntryPtr() {
+		return fileEntryPtr;
 	}
 }
