@@ -125,8 +125,8 @@ DEFC BL_STA    =    $B1                 ; Interrupt Status (Read)
      DEFC BB_STAUART     =    4         ; If set, an enabled UART interrupt is active
      DEFC BB_STABTL      =    3         ; If set, battery low pin is active
      DEFC BB_STAKEY      =    2         ; If set, a column has gone low in snooze (or coma)
+     DEFC BB_STATIME     =    1         ; If set, an enabled TIME interrupt is active
      ; -       -                        ; none
-     DEFC BB_STATIME     =    0         ; If set, an enabled TIME interrupt is active
      ; Bit masks
      DEFC BM_STAFLAPOPEN =    $80       ; If set, flap open else flap closed
      DEFC BM_STAA19      =    $40       ; If set, high level on A19 occurred during coma
@@ -134,7 +134,7 @@ DEFC BL_STA    =    $B1                 ; Interrupt Status (Read)
      DEFC BM_STAUART     =    $10       ; If set, an enabled UART interrupt is active
      DEFC BM_STABTL      =    $08       ; If set, battery low pin is active
      DEFC BM_STAKEY      =    $04       ; If set, a column has gone low in snooze (or coma)
-     DEFC BM_STATIME     =    $01       ; If set, an enabled TIME interrupt is active
+     DEFC BM_STATIME     =    $02       ; If set, an enabled TIME interrupt is active
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------
