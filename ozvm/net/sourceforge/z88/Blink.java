@@ -208,10 +208,8 @@ public final class Blink extends Z80 {
 	 * 
 	 * @param bits
 	 */
-	public void getBlinkAck(int bits) {
-		ACK = bits;
-		
-		STA &= ~bits;	// reset Blink occurred interrupts according to acknowledge...
+	public int getBlinkAck() {
+		return ACK;
 	}
 
 	/**
@@ -1161,14 +1159,13 @@ public final class Blink extends Z80 {
 
 		if (rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
 			// Stop Real Time Clock (RESTIM = 1)
-			rtc.stop();
+			if (singleSteppingMode() == false) rtc.stop();
 			rtc.reset();
 		}
 
 		if (rtc.isRunning() == false && ((bits & Blink.BM_COMRESTIM) == 0)) {
 			// Real Time Clock is not running, and is asked to start (RESTIM = 0)... 
-			rtc.reset(); // reset counters before starting RTC
-			rtc.start();
+			if (singleSteppingMode() == false) rtc.start();
 		}
 
 		if ((bits & Blink.BM_COMRAMS) == Blink.BM_COMRAMS) {
@@ -1441,6 +1438,12 @@ public final class Blink extends Z80 {
 	public void startInterrupts() {
 		System.out.println("Starting Blink interrupts to Z80");
 		z80Int.start();
+
+        System.out.println("Starting Rtc");
+		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) {
+			rtc.start();
+		}
+        
         System.out.println("Starting Z88 Screen renderer.");
         z88Display.start();
 	}
@@ -1448,7 +1451,11 @@ public final class Blink extends Z80 {
 	public void stopInterrupts() {
 		System.out.println("Stopping Blink interrupts to Z80");
 		z80Int.stop();
-		System.out.println("Stopping Z88 Screen renderer.");
+        
+        System.out.println("Stopping Rtc");
+        rtc.stop();
+        
+        System.out.println("Stopping Z88 Screen renderer.");
         z88Display.stop();
 	}
 
