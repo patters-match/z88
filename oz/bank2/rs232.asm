@@ -21,11 +21,104 @@
 
                 Module RS232
 
+        org     $a500                           ; $a500-$a7ef
+
         include "blink.def"
+        include "buffer.def"
+        include "ctrlchar.def"
+        include "handle.def"
         include "misc.def"
         include "syspar.def"
+        include "sysvar.def"
+        include "..\bank7\lowram.def"
 
-        org     $a500                           ; $a500-$a7ef
+defc    PARITYBUG = 1
+
+;       ubSerParity             =$0ffc
+
+defc    PAR_B_PARITY    = 7                     ; has parity
+defc    PAR_B_STICKY    = 6                     ; space or mark
+defc    PAR_B_ODD       = 5                     ; odd parity
+defc    PAR_B_MARK      = 4                     ; mark parity
+defc    PAR_B_3         = 3                     ; not used
+defc    PAR_B_9BIT      = 2                     ; never set, checked during send
+defc    PAR_B_1         = 1                     ; set but not used
+defc    PAR_B_0         = 0                     ; set but not used
+
+;       !! rearrange parity bits so that we can 'add a' to check next bit
+;       !! to speedup TxInt (need to combine EVEN/SPACE vs ODD/MARK)
+
+;       PAR7    9BIT            0 - 8 bit data, 1 - 9 bit data
+;       PAR6    PARITY          0 - no parity , 1 - parity
+;       PAR5    STICKY          0 - EVEN/ODD,   1 - SPACE/MARK
+;       PAR4    ODD_MARK        0 - EVEN/SPACE, 1 - ODD/MARK
+
+ IF 0
+
+        ex      af,af'                          ; save char
+        ld      a, (ubSerParity)
+
+        add     a, a                            ; take care of 9bit mode !! kludge
+        jr      nc, no9bit
+        res     0, b
+
+.no9bit add     a, a                            ; skip if no parity
+        jr      nc, senda
+
+        add     a, a
+        jr      nc, .cpar                       ; even/odd
+
+        and     $80                             ; space/mark bit
+        ld      c, a
+        ex      af, af'                         ; merge with 7bit char
+        and     $7f
+        or      c
+        jr      senda
+
+.cpar   add     a,a                             ; skip if odd parity
+        jr      c, odd
+
+        ex      af, af'
+        and     a
+        jp      pe, senda                       ; even already
+        jr      xor80
+
+.odd    ex      af, af'
+        and     a
+        jp      po, senda
+
+.xor80  xor     $80
+        ex      af, af'                         ; faster than 'jp/jr'
+.altaf  ex      af, af'
+
+.senda  
+
+ ENDIF
+
+;       note that 9-bit mode isn't correctly implemented
+
+
+;       ubSerFlowControl        =$0ffd
+
+defc    FLOW_B_XONXOFF          =0
+defc    FLOW_B_TXSTOP           =1
+
+defc    FLOW_XONXOFF            =1
+defc    FLOW_TXSTOP             =2
+
+
+;       cSerXonXoffChar         =$0ffe
+
+;       NUL, XON or XOFF
+
+defc    TDRH_B_START            =0
+defc    TDRH_B_STOP             =1
+defc    TDRH_B_STOP2            =2
+
+defc    TDRH_START              =1
+
+
+;       ----
 
         jp      HardReset
         jp      SoftReset
@@ -37,574 +130,562 @@
         jp      FlushRx
         jp      SetTimeout
 
+;       ----
+
 .HardReset
         push    bc
         push    de
-        ld      a,1
-        ld      b,$FB
-        OZ      OS_Fn                           ; Miscellaneous OS functions
+        ld      a,FN_AH
+        ld      b,HN_SER
+        OZ      OS_Fn                           ; allocate serial handle
         pop     de
         pop     bc
         jr      c, hrst_1
 
-        ld      (ix+8), c
-        ld      (ix+9), b
-        ld      (ix+$0A), e
-        ld      (ix+$0B), d
+        ld      (ix+shnd_RxBuf), c
+        ld      (ix+shnd_RxBuf+1), b
+        ld      (ix+shnd_TxBuf), e
+        ld      (ix+shnd_TxBuf+1), d
 
-        xor     a
+        xor     a                               ; !! 'ld a, $ff
         dec     a
-        out     (BL_TXD), a                     ; (w) transmit data
-        ld      a, $AD
-        call    sub_0_A7DE
-        ld      a, $15
-        ld      ($4E4), a
-        out     (BL_TXC), a                     ; transmit control
-        xor     a
-        ld      ($0FFE), a
+        out     (BL_TXD), a                     ; clear TDRE int
+
+        ld      a, BM_RXCSHTW|BM_RXCUART|BM_RXCIRTS|BR_9600
+        call    WrRxC
+
+        ld      a, BM_TXCATX|BR_9600
+        ld      (BLSC_TXC), a
+        out     (BL_TXC), a
+
+        xor     a                               ; no XON/XOFF
+        ld      (cSerXonXoffChar), a            ; !! clear ubSerFlowControl as well
+
         dec     a
-        out     (BL_UAK), a                     ; (w) UART int. mask
-        in      a, (BL_RXD)                     ; (r) UART receive data register
-        ld      a, $40
-        ld      ($4E5), a
+        out     (BL_UAK), a                     ; clear DCD/CTS ints
+
+        in      a, (BL_RXD)                     ; clear RDRF int
+        ld      a, BM_UITDCDI
+        ld      (BLSC_UIT), a
         out     (BL_UIT), a
-        ld      a, $8D
-        call    sub_0_A7DE
-        ld      a, 0
-        ld      ($0FFC), a
-        ld      a, ($4B1)
-        or      $10
-        ld      ($4B1), a
-        out     (BL_STA), a
-        or      a
+
+        ld      a, BM_RXCSHTW|BM_RXCIRTS|BR_9600
+        call    WrRxC
+
+        ld      a, 0                            ; no parity
+        ld      (ubSerParity), a
+
+        ld      a, (BLSC_INT)
+        or      BM_STAUART
+        ld      (BLSC_INT), a
+        out     (BL_INT), a
+
+        or      a                               ; Fc=0 !! unnecessary
 
 .hrst_1
         ret
 
-;--------------------------------------------------------------
+;       ----
 
 .SoftReset
-        ld      (ix+$0C), $60
-        ld      (ix+$0D), $0EA
+        ld      (ix+shnd_Timeout), <60000       ; !! default timeout 600.00 seconds
+        ld      (ix+shnd_Timeout+1), >60000
         call    FlushTx
         call    FlushRx
-        ld      bc, PA_Rxb
+
+        ld      bc, PA_Rxb                      ; get receive speed
         call    EnquireParam
-        call    sub_0_A5E8
-        ld      b, a
-        ld      a, $88
+        call    BaudToReg
+        ld      b, a                            ; !! 'or BM_RXCSHTW|BM_RXCIRTS'
+        ld      a, BM_RXCSHTW|BM_RXCIRTS
         or      b
-        call    sub_0_A7DE
-        ld      bc, PA_Txb
+        call    WrRxC
+
+        ld      bc, PA_Txb                      ; get transmit speed
         call    EnquireParam
-        call    sub_0_A5E8
+        call    BaudToReg
         ld      b, a
-        ld      a, ($4E4)
-        and     $0F8
-        or      b
-        ld      ($4E4), a
-        out     (BL_TXC), a                     ; transmit control
-        ld      bc, PA_Par
+        ld      a, (BLSC_TXC)
+        and     ~7                              ; mask out baud rate
+        or      b                               ; insert new speed
+        ld      (BLSC_TXC), a
+        out     (BL_TXC), a
+
+        ld      bc, PA_Par                      ; get parity
         call    EnquireParam
-        ld      c, 3
+        ld      c, 3                            ; ?? probably TDRH_START|TDRH_STOP, not used
         ld      a, e
         cp      'N'                             ; none
         jr      z, srst_1
-        set     7, c
+
+        set     PAR_B_PARITY, c
         cp      'E'                             ; even
         jr      z, srst_1
-        set     5, c
+
+        set     PAR_B_ODD, c
         cp      'O'                             ; odd
         jr      z, srst_1
-        set     6, c
+
+        set     PAR_B_STICKY, c
         cp      'S'                             ; space
         jr      z, srst_1
-        set     4, c
+
+        set     PAR_B_MARK, c
 
 .srst_1
         ld      a, c
-        ld      ($0FFC), a
-        ld      bc, PA_Xon
+        ld      (ubSerParity), a
+
+        ld      bc, PA_Xon                      ; get Xon/Xoff
         call    EnquireParam
-        ld      a, ($0FFD)
-        and     $0FC
+        ld      a, (ubSerFlowControl)
+        and     ~(FLOW_XONXOFF|FLOW_TXSTOP)
         ld      c, a
         ld      a, e
-        cp      $59
+        cp      'Y'
         jr      nz, srst_2
-        set     0, c
-        ld      a, $11
-        ld      ($0FFE), a
-        call    sub_0_A7B4
+        set     FLOW_B_XONXOFF, c
+        ld      a, XON
+        ld      (cSerXonXoffChar), a
+        call    EI_TDRE
 
 .srst_2
         ld      a, c
-        ld      ($0FFD), a
-        or      a
+        ld      (ubSerFlowControl), a
+
+        or      a                               ; Fc=0
         ret
 
-;--------------------------------------------------------------
+;       ----
 
 .EnquireParam
-                                                ; CODE XREF- ROM-A57Ap ROM-A58Ap ...
-        ld      de, 2
-        OZ      OS_Nq                           ; enquire (fetch) parameter
+        ld      de, 2                           ; return parameter in DE
+        OZ      OS_Nq
         ret
 
-;--------------------------------------------------------------
+;       ----
 
-
-.sub_0_A5E8
-                                                ; CODE XREF- ROM-A57Dp ROM-A58Dp
+.BaudToReg
+        ex      af, af'                         ; !! unnecesary
+        xor     a                               ; count from 0 upwards
         ex      af, af'
-        xor     a
-        ex      af, af'
-        ld      b, d
+        ld      b, d                            ; baud rate into BC
         ld      c, e
         ld      hl, BaudRates
-
-.loc_0_A5F0
-                                                ; CODE XREF- sub_0_A5E8+1Bj
-        ld      e, (hl)
+.b2r_1
+        ld      e, (hl)                         ; de=(hl)++
         inc     hl
         ld      d, (hl)
         inc     hl
-        ld      a, d
+        ld      a, d                            ; use 9600 if end of list
         or      e
-        ld      a, 5
-        jr      z, loc_0_A606
+        ld      a, BR_9600
+        jr      z, b2r_3
+
         ex      de, hl
         sbc     hl, bc
         ex      de, hl
-        jr      z, loc_0_A605
-        ex      af, af'
+        jr      z, b2r_2                        ; found? exit
+
+        ex      af, af'                         ; increment and loop
         inc     a
         ex      af, af'
-        jr      loc_0_A5F0
-;--------
+        jr      b2r_1
 
-.loc_0_A605
-                                                ; CODE XREF- sub_0_A5E8+16j
+.b2r_2
         ex      af, af'
-
-.loc_0_A606
-                                                ; CODE XREF- sub_0_A5E8+10j
-        or      a
+.b2r_3
+        or      a                               ; !! unnecessary
         ret
-; End of function sub_0_A5E8
 
-;--------
 .BaudRates
-        defw    75                              ; DATA XREF- sub_0_A5E8+5o
-        defw    300
-        defw    600
-        defw    1200
-        defw    2400
-        defw    9600
-        defw    19200
-        defw    38400
+        defw    75, 300, 600, 1200, 2400, 9600, 19200, 38400
         defw    0
-;--------
 
-;--------------------------------------------------------------
+;       ----
 
 .IntEntry
-                                                ; CODE XREF- ROM-A506j
-        ld      c, BL_UMK                       ; (r) UART int. status
+        ld      c, BL_UIT                       ; interrupt status
         in      a, (c)
         ld      c, a
-        ld      a, ($4E5)
+        ld      a, (BLSC_UMK)                   ; interrupt mask
         and     c
-        bit     4, a
-        call    nz, sub_0_A69F
-        bit     2, a
-        call    nz, sub_0_A634
-        bit     6, a
-        call    nz, sub_0_A709
+
+        bit     BB_UITTDRE, a
+        call    nz, TxInt
+        bit     BB_UITRDRF, a
+        call    nz, RxInt
+        bit     BB_UITDCDI, a
+        call    nz, DcdInt
         or      a
         ret
 
-;----   SUBROUTINE
+;       ----
 
-
-.sub_0_A634
-                                                ; CODE XREF- ROM-A62Ap
+.RxInt
         push    af
-        ld      hl, ($0FFC)
-        in      a, (BL_RXE)                     ; (r) extended receiver data
-        in      a, (BL_RXD)                     ; (r) UART receive data register
-        bit     7, l                            ; !! originally bugged - bit 6,l
-        jr      z, loc_0_A642
-        and     $7F
 
-.loc_0_A642
-                                                ; CODE XREF- sub_0_A634+Aj
-        bit     0, h
-        jr      z, loc_0_A665
-        cp      $11
-        jr      nz, loc_0_A657
-        ld      a, ($0FFD)
-        res     1, a
-        ld      ($0FFD), a
-        call    sub_0_A7B4
-        jr      loc_0_A69D
-;--------
+;       get char from serial port
 
-.loc_0_A657
-                                                ; CODE XREF- sub_0_A634+14j
-        cp      $13
-        jr      nz, loc_0_A665
-        ld      a, ($0FFD)
-        set     1, a
-        ld      ($0FFD), a
-        jr      loc_0_A69D
-;--------
+        ld      hl, (ubSerParity)               ; L=parity, H=flow control
+        in      a, (BL_RXE)                     ; !! probably need to read this too
+        in      a, (BL_RXD)                     ; read serial data
 
-.loc_0_A665
-                                                ; CODE XREF- sub_0_A634+10j
-                                                ; sub_0_A634+25j
-        push    ix
-        call    sub_0_A7D4
-        ld      l, 0
-        call    $4E
+;       clear parity bit, check for XON/XOFF if needed
+
+ IF     PARITYBUG=1
+        bit     PAR_B_STICKY, l
+ ELSE
+        bit     PAR_B_PARITY, l
+ ENDIF
+        jr      z, rx_1                         ; no parity? 8-bit data
+        and     $7f                             ; else clear parity bit
+.rx_1
+        bit     FLOW_B_XONXOFF, h
+        jr      z, rx_3                         ; no flow control? write char
+
+        cp      XON                             ; !! 'jr z' both XON/XOFF to
+        jr      nz, rx_2                        ; !! speed up normal chars
+
+        ld      a, (ubSerFlowControl)           ; allow sending
+        res     FLOW_B_TXSTOP, a                ; !! 'ld a, FLOW_XONXOFF'
+        ld      (ubSerFlowControl), a
+        call    EI_TDRE                         ; enable TDRE int
+        jr      rx_x                            ; and exit
+
+.rx_2
+        cp      XOFF
+        jr      nz, rx_3
+
+        ld      a, (ubSerFlowControl)           ; disable sending
+        set     FLOW_B_TXSTOP, a                ; !! 'ld a, FLOW_XONXOFF|FLOW_TXSTOP'
+        ld      (ubSerFlowControl), a
+        jr      rx_x                            ; and exit
+
+;       save char, block sender if buffer 75% full
+
+.rx_3
+        push    ix                              ; write byte to buffer
+        call    Ld_IX_RxBuf
+        ld      l, BF_PB
+        call    OZ_BUFF
         pop     ix
-        ld      a, h
-        add     a, l
-        srl     a
-        srl     a
-        cp      l
-        jr      c, loc_0_A69D
-        ld      a, ($4E2)
-        bit     3, a
-        jr      nz, loc_0_A689
-        ld      a, $0F
-        cp      l
-        jr      c, loc_0_A69D
-        ld      a, ($4E2)
 
-.loc_0_A689
-                                                ; CODE XREF- sub_0_A634+4Bj
-        and     $0E7
-        call    sub_0_A7DE
-        ld      a, ($0FFD)
-        bit     0, a
-        jr      z, loc_0_A69D
-        ld      a, $13
-        ld      ($0FFE), a
-        call    sub_0_A7B4
+        ld      a, h                            ; #chars in buffer
+        add     a, l                            ; +free space = bufsize
+        srl     a
+        srl     a                               ; bufsize/4
+        cp      l
+        jr      c, rx_x                         ; more than 25% free? exit
 
-.loc_0_A69D
-                                                ; CODE XREF- sub_0_A634+21j
-                                                ; sub_0_A634+2Fj ...
+        ld      a, (BLSC_RXC)                   ; IRTS? hold sender
+        bit     BB_RXCIRTS, a
+        jr      nz, rx_4
+
+        ld      a, 15
+        cp      l
+        jr      c, rx_x                         ; more than 15 byte free? exit
+
+        ld      a, (BLSC_RXC)                   ; !! use a' above
+.rx_4
+        and     ~(BM_RXCARTS|BM_RXCIRTS)        ; disable ARTS/IRTS
+        call    WrRxC
+        ld      a, (ubSerFlowControl)           ; no flow control? exit
+        bit     FLOW_B_XONXOFF, a
+        jr      z, rx_x
+
+        ld      a, XOFF                         ; send XOFF
+        ld      (cSerXonXoffChar), a
+        call    EI_TDRE                         ; enable TDRE int
+
+.rx_x
         pop     af
         ret
-; End of function sub_0_A634
 
+;       ----
 
-;----   SUBROUTINE
-
-
-.sub_0_A69F
-                                                ; CODE XREF- ROM-A625p
+.TxInt
         push    af
-        ld      a, ($0FFE)
+
+;       check if we need to send XON/XOFF
+
+;       !! 'ld hl, cSerXonXoffChar; ld a, (hl); ld (hl), 0; or a' 31 cycles
+
+        ld      a, (cSerXonXoffChar)            ; save, clear and check Xon/Xoff
         push    af
         xor     a
-        ld      ($0FFE), a
+        ld      (cSerXonXoffChar), a
         pop     af
         or      a
-        jr      nz, loc_0_A6CD
-        ld      a, ($0FFD)
-        bit     1, a
-        jr      nz, loc_0_A6C1
-        push    ix
-        call    sub_0_A7CC
-        ld      l, 3
-        call    $4E
+        jr      nz, tx_2                        ; need to send XON/XOFF
+
+;       receiver sent XOFF?
+
+        ld      a, (ubSerFlowControl)           ; need to stop transmitting?
+        bit     FLOW_B_TXSTOP, a
+        jr      nz, tx_1
+
+;       get data from buffer, send if buffer not empty
+
+        push    ix                              ; read byte from TxBuf
+        call    Ld_IX_TxBuf
+        ld      l, BF_GB
+        call    OZ_BUFF
         pop     ix
-        jr      nc, loc_0_A6CD
+        jr      nc, tx_2                        ; buffer not empty? send byte
 
-.loc_0_A6C1
-                                                ; CODE XREF- sub_0_A69F+12j
-        ld      a, ($4E5)
-        and     $0EF
-        ld      ($4E5), a
-        out     (BL_UIT), a
-        jr      loc_0_A707
-;--------
+.tx_1
+        ld      a, (BLSC_UMK)                   ; disable TDRE
+        and     ~BM_UMKTDRE
+        ld      (BLSC_UMK), a
+        out     (BL_UMK), a
+        jr      tx_x                            ; and exit
 
-.loc_0_A6CD
-                                                ; CODE XREF- sub_0_A69F+Bj
-                                                ; sub_0_A69F+20j
-        push    af
-        ld      a, ($0FFC)
+;       send char in A !! rearrange parity bits and use af' for speed
+
+.tx_2
+        push    af                              ; parity into C
+        ld      a, (ubSerParity)                ; !! 'ld bc, (ubSerParity)'
         ld      c, a
         pop     af
-        ld      b, $0FE
-        bit     2, c
-        jr      z, loc_0_A6DB
-        res     1, b
+        ld      b, ~TDRH_START
 
-.loc_0_A6DB
-                                                ; CODE XREF- sub_0_A69F+38j
-        bit     7, c
-        jr      z, loc_0_A703
-        and     $7F
-        bit     6, c
-        jr      z, loc_0_A6ED
-        bit     4, c
-        jr      z, loc_0_A703
-        set     7, a
-        jr      loc_0_A703
-;--------
+        bit     PAR_B_9BIT, c                   ; nine bit data? clear 1st stop bit (bit8)
+        jr      z, tx_3
+        res     TDRH_B_STOP, b
 
-.loc_0_A6ED
-                                                ; CODE XREF- sub_0_A69F+44j
-        ex      af, af'
-        bit     5, c
-        ex      af, af'
-        and     a
-        jp      pe, loc_0_A6FA
-        ex      af, af'
-        jr      z, loc_0_A700
-        jr      loc_0_A6FD
-;--------
+.tx_3
+        bit     PAR_B_PARITY, c                 ; no parity? we're done
+        jr      z, tx_send      
 
-.loc_0_A6FA
-                                                ; CODE XREF- sub_0_A69F+53j
-        ex      af, af'
-        jr      nz, loc_0_A700
+        and     $7F                             ; clear parity bit
+        bit     PAR_B_STICKY, c
+        jr      z, tx_4                         ; even/odd
 
-.loc_0_A6FD
-                                                ; CODE XREF- sub_0_A69F+59j
-        ex      af, af'
-        jr      loc_0_A703
-;--------
+        bit     PAR_B_MARK, c
+        jr      z, tx_send                      ; space - cleared parity already
 
-.loc_0_A700
-                                                ; CODE XREF- sub_0_A69F+57j
-                                                ; sub_0_A69F+5Cj
+        set     7, a                            ; mark - set high bit
+        jr      tx_send
+
+;       calculate parity bit
+
+.tx_4
+        ex      af, af'                         ; !! test this bit separately
+        bit     PAR_B_ODD, c                    ; !! saves several 'ex af's
+        ex      af, af'
+        and     a                               ; test parity
+        jp      pe, tx_even
+
+;       A has odd parity
+
+        ex      af, af'
+        jr      z, tx_7                         ; want even parity? set bit
+        jr      tx_6                            ; else done
+
+;       A has even parity
+
+.tx_even
+        ex      af, af'
+        jr      nz, tx_7                        ; want odd parity? set bit
+.tx_6
+        ex      af, af'
+        jr      tx_send
+
+.tx_7
         ex      af, af'
         xor     $80
 
-.loc_0_A703
-                                                ; CODE XREF- sub_0_A69F+3Ej
-                                                ; sub_0_A69F+48j ...
-        ld      c, BL_TXD                       ; (w) transmit data
-        out     (c), a
+.tx_send
+        ld      c, BL_TXD
+        out     (c), a                          ; puts B into A8-A15
 
-.loc_0_A707
-                                                ; CODE XREF- sub_0_A69F+2Cj
+.tx_x
         pop     af
         ret
-; End of function sub_0_A69F
 
+;       ----
 
-;----   SUBROUTINE
+.DcdInt
+        push    af                              ; !! 'ex af' for speed
 
+        ld      a, (BLSC_UMK)                   ; toggle TDRE 
+        xor     BB_UMKTDRE
+        ld      (BLSC_UMK), a
+        out     (BL_UMK), a
 
-.sub_0_A709
-                                                ; CODE XREF- ROM-A62Fp
-        push    af
-        ld      a, ($4E5)
-        xor     4
-        ld      ($4E5), a
-        out     (BL_UIT), a
-        ld      a, ($4E4)
-        xor     $40
-        ld      ($4E4), a
-        out     (BL_TXC), a                     ; transmit control
-        ld      a, $40
-        out     (BL_UAK), a                     ; (w) UART int. mask
+        ld      a, (BLSC_TXC)                   ; toggle DCDI
+        xor     BM_TXCDCDI
+        ld      (BLSC_TXC), a
+        out     (BL_TXC), a
+
+        ld      a, BM_UAKDCD                    ; ack DCD
+        out     (BL_UAK), a
+
         pop     af
         ret
-; End of function sub_0_A709
 
-;--------
-
-;--------------------------------------------------------------
+;       ----
 
 .PutByte
-                                                ; CODE XREF- ROM-A50Cj
         push    af
-        call    sub_0_A7E4
-        call    sub_0_A7CC
+        call    MayGetTimeout                   ; get default timeout if BC = -1
+        call    Ld_IX_TxBuf
         pop     af
-        ld      l, 6
-        call    $4E
-        call    nc, sub_0_A7B4
+        ld      l, BF_PBT                       ; put byte with timeout
+        call    OZ_BUFF
+        call    nc, EI_TDRE                     ; enable TDRE if succesful
         ret
 
-;--------------------------------------------------------------
+;       ----
 
 .GetByte
-                                                ; CODE XREF- ROM-A509j
-        call    $51
-        push    af
-        call    sub_0_A7D4
-        ld      l, 9
-        call    $4E
-        jr      c, loc_0_A767
+        call    OZ_DI
+        push    af                              ; get byte with timeout
+        call    Ld_IX_RxBuf
+        ld      l, BF_GBT
+        call    OZ_BUFF
+        jr      c, gb_2                         ; error? exit
         ld      e, a
-        ld      a, h
-        add     a, l
-        srl     a
+
+;       unblock sender if buffer less than half full
+
+        ld      a, h                            ; #bytes in buffer
+        add     a, l                            ; + free space = buf size
+        srl     a                               ; /2
         cp      l
-        jr      nc, loc_0_A766
-        ld      a, ($4E2)
-        bit     3, a
-        jr      nz, loc_0_A766
-        or      8
-        call    sub_0_A7DE
-        ld      a, ($0FFD)
-        bit     0, a
-        jr      z, loc_0_A766
-        ld      a, $11
-        ld      ($0FFE), a
-        call    sub_0_A7B4
+        jr      nc, gb_1                        ; less than 50% free? skip
 
-.loc_0_A766
-                                                ; CODE XREF- ROM-A749j ROM-A750j ...
-        or      a
+        ld      a, (BLSC_RXC)
+        bit     BB_RXCIRTS, a                   ; IRTS? skip
+        jr      nz, gb_1
 
-.loc_0_A767
-                                                ; CODE XREF- ROM-A741j
-        pop     hl
-        push    af
+        or      BM_RXCIRTS                      ; set IRTS
+        call    WrRxC
+
+        ld      a, (ubSerFlowControl)           ; if Xon/Xoff send XON
+        bit     FLOW_B_XONXOFF, a
+        jr      z, gb_1
+        ld      a, XON
+        ld      (cSerXonXoffChar), a
+        call    EI_TDRE
+
+.gb_1
+        or      a                               ; Fc=0
+
+.gb_2
+        pop     hl                              ; !! use separate error exit
+        push    af                              ; !! for speed
         push    hl
         pop     af
-        call    $54
+        call    OZ_EI
         pop     af
         ret     c
         ld      a, e
         ret
 
-;--------------------------------------------------------------
+;       ----
 
 .EnqStatus
-                                                ; CODE XREF- ROM-A50Fj
-        call    $51
-        push    af
+        call    OZ_DI                           ; !! 'push/pop IX' at start/end to
+        push    af                              ; !! eliminate one 'push/pop' pair
         push    ix
-        call    sub_0_A7CC
-        ld      l, $0C
-        call    $4E
+        call    Ld_IX_TxBuf                     ; get TxBuf status
+        ld      l, BF_STA
+        call    OZ_BUFF
         pop     ix
         push    hl
+
         push    ix
-        call    sub_0_A7D4
-        ld      l, $0C
-        call    $4E
+        call    Ld_IX_RxBuf                     ; get RxBuf status
+        ld      l, BF_STA
+        call    OZ_BUFF
         pop     ix
-        ex      de, hl
-        pop     bc
+
+        ex      de, hl                          ; DE=RxStatus
+        pop     bc                              ; BC=TxStatus
         pop     af
-        call    $54
-        in      a, (BL_UMK)                     ; (r) UART int. status
+        call    OZ_EI
+        in      a, (BL_UIT)                     ; A=int status
         or      a
         ret
 
-;--------------------------------------------------------------
+;       ----
 
 .SetTimeout
-                                                ; CODE XREF- ROM-A518j
-        ld      (ix+$0C), c
-        ld      (ix+$0D), b
+        ld      (ix+shnd_Timeout), c
+        ld      (ix+shnd_Timeout+1), b
         ret
 
-;--------------------------------------------------------------
+;       ----
 
 .FlushTx
-                                                ; CODE XREF- ROM-A512j ROM-A571p
         push    ix
-        call    sub_0_A7CC
-        jr      loc_0_A7AC
-
-;--------------------------------------------------------------
+        call    Ld_IX_TxBuf
+        jr      FlushBuf
 
 .FlushRx
-                                                ; CODE XREF- ROM-A515j ROM-A574p
         push    ix
-        call    sub_0_A7D4
+        call    Ld_IX_RxBuf
 
-.loc_0_A7AC
-                                                ; CODE XREF- FlushTx+5j
-        ld      l, $0F
-        call    $4E
+.FlushBuf
+        ld      l, BF_PUR
+        call    OZ_BUFF
         pop     ix
         ret
-; End of function FlushRx
 
-;--------------------------------------------------------------
+;       ----
 
-.sub_0_A7B4
-                                                ; CODE XREF- ROM-A5D9p sub_0_A634+1Ep ...
-        call    $51
-        push    af
-        ld      a, ($4E5)
-        bit     4, a
-        jr      nz, loc_0_A7C6
-        or      $10
-        ld      ($4E5), a
-        out     (BL_UIT), a
+.EI_TDRE
+        call    OZ_DI
+        push    af                              ; !! 'ex af' for speed
+        ld      a, (BLSC_UMK)
+        bit     BB_UMKTDRE, a
+        jr      nz, eitdre_x                    ; TDRE enabled already
 
-.loc_0_A7C6
-                                                ; CODE XREF- sub_0_A7B4+9j
+        or      BM_UMKTDRE
+        ld      (BLSC_UMK), a
+        out     (BL_UMK), a
+
+.eitdre_x
         pop     af
-        call    $54
+        call    OZ_EI
         xor     a
         ret
-; End of function sub_0_A7B4
 
+;       ----
 
-;----   SUBROUTINE
+.Ld_IX_TxBuf
+        ld      l, (ix+shnd_TxBuf)
+        ld      h, (ix+shnd_TxBuf+1)
+        jr      Ld_IX_HL
 
+.Ld_IX_RxBuf
+        ld      l, (ix+shnd_RxBuf)
+        ld      h, (ix+shnd_RxBuf+1)
 
-.sub_0_A7CC
-                                                ; CODE XREF- sub_0_A69F+16p ROM-A728p ...
-        ld      l, (ix+$0A)
-        ld      h, (ix+$0B)
-        jr      loc_0_A7DA
-; End of function sub_0_A7CC
-
-
-;----   SUBROUTINE
-
-
-.sub_0_A7D4
-                                                ; CODE XREF- sub_0_A634+33p ROM-A739p ...
-        ld      l, (ix+8)
-        ld      h, (ix+9)
-
-.loc_0_A7DA
+.Ld_IX_HL
         push    hl
         pop     ix
         ret
-; End of function sub_0_A7D4
 
+;       ----
 
-;----   SUBROUTINE
-
-
-.sub_0_A7DE
-        ld      ($4E2), a
-        out     (BL_RXC), a                     ; (w) receiver control
+.WrRxC
+        ld      (BLSC_RXC), a
+        out     (BL_RXC), a
         ret
-; End of function sub_0_A7DE
 
+;       ----
 
-;----   SUBROUTINE
+;       get timeout from handle if it's -1
 
-
-.sub_0_A7E4
-        inc     bc
+.MayGetTimeout
+        inc     bc                              ; !! 'ld a, b; and c; inc a; ret nz'
         ld      a, b
         or      c
         dec     bc
         ret     nz
-        ld      b, (ix+$0D)
-        ld      c, (ix+$0C)
+        ld      b, (ix+shnd_Timeout+1)          ; use this if BC(in) = -1
+        ld      c, (ix+shnd_Timeout)
         ret
-; End of function sub_0_A7E4
-
-;--------
