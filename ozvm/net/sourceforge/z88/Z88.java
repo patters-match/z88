@@ -249,28 +249,34 @@ public class Z88 extends Z80 {
 
 	/**
 	 * Implement Z88 input port hardware (BLINK).
-	 */
-	public int inByte(int port) {
+	 * 
+	 * @param addrA8
+	 * @param addrA15
+	 */	
+	public int inByte(int addrA8, int addrA15) {
 		int res = 0;
 
-		switch (port) {
+		switch (addrA8) {
 			case 0xD0:
-				res = blink.getTim0();
+				res = blink.getTim0();	// TIM0, 5ms period, counts to 199  
 				break;
 			case 0xD1:
-				res = blink.getTim1();
+				res = blink.getTim1();	// TIM1, 1 second period, counts to 59  
 				break;
 			case 0xD2:
-				res = blink.getTim2();
+				res = blink.getTim2();	// TIM2, 1 minute period, counts to 255  
 				break;
 			case 0xD3:
-				res = blink.getTim3();
+				res = blink.getTim3();	// TIM3, 256 minutes period, counts to 255     
 				break;
 			case 0xD4:
-				res = blink.getTim4();
+				res = blink.getTim4();	// TIM4, 64K minutes Period, counts to 31        
+				break;
+			case 0xB1:
+				res = blink.getSta();	// STA, Main Blink Interrupt Status
 				break;
 			case 0xB5:
-				blink.getTsta(); // TSTA, Timer Interrupt Status
+				blink.getTsta(); 		// TSTA, RTC Interrupt Status
 				break;
 			default :
 				res = 0;
@@ -281,14 +287,18 @@ public class Z88 extends Z80 {
 
 	/**
 	 * Implement Z88 output port hardware (BLINK).
+	 * 
+	 * @param addrA8
+	 * @param addrA15
+	 * @param outByte
 	 */
-	public void outByte(int port, int outByte) {
-		switch (port) {
+	public void outByte(int addrA8, int addrA15, int outByte) {
+		switch (addrA8) {
 			case 0xD0 : // SR0, Segment register 0
 			case 0xD1 : // SR1, Segment register 1
 			case 0xD2 : // SR2, Segment register 2
 			case 0xD3 : // SR3, Segment register 3
-				blink.setSegmentBank(port, outByte);
+				blink.setSegmentBank(addrA8, outByte);
 				break;
 			
 			case 0xB0 : // COM, Set Command Register
@@ -299,13 +309,37 @@ public class Z88 extends Z80 {
 				blink.setInt(outByte);
 				break;
 
-			case 0xB4 : // TACK, Set Timer interrupt acknowledge
+			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
 				blink.setTack(outByte);
 				break;
 
 			case 0xB5 : // TMK, Set Timer interrupt Mask
 				blink.setTmk(outByte);
-				break;			
+				break;
+							
+			case 0xB6 : // ACK, Acknowledge Main Interrupts				
+				blink.setAck(outByte);
+				break;
+
+			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
+				blink.setPb0(outByte);
+				break;				
+
+			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
+				blink.setPb1(outByte);
+				break;				
+
+			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
+				blink.setPb2(outByte);
+				break;				
+
+			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
+				blink.setPb3(outByte);
+				break;				
+
+			case 0x74 : // SBR, Screen Base Register 
+				blink.setSbr(outByte);
+				break;				
 		}
 	}
 
