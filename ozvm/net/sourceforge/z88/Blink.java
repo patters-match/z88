@@ -1,5 +1,7 @@
 package net.sourceforge.z88;
 
+import gameframe.GameFrameException;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -8,6 +10,7 @@ import java.net.URL;
 import java.net.JarURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
+import gameframe.input.KeyboardDevice;
 
 /**
  * Blink chip, the "mind" of the Z88.
@@ -20,7 +23,7 @@ public final class Blink extends Z80 {
 	/**
 	 * Blink class default constructor.
 	 */
-	Blink() {
+	Blink() throws GameFrameException {
 		super();
 		
 		// the segment register SR0 - SR3
@@ -46,6 +49,9 @@ public final class Blink extends Z80 {
 		
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
+		
+		z88Display = new Z88display(this);				// create window, but without activity yet...
+		z88Keyboard = z88Display.getKeyboardDevice();	// keys are read from Z88 Window... 
 	}
 
 	/**
@@ -58,6 +64,20 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
+	/**
+	 * The 640x64 pixel display (here a window).
+	 */
+	private Z88display z88Display;
+	
+	public Z88display getDisplay() {
+		return z88Display;
+	}
+		
+	/**
+	 * The keyboard hardware (wich will be mapped to IN port)
+	 */
+	private KeyboardDevice z88Keyboard;
+	
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
 	 */
@@ -885,33 +905,23 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
-				System.out.print("PB0, LORES0 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb0((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Dz.byteToHex(getPb0() >>> 16, false) + Dz.addrToHex(getPb0() & 0x00FFFF, false) + ")");
 				break;				
 
 			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
-				System.out.print("PB1, LORES1 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb1((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Dz.byteToHex(getPb1() >>> 16, false) + Dz.addrToHex(getPb1() & 0x00FFFF, false) + ")");
 				break;				
 
 			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
-				System.out.print("PB2, HIRES0 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb2((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Dz.byteToHex(getPb2() >>> 16, false) + Dz.addrToHex(getPb2() & 0x00FFFF, false) + ")");				
 				break;				
 
 			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
-				System.out.print("PB3, HIRES1 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb3((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Dz.byteToHex(getPb3() >>> 16, false) + Dz.addrToHex(getPb3() & 0x00FFFF, false) + ")");
 				break;				
 
 			case 0x74 : // SBR, Screen Base Register 
-				System.out.print("SBR, Screen Base Register = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setSbr((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Dz.byteToHex(getSbr() >>> 16, false) + Dz.addrToHex(getSbr() & 0x00FFFF, false) + ")");
 				break;				
 		}
 	}
@@ -990,11 +1000,11 @@ public final class Blink extends Z80 {
 		}
 
 		if ( ((bits & Blink.BM_COMLCDON) == Blink.BM_COMLCDON) && ((COM & Blink.BM_COMLCDON) == 0)) {
-			System.out.println("LCD Screen was enabled.");
+			z88Display.start();
 		}
 
 		if ( ((bits & Blink.BM_COMLCDON) == 0) && ((COM & Blink.BM_COMLCDON) == Blink.BM_COMLCDON)) {
-			System.out.println("LCD Screen was disabled.");
+			z88Display.stop();
 		}
 
 		COM = bits;

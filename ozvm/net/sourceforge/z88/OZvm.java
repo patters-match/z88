@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import gameframe.GameFrameException;
 import gameframe.GameFrame;
+import gameframe.GameFrameException;
 
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
@@ -269,17 +269,6 @@ public class OZvm {
 				cmdLineTokens = cmdline.split(" ");
 			}
 
-			if (cmdLineTokens[0].equalsIgnoreCase("s") == true) {
-				try {
-					Z88display z88dsp = new Z88display(z88);
-					z88dsp.renderDisplay();
-				} catch (GameFrameException e) {
-					e.printStackTrace();
-				}
-				cmdline = ""; // wait for a new command...
-				cmdLineTokens = cmdline.split(" ");
-			}
-
 			if (cmdLineTokens[0].equalsIgnoreCase("r") == true) {
 				displayZ80Registers();
 				cmdline = ""; // wait for a new command...
@@ -294,7 +283,6 @@ public class OZvm {
 			if (cmdLineTokens[0].length() > 0 &&
 				cmdLineTokens[0].equalsIgnoreCase(".") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("d") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("s") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("r") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("h") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("m") == false &&				
@@ -442,8 +430,7 @@ public class OZvm {
 		ozvm.commandLine();
 		
 		System.out.println("Ozvm terminated.");
-		// GameFrame.exit(0);
-		System.exit(0);
+		GameFrame.exit(0);
 	}
 
 	/** 
