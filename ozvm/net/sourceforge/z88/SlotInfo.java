@@ -26,12 +26,13 @@ package net.sourceforge.z88;
  */
 public class SlotInfo {
 	
+	/** reference to available Blink hardware and functionality */
 	private Blink blink = null;
 	/**
 	 * Initialise slot information with getting access to
 	 * the Z88 memory model
 	 */
-	public SlotInfo(Blink blink) {
+	public SlotInfo(final Blink blink) {
 		this.blink = blink;
 	}
 
@@ -41,12 +42,10 @@ public class SlotInfo {
 	 * 
 	 * @return number of 16K banks in inserted Card
 	 */
-	public int getCardSize(int slotno) {
-		slotno &= 3;	// there's only 4 slots available in a Z88...
-		
+	public int getCardSize(final int slotno) {		
 		if (isApplicationCard(slotno) == true || isFileCard(slotno) == true)
 			// byte at 0x3FFC in top bank of slot defines total banks in card...
-			return blink.getByte( (((slotno << 6) | 0x3F) << 16) | 0x3FFC );
+			return blink.getByte( ((((slotno & 3) << 6) | 0x3F) << 16) | 0x3FFC );
 		else 
 			// no card available in slot...
 			return -1;
@@ -57,11 +56,9 @@ public class SlotInfo {
 	 * 
 	 * @return true if Application Card is available in slot, otherwise false
 	 */
-	public boolean isApplicationCard(int slotno) {
-		slotno &= 3;	// there's only 4 slots available in a Z88...
-
+	public boolean isApplicationCard(final int slotno) {
 		// point to watermark in top bank of slot, offset 0x3Fxx
-		int cardHeader = (((slotno << 6) | 0x3F) << 16) | 0x3F00;
+		int cardHeader = ((((slotno & 3) << 6) | 0x3F) << 16) | 0x3F00;
 		if (blink.getByte(cardHeader | 0xFB) == 0x80 &
 			blink.getByte(cardHeader | 0xFE) == 'O' &
 			blink.getByte(cardHeader | 0xFF) == 'Z')
@@ -75,11 +72,9 @@ public class SlotInfo {
 	 * 
 	 * @return true if Application card is available in slot, otherwise false
 	 */
-	public boolean isFileCard(int slotno) {
-		slotno &= 3;	// there's only 4 slots available in a Z88...
-		
+	public boolean isFileCard(final int slotno) {
 		// point to watermark in top bank of slot, offset 0x3Fxx
-		int cardHeader = (((slotno << 6) | 0x3F) << 16) | 0x3F00;
+		int cardHeader = ((((slotno & 3) << 6) | 0x3F) << 16) | 0x3F00;
 		if (blink.getByte(cardHeader | 0xF7) == 0x01 &
 			blink.getByte(cardHeader | 0xFE) == 'o' &
 			blink.getByte(cardHeader | 0xFF) == 'z')
@@ -94,9 +89,7 @@ public class SlotInfo {
 	 * 
 	 * @return true if slot is empty, otherwise false
 	 */
-	public boolean isEmpty(int slotno) {
-		slotno &= 3;	// there's only 4 slots available in a Z88...
-		
-		return blink.isBankEmpty(slotno << 6);
+	public boolean isSlotEmpty(final int slotno) {		
+		return blink.isSlotEmpty(slotno);
 	}
 }
