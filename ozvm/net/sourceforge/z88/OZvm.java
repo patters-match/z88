@@ -82,7 +82,7 @@ public class OZvm {
 	private boolean loadRom(String[] args) {
 		try {
 			if (args.length == 0) {
-				System.out.println("No external ROM image specified, using default Z88.rom (V4.01 UK)");
+				System.out.println("No external ROM image specified, using default Z88.rom (V4.0 UK)");
 				z88.loadRomBinary(z88.getClass().getResource("/Z88.rom"));				
 			} else {
 				System.out.println("Loading '" + args[0] + "'");
