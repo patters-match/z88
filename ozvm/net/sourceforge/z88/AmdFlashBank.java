@@ -25,12 +25,12 @@ import java.util.Vector;
  * This class represents the 16Kb Flash Memory Bank on an AMD I29FxxxB chip. 
  * The characteristics of a Flash Memory bank is chip memory that can be read at 
  * all times and only be written (and erased) using a combination of AMD Flash 
- * command sequenses (write byte to address cycles), in ALL available slots on
+ * command sequences (write byte to address cycles), in ALL available slots on
  * the Z88.
  * 
  * The emulation of the AMD Flash Memory solely implements the chip command 
  * mode programming, since the Z88 Flash Cards only responds to those
- * command sequenses (and not the hardware pin manipulation). Erase Suspend and
+ * command sequences (and not the hardware pin manipulation). Erase Suspend and
  * Erase Resume commands are also not implemented. 
  * 
  * The essential emulation is implemented to respond to the Standard Flash Eprom 
@@ -59,6 +59,12 @@ public class AmdFlashBank extends Bank {
 	 * is part of.
 	 */
 	private boolean readArrayMode = true;
+
+	/**
+	 * Set to True, if a command reported failure, which continues
+	 * to display the error toggle through the read status cycle.
+	 */
+	private boolean signalCommandFailure = false;
 	
 	/**
 	 * A command sequence consists of two unlock cycles, followed by a
@@ -68,27 +74,53 @@ public class AmdFlashBank extends Bank {
 	 * (the actual command will then be verified against known codes).
 	 */
 	private static final Integer commandUnlockCycles[] = 
-		{new Integer(0x555), new Integer(0xAA), new Integer(0x2AA), new Integer(0x55), new Integer(0x555), new Integer('?')};
+		{new Integer(0x555), new Integer(0xAA), new Integer(0x2AA), 
+		 new Integer(0x55), new Integer(0x555), new Integer('?')};
+
+	/**
+	 * Indicate success by DQ5 = 0 and DQ6 = 1, signalling no toggle in 
+	 * two consecutive read cycles. 
+	 */
+	private static final Integer readStatusCommandSuccess[] = {new Integer(0x40), new Integer(0x40)};  
 	
 	/**
-	 * The pending command sequense which is the template that is
+	 * Indicate failure by DQ5 = 1 and DQ6 toggling, for each 
+	 * consecutive read cycle. The following bit patterns illustrate
+	 * the sequence (from left to right):
+	 * [1] 0110 0000 (DQ6=1,DQ5=1), [2] 0010 0000 (DQ6=0,DQ5=1),
+	 * [3] 0110 0000 (DQ6=1,DQ5=1), [4] 0010 0000 (DQ6=0,DQ5=1)
+	 */
+	private static final Integer readStatusCommandFailure[] = 
+		{new Integer(0x60), new Integer(0x20), new Integer(0x60), new Integer(0x20)};  
+
+	/**
+	 * The pending command sequence which is the template that is
 	 * being validated against the incoming command cycles (the 
 	 * processor write byte cycles)
 	 */
-	private CommandCycleStack commandUnlockCycleStack = null;
+	private SequenceStack commandUnlockCycleStack = null;
+
+	/**
+	 * Whenever a Flash memory command has executed it's functionality,
+	 * it begins to feed read status sequences back to the application
+	 * (which polls for status using read cycles). This stack will
+	 * contain read status sequences for commands reporting success 
+	 * or failure.
+	 */
+	private SequenceStack readStatusStack = null;
 	
 	/**
 	 * Status of ongoing accumulation of Flash Memory command, [<b>true</b>]
 	 * (ie. the individual cycles are accumulating and being verified as each cycle 
-	 * is accumulated). A command sequense consists of three cycles; two unlock 
+	 * is accumulated). A command sequence consists of three cycles; two unlock 
 	 * cycles followed by the command code (The Erase commands consists of two 
-	 * sections of three cycle command sequenses).
+	 * sections of three cycle command sequences).
 	 */
 	private boolean isCommandAccumulating = false;
 	
 	/**
-	 * Indicate if a command is being executed [<b>true</b>](Blow Byte, Erase Sector 
-	 * or Auto-Select Mode command).  
+	 * Indicate if a command is being executed [<b>true</b>]
+	 * (Blow Byte, Erase Sector/Chip or Auto-Select Mode command).  
 	 */
 	private boolean isCommandExecuting = false;
 	
@@ -100,7 +132,7 @@ public class AmdFlashBank extends Bank {
 
 	/** 
 	 * Access to the Z88 hardware & memory model (needed when the Erase command
-	 * needs to erase a sector; accessing the other three banks besides this one) 
+	 * needs to erase a sector; accessing the other banks besides this one) 
 	 */
 	private Blink blink;
 	
@@ -121,9 +153,10 @@ public class AmdFlashBank extends Bank {
 		blink = b;
 		deviceCode = dc;
 		
-		for (int i = 0; i < Memory.BANKSIZE-1; i++) setByte(i, 0xFF); // empty Flash Memory contain FF's
+		eraseBank(); // Flash Memory Bank is empty...
         
-		// When a card is inserted into a slot, the Flash chip is always in Ready Array Mode by default
+		// When a card is inserted into a slot, the Flash chip 
+		// is always in Ready Array Mode by default
 		readArrayMode = true;
 	}
 		
@@ -133,9 +166,11 @@ public class AmdFlashBank extends Bank {
 	 */
 	public final int readByte(final int addr) {
 		if (readArrayMode == true) 
-			return getByte(addr);	// The chip is in Read Array Mode, get byte data at address..
+			// The chip is in Read Array Mode, get byte data at address..
+			return getByte(addr);	
 		else
-			return getCommandStatus(addr);	// The chip is in Command Mode, get status of current command
+			// The chip is in Command Mode, get status of current command
+			return getCommandStatus(addr);	
 	}
 
 	/**
@@ -144,7 +179,7 @@ public class AmdFlashBank extends Bank {
 	 * 
 	 * Z80 processor write byte affects the behaviour of the AMD Flash Memory 
 	 * chip (activating the accumulating Command Mode). Using processor write 
-	 * cycle sequenses the Flash Memory chip can be programmed with data and 
+	 * cycle sequences the Flash Memory chip can be programmed with data and 
 	 * get erased again in ALL available Z88 slots.
 	 */
 	public final void writeByte(final int addr, final int b) {
@@ -152,15 +187,25 @@ public class AmdFlashBank extends Bank {
 	}
 	
 	/**
-	 * @return returns the Flash Memory Device Code (AM29F010B, AM29F040B or AM29F080B) which this bank is part of.
+	 * @return returns the Flash Memory Device Code 
+	 * (AM29F010B, AM29F040B or AM29F080B) which this bank is part of.
 	 */
 	public final int getDeviceCode() {
 		return deviceCode;
 	}
 
 	/**
-	 * Define the Read Array Mode state for the AMD Flash Memory chip that is inserted into
-	 * the current slot (which this bank is part of).<p>
+	 * Erase the contents of this bank to FF's 
+	 * (simulate the chip erase functionality).
+	 */
+	public void eraseBank() {
+		for (int addr=0; addr < Memory.BANKSIZE; addr++) 
+			setByte(addr, 0xFF);
+	}
+	
+	/**
+	 * Define the Read Array Mode state for the AMD Flash Memory chip that 
+	 * is inserted into the current slot (which this bank is part of).<p>
 	 * 
 	 * @param rdam the Read Array Mode logical state; <b>true</b> = Read Array Mode, <b>false</b> = Command Mode
 	 */
@@ -175,12 +220,12 @@ public class AmdFlashBank extends Bank {
 					isCommandAccumulating = false;
 					isCommandExecuting = false;
 					executingCommandCode = 0;
-					commandUnlockCycleStack = presetCommandCycles(); 
+					commandUnlockCycleStack = presetSequence(commandUnlockCycles); 
 				}				
 			}
 		} else {
 			if (readArrayMode == true) {
-				commandUnlockCycleStack = presetCommandCycles();
+				commandUnlockCycleStack = presetSequence(commandUnlockCycles);
 				readArrayMode = false;
 			}			
 		}
@@ -199,36 +244,51 @@ public class AmdFlashBank extends Bank {
 			setSlotReadArrayMode(true);
 			return getByte(addr);			
 		} else {
-			if (isCommandExecuting == true) {
-				// return status of Blow Byte, Erase or Auto Select Mode (get Manufacturer & Device Code)
+			if (isCommandExecuting == false) {
+				setSlotReadArrayMode(true);		// A command finished executing and we automatically get back to Read Array Mode
+				return getByte(addr);	
+			} else {
+				// command is executing, 
+				// return status of Blow Byte, Erase Sector/Chip or 
+				// Auto Select Mode (get Manufacturer & Device Code)
 				
 				switch(executingCommandCode) {
-					case 0x10: // Chip Erase Command
-						return 0; // Not implemented yet
+					case 0x10: // Chip Erase Command						
+					case 0x30: // Sector Erase Command
+					case 0xA0: // Byte Program Command
+						Integer status;
+						if (signalCommandFailure == true) {
+							if (readStatusStack.isEmpty() == true) {
+								// Keep the error toggle status sequence "flowing"
+								// (the chip continues to be in command error mode)
+								// until the application issues a Read Array Mode command
+								readStatusStack = presetSequence(readStatusCommandFailure); 
+							}
+							status = (Integer) readStatusStack.pop(); // get error status cycle
+						} else {														
+							status = (Integer) readStatusStack.pop(); // get success status cycle 
+							if (readStatusStack.isEmpty() == true) {
+								// When the last read status cycle has been delivered, 
+								// the chip automatically returns to Read Array Mode
+								setSlotReadArrayMode(true);
+								isCommandExecuting = false;
+							}								
+						}
+						return status.intValue();
 						
-					case 0x30: // Sector Erase Command (which this bank is part of)
-						return 0; // Not implemented yet
-						
-					case 0x90:	// Autoselect Command
-						addr &= 0xFF;	// only preserve lower 8 bits of address
+					case 0x90: // Autoselect Command
+						addr &= 0xFF;							// only preserve lower 8 bits of address
 						switch(addr) {
 							case 0: return MANUFACTURERCODE;	// XX00 = Manufacturer Code 
 							case 1: return deviceCode;			// XX01 = Device Code
-							default: return 0;					// XXXX = Unknown behaviour...
+							default: return 0xFF;				// XXXX = Unknown behaviour...
 						}
-						
-					case 0xA0:	// Byte Program Command
-						return 0; // Not implemented yet
-						
-					case 0:
-					default:
-						setSlotReadArrayMode(true);		// unknown command! Back to Read Array mode
+
+					default: // unknown command! Back to Read Array mode...
+						setSlotReadArrayMode(true);		
 						isCommandExecuting = false;
 						return getByte(addr);				
 				}
-			} else {
-				setSlotReadArrayMode(true);		// A command finished executing and we automatically get back to Read Array Mode
-				return getByte(addr);	
 			}
 		}
 	}
@@ -236,7 +296,7 @@ public class AmdFlashBank extends Bank {
 	/**
 	 * Process each command cycle sent to the Command Decoder, and execute the
 	 * parsed command, once it has been identified. If a command cycle is not
-	 * recognized as being a part of a command (address/data) sequense, the 
+	 * recognized as being a part of a command (address/data) sequence, the 
 	 * chip automatically returns to Read Array Mode. Equally, if a read cycle
 	 * is performed against the Command Decoder while it is expecting a 
 	 * command write cycle, the chip automatically returns to Read Array Mode.  
@@ -246,7 +306,8 @@ public class AmdFlashBank extends Bank {
 	 */
 	private final void processCommandCycle(int addr, final int b) {
 		if (b == 0xF0) {
-			// Reset to Read Array Mode (and abort an accumulating command sequense, if ongoing...)
+			// Reset to Read Array Mode; abort an accumulating command sequence, 
+			// if ongoing, or abort the error command mode.
 			// This command will be executed immediately, unless the Flash Memory has begun 
 			// programming or erasing (Read Array Mode command will then be ignored).
 			setSlotReadArrayMode(true);
@@ -261,26 +322,31 @@ public class AmdFlashBank extends Bank {
 				if (cmd.intValue() == '?') {
 					// we're reached the actual command code (Top of Stack reached)!
 					if (executingCommandCode == 0xA0) {
-						// we've fetched the Byte Program Address & Data, 
+						// Byte Program Command, Part 2, we've fetched the Byte Program Address & Data, 
 						// programming will now begin...
 						isCommandAccumulating = false;
 						isCommandExecuting = true;
+						programByteAtAddress(addr, b);
 					} else {
 						switch(b) {
 							case 0x10: // Chip Erase Command, part 2
 								isCommandAccumulating = false;
 								isCommandExecuting = true;
 								executingCommandCode = 0x10;
+								eraseChipCommand();
 								break;
 								
 							case 0x30: // Sector Erase Command (which this bank is part of), part 2 
 								isCommandAccumulating = false;
 								isCommandExecuting = true;
 								executingCommandCode = 0x30;
+								eraseSectorCommand();
 								break;
 								
 							case 0x80:	// Erase Command, part 1  
-								commandUnlockCycleStack = presetCommandCycles(); // add new sub command sequense for erase chip or sector...
+								// add new sub command sequence for erase chip or sector
+								// and wait for application command cycles...
+								commandUnlockCycleStack = presetSequence(commandUnlockCycles); 
 								break;						
 								
 							case 0x90:	// Autoselect Command (get Manufacturer & Device Code) 
@@ -289,14 +355,15 @@ public class AmdFlashBank extends Bank {
 								executingCommandCode = 0x90; 
 								break;
 								
-							case 0xA0:	// Byte Program Command, get address and byte to program.. 
+							case 0xA0:	// Byte Program Command, Part 1, get address and byte to program.. 
 								executingCommandCode = 0xA0;
 								commandUnlockCycleStack.push(new Integer('?'));	// and the Byte Program Data
 								commandUnlockCycleStack.push(new Integer('?'));	// We still need the Byte Program Address  
 								break;
 								
 							default:
-								// command cycles sequense was unknown! Immediately return to Read Array Mode...
+								// command cycle sequence was unknown! 
+								// Immediately return to Read Array Mode...
 								setSlotReadArrayMode(true);
 						}
 					}
@@ -306,7 +373,7 @@ public class AmdFlashBank extends Bank {
 					if (addr == cmdAddr.intValue() & b == cmd.intValue())
 						isCommandAccumulating = true; // only indicate accumulating command mode when command cycle match was found...
 					else {
-						// command sequense was unknown! Immediately return to Read Array Mode...
+						// command sequence was unknown! Immediately return to Read Array Mode...
 						setSlotReadArrayMode(true);
 					}
 				}				
@@ -315,41 +382,130 @@ public class AmdFlashBank extends Bank {
 	}	
 
 	/**
-	 * Return a complete 3 cycle command sequense that will be used to validate
-	 * new incoming command cycles from the outside world
+	 * Blow Byte at address.
+	 * 
+	 * Verify that the byte to be blown follows the rule that only 0 bit 
+	 * patterns can be programmed (converting 1 to 0 in the Flash Memory). 
+	 * Flash memory bit patterns can only be converted from 0 to 1 by 
+	 * erasing the memory...  
+	 * 
+	 * If the byte is successfully written, this method will signal success
+	 * by establishing a sequence of read status data, which the outside 
+	 * application polls and acknowledges as successfully completed.
+	 * 
+	 * On Byte Write failure a similar sequence of read status data will
+	 * signal failure. The application must then signal back with forcing
+	 * the chip back into Read Array Mode. 
+	 * 
+	 * @param addr offset within bank
+	 * @param b byte to be blown on Flash Memory
 	 */
-	private CommandCycleStack presetCommandCycles() {
-		CommandCycleStack pendCmd = new CommandCycleStack();
+	private void programByteAtAddress(final int addr, final int b) {
+		if ((b & getByte(addr)) == b) {
+			// the byte can be blown (flash memory bit pattern can be changed from 1 to 0) 
+			setByte(addr, b);
+			
+			// indicate success when application polls for read status cycles... 
+			readStatusStack = presetSequence(readStatusCommandSuccess);
+			signalCommandFailure = false;
+		} else {
+			// the byte will break the rule that a 0 bit cannot be programmed 
+			// to a 1, but only through a sector erase.
+
+			// indicate failure when application polls for read status cycles... 
+			readStatusStack = presetSequence(readStatusCommandFailure);
+			signalCommandFailure = true;
+		}
+	}
+
+	/**
+	 * Erase complete Flash Memory (never fails in this emulation!). 
+	 */
+	private void eraseChipCommand() {
+		// through this bank number we find the bottom Bank number of the slot 
+		int thisSlotBottomBank = (getBankNumber() & 0xC0); 
 		
-		// prepare a new sequense of command cycles 
-		for (int p=commandUnlockCycles.length-1; p>=0; p--) pendCmd.push(commandUnlockCycles[p]);
+		// get the top bank number of the card (might not be the top of the slot!)
+		int cardTopBank = blink.getBank(thisSlotBottomBank | 0x3F).getBankNumber();
 		
-		return pendCmd;
+		for (int thisBank = thisSlotBottomBank; thisBank<=cardTopBank; thisBank++) {
+			AmdFlashBank b = (AmdFlashBank) blink.getBank(thisBank);
+			b.eraseBank();
+		} 
+		
+		// indicate success when application polls for read status cycles... 
+		readStatusStack = presetSequence(readStatusCommandSuccess);
+		signalCommandFailure = false;		
+	}
+
+	/**
+	 * Erase the Flash Memory Sector which this bank is part of
+	 * (never fails in this emulation!). 
+	 */
+	private void eraseSectorCommand() {
+		if (getDeviceCode() == AM29F010B ) {
+			// The 128K Flash chip uses a 16K sector architecture,
+			// so just erase this bank and we're done!
+			eraseBank();
+		} else {
+			// all known Amd Flash chips (except AM29F010B) uses a 64K sector architecture,
+			// so erase the bottom bank of the current sector and the next three following banks
+			int bottomBankOfSector = getBankNumber() - (getBankNumber() % 4);  // bottom bank of sector
+						
+			for (int thisBank = bottomBankOfSector; thisBank <= (bottomBankOfSector+3); thisBank++) {
+				AmdFlashBank b = (AmdFlashBank) blink.getBank(thisBank);
+				b.eraseBank();
+			} 
+		} 
+		
+		// indicate success when application polls for read status cycles... 
+		readStatusStack = presetSequence(readStatusCommandSuccess);
+		signalCommandFailure = false;		
 	}
 	
 	/**
-	 * Flash Memory Command Cycle LIFO Stack 
+	 * Prepare a sequence stack.
+	 * 
+	 * This will be used for validating a complete 3 cycle command sequence
+	 * or when an application polls for chip command status. 
 	 */
-	private class CommandCycleStack {
-		private Vector cmds;
+	private SequenceStack presetSequence(Integer[] sequence) {
+		SequenceStack seqStk = new SequenceStack();
 		
-		public CommandCycleStack() {
-			cmds = new Vector(8);	// The stack never grows more than 3 command cycles * 2 = 6 elements
+		// prepare a new sequence  
+		for (int p=sequence.length-1; p>=0; p--) seqStk.push(sequence[p]);
+		
+		return seqStk;
+	}
+	
+	/**
+	 * Sequence LIFO Stack, used for validation of command unlock cycles and
+	 * read status data sequences. 
+	 */
+	private class SequenceStack {
+		private Vector sequence;
+		
+		public SequenceStack() {
+			sequence = new Vector(8); 
 		}
 		
-		public Object push(Object cmdItem) {
-			cmds.addElement(cmdItem);
-			return cmdItem;
+		public Object push(Object item) {
+			sequence.addElement(item);
+			return item;
+		}
+		
+		public boolean isEmpty() {
+			return sequence.isEmpty();
 		}
 		
 		public Object pop() {
-			int curStackSize = cmds.size();
+			int curStackSize = sequence.size();
 			
 			if (curStackSize == 0) {
 				return null;
 			} else {
-				Object obj = cmds.elementAt(curStackSize - 1);
-				cmds.removeElementAt(curStackSize - 1);
+				Object obj = sequence.elementAt(curStackSize - 1);
+				sequence.removeElementAt(curStackSize - 1);
 
 				return obj;
 			}
