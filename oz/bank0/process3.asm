@@ -8,7 +8,11 @@
 
         org     $c6e4                           ; 754 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "director.def"
+        include "error.def"
+        include "fileio.def"
+        include "syspar.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 
@@ -60,8 +64,6 @@ xref    InitUserAreaGrey
 xref    Mailbox2Stack
 xref    OpenAppHelpFile
 xref    OSSr_Fus
-
-defc    AT_B_POPD       =3
 
 ;       ----
 
@@ -174,10 +176,10 @@ defc    AT_B_POPD       =3
         ld      a, (ubAppDORFlags)
         jr      nz, osent_7                     ; no redraw needed? skip
 
-        bit     AT_B_POPD, a
+        bit     AT_B_Popd, a
         call    z, InitApplWd                   ; not popdown? init window
 .osent_7
-        bit     AT_B_POPD, a
+        bit     AT_B_Popd, a
         call    z, ApplCaps                     ; not popdown? restore flags (Fc=0)
 
         call    DrawTopicWd
@@ -242,7 +244,7 @@ defc    AT_B_POPD       =3
         ld      bc, NQ_Ain
         OZ      OS_Nq                           ; enquire (fetch) parameter
         ld      (ubAppDORFlags), a
-        bit     3, a                            ; AT_B_POPD
+        bit     AT_B_Popd, a
         call    nz, InitUserAreaGrey            ; popdown? init screen
         call    MS1BankB
         set     6, d                            ; DOR in S1
@@ -258,7 +260,7 @@ defc    AT_B_POPD       =3
         pop     ix
         ld      hl, $1FFE
         ld      e, (ix+ADOR_UNSAFE)             ; DE=unsafe needed
-        ld      d, (ix+$14)
+        ld      d, (ix+ADOR_UNSAFE+1)
         or      a
         sbc     hl, de
         ld      (pAppUnSafeArea), hl
@@ -275,13 +277,13 @@ defc    AT_B_POPD       =3
         ex      de, hl
         ld      hl, (pAppUnSafeArea)
         call    ClearMemDE_HL                   ; clear safe workspace and bad allocation table
-        ld      a, (ix+ADOR_FLAGS2)             ; DOR flags 2
+        ld      a, (ix+ADOR_FLAGS2)
         ld      b, a
-        and     3                               ; caps/CAPS state
+        and     AT2_Cl|AT2_Icl                  ; caps/CAPS state
         ld      (ubAppKbdBits), a
         ld      a, b
         ld      (ubAppDORFlags2), a
-        and     $80                             ; ignore errors?
+        and     AT2_Ie                          ; ignore errors?
         rlca                                    ; defult error handler is either $00e0 or $00e1
         ld      hl, DefErrHandler
         add     a, l
@@ -289,7 +291,7 @@ defc    AT_B_POPD       =3
         ld      a, 1
         OZ      OS_Erh                          ; Set (install) Error Handler
         ld      (ubOldCallLevel), a
-        ld      a, 6                            ; SC_DIS
+        ld      a, SC_DIS
         OZ      OS_Esc                          ; disable escape detection
         ld      l, (ix+ADOR_ENVSIZE)            ; HL=env overhead
         ld      h, (ix+$12)
@@ -306,7 +308,7 @@ defc    AT_B_POPD       =3
         add     hl, de
         ld      de, ubAppBindings
         ld      a, (eHlpAppDOR+2)
-        and     $0C0                            ; slot base
+        and     $c0                            ; slot base
         ld      c, a
         ld      b, 4
 .osent_15

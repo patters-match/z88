@@ -6,7 +6,6 @@
 
         module  OZWindow
 
-        include "all.def"
         include "sysvar.def"
 
         org     $f9d2                           ; 280 bytes

@@ -8,7 +8,7 @@
 
         org $f1bf                               ; 99 bytes
 
-        include "all.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    GetWindowFrame

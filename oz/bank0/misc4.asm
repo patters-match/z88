@@ -8,7 +8,7 @@
 
         org     $d555                           ; 124 bytes
 
-        include "all.def"
+        include "blink.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 

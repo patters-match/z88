@@ -8,7 +8,7 @@
 
         org     $d05d                           ; 111 bytes
 
-        include "all.def"
+        include "error.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 

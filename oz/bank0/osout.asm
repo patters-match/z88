@@ -6,7 +6,7 @@
 
         Module  OsOut
 
-        include "all.def"
+        include "director.def"
         include "sysvar.def"
 
         org     $c449                           ; 22 bytes

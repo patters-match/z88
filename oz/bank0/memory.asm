@@ -8,7 +8,12 @@
 
         Module Memory
 
-        include "all.def"
+
+        include "blink.def"
+        include "dor.def"
+        include "error.def"
+        include "memory.def"
+        include "stdio.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 
@@ -130,7 +135,7 @@ defc    DM_RAM                  =$81
         dec     l
         bit     MAT_B_LAST, a                   ; remember last_flag
         push    af
-        and     $0F
+        and     $0f                             ; remove flags
         ld      d, a
 
         call    MarkPageFreeMATptr              ; mark page HL as free
@@ -230,7 +235,7 @@ defc    DM_RAM                  =$81
         jp      z, OZwd__fail
 
         ld      a, d                            ; HL=MAToffset(DE)
-        and     $0F
+        and     $0F                             ; remove flags
         ld      h, a
         ld      l, e
 
@@ -257,7 +262,7 @@ defc    DM_RAM                  =$81
 
         ld      (hl), 1                         ; first chunk at H01
         inc     l
-        ld      (hl), $0FF                      ; chunk size, 255 bytes
+        ld      (hl), $FF                       ; chunk size, 255 bytes
         inc     l
         ld      (hl), 0                         ; no more chunks
         dec     l
@@ -405,7 +410,7 @@ defc    DM_RAM                  =$81
         ld      e, (hl)                         ; low byte
         inc     l
         ld      a, (hl)                         ; high byte
-        and     $0F                             ; mask out flags
+        and     $0f                             ; remove flags
         ld      d, a
         or      e                               ; Fz=1 if no allocations
         pop     hl
@@ -462,7 +467,7 @@ defc    DM_RAM                  =$81
         jr      nz, mfrchk_1
 
         bit     0, a                            ; clear lower/upper half selector bit,
-        res     0, a                            ; address memory at $0000 if banw was even
+        res     0, a                            ; address memory at $0000 if bank was even
         jr      nz, mfrchk_1
         res     5, h
 
@@ -512,8 +517,8 @@ defc    DM_RAM                  =$81
 
         ld      c, (hl)                         ; BC=next + MAT_LAST
         inc     l
-        ld      a, (hl)                         ;
-        and     $1F
+        ld      a, (hl)
+        and     MAT_LAST|$0f
         ld      b, a
         dec     l
 
@@ -545,7 +550,7 @@ defc    DM_RAM                  =$81
         dec     l
         bit     MAT_B_LAST, a
         jp      nz, MemFail2                    ; this was last? fail
-        and     $0F                             ; >next
+        and     $0f                             ; >next
 
         cp      d                               ; see if Aa=this
         jr      nz, mfrpage_3
@@ -566,7 +571,7 @@ defc    DM_RAM                  =$81
         ld      (hl), c                         ; <next
         inc     l
         ld      a, (hl)                         ; >next, keep flags
-        and     $0F0
+        and     MAT_LAST|MAT_FULL|MAT_ALLOCFIXED|MAT_SWAP
         or      b
         ld      (hl), a
 
@@ -582,7 +587,7 @@ defc    DM_RAM                  =$81
 .OSAxp
 
         ld      d, b                            ; bank
-        ld      e, $40                          ; allocation flags: segment 1
+        ld      e, MM_S1                        ; allocation flags: segment 1
         call    GetPageMAT
         ld      a, RC_Fail
         ret     c                               ; no RAM in bank? exit
@@ -628,11 +633,11 @@ defc    DM_RAM                  =$81
 
 .InitRAM
 
-        ld      a, $21                          ; start with fir RAM bank (skip system bank)
+        ld      a, $21                          ; start with first RAM bank (skip system bank)
 
 .ir_1
         call    InitSlotRAM                     ; init one slot
-        and     $C0
+        and     $c0
         add     a, $40                          ; advance to next
         jr      nz, ir_1                        ; and init if not done yet
         ret
@@ -959,7 +964,7 @@ defc    DM_RAM                  =$81
 .GetBankMAT
         push    de
         ld      a, e
-        and     $0C0                            ; dest segment
+        and     $C0                             ; dest segment
         jr      nz, gbm_1                       ; not seg0? ok
         res     0, d                            ; only use even banks
 .gbm_1
@@ -1146,7 +1151,7 @@ defc    DM_RAM                  =$81
         ld      d, (hl)
         dec     l
         ld      a, d
-        and     $0F
+        and     $0f                             ; remove flags
         or      e
         ret
 
@@ -1303,7 +1308,7 @@ defc    DM_RAM                  =$81
         ld      h, $80
 
         ld      a, (hl)                         ; clear out-of-memory flags !! ld (hl),0
-        and     $FC
+        and     ~(OOM_NORMAL|OOM_FIXED)
         ld      (hl), a
 
         push    hl                              ; increment free pages
@@ -1350,7 +1355,7 @@ defc    DM_RAM                  =$81
         push    hl
         call    BindFilePtr
 
-        ld      de, 9                           ; get DOR type
+        ld      de, DOR_TYPE                    ; get DOR type
         add     hl, de
         ld      a, (hl)
         call    DORPtr2FilePtr                  ; son
@@ -2175,11 +2180,11 @@ defc    DM_RAM                  =$81
         cp      e
         jr      c, slt_3                        ; bank above RAM part? test ROM/EPROM
 
-        ld      d, $84                          ; FRE|WRK
+        ld      d, BU_FRE|BU_WRK
         jr      slt_2
 
 .slt_1
-        ld      d, 8                            ; FIX
+        ld      d, BU_FIX
 
 .slt_2
         ld      (iy+OSFrame_A), d

@@ -8,8 +8,10 @@
 
         org $faea                               ; 899 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "misc.def"
         include "sysvar.def"
+        include "bank7\lowram.def"
 
 xdef    Beep_X
 xdef    CallFuncDE
@@ -116,12 +118,12 @@ xref    Zero_ctrlprefix
         ex      de, hl
         ld      a, (hl)
         ld      e, a                            ; tLo
-        xor     $0FF
+        xor     $FF                             ; !! 'cpl'
         ld      c, a                            ; ~tLo
         inc     hl
         ld      a, (hl)
         ld      d, a                            ; tHi
-        xor     $0FF
+        xor     $FF                             ; !! 'cpl'
         ld      b, a                            ; ~tHi
         pop     hl
         pop     af
@@ -228,8 +230,8 @@ xref    Zero_ctrlprefix
 
 ; Box Characters
 .PutBoxChar
-        and     $0F
-        ld      bc, $0FE00                      ; VDU $000-$00F
+        and     $0f
+        ld      bc, $fe00                      ; VDU $000-$00F
         jp      ScrD_PutChar
 .ScreenCR
         ld      l, (ix+wdf_startx)
@@ -254,8 +256,8 @@ xref    Zero_ctrlprefix
         inc     l
         ld      a, (hl)                         ; attributes
         dec     l
-        and     $3C
-        cp      $34
+        and     LCDA_SPECMASK
+        cp      LCDA_NULLCHAR
         jr      z, CursorLeft                   ; null char? backspace again
         cp      a                               ; Fc=0, Fz=1
         ret
@@ -304,7 +306,7 @@ xref    Zero_ctrlprefix
         jr      z, sdht_1
         ld      a, l
         cp      (ix+wdf_rmargin)
-        ld      b, $0FF
+        ld      b, $ff
         jr      z, bs_3                         ; need scrolling
 .sdht_1
         call    NewXValid
@@ -314,8 +316,8 @@ xref    Zero_ctrlprefix
         inc     l
         ld      a, (hl)                         ; attributes
         dec     l
-        and     $3C
-        cp      $34
+        and     LCDA_SPECMASK
+        cp      LCDA_NULLCHAR
         jr      z, CursorRight                  ; null? forward again
         call    NewXValid
         ret     nc                              ; x ok, return Fc=0
@@ -380,8 +382,8 @@ xref    Zero_ctrlprefix
 ; freeze output if <> and lshift down
 
 .ScrollLock
-        ld      a, $BF
-        in      a, (BL_KBD)                     ; (r) keyboard
+        ld      a, $bf                          ; row6
+        in      a, (BL_KBD)
         add     a, $50                          ; check for sh-l and <> !! add a,$51
         inc     a
         jr      z, ScrollLock
@@ -409,10 +411,10 @@ xref    Zero_ctrlprefix
         ld      a, (ix+wdf_OpenFlags)
         bit     WDFO_B_6, a
         jr      z, ff_2
-        ld      bc, $23A0                       ; B=hires underline ch8
+        ld      bc, [LCDA_HIRES|LCDA_UNDERLINE|LCDA_CH8]<<8|$A0
         bit     WDFO_B_5, a
         jr      z, ff_2
-        ld      bc, $1FFF                       ; B=r f g u ch8
+        ld      bc, [LCDA_REVERSE|LCDA_FLASH|LCDA_GREY|LCDA_UNDERLINE|LCDA_CH8]<<8|$FF
 
 .ff_2
         call    ceol_1
@@ -472,9 +474,9 @@ xref    Zero_ctrlprefix
         dec     hl
 
         bit     LCDA_B_GREY, a
-        res     7, a                            ; soft tiny?
+        res     LCDA_B_TINY, a
         jr      z, ceol_5
-        or      $80                             ; soft tiny?
+        or      LCDA_TINY
 .ceol_5
         or      LCDA_GREY
         ld      b, a
@@ -485,13 +487,13 @@ xref    Zero_ctrlprefix
         inc     hl
         ld      a, (hl)                         ; attr
         dec     hl
-        bit     7, a                            ; soft tiny?
+        bit     LCDA_B_TINY, a
         res     LCDA_B_GREY, a
         jr      z, ceol_7
         or      LCDA_GREY
 
 .ceol_7
-        and     $7F
+        and     $7f                     ; ~LCDA_TINY
         ld      b, a
 
 .ceol_8
@@ -605,7 +607,7 @@ xref    Zero_ctrlprefix
 
 .sub_FD8B
         ld      a, (ix+wdf_flagsLo)
-        and     $1E             ; R F G U
+        and     WDFL_REVERSE|WDFL_FLASH|WDFL_GREY|WDFL_ULINE
         ld      b, a
         ld      c, 0
         ret

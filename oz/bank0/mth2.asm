@@ -8,7 +8,11 @@
 
         org     $e789                           ; 1588 bytes
 
-        include "all.def"
+        include "dor.def"
+        include "error.def"
+        include "fileio.def"
+        include "memory.def"
+        include "stdio.def"
         include "sysvar.def"
 
 xdef    aRom_Help
@@ -513,7 +517,7 @@ xref    OpenAppHelpFile
         push    bc
         ld      a, OP_DOR                       ; return DOR handle
         ld      bc, 0<<8|255                    ; local pointer, bufsize=255
-        ld      de, 3                           ; ouput=3, ???
+        ld      de, 3                           ; ouput=3, NOP
         OZ      GN_Opf
         pop     bc
         ret
@@ -543,7 +547,7 @@ xref    OpenAppHelpFile
 ; OUT: BHL=DOR
 
 .GetAppDOR
-        ld      b, 7                            ; bind in other part of kernel
+        ld      b, OZBANK_7                     ; bind in other part of kernel
         call    fsMS2BankB                      ; remembers S2
         push    de
         push    ix
@@ -641,7 +645,7 @@ xref    OpenAppHelpFile
 .GetHlpTokens
         ld      hl, ubSysFlags1
         bit     SF1_B_NOTOKENS, (hl)            ; no tokens?
-        ld      b, 7                            ; bank 7, offset 0
+        ld      b, OZBANK_7                     ; bank 7, offset 0
         ld      hl, 0
         ret     nz
         ld      l, <(eHlpTokens+2)

@@ -6,7 +6,7 @@
 
         Module  Boot
 
-        include "all.def"
+        include "blink.def"
         include "sysvar.def"
 
         org     $c000                           ; 123 bytes
@@ -66,8 +66,8 @@ xref    HW_NMI2
 
 .HW_INT
         ld      hl, 0                           ; if stack points to $0100-$03ff we call HW_INT in b60
-        add     hl, sp
-        inc     h                               ; !! ld a,h; dec a; cp 3; jr c,INT_b60
+        add     hl, sp                          ; !! remove this test
+        inc     h
         dec     h
         jr      z, rint_1
         ld      a, h
@@ -83,7 +83,7 @@ xref    HW_NMI2
         jp      nmi_5
 
 .INT_b60
-        ld      a, $60
+        ld      a, $60                          ; !! remove these b60 jumpers as well
         out     (BL_SR3), a                     ; MS3b60
         jp      HW_INT                          ; into ROM code
 
@@ -101,15 +101,17 @@ xref    HW_NMI2
 .HW_NMI
         xor     a                               ; reset command register
         out     (BL_COM), a
-        ld      h, a                            ; if stack points to $00xx 100-$03ff we go back to reset
+        ld      h, a                            ; if stack points to $00xx we go back to reset
         ld      l, a                            ; if stack points to $0100-$03ff we call HW_NMI in b60
         add     hl, sp
         inc     h
         dec     h
         jr      z, Reset0                       ; SP=$00xx - reset
-        ld      a, h
+
+        ld      a, h                            ; !! remove this test
         cp      4
         jr      c, NMI_b60                      ; SP=$01xx-$03xx - b60
+
         xor     a
         out     (BL_SR3), a                     ; MS3b00
         jp      HW_NMI2                         ; into ROM code

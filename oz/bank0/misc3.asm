@@ -8,7 +8,6 @@
 
         org     $cda5                           ; 30 bytes
 
-        include "all.def"
         include "sysvar.def"
 
 xdef    MayDrawOZwd

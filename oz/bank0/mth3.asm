@@ -8,7 +8,7 @@
 
         org     $f0df                           ; 205 bytes
 
-        include "all.def"
+        include "memory.def"
         include "sysvar.def"
 
 xdef    FindCmd

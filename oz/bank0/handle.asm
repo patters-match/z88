@@ -8,7 +8,7 @@
 
         org     $d5d1                           ; 262 bytes
 
-        include "all.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    OSGth
@@ -182,7 +182,7 @@ xref    PutOSFrame_HL
         push    bc
         inc     hl                              ; skip link, clear rest of handle
         inc     hl
-        ld      b, 14                           ; !! ld bc,14; ld (hl),c
+        ld      b, 16-2                         ; !! ld bc,14; ld (hl),c
         or      a                               ; Fc=0
 .zhnd_1
         ld      (hl), 0

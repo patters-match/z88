@@ -6,7 +6,9 @@
 
         Module  Process2
 
-        include "all.def"
+        include "director.def"
+        include "error.def"
+        include "memory.def"
         include "sysvar.def"
 
         org     $c206                           ; 579 bytes
@@ -87,7 +89,7 @@ defc    FREE_THIS       =7
 ;       ----
 
 .OSDom
-        ld      a, 98
+        ld      a, MM_S1|MM_MUL|MM_FIX
         ld      bc, 0
         OZ      OS_Mop                          ; allocate memory pool, A=mask
         ret
@@ -145,9 +147,9 @@ defc    FREE_THIS       =7
 
 .acr_5
         push    ix
-        ld      a, 98
+        ld      a, MM_S1|MM_MUL|MM_FIX
         ld      bc, 0
-        OZ      OS_Mop                          ; allocate memory pool, A=mask
+        OZ      OS_Mop                          ; allocate memory pool
         jr      c, acr_x                        ; error? exit
         ld      (pAppBadMemHandle), ix
 
@@ -304,7 +306,7 @@ defc    FREE_THIS       =7
 
 .abr2_2
         xor     a                               ; allocate new page
-        ld      bc, 256
+        ld      bc, $100
         OZ      OS_Mal
         jr      c, abr2_7                       ; error? exit
         ld      a, b                            ; bank

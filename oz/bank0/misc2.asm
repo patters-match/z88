@@ -6,7 +6,10 @@
 
         Module  Misc2
 
-        include "all.def"
+        include "ctrlchar.def"
+        include "error.def"
+        include "director.def"
+        include "memory.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 
@@ -53,12 +56,12 @@ xref    StorePrefixed
 .CallGN
         ld      a, OZBANK_GN                    ; Bank 3, $80xx
 .ozc_2
-        ld      d, $80
+        ld      d, >GNCALLTBL
         jr      ozc_3
 
 .CallOS2byte
         ld      a, OZBANK_0                     ; Bank 0, $FFxx
-        ld      d, $FF
+        ld      d, >OZCALLTBL
 
 ;       !! could read second byte in CallOZMain, increase HL once and do
 ;       !! the second inc here - it's just 'ld l,(hl) there to get into E here
@@ -98,7 +101,7 @@ xref    StorePrefixed
         ld      d, (hl)
 
         set     6, h                            ; or $4000 - return into S3
-        ld      l, 3
+        ld      l, 3                            ; return call always at $xx03
         push    hl                              ; return address
         push    de                              ; function address
         ex      af, af'
@@ -110,7 +113,7 @@ xref    StorePrefixed
         jp      OZCallJump                      ; bind code into S3 and ret to it
 
 .OzCallInvalid
-        ld      a, 0
+        ld      a, RC_OK
         scf
         jp      OZCallReturn2
         ret                                     ; !! unused
@@ -249,7 +252,7 @@ xref    StorePrefixed
         push    af
 
         ld      a, c
-        set     6, (iy+OSFrame_F)               ; Fz=1
+        set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1
         call    OSAlmMain
 
         pop     af

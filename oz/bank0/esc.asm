@@ -8,7 +8,8 @@
 
         org     $d0cc                           ; 119 bytes
 
-        include "all.def"
+        include "error.def"
+        include "stdio.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 

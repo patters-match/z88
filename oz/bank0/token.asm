@@ -8,7 +8,8 @@
 
         org     $edbd                           ; 204 bytes
 
-        include "all.def"
+        include "error.def"
+        include "stdio.def"
         include "sysvar.def"
 
 xdef    OSWtb
@@ -52,7 +53,7 @@ xref    PrintChar
         ret     c                               ; control char? return Fc=1
 
 .OSWrt
-        cp      1
+        cp      1                               ; !! 'or a; jr z', 'scf' at EOF
         jr      c, wrt_4                        ; 0 - EOF
 
         push    hl

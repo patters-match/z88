@@ -8,7 +8,9 @@
 
         org     $cdc3                           ; 666 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "error.def"
+        include "bank7\lowram.def"
         include "sysvar.def"
 
 
@@ -155,7 +157,7 @@ defc    NMI_B_HALT      =0
         ld      hl, KbdData+kbd_flags
         res     KBF_B_LOCKED, (hl)
         ld      a, (BLSC_COM)                   ; LCD off
-        and     255-BM_COMLCDON
+        and     ~BM_COMLCDON
         ld      (BLSC_COM), a
         out     (BL_COM), a
 
@@ -315,7 +317,7 @@ defc    NMI_B_HALT      =0
         xor     a                               ; read all rows
         bit     BB_INTKEY, (hl)                 ; KBD
         jr      nz, waitm_4
-        ld      a, $fb                          ; read only row2?
+        ld      a, $fb                          ; read only row2
 
 .waitm_4
         in      a, (BL_KBD)                     ; snooze
@@ -416,7 +418,7 @@ defc    NMI_B_HALT      =0
         ld      a, BM_COMRAMS|BM_COMLCDON
         out     (BL_COM), a                     ; LCD on, RAM at $0000
 
-        ld      (uwTimecounter), de             ; store BDE into $c00, time counter
+        ld      (uwTimecounter), de             ; store BDE into time counter
         ld      a, b
         ld      (ubTimecounterSoft), a
         jr      nc, nmi_6                       ; not wakeup from coma? skip

@@ -8,7 +8,7 @@
 
         org     $fe6d                           ; 42 bytes
 
-        include "all.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    OSUst
@@ -38,6 +38,6 @@ xref    OSFramePop
         or      c
         jr      nz, osust_1
         ld      (iy+OSFrame_A), RC_Time         ; Timeout
-        set     6, (iy+OSFrame_F)               ; Fz=1
+        set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1
 .osust_1                                        
         jp      OSFramePop

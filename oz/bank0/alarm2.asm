@@ -4,11 +4,11 @@
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module NMI
+        Module Alarm2
 
         org     $cd6d                           ; 56 bytes
 
-        include "all.def"
+        include "alarm.def"
         include "sysvar.def"
 
 xdef    DoAlarms
@@ -34,9 +34,9 @@ xref    OSOff
         push    ix
 
         ld      ix, (pFirstAlarm)
-        ld      a, (ix+ahnd_FuncB)
-        ld      e, (ix+ahnd_FuncL)
-        ld      d, (ix+ahnd_FuncH)
+        ld      a, (ix+ahnd_Func+2)
+        ld      e, (ix+ahnd_Func)
+        ld      d, (ix+ahnd_Func+1)
         push    de
         pop     ix
         or      a

@@ -8,7 +8,8 @@
 
         org     $c45f                           ; 618 bytes
 
-        include "all.def"
+        include "director.def"
+        include "error.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 
@@ -531,7 +532,7 @@ xref    PutOSFrame_BC
         ld      (ix+buf_end), c
         ld      (ix+buf_bufpage), d
         ld      (ix+buf_func), l
-        ld      (ix+buf_funcH), h
+        ld      (ix+buf_func+1), h
 
         inc     b                               ; handle B=0
         jr      bufi_2
@@ -558,18 +559,18 @@ xref    PutOSFrame_BC
 
 .InitBufKBD_RX_TX
         ld      ix, KbdData                     ; KBD buffer
-        ld      b, 9                            ; clear 9 bytes
-        ld      c, $20
+        ld      b, kbd_SIZEOF                   ; clear kbd data
+        ld      c, <SerTXBuffer
         ld      de, KbdBuffer                   ; 0b00-0b1f
         ld      hl, bufi_3                      ; unused ??
         call    BufInit                         ; KBD buffer
 
         ld      ix, SerTXHandle                 ; TX buffer
-        ld      c, $80
+        ld      c, <(SerTXBuffer+$60)
         ld      de, SerTXBuffer                 ; 0b20-0b7f
         call    BufInit0
 
         ld      ix, SerRXHandle                 ; RX buffer
-        ld      c, 0
+        ld      c, <(SerRXBuffer+$80)
         ld      de, SerRXBuffer                 ; 0b80-0bff
         jp      BufInit0

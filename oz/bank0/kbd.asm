@@ -8,7 +8,8 @@
 
         org     $db0d                           ; 1045 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "stdio.def"
         include "sysvar.def"
 
 ;       !! do not modify this code

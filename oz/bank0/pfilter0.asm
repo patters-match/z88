@@ -6,8 +6,10 @@
 
         module  PFilter
 
-        include "all.def"
+        include "blink.def"
+        include "director.def"
         include "sysvar.def"
+        include "bank7\lowram.def"
 
         org     $f9a5                           ; 45 bytes
 
@@ -31,7 +33,7 @@ xref    MS2BankA
 
         ld      h, >PrntChar
         push    ix
-        call    $00df                           ; jp (hl)
+        call    JpHL                            ; jp (hl)
         pop     ix
 
         ex      af, af'

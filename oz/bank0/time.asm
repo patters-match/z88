@@ -8,7 +8,8 @@
 
         org     $d4bb                           ; 107 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    OSHt
@@ -33,7 +34,7 @@ xref    PutOSFrame_HL
         ld      a, (BLSC_COM)                   ; reset timer
         or      BM_COMRESTIM
         out     (BL_COM), a
-        and     255-BM_COMRESTIM
+        and     ~BM_COMRESTIM
         out     (BL_COM), a
         ret
 

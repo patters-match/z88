@@ -8,7 +8,9 @@
 
         org     $d6d7                           ; 505 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "error.def"
+        include "stdio.def"
         include "sysvar.def"
 
 xdef    AtoN_upper
@@ -158,7 +160,7 @@ xref    FreeHandle
 
 ; '0'-'9': a=val(A); Fz=1; Fc=1
 ; 'A'-'Z': a=A; Fz=0; Fc=0
-; 'a'-'z': a=A; A=lower(A); Fz=0; Fc=0
+; 'a'-'z': a=A; A=upper(A); Fz=0; Fc=0
 ; else   : a=A; Fz=0; Fc=1
 
 .AtoN_upper
@@ -190,7 +192,7 @@ xref    FreeHandle
         scf
         ret                                     ; Fc=1 Fz=0
 .a2nu_2
-        xor     $20                             ; upper()
+        xor     $20                             ; upper(), Fc=0, Fz=0
 .a2nu_3
         ret
 
@@ -217,9 +219,7 @@ xref    FreeHandle
 
 .MTH_ToggleLT
         call    KPrint
-        defb    1, 'L'
-        defb    1, 'T'
-        defb    0
+        defm    1,"L",1,"T",0
         ret
 
 
@@ -264,7 +264,7 @@ xref    FreeHandle
 ;       copy C bytes from DE to HL
 
 .CopyMemDE_HL
-        ld      b, 0
+        ld      b, 0                            ; local ptr
         ex      de, hl
 
 ;       copy C bytes FROM HL to BDE
@@ -294,7 +294,7 @@ xref    FreeHandle
 ;       copy C bytes from HL to DE
 
 .CopyMemHL_DE
-        ld      b, 0
+        ld      b, 0                            ; local ptr
 
 ;       copy C bytes from BHL to DE
 
@@ -412,7 +412,7 @@ xref    FreeHandle
         jr      nz, peek_far
 
 .PeekHL
-        ld      a, (hl)                         ; read bytr, hoping it's valid
+        ld      a, (hl)                         ; read byter, hoping it's valid
         bit     7, h
         ret     z                               ; not kernel, done
 
@@ -497,7 +497,7 @@ xref    FreeHandle
         ret
 
 .PokeHL
-        ld      b, 0
+        ld      b, 0                            ; local ptr
         dec     hl                              ; !! these two (dec; call) unnecessary
         call    IncBHL                          ; !! most likely for unused PokeIncBHL
 
@@ -550,7 +550,7 @@ xref    FreeHandle
         ld      a, b
 .poke_2
         ld      (BLSC_SR1), a                   ; bind it in
-        out     (BL_SR1), a                     ; (w) segment reg. 1
+        out     (BL_SR1), a
         push    hl
 
         res     7, h

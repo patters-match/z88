@@ -8,7 +8,8 @@
 
         org     $ca25                           ; 840 bytes
 
-        include "all.def"
+        include "dor.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    DORHandleFree                           ; get rid of these two stubs 
@@ -135,7 +136,7 @@ xref    InitHandle
         call    VerifyHandleBank
         ret     c                               ; bad handle? exit
 
-        bit     0, (ix+hnd_Flags)               ; !! reorder code to save onr jr
+        bit     HNDF_B_DEV, (ix+hnd_Flags)     ; !! reorder code to save one jr
         jr      nz, dorsib_1                    ; device? change type
 
         ld      bc, DOR_BROTHER                 ; DOR_BROTHER
@@ -186,7 +187,7 @@ xref    InitHandle
         call    PutHandleBHL_S2                 ; put BHL, fix for S2 addressing
 
         call    MS2HandleBank
-        res     0, (ix+hnd_Flags)               ; not device
+        res     HNDF_B_DEV, (ix+hnd_Flags)      ; not device
         ld      bc, DOR_TYPE
         add     hl, bc
         ld      a, (hl)
@@ -506,7 +507,7 @@ xref    InitHandle
 .dorrd_2
         ex      de, hl                          ; HL=destination, DE=source
         ld      b, a                            ; don't clear if caller A=$0B
-        ld      a, (iy+OSFrame_A)
+        ld      a, (iy+OSFrame_A)               ; !! is this used anywhere?
         cp      $0B
         ld      a, b
         call    nz, ClearMemHL_A

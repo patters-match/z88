@@ -8,7 +8,10 @@
 
         org     $ee89                           ; 598 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "director.def"
+        include "error.def"
+        include "stdio.def"
         include "sysvar.def"
 
 xdef    CancelOZcmd
@@ -65,7 +68,7 @@ xref    Key2Chr_tbl
         ret
 .rdin_1
         ld      a, e
-        cp      $1B
+        cp      ESC
         call    z, MaySetEsc
         or      a
         ret
@@ -158,7 +161,7 @@ xref    Key2Chr_tbl
         set     SF1_B_XTNDCHAR, (hl)
         pop     iy
         push    iy
-        set     6, (iy+OSFrame_F)               ; Fz=1
+        set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1
         xor     a
         jr      ostin_1
 
@@ -170,7 +173,7 @@ xref    Key2Chr_tbl
 .sub_EF64
         ld      e, a
         ld      a, (hl)
-        and     $30
+        and     SF1_OZDMND|SF1_OZSQUARE
         ld      a, e
         ret     z                               ; neither [] nor <> in OZwd? exit Fc=0
         cp      IN_DIA
@@ -232,7 +235,7 @@ xref    Key2Chr_tbl
         cp      $20
         call    c, CancelOZcmd                  ; ctrl char, cancel OZ command
         jr      c, loc_EFFD                     ; handled
-        cp      $0A0
+        cp      $A0
         call    nc, CancelOZcmd                 ; ctrl char, cancel OZ command
         jr      nc, sub_EF92                    ; handled
         ld      (hl), SF1_OZSQUARE
@@ -285,13 +288,13 @@ xref    Key2Chr_tbl
         call    CancelOZcmd
         or      a                               ; 00 - ret
         ret     z
-        cp      $0F0
+        cp      $F0
         jr      c, loc_F029                     ; 01-EF -> cont
 .loc_F027
         cp      a
         ret
 .loc_F029
-        cp      $0B0
+        cp      $B0
         ccf
         ret     nc                              ; 01-AF -> ret
         and     $0F
@@ -301,7 +304,7 @@ xref    Key2Chr_tbl
         ret
 .loc_F035
         ld      a, b
-        cp      $0E0
+        cp      $E0
         jr      c, loc_F027
         and     $0F
         cp      9
@@ -369,9 +372,9 @@ xref    Key2Chr_tbl
         ccf
         ret     nc                              ; 20-7E - Fc=0
         ret     z                               ; 7F    - Fc=1
-        cp      $0A3
+        cp      $A3
         ret     z                               ; A3    - Fc=0
-        cp      $0A0
+        cp      $A0
         ret     z                               ; A0    - Fc=0
         scf
         ret

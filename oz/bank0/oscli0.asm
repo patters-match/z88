@@ -8,7 +8,6 @@
 
         org     $c6c9                           ; 27 bytes
 
-        include "all.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 

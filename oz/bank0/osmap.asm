@@ -8,9 +8,6 @@
 
         org     $df22                           ; 8 bytes
 
-        include "all.def"
-        include "sysvar.def"
-
 xdef    OSMap
 
 ;       bank 7

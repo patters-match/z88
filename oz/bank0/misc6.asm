@@ -8,7 +8,6 @@
 
         org     $fe97                           ; 361 bytes
 
-        include "all.def"
         include "sysvar.def"
 
 xdef    Chk128KB
@@ -169,9 +168,16 @@ xref    Reset5
         jp      BfSta
         jp      BfPur
 
+; if    >($PC^OZBuffCallTable) <> 0
+;       error   "OZBuffCallTable crosses page bundary"
+; endif
+
         defs    5 ($ff)
 
-;       org     $ff00
+; if    $PC <> OZCALLTBL
+;       error   "OZCALL table moved"
+; endif
+        
 .OZCallTable
         jp      OzCallInvalid
         jp      OSFramePop
@@ -231,14 +237,14 @@ xref    Reset5
 
 .Chk128KB
         ld      a, (ubSlotRamSize+1)            ; RAM in slot1
-        cp      8
+        cp      128/16
         ret     nc
 
 ;       ----
 
 .Chk128KBslot0
         ld      a, (ubSlotRamSize)              ; RAM in slot0
-        cp      8                               ; Fc=1 if less than 128KB
+        cp      128/16                          ; Fc=1 if less than 128KB
         ret
 
 ;       ----
@@ -253,7 +259,9 @@ xref    Reset5
 
         defs    21 ($ff)
 
-;       org     $ffca
+; if    $PC&255 <> OS_Wtb&255
+;       error   "OZCALL2 table moved"
+; endif
 
 ; 2-byte calls, OSFrame set up already
 

@@ -8,7 +8,8 @@
 
         org     $d8d0                           ; 557 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "serintfc.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 
@@ -204,7 +205,7 @@ xref    ReadRTC
         jr      nc, int_9
 
 .int_uart
-        ld      l, 6
+        ld      l, SI_INT
         call    IntUART
         jp      int_12
 

@@ -8,7 +8,11 @@
 
         org     $f222                           ; 1752 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "error.def"
+        include "fileio.def"
+        include "memory.def"
+        include "syspar.def"
         include "sysvar.def"
 
 
@@ -70,7 +74,7 @@ xref    FreeMemHandle
 
 .InitMemHandle
         ld      a, (ix+fhnd_attr)               ; keep only rd/wr/mem flags
-        and     7
+        and     FATR_READABLE|FATR_WRITABLE|FATR_MEMORY
         ld      (ix+fhnd_attr), a
 
 .AllocFirstBlock
@@ -212,7 +216,7 @@ xref    FreeMemHandle
 
 .AllocHandleBlock
         ld      a, (ix+fhnd_attr)
-        and     $f8
+        and     ~(FATR_READABLE|FATR_WRITABLE|FATR_MEMORY)
         jr      z, ahb_2                        ; no flags? any slot
         rlca                                    ; bits 3&4 to top - slot
         rlca
@@ -569,7 +573,7 @@ xref    FreeMemHandle
         jr      z, fpb_2                        ; have changed stack? skip
 
         ld      a, c                            ; fsPtr in
-        and     $fc                             ; mask out non-page part
+        and     ~3                              ; mask out non-page part
         cp      e
         jr      nz, fpb_2                       ; different page
         inc     sp                              ; replace original DE with HL - prev
@@ -617,7 +621,7 @@ xref    FreeMemHandle
         or      l
         ret     z                               ; Fc=0
         ex      de, hl
-        ld      a, 4                            ; OP_MEM
+        ld      a, OP_MEM
         ld      b, 0                            ; BC=0, HL=0
         ld      h, b
         ld      l, b
@@ -999,12 +1003,12 @@ xref    FreeMemHandle
         ld      bc, NQ_Ain
         OZ      OS_Nq                           ; get application data
         pop     ix
-        bit     5, a                            ; AT_DRAW
+        bit     AT_B_Draw, a
         jr      z, saad_1
         call    SaveScreen
         jr      c, saad_err
 .saad_1
-        ld      a, 0                            ; write end mark - 00 0E 0F
+        ld      a, $00                          ; write end mark - 00 0E 0F
         call    WrFileByte
         jr      c, saad_err
         ld      a, $0E
@@ -1040,7 +1044,7 @@ xref    FreeMemHandle
         ld      bc, NQ_Ain
         OZ      OS_Nq                           ; enquire (fetch) parameter
         pop     ix
-        bit     5, a                            ; AT_DRAW
+        bit     AT_B_Draw, a
         jr      z, raad_1
         call    RestoreScreen
         jr      c, raad_2
@@ -1050,7 +1054,7 @@ xref    FreeMemHandle
 .raad_1
         call    RdFileByte                      ; check tail bytes - 00 0E 0F
         or      a
-        jr      c, raad_2                       ; !! jr nz?
+        jr      c, raad_2                       ; !! bug? jr nz?
         call    RdFileByte
         cp      $0E
         jr      c, raad_2
@@ -1350,7 +1354,7 @@ xref    FreeMemHandle
         or      a
         ret
 .seek_5
-        add     a, $40                          ; $3E+2
+        add     a, FSBLOCK_SIZE+2
         jr      seek_4
 .seek_6
         xor     a

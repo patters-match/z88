@@ -8,7 +8,7 @@
 
         org     $c9d6                           ; 79 bytes
 
-        include "all.def"
+        include "blink.def"
         include "sysvar.def"
 
 xdef    AddRAMCard

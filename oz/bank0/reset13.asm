@@ -6,7 +6,8 @@
 
         Module  Reset13
 
-        include "all.def"
+        include "blink.def"
+        include "screen.def"
         include "sysvar.def"
 
         org     $c07b                           ; 134 bytes

@@ -8,7 +8,15 @@
 
         org     $d143                           ; 888 bytes
 
-        include "all.def"
+        include "buffer.def"
+        include "dor.def"
+        include "error.def"
+        include "fileio.def"
+        include "memory.def"
+        include "misc.def"
+        include "serintfc.def"
+        include "stdio.def"
+        include "syspar.def"
         include "sysvar.def"
         include "bank7\lowram.def"
 
@@ -667,7 +675,7 @@ xref    OSOutMain
         pop     ix
         jp      OSFramePop
 .frm_ptr
-        ld      de, $0FF                        ; !! VerifyFileHandle here, djnz preserves flags
+        ld      de, $00FF                       ; !! VerifyFileHandle here, djnz preserves flags
         djnz    frm_ext
 
 ;       FA_PTR, return sequential pointer (32bit integer) or free handles (DE) and OZ version (BC)
@@ -685,7 +693,7 @@ xref    OSOutMain
         pop     ix
         ld      bc, -1                          ; don't match anything
         call    FindHandle                      ; count free handles
-        ld      hl, 4                           ; version=4
+        ld      hl, OZVERSION
         jr      osfrm_x
 
 .frm_ext
@@ -715,7 +723,7 @@ xref    OSOutMain
         call    GetFileEOF
         ret     nc
 .frmeof_1
-        set     6, (iy+OSFrame_F)               ; Fz=1, EOF
+        set    Z80F_B_Z, (iy+OSFrame_F)          ; Fz=1, EOF
         or      a
         ret
 .frmeof_2

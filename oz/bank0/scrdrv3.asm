@@ -8,7 +8,6 @@
 
         org $f90c                               ; 153 bytes
 
-        include "all.def"
         include "sysvar.def"
 
 xdef    InitApplWd
