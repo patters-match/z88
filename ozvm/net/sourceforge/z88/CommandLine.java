@@ -122,7 +122,6 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("\nUse	F12 to toggle keyboard focus between debug command line	and Z88	window.");
 		displayCmdOutput("All arguments	are in Hex: Local address = 64K	address	space,\nExtended address = 24bit address, eg. 073800 (bank 07h,	offset 3800h)");
 		displayCmdOutput("Commands:");
-		displayCmdOutput("exit - end OZvm application");
 		displayCmdOutput("run -	execute	virtual	Z88 from PC");
 		displayCmdOutput("stop - stop virtual Z88 (or press F5 when Z88	window has focus)");
 		displayCmdOutput("ldc filename <extended address> - Load file binary at	address");
@@ -760,10 +759,6 @@ public class CommandLine implements KeyListener {
 				z88.PC(Integer.parseInt(cmdLineTokens[1], 16) &	0xFFFF);
 			}
 			displayCmdOutput("PC=" + Dz.addrToHex(z88.PC(),true));
-		}
-
-		if (cmdLineTokens[0].compareToIgnoreCase("exit") == 0) {
-			System.exit(0);
 		}
 	}
 
