@@ -1283,8 +1283,8 @@ public final class Blink extends Z80 {
 		if (card.length() > (1024 * 1024)) {
 			throw new IOException("Max 1024K Card!");
 		}
-		if (card.length() % (Bank.SIZE * 2) > 0) {
-			throw new IOException("Card must be in even banks!");
+		if (card.length() % Bank.SIZE > 0) {
+			throw new IOException("Card must be in 16K sizes!");
 		}
 
 		Bank cardBanks[] = new Bank[(int) card.length() / Bank.SIZE];
@@ -1318,8 +1318,8 @@ public final class Blink extends Z80 {
 		if (jarConnection.getJarEntry().getSize() > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}
-		if (jarConnection.getJarEntry().getSize() % (Bank.SIZE * 2) > 0) {
-			throw new IOException("ROM must be in even banks!");
+		if (jarConnection.getJarEntry().getSize() % Bank.SIZE > 0) {
+			throw new IOException("ROM must be in 16K sizes!");
 		}
 
 		Bank romBanks[] = new Bank[(int) jarConnection.getJarEntry().getSize() / Bank.SIZE];
@@ -1344,7 +1344,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Load Card (RAM/ROM/EPROM) into Z88 memory system.
-	 * Size is in modulus 32Kb (even numbered 16Kb banks).
+	 * Size is in modulus 16Kb.
 	 * Slot 0 (512Kb): banks 00 - 1F (ROM), banks 20 - 3F (RAM)
 	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
 	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
