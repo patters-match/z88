@@ -17,7 +17,7 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.3.3";
+	public static final String VERSION = "0.3.4";
 
 	private Blink z88 = null;
     private DisplayStatus blinkStatus;
@@ -35,7 +35,7 @@ public class OZvm implements KeyListener {
 	private JTextArea commandOutput = null;
 	private JTextField commandInput = null;
 	private JPanel z88Screen = null;
-
+	private CommandHistory cmdList = null;
 	/**
 	 * The Breakpoint manager instance.
 	 */
@@ -70,11 +70,13 @@ public class OZvm implements KeyListener {
 			commandInput.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					String cmdline = commandInput.getText();
+					cmdList.addCommand(cmdline);
 					commandInput.setText("");			
 					parseCommandLine(cmdline);					
 				}
 			});
 
+			cmdList = new CommandHistory();
 			commandInput.addKeyListener(this);
 			
 			displayCmdOutput("Type 'h' or 'help' for available debugging commands");
@@ -1041,9 +1043,33 @@ public class OZvm implements KeyListener {
 	}
 
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_F12) {		
-			z88Screen.grabFocus();			
-		}
+		switch (e.getKeyCode()) {
+			case KeyEvent.VK_F12:
+				z88Screen.grabFocus();
+				break;
+				
+			case KeyEvent.VK_UP:
+				// replace current contents of command line with previous 
+				// input from command history and remember new position in list.
+				String prevCmd = cmdList.browsePrevCommand();
+				if (prevCmd != null) {
+					commandInput.setText(prevCmd);
+					commandInput.setCaretPosition(commandInput.getDocument().getLength());
+					commandInput.selectAll();
+				}
+				break;
+								
+			case KeyEvent.VK_DOWN:
+				// replace current contents of command line with next 
+				// input from command history and remember new position in list. 
+				String nextCmd = cmdList.browseNextCommand();
+				if (nextCmd != null) {
+					commandInput.setText(nextCmd);
+					commandInput.setCaretPosition(commandInput.getDocument().getLength());
+					commandInput.selectAll();
+				}
+				break;				
+		}	
 	}
 
 	public void keyReleased(KeyEvent arg0) {
