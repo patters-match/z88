@@ -20,6 +20,7 @@ package net.sourceforge.z88;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ListIterator;
@@ -30,6 +31,7 @@ import javax.swing.JTextField;
 import net.sourceforge.z88.datastructures.ApplicationDor;
 import net.sourceforge.z88.datastructures.ApplicationInfo;
 import net.sourceforge.z88.filecard.FileArea;
+import net.sourceforge.z88.filecard.FileAreaExhaustedException;
 import net.sourceforge.z88.filecard.FileAreaNotFoundException;
 import net.sourceforge.z88.filecard.FileEntry;
 
@@ -697,28 +699,78 @@ public class CommandLine implements KeyListener {
 	}
 
 	private	void fcdCommandline(String[] cmdLineTokens) {
-		if (cmdLineTokens.length == 1) {
-			try {
+		try {
+			if (cmdLineTokens.length == 1) {
 				// no sub-commands are specified, just list file area contents...
 				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
 				ListIterator fileEntries = fa.getFileEntries();
 
-				if (fileEntries != null) {
+				if (fileEntries == null) {
+					displayCmdOutput("File area is empty.");
+				} else {
 					displayCmdOutput("File area:");
 					while (fileEntries.hasNext()) {
 						FileEntry fe = (FileEntry) fileEntries.next();
 						displayCmdOutput(fe.getFileName() + 
 										((fe.isDeleted() == true) ? " [d]": "") + 
 										", size=" + fe.getFileLength() + " bytes" +
-										", file-entry=" + Dz.extAddrToHex(fe.getFileEntryPtr(),true));
+										", entry=" + Dz.extAddrToHex(fe.getFileEntryPtr(),true));
 					}					
 				}
-			} catch (FileAreaNotFoundException e) {
-				displayCmdOutput("No file area found in slot.");
-			} 
-		} else {
-			
-		}
+			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("fmt") == 0) {
+				// create or (re)format file area
+				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				if (fa.createFileArea() == true) 
+					displayCmdOutput("File area were created/formatted.");
+				else
+					displayCmdOutput("File area could not be created/formatted.");
+				
+			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipf") == 0) {
+				// import file from host file system into file area...
+				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				fa.importHostFile(new File(cmdLineTokens[2]));
+				displayCmdOutput("File were imported successfully from " + cmdLineTokens[2]);
+				
+			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipd") == 0) {
+				// import all files from host file system directory into file area...
+				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				fa.importHostFiles(new File(cmdLineTokens[2]));
+				displayCmdOutput("Files were imported successfully from " + cmdLineTokens[2] + " directory");
+				
+			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("xpc") == 0) {
+				// export all files from file area to directory on host file system..
+				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				ListIterator fileEntries = fa.getFileEntries();
+				if (fa.getActiveFileCount() == 0) {
+					displayCmdOutput("No files available to export.");
+				} else {
+					while (fileEntries.hasNext()) {
+						FileEntry fe = (FileEntry) fileEntries.next();
+
+						// strip the "oz" path of the filename
+						String hostFileName = fe.getFileName();
+						hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
+						// and build a complete file name for the host file system
+						hostFileName = cmdLineTokens[2] + File.separator + hostFileName;
+
+						// create a new file in specified host directory
+						RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
+						expFile.write(fe.getFileImage()); // export file image to host file system
+						expFile.close();
+						
+						displayCmdOutput("Exported " + fe.getFileName() + " to " + hostFileName);
+					}					
+				}				
+			} else {
+				displayCmdOutput("Unknown file card command or missing arguments.");
+			}
+		} catch (FileAreaNotFoundException e) {
+			displayCmdOutput("No file area found in slot.");
+		} catch (FileAreaExhaustedException e) {
+			displayCmdOutput("No more room in file area. One or several files could not be imported.");
+		} catch (IOException e) {
+			displayCmdOutput("A file I/O error on the host file system occurred during import/export of files.");
+		} 
 	}
 	
 	private	void bpCommandline(String[] cmdLineTokens) throws IOException {
