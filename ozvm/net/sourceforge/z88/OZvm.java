@@ -113,6 +113,19 @@ public class OZvm {
 						arg+=2;	
 						continue;				
 					}
+
+					if (arg<args.length && (args[arg].compareToIgnoreCase("kbl") == 0)) {
+						if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en") == 0) {
+							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
+							System.out.println("Using English (UK) keyboard layout.");
+						}
+						if (args[arg+1].compareToIgnoreCase("fr") == 0) {
+							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+							System.out.println("Using French keyboard layout.");
+						}
+						arg+=2;	
+						continue;				
+					}					
 				}
 			}			
 
