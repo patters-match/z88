@@ -1,6 +1,7 @@
 package net.sourceforge.z88;
 
 import java.io.*;
+import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -729,18 +730,14 @@ public final class Blink {
 		// remember Ram Card for future reference...
 		loadCard(ramBanks, slot); // load the physical card into Z88 memory
 	}
-
+		
 	/**
-	 * Load externally specified ROM image into Z88 memory system, slot 0.
+	 * Load ROM image (from opened file ressource) into Z88 memory system, slot 0.
 	 *
-	 * @param filename
-	 * @throws FileNotFoundException
+	 * @param rom 
 	 * @throws IOException
 	 */
-	public void loadRom(String filename)
-		throws FileNotFoundException, IOException {
-		RandomAccessFile rom = new RandomAccessFile(filename, "r");
-
+	public void loadRomBinary(RandomAccessFile rom) throws IOException {
 		if (rom.length() > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}

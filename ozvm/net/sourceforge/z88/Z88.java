@@ -1,7 +1,7 @@
 package net.sourceforge.z88;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,6 +45,14 @@ public class Z88 extends Z80 {
 	}
 
 	private MonitorZ80 z80Speed = null;
+
+	public void startZ80SpeedPolling() {
+		z80Speed.start();
+	}
+
+	public void stopZ80SpeedPolling() {
+		z80Speed.stop();
+	}
 	
 	/**
 	 * Z80 processor is hardwired to the BLINK chip logic.
@@ -68,10 +76,30 @@ public class Z88 extends Z80 {
 		// so that the Z88 enters the correct state (coma, snooze, ...)
 	}
 
-	public void loadRom(String filename) 
+	/**
+	 * Load default ROM image from this JAR into Z88 memory system, slot 0.
+	 *
+	 * @param filename
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void loadRom(String filename)
 		throws FileNotFoundException, IOException {
-		
-		blink.loadRom(filename);
+		RandomAccessFile rom = new RandomAccessFile(filename, "r");		
+		blink.loadRomBinary(rom);	
+	}
+
+	/**
+	 * Load default ROM image from this JAR into Z88 memory system, slot 0.
+	 *
+	 * @param filename
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void loadRom(URL filename)
+		throws FileNotFoundException, IOException {
+		RandomAccessFile rom = new RandomAccessFile(filename.getFile(),"r");		
+		blink.loadRomBinary(rom);	
 	}
 
 	/**
@@ -278,7 +306,6 @@ public class Z88 extends Z80 {
 		
 		private MonitorZ80() {
 			timer = new Timer();
-			start();
 		}
 
 		/**

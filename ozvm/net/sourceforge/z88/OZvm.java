@@ -1,6 +1,7 @@
 package net.sourceforge.z88;
 
 import java.io.*;
+import java.net.URL;
 
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
@@ -12,7 +13,7 @@ import java.io.*;
  */
 public class OZvm {
 
-	static private final String defaultRomImage = "z88.rom";
+	static private final String defaultRomImage = "Z88.rom";
 
 	public static void main(String[] args) throws IOException {
 		Z88 z88 = null;
@@ -37,8 +38,8 @@ public class OZvm {
 
 		try {
 			if (args.length == 0) {
-				System.out.println("Loading 'z88.rom'");
-				z88.loadRom(defaultRomImage);
+				System.out.println("Loading Z88.rom from JAR.");
+				z88.loadRom(Z88.class.getResource("/" + defaultRomImage));
 			} else {
 				System.out.println("Loading '" + args[0] + "'");
 				z88.loadRom(args[0]);
@@ -46,10 +47,10 @@ public class OZvm {
 
 		} catch (FileNotFoundException e) {
 			System.out.println("Couldn't load ROM image.\nOzvm terminated.");
-			return;
+			System.exit(0);
 		} catch (IOException e) {
 			System.out.println("Problem with ROM image or I/O.\nOzvm terminated.");
-			return;
+			System.exit(0);
 		}
 
 		z88.hardReset();
@@ -62,6 +63,7 @@ public class OZvm {
 			System.out.print("$");
 			if (cmdline.equalsIgnoreCase("run") == true) {
 				System.out.println("Executing Z88 Virtual Machine...");		
+				z88.startZ80SpeedPolling();
 				z88.run();
 			}
 		}
