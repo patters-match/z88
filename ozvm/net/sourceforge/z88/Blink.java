@@ -482,6 +482,99 @@ public final class Blink {
 	}
 
 	/**
+	 * Read word (16bits) from Z80 virtual memory model. 
+	 * <addr> is a 16bit word that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes.
+	 */
+	public final int readWord(final int addr) {
+		int segment = addr >>> 14; // bit 15 & 14 identifies segment
+
+		// the OZ spends most of the time in segments 1 - 3,
+		// therefore we should ask for this first...
+		if (segment > 0) {
+			return memory[sR[segment]].readWord(addr);
+		} else {
+			// Bank 0 is split into two 8K blocks.
+			// Lower 8K is System Bank 0x00 (ROM on hard reset)
+			// or 0x20 (RAM for Z80 sTACK and system variables)
+			if (addr < 0x2000) {
+				return RAMS.readWord(addr);
+			} else {
+				// determine which 8K of bank has been bound into
+				// upper half of segment 0. Only even numbered banks
+				// can be bound into upper segment 0.
+				// (to implement this hardware feature, we strip bit 0
+				// of the bank number with the bit mask 0xFE)
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF
+					// (upper half of bank)
+					return memory[sR[0] & 0xFE].readWord(addr);
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					return memory[sR[0] & 0xFE].readWord(addr & 0x1FFF);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Read Z80 instruction as a 4 byte entity from Z80 virtual memory model,
+	 * starting from offset, onwards. <addr> is a 16bit word that points into
+	 * the Z80 64K address space. Z80 instructions varies between 1 and 4 bytes,
+	 * but here a complete 4 byte sequence is cached in the return argument,
+	 * without knowing the actual length.
+	 * 
+	 * The instruction is returned as a 32bit integer for compactness, in low
+	 * byte, high byte order, ie. lowest 8bit is the first byte of the
+	 * instruction, highest 8bit of 32bit integer is the 4th byte of the
+	 * instruction.
+	 *  
+	 * @param addr address offset in bank
+	 * @return int 4 byte Z80 instruction 
+	 */
+	public final int readInstruction(final int addr) {
+		int segment = addr >>> 14; // bit 15 & 14 identifies segment
+
+		// the OZ spends most of the time in segments 1 - 3,
+		// therefore we should ask for this first...
+		if (segment > 0) {
+			return memory[sR[segment]].readInstruction(addr);
+		} else {
+			// Bank 0 is split into two 8K blocks.
+			// Lower 8K is System Bank 0x00 (ROM on hard reset)
+			// or 0x20 (RAM for Z80 sTACK and system variables)
+			if (addr < 0x2000) {
+				return RAMS.readInstruction(addr);
+			} else {
+				// determine which 8K of bank has been bound into
+				// upper half of segment 0. Only even numbered banks
+				// can be bound into upper segment 0.
+				// (to implement this hardware feature, we strip bit 0
+				// of the bank number with the bit mask 0xFE)
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF
+					// (upper half of bank)
+					return memory[sR[0] & 0xFE].readInstruction(addr);
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					return memory[sR[0] & 0xFE].readInstruction(addr & 0x1FFF);
+				}
+			}
+		}
+	}
+
+
+	/**
 	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
 	 * that points into the Z80 64K address space.
 	 *
@@ -525,13 +618,56 @@ public final class Blink {
 	}
 
 	/**
+	 * Write word (16bits) to Z80 virtual memory model. <addr> is a 16bit word
+	 * that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes.
+	 */
+	public final void writeWord(final int addr, final int w) {
+		int segment = addr >>> 14; // bit 15 & 14 identifies segment
+
+		// the OZ spends most of the time in segments 1 - 3,
+		// therefore we should ask for this first...
+		if (segment > 0) {
+			memory[sR[segment]].writeWord(addr, w);
+		} else {
+			// Bank 0 is split into two 8K blocks.
+			// Lower 8K is System Bank 0x00 (ROM on hard reset)
+			// or 0x20 (RAM for Z80 stack and system variables)
+			if (addr < 0x2000) {
+				RAMS.writeWord(addr, w);
+			} else {
+				// determine which 8K of bank has been bound into
+				// upper half of segment 0. Only even numbered banks
+				// can be bound into upper segment 0.
+				// (to implement this hardware feature, we strip bit 0
+				// of the bank number with the bit mask 0xFE)
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF
+					// (upper half of bank)
+					memory[sR[0] & 0xFE].writeWord(addr, w);
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					memory[sR[0] & 0xFE].writeWord(addr & 0x1FFF, w);
+				}
+			}
+		}
+	}
+
+	/**
 	 * The "internal" write byte method to be used in
 	 * the OZvm debugging environment, allowing complete
 	 * write permission.
 	 * 
-	 * @param offset
-	 * @param bank
-	 * @param bits
+	 * @param offset within the 16K memory bank.
+	 * @param bank number of the 4MB memory model (0-255). 
+	 * @param bits to be written.
 	 */
 	public void setByte(final int offset, final int bank, final int bits) {
 		if (memory[bank] != nullBank) {

@@ -64,6 +64,50 @@ public final class Bank {
 	}
 
 	/**
+	 * The general Z80 System Read Word.
+	 *  
+	 * @param offset
+	 * @return int
+	 */
+	public final int readWord(final int offset) {
+		return memory[offset & 0x3FFF] << 8 | memory[(offset + 1) & 0x3FFF];
+	}
+
+	/**
+	 * The general Z80 System Write Word.
+	 *  
+	 * @param offset
+	 * @param w
+	 */
+	public final void writeWord(final int offset, final int w) {
+		if (type == Bank.RAM) {
+			memory[offset & 0x3FFF] = w & 0xFF;
+			memory[(offset + 1) & 0x3FFF] = (w >>> 8) & 0xFF;
+		}
+	}
+
+	/**
+	 * Read Z80 instruction as a 4 byte entity, starting from offset, onwards.
+	 * Z80 instructions varies between 1 and 4 bytes, but here a complete 4 byte
+	 * sequence is cached, without knowing the actual length.
+	 * 
+	 * The instruction is returned as a 32bit integer for compactness, in low
+	 * byte, high byte order, ie. lowest 8bit is the first byte, highest 8bit of
+	 * 32bit integer is the 4th byte.
+	 *  
+	 * @param offset address offset in bank
+	 * @return int
+	 */
+	public final int readInstruction(final int offset) {
+		int instr = memory[(offset + 3) & 0x3FFF];
+		instr = (instr << 8) | memory[(offset + 2) & 0x3FFF];
+		instr = (instr << 8) | memory[(offset + 1) & 0x3FFF];
+		instr = (instr << 8) | memory[offset & 0x3FFF];
+
+		return instr; 
+	}
+
+	/**
 	 * The "internal" write byte method to be used in
 	 * the OZvm debugging environment, allowing complete
 	 * write permission.
