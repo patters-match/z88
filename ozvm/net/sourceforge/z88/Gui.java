@@ -496,11 +496,33 @@ public class Gui extends JFrame {
 	private JMenuItem getCreateSnapshotMenuItem() {
 		if (createSnapshotMenuItem == null) {
 			createSnapshotMenuItem = new JMenuItem();
+			createSnapshotMenuItem.setText("Create snapshot");
+			
 			createSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					SaveRestoreVM srVM = new SaveRestoreVM();  
+					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
+					chooser.setDialogTitle("Create Z88 snaphot");
+					chooser.setMultiSelectionEnabled(false);
+					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					chooser.setFileFilter(srVM.getSnapshotFilter());
+					chooser.setSelectedFile(new File(OZvm.defaultVmFile));
+					Blink.getInstance().stopZ80Execution();
+					
+					int returnVal = chooser.showSaveDialog(getContentPane().getParent());
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						String fileName = chooser.getSelectedFile().getAbsolutePath();
+						try {
+							srVM.storeSnapShot(fileName);
+							displayRtmMessage("Snapshot successfully created in " + fileName);
+						} catch (IOException e1) {
+							displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
+						}						
+					}					
+
+					OZvm.getInstance().runZ80Engine(-1);
 				}
 			});
-			createSnapshotMenuItem.setText("Create snapshot");
 		}
 		return createSnapshotMenuItem;
 	}
