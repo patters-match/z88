@@ -166,7 +166,7 @@ public class DisplayStatus {
 		dzFlags.append( z88.f5set() == true ? "5" : ".");
 		dzFlags.append( z88.Hset() == true ? "H" : ".");
 		dzFlags.append( z88.f3set() == true ? "3" : ".");
-		dzFlags.append( z88.PVset() == true ? "P" : "V");
+		dzFlags.append( z88.PVset() == true ? "V" : ".");
 		dzFlags.append( z88.Nset() == true ? "N" : ".");
 		dzFlags.append( z88.Cset() == true ? "C" : ".");
 
