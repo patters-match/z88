@@ -1509,6 +1509,41 @@ public final class Blink extends Z80 {
 		RAMS = memory[0];				// point at ROM bank 0
 	}
 
+
+	/**
+	 * Load Card Image (from opened file ressource) into Z88 memory system, 
+	 * at defined slot.
+	 *
+	 * @param slot 
+	 * @param card 
+	 * @throws IOException
+	 */
+	public void loadCardBinary(int slot, RandomAccessFile card) throws IOException {
+		if (card.length() > (1024 * 1024)) {
+			throw new IOException("Max 1024K Card!");
+		}
+		if (card.length() % (Bank.SIZE * 2) > 0) {
+			throw new IOException("Card must be in even banks!");
+		}
+
+		Bank cardBanks[] = new Bank[(int) card.length() / Bank.SIZE];
+		// allocate EPROM container
+		byte bankBuffer[] = new byte[Bank.SIZE];
+		// allocate intermediate load buffer
+
+		for (int curBank = 0; curBank < cardBanks.length; curBank++) {
+			cardBanks[curBank] = new Bank(Bank.EPROM);
+			card.readFully(bankBuffer); // load 16K from file, sequentially
+			cardBanks[curBank].loadBytes(bankBuffer, 0);
+			// and load fully into bank
+		}
+
+		// complete Card image now loaded into container
+		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
+		loadCard(cardBanks, slot);
+	}
+
+
 	/**
 	 * Load ROM image (from opened file ressource inside JAR) 
 	 * into Z88 memory system, slot 0.
