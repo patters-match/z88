@@ -5,9 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-
 import javax.swing.JPanel;
-
 /**
  * Main entry of the Z88 virtual machine.
  * 
@@ -47,6 +45,7 @@ public class OZvm {
 			dz = new Dz(z88); // the disassembly engine, linked to the memory model
 			breakp = new Breakpoints(z88);
             blinkStatus = new DisplayStatus(z88);
+			z88.setBreakPointManager(breakp);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("\n\nCouldn't initialize Z88 virtual machine.");
@@ -182,25 +181,11 @@ public class OZvm {
 		System.out.println("m [local address | extended address] - View memory at address");
 		System.out.println("bp - List breakpoints");
 		System.out.println("bl - Display Blink register contents");        
-		System.out.println("bp <extended address> - Toggle breakpoint");
+		System.out.println("bp <extended address> - Toggle stop breakpoint");
+		System.out.println("bpd <extended address> - Toggle display breakpoint");		
 		System.out.println("sr - Blink: Segment Register Bank Binding");
 		System.out.println("r - Display current Z80 Registers");
-	}
-
-
-	private StringBuffer dzPcStatus() {
-		StringBuffer dzBuffer = new StringBuffer(64);
-		int bank = ((z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000)) >>> 16) & 0xFF;
-		dzBuffer.append(Dz.byteToHex(bank, false));
-						
-		dz.getInstrAscii(dzBuffer, z88.PC(), true);
-		for(int space=35 - dzBuffer.length(); space>0; space--)
-			dzBuffer.append(" ");		// pad with spaces, to right-align with Mnemonic				
-		dzBuffer.append(blinkStatus.quickZ80Dump());
-		
-		return dzBuffer; 			
-	}
-	
+	}	
 	
 	public void commandLine() throws IOException {
 		int breakpointProgramCounter = -1;
@@ -248,7 +233,7 @@ public class OZvm {
 
 			if (cmdLineTokens[0].equalsIgnoreCase(".") == true) {
 				z88.run(true);		// single stepping (no interrupts running)...				
-				System.out.println(dzPcStatus());
+				System.out.println(blinkStatus.dzPcStatus());
 
 				cmdLineTokens[0] = ""; // wait for a new command...
 			}
@@ -279,7 +264,7 @@ public class OZvm {
 				}
 				setBreakpointManager(breakPoints);	// restore user defined break points
 
-				System.out.println(dzPcStatus());
+				System.out.println(blinkStatus.dzPcStatus());
 				cmdLineTokens[0] = ""; // wait for a new command...				
 			}
 			
@@ -318,6 +303,11 @@ public class OZvm {
 				cmdLineTokens[0] = ""; // wait for a new command...
 			}
 
+			if (cmdLineTokens[0].equalsIgnoreCase("bpd") == true) {
+				bpdCommandline(cmdLineTokens);
+				cmdLineTokens[0] = ""; // wait for a new command...
+			}
+
 			if (cmdLineTokens[0].equalsIgnoreCase("wb") == true) {
 				putByte(cmdLineTokens);
 				cmdLineTokens[0] = ""; // wait for a new command...				
@@ -335,7 +325,8 @@ public class OZvm {
 				cmdLineTokens[0].equalsIgnoreCase("z") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("stop") == false &&
 			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("blsr") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("bpd") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("sr") == false &&
                 cmdLineTokens[0].equalsIgnoreCase("bl") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("exit") == false
 			   ) {
@@ -370,6 +361,27 @@ public class OZvm {
 				bpAddress &= 0xFFFF; 
 			
 				breakp.toggleBreakpoint(bpAddress, bpBank);
+				breakp.listBreakpoints();
+			}
+		}
+
+		if (cmdLineTokens.length == 1) {
+			// no arguments, use PC in current bank binding
+			breakp.listBreakpoints();
+		}
+	}
+
+	private void bpdCommandline(String[] cmdLineTokens) throws IOException {
+		if (cmdLineTokens.length == 2) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				System.out.println("Display Breakpoints cannot be edited while Z88 is running.");
+				return;
+			} else {
+				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
+				int bpBank = (bpAddress >>> 16) & 0xFF;
+				bpAddress &= 0xFFFF; 
+			
+				breakp.toggleBreakpoint(bpAddress, bpBank, false);
 				breakp.listBreakpoints();
 			}
 		}
