@@ -1,69 +1,22 @@
      MODULE flash16
 
-; *****************************************************************************
+; ********************************************************************************************
 ; FlashStore, Application edition, V1.6.x
+; (C) Gunther Strube (gbs@users.sourceforge.net) & Thierry Peycru (pek@free.fr), 1997-2004
 ;
-; (C) Thierry Peycru & Gunther Strube, 1997-99
+; FlashStore is free software; you can redistribute it and/or modify it under the terms of the 
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; FlashStore is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
 ;
-; $Header$
-;
-; $History: fsapp.asm $
-; 
-; User: Gbs          Date: 9-02-99    Time: 15:27
-; Updated in $/Z88/Applications/FlashStore/App
-; Release 1.6.9
-; Bug fix in restore command.
-; 
-; Format now allows to format slot 3, even though default slot is not 3.
-; After format, slot 3 is automatically selected.
-; 
-; New command, "Device", which allows user to select another File Eprom.
-; 
-; User: Gbs          Date: 9-10-98    Time: 18:20
-; Updated in $/Z88/Applications/FlashStore/App
-; Slot may be selected on initial startup (when several FE's exists) by
-; pressing keys '1', '2' or '3'.
-; "END" now displayed in correct "colour" if last file displayed was
-; marked as deleted (hence grey).
-; Auto-saving of a hidden (and first) 6 byte File Entry ($01 00 00 00 00
-; 00) when formatting File Eprom Area. Due to a non-documented behaviour
-; of the FE chip if first byte of FE is 10H (Write Byte Command), the
-; chip never gets into Read Array Mode. Using the the hidden File Entry,
-; the chip behaves properly both on reset of Z88 and when card is
-; inserted into Z88. 
-; Statistics and Cataloging of files does not reveal the hidden File
-; Entry.
-; 
-; User: Gbs          Date: 20-08-98   Time: 16:49
-; Updated in $/Z88/Applications/FlashStore/App
-; Release V1.6.7:
-; Whole window area cleared before small windows drawn. This was
-; necessary because there's a problem with the screen driver with visible
-; map area and creating a window with bottom border on top of the map
-; area.
-; 
-; User: Gbs          Date: 16-08-98   Time: 16:26
-; Updated in $/Z88/Applications/FlashStore/App
-; Major improvements:
-; Creation of Sub File Eprom Areas on Application Cards (through extended
-; "oz" File Eprom Library), new visual user interface, intelligent
-; selection of slot which contains a File Eprom Area, user selectable
-; slot when more than one File Eprom Area exist in external slots,
-; improved Restore command, better polling for "oz" File Eprom Area
-; before executing commands to avoid rubbish display.
-; 
-; User: Gbs          Date: 15-05-98   Time: 10:37
-; Updated in $/Z88/Applications/FlashStore/App
-; FlashStore now uses 64 bytes Safe Workspace, and a larger contiguous
-; RAM area (6 pages of 256 bytes) defining an "ugly popdown". This was
-; apparently necessary since OZ soft reset's during pre-emption with a
-; safe workspace larger than 256 bytes.
-; 
-; User: Gbs          Date: 9-05-98    Time: 16:41
-; Updated in $/Z88/Applications/FlashStore/App
-; First release of ported BBC BASIC version as popdown.
-;
-; *****************************************************************************
+; ********************************************************************************************
 
 
 ; *****************************************************************************
@@ -73,7 +26,7 @@
 ; the debugger "ugly" application RAM.
 ;
 ; Compile as:
-;    z80asm -DDEBUG -a -i fsapp
+;    mpm -DDEBUG -a -i fsapp
 ;
 ; The code will be compiled for $8000, removing application header. 
 ; Activate #ZI, then:
