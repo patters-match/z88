@@ -73,6 +73,7 @@ DEFC VppBit = 1
 ;         DE = local pointer to start of block (located in available segment)
 ;         C = MS_Sx segment specifier for BHL
 ;         BHL = extended address to start of destination (pointer into card)
+;              (bits 7,6 of B is the slot mask)
 ;         IY = size of block (at DE) to blow
 ; Out:
 ;         Success:

@@ -49,7 +49,7 @@
 ;
 ; In:
 ;    B = Absolute Bank (00h - FFh) where to blow header (at offset $3FC0)
-;        (bits 7,6 indicate slot number)
+;        (bits 7,6 is the slot mask)
 ;
 ; Out:
 ;    Success:

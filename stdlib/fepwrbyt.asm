@@ -71,6 +71,7 @@ DEFC VppBit = 1
 ;         A = byte
 ;         A' = FE_28F or FE_29F (optional)
 ;         BHL = pointer to Flash Memory address (B=00h-FFh, HL=0000h-3FFFh)
+;               (bits 7,6 of B is the slot mask)
 ; Out:
 ;         Success:
 ;              Fc = 0
