@@ -163,7 +163,6 @@ public final class Blink extends Z80 {
 		
 		// the segment register SR0 - SR3
 		sR = new int[4];
-		resetBlinkRegisters();
 		
 		segm00addrSpace = new LowerSegment0();
 		segm01addrSpace = new UpperSegment0();
@@ -178,6 +177,8 @@ public final class Blink extends Z80 {
 		timerDaemon = new Timer(true);
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
+
+		resetBlinkRegisters();		
 	}
 
 	
