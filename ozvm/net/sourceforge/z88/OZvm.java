@@ -70,6 +70,7 @@ public class OZvm {
 	public boolean boot(String[] args) {
 		RandomAccessFile file;
 		boolean	loadedRom = false;
+		boolean	installedCard = false;
 		boolean	loadedSnapshot = false;
 		boolean	ramSlot0 = false;
 		int ramSizeArg = 0, eprSizeArg = 0;
@@ -77,7 +78,8 @@ public class OZvm {
 		try {
 			int arg	= 0;
 			while (arg<args.length)	{
-				if ( args[arg].compareTo("rom") != 0 &
+				if ( 
+					 args[arg].compareTo("rom") != 0 &
 					 args[arg].compareTo("ram0") != 0 &	args[arg].compareTo("ram1") != 0 & 
 					 args[arg].compareTo("ram2") !=	0 & args[arg].compareTo("ram3")	!= 0 &
 					 args[arg].compareTo("epr1") !=	0 & args[arg].compareTo("epr2")	!= 0 & args[arg].compareTo("epr3") != 0	&
@@ -109,6 +111,7 @@ public class OZvm {
 				if (arg<args.length && (args[arg].compareTo("rom") == 0)) {
 					Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into ROM space	in slot	0.");
 					memory.loadRomBinary(new File(args[arg+1]));
+					Blink.getInstance().resetBlinkRegisters();
 					Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
 					loadedRom = true;
 					arg+=2;						
@@ -131,6 +134,7 @@ public class OZvm {
 					memory.insertRamCard(ramSizeArg	* 1024,	ramSlotNumber);	// RAM Card specified for slot x...
 					if (ramSlotNumber == 0)	ramSlot0 = true;
 					Gui.displayRtmMessage("Inserted	" + ramSizeArg + "K RAM	Card in	slot " + ramSlotNumber);
+					installedCard = true;
 
 					arg+=2;
 					continue;
@@ -145,6 +149,7 @@ public class OZvm {
 						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
 						Gui.displayRtmMessage(insertEprMsg);
+						installedCard = true;
 					} else
 						Gui.displayRtmMessage("Eprom Card size/type configuration is illegal.");
 					arg+=3;
@@ -160,6 +165,7 @@ public class OZvm {
 						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel File Flash Card in slot " +	eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd File Flash Card in slot " + eprSlotNumber;
 						Gui.displayRtmMessage(insertEprMsg);
+						installedCard = true;
 					} else
 						Gui.displayRtmMessage("Eprom File Card size/type configuration is illegal.");						
 					arg+=3;
@@ -182,6 +188,7 @@ public class OZvm {
 					eprSizeArg = Integer.parseInt(args[arg+1], 10);
 					if (args[arg+3].compareToIgnoreCase("-b") == 0) {
 						memory.loadBankFilesOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], args[arg+4]);
+						installedCard = true;
 						arg+=5;
 					} else {
 						file = new RandomAccessFile(args[arg+3], "r");
@@ -191,6 +198,7 @@ public class OZvm {
 						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
 						Gui.displayRtmMessage(insertEprMsg);
+						installedCard = true;
 						arg+=4;
 					}
 					continue;
@@ -210,6 +218,7 @@ public class OZvm {
 					Gui.displayRtmMessage("Loading '" + args[arg] +	"' into	slot " + slotNumber + ".");
 					memory.loadEprCardBinary(slotNumber, crdType, file);
 					file.close();
+					installedCard = true;
 					arg++;
 					continue;
 				}
@@ -265,8 +274,8 @@ public class OZvm {
 			}				
 
 			// all operating system shell command options parsed,
-			// if no snapshot file was specified, try to load the default 'boot.z88' snapshot
-			if (loadedSnapshot == false) {
+			// if no snapshot file was specified or other resources installed, try to load the default 'boot.z88' snapshot
+			if (loadedSnapshot == false & installedCard == false & loadedRom == false) {
 				SaveRestoreVM srVm = new SaveRestoreVM();
 				if (srVm.loadSnapShot(OZvm.defaultVmFile) == true) {
 					Gui.displayRtmMessage("Snapshot successfully installed from " + OZvm.defaultVmFile);
@@ -274,7 +283,7 @@ public class OZvm {
 				}					
 			}
 			
-			if (loadedSnapshot == false & loadedRom == false)	{
+			if (loadedSnapshot == false & loadedRom == false) {
 				Gui.displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
 				JarURLConnection jarConnection = (JarURLConnection) z88.getClass().getResource("/Z88.rom").openConnection();
 				memory.loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
