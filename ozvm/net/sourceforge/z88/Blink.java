@@ -577,9 +577,6 @@ public final class Blink extends Z80 {
 	public int getBlinkKbd(int row) {
 		int keyCol = 0xFF;	// Default to no keys pressed...
 
-		// F5 was pressed, get out of here!
-		if (stopZ88 == true) return 0xFF;
-
 		if ( (INT & BM_INTKWAIT) != 0) {
 			// Z80 snoozes... (wait a little bit, then ask for key press from Blink)
 			try {
@@ -1066,15 +1063,18 @@ public final class Blink extends Z80 {
 	}
 
     /** 
-     * Internal signal that F5 key was pressed while Blink was reading the keyboard
+     * Internal signal for stopping the Z80 execution engine
      */
     private boolean stopZ88 = false;
 
-    
+	public void stopZ80Execution() {
+		stopZ88 = true;
+	}
+	
     /** 
-     * Check if F5 key was pressed while Blink was reading the keyboard
+     * Check if F5 key was pressed, or a stop was issued at command line.
      */
-	public boolean abortZ80() {
+	public boolean isZ80Stopped() {
         if (stopZ88 == true) {
             stopZ88 = false;
             return true;
@@ -1702,5 +1702,4 @@ public final class Blink extends Z80 {
 	public Z88Keyboard getZ88Keyboard() {
 		return z88Keyboard;
 	}
-
 }
