@@ -95,7 +95,6 @@
                     RET  C
 
                     LD   A,(EprBank)                   ; get current EPROM bank to be blown...
-                    OR   $C0                           ; (bank B mapped to slot 3)
                     LD   B,A                           ; into
                     LD   C, MS_S2                      ; segment 2
                     PUSH IY
@@ -114,7 +113,6 @@
                     JR   progerror
 
 .block_written      LD   A,(EprBank)                   ; get current EPROM bank to be blown...
-                    OR   $C0
                     LD   B,A                           ; into
                     LD   C, MS_S2                      ; segment 2
                     CALL MemDefBank                    ; Bind in destination bank (B, C = Ms_Sx)
@@ -236,7 +234,11 @@
                     LD   A,E
                     AND  15                            ; Block number range is 0 - 15
                     LD   B,A
-                    LD   C,3
+                    LD   A,(EprBank)
+                    AND  @11000000
+                    RLCA
+                    RLCA
+                    LD   C,A                           ; derived slot number from Bank (number)
                     CALL FlashEprBlockErase
                     JR   C, format_error
 .block_formatted
@@ -256,7 +258,11 @@
                     CALL DispFormatMsg
                     CALL CheckBatteries
                     RET  C                             ; Batteries went low
-                    LD   C,3                           ; erase complete card in slot 3
+                    LD   A,(EprBank)
+                    AND  @11000000
+                    RLCA
+                    RLCA
+                    LD   C,A                           ; derived slot number from Bank (number)
                     CALL FlashEprCardErase
                     JR   C, format_error
 .card_formatted
@@ -294,7 +300,11 @@
 ;         HL = pointer to Mnemonic description of Flash Eprom
 ;    Fc = 1, Flash Eprom not found in slot 3, or Device code not found
 ;
-.FlashEprInfo       LD   C,3
+.FlashEprInfo       LD   A,(EprBank)
+                    AND  @11000000
+                    RLCA
+                    RLCA
+                    LD   C,A                      ; derived slot number from Bank number)
                     CALL FlashEprCardId
                     RET  C
 
@@ -325,9 +335,13 @@
 
 
 ; ************************************************************************************************
-; Check presence of Flash Eprom in slot 3
+; Check presence of Flash Eprom in slot that is part of the current (absolute) Bank number.
 ;
-.CheckFlashCard     LD   C,3
+.CheckFlashCard     LD   A,(EprBank)
+                    AND  @11000000
+                    RLCA
+                    RLCA
+                    LD   C,A                      ; derived slot number from Bank (number)
                     CALL FlashEprCardId
                     RET  NC
 

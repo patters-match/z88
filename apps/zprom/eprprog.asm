@@ -30,6 +30,8 @@
 
      MODULE Eprom_Programming
 
+     LIB MemDefBank
+     
      XREF eprg_prompt, eprg_banner
      XREF DispErrWindow, ReportWindow, Disp_EprAddrError
      XREF ProgramFlashEprom, CheckBatteries
@@ -37,7 +39,6 @@
      XDEF EPROG_command, Check_Eprom, Verify_Eprom, Bind_in_Bank
      XDEF BlowEprom
      XDEF Get_AbsRange
-
 
      INCLUDE "defs.asm"
      INCLUDE "stdio.def"
@@ -71,7 +72,10 @@
 .BlowEprom          CALL Check_Eprom                    ; eprom already used at range?
                     RET  C
                     LD   A,(EprBank)                    ; get current EPROM bank to be blown...
-                    OR   $C0                            ; eprom bank in slot 3 ($C0 - $FF)
+                    BIT  7,A
+                    JR   Z, err_BlowEprom               ; UV Eproms require slot 3 hardware...
+                    BIT  6,A
+                    JR   Z, err_BlowEprom
                     LD   B,A                            ; bank to be bound into
                     CALL Bind_in_Bank                   ; segment 2
                     CALL OZ_DI                          ; Disable interrupts
@@ -88,6 +92,7 @@
                     CALL_OZ(Os_out)                     ; warning bleep
                     LD   A,13                           ; "Byte incorrectly blown in Eprom at "
                     CALL Disp_EprAddrError
+.err_BlowEprom                    
                     SCF
                     RET
 
@@ -327,7 +332,6 @@
 ; All registers except IY are changed on return
 ;
 .Check_Eprom        LD   A,(EprBank)
-                    OR   $C0
                     LD   B,A
                     CALL Bind_in_bank
 
@@ -417,6 +421,6 @@
 ;
 .Bind_in_bank       PUSH AF
                     LD   C,$02                          ; segment 2, address range $8000 - $BFFF
-                    CALL_OZ(OS_MPB)                     ; execute new binding...
+                    CALL MemDefBank                     ; execute new binding...
                     POP  AF
                     RET                                 ; return old binding in B

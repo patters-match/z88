@@ -5,7 +5,6 @@ vwedtmem
 srchmem
 eprprog
 flashepr
-flashtst
 ramcard
 msgerror
 fileio

@@ -233,7 +233,6 @@
                     DEFW BS_command                    ; $97 CC_bs     -   Bank search
                     DEFW FLBE_command                  ; $98 CC_flbe   -   Flash Eprom Block Erase
                     DEFW FLI_command                   ; $99 CC_fli    -   Flash Eprom Information
-                    DEFW FLTST_command                 ; $9A CC_fltst  -   Flash Eprom Testing (hidden feature)
 
 
 ; ************************************************************************************************
@@ -515,9 +514,6 @@
                     CALL Get_Constant
                     RET  C                              ; Ups - syntax error or illegal value
                     LD   A,E
-                    AND  @11000000                      ; bank number in range 00h - 3Fh ?
-                    JP   NZ, Illegal_Bankref            ; ...
-                    LD   A,E
                     LD   (EprBank),A                    ; New Eprom bank number defined.
                     RET
 
@@ -527,7 +523,6 @@
 ; CC_eprd   -   Read Eprom
 ;
 .EPRD_command       LD   A,(EprBank)                    ; get current EPROM bank
-                    OR   $C0                            ; bank in slot 3...
                     LD   B,A
                     CALL Bind_in_bank
                     CALL Get_Absrange
@@ -547,7 +542,6 @@
 ; CC_epvf   -   Eprom Verify
 ;
 .EPVF_command       LD   A,(EprBank)                    ; get current EPROM bank
-                    OR   $C0                            ; bank in slot 3...
                     LD   B,A
                     CALL Bind_in_Bank
                     CALL Get_Absrange
@@ -1027,7 +1021,7 @@
                     LD   A,1
                     LD   (EprSelection),A               ; pre-select EPROM type 0 (128K).
                     LD   HL, EprBank
-                    LD   (HL),$3F                       ; Pre-select bank $3F
+                    LD   (HL),$FF                       ; Pre-select bank $FF
                     LD   HL, RamBank
                     LD   (HL),$BF                       ; Pre-select top bank in slot 2
                     CALL ClearMemBuffer                 ; reset memory buffer with $FF's

@@ -66,7 +66,6 @@
                     LD   (Banner),HL
 
                     LD   A,(EprBank)                    ; get current EPROM bank
-                    OR   $C0                            ; bank in slot 3...
                     LD   B,A
                     CALL Bind_in_bank
                     CALL Search_Memory

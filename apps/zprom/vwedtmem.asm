@@ -81,7 +81,6 @@
                     LD   HL, ViewEpr_banner
                     LD   IX, Memory_View
                     LD   A,(EprBank)                    ; get current EPROM bank
-                    OR   $C0                            ; bank in slot 3...
                     LD   B,A
                     CALL Bind_in_bank
                     CALL ViewEditDump                   ; dump bank to screen...

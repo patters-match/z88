@@ -44,4 +44,4 @@ DEFC  Zprom_CC_mv    = $81, Zprom_CC_eprog = $89, Zprom_CC_eprd  = $8B, Zprom_CC
 DEFC  Zprom_CC_ev    = $82, Zprom_CC_es    = $88, Zprom_CC_et    = $85, Zprom_CC_eb    = $83, Zprom_CC_er   = $84
 DEFC  Zprom_CC_rbw   = $8F, Zprom_CC_br    = $90, Zprom_CC_be    = $91, Zprom_CC_bv    = $92, Zprom_CC_rbcl = $93
 DEFC  Zprom_CC_rclc  = $94, Zprom_CC_copy  = $95, Zprom_CC_clone = $96, Zprom_CC_bs    = $97, Zprom_CC_flbe =$98
-DEFC  Zprom_CC_fli   = $99, Zprom_CC_fltst = $9A
+DEFC  Zprom_CC_fli   = $99

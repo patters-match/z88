@@ -574,17 +574,6 @@
                     DEFB cmd_flbe_end - cmd_flbe                                ; length of command definition
 .cmd_flbe_end
 
-; @fltst  Test Flash Eprom (hidden command)
-.cmd_fltst          DEFB cmd_fltst_end - cmd_fltst                              ; length of command definition
-                    DEFB Zprom_CC_fltst                                         ; command code
-                    DEFM "FLTST" , 0                                            ; keyboard sequense
-                    DEFB 0
-                    DEFB (cmd_fltst_help - Zprom_help) / 256                    ; high byte of rel. pointer
-                    DEFB (cmd_fltst_help - Zprom_help) % 256                    ; low byte of rel. pointer
-                    DEFB @00011100                                              ; command has help page, safe, hidden
-                    DEFB cmd_fltst_end - cmd_fltst                              ; length of command definition
-.cmd_fltst_end
-
 ; @EPRD  Read EPROM
 .cmd_eprd           DEFB cmd_eprd_end - cmd_eprd                                ; length of command definition
                     DEFB Zprom_CC_eprd                                          ; command code
@@ -969,8 +958,6 @@
                     DEFM "Chip name, number of available 64K blocks" , $7F
                     DEFM "and total size of memory on the card."
                     DEFB 0
-
-.cmd_fltst_help     DEFB 0    ; No help for hidden command
 
 .cmd_et_help        DEFB 12
                     DEFM $A5 , $B3 , $8F , " type." , $A1 , " follow" , $CE , " " , $8F , "'s" , $DD , "available:" , $7F
