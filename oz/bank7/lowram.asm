@@ -26,15 +26,15 @@ defc    OZCallTable             =$dead
 
 
 xdef    DefErrHandler
-xdef	FPP_RET
+xdef    FPP_RET
 xdef    INTReturn
 xdef    JpAHL
 xdef    JpHL
-xdef	OZ_RET1
-xdef	OZ_RET0
+xdef    OZ_RET1
+xdef    OZ_RET0
 xdef    OZ_BUF
-xdef	OZ_DI
-xdef	OZ_EI
+xdef    OZ_DI
+xdef    OZ_EI
 xdef    OZ_SCF
 xdef    OZCallJump
 xdef    OZCallReturn1
@@ -329,7 +329,7 @@ xdef    OZCallReturn3
 
 ; 0143
 
-;	!! remove this
+;       !! remove this
 
 .GhostMain
         ex      af, af'
@@ -411,17 +411,30 @@ xdef    OZCallReturn3
 
 .OZDImain
         xor     a                               ; A=0, Fc=0
-        push    af                              ; store flags - only works because
-        pop     af                              ; interrupts are disabled
-        ld      a, i
+        push    af                              ; store A to clear byte in stack
+        pop     af                              ; 
+        ld      a, i                            ; IFF2 -> Fp
         di
-        ret     pe                              ; interrupts enabled? exit
+        ret     pe                              ; interrupts enabled? exit Fc=0
 
-        dec     sp                              ; get flags stored above
-        dec     sp                              ; !! why not xor a; scf?
+;       we have two possible cases here:
+;
+;       a) interrupts were disabled all the time
+;       b) we got interrupt during 'ld a, i' so interrupts were on
+;
+;       in case (a) we read back zero, in case (b) it was overwritten by PC
+;       high byte , which is 1 in our case
+
+
+        dec     sp                              ; read back A
+        dec     sp                              ;
         pop     af
-        cp      1                               ; Fc=1, ints were disabled
-        ld      a, i                            ; get int disable count
+
+;       !! if we assert 'DI' above is at odd address, Fc is correct without compare
+;       !! another way to get Fc=1 into F: 'dec sp; pop af; dec sp' - uses PC hi
+
+        cp      1                               ; Fc=0 if we were interrupted
+        ld      a, i                            ; IFF1 -> Fp !! unnecessary?
         ret
 
 ; 01a2
