@@ -1,5 +1,5 @@
 /*
- * DisplayStatus.java
+ * Z88Info.java
  * This file is part of OZvm.
  * 
  * OZvm is free software; you can redistribute it and/or modify it under the terms of the 
@@ -80,7 +80,7 @@ public class Z88Info {
 	}
 
 	/**
-	 * current main purpose Z80 Registers and Flags as a one-liner string
+	 * Current main purpose Z80 Registers and Flags as a one-liner string
 	 */
 	private static StringBuffer quickZ80Dump() {
 		StringBuffer dzRegisters = new StringBuffer(1024);
@@ -154,7 +154,6 @@ public class Z88Info {
 
 		return dzFlags;
 	}
-
 
 	public static String bankBindingInfo() {
 		StringBuffer blinkBanks = new StringBuffer(256);
