@@ -276,25 +276,23 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH BC
                     PUSH DE
                     
-                    LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
+                    LD   HL, $4555
                     LD   DE, $42AA
-                    LD   BC, $4555
 
-                    LD   A,$AA
-                    LD   (BC),A              ; AA -> (555), first unlock cycle
-                    LD   A,$55
-                    LD   (DE),A              ; 55 -> (2AA), second unlock cycle
-                    LD   A,$90
-                    LD   (BC),A              ; 90 -> (555), autoselect mode
+                    LD   (HL),$AA            ; AA -> (555), first unlock cycle
+                    EX   DE,HL
+                    LD   (HL),$55            ; 55 -> (2AA), second unlock cycle
+                    EX   DE,HL
+                    LD   (HL),$90            ; 90 -> (555), autoselect mode
 
+                    LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
                     LD   D,(HL)              
                     INC  HL
-                    LD   E,(HL)              ; H = Manufacturer Code (at $00 XX00)
-                    EX   DE,HL               ; L = Device Code (at $00 XX01)
-                    
-                    LD   A,$F0
-                    LD   (BC),A              ; F0 -> (XXX), back to Read Array Mode
-                    
+                    LD   E,(HL)              
+                    LD   (HL),$F0            ; F0 -> (XXX), set Flash Memory to Read Array Mode
+
+                    EX   DE,HL               ; H = Manufacturer Code (at $00 XX00)
+                                             ; L = Device Code (at $00 XX01)
                     POP  DE
                     POP  BC
                     POP  AF
