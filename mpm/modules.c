@@ -310,9 +310,9 @@ LinkModules (void)
       return;                   /* No more room */
     }
 
-  if ((errfile = fopen (errfilename, "w")) == NULL)
-    {                           /* open error file */
-      ReportIOError (errfilename);      /* couldn't open relocatable file */
+  if ((errfile = fopen (errfilename, "a")) == NULL)
+    {                                   /* open error file */
+      ReportIOError (errfilename);      /* couldn't open error file */
       free (errfilename);
       errfilename = NULL;
       return;
