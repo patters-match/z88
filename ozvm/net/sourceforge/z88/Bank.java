@@ -10,7 +10,7 @@ package net.sourceforge.z88;
  * 
  * $Id$
  */
-public class Bank {
+public final class Bank {
 	public static final int RAM = 0;		// 32Kb, 128Kb, 512Kb, 1Mb
 	public static final int ROM = 1;		// 128Kb 
 	public static final int EPROM = 2;		// 32Kb, 128Kb & 256Kb
@@ -39,13 +39,40 @@ public class Bank {
 		return type;
 	}
 	
-	public int readByte(int offset) {
+	/**
+	 * The general Z80 System Read Byte.
+	 *  
+	 * @param offset
+	 * @return int
+	 */
+	public final int readByte(final int offset) {
 		return memory[0x3FFF & offset];
 	}
 	
-	public void writeByte(int offset, int b) {
+	/**
+	 * The general Z80 System Write Byte. 
+	 * 
+	 * This method ensures that only RAM can be changed; Eprom and Flash
+	 * requires special logic (no yet implemented).
+	 * 
+	 * @param offset
+	 * @param b
+	 */
+	public final void writeByte(final int offset, final int b) {
 		if (type == Bank.RAM) 
 			memory[0x3FFF & offset] = 0xFF & b;
+	}
+
+	/**
+	 * The "internal" write byte method to be used in
+	 * the OZvm debugging environment, allowing complete
+	 * write permission.
+	 * 
+	 * @param offset
+	 * @param b
+	 */
+	public void setByte(final int offset, final int b) {
+		memory[0x3FFF & offset] = 0xFF & b;
 	}
 	
 	/**
