@@ -344,7 +344,7 @@ public abstract class Z80 {
 	public abstract void disassemble(int addr);
 
 	/** IO ports */
-	public abstract void outByte(int port, int b);
+	public abstract void outByte(int addrA8, int addrA15, int bits);
 
 	public abstract int inByte(int addrA8, int addrA15);
 
@@ -1750,7 +1750,7 @@ public abstract class Z80 {
 						break;
 					}
 				case 211 : /* OUT (n),A */ {
-						outByte(nxtpcb(), A());
+						outByte(nxtpcb(), A(), A());
 						local_tstates += (11);
 						break;
 					}
@@ -2186,35 +2186,35 @@ public abstract class Z80 {
 
 				/* OUT (c),r */
 			case 65 : /* OUT (c),B */ {
-					outByte(BC(), B());
+					outByte(C(), B(), B());
 					return (12);
 				}
 			case 73 : /* OUT (c),C */ {
-					outByte(BC(), C());
+					outByte(C(), B(), C());
 					return (12);
 				}
 			case 81 : /* OUT (c),D */ {
-					outByte(BC(), D());
+					outByte(C(), B(), D());
 					return (12);
 				}
 			case 89 : /* OUT (c),E */ {
-					outByte(BC(), E());
+					outByte(C(), B(), E());
 					return (12);
 				}
 			case 97 : /* OUT (c),H */ {
-					outByte(BC(), H());
+					outByte(C(), B(), H());
 					return (12);
 				}
 			case 105 : /* OUT (c),L */ {
-					outByte(BC(), L());
+					outByte(C(), B(), L());
 					return (12);
 				}
 			case 113 : /* OUT (c),0 */ {
-					outByte(BC(), 0);
+					outByte(C(), B(), 0);
 					return (12);
 				}
 			case 121 : /* OUT (c),A */ {
-					outByte(BC(), A());
+					outByte(C(), B(), A());
 					return (12);
 				}
 
@@ -2402,7 +2402,7 @@ public abstract class Z80 {
 			case 163 : /* OUTI */ {
 					int b;
 					B(b = qdec8(B()));
-					outByte(BC(), readByte(HL()));
+					outByte(C(), B(), readByte(HL()));
 					HL(inc16(HL()));
 
 					setZ(b == 0);
@@ -2450,7 +2450,7 @@ public abstract class Z80 {
 			case 171 : /* OUTD */ {
 					int b;
 					B(b = qdec8(B()));
-					outByte(BC(), readByte(HL()));
+					outByte(C(), B(), readByte(HL()));
 					HL(dec16(HL()));
 
 					setZ(b == 0);
@@ -2532,7 +2532,7 @@ public abstract class Z80 {
 			case 179 : /* OTIR */ {
 					int b;
 					B(b = qdec8(B()));
-					outByte(BC(), readByte(HL()));
+					outByte(C(), B(), readByte(HL()));
 					HL(inc16(HL()));
 
 					setZ(true);
@@ -2617,7 +2617,7 @@ public abstract class Z80 {
 			case 187 : /* OTDR */ {
 					int b;
 					B(b = qdec8(B()));
-					outByte(BC(), readByte(HL()));
+					outByte(C(), B(), readByte(HL()));
 					HL(dec16(HL()));
 
 					setZ(true);
