@@ -63,6 +63,8 @@ static void NewPfixSymbol (expression_t *pfixexpr, long oprconst, enum symbols o
 static pfixstack_t *AllocStackItem (void);
 static postfixexpr_t *AllocPfixSymbol (void);
 static long Pw (long x, long y);
+static void AddStringToInfixExpr(expression_t *pfixexpr, char *ident);
+static void AddCharToInfixExpr(expression_t *pfixexpr, char c);
 
 
 /* global variables */
@@ -110,7 +112,7 @@ ParseNumExpr (void)
     {
       GetSym ();                /* leading '?' : ignore relocatable address expression */
       constant_expression = constexpr;  /* convert to constant expression */
-      *pfixhdr->infixptr++ = separators[constexpr];
+      AddCharToInfixExpr(pfixhdr, separators[constexpr]);
     }
 
   if (Condition (pfixhdr))
@@ -118,7 +120,6 @@ ParseNumExpr (void)
       if (constant_expression == constexpr)
         NewPfixSymbol (pfixhdr, 0, constexpr, NULL, 0); /* convert to constant expression */
 
-      pfixhdr->infixptr = '\0';
       return pfixhdr;
     }
   else
@@ -708,6 +709,22 @@ PopItem (pfixstack_t **stackpointer)
 }
 
 
+static void 
+AddStringToInfixExpr(expression_t *pfixexpr, char *ident) 
+{
+  strcpy (pfixexpr->infixptr, ident);       /* add identifier to infix expr */
+  pfixexpr->infixptr += strlen (ident);     /* point at null terminator */
+  *pfixexpr->infixptr = 0;                  
+}
+
+
+static void 
+AddCharToInfixExpr(expression_t *pfixexpr, char c) 
+{
+ *pfixexpr->infixptr++ = c;                /* add operator, single char to infix expression */
+ *pfixexpr->infixptr = 0;                  /* null terminate */
+}
+
 
 static int
 Factor (expression_t *pfixexpr)
@@ -742,17 +759,15 @@ Factor (expression_t *pfixexpr)
           pfixexpr->rangetype |= NOTEVALUABLE;  /* expression not evaluable */
           NewPfixSymbol (pfixexpr, 0, number, ident, SYM_NOTDEFINED);   /* symbol not found */
         }
-      strcpy (pfixexpr->infixptr, ident);       /* add identifier to infix expr */
-      pfixexpr->infixptr += strlen (ident);     /* update pointer */
-
+      AddStringToInfixExpr(pfixexpr, ident);
+      
       GetSym ();
       break;
 
     case hexconst:
     case binconst:
     case decmconst:
-      strcpy (pfixexpr->infixptr, ident);       /* add constant to infix expr */
-      pfixexpr->infixptr += strlen (ident);     /* update pointer */
+      AddStringToInfixExpr(pfixexpr, ident);
       constant = GetConstant (&eval_err);
 
       if (eval_err == 1)
@@ -770,14 +785,14 @@ Factor (expression_t *pfixexpr)
 
     case lparen:
     case lexpr:
-      *pfixexpr->infixptr++ = separators[sym];      /* store '(' or '[' in infix expr */
+      AddCharToInfixExpr(pfixexpr, separators[sym]); /* store '(' or '[' in infix expr */
       GetSym ();
 
       if (Condition (pfixexpr))
         {
           if (sym == rparen || sym == rexpr)
             {
-              *pfixexpr->infixptr++ = separators[sym];      /* store ')' or ']' in infix expr */
+              AddCharToInfixExpr(pfixexpr, separators[sym]); /* store ')' or ']' in infix expr */
               GetSym ();
               break;
             }
@@ -791,7 +806,7 @@ Factor (expression_t *pfixexpr)
         return 0;
 
     case log_not:
-      *pfixexpr->infixptr++ = separators[log_not];
+      AddCharToInfixExpr(pfixexpr, separators[log_not]);
       GetSym ();
 
       if (!Factor (pfixexpr))
@@ -801,7 +816,7 @@ Factor (expression_t *pfixexpr)
       break;
 
     case div256:
-      *pfixexpr->infixptr++ = separators[div256];
+      AddCharToInfixExpr(pfixexpr, separators[div256]);
       GetSym ();
 
       if (!Factor (pfixexpr))
@@ -811,7 +826,7 @@ Factor (expression_t *pfixexpr)
       break;
 
     case mod256:
-      *pfixexpr->infixptr++ = separators[mod256];
+      AddCharToInfixExpr(pfixexpr, separators[mod256]);
       GetSym ();
 
       if (!Factor (pfixexpr))
@@ -821,7 +836,7 @@ Factor (expression_t *pfixexpr)
       break;
 
     case bin_not:
-      *pfixexpr->infixptr++ = separators[bin_not];
+      AddCharToInfixExpr(pfixexpr, separators[bin_not]);
       GetSym ();
 
       if (!Factor (pfixexpr))
@@ -831,7 +846,7 @@ Factor (expression_t *pfixexpr)
       break;
 
     case squote:
-      *pfixexpr->infixptr++ = separators[squote];
+      AddCharToInfixExpr(pfixexpr, separators[squote]);
       if (feof (srcasmfile))
         {
           ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
@@ -847,10 +862,10 @@ Factor (expression_t *pfixexpr)
             }
           else
             {
-              *pfixexpr->infixptr++ = c;         /* store char in infix expr */
+              AddCharToInfixExpr(pfixexpr, c); /* store char in infix expr */
               if (GetSym () == squote)
                 {
-                  *pfixexpr->infixptr++ = separators[squote];
+                  AddCharToInfixExpr(pfixexpr, separators[squote]);
                   NewPfixSymbol (pfixexpr, (long) c, number, NULL, 0);
                 }
               else
@@ -882,8 +897,7 @@ Pterm (expression_t *pfixexpr)
 
   while (sym == power)
     {
-      strcpy (pfixexpr->infixptr, "**");       /* add '**' power symbol to infix expr */
-      pfixexpr->infixptr += 2;
+      AddStringToInfixExpr(pfixexpr, "**");	/* add '**' power symbol to infix expr */
 
       GetSym ();
       if (Factor (pfixexpr))
@@ -907,7 +921,7 @@ Term (expression_t *pfixexpr)
 
   while ((sym == multiply) || (sym == divi) || (sym == mod))
     {
-      *pfixexpr->infixptr++ = separators[sym];  /* store '/', '%', '*' in infix expression */
+      AddCharToInfixExpr(pfixexpr, separators[sym]); /* store '/', '%', '*' in infix expression */
       mulsym = sym;
       GetSym ();
       if (Pterm (pfixexpr))
@@ -929,7 +943,7 @@ Expression (expression_t *pfixexpr)
   if ((sym == plus) || (sym == minus))
     {
       if (sym == minus)
-        *pfixexpr->infixptr++ = separators[minus];
+        AddCharToInfixExpr(pfixexpr, separators[minus]);
 
       addsym = sym;
       GetSym ();
@@ -950,13 +964,11 @@ Expression (expression_t *pfixexpr)
          (sym == lshift) || (sym == rshift))
     {
       if (sym == lshift) {
-        strcpy (pfixexpr->infixptr, "<<");
-        pfixexpr->infixptr += 2;
+        AddStringToInfixExpr(pfixexpr, "<<");
       } else if (sym == rshift) {
-        strcpy (pfixexpr->infixptr, ">>");
-        pfixexpr->infixptr += 2;
+        AddStringToInfixExpr(pfixexpr, ">>");
       } else
-        *pfixexpr->infixptr++ = separators[sym];
+        AddCharToInfixExpr(pfixexpr, separators[sym]);
 
       addsym = sym;
       GetSym ();
@@ -984,21 +996,19 @@ Condition (expression_t *pfixexpr)
     case less:      /* '<' */
     case greater:   /* '>' */
     case assign:    /* '=' */
-      *pfixexpr->infixptr++ = separators[sym];
+      AddCharToInfixExpr(pfixexpr, separators[sym]);
       relsym = sym;
       GetSym ();
       break;
 
     case lessequal:
-      strcpy(pfixexpr->infixptr,"<=");
-      pfixexpr->infixptr += 2;
+      AddStringToInfixExpr(pfixexpr, "<=");
       relsym = sym;
       GetSym ();
       break;
 
     case greatequal:
-      strcpy(pfixexpr->infixptr,">=");
-      pfixexpr->infixptr += 2;
+      AddStringToInfixExpr(pfixexpr, ">=");
       relsym = sym;
       GetSym ();
       break;
