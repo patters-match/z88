@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 /**
  * Main entry of the Z88 virtual machine.
  * 
@@ -14,6 +16,7 @@ import javax.swing.JPanel;
  * 
  */
 public class OZvm {
+
 	private static final String CMDLINEPROMPT = "OZvm$";
 	
 	private Blink z88 = null;
@@ -32,10 +35,17 @@ public class OZvm {
 	 * The Breakpoint manager instance.
 	 */
 	private Breakpoints breakp;
-    
-	OZvm(JPanel canvas) {
+
+	/**
+	 * @param panel
+	 * @param field
+	 * @param area
+	 * @param area2
+	 */
+	public OZvm(JPanel canvas, JTextField cmdInput, JTextArea cmdOutput, JTextArea rtmOutput) {
+		
 		try {
-			z88 = new Blink(canvas);
+			z88 = new Blink(canvas, rtmOutput); 
 
 			z88.insertRamCard(32 * 1024, 0);	// 32K RAM in slot (standard machine)	
 			z88.insertRamCard(128 * 1024, 1);	// Insert 128K RAM in slot 1			
