@@ -20,12 +20,9 @@
 package net.sourceforge.z88;
 
 import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.MemoryImageSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.TimerTask;
@@ -60,7 +57,7 @@ public class Z88display extends JLabel implements MouseListener {
 	/**
 	 * The image (based on pixel data array) to be rendered onto Swing Component
 	 */
-	private Image image = null;
+	private BufferedImage image = null;
 
 	/**
 	 * Screen dump counter
@@ -266,15 +263,9 @@ public class Z88display extends JLabel implements MouseListener {
 	 * were executed.
 	 */
 	public void grabScreenFrame() {
-		// create image, based on pixel array colours
-		BufferedImage bi = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT,
-				BufferedImage.TYPE_4BYTE_ABGR);
-		bi.setRGB(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, 0,
-				Z88SCREENWIDTH);
-
 		File file = new File("z88screen" + scrdumpCounter++ + ".png");
 		try {
-			javax.imageio.ImageIO.write(bi, "PNG", file);
+			javax.imageio.ImageIO.write(image, "PNG", file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -392,16 +383,11 @@ public class Z88display extends JLabel implements MouseListener {
 			image = null;
 		}
 
-		// create image, based on pixel array colours
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		image = toolkit.createImage(new MemoryImageSource(Z88SCREENWIDTH,
-				Z88SCREENHEIGHT, displayMatrix, 0, Z88SCREENWIDTH));
-
-		// Wait until the image has been completely prepared for rendering
-		while (!toolkit.prepareImage(image, Z88SCREENWIDTH, Z88SCREENHEIGHT,
-				null))
-			;
-
+		image = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT,
+				BufferedImage.TYPE_4BYTE_ABGR);
+		image.setRGB(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, 0,
+				Z88SCREENWIDTH);
+		
 		// finally make the new screen frame visible in the GUI.
 		this.setIcon(new ImageIcon(image));
 	}
