@@ -22,12 +22,21 @@ import net.sourceforge.z88.Memory;
 import net.sourceforge.z88.datastructures.SlotInfo;
 
 /**
- * Information about a File Entry in a File Area 
- * (name, file length, status, etc.)
+ * Information about File Entry in a File Area 
+ * (name, file length, status, etc.).
+ * 
+ * <p>A File Entry is organised as follows in a file area:</p>
+ * <pre>
+ * 		1 byte      n      length of filename
+ * 		1 byte      x      '/' for latest version, $00 for old version (deleted)
+ * 		n-1 bytes   'xxxx' filename
+ * 		4 bytes     m      length of file (least significant byte first)
+ * 		m bytes            body of file
+ * </pre> 
  */
 public class FileEntry {
 
-	/** reference to available memory hardware and functionality */
+	/** Reference to available memory hardware and functionality */
 	private Memory memory = null;
 	
 	/** Utility Class to get slot information */
