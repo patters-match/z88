@@ -25,7 +25,7 @@
 
      include "fsapp.def"
 
-     
+
 ; ********************************************************************************************************************
 ;
 ; topic entries for FlashStore popdown...
@@ -109,7 +109,7 @@
                     DEFM 0
                     DEFB 0                                                      ; high byte of rel. pointer
                     DEFB 0                                                      ; low byte of rel. pointer
-                    DEFB @00000100                                              ; hidden command 
+                    DEFB @00000100                                              ; hidden command
                     DEFB cmd_es_end - cmd_es                                    ; length of command definition
 .cmd_es_end
 
@@ -131,7 +131,7 @@
                     DEFM 0
                     DEFB 0                                                      ; high byte of rel. pointer
                     DEFB 0                                                      ; low byte of rel. pointer
-                    DEFB @00000100                                              ; hidden command 
+                    DEFB @00000100                                              ; hidden command
                     DEFB cmd_ef_end - cmd_ef                                    ; length of command definition
 .cmd_ef_end
 
@@ -153,7 +153,7 @@
                     DEFM 0
                     DEFB 0                                                      ; high byte of rel. pointer
                     DEFB 0                                                      ; low byte of rel. pointer
-                    DEFB @00000100                                              ; hidden command 
+                    DEFB @00000100                                              ; hidden command
                     DEFB cmd_er_end - cmd_er                                    ; length of command definition
 .cmd_er_end
 
@@ -186,7 +186,7 @@
                     DEFM "Format File Area", 0
                     DEFB (cmd_ffa_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_ffa_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
-                    DEFB @00011001                                              ; command has help page, new column, safe
+                    DEFB @00010001                                              ; command has help page, new column, safe
                     DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
 .cmd_ffa_end
 
