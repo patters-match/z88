@@ -7,8 +7,8 @@ import gameframe.input.*;
 import gameframe.*;
 
 /**
- * The display renderer of the Z88 virtual machine, called each 5ms, 10ms, 25ms or 50ms, or 100ms
- * depending on speed of JVM.
+ * The display renderer of the Z88 virtual machine, 
+ * called each 5ms, 10ms, 25ms or 50ms, depending on speed of JVM.<br>
  * 
  * $Id$
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
@@ -18,8 +18,8 @@ public class Z88display
 	public static final int Z88SCREENWIDTH = 640;					// The Z88 display dimensions
 	public static final int Z88SCREENHEIGHT = 64;
 	private static final int SBRSIZE = 2048;						// Size of Screen Base File (bytes)
-	private static final int fps[] = new int[] {5,10,25,50,100};	// runtime selection of Z88 screen frames per second
-	private static final int fcd[] = new int[] {3,7,18,35,70};		// flash cursor duration frame counter 
+	private static final int fps[] = new int[] {5,10,25,50};		// runtime selection of Z88 screen frames per second
+	private static final int fcd[] = new int[] {3,7,18,35};			// flash cursor duration frame counter 
 	
 	private static final int PXCOLON = 0xff461B7D;			// Trying to get as close as possibly to the LCD colors...
 	private static final int PXCOLGREY = 0xff90B0A7;
@@ -34,6 +34,11 @@ public class Z88display
 	private static final int attrUnd = 0x02;	// Font attribute Underline Mask (LORES1)
 	private static final int attrNull = attrHrs | attrRev | attrGry;	// Null character (6x8 pixel blank)
 	private static final int attrCursor = attrHrs | attrRev | attrFls;	// Lores cursor (6x8 pixel inverse flashing)
+
+	private static int cursorFlashCounter = 0;
+	private static int curRenderSpeedIndex = 0;	// points at the current framerate group 
+	private static int frameCounter = 0;
+	private static long renderTimeTotal = 0;	// accumulated rendering speed during 3 seconds
     
 	private Blink blink = null;					// access to Blink hardware (memory, screen, keyboard, timers...)
 	private RenderPerMs renderPerMs = null;
@@ -42,11 +47,6 @@ public class Z88display
     private boolean renderRunning = false;
 	private GraphicsEngine gfxe = null;
 	private KeyboardDevice keyboard = null;
-
-    private static int cursorFlashCounter = 0;
-	private static int curRenderSpeedIndex = 0;	// points at the current framerate group 
-    private static int frameCounter = 0;
-	private static long renderTimeTotal = 0;	// accumulated rendering speed during 5 seconds
         
     private boolean cursorInverse = true;       // start cursor flash as dark, 
     private boolean flashTextEmpty = false;     // start text flash as dark, ie. text looks normal for 1 sec.
@@ -75,7 +75,7 @@ public class Z88display
 		keyboard = inputEngine.getDefaultKeyboardDevice();
         gfxe.addFocusListener(new Z88DisplayFocusListener());
 		
-		blink = z88Blink; // The Z88 Display needs to access the Blink hardware
+		blink = z88Blink; // The Z88 Display needs to access the Blink hardware...
 
 		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
 		displayMap = new BitmapData(displayMatrix, Z88SCREENWIDTH, Z88SCREENHEIGHT, Z88SCREENWIDTH);
@@ -86,7 +86,8 @@ public class Z88display
 	
 	/**
 	 * Outside world can get access to keyboard input from this Z88 screen window.
-	 * @return keyboard device
+	 * 
+	 * @return Keyboard Device
 	 */	
 	public KeyboardDevice getKeyboardDevice() {
 		return keyboard;
@@ -94,9 +95,7 @@ public class Z88display
 	
 	
 	/**
-	 * The core Z88 Display renderer.
-	 * This code is called by a Timer
-	 * 
+	 * The core Z88 Display renderer. This code is called by RenderPerMs.<br>
 	 * May be called manually (ie. to refresh window in an out-of-focus scenario).
 	 */
 	public void renderDisplay() throws GameFrameException {				
@@ -106,7 +105,8 @@ public class Z88display
 		hires1 = blink.getBlinkPb3();	// Memory base address of 8x8 pixel fonts for OZ window
 		sbr = blink.getBlinkSbr();		// Memory base address of Screen Base File (2K) 
 		
-		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) return;		// LCD enabled, but one of the Screen Registers hasn't been setup yet...
+		// LCD enabled, but one of the Screen Registers hasn't been setup yet...
+		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) return;		
 
 		long timeMs = System.currentTimeMillis();
 								 		
@@ -117,8 +117,10 @@ public class Z88display
 		bankSbr = sbr >>> 16; sbr &= 0x3FFF;
 
 		int scrBaseCoordX = 0, scrBaseCoordY = 0; 
-		for (int scrRowOffset=0; scrRowOffset < SBRSIZE; scrRowOffset += 256) {			// scan 8 rows in screen file
-			for (int lineCharOffset=0; lineCharOffset < 213; lineCharOffset += 2) {		// scan 106 2-byte control characters per row in screen file
+		for (int scrRowOffset=0; scrRowOffset < SBRSIZE; scrRowOffset += 256) {
+			// scan 8 rows in screen file			
+			for (int lineCharOffset=0; lineCharOffset < 213; lineCharOffset += 2) {
+				// scan 106 2-byte control characters per row in screen file
 				int sbrOffset = sbr + scrRowOffset + lineCharOffset;
 				int scrChar = blink.getByte(sbrOffset, bankSbr);
 				int scrCharAttr = blink.getByte(sbrOffset + 1, bankSbr);
@@ -163,14 +165,20 @@ public class Z88display
 		cbm.drawTo(0,0);                          	// and paint to back buffer
 		gfxe.flip();								// finally, make back buffer visible...
 		
-		renderTimeTotal += System.currentTimeMillis() - timeMs;	// remember the time it took to render the complete screen
+		// remember the time it took to render the complete screen, accumulated
+		renderTimeTotal += System.currentTimeMillis() - timeMs;	
 	}
 
 
     /**
-     * Draw the character at current position, and overlay with flashing cursor.
-     * IN cursor mode, neither hardware underline nor grey is functional.
+     * Draw the character at current position, and overlay with flashing cursor.<br>
+     * In cursor mode, neither hardware underline nor grey is functional.
      * Only inverse video flashing on pixel data of character.
+	 *   
+	 * @param scrBaseCoordX pixel column (0-639)
+	 * @param scrBaseCoordY pixel row coordinate (0-63)
+	 * @param charAttr the Screen File attribute fo the character (flashing, reverse, tiny, bold)
+	 * @param scrChar the offset into the LORES character set (top bits in charAttr). 
      */
 	private void drawLoresCursor(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
         int bank, bit, y; 
@@ -202,6 +210,14 @@ public class Z88display
 	}
 
 
+	/**
+	 * Draw a LORES character (6x8 pixel matrix) at pixel position (scrBaseCoordX,scrBaseCoordY).<br>
+	 *   
+	 * @param scrBaseCoordX pixel column (0-639)
+	 * @param scrBaseCoordY pixel row coordinate (0-63)
+	 * @param charAttr the Screen File attribute fo the character (flashing, reverse, tiny, bold, underline, grey)
+	 * @param scrChar the offset into the LORES character set (top bits in charAttr). 
+	 */
 	private void drawLoresChar(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
         int bank, bit, y; 
 		int pxOn, pxColor;
@@ -256,6 +272,14 @@ public class Z88display
 	}
 
 	
+	/**
+	 * Draw a HIRES character (8x8 pixel matrix) at pixel position (scrBaseCoordX,scrBaseCoordY).<br>
+	 *   
+	 * @param scrBaseCoordX pixel column (0-639)
+	 * @param scrBaseCoordY pixel row coordinate (0-63)
+	 * @param charAttr the Screen File attribute fo the character (flashing, grey)
+	 * @param scrChar the offset into the HIRES character set (top bits in charAttr). 
+	 */
 	private void drawHiresChar(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
 		int offset, bank;
 		int pxOn, bit;
@@ -299,8 +323,8 @@ public class Z88display
 	}
     
     /**
-     * Keep flash counters updated.
-     * Ordinary text flashing changes state each second (text appears one sec. then disappears one sec)
+     * Keep flash counters updated according to FPS settings.<br>
+     * Ordinary text flashing changes state each second (text appears one sec. then disappears one sec).
      * Cursor flash inverts 6x8 LORES char 70% of 1 sec, remaining 30% renders the char as normal.
      */
     private void flashCounter() {
@@ -315,7 +339,10 @@ public class Z88display
             cursorInverse = false;              // rest of the time, cursor is invisible (normal text)
     }
 
-    
+	/**
+	 * A focus listener, hooked into the GameFrame Window, so that we can refresh 
+	 * the Z88 screen during focus lost/gained events. 
+	 */    
     private final class Z88DisplayFocusListener implements java.awt.event.FocusListener {
         public void focusGained(java.awt.event.FocusEvent e) {
             if (renderRunning == false) {
@@ -337,12 +364,10 @@ public class Z88display
     }
 
     
+	/**
+	 * Render Z88 Display each X ms (runtime adjusted)...
+	 */
 	private class RenderPerMs extends TimerTask {
-		/**
-		 * Render Z88 Display each X ms (runtime adjusted)...
-		 * 
-		 * @see java.lang.Runnable#run()
-		 */
 		public void run() {
 			try {
 				flashCounter();		// update cursor flash and ordinary flash counters 
@@ -382,12 +407,12 @@ public class Z88display
 	}    
 		
 
+	/**
+	 * The Z88 Display Render supervisor.<br>
+	 * Called each 3 seconds, it monitors the rendering speed, and adjusts the 
+	 * framerate, if it takes longer or faster to render than the current fps timing.
+	 */
 	private class RenderSupervisor extends TimerTask {		
-		/**
-		 * Poll each 3rd second and check if Z88 screen renderer is too slow or too fast...
-		 * 
-		 * @see java.lang.Runnable#run()
-		 */
 		public void run() {
 			int avgRenderSpeed = (int) renderTimeTotal / fps[curRenderSpeedIndex]; 
 			if ( avgRenderSpeed * 1.4 > 1000/fps[curRenderSpeedIndex] ) {
