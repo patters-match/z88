@@ -174,7 +174,7 @@ SkipLine (FILE *fptr)
    return found filename in <filename> array (truncated to 255 chars)
    ---------------------------------------------------------------- */
 void 
-FetchProjectFilename(FILE *projectfile, char *filename)
+FetchModuleFilename(FILE *projectfile, char *filename)
 {
   int c = 0;
   filename[0] = '\0'; /* preset with null-terminate, in case no filename was found */

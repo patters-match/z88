@@ -39,7 +39,7 @@ sourcefile_t *Prevfile (void);
 symbol_t *GetAddress (labels_t **stackpointer);
 void AddAddress (symbol_t *label, labels_t **stackpointer);
 void AddPathNode (char *path, pathlist_t **plist);
-void FetchProjectFilename(FILE *projectfile, char *filename);
+void FetchModuleFilename(FILE *projectfile, char *filename);
 void Fetchfilename (FILE *fptr, char *filename);
 void GetLine (void);
 void NewJRaddr (void);

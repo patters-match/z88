@@ -321,7 +321,7 @@ main (int argc, char *argv[])
         }
       else
         {
-          FetchProjectFilename(modsrcfile, argument);
+          FetchModuleFilename(modsrcfile, argument);
           if (strlen (argument) == 0)
             {
               fclose (modsrcfile);
