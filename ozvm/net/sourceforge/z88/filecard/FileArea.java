@@ -19,6 +19,7 @@
 package net.sourceforge.z88.filecard;
 
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.Random;
 
 import net.sourceforge.z88.AmdFlashBank;
@@ -40,9 +41,7 @@ public class FileArea {
 	/** Utility Class to get slot information */
 	private SlotInfo slotinfo = null;
 
-	/**
-	 * the slot number of the File area.
-	 */
+	/** the slot number of the File area. */
 	private int slotNumber;
 
 	/**
@@ -52,15 +51,14 @@ public class FileArea {
 	 */
 	private FileAreaHeader fileAreaHdr;
 
-	/**
-	 * Linked list of available File entries in File Area
-	 */
+	/** Linked list of available File entries in File Area */
 	private LinkedList filesList;
 
 	/**
-	 * Scan file area at specified slot
+	 * Scan file area at specified slot instance this object with information.
 	 * 
 	 * @param slotNo
+	 * @throws throws FileAreaNotFoundException
 	 */
 	public FileArea(int slotNo) throws FileAreaNotFoundException {
 		memory = Memory.getInstance();
@@ -106,13 +104,34 @@ public class FileArea {
 		}
 	}
 
-
+	/**
+	 * If files exist in file area, a ListIterator is returned, 
+	 * otherwise null.
+	 * <p>Use next() on the iterator to get a 
+	 * net.sourceforge.z88.filecard.FileEntry object that contains all
+	 * available information about each file entry.</p> 
+	 *   
+	 * @return a ListIterator for available application DOR's or null
+	 * @throws FileAreaNotFoundException 
+	 */
+	public ListIterator getFiles() throws FileAreaNotFoundException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (filesList != null)
+				return filesList.listIterator(0);
+			else
+				return null;
+		}
+	}	
+	
 	/**
 	 * Return available free space on File Area. The free area is the number of
 	 * bytes after the last available file and up until the header at the top
 	 * bank of the file area.
 	 * 
 	 * @return free space in bytes
+	 * @throws FileAreaNotFoundException
 	 */
 	public int getFreeSpace() throws FileAreaNotFoundException {
 		int freeSpace = 0;
@@ -137,10 +156,54 @@ public class FileArea {
 	}
 
 	/**
+	 * Return the amount of deleted file space in File Area, ie. the amount
+	 * of bytes occupied in the File Area the are used by files that are marked
+	 * as deleted.  
+	 * 
+	 * @return deleted file space in bytes
+	 * @throws FileAreaNotFoundException
+	 */	
+	public int getDeletedSpace() throws FileAreaNotFoundException {
+		int deletedSpace = 0;
+
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (filesList == null) {
+				return 0;	// no files are stored in file area...
+			} else {
+				// calculate the deleted space by scanning the file list...
+				ListIterator files = filesList.listIterator(0);
+				while (files.hasNext()) {
+					FileEntry fe = (FileEntry) files.next();
+					if (fe.isDeleted() == true) 
+						deletedSpace += fe.getHdrLength() + fe.getFileLength();  
+				}
+				
+				return deletedSpace;
+			}			
+		}
+	}
+
+	/**
+	 * Return the size of the file area in bytes.
+	 * 
+	 * @return the size of the file area in bytes
+	 * @throws FileAreaNotFoundException
+	 */
+	public int getFileAreaSize() throws FileAreaNotFoundException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {			
+			return fileAreaHdr.getSize() * Bank.SIZE - 64;
+		}
+	}
+	
+	/**
 	 * Get pointer to first free space in File Area (where to store a new file).
 	 * 
 	 * @return extended address of free space.
-	 * @throws FileAreaNotFoundException if no file area were found
+	 * @throws FileAreaNotFoundException
 	 */
 	private int getFreeSpacePtr() throws FileAreaNotFoundException {
 		int freeSpace = 0;
@@ -169,6 +232,8 @@ public class FileArea {
 	 *            the filename for the file to be stored (in "oz" filename format).
 	 * @param fileImage
 	 *            the byte image of the file to be stored.
+	 * 
+	 * @throws FileAreaNotFoundException, FileAreaExhaustedException
 	 */
 	public void storeFile(String fileName, byte[] fileImage)
 			throws FileAreaNotFoundException, FileAreaExhaustedException {
@@ -202,7 +267,7 @@ public class FileArea {
 	 * application area, if there's room on the card. If a file header is found,
 	 * only the file area will be re-formatted (header is left untouched).
 	 * 
-	 * The complete file area will be formatted with FF's from the bottom of the
+	 * The complete file area will be formatted with FFh's from the bottom of the
 	 * card up until the File Area header.
 	 * 
 	 * @return <b>true </b> if file area was formatted/created, otherwise
@@ -229,8 +294,7 @@ public class FileArea {
 					if (bank instanceof EpromBank == true) {
 						if (memory.getCardSize(slotNumber) == appCrdHdr
 								.getAppAreaSize()) {
-							return false; // there is no room for a file area on
-							// Eprom
+							return false; // no room for a file area on Eprom
 						} else {
 							// format file area just below application area...
 							int topFileAreaBank = bottomBankNo
@@ -243,8 +307,7 @@ public class FileArea {
 						// check if app area moves into bottom 64K sector...
 						if (memory.getCardSize(slotNumber)
 								- appCrdHdr.getAppAreaSize() < 4)
-							return false; // there is no room for a file area on
-						// a flash card...
+							return false; // no room for a file area on flash card...
 
 						// create file area of 64K sector size...
 						int fileAreaSize = memory.getCardSize(slotNumber)
@@ -277,21 +340,21 @@ public class FileArea {
 	 * Format file area with FF's, beginning from bottom of card, until bank of
 	 * file header.
 	 * 
-	 * @param bottomBank
+	 * @param bank
 	 *            the starting bank of the file area
 	 * @param topBank
 	 *            the top bank of the file area including the header at $3FC0
 	 */
-	private void formatFileArea(int bottomBank, int topBank) {
+	private void formatFileArea(int bank, int topBank) {
 		// format file area from bottom bank, upwards...
 		do {
 			for (int offset = 0; offset < 0x4000; offset++)
-				memory.setByte(offset, bottomBank, 0xFF);
-		} while (bottomBank++ < topBank);
+				memory.setByte(offset, bank, 0xFF);
+		} while (bank++ < topBank);
 
 		// top bank is only formatted until file header...
 		for (int offset = 0; offset < 0x3FC0; offset++)
-			memory.setByte(offset, bottomBank, 0xFF);
+			memory.setByte(offset, bank, 0xFF);
 	}
 
 	/**
