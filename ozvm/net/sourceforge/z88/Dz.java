@@ -4099,7 +4099,8 @@ public class Dz {
 	 * @return int address of following instruction
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispaddr) {
-		pc += dzInstrAscii(mnemonic, pc, blink.readInstruction(pc), dispaddr);
+		int instrOpcode = (blink.readWord(pc+2) << 16) | blink.readWord(pc);		
+		pc += dzInstrAscii(mnemonic, pc, instrOpcode, dispaddr);
 
 		return pc;
 	}
@@ -4345,7 +4346,8 @@ public class Dz {
 	 * @return address of following instruction
 	 */
 	public final int getNextInstrAddress(int pc) {
-		pc += calcInstrOpcodeSize(blink.readInstruction(pc));
+		int instrOpcode = (blink.readWord(pc+2) << 16) | blink.readWord(pc);
+		pc += calcInstrOpcodeSize(instrOpcode);
 
 		return pc;
 	}
