@@ -827,7 +827,7 @@ DEFW (void)
 {
   long bytepos = 0;
 
-#ifdef ALIGN_ADRESSES
+#if ALIGN_ADRESSES == 1
   AlignAddress(2);              /* make sure that 16bit words are address aligned before actually creating them */
   bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
 #endif
@@ -901,7 +901,7 @@ DEFL (void)
 {
   long bytepos = 0;
 
-#ifdef ALIGN_ADRESSES
+#if ALIGN_ADRESSES == 1
   AlignAddress(4);              /* make sure that 32bit words are address aligned before actually creating them */
   bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
 #endif
