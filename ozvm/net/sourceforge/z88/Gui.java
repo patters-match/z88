@@ -62,19 +62,35 @@ public class Gui extends JFrame {
 	private javax.swing.JScrollPane jRtmOutputScrollPane = null;
 	private javax.swing.JTextArea jRtmOutputArea = null;
 	private javax.swing.JMenu jHelpMenu = null;
+	private JButton escKeyButton;
+	private JButton helpKeyButton;
+	private JButton rightArrowKeyButton;
+	private JButton numKey0Button;
+	private JButton numKey1Button;
+	private JButton numKey2Button;
+	private JButton numKey3Button;
+	private JButton numKey4Button;
+	private JButton numKey5Button;
+	private JButton numKey6Button;
+	private JButton numKey7Button;
+	private JButton numKey8Button;
+	private JButton numKey9Button;
+	private JButton key037fButton;
+	private JButton key027fButton;
+	private JButton key017fButton;
+	private JButton delKeyButton;
+	
 	
 	private JButton button_2;
 	private JButton button_1;
 	private JToolBar toolBar;
 	private JLabel z88Display;
 	private JPanel panel_2;
-	private JButton button_17_2;
 	private JButton button_17_1_1;
 	private JButton button_17_1;
 	private JButton button_14_1_1;
 	private JButton button_3_1_1_2;
 	private JButton button_8_1_1;
-	private JButton button_8_1;
 	private JButton button_15_2_1;
 	private JButton button_15_2;
 	private JButton button_17;
@@ -167,168 +183,21 @@ public class Gui extends JFrame {
 		gridBagConstraints_3.gridx = 0;
 		getContentPane().add(panel_1, gridBagConstraints_3);
 
-		final JButton button_3 = new JButton();
-		button_3.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_3.setForeground(Color.WHITE);
-		button_3.setBackground(Color.BLACK);
-		button_3.setPreferredSize(new Dimension(32, 32));
-		button_3.setMargin(new Insets(2, 2, 2, 2));
-		button_3.setAlignmentX(Component.CENTER_ALIGNMENT);
-		panel_1.add(button_3);
-		button_3.setText("ESC");
-		button_3.addMouseListener(new MouseListener() {
-			public void mousePressed(MouseEvent arg0) {
-				Z88Keyboard.getInstance().pressZ88key(0x07, 0xDF);
-			}
-			public void mouseReleased(MouseEvent arg0) {
-				Z88Keyboard.getInstance().releaseZ88key(0x07, 0xDF);
-				Z88display.getInstance().grabFocus();
-			}
-
-			public void mouseClicked(MouseEvent arg0) {}
-			public void mouseEntered(MouseEvent arg0) {}
-			public void mouseExited(MouseEvent arg0) {}				
-		});																											
-
-		final JButton button_4 = new JButton();
-		button_4.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_4.setForeground(Color.WHITE);
-		button_4.setBackground(Color.BLACK);
-		button_4.setPreferredSize(new Dimension(32, 32));
-		button_4.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_4);
-		button_4.setText("1");
-
-		final JButton button_5 = new JButton();
-		button_5.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_5.setForeground(Color.WHITE);
-		button_5.setBackground(Color.BLACK);
-		button_5.setPreferredSize(new Dimension(32, 32));
-		button_5.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_5);
-		button_5.setText("2");
-
-		final JButton button_6 = new JButton();
-		button_6.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_6.setForeground(Color.WHITE);
-		button_6.setBackground(Color.BLACK);
-		button_6.setPreferredSize(new Dimension(32, 32));
-		button_6.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_6);
-		button_6.setText("3");
-
-		final JButton button_7 = new JButton();
-		button_7.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_7.setForeground(Color.WHITE);
-		button_7.setBackground(Color.BLACK);
-		button_7.setPreferredSize(new Dimension(32, 32));
-		button_7.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_7);
-		button_7.setText("4");
-
-		final JButton button_8 = new JButton();
-		button_8.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_8.setForeground(Color.WHITE);
-		button_8.setBackground(Color.BLACK);
-		button_8.setPreferredSize(new Dimension(32, 32));
-		button_8.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_8);
-		button_8.setText("5");
-
-		final JButton button_9 = new JButton();
-		button_9.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_9.setForeground(Color.WHITE);
-		button_9.setBackground(Color.BLACK);
-		button_9.setPreferredSize(new Dimension(32, 32));
-		button_9.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_9);
-		button_9.setText("6");
-
-		final JButton button_10 = new JButton();
-		button_10.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_10.setForeground(Color.WHITE);
-		button_10.setBackground(Color.BLACK);
-		button_10.setPreferredSize(new Dimension(32, 32));
-		button_10.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_10);
-		button_10.setText("7");
-
-		final JButton button_11 = new JButton();
-		button_11.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_11.setForeground(Color.WHITE);
-		button_11.setBackground(Color.BLACK);
-		button_11.setPreferredSize(new Dimension(32, 32));
-		button_11.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_11);
-		button_11.setText("8");
-
-		final JButton button_12 = new JButton();
-		button_12.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_12.setForeground(Color.WHITE);
-		button_12.setBackground(Color.BLACK);
-		button_12.setPreferredSize(new Dimension(32, 32));
-		button_12.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_12);
-		button_12.setText("9");
-
-		final JButton button_13 = new JButton();
-		button_13.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_13.setForeground(Color.WHITE);
-		button_13.setBackground(Color.BLACK);
-		button_13.setPreferredSize(new Dimension(32, 32));
-		button_13.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_13);
-		button_13.setText("0");
-
-		final JButton button_14 = new JButton();
-		button_14.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_14.setForeground(Color.WHITE);
-		button_14.setBackground(Color.BLACK);
-		button_14.setPreferredSize(new Dimension(32, 32));
-		button_14.setMinimumSize(new Dimension(0, 0));
-		button_14.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_14);
-		button_14.setText("-");
-
-		final JButton button_15 = new JButton();
-		button_15.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_15.setForeground(Color.WHITE);
-		button_15.setBackground(Color.BLACK);
-		button_15.setPreferredSize(new Dimension(32, 32));
-		button_15.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_15);
-		button_15.setText("=");
-
-		final JButton button_16 = new JButton();
-		button_16.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_16.setForeground(Color.WHITE);
-		button_16.setBackground(Color.BLACK);
-		button_16.setPreferredSize(new Dimension(32, 32));
-		button_16.setMargin(new Insets(2, 2, 2, 2));
-		panel_1.add(button_16);
-		button_16.setText("\\");
-
-		final JButton button_17 = new JButton();
-		button_17.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-		button_17.setForeground(Color.WHITE);
-		button_17.setBackground(Color.BLACK);
-		button_17.setPreferredSize(new Dimension(32, 32));
-		button_17.setMargin(new Insets(2, 1, 2, 1));
-		panel_1.add(button_17);
-		button_17.setText("DEL");
-		button_17.addMouseListener(new MouseListener() {
-			public void mousePressed(MouseEvent arg0) {
-				Z88Keyboard.getInstance().pressZ88key(0x00, 0x7F);
-			}
-			public void mouseReleased(MouseEvent arg0) {
-				Z88Keyboard.getInstance().releaseZ88key(0x00, 0x7F);
-				Z88display.getInstance().grabFocus();
-			}
-
-			public void mouseClicked(MouseEvent arg0) {}
-			public void mouseEntered(MouseEvent arg0) {}
-			public void mouseExited(MouseEvent arg0) {}				
-		});																											
+		panel_1.add(getEscKeyButton());
+		panel_1.add(getNumKey1Button());
+		panel_1.add(getNumKey2Button());
+		panel_1.add(getNumKey3Button());
+		panel_1.add(getNumKey4Button());
+		panel_1.add(getNumKey5Button());
+		panel_1.add(getNumKey6Button());
+		panel_1.add(getNumKey7Button());
+		panel_1.add(getNumKey8Button());
+		panel_1.add(getNumKey9Button());
+		panel_1.add(getNumKey0Button());
+		panel_1.add(getKey037fButton());
+		panel_1.add(getKey027fButton());
+		panel_1.add(getKey017fButton());
+		panel_1.add(getDelKeyButton());
 		
 		final GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
 		gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
@@ -402,13 +271,13 @@ public class Gui extends JFrame {
 			panel_1.add(getButton_17());
 			panel_1.add(getButton_15_2());
 			panel_1.add(getButton_15_2_1());
-			panel_1.add(getButton_8_1());
+			panel_1.add(getHelpKeyButton());
 			panel_1.add(getButton_8_1_1());
 			panel_1.add(getButton_3_1_1_2());
 			panel_1.add(getButton_14_1_1());
 			panel_1.add(getButton_17_1());
 			panel_1.add(getButton_17_1_1());
-			panel_1.add(getButton_17_2());
+			panel_1.add(getRightArrowKeyButton());
 		}
 		return panel_1;
 	}
@@ -1103,18 +972,19 @@ public class Gui extends JFrame {
 		}
 		return button_15_2_1;
 	}
-	protected JButton getButton_8_1()
+	
+	protected JButton getHelpKeyButton()
 	{
-		if (button_8_1 == null) {
-			button_8_1 = new JButton();
-			button_8_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-			button_8_1.setForeground(Color.WHITE);
-			button_8_1.setBackground(Color.BLACK);
-			button_8_1.setBounds(92, 130, 32, 32);
-			button_8_1.setMargin(new Insets(2, 2, 2, 2));
-			button_8_1.setText("HLP");
+		if (helpKeyButton == null) {
+			helpKeyButton = new JButton();
+			helpKeyButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			helpKeyButton.setForeground(Color.WHITE);
+			helpKeyButton.setBackground(Color.BLACK);
+			helpKeyButton.setBounds(92, 130, 32, 32);
+			helpKeyButton.setMargin(new Insets(2, 2, 2, 2));
+			helpKeyButton.setText("HLP");
 
-			button_8_1.addMouseListener(new MouseListener() {
+			helpKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x06, 0x7F);
 				}
@@ -1128,7 +998,7 @@ public class Gui extends JFrame {
 				public void mouseExited(MouseEvent arg0) {}				
 			});															
 		}
-		return button_8_1;
+		return helpKeyButton;
 	}
 	
 	protected JButton getButton_8_1_1()
@@ -1248,7 +1118,7 @@ public class Gui extends JFrame {
 			button_17_1_1.setForeground(Color.WHITE);
 			button_17_1_1.setBackground(Color.BLACK);
 			button_17_1_1.setBounds(529, 130, 32, 32);
-			button_17_1_1.setMargin(new Insets(2, 1, 2, 1));
+			button_17_1_1.setMargin(new Insets(2, 2, 2, 2));
 			button_17_1_1.setText("LF");
 
 			button_17_1_1.addMouseListener(new MouseListener() {
@@ -1267,18 +1137,19 @@ public class Gui extends JFrame {
 		}
 		return button_17_1_1;
 	}
-	protected JButton getButton_17_2()
+	
+	protected JButton getRightArrowKeyButton()
 	{
-		if (button_17_2 == null) {
-			button_17_2 = new JButton();
-			button_17_2.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-			button_17_2.setForeground(Color.WHITE);
-			button_17_2.setBackground(Color.BLACK);
-			button_17_2.setBounds(570, 130, 32, 32);
-			button_17_2.setMargin(new Insets(2, 1, 2, 1));
-			button_17_2.setText("RG");
+		if (rightArrowKeyButton == null) {
+			rightArrowKeyButton = new JButton();
+			rightArrowKeyButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			rightArrowKeyButton.setForeground(Color.WHITE);
+			rightArrowKeyButton.setBackground(Color.BLACK);
+			rightArrowKeyButton.setBounds(570, 130, 32, 32);
+			rightArrowKeyButton.setMargin(new Insets(2, 2, 2, 2));
+			rightArrowKeyButton.setText("RG");
 			
-			button_17_2.addMouseListener(new MouseListener() {
+			rightArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x03, 0xBF);
 				}
@@ -1292,8 +1163,9 @@ public class Gui extends JFrame {
 				public void mouseExited(MouseEvent arg0) {}				
 			});												
 		}
-		return button_17_2;
+		return rightArrowKeyButton;
 	}
+	
 	protected JPanel getPanel_2()
 	{
 		if (panel_2 == null) {
@@ -1329,6 +1201,7 @@ public class Gui extends JFrame {
 		}
 		return toolBar;
 	}
+	
 	protected JButton getButton_1()
 	{
 		if (button_1 == null) {
@@ -1337,6 +1210,7 @@ public class Gui extends JFrame {
 		}
 		return button_1;
 	}
+	
 	protected JButton getButton_2()
 	{
 		if (button_2 == null) {
@@ -1345,7 +1219,414 @@ public class Gui extends JFrame {
 		}
 		return button_2;
 	}
+
+	protected JButton getEscKeyButton() {
+		if (escKeyButton == null) {
+			escKeyButton = new JButton();
+			escKeyButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			escKeyButton.setForeground(Color.WHITE);
+			escKeyButton.setBackground(Color.BLACK);
+			escKeyButton.setPreferredSize(new Dimension(32, 32));
+			escKeyButton.setMargin(new Insets(2, 2, 2, 2));
+			escKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+			escKeyButton.setText("ESC");
+			
+			escKeyButton.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x07, 0xDF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xDF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});					
+		}
 		
+		return escKeyButton;
+	}
+
+	protected JButton getNumKey0Button() {
+		if (numKey0Button == null) {
+			numKey0Button = new JButton();
+			numKey0Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey0Button.setForeground(Color.WHITE);
+			numKey0Button.setBackground(Color.BLACK);
+			numKey0Button.setPreferredSize(new Dimension(32, 32));
+			numKey0Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey0Button.setText("0");
+			numKey0Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x05, 0xFE);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xFE);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey0Button;
+	}
+	
+	protected JButton getNumKey1Button() {
+		if (numKey1Button == null) {
+			numKey1Button = new JButton();
+			numKey1Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey1Button.setForeground(Color.WHITE);
+			numKey1Button.setBackground(Color.BLACK);
+			numKey1Button.setPreferredSize(new Dimension(32, 32));
+			numKey1Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey1Button.setText("1");
+			numKey1Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x05, 0xDF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xDF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey1Button;
+	}
+
+	protected JButton getNumKey2Button() {
+		if (numKey2Button == null) {
+			numKey2Button = new JButton();
+			numKey2Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey2Button.setForeground(Color.WHITE);
+			numKey2Button.setBackground(Color.BLACK);
+			numKey2Button.setPreferredSize(new Dimension(32, 32));
+			numKey2Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey2Button.setText("2");
+			numKey2Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x04, 0xDF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xDF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey2Button;
+	}
+	
+	protected JButton getNumKey3Button() {
+		if (numKey3Button == null) {
+			numKey3Button = new JButton();
+			numKey3Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey3Button.setForeground(Color.WHITE);
+			numKey3Button.setBackground(Color.BLACK);
+			numKey3Button.setPreferredSize(new Dimension(32, 32));
+			numKey3Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey3Button.setText("3");
+			numKey3Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x03, 0xDF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xDF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey3Button;
+	}
+
+	protected JButton getNumKey4Button() {
+		if (numKey4Button == null) {
+			numKey4Button = new JButton();
+			numKey4Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey4Button.setForeground(Color.WHITE);
+			numKey4Button.setBackground(Color.BLACK);
+			numKey4Button.setPreferredSize(new Dimension(32, 32));
+			numKey4Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey4Button.setText("4");
+			numKey4Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x02, 0xDF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xDF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey4Button;
+	}
+
+	protected JButton getNumKey5Button() {
+		if (numKey5Button == null) {
+			numKey5Button = new JButton();
+			numKey5Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey5Button.setForeground(Color.WHITE);
+			numKey5Button.setBackground(Color.BLACK);
+			numKey5Button.setPreferredSize(new Dimension(32, 32));
+			numKey5Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey5Button.setText("5");
+			numKey5Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x01, 0xDF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xDF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey5Button;
+	}
+
+	protected JButton getNumKey6Button() {
+		if (numKey6Button == null) {
+			numKey6Button = new JButton();
+			numKey6Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey6Button.setForeground(Color.WHITE);
+			numKey6Button.setBackground(Color.BLACK);
+			numKey6Button.setPreferredSize(new Dimension(32, 32));
+			numKey6Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey6Button.setText("6");
+			numKey6Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x00, 0xDF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xDF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey6Button;
+	}
+
+	protected JButton getNumKey7Button() {
+		if (numKey7Button == null) {
+			numKey7Button = new JButton();
+			numKey7Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey7Button.setForeground(Color.WHITE);
+			numKey7Button.setBackground(Color.BLACK);
+			numKey7Button.setPreferredSize(new Dimension(32, 32));
+			numKey7Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey7Button.setText("7");
+			numKey7Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x00, 0xFD);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFD);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey7Button;
+	}
+
+	protected JButton getNumKey8Button() {
+		if (numKey8Button == null) {
+			numKey8Button = new JButton();
+			numKey8Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey8Button.setForeground(Color.WHITE);
+			numKey8Button.setBackground(Color.BLACK);
+			numKey8Button.setPreferredSize(new Dimension(32, 32));
+			numKey8Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey8Button.setText("8");
+			numKey8Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x00, 0xFE);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFE);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey8Button;
+	}
+	
+	protected JButton getNumKey9Button() {
+		if (numKey9Button == null) {
+			numKey9Button = new JButton();
+			numKey9Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			numKey9Button.setForeground(Color.WHITE);
+			numKey9Button.setBackground(Color.BLACK);
+			numKey9Button.setPreferredSize(new Dimension(32, 32));
+			numKey9Button.setMargin(new Insets(2, 2, 2, 2));
+			numKey9Button.setText("9");
+			numKey9Button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x03, 0xFE);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xFE);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return numKey9Button;
+	}
+
+	protected JButton getKey037fButton() {
+		if (key037fButton == null) {
+			key037fButton = new JButton();
+			key037fButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			key037fButton.setForeground(Color.WHITE);
+			key037fButton.setBackground(Color.BLACK);
+			key037fButton.setPreferredSize(new Dimension(32, 32));
+			key037fButton.setMargin(new Insets(2, 2, 2, 2));
+			key037fButton.setText("-");
+			key037fButton.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x03, 0x7F);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x03, 0x7F);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return key037fButton;
+	}
+	
+	protected JButton getKey027fButton() {
+		if (key027fButton == null) {
+			key027fButton = new JButton();
+			key027fButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			key027fButton.setForeground(Color.WHITE);
+			key027fButton.setBackground(Color.BLACK);
+			key027fButton.setPreferredSize(new Dimension(32, 32));
+			key027fButton.setMargin(new Insets(2, 2, 2, 2));
+			key027fButton.setText("=");
+			key027fButton.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x03, 0x7F);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x03, 0x7F);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return key027fButton;
+	}
+	
+	protected JButton getKey017fButton() {
+		if (key017fButton == null) {
+			key017fButton = new JButton();
+			key017fButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			key017fButton.setForeground(Color.WHITE);
+			key017fButton.setBackground(Color.BLACK);
+			key017fButton.setPreferredSize(new Dimension(32, 32));
+			key017fButton.setMargin(new Insets(2, 2, 2, 2));
+			key017fButton.setText("\\");
+			key017fButton.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x01, 0x7F);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x01, 0x7F);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																														
+		}
+		
+		return key017fButton;
+	}
+
+	protected JButton getDelKeyButton() {
+		if (delKeyButton == null) {
+			delKeyButton = new JButton();
+			delKeyButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			delKeyButton.setForeground(Color.WHITE);
+			delKeyButton.setBackground(Color.BLACK);
+			delKeyButton.setPreferredSize(new Dimension(32, 32));
+			delKeyButton.setMargin(new Insets(2, 2, 2, 2));
+			delKeyButton.setText("DEL");
+			delKeyButton.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x00, 0x7F);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x00, 0x7F);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});																											
+		}
+
+		return delKeyButton;
+	}
+
 	/**
 	 * This method initializes jScrollPane1
 	 *
