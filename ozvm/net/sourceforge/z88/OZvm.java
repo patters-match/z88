@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  *
@@ -97,18 +96,18 @@ public class OZvm {
 		blinkBanks.append("\n");
 		
 		blinkBanks.append("Segment 0 (2000h-3FFFh): ");
-		blinkBanks.append(dz.byteToHex(z88.getSegmentBank(0) & 0xFE,true)).append(" ");
+		blinkBanks.append(Dz.byteToHex(z88.getSegmentBank(0) & 0xFE,true)).append(" ");
 		blinkBanks.append((z88.getSegmentBank(0) & 1) == 0 ? "(Lower 8K)" : "(Upper 8K)"); 
 		blinkBanks.append("\n");
 		
 		blinkBanks.append("Segment 1 (4000h-7FFFh): ");
-		blinkBanks.append(dz.byteToHex(z88.getSegmentBank(1),true)).append("\n");
+		blinkBanks.append(Dz.byteToHex(z88.getSegmentBank(1),true)).append("\n");
 
 		blinkBanks.append("Segment 2 (8000h-BFFFh): ");
-		blinkBanks.append(dz.byteToHex(z88.getSegmentBank(2),true)).append("\n");
+		blinkBanks.append(Dz.byteToHex(z88.getSegmentBank(2),true)).append("\n");
 
 		blinkBanks.append("Segment 3 (C000h-FFFFh): ");
-		blinkBanks.append(dz.byteToHex(z88.getSegmentBank(3),true));
+		blinkBanks.append(Dz.byteToHex(z88.getSegmentBank(3),true));
 		
 		return blinkBanks;
 	}
@@ -126,26 +125,26 @@ public class OZvm {
 	private void displayZ80Registers() {
 		StringBuffer dzRegisters = new StringBuffer(1024);
 
-		dzRegisters.append(" ").append("BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
-		dzRegisters.append(" ").append("DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
-		dzRegisters.append(" ").append("HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
-		dzRegisters.append(" ").append("IX=").append(dz.addrToHex(z88.IX(),false)).append(" ");
-		dzRegisters.append(" ").append("IY=").append(dz.addrToHex(z88.IY(),false)).append(" ");
+		dzRegisters.append(" ").append("BC=").append(Dz.addrToHex(z88.BC(),false)).append(" ");
+		dzRegisters.append(" ").append("DE=").append(Dz.addrToHex(z88.DE(),false)).append(" ");
+		dzRegisters.append(" ").append("HL=").append(Dz.addrToHex(z88.HL(),false)).append(" ");
+		dzRegisters.append(" ").append("IX=").append(Dz.addrToHex(z88.IX(),false)).append(" ");
+		dzRegisters.append(" ").append("IY=").append(Dz.addrToHex(z88.IY(),false)).append(" ");
 		dzRegisters.append(" ").append("\n");
 		z88.exx();
-		dzRegisters.append("'BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
-		dzRegisters.append("'DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
-		dzRegisters.append("'HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
+		dzRegisters.append("'BC=").append(Dz.addrToHex(z88.BC(),false)).append(" ");
+		dzRegisters.append("'DE=").append(Dz.addrToHex(z88.DE(),false)).append(" ");
+		dzRegisters.append("'HL=").append(Dz.addrToHex(z88.HL(),false)).append(" ");
 		z88.exx();
-		dzRegisters.append(" ").append("SP=").append(dz.addrToHex(z88.SP(),false)).append(" ");
-		dzRegisters.append(" ").append("PC=").append(dz.addrToHex(z88.PC(),false)).append("\n");
-		dzRegisters.append(" ").append("AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
-		dzRegisters.append(" ").append("A=").append(dz.byteToHex(z88.A(),false)).append(" ");
+		dzRegisters.append(" ").append("SP=").append(Dz.addrToHex(z88.SP(),false)).append(" ");
+		dzRegisters.append(" ").append("PC=").append(Dz.addrToHex(z88.PC(),false)).append("\n");
+		dzRegisters.append(" ").append("AF=").append(Dz.addrToHex(z88.AF(),false)).append(" ");
+		dzRegisters.append(" ").append("A=").append(Dz.byteToHex(z88.A(),false)).append(" ");
 		dzRegisters.append(" ").append("F=").append(z80Flags()).append(" ");
 		dzRegisters.append(" ").append("I=").append(z88.I()).append("\n");
 		z88.ex_af_af();
-		dzRegisters.append("'AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
-		dzRegisters.append("'A=").append(dz.byteToHex(z88.A(),false)).append(" ");
+		dzRegisters.append("'AF=").append(Dz.addrToHex(z88.AF(),false)).append(" ");
+		dzRegisters.append("'A=").append(Dz.byteToHex(z88.A(),false)).append(" ");
 		dzRegisters.append("'F=").append(z80Flags()).append(" ");
 		dzRegisters.append(" ").append("R=").append(z88.R()).append("\n");
 		z88.ex_af_af();
@@ -364,9 +363,9 @@ public class OZvm {
 		int memHex, memAscii;
 		
 		memLine.delete(0,255);
-		memLine.append(dz.addrToHex(memAddr,true)).append("  ");
+		memLine.append(Dz.addrToHex(memAddr,true)).append("  ");
 		for (memHex=memAddr; memHex < memAddr+16; memHex++) { 
-			memLine.append(dz.byteToHex(z88.getByte(memHex,memBank),false)).append(" ");
+			memLine.append(Dz.byteToHex(z88.getByte(memHex,memBank),false)).append(" ");
 		}
 
 		for (memAscii=memAddr; memAscii < memAddr+16; memAscii++) {
@@ -485,7 +484,7 @@ public class OZvm {
 	
 					int offset = bp.getAddress() & 0xFFFF;
 					int bank = bp.getAddress() >>> 16;
-					System.out.print(dz.addrToHex(offset,false) + "," + dz.byteToHex(bank,false) + "\t"); 
+					System.out.print(Dz.addrToHex(offset,false) + "," + Dz.byteToHex(bank,false) + "\t"); 
 				}
 				System.out.println();
 			}
