@@ -147,7 +147,7 @@ public class OZvm implements KeyListener {
 						ramSizeArg = Integer.parseInt(args[arg+1], 10);
 						z88.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM Card specified for slot x...
 						if (ramSlotNumber == 0) ramSlot0 = true; 
-						displayRtmMessage("RAM" + ramSlotNumber + " set to " + ramSizeArg + "K.");
+						displayRtmMessage("Inserted " + ramSizeArg + "K RAM Card in slot " + ramSlotNumber);
 						arg+=2;
 						continue;
 					}
@@ -390,27 +390,33 @@ public class OZvm implements KeyListener {
 
 		if (cmdLineTokens[0].compareTo("d") == 0) {
 			dzCommandline(cmdLineTokens);
+			displayCmdOutput("");
 		}
 
 		if (cmdLineTokens[0].compareTo("m") == 0) {
 			viewMemory(cmdLineTokens);
+			displayCmdOutput("");
 		}
 
 		if (cmdLineTokens[0].compareTo("bl") == 0) {
 			blinkStatus.displayBlinkRegisters();
+			displayCmdOutput("");
 		}
 
 		if (cmdLineTokens[0].compareTo("sr") == 0) {
 			blinkStatus.displayBankBindings();
+			displayCmdOutput("");
 		}
 
 		if (cmdLineTokens[0].compareTo("r") == 0) {
 			blinkStatus.displayZ80Registers();
+			displayCmdOutput("");
 		}
 
 		if (cmdLineTokens[0].compareTo("bp") == 0) {
 			try {
 				bpCommandline(cmdLineTokens);
+				displayCmdOutput("");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -419,6 +425,7 @@ public class OZvm implements KeyListener {
 		if (cmdLineTokens[0].compareTo("bpd") == 0) {
 			try {
 				bpdCommandline(cmdLineTokens);
+				displayCmdOutput("");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -441,6 +448,7 @@ public class OZvm implements KeyListener {
 			} catch (IOException e) {
 				displayCmdOutput("Couldn't load file image into bank: '" + e.getMessage() + "'");
 			}
+			displayCmdOutput("");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("f") == 0) {
@@ -859,15 +867,29 @@ public class OZvm implements KeyListener {
 	}
 
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
+		int bpAddress;
+		
 		if (cmdLineTokens.length == 2) {
 			if (z80Thread != null && z80Thread.isAlive() == true) {
-				displayCmdOutput("Breakpoints cannot be edited while Z88 is running.");
+				displayCmdOutput("Display Breakpoints cannot be edited while Z88 is running.");
 				return;
 			} else {
-				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
-				breakp.toggleBreakpoint(bpAddress);
-				displayCmdOutput(breakp.listBreakpoints());
+				bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
+
+				if (bpAddress > 65535) {
+					bpAddress &= 0xFF3FFF;	// strip segment mask
+				} else {
+					if (cmdLineTokens[1].length() == 6) {
+						// bank defined as '00'
+						bpAddress &= 0x3FFF;	// strip segment mask
+					} else {
+						bpAddress = z88.decodeLocalAddress(bpAddress); // local address -> ext.address
+					}
+				}
 			}
+
+			breakp.toggleBreakpoint(bpAddress, true);
+			displayCmdOutput(breakp.listBreakpoints());
 		}
 
 		if (cmdLineTokens.length == 1) {
@@ -877,15 +899,29 @@ public class OZvm implements KeyListener {
 	}
 
 	private void bpdCommandline(String[] cmdLineTokens) throws IOException {
+		int bpAddress;
+		
 		if (cmdLineTokens.length == 2) {
 			if (z80Thread != null && z80Thread.isAlive() == true) {
 				displayCmdOutput("Display Breakpoints cannot be edited while Z88 is running.");
 				return;
 			} else {
-				int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
-				breakp.toggleBreakpoint(bpAddress, false);
-				displayCmdOutput(breakp.listBreakpoints());
+				bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
+
+				if (bpAddress > 65535) {
+					bpAddress &= 0xFF3FFF;	// strip segment mask
+				} else {
+					if (cmdLineTokens[1].length() == 6) {
+						// bank defined as '00'
+						bpAddress &= 0x3FFF;	// strip segment mask
+					} else {
+						bpAddress = z88.decodeLocalAddress(bpAddress); // local address -> ext.address
+					}
+				}
 			}
+
+			breakp.toggleBreakpoint(bpAddress, false);
+			displayCmdOutput(breakp.listBreakpoints());
 		}
 
 		if (cmdLineTokens.length == 1) {
