@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import java.awt.Dimension;
 import javax.swing.border.BevelBorder;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -165,7 +166,7 @@ public class Gui extends JFrame {
 			tabKeyButton.setPreferredSize(new Dimension(56, 32));
 			tabKeyButton.setMargin(new Insets(2, 13, 2, 12));
 			tabKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			tabKeyButton.setText("TAB");
+			tabKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/tab.gif")));
 			
 			tabKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -536,7 +537,7 @@ public class Gui extends JFrame {
 			enterKeyButton.setForeground(Color.WHITE);
 			enterKeyButton.setBackground(Color.BLACK);
 			enterKeyButton.setBounds(584, 49, 57, 74);
-			enterKeyButton.setText("CR");
+			enterKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/enter.gif")));
 			
 			enterKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -593,7 +594,7 @@ public class Gui extends JFrame {
 			diamondKeyButton.setBounds(7, 91, 63, 32);
 			diamondKeyButton.setMargin(new Insets(2, 22, 2, 10));
 			diamondKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			diamondKeyButton.setText("<>");
+			diamondKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/diamond.gif")));
 			
 			diamondKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -933,7 +934,7 @@ public class Gui extends JFrame {
 			leftShiftKeyButton.setBounds(7, 133, 82, 32);
 			leftShiftKeyButton.setMargin(new Insets(2, 22, 2, 10));
 			leftShiftKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			leftShiftKeyButton.setText("SHIFT");
+			leftShiftKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/shift.gif")));
 			
 			leftShiftKeyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -1235,10 +1236,10 @@ public class Gui extends JFrame {
 			rightShiftKeyButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			rightShiftKeyButton.setForeground(Color.WHITE);
 			rightShiftKeyButton.setBackground(Color.BLACK);
-			rightShiftKeyButton.setBounds(514, 133, 85, 32);
+			rightShiftKeyButton.setBounds(516, 133, 82, 32);
 			rightShiftKeyButton.setMargin(new Insets(2, 24, 2, 10));
 			rightShiftKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			rightShiftKeyButton.setText("SHIFT");
+			rightShiftKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/shift.gif")));
 			
 			rightShiftKeyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -1262,7 +1263,7 @@ public class Gui extends JFrame {
 			upArrowKeyButton.setBackground(Color.BLACK);
 			upArrowKeyButton.setBounds(609, 133, 32, 32);
 			upArrowKeyButton.setMargin(new Insets(2, 1, 2, 1));
-			upArrowKeyButton.setText("UP");
+			upArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowup.gif")));
 			
 			upArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1289,7 +1290,7 @@ public class Gui extends JFrame {
 			indexKeyButton.setBackground(Color.BLACK);
 			indexKeyButton.setBounds(7, 174, 32, 32);
 			indexKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			indexKeyButton.setText("IX");
+			indexKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/index.gif")));
 			
 			indexKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1317,7 +1318,7 @@ public class Gui extends JFrame {
 			menuKeyButton.setBackground(Color.BLACK);
 			menuKeyButton.setBounds(48, 174, 32, 32);
 			menuKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			menuKeyButton.setText("MN");
+			menuKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/menu.gif")));
 			
 			menuKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1345,7 +1346,7 @@ public class Gui extends JFrame {
 			helpKeyButton.setBackground(Color.BLACK);
 			helpKeyButton.setBounds(89, 174, 32, 32);
 			helpKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			helpKeyButton.setText("HLP");
+			helpKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/help.gif")));
 
 			helpKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1373,7 +1374,7 @@ public class Gui extends JFrame {
 			squareKeyButton.setBackground(Color.BLACK);
 			squareKeyButton.setBounds(130, 174, 32, 32);
 			squareKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			squareKeyButton.setText("[]");
+			squareKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/square.gif")));
 			
 			squareKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1430,7 +1431,7 @@ public class Gui extends JFrame {
 			capslockKeyButton.setBackground(Color.BLACK);
 			capslockKeyButton.setBounds(484, 174, 32, 32);
 			capslockKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			capslockKeyButton.setText("CPS");
+			capslockKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/capslock.gif")));
 			
 			capslockKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1457,7 +1458,7 @@ public class Gui extends JFrame {
 			downArrowKeyButton.setBackground(Color.BLACK);
 			downArrowKeyButton.setBounds(609, 174, 32, 32);
 			downArrowKeyButton.setMargin(new Insets(2, 1, 2, 1));
-			downArrowKeyButton.setText("DN");
+			downArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowdwn.gif")));
 			
 			downArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1485,7 +1486,7 @@ public class Gui extends JFrame {
 			leftArrowKeyButton.setBackground(Color.BLACK);
 			leftArrowKeyButton.setBounds(526, 174, 32, 32);
 			leftArrowKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			leftArrowKeyButton.setText("LF");
+			leftArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowlft.gif")));
 
 			leftArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1513,7 +1514,7 @@ public class Gui extends JFrame {
 			rightArrowKeyButton.setBackground(Color.BLACK);
 			rightArrowKeyButton.setBounds(567, 174, 32, 32);
 			rightArrowKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			rightArrowKeyButton.setText("RG");
+			rightArrowKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/arrowrgt.gif")));
 			
 			rightArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1591,7 +1592,7 @@ public class Gui extends JFrame {
 			escKeyButton.setPreferredSize(new Dimension(32, 32));
 			escKeyButton.setMargin(new Insets(2, 2, 2, 2));
 			escKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			escKeyButton.setText("ESC");
+			escKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/esc.gif")));
 			
 			escKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1984,7 +1985,7 @@ public class Gui extends JFrame {
 			delKeyButton.setBounds(609, 7, 32, 32);
 			delKeyButton.setPreferredSize(new Dimension(32, 32));
 			delKeyButton.setMargin(new Insets(2, 2, 2, 2));
-			delKeyButton.setText("DEL");
+			delKeyButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/del.gif")));
 			delKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x00, 0x7F);
