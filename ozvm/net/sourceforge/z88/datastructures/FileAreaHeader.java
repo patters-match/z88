@@ -34,6 +34,7 @@ public class FileAreaHeader {
 	private int randomId;
 	private int size;
 	private int subtype;
+	private int bankHdr;
 	
 	/**
 	 * Read File Header memory content of absolute bankNo, offset $3FC0 - $3FFF.
@@ -50,6 +51,7 @@ public class FileAreaHeader {
 		
 		size = memory.getByte(0x3FFC, bankNo);  // Size of file area in 16K banks
 		subtype = memory.getByte(0x3FFD, bankNo);
+		bankHdr = bankNo;
 	}
 	
 	/**
@@ -72,4 +74,12 @@ public class FileAreaHeader {
 	public int getSize() {
 		return size;
 	}
+	
+	/**
+	 * @return the (absolute) bank number of the file area header.
+	 */
+	public int getBankNo() {
+		return bankHdr;
+	}
+
 }
