@@ -19,11 +19,11 @@
 
      LIB MemDefBank
      LIB EnableInt, DisableInt
+     LIB FlashEprCardId, ExecRoutineOnStack
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
 
-     DEFC VppBit = 1
 
 ; ==========================================================================================
 ; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
@@ -32,20 +32,43 @@ DEFC FE_RST = $FF           ; reset chip in read array mode
 DEFC FE_RSR = $70           ; read status register
 DEFC FE_CSR = $50           ; clear status register
 DEFC FE_WRI = $40           ; byte write command
+DEFC VppBit = 1
 ; ==========================================================================================
 
 
 ; ***************************************************************************
 ;
-; Write a byte to the Flash Eprom Card (in slot 3), at address BHL
+; -----------------------------------------------------------------------
+; Write a byte (in A) to the Flash Memory Card in slot x, at address BHL.
+; -----------------------------------------------------------------------
 ;
-; BHL pointer is assumed relative, ie. B = 00h - 3Fh, HL = 0000h - 3FFFh.
+; BHL points to an absolute bank (which is part of the slot that the Flash 
+; Memory Card have been inserted into).
 ;
-; This routine will temporarily set Vpp while blowing the byte.
+; The routine can OPTIONALLY be told which programming algorithm to use 
+; (by specifying the FE_28F or FE_29F mnemonic in A'); these parameters
+; can be fetched when investigated which Flash Memory chip is available 
+; in the slot, using the FlashEprCardId routine that reports these constant 
+; back to the caller.
+;
+; However, if neither of the constants are provided in A', the routine will 
+; internally ask the Flash Memory for identification and intelligently use 
+; the correct programming algorithm.
+;
+; Important: 
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
+; to successfully blow the byte on the memory chip. If the Flash Eprom card 
+; is inserted in slot 1 or 2, this routine will report a programming failure. 
+;
+; It is the responsibility of the application (before using this call) to 
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
+; this type of unnecessary error can be avoided.
 ;
 ; In:
 ;         A = byte
-;         BHL = pointer to Flash Eprom address (B=00h-3Fh, HL=0000h-3FFFh)
+;         A' = FE_28F or FE_29F (optional)
+;         BHL = pointer to Flash Memory address (B=00h-FFh, HL=0000h-3FFFh)
 ; Out:
 ;         Success:
 ;              A = A(in)
@@ -60,7 +83,7 @@ DEFC FE_WRI = $40           ; byte write command
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997, Jan '98 - Apr '98
+;    Gunther Strube, InterLogic, Dec 1997, Jan '98-Apr '98, Aug 2004
 ;    Thierry Peycru, Zlab, Dec 1997
 ; --------------------------------------------------------------------------
 ;
@@ -72,16 +95,14 @@ DEFC FE_WRI = $40           ; byte write command
 
                     RES  7,H
                     SET  6,H                 ; HL will be working in segment 1...
-                    SET  7,B
-                    SET  6,B                 ; bank located in slot 3...
 
                     LD   C,MS_S1
                     CALL MemDefBank          ; bind bank B into segment...
-                    CALL DisableInt          ; disable maskable interrupts (status preserved in IX)
 
+                    CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
                     CALL FEP_BlowByte        ; blow byte in A to (BHL) address
-
                     CALL EnableInt           ; enable maskable interrupts
+
                     CALL MemDefBank          ; restore original bank binding
 
                     POP  IX
@@ -89,6 +110,7 @@ DEFC FE_WRI = $40           ; byte write command
                     POP  DE
                     POP  BC
                     RET
+
 
 ; ***************************************************************
 ;
@@ -106,36 +128,16 @@ DEFC FE_WRI = $40           ; byte write command
 ;    A.BCDEHL/IXIY same
 ;    .F....../.... different
 ;
-.FEP_Blowbyte       PUSH BC
-                    EXX
-                    LD   HL,0
-                    ADD  HL,SP
-                    EX   DE,HL
-                    LD   HL, -(RAM_code_end - RAM_code_start)
-                    ADD  HL,SP
-                    LD   SP,HL               ; buffer for routine ready...
-                    PUSH DE                  ; preserve original SP
-                    
-                    PUSH HL
-                    EX   DE,HL               ; DE points at <RAM_code_start>
-                    LD   HL, RAM_code_start
-                    LD   BC, RAM_code_end - RAM_code_start
-                    LDIR                     ; copy RAM routine...
-                    LD   HL,exit_blowbyte
-                    EX   (SP),HL
-                    PUSH HL
-                    EXX
-                    RET                      ; CALL RAM_code_start
-.exit_blowbyte
-                    EXX
-                    POP  HL                  ; original SP
-                    LD   SP,HL
-                    EXX
-                    POP  BC
-                    RET            
+.FEP_Blowbyte       
+                    LD   IX, FEP_ExecBlowbyte
+                    LD   BC, end_FEP_ExecBlowbyte - FEP_ExecBlowbyte
+                    CALL ExecRoutineOnStack
+                    RET
+                                        
           
-; 63 bytes on stack to be executed... 
-.RAM_code_start     
+; ***************************************************************
+;
+.FEP_ExecBlowbyte
                     PUSH AF
                     LD   BC,$04B0            ; Address of soft copy of COM register
                     LD   A,(BC)
@@ -174,4 +176,4 @@ DEFC FE_WRI = $40           ; byte write command
                     OUT  (C),A               ; Disable Vpp in slot 3
                     POP  AF
                     RET
-.RAM_code_end
+.end_FEP_ExecBlowbyte
