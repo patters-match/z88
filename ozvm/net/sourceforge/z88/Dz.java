@@ -4208,7 +4208,7 @@ public class Dz {
 
 				case 1 :
 					mnemonic.replace(replaceMacro, replaceMacro+3, byteToHex(opcode[instrOpcodeOffset], true));
-					instrOpcode++; /* move past opcode */
+					instrOpcodeOffset++; /* move past opcode */
 					break;
 
 				case 0 :
