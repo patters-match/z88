@@ -6,6 +6,14 @@ import gameframe.graphics.*;
 import gameframe.input.*;
 import gameframe.*;
 
+/**
+ * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
+ *
+ * The display renderer of the Z88 virtual machine.
+ * 
+ * $Id$
+ * 
+ */
 
 public class Z88display 
 {
