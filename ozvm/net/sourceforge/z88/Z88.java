@@ -3,16 +3,14 @@ package net.sourceforge.z88;
 
 import java.io.*;
 
-/*
- * @(#)Z88.java 1.1 Gunther Strube
- */
-
 /**
- * The Z88 class extends the Z80 class implementing the supporting
- * hardware emulation which was specific to the Z88. This
- * includes the memory mapped screen and the IO ports which were used
- * to read the keyboard, the 4MB memory model, the BLINK
- * on/off. There is no sound support in this version.<P>
+ * 
+ * The "Heart" and blood stream of the Z88 (Z80 processor and RAM).
+ * 
+ * The Z88 class extends the Z80 class implementing the supporting hardware
+ * emulation which was specific to the Z88. This includes the memory mapped
+ * screen and the IO ports which were used to read the keyboard, the 4MB memory
+ * model, the BLINK on/off. There is no sound support in this version.<P>
  *
  * @version 0.1
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
@@ -26,11 +24,8 @@ import java.io.*;
 
 public class Z88 extends Z80 {
 
-    public static final int BLINKREG_SR0 = 0xD0;
-    public static final int BLINKREG_SR1 = 0xD1;
-    public static final int BLINKREG_SR2 = 0xD2;
-    public static final int BLINKREG_SR3 = 0xD3;
-
+	private Blink blink;
+	
     /**
      * The Z88 disassembly engine
      */
@@ -43,15 +38,9 @@ public class Z88 extends Z80 {
 
     /**
      * The Z88 memory organisation.
-     * Array for 256 16K banks = 4Mb memory
+     * Array for 256 x 16K banks = 4Mb memory
      */
     private Bank z88Memory[];
-
-    /**
-     * System bank for lower 8K of segment 0.
-     * References bank 0x00 or 0x20 of slot 0.
-     */
-    private Bank RAMS;
 
     /**
      * Null bank. This is used in for unassigned banks,
@@ -72,33 +61,6 @@ public class Z88 extends Z80 {
     private Bank slotCards[][];
 
     /**
-     * Segment register array for SR0 - SR3
-     * Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
-     * Segment register 1, SR1, bank binding for 0x4000 - 0x7FFF
-     * Segment register 2, SR2, bank binding for 0x8000 - 0xBFFF
-     * Segment register 3, SR3, bank binding for 0xC000 - 0xFFFF
-     *
-     * Any of the registers contains a bank number, 0 - 255 that
-     * is currently bound into the corresponding segment in the
-     * Z80 address space.
-     */
-    private int sR[];
-
-    /**
-     * Blink Command register, port $B0
-     */
-    private int COM;
-    private static final int BM_COMSRUN = 0x80;     // Bit 7, SRUN
-    private static final int BM_COMSBIT = 0x40;     // Bit 6, SBIT
-    private static final int BM_COMOVERP = 0x20;    // Bit 5, OVERP
-    private static final int BM_COMRESTIM = 0x10;   // Bit 4, RESTIM
-    private static final int BM_COMPROGRAM = 0x08;  // Bit 3, PROGRAM
-    private static final int BM_COMRAMS = 0x04;     // Bit 2, RAMS
-    private static final int BM_COMVPPON = 0x02;    // Bit 1, VPPON
-    private static final int BM_COMLCDON = 0x01;    // Bit 0, LCDON
-
-
-    /**
      * Constructor.
      * Initialize Z88 Hardware.
      */
@@ -108,10 +70,11 @@ public class Z88 extends Z80 {
         // interrupt signals each 10ms from BLINK to Z80 through INT pin
         super();
 
-        dz = new Dz(this);  // the disassembly engine must know about the Z88 virtual machine
+		blink = new Blink();	// initialize BLINK chip
+        dz = new Dz(this);  	// the disassembly engine must know about the Z88 virtual machine
 
         // Initialize Z88 memory model
-        sR = new int[4];                    // the segment register SR0 - SR3
+        
         z88Memory = new Bank[256];          // The Z88 memory addresses 256 banks = 4MB!
         nullBank = new Bank(Bank.EPROM);
         slotCards = new Bank[4][];          // Instantiate the slot containers for Cards...
@@ -125,15 +88,11 @@ public class Z88 extends Z80 {
 
 
     public void hardReset() {
-        reset();                // reset Z80 registers
-        COM = 0;                // reset COM register
-        RAMS = z88Memory[0];    // point at ROM bank $00
+        reset();                		// reset Z80 registers
+        blink.setCOM(0);        		// reset COM register
+        blink.setRAMS(z88Memory[0]);    // point at ROM bank $00
 
-        for (int segment=0; segment < sR.length; segment++) {
-            sR[segment] = 0;    // all segment registers points at ROM bank 0
-        }
-
-        resetRam();             // reset memory of all available RAM in Z88 memory
+        resetRam();             		// reset memory of all available RAM in Z88 memory
     }
 
 
@@ -289,29 +248,29 @@ public class Z88 extends Z80 {
         // the Z88 spends most of the time in segments 1 - 3,
         // therefore we should ask for this first...
         if (segment > 0) {
-            return z88Memory[sR[segment]].readByte(addr);
+            return z88Memory[blink.getSegmentBank(segment)].readByte(addr);
         } else {
             // Bank 0 is split into two 8K blocks.
             // Lower 8K is System Bank 0x00 (ROM on hard reset)
             // or 0x20 (RAM for Z80 stack and system variables)
             if (addr < 0x2000) {
-                return RAMS.readByte(addr);
+                return blink.getRAMS().readByte(addr);
             } else {
                 // determine which 8K of bank has been bound into
                 // upper half of segment 0. Only even numbered banks
                 // can be bound into upper segment 0.
                 // (to implement this hardware feature, we strip bit 0
                 // of the bank number with the bit mask 0xFE)
-                if ((sR[0] & 1) == 1) {
+                if ((blink.getSegmentBank(0) & 1) == 1) {
                     // bit 0 is set in even bank number, ie. upper half of
                     // 8K bank is bound into upper segment 0...
                     // address is already in range of 0x2000 - 0x3FFF
                     // (upper half of bank)
-                    return z88Memory[sR[0] & 0xFE].readByte(addr);
+                    return z88Memory[blink.getSegmentBank(0) & 0xFE].readByte(addr);
                 } else {
                     // lower half of 8K bank is bound into upper segment 0...
                     // force address to read in the range 0 - 0x1FFF of bank
-                    return z88Memory[sR[0] & 0xFE].readByte(addr & 0x1FFF);
+                    return z88Memory[blink.getSegmentBank(0) & 0xFE].readByte(addr & 0x1FFF);
                 }
             }
         }
@@ -333,29 +292,29 @@ public class Z88 extends Z80 {
         // the Z88 spends most of the time in segments 1 - 3,
         // therefore we should try this first...
         if (segment > 0) {
-            z88Memory[sR[segment]].writeByte(addr, b);
+            z88Memory[blink.getSegmentBank(segment)].writeByte(addr, b);
         } else {
             // Bank 0 is split into two 8K blocks.
             // Lower 8K is System Bank 0x00 (ROM on hard reset)
             // or 0x20 (RAM for Z80 stack and system variables)
             if (addr < 0x2000) {
-                RAMS.writeByte(addr, b);
+				blink.getRAMS().writeByte(addr, b);
             } else {
                 // determine which 8K of bank has been bound into
                 // upper half of segment 0. Only even numbered banks
                 // can be bound into upper segment 0.
                 // (to implement this hardware feature, we strip bit 0
                 // of the bank number with the bit mask 0xFE)
-                if ((sR[0] & 1) == 1) {
+                if ((blink.getSegmentBank(0) & 1) == 1) {
                     // bit 0 is set in even bank number, ie. upper half of
                     // 8K bank is bound into upper segment 0...
                     // address is already in range of 0x2000 - 0x3FFF
                     // (upper half of bank)
-                    z88Memory[sR[0] & 0xFE].writeByte(addr, b);
+                    z88Memory[blink.getSegmentBank(0) & 0xFE].writeByte(addr, b);
                 } else {
                     // lower half of 8K bank is bound into upper segment 0...
                     // force address to read in the range 0 - 0x1FFF of bank
-                    z88Memory[sR[0] & 0xFE].writeByte(addr & 0x1FFF, b);
+                    z88Memory[blink.getSegmentBank(0) & 0xFE].writeByte(addr & 0x1FFF, b);
                 }
             }
         }
@@ -371,22 +330,6 @@ public class Z88 extends Z80 {
 
         dz.getInstrAscii(dzBuffer, addr, true);
         System.out.println(dzBuffer);   // display executing instruction in shell
-    }
-
-    /**
-     * Bind bank [0; 255] to segments [0; 3] in the Z80 address space.
-     *
-     * On the Z88, the 64K is split into 4 sections of 16K segments.
-     * Any of the 256 16K banks can be bound into the address space
-     * on the Z88. Bank 0 is special, however.
-     * Please refer to hardware section of the Developer's Notes.
-     */
-    private void bindBank(int segment, int bank) {
-        // no fuzz with segments here. The segment logic for bank 0
-        // is handled in readByte() and writeByte().
-
-        // only segments values 0 - 3 and bank numbers 0 - 255!
-        sR[segment % 4] = bank % 256;
     }
 
 
@@ -407,26 +350,26 @@ public class Z88 extends Z80 {
     public void outByte( int port, int outByte) {
         switch(port) {
             case 0xB0:  // COM
-                COM = outByte;
-                if ( (COM & BM_COMRAMS) == BM_COMRAMS)
+                blink.setCOM(outByte);
+                if ( (outByte & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
                     // RAM is bound into lower 8K of segment 0
-                    RAMS = z88Memory[0x20];
+                    blink.setRAMS(z88Memory[0x20]);
                 else
                     // ROM bank 0 is bound into lower 8K of segment 0
-                    RAMS = z88Memory[0x00];
+                    blink.setRAMS(z88Memory[0x00]);
                 break;
 
             case 0xD0:  // SR0
-                bindBank(0, outByte);
+			    blink.setSegmentBank(0, outByte);
                 break;
             case 0xD1:  // SR1
-                bindBank(1, outByte);
+				blink.setSegmentBank(1, outByte);
                 break;
             case 0xD2:  // SR2
-                bindBank(2, outByte);
+				blink.setSegmentBank(2, outByte);
                 break;
             case 0xD3:  // SR3
-                bindBank(2, outByte);
+				blink.setSegmentBank(2, outByte);
                 break;
         }
     }
