@@ -21,7 +21,8 @@ public final class Blink extends Z80 {
 	 * Blink class default constructor.
 	 */
 	Blink() {
-
+		super();
+		
 		// the segment register SR0 - SR3
 		sR = new int[4];
 		// all segment registers points at ROM bank 0
@@ -305,6 +306,7 @@ public final class Blink extends Z80 {
 	 * Pixel Base Register 0
 	 */
 	public void setPb0(int bits) {
+		System.out.println("PB0, Pixel Base Register 0 = " + Integer.toHexString(bits));
 		PB0 = bits;
 	}
 	
@@ -317,6 +319,7 @@ public final class Blink extends Z80 {
 	 * Pixel Base Register 1
 	 */
 	public void setPb1(int bits) {
+		System.out.println("PB1, Pixel Base Register 1 = " + Integer.toHexString(bits));
 		PB1 = bits;
 	}
 	
@@ -329,6 +332,7 @@ public final class Blink extends Z80 {
 	 * Pixel Base Register 2
 	 */
 	public void setPb2(int bits) {
+		System.out.println("PB2, Pixel Base Register 2 = " + Integer.toHexString(bits));
 		PB2 = bits;
 	}
 	
@@ -341,6 +345,7 @@ public final class Blink extends Z80 {
 	 * Set Pixel Base Register 3
 	 */
 	public void setPb3(int bits) {
+		System.out.println("PB3, Pixel Base Register 3 = " + Integer.toHexString(bits));
 		PB3 = bits;
 	}
 	
@@ -353,6 +358,7 @@ public final class Blink extends Z80 {
 	 * Set Screen Base Register
 	 */	
 	public void setSbr(int bits) {
+		System.out.println("SBR, Screen Base Register = " + Integer.toHexString(bits));
 		SBR = bits;
 	}
 	
@@ -861,7 +867,6 @@ public final class Blink extends Z80 {
 	 *	@param bits
 	 */
 	public void setCom(int bits) {
-		COM = bits;
 
 		if (rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
 			// Stop Real Time Clock (RESTIM = 1)
@@ -882,6 +887,16 @@ public final class Blink extends Z80 {
 			// Slot 0 ROM bank 0 is bound into lower 8K of segment 0
 			RAMS = memory[0x00];
 		}
+
+		if ( ((bits & Blink.BM_COMLCDON) == Blink.BM_COMLCDON) && ((COM & Blink.BM_COMLCDON) == 0)) {
+			System.out.println("LCD Screen was enabled.");
+		}
+
+		if ( ((bits & Blink.BM_COMLCDON) == 0) && ((COM & Blink.BM_COMLCDON) == Blink.BM_COMLCDON)) {
+			System.out.println("LCD Screen was disabled.");
+		}
+
+		COM = bits;
 	}
 
 	public final int getCom() {
@@ -1063,7 +1078,7 @@ public final class Blink extends Z80 {
 			}
 		}
 	}
-
+	
 	/**
 	 * This class represents a 16K memory block or bank of memory.
 	 * The characteristics of a bank can be that it's part of a Ram card (or the
