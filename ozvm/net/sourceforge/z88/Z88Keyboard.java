@@ -1151,6 +1151,12 @@ public class Z88Keyboard implements KeyListener {
 				pressZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key
 				break;
 
+			case KeyEvent.VK_INSERT:
+				kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_V));
+				pressZ88key(z88DiamondKey);
+				pressZ88key(kp);				// INSERT executes Z88 DIAMOND V
+				break;
+
 			case KeyEvent.VK_DELETE:
 				pressZ88key(z88RshKey);
 				pressZ88key(z88DelKey);
@@ -1242,6 +1248,12 @@ public class Z88Keyboard implements KeyListener {
 			case KeyEvent.VK_DELETE:
 				releaseZ88key(z88DelKey);
 				releaseZ88key(z88RshKey);
+				break;
+
+			case KeyEvent.VK_INSERT:
+				kp = (KeyPress) currentLayout.get(new Integer(KeyEvent.VK_V));
+				releaseZ88key(kp);
+				releaseZ88key(z88DiamondKey);		// INSERT executes Z88 DIAMOND V
 				break;
 
 			case KeyEvent.VK_NUMPAD0:
