@@ -34,7 +34,7 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.3.5";
+	public static final String VERSION = "0.3.5.3";
 	public static boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
 	private Blink z88 = null;
@@ -128,7 +128,7 @@ public class OZvm implements KeyListener {
 
 		blinkStatus.displayZ80Registers();
 
-		dz.getInstrAscii(dzBuffer, z88.PC(), true);
+		dz.getInstrAscii(dzBuffer, z88.PC(), true, true);
 		displayCmdOutput( Dz.byteToHex(bank, false) + dzBuffer);
 	}
 
@@ -862,6 +862,7 @@ public class OZvm implements KeyListener {
 	}
 
 	private void dzCommandline(String[] cmdLineTokens) {
+		boolean localAddressing = true;
 		int dzAddr = 0, dzBank = 0;
 		StringBuffer dzLine = new StringBuffer(64);
 
@@ -870,47 +871,70 @@ public class OZvm implements KeyListener {
 			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
 			if (dzAddr > 65535) {
 				dzBank = (dzAddr >>> 16) & 0xFF;
-				dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code..
+				dzAddr &= 0xFFFF;	// bank offset (with simulated segment addressing)
+				localAddressing = false;
 			} else {
 				if (cmdLineTokens[1].length() == 6) {
 					// bank defined as '00'
 					dzBank = 0;
+					localAddressing = false;
 				} else {
-                    // get extended address from current bank binding
-                    dzAddr = z88.decodeLocalAddress(dzAddr) | (dzAddr & 0xF000);
-                    dzBank = (dzAddr >>> 16) & 0xFF;
-                    dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code..
-				}
+					localAddressing = true;				
+				}				
 			}
 		} else {
 			if (cmdLineTokens.length == 1) {
-				// no arguments, use PC in current bank binding
-                dzAddr = z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000);
-                dzBank = (dzAddr >>> 16) & 0xFF;
-                dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code..
+				// no arguments, use PC in current bank binding (use local addressing)...
+				dzAddr = z88.PC();
+				localAddressing = true;
 			} else {
 				displayCmdOutput("Illegal argument.");
 				return;
 			}
 		}
 
-		for (int dzLines = 0;  dzLines < 16; dzLines++) {
-			dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, true);
-			dzAddr &= 0xFFFF;
-			displayCmdOutput(Dz.byteToHex(dzBank,false) + dzLine);
-		}
+		if (localAddressing == true) {
+			for (int dzLines = 0;  dzLines < 16; dzLines++) {
+				int origAddr = dzAddr; 
+				dzAddr = dz.getInstrAscii(dzLine, dzAddr, false, true);
+				displayCmdOutput(Dz.addrToHex(origAddr,false) + " (" + Dz.extAddrToHex(z88.decodeLocalAddress(origAddr),false).toString() + ") " + dzLine.toString());
+			}
+			
+			commandInput.setText("d " + Dz.addrToHex(dzAddr,false));			
+		} else {
+			// extended addressing
+			for (int dzLines = 0;  dzLines < 16; dzLines++) {
+				int origAddr = dzAddr; 
+				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, false, true);
+				displayCmdOutput(Dz.extAddrToHex(origAddr,false) + " " + dzLine);
+			}
 
-		commandInput.setText("d " + Dz.byteToHex(dzBank,false) + Dz.addrToHex(dzAddr,false));
+			commandInput.setText("d " + Dz.extAddrToHex(dzAddr,false));
+		}		
 		commandInput.setCaretPosition(commandInput.getDocument().getLength());
-		commandInput.selectAll();
+		commandInput.selectAll();			
 	}
 
+	private int getMemoryAscii(StringBuffer memLine, int memAddr) {
+		int memHex, memAscii;
+
+		memLine.delete(0,255);		
+		for (memHex=memAddr; memHex < memAddr+16; memHex++) {
+			memLine.append(Dz.byteToHex(z88.readByte(memHex),false)).append(" ");
+		}
+
+		for (memAscii=memAddr; memAscii < memAddr+16; memAscii++) {
+			int b = z88.readByte(memAscii);
+			memLine.append( (b >= 32 && b <= 127) ? Character.toString( (char) b) : "." );
+		}
+		
+		return memAscii;
+	}
 
 	private int getMemoryAscii(StringBuffer memLine, int memAddr, int memBank) {
 		int memHex, memAscii;
 
 		memLine.delete(0,255);
-		memLine.append(Dz.byteToHex(memBank, false) + Dz.addrToHex(memAddr,true)).append("  ");
 		for (memHex=memAddr; memHex < memAddr+16; memHex++) {
 			memLine.append(Dz.byteToHex(z88.getByte(memHex,memBank),false)).append(" ");
 		}
@@ -954,9 +978,10 @@ public class OZvm implements KeyListener {
 
 
 	private void viewMemory(String[] cmdLineTokens) {
+		boolean localAddressing = true;
 		int memAddr = 0, memBank = 0;
 		StringBuffer memLine = new StringBuffer(256);
-
+		
 		if (cmdLineTokens.length == 2) {
 			// one argument; the local Z80 64K address or 24bit compact ext. address
 			memAddr = Integer.parseInt(cmdLineTokens[1], 16);
@@ -968,31 +993,44 @@ public class OZvm implements KeyListener {
 				if (cmdLineTokens[1].length() == 6) {
 					// bank defined as '00'
 					memBank = 0;
+					localAddressing = false;
 				} else {
-                    memAddr = z88.decodeLocalAddress(memAddr) | (memAddr & 0xF000);
-                    memBank = (memAddr >>> 16) & 0xFF;
-                    memAddr &= 0xFFFF;	// preserve local address look, makes it easier to identify..
+					localAddressing = true;				
 				}
 			}
 		} else {
 			if (cmdLineTokens.length == 1) {
-				// no arguments, use PC in current bank binding
-                memAddr = z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000);
-                memBank = (memAddr >>> 16) & 0xFF;
-                memAddr &= 0xFFFF;	// preserve local address look, makes it easier identify..
+				// no arguments, use PC in current bank binding (use local addressing)...
+                memAddr = z88.PC();
+				localAddressing = true;
 			} else {
 				displayCmdOutput("Illegal argument.");
 				return;
 			}
 		}
 
-		for (int memLines = 0;  memLines < 16; memLines++) {
-			memAddr = getMemoryAscii(memLine, memAddr, memBank);
-			memAddr &= 0xFFFF;
-			displayCmdOutput(memLine.toString());
-		}
+		if (localAddressing == true) {
+			for (int memLines = 0;  memLines < 16; memLines++) {
+				int origAddr = memAddr; 				
+				memAddr = getMemoryAscii(memLine, memAddr);
+				displayCmdOutput(Dz.addrToHex(origAddr, false) + " (" + 
+						Dz.extAddrToHex(z88.decodeLocalAddress(origAddr),false).toString() + ") " +  
+						memLine.toString());
+			}
 
-		commandInput.setText("m " + Dz.byteToHex(memBank,false) + Dz.addrToHex(memAddr,false));
+			commandInput.setText("m " + Dz.addrToHex(memAddr,false));			
+		} else {
+			// extended addressing
+			for (int memLines = 0;  memLines < 16; memLines++) {
+				int origAddr = memAddr; 				
+				memAddr = getMemoryAscii(memLine, memAddr, memBank);
+				memAddr &= 0x3FFF; // stay within bank boundary..
+				displayCmdOutput(Dz.extAddrToHex(origAddr,false) + " " + memLine.toString());
+			}
+
+			commandInput.setText("m " + Dz.extAddrToHex(memAddr,false));
+		}
+		
 		commandInput.setCaretPosition(commandInput.getDocument().getLength());		
 		commandInput.selectAll();
 	}
