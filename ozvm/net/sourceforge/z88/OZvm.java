@@ -140,6 +140,7 @@ public class OZvm {
 		
 		StringBuffer dzLine = new StringBuffer(64);
 		StringBuffer prevCmdline = new StringBuffer();
+		System.out.print("$");
 		while ((cmdline = in.readLine()).equalsIgnoreCase("exit") == false) {
 			System.out.print("$");
 			
