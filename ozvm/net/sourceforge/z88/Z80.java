@@ -531,9 +531,9 @@ public abstract class Z80 {
 
 	
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
-    public final void run() {
+    public final void run(boolean singleStepping) {
 
-        while (z80Stopped == false) {
+        do {
 			
             // INT occurred
             if (interruptTriggered() == true) {
@@ -542,7 +542,7 @@ public abstract class Z80 {
 
             REFRESH(1);
 
-            if (z80Halted == true) {
+            if (z80Halted == true && z80Stopped == false && singleStepping == false) {
                 continue;                   // back to main decode loop and wait for external interrupt
             }
 
@@ -2064,10 +2064,10 @@ public abstract class Z80 {
                         break;
                     }
             }
+        }
+        while (singleStepping == false && z80Stopped == false);        
 
-        } // end while
-        
-		z80Stopped = false;		// ready for a new run...
+		z80Stopped = false;
     }
 
     private final int execute_ed(int tstatesCounter) {
