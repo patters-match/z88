@@ -105,7 +105,7 @@
                     DEFM "Freeware utility (GPL licence) by",$7F
                     DEFM "Thierry Peycru (Zlab) & Gunther Strube (InterLogic)",$7F
                     DEFM $7F
-                    DEFM "Release V1.7.dev, December 2004",$7F
+                    DEFM "Release V1.7.rc2, December 2004",$7F
                     DEFM "(C) Copyright 1997-2004. All rights reserved",0
 ; *************************************************************************************
 
@@ -347,7 +347,7 @@
                          LD   (curslot),A         ; use found Flash Card this as current slot...
                          CALL greyscr
                          CALL DispCtlgWindow
-                         call format_main         ; format Flash Card with new File Area
+                         call format_default      ; format Flash Card with new File Area
                          ret
 .select_slot
                     cp   1
@@ -457,9 +457,10 @@
                     cp   a                        ; slot selected successfully
                     ret
 
-.check_empty_flcard call FlashWriteSupport
+.check_empty_flcard
+                    call FlashWriteSupport
                     jr   nz, select_slot_loop     ; no Flash Card in slot...
-                    jp   nc, format_main          ; empty flash card in slot (no file area, and erase/write support)
+                    jp   nc, format_default       ; empty flash card in slot (no file area, and erase/write support)
 
                     CALL DispCmdWindow
                     CALL DispCtlgWindow
@@ -856,9 +857,9 @@
                     call PollSlots
                     call SelectSlot          ; user selects a File Eprom Area in one of the ext. slots.
                     pop  bc
-                    jp   c, suicide          ; no File Eprom's available, kill FlashStore popdown...
-                    ret  z                   ; user selected a device...
-
+                    jp   c, user_aborted
+                    ret  z                   ; user selected a device, already stored in (curslot)...
+.user_aborted
                     ld   a,c
                     ld   (curslot),a         ; user aborted selection, restore original slot...
                     ret
@@ -869,16 +870,17 @@
 ;
 ; Save Files to Flash Eprom
 ;
-.save_main          call cls
+.save_main          
                     call CheckBatteryStatus
                     ret  c                        ; batteries are low - operation aborted
-
+                    call cls
 .init_save_main
                     ld   a,(curslot)
                     ld   c,a
                     push bc
                     call FileEprRequest
                     pop  bc
+                    call c, disp_no_filearea_msg
                     ret  c
 
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
@@ -1141,12 +1143,18 @@
 ; it will be marked as deleted.
 ;
 .delete_main
+                    call cls
+
                     ld   a,(curslot)
                     ld   c,a
                     push bc
                     call FileEprRequest
                     pop  bc
+                    call c, disp_no_filearea_msg
                     ret  c
+
+                    call FilesAvailable
+                    jp   z, no_files              ; Fz = 1, no files available...
 
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
                     call c,DispIntelSlotErr
@@ -1201,8 +1209,7 @@
                     RET
 .file_deleted
                     LD   HL,filedel_msg
-                    CALL_OZ(GN_Sop)
-                    CALL pwait
+                    CALL DispErrMsg
                     RET
 ; *************************************************************************************
 
@@ -1215,12 +1222,17 @@
 ; fetched into a specified RAM file.
 ;
 .fetch_main
+                    call cls                                        
+
                     ld   a,(curslot)
                     ld   c,a
                     call FileEprRequest
+                    call c, disp_no_filearea_msg
                     ret  c
 
-                    call cls
+                    call FilesAvailable
+                    jp   z, no_files             ; Fz = 1, no files available...
+
                     ld   hl,fetch_bnr
                     call wbar
                     ld   hl,exct_msg
@@ -1355,19 +1367,18 @@
 ; Restore ALL active files into a user defined RAM device (or path)
 ;
 .restore_main
+                    CALL cls
+
                     ld   a,(curslot)
                     ld   c,a
                     push bc
                     call FileEprRequest
                     pop  bc
+                    call c, disp_no_filearea_msg
                     ret  c
 
-                    CALL cls
-
-                    call FileEprCntFiles          ; any files to be restored?
-                    ld   a,h
-                    or   l
-                    jr   z, no_active_files       ; no files available...
+                    call FilesAvailable
+                    jp   z, no_active_files  ; Fz = 1, no files available...
 
                     CALL cls
                     LD   HL,rest_banner
@@ -1628,12 +1639,19 @@
 ; Display name and size of stored files on Flash Eprom.
 ;
 .catalog_main
+                    call cls
+                    
                     ld   a,(curslot)
                     ld   c,a
+                    push bc
                     call FileEprRequest
+                    pop  bc
+                    call c, disp_no_filearea_msg
                     ret  c                        ; abort - FE apparently not available...
-
-                    call cls
+                    
+                    call FilesAvailable
+                    jp   z, no_files             ; Fz = 1, no files available...
+.files_available                    
                     ld   a,(curslot)
                     ld   c,a
                     push bc
@@ -1735,12 +1753,19 @@
                     ld   c,a
                     call FileEprRequest
                     jr   nc,ok_new_page
-                    ld   a,rc_fail
-                    CALL_OZ gn_err
+                    call cls
+                    call disp_no_filearea_msg
+                    scf
                     RET
 .ok_new_page
+                    ld   a,(fbnk)            ; ready for next page of filenames (after Page Wait)
+                    ld   b,a
+                    ld   hl,(fadr)
+                    ld   de, buf3            
+                    call FileEprFilename     
+                    ret  c                   ; Ups - last file was displayed during page wait, back to main menu...
                     call cls
-                    jp   cat_main_loop
+                    jp   cat_main_loop       ; display the next file in a fresh new window... 
 .next_row
                     CALL_OZ gn_nln
                     jp   cat_main_loop
@@ -1799,12 +1824,15 @@
                     cp   1
                     jr   z, format_default
                     ; select slot to format...      
-.format_default                    
+.format_default
                     ld   a,c
                     ld   (curslot),a              ; the selected slot...
                     call CheckBatteryStatus       ; don't format Flash Card
                     ret  c                        ; if Battery Low is enabled...
 
+                    call ungreyscr
+                    CALL FileEpromStatistics
+                    call cls
                     ld   hl,ffm1_bnr
                     call wbar                     ; "Format Flash eprom" head line
 
@@ -1922,6 +1950,16 @@
 ; *************************************************************************************
 
 
+; *************************************************************************************
+;
+.ungreyscr
+                    PUSH HL
+                    LD   HL,ungrey_msg
+                    CALL_OZ gn_sop
+                    POP  HL
+                    RET
+; *************************************************************************************
+
 
 ; *************************************************************************************
 ;
@@ -2006,9 +2044,7 @@
                     JR   NZ,yn2
                     LD   DE,yes_msg
                     JR   yesno_loop
-.yn2
-                    CP   'n'
-                    JR   NZ,yesno
+.yn2                                          ; all other keypressed means 'No'...
                     LD   DE,no_msg
                     JR   yesno_loop
 ; *************************************************************************************
@@ -2180,6 +2216,15 @@
                     RET
 ; *************************************************************************************
 
+; *************************************************************************************
+.disp_no_filearea_msg
+                    PUSH HL
+                    LD   HL, nofilearea_msgs
+                    CALL DispSlotErrorMsg
+                    POP  HL
+                    RET
+; *************************************************************************************
+
 
 ; *************************************************************************************
 .DispIntelSlotErr
@@ -2243,6 +2288,34 @@
                     CALL_OZ(Gn_Err)
                     POP  AF
                     RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Check if there's active/deleted files availabe in the File Area
+;
+.FilesAvailable
+                    push bc
+                    push de
+                    push hl
+                    
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FileEprCntFiles          ; any files available in File Area?
+                    jr   c, exit_checkfiles       ; no file area!
+                    ld   a,h
+                    or   l
+                    jr   nz, exit_checkfiles      ; active files available...
+                    ld   a,d                       
+                    or   e
+                    jr   z, exit_checkfiles       ; no active nor deleted files available...
+                    cp   1                        ; check for Intel deleted file...
+.exit_checkfiles
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    ret 
+
 ; *************************************************************************************
 
 
@@ -2349,7 +2422,7 @@
 ; *************************************************************************************
 ; Text & VDU constants.
 ;
-.catalog_banner     DEFM "FLASHSTORE V1.7.dev, (C) 1997-2004 Zlab & InterLogic",0
+.catalog_banner     DEFM "FLASHSTORE V1.7.rc2, (C) 1997-2004 Zlab & InterLogic",0
 
 .cmds_banner        DEFM "Commands",0
 .menu_msg
@@ -2381,6 +2454,7 @@
 .jrsz_sq            DEFM 1,"2JR",0
 .jnsz_sq            DEFM 1,"2JN",0
 .grey_msg           DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G+",0
+.ungrey_msg         DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G-",0
 .clsvdu             DEFM 1,"2H2",12,0
 .winbackground      DEFM 1,"7#1",32,32,32+94,32+8,128
                     DEFM 1,"2C1",0
@@ -2400,7 +2474,7 @@
 .fdel_msg           DEFM " files deleted",0
 .nocur              DEFM 1,"2-C",0
 .nofepr_msg         DEFM 13,10,13,10,1,"2JC",1,"2+F"
-                    DEFM "No File Area",13,10,"available"
+                    DEFM "No File Area"
                     DEFM 1,"2JN",1,"3-FC",0
 .t701_msg           DEFM 1,"3@",33,33,0
 .tinyvdu            DEFM 1,"2+T",0
@@ -2410,7 +2484,7 @@
 .bar2_sq            DEFM 1,"3@  ",1,"2A",87,1,"4-TUR",1,"2JN",0
 
 .fsv1_bnr           DEFM "SAVE FILES TO FILE AREA",0
-.wcrd_msg           DEFM " Wildcards are allowed.",0
+.wcrd_msg           DEFM " (Wildcards are allowed).",0
 .fnam_msg           DEFM 1,"2+C Filename: ",0
 
 .curdir             DEFM ".",0
@@ -2421,14 +2495,14 @@
 .savf_msg           DEFM "Saving ",0
 
 .fsok_msg           DEFM " Done.",$0D,$0A,0
-.blowerrmsg         DEFM "File was not saved properly - will be re-saved.",$0D,$0A,0
+.blowerrmsg         DEFM "File not saved properly - will be re-saved.",$0D,$0A,0
 .zerolen_msg        DEFM "File has zero length - ignored.",$0D,$0A,0
 
-.delfile_bnr        DEFM "MARK FILE AS DELETED IN FILE AREA",0
+.delfile_bnr        DEFM "DELETE FILE IN FILE AREA",0
 
 .delfile_err_msg    DEFM "File not found.", 0
-.markdelete_failed  DEFM "Error. File was not deleted.",0
-.filedel_msg        DEFM 1,"2JC", 13,10, "File was deleted.",1,"2JN", 0
+.markdelete_failed  DEFM "Error. File not deleted.",0
+.filedel_msg        DEFM 1,"2JC", "File deleted.",1,"2JN", 0
 
 .fetch_bnr          DEFM "FETCH FROM FILE AREA",0
 .exct_msg           DEFM " Enter exact filename (no wildcard).",0
@@ -2437,7 +2511,7 @@
 .done_msg           DEFM "Completed.",$0D,$0A,0
 .ffet_msg           DEFM 13," Fetch as : ",0
 .exis_msg           DEFM 13," Overwrite RAM file : ", 13, 10, 0
-.file_not_found_msg DEFM "File was not found in File Area.", 0
+.file_not_found_msg DEFM "File not found in File Area.", 0
 
 .no_restore_files   DEFM "No files available in File Area to restore.", 0
 
@@ -2452,17 +2526,15 @@
 .prompt_delfiles_msg DEFM 13, 10, " Show deleted files? ",13,10,0
 .noeprfilesmsg      DEFM "Empty File Area.",$0D,$0A,0
 
-
 .endf_msg           DEFM 1,"2-G",1,"4+TUR END ",1,"4-TUR",0
 
 .failed_msg         DEFM "Failed.",0
-.fferr_msg          DEFM "File Area was not formatted/erased properly!",$0D,$0A,0
+.fferr_msg          DEFM "File Area not formatted properly!",$0D,$0A,0
 .ffm1_bnr           DEFM "FORMAT FILE AREA ON FLASH CARD",0
 .ffm2_msg           DEFM 13, 10, " Formatting File Area ... ",0
 .wroz_msg           DEFM " Writing File Area Header... ",0
-.noflash_msg        DEFM 1,"BNo Flash Cards were found in slots 1-3.",1,"B",0
-.noformat_msg       DEFM 1,"BNo Flash Cards were available to be formatted.",1,"B",0                    
-
+.noflash_msg        DEFM 1,"BNo Flash Cards found in slots 1-3.",1,"B",0
+.noformat_msg       DEFM 1,"BNo Flash Cards available to be formatted.",1,"B",0
 
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
@@ -2491,15 +2563,19 @@
 
 .intelslot_msgs     DEFW intelslot_err1_msg
                     DEFW intelslot_err2_msg
-.intelslot_err1_msg DEFM 13, 10, 1,"BAn Intel Flash Card was found in (current) slot ",0
+.intelslot_err1_msg DEFM 13, 10, 1,"BIntel Flash Card found in slot ",0
 .intelslot_err2_msg DEFM ".",1,"B", 13, 10, "You can only format file area, save files or", 13, 10
-                    DEFM "mark files as deleted in slot 3.", 13, 10, 0
+                    DEFM "delete files in slot 3.", 13, 10, 0
+
+.nofilearea_msgs    DEFW nofilearea1_msg
+                    DEFW nofilearea2_msg
+.nofilearea1_msg    DEFM 13, 10, 1,"BFile Area not detected in slot ",0
+.nofilearea2_msg    DEFM ".",1,"B", 13, 10, "Card probably removed whilst FlashStore running.", 13, 10, 0
 
 .errmsg_cjust       DEFM 1, "2JC", 0
 .errmsg_njust       DEFM 1, "2JN", 0
 
 .battlowmsg         DEFM "Batteries are low.",0
-
 
 .FlashEprTypes
                     DEFB 6
