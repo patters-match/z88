@@ -1,5 +1,5 @@
 /*
- * Blink.java
+ * Z80.java
  * This file is part of OZvm.
  * 
  * OZvm is free software; you can redistribute it and/or modify it under the terms of the 
