@@ -38,11 +38,13 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Erase 64K Sector (Block) defined in B (00h-0Fh), on Flash 
+; Erase sector (Block) defined in B (00h-0Fh), on Flash 
 ; Memory Card inserted in slot C. 
 ;
 ; The routine will internally ask the Flash Memory for identification 
-; and intelligently use the correct erasing algorithm. 
+; and intelligently use the correct erasing algorithm. All known 
+; Flash Memory chips from Intel and Amd (see flashepr.def) uses 64K 
+; sectors, except the AM29F010B 128K chip, which uses 16K sectors.
 ;
 ; Important: 
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
@@ -56,8 +58,8 @@ DEFC VppBit = 1
 ; slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; IN:
-;         B = 64K block/sector number on chip to be erased (00h - 0Fh)
-;             (available sector numbers depend on chip size)
+;         B = block/sector number on chip to be erased (00h - 0Fh)
+;             (available sector size and count depend on chip type)
 ;         C = slot number (1, 2 or 3) of Flash Memory Card
 ; OUT:
 ;         Success:
@@ -139,6 +141,7 @@ DEFC VppBit = 1
 ; In:
 ;    A = FE_28F or FE_29F (depending on Flash Memory type in slot)
 ;    E = slot number (1, 2 or 3) of Flash Memory Card
+;    HL = chip ID (Manufacturer & Device Code)
 ; Out:
 ;    Success:
 ;        Fc = 0
