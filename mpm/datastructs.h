@@ -210,10 +210,8 @@ struct linkmodlist  { tracedmodule_t    *firstlink;         /* pointer to first 
 #define CLEAR_EXPRADDR  0xF7FFFFFF                          /* bitmask 11110111 11111111 11111111 11111111   Convert to constant expression */
 
 #define RANGE_JROFFSET8  0
-#define RANGE_JROFFSET16 1
 #define RANGE_8UNSIGN    2
 #define RANGE_8SIGN      3
 #define RANGE_16CONST    4
-#define RANGE_32UP16     5
-#define RANGE_32LO16     6
+#define RANGE_16OFFSET   5
 #define RANGE_32SIGN     7
