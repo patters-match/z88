@@ -110,6 +110,7 @@ identfunc_t directives[] = {
  {"LSTON", ListingOn},
  {"MODULE", DeclModule},
  {"ORG", ORG},
+ {"OZ", CALLOZ},
  {"SPACE", DEFS},
  {"STRING", DEFS},
  {"VARAREA", DEFVARS},
@@ -119,7 +120,7 @@ identfunc_t directives[] = {
  {"XREF", DeclExternIdent}
 };
 
-size_t totaldirectives = 50;
+size_t totaldirectives = 51;
 
 
 static void
