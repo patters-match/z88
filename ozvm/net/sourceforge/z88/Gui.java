@@ -48,12 +48,19 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.ButtonGroup;
 
 /**
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
  */
 public class Gui extends JFrame {
 
+	private ButtonGroup kbLayoutButtonGroup = new ButtonGroup();
+	private JCheckBoxMenuItem seLayoutMenuItem;
+	private JCheckBoxMenuItem frLayoutMenuItem;
+	private JCheckBoxMenuItem dkLayoutMenuItem;
+	private JCheckBoxMenuItem ukLayoutMenuItem;
+	private JMenu keyboardMenu;
 	private static final class singletonContainer {
 		static final Gui singleton = new Gui();  
 	}
@@ -2097,6 +2104,7 @@ public class Gui extends JFrame {
 			menuBar = new JMenuBar();
 			menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));		
 			menuBar.add(getFileMenu());
+			menuBar.add(getKeyboardMenu());
 			menuBar.add(getViewMenu());
 			menuBar.add(getHelpMenu());
 		}
@@ -2298,6 +2306,83 @@ public class Gui extends JFrame {
 		return keyboardPanel;
 	}
 	
+	
+	private JMenu getKeyboardMenu() {
+		if (keyboardMenu == null) {
+			keyboardMenu = new JMenu();
+			keyboardMenu.setText("Keyboard");
+			keyboardMenu.add(getUkLayoutMenuItem());
+			keyboardMenu.add(getDkLayoutMenuItem());
+			keyboardMenu.add(getFrLayoutMenuItem());
+			keyboardMenu.add(getSeLayoutMenuItem());
+		}
+		return keyboardMenu;
+	}
+	
+	public JCheckBoxMenuItem getUkLayoutMenuItem() {
+		if (ukLayoutMenuItem == null) {
+			ukLayoutMenuItem = new JCheckBoxMenuItem();
+			ukLayoutMenuItem.setText("US/UK Layout");
+			ukLayoutMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
+					getZ88Display().grabFocus();
+				}
+			});
+
+			kbLayoutButtonGroup.add(ukLayoutMenuItem);
+		}
+		return ukLayoutMenuItem;
+	}
+	
+	public JCheckBoxMenuItem getDkLayoutMenuItem() {
+		if (dkLayoutMenuItem == null) {
+			dkLayoutMenuItem = new JCheckBoxMenuItem();
+			dkLayoutMenuItem.setText("Danish Layout");
+			dkLayoutMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+					getZ88Display().grabFocus();
+				}
+			});
+
+			kbLayoutButtonGroup.add(dkLayoutMenuItem);
+		}
+		return dkLayoutMenuItem;
+	}
+	
+	public JCheckBoxMenuItem getFrLayoutMenuItem() {
+		if (frLayoutMenuItem == null) {
+			frLayoutMenuItem = new JCheckBoxMenuItem();
+			frLayoutMenuItem.setText("French Layout");
+			frLayoutMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+					getZ88Display().grabFocus();
+				}
+			});
+			
+			kbLayoutButtonGroup.add(frLayoutMenuItem);
+		}
+		return frLayoutMenuItem;
+	}
+	
+	public JCheckBoxMenuItem getSeLayoutMenuItem() {
+		if (seLayoutMenuItem == null) {
+			seLayoutMenuItem = new JCheckBoxMenuItem();
+			seLayoutMenuItem.setText("Swedish/Finish Layout");
+			seLayoutMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+					getZ88Display().grabFocus();
+				}
+			});
+			
+			kbLayoutButtonGroup.add(seLayoutMenuItem);
+		}
+		return seLayoutMenuItem;
+	}	
+
 	/**
 	 * This method initializes the main z88 window with screen menus,
 	 * runtime messages and keyboard.
