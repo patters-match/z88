@@ -179,10 +179,10 @@
                     DEFB cmd_rf_end - cmd_rf                                    ; length of command definition
 .cmd_rf_end
 
-; @FORMAT Erase File Area
+; @FORMAT Format File Area
 .cmd_format         DEFB cmd_format_end - cmd_format                            ; length of command definition
                     DEFB FlashStore_CC_format                                   ; command code
-                    DEFM "FORMAT", 0                                            ; keyboard sequense
+                    DEFM "FFA", 0                                               ; keyboard sequense
                     DEFM "Format File Area", 0
                     DEFB (cmd_format_help - FlashStoreHelp) / 256               ; high byte of rel. pointer
                     DEFB (cmd_format_help - FlashStoreHelp) % 256               ; low byte of rel. pointer
@@ -192,7 +192,7 @@
 
 ; @ABOUT About FlashStore
 .cmd_about          DEFB cmd_about_end - cmd_about                              ; length of command definition
-                    DEFB FlashStore_CC_format                                   ; command code
+                    DEFB FlashStore_CC_about                                    ; command code
                     DEFM "ABOUT", 0                                             ; keyboard sequense
                     DEFM "About FlashStore", 0
                     DEFB (cmd_about_help - FlashStoreHelp) / 256                ; high byte of rel. pointer
