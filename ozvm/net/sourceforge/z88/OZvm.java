@@ -114,13 +114,55 @@ public class OZvm {
 		return blinkBanks;
 	}
 	
-	private StringBuffer blinkCom() {	
-		StringBuffer blinkComFlags = new StringBuffer(256);
-		blinkComFlags.append("");
-		
-		return blinkComFlags;
+	private void blinkCom() {	
+        int blComReg = z88.getCom();
+		StringBuffer blinkComFlags = new StringBuffer(128);
+        
+        if ( ((blComReg & Blink.BM_COMSRUN) == 0) & ((blComReg & Blink.BM_COMSBIT) == 0) )
+            blinkComFlags.append("Speaker=Low");
+        if ( ((blComReg & Blink.BM_COMSRUN) == 0) & ((blComReg & Blink.BM_COMSBIT) == Blink.BM_COMSBIT) )
+            blinkComFlags.append("Speaker=High");
+        if ( ((blComReg & Blink.BM_COMSRUN) == Blink.BM_COMSRUN) & ((blComReg & Blink.BM_COMSBIT) == 0) )
+            blinkComFlags.append("Speaker=3200Khz");
+        if ( ((blComReg & Blink.BM_COMSRUN) == Blink.BM_COMSRUN) & ((blComReg & Blink.BM_COMSBIT) == Blink.BM_COMSBIT) )
+            blinkComFlags.append("Speaker=TxD");
+
+        if ( ((blComReg & Blink.BM_COMOVERP) == Blink.BM_COMOVERP) )
+            blinkComFlags.append(",OVERP");
+        if ( ((blComReg & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM) )
+            blinkComFlags.append(",RESTIM");
+        if ( ((blComReg & Blink.BM_COMPROGRAM) == Blink.BM_COMPROGRAM) )
+            blinkComFlags.append(",PROGRAM");
+        if ( ((blComReg & Blink.BM_COMRAMS) == Blink.BM_COMRAMS) )
+            blinkComFlags.append(",RAMS");
+        else
+            blinkComFlags.append(",BANK0");
+        if ( ((blComReg & Blink.BM_COMVPPON) == Blink.BM_COMVPPON) )
+            blinkComFlags.append(",VPPON");
+        if ( ((blComReg & Blink.BM_COMLCDON) == Blink.BM_COMLCDON) )
+            blinkComFlags.append(",LCDON");
+
+        System.out.println("COM (B0h): " + blinkComFlags);
 	}
 
+    private void blinkIntStaAck() {
+        //int blIntReg = z88.getInt();
+		StringBuffer blinkComFlags = new StringBuffer(128);
+    }
+    
+    /**
+     * Display contents of Blink Registers to console.
+     */
+    private void blinkRegisters() {
+        blinkCom();
+        blinkIntStaAck();   // combined INT, STA & ACK
+//        blinkTack();
+//        blinkTmk();     
+//        blinkTsta();    
+//        blinkScreen();  // PB0, PB1, PB2, PB3 & SBR
+//        blinkTimers();  // TIM0, TIM1, TIM2, TIM3 & TIM4
+    }
+    
 	/**
 	 * Dump current Z80 Registers.  
 	 */
@@ -266,6 +308,12 @@ public class OZvm {
 				cmdLineTokens = cmdline.split(" ");
 			}
 
+  			if (cmdLineTokens[0].equalsIgnoreCase("bl") == true) {
+				blinkRegisters();
+				cmdline = ""; // wait for a new command...
+				cmdLineTokens = cmdline.split(" ");
+			}
+
 			if (cmdLineTokens[0].equalsIgnoreCase("blsr") == true) {
 				System.out.println(blinkBankBindings());
 				cmdline = ""; // wait for a new command...
@@ -299,6 +347,7 @@ public class OZvm {
 				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
 			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("blsr") == false &&
+                cmdLineTokens[0].equalsIgnoreCase("bl") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("exit") == false
 			   ) {
 			   	// unknown commands get cleared so that we can 
@@ -351,7 +400,7 @@ public class OZvm {
 					dzBank = 0;					
 				} else {
                     // get extended address from current bank binding
-                    dzAddr = z88.decodeLocalAddress(dzAddr);
+                    dzAddr = z88.decodeLocalAddress(dzAddr) | (dzAddr & 0xF000);
                     dzBank = (dzAddr >>> 16) & 0xFF;
                     dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 				}
@@ -359,7 +408,7 @@ public class OZvm {
 		} else {
 			if (cmdLineTokens.length == 1) {
 				// no arguments, use PC in current bank binding
-                dzAddr = z88.decodeLocalAddress(z88.PC());
+                dzAddr = z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000);
                 dzBank = (dzAddr >>> 16) & 0xFF;
                 dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 			} else {
@@ -451,7 +500,7 @@ public class OZvm {
 					// bank defined as '00'
 					memBank = 0;					
 				} else {
-                    memAddr = z88.decodeLocalAddress(memAddr);
+                    memAddr = z88.decodeLocalAddress(memAddr) | (memAddr & 0xF000);
                     memBank = (memAddr >>> 16) & 0xFF;
                     memAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 				}
@@ -459,7 +508,7 @@ public class OZvm {
 		} else {
 			if (cmdLineTokens.length == 1) {
 				// no arguments, use PC in current bank binding
-                memAddr = z88.decodeLocalAddress(z88.PC());
+                memAddr = z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000);
                 memBank = (memAddr >>> 16) & 0xFF;
                 memAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 			} else {
