@@ -48,7 +48,7 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      availslots     ds.b 4              ; array of inserted File Eprom's in external slots
      curslot        ds.b 1              ; the current selected slot (possibly containing File Area)
      flashid        ds.w 1              ; the manufacturer and device code of the flash card in current slot
-     ramdev         ds.b 1              ; the default RAM Device ('0' - '3').
+     ramdevno       ds.b 1              ; the default Ascii RAM Device slot number ('0' - '3').
 }
 
 
@@ -56,7 +56,7 @@ DEFVARS $1FFE - SafeWorkSpaceSize
 DEFC FlashStore_CC_sc = $80             ; Select Card
 DEFC FlashStore_CC_cf = $81             ; Catalogue Files
 DEFC FlashStore_CC_sv = $82             ; Select RAM Device
-DEFC FlashStore_CC_fs = $83             ; File Save 
+DEFC FlashStore_CC_fs = $83             ; File Save
 DEFC FlashStore_CC_fl = $84             ; File Load
 DEFC FlashStore_CC_fe = $85             ; File Erase
 DEFC FlashStore_CC_bf = $86             ; Backup Files
