@@ -242,6 +242,17 @@ ReadExpr (long nextexpr, long endexpr)
 
                   break;
 
+                case 'O':
+                  if ((constant >= 0) && (constant <= 16383))
+                      StoreWord ((unsigned short) constant, patchptr);
+                  else
+                    {
+                      ReportError (CURRENTFILE->fname, 0, Err_ExprOutOfRange);
+                      WriteExprMsg ();
+                    }
+
+                  break;
+
                 case 'L':
                   StoreLong (constant, patchptr);
                   break;
