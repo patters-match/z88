@@ -48,3 +48,11 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      curslot        ds.b 1              ; the current selected slot (possibly containing File Area)
      flashid        ds.w 1              ; the manufacturer and device code of the flash card in current slot
 }
+
+
+; MTH Command Code definitions
+
+DEFC FlashStore_CC_sc = $80, FlashStore_CC_cf = $81, FlashStore_CC_sv = $82
+DEFC FlashStore_CC_fs = $83, FlashStore_CC_fl = $84, FlashStore_CC_fe = $85
+DEFC FlashStore_CC_bf = $86, FlashStore_CC_rf = $87
+DEFC FlashStore_CC_format = $88, FlashStore_CC_about = $89

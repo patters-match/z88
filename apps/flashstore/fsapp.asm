@@ -63,6 +63,9 @@
      xref fnam_msg, fsok_msg       ; savefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
 
+     xref FlashStoreTopics         ; mth.asm
+     xref FlashStoreCommands       ; mth.asm
+     xref FlashStoreHelp           ; mth.asm
 
      include "error.def"
      include "syspar.def"
@@ -105,11 +108,11 @@
                     DEFB 0                        ; no caps lock on activation
 .InfoEnd0           DEFB 'H'                      ; Key to help section
                     DEFB 12                       ; total length of help
-                    DEFW FS_Dor
+                    DEFW FlashStoreTopics
                     DEFB $3F                      ; point to topics (none)
-                    DEFW FS_Dor
+                    DEFW FlashStoreCommands
                     DEFB $3F                      ; point to commands (none)
-                    DEFW FS_Help
+                    DEFW FlashStoreHelp
                     DEFB $3F                      ; point to help (none)
                     DEFW FS_Dor
                     DEFB $3F                      ; point to token base (none)
@@ -119,12 +122,6 @@
 .NameEnd0           DEFB $FF
 .DOREnd0
 
-.FS_Help            DEFM $7F
-                    DEFM "Freeware utility (GPL licence) by",$7F
-                    DEFM "Thierry Peycru (Zlab) & Gunther Strube (InterLogic)",$7F
-                    DEFM $7F
-                    DEFM "Release V1.7.rc2, December 2004",$7F
-                    DEFM "(C) Copyright 1997-2004. All rights reserved",0
 ; *************************************************************************************
 
 
