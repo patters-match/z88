@@ -19,8 +19,6 @@
 
 package net.sourceforge.z88;
 
-import java.util.Vector;
-
 /** 
  * This class represents the 16Kb Flash Memory Bank on an AMD I29FxxxB chip. 
  * The characteristics of a Flash Memory bank is chip memory that can be read at 
@@ -74,15 +72,13 @@ public class AmdFlashBank extends Bank {
 	 * followed by the third cycle which is the command ('?') code 
 	 * (the actual command will then be verified against known codes).
 	 */
-	private static final Integer commandUnlockCycles[] = 
-		{new Integer(0x555), new Integer(0xAA), new Integer(0x2AA), 
-		 new Integer(0x55), new Integer(0x555), new Integer('?')};
+	private static final int commandUnlockCycles[] = {0x555, 0xAA, 0x2AA, 0x55, 0x555, '?'};
 
 	/**
 	 * Indicate success by DQ5 = 0 and DQ6 = 1, signalling no toggle in 
 	 * two consecutive read cycles. 
 	 */
-	private static final Integer readStatusCommandSuccess[] = {new Integer(0x40), new Integer(0x40)};  
+	private static final int readStatusCommandSuccess[] = {0x40, 0x40};  
 	
 	/**
 	 * Indicate failure by DQ5 = 1 and DQ6 toggling, for each 
@@ -91,8 +87,7 @@ public class AmdFlashBank extends Bank {
 	 * [1] 0110 0000 (DQ6=1,DQ5=1), [2] 0010 0000 (DQ6=0,DQ5=1),
 	 * [3] 0110 0000 (DQ6=1,DQ5=1), [4] 0010 0000 (DQ6=0,DQ5=1)
 	 */
-	private static final Integer readStatusCommandFailure[] = 
-		{new Integer(0x60), new Integer(0x20), new Integer(0x60), new Integer(0x20)};  
+	private static final int readStatusCommandFailure[] = {0x60, 0x20, 0x60, 0x20};  
 
 	/**
 	 * The pending command sequence which is the template that is
@@ -238,7 +233,7 @@ public class AmdFlashBank extends Bank {
 					case 0x10: // Chip Erase Command						
 					case 0x30: // Sector Erase Command
 					case 0xA0: // Byte Program Command
-						Integer status;
+						int status;
 						if (signalCommandFailure == true) {
 							if (readStatusStack.isEmpty() == true) {
 								// Keep the error toggle status sequence "flowing"
@@ -246,9 +241,9 @@ public class AmdFlashBank extends Bank {
 								// until the application issues a Read Array Mode command
 								readStatusStack = presetSequence(readStatusCommandFailure); 
 							}
-							status = (Integer) readStatusStack.pop(); // get error status cycle
+							status = readStatusStack.pop(); // get error status cycle
 						} else {														
-							status = (Integer) readStatusStack.pop(); // get success status cycle 
+							status = readStatusStack.pop(); // get success status cycle 
 							if (readStatusStack.isEmpty() == true) {
 								// When the last read status cycle has been delivered, 
 								// the chip automatically returns to Read Array Mode
@@ -257,7 +252,7 @@ public class AmdFlashBank extends Bank {
 								isCommandExecuting = false;
 							}								
 						}
-						return status.intValue();
+						return status;
 						
 					case 0x90: // Autoselect Command
 						addr &= 0xFF;							// only preserve lower 8 bits of address
@@ -312,14 +307,14 @@ public class AmdFlashBank extends Bank {
 		} else {
 			// only accept other write cycles while accumulating a command (it's probably part of the command!)
 			
-			Integer cmdAddr = (Integer) commandUnlockCycleStack.pop();	// validate cycle against this address
-			Integer cmd = (Integer) commandUnlockCycleStack.pop();		// validate cycle against this data
+			int cmdAddr = commandUnlockCycleStack.pop();	// validate cycle against this address
+			int cmd = commandUnlockCycleStack.pop();		// validate cycle against this data
 
-			if (cmd.intValue() != '?') {
+			if (cmd != '?') {
 				// gathering the unlock cycles...
 				addr &= 0x0FFF; // we're only interested in the three lowest hex digits in the unlock cycle address...
 				
-				if (addr != cmdAddr.intValue() & b != cmd.intValue()) {						
+				if (addr != cmdAddr & b != cmd) {						
 					// command sequence was 0xF0 (back to Read Array Mode) or an unknown command! 
 					// Immediately return to Read Array Mode...
 					readArrayMode = true; 
@@ -364,8 +359,8 @@ public class AmdFlashBank extends Bank {
 							
 						case 0xA0:	// Byte Program Command, Part 1, get address and byte to program.. 
 							executingCommandCode = 0xA0;
-							commandUnlockCycleStack.push(new Integer('?'));	// and the Byte Program Data
-							commandUnlockCycleStack.push(new Integer('?'));	// We still need the Byte Program Address  
+							commandUnlockCycleStack.push('?');	// and the Byte Program Data
+							commandUnlockCycleStack.push('?');	// We still need the Byte Program Address  
 							break;
 							
 						default:
@@ -468,7 +463,7 @@ public class AmdFlashBank extends Bank {
 	 * This will be used for validating a complete 3 cycle command sequence
 	 * or when an application polls for chip command status. 
 	 */
-	private SequenceStack presetSequence(Integer[] sequence) {
+	private SequenceStack presetSequence(int[] sequence) {
 		SequenceStack seqStk = new SequenceStack();
 		
 		// prepare a new sequence  
@@ -482,31 +477,27 @@ public class AmdFlashBank extends Bank {
 	 * read status data sequences. 
 	 */
 	private class SequenceStack {
-		private Vector sequence;
+		private int sequence[];
+		private int stackPtr = -1; // empty stack
 		
 		public SequenceStack() {
-			sequence = new Vector(8); 
+			sequence = new int[8]; 
 		}
 		
-		public Object push(Object item) {
-			sequence.addElement(item);
+		public int push(int item) {
+			sequence[++stackPtr] = item;
 			return item;
 		}
 		
 		public boolean isEmpty() {
-			return sequence.isEmpty();
+			return (stackPtr < 0) ? true: false;
 		}
 		
-		public Object pop() {
-			int curStackSize = sequence.size();
-			
-			if (curStackSize == 0) {
-				return null;
+		public int pop() {			
+			if (stackPtr < 0) {
+				return -1;
 			} else {
-				Object obj = sequence.elementAt(curStackSize - 1);
-				sequence.removeElementAt(curStackSize - 1);
-
-				return obj;
+				return sequence[stackPtr--];
 			}
 		}
 	}
