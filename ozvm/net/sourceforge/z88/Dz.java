@@ -3782,212 +3782,224 @@ public class Dz {
 	};
 
 	private static final String ozdcStrMnem[] = {
-		"CALL_OZ(DC_INI)", /* E7 060C */
-		"CALL_OZ(DC_BYE)", /* E7 080C */
-		"CALL_OZ(DC_ENT)", /* E7 0A0C */
-		"CALL_OZ(DC_NAM)", /* E7 0C0C */
-		"CALL_OZ(DC_IN)", /* E7 0E0C */
-		"CALL_OZ(DC_OUT)", /* E7 100C */
-		"CALL_OZ(DC_PRT)", /* E7 120C */
-		"CALL_OZ(DC_ICL)", /* E7 140C */
-		"CALL_OZ(DC_NQ)", /* E7 160C */
-		"CALL_OZ(DC_SP)", /* E7 180C */
-		"CALL_OZ(DC_ALT)", /* E7 1A0C */
-		"CALL_OZ(DC_RBD)", /* E7 1C0C */
-		"CALL_OZ(DC_XIN)", /* E7 1E0C */
-		"CALL_OZ(DC_GEN)", /* E7 200C */
-		"CALL_OZ(DC_POL)", /* E7 220C */
-		"CALL_OZ(DC_SCN)", /* E7 240C */
-		"CALL_OZ(UNKNOWN)" };
+		"OZ   DC_INI", /* E7 060C */
+		"OZ   DC_BYE", /* E7 080C */
+		"OZ   DC_ENT", /* E7 0A0C */
+		"OZ   DC_NAM", /* E7 0C0C */
+		"OZ   DC_IN", /* E7 0E0C */
+		"OZ   DC_OUT", /* E7 100C */
+		"OZ   DC_PRT", /* E7 120C */
+		"OZ   DC_ICL", /* E7 140C */
+		"OZ   DC_NQ", /* E7 160C */
+		"OZ   DC_SP", /* E7 180C */
+		"OZ   DC_ALT", /* E7 1A0C */
+		"OZ   DC_RBD", /* E7 1C0C */
+		"OZ   DC_XIN", /* E7 1E0C */
+		"OZ   DC_GEN", /* E7 200C */
+		"OZ   DC_POL", /* E7 220C */
+		"OZ   DC_SCN", /* E7 240C */
+		"OZ   UNKNOWN" };
 
 	private static final String ozos1StrMnem[] = {
-		"CALL_OZ(OS_BYE)", /* E7 21 */
-		"CALL_OZ(OS_PRT)", /* E7 24 */
-		"CALL_OZ(OS_OUT)", /* E7 27 */
-		"CALL_OZ(OS_IN)", /* E7 2A */
-		"CALL_OZ(OS_TIN)", /* E7 2D */
-		"CALL_OZ(OS_XIN)", /* E7 30 */
-		"CALL_OZ(OS_PUR)", /* E7 33 */
-		"CALL_OZ(OS_UGB)", /* E7 36 */
-		"CALL_OZ(OS_GB)", /* E7 39 */
-		"CALL_OZ(OS_PB)", /* E7 3C */
-		"CALL_OZ(OS_GBT)", /* E7 3F */
-		"CALL_OZ(OS_PBT)", /* E7 42 */
-		"CALL_OZ(OS_MV)", /* E7 45 */
-		"CALL_OZ(OS_FRM)", /* E7 48 */
-		"CALL_OZ(OS_FWM)", /* E7 4B */
-		"CALL_OZ(OS_MOP)", /* E7 4E */
-		"CALL_OZ(OS_MCL)", /* E7 51 */
-		"CALL_OZ(OS_MAL)", /* E7 54 */
-		"CALL_OZ(OS_MFR)", /* E7 57 */
-		"CALL_OZ(OS_MGB)", /* E7 5A */
-		"CALL_OZ(OS_MPB)", /* E7 5D */
-		"CALL_OZ(OS_BIX)", /* E7 60 */
-		"CALL_OZ(OS_BOX)", /* E7 63 */
-		"CALL_OZ(OS_NQ)", /* E7 66 */
-		"CALL_OZ(OS_SP)", /* E7 69 */
-		"CALL_OZ(OS_SR)", /* E7 6C */
-		"CALL_OZ(OS_ESC)", /* E7 6F */
-		"CALL_OZ(OS_ERC)", /* E7 72 */
-		"CALL_OZ(OS_ERH)", /* E7 75 */
-		"CALL_OZ(OS_UST)", /* E7 78 */
-		"CALL_OZ(OS_FN)", /* E7 7B */
-		"CALL_OZ(OS_WAIT)", /* E7 7E */
-		"CALL_OZ(OS_ALM)", /* E7 81 */
-		"CALL_OZ(OS_CLI)", /* E7 84 */
-		"CALL_OZ(OS_DOR)", /* E7 87 */
-		"CALL_OZ(OS_FC)", /* E7 8A */
-		"CALL_OZ(OS_SI)", /* E7 8D */
-		"CALL_OZ(UNKNOWN)" };
+		"OZ   OS_BYE", /* E7 21 */
+		"OZ   OS_PRT", /* E7 24 */
+		"OZ   OS_OUT", /* E7 27 */
+		"OZ   OS_IN", /* E7 2A */
+		"OZ   OS_TIN", /* E7 2D */
+		"OZ   OS_XIN", /* E7 30 */
+		"OZ   OS_PUR", /* E7 33 */
+		"OZ   OS_UGB", /* E7 36 */
+		"OZ   OS_GB", /* E7 39 */
+		"OZ   OS_PB", /* E7 3C */
+		"OZ   OS_GBT", /* E7 3F */
+		"OZ   OS_PBT", /* E7 42 */
+		"OZ   OS_MV", /* E7 45 */
+		"OZ   OS_FRM", /* E7 48 */
+		"OZ   OS_FWM", /* E7 4B */
+		"OZ   OS_MOP", /* E7 4E */
+		"OZ   OS_MCL", /* E7 51 */
+		"OZ   OS_MAL", /* E7 54 */
+		"OZ   OS_MFR", /* E7 57 */
+		"OZ   OS_MGB", /* E7 5A */
+		"OZ   OS_MPB", /* E7 5D */
+		"OZ   OS_BIX", /* E7 60 */
+		"OZ   OS_BOX", /* E7 63 */
+		"OZ   OS_NQ", /* E7 66 */
+		"OZ   OS_SP", /* E7 69 */
+		"OZ   OS_SR", /* E7 6C */
+		"OZ   OS_ESC", /* E7 6F */
+		"OZ   OS_ERC", /* E7 72 */
+		"OZ   OS_ERH", /* E7 75 */
+		"OZ   OS_UST", /* E7 78 */
+		"OZ   OS_FN", /* E7 7B */
+		"OZ   OS_WAIT", /* E7 7E */
+		"OZ   OS_ALM", /* E7 81 */
+		"OZ   OS_CLI", /* E7 84 */
+		"OZ   OS_DOR", /* E7 87 */
+		"OZ   OS_FC", /* E7 8A */
+		"OZ   OS_SI", /* E7 8D */
+		"OZ   UNKNOWN" };
 
 	private static final String ozos2StrMnem[] = {
-		"CALL_OZ(OS_WTB)", /* E7 CA06 */
-		"CALL_OZ(OS_WRT)", /* E7 CC06 */
-		"CALL_OZ(OS_WSQ)", /* E7 CE06 */
-		"CALL_OZ(OS_ISQ)", /* E7 D006 */
-		"CALL_OZ(OS_AXP)", /* E7 D206 */
-		"CALL_OZ(OS_SCI)", /* E7 D406 */
-		"CALL_OZ(OS_DLY)", /* E7 D606 */
-		"CALL_OZ(OS_BLP)", /* E7 D806 */
-		"CALL_OZ(OS_BDE)", /* E7 DA06 */
-		"CALL_OZ(OS_BHL)", /* E7 DC06 */
-		"CALL_OZ(OS_FTH)", /* E7 DE06 */
-		"CALL_OZ(OS_VTH)", /* E7 E006 */
-		"CALL_OZ(OS_GTH)", /* E7 E206 */
-		"CALL_OZ(OS_REN)", /* E7 E406 */
-		"CALL_OZ(OS_DEL)", /* E7 E606 */
-		"CALL_OZ(OS_CL)", /* E7 E806 */
-		"CALL_OZ(OS_OP)", /* E7 EA06 */
-		"CALL_OZ(OS_OFF)", /* E7 EC06 */
-		"CALL_OZ(OS_USE)", /* E7 EE06 */
-		"CALL_OZ(OS_EPR)", /* E7 F006 */
-		"CALL_OZ(OS_HT)", /* E7 F206 */
-		"CALL_OZ(OS_MAP)", /* E7 F406 */
-		"CALL_OZ(OS_EXIT)", /* E7 F606 */
-		"CALL_OZ(OS_STK)", /* E7 F806 */
-		"CALL_OZ(OS_ENT)", /* E7 FA06 */
-		"CALL_OZ(OS_POLL)", /* E7 FC06 */
-		"CALL_OZ(OS_DOM)", /* E7 FE06 */
-		"CALL_OZ(UNKNOWN)" };
+		"OZ   OS_WTB", /* E7 CA06 */
+		"OZ   OS_WRT", /* E7 CC06 */
+		"OZ   OS_WSQ", /* E7 CE06 */
+		"OZ   OS_ISQ", /* E7 D006 */
+		"OZ   OS_AXP", /* E7 D206 */
+		"OZ   OS_SCI", /* E7 D406 */
+		"OZ   OS_DLY", /* E7 D606 */
+		"OZ   OS_BLP", /* E7 D806 */
+		"OZ   OS_BDE", /* E7 DA06 */
+		"OZ   OS_BHL", /* E7 DC06 */
+		"OZ   OS_FTH", /* E7 DE06 */
+		"OZ   OS_VTH", /* E7 E006 */
+		"OZ   OS_GTH", /* E7 E206 */
+		"OZ   OS_REN", /* E7 E406 */
+		"OZ   OS_DEL", /* E7 E606 */
+		"OZ   OS_CL", /* E7 E806 */
+		"OZ   OS_OP", /* E7 EA06 */
+		"OZ   OS_OFF", /* E7 EC06 */
+		"OZ   OS_USE", /* E7 EE06 */
+		"OZ   OS_EPR", /* E7 F006 */
+		"OZ   OS_HT", /* E7 F206 */
+		"OZ   OS_MAP", /* E7 F406 */
+		"OZ   OS_EXIT", /* E7 F606 */
+		"OZ   OS_STK", /* E7 F806 */
+		"OZ   OS_ENT", /* E7 FA06 */
+		"OZ   OS_POLL", /* E7 FC06 */
+		"OZ   OS_DOM", /* E7 FE06 */
+		"OZ   UNKNOWN" };
 
 	private static final String ozgnStrMnem[] = {
-		"CALL_OZ(GN_GDT)", /* E7 0609 */
-		"CALL_OZ(GN_PDT)", /* E7 0809 */
-		"CALL_OZ(GN_GTM)", /* E7 0A09 */
-		"CALL_OZ(GN_PTM)", /* E7 0C09 */
-		"CALL_OZ(GN_SDO)", /* E7 0E09 */
-		"CALL_OZ(GN_GDN)", /* E7 1009 */
-		"CALL_OZ(GN_PDN)", /* E7 1209 */
-		"CALL_OZ(GN_DIE)", /* E7 1409 */
-		"CALL_OZ(GN_DEI)", /* E7 1609 */
-		"CALL_OZ(GN_GMD)", /* E7 1809 */
-		"CALL_OZ(GN_GMT)", /* E7 1A09 */
-		"CALL_OZ(GN_PMD)", /* E7 1C09 */
-		"CALL_OZ(GN_PMT)", /* E7 1E09 */
-		"CALL_OZ(GN_MSC)", /* E7 2009 */
-		"CALL_OZ(GN_FLO)", /* E7 2209 */
-		"CALL_OZ(GN_FLC)", /* E7 2409 */
-		"CALL_OZ(GN_FLW)", /* E7 2609 */
-		"CALL_OZ(GN_FLR)", /* E7 2809 */
-		"CALL_OZ(GN_FLF)", /* E7 2A09 */
-		"CALL_OZ(GN_FPB)", /* E7 2C09 */
-		"CALL_OZ(GN_NLN)", /* E7 2E09 */
-		"CALL_OZ(GN_CLS)", /* E7 3009 */
-		"CALL_OZ(GN_SKC)", /* E7 3209 */
-		"CALL_OZ(GN_SKD)", /* E7 3409 */
-		"CALL_OZ(GN_SKT)", /* E7 3609 */
-		"CALL_OZ(GN_SIP)", /* E7 3809 */
-		"CALL_OZ(GN_SOP)", /* E7 3A09 */
-		"CALL_OZ(GN_SOE)", /* E7 3C09 */
-		"CALL_OZ(GN_RBE)", /* E7 3E09 */
-		"CALL_OZ(GN_WBE)", /* E7 4009 */
-		"CALL_OZ(GN_CME)", /* E7 4209 */
-		"CALL_OZ(GN_XNX)", /* E7 4409 */
-		"CALL_OZ(GN_XIN)", /* E7 4609 */
-		"CALL_OZ(GN_XDL)", /* E7 4809 */
-		"CALL_OZ(GN_ERR)", /* E7 4A09 */
-		"CALL_OZ(GN_ESP)", /* E7 4C09 */
-		"CALL_OZ(GN_FCM)", /* E7 4E09 */
-		"CALL_OZ(GN_FEX)", /* E7 5009 */
-		"CALL_OZ(GN_OPW)", /* E7 5209 */
-		"CALL_OZ(GN_WCL)", /* E7 5409 */
-		"CALL_OZ(GN_WFN)", /* E7 5609 */
-		"CALL_OZ(GN_PRS)", /* E7 5809 */
-		"CALL_OZ(GN_PFS)", /* E7 5A09 */
-		"CALL_OZ(GN_WSM)", /* E7 5C09 */
-		"CALL_OZ(GN_ESA)", /* E7 5E09 */
-		"CALL_OZ(GN_OPF)", /* E7 6009 */
-		"CALL_OZ(GN_CL)", /* E7 6209 */
-		"CALL_OZ(GN_DEL)", /* E7 6409 */
-		"CALL_OZ(GN_REN)", /* E7 6609 */
-		"CALL_OZ(GN_AAB)", /* E7 6809 */
-		"CALL_OZ(GN_FAB)", /* E7 6A09 */
-		"CALL_OZ(GN_LAB)", /* E7 6C09 */
-		"CALL_OZ(GN_UAB)", /* E7 6E09 */
-		"CALL_OZ(GN_ALP)", /* E7 7009 */
-		"CALL_OZ(GN_M16)", /* E7 7209 */
-		"CALL_OZ(GN_D16)", /* E7 7409 */
-		"CALL_OZ(GN_M24)", /* E7 7609 */
-		"CALL_OZ(GN_D24)", /* E7 7809 */
-		"CALL_OZ(UNKNOWN)", };
-
+		"OZ   GN_GDT", /* E7 0609 */
+		"OZ   GN_PDT", /* E7 0809 */
+		"OZ   GN_GTM", /* E7 0A09 */
+		"OZ   GN_PTM", /* E7 0C09 */
+		"OZ   GN_SDO", /* E7 0E09 */
+		"OZ   GN_GDN", /* E7 1009 */
+		"OZ   GN_PDN", /* E7 1209 */
+		"OZ   GN_DIE", /* E7 1409 */
+		"OZ   GN_DEI", /* E7 1609 */
+		"OZ   GN_GMD", /* E7 1809 */
+		"OZ   GN_GMT", /* E7 1A09 */
+		"OZ   GN_PMD", /* E7 1C09 */
+		"OZ   GN_PMT", /* E7 1E09 */
+		"OZ   GN_MSC", /* E7 2009 */
+		"OZ   GN_FLO", /* E7 2209 */
+		"OZ   GN_FLC", /* E7 2409 */
+		"OZ   GN_FLW", /* E7 2609 */
+		"OZ   GN_FLR", /* E7 2809 */
+		"OZ   GN_FLF", /* E7 2A09 */
+		"OZ   GN_FPB", /* E7 2C09 */
+		"OZ   GN_NLN", /* E7 2E09 */
+		"OZ   GN_CLS", /* E7 3009 */
+		"OZ   GN_SKC", /* E7 3209 */
+		"OZ   GN_SKD", /* E7 3409 */
+		"OZ   GN_SKT", /* E7 3609 */
+		"OZ   GN_SIP", /* E7 3809 */
+		"OZ   GN_SOP", /* E7 3A09 */
+		"OZ   GN_SOE", /* E7 3C09 */
+		"OZ   GN_RBE", /* E7 3E09 */
+		"OZ   GN_WBE", /* E7 4009 */
+		"OZ   GN_CME", /* E7 4209 */
+		"OZ   GN_XNX", /* E7 4409 */
+		"OZ   GN_XIN", /* E7 4609 */
+		"OZ   GN_XDL", /* E7 4809 */
+		"OZ   GN_ERR", /* E7 4A09 */
+		"OZ   GN_ESP", /* E7 4C09 */
+		"OZ   GN_FCM", /* E7 4E09 */
+		"OZ   GN_FEX", /* E7 5009 */
+		"OZ   GN_OPW", /* E7 5209 */
+		"OZ   GN_WCL", /* E7 5409 */
+		"OZ   GN_WFN", /* E7 5609 */
+		"OZ   GN_PRS", /* E7 5809 */
+		"OZ   GN_PFS", /* E7 5A09 */
+		"OZ   GN_WSM", /* E7 5C09 */
+		"OZ   GN_ESA", /* E7 5E09 */
+		"OZ   GN_OPF", /* E7 6009 */
+		"OZ   GN_CL", /* E7 6209 */
+		"OZ   GN_DEL", /* E7 6409 */
+		"OZ   GN_REN", /* E7 6609 */
+		"OZ   GN_AAB", /* E7 6809 */
+		"OZ   GN_FAB", /* E7 6A09 */
+		"OZ   GN_LAB", /* E7 6C09 */
+		"OZ   GN_UAB", /* E7 6E09 */
+		"OZ   GN_ALP", /* E7 7009 */
+		"OZ   GN_M16", /* E7 7209 */
+		"OZ   GN_D16", /* E7 7409 */
+		"OZ   GN_M24", /* E7 7609 */
+		"OZ   GN_D24", /* E7 7809 */
+		"OZ   UNKNOWN", };
+         
 	private static final String ozfppStrMnem[] = {
-		"FPP(FP_AND)", /* DF 21 */
-		"FPP(FP_IDV)", /* DF 24 */
-		"FPP(FP_EOR)", /* DF 27 */
-		"FPP(FP_MOD)", /* DF 2A */
-		"FPP(FP_OR)", /* DF 2D */
-		"FPP(FP_LEQ)", /* DF 30 */
-		"FPP(FP_NEQ)", /* DF 33 */
-		"FPP(FP_GEQ)", /* DF 36 */
-		"FPP(FP_LT)", /* DF 39 */
-		"FPP(FP_EQ)", /* DF 3C */
-		"FPP(FP_MUL)", /* DF 3F */
-		"FPP(FP_ADD)", /* DF 42 */
-		"FPP(FP_GT)", /* DF 45 */
-		"FPP(FP_SUB)", /* DF 48 */
-		"FPP(FP_PWR)", /* DF 4B */
-		"FPP(FP_DIV)", /* DF 4E */
-		"FPP(FP_ABS)", /* DF 51 */
-		"FPP(FP_ACS)", /* DF 54 */
-		"FPP(FP_ASN)", /* DF 57 */
-		"FPP(FP_ATN)", /* DF 5A */
-		"FPP(FP_COS)", /* DF 5D */
-		"FPP(FP_DEG)", /* DF 60 */
-		"FPP(FP_EXP)", /* DF 63 */
-		"FPP(FP_INT)", /* DF 66 */
-		"FPP(FP_LN)", /* DF 69 */
-		"FPP(FP_LOG)", /* DF 6C */
-		"FPP(FP_NOT)", /* DF 6F */
-		"FPP(FP_RAD)", /* DF 72 */
-		"FPP(FP_SGN)", /* DF 75 */
-		"FPP(FP_SIN)", /* DF 78 */
-		"FPP(FP_SQR)", /* DF 7B */
-		"FPP(FP_TAN)", /* DF 7E */
-		"FPP(FP_ZER)", /* DF 81 */
-		"FPP(FP_ONE)", /* DF 84 */
-		"FPP(FP_TRU)", /* DF 87 */
-		"FPP(FP_PI)", /* DF 8A */
-		"FPP(FP_VAL)", /* DF 8D */
-		"FPP(FP_STR)", /* DF 90 */
-		"FPP(FP_FIX)", /* DF 93 */
-		"FPP(FP_FLT)", /* DF 96 */
-		"FPP(FP_TST)", /* DF 99 */
-		"FPP(FP_CMP)", /* DF 9C */
-		"FPP(FP_NEG)", /* DF 9F */
-		"FPP(FP_BAS)", /* DF A2 */
-		"FPP(UNKNOWN)" };
+		"FPP  FP_AND", /* DF 21 */
+		"FPP  FP_IDV", /* DF 24 */
+		"FPP  FP_EOR", /* DF 27 */
+		"FPP  FP_MOD", /* DF 2A */
+		"FPP  FP_OR", /* DF 2D */
+		"FPP  FP_LEQ", /* DF 30 */
+		"FPP  FP_NEQ", /* DF 33 */
+		"FPP  FP_GEQ", /* DF 36 */
+		"FPP  FP_LT", /* DF 39 */
+		"FPP  FP_EQ", /* DF 3C */
+		"FPP  FP_MUL", /* DF 3F */
+		"FPP  FP_ADD", /* DF 42 */
+		"FPP  FP_GT", /* DF 45 */
+		"FPP  FP_SUB", /* DF 48 */
+		"FPP  FP_PWR", /* DF 4B */
+		"FPP  FP_DIV", /* DF 4E */
+		"FPP  FP_ABS", /* DF 51 */
+		"FPP  FP_ACS", /* DF 54 */
+		"FPP  FP_ASN", /* DF 57 */
+		"FPP  FP_ATN", /* DF 5A */
+		"FPP  FP_COS", /* DF 5D */
+		"FPP  FP_DEG", /* DF 60 */
+		"FPP  FP_EXP", /* DF 63 */
+		"FPP  FP_INT", /* DF 66 */
+		"FPP  FP_LN", /* DF 69 */
+		"FPP  FP_LOG", /* DF 6C */
+		"FPP  FP_NOT", /* DF 6F */
+		"FPP  FP_RAD", /* DF 72 */
+		"FPP  FP_SGN", /* DF 75 */
+		"FPP  FP_SIN", /* DF 78 */
+		"FPP  FP_SQR", /* DF 7B */
+		"FPP  FP_TAN", /* DF 7E */
+		"FPP  FP_ZER", /* DF 81 */
+		"FPP  FP_ONE", /* DF 84 */
+		"FPP  FP_TRU", /* DF 87 */
+		"FPP  FP_PI", /* DF 8A */
+		"FPP  FP_VAL", /* DF 8D */
+		"FPP  FP_STR", /* DF 90 */
+		"FPP  FP_FIX", /* DF 93 */
+		"FPP  FP_FLT", /* DF 96 */
+		"FPP  FP_TST", /* DF 99 */
+		"FPP  FP_CMP", /* DF 9C */
+		"FPP  FP_NEG", /* DF 9F */
+		"FPP  FP_BAS", /* DF A2 */
+		"FPP  UNKNOWN" };
 
 	private final Z80 z80vm;
 
-	private final String byteToHex(int b) {
+	/**
+	 * Return Hex 8bit string in XXh zero prefixed format.
+	 * 
+	 * @param b
+	 * @return String
+	 */
+	public final String byteToHex(int b) {
 		StringBuffer hexString = new StringBuffer(3);
 		
 		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]).append('h');
 		return hexString.toString();		
 	}
-	
-	private final String addrToHex(int addr) {
+
+	/**
+	 * Return Hex 16bit address string in XXXXh zero prefixed format.
+	 * 
+	 * @param addr
+	 * @return String
+	 */	
+	public final String addrToHex(int addr) {
 		int msb = addr/256, lsb = addr%256;
 		StringBuffer hexString = new StringBuffer(5);
 		
