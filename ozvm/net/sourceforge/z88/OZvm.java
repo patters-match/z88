@@ -1,10 +1,13 @@
 package net.sourceforge.z88;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,7 +33,7 @@ public class OZvm {
 			z80Speed = new MonitorZ80();
 			
 			dz = new Dz(z88); // the disassembly engine, linked to the memory model
-			bp = new Breakpoints();
+			breakp = new Breakpoints();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,7 +69,7 @@ public class OZvm {
 	/**
 	 * The Breakpoint manager instance.
 	 */
-	Breakpoints bp;
+	Breakpoints breakp;
 	
 	private StringBuffer z80Flags() {
 		StringBuffer dzFlags = new StringBuffer(8);
@@ -175,9 +178,8 @@ public class OZvm {
 	}
 
 	private void commandLine() throws IOException {
-		String cmdline = "?";
-		String[] cmdLineTokens = null;
-		cmdLineTokens = cmdline.split(" ");
+		String cmdline = "";
+		String[] cmdLineTokens = cmdLineTokens = cmdline.split(" ");
 		
 		BufferedReader in =
 			new BufferedReader(new InputStreamReader(System.in));
@@ -187,13 +189,13 @@ public class OZvm {
 		StringBuffer prevCmdline = new StringBuffer();
 		do {
 			if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
-				bp.setBreakpoints();
+				breakp.setBreakpoints();
 				z80Speed.start();
 				z88.startInterrupts();
 				z88.run();
 				z88.stopInterrupts();
 				z80Speed.stop();
-				bp.clearBreakpoints();
+				breakp.clearBreakpoints();
 				
 				// when we're getting back, a breakpoint was encountered...
 				z80Status();
@@ -208,23 +210,26 @@ public class OZvm {
 
 			if (cmdLineTokens[0].equalsIgnoreCase("blsr") == true) {
 				System.out.println(blinkBankBindings());
-				cmdLineTokens[0] = ""; // wait for a new command...
+				cmdline = ""; // wait for a new command...
+				cmdLineTokens = cmdline.split(" ");
 			}
 
 			if (cmdLineTokens[0].equalsIgnoreCase("bp") == true) {
 				bpCommandline(cmdLineTokens);
-				cmdLineTokens[0] = ""; // wait for a new command...
+				cmdLineTokens[0] = ""; // wait for a new command...				
 			}
 			
 			if (cmdLineTokens[0].length() > 0 &&
 				cmdLineTokens[0].equalsIgnoreCase(".") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("d") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
+			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("blsr") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("exit") == false
 			   ) {
 			   	// unknown commands get cleared so that we can 
 			   	// read a new command...
+			   	System.out.println("Unknown command.");
 				cmdLineTokens[0] = "";
 			}
 				
@@ -240,16 +245,14 @@ public class OZvm {
 	}
 
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
-		if (cmdLineTokens.length == 1) {
-			// no arguments, use PC in current bank binding
-			bp.listBreakpoints();
-		}
-
 		if (cmdLineTokens.length == 3) {
 			// no arguments, use PC in current bank binding
-			bp.toggleBreakpoint(Integer.parseInt(cmdLineTokens[2], 16), Integer.parseInt(cmdLineTokens[3], 16));
-		} else {
-			bp.listBreakpoints();
+			breakp.toggleBreakpoint(Integer.parseInt(cmdLineTokens[1], 16), Integer.parseInt(cmdLineTokens[2], 16));
+		}
+
+		if (cmdLineTokens.length == 1) {
+			// no arguments, use PC in current bank binding
+			breakp.listBreakpoints();
 		}
 	}
 	
@@ -311,13 +314,13 @@ public class OZvm {
 	 * BreakPoint management in OZvm.
 	 */
 	private class Breakpoints {
-		private SortedMap breakPoints = null;
+		private Map breakPoints = null;
 		
 		/**
 		 * Just instantiate this Breakpoint Manager
 		 */
 		Breakpoints() {
-			breakPoints = new TreeMap(); 
+			breakPoints = new HashMap(); 
 		}
 		
 		/**
@@ -337,26 +340,32 @@ public class OZvm {
 		 */
 		private void toggleBreakpoint(int offset, int bank) {
 			Breakpoint bp = new Breakpoint(offset, bank);
-			if (breakPoints.containsKey(bp) == false) 
-				breakPoints.put(bp, bp);
+			if (breakPoints.containsKey( (Breakpoint) bp) == false) 
+				breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
 			else
-				breakPoints.remove(bp);
+				breakPoints.remove((Breakpoint) bp);
+				
+			listBreakpoints();
 		}
 
 		/**
-		 * List break points in bank number order, ascending.
+		 * List breakpoints to console.
 		 */
 		private void listBreakpoints() {
-			Set keySet = breakPoints.entrySet();
-			Iterator keyIterator = keySet.iterator();
-
-			while(keyIterator.hasNext()) {
-				Breakpoint bpKey = (Breakpoint) keyIterator.next();
-				Breakpoint bp = (Breakpoint) breakPoints.get(bpKey);
-
-				int offset = bp.getAddress() & 0x3FFF;
-				int bank = bp.getAddress() >>> 16;
-				System.out.print(dz.addrToHex(offset,false) + "," + dz.byteToHex(bank,false) + "\t"); 
+			if (breakPoints.isEmpty() == true) {
+				System.out.println("No Breakpoints defined.");
+			} else {
+				Iterator keyIterator = breakPoints.entrySet().iterator();
+	
+				while(keyIterator.hasNext()) {
+					Map.Entry e = (Map.Entry) keyIterator.next();   
+					Breakpoint bp = (Breakpoint) e.getKey();
+	
+					int offset = bp.getAddress() & 0xFFFF;
+					int bank = bp.getAddress() >>> 16;
+					System.out.print(dz.addrToHex(offset,false) + "," + dz.byteToHex(bank,false) + "\t"); 
+				}
+				System.out.println();
 			}
 		}
 
@@ -368,16 +377,18 @@ public class OZvm {
 			// now, set the breakpoint at the extended address; 
 			// the instruction opcode ED80 (officially a NOP instruction).
 			// which this virtual machine identifies as a "suspend" Z80 exection. 
-			Set keySet = breakPoints.entrySet();
-			Iterator keyIterator = keySet.iterator();
-			while(keyIterator.hasNext()) {
-				Breakpoint bpKey = (Breakpoint) keyIterator.next();
-				Breakpoint bp = (Breakpoint) breakPoints.get(bpKey);
-
-				int offset = bp.getAddress() & 0x3FFF;
-				int bank = bp.getAddress() >>> 16; 
-				z88.setByte(offset, bank, 0xED);
-				z88.setByte(offset+1, bank, 0x80);
+			if (breakPoints.isEmpty() == false) {
+				Iterator keyIterator = breakPoints.entrySet().iterator();
+		
+				while(keyIterator.hasNext()) {
+					Map.Entry e = (Map.Entry) keyIterator.next();   
+					Breakpoint bp = (Breakpoint) e.getKey();
+	
+					int offset = bp.getAddress() & 0x3FFF;
+					int bank = bp.getAddress() >>> 16;
+					z88.setByte(offset, bank, 0xED);
+					z88.setByte(offset+1, bank, 0x80);
+				}
 			}
 		}
 		
@@ -389,18 +400,20 @@ public class OZvm {
 			// restore at the extended address; 
 			// the original instruction opcode that is preserved inside 
 			// the BreakPoint object 
-			Set keySet = breakPoints.entrySet();
-			Iterator keyIterator = keySet.iterator();
-			while(keyIterator.hasNext()) {
-				Breakpoint bpKey = (Breakpoint) keyIterator.next();
-				Breakpoint bp = (Breakpoint) breakPoints.get(bpKey);
-
-				int offset = bp.getAddress() & 0x3FFF;
-				int bank = bp.getAddress() >>> 16;
-				
-				// restore the original opcode bit pattern... 
-				z88.setByte(offset, bank, bp.getInstruction() & 0xFF);
-				z88.setByte(offset+1, bank, bp.getInstruction() >>> 8);
+			if (breakPoints.isEmpty() == false) {
+				Iterator keyIterator = breakPoints.entrySet().iterator();
+		
+				while(keyIterator.hasNext()) {
+					Map.Entry e = (Map.Entry) keyIterator.next();   
+					Breakpoint bp = (Breakpoint) e.getKey();
+	
+					int offset = bp.getAddress() & 0x3FFF;
+					int bank = bp.getAddress() >>> 16;
+					
+					// restore the original opcode bit pattern... 
+					z88.setByte(offset, bank, bp.getInstruction() & 0xFF);
+					z88.setByte(offset+1, bank, bp.getInstruction() >>> 8);
+				}
 			}			
 		}
 
@@ -414,11 +427,15 @@ public class OZvm {
 				addressKey = bank << 16 | offset;
 			
 				// the original 2 byte opcode bit pattern in Z88 memory.
-				instr = z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank);				
+				setInstruction(z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank));				
 			}
 			
 			private int getAddress() {
 				return addressKey;
+			}
+			
+			private void setInstruction(int z80instr) {
+				instr = z80instr;				
 			}
 			
 			private int getInstruction() {
@@ -473,7 +490,7 @@ public class OZvm {
 		}
 		
 		private MonitorZ80() {
-			timer = new Timer();
+			timer = new Timer(true);
 		}
 
 		/**
@@ -481,7 +498,7 @@ public class OZvm {
 		 */
 		public void stop() {
 			if (timer != null)
-				timer.cancel();
+				monitor.cancel();
 		}
 
 		/**
