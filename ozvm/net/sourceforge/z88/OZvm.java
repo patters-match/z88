@@ -139,9 +139,7 @@ public class OZvm {
 		
 		StringBuffer prevCmdline = new StringBuffer();
 		System.out.print("$");
-		while ((cmdline = in.readLine()).equalsIgnoreCase("exit") == false) {
-			System.out.print("$");
-			
+		do {
 			if (cmdline.length() == 0)
 				cmdline = prevCmdline.toString();
 				
@@ -159,7 +157,12 @@ public class OZvm {
 			
 			if (cmdline.length() > 0)
 				prevCmdline.replace(0, 64, cmdline);
-		}		
+				
+			if (cmdline.length() == 0) {
+				cmdline = in.readLine();
+				System.out.print("$");
+			} 
+		} while (cmdline.equalsIgnoreCase("exit") == false);		
 	}
 
 	private String dzCommandline(BufferedReader in, String[] cmdLineTokens) throws IOException {
@@ -177,6 +180,12 @@ public class OZvm {
 			// one arguments, the local Z80 64K address 
 			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
 			dzBank = z88.getSegmentBank(dzAddr >>> 14);
+		}
+
+		if (cmdLineTokens.length == 3) {
+			// two arguments, the offset and the bank number 
+			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
+			dzBank = Integer.parseInt(cmdLineTokens[2], 16);
 		}
 
 		do {		
