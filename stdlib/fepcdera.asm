@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId, FlashEprBlockErase, MemDefBank, ExecRoutineOnStack
+     LIB FlashEprCardId, FlashEprBlockErase, SafeBHLSegment, MemDefBank, ExecRoutineOnStack
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
