@@ -24,6 +24,28 @@ import java.io.*;
 
 public class Z88 extends Z80 {
 
+	/**
+	 * Constructor.
+	 * Initialize Z88 Hardware.
+	 */
+	public Z88() throws Exception {
+		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster...)
+		// This emulator runs at the speed it can get and provides external
+		// interrupt signals each 10ms from BLINK to Z80 through INT pin
+		super();
+
+		slotCards = new Bank[4][];      // Instantiate the slot containers for Cards...
+		for (int slot=0; slot<4; slot++) slotCards[slot] = null; // nothing available in slots..
+
+		insertRamCard(128*1024, 0);     // Insert 128K RAM in slot 0 (top 512K address space)
+
+		blink = new Blink(this);		// initialize BLINK chip
+		dz = new Dz(this);  			// the disassembly engine         
+	}
+
+	/**
+	 * Z80 processor is hardwired to the BLINK chip logic.
+	 */
 	private Blink blink;
 	
     /**
@@ -37,22 +59,8 @@ public class Z88 extends Z80 {
     private static final StringBuffer dzBuffer = new StringBuffer(32);
 
     /**
-     * The Z88 memory organisation.
-     * Array for 256 x 16K banks = 4Mb memory
-     */
-    private Bank z88Memory[];
-
-    /**
-     * Null bank. This is used in for unassigned banks,
-     * ie. when a card slot is empty in the Z88
-     * The contents of this bank contains 0xFF and is
-     * write-protected (just as an empty bank in an Eprom).
-     */
-    private Bank nullBank;
-
-    /**
-     * The container for the current loaded card entities
-     * in the Z88 memory system for slot 0, 1, 2 and 3.
+     * The container for the current loaded card entities in the Z88 memory
+     * system for slot 0, 1, 2 and 3.
      *
      * Slot 0 will only keep a RAM Card in top 512K address space
      * The ROM "Card" is only loaded once at OZvm boot
@@ -60,38 +68,9 @@ public class Z88 extends Z80 {
      */
     private Bank slotCards[][];
 
-    /**
-     * Constructor.
-     * Initialize Z88 Hardware.
-     */
-    public Z88() throws Exception {
-        // Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster...)
-        // This emulator runs at the speed it can get and provides external
-        // interrupt signals each 10ms from BLINK to Z80 through INT pin
-        super();
-
-		blink = new Blink();	// initialize BLINK chip
-        dz = new Dz(this);  	// the disassembly engine must know about the Z88 virtual machine
-
-        // Initialize Z88 memory model
-        
-        z88Memory = new Bank[256];          // The Z88 memory addresses 256 banks = 4MB!
-        nullBank = new Bank(Bank.EPROM);
-        slotCards = new Bank[4][];          // Instantiate the slot containers for Cards...
-
-        // Initialize Z88 Memory address space.
-        for (int bank=0; bank<z88Memory.length; bank++) z88Memory[bank] = nullBank;
-        for (int slot=0; slot<4; slot++) slotCards[slot] = null; // nothing available in slots..
-
-        insertRamCard(128*1024, 0);         // Insert 128K RAM in slot 0 (top 512K address space)
-    }
-
-
     public void hardReset() {
         reset();                		// reset Z80 registers
         blink.setCOM(0);        		// reset COM register
-        blink.setRAMS(z88Memory[0]);    // point at ROM bank $00
-
         resetRam();             		// reset memory of all available RAM in Z88 memory
     }
 
@@ -208,7 +187,7 @@ public class Z88 extends Z80 {
         }
 
         for (curBank=0; curBank<card.length; curBank++) {
-            z88Memory[slotBank++] = card[curBank];  // "insert" 16Kb bank into Z88 memory
+            blink.setBank(card[curBank], slotBank++);  // "insert" 16Kb bank into Z88 memory
             --totalSlotBanks;
         }
 
@@ -226,7 +205,7 @@ public class Z88 extends Z80 {
         // at the top respectively.
         while (totalSlotBanks > 0) {
             for (curBank=0; curBank<card.length; curBank++) {
-                z88Memory[slotBank++] = card[curBank];  // "shadow" card banks into remaining slot
+				blink.setBank(card[curBank], slotBank++);	// "shadow" card banks into remaining slot
                 --totalSlotBanks;
             }
         }
@@ -243,39 +222,8 @@ public class Z88 extends Z80 {
      * Please refer to hardware section of the Developer's Notes.
      */
     public int readByte( int addr ) {
-        int segment = addr >>> 14; // bit 15 & 14 identifies segment
-
-        // the Z88 spends most of the time in segments 1 - 3,
-        // therefore we should ask for this first...
-        if (segment > 0) {
-            return z88Memory[blink.getSegmentBank(segment)].readByte(addr);
-        } else {
-            // Bank 0 is split into two 8K blocks.
-            // Lower 8K is System Bank 0x00 (ROM on hard reset)
-            // or 0x20 (RAM for Z80 stack and system variables)
-            if (addr < 0x2000) {
-                return blink.getRAMS().readByte(addr);
-            } else {
-                // determine which 8K of bank has been bound into
-                // upper half of segment 0. Only even numbered banks
-                // can be bound into upper segment 0.
-                // (to implement this hardware feature, we strip bit 0
-                // of the bank number with the bit mask 0xFE)
-                if ((blink.getSegmentBank(0) & 1) == 1) {
-                    // bit 0 is set in even bank number, ie. upper half of
-                    // 8K bank is bound into upper segment 0...
-                    // address is already in range of 0x2000 - 0x3FFF
-                    // (upper half of bank)
-                    return z88Memory[blink.getSegmentBank(0) & 0xFE].readByte(addr);
-                } else {
-                    // lower half of 8K bank is bound into upper segment 0...
-                    // force address to read in the range 0 - 0x1FFF of bank
-                    return z88Memory[blink.getSegmentBank(0) & 0xFE].readByte(addr & 0x1FFF);
-                }
-            }
-        }
+    	return blink.readByte(addr);
     }
-
 
     /**
      * Write byte to Z80 virtual memory model. <addr> is a 16bit word
@@ -287,51 +235,8 @@ public class Z88 extends Z80 {
      * Please refer to hardware section of the Developer's Notes.
      */
     public void writeByte ( int addr, int b ) {
-        int segment = addr >>> 14; // bit 15 & 14 identifies segment
-
-        // the Z88 spends most of the time in segments 1 - 3,
-        // therefore we should try this first...
-        if (segment > 0) {
-            z88Memory[blink.getSegmentBank(segment)].writeByte(addr, b);
-        } else {
-            // Bank 0 is split into two 8K blocks.
-            // Lower 8K is System Bank 0x00 (ROM on hard reset)
-            // or 0x20 (RAM for Z80 stack and system variables)
-            if (addr < 0x2000) {
-				blink.getRAMS().writeByte(addr, b);
-            } else {
-                // determine which 8K of bank has been bound into
-                // upper half of segment 0. Only even numbered banks
-                // can be bound into upper segment 0.
-                // (to implement this hardware feature, we strip bit 0
-                // of the bank number with the bit mask 0xFE)
-                if ((blink.getSegmentBank(0) & 1) == 1) {
-                    // bit 0 is set in even bank number, ie. upper half of
-                    // 8K bank is bound into upper segment 0...
-                    // address is already in range of 0x2000 - 0x3FFF
-                    // (upper half of bank)
-                    z88Memory[blink.getSegmentBank(0) & 0xFE].writeByte(addr, b);
-                } else {
-                    // lower half of 8K bank is bound into upper segment 0...
-                    // force address to read in the range 0 - 0x1FFF of bank
-                    z88Memory[blink.getSegmentBank(0) & 0xFE].writeByte(addr & 0x1FFF, b);
-                }
-            }
-        }
+    	blink.writeByte(addr, b);
     }
-
-    /**
-     * Disassemble implementation for Z88 virtual machine.
-     * This method will be called by the Z80 processing engine
-     * (the super class), when instructed to perform runtime
-     * disassembly.
-     */
-    public void disassemble( int addr ) {
-
-        dz.getInstrAscii(dzBuffer, addr, true);
-        System.out.println(dzBuffer);   // display executing instruction in shell
-    }
-
 
     /**
      * Implement Z88 input port hardware.
@@ -351,26 +256,25 @@ public class Z88 extends Z80 {
         switch(port) {
             case 0xB0:  // COM
                 blink.setCOM(outByte);
-                if ( (outByte & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
-                    // RAM is bound into lower 8K of segment 0
-                    blink.setRAMS(z88Memory[0x20]);
-                else
-                    // ROM bank 0 is bound into lower 8K of segment 0
-                    blink.setRAMS(z88Memory[0x00]);
                 break;
 
             case 0xD0:  // SR0
-			    blink.setSegmentBank(0, outByte);
-                break;
-            case 0xD1:  // SR1
-				blink.setSegmentBank(1, outByte);
-                break;
-            case 0xD2:  // SR2
-				blink.setSegmentBank(2, outByte);
-                break;
-            case 0xD3:  // SR3
-				blink.setSegmentBank(2, outByte);
+			case 0xD1:  // SR1
+			case 0xD2:  // SR2
+			case 0xD3:  // SR3
+			    blink.setSegmentBank(port, outByte);
                 break;
         }
     }
+
+	/**
+	 * Disassemble implementation for Z88 virtual machine.
+	 * This method will be called by the Z80 processing engine
+	 * (the super class), when instructed to perform runtime
+	 * disassembly.
+	 */
+	public void disassemble( int addr ) {
+		dz.getInstrAscii(dzBuffer, addr, true);
+		System.out.println(dzBuffer);   // display executing instruction in shell
+	}
 }
