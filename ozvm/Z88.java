@@ -17,6 +17,9 @@ import java.net.*;
  *
  * @see OZvm
  * @see Z88
+ * 
+ * $Id$
+ * 
  */
 
 public class Z88 extends Z80 {
@@ -59,8 +62,8 @@ public class Z88 extends Z80 {
 
 	
 	public Z88() throws Exception {
-		// Z88 runs at 3.5Mhz
-		super( 3.5 );
+		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster)
+		super( 3.2768 );
 
 	}
 
@@ -83,7 +86,6 @@ public class Z88 extends Z80 {
 
 			pausedThread = Thread.currentThread();
 			while ( pauseAtNextInterrupt ) {
-				// showMessage( "Adam Davidson & Andrew Pollard" );
 				if ( refreshNextInterrupt ) {
 					refreshNextInterrupt = false;
 				}
