@@ -3988,10 +3988,12 @@ public class Dz {
 	 * @param b
 	 * @return String
 	 */
-	public final String byteToHex(int b) {
+	public final String byteToHex(int b, boolean hexTrailer) {
 		StringBuffer hexString = new StringBuffer(3);
 		
-		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]).append('h');
+		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]);
+		if (hexTrailer == true) hexString.append('h');
+		
 		return hexString.toString();		
 	}
 
@@ -4001,12 +4003,14 @@ public class Dz {
 	 * @param addr
 	 * @return String
 	 */	
-	public final String addrToHex(int addr) {
+	public final String addrToHex(int addr, boolean hexTrailer) {
 		int msb = addr/256, lsb = addr%256;
 		StringBuffer hexString = new StringBuffer(5);
 		
 		hexString.append(hexcodes[msb/16]).append(hexcodes[msb%16]);
-		hexString.append(hexcodes[lsb/16]).append(hexcodes[lsb%16]).append('h');
+		hexString.append(hexcodes[lsb/16]).append(hexcodes[lsb%16]);
+		if (hexTrailer == true) hexString.append('h');
+
 		return hexString.toString();
 	}
 	
@@ -4022,21 +4026,22 @@ public class Dz {
 	 * disassembly has completed. You can therefore use this method
 	 * in a loop and perform continous disassembly.
 	 * 
-	 * @param opcode (StringBuffer, the container for the Ascii disassembly)
-	 * @param pc (int, the current address (Program Counter of Z80 instruction)
-	 * @param dispaddr (boolean, - display Hex address as part of disassembly)
-	 * @return int (address of following instruction)
+	 * @param opcode StringBuffer, the container for the Ascii disassembly
+	 * @param pc int, the current address (Program Counter of Z80 instruction
+	 * @param dispaddr boolean, display Hex address as part of disassembly
+	 * @return int address of following instruction
 	 */
 	public final int getInstrAscii(StringBuffer opcode, int pc, boolean dispaddr) {
-		int i, addr;
+		int i, addr, origPc;
 		byte relidx;
 		String strMnem[] = null;
 		int argsMnem[] = null;
 
-		opcode.setLength(32);
-		opcode.delete(0,31);	// StringBuffer cleaned.
+		opcode.setLength(64);
+		opcode.delete(0,63);	// StringBuffer cleaned.
+		opcode.setCharAt(0, ' ');
 		
-		addr = pc;
+		origPc = addr = pc;
 
 		i = z88vm.readByte(pc++);
 		switch (i) {
@@ -4131,10 +4136,6 @@ public class Dz {
 				strMnem = mainStrMnem;
 				argsMnem = mainArgsMnem;
 		}
-
-		if (dispaddr == true) {
-			opcode.append(addrToHex(addr)).append(' ');
-		}
 		
 		if (argsMnem != null) {
 			opcode.append(strMnem[i]);	// the instruction opcode string with replace macro
@@ -4145,12 +4146,12 @@ public class Dz {
 					addr = z88vm.readByte(pc);
 					addr += 256 * z88vm.readByte(pc + 1);
 										
-					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(addr));
+					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
 					pc += 2; /* move past opcode */
 					break;
 
 				case 1 :
-					opcode.replace(replaceMacro, replaceMacro+3, byteToHex(z88vm.readByte(pc)));
+					opcode.replace(replaceMacro, replaceMacro+3, byteToHex(z88vm.readByte(pc), true));
 					pc++; /* move past opcode */
 					break;
 
@@ -4161,7 +4162,7 @@ public class Dz {
 				case -1 : /* relative jump addressing (+/- 128 byte range) */
 					byte reljmp = (byte) z88vm.readByte(pc);
 					int reladdr = (pc + 1 + reljmp) & 0xFFFF;
-					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr));
+					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr, true));
 
 					pc++; /* move past opcode */
 					break;
@@ -4185,7 +4186,7 @@ public class Dz {
 					else
 						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 						
-					opcode.replace(replaceOperand, replaceOperand+3, Integer.toHexString(z88vm.readByte(pc++)));
+					opcode.replace(replaceOperand, replaceOperand+3, byteToHex(z88vm.readByte(pc++), true));
 					break;
 
 				case -4 :
@@ -4199,6 +4200,20 @@ public class Dz {
 
 					break;
 			}
+		}
+
+		if (dispaddr == true) {
+			// display address and opcodes, before instruction mnemonic...
+			StringBuffer instrBytes = new StringBuffer(24);
+			instrBytes.append(addrToHex(origPc, false)).append(' ');
+			
+			for(int p=origPc; p<pc; p++) 
+				instrBytes.append(byteToHex(z88vm.readByte(p), false)).append(' '); 
+			for(int space=4-(pc-origPc); space>0; space--)
+				instrBytes.append("   ");		// pad with spaces, to right-align with Mnemonic
+			
+			opcode.insert(0, instrBytes.toString());
+			
 		}
 
 		return pc; // return the location of the next instruction
