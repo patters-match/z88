@@ -40,7 +40,7 @@ public class Z88display
 	int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 	
 
-    Z88display(Blink z88Blink) throws GameFrameException {        
+    Z88display(Blink z88Blink) throws GameFrameException {
 		GameFrameSettings settings = new GameFrameSettings(); 
 		settings.setTitle("Z88");
 		settings.setRequestedGraphicsMode( new GraphicsMode(Z88SCREENWIDTH, Z88SCREENHEIGHT));
@@ -111,6 +111,9 @@ public class Z88display
 						scrBaseCoordX += 8;							
 					}
 				}
+                
+                // safety: if 640 - X coordinate is less than 6 pixels, then abort inner loop..
+                if (Z88SCREENWIDTH - scrBaseCoordX < 6) break;
 			}
 						
 			// when a complete row (8 pixels deep) has been rendered,
@@ -155,13 +158,15 @@ public class Z88display
 		pxOn = ((charAttr & attrGry) == 0) ? PXCOLON : PXCOLGREY;
 
 		// render 8 pixel rows of scrChar
-		for(y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {		
+		for(y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
 			int charBits = blink.getByte(offset++, bank);	// fetch current pixel row of char
 			if ( (charAttr & attrRev) == attrRev) charBits = ~charBits;
-			
-			int pxOffset = 0;
+            
 			// render 6 pixels wide...
-			for(bit=32; bit>0; bit>>>=1) displayMatrix[y + scrBaseCoordX + pxOffset++] = ((charBits & bit) != 0) ? pxOn : PXCOLOFF;   
+            int pxOffset=0;
+			for(bit=32; bit>0; bit>>>=1) {
+                displayMatrix[y + scrBaseCoordX + pxOffset++] = ((charBits & bit) != 0) ? pxOn : PXCOLOFF;   
+            }
 		}			 			
 
 		// draw underline?
@@ -170,7 +175,7 @@ public class Z88display
 			if ((charAttr & attrRev) == attrRev) pxColor = PXCOLOFF;	// paint "inverse" underline.. 
 
 			y -= Z88SCREENWIDTH;	// back on 8th row...
-			for(bit = 0; bit<8; bit++)  displayMatrix[y + scrBaseCoordX + bit] = pxColor;
+			for(bit = 0; bit<6; bit++)  displayMatrix[y + scrBaseCoordX + bit] = pxColor;
 		}		
 	}
 
@@ -178,7 +183,7 @@ public class Z88display
 	private void drawHiresChar(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
 		int offset, bank;
 		int pxOn;
-				
+
 		// define which font set to use...
 		offset = ((charAttr & 3) << 8) | scrChar;
 		if (offset >= 0x300) {
