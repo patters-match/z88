@@ -45,8 +45,7 @@ public class Z88 extends Z80 {
 		insertRamCard(128 * 1024, 0);
 		// Insert 128K RAM in slot 0 (top 512K address space)
 
-		dz = new Dz(this); 				// the disassembly engine         
-		z80Speed = new MonitorZ80();	// finally, set up a monitor that display current Z80 speed
+		// z80Speed = new MonitorZ80();	// finally, set up a monitor that display current Z80 speed
 	}
 
 	private MonitorZ80 z80Speed = null;
@@ -56,15 +55,11 @@ public class Z88 extends Z80 {
 	 */
 	private Blink blink;
 
-	/**
-	 * The Z88 disassembly engine
-	 */
-	private Dz dz;
 
 	/**
 	 * Internal static buffer for runtime disassembly.
 	 */
-	private static final StringBuffer dzBuffer = new StringBuffer(32);
+	private static final StringBuffer dzBuffer = new StringBuffer(64);
 
 	/**
 	 * The container for the current loaded card entities in the Z88 memory
@@ -236,7 +231,7 @@ public class Z88 extends Z80 {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public int readByte(int addr) {
+	public final int readByte(final int addr) {
 		return blink.readByte(addr);
 	}
 
@@ -249,7 +244,7 @@ public class Z88 extends Z80 {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public void writeByte(int addr, int b) {
+	public final void writeByte(final int addr, final int b) {
 		blink.writeByte(addr, b);
 	}
 
@@ -260,7 +255,7 @@ public class Z88 extends Z80 {
 	 * @param addrA8
 	 * @param addrA15
 	 */	
-	public int inByte(int addrA8, int addrA15) {
+	public final int inByte(int addrA8, int addrA15) {
 		int res = 0;
 
 		switch (addrA8) {
@@ -312,7 +307,7 @@ public class Z88 extends Z80 {
 	 * @param addrA15 MSB of port address
 	 * @param outByte the data to send to the hardware
 	 */
-	public void outByte(int addrA8, int addrA15, int outByte) {
+	public final void outByte(final int addrA8, final int addrA15, final int outByte) {
 		switch (addrA8) {
 			case 0xD0 : // SR0, Segment register 0
 			case 0xD1 : // SR1, Segment register 1
@@ -363,17 +358,6 @@ public class Z88 extends Z80 {
 		}
 	}
 	
-	/**
-	 * Disassemble implementation for Z88 virtual machine.
-	 * This method will be called by the Z80 processing engine
-	 * (the super class), when instructed to perform runtime
-	 * disassembly.
-	 */
-	public void disassemble(int addr) {		
-			dz.getInstrAscii(dzBuffer, addr, true);
-			System.out.println(dzBuffer); // display executing instruction in shell			
-	}
-
 	/** 
 	 * Z80 instruction speed monitor. 
 	 * Polls each second for the execution speed and displays it to std out.
