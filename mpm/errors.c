@@ -82,7 +82,7 @@ static char *errmsg[] = {
  "Environment variable not defined",                             /* 31 */
  "Cannot include file recursively",                              /* 32 */
  "warnings occurred during assembly",                            /* 33 */
- "Warning: offset reaches beyond 16K boundary"                   /* 34 */
+ "Warning: bank offset reaches beyond 16K boundary"              /* 34 */
 
 };
 
