@@ -152,6 +152,7 @@ public abstract class Z80 {
     public final int PC() {
         return _PC;
     }
+    
     public final void PC(int word) {
 		cachedInstruction = cachedOpcodes = 0;		// Program counter change invalidates the cache
 
@@ -423,14 +424,14 @@ public abstract class Z80 {
 
     /** Program Counter Byte Access */
     private final int nxtpcb() {
-    	if (cachedOpcodes == 0)
-			fetchInstruction();				// fetch and cache a new 4 bytes sequence
+//    	if (cachedOpcodes == 0)
+//			fetchInstruction();				// fetch and cache a new 4 bytes sequence
 
-        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
-		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
-		cachedOpcodes--;					// one less instruction opcode
+//      int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
+//		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
+//		cachedOpcodes--;					// one less instruction opcode
 
-//		int b = readByte(_PC);
+		int b = readByte(_PC);
 		_PC = ++_PC & 0xffff;				// update Program Counter
         
         return b;
@@ -531,14 +532,14 @@ public abstract class Z80 {
                 pushw(_PC);
                 IFF1(false);
                 IFF2(false);
-                PC(0x66);
+                PC(0x0066);
                 tstatesCounter += 13;
                 return true;
             case IM1 :
                 pushw(_PC);
                 IFF1(false);
                 IFF2(false);
-                PC(0x38);
+                PC(0x0038);
                 tstatesCounter += 13;
                 return true;
             case IM2 :
