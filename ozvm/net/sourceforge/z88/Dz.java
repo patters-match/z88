@@ -4017,6 +4017,26 @@ public class Dz {
 
 		return hexString.toString();
 	}
+
+	/**
+	 * Return 24bit address string in XXXXXXh zero prefixed format.
+	 * 
+	 * @param addr The 24bit address to be converted to hex string
+	 * @param hexTrailer append 'h' if true.
+	 * @return String
+	 */	
+	public static final String extAddrToHex(final int addr, final boolean hexTrailer) {
+		int bank = addr >>> 16 & 0xFF;
+		int msb = addr >>> 8 & 0xFF, lsb = addr & 0xFF;
+		StringBuffer hexString = new StringBuffer(7);
+		
+		hexString.append(hexcodes[bank/16]).append(hexcodes[bank%16]);
+		hexString.append(hexcodes[msb/16]).append(hexcodes[msb%16]);
+		hexString.append(hexcodes[lsb/16]).append(hexcodes[lsb%16]);
+		if (hexTrailer == true) hexString.append('h');
+
+		return hexString.toString();
+	}
 	
 	public Dz(Blink z88Blink) {
 		blink = z88Blink;
