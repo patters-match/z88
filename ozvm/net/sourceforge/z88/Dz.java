@@ -4112,32 +4112,34 @@ public class Dz {
 				i = opcode[instrOpcodeOffset++];
 				break;
 
-			case 221 : /* DD CB opcode strMnem */
-				i = opcode[instrOpcodeOffset++];
+			case 221 : 
+				i = opcode[instrOpcodeOffset];
 				if (i == 203) {
+					/* DD CB op xx opcode strMnem */
 					strMnem = ddcbStrMnem;
 					argsMnem = ddcbArgsMnem;
 					i = opcode[instrOpcodeOffset+2];
-					instrOpcodeOffset++;
 				} else {
+					/* DD xx opcode strMnem */
 					strMnem = ddStrMnem;
 					argsMnem = ddArgsMnem;
-					i = opcode[instrOpcodeOffset++];
 				}
+				instrOpcodeOffset++;
 				break;
 
-			case 253 : /* FD CB opcode strMnem */
+			case 253 : 
 				i = opcode[instrOpcodeOffset];
 				if (i == 203) {
+					/* FD CB op xx opcode strMnem */
 					strMnem = fdcbStrMnem;
 					argsMnem = fdcbArgsMnem;
 					i = opcode[instrOpcodeOffset+2];
-					instrOpcodeOffset++;
 				} else {
+					/* FD xx opcode strMnem */
 					strMnem = fdStrMnem;
 					argsMnem = fdArgsMnem;
-					i = opcode[instrOpcodeOffset++];
 				}
+				instrOpcodeOffset++;
 				break;
 
 			case 223 : /* RST 18h, FPP interface */
