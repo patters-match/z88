@@ -305,6 +305,16 @@ public abstract class Z80 {
         _IFF2 = iff2;
     }
 
+    private boolean nmi = false;
+    
+    public boolean getNmi() {
+        return nmi;
+    }
+    
+    public void setNmi(boolean nmiState) {
+        nmi = nmiState;
+    }
+    
     private final int IM() {
         return _IM;
     }
@@ -500,7 +510,19 @@ public abstract class Z80 {
     /** process interrupt */
     private boolean execInterrupt() {
 
+        if (getNmi() == true) {
+            // non maskable interrupt occurred... (overrides DI)
+            pushw(_PC);
+            IFF1(false);
+            IFF2(false);
+            PC(0x66);
+            tstatesCounter += 13;
+            setNmi(false);
+            return true;                
+        }
+
         if (!IFF1()) {
+            // DI interrupt state enabled, maskable interrupts will not be executed.
             return false;
         }
 
