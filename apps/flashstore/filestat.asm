@@ -123,16 +123,21 @@ Module FileAreaStatistics
 
                     ld   a,(curslot)
                     ld   c,a
+                    push bc
                     CALL FlashEprInfo
+                    pop  bc
                     JR   NC, disp_flash
                     LD   HL, epromdev
                     CALL_OZ(GN_Sop)
-                    call FileEprRequest
+                    CALL FileEprRequest
                     LD   A,D
                     CALL DispSlotSize
+                    CALL_OZ(Gn_Nln)
+                    JR   disp_eprsize
 .disp_flash
                     CALL_OZ(GN_Sop)
                     CALL_OZ(Gn_Nln)
+.disp_eprsize
                     CALL DisplayEpromSize
 
                     ld   bc,$0103                 ; VDU (X,Y) = (1,3)
@@ -251,7 +256,7 @@ Module FileAreaStatistics
 ; Display Intel Flash Eprom Device Code and return information of chip.
 ;
 ; IN:
-;    None.
+;    C = Slot Number
 ;
 ; OUT:
 ;    Fc = 0, Flash Eprom Recognized in slot 3
@@ -259,8 +264,7 @@ Module FileAreaStatistics
 ;         HL = pointer to flash Card text
 ;    Fc = 1, Flash Eprom not found in slot X, or Device code not found
 ;
-.FlashEprInfo       LD   A,(curslot)
-                    LD   C,A
+.FlashEprInfo
                     CALL CheckFlashCardID
                     RET  C
 
@@ -296,7 +300,7 @@ Module FileAreaStatistics
 
 .ksize              DEFM "K ",0
 .fepr               DEFM "FILE AREA",1,"2-T",0
-.slot_bnr           DEFM "SLOT "
+.slot_bnr           DEFM "SLOT ", 0
 .bfre_msg           DEFM " bytes free",0
 .fisa_msg           DEFM " files saved",0
 .fdel_msg           DEFM " files deleted",0
