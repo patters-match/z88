@@ -117,7 +117,7 @@ public abstract class Z80 {
     private int _IX = 0, _IY = 0, _ID = 0;
 
     /** Stack Pointer and Program Counter */
-    private int _SP = 0, _PC = 0;
+    private char _SP = 0, _PC = 0;
     
     /** PC of current instruction (used for warning and error reporting */
     private int instrPC = 0;
@@ -171,14 +171,14 @@ public abstract class Z80 {
     public final void PC(int word) {
 		cachedInstruction = cachedOpcodes = 0;		// Program counter change invalidates the cache
 
-        _PC = word;
+        _PC = (char) word;
     }
 
     public final int SP() {
         return _SP;
     }
     public final void SP(int word) {
-        _SP = word;
+        _SP = (char) word;
     }
 
     private final int ID() {
@@ -409,7 +409,7 @@ public abstract class Z80 {
 	public abstract void writeWord(final int addr, final int w);
 
 	/** External implemenation of action to be taken when a display breakpoint is encountered */
-	public abstract void breakPointAction();
+	public abstract boolean breakPointAction();
 
     /** IO ports */
     public abstract void outByte(int addrA8, int addrA15, int bits);
@@ -439,28 +439,27 @@ public abstract class Z80 {
 
     /** Program Counter Byte Access */
     private final int nxtpcb() {
-//    	if (cachedOpcodes == 0)
-//			fetchInstruction();				// fetch and cache a new 4 bytes sequence
+    	if (cachedOpcodes == 0) {
+    		cachedOpcodes = 4;
+    		cachedInstruction = readWord(_PC) | (readWord(_PC+2) << 16);				// fetch and cache a new 4 bytes sequence
+    	}
 
-//      int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
-//		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
-//		cachedOpcodes--;					// one less instruction opcode
+        int b = cachedInstruction & 0xFF;	// the instruction opcode at current PC
+		cachedInstruction >>>= 8;			// get ready for next instruction opcode fetch...
+		cachedOpcodes--;					// one less instruction opcode		
+		_PC++;
 
-		int b = readByte(_PC);
-		_PC = ++_PC & 0xffff;				// update Program Counter
+		return b;
 
-        return b;
+//		return readByte(_PC++);
     }
 
 	/** Program Counter Word Access */
     private final int nxtpcw() {
-        int w = nxtpcb();		// the get LSB from current PC
-        w |= nxtpcb() << 8;		// the get MSB from current PC
-
-//		int w = readWord(_PC);
-//		_PC = (_PC + 2) & 0xFFFF;
-
-        return w;
+//		_PC += 2;
+//        return readWord(_PC - 2);
+    	
+    	return  nxtpcb() | (nxtpcb() << 8);  
     }
 
     /** Reset all registers to power on state */
@@ -959,11 +958,9 @@ public abstract class Z80 {
                         break;
                     }
 
-                    /* LD B,* */
-                case 64 : /* LD B,B */ {
-                        // Stop at encountered Breakpoint
-                        z80Stopped = true;
-						breakPointAction();
+                    /* LD B,? */
+                case 64 : /* LD B,B */ {                                                
+                		z80Stopped = breakPointAction(); // Stop at encountered breakpoint, if found...
                         tstatesCounter += 4;
                         break;
                     }
