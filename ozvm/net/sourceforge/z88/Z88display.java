@@ -9,6 +9,8 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
+import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.TimerTask;
 import javax.swing.JPanel;
@@ -47,6 +49,9 @@ public class Z88display extends JPanel {
 	/** The image (based on pixel data array) to be rendered onto Swing Component */
 	private Image image = null;
 
+	/** Screen dump counter */
+	private int scrdumpCounter = 0;
+	
 	private static final int SBRSIZE = 2048;
 	// Size of Screen Base File (bytes)
 	private static final int fps[] = new int[] { 5, 10, 25, 50 };
@@ -204,6 +209,26 @@ public class Z88display extends JPanel {
 		}
 	}
 
+	/**
+	 * Grab current screen frame pixel matrix and write it to a file.
+	 * 
+	 * @param filename
+	 * @param imgFormat formats supported by javax.imageio.ImageIO.write 
+	 */
+	public void grabScreenFrame() {
+		// create image, based on pixel array colours
+		BufferedImage bi = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
+		bi.setRGB(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, 0, Z88SCREENWIDTH);
+					
+		File file = new File("z88screen" + scrdumpCounter++ + ".png");
+		try {
+			javax.imageio.ImageIO.write(bi, "PNG", file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+	}
+	
 	private void renderNoScreenFrame() {
 		long timeMs = System.currentTimeMillis();
 

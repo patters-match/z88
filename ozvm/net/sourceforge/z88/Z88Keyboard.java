@@ -5,7 +5,6 @@ import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.HashMap;
 
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 
@@ -34,6 +33,7 @@ public class Z88Keyboard implements KeyListener {
 	public static final int COUNTRY_TR = 12;	// Keyboard layout for Turkey
 
 	private JTextField commandInput = null;
+	private Z88display z88Display = null;
 	
     private Map currentLayout = null;
     private Map[] z88Keyboards = null;			// country specific keyboard layouts
@@ -77,9 +77,10 @@ public class Z88Keyboard implements KeyListener {
      * Create the instance to bind the blink and Swing widget together.
      *
      */
-	public Z88Keyboard(Blink bl, JPanel cnv, JTextField cmdInput) {
+	public Z88Keyboard(Blink bl, Z88display z88Screen, JTextField cmdInput) {
 		blink = bl;
 		commandInput = cmdInput;
+		z88Display = z88Screen;
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
 
@@ -89,8 +90,8 @@ public class Z88Keyboard implements KeyListener {
 		currentLayout = z88Keyboards[COUNTRY_EN];	// use default UK keyboard layout for default UK V4 ROM.
 
 		// map Host keyboard events to this z88 keyboard, so that the emulator responds to keypresses.
-		cnv.setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas
-		cnv.addKeyListener(this);
+		z88Display.setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas
+		z88Display.addKeyListener(this);
     }
 
 
@@ -1104,9 +1105,14 @@ public class Z88Keyboard implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		KeyPress kp = null;
 
-		// System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		//System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
+			case KeyEvent.VK_F6:
+				// grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).
+				z88Display.grabScreenFrame();
+				break;
+			
 			case KeyEvent.VK_SHIFT:
 				// check if left or right SHIFT were pressed
 				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) pressZ88key(z88LshKey);
