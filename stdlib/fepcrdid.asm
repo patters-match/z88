@@ -17,6 +17,8 @@
 ;
 ;***************************************************************************************************
 
+     LIB MemDefBank
+     
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
 
@@ -32,12 +34,14 @@
 ;         Success:
 ;              Fc = 0
 ;              Fz = 1
-;              A = Flash Memory Device Code
-;                   fe_i016 ($AA), an INTEL 28F016S5 (2048Kb)
-;                   fe_i008 ($A2), an INTEL 28F008SA (1024Kb)
-;                   fe_i8s5 ($A6), an INTEL 28F008S5 (1024Kb)
-;                   fe_i004 ($A7), an INTEL 28F004S5 (512Kb)
-;                   fe_i020 ($BD), an INTEL 28F020 (256Kb)
+;              H = Flash Memory Manufacturer Code
+;                   FE_INTEL_MFCD
+;              L = Flash Memory Device Code
+;                   FE_i28F016S5 (2048Kb)
+;                   FE_i28F008SA (1024Kb)
+;                   FE_i28F008S5 (1024Kb)
+;                   FE_i28F004S5 (512Kb)
+;                   FE_i28F0020 (256Kb)
 ;              B = total of 16K banks on Flash Memory Chip.
 ;
 ;         Failure:
@@ -46,34 +50,36 @@
 ;              A = RC_NFE (not a recognised Flash Memory Chip)
 ;
 ; Registers changed on return:
-;    ...CDEHL/IXIY ........ same
-;    AFB...../.... afbcdehl different
+;    A..CDE../IXIY ........ same
+;    .FB...HL/.... afbcdehl different
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997 - Apr 1998
+;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Jul-Aug 2004
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------
 ;
 .FlashEprCardId
-                    PUSH HL
+                    PUSH DE
                     PUSH BC
+                    PUSH AF
 
                     CALL FetchCardID         ; get info of Intel chip in HL...
-                    LD   A, FE_INT           ; Intel FlashFile Memory?
+                    LD   A, FE_INTEL_MFCD    ; Intel FlashFile Memory?
                     CP   H
                     JR   NZ, unknown_device  ; not an Intel Chip...
-
-                    LD   A,L                 ; Fc = 0, Fz = 1, A = Device Code
-                    CALL GetTotalBlocks      ; return no. of blocks in B
-                    POP  HL
-                    LD   C,L                 ; original C restored
-                    POP  HL                  ; original HL restored
-                    RET
+                    CALL GetTotalBlocks      ; return no. of 16K banks of Flash Memory in B
+                    POP  DE
+                    LD   A,D                 ; original A restored
+                    POP  DE                  ; H = Manufacturer Code, L = Device Code 
+                    LD   C,E                 ; original C restored
+                    POP  DE                  ; original DE restored
+                    RET                      ; Fc = 0, Fz = 1
 .unknown_device     
                     LD   A, RC_NFE
                     SCF
                     POP  BC
+                    POP  DE
                     POP  HL
                     RET
 
@@ -91,8 +97,8 @@
 ;    L = device code (at $00 0001 on chip)
 ;
 ; Registers changed on return:
-;    ....DE../IXIY same
-;    AFBC..HL/.... different
+;    ......../IXIY same
+;    AFBCDEHL/.... different
 ;
 .FetchCardID        EXX
                     LD   HL,0
@@ -133,12 +139,11 @@
 
                     LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
                     LD   (HL), FE_IID        ; Flash Memory Card ID command
-                    LD   B,(HL)              ; B = manufacturer code (at $00 0000)
+                    LD   D,(HL)              ; D = Manufacturer Code (at $00 0000)
                     INC  HL
-                    LD   C,(HL)              ; C = device code (at $00 0001)
+                    LD   E,(HL)              ; E = Device Code (at $00 0001)
                     LD   (HL), FE_RST        ; Reset Flash Memory Chip to read array mode
-                    PUSH BC
-                    POP  HL
+                    EX   DE,HL
                     POP  BC
                     CALL MemDefBank          ; restore original bank in segment 1
                     RET
@@ -174,8 +179,8 @@
                     RET
 .DeviceCodeTable
                     DEFB 5
-                    DEFB fe_i020, 16               ; 4 x 64K blocks or 16 x 16K banks (256Kb)
-                    DEFB fe_i004, 32               ; 8 x 64K blocks or 32 x 16K banks (512Kb)
-                    DEFB fe_i008, 64               ; 16 x 64K blocks or 64 x 16K banks (1024Kb)
-                    DEFB fe_i8s5, 64               ; 16 x 64K blocks or 64 x 16K banks (1024Kb)
-                    DEFB fe_i016, 128              ; 32 x 64K blocks or 128 x 16K banks (2048Kb)
+                    DEFW FE_I28F020, 16           ; 4 x 64K blocks / 16 x 16K banks (256Kb)
+                    DEFW FE_I28F004S5, 32         ; 8 x 64K blocks / 32 x 16K banks (512Kb)
+                    DEFW FE_I28F008SA, 64         ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
+                    DEFW FE_I28F008S5, 64         ; 16 x 64K blocks / 64 x 16K banks (1024Kb)
+                    DEFW FE_I28F016S5, 64         ; 32 x 64K blocks / 128 x 16K banks (2048Kb) (appears like FE_I28F008S5)
