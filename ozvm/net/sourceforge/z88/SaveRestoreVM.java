@@ -32,6 +32,7 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 
 import net.sourceforge.z88.datastructures.SlotInfo;
+import net.sourceforge.z88.screen.Z88display;
 
 /**
  * Management of saving and resuming a OZvm machine instance.

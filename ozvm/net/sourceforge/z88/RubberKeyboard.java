@@ -37,6 +37,8 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.BevelBorder;
 
+import net.sourceforge.z88.screen.Z88display;
+
 import com.imagero.util.ThreadManager;
 
 /**

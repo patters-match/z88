@@ -24,6 +24,8 @@ import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.HashMap;
 
+import net.sourceforge.z88.screen.Z88display;
+
 
 /**
  * Bind host operating system keyboard events to Z88 keyboard.

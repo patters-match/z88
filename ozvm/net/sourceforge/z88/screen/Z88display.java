@@ -17,7 +17,7 @@
  *
  */
 
-package net.sourceforge.z88;
+package net.sourceforge.z88.screen;
 
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
@@ -30,6 +30,9 @@ import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+
+import net.sourceforge.z88.Blink;
+import net.sourceforge.z88.Memory;
 
 /**
  * The display renderer of the Z88 virtual machine, updating

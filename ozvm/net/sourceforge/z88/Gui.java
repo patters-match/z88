@@ -46,6 +46,8 @@ import java.io.IOException;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ButtonGroup;
 
+import net.sourceforge.z88.screen.Z88display;
+
 /**
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
  */

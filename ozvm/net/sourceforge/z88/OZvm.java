@@ -30,6 +30,7 @@ import javax.swing.UIManager;
 import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
 import net.sourceforge.z88.filecard.FileAreaNotFoundException;
+import net.sourceforge.z88.screen.Z88display;
 
 /**
  * Main	entry of the Z88 virtual machine.
