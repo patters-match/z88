@@ -203,11 +203,11 @@ public final class Blink extends Z80 {
 	 * @param bits
 	 */
 	public void setBlinkAck(int bits) {
-		System.out.println("Blink, Acknowledge interrupts: " + Integer.toBinaryString(bits));
-		if ((bits & BM_ACKA19) == BM_ACKA19) {STA &= ~BM_STAA19; System.out.println("BM_ACKA19");} 
-		if ((bits & BM_ACKBTL) == BM_ACKBTL) {STA &= ~BM_STABTL; System.out.println("BM_ACKBTL");}
-		if ((bits & BM_ACKFLAP) == BM_ACKFLAP) {STA &= ~BM_STAFLAP; System.out.println("BM_ACKFLAP");} 
-		if ((bits & BM_ACKTIME) == BM_ACKTIME) {STA &= ~BM_STATIME; System.out.println("BM_ACKTIME");}
+		// System.out.println("Blink, Acknowledge interrupts: " + Integer.toBinaryString(bits));
+		if ((bits & BM_ACKA19) == BM_ACKA19) STA &= ~BM_STAA19; 
+		if ((bits & BM_ACKBTL) == BM_ACKBTL) STA &= ~BM_STABTL; 
+		if ((bits & BM_ACKFLAP) == BM_ACKFLAP) STA &= ~BM_STAFLAP;  
+		if ((bits & BM_ACKTIME) == BM_ACKTIME) STA &= ~BM_STATIME; 
 	}
 
    	/**
@@ -597,6 +597,7 @@ public final class Blink extends Z80 {
 		
 		return keyCol;
 	}
+
 
     
 	/**
@@ -1256,6 +1257,13 @@ public final class Blink extends Z80 {
 			// and load fully into bank
 		}
 
+		// Finally, check for Z88 ROM Watermark
+		if (romBanks[romBanks.length-1].bank[0x3FFB] != 0x81 &
+		    romBanks[romBanks.length-1].bank[0x3FFE] != 'O' & 
+		    romBanks[romBanks.length-1].bank[0x3FFF] != 'Z') {
+				throw new IOException("This is not a Z88 ROM");
+	    }
+		
 		// complete ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
 		loadCard(romBanks, 0);
@@ -1687,4 +1695,12 @@ public final class Blink extends Z80 {
 			timerDaemon.scheduleAtFixedRate(intIm1, 0, 10);
 		}
 	}
+
+	/**
+	 * @return
+	 */
+	public Z88Keyboard getZ88Keyboard() {
+		return z88Keyboard;
+	}
+
 }
