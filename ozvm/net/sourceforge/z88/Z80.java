@@ -346,7 +346,7 @@ public abstract class Z80 {
 	/** IO ports */
 	public abstract void outByte(int port, int b);
 
-	public abstract int inByte(int port);
+	public abstract int inByte(int addrA8, int addrA15);
 
 	/** Word access */
 	private void pokew(int addr, int word) {
@@ -1755,7 +1755,7 @@ public abstract class Z80 {
 						break;
 					}
 				case 219 : /* IN A,(n) */ {
-						A(inByte((A() << 8) | nxtpcb()));
+						A(inByte(nxtpcb(), A()));
 						local_tstates += (11);
 						break;
 					}
@@ -2390,7 +2390,7 @@ public abstract class Z80 {
 				}
 			case 162 : /* INI */ {
 					int b;
-					writeByte(HL(), inByte(BC()));
+					writeByte(HL(), inByte(C(),B()));
 					B(b = qdec8(B()));
 					HL(inc16(HL()));
 
@@ -2438,7 +2438,7 @@ public abstract class Z80 {
 				}
 			case 170 : /* IND */ {
 					int b;
-					writeByte(HL(), inByte(BC()));
+					writeByte(HL(), inByte(C(), B()));
 					B(b = qdec8(B()));
 					HL(dec16(HL()));
 
@@ -2517,7 +2517,7 @@ public abstract class Z80 {
 				}
 			case 178 : /* INIR */ {
 					int b;
-					writeByte(HL(), inByte(BC()));
+					writeByte(HL(), inByte(C(),B()));
 					B(b = qdec8(B()));
 					HL(inc16(HL()));
 
@@ -2602,7 +2602,7 @@ public abstract class Z80 {
 				}
 			case 186 : /* INDR */ {
 					int b;
-					writeByte(HL(), inByte(BC()));
+					writeByte(HL(), inByte(C(),B()));
 					B(b = qdec8(B()));
 					HL(dec16(HL()));
 
@@ -5373,7 +5373,7 @@ public abstract class Z80 {
 	}
 
 	private final int in_bc() {
-		int ans = inByte(BC());
+		int ans = inByte(C(),B());
 
 		setZ(ans == 0);
 		setS((ans & F_S) != 0);
