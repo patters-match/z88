@@ -1,0 +1,331 @@
+Below is a list of changes that represents V0.4 of OZvm.
+(changes made since V0.3.6)
+
+==========================================================================================================================================================
+
+Working file: ozvm/net/sourceforge/z88/AmdFlashBank.java
+----------------------------
+revision 1.6
+date: 2004/09/25 17:18:30;  author: gbs;  state: Exp;  lines: +109 -110
+Eureka!!! AMD Flash Memory emulation is now fully functional.
+Read Array Mode logic has been rewritten and a bug was fixed when handling
+the 0XF0 (force Read Array Mode) command evaluation.
+----------------------------
+revision 1.5
+date: 2004/09/24 16:08:48;  author: gbs;  state: Exp;  lines: +222 -66
+Implemented Program Byte, Chip Erase & Sector Erase commands. Not yet tested against Flash Eprom Library...
+----------------------------
+revision 1.4
+date: 2004/09/23 11:54:44;  author: gbs;  state: Exp;  lines: +44 -32
+Refactored various method and property names to make it mre understandable.
+Added/edited comments to clarify the implementation.
+----------------------------
+revision 1.3
+date: 2004/09/22 13:17:58;  author: gbs;  state: Exp;  lines: +19 -24
+Emulation now works for Auto select mode (after a few bug fixes)!
+Using java -jar z88.jar epr2 128 fe29 (insert an empty Amd 128K Flash Eprom into slot 3) properly
+returns Manufacturer Code = $01, Device Code = $20 when the FlashEprCardId library routine polls (virtual) slot 2.
+Program Byte & Erase sector still needs to be implemented.
+
+Other implementation changes:
+Refactored the constructor; bank number is irrelevant when being instantiated.
+The bank is assigned to the memory model at a later stage through the Blink.insertCard() method.
+----------------------------
+revision 1.2
+date: 2004/09/16 12:55:32;  author: gbs;  state: Exp;  lines: +281 -22
+General state machine & Autoselect Command implemented but UNTESTED.
+(the FlashEprCardID library should be able to poll for the AM29F0xxx Manufacturer & Device Code)
+----------------------------
+revision 1.1
+date: 2004/09/13 20:01:28;  author: gbs;  state: Exp;
+New Class that will emulate the Amd Flash Memory chip command sequenses when blowing and erasing data on a 128K, 512K & 1MB Flash Eprom from Rakewell Ltd.
+Currently, the implementation works as a read-only device.
+
+==========================================================================================================================================================
+
+Working file: ozvm/net/sourceforge/z88/Bank.java
+----------------------------
+revision 1.16
+date: 2004/09/25 17:19:19;  author: gbs;  state: Exp;  lines: +2 -2
+Only return 8bit data...
+----------------------------
+revision 1.15
+date: 2004/09/13 19:52:28;  author: gbs;  state: Exp;  lines: +52 -122
+Changed the Bank Memory Model implementation, using a proper object hierarchy for the various Z88 Card hardware.
+----------------------------
+revision 1.14
+date: 2004/02/03 11:03:26;  author: gbs;  state: dead;  lines: +1 -1
+More Z88 memory logistics refactoring.
+----------------------------
+revision 1.13
+date: 2004/02/02 16:35:27;  author: gbs;  state: Exp;  lines: +22 -4
+Eprom type definition expanded to two types; 32K and 128K
+This is necessary due to Blink Eprom Programming emulation
+(or rather the future intelligence of the Bank memory I/O handling)
+
+==========================================================================================================================================================
+
+Working file: ozvm/net/sourceforge/z88/Blink.java
+----------------------------
+revision 1.88
+date: 2004/09/27 10:13:33;  author: gbs;  state: Exp;  lines: +12 -2
+When the ROM binary image is loaded, use the AMD Flash Memory emulated chips if the size is 128K or 512K.
+This allowes us to test ROM self-modification, using the nice AMD Flash Memory that can be erased and programmed in all slots by just exploiting the 5V VCC of the Z88.
+(To you Thierry, the eternal Z88 hardware hacker who has already modied his Z88 motherboard to use a 512K AMD Flash chip!)
+----------------------------
+revision 1.87
+date: 2004/09/22 20:14:52;  author: gbs;  state: Exp;  lines: +4 -3
+bug fix in breakPointAction(): PC needed to get rewinded to breakpoint address (was point at next instruction after breakpoint)
+----------------------------
+revision 1.86
+date: 2004/09/22 13:24:50;  author: gbs;  state: Exp;  lines: +84 -11
+Refactored code that instantiates various Bank objects..
+
+New public methods:
+getBank() - returns a Bank (derived) object referred the bank number (0-255) that also represents a memory type (RAM, ROM, UV EPROM & FLASH).
+insertEprCard() - insert an Eprom Card (available types are UV Eprom, Intel Flash & Amd Flash Cards).
+----------------------------
+revision 1.85
+date: 2004/09/21 14:00:53;  author: gbs;  state: Exp;  lines: +30 -1
+new method: public void loadBankBinary(final int extAddress, final RandomAccessFile file)
+----------------------------
+revision 1.84
+date: 2004/09/13 19:50:46;  author: gbs;  state: Exp;  lines: +27 -31
+Changed the Bank Memory Model implementation, using a proper object hierarchy for the various Z88 Card hardware.
+----------------------------
+revision 1.83
+date: 2004/08/23 22:03:48;  author: gbs;  state: Exp;  lines: +2 -2
+Better keyboard responsiveness.
+----------------------------
+revision 1.82
+date: 2004/08/10 20:55:19;  author: gbs;  state: Exp;  lines: +2 -2
+Bank type of 1MB Flash Eprom, set to default Intel chip.
+(in a future OZvm, the Amd or Intel Flash Eprom type will be selectable)
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/Breakpoints.java
+----------------------------
+revision 1.9
+date: 2004/09/22 20:16:45;  author: gbs;  state: Exp;  lines: +2 -1
+Small "Breakpoints" heading, when listing breakpoint addresses (more understandable than just displaying extended adresses).
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/DisplayStatus.java
+----------------------------
+revision 1.13
+date: 2004/09/27 09:31:22;  author: gbs;  state: Exp;  lines: +2 -2
+Bugfix: The P/V flag was displayed wrong; A "V" is displayed when P/V (Parity Even) is 1, otherwise a "." (Parity Odd) is displayed.
+----------------------------
+revision 1.12
+date: 2004/09/22 20:19:43;  author: gbs;  state: Exp;  lines: +10 -8
+improve dzPcStatus(): Use same disassembly format as in <d> command, and keep the one-liner quick register dump trailer.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/EpromBank.java
+----------------------------
+revision 1.2
+date: 2004/09/22 13:18:45;  author: gbs;  state: Exp;  lines: +3 -3
+Refactored the constructor; bank number is irrelevant when being instantiated.
+The bank is assigned to the memory model at a later stage through the Blink.insertCard() method.
+----------------------------
+revision 1.1
+date: 2004/09/13 19:58:11;  author: gbs;  state: Exp;
+New Class that will emulate the slot 3 Blink hardware when programming 32K. 128K and 256K UV Eprom's.
+Currently, the implementation works as a read-only device.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/Gui.java
+----------------------------
+revision 1.20
+date: 2004/09/25 22:28:50;  author: gbs;  state: Exp;  lines: +16 -35
+The runtime messages scrollpane have been integrated below the Z88 screen (only displayed while in debugging mode).
+----------------------------
+revision 1.19
+date: 2004/08/19 18:11:25;  author: gbs;  state: Exp;  lines: +2 -2
+Remove the menubar, since it has no function atm anyway (suggested by Thierry Peycru).
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/IntelFlashBank.java
+----------------------------
+revision 1.2
+date: 2004/09/22 13:18:59;  author: gbs;  state: Exp;  lines: +3 -3
+Refactored the constructor; bank number is irrelevant when being instantiated.
+The bank is assigned to the memory model at a later stage through the Blink.insertCard() method.
+----------------------------
+revision 1.1
+date: 2004/09/13 20:00:30;  author: gbs;  state: Exp;
+New Class that will emulate the slot 3 Blink hardware and Intel FlashFile Memory chip command sequenses
+when blowing and erasing data on a 512K & 1MB Flash Eprom from Rakewell Ltd.
+Currently, the implementation works as a read-only device.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/Memory.java
+----------------------------
+revision 1.7
+date: 2004/09/13 19:50:46;  author: gbs;  state: Exp;  lines: +6 -223
+Changed the Bank Memory Model implementation, using a proper object hierarchy for the various Z88 Card hardware.
+----------------------------
+revision 1.6
+date: 2004/08/10 20:52:45;  author: gbs;  state: Exp;  lines: +5 -4
+We might as well break the ice; add the type of the new future 1Mb Flash Eprom Card, based on a new chip from AMD.
+----------------------------
+revision 1.5
+date: 2004/02/10 15:12:32;  author: gbs;  state: Exp;  lines: +36 -13
+The Bank class must also know about where it belongs in the memory model.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/OZvm.java
+----------------------------
+revision 1.84
+date: 2004/09/27 09:38:44;  author: gbs;  state: Exp;  lines: +15 -8
+FP command renamed to FV to better identify it with parity overflow, rather than the sign flag (plus).
+
+Improved the next step suggestions; evaluate the Flag Register and use "z" if a condition subroutine call
+is to be executed next, eg. if Fc = 1 and a CALL C,addr instruction is to be executed, then use "z" (otherwise ".").
+----------------------------
+revision 1.83
+date: 2004/09/26 00:09:32;  author: gbs;  state: Exp;  lines: +51 -10
+Improved the single step / subroutine step suggestion by looking at the instruction to be
+executed next (a suggestion only happens after a single step or subroutine step was executed).
+When the dynamic suggestion technique evaluates a subroutine type instruction to be executed next
+(CALL &  RST instructions), a 'z' command is automatically inserted on the command line (and highlighted).
+All other instructions will be default suggested with a '.' single step command.
+
+The reason for this behaviour is to save keyboard interaction when the developer
+needs to step through the instructions of the current "level" without needing to
+type a new command to avoid single stepping into another (call) level of instructions;
+all that is needed is to press ENTER to execute the next instruction (whether it
+actually was a subroutine that was executed or just a single instruction).
+----------------------------
+revision 1.82
+date: 2004/09/25 21:29:19;  author: gbs;  state: Exp;  lines: +51 -51
+All commands in debugging mode can now be entered in upper and/or lower case.
+The following commands have been renamed: d -> dz, r -> rg
+h for help is removed -> help is the keyword to use now for getting the help page.
+----------------------------
+revision 1.81
+date: 2004/09/22 20:25:12;  author: gbs;  state: Exp;  lines: +45 -9
+Better "RAM card inserted" message at boot.
+Breakpoint addresses at the command line now always converted to extended addresses without segment specifier. Local addresses are automatically converted.
+A linefeed added after output commands (to better distinguish individual command output).
+----------------------------
+revision 1.80
+date: 2004/09/22 13:30:45;  author: gbs;  state: Exp;  lines: +20 -4
+New command line feature:
+Insert an empty Eprom Card into slot 1 - 3. Size (16K - 1MB) and type (27C, 28F & 29F) is specified which enables OZvm
+through hardware emulation to manipulate the Card inserted into the virtual slot.
+Currently the framework is available for reading the cards (the types of hardware Eproms installed).
+However, the implementation to emulate the erasing and programming of the Eproms are still missing.
+----------------------------
+revision 1.79
+date: 2004/09/21 13:59:37;  author: gbs;  state: Exp;  lines: +13 -1
+new command in debugging mode: "ldc" (load code at ext.address).
+----------------------------
+revision 1.78
+date: 2004/08/09 14:55:21;  author: gbs;  state: Exp;  lines: +1 -14
+Removed the speed monitoring - it has no real need and it steals processing power from the execution engine.
+----------------------------
+revision 1.77
+date: 2004/08/05 10:18:35;  author: gbs;  state: Exp;  lines: +84 -76
+Runtime Display Message Window only active when debug mode is enabled.
+Important runtime messages are directed to operating system console output.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/RamBank.java
+----------------------------
+revision 1.2
+date: 2004/09/22 13:19:11;  author: gbs;  state: Exp;  lines: +3 -3
+Refactored the constructor; bank number is irrelevant when being instantiated.
+The bank is assigned to the memory model at a later stage through the Blink.insertCard() method.
+----------------------------
+revision 1.1
+date: 2004/09/13 19:54:26;  author: gbs;  state: Exp;
+Changed the Bank Memory Model implementation, using a proper object hierarchy for the various Z88 Card hardware.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/RomBank.java
+----------------------------
+revision 1.2
+date: 2004/09/22 13:19:22;  author: gbs;  state: Exp;  lines: +3 -3
+Refactored the constructor; bank number is irrelevant when being instantiated.
+The bank is assigned to the memory model at a later stage through the Blink.insertCard() method.
+----------------------------
+revision 1.1
+date: 2004/09/13 19:54:26;  author: gbs;  state: Exp;
+Changed the Bank Memory Model implementation, using a proper object hierarchy for the various Z88 Card hardware.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/VoidBank.java
+----------------------------
+revision 1.1
+date: 2004/09/13 19:54:26;  author: gbs;  state: Exp;
+Changed the Bank Memory Model implementation, using a proper object hierarchy for the various Z88 Card hardware.
+
+=============================================================================
+
+Working file: ozvm/net/sourceforge/z88/Z88Keyboard.java
+----------------------------
+revision 1.25
+date: 2004/09/11 13:29:53;  author: gbs;  state: Exp;  lines: +501 -481
+Improved keyboard response; tested on various JDK's on both Window & Linux, using native
+Pentium Processor speeds ranging from 2.4Ghz down to 333Mhz (running on Pentium M).
+The improvement now ensures very stable keyboard input from the PC keyboard. This
+is especially seen when setting the Auto Repeat Rate to 3 in the Panel popdown.
+
+The core java methods responsible for receiving java.awt.KeyEvent's from the real world PC keyboard
+have been wrapped in an inner class and is being executed in a separate Java Thread, avoiding
+being suspended when the virtual Z80 processor goes into snooze mode (simulated by a Thread.sleep() call
+in the main virtual processor execution thread).
+----------------------------
+revision 1.24
+date: 2004/08/27 19:41:29;  author: gbs;  state: Exp;  lines: +1 -4
+Redundant (double) definition of Z88 virtual CAPS key removed.
+----------------------------
+revision 1.23
+date: 2004/08/21 13:33:22;  author: gbs;  state: Exp;  lines: +335 -19
+Major bug fixing of french PC to Z88 keybord layout mapping (thanks to Thierry Peycru for helping out
+with pictures of his nice french "piggy" keyboard, and tirelessly bothering me to get those keys fixed!).
+----------------------------
+revision 1.22
+date: 2004/08/20 15:23:43;  author: gbs;  state: Exp;  lines: +11 -12
+Bug (reported by Thierry Peycru) fixes: Keys 0 - 9 (single, with SHIFT and DIAMOND) now works on French Keyboard layout mode
+(java -jar z88.jar z88fr326.rom kbl fr).
+----------------------------
+revision 1.21
+date: 2004/08/05 10:18:34;  author: gbs;  state: Exp;  lines: +11 -7
+Runtime Display Message Window only active when debug mode is enabled.
+Important runtime messages are directed to operating system console output.
+=============================================================================
+
+Working file: ozvm/ozvm-manual.html
+----------------------------
+revision 1.9
+date: 2004/09/27 09:43:04;  author: gbs;  state: Exp;  lines: +3 -2
+Flag Register command FPV is actually FV on the OZvm command line.
+----------------------------
+revision 1.8
+date: 2004/09/25 23:07:48;  author: gbs;  state: Exp;  lines: +27 -13
+debug command line changes.
+----------------------------
+revision 1.7
+date: 2004/09/23 12:18:35;  author: gbs;  state: Exp;  lines: +13 -17
+Document used old version in header. it's now V0.3.6.
+A few changes to the introduction.
+----------------------------
+revision 1.6
+date: 2004/09/22 21:12:41;  author: gbs;  state: Exp;  lines: +15 -12
+better explanation of various matters.
+----------------------------
+revision 1.5
+date: 2004/09/22 20:48:12;  author: gbs;  state: Exp;  lines: +124 -80
+Updated the OZvm documentation.
