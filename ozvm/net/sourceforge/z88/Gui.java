@@ -143,7 +143,7 @@ public class Gui extends JFrame {
 		checkBoxMenuItem.setText("Debug");
 
 		final GridBagConstraints gridBagConstraints_2 = new GridBagConstraints();
-		gridBagConstraints_2.ipady = 52;
+		gridBagConstraints_2.ipady = 65;
 		gridBagConstraints_2.fill = GridBagConstraints.BOTH;
 		gridBagConstraints_2.ipadx = 275;
 		gridBagConstraints_2.gridy = 3;
@@ -1078,7 +1078,7 @@ public class Gui extends JFrame {
 	}
 	
 	public static void displayRtmMessage(final String msg) {
-		Gui.getInstance().getRtmOutputArea().append(msg + "\n");
+		Gui.getInstance().getRtmOutputArea().append("\n" + msg);
 		Gui.getInstance().getRtmOutputArea().setCaretPosition(Gui.getInstance().getRtmOutputArea().getDocument().getLength());
 	}
 	
