@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -42,8 +43,10 @@ import com.imagero.util.ThreadManager;
  * Display of the Z88 Rubber Keyboard.
  */
 public class RubberKeyboard extends JPanel {
-	
-	private String kbLanguageCountryCode = "uk";
+		
+	private Hashtable kbLanguageIconsUk = new Hashtable(); 
+	private Hashtable kbLanguageIconsSe = new Hashtable();
+	private Hashtable kbLanguageIconsDk = new Hashtable();
 
 	ThreadManager threadMgr = new ThreadManager(1);
 	private JLabel z88Display;
@@ -196,7 +199,11 @@ public class RubberKeyboard extends JPanel {
 		add(getCapslockKeyButton());
 		add(getDownArrowKeyButton());
 		add(getLeftArrowKeyButton());
-		add(getRightArrowKeyButton());		
+		add(getRightArrowKeyButton());
+		
+		cacheKeyIcons(kbLanguageIconsUk, "uk");
+		cacheKeyIcons(kbLanguageIconsSe, "se");
+		cacheKeyIcons(kbLanguageIconsDk, "dk");
 	}
 
 	private JButton getTabKeyButton()
@@ -1966,66 +1973,125 @@ public class RubberKeyboard extends JPanel {
 		return delKeyButton;
 	}
 
+	private void cacheKeyIcons(Hashtable ht, String kbLanguageCountryCode) {
+		String path = "/pixel/keys/" + kbLanguageCountryCode + "/";
+		Class c = Blink.getInstance().getClass();
+		
+		ht.put("numkey1", new ImageIcon(c.getResource(path + "numkey1.gif")));
+		ht.put("numkey2", new ImageIcon(c.getResource(path + "numkey2.gif")));
+		ht.put("numkey3", new ImageIcon(c.getResource(path + "numkey3.gif")));
+		ht.put("numkey4", new ImageIcon(c.getResource(path + "numkey4.gif")));
+		ht.put("numkey5", new ImageIcon(c.getResource(path + "numkey5.gif")));
+		ht.put("numkey6", new ImageIcon(c.getResource(path + "numkey6.gif")));
+		ht.put("numkey7", new ImageIcon(c.getResource(path + "numkey7.gif")));
+		ht.put("numkey8", new ImageIcon(c.getResource(path + "numkey8.gif")));
+		ht.put("numkey9", new ImageIcon(c.getResource(path + "numkey9.gif")));
+		ht.put("numkey0", new ImageIcon(c.getResource(path + "numkey0.gif")));
+		ht.put("key037f", new ImageIcon(c.getResource(path + "key037f.gif")));
+		ht.put("key027f", new ImageIcon(c.getResource(path + "key027f.gif")));
+		ht.put("key017f", new ImageIcon(c.getResource(path + "key017f.gif")));
+		ht.put("q", new ImageIcon(c.getResource(path + "q.gif")));
+		ht.put("w", new ImageIcon(c.getResource(path + "w.gif")));
+		ht.put("e", new ImageIcon(c.getResource(path + "e.gif")));
+		ht.put("r", new ImageIcon(c.getResource(path + "r.gif")));
+		ht.put("t", new ImageIcon(c.getResource(path + "t.gif")));
+		ht.put("y", new ImageIcon(c.getResource(path + "y.gif")));
+		ht.put("u", new ImageIcon(c.getResource(path + "u.gif")));
+		ht.put("i", new ImageIcon(c.getResource(path + "i.gif")));
+		ht.put("o", new ImageIcon(c.getResource(path + "o.gif")));
+		ht.put("p", new ImageIcon(c.getResource(path + "p.gif")));
+		ht.put("key057f", new ImageIcon(c.getResource(path + "key057f.gif")));
+		ht.put("key047f", new ImageIcon(c.getResource(path + "key047f.gif")));
+		ht.put("key07fe", new ImageIcon(c.getResource(path + "key07fe.gif")));
+		ht.put("a", new ImageIcon(c.getResource(path + "a.gif")));
+		ht.put("s", new ImageIcon(c.getResource(path + "s.gif")));
+		ht.put("d", new ImageIcon(c.getResource(path + "d.gif")));
+		ht.put("f", new ImageIcon(c.getResource(path + "f.gif")));
+		ht.put("g", new ImageIcon(c.getResource(path + "g.gif")));
+		ht.put("h", new ImageIcon(c.getResource(path + "h.gif")));
+		ht.put("j", new ImageIcon(c.getResource(path + "j.gif")));
+		ht.put("k", new ImageIcon(c.getResource(path + "k.gif")));
+		ht.put("l", new ImageIcon(c.getResource(path + "l.gif")));
+		ht.put("key06fd", new ImageIcon(c.getResource(path + "key06fd.gif")));
+		ht.put("key06fe", new ImageIcon(c.getResource(path + "key06fe.gif")));
+		ht.put("z", new ImageIcon(c.getResource(path + "z.gif")));
+		ht.put("x", new ImageIcon(c.getResource(path + "x.gif")));
+		ht.put("c", new ImageIcon(c.getResource(path + "c.gif")));
+		ht.put("v", new ImageIcon(c.getResource(path + "v.gif")));
+		ht.put("b", new ImageIcon(c.getResource(path + "b.gif")));
+		ht.put("n", new ImageIcon(c.getResource(path + "n.gif")));
+		ht.put("m", new ImageIcon(c.getResource(path + "m.gif")));
+		ht.put("key06fb", new ImageIcon(c.getResource(path + "key06fb.gif")));
+		ht.put("key07fb", new ImageIcon(c.getResource(path + "key07fb.gif")));
+		ht.put("key07fd", new ImageIcon(c.getResource(path + "key07fd.gif")));
+	}
+	
 	/**
 	 * Define the icons on key buttons according to the current
 	 * keyboard language code.
 	 */
-	public void setKeyboardCountrySpecificIcons(String countryCode) {
-		
-		kbLanguageCountryCode = countryCode;
+	public void setKeyboardCountrySpecificIcons(final String countryCode) {
 		
 		threadMgr.addTask( new Runnable() {
 			public void run() {
-				Class c = Blink.getInstance().getClass();
-				String path = "/pixel/keys/" + kbLanguageCountryCode + "/";
+				Hashtable keyIcons;
+				
+				if (countryCode.compareTo("uk") == 0) 
+					keyIcons = kbLanguageIconsUk;
+				else if (countryCode.compareTo("se") == 0)
+					keyIcons = kbLanguageIconsSe;
+				else if (countryCode.compareTo("dk") == 0)
+					keyIcons = kbLanguageIconsDk;
+				else
+					keyIcons = kbLanguageIconsUk;
 
-				getNumKey1Button().setIcon(new ImageIcon(c.getResource(path + "numkey1.gif")));
-				getNumKey2Button().setIcon(new ImageIcon(c.getResource(path + "numkey2.gif")));
-				getNumKey3Button().setIcon(new ImageIcon(c.getResource(path + "numkey3.gif")));
-				getNumKey4Button().setIcon(new ImageIcon(c.getResource(path + "numkey4.gif")));
-				getNumKey5Button().setIcon(new ImageIcon(c.getResource(path + "numkey5.gif")));
-				getNumKey6Button().setIcon(new ImageIcon(c.getResource(path + "numkey6.gif")));
-				getNumKey7Button().setIcon(new ImageIcon(c.getResource(path + "numkey7.gif")));
-				getNumKey8Button().setIcon(new ImageIcon(c.getResource(path + "numkey8.gif")));
-				getNumKey9Button().setIcon(new ImageIcon(c.getResource(path + "numkey9.gif")));
-				getNumKey0Button().setIcon(new ImageIcon(c.getResource(path + "numkey0.gif")));
-				getKey037fButton().setIcon(new ImageIcon(c.getResource(path + "key037f.gif")));
-				getKey027fButton().setIcon(new ImageIcon(c.getResource(path + "key027f.gif")));
-				getKey017fButton().setIcon(new ImageIcon(c.getResource(path + "key017f.gif")));
-				getKey05EfButton().setIcon(new ImageIcon(c.getResource(path + "q.gif")));
-				getKey04EfButton().setIcon(new ImageIcon(c.getResource(path + "w.gif")));
-				getKey03EfButton().setIcon(new ImageIcon(c.getResource(path + "e.gif")));
-				getKey02EfButton().setIcon(new ImageIcon(c.getResource(path + "r.gif")));
-				getKey01EfButton().setIcon(new ImageIcon(c.getResource(path + "t.gif")));
-				getKey00EfButton().setIcon(new ImageIcon(c.getResource(path + "y.gif")));
-				getKey01FdButton().setIcon(new ImageIcon(c.getResource(path + "u.gif")));
-				getKey01FeButton().setIcon(new ImageIcon(c.getResource(path + "i.gif")));
-				getKey02FeButton().setIcon(new ImageIcon(c.getResource(path + "o.gif")));
-				getKey04FeButton().setIcon(new ImageIcon(c.getResource(path + "p.gif")));
-				getKey057fButton().setIcon(new ImageIcon(c.getResource(path + "key057f.gif")));
-				getKey047fButton().setIcon(new ImageIcon(c.getResource(path + "key047f.gif")));
-				getKey07FeButton().setIcon(new ImageIcon(c.getResource(path + "key07fe.gif")));
-				getKey05F7Button().setIcon(new ImageIcon(c.getResource(path + "a.gif")));
-				getKey04F7Button().setIcon(new ImageIcon(c.getResource(path + "s.gif")));
-				getKey03F7Button().setIcon(new ImageIcon(c.getResource(path + "d.gif")));
-				getKey02F7Button().setIcon(new ImageIcon(c.getResource(path + "f.gif")));
-				getKey01F7Button().setIcon(new ImageIcon(c.getResource(path + "g.gif")));
-				getKey00F7Button().setIcon(new ImageIcon(c.getResource(path + "h.gif")));
-				getKey02FdButton().setIcon(new ImageIcon(c.getResource(path + "j.gif")));
-				getKey03FdButton().setIcon(new ImageIcon(c.getResource(path + "k.gif")));
-				getKey05FdButton().setIcon(new ImageIcon(c.getResource(path + "l.gif")));
-				getKey06FdButton().setIcon(new ImageIcon(c.getResource(path + "key06fd.gif")));
-				getKey06FeButton().setIcon(new ImageIcon(c.getResource(path + "key06fe.gif")));
-				getKey05FbButton().setIcon(new ImageIcon(c.getResource(path + "z.gif")));
-				getKey04FbButton().setIcon(new ImageIcon(c.getResource(path + "x.gif")));
-				getKey03FbButton().setIcon(new ImageIcon(c.getResource(path + "c.gif")));
-				getKey02FbButton().setIcon(new ImageIcon(c.getResource(path + "v.gif")));
-				getKey01FbButton().setIcon(new ImageIcon(c.getResource(path + "b.gif")));
-				getKey00FbButton().setIcon(new ImageIcon(c.getResource(path + "n.gif")));
-				getKey04FdButton().setIcon(new ImageIcon(c.getResource(path + "m.gif")));
-				getKey06FbButton().setIcon(new ImageIcon(c.getResource(path + "key06fb.gif")));
-				getKey07FbButton().setIcon(new ImageIcon(c.getResource(path + "key07fb.gif")));
-				getKey07FdButton().setIcon(new ImageIcon(c.getResource(path + "key07fd.gif")));
+				getNumKey1Button().setIcon((ImageIcon) keyIcons.get("numkey1"));
+				getNumKey2Button().setIcon((ImageIcon) keyIcons.get("numkey2"));
+				getNumKey3Button().setIcon((ImageIcon) keyIcons.get("numkey3"));
+				getNumKey4Button().setIcon((ImageIcon) keyIcons.get("numkey4"));
+				getNumKey5Button().setIcon((ImageIcon) keyIcons.get("numkey5"));
+				getNumKey6Button().setIcon((ImageIcon) keyIcons.get("numkey6"));
+				getNumKey7Button().setIcon((ImageIcon) keyIcons.get("numkey7"));
+				getNumKey8Button().setIcon((ImageIcon) keyIcons.get("numkey8"));
+				getNumKey9Button().setIcon((ImageIcon) keyIcons.get("numkey9"));
+				getNumKey0Button().setIcon((ImageIcon) keyIcons.get("numkey0"));
+				getKey037fButton().setIcon((ImageIcon) keyIcons.get("key037f"));
+				getKey027fButton().setIcon((ImageIcon) keyIcons.get("key027f"));
+				getKey017fButton().setIcon((ImageIcon) keyIcons.get("key017f"));
+				getKey05EfButton().setIcon((ImageIcon) keyIcons.get("q"));
+				getKey04EfButton().setIcon((ImageIcon) keyIcons.get("w"));
+				getKey03EfButton().setIcon((ImageIcon) keyIcons.get("e"));
+				getKey02EfButton().setIcon((ImageIcon) keyIcons.get("r"));
+				getKey01EfButton().setIcon((ImageIcon) keyIcons.get("t"));
+				getKey00EfButton().setIcon((ImageIcon) keyIcons.get("y"));
+				getKey01FdButton().setIcon((ImageIcon) keyIcons.get("u"));
+				getKey01FeButton().setIcon((ImageIcon) keyIcons.get("i"));
+				getKey02FeButton().setIcon((ImageIcon) keyIcons.get("o"));
+				getKey04FeButton().setIcon((ImageIcon) keyIcons.get("p"));
+				getKey057fButton().setIcon((ImageIcon) keyIcons.get("key057f"));
+				getKey047fButton().setIcon((ImageIcon) keyIcons.get("key047f"));
+				getKey07FeButton().setIcon((ImageIcon) keyIcons.get("key07fe"));
+				getKey05F7Button().setIcon((ImageIcon) keyIcons.get("a"));
+				getKey04F7Button().setIcon((ImageIcon) keyIcons.get("s"));
+				getKey03F7Button().setIcon((ImageIcon) keyIcons.get("d"));
+				getKey02F7Button().setIcon((ImageIcon) keyIcons.get("f"));
+				getKey01F7Button().setIcon((ImageIcon) keyIcons.get("g"));
+				getKey00F7Button().setIcon((ImageIcon) keyIcons.get("h"));
+				getKey02FdButton().setIcon((ImageIcon) keyIcons.get("j"));
+				getKey03FdButton().setIcon((ImageIcon) keyIcons.get("k"));
+				getKey05FdButton().setIcon((ImageIcon) keyIcons.get("l"));
+				getKey06FdButton().setIcon((ImageIcon) keyIcons.get("key06fd"));
+				getKey06FeButton().setIcon((ImageIcon) keyIcons.get("key06fe"));
+				getKey05FbButton().setIcon((ImageIcon) keyIcons.get("z"));
+				getKey04FbButton().setIcon((ImageIcon) keyIcons.get("x"));
+				getKey03FbButton().setIcon((ImageIcon) keyIcons.get("c"));
+				getKey02FbButton().setIcon((ImageIcon) keyIcons.get("v"));
+				getKey01FbButton().setIcon((ImageIcon) keyIcons.get("b"));
+				getKey00FbButton().setIcon((ImageIcon) keyIcons.get("n"));
+				getKey04FdButton().setIcon((ImageIcon) keyIcons.get("m"));
+				getKey06FbButton().setIcon((ImageIcon) keyIcons.get("key06fb"));
+				getKey07FbButton().setIcon((ImageIcon) keyIcons.get("key07fb"));
+				getKey07FdButton().setIcon((ImageIcon) keyIcons.get("key07fd"));
 			}
 		}); 		
 	}	
