@@ -1,34 +1,49 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <meta content="text/html; charset=ISO-8859-1"
- http-equiv="content-type">
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
   <title>OZvm User Manual</title>
 </head>
 <body>
 <div style="text-align: center;"><big style="font-weight: bold;">OZvm
-User Manual V0.1</big><br>
+User Manual</big><br>
 <div style="text-align: left;"><br>
-<span style="font-weight: bold;">Introduction<br>
+<hr style="width: 100%; height: 2px;"><br>
+<span style="font-weight: bold;">Contents<br>
+</span>
+<ol>
+  <li><a href="#Introduction">Introduction</a></li>
+  <li><a href="#Requirements">Requirements</a></li>
+  <li><a href="#Getting_started">Getting started</a><br>
+  </li>
+</ol>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<a name="Introduction"></a><span style="font-weight: bold;">Introduction<br>
 <br>
 </span>First of all, thanks for downloading OZvm from sourceforge. OZvm
 is a
 Z88 virtual machine or emulator, using the Java virtual machine (JVM)
 to get it running. Java was chosen for its marvellous cross platform
-capabilities and to be able to install it to the Desktop from the web
+capabilities and to be able to install Java applications to the Desktop
+from the web
 (using the WebStart feature). OZvm has been born out of the need to
 debug Z88 applications and to continue development of the Z88 operating
-system, "OZ".&nbsp; All out work with OZvm and new OZ operating system
+system, "OZ".&nbsp; All our work with OZvm and new OZ operating system
 are freely available under the Gnu Public License, and can be
 downloaded from <a href="http://z88.sf.net">http://z88.sf.net</a>.<br>
 <br>
 OZvm is also an attempt to document the Z88 for historical purposes.
 Since this computer is out of production, the company no longer exists,
 only a single supplier is left (<a href="http://www.rakewell.com">http://www.rakewell.com</a>),
-and probably a few thousand people still use it actively, it's about
+and probably only a few thousand people still use it actively, it's
+about
 time to establish a museum for our beloved portable before it will be
 forgotten. Using OZvm, you can have a go at playing with the computer
-and it's embedded software.<br>
+and it's embedded software, and even develop new software for it! We
+have all the tools; cross assembler &amp; linker, debugging environment
+(OZvm!) and Eprom blowing hardware (the Z88!).<br>
 <br>
 Z88 is a lesser known portable made in 1987 by Cambridge Computer Ltd
 (CC) in England. CC was established by Sir Clive Sinclair of ZX
@@ -36,17 +51,73 @@ Spectrum fame. The computer was sold worldwide, and has been produced
 approx. in 30.000 units. Today (2004) maybe a few thousand users still
 enjoy using it for their daily tasks. You can read a lot about the Z88
 on Garry Lancasters web site, dedicated to Z88: <a
- href="http://www.zxplus3e.plus.com/z88forever/"><span
- style="font-weight: bold;">http://www.zxplus3e.plus.com/z88forever/</span></a>.
+ href="http://www.zxplus3e.plus.com/z88forever/">http://www.zxplus3e.plus.com/z88forever/</a>.
 There, you will find a lot other other useful links and information. <br>
 <br>
 <br>
-<span style="font-weight: bold;">Requirements<br>
+<span style="font-weight: bold;"><a name="Requirements"></a>Requirements</span><br>
 <br>
-</span>OZvm needs basically Java Runtime (JRE) V1.4.x. If you haven't
-installed <span style="font-weight: bold;"><span
- style="font-weight: bold;"></span><br>
-</span></div>
+OZvm just needs Java Runtime Environment (JRE) V1.4.x, or if
+you're going to compile Java programs your self, the Java Development
+Kit (JDK) V1.4.x. OZvm does not run on older versions like V1.3 or less.<br>
+<br>
+If you haven't already installed it, then grab it from <a
+ href="http://java.sun.com/j2se/index.jsp">http://java.sun.com/j2se/index.jsp</a>.
+Please use Sun's installation guides for properly installing and
+configuring Java. If you're a Linux user, you can can download an
+optimized Java engine with better KDE and Gnome integration at <a
+ href="http://www.blackdown.org">http://www.blackdown.org</a>. Java
+V1.4.x is bundled with Mac OSX, you lucky guys! There's no Java V1.4
+for Mac OS V9 and earlier; sorry, you can't run OZvm on those boxes!<br>
+<br>
+OZvm needs approx. a 400Mhz Intel processor to get an execution
+speed that matches the look and feel of a real Z88, and uses about 20Mb
+RAM when executing (remember, this amount includes the JVM engine as
+well). We recommend 128MB RAM computer systems or more, so that the
+operating system has resources for other tasks than just OZvm. Using
+faster computers just executes the Z88 better.<br>
+<br>
+You can run OZvm on slower Intel systems. However, the Z80 execution
+engine inside OZvm might not perform the speed equivalent of the
+original Z80 processor (approx 3.5Mhz) of the real Z88, so you might
+experience a "slow" running Z88. We haven't tested OZvm on other
+processor architectures like PowerPC (the Mac computers), or Sun's
+ALPHA, so we don't know how OZvm performs on those boxes.<br>
+<br>
+OZvm behaves well in the operating system when running. It typically
+uses 5% or less processing power of your computer in idle state
+(waiting for keyboard input), and 10-20%
+when processing.<br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="Getting_started"></a>Getting
+started</span><br>
+<br>
+The easiest way is just to double-click on the z88.jar file in your
+favorite File Browser. You usually can do this since the Java installer
+makes sure to bind JAR files to the JRE. You can also start OZvm from
+the command line shell:<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">java
+-jar z88.jar</span><br>
+</div>
+<br>
+If you get a "command not found" or similar error, then you need to
+configure you PATH environment variable with the location of the java
+executable. Please refer to Sun's installation guide or other README
+files for your favorite operating system.<br>
+<br>
+Running Ozvm this way will boot a Z88 computer with 32K RAM, using the
+V4.0 (UK) ROM binary, which was the latest (and best) version that a
+real Z88 was shipped with in England around 1989. <br>
+<br>
+There's plenty of command line options that you can use to eg. enable
+OZvm in debugging mode, insert more RAM into the machine and preload it
+with Applications Card or File Cards (that conveniently have been
+stored in .EPR files). Most of these command line options can be
+selected from the program menu as well.<br>
+<br>
+</div>
 </div>
 </body>
 </html>
