@@ -54,6 +54,8 @@ public final class Blink extends Z80 {
 
 		debugMode = false;	// define the default running status of the virtul Machine.
 
+		memory = new Memory();	// create the Z88 memory model (4Mb addressable memory)
+		
 		// the segment register SR0 - SR3
 		sR = new int[4];
 		// all segment registers points at ROM bank 0
@@ -61,17 +63,13 @@ public final class Blink extends Z80 {
 			sR[segment] = 0;
 		}
 
-		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!
-		nullBank = new Bank(Bank.VOID);
-		for (int bank = 0; bank < memory.length; bank++)
-			memory[bank] = nullBank;
 
-		slotCards = new Bank[4][];
+		slotCards = new Memory.Bank[4][];
 		// Instantiate the slot containers for Cards...
 		for (int slot = 0; slot < 4; slot++)
 			slotCards[slot] = null; // nothing available in slots..
 
-		RAMS = memory[0];				// point at ROM bank 0 (null at the moment)
+		RAMS = memory.getBank(0);		// point at ROM bank 0 (null at the moment)
 
 		timerDaemon = new Timer(true);
 
@@ -82,6 +80,11 @@ public final class Blink extends Z80 {
 		runtimeOutput = rtmOutput;		// reference to runtime output window text area.
 	}
 
+	/**
+	 * Reference to the Z88 Memory Model 
+	 */
+	private Memory memory = null;
+	
 	/**
 	 * The main Timer daemon that runs the Rtc clock and sends 10ms interrupts
 	 * to the Z80 virtual processor.
@@ -143,7 +146,7 @@ public final class Blink extends Z80 {
 	 * The ROM "Card" is only loaded once at OZvm boot
 	 * and is never removed.
 	 */
-	private Bank slotCards[][];
+	private Memory.Bank slotCards[][];
 
 	/**
 	 * Main Blink Interrrupts (INT).
@@ -647,38 +650,7 @@ public final class Blink extends Z80 {
 	 * System bank for lower 8K of segment 0.
 	 * References bank 0x00 or 0x20 of slot 0.
 	 */
-	private Bank RAMS;
-
-	/**
-	 * Get Bank, referenced by it's number [0-255] in the BLINK memory model
-	 *
-	 * @return Bank
-	 */
-	public Bank getBank(final int bankNo) {
-		return memory[bankNo & 0xFF];
-	}
-
-	/**
-	 * Install Bank entity into BLINK 16K memory system [0-255].
-	 *
-	 * @param bank
-	 * @param bankNo
-	 */
-	public void setBank(final Bank bank, final int bankNo) {
-		memory[bankNo & 0xFF] = bank;
-	}
-
-	/**
-	 * Check if slot is empty (ie. no cards inserted)
-	 *
-	 * @param slotNo
-	 * @return true, if slot is empty
-	 */
-	public boolean isSlotEmpty(final int slotNo) {
-		// convert slot number to top bank number of specified slot
-		// if top bank of slot is of type NullBank, then we know it's empty...
-		return memory[(((slotNo & 3) << 6) | 0x3F)] == nullBank;
-	}
+	private Memory.Bank RAMS;
 	
 	/**
 	 * Segment register array for SR0 - SR3.
@@ -695,20 +667,6 @@ public final class Blink extends Z80 {
 	 * Z80 address space.
 	 */
 	private int sR[];
-
-	/**
-	 * The Z88 memory organisation.
-	 * Array for 256 x 16K banks = 4Mb memory
-	 */
-	private Bank memory[];
-
-	/**
-	 * Null bank. This is used in for unassigned banks,
-	 * ie. when a card slot is empty in the Z88
-	 * The contents of this bank contains 0xFF and is
-	 * write-protected (just as an empty bank in an Eprom).
-	 */
-	private Bank nullBank;
 
 	/**
 	 * Get current bank [0; 255] binding in segments [0; 3].
@@ -775,7 +733,7 @@ public final class Blink extends Z80 {
 	 */
 	public final int readByte(final int addr) {
 		if (addr > 0x3FFF) {
-			return memory[sR[addr >>> 14]].readByte(addr);
+			return memory.getBank(sR[addr >>> 14]).readByte(addr);
 		} else {
 			if (addr < 0x2000)
 				// return lower 8K Bank binding
@@ -785,11 +743,11 @@ public final class Blink extends Z80 {
 			else {
 				if ((sR[0] & 1) == 0)
 					// lower 8K of even bank bound into upper 8K of segment 0
-					return memory[sR[0] & 0xFE].readByte(addr & 0x1FFF);
+					return memory.getBank(sR[0] & 0xFE).readByte(addr & 0x1FFF);
 				else
 					// upper 8K of even bank bound into upper 8K of segment 0
 					// addr <= 0x3FFF...
-					return memory[sR[0] & 0xFE].readByte(addr);
+					return memory.getBank(sR[0] & 0xFE).readByte(addr);
 			}
 		}
 	}
@@ -810,12 +768,12 @@ public final class Blink extends Z80 {
 	 * @return word at bank, mapped into segment for specified address
 	 */
 	public final int readWord(int addr) {
-		Bank bankNo;
+		Memory.Bank bank;
 
 		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
-				bankNo = memory[sR[addr >>> 14]];
-				return (bankNo.readByte(addr+1) << 8) | bankNo.readByte(addr);
+				bank = memory.getBank(sR[addr >>> 14]);
+				return (bank.readByte(addr+1) << 8) | bank.readByte(addr);
 			} else {
 				if (addr < 0x2000) {
 					// return lower 8K Bank binding
@@ -823,7 +781,7 @@ public final class Blink extends Z80 {
 					// or 0x20 (RAM for Z80 stack and system variables)
 					return (RAMS.readByte(addr+1) << 8) | RAMS.readByte(addr);
 				} else {
-					bankNo = memory[sR[0] & 0xFE];
+					bank = memory.getBank(sR[0] & 0xFE);
 					if ((sR[0] & 1) == 0) {
 						// lower 8K of even bank bound into upper 8K of segment 0
 						addr &= 0x1FFF;
@@ -831,7 +789,7 @@ public final class Blink extends Z80 {
 					// else 
 					// upper 8K of even bank bound into upper 8K of segment 0
 					// addr = [0x2000 - 0x3FFF]...
-					return (bankNo.readByte(addr+1) << 8) | bankNo.readByte(addr);
+					return (bank.readByte(addr+1) << 8) | bank.readByte(addr);
 				}
 			}
 		} else {
@@ -855,12 +813,11 @@ public final class Blink extends Z80 {
 	 * @param b byte to be written into Z80 64K Address Space
 	 */
 	public final void writeByte(final int addr, final int b) {
-		Bank bankNo;
+		Memory.Bank bank;
 
 		if (addr > 0x3FFF) {
 			// write byte to segments 1 - 3
-			bankNo = memory[sR[addr >>> 14]];
-			bankNo.writeByte(addr, b);
+			memory.getBank(sR[addr >>> 14]).writeByte(addr, b);
 		} else {
 			if (addr < 0x2000) {
 				// return lower 8K Bank binding
@@ -868,14 +825,14 @@ public final class Blink extends Z80 {
 				// or 0x20 (RAM for Z80 stack and system variables)
 				RAMS.writeByte(addr, b);
 			} else {
-				bankNo = memory[sR[0] & 0xFE];
+				bank = memory.getBank(sR[0] & 0xFE);
 				if ((sR[0] & 1) == 0) {
 					// lower 8K of even bank bound into upper 8K of segment 0
-					bankNo.writeByte(addr & 0x1FFF, b);
+					bank.writeByte(addr & 0x1FFF, b);
 				} else {
 					// upper 8K of even bank bound into upper 8K of segment 0
 					// addr <= 0x3FFF...
-					bankNo.writeByte(addr, b);
+					bank.writeByte(addr, b);
 				}
 			}
 		}
@@ -896,13 +853,13 @@ public final class Blink extends Z80 {
 	 * @param w word to be written into Z80 64K Address Space
 	 */
 	public final void writeWord(int addr, final int w) {
-		Bank bankNo;
+		Memory.Bank bank;
 
 		if ( (addr & 0x3FFF) != 0x3FFF ) {
 			if (addr > 0x3FFF) {
-				bankNo = memory[sR[addr >>> 14]];
-				bankNo.writeByte(addr, w);
-				bankNo.writeByte(addr+1, w >>> 8);
+				bank = memory.getBank(sR[addr >>> 14]);
+				bank.writeByte(addr, w);
+				bank.writeByte(addr+1, w >>> 8);
 			} else {
 				if (addr < 0x2000) {
 					// return lower 8K Bank binding
@@ -911,10 +868,10 @@ public final class Blink extends Z80 {
 					RAMS.writeByte(addr, w);
 					RAMS.writeByte(addr+1, w >>> 8);
 				} else {
-					bankNo = memory[sR[0] & 0xFE];
+					bank = memory.getBank(sR[0] & 0xFE);
 					if ((sR[0] & 1) == 0) addr &= 0x1FFF; // lower 8K of even bank bound into upper 8K of segment 0
-					bankNo.writeByte(addr, w);
-					bankNo.writeByte(addr+1, w >>> 8);
+					bank.writeByte(addr, w);
+					bank.writeByte(addr+1, w >>> 8);
 				}
 			}
 		} else {
@@ -935,10 +892,7 @@ public final class Blink extends Z80 {
 	 * @param bits to be written.
 	 */
 	public void setByte(final int offset, final int bankno, final int bits) {
-		if (memory[bankno] != nullBank) {
-			// we can only write to a real memory bank, not to an empty slot...
-			memory[bankno].setByte(offset, bits);
-		}
+		memory.getBank(bankno).setByte(offset, bits);
 	}
 
 	
@@ -976,7 +930,7 @@ public final class Blink extends Z80 {
 	 * @return int
 	 */
 	public int getByte(final int offset, final int bankno) {
-		return memory[bankno].getByte(offset);
+		return memory.getBank(bankno).getByte(offset);
 	}
 
 	
@@ -1218,7 +1172,8 @@ public final class Blink extends Z80 {
 	 *	@param bits
 	 */
 	public void setBlinkCom(int bits) {
-
+		int cardType;
+		
 		if (rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
 			// Stop Real Time Clock (RESTIM = 1)
 			if (singleSteppingMode() == false) rtc.stop();
@@ -1232,25 +1187,25 @@ public final class Blink extends Z80 {
 
 		if ((bits & Blink.BM_COMRAMS) == Blink.BM_COMRAMS) {
 			// Slot 0 RAM Bank 0x20 will be bound into lower 8K of segment 0
-			RAMS = memory[0x20];
+			RAMS = memory.getBank(0x20);
 		} else {
 			// Slot 0 ROM bank 0 is bound into lower 8K of segment 0
-			RAMS = memory[0x00];
+			RAMS = memory.getBank(0x00);
 		}
 
 		if ((bits & Blink.BM_COMVPPON) == Blink.BM_COMVPPON) {
 			// Enable VPP pin on Eprom / Flash chip in slot 3, if available.
-			if (memory[0xFF].isVppPinEnabled() == false & 
-				(memory[0xFF].getType() == Bank.EPROM_32KB | 
-				memory[0xFF].getType() == Bank.EPROM_128KB  | memory[0xFF].getType() == Bank.FLASH)) {
-				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(true);
+			cardType = memory.getBank(0xFF).getType();
+			if (memory.getBank(0xFF).isVppPinEnabled() == false & 
+				(cardType == Memory.Bank.EPROM_32KB | cardType == Memory.Bank.EPROM_128KB | cardType == Memory.Bank.FLASH)) {
+				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory.getBank(bnk).setVppPin(true);
 			}
 		} else {
 			// Disable VPP pin on Eprom / Flash chip in slot 3, if available and previously enabled...
-			if (memory[0xFF].isVppPinEnabled() == true & 
-				(memory[0xFF].getType() == Bank.EPROM_32KB | 
-				memory[0xFF].getType() == Bank.EPROM_128KB  | memory[0xFF].getType() == Bank.FLASH)) {
-				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(false);
+			cardType = memory.getBank(0xFF).getType();
+			if (memory.getBank(0xFF).isVppPinEnabled() == false & 
+				(cardType == Memory.Bank.EPROM_32KB | cardType == Memory.Bank.EPROM_128KB | cardType == Memory.Bank.FLASH)) {
+				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory.getBank(bnk).setVppPin(false);
 			}			
 		}
 		
@@ -1297,9 +1252,9 @@ public final class Blink extends Z80 {
 		size -= (size % 32768); // allow only modulus 32Kb RAM.
 		totalRamBanks = size / 16384; // number of 16K banks in Ram Card
 
-		Bank ramBanks[] = new Bank[totalRamBanks]; // the RAM card container
+		Memory.Bank ramBanks[] = new Memory.Bank[totalRamBanks]; // the RAM card container
 		for (curBank = 0; curBank < totalRamBanks; curBank++) {
-			ramBanks[curBank] = new Bank(Bank.RAM);
+			ramBanks[curBank] = memory.createBank(Memory.Bank.RAM);
 		}
 
 		slotCards[slot] = ramBanks;
@@ -1318,17 +1273,17 @@ public final class Blink extends Z80 {
 		if (rom.length() > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}
-		if (rom.length() % (Bank.SIZE * 2) > 0) {
+		if (rom.length() % (Memory.BANKSIZE * 2) > 0) {
 			throw new IOException("ROM must be in even banks!");
 		}
 
-		Bank romBanks[] = new Bank[(int) rom.length() / Bank.SIZE];
+		Memory.Bank romBanks[] = new Memory.Bank[(int) rom.length() / Memory.BANKSIZE];
 		// allocate ROM container
-		byte bankBuffer[] = new byte[Bank.SIZE];
+		byte bankBuffer[] = new byte[Memory.BANKSIZE];
 		// allocate intermediate load buffer
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			romBanks[curBank] = new Bank(Bank.ROM);
+			romBanks[curBank] = memory.createBank(Memory.Bank.ROM);
 			rom.readFully(bankBuffer); // load 16K from file, sequentially
 			romBanks[curBank].loadBytes(bankBuffer, 0);
 			// and load fully into bank
@@ -1344,7 +1299,7 @@ public final class Blink extends Z80 {
 		// complete ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
 		loadCard(romBanks, 0);
-		RAMS = memory[0];				// point at ROM bank 0
+		RAMS = memory.getBank(0);				// point at ROM bank 0
 	}
 
 
@@ -1357,41 +1312,41 @@ public final class Blink extends Z80 {
 	 * @throws IOException
 	 */
 	public void loadCardBinary(int slot, RandomAccessFile card) throws IOException {
-		int defaultType = Bank.EPROM_128KB;
+		int defaultType = Memory.Bank.EPROM_128KB;
 		
 		if (card.length() > (1024 * 1024)) {
 			throw new IOException("Max 1024K Card!");
 		}
-		if (card.length() % Bank.SIZE > 0) {
+		if (card.length() % Memory.BANKSIZE > 0) {
 			throw new IOException("Card must be in 16K sizes!");
 		}
 
-		Bank cardBanks[] = new Bank[(int) card.length() / Bank.SIZE];
+		Memory.Bank cardBanks[] = new Memory.Bank[(int) card.length() / Memory.BANKSIZE];
 		// allocate EPROM container
-		byte bankBuffer[] = new byte[Bank.SIZE];
+		byte bankBuffer[] = new byte[Memory.BANKSIZE];
 		// allocate intermediate load buffer
 
 		switch(cardBanks.length) {
 			case 1:
 			case 2:
-				defaultType = Bank.EPROM_32KB;
+				defaultType = Memory.Bank.EPROM_32KB;
 				break;
 			case 8:
 			case 16:
-				defaultType = Bank.EPROM_128KB;
+				defaultType = Memory.Bank.EPROM_128KB;
 				break;
 			case 64:
-				defaultType = Bank.FLASH;
+				defaultType = Memory.Bank.FLASH;
 				break;
 			default:
 				// all other sizes will be interpreted as UV EPROM's 
 				// that can be programmed using 128K type specs.
-				defaultType = Bank.EPROM_128KB;
+				defaultType = Memory.Bank.EPROM_128KB;
 				break;
 		}
 		
 		for (int curBank = 0; curBank < cardBanks.length; curBank++) {
-			cardBanks[curBank] = new Bank(defaultType);
+			cardBanks[curBank] = memory.createBank(defaultType);
 			card.readFully(bankBuffer); // load 16K from file, sequentially
 			cardBanks[curBank].loadBytes(bankBuffer, 0);
 			// and load fully into bank
@@ -1441,28 +1396,28 @@ public final class Blink extends Z80 {
 		if (jarConnection.getJarEntry().getSize() > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}
-		if (jarConnection.getJarEntry().getSize() % Bank.SIZE > 0) {
+		if (jarConnection.getJarEntry().getSize() % Memory.BANKSIZE > 0) {
 			throw new IOException("ROM must be in 16K sizes!");
 		}
 
-		Bank romBanks[] = new Bank[(int) jarConnection.getJarEntry().getSize() / Bank.SIZE];
+		Memory.Bank romBanks[] = new Memory.Bank[(int) jarConnection.getJarEntry().getSize() / Memory.BANKSIZE];
 		// allocate ROM container
-		byte bankBuffer[] = new byte[Bank.SIZE];
+		byte bankBuffer[] = new byte[Memory.BANKSIZE];
 		// allocate intermediate load buffer
 
 		InputStream is = jarConnection.getInputStream();
-		BufferedInputStream bis = new BufferedInputStream( is, Bank.SIZE );
+		BufferedInputStream bis = new BufferedInputStream( is, Memory.BANKSIZE );
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			romBanks[curBank] = new Bank(Bank.ROM);
-			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
+			romBanks[curBank] = memory.createBank(Memory.Bank.ROM);
+			int bytesRead = bis.read(bankBuffer, 0, Memory.BANKSIZE);	// load 16K from file, sequentially
 			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
 
 		// complete ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
 		loadCard(romBanks, 0);
-		RAMS = memory[0];				// point at ROM bank 0
+		RAMS = memory.getBank(0);				// point at ROM bank 0
 	}
 
 	/**
@@ -1476,12 +1431,12 @@ public final class Blink extends Z80 {
 	 * @param card
 	 * @param slot
 	 */
-	private void loadCard(Bank card[], int slot) {
+	private void loadCard(Memory.Bank card[], int slot) {
 		int totalSlotBanks, slotBank, curBank;
 
 		if (slot == 0) {
 			// Define bottom bank for ROM/RAM
-			slotBank = (card[0].getType() != Bank.RAM) ? 0x00 : 0x20;
+			slotBank = (card[0].getType() != Memory.Bank.RAM) ? 0x00 : 0x20;
 			// slot 0 has 32 * 16Kb = 512K address space for RAM or ROM
 			totalSlotBanks = 32;
 		} else {
@@ -1491,7 +1446,7 @@ public final class Blink extends Z80 {
 		}
 
 		for (curBank = 0; curBank < card.length; curBank++) {
-			setBank(card[curBank], slotBank++);
+			memory.setBank(card[curBank], slotBank++);
 			// "insert" 16Kb bank into Z88 memory
 			--totalSlotBanks;
 		}
@@ -1510,7 +1465,7 @@ public final class Blink extends Z80 {
 		// at the top respectively.
 		while (totalSlotBanks > 0) {
 			for (curBank = 0; curBank < card.length; curBank++) {
-				setBank(card[curBank], slotBank++);
+				memory.setBank(card[curBank], slotBank++);
 				// "shadow" card banks into remaining slot
 				--totalSlotBanks;
 			}
@@ -1521,18 +1476,18 @@ public final class Blink extends Z80 {
 	 * Scan available slots for Ram Cards, and reset them..
 	 */
 	public void resetRam() {
-		RAMS = memory[0];	// RAMS now points at cards' bank 0
+		RAMS = memory.getBank(0);	// RAMS now points at cards' bank 0
 
 		for (int slot = 0; slot < slotCards.length; slot++) {
 			// look at bottom bank in Card for type; only reset RAM Cards...
 			if (slotCards[slot] != null
-				&& slotCards[slot][0].getType() == Bank.RAM) {
+				&& slotCards[slot][0].getType() == Memory.Bank.RAM) {
 				// reset all banks in Card of current slot
 				for (int cardBank = 0;
 					cardBank < slotCards[slot].length;
 					cardBank++) {
-					Bank b = slotCards[slot][cardBank];
-					for (int bankOffset = 0; bankOffset < Bank.SIZE; bankOffset++) {
+					Memory.Bank b = slotCards[slot][cardBank];
+					for (int bankOffset = 0; bankOffset < Memory.BANKSIZE; bankOffset++) {
 						b.setByte(bankOffset, 0);
 					}
 				}

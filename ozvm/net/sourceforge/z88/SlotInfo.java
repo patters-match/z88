@@ -26,14 +26,15 @@ package net.sourceforge.z88;
  */
 public class SlotInfo {
 	
-	/** reference to available Blink hardware and functionality */
-	private Blink blink = null;
+	/** reference to available memory hardware and functionality */
+	private Memory memory = null;
+	
 	/**
 	 * Initialise slot information with getting access to
 	 * the Z88 memory model
 	 */
-	public SlotInfo(final Blink blink) {
-		this.blink = blink;
+	public SlotInfo(final Memory memory) {
+		this.memory = memory;
 	}
 
 	/**
@@ -45,7 +46,7 @@ public class SlotInfo {
 	public int getCardSize(final int slotno) {		
 		if (isApplicationCard(slotno) == true || isFileCard(slotno) == true)
 			// byte at 0x3FFC in top bank of slot defines total banks in card...
-			return blink.getByte( ((((slotno & 3) << 6) | 0x3F) << 16) | 0x3FFC );
+			return memory.getBank(((slotno & 3) << 6) | 0x3F).getByte(0x3FFC); 
 		else 
 			// no card available in slot...
 			return -1;
@@ -58,10 +59,11 @@ public class SlotInfo {
 	 */
 	public boolean isApplicationCard(final int slotno) {
 		// point to watermark in top bank of slot, offset 0x3Fxx
-		int cardHeader = ((((slotno & 3) << 6) | 0x3F) << 16) | 0x3F00;
-		if (blink.getByte(cardHeader | 0xFB) == 0x80 &
-			blink.getByte(cardHeader | 0xFE) == 'O' &
-			blink.getByte(cardHeader | 0xFF) == 'Z')
+		int bankNo = ((slotno & 3) << 6) | 0x3F;
+		
+		if (memory.getBank(bankNo).getByte(0x3FFB) == 0x80 &
+			memory.getBank(bankNo).getByte(0x3FFE) == 'O' &
+			memory.getBank(bankNo).getByte(0x3FFF) == 'Z')
 			return true;
 		else
 			return false;
@@ -74,10 +76,11 @@ public class SlotInfo {
 	 */
 	public boolean isFileCard(final int slotno) {
 		// point to watermark in top bank of slot, offset 0x3Fxx
-		int cardHeader = ((((slotno & 3) << 6) | 0x3F) << 16) | 0x3F00;
-		if (blink.getByte(cardHeader | 0xF7) == 0x01 &
-			blink.getByte(cardHeader | 0xFE) == 'o' &
-			blink.getByte(cardHeader | 0xFF) == 'z')
+		int bankNo = ((slotno & 3) << 6) | 0x3F;
+		
+		if (memory.getBank(bankNo).getByte(0x3FF7) == 0x01 &
+			memory.getBank(bankNo).getByte(0x3FFE) == 'o' &
+			memory.getBank(bankNo).getByte(0x3FFF) == 'z')
 			return true;
 		else
 			return false;
@@ -90,6 +93,6 @@ public class SlotInfo {
 	 * @return true if slot is empty, otherwise false
 	 */
 	public boolean isSlotEmpty(final int slotno) {		
-		return blink.isSlotEmpty(slotno);
+		return memory.isSlotEmpty(slotno);
 	}
 }
