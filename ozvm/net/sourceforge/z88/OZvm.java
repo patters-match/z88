@@ -68,7 +68,6 @@ public class OZvm implements KeyListener {
 			z88 = Blink.getInstance();
 			memory = Memory.getInstance();
 			z88Screen = Z88display.getInstance();			
-			z88Screen.start();
 
 			dz = Dz.getInstance(); // the disassembly engine...
 			breakPointManager = Breakpoints.getInstance();
@@ -1161,12 +1160,14 @@ public class OZvm implements KeyListener {
 				}
 				// restore (patch) breakpoints into code
 				breakPointManager.installBreakpoints();
+				z88Screen.start();
 				z88.startInterrupts(); // enable Z80/Z88 core interrupts
 				Z88display.getInstance().grabFocus(); // default keyboard input focus to the Z88
 				z88.execZ80();
 				// execute Z80 code at full speed until breakpoint is encountered...
 				// (or F5 emergency break is used!)
 				z88.stopInterrupts();
+				z88Screen.stop();
 				breakPointManager.clearBreakpoints();
 
 				if (oneStopBreakpoint != -1)
