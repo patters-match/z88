@@ -57,28 +57,33 @@ is a simple development environment, which is the BASIC language which
 comes with the machine and includes an in-line Z80 assembler. How to use
 BASIC as a development environment is detailed in the "BBC BASIC and the
 Assembler" section of these notes.
-<P>The freeware software package, Z88 Assembler Workbench by InterLogic,
-which can be downloaded from the "Z88 Forever" Web Homepage,&nbsp; <A HREF="http://www.menaxus.demon.co.uk/">http://www.menaxus.demon.co.uk/,</A>&nbsp;
+<P>The freeware software package, Z88 Assembler Workbench, 
+which can be downloaded from the "Z88 Forever" Web Homepage,&nbsp; 
+<A HREF="http://www.zxplus3e.plus.com/z88forever/">http://www.zxplus3e.plus.com/z88forever/,</A>&nbsp;
 is maintained by Garry Lancaster. Here you can find everything about the
 Z88 portable computer that is worth knowing.
 <P>The Z88 Assembler Workbench is a complete developers package that has
 all the necessary facilities for programming applications on the Z88, and
 contains a modular Z80 assembler, debugger, EPROM programming software
 and on-line help, all as resident applications on a 128K ROM. In addition,
-a Z80 Cross Assembler is implemented on MSDOS, LINUX, QDOS and AMIGA to
+a Z80 Cross Assembler that can be compiled on most C compilers on various operating systems to
 compile Z80 Assembler source files on ordinary workstation computers.
 <P>All the assembler examples in these notes have been written in the format
 used by the Z80 Assembler supplied in the Z88 Assembler Workbench.
-<P>Dominic Morris has recently released the first public version of his
-Z88 Development Kit which consists of Small C+ pre-processor, compiler,
-optimizer,
-libraries, examples and more. This package is regularly updated with new
-features, the latest being the capability of producing full-blown Z88 applications.
-<P>For the latest release, point your browser to <A HREF="http://www.jb.man.ac.uk/~djm/z88dk/">http://www.jb.man.ac.uk/~djm/z88dk/</A>
+<P>The latest addition to Z88 software development is new new project at SourceForge,
+<A HREF="http://z88.sf.net">http://z88.sf.net</A>, which takes the Z88 to another level;
+the development team are developing new tools (cross assembler & Z88 emulator / debugger), 
+better system documentation and are working on a new, much improved OZ operating system.
+The good part is that all source code is publicly available in CVS (including OZ ROM), and under GPL license.
+<P>Dominic Morris has over the years worked on a Z88 Development Kit which consists 
+of Small C+ pre-processor, compiler, optimizer, libraries, examples and more. 
+This package is regularly updated with new features, including the capability of 
+producing full-blown Z88 applications. This C development system now runs on
+several Z80 based systems, including Sinclair Spectrum clones.
+<P>For the latest release, point your browser to <A HREF="http://www.z88dk.org/">http://www.z88dk.org/</A>
 <P>An alternative high-level development environment is Z88 CamelForth
 by Garry Lancaster. This also allows
-<BR>for full application development. Also updated regularly, you can find
-the latest version at&nbsp; <A HREF="http://www.menaxus.demon.co.uk/z88/camelforth/rom-camel.html">http://www.menaxus.demon.co.uk/z88/camelforth/rom-camel.html</A>
+<BR>for full application development. You can find the latest version at&nbsp; <A HREF="http://www.zxplus3e.plus.com/z88forever/camelforth/rom-camel.html">http://www.zxplus3e.plus.com/z88forever/camelforth/rom-camel.html</A>
 .
 <BR>&nbsp;
 <P><B>Structure of these notes</B>
@@ -122,6 +127,9 @@ all the rules and use no 'back door' techniques.
 consequential loss, caused by any error, defect or inaccuracy in this information,
 including but not limited to loss of profit or loss of contracts.
 <BR>&nbsp;
+<P><B>Release information, January 2004</B>
+<P>These pages are gradually being improved into and would best be identified as V3.3.
+Many small improvements have been made over the years since V3.2. 
 <P><B>Release information, October 1999</B>
 <P>This is the second edition of the third release of the Developers Notes,
 identified as V3.2 . Many things have been changed and added since version
@@ -135,11 +143,9 @@ system.
 <P>If you find any inaccuracies or inconsistencies, or if you have any
 comments on the style and presentation of these documents, then please
 pass these on in writing to:
-<P><I>Gunther Strube, Roret 57, DK-3070, Denmark,
-email <A HREF="mailto:gstrube@tiscali.dk">gstrube@tiscali.dk</A></I>
-<BR><I>Thierry Peycru, 14, Rue des Saules, 68250 Pfaffenheim, France, email
-<A HREF="mailto:z88@libertysurf.fr">z88@libertysurf.fr</A></I>
-<BR><I>Dennis Gr&ouml;ning, email <A HREF="mailto:dennisgr@algonet.se">dennisgr@algonet.se</A></I><I><A HREF="mailto:dennisgr@algonet.se"></A></I>
+<P><I>Gunther Strube, Denmark, email <A HREF="mailto:gstrube@users.sourceforge.net">gstrube@users.sourceforge.net</A></I>
+<BR><I>Thierry Peycru, France, email <A HREF="mailto:pek@free.fr">pek@free.fr</A></I>
+<BR><I>Dennis Gr&ouml;ning, Sweden, email <A HREF="mailto:dennisgr@algonet.se">dennisgr@algonet.se</A></I><I><A HREF="mailto:dennisgr@algonet.se"></A></I>
 <P>Finally, many thanks to Vic Gerhardi, <A HREF="http://homepages.nildram.co.uk/~rakewell">Rakewell
 Ltd</A>, for his early support of these notes. Many details have come to
 light because of those VERY old system printouts he had received from the
