@@ -1,4 +1,8 @@
+; -----------------------------------------------------------------------------
 ; Bank 3 @ S2           ROM offset $efc0
+;
+; $Id$
+; -----------------------------------------------------------------------------
 
         module  Printer
 
@@ -7,31 +11,31 @@
 
 DEFVARS $0dd0
 {
-StackBufPtr     ds.w    1
-CtrlBuf         ds.w    1
-CtrlLen         ds.b    1
-prtInChar       ds.b    1
-Translations    ds.b    37
-PlaceHolderChar ds.b    1
-PendingSpaces   ds.b    1
-Rows            ds.b    1
-PageLen         ds.b    1
-Flags           ds.b    1
-AttrUnderline   ds.b    1
-AttrBold        ds.b    1
-AttrExtended    ds.b    1
-AttrItalics     ds.b    1
-AttrSubscript   ds.b    1
-AttrSuperscript ds.b    1
-AttrAltfont     ds.b    1
-AttrUserdef     ds.b    1
+        StackBufPtr     ds.w    1
+        CtrlBuf         ds.w    1
+        CtrlLen         ds.b    1
+        prtInChar       ds.b    1
+        Translations    ds.b    37
+        PlaceHolderChar ds.b    1
+        PendingSpaces   ds.b    1
+        Rows            ds.b    1
+        PageLen         ds.b    1
+        Flags           ds.b    1
+        AttrUnderline   ds.b    1
+        AttrBold        ds.b    1
+        AttrExtended    ds.b    1
+        AttrItalics     ds.b    1
+        AttrSubscript   ds.b    1
+        AttrSuperscript ds.b    1
+        AttrAltfont     ds.b    1
+        AttrUserdef     ds.b    1
 }
 
 ;       PrinterAttrs
-defc    PRA_B_ON                =0                      ; state
-defc    PRA_B_PENDING           =1                      ; changed but not yet printed
-defc    PRA_B_PLACEHOLDER       =2                      ;
-defc    PRA_B_RESETCR           =7                      ; reset at CR?
+defc    PRA_B_ON                =0              ; state
+defc    PRA_B_PENDING           =1              ; changed but not yet printed
+defc    PRA_B_PLACEHOLDER       =2              ;
+defc    PRA_B_RESETCR           =7              ; reset at CR?
 
 defc    PRA_ON                  =1
 defc    PRA_PENDING             =2
@@ -39,8 +43,8 @@ defc    PRA_PLACEHOLDER         =4
 defc    PRA_RESETCR             =128
 
 ;       PrtFlags
-defc    PRT_B_ALLOWLF   =0                              ; LF after CR?
-defc    PRT_B_ENABLED   =1                              ; output enabled?
+defc    PRT_B_ALLOWLF   =0                      ; LF after CR?
+defc    PRT_B_ENABLED   =1                      ; output enabled?
 
 defc    PRT_ALLOWLF     =1
 defc    PRT_ENABLED     =2
@@ -50,7 +54,7 @@ defc    PRT_ENABLED     =2
         jp      PrntCharMain                    ; func $C0, A=char
 
 .PrntCtrlSeq
-        jp      PrntCtrlSeqMain                 ; func $C3, 
+        jp      PrntCtrlSeqMain                 ; func $C3,
 
 .PrntInit
         ld      hl, -33                         ; func $C6
@@ -480,7 +484,7 @@ defc    PRT_ENABLED     =2
         call    PrntStackBuffer
 
         ld      a, $20                          ; get Mio, default to $20
-        ld      bc, PA_Mio              
+        ld      bc, PA_Mio
         call    DoOSNq
         jr      z, ms_1
         ld      a, e
@@ -691,5 +695,3 @@ defc    PRT_ENABLED     =2
         ld      a, 66
         ld      (PageLen), a
         ret
-
-

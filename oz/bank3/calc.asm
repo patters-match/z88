@@ -1,36 +1,40 @@
+; -----------------------------------------------------------------------------
 ; Bank 3 @ S3           ROM offset $f300
+;
+; $Id$
+; -----------------------------------------------------------------------------
 
         module  Calculator
 
         include "all.def"
         org     $f300
 
-defvars         0
+defvars 0
 {
-calc_ActiveCol          ds.b    1
-calc_ActiveRow          ds.b    1
-calc_PrevActCol         ds.b    1
-calc_PrecActRow         ds.b    1
-calc_NumBuffer          ds.b    18
-calc_BufferPos          ds.b    1
-calc_BufferPosH         ds.b    1
-calc_StatusLineLen      ds.b    1
-calc_CmdBuffer          ds.b    3
-calc_Operation          ds.b    1
-calc_Flags              ds.b    1
-calc_CvtActiveCol       ds.b    1
-calc_CvtActiveRow       ds.b    1
-calc_PrevCvtActCol      ds.b    1
-calc_PrevCvtActRow      ds.b    1
-calc_StrBuffer          ds.b    1
+        calc_ActiveCol          ds.b    1
+        calc_ActiveRow          ds.b    1
+        calc_PrevActCol         ds.b    1
+        calc_PrecActRow         ds.b    1
+        calc_NumBuffer          ds.b    18
+        calc_BufferPos          ds.b    1
+        calc_BufferPosH         ds.b    1
+        calc_StatusLineLen      ds.b    1
+        calc_CmdBuffer          ds.b    3
+        calc_Operation          ds.b    1
+        calc_Flags              ds.b    1
+        calc_CvtActiveCol       ds.b    1
+        calc_CvtActiveRow       ds.b    1
+        calc_PrevCvtActCol      ds.b    1
+        calc_PrevCvtActRow      ds.b    1
+        calc_StrBuffer          ds.b    1
 }
 
-defvars         $0fbf                                   ; !! should use named mem later
+defvars $0fbf                                   ; !! should use named mem later
 {
-Float1                  ds.b    5
-Float2                  ds.b    5
-Memories                ds.b    10*5
-varFix                  ds.b    1
+        Float1                  ds.b    5
+        Float2                  ds.b    5
+        Memories                ds.b    10*5
+        varFix                  ds.b    1
 }
 
 ;       Flags
@@ -226,8 +230,8 @@ defc    CC_FIX                  = 3
         defw    key_Num, key_Num, key_Num, key_Sign, key_Div
         defw    key_Num, key_DotE, key_Perc, key_Fix, key_Equ
 
-        defw key_P, key_TX, key_TX, key_M, key_D, key_D, key_DotE
-        defw key_Up, key_Down, key_Left, key_Right, main_2, key_Esc, key_DiamR
+        defw    key_P, key_TX, key_TX, key_M, key_D, key_D, key_DotE
+        defw    key_Up, key_Down, key_Left, key_Right, main_2, key_Esc, key_DiamR
 
 .key_Num
         call    ClrError
@@ -873,11 +877,13 @@ defc    CC_FIX                  = 3
         ld      c, (iy+calc_Operation)
         ld      ix, PercCmd_tbl
         jp      IndirectJump
+
 .PercCmd_tbl
-        defw PercAdd
-        defw PercSub
-        defw PercMul
-        defw PercDiv
+        defw    PercAdd
+        defw    PercSub
+        defw    PercMul
+        defw    PercDiv
+
 .PercAdd
         call    ldFReg2_100
         FPP     FP_DIV
@@ -886,6 +892,7 @@ defc    CC_FIX                  = 3
         FPP     FP_SUB
         call    ldFReg2_Float2
         jr      loc_F942
+
 .PercSub
         call    FpSub
         call    ldFReg2_100
