@@ -62,7 +62,7 @@
                     SUB  D                        ; D = total banks of File Eprom Area
                     INC  A
                     LD   B,A                      ; B is now bottom bank of File Eprom
-                    LD   HL,$4000                 ; BHL points at first File Entry...
+                    LD   HL,$0000                 ; BHL points at first File Entry...
 
                     EXX
                     LD   DE,0                     ; reset "deleted" files counter
