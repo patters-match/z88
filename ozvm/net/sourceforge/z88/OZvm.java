@@ -183,6 +183,8 @@ public class OZvm {
 		System.out.println("");
 		System.out.println("d - disassembly at current PC.");
 		System.out.println("d [address [bank]] - disassemble at specified address.");
+		System.out.println("m - view memory at current PC.");
+		System.out.println("m [address [bank]] - view memory at specified address.");
 		System.out.println("bp - list breakpoints.");
 		System.out.println("bp [address bank] - toggle breakpoint.");
 		System.out.println("blsr - Blink: segment register bank binding.");
@@ -225,6 +227,12 @@ public class OZvm {
 				cmdLineTokens = cmdline.split(" ");
 			}
 
+			if (cmdLineTokens[0].equalsIgnoreCase("m") == true) {
+				cmdline = viewMemory(in, cmdLineTokens);
+				// sub commands return new command line...
+				cmdLineTokens = cmdline.split(" ");
+			}
+
 			if (cmdLineTokens[0].equalsIgnoreCase("blsr") == true) {
 				System.out.println(blinkBankBindings());
 				cmdline = ""; // wait for a new command...
@@ -240,6 +248,7 @@ public class OZvm {
 				cmdLineTokens[0].equalsIgnoreCase(".") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("d") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("h") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("m") == false &&				
 				cmdLineTokens[0].equalsIgnoreCase("help") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
 			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
@@ -313,6 +322,63 @@ public class OZvm {
 		while (dzCmdline.length() == 0);
 		
 		return dzCmdline;
+	}
+
+	private int getMemoryAscii(StringBuffer memLine, int memAddr, int memBank) {
+		int memHex, memAscii;
+		
+		memLine.delete(0,255);
+		memLine.append(dz.addrToHex(memAddr,true)).append("  ");
+		for (memHex=memAddr; memHex < memAddr+16; memHex++) { 
+			memLine.append(dz.byteToHex(z88.getByte(memHex,memBank),false)).append(" ");
+		}
+
+		for (memAscii=memAddr; memAscii < memAddr+16; memAscii++) {
+			int b = z88.getByte(memAscii,memBank); 
+			memLine.append( (b >= 32 && b <= 127) ? Character.toString( (char) b) : "." );
+		}
+		
+		return memAscii;	
+	}
+	
+	private String viewMemory(BufferedReader in, String[] cmdLineTokens) throws IOException {
+		int memAddr = 0, memBank = 0;		
+		StringBuffer memLine = new StringBuffer(256);
+		String memCmdline = null;
+	
+		if (cmdLineTokens.length == 1) {
+			// no arguments, use PC in current bank binding
+			memAddr = z88.PC();
+			memBank = z88.getSegmentBank(memAddr >>> 14);
+		}
+
+		if (cmdLineTokens.length == 2) {
+			// one arguments; the local Z80 64K address 
+			memAddr = Integer.parseInt(cmdLineTokens[1], 16);
+			memBank = z88.getSegmentBank(memAddr >>> 14);
+		}
+
+		if (cmdLineTokens.length == 3) {
+			// two arguments; the offset and the bank number 
+			memAddr = Integer.parseInt(cmdLineTokens[1], 16);
+			memBank = Integer.parseInt(cmdLineTokens[2], 16);
+		}
+
+		do {		
+			for (int memLines = 0;  memLines < 16; memLines++) {
+				memAddr = getMemoryAscii(memLine, memAddr, memBank);
+				memAddr &= 0xFFFF;
+				System.out.println(memLine);
+			}
+			
+			System.out.print("$");
+			memCmdline = in.readLine();
+			if (memCmdline == null) memCmdline = "exit";	// program aborted during input...
+			
+		}
+		while (memCmdline.length() == 0);
+		
+		return memCmdline;
 	}
 	
 	public static void main(String[] args) throws IOException {		
