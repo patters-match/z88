@@ -55,6 +55,7 @@ public final class Blink extends Z80 {
 		debugMode = false;	// define the default running status of the virtul Machine.
 
 		memory = new Memory();	// create the Z88 memory model (4Mb addressable memory)
+		RAMS = memory.getBank(0); // point at ROM bank 0 (null at the moment)
 		
 		// the segment register SR0 - SR3
 		sR = new int[4];
@@ -63,16 +64,7 @@ public final class Blink extends Z80 {
 			sR[segment] = 0;
 		}
 
-
-		slotCards = new Memory.Bank[4][];
-		// Instantiate the slot containers for Cards...
-		for (int slot = 0; slot < 4; slot++)
-			slotCards[slot] = null; // nothing available in slots..
-
-		RAMS = memory.getBank(0);		// point at ROM bank 0 (null at the moment)
-
 		timerDaemon = new Timer(true);
-
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
 
@@ -81,7 +73,7 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Reference to the Z88 Memory Model 
+	 * Access to the Z88 Memory Model 
 	 */
 	private Memory memory = null;
 	
@@ -137,16 +129,6 @@ public final class Blink extends Z80 {
 	 * The 10ms interupt line to the Z80 processor.
 	 */
 	private Z80interrupt z80Int;
-
-	/**
-	 * The container for the current loaded card entities in the Z88 memory
-	 * system for slot 0, 1, 2 and 3.
-	 *
-	 * Slot 0 will only keep a RAM Card in top 512K address space
-	 * The ROM "Card" is only loaded once at OZvm boot
-	 * and is never removed.
-	 */
-	private Memory.Bank slotCards[][];
 
 	/**
 	 * Main Blink Interrrupts (INT).
@@ -1126,8 +1108,9 @@ public final class Blink extends Z80 {
 	}
 
 	public void hardReset() {
-		reset(); // reset Z80 registers
-		resetRam(); // reset memory of all available RAM in Z88 memory
+		reset(); 					// reset Z80 registers
+		RAMS = memory.getBank(0);	// RAMS now points at ROM, bank 0 (reset code)
+		memory.resetRam(); 			// reset memory of all available RAM in Z88 memory
 	}
 
 	/**
@@ -1234,7 +1217,6 @@ public final class Blink extends Z80 {
 
 	/**
 	 * Insert RAM Card into Z88 memory system.
-	 * Size must be in modulus 32Kb (even numbered 16Kb banks).
 	 * RAM may be inserted into slots 0 - 3.
 	 * RAM is loaded from bottom bank of slot and upwards.
 	 * Slot 0 (512Kb): banks 20 - 3F
@@ -1249,17 +1231,15 @@ public final class Blink extends Z80 {
 		int totalRamBanks, totalSlotBanks, curBank;
 
 		slot %= 4; // allow only slots 0 - 3 range.
-		size -= (size % 32768); // allow only modulus 32Kb RAM.
-		totalRamBanks = size / 16384; // number of 16K banks in Ram Card
+		size -= (size % Memory.BANKSIZE);
+		totalRamBanks = size / Memory.BANKSIZE; // number of 16K banks in Ram Card
 
 		Memory.Bank ramBanks[] = new Memory.Bank[totalRamBanks]; // the RAM card container
 		for (curBank = 0; curBank < totalRamBanks; curBank++) {
 			ramBanks[curBank] = memory.createBank(Memory.Bank.RAM);
 		}
 
-		slotCards[slot] = ramBanks;
-		// remember Ram Card for future reference...
-		loadCard(ramBanks, slot); // load the physical card into Z88 memory
+		memory.insertCard(ramBanks, slot); // insert the physical card into Z88 memory
 	}
 
 
@@ -1298,7 +1278,7 @@ public final class Blink extends Z80 {
 
 		// complete ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
-		loadCard(romBanks, 0);
+		memory.insertCard(romBanks, 0);
 		RAMS = memory.getBank(0);				// point at ROM bank 0
 	}
 
@@ -1369,19 +1349,9 @@ public final class Blink extends Z80 {
 
 		// complete Card image now loaded into container
 		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
-		loadCard(cardBanks, slot);
+		memory.insertCard(cardBanks, slot);
 	}
 
-	/**
-	 * Remove inserted card, ie. null'ify the banks for the specified slot.
-	 * This call also simulates the Blink Hardware Card Flap Open, 
-	 * Blink Edge connector sensing and finally Card Flap Close, so that OZ
-	 * is made aware of the Card removal.. 
-	 *   
-	 * @param slot (1-3)
-	 */
-	private void removeCard(int slot) {		
-	}
 	
 	/**
 	 * Load ROM image (from opened file ressource inside JAR)
@@ -1416,83 +1386,8 @@ public final class Blink extends Z80 {
 
 		// complete ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
-		loadCard(romBanks, 0);
+		memory.insertCard(romBanks, 0);
 		RAMS = memory.getBank(0);				// point at ROM bank 0
-	}
-
-	/**
-	 * Load Card (RAM/ROM/EPROM) into Z88 memory system.
-	 * Size is in modulus 16Kb.
-	 * Slot 0 (512Kb): banks 00 - 1F (ROM), banks 20 - 3F (RAM)
-	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
-	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
-	 * Slot 3 (1Mb):   banks C0 - FF (RAM or EPROM)
-	 *
-	 * @param card
-	 * @param slot
-	 */
-	private void loadCard(Memory.Bank card[], int slot) {
-		int totalSlotBanks, slotBank, curBank;
-
-		if (slot == 0) {
-			// Define bottom bank for ROM/RAM
-			slotBank = (card[0].getType() != Memory.Bank.RAM) ? 0x00 : 0x20;
-			// slot 0 has 32 * 16Kb = 512K address space for RAM or ROM
-			totalSlotBanks = 32;
-		} else {
-			slotBank = slot << 6; // convert slot number to bottom bank of slot
-			totalSlotBanks = 64;
-			// slots 1 - 3 have 64 * 16Kb = 1Mb address space
-		}
-
-		for (curBank = 0; curBank < card.length; curBank++) {
-			memory.setBank(card[curBank], slotBank++);
-			// "insert" 16Kb bank into Z88 memory
-			--totalSlotBanks;
-		}
-
-		// - the bottom of the slot has been loaded with the Card.
-		// Now, we need to fill the 1MB address space in the slot with the card.
-		// Note, that most cards and the internal memory do not exploit
-		// the full lMB addressing range, but only decode the lower address lines.
-		// This means that memory will appear more than once within the lMB range.
-		// The memory of a 32K card in slot 1 would appear at banks $40 and $41,
-		// $42 and $43, ..., $7E and $7F. Alternatively a 128K EPROM in slot 3 would
-		// appear at $C0 to $C7, $C8 to $CF, ..., $F8 to $FF.
-		// This way of addressing is assumed by the system.
-		// Note that the lowest and highest bank in an EPROM can always be addressed
-		// by looking at the bank at the bottom of the 1MB address range and the bank
-		// at the top respectively.
-		while (totalSlotBanks > 0) {
-			for (curBank = 0; curBank < card.length; curBank++) {
-				memory.setBank(card[curBank], slotBank++);
-				// "shadow" card banks into remaining slot
-				--totalSlotBanks;
-			}
-		}
-	}
-
-	/**
-	 * Scan available slots for Ram Cards, and reset them..
-	 */
-	public void resetRam() {
-		RAMS = memory.getBank(0);	// RAMS now points at cards' bank 0
-
-		for (int slot = 0; slot < slotCards.length; slot++) {
-			// look at bottom bank in Card for type; only reset RAM Cards...
-			if (slotCards[slot] != null
-				&& slotCards[slot][0].getType() == Memory.Bank.RAM) {
-				// reset all banks in Card of current slot
-				for (int cardBank = 0;
-					cardBank < slotCards[slot].length;
-					cardBank++) {
-					Memory.Bank b = slotCards[slot][cardBank];
-					for (int bankOffset = 0; bankOffset < Memory.BANKSIZE; bankOffset++) {
-						b.setByte(bankOffset, 0);
-					}
-				}
-			}
-		}
 	}
 
 	public void startInterrupts() {

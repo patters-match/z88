@@ -88,6 +88,69 @@ public final class Memory {
 	public final void setBank(final Bank bank, final int bankNo) {
 		memory[bankNo & 0xFF] = bank;
 	}
+
+	/**
+	 * Insert Card (RAM/ROM/EPROM) into Z88 memory system.
+	 * Size is in modulus 16Kb.
+	 * Slot 0 (512Kb): banks 00 - 1F (ROM), banks 20 - 3F (RAM)
+	 * Slot 1 (1Mb):   banks 40 - 7F (RAM or EPROM)
+	 * Slot 2 (1Mb):   banks 80 - BF (RAM or EPROM)
+	 * Slot 3 (1Mb):   banks C0 - FF (RAM or EPROM)
+	 *
+	 * @param card
+	 * @param slot
+	 */
+	public void insertCard(Bank card[], int slot) {
+		int totalSlotBanks, slotBank, curBank;
+
+		if (slot == 0) {
+			// Define bottom bank for ROM/RAM
+			slotBank = (card[0].getType() != Bank.RAM) ? 0x00 : 0x20;
+			// slot 0 has 32 * 16Kb = 512K address space for RAM or ROM
+			totalSlotBanks = 32;
+		} else {
+			slotBank = slot << 6; // convert slot number to bottom bank of slot
+			totalSlotBanks = 64;
+			// slots 1 - 3 have 64 * 16Kb = 1Mb address space
+		}
+
+		for (curBank = 0; curBank < card.length; curBank++) {
+			setBank(card[curBank], slotBank++);
+			// "insert" 16Kb bank into Z88 memory
+			--totalSlotBanks;
+		}
+
+		// - the bottom of the slot has been loaded with the Card.
+		// Now, we need to fill the 1MB address space in the slot with the card.
+		// Note, that most cards and the internal memory do not exploit
+		// the full lMB addressing range, but only decode the lower address lines.
+		// This means that memory will appear more than once within the lMB range.
+		// The memory of a 32K card in slot 1 would appear at banks $40 and $41,
+		// $42 and $43, ..., $7E and $7F. Alternatively a 128K EPROM in slot 3 would
+		// appear at $C0 to $C7, $C8 to $CF, ..., $F8 to $FF.
+		// This way of addressing is assumed by the system.
+		// Note that the lowest and highest bank in an EPROM can always be addressed
+		// by looking at the bank at the bottom of the 1MB address range and the bank
+		// at the top respectively.
+		while (totalSlotBanks > 0) {
+			for (curBank = 0; curBank < card.length; curBank++) {
+				setBank(card[curBank], slotBank++);
+				// "shadow" card banks into remaining slot
+				--totalSlotBanks;
+			}
+		}
+	}
+
+	/**
+	 * Remove inserted card, ie. null'ify the banks for the specified slot.
+	 * This call also simulates the Blink Hardware Card Flap Open, 
+	 * Blink Edge connector sensing and finally Card Flap Close, so that OZ
+	 * is made aware of the Card removal.. 
+	 *   
+	 * @param slot (1-3)
+	 */
+	public void removeCard(int slot) {		
+	}
 	
 	/**
 	 * Check if slot is empty (ie. no cards inserted)
@@ -101,6 +164,19 @@ public final class Memory {
 		return memory[(((slotNo & 3) << 6) | 0x3F)] == nullBank;
 	}
 
+	/**
+	 * Scan available slots for Ram Cards, and reset them..
+	 */
+	public void resetRam() {
+		for (int bankNo = 0; bankNo < memory.length; bankNo++) {
+			if ( memory[bankNo].getType() == Bank.RAM) {
+				// reset ...
+				for (int bankOffset = 0; bankOffset < Memory.BANKSIZE; bankOffset++) {
+					memory[bankNo].setByte(bankOffset, 0);
+				}
+			}
+		}
+	}
 	
 	/** 
 	 * This class represents the 16Kb Bank. The characteristics of a bank can be 
