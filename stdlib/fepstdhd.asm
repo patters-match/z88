@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB SafeSegmentMask, FlashEprCardId, FlashEprWriteBlock, Divu8
+     LIB SafeBHLSegment, FlashEprCardId, FlashEprWriteBlock, Divu8
 
      INCLUDE "saverst.def"
      INCLUDE "memory.def"
@@ -138,11 +138,8 @@
 .blow_header                    
                     PUSH IX
                     POP  DE                       ; start of File Eprom Header
-                    CALL SafeSegmentMask          ; get a safe segment (not this executing segment!)
-                    RLCA
-                    RLCA                     
-                    LD   C,A                      ; use segment x to blow bytes
-                    LD   HL, $3FC0                ; blown at address B,$3FC0
+                    LD   HL, $3FC0                ; blow at address B,$3FC0
+                    CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes
                     LD   IY, 64                   ; of size
                     CALL FlashEprWriteBlock       ; blow header...
 
