@@ -214,7 +214,7 @@ public class OZvm implements KeyListener {
 
 						commandOutput = gui.getCmdlineOutputArea();
 			            blinkStatus = new DisplayStatus(z88, commandOutput);			
-						displayCmdOutput("Type 'h' or 'help' for available debugging commands");
+						displayCmdOutput("Type 'help' for available debugging commands");
 						
 						continue;
 					}
@@ -297,7 +297,7 @@ public class OZvm implements KeyListener {
 		displayCmdOutput("run - execute virtual Z88 from PC");
 		displayCmdOutput("stop - stop virtual Z88 (or press F5 when Z88 window has focus)");
 		displayCmdOutput("ldc filename <extended address> - Load file binary at address");
-		displayCmdOutput("z - run z88 machine and break at next instruction");
+		displayCmdOutput("z - run z88 machine (eg. CALL subroutine) and break at next instruction");
 		displayCmdOutput(". - Single step instruction at PC");
 		displayCmdOutput("dz - Disassembly at PC");
 		displayCmdOutput("dz [local address | extended address] - Disassemble at address");
@@ -312,8 +312,8 @@ public class OZvm implements KeyListener {
 		displayCmdOutput("rg - Display current Z80 Registers");
 		displayCmdOutput("f/F - Display current Z80 Flag Register");		
 		displayCmdOutput("cls - Clear command output area\n");
-		displayCmdOutput("Registers are edited using upper case, ex. A 01 and SP 1FFE");
-		displayCmdOutput("Alternate registers are specified with ', ex. A' 01 and BC' C000");
+		displayCmdOutput("Registers are edited using their name, ex. A 01 or sp 1FFE");
+		displayCmdOutput("Alternate registers are specified with ', ex. a' 01 or BC' C000");
 		displayCmdOutput("Flags are toggled using FZ, FC, FN, FS, FPV and FH commands or");
 		displayCmdOutput("set/reset using 1 or 0 argument, eg. FZ 1 to enable Zero flag.");
 	}
@@ -353,13 +353,13 @@ public class OZvm implements KeyListener {
 				displayCmdOutput("Z88 is already running.");
 				return;
 			}
-
-			gui.getCmdLineInputArea().setText(".");
-			gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-			gui.getCmdLineInputArea().selectAll();
 			
 			z88.run(true);		// single stepping (no interrupts running)...
 			displayCmdOutput(blinkStatus.dzPcStatus(z88.PC()).toString());
+			
+			gui.getCmdLineInputArea().setText(getNextStepCommand());
+			gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
+			gui.getCmdLineInputArea().selectAll();			
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("z") == 0) {
@@ -386,6 +386,10 @@ public class OZvm implements KeyListener {
 			this.setBreakPointManager(origBreakPoints);
 
 			displayCmdOutput(blinkStatus.dzPcStatus(z88.PC()).toString());
+
+			gui.getCmdLineInputArea().setText(getNextStepCommand());
+			gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
+			gui.getCmdLineInputArea().selectAll();			
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("dz") == 0) {
@@ -861,11 +865,48 @@ public class OZvm implements KeyListener {
 			displayCmdOutput("PC=" + Dz.addrToHex(z88.PC(),true));
 		}
 		
-		if (cmdLineTokens[0].compareTo("exit") == 0) {
+		if (cmdLineTokens[0].compareToIgnoreCase("exit") == 0) {
 			System.exit(0);
 		}		
 	}
 
+	/**
+	 * Based on the current instruction that will be executed next,
+	 * suggest a default step command; either a single step or a subroutine call.
+	 * 
+	 * The purpose is to easy the amount of typing on the command line while
+	 * stepping through the current subroutine level code. 
+	 * 
+	 * @return step command suggestion
+	 */
+	private String getNextStepCommand() {
+		int instrOpcode = z88.readByte(z88.PC());	// get current instruction opcode (to be executed)
+		
+		switch(instrOpcode) {
+			case 0xCD: // CALL addr
+			case 0xDC: // CALL C,addr
+			case 0xFC: // CALL M,addr
+			case 0xD4: // CALL NC,addr
+			case 0xC4: // CALL NZ,addr
+			case 0xF4: // CALL P,addr
+			case 0xEC: // CALL PE,addr
+			case 0xE4: // CALL PO,addr
+			case 0xCC: // CALL Z,addr
+				return "z";	// suggest a subroutine step
+			case 0xC7: // RST 00
+			case 0xCF: // RST 08
+			case 0xD7: // RST 10
+			case 0xDF: // RST 18
+			case 0xE7: // RST 20
+			case 0xEF: // RST 28
+			case 0xF7: // RST 30
+			case 0xFF: // RST 38
+				return "z";	// suggest a subroutine step
+			default:
+				return "."; // suggest a single step
+		}
+	}
+	
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
 		int bpAddress;
 		
