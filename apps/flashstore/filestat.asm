@@ -68,8 +68,8 @@ Module FileAreaStatistics
                     ld   (de),a                   ; null-terminate banner
 
                     ld   a,'3' | 128 | 64
-                    ld   bc,$0048
-                    ld   de,$0814
+                    ld   bc,$004A
+                    ld   de,$0812
                     ld   hl, buf1
                     call CreateWindow
 
