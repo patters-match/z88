@@ -29,14 +29,17 @@ import javax.swing.JTextField;
 
 import net.sourceforge.z88.datastructures.ApplicationDor;
 import net.sourceforge.z88.datastructures.ApplicationInfo;
+import net.sourceforge.z88.filecard.FileArea;
+import net.sourceforge.z88.filecard.FileAreaNotFoundException;
+import net.sourceforge.z88.filecard.FileEntry;
 
 /**
  * The OZvm debug command line.
  */
 public class CommandLine implements KeyListener {
 
-	private	Gui gui = null;
-	private	Blink z88 = null;	
+	private	Gui gui;
+	private	Blink z88;	
 
 	/** The Z88 disassembly engine */
 	private	Dz dz;
@@ -44,25 +47,25 @@ public class CommandLine implements KeyListener {
 	/** The Breakpoint manager */
 	private	Breakpoints breakPointManager;
 	
-	private	Thread z80Thread = null;
+	/** The executing Z80 engine */
+	private	Thread z80Thread;
 
-	private	Memory memory =	null;
+	/** Access the Z88 memory model */
+	private	Memory memory;
 	
-	private	Z88Info blinkStatus;	
-	private	JTextField commandInput	= null;
-	private	JTextArea commandOutput	= null;
-	private	CommandHistory cmdList = null;
+	private	JTextField commandInput;
+	private	JTextArea commandOutput;
+	private	CommandHistory cmdList;
 
 	/**
-	 * 
+	 * Constructor 
 	 */
 	public CommandLine() {
 		gui = Gui.getInstance();
 		z88 = Blink.getInstance();
 		memory = Memory.getInstance();
 		
-		blinkStatus = new Z88Info();
-		dz = Dz.getInstance(); // the disassembly engine...
+		dz = Dz.getInstance();
 		breakPointManager = Breakpoints.getInstance();
 		
 		commandOutput =	gui.getCmdlineOutputArea();
@@ -83,7 +86,6 @@ public class CommandLine implements KeyListener {
 		cmdList	= new CommandHistory();
 
 		commandOutput =	gui.getCmdlineOutputArea();
-	    blinkStatus = new Z88Info();
 		displayCmdOutput("Type 'help' for available debugging commands");
 	}
 
@@ -211,6 +213,12 @@ public class CommandLine implements KeyListener {
 			}
 		}
 
+		if (cmdLineTokens[0].compareToIgnoreCase("fcd1") == 0 | 
+				cmdLineTokens[0].compareToIgnoreCase("fcd2") == 0 |
+				cmdLineTokens[0].compareToIgnoreCase("fcd3") == 0) {
+			fcdCommandline(cmdLineTokens);
+		}
+		
 		if (cmdLineTokens[0].compareToIgnoreCase("dz") == 0) {
 			dzCommandline(cmdLineTokens);
 			displayCmdOutput("");
@@ -688,6 +696,31 @@ public class CommandLine implements KeyListener {
 		}
 	}
 
+	private	void fcdCommandline(String[] cmdLineTokens) {
+		if (cmdLineTokens.length == 1) {
+			try {
+				// no sub-commands are specified, just list file area contents...
+				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				ListIterator fileEntries = fa.getFileEntries();
+
+				if (fileEntries != null) {
+					displayCmdOutput("File area:");
+					while (fileEntries.hasNext()) {
+						FileEntry fe = (FileEntry) fileEntries.next();
+						displayCmdOutput(fe.getFileName() + 
+										((fe.isDeleted() == true) ? " [d]": "") + 
+										", size=" + fe.getFileLength() + " bytes" +
+										", file-entry=" + Dz.extAddrToHex(fe.getFileEntryPtr(),true));
+					}					
+				}
+			} catch (FileAreaNotFoundException e) {
+				displayCmdOutput("No file area found in slot.");
+			} 
+		} else {
+			
+		}
+	}
+	
 	private	void bpCommandline(String[] cmdLineTokens) throws IOException {
 		int bpAddress;
 
