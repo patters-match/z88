@@ -102,6 +102,24 @@ public class OZvm implements KeyListener {
 		displayCmdOutput( Dz.byteToHex(bank, false) + dzBuffer);
 	}
 
+	private void initDebugMode() {
+		commandInput = gui.getCmdLineInputArea();
+		commandInput.addActionListener(new java.awt.event.ActionListener() { 
+			public void actionPerformed(java.awt.event.ActionEvent e) {    
+				String cmdline = commandInput.getText();
+				cmdList.addCommand(cmdline);
+				commandInput.setText("");			
+				parseCommandLine(cmdline);					
+			}
+		});
+		commandInput.addKeyListener(this);
+		cmdList = new CommandHistory();
+
+		commandOutput = gui.getCmdlineOutputArea();
+        blinkStatus = new DisplayStatus();			
+		displayCmdOutput("Type 'help' for available debugging commands");
+	}
+	
 	public boolean boot(String[] args) {
 		RandomAccessFile file;
 		boolean loadedRom = false;
@@ -192,39 +210,26 @@ public class OZvm implements KeyListener {
 
 					if (arg<args.length && (args[arg].compareTo("debug") == 0)) {
 						setDebugMode(true);
+						initDebugMode();
 						arg++;
-
-						commandInput = gui.getCmdLineInputArea();
-						commandInput.addActionListener(new java.awt.event.ActionListener() { 
-							public void actionPerformed(java.awt.event.ActionEvent e) {    
-								String cmdline = commandInput.getText();
-								cmdList.addCommand(cmdline);
-								commandInput.setText("");			
-								parseCommandLine(cmdline);					
-							}
-						});
-						commandInput.addKeyListener(this);
-						cmdList = new CommandHistory();
-
-						commandOutput = gui.getCmdlineOutputArea();
-			            blinkStatus = new DisplayStatus();			
-						displayCmdOutput("Type 'help' for available debugging commands");
-						
 						continue;
 					}
 
 					if (arg<args.length && (args[arg].compareTo("initdebug") == 0)) {
 						setDebugMode(true);
+						initDebugMode();
+
 						file = new RandomAccessFile(args[arg+1], "r");
-						JTextArea tmpOutput = commandOutput;
 						gui.getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
-						commandOutput = null;	// don't write command output while parsing commands from file...
 						String cmd = null;
-						while ( (cmd = file.readLine()) != null) parseCommandLine(cmd);
-						commandOutput = tmpOutput;
+						while ( (cmd = file.readLine()) != null) {
+							parseCommandLine(cmd);
+							Thread.yield();
+						}
 						gui.getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
 						file.close();						
 						Gui.displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
+						
 						arg+=2;						
 						continue;
 					}
@@ -428,9 +433,9 @@ public class OZvm implements KeyListener {
 				RandomAccessFile file = new RandomAccessFile(cmdLineTokens[1], "r");
 				memory.loadBankBinary(Integer.parseInt(cmdLineTokens[2], 16), file);
 				file.close();
-				displayCmdOutput("File image loaded into bank.");
+				displayCmdOutput("File image '" + cmdLineTokens[1] + "' loaded at " + cmdLineTokens[2] + ".");
 			} catch (IOException e) {
-				displayCmdOutput("Couldn't load file image into bank: '" + e.getMessage() + "'");
+				displayCmdOutput("Couldn't load file image at ext.address: '" + e.getMessage() + "'");
 			}
 			displayCmdOutput("");
 		}
