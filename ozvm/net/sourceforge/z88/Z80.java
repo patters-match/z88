@@ -365,7 +365,10 @@ public abstract class Z80 {
     }
 
     /** External implementation of HALT instruction */
-    public abstract void haltInstruction();
+    public abstract void haltZ80();
+    
+	/** External implementation stop Z80 execution (back to command line or other state */
+	public abstract boolean abortZ80();
 
     /** External implemenation of Read Byte from the Z80 virtual memory model */
     public abstract int readByte(int addr);
@@ -534,21 +537,14 @@ public abstract class Z80 {
     public final void run(boolean singleStepping) {
 
         do {
-			
+			if (abortZ80() == true) return;
+						
             // INT occurred
             if (interruptTriggered() == true) {
                 if (execInterrupt() == true) acknowledgeInterrupt();
             }
 
             REFRESH(1);
-
-            if (z80Halted == true && z80Stopped == false && singleStepping == false) {
-//            	try {
-//					Thread.sleep(10);		// make OZvm more relaxed towards outside OS when doing "waiting"
-//				} catch (InterruptedException e) {}			
-                continue;                   // back to main decode loop and wait for external interrupt
-            }
-
 			instructionCounter++;
 
             switch (nxtpcb()) {				// decode first byte from Z80 instruction cache
@@ -1206,7 +1202,7 @@ public abstract class Z80 {
 					    // let the external system know about HALT instruction
 					    // Z80 processor execution now performs simulated NOP's and
 					    // awaits external interrupt to wake processor execution up again.
-						haltInstruction();
+						haltZ80();
                         z80Halted = true;
                         tstatesCounter += 4;
                         break;
