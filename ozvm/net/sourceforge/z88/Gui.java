@@ -84,6 +84,8 @@ public class Gui extends JFrame {
 
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
+				System.out.println("OZvm application ended by user.");
+				Blink.getInstance().stopZ80Execution();
 				System.exit(0);
 			}
 		});
