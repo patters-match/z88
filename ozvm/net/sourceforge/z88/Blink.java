@@ -1424,8 +1424,7 @@ public final class Blink extends Z80 {
 		}
 
 		// Check for Z88 Application Card Watermark
-		if (cardBanks[cardBanks.length-1].getByte(0x3FFB) == 0x80 &
-			cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'O' &
+		if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'O' &
 			cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'Z') {
 			displayRtmMessage("Application Card was inserted into slot " + slot, false);
 		} else {
