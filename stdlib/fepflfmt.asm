@@ -69,14 +69,14 @@
 
                     LD   C,3                      ; slot 3...
                     CALL FileEprRequest           ; get pointer to File Eprom Header (or potential)
-                    JR   C, exit_FreePtSp         ; No File Eprom available
+                    JR   C, exit_format           ; No File Eprom available
                     
                     LD   C,B                      ; B = Top Bank of File Area (or potential)
                     INC  C                        ; C = total of 16K banks to be erased...
                     CALL ErasePtBlocks       
 
                     CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in Top Bank 
-                    JR   C,exit_fsthdr
+                    JR   C,exit_format
                     LD   HL,$3FC0                 ; return pointer to "oz" header
                     LD   A,B
                     INC  A                        ; 
