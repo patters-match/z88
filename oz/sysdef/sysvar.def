@@ -36,8 +36,11 @@ defc	ubKbdFlags		=$021d			; !! get rid of this def - part of KbdData
 defc	ubKbdLastkey		=$021e			; !! get rid of this def - part of KbdData
 defc	SerTXHandle		=$0229			; on negative side!
 defc	SerRXHandle		=$0233			; on negative side!
+defc	ubFsTemp		=$0237
 defc	uwSmallTimer		=$0238
+defc	uwSlotAvailFsBlocks	=$023a			; 23a-241
 defc	pFsMemPool		=$0244
+defc	uwFsAvailBlock		=$0246
 defc	word_024A		=$024a
 defc	pMTHScreenSave		=$024e
 defc	pMTHTmpHandle		=$0250
@@ -71,7 +74,7 @@ defc	uwAppStaticHnd		=$03b0
 defc	ubAppDynID		=$03b2		; was uwApplDynID
 defc	ubAppDORFlags		=$03b6
 defc	pAppStackPtr		=$03ba
-defc	pUnSafeArea		=$03bc
+defc	pAppUnSafeArea		=$03bc		; was pUnSafeArea
 defc	pAppExtrastackArea	=$03be
 defc	pAppBadMemHandle	=$03c0
 defc	ubAppContRAM		=$03c2
@@ -147,6 +150,7 @@ defc	IdxKeyTable		=$0e34
 defc	IdxZKeyTable		=$0e66
 defc	IdxZZKeyTable		=$0e98
 				;$0eca
+
 
 ;	ubIdxPubFlags
 
@@ -429,8 +433,13 @@ defc	dhnd_DeviceID	=$0F
 ;	file handle
 
 defc	fhnd_firstblk		=$04
+defc	fhnd_firstblk_h		=$05
+defc	fhnd_filepos		=$06
+defc	fhnd_filepos_h		=$07
+defc	fhnd_filepos_lo		=$08
 defc	fhnd_attr		=$09
 defc	fhnd_flags		=$0a
+
 
 defc	FATR_B_READABLE		=0
 defc	FATR_B_WRITABLE		=1
@@ -441,6 +450,8 @@ defc	FATR_MEMORY		=4
 
 defc	FFLG_B_SPECDEV		=1
 defc	FFLG_B_WRERROR		=2
+
+defc	FSBLOCK_SIZE		=$3e
 
 ;	MemHandle
 
