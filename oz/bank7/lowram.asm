@@ -413,7 +413,7 @@ xdef    OZCallReturn3
         xor     a                               ; A=0, Fc=0
         push    af                              ; store A to clear byte in stack
         pop     af                              ; 
-        ld      a, i                            ; IFF2 -> Fp
+        ld      a, i                            ; A=snooze/coma flag, IFF2 -> Fp
         di
         ret     pe                              ; interrupts enabled? exit Fc=0
 
@@ -434,7 +434,7 @@ xdef    OZCallReturn3
 ;       !! another way to get Fc=1 into F: 'dec sp; pop af; dec sp' - uses PC hi
 
         cp      1                               ; Fc=0 if we were interrupted
-        ld      a, i                            ; IFF1 -> Fp !! needed for NMI
+        ld      a, i                            ; reload A for NMI routine
         ret
 
 ; 01a2
