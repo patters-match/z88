@@ -1,5 +1,13 @@
 /*
  * @(#)Z80.java 1.1 27/04/97 Adam Davidson & Andrew Pollard
+ * 
+ * Slightly modified by Gunther Strube, gstrube@tiscali.dk: 
+ * Memory architecture logic to read/write bytes in Z80 have been
+ * declared as abstract. Implemented by sub class.
+ * 
+ * 	public abstract int readByte( int addr );	
+ *	public abstract void writeByte ( int addr, int b );
+ *  
  */
 
 /**
