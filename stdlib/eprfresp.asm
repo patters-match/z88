@@ -68,7 +68,7 @@
                     SUB  D                        ; D = total banks of File Eprom Area
                     INC  A
                     LD   B,A                      ; B is now bottom bank of File Eprom
-                    LD   HL,$4000                 ; BHL points at first address of File Eprom
+                    LD   HL,$0000                 ; BHL points at first address of File Eprom
                                                   ; (using segment 1 specifier
                     ; scan all file entries, to point at first free byte
 .scan_eprom         CALL FileEprFileEntryInfo
