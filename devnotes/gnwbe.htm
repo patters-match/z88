@@ -1,86 +1,43 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-
 <html>
-
 <head>
-
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-
    <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-
    <title>System Calls Reference</title>
-
 </head>
-
 <body>
-
 <table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-
 <tr>
-
 <th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
-
 </tr>
-
 <tr>
-
 <td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
-
 <td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
-
 <td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
-
 </tr>
-
 </table>
 
-
-
 <hr WIDTH="100%">
-
 <p>
 
-
-
 <b><font size=+1>GN_Wbe, write byte at extended address</font></b>
-
 <p><tt>RST 20H, DEFW $4009</tt>
-
 <p>IN:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; BDE = pointer to extended address (B = 0 -> DE is local)
-
 &nbsp;&nbsp;&nbsp;&nbsp; A = character to write</pre>
-
 OUT:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0
-
 </pre>
-
 Registers changed after return:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; A.BCDEHL/IXIY same
-
 &nbsp;&nbsp;&nbsp;&nbsp; .F....../.... different</pre>
-
 Notes:
-
 <p>Bugs:
-
 <p>Related calls:
-
 <blockquote><a href='gncme.htm'>GN_Cme</a>, compare null-terminated strings, one local, one extended
-
 <br><a href='gnrbe.htm'>GN_Rbe</a>, read byte at extended address
-
 <br><a href='osbde.htm'>OS_Bde</a>, copy bytes to extended address
-
 <br><a href='osbhl.htm'>OS_Bhl</a>, copy bytes from extended address</blockquote>
 
-
-
 </body>
-
 </html>
-

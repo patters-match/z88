@@ -1,108 +1,54 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-
 <html>
-
 <head>
-
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-
    <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-
    <title>System Calls Reference</title>
-
 </head>
-
 <body>
-
 <table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-
 <tr>
-
 <th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
-
 </tr>
-
 <tr>
-
 <td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
-
 <td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
-
 <td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
-
 </tr>
-
 </table>
 
-
-
 <hr WIDTH="100%">
-
 <p>
 
-
-
 <b><font size=+1>OS_Mpb, set new bank binding in
-
 segment</font></b>
-
 <p><tt>RST 20H, DEFB $5D</tt>
-
 <p>IN:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; C = memory segment specifier (MS_S0, MS_S1, MS_S2 &amp; MS_S3)
-
 &nbsp;&nbsp;&nbsp;&nbsp; B = bank number to bind into this segment ($00 - $FF)</pre>
-
 OUT, if call successful:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0
-
 &nbsp;&nbsp;&nbsp;&nbsp; B = bank number previously bound to that segment</pre>
-
 OUT, if call failed:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1
-
 &nbsp;&nbsp;&nbsp;&nbsp; A = error code:
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_ERR ($0F), C was not valid</pre>
-
 Registers changed after return:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; ...CDEHL/IXIY same
-
 &nbsp;&nbsp;&nbsp;&nbsp; AFB...../.... different
-
 </pre>
-
 Notes:
-
 <p>Bugs:
-
 <br>&nbsp;
-
 <p>Related calls:
-
 <blockquote><a href='osbix.htm'>OS_Bix</a>, bind in extended address
-
 <br><a href='osbox.htm'>OS_Box</a>, restore bindings after <a href='osbix.htm'>OS_Bix</a>
-
 <br><a href='osfc.htm'>OS_Fc</a>, select fast code (fast bank switching)
-
 <br><a href='osmal.htm'>OS_Mal</a>, allocate memory
-
 <br><a href='osmcl.htm'>OS_Mcl</a>, close memory (free memory pool)
-
 <br><a href='osmfr.htm'>OS_Mfr</a>, free (previously allocated block) memory
-
 <br><a href='osmgb.htm'>OS_Mgb</a>, get current bank binding in segment
-
 <br><a href='osmop.htm'>OS_Mop</a>, open memory (allocate memory pool)</blockquote>
 
-
-
 </body>
-
 </html>
-

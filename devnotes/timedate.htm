@@ -1,238 +1,119 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-
 <html>
-
 <head>
-
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-
    <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-
    <title>Time and date management</title>
-
 </head>
-
 <body>
-
 <table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-
 <tr>
-
 <th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
-
 </tr>
-
 <tr>
-
 <td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="filters.htm">Previous</a></td>
-
 <td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><a href="index.htm">Contents</a></td>
-
 <td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="intarith.htm">Next</a></td>
-
 </tr>
-
 </table>
 
-
-
 <hr WIDTH="100%">
-
 <p>
-
 <b><font size=+1>11. Time and date management</font></b>
-
 <br>&nbsp;
-
 <p>The applications within the Z88 frequently need to manipulate times
-
 and dates. The Clock, Calendar and Diary are the obvious examples; also
-
 the Filer stores creation and "last updated" dates in its filing system.
-
 Hence a fairly comprehensive set of routines are provided to handle them.
-
 Before discussing the routines themselves, it is worth explaining how dates
-
 and times may be represented.
-
 <p>Within the machine, dates are represented by 3-byte unsigned integers
-
 which represent the number of days since the conventional day zero, which
-
 is Monday 23rd November 4713 BC! This number of days figure is consistent
-
 from the point of view of the New Style (Gregorian) calendar, so will not
-
 tally with historical dates before 14th September 1752 (Britain) or 14th
-
 October 1582 (continental Europe) unless the dates have been retrospectively
-
 corrected (like George Washington's birth date). However, it should be
-
 entirely correct from its chosen point of view, incorporating the following
-
 rules to deal with leap years:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Every year is a normal year (365 days) except
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; every 4th year is a leap year (366 days) except
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; every 100th year is a normal year except
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; every 400th year is a leap year except
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; every 3200th year is a leap year except
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; every 80000th year is a normal year.</pre>
-
 The accuracy range is 23/11/4713 BC to 31/12/18253 AD.
-
 <p>Routines provided to convert between this rather inconvenient format
-
 and either:
-
 <p>1) A zoned integer representing a human date conveniently, split over
-
 registers as follows:
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C (bits 7 to 5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the day of the week (1=Monday, 7=Sunday)
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C (bits 4 to 0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the day of the month (1 to 31, obviously)
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the month (1=january, 12=december)
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a signed year number relative to 0 AD</pre>
-
 2) An ASCII string, with various options (leading blanks, American format,
-
 century [ie. 88 or 1988], month in full [ie. Dec or December] etc).
-
 <p>Times are internally represented as unsigned 3-byte integers representing
-
 the number of 10ms (1/100 of a second) intervals since the start of the
-
 day. Routines exist to convert between this format and an ASCII string,
-
 again with various options. Further routines are provided to read or set
-
 the machine time and date. The available routines are as follows, their
-
 specifications can be found in "System Calls Reference":
-
 <pre><a href='gngdt.htm'>GN_Gdt</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; convert an ASCII string to an internal date
-
 <a href='gnpdt.htm'>GN_Pdt</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; convert an internal date to an ASCII string
-
 <a href='gndie.htm'>GN_Die</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; convert from internal to external format
-
 <a href='gndei.htm'>GN_Dei</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; convert from external to internal format
-
 <a href='gngmd.htm'>GN_Gmd</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fetch current machine date
-
 <a href='gnpmd.htm'>GN_Pmd</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set current machine date
 
-
-
 <a href='gngtm.htm'>GN_Gtm</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; convert an ASCII string to an internal time
-
 <a href='gnptm.htm'>GN_Ptm</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; convert an internal time to an ASCII string
-
 <a href='gngmt.htm'>GN_Gmt</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fetch current machine time
-
 <a href='gnpmt.htm'>GN_Pmt</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set current machine time
-
 <a href='gnmsc.htm'>GN_Msc</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; convert real time to elapsed time
-
 <a href='gnsdo.htm'>GN_Sdo</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; output date and time to standard output</pre>
-
 <b>Example</b>
-
 <p>
-
 <hr WIDTH="100%">
-
 <pre>include "#time.def"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; time &amp; date call definitions
-
 include "#stdio.def"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; standard I/O call definitions</pre>
-
 <tt>; simple example to display the current date</tt>
-
 <br><tt>; assumes IY points to at least 30 bytes of available memory</tt>
-
 <br><tt>; this memory should not lie in segment 2</tt>
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; push iy
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pop&nbsp; de&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; buffer for date
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href='gngmd.htm'>GN_Gmd</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; get machine date
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; DE = DE(in) + 3
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; push iy
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pop&nbsp; hl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; source date
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; a, 240&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; century output, C = interfield delimiter
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; b, 15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; expanded day and month (no AD/BC)
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; c, '.'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; interfield delimiter
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href='gnpdt.htm'>GN_Pdt</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; put date in ASCII format
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; xor&nbsp; a
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; (de),a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; null-terminate ASCII string
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; push iy
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pop&nbsp; hl
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inc&nbsp; hl
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inc&nbsp; hl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; adjust string buffer address
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inc&nbsp; hl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; of converted string
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href='gnsop.htm'>GN_Sop</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write string to std. output
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href='gnnln.htm'>GN_Nln</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; new line
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ret</pre>
-
 <p>
-
 <hr WIDTH="100%">
-
 <table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-
 <tr>
-
 <td ALIGN=LEFT VALIGN=TOP WIDTH="33%"><a href="filters.htm">Previous</a></td>
-
 <td ALIGN=CENTER VALIGN=TOP WIDTH="34%"><a href="index.htm">Contents</a></td>
-
 <td ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><a href="intarith.htm">Next</a></td>
-
 </tr>
-
 <tr>
-
 <td ALIGN=LEFT VALIGN=TOP WIDTH="33%">Filters</td>
-
 <td ALIGN=CENTER VALIGN=TOP WIDTH="34%">Time and date management</td>
-
 <td ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Integer arithmetic</td>
-
 </tr>
-
 </table>
 
-
-
 </body>
-
 </html>
-
