@@ -341,7 +341,7 @@ xref    Key2Code
 
 .loc_DCCE                                       
         push    hl
-        ld      hl, ubKbdFlags
+        ld      hl, KbdData+kbd_flags
         set     KBF_B_KEY, (hl)
         pop     hl
         scf
@@ -660,9 +660,9 @@ xref    Key2Code
         and     (ix+$10)
         jr      z, loc_DE31
 
-        ld      a, (ubKbdFlags)
+        ld      a, (KbdData+kbd_flags)
         or      (ix+$10)
-        ld      (ubKbdFlags), a
+        ld      (KbdData+kbd_flags), a
 
 .loc_DE31                                       
         ld      a, h

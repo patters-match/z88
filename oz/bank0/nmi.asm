@@ -145,14 +145,14 @@ defc    NMI_B_HALT      =0
 .SwitchOff
         push    de
         push    hl
-        ld      hl, ubKbdFlags
+        ld      hl, KbdData+kbd_flags
         res     KBF_B_LOCKED, (hl)
         ld      a, (hl)
         push    af
         set     KBF_B_SCAN, (hl)                ; disable kbd reading from interrupt
 
 .swoff_1
-        ld      hl, ubKbdFlags
+        ld      hl, KbdData+kbd_flags
         res     KBF_B_LOCKED, (hl)
         ld      a, (BLSC_COM)                   ; LCD off
         and     255-BM_COMLCDON
@@ -218,7 +218,7 @@ defc    NMI_B_HALT      =0
         bit     4, a
         jr      nz, swoff_7                     ; no caps lock? don't lock
 
-        ld      hl, ubKbdFlags
+        ld      hl, KbdData+kbd_flags
         set     KBF_B_LOCKED, (hl)
         call    DrawOZwd
 
@@ -233,7 +233,7 @@ defc    NMI_B_HALT      =0
         jp      swoff_1
 
 .swoff_8
-        ld      hl, ubKbdFlags
+        ld      hl, KbdData+kbd_flags
         pop     af
         bit     KBF_B_LOCKED, (hl)
         ld      (hl), a

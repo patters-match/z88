@@ -382,7 +382,7 @@ defc    AT_B_POPD       =3
 ; Fc=0 - restore caps flags
 ; Fc=1 - remember caps flags
 .ApplCaps
-        ld      hl, ubKbdFlags                  ; kbd_flags
+        ld      hl, KbdData+kbd_flags           ; kbd_flags
         ld      de, ubAppKbdBits                ; application kbd cfg
         jr      nc, apc_1
         ex      de, hl

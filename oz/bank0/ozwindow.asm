@@ -57,7 +57,7 @@ xref    ScreenClose
 
         ld      bc, $8081                       ; "OZ"
 
-        ld      de, (ubKbdFlags)                ; show "lock out" if locked
+        ld      de, (KbdData+kbd_flags)         ; show "lock out" if locked
         bit     KBF_B_LOCKED, e
         jr      z, ozoz_2
         ld      bc, $8283                       ; "lock out"
@@ -90,7 +90,7 @@ xref    ScreenClose
 
         ld      c, $a0                          ; default char
 
-        ld      a, (ubKbdLastkey)               ; dead key !! this is changed in new routines
+        ld      a, (KbdData+kbd_lastkey)        ; dead key !! this is changed in new routines
         or      a
         jr      z, droz_1
 
@@ -165,7 +165,7 @@ xref    ScreenClose
         ld      hl, LCD_ozrow8
         ld      bc, $a0a0                       ; blank
 
-        ld      a, (ubKbdFlags)
+        ld      a, (KbdData+kbd_flags)
         bit     KBF_B_CAPSE, a
         jr      z, ozcaps_1
         ld      bc, $8485                       ; "CAPS"

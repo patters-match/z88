@@ -391,7 +391,7 @@ xref    Key2Chr_tbl
 .cncoz_1
         xor     a
         ld      (hl), a
-        ld      (ubKbdLastkey), a               ; dead key
+        ld      (KbdData+kbd_lastkey), a        ; dead key
         ld      (OZcmdBuf), a
         call    DrawOZwd
         pop     hl

@@ -386,7 +386,7 @@ xref    ReadRTC
         jr      z, intsec_setalm                ; no wake up? skip
 
         ex      de, hl                          ; else lockout
-        ld      hl, ubKbdFlags
+        ld      hl, KbdData+kbd_flags
         set     KBF_B_LOCKED, (hl)
         ex      de, hl
 
