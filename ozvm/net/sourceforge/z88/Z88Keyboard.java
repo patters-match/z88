@@ -1152,7 +1152,7 @@ public class Z88Keyboard {
 				
 				case KeyEvent.VK_F6:
 					// grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).
-					z88Display.grabScreenFrame();
+					z88Display.grabScreenFrameToFile();
 					break;
 				
 				case KeyEvent.VK_SHIFT:
