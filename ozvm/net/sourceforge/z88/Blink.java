@@ -136,7 +136,10 @@ public final class Blink extends Z80 {
 	 * @param bits
 	 */
 	public void setBlinkInt(int bits) {
-		INT = bits;
+		bits &= ~BM_INTUART;		// OZvm does not support UART...
+		bits |= 1;       			// force GINT = 1, always...
+		setByte(0x04B1,0x20, bits);	// force update soft copy!
+		INT = bits;		
 	}
 
 	/**
@@ -280,9 +283,20 @@ public final class Blink extends Z80 {
 	 */
 	public void setBlinkTack(int bits) {
 		rtc.TACK = bits;
-
 		rtc.TSTA &= ~bits; 		// reset appropriate TSTA bits (the prev. raised interrupt get cleared) 
-		STA &= ~BM_STATIME;		// reset STA.TIME (a RTC interrupt was acknowledged)
+	}
+
+	/**
+	 * Get Timer interrupt acknowledge (TACK), Z80 OUT Write Register.
+	 * 
+	 * <PRE>
+	 * BIT 2, MIN, Set to acknowledge minute interrupt
+	 * BIT 1, SEC, Set to acknowledge
+	 * BIT 0, TICK, Set to acknowledge tick interrupt
+	 * </PRE>
+	 */
+	public int getBlinkTack() {
+		return rtc.TACK;
 	}
 
 	/**
@@ -296,6 +310,19 @@ public final class Blink extends Z80 {
 	 */
 	public void setBlinkTmk(int bits) {
 		rtc.TMK = bits;
+	}
+
+	/**
+	 * Get Timer Interrupt Mask (TMK), Z80 OUT Write Register
+	 *  
+	 * <PRE>
+	 * BIT 2, MIN, Set to enable minute interrupt
+	 * BIT 1, SEC, Set to enable second interrupt
+	 * BIT 0, TICK, Set enable tick interrupt
+	 * </PRE>
+	 */
+	public int getBlinkTmk() {
+		return rtc.TMK;
 	}
 
 	/**
@@ -501,6 +528,12 @@ public final class Blink extends Z80 {
         if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
             // all rows are read by hardware when in snooze...
             row = 0;
+
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace(System.out);
+			}			
         }
         
 		do {
@@ -572,18 +605,22 @@ public final class Blink extends Z80 {
                     if (keybRowA10 != 0xFF) { keyColumn = keybRowA10; }
                     if (keybRowA9 != 0xFF) { keyColumn = keybRowA9; }
                     if (keybRowA8 != 0xFF) { keyColumn = keybRowA8; }
-                    break;
-            }		
-            
-            if ( (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xff ) {
-                // Z80 snoozes... (wait a little bit, then ask again for key press from Blink)
-                // (interrupts still occurs in Blink where keyboard is scanned each 10ms)
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace(System.out);
-                }			
-            }           
+                    
+                    // if scanning for all rows, get out immediately...
+                    // (whether key press or not)
+                    return keyColumn;
+            }		            
+
+			if ( (INT & BM_INTKWAIT) == BM_INTKWAIT) {
+				// Z80 snoozes... (wait a little bit, then ask again for key press from Blink)
+				// (interrupts still occurs in Blink where keyboard is scanned each 10ms)
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+					e.printStackTrace(System.out);
+				}			
+			}           
+
         }
 		// Only get out of loop if we have INT.KWAIT (snooze) and a key was pressed...
 		while( singleSteppingMode() == false && (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xFF);
@@ -954,11 +991,7 @@ public final class Blink extends Z80 {
 
 		switch (addrA8) {
 			case 0xB1:				
-//                if ((INT & BM_INTGINT) == BM_INTGINT) {
-                    res = getBlinkSta();		// STA, Main Blink Interrupt Status
-//                } else {
-//                    res = 0;            // no interrupts gets out of BLINK
-//                }
+                res = getBlinkSta();		// STA, Main Blink Interrupt Status
 				break;
 				
 			case 0xB2:
@@ -966,15 +999,9 @@ public final class Blink extends Z80 {
 				break;
 				
 			case 0xB5:
-//                if ((INT & BM_INTGINT) == BM_INTGINT) {
-//                    if ((INT & BM_INTTIME) == BM_INTTIME) {
-                        res = getBlinkTsta();	// RTC interrupts are enabled, so TSTA is active...
-//                    } else {
-//                        res = 0;			// RTC interrupts are disabled...
-//                    }
-//                } else {
-//                    res = 0; 	// no interrupts gets out of BLINK
-//                }                
+                if ((INT & BM_INTTIME) == BM_INTTIME) {
+                    res = getBlinkTsta();	// RTC interrupts are enabled, so TSTA is active...
+                }
 				break;
 
             case 0xD0:
@@ -1440,7 +1467,7 @@ public final class Blink extends Z80 {
 	/** 
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
-	private final class Rtc {
+	public final class Rtc {
 
 		private Rtc() {
 			rtcRunning = false;
@@ -1467,14 +1494,8 @@ public final class Blink extends Z80 {
 					tick = 0;
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKTICK) == BM_TMKTICK)) {
 						// INT.TIME interrupts are enabled and TMK.TICK interrupts are enabled:
-						// Signal that a tick interrupt occurred, but only
-						// if a previous tick interrupt has been acknowledged...
-						// (ie. TSTA.BM_TSTATICK = 0)
-						if ((TSTA & BM_TSTATICK) == 0) {
-							// a previous tick interrupt has been acknowledged
-							TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
-							TACK &= ~BM_TACKTICK; // TACK.BM_TACKTICK = 0 (reset prev. acknowledge)
-						}
+						// Signal that a tick interrupt occurred
+						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
 					}
 				}
 
@@ -1484,14 +1505,8 @@ public final class Blink extends Z80 {
 										
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKSEC) == BM_TMKSEC)) {
 						// INT.TIME interrupts are enabled and TMK.SEC interrupts are enabled:
-						// Signal that a second interrupt occurred, but only
-						// if a previous interrupt has been acknowledged...
-						// (ie. TSTA.BM_TSTASEC = 0)
-						if ((TSTA & BM_TSTASEC) == 0) {
-							// a previous second interrupt has been acknowledged
-							TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
-							TACK &= ~BM_TACKSEC; // TACK.BM_TACKSEC = 0 (reset prev. acknowledge)
-						}
+						// Signal that a second interrupt occurred
+						TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
 					}
 
 					if (++TIM1 > 59) {
@@ -1499,14 +1514,8 @@ public final class Blink extends Z80 {
 						TIM1 = 0;
 						if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKMIN) == BM_TMKMIN)) {
 							// INT.TIME interrupts are enabled and TMK.MIN interrupts are enabled:
-							// Signal that a minute interrupt occurred, but only
-							// if a previous interrupt has been acknowledged...
-							// (ie. TSTA.BM_TSTAMIN = 0)
-							if ((TSTA & BM_TSTAMIN) == 0) {
-								// a previous minute interrupt has been acknowledged
-								TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
-								TACK &= ~BM_TACKMIN; // TACK.BM_TACKMIN = 0 (reset prev. acknowledge)
-							}
+							// Signal that a minute interrupt occurred
+							TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
 						}
 
 						if (++TIM2 > 255) {
@@ -1664,6 +1673,8 @@ public final class Blink extends Z80 {
 		 */ 
 		private void scanKeyboard() {
 			int currentKey = z88Keyboard.getCurrentlyPressedKey();
+			int shiftKey = 0xFF, altKey=0xFF, ctrlKey=0xFF;
+			
 			switch (currentKey) {			
 				case KeyboardDevice.NO_KEYS_PRESSED:
 					keybRowA15 = keybRowA14 = keybRowA13 = keybRowA12 = 
@@ -1686,8 +1697,8 @@ public final class Blink extends Z80 {
 								// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
 
                                 // check for two-key combinations, here as ALT or SHIFT with another key...
-                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_ALT) == true) keybRowA15 = 0xBF; // SQUARE
-                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true) keybRowA15 = 0x7F; // (Right or Left) SHIFT
+                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_ALT) == true) altKey = 0xBF; // SQUARE
+                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true) shiftKey = 0x7F; // (Right or Left) SHIFT
                                 
 								switch(currentKey) {
 									case java.awt.event.KeyEvent.VK_F12: keybRowA15 = keyColumn = 0x7F; break; 		// RIGHT SHIFT
@@ -1700,6 +1711,9 @@ public final class Blink extends Z80 {
 									// D0
 									default: keybRowA15 = 0xFF;	// no keys pressed in row...
 								}
+								
+								keybRowA15 = (~altKey ^ shiftKey) ^ (~keybRowA15); 
+								
 						break;
 
 					case 0xBF:	// 10111111
@@ -1708,8 +1722,8 @@ public final class Blink extends Z80 {
 								// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
 
                                 // check for two-key combinations, here as SHIFT or CTRL with another key...
-                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true) keybRowA14 = 0xBF; // (Right or Left) SHIFT
-                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_CONTROL) == true) keybRowA14 = 0xEF; // DIAMOND
+								if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_CONTROL) == true) ctrlKey = 0xEF; // DIAMOND
+								if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true) shiftKey = 0xBF; // (Right or Left) SHIFT
 
 								switch(currentKey) {
 									case java.awt.event.KeyEvent.VK_F1: keybRowA14 = keyColumn = 0x7F; break; 		// HELP
@@ -1724,6 +1738,8 @@ public final class Blink extends Z80 {
 									// D0
 									default: keybRowA14 = 0xFF;	// no keys pressed in row...
 								}
+			
+								keybRowA14 = (~ctrlKey ^ shiftKey) ^ (~keybRowA14); 
 						break;
 
 					case 0xDF:	// 11011111
