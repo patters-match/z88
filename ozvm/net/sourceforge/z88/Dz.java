@@ -236,7 +236,7 @@ public class Dz {
 		"CALL NZ,{0}", /* C4 */
 		"PUSH BC", /* C5 */
 		"ADD  A,{0}", /* C6 */
-		"RST  0", /* C7 */
+		"RST  00h", /* C7 */
 
 		"RET  Z", /* C8 */
 		"RET", /* C9 */
@@ -245,7 +245,7 @@ public class Dz {
 		"CALL Z,{0}", /* CC */
 		"CALL {0}", /* CD */
 		"ADC  A,{0}", /* CE */
-		"RST  08", /* CF */
+		"RST  08h", /* CF */
 
 		"RET  NC", /* D0 */
 		"POP  DE", /* D1 */
@@ -254,7 +254,7 @@ public class Dz {
 		"CALL NC,{0}", /* D4 */
 		"PUSH DE", /* D5 */
 		"SUB  {0}", /* D6 */
-		"RST  10H", /* D7 */
+		"RST  10h", /* D7 */
 
 		"RET  C", /* D8 */
 		"EXX", /* D9 */
@@ -263,7 +263,7 @@ public class Dz {
 		"CALL C,{0}", /* DC */
 		"", /* DD IX OPCODES */
 		"SBC  A,{0}", /* DE */
-		"RST  18H", /* DF */
+		"RST  18h", /* DF */
 
 		"RET  PO", /* E0 */
 		"POP  HL", /* E1 */
@@ -272,7 +272,7 @@ public class Dz {
 		"CALL PO,{0}", /* E4 */
 		"PUSH HL", /* E5 */
 		"AND  {0}", /* E6 */
-		"RST  20H", /* E7 */
+		"RST  20h", /* E7 */
 		"RET  PE", /* E8 */
 
 		"JP   (HL)", /* E9 */
@@ -281,7 +281,7 @@ public class Dz {
 		"CALL PE,{0}", /* EC */
 		"", /* ED OPCODES */
 		"XOR  {0}", /* EE */
-		"RST  28H", /* EF */
+		"RST  28h", /* EF */
 
 		"RET  P", /* F0 */
 		"POP  AF", /* F1 */
@@ -290,7 +290,7 @@ public class Dz {
 		"CALL P,{0}", /* F4 */
 		"PUSH AF", /* F5 */
 		"OR   {0}", /* F6 */
-		"RST  30H", /* F7 */
+		"RST  30h", /* F7 */
 
 		"RET  M", /* F8 */
 		"LD   SP,HL", /* F9 */
@@ -299,7 +299,7 @@ public class Dz {
 		"CALL M,{0}", /* FC */
 		"", /* FD IY OPCODES */
 		"CP   {0}", /* FE */
-		"RST  38H" /* FF */
+		"RST  38h" /* FF */
 	};
 
 	private static final int mainArgsMnem[] = {
