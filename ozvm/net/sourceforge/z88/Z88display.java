@@ -99,11 +99,11 @@ public class Z88display
 	 * May be called manually (ie. to refresh window in an out-of-focus scenario).
 	 */
 	public void renderDisplay() throws GameFrameException {				
-		lores0 = blink.getBlinkPb0();	// Memory base address of 6x8 pixel user defined fonts.		
-		lores1 = blink.getBlinkPb1();	// Memory base address of 6x8 pixel fonts (normal, bold, Tiny)
-		hires0 = blink.getBlinkPb2();	// Memory base address of PipeDream Map (max 256x64 pixels)
-		hires1 = blink.getBlinkPb3();	// Memory base address of 8x8 pixel fonts for OZ window
-		sbr = blink.getBlinkSbr();		// Memory base address of Screen Base File (2K) 
+		lores0 = blink.getBlinkPb0Address();	// Memory base address of 6x8 pixel user defined fonts.		
+		lores1 = blink.getBlinkPb1Address();	// Memory base address of 6x8 pixel fonts (normal, bold, Tiny)
+		hires0 = blink.getBlinkPb2Address();	// Memory base address of PipeDream Map (max 256x64 pixels)
+		hires1 = blink.getBlinkPb3Address();	// Memory base address of 8x8 pixel fonts for OZ window
+		sbr = blink.getBlinkSbrAddress();		// Memory base address of Screen Base File (2K) 
 		
 		// LCD enabled, but one of the Screen Registers hasn't been setup yet...
 		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) return;		

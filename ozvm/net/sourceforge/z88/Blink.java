@@ -13,24 +13,6 @@ import gameframe.GameFrameException;
 import gameframe.input.KeyboardDevice;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-/**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-/**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-/**
  * Blink chip, the "mind" of the Z88.
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  * 
@@ -389,13 +371,13 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * LORES0 (PB0, 16bits).<br>
+	 * LORES0 (PB0, 16bits register).<br>
 	 * The 6 * 8 pixel per char User Defined Fonts.
 	 */
 	private int PB0;
 
 	/**
-	 * Set LORES0 (PB0, 16bits).<br>
+	 * Set LORES0 (PB0, 16bits register).<br>
 	 * The 6 * 8 pixel per char User Defined Fonts.
 	 */
 	public void setBlinkPb0(int bits) {
@@ -403,10 +385,18 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Get Address of LORES0 (PB0) in 24bit extended address format.<br>
+	 * Get LORES0 (PB0, 16bits register).<br>
+	 * The 6 * 8 pixel per char User Defined Fonts.
+	 */
+	public int getBlinkPb0() {
+		return PB0;
+	}
+
+	/**
+	 * Get Address of LORES0 (PB0 16bits register) in 24bit extended address format.<br>
 	 * The 6 * 8 pixel per char User Defined Fonts.
 	 */	
-	public int getBlinkPb0() {
+	public int getBlinkPb0Address() {
 		int extAddressBank = (PB0 << 3) & 0xF700;
 		int extAddressOffset = (PB0 << 1) & 0x003F;
 
@@ -414,13 +404,13 @@ public final class Blink extends Z80 {
 	}
 	
 	/**
-	 * LORES1 (PB1, 16bits).<br>
+	 * LORES1 (PB1, 16bits register).<br>
 	 * The 6 * 8 pixel per char fonts.
 	 */
 	private int PB1;
 
 	/**
-	 * Set LORES1 (PB1, 16bits).<br>
+	 * Set LORES1 (PB1, 16bits register).<br>
 	 * The 6 * 8 pixel per char fonts.
 	 */
 	public void setBlinkPb1(int bits) {
@@ -428,10 +418,18 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Get Address of LORES1 (PB1) in 24bit extended address format.<br>
+	 * Get LORES1 (PB1, 16bits register).<br>
+	 * The 6 * 8 pixel per char fonts.
+	 */
+	public int getBlinkPb1() {
+		return PB1;
+	} 
+	
+	/**
+	 * Get Address of LORES1 (PB1 16bits register) in 24bit extended address format.<br>
 	 * The 6 * 8 pixel per char fonts.
 	 */	
-	public int getBlinkPb1() {
+	public int getBlinkPb1Address() {
 		int extAddressBank = (PB1 << 6) & 0xFF00;
 		int extAddressOffset = (PB1 << 4) & 0x0030;
 
@@ -439,24 +437,32 @@ public final class Blink extends Z80 {
 	}
 	
 	/**
-	 * HIRES0 (PB2) (16bits)
-     * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
+	 * HIRES0 (PB2 16bits register)
+     * (The 8 * 8 pixel per char PipeDream Map)
 	 */
 	private int PB2;
 
 	/**
-	 * Set HIRES0 (PB2) (16bits)
-	 * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
+	 * Set HIRES0 (PB2 16bits register)
+	 * (The 8 * 8 pixel per char PipeDream Map)
 	 */
 	public void setBlinkPb2(int bits) {
 		PB2 = bits;
 	}
 
 	/**
-	 * Get Address of HIRES0 (PB2) in 24bit extended address format.
-	 * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
-	 */	
+	 * Get HIRES0 (PB2 16bits register)
+	 * (The 8 * 8 pixel per char PipeDream Map)
+	 */
 	public int getBlinkPb2() {
+		return PB2;
+	}
+
+	/**
+	 * Get Address of HIRES0 (PB2 register) in 24bit extended address format.
+	 * (The 8 * 8 pixel per char PipeDream Map)
+	 */	
+	public int getBlinkPb2Address() {
 		int extAddressBank = (PB2 << 7) & 0xFF00;
 		int extAddressOffset = (PB2 << 5) & 0x0020;
 
@@ -464,13 +470,13 @@ public final class Blink extends Z80 {
 	}
 	
 	/**
-	 * HIRES1 (PB3) (16bits)
+	 * HIRES1 (PB3, 16bits register)
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */
 	private int PB3;
 
 	/**
-	 * Set HIRES1 (PB3) (16bits)
+	 * Set HIRES1 (PB3, 16bits register)
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */
 	public void setBlinkPb3(int bits) {
@@ -478,10 +484,18 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Get Address of HIRES1 (PB3) in 24bit extended address format.
+	 * Set HIRES1 (PB3, 16bits register)
+	 * (The 8 * 8 pixel per char fonts for the OZ window)
+	 */
+	public int getBlinkPb3() {
+		return PB3;
+	}
+
+	/**
+	 * Get Address of HIRES1 (PB3 16bits register) in 24bit extended address format.
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */	
-	public int getBlinkPb3() {
+	public int getBlinkPb3Address() {
 		int extAddressBank = (PB3 << 5) & 0xFF00;
 		int extAddressOffset = (PB3 << 3) & 0x0038;
 
@@ -489,14 +503,14 @@ public final class Blink extends Z80 {
 	}
 	
 	/**
-	 * Screen Base Register (16bits)
+	 * Screen Base Register (16bits register)
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
 	private int SBR;
 
 	/**
-	 * Set Screen Base Register (16bits)
+	 * Set Screen Base Register (16bits register)
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
@@ -505,11 +519,20 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Get Screen Base in 24bit extended address format.
+	 * Get Screen Base Register (16bits register)
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
 	public int getBlinkSbr() {
+		return SBR;
+	}
+
+	/**
+	 * Get Screen Base in 24bit extended address format.
+	 * (The Screen base File (2K size), containing char info about screen)
+	 * If this register is 0, then the system cannot render the pixel screen.
+	 */	
+	public int getBlinkSbrAddress() {
 		int extAddressBank = (SBR << 5) & 0xFF00;
 		int extAddressOffset = (SBR << 3) & 0x0038;
 
@@ -518,7 +541,6 @@ public final class Blink extends Z80 {
 
 	
 	private int keyRows[] = new int[8];
-
 
 	/**
 	 * 
