@@ -132,8 +132,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    Fc = 1 (FE was NOT recognized in slot C)
 ;
 ; Registers changed on return:
-;    A.BCDE../IXIY ........ same
-;    .F....HL/.... afbcdehl different
+;    A.BCDE../IXIY af...... same
+;    .F....HL/.... ..bcdehl different
 ;
 .FetchCardID
                     PUSH BC
