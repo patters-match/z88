@@ -38,6 +38,9 @@ import net.sourceforge.z88.datastructures.SlotInfo;
  * Management of files in File Area of inserted card in specified slot (1-3).
  */
 public class FileArea {
+	/** null-file for Intel Flash Card */
+	private static byte[] nullFile = {1, 0, 0, 0, 0, 0}; 		
+
 	/** reference to available memory hardware and functionality */
 	private Memory memory = null;
 
@@ -502,8 +505,8 @@ public class FileArea {
 	}
 
 	/**
-	 * Create/reformat a file area in specified slot. Return <b>true </b> if a file area was
-	 * formatted/created. A file area can only be created on Eprom or Flash
+	 * Create/reformat a file area in specified slot (1-3). Return <b>true </b> if a file 
+	 * area was formatted/created. A file area can only be created on Eprom or Flash
 	 * Cards.
 	 * 
 	 * The slot hardware will be evaluated and use the right sub type and
@@ -519,14 +522,19 @@ public class FileArea {
 	 * The complete file area will be formatted with FFh's from the bottom of the
 	 * card up until the File Area header.
 	 * 
-	 * @return <b>true </b> if file area was formatted/created, otherwise
+	 * @param slotNumber
+	 * @param formatArea <b>true</b>, if the file are is to be formatted.
+	 * @return <b>true</b> if file area was formatted/created, otherwise
 	 *         <b>false </b>
 	 */
-	public static boolean create(int slotNumber) {
+	public static boolean create(int slotNumber, boolean formatArea) {
 		Memory memory = Memory.getInstance();
 		SlotInfo slotinfo = SlotInfo.getInstance();
 		
-		byte[] nullFile = {1, 0, 0, 0, 0, 0};	// null-file for Intel Flash Card		
+		slotNumber &= 3; // only slot 0-3...
+		if (slotNumber == 0)
+			return false; // slot 0 does not support file areas...
+		
 		int bottomBankNo = slotNumber << 6;
 
 		// get bottom bank of slot to determine card type...
@@ -541,7 +549,8 @@ public class FileArea {
 			if (fileHdrBank != -1) {
 				// file header found somewhere on card.
 				// format file area from bottom bank, upwards until header...
-				formatFileArea(bottomBankNo, fileHdrBank);
+				if (formatArea == true) 
+					formatFileArea(bottomBankNo, fileHdrBank);
 			} else {
 				if (slotinfo.isApplicationCard(slotNumber) == true) {
 					ApplicationCardHeader appCrdHdr = new ApplicationCardHeader(
@@ -555,7 +564,9 @@ public class FileArea {
 							int topFileAreaBank = bottomBankNo
 									+ (memory.getExternalCardSize(slotNumber)
 											- appCrdHdr.getAppAreaSize() - 1);
-							formatFileArea(bottomBankNo, topFileAreaBank);
+							if (formatArea == true) 
+								formatFileArea(bottomBankNo, topFileAreaBank);
+							
 							createFileHeader(topFileAreaBank);
 						}
 					} else {
@@ -570,23 +581,27 @@ public class FileArea {
 						fileAreaSize -= (fileAreaSize % 4);
 						int topFileAreaBank = bottomBankNo + fileAreaSize - 1;
 
-						formatFileArea(bottomBankNo, topFileAreaBank);
+						if (formatArea == true) 
+							formatFileArea(bottomBankNo, topFileAreaBank);
+						
 						createFileHeader(topFileAreaBank);
 					}
 				} else {
 					// empty card, write file header at top of card...
-					formatFileArea(bottomBankNo, bottomBankNo
+					if (formatArea == true) 
+						formatFileArea(bottomBankNo, bottomBankNo
 							+ memory.getExternalCardSize(slotNumber) - 1);
+					
 					createFileHeader(bottomBankNo
 							+ memory.getExternalCardSize(slotNumber) - 1);
 				}
 			}
 
-			if (bank instanceof IntelFlashBank == true) {
+			if (bank instanceof IntelFlashBank == true & formatArea == true ) {
 				// A null file is needed as the first file in the file area
 				// for Intel Flash Cards to avoid undocumented behaviour 
 				// (occasional auto-command mode when card is inserted)
-				int extAddress = (slotNumber << 6) << 16;
+				int extAddress = slotNumber << 22;
 				
 				for (int offset = 0; offset < nullFile.length; offset++)
 					memory.setByte(extAddress++, nullFile[offset]);
@@ -595,7 +610,8 @@ public class FileArea {
 			return true;
 		}
 	}
-
+	
+	
 	/**
 	 * Write a file header in one of the external slots (1-3) at specified
 	 * absolute bank ($40-$FF), offset $3FC0-$3FFF. A file header can only be
@@ -609,6 +625,9 @@ public class FileArea {
 		Memory memory = Memory.getInstance();
 		Random generator = new Random();
 		int slotNo = (bankNo & 0xC0) >> 6;
+		
+		if (slotNo == 0)
+			return false; // slot 0 does not support file areas...
 
 		Bank bank = memory.getBank(bankNo);
 		if ((bank instanceof EpromBank == true)
@@ -755,7 +774,7 @@ public class FileArea {
 				}		
 				
 				// all active files cached, reformat file area...
-				FileArea.create(slotNumber);
+				FileArea.create(slotNumber, true);
 				filesList = new LinkedList();
 				
 				// then restore the active files...
