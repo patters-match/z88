@@ -74,6 +74,7 @@ ramfresp
 apltype
 aplsgmsk
 safsgmsk
+safbhlsg
 mmrdbyte
 mmwrbyte
 mmrdptr
