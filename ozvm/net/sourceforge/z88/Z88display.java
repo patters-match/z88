@@ -241,7 +241,6 @@ public class Z88display extends JPanel {
 		try {
 			javax.imageio.ImageIO.write(bi, "PNG", file);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}			
 	}
