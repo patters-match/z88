@@ -1,7 +1,5 @@
 package net.sourceforge.z88;
 
-import gameframe.GameFrameException;
-
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -36,7 +34,7 @@ public final class Blink extends Z80 {
 	 * @param canvas
 	 * @param rtmOutput
 	 */
-	Blink(JPanel canvas, JTextField cmdInput, JTextArea rtmOutput) throws GameFrameException {
+	Blink(JPanel canvas, JTextField cmdInput, JTextArea rtmOutput) {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.
