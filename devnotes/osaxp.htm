@@ -1,0 +1,88 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>System Calls Reference</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+<tr>
+
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr WIDTH="100%">
+
+<p>
+
+
+
+<b><font size=+1>OS_Axp, allocate explicit page</font></b>
+
+<p><tt>RST 20H, DEFB $D2</tt>
+
+<p>IN:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; IX = memory handle
+
+&nbsp;&nbsp;&nbsp;&nbsp; <a href='osmal.htm'>OS_Mal</a> supplies the BH[L] address page</pre>
+
+OUT, if call successfull:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0, OK</pre>
+
+OUT, if call failed:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL, failed to allocate memory</pre>
+
+Registers changed after return:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; ..BCDEHL/IXIY same
+
+&nbsp;&nbsp;&nbsp;&nbsp; AF....../.... different
+
+</pre>
+
+Notes:
+
+<blockquote>Internal operating system usage.<br>
+
+Interlogic comment: We believe that <a href='osmal.htm'>OS_Mal</a> uses this call to<br>
+
+allocate new pages in a pool when needed. Since page are on 256 byte<br>
+
+boundaries the L register is probably ignored by this call.</blockquote>
+
+Bugs:
+
+</body>
+
+</html>
+

@@ -1,0 +1,466 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>DORs</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+
+
+<tr>
+
+<td VALIGN=BOTTOM WIDTH="10%"><a href="wldcdhan.htm">Previous</a></td>
+
+
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><a href="index.htm">Contents</a></td>
+
+
+
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="map.htm">Next</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr>
+
+<p><b><font size=+1>20. DORs</font></b>
+
+<p>DOR may be thought of as standing for "Directory Object Record" - although
+
+DOR was not intended as an acronym for this, this does provide quite a
+
+good explanation. DORs are a fairly general record structure well suited
+
+to displaying hierarchically organized information. They are used in the
+
+RAM filening system, but unfortunately not in the EPROM filing system,
+
+and in application definitions. Some degree of understanding of them is
+
+necessary to extract certain information, such as last updated dates, from
+
+the filing system.
+
+<br>&nbsp;
+
+<p><b>Format</b>
+
+<p>A DOR starts with the three link pointers which point to the parent,
+
+brother and child respectively. The links are of the form of a 2 byte offset
+
+within a bank followed by a bank number, ie. an extended address. If relatives
+
+do not exist then the link pointers are set to 0 (three zeroes). The remainder
+
+of the DOR consists of a series of keyed subrecords.
+
+<br>&nbsp;
+
+<pre>3 bytes&nbsp;&nbsp;&nbsp;&nbsp; Link to parent, three zeroes indicates a null (pointer) link
+
+3 bytes&nbsp;&nbsp;&nbsp;&nbsp; Link to brother, three zeroes indicates a null (pointer) link
+
+3 bytes&nbsp;&nbsp;&nbsp;&nbsp; Link to son, three zeroes indicates a null (pointer) link
+
+1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DOR type, eg. DM_ROM
+
+1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Length of DOR in bytes
+
+
+
+1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Record key. This is usually a mnemonic, eg. DT_NAM
+
+1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Length of record entry in bytes
+
+n bytes&nbsp;&nbsp;&nbsp;&nbsp; Data specific to record (type)</pre>
+
+
+
+<pre>...</pre>
+
+
+
+<pre>...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; More record entries (in the same form as above)</pre>
+
+
+
+<pre>...</pre>
+
+
+
+<pre>1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The DOR terminator, $FF</pre>
+
+The above format may be useful if you want to set up a static DOR structure.
+
+For example the header for application cards, and the headers for the internal
+
+applications, use a static DOR structure. On the whole, however, the internal
+
+arrangement of the DOR is transparent to the user and the DOR interface
+
+can be used throughout. This interface works with the following types and
+
+record keys:
+
+<p>NOTE: In the following descriptions the ASCII character corresponding
+
+to a hexadecimal value is sometimes placed next to it within brackets.
+
+This is done to indicate the mnemonic nature of the values used. For example
+
+($4E,"N") represents the single hexadecimal value $4E, the "N" is mnemonic
+
+for DT_NAM, the name record type.
+
+<br>&nbsp;
+
+<p><b>Major types</b>
+
+<br>&nbsp;
+
+<pre>DM_RAM ($81)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RAM device (internal use only)
+
+DM_DEV ($82)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Device (pseudo type, internal use only)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SCR.0, PRT.0, COM.0, NUL.0, INP.0, OUT.0)
+
+DM_ROM ($83)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ROM Information, consists of three record types:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_INF ($40,"@")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; application information
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_HLP ($48,"H")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help information
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_NAM ($4E,"N")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name of application</pre>
+
+NOTE: It is not possible to add external device drivers to the system via
+
+a DOR, despite the major types shown above. This is because device drivers
+
+are not integrated into the DOR system.
+
+<br>&nbsp;
+
+<p><b>Minor Types</b>
+
+<pre>DN_FIL ($11)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; File type, consists of four record types:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_NAM ($4E,"N")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; file name
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_CRE ($43,"C")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; creation time
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_UPD ($55,"U")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; update time
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_EXT ($58,"X")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; extent (size of file)
+
+
+
+DN_DIR ($12)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Directory type, consists of three record types:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_NAM ($4E,"N")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; directory name
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_CRE ($43,"C")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; creation time
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_UPD ($55,"U")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; update time
+
+
+
+DN_APL ($13)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Application Front DOR Type, consists of record type:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DT_NAM ($4E,"N")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of front DOR; the name
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; will be "APPL" for applications
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and "HELP" for help.
+
+
+
+DN_DEL ($7F)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Deleted Entry Type
+
+
+
+
+
+
+
+</pre>
+
+<b>Record Types</b>
+
+<br>&nbsp;
+
+<pre>DT_NAM ($4E,"N")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name type. Name must be null-terminated. Filenames have
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a fixed length of 17 characters so, if the real
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; filename is shorter, you will need to ignore excess
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; characters (beyond the null-terminator). A name record
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; might look like this:
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFM $4E &amp; $05 &amp; "Paul" &amp; 0
+
+
+
+DT_UPD ($55,"U")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Last Updated Date. 6 bytes. 3 bytes internal time
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; followed by 3 bytes internal date.
+
+
+
+DT_CRE ($43,"C")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Creation Date. 6 bytes. 3 bytes internal time
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; followed by 3 bytes internal date.
+
+
+
+DT_EXT ($58,"X")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Extent of file. 4 byte long word (low byte first)
+
+
+
+DT_ATR ($41,"A")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Attributes. Not currently used. 2 bytes.
+
+
+
+DT_HLP ($48,"H")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Help type. 12 bytes: four 3 byte link pointers
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (offset+bank): Topics, command, help and tokens. See an
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; example in "Application Static Strucures" section.
+
+
+
+DT_INF ($40,"@")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Information. See an example in "Application Static
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Structures" section for details of format.
+
+
+
+
+
+</pre>
+
+<b>The DOR interface</b>
+
+<p>DORs are manipulated using the <a href="osdor.htm">OS_Dor</a> call,
+
+which is supplied with various reason codes, one for each DOR operation.
+
+The possible operations are:
+
+<pre>DR_GET ($01)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get a handle for a DOR name (system use)
+
+DR_DUP ($02)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; duplicate DOR
+
+DR_SIB ($03)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return brother DOR
+
+DR_SON ($04)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return child DOR
+
+DR_FRE ($05)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free DOR handle
+
+DR_CRE ($06)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create blank DOR
+
+DR_DEL ($07)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delete DOR
+
+DR_INS ($08)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; insert DOR
+
+DR_RD ($09)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; read DOR record
+
+DR_WR ($0A)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; write DOR record
+
+DR_RD2 ($0B)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; read DOR record (system use only)</pre>
+
+The following is the interface system call definition:
+
+<br>
+
+<hr>
+
+<p><b><font size=+1>OS_Dor, the DOR interface</font></b>
+
+<p><tt>RST 20H, DEFB $87</tt>
+
+<p>In:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = reason code
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HL, IX arguments
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Other register usage depends on reason code</pre>
+
+Out, if call successful:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; returned values depend on A(in)</pre>
+
+Out, if call failed:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = error code:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_BAD ($04), bad arguments
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_HAND ($08), bad handle
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_ROOM ($07), no room
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_EOF ($09), end of file</pre>
+
+
+
+<hr>
+
+<p>Each reason code operation action is described in detail with the <a href="osdor.htm">OS_Dor</a>
+
+call in the "System Calls Reference" section.
+
+<br>&nbsp;
+
+<br>&nbsp;
+
+<p><b>Example</b>
+
+<p>The following example reads the last updated date of a file, which can
+
+only be done by reading the DOR of the file. To get a DOR handle for a
+
+file, the user must use the <a href="gnopf.htm">GN_Opf</a> call with A
+
+= OP_DOR ($06). This differs from the other options of <a href="gnopf.htm">GN_Opf</a>
+
+in that:
+
+<p>1) It does not open the file. 2) It returns a DOR handle rather than
+
+a file handle
+
+<p>Note that the file should be closed before the call is made, and that
+
+it is necessary to free the DOR handle after you have finished, by using
+
+<a href="osdor.htm">OS_Dor</a> with reason code DR_FRE ($05).
+
+<br>
+
+<hr>
+
+<pre>include ":*//fileio.def"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; file I/O call definitions &amp; parameters
+
+include ":*//dor.def"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; DOR interface call definitions
+
+include ":*//time.def"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Date &amp; time call definitions
+
+include ":*//stdio.def"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; standard I/O call defs. &amp; parameters
+
+
+
+</pre>
+
+<tt>; assume HL points to local filename and DE points to a dummy buffer</tt>
+
+<br><tt>; and 'buff' is at least 6 bytes of temporary workspace</tt>
+
+<br><tt>; note, 'buff' must not occur in segment 2, or <a href="gnsdo.htm">GN_Sdo</a>
+
+will fail</tt>
+
+<pre>.start&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; b, 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; HL is a local pointer
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; c, 20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; max. size of expanded filename
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; a, OP_DOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; get DOR handle
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href="gnopf.htm">GN_Opf</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; get DOR information
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; a, DR_RD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; read DOR record
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; b, DT_UPD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; look at record 'U' (update time)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; c, 6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; return time information
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; de, buff&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; return data at (DE)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href="osdor.htm">OS_Dor</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; fetch DOR information
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; a, DR_FRE
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href="osdor.htm">OS_Dor</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; free DOR handle
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ld&nbsp;&nbsp; hl, buff&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; HL points to internal time, date format
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href="gnsdo.htm">GN_Sdo</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write time &amp; date to standard output
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; call_oz(<a href="gnnln.htm">GN_Nln</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; new line
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ret</pre>
+
+
+
+<hr>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<td VALIGN=TOP WIDTH="33%"><a href="wldcdhan.htm">Previous</a></td>
+
+
+
+<td ALIGN=CENTER VALIGN=TOP WIDTH="34%"><a href="index.htm">Contents</a></td>
+
+
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><a href="map.htm">Next</a></td>
+
+</tr>
+
+
+
+<tr>
+
+<td VALIGN=TOP WIDTH="33%">The Wildcard Handler</td>
+
+
+
+<td ALIGN=CENTER VALIGN=TOP WIDTH="34%">Dors</td>
+
+
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%">The Map Area</td>
+
+</tr>
+
+</table>
+
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,92 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>System Calls Reference</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+<tr>
+
+<td VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+
+<td nowrap ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr>
+
+<p><b><font size=+1>DC_Ent, enter new application</font></b>
+
+<p><tt>RST 20H, DEFW $0A0C</tt>
+
+<pre>IN:&nbsp; BHL = points to the process block
+
+&nbsp;&nbsp;&nbsp;&nbsp; B = 0, start a new process
+
+&nbsp;&nbsp;&nbsp;&nbsp; IX = the application handle
+
+
+
+OUT: -</pre>
+
+Notes:
+
+<blockquote>Internal operating system usage.
+
+<br>Used by <a href="osent.htm">OS_ENT</a> call.</blockquote>
+
+Bugs:
+
+<p>
+
+<br>Related system calls:
+
+<blockquote>
+
+<a href="ospoll.htm">OS_Poll</a>, poll for an application
+
+<br><a href="dcnam.htm">DC_Nam</a>, name current application 
+
+<br><a href="dcpol.htm">DC_Pol</a>, poll for card usage 
+
+<br><a href="osent.htm">OS_Ent</a>, enter an application
+
+<br><a href="osstk.htm">OS_Stk</a>, stack the current process (application)
+
+<br><a href="osexit.htm">OS_Exit</a>, exit an application
+
+<br><a href="osbye.htm">OS_Bye</a>, exit application
+
+<br><a href="dcbye.htm">DC_Bye</a>, exiting current application 
+
+<br><a href="osuse.htm">OS_Use</a>, process card usage
+
+</blockquote>
+
+</body>
+
+</html>
+

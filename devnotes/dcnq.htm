@@ -1,0 +1,312 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>System Calls Reference</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+
+
+<tr>
+
+<td VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+
+
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+
+
+
+<td ALIGN=RIGHT VALIGN=BOTTOM NOWRAP WIDTH="10%"><a href="sysref.htm">Contents
+
+of System Calls</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr>
+
+<p><b><font size=+1>DC_Nq, handle Director/CLI enquiries</font></b>
+
+<p><tt>RST 20H, DEFW $160C</tt>
+
+<pre>IN:</pre>
+
+
+
+<blockquote>
+
+<pre>C = reason code
+
+B = 0, always</pre>
+
+</blockquote>
+
+
+
+<blockquote>
+
+<pre>The reason codes are:</pre>
+
+
+
+<table BORDER=0 CELLPADDING=0 >
+
+<tr>
+
+<td NOWRAP><b><font face="Courier New"><font size=-1>Value&nbsp;&nbsp;&nbsp;&nbsp;</font></font></b></td>
+
+
+
+<td NOWRAP><b><font face="Courier New"><font size=-1>Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></font></b></td>
+
+
+
+<td NOWRAP><b><font face="Courier New"><font size=-1>Description</font></font></b></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$00</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Dev</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>Get default device</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$03</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Dir</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>Get default directory</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$06</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Fnm</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>Get filename match string</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$09</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Dmh</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>Get the director memory
+
+handle</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$0C</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Inp</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>*** NQ_Ihn ($8615) link
+
+(IX=$0006 always)</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$1F</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Out</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>*** NQ_Ohn ($8618) link
+
+(IX=$0007 always)</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$12</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Prt</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>*** NQ_Phn ($8609) link
+
+(IX=$0003 always)</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td><font face="Courier New"><font size=-1>$15</font></font></td>
+
+
+
+<td><font face="Courier New"><font size=-1>DQ_Tin</font></font></td>
+
+
+
+<td><font face="Courier New"><font size=-1>Get input-T handle</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$18</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Tot</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>Get output-T handle</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$1B</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Tpr</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>Get printer-T handle</font></font></td>
+
+</tr>
+
+
+
+<tr>
+
+<td NOWRAP><font face="Courier New"><font size=-1>$1E</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>DQ_Chn</font></font></td>
+
+
+
+<td NOWRAP><font face="Courier New"><font size=-1>Reset serial port and
+
+get NQ_Chn ($8612)</font></font></td>
+
+</tr>
+
+</table>
+
+</blockquote>
+
+
+
+<pre>OUT:</pre>
+
+
+
+<blockquote>
+
+<pre>Fc = 0:&nbsp;&nbsp; Success, result in IX
+
+Fc = 1:&nbsp;&nbsp; A = RC_UNK ($03)</pre>
+
+</blockquote>
+
+Notes:
+
+<blockquote>Internal operating system usage.
+
+<br>This call is used by the OS_NQ if B = $8C.
+
+<br>Some reasons are specific, some of them are direct link to the OS_NQ.
+
+<br>For DQ_Inp, DQ_Out, DQ_Prt use OS_NQ.</blockquote>
+
+Bugs:
+
+<br>&nbsp;
+
+<br>&nbsp;
+
+</body>
+
+</html>
+

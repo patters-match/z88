@@ -1,0 +1,51 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; Linux 2.2.5-15 i686) [Netscape]">
+   <title>System Calls Reference</title>
+</head>
+<body>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr>
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+</tr>
+<tr>
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+</tr>
+</table>
+
+<hr WIDTH="100%">
+<p><b><font size=+1>DC_Nam, Name current application</font></b>
+<p><tt>RST 20H, DEFW $0C0C</tt>
+<br>&nbsp;
+<pre>IN:&nbsp; HL = pointer to a null terminated name
+
+OUT: -
+
+</pre>
+Registers affected after return:
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; A.BCDEHL/IXIY same
+&nbsp;&nbsp;&nbsp;&nbsp; .F....../.... different</pre>
+Notes:
+<blockquote>This provides text for the 'Your Ref.' column in the Index.
+Up to 15 characters can be displayed. Screen driver codes are ignored (Bold,
+underlined, etc.).
+<p>Applications may use this call to define a "point-of-reference" description 
+for it self when the Index popdown will be activated at a later time
+and the various running applications are listed.</blockquote>
+Related system calls:
+<blockquote><a href="ospoll.htm">OS_Poll</a>, poll for an application
+<br><a href="dcpol.htm">DC_Pol</a>, poll for card usage
+<br><a href="osent.htm">OS_Ent</a>, enter an application
+<br><a href="dcent.htm">DC_Ent</a>, enter new application
+<br><a href="osexit.htm">OS_Exit</a>, exit an application
+<br><a href="osbye.htm">OS_Bye</a>, exit application
+<br><a href="dcbye.htm">DC_Bye</a>, exiting current application
+<br><a href="osstk.htm">OS_Stk</a>, stack current process (application)
+<br><a href="osuse.htm">OS_Use</a>, process card usage</blockquote>
+
+</body>
+</html>

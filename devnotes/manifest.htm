@@ -1,0 +1,2886 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.06 [fr]C-CCK-MCD   (Win95; I) [Netscape]">
+
+   <TITLE>Operating System Manifests</TITLE>
+
+</HEAD>
+
+<BODY>
+
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<TR>
+
+<TH ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</TH>
+
+</TR>
+
+
+
+<TR>
+
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="glossary.htm">Previous</A></TD>
+
+
+
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+
+
+
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="sysref.htm">Next</A></TD>
+
+</TR>
+
+</TABLE>
+
+
+
+<HR WIDTH="100%">
+
+<P><B><FONT SIZE=+1>29. Operating System Manifests</FONT></B>
+
+<P>The following definitions have been arranged using the standard definition
+
+files included with the Z88 Assembler Workbench. Most of the files were originally
+
+created from the V2.00 release of the Developer's Notes and arranged into
+
+a logical combination of the various topics the system calls define. The
+
+files have been alphabeticaly merged and the layout slightly changed for
+
+a more visual appearance of this section which gives a good overview of
+
+related calls and their corresponding call values.
+
+<P>
+
+<HR WIDTH="100%">
+
+<BR><A NAME="alarm"></A><B><TT>alarm.def</TT></B>
+
+<P><TT>; Alarm manipulation:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnaab.htm">GN_Aab</A>&nbsp; = $6809&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Allocate alarm block</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnfab.htm">GN_Fab</A>&nbsp; =
+
+$6A09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Free alarm
+
+block</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnlab.htm">GN_Lab</A>&nbsp; =
+
+$6C09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Link alarm
+
+block in chain</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnuab.htm">GN_Uab</A>&nbsp; =
+
+$6E09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Unlink alarm
+
+block</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnalp.htm">GN_Alp</A>&nbsp; =
+
+$7009&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Process an
+
+expired alarm (OZ usage)</TT>
+
+<P><TT>; Low level alarm call definitions:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osalm.htm">OS_Alm</A>&nbsp; =
+
+$81&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;
+
+Alarm manipulation (OZ usage)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; arguments:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_SUSP = $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; suspend alarm</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_REV&nbsp; =
+
+$02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; revive alarms</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_RES&nbsp; =
+
+$03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; reset alarm enable state</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_SINC = $04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; display symbol</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_SDEC = $05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; remove symbol (subject to use count)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_SRES = $06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; reset symbol</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_SET&nbsp; =
+
+$07&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Set a new alarm:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_CNC&nbsp; =
+
+$08&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Cancel an alarm:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_DG1&nbsp; =
+
+$09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Ding-dong type 1</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_DG2&nbsp; =
+
+$0A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Ding-dong type 2</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_AINC = $0B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; action count increment</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_ADEC = $0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; action count decrement</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC AH_ARES = $0D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; action count reset</TT>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="bastoken"></A><B><TT>bastoken.def</TT></B>
+
+<P><TT>; BBC BASIC (Z80) tokens:</TT>
+
+<PRE>
+
+	DEFC	BAS_AND 	 = 128
+
+	DEFC	BAS_DIV		 = 129
+
+	DEFC	BAS_EOR		 = 130
+
+	DEFC	BAS_MOD		 = 131
+
+	DEFC	BAS_OR		 = 132
+
+	DEFC	BAS_ERROR	 = 133
+
+	DEFC	BAS_LINE	 = 134
+
+	DEFC	BAS_OFF		 = 135
+
+	DEFC	BAS_STEP	 = 136
+
+	DEFC	BAS_SPC		 = 137
+
+	DEFC	BAS_TAB		 = 138		;TAB(
+
+	DEFC	BAS_ELSE	 = 139
+
+	DEFC	BAS_THEN	 = 140
+
+
+
+	DEFC	BAS_OPENIN	 = 142
+
+	DEFC	BAS_PTR_G	 = 143		;Used to Get pseudo variable value
+
+	DEFC	BAS_PAGE_G	 = 144		;Used to Get pseudo variable value
+
+	DEFC	BAS_TIME_G	 = 145		;Used to Get pseudo variable value
+
+	DEFC	BAS_LOMEM_G	 = 146		;Used to Get pseudo variable value
+
+	DEFC	BAS_HIMEM_G	 = 147		;Used to Get pseudo variable value
+
+	DEFC	BAS_ABS		 = 148
+
+	DEFC	BAS_ACS		 = 149
+
+	DEFC	BAS_ADVAL	 = 150
+
+	DEFC	BAS_ASC		 = 151
+
+	DEFC	BAS_ASN		 = 152
+
+	DEFC	BAS_ATN		 = 153
+
+	DEFC	BAS_BGET	 = 154
+
+	DEFC	BAS_COS		 = 155
+
+	DEFC	BAS_COUNT	 = 156
+
+	DEFC	BAS_DEG		 = 157
+
+	DEFC	BAS_ERL		 = 158
+
+	DEFC	BAS_ERR		 = 159
+
+	DEFC	BAS_EVAL	 = 160
+
+	DEFC	BAS_EXP		 = 161
+
+	DEFC	BAS_EXT		 = 162
+
+	DEFC	BAS_FALSE	 = 163
+
+	DEFC	BAS_FN		 = 164
+
+	DEFC	BAS_GET		 = 165
+
+	DEFC	BAS_INKEY	 = 166
+
+	DEFC	BAS_INSTR	 = 167		;INSTR(
+
+	DEFC	BAS_INT		 = 168
+
+	DEFC	BAS_LEN		 = 169
+
+	DEFC	BAS_LN		 = 170
+
+	DEFC	BAS_LOG		 = 171
+
+	DEFC	BAS_NOT		 = 172
+
+	DEFC	BAS_OPENUP	 = 173
+
+	DEFC	BAS_OPENOUT	 = 174
+
+	DEFC	BAS_PI		 = 175
+
+	DEFC	BAS_POINT	 = 176		;POINT(
+
+	DEFC	BAS_POS		 = 177
+
+	DEFC	BAS_RAD		 = 178
+
+	DEFC	BAS_RND		 = 179
+
+	DEFC	BAS_SNG		 = 180
+
+	DEFC	BAS_SIN		 = 181
+
+	DEFC	BAS_SQR		 = 182
+
+	DEFC	BAS_TAN		 = 183
+
+	DEFC	BAS_TO		 = 184
+
+	DEFC	BAS_TRUE	 = 185
+
+	DEFC	BAS_USR		 = 186
+
+	DEFC	BAS_VAL		 = 187
+
+	DEFC	BAS_VPOS	 = 188
+
+	DEFC	BAS_CHR		 = 189		;CHR$
+
+	DEFC	BAS_GET_STR	 = 190		;GET$
+
+	DEFC	BAS_INKEY_STR	 = 191		;INKEY$
+
+	DEFC	BAS_LEFT	 = 192		;LEFT$(
+
+	DEFC	BAS_MID		 = 193		;MID$(
+
+	DEFC	BAS_RIGHT	 = 194		;RIGHT$(
+
+	DEFC	BAS_STR		 = 195		;STR$
+
+	DEFC	BAS_STRING	 = 196		;STRING$(
+
+	DEFC	BAS_EOF		 = 197
+
+	DEFC	BAS_AUTO	 = 198
+
+	DEFC	BAS_DELETE	 = 199
+
+	DEFC	BAS_LOAD	 = 200
+
+	DEFC	BAS_LIST	 = 201
+
+	DEFC	BAS_NEW		 = 202
+
+	DEFC	BAS_OLD		 = 203
+
+	DEFC	BAS_RENUMBER	 = 204
+
+	DEFC	BAS_SAVE	 = 205
+
+	DEFC	BAS_PUT		 = 206
+
+	DEFC	BAS_PTR_P	 = 207		;Used to Put pseudo variable value
+
+	DEFC	BAS_PAGE_P	 = 208		;Used to Put pseudo variable value
+
+	DEFC	BAS_TIME_P	 = 209		;Used to Put pseudo variable value
+
+	DEFC	BAS_LOMEM_P	 = 210		;Used to Put pseudo variable value
+
+	DEFC	BAS_HIMEM_P	 = 211		;Used to Put pseudo variable value
+
+	DEFC	BAS_SOUND	 = 212
+
+	DEFC	BAS_BPUT	 = 213
+
+	DEFC	BAS_CALL	 = 214
+
+	DEFC	BAS_CHAIN	 = 215
+
+	DEFC	BAS_CLEAR	 = 216
+
+	DEFC	BAS_CLOSE	 = 217
+
+	DEFC	BAS_CLG		 = 218
+
+	DEFC	BAS_CLS		 = 219
+
+	DEFC	BAS_DATA	 = 220
+
+	DEFC	BAS_DEF		 = 221
+
+	DEFC	BAS_DIM		 = 222
+
+	DEFC	BAS_DRAW	 = 223
+
+	DEFC	BAS_END		 = 224
+
+	DEFC	BAS_ENDPROC	 = 225
+
+	DEFC	BAS_ENVELOPE	 = 226
+
+	DEFC	BAS_FOR		 = 227
+
+	DEFC	BAS_GOSUB	 = 228
+
+	DEFC	BAS_GOTO	 = 229
+
+	DEFC	BAS_GCOL	 = 230
+
+	DEFC	BAS_IF		 = 231
+
+	DEFC	BAS_INPUT	 = 232
+
+	DEFC	BAS_LET		 = 233
+
+	DEFC	BAS_LOCAL	 = 234
+
+	DEFC	BAS_MODE	 = 235
+
+	DEFC	BAS_MOVE	 = 236
+
+	DEFC	BAS_NEXT	 = 237
+
+	DEFC	BAS_ON		 = 238
+
+	DEFC	BAS_VDU		 = 239
+
+	DEFC	BAS_PLOT	 = 240
+
+	DEFC	BAS_PRINT	 = 241
+
+	DEFC	BAS_PROC	 = 242
+
+	DEFC	BAS_READ	 = 243
+
+	DEFC	BAS_REM		 = 244
+
+	DEFC	BAS_REPEAT	 = 245
+
+	DEFC	BAS_REPORT	 = 246
+
+	DEFC	BAS_RESTORE	 = 247
+
+	DEFC	BAS_RETURN	 = 248
+
+	DEFC	BAS_RUN		 = 249
+
+	DEFC	BAS_STOP	 = 250
+
+	DEFC	BAS_COLOUR	 = 251
+
+	DEFC	BAS_TRACE	 = 252
+
+	DEFC	BAS_UNTIL	 = 253
+
+	DEFC	BAS_WIDTH	 = 254
+
+	DEFC	BAS_OSCLI	 = 255
+
+</PRE>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="char"></A><B><TT>char.def</TT></B>
+
+<P><TT>; Character management:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gncls.htm">GN_Cls</A>&nbsp; = $6209&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Classify a character</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnskc.htm">GN_Skc</A>&nbsp; =
+
+$3209&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Bypass a
+
+character in a sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnskd.htm">GN_Skd</A>&nbsp; =
+
+$3409&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Bypass delimiters
+
+in a sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnskt.htm">GN_Skt</A>&nbsp; =
+
+$3609&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Search for
+
+character in a sequense</TT>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="ctrlchar"></A><B><TT>ctrlchar.def</TT></B>
+
+<P><TT>; ASCII control characters:</TT>
+
+<PRE>
+
+    DEFC  NUL  =  0
+
+    DEFC  SOH  =  1
+
+    DEFC  STX  =  2
+
+    DEFC  ETX  =  3
+
+    DEFC  EOT  =  4
+
+    DEFC  ENQ  =  5
+
+    DEFC  ACK  =  6
+
+    DEFC  BEL  =  7
+
+    DEFC  BS   =  8
+
+    DEFC  HT   =  9
+
+    DEFC  LF   =  10
+
+    DEFC  VT   =  11
+
+    DEFC  FF   =  12
+
+    DEFC  CR   =  13
+
+    DEFC  SO   =  14
+
+    DEFC  SI   =  15
+
+    DEFC  DLE  =  16
+
+    DEFC  DC1  =  17
+
+    DEFC  DC2  =  18
+
+    DEFC  DC3  =  19
+
+    DEFC  DC4  =  20
+
+    DEFC  NAK  =  21
+
+    DEFC  SYN  =  22
+
+    DEFC  ETB  =  23
+
+    DEFC  CAN  =  24
+
+    DEFC  EM   =  25
+
+    DEFC  SUB  =  26
+
+    DEFC  ESC  =  27
+
+    DEFC  FS   =  28
+
+    DEFC  GS   =  29
+
+    DEFC  RS   =  30
+
+    DEFC  US   =  31
+
+    DEFC  DEL  =  127
+
+
+
+    DEFC  XON  =  17
+
+    DEFC  XOFF =  19
+
+</PRE>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="director"></A><B><TT>director.def</TT></B>
+
+<P><TT>; Director/CLI low level access:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcalt.htm">DC_Alt</A> = $1A0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Pass an alternative character</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcbye.htm">DC_Bye</A> = $080C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Exiting current application (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcent.htm">DC_Ent</A> = $0A0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Enter new application (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcgen.htm">DC_Gen</A> = $200C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Screen driver call (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcicl.htm">DC_Icl</A> = $140C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Invoke new CLI</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcin.htm">DC_In</A>&nbsp; = $0E0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Read from CLI (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcini.htm">DC_Ini</A> = $060E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Initialize the Director (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcnam.htm">DC_nam</A> = $0C0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Name current application</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcnq.htm">DC_Nq</A>&nbsp; = $160C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Handle Director/CLI enquiries (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcout.htm">DC_Out</A> = $100C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Write to CLI (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcpol.htm">DC_Pol</A> = $220C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Poll for card usage (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcprt.htm">DC_Prt</A> = $120C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Print to CLI (internal)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcrbd.htm">DC_Rbd</A> = $1C0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Rebind streams</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; arguments:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC RB_IN = $00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; input stream - new source of input</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC RB_OUT =
+
+$01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; output stream - new destination
+
+for output</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC RB_PRT =
+
+$02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; printer stream - new destination
+
+for output</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC RB_INT =
+
+$03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; input stream T - copy of
+
+input</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC RB_OPT =
+
+$04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; output stream T - copy
+
+of output</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC RB_PTT =
+
+$05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; printer stream T -&nbsp;
+
+copy of output</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcscn.htm">DC_Scn</A> = $240C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Scan for card usage (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcsp.htm">DC_Sp</A>&nbsp; = $180C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Handle Director/CLI settings (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="dcxin.htm">DC_Xin</A> = $1E0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Examine CLI input (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osuse.htm">OS_Use</A> = $EE06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Fetch information about process card usage</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osbye.htm">OS_Bye</A> = $21&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Application exit.</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osexit.htm">OS_Exit</A>= $F606&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Quit process (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osent.htm">OS_Ent</A> = $FA06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Enter an application (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="oscli.htm">OS_Cli</A> = $84&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; CLI interface (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; arguments:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CL_RIM =
+
+$01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; get raw input</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CL_MBC =
+
+$02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; meta/base to character
+
+conversion</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CL_CMB =
+
+$03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; character to meta/base
+
+conversion</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CL_INC =
+
+$04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; increment CLI use count</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CL_DEC =
+
+$05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; decrement CLI use count</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CL_RES =
+
+$06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; reset CLI use count</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CL_ACK =
+
+$07&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; acknowledge CLI/Escape</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CLM_SH =
+
+$01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; SHIFT key (bit) mask</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC CLM_CT =
+
+$02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; DIAMOND (bit) mask</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osdom.htm">OS_Dom</A> = $FE06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Open director memory (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="ospoll.htm">OS_Poll</A>= $FC06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Poll for an application (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osstk.htm">OS_Stk</A> = $F806&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Stack file current process (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="oswait.htm">OS_Wait</A>= $7E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Wait for event (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; arguments:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC WT_ANY =
+
+$FF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; infinite</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osfth.htm">OS_Fth</A> = $DE06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Free tri-handle (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osgth.htm">OS_Gth</A> = $E206&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Allocate tri-handle (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osvth.htm">OS_Vth</A> = $E006&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Verify tri-handle (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; arguments for all three handle calls:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC TH_FILT =
+
+$F0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; verify filter handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC TH_WMG&nbsp;
+
+= $F1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; verify wildcard manager handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC TH_ALM&nbsp;
+
+= $F2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; verify alarm handle</TT>
+
+<P><TT>; Application Type manifests 1 (type byte1 in Application DOR):</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Good = 1&nbsp;&nbsp;&nbsp; ; (BIT 0)
+
+well behaved</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Bad&nbsp; = 2&nbsp;&nbsp;&nbsp; ; (BIT
+
+1) not well behaved, not killed on pre-emption</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Ugly = 4&nbsp;&nbsp;&nbsp; ; (BIT 2)
+
+not well behaved, killed on pre-emption</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Popd = 8&nbsp;&nbsp;&nbsp; ; (BIT 3)
+
+popdown (if not set then an application)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Ones = 16&nbsp;&nbsp; ; (BIT 4) only
+
+one application instance allowed</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Draw = 32&nbsp;&nbsp; ; (BIT 5) OZ to
+
+redraw screen is possible (2K file)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Film = 64&nbsp;&nbsp; ; (BIT 6) File
+
+Manager Application (internal usage)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT_Boot = 128&nbsp; ; (BIT 7) Application
+
+Auto Boot (after soft reset)</TT>
+
+<P><TT>; Application Type manifests 2 (type byte2 in Application DOR):</TT>
+
+<BR><TT>; (Bits 3 - 6 are ignored - should be reset)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC AT2_Cl&nbsp; = 1&nbsp;&nbsp;&nbsp; ; (BIT
+
+0) Set Caps Lock on creation entry</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT2_Icl = 2&nbsp;&nbsp;&nbsp; ; (BIT 1)
+
+Set 'inverted' Caps Lock on creation entry</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC AT2_Ie&nbsp; = 128&nbsp; ; (BIT 7) Ignore
+
+error returns (should be avoided).</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="dor"></A><B><TT>dor.def</TT></B>
+
+<P><TT>; DOR interface:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osdor.htm">OS_Dor</A> = $87&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; DOR interface</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; ; DOR codes when using <A HREF="osdor.htm">OS_Dor</A>
+
+:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Get&nbsp;&nbsp;&nbsp;
+
+= $01&nbsp;&nbsp;&nbsp;&nbsp; ; Get handle for a DOR name (internal use)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Dup&nbsp;&nbsp;&nbsp;
+
+= $02&nbsp;&nbsp;&nbsp;&nbsp; ; Duplicate DOR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Sib&nbsp;&nbsp;&nbsp;
+
+= $03&nbsp;&nbsp;&nbsp;&nbsp; ; Return brother DOR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Son&nbsp;&nbsp;&nbsp;
+
+= $04&nbsp;&nbsp;&nbsp;&nbsp; ; Return child DOR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Fre&nbsp;&nbsp;&nbsp;
+
+= $05&nbsp;&nbsp;&nbsp;&nbsp; ; Free (release) DOR handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Cre&nbsp;&nbsp;&nbsp;
+
+= $06&nbsp;&nbsp;&nbsp;&nbsp; ; Create blank DOR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Del&nbsp;&nbsp;&nbsp;
+
+= $07&nbsp;&nbsp;&nbsp;&nbsp; ; Delete DOR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Ins&nbsp;&nbsp;&nbsp;
+
+= $08&nbsp;&nbsp;&nbsp;&nbsp; ; Insert DOR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Rd&nbsp;&nbsp;&nbsp;&nbsp;
+
+= $09&nbsp;&nbsp;&nbsp;&nbsp; ; Read DOR record</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC DR_Wr&nbsp;&nbsp;&nbsp;&nbsp;
+
+= $0A&nbsp;&nbsp;&nbsp;&nbsp; ; Write DOR record</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; Major DOR types:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dm_Dev&nbsp;&nbsp;&nbsp;
+
+= $81&nbsp;&nbsp;&nbsp;&nbsp; ; File Device</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dm_Chd&nbsp;&nbsp;&nbsp;
+
+= $82&nbsp;&nbsp;&nbsp;&nbsp; ; Character Device</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dm_Rom&nbsp;&nbsp;&nbsp;
+
+= $83&nbsp;&nbsp;&nbsp;&nbsp; ; ROM information</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; Minor DOR types:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dn_Fil&nbsp;&nbsp;&nbsp;
+
+= $11&nbsp;&nbsp;&nbsp;&nbsp; ; File type</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dn_Dir&nbsp;&nbsp;&nbsp;
+
+= $12&nbsp;&nbsp;&nbsp;&nbsp; ; Directory type</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dn_Apl&nbsp;&nbsp;&nbsp;
+
+= $13&nbsp;&nbsp;&nbsp;&nbsp; ; Application front DOR type,</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dn_Del&nbsp;&nbsp;&nbsp;
+
+= $7F&nbsp;&nbsp;&nbsp;&nbsp; ; Deleted Entry type.</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; Record DOR types:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dt_Nam&nbsp;&nbsp;&nbsp;
+
+= $4E&nbsp;&nbsp;&nbsp;&nbsp; ; filename</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dt_Cre&nbsp;&nbsp;&nbsp;
+
+= $43&nbsp;&nbsp;&nbsp;&nbsp; ; creation time</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dt_Upd&nbsp;&nbsp;&nbsp;
+
+= $55&nbsp;&nbsp;&nbsp;&nbsp; ; update time</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dt_Ext&nbsp;&nbsp;&nbsp;
+
+= $58&nbsp;&nbsp;&nbsp;&nbsp; ; Extent (length of file)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dt_Atr&nbsp;&nbsp;&nbsp;
+
+= $41&nbsp;&nbsp;&nbsp;&nbsp; ; Not currently used</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dt_Hlp&nbsp;&nbsp;&nbsp;
+
+= $48&nbsp;&nbsp;&nbsp;&nbsp; ; Help type</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC Dt_Inf&nbsp;&nbsp;&nbsp;
+
+= $40&nbsp;&nbsp;&nbsp;&nbsp; ; Information</TT>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="error"></A><B><TT>error.def</TT></B>
+
+<P><TT>; Error return codes:</TT>
+
+<BR><TT>; Codes marked with * are fatal errors</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC RC_OK&nbsp;&nbsp;&nbsp;&nbsp; = $00</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Esc&nbsp;&nbsp;&nbsp; = $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Escape condition (e.g. ESC pressed)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Time&nbsp;&nbsp; = $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Timeout</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Unk&nbsp;&nbsp;&nbsp; = $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Unknown request (parameter in register) *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Bad&nbsp;&nbsp;&nbsp; = $04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bad arguments *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Ms&nbsp;&nbsp;&nbsp;&nbsp; = $05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bad memory segment specifier *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Na&nbsp;&nbsp;&nbsp;&nbsp; = $06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Not available&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Room&nbsp;&nbsp; = $07&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; No room</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Hand&nbsp;&nbsp; = $08&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bad handle&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Eof&nbsp;&nbsp;&nbsp; = $09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; End Of File&nbsp;&nbsp; (also returned by DOR calls)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Flf&nbsp;&nbsp;&nbsp; = $0A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Filter Full</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Ovf&nbsp;&nbsp;&nbsp; = $0B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Overflow</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Sntx&nbsp;&nbsp; = $0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Syntax Error</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Wrap&nbsp;&nbsp; = $0D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Wrap condition met</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Push&nbsp;&nbsp; = $0E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Pushback error, cannot satisfy request</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Err&nbsp;&nbsp;&nbsp; = $0F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Internal Error&nbsp;&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Type&nbsp;&nbsp; = $10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Unexpected type&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Pre&nbsp;&nbsp;&nbsp; = $11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Cannot pre-empt, or No Room</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Onf&nbsp;&nbsp;&nbsp; = $12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Object (file or directory) not found</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Rp&nbsp;&nbsp;&nbsp;&nbsp; = $13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Read protected</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Wp&nbsp;&nbsp;&nbsp;&nbsp; = $14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Write protected</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Use&nbsp;&nbsp;&nbsp; = $15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; In Use</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Fail&nbsp;&nbsp; = $16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; General Failure, cannot satisfy request</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Ivf&nbsp;&nbsp;&nbsp; = $17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Invalid filename</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Ftm&nbsp;&nbsp;&nbsp; = $18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; File Type Mismatch</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Exis&nbsp;&nbsp; = $19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; File already exist</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Addr&nbsp;&nbsp; = $32&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bad address&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Size&nbsp;&nbsp; = $33&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bad size&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Bank&nbsp;&nbsp; = $34&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bad bank&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Frm&nbsp;&nbsp;&nbsp; = $35&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Frame error&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Par&nbsp;&nbsp;&nbsp; = $36&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Parity error</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Dvz&nbsp;&nbsp;&nbsp; = $46&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Division by zero</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Tbg&nbsp;&nbsp;&nbsp; = $47&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Too big</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Nvr&nbsp;&nbsp;&nbsp; = $48&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Negative root</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Lgr&nbsp;&nbsp;&nbsp; = $49&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Log range</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Acl&nbsp;&nbsp;&nbsp; = $4A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Accuracy lost</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Exr&nbsp;&nbsp;&nbsp; = $4B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Exponent function range</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Bdn&nbsp;&nbsp;&nbsp; = $4C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bad number</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Draw&nbsp;&nbsp; = $66&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Application pre-empted and screen corrupted</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Quit&nbsp;&nbsp; = $67&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Request application to quit&nbsp; *</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC RC_Susp&nbsp;&nbsp; = $69&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Suspicion of pre-emption</TT>
+
+<BR><TT>; Related operating system calls and parameters:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osesc.htm">OS_Esc</A>&nbsp; =
+
+$6F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;
+
+Examine special condition</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; parameters in A:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_BIT =
+
+$00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Test for Escape</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_ACK =
+
+$01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Acknowledge escape and
+
+flush input buffer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_SET =
+
+$02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Set Escape (simulate an
+
+Escape condition)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_RES =
+
+$03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Reset Escape without flushing
+
+input buffer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_TST =
+
+$04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Test if Escape Detect.
+
+is Enabled/Disabled</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_ENA =
+
+$05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Enable Escape Detection</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_DIS =
+
+$06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Disable Escape Detection</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="oserh.htm">OS_Erh</A> = $75&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Set (install) Error Handler</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="oserc.htm">OS_Erc</A> = $72&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Get error context (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnerr.htm">GN_Err</A> = $4A09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Display an interactive error box</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnesp.htm">GN_Esp</A> = $4C09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Return pointer to a system error message</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="fileio"></A><B><TT>fileio.def</TT></B>
+
+<P><TT>; File open system call:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnopf.htm">GN_Opf</A> = $6009&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; open file/stream (or device)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osop.htm">OS_Op</A>&nbsp;
+
+= $EA06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; internal
+
+open</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; ; Parameters used with <A HREF="gnopf.htm">GN_Opf</A>
+
+(in A register)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC OP_IN&nbsp;&nbsp;
+
+= $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; read only (shared)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC OP_OUT&nbsp;
+
+= $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write only</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC OP_UP&nbsp;&nbsp;
+
+= $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; open read/write</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC OP_MEM&nbsp;
+
+= $04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Open memory pool</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC OP_DIR&nbsp;
+
+= $05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Create directory name (returns
+
+DOR handle)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC OP_DOR&nbsp;
+
+= $06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Fetch DOR handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; Various file/stream manipulation calls:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnren.htm">GN_Ren</A>
+
+= $6609&nbsp;&nbsp;&nbsp;&nbsp; ; rename filename</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osren.htm">OS_Ren</A>
+
+= $E406&nbsp;&nbsp;&nbsp;&nbsp; ; file rename (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gndel.htm">GN_Del</A>
+
+= $6409&nbsp;&nbsp;&nbsp;&nbsp; ; delete file</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osdel.htm">OS_Del</A>
+
+= $E606&nbsp;&nbsp;&nbsp;&nbsp; ; delete file (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gncl.htm">GN_Cl</A>&nbsp;
+
+= $6209&nbsp;&nbsp;&nbsp;&nbsp; ; close file/stream</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="oscl.htm">OS_Cl</A>&nbsp;
+
+= $E806&nbsp;&nbsp;&nbsp;&nbsp; ; close file/stream (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osgb.htm">OS_Gb</A>&nbsp;
+
+= $39&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; get byte from file or device</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osgbt.htm">OS_Gbt</A>
+
+= $3F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; - with timeout</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="ospb.htm">OS_Pb</A>&nbsp;
+
+= $3C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; put byte to file or device</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="ospbt.htm">OS_Pbt</A>
+
+= $42&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; - with timeout</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; Os_Ugb
+
+= $36&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; unget byte (not implemented).</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osmv.htm">OS_Mv</A>&nbsp;
+
+= $45&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; move bytes between stream and
+
+memory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osfrm.htm">OS_Frm</A>
+
+= $48&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; File read miscellaneous</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osfwm.htm">OS_Fwm</A>
+
+= $4B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; File write miscellaneous</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; File status codes, when using <A HREF="osfrm.htm">OS_Frm</A>
+
+or <A HREF="osfwm.htm">OS_Fwm</A>:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; FA_PTR
+
+= $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Get sequential file pointer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; FA_EXT
+
+= $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Get length (Extent) of sequential
+
+file</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; FA_EOF
+
+= $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; End Of File enquiry</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; FA_BST
+
+= $04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Buffer status (system use only)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; ; Various calls to process filenames:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnpfs.htm">GN_Pfs</A>
+
+= $5A09&nbsp;&nbsp;&nbsp;&nbsp; ; parse filename segment</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnprs.htm">GN_Prs</A>
+
+= $5809&nbsp;&nbsp;&nbsp;&nbsp; ; parse filename</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnfcm.htm">GN_Fcm</A>
+
+= $4E09&nbsp;&nbsp;&nbsp;&nbsp; ; compress a filename</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnfex.htm">GN_Fex</A>
+
+= $5009&nbsp;&nbsp;&nbsp;&nbsp; ; expand a filename</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnesa.htm">GN_Esa</A>
+
+= $5E09&nbsp;&nbsp;&nbsp;&nbsp; ; read/write filename segments</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; Calls on wildcards, searching for files, parsing
+
+filenames:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnopw.htm">GN_Opw</A>
+
+= $5209&nbsp;&nbsp;&nbsp;&nbsp; ; open wildcard handler</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnwcl.htm">GN_Wcl</A>
+
+= $5409&nbsp;&nbsp;&nbsp;&nbsp; ; close wildcard handler</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnwfn.htm">GN_Wfn</A>
+
+= $5609&nbsp;&nbsp;&nbsp;&nbsp; ; get next filename match from wc.handler</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="gnwsm.htm">GN_Wsm</A>
+
+= $5C09&nbsp;&nbsp;&nbsp;&nbsp; ; match filename segment to wildcard string</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; ; File Eprom Interface:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; (deleted/old files are ignored, they can only
+
+be fetched by using</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; EPROM file format information)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; <A HREF="osepr.htm">OS_Epr</A>
+
+= $F006&nbsp;&nbsp;&nbsp;&nbsp; ; File Eprom Manipulation Interface</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; arguments:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; EP_Save
+
+= $00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; blow RAM file to EPROM</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; EP_Load
+
+= $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; load file from EPROM (save to RAM
+
+file)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC&nbsp; EP_Dir&nbsp;
+
+= $15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; return next filename (starting with
+
+first)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; (all files must be read until RC_EOF)</TT>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="filter"></A><B><TT>filter.def</TT></B>
+
+<P><TT>; Filter manipulation:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnflo.htm">GN_Flo</A>&nbsp; = $2209&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Open a filter</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnflc.htm">GN_Flc</A>&nbsp; =
+
+$2409&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Close a filter</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnflw.htm">GN_Flw</A>&nbsp; =
+
+$2609&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Push character
+
+into filter</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnflr.htm">GN_Flr</A>&nbsp; =
+
+$2809&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Read character
+
+from filter</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnflf.htm">GN_Flf</A>&nbsp; =
+
+$2A09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Flush filter</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnfpb.htm">GN_Fpb</A>&nbsp; =
+
+$2C09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Push back
+
+character into filter</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="fpp"></A><B><TT>fpp.def</TT></B>
+
+<P><TT>; Floating point package (FPP):</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC FP_BAS = $A2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; call Floating point package function</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; (doesn't work properly)</TT>
+
+<BR><TT>; function codes:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_AND =
+
+$21&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; bitwise AND</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_IDV =
+
+$24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; integer division</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_EOR =
+
+$27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; bitwise XOR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_MOD =
+
+$2A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; integer remainder</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_OR&nbsp;
+
+= $2D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; bitwise OR</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_LEQ =
+
+$30&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; less than or equal to</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_NEQ =
+
+$33&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; not equal to</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_GEQ =
+
+$36&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; greater than or equal to</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_LT&nbsp;
+
+= $39&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; less than</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_EQ&nbsp;
+
+= $3C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; equal</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_MUL =
+
+$3F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; multiply</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_ADD =
+
+$42&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; add</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_GT&nbsp;
+
+= $45&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; greater than</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_SUB =
+
+$48&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; subtract</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_PWR =
+
+$4B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; raise to the power</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_DIV =
+
+$4E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; divide</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_ABS =
+
+$51&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; absolute value</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_ACS =
+
+$54&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; arc cosine</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_ASN =
+
+$57&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; arc sine</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_ATN =
+
+$5A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; arc tangent</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_COS =
+
+$5D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; cosine</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_DEG =
+
+$60&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; radians to degrees</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_EXP =
+
+$63&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; exponential</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_INT =
+
+$66&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; integer value</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_LN&nbsp;
+
+= $69&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; base e (natural) logarithm</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_LOG =
+
+$6C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; base 10 (common) logarithmn</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_NOT =
+
+$6F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; bitwise NOT</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_RAD =
+
+$72&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; degrees to radians</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_SGN =
+
+$75&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; sign</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_SIN =
+
+$78&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; sinus</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_SQR =
+
+$7B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; square root</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_TAN =
+
+$7E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; tangent</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_ZER =
+
+$81&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; zero</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_ONE =
+
+$84&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; one</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_TRU =
+
+$87&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; true (-1)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_PI&nbsp;
+
+= $8A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PI</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_VAL =
+
+$8D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; numeric value of string</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_STR =
+
+$90&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; string value of a number</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_FIX =
+
+$93&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; truncate a float to an
+
+integer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_FLT =
+
+$96&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; integer to float conversion</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_TST =
+
+$99&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; test number for zero and
+
+sign</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_CMP =
+
+$9C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; compare two numbers</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FP_NEG =
+
+$9F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; negate number</TT>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="integer"></A><B><TT>integer.def</TT></B>
+
+<P><TT>; Integer manipulation:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnm16.htm">GN_M16</A>&nbsp; = $7209&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Unsigned 16bit multiplication</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnd16.htm">GN_D16</A>&nbsp; =
+
+$7409&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Unsigned
+
+16bit division</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnm24.htm">GN_M24</A>&nbsp; =
+
+$7609&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Unsigned
+
+24bit multiplication</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnd24.htm">GN_D24</A>&nbsp; =
+
+$7809&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Unsigned
+
+24bit division</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gngdn.htm">GN_Gdn</A>&nbsp; =
+
+$1009&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; ASCII to
+
+integer conversion</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnpdn.htm">GN_Pdn</A>&nbsp; =
+
+$1209&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Integer to
+
+ASCII conversion</TT>
+
+<BR><TT>_____________________________________________________________________________</TT>
+
+<BR><A NAME="interrpt"></A><B><TT>interrpt.def</TT></B>
+
+<P><TT>; Interrupt (vector) calls:</TT>
+
+<BR><TT>; (performed as CALL OZ_DI or CALL OZ_EI)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC OZ_DI = $0051&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Disable IM 2 interrupts</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC OZ_EI = $0054&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Enable IM 2 interrupts</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="map"></A><B><TT>map.def</TT></B>
+
+<P><TT>; Graphic area (PipeDream map) control:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osmap.htm">OS_Map</A>&nbsp; = $F406&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Map control</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MP_WR&nbsp;&nbsp;
+
+= $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write a line to the map</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MP_DEF&nbsp;
+
+= $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; define a map using Panel width</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MP_GRA&nbsp;
+
+= $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; define a map of specific width</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MP_DEL&nbsp;
+
+= $04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; delete a map</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="memory"></A><B><TT>memory.def</TT></B>
+
+<P><TT>; Memory allocation, deallocation:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osmop.htm">OS_Mop</A> = $4E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Open memory (allocate memory pool)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osmal.htm">OS_Mal</A> = $54&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Allocate memory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osaxp.htm">OS_Axp</A> = $D206&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Allocate explicit page (internal OZ usage)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osmfr.htm">OS_Mfr</A> = $57&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Free memory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osmcl.htm">OS_Mcl</A> = $51&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Close memory (free memory pool)</TT>
+
+<P><TT>; Memory information movement:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osbde.htm">OS_Bde</A> = $DA06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Copy bytes to extended address</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osbhl.htm">OS_Bhl</A> = $DC06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Copy bytes from extended address</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnrbe.htm">GN_Rbe</A> = $3E09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Read byte at extended address</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnwbe.htm">GN_Wbe</A> = $4009&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Write byte to extended address</TT>
+
+<P><TT>; Memory comparison:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gncme.htm">GN_Cme</A>&nbsp; = $4209&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; compare null-terminated strings</TT>
+
+<P><TT>; Memory/bank binding:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osmgb.htm">OS_Mgb</A> = $5A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Get current binding</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osmpb.htm">OS_Mpb</A> = $5D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Set (Put) new binding</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osbix.htm">OS_Bix</A> = $60&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bind in extended address (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osbox.htm">OS_Box</A> = $63&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Restore bindings after <A HREF="osbix.htm">OS_Bix</A> (internal)</TT>
+
+<P><TT>; Fast code interface for bank switching (A=1)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osfc.htm">OS_Fc</A>&nbsp; = $8A</TT>
+
+<P><TT>; Linked list manipulation calls (often used in combination with
+
+<A HREF="osmal.htm">OS_Mal</A>):</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnxin.htm">GN_Xin</A> = $4609</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnxnx.htm">GN_Xnx</A> = $4409</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnxdl.htm">GN_Xdl</A> = $4809</TT>
+
+<P><TT>; Memory Masks used by <A HREF="osmop.htm">OS_Mop</A>:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC MM_S0 = $00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 0 mask</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MM_S1 = $40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 1 mask</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MM_S2 = $80&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 2 mask</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MM_S3 = $C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 3 mask</TT>
+
+<P><TT>; additional allocation directives for <A HREF="osmop.htm">OS_Mop</A>:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; Source of memory (to be allocated):</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MM_FIX = $02&nbsp;&nbsp;&nbsp;&nbsp; ;
+
+fixed workspace (not subject to swapping)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MM_SLT = $04&nbsp;&nbsp;&nbsp;&nbsp; ;
+
+explicit slot usage, mask'ed with the following:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MC_CI = $10
+
+; internal memory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MC_C1 = $01
+
+; card 1</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MC_C2 = $02
+
+; card 2</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC MC_C3 = $03
+
+; card 3</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; ; Allocation variations:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MM_EXC = $10&nbsp;&nbsp;&nbsp;&nbsp; ;
+
+exclusive use of bank</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MM_MUL = $20&nbsp;&nbsp;&nbsp;&nbsp; ;
+
+use multiple banks</TT>
+
+<BR>&nbsp;
+
+<P><TT>; Segment specifiers used by <A HREF="osmgb.htm">OS_Mgb</A>, <A HREF="osmpb.htm">OS_Mpb</A>:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC MS_S0 = $00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 0 specifier</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MS_S1 = $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 1 specifier</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MS_S2 = $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 2 specifier</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MS_S3 = $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Segment 3 specifier</TT>
+
+<P><TT>; Low level OZ memory organisation definitions:</TT>
+
+<BR><TT>; (these manifests represents bit identifiers in a configuration
+
+byte that</TT>
+
+<BR><TT>; is (returned by <A HREF="osnq.htm">OS_Nq</A>, NQ_SLT):</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC BU_EPR = 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; bank is EPROM</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC BU_ROM = 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; bank is ROM</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC BU_WRK = 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; work memory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC BU_FIX = 8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; fixed memory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC BU_RES = 16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; reserved memory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC BU_APL = 32&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; bank is application RAM</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC BU_FRE = 128&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; bank is available RAM</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="misc"></A><B><TT>misc.def</TT></B>
+
+<P><TT>; Miscellaneous OZ call definitions:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osblp.htm">OS_Blp</A>&nbsp; = $D806&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bleep</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osprt.htm">OS_Prt</A>&nbsp; =
+
+$24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;
+
+Send character directly to printer filter (low level)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osisq.htm">OS_Isq</A>&nbsp; =
+
+$D006&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Initialize
+
+prefix sequense (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="oswsq.htm">OS_Wsq</A>&nbsp; =
+
+$CE06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Write to
+
+prefix sequense (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osfn.htm">OS_Fn</A>&nbsp;&nbsp;
+
+= $7B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Miscellaneous OS functions (internal)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FN_AH = $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; allocate handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FN_VH = $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; verify handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC FN_FH = $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; free handle</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="saverst"></A><B><TT>saverst.def</TT></B>
+
+<P><TT>; Save / Restore manipulation:</TT>
+
+<BR><TT>; (screen, application mailbox, Page wait &amp; Application card
+
+management)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="ossr.htm">OS_Sr</A>&nbsp; = $6C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Save &amp; Restore</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; arguments:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_SUS = $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Save user screen</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_RUS = $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Restore user screen</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_WPD = $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Write parameter data (mailbox)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_RPD = $04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Read parameter data (mailbox)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_FUS = $05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Free user screen (released, not displayed)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_CRM = $06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Remvove card (not implemented)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_CIN = $07&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Insert card&nbsp; (not implemented)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_PWT = $08&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Page wait</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SR_RND = $09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Occasionally a random number (system use)</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="screen"></A><B><TT>screen.def</TT></B>
+
+<P><TT>; Screen control:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osoff.htm">OS_Off</A>&nbsp; = $EC06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; switch machine (screen) off</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="ossci.htm">OS_Sci</A>&nbsp; = $D406&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; alter screen info</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; arguments:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_LR0&nbsp;
+
+= $01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; LORES0 (512 byte granularity)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_LR1&nbsp;
+
+= $02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; LORES1 (4K granularity)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_HR0&nbsp;
+
+= $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; HIRES0 (8K granularity)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_HR1&nbsp;
+
+= $04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; HIRES1 (2K granularity)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SC_SBR&nbsp;
+
+= $05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; screen base (2K granularity)</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="serintfc"></A><B><TT>serintfc.def</TT></B>
+
+<P><TT>; Low level serial port interface:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="ossi.htm">OS_Si</A>&nbsp;&nbsp;
+
+= $8D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; serial interface (low level)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_HRD&nbsp;
+
+= $00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Hard reset the serial port</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_SFT&nbsp;
+
+= $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Soft reset the serial port</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_INT&nbsp;
+
+= $06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Interrupt entry point</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_GBT&nbsp;
+
+= $09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Get byte from serial port</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_PBT&nbsp;
+
+= $0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Put byte to serial port</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_ENQ&nbsp;
+
+= $0F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Status enquiry</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_FTX&nbsp;
+
+= $12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Flush Tx (transmit) buffer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_FRX&nbsp;
+
+= $15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Flush Rx (receive) buffer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SI_TMO&nbsp;
+
+= $18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Set timeout</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="stdio"></A><B><TT>stdio.def</TT></B>
+
+<P><TT>; Standard input/output calls</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osin.htm">OS_In</A>&nbsp;&nbsp;
+
+= $2A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; read a byte from std. input
+
+(keyboard)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="ostin.htm">OS_Tin</A>&nbsp; =
+
+$2D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; read a byte from std. input,
+
+with timeout</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osout.htm">OS_Out</A>&nbsp; =
+
+$27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write a byte to std. output</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osxin.htm">OS_Xin</A>&nbsp; =
+
+$30&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; examine input (e.g. check for
+
+pre-emption)</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnnln.htm">GN_Nln</A>&nbsp; = $2E09&nbsp;&nbsp;&nbsp;&nbsp;
+
+; send newline (CR/LF) to std. output</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnsop.htm">GN_Sop</A>&nbsp; =
+
+$3A09&nbsp;&nbsp;&nbsp;&nbsp; ; write string to std. output</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnsoe.htm">GN_Soe</A>&nbsp; =
+
+$3C09&nbsp;&nbsp;&nbsp;&nbsp; ; write string from extended address</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnsip.htm">GN_Sip</A>&nbsp; =
+
+$3809&nbsp;&nbsp;&nbsp;&nbsp; ; system input line routine</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="ospur.htm">OS_Pur</A>&nbsp; = $33&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; purge keyboard buffer (and reset timeout)</TT>
+
+<P><TT>; Standard input key definitions (Returned by <A HREF="osin.htm">OS_In</A>,
+
+<A HREF="ostin.htm">OS_Tin</A>,
+
+<A HREF="gnsip.htm">GN_Sip</A>)</TT>
+
+<BR><TT>;</TT>
+
+<BR><TT>; The following codes are NOT zero prefixed:</TT>
+
+<BR><TT>; IN_ESC, IN_ENT, IN_TAB, IN_SPC &amp; IN_DEL</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC IN_ESC = $1B</TT>
+
+<P><TT>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ENTER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DELETE</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC IN_ENT&nbsp; = $0D, IN_TAB&nbsp; = $09,
+
+IN_DEL&nbsp; = $7F</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_SENT = $D1, IN_STAB = $D2, IN_SDEL =
+
+$D3&nbsp; ; SHIFT</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_DENT = $C1, IN_DTAB = $C2, IN_DDEL =
+
+$C3&nbsp; ; DIAMOND</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_AENT = $B1, IN_ATAB = $B2, IN_ADEL =
+
+$B3&nbsp; ; SQUARE</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_SPC&nbsp; = 32</TT>
+
+<P><TT>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LEFT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+RIGHT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DOWN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+UP</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_LFT&nbsp; = $FC, IN_RGT&nbsp; = $FD,
+
+IN_DWN&nbsp; = $FE, IN_UP&nbsp;&nbsp; = $FF</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_SLFT = $F8, IN_SRGT = $F9, IN_SDWN =
+
+$FA, IN_SUP&nbsp; = $FB&nbsp; ; SHIFT</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_DLFT = $F4, IN_DRGT = $F5, IN_DDWN =
+
+$F6, IN_DUP&nbsp; = $F7&nbsp; ; DIAMOND</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC IN_ALFT = $F0, IN_ARGT = $F1, IN_ADWN =
+
+$F2, IN_AUP&nbsp; = $F3&nbsp; ; SQUARE</TT>
+
+<P><TT>; various definitions:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC ESC = 27, LF = 10, CR = 13</TT>
+
+<P><TT>; Menu exception codes:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC MU_ENT&nbsp; = $E1, MU_TAB&nbsp; = $E2,
+
+MU_SPC = $E0, MU_DEL = $E3</TT>
+
+<P><TT>; OZ screen driver icons:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_EXSP = $20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Exact space</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_BLL&nbsp; = $21&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Bell</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_GRV&nbsp; = $27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Grave accent</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_SQUA = $2A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Square</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_DIAM = $2B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Diamond</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_SHFT = $2D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Shift</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_VBAR = $7C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Unbroken vertical bar</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC SD_ENT = $E1, SD_TAB = $E2, SD_SPC = $E0,
+
+SD_DEL = $E3</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_ESC = $E4, SD_MNU = $E5, SD_INX = $E6,
+
+SD_HLP = $E7</TT>
+
+<P><TT>; Outlined icons:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_OLFT = $F0, SD_ORGT = $F1</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_OUP&nbsp; = $F3, SD_ODWN = $F2</TT>
+
+<P><TT>; bullet icons:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_BLFT = $F4, SD_BRGT = $F5</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_BDWN = $F6, SD_BUP&nbsp; = $F7</TT>
+
+<P><TT>; pointer icons:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_PLFT = $F8, SD_PRGT = $F9</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_PDWN = $FA, SD_PUP&nbsp; = $FB</TT>
+
+<P><TT>; Miscellaneous driver codes:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_DTS = $7F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Delete toggle settings</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_DWN = $FE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Scroll screen downwards</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC SD_UP&nbsp; = $FF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Scroll screen upwards</TT>
+
+<BR><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="syspar"></A><B><TT>syspar.def</TT></B>
+
+<P><TT>; System calls to alter settings in Panel, PrinterEd and other resources:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osnq.htm">OS_Nq</A>&nbsp;&nbsp;
+
+= $66&nbsp; ; enquire (fetch) parameter</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="ossp.htm">OS_Sp</A>&nbsp;&nbsp;
+
+= $69&nbsp; ; specify (set) parameter</TT>
+
+<P><TT>; Enquiries, read by <A HREF="osnq.htm">OS_Nq</A>:</TT>
+
+<P><TT>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Symbol>&nbsp;
+
+&lt;Value>&nbsp;&nbsp; &lt;Meaning></TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Wbox&nbsp; = $8300&nbsp;&nbsp;&nbsp;
+
+; return window information</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Wcur&nbsp; = $8303&nbsp;&nbsp;&nbsp;
+
+; return cursor information</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Rds&nbsp;&nbsp; = $8306&nbsp;&nbsp;&nbsp;
+
+; read text from screen</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Ain&nbsp;&nbsp; = $8600&nbsp;&nbsp;&nbsp;
+
+; application enquiry</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Khn&nbsp;&nbsp; = $8603&nbsp;&nbsp;&nbsp;
+
+; read keyboard handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Shn&nbsp;&nbsp; = $8606&nbsp;&nbsp;&nbsp;
+
+; read screen handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Phn&nbsp;&nbsp; = $8609&nbsp;&nbsp;&nbsp;
+
+; read printer indirected handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Nhn&nbsp;&nbsp; = $860C&nbsp;&nbsp;&nbsp;
+
+; read null handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Wai&nbsp;&nbsp; = $860F&nbsp;&nbsp;&nbsp;
+
+; Who am I?</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Com&nbsp;&nbsp; = $8612&nbsp;&nbsp;&nbsp;
+
+; read comms handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Ihn&nbsp;&nbsp; = $8615&nbsp;&nbsp;&nbsp;
+
+; read IN handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Ohn&nbsp;&nbsp; = $8618&nbsp;&nbsp;&nbsp;
+
+; read OUT handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Rhn&nbsp;&nbsp; = $861B&nbsp;&nbsp;&nbsp;
+
+; read direct printer handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Mfs&nbsp;&nbsp; = $8900&nbsp;&nbsp;&nbsp;
+
+; read free space information</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Slt&nbsp;&nbsp; = $8903&nbsp;&nbsp;&nbsp;
+
+; read slot type information</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Dev&nbsp;&nbsp; = $8C00&nbsp;&nbsp;&nbsp;
+
+; fetch current device</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Dir&nbsp;&nbsp; = $8C03&nbsp;&nbsp;&nbsp;
+
+; fetch current directory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Fnm&nbsp;&nbsp; = $8C06&nbsp;&nbsp;&nbsp;
+
+; fetch current filename match string</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Dmh&nbsp;&nbsp; = $8C09&nbsp;&nbsp;&nbsp;
+
+; fetch Director special memory handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Inp&nbsp;&nbsp; = $8C0C&nbsp;&nbsp;&nbsp;
+
+; read std. input handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Out&nbsp;&nbsp; = $8C0F&nbsp;&nbsp;&nbsp;
+
+; read std. output handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Prt&nbsp;&nbsp; = $8C12&nbsp;&nbsp;&nbsp;
+
+; read printer stream handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Tin&nbsp;&nbsp; = $8C15&nbsp;&nbsp;&nbsp;
+
+; read input-T handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Tot&nbsp;&nbsp; = $8C18&nbsp;&nbsp;&nbsp;
+
+; read output-T handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Tpr&nbsp;&nbsp; = $8C1B&nbsp;&nbsp;&nbsp;
+
+; read printer-T stream handle</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC NQ_Chn&nbsp;&nbsp; = $8C1E&nbsp;&nbsp;&nbsp;
+
+; read comms handle</TT>
+
+<P><TT>; Specifies, set by <A HREF="ossp.htm">OS_Sp</A>:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; Panel definitions (serial port parameters,
+
+timeout, defaults, etc.) :</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp; &lt;Symbol>&nbsp; &lt;Value>&nbsp;&nbsp;
+
+&lt;Meaning></TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Gfi&nbsp;&nbsp; = $8000&nbsp;&nbsp;&nbsp;
+
+; Install changed settings</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Mct&nbsp;&nbsp; = $8001&nbsp;&nbsp;&nbsp;
+
+; Timeout in minutes</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Rep&nbsp;&nbsp; = $8002&nbsp;&nbsp;&nbsp;
+
+; Repeat rate</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Kcl&nbsp;&nbsp; = $8003&nbsp;&nbsp;&nbsp;
+
+; Keyclick 'Y' or 'N'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Snd&nbsp;&nbsp; = $8004&nbsp;&nbsp;&nbsp;
+
+; Sound 'Y' or 'N'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Bad&nbsp;&nbsp; = $8005&nbsp;&nbsp;&nbsp;
+
+; Default bad process size in K</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Iov&nbsp;&nbsp; = $8010&nbsp;&nbsp;&nbsp;
+
+; Insert/Overtype 'I' or 'O'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Dat&nbsp;&nbsp; = $8011&nbsp;&nbsp;&nbsp;
+
+; Date format 'E' or 'A'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Map&nbsp;&nbsp; = $8012&nbsp;&nbsp;&nbsp;
+
+; PipeDream map 'Y' or 'N'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Msz&nbsp;&nbsp; = $8013&nbsp;&nbsp;&nbsp;
+
+; Map size in pixels</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Dir&nbsp;&nbsp; = $8014&nbsp;&nbsp;&nbsp;
+
+; Default directory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Dev&nbsp;&nbsp; = $8015&nbsp;&nbsp;&nbsp;
+
+; Default device</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Txb&nbsp;&nbsp; = $8016&nbsp;&nbsp;&nbsp;
+
+; Transmit baud rate - binary</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Rxb&nbsp;&nbsp; = $8017&nbsp;&nbsp;&nbsp;
+
+; Receive baud rate - binary</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Xon&nbsp;&nbsp; = $8018&nbsp;&nbsp;&nbsp;
+
+; Xon/Xoff 'Y' or 'N'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Par&nbsp;&nbsp; = $8019&nbsp;&nbsp;&nbsp;
+
+; Parity 'O', 'E', 'M', 'S' or 'N'</TT>
+
+<P><TT>; PrinterED definitions (highlights $ translation tables) :</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Ptr&nbsp;&nbsp; = $8020&nbsp;&nbsp;&nbsp;
+
+; Printer name</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Alf&nbsp;&nbsp; = $8021&nbsp;&nbsp;&nbsp;
+
+; Allow Linefeed, 'Y' or 'N'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Pon&nbsp;&nbsp; = $8022&nbsp;&nbsp;&nbsp;
+
+; Printer On sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Pof&nbsp;&nbsp; = $8023&nbsp;&nbsp;&nbsp;
+
+; Printer Off sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Eop&nbsp;&nbsp; = $8024&nbsp;&nbsp;&nbsp;
+
+; End of page sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Mip&nbsp;&nbsp; = $8025&nbsp;&nbsp;&nbsp;
+
+; HMI prefix sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Mis&nbsp;&nbsp; = $8026&nbsp;&nbsp;&nbsp;
+
+; HMI suffix sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC PA_Mio&nbsp;&nbsp; = $8027&nbsp;&nbsp;&nbsp;
+
+; HMI offset sequense</TT>
+
+<P><TT>; The format of each highlight sequense is as follows:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;
+
+PA_On&lt;n>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Highlight ON sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;
+
+PA_On&lt;n>+1&nbsp;&nbsp;&nbsp;&nbsp; Highlight OFF sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;
+
+PA_On&lt;n>+2&nbsp;&nbsp;&nbsp;&nbsp; OFF at CR 'Y' or 'N'</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;
+
+PA_On&lt;n>+3&nbsp;&nbsp;&nbsp;&nbsp; Highlight n special character</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On1&nbsp;&nbsp;&nbsp;
+
+= $8028&nbsp;&nbsp; ; Underline</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On2&nbsp;&nbsp;&nbsp;
+
+= $802C&nbsp;&nbsp; ; Bold</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On3&nbsp;&nbsp;&nbsp;
+
+= $8030&nbsp;&nbsp; ; Extended sequense</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On4&nbsp;&nbsp;&nbsp;
+
+= $8034&nbsp;&nbsp; ; Italics</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On5&nbsp;&nbsp;&nbsp;
+
+= $8038&nbsp;&nbsp; ; Subscript</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On6&nbsp;&nbsp;&nbsp;
+
+= $803C&nbsp;&nbsp; ; Superscript</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On7&nbsp;&nbsp;&nbsp;
+
+= $8040&nbsp;&nbsp; ; Alternate font</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_On8&nbsp;&nbsp;&nbsp;
+
+= $8044&nbsp;&nbsp; ; User Defined</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; The format of
+
+each translation code sequense is as follows:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;
+
+PA_Tr&lt;n>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Translate from character</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;
+
+PA_Tr&lt;n>+1&nbsp;&nbsp;&nbsp;&nbsp; Translate to sequense</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr1&nbsp;&nbsp;&nbsp;
+
+= $8048&nbsp;&nbsp; ; Row 1, Entry A</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr2&nbsp;&nbsp;&nbsp;
+
+= $804A&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+B</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr3&nbsp;&nbsp;&nbsp;
+
+= $804C&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+C</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr4&nbsp;&nbsp;&nbsp;
+
+= $804E&nbsp;&nbsp; ; Row 2, Entry A</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr5&nbsp;&nbsp;&nbsp;
+
+= $8050&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+B</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr6&nbsp;&nbsp;&nbsp;
+
+= $8052&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+C</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr7&nbsp;&nbsp;&nbsp;
+
+= $8054&nbsp;&nbsp; ; Row 3, Entry A</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr8&nbsp;&nbsp;&nbsp;
+
+= $8056&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+B</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr9&nbsp;&nbsp;&nbsp;
+
+= $8058&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+C</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; ISO translations
+
+1 - 28:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr10&nbsp;&nbsp;
+
+= $8080&nbsp;&nbsp; ; Row 1, Entry 1&nbsp;&nbsp;&nbsp; (ISO 1)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr11&nbsp;&nbsp;
+
+= $8082&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+2&nbsp;&nbsp;&nbsp; (ISO 2)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr12&nbsp;&nbsp;
+
+= $8084&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+3&nbsp;&nbsp;&nbsp; (ISO 3)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr13&nbsp;&nbsp;
+
+= $8086&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+4&nbsp;&nbsp;&nbsp; ...</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr14&nbsp;&nbsp;
+
+= $8088&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+5</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr15&nbsp;&nbsp;
+
+= $808A&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+6</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr16&nbsp;&nbsp;
+
+= $808C&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+7</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr17&nbsp;&nbsp;
+
+= $808E&nbsp;&nbsp; ; Row 2, Entry 1</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr18&nbsp;&nbsp;
+
+= $8090&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+2</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr19&nbsp;&nbsp;
+
+= $8092&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+3</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr20&nbsp;&nbsp;
+
+= $8094&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+4</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr21&nbsp;&nbsp;
+
+= $8096&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+5</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr22&nbsp;&nbsp;
+
+= $8098&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+6</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr23&nbsp;&nbsp;
+
+= $809A&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+7</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr24&nbsp;&nbsp;
+
+= $809C&nbsp;&nbsp; ; Row 3, Entry 1</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr25&nbsp;&nbsp;
+
+= $809E&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+2</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr26&nbsp;&nbsp;
+
+= $80A0&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+3</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr27&nbsp;&nbsp;
+
+= $80A2&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+4</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr28&nbsp;&nbsp;
+
+= $80A4&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+5</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr29&nbsp;&nbsp;
+
+= $80A6&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+6</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr30&nbsp;&nbsp;
+
+= $80A8&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+7</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr31&nbsp;&nbsp;
+
+= $80AA&nbsp;&nbsp; ; Row 4, Entry 1</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr32&nbsp;&nbsp;
+
+= $80AC&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+2</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr33&nbsp;&nbsp;
+
+= $80AE&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+3</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr34&nbsp;&nbsp;
+
+= $80B0&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+4</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr35&nbsp;&nbsp;
+
+= $80B2&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+5&nbsp;&nbsp;&nbsp; ...</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr36&nbsp;&nbsp;
+
+= $80B4&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+6&nbsp;&nbsp;&nbsp; ...</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC PA_Tr37&nbsp;&nbsp;
+
+= $80B6&nbsp;&nbsp; ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+7&nbsp;&nbsp;&nbsp; (ISO 28)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; ; File system parameters:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SP_Dev&nbsp;&nbsp;&nbsp;
+
+= $8C00&nbsp;&nbsp; ; Set current device</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SP_Dir&nbsp;&nbsp;&nbsp;
+
+= $8C03&nbsp;&nbsp; ; Set current directory</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC SP_Fnm&nbsp;&nbsp;&nbsp;
+
+= $8C06&nbsp;&nbsp; ; Set current name match</TT>
+
+<P><TT>_______________________________________________________________________________</TT>
+
+<BR><A NAME="time"></A><B><TT>time.def</TT></B>
+
+<P><TT>; Time &amp; Date manipulation:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gngmt.htm">GN_Gmt</A> = $1A09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; get (read) machine time in internal format</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnpmt.htm">GN_Pmt</A> = $1E09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; put (set) machine date</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnmsc.htm">GN_Msc</A> = $2009&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Miscellaneous time operations</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gngtm.htm">GN_Gtm</A> = $0A09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; convert ASCII string to internal time format</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnptm.htm">GN_Ptm</A> = $0C09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; convert internal time to ASCII string</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnsdo.htm">GN_Sdo</A> = $0E09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; convert real time to time to elapse</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osdly.htm">OS_Dly</A> = $D606&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; delay a given period</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gngdt.htm">GN_Gdt</A> = $0609&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; convert ASCII string to internal date</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnpdt.htm">GN_Pdt</A> = $0809&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; convert internal date to ASCII string</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gndie.htm">GN_Die</A> = $1409&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; convert from internal to zoned format</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gndei.htm">GN_Dei</A> = $1609&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; convert from zoned format to internal format</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gngmd.htm">GN_Gmd</A> = $1809&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; get current machine date in internal format</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="gnpmd.htm">GN_Pmd</A> = $1C09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; set machine date</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osht.htm">OS_Ht</A>&nbsp; = $F206&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; hardware time manipulation (internal OZ usage)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC HT_RES =
+
+$01&nbsp;&nbsp; ; reset hardware timer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC HT_RD&nbsp;
+
+= $02&nbsp;&nbsp; ; read hardware timer</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFC HT_MDT =
+
+$03&nbsp;&nbsp; ; read monthy/date/time address</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="osust.htm">OS_Ust</A> = $EE06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+; update small timer (internal)</TT>
+
+<BR><TT>______________________________________________________________________________</TT>
+
+<BR><A NAME="tokens"></A><B><TT>tokens.def</TT></B>
+
+<P><TT>; Dynamic token manipulation:</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="oswrt.htm">OS_Wrt</A>&nbsp; = $CC06&nbsp;&nbsp;&nbsp;&nbsp;
+
+; Write token</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp; DEFC <A HREF="oswtb.htm">OS_Wtb</A>&nbsp; =
+
+$CA06&nbsp;&nbsp;&nbsp;&nbsp; ; Write token base</TT>
+
+<P><TT>______________________________________________________________________________</TT>
+
+<P>
+
+<HR WIDTH="100%">
+
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<TR>
+
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="glossary.htm">Previous</A></TD>
+
+
+
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+
+
+
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="sysref.htm">Next</A></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Glossary</TD>
+
+
+
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">Operating System Manifests</TD>
+
+
+
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">System calls reference</TD>
+
+</TR>
+
+</TABLE>
+
+
+
+</BODY>
+
+</HTML>
+

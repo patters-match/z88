@@ -1,0 +1,114 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>System Calls Reference</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+<tr>
+
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr WIDTH="100%">
+
+<p>
+
+
+
+<b><font size=+1>DC_Rbd, rebind streams.</font></b>
+
+<p><tt>RST 20H, DEFW $1C0C</tt>
+
+<br>&nbsp;
+
+<pre>IN:&nbsp; A = identifier for stream to rebind
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; A = RB_IN ($00), input stream - new source of input
+
+&nbsp;&nbsp;&nbsp;&nbsp; A = RB_OUT ($01), output stream - new destination for output
+
+&nbsp;&nbsp;&nbsp;&nbsp; A = RB_PRT ($02), printer stream - new destination for output
+
+&nbsp;&nbsp;&nbsp;&nbsp; A = RB_INT ($03), input stream T - copy of input
+
+&nbsp;&nbsp;&nbsp;&nbsp; A = RB_OPT ($04), output stream T - copy of output
+
+&nbsp;&nbsp;&nbsp;&nbsp; A = RB_PTT ($05), printer stream T -&nbsp; copy of output
+
+
+
+</pre>
+
+OUT, if call successful:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0
+
+
+
+</pre>
+
+OUT, if call failed:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1
+
+&nbsp;&nbsp;&nbsp;&nbsp; A = error return code:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_FAIL ($16) - no CLI currently running
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_BAD ($04) - bad arguments
+
+
+
+</pre>
+
+Registers changed after return:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Documentation not available.
+
+
+
+</pre>
+
+Notes:
+
+<br>&nbsp;
+
+<p>Bugs:
+
+<blockquote>May fail to work in segment 2.</blockquote>
+
+
+
+</body>
+
+</html>
+

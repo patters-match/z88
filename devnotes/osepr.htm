@@ -1,0 +1,184 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>System Calls Reference</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+<tr>
+
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr WIDTH="100%">
+
+<p>
+
+
+
+<b><font size=+1>OS_Epr, File Eprom Interface</font></b>
+
+<p><tt>RST 20H, DEFW $F006</tt>
+
+<pre>IN:</pre>
+
+
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; A = reason code:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EP_SAVE ($00) - blow RAM file to Eprom.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EP_LOAD ($03) - read file from Eprom into RAM file.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EP_DIR ($0F) - fetch (next) filename from Eprom.
+
+&nbsp;&nbsp;&nbsp;&nbsp; B, HL, IX arguments.</pre>
+
+OUT:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1, A = error code.
+
+&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0, reason code action successfully ended.
+
+</pre>
+
+Registers changed after return:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; ..BCDEHL/IXIY same
+
+&nbsp;&nbsp;&nbsp;&nbsp; AF....../.... different
+
+
+
+
+
+</pre>
+
+<b>EP_DIR ($0F) - fetch filename from Eprom:</b>
+
+<pre>IN:&nbsp; BHL = pointer to store returned filename (B=0 means local pointer).
+
+
+
+OUT: Fc = 0:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Filename returned at (HL), null-terminated.
+
+&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_EOF ($09), no more filenames on File EPROM.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), File EPROM not available.</pre>
+
+Notes:
+
+<blockquote>The first EPR_DIR call will return the first file name, if
+
+available. Subsequent calls will return the next filenames in chronological
+
+order (as the files were stored on EPROM). It is necessary to read all
+
+file names to the end, if you want to re-read the filenames from start
+
+at a later time. The buffer to receive the filenames from EPR_DIR must
+
+be sufficiently large, e.g. 128 bytes. The FILER uses this to get display
+
+all available filenames on EPROM. Filenames never contains RAM device references,
+
+but always reflect the complete path from the filing system (when blown
+
+to EPROM). Old 'deleted' files are not reflected in the list of filenames.<br>
+
+<br>
+
+<BR></blockquote>
+
+<b>EP_SAVE ($00) - blow RAM file to Eprom.</b>
+
+<pre>IN:&nbsp; BHL = pointer to filename, (B=0 means local pointer)
+
+
+
+OUT: Fc = 0, file successfully blown on File EPROM.
+
+&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file couldn't be blown on EPROM.</pre>
+
+Notes:
+
+<blockquote>This call is equivalent to the &lt;>ES command in the FILER.
+
+Any files on Eprom matching the filename in BHL will be marked 'deleted'.<br>
+
+<br>
+
+<BR></blockquote>
+
+<b>EP_LOAD ($03) - read file from Eprom into RAM file.</b>
+
+<pre>IN:&nbsp; BHL = pointer to filename (to be found on EPROM)
+
+&nbsp;&nbsp;&nbsp;&nbsp; IX = output file handle (to store contents of file on EPROM)
+
+
+
+
+
+OUT: Fc = 0, file successfully moved to RAM filing system.
+
+&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file EPROM not available.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_ROOM ($07), no room in filing system for data from EPROM.</pre>
+
+Notes:
+
+<blockquote>Before calling OS_Epr and EP_LOAD you should create a new file
+
+with an appropriate file name, using <a href='gnopf.htm'>GN_Opf</a>, A = OP_OUT. The filename to
+
+be searched on EPROM must not contain wildcards (the File EPROM is not
+
+organised as the RAM filing system). This call is equivalent to the &lt;>EF
+
+command in the FILER. You must close the output file after the data has
+
+been copied from EPROM.<br>
+
+<BR></blockquote>
+
+
+
+</body>
+
+</html>
+

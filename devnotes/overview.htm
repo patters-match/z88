@@ -1,0 +1,786 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>Z88 overview</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+<tr>
+
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="intro.htm">Previous</a></td>
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><a href="index.htm">Contents</a></td>
+
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="applovw.htm">Next</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr WIDTH="100%">
+
+<p>
+
+<b><font size=+1>1. Z88 Overview</font></b>
+
+<br>&nbsp;
+
+<pre><i>Processor</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Z80 running at 3.2768 Mhz.
+
+
+
+
+
+<i>Circuitry</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Most complex jobs are done by the BLINK gate array
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; chip.
+
+
+
+<i>Memory</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The Z88 can address up to 4M of memory. This is
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; achieved by dividing the 64K address space of the Z80
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; processor into 4 16K segments. Each segment can then be
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; assigned to any of 256 16K banks, thus allowing a total
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of 4M. The first 64 banks are assigned to internal
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; memory and the three card slots at the front of the
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; machine are assigned 64 banks each.
+
+
+
+<i>RAM</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 32K internal, expandable by addition of external RAM
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cards. 512K RAM may be soldered as internal RAM
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; replacing the 32K standard (requires also retracking
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of circuitry).&nbsp; Current available are 128K, 512K and
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1MB RAM cards.
+
+
+
+<i>ROM</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 128K internal, expandable by addition of ROM cards. ROM
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; contains the operating system (OZ), built in
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applications and hooks for external applications to be
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrated into the system. The underlying hardware
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; allows the internal ROM to be expanded to 512K.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; However, modification of the motherboard is needed to
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; add the extra address lines, since only 128K is
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; addressed.
+
+
+
+<i>Screen</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 640x64 pixels, usually divided into 104x8 6 pixel wide
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; characters and 16x64 pixels of status information at
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the far right of the screen.
+
+
+
+<i>Serial Port</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RS232 port, configured as DTE, for connecting a printer
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or communicating with other devices. Tx, Rx, CTS, DCD
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and RTS can be independently set and read, both
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; software and hardware handshaking are supported. The
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; serial port runs at the following baud rates: 75, 300,
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 600, 1200, 2400, 9600, 19200, 38400.
+
+
+
+<i>Power supply</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Internal batteries (4xAA, alkaline) or external 6.5V DC
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; supply. Note NiCad's are not suitable, losing their
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; charge too quickly at the end of their life, thus
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; putting data at risk. Also even if the Z88 is running
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; off the power supply, batteries should be installed.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This safeguards against power failure etc, which may
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cause data to be lost in a machine with no batteries.
+
+
+
+<i>EPROM's</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Slot 3 contains circuitry for programming EPROM cards.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This circuitry unfortunately means that RAM cards in
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; slot 3 consume much more power than in slots 1 and 2.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It is recommended that slot 3 is, therefore, not used
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for RAM. Note also that when the machine is powered up
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from cold (eg. for the first time) there is a small
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; chance that an EPROM in slot 3 will be written to and
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; corrupted. Therefore, it is advisable to remove EPROMs
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if the Z88 has had no power and you are about to apply
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; it.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 32K, 128K and 256K EPROM Cards are available.
+
+
+
+<i>Software</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OZ operating system. Index (application coordinator),
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Filer (RAM filing system), Panel (for system settings),
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PrinterEd (for printer settings), Imp Export (for
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; communication with other machines), Terminal (VT 52
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compatible), Alarm, Clock, Calendar and Calculator.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Also three fully blown applications: PipeDream
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (wordprocessor and spreadsheet), Diary and BASIC (a
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; version of BBC BASICZ80).
+
+
+
+<i>Expansion</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Three card slots at the front of the machine for RAM
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or EPROM/ROM Cards. Expansion connector available for
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OEM applications, but is normally sealed.
+
+
+
+
+
+</pre>
+
+<b>Machine States</b>
+
+<p>In order to save power the Z88 is able to close down sections of its
+
+circuitry when they are not required for use. As areas of circuitry are
+
+closed down the machine is thought of as falling asleep. There are four
+
+states of drowsiness which successively use less power. Note that states
+
+when the display is on (Awake and Snooze) are often referred to as 'on'
+
+and the Coma state is often referred to as 'off'.
+
+<br>&nbsp;
+
+<pre><i>Awake</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Z80 clock running and display on.
+
+
+
+<i>Snooze</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Z80 clock stopped and display on, ie. waiting for keyboard
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; activity.
+
+
+
+<i>Doze</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Z80 clock running and display off, ie. programming EPROM.
+
+
+
+<i>Coma</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Z80 clock stopped and display off, ie. machine shut down.
+
+
+
+</pre>
+
+<b>Resetting</b>
+
+<p>There are two forms of reset which can be performed on the Z88. A Hard
+
+Reset completely clears the memory, thus any files stored in memory will
+
+be lost, and resets all defaults and the real time clock. A Hard Reset
+
+is performed by opening the flap, which covers the card slots at the front
+
+of the machine, and then pressing the recessed reset button on the left
+
+hand side of the unit, just below the power socket. A Soft Reset is performed
+
+in the same way, but with the flap firmly closed. A Soft Reset will reset
+
+many defaults and remove all applications and alarms. However RAM files
+
+should be preserved, though this can never be absolutely guaranteed, and
+
+the clock should not be affected. A Soft Reset can also be performed from
+
+the Index by using the Purge command.
+
+<br>&nbsp;
+
+<br>&nbsp;
+
+<p><b>Applications</b>
+
+<p>The Z88 applications are designed so that the user can switch between
+
+one application and another, possibly different instantiations of the same
+
+application. When an application is interrupted and other applications
+
+are instantiated, it is said to have been pre-empted. When the pre-emption
+
+is over the application is in the same state as it was before the interruption
+
+and can continue as though nothing had happened. Sometimes the application
+
+will have to tidy up the screen after a pre-emption, the system will tell
+
+the application if this is necessary. Because more than one application
+
+can be running at any one time (although only one runs, the others are
+
+dormant - the Z88 is task switching not multi-tasking) the resources of
+
+the machine must be carefully shared out. This means extra care must be
+
+taken in writing applications and observing the rules, since a failure
+
+in one application is likely to cause problems for the machine which will
+
+effect other applications and stored files.
+
+<br>&nbsp;
+
+<p><b>Menu and help system</b>
+
+<p>The Z88 has a powerful system for entering commands through menu pages.
+
+The menu pages can also support a keystroke sequence and a help page for
+
+each command. To use this system the application writer simply has to set
+
+up a static data structure of the appropriate form in the application ROM.
+
+The system will then generate all the menu and help pages and return keyboard
+
+codes when a menu or a keystroke sequence is entered. The system can be
+
+seen working most fully in PipeDream; ROM space prevented the system having
+
+more help pages, but these can be added on external cards.
+
+<br>&nbsp;
+
+<p><b>Devices and files</b>
+
+<p>The input/output scheme of the Z88 is based on named devices. File memory,
+
+the screen, the keyboard, the printer and serial port are all treated as
+
+devices. To use a device an application attempts to open a channel to the
+
+device (with a file name for file devices, otherwise just the device name),
+
+and if this is successful a handle is issued to reference that channel.
+
+There are a limited number of handles in the system (about 150), and although
+
+in practice they are unlikely to run out, the possibility must be taken
+
+into account.
+
+<p>The Z88 RAM filing system is divided into 5 devices. :RAM.0 accesses
+
+internal memory and :RAM.1, :RAM.2, :RAM.3 access RAM in slots 1,2 and
+
+3 respectively. The fifth RAM device is :RAM.- which can use memory from
+
+anywhere in the system. Originally the intention was that this would be
+
+used for scratch files which would be lost if a soft reset occurred. Unfortunately
+
+a bug in version 2.2/3.0 of the operating system means that if there are
+
+any files in :RAM.- when a soft reset (or purge) occurs the system will
+
+almost inevitably crash, often requiring a Hard Reset. :RAM.- is best avoided
+
+where possible and any files which do use it should be deleted immediately
+
+after use. Some international V3.xx and V4 of the OZ operating system has
+
+fixed this problem and files may be stored without crashing the machine
+
+during
+
+a soft reset.
+
+<p>Before listing the available devices note that the EPROM archiving system
+
+does not use a device type interface. Also note that it is not possible
+
+to add extra devices to the system via application ROMs.
+
+<br>&nbsp;
+
+<pre><i>:RAM.n</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; File device in slot n, 0=internal. Read and write.
+
+
+
+<i>:INP.0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard input device, usually the keyboard, but can be redirected.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read only.
+
+
+
+<i>:OUT.0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard output device, usually the screen, but can be redirected.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Write only.
+
+
+
+<i>:SCR.0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The screen. Write only.
+
+
+
+<i>:COM.0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The serial port. Read and write.
+
+
+
+<i>:PRT.0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The printer. Data sent to this device is processed by the printer
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; filter whose settings are defined by the PrinterEd application.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Write only.
+
+
+
+<i>:NUL.0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This device does nothing, but can be useful when you want to send
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; something nowhere, or get nothing from anywhere. Data sent is
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; thrown away, reading returns an End of File message. Read and
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Write.
+
+
+
+<i>:ROM.n</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Associated with application in slot n, 0=internal. This device can
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; be read using the DOR routines described later, but cannot be used
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; as a conventional device.
+
+
+
+
+
+</pre>
+
+<b>Streams and Filters</b>
+
+<p>A stream is simply a communication channel associated with a handle.
+
+Various system calls can take input or send output to a stream. For example
+
+the system routine to convert binary to ASCII decimal numbers can direct
+
+its output to the standard output stream rather than store the result in
+
+a buffer in memory and then output the contents of that buffer as a string.
+
+A filter is a general way of performing simple transformations on character
+
+sequences. Text can be sent to a filter and then pulled out again, having
+
+been processed according to the set of transformations associated with
+
+the filter. Some system routines take a filter as their input, requiring
+
+the application to have already sent text to the filter, and others as
+
+output, requiring the filter to be read after the routine is complete.
+
+<br>&nbsp;
+
+<p><b>Interrupts</b>
+
+<p>The Z88 uses interrupts extensively in its general operation. Unfortunately
+
+for external hardware it is not possible for the system to recognize and
+
+deal with interrupts from outside sources - it is uncertain what the system
+
+would do with an external interrupt. The following are the sources of maskable
+
+interrupts, which are all mediated by the BLINK chip:
+
+<br>&nbsp;
+
+<pre><i>Keyboard</i>&nbsp;&nbsp;&nbsp; A key press causes an interrupt which can wake the machine from a
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snooze.
+
+
+
+<i>Flap</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This, if the machine is on, will switch it into Doze, in
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; preparation for card insertion and removal. Note that the flap
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; should only be used when the machine is on, otherwise its movement
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is not properly recognized.
+
+
+
+<i>UART</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The serial processor in the BLINK chip generates interrupts to
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; coordinate communications.
+
+
+
+<i>Battery Low</i> This causes OZ to display a warning message in the status area (or
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OZ window) on the right hand edge of the screen.
+
+
+
+<i>Clock</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The clock interrupts periodically so that the Z88 can update the
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; time and date and check any pending alarms.</pre>
+
+Non-maskable interrupts come from two sources, and again they are mediated
+
+by BLINK:
+
+<pre><i>Power fail</i>&nbsp; This puts the machine in a coma when power is very low.
+
+
+
+<i>Timeout</i>&nbsp;&nbsp;&nbsp;&nbsp; When the machine has been inactive, but on, for the timeout period
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set in the panel, this interrupt occurs and puts the machine in
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; coma. Note certain activities reset the timeout value, such as
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pressing a key, or reading the clock. This latter is why the
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; machine will not timeout when the Clock is running.
+
+
+
+</pre>
+
+<b>Expanded and Non-Expanded Machines</b>
+
+<p>Depending on the amount of memory in slot 1 the Z88 will either be expanded
+
+or non-expanded. With 128K or more of RAM in slot 1 the Z88 is said to
+
+be expanded. This has the effect of increasing the maximum width of the
+
+graphics map to 256 pixels from 96, increasing the default bad application
+
+size, used by BASIC, from 8K to 40K, and expanding the number of user definable
+
+characters from 16 to 64. If extra memory is required, but not these expanded
+
+parameters, extra RAM should be placed in slot 2 (or less preferably in
+
+slot 3).
+
+<p>V4 of the OZ operating system automatically recognises the machine as
+
+expanded if the Z88 has been upgraded with 128K or more of internal RAM
+
+(replacing the original 32K RAM). However this requires soldering.
+
+<br>&nbsp;
+
+<p><b>The Screen</b>
+
+<p>The screen is a supertwist liquid crystal display, driven by the BLINK
+
+chip, and capable of displaying 640x64 pixels. This is usually arranged
+
+as 104x8 6x8 pixel characters and 16x64 bits of status information on the
+
+right of the screen (the OZ window). However an area of 10x8 characters
+
+on the left hand edge of the screen is reserved by the system for the application
+
+name and menu topic names. This gives applications a working area of 94x8
+
+characters.
+
+<p>The operating system provides a screen driver, which operates by sending
+
+special codes to the screen, which provide a number of useful display facilities:
+
+six windows (with optional borders and banners) for application usage;
+
+up to 64 user defined characters; optional centering and left or right
+
+aligning; tiny, bold, grey, inverted or flashing characters; horizontal
+
+and vertical scrolling; controllable bleeps; the greying and ungreying
+
+of windows; access to extra characters (such as box drawing, arrows and
+
+keyboard icons). The driver provides access to all the display facilities
+
+of the machine except high resolution graphics. High resolution graphics
+
+are generally provided by the map interface, so called because PipeDream
+
+uses it to make a map of the page being worked on. This is 64 pixels deep
+
+and is from 8 to 256 pixels wide in 8 pixel steps. Note that the maximum
+
+width is 96 pixels if the Z88 has less than 128K RAM in slot 1, ie. is
+
+unexpanded. The interface allows only for a whole line of pixels to be
+
+written at a time and there is no facility for reading back from the screen,
+
+so if necessary the application needs to keep track of what has been written.
+
+It is possible to access the screen more directly, although this is complicated
+
+and may interfere with other applications, so where possible the map interface
+
+is to be preferred.
+
+<p>The Z88 Assembler Workbench provides library routines for plotting points,
+
+drawing lines and sprites, and many other graphics utilities for in the
+
+graphics area. The library routines are properly interfaced with the Z88
+
+operating system, and can easily be integrated into applications.
+
+<br>&nbsp;
+
+<p><b>Card Manager</b>
+
+<p>The card slots at the front of the machine are the route by which memory
+
+can be added and external software can be provided. EPROM cards, used for
+
+archiving, are not part of the card manager scheme, since they do not effect
+
+any part of the system outside of the Filer. RAM and ROM cards have effects
+
+throughout the system and so the card manager exists to keep track of their
+
+movements. The most basic rule of the card manager is the machine must
+
+be on (ie. the display lit up) and the computer in the Index popdown. At
+
+this stage RAM and ROM cards may be freely added. It is the removal of
+
+cards, however, which is problematical.
+
+<p>Removing a RAM card is a dangerous business. If a card is removed, a
+
+flashing FAIL message will appear at the top of the OZ window and the Z88
+
+will not respond to the keyboard. The machine should now be soft reset
+
+(replacing the RAM card will not un-fail the machine because the data on
+
+the card will have been lost), and with luck files in other RAM devices
+
+will be intact. This cannot be guaranteed and it is recommended that files
+
+are backed up on EPROM or on another computer. Fortunately removing a RAM
+
+card need only be done in exceptional circumstances, such as upgrading
+
+to a larger RAM. If a FAIL message occurs without removing a RAM card,
+
+then some of the RAM memory in the machine may be faulty, however a software
+
+crash can also cause a FAIL state to occur.
+
+<p>ROM cards should only be removed from the Index, with the machine on.
+
+Attempts to remove a card when not in the Index will result in a continuous
+
+high pitched tone and a flashing INDEX symbol. The system will be locked
+
+until the card is replaced in its original slot. After replacement go to
+
+the Index before attempting to remove the card. If an application on the
+
+ROM card is being used, indicated by the slot number next to the application
+
+name in the suspended activities list, and the card is removed, the system,
+
+once the flap is reclosed, will bleep and flash CARD in the OZ window.
+
+The card must be replaced before anything else can be done. Removing cards
+
+is very straightforward providing you make sure the machine is switched
+
+on and close the flap after each removal and insertion, to check that no
+
+rules have been disobeyed.
+
+<br>&nbsp;
+
+<p><b>Alarms, timeouts and batteries</b>
+
+<p>If an alarm occurs when the machine is in coma, the machine will be
+
+woken up and held in lock out mode. This is indicated by a flashing LOCK-OUT
+
+symbol in the OZ window. Lock out means that the keyboard is disabled and
+
+normal working must be restored by switching the machine off and on again
+
+using the two shift keys. The idea behind lock out is that an alarm may
+
+awake the Z88 in a brief case, or some such, and lock out means that any
+
+keys which may accidently be pressed will have no effect. The machine will
+
+remain awake until the user intervenes or the machine times out. Lock out
+
+mode can be forced by holding down CAPS LOCK before releasing the two shift
+
+keys when switching the machine on.
+
+<p>The timeout mechanism causes the machine to enter coma if it is on,
+
+but inactive for the time set in the panel. The period is set in minutes
+
+from 0 to 99 where a value of zero means never timeout. Keypresses and
+
+reading the clock both reset the timeout count, meaning, for example, that
+
+if the Z88 is in the Clock page it will never timeout. The timeout mechanism
+
+can be used to save power, by ensuring an unattended machine switches off
+
+after a short period. It may also be useful to have the machine permanently
+
+awake, if waiting for input from the serial port, for example.
+
+<p>When battery power is getting low a battery low interrupt occurs and
+
+a BATT-LOW symbol is displayed in the OZ window. This is a warning that
+
+batteries should be replaced in the near future. If batteries are not replaced,
+
+and the system is in coma, the memory will be safe for days or even weeks.
+
+If machine usage continues while the BATT-LOW symbol is present then eventually
+
+it will begin to power fail. This is marked by violent screen flickering
+
+and the machine going into coma. It becomes increasingly difficult to awake
+
+the machine. At this point memory integrity may be in danger and fresh
+
+batteries should be installed immediately, preferably a power supply should
+
+be attached during this operation. If possible batteries should always
+
+be replaced before a power fail can occur. Do not continue to try and work
+
+with the machine after a power fail has taken place.
+
+<p>Nickel Cadmium rechargeable batteries supply a steady current until
+
+near the end of their charge, at which point the power they provide falls
+
+very sharply over a short period of time. Alkaline batteries lose their
+
+power slowly and so as their charge falls the battery low warning can be
+
+given while there is still enough charge to keep memory safe. With NiCad
+
+batteries there is no warning as to when they will lose their charge, the
+
+first the user is likely to know about it is a dramatic power fail. The
+
+consequence of this is that data loss is very likely when NiCads reach
+
+the end of their charge, therefore they are not recommended for use with
+
+the machine but may be used with great attention.
+
+<p>
+
+<hr WIDTH="100%">
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+
+<tr>
+
+<td ALIGN=LEFT VALIGN=TOP WIDTH="33%"><a href="intro.htm">Previous</a></td>
+
+<td ALIGN=CENTER VALIGN=TOP WIDTH="34%"><a href="index.htm">Contents</a></td>
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><a href="applovw.htm">Next</a></td>
+
+</tr>
+
+<tr>
+
+<td ALIGN=LEFT VALIGN=TOP WIDTH="33%">Introduction</td>
+
+<td ALIGN=CENTER VALIGN=TOP WIDTH="34%">Z88 Overview</td>
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Application Writing</td>
+
+</tr>
+
+</table>
+
+
+
+</body>
+
+</html>
+

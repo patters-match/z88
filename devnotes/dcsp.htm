@@ -1,0 +1,98 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>System Calls Reference</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+
+
+<tr>
+
+<td VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+
+
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+
+
+
+<td nowrap ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents of System Calls</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr>
+
+<p><b><font size=+1>DC_Sp, handle Director/CLI settings</font></b>
+
+<p><tt>RST 20H, DEFW $180C</tt>
+
+<pre>IN:</pre>
+
+
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; C = reason code
+
+&nbsp;&nbsp;&nbsp;&nbsp; B = 0, always
+
+&nbsp;&nbsp;&nbsp;&nbsp; HL = points to a null-terminated string, the argument</pre>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reason codes are
+
+:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; $00 DQ_Dev : define default device&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp; $03 DQ_Dir : define default directory&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp; $06 DQ_Fnm : define filename match string</pre>
+
+
+
+<pre>
+
+OUT:</pre>
+
+
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0:&nbsp;&nbsp; Successful
+
+&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:&nbsp;&nbsp; Failure, A = RC error</pre>
+
+Notes:
+
+<blockquote>Internal operating system usage.
+
+<br>This call is used by the OS_NQ if B = $8C.
+
+<br>Use it directly for these reasons (instead of OS_SP). It will be faster.</blockquote>
+
+Bugs:
+
+<br>&nbsp;
+
+</body>
+
+</html>
+

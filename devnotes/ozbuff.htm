@@ -1,0 +1,648 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.06 [fr]C-CCK-MCD   (Win95; I) [Netscape]">
+
+   <TITLE>System Calls Reference</TITLE>
+
+</HEAD>
+
+<BODY>
+
+&nbsp;
+
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<TR>
+
+<TH COLSPAN="3">Z88 Developers' Notes</TH>
+
+</TR>
+
+
+
+<TR>
+
+<TD VALIGN=BOTTOM WIDTH="10%"><A HREF="index.htm">Contents</A></TD>
+
+
+
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</TD>
+
+
+
+<TD ALIGN=RIGHT VALIGN=BOTTOM NOWRAP WIDTH="10%"><A HREF="sysref.htm">Contents
+
+of System Calls</A></TD>
+
+</TR>
+
+</TABLE>
+
+
+
+<HR>
+
+<P><B><FONT SIZE=+1>OZ_Buff, buffers low level interface</FONT></B>
+
+<P><TT>CALL $004E</TT>
+
+<P><TT>IN:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+IX = buffer access</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+There are three different buffer types:</TT>
+
+<TABLE BORDER=0 >
+
+<TR>
+
+<TH><TT>Name</TT></TH>
+
+
+
+<TH><TT>Access</TT></TH>
+
+
+
+<TH><TT>Description</TT></TH>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>KB</TT></TD>
+
+
+
+<TD><TT>$0216</TT></TD>
+
+
+
+<TD><TT>the keyboard buffer</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>RX</TT></TD>
+
+
+
+<TD><TT>$0233</TT></TD>
+
+
+
+<TD><TT>the recieve data buffer for the serial interface</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>TX</TT></TD>
+
+
+
+<TD><TT>$0229</TT></TD>
+
+
+
+<TD><TT>the transmit data buffer for the serial interface</TT></TD>
+
+</TR>
+
+</TABLE>
+
+
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+L = reason call</TT>
+
+<BR>&nbsp;
+
+<TABLE BORDER=0 >
+
+<TR>
+
+<TH><TT>Reason</TT></TH>
+
+
+
+<TH><TT>Name</TT></TH>
+
+
+
+<TH><TT>Function</TT></TH>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>$00</TT></TD>
+
+
+
+<TD><TT>BF_PB</TT></TD>
+
+
+
+<TD><TT>Write to buffer</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>$03</TT></TD>
+
+
+
+<TD><TT>BF_GB</TT></TD>
+
+
+
+<TD><TT>Read from buffer</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>$06</TT></TD>
+
+
+
+<TD><TT>BF_PBT</TT></TD>
+
+
+
+<TD><TT>Write to buffer with timeout</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>$09</TT></TD>
+
+
+
+<TD><TT>BF_GBT</TT></TD>
+
+
+
+<TD><TT>Read from buffer with timeout</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>$0C</TT></TD>
+
+
+
+<TD><TT>BF_STA</TT></TD>
+
+
+
+<TD><TT>Get buffer status</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>$0F</TT></TD>
+
+
+
+<TD><TT>BF_PUR</TT></TD>
+
+
+
+<TD><TT>Purge buffer</TT></TD>
+
+</TR>
+
+</TABLE>
+
+
+
+<P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+A = value to put (if required)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+BC = timeout (if required)</TT>
+
+<P><TT>OUT:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Depends on reason code, see below.</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+IX always remains unchanged.</TT>
+
+<P><TT>Registers changed after return:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Depends on reason code.</TT>
+
+<P>
+
+<HR><B>BF_PB (L = $00), Write byte to buffer</B>
+
+<P><TT>IN :</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+A value to put</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+IX buffer access</TT><TT></TT>
+
+<P><TT>Out if call succeeded:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=0, H full slots, L empty slots.</TT><TT></TT>
+
+<P><TT>Out if call failed:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=1, A=RC_EOF buffer is full.</TT>
+
+<P>
+
+<HR><B>BF_GB (L = $03), Read byte from buffer</B><TT></TT>
+
+<P><TT>IN :</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IX
+
+buffer access</TT><TT></TT>
+
+<P><TT>Out if call succeeded:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=0, A=C data , H full slots, L empty slots.</TT><TT></TT>
+
+<P><TT>Out if call failed:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=1, A=RC_EOF buffer is empty.</TT>
+
+<P>
+
+<HR><B>BF_PBT (L = $06), Write byte to buffer with timeout</B>
+
+<P><TT>IN :</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+A value to put</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+BC timeout, $FFFF for default</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+IX buffer access</TT><TT></TT>
+
+<P><TT>Out if call succeeded:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=0, BC remaining timeout</TT><TT></TT>
+
+<P><TT>Out if call failed:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=1, A=RC_SUSP, RC_ESC, RC_TIME</TT>
+
+<P>
+
+<HR><B>BF_GBT (L = $09), Read byte from buffer with timeout</B><B></B>
+
+<P><TT>IN :</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+BC timeout, $FFFF for default</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+IX buffer access</TT><TT></TT>
+
+<P><TT>Out if call succeeded:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=0, A data read, BC remaining timeout</TT><TT></TT>
+
+<P><TT>Out if call failed:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=1, A=RC_SUSP, RC_ESC, RC_TIME</TT><TT></TT>
+
+<P>
+
+<HR><B>BF_STA (L = $0C), Get buffer status</B>
+
+<P><TT>IN :</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+IX buffer access</TT><TT></TT>
+
+<P><TT>OUT:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=0, always.</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+H full slots (bytes in use)</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+L empty slots (free bytes)</TT><TT></TT>
+
+<P>
+
+<HR><B>BF_PUR (l = $0F), Purge buffer</B><TT></TT>
+
+<P><TT>IN :</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+IX buffer access</TT><TT></TT>
+
+<P><TT>OUT:</TT>
+
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+Fc=0, always.</TT><TT></TT>
+
+<P>
+
+<HR>
+
+<P>Notes:
+
+<BLOCKQUOTE>The access links to a buffer frame placed in the OS RAM variables
+
+area. Each buffer frame is 8 bytes length.
+
+<P>Frame structure:
+
+<TABLE BORDER=0 >
+
+<TR>
+
+<TH><TT>address</TT></TH>
+
+
+
+<TH><TT>length</TT></TH>
+
+
+
+<TH><TT>description</TT></TH>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>IX</TT></TD>
+
+
+
+<TD><TT>2</TT></TD>
+
+
+
+<TD><TT>associated handle (for the serial port)</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>-01</TT></TD>
+
+
+
+<TD><TT>1</TT></TD>
+
+
+
+<TD><TT>pointer for input</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>-02</TT></TD>
+
+
+
+<TD><TT>1</TT></TD>
+
+
+
+<TD><TT>pointer for output</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>-03</TT></TD>
+
+
+
+<TD><TT>1</TT></TD>
+
+
+
+<TD><TT>unused</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>-04</TT></TD>
+
+
+
+<TD><TT>1</TT></TD>
+
+
+
+<TD><TT>buffer high byte address</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>-05</TT></TD>
+
+
+
+<TD><TT>1</TT></TD>
+
+
+
+<TD><TT>buffer start address</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>-06</TT></TD>
+
+
+
+<TD><TT>1</TT></TD>
+
+
+
+<TD><TT>buffer end address</TT></TD>
+
+</TR>
+
+</TABLE>
+
+<TT></TT>
+
+<P>The buffer area begins at $0B00, just after the handles and ends at
+
+$0BFF.
+
+<BR>&nbsp;
+
+<TABLE BORDER=0 >
+
+<TR>
+
+<TH><TT>address</TT></TH>
+
+
+
+<TH><TT>length</TT></TH>
+
+
+
+<TH><TT>description</TT></TH>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>0B00</TT></TD>
+
+
+
+<TD><TT>32</TT></TD>
+
+
+
+<TD><TT>KB buffer</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>0B20</TT></TD>
+
+
+
+<TD><TT>96</TT></TD>
+
+
+
+<TD><TT>TX buffer</TT></TD>
+
+</TR>
+
+
+
+<TR>
+
+<TD><TT>0B80</TT></TD>
+
+
+
+<TD><TT>128</TT></TD>
+
+
+
+<TD><TT>RX buffer</TT></TD>
+
+</TR>
+
+</TABLE>
+
+<TT></TT>
+
+<BR>&nbsp;</BLOCKQUOTE>
+
+
+
+</BODY>
+
+</HTML>
+

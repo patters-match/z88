@@ -1,0 +1,98 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   <title>System Calls Reference</title>
+
+</head>
+
+<body>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+
+<tr>
+
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+
+</tr>
+
+<tr>
+
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
+
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+
+</tr>
+
+</table>
+
+
+
+<hr WIDTH="100%">
+
+<p>
+
+
+
+<b><font size=+1>GN_Cme, compare null-terminated
+
+strings, one local, one extended</font></b>
+
+<p><tt>RST 20H, DEFW $4209</tt>
+
+<p>IN:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; BHL = extended pointer to first string
+
+&nbsp;&nbsp;&nbsp;&nbsp; (B = 0 -> HL is local)
+
+&nbsp;&nbsp;&nbsp;&nbsp; DE = local pointer to second string</pre>
+
+OUT:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fz = 0, strings are different
+
+&nbsp;&nbsp;&nbsp;&nbsp; Fz = 1, strings are equal
+
+</pre>
+
+Registers changed after return:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; ..BCDEHL/IXIY same
+
+&nbsp;&nbsp;&nbsp;&nbsp; AF....../.... different
+
+</pre>
+
+Notes:
+
+<blockquote>Both strings should be null-terminated. Comparison is case-dependent
+
+('A' and 'a' are not the same).</blockquote>
+
+Bugs:
+
+<br>&nbsp;
+
+<p>Related calls:
+
+<p><a href='gnrbe.htm'>GN_Rbe</a>, read byte at extended address
+
+<br><a href='gnwbe.htm'>GN_Wbe</a>, write byte at extended address
+
+<br><a href='osbde.htm'>OS_Bde</a>, copy bytes to extended address
+
+<br><a href='osbhl.htm'>OS_Bhl</a>, copy bytes from extended address
+
+</body>
+
+</html>
+
