@@ -4051,6 +4051,7 @@ public class Dz {
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
 				strMnem = cbStrMnem;
+				argsMnem = null;
 				i = blink.readByte(pc++);
 				break;
 
@@ -4141,8 +4142,8 @@ public class Dz {
 				argsMnem = mainArgsMnem;
 		}
 		
+		opcode.append(strMnem[i]);	// the instruction opcode string...
 		if (argsMnem != null) {
-			opcode.append(strMnem[i]);	// the instruction opcode string with replace macro
 			int replaceMacro = opcode.indexOf("{0}");
 			
 			switch (argsMnem[i]) {
@@ -4253,6 +4254,7 @@ public class Dz {
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
 				strMnem = cbStrMnem;
+				argsMnem = null;
 				i = blink.getByte(offset++, bank);
 				break;
 
@@ -4343,8 +4345,8 @@ public class Dz {
 				argsMnem = mainArgsMnem;
 		}
 		
+		opcode.append(strMnem[i]);	// the instruction opcode string...
 		if (argsMnem != null) {
-			opcode.append(strMnem[i]);	// the instruction opcode string with replace macro
 			int replaceMacro = opcode.indexOf("{0}");
 			
 			switch (argsMnem[i]) {
