@@ -166,9 +166,12 @@ code.<br>
 started</font></b></p>
 <p align="left">The easiest
 way is just to double-click on the z88.jar file in
-your favorite File Browser. You usually can do this since the Java
+your favorite File Browser on Windows. You usually can do this since
+the Java
 installer
-makes sure to bind JAR files to the JRE. You can also start OZvm from
+makes sure to bind JAR files to the JRE in Windows. If that doesn't
+work (might not be available in other operating systems with Java
+installed), you can start OZvm from
 the
 command line shell:</p>
 <p style="margin-left: 1.13cm; margin-bottom: 0cm;" align="left"><font
@@ -202,7 +205,10 @@ If you're using another keyboard layout (especially french!), you need
 to
 change the layout in your operating system, before getting a sensible
 input to
-the Z88.<br>
+the Z88. OZvm also tries to install a default snapshot of a Z88,
+'boot.z88', which contains preset Z88 environment with ROM, RAM and
+possibly external cards like File and Application Cards (snapshots are
+explained later).<br>
 <br>
 There's plenty of command line options available that you can use, for
 example
@@ -427,7 +433,7 @@ example, if you as an english user want to play with a french Z88 ROM,
 you need
 to specify the following at the command line:</p>
 <p style="margin-left: 1.13cm; margin-bottom: 0cm;" align="left"><font
- face="monospace">java -jar z88.jar &lt;filename
+ face="monospace">java -jar z88.jar rom &lt;filename
 of french ROM&gt; kbl fr</font></p>
 <p style="margin-bottom: 0cm;" align="left">Finally, you need to change
 to a
@@ -436,19 +442,19 @@ the only
 way. Using this method will enable an almost one-to-one key mapping
 between the
 'host' keyboard and the Z88 keyboard.</p>
-<p style="margin-bottom: 0cm;" align="left">OZvm will in a later
-version be
-implemented with a graphical keyboard below the screen where you will
+<p style="margin-bottom: 0cm;" align="left">OZvm is implemented with a
+graphical keyboard below the screen where you will
 be able
 to use the mouse to click on the various (button) keys, combined with
 the
-feature to select another keyboard layout in the menu. This feature
-will
-display the correct keyboard layout according to the selected
-localization.
-This will be very useful for key combinations that may be hard to
+feature to select another keyboard layout in the menu. This is a very
+useful feature for key combinations that may be hard to
 replicate
-through the keyboard mapping emulation.</p>
+through the keyboard mapping emulation. Currently, the UK keyboard
+layout is displayed, but will in a future version display the keyboard
+layout according to the selected
+localization. <br>
+</p>
 <p style="margin-bottom: 0cm;" align="left">OZvm has implemented
 several (but
 not all) country specific keyboard layout mappings between the PC and
@@ -462,21 +468,24 @@ list:
 <p style="margin-bottom: 0cm;" align="left">&nbsp;</p>
 <p style="margin-bottom: 0cm;" align="left"><a name="Cmdline_options"></a><b>Command
 line options</b></p>
-<p style="margin-bottom: 0cm;" align="left">Currently, there's no menu
-selection in the Graphical User Interface. All features are specified
+<p style="margin-bottom: 0cm;" align="left">Currently, there's a
+limited menu
+selection available in the Graphical User Interface. Most features are
+specified
 using
-command line options at your operating system shell. This is the
+command line options at your operating system shell or in the debug
+command line interface. This is the
 general syntax
 for executing OZvm:</p>
 <p style="margin-left: 1.13cm; margin-bottom: 0cm;" align="left"><font
  face="monospace">java -jar z88.jar
-[&lt;ROM-filename&gt;]
+[&lt;'boot.z88' | snapshot file&gt;]
 [&lt;options&gt;]</font></p>
 <p style="margin-bottom: 0cm;" align="left">the following options are
 available
 (all specified in lower case!):</p>
 <p style="margin-bottom: 0cm;" align="left">&nbsp;</p>
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<table style="width: 100%;" border="0" cellpadding="0" cellspacing="0">
   <col width="80*"> <col width="176*"><tbody>
     <tr valign="top">
       <td width="31%">
@@ -495,8 +504,11 @@ available
       <p align="left"><b><font face="monospace"><font color="#3f5fbf">debug</font></font></b></p>
       </td>
       <td style="width: 69%; vertical-align: top;">
-      <p align="left"><font color="#3f5fbf">Enable debugging mode in
-OZvm.</font></p>
+      <p align="left"><font color="#3f5fbf">Enable debug command line
+in
+OZvm (separate window). Can also be actived from the program menu:
+File-&gt;Debug Command Line<br>
+      </font></p>
       </td>
     </tr>
     <tr valign="top">
@@ -506,6 +518,20 @@ OZvm.</font></p>
       <td width="69%">
       <p align="left">&nbsp;</p>
       </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><b><font face="monospace"><font
+ color="#3f5fbf">rom &lt;filename&gt;<br>
+      </font></font></b></td>
+      <td><font color="#3f5fbf">Load a specified ROM image into the
+emulator (bottom half of slot 0). If this option is not used, then the
+default UK V4.0 ROM is installed during boot of OZvm. Allowed ROM image
+size is 128K to 512K.<br>
+      </font></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
     </tr>
     <tr valign="top">
       <td width="31%">
@@ -637,8 +663,8 @@ card image, typically if you want to make a 1Mb hybrid application/file
 card and preload the top 512K with a file image of a previous 512K
 application card - the bottom 512Kb can then be created with a file
 area.&nbsp;</font></p>
-      <p><font color="#3f5fbf">For example:</font>
-      <font color="#3f5fbf"><span style="font-family: monospace;">crd2
+      <p><font color="#3f5fbf">For example:</font> <font
+ color="#3f5fbf"><span style="font-family: monospace;">crd2
 1024 29f
 flashstore.epr </span></font><font color="#3f5fbf">means that an empty
 1Mb Amd Flash
@@ -701,8 +727,8 @@ file. The following default types are assigned:</font></p>
       <font color="#3f5fbf">512K
 = Intel Flash Card</font> <font color="#3f5fbf">(use
 -t 29F to change to an AMD 512K Flash Card)</font><font color="#3f5fbf"><br>
-1024K =</font> <font color="#3f5fbf">Intel Flash Card</font>
-      <font color="#3f5fbf">(use
+1024K =</font> <font color="#3f5fbf">Intel Flash Card</font> <font
+ color="#3f5fbf">(use
 -t 29F to change to an AMD 1024K Flash Card)<br>
       <br>
 You can override the evaluate the above by specifying the following
@@ -742,23 +768,24 @@ possibly an autostart of Z80 execution engine.</font></p>
 mode</b></p>
 <p style="margin-bottom: 0cm;" align="left">If you specified the
 debugging mode
-at the command line, you automatically get some extra windows in OZvm.
+at the command line (or with File-&gt;Debug Command Line) , you
+automatically get an extra window in OZvm.
 The
-small window at the bottom (just the size of a single line of text) is
+small white area at the bottom (just the size of a single line of text)
+is
 the OZvm
 debug command line. Here, you will find the blinking cursor (or caret),
 ready
 for input (just after OZvm has been started from host operating command
 line
-(eg. MSDOS shell or UNIX shell). The large window in the middle
-(between the
-Z88 screen and the debug command line), is for text output of debug
+(eg. MSDOS shell or UNIX shell). The large window above is for text
+output of debug
 commands.</p>
 <p style="margin-bottom: 0cm;" align="left">When you start OZvm in
 debug mode,
-the Z88 ROM isn't automatically booted. You will see a grey screen
+the Z88 system isn't automatically booted. You will see a grey screen
 (switched
-off -state). The OZvm environment has everything loaded and
+off state). The OZvm environment has everything loaded and
 initialized, ready
 to be executed. At this stage, you're actually able to set monitoring
 breakpoints and other stuff, before letting OZvm run the code.</p>
@@ -828,9 +855,8 @@ commands below are just displayed in upper case for readability):</p>
       </td>
     </tr>
     <tr valign="top">
-      <td style="vertical-align: top;">
-      <b><font face="monospace"><font color="#3f5fbf">help</font></font></b>
-      </td>
+      <td style="vertical-align: top;"> <b><font face="monospace"><font
+ color="#3f5fbf">help</font></font></b> </td>
       <td><font color="#3f5fbf">Display a list of the available
 commands (see
 below).</font><font color="#3f5fbf"><font face="monospace"><b><br>
@@ -842,8 +868,7 @@ below).</font><font color="#3f5fbf"><font face="monospace"><b><br>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <b><font
- face="monospace"><font color="#3f5fbf">run</font></font></b>
-      </td>
+ face="monospace"><font color="#3f5fbf">run</font></font></b> </td>
       <td width="69%"><font color="#3f5fbf">Execute Z88 from PC
 register.</font></td>
     </tr>
@@ -870,10 +895,9 @@ when Z88 window has focus).</font></td>
     <tr valign="top">
       <td width="31%"> <font color="#3f5fbf"><font face="monospace"><b>z</b></font></font>
       </td>
-      <td width="69%"><font color="#3f5fbf">Run z88 machine</font>
-      <font color="#3f5fbf">at
-PC register (typically a sub routine)</font>
-      <font color="#3f5fbf">and
+      <td width="69%"><font color="#3f5fbf">Run z88 machine</font> <font
+ color="#3f5fbf">at
+PC register (typically a sub routine)</font> <font color="#3f5fbf">and
 break at next instruction on same call level.</font></td>
     </tr>
     <tr valign="top">
@@ -898,8 +922,7 @@ register.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>dz
-[&lt;address&gt;]</b></font></font>
-      </td>
+[&lt;address&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Disassemble at default PC
 register
 (if no
@@ -932,10 +955,9 @@ slot.</font><font color="#3f5fbf"><font face="monospace"><b><br>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <b><font
- face="monospace"><font color="#3f5fbf">wb</font></font></b>
-      <b><font face="monospace"><font color="#3f5fbf">&lt;ext.address&gt;
-&lt;byte&gt; [&lt;byte&gt;]</font></font></b>
-      </td>
+ face="monospace"><font color="#3f5fbf">wb</font></font></b> <b><font
+ face="monospace"><font color="#3f5fbf">&lt;ext.address&gt;
+&lt;byte&gt; [&lt;byte&gt;]</font></font></b> </td>
       <td width="69%"><font color="#3f5fbf">Write a single or several
 byte(s) to
 memory at address.</font></td>
@@ -949,8 +971,7 @@ memory at address.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>m
-[&lt;address&gt;]</b></font></font>
-      </td>
+[&lt;address&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">View memory at default PC
 register
 (if no
@@ -963,8 +984,7 @@ address), otherwise at specified address.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>bp
-[&lt;address&gt;]</b></font></font>
-      </td>
+[&lt;address&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">List breakpoints (if no
 address),
 otherwise toggle stop breakpoint at specified address.</font></td>
@@ -976,8 +996,7 @@ otherwise toggle stop breakpoint at specified address.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>bpd
-[&lt;address&gt;]</b></font></font>
-      </td>
+[&lt;address&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">List display breakpoints
 (if no
 address),
@@ -1011,8 +1030,7 @@ information from the application DOR.<br>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
- color="#3f5fbf"><font face="monospace"><b>bl</b></font></font>
-      </td>
+ color="#3f5fbf"><font face="monospace"><b>bl</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Display Blink register
 contents.</font></td>
     </tr>
@@ -1022,8 +1040,7 @@ contents.</font></td>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
- color="#3f5fbf"><font face="monospace"><b>sr</b></font></font>
-      </td>
+ color="#3f5fbf"><font face="monospace"><b>sr</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Display Blink Segment
 Register Bank
 Binding.</font></td>
@@ -1064,8 +1081,7 @@ window.</font></td>
     </tr>
     <tr valign="top">
       <td style="vertical-align: top;"><font color="#3f5fbf"><font
- face="monospace"><b>fcdX
-      <span style="font-style: italic;">[options]<br>
+ face="monospace"><b>fcdX <span style="font-style: italic;">[options]<br>
       <br>
       </span></b></font></font><br>
       </td>
@@ -1116,14 +1132,13 @@ slot,&nbsp; but without formatting the file area.<br>
       </ul>
       </td>
       <td style="vertical-align: top;"><font color="#3f5fbf">Preserve
-current active files and reclaim file space of deleted files</font>
-      </td>
+current active files and reclaim file space of deleted files</font> </td>
     </tr>
     <tr valign="top">
       <td>
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>del
-          <span style="font-style: italic;">filename</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>del <span
+ style="font-style: italic;">filename</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Mark specified "oz" file in file area
@@ -1134,24 +1149,24 @@ deleted.<br>
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>ipf
-          <span style="font-style: italic;">host-filename</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>ipf <span
+ style="font-style: italic;">host-filename</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Import file from the host operating
 system into the
 file area. The file will be added to the end&nbsp; of the current
 file list.
-The filename is operating system dependent.</font>
-      <font color="#3f5fbf">Imported
+The filename is operating system dependent.</font> <font
+ color="#3f5fbf">Imported
 file(name)s are stripped of any path that was specified from
 the host file system.</font></td>
     </tr>
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>ipd
-          <span style="font-style: italic;">host-path</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>ipd <span
+ style="font-style: italic;">host-path</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Import files from the host operating
@@ -1159,8 +1174,8 @@ system directory
 into the file area. The files will be added to the end of the current
 file
 list. The</font> <font color="#3f5fbf">directory-path</font><font
- color="#3f5fbf">is operating system dependent.</font>
-      <font color="#3f5fbf">Imported
+ color="#3f5fbf">is operating system dependent.</font> <font
+ color="#3f5fbf">Imported
 file(name)s are stripped of any path that was specified from the host
 file
 system.</font></td>
@@ -1168,8 +1183,8 @@ system.</font></td>
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>xpf
-          <span style="font-style: italic;">filename
+        <li><font color="#3f5fbf"><font face="monospace"><b>xpf <span
+ style="font-style: italic;">filename
 host-path<br>
           </span></b></font></font></li>
       </ul>
@@ -1188,8 +1203,8 @@ the file in the specified <span style="font-style: italic;">host-path</span>.<br
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>xpc
-          <span style="font-style: italic;">host-path</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>xpc <span
+ style="font-style: italic;">host-path</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Export file card (area) to the host
@@ -1233,12 +1248,36 @@ dumped).<br>
       <td>&nbsp;</td>
       <td>&nbsp;</td>
     </tr>
+    <tr>
+      <td style="vertical-align: top;"><font color="#3f5fbf"><font
+ face="monospace"><b>savevm [filename]</b></font></font></td>
+      <td><font color="#3f5fbf"> Save a snapshot of the current Z88
+(Z80 / Blink registers and memory) to a file. If no filename is
+specified, the snapshot is saved in current program directory as
+'boot.z88'. When supplying a filename for the snapshot, the extension
+'.z88' is automatically added, if not specified. You can only save a
+snapshot when the Z88 is not running (use stop command first).<br>
+      </font></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><font color="#3f5fbf"><font
+ face="monospace"><b>loadvm [filename]</b></font></font></td>
+      <td><font color="#3f5fbf"> Load a Z88 snapshot (replaces current
+virtual machine). If no filename is specified, a 'boot.z88' snapshot
+file is attempted to be loaded from current program directory. When
+supplying a filename for the snapshot file, the extension '.z88' is
+automatically added, if not specified. You can only load a snapshot
+when the Z88 is not running (use stop command first).</font></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>BC
 DE HL IX IY
-SP PC[&lt;address&gt;]</b></font></font>
-      </td>
+SP PC[&lt;address&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Display or set 16bit
 registers, eg HL
 40CC (set register).</font></td>
@@ -1247,8 +1286,7 @@ registers, eg HL
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>A
 B C D E H L
-[&lt;byte&gt;]</b></font></font>
-      </td>
+[&lt;byte&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Display or set 8bit
 registers, eg B
 40
@@ -1258,8 +1296,7 @@ registers, eg B
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>BC'
 DE' HL'
-[&lt;address&gt;]</b></font></font>
-      </td>
+[&lt;address&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Display or set 16bit
 alternate
 registers.</font></td>
@@ -1268,8 +1305,7 @@ registers.</font></td>
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>A'
 B' C' D' E'
-H' L' [&lt;byte&gt;]</b></font></font>
-      </td>
+H' L' [&lt;byte&gt;]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Display or set 8bit
 alternate
 registers.</font></td>
@@ -1278,8 +1314,7 @@ registers.</font></td>
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>FZ,
 FC, FN, FS,
-FV, FH [1 | 0]</b></font></font>
-      </td>
+FV, FH [1 | 0]</b></font></font> </td>
       <td width="69%"><font color="#3f5fbf">Display or set Flag
 Register bits,
 eg. FZ
@@ -1291,13 +1326,6 @@ eg. FZ
 <p style="margin-bottom: 0cm;" align="left"><a name="Features"></a><b>Upcoming
 features in future releases</b></p>
 <ul>
-  <li>
-    <p style="margin-bottom: 0cm;" align="left">Ability to save and
-later restore
-the current state of OZvm (Processor registers, contents of Ram and
-inserted
-cards in external slots)</p>
-  </li>
   <li>
     <p style="margin-bottom: 0cm;" align="left">Interactive
 insertion/removal of
@@ -1356,14 +1384,11 @@ Windows and
 running OZvm with Z88 english V4.0 ROM code that only understands an
 english/american keyboard layout). Always use a keyboard layout on your
 PC that
-matches the keyboard layout of the Z88. We will implement a keyboard
-below the
-OZvm screen where you can press those special keys using the mouse to
-click on
-the 'key' buttons.</p>
+matches the keyboard layout of the Z88. <br>
+    </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;" align="left">There's no menus.
+    <p style="margin-bottom: 0cm;" align="left">There's no Gui access.
 Sorry, it's still
 an early development release. There's going to be plenty of Gui
 features
