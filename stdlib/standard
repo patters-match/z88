@@ -71,12 +71,6 @@ fepwrbyt
 fepwrblk
 fepcrdid
 fepstdhd
-fstnxpid
-fstptid
-fstfepr
-fstfrmt
-fstfinfo
-fstdelsp
 fepfsave
 fepfdel
 feptype
@@ -99,6 +93,7 @@ eprdelsp
 eprcntfl
 eprfetch
 eprrdbyt
+eprreqflepr
 battlow
 rand
 rnd
