@@ -4,30 +4,29 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
+ * Blink chip, the "mind" of the Z88.
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
- *
- * The "Mind" of the Z88.
  * 
  * $Id$
  */
 public final class Blink {
-	
+
 	/** 
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
 	private class Rtc extends TimerTask {
 
-		Timer countRtc;
+		Timer countRtc = null;
 
-		private int tim0; // 5 millisecond period, counts to 199
-		private int tim1; // 1 second period, counts to 59
-		private int tim2; // 1 minutes period, counts to 255
-		private int tim3; // 256 minutes period, counts to 255
-		private int tim4; // 64K minutes period, counts to 31
+		private int tim0 = 0; // 5 millisecond period, counts to 199
+		private int tim1 = 0; // 1 second period, counts to 59
+		private int tim2 = 0; // 1 minutes period, counts to 255
+		private int tim3 = 0; // 256 minutes period, counts to 255
+		private int tim4 = 0; // 64K minutes period, counts to 31
 
-		private boolean rtcRunning = false;	// Rtc counting?
-		
-		private Rtc() {			
+		private boolean rtcRunning = false; // Rtc counting?
+
+		private Rtc() {
 			start();
 		}
 
@@ -76,11 +75,15 @@ public final class Blink {
 			return tim4;
 		}
 
+		/**
+		 * Stop the Rtc counter, but don't reset the counters themselves.
+		 */
 		public void stop() {
-			if (countRtc != null) countRtc.cancel();
+			if (countRtc != null)
+				countRtc.cancel();
 			rtcRunning = false;
 		}
-		
+
 		/**
 		 * Start the Rtc counter immediately, and execute the run() method every
 		 * 5 millisecond.
@@ -88,11 +91,11 @@ public final class Blink {
 		public void start() {
 			if (rtcRunning == false) {
 				rtcRunning = true;
-				countRtc = new Timer(true);		// create Timer as a daemon...
+				countRtc = new Timer(true); // create Timer as a daemon...
 				countRtc.scheduleAtFixedRate(this, 0, 5);
 			}
 		}
-		
+
 		/**
 		 * Reset time counters. Performed when COM.RESTIM = 1.
 		 */
@@ -100,10 +103,15 @@ public final class Blink {
 			tim0 = tim1 = tim2 = tim3 = tim4 = 0;
 		}
 
+		/**
+		 * Is the RTC running?
+		 * 
+		 * @return boolean
+		 */
 		public boolean isRunning() {
 			return rtcRunning;
 		}
-	
+
 		/**
 		 * Execute the RTC counter each 5ms
 		 * 
@@ -111,7 +119,7 @@ public final class Blink {
 		 */
 		public void run() {
 			if (rtcRunning == false) {
-				resetRtc();	// counters must be 0 when not counting...
+				resetRtc(); // counters must be 0 when not counting...
 			} else {
 				if (++tim0 > 199) {
 					tim0 = 0; // 1 second has passed...
@@ -148,9 +156,8 @@ public final class Blink {
 			sR[segment] = 0;
 		}
 
-		rtc = new Rtc();	// start the Real Time Clock...
+		rtc = new Rtc(); // start the Real Time Clock...
 	}
-
 
 	/**
 	 * Get current TIM0 register from the RTC.
