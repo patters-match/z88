@@ -88,15 +88,17 @@ public class DisplayStatus {
 	 * @return
 	 */
 	public StringBuffer dzPcStatus(int pc) {
-		StringBuffer dzBuffer = new StringBuffer(128);
-		int bank = ((z88.decodeLocalAddress(pc) | (pc & 0xF000)) >>> 16) & 0xFF;
-		int instrOpcode = (z88.readWord(pc+2) << 16) | z88.readWord(pc);
-		Dz.dzInstrAscii(dzBuffer, pc, instrOpcode, true, true);
-		for(int space=35 - dzBuffer.length(); space>0; space--)
-			dzBuffer.append(" ");		// pad with spaces, to right-align with Mnemonic
-		dzBuffer.append(quickZ80Dump());
-		dzBuffer.insert(0,Dz.byteToHex(bank, false));
+		Dz dz = new Dz(z88);
+		StringBuffer dzLine = new StringBuffer(128);
+		dz.getInstrAscii(dzLine, pc, false, true);
 
+		StringBuffer dzBuffer = new StringBuffer(128);
+		dzBuffer.append(Dz.addrToHex(pc,false)).append(" (").
+						append(Dz.extAddrToHex(z88.decodeLocalAddress(pc),false).toString()).
+						append(") ").append(dzLine);
+		for(int space=45 - dzBuffer.length(); space>0; space--) dzBuffer.append(" ");
+		dzBuffer.append(quickZ80Dump());
+		
 		return dzBuffer;
 	}
 
