@@ -9,7 +9,7 @@ package net.sourceforge.z88;
  * Only abstract, reset() and run() methods are now public. Register getter and
  * setter methods will be made public later for implementation of debugging
  * features.
- * 
+ *
  * New, optimized instruction pre-fetch and cache algorithm (avoids reading
  * bytewise fetches of the opcodes from the Z80 virtual memory model, getting
  * the opcodes from the internal cache). Implemented 16bit read/write databus
@@ -22,7 +22,7 @@ package net.sourceforge.z88;
  *
  * @see Jasper
  * @see Spectrum
- * 
+ *
  * $Id$
  */
 
@@ -56,7 +56,7 @@ public abstract class Z80 {
     public int getTstatesCounter() {
         int c = tstatesCounter;
         tstatesCounter = 0;
-        
+
         return c;
     }
 
@@ -68,7 +68,7 @@ public abstract class Z80 {
     public int getInstructionCounter() {
         int i = instructionCounter;
         instructionCounter = 0;
-        
+
         return i;
     }
 
@@ -79,7 +79,7 @@ public abstract class Z80 {
 
 	private int cachedInstruction = 0;
 	private int cachedOpcodes = 0;
-	
+
     private final int IM0 = 0;
     private final int IM1 = 1;
     private final int IM2 = 2;
@@ -153,7 +153,7 @@ public abstract class Z80 {
     public final int PC() {
         return _PC;
     }
-    
+
     public final void PC(int word) {
 		cachedInstruction = cachedOpcodes = 0;		// Program counter change invalidates the cache
 
@@ -308,15 +308,15 @@ public abstract class Z80 {
     }
 
     private boolean nmi = false;
-    
+
     public boolean getNmi() {
         return nmi;
     }
-    
+
     public void setNmi(boolean nmiState) {
         nmi = nmiState;
     }
-    
+
     private final int IM() {
         return _IM;
     }
@@ -378,7 +378,7 @@ public abstract class Z80 {
 
     /** External implementation of HALT instruction */
     public abstract void haltZ80();
-    
+
 	/** External implementation stop Z80 execution (back to command line or other state */
 	public abstract boolean isZ80Stopped();
 
@@ -399,7 +399,7 @@ public abstract class Z80 {
 
 	/** External implemenation of action to be taken when a display breakpoint is encountered */
 	public abstract void breakPointAction();
-		
+
     /** IO ports */
     public abstract void outByte(int addrA8, int addrA15, int bits);
 
@@ -422,7 +422,7 @@ public abstract class Z80 {
         int sp = SP();
         int w = readWord(sp);
         SP((sp + 2) & 0xffff);
-        
+
         return w;
     }
 
@@ -437,7 +437,7 @@ public abstract class Z80 {
 
 		int b = readByte(_PC);
 		_PC = ++_PC & 0xffff;				// update Program Counter
-        
+
         return b;
     }
 
@@ -448,20 +448,20 @@ public abstract class Z80 {
 
 //		int w = readWord(_PC);
 //		_PC = (_PC + 2) & 0xFFFF;
-		
+
         return w;
     }
-    
+
 	/**
-	 * Pre-fetch a 4 byte Z80 instruction sequence from the 
+	 * Pre-fetch a 4 byte Z80 instruction sequence from the
 	 * Z80 virtual memory model at current PC (Program Counter).
-	 * 
+	 *
 	 * The internal Get Next Byte At PC, nxtpcb(), and
 	 * Get Next Word At PC, nxtpcw(), will fetch from this cache.
 	 */
 	private final void fetchInstruction() {
 		cachedInstruction = readInstruction(_PC);
-		cachedOpcodes = 4;	
+		cachedOpcodes = 4;
 	}
 
     /** Reset all registers to power on state */
@@ -513,7 +513,7 @@ public abstract class Z80 {
     /** process interrupt */
     private boolean execInterrupt() {
         acknowledgeInterrupt();
-        
+
         if (getNmi() == true) {
             // non maskable interrupt occurred... (overrides DI)
             pushw(_PC);
@@ -522,7 +522,7 @@ public abstract class Z80 {
             PC(0x66);
             tstatesCounter += 13;
             setNmi(false);
-            return true;                
+            return true;
         }
 
         switch (IM()) {
@@ -559,16 +559,16 @@ public abstract class Z80 {
 	public boolean singleSteppingMode() {
         return singleStepping;
     }
-    
+
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
     public final void run(boolean singleStep) {
-                
+
         singleStepping = singleStep;
-        
+
         do {
 			if (isZ80Stopped() == true) return;
 
-            if (IFF1() == true && interruptTriggered() == true) {
+            if (singleStep == false && IFF1() == true && interruptTriggered() == true) {
                 // a maskable interrupt want's to be executed...
                 execInterrupt();
             }
@@ -952,9 +952,9 @@ public abstract class Z80 {
 
                     /* LD B,* */
                 case 64 : /* LD B,B */ {
-                        // Break point
-                        PC(PC() - 1);	// Program Counter is placed at breakpoint.
+                        // Stop at encountered Breakpoint
                         z80Stopped = true;
+						breakPointAction();
                         tstatesCounter += 4;
                         break;
                     }
@@ -1001,7 +1001,7 @@ public abstract class Z80 {
                         break;
                     }
                 case 73 : /* LD C,C */ {
-						// Display breakpoint 
+						// Dump Z80 info at breakpoint, then continue execution
 						breakPointAction();
                         tstatesCounter += 4;
                         break;
@@ -1234,7 +1234,7 @@ public abstract class Z80 {
                     }
                 case 118 : /* HALT */ {
 					    // let the external system know about HALT instruction
-					    // Z80 processor execution now awaits external interrupt 
+					    // Z80 processor execution now awaits external interrupt
                         // to wake processor execution up again.
 						z80Halted = true;
 						haltZ80();
@@ -1855,14 +1855,14 @@ public abstract class Z80 {
                         tstatesCounter += 4;
                         break;
                     }
-                case 251 : /* EI */ {                		
+                case 251 : /* EI */ {
                         tstatesCounter += 4;
                         if (singleStepping == false) {
 							run(true);  // execute a single instruction after EI...
 							singleStepping = false;
                         }
 						IFF1(true); // open up for interrupts again...
-						IFF2(true);                        
+						IFF2(true);
                         break;
                     }
 
@@ -2178,7 +2178,7 @@ public abstract class Z80 {
             case 62 :
             case 63 :
             case 127 :
-            
+
             case 129 :
             case 130 :
             case 131 :
@@ -2231,7 +2231,7 @@ public abstract class Z80 {
 
 			case 128 : {
 					return 4;
-				}	
+				}
 
                 /* IN r,(c) */
             case 64 : /* IN B,(c) */ {
