@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * @author Gunther Strube
+ * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  *
  * Main entry of the Z88 virtual machine.
  * 
