@@ -33,8 +33,8 @@ public class SlotInfo {
 	 * Initialise slot information with getting access to
 	 * the Z88 memory model
 	 */
-	public SlotInfo(final Memory memory) {
-		this.memory = memory;
+	public SlotInfo() {
+		memory = Memory.getInstance();
 	}
 
 	/**
