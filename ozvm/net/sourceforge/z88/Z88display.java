@@ -20,10 +20,7 @@
 package net.sourceforge.z88;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
 import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -31,9 +28,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
 import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.TimerTask;
-import javax.swing.JPanel;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 
 /**
@@ -41,7 +39,7 @@ import javax.swing.JPanel;
  * called each 5ms, 10ms, 25ms or 50ms, depending on speed of JVM.
  *
  */
-public class Z88display extends JPanel implements MouseListener {
+public class Z88display extends JLabel implements MouseListener {
 
 	private static final class singletonContainer {
 		static final Z88display singleton = new Z88display();  
@@ -53,26 +51,6 @@ public class Z88display extends JPanel implements MouseListener {
 
 	public static final int Z88SCREENWIDTH = 640; // The Z88 display dimensions
 	public static final int Z88SCREENHEIGHT = 64;
-
-	/** The image that is shown on the screen upon repaint. */
-	private BufferedImage frontBufferImg = null;
-
-	/** The graphics context of the image shown on the screen. */
-	private Graphics2D frontBufferGrfx = null;
-
-	/** The offscreen image used for double buffering. */
-	private BufferedImage backBufferImg = null;
-	/** The graphics context of the current offscreen buffer. */
-	private Graphics2D backBufferGrfx = null;
-
-	/** The graphics context of the display. */
-	private Graphics2D displayGrfx = null;
-
-	/** The current display graphics configuration. */
-	private GraphicsConfiguration displayGrfxConfig = null;
-
-	/** Rendering hints for optimized display of graphics */
-	private Hashtable grfxSettings = null;
 
 	/** The image (based on pixel data array) to be rendered onto Swing Component */
 	private Image image = null;
@@ -142,67 +120,11 @@ public class Z88display extends JPanel implements MouseListener {
 		renderRunning = false;
 
 		this.setPreferredSize(new Dimension(640, 64));
-		this.setIgnoreRepaint(true);
-		this.setOpaque(true);
 		this.setToolTipText("Click with the mouse on this window or use F12 to get Z88 keyboard focus.");
 		this.setFocusable(true);
 		this.addMouseListener(this);
-
-		this.setDoubleBuffered(false);
 	}
 
-	public void init() {
-		// Setup the used Graphics rendering hints
-		grfxSettings = new Hashtable();
-		grfxSettings.put(
-			RenderingHints.KEY_ALPHA_INTERPOLATION,
-			RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-		grfxSettings.put(
-			RenderingHints.KEY_ANTIALIASING,
-			RenderingHints.VALUE_ANTIALIAS_OFF);
-		grfxSettings.put(
-			RenderingHints.KEY_COLOR_RENDERING,
-			RenderingHints.VALUE_COLOR_RENDER_SPEED);
-		grfxSettings.put(
-			RenderingHints.KEY_DITHERING,
-			RenderingHints.VALUE_DITHER_DISABLE);
-		grfxSettings.put(
-			RenderingHints.KEY_FRACTIONALMETRICS,
-			RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
-		grfxSettings.put(
-			RenderingHints.KEY_INTERPOLATION,
-			RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-		grfxSettings.put(
-			RenderingHints.KEY_RENDERING,
-			RenderingHints.VALUE_RENDER_SPEED);
-		grfxSettings.put(
-			RenderingHints.KEY_TEXT_ANTIALIASING,
-			RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-
-		displayGrfx = (Graphics2D) this.getGraphics();
-		displayGrfx.setRenderingHints(grfxSettings);
-		displayGrfx.setClip(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT);
-
-		displayGrfxConfig = displayGrfx.getDeviceConfiguration();
-
-		// Create the front and back buffers
-		backBufferImg =
-			displayGrfxConfig.createCompatibleImage(
-				Z88SCREENWIDTH,
-				Z88SCREENHEIGHT);
-		frontBufferImg =
-			displayGrfxConfig.createCompatibleImage(
-				Z88SCREENWIDTH,
-				Z88SCREENHEIGHT);
-
-		// Get the graphics contexts of front and back buffers
-		backBufferGrfx = (Graphics2D) backBufferImg.getGraphics();
-		frontBufferGrfx = (Graphics2D) frontBufferImg.getGraphics();
-
-		// Set the rendering settings of the graphics contexts
-		backBufferGrfx.setRenderingHints(grfxSettings);
-		frontBufferGrfx.setRenderingHints(grfxSettings);
-	}
 
 	/**
 	 * The core Z88 Display renderer. This code is called by RenderPerMs.<br>
@@ -364,7 +286,7 @@ public class Z88display extends JPanel implements MouseListener {
 
 		// create image, based on pixel array colours
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		Image image =
+		image =
 			toolkit.createImage(
 				new MemoryImageSource(
 					Z88SCREENWIDTH,
@@ -376,27 +298,9 @@ public class Z88display extends JPanel implements MouseListener {
 		while (!toolkit
 			.prepareImage(image, Z88SCREENWIDTH, Z88SCREENHEIGHT, null));
 
-		// draw image into back buffer
-		backBufferGrfx.drawImage(image, 0, 0, null);
-		// flip back buffer with front buffer which displays current screen frame...
-		flip();		
+		this.setIcon(new ImageIcon(image));
 	}
 	
-	/** Switch the display front and backbuffers */
-	private void flip() {
-		BufferedImage tempImage = frontBufferImg;
-		Graphics2D tempGraphics = frontBufferGrfx;
-		frontBufferImg = backBufferImg;
-		frontBufferGrfx = backBufferGrfx;
-		backBufferImg = tempImage;
-		backBufferGrfx = tempGraphics;
-
-		// Draw the new frontbuffer to the screen
-		displayGrfx.drawImage(frontBufferImg, 0, 0, null);
-
-		// Allow the painting thread to do its stuff
-		Thread.yield();
-	}
 
 	/**
 	 * Draw the character at current position, and overlay with flashing cursor.<br>
