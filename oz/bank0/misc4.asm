@@ -90,24 +90,24 @@ defc    MS12BankCB              =$d704
 
 .OSBix
         exx
-        ld      de, (BLSC_SR1)                  ; remember S1S2 in de'
+        ld      de, (BLSC_SR1)                  ; remember S2S1 in de'
         push    bc
         inc     b
         dec     b
         jr      nz, bix_far                     ; bind in BHL
 
-        ld      b, (iy+OSFrame_S2)
-        ld      c, (iy+OSFrame_S3)
+        ld      b, (iy+OSFrame_S3)
+        ld      c, (iy+OSFrame_S2)
         bit     7, h
         jr      z, bix_4                        ; not kernel space, no bankswitching
 
         bit     6, h
-        jr      z, bix_S2                       ; HL in S2 - S1=caller S3, S2=caller S2
+        jr      z, bix_S2                       ; HL in S2 - S1=caller S2, S2=caller S3
 
 ;       HL in S3
 
-        ld      c, b                            ; S1=caller S2
-        ld      b, d                            ; S2 unchanged
+        ld      c, b                            ; S1=caller S3
+        ld      b, d                            ; S2=caller S2
         jr      bix_S2
 
 .bix_far

@@ -16,8 +16,6 @@ xdef    Key2Code
 
 defc    DrawOZwd                = $FA11
 
-defc    kbd_lastkey             = 8
-
 
 .KbdDeadKeys
         ld      c, a

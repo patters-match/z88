@@ -156,7 +156,7 @@ defc    PutOSFrame_DE   = $d6f3
 .FreeMemHandle
         push    af
         call    sub_F25D
-        ld      a, (ix+fhnd_type)
+        ld      a, (ix+hnd_Type)
         call    FreeHandle
         pop     af
         ret

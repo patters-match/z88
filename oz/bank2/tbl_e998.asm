@@ -3,13 +3,12 @@
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
-;
-; nnn bytes
 
         Module  Table_E998
 
-;       what is this?
-        org     $e998
+;       PrinterEd uses this
+
+        org     $e998                           ; 281 bytes
 
         defb    $3C, $20, $05, $80, $80
         defb    $3C, $21, $08, $90, $81

@@ -11,7 +11,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $df2a   ; 2143 bytes
+        org     $df2a                           ; 2143 bytes
 
 xdef    PageNToPagePtr
 xdef    OSMopMain
@@ -2146,7 +2146,7 @@ defc    DM_RAM                  =$81
 .NqSlt
         ld      c, d                            ; check if there's RAM in slot D
         ld      b, 0
-        ld      hl, ubSlot0RamSize
+        ld      hl, ubSlotRamSize
         add     hl, bc
         ld      a, (hl)
         or      a

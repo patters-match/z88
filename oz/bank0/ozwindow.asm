@@ -9,7 +9,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $f9d2           ; 280 bytes
+        org     $f9d2                           ; 280 bytes
 
 xdef    OZwd_card
 xdef    OZwd_index

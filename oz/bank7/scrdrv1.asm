@@ -4,9 +4,9 @@
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module OSAlm
+        Module ScrDrv1
 
-        org $ac5b                               ; 1351 bytes (total: 2502 bytes + 280 from OZwd)
+        org $ac5b                               ; 1351 bytes
 
         include "all.def"
         include "sysvar.def"

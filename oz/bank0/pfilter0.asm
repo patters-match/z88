@@ -9,7 +9,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $f9a5
+        org     $f9a5                           ; 45 bytes
 
 defc    MS2BankA        =$d721
 defc    PrntChar        =$afc0

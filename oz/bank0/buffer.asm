@@ -6,7 +6,7 @@
 
         Module Buffer
 
-        org     $c45f   ;-c6c8, 618 bytes
+        org     $c45f                           ; 618 bytes
 
         include "all.def"
         include "sysvar.def"

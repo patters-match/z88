@@ -9,7 +9,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $c101   ; 261 bytes
+        org     $c101                           ; 261 bytes
 
 defc    MS2BankB                =$d719
 defc    OSFramePushMain         =$d55c

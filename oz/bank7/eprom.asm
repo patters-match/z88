@@ -60,7 +60,7 @@ xdef    OSEprTable
 
         ld      a, (BLSC_SR1)                   ; remember S1
         ex      af, af'
-        ld      a, (iy+OSFrame_S2)              ; bind caller S2 in S1 and read from there
+        ld      a, (iy+OSFrame_S3)              ; bind caller S3 in S1 and read from there
         ld      (BLSC_SR1), a
         out     (BL_SR1), a
 
@@ -114,7 +114,7 @@ xdef    OSEprTable
         ld      a, (BLSC_SR1)                   ; remember S1
         push    af
 
-        ld      a, (iy+OSFrame_S2)              ; bind caller S2 in S1 and write there
+        ld      a, (iy+OSFrame_S3)              ; bind caller S3 in S1 and write there
         ld      (BLSC_SR1), a
         out     (BL_SR1), a
 

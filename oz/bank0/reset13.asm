@@ -9,7 +9,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $c07b   ; 134 bytes
+        org     $c07b                           ; 134 bytes
 
 xdef    Reset1
 xdef    Bootstrap2

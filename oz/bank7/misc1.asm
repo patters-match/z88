@@ -44,7 +44,7 @@ defc    S2VerifySlotType        = $d71c
         rrca
         rrca
         and     $C0
-        ld      (ix+dhnd_ApplBase), a           ; application handle start
+        ld      (ix+dhnd_AppSlot), a            ; application handle start
         pop     af
 
 .inh_1

@@ -9,7 +9,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $c449   ; 22 bytes
+        org     $c449                           ; 22 bytes
 
 xdef    OSOut
 

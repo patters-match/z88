@@ -6,7 +6,7 @@
 
         Module Card1
 
-        org     $9bbe   ; 287 bytes
+        org     $9bbe                           ; 287 bytes
 
         include "all.def"
         include "sysvar.def"

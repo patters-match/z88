@@ -233,7 +233,7 @@ defc    ReadRTC                 =$d501
 
 .int_12
         ld      hl, 0
-        ld      (byte_0262), hl
+        ld      (ubWaitCount1), hl		; ubWaitCount1, ubWaitCount1
         call    ResetTimeout
 
 .int_x

@@ -9,7 +9,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $c000   ; 123 bytes
+        org     $c000                           ; 123 bytes
 
 xdef    Halt
 

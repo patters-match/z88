@@ -9,7 +9,7 @@
         include "all.def"
         include "sysvar.def"
 
-        org     $c206   ; 579 bytes
+        org     $c206                           ; 579 bytes
 
 ;       mostly bad application memory routines
 

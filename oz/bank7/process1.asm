@@ -200,6 +200,6 @@ defc    PutOSFrame_BC           = $D6EC
 ;       Who am I?
 .NQWai
         ld      ix, (uwAppStaticHnd)
-        ld      bc, (uwApplDynID)               ; !! just for C
+        ld      bc, (ubAppDynID)                ; !! just for C
         ld      b, 0
         jp      PutOSFrame_BC

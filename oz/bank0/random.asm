@@ -6,7 +6,7 @@
 
         Module Random
 
-        org     $dafd   ; 573 bytes
+        org     $dafd                           ; 573 bytes
 
         include "sysvar.def"
 
