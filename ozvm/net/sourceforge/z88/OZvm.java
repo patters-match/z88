@@ -40,5 +40,6 @@ public class OZvm {
 		
 		System.out.println("OZvm V0.01, Z88 Virtual Machine");
 		z88.hardReset();
+		z88.execute();
 	}
 }
