@@ -568,11 +568,11 @@ public final class Blink extends Z80 {
 
 
 	/**
-	 * Fetch a keypress from the specified row matrix, or 0 for all rows.<br>
+	 * Fetch a keypress from the specified row(s) matrix, or 0 for all rows.<br>
 	 * Interface call for IN r,(B2h).<br>
 	 *
-	 * @param row
-	 * @return int keycolumn status of row
+	 * @param row, eg @10111111, or 0 for all rows.
+	 * @return int keycolumn status of row or merge of columns for specified rows.
 	 */
 	public int getBlinkKbd(int row) {
 		int keyCol = 0xFF;	// Default to no keys pressed...
@@ -587,23 +587,9 @@ public final class Blink extends Z80 {
 			} catch (InterruptedException e) {}
 		}
 
-		if ( row == 0 ) {						
-			// scan for all rows..
-			keyCol = z88Keyboard.getActiveKeyRow();
-			if (keyCol != 0xFF) {
-				if ( ((INT & Blink.BM_INTKEY) != 0) ) {
-					// If keyboard interrupts are enabled, then signal that a key was pressed.
-					STA |= BM_STAKEY;
-				}
-				
-				return keyCol;
-			} else {
-				return 0xFF;
-			}            
-        } else {
-			keyCol = z88Keyboard.scanKeyRow(row);
-
-			if ( keyCol != 0xFF && ((INT & Blink.BM_INTKEY) != 0) ) {
+		keyCol = z88Keyboard.scanKeyRow(row);
+		if (keyCol != 0xFF) {
+			if ( ((INT & Blink.BM_INTKEY) != 0) ) {
 				// If keyboard interrupts are enabled, then signal that a key was pressed.
 				STA |= BM_STAKEY;
 			}			
