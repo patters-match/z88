@@ -4019,8 +4019,8 @@ public class Dz {
 		String strMnem[] = null;
 		int argsMnem[] = null;
 
-		opcode.setLength(1);
-		opcode.setLength(32);	// StringBuffer cleaned.
+		opcode.setLength(32);
+		opcode.delete(0,31);	// StringBuffer cleaned.
 		
 		addr = pc;
 
