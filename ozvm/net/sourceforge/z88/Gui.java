@@ -280,7 +280,7 @@ public class Gui extends JFrame {
 	public static void main(String[] args) {
 		Gui gg = Gui.getInstance();
 
-		OZvm ozvm = new OZvm();
+		OZvm ozvm = OZvm.getInstance();
 		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
