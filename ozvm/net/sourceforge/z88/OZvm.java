@@ -314,8 +314,8 @@ public class OZvm implements KeyListener {
 		displayCmdOutput("cls - Clear command output area\n");
 		displayCmdOutput("Registers are edited using their name, ex. A 01 or sp 1FFE");
 		displayCmdOutput("Alternate registers are specified with ', ex. a' 01 or BC' C000");
-		displayCmdOutput("Flags are toggled using FZ, FC, FN, FS, FPV and FH commands or");
-		displayCmdOutput("set/reset using 1 or 0 argument, eg. FZ 1 to enable Zero flag.");
+		displayCmdOutput("Flags are toggled using FZ, FC, FN, FS, FV and FH commands or");
+		displayCmdOutput("set/reset using 1 or 0 argument, eg. fz 1 to enable Zero flag.");
 	}
 
 	private void parseCommandLine(String cmdLineText) {				
@@ -544,7 +544,7 @@ public class OZvm implements KeyListener {
 			displayCmdOutput("F=" + blinkStatus.z80Flags());
 		}
 
-		if (cmdLineTokens[0].compareToIgnoreCase("fp") == 0) {
+		if (cmdLineTokens[0].compareToIgnoreCase("fv") == 0) {
 			if (z80Thread != null && z80Thread.isAlive() == true) {
 				displayCmdOutput("Cannot change Parity flag while Z88 is running!");
 				return;
@@ -883,16 +883,23 @@ public class OZvm implements KeyListener {
 		int instrOpcode = z88.readByte(z88.PC());	// get current instruction opcode (to be executed)
 		
 		switch(instrOpcode) {
-			case 0xCD: // CALL addr
 			case 0xDC: // CALL C,addr
-			case 0xFC: // CALL M,addr
+				if (z88.fC == true) return "z"; else return "."; 
 			case 0xD4: // CALL NC,addr
-			case 0xC4: // CALL NZ,addr
-			case 0xF4: // CALL P,addr
-			case 0xEC: // CALL PE,addr
-			case 0xE4: // CALL PO,addr
+				if (z88.fC == false) return "z"; else return ".";
 			case 0xCC: // CALL Z,addr
-				return "z";	// suggest a subroutine step
+				if (z88.fZ == true) return "z"; else return ".";
+			case 0xC4: // CALL NZ,addr
+				if (z88.fZ == false) return "z"; else return ".";
+			case 0xF4: // CALL P,addr
+				if (z88.fS == false) return "z"; else return ".";
+			case 0xFC: // CALL M,addr
+				if (z88.fS == true) return "z"; else return ".";
+			case 0xEC: // CALL PE,addr
+				if (z88.fPV == true) return "z"; else return ".";
+			case 0xE4: // CALL PO,addr
+				if (z88.fPV == false) return "z"; else return ".";
+			case 0xCD: // CALL addr
 			case 0xC7: // RST 00
 			case 0xCF: // RST 08
 			case 0xD7: // RST 10
