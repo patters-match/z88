@@ -27,6 +27,7 @@ defc    OZCallTable             =$dead
 xdef    DefErrHandler
 xdef    INTReturn
 xdef    JpAHL
+xdef    JpHL
 xdef	OZ_RET1
 xdef	OZ_RET0
 xdef    OZ_BUF

@@ -91,9 +91,9 @@ xref    MaySetPendingAlmTask
         ld      a, HND_ALRM
         call    AllocHandle
         jp      c, osalm_x
-        ld      (ix+ahnd_FuncL), e
-        ld      (ix+ahnd_FuncH), d
-        ld      (ix+ahnd_FuncB), b
+        ld      (ix+ahnd_Func), e
+        ld      (ix+ahnd_Func+1), d
+        ld      (ix+ahnd_Func+2), b
         ld      c, 6                            ; copy date/time into handle
         push    ix
         ld      de, ahnd_Date
