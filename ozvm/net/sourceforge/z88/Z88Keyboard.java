@@ -1055,7 +1055,7 @@ public class Z88Keyboard {
 		return columns;
 	}
 
-
+	
 	/**
 	 * Type a Z88 key into the Z88 hardware keyboard matrix.
 	 */
@@ -1067,7 +1067,7 @@ public class Z88Keyboard {
 		keyRows[keyMatrixRow] &= keyMask;
 	}
 
-
+	
 	/**
 	 * Release a Z88 key from the Z88 hardware keyboard matrix.
 	 */
@@ -1079,6 +1079,25 @@ public class Z88Keyboard {
 		keyRows[keyMatrixRow] |= (~keyMask & 0xff);
 	}
 
+	/**
+	 * "Press" the Z88 key according to the hardware matrix.
+	 * 
+	 * @param keyMatrixRow
+	 * @param keyMask
+	 */
+	public void pressZ88key(int keyMatrixRow, int keyMask) {
+		keyRows[keyMatrixRow] &= keyMask;		
+	}
+
+	/**
+	 * "Release" the Z88 key according to the hardware matrix.
+	 * 
+	 * @param keyMatrixRow
+	 * @param keyMask
+	 */
+	public void releaseZ88key(int keyMatrixRow, int keyMask) {
+		keyRows[keyMatrixRow] |= (~keyMask & 0xff);		
+	}
 
 	/**
 	 * Set the Z88 keyboard layout to be used for mapping
