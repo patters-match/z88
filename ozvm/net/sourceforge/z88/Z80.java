@@ -256,6 +256,8 @@ public abstract class Z80 {
 	/** Write byte to virtual memory model */
 	public abstract void writeByte ( int addr, int b );
 
+	/** Generic disassembly abstraction */
+	public abstract void disassemble( int addr );
 
 	/** Word access */
 	public void pokew( int addr, int word ) {
