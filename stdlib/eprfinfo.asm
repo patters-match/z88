@@ -22,7 +22,8 @@
      LIB PointerNextByte
      LIB AddPointerDistance
 
-
+     INCLUDE "error.def"
+     
 ; ****************************************************************************
 ;
 ; Standard Z88 File Eprom Format.
@@ -46,6 +47,7 @@
 ;         CDE = length of file
 ;
 ;    Fc = 1, File Entry not available ($FF was first byte of entry)
+;         A = RC_Onf (Object not found)
 ;         BHL unchanged.
 ;
 ; Registers changed after return:
@@ -88,5 +90,6 @@
                     POP  AF
                     RET                           ; return length of filename, deleted status
 
-.exit_eprfile       SCF
+.exit_eprfile       LD   A, RC_Onf
+                    SCF
                     RET
