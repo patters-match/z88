@@ -24,7 +24,6 @@ import net.sourceforge.z88.Bank;
 import net.sourceforge.z88.EpromBank;
 import net.sourceforge.z88.IntelFlashBank;
 import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.VoidBank;
 
 /**
  * Information about what is available in a specified slot;
@@ -72,20 +71,6 @@ public class SlotInfo {
 		else
 			return false;
 	}
-
-	/**
-	 * Check if specified slot is empty (or not).
-	 * 
-	 * @return true if slot is empty (no cards inserted), otherwise false
-	 */
-	public boolean isSlotEmpty(final int slotNo) {
-		if (slotNo == 0) 
-			return false;	// slot 0 always contains stuff (RAM/ROM) 
-		else {
-			int bankNo = ((slotNo & 3) << 6); // bottom bank os slot
-			return Memory.getInstance().getBank(bankNo) instanceof VoidBank;
-		}
-	}
 	
 	/**
 	 * Check if there's a File header available at absolute bank, offset $3FC0-$3FFF.
@@ -119,7 +104,7 @@ public class SlotInfo {
 				(bank instanceof AmdFlashBank == true) |
 				(bank instanceof IntelFlashBank == true) ) {
 			
-			for( int topBank=bankNo | (memory.getCardSize(slotNo)-1); 
+			for( int topBank=bankNo | (memory.getExternalCardSize(slotNo)-1); 
 				bankNo <= topBank; bankNo++) {
 				if (isFileHeader(bankNo) == true) return bankNo;
 			}
