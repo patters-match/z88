@@ -206,7 +206,7 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM "Release V1.7.rc2, December 2004",$7F, $7F
+                    DEFM "Release V1.7.rc3, December 2004",$7F, $7F
                     DEFM "Manage files on Rakewell Flash Cards.", $7F
                     DEFM "Open Source Utility from http://z88.sf.net", 0
 

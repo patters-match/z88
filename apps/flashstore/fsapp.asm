@@ -189,6 +189,10 @@
                     JP   NZ, suicide         ; user aborted
 
                     CALL ClearWindowArea     ; just clear whole window area available
+
+                    LD   A,1
+                    LD   (MenuBarPosn),A     ; Display menu bar initially at top line of command window
+
                     CALL mainmenu
                     JP   suicide             ; main menu aborted, leave popdown...
 ; *************************************************************************************
@@ -201,22 +205,24 @@
                     CALL DispCmdWindow
                     CALL DispCtlgWindow
                     CALL FileEpromStatistics      ; parse for free space and total of files...
-
+                    
                     LD   HL, mainmenu
                     PUSH HL                       ; return address for functions...
 .inp_main
+                    CALL DisplMenuBar
                     CALL rdch
+                    CALL DisplMenuBar
                     JR   NC,no_inp_err
                     CP   A
                     JR   inp_main
 .no_inp_err
                     CP   IN_ESC
                     JP   Z, suicide
-                    CP   FlashStore_CC_fs         ; Save Files to File Card
+                    CP   FlashStore_CC_fs              ; Save Files to File Card
                     JP   Z, SaveFilesCommand
-                    CP   FlashStore_CC_fl         ; Fetch File from File Card
+                    CP   FlashStore_CC_fl              ; Fetch File from File Card
                     JP   Z, FetchFileCommand
-                    CP   FlashStore_CC_rf         ; Restore Files
+                    CP   FlashStore_CC_rf              ; Restore Files
                     JP   Z, RestoreFilesCommand
                     CP   FlashStore_CC_cf
                     JP   Z, CatalogCommand
@@ -226,7 +232,62 @@
                     JP   Z, SelectCardCommand
                     CP   FlashStore_CC_fe
                     JP   Z, DeleteFileCommand
+                    CP   IN_ENT                        ; no shortcut cmd, ENTER ?
+                    JR   Z, get_command
+                    CP   IN_DWN                        ; Cursor Down ?
+                    JR   Z, MVbar_down
+                    CP   IN_UP                         ; Cursor Up ?
+                    JR   Z, MVbar_up
+                    JR   inp_main                      ; ignore keypress, get another...
+
+.MVbar_down         LD   A,(MenuBarPosn)               ; get Y position of menu bar
+                    CP   7                             ; has m.bar already reached bottom?
+                    JR   Z,Mbar_topwrap
+                    INC  A
+                    LD   (MenuBarPosn),A               ; update new m.bar position
+                    JR   inp_main                      ; display new m.bar position
+.Mbar_topwrap       LD   A,1
+                    LD   (MenuBarPosn),A
                     JR   inp_main
+
+.MVbar_up           LD   A,(MenuBarPosn)               ; get Y position of menu bar
+                    CP   1                             ; has m.bar already reached top?
+                    JR   Z,Mbar_botwrap
+                    DEC  A
+                    LD   (MenuBarPosn),A               ; update new m.bar position
+                    JR   inp_main                      ; display new m.bar position
+.Mbar_botwrap       LD   A,7
+                    LD   (MenuBarPosn),A
+                    JR   inp_main
+.get_command        
+                    LD   A,(MenuBarPosn)               ; use menu bar position as index to command
+                    CP   1
+                    JP   Z, CatalogCommand
+                    CP   2
+                    JP   Z, SelectCardCommand
+                    CP   3                             ; Save Files to File Card
+                    JP   Z, SaveFilesCommand
+                    CP   4                             ; Fetch File from File Card
+                    JP   Z, FetchFileCommand
+                    CP   6                             ; Restore Files
+                    JP   Z, RestoreFilesCommand
+                    JP   inp_main
+.DisplMenuBar       
+                    PUSH AF
+                    LD   HL,SelectMenuWindow
+                    CALL_OZ(Gn_Sop)
+                    LD   B,1
+                    LD   A,(MenuBarPosn)               ; get Y position of menu bar
+                    LD   C,A
+                    Call VduCursor
+                    LD   HL,MenuBar                    ; now display menu bar at cursor
+                    CALL_OZ(Gn_Sop)
+                    POP  AF
+                    RET
+.SelectMenuWindow   DEFM 1, "2H1", 0                   ; activate menu window for menu bar control
+.MenuBar            DEFM 1, "2+R"                      ; set reverse video
+                    DEFM 1, "2E", 32+15                ; XOR 'display' menu bar (15 chars wide)
+                    DEFM 1, "2-R", 0                   ; back to normal video
 ; *************************************************************************************
 
 
@@ -476,19 +537,18 @@
 ; *************************************************************************************
 ; Text & VDU constants.
 ;
-.catalog_banner     DEFM "FLASHSTORE V1.7.rc2, (C) 1997-2004 Zlab & InterLogic",0
+.catalog_banner     DEFM "FLASHSTORE V1.7.rc3, (C) 1997-2004 Zlab & InterLogic",0
 
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
-                    DEFM 1, "2-G", 1,"3@",32,32
-                    DEFM " Catalogue files",$0D,$0A
-                    DEFM " Select Card",$0D,$0A
-                    DEFM " Save files",$0D,$0A
-                    DEFM " Erase file",$0D,$0A
-                    DEFM " Fetch files",$0D,$0A
-                    DEFM " Backup files",$0D,$0A
-                    DEFM " Restore files",$0D,$0A
-                    DEFM " Default RAM"
+                    DEFM 1, "2-G", 1, "2+T", 1,"3@",32,32
+                    DEFM " CATALOG FILES",$0D,$0A
+                    DEFM " SELECT CARD",$0D,$0A
+                    DEFM " SAVE FILES",$0D,$0A
+                    DEFM " FETCH FILES",$0D,$0A
+                    DEFM " BACKUP RAM",$0D,$0A
+                    DEFM " RESTORE RAM",$0D,$0A
+                    DEFM " DEFAULT RAM"
                     DEFM 1,"2-C"
                     defb 0
 

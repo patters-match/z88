@@ -31,6 +31,7 @@ DEFC BufferSize = buf1-BufferStart      ; buffer for file I/O at $2000
 DEFVARS $1FFE - SafeWorkSpaceSize
 {
      linecnt        ds.b 1
+     MenuBarPosn    ds.b 1              ; Main Menu Bar vertical position in window
      nlen           ds.b 1              ; length of filename
      flen           ds.l 1              ; length of file (32bit)
      flenhdr        ds.l 1              ; length of File Entry Header
