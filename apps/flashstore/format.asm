@@ -31,6 +31,7 @@ Module FileAreaFormat
      lib CheckBattLow              ; Check Battery Low condition
 
      xref FileEpromStatistics      ; filestat.asm
+     xref SelectFileArea           ; selectcard.asm
      xref DispSlotErrorMsg         ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
      xref disp_empty_flcard_msg    ; errmsg.asm
@@ -79,7 +80,8 @@ Module FileAreaFormat
 .FormatFileArea
                     cp   1
                     jr   z, execute_format
-                    ; select slot to format...
+                    CALL SelectFileArea           ; several file areas can be formatted, select one...
+                    ret  c                        ; user aborted selection
 .execute_format
                     ld   a,c
                     ld   (curslot),a              ; the selected slot...
@@ -218,7 +220,7 @@ Module FileAreaFormat
 .check_empty_fep
                          call FlashWriteSupport
                          jr   c, no_feprformat
-                         call CheckFlashCardID
+                         jr   nz, no_feprformat
                          ld   a,b            ; empty, formattable flash card has B banks available...
                          jr   found_feprformat
 .no_feprformat
@@ -273,11 +275,12 @@ Module FileAreaFormat
 ;
 ; OUT:
 ;    Fz = 1, if a Flash Card is available in the current slot (Fz = 0, no Flash Card available!)
+;         B = size of card in 16K banks
 ;    Fc = 1, if no erase/write support is available for current slot.
 ;
 ; Registers changed after return:
-;    A.BCDEHL/IXIY same
-;    .F....../.... different
+;    A..CDEHL/IXIY same
+;    .FB...../.... different
 ;
 .FlashWriteSupport
                     push hl
@@ -292,15 +295,23 @@ Module FileAreaFormat
 .flashcard_found
                     ld   a,c
                     cp   3
-                    jr   z, exit_chckflsupp  ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
+                    jr   z, end_chckflsupp   ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
                     ld   a,$01
                     cp   h                   ; Intel flash chip in slot 0,1 or 2?
-                    jr   z, exit_chckflsupp  ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
+                    jr   z, end_chckflsupp   ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
                     cp   a                   ; (Fz=1, indicate that Flash is available..)
                     scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
+.end_chckflsupp                    
+                    pop  de
+                    ld   a,d                 ; A restored (f changed)
+                    pop  de
+                    ld   c,e                 ; C restored (B = total of 16K banks on card)
+                    pop  de                  ; DE restored
+                    pop  hl                  ; HL restored
+                    ret
 .exit_chckflsupp
-                    pop  bc
-                    ld   a,b                 ; A restored (f changed)
+                    pop  de
+                    ld   a,d                 ; A restored (f changed)
                     pop  bc
                     pop  de
                     pop  hl

@@ -91,38 +91,70 @@ Module SelectCard
                     ld   (curslot),a
 
                     ld   c,a
-                    call FileEprRequest
-                    jr   c, poll_for_ram_card
-                    jr   nz, poll_for_ram_card
-                         ld   hl, eprdev          ; File area identified.
-                         call DispSlotInfo            ; C = size of File Area in 16K banks (if Fz = 1)
-                         jr   nextline            ; D = size of card in 16K banks
+                    call FlashWriteSupport
+                    jp   z, flashcard_detected
 .poll_for_ram_card
-                    ld   a,(curslot)
-                    ld   c,a
                     call RamDevFreeSpace
                     jr   c, poll_for_rom_card
-
-                         call DisplayRamCard      ; RAM Card was found...
-                         jr   nextline
+                         LD   (free),A       ; size of RAM card in 16K banks
+                         LD   HL,ramdev
+                         XOR  A
+                         CALL DisplayCard
+                         jp   nextline
 .poll_for_rom_card
                     ld   a,(curslot)
                     ld   c,a
                     call ApplEprType
+                    jr   c, poll_for_eprom_card
+                         ld   hl, epromdev
+                         ld   (free),bc           ; C = size of physical card
+                         ld   a,4                 ; display PadLock (FlashStore does not support write to Eprom)
+                         call DisplayCard         ; display size of card as defined by ROM header
+                         dec  b
+                         inc  c
+                         inc  c
+                         CALL VduCursor
+                         ld   hl, appstxt
+                         call_oz(Gn_Sop)
+                         inc  c
+                         CALL VduCursor
+                         push bc
+                         ld   a,(curslot)
+                         ld   c,a
+                         call FileEprRequest
+                         ld   a,c
+                         pop  bc
+                         jr   c, eprom_nofiles    ; the Eprom Application Card had no file area...
+                         jr   nz, eprom_nofiles
+                         ld   hl, filestxt
+                         call_oz(Gn_Sop)          ; display size of sub file area in K on Eprom
+                         call DispSlotSize
+                         jp   nextline
+.eprom_nofiles
+                         ld   hl, nofilestxt
+                         call_oz(Gn_Sop)
+                         jp   nextline
+.poll_for_eprom_card
+                    call FileEprRequest
                     jr   c, empty_slot
-                         ld   hl, romdev
-                         ; ld   c,b
-                         call DispSlotInfo        ; display size of card as defined by ROM header
-                         jr   nextline
+                    jr   nz, empty_slot
+                         ld   hl, epromdev        ; C = size of File Area in 16K banks (if Fz = 1)
+                         ld   a,d                 ; D = size of card in 16K banks
+                         ld   (free),a
+                         ld   a,4                 ; display PadLock (FlashStore does not support write to Eprom)
+                         call DisplayCard         ; display size of card as defined by ROM header
+                         dec  b
+                         inc  c
+                         inc  c
+                         CALL VduCursor
+                         ld   hl, filestxt        ; display "Files xxxxK"
+                         call_oz(Gn_Sop)
+                         ld   a,(free)
+                         call DispSlotSize
+                         jp   nextline
 .empty_slot
-                    ld   a,(curslot)
-                    ld   c,a
-                    CALL FlashEprCardId
-                    JR   C, slot_really_empty
-
-.slot_really_empty
-                    CALL SlotCardBoxCoord
-                    LD   A, @00000011
+                    CALL SlotCardBoxCoord         ; the slot is empty (or contains an empty Eprom Card)
+                    LD   A, @00000011             ; draw a grey outline box
                     CALL DrawCardBox
                     LD   A,B
                     ADD  A,2
@@ -131,34 +163,54 @@ Module SelectCard
                     ADD  A,3
                     LD   C,A
                     CALL VduCursor
-                    ld   hl, emptytxt
+                    ld   hl, emptytxt             ; and write "empty slot" in the middle of the grey box
                     call_oz(Gn_Sop)
                     jr   nextline
-.DispSlotInfo
-                    PUSH BC
-                    PUSH HL
-                    CALL SlotCardBoxCoord
-                    XOR  A
-                    CALL DrawCardBox
-                    INC  C              ; Y++
-                    INC  B
-                    INC  B
+.flashcard_detected
+                    ld   a,b
+                    ld   (free),a                 ; size of Flash Card in 16K banks
+                    ld   a,0
+                    jr   nc, flash_writeable
+                    set  2,a
+.flash_writeable
+                    ld   hl, flashdev
+                    call DisplayCard
+                    dec  b
+                    inc  c
+                    inc  c                        ; prepare for "applications" text
+                    push bc
+                    ld   a,(curslot)
+                    ld   c,a
+                    call ApplEprType
+                    ld   a,c
+                    pop  bc
+                    jr   c, flash_noapps
+                         CALL VduCursor
+                         ld   hl, appstxt
+                         call_oz(Gn_Sop)
+                         inc c                    ; prepare for "files " text
+.flash_noapps
                     CALL VduCursor
-                    POP  HL
-                    CALL_OZ Gn_Sop      ; display device name...
-                    POP  BC
-                    call DispSlotSize   ; C = size of slot in 16K banks
-                    ret
+                    push bc
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FileEprRequest
+                    ld   a,c
+                    pop  bc
+                    jr   c, flash_nofiles
+                    jr   nz, flash_nofiles
+                         ld   hl, filestxt
+                         call_oz(Gn_Sop)
+                         call DispSlotSize
+                         jr   nextline
+.flash_nofiles
+                         ld   hl, nofilestxt
+                         call_oz(Gn_Sop)
 .nextline
                     ld   a,(curslot)
                     inc  a
                     cp   4
-                    jr   nz, disp_slot_loop
-
-; ********* to be removed **************
-                    call pwait
-                    ret
-; ********* to be removed **************
+                    jp   nz, disp_slot_loop
 
                     ; Now, user selects card (if possible) ...
                     ld   a,1
@@ -189,33 +241,37 @@ Module SelectCard
                     cp   a
                     ret
 
-.DispSlotSize
-                    push hl
-                    LD   H,0
-                    LD   L,C
-                    CALL m16
-                    EX   DE,HL          ; size in DE...
-                    CALL DispKSize
-
-                    ld   hl,sizeK
-                    call_oz(Gn_Sop)
-                    pop  hl
-                    ret
-.DisplayRamCard
+; IN
+;    A = box draw args (padlock etc)
+;    HL = label ("FLASH", "EPROM", "RAM")
+;    (free) = size of card in 16K banks
+; OUT
+;    BC = (X,Y) of start of displayed label
+.DisplayCard
                     CALL SlotCardBoxCoord
-                    LD   A,4
                     CALL DrawCardBox
                     INC  C              ; Y++
                     INC  B
                     INC  B
                     CALL VduCursor
-                    LD   HL,ramdev
-                    CALL_OZ Gn_Sop      ; display device name...
-                    LD   A,(curslot)
-                    CALL RamDevFreeSpace
-                    LD   C,A
+                    CALL_OZ Gn_Sop      ; display device name (in HL)...
+                    LD   A,(free)
                     call DispSlotSize   ; C = size of slot in 16K banks
                     RET
+.DispSlotSize
+                    push bc
+                    push hl
+                    LD   H,0
+                    LD   L,A
+                    CALL m16
+                    EX   DE,HL          ; size in DE...
+                    CALL DispKSize
+
+                    ld   a,'K'
+                    call_oz(OS_Out)
+                    pop  hl
+                    pop  bc
+                    ret
 ; *************************************************************************************
 
 
@@ -230,10 +286,10 @@ Module SelectCard
                JR   Z, abort_select
                CP   IN_ENT                        ; ENTER?
                RET  Z
-               CP   IN_DWN                        ; Cursor Down ?
-               JR   Z, MVbar_down
-               CP   IN_UP                         ; Cursor Up ?
-               JR   Z, MVbar_up
+               CP   IN_RGT                        ; Cursor Right ?
+               JR   Z, MVbar_right
+               CP   IN_LFT                        ; Cursor Left ?
+               JR   Z, MVbar_left
                CP   '1'
                JR   C,menu_loop                   ; smaller than '1'
                CP   '4'
@@ -245,25 +301,25 @@ Module SelectCard
 .abort_select
                SCF
                RET
-.MVbar_down    LD   A,(HL)                        ; get Y position of menu bar
-               CP   3                             ; has m.bar already reached bottom?
-               JR   Z,Mbar_topwrap
+.MVbar_right   LD   A,(HL)
+               CP   3                             ; has m.bar already reached right edge?
+               JR   Z,Mbar_rightwrap
                INC  A
                LD   (HL),A                        ; update new m.bar position
                JR   menu_loop                     ; display new m.bar position
 
-.Mbar_topwrap  LD   A,1
+.Mbar_rightwrap LD   A,1
                LD   (HL),A
                JR   menu_loop
 
-.MVbar_up      LD   A,(HL)                        ; get Y position of menu bar
-               CP   1                             ; has m.bar already reached top?
-               JR   Z,Mbar_botwrap
+.MVbar_left    LD   A,(HL)
+               CP   1                             ; has m.bar already reached left edge?
+               JR   Z,Mbar_leftwrap
                DEC  A
                LD   (HL),A                        ; update new m.bar position
                JR   menu_loop
 
-.Mbar_botwrap  LD   A,3
+.Mbar_leftwrap LD   A,3
                LD   (HL),A
                JR   menu_loop
 ; *************************************************************************************
@@ -276,11 +332,14 @@ Module SelectCard
                PUSH HL
                LD   HL,SelectMenuWindow
                CALL_OZ(Gn_Sop)
-               LD   B,0                           ; display menu bar at (0,Y)
-               LD   A,(curslot)                   ; get Y position of menu bar
-               DEC  A
-               LD   C,A                           ; VDU cursor at ...
-               CALL VduCursor                     ; (0,curslot)
+               CALL SlotCardBoxCoord
+               LD   A,B
+               ADD  A,9
+               LD   B,A                           ; display menu bar at (6,Y) of card box
+               LD   A,C
+               ADD  A,6                           ; display menu bar at bottom line of card box
+               LD   C,A
+               CALL VduCursor
                LD   HL,MenuBarOn                  ; now display menu bar at cursor
                CALL_OZ(Gn_Sop)
                POP  HL
@@ -296,11 +355,14 @@ Module SelectCard
                PUSH HL
                LD   HL,SelectMenuWindow
                CALL_OZ(Gn_Sop)
-               LD   B,0                           ; display menu bar at (0,Y)
-               LD   A,(curslot)                   ; get Y position of menu bar
-               DEC  A
-               LD   C,A                           ; VDU cursor at ...
-               CALL VduCursor                     ; (0,curslot)
+               CALL SlotCardBoxCoord
+               LD   A,B
+               ADD  A,9
+               LD   B,A                           ; display menu bar at (6,Y) of card box
+               LD   A,C
+               ADD  A,6                           ; display menu bar at bottom line of card box
+               LD   C,A
+               CALL VduCursor
                LD   HL,MenuBarOff                 ; now display menu bar at cursor
                CALL_OZ(Gn_Sop)
                POP  HL
@@ -541,7 +603,7 @@ Module SelectCard
 
 
 ; *************************************************************************************
-; Return VDU Card Box (X,Y) coordinate for slot X (1-3)
+; Return VDU Card Box (X,Y) coordinate for slot X (1-3) fetched in (curslot)
 ;
 ; OUT:
 ;    BC = (X,Y)
@@ -603,28 +665,21 @@ Module SelectCard
                     DEFM 13, 10
                     DEFM 1, SD_ENT, " selects it", 0
 
-.epromtxt           DEFM 1,"2+T", "EPROM", 0
-.flashtxt           DEFM 1,"2+T", "FLASH", 0
-.cardtxt            DEFM "CARD", 0
-.eprdev             DEFM "FILES", 0
+.epromdev           DEFM 1,"2+T", "EPROM ", 0
+.flashdev           DEFM 1,"2+T", "FLASH ", 0
 .ramdev             DEFM 1,"2+T", "RAM ",0
-.romdev             DEFM 1,"2+T", "APPLICATIONS",0
+.filestxt           DEFM 1,"2+T", " FILES ", 0
+.appstxt            DEFM 1,"2+T", "APPLICATIONS",0
+.nofilestxt         DEFM 1,"2+T", "  NO FILES",0
 .slottxt1           DEFM "SLOT ",0
 .slottxt2           DEFM ": ",0
 .emptytxt           DEFM 1,"2+T", "EMPTY SLOT", 1,"2-T", 0
 .selvdu             DEFM 1,"3-SC"               ; no vertical scrolling, no cursor
                     DEFM 1,"2+T",0
 
-.sizeK              DEFM "K ",1, "2X", 32+14, 0   ; display "K" (for Kilobyte), then prepare for next text..
-
 .SelectMenuWindow
-                    DEFM 1,"2H1",1,"2-C",0     ; activate menu window, no Cursor...
-.MenuBarOn          DEFM 1,"2+R"               ; set reverse video
-                    DEFM 1,"2A",32+22,0        ; XOR 'display' menu bar (22 chars wide)
-.MenuBarOff         DEFM 1,"2-R"               ; set reverse video
-                    DEFM 1,"2A",32+22,0        ; apply 'display' menu bar (22 chars wide)
-
-                    defm 1, "3@", 32+9, 32+6, 1, "4+F+R",  " 1 ", 1, "4-F-R"
-                    defm 1, "3@", 32+14+9, 32+6, " 2 "
-                    defm 1, "3@", 32+14*2+9, 32+6, " 3 "
-                    defb 0
+                    DEFM 1,"2H2",1,"2-C",0     ; activate menu window, no Cursor...
+.MenuBarOn          DEFM 1,"4+F+R"             ; enable flash and inverse video
+                    DEFM 1,"2A",32+3,0         ; XOR 'display' menu bar (3 chars wide)
+.MenuBarOff         DEFM 1,"4-F-R"             ; disable flash & set normal video
+                    DEFM 1,"2A",32+3,0         ; apply 'display' menu bar (3 chars wide)
