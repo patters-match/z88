@@ -4078,7 +4078,7 @@ public class Dz {
 	 * 
 	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
 	 * @param origPc int, the address (Program Counter of Z80 instruction)
-	 * @param instrOpcode int, the 4 byte instruction opcode, packed in LSB order
+	 * @param instrOpcode int, the 4 byte instruction opcode, packed in MSB order
 	 * @param dispaddr boolean, display Hex address as part of disassembly
 	 * @return int size of instruction opcode
 	 */
@@ -4286,103 +4286,13 @@ public class Dz {
 	 * @return int address of following instruction
 	 */
 	public final int getNextInstrAddress(int offset, int bank) {
-		int i, origPc;
-		int argsMnem[] = null;
+		int i = blink.getByte(offset+3,bank) << 24 |
+				blink.getByte(offset+2,bank) << 16 |
+				blink.getByte(offset+1,bank) << 8 |
+				blink.getByte(offset+0,bank);
 
-		origPc = offset;
-
-		i = blink.getByte(offset++, bank);
-		switch (i) {
-			case 203 : /* CB opcode strMnem */
-				argsMnem = null;
-				i = blink.getByte(offset++, bank);
-				break;
-
-			case 237 : /* ED opcode strMnem */
-				argsMnem = edArgsMnem;
-				i = blink.getByte(offset++, bank);
-				break;
-
-			case 221 : /* DD CB opcode strMnem */
-				i = blink.getByte(offset++, bank);
-				if (i == 203) {
-					argsMnem = ddcbArgsMnem;
-					i = blink.getByte(offset + 2, bank);
-					offset++;
-				} else {
-					argsMnem = ddArgsMnem;
-					i = blink.getByte(offset++, bank);
-				}
-				break;
-
-			case 253 : /* FD CB opcode strMnem */
-				i = blink.getByte(offset, bank);
-				if (i == 203) {
-					argsMnem = fdcbArgsMnem;
-					i = blink.getByte(offset + 2, bank);
-					offset++;
-				} else {
-					argsMnem = fdArgsMnem;
-					i = blink.getByte(offset++, bank);
-				}
-				break;
-
-			case 223 : /* RST 18h, FPP interface */
-				return ++offset;
-
-			case 231 : /* RST 20h, main OS interface */
-				i = blink.getByte(offset++, bank);
-				switch (i) {
-					case 6 : /* OS 2 byte low level calls */
-						return ++offset;
-
-					case 9 : /* GN 2 byte general calls */
-						return ++offset;
-
-					case 12 : /* DC 2 byte low level calls */
-						return ++offset;
-
-					default : /* OS 1 byte low level calls */
-						return offset;
-				}
-
-			default : /* standard Z80 (Intel 8080 compatible) opcodes */
-				argsMnem = mainArgsMnem;
-		}
-
-		if (argsMnem != null) {			
-			switch (argsMnem[i]) {
-				case 2 :
-					offset += 2; /* move past opcode */
-					break;
-
-				case 1 :
-					offset++; /* move past opcode */
-					break;
-
-				case 0 :
-					/* no replace macro, ie. no arguments for instruction */
-					break;
-
-				case -1 : /* relative jump addressing (+/- 128 byte range) */
-					offset++; /* move past opcode */
-					break;
-
-				case -2 : /* ix/iy bit manipulation */
-					offset += 2; /* move past opcode */
-					break;
-
-				case -3 : /* LD (IX/IY+r),n */
-					offset += 2; /* move past opcode */
-					break;
-
-				case -4 :
-					/* IX/IY offset, positive/negative constant presentation */
-					offset++; /* move past opcode */
-					break;
-			}
-		}
-
+		offset += calcInstrOpcodeSize(i);
+		
 		return offset;
 	}
 
@@ -4396,62 +4306,81 @@ public class Dz {
 	 * @return address of following instruction
 	 */
 	public final int getNextInstrAddress(int pc) {
-		int i, origPc;
+		pc += calcInstrOpcodeSize(blink.readInstruction(pc));
+
+		return pc;
+	}
+
+	
+	/**
+	 * Decode Z80 instruction and return size of instruction opcode.
+	 * The instrOpcode contains a 4 byte sequense (MSB format) which contains
+	 * the opcode of 1 or up to 4 byte length.
+	 *
+	 * @param instrOpcode 4 byte instruction opcode sequense
+	 * @return int size of instruction opcode
+	 */
+	public final int calcInstrOpcodeSize(int instrOpcode) {
+		int i, instrOpcodeOffset = 0;
 		int argsMnem[] = null;
 
-		origPc = pc;
-
-		i = blink.readByte(pc++);
+		int opcode[] = new int[4];
+		for (int opc = 0; opc < 4; opc++) {
+			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode, low byte, high byte order...
+			instrOpcode >>>= 8;
+		}
+		
+		i = opcode[instrOpcodeOffset++];
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
 				argsMnem = null;
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				break;
 
 			case 237 : /* ED opcode strMnem */
 				argsMnem = edArgsMnem;
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				break;
 
 			case 221 : /* DD CB opcode strMnem */
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				if (i == 203) {
 					argsMnem = ddcbArgsMnem;
-					i = blink.readByte(pc + 2);
-					pc++;
+					i = opcode[instrOpcodeOffset+2];
+					instrOpcodeOffset++;
 				} else {
 					argsMnem = ddArgsMnem;
-					i = blink.readByte(pc++);
+					i = opcode[instrOpcodeOffset++];
 				}
 				break;
 
 			case 253 : /* FD CB opcode strMnem */
-				i = blink.readByte(pc);
+				i = opcode[instrOpcodeOffset];
 				if (i == 203) {
 					argsMnem = fdcbArgsMnem;
-					i = blink.readByte(pc + 2);
-					pc++;
+					i = opcode[instrOpcodeOffset+2];
+					instrOpcodeOffset++;
 				} else {
 					argsMnem = fdArgsMnem;
-					i = blink.readByte(pc++);
+					i = opcode[instrOpcodeOffset++];
 				}
 				break;
 
 			case 223 : /* RST 18h, FPP interface */
-				return ++pc;
+				return ++instrOpcodeOffset;
 
 			case 231 : /* RST 20h, main OS interface */
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				switch (i) {
 					case 6 : /* OS 2 byte low level calls */
-						return ++pc;
+						return ++instrOpcodeOffset;
 					case 9 : /* GN 2 byte general calls */
-						return ++pc;
+						return ++instrOpcodeOffset;
 
 					case 12 : /* DC 2 byte low level calls */
-						return ++pc;
+						return ++instrOpcodeOffset;
 					default : /* OS 1 byte low level calls */
-						return pc;
+						return instrOpcodeOffset;
 				}
 
 			default : /* standard Z80 (Intel 8080 compatible) opcodes */
@@ -4461,11 +4390,11 @@ public class Dz {
 		if (argsMnem != null) {			
 			switch (argsMnem[i]) {
 				case 2 :
-					pc += 2; /* move past opcode */
+					instrOpcodeOffset += 2; /* move past opcode */
 					break;
 
 				case 1 :
-					pc++; /* move past opcode */
+					instrOpcodeOffset++; /* move past opcode */
 					break;
 
 				case 0 :
@@ -4473,24 +4402,24 @@ public class Dz {
 					break;
 
 				case -1 : /* relative jump addressing (+/- 128 byte range) */
-					pc++; /* move past opcode */
+					instrOpcodeOffset++; /* move past opcode */
 					break;
 
 				case -2 : /* ix/iy bit manipulation */
-					pc += 2; /* move past opcode */
+					instrOpcodeOffset += 2; /* move past opcode */
 					break;
 
 				case -3 : /* LD (IX/IY+r),n */
-					pc += 2; /* move past opcode */
+					instrOpcodeOffset += 2; /* move past opcode */
 					break;
 
 				case -4 :
 					/* IX/IY offset, positive/negative constant presentation */
-					pc++; /* move past opcode */
+					instrOpcodeOffset++; /* move past opcode */
 					break;
 			}
 		}
 
-		return pc;
+		return instrOpcodeOffset;
 	}
 }
