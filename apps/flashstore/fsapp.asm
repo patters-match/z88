@@ -61,7 +61,7 @@ lib CreateWindow              ; Create windows...
 lib RamDevFreeSpace           ; poll for free space on RAM device
 lib ApplEprType               ; check for prescence application card
 lib CheckBattLow              ; Check Battery Low condition
-lib FlashStoreFormat          ; Create FlashStore partitions or "oz" File Area
+lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
 lib FlashEprCardId            ; Return Intel Flash Eprom Device Code (if card available)
 lib FlashEprBlockErase        ; Format Flash Eprom Block (64K)
 lib FlashEprWriteBlock        ; Write a block of byte to Flash Eprom
@@ -350,6 +350,7 @@ ENDIF
                          ld   a,3                 ; no File Eprom's found
                          ld   (curslot),a         ; select slot 3 as default
 
+                         ld   c,3
                          call FlashEprCardId      ; Flash Eprom in slot 3?
                          jr   nc, chip_found      ; Yes...
                          CALL greyscr
@@ -1715,7 +1716,8 @@ ENDIF
 .FormatCard                   
                     call CheckBatteryStatus       ; don't format Flash Eprom
                     ret  c                        ; if Battery Low is enabled...
-
+                    
+                    ld   c,3
                     CALL FlashEprCardId
                     JP   C, unkn_chip             ; Ups - Flash Eprom not available in slot 3
 
@@ -1749,18 +1751,12 @@ ENDIF
                     call wbar
                     CALL_OZ gn_nln
 
-                    LD   A, FSFMT_RMPT
-                    CALL FlashStoreFormat         ; format Card / area below applications
-                    JR   C, formaterr
-
                     CALL_OZ gn_nln
                     LD   HL,wroz_ms
                     CALL sopnln
 
-                    LD   DE,0                     ; blow "oz" header on top of Card
-                    LD   A, FSFMT_CRPT            ; or at top of free area.
-                    CALL FlashStoreFormat
-                    JR   C, WriteHdrError
+                    CALL FlashEprFileFormat       ; blow "oz" header on top of Card
+                    JR   C, WriteHdrError         ; or at top of free area.
 
                     CALL ResSpace
                     CP   A                        ; Signal success (Fc = 0, Fz = 1)
