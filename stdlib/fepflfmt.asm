@@ -58,8 +58,7 @@
 ;         BHL = absolute pointer to "oz" header in card
 ;         C = Number of 16K banks of File Eprom Area
 ;
-;         All sectors erased and a new header blown, if a previous File Eprom Area was found
-;         If the card was empty (FF's), header was blown to identify it as a File Eprom
+;         All sectors erased and a new header blown.
 ;
 ;    Failure:
 ;         Fc = 1
@@ -85,9 +84,8 @@
 
                     CALL FileEprRequest           ; get pointer to File Eprom Header (or potential) in slot C
                     JR   C,format_error           ; No File Eprom available...
-                    JR   NZ, just_fehdr           ; no File Eprom Header found, but potential place (and empty space)
 
-                    CALL ErasePtBlocks            ; header found, erase all block including header and below...
+                    CALL ErasePtBlocks            ; always erase available file area (all sectors)
                     JR   C,format_error
 .just_fehdr                                       ; empty banks are assumed below header (containing FF's)...
                     CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
