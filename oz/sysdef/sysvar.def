@@ -66,7 +66,7 @@ defc	pFirstAlarm		=$0272
 defc	pNextAlmHandle		=$0274
 
 defc	uwAppStaticHnd		=$03b0
-defc	uwApplDynID		=$03b2
+defc	ubAppDynID		=$03b2		; was uwApplDynID
 defc	ubAppDORFlags		=$03b6
 defc	pAppStackPtr		=$03ba
 defc	pUnSafeArea		=$03bc
@@ -74,16 +74,23 @@ defc	pAppExtrastackArea	=$03be
 defc	pAppBadMemHandle	=$03c0
 defc	ubAppContRAM		=$03c2
 defc	ubAppS0Binding		=$03c3
+defc	ubAppKbdBits		=$03c7
 defc	pMailbox		=$03c8
 defc	ubMailboxSize		=$03ca
+defc	pAppErrorHandler	=$03cc
+defc	ubAppLastError		=$03ce
+defc	ubAppCallLevel		=$03cf
 defc	ubCallLevel		=$03cf
 defc	uwFreeRAMPages		=$03f2
+defc	pFirstHandle		=$03f4
 defc	ubIntTaskToDo		=$03f6
 defc	ubIntStatus		=$03f7
-defc	ubSlotRamSize		=$03fc
-defc	ubSlot0RamSize		=$03fc		; get rid of this
+defc	ubSlotRamSize		=$03fc		; was ubSlot0RamSize
 defc	ubSlotRAMoffset		=$03f8
 
+;	0500-0aff	handles
+
+defc	HANDLES	=$0500
 
 ;	0b00-0bff	buffers
 
@@ -330,13 +337,14 @@ defc	LCDA_NULLCHAR		=$34
 
 
 
-;	application DOR offsets
+;	(application) DOR offsets
 
-defc	ADOR_PARENT	=$00
-defc	ADOR_BROTHER	=$03
-defc	ADOR_SON	=$06
-defc	ADOR_TYPE	=$09
-defc	ADOR_LENGTH	=$0a
+defc	DOR_PARENT	=$00
+defc	DOR_BROTHER	=$03
+defc	DOR_SON		=$06
+defc	DOR_TYPE	=$09
+defc	DOR_LENGTH	=$0a
+
 defc	ADOR_INFOTYPE	=$0b
 defc	ADOR_INFOLENGTH	=$0c
 defc	ADOR_RESERVED	=$0d
@@ -360,8 +368,8 @@ defc	ADOR_NAMELENGTH	=$2e
 defc	ADOR_NAME	=$2f
 
 defc	OSFrame_IY		= $00
-defc	OSFrame_S3		= $02
-defc	OSFrame_S2		= $03
+defc	OSFrame_S2		= $02
+defc	OSFrame_S3		= $03
 defc	OSFrame_OZCall		= $04
 defc	OSFrame_F		= $06
 defc	OSFrame_A		= $07
@@ -371,8 +379,8 @@ defc	OSFrame_E		= $0A
 defc	OSFrame_D		= $0B
 defc	OSFrame_L		= $0C
 defc	OSFrame_H		= $0D
-defc	OSFrame__S3		= $0E
-defc	OSFrame__S2		= $0F
+defc	OSFrame__S2		= $0E
+defc	OSFrame__S3		= $0F
 
 
 
@@ -387,28 +395,62 @@ defc	buf_bufpage		=$FC
 defc	buf_wrpos		=$FE
 defc	buf_rdpos		=$FF
 
+;	handle types
 
 defc	HND_DEV			=1
 defc	HND_FILE		=2
 defc	HND_MEM			=3
 defc	HND_PROC		=4
 defc	HND_ALRM		=5
+defc	HND_TRHN		=6
 
-defc	fhnd_type		=2
-defc	fhnd_attr		=9
+;	generic handle
+
+defc	hnd_Next		=$00		; 00-03 always same
+defc	hnd_Type		=$02
+defc	hnd_DynID		=$03
+defc	hnd_Flags		=$0a		; 0A-0D semi-standard
+defc	hnd_L			=$0b
+defc	hnd_H			=$0c
+defc	hnd_Bank		=$0d
+defc	hnd_SIZEOF		=$10
+
+;	device handle
 
 defc	dhnd_flags	=$0A
 defc	dhnd_DOR	=$0B
 defc	dhnd_DORH	=$0C
 defc	dhnd_DORBank	=$0D
-defc	dhnd_ApplBase	=$0E
+defc	dhnd_AppSlot	=$0E			; was ApplBase
 defc	dhnd_DeviceID	=$0F
 
-;	AlarmHandle
-defc	ahnd_Next		=$00
-defc	ahnd_NextH		=$01
-defc	ahnd_Type		=$02
-defc	ahnd_3			=$03
+;	file handle
+
+defc	fhnd_firstblk		=$04
+defc	fhnd_attr		=$09
+defc	fhnd_flags		=$0a
+
+defc	FATR_B_READABLE		=0
+defc	FATR_B_WRITABLE		=1
+defc	FATR_B_MEMORY		=2
+defc	FATR_READABLE		=1
+defc	FATR_WRITABLE		=2
+defc	FATR_MEMORY		=4
+
+defc	FFLG_B_SPECDEV		=1
+defc	FFLG_B_WRERROR		=2
+
+;	MemHandle
+
+defc	mhnd_AllocFlags		=$04		; flags used in OS_Mop
+defc	mhnd_ExclusiveBank	=$05
+defc	mhnd_Slot0		=$08		; PageN of first allocation for each slot
+defc	mhnd_Slot1		=$0A
+defc	mhnd_Slot2		=$0C
+defc	mhnd_Slot3		=$0E
+
+;	alarm handle
+
 defc	ahnd_NextAlarmL		=$04
 defc	ahnd_NextAlarmH		=$05
 defc	ahnd_Flags		=$06
@@ -424,19 +466,16 @@ defc	ahnd_FuncB		=$0F
 
 defc	ALMF_B_ACTIVE		=7
 
+;	TriHandle
 
+defc	thnd_Segment	=$04
+defc	thnd_AddrH	=$05
+defc	thnd_Bank	=$06
+defc	thnd_SubType	=$07
 
 ;	----
+
 ;	memory related
-
-;	MemHandle
-
-defc	mhnd_AllocFlags		=$04
-defc	mhnd_ExclusiveBank	=$05
-defc	mhnd_Slot0		=$08		; PageN of first allocation for each slot
-defc	mhnd_Slot1		=$0A
-defc	mhnd_Slot2		=$0C
-defc	mhnd_Slot3		=$0E
 
 ;	out-of-memory flags
 
@@ -469,6 +508,7 @@ defc	MM_B_MUL		=5
 
 defc	OZBANK_0	=0
 defc	OZBANK_DC	=2
+defc	OZBANK_RS232	=2
 defc	OZBANK_GN	=3
 defc	OZBANK_PRFILTER	=3
 defc	OZBANK_7	=7
