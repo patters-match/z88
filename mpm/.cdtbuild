@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ManagedProjectBuildInfo>
+    <target artifactName="Mpm" cleanCommand="rm -rf" defaultExtension=""
+        id="Mpm.linux.gnu.exec.2102901308" isAbstract="false"
+        isTest="false" name="Linux Executable" parent="linux.gnu.exec">
+        <configuration id="linux.gnu.exec.release.2112135282"
+            name="Release" parent="linux.gnu.exec.release">
+            <toolReference id="cdt.build.tool.linux.gnu.compiler">
+                <optionReference defaultValue="Optimize most (-O3)" id="linux.gnu.compiler.optimization.level"/>
+                <optionReference defaultValue="None" id="linux.gnu.compiler.debugging.level"/>
+            </toolReference>
+            <toolReference id="cdt.build.tool.linux.gnu.c.compiler">
+                <optionReference defaultValue="Optimize most (-O3)" id="linux.gnu.c.compiler.general.optimization.level"/>
+                <optionReference defaultValue="None" id="linux.c.compiler.debugging.level"/>
+            </toolReference>
+        </configuration>
+        <configuration id="linux.gnu.exec.debug.160796041" name="Debug" parent="linux.gnu.exec.debug">
+            <toolReference id="cdt.build.tool.linux.gnu.compiler">
+                <optionReference defaultValue="None (-O0)" id="linux.gnu.compiler.optimization.level"/>
+                <optionReference defaultValue="Maximum (-g3)" id="linux.gnu.compiler.debugging.level"/>
+            </toolReference>
+            <toolReference id="cdt.build.tool.linux.gnu.c.compiler">
+                <optionReference defaultValue="None (-O0)" id="linux.gnu.c.compiler.general.optimization.level"/>
+                <optionReference defaultValue="Maximum (-g3)" id="linux.c.compiler.debugging.level"/>
+            </toolReference>
+        </configuration>
+    </target>
+    <defaultConfig id="linux.gnu.exec.release.2112135282"/>
+    <defaultTarget id="Mpm.linux.gnu.exec.2102901308"/>
+</ManagedProjectBuildInfo>
