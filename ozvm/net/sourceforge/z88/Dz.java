@@ -3991,7 +3991,7 @@ public class Dz {
 	 * @param hexTrailer append 'h' if true.
 	 * @return String
 	 */
-	public static final String byteToHex(int b, boolean hexTrailer) {
+	public static final String byteToHex(final int b, final boolean hexTrailer) {
 		StringBuffer hexString = new StringBuffer(3);
 		
 		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]);
@@ -4007,7 +4007,7 @@ public class Dz {
 	 * @param hexTrailer append 'h' if true.
 	 * @return String
 	 */	
-	public static final String addrToHex(int addr, boolean hexTrailer) {
+	public static final String addrToHex(final int addr, final boolean hexTrailer) {
 		int msb = addr >>> 8, lsb = addr & 0xFF;
 		StringBuffer hexString = new StringBuffer(5);
 		
@@ -4084,7 +4084,7 @@ public class Dz {
 	 * @param dispaddr boolean, display Program Counter Hex address as part of disassembly
 	 * @return int the actual size of instruction opcode 
 	 */
-	public static final int dzInstrAscii(StringBuffer mnemonic, int origPc, int instrOpcode, boolean dispaddr) {
+	public static final int dzInstrAscii(final StringBuffer mnemonic, final int origPc, int instrOpcode, final boolean dispaddr) {
 		int i, instrOpcodeOffset = 0;
 		byte relidx;
 		String strMnem[] = null;
