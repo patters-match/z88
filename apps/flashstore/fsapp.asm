@@ -1,7 +1,7 @@
      MODULE flash16
 
 ; ********************************************************************************************
-; FlashStore, Application edition, V1.6.x
+; FlashStore
 ; (C) Gunther Strube (gbs@users.sourceforge.net) & Thierry Peycru (pek@free.fr), 1997-2004
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
@@ -160,8 +160,8 @@ IF !DEBUG
                     DEFM "Freeware utility by",$7F
                     DEFM "Thierry Peycru (Zlab) & Gunther Strube (InterLogic)",$7F
                     DEFM $7F
-                    DEFM "Release V1.6.9, 9th February 1999",$7F
-                    DEFM "(C) Copyright 1997-1999. All rights reserved",0
+                    DEFM "Release V2.dev, October 2004",$7F
+                    DEFM "(C) Copyright 1997-2004. All rights reserved",0
 
 
 ; *****************************************************************************
@@ -196,7 +196,7 @@ ENDIF
                     ld   hl,Errhandler
                     CALL_OZ os_erh           ; then install Error Handler...
 
-                    CALL PollSlots           ; user selects a File Eprom Area in one of the ext. slots.
+                    CALL PollFileEproms      ; user selects a File Eprom Area in one of the ext. slots.
                     JP   C, suicide          ; no File Eprom's available
                     JP   NZ, suicide         ; user aborted
 
@@ -290,26 +290,14 @@ ENDIF
                     call CreateWindow
                     ret
 
-.catalog_banner     defm "FLASHSTORE v1.6.9, (C) 1997-99 Zlab & InterLogic",0
+.catalog_banner     defm "FLASHSTORE V2.dev, (C) 1997-2004 Zlab & InterLogic",0
 
 
-; ************************************************************************
-;
-; Scan external slots and display available File Eprom's from which the
-; user selects an item.
-;
-; If no File Eprom Area was found, then slot 3 is examined for a Flash
-; Eprom Card to be created with a File Eprom Area (whole card or part).
-; If found and user acknowledges, then slot 3 will be created with a File
-; Eprom Area and selected as default.
-;
-; The selected Eprom will remain as the current File Eprom throughout
-; the life of the instantiated FlashStore popdown.
-;
-; A small array, <availslots> is used to store the size of each File Eprom
-; with the first byte indicating the total of File Eproms available.
-;
 .PollSlots
+                    push bc
+                    push de
+                    push hl
+                     
                     ld   hl, availslots+1    ; point to counter of available slots
                     push hl
                     ld   c,1                 ; begin with external slot 1
@@ -337,13 +325,37 @@ ENDIF
                     cp   4
                     jr   nz, poll_loop
 
+                    ld   a,e
                     pop  hl
-                    ld   hl, availslots
-                    ld   (hl),e              ; store total of File Eprom's found
+                    ld   (availslots),a      ; store total of File Eprom's found
 
-                    inc  e
-                    dec  e
-                    jr   nz, select_slot     ; File Eprom's were found, select one...
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    cp   a                   ; Fc = 0
+                    ret
+                    
+
+; ************************************************************************
+;
+; Scan external slots and display available File Eprom's from which the
+; user selects an item.
+;
+; If no File Eprom Area was found, then slot 3 is examined for a Flash
+; Eprom Card to be created with a File Eprom Area (whole card or part).
+; If found and user acknowledges, then slot 3 will be created with a File
+; Eprom Area and selected as default.
+;
+; The selected Eprom will remain as the current File Eprom throughout
+; the life of the instantiated FlashStore popdown.
+;
+; A small array, <availslots> is used to store the size of each File Eprom
+; with the first byte indicating the total of File Eproms available.
+;
+.PollFileEproms
+                    call PollSlots                    
+                    or   a
+                    jr   nz, select_slot     ; one or more File Eprom's were found, select one...
 .check_slot3
                          ld   a,3                 ; no File Eprom's found
                          ld   (curslot),a         ; select slot 3 as default
@@ -364,7 +376,6 @@ ENDIF
                          call format_main         ; format Flash Eprom for new File Eprom Area
                          ret
 .select_slot
-                    ld   a,e
                     cp   1
                     jr   z, select_default
 
@@ -398,11 +409,11 @@ ENDIF
                     ld   hl, selslot_banner
                     call CreateWindow
                     ld   hl, selvdu
-                    call_oz  (GN_Sop)
+                    call_oz GN_Sop
 
                     ld   a,1                 ; begin from slot 1
-                    ld   (curslot),a
 .disp_slot_loop
+                    ld   (curslot),a
                     ld   hl, slottxt
                     call_oz(Gn_Sop)
                     ld   a,(curslot)
@@ -417,15 +428,17 @@ ENDIF
                     jr   c, poll_for_ram_card
                     jr   nz, poll_for_ram_card
                          ld   hl, eprdev          ; C = size of File Area in 16K banks (if Fz = 1)
-                         jr   slotsize
+                         call slotsize
+                         jr   nextline
 .poll_for_ram_card
                     ld   a,(curslot)
                     ld   c,a
                     call RamDevFreeSpace
-                    jr   c, poll_for_rom_card
+                    jr   c, poll_for_rom_card                         
                          ld   hl, ramdev
                          ld   c,a
-                         jr   slotsize
+                         call slotsize
+                         jr   nextline
 .poll_for_rom_card
                     ld   a,(curslot)
                     ld   c,a
@@ -433,25 +446,23 @@ ENDIF
                     jr   c, empty_slot
                          ld   hl, romdev
                          ld   c,b                 ; display size of card as defined by ROM header
-                         jr   slotsize
+                         call slotsize
+                         jr   nextline
 .empty_slot
                     ld   hl, emptytxt
                     call_oz(Gn_Sop)
                     jr   nextline
 .slotsize
-                    push bc
                     call_oz(Gn_Sop)     ; display device name...
-                    pop  bc
                     ld   a,(curslot)
                     add  a,48
-                    call_oz(Os_Out)     ; display device number (which is current slot number too)
-                    
+                    call_oz(Os_Out)     ; display device number (which is current slot number too)                    
                     call DispSlotSize   ; C = size of slot in 16K banks
+                    ret
 .nextline
                     call_oz(Gn_Nln)
                     ld   a,(curslot)
                     inc  a
-                    ld   (curslot),a
                     cp   4
                     jr   nz, disp_slot_loop
 
@@ -799,6 +810,7 @@ ENDIF
                     ld   a,(curslot)
                     ld   c,a
                     push bc
+                    call PollSlots
                     call SelectSlot          ; user selects a File Eprom Area in one of the ext. slots.
                     pop  bc
                     jp   c, suicide          ; no File Eprom's available, kill FlashStore popdown...
@@ -948,13 +960,7 @@ ENDIF
 .ends0_ms           defm " file",0
 .ends1_ms           defm " has been saved.",$0D,$0A,0
 .ends2_ms           defm "No files saved.",$0D,$0A,0
-.savf_ms            defm $0D,$0A,"Saving ",0
-
-.fext0_ms           defm "Size : (Header = ",0
-.fext1_ms           defm ",File image = ",0
-.fext2_ms           defm ") ",0
-.byte_ms            defm " bytes",$0D,$0A,0
-
+.savf_ms            defm "Saving ",0
 
 
 ; **************************************************************************
@@ -998,40 +1004,10 @@ ENDIF
                     LD   HL,savf_ms
                     CALL_OZ gn_sop
                     LD   HL,buf3                       ; display expanded filename
-                    call sopnln
+                    CALL_OZ gn_sop
 
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
                     CALL FindFile                      ; find File Entry of old file, if present
-
-                    ; "File size : (header = xx & file image = xxxx) xxxxx bytes ..."
-
-                    ld   hl,fext0_ms
-                    CALL_OZ gn_sop
-                    ld   hl,flenhdr
-                    call IntAscii
-                    CALL_OZ gn_sop
-                    ld   hl,fext1_ms
-                    CALL_OZ gn_sop
-                    ld   hl,flen
-                    call IntAscii
-                    CALL_OZ gn_sop
-                    ld   hl,fext2_ms
-                    CALL_OZ gn_sop
-
-                    ld   hl,(flen)
-                    ld   bc,(flenhdr)
-                    add  hl,bc
-                    ld   (flen),hl
-                    ld   a,(flen+2)
-                    adc  a,0
-                    ld   (flen+2),a                    ; flen = flen + flenhdr
-
-                    ld   hl,flen
-                    call IntAscii
-                    CALL_OZ gn_sop
-
-                    ld   hl,byte_ms
-                    CALL_OZ gn_sop
 
                     ld   a,3                           ; slot 3
                     ld   bc, BufferSize
@@ -1043,7 +1019,7 @@ ENDIF
                     CALL DeleteOldFile                 ; mark previous file as deleted, if any...
                     CALL filesaved
                     LD   HL,fsok_ms
-                    CALL sopnln
+                    CALL_OZ gn_sop
                     CP   A
                     RET
 .filesave_Err
@@ -1117,13 +1093,7 @@ ENDIF
                     LD   HL,(flentry)
                     CALL FlashEprFileDelete       ; Mark old File Entry as deleted
                     RET  C                        ; File Eprom not found or write error...
-
-                    LD   HL, oldv_ms
-                    CALL sopnln
                     RET
-
-.oldv_ms            DEFM "Previous version deleted.",0
-
 
 
 ; **************************************************************************
