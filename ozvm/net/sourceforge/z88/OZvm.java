@@ -90,7 +90,7 @@ public class OZvm {
 		StringBuffer blinkBanks = new StringBuffer(256);
 		
 		blinkBanks.append("RAMS      (0000h-1FFFh): ");
-		if ((z88.getCom() & Blink.BM_COMRAMS) == Blink.BM_COMRAMS) {
+		if ((z88.getBlinkCom() & Blink.BM_COMRAMS) == Blink.BM_COMRAMS) {
 			blinkBanks.append("20h");
 		} else {
 			blinkBanks.append("00h");
@@ -114,8 +114,11 @@ public class OZvm {
 		return blinkBanks;
 	}
 	
-	private void blinkCom() {	
-        int blComReg = z88.getCom();
+    /**
+     * Display bit status of Blink COM register.
+     */
+	private void displayBlinkCom() {	
+        int blComReg = z88.getBlinkCom();
 		StringBuffer blinkComFlags = new StringBuffer(128);
         
         if ( ((blComReg & Blink.BM_COMSRUN) == 0) & ((blComReg & Blink.BM_COMSBIT) == 0) )
@@ -145,22 +148,109 @@ public class OZvm {
         System.out.println("COM (B0h): " + blinkComFlags);
 	}
 
-    private void blinkIntStaAck() {
-        //int blIntReg = z88.getInt();
-		StringBuffer blinkComFlags = new StringBuffer(128);
+    /**
+     * Display bit status of Blink INT register.
+     */
+    private void displayBlinkInt() {
+        int blIntReg = z88.getBlinkInt();
+		StringBuffer blinkIntFlags = new StringBuffer(128);
+        if ( ((blIntReg & Blink.BM_INTKWAIT) == Blink.BM_INTKWAIT) )
+            blinkIntFlags.append("KWAIT");
+        if ( ((blIntReg & Blink.BM_INTA19) == Blink.BM_INTA19) )
+            blinkIntFlags.append(",A19");
+        if ( ((blIntReg & Blink.BM_INTFLAP) == Blink.BM_INTFLAP) )
+            blinkIntFlags.append(",FLAP");
+        if ( ((blIntReg & Blink.BM_INTUART) == Blink.BM_INTUART) )
+            blinkIntFlags.append(",UART");
+        if ( ((blIntReg & Blink.BM_INTBTL) == Blink.BM_INTBTL) )
+            blinkIntFlags.append(",BTL");
+        if ( ((blIntReg & Blink.BM_INTKEY) == Blink.BM_INTKEY) )
+            blinkIntFlags.append(",KEY");
+        if ( ((blIntReg & Blink.BM_INTTIME) == Blink.BM_INTTIME) )
+            blinkIntFlags.append(",TIME");
+        if ( ((blIntReg & Blink.BM_INTGINT) == Blink.BM_INTGINT) )
+            blinkIntFlags.append(",GINT");
+
+        System.out.println("INT (B1h): " + blinkIntFlags);
     }
-    
+
+    /**
+     * Display bit status of Blink STA register.
+     */
+    private void displayBlinkSta() {
+        int blStaReg = z88.getBlinkSta();
+		StringBuffer blinkStaFlags = new StringBuffer(128);
+        if ( ((blStaReg & Blink.BM_STAFLAPOPEN) == Blink.BM_STAFLAPOPEN) )
+            blinkStaFlags.append("FLAPOPEN");
+        if ( ((blStaReg & Blink.BM_STAA19) == Blink.BM_STAA19) )
+            blinkStaFlags.append(",A19");
+        if ( ((blStaReg & Blink.BM_STAFLAP) == Blink.BM_STAFLAP) )
+            blinkStaFlags.append(",FLAP");
+        if ( ((blStaReg & Blink.BM_STAUART) == Blink.BM_STAUART) )
+            blinkStaFlags.append(",UART");
+        if ( ((blStaReg & Blink.BM_STABTL) == Blink.BM_STABTL) )
+            blinkStaFlags.append(",BTL");
+        if ( ((blStaReg & Blink.BM_STAKEY) == Blink.BM_STAKEY) )
+            blinkStaFlags.append(",KEY");
+        if ( ((blStaReg & Blink.BM_STATIME) == Blink.BM_STATIME) )
+            blinkStaFlags.append(",TIME");
+
+        System.out.println("STA (B1h): " + blinkStaFlags);
+    }
+
+    /**
+     * Display bit status of Blink ACK register.
+     */
+    private void displayBlinkAck() {
+        int blAckReg = z88.getBlinkAck();
+		StringBuffer blinkAckFlags = new StringBuffer(128);
+        if ( ((blAckReg & Blink.BM_ACKA19) == Blink.BM_ACKA19) )
+            blinkAckFlags.append("A19");
+        if ( ((blAckReg & Blink.BM_ACKFLAP) == Blink.BM_ACKFLAP) )
+            blinkAckFlags.append(",FLAP");
+        if ( ((blAckReg & Blink.BM_ACKBTL) == Blink.BM_ACKBTL) )
+            blinkAckFlags.append(",BTL");
+        if ( ((blAckReg & Blink.BM_ACKKEY) == Blink.BM_ACKKEY) )
+            blinkAckFlags.append(",KEY");
+
+        System.out.println("ACK (B6h): " + blinkAckFlags);
+    }
+
+    private void displayBlinkTimers() {
+        int blTim0Reg = z88.getBlinkTim0();
+        int blTim1Reg = z88.getBlinkTim1();
+        int blTim2Reg = z88.getBlinkTim2();
+        int blTim3Reg = z88.getBlinkTim3();
+        int blTim4Reg = z88.getBlinkTim4();
+        int timeElapsedMinutes = 65536 * blTim4Reg + 256 * blTim3Reg + blTim2Reg;
+        int timeElapsedDays = timeElapsedMinutes / 1440;
+        int timeElapsedHours = (timeElapsedMinutes - (timeElapsedDays * 1440)) / 60; 
+        timeElapsedMinutes = timeElapsedMinutes - (timeElapsedDays * 1440) - (timeElapsedHours * 60);
+        
+		StringBuffer blinkTimers = new StringBuffer(128);        
+        blinkTimers.append("TIM4=" + blTim4Reg); blinkTimers.append(",TIM3=" + blTim3Reg);
+        blinkTimers.append(",TIM2=" + blTim2Reg); blinkTimers.append(",TIM1=" + blTim1Reg);
+        blinkTimers.append(",TIM0=" + blTim0Reg);
+        blinkTimers.append(", Time elapsed: " + timeElapsedDays + "d:" + timeElapsedHours + "h:");
+        blinkTimers.append(timeElapsedMinutes + "m:" + blTim1Reg + "s:" + blTim0Reg * 5 + "ms");
+        
+        System.out.println(blinkTimers);        
+    }
+
     /**
      * Display contents of Blink Registers to console.
      */
     private void blinkRegisters() {
-        blinkCom();
-        blinkIntStaAck();   // combined INT, STA & ACK
+        displayBlinkCom();
+        displayBlinkInt();
+        displayBlinkSta();
+        displayBlinkAck();           
+        displayBlinkTimers();  // TIM0, TIM1, TIM2, TIM3 & TIM4
 //        blinkTack();
 //        blinkTmk();     
 //        blinkTsta();    
 //        blinkScreen();  // PB0, PB1, PB2, PB3 & SBR
-//        blinkTimers();  // TIM0, TIM1, TIM2, TIM3 & TIM4
+//        blinkSegment();  // SR0 - SR3
     }
     
 	/**
@@ -241,6 +331,7 @@ public class OZvm {
 		System.out.println("m - View memory at PC");
 		System.out.println("m [local address | extended address] - View memory at address");
 		System.out.println("bp - List breakpoints");
+		System.out.println("bl - Display Blink register contents");        
 		System.out.println("bp <extended address> - Toggle breakpoint");
 		System.out.println("blsr - Blink: Segment Register Bank Binding");
 		System.out.println("r - Display current Z80 Registers");
