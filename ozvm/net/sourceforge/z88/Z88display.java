@@ -35,9 +35,9 @@ import javax.swing.JLabel;
 
 
 /**
- * The display renderer of the Z88 virtual machine,
- * called each 5ms, 10ms, 25ms or 50ms, depending on speed of JVM.
- *
+ * The display renderer of the Z88 virtual machine, called each 5ms, 10ms, 25ms
+ * or 50ms, depending on speed of JVM.
+ *  
  */
 public class Z88display extends JLabel implements MouseListener {
 
@@ -68,8 +68,11 @@ public class Z88display extends JLabel implements MouseListener {
 	private static final int PXCOLON = 0xff461B7D;
 	// Trying to get as close as possibly to the LCD colors...
 	private static final int PXCOLGREY = 0xff90B0A7;
-	private static final int PXCOLOFF = 0xffD2E0B9;		// Empty pixel, when screen is switched on
-	private static final int PXCOLSCROFF = 0xffE0E0E0;	// Empty pixel, screen is switched off	
+	private static final int PXCOLOFF = 0xffD2E0B9;		// Empty pixel, when
+														// screen is switched
+														// on
+	private static final int PXCOLSCROFF = 0xffE0E0E0;	// Empty pixel, screen
+														// is switched off
 
 	private static final int attrBold = 0x80;
 	// Font attribute Bold Mask (LORES1)
@@ -96,7 +99,8 @@ public class Z88display extends JLabel implements MouseListener {
 	private static long renderTimeTotal = 0;
 	// accumulated rendering speed during 3 seconds
 
-	private Blink blink = null; // access to Blink hardware (screen, keyboard, timers...)
+	private Blink blink = null; // access to Blink hardware (screen, keyboard,
+								// timers...)
 	private Memory memory = null; // access to Memory model
 	private RenderPerMs renderPerMs = null;
 	private RenderSupervisor renderSupervisor = null;
@@ -107,8 +111,20 @@ public class Z88display extends JLabel implements MouseListener {
 	private boolean flashTextEmpty = false;
 	// start text flash as dark, ie. text looks normal for 1 sec.
 
+	/**
+	 * The actual low level pixel video data
+	 */
 	private int[] displayMatrix = null;
-	// the actual low level pixel video data
+	
+	/**
+	 * A copy of the previously rendered pixel matrix frame.
+	 */
+	private int[] cpyDisplayMatrix = null;
+
+	/**
+	 * set to true, if a pixel was changed since the last screen frame rendering.
+	 */
+	boolean screenChanged = false;
 
 	int lores0, lores1, hires0, hires1, sbr;
 	int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
@@ -116,7 +132,9 @@ public class Z88display extends JLabel implements MouseListener {
 	private Z88display() {
 		super();
 
-		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
+		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];		
+		cpyDisplayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
+
 		renderRunning = false;
 
 		this.setPreferredSize(new Dimension(640, 64));
@@ -127,7 +145,7 @@ public class Z88display extends JLabel implements MouseListener {
 
 
 	/**
-	 * The core Z88 Display renderer. This code is called by RenderPerMs.<br>
+	 * The core Z88 Display renderer. This code is called by RenderPerMs. <br>
 	 * called manually (ie. to refresh window during focus and paint events).
 	 */
 	public void renderDisplay() {
@@ -144,14 +162,16 @@ public class Z88display extends JLabel implements MouseListener {
 
 		if ((blink.getBlinkCom() & Blink.BM_COMLCDON) != 0) {
 			if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) {
-				// Don't render frame if one of the Screen Registers hasn't been setup yet...
+				// Don't render frame if one of the Screen Registers hasn't been
+				// setup yet...
 				renderNoScreenFrame();  
 			} else {
-				// screen is ON and Blink registers are all pointing to font areas...
+				// screen is ON and Blink registers are all pointing to font
+				// areas...
 				renderScreenFrame();
 			}
 		} else {
-			// Screen has been switched off (usually by using the SHIFT keys) 
+			// Screen has been switched off (usually by using the SHIFT keys)
 			renderNoScreenFrame();
 		}
 	}
@@ -160,7 +180,8 @@ public class Z88display extends JLabel implements MouseListener {
 	 * Grab current screen frame pixel matrix and write it to a file.
 	 * 
 	 * @param filename
-	 * @param imgFormat formats supported by javax.imageio.ImageIO.write 
+	 * @param imgFormat
+	 *            formats supported by javax.imageio.ImageIO.write
 	 */
 	public void grabScreenFrame() {
 		// create image, based on pixel array colours
@@ -178,10 +199,10 @@ public class Z88display extends JLabel implements MouseListener {
 	private void renderNoScreenFrame() {
 		long timeMs = System.currentTimeMillis();
 
-		for (int x = 0; x < (Z88SCREENHEIGHT * Z88SCREENWIDTH); x++) displayMatrix[x] = PXCOLSCROFF;
+		for (int x = 0; x < (Z88SCREENHEIGHT * Z88SCREENWIDTH); x++) setPixel(x, PXCOLSCROFF);
 
-		// create an image, based on pixel matrix, and render it via double buffering to 
-		// the Awt/Swing component 
+		// create an image, based on pixel matrix, and render it via double
+		// buffering to the Awt/Swing component
 		renderImageToComponent();
 
 		// remember the time it took to render the complete screen, accumulated
@@ -191,6 +212,9 @@ public class Z88display extends JLabel implements MouseListener {
 	private void renderScreenFrame() {
 		long timeMs = System.currentTimeMillis();
 
+		// assume that screen hasn't changed (status might change inside writePixels() method)...
+		screenChanged = false; 
+		
 		bankLores0 = lores0 >>> 16;
 		lores0 &= 0x3FFF; // convert to bank, offset
 		bankLores1 = lores1 >>> 16;
@@ -214,9 +238,10 @@ public class Z88display extends JLabel implements MouseListener {
 				int sbrOffset = sbr + scrRowOffset + lineCharOffset;
 				int scrChar = memory.getByte(sbrOffset, bankSbr);
 				int scrCharAttr = memory.getByte(sbrOffset + 1, bankSbr);
-
+					
 				if ((scrCharAttr & attrHrs) == 0) {
-					// Draw a LORES1 character (6x8 pixel matrix), char offset into LORES1 is 9 bits...
+					// Draw a LORES1 character (6x8 pixel matrix), char offset
+					// into LORES1 is 9 bits...
 					drawLoresChar(
 						scrBaseCoordX,
 						scrBaseCoordY,
@@ -233,7 +258,8 @@ public class Z88display extends JLabel implements MouseListener {
 						scrBaseCoordX += 6;
 					} else {
 						if ((scrCharAttr & attrNull) != attrNull) {
-							// Draw a HIRES character (PipeDream MAP / OZ window fonts)
+							// Draw a HIRES character (PipeDream MAP / OZ window
+							// fonts)
 							drawHiresChar(
 								scrBaseCoordX,
 								scrBaseCoordY,
@@ -242,12 +268,13 @@ public class Z88display extends JLabel implements MouseListener {
 							scrBaseCoordX += 8;
 						}
 					}
-				}
+				}					
 			}
 
 			// when a complete row (8 pixels deep) has been rendered,
 			// find out if pixels remain up to the 639'th pixel;
-			// these need to get "blanked", before beginning with the next row...
+			// these need to get "blanked", before beginning with the next
+			// row...
 			if (scrBaseCoordX < Z88SCREENWIDTH - 1) {
 				for (int y = scrBaseCoordY * Z88SCREENWIDTH;
 					y < (scrBaseCoordY * Z88SCREENWIDTH + 8 * Z88SCREENWIDTH);
@@ -256,7 +283,7 @@ public class Z88display extends JLabel implements MouseListener {
 					for (int bit = 0;
 						bit < (Z88SCREENWIDTH - scrBaseCoordX);
 						bit++) {
-						displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;
+						setPixel(y + scrBaseCoordX + bit, PXCOLOFF);
 					}
 				}
 			}
@@ -266,9 +293,11 @@ public class Z88display extends JLabel implements MouseListener {
 			scrBaseCoordX = 0;
 		}
 
-		// create an image, based on pixel matrix, and render it via double buffering to 
-		// the Awt/Swing component 
-		renderImageToComponent();
+		if (screenChanged == true) {
+			// pixels changed on the screen. Create an image, based on pixel matrix, 
+			// and render it to the Awt/Swing component
+			renderImageToComponent();			
+		}
 
 		// remember the time it took to render the complete screen, accumulated
 		renderTimeTotal += System.currentTimeMillis() - timeMs;
@@ -278,7 +307,7 @@ public class Z88display extends JLabel implements MouseListener {
 
 	private void renderImageToComponent() {
 		if (image != null) {
-			// release previous bitmap to the system; 
+			// release previous bitmap to the system;
 			// it's been dumped to video already and is now useless...
 			image.flush();
 			image = null;
@@ -303,14 +332,21 @@ public class Z88display extends JLabel implements MouseListener {
 	
 
 	/**
-	 * Draw the character at current position, and overlay with flashing cursor.<br>
-	 * In cursor mode, neither hardware underline nor grey is functional.
-	 * Only inverse video flashing on pixel data of character.
-	 *
-	 * @param scrBaseCoordX pixel column (0-639)
-	 * @param scrBaseCoordY pixel row coordinate (0-63)
-	 * @param charAttr the Screen File attribute fo the character (flashing, reverse, tiny, bold)
-	 * @param scrChar the offset into the LORES character set (top bits in charAttr).
+	 * Draw the character at current position, and overlay with flashing cursor.
+	 * <br>
+	 * In cursor mode, neither hardware underline nor grey is functional. Only
+	 * inverse video flashing on pixel data of character.
+	 * 
+	 * @param scrBaseCoordX
+	 *            pixel column (0-639)
+	 * @param scrBaseCoordY
+	 *            pixel row coordinate (0-63)
+	 * @param charAttr
+	 *            the Screen File attribute fo the character (flashing, reverse,
+	 *            tiny, bold)
+	 * @param scrChar
+	 *            the offset into the LORES character set (top bits in
+	 *            charAttr).
 	 */
 	private void drawLoresCursor(
 		final int scrBaseCoordX,
@@ -318,7 +354,7 @@ public class Z88display extends JLabel implements MouseListener {
 		final int charAttr,
 		final int scrChar) {
 		int bank, bit, y;
-
+		
 		// safety: if 640 - X coordinate is less than 6 pixels, then abort...
 		if (Z88SCREENWIDTH - scrBaseCoordX < 6)
 			return;
@@ -345,19 +381,25 @@ public class Z88display extends JLabel implements MouseListener {
 			// render 6 pixels wide...
 			int pxOffset = 0;
 			for (bit = 32; bit > 0; bit >>>= 1) {
-				displayMatrix[y + scrBaseCoordX + pxOffset++] =
-					((charBits & bit) != 0) ? PXCOLON : PXCOLOFF;
+				setPixel(y + scrBaseCoordX + pxOffset++, ((charBits & bit) != 0) ? PXCOLON : PXCOLOFF);
 			}
-		}
+		}		
 	}
 
 	/**
-	 * Draw a LORES character (6x8 pixel matrix) at pixel position (scrBaseCoordX,scrBaseCoordY).<br>
-	 *
-	 * @param scrBaseCoordX pixel column (0-639)
-	 * @param scrBaseCoordY pixel row coordinate (0-63)
-	 * @param charAttr the Screen File attribute fo the character (flashing, reverse, tiny, bold, underline, grey)
-	 * @param scrChar the offset into the LORES character set (top bits in charAttr).
+	 * Draw a LORES character (6x8 pixel matrix) at pixel position
+	 * (scrBaseCoordX,scrBaseCoordY). <br>
+	 * 
+	 * @param scrBaseCoordX
+	 *            pixel column (0-639)
+	 * @param scrBaseCoordY
+	 *            pixel row coordinate (0-63)
+	 * @param charAttr
+	 *            the Screen File attribute fo the character (flashing, reverse,
+	 *            tiny, bold, underline, grey)
+	 * @param scrChar
+	 *            the offset into the LORES character set (top bits in
+	 *            charAttr).
 	 */
 	private void drawLoresChar(
 		final int scrBaseCoordX,
@@ -372,15 +414,15 @@ public class Z88display extends JLabel implements MouseListener {
 			return;
 
 		if (((charAttr & attrFls) == attrFls) && flashTextEmpty == true) {
-			// render 8 pixel rows of 6 empty pixels, if flashing is enabled and is currently "empty"..
+			// render 8 pixel rows of 6 empty pixels, if flashing is enabled and
+			// is currently "empty"..
 			for (y = scrBaseCoordY * Z88SCREENWIDTH;
 				y < (scrBaseCoordY * Z88SCREENWIDTH + Z88SCREENWIDTH * 8);
 				y += Z88SCREENWIDTH) {
 				// render 6 pixels wide...
 				for (bit = 0; bit < 6; bit++)
-					displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;
+					setPixel(y + scrBaseCoordX + bit,PXCOLOFF);
 			}
-
 			return; // char render completed...
 		}
 
@@ -399,6 +441,7 @@ public class Z88display extends JLabel implements MouseListener {
 		}
 
 		// render 8 pixel rows of 6 pixel wide scrChar
+		int line = 0;
 		for (y = scrBaseCoordY * Z88SCREENWIDTH;
 			y < (scrBaseCoordY * Z88SCREENWIDTH + Z88SCREENWIDTH * 8);
 			y += Z88SCREENWIDTH) {
@@ -408,32 +451,37 @@ public class Z88display extends JLabel implements MouseListener {
 				charBits = ~charBits;
 
 			// render 6 pixels wide...
+			if (line++ == 7) {
+				// we've reached the 8th pixel line of the char, VDU underline or not?
+				if ((charAttr & attrUnd) == attrUnd) {
+					pxColor = pxOn;
+					if ((charAttr & attrRev) == attrRev)
+						pxColor = PXCOLOFF; // paint "inverse" underline..
+
+					for (bit = 0; bit < 6; bit++) setPixel(y + scrBaseCoordX + bit, pxColor);
+					break; // we've drawn an underline in stead of the last pixel row of the lores char...
+				} 				
+			}
 			int pxOffset = 0;
 			for (bit = 32; bit > 0; bit >>>= 1) {
-				displayMatrix[y + scrBaseCoordX + pxOffset++] =
-					((charBits & bit) != 0) ? pxOn : PXCOLOFF;
-			}
-		}
-
-		// draw underline?
-		if ((charAttr & attrUnd) == attrUnd) {
-			pxColor = pxOn;
-			if ((charAttr & attrRev) == attrRev)
-				pxColor = PXCOLOFF; // paint "inverse" underline..
-
-			y -= Z88SCREENWIDTH; // back on 8th row...
-			for (bit = 0; bit < 6; bit++)
-				displayMatrix[y + scrBaseCoordX + bit] = pxColor;
+				setPixel(y + scrBaseCoordX + pxOffset++, ((charBits & bit) != 0) ? pxOn : PXCOLOFF);
+			}							
 		}
 	}
 
 	/**
-	 * Draw a HIRES character (8x8 pixel matrix) at pixel position (scrBaseCoordX,scrBaseCoordY).<br>
-	 *
-	 * @param scrBaseCoordX pixel column (0-639)
-	 * @param scrBaseCoordY pixel row coordinate (0-63)
-	 * @param charAttr the Screen File attribute fo the character (flashing, grey)
-	 * @param scrChar the offset into the HIRES character set (top bits in charAttr).
+	 * Draw a HIRES character (8x8 pixel matrix) at pixel position
+	 * (scrBaseCoordX,scrBaseCoordY). <br>
+	 * 
+	 * @param scrBaseCoordX
+	 *            pixel column (0-639)
+	 * @param scrBaseCoordY
+	 *            pixel row coordinate (0-63)
+	 * @param charAttr
+	 *            the Screen File attribute fo the character (flashing, grey)
+	 * @param scrChar
+	 *            the offset into the HIRES character set (top bits in
+	 *            charAttr).
 	 */
 	private void drawHiresChar(
 		final int scrBaseCoordX,
@@ -448,13 +496,14 @@ public class Z88display extends JLabel implements MouseListener {
 			return;
 
 		if (((charAttr & attrFls) == attrFls) && flashTextEmpty == true) {
-			// render 8 pixel rows of 8 empty pixels, if flashing is enabled and is currently "empty"..
+			// render 8 pixel rows of 8 empty pixels, if flashing is enabled and
+			// is currently "empty"..
 			for (int y = scrBaseCoordY * Z88SCREENWIDTH;
 				y < (scrBaseCoordY * Z88SCREENWIDTH + Z88SCREENWIDTH * 8);
 				y += Z88SCREENWIDTH) {
 				// render 8 pixels wide...
 				for (bit = 0; bit < 8; bit++)
-					displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;
+					setPixel(y + scrBaseCoordX + bit, PXCOLOFF);
 			}
 
 			return;
@@ -486,36 +535,50 @@ public class Z88display extends JLabel implements MouseListener {
 			int pxOffset = 0;
 			// render 8 pixels wide...
 			for (bit = 128; bit > 0; bit >>>= 1)
-				displayMatrix[y + scrBaseCoordX + pxOffset++] =
-					((charBits & bit) != 0) ? pxOn : PXCOLOFF;
+				setPixel(y + scrBaseCoordX + pxOffset++, ((charBits & bit) != 0) ? pxOn : PXCOLOFF);
 		}
 	}
 
+	private void setPixel(int offset, int pixelColour) {
+		displayMatrix[offset] = pixelColour;
+		
+		if (cpyDisplayMatrix[offset] != displayMatrix[offset]) {
+			cpyDisplayMatrix[offset] = displayMatrix[offset];
+			screenChanged = true;
+		}
+	}
+	
 	/**
-	 * Keep flash counters updated according to FPS settings.<br>
-	 * Ordinary text flashing changes state each second (text appears one sec. then disappears one sec).
-	 * Cursor flash inverts 6x8 LORES char 70% of 1 sec, remaining 30% renders the char as normal.
+	 * Keep flash counters updated according to FPS settings. <br>
+	 * Ordinary text flashing changes state each second (text appears one sec.
+	 * then disappears one sec). Cursor flash inverts 6x8 LORES char 70% of 1
+	 * sec, remaining 30% renders the char as normal.
 	 */
 	private void flashCounter() {
 		if (frameCounter++ > fps[curRenderSpeedIndex]) { // 1 second has passed
 			frameCounter = 0;
-			flashTextEmpty = !flashTextEmpty; // invert current text flashing mode
+			flashTextEmpty = !flashTextEmpty; // invert current text flashing
+											  // mode
 		}
 
 		if (frameCounter < fcd[curRenderSpeedIndex])
 			cursorInverse = true; // most of the time, cursor is black
 		else
-			cursorInverse = false; // rest of the time, cursor is invisible (normal text)
+			cursorInverse = false; // rest of the time, cursor is invisible
+								   // (normal text)
 	}
 
 	/**
-	 * Render Z88 Display each X ms (runtime adjusted)...
-	 * If Z80 engine has stopped, then don't blink the cursor (which
-	 * otherwise gives a feel of a running Z80 engine).
+	 * Render Z88 Display each X ms (runtime adjusted)... If Z80 engine has
+	 * stopped, then don't blink the cursor (which otherwise gives a feel of a
+	 * running Z80 engine).
 	 */
 	private class RenderPerMs extends TimerTask {
 		public void run() {
-			if (blink.isZ80running() == true) flashCounter(); // update cursor flash and ordinary flash counters
+			if (blink.isZ80running() == true) flashCounter(); // update cursor
+															  // flash and
+															  // ordinary flash
+															  // counters
 			renderDisplay(); // then render display...
 		}
 	}
@@ -559,33 +622,41 @@ public class Z88display extends JLabel implements MouseListener {
 	}
 
 	/**
-	 * The Z88 Display Render supervisor.<br>
+	 * The Z88 Display Render supervisor. <br>
 	 * Called each 3 seconds, it monitors the rendering speed, and adjusts the
-	 * framerate, if it takes longer or faster to render than the current fps timing.
+	 * framerate, if it takes longer or faster to render than the current fps
+	 * timing.
 	 */
 	private class RenderSupervisor extends TimerTask {
 		public void run() {
 			int avgRenderSpeed =
 				(int) renderTimeTotal / fps[curRenderSpeedIndex];
-			// System.out.println("Avg Frame Render Speed: " + avgRenderSpeed + " ms");
+			// System.out.println("Avg Frame Render Speed: " + avgRenderSpeed +
+			// " ms");
 			
 			if (avgRenderSpeed * 1.4 > 1000 / fps[curRenderSpeedIndex]) {
-				// current average render speed and safety margin takes longer than the time interval
-				// between frames. Choose a one-step lower frame rate, if possible...
+				// current average render speed and safety margin takes longer
+				// than the time interval
+				// between frames. Choose a one-step lower frame rate, if
+				// possible...
 				if (curRenderSpeedIndex > 0) {
 					curRenderSpeedIndex--;
-					// choose a lower framerate, then restart screen rendering...
+					// choose a lower framerate, then restart screen
+					// rendering...
 					stop();
 					start();
 					return;
 				}
 			}
 			if (avgRenderSpeed * 1.4 < 1000 / fps[curRenderSpeedIndex]) {
-				// current average render speed and safety margin is faster than the time interval
-				// between frames. Choose a one-step higher frame rate, if possible...
+				// current average render speed and safety margin is faster than
+				// the time interval
+				// between frames. Choose a one-step higher frame rate, if
+				// possible...
 				if (curRenderSpeedIndex < fps.length - 1) {
 					curRenderSpeedIndex++;
-					// choose a higher framerate, then restart screen rendering...
+					// choose a higher framerate, then restart screen
+					// rendering...
 					stop();
 					start();
 					return;
@@ -597,32 +668,42 @@ public class Z88display extends JLabel implements MouseListener {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent arg0) {
 		grabFocus();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 	 */
 	public void mouseEntered(MouseEvent arg0) {		
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 	 */
 	public void mouseExited(MouseEvent arg0) {		
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 	 */
 	public void mousePressed(MouseEvent arg0) {
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent arg0) {
