@@ -20,7 +20,7 @@ Module SaveFiles
 
 ; This module contains the Save Files to Flash Card Command
 
-     xdef SaveFilesCommand
+     xdef SaveFilesCommand, BackupRamCommand
      xdef fnam_msg, fsok_msg
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -28,6 +28,7 @@ Module SaveFiles
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
+     xref SelectRamDevice, selctram_msg
      xref CheckBatteryStatus
      xref FlashWriteSupport
      xref cls, wbar, sopnln
@@ -53,31 +54,46 @@ Module SaveFiles
 
 ; *************************************************************************************
 ;
+; Backup RAM Card to Flash Card
+;
+.BackupRamCommand
+                    call cls
+                    call CheckFileArea
+                    ret  c                        ; no file area nor write support
+                    ret  nz                       ; flash chip was not found in slot!
+
+                    ld   hl,bckp_bnr
+                    call wbar
+
+                    LD   HL, selctram_msg
+                    CALL_OZ(GN_Sop)
+
+                    LD   BC,$0103
+                    CALL SelectRamDevice          ; user selected RAM device at (buf1)
+                    RET  C
+
+                    LD   HL, bckp_wildcard
+                    LD   DE, buf1+6
+                    LD   BC, 4
+                    LDIR                          ; append "//*", wich is ":RAM.X//*"
+                    CALL_OZ(GN_Nln)
+                    JR   scan_filesystem          ; backup selected RAM to Flash Card...
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
 ; Save Files to Flash Card
 ;
 .SaveFilesCommand
-                    call CheckBatteryStatus
-                    ret  c                        ; batteries are low - operation aborted
                     call cls
-.init_save_main
-                    ld   a,(curslot)
-                    ld   c,a
-                    push bc
-                    call FileEprRequest
-                    pop  bc
-                    jr   z, check_writesupp       ; File Area header was found..
-                    call disp_no_filearea_msg
-                    ret
-.check_writesupp
-                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
-                    call c,DispIntelSlotErr
-                    ret  c                        ; it didn't...
-                    ret  nz                       ; (and flash chip was not found in slot!)
+                    call CheckFileArea
+                    ret  c                        ; no file area nor write support
+                    ret  nz                       ; flash chip was not found in slot!
 
                     ld   hl,0
                     ld   (savedfiles),hl     ; reset counter to No files saved...
 .fname_sip
-                    call cls
                     ld   hl,fsv1_bnr
                     call wbar
                     ld   hl,wcrd_msg
@@ -117,7 +133,7 @@ Module SaveFiles
                     CALL_OZ gn_fex
                     CALL C, ReportStdError             ; illegal wild card string
                     JR   C, end_save
-
+.scan_filesystem
                     xor  a
                     ld   b,a
                     LD   HL,buf1
@@ -153,6 +169,20 @@ Module SaveFiles
                     CALL NZ, DispFilesSaved
                     CALL Z, DispNoFiles
                     CALL ResSpace
+                    RET
+
+.CheckFileArea
+                    ld   a,(curslot)
+                    ld   c,a
+                    push bc
+                    call FileEprRequest
+                    pop  bc
+                    jr   z, check_writesupp       ; File Area header was found..
+                    call disp_no_filearea_msg
+                    ret
+.check_writesupp
+                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    call c,DispIntelSlotErr
                     RET
 
 .DispFilesSaved     PUSH AF
@@ -321,13 +351,15 @@ Module SaveFiles
 
 ; *************************************************************************************
 ; constants
+.bckp_bnr           DEFM "BACKUP RAM TO FILE CARD AREA",0
+.bckp_wildcard      DEFM "//*",0
 
-.fsv1_bnr           DEFM "SAVE FILES TO FILE AREA",0
+.fsv1_bnr           DEFM "SAVE FILES TO FILE CARD AREA",0
 .wcrd_msg           DEFM " (Wildcards are allowed).",0
 .fnam_msg           DEFM 1,"2+C Filename: ",0
 
 .curdir             DEFM ".",0
-.fsv2_bnr           DEFM "SAVING TO FILE AREA ...",0
+.fsv2_bnr           DEFM "SAVING TO FILE CARD AREA ...",0
 .ends0_msg          DEFM " file",0
 .ends1_msg          DEFM " has been saved.",$0D,$0A,0
 .ends2_msg          DEFM $0D,$0A,1,"2JCNo files saved.",1,"2JN",$0D,$0A,0
