@@ -22,9 +22,6 @@
      LIB FileEprFileEntryInfo
      LIB PointerNextByte
 
-     INCLUDE "flashepr.def"
-     INCLUDE "error.def"
-
 
 ; **************************************************************************
 ;

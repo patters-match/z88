@@ -21,11 +21,6 @@
      LIB FlashEprStdFileHeader
      LIB FileEprRequest
      
-     INCLUDE "time.def"
-     INCLUDE "saverst.def"
-     INCLUDE "memory.def"
-     INCLUDE "error.def"
-
 
 ; ************************************************************************
 ;

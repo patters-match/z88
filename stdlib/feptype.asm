@@ -21,7 +21,6 @@
      LIB MemReadByte
      LIB FlashEprCardId
 
-     include "flashepr.def"
      include "error.def"
      include "memory.def"
 

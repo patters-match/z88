@@ -27,7 +27,6 @@
      include "error.def"
      include "fileio.def"
      include "memory.def"
-     include "flashepr.def"
 
 
      DEFC SizeOfWorkSpace = 256         ; size of Workspace on stack, IY points at base...
