@@ -49,7 +49,7 @@ public class Gui extends JFrame {
 	}
 	/**
 	 * This method initializes this
-	 * 
+	 *
 	 * @return void
 	 */
 	private void initialize() {
@@ -59,27 +59,27 @@ public class Gui extends JFrame {
 		  System.out.println("Error setting native LAF: " + e);
 		}
 		Container content = getContentPane();
-		
+
 		this.setJMenuBar(getJJMenuBar());
 		this.setSize(640, 480);
 		content.add(z88Screen(), BorderLayout.NORTH);
-		content.add(commandArea(), BorderLayout.SOUTH);
+		// content.add(commandArea(), BorderLayout.SOUTH);
 		this.setTitle("OZvm");
 		this.pack();
 		this.setVisible(true);
 		this.setForeground(java.awt.Color.green);
 		this.setBackground(java.awt.Color.black);
-		
-		this.addWindowListener(new java.awt.event.WindowAdapter() { 
-			public void windowClosing(java.awt.event.WindowEvent e) {    
-				System.out.println("windowClosing()"); 
-				System.exit(0);				
+
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			public void windowClosing(java.awt.event.WindowEvent e) {
+				System.out.println("windowClosing()");
+				System.exit(0);
 			}
 		});
 	}
 	/**
 	 * This method initializes jContentPane
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel z88Screen() {
@@ -98,45 +98,45 @@ public class Gui extends JFrame {
 		Gui gg = new Gui();
 		gg.show();
 		JFrame rtmOut = gg.getRtmOutputWindow();
-		gg.rtmOutArea().append("OZvm V0.2, Z88 Virtual Machine\n");
+		gg.rtmOutArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 
 		OZvm ozvm = new OZvm(gg.z88Screen(), gg.cmdLineInputArea(), gg.cmdlineOutputArea(), gg.rtmOutArea());
 		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
 		}
-		
+
 		if (ozvm.isDebugMode() == true) {
 			// Run OZvm in debugging mode, ie. start with command line mode and allow debugging
 			try {
 				ozvm.commandLine();
 
 				System.out.println("Ozvm terminated.");
-				GameFrame.exit(0);						
+				GameFrame.exit(0);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
 			ozvm.bootZ88Rom();
-		}		
+		}
 	}
 	/**
 	 * This method initializes jJMenuBar
-	 * 
+	 *
 	 * @return javax.swing.JMenuBar
 	 */
 	private javax.swing.JMenuBar getJJMenuBar() {
 		if(jJMenuBar == null) {
 			jJMenuBar = new javax.swing.JMenuBar();
-			jJMenuBar.add(getFileMenu());			
+			jJMenuBar.add(getFileMenu());
 			jJMenuBar.add(getHelpMenu());
 		}
 		return jJMenuBar;
 	}
 	/**
 	 * This method initializes jMenu
-	 * 
+	 *
 	 * @return javax.swing.JMenu
 	 */
 	private javax.swing.JMenu getFileMenu() {
@@ -150,7 +150,7 @@ public class Gui extends JFrame {
 	}
 	/**
 	 * This method initializes jMenu1
-	 * 
+	 *
 	 * @return javax.swing.JMenu
 	 */
 	private javax.swing.JMenu getHelpMenu() {
@@ -163,7 +163,7 @@ public class Gui extends JFrame {
 	}
 	/**
 	 * This method initializes jPanel1
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel commandArea() {
@@ -177,7 +177,7 @@ public class Gui extends JFrame {
 	}
 	/**
 	 * This method initializes the OZvm Command Debugging Output Area
-	 * 
+	 *
 	 * @return javax.swing.JTextArea
 	 */
 	private javax.swing.JTextArea cmdlineOutputArea() {
@@ -192,10 +192,10 @@ public class Gui extends JFrame {
 		}
 		return cmdOutput;
 	}
-	
+
 	/**
-	 * This method initializes the 
-	 * 
+	 * This method initializes the
+	 *
 	 * @return javax.swing.JTextField
 	 */
 	private javax.swing.JTextField cmdLineInputArea() {
@@ -209,7 +209,7 @@ public class Gui extends JFrame {
 	}
 	/**
 	 * This method initializes jContentPane
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel getJContentPane() {
@@ -223,7 +223,7 @@ public class Gui extends JFrame {
 	}
 	/**
 	 * This method initializes the Runtime Output Window
-	 * 
+	 *
 	 * @return javax.swing.JFrame
 	 */
 	private javax.swing.JFrame getRtmOutputWindow() {
@@ -235,20 +235,20 @@ public class Gui extends JFrame {
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			jFrame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 			jFrame.pack();
-			jFrame.show();			
+			jFrame.show();
 		}
 		return jFrame;
 	}
 	/**
 	 * This method initializes jButton
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private javax.swing.JButton btnClearRtmMessages() {
 		if(jButton == null) {
 			jButton = new javax.swing.JButton();
 			jButton.setText("Clear output");
-			jButton.addActionListener(new java.awt.event.ActionListener() { 
+			jButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					rtmOutArea().setText("");
 				}
@@ -258,7 +258,7 @@ public class Gui extends JFrame {
 	}
 	/**
 	 * This method initializes jScrollPane1
-	 * 
+	 *
 	 * @return javax.swing.JScrollPane
 	 */
 	private javax.swing.JScrollPane getJScrollPane1() {
@@ -271,7 +271,7 @@ public class Gui extends JFrame {
 
 	/**
 	 * This method initializes jTextArea
-	 * 
+	 *
 	 * @return javax.swing.JTextArea
 	 */
 	private javax.swing.JTextArea rtmOutArea() {
