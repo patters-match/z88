@@ -1,0 +1,119 @@
+# ------------------------------------------------------------------------------
+#   MMMMM       MMMMM   PPPPPPPPPPPPP     MMMMM       MMMMM
+#    MMMMMM   MMMMMM     PPPPPPPPPPPPPPP   MMMMMM   MMMMMM
+#    MMMMMMMMMMMMMMM     PPPP       PPPP   MMMMMMMMMMMMMMM
+#    MMMM MMMMM MMMM     PPPPPPPPPPPP      MMMM MMMMM MMMM
+#    MMMM       MMMM     PPPP              MMMM       MMMM
+#    MMMM       MMMM     PPPP              MMMM       MMMM
+#   MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
+#
+#                         ZZZZZZZZZZZZZZ    888888888888        000000000
+#                       ZZZZZZZZZZZZZZ    8888888888888888    0000000000000
+#                               ZZZZ      8888        8888  0000         0000
+#                             ZZZZ          888888888888    0000         0000
+#                           ZZZZ          8888        8888  0000         0000
+#                         ZZZZZZZZZZZZZZ  8888888888888888    0000000000000
+#                       ZZZZZZZZZZZZZZ      888888888888        000000000
+# ------------------------------------------------------------------------------
+#
+# Makefile for the Mpm Assembler, Z80 edition, under Windows 32 bit console
+#
+# Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
+#
+# Mpm is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free Software Foundation;
+# either version 2, or (at your option) any later version.
+# Mpm is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with Mpm;
+# see the file COPYING.  If not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# This Makefile is designed to build Mpm with the latest
+# version of Borland C++Builder and has been tested with
+# Borland C++ 5.5, 5.3 (Borland C++Builder 3.0) and Borland C++ 5.4
+# (Borland C++Builder 4.0) in combination with
+# Borland MAKE versions 5.1 and 5.2
+#
+
+# If "BINDIR=C:\...." has not been defined on the command line
+# assume that the binary files are in the same directory as the
+# MAKE utility
+BINDIR=$(MAKEDIR)
+
+CC=$(BINDIR)\bcc32
+CCFLAGS=-tWC -c -O2 -A -DMPM_Z80=1 -DMSDOS=1
+  # /-tWC: Windows console mode application
+  # /c:    Compile, do not link
+  # /O2:   Optimize for speed
+  # /A:    ANSI compatible code only
+
+LINK=$(BINDIR)\ilink32
+LINKFLAGS=/V4.0 /x /c /ap /L$(BINDIR)\..\LIB     # /L -> default LIB directory
+  # /V4.0: marked as Win95 / NT application in PE header
+  # /x:    no map file
+  # /c:    case sensitive link
+  # /ap:   link for 32-bit console application
+  # /L...: path to .lib directory
+
+
+# default libraries for Win32 console applications
+LIBRARIES=cw32.lib import32.lib
+# default startup code for Win32 console applications
+STARTUP=c0x32.obj
+
+# default extension for our EXE
+EXE=.exe
+ILS=.ils
+
+# default extension for OBJ files
+OBJ=obj
+
+
+# Builds C files to OBJ
+.c.$(OBJ):
+  $(CC) $(CCFLAGS) $*.c
+
+
+MPMOBJS = main.$(OBJ) pass.$(OBJ) avltree.$(OBJ) exprprsr.$(OBJ) errors.$(OBJ) \
+          modules.$(OBJ) libraries.$(OBJ) options.$(OBJ) symtables.$(OBJ) asmdrctv.$(OBJ) \
+          z80_prsline.$(OBJ) z80_asmdrctv.$(OBJ) z80_instr.$(OBJ)
+
+BuildAll: mpm$(EXE)
+
+
+# MPM
+mpm$(EXE): $(MPMOBJS)
+  $(LINK) $(LINKFLAGS) @&&|     #open temp response file
+    $(STARTUP) $**
+    mpm$(EXE)
+    # default MAP file name for EXE
+    $(LIBRARIES)
+|                                # close temp file, first column!
+
+
+# OBJs with dependencies
+main.$(OBJ): main.c config.h datastructs.h symtables.h libraries.h modules.h pass.h options.h errors.h
+options.$(OBJ): options.c config.h datastructs.h options.h libraries.h symtables.h pass.h errors.h
+pass.$(OBJ): pass.c config.h datastructs.h symtables.h modules.h pass.h errors.h
+avltree.$(OBJ): avltree.c avltree.h
+exprprsr.$(OBJ): exprprsr.c config.h datastructs.h exprprsr.h symtables.h modules.h pass.h errors.h
+modules.$(OBJ): modules.c config.h datastructs.h exprprsr.h symtables.h libraries.h modules.h pass.h errors.h
+libraries.$(OBJ): libraries.c config.h libraries.h datastructs.h modules.h pass.h errors.h
+symtables.$(OBJ): symtables.c config.h datastructs.h errors.h
+asmdrctv.$(OBJ): asmdrctv.c config.h asmdrctv.h datastructs.h symtables.h exprprsr.h pass.h errors.h
+errors.$(OBJ): errors.c config.h datastructs.h
+z80_prsline.$(OBJ): z80_prsline.c config.h datastructs.h symtables.h pass.h asmdrctv.h errors.h
+z80_asmdrctv.$(OBJ): z80_asmdrctv.c config.h datastructs.h exprprsr.h asmdrctv.h errors.h
+z80_instr.$(OBJ): z80_instr.c config.h datastructs.h exprprsr.h modules.h pass.h asmdrctv.h errors.h
+
+clean:
+  del *.obj
+  del mpm.ils
+  del mpm.ilf
+  del mpm.ilc
+  del mpm.ild
+  del mpm.tds
+  del mpm$(EXE)
+  
