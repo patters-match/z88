@@ -22,6 +22,7 @@ package net.sourceforge.z88;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -272,7 +273,7 @@ public final class Memory {
 	 */
 	public void dumpSlot(int slotNumber, final boolean bankFileFormat, final String dirName, final String fileName) 
 						throws IOException, FileNotFoundException {
-		int bottomBank, topBank;
+		int bottomBankNo, topBankNo;
 		slotNumber &= 3;
 		
 		if (slotNumber == 0) {
@@ -284,14 +285,14 @@ public final class Memory {
 			if (isSlotEmpty(slotNumber) == false) {
 				if (bankFileFormat == false) {
 					// dump slot as a single file...
-					bottomBank = slotNumber << 6;
-					topBank = bottomBank + getExternalCardSize(slotNumber)-1;
-					dumpBanksToFile(bottomBank, topBank, dirName, fileName);
+					bottomBankNo = slotNumber << 6;
+					topBankNo = bottomBankNo + (getExternalCardSize(slotNumber)-1);
+					dumpBanksToFile(bottomBankNo, topBankNo, dirName, fileName);
 				} else {
 					// dump slot from top bank (63 / 0x3F), downwards...
-					topBank = ((slotNumber & 3) << 6 | 0x3F);
-					bottomBank = topBank - getExternalCardSize(slotNumber)-1;
-					for (int bankNo=topBank; bankNo >= bottomBank; bankNo--) {
+					topBankNo = (((slotNumber & 3) << 6) | 0x3F);
+					bottomBankNo = topBankNo - (getExternalCardSize(slotNumber)-1);
+					for (int bankNo=topBankNo; bankNo >= bottomBankNo; bankNo--) {
 						dumpBanksToFile(bankNo, bankNo, dirName, fileName + "." + (bankNo & 0x3F));
 					}																	
 				}							
@@ -316,7 +317,8 @@ public final class Memory {
 
 		expSlotFile = new RandomAccessFile(dirName + File.separator + fileName, "rw");
 		for (int bankNo=bottomBank; bankNo <= topBank; bankNo++) {
-			expSlotFile.write(getBank(bankNo).dumpBytes(0, Bank.SIZE));
+			if (getBank(bankNo) != null) 
+				expSlotFile.write(getBank(bankNo).dumpBytes(0, Bank.SIZE));
 		}							
 		expSlotFile.close();		
 	}	
@@ -429,7 +431,7 @@ public final class Memory {
 	 */
 	public boolean insertFileEprCard(int slot, int size, String eprType) {
 		if (insertEprCard(slot, size, eprType) == true) {
-			return FileArea.create(slot); // format file area...
+			return FileArea.create(slot, true); // format file area...
 		} else {
 			return false;
 		}
@@ -609,17 +611,17 @@ public final class Memory {
 	}
 
 	/**
-	 * Load Card Image (from opened file ressource) on specific Eprom Card Hardware.
+	 * Load Card Image (from opened file ressource) on specific Card Hardware.
 	 * The image will be loaded to the top of the card, eg. a 32K image will be loaded
 	 * into the top two banks of the Eprom card ($3E and $3F. The remaining banks of the 
-	 * Eprom card will be left untouched (initialized as being empty).
+	 * card will be left untouched (initialized as being empty).
 	 * 
 	 * Runtime messages are displayed if an Application Card or a File Card is recognized
 	 * ("OZ" or "oz" watermark in top of card). 
 	 *
 	 * @param slot to insert card with loaded binary image
-	 * @param size of Eprom Card in K  
-	 * @param type of Eprom: "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
+	 * @param size of Card in K  
+	 * @param type of Card: "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
 	 * @param fileImage the File image to be loaded (in 16K boundary size)
 	 * @throws IOException
 	 */
@@ -634,7 +636,7 @@ public final class Memory {
 			throw new IOException("Binary image must be in 16K sizes!");
 		}
 
-		slot %= 4; // allow only slots 0 - 3 range.
+		slot &= 3; // allow only slots 0 - 3 range.
 		size -= (size % (Bank.SIZE/1024));
 		totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Card
 		if (eprType.compareToIgnoreCase("27C") == 0) {
@@ -695,7 +697,132 @@ public final class Memory {
 		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
 		insertCard(banks, slot);
 	}
+
 	
+	/**
+	 * Load 16K bank files into specific Card Hardware.
+	 * The 16K images will be loaded relative to the top of the card. The remaining banks of the 
+	 * card will be left untouched (initialized as being empty).
+	 * 
+	 * Runtime messages are displayed if an Application Card or a File Card is recognized
+	 * ("OZ" or "oz" watermark in top of card). 
+	 *
+	 * @param slot to insert card 
+	 * @param size of Card in K  
+	 * @param type of Card: "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
+	 * @param fileNameBase the base filename of the 16K bank files
+	 * @throws IOException
+	 */
+	public void loadBankFilesOnCard(int slot, int size, String eprType, String fileNameBase) throws IOException {
+		int totalEprBanks, totalSlotBanks, curBank;
+		int eprSubType = 0;
+
+		slot &= 3; // allow only slots 0 - 3 range.
+		size -= (size % (Bank.SIZE/1024));
+		totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Card
+		if (eprType.compareToIgnoreCase("27C") == 0) {
+			// Traditional UV Eproms (all size configurations allowed)
+			if (totalEprBanks <= 2) 
+				eprSubType = EpromBank.VPP32KB;
+			else
+				eprSubType = EpromBank.VPP128KB;			
+		}
+		if (eprType.compareToIgnoreCase("28F") == 0) {
+			// Intel Flash Eprom Cards exists in 512K and 1MB configurations
+			switch(totalEprBanks) {
+				case 32: eprSubType = IntelFlashBank.I28F004S5; break;
+				case 64: eprSubType = IntelFlashBank.I28F008S5; break;
+				default:
+					throw new IOException("Illegal size for Intel Flash Card type!");
+			}
+		}
+		if (eprType.compareToIgnoreCase("29F") == 0) {
+			// Amd Flash Eprom Cards exists in 128K, 512K and 1MB configurations 
+			switch(totalEprBanks) {
+				case 8: eprSubType = AmdFlashBank.AM29F010B; break;
+				case 32: eprSubType = AmdFlashBank.AM29F040B; break;
+				case 64: eprSubType = AmdFlashBank.AM29F080B; break;
+				default:
+					throw new IOException("Illegal size for Amd Flash Card type!");
+			}
+		}
+		
+		// Create the card (of specified type)...
+		Bank banks[] = new Bank[totalEprBanks]; 
+		for (curBank = 0; curBank < totalEprBanks; curBank++) {
+			if (eprType.compareToIgnoreCase("27C") == 0) banks[curBank] = new EpromBank(eprSubType); 
+			if (eprType.compareToIgnoreCase("28F") == 0) banks[curBank] = new IntelFlashBank(eprSubType);
+			if (eprType.compareToIgnoreCase("29F") == 0) banks[curBank] = new AmdFlashBank(eprSubType);
+		}
+		
+		// now, load the banks into the card...
+		File bankFiles = new File(new File(fileNameBase).getParent());		
+		BankFilesFilter bfFilter = new BankFilesFilter(new File(fileNameBase).getName());
+		
+		String bankFileNames[] = bankFiles.list(bfFilter);
+		if (bankFileNames != null) {
+			for(int n=0; n<bankFileNames.length; n++) {
+				int bankNo = Integer.parseInt(bankFileNames[n].
+									substring(bankFileNames[n].lastIndexOf(".")+1));
+				if (bankNo > 63) {
+					throw new IOException("Bank file number > 63!");
+				}
+				
+				// read contents of bankfile into a buffer...
+				RandomAccessFile bankFile = new RandomAccessFile(bankFiles.getAbsoluteFile() + 
+												File.separator + bankFileNames[n], "r");				
+				byte fileImage[] = new byte[(int) bankFile.length()];
+				bankFile.readFully(fileImage);
+				bankFile.close();
+				
+				if (fileImage.length != Bank.SIZE) {
+					throw new IOException("Bank file is not a 16K size file!");
+				}
+
+				// load only a bank file identified with bank number, 
+				// that is withing the card size range
+				int cardBankNo = (banks.length-1) - (63-bankNo);  
+				if (cardBankNo >= 0 ) {
+					// System.out.println("Loading " + bankFileNames[n] + " + into card bank " + cardBankNo);
+					banks[cardBankNo].loadBytes(fileImage, 0); // and load fully into bank
+				}					
+			}			
+		}
+		
+		// Check for Z88 Application Card Watermark
+		if (banks[banks.length-1].getByte(0x3FFE) == 'O' &
+			banks[banks.length-1].getByte(0x3FFF) == 'Z') {
+			Gui.displayRtmMessage("Application Card was inserted into slot " + slot);
+		} else {
+			// Check for Z88 File Card Watermark
+			if (banks[banks.length-1].getByte(0x3FFE) == 'o' &
+				banks[banks.length-1].getByte(0x3FFF) == 'z') {
+				Gui.displayRtmMessage("File Card was inserted into slot " + slot);
+			}
+		}
+
+		// complete Card image now loaded into container
+		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
+		insertCard(banks, slot);		
+	}
+	
+	/**
+	 * Helper class to load bank files into a new card.
+	 */
+	private class BankFilesFilter implements FilenameFilter {
+		String baseName = null;
+		
+		public BankFilesFilter(String bankFileBaseName) {
+			baseName = bankFileBaseName.toLowerCase();
+		}
+
+		/**
+		 * Only accept bank file names.
+		 */
+		public boolean accept(File arg0, String arg1) {
+			return arg1.toLowerCase().startsWith(baseName);
+		}		
+	}
 
 	/**
 	 * Load file image (from opened file ressource) into Z88 Bank offset.
