@@ -45,6 +45,11 @@ public class Z88 extends Z80 {
 	public  long    timeOfLastInterrupt = 0;
 	private long    timeOfLastSample = 0;
 
+	/**
+	 * The Z88 disassembly engine
+	 */
+	private Dz dz;
+	
     /**
      * The Z88 memory organisation.
      * Array for 256 16K banks = 4Mb memory
@@ -87,6 +92,8 @@ public class Z88 extends Z80 {
 		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster...)
 		super( 3.2768 );
 
+		dz = new Dz(this);	// the disassembly engine must know about the Z88 virtual machine
+		
 		// Initialize Z88 memory model
 		sR = new int[4];					// the segment register SR0 - SR3
 		z88Memory = new Bank[256];			// The Z88 memory addresses 256 banks = 4MB!
@@ -184,6 +191,19 @@ public class Z88 extends Z80 {
 		}
 	}
 
+	/**
+	 * Disassemble implementation for Z88 virtual machine.
+	 * This method will be called by the Z80 processing engine
+	 * (the super class), when instructed to perform runtime 
+	 * disassembly.
+	 */
+	public void disassemble( int addr ) {
+		String dzOpcode[] = new String[1];
+		
+		dz.getInstrAscii(dzOpcode, addr, true);
+		System.out.println(dzOpcode[0]);	// display executing instruction in shell
+	}
+	
 	/** 
 	 * Bind bank [0; 255] to segments [0; 3] in the Z80 address space.
 	 * 
@@ -202,7 +222,8 @@ public class Z88 extends Z80 {
 	
 	
 	/**
-	 * Z80 hardware interface
+	 * Implement Z88 input port hardware. 
+	 * (BLINK)
 	 */
 	public int inByte( int port ) {
 		int res = 0xff;
@@ -210,6 +231,10 @@ public class Z88 extends Z80 {
 		return(res);
 	}
 
+	/**
+	 * Implement Z88 output port hardware.
+	 * (BLINK) 
+	 */
 	public void outByte( int port, int outByte) {
 		switch(port) {
 			case 0xD0:	// SR0
