@@ -55,6 +55,16 @@ public class Z88 extends Z80 {
 	public String statsMessage = null;
 	private boolean flashInvert = false;
 
+	private Bank z88Memory[];
+		
+	public Z88() throws Exception {
+		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster)
+		super( 3.2768 );
+
+		// Initialize Z88 memory
+		z88Memory = new Bank[256];	// The Z88 memory organisation can address 256 banks * 16K = 4MB!
+	}
+
 	/** Byte access to virtual memory model */
 	public int readByte( int addr ) {
 		return 0;
@@ -62,13 +72,6 @@ public class Z88 extends Z80 {
 	
 	/** Write byte to virtual memory model */
 	public void writeByte ( int addr, int b ) {
-	}
-
-	
-	public Z88() throws Exception {
-		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster)
-		super( 3.2768 );
-
 	}
 
 
