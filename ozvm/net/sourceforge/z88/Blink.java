@@ -3,7 +3,9 @@ package net.sourceforge.z88;
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  *
- * The "Mind" of the Z88. 
+ * The "Mind" of the Z88.
+ * 
+ * $Id$
  */
 public final class Blink {
 	
