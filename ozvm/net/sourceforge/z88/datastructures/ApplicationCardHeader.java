@@ -23,7 +23,7 @@ import net.sourceforge.z88.Memory;
 /**
  * Get Application Card Header Information for specified slot. 
  */
-public class ApplicationCardheader {
+public class ApplicationCardHeader {
 	/** reference to available memory hardware and functionality */
 	private Memory memory = null;
 	
@@ -34,7 +34,7 @@ public class ApplicationCardheader {
 	private int countryCode;
 	private int appAreaSize;
 	
-	public ApplicationCardheader(int slotNo) {
+	public ApplicationCardHeader(int slotNo) {
 		
 		memory = Memory.getInstance();
 		slotinfo = SlotInfo.getInstance();
