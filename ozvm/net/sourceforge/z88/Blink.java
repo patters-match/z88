@@ -214,7 +214,6 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
-
 	private boolean debugMode = false;
 
 	/**
@@ -410,6 +409,25 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * Set Main Blink Interrupt Status (STA).
+	 * (Used for restore machine state functionality)
+	 *
+	 * <PRE>
+	 * Bit 7, FLAPOPEN, If set, flap open, else flap closed
+	 * Bit 6, A19, If set, high level on A19 occurred during coma
+	 * Bit 5, FLAP, If set, positive edge has occurred on FLAPOPEN
+	 * Bit 4, UART, If set, an enabled UART interrupt is active
+	 * Bit 3, BTL, If set, battery low pin is active
+	 * Bit 2, KEY, If set, a column has gone low in snooze (or coma)
+	 * Bit 1, TIME, If set, an enabled TSTA interrupt is active
+	 * Bit 0, not defined.
+	 * </PRE>
+	 */
+	public void setBlinkSta(int staBits) {
+		STA = staBits;
+	}
+	
+	/**
 	 * Return Timer Interrupt Status (TSTA).
 	 *
 	 * <PRE>
@@ -424,6 +442,22 @@ public final class Blink extends Z80 {
         return rtc.TSTA;
 	}
 
+	/**
+	 * Set Timer Interrupt Status (TSTA).
+	 * (Used for restore machine state functionality)
+	 *
+	 * <PRE>
+	 * BIT 2, MIN, Set if minute interrupt has occurred
+	 * BIT 1, SEC, Set if second interrupt has occurred
+	 * BIT 0, TICK, Set if tick interrupt has occurred
+	 * </PRE>
+	 *
+	 * @return TSTA
+	 */
+	public void setBlinkTsta(int tstaBits) {
+        rtc.TSTA = tstaBits;
+	}
+	
 	/**
 	 * Set Timer Interrupt Acknowledge (TACK), Z80 OUT Write Register.
 	 *
@@ -492,12 +526,28 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * set current Real Time Clock TIM0 register.
+	 * (Used for restore machine state functionality)
+	 */
+	public void setBlinkTim0(int tim0Bits) {
+		rtc.TIM0 = tim0Bits;
+	}
+	
+	/**
 	 * Get current TIM1 register from the RTC.
 	 *
 	 * @return int
 	 */
 	public int getBlinkTim1() {
 		return rtc.TIM1;
+	}
+
+	/**
+	 * set current Real Time Clock TIM1 register.
+	 * (Used for restore machine state functionality)
+	 */
+	public void setBlinkTim1(int bits) {
+		rtc.TIM1 = bits;
 	}
 
 	/**
@@ -510,6 +560,14 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * set current Real Time Clock TIM2 register.
+	 * (Used for restore machine state functionality)
+	 */
+	public void setBlinkTim2(int bits) {
+		rtc.TIM2 = bits;
+	}
+
+	/**
 	 * Get current TIM3 register from the RTC.
 	 *
 	 * @return int
@@ -519,12 +577,28 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * set current Real Time Clock TIM3 register.
+	 * (Used for restore machine state functionality)
+	 */
+	public void setBlinkTim3(int bits) {
+		rtc.TIM3 = bits;
+	}
+	
+	/**
 	 * Get current TIM4 register from the RTC.
 	 *
 	 * @return int
 	 */
 	public int getBlinkTim4() {
 		return rtc.TIM4;
+	}
+	
+	/**
+	 * set current Real Time Clock TIM4 register.
+	 * (Used for restore machine state functionality)
+	 */
+	public void setBlinkTim4(int bits) {
+		rtc.TIM4 = bits;
 	}
 
 	/**
