@@ -1,7 +1,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 FlashTest application.
 ;
-; FlashTest is free software; you can redistribute it and/or modify it under 
+; FlashTest is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; FlashTest is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -10,15 +10,15 @@
 ; You should have received a copy of the GNU General Public License along with FlashTest;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
      MODULE FlashTest
 
      ORG $C000
-     
+
      lib FlashEprBlockErase, FlashEprWriteBlock
      lib FlashEprCardId, FlashEprWriteByte
      lib CheckBattLow
@@ -62,7 +62,7 @@ IF !DEBUG
                     DEFB InfoEnd0-InfoStart0      ; length of info section
 .InfoStart0         DEFW 0                        ; reserved...
                     DEFB 'T'                      ; application key letter (T for test)
-                    DEFB 0                        ; 
+                    DEFB 0                        ;
                     DEFW 0                        ;
                     DEFW 0                        ; Unsafe workspace
                     DEFW 0                        ; Safe workspace
@@ -89,16 +89,16 @@ IF !DEBUG
 .NameEnd0           DEFB $FF
 .DOREnd0
 
-.FlashTest_Help     DEFM $7F 
+.FlashTest_Help     DEFM $7F
                     DEFM "Flash Card Testing Tool for",$7F
                     DEFM "Intel I28F00xS5 and Amd AM29F0x0B devices", $7F
                     DEFM $7F
                     DEFM "Release V1.1, (C) G. Strube, Sept. 2004", 0
-endif                                        
+endif
 
 ; ******************************************************************************
 ;
-.AppEntry                    
+.AppEntry
                     CALL CheckFlashCard
                     JP   C, exit_application ; no Eprom in slot 3...
 
@@ -112,11 +112,14 @@ endif
 
                     CALL CloseLogFile        ; Terminate CLI re-direction...
 
-                    LD   BC,$0316            ; postion of window
-                    LD   DE,$052B            ; size of report window
-                    LD   HL,fltst_prompt
-                    LD   IX,report_banner    ; pointer to menu banner
-                    CALL ReportWindow        ; display (menu) window with message
+                    CALL_OZ(Gn_Nln)
+                    LD   HL,fltst_logmsg
+                    CALL Display_string
+
+                    LD   HL,presskey_msg
+                    CALL Display_string      ; And the additional 'Press any key to continue' message
+
+                    CALL_OZ(OS_In)
                     JP   exit_application
 
 
@@ -230,7 +233,7 @@ endif
                     CALL_OZ Gn_Sop
                     POP  HL
                     POP  BC
-                    
+
                     LD   E, 16               ; blow 10 * 1024 = 16K...
                     LD   HL, 0               ; start of bank (of B)
 .prog_bank_loop
@@ -342,6 +345,9 @@ endif
 
                     CALL FlashEprInfo        ; B = returned number of sectors on card
 .format_loop
+                    CALL CheckBatteries      ; before a format, check battery status
+                    JR   C, exit_format
+
                     PUSH BC
                     PUSH HL
                     LD   HL, formatmsg
@@ -356,9 +362,6 @@ endif
                     CALL_OZ Gn_sop
                     POP  HL
                     POP  BC
-
-                    CALL CheckBatteries      ; before a format, check battery status
-                    JR   C, exit_format
 
                     LD   C,3                 ; slot 3
                     DEC  B                   ; actual block to erase
@@ -384,7 +387,7 @@ endif
 .EprTestWindow
                     LD   A, 64 | '2'
                     LD   BC, $0011
-                    LD   DE, $0834
+                    LD   DE, $0840
                     CALL CreateWindow
                     LD   HL, vdu
                     CALL_OZ(Gn_Sop)
@@ -591,9 +594,9 @@ endif
 ; ***********************************************************************************************************
 ; Error opcode in A
 ;
-.SetupErrWindow     LD   HL,$0128                       ; postion of error window
+.SetupErrWindow     LD   HL,$0120                       ; postion of error window
                     LD   (MenuPosition),HL
-                    LD   HL,$0528                       ; size of error window
+                    LD   HL,$0530                       ; size of error window
                     LD   (MenuSize),HL
                     CALL Get_errmsg                     ; return pointer to err. msg from opcode in A
                     LD   (MenuPrompt),HL                ; pointer to prompt (error message)
@@ -641,9 +644,9 @@ endif
 ;
 ; Error handler
 ;
-.ERH          
+.ERH
                     CP   RC_QUIT
-                    JR   Z,exit_application     
+                    JR   Z,exit_application
                     CP   RC_ESC
                     JR   Z, ackn_esc
                     XOR  A                              ; ignore rest of errors
@@ -671,7 +674,7 @@ endif
                     LD   A,IN_ESC                       ; ESC were pressed
                     CP   A                              ; Fc = 0 ...
                     RET
-                    
+
 .Get_ESC_key        CALL ReadKeyboard
                     CP   27
                     JR   NZ, Get_esc_key
@@ -715,15 +718,16 @@ endif
 .Progaddrerrmsg     defm "Programming error at ", 0
 .Progerrmsg         defm "Programming of card failed.", 13, 10, 0
 .Battlowmsg         defm "Batteries are low. ", 13, 10, 0
-.Completedmsg       defm "Test completed successfully.", 13, 10, 0
-.CardNotFound       defm "Flash Card not found in slot 3.", 13, 10, 0
+.Completedmsg       defm 1, "BTest of Flash Card completed successfully with no errors.", 1, "B", 13, 10, 0
+.CardNotFound       defm 1, "BFlash Card was not found in slot 3.", 1, "B", 13, 10, 0
 .formatmsg          defm "Formatting sector ", 0
 .formaterrmsg       defm "Could not format sector ", 0
 .ProgramBankMsg     defm "Programming Bank ", 0
 .report_banner      DEFM "Report:", 0
-.fltst_prompt       DEFM "Messages are available in ", '"', "/eprlog", '"', " file.", 0
+.fltst_logmsg       DEFM "A copy of the messages are available in ", '"', "/eprlog", '"', " file.", 13, 10, 0
 .Error_banner       DEFM "Error:", 0
 .fe_found_msg       DEFM "The following Flash chip was found in slot 3:", 13, 10, 0
+.presskey_msg       DEFM 1, "F", "Press any key to continue", 1, "F", 13, 10, 0
 
 .Donemsg            defm "OK", 13, 10, 0
 .Dotsmsg            defm "... ", 0
@@ -760,9 +764,9 @@ endif
                     DEFW Error_msg_02
                     DEFW Error_msg_03
 
-.Error_msg_00       DEFM "Byte incorrectly blown in Eprom at ", 0
+.Error_msg_00       DEFM "Byte incorrectly blown in Flash Card at ", 0
 .Error_msg_01       DEFM "Battery Low - operation aborted", 0
-.Error_msg_02       DEFM "Flash Eprom Sector couldn't be formatted.", 0
-.Error_msg_03       DEFM "Flash Eprom was not available in slot.", 0
+.Error_msg_02       DEFM "Flash Card Sector couldn't be formatted.", 0
+.Error_msg_03       DEFM "Flash Card was not found in slot 3.", 0
 
 .testblock          DS 1024
