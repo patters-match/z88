@@ -23,41 +23,66 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+
 /**
- * Simple command line tool that creates a 16K bank file where
+ * Simple command line tool that creates a 16K or larger card file where
  * small binary files are loaded into at various offsets.
- * Finally, the bank is saved to a new file.
+ * Finally, the card is saved to a new file.
  * 
  * The tool is used to combine various Z88 application files into
- * a single 16K bank, typically as part of an application card.
+ * a single application card of 16K or larger.
  */
 public class MakeApp {
 	
 	public static void main(String[] args) {
-		RomBank bank = new RomBank();
+		int appCardBanks = 1;
+		int appCardSize = 16; 
+		RomBank[] banks = new RomBank[appCardBanks]; // the default 16K card container
 
 		try {
 			if (args.length >= 1) {
 				int arg = 0;
 				
-				RandomAccessFile bankFile = new RandomAccessFile(args[arg++], "rw");
+				if (args[0].compareToIgnoreCase("-sz") == 0) {
+					appCardSize = Integer.parseInt(args[1], 10);
+					appCardBanks = appCardSize / 16;
+					if (appCardSize % 16 != 0 & appCardBanks != 1 & appCardBanks != 2 & appCardBanks != 4 & 
+						appCardBanks != 8 & appCardBanks != 16 & appCardBanks != 32 & appCardBanks != 64) {
+						System.out.println("Card sizes allowed: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
+						System.exit(0);							
+					}
+						
+					banks = new RomBank[appCardBanks]; // the card container
+					arg += 2;
+				}
+				
+				RandomAccessFile cardFile = new RandomAccessFile(args[arg++], "rw");
 				
 				while (arg < args.length) {
 					RandomAccessFile binaryFile =  new RandomAccessFile(args[arg++], "r");
-					int offset = Integer.parseInt(args[arg++], 16) & 0x3FFF;
+					int offset = Integer.parseInt(args[arg++], 16);
+					int bankNo = (offset & 0x3f0000) & (appCardBanks-1);
+					offset &= 0x3fff;
 					
 					byte codeBuffer[] = new byte[(int) binaryFile.length()];
 					binaryFile.readFully(codeBuffer);
-					bank.loadBytes(codeBuffer, offset);
+					banks[bankNo].loadBytes(codeBuffer, offset);
 				}
 								
-				byte bankDump[] = bank.dumpBytes(0, Bank.BANKSIZE); 
-				bankFile.write(bankDump);
-				bankFile.close();
+				for (int b=0; b<appCardBanks; b++) {
+					byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE); 
+					cardFile.write(bankDump);
+				}
+				cardFile.close();
+				
 			} else {
-				System.out.println("Usage: Load binary files a into 16K memory area, and save contents");
-				System.out.println("to a new file. Offsets are specified in hex (truncated to 16K offsets)");
-				System.out.println("Example:");
+				System.out.println("Syntax: [-sz Size] memdump.file input1.file offset {inputX.file offset}\n");
+				System.out.println("Usage: Load binary files a into default 16K memory bank, and save contents");
+				System.out.println("to a new file. Offsets are specified in hex (truncated to 16K offsets).\n");
+				System.out.println("Larger application cards is created by optionally specifying size in K, eg.");
+				System.out.println("32 ... up to 1024K. Offsets are then extended with relative bank number,");
+				System.out.println("for example 3fc000 for bank 3f (top), offset 0000 (start of top bank).\n");
+				System.out.println("Example, using default 16K application bank dump:");
 				System.out.println("java -jar makeapp.jar appl.epr code.bin c000 romhdr.bin 3fc0");
 				System.out.println("(load 1st file at 0000, 2nd file at 3fc0, and save 16K bank to appl.epr)");
 			}
