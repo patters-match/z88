@@ -27,6 +27,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.JarURLConnection;
 
 import net.sourceforge.z88.datastructures.SlotInfo;
 import net.sourceforge.z88.filecard.FileArea;
@@ -81,10 +82,10 @@ public final class Memory {
 		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!		
 
 		nullBank = new VoidBank();
-		for (int bank = 0; bank < memory.length; bank++)
-			memory[bank] = nullBank;
+		setVoidMemory();
 	}
 
+	
 	/**
 	 * Get reference to Bank, identified by it's number [0-255] 
 	 * in the BLINK memory model.
@@ -350,6 +351,31 @@ public final class Memory {
 		}
 	}
 
+	/**
+	 * Reset Z88 to default UK V4.0 ROM with 32K RAM 
+	 */
+	public void setDefaultSystem() {
+		JarURLConnection jarConnection;
+		
+		setVoidMemory(); // remove all current memory (set to void...)
+		
+		try {
+			jarConnection = (JarURLConnection) Blink.getInstance().getClass().getResource("/Z88.rom").openConnection();
+			loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
+			Blink.getInstance().setRAMS(getBank(0));	// point at ROM bank 0
+			
+			insertRamCard(32 * 1024, 0); // set to default 32K RAM...			
+		} catch (IOException e) {
+		}
+	}
+
+	/**
+	 * Remove all memory from the system.
+	 */
+	public void setVoidMemory() {
+		for (int bank = 0; bank < memory.length; bank++)
+			memory[bank] = nullBank;		
+	}	
 	
 	/**
 	 * Scan available slots for Ram Cards, and reset them..
