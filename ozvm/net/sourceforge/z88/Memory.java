@@ -499,7 +499,17 @@ public final class Memory {
 		BufferedInputStream bis = new BufferedInputStream( is, Bank.SIZE );
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			romBanks[curBank] = new RomBank(); // bank is assigned to the card, not yet to the Z88 memory model...
+			switch((int) jarConnection.getJarEntry().getSize()) {
+				case 131072: 
+					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 128K, use the AMD Flash Memory AM29F010B 
+					break;
+				case 524288: 
+					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 512K, use the AMD Flash Memory AM29F040B 
+					break;
+				default:
+					romBanks[curBank] = new RomBank();
+			}
+
 			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
 			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
