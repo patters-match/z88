@@ -357,6 +357,50 @@ ExprAddr16 (int listoffset)
 
 
 int
+ExprOffset16 (int listoffset)
+{
+  expression_t *pfixexpr;
+  long constant;
+  int flag = 1;
+
+  if ((pfixexpr = ParseNumExpr ()) != NULL)
+    {                           /* parse numerical expression */
+      if ((pfixexpr->rangetype & SYMXREF) || (pfixexpr->rangetype & SYMADDR))
+        /* expression contains external reference or address label, must be recalculated during linking */
+        StoreExpr (pfixexpr, 'O');
+
+      if (pfixexpr->rangetype & SYMXREF)
+        RemovePfixlist (pfixexpr);
+      else
+        {
+          if ((pfixexpr->rangetype & SYMADDR) && (uselistingfile == OFF))
+            /* expression contains address label */
+            RemovePfixlist (pfixexpr);  /* no listing file - evaluate during linking... */
+          else
+            {
+              if (pfixexpr->rangetype & NOTEVALUABLE)
+                Pass2info (pfixexpr, RANGE_16OFFSET, listoffset);
+              else
+                {
+                  constant = EvalPfixExpr (pfixexpr);
+                  RemovePfixlist (pfixexpr);
+                  if (constant >= 0 && constant <= 16383)
+                    StoreWord((unsigned short) constant, codeptr);
+                  else
+                    ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IntegerRange);
+                }
+            }
+        }
+    }
+  else
+    flag = 0;
+
+  codeptr += 2;
+  return flag;
+}
+
+
+int
 ExprUnsigned8 (int listoffset)
 {
   expression_t *pfixexpr;
@@ -384,7 +428,10 @@ ExprUnsigned8 (int listoffset)
                 {
                   constant = EvalPfixExpr (pfixexpr);
                   RemovePfixlist (pfixexpr);
-                  *codeptr = (unsigned char) constant;
+                  if (constant >= 0 && constant <= 255)
+                    *codeptr = (unsigned char) constant;
+                  else
+                    ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IntegerRange);
                 }
             }
         }
