@@ -6,6 +6,10 @@
  */
 package net.sourceforge.z88;
 
+import gameframe.GameFrame;
+
+import java.io.IOException;
+
 import javax.swing.JFrame;
 
 /**
@@ -76,6 +80,8 @@ public class Gui extends JFrame {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("OZvm V0.2, Z88 Virtual Machine");
+
 		Gui gg = new Gui();
 		gg.show();
 
@@ -85,6 +91,13 @@ public class Gui extends JFrame {
 			System.exit(0);
 		}
 		
-		ozvm.run();
+		try {
+			ozvm.commandLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Ozvm terminated.");
+		GameFrame.exit(0);		
 	}
-}  //  @jve:visual-info  decl-index=0 visual-constraint="10,10"
+}
