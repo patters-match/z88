@@ -647,7 +647,7 @@ Module SelectCard
 ; *************************************************************************************
 ; Text constants
 
-.selslot_banner     DEFM "SELECT FILE AREA",0
+.selslot_banner     DEFM "SELECT FILE CARD AREA",0
 .noflash_msg        DEFM 1,"BNo Flash Cards found in slots 1-3.",1,"B",0
 
 .xypos              DEFM 1,"3@",0
@@ -675,12 +675,12 @@ Module SelectCard
                     DEFM " ", 1, "2?A", " ", 0
 
 .selectdevhelp      DEFM 1,"2JC", 1,"3-SC"
-                    DEFM "Select device", 13, 10
+                    DEFM "Select card", 13, 10
                     DEFM "with either", 13, 10
                     DEFM 1,"B1", 1 ,"B ", 1, "B2", 1,"B or ", 1,"B3", 1, "B", 13, 10
                     DEFM "or", 13, 10
                     DEFM "move cursor", 13, 10
-                    DEFM "over the device", 13, 10
+                    DEFM "over the card", 13, 10
                     DEFM 13, 10
                     DEFM 1, SD_ENT, " selects it", 0
 
