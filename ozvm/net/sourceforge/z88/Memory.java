@@ -19,6 +19,14 @@
 
 package net.sourceforge.z88;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.net.JarURLConnection;
+import java.net.URL;
+
+
 /**
  * This class represents the 4Mb addressable memory model in the Z88, comprised 
  * of 16K memory blocks or banks of memory. The characteristics of a bank can be 
@@ -36,8 +44,17 @@ package net.sourceforge.z88;
  * words (lower byte at BankX, offset 3FFFh and high byte at BankY, offset 0000h).
  */
 public final class Memory {
+	
 	/** A bank contains 16384 bytes */
 	public static final int BANKSIZE = 16384; 
+	
+	private static final class singletonContainer {
+		static final Memory singleton = new Memory();  
+	}
+	
+	public static Memory getInstance() {
+		return singletonContainer.singleton;
+	}
 	
 	/**
 	 * The Z88 memory organisation.
@@ -53,7 +70,7 @@ public final class Memory {
 	 */
 	private VoidBank nullBank;
 	
-	public Memory() {
+	private Memory() {
 		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!		
 
 		nullBank = new VoidBank();
@@ -79,6 +96,57 @@ public final class Memory {
 	public final void setBank(final Bank bank, final int bankNo) {
 		bank.setBankNumber(bankNo);
 		memory[bankNo & 0xFF] = bank;
+	}
+
+	/**
+	 * The "internal" write byte method to be used in
+	 * the OZvm debugging environment, allowing complete
+	 * write permission.
+	 *
+	 * @param offset within the 16K memory bank.
+	 * @param bank number of the 4MB memory model (0-255).
+	 * @param bits to be written.
+	 */
+	public void setByte(final int offset, final int bankno, final int bits) {
+		getBank(bankno).setByte(offset, bits);
+	}
+
+	
+	/**
+	 * The "internal" write byte method to be used in
+	 * the OZvm debugging environment, allowing complete
+	 * write permission.
+	 *
+	 * @param extAddress 24bit extended address
+	 * @param bits to be written.
+	 */
+	public void setByte(final int extAddress, final int bits) {
+		setByte(extAddress & 0x3FFF, extAddress >>> 16, bits);
+	}
+
+	
+	/**
+	 * The "internal" read byte method to be used in the OZvm
+	 * debugging environment.
+	 *
+	 * @param extAddress 24bit extended address
+	 * @return int the byte at extended address
+	 */
+	public int getByte(final int extAddress) {
+		return getByte(extAddress & 0x3FFF, extAddress >>> 16);
+	}
+
+	
+	/**
+	 * The "internal" read byte method to be used in the OZvm
+	 * debugging environment.
+	 *
+	 * @param offset
+	 * @param bank
+	 * @return int
+	 */
+	public int getByte(final int offset, final int bankno) {
+		return getBank(bankno).getByte(offset);
 	}
 
 	/**
@@ -163,5 +231,286 @@ public final class Memory {
 				}
 			}
 		}
-	}	
+	}
+	
+	/**
+	 * Insert Eprom Card into Z88 memory system, slots 0 - 3. 
+	 * Eprom Card is loaded from bottom bank of slot and upwards.
+	 * 
+	 * Slot 0 (512Kb): banks 00 - 1F
+	 * Slot 1 (1Mb):   banks 40 - 7F
+	 * Slot 2 (1Mb):   banks 80 - BF
+	 * Slot 3 (1Mb):   banks C0 - FF
+	 * 
+	 * Slot 0 is special; max 512K Memory in bottom 512K address space.
+	 * (bottom 512K address space in slot 0 is reserved for ROM/EPROM, banks 00-1F)
+	 * 
+	 * @param size
+	 * @param slot
+	 * @param eprType "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
+	 * @return true, if card was inserted, false, if illegal size and type
+	 */
+	public boolean insertEprCard(int size, int slot, String eprType) {
+		int totalEprBanks, totalSlotBanks, curBank;
+		int eprSubType = 0;
+
+		slot %= 4; // allow only slots 0 - 3 range.
+		size -= (size % Memory.BANKSIZE);
+		totalEprBanks = size / Memory.BANKSIZE; // number of 16K banks in Eprom Card
+		if (eprType.compareToIgnoreCase("27C") == 0) {
+			// Traditional UV Eproms (all size configurations allowed)
+			if (totalEprBanks <= 2) 
+				eprSubType = EpromBank.VPP32KB;
+			else
+				eprSubType = EpromBank.VPP128KB;			
+		}
+		if (eprType.compareToIgnoreCase("28F") == 0) {
+			// Intel Flash Eprom Cards exists in 512K and 1MB configurations
+			switch(totalEprBanks) {
+				case 32: eprSubType = IntelFlashBank.I28F004S5; break;
+				case 64: eprSubType = IntelFlashBank.I28F008S5; break;
+				default:
+					return false; // Only 512K or 1MB Intel Flash Cards are allowed.
+			}
+		}
+		if (eprType.compareToIgnoreCase("29F") == 0) {
+			// Amd Flash Eprom Cards exists in 128K, 512K and 1MB configurations 
+			switch(totalEprBanks) {
+				case 8: eprSubType = AmdFlashBank.AM29F010B; break;
+				case 32: eprSubType = AmdFlashBank.AM29F040B; break;
+				case 64: eprSubType = AmdFlashBank.AM29F080B; break;
+				default:
+					return false; // Only 128K, 512K or 1MB Amd Flash Cards are allowed.
+			}
+		}
+			
+		Bank banks[] = new Bank[totalEprBanks]; // the card container
+		for (curBank = 0; curBank < totalEprBanks; curBank++) {
+			if (eprType.compareToIgnoreCase("27C") == 0) banks[curBank] = new EpromBank(eprSubType); 
+			if (eprType.compareToIgnoreCase("28F") == 0) banks[curBank] = new IntelFlashBank(eprSubType);
+			if (eprType.compareToIgnoreCase("29F") == 0) banks[curBank] = new AmdFlashBank(eprSubType);
+		}
+
+		insertCard(banks, slot); // insert the physical card into Z88 memory		
+		return true;
+	}
+
+	
+	/**
+	 * Insert RAM Card into Z88 memory system.
+	 * RAM may be inserted into slots 0 - 3.
+	 * RAM is loaded from bottom bank of slot and upwards.
+	 * Slot 0 (512Kb): banks 20 - 3F
+	 * Slot 1 (1Mb):   banks 40 - 7F
+	 * Slot 2 (1Mb):   banks 80 - BF
+	 * Slot 3 (1Mb):   banks C0 - FF
+	 *
+	 * Slot 0 is special; max 512K RAM in top 512K address space.
+	 * (bottom 512K address space in slot 0 is reserved for ROM, banks 00-1F)
+	 */
+	public void insertRamCard(int size, int slot) {
+		int totalRamBanks, totalSlotBanks, curBank;
+
+		slot %= 4; // allow only slots 0 - 3 range.
+		size -= (size % Memory.BANKSIZE);
+		totalRamBanks = size / Memory.BANKSIZE; // number of 16K banks in Ram Card
+
+		Bank ramBanks[] = new RamBank[totalRamBanks]; // the RAM card container
+		for (curBank = 0; curBank < totalRamBanks; curBank++) {
+			ramBanks[curBank] = new RamBank(); // bank is assigned to the card, not yet to the Z88 memory model...
+		}
+
+		insertCard(ramBanks, slot); // insert the physical card into Z88 memory
+	}
+
+
+	/**
+	 * Load ROM image (from opened file ressource) into Z88 memory system, slot 0.
+	 *
+	 * @param rom
+	 * @throws IOException
+	 */
+	public void loadRomBinary(RandomAccessFile rom) throws IOException {
+		if (rom.length() > (1024 * 512)) {
+			throw new IOException("Max 512K ROM!");
+		}
+		if (rom.length() % (Memory.BANKSIZE * 2) > 0) {
+			throw new IOException("ROM must be in even banks!");
+		}
+
+		Bank romBanks[] = new Bank[(int) rom.length() / Memory.BANKSIZE];
+		// allocate ROM container
+		byte bankBuffer[] = new byte[Memory.BANKSIZE];
+		// allocate intermediate load buffer
+
+		for (int curBank = 0; curBank < romBanks.length; curBank++) {
+			// A little cadeau to Thierry Peycru to simulate his modified Z88 motherboard...
+			switch((int) rom.length()) {
+				case 131072: 
+					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 128K, use the AMD Flash Memory AM29F010B 
+					break;
+				case 524288: 
+					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 512K, use the AMD Flash Memory AM29F040B 
+					break;
+				default:
+					romBanks[curBank] = new RomBank();
+			}
+			rom.readFully(bankBuffer); // load 16K from file, sequentially
+			romBanks[curBank].loadBytes(bankBuffer, 0);
+			// and load fully into bank
+		}
+
+		// Finally, check for Z88 ROM Watermark
+		if (romBanks[romBanks.length-1].getByte(0x3FFB) != 0x81 &
+		    romBanks[romBanks.length-1].getByte(0x3FFE) != 'O' &
+		    romBanks[romBanks.length-1].getByte(0x3FFF) != 'Z') {
+				throw new IOException("This is not a Z88 ROM");
+	    }
+
+		// complete ROM image now loaded into container
+		// insert container into Z88 memory, slot 0, banks $00 onwards.
+		insertCard(romBanks, 0);
+		Blink.getInstance().setRAMS(getBank(0));		// point at ROM bank 0
+	}
+
+
+	/**
+	 * Load Card Image (from opened file ressource) into Z88 memory system,
+	 * at defined slot.
+	 *
+	 * @param slot
+	 * @param card
+	 * @throws IOException
+	 */
+	public void loadCardBinary(int slot, RandomAccessFile card) throws IOException {
+		
+		if (card.length() > (1024 * 1024)) {
+			throw new IOException("Max 1024K Card!");
+		}
+		if (card.length() % Memory.BANKSIZE > 0) {
+			throw new IOException("Card must be in 16K sizes!");
+		}
+
+		Bank cardBanks[] = new Bank[(int) card.length() / Memory.BANKSIZE];
+		// allocate EPROM container
+		byte bankBuffer[] = new byte[Memory.BANKSIZE];
+		// allocate intermediate load buffer
+		
+		for (int curBank = 0; curBank < cardBanks.length; curBank++) {
+			switch(cardBanks.length) {
+			
+			case 1:
+			case 2:
+				cardBanks[curBank] = new EpromBank(EpromBank.VPP32KB);
+				break;
+			case 8:
+				cardBanks[curBank] = new EpromBank(AmdFlashBank.AM29F010B);
+				break;
+			case 16:
+				cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
+				break;
+			case 32:
+				cardBanks[curBank] = new EpromBank(IntelFlashBank.I28F004S5);
+				break;
+			case 64:
+				cardBanks[curBank] = new EpromBank(AmdFlashBank.AM29F080B);
+				break;
+			default:
+				// all other sizes will be interpreted as UV EPROM's 
+				// that can be programmed using 128K type specs.
+				cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
+				break;
+			}
+
+			card.readFully(bankBuffer); // load 16K from file, sequentially
+			cardBanks[curBank].loadBytes(bankBuffer, 0);
+			// and load fully into bank
+		}
+
+		// Check for Z88 Application Card Watermark
+		if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'O' &
+			cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'Z') {
+			OZvm.displayRtmMessage("Application Card was inserted into slot " + slot);
+		} else {
+			// Check for Z88 File Card Watermark
+			if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'o' &
+				cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'z') {
+				OZvm.displayRtmMessage("File Card was inserted into slot " + slot);
+			} else {
+				throw new IOException("This is not a Z88 Application Card nor a File Card.");
+			}
+		}
+
+		// complete Card image now loaded into container
+		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
+		insertCard(cardBanks, slot);
+	}
+
+
+	/**
+	 * Load file image (from opened file ressource) into Z88 Bank offset.
+	 * The file image needs to fit within the 16K bank boundary. The specified
+	 * bank must be part of an existing memory resource, ie. it is not possible
+	 * to load a file binary into a bank that is part of an empty slot.
+	 *  
+	 * @param extAddress
+	 * @param file
+	 * @throws IOException
+	 */
+	public void loadBankBinary(final int extAddress, final RandomAccessFile file) throws IOException {
+		int bank = (extAddress >>> 16) & 0xFF;
+		int offset = extAddress & 0x3FFF;
+		Bank b = getBank(bank); 
+		
+		if ( offset+file.length() > Memory.BANKSIZE) {
+			throw new IOException("File image exceeds Bank boundary!");
+		}
+
+		if (b instanceof VoidBank == true) {
+			throw new IOException("Bank is part of empty slot!");
+		}
+
+		byte bankBuffer[] = new byte[(int) file.length()];	// allocate intermediate load buffer
+		file.readFully(bankBuffer); 						// load file image into buffer
+		b.loadBytes(bankBuffer, offset);					// and move buffer into bank
+	}
+
+	
+	/**
+	 * Load ROM image (from opened file ressource inside JAR)
+	 * into Z88 memory system, slot 0.
+	 *
+	 * @param jarRessource
+	 * @throws IOException
+	 */
+	public void loadRomBinary(URL jarRessource) throws IOException {
+		JarURLConnection jarConnection = (JarURLConnection)jarRessource.openConnection();
+
+		if (jarConnection.getJarEntry().getSize() > (1024 * 512)) {
+			throw new IOException("Max 512K ROM!");
+		}
+		if (jarConnection.getJarEntry().getSize() % Memory.BANKSIZE > 0) {
+			throw new IOException("ROM must be in 16K sizes!");
+		}
+
+		Bank romBanks[] = new Bank[(int) jarConnection.getJarEntry().getSize() / Memory.BANKSIZE];
+		// allocate ROM container
+		byte bankBuffer[] = new byte[Memory.BANKSIZE];
+		// allocate intermediate load buffer
+
+		InputStream is = jarConnection.getInputStream();
+		BufferedInputStream bis = new BufferedInputStream( is, Memory.BANKSIZE );
+
+		for (int curBank = 0; curBank < romBanks.length; curBank++) {
+			romBanks[curBank] = new RomBank(); // bank is assigned to the card, not yet to the Z88 memory model...
+			int bytesRead = bis.read(bankBuffer, 0, Memory.BANKSIZE);	// load 16K from file, sequentially
+			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
+		}
+
+		// complete ROM image now loaded into container
+		// insert container into Z88 memory, slot 0, banks $00 onwards.
+		insertCard(romBanks, 0);
+		Blink.getInstance().setRAMS(getBank(0));	// point at ROM bank 0
+	}
+	
 } /* Memory */
