@@ -59,9 +59,11 @@
                     PUSH AF                       ; preserve AF, if possible
 
                     PUSH BC
+                    PUSH HL                       ; preserve File Entry pointer...
                     LD   C,3                      
                     CALL FlashEprCardId           ; check FE in slot 3
-                    POP  BC
+                    POP  HL
+                    POP  BC                    
                     JR   C, err_delfile           ; Flash Eprom not identified!
 
                     SET  7,B                      ; slot 3 mask

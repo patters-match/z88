@@ -99,8 +99,10 @@
                     PUSH BC                       ; preserve CDE
 
                     PUSH BC
+                    PUSH HL
                     LD   C,3                      ; check presence of FE in slot 3
                     CALL FlashEprCardId
+                    POP  HL
                     POP  BC
                     JR   NC, process_file         ; Flash File Eprom was found...
 
