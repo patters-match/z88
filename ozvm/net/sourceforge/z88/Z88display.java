@@ -7,19 +7,19 @@ import gameframe.input.*;
 import gameframe.*;
 
 /**
- * The display renderer of the Z88 virtual machine, called each 10ms, 20ms or 40ms,
+ * The display renderer of the Z88 virtual machine, called each 5ms, 10ms, 25ms or 50ms, or 100ms
  * depending on speed of JVM.
  * 
  * $Id$
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
- * 
  */
-
 public class Z88display 
 {
-	public static final int Z88SCREENWIDTH = 640;			// The Z88 display dimensions
+	public static final int Z88SCREENWIDTH = 640;					// The Z88 display dimensions
 	public static final int Z88SCREENHEIGHT = 64;
-	private static final int SBRSIZE = 2048;				// Size of Screen Base File (bytes) 
+	private static final int SBRSIZE = 2048;						// Size of Screen Base File (bytes)
+	private static final int fps[] = new int[] {5,10,25,50,100};	// runtime selection of Z88 screen frames per second
+	private static final int fcd[] = new int[] {3,7,18,35,70};		// flash cursor duration frame counter 
 	
 	private static final int PXCOLON = 0xff461B7D;			// Trying to get as close as possibly to the LCD colors...
 	private static final int PXCOLGREY = 0xff90B0A7;
@@ -36,13 +36,18 @@ public class Z88display
 	private static final int attrCursor = attrHrs | attrRev | attrFls;	// Lores cursor (6x8 pixel inverse flashing)
     
 	private Blink blink = null;					// access to Blink hardware (memory, screen, keyboard, timers...)
-	private TimerTask renderPerMs = null;
+	private RenderPerMs renderPerMs = null;
+	private RenderSupervisor renderSupervisor = null;
+	
     private boolean renderRunning = false;
 	private GraphicsEngine gfxe = null;
 	private KeyboardDevice keyboard = null;
 
     private static int cursorFlashCounter = 0;
+	private static int curRenderSpeedIndex = 0;	// points at the current framerate group 
     private static int frameCounter = 0;
+	private static long renderTimeTotal = 0;	// accumulated rendering speed during 5 seconds
+        
     private boolean cursorInverse = true;       // start cursor flash as dark, 
     private boolean flashTextEmpty = false;     // start text flash as dark, ie. text looks normal for 1 sec.
     
@@ -90,7 +95,7 @@ public class Z88display
 	
 	/**
 	 * The core Z88 Display renderer.
-	 * This code is called each 10ms by a Timer
+	 * This code is called by a Timer
 	 * 
 	 * May be called manually (ie. to refresh window in an out-of-focus scenario).
 	 */
@@ -102,7 +107,9 @@ public class Z88display
 		sbr = blink.getBlinkSbr();		// Memory base address of Screen Base File (2K) 
 		
 		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) return;		// LCD enabled, but one of the Screen Registers hasn't been setup yet...
-						 		
+
+		long timeMs = System.currentTimeMillis();
+								 		
 		bankLores0 = lores0 >>> 16; lores0 &= 0x3FFF;  // convert to bank, offset
 		bankLores1 = lores1 >>> 16; lores1 &= 0x3FFF;
 		bankHires0 = hires0 >>> 16; hires0 &= 0x3FFF;
@@ -140,7 +147,7 @@ public class Z88display
 			if (scrBaseCoordX < Z88SCREENWIDTH-1) {
 				for(int y=scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + 8*Z88SCREENWIDTH); y+=Z88SCREENWIDTH) {		
 					// render x blank pixels until right edge of screen...
-					for(int bit = 0; bit < Z88SCREENWIDTH - scrBaseCoordX; bit++) {
+					for(int bit = 0; bit < (Z88SCREENWIDTH - scrBaseCoordX); bit++) {
 						displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;   
 					}			
 				}			 			
@@ -151,11 +158,14 @@ public class Z88display
 			scrBaseCoordX = 0;
 		}
 		
-		if (cbm != null) cbm.finalize();            // release the bitmap to the system; it's been dumped to video previously and is now useless...
-		cbm = gfxe.createBitmap(displayMap, true); // then, create a new bitmap with our screen pixel data
-		cbm.drawTo(0,0);                          // and paint to back buffer
-		gfxe.flip();								// finally, make back buffer visible...		
+		if (cbm != null) cbm.finalize();			// release the bitmap to the system; it's been dumped to video previously and is now useless...
+		cbm = gfxe.createBitmap(displayMap, true); 	// then, create a new bitmap with our screen pixel data
+		cbm.drawTo(0,0);                          	// and paint to back buffer
+		gfxe.flip();								// finally, make back buffer visible...
+		
+		renderTimeTotal += System.currentTimeMillis() - timeMs;	// remember the time it took to render the complete screen
 	}
+
 
     /**
      * Draw the character at current position, and overlay with flashing cursor.
@@ -203,7 +213,7 @@ public class Z88display
             // render 8 pixel rows of 6 empty pixels, if flashing is enabled and is currently "empty"..
             for(y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
                 // render 6 pixels wide...
-                for(bit=0; bit<=5; bit++) displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;
+                for(bit=0; bit<6; bit++) displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;
             }
             
             return; // char render completed...
@@ -257,7 +267,7 @@ public class Z88display
             // render 8 pixel rows of 8 empty pixels, if flashing is enabled and is currently "empty"..
             for(int y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
                 // render 8 pixels wide...
-                for(bit=0; bit<7; bit++) displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;   
+                for(bit=0; bit<8; bit++) displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;   
             }			 			
             
             return;
@@ -288,14 +298,18 @@ public class Z88display
         }
 	}
     
-    
+    /**
+     * Keep flash counters updated.
+     * Ordinary text flashing changes state each second (text appears one sec. then disappears one sec)
+     * Cursor flash inverts 6x8 LORES char 70% of 1 sec, remaining 30% renders the char as normal.
+     */
     private void flashCounter() {
-        if (frameCounter++ > 100) {             // 1 second has passed (10ms * 100 = 1000ms = 1s)
+        if (frameCounter++ > fps[curRenderSpeedIndex]) {   // 1 second has passed
             frameCounter = 0;                   
             flashTextEmpty = !flashTextEmpty;   // invert current text flashing mode
         }
         
-        if (frameCounter < 70) 
+        if (frameCounter < fcd[curRenderSpeedIndex]) 
             cursorInverse = true;               // most of the time, cursor is black
         else
             cursorInverse = false;              // rest of the time, cursor is invisible (normal text)
@@ -305,8 +319,7 @@ public class Z88display
     private final class Z88DisplayFocusListener implements java.awt.event.FocusListener {
         public void focusGained(java.awt.event.FocusEvent e) {
             if (renderRunning == false) {
-                // The Z88 screen rendering is disabled, so
-                // draw the screen manually
+                // The Z88 screen rendering is disabled, so draw the screen manually
                 try {
                     renderDisplay();
                 } catch(GameFrameException g) {}
@@ -315,8 +328,7 @@ public class Z88display
         
         public void focusLost(java.awt.event.FocusEvent e) {
             if (renderRunning == false) {
-                // The Z88 screen rendering is disabled, so
-                // draw the screen manually
+                // The Z88 screen rendering is disabled, so draw the screen manually
                 try {
                     renderDisplay();
                 } catch(GameFrameException g) {}
@@ -325,9 +337,9 @@ public class Z88display
     }
 
     
-	private final class RenderPerMs extends TimerTask {
+	private class RenderPerMs extends TimerTask {
 		/**
-		 * Render Z88 Display each 10ms ...
+		 * Render Z88 Display each X ms (runtime adjusted)...
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
@@ -341,25 +353,66 @@ public class Z88display
 		
 
 	/**
-	 * Stop the 10ms screen render polling. 
+	 * Stop the fps Z88 screen renderer (and supervisor). 
 	 */
 	public void stop() {
 		if (renderPerMs != null) {
 			renderPerMs.cancel();
+		}
+		if (renderSupervisor != null) {
+			renderSupervisor.cancel();
 		}
         renderRunning = false;
 	}
 
 
 	/**
-	 * Start screen render polling which executes the run()
-	 * method each X ms. 
+	 * Start fps Z88 screen renderer (and supervisor). 
 	 */
 	public void start() {
         if (renderRunning == false) {
-            renderRunning = true;
             renderPerMs = new RenderPerMs();
-            blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 10, 10);
+            blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 0, 1000/fps[curRenderSpeedIndex]);
+
+			renderTimeTotal = 0;
+			renderSupervisor = new RenderSupervisor();
+			blink.getTimerDaemon().scheduleAtFixedRate(renderSupervisor, 3000, 3000);	// poll every 3rd second
+			renderRunning = true;
         }
 	}    
+		
+
+	private class RenderSupervisor extends TimerTask {		
+		/**
+		 * Poll each 3rd second and check if Z88 screen renderer is too slow or too fast...
+		 * 
+		 * @see java.lang.Runnable#run()
+		 */
+		public void run() {
+			int avgRenderSpeed = (int) renderTimeTotal / fps[curRenderSpeedIndex]; 
+			if ( avgRenderSpeed * 1.4 > 1000/fps[curRenderSpeedIndex] ) {
+				// current average render speed and safety margin takes longer than the time interval
+				// between frames. Choose a one-step lower frame rate, if possible...
+				if (curRenderSpeedIndex > 0) {
+					curRenderSpeedIndex--;	// choose a lower framerate, then restart screen rendering...
+					stop();			 
+					start();
+					return;
+				}
+			}
+			if ( avgRenderSpeed * 1.4 < 1000/fps[curRenderSpeedIndex] ) {
+				// current average render speed and safety margin is faster than the time interval
+				// between frames. Choose a one-step higher frame rate, if possible...
+				if (curRenderSpeedIndex < fps.length-1) {
+					curRenderSpeedIndex++;	// choose a higher framerate, then restart screen rendering...
+					stop();			 
+					start();
+					return;			 
+				}
+			}
+			
+			// no change in framerate, clear accumulated framerate...
+			renderTimeTotal = 0;
+		}
+	}
 }
