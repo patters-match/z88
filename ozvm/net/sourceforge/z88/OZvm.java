@@ -166,7 +166,7 @@ public class OZvm {
 
 					if (arg<args.length && ( args[arg].compareTo("s1") == 0	| args[arg].compareTo("s2") == 0 | args[arg].compareTo("s3") ==	0)) {
 						int slotNumber = Integer.parseInt(args[arg].substring(1));
-						String crdType = null;
+						String crdType = "27C";
 						if (args[arg+1].compareToIgnoreCase("-t") == 0)	{
 							// Optional type argument
 							crdType	= args[arg+2];
