@@ -85,7 +85,7 @@ public class Gui extends JFrame {
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				System.out.println("OZvm application ended by user.");
-				Blink.getInstance().stopZ80Execution();
+				//Blink.getInstance().stopZ80Execution();
 				System.exit(0);
 			}
 		});
@@ -257,6 +257,22 @@ public class Gui extends JFrame {
 		return jCmdLineScrollPane;
 	}
 
+	public static void displayRtmMessage(final String msg) {
+		if (OZvm.debugMode == true) {
+			Thread displayMsgThread = new Thread() {
+				public void run() {					
+					Gui.getInstance().getRtmOutputArea().append(msg + "\n");
+					Gui.getInstance().getRtmOutputArea().setCaretPosition(Gui.getInstance().getRtmOutputArea().getDocument().getLength());
+				}
+			};
+
+			displayMsgThread.setPriority(Thread.MIN_PRIORITY);
+			displayMsgThread.start();
+		} else {
+			System.out.println(msg);
+		}
+	}
+	
 	public static void main(String[] args) {
 		Gui gg = Gui.getInstance();
 

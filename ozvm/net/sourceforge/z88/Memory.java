@@ -430,12 +430,12 @@ public final class Memory {
 		// Check for Z88 Application Card Watermark
 		if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'O' &
 			cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'Z') {
-			OZvm.displayRtmMessage("Application Card was inserted into slot " + slot);
+			Gui.displayRtmMessage("Application Card was inserted into slot " + slot);
 		} else {
 			// Check for Z88 File Card Watermark
 			if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'o' &
 				cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'z') {
-				OZvm.displayRtmMessage("File Card was inserted into slot " + slot);
+				Gui.displayRtmMessage("File Card was inserted into slot " + slot);
 			} else {
 				throw new IOException("This is not a Z88 Application Card nor a File Card.");
 			}
