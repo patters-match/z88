@@ -1149,14 +1149,89 @@ public final class Blink extends Z80 {
 	public void stopZ80Execution() {
 		stopZ88 = true;
 	}
+	
+	private long z88StoppedAtTime;
 
+	/**
+	 * @return the system time when Z88 was stopped.
+	 */
+	public long getZ88StoppedAtTime() {
+		return z88StoppedAtTime;
+	}
+
+	/**
+	 * Restore system time when Z88 was stopped
+	 * (from snapshot).
+	 */
+	public void setZ88StoppedAtTime(long time) {
+		z88StoppedAtTime = time;
+	}
+
+	/**
+	 * Add the lost time to TIMx registers.
+	 * (typically adding gone time to TIMx from a snapshot)
+	 */
+	private void adjustLostTime() {
+		long timeElapsedMs = System.currentTimeMillis() - getZ88StoppedAtTime();
+		
+		// TIM4 offset
+	    int timeElapsedMinutes64K = (int) (timeElapsedMs / 1000 / 60 / 65536);
+	    
+	    // TIM3 offset
+		int timeElapsedMinutes256 =  (int) (((timeElapsedMs / 1000 / 60) - (timeElapsedMinutes64K * 65536)) / 256);
+		
+		// TIM2 offset
+		int timeElapsedMinutes = 	(int) (((timeElapsedMs / 1000 / 60) - (timeElapsedMinutes64K * 65536)) - 
+									(timeElapsedMinutes256 * 256));
+		
+		// TIM1 offset
+		int timeElapsedSeconds = 	(int) (((timeElapsedMs / 1000) - (timeElapsedMinutes64K * 65536 * 60)) - 
+									(timeElapsedMinutes256 * 256 * 60) - timeElapsedMinutes * 60);
+		
+		// TIM0 offset
+		int timeElapsed5Millisecs = (int) (((timeElapsedMs - (timeElapsedMinutes64K * 65536 * 60 * 1000)) - 
+									(timeElapsedMinutes256 * 256 * 60 * 1000) - (timeElapsedMinutes * 60 * 1000) - 
+									(timeElapsedSeconds * 1000)) / 5);
+		
+		int tim0 = getBlinkTim0() + timeElapsed5Millisecs;
+		int tim1 = getBlinkTim1() + timeElapsedSeconds;
+		int tim2 = getBlinkTim2() + timeElapsedMinutes;
+		int tim3 = getBlinkTim3() + timeElapsedMinutes256;
+		int tim4 = getBlinkTim4() + timeElapsedMinutes64K;
+		
+		if (tim0 > 199) {
+			tim1 += (tim0 / 200);
+			tim0 %= 200;
+		}
+		if (tim1 > 59) {
+			tim2 += (tim1 / 60);
+			tim1 %= 60;
+		}
+		if (tim2 > 255) {
+			tim3 += (tim2 / 256);
+			tim2 %= 256;
+		}
+		if (tim3 > 255) {
+			tim4 += (tim3 / 256);
+			tim3 %= 256;
+		}
+		
+		setBlinkTim0(tim0);
+		setBlinkTim1(tim1);
+		setBlinkTim2(tim2);
+		setBlinkTim3(tim3);
+		setBlinkTim4(tim4);
+	}
+	
     /**
      * Check if F5 key was pressed, or a stop was issued at command line.
      */
 	public boolean isZ80Stopped() {
         if (stopZ88 == true) {
             stopZ88 = false;
+            z88StoppedAtTime = System.currentTimeMillis();            
             Gui.displayRtmMessage("Z88 virtual machine was stopped at " + Dz.extAddrToHex(decodeLocalAddress(getInstrPC()), true));
+            
             return true;
         } else {
             return false;
@@ -1268,6 +1343,7 @@ public final class Blink extends Z80 {
 	}
 
 	public void startInterrupts() {
+		adjustLostTime();
 		z80Int.start();
 		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) rtc.start();
 	}
@@ -1533,4 +1609,5 @@ public final class Blink extends Z80 {
 	public void setRAMS(Bank rams) {
 		RAMS = rams;
 	}
+	
 }
