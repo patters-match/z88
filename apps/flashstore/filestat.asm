@@ -28,6 +28,7 @@ Module FileAreaStatistics
      LIB FileEprFreeSpace
 
      XREF VduCursor, centerjustify, tinyfont, nocursor
+     XREF DispSlotSize, epromdev
      XREF CheckFlashCardID
 
      ; flash card library definitions
@@ -56,6 +57,11 @@ Module FileAreaStatistics
 ;    AFBCDEHL/.... different
 ;
 .FileEpromStatistics
+                    push af
+                    call dispstats
+                    pop  af
+                    ret
+.dispstats
                     ld   bc,5
                     ld   hl, slot_bnr
                     ld   de, buf1
@@ -118,9 +124,15 @@ Module FileAreaStatistics
                     ld   a,(curslot)
                     ld   c,a
                     CALL FlashEprInfo
-                    CALL_OZ gn_sop
+                    JR   NC, disp_flash
+                    LD   HL, epromdev
+                    CALL_OZ(GN_Sop)
+                    call FileEprRequest
+                    LD   A,D
+                    CALL DispSlotSize
+.disp_flash
+                    CALL_OZ(GN_Sop)
                     CALL_OZ(Gn_Nln)
-
                     CALL DisplayEpromSize
 
                     ld   bc,$0103                 ; VDU (X,Y) = (1,3)
@@ -236,7 +248,7 @@ Module FileAreaStatistics
 
 
 ; *************************************************************************************
-; Fetch Intel Flash Eprom Device Code and return information of chip.
+; Display Intel Flash Eprom Device Code and return information of chip.
 ;
 ; IN:
 ;    None.
@@ -244,7 +256,7 @@ Module FileAreaStatistics
 ; OUT:
 ;    Fc = 0, Flash Eprom Recognized in slot 3
 ;         B = total of Blocks on Flash Eprom
-;         HL = pointer to Mnemonic description of Flash Eprom
+;         HL = pointer to flash Card text
 ;    Fc = 1, Flash Eprom not found in slot X, or Device code not found
 ;
 .FlashEprInfo       LD   A,(curslot)
@@ -284,7 +296,6 @@ Module FileAreaStatistics
 
 .ksize              DEFM "K ",0
 .fepr               DEFM "FILE AREA",1,"2-T",0
-
 .slot_bnr           DEFM "SLOT "
 .bfre_msg           DEFM " bytes free",0
 .fisa_msg           DEFM " files saved",0
