@@ -288,14 +288,12 @@ public class Gui extends JFrame {
 
 		if (OZvm.debugMode == false) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
-			gg.show();
 			ozvm.bootZ88Rom();
 			Z88display.getInstance().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
 			gg.getRtmOutputArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 			gg.getContentPane().add(gg.getCommandArea(), BorderLayout.SOUTH);
 			gg.pack();
-			gg.show();
 			gg.getCmdLineInputArea().grabFocus();	// make sure that caret is blinking in command line area...
 		}
 	}
