@@ -8,7 +8,8 @@
 
         org $ac5b                               ; 1351 bytes
 
-        include "all.def"
+        include "screen.def"
+        include "stdio.def"
         include "sysvar.def"
 
 ;       most of these xdefs/xrefs go away if all screen code is moved to bank 7
@@ -93,19 +94,19 @@ xref    ToggleScrDrvFlags
         cp      $20
         jr      nc, put_1
         call    Zero_ctrlprefix
-        cp      13
+        cp      CR
         jp      z, ScreenCR
-        cp      7
+        cp      BEL
         jp      z, ScreenBL
-        cp      8
+        cp      BS
         jp      z, CursorLeft
-        cp      9
+        cp      HT
         jp      z, CursorRight
-        cp      $0A
+        cp      LF
         jp      z, CursorDown
-        cp      $0B
+        cp      VT
         jp      z, CursorUp
-        cp      $0C
+        cp      FF
         jp      z, ClearScr
         cp      ESC
         ret     z
@@ -584,7 +585,7 @@ xref    ToggleScrDrvFlags
 
 .SetNormalJustify
         ld      a, (ix+wdf_flagsHi)
-        and     255-WDFH_JUSTIFICATION
+        and     ~WDFH_JUSTIFICATION
         or      e
         ld      (ix+wdf_flagsHi), a
         ret
@@ -683,7 +684,7 @@ xref    ToggleScrDrvFlags
         inc     l
         ld      a, (hl)
         dec     l
-        and     1
+        and     LCDA_CH8
         or      (hl)
         ret
 
@@ -810,8 +811,7 @@ xref    ToggleScrDrvFlags
         call    KPrint
         defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
         defm    1,"2H8"
-        defm    1,"2G"
-        defm    0
+        defm    1,"2G",0
         OZ      OS_Out                          ; grey/ungrey
         pop     de
         ld      (sbf_ActiveWd), de              ; restore active window
@@ -990,8 +990,8 @@ xref    ToggleScrDrvFlags
 
 .ApplyScrAttr
         ld      b, a
-        ld      a, (ix+wdf_f6)
-        or      $E1
+        ld      a, (ix+wdf_f6)			; wdf_f6 always zero?
+        or      ~(WDFL_ULINE|WDFL_GREY|WDFL_FLASH|WDFL_REVERSE)
 
 .sda_1
         ld      c, a
@@ -1002,7 +1002,7 @@ xref    ToggleScrDrvFlags
         push    bc
         inc     hl
         ld      a, (ix+wdf_flagsLo)
-        and     $1E                             ; hardware flags
+        and     WDFL_ULINE|WDFL_GREY|WDFL_FLASH|WDFL_REVERSE
         ld      e, a
         ld      a, (hl)
         and     c

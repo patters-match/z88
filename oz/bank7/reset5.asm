@@ -8,7 +8,9 @@
 
         org $9816                               ; 40 bytes
 
-        include "all.def"
+        include "director.def"
+        include "serintfc.def"
+        include "screen.def"
         include "sysvar.def"
 
 xdef    Reset5                                  ; Reset4
@@ -29,7 +31,7 @@ xref    TimeReset
         call    MountAllRAM
 
         ld      b, $21
-        ld      h, $78
+        ld      h, SBF_PAGE
         ld      a, SC_SBR
         OZ      OS_Sci                          ; SBF at 21:7800-7FFF
 

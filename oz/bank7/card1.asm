@@ -8,7 +8,7 @@
 
         org     $9bbe                           ; 287 bytes
 
-        include "all.def"
+        include "director.def"
         include "sysvar.def"
 
 xdef    StoreCardIDs
@@ -96,7 +96,7 @@ xref    S2VerifySlotType
         push    hl
         exx
         call    S2VerifySlotType
-        bit     1, d
+        bit     ST_B_APPLROM, d
         jr      z, ccc_8                        ; not appl card? skip
 
         exx                                     ; compare IDs
@@ -196,7 +196,7 @@ xref    S2VerifySlotType
         ld      hl, $4000                       ; test for RAM
         ld      c, (hl)
         ld      a, c
-        xor     $0FF
+        xor     $FF				; !! cpl
         ld      (hl), a
         xor     (hl)                            ; Fz=1 if RAM
         ld      (hl), c
@@ -260,7 +260,7 @@ xref    S2VerifySlotType
 ;       ----
 
 .CardSub
-        ld      de, $33F                        ; 3 loops, max card size
+        ld      de, 3<<8|$3F                    ; 3 loops, max card size
         exx
         ld      hl, ulSlot3ID+4
         exx

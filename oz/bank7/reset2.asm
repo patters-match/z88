@@ -8,7 +8,9 @@
 
         org $95a5                               ; 203 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "memory.def"
+        include "screen.def"
         include "sysvar.def"
 
 xdef    Reset2                                  ; Reset1
@@ -32,7 +34,7 @@ xref    LowRAMcode_e
 .Reset2
         xor     a
         ex      af, af'                         ; interrupt status
-        bit     7, a                            ; flap open
+        bit     BB_STAFLAPOPEN, a
         ld      a, $21
         jr      nz, rst2_1                      ; flap? hard reset
 
@@ -92,7 +94,7 @@ xref    LowRAMcode_e
         ld      ($4000+BLSC_COM), a
         out     (BL_COM), a
         ld      sp, $2000                       ; init stack
-        ld      b, 96                           ; reset 96 handles !! move this ld into ResetHandles
+        ld      b, NUMHANDLES                   ; !! move this ld into ResetHandles
         call    ResetHandles
 
 ;       init screen file for unexpanded machine
@@ -114,7 +116,7 @@ xref    LowRAMcode_e
         inc     a
         OZ      OS_Sci                          ; HIRES1 at 07:0800-0FFF
         ld      b, $20
-        ld      h, $78
+        ld      h, SBF_PAGE
         inc     a
         OZ      OS_Sci                          ; SBF at 20:7800-7FFF - this inits memory
 
@@ -139,7 +141,7 @@ xref    LowRAMcode_e
         call    KPrint
         defm    " RESET ...",0
 
-        ld      a, $A2                          ; S2, multiple banks, fixed
+        ld      a, MM_S2|MM_MUL|MM_FIX
         ld      bc, 0
         OZ      OS_Mop                          ; allocate memory pool, A=mask
 .rst2_6

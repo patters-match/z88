@@ -8,7 +8,8 @@
 
         org $9500                               ; 100 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    OsSci
@@ -45,7 +46,7 @@ xref    ScreenOpen
         ld      d, >Table                       ; !! use 'ld de,Table; add a, e' for clarity
         add     a, <Table
         ld      e, a
-        add     a, $6F
+        add     a, BL_PB0-1
         ld      c, a                            ; BLINK register
 
         ld      a, (de)                         ; granularity

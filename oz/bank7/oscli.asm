@@ -8,7 +8,7 @@
 
         org $99cb                               ; 288 bytes
 
-        include "all.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    OSCliMain
@@ -98,10 +98,10 @@ xref    SetPendingOZwd
         res     IST_B_CLISHIFT, (hl)
 .cliack_2
         ld      a, (hl)                         ; return A=resulting shift/ctrl status, Fz=1 if neither active
-        and     3
+        and     IST_CLISHIFT|IST_CLIDMND
         ld      (iy+OSFrame_D), a
         ret     nz
-        set     6, (iy+OSFrame_F)
+        set     Z80F_B_Z, (iy+OSFrame_F)
         ret
 
 .oscli_x
@@ -123,7 +123,7 @@ xref    SetPendingOZwd
 
 .CLIchar2key
         call    AtoN_upper
-        ld      bc, 24
+        ld      bc, 2*12
         ld      hl, CLI2key_tab
 .cc2k_2
         cpir
@@ -202,6 +202,10 @@ xref    SetPendingOZwd
 ;       length mask, character codes
 ;       !! careful - can't cross page boundary
 
+;	if <$PC=0
+;	error	"translation table at $xx00"
+;	endif
+
 .crsr   defb    3                               ; cursor keys
         defm    "LRDU"
 
@@ -217,3 +221,7 @@ xref    SetPendingOZwd
 
 .a      defb    0                               ; alt
         defm    "A"
+
+;	if >(crsr^$PC) <>0
+;	error	"translation table crosses page boundary"
+;	endif

@@ -8,7 +8,7 @@
 
         org $9aeb                               ; 211 bytes
 
-        include "all.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    OSPoll
@@ -119,18 +119,18 @@ xref    PutOSFrame_BC
         ld      hl, (pMailbox)
         ld      bc, (ubMailboxSize)             ; B=ubMailboxBank
         ld      a, c
-        or      a
+        or      a				; !! 'dec a; cp 64; ld a,0; jr nc'
         jr      z, mb2s_1
-        cp      $41
+        cp      MAILBOXMAXLEN+1
         ld      a, 0
         jr      nc, mb2s_1                      ; >64? exit
-        ld      ($1811), bc                     ; !! just put C
-        ld      de, $1812
+        ld      (ubMailboxLength), bc
+        ld      de, MailboxData
         call    CopyMemBHL_DE
-        ld      a, $AA                          ; mark as valid
+        ld      a, MAILBOXID                    ; mark as valid
 
 .mb2s_1
-        ld      ($1852), a                      ; store identifier
+        ld      (ubMailBoxID), a                ; store identifier
         ret
 
 ;       ----

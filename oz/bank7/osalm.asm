@@ -8,8 +8,11 @@
 
         org $983e                               ; 397 bytes
 
-        include "all.def"
+        include "error.def"
+        include "misc.def"
+        include "time.def"
         include "sysvar.def"
+
 
 xdef    OSAlmMain
 
@@ -130,7 +133,7 @@ xref    MaySetPendingAlmTask
         ld      (ix+ahnd_NextAlarmH), b
         push    de
         pop     ix
-        bit     7, (ix+ahnd_Flags)
+        bit     ALMF_B_ACTIVE, (ix+ahnd_Flags)
         call    nz, DecActiveAlm                ; decrement active count and remove pending alarm task if needed
         call    SetNextAlmTime
         pop     de
@@ -140,20 +143,20 @@ xref    MaySetPendingAlmTask
 .osalm_10
         pop     ix
         ld      (iy+OSFrame_A), RC_Hand         ; !! use osalm_x
-        res     6, (iy+OSFrame_F)
+        res     Z80F_B_Z, (iy+OSFrame_F)	; Fz=0
         ret
 
 .osalm_dg1
         djnz    osalm_dg2
         ld      a, 7                            ; ding-dong type 1
-        ld      bc, $194B
+        ld      bc, 25<<8|75
         OZ      OS_Blp
         ret
 
 .osalm_dg2
         djnz    osalm_ainc
-        ld      a, $0C                          ; ding-dong type 2
-        ld      bc, $819
+        ld      a, 12                          ; ding-dong type 2
+        ld      bc, 8<<8|25
         OZ      OS_Blp
         ret
 
@@ -183,7 +186,7 @@ xref    MaySetPendingAlmTask
 
 .osalm_x
         ld      (iy+OSFrame_A), a
-        res     6, (iy+OSFrame_F)
+        res     Z80F_B_Z, (iy+OSFrame_F)	; Fz=0
         ret
 
 ;       ----

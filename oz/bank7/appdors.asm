@@ -6,7 +6,7 @@
 
         Module AppStatic
 
-        include "all.def"
+	include	"director.def"
 
 ;       !! org in segment 3 as that's where it's used
 
@@ -182,48 +182,48 @@
         defb    10,$27,$42,$4E,$4D,0,$97,$F7,0,10               ; Next Match
         defb    10,$28,$42,$50,$4D,0,$98,$F7,0,10               ; Previous Match
         defb    1
-        defb     8,$F5,$F5,0,$DF,$A9,0,8 			; End of Line
+        defb     8,$F5,$F5,0,$DF,$A9,0,8                        ; End of Line
         defb    12,$F4,$F4,0,$53,$74,$8C,$84,$89,$A9,0,12       ; Start of Line
-        defb     8,$30,$F7,0,$F8,$A9,0,8			; First Line
+        defb     8,$30,$F7,0,$F8,$A9,0,8                        ; First Line
         defb    10,$2F,$F6,0,$4C,$61,$CA,$A9,0,10               ; Last Line
-        defb    10,$2B,$43,$53,$50,0,$BD,$BE,0,10		; Save position
-        defb    13,$2C,$43,$52,$50,0,$C8,$73,$74,$8F,$BE,0,13	; Restore position
-        defb     7,$0D,$E1,0,$D2,0,7				; ENTER
-        defb     8,$F9,$F9,0,$97,$D3,1,8			; Next Word
-        defb     8,$F8,$F8,0,$98,$D3,0,8			; Previous Word
-        defb     8,$32,$FB,0,$D4,$B9,0,8			; Screen Up
-        defb     8,$31,$FA,0,$D4,$AC,0,8			; Screen Down
-        defb     7,$FD,$FD,0,$A7,0,7				; Cursor Right
-        defb     7,$FC,$FC,0,$A8,0,7				; Cursor Left
-        defb     7,$2E,$FF,0,$DA,0,7				; Cursor Up
-        defb     7,$2D,$FE,0,$DB,0,7				; Cursor Down
-        defb     9,$2A,$E2,0,$54,$41,$42,1,9			; Tab
-        defb    11,$33,$43,$54,0,$54,$6F,$64,$FB,0,11		; Today
-        defb    11,$39,$43,$46,$41,$44,0,$F8,$AD,0,11		; First Active Day
-        defb    13,$38,$43,$4C,$41,$44,0,$4C,$61,$CA,$AD,0,13	; Last Active Day
-        defb     8,$36,$F1,0,$97,$AD,0,8			; Next Active Day
-        defb     8,$37,$F0,0,$98,$AD,0,8			; Previous Active Day
-        defb     9,$35,$F3,0,$98,$44,$FB,0,9			; Previous Day
-        defb     9,$34,$F2,0,$97,$44,$FB,0,9			; Next Day
+        defb    10,$2B,$43,$53,$50,0,$BD,$BE,0,10               ; Save position
+        defb    13,$2C,$43,$52,$50,0,$C8,$73,$74,$8F,$BE,0,13   ; Restore position
+        defb     7,$0D,$E1,0,$D2,0,7                            ; ENTER
+        defb     8,$F9,$F9,0,$97,$D3,1,8                        ; Next Word
+        defb     8,$F8,$F8,0,$98,$D3,0,8                        ; Previous Word
+        defb     8,$32,$FB,0,$D4,$B9,0,8                        ; Screen Up
+        defb     8,$31,$FA,0,$D4,$AC,0,8                        ; Screen Down
+        defb     7,$FD,$FD,0,$A7,0,7                            ; Cursor Right
+        defb     7,$FC,$FC,0,$A8,0,7                            ; Cursor Left
+        defb     7,$2E,$FF,0,$DA,0,7                            ; Cursor Up
+        defb     7,$2D,$FE,0,$DB,0,7                            ; Cursor Down
+        defb     9,$2A,$E2,0,$54,$41,$42,1,9                    ; Tab
+        defb    11,$33,$43,$54,0,$54,$6F,$64,$FB,0,11           ; Today
+        defb    11,$39,$43,$46,$41,$44,0,$F8,$AD,0,11           ; First Active Day
+        defb    13,$38,$43,$4C,$41,$44,0,$4C,$61,$CA,$AD,0,13   ; Last Active Day
+        defb     8,$36,$F1,0,$97,$AD,0,8                        ; Next Active Day
+        defb     8,$37,$F0,0,$98,$AD,0,8                        ; Previous Active Day
+        defb     9,$35,$F3,0,$98,$44,$FB,0,9                    ; Previous Day
+        defb     9,$34,$F2,0,$97,$44,$FB,0,9                    ; Next Day
         defb    1
-        defb     7,$7F,$E3,0,$E0,0,7				; Rubout
-        defb     8,7,$47,0,$96,$E9,0,8				; Delete Character
-        defb     6,7,$D3,0,4,6					; 
-        defb     8,$15,$55,0,$CB,$E9,0,8			; Insert Character
-        defb     8,$14,$54,0,$96,$D3,0,8			; Delete Word
-        defb    10,4,$44,0,$96,$BB,$DF,$A9,0,10			; Delete to End of Line
-        defb    8,$3A,$59,0,$96,$A9,0,8				; Delete Line
-        defb    6,$3A,$C3,0,4,6					; 
-        defb    8,$3C,$4E,0,$CB,$A9,0,8				; Insert Line
-        defb    7,$16,$56,0,$EA,1,7				; Insert/Overtype
-        defb    7,$13,$53,0,$FF,0,7				; Swap Case
-        defb    8,$3F,$4A,0,$97,$EC,0,8				; Next Option
-        defb    16,$3E,$45,$4D,$46,0,$4D,$65,$6D,$8F,$D6,$46,$8D,$65,0,16	; Memory Free
-        defb    13,$3D,$45,$53,$4C,0,$53,$D9,$69,$84,$A9,1,13	; Split Line
-        defb    13,$3B,$45,$4A,$4C,0,$4A,$6F,$A3,$A9,$73,0,13	; Join Lines
+        defb     7,$7F,$E3,0,$E0,0,7                            ; Rubout
+        defb     8,7,$47,0,$96,$E9,0,8                          ; Delete Character
+        defb     6,7,$D3,0,4,6                                  ; 
+        defb     8,$15,$55,0,$CB,$E9,0,8                        ; Insert Character
+        defb     8,$14,$54,0,$96,$D3,0,8                        ; Delete Word
+        defb    10,4,$44,0,$96,$BB,$DF,$A9,0,10                 ; Delete to End of Line
+        defb    8,$3A,$59,0,$96,$A9,0,8                         ; Delete Line
+        defb    6,$3A,$C3,0,4,6                                 ; 
+        defb    8,$3C,$4E,0,$CB,$A9,0,8                         ; Insert Line
+        defb    7,$16,$56,0,$EA,1,7                             ; Insert/Overtype
+        defb    7,$13,$53,0,$FF,0,7                             ; Swap Case
+        defb    8,$3F,$4A,0,$97,$EC,0,8                         ; Next Option
+        defb    16,$3E,$45,$4D,$46,0,$4D,$65,$6D,$8F,$D6,$46,$8D,$65,0,16       ; Memory Free
+        defb    13,$3D,$45,$53,$4C,0,$53,$D9,$69,$84,$A9,1,13   ; Split Line
+        defb    13,$3B,$45,$4A,$4C,0,$4A,$6F,$A3,$A9,$73,0,13   ; Join Lines
         defb    1
-        defb    8,$40,$46,$4C,0,$E1,0,8				; Load
-        defb    9,$41,$46,$53,0,$BD,$65,0,9			; Save
+        defb    8,$40,$46,$4C,0,$E1,0,8                         ; Load
+        defb    9,$41,$46,$53,0,$BD,$65,0,9                     ; Save
         defb    0
 
 .PrinterEdTopics

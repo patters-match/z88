@@ -8,7 +8,7 @@
 
         org $9564                               ; 65 bytes
 
-        include "all.def"
+        include "time.def"
         include "sysvar.def"
 
 xdef    TimeReset                               ; Reset5
@@ -55,7 +55,7 @@ xref    MS1BankA
 .SetInitialTime
         push    af
         ld      de, 1992
-        ld      bc, 8*256+3                     ; August 3rd
+        ld      bc, 8<<8|3                      ; August 3rd
         OZ      GN_Dei                          ; convert to internal format
         ld      hl, 2                           ; date in ABC
         OZ      GN_Pmd                          ; set machine date

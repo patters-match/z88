@@ -8,7 +8,8 @@
 
         org     $9cdd                           ; 145 bytes
 
-        include "all.def"
+        include "dor.def"
+	include	"time.def"
         include "sysvar.def"
 
 xdef    IsSpecialHandle
@@ -63,7 +64,7 @@ xref    FreeMemHandle
         ld      d, b
         ld      b, 0
         call    MvToFile
-        ld      (ix+fhnd_attr), 7
+        ld      (ix+fhnd_attr), FATR_READABLE|FATR_WRITABLE|FATR_MEMORY
         jp      nc, RewindFile
 .omem_1
         jp      FreeMemHandle
@@ -110,8 +111,8 @@ xref    FreeMemHandle
         call    CopyMemHL_DE
         pop     de
         ld      a, DR_WR                        ; write DOR record
-        ld      bc, $4E11                       ; Name, 17 chars
-        OZ      OS_Dor                          ; DOR interface
+        ld      bc, 'N'<<8|17                   ; Name, 17 chars
+        OZ      OS_Dor
 .flnd_1
         jr      c, flnd_1                       ; crash if fail
         pop     af
@@ -130,13 +131,13 @@ xref    FreeMemHandle
         ldir
         ex      de, hl                          ; DE=datetime
         ld      a, DR_WR                        ; write DOR record
-        ld      bc, $5506                       ; Update, 6 bytes
-        OZ      OS_Dor                          ; DOR interface
+        ld      bc, 'U'<<8|6                    ; Update, 6 bytes
+        OZ      OS_Dor
         pop     af
         jr      nc, flnd_4                      ; Fc=0? don't set creation date
         ld      a, DR_WR                        ; write DOR record
-        ld      bc, $4306                       ; Create, 6 bytes
-        OZ      OS_Dor                          ; DOR interface
+        ld      bc, 'C'<<8|6                    ; Create, 6 bytes
+        OZ      OS_Dor
 .flnd_4
         ld      hl, 17                          ; restore stack
         add     hl, sp

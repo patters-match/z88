@@ -8,12 +8,21 @@
 
         org     $8f00                           ; 1493 bytes
 
-        include "all.def"
+	include	"blink.def"
+	include	"char.def"
+	include	"error.def"
+	include	"fileio.def"
+	include	"memory.def"
+	include	"misc.def"
+	include	"saverst.def"
+	include	"time.def"
         include "sysvar.def"
 	include	"bank7\lowram.def"
 
 xdef    OSEprTable
 
+;	!! completely separate module, all system calls done thru OZ calls
+;	!! can be relocated if more kernel space needed
 
 .OSEprTable
         jp      EprSave                         ; 00
@@ -92,7 +101,7 @@ xdef    OSEprTable
 
 ;       increment BHL and write byte !! unused
 .IncPokeBHL
-        inc     hl                              ; !! call IncBHL
+        inc     hl                              ; !! 'call IncBHL'
         bit     6, h
         jr      z, PokeBHL_epr
         res     6, h
@@ -166,8 +175,8 @@ xdef    OSEprTable
 ;chg:   AFBCDEHL/....
 
 .EprLoad
-        ld      b, 0
-        OZ      OS_Bix                          ; Bind in extended address
+        ld      b, 0				; bind source in
+        OZ      OS_Bix
         push    de                              ; remember S1/S2
         ld      (pEpr_FileHandle), ix           ; and file handle
 
@@ -187,9 +196,9 @@ xdef    OSEprTable
         or      e
         jr      z, ld_4                         ; size is 0? we're done
 
-        push    bc
+        push    bc				; bind BHL into S1
         ld      c, 1
-        OZ      OS_Mpb                          ; Bind bank B in slot C
+        OZ      OS_Mpb
         pop     bc
 
         ld      a, h                            ; point HL into S1
@@ -317,7 +326,7 @@ xdef    OSEprTable
         jp      c, sv_11                        ; error? exit
 
         ld      a, OP_IN
-        ld      bc, $00FF                       ; bufsize=255
+        ld      bc, 255                         ; bufsize=255
         ld      de, 3                           ; ignore filename
         OZ      GN_Opf                          ; open file
         ld      (pEpr_FileHandle), ix
@@ -667,7 +676,7 @@ xdef    OSEprTable
         ld      a, b
         ld      (ubEpr_FirstBank), a
         ld      hl, $3FF7                       ; filing EPROM/application ROM
-        ld      b, $0FF
+        ld      b, $FF
         call    PeekBHL
         ld      (ubEpr_Fstype), a
         or      a                               ; Fc=0
@@ -703,9 +712,9 @@ xdef    OSEprTable
         inc     a                               ; !! A=$40, Fc=0
         ld      c, $80                          ; !! ends up $40
 .fmt_1
-        rl      a                               ; !! 0$80-1$00-exit
+        rl      a                               ; !! $80-$ff - exit
         jr      c, fmt_2
-        rrc     c                               ; !! 0$40
+        rrc     c                               ; !! $40
         jr      fmt_1
 .fmt_2
         ld      a, b                            ; !! A=$FF-$40=$3F

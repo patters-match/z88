@@ -8,7 +8,6 @@
 
         org $9d6e                               ; 149 bytes
 
-        include "all.def"
         include "sysvar.def"
 
 xdef    KbdDeadKeys
@@ -21,13 +20,13 @@ xref    DrawOZwd
 
 .KbdDeadKeys
         ld      c, a
-        cp      $0AF
+        cp      $AF
         jr      z, dkey_1
-        cp      $0AC
+        cp      $AC
         jr      z, dkey_1
-        cp      $0AD
+        cp      $AD
         jr      z, dkey_1
-        cp      $0AE                            ; ^ on french keyboard
+        cp      $AE                             ; ^ on french keyboard
         jr      nz, dkey_4
 .dkey_1
         cp      (ix+kbd_lastkey)
@@ -42,7 +41,7 @@ xref    DrawOZwd
         scf
         ret
 .dkey_4
-        cp      $0E3                            ; DEL
+        cp      IN_DELX
         ex      af, af'
         ld      a, (ix+kbd_lastkey)
         or      a

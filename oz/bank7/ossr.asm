@@ -8,7 +8,9 @@
 
         org $b1a2                               ; 269 bytes
 
-        include "all.def"
+        include "error.def"
+        include "memory.def"
+        include "stdio.def"
         include "sysvar.def"
 
 xdef    OSSR_main
@@ -109,10 +111,10 @@ xref    RestoreActiveWd
         ld      (ubMailboxSize), bc             ; length/bank
         ld      (pMailbox), hl                  ; data
         ex      de, hl
-        ld      bc, $11
-        ld      de, $1800
+        ld      bc, MBOXNAMEMAXLEN
+        ld      de, MailBoxName
         xor     a
-        ld      ($1852), a                      ; mailbox control, store
+        ld      (ubMailBoxID), a                 ; mailbox control, store
         jp      CopyMemBHL_DE
 
 .rpd
@@ -123,19 +125,19 @@ xref    RestoreActiveWd
 ;BHL = buffer
 ;C = bufsize
         ld      b, a
-        ld      a, ($1852)
-        cp      $0AA
+        ld      a, (ubMailBoxID)
+        cp      MAILBOXID
         jr      nz, OSSr_Err                    ; no mail, exit
         push    bc
         push    hl
         ex      de, hl                          ; compare mailbox name
         call    FixPtr
-        ld      de, $1800
+        ld      de, MailBoxName
         OZ      GN_Cme                          ; compare null-terminated strings
         pop     hl
         pop     bc
         jr      nz, OSSr_Err
-        ld      a, ($1811)                      ; length
+        ld      a, (ubMailboxLength)
         ld      c, a
         ld      a, (iy+OSFrame_C)
         ld      (iy+OSFrame_C), c
@@ -144,8 +146,8 @@ xref    RestoreActiveWd
         ld      c, a
 .sr_5
         xor     a
-        ld      ($1852), a
-        ld      de, $1812
+        ld      (ubMailBoxID), a
+        ld      de, MailboxData
         jp      CopyMemDE_BHL
 .fus
         djnz    crm
@@ -200,14 +202,11 @@ xref    RestoreActiveWd
         defm    1,"B"
         defm    10,10
         defm    1,$E0
-        defm    10
-        defm    "CONTINUE"
-        defm    10
+        defm    10,"CONTINUE",10
         defm    1,$E4
         defm    10
         defm    "RESUME"
-        defm    $7F,"N"
-        defm    0
+        defm    $7F,"N",0
 
         xor     a
 

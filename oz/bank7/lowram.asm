@@ -8,7 +8,8 @@
 
         org $0000                               ; 421 bytes
 
-        include "all.def"
+        include "blink.def"
+        include "error.def"
         include "sysvar.def"
 
  IF     FINAL=0
@@ -25,6 +26,7 @@ defc    OZCallTable             =$dead
 
 
 xdef    DefErrHandler
+xdef	FPP_RET
 xdef    INTReturn
 xdef    JpAHL
 xdef    JpHL
@@ -64,7 +66,7 @@ xdef    OZCallReturn3
         jp      FPPmain
 
         defb    $ff,$ff
-
+.FPP_RET
         jp      OZCallReturn4                   ; 001d, called from FPP
 
 .rst20
@@ -312,13 +314,13 @@ xdef    OZCallReturn3
         ld      iy, 0
         add     iy, sp                          ; IY=SP
         push    ix
-        ld      bc, $D800                       ; FPP return $d800
+        ld      bc, FPPCALLTBL                  ; FPP return $d800
         push    bc
         ld      c, a
-        ld      b, $D8                          ; !! unnecessary
+        ld      b, >FPPCALLTBL                  ; !! unnecessary
         push    bc                              ; call function at $d8nn, nn=opByte
 
-        ld      a, 2                            ; bind b02 into S3
+        ld      a, OZBANK_FPP                   ; bind b02 into S3
         ld      (BLSC_SR3), a
         out     (BL_SR3), a
         ex      af, af'
@@ -326,6 +328,8 @@ xdef    OZCallReturn3
         ret
 
 ; 0143
+
+;	!! remove this
 
 .GhostMain
         ex      af, af'
@@ -381,7 +385,7 @@ xdef    OZCallReturn3
         exx
         pop     bc                              ; restore Sx
         ld      a, b
-        ld      b, 4
+        ld      b, BLSC_PAGE
         ld      (bc), a
         out     (c), a
         exx

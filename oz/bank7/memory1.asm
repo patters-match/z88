@@ -8,7 +8,7 @@
 
         org $9f23                               ; 41 bytes
 
-        include "all.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    MemCallAttrVerify

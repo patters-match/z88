@@ -8,7 +8,11 @@
 
         org     $9f4c                           ; 1933 bytes
 
-        include "all.def"
+	include	"dor.def"
+	include	"error.def"
+	include	"stdio.def"
+	include	"saverst.def"
+	include	"syspar.def"
         include "sysvar.def"
 
 
@@ -942,7 +946,7 @@ xref    GetNextCmdAttr
         ld      sp, hl
         ex      af, af'
         ret     c
-        ld      a, $0B                          ; !! undocumented - same as DOR_RD
+        ld      a, $0B                          ; !! undocumented - same as DOR_RD - use DOR_RD
         ld      bc, 'H'<<8|12
         ld      de, eHlpTopics
         OZ      OS_Dor                          ; DOR interface
@@ -1165,7 +1169,7 @@ xref    GetNextCmdAttr
         call    InitHelpWd
         ret     c
         call    PrntAppname
-        ld      a, 10
+        ld      a, LF
         OZ      OS_Out                          ; write a byte to std. output
         call    GetHlpHelp
         call    MTHPrintTokenized

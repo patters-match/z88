@@ -8,7 +8,10 @@
 
         org $9e03                               ; 288 bytes
 
-        include "all.def"
+        include "blink.def"
+	include	"error.def"
+        include "stdio.def"
+        include "syspar.def"
         include "sysvar.def"
 
 xdef    OSMapMain
@@ -57,7 +60,7 @@ xref    RestoreActiveWd
         jr      nc, osmap_1
         push    bc
         ld      c, a                            ; row
-        ld      b, $0FF
+        ld      b, $FF
         add     hl, bc
         ld      a, (BLSC_PB2L)
         and     1
@@ -111,25 +114,24 @@ xref    RestoreActiveWd
         push    bc
         push    de
         call    KPrint
-        defb    1, '7', '#', 0
+        defm    1,"7#",0
         ld      a, (iy+OSFrame_A) ; window A
-        OZ      OS_Out                          ; write a byte to std. output
+        OZ      OS_Out
         ld      a, $7E                          ; x
         sub     c
-        OZ      OS_Out                          ; write a byte to std. output
+        OZ      OS_Out
         ld      a, $20                          ; y
-        OZ      OS_Out                          ; write a byte to std. output
+        OZ      OS_Out
         add     a, c                            ; width
-        OZ      OS_Out                          ; write a byte to std. output
+        OZ      OS_Out
         call    GetCurrentWdInfo
 
         call    KPrint
-        defb    $28, $60
-        defb    1, $32, $43
-        defb    0
+        defm    "(",$60
+        defm    1,"2C",0
 
         ld      a, (iy+OSFrame_A)
-        OZ      OS_Out                          ; write a byte to std. output
+        OZ      OS_Out
         call    RestoreActiveWd
         pop     de
         pop     bc
@@ -177,10 +179,10 @@ xref    RestoreActiveWd
         ld      a, l
         add     a, 7
         jr      nc, loc_9EE8
-        ld      a, $0FF
+        ld      a, $FF
         jr      loc_9EEA
 .loc_9EE8
-        and     $0F8
+        and     $F8
 .loc_9EEA
         ld      d, a
         dec     a
@@ -199,13 +201,13 @@ xref    RestoreActiveWd
         ld      a, (iy+OSFrame_C)
         cp      3
         ret     z
-        ld      bc, $8013                       ; Map size in pixels
+        ld      bc, PA_Msz                      ; map size in pixels
         call    sub_9F17
         ret     c
         ld      a, h
         or      a
         ret     z
-        ld      l, $0FF
+        ld      l, $FF
         ret
 
 ;       ----
@@ -223,6 +225,6 @@ xref    RestoreActiveWd
         add     hl, sp
         ex      de, hl
         ld      a, 2
-        OZ      OS_Nq                           ; enquire (fetch) parameter
+        OZ      OS_Nq
         pop     hl
         ret

@@ -8,7 +8,8 @@
 
         org $9670                               ; 422 bytes
 
-        include "all.def"
+        include "dor.def"
+        include "error.def"
         include "sysvar.def"
 
 xdef    RAMDORtable                             ; MountAllRAM
@@ -72,8 +73,7 @@ xref    S2VerifySlotType
 ;       ----
 
 ;       defb    ID
-;       defw    DOR address in S2
-;       defb    DOR bank
+;       defp    DOR address in S2
 
 .DevTable
         defb    1, $80,$80,$21                  ; RAM.-
@@ -169,7 +169,7 @@ xref    S2VerifySlotType
         ld      d, a
         ld      e, $3F
         call    S2VerifySlotType
-        bit     1, d                            ; application ROM
+        bit     ST_B_APPLROM, d
         exx
         jr      z, fhd_1
 

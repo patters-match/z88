@@ -8,7 +8,9 @@
 
         org $a6d9                            ; 976 bytes
 
-        include "all.def"
+        include "director.def"
+        include "error.def"
+        include "syspar.def"
         include "sysvar.def"
 
 xdef    OSSpMain
