@@ -55,7 +55,8 @@ public class FileArea {
 	private LinkedList filesList;
 
 	/**
-	 * Scan file area at specified slot instance this object with information.
+	 * Constructor<br>
+	 * Scan file area at specified slot and populate this object with information.
 	 * 
 	 * @param slotNo
 	 * @throws throws FileAreaNotFoundException
@@ -70,7 +71,7 @@ public class FileArea {
 			throw new FileAreaNotFoundException();
 		else {
 			fileAreaHdr = new FileAreaHeader(bankNo);
-			scanFileArea(); // automatically build the file list...
+			refreshFileList(); // automatically build the file list...
 		}
 	}
 	
@@ -83,27 +84,33 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
-			// dump the old linked list (if any)...
-			filesList = null;
-
-			// start scanning at bottom of card...
-			int fileEntryPtr = (slotNumber << 6) << 16;
-			while (memory.getByte(fileEntryPtr) != 0xFF
-					& memory.getByte(fileEntryPtr) != 0x00) {
-
-				// and create a linked list of FileEntry objects...
-				FileEntry fe = new FileEntry(fileEntryPtr);
-				if (filesList == null)
-					filesList = new LinkedList();
-				filesList.add(fe);
-
-				// point at next File Entry...
-				fileEntryPtr = intToPtr(ptrToInt(fileEntryPtr)
-						+ fe.getHdrLength() + fe.getFileLength());
-			}
+			refreshFileList();
 		}
 	}
 
+	/**
+	 * Dump the old linked list of File Entries and re-scan the current
+	 * file area to build a new linked list of File entries.
+	 */
+	private void refreshFileList() {
+		// dump the old linked list (if any)...
+		filesList = new LinkedList();
+
+		// start scanning at bottom of card...
+		int fileEntryPtr = (slotNumber << 6) << 16;
+		while (memory.getByte(fileEntryPtr) != 0xFF
+				& memory.getByte(fileEntryPtr) != 0x00) {
+
+			// and create a linked list of FileEntry objects...
+			FileEntry fe = new FileEntry(fileEntryPtr);
+			filesList.add(fe);
+
+			// point at next File Entry...
+			fileEntryPtr = intToPtr(ptrToInt(fileEntryPtr)
+					+ fe.getHdrLength() + fe.getFileLength());
+		}		
+	}
+	
 	/**
 	 * If files exist in file area, a ListIterator is returned, 
 	 * otherwise null.
@@ -118,7 +125,7 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
-			if (filesList != null)
+			if (filesList != null & filesList.size() > 0)
 				return filesList.listIterator(0);
 			else
 				return null;
@@ -137,17 +144,18 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
-			if (filesList != null) {
+			if (filesList == null || filesList.size() == 0) {
+				return null; // no file entries available in file area..
+			} else {
 				// scan the file list...
 				for(int i=0; i<filesList.size(); i++) {
 					FileEntry fe = (FileEntry) filesList.get(i);
 					if (fe.getFileName().compareToIgnoreCase(fileName) == 0)
-						return fe;
+						return fe; // found..
 				}
 				
 				return null; // file entry was not found..
-			} else
-				return null; // no file entries available in file area..
+			}
 		}		
 	}
 	
@@ -165,7 +173,7 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
-			if (filesList != null) {
+			if (filesList != null & filesList.size() > 0) {
 				// there's file entries available, get to the end of the list
 				// and calculate the free space to the file header...
 				
@@ -175,6 +183,9 @@ public class FileArea {
 				
 				int fileHdrPtr = (fileAreaHdr.getBankNo() << 16) | 0x3FC0;
 				freeSpace = ptrToInt(fileHdrPtr) - ptrToInt(freeSpacePtr);  
+			} else {
+				// the file area is empty, return all available space in file area
+				freeSpace = fileAreaHdr.getSize() * Bank.SIZE - 64; 
 			}
 		}
 
@@ -195,7 +206,7 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
-			if (filesList == null) {
+			if (filesList == null || filesList.size() == 0) {
 				return 0;	// no files are stored in file area...
 			} else {
 				// calculate the deleted space by scanning the file list...
@@ -236,7 +247,7 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
-			if (filesList != null) {
+			if (filesList != null & filesList.size() > 0) {
 				// there's file entries available, get to the end of the list
 				FileEntry fe = (FileEntry) filesList.getLast();
 				return intToPtr(ptrToInt(fe.getFileEntryPtr())
@@ -312,15 +323,58 @@ public class FileArea {
 
 	/**
 	 * Check if the file area is still available in the slot (card might have
-	 * been removed/replaced with another card).
+	 * been removed/replaced with another card), and update the linked list
+	 * of file entries, if a new File area has become available.
 	 * 
-	 * @return true, if a file area was found.
+	 * @return <b>true</b>, if a file area was found.
 	 */
 	public boolean isFileAreaAvailable() {
-		if (fileAreaHdr != null)
-			return slotinfo.isFileHeader(fileAreaHdr.getBankNo());
-		else
-			return false;
+		int bankNo;
+		
+		if (fileAreaHdr == null) {
+			bankNo = slotinfo.getFileHeaderBank(slotNumber);
+			if (bankNo == -1)
+				return false;
+			else {
+				fileAreaHdr = new FileAreaHeader(bankNo);
+				refreshFileList(); // automatically build the file list...
+				return true;
+			}
+		} 
+
+		bankNo = fileAreaHdr.getBankNo();
+		if (slotinfo.isFileHeader(bankNo) == false) {
+			// card with file area has been removed. Check if a new card
+			// might have been inserted in this slot with another file area...
+			bankNo = slotinfo.getFileHeaderBank(slotNumber);
+			if (bankNo == -1) {
+				// file area definitely gone...
+				fileAreaHdr = null;
+				filesList = null;
+				return false;
+			} else {
+				fileAreaHdr = new FileAreaHeader(bankNo);
+				refreshFileList(); // automatically build the file list...
+				return true;
+			}
+		} else {
+			// file header is available at the same position, but
+			// is it a new file area (compared to the previous scanned
+			// file area for this slot)?				
+			int randomId = (memory.getByte(0x3FF8, bankNo) << 24) | 
+							memory.getByte(0x3FF9, bankNo) << 16 |
+							memory.getByte(0x3FFA, bankNo) << 8 | 
+							memory.getByte(0x3FFB, bankNo);
+			
+			if (randomId != fileAreaHdr.getRandomId()) {
+				// A new file area that has the same size and
+				// position has been inserted since the previous
+				// scan of this slot...
+				refreshFileList();
+			}
+			
+			return true;
+		}
 	}
 
 	/**
@@ -353,7 +407,9 @@ public class FileArea {
 		if ((bank instanceof EpromBank == true)
 				| (bank instanceof AmdFlashBank == true)
 				| (bank instanceof IntelFlashBank == true)) {
-
+			// A file area can't be created on a Ram card or in an empty slot...
+			return false;
+		} else {
 			int fileHdrBank = slotinfo.getFileHeaderBank(slotNumber);
 			if (fileHdrBank != -1) {
 				// file header found somewhere on card.
@@ -406,17 +462,14 @@ public class FileArea {
 				// for Intel Flash Cards to avoid undocumented behaviour 
 				// (occasional auto-command mode when card is inserted)
 				int extAddress = (slotNumber << 6) << 16;
+				
 				for (int offset = 0; offset < nullFile.length; offset++)
 					memory.setByte(extAddress++, nullFile[offset]);
-				try {
-					scanFileArea(); // establish file list with first entry..
-				} catch (FileAreaNotFoundException e) {}
+
+				refreshFileList(); // establish file list with first entry..
 			}
 			
 			return true;
-		} else {
-			// A file area can't be created on a Ram card or in an empty slot...
-			return false;
 		}
 	}
 
@@ -523,7 +576,7 @@ public class FileArea {
 	}
 	
 	/**
-	 * Convert the extended address int the current slot to a calculable integer.
+	 * Convert the extended address for the current slot to a calculable integer.
 	 * 
 	 * @param extAddress
 	 *            the extended address
