@@ -434,7 +434,7 @@ public final class Memory {
 	 * @param card contains the binary image
 	 * @throws IOException
 	 */
-	public void loadCardBinary(int slot, RandomAccessFile card) throws IOException {
+	public void loadCardBinary(int slot, String cardType, RandomAccessFile card) throws IOException {
 		
 		if (card.length() > (1024 * 1024)) {
 			throw new IOException("Max 1024K Card!");
@@ -453,19 +453,33 @@ public final class Memory {
 			
 			case 1:
 			case 2:
+				// 32K size exists only as Eprom
 				cardBanks[curBank] = new EpromBank(EpromBank.VPP32KB);
 				break;
 			case 8:
-				cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B);
+				// 128K size exists as Eprom or Amd Flash Card				
+				if (cardType.compareToIgnoreCase("29F") == 0)
+					cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B);
+				else
+					cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
 				break;
 			case 16:
+				// 256K size exists only as Eprom
 				cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
 				break;
 			case 32:
-				cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F004S5);
+				// 512K size exists as Intel or Amd Flash Card
+				if (cardType.compareToIgnoreCase("29F") == 0)
+					cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F040B);
+				else
+					cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F004S5);
 				break;
 			case 64:
-				cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F080B);
+				// 1024K size exists as Intel or Amd Flash Card
+				if (cardType.compareToIgnoreCase("29F") == 0)
+					cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F080B);
+				else
+					cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F008S5);
 				break;
 			default:
 				// all other sizes will be interpreted as UV EPROM's 

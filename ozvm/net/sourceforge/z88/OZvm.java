@@ -213,11 +213,19 @@ public class OZvm implements KeyListener {
 					
 					if (arg<args.length && ( args[arg].compareTo("s1") == 0 | args[arg].compareTo("s2") == 0 | args[arg].compareTo("s3") == 0)) {
 						int slotNumber = Integer.parseInt(args[arg].substring(1));
-						file = new RandomAccessFile(args[arg+1], "r");
-						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot " + slotNumber + ".");
-						memory.loadCardBinary(1, file);
+						String crdType = null;
+						if (args[arg+1].compareToIgnoreCase("-t") == 0) {
+							// Optional type argument
+							crdType = args[arg+2];
+							arg += 2;
+						} else {
+							arg++;
+						}
+						file = new RandomAccessFile(args[arg], "r");
+						Gui.displayRtmMessage("Loading '" + args[arg] + "' into slot " + slotNumber + ".");
+						memory.loadCardBinary(slotNumber, crdType, file);
 						file.close();
-						arg+=2;
+						arg++;
 						continue;
 					}
 
