@@ -176,7 +176,7 @@ SkipLine (FILE *fptr)
 void 
 FetchModuleFilename(FILE *projectfile, char *filename)
 {
-  int c = 0;
+  int c;
   filename[0] = '\0'; /* preset with null-terminate, in case no filename was found */
   
   for (;;)
@@ -968,8 +968,10 @@ WriteHeader (void)
 static void
 WriteSymbolTable (char *msg, avltree_t * root)
 {
+  fseek (listfile, 0, SEEK_END); /* get to the end of the listing file */
+  
   LINENO = PAGELEN+1;
-  LineCounter();
+  LineCounter();				/* top of new page */
 
   fputc ('\n', listfile);
   fprintf (listfile, "%s", msg);
