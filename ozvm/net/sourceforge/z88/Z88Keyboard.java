@@ -45,7 +45,7 @@ public class Z88Keyboard implements KeyListener {
 	public static final int COUNTRY_CH = 11;	// Keyboard layout for Schweiz
 	public static final int COUNTRY_TR = 12;	// Keyboard layout for Turkey
 
-	private JTextField commandInput = null;
+	private JTextField commandInput = null;		// Reference to the debug mode command line text field...
 	private Z88display z88Display = null;
 	
     private Map currentLayout = null;
@@ -90,9 +90,8 @@ public class Z88Keyboard implements KeyListener {
      * Create the instance to bind the blink and Swing widget together.
      *
      */
-	public Z88Keyboard(Blink bl, Z88display z88Screen, JTextField cmdInput) {
+	public Z88Keyboard(Blink bl, Z88display z88Screen) {
 		blink = bl;
-		commandInput = cmdInput;
 		z88Display = z88Screen;
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
@@ -107,6 +106,9 @@ public class Z88Keyboard implements KeyListener {
 		z88Display.addKeyListener(this);
     }
 
+	public void setDebugModeCmdLineField(JTextField cmdInput) {
+		commandInput = cmdInput;
+	}
 
 	private void createKbLayouts() {
 		Map defaultKbLayout = createUkLayout();
@@ -1133,14 +1135,16 @@ public class Z88Keyboard implements KeyListener {
 				break;
 
 			case KeyEvent.VK_F5:
-				if (blink.isDebugMode() == true) {
+				if (OZvm.debugMode == true) {
 					blink.stopZ80Execution();
-					commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
+					if (commandInput != null) commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
 				}
 				break;
 
 			case KeyEvent.VK_F12:
-				commandInput.grabFocus();		// Use F12 to toggle between debugger command input and Z88 kb input 
+				if (OZvm.debugMode == true) { 
+					if (commandInput != null) commandInput.grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
+				}
 				break;
 
 			case KeyEvent.VK_CONTROL:

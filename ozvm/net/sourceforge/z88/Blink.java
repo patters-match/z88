@@ -29,8 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 /**
  * Blink chip, the "body" of the Z88, defining the surrounding hardware 
@@ -49,7 +47,7 @@ public final class Blink extends Z80 {
 	 * @param canvas
 	 * @param rtmOutput
 	 */
-	Blink(Z88display z88Dsp, JTextField cmdInput, JTextArea rtmOutput) {
+	Blink(Z88display z88Dsp) {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.
@@ -68,8 +66,7 @@ public final class Blink extends Z80 {
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
 
-		z88Keyboard = new Z88Keyboard(this, z88Dsp, cmdInput);
-		runtimeOutput = rtmOutput;		// reference to runtime output window text area.
+		z88Keyboard = new Z88Keyboard(this, z88Dsp);
 	}
 
 	/**
@@ -87,23 +84,11 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
-	private JTextArea runtimeOutput;
-
 	private void displayRtmMessage(final String msg, final boolean displayTimeStamp) {
 		final Date curDateTime = new Date();
 
-		Thread displayMsgThread = new Thread() {
-			public void run() {
-				// Make sure the new text is visible, even if there
-				// was a selection in the text area.
-				if (displayTimeStamp == true) runtimeOutput.append(sdf.format(curDateTime) + ":\n");
-				runtimeOutput.append(msg + "\n");
-				runtimeOutput.setCaretPosition(runtimeOutput.getDocument().getLength());
-			}
-		};
-
-		displayMsgThread.setPriority(Thread.MIN_PRIORITY);
-		displayMsgThread.start();
+		if (displayTimeStamp == true) OZvm.displayRtmMessage(sdf.format(curDateTime) + ":");
+		OZvm.displayRtmMessage(msg);
 	}
 
 	private Breakpoints breakPoints = null;
@@ -1648,20 +1633,6 @@ public final class Blink extends Z80 {
 	 */
 	public Z88Keyboard getZ88Keyboard() {
 		return z88Keyboard;
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isDebugMode() {
-		return debugMode;
-	}
-
-	/**
-	 * @param b
-	 */
-	public void setDebugMode(boolean b) {
-		debugMode = b;
 	}
 
 	/**

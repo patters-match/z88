@@ -87,7 +87,7 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	private Z88display z88Screen() {
+	public Z88display z88Screen() {
 		if (z88Screen == null) {
 			z88Screen = new Z88display();
 		}
@@ -157,7 +157,7 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JTextArea
 	 */
-	private javax.swing.JTextArea getCmdlineOutputArea() {
+	public javax.swing.JTextArea getCmdlineOutputArea() {
 		if(jCmdOutput == null) {
 			jCmdOutput = new javax.swing.JTextArea(30,80);
 			jCmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
@@ -175,7 +175,7 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JTextField
 	 */
-	private javax.swing.JTextField getCmdLineInputArea() {
+	public javax.swing.JTextField getCmdLineInputArea() {
 		if(jCmdlineInput == null) {
 			jCmdlineInput = new javax.swing.JTextField();
 			jCmdlineInput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
@@ -268,7 +268,7 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JTextArea
 	 */
-	private javax.swing.JTextArea getRtmOutputArea() {
+	public javax.swing.JTextArea getRtmOutputArea() {
 		if(jRtmOutputArea == null) {
 			jRtmOutputArea = new javax.swing.JTextArea(30,80);
 			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
@@ -280,21 +280,21 @@ public class Gui extends JFrame {
 	public static void main(String[] args) {
 
 		Gui gg = new Gui();
-		JFrame rtmOut = gg.getRtmOutputWindow();
-		gg.getRtmOutputArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 
-		OZvm ozvm = new OZvm(gg.z88Screen(), gg.getCmdLineInputArea(), gg.getCmdlineOutputArea(), gg.getRtmOutputArea());
+		OZvm ozvm = new OZvm(gg);
 		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
 		}
 
-		if (ozvm.isDebugMode() == false) {
+		if (OZvm.debugMode == false) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
 			gg.show();
 			ozvm.bootZ88Rom();
 			gg.z88Screen().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
+			JFrame rtmOut = gg.getRtmOutputWindow();
+			gg.getRtmOutputArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 			gg.getContentPane().add(gg.getCommandArea(), BorderLayout.SOUTH);
 			gg.pack();
 			gg.show();
