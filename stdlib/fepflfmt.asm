@@ -17,14 +17,14 @@
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprBlockErase
-     LIB FlashEprStdFileHeader
-     LIB FileEprRequest
+     LIB FlashEprCardId, FlashEprBlockErase, FlashEprStdFileHeader, FileEprRequest
      
+     include "flashepr.def"
 
 ; ************************************************************************
 ;
 ; Flash Eprom File Area Formatting.
+;
 ; Create/reformat an "oz" File Area below application Rom Area, or
 ; on empty Flash Eprom to create a normal "oz" File Eprom. 
 ;
@@ -37,97 +37,133 @@
 ; Hence, ROM Front DOR definitions should always define bank reserved 
 ; for applications in modulus 64K, eg. 4 banks, 8, 12, etc...
 ;
+; Important: 
+; Third generation AMD Flash Memory chips may be erased/programmed in all 
+; available slots (1-3). Only INTEL I28Fxxxx series Flash chips require 
+; the 12V VPP pin in slot 3 to successfully erase or blow data on the
+; memory chip. If the Flash Eprom card is inserted in slot 1 or 2, 
+; this routine will report a programming failure. 
+;
+; It is the responsibility of the application (before using this call) to 
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
+; this type of unnecessary error can be avoided.
+;
 ; IN:
-;    -
+;    C = slot number (1, 2 or 3) of Flash Memory Card
 ;
 ; OUT:
 ;    Success:
-;         Fc = 0, File Area on Flash Eprom erased successfully.
-;         (Complete File Area contains $FF bytes, and an "oz" Header)
+;         Fc = 0, 
+;         BHL = absolute pointer to "oz" header in card
+;         C = Number of 16K banks of File Eprom Area
+;
+;         All sectors erased and a new header blown, if a previous File Eprom Area was found
+;         If the card was empty (FF's), header was blown to identify it as a File Eprom
 ;
 ;    Failure:
 ;         Fc = 1
-;         A = Error code
-;             Reasons might be:
-;             Flash Eprom not available (RAM or conventional EPROM)
-;             Blocks could not be formatted, 
-;             Header wasn't created 
-;             No File Eprom space available on card
+;             A = RC_ONF (File Eprom Card / Area not available; possibly no card in slot)
+;             A = RC_ROOM (No room for File Area; all banks used for applications)
+;             A = RC_NFE (not a recognized Flash Memory Chip)
+;             A = RC_BER (error occurred when erasing block/sector)
+;             A = RC_BWR (couldn't write header to Flash Memory)
+;             A = RC_VPL (Vpp Low Error)
 ;
 ; Registers changed after return:
-;    ..BCDEHL/IXIY same
-;    AF....../.... different
+;    ....DE../IXIY same
+;    AFBC..HL/.... different
 ;
 ; ----------------------------------------------------------------------
 ; Design & programming by Gunther Strube, Dec 1997-Apr 1998, Aug 2004
 ; ----------------------------------------------------------------------
 ;
 .FlashEprFileFormat
-                    PUSH BC
                     PUSH DE
+                    PUSH BC
                     PUSH HL
 
-                    LD   C,3                      ; slot 3...
-                    CALL FileEprRequest           ; get pointer to File Eprom Header (or potential)
-                    JR   C, exit_format           ; No File Eprom available
-                    
-                    LD   C,B                      ; B = Top Bank of File Area (or potential)
-                    INC  C                        ; C = total of 16K banks to be erased...
-                    CALL ErasePtBlocks       
+                    CALL FileEprRequest           ; get pointer to File Eprom Header (or potential) in slot C
+                    JR   C,format_error           ; No File Eprom available...
+                    JR   NZ, just_fehdr           ; no File Eprom Header found, but potential place (and empty space)
 
-                    CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in Top Bank 
-                    JR   C,exit_format
-                    LD   HL,$3FC0                 ; return pointer to "oz" header
-                    LD   A,B
-                    INC  A                        ; 
-                    SRL  A
-                    SRL  A                        ; return A = File Eprom size in blocks
-                    CP   A
-.exit_format
-                    POP  HL
-                    POP  DE
-                    POP  BC
+                    CALL ErasePtBlocks            ; header found, erase all block including header and below...
+                    JR   C,format_error
+.just_fehdr                                       ; empty banks are assumed below header (containing FF's)...
+                    CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
+                    JR   C,format_error
+
+                    LD   HL,$3FC0                 ; BHL = absolute pointer to "oz" header in slot
+                    CP   A                        ; Fc = 0, C = Number of 16K banks of File Eprom
+                    POP  DE                       ; ignore old HL
+                    POP  DE                       ; ignore old BC
+                    POP  DE                       ; original DE restored
                     RET
-
+.format_error
+                    POP  HL
+                    POP  BC
+                    POP  DE
+                    RET
 
 
 ; ************************************************************************
 ;
-; Erase Blocks in Flash Eprom Partition
+; Erase all sectors in Flash File Eprom, from the top (that includes
+; the File Eprom Header) and downwards to the bottom of the card.
 ;
 ; IN:
-;    B = Top bank of Partition
-;    C = Number of 16K banks in partitition
+;    B = Top bank of File Eprom (absolute bank with embedded slot mask)
+;    C = Number of 16K banks in File Eprom Area
 ;
 ; OUT:
-;    Fc = 0, Partition on Flash Eprom erased successfully.
-;    (contains $FF bytes)
+;    Fc = 0, 
+;         Partition on Flash Eprom erased successfully.
+;         (contains $FF bytes)
+;    Fc = 1, 
+;         A = RC_NFE (not a recognized Flash Memory Chip)
+;         A = RC_BER (error occurred when erasing block/sector)
+;         A = RC_VPL (Vpp Low Error)
 ;
 ; Registers changed after return:
-;    A.BCDEHL/IXIY same
-;    .F....../.... different
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
 ;    
 .ErasePtBlocks
-                    PUSH AF
                     PUSH BC
+                    PUSH DE
+                    PUSH HL
 
+                    LD   E,C                 ; preserve bank count of FE area
                     LD   A,B
-                    SRL  A
-                    SRL  A
-                    AND  @00001111           
-                    LD   B,A                 ; B = Top Block Number of Partition
-                    
-                    SRL  C
-                    SRL  C                   ; C = total of 64K blocks to be erased...
+                    AND  @11000000
+                    RLCA
+                    RLCA                     
+                    LD   C,A                 ; Flash Memory card is in slot C
+                    CALL FlashEprCardId      ; get the Card ID in HL...
+                    JR   C, exit_ErasePtBlocks
+                    PUSH DE
+                    LD   DE,FE_AM29F010B
+                    SBC  HL,DE               ; AM29F010B Flash Memory in slot C?
+                    POP  DE
+                    JR   NZ, _64K_block_fe   ; no, it's a 64K sector architecture Flash Memory
+                                             ; yes, identified the 16K sector architecture Flash Memory
+                    LD   B,E                 ; E = total of 16K sectors to be erased
+                    DEC  B                   ; B = top sector to be erased (total-1)
+                    JR   erase_PT_loop
+._64K_block_fe                    
+                    SRL  E
+                    SRL  E                   ; E = total of 64K sectors (banks/4) to be erased...
+                    LD   B,E
+                    DEC  B                   ; B = top sector to be erased (total-1)
 .erase_PT_loop
-                    LD   A,B
-                    CALL FlashEprBlockErase  ; format block B of partition
-                    JR   C, erase_PT_loop    ; erase block until completed successfully
+                    CALL FlashEprBlockErase  ; format sector B of partition in slot C
+                    JR   C, exit_ErasePtBlocks ; get out if an error occurred...
                     DEC  B                   ; next (lower) block to erase
-                    DEC  C
-                    JR   NZ, erase_PT_loop   ; erase all blocks of partition...
-          
+                    DEC  E
+                    JR   NZ, erase_PT_loop   ; erase all blocks specified...
+                    CP   A                   ; Fc = 0, all blocks successfully erased
+.exit_ErasePtBlocks
+                    POP  HL
+                    POP  DE
                     POP  BC
-                    POP  AF
-                    CP   A                   ; Fc = 0 always...
                     RET
