@@ -75,7 +75,7 @@
                     RRCA
                     RRCA                          ; converted to Slot mask $40, $80 or $C0
                     OR   B
-                    SUB  D                        ; D = total banks of File Eprom Area
+                    SUB  C                        ; C = total banks of File Eprom Area
                     INC  A
                     LD   B,A                      ; B is now bottom bank of File Eprom Area
                     EX   DE,HL                    ; DE points at local null-terminated filename
