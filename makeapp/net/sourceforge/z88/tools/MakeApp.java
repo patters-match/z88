@@ -57,7 +57,9 @@ public class MakeApp {
 			} else {
 				System.out.println("Usage: Load binary files a into 16K memory area, and save contents");
 				System.out.println("to a new file. Offsets are specified in hex (truncated to 16K offsets)");
-				System.out.println("Example: java -jar makeapp.jar appl.epr code.bin c000 file2.bin 3fc0");
+				System.out.println("Example:");
+				System.out.println("java -jar makeapp.jar appl.epr code.bin c000 romhdr.bin 3fc0");
+				System.out.println("(load 1st file at 0000, 2nd file at 3fc0, and save 16K bank to appl.epr)");
 			}
 		} catch (FileNotFoundException e) {
 			System.out.println("Couldn't load file image:\n" + e.getMessage() + "\nprogram terminated.");
