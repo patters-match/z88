@@ -73,7 +73,7 @@ public class FileArea {
 			scanFileArea(); // automatically build the file list...
 		}
 	}
-
+	
 	/**
 	 * Scan the memory of the File Area and build a linked list of File entries.
 	 * 
@@ -114,7 +114,7 @@ public class FileArea {
 	 * @return a ListIterator for available application DOR's or null
 	 * @throws FileAreaNotFoundException 
 	 */
-	public ListIterator getFiles() throws FileAreaNotFoundException {
+	public ListIterator getFileEntries() throws FileAreaNotFoundException {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
@@ -124,6 +124,32 @@ public class FileArea {
 				return null;
 		}
 	}	
+
+	/**
+	 * Find file entry by filename and return a reference to the found
+	 * object, or return null if the file entry wasn't found in the file area.
+	 * 
+	 * @param fileName (in "oz" filename format)
+	 * @return found reference to file entry, or null if not found
+	 * @throws FileAreaNotFoundException
+	 */
+	public FileEntry getFileEntry(String fileName) throws FileAreaNotFoundException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (filesList != null) {
+				// scan the file list...
+				for(int i=0; i<filesList.size(); i++) {
+					FileEntry fe = (FileEntry) filesList.get(i);
+					if (fe.getFileName().compareToIgnoreCase(fileName) == 0)
+						return fe;
+				}
+				
+				return null; // file entry was not found..
+			} else
+				return null; // no file entries available in file area..
+		}		
+	}
 	
 	/**
 	 * Return available free space on File Area. The free area is the number of
@@ -173,9 +199,8 @@ public class FileArea {
 				return 0;	// no files are stored in file area...
 			} else {
 				// calculate the deleted space by scanning the file list...
-				ListIterator files = filesList.listIterator(0);
-				while (files.hasNext()) {
-					FileEntry fe = (FileEntry) files.next();
+				for(int i=0; i<filesList.size(); i++) {
+					FileEntry fe = (FileEntry) filesList.get(i);
 					if (fe.isDeleted() == true) 
 						deletedSpace += fe.getHdrLength() + fe.getFileLength();  
 				}
@@ -217,7 +242,7 @@ public class FileArea {
 				return intToPtr(ptrToInt(fe.getFileEntryPtr())
 						+ fe.getHdrLength() + fe.getFileLength());
 			} else {
-				// no files available, point at bottom of card...
+				// no files are available, point at bottom of card...
 				return (slotNumber << 6) << 16;
 			}
 		}
@@ -237,6 +262,51 @@ public class FileArea {
 	 */
 	public void storeFile(String fileName, byte[] fileImage)
 			throws FileAreaNotFoundException, FileAreaExhaustedException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {			
+			if ( (1+fileName.length()+4+fileImage.length) > getFreeSpace())
+				throw new FileAreaExhaustedException();
+			else {
+				// first find a matching entry (if available) and mark it as deleted
+				markAsDeleted(fileName);  
+
+				// get pointer in file area for new file entry... 
+				int fileEntryPtr = getFreeSpacePtr();
+				int extAddress = fileEntryPtr; 
+				
+				// first store byte of new file entry (length of filename)...
+				memory.setByte(extAddress, fileName.length());
+				extAddress = memory.getNextExtAddress(extAddress);
+
+				// followed by the filename...
+				byte[] filenameArray = fileName.getBytes();
+				for (int n=0, fnl=fileName.length(); n<fnl; n++) {
+					memory.setByte(extAddress, filenameArray[n]);
+					extAddress = memory.getNextExtAddress(extAddress);					
+				}
+				
+				// followed by the file length, 4 bytes LSB order...
+				int fileLength = fileImage.length;
+				for (int i=0; i<4;i++) {
+					memory.setByte(extAddress, fileLength & 0xFF);
+					extAddress = memory.getNextExtAddress(extAddress);
+					fileLength >>>= 8;
+				}
+				
+				// followed by the file image...
+				for (int b=0, l=fileImage.length; b<l;b++) {
+					memory.setByte(extAddress, fileImage[b]);
+					extAddress = memory.getNextExtAddress(extAddress);					
+				}
+				
+				// finally, register the new file entry in the linked list
+				FileEntry fe = new FileEntry(fileEntryPtr);
+				if (filesList == null) 
+					filesList = new LinkedList();
+				filesList.add(fe);
+			}			
+		}
 	}
 
 	/**
@@ -274,6 +344,7 @@ public class FileArea {
 	 *         <b>false </b>
 	 */
 	public boolean createFileArea() {
+		byte[] nullFile = {1, 0, 0, 0, 0, 0};	// null-file for Intel Flash Card		
 		int bottomBankNo = slotNumber << 6;
 
 		// get bottom bank of slot to determine card type...
@@ -329,6 +400,18 @@ public class FileArea {
 
 			filesList = null;
 			
+			if (bank instanceof IntelFlashBank == true) {
+				// A null file is needed as the first file in the file area
+				// for Intel Flash Cards to avoid undocumented behaviour 
+				// (occasional auto-command mode when card is inserted)
+				int extAddress = (slotNumber << 6) << 16;
+				for (int offset = 0; offset < nullFile.length; offset++)
+					memory.setByte(extAddress++, nullFile[offset]);
+				try {
+					scanFileArea(); // establish file list with first entry..
+				} catch (FileAreaNotFoundException e) {}
+			}
+			
 			return true;
 		} else {
 			// A file area can't be created on a Ram card or in an empty slot...
@@ -336,6 +419,37 @@ public class FileArea {
 		}
 	}
 
+	/**
+	 * Mark file entry as deleted, using specified filename (in "oz" filename format).
+	 *    
+	 * @param fileName
+	 * @return true, if file entry was found and marked as deleted, else false
+	 * @throws FileAreaNotFoundException
+	 */
+	public boolean markAsDeleted(String fileName) throws FileAreaNotFoundException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			FileEntry fe = getFileEntry(fileName);
+			if (fe == null)
+				return false; // file entry wasn't found
+			else {
+				int feMemPtr = fe.getFileEntryPtr();
+				feMemPtr = memory.getNextExtAddress(feMemPtr); // first byte of filename
+				memory.setByte(feMemPtr, 0); // mark entry as deleted
+
+				// point again at start of entry in memory for rescan...  
+				feMemPtr = fe.getFileEntryPtr();
+				// make a new File Entry object (that now is 'marked as deleted')
+				FileEntry feDeleted = new FileEntry(feMemPtr);
+				// replace old File Entry with new in list...
+				filesList.set(filesList.indexOf(fe), feDeleted); 				
+			}
+		}
+
+		return true;
+	}
+	
 	/**
 	 * Format file area with FF's, beginning from bottom of card, until bank of
 	 * file header.
