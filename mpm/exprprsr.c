@@ -1013,6 +1013,12 @@ Condition (expression_t *pfixexpr)
       GetSym ();
       break;
 
+    case notequal:
+      AddStringToInfixExpr(pfixexpr, "<>");
+      relsym = sym;
+      GetSym ();
+      break;
+
     default:
       return 1;                 /* implicit (left side only) expression */
     }
