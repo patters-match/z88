@@ -33,8 +33,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
- * Blink chip, the "mind" of the Z88, defining the surrounding hardware 
- * of the Z80 processor.
+ * Blink chip, the "body" of the Z88, defining the surrounding hardware 
+ * of the Z80 "mind" processor.
  */
 public final class Blink extends Z80 {
 
