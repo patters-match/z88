@@ -128,7 +128,8 @@ public abstract class Z80 {
     public final int AF() {
         return (A() << 8) | F();
     }
-    private final void AF(int word) {
+    
+    public final void AF(int word) {
         A(word >>> 8);
         F(word);
     }
@@ -283,7 +284,8 @@ public abstract class Z80 {
     public final int R() {
         return (_R & 0x7f) | _R7;
     }
-    private final void R(int bite) {
+    
+    public final void R(int bite) {
         _R = bite;
         _R7 = bite & 0x80;
     }
@@ -296,21 +298,24 @@ public abstract class Z80 {
     public final int I() {
         return _I;
     }
-    private final void I(int bite) {
+    
+    public final void I(int bite) {
         _I = bite;
     }
 
     public final boolean IFF1() {
         return _IFF1;
     }
-    private final void IFF1(boolean iff1) {
+    
+    public final void IFF1(boolean iff1) {
         _IFF1 = iff1;
     }
 
     public final boolean IFF2() {
         return _IFF2;
     }
-    private final void IFF2(boolean iff2) {
+    
+    public final void IFF2(boolean iff2) {
         _IFF2 = iff2;
     }
 
@@ -324,10 +329,11 @@ public abstract class Z80 {
         nmi = nmiState;
     }
 
-    private final int IM() {
+    public final int IM() {
         return _IM;
     }
-    private final void IM(int im) {
+    
+    public final void IM(int im) {
         _IM = im;
     }
 
