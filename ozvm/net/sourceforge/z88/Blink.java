@@ -447,7 +447,7 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public int readByte(final int addr) {
+	public final int readByte(final int addr) {
 		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 
 		// the OZ spends most of the time in segments 1 - 3,
@@ -490,7 +490,7 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public void writeByte(final int addr, final int b) {
+	public final void writeByte(final int addr, final int b) {
 		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 
 		// the OZ spends most of the time in segments 1 - 3,
@@ -522,6 +522,35 @@ public final class Blink {
 				}
 			}
 		}
+	}
+
+	/**
+	 * The "internal" write byte method to be used in
+	 * the OZvm debugging environment, allowing complete
+	 * write permission.
+	 * 
+	 * @param offset
+	 * @param bank
+	 * @param bits
+	 */
+	public void setByte(final int offset, final int bank, final int bits) {
+		if (memory[bank] != nullBank) {
+			// we can only write to a real memory bank, not to an empty slot...
+			memory[bank].setByte(offset,bits);
+		}
+	}
+
+	/**
+	 * The "internal" read byte method to be used in the OZvm 
+	 * debugging environment.
+	 * 
+	 * @param offset
+	 * @param bank
+	 * @param bits
+	 * @return int
+	 */
+	public int getByte(final int offset, final int bank, final int bits) {
+		return memory[bank].readByte(offset);
 	}
 
 	/**
