@@ -11,27 +11,22 @@
         include "all.def"
         include "sysvar.def"
 
-xdef	GNNln
+;       ----
+
 xdef	GNCls
+xdef	GNNln
 xdef	GNSkc
 xdef	GNSkd
 xdef	GNSkt
 
- IF 1
-defc	GnClsMain		=$eec1
-defc	GN_ret0			=$c0f0
-defc	ReadOsfHL		=$ed6b
-defc	UngetOsfHL		=$edc2
-defc	PutOsf_Err		=$ef60
-defc	PutOsf_BC		=$ef8d
- ELSE
-xref	GnClsMain
+;       ----
+
 xref	GN_ret0
+xref	GnClsMain
+xref	PutOsf_BC
+xref	PutOsf_Err
 xref	ReadOsfHL
 xref	UngetOsfHL
-xref	PutOsf_Err
-xref	PutOsf_BC
- ENDIF
 
 ;	----
 

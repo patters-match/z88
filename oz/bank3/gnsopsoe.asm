@@ -11,10 +11,14 @@
         include "all.def"
         include "sysvar.def"
 
-xdef    GNSop
-xdef    GNSoe
+;       ----
 
-defc    PrintStr        =$ef57
+xdef    GNSoe
+xdef    GNSop
+
+;       ----
+
+xref    PrintStr
 
 ;       ----
 

@@ -10,70 +10,29 @@
 
         include "all.def"
         include "sysvar.def"
+        include "gndef.def"
 
- IF 1
-defc    Ld_A_BHL                =$D43C
-defc    FindMatchingFsNode      =$E211
-defc    MatchFsNode             =$E271
-defc    LdIX_FsnDOR             =$E280
-defc    LdFsnDOR_IX             =$E28C
-defc    FreeDOR                 =$E298
-defc    LeaHL_FsnBuffer         =$E2A6
-defc    AllocFsNode             =$E322
-defc    FreeTopFsNode           =$E410
-defc    NextFsNode              =$E44E
-defc    CompressFN              =$E46C
-defc    PutOsf_Err              =$EF60
-defc    GetOsf_BHL              =$EF68
- ELSE
-xref    Ld_A_BHL                
-xref    FindMatchingFsNode      
-xref    MatchFsNode             
-xref    LdIX_FsnDOR             
-xref    LdFsnDOR_IX             
-xref    FreeDOR                 
-xref    LeaHL_FsnBuffer         
+;       ----
+
+xdef    GNOpw
+xdef    GNWcl
+xdef    GNWfn
+
+;       ----
+
 xref    AllocFsNode             
-xref    FreeTopFsNode           
-xref    NextFsNode              
 xref    CompressFN              
-xref    PutOsf_Err              
+xref    FindMatchingFsNode      
+xref    FreeDOR                 
+xref    FreeTopFsNode           
 xref    GetOsf_BHL              
- ENDIF
-
-;       wildcard handle data
-
-defvars 0 {
-wc_eLink                ds.p    1
-wc_pMemPool             ds.w    1
-wc_Flags                ds.b    1
-wc_NodeCount            ds.b    1
-wc_MatchDepth           ds.b    1
-wc_AllocSize            ds.b    1
-wc_Buffer               ds.b    1
-}
-
-defc    WCF_B_BACKWARD          =0
-defc    WCF_B_FULLPATH          =1
-defc    WCF_B_HASFILENODE       =2
-defc    WCF_B_BRANCHDONE        =3
-
-defvars 0 {
-fsn_eLink               ds.p    1
-fsn_pDOR                ds.w    1
-fsn_pWildDirSegPtr      ds.w    1
-fsn_pSegmentPtr         ds.w    1
-fsn_ubType              ds.b    1
-fsn_ubFlags             ds.b    1
-fsn_ubNewDorFlags       ds.b    1
-fsn_ubNewDorType        ds.b    1
-fsn_Buffer              ds.b    1
-}
-
-defc    FSNF_B_WILDDIR          =0
-defc    FSNF_B_HADMATCH         =1
-defc    FSNF_B_HASNAME          =2
-defc    FSNF_B_NEWBROTHER       =3
+xref    Ld_A_BHL                
+xref    LdFsnDOR_IX             
+xref    LdIX_FsnDOR             
+xref    LeaHL_FsnBuffer         
+xref    MatchFsNode             
+xref    NextFsNode              
+xref    PutOsf_Err              
 
 ;       ----
 
@@ -387,7 +346,7 @@ defc    FSNF_B_NEWBROTHER       =3
 ;       get brother here in case match gets deleted by caller
 
 .wfn_12
-        bit     FSNF_B_NEWBROTHER, (iy+fsn_ubFlags)
+        bit     FSNF_B_HASNEWDOR, (iy+fsn_ubFlags)
         jr      nz, wfn_13
         push    bc
         call    LdIX_FsnDOR
@@ -398,7 +357,7 @@ defc    FSNF_B_NEWBROTHER       =3
         pop     bc
         ld      (iy+fsn_ubNewDorType), b
         ld      (iy+fsn_ubNewDorFlags), c
-        set     FSNF_B_NEWBROTHER, (iy+fsn_ubFlags)
+        set     FSNF_B_HASNEWDOR, (iy+fsn_ubFlags)
         pop     bc
 
 .wfn_13
@@ -475,8 +434,8 @@ defc    FSNF_B_NEWBROTHER       =3
 ;       ----
 
 .RdFsNodeSegChar
-        ld      h, (iy+fsn_pSegmentPtr+1)
-        ld      l, (iy+fsn_pSegmentPtr)
+        ld      h, (iy+fsn_pWcEndPtr+1)
+        ld      l, (iy+fsn_pWcEndPtr)
         ld      a, (hl)
         cp      $21
         ret

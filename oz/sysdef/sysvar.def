@@ -179,14 +179,29 @@ defc	IdxZKeyTable		=$0e66
 defc	IdxZZKeyTable		=$0e98
 				;$0eca
 
+;$0ece-0fa6	GN calls
 
+defc	uwGnDateLow		=$0ece
+defc	uwGnDateMid		=$0ed0
+defc	uwGnDateHigh		=$0ed2
+defc	GnHwTimeBuf		=$0ed4			; 5 bytes
+defc    GnFnameBuf              =$0ed9			; 206 bytes
 defc	pAlarmList		=$0fa7
-						; $0faa-$0fad unused by alarm app
+							; $0faa-$0fab unused?
+defc	uwNextAlarmID		=$0fac
+
+;$0fae-$0fb4	Alarm app data - shouldn't be here
+
 defc	MailDate		=$0fae
 defc	ubAlmActiveButton	=$0fb1
 defc	ubSelectedAlmPos	=$0fb2
 defc	ubNumVisibleAlarms	=$0fb3
 defc	ubTopVisibleAlarm	=$0fb4
+
+;$0fbf-$0ffb	Calculator app data - shouldn't be here
+
+
+
 
 
 defc	word_1853		=$1853
@@ -440,6 +455,24 @@ defc	OSFrame_H		= $0D
 defc	OSFrame__S2		= $0E
 defc	OSFrame__S3		= $0F
 
+; Z80 flags SZ-H-PNC
+
+defc	Z80F_S			=$80
+defc	Z80F_Z			=$40
+defc	Z80F_H			=$10
+defc	Z80F_P			=$04
+defc	Z80F_V			=$04
+defc	Z80F_N			=$02
+defc	Z80F_C			=$01
+
+defc	Z80F_B_S		=7
+defc	Z80F_B_Z		=6
+defc	Z80F_B_H		=4
+defc	Z80F_B_P		=2
+defc	Z80F_B_V		=2
+defc	Z80F_B_N		=1
+defc	Z80F_B_C		=0
+
 
 
 ;	buffer  !! remove unused bytes, size drops to 5 bytes
@@ -551,6 +584,9 @@ alm_RepeatTime		ds.b	3	; $24
 alm_RepeatNum		ds.w	1	; $27
 alm_RepeatFlags		ds.b	1	; $29
 alm_Flags		ds.b	1	; $2a
+alm_Handle		ds.w	1	; $2b
+alm_ID			ds.w	1	; $2d
+alm_SIZEOF		ds.b	1	; $2f
 }
 
 ;	!! WARNING !!	ALMF already used for alarm handle
@@ -559,9 +595,12 @@ alm_Flags		ds.b	1	; $2a
 defc	ALMF_B_BELL		=0
 defc	ALMF_B_EXECUTE		=1
 defc	ALMF_B_SHOWBELL		=2
+defc	ALMF_B_ADDED		=3
 
 defc	ALMF_BELL		=$01
 defc	ALMF_EXECUTE		=$02
+defc	ALMF_SHOWBELL		=$04
+defc	ALMF_ADDED		=$08
 
 defc	ALRF_B_SEC		=0
 defc	ALRF_B_MIN		=1
@@ -572,6 +611,13 @@ defc	ALRF_B_MONTH		=5
 defc	ALRF_B_YEAR		=6
 defc	ALRF_B_NEVER		=7
 
+defc	ALRF_SEC		=$01
+defc	ALRF_MIN		=$02
+defc	ALRF_HOUR		=$04
+defc	ALRF_DAY		=$08
+defc	ALRF_WEEK		=$10
+defc	ALRF_MONTH		=$20
+defc	ALRF_YEAR		=$40
 defc	ALRF_NEVER		=$80
 
 ;	----

@@ -10,53 +10,39 @@
 
         include "all.def"
         include "sysvar.def"
+        include "gndef.def"
 
+;       ----
 
-defc    Ld_A_HL                 =$C07A
-defc    Ld_A_BHL                =$D43C
-defc    AddPathPart             =$DAAA
-defc    WriteOsfDE              =$ED8F
-defc    GnClsMain               =$EEC1
-defc    PutOsf_Err              =$EF60
-defc    GetOsf_HL               =$EF6B
-defc    GetOsf_DE               =$EF72
-defc    PutOsf_DE               =$EF79
-defc    PutOsf_HL               =$EF83
+xdef    CompressFN
+xdef    GNEsa
+xdef    GNPfs
+xdef    GNPrs
+xdef    GNWsm
+xdef	AllocFsNode
+xdef	FindMatchingFsNode
+xdef	FreeDOR
+xdef	FreeTopFsNode
+xdef	GetFsNodeDOR
+xdef	IsSegSeparator
+xdef	LdFsnDOR_IX
+xdef	LdIX_FsnDOR
+xdef	LeaHL_FsnBuffer
+xdef	MatchFsNode
+xdef	NextFsNode
 
+;       ----
 
-;       wildcard handle data
-
-defvars 0 {
-wc_eLink                ds.p    1
-wc_pMemPool             ds.w    1
-wc_Flags                ds.b    1
-wc_NodeCount            ds.b    1
-wc_MatchDepth           ds.b    1
-wc_AllocSize            ds.b    1
-wc_Buffer               ds.b    1
-}
-
-defc    WCF_B_BACKWARD          =0
-defc    WCF_B_FULLPATH          =1
-defc    WCF_B_HASFILENODE       =2
-defc    WCF_B_BRANCHDONE        =3
-
-defvars 0 {
-fsn_eLink               ds.p    1
-fsn_pDOR                ds.w    1
-fsn_pWcStartPtr         ds.w    1
-fsn_pWcEndPtr           ds.w    1
-fsn_ubType              ds.b    1
-fsn_ubFlags             ds.b    1
-fsn_ubNewDorFlags       ds.b    1
-fsn_ubNewDorType        ds.b    1
-fsn_Buffer              ds.b    1
-}
-
-defc    FSNF_B_WILDDIR          =0
-defc    FSNF_B_HADMATCH         =1
-defc    FSNF_B_HASNAME          =2
-defc    FSNF_B_HASNEWDOR        =3
+xref    AddPathPart
+xref    GetOsf_DE
+xref    GetOsf_HL
+xref    GnClsMain
+xref    Ld_A_BHL
+xref    Ld_A_HL
+xref    PutOsf_DE
+xref    PutOsf_Err
+xref    PutOsf_HL
+xref    WriteOsfDE
 
 ;       ----
 

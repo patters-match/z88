@@ -11,18 +11,16 @@
         include "all.def"
         include "sysvar.def"
 
+;       ----
+
 xdef    GNErr
 xdef    GNEsp
 
- IF 1
-defc    PrintStr        =$ef57
-defc    GN_ret1a        =$c0c5
-defc    PutOsf_HL       =$ef83
- ELSE
-xref    PrintStr
+;       ----
+
 xref    GN_ret1a
+xref    PrintStr
 xref    PutOsf_HL
- ENDIF
 
 ;       ----
 

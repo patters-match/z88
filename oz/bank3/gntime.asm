@@ -11,53 +11,48 @@
         include "all.def"
         include "sysvar.def"
 
-xdef    GNDie
+;       ----
+
 xdef    GNDei
+xdef    GNDie
 xdef    GNGmd
 xdef    GNGmt
+xdef    GNMsc
 xdef    GNPmd
 xdef    GNPmt
 xdef    GNSdo
-xdef    GNMsc
 
- IF 1
+;       ----
 
-defc    GN_ret1c        =$C0DD
-defc    GetSysDateTime  =$EC70
-defc    SetSysTime      =$EC4A
-defc    PrintStr        =$EF57
-defc    DEBCx60         =$ECD1
-defc    GetSysTime      =$EC63
-
-
-defc    GNDeiMain       =$E990
-defc    GNDieMain       =$E86B
-
-defc    Wr_ABC_OsfDE    =$ED51
-defc    ReadOsfHL       =$ED6B
-defc    ReadHL          =$ED77
-defc    WriteOsfDE      =$ED8F
-defc    WriteDE         =$ED9B
-defc    UngetOsfHL      =$EDC2
-defc    Divu16          =$EDE7
-defc    Divu24          =$EE12
-defc    Divu48          =$EE51
-defc    Mulu16          =$EE9A
-defc    Mulu24          =$EEE8
-defc    Mulu40          =$EF12
-defc    PutOsf_Err      =$EF60
-defc    GetOsf_BHL      =$EF68
-defc    GetOsf_HL       =$EF6B
-defc    GetOsf_DE       =$EF72
-defc    PutOsf_DE       =$EF79
-defc    PutOsf_BHL      =$EF80
-defc    PutOsf_HL       =$EF83
-defc    PutOsf_ABC      =$EF8A
-defc    PutOsf_BC       =$EF8D
-
- ELSE
- ENDIF
-
+xref    DEBCx60
+xref    Divu16
+xref    Divu24
+xref    Divu48
+xref    GetOsf_BHL
+xref    GetOsf_DE
+xref    GetOsf_HL
+xref    GetSysDateTime
+xref    GetSysTime
+xref    GN_ret1c
+xref    GNDeiMain
+xref    GNDieMain
+xref    Mulu16
+xref    Mulu24
+xref    Mulu40
+xref    PrintStr
+xref    PutOsf_ABC
+xref    PutOsf_BC
+xref    PutOsf_BHL
+xref    PutOsf_DE
+xref    PutOsf_Err
+xref    PutOsf_HL
+xref    ReadHL
+xref    ReadOsfHL
+xref    SetSysTime
+xref    UngetOsfHL
+xref    Wr_ABC_OsfDE
+xref    WriteDE
+xref    WriteOsfDE
 
 ;       ----
 

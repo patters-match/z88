@@ -11,23 +11,22 @@
         include "all.def"
         include "sysvar.def"
 
- IF 1
-defc    GN_ret1a                =$C0C5
-defc    FreeDOR                 =$E298
-defc    GetFsNodeDOR            =$E2B0
-defc    CompressFN              =$E46C
-defc    IsSegSeparator          =$E4D1
-defc    PutOsf_Err              =$EF60
-defc    GetOsf_BHL              =$EF68
- ELSE
-xref    GN_ret1a                
+;       ----
+
+xdef    GNCl
+xdef    GNDel
+xdef    GNOpf
+xdef    GNRen
+
+;       ----
+
+xref    CompressFN              
 xref    FreeDOR                 
 xref    GetFsNodeDOR            
-xref    CompressFN              
+xref    GetOsf_BHL              
+xref    GN_ret1a                
 xref    IsSegSeparator          
 xref    PutOsf_Err              
-xref    GetOsf_BHL              
- ENDIF
 
 ;       ----
 

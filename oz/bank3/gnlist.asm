@@ -11,21 +11,18 @@
         include "all.def"
         include "sysvar.def"
 
-xdef    GNXnx
-xdef    GNXin
-xdef    GNXdl
+;       ----
 
- IF 1
-defc    PtrXOR          =$ed1f
-defc    GN_ret1a        =$c0c5
-defc    Ld_cde_BHL      =$ed00
-defc    SetListHdrs     =$ed30
- ELSE
-xref    PtrXOR
+xdef    GNXdl
+xdef    GNXin
+xdef    GNXnx
+
+;       ----
+
 xref    GN_ret1a
 xref    Ld_cde_BHL
+xref    PtrXOR
 xref    SetListHdrs
- ENDIF
 
 ;       ----
 

@@ -11,21 +11,17 @@
         include "all.def"
         include "sysvar.def"
 
+;       ----
+
 xdef    GNSip
 
- IF 1
-defc    PrintStr        =$ef57
-defc    Ld_DE_A         =$c09e
-defc    PutOsf_ABC      =$ef8a
-defc    Ld_A_HL         =$c07a
-defc    GetOsf_DE       =$ef72
- ELSE
-xref    PrintStr
-xref    Ld_DE_A
-xref    PutOsf_ABC
-xref    Ld_A_HL
+;       ----
+
 xref    GetOsf_DE
- ENDIF
+xref    Ld_A_HL
+xref    Ld_DE_A
+xref    PrintStr
+xref    PutOsf_ABC
 
 ;       ----
 

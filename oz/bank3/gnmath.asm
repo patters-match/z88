@@ -11,14 +11,23 @@
         include "all.def"
         include "sysvar.def"
 
-defc    GN_ret1c                =$C0DD
-defc    Divu16                  =$EDE7
-defc    Divu24                  =$EE12
-defc    Mulu16                  =$EE9A
-defc    Mulu24                  =$EEE8
-defc    PutOsf_DE               =$EF79
-defc    PutOsf_BHL              =$EF80
-defc    PutOsf_HL               =$EF83
+;       ----
+
+xdef    GND16
+xdef    GNM16
+xdef    GNM24
+xdef	GND24
+
+;       ----
+
+xref    Divu16
+xref    Divu24
+xref    GN_ret1c
+xref    Mulu16
+xref    Mulu24
+xref    PutOsf_BHL
+xref    PutOsf_DE
+xref    PutOsf_HL
 
 ;       ----
 

@@ -11,9 +11,42 @@
         include "all.def"
         include "sysvar.def"
 
-defc    Ld_BDE_A                =$D401
-defc    Ld_A_HL                 =$C07A
-defc    Ld_DE_A                 =$C09E
+;       ----
+
+xdef    DEBCx60
+xdef    Divu16
+xdef    Divu24
+xdef    Divu48
+xdef    GetOsf_BHL
+xdef    GetOsf_DE
+xdef    GetOsf_HL
+xdef    GnClsMain
+xdef    Ld_cde_BHL
+xdef    Mulu16
+xdef    Mulu24
+xdef    Mulu40
+xdef    PrintStr
+xdef    PtrXOR
+xdef    PutOsf_ABC
+xdef    PutOsf_BC
+xdef    PutOsf_BHL
+xdef    PutOsf_DE
+xdef    PutOsf_Err
+xdef    PutOsf_HL
+xdef    ReadHL
+xdef    ReadOsfHL
+xdef    SetListHdrs
+xdef    UngetOsfHL
+xdef    Upper
+xdef    Wr_ABC_OsfDE
+xdef    WriteDE
+xdef    WriteOsfDE
+
+;       ----
+
+xref    Ld_A_HL
+xref    Ld_BDE_A
+xref    Ld_DE_A
 
 ;       ----
 

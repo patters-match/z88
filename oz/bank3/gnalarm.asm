@@ -11,10 +11,20 @@
         include "all.def"
         include "sysvar.def"
 
-defc    NormalizeCDEcsec                =$CB72
-defc    PutOsf_Err                      =$EF60
-defc    GetOsf_BHL                      =$EF68
-defc    PutOsf_BHL                      =$EF80
+;       ----
+
+xdef    GNAab
+xdef    GNAlp
+xdef    GNFab
+xdef    GNLab
+xdef    GNUab
+
+;       ----
+
+xref    GetOsf_BHL
+xref    NormalizeCDEcsec
+xref    PutOsf_BHL
+xref    PutOsf_Err
 
 ;       ----
 

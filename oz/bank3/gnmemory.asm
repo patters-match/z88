@@ -11,14 +11,19 @@
         include "all.def"
         include "sysvar.def"
 
-xdef    GNWbe
-xdef    Ld_BDE_A
-xdef    GNRbe
-xdef    Ld_A_BHL
+;       ----
+
 xdef    GNCme
+xdef    GNRbe
+xdef    GNWbe
+xdef    Ld_A_BHL
+xdef    Ld_BDE_A
 
-defc    GnClsMain       =$eec1
+;       ----
 
+xref    GnClsMain
+
+;       ----
 
 ;       !! Memory routines can be made quite a lot faster
 ;

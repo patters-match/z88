@@ -11,9 +11,20 @@
         include "all.def"
         include "sysvar.def"
 
-defc    DEBCx60         =$ECD1
-defc    Divu48          =$EE51
+;       ----
 
+xdef    AddHwTime_GnDate
+xdef    DateFilter
+xdef    GetSysDateTime
+xdef    GetSysTime
+xdef    GNDeiMain
+xdef    GNDieMain
+xdef    SetSysTime
+
+;       ----
+
+xref    DEBCx60
+xref    Divu48
 
 ;       ----
 

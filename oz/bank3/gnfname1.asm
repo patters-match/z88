@@ -11,23 +11,18 @@
         include "all.def"
         include "sysvar.def"
 
+;       ----
+
+xdef    AddPathPart
 xdef    GNFcm
 xdef    GNFex
-xdef    AddPathPart
 
-defc    byte_0ED9               =$0ed9
+;       ----
 
- IF 1
-defc    CompressFN              =$e46c
-defc    PutOsf_Err              =$ef60
-defc    Ld_A_BHL                =$d43c
-defc    IsSegSeparator          =$e4d1
- ELSE
 xref    CompressFN
-xref    PutOsf_Err
-xref    Ld_A_BHL
 xref    IsSegSeparator
- ENDC
+xref    Ld_A_BHL
+xref    PutOsf_Err
 
 ;       ----
 
@@ -77,7 +72,7 @@ xref    IsSegSeparator
         push    de
 
         ld      (iy+OSFrame_B), 0               ; # of segments
-        ld      de, byte_0ED9                   ; buffer space
+        ld      de, GnFnameBuf                   ; buffer space
         push    bc
         OZ      GN_Prs                          ; parse source
         pop     bc
@@ -176,7 +171,7 @@ xref    IsSegSeparator
         jr      nc, fex_6
 
         ld      b, 0                            ; copy filename into caller buffer
-        ld      hl, byte_0ED9
+        ld      hl, GnFnameBuf
         call    CompressFN
         jr      fex_8
 

@@ -10,54 +10,22 @@
 
         include "all.def"
         include "sysvar.def"
+        include "gndef.def"
 
-xdef    GNFlo
+;       ----
+
 xdef    GNFlc
-xdef    GNFlw
-xdef    GNFlr
 xdef    GNFlf
+xdef    GNFlo
+xdef    GNFlr
+xdef    GNFlw
 xdef    GNFpb
 
-;       filterdata
+;       ----
 
-defvars 0 {
-fd_wMemPool             ds.w    1
-fd_ubFlags              ds.b    1
-fd_ubBufSize            ds.b    1
-fd_eTable               ds.p    1
-fd_uwWritten            ds.w    1
-fd_uwRead               ds.w    1
-fd_pReplaceStr          ds.w    1
-fd_ubReplaceLeft        ds.b    1
-fd_ubBufLeft            ds.b    1
-fd_ubLastChar           ds.b    1
-fd_SIZEOF               ds.b    1
-}
-
-;       flags
-defc    FDF_B_IGNORECASE        =$0
-defc    FDF_B_REVERSE           =$1
-defc    FDF_B_REPLACING =$3
-defc    FDF_B_EOF               =$4
-defc    FDF_B_PUSHBACK          =$5
-defc    FDF_B_CONVERTED         =$6
-defc    FDF_B_HASBEENREAD       =$7
-
-defc    FDF_IGNORECASE          =$01
-defc    FDF_REVERSE             =$02
-defc    FDF_CONVERTING          =$08
-defc    FDF_EOF                 =$10
-defc    FDF_PUSHBACK            =$20
-defc    FDF_CONVERTED           =$40
-defc    FDF_HASBEENREAD         =$80
-
- IF 1
-defc    PutOsf_Err      =$ef60
-defc    GnClsMain       =$eec1
-defc    Upper           =$eeb6
-
- ELSE
- ENDIF
+xref    PutOsf_Err
+xref    GnClsMain
+xref    Upper
 
 ;       ----
 
