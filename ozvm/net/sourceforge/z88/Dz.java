@@ -4036,11 +4036,13 @@ public class Dz {
 	 * @return int offset of following instruction in bank
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispaddr) {
-		int i = 0;
-/*
-		for ()		
+		int i = blink.getByte(offset+3,bank) << 24 |
+				blink.getByte(offset+2,bank) << 16 |
+				blink.getByte(offset+1,bank) << 8 |
+				blink.getByte(offset+0,bank);
+			
 		offset += dzInstrAscii(mnemonic, offset, i, dispaddr);
-*/		
+
 		return offset;
 	}
 
