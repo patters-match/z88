@@ -48,26 +48,14 @@
 ;    AFBCDEHL/.... different
 ;
 ; -----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sept 2004
 ; -----------------------------------------------------------------------
 ;
 .FileEprRandomID
-                    LD   E,C                 ; preserve slot number
                     CALL FileEprRequest      ; check for presence of "oz" File Eprom in slot
                     JR   C, err_nofileepr
                     JR   NZ, err_nofileepr   ; File Eprom not available in slot...
-
-                    LD   A,E
-                    AND  @00000011           ; slots (0), 1, 2 or 3 possible
-                    RRCA
-                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    OR   B                   ; absolute bank number of "oz" header...
-
-                    CALL SafeSegmentMask     ; Get a safe segment address mask
-                    OR   $3F
-                    LD   H,A
-                    LD   L,0                 ; address $3Foo in top bank of slot B
-
+                                             ; BHL points at "oz" header of slot C
                     LD   A,$F8               ; offset $F8, position of Random ID
                     CALL MemReadLong
                     EXX                      ; return Random ID in DEBC...
