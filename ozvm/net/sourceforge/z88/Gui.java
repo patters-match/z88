@@ -44,12 +44,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 
 /**
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
  */
 public class Gui extends JFrame {
 
+	private JMenuItem menuAboutOZvmItem;
+	private JMenuItem menuUserManualItem;
 	private static final class singletonContainer {
 		static final Gui singleton = new Gui();  
 	}
@@ -147,10 +150,12 @@ public class Gui extends JFrame {
 		menu.setText("File");
 
 		final JMenuItem menuItem = new JMenuItem();
+		menuItem.setMnemonic(KeyEvent.VK_E);
 		menu.add(menuItem);
 		menuItem.setText("Exit");
 
 		final JMenu menu_1 = new JMenu();
+		menu_1.setMnemonic(KeyEvent.VK_R);
 		menuBar.add(menu_1);
 		menu_1.setText("Run");
 
@@ -2145,20 +2150,6 @@ public class Gui extends JFrame {
 		}
 		return jRtmOutputArea;
 	}
-
-	/**
-	 * This method initializes main Help Menu dropdown
-	 *
-	 * @return javax.swing.JMenu
-	 */
-	private javax.swing.JMenu getHelpMenu() {
-		if(jHelpMenu == null) {
-			jHelpMenu = new javax.swing.JMenu();
-			jHelpMenu.setText("Help");
-			jHelpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
-		}
-		return jHelpMenu;
-	}
 	
 	public static void displayRtmMessage(final String msg) {
 		Gui.getInstance().getRtmOutputArea().append("\n" + msg);
@@ -2181,5 +2172,51 @@ public class Gui extends JFrame {
 				System.exit(0);
 			}
 		});		
+	}
+
+	/**
+	 * This method initializes main Help Menu dropdown
+	 *
+	 * @return javax.swing.JMenu
+	 */
+	private javax.swing.JMenu getHelpMenu() {
+		if(jHelpMenu == null) {
+			jHelpMenu = new javax.swing.JMenu();
+			jHelpMenu.setText("Help");
+			jHelpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
+			jHelpMenu.add(getMenuUserManualItem());
+			jHelpMenu.add(getMenuAboutOZvmItem());
+		}
+		return jHelpMenu;
+	}
+	
+	protected JMenuItem getMenuUserManualItem() {
+		if (menuUserManualItem == null) {
+			menuUserManualItem = new JMenuItem();
+			menuUserManualItem.setMnemonic(KeyEvent.VK_U);
+			menuUserManualItem.setText("User Manual");
+			
+			menuUserManualItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						HelpViewer hv = new HelpViewer(Blink.getInstance().getClass().getResource("/ozvm-manual.html"));
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}					
+				}
+			});
+		}
+		
+		return menuUserManualItem;
+	}
+	
+	protected JMenuItem getMenuAboutOZvmItem() {
+		if (menuAboutOZvmItem == null) {
+			menuAboutOZvmItem = new JMenuItem();
+			menuAboutOZvmItem.setMnemonic(KeyEvent.VK_A);
+			menuAboutOZvmItem.setText("About");
+		}
+		return menuAboutOZvmItem;
 	}	
 }
