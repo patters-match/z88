@@ -588,7 +588,7 @@ public class Z88display extends JLabel implements MouseListener {
 	 * is running (The Z80 engine automatically stops the Z88 Display renderer,
 	 * when the Z80 execution engine stops).
 	 */
-	private class RenderPerMs extends TimerTask {
+	private class RenderPerMs extends TimerTask {		
 		public void run() {
 			// update cursor flash and ordinary flash counters
 			if (blink.isZ80running() == true)
@@ -603,6 +603,7 @@ public class Z88display extends JLabel implements MouseListener {
 	public void stop() {
 		if (renderPerMs != null) {
 			renderPerMs.cancel();
+			renderRunning = false;
 		}
 	}
 
@@ -613,6 +614,7 @@ public class Z88display extends JLabel implements MouseListener {
 		if (renderRunning == false) {
 			renderPerMs = new RenderPerMs();
 			blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 0, 1000 / fps);
+			renderRunning = true;
 		}
 	}
 
