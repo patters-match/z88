@@ -42,19 +42,11 @@ public class Breakpoints {
     /**
      * Just instantiate this Breakpoint Manager
      */
-    public Breakpoints() {
+    private Breakpoints() {
         breakPoints = new HashMap();        
-		bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (to be used later) 
+		bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (used by internal lookup) 
     }
 
-    /**
-     * Instantiate the Breakpoint Manager with the
-     * first breakpoint.
-     */
-    Breakpoints(int offset, int bank) {
-    	breakPoints = new HashMap();
-        toggleBreakpoint(offset, bank);
-    }
 
 	/**
 	 * Add (if not created) or remove breakpoint (if prev. created).
@@ -62,10 +54,11 @@ public class Breakpoints {
 	 * @param address 24bit extended address
 	 */
 	public void toggleBreakpoint(int bpAddress) {
-		int bpBank = bpAddress >>> 16;
-		bpAddress &= 0xFFFF;
-
-		toggleBreakpoint(bpAddress, bpBank);
+        Breakpoint bp = new Breakpoint(bpAddress);
+        if (breakPoints.containsKey( (Breakpoint) bp) == false)
+            breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
+        else
+            breakPoints.remove((Breakpoint) bp);
 	}
 
 	/**
@@ -75,35 +68,7 @@ public class Breakpoints {
 	 * @param stopStatus
 	 */
 	public void toggleBreakpoint(int bpAddress, boolean stopStatus ) {
-		int bpBank = bpAddress >>> 16;
-		bpAddress &= 0xFFFF;
-
-		toggleBreakpoint(bpAddress, bpBank, stopStatus);
-	}
-
-    /**
-     * Add (if not created) or remove breakpoint (if prev. created).
-     *
-     * @param offset
-     * @param bank
-     */
-    public void toggleBreakpoint(int offset, int bank) {
-        Breakpoint bp = new Breakpoint(offset, bank);
-        if (breakPoints.containsKey( (Breakpoint) bp) == false)
-            breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
-        else
-            breakPoints.remove((Breakpoint) bp);
-    }
-
-	/**
-	 * Add (if not created) or remove breakpoint (if prev. created).
-	 *
-	 * @param offset
-	 * @param bank
-	 * @param stopStatus
-	 */
-	public void toggleBreakpoint(int offset, int bank, boolean stopStatus) {
-		Breakpoint bp = new Breakpoint(offset, bank, stopStatus);
+		Breakpoint bp = new Breakpoint(bpAddress, stopStatus);
 		if (breakPoints.containsKey( (Breakpoint) bp) == false)
 			breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
 		else
@@ -126,7 +91,23 @@ public class Breakpoints {
 	}
 
 	/**
+	 * Check if this breakpoint has been created.
+	 *
+	 * @param address 24bit extended (breakpoint) address
+	 * @return true if breakpoint was found, else false.
+	 */
+	public boolean isCreated(int bpAddress) {
+		bpSearchKey.setBpAddress(bpAddress);
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+		if (bpv != null) {
+			return true;
+		} else
+			return false;
+	}
+	
+	/**
 	 * Return <true> if breakpoint will stop Z80 exection.
+	 * (<false> means that it is a display breakpoint) 
 	 *
 	 * @param bpAddress 24bit extended address
 	 * @return true, if breakpoint is defined to stop execution.
@@ -142,17 +123,43 @@ public class Breakpoints {
 	}
 
 	/**
-	 * Return <true> if breakpoint will stop exection.
-	 *
-	 * @param offset
-	 * @param bank
-	 * @return true, if breakpoint is defined to stop execution.
+	 * Mark breakpoint as active.
+	 * 
+	 * @param bpAddress
 	 */
-	public boolean isStoppable(int offset, int bank) {
-		bpSearchKey.setBpAddress( (bank << 16) | offset );
+	public void activate(int bpAddress) {
+		bpSearchKey.setBpAddress(bpAddress);
 
 		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null && bpv.stop == true) {
+		if (bpv != null)
+			bpv.active = true;		
+	}
+
+	/**
+	 * Mark breakpoint as suspended.
+	 * 
+	 * @param bpAddress
+	 */
+	public void suspend(int bpAddress) {
+		bpSearchKey.setBpAddress(bpAddress);
+
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+		if (bpv != null)
+			bpv.active = false;		
+	}
+
+	/**
+	 * Return <true> if breakpoint is active
+	 * (<false> if breakpoint is suspended; ie. will be ignored)
+	 *
+	 * @param bpAddress 24bit extended address
+	 * @return true, if breakpoint is defined as active
+	 */
+	public boolean isActive(int bpAddress) {
+		bpSearchKey.setBpAddress(bpAddress);
+
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+		if (bpv != null && bpv.active == true) {
 			return true;
 		} else
 			return false;
@@ -184,10 +191,10 @@ public class Breakpoints {
     }
 
     /**
-     * Set the "breakpoint" instruction in Z88 memory for all
-     * currently defined breakpoints.
+     * Install the "breakpoint" instruction in Z88 memory for all
+     * currently defined (and active) breakpoints.
      */
-    public void setBreakpoints() {
+    public void installBreakpoints() {
         // now, set the breakpoint at the extended address;
         // the instruction opcode 40 ("LD B,B"; quite useless!).
         // which this virtual machine identifies as a "suspend" Z80 exection.
@@ -198,13 +205,10 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                int offset = bp.getBpAddress() & 0x3FFF;
-                int bank = bp.getBpAddress() >>> 16;
-
-                if (bp.stop == true) {
-					Memory.getInstance().setByte(offset, bank, 0x40);	// use "LD B,B" as stop breakpoint
+                if ((bp.active == true) && (bp.stop == true)) {
+					Memory.getInstance().setByte(bp.getBpAddress(), 0x40);	// use "LD B,B" as stop breakpoint
                 } else {
-                	Memory.getInstance().setByte(offset, bank, 0x49);	// use "LD C,C" as display breakpoint
+                	Memory.getInstance().setByte(bp.getBpAddress(), 0x49);	// use "LD C,C" as display breakpoint
                 }
             }
         }
@@ -225,11 +229,8 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                int offset = bp.getBpAddress() & 0x3FFF;
-                int bank = bp.getBpAddress() >>> 16;
-
                 // restore the original opcode bit pattern...
-                Memory.getInstance().setByte(offset, bank, bp.getCopyOfOpcode() & 0xFF);
+                Memory.getInstance().setByte(bp.getBpAddress(), bp.getCopyOfOpcode() & 0xFF);
             }
         }
     }
@@ -238,24 +239,9 @@ public class Breakpoints {
     private class Breakpoint {
         int addressKey;			// the 24bit address of the breakpoint
         int instr;				// the original 8bit opcode at breakpoint
-        boolean stop;
+        boolean stop;			// true = stoppable breakpoint, false = display breakpoint
+        boolean active;			// true = breakpoint is active, false = breakpoint is suspended
 
-		/**
-		 * Create a breakpoint object.
-		 *
-		 * @param offset 16bit offset within bank
-		 * @param bank 16K memory block number
-		 */
-        Breakpoint(int offset, int bank) {
-			// default is to stop execution at breakpoint
-			stop = true;
-
-            // the encoded key for the SortedSet...
-            addressKey = (bank << 16) | offset;
-
-            // the original 1 byte opcode bit pattern in Z88 memory.
-            setCopyOfOpcode(Memory.getInstance().getByte(offset, bank));
-        }
 
 		/**
 		 * Create a breakpoint object.
@@ -263,8 +249,8 @@ public class Breakpoints {
 		 * @param bpAddress 24bit extended address
 		 */
 		Breakpoint(int bpAddress) {
-			// default is to stop execution at breakpoint
-			stop = true;
+			stop = true;	// default behaviour is to stop execution at breakpoint
+			active = true; 	// when a breakpoint is created it is active by default
 
 			// the encoded key for the SortedSet...
 			addressKey = bpAddress;
@@ -273,15 +259,16 @@ public class Breakpoints {
 			setCopyOfOpcode(Memory.getInstance().getByte(bpAddress));
 		}
 
-		Breakpoint(int offset, int bank, boolean stopAtAddress) {
+		Breakpoint(int bpAddress, boolean stopAtAddress) {
 			// use <false> to display register status, then continue, <true> to stop execution.
 			stop = stopAtAddress;
+			active = true; 	// when a breakpoint is created it is active by default 
 
 			// the encoded key for the SortedSet...
-			addressKey = (bank << 16) | offset;
+			addressKey = bpAddress;
 
 			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(Memory.getInstance().getByte(offset, bank));
+			setCopyOfOpcode(Memory.getInstance().getByte(bpAddress));
 		}
 
         private void setBpAddress(int bpAddress) {
