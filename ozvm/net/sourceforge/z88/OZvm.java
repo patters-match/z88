@@ -234,8 +234,10 @@ public class OZvm {
 				breakp.setBreakpoints();	// restore (patch) breakpoints into code
 				z80Speed.start();			// enable execution speed monitor
 				z88.startInterrupts();		// enable Z80/Z88 core interrupts 
+                z88.getDisplay().start();
 				z88.run(false);				// execute Z80 code at full speed until breakpoint is encountered...
-				z88.stopInterrupts();
+                z88.getDisplay().stop();
+				z88.stopInterrupts();                
 				z80Speed.stop();
 				breakp.clearBreakpoints();
 				
@@ -559,7 +561,7 @@ public class OZvm {
 		 */		
 		private void setBreakpoints() {
 			// now, set the breakpoint at the extended address; 
-			// the instruction opcode ED80 (officially a NOP instruction).
+			// the instruction opcode 40 ("LD B,B"; quite useless!).
 			// which this virtual machine identifies as a "suspend" Z80 exection. 
 			if (breakPoints.isEmpty() == false) {
 				Iterator keyIterator = breakPoints.entrySet().iterator();
@@ -570,8 +572,7 @@ public class OZvm {
 	
 					int offset = bp.getAddress() & 0x3FFF;
 					int bank = bp.getAddress() >>> 16;
-					z88.setByte(offset, bank, 0xED);
-					z88.setByte(offset+1, bank, 0x80);
+					z88.setByte(offset, bank, 0x40);
 				}
 			}
 		}
@@ -596,7 +597,6 @@ public class OZvm {
 					
 					// restore the original opcode bit pattern... 
 					z88.setByte(offset, bank, bp.getInstruction() & 0xFF);
-					z88.setByte(offset+1, bank, bp.getInstruction() >>> 8);
 				}
 			}			
 		}
@@ -610,8 +610,8 @@ public class OZvm {
 				// the encoded key for the SortedSet...
 				addressKey = bank << 16 | offset;
 			
-				// the original 2 byte opcode bit pattern in Z88 memory.
-				setInstruction(z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank));
+				// the original 1 byte opcode bit pattern in Z88 memory.
+				setInstruction(z88.getByte(offset, bank));
 			}
 			
 			private int setAddress() {
