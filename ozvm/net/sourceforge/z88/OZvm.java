@@ -1,7 +1,6 @@
 package net.sourceforge.z88;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
@@ -14,32 +13,59 @@ import java.io.IOException;
 public class OZvm {
 
 	static private final String defaultRomImage = "z88.rom";
-	
-	public static void main(String[] args) {
+
+	public static void main(String[] args) throws IOException {
 		Z88 z88 = null;
+
+		/**
+		 * The Z88 disassembly engine
+		 */
+		Dz dz;
 		
+		String cmdline = "";
+
 		try {
-			z88 = new Z88();	// Instantiate a Z88 environment with default 128K RAM
+			z88 = new Z88();
+			dz = new Dz(z88); // the disassembly engine
+
+			// Instantiate a Z88 environment with default 128K RAM
 		} catch (Exception e) {
-			System.out.println("Couldn't initialize Z88 virtual machine.");
+			e.printStackTrace();
+			System.out.println("\n\nCouldn't initialize Z88 virtual machine.");
 			return;
 		}
-		
+
 		try {
-			if (args.length == 0)
+			if (args.length == 0) {
+				System.out.println("Loading 'z88.rom'");
 				z88.loadRom(defaultRomImage);
-			else
+			} else {
+				System.out.println("Loading '" + args[0] + "'");
 				z88.loadRom(args[0]);
+			}			
+
 		} catch (FileNotFoundException e) {
-			System.out.println("Couldn't load ROM image.");
+			System.out.println("Couldn't load ROM image.\nOzvm terminated.");
 			return;
 		} catch (IOException e) {
-			System.out.println("Problem with ROM image or I/O");
+			System.out.println("Problem with ROM image or I/O.\nOzvm terminated.");
 			return;
 		}
-		
-		System.out.println("OZvm V0.01, Z88 Virtual Machine");
+
 		z88.hardReset();
-		z88.execute();
+
+		System.out.println("OZvm V0.01, Z88 Virtual Machine");
+		BufferedReader in =
+			new BufferedReader(new InputStreamReader(System.in));
+		System.out.print("Type 'h' or 'help' for command line options\n$");
+		while ((cmdline = in.readLine()).equalsIgnoreCase("exit") == false) {
+			System.out.print("$");
+			if (cmdline.equalsIgnoreCase("run") == true) {
+				System.out.println("Executing Z88 Virtual Machine...");		
+				z88.run();
+			}
+		}
+		
+		System.out.println("Ozvm terminated.");
 	}
 }
