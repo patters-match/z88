@@ -27,9 +27,9 @@ public class OZvm {
 	 */
 	Breakpoints breakp;
     
-	OZvm() {
+	OZvm(java.awt.Canvas canvas) {
 		try {
-			z88 = new Blink();
+			z88 = new Blink(canvas);
 
 			z88.insertRamCard(32 * 1024, 0);	// 32K RAM in slot (standard machine)	
 			z88.insertRamCard(128 * 1024, 1);	// Insert 128K RAM in slot 1			
@@ -79,7 +79,7 @@ public class OZvm {
 		System.out.println(dzBuffer);
 	}
 	
-	private boolean loadRoms(String[] args) {
+	public boolean loadRoms(String[] args) {
 		RandomAccessFile card, rom;
 		boolean loadedRom = false;
 		
@@ -96,7 +96,7 @@ public class OZvm {
 						arg++;
 					}
 					
-					if (args[arg].compareToIgnoreCase("s2") == 0) {
+					if (arg<args.length && (args[arg].compareToIgnoreCase("s2") == 0)) {
 						card = new RandomAccessFile(args[arg+1], "r");		
 						System.out.println("Loading '" + args[arg+1] + "' into slot 2.");
 						z88.loadCardBinary(2, card);
@@ -104,7 +104,8 @@ public class OZvm {
 						arg+=2;
 						continue;
 					}
-					if (args[arg].compareToIgnoreCase("s3") == 0) {
+
+					if (arg<args.length && (args[arg].compareToIgnoreCase("s3") == 0)) {
 						System.out.println("Loading '" + args[arg+1] + "' into slot 3.");
 						card = new RandomAccessFile(args[arg+1], "r");		
 						z88.loadCardBinary(3, card);
@@ -436,17 +437,54 @@ public class OZvm {
 		
 		return memCmdline;
 	}
+
+	public void run() {
+		Thread thread = new Thread() {
+			public void run() {
+				int breakpointProgramCounter = -1;
+
+				//breakp.toggleBreakpoint(0xd8f0, 0x00);
+
+				while(true) {
+					if (z88.PC() == breakpointProgramCounter) {
+						// we need to use single stepping mode to
+						// step past the break point at current instruction
+						z88.run(true);
+					}
+					// restore (patch) breakpoints into code
+					breakp.setBreakpoints();
+					z80Speed.start(); // enable execution speed monitor
+					z88.startInterrupts(); // enable Z80/Z88 core interrupts
+					z88.run(false);
+					// execute Z80 code at full speed until breakpoint is encountered...
+					z88.stopInterrupts();
+					z80Speed.stop();
+					breakp.clearBreakpoints();
+
+					// when we're getting back, a breakpoint was encountered...
+					breakpointProgramCounter = z88.PC();
+					// remember breakpoint address
+
+					// do something at the breakpoint, then continue executing...
+					z80Status(); // display Z80 register status
+				}
+
+			}
+		};
+
+		thread.start();
+	}
 	
 	public static void main(String[] args) throws IOException, GameFrameException {		
 		System.out.println("OZvm V0.1, Z88 Virtual Machine");
 
-		OZvm ozvm = new OZvm();
-		if (ozvm.loadRoms(args) == false) {
-			System.out.println("Ozvm terminated.");
-			System.exit(0);
-		}
-				
-		ozvm.commandLine();
+//		OZvm ozvm = new OZvm();
+//		if (ozvm.loadRoms(args) == false) {
+//			System.out.println("Ozvm terminated.");
+//			System.exit(0);
+//		}
+//				
+//		ozvm.commandLine();
 		
 		System.out.println("Ozvm terminated.");
 		GameFrame.exit(0);
