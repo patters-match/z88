@@ -3982,7 +3982,7 @@ public class Dz {
 		"FPP  FP_BAS", /* DF A2 */
 		"FPP  UNKNOWN" };
 
-	private final Z88 z88vm;
+	private final Blink blink;
 
 	/**
 	 * Return Hex 8bit string in XXh zero prefixed format.
@@ -4016,8 +4016,8 @@ public class Dz {
 		return hexString.toString();
 	}
 	
-	public Dz(Z88 vm) {
-		z88vm = vm;
+	public Dz(Blink z88Blink) {
+		blink = z88Blink;
 	}
 
 	/**
@@ -4045,49 +4045,49 @@ public class Dz {
 		
 		origPc = addr = pc;
 
-		i = z88vm.readByte(pc++);
+		i = blink.readByte(pc++);
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
 				strMnem = cbStrMnem;
-				i = z88vm.readByte(pc++);
+				i = blink.readByte(pc++);
 				break;
 
 			case 237 : /* ED opcode strMnem */
 				strMnem = edStrMnem;
 				argsMnem = edArgsMnem;
-				i = z88vm.readByte(pc++);
+				i = blink.readByte(pc++);
 				break;
 
 			case 221 : /* DD CB opcode strMnem */
-				i = z88vm.readByte(pc++);
+				i = blink.readByte(pc++);
 				if (i == 203) {
 					strMnem = ddcbStrMnem;
 					argsMnem = ddcbArgsMnem;
-					i = z88vm.readByte(pc + 2);
+					i = blink.readByte(pc + 2);
 					pc++;
 				} else {
 					strMnem = ddStrMnem;
 					argsMnem = ddArgsMnem;
-					i = z88vm.readByte(pc++);
+					i = blink.readByte(pc++);
 				}
 				break;
 
 			case 253 : /* FD CB opcode strMnem */
-				i = z88vm.readByte(pc);
+				i = blink.readByte(pc);
 				if (i == 203) {
 					strMnem = fdcbStrMnem;
 					argsMnem = fdcbArgsMnem;
-					i = z88vm.readByte(pc + 2);
+					i = blink.readByte(pc + 2);
 					pc++;
 				} else {
 					strMnem = fdStrMnem;
 					argsMnem = fdArgsMnem;
-					i = z88vm.readByte(pc++);
+					i = blink.readByte(pc++);
 				}
 				break;
 
 			case 223 : /* RST 18h, FPP interface */
-				i = z88vm.readByte(pc++);
+				i = blink.readByte(pc++);
 				strMnem = ozfppStrMnem;
 				if ((i % 3 == 0) && (i >= 0x21 && i <= 0xa2))
 					i = (i / 3) - 11;
@@ -4096,11 +4096,11 @@ public class Dz {
 				break;
 
 			case 231 : /* RST 20h, main OS interface */
-				i = z88vm.readByte(pc++);
+				i = blink.readByte(pc++);
 				switch (i) {
 					case 6 : /* OS 2 byte low level calls */
 						strMnem = ozos2StrMnem;
-						i = z88vm.readByte(pc++);
+						i = blink.readByte(pc++);
 						if ((i % 2 == 0) && (i >= 0xca && i <= 0xfe))
 							i = (i / 2) - 101;
 						else
@@ -4109,7 +4109,7 @@ public class Dz {
 
 					case 9 : /* GN 2 byte general calls */
 						strMnem = ozgnStrMnem;
-						i = z88vm.readByte(pc++);
+						i = blink.readByte(pc++);
 						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x78))
 							i = (i / 2) - 3;
 						else
@@ -4118,7 +4118,7 @@ public class Dz {
 
 					case 12 : /* DC 2 byte low level calls */
 						strMnem = ozdcStrMnem;
-						i = z88vm.readByte(pc++);
+						i = blink.readByte(pc++);
 						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x24))
 							i = (i / 2) - 3;
 						else
@@ -4145,15 +4145,15 @@ public class Dz {
 			
 			switch (argsMnem[i]) {
 				case 2 :
-					addr = z88vm.readByte(pc);
-					addr += 256 * z88vm.readByte(pc + 1);
+					addr = blink.readByte(pc);
+					addr += 256 * blink.readByte(pc + 1);
 										
 					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
 					pc += 2; /* move past opcode */
 					break;
 
 				case 1 :
-					opcode.replace(replaceMacro, replaceMacro+3, byteToHex(z88vm.readByte(pc), true));
+					opcode.replace(replaceMacro, replaceMacro+3, byteToHex(blink.readByte(pc), true));
 					pc++; /* move past opcode */
 					break;
 
@@ -4162,7 +4162,7 @@ public class Dz {
 					break;
 
 				case -1 : /* relative jump addressing (+/- 128 byte range) */
-					byte reljmp = (byte) z88vm.readByte(pc);
+					byte reljmp = (byte) blink.readByte(pc);
 					int reladdr = (pc + 1 + reljmp) & 0xFFFF;
 					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr, true));
 
@@ -4170,7 +4170,7 @@ public class Dz {
 					break;
 
 				case -2 : /* ix/iy bit manipulation */
-					relidx = (byte) z88vm.readByte(pc);
+					relidx = (byte) blink.readByte(pc);
 					if (relidx >= 0)
 						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
@@ -4181,19 +4181,19 @@ public class Dz {
 
 				case -3 : /* LD (IX/IY+r),n */
 					int replaceOperand = opcode.indexOf("{1}");
-					relidx = (byte) z88vm.readByte(pc++);
+					relidx = (byte) blink.readByte(pc++);
 
 					if (relidx >= 0)
 						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
 						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 						
-					opcode.replace(replaceOperand, replaceOperand+3, byteToHex(z88vm.readByte(pc++), true));
+					opcode.replace(replaceOperand, replaceOperand+3, byteToHex(blink.readByte(pc++), true));
 					break;
 
 				case -4 :
 					/* IX/IY offset, positive/negative constant presentation */
-					relidx = (byte) z88vm.readByte(pc++);
+					relidx = (byte) blink.readByte(pc++);
 
 					if (relidx >= 0)
 						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
@@ -4210,7 +4210,7 @@ public class Dz {
 			instrBytes.append(addrToHex(origPc, false)).append(' ');
 			
 			for(int p=origPc; p<pc; p++) 
-				instrBytes.append(byteToHex(z88vm.readByte(p), false)).append(' '); 
+				instrBytes.append(byteToHex(blink.readByte(p), false)).append(' '); 
 			for(int space=4-(pc-origPc); space>0; space--)
 				instrBytes.append("   ");		// pad with spaces, to right-align with Mnemonic
 			

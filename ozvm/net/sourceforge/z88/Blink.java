@@ -14,13 +14,12 @@ import java.util.TimerTask;
  * 
  * $Id$
  */
-public final class Blink {
+public final class Blink extends Z80 {
 
 	/**
 	 * Blink class default constructor.
 	 */
-	Blink(Z88 vm) {
-		z88vm = vm; // know about the processor environment outside the BLINK
+	Blink() {
 
 		// the segment register SR0 - SR3
 		sR = new int[4];
@@ -46,12 +45,6 @@ public final class Blink {
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// start the INT signals each 10ms to Z80
 	}
-
-	/**
-	 * Reference to the Z80 processor / Z88 virtual machine 
-	 * (which the BLINK is collaborating with).
-	 */
-	private Z88 z88vm;
 
 	/**
 	 * The main Timer daemon that runs the Rtc clock and sends 10ms interrupts
@@ -707,6 +700,126 @@ public final class Blink {
 	}
 
 	/**
+	 * Implement Z88 input port BLINK hardware 
+	 * (RTC, Keyboard, Flap, Batt Low, Serial port).
+	 * 
+	 * @param addrA8
+	 * @param addrA15
+	 */	
+	public final int inByte(int addrA8, int addrA15) {
+		int res = 0;
+
+		switch (addrA8) {
+			case 0xD0:
+				res = getTim0();	// TIM0, 5ms period, counts to 199  
+				break;
+				
+			case 0xD1:
+				res = getTim1();	// TIM1, 1 second period, counts to 59  
+				break;
+				
+			case 0xD2:
+				res = getTim2();	// TIM2, 1 minute period, counts to 255  
+				break;
+				
+			case 0xD3:
+				res = getTim3();	// TIM3, 256 minutes period, counts to 255     
+				break;
+				
+			case 0xD4:
+				res = getTim4();	// TIM4, 64K minutes Period, counts to 31        
+				break;
+				
+			case 0xB1:
+				res = getSta();	// STA, Main Blink Interrupt Status
+				break;
+				
+			case 0xB2:
+				res = getKbd(addrA15);	// KBD, Keyboard matrix for specified row.
+				break;
+				
+			case 0xB5:
+				res = getTsta(); 	// TSTA, RTC Interrupt Status
+				break;
+				
+			default :
+				res = 0;				// all other ports in BLINK not yet implemented...
+		}
+
+		return res;
+	}
+
+	/**
+	 * Implement Z88 output port Blink hardware. 
+	 * (RTC, Screen, Keyboard, Memory model, Serial port, CPU state).
+
+	 * 
+	 * @param addrA8 LSB of port address
+	 * @param addrA15 MSB of port address
+	 * @param outByte the data to send to the hardware
+	 */
+	public final void outByte(final int addrA8, final int addrA15, final int outByte) {
+		switch (addrA8) {
+			case 0xD0 : // SR0, Segment register 0
+			case 0xD1 : // SR1, Segment register 1
+			case 0xD2 : // SR2, Segment register 2
+			case 0xD3 : // SR3, Segment register 3
+				setSegmentBank(addrA8, outByte);
+				break;
+			
+			case 0xB0 : // COM, Set Command Register
+				setCom(outByte);
+				break;
+
+			case 0xB1 : // INT, Set Main Blink Interrupts
+				setInt(outByte);
+				break;
+
+			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
+				setTack(outByte);
+				break;
+
+			case 0xB5 : // TMK, Set Timer interrupt Mask
+				setTmk(outByte);
+				break;
+							
+			case 0xB6 : // ACK, Acknowledge Main Interrupts				
+				setAck(outByte);
+				break;
+
+			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
+				setPb0(outByte);
+				break;				
+
+			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
+				setPb1(outByte);
+				break;				
+
+			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
+				setPb2(outByte);
+				break;				
+
+			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
+				setPb3(outByte);
+				break;				
+
+			case 0x74 : // SBR, Screen Base Register 
+				setSbr(outByte);
+				break;				
+		}
+	}
+
+	public void haltInstruction() {
+		// Let the Blink know that a HALT instruction occured
+		// so that the Z88 enters the correct state (coma, snooze, ...)
+	}
+
+	public void hardReset() {
+		reset(); // reset Z80 registers
+		resetRam(); // reset memory of all available RAM in Z88 memory
+	}
+
+	/**
 	 * BLINK Command Register.
 	 * 
 	 * <PRE>
@@ -1214,9 +1327,9 @@ public final class Blink {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
-				if (z88vm.interruptTriggered() == false)
+				if (interruptTriggered() == false)
 					// signal only if no interrupt is being executed...
-					z88vm.setInterruptSignal();
+					setInterruptSignal();
 			}			
 		}
 		
