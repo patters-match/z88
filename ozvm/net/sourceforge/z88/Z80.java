@@ -111,6 +111,9 @@ public abstract class Z80 {
 
     /** Stack Pointer and Program Counter */
     private int _SP = 0, _PC = 0;
+    
+    /** PC of current instruction (used for warning and error reporting */
+    private int instrPC = 0;
 
     /** Interrupt and Refresh registers */
     private int _I = 0, _R = 0, _R7 = 0;
@@ -154,6 +157,10 @@ public abstract class Z80 {
         return _PC;
     }
 
+	public int getInstrPC() {
+		return instrPC;
+	}
+	
     public final void PC(int word) {
 		cachedInstruction = cachedOpcodes = 0;		// Program counter change invalidates the cache
 
@@ -571,6 +578,8 @@ public abstract class Z80 {
         singleStepping = singleStep;
 
         do {
+			instrPC = _PC;		// define origin PC of current instruction
+			
 			if (isZ80Stopped() == true) {
 				z80Stopped = true;
 				return;
@@ -1240,15 +1249,18 @@ public abstract class Z80 {
                         tstatesCounter += 7;
                         break;
                     }
-                case 118 : /* HALT */ {
+                case 118 : /* HALT */ 
+                		// If Z80 engine is running, not single stepping:
 					    // let the external system know about HALT instruction
 					    // Z80 processor execution now awaits external interrupt
                         // to wake processor execution up again.
-						z80Halted = true;
-						haltZ80();
+                        if (singleStep == false) {
+							z80Halted = true;
+							haltZ80();
+                        }
                         tstatesCounter += 4;
                         break;
-                    }
+
                 case 119 : /* LD (HL),A */ {
                         writeByte(HL(), A());
                         tstatesCounter += 7;
