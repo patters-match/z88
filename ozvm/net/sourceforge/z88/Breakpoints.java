@@ -35,6 +35,33 @@ public class Breakpoints {
         toggleBreakpoint(offset, bank);
     }
 
+	/**
+	 * Add (if not created) or remove breakpoint (if prev. created).
+	 * 
+	 * @param address 24bit extended address 
+	 */
+	public void toggleBreakpoint(int bpAddress) {
+		int bpBank = bpAddress >>> 16;
+		bpAddress &= 0xFFFF; 
+		
+		toggleBreakpoint(bpAddress, bpBank);
+	}
+
+	/**
+	 * Get the original Z80 opcode, located at this breakpoint
+	 * 
+	 * @param address 24bit extended (breakpoint) address 
+	 * @return Z80 opcode of breakpoint, or -1 if breakpoint wasn't found
+	 */
+	public int getOrigZ80Opcode(int bpAddress) {
+		Breakpoint bp = new Breakpoint(bpAddress);
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bp);
+		if (bpv != null) {
+			return bpv.getCopyOfOpcode(); 
+		} else
+			return -1;
+	}
+
     /**
      * Add (if not created) or remove breakpoint (if prev. created).
      * 
@@ -49,8 +76,52 @@ public class Breakpoints {
             breakPoints.remove((Breakpoint) bp);
     }
 
+	/**
+	 * Add (if not created) or remove breakpoint (if prev. created).
+	 * 
+	 * @param offset
+	 * @param bank
+	 * @param stopStatus
+	 */
+	public void toggleBreakpoint(int offset, int bank, boolean stopStatus) {
+		Breakpoint bp = new Breakpoint(offset, bank, stopStatus);
+		if (breakPoints.containsKey( (Breakpoint) bp) == false) 
+			breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
+		else
+			breakPoints.remove((Breakpoint) bp);
+	}
+
+	/**
+	 * Return <true> if breakpoint will stop exection. 
+	 * 
+	 * @param bpAddress 24bit extended address
+	 * @return true, if breakpoint is defined to stop execution.
+	 */
+	public boolean isStoppable(int bpAddress) {
+		int bpBank = bpAddress >>> 16;
+		bpAddress &= 0xFFFF; 
+
+		return isStoppable(bpAddress, bpBank); 
+	}
+
+	/**
+	 * Return <true> if breakpoint will stop exection. 
+	 * 
+	 * @param offset
+	 * @param bank
+	 * @return true, if breakpoint is defined to stop execution.
+	 */
+	public boolean isStoppable(int offset, int bank) {
+		Breakpoint bp = new Breakpoint(offset, bank);
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bp);
+		if (bpv != null && bpv.stop == true) {
+			return true; 
+		} else
+			return false;
+	}
+
     /**
-     * List breakpoints to console.
+     * List breakpoints to stdout console.
      */
     public void listBreakpoints() {
         if (breakPoints.isEmpty() == true) {
@@ -62,9 +133,9 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();   
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                int offset = bp.getAddress() & 0xFFFF;
-                int bank = bp.getAddress() >>> 16;
-                System.out.print(Dz.addrToHex(offset,false) + "," + Dz.byteToHex(bank,false) + "\t"); 
+                int offset = bp.getBpAddress() & 0xFFFF;
+                int bank = bp.getBpAddress() >>> 16;
+                System.out.print(Dz.addrToHex(offset,false) + "," + Dz.byteToHex(bank,false) + (bp.stop == true ? "[d]" : "") + "\t"); 
             }
             System.out.println();
         }
@@ -85,9 +156,14 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();   
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                int offset = bp.getAddress() & 0x3FFF;
-                int bank = bp.getAddress() >>> 16;
-                blink.setByte(offset, bank, 0x40);
+                int offset = bp.getBpAddress() & 0x3FFF;
+                int bank = bp.getBpAddress() >>> 16;
+                
+                if (bp.stop == true) {
+					blink.setByte(offset, bank, 0x40);	// use "LD B,B" as stop breakpoint
+                } else {
+					blink.setByte(offset, bank, 0x49);	// use "LD C,C" as display breakpoint 
+                }
             }
         }
     }
@@ -107,11 +183,11 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();   
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                int offset = bp.getAddress() & 0x3FFF;
-                int bank = bp.getAddress() >>> 16;
+                int offset = bp.getBpAddress() & 0x3FFF;
+                int bank = bp.getBpAddress() >>> 16;
 
                 // restore the original opcode bit pattern... 
-                blink.setByte(offset, bank, bp.getInstruction() & 0xFF);
+                blink.setByte(offset, bank, bp.getCopyOfOpcode() & 0xFF);
             }
         }			
     }
@@ -119,29 +195,66 @@ public class Breakpoints {
     // The breakpoint container.
     private class Breakpoint {
         int addressKey;			// the 24bit address of the breakpoint
-        int instr;				// the original 16bit opcode at breakpoint
+        int instr;				// the original 8bit opcode at breakpoint
+        boolean stop;			
 
+		/**
+		 * Create a breakpoint object.
+		 * 
+		 * @param offset 16bit offset within bank
+		 * @param bank 16K memory block number  
+		 */
         Breakpoint(int offset, int bank) {
+			// default is to stop execution at breakpoint
+			stop = true;
+			
             // the encoded key for the SortedSet...
             addressKey = (bank << 16) | offset;
 
             // the original 1 byte opcode bit pattern in Z88 memory.
-            setInstruction(blink.getByte(offset, bank));
+            setCopyOfOpcode(blink.getByte(offset, bank));
         }
 
-        private int setAddress() {
+		/**
+		 * Create a breakpoint object.
+		 * 
+		 * @param bpAddress 24bit extended address
+		 */
+		Breakpoint(int bpAddress) {
+			// default is to stop execution at breakpoint
+			stop = true;
+			
+			// the encoded key for the SortedSet...
+			addressKey = bpAddress;
+
+			// the original 1 byte opcode bit pattern in Z88 memory.
+			setCopyOfOpcode(blink.getByte(bpAddress));
+		}
+
+		Breakpoint(int offset, int bank, boolean stopAtAddress) {
+			// use <false> to display register status, then continue, <true> to stop execution.
+			stop = stopAtAddress;
+			
+			// the encoded key for the SortedSet...
+			addressKey = (bank << 16) | offset;
+
+			// the original 1 byte opcode bit pattern in Z88 memory.
+			setCopyOfOpcode(blink.getByte(offset, bank));
+		}
+
+        private int setBpAddress() {
             return addressKey;
         }
 
-        private int getAddress() {
+        private int getBpAddress() {
             return addressKey;
         }
 
-        private void setInstruction(int z80instr) {
+        private void setCopyOfOpcode(int z80instr) {
             instr = z80instr;				
         }
 
-        private int getInstruction() {
+        private int getCopyOfOpcode() {
             return instr; 
         }
 
