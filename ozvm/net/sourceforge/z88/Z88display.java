@@ -85,7 +85,7 @@ public class Z88display
 		hires1 = blink.getPb3();	// Memory base address of 8x8 pixel fonts for OZ window
 		sbr = blink.getSbr();		// Memory base address of Screen Base File (2K) 
 		
-		if (sbr+lores1+lores0+hires0+hires1 == 0) return;		// LCD enabled, but the Screen Registers hasn't been setup yet...
+		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) return;		// LCD enabled, but the Screen Registers hasn't been setup yet...
 						 		
 		bankLores0 = lores0 >>> 16; lores0 &= 0x3FFF;  // convert to bank, offset
 		bankLores1 = lores1 >>> 16; lores1 &= 0x3FFF;
