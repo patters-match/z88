@@ -190,9 +190,10 @@ public class OZvm {
 		System.out.println("run - execute Z88 machine from PC.");
 		System.out.println("exit - exit OZvm.");
 		System.out.println("");
-		System.out.println("d - disassembly at current PC.");
+		System.out.println(". - single step instruction at PC.");		
+		System.out.println("d - disassembly at PC.");
 		System.out.println("d [address [bank]] - disassemble at specified address.");
-		System.out.println("m - view memory at current PC.");
+		System.out.println("m - view memory at PC.");
 		System.out.println("m [address [bank]] - view memory at specified address.");
 		System.out.println("bp - list breakpoints.");
 		System.out.println("bp [address bank] - toggle breakpoint.");
