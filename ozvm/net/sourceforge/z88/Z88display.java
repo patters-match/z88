@@ -586,7 +586,6 @@ public class Z88display {
 		public void run() {
 			int avgRenderSpeed =
 				(int) renderTimeTotal / fps[curRenderSpeedIndex];
-			System.out.println(avgRenderSpeed);
 			if (avgRenderSpeed * 1.4 > 1000 / fps[curRenderSpeedIndex]) {
 				// current average render speed and safety margin takes longer than the time interval
 				// between frames. Choose a one-step lower frame rate, if possible...
