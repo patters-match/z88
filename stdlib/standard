@@ -112,7 +112,7 @@ eprreqst
 battlow
 rand
 rnd
-d8
+divu8
 opngraph
 clsgraph
 clrarea
