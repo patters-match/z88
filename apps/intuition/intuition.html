@@ -1,0 +1,1825 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>intuition.html</title>
+</head>
+<body>
+<br>
+<big><big><b>Intuition - the Application Debugger</b></big></big><br>
+<br>
+<i><u>INTRODUCTION</u></i><br>
+<br>
+Machine code in general is awkward to develop applications in, since
+you are dealing with the lowest level of the computer - the processor.
+There is no possibility of pressing ESC to stop the machine code from
+being executed when the processor is running your code. Any serious
+bugs in your machine code program will most likely bomb the Z88 which
+could result in a soft or hard reset. Further, machine code is a very
+primitive programming language with no language structures as seen in C
+or Pascal (no procedures, functions, variable controlled loops, case
+statements, etc.). The machine code tends to form a structure more
+closely defined as spaghetti, the popular term used for badly
+structured programming design!<br>
+<br>
+The only positive thing about machine code programming is the ability
+to code very compact and very fast programs (many thousands of
+instructions per second). But in retroperspective there is no high
+level language available to produce software for the Z88.<br>
+<br>
+The debugger is the absolute necessary tool in the end phase of the
+machine code program development. If you have tried to develope Z80
+machine code programs in BBC BASIC, then you know how difficult it can
+be to trace bugs. The problems of debugging gets more annoying with
+application programming since the code always has to be blown on EPROM.
+This is very tedious in a debugging phase if you don't have sufficient
+EPROM cards to continously blow EPROM's and at the same time clear them
+with an EPROM eraser (the 20 minute painful waiting of getting a clean
+EPROM. For this reason you can use the Intuition application (#ZI) to
+test your code before blowing it to EPROM. You can avoid the continous
+EPROM blowing by getting a modified RAM card which behaves like an
+EPROM but is uploaded with code using a magnet and the <b>Zprom</b>
+application.<br>
+<br>
+Without a debugger you usually have to make a lot of intermediate
+machine code to output register dumps to the screen or a file. The
+problem is often the time it takes to find the bug, with the only help
+of intermediate information - especially if the application is
+manipulating complex datastructures. After a test run the intermediate
+data has to be analysed to determine the next step towards eliminating
+the bug. A very tedious and time consuming process. InterLogic are
+impressed by the standard of the various range of Z88 software, knowing
+they had no debugging tools.<br>
+<br>
+The Intuition debugger provides all the facilities necessary to monitor
+your machine code applications. You may use the Intuition application
+(#ZI) as a test ground which provides 40K of contiguous memory. This is
+of course pure luxury. Real Z88 application are memory efficient
+programs that exploit the fragmented memory scheme as in PipeDream or
+Diary. We made this debugger version only to supply the programmer with
+a quick feature to test modular routines. However, you could use the
+Intuition application as an environment for machine code utility
+programs, e.g. loading different small programs at various memory areas
+and providing a menu which could activate each routine. This would be a
+way to avoid the Application Card production and insertion of the card
+to be able to run the code.<br>
+<br>
+The real power of Intuition is to be able to monitor the external
+applications on EPROM and seemlessly interface with the Z88 operating
+system. Traditional debuggers require RAM to monitor programs, but we
+implemented a virtual Z80 processor that is the core of the debugger -
+this avoids the traditional memory address patching technique for
+redirecting the flow of instructions back to the debugger (e.g. on a
+breakpoint). Patching is impossible on EPROM.<br>
+<br>
+The virtual Z80 processor just executes opcodes (bytes) directly from
+memory whether it is RAM or EPROM.<br>
+<br>
+When Intuition has encountered a breakpoint during execution of the
+monitored application, it enters command mode and uses the GN_SIP
+operating system call (standard line input). Intuition may then be
+pre-empted (activating other applications) but the Z88 only sees the
+external application present on the card. Intuition only monitors
+applications, not the operating system. This is necessary due to the
+interrupt system and for security reasons - imagine killing a monitored
+application while the operating system is being traced!<br>
+<br>
+The main features of Intuition are:<br>
+<br>
+<div style="margin-left: 40px;"><i>o Intuition configured for segment 0
+(8K boundary), 1 and 2 (16K boundaries)&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </i><br>
+<i>o Single stepping, definition up to 8 trace
+breakpoints&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Instruction opcode breakpoints (stop at
+instruction)&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Recursive subroutine tracing (e.g. trace CALL
+instruction)&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Break instruction execution from keyboard using
+&lt;SHIFT&gt;&lt;DIAMOND&gt;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Break at OZ call error (Fc = 1)&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </i><br>
+<i>o Register dumps and command line register
+manipulation&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Disassembly with optional opcodes. All OZ mnemonic calls
+represented&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Memory editing, viewing and searching in address space or
+available banks&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o View application windows (preserved by
+Intuition)&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Extended CLI screen logging with up to 256 different files in
+current RAM&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+<i>o Display disassembly with optional register dump while executing
+application&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </i><br>
+</div>
+<br>
+As outlined above, one of the Intuition debuggers has been programmed
+to execute in the upper 8K boundary of segment 0 (debug00.bin), running
+at address 2000h to 3FFFh. This frees both segment 1 and 2 for other
+purposes (segment 3 is always used for the ROM application code). Often
+an application uses both segment 1 and 2 for memory management. With
+the segment 0 debugger you can trace all operating system calls because
+they use segments 1, 2 and 3 for processing. This feature shouldn't be
+taken lightly - however, it is an execellent method to exploit the
+inner workings of OZ as long as you are <b>VEEERRRYYY</b> careful.<br>
+<br>
+Both disassembly of instructionss and memory management may be
+performed in all available banks or the local address space.<br>
+<br>
+The above introduction to the debugger outlines many different
+informations about the Z88 hardware and operating system. It is
+strongly advised that you first read the Developers' Notes V3 supplied
+with the Z88 Assembler Workbench, unless already familiar with the Z88
+operating system environment. Without doing so you might perform
+actions on the environment that could undermine the system. Further, a
+good understanding of the Z80 instruction set is advised as well;
+knowing the limitations, workarounds and tip &amp; tricks is essential
+for good Z80 assembler programming. Many good books exists for learning
+Z80 assembler. We recommend Rodnay Zaks, "Programming the Z80", third
+revised edition, Sybex Computer Books, ISBN 0-89588-069-5 .<br>
+<br>
+If you find bugs in Intuition or would like improvements, don't
+hesitate to contact me. Send a mail to gbs@users.sourceforge.net<br>
+<br>
+Start developing!<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<big><big><b>Behind the scenes of Intuition</b></big></big><br>
+<br>
+Before we go into describing the features of Intuition both as the
+application and as stand-alone executables a few words about how
+Intuition works, general precautions and it's design.<br>
+<br>
+<br>
+<i><u>THE PRINCIPLES OF A DEBUGGER</u></i><br>
+<br>
+The principles of a debugger is simply to control and monitor the flow
+of the processor instructions and registers. By doing that the
+programmer has the possibility to determine the status of the
+application at any given position in the code.<br>
+<br>
+Traditional debuggers use a simple method called address patching to
+control the flow of executing Z80 instructions. For each beginning
+execution of the applications code it's registers are restored, and
+execution directed to the application code. At some position in the
+application code, a patch is inserted that returns execution back to
+the debugger which copies the current register values into it's
+workspace and gets into command mode. The user has then an overview of
+what the status of the application is at that particular position in
+program memory.<br>
+<br>
+The patch performed by the debugger was a breakpoint defined by the
+user or an implicit "single step" of an Z80 instruction.<br>
+<br>
+Before patching the debugger must preserve what is stored on that
+particular address and 4 bytes forward (the maximum length of a Z80
+instruction). It then needs to insert a JP &lt;address&gt; to redirect
+the instruction flow back to the debugger. When the Z80 processor has
+encountered the JP instruction, the debugger is executed again and may
+then get a copy of the altered registers, restore the original memory
+contents of the break (or re-direction address) and prepare the program
+counter for the next instruction to be executed by the Z80 processor.<br>
+<br>
+<br>
+<i><u>HOW INTUITION WORKS</u></i><br>
+<br>
+Intuition has been designed to run on EPROM's and at the same time to
+be able to execute the monitored application on EPROM. This implies
+that it's not possible to use the address patching method since you
+cannot write to EPROM but only blow bytes to it once (patching to the
+EPROM simply wouldn't have any effect).<br>
+<br>
+Intuition uses a completely different approach.<br>
+<br>
+All Z80 instruction opcodes are decoded and executed by virtual
+instructions inside Intuition that emulates the real Z80 instructions.
+In other words, Intuition is a virtual Z80 processor or Z80
+interpreter. For the fastest possible speed of Intuition an opcode
+lookup table is used for each instruction group (Main, CBh, EDh, DDh
+and FDh). Each lookup table contains the addresses of the corresponding
+virtual instructions. All virtual Z80 registers are maintained by
+Intuition in it's Runtime area on the current application stack. The
+complete virtual Z80 processor resides in 8K of the Intuition code
+which just fits the upper 8K of segment 0 that applications may use to
+bind in a half bank. The segment 0 version of Intuition exploits this
+to bind it's two 8K blocks in and out of the upper half of segment 0
+whenever needed. The lower 8K of the 16K code contains the virtual
+processor, the upper half all Intuition commands and utilities.<br>
+<br>
+When Intuition encounters an operating system call, it temporarily
+redirects the real Z80 processor into the ROM (restoring the virtual
+registers into the real Z80 registers). Intuition then regains control
+of the processor when the system call returns (and copies the real Z80
+registers back to the virtual registers).<br>
+<br>
+This is necessary because OZ switches interrupt status all the time
+during it's own execution. During application code execution of
+instructions, Intuition freezes maskable interrupts to gain as much
+speed as possible. During OZ calls interrupts are restored.<br>
+<br>
+<br>
+<i><u>PRECAUTIONS WITH INTUITION</u></i><br>
+<br>
+Intuition is always resident in a segment once bound into the local Z80
+address space. The number one rule for using Intuition is simply not to
+bind it out again in your code. If you do so while Intuition is
+executing your code you would experience a system crash or freeze
+(apparently not responding to keyboard actions). What happens is that
+the next instruction of the debugger code to be executed after having
+performed your bind call is not existent anymore in the original
+address space of Intuition, but something else. The Z80 has begun to
+execute random code (in relative terms) and not the Intuition debugger!<br>
+<br>
+When Intuition is called the initial time (should just be performed
+once), it looks at the current Stack pointer, SP, and moves it
+downwards to reserve a work buffer space for it's variables and virtual
+Z80 registers. Calling of the Intuition debugger is an initial stage of
+your application that wants to get monitored and isn't necessary to
+perform again. If you did call the debugger again, it just would move
+the Stack Pointer further downwards reducing the overall available
+application stack space which really isn't much already. The overall
+space is even more reduced if you have defined both safe and unsafe
+application workspaces in the application DOR header.<br>
+<br>
+The new stack pointer should be regarded as the Top Of Stack for the
+application. Anything beyond that is in principle not available.
+Superseeding that would overwrite the Intuition workspace buffer and
+destroy the original flow of the monitored application instructions and
+probably end up with a system crash. The same problem would apply even
+if Intuition wasn't called since the system uses the memory above the
+initial Top of Stack. Superseeding the stack would normally not happen
+but only if the application either sets the stack pointer at an
+absolute address in the stack space (coincidentally in the Intuition
+workspace area) or performing unbalanced stack operations (e.g. POP'ing
+more registers than previously PUSH'ed on the stack).<br>
+<br>
+The reason for Intuition to use the stack as its workspace is simply
+because there is no other place it can do it without interfering with
+the monitored application resources. The other segments available
+cannot be touched since the application monitored might use them for
+own purposes during execution. The lower 8K (0000h - 17FFh) of the Z80
+address space is reserved for OZ and cannot be altered. During
+application binding all segments might change and thus page out any
+possible Intuition workspace (theoretically placed in segment 1, 2 or
+3). The only part of local address space memory that is not paged out
+at any time during execution of the current application (and possibly
+Intuition) is the Stack space resided in the top part of the lower 8K
+of system RAM (1800h - 1FFFh).<br>
+<br>
+Further, a stack space is allocated for each activated application thus
+always preserving the correct status of suspended applications in the
+OZ environment.<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<big><big><b>The debugger application, #ZI</b></big></big><br>
+<br>
+The Intuition application, resident on the Z88 Assembler Workbench, is
+a pendant of the executable debugger files to be used for external
+applications on EPROM's. It contains all the functionality of the
+separate files including a few extra, e.g. to load code in the debugger
+application'S 40K contiguous memory allocation.<br>
+<br>
+The purpose of this Intuition application is simply to provide an easy
+way of testing machine code routines or small applications that don't
+use the dynamic memory allocation (OS_MAL calls) system in the Z88
+operating system. When routines work reliably they can be integrated
+into your complete application code and tested properly on an EPROM
+card (or the modified RAM card also supplied by InterLogic) as an
+external application inserted into one of the slots.<br>
+<br>
+As with all ROM'ed applications in the Z88, Intuition is executed in
+segment 3 and uses the full segment. Depending on your Z88
+configuration, you will have address space from 2000h up to and
+including 3FFFh (standard 32K Z88) or BFFFh (expanded machine). The
+address range spans from segment 0, segment 1 and up to segment 2 (if
+you have an expanded Z88).<br>
+<br>
+<br>
+<i><u>STARTING UP THE DEBUGGER</u></i><br>
+<br>
+Intuition is executed using the #ZI hotkey or from INDEX and will
+create an application using 8K or 40K (default) contiguous RAM memory.
+You can only create one instantiation. This setup won't bother the OZ
+memory allocation system too much (but would if it had to
+allocate/delallocate every time Intuition would be pre-empted or
+re-entered).<br>
+<br>
+If there is not enough available RAM in your system, then Intuition
+will report a "No Room" error and return to INDEX. You probably have to
+either KILL some activated applications or delete files from the RAM
+filing system (check especially the :RAM.- device for resident files).<br>
+<br>
+Intuition will present you with the current screen contents and a
+default window on top containing the status of the current Z80
+registers:<br>
+<br>
+<span style="font-family: monospace;">|BC=0000h bc=0000h
+A=00h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>
+|DE=0000h de=0000h a=00h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>
+|HL=0000h
+hl=0000h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|<br>
+|IX=0000h SP=1E5Fh F =00000OP0 |<br>
+|IY=0000h PC=2000h F'=00000OP0 |<br>
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|<br>
+|2000h 00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>
+|?&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|<br>
+<br>
+</span>All virtual registers and contiguous RAM memory have been reset
+by Intuition which gives you the impression of an initial state of the
+environment. The SP register contents might contain a different address
+- this is probably because of different available versions of the Z88
+operating system - don't worry.<br>
+<br>
+Intuition uses the standard system input line routine, GN_SIP (please
+refer to Developer's Notes V3 for further information). This means of
+course that Intuition interfaces properly with the system and allowes
+you to activate other resources in the Z88 using either the INDEX or an
+application hotkey, while the Intuition command line is active.<br>
+<br>
+The Intuition command line allowes input of approx. 16 characters. It
+doesn't seem much but is sufficient for commands and register
+manipulation.<br>
+<br>
+<br>
+<i><u>THE DEFAULT MEMORY IN INTUITION</u></i><br>
+<br>
+When Intuition is activated, it automatically receives either 8K or 40K
+of contiguous RAM memory from OZ. It depends on the status of the Z88;
+whether it is a standard (only 32K internal RAM) or expanded (128K RAM
+or more in slot 1) machine.<br>
+<br>
+The memory allocation principle is the same as the BBC BASIC
+application, with the exception that memory is not released when
+Intuition is excited. BBC BASIC releases memory above the Stack Pointer
+(SP) which is re-allocated when BBC BASIC is activated again - all
+information below the SP is preserved (please refer to Developers Notes
+for more information).<br>
+<br>
+Intuition doesn't use this system.<br>
+<br>
+With Intuition all your contiguous memory is preserved and available
+when you enter or re-enter Intuition. Please note that Intuition resets
+all it's memory to 0 when it is entered the first (initial) time.<br>
+<br>
+You have free access to the RAM memory beginning from address 2000h
+(8192d) and up to 3FFFh (16383d) on a standard Z88, or up to BFFFh
+(49151d) for an expanded Z88.<br>
+<br>
+You can always get the available Intuition memory range using the <i>.MR</i>
+command.<br>
+<br>
+<br>
+<u><i>USING HELP</i></u><br>
+<br>
+The Intuition application provides on-line help using the &lt;HELP&gt;
+or &lt;MENU&gt; keys. You will be presented with a list of help topics
+that describe all available commands in Intuition. Use the cursor keys
+to move the menu bar and press &lt;ENTER&gt; to select a help topic.<br>
+<br>
+<br>
+<i><u>MEMORY PRECAUTIONS</u></i><br>
+<br>
+Since Intuition use the contiguous RAM system it is vital the you don't
+try to use the dynamic memory allocation system in your test code
+running in the Intuition application RAM. Bad applications was never
+designed for this - but for code that is only 64K address memory aware
+(the Z80 address space).<br>
+<br>
+You might use bank switching (the OS_MBG and OS_MPB calls) but make
+sure that you re-bind the original RAM banks before you exit the
+Intuition application - otherwise the system would get badly confused
+and probably crash the Z88.<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<big><big><b>The executable debugger files</b></big></big><br>
+<br>
+The debugger supplied in the Z88 Assembler Workbench is included both
+as an application and as executable files for EPROM applications. The
+debugger is actually a virtual Z80 processor which on activation takes
+control over the activated application that wishes to be monitored. The
+meaning of 'activated application' is the conventional form of either
+pressing the application hotkey sequense, e.g. #P for PipeDream, or
+from the Index. The debugger is supplied as three program files - all
+are the identical debugger utility but addressed for different memory
+areas. You will find the executable files on the "Z88 Assembler
+Workbench" disc named as "debug00.bin", "debug01.bin" and "debug02.bin".<br>
+<br>
+The first debugger is addressed to the start of the upper 8K of segment
+0 which is a special segment in the Z88 hardware, beginning at 2000h
+and up to 3FFFh. The other versions of the debugger runs in segment 1
+(address range 4000h - 3FFFh) and segment 2 (address range 8000h -
+BFFFh. The debugger files uses a complete segment (16K).<br>
+<br>
+You must choose which segment is going to be reserved for Intuition in
+the application bank setup defined in the Application DOR data
+structure. This segment cannot be used by the application as long as
+Intuition is in control. The following steps must be taken to let
+Intuition monitor the activated application:<br>
+<br>
+<i><u>THE DESIGN PHASE</u></i><br>
+<br>
+The Application DOR must identify a dedicated bank for Intuition to be
+paged in at runtime in either segment 0, 1 or 2. Segment 3 is always
+reserved for the application since the application entry point must be
+located in segment 3. The following DOR example will illustrate the
+necessary setup:<br>
+<br>
+<pre>DEFB 0, 0, 0            ; link to parent<br>DEFB 0, 0, 0            ; link to brother (we assume only this application)<br>DEFB 0, 0, 0            ; link to son (not used)<br><br>DEFB $83                ; DOR type - Application ROM<br>DEFB x                  ; total length of DOR<br>DEFB '@'                ; Key to info section<br>DEFB x                  ; length of info section<br>DEFW 0                  ; reserved for future expansion...<br>DEFB 'E'                ; application key letter<br>DEFB 0                  ; contigous RAM size<br>DEFW 0                  ; Environment overhead (always set to 0)<br>DEFW 0                  ; Unsafe workspace<br>DEFW 512                ; Safe workspace<br>DEFW $C000              ; Entry point in segment 3 (start of bank)<br>DEFB $3E                ; <b>Intuition to paged in at segment 0</b><br>DEFB 0                  ; bank binding to segment 0 (no bank)<br>DEFB 0                  ; bank binding to segment 1 (no bank)<br>DEFB $3F                ; <b>Application code to be paged in at segment 3</b><br>DEFB ^00010001          ; Good application, 1 instantiation<br>DEFB ^00000000          ; no caps lock on activation<br><br>DEFB 'H'		; Key to help section			<br>DEFB 12			; total length of help			<br>DEFW topics					<br>DEFB $3F		; point to topics in bank $3F  (top bank)			<br>DEFW commands					<br>DEFB $3F		; point to commands in bank $3F (top bank)			<br>DEFW help					<br>DEFB $3F		; point to help (top bank)			<br>DEFW tokens					<br>DEFB $3F		; point to token base (top bank)			<br>					<br>DEFB 'N'		; Key to name section			<br>DEFB x			; length of name			<br>DEFM "xxxx" &amp; 0					<br>DEFB $FF		; end of application DOR			<br><br></pre>
+As seen in the above DOR definition, segment 1 and 2 is free for
+dynamic memory allocation or other memory management processing.<br>
+<br>
+The external application is executed from C000h. The Intuition debugger
+is bound into segment 0 (addressed from 2000h - 3FFFh). Please note
+that Intuition resides in an even bank number due to segment 0
+hardware, see below.<br>
+<br>
+The above example is a typical setup for a 32K EPROM card. One bank is
+used for the application, the other for Intuition.<br>
+<br>
+<br>
+<i><u>PRECAUTIONS WITH SEGMENT 0 BINDING</u></i><br>
+<br>
+Due to the special nature of the upper half of segment 0 in the Z80
+address space, you must always place Intuition for segment 0
+(debug00.bin) in an even numbered bank on your card. This is because
+the system expects bit 0 of the bank number to be set when it is needed
+to bind in the upper 8K half block of the 16K code into segment 0.
+Intuition needs to swap it's lower and upper 8K block in and out of the
+8K space of segment 0. You can read more about the hardware arcitecture
+in the Z88 Developers' Notes V3.<br>
+<br>
+Intuition code files for segment 1 and 2 may be placed in any bank
+number on your EPROM card.<br>
+<br>
+<br>
+<i><u>PRECAUTIONS WITH BAD APPLICATIONS</u></i><br>
+<br>
+When using a bad application setup that allocates contiguous memory
+into the Z80 address space it is important to allocate the correct
+number of pages that don't overlap into the segment in which Intuition
+is to reside. First of all you cannot use Intuition in segment 0
+because the allocated memory start in the upper 8K of segment 0 and 8K
+onwards.<br>
+<br>
+You may use segment 1 for Intuition if you allocate 8K or less of
+contiguous memory; end page is then set to 40h in the application
+information block. The "Contiguous RAM Size" byte in the application
+DOR header should be set to 32 pages or less.<br>
+<br>
+You may use segment 2 for Intuition if you allocate 24K or less of
+contiguous memory; end page is then set to 80h in the application
+information block. The "Contiguous RAM Size" byte in the application
+DOR header should be set to 96 pages or less.<br>
+<br>
+If you don't specify a page number with the "Contigous RAM Size" byte
+set to 0 then the system use the default RAM allocation method which
+uses 8K for non-expanded Z88 and 40K for expanded Z88. In other words -
+you must specify a page number otherwise Intuition might not binded and
+a call to random memory is not very nice!<br>
+<br>
+Please refer to the Developers' Notes V3 on "Bad Applications" for more
+information.<br>
+<br>
+<br>
+<br>
+<i><u>THE INITIALISATION PHASE</u></i><br>
+<br>
+We now assume that all necessary code and data structures has been
+blown unto the EPROM which then has been inserted into the Z88. After
+being inserted into one of the slots the external application has been
+added to the other applications by the system, now seen in the
+Applications List in the INDEX popdown.<br>
+<br>
+The activation of the application will execute OZ to allocate memory
+for the stack and workspace and binding of the defined banks into the
+corresponding segments. The application code is then called as defined
+by the entry point in the application DOR (C000h in segment 3). The
+first thing the application must do to let Intuition take control, is
+to execute a CALL 2000h (Z80 instruction) because Intuition is resided
+in the upper 8K half of segment 2. The figure below illustrates the
+current Z80 address space after the application has been activated (NB:
+seen as top to bottom):<br>
+<br>
+<pre>            +--------+<br>            | FFFFh  |<br>SEGMENT 3   | C000h  |  Application code<br>            +--------+<br>            | BFFFh  |<br>SEGMENT 2:  | 8000h  |  16K Random Information<br>            +--------+<br>            | 7FFFh  |<br>SEGMENT 1:  | 4000h  |  16K Random information<br>            +--------+<br>SEGMENT 0,  | 3FFFh  |<br>Upper 8K:   | 2000h  |  <b>Intuition (debug00.bin)</b><br>            +--------+<br>            | 1FFFh  |  &lt;System Address, high byte&gt;<br>            | 1FFEh  |  &lt;System Address, low byte&gt;<br>            | UnSafe |  &lt;Application Unsafe Workspace&gt;<br>            | Safe   |  &lt;Application Safe Workspace&gt;<br>            | ...    |<br>            | Stack  |  Application Stack (SP)<br>            | ...    |<br>            | 1800h  |  &lt;Mailbox data&gt;<br>SEGMENT 0,  | 17FFh  |  OZ system information<br>            | ...    |<br>Lower 8K:   | 0000h  |  and RST 00h - 38h instruction routines<br>            +--------+<br><br></pre>
+When Intuition is being initially executed (by CALL xxxx), it will use
+the return address located at the stack pointer (containing the next
+instruction to be executed after returning from the subroutine) as the
+new Program Counter (PC). Then a workspace buffer is allocated from the
+stack beginning at the position of the current stack pointer (SP) and
+downwards. The Application Stack Pointer is then re-initialized below
+the Intuition Runtime Area. A copy of the current PC is put at the new
+stack pointer location. The stack space from this position and
+downwards to the bottom of the application stack area (1800h) will be
+used by the operating system (OZ), the application and Intuition during
+monitoring of the application.<br>
+<br>
+<br>
+It is very important that Intuition is not called from within an
+application subroutine but from the main application entry (since
+Intuition moves the stack pointer downwards), otherwise an incorrect
+return address will be fetched by the application. Always call
+Intuition before any data is put on the stack by the application. We
+define this as the level 0 of the application.<br>
+<br>
+A copy of the current contents of the Z80 registers (except the I &amp;
+R registers) are put into the runtime area. From this point on all
+register manipulation are done by Intuition in this area. The area
+contains also breakpoints, an input buffer and various internal process
+management variables. The position of the Runtime Area on the
+application stack is static i.e. will never move during the lifetime of
+Intuition and the application in OZ.<br>
+<br>
+The following figure will display the layout of the Intuition
+workspace, runtime area beginning at Byte 0 upwards. None of the
+information in the Runtime Area should be altered directly - this could
+undermine the Intuition control system and probably crash the Z88
+during monitoring of the application.<br>
+<br>
+Debugger Entry: <br>
+<br>
+<span style="font-family: monospace;">&lt;high memory&gt;</span><br>
+<pre>            High Byte, application return address from prev. CALL instr.<br>            Low byte<br>            ...<br>            Intuition<br>            Runtime Area<br>            ...<br>            New Stack Pointer<br>&lt;low memory&gt;<br></pre>
+<br>
+The application stack will have moved downwards after Intuition has
+been activated and allocated its Runtime Area (the figure is shown as
+the complete segment 0):<br>
+<br>
+<pre>            +--------+<br>SEGMENT 0,  | 3FFFh  |<br>Upper 8K:   | 2000h  |  <b>Intuition (debug00.bin)</b><br>            +--------+<br>            | 1FFFh  |  &lt;System Address, high byte&gt;<br>            | 1FFEh  |  &lt;System Address, low byte&gt;<br>            | Unsafe |  &lt;Application Unsafe Workspace&gt;<br>            | Safe   |  &lt;Application Safe Workspace&gt;<br>            | ...    |<br>            | DbgWsp |  <b>Intuition Runtime Workspace Area</b><br>            | ...    |<br>            | Stack  |  Application Stack (SP)<br>            | ...    |<br>            | 1800h  |  &lt;Mailbox data&gt;<br>            | 17FFh  |  OZ system information<br>SEGMENT 0,  | ...    |<br>Lower 8K:   | 0000h  |  and RST 00h - 38h instruction routines<br>            +--------+<br><br></pre>
+<hr style="width: 100%; height: 2px;">
+<pre><br></pre>
+<big><big><b>Intuition &amp; application programming guidelines</b></big></big><br>
+<br>
+Once the points described in the previous chapter have been followed
+you will now have an application which is constantly being monitored by
+Intuition until a KILL request has been issued (e.g. from INDEX) to
+terminate the application (including Intuition), or if the debugger has
+been released, meaning the processor again regains control over the
+application. However, there is still a few points to be made to assure
+that Intuition is able to execute the application code properly:<br>
+<br>
+<br>
+<i><u>MANIPULATION OF THE STACK WITH ABSOLUTE MEMORY REFERENCES</u></i><br>
+<br>
+During runtime execution of system calls by the application, Intuition
+and OZ (during IM 1 interrupts) uses the stack concurrently with the
+application. This means that data below the Stack Pointer (SP) is
+changing all the time. All information at the Stack Pointer and above
+is not altered since this information in principle has been pushed on
+the stack by the application (either by CALL or PUSH instructions). To
+fetch information below the stack pointer is truly dangerous and not
+good programming practice. Passing parameters to a subroutine using the
+stack is a standard method and doesn't coincide with Intuition, e.g. :<br>
+<br>
+<span style="font-family: monospace;">PUSH HL <br>
+PUSH DE <br>
+CALL xxx ... <br>
+RET</span><br>
+<br>
+<pre>.xxx        POP  IY                 ; get return address<br>            LD   DE,0<br>            LD   HL,$FFFF           ; use registers temporarily<br>            ...<br>            POP  DE<br>            POP  HL                 ; parameters fetched<br><br>            ...                     ; process parameters<br><br>            JP   (IY)               ; return to caller<br><br><br>A.          Never set the Stack Pointer at absolute memory positions during the<br>            initialisation or any time of the application's lifetime -<br>            Intuition may very well use the location as part of it's Runtime<br>            Area.<br><br>B.          Never set the Stack Pointer above the Intuition Runtime Area<br>            (typically in an application workspace area) because the<br>            stack grows downwards due to Intuition management. While Intuition<br>            uses only 4-6 bytes on the stack during runtime execution of the<br>            application code, it may use 40-60 bytes of the stack during<br>            debugger command mode. This is only estimated, since Intuition also<br>            uses the operating system (OZ) in command mode to display<br>            information, window management, etc. (there is no information about<br>            how much OZ needs the stack but there is a chance that the stack<br>            could be used heavily).<br><br>            The stack usage could very likely overwrite the Intuition Runtime<br>            Area if you have placed the Stack Pointer above this area.<br><br></pre>
+The above warnings can of course be ignored when the Z80 processor is
+executing the application, i.e. Intuition is NOT executing the
+application. Anyway, don't use bad programming techniques. Always try
+to use a programming approach with stack address indepency. Avoid
+moving the Stack Pointer directly to fixed addresses - move it
+indirectly with CALL, RET, PUSH &amp; POP instructions.<br>
+<br>
+Most errors in machine code application programming are related to
+unbalanced stack manipulations, e.g. the number of elements pushed on
+the stack aren't popped appropriatly; the result of this is most often
+a jump to a dummy address which can fatal for the whole Z88 operating
+system. Intuition is in such cases an excellent tool to trace down
+stack related bugs.<br>
+<br>
+Never use absolute, fixed locations for data or return addresses in the
+stack area (assuming the stack pointer never reaches your information.
+Use the application workspaces which always reside above the Intuition
+Runtime Area.<br>
+<br>
+<br>
+<i><u>MANIPULATING Z88 HARDWARE</u></i><br>
+<br>
+It is advised that the application programmer avoids manipulating the
+hardware registers while Intuition is executing the application
+especially during it's command line mode or during register dumping and
+disassembling during execution of application code. Intuition has been
+programmed to handle the operating system through the application's RST
+20h calls. Keeping track of the Z88 hardware is impossible by
+Intuition. Using OZ calls is safe during Intuition monitoring.<br>
+<br>
+One of the frequently used hardware manipulation is to switch banks
+using the hardware registers instead of using the OZ interface calls.
+As described in the Developers' Notes V3 it is necessary to update the
+soft copy of the current binding before issuing the hardware I/O
+instruction. Since the procedure only requires two instructions it is
+the fastest way to switch banks. The standard OZ interface procedure
+only requires one instruction with the RST 20h call and the
+corresponding parameter - however hundreds of instructions are executed
+due to the operating system interface, which generally slows bank
+binding. But in view of Intuition it is the safest method.<br>
+<br>
+It is vital for safe Intuition monitoring that this process can be
+executed in one go or "instruction", i.e. the bank binding happens
+between an execution of a virtual execution of an instruction. This is
+normally the case when Intuition executes the OS_MPB call. When
+Intuition receives control again (possibly getting into command line)
+the bank binding transision has occurred. If however the application
+performs hardware manipulation directly using I/O instruction, there is
+a potential risc that you single step through exactly that instruction
+sequense. For each single instruction step the Intuition command line
+is used which uses the operating system. That is dangerous. The system
+might loose track of the correct bank binding state. However, there is
+no problem if Intuition just is executing through the bank manipulation
+sequense without intervening command line entries.<br>
+<br>
+Therefore don't single step on instructions that manipulate the
+hardware directly. Remember that IM 1 interrupts are executed while
+Intuition are waiting for commands (the GN_SIP call is actually
+running).<br>
+<br>
+NB: This is especially important if you single step AND use CLI logging
+within Intuition (or any other CLI re-binding)!<br>
+<br>
+<br>
+<br>
+<i><u>APPLICATION BANK BINDING AND THE RESERVED INTUITION SEGMENT</u></i><br>
+<br>
+To be able to constantly monitor the application, it is necessary that
+Intuition is not paged out of its segment, i.e. the Intuition bank is
+not paged out of segment 0, 1 or 2. It is vital to understand that
+Intuition at all times except during OZ calls are being executed by the
+Z80 processor in the Intuition segment. Though it seems that the Z80
+processor is executing the application, it is in fact Intuition that is
+the virtual processor executing the application. It is a deadly act if
+the application pages out the Intuition bank. All instruction are
+performed in the Intuition segment, including hardware I/O
+instructions. After the actual binding the next instruction code to be
+executed in the Intuition bank are gone. The processor will most
+probably begin to execute random Z80 instruction in that segment which
+definitely will bomb the Z88. If the application has to execute a new
+binding in a segment where Intuition resides, it is necessary that
+Intuition releases the Z80 processor back to the application. The
+Intuition segment is then free to be used by the application.<br>
+<br>
+The segment 0 version allowes for the easiest segment handling since OZ
+only uses segments 1 to 3 for processing, and the application has it's
+segments 1 and 2 free for memory management. Your application usually
+occpies segment 3 for it's program and segment 1 and 2 for data.<br>
+<br>
+You can in fact use the Intuition segment 0 version to trace operating
+system calls! Just remember dangers of the soft copies of hardware
+information and possible changes of interrupt status's.<br>
+<br>
+<br>
+<u><i>TRACING THE OPERATING SYSTEM WITH INTUITION</i></u><br>
+<br>
+Before any guidelines: tracing OZ is not something that should be done
+brute force. Interrupts are used throughout the system and could set
+Intuition in an undefined state during a trace.<br>
+<br>
+When you want to trace, parse the code before executing (using .D
+disassembly). Set breakpoints after hardware manipulation instructions,
+let Intuition execute until the break before returning to command mode.<br>
+<br>
+Tracing OZ implies to execute the corresponding addresses of the RST
+18H and RST 20H calls: 0018h (24d) and 0020h (32d). In fact, all the
+RST instruction does is to perform an internal CALL to the addresses.<br>
+<br>
+All OZ calls use segments 1, 2 and 3 to perform their actions. Only
+segment 0 is left untouched. Therefore you can only use Intuition
+resided in segment 0 to trace the operating system.<br>
+<br>
+Both operating system interfaces uses a vector table scheme to execute
+the various calls. The RST 18H uses only a single vector table. The FP_
+parameter identifies the index into the vector table.<br>
+<br>
+The RST 20H uses several different vector tables, one for each group of
+call; GN_, OS_ (1 byte parameter), OS_ (2 byte parameter) and DC_
+groups.<br>
+<br>
+The location in memory and bank position of the vector tables vary
+according to the ROM version you have. Vector tables for RST 20H calls
+are usually placed in the upper part of bank 0 in the ROM.<br>
+<br>
+Enjoy your trip into OZ!<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<big><big><b>Intuition commands</b></big></big><br>
+<br>
+This chapter is an user guide of the commands and other features
+available in Intuition. This section is not meant to be read
+contiguously - however you would benefit from it as an introduction to
+what is available in Intuition. We have chosen to describe each command
+by a topic description, which makes it easier to find the commands
+later.<br>
+<br>
+<br>
+<i><u>THE COMMAND LINE</u></i><br>
+<br>
+Whenever the Intuition Command Line Parser is active a window is drawn
+on top of the current application window and a '?&gt;' symbol displayed
+at the start of the command line followed by a flashing cursor,
+indicating that Intuition awaits a command to be entered. Intuition
+uses a simple command line entry using the standard GN_SIP operating
+system call. A total of 16 characters may be entered. This doesn't seem
+to be very much but is more than adequate to enter both commands and
+parameters. Only one command can be executed at a time from the command
+line.<br>
+<br>
+The GN_SIP call facilitates all the usual cursor movements using the
+&lt;DIAMOND&gt;, &lt;SHIFT&gt;, &lt;DEL&gt; and cursor keys. The Diary
+also uses GN_SIP as input. Please refer to the Z88 Manual (or
+Developers' Notes V3) for information on standard editing facilities.<br>
+<br>
+The command line support two editing windows. This is very useful for
+cross-referencing. You can change between them by pressing &lt;TAB&gt;.
+The contents of the current command line is preserved when you change
+window. The 'destination' window which the cursor moves to is always
+cleared.<br>
+<br>
+You can always abort the current command line by pressing &lt;ESC&gt;
+which automatically moves the cursor to the next blank line.<br>
+<br>
+Even though the application windows apparently disappears due to both
+Intuition editing windows, they are always preserved just before
+Intuition enters the command line mode. Application windows are
+automatically restored when instructions are to be executed. You can
+always look at the application windows by using the <i>.V</i> command
+in the command line.<br>
+<br>
+All typed commands remain present in the command line. This ensure easy
+repeating of commands like single stepping just by pressing
+&lt;ENTER&gt; to re-execute the command.<br>
+<br>
+<br>
+<br>
+<i><u>MANAGING CLI LOG-FILES FROM THE COMMAND LINE</u></i><br>
+<br>
+Intuition supports a much more flexible screen-to-file-copy than the
+standard #+S facility. The standard CLI screen-copy toggles the copying
+and overwrites the previous ":RAM.-/S.sgn" file by default. Further,
+the file is always generated in :RAM.- and it's contents are lost
+during a soft reset.<br>
+<br>
+Many times in a debugging session you need to remember many
+informations; memory locations, register dumps and code locations.
+Using the #+S facility you can remember some of it by copying it to the
+":RAM.-/S.sgn file". But as soon you want to produce another copy, the
+old file would be overwritten and it's contents are lost.<br>
+<br>
+The Intuition command line supports an enhanced CLI logging by using
+another hotkey to toggle the screen-to-file-copy CLI layer, using the
+&lt;DIAMOND&gt;<b>-</b> (dash) keys. In addition you get the CLI file
+created in the current :RAM device which avoids the problem of loosing
+the log after a system crash. The Intuition CLI logging system supports
+256 different output files which automatically are created during the
+ON/OFF toggling. The first file is named "log.0" then continued as
+"log.1" until "log.255". After 256 logging sessions, the "log.0" file
+will be overwritten (if you ever should need 256 different logs in your
+single debugging session!). The log history is preserved in the running
+Intuition debugger. If Intuition is KILL'ed (together with the
+application) and later re-started, the logging will again begin with
+"log.0".<br>
+<br>
+The operating system supports concurrently running CLI re-directions.
+You are welcome, but there is no need for using the #+S anymore in
+Intuition.<br>
+<br>
+<br>
+<i><u>PRE-EMPTING THE INTUITION COMMAND LINE</u></i><br>
+<br>
+Intuition uses GN_SIP to allow you to activate other applications while
+in the command line. However, it allows you the opportunity to KILL the
+application supervised by Intuition from INDEX and potentially loose
+system resources that the application might have allocated/opened
+during Intuition monitoring. This could result in loosing memory and
+having open files. If it should happen then a soft reset might restore
+some or all temporarily lost resources.<br>
+<br>
+We have supplied you with the absolute freedom. Therefore be careful
+when KILL'ing monitored applications within the Intuition command line.
+The KILL request is recognised and a beep is issued (if Panel, Sound =
+Yes) with the message "KILLING INTUITION" to ensure that the user is
+aware of what has been executed.<br>
+<br>
+<br>
+<i><u>ACTIVATING COMMANDS</u></i><br>
+<br>
+All commands are preceeded by a full stop followed by one or more
+letters identifying the action. The '.' is necessary to distinguish
+between immediate commands that reflect register manipulation and
+number conversion utilities.<br>
+<br>
+<br>
+<i><u>REGISTER MANIPULATION COMMANDS</u></i><br>
+<br>
+When it is necessary to alter the current contents of the Z80
+registers, the convention used to identify the registers is by using
+their mnemonic name, eg. <b>BC</b> for 16bit register pair. Upper case
+letters identifies the main instruction set, lower case letters
+identify the alternate register set.<br>
+<br>
+The easiest register command is to just type the register name followed
+by &lt;ENTER&gt;. This automatically displays the register contents in
+hex and binary form. Hex form is identified by a trailing 'h'. Binary
+is identified by a trailing 'b'. When you specify a 16bit register the
+binary representation displays first the high byte followed by the low
+byte, separated by a '/'; otherwise it would be too hard to distinguish
+the 16 bit information.<br>
+<br>
+An example:<br>
+<br>
+<b style="font-family: monospace;">BC</b><span
+ style="font-family: monospace;"> &lt;ENTER&gt;</span><br>
+<br>
+could result in<br>
+<br>
+<b style="font-family: monospace;">FFAAh</b><span
+ style="font-family: monospace;"> </span><b
+ style="font-family: monospace;">11111111b/10101010b</b><br>
+<br>
+The syntax notation for the register manipulation command is as follows:<br>
+<br>
+<span style="font-family: monospace;">&lt;reg&gt; [n]</span><br>
+<br>
+The [] identifies that argument &lt;n&gt; may be left out. &lt;reg&gt;
+identifies both 16bit and 8bit registers. &lt;n&gt; may both be a
+constant or another register. The size of the destination register (the
+leftmost register receiving the argument) requires an equal size of the
+argument, ie. an 8bit argument for an 8bit register, a 16bit argument
+for an 8bit register.<br>
+<br>
+In the Z80 the 16bit registers <b>BC</b>, <b>bc</b>, <b>DE</b>, <b>de</b>,
+<b>HL</b> and <b>hl</b> are also considered 8bit registers: <b>BC</b>
+may be regarded as two separate registers <b>B</b> and <b>C</b>.<br>
+<br>
+The only 16bit registers not regarded as separate 8bit registers by
+Intuition are <b>IX</b>, <b>IY</b> and <b>PC</b>. The official Z80
+instruction reference defines this too; however PC is not visible, but
+more an abstraction. Even though internally the <b>AF</b> register is
+16bit, the available Z80 mnemonics instructions separate them. Ie. <b>AF</b>
+or <b>af</b> (alternate) are not considered a 16bit register. This
+applies also in Intuition; displaying or manipulating <b>AF</b> is
+done through the 8bit registers <b>A</b>, <b>a</b> (alternate), <b>F</b>
+or <b>f</b>.<br>
+<br>
+A few examples:<br>
+<br>
+<b style="font-family: monospace;">A @10101111</b><span
+ style="font-family: monospace;"> </span> would assign F0h to the main
+<b>A</b> register. <br>
+<b style="font-family: monospace;">BC hl</b> would assign the contents
+of alternate <b>hl</b> to main register <b>BC</b>.<br>
+<br>
+<br>
+<i><u>FLAG REGISTER COMMANDS</u></i><br>
+<br>
+As with register commands the register mnemonic is used as direct
+command to manipulate the individual accumulator flags. The available
+commands are:<br>
+<br style="font-family: monospace;">
+<b style="font-family: monospace;">F&nbsp; display the status of
+accumulator flags<br>
+FZ [+|-] toggle (invert), set or reset the Zero flag.<br>
+FC [+|-] toggle (invert), set or reset the Carry flag.<br>
+FH [+|-] toggle (invert, set or reset the Half Carry flag.<br>
+FV [+|-] toggle (invert), set or reset the Overflow flag.<br>
+FE [+|-] toggle (invert), set or reset the Parity flag (same as FV).<br>
+FP [+|-] toggle (invert), set or reset the Plus/Minus flag.<br>
+FS [+|-] toggle (invert), set or reset the Sign flag.<br>
+</b><br>
+The <b>+</b> or <b>-</b> argument identifies a direct setting (1) or
+resetting (0). If no argument is specified the current flag status is
+inverted or toggled.<br>
+<br>
+Please note that the alternate <b>f</b> register is not avaiable for
+command line manipulating.<br>
+<br>
+Displaying the flag register are identified by various symbols. A
+generic symbol for a flag that is not set, is <b>0</b>. Bit 3 and bit
+5 are not used by the Z80 processor and result in more or less random
+settings, either <b>0</b> or <b>1</b>.<br>
+<br style="font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">S (bit 7)
+identifies the Sign flag ON, otherwise 0<br>
+Z (bit 6) identifies the Zero flag ON, otherwise 0<br>
+H (bit 4) identifies the Half Carry flag ON, otherwise 0<br>
+E (bit 2) identifies the Even/Overflow flag ON, otherwise O (Odd =
+reset)<br>
+P (bit 1) identifies the Plus/Minus flag ON, otherwise Minus (reset)<br>
+C (bit 0) identifies the Carry flag ON, otherwise 0</span><br
+ style="font-family: monospace;">
+<br>
+<br>
+<i><u>SPECIFYING NUMBER CONSTANTS</u></i><br>
+<br>
+During register manipulation it is often necessary to specify a
+constant. Intuition supports three different types; hexadecimal,
+decimal, binary or ASCII. The default constant notation is hex. This
+requires no leading notation symbol, eg. typing<br>
+<br>
+<b>A FF</b><br>
+<br>
+would assign FFh (255d) to register <b>A</b>. Hexadecimal is used both
+for 8bit and 16bit constant assignment.<br>
+<br>
+Decimal notation which we humans think throughout life are identified
+with a leading <b>~</b>. As with hexadecimal numbers the max. range is
+0 - 65535 (FFFFh). To assign 49152 (C000h) to register HL you type<br>
+<br>
+<b>HL</b> ~49152 &lt;ENTER&gt;<br>
+<br>
+Binary numbers may be specified as well. This is however only limited
+to byte range (0-255d) - there simply not enough space on the command
+line for a 16bit binary number! Binary numbers are specified with a
+leading <b>@</b>, eg.<br>
+<br>
+<b>A</b> @11000001 &lt;ENTER&gt;<br>
+<br>
+would assign C1h to the accumulator.<br>
+<br>
+The final possibility is to specify an ASCII value as argument. This is
+done by using a leading <b>'</b> symbol followed by the ASCII
+character, eg.<br>
+<br>
+<b>A</b> 'Z<br>
+<br>
+would assign the value 5Ah (90d) to the accumulator. The argument
+accepts only characters obtainable from the keyboard. Intuition reads
+only the first character in the argument. Assigning ASCII is allowed
+for 8bit registers.<br>
+<br>
+<br>
+<i><u>NUMBER CONVERSION COMMANDS</u></i><br>
+<br>
+Due to the unusual nature of both hex and binary numbers, a few
+conversion display utilities have been provided in Intuition. They
+allow you to specify a number in a given format preceeded by a
+conversion symbol. Each utility accepts one constant argument. The
+result displays the input format in one or two other output formats.
+The conversion utilities cannot be specified as arguments to either
+register manipulation commands or extended commands (dot preceeded).<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">$
+&lt;Hex&gt;&nbsp;&nbsp;&nbsp;&nbsp; Display 8bit hex value in decimal
+&amp; binary form</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">@
+&lt;binary&gt;&nbsp; Display 8bit binary value in Hex and decimal form</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">~
+&lt;decimal&gt; Display 8/16bit decimal value in Hex form</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">'
+&lt;char&gt;&nbsp;&nbsp;&nbsp; Display Ascii character in Hex and
+binary form</span><br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">"
+&lt;Hex&gt;&nbsp;&nbsp;&nbsp;&nbsp; Display 8bit Hex value in Ascii form</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br>
+Please note that a space must be specified between the conversion
+identifier and the argument.<br>
+<br>
+<br>
+<i><u>EXECUTING THE CURRENT Z80 INSTRUCTION</u></i><br>
+<br>
+The command to execute the current Z80 instruction identified by the <b>PC</b>
+register is the <b>.</b> (full stop) followed by &lt;ENTER&gt;.<br>
+<br>
+If Intuition is not set in Single Step Mode, Z80 instructions are
+executed until a breakpoint condition is true. You have several
+possibilities:<br>
+<br>
+1) Breaking execution directly from the keyboard using
+&lt;SHIFT&gt;&lt;DIAMOND&gt;.&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+2) Defining an address break encountered by the program
+flow.&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+3) Defining an instruction opcode break encountered by the program
+flow&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+4) Breaking execution if system call returns with error (Carry flag =
+1)&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+5) Breaking execution if a RET instruction is encountered (subroutine
+tracing)&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+<br>
+All the various break conditions are defined using various runtime
+flags. Runtime flag management are explained later in the <i><u>RUNTIME
+FLAGS</u></i> sections.<br>
+<br>
+<br>
+<br>
+<i><u>RELEASING INTUITION MONITORING</u></i><br>
+<br>
+The application may get full processing power by releasing Intuition
+monitoring (application speed is about 11 to 13 times slower than
+normal processor speed when Intuition executes instructions).<br>
+<br>
+This is simply done by using the <i>.G</i> command. All virtual
+Intuition registers are restored into the real Z80 registers just
+before the Z80 processor are directed back to the application. You will
+not retain control of the processor unless the application is
+initialized again (e.g. KILL current application incarnation, then
+create/activate again).<br>
+<br>
+The Intuition runtime workspace on the stack are left untouched. The
+stack pointer is also left untouched. This is simply because of the
+principle that Intuition is passive in the executing application
+environment - this is also necessary - imagine if the application
+expects parameters at the current Stack Pointer and it would have been
+moved by Intuition because it released it's runtime workspace!<br>
+<br>
+<br>
+<br>
+<i><u>DISPLAY REGISTER DUMP</u></i><br>
+<br>
+Whenever Intuition enters command mode, it displays a dump of the
+current registers and the current instruction opcode to be executed.
+During command mode the contents of the debugger window changes and it
+may be necessary to obtain another view the Z80 registers. This is done
+by the <i>.R</i> command. A dump might look like this:<br>
+<br>
+<span style="font-family: monospace;">BC=0000h bc=0000h A=C1h
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">DE=0000h de=0000h a=5Ah
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">HL=C000h hl=0000h
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">IX=0000h SP=1E5Fh F=0Z000OPC
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">IY=0000h PC=2000h f=00000OP0
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">?&gt;.R&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
+<br>
+Please note that the alternate register set are displayed as lower case
+letters. The I and R registers are not specified (Z88 application
+programming has no needs for thhem anyway). Interrupts are a vital part
+of the Z88 operating system and are at no real usage for application
+programmers. Even the Developer's Notes remain passive about the
+subject. In the end interrupts are a too vital part for OZ.
+Applications should avoid manipulating them if they want to keep the
+system safe during the lifetime of the executing environment.<br>
+<br>
+<br>
+<i><u>DISASSEMBLY</u></i><br>
+<br>
+Listing through the machine code of your program is probably the most
+important feature of a debugger. The following is the syntax definition
+of the disassemble command:<br>
+<br>
+.D [&lt;address&gt;] [&lt;bank&gt;]<br>
+<br>
+You can disassemble instructions in the current Z80 address space
+(0000h-FFFFh) or disassemble machine code in any bank available in the
+Z88. How about having a look into the Z88 operating system and the
+standard applications? As seen in the syntax above, the simplest
+version is just to enter the .D command without parameters. Intuition
+interpretes this as to disassemble from the current PC register onwards
+in the current Z80 address space (the current binding state of segments
+0 - 3). If you specify an address without a bank reference, disassembly
+will begin from that address onwards in the current Z80 address space.
+If you specify an address with a bank reference, disassembly will begin
+from the 14bit offset address onwards in the defined bank. The upper
+two bits of the address parameter is used to determine which segment
+the machine code of the bank it is to be addressed for (as if the bank
+had been paged into appropriate segment of the Z80 address space). For
+example if you enter the command .D C000 00, it would be interpreted as
+disassembling the bank 00h from offset 0 (the beginning of the bank),
+addressed for segment 3 (C000h - FFFFh).<br>
+<br>
+All Z80 instructions and the OZ operating system calls using the RST
+20h and RST 18h instructions as interface, are recognised and displayed
+with their corresponding mnemonic identifiers. All OZ mnemonics have
+been implemented using the information shown in the Z88 Developers'
+Notes V3. If you have specified an illegal OZ parameter in your code,
+it will be displayed as a hex constant to identify that it is not known
+to Intuition.<br>
+<br>
+An example - a code fragment from the Z88 operating system ROM:<br>
+<br>
+...&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+<span style="font-family: monospace;">C037
+6F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LD&nbsp;&nbsp;
+L,A</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">C038 E7
+75&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RST&nbsp; 20h,[OS_ERH]</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">C03A 3A 11 0E&nbsp;&nbsp;&nbsp;
+LD&nbsp;&nbsp; A,(0E11h)</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">C03D CB
+7F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BIT&nbsp; 7,A</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">C03F C2 C6 C0&nbsp;&nbsp;&nbsp;
+JP&nbsp;&nbsp; NZ,C0C6h</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">C042 E7 06 FE&nbsp;&nbsp;&nbsp;
+RST&nbsp; 20h,[OS_DOM]</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">C045 DD 21 1E 0E LD&nbsp;&nbsp;
+(0E1Eh),IX</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">C049
+AF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XOR&nbsp; A</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">...&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
+<br>
+At the leftmost column you'll find the current disassembler address,
+the beginning of the Z80 instruction. Then follows the instruction
+opcode sequense. This can be switched off to only display the address
+and the instruction mnemonics. Finally, the instruction mnemonics
+('nemonics) are displayed. All OZ operating system calls are displayed
+inside the [] brackets. If something isn't recognised, a hex value is
+displayed inside.<br>
+<br>
+The disassembler is always using hexadecimal as number convention in
+addresses, instruction opcodes &amp; operands. So you better start
+learning it now...<br>
+<br>
+The example dump above doesn't display it but in fact a CHR$9 (ASCII 9)
+is put just after the instruction address. This is very handy when you
+want to load a disassembly dump into PipeDream as plain text; the
+address and mnemonics get into separate columns! This is nice when you
+want to strip the address column and hand-produce source assembler with
+lables (for some obscure reason - lost your source backup?).<br>
+<br>
+The disassembler (currently in Intuition V1.1) does not recognise the
+"undocumented" instructions like SLL or the 8bit IX, IY instructions.
+There wasn't any room left in the code space for the debugger. However,
+the Z80asm assembler supports them - to be used in your applications.
+Maybe they'll be implemented in a future version of Intuition if we
+manage to compress more of the code.<br>
+<br>
+Instructions not known to the Intuition disassembler are reported with
+the line 'Illegal instruction'. You usually get this message when
+trying to disassemble a memory area containing data structures or other
+random data. In addition to the instruction mnemonics we have included
+the display of the instruction opcodes. The Z80 instruction reference
+written in the "z80instr.doc" document on the Z88 Assembler Workbench
+disc has been generated by the disassembler combined with the CLI
+facility from the Intuition command line (copy output to file). The
+display of opcodes is very useful when it is needed to search for
+instructions or OZ calls with the .MS command (using binary hexadecimal
+search).<br>
+<br>
+The current active Intuition window can display 8 lines of disassembled
+machine code at a time followed by a page wait function. Since machine
+code needs considerable line space to get a good overview we have
+implemented the disassembler with a 16 lines display using a toggle
+technique between the two Intuition windows. You simply press
+&lt;TAB&gt; when the current window has been filled with a disassemble
+dump, which then continues the display of instructions to the next 8
+lines on the opposite Intuition window.<br>
+<br>
+The disassembler is also called from Intuition itself when performing
+auto-disassembly during execution of code. The current input window is
+used for the dump. Please note, that performing auto-disassembly while
+the application is executing, you might encounter screens/windows
+getting corrupted. This is because many application split up their VDU
+commands in several phases, like outputting a VDU sequense as a stream
+of bytes executed in a loop (where the string usually is
+null-terminated). Since Intuition takes over control for each
+instruction (and operating system call), the current active Intuition
+window where the disassembly resides needs to be re-initialised. Any
+VDU sequense stored in the screen driver buffers then get messed up.<br>
+<br>
+In other words, if you want the disassembly dump and the application
+output to perform happily together, then perform all VDU calls in one
+step. Good programming practice is:<br>
+<pre>            LD  HL, vdusequense<br>            CALL_OZ(GN_SOP)<br></pre>
+Intuition performs the CALL_OZ in one step. The VDU string should then
+contain the complete sequense, e.g. like a window definition.<br>
+<br>
+<br>
+<i><u>VIEWING AND EDITING MEMORY</u></i><br>
+<br>
+As important as the disassembly of instructions, you also need a
+facility to view and edit the memory which the application alters to
+store its data structures. Since the Z88 uses a heavily fragmented
+memory allocation system, it is vital for the programmer to know if the
+application has written properly into the allocated memory area or not.
+You usually request memory from OZ with an OS_MAL system call. If the
+boundaries of the area was exceeded it could have overwritten
+information which in the end could be fatal for the operating system.<br>
+<br>
+A memory editor would equally be suitable to alter information by hand,
+as if the program would have, simply to test an algorithm. We have
+implemented a memory view facility to issue a quick check of memory and
+at the same time preventing any accidental altering of memory from the
+keyboard. You are of course able to edit the RAM memory as well (using
+another command). Contents of an EPROM can not be altered unless an
+EPROM programmer (like Zprom) is used (to actually blow bytes into it).<br>
+<br>
+The syntax of the commands for manipulating memory is as follows:<br>
+<br>
+<pre>.ME [&lt;nn&gt;] [&lt;b&gt;]        Memory Edit<br>.MV [&lt;nn&gt;] [&lt;b&gt;]        Memory View<br><br></pre>
+If you specify an address without a bank reference, the memory dump
+will begin from that address onwards in the current Z80 address space.
+If you specify an address with a bank reference, the memory dump will
+begin from the 14bit offset address onwards in the defined bank. The
+upper two bits of the address parameter is used to determine which
+segment the dump of the bank is to be addressed for (as if the bank had
+been paged into appropriate segment of the Z80 address space). For
+example if you enter the command .MV C000 07, it would be interpreted
+as issuing a memory dump in the bank 07h from offset 0 (the beginning
+of the bank), addressed for segment 3 (C000h - FFFFh). Both commands
+display a window split in two sections; the first being a hex
+representation of the memory and the equivalent in ASCII representation
+in the second section. If a byte in memory is out of the range [32;127]
+it is represented as a full stop (".") in the ASCII section.<br>
+<br>
+The following example displays the top 192 bytes of the danish Z88 ROM
+V3.21 in bank 07h. As seen in the example below, the ROM contain the
+standard header as used on external applications using an internal card
+ID. If a 256K EPROM could replace the current standard 128K, you would
+in fact be able to append extra applications in the internal
+application DOR list. Have a laugh; apparently the names all represent
+the members of the Z88 development team - funny things they have put
+into the ROM:<br>
+<br>
+<span style="font-family: monospace;">3F58h 20 43 6C 69 76 65 20 44 61
+76 65 20&nbsp; Clive Dave </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3F64h 45 72 69 63 20 46 65 6C 69
+63 69 74 Eric Felicit</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3F70h 79 5E 32 20 47 72 61 68 61
+6D 20 4A y^2 Graham J</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3F7Ch 69 6D 20 4A 6F 68 6E 20 4D
+61 72 6B im John Mark</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3F88h 20 4D 61 74 74 68 65 77 5E
+32 20 50&nbsp; Matthew^2 P</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3F94h 61 75 6C 20 50 65 74 65 72
+20 52 69 aul Peter Ri</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FA0h 63 68 61 72 64 5E 33 20 54
+69 6D 20 chard^3 Tim </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FACh 57 69 6E 67 73 20 5A 65 65
+26 4B 65 Wings Zee&amp;Ke</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FB8h 73 73 6E 61 20 7D 0D 00 00
+00 00 00 ssna }......</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FC4h 00 00 06 FE 07 13 08 4E 05
+41 50 50 .......N.APP</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FD0h 4C 00 FF 00 00 00 00 00 00
+00 00 00 L...........</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FDCh 00 00 00 00 00 00 00 00 00
+00 00 00 ............</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FE8h 00 00 00 00 00 00 00 00 00
+00 00 00 ............</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">3FF4h 00 00 00 00 54 43 4C 81 08
+00 4F 5A ....TCL...OZ</span><br style="font-family: monospace;">
+<br>
+When you want to abort the memory dump command simply press
+&lt;ESC&gt;. The Intuition command prompt will be displayed in the
+opposite (smaller) window to preserve the current information in the
+dump window. This can be very useful if you need specific information
+while doing other tests as cross checking.<br>
+<br>
+<br>
+<br>
+<i><u>VIEW ADDRESS TABLES</u></i><br>
+<br>
+This command enables you to view memory contents as address pointers or
+words. This is particularly useful when you want to examine the stack
+contents, lookup tables or jump tables. The command syntax is as
+follows:<br>
+<br>
+<pre>.VA [&lt;nn&gt; [&lt;b&gt;]]        View Address Memory<br><br></pre>
+Please note: This command is not available in the Intuition executable
+file for segment 0 ("debug00.bin").<br>
+<br>
+As seen from the syntax above it is almost identical the memory
+edit/view commands. If no arguments are defined, the default of
+&lt;nn&gt; is the stack pointer (SP). You may also specify a bank
+number to view address words in another bank.<br>
+<br>
+If you specify an address with a bank reference, the <i>.VA</i>
+command will begin from the 14bit offset address onwards in the defined
+bank. The upper two bits of the address parameter is used to determine
+which segment the dump of the bank is to be addressed for (as if the
+bank had been paged into appropriate segment of the Z80 address space).<br>
+<br>
+The <i>.VA</i> command was designed for looking at the stack contents.
+Two special items are displayed when the current address pointer of <i>.VA</i>
+matches:<br>
+<br>
+1) "[T.O.S]", The Top Of Stack, defined when Intuition was initialized <br>
+2) "[SP]", The current Stack Pointer<br>
+<br>
+The following is a memory dump of a stack space:<br>
+<br>
+<span style="font-family: monospace;">1E69h &lt;0000h&gt;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">1E67h &lt;7A41h&gt;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">1E65h &lt;C000h&gt;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">1E63h &lt;0000h&gt;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">1E61h &lt;0000h&gt;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">1E5Fh &lt;1E61h&gt;
+[T.O.S.]&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">1E5Dh &lt;0000h&gt;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">1E5Bh &lt;C000h&gt;
+[SP]&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<br>
+The leftmost column identifies the current address in memory. The right
+column contains the pointer (or register value) stored at the current
+address. As with all 16bit addresses they are stored in low byte, high
+byte order. However, <i>.VA</i> displays them as a true address.
+Please note also that addresses are viewed from high address downwards.<br>
+<br>
+This example also illustrates if the current address matches the Top Of
+Stack or the Stack Pointer.<br>
+<br>
+The &lt;Up&gt; and &lt;Down&gt; cursor keys moves one address word up
+or down. You may also move in steps of 8 words (one window page) in
+combination of the &lt;SHIFT&gt; key.<br>
+<br>
+<br>
+<br>
+<i><u>LOADING CODE INTO THE Z80 ADDRESS SPACE - .ML</u></i><br>
+<br>
+This command is only available for the Intuition application, #ZI.<br>
+<br>
+The only way to load any code into the Intuition application memory is
+to use the .ML command. Two things needs to be specified; 1) the
+starting address of the code to be loaded, 2) the filename.<br>
+<br>
+If you don't specify an address after the command, the default address
+2000h is used (starting address of contigous memory in the Intuition
+application).<br>
+<br>
+Then the command prompts you for the filename, "File:". When the file
+has been loaded into memory, you'll be prompted with the "Loaded."
+message. You cannot load a file that exceeds the contigous memory
+boundaries - otherwise you will be promped with an error. You can
+always get the current boundaries using the .MR command (Memory Range).<br>
+<br>
+The specified filename is automatically put in the INDEX "Your Ref."
+column.<br>
+<br>
+<br>
+<br>
+<i><u>AVAILABLE CONTIGUOUS MEMORY RANGE - .MR</u></i><br>
+<br>
+This command is only available for the Intuition application, #ZI.<br>
+<br>
+The command needs no parameters, and only displays the current
+contigous application memory range. Possible values would be:<br>
+<br>
+<pre>            2000h-3FFFh             standard Z88<br>            2000h-BFFFh             expanded Z88<br><br><br><br></pre>
+<i><u>DISPLAY INTUITION RTM AREA - .I</u></i><br>
+<br>
+The command does not use parameters.<br>
+<br>
+It might be very interesting to know where the Intuition Run Time Area
+is resided during the lifetime of an application that is monitored by
+Intuition. This would avoid problems like trying to write to an address
+location that is used by Intuition. The RTM area always resides below
+any reserved application (safe/unsafe) workspace. This is because such
+resources are allocated by the operating system when the original
+application is created. Intuition must always be CALL'ed after an
+application is created by the system.<br>
+<br>
+You are also informed of the current release version of Intuition.<br>
+<br>
+<br>
+<br>
+<i><u>Runtime Flags, an introduction</u></i><br>
+<br>
+Runtime flags determine the behaviour and response of Intuition during
+execution (monitoring) of Z80 machine code. Through the runtime flags
+you can determine whether Intuition should dump code while executing,
+scan the keyboard for breaking execution, break at an address or simply
+to stop when an error condition arises. All runtime flags are toggled
+(on/off state) just by typing the flag command name without argument or
+explicitly set/reset with a '+' or '-' argument.<br>
+<br>
+One consideration to make with runtime flags, is to think about the
+number of enabled features currently being performed during execution
+of application code. The more you enable, the slower Intuition gets
+because it has to perform more housekeeping. The maximum code parsing
+can be performed with no runtime flags enabled. This would give a speed
+about 11 times slower than the original processor. We haven't tested
+timings for maximum enabling of features, but an estimated guess would
+be around 18-20 times slower than the processor. This is off course
+without using runtime dissassembly!<br>
+<br>
+<i><u>Display current flag status - .S</u></i><br>
+<br>
+The easiest way to determine the current flag status. Lists all
+currently defined runtime status flags with an appropriate ON/OFF tag.<br>
+<br>
+<br>
+<br>
+<i><u>RUNTIME DISASSEMBLY - .Z</u></i><br>
+<br>
+<pre>.Z +        Enable auto-disassembly during instruction execution<br>.Z -        Disable auto-disassembly<br><br></pre>
+One of the powerful facilities of Intuition. This feature enables you
+to perform runtime disassembly while Intuition is executing the
+application code. The current Intuition window is used for the
+disassembly. Whenever an operating system call is issued the Intuition
+window is temporarily closed. This is because the call might affect the
+application screen and is therefore necessary to get restored. When the
+call has completed, the Intution window re-appears and the disassembly
+listing continues along with the execution.<br>
+<br>
+This facility has not much use as a stand-alone feature besides looking
+good when instructions flash through the window and you can see the
+results of the displayed instructions on the application screen below
+(if it is screen related like creating windows or displaying text).<br>
+<br>
+.Z has only relevance when you need to perform logging of executed
+instructions using the special CLI-screen-copy-to-file facility. When
+you need to issue a log of executed code, simply enable .Z, enable
+&lt;DIAMOND&gt;- and let Intuition begin the execution of your
+application. Stopping of execution could be interrupted from the
+keyboard (with .K Keyboard interrupt enabled) or with a breakpoint.
+When Intuition returns you to the command line simply press
+&lt;DIMOND&gt;- again and the CLI log file is closed in your current
+RAM device.<br>
+<br>
+Using this method you can create many different log files that you can
+examine after your execution logging.<br>
+<br>
+<b>IMPORTANT!</b><br>
+<br>
+When you perform auto-disassembly on machine code that executes partial
+VDU sequenses then you will confuse the screen driver because Intuition
+intervenes any VDU sequense that the application has performed. The end
+result is randomly printed characters on your application screen.
+Remember that for each executed instruction a disassembled line of code
+is displayed by Intuition in its own window.<br>
+<br>
+Another very important matter is performing auto-disassembly of code
+that manipulates Z88 hardware directly, eg. bank-switching.<br>
+<br>
+DON'T PERFORM AUTO-DISASSEMBLY ON MACHINE CODE THAT MANIPULATES
+HARDWARE.<br>
+<br>
+Remember that Z88 preserves soft copies of hardware registers which are
+updated just before real hardware registers are manipulated. Using
+auto-disassembly would entervene an update of a soft copy and a
+hardware register with thousands of instructions due to Intuition
+displaying Z80 instruction mnemonics. You might severely damage the
+security of the operating system and have system undermined with a
+possible future crash that has no relation to your software.<br>
+<br>
+During debugging and development it is vital that the only source of
+problem is your application and not the operating system!<br>
+<br>
+<i><u>TOGGLE OPCODE DISASSEMBLY - .DO</u></i><br>
+<br>
+<pre>.DO +       Display instruction opcodes during disassembly<br>.DO -       Display Z80 mnemonics without opcodes<br><br></pre>
+The default disasembly of instructions are displayed with opcodes. You
+can switch the opcode display off by issuing the .DO - command. During
+an intensive debugging session with CLI-logging enabled, your log-files
+quite quickly grow with opcodes displayed in your disassembly.<br>
+<br>
+Opcodes would also be redundant if it is needed to produce disassembly
+listings that needs to be converted to source code (did you loose your
+source code?!).<br>
+<br>
+<br>
+<br>
+<i><u>RUNTIME REGISTER DUMP - .X</u></i><br>
+<br>
+<pre>.X +        Dump registers in Intuition window for each executed instruction<br>.X -        Auto-disassemble without register dump<br><br></pre>
+Enable/disable register dump during runtime autodisassembly. Please
+note that this command has only effect if .Z (auto-disassembly is
+enabled).<br>
+<br>
+As with auto-disassembly during execution and performing a log of
+screen output to a file, it might be useful to log a register dump for
+each executed instruction.<br>
+<br>
+Be careful - a long logging session creates enormous log-files. If the
+operating system cannot anny longer cope with a CLI file (no room in
+the filling system), then the currently active CLI file simply is
+deleted by OZ.<br>
+<br>
+This feature should be used with small logging sessions.<br>
+<br>
+<br>
+<br>
+<i><u>Dump registers at breakpoint and continue - .BD</u></i><br>
+<br>
+<pre>.BD +       Dump registers at breakpoint, then continue<br>.BD -       Enter command line mode at break point (default)<br><br></pre>
+The CLI-logging facility is one of the important features in Intuition.
+It enables the programmer to create a hardcopy of realtime execution
+information.<br>
+<br>
+You might need to create a log only containing register dumps of
+various key locations in your code. In this situation you would create
+the necessary address breakpoints and start tracing. Then, for each
+break you would need to create a log and execute .R (dump registers)
+with a small disassembly to pinpoint the location with code. In the
+long run with maybe 50 sessions of the ame thing you're ready for
+psyciatric treatment.<br>
+<br>
+In stead you can let Intuition continue processing your application
+after a temporary stop (dumping registers and the current instruction)
+then continue immediately. Enabling a log file before starting will
+enable you to let Z88 do all the work for you.<br>
+<br>
+The only problem with this feature is that Intuition would never return
+to command mode - you just informed it to continue immediately after a
+breakpoint!<br>
+<br>
+The only way to break would be to enable the keybord interrupt
+facility, .K. Then it is just a matter of pressing
+&lt;SHIFT&gt;&lt;DIAMOND&gt; during Intuition monitoring and you will
+return back to the command line. Disable the log file
+(&lt;DIAMOND&gt;-), disable .BD and you have completed the log session.<br>
+<br>
+The .BD is in particular wonderful when you want to log a particular
+system call like OS_MAL (allocate dynamic memory). Perform the
+necessary .BI opcode breakpoint, enable .BD and .K (if there is a
+possibility of an endless loop in your code), then start tracing. When
+you have the satisfying results, just press
+&lt;SHIFT&gt;&lt;DIAMOND&gt; and you're back into the Intuition command
+line.<br>
+<br>
+<br>
+<br>
+<i><u>BREAK AT OZ CALL ERROR - .BO</u></i><br>
+<br>
+<pre>.BO +       Break execution at OZ return with error condition (Fc = 1)<br>.BO -       Ignore OZ error condition and continue (default)<br><br></pre>
+Most debugging is about setting up the correct parameters to a user
+defined machine code service routines (perhaps a library routine) or
+calls to the operating system, and to determine the correct error
+handling.<br>
+<br>
+This runtime flag enables you to halt execution of your application
+(Intuition command line) when an operating system call returns an error
+condition (Fc = 1) and an error code in register A. All OZ call returns
+are examined for an error condition. Intuition just continues execution
+of your application if no error condition was found.<br>
+<br>
+Please note that if you're using an error handler, then this would be
+called by OZ before the operating system call returns - the error
+handler is executed by the native Z80. Then, you won't be able to break
+execution at the start of the error handler, unless your're calling it
+by hand (in your application code).<br>
+<br>
+<br>
+<br>
+<i><u>BREAK INSTRUCTION EXECUTION FROM THE KEYBOARD - .K</u></i><br>
+<br>
+Apart from the various breakpoints available in Intuition you may
+enable the keyboard interrupt facility that allows you to manually
+break the flow of executing instructions.<br>
+<br>
+<pre>.K +        Enable keyboard interrupt, break execution using &lt;SHIFT&gt;&lt;DIAMOND&gt;<br>.K -        Keybord interrupt disabled.<br><br></pre>
+The runtime flag is toggle/enabled/disabled with .K ['+'|'-']. During
+tracing you can break and re-enter the command line by pressing
+(left)&lt;SHIFT&gt;&lt;DIAMOND&gt;.<br>
+<br>
+This facility is a no. 1 way to ensure that your monitored code always
+can be interrupted, even if it has entered an infinite loop.<br>
+<br>
+<br>
+<br>
+<i><u>SINGLE STEP/TRACE MODE - .T</u></i><br>
+<br>
+This runtime flag toggles between single stepping the monitored code of
+your application or tracing until a breakpoint condition is found.<br>
+<br>
+<pre>.T +        Perform single stepping<br>.T -        Trace until breakpoint.<br><br></pre>
+If you're not sure that your code is going to reach a breakpoint
+condition, enable the Keyboard interrupt which allows you to escape
+back to the command line.<br>
+<br>
+<br>
+<br>
+<i><u>SUBROUTINE TRACING - .TS</u></i><br>
+<br>
+During tracing it is sometimes nice to quickly trace a subroutine (CALL
+xxxx) and immediately return when the routine has completed. This flag
+enables you to perform this action.<br>
+<br>
+<pre>.TS +       Enable sub-routine tracing<br>.TS -       Disable sub-routine tracing<br><br></pre>
+Subroutine tracing has been implemented with execution until the same
+RET-urn level has been reached. In other words when a RET instruction
+is found you are only returned to command line mode when a RET
+statement is found at the same level of the CALL instruction or higher
+- Intuition automatically performs execution of sub-procedures until
+the code reaches the top level.<br>
+<br>
+Further, the sub-routine tracing has been implemented with a warning
+system that is reported when the stack is unbalanced, ie. the stack
+pointer is not on the same level when the initial call began, but
+higher. This would mean that somewhere in your code values were PUSH'ed
+and not properly POP'ed before returning (probably resulting in
+execution of un-intended code that by accident reached a RET statement).<br>
+<br>
+Please remember that the stack pointer level is remembered by Intuition
+every time tracing begins (the . command were execute from the command
+line). In other words Intuition remembers the stack pointer level per
+trace session. If for example a break point condition were found during
+a recursive sub-routine trace, you would loose the original beginning
+level and continue subroutine tracing from the current PC location
+onwards.<br>
+<br>
+<br>
+<br>
+<i><u>DEFINE/TOGGLE AN ADDRESS BREAKPOINT - .B</u></i><br>
+<br>
+Single stepping through machine code is a necessary feature when you
+need to analyse a small fraction of code to verify proper execution.
+However, single stepping throughout the code of your application would
+be suicide. As with all machine code debuggers you can define address
+breakpoints. Intuition allows a maximum of 8 individual breakpoints.<br>
+<br>
+You define the breakpoint by specifying the address after the .B
+command, eg.:<br>
+<br>
+<pre>            .B C0F0 &lt;ENTER&gt;<br><br></pre>
+To remove the breakpoint, re-type the address and it will be remove
+from the address breakpoint list.<br>
+<br>
+The current breakpoint list is displayed immediately after a .B command
+for verification. When no breakpoints are defined, "none." is displayed.<br>
+<br>
+Please note that Intuition will perform less efficient the more
+breakpoints defined (remember that before each instruction execution
+Intuition has to examine if a breakpoint was defined for the current
+Program Counter).<br>
+<br>
+<br>
+<br>
+<i><u>LIST ADDRESS BREAKPOINTS - .BL</u></i><br>
+<br>
+List all the currently defined address breakpoints. If no breakpoints
+are defined, then "none." is displayed.<br>
+<br>
+<br>
+<br>
+<i><u>DEFINE INSTRUCTION OPCODE BREAKPOINT - .BI</u></i><br>
+<br>
+An opcode breakpoint enables you to halt Intuition before the
+instruction opcode is executed. This facility has only relevance for
+operating system calls, and perhaps Z80 instructions that you know is
+only executed a few times.<br>
+<br>
+The main purpose of this command is to enable you to halt Intuition
+before any execution of operating system (OZ) calls. As a programmer
+you want to be able to verify that register parameters has been
+correctly setup before executing a call to the operating system. During
+the development of Z80asm on the Z88, InterLogic never would have been
+able to iron out bugs of the dynamic memory allocation routines if
+Intuition didn't have this facility (in fact it was invented because of
+that particular need!).<br>
+<br>
+Specifying an opcode sequense is defined as a series of adjacent hex
+codes. You may specify maximum 4 - the the maximum size of a Z80
+instruction:<br>
+<br>
+<pre>            .BI E754 &lt;ENTER&gt;<br></pre>
+would mean<br>
+<pre>            break at RST 20H, [OS_MAL]<br><br></pre>
+As seen above only two hexcodes were specified. When defined, every
+time Intuition is about to execute the above operating system call, you
+will be directed to the Intuition command line with a register dump and
+the display of the RST 20H, [OS_MAL] instruction.<br>
+<br>
+You can define only one opcode breakpoint. When you want to clear the
+opcode breakpoint, just type .BI without any hex opcodes.<br>
+<br>
+<br>
+<br>
+<i><u>LIST INSTRUCTION OPCODE BREAKPOINT - .BIL</u></i><br>
+<br>
+Lists the currently defined instruction opcode breakpoint, as defined
+with the .BI command.<br>
+<br>
+<br>
+<br>
+<i><u>VIEW CURRENT APPLICATION WINDOWS - .V</u></i><br>
+<br>
+During the Intuition command line it may be necessary to view the
+contents of the current application screen. Simply type .V and you will
+be able to view the screen. Pressing a key will return you to the
+Intuition command line.<br>
+<br>
+During the lifetime of Intuition, the application screen are preserved.
+Before each time an instruction is executed (the Intuition command line
+is aborted) the application screen is restored. This would in theory
+ensure that your application screen always is intact, even if Intuition
+shares the screen resource with the application.<br>
+<br>
+This is of course an estimation. Intuition uses the screen driver
+heavily. The monitored application could execute screen driver codes in
+separate sessions, eg. displaying a window VDU calculating coordinates
+and other details then executing parts of the VDU sequense as they gets
+completed. This scheme is quite normal and perfectely possible.<br>
+<br>
+However when Intuition needs to display information in its own windows,
+eg. while single stepping through the application code performing a VDU
+sequense, the screen driver may get the wrong VDU codes in the middle
+of a VDU session performed by the application. The end result can get
+quite confusing with random characters displayed in the application
+screen.<br>
+<br>
+You can avoid these problems by letting the application complete its
+VDU output and then activate the Intuition command line - put a
+breakpoint at an appropriate address location, let Intuition perform
+the code, remove the breakpoint and then you will have the command line
+without disturbing the application screen.<br>
+<br>
+The .V command has no effect if Intuition wasn't able to preserve the
+application screen.<br>
+<br>
+<br>
+<br>
+<i><u>SET INTUITION WINDOW ID - .W</u></i><br>
+<br>
+The default window ID of Intuition is '6'. The definition of the
+Intuition window ID is redundant when the application screen is
+preserved by Intuition.<br>
+<br>
+This command is only relevant when Intuition was called the first time
+by the application and no sufficient memory resources were available to
+preserve the application screen. When this happens, Intuition just uses
+its window by clearing window '6' (in its usual position) each time the
+command line is activated. If your application uses window '6' then you
+can use this command to give Intuition its own window ID.<br>
+<br>
+You simply specify the number of the window after the .W command. You
+may only use the numbers 1 to 6.<br>
+<br>
+<br>
+<i><u>CURRENT INTUITION AND APPLICATION WINDOW ID'S - .WS</u></i><br>
+<br>
+Displays the current window ID's of the monitored application and
+Intuition. An example could be:<br>
+<pre>            Intuition window ID: 6<br>            Appl. window ID: 2<br><br></pre>
+<i><u>DEFINE APPLICATION NAME - .NMA</u></i><br>
+<br>
+This command is only available for the Intuition application, #ZI.<br>
+<br>
+The application name reference are displayed in the INDEX "Your ref."
+column. Simply specify .NMA xxxxx . The filename specified in the .ML
+(Load File) command automatically gets reflected in the application
+reference column.<br>
+<br>
+<br>
+<i><u>KILL INTUITION AND APPLICATION - .KILL</u></i><br>
+<br>
+Perform suicide on the current application monitored by Intuition. This
+is the equivalent of performing a KILL request on the application from
+the INDEX.<br>
+<br>
+Please note that Intuition is an integrated part of the monitored
+application - hence also Intuition is killed. The Intuition application
+(#ZI) is removed as other Z88 applications.
+All contents of the contiguous RAM will be lost.<br>
+<br>
+</body>
+</html>
