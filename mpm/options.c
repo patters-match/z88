@@ -57,8 +57,9 @@ unsigned long EXPLICIT_ORIGIN;          /* origin defined from command line */
 
 
 /* externally defined variables */
-extern char asmext[], lstext[], objext[], defext[], binext[];
-extern char mapext[], errext[], libext[], srcext[];
+extern const char asmext[], lstext[], objext[], defext[], binext[];
+extern const char mapext[], errext[], libext[];
+extern char srcext[];
 extern char separators[];
 extern char binfilename[];
 extern avltree_t *staticroot;
