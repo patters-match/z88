@@ -154,7 +154,7 @@ public class OZvm {
 						int eprSlotNumber = args[arg].charAt(3)	- 48;
 						eprSizeArg = Integer.parseInt(args[arg+1], 10);
 						file = new RandomAccessFile(args[arg+3], "r");
-						memory.loadImageOnEprom(eprSlotNumber, eprSizeArg, args[arg+2],	file);
+						memory.loadImageOnCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
 						String insertEprMsg = "";
 						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;

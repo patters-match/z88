@@ -614,16 +614,16 @@ public final class Memory {
 	 * into the top two banks of the Eprom card ($3E and $3F. The remaining banks of the 
 	 * Eprom card will be left untouched (initialized as being empty).
 	 * 
-	 * The File image must represent an Application Card or a File Eprom
-	 * ("OZ" or "oz" watermark in two bytes of the file). 
+	 * Runtime messages are displayed if an Application Card or a File Card is recognized
+	 * ("OZ" or "oz" watermark in top of card). 
 	 *
-	 * @param slot to insert Eprom card with loaded binary image
+	 * @param slot to insert card with loaded binary image
 	 * @param size of Eprom Card in K  
 	 * @param type of Eprom: "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
 	 * @param fileImage the File image to be loaded (in 16K boundary size)
 	 * @throws IOException
 	 */
-	public void loadImageOnEprom(int slot, int size, String eprType, RandomAccessFile fileImage) throws IOException {
+	public void loadImageOnCard(int slot, int size, String eprType, RandomAccessFile fileImage) throws IOException {
 		int totalEprBanks, totalSlotBanks, curBank;
 		int eprSubType = 0;
 
@@ -636,7 +636,7 @@ public final class Memory {
 
 		slot %= 4; // allow only slots 0 - 3 range.
 		size -= (size % (Bank.SIZE/1024));
-		totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Eprom Card
+		totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Card
 		if (eprType.compareToIgnoreCase("27C") == 0) {
 			// Traditional UV Eproms (all size configurations allowed)
 			if (totalEprBanks <= 2) 
@@ -664,7 +664,7 @@ public final class Memory {
 			}
 		}
 		
-		// Create the Eprom card (of specified type)...
+		// Create the card (of specified type)...
 		Bank banks[] = new Bank[totalEprBanks]; 
 		for (curBank = 0; curBank < totalEprBanks; curBank++) {
 			if (eprType.compareToIgnoreCase("27C") == 0) banks[curBank] = new EpromBank(eprSubType); 
@@ -688,8 +688,6 @@ public final class Memory {
 			if (banks[banks.length-1].getByte(0x3FFE) == 'o' &
 				banks[banks.length-1].getByte(0x3FFF) == 'z') {
 				Gui.displayRtmMessage("File Card was inserted into slot " + slot);
-			} else {
-				throw new IOException("This is not a Z88 Application Card nor a File Card.");
 			}
 		}
 
