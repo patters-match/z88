@@ -8,10 +8,13 @@ import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.net.URL;
 import java.net.JarURLConnection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 /**
  * Blink chip, the "mind" of the Z88.
@@ -20,11 +23,19 @@ import javax.swing.JPanel;
  * $Id$
  */
 public final class Blink extends Z80 {
+	
+	/**
+	 * Time format used when displaying a runtime system message 
+	 */
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH.mm.ss.SSS");
 
 	/**
 	 * Blink class default constructor.
+	 * 
+	 * @param canvas
+	 * @param rtmOutput
 	 */
-	Blink(JPanel canvas) throws GameFrameException {
+	Blink(JPanel canvas, JTextArea rtmOutput) throws GameFrameException {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.
@@ -55,6 +66,8 @@ public final class Blink extends Z80 {
 
 		z88Display = new Z88display(this, canvas);		// create window, but without activity yet...
 		z88Keyboard = new Z88Keyboard(this, canvas);
+		
+		runtimeOutput = rtmOutput;		// reference to runtime output window text area.
 	}
 
 	/**
@@ -67,6 +80,24 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
+	private JTextArea runtimeOutput;
+	
+	private void displayRtmMessage(final String msg) {
+		final Date curDateTime = new Date();
+		
+		Thread displayMsgThread = new Thread() {
+			public void run() {
+				// Make sure the new text is visible, even if there
+				// was a selection in the text area.
+				runtimeOutput.append(sdf.format(curDateTime) + ":\n" + msg + "\n");
+				runtimeOutput.setCaretPosition(runtimeOutput.getDocument().getLength());		
+			}
+		};
+
+		displayMsgThread.setPriority(Thread.MIN_PRIORITY);
+		displayMsgThread.start();		
+	}
+	
 	private Breakpoints breakPoints = null;
 
 	private boolean debugMode = false;
@@ -77,7 +108,7 @@ public final class Blink extends Z80 {
 	private Z88display z88Display;
 
 	/**
-	 * The keyboard hardware (receiving input from Host OS).
+	 * The keyboard hardware (receiving input from Host OS keyboard).
 	 */
 	private Z88Keyboard z88Keyboard;
 	
@@ -153,10 +184,6 @@ public final class Blink extends Z80 {
 //		if ((bits & BM_INTTIME) != 0) System.out.println("INT.BM_INTTIME");
 //		if ((bits & BM_INTGINT) != 0) System.out.println("INT.BM_INTGINT");
 //		
-//		System.out.println("Soft Copy of INT = " + Integer.toBinaryString(getByte(0x04B1,0x20)));
-		//bits &= ~BM_INTUART;		// OZvm does not support UART...
-		//bits |= 1;       			// force GINT = 1, always...
-		//setByte(0x04B1,0x20, bits);	// force update soft copy!
 		INT = bits;		
 	}
 
@@ -602,8 +629,6 @@ public final class Blink extends Z80 {
 		
 		return keyCol;
 	}
-
-
     
 	/**
 	 * System bank for lower 8K of segment 0.
@@ -1107,6 +1132,7 @@ public final class Blink extends Z80 {
 	public boolean isZ80Stopped() {
         if (stopZ88 == true) {
             stopZ88 = false;
+			displayRtmMessage("Z88 virtual machine was stopped.");
             return true;
         } else {
             return false;
@@ -1759,7 +1785,7 @@ public final class Blink extends Z80 {
 		int bpOpcode = getByte(bpAddress);	// remember the breakpoint instruction opcode
 		int z80Opcode = breakPoints.getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
 		setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily) 
-		System.out.println((new DisplayStatus(this)).dzPcStatus()); // dissassemble original instruction, with Z80 main reg dump
+		displayRtmMessage((new DisplayStatus(this)).dzPcStatus().toString()); // dissassemble original instruction, with Z80 main reg dump
 		setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter 
 		
 		PC(PC() + 1);	// Program Counter ready for next instruction. 
