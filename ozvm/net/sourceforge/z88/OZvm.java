@@ -17,8 +17,7 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.2.2";
-	private static final String CMDLINEPROMPT = "OZvm$";
+	public static final String VERSION = "0.3";
 
 	private Blink z88 = null;
     private DisplayStatus blinkStatus;
@@ -75,7 +74,6 @@ public class OZvm implements KeyListener {
 			commandInput.addKeyListener(this);
 			
 			displayCmdOutput("Type 'h' or 'help' for available debugging commands");
-			displayCmdOutput("Use F12 to toggle keyboard focus between debug command line and Z88 window.");			
 		} catch (Exception e) {
 			e.printStackTrace();
 			rtmOutput.append("\n\nCouldn't initialize Z88 virtual machine.");
@@ -229,7 +227,7 @@ public class OZvm implements KeyListener {
 	}
 
 	private void cmdHelp() {
-		displayCmdOutput("Use F12 to toggle keyboard focus between debug command line and Z88 window."); 
+		displayCmdOutput("\nUse F12 to toggle keyboard focus between debug command line and Z88 window."); 
 		displayCmdOutput("All arguments are in Hex: Local address = 64K address space,\nExtended address = 24bit address, eg. 073800 (bank 07h, offset 3800h)");
 		displayCmdOutput("Commands:");
 		displayCmdOutput("exit - end OZvm application");
@@ -248,7 +246,10 @@ public class OZvm implements KeyListener {
 		displayCmdOutput("bpd <extended address> - Toggle display breakpoint");
 		displayCmdOutput("sr - Blink: Segment Register Bank Binding");
 		displayCmdOutput("r - Display current Z80 Registers");
-		displayCmdOutput("cls - Clear command output area");
+		displayCmdOutput("cls - Clear command output area\n");
+		displayCmdOutput("Registers are edited using upper case, ex. A 01 and SP 1FFE");
+		displayCmdOutput("Alternate registers are specified with ', ex. A' 01 and BC' C000");
+		displayCmdOutput("Flags are toggled using FZ, FC, FN, FS, FPV and FH commands.");
 	}
 
 	private void parseCommandLine(java.awt.event.ActionEvent e) {
@@ -285,24 +286,23 @@ public class OZvm implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareTo(".") == 0) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Z88 is already running.");
+				return;
+			}
+
 			commandInput.setText(".");
 			commandInput.setCaretPosition(commandInput.getDocument().getLength());
 			commandInput.selectAll();
-
-			if (z80Thread != null) {
-				if (z80Thread.isAlive() == true)
-					displayCmdOutput("Z88 is already running.");
-					return;
-			}
 			
 			z88.run(true);		// single stepping (no interrupts running)...
 			displayCmdOutput(blinkStatus.dzPcStatus().toString());
 		}
 
 		if (cmdLineTokens[0].compareTo("z") == 0) {
-			if (z80Thread != null) {
-				if (z80Thread.isAlive() == true)
-					displayCmdOutput("Z88 is already running.");
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Z88 is already running.");
+				return;
 			}
 
 			Breakpoints origBreakPoints = this.getBreakpointManager();	// get the current breakpoints
@@ -369,30 +369,367 @@ public class OZvm implements KeyListener {
 			}
 		}
 
+		if (cmdLineTokens[0].compareTo("FZ") == 0) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Cannot change Zero flag while Z88 is running!");
+				return;
+			}
+			z88.fZ = !z88.fZ;
+			displayCmdOutput("F=" + blinkStatus.z80Flags());
+		}
+
+		if (cmdLineTokens[0].compareTo("FC") == 0) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Cannot change Carry flag while Z88 is running!");
+				return;
+			}
+			z88.fC = !z88.fC;
+			displayCmdOutput("F=" + blinkStatus.z80Flags());
+		}
+
+		if (cmdLineTokens[0].compareTo("FS") == 0) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Cannot change Sign flag while Z88 is running!");
+				return;
+			}
+			z88.fS = !z88.fS;
+			displayCmdOutput("F=" + blinkStatus.z80Flags());
+		}
+
+		if (cmdLineTokens[0].compareTo("FH") == 0) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Cannot change Half Carry flag while Z88 is running!");
+				return;
+			}
+			z88.fH = !z88.fH;
+			displayCmdOutput("F=" + blinkStatus.z80Flags());
+		}
+
+		if (cmdLineTokens[0].compareTo("FN") == 0) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Cannot change Add./Sub. flag while Z88 is running!");
+				return;
+			}
+			z88.fN = !z88.fN;
+			displayCmdOutput("F=" + blinkStatus.z80Flags());
+		}
+
+		if (cmdLineTokens[0].compareTo("FP") == 0) {
+			if (z80Thread != null && z80Thread.isAlive() == true) {
+				displayCmdOutput("Cannot change Parity flag while Z88 is running!");
+				return;
+			}
+			z88.fPV = !z88.fPV;
+			displayCmdOutput("F=" + blinkStatus.z80Flags());
+		}
+
+		if (cmdLineTokens[0].compareTo("A") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change A register while Z88 is running!");
+					return;
+				}
+				z88.A(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+			}			
+			displayCmdOutput("A=" + Dz.byteToHex(z88.A(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("A'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate A register while Z88 is running!");
+					return;
+				}
+				z88.ex_af_af();
+				z88.A(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+				z88.ex_af_af();
+			}	
+			z88.ex_af_af();		
+			displayCmdOutput("A'=" + Dz.byteToHex(z88.A(),true));
+			z88.ex_af_af();
+		}
+
+		if (cmdLineTokens[0].compareTo("B") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change B register while Z88 is running!");
+					return;
+				}
+				z88.B(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+			}			
+			displayCmdOutput("B=" + Dz.byteToHex(z88.B(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("C") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change C register while Z88 is running!");
+					return;
+				}
+				z88.C(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+			}			
+			displayCmdOutput("C=" + Dz.byteToHex(z88.C(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("B'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate B register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.B(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("B'=" + Dz.byteToHex(z88.B(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("C'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate C register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.C(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("C'=" + Dz.byteToHex(z88.C(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("BC") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change BC register while Z88 is running!");
+					return;
+				}
+				z88.BC(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+			}			
+			displayCmdOutput("BC=" + Dz.addrToHex(z88.BC(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("BC'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate BC register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.BC(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("BC'=" + Dz.addrToHex(z88.BC(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("D") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change D register while Z88 is running!");
+					return;
+				}
+				z88.D(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+			}			
+			displayCmdOutput("D=" + Dz.byteToHex(z88.D(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("E") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change E register while Z88 is running!");
+					return;
+				}
+				z88.E(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+			}			
+			displayCmdOutput("E=" + Dz.byteToHex(z88.E(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("D'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate D register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.D(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("D'=" + Dz.byteToHex(z88.D(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("E'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate E register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.E(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("E'=" + Dz.byteToHex(z88.E(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("DE") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change DE register while Z88 is running!");
+					return;
+				}
+				z88.DE(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+			}			
+			displayCmdOutput("DE=" + Dz.addrToHex(z88.DE(),true));
+		}
+		
+		if (cmdLineTokens[0].compareTo("DE'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate DE register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.DE(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("DE'=" + Dz.addrToHex(z88.DE(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("H") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change H register while Z88 is running!");
+					return;
+				}
+				z88.H(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+			}			
+			displayCmdOutput("H=" + Dz.byteToHex(z88.H(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("L") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change L register while Z88 is running!");
+					return;
+				}
+				z88.L(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+			}			
+			displayCmdOutput("L=" + Dz.byteToHex(z88.L(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("H'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate H register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.H(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("H'=" + Dz.byteToHex(z88.H(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("L'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate L register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.L(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("L'=" + Dz.byteToHex(z88.L(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("HL") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change HL register while Z88 is running!");
+					return;
+				}
+				z88.HL(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+			}			
+			displayCmdOutput("HL=" + Dz.addrToHex(z88.HL(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("HL'") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change alternate HL register while Z88 is running!");
+					return;
+				}
+				z88.exx();
+				z88.HL(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+				z88.exx();
+			}	
+			z88.exx();		
+			displayCmdOutput("HL'=" + Dz.addrToHex(z88.HL(),true));
+			z88.exx();
+		}
+
+		if (cmdLineTokens[0].compareTo("IX") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change IX register while Z88 is running!");
+					return;
+				}
+				z88.IX(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+			}			
+			displayCmdOutput("IX=" + Dz.addrToHex(z88.IX(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("IY") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change IY register while Z88 is running!");
+					return;
+				}
+				z88.IY(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+			}			
+			displayCmdOutput("IY=" + Dz.addrToHex(z88.IY(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("SP") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change SP register while Z88 is running!");
+					return;
+				}
+				z88.SP(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+			}			
+			displayCmdOutput("SP=" + Dz.addrToHex(z88.SP(),true));
+		}
+
+		if (cmdLineTokens[0].compareTo("PC") == 0) {
+			if (cmdLineTokens.length == 2) {
+				if (z80Thread != null && z80Thread.isAlive() == true) {
+					displayCmdOutput("Cannot change PC register while Z88 is running!");
+					return;
+				}
+				z88.PC(Integer.parseInt(cmdLineTokens[1], 16) & 0xFFFF);
+			}			
+			displayCmdOutput("PC=" + Dz.addrToHex(z88.PC(),true));
+		}
+		
 		if (cmdLineTokens[0].compareTo("exit") == 0) {
 			System.exit(0);
 		}		
-
-		if (cmdLineTokens[0].length() > 0 &&
-			cmdLineTokens[0].compareTo("cls") != 0 &&
-			cmdLineTokens[0].compareTo(".") != 0 &&
-			cmdLineTokens[0].compareTo("d") != 0 &&
-			cmdLineTokens[0].compareTo("r") != 0 &&
-			cmdLineTokens[0].compareTo("m") != 0 &&
-			cmdLineTokens[0].compareTo("wb") != 0 &&
-			cmdLineTokens[0].compareTo("h") != 0 &&
-			cmdLineTokens[0].compareTo("help") != 0 &&
-			cmdLineTokens[0].compareTo("run") != 0 &&
-			cmdLineTokens[0].compareTo("z") != 0 &&
-			cmdLineTokens[0].compareTo("stop") != 0 &&
-			cmdLineTokens[0].compareTo("bp") != 0 &&
-			cmdLineTokens[0].compareTo("bpd") != 0 &&
-			cmdLineTokens[0].compareTo("sr") != 0 &&
-			cmdLineTokens[0].compareTo("bl") != 0 &&
-			cmdLineTokens[0].compareTo("exit") != 0
-		   ) {
-			displayCmdOutput("Unknown command.");
-		}
 	}
 
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
