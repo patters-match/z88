@@ -46,6 +46,7 @@
 ;         CDE = length of file
 ;
 ;    Fc = 1, File Entry not available ($FF was first byte of entry)
+;         BHL unchanged.
 ;
 ; Registers changed after return:
 ;    ......../IXIY same
