@@ -134,7 +134,7 @@ public class IntelFlashBank extends Bank {
 	 * (simulate the chip erase functionality).
 	 */
 	public void eraseBank() {
-		for (int addr=0; addr < Memory.BANKSIZE; addr++) 
+		for (int addr=0; addr < Bank.SIZE; addr++) 
 			setByte(addr, 0xFF);
 	}
 		

@@ -44,10 +44,7 @@ import java.net.URL;
  * words (lower byte at BankX, offset 3FFFh and high byte at BankY, offset 0000h).
  */
 public final class Memory {
-	
-	/** A bank contains 16384 bytes */
-	public static final int BANKSIZE = 16384; 
-	
+		
 	private static final class singletonContainer {
 		static final Memory singleton = new Memory();  
 	}
@@ -226,7 +223,7 @@ public final class Memory {
 		for (int bankNo = 0; bankNo < memory.length; bankNo++) {
 			if ( memory[bankNo] instanceof RamBank == true) {
 				// reset ...
-				for (int bankOffset = 0; bankOffset < Memory.BANKSIZE; bankOffset++) {
+				for (int bankOffset = 0; bankOffset < Bank.SIZE; bankOffset++) {
 					memory[bankNo].setByte(bankOffset, 0);
 				}
 			}
@@ -255,8 +252,8 @@ public final class Memory {
 		int eprSubType = 0;
 
 		slot %= 4; // allow only slots 0 - 3 range.
-		size -= (size % Memory.BANKSIZE);
-		totalEprBanks = size / Memory.BANKSIZE; // number of 16K banks in Eprom Card
+		size -= (size % Bank.SIZE);
+		totalEprBanks = size / Bank.SIZE; // number of 16K banks in Eprom Card
 		if (eprType.compareToIgnoreCase("27C") == 0) {
 			// Traditional UV Eproms (all size configurations allowed)
 			if (totalEprBanks <= 2) 
@@ -312,8 +309,8 @@ public final class Memory {
 		int totalRamBanks, totalSlotBanks, curBank;
 
 		slot %= 4; // allow only slots 0 - 3 range.
-		size -= (size % Memory.BANKSIZE);
-		totalRamBanks = size / Memory.BANKSIZE; // number of 16K banks in Ram Card
+		size -= (size % Bank.SIZE);
+		totalRamBanks = size / Bank.SIZE; // number of 16K banks in Ram Card
 
 		Bank ramBanks[] = new RamBank[totalRamBanks]; // the RAM card container
 		for (curBank = 0; curBank < totalRamBanks; curBank++) {
@@ -334,13 +331,13 @@ public final class Memory {
 		if (rom.length() > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}
-		if (rom.length() % (Memory.BANKSIZE * 2) > 0) {
+		if (rom.length() % (Bank.SIZE * 2) > 0) {
 			throw new IOException("ROM must be in even banks!");
 		}
 
-		Bank romBanks[] = new Bank[(int) rom.length() / Memory.BANKSIZE];
+		Bank romBanks[] = new Bank[(int) rom.length() / Bank.SIZE];
 		// allocate ROM container
-		byte bankBuffer[] = new byte[Memory.BANKSIZE];
+		byte bankBuffer[] = new byte[Bank.SIZE];
 		// allocate intermediate load buffer
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
@@ -387,13 +384,13 @@ public final class Memory {
 		if (card.length() > (1024 * 1024)) {
 			throw new IOException("Max 1024K Card!");
 		}
-		if (card.length() % Memory.BANKSIZE > 0) {
+		if (card.length() % Bank.SIZE > 0) {
 			throw new IOException("Card must be in 16K sizes!");
 		}
 
-		Bank cardBanks[] = new Bank[(int) card.length() / Memory.BANKSIZE];
+		Bank cardBanks[] = new Bank[(int) card.length() / Bank.SIZE];
 		// allocate EPROM container
-		byte bankBuffer[] = new byte[Memory.BANKSIZE];
+		byte bankBuffer[] = new byte[Bank.SIZE];
 		// allocate intermediate load buffer
 		
 		for (int curBank = 0; curBank < cardBanks.length; curBank++) {
@@ -462,7 +459,7 @@ public final class Memory {
 		int offset = extAddress & 0x3FFF;
 		Bank b = getBank(bank); 
 		
-		if ( offset+file.length() > Memory.BANKSIZE) {
+		if ( offset+file.length() > Bank.SIZE) {
 			throw new IOException("File image exceeds Bank boundary!");
 		}
 
@@ -489,21 +486,21 @@ public final class Memory {
 		if (jarConnection.getJarEntry().getSize() > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}
-		if (jarConnection.getJarEntry().getSize() % Memory.BANKSIZE > 0) {
+		if (jarConnection.getJarEntry().getSize() % Bank.SIZE > 0) {
 			throw new IOException("ROM must be in 16K sizes!");
 		}
 
-		Bank romBanks[] = new Bank[(int) jarConnection.getJarEntry().getSize() / Memory.BANKSIZE];
+		Bank romBanks[] = new Bank[(int) jarConnection.getJarEntry().getSize() / Bank.SIZE];
 		// allocate ROM container
-		byte bankBuffer[] = new byte[Memory.BANKSIZE];
+		byte bankBuffer[] = new byte[Bank.SIZE];
 		// allocate intermediate load buffer
 
 		InputStream is = jarConnection.getInputStream();
-		BufferedInputStream bis = new BufferedInputStream( is, Memory.BANKSIZE );
+		BufferedInputStream bis = new BufferedInputStream( is, Bank.SIZE );
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
 			romBanks[curBank] = new RomBank(); // bank is assigned to the card, not yet to the Z88 memory model...
-			int bytesRead = bis.read(bankBuffer, 0, Memory.BANKSIZE);	// load 16K from file, sequentially
+			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
 			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
 

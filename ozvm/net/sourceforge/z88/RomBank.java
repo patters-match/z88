@@ -33,7 +33,7 @@ public class RomBank extends Bank {
 	public RomBank() {		
 		super(-1);		
 
-		for (int i = 0; i < Memory.BANKSIZE-1; i++) setByte(i, 0xFF); // empty Rom contain FF's
+		for (int i = 0; i < Bank.SIZE-1; i++) setByte(i, 0xFF); // empty Rom contain FF's
 	}
 
 	/**
