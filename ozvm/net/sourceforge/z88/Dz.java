@@ -3987,10 +3987,11 @@ public class Dz {
 	/**
 	 * Return Hex 8bit string in XXh zero prefixed format.
 	 * 
-	 * @param b
+	 * @param b The byte to be converted to hex string
+	 * @param hexTrailer append 'h' if true.
 	 * @return String
 	 */
-	public final String byteToHex(int b, boolean hexTrailer) {
+	public static final String byteToHex(int b, boolean hexTrailer) {
 		StringBuffer hexString = new StringBuffer(3);
 		
 		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]);
@@ -4002,10 +4003,11 @@ public class Dz {
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
 	 * 
-	 * @param addr
+	 * @param addr The 16bit address to be converted to hex string
+	 * @param hexTrailer append 'h' if true.
 	 * @return String
 	 */	
-	public final String addrToHex(int addr, boolean hexTrailer) {
+	public static final String addrToHex(int addr, boolean hexTrailer) {
 		int msb = addr >>> 8, lsb = addr & 0xFF;
 		StringBuffer hexString = new StringBuffer(5);
 		
@@ -4069,20 +4071,20 @@ public class Dz {
 
 
 	/**
-	 * Disassemble Z80 instruction opcode located at address origPc. 
-	 * (Internal processing routine)
+	 * Disassemble Z80 instruction opcode stored in packed 4 byte integer.
+	 * (Z80 instruction vary in length between 1 and 4 bytes)
 	 * 
 	 * The Ascii string is generated into the mnemonic argument, which the caller
 	 * can display appropriately. The opcode size of the current instruction is
 	 * returned, when disassembly has completed. 
 	 * 
 	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
-	 * @param origPc int, the address (Program Counter of Z80 instruction)
+	 * @param origPc int, a display address (possibly the Program Counter of Z80 instruction)
 	 * @param instrOpcode int, the 4 byte instruction opcode, packed in MSB order
-	 * @param dispaddr boolean, display Hex address as part of disassembly
-	 * @return int size of instruction opcode
+	 * @param dispaddr boolean, display Program Counter Hex address as part of disassembly
+	 * @return int the actual size of instruction opcode 
 	 */
-	private final int dzInstrAscii(StringBuffer mnemonic, int origPc, int instrOpcode, boolean dispaddr) {
+	public static final int dzInstrAscii(StringBuffer mnemonic, int origPc, int instrOpcode, boolean dispaddr) {
 		int i, instrOpcodeOffset = 0;
 		byte relidx;
 		String strMnem[] = null;
@@ -4094,7 +4096,7 @@ public class Dz {
 
 		int opcode[] = new int[4];
 		for (int opc = 0; opc < 4; opc++) {
-			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode, low byte, high byte order...
+			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode array in low byte, high byte order...
 			instrOpcode >>>= 8;
 		}
 		
@@ -4319,16 +4321,16 @@ public class Dz {
 	 * The instrOpcode contains a 4 byte sequense (MSB format) which contains
 	 * the opcode of 1 or up to 4 byte length.
 	 *
-	 * @param instrOpcode 4 byte instruction opcode sequense
-	 * @return int size of instruction opcode
+	 * @param instrOpcode 4 byte instruction opcode sequense in MSB format
+	 * @return int actual size of instruction opcode
 	 */
-	public final int calcInstrOpcodeSize(int instrOpcode) {
+	public static final int calcInstrOpcodeSize(int instrOpcode) {
 		int i, instrOpcodeOffset = 0;
 		int argsMnem[] = null;
 
 		int opcode[] = new int[4];
 		for (int opc = 0; opc < 4; opc++) {
-			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode, low byte, high byte order...
+			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode array in low byte, high byte order...
 			instrOpcode >>>= 8;
 		}
 		
