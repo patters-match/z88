@@ -902,12 +902,12 @@ WriteMapSymbol (symbol_t * mapnode)
 void
 WriteGlobal (symbol_t * node)
 {
-  if ((node->type & SYMTOUCHED) && (node->type & SYMADDR) && (node->type & SYMXDEF) && !(node->type & SYMDEF))
+  if ((node->type & SYMADDR) && (node->type & SYMXDEF) && !(node->type & SYMDEF))
     {
       /* Write only global definitions - not library routines */
       fprintf (deffile, "DEFC %s", node->symname);
-      fprintf (deffile, " = 0x%08lX", node->symvalue);
-      fprintf (deffile, "Module %s\n", node->owner->mname);
+      fprintf (deffile, " = $%08lX", node->symvalue);
+      fprintf (deffile, "; Module %s\n", node->owner->mname);
     }
 }
 
