@@ -1256,8 +1256,8 @@
                     LD   C,A
                     LD   DE,buf1
                     CALL FileEprFindFile     ; search for <buf1> filename on File Eprom...
-                    ret  c                   ; File Eprom or File Entry was not available
-                    ret  nz                  ; File Entry was not found...
+                    JP   C, not_found_err    ; File Eprom or File Entry was not available
+                    JP   NZ, not_found_err   ; File Entry was not found...
 
                     ld   a,b                 ; File entry found
                     ld   (fbnk),a
@@ -1331,10 +1331,16 @@
                     CALL_OZ GN_Sop
                     RET
 
+.not_found_err      LD   HL, file_not_found_ms
+                    CALL DispErrMsg
+                    RET
+
 .fetf_ms            DEFM 1,"2+C Fetching to ",0
 .done_ms            DEFM " Completed.",$0D,$0A,0
 .ffet_ms            DEFM 13," Fetch as : ",0
 .exis_ms            DEFM 13," Overwrite RAM file : ",0
+.file_not_found_ms  DEFM 13, 10, "File was not found in File Area.", 0
+
 ; *************************************************************************************
 
 
@@ -1346,9 +1352,18 @@
 .restore_main
                     ld   a,(curslot)
                     ld   c,a
+                    push bc
                     call FileEprRequest
+                    pop  bc
                     ret  c
 
+                    CALL cls
+                    
+                    call FileEprCntFiles          ; any files to be restored?
+                    ld   a,h
+                    or   l
+                    jr   z, no_active_files       ; no files available...
+                    
                     CALL cls
                     LD   HL,rest_banner
                     CALL wbar
@@ -1369,6 +1384,10 @@
                     CP   rc_susp
                     JR   Z,restore_main      ; user aborted command...
                     RET
+
+.no_active_files    ld   hl, no_restore_files
+                    call DispErrMsg
+                    ret
 .process_path
                     ld   bc,$80
                     ld   hl,buf1
@@ -1484,6 +1503,8 @@
 .filecreerr
                     CALL_OZ(Gn_Err)          ; report fatal error and exit to main menu...
                     RET
+
+.no_restore_files   DEFM "No files available to restore.", 0
 ; *************************************************************************************
 
 
@@ -1502,7 +1523,7 @@
                     LD   HL,status
                     SET  0,(HL)              ; preset to Yes (to overwrite existing files)
 
-                    LD   HL, promptovwrite_msg
+                    LD   HL, disp_promptovwrite_msg
                     LD   DE, no_ms
                     CALL YesNo
                     JR   C, exit_promptoverwr
@@ -1513,6 +1534,10 @@
 .exit_promptoverwr
                     POP  HL
                     POP  DE
+                    RET
+.disp_promptovwrite_msg
+                    LD   HL, promptovwrite_msg
+                    CALL_OZ gn_sop
                     RET
 
 .rest_banner        DEFM "RESTORE ALL FILES FROM EPROM",0
@@ -2273,8 +2298,8 @@
 ; Write Error message, and wait for ESC wait to be acknowledged.
 ;
 ; Registers changed after return:
-;    AFBCDE../IXIY same
-;    ......HL/.... different
+;    AFBCDEHL/IXIY same
+;    ......../.... different
 ;
 .DispErrMsg
                     PUSH AF                  ; preserve error status...
