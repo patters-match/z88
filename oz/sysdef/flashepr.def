@@ -2,7 +2,7 @@ lstoff
 
 ; Flash Eprom System Constant Definitions
 ; (C) Zlab (Thierry Peycru) 1995-97, 2004
-; - edited by Gunther Strube, 2004
+; - edited by Gunther Strube, Aug 2004
 
 
 DEFC FE_28F = $02           ; second generation Flash chips (available Z88 Flash Cards are using the Intel I28Fxxx chip)
@@ -15,11 +15,11 @@ DEFC FE_INTEL_MFCD = $89    ; INTEL Manufacturer code
 
 ; Unique Flash Memory ID, 28Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 2nd generation Flash chips require 12V for programming and erasure (in z88 slot 3 only)
-DEFC FE_I28F020 = $89BD     ; 256Kb memory (4 x 64K blocks / 16 x 16K banks)
-DEFC FE_I28F004S5 = $89A7   ; 512Kb memory (8 x 64K blocks / 32 x 16K banks)
-DEFC FE_I28F008SA = $89A2   ; 1Mb memory (16 x 64K blocks / 64 x 16K banks)
-DEFC FE_I28F008S5 = $89A6   ; 1Mb memory (16 x 64K blocks / 64 x 16K banks)
-DEFC FE_I28F016S5 = $89AA   ; 2Mb memory (32 x 64K blocks / 128 x 16K banks) - low 1Mb available to Z88
+DEFC FE_I28F020 = $89BD     ; 256Kb memory, 4 x 64K erasable sectors, 16 x 16K banks (z88 memory model)
+DEFC FE_I28F004S5 = $89A7   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_I28F008SA = $89A2   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_I28F008S5 = $89A6   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_I28F016S5 = $89AA   ; 2Mb memory, but for z88 only 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
 ; ==========================================================================================
 
 
@@ -46,9 +46,9 @@ DEFC FE_AMD_MFCD = $01    ; AMD Manufacturer code
 
 ; Unique Flash Memory ID, 29Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 3rd generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
-DEFC FE_AM29F010B = $0120   ; 128Kb memory (2 x 64K blocks / 8 x 16K banks)
-DEFC FE_AM29F040B = $01A4   ; 512Kb memory (8 x 64K blocks / 32 x 16K banks)
-DEFC FE_AM29F080B = $01D5   ; 1Mb memory (16 x 64K blocks / 64 x 16K banks)
+DEFC FE_AM29F010B = $0120   ; 128Kb memory, 2 x 64K erasable sectors, 8 x 16K banks (z88 memory model)
+DEFC FE_AM29F040B = $01A4   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_AM29F080B = $01D5   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
 ; ==========================================================================================
 
 
