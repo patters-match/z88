@@ -17,10 +17,8 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprFileEntryInfo
-     LIB PointerNextByte
-     LIB MemReadByte
-     LIB FileEprReadByte
+     LIB FileEprRequest, FileEprFileEntryInfo
+     LIB PointerNextByte, MemReadByte, FileEprReadByte
 
      INCLUDE "error.def"
      INCLUDE "memory.def"
@@ -31,13 +29,12 @@
 ; Standard Z88 File Eprom Format, including support for sub File Eprom
 ; area in application cards (below application banks in first free 64K boundary)
 ;
-; Return file name of File Entry at BHL, slot C
-; (B=00h-3Fh, HL=0000h-3FFFh)
+; Return file name of File Entry at BHL
+; (B=00h-FFh embedded slot mask, HL=0000h-3FFFh bank offset) 
 ;
 ; IN:
-;    C = slot number containing File Eprom
 ;    DE = buffer to hold returned filename
-;    BHL = pointer to Eprom File Entry
+;    BHL = pointer to Eprom File Entry in card at slot 
 ;
 ; OUT:
 ;    Fc = 0, File Eprom available
@@ -48,28 +45,19 @@
 ;
 ;    Fc = 1,
 ;         A = RC_Onf
-;         File Eprom was not found in slot C, or File Entry not available
+;         File Eprom was not found in slot, or File Entry not available
 ;
 ; Registers changed after return:
 ;    ..BCDEHL/IXIY same
 ;    AF...../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004
 ; ------------------------------------------------------------------------
 ;
 .FileEprFileName    PUSH DE
                     PUSH HL
                     PUSH BC                       ; preserve pointer
-
-                    LD   A,C
-                    AND  @00000011                ; slots (0), 1, 2 or 3 possible
-                    RRCA
-                    RRCA                          ; converted to Slot mask $40, $80 or $C0
-                    OR   B
-                    LD   B,A                      ; bank in slot C...
-                    RES  7,H
-                    SET  6,H                      ; (offset bound into segment 1 temporarily)
 
                     PUSH BC
                     PUSH DE                       ; preserve "to" pointer
