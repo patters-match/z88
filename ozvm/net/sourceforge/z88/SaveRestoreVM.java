@@ -224,11 +224,17 @@ public class SaveRestoreVM {
 
     	// remember the Host computer system time 
     	// when a snapshot is installed and the Blink TIMx register are adjusted to "lost" time...
-    	properties.setProperty("z88StoppedAtTime", "" + blink.getZ88StoppedAtTime());
+    	properties.setProperty("Z88StoppedAtTime", "" + blink.getZ88StoppedAtTime());
     	
     	// remember the current Z88 keyboard layout
-    	properties.setProperty("z88KbLayout", "" + Z88Keyboard.getInstance().getKeyboardLayout());
+    	properties.setProperty("Z88KbLayout", "" + Z88Keyboard.getInstance().getKeyboardLayout());
 		
+    	// remember the visual state of the runtime message panel
+    	properties.setProperty("RtmMessages", Boolean.toString(Gui.getInstance().getRtmMessagesMenuItem().isSelected()));
+
+    	// remember the visual state of the Z88 Keyboard panel
+    	properties.setProperty("Z88Keyboard", Boolean.toString(Gui.getInstance().getZ88keyboardMenuItem().isSelected()));
+    	
     	// save the properties to a temp. file
 	    File pf = new File(propfilename);
 	    FileOutputStream pfs = new FileOutputStream(pf);
@@ -307,10 +313,22 @@ public class SaveRestoreVM {
 	        loadZ80Regs(properties); // restore Z80 processor registers
 	        loadBlinkRegs(properties); // restore Blink hardware registers
 	        
-	        blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("z88StoppedAtTime")));
+	        blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("Z88StoppedAtTime")));
 	        
-	        if (properties.getProperty("z88KbLayout") != null) {
-		        Z88Keyboard.getInstance().setKeyboardLayout(Integer.parseInt(properties.getProperty("z88KbLayout")));
+	        if (properties.getProperty("Z88KbLayout") != null) {
+		        Z88Keyboard.getInstance().setKeyboardLayout(Integer.parseInt(properties.getProperty("Z88KbLayout")));
+	        }      
+
+	        if (properties.getProperty("RtmMessages") != null) {
+	        	boolean dispRtmPanel = Boolean.valueOf(properties.getProperty("RtmMessages")).booleanValue();
+	        	Gui.getInstance().getRtmMessagesMenuItem().setSelected(dispRtmPanel);
+	        	Gui.getInstance().displayRunTimeMessagesPane(dispRtmPanel);
+	        }      
+
+	        if (properties.getProperty("Z88Keyboard") != null) {
+	        	boolean dispZ88Kb = Boolean.valueOf(properties.getProperty("Z88Keyboard")).booleanValue();
+	        	Gui.getInstance().getZ88keyboardMenuItem().setSelected(dispZ88Kb);
+	        	Gui.getInstance().displayZ88Keyboard(dispZ88Kb);
 	        }      
 	        
 	        return true;

@@ -2161,20 +2161,14 @@ public class Gui extends JFrame {
 		return viewMenu;
 	}
 	
-	private JCheckBoxMenuItem getRtmMessagesMenuItem() {
+	public JCheckBoxMenuItem getRtmMessagesMenuItem() {
 		if (rtmMessagesMenuItem == null) {
 			rtmMessagesMenuItem = new JCheckBoxMenuItem();
 			rtmMessagesMenuItem.setSelected(true);
 			rtmMessagesMenuItem.setText("Runtime Messages");
 			rtmMessagesMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (rtmMessagesMenuItem.isSelected() == true) {
-						addRtmMessagesPanel();
-					} else {
-						getContentPane().remove(getRtmOutputScrollPane());
-					}
-					Gui.this.pack();
-					getZ88Display().grabFocus();
+					displayRunTimeMessagesPane(rtmMessagesMenuItem.isSelected());
 				}
 			});
 		}
@@ -2182,23 +2176,40 @@ public class Gui extends JFrame {
 		return rtmMessagesMenuItem;
 	}
 	
-	private JCheckBoxMenuItem getZ88keyboardMenuItem() {
+	public void displayRunTimeMessagesPane(boolean display) {
+		if (display == true) {
+			getContentPane().remove(getRtmOutputScrollPane());
+			addRtmMessagesPanel();
+		} else {
+			getContentPane().remove(getRtmOutputScrollPane());			
+		}
+		Gui.this.pack();
+		getZ88Display().grabFocus();		
+	}
+
+	public void displayZ88Keyboard(boolean display) {
+		if (display == true) {
+			getContentPane().remove(getKeyboardPanel());
+			addKeyboardPanel();
+		} else {
+			getContentPane().remove(getKeyboardPanel());			
+		}
+		Gui.this.pack();
+		getZ88Display().grabFocus();		
+	}
+	
+	public JCheckBoxMenuItem getZ88keyboardMenuItem() {
 		if (z88keyboardMenuItem == null) {
 			z88keyboardMenuItem = new JCheckBoxMenuItem();
 			z88keyboardMenuItem.setSelected(true);
 			z88keyboardMenuItem.setText("Z88 Keyboard");
 			z88keyboardMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (z88keyboardMenuItem.isSelected() == true) {
-						addKeyboardPanel();
-					} else {
-						getContentPane().remove(getKeyboardPanel());						
-					}
-					Gui.this.pack();
-					getZ88Display().grabFocus();
+					displayZ88Keyboard(z88keyboardMenuItem.isSelected());
 				}
 			});
 		}
+		
 		return z88keyboardMenuItem;
 	}	
 
