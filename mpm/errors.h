@@ -64,5 +64,6 @@
 #define Warn_OffsetBoundary 34     /* "offset reaches beyond 16K boundary" */
 
 void ReportWarning (char *filename, short lineno, int warnno);
+void ReportAsmMessage (char *filename, short lineno, char *message);
 void ReportError (char *filename, short linenr, int errnum);
 void ReportIOError (char *filename);

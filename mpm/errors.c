@@ -131,6 +131,44 @@ ReportWarning (char *filename, short lineno, int warnno)
 
 
 void
+ReportAsmMessage  (char *filename, short lineno, char *message)
+{
+  char  errstr[256], errflnmstr[128], errmodstr[128], errlinestr[64];
+
+  ASSEMBLE_ERROR = -1;      /* Error directive message */
+  asmerror = ON;
+
+  errflnmstr[0] = '\0';
+  errmodstr[0] = '\0';
+  errlinestr[0] = '\0';
+  errstr[0] = '\0';
+
+  if (filename != NULL)
+    sprintf (errflnmstr,"File '%s', ", filename);
+
+  if (CURRENTMODULE != NULL)
+    if ( CURRENTMODULE->mname != NULL )
+      sprintf(errmodstr,"Module '%s', ", CURRENTMODULE->mname);
+
+  if (lineno != 0)
+    sprintf (errlinestr, "at line %d, ", lineno);
+
+  strcpy(errstr, errflnmstr);
+  strcat(errstr, errmodstr);
+  strcat(errstr, errlinestr);
+  strcat(errstr, message);
+
+  if (errfile == NULL)
+    fprintf (stderr, "%s\n", errstr);
+  else
+    fprintf (errfile, "%s\n", errstr);
+
+  ++ERRORS;
+  ++TOTALERRORS;
+}
+
+
+void
 ReportError (char *filename, short lineno, int errnum)
 {
   char  errstr[256], errflnmstr[128], errmodstr[128], errlinestr[64];

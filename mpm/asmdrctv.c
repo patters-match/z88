@@ -1160,6 +1160,38 @@ OpenIncludeFile(char *specfilename)
 }
 
 
+void
+ERROR (void)
+{
+  char errmsg[256];
+  long constant = 0, bytepos = 0;
+
+  if (GetSym () == dquote)
+    {
+      while (!feof (srcasmfile) && bytepos < 255)
+        {
+          constant = GetChar (srcasmfile);
+          if (constant == EOF || constant == '\"')
+            {
+              sym = newline;
+              EOL = ON;
+              break;
+            }
+          else
+            {
+              errmsg[bytepos++] = (unsigned char) constant;
+            }
+        }
+
+        errmsg[bytepos] = 0;
+        ReportAsmMessage (CURRENTFILE->fname, CURRENTFILE->line, errmsg);
+    }
+  else
+    {
+        ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
+    }
+}
+
 
 void
 BINARY (void)
