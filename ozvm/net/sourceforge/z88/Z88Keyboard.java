@@ -1186,6 +1186,10 @@ public class Z88Keyboard implements KeyListener {
 		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
+			case KeyEvent.VK_F5:
+				blink.stopZ80Execution();
+				break;
+
 			case KeyEvent.VK_SHIFT:
 				// check if left or right SHIFT were pressed
 				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) releaseZ88key(z88LshKey);
