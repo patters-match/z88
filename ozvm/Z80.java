@@ -8,6 +8,7 @@
  * 	public abstract int readByte( int addr );	
  *	public abstract void writeByte ( int addr, int b );
  *  
+ * $Id$
  */
 
 /**
