@@ -100,8 +100,8 @@ public abstract class Z80 {
 
     /** Main registers */
     private int _A = 0, _HL = 0, _B = 0, _C = 0, _DE = 0;
-    private boolean fS = false, fZ = false, f5 = false, fH = false;
-    private boolean f3 = false, fPV = false, fN = false, fC = false;
+    public boolean fS = false, fZ = false, f5 = false, fH = false;
+    public boolean f3 = false, fPV = false, fN = false, fC = false;
 
     /** Alternate registers */
     private int _AF_ = 0, _HL_ = 0, _BC_ = 0, _DE_ = 0;
@@ -131,7 +131,7 @@ public abstract class Z80 {
     public final int BC() {
         return (B() << 8) | C();
     }
-    private final void BC(int word) {
+    public final void BC(int word) {
         B(word >> 8);
         C(word & 0xff);
     }
@@ -139,14 +139,14 @@ public abstract class Z80 {
     public final int DE() {
         return _DE;
     }
-    private final void DE(int word) {
+    public final void DE(int word) {
         _DE = word;
     }
 
     public final int HL() {
         return _HL;
     }
-    private final void HL(int word) {
+    public final void HL(int word) {
         _HL = word;
     }
 
@@ -163,7 +163,7 @@ public abstract class Z80 {
     public final int SP() {
         return _SP;
     }
-    private final void SP(int word) {
+    public final void SP(int word) {
         _SP = word;
     }
 
@@ -177,14 +177,14 @@ public abstract class Z80 {
     public final int IX() {
         return _IX;
     }
-    private final void IX(int word) {
+    public final void IX(int word) {
         _IX = word;
     }
 
     public final int IY() {
         return _IY;
     }
-    private final void IY(int word) {
+    public final void IY(int word) {
         _IY = word;
     }
 
@@ -192,7 +192,7 @@ public abstract class Z80 {
     public final int A() {
         return _A;
     }
-    private final void A(int bite) {
+    public final void A(int bite) {
         _A = bite;
     }
 
@@ -217,42 +217,42 @@ public abstract class Z80 {
         fC = (bite & F_C) != 0;
     }
 
-    private final int B() {
+    public final int B() {
         return _B;
     }
-    private final void B(int bite) {
+    public final void B(int bite) {
         _B = bite;
     }
-    private final int C() {
+    public final int C() {
         return _C;
     }
-    private final void C(int bite) {
+    public final void C(int bite) {
         _C = bite;
     }
 
-    private final int D() {
+    public final int D() {
         return (_DE >> 8);
     }
-    private final void D(int bite) {
+    public final void D(int bite) {
         _DE = (bite << 8) | (_DE & 0x00ff);
     }
-    private final int E() {
+    public final int E() {
         return (_DE & 0xff);
     }
-    private final void E(int bite) {
+    public final void E(int bite) {
         _DE = (_DE & 0xff00) | bite;
     }
 
-    private final int H() {
+    public final int H() {
         return (_HL >> 8);
     }
-    private final void H(int bite) {
+    public final void H(int bite) {
         _HL = (bite << 8) | (_HL & 0x00ff);
     }
-    private final int L() {
+    public final int L() {
         return (_HL & 0xff);
     }
-    private final void L(int bite) {
+    public final void L(int bite) {
         _HL = (_HL & 0xff00) | bite;
     }
 
