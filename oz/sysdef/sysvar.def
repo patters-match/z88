@@ -20,6 +20,10 @@
 
 ;Constants are all uppercase
 
+defc	OZVERSION		=4
+
+
+
 defc	ubRandomPtr		=$01fb
 defc	uwRandom1		=$01fc
 defc	uwRandom2		=$01fe
@@ -200,10 +204,6 @@ defc	ubTopVisibleAlarm	=$0fb4
 
 ;$0fbf-$0ffb	Calculator app data - shouldn't be here
 
-
-
-
-
 defc	word_1853		=$1853
 defc	uwStkEntUsedStkSize	=$1859
 defc	pStkTempStkTop		=$185b
@@ -216,8 +216,8 @@ defc	unk_1864		=$1864
 defc	IDXF1_B_INSIDEOZ	=0			; inside OS_In
 defc	IDXF1_B_INIT		=1			; need init
 
-defc	IDXF1_INSIDEOS		=1
-defc	IDXF1_INIT		=2
+defc	IDXF1_INSIDEOS		=$01
+defc	IDXF1_INIT		=$02
 
 ;	qualifiers
 
@@ -226,10 +226,10 @@ defc	QUAL_B_CTRL		=1
 defc	QUAL_B_ALT		=2
 defc	QUAL_B_SPECIAL		=3
 
-defc	QUAL_SHIFT		=1
-defc	QUAL_CTRL		=2
-defc	QUAL_ALT		=4
-defc	QUAL_SPECIAL		=8
+defc	QUAL_SHIFT		=$01
+defc	QUAL_CTRL		=$02
+defc	QUAL_ALT		=$04
+defc	QUAL_SPECIAL		=$08
 
 ;	ubIntStatus
 
@@ -257,10 +257,10 @@ defc	ITSK_B_ESC		=4
 defc	ITSK_B_ALARM		=5
 defc	ITSK_B_OZWINDOW		=7
 
-defc	ITSK_BUFFER		=1
-defc	ITSK_TIMER		=2
-defc	ITSK_SHUTDOWN		=4
-defc	ITSK_PREEMPTION		=8
+defc	ITSK_BUFFER		=$01
+defc	ITSK_TIMER		=$02
+defc	ITSK_SHUTDOWN		=$04
+defc	ITSK_PREEMPTION		=$08
 defc	ITSK_ESC		=$10
 defc	ITSK_ALARM		=$20
 defc	ITSK_OZWINDOW		=$80
@@ -270,11 +270,12 @@ defc	ITSK_OZWINDOW		=$80
 defc	SF1_B_0			=0
 defc	SF1_B_1			=1
 defc	SF1_B_INPUTPENDING	=2
-defc	SF1_B_XTNDCHAR		=3		; was	SF1_B_3
+defc	SF1_B_XTNDCHAR		=3
 defc	SF1_B_OZDMND		=4
 defc	SF1_B_OZSQUARE		=5
 defc	SF1_B_6			=6
 defc	SF1_B_NOTOKENS		=7
+
 defc	SF1_OZDMND		=$10
 defc	SF1_OZSQUARE		=$20
 
@@ -307,184 +308,193 @@ defc	sbf_ActiveWd		=SBF_ADDRESS+$7e7
 
 defvars	SBF_ADDRESS+$7e9
 {
-sbf_CtrlPrefix		ds.b	1
-sbf_PrefixSeq		ds.b	1
-sbf_PrefixLen		ds.b	1
-sbf_VDUbuffer		ds.b	1
-sbf_VDU1		ds.b	1
-sbf_VDU2		ds.b	1
-sbf_VDU3		ds.b	1
-sbf_VDU4		ds.b	1
-sbf_VDU5		ds.b	1
-sbf_VDU6		ds.b	1
+sbf_CtrlPrefix			ds.b	1
+sbf_PrefixSeq			ds.b	1
+sbf_PrefixLen			ds.b	1
+sbf_VDUbuffer			ds.b	1
+sbf_VDU1			ds.b	1
+sbf_VDU2			ds.b	1
+sbf_VDU3			ds.b	1
+sbf_VDU4			ds.b	1
+sbf_VDU5			ds.b	1
+sbf_VDU6			ds.b	1
 }
 
 ;	window - negative offsets
 
-defc	wdf_f2			=-14
-defc	wdf_flagsHi		=-13
-defc	wdf_OpenFlags		=-12		; was wdf_f4
-defc	wdf_flagsLo		=-11
-defc	wdf_f6			=-10		; !! unused, always zero
-defc	wdf_crsrattr		=-9
-defc	wdf_crsrx		=-8
-defc	wdf_crsry		=-7
-defc	wdf_rmargin		=-6
-defc	wdf_lmargin		=-5
-defc	wdf_endx		=-4
-defc	wdf_endy		=-3
-defc	wdf_startx		=-2
-defc	wdf_starty		=-1
+defvars -14 {
+wdf_f2				ds.b	1
+wdf_flagsHi			ds.b	1
+wdf_OpenFlags			ds.b	1
+wdf_flagsLo			ds.b	1
+wdf_f6				ds.b	1	; !! unused, always zero
+wdf_crsrattr			ds.b	1
+wdf_crsrx			ds.b	1
+wdf_crsry			ds.b	1
+wdf_rmargin			ds.b	1
+wdf_lmargin			ds.b	1
+wdf_endx			ds.b	1
+wdf_endy			ds.b	1
+wdf_startx			ds.b	1
+wdf_starty			ds.b	1
+}
 
 ;	flags lo
-defc	WDFL_B_BOLD		=7
-defc	WDFL_B_TINY		=6
-defc	WDFL_B_REVERSE		=4
-defc	WDFL_B_FLASH		=3
-defc	WDFL_B_GREY		=2
 defc	WDFL_B_ULINE		=1
+defc	WDFL_B_GREY		=2
+defc	WDFL_B_FLASH		=3
+defc	WDFL_B_REVERSE		=4
+defc	WDFL_B_TINY		=6
+defc	WDFL_B_BOLD		=7
 
-defc	WDFL_BOLD		=$80
-defc	WDFL_TINY		=$40
-defc	WDFL_REVERSE		=$10
-defc	WDFL_FLASH		=$08
-defc	WDFL_GREY		=$04
 defc	WDFL_ULINE		=$02
+defc	WDFL_GREY		=$04
+defc	WDFL_FLASH		=$08
+defc	WDFL_REVERSE		=$10
+defc	WDFL_TINY		=$40
+defc	WDFL_BOLD		=$80
 
 ;	flags hi
-defc	WDFH_B_CURSOR		=7
-defc	WDFH_B_CURSORON		=6
-defc	WDFH_B_VSCROLL		=5
-defc	WDFH_B_CAPS		=4
-defc	WDFH_B_DELAY		=3
 defc	WDFH_B_HSCROLL		=2
+defc	WDFH_B_DELAY		=3
+defc	WDFH_B_CAPS		=4
+defc	WDFH_B_VSCROLL		=5
+defc	WDFH_B_CURSORON		=6
+defc	WDFH_B_CURSOR		=7
 
-defc	WDFH_CURSOR		=$80
-defc	WDFH_CURSORON		=$40
-defc	WDFH_VSCROLL		=$20
-defc	WDFH_CAPS		=$10
-defc	WDFH_DELAY		=$08
-defc	WDFH_HSCROLL		=$04
 defc	WDFH_JUSTIFICATION	=$03
+defc	WDFH_HSCROLL		=$04
+defc	WDFH_DELAY		=$08
+defc	WDFH_CAPS		=$10
+defc	WDFH_VSCROLL		=$20
+defc	WDFH_CURSORON		=$40
+defc	WDFH_CURSOR		=$80
 
 ;	flags f2 f4(fo)
 
 defc	WDF2_B_INITIALIZED	=7	; other bits unused
 
 
-defc	WDFO_B_6		=6
-defc	WDFO_B_5		=5
-defc	WDFO_B_GREY		=4	; set during +G cls
-defc	WDFO_B_UNGREY		=3	; set during -G cls
-defc	WDFO_B_BRACKETS		=1	; shelf brackets
 defc	WDFO_B_BORDERS		=0	; left/right vertical bars
+defc	WDFO_B_BRACKETS		=1	; shelf brackets
+defc	WDFO_B_UNGREY		=3	; set during -G cls
+defc	WDFO_B_GREY		=4	; set during +G cls
+defc	WDFO_B_5		=5
+defc	WDFO_B_6		=6
 
 ;	LCD hardware attributes
 
-defc	LCDA_B_HIRES		=5
-defc	LCDA_B_REVERSE		=4
-defc	LCDA_B_FLASH		=3
-defc	LCDA_B_GREY		=2
-defc	LCDA_B_UNDERLINE	=1
 defc	LCDA_B_CH8		=0
+defc	LCDA_B_UNDERLINE	=1
+defc	LCDA_B_GREY		=2
+defc	LCDA_B_FLASH		=3
+defc	LCDA_B_REVERSE		=4
+defc	LCDA_B_HIRES		=5
+defc	LCDA_B_TINY		=7
 
-defc	LCDA_TINY		=$80	; software flag
-defc	LCDA_HIRES		=$20
-defc	LCDA_REVERSE		=$10
-defc	LCDA_FLASH		=$08
-defc	LCDA_GREY		=$04
-defc	LCDA_UNDERLINE		=$02
 defc	LCDA_CH8		=$01
+defc	LCDA_UNDERLINE		=$02
+defc	LCDA_GREY		=$04
+defc	LCDA_FLASH		=$08
+defc	LCDA_REVERSE		=$10
+defc	LCDA_HIRES		=$20
+defc	LCDA_TINY		=$80	; software flag
 
-defc	LCDA_LORESCURSOR	=$38
+defc	LCDA_SPECMASK		=$3C
 defc	LCDA_NULLCHAR		=$34
-
+defc	LCDA_LORESCURSOR	=$38
 
 
 ;	(application) DOR offsets
 
-defc	DOR_PARENT	=$00
-defc	DOR_BROTHER	=$03
-defc	DOR_SON		=$06
-defc	DOR_TYPE	=$09
-defc	DOR_LENGTH	=$0a
+defvars 0 {
+DOR_PARENT			ds.p	1	; $00
+DOR_BROTHER			ds.p	1	; $03
+DOR_SON				ds.p	1	; $06
+DOR_TYPE			ds.b	1	; $09
+DOR_LENGTH			ds.b	1	; $0a
+ADOR_INFOTYPE			ds.b	1	; $0b
+ADOR_INFOLENGTH			ds.b	1	; $0c
+ADOR_RESERVED			ds.b	2	; $0d
+ADOR_APPKEY			ds.b	1	; $0f
+ADOR_BADSIZE			ds.b	1	; $10
+ADOR_ENVSIZE			ds.w	1	; $11
+ADOR_UNSAFE			ds.w	1	; $13
+ADOR_SAFE			ds.w	1	; $15
+ADOR_ENTRY			ds.w	1	; $17
+ADOR_BINDINGS			ds.b	4	; $19
+ADOR_FLAGS			ds.b	1	; $1d
+ADOR_FLAGS2			ds.b	1	; $1e
+ADOR_HELPTYPE			ds.b	1	; $1f
+ADOR_HELPLENGTH			ds.b	1	; $20
+ADOR_TOPICS			ds.p	1	; $21
+ADOR_COMMANDS			ds.p	1	; $24
+ADOR_HELP			ds.p	1	; $27
+ADOR_TOKENS			ds.p	1	; $2a
+ADOR_NAMETYPE			ds.b	1	; $2d
+ADOR_NAMELENGTH			ds.b	1	; $2e
+ADOR_NAME			ds.b	1	; $2f
+}
 
-defc	ADOR_INFOTYPE	=$0b
-defc	ADOR_INFOLENGTH	=$0c
-defc	ADOR_RESERVED	=$0d
-defc	ADOR_APPKEY	=$0f
-defc	ADOR_BADSIZE	=$10
-defc	ADOR_ENVSIZE	=$11
-defc	ADOR_UNSAFE	=$13
-defc	ADOR_SAFE	=$15
-defc	ADOR_ENTRY	=$17
-defc	ADOR_BINDINGS	=$19
-defc	ADOR_FLAGS	=$1d
-defc	ADOR_FLAGS2	=$1e
-defc	ADOR_HELPTYPE	=$1f
-defc	ADOR_HELPLENGTH	=$20
-defc	ADOR_TOPICS	=$21
-defc	ADOR_COMMANDS	=$24
-defc	ADOR_HELP	=$27
-defc	ADOR_TOKENS	=$2a
-defc	ADOR_NAMETYPE	=$2d
-defc	ADOR_NAMELENGTH	=$2e
-defc	ADOR_NAME	=$2f
+defc	CMDF_B_COLUMN		=0
+defc	TPCF_B_AN		=0			; unused? if so, there's error in docs
+defc	TPCF_B_INFO		=1
+defc	CMDF_B_HIDDEN		=2
+defc	CMDF_B_SAFE		=3
+defc	CMDF_B_HELP		=4
 
-defc	CMDF_B_COLUMN	=0
-defc	TPCF_B_AN	=0			; unused? if so, there's error in docs
-defc	TPCF_B_INFO	=1
-defc	CMDF_B_HIDDEN	=2
-defc	CMDF_B_SAFE	=3
-defc	CMDF_B_HELP	=4
+defc	CMDF_HELP		=$10
 
-defc	CMDF_HELP	=$10
-
-defc	OSFrame_IY		= $00
-defc	OSFrame_S2		= $02
-defc	OSFrame_S3		= $03
-defc	OSFrame_OZCall		= $04
-defc	OSFrame_F		= $06
-defc	OSFrame_A		= $07
-defc	OSFrame_C		= $08
-defc	OSFrame_B		= $09
-defc	OSFrame_E		= $0A
-defc	OSFrame_D		= $0B
-defc	OSFrame_L		= $0C
-defc	OSFrame_H		= $0D
-defc	OSFrame__S2		= $0E
-defc	OSFrame__S3		= $0F
+defvars 0 {
+OSFrame_IY			ds.w	1	; $00
+OSFrame_S2			ds.b	1	; $02
+OSFrame_S3			ds.b	1	; $03
+OSFrame_OZCall			ds.w	1	; $04
+OSFrame_F			ds.b	1	; $06
+OSFrame_A			ds.b	1	; $07
+OSFrame_C			ds.b	1	; $08
+OSFrame_B			ds.b	1	; $09
+OSFrame_E			ds.b	1	; $0A
+OSFrame_D			ds.b	1	; $0B
+OSFrame_L			ds.b	1	; $0C
+OSFrame_H			ds.b	1	; $0D
+OSFrame__S2			ds.b	1	; $0E
+OSFrame__S3			ds.b	1	; $0F
+}
 
 ; Z80 flags SZ-H-PNC
 
-defc	Z80F_S			=$80
-defc	Z80F_Z			=$40
-defc	Z80F_H			=$10
-defc	Z80F_P			=$04
-defc	Z80F_V			=$04
-defc	Z80F_N			=$02
-defc	Z80F_C			=$01
-
-defc	Z80F_B_S		=7
-defc	Z80F_B_Z		=6
-defc	Z80F_B_H		=4
-defc	Z80F_B_P		=2
-defc	Z80F_B_V		=2
-defc	Z80F_B_N		=1
 defc	Z80F_B_C		=0
+defc	Z80F_B_N		=1
+defc	Z80F_B_V		=2
+defc	Z80F_B_P		=2
+defc	Z80F_B_H		=4
+defc	Z80F_B_Z		=6
+defc	Z80F_B_S		=7
+
+defc	Z80F_C			=$01
+defc	Z80F_N			=$02
+defc	Z80F_V			=$04
+defc	Z80F_P			=$04
+defc	Z80F_H			=$10
+defc	Z80F_Z			=$40
+defc	Z80F_S			=$80
 
 
 
 ;	buffer  !! remove unused bytes, size drops to 5 bytes
 
-defc	buf_f6			=$F6
-defc	buf_func		=$F7
-defc	buf_funcH		=$F8
-defc	buf_end			=$FA
-defc	buf_start		=$FB
-defc	buf_bufpage		=$FC
-defc	buf_wrpos		=$FE
-defc	buf_rdpos		=$FF
+defvars -10 {
+buf_f6				ds.b	1	; $F6
+buf_func			ds.b	1	; $F7
+buf_funcH			ds.w	1	; $F8
+buf_end				ds.b	1	; $FA
+buf_start			ds.b	1	; $FB
+buf_bufpage			ds.b	1	; $FC
+buf_fd				ds.b	1	; $FD unused
+buf_wrpos			ds.b	1	; $FE
+buf_rdpos			ds.b	1	; $FF
+}
 
 ;	handle types
 
@@ -507,14 +517,16 @@ defc	hnd_H			=$0c
 defc	hnd_Bank		=$0d
 defc	hnd_SIZEOF		=$10
 
+defc	HNDF_B_DEV		=0
+
 ;	device handle
 
-defc	dhnd_flags	=$0A
-defc	dhnd_DOR	=$0B
-defc	dhnd_DORH	=$0C
-defc	dhnd_DORBank	=$0D
-defc	dhnd_AppSlot	=$0E			; was ApplBase
-defc	dhnd_DeviceID	=$0F
+defc	dhnd_flags		=$0A
+defc	dhnd_DOR		=$0B
+defc	dhnd_DORH		=$0C
+defc	dhnd_DORBank		=$0D
+defc	dhnd_AppSlot		=$0E
+defc	dhnd_DeviceID		=$0F
 
 ;	file handle
 
@@ -530,9 +542,11 @@ defc	fhnd_Bank		=$0d
 defc	FATR_B_READABLE		=0
 defc	FATR_B_WRITABLE		=1
 defc	FATR_B_MEMORY		=2
-defc	FATR_READABLE		=1
-defc	FATR_WRITABLE		=2
-defc	FATR_MEMORY		=4
+
+defc	FATR_READABLE		=$01
+defc	FATR_WRITABLE		=$02
+defc	FATR_MEMORY		=$04
+defc	FATR_SLOT		=$18		; two bits
 
 defc	FFLG_B_SPECDEV		=1
 defc	FFLG_B_WRERROR		=2
@@ -559,9 +573,7 @@ defc	ahnd_DateH		=$09
 defc	ahnd_Time		=$0A
 defc	ahnd_TimeM		=$0B
 defc	ahnd_TimeH		=$0C
-defc	ahnd_FuncL		=$0D
-defc	ahnd_FuncH		=$0E
-defc	ahnd_FuncB		=$0F
+defc	ahnd_Func		=$0D		; BHL
 
 defc	ALMF_B_ACTIVE		=7
 
@@ -628,8 +640,9 @@ defc	ALRF_NEVER		=$80
 
 defc	OOM_B_NORMAL		=0
 defc	OOM_B_FIXED		=1
-defc	OOM_NORMAL		=1
-defc	OOM_FIXED		=2
+
+defc	OOM_NORMAL		=$01
+defc	OOM_FIXED		=$02
 
 ;	MAT entry flags
 
@@ -660,19 +673,33 @@ defc	OZBANK_GN	=3
 defc	OZBANK_PRFILTER	=3
 defc	OZBANK_7	=7
 
+defc	OZCALLTBL		=$ff00
+defc	GNCALLTBL		=$8000		; GN/DC tables at same address,
+defc	DCCALLTBL		=$8000		; change CallGN/CallDC if changed
+
+;	should get rid of these later - most likely when they are moved into main banks
+
+defc	PrntChar		=$afc0
+defc	PrntCtrlSeq		=$afc3
+defc	PrntInit		=$afc6
+
+defc	RS232code		=$a500
+
+
 
 ;	keyboard
-
-defc	kbd_rawkey	=0		; current key, internal code
-defc	kbd_rlscnt	=1		; release counter
-defc	kbd_keyflags	=2		; state bits: KB_xxx
-defc	kbd_prevkey	=3		; as above for previous key
-defc	kbd_prevrlscnt	=4
-defc	kbd_prevflags	=5
-defc	kbd_repeatcnt	=6		; repeat counter
-defc	kbd_flags	=7		; flag bits:
-defc	kbd_lastkey	=8		; used in dead-key handling
-
+defvars 0 {
+kbd_rawkey		ds.b	1	; current key, internal code
+kbd_rlscnt		ds.b	1	; release counter
+kbd_keyflags		ds.b	1	; state bits: KB_xxx
+kbd_prevkey		ds.b	1	; as above for previous key
+kbd_prevrlscnt		ds.b	1
+kbd_prevflags		ds.b	1
+kbd_repeatcnt		ds.b	1	; repeat counter
+kbd_flags		ds.b	1
+kbd_lastkey		ds.b	1	; used in dead-key handling
+kbd_SIZEOF		ds.b	1
+}
 
 defc	KBF_B_CAPSE	=0		; 1-CAPS enable
 defc	KBF_B_CAPS	=1		; 1-caps 0-CAPS
@@ -683,14 +710,14 @@ defc	KBF_B_KEY	=5		; 1-any (not <>/[]) key down
 defc	KBF_B_SQR	=6		; 1-[] down
 defc	KBF_B_LOCKED	=7		; 1-locked
 
-defc	KBF_CAPSE	=1
-defc	KBF_CAPS	=2
-defc	KBF_SCAN	=4
-defc	KBF_BEEP	=8
-defc	KBF_DMND	=16
-defc	KBF_KEY		=32
-defc	KBF_SQR		=64
-defc	KBF_LOCKED	=128
+defc	KBF_CAPSE	=$01
+defc	KBF_CAPS	=$02
+defc	KBF_SCAN	=$04
+defc	KBF_BEEP	=$08
+defc	KBF_DMND	=$10
+defc	KBF_KEY		=$20
+defc	KBF_SQR		=$40
+defc	KBF_LOCKED	=$808
 
 defc	IN_ASPC		=$B0
 defc	IN_AESC		=$B4
@@ -717,10 +744,7 @@ defc	IN_IDX		=$E6
 defc	IN_HLP		=$E7
 defc	IN_LOCK		=$E8
 
-;	should get rid of these later - most likely when they are moved into main banks
 
-defc	PrntChar		=$afc0
-defc	PrntCtrlSeq		=$afc3
-defc	PrntInit		=$afc6
 
-defc	RS232code		=$a500
+defc	AT_B_Draw		=5
+defc	AT_B_Popd		=3
