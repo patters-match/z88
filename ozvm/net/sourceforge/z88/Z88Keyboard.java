@@ -83,6 +83,7 @@ public class Z88Keyboard implements KeyListener {
 		currentLayout = z88Keyboards[COUNTRY_EN];
 		 
 		// map Host keyboard events to this z88 keyboard, so that the emulator responds to keypresses.
+		cnv.setFocusTraversalKeysEnabled(false);
 		cnv.addKeyListener(this);		
     }
 
@@ -490,7 +491,7 @@ public class Z88Keyboard implements KeyListener {
 	 * This event is fired whenever a key press is recognised on the java.awt.Canvas.
 	 */
 	public void keyPressed(KeyEvent e) {
-		// System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 				
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -547,7 +548,7 @@ public class Z88Keyboard implements KeyListener {
 	 * This event is fired whenever a key is released on the java.awt.canvas.
 	 */
 	public void keyReleased(KeyEvent e) {
-		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -600,6 +601,6 @@ public class Z88Keyboard implements KeyListener {
 	}
 
 	public void keyTyped(KeyEvent e) {
-		//System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 	}
 }
