@@ -21,13 +21,15 @@ Module SelectCard
 ; This module contains functionality that displays the card / file area selection pop-up
 ; window and cursor movement
 
-     XDEF SelectFileArea, SelectCardCommand, VduCursor
-     XDEF PollFileEproms
+     XDEF SelectFileArea, SelectCardCommand, SelectDefaultSlot, PollSlots, VduCursor
+     XDEF selslot_banner
 
      LIB CreateWindow, RamDevFreeSpace
      LIB FileEprRequest, FileEprFreeSpace, ApplEprType, FlashEprCardId
 
      XREF greyscr, greyfont, nocursor, nogreyfont, notinyfont
+     XREF FormatCommand
+     XREF PollFileFormatSlots
      XREF FlashWriteSupport, execute_format
      XREF CheckFlashCardID
      XREF DispCmdWindow, DispCtlgWindow
@@ -113,7 +115,7 @@ Module SelectCard
                          LD   HL, freetxt
                          CALL_OZ(Gn_Sop)
                          POP  AF
-                         CALL DispSlotSize                                                 
+                         CALL DispSlotSize
                          jp   nextline
 .poll_for_rom_card
                     ld   a,(curslot)
@@ -227,7 +229,7 @@ Module SelectCard
                     jp   nz, disp_slot_loop
 
                     ; Now, user selects card (if possible) ...
-                    CALL select_default           ; preset menu bar at first available card file area 
+                    CALL SelectDefaultSlot        ; preset menu bar at first available card file area
 .select_slot_loop
                     call UserMenu
                     ret  c                        ; user aborted selection
@@ -275,7 +277,7 @@ Module SelectCard
                     push bc
                     push de
                     push hl
-                    
+
                     LD   H,0
                     LD   L,A
                     CALL m16
@@ -283,7 +285,7 @@ Module SelectCard
                     CALL DispKSize
                     ld   a,'K'
                     call_oz(OS_Out)
-                    
+
                     pop  hl
                     pop  de
                     pop  bc
@@ -406,73 +408,6 @@ Module SelectCard
 
 
 ; *************************************************************************************
-;
-; Scan external slots and display available File Eprom's from which the
-; user selects an item.
-;
-; If no File Eprom Area was found, then slots 1-3 are examined for a Flash
-; Card to be created with a File Eprom Area (whole card or part).
-; If found and user acknowledges, then selected slot will be created with a File
-; Area and selected as default.
-;
-; The selected Card will remain as the current File Area throughout
-; the life of the instantiated FlashStore popdown.
-;
-; A small array, <availslots> is used to store the size of each File Eprom
-; with the first byte indicating the total of File Eproms available.
-;
-.PollFileEproms
-                    call PollSlots
-                    or   a
-                    jr   nz, select_slot     ; one or more File Eprom's were found, select one...
-                         ld   c,3
-.check_for_flash_cards
-                         call CheckFlashCardID    ; Empty Flash Cards in slots 3-1?
-                         jr   nc, chip_found      ; Yes...
-                         dec  c
-                         jr   nz, check_for_flash_cards
-
-                         CALL greyscr
-                         CALL DispCtlgWindow
-.unkn_chip
-                         ld   hl, noflash_msg
-                         call DispErrMsg
-                         scf
-                         ret
-.chip_found
-                         LD   A,C
-                         LD   (curslot),A         ; use found Flash Card this as current slot...
-                         CALL greyscr
-                         CALL DispCtlgWindow
-                         call execute_format      ; format Flash Card with new File Area
-                         ret
-.select_slot
-                    cp   1
-                    jr   z, select_default
-
-                    ld   hl, selslot_banner
-                    call SelectFileArea          ; User selects a slot from a list...
-                    ret
-.select_default                              ; select the first available Card File Area
-                    ld   hl, availslots+1
-                    ld   b,3
-                    ld   c,1
-                    xor  a
-.sel_slot_loop
-                    cp   (hl)
-                    jr   nz, found_slot
-                    inc  hl
-                    inc  c
-                    djnz sel_slot_loop
-.found_slot
-                    ld   a,c
-                    ld   (curslot),a         ; current slot selected...
-                    cp   a
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
 .PollSlots
                     push bc
                     push de
@@ -516,6 +451,25 @@ Module SelectCard
                     ret
 ; *************************************************************************************
 
+
+; *************************************************************************************
+.SelectDefaultSlot                              ; select the first available Card File Area
+                    ld   hl, availslots+1
+                    ld   b,3
+                    ld   c,1
+                    xor  a
+.sel_slot_loop
+                    cp   (hl)
+                    jr   nz, found_slot
+                    inc  hl
+                    inc  c
+                    djnz sel_slot_loop
+.found_slot
+                    ld   a,c
+                    ld   (curslot),a         ; current slot selected...
+                    cp   a
+                    ret
+; *************************************************************************************
 
 ; *************************************************************************************
 ;

@@ -35,9 +35,13 @@
      lib CreateWindow              ; Create windows...
 
      ; external functionality in other modules
+     xref GetDefaultPanelRamDev    ; defaultram.asm
+     xref DefaultRamCommand        ; defaultram.asm
      xref SelectFileArea           ; selectcard.asm
      xref SelectCardCommand        ; selectcard.asm
-     xref PollFileEproms           ; selectcard.asm
+     xref PollSlots                ; selectcard.asm
+     xref selslot_banner           ; selectcard.asm
+     xref SelectDefaultSlot        ; selectcard.asm
      xref FilesAvailable           ; catalog.asm
      xref VduCursor                ; selectcard.asm
      xref FileEpromStatistics      ; filestat.asm
@@ -61,6 +65,7 @@
      xref RestoreFilesCommand      ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref fnam_msg, fsok_msg       ; savefiles.asm
+     xref BackupRamCommand         ; savefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
 
      xref FlashStoreTopics         ; mth.asm
@@ -184,6 +189,10 @@
                     ld   hl,Errhandler
                     CALL_OZ os_erh           ; then install Error Handler...
 
+                    CALL GetDefaultPanelRamDev    ; Get the default RAM device slot number from the system Panel
+                    CALL greyscr
+                    CALL DispCtlgWindow
+
                     CALL PollFileEproms      ; user selects a File Eprom Area in one of the ext. slots.
                     JP   C, suicide          ; no File Area available, or Flash didn't have write support in found slot
                     JP   NZ, suicide         ; user aborted
@@ -205,7 +214,7 @@
                     CALL DispCmdWindow
                     CALL DispCtlgWindow
                     CALL FileEpromStatistics      ; parse for free space and total of files...
-                    
+
                     LD   HL, mainmenu
                     PUSH HL                       ; return address for functions...
 .inp_main
@@ -222,16 +231,20 @@
                     JP   Z, SaveFilesCommand
                     CP   FlashStore_CC_fl              ; Fetch File from File Card
                     JP   Z, FetchFileCommand
+                    CP   FlashStore_CC_bf              ; Backup RAM Card
+                    JP   Z, BackupRamCommand
                     CP   FlashStore_CC_rf              ; Restore Files
                     JP   Z, RestoreFilesCommand
                     CP   FlashStore_CC_cf
                     JP   Z, CatalogCommand
-                    CP   FlashStore_CC_format
+                    CP   FlashStore_CC_ffa
                     JP   Z, FormatCommand
                     CP   FlashStore_CC_sc
                     JP   Z, SelectCardCommand
                     CP   FlashStore_CC_fe
                     JP   Z, DeleteFileCommand
+                    CP   FlashStore_CC_sv
+                    JP   Z, DefaultRamCommand
                     CP   IN_ENT                        ; no shortcut cmd, ENTER ?
                     JR   Z, get_command
                     CP   IN_DWN                        ; Cursor Down ?
@@ -259,20 +272,24 @@
 .Mbar_botwrap       LD   A,7
                     LD   (MenuBarPosn),A
                     JR   inp_main
-.get_command        
+.get_command
                     LD   A,(MenuBarPosn)               ; use menu bar position as index to command
                     CP   1
                     JP   Z, CatalogCommand
                     CP   2
                     JP   Z, SelectCardCommand
-                    CP   3                             ; Save Files to File Card
+                    CP   3
                     JP   Z, SaveFilesCommand
-                    CP   4                             ; Fetch File from File Card
+                    CP   4
                     JP   Z, FetchFileCommand
-                    CP   6                             ; Restore Files
+                    CP   5
+                    JP   Z, BackupRamCommand
+                    CP   6
                     JP   Z, RestoreFilesCommand
+                    CP   7
+                    JP   Z, DefaultRamCommand
                     JP   inp_main
-.DisplMenuBar       
+.DisplMenuBar
                     PUSH AF
                     LD   HL,SelectMenuWindow
                     CALL_OZ(Gn_Sop)
@@ -289,7 +306,6 @@
                     DEFM 1, "2E", 32+15                ; XOR 'display' menu bar (15 chars wide)
                     DEFM 1, "2-R", 0                   ; back to normal video
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************
@@ -311,6 +327,33 @@
 
                     ld   hl, grey_wrercmds        ; grey out commands that has no effect in current slot
                     call_oz(Gn_Sop)
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Scan external slots and display available File Eprom's from which the
+; user selects an item.
+;
+; If no File Eprom Area was found, then slots 1-3 are examined for a Flash
+; Card to be created with a File Eprom Area (whole card or part).
+; If found and user acknowledges, then selected slot will be created with a File
+; Area and selected as default.
+;
+; A small array, <availslots> is used to store the size of each File Eprom
+; with the first byte indicating the total of File Eproms available.
+;
+.PollFileEproms
+                    call PollSlots
+                    or   a
+                    JP   Z, FormatCommand       ; no file areas found, investigate slots 1-3 for Flash Cards that can be formatted
+.select_slot
+                    cp   1
+                    jp   z, SelectDefaultSlot
+
+                    ld   hl, selslot_banner
+                    call SelectFileArea          ; User selects a slot from a list...
                     ret
 ; *************************************************************************************
 
@@ -553,9 +596,8 @@
                     defb 0
 
 .grey_wrercmds      DEFM 1, "2+G"
-                    DEFM 1, "3@", 32, 32+1, 1, "2E", 32+12
-                    DEFM 1, "3@", 32, 32+5, 1, "2E", 32+12
-                    DEFM 1, "3@", 32, 32+6, 1, "2E", 32+12
+                    DEFM 1, "3@", 32, 32+2, 1, "2E", 32+12
+                    DEFM 1, "3@", 32, 32+4, 1, "2E", 32+12
                     DEFM 1, "2-G", 0
 
 .grey_msg           DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G+",0

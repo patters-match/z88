@@ -32,6 +32,7 @@ Module FileAreaFormat
 
      xref FileEpromStatistics      ; filestat.asm
      xref SelectFileArea           ; selectcard.asm
+     xref DispCtlgWindow           ; fsapp.asm
      xref DispSlotErrorMsg         ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
      xref disp_empty_flcard_msg    ; errmsg.asm
@@ -79,12 +80,20 @@ Module FileAreaFormat
                     ret
 .FormatFileArea
                     cp   1
-                    jr   z, execute_format
+                    jr   z, preselect_slot
+                    ld   hl, ffm1_bnr
                     CALL SelectFileArea           ; several file areas can be formatted, select one...
                     ret  c                        ; user aborted selection
-.execute_format
+                    ld   a,(curslot)              ; the selected slot...
+                    ld   c,a
+                    CALL FlashWriteSupport
+                    ret  c                        ; user selected a non-formattable file-area...
+                    CALL DispCtlgWindow           ; redraw main catalogue window for format command interaction...
+                    JR   execute_format
+.preselect_slot
                     ld   a,c
                     ld   (curslot),a              ; the selected slot...
+.execute_format
                     call CheckBatteryStatus       ; don't format Flash Card
                     ret  c                        ; if Battery Low is enabled...
 
@@ -301,7 +310,7 @@ Module FileAreaFormat
                     jr   z, end_chckflsupp   ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
                     cp   a                   ; (Fz=1, indicate that Flash is available..)
                     scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
-.end_chckflsupp                    
+.end_chckflsupp
                     pop  de
                     ld   a,d                 ; A restored (f changed)
                     pop  de
