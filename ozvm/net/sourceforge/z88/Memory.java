@@ -56,18 +56,29 @@ public final class Memory {
 	public Memory() {
 		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!		
 
-		nullBank = new Bank(Bank.VOID);
+		nullBank = new Bank(Bank.VOID, -1);
 		for (int bank = 0; bank < memory.length; bank++)
 			memory[bank] = nullBank;
 	}
 
 	/**
-	 * Create a new Bank instance of type VOID, RAM, ROM, EPROM or FLASH. 
+	 * Create a new Bank instance of type VOID, RAM, ROM, EPROM or FLASH.
+	 * (Default bank number is set to -1)
 	 *
 	 * @return Memory.Bank
 	 */
 	public final Bank createBank(int type) {
-		return new Bank(type); 
+		return new Bank(type, -1); 
+	}
+	
+	/**
+	 * Create a new Bank instance of type VOID, RAM, ROM, EPROM or FLASH,
+	 * pre-assigned with bank number (the location in memory for this bank). 
+	 *
+	 * @return Memory.Bank
+	 */
+	public final Bank createBank(int type, int bankNo) {
+		return new Bank(type, bankNo); 
 	}
 	
 	/**
@@ -86,6 +97,7 @@ public final class Memory {
 	 * @param bankNo
 	 */
 	public final void setBank(final Bank bank, final int bankNo) {
+		bank.setBankNumber(bankNo);
 		memory[bankNo & 0xFF] = bank;
 	}
 
@@ -209,17 +221,14 @@ public final class Memory {
 		public static final int FLASH = 5; // 1Mb EEPROM (Flash) 
 	
 		private int type;
+		private int bankNo;
 		private int bankMem[];
 		private boolean vppPin = false; 
-	
-		public Bank() {
-			type = Bank.RAM;
-			bankMem = new int[BANKSIZE]; // all default memory cells are 0.
-		}
-	
-		public Bank(int banktype) {
-			type = banktype;
-			bankMem = new int[BANKSIZE];
+		
+		public Bank(int banktype, int bankNo) {
+			this.bankNo = bankNo;
+			this.type = banktype;
+			this.bankMem = new int[BANKSIZE];
 	
 			if (type != Bank.RAM) {
 				for (int i = 0; i < bankMem.length; i++)
@@ -355,6 +364,20 @@ public final class Memory {
 		 */
 		public final void setVppPin(final boolean vpp) {
 			if (type != Bank.RAM & type != Bank.ROM & type != Bank.VOID) this.vppPin = vpp;
+		}
+		
+		/**
+		 * @return the absolute bank number (0-255) where this bank is located in the memory model
+		 */
+		public int getBankNumber() {
+			return bankNo;
+		}
+		
+		/**
+		 * Define the bank number (0-255) where this bank is located in the memory model
+		 */
+		public void setBankNumber(int bankNo) {
+			this.bankNo = bankNo;
 		}
 	} /* Bank */
 } /* Memory */
