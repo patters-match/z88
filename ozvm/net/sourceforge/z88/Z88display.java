@@ -33,12 +33,22 @@ import java.util.Hashtable;
 import java.util.TimerTask;
 import javax.swing.JPanel;
 
+
 /**
  * The display renderer of the Z88 virtual machine,
  * called each 5ms, 10ms, 25ms or 50ms, depending on speed of JVM.
  *
  */
 public class Z88display extends JPanel {
+
+	private static final class singletonContainer {
+		static final Z88display singleton = new Z88display();  
+	}
+	
+	public static Z88display getInstance() {
+		return singletonContainer.singleton;
+	}
+
 	public static final int Z88SCREENWIDTH = 640; // The Z88 display dimensions
 	public static final int Z88SCREENHEIGHT = 64;
 
@@ -106,8 +116,8 @@ public class Z88display extends JPanel {
 	private static long renderTimeTotal = 0;
 	// accumulated rendering speed during 3 seconds
 
-	private Blink blink = null;
-	// access to Blink hardware (memory, screen, keyboard, timers...)
+	private Blink blink = null; // access to Blink hardware (screen, keyboard, timers...)
+	private Memory memory = null; // access to Memory model
 	private RenderPerMs renderPerMs = null;
 	private RenderSupervisor renderSupervisor = null;
 
@@ -123,7 +133,7 @@ public class Z88display extends JPanel {
 	int lores0, lores1, hires0, hires1, sbr;
 	int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 
-	Z88display() {
+	private Z88display() {
 		super();
 
 		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
@@ -136,6 +146,8 @@ public class Z88display extends JPanel {
 		this.setFocusable(true);
 
 		this.setDoubleBuffered(false);
+		blink = Blink.getInstance();
+		memory = Memory.getInstance();
 	}
 
 	public void init() {
@@ -191,11 +203,6 @@ public class Z88display extends JPanel {
 		frontBufferGrfx.setRenderingHints(grfxSettings);
 	}
 
-	public void setBlink(Blink bl) {
-		// The Z88 Display needs to access the Blink hardware...
-		blink = bl;
-	}
-	
 	/**
 	 * The core Z88 Display renderer. This code is called by RenderPerMs.<br>
 	 * called manually (ie. to refresh window during focus and paint events).
@@ -282,8 +289,8 @@ public class Z88display extends JPanel {
 				lineCharOffset += 2) {
 				// scan 106 2-byte control characters per row in screen file
 				int sbrOffset = sbr + scrRowOffset + lineCharOffset;
-				int scrChar = blink.getByte(sbrOffset, bankSbr);
-				int scrCharAttr = blink.getByte(sbrOffset + 1, bankSbr);
+				int scrChar = memory.getByte(sbrOffset, bankSbr);
+				int scrCharAttr = memory.getByte(sbrOffset + 1, bankSbr);
 
 				if ((scrCharAttr & attrHrs) == 0) {
 					// Draw a LORES1 character (6x8 pixel matrix), char offset into LORES1 is 9 bits...
@@ -423,7 +430,7 @@ public class Z88display extends JPanel {
 		for (y = scrBaseCoordY * Z88SCREENWIDTH;
 			y < (scrBaseCoordY * Z88SCREENWIDTH + Z88SCREENWIDTH * 8);
 			y += Z88SCREENWIDTH) {
-			int charBits = blink.getByte(offset++, bank);
+			int charBits = memory.getByte(offset++, bank);
 			// fetch current pixel row of char
 			if (cursorInverse == true)
 				charBits = ~charBits;
@@ -488,7 +495,7 @@ public class Z88display extends JPanel {
 		for (y = scrBaseCoordY * Z88SCREENWIDTH;
 			y < (scrBaseCoordY * Z88SCREENWIDTH + Z88SCREENWIDTH * 8);
 			y += Z88SCREENWIDTH) {
-			int charBits = blink.getByte(offset++, bank);
+			int charBits = memory.getByte(offset++, bank);
 			// fetch current pixel row of char
 			if ((charAttr & attrRev) == attrRev)
 				charBits = ~charBits;
@@ -564,7 +571,7 @@ public class Z88display extends JPanel {
 		for (int y = scrBaseCoordY * Z88SCREENWIDTH;
 			y < (scrBaseCoordY * Z88SCREENWIDTH + Z88SCREENWIDTH * 8);
 			y += Z88SCREENWIDTH) {
-			int charBits = blink.getByte(offset++, bank);
+			int charBits = memory.getByte(offset++, bank);
 			// fetch current pixel row of char
 			if ((charAttr & attrRev) == attrRev)
 				charBits = ~charBits;
