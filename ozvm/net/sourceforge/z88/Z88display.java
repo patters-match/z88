@@ -36,7 +36,7 @@ public class Z88display
 
 	private Blink blink = null;					// access to Blink hardware (memory, screen, keyboard, timers...)
 	private TimerTask renderPerMs = null;
-
+    private boolean renderRunning = false;
 	private GraphicsEngine gfxe = null;
 	private KeyboardDevice keyboard = null;
 	
@@ -62,11 +62,14 @@ public class Z88display
 
 		InputEngine inputEngine = GameFrame.getInputEngine();
 		keyboard = inputEngine.getDefaultKeyboardDevice();
+        gfxe.addFocusListener(new Z88DisplayFocusListener());
 		
 		blink = z88Blink; // The Z88 Display needs to access the Blink hardware
 
 		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
 		displayMap = new BitmapData(displayMatrix, Z88SCREENWIDTH, Z88SCREENHEIGHT, Z88SCREENWIDTH);
+        
+        renderRunning = false;
     }
 
 	
@@ -220,7 +223,29 @@ public class Z88display
     
     private void flashCounter() {    	
     }
-	
+
+    private final class Z88DisplayFocusListener implements java.awt.event.FocusListener {
+        public void focusGained(java.awt.event.FocusEvent e) {
+            if (renderRunning == false) {
+                // The Z88 screen rendering is disabled, so
+                // draw the screen manually
+                try {
+                    renderDisplay();
+                } catch(GameFrameException g) {}
+            }
+        }
+        
+        public void focusLost(java.awt.event.FocusEvent e) {
+            if (renderRunning == false) {
+                // The Z88 screen rendering is disabled, so
+                // draw the screen manually
+                try {
+                    renderDisplay();
+                } catch(GameFrameException g) {}
+            }
+        }    
+    }
+    
 	private final class RenderPerMs extends TimerTask {
 		/**
 		 * Render Z88 Display each 10ms ...
@@ -243,6 +268,7 @@ public class Z88display
 		if (renderPerMs != null) {
 			renderPerMs.cancel();
 		}
+        renderRunning = false;
 	}
 
 
@@ -251,7 +277,10 @@ public class Z88display
 	 * method each X ms. 
 	 */
 	public void start() {
-		renderPerMs = new RenderPerMs();
-		blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 10, 10);
+        if (renderRunning == false) {
+            renderRunning = true;
+            renderPerMs = new RenderPerMs();
+            blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 10, 10);
+        }
 	}    
 }
