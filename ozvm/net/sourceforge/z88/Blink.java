@@ -543,6 +543,16 @@ public final class Blink extends Z80 {
 						keyColumn = keybRowA8;
 						// System.out.println("keybRowA8=" + Dz.byteToHex(keyColumn, true));
 						break;
+			case 0x00:
+				if (keybRowA15 != 0xFF) return keyColumn = keybRowA15; 
+				if (keybRowA14 != 0xFF) return keyColumn = keybRowA14;
+				if (keybRowA13 != 0xFF) return keyColumn = keybRowA13;
+				if (keybRowA12 != 0xFF) return keyColumn = keybRowA12;
+				if (keybRowA11 != 0xFF) return keyColumn = keybRowA11;
+				if (keybRowA10 != 0xFF) return keyColumn = keybRowA10;
+				if (keybRowA9 != 0xFF) return keyColumn = keybRowA9;
+				if (keybRowA8 != 0xFF) return keyColumn = keybRowA8;
+				break;
 		}		
 		
 		return keyColumn;
@@ -931,7 +941,7 @@ public final class Blink extends Z80 {
 				break;
 				
 			case 0xB1:
-				res = getSta();	// STA, Main Blink Interrupt Status
+				res = getSta();		// STA, Main Blink Interrupt Status
 				break;
 				
 			case 0xB2:
@@ -943,7 +953,7 @@ public final class Blink extends Z80 {
 				break;
 				
 			default :
-				res = 0;				// all other ports in BLINK not yet implemented...
+				res = 0;			// all other ports in BLINK not yet implemented...
 		}
 
 		return res;
