@@ -123,6 +123,10 @@ public class OZvm {
 							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
 							System.out.println("Using French keyboard layout.");
 						}
+						if (args[arg+1].compareToIgnoreCase("dk") == 0) {
+							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+							System.out.println("Using Danish keyboard layout.");
+						}
 						arg+=2;	
 						continue;				
 					}					
