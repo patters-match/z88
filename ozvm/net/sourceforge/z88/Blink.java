@@ -883,6 +883,10 @@ public final class Blink extends Z80 {
 		}
 	}
 
+	public final int getCom() {
+		return COM;
+	}
+	
 	/**
 	 * Insert RAM Card into Z88 memory system.
 	 * Size must be in modulus 32Kb (even numbered 16Kb banks).
