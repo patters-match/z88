@@ -39,7 +39,6 @@ public class OZvm implements KeyListener {
 
 	private Blink z88 = null;
     private DisplayStatus blinkStatus;
-	private MonitorZ80 z80Speed = null;
 
 	/**
 	 * The Z88 disassembly engine
@@ -72,7 +71,6 @@ public class OZvm implements KeyListener {
 			z88Screen.start();
 			z88.hardReset();
 
-			z80Speed = new MonitorZ80(z88);
 			dz = new Dz(z88); // the disassembly engine, linked to the memory model
 			breakp = new Breakpoints(z88);
 			z88.setBreakPointManager(breakp);
@@ -99,15 +97,6 @@ public class OZvm implements KeyListener {
 		}
 	}
 	
-	
-	public void startZ80SpeedPolling() {
-		z80Speed.start();
-	}
-
-	public void stopZ80SpeedPolling() {
-		z80Speed.stop();
-	}
-
 	public void startInterrupts() {
 		z88.startInterrupts();
 	}
@@ -1069,12 +1058,10 @@ public class OZvm implements KeyListener {
 				}
 				// restore (patch) breakpoints into code
 				breakp.setBreakpoints();
-				z80Speed.start(); // enable execution speed monitor
 				z88.startInterrupts(); // enable Z80/Z88 core interrupts
 				z88.run(false);
 				// execute Z80 code at full speed until breakpoint is encountered...
 				z88.stopInterrupts();
-				z80Speed.stop();
 				breakp.clearBreakpoints();
 			}
 		};
