@@ -150,9 +150,9 @@ public class AmdFlashBank extends Bank {
 	 * @param bankNo the bank number (0-255) which this bank is assigned to
 	 * @param dc the Flash Memory Device Code (AM29F010B, AM29F040B or AM29F080B) 
 	 */
-	public AmdFlashBank(Blink b, int dc) {
+	public AmdFlashBank(int dc) {
 		super(-1);		
-		blink = b;
+		blink = Blink.getInstance();
 		deviceCode = dc;
 		
 		eraseBank(); // Flash Memory Bank is empty by default...
@@ -425,10 +425,10 @@ public class AmdFlashBank extends Bank {
 		int thisBottomSlotBank = (getBankNumber() & 0xC0); 
 		
 		// get the top bank number of the card (might not be the top of the slot!)
-		int cardTopBank = blink.getBank(thisBottomSlotBank | 0x3F).getBankNumber();
+		int cardTopBank = Memory.getInstance().getBank(thisBottomSlotBank | 0x3F).getBankNumber();
 		
 		for (int thisBank = thisBottomSlotBank; thisBank<=cardTopBank; thisBank++) {
-			AmdFlashBank b = (AmdFlashBank) blink.getBank(thisBank);
+			AmdFlashBank b = (AmdFlashBank) Memory.getInstance().getBank(thisBank);
 			b.eraseBank();
 		} 
 		
@@ -452,7 +452,7 @@ public class AmdFlashBank extends Bank {
 			int bottomBankOfSector = getBankNumber() & 0xFC;  // bottom bank of sector
 						
 			for (int thisBank = bottomBankOfSector; thisBank <= (bottomBankOfSector+3); thisBank++) {
-				AmdFlashBank b = (AmdFlashBank) blink.getBank(thisBank);
+				AmdFlashBank b = (AmdFlashBank) Memory.getInstance().getBank(thisBank);
 				b.eraseBank();
 			} 
 		} 
