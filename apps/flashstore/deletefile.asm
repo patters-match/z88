@@ -50,6 +50,12 @@ Module DeleteFile
 
                     ld   a,(curslot)
                     ld   c,a
+
+                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    call c,DispIntelSlotErr
+                    ret  c                        ; it didn't...
+                    ret  nz                       ; (and flash chip was not found in slot!)
+
                     push bc
                     call FileEprRequest
                     pop  bc
@@ -60,10 +66,6 @@ Module DeleteFile
                     call FilesAvailable
                     jp   z, no_files              ; Fz = 1, no files available...
 
-                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
-                    call c,DispIntelSlotErr
-                    ret  c                        ; it didn't...
-                    ret  nz                       ; (and flash chip was not found in slot!)
 
                     call cls
                     ld   hl,delfile_bnr
