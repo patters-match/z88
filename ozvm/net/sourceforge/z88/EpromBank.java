@@ -40,8 +40,6 @@ public final class EpromBank extends Bank {
 	/**
 	 * Assign the Eprom bank to the 4Mb memory model.
 	 * 
-	 * @param b the Z88 Blink Hardware 
-	 * @param bankNo the bank number (0-255) which this bank is assigned to
 	 * @param ept the Eprom type (VPP32KB or VPP128KB) 
 	 */
 	public EpromBank(int ept) {		
