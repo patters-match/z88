@@ -47,7 +47,7 @@
 ;
 .FlashStoreCommands DEFB 0                                                      ; start of commands
 
-; @SC Select Card
+; <>SC Select Card
 .cmd_sc             DEFB cmd_sc_end - cmd_sc                                    ; length of command definition
                     DEFB FlashStore_CC_sc                                       ; command code
                     DEFM "SC", 0                                                ; keyboard sequense
@@ -58,7 +58,7 @@
                     DEFB cmd_sc_end - cmd_sc                                    ; length of command definition
 .cmd_sc_end
 
-; @CF Catalogue Files
+; <>CF Catalogue Files
 .cmd_cf             DEFB cmd_cf_end - cmd_cf                                    ; length of command definition
                     DEFB FlashStore_CC_cf                                       ; command code
                     DEFM "CF", 0                                                ; keyboard sequense
@@ -69,7 +69,7 @@
                     DEFB cmd_cf_end - cmd_cf                                    ; length of command definition
 .cmd_cf_end
 
-; @CE Catalogue Files (hidden)
+; <>CE Catalogue Files (hidden)
 .cmd_ce             DEFB cmd_ce_end - cmd_ce                                    ; length of command definition
                     DEFB FlashStore_CC_cf                                       ; command code
                     DEFM "CE", 0                                                ; keyboard sequense
@@ -80,7 +80,7 @@
                     DEFB cmd_ce_end - cmd_ce                                    ; length of command definition
 .cmd_ce_end
 
-; @SV Select RAM Device
+; <>SV Select RAM Device
 .cmd_sv             DEFB cmd_sv_end - cmd_sv                                    ; length of command definition
                     DEFB FlashStore_CC_sv                                       ; command code
                     DEFM "SV", 0                                                ; keyboard sequense
@@ -91,7 +91,7 @@
                     DEFB cmd_sv_end - cmd_sv                                    ; length of command definition
 .cmd_sv_end
 
-; @FS File Save
+; <>FS File Save
 .cmd_fs             DEFB cmd_fs_end - cmd_fs                                    ; length of command definition
                     DEFB FlashStore_CC_fs                                       ; command code
                     DEFM "FS", 0                                                ; keyboard sequense
@@ -102,7 +102,7 @@
                     DEFB cmd_fs_end - cmd_fs                                    ; length of command definition
 .cmd_fs_end
 
-; @ES File Save (Hidden)
+; <>ES File Save (Hidden)
 .cmd_es             DEFB cmd_es_end - cmd_es                                    ; length of command definition
                     DEFB FlashStore_CC_fs                                       ; command code
                     DEFM "ES", 0                                                ; keyboard sequense
@@ -113,7 +113,7 @@
                     DEFB cmd_es_end - cmd_es                                    ; length of command definition
 .cmd_es_end
 
-; @FL File Load
+; <>FL File Load
 .cmd_fl             DEFB cmd_fl_end - cmd_fl                                    ; length of command definition
                     DEFB FlashStore_CC_fl                                       ; command code
                     DEFM "FL", 0                                                ; keyboard sequense
@@ -124,7 +124,7 @@
                     DEFB cmd_fl_end - cmd_fl                                    ; length of command definition
 .cmd_fl_end
 
-; @EF File Load (Hidden)
+; <>EF File Load (Hidden)
 .cmd_ef             DEFB cmd_ef_end - cmd_ef                                    ; length of command definition
                     DEFB FlashStore_CC_fl                                       ; command code
                     DEFM "EF", 0                                                ; keyboard sequense
@@ -135,7 +135,7 @@
                     DEFB cmd_ef_end - cmd_ef                                    ; length of command definition
 .cmd_ef_end
 
-; @FE File Erase
+; <>FE File Erase
 .cmd_fe             DEFB cmd_fe_end - cmd_fe                                    ; length of command definition
                     DEFB FlashStore_CC_fe                                       ; command code
                     DEFM "FE", 0                                                ; keyboard sequense
@@ -146,7 +146,7 @@
                     DEFB cmd_fe_end - cmd_fe                                    ; length of command definition
 .cmd_fe_end
 
-; @ER File Erase (Hidden)
+; <>ER File Erase (Hidden)
 .cmd_er             DEFB cmd_er_end - cmd_er                                    ; length of command definition
                     DEFB FlashStore_CC_fe                                       ; command code
                     DEFM "ER", 0                                                ; keyboard sequense
@@ -157,7 +157,7 @@
                     DEFB cmd_er_end - cmd_er                                    ; length of command definition
 .cmd_er_end
 
-; @BF Backup RAM Files
+; <>BF Backup RAM Files
 .cmd_bf             DEFB cmd_bf_end - cmd_bf                                    ; length of command definition
                     DEFB FlashStore_CC_bf                                       ; command code
                     DEFM "BF", 0                                                ; keyboard sequense
@@ -168,7 +168,7 @@
                     DEFB cmd_bf_end - cmd_bf                                    ; length of command definition
 .cmd_bf_end
 
-; @RF Restore RAM Files
+; <>RF Restore RAM Files
 .cmd_rf             DEFB cmd_rf_end - cmd_rf                                    ; length of command definition
                     DEFB FlashStore_CC_rf                                       ; command code
                     DEFM "RF", 0                                                ; keyboard sequense
@@ -179,18 +179,18 @@
                     DEFB cmd_rf_end - cmd_rf                                    ; length of command definition
 .cmd_rf_end
 
-; @FORMAT Format File Area
-.cmd_format         DEFB cmd_format_end - cmd_format                            ; length of command definition
-                    DEFB FlashStore_CC_format                                   ; command code
+; <>FFA Format File Area
+.cmd_ffa            DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
+                    DEFB FlashStore_CC_ffa                                      ; command code
                     DEFM "FFA", 0                                               ; keyboard sequense
                     DEFM "Format File Area", 0
-                    DEFB (cmd_format_help - FlashStoreHelp) / 256               ; high byte of rel. pointer
-                    DEFB (cmd_format_help - FlashStoreHelp) % 256               ; low byte of rel. pointer
+                    DEFB (cmd_ffa_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
+                    DEFB (cmd_ffa_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
                     DEFB @00011001                                              ; command has help page, new column, safe
-                    DEFB cmd_format_end - cmd_format                            ; length of command definition
-.cmd_format_end
+                    DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
+.cmd_ffa_end
 
-; @ABOUT About FlashStore
+; <>ABOUT About FlashStore
 .cmd_about          DEFB cmd_about_end - cmd_about                              ; length of command definition
                     DEFB FlashStore_CC_about                                    ; command code
                     DEFM "ABOUT", 0                                             ; keyboard sequense
@@ -244,7 +244,7 @@
                     DEFM "Fetches all the files from the file card area", $7F
                     DEFM "to the RAM device."
                     DEFB 0
-.cmd_format_help
+.cmd_ffa_help
                     DEFM $7F
                     DEFM "Formats and erases the complete file card area."
                     DEFB 0

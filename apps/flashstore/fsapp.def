@@ -48,12 +48,18 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      availslots     ds.b 4              ; array of inserted File Eprom's in external slots
      curslot        ds.b 1              ; the current selected slot (possibly containing File Area)
      flashid        ds.w 1              ; the manufacturer and device code of the flash card in current slot
+     ramdev         ds.b 1              ; the default RAM Device ('0' - '3').
 }
 
 
-; MTH Command Code definitions
-
-DEFC FlashStore_CC_sc = $80, FlashStore_CC_cf = $81, FlashStore_CC_sv = $82
-DEFC FlashStore_CC_fs = $83, FlashStore_CC_fl = $84, FlashStore_CC_fe = $85
-DEFC FlashStore_CC_bf = $86, FlashStore_CC_rf = $87
-DEFC FlashStore_CC_format = $88, FlashStore_CC_about = $89
+; MTH Command Code Definitions
+DEFC FlashStore_CC_sc = $80             ; Select Card
+DEFC FlashStore_CC_cf = $81             ; Catalogue Files
+DEFC FlashStore_CC_sv = $82             ; Select RAM Device
+DEFC FlashStore_CC_fs = $83             ; File Save 
+DEFC FlashStore_CC_fl = $84             ; File Load
+DEFC FlashStore_CC_fe = $85             ; File Erase
+DEFC FlashStore_CC_bf = $86             ; Backup Files
+DEFC FlashStore_CC_rf = $87             ; Restore Files
+DEFC FlashStore_CC_ffa = $88            ; Format File Area
+DEFC FlashStore_CC_about = $89          ; About FlashStore
