@@ -125,7 +125,7 @@ public class Z88display extends JLabel implements MouseListener {
 	private int movieCounter = 0;
 
 	/** The currently recording screen movie */
-	private Gif89Encoder gifEncoder = new Gif89Encoder(); 
+	private Gif89Encoder gifEncoder; 
 
 	private class ScreenFrameAction {
 		private static final int actionEncodeFrame = 1;
@@ -139,6 +139,9 @@ public class Z88display extends JLabel implements MouseListener {
 		
 		/** the Gif frame that is to be encoded to the animated Gif file */
 		private DirectGif89Frame gifFrame;
+		
+		/** The Gif file encoder */
+		private Gif89Encoder gifEncoder;
 				
 		/** the constructor for closing the animated Gif File */
 		public ScreenFrameAction(OutputStream out) {
@@ -147,9 +150,10 @@ public class Z88display extends JLabel implements MouseListener {
 			fileAction = actionCloseGifFile;			
 		}
 		
-		public ScreenFrameAction(OutputStream out, int scrWidth, int scrHeight, int[] screen) {
+		public ScreenFrameAction(OutputStream out, Gif89Encoder gifEnc, int scrWidth, int scrHeight, int[] screen) {
 			// encode the frame to the Gif file.
 			outStream = out;
+			gifEncoder = gifEnc;
 			fileAction = actionEncodeFrame;
 			gifFrame = new DirectGif89Frame(scrWidth, scrHeight, screen);
 			gifFrame.setDelay(50); // default delay is 0.5 sec
@@ -307,6 +311,7 @@ public class Z88display extends JLabel implements MouseListener {
 										"z88movie" + movieCounter++ + ".gif";
 				// create a 16K buffered output stream to the animated Gif file
 				movieOutputStream = new BufferedOutputStream(new FileOutputStream(movieFilename), 16*1024);
+				gifEncoder = new Gif89Encoder();
 				recordingMovie = true;
 				Gui.displayRtmMessage("Screen recording to '" + movieFilename + "' activated.");
 			} catch (IOException e) {
@@ -452,7 +457,7 @@ public class Z88display extends JLabel implements MouseListener {
 					((ScreenFrameAction) screenFrameQueue.getLast()).setFrameDelay(frameDelay/10);
 
 				// then add this screen latest frame
-				ScreenFrameAction newFrameAction = new ScreenFrameAction(movieOutputStream, 
+				ScreenFrameAction newFrameAction = new ScreenFrameAction(movieOutputStream, gifEncoder, 
 						Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix);
 				screenFrameQueue.add(newFrameAction);
 			}
