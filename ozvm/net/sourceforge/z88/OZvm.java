@@ -188,16 +188,18 @@ public class OZvm {
 	}
 
 	private void cmdHelp() {
+		System.out.println("All argument are in Hex: Local address = 64K address space,\nExtended address = 24bit address, eg. 073800 (bank 07h, offset 3800h)\n");
+		System.out.println("Commands:");
 		System.out.println("run - execute Z88 machine from PC.");
 		System.out.println("exit - exit OZvm.");
 		System.out.println("");
 		System.out.println(". - single step instruction at PC.");		
 		System.out.println("d - disassembly at PC.");
-		System.out.println("d [address [bank]] - disassemble at specified address.");
+		System.out.println("d [local address | extended address] - disassemble.");
 		System.out.println("m - view memory at PC.");
-		System.out.println("m [address [bank]] - view memory at specified address.");
+		System.out.println("m [local address | extended address] - view memory.");
 		System.out.println("bp - list breakpoints.");
-		System.out.println("bp [address bank] - toggle breakpoint.");
+		System.out.println("bp <extended address> - toggle breakpoint.");
 		System.out.println("blsr - Blink: Segment Register Bank Binding.");
 		System.out.println("r - Display current Z80 Registers.");
 	}
@@ -310,9 +312,12 @@ public class OZvm {
 	}
 
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
-		if (cmdLineTokens.length == 3) {
-			// no arguments, use PC in current bank binding
-			breakp.toggleBreakpoint(Integer.parseInt(cmdLineTokens[1], 16), Integer.parseInt(cmdLineTokens[2], 16));
+		if (cmdLineTokens.length == 2) {
+			int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
+			int bpBank = z88.getSegmentBank( (bpAddress >>> 16) & 0xFF);
+			bpAddress &= 0xFFFF; 
+			
+			breakp.toggleBreakpoint(bpAddress, bpBank);
 		}
 
 		if (cmdLineTokens.length == 1) {
@@ -325,23 +330,33 @@ public class OZvm {
 		int dzAddr = 0, dzBank = 0;		
 		StringBuffer dzLine = new StringBuffer(64);
 		String dzCmdline = null;
-	
-		if (cmdLineTokens.length == 1) {
-			// no arguments, use PC in current bank binding
-			dzAddr = z88.PC();
-			dzBank = z88.getSegmentBank(dzAddr >>> 14);
-		}
-
+			
 		if (cmdLineTokens.length == 2) {
-			// one arguments; the local Z80 64K address 
+			// one arguments; the local Z80 64K address or a compact 24bit extended address
 			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
-			dzBank = z88.getSegmentBank(dzAddr >>> 14);
-		}
-
-		if (cmdLineTokens.length == 3) {
-			// two arguments; the offset and the bank number 
-			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
-			dzBank = Integer.parseInt(cmdLineTokens[2], 16);
+			if (dzAddr > 65535) {
+				dzBank = z88.getSegmentBank( (dzAddr >>> 16) & 0xFF);
+				dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
+			} else {
+				if (cmdLineTokens[1].length() == 6) {
+					// bank defined as '00'
+					dzBank = 0;					
+				} else {
+					// Get current bank binding for local address segment.
+					dzBank = z88.getSegmentBank(dzAddr >>> 14);
+				}
+			}
+		} else {
+			if (cmdLineTokens.length == 1) {
+				// no arguments, use PC in current bank binding
+				dzAddr = z88.PC();
+				dzBank = z88.getSegmentBank(dzAddr >>> 14);
+			} else {
+				System.out.println("Illegal argument.");
+				System.out.print("$");
+				dzCmdline = in.readLine();
+				return dzCmdline;
+			}			
 		}
 
 		do {		
@@ -383,22 +398,31 @@ public class OZvm {
 		StringBuffer memLine = new StringBuffer(256);
 		String memCmdline = null;
 	
-		if (cmdLineTokens.length == 1) {
-			// no arguments, use PC in current bank binding
-			memAddr = z88.PC();
-			memBank = z88.getSegmentBank(memAddr >>> 14);
-		}
-
 		if (cmdLineTokens.length == 2) {
-			// one arguments; the local Z80 64K address 
+			// one argument; the local Z80 64K address or 24bit compact ext. address
 			memAddr = Integer.parseInt(cmdLineTokens[1], 16);
-			memBank = z88.getSegmentBank(memAddr >>> 14);
-		}
-
-		if (cmdLineTokens.length == 3) {
-			// two arguments; the offset and the bank number 
-			memAddr = Integer.parseInt(cmdLineTokens[1], 16);
-			memBank = Integer.parseInt(cmdLineTokens[2], 16);
+			if (memAddr > 65535) {
+				memBank = z88.getSegmentBank( (memAddr >>> 16) & 0xFF);
+				memAddr &= 0x3FFF; 
+			} else {
+				if (cmdLineTokens[1].length() == 6) {
+					// bank defined as '00'
+					memBank = 0;					
+				} else {
+					memBank = z88.getSegmentBank(memAddr >>> 14);
+				}
+			}
+		} else {
+			if (cmdLineTokens.length == 1) {
+				// no arguments, use PC in current bank binding
+				memAddr = z88.PC();
+				memBank = z88.getSegmentBank(memAddr >>> 14);
+			} else {
+				System.out.println("Illegal argument.");
+				System.out.print("$");
+				memCmdline = in.readLine();
+				return memCmdline;
+			}			
 		}
 
 		do {		
@@ -419,7 +443,7 @@ public class OZvm {
 	}
 	
 	public static void main(String[] args) throws IOException, GameFrameException {		
-		System.out.println("OZvm V0.01, Z88 Virtual Machine");
+		System.out.println("OZvm V0.1, Z88 Virtual Machine");
 
 		OZvm ozvm = new OZvm();
 		if (ozvm.loadRom(args) == false) {
