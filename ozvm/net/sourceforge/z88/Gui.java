@@ -33,19 +33,19 @@ public class Gui extends JFrame {
 
 	private Z88display z88Screen = null;  
 	private javax.swing.JMenuBar jJMenuBar = null;
-	private javax.swing.JMenu jMenu = null;  
-	private javax.swing.JMenu jMenu1 = null;
-	private javax.swing.JPanel jPanel1 = null;  
-	private javax.swing.JTextArea cmdOutput = null;  
-	private javax.swing.JTextField jTextField = null;  
-	private javax.swing.JTextArea rtmMessages = null;  
-	private javax.swing.JFrame jFrame = null;  
-	private javax.swing.JPanel jContentPane = null;
-	private javax.swing.JButton jButton = null;
-	private javax.swing.JScrollPane jScrollPane = null;  
-	private javax.swing.JScrollPane jScrollPane1 = null;
-	private javax.swing.JScrollPane jScrollPane2 = null;
-	private javax.swing.JTextArea rtmOutputArea = null;
+	private javax.swing.JMenu jFileMenu = null;  
+	private javax.swing.JMenu jHelpMenu = null;
+	private javax.swing.JPanel jCommandArea = null;  
+	private javax.swing.JTextArea jCmdOutput = null;  
+	private javax.swing.JTextField jCmdlineInput = null;  
+	private javax.swing.JTextArea jRtmMessages = null;  
+	private javax.swing.JFrame jRtmOutputWindow = null;  
+	private javax.swing.JPanel jRtmOutputWindowContentPane = null;
+	private javax.swing.JButton jClearMessagesButton = null;
+	private javax.swing.JScrollPane jRtmOutputScrollPane = null;
+	private javax.swing.JScrollPane jCmdLineScrollPane = null;
+	private javax.swing.JTextArea jRtmOutputArea = null;
+
 	/**
 	 * This is the default constructor
 	 */
@@ -53,10 +53,9 @@ public class Gui extends JFrame {
 		super();
 		initialize();
 	}
+
 	/**
-	 * This method initializes this
-	 *
-	 * @return void
+	 * This method initializes the z88 display window and menus
 	 */
 	private void initialize() {
 		try {
@@ -66,7 +65,7 @@ public class Gui extends JFrame {
 		}
 		Container content = getContentPane();
 
-		this.setJMenuBar(getJJMenuBar());
+		this.setJMenuBar(getOZvmMenuBar());
 		this.setSize(640, 480);
 		content.add(z88Screen(), BorderLayout.NORTH);
 		
@@ -96,11 +95,11 @@ public class Gui extends JFrame {
 	}
 
 	/**
-	 * This method initializes jJMenuBar
+	 * This method initializes the Menu bar for OZvm
 	 *
 	 * @return javax.swing.JMenuBar
 	 */
-	private javax.swing.JMenuBar getJJMenuBar() {
+	public javax.swing.JMenuBar getOZvmMenuBar() {
 		if(jJMenuBar == null) {
 			jJMenuBar = new javax.swing.JMenuBar();
 			jJMenuBar.add(getFileMenu());
@@ -108,63 +107,67 @@ public class Gui extends JFrame {
 		}
 		return jJMenuBar;
 	}
+	
 	/**
-	 * This method initializes jMenu
+	 * This method initializes main File Menu dropdown
 	 *
 	 * @return javax.swing.JMenu
 	 */
 	private javax.swing.JMenu getFileMenu() {
-		if(jMenu == null) {
-			jMenu = new javax.swing.JMenu();
-			jMenu.setSize(46, 24);
-			jMenu.setText("File");
-			jMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
+		if(jFileMenu == null) {
+			jFileMenu = new javax.swing.JMenu();
+			jFileMenu.setSize(46, 24);
+			jFileMenu.setText("File");
+			jFileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
 		}
-		return jMenu;
+		return jFileMenu;
 	}
+	
 	/**
-	 * This method initializes jMenu1
+	 * This method initializes main Help Menu dropdown
 	 *
 	 * @return javax.swing.JMenu
 	 */
 	private javax.swing.JMenu getHelpMenu() {
-		if(jMenu1 == null) {
-			jMenu1 = new javax.swing.JMenu();
-			jMenu1.setText("Help");
-			jMenu1.setMnemonic(java.awt.event.KeyEvent.VK_H);
+		if(jHelpMenu == null) {
+			jHelpMenu = new javax.swing.JMenu();
+			jHelpMenu.setText("Help");
+			jHelpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
 		}
-		return jMenu1;
+		return jHelpMenu;
 	}
+	
 	/**
-	 * This method initializes jPanel1
+	 * This method initializes the debug command area (below the Z88 screen)
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	private javax.swing.JPanel commandArea() {
-		if(jPanel1 == null) {
-			jPanel1 = new javax.swing.JPanel(new BorderLayout());
-			jPanel1.add(cmdLineOutputArea(), BorderLayout.CENTER);
-			jPanel1.add(cmdLineInputArea(), BorderLayout.SOUTH);
-			jPanel1.setVisible(true);
+	private javax.swing.JPanel getCommandArea() {
+		if(jCommandArea == null) {
+			jCommandArea = new javax.swing.JPanel(new BorderLayout());
+			jCommandArea.add(getCmdLineScrollPane(), BorderLayout.CENTER);
+			jCommandArea.add(getCmdLineInputArea(), BorderLayout.SOUTH);
+			jCommandArea.setVisible(true);
 		}
-		return jPanel1;
+		return jCommandArea;
 	}
+
 	/**
 	 * This method initializes the OZvm Command Debugging Output Area
 	 *
 	 * @return javax.swing.JTextArea
 	 */
-	private javax.swing.JTextArea cmdlineOutputArea() {
-		if(cmdOutput == null) {
-			cmdOutput = new javax.swing.JTextArea(30,80);
-			cmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
-			cmdOutput.setBackground(Color.BLACK);
-			cmdOutput.setForeground(Color.GREEN);
-			cmdOutput.setEditable(false);
-			cmdOutput.setToolTipText("This area displays debug command output.");
-			cmdOutput.setVisible(true);
+	private javax.swing.JTextArea getCmdlineOutputArea() {
+		if(jCmdOutput == null) {
+			jCmdOutput = new javax.swing.JTextArea(30,80);
+			jCmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
+			jCmdOutput.setBackground(Color.BLACK);
+			jCmdOutput.setForeground(Color.GREEN);
+			jCmdOutput.setEditable(false);
+			jCmdOutput.setToolTipText("This area displays debug command output.");
+			jCmdOutput.setVisible(true);
 		}
-		return cmdOutput;
+		return jCmdOutput;
 	}
 
 	/**
@@ -172,64 +175,66 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JTextField
 	 */
-	private javax.swing.JTextField cmdLineInputArea() {
-		if(jTextField == null) {
-			jTextField = new javax.swing.JTextField();
-			jTextField.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
-			jTextField.setPreferredSize(new Dimension(640,20));
-			jTextField.setToolTipText("Type your debugging commands here");
-			jTextField.setVisible(true);
+	private javax.swing.JTextField getCmdLineInputArea() {
+		if(jCmdlineInput == null) {
+			jCmdlineInput = new javax.swing.JTextField();
+			jCmdlineInput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
+			jCmdlineInput.setPreferredSize(new Dimension(640,20));
+			jCmdlineInput.setToolTipText("Type your debugging commands here");
+			jCmdlineInput.setVisible(true);
 		}
-		return jTextField;
+		return jCmdlineInput;
 	}
+	
 	/**
 	 * This method initializes jContentPane
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	private javax.swing.JPanel getJContentPane() {
-		if(jContentPane == null) {
-			jContentPane = new javax.swing.JPanel();
-			jContentPane.setLayout(new java.awt.BorderLayout());
-			jContentPane.add(btnClearRtmMessages(), java.awt.BorderLayout.NORTH);
-			jContentPane.add(scrollRtmOutput(), java.awt.BorderLayout.CENTER);
+	private javax.swing.JPanel getRtmWindowContentPane() {
+		if(jRtmOutputWindowContentPane == null) {
+			jRtmOutputWindowContentPane = new javax.swing.JPanel();
+			jRtmOutputWindowContentPane.setLayout(new java.awt.BorderLayout());
+			jRtmOutputWindowContentPane.add(getClearRtmMessagesButton(), java.awt.BorderLayout.NORTH);
+			jRtmOutputWindowContentPane.add(getRtmOutputScrollPane(), java.awt.BorderLayout.CENTER);
 		}
-		return jContentPane;
+		return jRtmOutputWindowContentPane;
 	}
+	
 	/**
 	 * This method initializes the Runtime Output Window
 	 *
 	 * @return javax.swing.JFrame
 	 */
 	private javax.swing.JFrame getRtmOutputWindow() {
-		if(jFrame == null) {
-			jFrame = new javax.swing.JFrame();
-			jFrame.setContentPane(getJContentPane());
-			jFrame.setTitle("Runtime Messages");
-			jFrame.setResizable(true);
-			JFrame.setDefaultLookAndFeelDecorated(true);
-			jFrame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-			jFrame.pack();
-			jFrame.show();
+		if(jRtmOutputWindow == null) {
+			jRtmOutputWindow = new javax.swing.JFrame();
+			jRtmOutputWindow.setContentPane(getRtmWindowContentPane());
+			jRtmOutputWindow.setTitle("Runtime Messages");
+			jRtmOutputWindow.setResizable(true);
+			jRtmOutputWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+			jRtmOutputWindow.pack();
+			jRtmOutputWindow.show();
 		}
-		return jFrame;
+		return jRtmOutputWindow;
 	}
+	
 	/**
 	 * This method initializes jButton
 	 *
 	 * @return javax.swing.JButton
 	 */
-	private javax.swing.JButton btnClearRtmMessages() {
-		if(jButton == null) {
-			jButton = new javax.swing.JButton();
-			jButton.setText("Clear output");
-			jButton.addActionListener(new java.awt.event.ActionListener() {
+	private javax.swing.JButton getClearRtmMessagesButton() {
+		if(jClearMessagesButton == null) {
+			jClearMessagesButton = new javax.swing.JButton();
+			jClearMessagesButton.setText("Clear output");
+			jClearMessagesButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					rtmOutArea().setText("");
+					getRtmOutputArea().setText("");
 				}
 			});
 		}
-		return jButton;
+		return jClearMessagesButton;
 	}
 	
 	/**
@@ -237,12 +242,12 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JScrollPane
 	 */
-	private javax.swing.JScrollPane scrollRtmOutput() {
-		if(jScrollPane1 == null) {
-			jScrollPane1 = new javax.swing.JScrollPane();
-			jScrollPane1.setViewportView(rtmOutArea());
+	private javax.swing.JScrollPane getRtmOutputScrollPane() {
+		if(jRtmOutputScrollPane == null) {
+			jRtmOutputScrollPane = new javax.swing.JScrollPane();
+			jRtmOutputScrollPane.setViewportView(getRtmOutputArea());
 		}
-		return jScrollPane1;
+		return jRtmOutputScrollPane;
 	}
 
 	/**
@@ -250,12 +255,12 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JScrollPane
 	 */
-	private javax.swing.JScrollPane cmdLineOutputArea() {
-		if(jScrollPane2 == null) {
-			jScrollPane2 = new javax.swing.JScrollPane();
-			jScrollPane2.setViewportView(cmdlineOutputArea());
+	private javax.swing.JScrollPane getCmdLineScrollPane() {
+		if(jCmdLineScrollPane == null) {
+			jCmdLineScrollPane = new javax.swing.JScrollPane();
+			jCmdLineScrollPane.setViewportView(getCmdlineOutputArea());
 		}
-		return jScrollPane2;
+		return jCmdLineScrollPane;
 	}
 
 	/**
@@ -263,22 +268,22 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JTextArea
 	 */
-	private javax.swing.JTextArea rtmOutArea() {
-		if(rtmOutputArea == null) {
-			rtmOutputArea = new javax.swing.JTextArea(30,80);
-			rtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
-			rtmOutputArea.setEditable(false);
+	private javax.swing.JTextArea getRtmOutputArea() {
+		if(jRtmOutputArea == null) {
+			jRtmOutputArea = new javax.swing.JTextArea(30,80);
+			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
+			jRtmOutputArea.setEditable(false);
 		}
-		return rtmOutputArea;
+		return jRtmOutputArea;
 	}
 
 	public static void main(String[] args) {
 
 		Gui gg = new Gui();
 		JFrame rtmOut = gg.getRtmOutputWindow();
-		gg.rtmOutArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
+		gg.getRtmOutputArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 
-		OZvm ozvm = new OZvm(gg.z88Screen(), gg.cmdLineInputArea(), gg.cmdlineOutputArea(), gg.rtmOutArea());
+		OZvm ozvm = new OZvm(gg.z88Screen(), gg.getCmdLineInputArea(), gg.getCmdlineOutputArea(), gg.getRtmOutputArea());
 		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
@@ -290,10 +295,10 @@ public class Gui extends JFrame {
 			ozvm.bootZ88Rom();
 			gg.z88Screen().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
-			gg.getContentPane().add(gg.commandArea(), BorderLayout.SOUTH);
+			gg.getContentPane().add(gg.getCommandArea(), BorderLayout.SOUTH);
 			gg.pack();
 			gg.show();
-			gg.cmdLineInputArea().grabFocus();	// make sure that caret is blinking in command line area...
+			gg.getCmdLineInputArea().grabFocus();	// make sure that caret is blinking in command line area...
 		}
 	}
 }
