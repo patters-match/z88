@@ -26,7 +26,7 @@ Module ErrorMessages
      XDEF disp_no_filearea_msg, DispIntelSlotErr
      XDEF no_files
 
-     XREF DispCmdWindow, FileEpromStatistics
+     XREF DispCmdWindow, FileEpromStatistics, DispCtlgWindow
      XREF VduEnableCentreJustify, VduEnableNormalJustify
      XREF cls, sopnln, ResSpace
 
@@ -124,13 +124,22 @@ Module ErrorMessages
 
 
 ; *************************************************************************************
+; Fz & Fc flags are set according to FlashWriteSupport routine.
+; 
 .DispIntelSlotErr
                     push af
                     push hl
+
                     call cls
+                    jr   z, flash_card_err
+                    ld   hl, epromslot_msgs
+                    jr   disperr
+.flash_card_err
                     ld   hl, intelslot_msgs
+.disperr
                     CALL DispSlotErrorMsg
                     CALL ResSpace            ; "Press SPACE to resume" ...
+
                     pop  hl
                     pop  af
                     ret
@@ -178,6 +187,12 @@ Module ErrorMessages
 .intelslot_err1_msg DEFM 13, 10, 1,"BIntel Flash Card found in slot ",0
 .intelslot_err2_msg DEFM ".",1,"B", 13, 10, "You can only format file area, save files or", 13, 10
                     DEFM "delete files in slot 3.", 13, 10, 0
+
+.epromslot_msgs     DEFW epromslot_err1_msg
+                    DEFW epromslot_err2_msg
+.epromslot_err1_msg DEFM 13, 10, 1,"BEPROM found in slot ",0
+.epromslot_err2_msg DEFM ".",1,"B", 13, 10, "Use the Filer to save files in slot 3.", 13, 10
+                    DEFM "Files or EPROMs cannot be erased in the Z88.", 13, 10, 0
 
 .nofilearea_msgs    DEFW nofilearea1_msg
                     DEFW nofilearea2_msg
