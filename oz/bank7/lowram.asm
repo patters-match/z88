@@ -434,7 +434,7 @@ xdef    OZCallReturn3
 ;       !! another way to get Fc=1 into F: 'dec sp; pop af; dec sp' - uses PC hi
 
         cp      1                               ; Fc=0 if we were interrupted
-        ld      a, i                            ; IFF1 -> Fp !! unnecessary?
+        ld      a, i                            ; IFF1 -> Fp !! needed for NMI
         ret
 
 ; 01a2
