@@ -48,10 +48,24 @@ public class DisplayStatus {
 		System.out.println("\n" + dzRegisters);
 	}
 
+
+	public StringBuffer dzPcStatus() {
+		StringBuffer dzBuffer = new StringBuffer(128);
+		int bank = ((z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000)) >>> 16) & 0xFF;
+
+		Dz.dzInstrAscii(dzBuffer, z88.PC(), z88.readInstruction(z88.PC()), true);			
+		for(int space=35 - dzBuffer.length(); space>0; space--)
+			dzBuffer.append(" ");		// pad with spaces, to right-align with Mnemonic				
+		dzBuffer.append(quickZ80Dump());
+		dzBuffer.insert(0,Dz.byteToHex(bank, false));
+		
+		return dzBuffer; 			
+	}
+
 	/**
 	 * current main purpose Z80 Registers and Flags as a one-liner string  
 	 */
-	public StringBuffer quickZ80Dump() {
+	private StringBuffer quickZ80Dump() {
 		StringBuffer dzRegisters = new StringBuffer(1024);
 
 		dzRegisters.append(Dz.byteToHex(z88.A(),false)).append(" ");
