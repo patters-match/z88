@@ -169,7 +169,7 @@
                     CALL_OZ os_erh           ; then install Error Handler...
 
                     CALL PollFileEproms      ; user selects a File Eprom Area in one of the ext. slots.
-                    JP   C, suicide          ; no File Eprom's available
+                    JP   C, suicide          ; no File Area available, or Flash didn't have write support in found slot
                     JP   NZ, suicide         ; user aborted
 
                     CALL ClearWindowArea     ; just clear whole window area available
@@ -327,12 +327,12 @@
 ; Scan external slots and display available File Eprom's from which the
 ; user selects an item.
 ;
-; If no File Eprom Area was found, then slot 3 is examined for a Flash
-; Eprom Card to be created with a File Eprom Area (whole card or part).
-; If found and user acknowledges, then slot 3 will be created with a File
-; Eprom Area and selected as default.
+; If no File Eprom Area was found, then slots 1-3 are examined for a Flash
+; Card to be created with a File Eprom Area (whole card or part).
+; If found and user acknowledges, then selected slot will be created with a File
+; Area and selected as default.
 ;
-; The selected Eprom will remain as the current File Eprom throughout
+; The selected Card will remain as the current File Area throughout
 ; the life of the instantiated FlashStore popdown.
 ;
 ; A small array, <availslots> is used to store the size of each File Eprom
@@ -361,7 +361,7 @@
                          LD   (curslot),A         ; use found Flash Card this as current slot...
                          CALL greyscr
                          CALL DispCtlgWindow
-                         call format_main         ; format Flash Eprom for new File Eprom Area
+                         call format_main         ; format Flash Card with new File Area
                          ret
 .select_slot
                     cp   1
@@ -467,9 +467,21 @@
                     add  hl,bc
                     xor  a
                     cp   (hl)
-                    jr   z, select_slot_loop      ; user selected void or illegal slot
+                    jr   z, check_empty_flcard    ; user selected apparently void or illegal slot
                     cp   a                        ; slot selected successfully
                     ret
+
+.check_empty_flcard call FlashWriteSupport
+                    jr   nz, select_slot_loop     ; no Flash Card in slot...
+                    jp   nc, format_main          ; empty flash card in slot (no file area, and erase/write support)
+                    
+                    CALL DispCmdWindow
+                    CALL DispCtlgWindow
+                    CALL FileEpromStatistics      
+                    call DispIntelSlotErr         ; Intel Flash Card found in slot, but no erase/write support in slot
+                    cp   a
+                    ret
+
 .DispSlotSize
                     ld   hl,size1delm
                     call_oz(Gn_Sop)
@@ -839,7 +851,9 @@
 .init_save_main
                     ld   a,(curslot)
                     ld   c,a
+                    push bc
                     call FileEprRequest
+                    pop  bc
                     ret  c
 
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
@@ -1113,7 +1127,9 @@
 .delete_main
                     ld   a,(curslot)
                     ld   c,a
+                    push bc
                     call FileEprRequest
+                    pop  bc
                     ret  c
 
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
@@ -1762,6 +1778,8 @@
                     call save_null_file           ; save the hidden "null" file to avoid FE bootstrapping
                     ret
 .FormatCard
+                    ld   a,(curslot)
+                    ld   c,a
                     call FlashWriteSupport        ; check if Flash Card in current slot supports formatting?
                     call c,DispIntelSlotErr       
                     ret  c                        ; it didn't...
@@ -2230,6 +2248,7 @@
                     push af
                     push hl
                     
+                    call cls
                     ld   hl, intelslot_err1_ms
                     call_oz GN_Sop
                     ld   a,(curslot)
@@ -2308,16 +2327,16 @@
 
 ; *************************************************************************************
 ;
-; Validate the Flash Card erase/write functionality in the current slot.
-; If the Flash Card in the current slot contains an Intel chip, the current
+; Validate the Flash Card erase/write functionality in the specified slot.
+; If the Flash Card in the specified slot contains an Intel chip, the 
 ; slot must be 3 for format, save and delete functionality.
-; Write an error message to the content window and return with Fc = 1, if an
-; Intel Flash chip was recognized in all slots except 3. 
+; Report an error to the caller with Fc = 1, if an Intel Flash chip was recognized 
+; in all slots except 3. 
 ;
 ; (This routine is called by format, save & delete functionality in FlashStore)
 ; 
 ; IN:
-;    (curslot), (flashid) safe workspace variables.
+;    C = slot number
 ;
 ; OUT:
 ;    Fz = 1, if a Flash Card is available in the current slot (Fz = 0, no Flash Card available!)
@@ -2332,8 +2351,6 @@
                     push de
                     push bc
                     push af
-                    ld   a,(curslot)
-                    ld   c,a
                     call CheckFlashCardID    
                     jr   nc, flashcard_found
                     or   c                   ; Fz = 0, indicate no Flash Card available in slot
