@@ -170,7 +170,7 @@ public class OZvm {
 						if (args[arg+1].compareToIgnoreCase("-t") == 0)	{
 							// Optional type argument
 							crdType	= args[arg+2];
-							arg += 2;
+							arg += 3;
 						} else {
 							arg++;
 						}
