@@ -21,7 +21,7 @@ import javax.swing.UIManager;
  */
 public class Gui extends JFrame {
 
-	private javax.swing.JPanel z88Screen = null;  
+	private Z88display z88Screen = null;  
 	private javax.swing.JMenuBar jJMenuBar = null;
 	private javax.swing.JMenu jMenu = null;  
 	private javax.swing.JMenu jMenu1 = null;
@@ -72,18 +72,15 @@ public class Gui extends JFrame {
 			}
 		});
 	}
+	
 	/**
 	 * This method initializes jContentPane
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	private javax.swing.JPanel z88Screen() {
+	private Z88display z88Screen() {
 		if (z88Screen == null) {
-			z88Screen = new javax.swing.JPanel();
-			z88Screen.setPreferredSize(new Dimension(640, 64));
-			z88Screen.setLayout(new BorderLayout());
-			z88Screen.setToolTipText("Use F12 to get keyboard focus to this window.");
-			z88Screen.setFocusable(true);
+			z88Screen = new Z88display();
 		}
 		return z88Screen;
 	}
