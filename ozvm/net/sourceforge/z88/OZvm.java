@@ -231,13 +231,11 @@ public class OZvm {
 					z88.run(true);
 				}
 				
-				breakp.setBreakpoints();	// restore (patch) breakpoints into code
-				z80Speed.start();			// enable execution speed monitor
-				z88.startInterrupts();		// enable Z80/Z88 core interrupts 
-                z88.getDisplay().start();
+				breakp.setBreakpoints();   // restore (patch) breakpoints into code
+				z80Speed.start();		    // enable execution speed monitor
+				z88.startInterrupts();	    // enable Z80/Z88 core interrupts 
 				z88.run(false);				// execute Z80 code at full speed until breakpoint is encountered...
-                z88.getDisplay().stop();
-				z88.stopInterrupts();                
+				z88.stopInterrupts();
 				z80Speed.stop();
 				breakp.clearBreakpoints();
 				
