@@ -1,0 +1,349 @@
+RomCombiner v2.02
+=================
+
+(c) Garry Lancaster, 2000-2005
+[ Flash Card programming (c) Thierry Peycru, Gunther Strube ]
+
+
+Introduction
+============
+RomCombiner is a BASIC program which allows you to combine several ROM
+images onto a single card, thus enabling you to use many applications
+from a single large (eg 128K or 256K) ROM, instead of having to
+continually swap cards. With the new Flash Cards, you could fit just
+about every application ever written for the Z88 onto a single card!
+
+Another feature of RomCombiner is that it allows you to modify the
+letter key assigned to a particular application, change an
+application's name, alter the order that applications appear in the
+Index, or even leave out an unwanted application from the Index.
+
+The program also includes facilites for reading ROM images, and for
+programming standard EPROMs and Flash Cards, and erasing Flash Cards.
+
+The latest version of RomCombiner and other free Z88 software is always
+available from the Z88 Forever! website.
+
+
+Using the program
+=================
+The main menu provides eight options, allowing you to create image
+files from a ROM in the Z88, combine one or more sets of images, and
+program a blank EPROM with a set of images. You can also check EPROMs
+are properly erased, convert emulator files, erase Flash Cards, change
+the "wait" mode, and exit the program.
+
+
+Read ROM card to image files
+============================
+Upon selecting this option, you are asked for the slot containing the
+ROM you want to make image files from, and a name for the card (this
+can be up to 12 characters long).
+
+Usually, you should type "F" to create images of the full ROM card; in
+this case, the program will detect the size of the card and create the
+appropriate number of images. For example, if you have the PCLink 2 ROM
+in slot 2 and answered "2" for the slot number and "pclink" for the
+card name, the program will create images called pclink.63 and
+pclink.62.
+
+Advanced users may like to choose to take an image of a single bank, or
+range of banks, from a card.
+
+
+Combine image files of cards
+============================
+When you have got all the images of the cards you wish to combine,
+select the "combine" option. This presents you with a further menu
+of choices.
+
+The first thing to do is Add a card to the ROM you are creating: just
+enter A and you will then be asked for the name of a card to add. This
+should be entered without an extension - for example, if your images
+are called pclink.63 and pclink.62, you should just enter pclink.
+
+After successfully adding a card, the display will show the total
+number of cards, applications and the total ROM size of the new card.
+As well as this, there is some information about each application
+found. eg.
+	2. L=PCLink (4)
+This shows that PCLink is application number 2, and will be accessed
+with key L. The number in brackets shows the order that the application
+will appear in the Index list (ie 4th on this card).
+
+At this point you can add further cards, or alter the details of the
+applications loaded so far.
+
+Key
+---
+This option lets you specify a different letter for the application to
+be called by. This is useful if you have several applications using the
+same key. If, for example, you had three applications using key W, then
+only the first would be accessed with []W, the second with []ZW and the
+third with []ZZW. So, it might be better to assign an unused letter to
+one of the applications.
+
+You can also choose 0 in this option, in which case the application
+will not be given a hotkey, but must be selected from the Index menu.
+
+Order
+-----
+This lets you change the order of the application list in the Index.
+You can enter an application number and a new position for it (entering
+0 for the position will leave it out of the application list
+altogether).
+
+Alternatively, press ENTER, and then enter the numbers of the
+applications in the order you wish them to appear in the Index. Press
+ENTER again when you've listed all the applications you want; any you
+have not specified will be left out of the Index list.
+
+Leaving applications out of the Index list can be useful if there is an
+application you never need present on one of your cards (for example,
+Diskfiler 2 if you do not have a disk drive!). However, note that doing
+this does not actually save any space on the new card.
+
+Rename
+------
+This lets you change the name of an application. The new name must
+be the same length or shorter than the original one.
+
+Patch
+-----
+Some applications are written expecting to be located in specific
+banks in a certain-sized cards, and do not usually work correctly after
+being "combined" into a larger card. This option allows you to select a
+patch file designed to correct this behaviour for a particular
+application, and so allow it to be used in combined cards.
+
+If you find an application which does not work properly in a combined
+card, you should check if a patch file is available for it. Some patch
+files are included with this release of RomCombiner, but there may be
+others available. These can always be obtained from the Z88 Forever!
+website.
+
+To use a patch, simply use this option and type in its filename. The
+patch will then be applied during generation of the new card. Any
+application which has a patch assigned to it is marked with an asterisk
+(*) in the list. To remove a patch from an application, just press
+ENTER when asked for the filename.
+
+When combining a card with a patch, you may see some warnings displayed.
+This could mean you have the wrong patch selected for the application (in
+which case the application probably won't work correctly). However, it's
+more likely that the application has been patched previously when combined
+into another card - in this case the warnings can be ignored.
+
+Info
+----
+This displays technical information on the selected application for
+advanced users.
+
+Disp
+----
+This toggles the display mode. When on, you will always see a list of
+the current applications on the combined card. However, if this list
+becomes too long, you may prefer to turn it off with this option.
+
+Wait
+----
+This toggles the wait mode (you can also do this from the main menu).
+If "Wait mode" is on, the program will tell you whenever it needs to
+load a new image file, and whenever it has saved an amended copy of an
+image file. This is useful if you do not have enough memory on your Z88
+to hold all the ROM images at once; at these pauses you can transfer
+files between the Z88 and another computer, ensuring that the program
+always has access to the files it needs.
+
+Techy
+-----
+Another set of options for advanced users. They allow you to:
+
+1. Alter the ID of the card being created
+2. Set the last application to point to another bank and address,
+instead of an end-of-list marker
+3. Force the card to have a particular size, instead of the calculated one
+4. Create images starting from a bank other than 63
+5. Enable an EPROM filing system on the card (see later for details)
+
+The main use for these options is to allow you to create very large ROM
+cards in two or more stages, without having to set the wait mode on.
+
+Save
+----
+This option saves all the details of the ROM you are currently
+creating. This is useful when you are making a lot of changes or adding
+a lot of cards, since if something goes wrong you can simply re-start
+the program and Load the configuration up again. You might also like
+to save the configuration of a ROM you are creating, so that if you
+want to make changes at a later date you don't have to start from
+scratch.
+
+Load
+----
+Re-loads a previously saved configuration.
+
+Create
+------
+Once you have added all the cards you require, and are satisfied with
+the application list, press C to finish and create the final images.
+
+First enter a name for the new card (again with no extension). This
+will be used to create images called CARDNAME.63 etc down to the lowest
+bank in the card.
+
+Unless you have lots of free memory, you should answer Y to the next
+question; this deletes the original images as it creates the new ones,
+to preserve memory.
+
+Then the program will create the new card images. This can take a long
+time!
+
+Quit
+----
+This aborts the combination process and returns you to the main menu.
+
+
+Verify EPROM banks properly erased
+==================================
+If you're unsure whether your EPROMs are being properly erased (perhaps
+you have problems blowing ROMs to them), this option allows you to
+check whether they are ready to program.
+
+Usually, you should press F to check a full EPROM, and enter the size of
+the card. Alternatively, you can enter a range of banks; use the same
+number for both if you only want to check one bank.
+
+If you do have problems with EPROMs that you can't seem to erase, try
+tapping the card sharply on a hard surface and then re-erase it. This
+will dislodge any particles which may be on the window and preventing
+the UV light from reaching the chip.
+
+
+Blow image files to blank EPROM
+===============================
+This main menu option allows you to create a ROM on a totally blank
+EPROM in slot 3 (it must not have been catalogued by Filer).
+
+After entering the EPROM type and the card name, press F to
+automatically blow all the images in the card. Once this is completed,
+you should go to the Index, remove the card, close the flap and then
+re-insert the card again to properly initialise the application list.
+
+Advanced users can choose to blow a range of banks to the EPROM.
+
+Note that this option will refuse to write any bytes if the batteries
+are low, to ensure EPROM integrity.
+
+
+Flash Card block erase
+=======================
+This option allows you to erase blocks of your Flash Cards (in slot
+3), either individually or all at once.
+
+Enter the block number (1-16 for 1Mb Flash Cards) or 256 to erase the
+entire card.
+
+Each "block" is the smallest unit of a Flash Card which can be erased,
+and consists of 4x16K banks. They are arranged as follows:
+
+	Block	Banks
+	1	0 to 3
+	2	4 to 7
+	3	8 to 11
+	4	12 to 15
+	5	16 to 19
+	6	20 to 23
+	7	24 to 27
+	8	28 to 31
+	9	32 to 35
+	10	36 to 39
+	11	40 to 43
+	12	44 to 47
+	13	48 to 51
+	14	52 to 55
+	15	56 to 59
+	16	60 to 63
+
+
+Emulator file conversion
+========================
+This option allows you to convert between the bank files used within
+this program (eg name.62, name.63 etc) and the name.epr files used by
+the Z88 emulators.
+
+Simply enter the name of a file to convert (without any extension). If
+an .EPR file of that name is found, it will be converted to individual
+bank files which can be worked on by this program. If a .63 file of the
+name given is found instead, then a .EPR file will be created, which
+can be used by Z88 emulators.
+
+
+Adding an EPROM filing system to your card
+==========================================
+It is now possible to add files to your application cards. This is not
+an automatic process, but it is well worth the effort to create a card
+containing both your favourite applications and most important
+non-changing files (such as BASIC programs that you always require).
+
+If you have a Flash Card, do *not* follow this procedure. It is much
+easier to create a ROM on the Flash card in the normal way, and then use
+FlashStore to format the remaining space for use with files. This also
+gives much more flexibility, as you can save files at any time, and even
+re-format the file area.
+
+If you wish to add files to an ordinary 128K or 256K EPROM, however, this
+is the only way to do it...
+
+Files can only be added to the card during the creation process; there
+is no way to save additional files. In addition, the Filer and other
+EPROM-handling programs cannot read files from these special combined
+ROM/EPROM cards.
+
+There is a modified version of the EP-Fetch application now available
+on the Z88 Forever application card which can handle reading of files
+from any EPROM (including Flash Cards) or ROM/EPROM card in any slot
+of the Z88. I suggest that you include the Z88 Forever card in any
+combined card you make, so that you can always retrieve files from it.
+
+There are several stages to adding files to your card:
+
+1. Save the files you require to an ordinary (blank) EPROM.
+2. Work out how many banks of your EPROM are in use. This can be done
+   by dividing the size reported by EP-Fetch by 16384 and rounding up.
+   eg. If EP-Fetch reports 26712 bytes used, then 26712/16384=1.63
+       Therefore, 2 banks are in use.
+3. Use the [R]ead option to read the required banks from the EPROM
+   card. The banks you need are numbered upwards from 0. For example,
+   if 5 banks are in use you would read banks 0 to 4.
+4. Use the [B]low option to blow these banks to your new card.
+5. Use the [C]ombine option to generate the ROM images you need.
+   Before selecting [C]reate, use the [T]echy options and set the
+   EPROM filing system option.
+6. Finally, [B]low the ROM images to your card.
+
+Don't forget that the size of your ROM images plus the size of your
+EPROM files cannot exceed the total physical card size!
+
+
+Known problems
+==============
+You should be careful not to use your new combined ROM at the same time
+as the original ROMs. This is because the new ROM will have the same ID
+as the first card that you entered, and this sort of thing confuses OZ
+no end! To avoid this, you could alter the Card ID (in [T]echy options)
+manually.
+
+If you find an application that does not work as expected in a combined
+card, there are three main courses of action you can take:
+
+1. Check if a patch file is available for the application
+2. Try re-creating the ROM, with the problem application as the first
+card to be added to the ROM
+3. Contact me to discuss a possible solution
+
+Finally, application cards cannot use bank 0, as the Z88 operating
+system uses this value to signify "no bank". Thus the largest possible
+application card is 1008K (using banks 1 to 63).
+
+Garry Lancaster, 4th July 2000

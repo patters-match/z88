@@ -1,0 +1,18 @@
+Supplied Patchfiles
+===================
+
+The following patch files are provided with this release of 
+RomCombiner. If any patch files have been created since this release, 
+you will find them on the Z88 Forever! website.
+
+diskfiler.pat
+For Ranger's original DiskFiler (not required for DiskFiler 2). Tested 
+with v2.09.
+
+vision2.pat
+For the Vision2 VT100 terminal emulator from Ranger. Tested with 
+version 2.06.
+
+visionl.pat
+For the cut-down VisionL VT100 terminal emulator included in the 
+RangerWorld compilation. Tested with version 3.00.

@@ -1,0 +1,36 @@
+ROMCombiner v2.02 - What's New?
+===============================
+
+ROMCombiner has been updated to use the latest Flash Card technology
+from Rakewell Ltd. The Flash Cards uses Flash chips from AMD and can
+be updated in any slot (erase/write data). To maintain user interface
+functionality, all Flash Cards are that managed by ROMCombiner are
+to be inserted in slot 3.
+
+Gunther Strube, 9th January 2005
+
+
+ROMCombiner v2.01 - What's New?
+===============================
+
+Since it's around two years since ROMCombiner v2.0 was released, you might
+be entitled to expect some massive changes in this version. However, this
+is not so; this release is just an accumulation of several bugfixes and
+minor improvements.
+
+The full list of changes from v2.0 is:
+
+* Bugfix: When an error is encountered blowing a card, we no longer get
+          stuck in an infinite loop
+* Bugfix: Missing files are now properly checked for when doing EPR file
+          conversions
+* Bugfix: "Add card" option now copes with bad application DORs better
+
+* Enhancement: The "Verify EPROM banks" option can now be given just a
+               card size, and verifies the entire card is blank
+* Enhancement: You can no longer accidentally quit the "combine" menu
+               before creating a new card
+* Enhancement: Patch warning message re-worded
+
+
+Garry Lancaster, 4th July 2000

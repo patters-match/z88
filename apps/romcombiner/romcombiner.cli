@@ -1,0 +1,602 @@
+.; *************************************************************************************
+.; RomCombiner
+.; (c) Garry Lancaster, 2000-2005 (yahoogroups@zxplus3e.plus.com)
+.;
+.; RomCombiner is free software; you can redistribute it and/or modify it under the terms of the
+.; GNU General Public License as published by the Free Software Foundation;
+.; either version 2, or (at your option) any later version.
+.; RomCombiner is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+.; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.; See the GNU General Public License for more details.
+.; You should have received a copy of the GNU General Public License along with RomCombiner;
+.; see the file COPYING. If not, write to the
+.; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+.;
+.; $Id$
+.;
+.; *************************************************************************************
+.J
+NEW
+   10 *NAME RomCombiner
+   20 HIMEM=&BA00
+   30 DIM bank% 16383
+   40 DIM fname 255
+   50 DIM inbuffer 255
+   60 maxcards=16:maxapps=64
+   70 blowbank=&BA00:readbank=&BA94:eraseflash=&BAA8:checkbank=&BA72
+   80 DIM CardName$(maxcards),CardSize(maxcards)
+   90 DIM CardBase(maxcards),CardID(maxcards)
+  100 DIM AppCard(maxapps),AppBank(maxapps),AppOffset(maxapps)
+  110 DIM AppKey$(maxapps),AppName$(maxapps),AppOrder(maxapps)
+  120 DIM OrderOrder(maxapps),OrderApp(maxapps)
+  130 DIM AppPatch$(maxapps)
+  140 WaitLS%=FALSE:ShowApps%=TRUE
+  150 bufchange%=FALSE:$inbuffer=""
+  160 r1$=CHR$(1)+"2+R":r0$=CHR$(1)+"2-R"
+  170 b1$=CHR$(1)+"2+B":b0$=CHR$(1)+"2-B"
+  180 PROCload(":*//romcombiner.bin",blowbank)
+  190 REPEAT
+  200   PROCDispTitle
+  210   PRINT b1$;"R";b0$;"ead ROM card to image files"
+  220   PRINT b1$;"C";b0$;"ombine image files of cards"
+  230   PRINT b1$;"V";b0$;"erify EPROM banks properly erased"
+  240   PRINT b1$;"B";b0$;"low image files to blank EPROM"
+  250   PRINT b1$;"F";b0$;"lash EPROM block erase"
+  260   PRINT b1$;"E";b0$;"mulator file conversion"
+  270   PRINT b1$;"W";b0$;"ait mode";TAB(47);b1$;"Q";b0$;"uit";
+  280   K$=GET$
+  290   IF K$="R" OR K$="r" THEN PROCReadROM
+  300   IF K$="C" OR K$="c" THEN PROCCombiner
+  310   IF K$="V" OR K$="v" THEN PROCVerify
+  320   IF K$="B" OR K$="b" THEN PROCBlowROM
+  330   IF K$="F" OR K$="f" THEN PROCFlashErase
+  340   IF K$="E" OR K$="e" THEN PROCEprConvert
+  350   IF K$="W" OR K$="w" THEN WaitLS%=NOT WaitLS%
+  360 UNTIL K$="Q" OR K$="q"
+  370 CLS
+  380 END
+  390 DEF PROCCombiner
+  400 numcards=0:numapps=0
+  410 LastAdd%=0:LastBank%=0:NewCardID%=0:ForcedSize%=-1:TopBank%=63:EPFS$="N"
+  420 REPEAT
+  430   PROCDispInfo
+  440   IF ShowApps% THEN PROCDispApps
+  450   PRINT b1$;"A";b0$;"dd,";b1$;"K";b0$;"ey,";b1$;"O";b0$;"rder,";
+  460   PRINT b1$;"R";b0$;"ename,";b1$;"P";b0$;"atch,";b1$;"I";b0$;"nfo,";
+  470   PRINT b1$;"D";b0$;"isp,";b1$;"W";b0$;"ait,";b1$;"T";b0$;"echy,";
+  480   PRINT b1$;"C";b0$;"reate,";b1$;"L";b0$;"oad,";b1$;"S";b0$;"ave,";
+  490   PRINT b1$;"Q";b0$;"uit";
+  500   K$=GET$
+  510   PRINT:PRINT
+  520   IF K$="A" OR K$="a" THEN PROCAddCard
+  530   IF K$="K" OR K$="k" THEN PROCChangeKey
+  540   IF K$="O" OR K$="o" THEN PROCChangeOrder
+  550   IF K$="R" OR K$="r" THEN PROCRename
+  560   IF K$="P" OR K$="p" THEN PROCPatch
+  570   IF K$="I" OR K$="i" THEN PROCAppInfo
+  580   IF K$="T" OR K$="t" THEN PROCTechyOpts
+  590   IF K$="W" OR K$="w" THEN WaitLS%=NOT WaitLS%
+  600   IF K$="D" OR K$="d" THEN ShowApps%=NOT ShowApps%
+  610   IF K$="L" OR K$="l" THEN PROCLoadCfg
+  620   IF K$="S" OR K$="s" THEN PROCSaveCfg
+  630 UNTIL K$="C" OR K$="c" OR K$="Q" OR K$="q"
+  640 IF K$="C" OR K$="c" THEN GOTO 650
+  641 PRINT "Really quit now without combining?"
+  642 K$=GET$
+  643 IF K$="Y" OR K$="y" THEN ENDPROC
+  644 GOTO 420
+  650 IF numcards=0 THEN PROCErrMsg("No cards to combine!"):ENDPROC
+  660 IF FNNextApp(1)=-1 THEN PROCErrMsg("No applications!"):ENDPROC
+  670 LB%=TopBank%+1
+  680 FOR I%=0 TO numcards-1
+  690   LB%=LB%-CardSize(I%)
+  700   CardBase(I%)=LB%
+  710 NEXT I%
+  720 IF LB%<0 THEN PROCErrMsg("Combined card too big!"):ENDPROC
+  730 INPUT "Destination card name";C$
+  740 INPUT "Delete source images (Y/N)";Q$
+  750 CLS
+  760 PRINT "Creating initial images..."
+  770 FOR I%=0 TO numcards-1
+  780   FOR J%=0 TO CardSize(I%)-1
+  790     S$=FNbankfile$(CardName$(I%),64-CardSize(I%)+J%)
+  800     PROCload(S$,bank%)
+  810     IF ASC(Q$)=ASC("Y") OR ASC(Q$)=ASC("y") THEN OSCLI("*ERASE "+S$)
+  820     S$=FNbankfile$(C$,CardBase(I%)+J%)
+  830     PRINT S$
+  840     bufchange%=TRUE
+  850     PROCsave(S$)
+  860   NEXT J%
+  870 NEXT I%
+  880 PRINT:PRINT "Modifying images..."
+  890 O%=1
+  900 I%=FNNextApp(O%)
+  910 PROCload(FNbankfile$(C$,TopBank%),bank%)
+  920 PROCSetw(&3FF8,NewCardID%)
+  930 IF ForcedSize%=-1 THEN PROCSetb(&3FFC,FNtotsize) ELSE PROCSetb(&3FFC,ForcedSize%)
+  940 PROCSetw(&3FC6,AppOffset(I%))
+  950 PROCSetb(&3FC8,FNnewbank(AppCard(I%),AppBank(I%)))
+  960 PROCSetb(&3FF6,&FF):PROCSetb(&3FF7,&FF)
+  970 IF EPFS$="Y" OR EPFS$="y" THEN PROCSetb(&3FF6,ASC("o")):PROCSetb(&3FF7,ASC("z"))
+  980 REPEAT
+  990   O%=O%+1
+ 1000   J%=FNNextApp(O%)
+ 1010   IF J%=-1 THEN LA%=LastAdd%:LB%=LastBank% ELSE LA%=AppOffset(J%):LB%=FNnewbank(AppCard(J%),AppBank(J%))
+ 1020   PRINT "Application: ";AppName$(I%)
+ 1030   PROCModifyApp(I%,LA%,LB%)
+ 1040   I%=J%
+ 1050 UNTIL I%=-1
+ 1060 PROCsave($inbuffer)
+ 1070 PRINT "Finished! - any key to continue"+CHR$(7)
+ 1080 K=GET
+ 1090 ENDPROC
+ 1100 DEF PROCDispTitle
+ 1110 CLS
+ 1120 PRINT r1$;"  RomCombiner v2.02 (c) Garry Lancaster, 2000-2005  ";r0$;
+ 1130 PRINT "  Pause mode ";
+ 1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
+ 1150 PRINT "  Display mode ";
+ 1160 IF ShowApps% THEN PRINT "ON" ELSE PRINT "OFF"
+ 1170 ENDPROC
+ 1180 DEF PROCDispInfo
+ 1190 PROCDispTitle
+ 1200 PRINT "Cards=";numcards;TAB(20);"Applications=";numapps;TAB(40);"Size=";FNtotsize*16;"K"
+ 1210 ENDPROC
+ 1220 DEF FNtotsize
+ 1230 LOCAL I%,SZ%
+ 1240 IF numcards=0 THEN =0
+ 1250 SZ%=0
+ 1260 FOR I%=0 TO numcards-1
+ 1270   SZ%=SZ%+CardSize(I%)
+ 1280 NEXT I%
+ 1290 =SZ%
+ 1300 DEF PROCDispApps
+ 1310 LOCAL I%,K%,L%,C$
+ 1320 IF numapps=0 THEN ENDPROC
+ 1330 L%=1
+ 1340 FOR I%=0 TO numapps-1
+ 1350   T%=(I% MOD 4)*23
+ 1360   IF T%=0 AND I%>0 THEN PRINT:L%=L%+1
+ 1370   C$=")":IF AppPatch$(I%)<>"" THEN C$="*"
+ 1380   PRINT TAB(T%);I%+1;C$;TAB(4+T%);AppKey$(I%);"=";AppName$(I%);" (";AppOrder(I%);")";
+ 1390   IF L%=8 THEN L%=0:K%=GET
+ 1400 NEXT I%
+ 1410 PRINT
+ 1420 ENDPROC
+ 1430 DEF PROCAppInfo
+ 1440 LOCAL A%,K,X$
+ 1450 INPUT "Application number";A%
+ 1460 A%=A%-1
+ 1470 IF A%<0 OR A%>=numapps THEN PROCErrMsg("Invalid application!"):ENDPROC
+ 1480 PRINT
+ 1490 PRINT "Name:";TAB(16);AppName$(A%)
+ 1500 PRINT "Key:";TAB(16);AppKey$(A%)
+ 1510 PRINT "Order:";TAB(16);AppOrder(A%)
+ 1520 PRINT "DOR Bank:";TAB(16);AppBank(A%)
+ 1530 PRINT "DOR Address:";TAB(16);AppOffset(A%)
+ 1540 PRINT "Card size:";TAB(16);CardSize(AppCard(A%));" banks"
+ 1550 PRINT "Card ID:";TAB(16);CardID(AppCard(A%))
+ 1560 PRINT "Press any key to continue";
+ 1570 K=GET
+ 1580 ENDPROC
+ 1590 DEF PROCAddCard
+ 1600 LOCAL I%,X%,AAdd,ABank,byte,N$,OZ$
+ 1610 IF numcards=maxcards THEN PROCErrMsg("Too many cards!"):ENDPROC
+ 1620 INPUT "Card name to add";N$
+ 1630 CardName$(numcards)=N$
+ 1640 IF FNmissing(FNbankfile$(N$,63)) THEN PROCErrMsg("Card images not found!"):ENDPROC
+ 1650 PROCload(FNbankfile$(N$,63),bank%)
+ 1660 CardSize(numcards)=FNGetb(&3FFC)
+ 1670 CardID(numcards)=FNGetw(&3FF8)
+ 1680 OZ$=FNGetc$(&3FFE)+FNGetc$(&3FFF)
+ 1690 IF OZ$<>"OZ" THEN PROCErrMsg("Not an application card!"):ENDPROC
+ 1700 FOR I%=&3FC0 TO &3FC5
+ 1710   IF FNGetb(I%) THEN PROCErrMsg("Invalid Front DOR"):I%=&4000
+ 1720 NEXT I%
+ 1725 IF I%>=&4000 THEN ENDPROC
+ 1730 RESTORE 1770
+ 1740 FOR I%=&3FC9 TO &3FD1
+ 1750   READ byte:IF FNGetb(I%)<>byte THEN PROCErrMsg("Invalid Front DOR"):I%=&4000
+ 1760 NEXT I%
+ 1765 IF I%>=&4000 THEN ENDPROC
+ 1770 DATA 19,8,78,5,65,80,80,76,0
+ 1780 AAdd=FNGetw(&3FC6):ABank=FNGetb(&3FC8)
+ 1790 IF AAdd=0 AND ABank=0 THEN PROCErrMsg("No applications on card!"):ENDPROC
+ 1800 numcards=numcards+1
+ 1810 IF numcards=1 THEN NewCardID%=CardID(0)
+ 1820 IF numcards=1 AND FNGetc$(&3FF6)+FNGetc$(&3FF7)="oz" THEN EPFS$="Y"
+ 1830 REPEAT
+ 1840   IF numapps=maxapps THEN PROCErrMsg("Too many applications!"):END
+ 1850   ABank=(ABank MOD CardSize(numcards-1))+64-CardSize(numcards-1)
+ 1860   PROCload(FNbankfile$(N$,ABank),bank%)
+ 1870   IF FNGetb(AAdd+9)<>&83 THEN PROCErrMsg("Invalid Application DOR!"):END
+ 1880   AppCard(numapps)=numcards-1
+ 1890   AppBank(numapps)=ABank
+ 1900   AppOffset(numapps)=AAdd
+ 1910   AppOrder(numapps)=numapps+1
+ 1920   AppKey$(numapps)=FNGetc$(AAdd+15)
+ 1930   IF FNGetc$(AAdd+45)<>"N" THEN PROCErrMsg("Application name not found!"):END
+ 1940   AppName$(numapps)=""
+ 1950   FOR I%=AAdd+47 TO AAdd+46+FNGetb(AAdd+46)-1
+ 1960     AppName$(numapps)=AppName$(numapps)+FNGetc$(I%)
+ 1970   NEXT I%
+ 1980   numapps=numapps+1
+ 1990   ABank=FNGetb(AAdd+5):AAdd=FNGetw(AAdd+3)
+ 2000 UNTIL ABank=0 AND AAdd=0
+ 2010 ENDPROC
+ 2020 DEF PROCModifyApp(A%,LA%,LB%)
+ 2030 LOCAL CD%,I%,B%,PF%,PN$,NP%,PBK%,POFF%,PORG,PNEW
+ 2040 CD%=AppCard(A%)
+ 2050 PROCload(FNbankfile$(C$,FNnewbank(CD%,AppBank(A%))),bank%)
+ 2060 PROCSetw(AppOffset(A%)+3,LA%):PROCSetb(AppOffset(A%)+5,LB%)
+ 2070 PROCSetb(AppOffset(A%)+15,ASC(AppKey$(A%)))
+ 2080 FOR I%=AppOffset(A%)+25 TO AppOffset(A%)+28
+ 2090   B%=FNGetb(I%)
+ 2100   IF B% THEN PROCSetb(I%,FNnewbank(CD%,B%))
+ 2110 NEXT I%
+ 2120 FOR I%=AppOffset(A%)+35 TO AppOffset(A%)+44 STEP 3
+ 2130   B%=FNGetb(I%)
+ 2140   IF B% THEN PROCSetb(I%,FNnewbank(CD%,B%))
+ 2150 NEXT I%
+ 2160 FOR I%=1 TO FNGetb(AppOffset(A%)+46)-1
+ 2170   PROCSetb(AppOffset(A%)+46+I%,ASC(MID$(AppName$(A%),I%,1)))
+ 2180 NEXT I%
+ 2190 IF AppPatch$(A%)="" THEN ENDPROC
+ 2200 PF%=OPENIN(AppPatch$(A%))
+ 2210 IF PF%=0 THEN PROCErrMsg("Patch file not found!"):ENDPROC
+ 2220 INPUT#PF%,PN$
+ 2230 INPUT#PF%,NP%
+ 2240 PRINT "Applying patch: ";PN$
+ 2250 FOR I%=1 TO NP%
+ 2260   INPUT#PF%,PBK%,POFF%,PORG,PNEW
+ 2270   PROCload(FNbankfile$(C$,FNnewbank(CD%,AppBank(A%)+PBK%)),bank%)
+ 2280   PORG=FNPatchVal(PORG,AppBank(A%))
+ 2290   PNEW=FNPatchVal(PNEW,FNnewbank(CD%,AppBank(A%)))
+ 2300   IF FNGetb(POFF%)<>PORG THEN PROCErrMsg("Warning: unexpected value on patch #"+STR$(I%))
+ 2310   PROCSetb(POFF%,PNEW)
+ 2320 NEXT I%
+ 2330 CLOSE#PF%
+ 2340 ENDPROC
+ 2350 DEF FNNextApp(O%)
+ 2360 LOCAL I%,NA%
+ 2370 NA%=-1
+ 2380 FOR I%=0 TO numapps-1
+ 2390   IF AppOrder(I%)=O% THEN NA%=I%
+ 2400 NEXT I%
+ 2410 =NA%
+ 2420 DEF PROCChangeKey
+ 2430 LOCAL A%,X$
+ 2440 INPUT "Application number";A%
+ 2450 A%=A%-1
+ 2460 IF A%<0 OR A%>=numapps THEN PROCErrMsg("Invalid application!"):ENDPROC
+ 2470 INPUT "New key (A-Y or 0)";X$
+ 2480 IF X$>="a" AND X$<="z" THEN X$=CHR$(ASC(X$)-32)
+ 2490 IF (X$<"A" OR X$>"Y") AND X$<>"0" THEN PROCErrMsg("Invalid key!"):ENDPROC
+ 2500 AppKey$(A%)=X$
+ 2510 ENDPROC
+ 2520 DEF PROCChangeOrder
+ 2530 LOCAL A%,I%,J%,P,S%,X
+ 2540 INPUT "Application number (0=specify full order)";A%
+ 2550 A%=A%-1
+ 2560 IF A%<0 THEN GOTO 2820
+ 2570 IF A%>=numapps THEN PROCErrMsg("Invalid application!"):ENDPROC
+ 2580 INPUT "New position (0=leave out)";P
+ 2590 IF P<0 THEN PROCErrMsg("Invalid position!"):ENDPROC
+ 2600 IF P>AppOrder(A%) THEN P=P+0.2
+ 2610 IF P<>0 THEN P=P-0.1
+ 2620 AppOrder(A%)=P
+ 2630 FOR I%=0 TO numapps-1
+ 2640   OrderOrder(I%)=AppOrder(I%):OrderApp(I%)=I%
+ 2650 NEXT I%
+ 2660 REPEAT
+ 2670   S%=0
+ 2680   IF numapps<2 THEN GOTO 2770
+ 2690   FOR I%=0 TO numapps-2
+ 2700     FOR J%=I%+1 TO numapps-1
+ 2710       IF OrderOrder(J%)>=OrderOrder(I%) GOTO 2750
+ 2720       X=OrderOrder(I%):OrderOrder(I%)=OrderOrder(J%):OrderOrder(J%)=X
+ 2730       X=OrderApp(I%):OrderApp(I%)=OrderApp(J%):OrderApp(J%)=X
+ 2740       S%=1
+ 2750     NEXT J%
+ 2760   NEXT I%
+ 2770 UNTIL S%=0
+ 2780 FOR I%=0 TO numapps-1
+ 2790   IF OrderOrder(I%)>0 THEN S%=S%+1
+ 2800   AppOrder(OrderApp(I%))=S%
+ 2810 NEXT I%:ENDPROC
+ 2820 FOR I%=0 TO numapps-1:AppOrder(I%)=0:NEXT I%
+ 2830 S%=1
+ 2840 REPEAT
+ 2850   INPUT "Next application number (ENTER to end)";I%
+ 2860   I%=I%-1
+ 2870   IF I%<0 THEN GOTO 2910
+ 2880   IF I%>numapps-1 THEN PROCErrMsg("Invalid application!"):GOTO 2910
+ 2890   IF AppOrder(I%)<>0 THEN PROCErrMsg("Application already selected!"):GOTO 2910
+ 2900   AppOrder(I%)=S%:S%=S%+1
+ 2910 UNTIL I%<0
+ 2920 ENDPROC
+ 2930 DEF PROCTechyOpts
+ 2940 LOCAL X%,E$
+ 2950 PRINT "Card ID=";NewCardID%;"  Change to (ENTER=no change)";
+ 2960 INPUT X%:IF X% THEN NewCardID%=X%
+ 2970 PRINT "Final link is to ";LastAdd%;" in bank ";LastBank%
+ 2980 PRINT "New bank (ENTER=no change)";
+ 2990 INPUT X%:IF X% THEN LastBank%=X%:INPUT "DOR address";LastAdd%
+ 3000 PRINT "Force size to ";ForcedSize%;" (-1=don't force)"
+ 3010 PRINT "New size to force (ENTER=no change)";
+ 3020 INPUT X%:IF (X%>0 AND X%<257) OR X%=-1 THEN ForcedSize%=X%
+ 3030 PRINT "Top bank=";TopBank%;"  Change to (ENTER=no change)";
+ 3040 INPUT X%:IF X%>0 AND X%<64 THEN TopBank%=X%
+ 3050 PRINT "EPROM filing system=";EPFS$;"  Change to (ENTER=no change)";
+ 3060 INPUT E$:IF E$="Y" OR E$="y" OR E$="N" OR E$="n" THEN EPFS$=E$
+ 3070 ENDPROC
+ 3080 DEF PROCRename
+ 3090 LOCAL A%,N$
+ 3100 INPUT "Application number";A%
+ 3110 A%=A%-1
+ 3120 IF A%<0 OR A%>=numapps THEN PROCErrMsg("Invalid application!"):ENDPROC
+ 3130 INPUT "New name";N$
+ 3140 IF LEN(N$)<LEN(AppName$(A%)) THEN N$=N$+" ":GOTO 3140
+ 3150 IF LEN(N$)>LEN(AppName$(A%)) THEN N$=LEFT$(N$,LEN(AppName$(A%)))
+ 3160 AppName$(A%)=N$
+ 3170 ENDPROC
+ 3180 DEF PROCPatch
+ 3190 LOCAL A%
+ 3200 INPUT "Application number";A%
+ 3210 A%=A%-1
+ 3220 IF A%<0 OR A%>=numapps THEN PROCErrMsg("Invalid application!"):ENDPROC
+ 3230 INPUT "Patch file";AppPatch$(A%)
+ 3240 ENDPROC
+ 3250 DEF PROCErrMsg(err$)
+ 3260 LOCAL I%
+ 3270 PRINT err$
+ 3280 VDU 7
+ 3290 FOR I%=1 TO 2000:NEXT I%
+ 3300 ENDPROC
+ 3310 DEF PROCsave($fname)
+ 3320 LOCAL H%,L%,D%,E%,B%,C%,K
+ 3330 IF NOT bufchange% THEN ENDPROC
+ 3340 L%=fname
+ 3350 E%=bank%:C%=16384
+ 3360 H%=L% DIV 256:D%=E% DIV 256:B%=C% DIV 256
+ 3370 CALL(&FEA6)
+ 3380 IF WaitLS% THEN PRINT "  Image ";$fname;" saved - press any key":K=GET
+ 3390 $inbuffer=$fname:bufchange%=FALSE
+ 3400 ENDPROC
+ 3410 DEF PROCload($fname,E%)
+ 3420 LOCAL H%,L%,D%,B%,C%,K
+ 3430 IF $inbuffer=$fname THEN ENDPROC
+ 3440 IF bufchange% THEN PROCsave($inbuffer)
+ 3450 IF WaitLS% THEN PRINT "  Press any key to load image ";$fname:K=GET
+ 3460 L%=fname
+ 3470 H%=L% DIV 256:D%=E% DIV 256:B%=255:C%=255
+ 3480 CALL(&FEA3)
+ 3490 $inbuffer=$fname:bufchange%=FALSE
+ 3500 ENDPROC
+ 3510 DEF PROCSetb(add%,b%)
+ 3520 bufchange%=TRUE
+ 3530 bank%?(add% AND &3FFF)=b%
+ 3540 ENDPROC
+ 3550 DEF PROCSetw(add%,w%)
+ 3560 bufchange%=TRUE
+ 3570 add%=add% AND &3FFF
+ 3580 bank%?add%=w% MOD 256
+ 3590 bank%?(add%+1)=w% DIV 256
+ 3600 ENDPROC
+ 3610 DEF FNGetb(add%)
+ 3620 =bank%?(add% AND &3FFF)
+ 3630 DEF FNGetc$(add%)
+ 3640 =CHR$(bank%?(add% AND &3FFF))
+ 3650 DEF FNGetw(add%)
+ 3660 add%=add% AND &3FFF
+ 3670 =bank%?add%+256*(bank%?(add%+1))
+ 3680 DEF FNbankfile$(N$,B%)
+ 3690 =N$+"."+STR$(B%)
+ 3700 DEF FNnewbank(C%,B%)
+ 3710 LOCAL E%
+ 3720 E%=B% AND 63
+ 3730 IF E%<64-CardSize(C%) THEN E%=E%+CardSize(C%):GOTO 3730
+ 3740 =E%-(64-CardSize(C%))+CardBase(C%)
+ 3750 DEF PROCReadBank(N$,I%)
+ 3760 PRINT "Creating image of bank ";I%
+ 3770 B%=S%*64+I%
+ 3780 D%=bank% DIV 256:E%=bank% MOD 256
+ 3790 CALL(readbank)
+ 3800 bufchange%=TRUE
+ 3810 PROCsave(FNbankfile$(N$,I%))
+ 3820 ENDPROC
+ 3830 DEF PROCReadROM
+ 3840 LOCAL K$,I%,BK%,BK2%
+ 3850 PROCDispTitle
+ 3860 PRINT
+ 3870 INPUT "Read ROM from which slot (1-3)";S%
+ 3880 IF S%<1 OR S%>3 THEN PROCErrMsg("Invalid slot!"):ENDPROC
+ 3890 INPUT "Card name";N$
+ 3900 PRINT b1$;"F";b0$;"ull ROM or ";b1$;"R";b0$;"ange of banks?"
+ 3910 REPEAT
+ 3920   K$=GET$
+ 3930 UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
+ 3940 IF K$="F" OR K$="f" THEN 4030
+ 3950 INPUT "First bank (0-63)";BK%
+ 3960 IF BK%<0 OR BK%>63 THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 3970 INPUT "Last bank (0-63)";BK2%
+ 3980 IF BK2%<0 OR BK2%>63 OR BK2%<BK% THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 3990 FOR I%=BK% TO BK2%
+ 4000   PROCReadBank(N$,I%)
+ 4010 NEXT I%
+ 4020 GOTO 4120
+ 4030 B%=S%*64+63
+ 4040 D%=bank% DIV 256:E%=bank% MOD 256
+ 4050 CALL(readbank)
+ 4060 OZ$=FNGetc$(&3FFE)+FNGetc$(&3FFF)
+ 4070 IF OZ$<>"OZ" AND OZ$<>"oz" THEN PROCErrMsg("Card not detected!"):ENDPROC
+ 4080 CS%=FNGetb(&3FFC):IF CS%=0 OR CS%>64 THEN PROCErrMsg("Invalid ROM card!"):ENDPROC
+ 4090 FOR I%=63 TO 64-CS% STEP -1
+ 4100   PROCReadBank(N$,I%)
+ 4110 NEXT I%
+ 4120 PRINT "Images successfully created! - press any key"+CHR$(7):K=GET
+ 4130 ENDPROC
+ 4140 DEF FNBlowBank(N$,B%)
+ 4150 PRINT "Blowing bank ";B%
+ 4160 PROCload(FNbankfile$(N$,B%),bank%)
+ 4170 D%=bank% DIV 256:E%=bank% MOD 256
+ 4180 C%=&69:IF EP%=32 THEN C%=&48 ELSE IF EP%=0 THEN C%=0
+ 4190 =(USR(blowbank)/&10000) AND &FFFF
+ 4200 DEF PROCBlowROM
+ 4210 LOCAL K$,F,FLASH,I%,BK%,BK2%
+ 4220 PROCDispTitle
+ 4230 PRINT
+ 4240 F=0:FLASH=0
+ 4250 INPUT "What EPROM type is in slot 3 (32, 128, 256 or FLASH)";EP%
+ 4260 IF EP%<>32 AND EP%<>128 AND EP%<>256 AND EP%<>0 THEN PROCErrMsg("Invalid EPROM type!"):ENDPROC
+ 4270 INPUT "Card name";N$
+ 4280 PRINT b1$;"F";b0$;"ull ROM or ";b1$;"R";b0$;"ange of banks?"
+ 4290 REPEAT
+ 4300   K$=GET$
+ 4310 UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
+ 4320 IF K$="F" OR K$="f" THEN 4440
+ 4330 INPUT "First bank (0-63)";BK%
+ 4340 IF BK%<0 OR BK%>63 THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 4350 INPUT "Last bank (0-63)";BK2%
+ 4360 IF BK2%<0 OR BK2%>63 OR BK2%<BK% THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 4370 FOR I%=BK% TO BK2%
+ 4380   IF FNmissing(FNbankfile$(N$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 4410
+ 4390   X%=FNBlowBank(N$,I%)
+ 4400   IF X% THEN PROCErrMsg("Error blowing bank "+STR$(I%)+" at byte "+STR$(X%-49152)):I%=100
+ 4410 NEXT I%
+ 4420 IF I%<100 PRINT "Banks successfully blown!"+CHR$(7)
+ 4430 GOTO 4540
+ 4440 IF FNmissing(FNbankfile$(N$,63)) THEN PROCErrMsg("Card images not found!"):ENDPROC
+ 4450 PROCload(FNbankfile$(N$,63),bank%)
+ 4460 CS%=FNGetb(&3FFC)
+ 4470 IF CS%=0 OR CS%>64 THEN PROCErrMsg("Invalid card!"):ENDPROC
+ 4480 FOR I%=64-CS% TO 63
+ 4485   IF FNmissing(FNbankfile$(N$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 4510
+ 4490   X%=FNBlowBank(N$,I%)
+ 4500   IF X% THEN PROCErrMsg("Error blowing EPROM at byte "+STR$(X%-49152)):I%=100
+ 4510 NEXT I%
+ 4515 IF I%>=100 GOTO 4540
+ 4520 PRINT "ROM successfully blown!"+CHR$(7)
+ 4530 PRINT "Go to Index, remove card, close flap and re-insert card to activate"
+ 4540 PRINT "Press any key to continue":K=GET
+ 4550 ENDPROC
+ 4560 DEF FNmissing(N$)
+ 4570 LOCAL X%
+ 4580 X%=OPENIN(N$)
+ 4590 IF X% THEN CLOSE#X%:X%=FALSE ELSE X%=TRUE
+ 4600 =X%
+ 4610 DEF PROCFlashErase
+ 4620 LOCAL E%
+ 4630 REPEAT
+ 4640   PROCDispTitle
+ 4650   PRINT
+ 4660   INPUT "Flash EPROM block to erase (1-16,256=all,0=end)";E%
+ 4670   E%=E%-1
+ 4680   IF E%<0 THEN 4700
+ 4690   IF ((USR(eraseflash)/&10000) AND &FFFF) THEN PROCErrMsg("Error erasing Flash EPROM block!") ELSE PROCErrMsg("Successful!")
+ 4700 UNTIL E%<0
+ 4710 ENDPROC
+ 4720 DEF PROCVerify
+ 4730 LOCAL K$,B%,S%,F%,P%
+ 4740 PROCDispTitle
+ 4750 PRINT
+ 4751 PRINT b1$;"F";b0$;"ull EPROM or ";b1$;"R";b0$;"ange of banks?"
+ 4752 REPEAT
+ 4753   K$=GET$
+ 4754 UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
+ 4755 IF K$="R" OR K$="r" THEN 4760
+ 4756 REPEAT:INPUT "EPROM size (32-1024)";F%:S%=64-(F% DIV 16)
+ 4758 UNTIL (S%>=0) AND (S%<=62) AND ((F% MOD 16)=0)
+ 4759 F%=63:GOTO 4780
+ 4760 REPEAT:INPUT "First bank to verify (0-63)";S%:UNTIL S%>=0 AND S%<=63
+ 4770 REPEAT:INPUT "Last bank to verify (0-63)";F%:UNTIL F%>=S% AND F%<=63
+ 4780 P%=TRUE
+ 4790 FOR B%=S% TO F%
+ 4800   IF (USR(checkbank)/&10000) AND &FFFF THEN PROCErrMsg("Bank "+STR$(B%)+" not properly erased!"):P%=FALSE
+ 4810 NEXT B%
+ 4820 IF P% THEN PROCErrMsg("Bank(s) properly erased and ready to program!")
+ 4830 ENDPROC
+ 4840 DEF PROCEprConvert
+ 4850 LOCAL N$,X%,SZ%,I%,J%,Q$
+ 4860 PROCDispTitle
+ 4870 PRINT
+ 4880 INPUT "Name of card to convert";N$
+ 4890 X%=OPENIN(N$+".epr")
+ 4900 IF X%=0 THEN 5010
+ 4910 PRINT "Creating bank images from .EPR file..."
+ 4920 SZ%=EXT#X% DIV 16384
+ 4930 IF (EXT#X% MOD 16384)<>0 OR SZ%=0 THEN PROCErrMsg("Invalid emulator file!"):ENDPROC
+ 4940 FOR I%=64-SZ% TO 63
+ 4950   PRINT "Generating bank ";I%
+ 4960   FOR J%=0 TO 16383:bank%?J%=BGET#X%:NEXT J%
+ 4970   bufchange%=TRUE
+ 4980   PROCsave(FNbankfile$(N$,I%))
+ 4990 NEXT I%
+ 5000 GOTO 5140
+ 5010 IF FNmissing(FNbankfile$(N$,63)) THEN PROCErrMsg("Card not found!"):ENDPROC
+ 5020 PROCload(FNbankfile$(N$,63),bank%)
+ 5030 SZ%=FNGetb(&3FFC)
+ 5040 IF (FNGetc$(&3FFE)+FNGetc$(&3FFF)<>"OZ") OR SZ%=0 THEN PROCErrMsg("Invalid application card!"):ENDPROC
+ 5050 INPUT "Delete source images (Y/N)";Q$
+ 5060 PRINT "Creating .EPR file from bank images..."
+ 5070 X%=OPENOUT(N$+".epr")
+ 5080 FOR I%=64-SZ% TO 63
+ 5090   PRINT "Adding bank ";I%
+ 5095   IF FNmissing(FNbankfile$(N$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 5130
+ 5100   PROCload(FNbankfile$(N$,I%),bank%)
+ 5110   IF ASC(Q$)=ASC("Y") OR ASC(Q$)=ASC("y") THEN OSCLI("*ERASE "+FNbankfile$(N$,I%))
+ 5120   FOR J%=0 TO 16383:BPUT#X%,bank%?J%:NEXT J%
+ 5130 NEXT I%
+ 5140 IF I%>=100 THEN PROCErrMsg("Incomplete!") ELSE PROCErrMsg("Completed!")
+ 5150 CLOSE#X%
+ 5160 ENDPROC
+ 5170 DEF PROCSaveCfg
+ 5180 LOCAL I%,X%,N$
+ 5190 PROCDispTitle
+ 5200 PRINT
+ 5210 INPUT "Filename to save configuration in";N$
+ 5220 X%=OPENOUT(N$)
+ 5230 IF X%=0 THEN PROCErrMsg("Error creating file!"):ENDPROC
+ 5240 PRINT#X%,EPFS$
+ 5250 PRINT#X%,numcards,numapps,LastAdd%,LastBank%,NewCardID%,ForcedSize%,TopBank%,WaitLS%,ShowApps%
+ 5260 FOR I%=0 TO numcards-1
+ 5270   PRINT#X%,CardName$(I%)
+ 5280   PRINT#X%,CardSize(I%),CardID(I%)
+ 5290 NEXT I%
+ 5300 FOR I%=0 TO numapps-1
+ 5310   PRINT#X%,AppName$(I%)
+ 5320   PRINT#X%,AppCard(I%),AppBank(I%),AppOffset(I%),AppOrder(I%)
+ 5330   PRINT#X%,AppKey$(I%)
+ 5340   PRINT#X%,AppPatch$(I%)
+ 5350 NEXT I%
+ 5360 CLOSE#X%
+ 5370 PROCErrMsg("Configuration saved!")
+ 5380 ENDPROC
+ 5390 DEF PROCLoadCfg
+ 5400 LOCAL I%,X%,N$
+ 5410 PROCDispTitle
+ 5420 PRINT
+ 5430 INPUT "Filename to load configuration from";N$
+ 5440 X%=OPENIN(N$)
+ 5450 IF X%=0 THEN PROCErrMsg("File not found!"):ENDPROC
+ 5460 INPUT#X%,EPFS$
+ 5470 INPUT#X%,numcards,numapps,LastAdd%,LastBank%,NewCardID%,ForcedSize%,TopBank%,WaitLS%,ShowApps%
+ 5480 FOR I%=0 TO numcards-1
+ 5490   INPUT#X%,CardName$(I%)
+ 5500   INPUT#X%,CardSize(I%),CardID(I%)
+ 5510 NEXT I%
+ 5520 FOR I%=0 TO numapps-1
+ 5530   INPUT#X%,AppName$(I%)
+ 5540   INPUT#X%,AppCard(I%),AppBank(I%),AppOffset(I%),AppOrder(I%)
+ 5550   INPUT#X%,AppKey$(I%)
+ 5560   INPUT#X%,AppPatch$(I%)
+ 5570 NEXT I%
+ 5580 CLOSE#X%
+ 5590 PROCErrMsg("Configuration loaded!")
+ 5600 ENDPROC
+ 5610 DEF FNPatchVal(V,BK%)
+ 5620 LOCAL V1,V2
+ 5630 V1=V:V2=0
+ 5640 IF V1<-1000 THEN V2=ABS(V1 MOD 1000):V1=V1 DIV 1000
+ 5650 IF V1<0 THEN V1=BK%+V1+64
+ 5660 =((V1+V2) MOD 256)
