@@ -10,8 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -34,7 +32,7 @@ public final class Blink extends Z80 {
 	 * @param canvas
 	 * @param rtmOutput
 	 */
-	Blink(JPanel canvas, JTextField cmdInput, JTextArea rtmOutput) {
+	Blink(Z88display z88Dsp, JTextField cmdInput, JTextArea rtmOutput) {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.
@@ -63,9 +61,7 @@ public final class Blink extends Z80 {
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
 
-		z88Display = new Z88display(this, canvas);		// create window, but without activity yet...
-		z88Keyboard = new Z88Keyboard(this, canvas, cmdInput);
-
+		z88Keyboard = new Z88Keyboard(this, z88Dsp, cmdInput);
 		runtimeOutput = rtmOutput;		// reference to runtime output window text area.
 	}
 
@@ -1049,8 +1045,23 @@ public final class Blink extends Z80 {
 				res = getBlinkTim4();	// TIM4, 64K minutes Period, counts to 31
 				break;
 
+			case 0xE0:					// RxD
+				res = 0;
+				break;
+
+			case 0xE1:					// RxE
+				res = 0;
+				break;
+
+			case 0xE5:					// UIT, UART Int status
+				res = 0;
+				break;
+
 			default :
-				res = 0;			// RXD, RXE, UIT not yet implemented in BLINK ...
+				displayRtmMessage("WARNING:\n" +
+								   (new DisplayStatus(this)).dzPcStatus().toString() + "\n" +
+								   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);
+				res = 0;
 		}
 
 		return res;
@@ -1081,6 +1092,9 @@ public final class Blink extends Z80 {
 
 			case 0xB1 : // INT, Set Main Blink Interrupts
 				setBlinkInt(outByte);
+				break;
+
+			case 0xB3 : // EPR, Eprom programming (not yet implemented)
 				break;
 
 			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
@@ -1114,6 +1128,26 @@ public final class Blink extends Z80 {
 			case 0x74 : // SBR, Screen Base Register
 				setBlinkSbr((addrA15 << 8) | outByte);
 				break;
+
+			case 0xE2 : // RXC, Receiver Control (not yet implemented)
+				break;
+
+			case 0xE3 : // TXD, Transmit Data (not yet implemented)
+				break;
+
+			case 0xE4 : // TXC, Transmit Control (not yet implemented)
+				break;
+
+			case 0xE5 : // UMK, UART int. mask (not yet implemented)
+				break;
+
+			case 0xE6 : // UAK, UART acknowledge int. mask (not yet implemented)
+				break;
+			
+			default:
+				displayRtmMessage("WARNING:\n" +
+								   (new DisplayStatus(this)).dzPcStatus().toString() + "\n" +
+								   "Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);			
 		}
 	}
 
@@ -1220,14 +1254,6 @@ public final class Blink extends Z80 {
 		} else {
 			// Slot 0 ROM bank 0 is bound into lower 8K of segment 0
 			RAMS = memory[0x00];
-		}
-
-		if ( ((bits & Blink.BM_COMLCDON) == Blink.BM_COMLCDON) && ((COM & Blink.BM_COMLCDON) == 0)) {
-			z88Display.start();
-		}
-
-		if ( ((bits & Blink.BM_COMLCDON) == 0) && ((COM & Blink.BM_COMLCDON) == Blink.BM_COMLCDON)) {
-			z88Display.stop();
 		}
 
 		COM = bits;
@@ -1524,13 +1550,11 @@ public final class Blink extends Z80 {
 	public void startInterrupts() {
 		z80Int.start();
 		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) rtc.start();
-        z88Display.start();
 	}
 
 	public void stopInterrupts() {
 		z80Int.stop();
         rtc.stop();
-        z88Display.stop();
 	}
 
 	/**
