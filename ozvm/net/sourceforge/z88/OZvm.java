@@ -16,15 +16,15 @@ public class OZvm {
 
 	OZvm() {
 		try {
-			blink = new Blink();
+			z88 = new Blink();
 
 			// Insert 128K RAM in slot 0 (top 512K address space)
-			blink.insertRamCard(128 * 1024, 0);			
-			blink.hardReset();
+			z88.insertRamCard(128 * 1024, 0);			
+			z88.hardReset();
 
 			z80Speed = new MonitorZ80();
 			
-			dz = new Dz(blink); // the disassembly engine, linked to the memory model
+			dz = new Dz(z88); // the disassembly engine, linked to the memory model
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -34,7 +34,7 @@ public class OZvm {
 	
 	static private final String defaultRomImage = "Z88.rom";
 
-	Blink blink = null;
+	Blink z88 = null;
 
 	private MonitorZ80 z80Speed = null;
 
@@ -47,11 +47,11 @@ public class OZvm {
 	}
 
 	public void startInterrupts() {
-		blink.startInterrupts();
+		z88.startInterrupts();
 	}
 
 	public void stopInterrupts() {
-		blink.stopInterrupts();
+		z88.stopInterrupts();
 	}
 
 	/**
@@ -63,11 +63,11 @@ public class OZvm {
 		try {
 			if (args.length == 0) {
 				System.out.println("No external ROM image specified, using default Z88.rom (V4.01 UK)");
-				blink.loadRomBinary(blink.getClass().getResource("/" + defaultRomImage));				
+				z88.loadRomBinary(z88.getClass().getResource("/" + defaultRomImage));				
 			} else {
 				System.out.println("Loading '" + args[0] + "'");
 				RandomAccessFile rom = new RandomAccessFile(args[0], "r");		
-				blink.loadRomBinary(rom);
+				z88.loadRomBinary(rom);
 			}			
 			return true;
 
@@ -98,12 +98,12 @@ public class OZvm {
 			if (cmdline.equalsIgnoreCase("run") == true) {
 				System.out.println("Executing Z88 Virtual Machine...");		
 				z80Speed.start();
-				blink.startInterrupts();
-				blink.run();
+				z88.startInterrupts();
+				z88.run();
 			}
 			
 			if (cmdline.equalsIgnoreCase("d") == true) {
-				int dzAddr = blink.PC();
+				int dzAddr = z88.PC();
 				for (int dzLines = 0;  dzLines < 16; dzLines++) {
 					dzAddr = dz.getInstrAscii(dzLine, dzAddr, true);
 					System.out.println(dzLine);
@@ -149,8 +149,8 @@ public class OZvm {
 			 */
 			public void run() {
 				float realMs = System.currentTimeMillis() - oldTimeMs;
-				int ips = (int) (blink.getInstructionCounter() * realMs/1000);
-				int tps = blink.getTstatesCounter();
+				int ips = (int) (z88.getInstructionCounter() * realMs/1000);
+				int tps = z88.getTstatesCounter();
 
 				System.out.println( "IPS=" + ips + ",TPS=" + tps);
 
