@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import gameframe.GameFrameException;
+import gameframe.GameFrame;
+
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  *
@@ -416,7 +419,7 @@ public class OZvm {
 		return memCmdline;
 	}
 	
-	public static void main(String[] args) throws IOException {		
+	public static void main(String[] args) throws IOException, GameFrameException {		
 		System.out.println("OZvm V0.01, Z88 Virtual Machine");
 
 		OZvm ozvm = new OZvm();
@@ -424,11 +427,11 @@ public class OZvm {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
 		}
-		
+				
 		ozvm.commandLine();
 		
 		System.out.println("Ozvm terminated.");
-		System.exit(0);
+		GameFrame.exit(0);
 	}
 
 	/** 
