@@ -86,32 +86,40 @@ DEFC VppBit = 1
                     PUSH HL
 
                     LD   A,B
-                    AND  @00001111           ; number range is only 0 - 15...
-                    ADD  A,A                 ; sector number * 4
+                    AND  @00001111           ; sector number range is only 0 - 15...
+                    LD   D,A                 ; preserve sector in D (not destroyed by FlashEprCardId)
+                    LD   E,C                 ; preserve slot no in E (not destroyed by FlashEprCardId)
+                    CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
+                    JR   C, exit_FlashEprBlockErase
+                    EX   AF,AF'              ; preserve FE Programming type in A'
+                    PUSH DE
+                    LD   DE,FE_AM29F010B
+                    CP   A                   ; Fc = 0...
+                    SBC  HL,DE               ; AM29F010B Flash Memory in slot C?
+                    POP  DE
+                    JR   Z, _16K_block_fe    ; yes, it's a 16K sector architecture (same as Z88 bank architecture!)
+                    LD   A,D                 ; no, it's a 64K sector architecture 
+                    ADD  A,A                 ; sector number * 4 (16K * 4 = 64K!)
                     ADD  A,A                 ; (convert to first bank no of sector)
-                    LD   B,A
+                    LD   D,A
+._16K_block_fe                    
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
                     RRCA
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    OR   B                   ; we've got the absolute bank which is the bottom of the sector
+                    OR   D                   ; the absolute bank which is the bottom of the sector
                     LD   D,A                 ; preserve a copy of bank number in D
-                    LD   E,C                 ; preserve a copy of slot number in E
 
-                    CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
-                    JR   C, exit_FlashEprBlockErase
-                    EX   AF,AF'              ; preserve FE Programming type in A'
-                    LD   A,D
                     AND  @00111111           
                     INC  A                   ; this is the X'th bank of the card..
                     LD   C,A
-                    LD   A,B                 ; make sure that the Flash Memory Card 
+                    LD   A,B                 ; make sure that the Flash Memory Card (B = total 16K banks on Card)
                     SUB  C                   ; contains the sector (to be erased)
                     JR   NC, sector_exists   ; (total_banks_on_card - sector_bank < 0) ...
                     LD   A,RC_BER            ; Fc = 1, sector not available (could not erase block/sector)
                     JR   exit_FlashEprBlockErase
 .sector_exists                                        
-                    LD   B,D                 ; bind beginning (first bank) of sector to segment 1
+                    LD   B,D                 ; bind sector to segment 1
                     LD   C,MS_S1             ; that are specified to be erased
                     CALL MemDefBank
                     PUSH BC                  ; preserve old bank binding
@@ -141,7 +149,6 @@ DEFC VppBit = 1
 ; In:
 ;    A = FE_28F or FE_29F (depending on Flash Memory type in slot)
 ;    E = slot number (1, 2 or 3) of Flash Memory Card
-;    HL = chip ID (Manufacturer & Device Code)
 ; Out:
 ;    Success:
 ;        Fc = 0
@@ -155,10 +162,16 @@ DEFC VppBit = 1
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock
+                    PUSH IX                    
                     CP   FE_28F
                     JR   Z, erase_28F_block
-                    CP   FE_29F
-                    JR   Z, erase_29F_block
+.erase_29F_block
+                    LD   IX, FEP_EraseBlock_29F
+                    EXX
+                    LD   BC, end_FEP_EraseBlock_29F - FEP_EraseBlock_29F
+                    EXX
+                    CALL ExecRoutineOnStack
+                    POP  IX
                     RET
 .erase_28F_block
                     LD   A,3
@@ -168,24 +181,13 @@ DEFC VppBit = 1
                     LD   A, RC_BER           ; Ups, not in slot 3, signal error!
                     RET                      
 ._erase_28F_block
-                    PUSH IX                    
                     LD   IX, FEP_EraseBlock_28F
                     EXX
                     LD   BC, end_FEP_EraseBlock_28F - FEP_EraseBlock_28F
                     EXX
                     CALL ExecRoutineOnStack
-
                     POP  IX
                     RET                    
-.erase_29F_block
-                    PUSH IX                    
-                    LD   IX, FEP_EraseBlock_29F
-                    EXX
-                    LD   BC, end_FEP_EraseBlock_29F - FEP_EraseBlock_29F
-                    EXX
-                    CALL ExecRoutineOnStack
-                    POP  IX
-                    RET
                     
 
 ; ***************************************************************
