@@ -1168,59 +1168,35 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Add the lost time to TIMx registers.
-	 * (typically adding gone time to TIMx from a snapshot)
+	 * Add the lost time to TIMx registers, which means
+	 * when a virtual machine was stopped (including RTC), time
+	 * continues to run on the host operating system.
+	 * 
+	 * Add the time gone to the TIMx registers from the previous stop
+	 * until NOW.
 	 */
 	private void adjustLostTime() {
-		long timeElapsedMs = System.currentTimeMillis() - getZ88StoppedAtTime();
+		long rtcElapsedTime = 0;
 		
-		// TIM4 offset
-	    int timeElapsedMinutes64K = (int) (timeElapsedMs / 1000 / 60 / 65536);
+		rtcElapsedTime += getBlinkTim0() * 5; // convert to ms.
+		rtcElapsedTime += getBlinkTim1() * 1000;  // convert from sec to ms.
+		rtcElapsedTime += getBlinkTim2() * 60 * 1000;  // convert from min to ms.
+		rtcElapsedTime += getBlinkTim3() * 256 * 60 * 1000;  // convert from 256 min to ms.
+		rtcElapsedTime += getBlinkTim4() * 65536 * 60 * 1000;  // convert from 64K min to ms.
+		rtcElapsedTime += (System.currentTimeMillis() - getZ88StoppedAtTime()); // add host system elapsed time...
+		
+	    setBlinkTim4((int) (rtcElapsedTime / 65536 / 60 / 1000));
 	    
-	    // TIM3 offset
-		int timeElapsedMinutes256 =  (int) (((timeElapsedMs / 1000 / 60) - (timeElapsedMinutes64K * 65536)) / 256);
+		setBlinkTim3((int) (((rtcElapsedTime / 1000 / 60) - (getBlinkTim4() * 65536)) / 256));
 		
-		// TIM2 offset
-		int timeElapsedMinutes = 	(int) (((timeElapsedMs / 1000 / 60) - (timeElapsedMinutes64K * 65536)) - 
-									(timeElapsedMinutes256 * 256));
+		setBlinkTim2((int) (((rtcElapsedTime / 1000 / 60) - (getBlinkTim4() * 65536)) - (getBlinkTim3() * 256)));
 		
-		// TIM1 offset
-		int timeElapsedSeconds = 	(int) (((timeElapsedMs / 1000) - (timeElapsedMinutes64K * 65536 * 60)) - 
-									(timeElapsedMinutes256 * 256 * 60) - timeElapsedMinutes * 60);
+		setBlinkTim1((int) (((rtcElapsedTime / 1000) - (getBlinkTim4() * 65536 * 60)) - 
+						(getBlinkTim3() * 256 * 60) - getBlinkTim2() * 60));
 		
-		// TIM0 offset
-		int timeElapsed5Millisecs = (int) (((timeElapsedMs - (timeElapsedMinutes64K * 65536 * 60 * 1000)) - 
-									(timeElapsedMinutes256 * 256 * 60 * 1000) - (timeElapsedMinutes * 60 * 1000) - 
-									(timeElapsedSeconds * 1000)) / 5);
-		
-		int tim0 = getBlinkTim0() + timeElapsed5Millisecs;
-		int tim1 = getBlinkTim1() + timeElapsedSeconds;
-		int tim2 = getBlinkTim2() + timeElapsedMinutes;
-		int tim3 = getBlinkTim3() + timeElapsedMinutes256;
-		int tim4 = getBlinkTim4() + timeElapsedMinutes64K;
-		
-		if (tim0 > 199) {
-			tim1 += (tim0 / 200);
-			tim0 %= 200;
-		}
-		if (tim1 > 59) {
-			tim2 += (tim1 / 60);
-			tim1 %= 60;
-		}
-		if (tim2 > 255) {
-			tim3 += (tim2 / 256);
-			tim2 %= 256;
-		}
-		if (tim3 > 255) {
-			tim4 += (tim3 / 256);
-			tim3 %= 256;
-		}
-		
-		setBlinkTim0(tim0);
-		setBlinkTim1(tim1);
-		setBlinkTim2(tim2);
-		setBlinkTim3(tim3);
-		setBlinkTim4(tim4);
+		setBlinkTim0( (int) (((rtcElapsedTime - (getBlinkTim4() * 65536 * 60 * 1000)) - 
+						(getBlinkTim3() * 256 * 60 * 1000) - (getBlinkTim2() * 60 * 1000) - 
+						(getBlinkTim1() * 1000)) / 5));
 	}
 	
     /**
@@ -1343,9 +1319,11 @@ public final class Blink extends Z80 {
 	}
 
 	public void startInterrupts() {
-		adjustLostTime();
 		z80Int.start();
-		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) rtc.start();
+		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) {
+			adjustLostTime();
+			rtc.start();
+		}
 	}
 
 	public void stopInterrupts() {
