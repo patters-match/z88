@@ -498,7 +498,7 @@ public abstract class Z80 {
     }
 
     /** Interrupt handler */
-    public final void setInterruptSignal() {
+    public final synchronized void setInterruptSignal() {
         externIntSignal = true;
     }
 
@@ -1231,8 +1231,8 @@ public abstract class Z80 {
 					    // let the external system know about HALT instruction
 					    // Z80 processor execution now awaits external interrupt 
                         // to wake processor execution up again.
+						z80Halted = true;
 						haltZ80();
-                        z80Halted = true;
                         tstatesCounter += 4;
                         break;
                     }
