@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
+import net.sourceforge.z88.datastructures.SlotInfo;
 import net.sourceforge.z88.filecard.FileArea;
 
 
@@ -197,7 +198,9 @@ public final class Memory {
 	/**
 	 * Insert Card (RAM/ROM/EPROM) into Z88 memory system.
 	 * Size is in modulus 16Kb.<br>
+	 * 
 	 * NB: Ram Card for slot 0 is inserted at banks 20 - 3F.<br>
+	 * 
 	 * Slot 0 (1Mb): banks 00 - 1F (ROM, 512Kb), banks 20 - 3F (RAM, 512Kb)
 	 * Slot 1 (1Mb): banks 40 - 7F (RAM or EPROM)
 	 * Slot 2 (1Mb): banks 80 - BF (RAM or EPROM)
@@ -823,6 +826,104 @@ public final class Memory {
 		b.loadBytes(bankBuffer, offset);					// and move buffer into bank
 	}
 
+	
+	/**
+	 * Load card file image of specified type into Z88 memory model.
+	 * 
+	 * @param slot 0 - 3
+	 * @param type see SlotInfo.* types
+	 * @param file external file
+	 * @throws IOException
+	 */
+	public void loadCardBinary(int slot, int type, File file) throws IOException {		
+		RandomAccessFile rom = new RandomAccessFile(file, "r");
+		int fileLength = (int) rom.length(); 
+		rom.close();
+		
+		loadCardBinary(slot, fileLength, type, new FileInputStream(file));
+	}
+	
+	
+	/**
+	 * Load card image of specified size and type into Z88 memory model
+	 * (fetched from an external file, inside a Jar or Zip file).
+	 *  
+	 * @param size in bytes, eg. 131072 is a 128K file image
+	 * @param type see SlotInfo.* types
+	 * @param slot 0 - 3
+	 * @param iStream
+	 * @throws IOException
+	 */
+	public void loadCardBinary(int slot, int size, int type, InputStream iStream) throws IOException {
+		slot &= 3; // only slots 0 - 3
+		int totalBanks = size / Bank.SIZE;
+		
+		if ((slot == 0) & (size > 1024 * 512)) {
+			throw new IllegalArgumentException("Max 512K size for RAM or ROM in slot 0!");
+		}
+		if ((slot > 0) & (size > 1024)) {
+			throw new IllegalArgumentException("Max 1024K size for card binary in slots 1-3!");
+		}		
+		if (size % Bank.SIZE > 0) {
+			throw new IllegalArgumentException("Card binary must be in 16K sizes!");
+		}
+		
+		BufferedInputStream bis = new BufferedInputStream(iStream, Bank.SIZE);
+		Bank cardBanks[] = new Bank[totalBanks]; // allocate ROM container
+		byte bankBuffer[] = new byte[Bank.SIZE]; // allocate intermediate load buffer
+
+		for (int curBank = 0; curBank < cardBanks.length; curBank++) {
+			switch(type) {
+				case SlotInfo.RamCard:
+					cardBanks[curBank] = new RamBank();
+					break;
+					
+				case SlotInfo.RomCard:
+					cardBanks[curBank] = new RomBank();
+					break;
+					
+				case SlotInfo.EpromCard:
+					if (totalBanks == 2)
+						cardBanks[curBank] = new EpromBank(EpromBank.VPP32KB);
+					else
+						cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
+					break;
+
+				case SlotInfo.IntelFlashCard:
+					if (totalBanks == 32)
+						cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F004S5); // 512K
+					else if (totalBanks == 64)
+						cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F008S5); // 1024K
+					else
+						cardBanks[curBank] = new RomBank(); // size is not defined for Intel Flash Chip, use ROM type
+					break;
+					
+				case SlotInfo.AmdFlashCard:
+					if (totalBanks == 8)
+						cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 128K
+					else if (totalBanks == 32)
+						cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F040B); // 512K
+					else if (totalBanks == 64)
+						cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F080B); // 1024K
+					else
+						cardBanks[curBank] = new RomBank(); // size is not defined for Amd Flash Chip, use ROM type
+					break;
+					
+				default:
+					cardBanks[curBank] = new RomBank(); // for unknown types use ROM
+			}
+
+			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
+			cardBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
+		}
+		bis.close();
+		
+		// complete card image now loaded into container
+		// insert container into Z88 memory model
+		insertCard(cardBanks, slot);		
+	}
+	
+	
 	/**
 	 * Load ROM image (from external file ressource) into Z88 memory system, slot 0
 	 * (lower 512K of address space).
@@ -852,13 +953,13 @@ public final class Memory {
 	 */
 	public void loadRomBinary(int size, InputStream iStream) throws IOException {		
 		if (size > (1024 * 512)) {
-			throw new IOException("Max 512K ROM!");
+			throw new IllegalArgumentException("Max 512K ROM!");
 		}
 		if (size % Bank.SIZE > 0) {
-			throw new IOException("ROM must be in 16K sizes!");
+			throw new IllegalArgumentException("ROM must be in 16K sizes!");
 		}
 		if (size % (Bank.SIZE * 2) > 0) {
-			throw new IOException("ROM must be in even banks!");
+			throw new IllegalArgumentException("ROM must be in even banks!");
 		}
 		int totalBanks = size / Bank.SIZE;
 		
@@ -884,7 +985,7 @@ public final class Memory {
 		if (romBanks[romBanks.length-1].getByte(0x3FFB) != 0x81 &
 		    romBanks[romBanks.length-1].getByte(0x3FFE) != 'O' &
 		    romBanks[romBanks.length-1].getByte(0x3FFF) != 'Z') {
-				throw new IOException("This is not a Z88 ROM");
+				throw new IllegalArgumentException("This is not a Z88 ROM");
 	    }
 		
 		// complete ROM image now loaded into container
