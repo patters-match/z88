@@ -30,15 +30,12 @@
 ; Read File Entry information, if available.
 ;
 ; NB:     This routine might be used by applications, but is primarily called by
-;         <FileEprCntFiles>, <FileEprFreeSpace>, <FileEprFirstFile>.
+;         File Eprom library routines
 ;
 ; IN:
 ;    BHL = pointer to start of file entry
 ;         The Bank specifier contains the slot mask, ie. defines which slot
-;         is being read.
-;         The offset must be used with a segment specifier MM_Sx in H register
-;         (which segment will be used for bank implicit bank binding).
-;
+;         is being read. HL is the traditional bank offset.
 ;
 ; OUT:
 ;    Fc = 0, File Entry available
@@ -82,7 +79,7 @@
                     LD   E,A
                     CALL FileEprReadByte
                     LD   D,A
-                    call FileEprReadByte
+                    CALL FileEprReadByte
                     LD   C,A                      ; CDE is length of file
                     CALL PointerNextByte          ; point at beginning of file image
                     CALL AddPointerDistance       ; BHL points at next File Entry (or none)
