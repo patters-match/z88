@@ -28,7 +28,7 @@ Module SaveFiles
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
-     xref SelectRamDevice, selctram_msg
+     xref SelectRamDevice, GetDefaultRamDevice, selctram_msg
      xref CheckBatteryStatus
      xref FlashWriteSupport
      xref cls, wbar, sopnln
@@ -102,10 +102,11 @@ Module SaveFiles
                     LD   HL,fnam_msg
                     CALL_OZ gn_sop
 
-                    ld   bc,$0080
-                    ld   hl,curdir
-                    ld   de,buf3
-                    CALL_OZ gn_fex           ; pre-insert current path at command line...
+                    CALL GetDefaultRamDevice
+                    ld   hl, buf1
+                    ld   de, buf3
+                    ld   bc, 6
+                    ldir
                     ld   a,'/'
                     ld   (de),a
                     inc  de
@@ -116,6 +117,7 @@ Module SaveFiles
                     LD   DE,buf3
                     LD   A,@00100011
                     LD   B,$40
+                    LD   C,7
                     LD   L,$20
                     CALL_OZ gn_sip
                     jp   nc,save_mailbox
@@ -174,16 +176,14 @@ Module SaveFiles
 .CheckFileArea
                     ld   a,(curslot)
                     ld   c,a
-                    push bc
+                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    jp   c,DispIntelSlotErr
+                    jp   nz,DispIntelSlotErr
+
                     call FileEprRequest
-                    pop  bc
-                    jr   z, check_writesupp       ; File Area header was found..
+                    ret  z                        ; File Area header was found..
                     call disp_no_filearea_msg
                     ret
-.check_writesupp
-                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
-                    call c,DispIntelSlotErr
-                    RET
 
 .DispFilesSaved     PUSH AF
                     PUSH HL
