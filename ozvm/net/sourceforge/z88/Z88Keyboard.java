@@ -95,7 +95,9 @@ public class Z88Keyboard implements KeyListener {
 		for (int l=0; l<z88Keyboards.length; l++) z88Keyboards[l] = defaultKbLayout;  
 
 		z88Keyboards[COUNTRY_FR] = createFrLayout();	// implement French keyboard layout
-		z88Keyboards[COUNTRY_DK] = createDkLayout();	// implement Danish keyboard layout		
+		z88Keyboards[COUNTRY_DK] = createDkLayout();	// implement Danish keyboard layout
+		z88Keyboards[COUNTRY_SE] = createSeFiLayout();	// implement Swedish/Finish keyboard layout
+		z88Keyboards[COUNTRY_FI] = z88Keyboards[COUNTRY_SE]; 
 	}
 
 	
@@ -812,6 +814,203 @@ public class Z88Keyboard implements KeyListener {
 
 
 	/**
+	 * Create Key Event mappings for Z88 Swedish/Finish (SE/FI) keyboard matrix.
+	 *
+	 * All key entry mappings are implemented using the
+	 * International 104 PC Keyboard using the swedish/finish layout.
+	 * In other words, to obtain the best Z88 keyboard access
+	 * on a swedish/finish (SE/FI) Rom, you need to use the 
+	 * swedish/finish keyboard layout on your host operating system.  
+	 * 
+	 * The mappings only contains the single key press access.
+	 * Modifier key combinations (with Shift, Diamond, Square) are
+	 * automatically handled by the Z88 operating system. "OZvm"
+	 * just maps the modifier keys to host PC keyboard and let
+	 * OZ decide what to display on the Z88.
+	 * 
+	 * <PRE>
+	 *	------------------------------------------------------------------------
+	 *	SE/FI Keyboard matrix
+	 *	-------------------------------------------------------------------------
+	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
+	 *	-------------------------------------------------------------------------
+	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
+	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Ö       Ä
+	 *	A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
+	 *	A12 (#4) | '      LFT     2       W       S       X       M       P
+	 *	A11 (#3) | =      RGT     3       E       D       C       K       9
+	 *	A10 (#2) | +      DWN     4       R       F       V       J       O
+	 *	A9  (#1) | /      UP      5       T       G       B       U       I
+	 *	A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
+	 *	-------------------------------------------------------------------------
+	 * </PRE>
+	 *
+	 */
+	private Map createSeFiLayout() {
+		Map keyboardLayout;
+		KeyPress keyp;
+				
+		keyboardLayout = new HashMap();
+		mapSystemKeys(keyboardLayout);
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 01111111:
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
+		// -------------------------------------------------------------------------
+		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
+		// Single key:
+		keyp = new KeyPress(KeyEvent.VK_PERIOD, 0x07FB); keyboardLayout.put(new Integer(KeyEvent.VK_PERIOD), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);		
+
+		// The '£' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
+		keyp = new KeyPress(KeyEvent.VK_LESS, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_LESS), (KeyPress) keyp);
+		// --------------------------------------------------------------------------------------------------------------------------
+
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 10111111
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
+		// -------------------------------------------------------------------------
+		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Æ       Ø
+		// Single key:
+		keyp = new KeyPress(KeyEvent.VK_COMMA, 0x06FB); keyboardLayout.put(new Integer(KeyEvent.VK_COMMA), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'ö'), 0x06FD); keyboardLayout.put(new Integer((0x10000 | 'ö')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'Ö'), 0x06FD); keyboardLayout.put(new Integer((0x10000 | 'Ö')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 150), 0x06FD); keyboardLayout.put(new Integer((0x10000 | 150)), (KeyPress) keyp); // CTRL ö
+		keyp = new KeyPress((0x10000 | 'ä'), 0x06FE); keyboardLayout.put(new Integer((0x10000 | 'ä')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'Ä'), 0x06FE); keyboardLayout.put(new Integer((0x10000 | 'Ä')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 132), 0x06FE); keyboardLayout.put(new Integer((0x10000 | 132)), (KeyPress) keyp); // CTRL ä
+		// --------------------------------------------------------------------------------------------------------------------------
+
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 11011111
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
+		// -------------------------------------------------------------------------
+		// A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
+		// Single key:
+		keyp = new KeyPress((0x10000 | 'å'), 0x057F); keyboardLayout.put(new Integer((0x10000 | 'å')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 'Å'), 0x057F); keyboardLayout.put(new Integer((0x10000 | 'Å')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 133), 0x057F); keyboardLayout.put(new Integer((0x10000 | 133)), (KeyPress) keyp); // CTRL å
+
+		keyp = new KeyPress(KeyEvent.VK_1, 0x05DF); keyboardLayout.put(new Integer(KeyEvent.VK_1), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD1, 0x05DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD1), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_Q, 0x05EF); keyboardLayout.put(new Integer(KeyEvent.VK_Q), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_A, 0x05F7); keyboardLayout.put(new Integer(KeyEvent.VK_A), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_Z, 0x05FB); keyboardLayout.put(new Integer(KeyEvent.VK_Z), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_L, 0x05FD); keyboardLayout.put(new Integer(KeyEvent.VK_L), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_0, 0x05FE); keyboardLayout.put(new Integer(KeyEvent.VK_0), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD0, 0x05FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD0), (KeyPress) keyp);
+		// --------------------------------------------------------------------------------------------------------------------------
+
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 11101111
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
+		// -------------------------------------------------------------------------			
+		// A12 (#4) | '      LFT     2       W       S       X       M       P
+		// Single key:
+		keyp = new KeyPress(KeyEvent.VK_QUOTE, 0x047F); keyboardLayout.put(new Integer(KeyEvent.VK_QUOTE), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_2, 0x04DF); keyboardLayout.put(new Integer(KeyEvent.VK_2), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD2, 0x04DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD2), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_W, 0x04EF); keyboardLayout.put(new Integer(KeyEvent.VK_W), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_S, 0x04F7); keyboardLayout.put(new Integer(KeyEvent.VK_S), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_X, 0x04FB); keyboardLayout.put(new Integer(KeyEvent.VK_X), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_M, 0x04FD); keyboardLayout.put(new Integer(KeyEvent.VK_M), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_P, 0x04FE); keyboardLayout.put(new Integer(KeyEvent.VK_P), (KeyPress) keyp);
+		// --------------------------------------------------------------------------------------------------------------------------
+
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 11110111
+		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		// -------------------------------------------------------------------------
+		// A11 (#3) | =      RGT     3       E       D       C       K       9
+		// Single key:
+		// '=' is not available as a direct key on DK host layout, so we steel the '`' key between '+' key and BACK SPACE
+		keyp = new KeyPress(KeyEvent.VK_DEAD_ACUTE, 0x037F); keyboardLayout.put(new Integer(KeyEvent.VK_DEAD_ACUTE), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_3, 0x03DF); keyboardLayout.put(new Integer(KeyEvent.VK_3), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD3, 0x03DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD3), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_E, 0x03EF); keyboardLayout.put(new Integer(KeyEvent.VK_E), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_D, 0x03F7); keyboardLayout.put(new Integer(KeyEvent.VK_D), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_C, 0x03FB); keyboardLayout.put(new Integer(KeyEvent.VK_C), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_K, 0x03FD); keyboardLayout.put(new Integer(KeyEvent.VK_K), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_9, 0x03FE); keyboardLayout.put(new Integer(KeyEvent.VK_9), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD9, 0x03FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD9), (KeyPress) keyp);
+		// --------------------------------------------------------------------------------------------------------------------------
+
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 11111011
+		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		// -------------------------------------------------------------------------
+		// A10 (#2) | +      DWN     4       R       F       V       J       O
+		// Single key:
+		keyp = new KeyPress(KeyEvent.VK_PLUS, 0x027F); keyboardLayout.put(new Integer(KeyEvent.VK_PLUS), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_4, 0x02DF); keyboardLayout.put(new Integer(KeyEvent.VK_4), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD4, 0x02DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD4), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_R, 0x02EF); keyboardLayout.put(new Integer(KeyEvent.VK_R), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_F, 0x02F7); keyboardLayout.put(new Integer(KeyEvent.VK_F), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_V, 0x02FB); keyboardLayout.put(new Integer(KeyEvent.VK_V), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_J, 0x02FD); keyboardLayout.put(new Integer(KeyEvent.VK_J), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_O, 0x02FE); keyboardLayout.put(new Integer(KeyEvent.VK_O), (KeyPress) keyp);
+		// --------------------------------------------------------------------------------------------------------------------------
+
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 11111101
+		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		// -------------------------------------------------------------------------
+		// A9  (#1) | /      UP      5       T       G       B       U       I
+		// Single key:
+		// '/' does not exist as a single key press, so we steel the '^' key next to 'Å' key.
+		keyp = new KeyPress(KeyEvent.VK_DEAD_DIAERESIS, 0x017F); keyboardLayout.put(new Integer(KeyEvent.VK_DEAD_DIAERESIS), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_5, 0x01DF); keyboardLayout.put(new Integer(KeyEvent.VK_5), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD5, 0x01DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD5), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_T, 0x01EF); keyboardLayout.put(new Integer(KeyEvent.VK_T), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_G, 0x01F7); keyboardLayout.put(new Integer(KeyEvent.VK_G), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_B, 0x01FB); keyboardLayout.put(new Integer(KeyEvent.VK_B), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_U, 0x01FD); keyboardLayout.put(new Integer(KeyEvent.VK_U), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_I, 0x01FE); keyboardLayout.put(new Integer(KeyEvent.VK_I), (KeyPress) keyp);
+		// --------------------------------------------------------------------------------------------------------------------------
+		
+
+		// --------------------------------------------------------------------------------------------------------------------------
+		// Row 11111110
+		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		// -------------------------------------------------------------------------
+		// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
+		// Single key:
+		keyp = new KeyPress(KeyEvent.VK_6, 0x00DF); keyboardLayout.put(new Integer(KeyEvent.VK_6), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD6, 0x00DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD6), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_Y, 0x00EF); keyboardLayout.put(new Integer(KeyEvent.VK_Y), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_H, 0x00F7); keyboardLayout.put(new Integer(KeyEvent.VK_H), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_N, 0x00FB); keyboardLayout.put(new Integer(KeyEvent.VK_N), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_7, 0x00FD); keyboardLayout.put(new Integer(KeyEvent.VK_7), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD7, 0x00FD); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD7), (KeyPress) keyp);
+
+		keyp = new KeyPress(KeyEvent.VK_8, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_8), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_NUMPAD8, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD8), (KeyPress) keyp);
+		// --------------------------------------------------------------------------------------------------------------------------
+
+		return keyboardLayout;
+	}
+
+
+	/**
 	 * Scans Z88 hardware keyboard row(s), and returns the 
 	 * corresponding key column(s).<br>
 	 * 
@@ -898,7 +1097,8 @@ public class Z88Keyboard implements KeyListener {
 	 */
 	public void keyPressed(KeyEvent e) {
 		KeyPress kp = null;
-		System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		
+		// System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -983,7 +1183,7 @@ public class Z88Keyboard implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 		KeyPress kp = null;
 		
-		System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
@@ -1065,4 +1265,3 @@ public class Z88Keyboard implements KeyListener {
 		//System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 	}
 }
-
