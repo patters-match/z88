@@ -191,7 +191,7 @@ public final class Memory {
 	public void enableSlot3Vpp() {
 		int cardType = memory[0xFF].getType();
 		if (memory[0xFF].isVppPinEnabled() == false & 
-			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH)) {
+			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH_1MB_INTEL)) {
 			for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(true);
 		}		
 	}
@@ -202,7 +202,7 @@ public final class Memory {
 	public void disableSlot3Vpp() {
 		int cardType = memory[0xFF].getType();
 		if (memory[0xFF].isVppPinEnabled() == true & 
-			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH)) {
+			(cardType == Bank.EPROM_32KB | cardType == Bank.EPROM_128KB | cardType == Bank.FLASH_1MB_INTEL)) {
 			for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(false);
 		}		
 	}
@@ -218,7 +218,8 @@ public final class Memory {
 		public static final int ROM = 2; // 128Kb, read-only
 		public static final int EPROM_32KB = 3; // U/V Erasable 32Kb EPROM
 		public static final int EPROM_128KB = 4; // U/V Erasable 128Kb/256Kb EPROM
-		public static final int FLASH = 5; // 1Mb EEPROM (Flash) 
+		public static final int FLASH_1MB_INTEL = 5; // 1Mb EEPROM, Intel 28F008S5 Flash Eprom Chip 
+		public static final int FLASH_1MB_AMD = 6; // 1Mb EEPROM, Amd 29F080B Flash Eprom Chip (5V, programmable in all slots)
 	
 		private int type;
 		private int bankNo;
