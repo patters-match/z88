@@ -149,6 +149,43 @@ public final class Memory {
 	}
 
 	/**
+	 * "Internal" support method.
+	 * 
+	 * Get the next adjacent extended address (24bit) pointer. 
+	 * The method ensures that when the extended address pointer 
+	 * crosses a bank boundary, the absolute bank number of the 
+	 * extended address is increased and the offset is reset to zero.
+	 * For example FE3FFF -> FF0000.
+	 *   
+	 * This method is typically used by the File Area Management
+	 * system (net.sourceforge.z88.filecard.FileArea & FileEntry), 
+	 * but might be used for other purposes.
+	 * 
+	 * @param extAddress 
+	 * @return extAddress+1 (bank boundary adjusted)  
+	 */
+	public int getNextExtAddress(final int extAddress) {
+		int segmentMask = extAddress & 0xC000;	// preserve the segment mask, if any
+		int offset = extAddress & 0x3FFF;		// offset is within 16K boundary
+		int bankNo = extAddress >>> 16;			// get absolute bank number
+		
+		if (offset == 0x3FFF) {
+			// bank boundary will be crossed...
+			offset = 0x0000;
+			bankNo++;
+		} else {
+			// still within bank boundary...
+			offset++;
+		}
+		
+		// re-install the segment specifier, if any
+		offset = segmentMask | offset; 
+		
+		// finally return the updated extended address...
+		return (bankNo << 16) | offset; 
+	}
+	
+	/**
 	 * Insert Card (RAM/ROM/EPROM) into Z88 memory system.
 	 * Size is in modulus 16Kb.
 	 * Slot 0 (1Mb): banks 00 - 1F (ROM, 512Kb), banks 20 - 3F (RAM, 512Kb)
