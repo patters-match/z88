@@ -237,7 +237,15 @@
 
                     ld   hl, menu_msg
                     call_oz(Gn_Sop)
-                    RET
+                    
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FlashWriteSupport
+                    ret  nc                       ; flash supports write/erase in slot.
+                    
+                    ld   hl, grey_wrercmds        ; grey out commands that has no effect in current slot
+                    call_oz(Gn_Sop)
+                    ret
 ; *************************************************************************************
 
 
@@ -352,8 +360,9 @@
 .select_slot
                     cp   1
                     jr   z, select_default
-
-                    call SelectSlot          ; User selects a slot from a list...
+                    
+                    ld   hl, selslot_banner
+                    call SelectFileArea          ; User selects a slot from a list...
                     ret
 .select_default                              ; select the only File Eprom available
                     ld   hl, availslots+1
@@ -376,34 +385,141 @@
 
 ; *************************************************************************************
 ;
-.SelectSlot
-                    ld   a,'1' | 128 | 64
-                    ld   bc,$0220
-                    ld   de,$0516
-                    ld   hl, selslot_banner
+; IN: HL = Window Banner Title
+;
+.SelectFileArea
+                    CALL greyscr
+                    ld   a, 128 | '2'
+                    ld   bc, $0016
+                    ld   de, $082A
                     call CreateWindow
-                    ld   hl, selvdu
+
+                    LD   BC, 0
+                    CALL DrawCardBox
+                    LD   B, 14
+                    CALL DrawCardBox
+                    LD   B, 28
+                    CALL DrawCardBox
+
+                    ld   hl, boxvdu
                     call_oz GN_Sop
 
+                    call pwait
+                    ret
+
+; *************************************************************************************
+;
+; Draw a minimalistic Z88 Card using VDU Box chars.
+;
+; IN:
+;    BC = (X,Y)
+;
+.DrawCardBox
+                    PUSH AF
+                    PUSH BC
+                    PUSH HL
+
+                    LD   HL, nocursor
+                    CALL_OZ GN_Sop
+                    
+                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    LD   HL,cardtop     ; draw top edge of card box
+                    CALL_OZ GN_Sop
+                    INC  C              ; Y++
+                    CALL DrawCardSides                  
+                    INC  C              ; Y++
+                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    LD   HL,cardmiddle  ; draw middle line of card box
+                    CALL_OZ GN_Sop
+                    INC  C              ; Y++
+                    CALL DrawCardSides 
+                    INC  C              ; Y++
+                    CALL DrawCardSides 
+                    INC  C              ; Y++
+                    CALL DrawCardSides 
+                    INC  C              ; Y++
+                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    LD   HL,cardbottom  ; draw bottom edge of card box
+                    CALL_OZ GN_Sop
+                    
+                    POP  HL
+                    POP  BC
+                    POP  AF
+                    RET
+; BC = X,Y
+.DrawCardSides      PUSH BC
+                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    LD   HL, cardside
+                    PUSH HL
+                    CALL_OZ GN_Sop      ; draw left side                    
+                    LD   A,B
+                    ADD  A,13
+                    LD   B,A
+                    CALL VduCursor      ; set VDU Cursor at (X+13,Y)
+                    POP  HL
+                    CALL_OZ GN_Sop      ; draw right side
+                    POP  BC
+                    RET
+; BC = X,Y
+.VduCursor          LD   HL, cursorxy
+                    CALL_OZ GN_Sop
+                    LD   A,B            ; X
+                    ADD  A,32
+                    CALL_OZ OS_Out
+                    LD   A,C            ; Y
+                    ADD  A,32
+                    CALL_OZ OS_Out
+                    RET                              
+
+.nocursor           defm 1,"3-SC",0
+.cursorxy           defm 1, "3@",0        
+
+.cardtop            defm 1, "2*C", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E" ; Top left corner
+                    defm 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*F" ; Top right corner
+                    defb 0
+.cardmiddle         defm 1, "2*K", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E" ; Left T-section
+                    defm 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*N" ; Rigth T-section
+                    defb 0
+.cardbottom         defm 1, "2*I", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E" ; Bottom left corner
+                    defm 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*L" ; Bottom right corner                    
+                    defb 0
+.cardside           DEFM 1, "2*J", 0
+
+.boxvdu             
+                    defm 1, "2+T"
+                    defm 1, "3@", 32+2, 32+1, "RAM 1024K"
+                    defm 1, "3@", 32+14+2, 32+1, "FLASH 1024K"
+                    defm 1, "3@", 32+14+1, 32+3, "APPLICATIONS"
+                    defm 1, "3@", 32+14+2, 32+4, "FILES 768K"
+                    defm 1, "3@", 32+14*2+2, 32+1, "EPROM 256K"
+                    defm 1, "3@", 32+14*2+2, 32+4, "FILES 256K"
+                    
+                    defm 1, "3@", 32+9, 32+6, 1, "4+F+R",  " 1 ", 1, "4-F-R"
+                    defm 1, "3@", 32+14+9, 32+6, " 2 "
+                    defm 1, "3@", 32+14*2+9, 32+6, " 3 "
+                    defm 1, "2-T"
+                    defb 0
+                    
+                    
                     ld   a,1                 ; begin from slot 1
 .disp_slot_loop
                     ld   (curslot),a
-                    ld   hl, slottxt
+                    ld   hl, slottxt1
                     call_oz(Gn_Sop)
                     ld   a,(curslot)
                     add  a,48
                     call_oz(OS_Out)          ; display slot number
-                    ld   a, ' '
-                    call_oz(OS_Out)
+                    ld   hl, slottxt2
+                    call_oz(Gn_Sop)
 
                     ld   a,(curslot)
                     ld   c,a
                     call FileEprRequest
                     jr   c, poll_for_ram_card
                     jr   nz, poll_for_ram_card
-                         ld   hl, eprdev          ; C = size of File Area in 16K banks (if Fz = 1)
-                         call slotsize
-                         jr   nextline
+                         ld   hl, eprdev          ; File area identified.
+                         call DispSlotInfo            ; C = size of File Area in 16K banks (if Fz = 1)
+                         jr   nextline            ; D = size of card in 16K banks
 .poll_for_ram_card
                     ld   a,(curslot)
                     ld   c,a
@@ -411,7 +527,7 @@
                     jr   c, poll_for_rom_card
                          ld   hl, ramdev
                          ld   c,a
-                         call slotsize
+                         call DispSlotInfo
                          jr   nextline
 .poll_for_rom_card
                     ld   a,(curslot)
@@ -419,19 +535,16 @@
                     call ApplEprType
                     jr   c, empty_slot
                          ld   hl, romdev
-                         ld   c,b                 ; display size of card as defined by ROM header
-                         call slotsize
+                         ; ld   c,b                 
+                         call DispSlotInfo        ; display size of card as defined by ROM header
                          jr   nextline
 .empty_slot
                     ld   hl, emptytxt
                     call_oz(Gn_Sop)
                     jr   nextline
-.slotsize
-                    call_oz(Gn_Sop)     ; display device name...
-                    ld   a,(curslot)
-                    add  a,48
-                    call_oz(Os_Out)     ; display device number (which is current slot number too)
+.DispSlotInfo
                     call DispSlotSize   ; C = size of slot in 16K banks
+                    call_oz(Gn_Sop)     ; display device name...                    
                     ret
 .nextline
                     call_oz(Gn_Nln)
@@ -440,7 +553,7 @@
                     cp   4
                     jr   nz, disp_slot_loop
 
-                    ; Now, user selects the appropriate :EPR device ...
+                    ; Now, user selects card (if possible) ...
                     ld   a,1
                     ld   (curslot),a              ; set menu bar at "slot 1"
 .select_slot_loop
@@ -470,8 +583,7 @@
                     ret
 
 .DispSlotSize
-                    ld   hl,size1delm
-                    call_oz(Gn_Sop)
+                    push hl
 
                     LD   H,0
                     LD   L,C
@@ -479,8 +591,9 @@
                     EX   DE,HL          ; size in DE...
                     CALL DispEprSize
 
-                    ld   hl,size2delm
+                    ld   hl,sizeK
                     call_oz(Gn_Sop)
+                    pop  hl
                     ret
 ; *************************************************************************************
 
@@ -670,7 +783,7 @@
 ;    ......../IXIY same
 ;    AFBCDEHL/.... different
 ;
-.FileEpromStatistics
+.FileEpromStatistics                  
                     ld   bc,5
                     ld   hl, slot_bnr
                     ld   de, buf1
@@ -850,12 +963,16 @@
 ; Display slot selection window to choose another Flash Eprom Device
 ;
 .device_main
+ld   hl, selslot_banner
+call SelectFileArea
+ret
                     CALL greyscr
                     ld   a,(curslot)
                     ld   c,a
                     push bc
                     call PollSlots
-                    call SelectSlot          ; user selects a File Eprom Area in one of the ext. slots.
+                    ld   hl, selslot_banner
+                    call SelectFileArea          ; user selects a File Eprom Area in one of the external slots
                     pop  bc
                     jp   c, user_aborted
                     ret  z                   ; user selected a device, already stored in (curslot)...
@@ -880,9 +997,10 @@
                     push bc
                     call FileEprRequest
                     pop  bc
-                    call c, disp_no_filearea_msg
-                    ret  c
-
+                    jr   z, check_writesupp       ; File Area header was found..
+                    call disp_no_filearea_msg
+                    ret  
+.check_writesupp
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
                     call c,DispIntelSlotErr
                     ret  c                        ; it didn't...
@@ -1150,9 +1268,10 @@
                     push bc
                     call FileEprRequest
                     pop  bc
-                    call c, disp_no_filearea_msg
-                    ret  c
-
+                    jr   z, check_deletable_files
+                    call disp_no_filearea_msg
+                    ret
+.check_deletable_files
                     call FilesAvailable
                     jp   z, no_files              ; Fz = 1, no files available...
 
@@ -1227,9 +1346,10 @@
                     ld   a,(curslot)
                     ld   c,a
                     call FileEprRequest
-                    call c, disp_no_filearea_msg
-                    ret  c
-
+                    jr   z, check_fetchable_files ; File Area found.
+                    call disp_no_filearea_msg
+                    ret
+.check_fetchable_files
                     call FilesAvailable
                     jp   z, no_files             ; Fz = 1, no files available...
 
@@ -1374,9 +1494,10 @@
                     push bc
                     call FileEprRequest
                     pop  bc
-                    call c, disp_no_filearea_msg
-                    ret  c
-
+                    jr   z, check_restorable_files     ; File Area found
+                    call disp_no_filearea_msg
+                    ret
+.check_restorable_files
                     call FilesAvailable
                     jp   z, no_active_files  ; Fz = 1, no files available...
 
@@ -1646,9 +1767,10 @@
                     push bc
                     call FileEprRequest
                     pop  bc
-                    call c, disp_no_filearea_msg
-                    ret  c                        ; abort - FE apparently not available...
-                    
+                    jr   z, check_availfiles     ; File Area header was found..
+                    call disp_no_filearea_msg
+                    ret                          ; abort - File Area apparently not available...
+.check_availfiles                    
                     call FilesAvailable
                     jp   z, no_files             ; Fz = 1, no files available...
 .files_available                    
@@ -1836,6 +1958,8 @@
                     ld   hl,ffm1_bnr
                     call wbar                     ; "Format Flash eprom" head line
 
+                    ld   a,(curslot)
+                    ld   c,a
                     PUSH BC
                     CALL FileEprRequest           ; C = slot number...
                     POP  BC
@@ -2221,6 +2345,10 @@
                     PUSH HL
                     LD   HL, nofilearea_msgs
                     CALL DispSlotErrorMsg
+
+                    CALL DispCmdWindow       ; Update the command window (Grey out)
+                    CALL FileEpromStatistics ; Update the File Area Statistics window
+                    CALL ResSpace            ; "Press SPACE to resume" ...
                     POP  HL
                     RET
 ; *************************************************************************************
@@ -2426,7 +2554,7 @@
 
 .cmds_banner        DEFM "Commands",0
 .menu_msg
-                    DEFM 1,"3@",32,32
+                    DEFM 1, "2-G", 1,"3@",32,32 
                     DEFM 1,"B C",1,"Batalogue",$0D,$0A
                     DEFM 1,"B S",1,"Bave file",$0D,$0A
                     DEFM 1,"B F",1,"Betch file",$0D,$0A
@@ -2437,16 +2565,26 @@
                     DEFM 1,"2-C"
                     defb 0
 
+.grey_wrercmds      DEFM 1, "2+G"
+                    DEFM 1, "3@", 32, 32+1, 1, "2E", 32+12
+                    DEFM 1, "3@", 32, 32+5, 1, "2E", 32+12
+                    DEFM 1, "3@", 32, 32+6, 1, "2E", 32+12
+                    DEFM 1, "2-G", 0
+                    
+.epromtxt           DEFM "EPROM", 0
+.flashtxt           DEFM "FLASH", 0
+.cardtxt            DEFM "CARD", 0
 .selslot_banner     DEFM "SELECT FILE AREA",0
-.eprdev             DEFM ":EPR.",0
-.ramdev             DEFM ":RAM.",0
-.romdev             DEFM ":ROM.",0
-.slottxt            DEFM "SLOT ",0
+.eprdev             DEFM "FILE AREA", 0
+.ramdev             DEFM "RAM CARD",0
+.romdev             DEFM "APPLICATION",0
+.slottxt1           DEFM "SLOT ",0
+.slottxt2           DEFM ": ",0
 .emptytxt           DEFM "EMPTY",0
-.size1delm          DEFM " [",0
-.size2delm          DEFM "K]",0
 .selvdu             DEFM 1,"3-SC"               ; no vertical scrolling, no cursor
                     DEFM 1,"2+T",0
+
+.sizeK              DEFM "K ",1, "2X", 32+14, 0   ; display "K" (for Kilobye), then prepare for next text..
 
 .xypos              DEFM 1,"3@",0
 .norm_sq            DEFM 1,"2-G",1,"4+TRUF",1,"4-TRU ",0
@@ -2539,7 +2677,7 @@
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
 
-.ResSpace_msg       DEFM 1,"2JC",1,"3+FTPRESS ",1,SD_SPC," TO RESUME",1,"4-FTC",1,"2JN",$0D,$0A,0
+.ResSpace_msg       DEFM 1,"2H2", 1,"2JC",1,"3+FTPRESS ",1,SD_SPC," TO RESUME",1,"4-FTC",1,"2JN",$0D,$0A,0
 
 .no_appflarea_msgs  DEFW no_appflarea1_msg
                     DEFW no_appflarea2_msg
@@ -2570,7 +2708,7 @@
 .nofilearea_msgs    DEFW nofilearea1_msg
                     DEFW nofilearea2_msg
 .nofilearea1_msg    DEFM 13, 10, 1,"BFile Area not detected in slot ",0
-.nofilearea2_msg    DEFM ".",1,"B", 13, 10, "Card probably removed whilst FlashStore running.", 13, 10, 0
+.nofilearea2_msg    DEFM ".",1,"B", 13, 10, "(card might have been removed whilst FlashStore running)", 13, 10, 0
 
 .errmsg_cjust       DEFM 1, "2JC", 0
 .errmsg_njust       DEFM 1, "2JN", 0
