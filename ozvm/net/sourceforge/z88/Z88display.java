@@ -21,9 +21,9 @@ public class Z88display
 	public static final int Z88SCREENHEIGHT = 64;
 	private static final int SBRSIZE = 2048;				// Size of Screen Base File (bytes) 
 	
-	private static final int PXCOLON = 0xff020482;			// Trying to get as close as possibly to the LCD colors...
-	private static final int PXCOLGREY = 0xff027182;
-	private static final int PXCOLOFF = 0xffc0e0d7;
+	private static final int PXCOLON = 0xff4C166D;			// Trying to get as close as possibly to the LCD colors...
+	private static final int PXCOLGREY = 0xff90B0A7;
+	private static final int PXCOLOFF = 0xffD2E0B9;
 	
 	private static final int attrBold = 0x80;	// Font attribute Bold Mask (LORES1)
 	private static final int attrTiny = 0x40;	// Font attribute Tiny Mask (LORES1)
@@ -33,13 +33,19 @@ public class Z88display
 	private static final int attrGry = 0x04;	// Font attribute Grey Mask (all)
 	private static final int attrUnd = 0x02;	// Font attribute Underline Mask (LORES1)
 	private static final int attrNull = attrHrs | attrRev | attrGry;	// Null character (6x8 pixel blank)
-
+	private static final int attrCursor = attrHrs | attrRev | attrFls;	// Lores cursor (6x8 pixel inverse flashing)
+    
 	private Blink blink = null;					// access to Blink hardware (memory, screen, keyboard, timers...)
 	private TimerTask renderPerMs = null;
     private boolean renderRunning = false;
 	private GraphicsEngine gfxe = null;
 	private KeyboardDevice keyboard = null;
-	
+
+    private static int cursorFlashCounter = 0;
+    private static int frameCounter = 0;
+    private boolean cursorInverse = true;       // start cursor flash as dark, 
+    private boolean flashTextEmpty = false;     // start text flash as dark, ie. text looks normal for 1 sec.
+    
 	private int[] displayMatrix = null;			// the actual low level pixel video data
 	private BitmapData displayMap = null;		// The container for the low level pixel data
 	private CloneableBitmap cbm = null;
@@ -115,10 +121,15 @@ public class Z88display
 					drawLoresChar(scrBaseCoordX, scrBaseCoordY, scrCharAttr, scrChar);
 					scrBaseCoordX += 6;		
 				} else {
-					if ((scrCharAttr & (attrHrs|attrRev)) == attrHrs) {
-						// Draw a HIRES character (UDG or PipeDream MAP)
-						drawHiresChar(scrBaseCoordX, scrBaseCoordY, scrCharAttr, scrChar);
-						scrBaseCoordX += 8;							
+					if ((scrCharAttr & attrCursor) == attrCursor) {
+                        drawLoresCursor(scrBaseCoordX, scrBaseCoordY, scrCharAttr, scrChar);
+                        scrBaseCoordX += 6;		
+                    } else {
+                        if ((scrCharAttr & attrNull) != attrNull) {
+                            // Draw a HIRES character (UDG or PipeDream MAP)
+                            drawHiresChar(scrBaseCoordX, scrBaseCoordY, scrCharAttr, scrChar);
+                            scrBaseCoordX += 8;							
+                        }
 					}
 				}                
 			}
@@ -146,11 +157,17 @@ public class Z88display
 		gfxe.flip();								// finally, make back buffer visible...		
 	}
 
-	
-	private void drawLoresChar(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
+    /**
+     * Draw the character at current position, and overlay with flashing cursor.
+     * IN cursor mode, neither hardware underline nor grey is functional.
+     * Only inverse video flashing on pixel data of character.
+     */
+	private void drawLoresCursor(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
         int bank, bit, y; 
-		int pxOn, pxColor;
 
+        // safety: if 640 - X coordinate is less than 6 pixels, then abort...
+        if (Z88SCREENWIDTH - scrBaseCoordX < 6) return;
+        
 		int offset = ((charAttr & 1) << 8) | scrChar;
 		if (offset >= 0x1c0) { 
 			offset = lores0 + (scrChar << 3);	// User defined graphics, default in RAM.0
@@ -161,69 +178,130 @@ public class Z88display
 			bank = bankLores1;
 		}
 
-		// define pixel colour; clear ON or GREY
-		pxOn = ((charAttr & attrGry) == 0) ? PXCOLON : PXCOLGREY;
-
-        // safety: if 640 - X coordinate is less than 6 pixels, then abort...
-        if (Z88SCREENWIDTH - scrBaseCoordX < 6) return;
-
 		// render 8 pixel rows of 6 pixel wide scrChar
 		for(y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
 			int charBits = blink.getByte(offset++, bank);	// fetch current pixel row of char
-			if ( (charAttr & attrRev) == attrRev) charBits = ~charBits;
+			if ( cursorInverse == true) charBits = ~charBits;
             
 			// render 6 pixels wide...
             int pxOffset=0;
 			for(bit=32; bit>0; bit>>>=1) {
+                displayMatrix[y + scrBaseCoordX + pxOffset++] = ((charBits & bit) != 0) ? PXCOLON : PXCOLOFF;
+            }
+        }
+	}
+
+
+	private void drawLoresChar(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
+        int bank, bit, y; 
+		int pxOn, pxColor;
+
+        // safety: if 640 - X coordinate is less than 6 pixels, then abort...
+        if (Z88SCREENWIDTH - scrBaseCoordX < 6) return;
+        
+        if ( ((charAttr & attrFls) == attrFls) && flashTextEmpty == true) {
+            // render 8 pixel rows of 6 empty pixels, if flashing is enabled and is currently "empty"..
+            for(y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
+                // render 6 pixels wide...
+                for(bit=0; bit<=5; bit++) displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;
+            }
+            
+            return; // char render completed...
+        } 
+        
+        // Main draw LORES...
+        // define pixel colour; clear ON or GREY
+        pxOn = ((charAttr & attrGry) == 0) ? PXCOLON : PXCOLGREY;
+
+        int offset = ((charAttr & 1) << 8) | scrChar;
+        if (offset >= 0x1c0) { 
+            offset = lores0 + (scrChar << 3);	// User defined graphics, default in RAM.0
+            bank = bankLores0;
+        }
+        else {
+            offset = lores1 + (offset << 3);	// Base fonts (tiny, bold), default in ROM.0 
+            bank = bankLores1;
+        }
+
+        // render 8 pixel rows of 6 pixel wide scrChar
+        for(y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
+            int charBits = blink.getByte(offset++, bank);	// fetch current pixel row of char
+            if ( (charAttr & attrRev) == attrRev) charBits = ~charBits;
+
+            // render 6 pixels wide...
+            int pxOffset=0;
+            for(bit=32; bit>0; bit>>>=1) {
                 displayMatrix[y + scrBaseCoordX + pxOffset++] = ((charBits & bit) != 0) ? pxOn : PXCOLOFF;   
             }
-		}			 			
+        }			 			
 
-		// draw underline?
-		if ( (charAttr & attrUnd) == attrUnd) {
-			pxColor = pxOn;	 
-			if ((charAttr & attrRev) == attrRev) pxColor = PXCOLOFF;	// paint "inverse" underline.. 
+        // draw underline?
+        if ( (charAttr & attrUnd) == attrUnd) {
+            pxColor = pxOn;	 
+            if ((charAttr & attrRev) == attrRev) pxColor = PXCOLOFF;	// paint "inverse" underline.. 
 
-			y -= Z88SCREENWIDTH;	// back on 8th row...
-			for(bit = 0; bit<6; bit++)  displayMatrix[y + scrBaseCoordX + bit] = pxColor;
-		}		
+            y -= Z88SCREENWIDTH;	// back on 8th row...
+            for(bit = 0; bit<6; bit++)  displayMatrix[y + scrBaseCoordX + bit] = pxColor;
+        }		
 	}
 
 	
 	private void drawHiresChar(final int scrBaseCoordX, final int scrBaseCoordY, final int charAttr, final int scrChar) {
 		int offset, bank;
-		int pxOn;
-
-		// define which font set to use...
-		offset = ((charAttr & 3) << 8) | scrChar;
-		if (offset >= 0x300) {
-			offset = hires1 + (scrChar << 3);	// "OZ" window font entries
-			bank = bankHires1;
-		} else {
-			offset = hires0 + (offset << 3);	// PipeDream Map entries
-			bank = bankHires0;
-		}
-
-		// define pixel colour; clear ON or GREY
-		pxOn = ((charAttr & attrGry) == 0) ? PXCOLON : PXCOLGREY;
+		int pxOn, bit;
 
         // safety: if 640 - X coordinate is less than 8 pixels, then abort...
         if (Z88SCREENWIDTH - scrBaseCoordX < 8) return;
 
+        if ( ((charAttr & attrFls) == attrFls) && flashTextEmpty == true) {
+            // render 8 pixel rows of 8 empty pixels, if flashing is enabled and is currently "empty"..
+            for(int y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {
+                // render 8 pixels wide...
+                for(bit=0; bit<7; bit++) displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;   
+            }			 			
+            
+            return;
+        }
+        
+        // Main draw HIRES...
+        // define which font set to use...
+        offset = ((charAttr & 3) << 8) | scrChar;
+        if (offset >= 0x300) {
+            offset = hires1 + (scrChar << 3);	// "OZ" window font entries
+            bank = bankHires1;
+        } else {
+            offset = hires0 + (offset << 3);	// PipeDream Map entries
+            bank = bankHires0;
+        }
+
+        // define pixel colour; clear ON or GREY
+        pxOn = ((charAttr & attrGry) == 0) ? PXCOLON : PXCOLGREY;
+
         // render 8 pixel rows of 8 pixel wide scrChar
-		for(int y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {				
-			int charBits = blink.getByte(offset++, bank);	// fetch current pixel row of char
-			if ( (charAttr & attrRev) == attrRev) charBits = ~charBits;
-			
-			int pxOffset = 0;
-			// render 8 pixels wide...
-			for(int bit=128; bit>0; bit>>>=1) displayMatrix[y + scrBaseCoordX + pxOffset++] = ((charBits & bit) != 0) ? pxOn : PXCOLOFF;   
-		}			 			
+        for(int y = scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + Z88SCREENWIDTH*8); y+=Z88SCREENWIDTH) {				
+            int charBits = blink.getByte(offset++, bank);	// fetch current pixel row of char
+            if ( (charAttr & attrRev) == attrRev) charBits = ~charBits;
+
+            int pxOffset = 0;
+            // render 8 pixels wide...
+            for(bit=128; bit>0; bit>>>=1) displayMatrix[y + scrBaseCoordX + pxOffset++] = ((charBits & bit) != 0) ? pxOn : PXCOLOFF;   
+        }
 	}
     
-    private void flashCounter() {    	
+    
+    private void flashCounter() {
+        if (frameCounter++ > 100) {             // 1 second has passed (10ms * 100 = 1000ms = 1s)
+            frameCounter = 0;                   
+            flashTextEmpty = !flashTextEmpty;   // invert current text flashing mode
+        }
+        
+        if (frameCounter < 70) 
+            cursorInverse = true;               // most of the time, cursor is black
+        else
+            cursorInverse = false;              // rest of the time, cursor is invisible (normal text)
     }
 
+    
     private final class Z88DisplayFocusListener implements java.awt.event.FocusListener {
         public void focusGained(java.awt.event.FocusEvent e) {
             if (renderRunning == false) {
@@ -245,6 +323,7 @@ public class Z88display
             }
         }    
     }
+
     
 	private final class RenderPerMs extends TimerTask {
 		/**
