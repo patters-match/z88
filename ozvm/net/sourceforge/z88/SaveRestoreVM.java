@@ -262,6 +262,9 @@ public class SaveRestoreVM {
 		ZipEntry ze;
 		Properties properties = new Properties();
 		
+		// Remove all current active memory before restoring a snapshot.
+		memory.setVoidMemory();
+		
 	    try {
 	        // Open the snapshot (Zip) file
 	        zf = new ZipFile(fileName);
@@ -289,7 +292,6 @@ public class SaveRestoreVM {
 	        
 	        loadZ80Regs(properties); // restore Z80 processor registers
 	        loadBlinkRegs(properties); // restore Blink hardware registers
-	        
 	        return true;
 	        
 	    } catch (IOException e) {
