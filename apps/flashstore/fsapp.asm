@@ -348,7 +348,7 @@ ENDIF
                          ld   a,3                 ; no File Eprom's found
                          ld   (curslot),a         ; select slot 3 as default
 
-                         ld   c,3
+                         ld   c,a
                          call FlashEprCardId      ; Flash Eprom in slot 3?
                          jr   nc, chip_found      ; Yes...
                          CALL greyscr
@@ -415,7 +415,8 @@ ENDIF
                     ld   c,a
                     call FileEprRequest
                     jr   c, poll_for_ram_card
-                         ld   hl, eprdev          ; C = size of File Area in 16K banks
+                    jr   nz, poll_for_ram_card
+                         ld   hl, eprdev          ; C = size of File Area in 16K banks (if Fz = 1)
                          jr   slotsize
 .poll_for_ram_card
                     ld   a,(curslot)
@@ -423,7 +424,7 @@ ENDIF
                     call RamDevFreeSpace
                     jr   c, poll_for_rom_card
                          ld   hl, ramdev
-                         ld   d,a
+                         ld   c,a
                          jr   slotsize
 .poll_for_rom_card
                     ld   a,(curslot)
@@ -431,7 +432,7 @@ ENDIF
                     call ApplEprType
                     jr   c, empty_slot
                          ld   hl, romdev
-                         ld   d,b                 ; display size of card as defined by ROM header
+                         ld   c,b                 ; display size of card as defined by ROM header
                          jr   slotsize
 .empty_slot
                     ld   hl, emptytxt
@@ -444,7 +445,8 @@ ENDIF
                     ld   a,(curslot)
                     add  a,48
                     call_oz(Os_Out)     ; display device number (which is current slot number too)
-                    call DispSlotSize   ; D = size of slot in 16K banks
+                    
+                    call DispSlotSize   ; C = size of slot in 16K banks
 .nextline
                     call_oz(Gn_Nln)
                     ld   a,(curslot)
@@ -474,7 +476,7 @@ ENDIF
                     call_oz(Gn_Sop)
 
                     LD   H,0
-                    LD   L,D
+                    LD   L,C
                     CALL m16
                     EX   DE,HL          ; size in DE...
                     CALL DispEprSize
@@ -628,7 +630,7 @@ ENDIF
                     ld   a,(curslot)
                     ld   c,a
                     call FileEprRequest
-                    jr   nc, cont_statistics
+                    jr   z, cont_statistics
                          ld   hl, nofepr_ms
                          call_oz (Gn_Sop)
                          ret
@@ -715,11 +717,12 @@ ENDIF
                     CALL FileEprRequest
 
                     LD   H,0
-                    LD   L,D            ; D = total of banks as defined by File Eprom Header
+                    LD   L,C            ; C = total of banks as defined by File Eprom Header
                     CALL m16
                     EX   DE,HL          ; size in DE...
 
                     LD   A,B
+                    AND  @00111111      ; get relative top bank number...
                     CP   $3F            ; is header located in top bank?
                     JR   Z, true_size   ; Yes - real File Eprom found...
 
@@ -1709,7 +1712,7 @@ ENDIF
 
                     LD   C,3
                     CALL FileEprRequest
-                    JR   NC, area_found
+                    JR   Z, area_found
                          LD   C,3
                          CALL ApplEprType
                          JR   C, displ_noaplepr
@@ -1762,11 +1765,11 @@ ENDIF
                          CALL DispErrMsg
                     RET
 .save_null_file
-                    ld   b,$80
+                    ld   b,$c0               ; bottom of slot 3...
                     ld   hl,0                ; blow null file at bottom of card
                     ld   de, nullfile
                     ld   c, MS_S1            ; use segment 1 to blow the bytes...
-                    ld   ix,6                ; Initial File Entry is 6 bytes long...
+                    ld   iy,6                ; Initial File Entry is 6 bytes long...
                     call FlashEprWriteBlock
                     ret
 .nullfile
