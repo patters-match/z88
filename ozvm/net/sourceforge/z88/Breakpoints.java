@@ -47,8 +47,6 @@ public class Breakpoints {
             breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
         else
             breakPoints.remove((Breakpoint) bp);
-
-        listBreakpoints();
     }
 
     /**
