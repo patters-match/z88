@@ -663,8 +663,8 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_PERIOD, 0x07FB); keyboardLayout.put(new Integer(KeyEvent.VK_PERIOD), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);		
 
-		// The '£' key is not available as a single letter on DK International PC keyboards
-		//keyp = new KeyPress(KeyEvent.VK_NUMBER_SIGN, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMBER_SIGN), (KeyPress) keyp);
+		// The '£' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
+		keyp = new KeyPress(KeyEvent.VK_LESS, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_LESS), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
 
 
@@ -677,8 +677,10 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_COMMA, 0x06FB); keyboardLayout.put(new Integer(KeyEvent.VK_COMMA), (KeyPress) keyp);
 		keyp = new KeyPress((0x10000 | 'æ'), 0x06FD); keyboardLayout.put(new Integer((0x10000 | 'æ')), (KeyPress) keyp);
 		keyp = new KeyPress((0x10000 | 'Æ'), 0x06FD); keyboardLayout.put(new Integer((0x10000 | 'Æ')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 134), 0x06FD); keyboardLayout.put(new Integer((0x10000 | 134)), (KeyPress) keyp); // CTRL æ
 		keyp = new KeyPress((0x10000 | 'ø'), 0x06FE); keyboardLayout.put(new Integer((0x10000 | 'ø')), (KeyPress) keyp);
 		keyp = new KeyPress((0x10000 | 'Ø'), 0x06FE); keyboardLayout.put(new Integer((0x10000 | 'Ø')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 152), 0x06FE); keyboardLayout.put(new Integer((0x10000 | 152)), (KeyPress) keyp); // CTRL ø
 		// --------------------------------------------------------------------------------------------------------------------------
 
 
@@ -690,6 +692,7 @@ public class Z88Keyboard implements KeyListener {
 		// Single key:
 		keyp = new KeyPress((0x10000 | 'å'), 0x057F); keyboardLayout.put(new Integer((0x10000 | 'å')), (KeyPress) keyp);
 		keyp = new KeyPress((0x10000 | 'Å'), 0x057F); keyboardLayout.put(new Integer((0x10000 | 'Å')), (KeyPress) keyp);
+		keyp = new KeyPress((0x10000 | 133), 0x057F); keyboardLayout.put(new Integer((0x10000 | 133)), (KeyPress) keyp); // CTRL å
 
 		keyp = new KeyPress(KeyEvent.VK_1, 0x05DF); keyboardLayout.put(new Integer(KeyEvent.VK_1), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD1, 0x05DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD1), (KeyPress) keyp);
@@ -729,7 +732,8 @@ public class Z88Keyboard implements KeyListener {
 		// -------------------------------------------------------------------------
 		// A11 (#3) | =      RGT     3       E       D       C       K       9
 		// Single key:
-		//keyp = new KeyPress(KeyEvent.VK_MINUS, 0x037F); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);
+		// '=' is not available as a direct key on DK host layout, so we steel the '`' key between '+' key and BACK SPACE
+		keyp = new KeyPress(KeyEvent.VK_DEAD_ACUTE, 0x037F); keyboardLayout.put(new Integer(KeyEvent.VK_DEAD_ACUTE), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_3, 0x03DF); keyboardLayout.put(new Integer(KeyEvent.VK_3), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD3, 0x03DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD3), (KeyPress) keyp);
@@ -748,9 +752,9 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11111011
 		//			| D7     D6      D5      D4      D3      D2      D1      D0			
 		// -------------------------------------------------------------------------
-		// A10 (#2) | =      DWN     4       R       F       V       J       O
+		// A10 (#2) | +      DWN     4       R       F       V       J       O
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_EQUALS, 0x027F); keyboardLayout.put(new Integer(KeyEvent.VK_EQUALS), (KeyPress) keyp);
+		keyp = new KeyPress(KeyEvent.VK_PLUS, 0x027F); keyboardLayout.put(new Integer(KeyEvent.VK_PLUS), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_4, 0x02DF); keyboardLayout.put(new Integer(KeyEvent.VK_4), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD4, 0x02DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD4), (KeyPress) keyp);
@@ -767,9 +771,10 @@ public class Z88Keyboard implements KeyListener {
 		// Row 11111101
 		//			| D7     D6      D5      D4      D3      D2      D1      D0			
 		// -------------------------------------------------------------------------
-		// A9  (#1) | \      UP      5       T       G       B       U       I
+		// A9  (#1) | /      UP      5       T       G       B       U       I
 		// Single key:
-		keyp = new KeyPress(KeyEvent.VK_BACK_SLASH, 0x017F); keyboardLayout.put(new Integer(KeyEvent.VK_BACK_SLASH), (KeyPress) keyp);
+		// '/' does not exist as a single key press, so we steel the '^' key next to 'Å' key.
+		keyp = new KeyPress(KeyEvent.VK_DEAD_DIAERESIS, 0x017F); keyboardLayout.put(new Integer(KeyEvent.VK_DEAD_DIAERESIS), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_5, 0x01DF); keyboardLayout.put(new Integer(KeyEvent.VK_5), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD5, 0x01DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD5), (KeyPress) keyp);
@@ -1060,3 +1065,4 @@ public class Z88Keyboard implements KeyListener {
 		//System.out.println("keyTyped() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "'," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 	}
 }
+
