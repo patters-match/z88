@@ -13,6 +13,24 @@ import gameframe.GameFrameException;
 import gameframe.input.KeyboardDevice;
 
 /**
+ * @author Administrator
+ *
+ * To change the template for this generated type comment go to
+ * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ */
+/**
+ * @author Administrator
+ *
+ * To change the template for this generated type comment go to
+ * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ */
+/**
+ * @author Administrator
+ *
+ * To change the template for this generated type comment go to
+ * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ */
+/**
  * Blink chip, the "mind" of the Z88.
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
  * 
@@ -498,132 +516,297 @@ public final class Blink extends Z80 {
 		return (extAddressBank | extAddressOffset) << 8;
 	}
 
-	private int keybRowA15 = 0xFF;	// Keyboard scan Row 7F (01111111)
-	private int keybRowA14 = 0xFF;	// Keyboard scan Row BF (10111111)
-	private int keybRowA13 = 0xFF;	// Keyboard scan Row DF (11011111)
-	private int keybRowA12 = 0xFF;	// Keyboard scan Row EF (11101111)
-	private int keybRowA11 = 0xFF;	// Keyboard scan Row F7 (11110111)
-	private int keybRowA10 = 0xFF;	// Keyboard scan Row FB (11111011)
-	private int keybRowA9 = 0xFF;	// Keyboard scan Row FD (11111101)
-	private int keybRowA8 = 0xFF;	// Keyboard scan Row FE (11111110)
 	
+	private int keyRows[] = new int[8];
+
+
 	/**
-	 * Fetch a keypress from the specified row matrix.
+	 * 
+	 * Scans a particular Z88 hardware keyboard row, and returns the 
+	 * corresponding key column.<br>
+	 * 
+	 * <PRE>
+	 *	------------------------------------------------------------------------
+	 *	UK Keyboard matrix
+	 *	-------------------------------------------------------------------------
+	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
+	 *	-------------------------------------------------------------------------
+	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
+	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
+	 *	A13 (#5) | [      SPACE   1       Q       A       Z       L       0
+	 *	A12 (#4) | ]      LFT     2       W       S       X       M       P
+	 *	A11 (#3) | -      RGT     3       E       D       C       K       9
+	 *	A10 (#2) | =      DWN     4       R       F       V       J       O
+	 *	A9  (#1) | \      UP      5       T       G       B       U       I
+	 *	A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
+	 *	-------------------------------------------------------------------------
+	 * </PRE>
+	 * 
+	 * @param row, of Z88 keyboard to be scanned
+	 * @return keyColumn, the column containing one or several key presses.
+	 */
+	private int scanKeyRow(int row) {
+		int shiftKey = 0xFF, altKey=0xFF, ctrlKey=0xFF;
+		int keyColumn = 0xFF;
+		int currentKey = z88Keyboard.getCurrentlyPressedKey();
+			
+		switch(row) {
+			case 0x7F:	
+				// Row 01111111:
+				//			| D7     D6      D5      D4      D3      D2      D1      D0
+				// -------------------------------------------------------------------------
+				// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
+
+				// check for two-key combinations, here as ALT or SHIFT with another key...
+				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_ALT) == true) 
+					altKey = 0xBF; // SQUARE (10111111)
+				else
+					altKey = 0xFF; // not pressed
+                        
+				switch(currentKey) {
+					// D7 RIGHT SHIFT - not implemented at the moment...
+					// D6 SQUARE is read above...
+					case java.awt.event.KeyEvent.VK_ESCAPE: keyColumn = 0xDF; break;	// ESC
+					case java.awt.event.KeyEvent.VK_F2: keyColumn = 0xEF; break;		// INDEX
+					case java.awt.event.KeyEvent.VK_CAPS_LOCK: keyColumn = 0xF7; break;	// CAPS LOCK
+					// D2
+					// D1
+					// D0
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}
+						
+				keyColumn = ~(altKey ^ keyColumn);
+				keyColumn &= 0xFF; 						
+				break;
+
+			case 0xBF:	
+				// 10111111
+				//			| D7     D6      D5      D4      D3      D2      D1      D0
+				// -------------------------------------------------------------------------
+				// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
+
+				// check for two-key combinations, here as SHIFT or CTRL with another key...
+				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_CONTROL) == true) 
+					ctrlKey = 0xEF; // DIAMOND
+				else
+					ctrlKey = 0xFF; // not pressed
+				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true |
+					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_DELETE) == true) 
+					shiftKey = 0xBF; // (Right or Left) SHIFT
+				else 
+					shiftKey = 0xFF; // not pressed
+
+				switch(currentKey) {
+					case java.awt.event.KeyEvent.VK_F1: keyColumn = 0x7F; break; 		// HELP
+					// D6, LEFT SHIFT, implemented above
+					// D6, LEFT SHIFT/DEL (embedded as SHIFT BACKSPACE), implemented above 
+					case java.awt.event.KeyEvent.VK_TAB: keyColumn = 0xDF; break;		// TAB
+					// D4, DIAMOND - implemented above...
+					case java.awt.event.KeyEvent.VK_F3: keyColumn = 0xF7; break;		// MENU 
+					// D2
+					// D1
+					// D0
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}
+	
+				keyColumn = (~ctrlKey ^ shiftKey) ^ (~keyColumn);
+				keyColumn &= 0xFF; 
+				break;
+
+			case 0xDF:	
+				// 11011111
+				//			| D7     D6      D5      D4      D3      D2      D1      D0
+				// -------------------------------------------------------------------------
+				// A13 (#5) | [      SPACE   1       Q       A       Z       L       0
+				switch(currentKey) {
+					// D7
+					case java.awt.event.KeyEvent.VK_SPACE: keyColumn = 0xBF; break;	// SPACE (10111111)
+					case java.awt.event.KeyEvent.VK_1: keyColumn = 0xDF; break;
+					case java.awt.event.KeyEvent.VK_Q: keyColumn = 0xEF; break;
+					case java.awt.event.KeyEvent.VK_A: keyColumn = 0xF7; break;
+					case java.awt.event.KeyEvent.VK_Z: keyColumn = 0xFB; break;
+					case java.awt.event.KeyEvent.VK_L: keyColumn = 0xFD; break;
+					case java.awt.event.KeyEvent.VK_0: keyColumn = 0xFE; break;
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}												
+				break;
+
+			case 0xEF:	
+				// 11101111
+				//			| D7     D6      D5      D4      D3      D2      D1      D0
+				// -------------------------------------------------------------------------			
+				// A12 (#4) | ]      LFT     2       W       S       X       M       P
+				switch(currentKey) {
+					// D7
+					case java.awt.event.KeyEvent.VK_LEFT: keyColumn = 0xBF; break;		// LEFT CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_2: keyColumn = 0xDF; break;
+					case java.awt.event.KeyEvent.VK_W: keyColumn = 0xEF; break;
+					case java.awt.event.KeyEvent.VK_S: keyColumn = 0xF7; break;
+					case java.awt.event.KeyEvent.VK_X: keyColumn = 0xFB; break;
+					case java.awt.event.KeyEvent.VK_M: keyColumn = 0xFD; break;
+					case java.awt.event.KeyEvent.VK_P: keyColumn = 0xFE; break;                                    
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}
+				break;
+				
+			case 0xF7:	
+				// 11110111
+				//			| D7     D6      D5      D4      D3      D2      D1      D0			
+				// -------------------------------------------------------------------------
+				// A11 (#3) | -      RGT     3       E       D       C       K       9
+				switch(currentKey) {
+					// D7
+					case java.awt.event.KeyEvent.VK_RIGHT: keyColumn = 0xBF; break;	// RIGHT CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_3: keyColumn = 0xDF; break;
+					case java.awt.event.KeyEvent.VK_E: keyColumn = 0xEF; break;
+					case java.awt.event.KeyEvent.VK_D: keyColumn = 0xF7; break;
+					case java.awt.event.KeyEvent.VK_C: keyColumn = 0xFB; break;
+					case java.awt.event.KeyEvent.VK_K: keyColumn = 0xFD; break;
+					case java.awt.event.KeyEvent.VK_9: keyColumn = 0xFE; break;
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}
+				break;
+				
+			case 0xFB:	
+				// 11111011
+				//			| D7     D6      D5      D4      D3      D2      D1      D0			
+				// -------------------------------------------------------------------------
+				// A10 (#2) | =      DWN     4       R       F       V       J       O
+				switch(currentKey) {
+					// D7
+					case java.awt.event.KeyEvent.VK_DOWN: keyColumn = 0xBF; break;		// DOWN CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_4: keyColumn = 0xDF; break;
+					case java.awt.event.KeyEvent.VK_R: keyColumn = 0xEF; break;
+					case java.awt.event.KeyEvent.VK_F: keyColumn = 0xF7; break;
+					case java.awt.event.KeyEvent.VK_V: keyColumn = 0xFB; break;
+					case java.awt.event.KeyEvent.VK_J: keyColumn = 0xFD; break;
+					case java.awt.event.KeyEvent.VK_O: keyColumn = 0xFE; break;
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}
+				break;
+				
+			case 0xFD:	
+				// 11111101
+				//			| D7     D6      D5      D4      D3      D2      D1      D0			
+				// -------------------------------------------------------------------------
+				// A9  (#1) | \      UP      5       T       G       B       U       I
+				switch(currentKey) {
+					// D7
+					case java.awt.event.KeyEvent.VK_UP: keyColumn = 0xBF; break;		// UP CURSOR
+					case java.awt.event.KeyEvent.VK_5: keyColumn = 0xDF; break;
+					case java.awt.event.KeyEvent.VK_T: keyColumn = 0xEF; break;
+					case java.awt.event.KeyEvent.VK_G: keyColumn = 0xF7; break;
+					case java.awt.event.KeyEvent.VK_B: keyColumn = 0xFB; break;
+					case java.awt.event.KeyEvent.VK_U: keyColumn = 0xFD; break;
+					case java.awt.event.KeyEvent.VK_I: keyColumn = 0xFE; break;                                    
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}
+				break;
+				
+			case 0xFE:	
+				// 11111110
+				//			| D7     D6      D5      D4      D3      D2      D1      D0			
+				// -------------------------------------------------------------------------
+				// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
+				switch(currentKey) {
+					case java.awt.event.KeyEvent.VK_BACK_SPACE: keyColumn = 0x7F; break; 	// BACKSPACE
+					case java.awt.event.KeyEvent.VK_DELETE: keyColumn = 0x7F; break;        // (PC) DELETE = SHIFT BACKSPACE
+					case java.awt.event.KeyEvent.VK_ENTER: keyColumn = 0xBF; break;			// ENTER
+					case java.awt.event.KeyEvent.VK_6: keyColumn = 0xDF; break;
+					case java.awt.event.KeyEvent.VK_Y: keyColumn = 0xEF; break;
+					case java.awt.event.KeyEvent.VK_H: keyColumn = 0xF7; break;
+					case java.awt.event.KeyEvent.VK_N: keyColumn = 0xFB; break;
+					case java.awt.event.KeyEvent.VK_7: keyColumn = 0xFD; break;
+					case java.awt.event.KeyEvent.VK_8: keyColumn = 0xFE; break;
+					default: keyColumn = 0xFF;	// no keys pressed in row...
+				}
+				break;
+		}
+			
+		return keyColumn;					
+	}
+		
+		
+	/**
+	 * Scans the hardware keyboard, and returns true if one or several keys
+	 * were pressed.<p> 
+	 *
+	 * The keyRows[] property contains all current keycolumns of this scan.<br>
+	 * If INT.KEY interrupts are enabled, STA.KEY is set.
 	 * 
 	 * A few conventions have been defined to map the special keys in the Z88
 	 * to a conventional computer keyboard:
+	 * <PRE>
 	 * 		HELP			= F1
 	 * 		INDEX 			= F2
 	 * 		MENU			= F3
-	 * 		L. & R. SHIFT	= F12
 	 * 		<> (Diamond) 	= CTRL
 	 * 		[] (Square)		= ALT 
+	 * </PRE>
+	 * 
+	 * @return true, if one or several keys were pressed during scan.
+	 */ 
+	private boolean scanKeyboard() {
+		boolean keyPressed = false;
+
+		if (z88Keyboard.getCurrentlyPressedKey() == java.awt.event.KeyEvent.VK_F5) {
+			stopZ88 = true;
+			return false;				
+		}
+
+		// a keypress is available, put it into the appropriate Z88 hardware keyrow, 
+		// if this key exists in the Z88 world...
+		int row = 0xFE;		// start with A8, then upwards..
+		for (int scanRow=0; scanRow < keyRows.length; scanRow++) {
+			keyRows[scanRow] = scanKeyRow(row);
+				
+			if ( keyRows[scanRow] != 0xFF) {
+				keyPressed = true;
+				if ( ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
+					// If keyboard interrupts are enabled, then signal that a key was pressed.
+					STA |= BM_STAKEY;
+				}
+			} 
+
+			row <<= 1;		// look at next row...
+			row |= 1;		// make sure that left shift always contains 1 at bit 0...
+			row &= 0xFF;	// only 8bit boundary...				
+		}       
+			
+		return keyPressed;     
+	}
+	
+
+	/**
+	 * Fetch a keypress from the specified row matrix, or 0 for all rows.<br>
+	 * Interface call for IN r,(B2h).<br>
 	 * 
 	 * @param row
-	 * @return int
+	 * @return int keycolumn status of row
 	 */
 	public int getBlinkKbd(int row) {
 		int keyColumn = 0xFF;	// Default to no keys pressed...
-
-        if ( (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
-            // all rows are read by hardware when in snooze...
-            row = 0;
-
-			try {
-				Thread.sleep(5);
-			} catch (InterruptedException e) {
-				e.printStackTrace(System.out);
-			}			
-        }
         
-		do {
-            // F5 was pressed, get out of here!
-            if (stopZ88 == true) return 0xFF;
-            
-            switch(row) {
-                case 0x7F:	// Row 01111111:
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0
-                            // -------------------------------------------------------------------------
-                            // A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
-                            keyColumn = keybRowA15;
-                            break;
+        // F5 was pressed, get out of here!
+        if (stopZ88 == true) return 0xFF;
 
-                case 0xBF:	// 10111111
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0
-                            // -------------------------------------------------------------------------
-                            // A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
-                            keyColumn = keybRowA14;
-                            break;
+		if ( row == 0 || (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
+			// Z80 snoozes... (wait a little bit, then ask for key press from Blink)
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {}
 
-                case 0xDF:	// 11011111
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0
-                            // -------------------------------------------------------------------------
-                            // A13 (#5) | [      SPACE   1       Q       A       Z       L       0
-                            keyColumn = keybRowA13;
-                            break;
-
-                case 0xEF:	// 11101111
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0
-                            // -------------------------------------------------------------------------			
-                            // A12 (#4) | ]      LFT     2       W       S       X       M       P
-                            keyColumn = keybRowA12;
-                            break;
-
-                case 0xF7:	// 11110111
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
-                            // -------------------------------------------------------------------------
-                            // A11 (#3) | -      RGT     3       E       D       C       K       9
-                            keyColumn = keybRowA11;
-                            break;
-
-                case 0xFB:	// 11111011
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
-                            // -------------------------------------------------------------------------
-                            // A10 (#2) | =      DWN     4       R       F       V       J       O
-                            keyColumn = keybRowA10;
-                            break;
-
-                case 0xFD:	// 11111101
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
-                            // -------------------------------------------------------------------------
-                            // A9  (#1) | \      UP      5       T       G       B       U       I
-                            keyColumn = keybRowA9;
-                            break;
-
-                case 0xFE:	// 11111110
-                            //			| D7     D6      D5      D4      D3      D2      D1      D0			
-                            // -------------------------------------------------------------------------
-                            // A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
-                            keyColumn = keybRowA8;
-                            break;
-                case 0x00:
-                    if (keybRowA15 != 0xFF) { keyColumn = keybRowA15; }
-                    if (keybRowA14 != 0xFF) { keyColumn = keybRowA14; }
-                    if (keybRowA13 != 0xFF) { keyColumn = keybRowA13; }
-                    if (keybRowA12 != 0xFF) { keyColumn = keybRowA12; }
-                    if (keybRowA11 != 0xFF) { keyColumn = keybRowA11; }
-                    if (keybRowA10 != 0xFF) { keyColumn = keybRowA10; }
-                    if (keybRowA9 != 0xFF) { keyColumn = keybRowA9; }
-                    if (keybRowA8 != 0xFF) { keyColumn = keybRowA8; }
-                    
-                    // if scanning for all rows, get out immediately...
-                    // (whether key press or not)
-                    return keyColumn;
-            }		            
-
-			if ( (INT & BM_INTKWAIT) == BM_INTKWAIT) {
-				// Z80 snoozes... (wait a little bit, then ask again for key press from Blink)
-				// (interrupts still occurs in Blink where keyboard is scanned each 10ms)
-				try {
-					Thread.sleep(5);
-				} catch (InterruptedException e) {
-					e.printStackTrace(System.out);
-				}			
-			}           
-
+			// scan for all rows..
+			if (scanKeyboard() == true) {
+				for (int scanRow = 0; scanRow < keyRows.length; scanRow++) {
+					if ( keyRows[scanRow] != 0xFF ) return keyRows[scanRow];  
+				}
+			} else {
+				return 0xFF;
+			}            
+        } else {
+			keyColumn = scanKeyRow(row);                    
         }
-		// Only get out of loop if we have INT.KWAIT (snooze) and a key was pressed...
-		while( singleSteppingMode() == false && (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xFF);
 		
 		return keyColumn;
 	}
@@ -1647,224 +1830,13 @@ public final class Blink extends Z80 {
 	 * (executing a RST 38H instruction).
 	 */
 	private final class Z80interrupt {
-
 		private TimerTask intIm1 = null;
-		
-		/**
-		 * 
-		 * The Blink scans the hardware keyboard each 10ms...
-		 *
-		 * <PRE>
-		 *	------------------------------------------------------------------------
-		 *	UK Keyboard matrix
-		 *	-------------------------------------------------------------------------
-		 *			 | D7     D6      D5      D4      D3      D2      D1      D0
-		 *	-------------------------------------------------------------------------
-		 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
-		 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
-		 *	A13 (#5) | [      SPACE   1       Q       A       Z       L       0
-		 *	A12 (#4) | ]      LFT     2       W       S       X       M       P
-		 *	A11 (#3) | -      RGT     3       E       D       C       K       9
-		 *	A10 (#2) | =      DWN     4       R       F       V       J       O
-		 *	A9  (#1) | \      UP      5       T       G       B       U       I
-		 *	A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
-		 *	-------------------------------------------------------------------------
-		 * </PRE>
-		 */ 
-		private void scanKeyboard() {
-			int currentKey = z88Keyboard.getCurrentlyPressedKey();
-			int shiftKey = 0xFF, altKey=0xFF, ctrlKey=0xFF;
-			
-			switch (currentKey) {			
-				case KeyboardDevice.NO_KEYS_PRESSED:
-					keybRowA15 = keybRowA14 = keybRowA13 = keybRowA12 = 
-					keybRowA11 = keybRowA10 = keybRowA9 = keybRowA8 = 0xFF;
-					return;
-				case java.awt.event.KeyEvent.VK_F5:
-					stopZ88 = true;
-					return;				
-			}
-
-			// a keypress is available, put it into the appropriate Z88 hardware keyrow...
-			// if this key exists in the Z88 world...
-			int row = 0xFE;		// start with A8, then upwards..
-			int keyColumn = 0xFF;
-			for (int scanRow=0; scanRow<8; scanRow++) {
-				switch(row) {
-					case 0x7F:	// Row 01111111:
-								//			| D7     D6      D5      D4      D3      D2      D1      D0
-								// -------------------------------------------------------------------------
-								// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
-
-                                // check for two-key combinations, here as ALT or SHIFT with another key...
-                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_ALT) == true) altKey = 0xBF; // SQUARE
-                                if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true) shiftKey = 0x7F; // (Right or Left) SHIFT
-                                
-								switch(currentKey) {
-									case java.awt.event.KeyEvent.VK_F12: keybRowA15 = keyColumn = 0x7F; break; 		// RIGHT SHIFT
-									case java.awt.event.KeyEvent.VK_ALT: keybRowA15 = keyColumn = 0xBF; break;		// SQUARE (10111111)
-									case java.awt.event.KeyEvent.VK_ESCAPE: keybRowA15 = keyColumn = 0xDF; break;	// ESC
-									case java.awt.event.KeyEvent.VK_F2: keybRowA15 = keyColumn = 0xEF; break;		// INDEX
-									case java.awt.event.KeyEvent.VK_CAPS_LOCK: keybRowA15 = keyColumn = 0xF7; break;// CAPS LOCK
-									// D2
-									// D1
-									// D0
-									default: keybRowA15 = 0xFF;	// no keys pressed in row...
-								}
-								
-								keybRowA15 = (~altKey ^ shiftKey) ^ (~keybRowA15); 
-								
-						break;
-
-					case 0xBF:	// 10111111
-								//			| D7     D6      D5      D4      D3      D2      D1      D0
-								// -------------------------------------------------------------------------
-								// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
-
-                                // check for two-key combinations, here as SHIFT or CTRL with another key...
-								if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_CONTROL) == true) ctrlKey = 0xEF; // DIAMOND
-								if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true) shiftKey = 0xBF; // (Right or Left) SHIFT
-
-								switch(currentKey) {
-									case java.awt.event.KeyEvent.VK_F1: keybRowA14 = keyColumn = 0x7F; break; 		// HELP
-									case java.awt.event.KeyEvent.VK_F12: keybRowA14 = keyColumn = 0xBF; break;		// LEFT SHIFT (10111111) (F12 = both shift keys down)
-									case java.awt.event.KeyEvent.VK_SHIFT: keybRowA14 = keyColumn = 0xBF; break;	// SHIFT
-                                    case java.awt.event.KeyEvent.VK_DELETE: keybRowA14 = keyColumn = 0xBF; break;   // SHIFT: Here (PC) DELETE = SHIFT BACKSPACE 
-									case java.awt.event.KeyEvent.VK_TAB: keybRowA14 = keyColumn = 0xDF; break;		// TAB
-									case java.awt.event.KeyEvent.VK_CONTROL: keybRowA14 = keyColumn = 0xEF; break;	// DIAMOND
-									case java.awt.event.KeyEvent.VK_F3: keybRowA14 = keyColumn = 0xF7; break;		// MENU 
-									// D2
-									// D1
-									// D0
-									default: keybRowA14 = 0xFF;	// no keys pressed in row...
-								}
-			
-								keybRowA14 = (~ctrlKey ^ shiftKey) ^ (~keybRowA14); 
-						break;
-
-					case 0xDF:	// 11011111
-								//			| D7     D6      D5      D4      D3      D2      D1      D0
-								// -------------------------------------------------------------------------
-								// A13 (#5) | [      SPACE   1       Q       A       Z       L       0
-								switch(currentKey) {
-									// D7
-									case java.awt.event.KeyEvent.VK_SPACE: keybRowA13 = keyColumn = 0xBF; break;	// SPACE (10111111)
-                                    case java.awt.event.KeyEvent.VK_1: keybRowA13 = keyColumn = 0xDF; break;
-                                    case java.awt.event.KeyEvent.VK_Q: keybRowA13 = keyColumn = 0xEF; break;
-                                    case java.awt.event.KeyEvent.VK_A: keybRowA13 = keyColumn = 0xF7; break;
-                                    case java.awt.event.KeyEvent.VK_Z: keybRowA13 = keyColumn = 0xFB; break;
-                                    case java.awt.event.KeyEvent.VK_L: keybRowA13 = keyColumn = 0xFD; break;
-                                    case java.awt.event.KeyEvent.VK_0: keybRowA13 = keyColumn = 0xFE; break;
-									default: keybRowA13 = 0xFF;	// no keys pressed in row...
-								}												
-						break;
-
-					case 0xEF:	// 11101111
-								//			| D7     D6      D5      D4      D3      D2      D1      D0
-								// -------------------------------------------------------------------------			
-								// A12 (#4) | ]      LFT     2       W       S       X       M       P
-								switch(currentKey) {
-									// D7
-									case java.awt.event.KeyEvent.VK_LEFT: keybRowA12 = keyColumn = 0xBF; break;		// LEFT CURSOR (10111111)
-                                    case java.awt.event.KeyEvent.VK_2: keybRowA12 = keyColumn = 0xDF; break;
-                                    case java.awt.event.KeyEvent.VK_W: keybRowA12 = keyColumn = 0xEF; break;
-                                    case java.awt.event.KeyEvent.VK_S: keybRowA12 = keyColumn = 0xF7; break;
-                                    case java.awt.event.KeyEvent.VK_X: keybRowA12 = keyColumn = 0xFB; break;
-                                    case java.awt.event.KeyEvent.VK_M: keybRowA12 = keyColumn = 0xFD; break;
-                                    case java.awt.event.KeyEvent.VK_P: keybRowA12 = keyColumn = 0xFE; break;                                    
-									default: keybRowA12 = 0xFF;	// no keys pressed in row...
-								}
-						break;
-				
-					case 0xF7:	// 11110111
-								//			| D7     D6      D5      D4      D3      D2      D1      D0			
-								// -------------------------------------------------------------------------
-								// A11 (#3) | -      RGT     3       E       D       C       K       9
-								switch(currentKey) {
-									// D7
-									case java.awt.event.KeyEvent.VK_RIGHT: keybRowA11 = keyColumn = 0xBF; break;	// RIGHT CURSOR (10111111)
-                                    case java.awt.event.KeyEvent.VK_3: keybRowA11 = keyColumn = 0xDF; break;
-                                    case java.awt.event.KeyEvent.VK_E: keybRowA11 = keyColumn = 0xEF; break;
-                                    case java.awt.event.KeyEvent.VK_D: keybRowA11 = keyColumn = 0xF7; break;
-                                    case java.awt.event.KeyEvent.VK_C: keybRowA11 = keyColumn = 0xFB; break;
-                                    case java.awt.event.KeyEvent.VK_K: keybRowA11 = keyColumn = 0xFD; break;
-                                    case java.awt.event.KeyEvent.VK_9: keybRowA11 = keyColumn = 0xFE; break;
-									default: keybRowA11 = 0xFF;	// no keys pressed in row...
-								}
-						break;
-				
-					case 0xFB:	// 11111011
-								//			| D7     D6      D5      D4      D3      D2      D1      D0			
-								// -------------------------------------------------------------------------
-								// A10 (#2) | =      DWN     4       R       F       V       J       O
-								switch(currentKey) {
-									// D7
-									case java.awt.event.KeyEvent.VK_DOWN: keybRowA10 = keyColumn = 0xBF; break;		// DOWN CURSOR (10111111)
-                                    case java.awt.event.KeyEvent.VK_4: keybRowA10 = keyColumn = 0xDF; break;
-                                    case java.awt.event.KeyEvent.VK_R: keybRowA10 = keyColumn = 0xEF; break;
-                                    case java.awt.event.KeyEvent.VK_F: keybRowA10 = keyColumn = 0xF7; break;
-                                    case java.awt.event.KeyEvent.VK_V: keybRowA10 = keyColumn = 0xFB; break;
-                                    case java.awt.event.KeyEvent.VK_J: keybRowA10 = keyColumn = 0xFD; break;
-                                    case java.awt.event.KeyEvent.VK_O: keybRowA10 = keyColumn = 0xFE; break;
-									default: keybRowA10 = 0xFF;	// no keys pressed in row...
-								}
-						break;
-				
-					case 0xFD:	// 11111101
-								//			| D7     D6      D5      D4      D3      D2      D1      D0			
-								// -------------------------------------------------------------------------
-								// A9  (#1) | \      UP      5       T       G       B       U       I
-								switch(currentKey) {
-									// D7
-									case java.awt.event.KeyEvent.VK_UP: keybRowA9 = keyColumn = 0xBF; break;		// UP CURSOR
-                                    case java.awt.event.KeyEvent.VK_5: keybRowA9 = keyColumn = 0xDF; break;
-                                    case java.awt.event.KeyEvent.VK_T: keybRowA9 = keyColumn = 0xEF; break;
-                                    case java.awt.event.KeyEvent.VK_G: keybRowA9 = keyColumn = 0xF7; break;
-                                    case java.awt.event.KeyEvent.VK_B: keybRowA9 = keyColumn = 0xFB; break;
-                                    case java.awt.event.KeyEvent.VK_U: keybRowA9 = keyColumn = 0xFD; break;
-                                    case java.awt.event.KeyEvent.VK_I: keybRowA9 = keyColumn = 0xFE; break;                                    
-									default: keybRowA9 = 0xFF;	// no keys pressed in row...
-								}
-						break;
-				
-					case 0xFE:	// 11111110
-								//			| D7     D6      D5      D4      D3      D2      D1      D0			
-								// -------------------------------------------------------------------------
-								// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
-								switch(currentKey) {
-									case java.awt.event.KeyEvent.VK_BACK_SPACE: keybRowA8 = keyColumn = 0x7F; break; 	// BACKSPACE
-                                    case java.awt.event.KeyEvent.VK_DELETE: keybRowA8 = keyColumn = 0x7F; break;        // (PC) DELETE = SHIFT BACKSPACE
-									case java.awt.event.KeyEvent.VK_ENTER: keybRowA8 = keyColumn = 0xBF; break;			// ENTER
-                                    case java.awt.event.KeyEvent.VK_6: keybRowA8 = keyColumn = 0xDF; break;
-                                    case java.awt.event.KeyEvent.VK_Y: keybRowA8 = keyColumn = 0xEF; break;
-                                    case java.awt.event.KeyEvent.VK_H: keybRowA8 = keyColumn = 0xF7; break;
-                                    case java.awt.event.KeyEvent.VK_N: keybRowA8 = keyColumn = 0xFB; break;
-                                    case java.awt.event.KeyEvent.VK_7: keybRowA8 = keyColumn = 0xFD; break;
-                                    case java.awt.event.KeyEvent.VK_8: keybRowA8 = keyColumn = 0xFE; break;
-									default: keybRowA8 = 0xFF;	// no keys pressed in row...
-								}
-						break;
-				}
-				
-				row <<= 1;		// look at next row...
-				row |= 1;		// make sure that left shift always contains 1 at bit 0...
-				row &= 0xFF;	// only 8bit boundary...
-			}
-            
-			if ( (keyColumn != 0xFF) && ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
-                // If keyboard interrupts are enabled, then signal that a key was pressed.
-				STA |= BM_STAKEY;
-			}
-		}
-
 
 		/**
 		 * Send an INT each 10ms to the Z80 processor...
 		 */
 		private final class Int10ms extends TimerTask {
-			public void run() {
-                scanKeyboard();  // Blink always scans the keyboard...
-                
+			public void run() {                
                 // signal Maskable interrupt to be executed, as soon as Z80 is ready to grab it...
                 setNmi(false);
                 setInterruptSignal();
