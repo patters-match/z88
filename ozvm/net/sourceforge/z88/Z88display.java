@@ -3,7 +3,6 @@ package net.sourceforge.z88;
 import java.util.TimerTask;
 
 import gameframe.graphics.*;
-import gameframe.input.*;
 import gameframe.*;
 
 /**
@@ -46,7 +45,6 @@ public class Z88display
 	
     private boolean renderRunning = false;
 	private GraphicsEngine gfxe = null;
-	private KeyboardDevice keyboard = null;
         
     private boolean cursorInverse = true;       // start cursor flash as dark, 
     private boolean flashTextEmpty = false;     // start text flash as dark, ie. text looks normal for 1 sec.
@@ -59,20 +57,16 @@ public class Z88display
 	int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 	
 
-    Z88display(Blink z88Blink) throws GameFrameException {
+    Z88display(Blink z88Blink, java.awt.Canvas canvas) throws GameFrameException {
 		GameFrameSettings settings = new GameFrameSettings(); 
 		settings.setTitle("Z88");
 		settings.setRequestedGraphicsMode( new GraphicsMode(Z88SCREENWIDTH, Z88SCREENHEIGHT));
-		settings.setScreenMode(GameFrameSettings.SCREENMODE_WINDOWED);	// later to GameFrameSettings.SCREENMODE_COMPONENT
+		settings.setScreenMode(GameFrameSettings.SCREENMODE_COMPONENT);
 		settings.setSplashScreenAllowed(false);
 
 		GameFrame.init(settings);
-		GameFrame.createGraphicsEngine();
+		GameFrame.createGraphicsEngine(canvas);
 		gfxe = GameFrame.getGraphicsEngine();
-		GameFrame.createInputEngine(gfxe);
-
-		InputEngine inputEngine = GameFrame.getInputEngine();
-		keyboard = inputEngine.getDefaultKeyboardDevice();
         gfxe.addFocusListener(new Z88DisplayFocusListener());
 		
 		blink = z88Blink; // The Z88 Display needs to access the Blink hardware...
@@ -82,16 +76,6 @@ public class Z88display
         
         renderRunning = false;
     }
-
-	
-	/**
-	 * Outside world can get access to keyboard input from this Z88 screen window.
-	 * 
-	 * @return Keyboard Device
-	 */	
-	public KeyboardDevice getKeyboardDevice() {
-		return keyboard;
-	}
 	
 	
 	/**
