@@ -936,7 +936,7 @@ public final class Blink extends Z80 {
 			default :
 				if (OZvm.debugMode == true) {
 					Gui.displayRtmMessage("WARNING:\n" +
-									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+									   Z88Info.dzPcStatus(getInstrPC()) + "\n" +
 									   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
 				}
 				res = 0;
@@ -975,7 +975,7 @@ public final class Blink extends Z80 {
 			case 0xB3 : // EPR, Eprom programming (not yet implemented)
 //				if (OZvm.debugMode == true) {
 //					displayRtmMessage("WARNING:\n" +
-//									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+//									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()) + "\n" +
 //									   "Eprom programming emulation not yet implemented.", true);			
 //				}
 				break;
@@ -1017,8 +1017,8 @@ public final class Blink extends Z80 {
 			case 0xE4 : // TXC, Transmit Control (not yet implemented)
 				if (OZvm.debugMode == true) {	
 					Gui.displayRtmMessage("WARNING:\n" +
-									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-									   "UART Serial Port emulation not yet implemented.");
+										Z88Info.dzPcStatus(getInstrPC()) + "\n" +
+										"UART Serial Port emulation not yet implemented.");
 				}
 				break;
 			case 0xE5 : // UMK, UART int. mask (not yet implemented)
@@ -1028,8 +1028,8 @@ public final class Blink extends Z80 {
 			default:
 				if (OZvm.debugMode == true) {
 					Gui.displayRtmMessage("WARNING:\n" +
-									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-									   "Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
+										Z88Info.dzPcStatus(getInstrPC()) + "\n" +
+										"Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
 				}
 		}
 	}
@@ -1403,9 +1403,9 @@ public final class Blink extends Z80 {
 		if (z80Opcode != -1) {
 			// a breakpoint was defined for that address; 
 			// don't stop the processor if it's only a display breakpoint... 
-			memory.setByte(bpAddress, z80Opcode);								// patch the original opcode back into memory (temporarily)
-			Gui.displayRtmMessage((new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString()); // dissassemble original instruction, with Z80 main reg dump
-			memory.setByte(bpAddress, bpOpcode);								// re-patch the breakpoint opcode, for future encounter
+			memory.setByte(bpAddress, z80Opcode);						// patch the original opcode back into memory (temporarily)
+			Gui.displayRtmMessage(Z88Info.dzPcStatus(getInstrPC())); 	// dissassemble original instruction, with Z80 main reg dump
+			memory.setByte(bpAddress, bpOpcode);						// re-patch the breakpoint opcode, for future encounter
 			if (Breakpoints.getInstance().isActive(bpAddress) == true && Breakpoints.getInstance().isStoppable(bpAddress) == true) {
 				PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
 				Gui.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");

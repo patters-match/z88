@@ -4361,7 +4361,52 @@ public class Dz {
 		return pc;
 	}
 
+	/**
+	 * Based on the	current	instruction that will be executed next,
+	 * suggest a default step command; either a single step	or a subroutine	call.
+	 *
+	 * The purpose is to easy the amount of	typing on the command line while
+	 * stepping through the	current	subroutine level code.
+	 *
+	 * @return step	command	suggestion
+	 */
+	public static String getNextStepCommand() {
+		Blink z88 = Blink.getInstance();
+		
+		int instrOpcode	= z88.readByte(z88.PC());	// get current instruction opcode (to be executed)
 
+		switch(instrOpcode) {
+			case 0xDC: // CALL C,addr
+				if (z88.fC == true) return "z";	else return ".";
+			case 0xD4: // CALL NC,addr
+				if (z88.fC == false) return "z"; else return ".";
+			case 0xCC: // CALL Z,addr
+				if (z88.fZ == true) return "z";	else return ".";
+			case 0xC4: // CALL NZ,addr
+				if (z88.fZ == false) return "z"; else return ".";
+			case 0xF4: // CALL P,addr
+				if (z88.fS == false) return "z"; else return ".";
+			case 0xFC: // CALL M,addr
+				if (z88.fS == true) return "z";	else return ".";
+			case 0xEC: // CALL PE,addr
+				if (z88.fPV == true) return "z"; else return ".";
+			case 0xE4: // CALL PO,addr
+				if (z88.fPV == false) return "z"; else return ".";
+			case 0xCD: // CALL addr
+			case 0xC7: // RST 00
+			case 0xCF: // RST 08
+			case 0xD7: // RST 10
+			case 0xDF: // RST 18
+			case 0xE7: // RST 20
+			case 0xEF: // RST 28
+			case 0xF7: // RST 30
+			case 0xFF: // RST 38
+				return "z";	// suggest a subroutine	step
+			default:
+				return "."; // suggest a single	step
+		}
+	}
+	
 	/**
 	 * Decode Z80 instruction and return size of instruction opcode.
 	 * The instrOpcode contains a 4 byte sequense (MSB format) which contains
