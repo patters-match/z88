@@ -56,6 +56,14 @@ public class Z88 extends Z80 {
      * References bank 0x00 or 0x20. 
      */
 	private Bank RAMS;			
+
+	/**
+	 * Null bank. This is used in for unassigned banks,
+	 * ie. when a card slot is empty in the Z88
+	 * The contents of this bank contains 0xFF and is 
+	 * write-protected (just as an empty bank in an Eprom).
+	 */
+	private Bank nullBank;
 	
 	/**
 	 * Segment register array for SR0 - SR3
@@ -80,8 +88,12 @@ public class Z88 extends Z80 {
 		super( 3.2768 );
 
 		// Initialize Z88 memory model
-		z88Memory = new Bank[256];	// The Z88 memory addresses 256 banks = 4MB!
-		sR = new int[4];			// the segment register SR0 - SR3
+		sR = new int[4];					// the segment register SR0 - SR3
+		z88Memory = new Bank[256];			// The Z88 memory addresses 256 banks = 4MB!
+		nullBank = new Bank(Bank.EPROM);
+		
+		// Initialize Z88 Memory address space.
+		for (int i=0; i<z88Memory.length; i++) z88Memory[i] = nullBank;
 	}
 
 	
