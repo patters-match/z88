@@ -29,7 +29,6 @@ import java.util.Iterator;
  */
 public class Breakpoints {
     private Map breakPoints = null;
-    private Memory memory = null;
 	private Breakpoint bpSearchKey = null;
 
 	private static final class singletonContainer {
@@ -44,9 +43,7 @@ public class Breakpoints {
      * Just instantiate this Breakpoint Manager
      */
     public Breakpoints() {
-        breakPoints = new HashMap();
-        memory = Memory.getInstance();
-        
+        breakPoints = new HashMap();        
 		bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (to be used later) 
     }
 
@@ -56,7 +53,6 @@ public class Breakpoints {
      */
     Breakpoints(int offset, int bank) {
     	breakPoints = new HashMap();
-        memory = Memory.getInstance();
         toggleBreakpoint(offset, bank);
     }
 
@@ -206,9 +202,9 @@ public class Breakpoints {
                 int bank = bp.getBpAddress() >>> 16;
 
                 if (bp.stop == true) {
-					memory.setByte(offset, bank, 0x40);	// use "LD B,B" as stop breakpoint
+					Memory.getInstance().setByte(offset, bank, 0x40);	// use "LD B,B" as stop breakpoint
                 } else {
-					memory.setByte(offset, bank, 0x49);	// use "LD C,C" as display breakpoint
+                	Memory.getInstance().setByte(offset, bank, 0x49);	// use "LD C,C" as display breakpoint
                 }
             }
         }
@@ -233,7 +229,7 @@ public class Breakpoints {
                 int bank = bp.getBpAddress() >>> 16;
 
                 // restore the original opcode bit pattern...
-                memory.setByte(offset, bank, bp.getCopyOfOpcode() & 0xFF);
+                Memory.getInstance().setByte(offset, bank, bp.getCopyOfOpcode() & 0xFF);
             }
         }
     }
@@ -258,7 +254,7 @@ public class Breakpoints {
             addressKey = (bank << 16) | offset;
 
             // the original 1 byte opcode bit pattern in Z88 memory.
-            setCopyOfOpcode(memory.getByte(offset, bank));
+            setCopyOfOpcode(Memory.getInstance().getByte(offset, bank));
         }
 
 		/**
@@ -274,7 +270,7 @@ public class Breakpoints {
 			addressKey = bpAddress;
 
 			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(memory.getByte(bpAddress));
+			setCopyOfOpcode(Memory.getInstance().getByte(bpAddress));
 		}
 
 		Breakpoint(int offset, int bank, boolean stopAtAddress) {
@@ -285,7 +281,7 @@ public class Breakpoints {
 			addressKey = (bank << 16) | offset;
 
 			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(memory.getByte(offset, bank));
+			setCopyOfOpcode(Memory.getInstance().getByte(offset, bank));
 		}
 
         private void setBpAddress(int bpAddress) {
