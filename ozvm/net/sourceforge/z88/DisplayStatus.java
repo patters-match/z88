@@ -49,9 +49,9 @@ public class DisplayStatus {
 	}
 
 	/**
-	 * current main purpose Z80 Registers nd Flags as a one-liner  
+	 * current main purpose Z80 Registers and Flags as a one-liner string  
 	 */
-	public StringBuffer QuickZ80Registers() {
+	public StringBuffer quickZ80Dump() {
 		StringBuffer dzRegisters = new StringBuffer(1024);
 
 		dzRegisters.append(Dz.byteToHex(z88.A(),false)).append(" ");
