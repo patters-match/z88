@@ -50,19 +50,6 @@ DEFC FE_AM29F080B = $01D5   ; 1Mb memory (16 x 64K blocks / 64 x 16K banks)
 
 
 ; ==========================================================================================
-; ATMEL Flash Memory constants:
-
-DEFC FE_ATMEL_MFCD = $1F    ; ATMEL Manufacturer code
-
-; Unique Flash Memory ID, 29Fxxx series (combination of Manufacturer Code and Device Code):
-; These 3rd generation Flash chips only require 5V for programming and erasure (all z88 slots!)
-DEFC FE_AT29C010 = $1FD5    ; 128Kb memory (2 x 64K blocks / 8 x 16K banks)
-DEFC FE_AT29C020 = $1FDA    ; 256Kb memory (4 x 64K blocks / 16 x 16K banks)
-DEFC FE_AT29C040 = $1FA4    ; 512Kb memory (8 x 64K blocks / 32 x 16K banks)
-; ==========================================================================================
-
-
-; ==========================================================================================
 ; Flash Eprom Error Return codes
 
 DEFC RC_VPL = $70           ; Vpp Low Error
