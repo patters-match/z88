@@ -97,8 +97,8 @@ DEFC VppBit = 1
                     RET                      
 ._erase_28F_card                             ; The Intel 28Fxxxx chip can only erase individual sectors...
                     RRC  B                   ; so we need to erase the sectors, one at a time
-                    RRC  B                   ; total of banks on card -> total of sectors on card.
-                    DEC  B                   ; sectors, from 00 to (total sectors-1)
+                    RRC  B                   ; total of 16K banks on card -> total of 64K sectors on card.
+                    DEC  B                   ; sectors, from (total sectors-1) downwards and including 0
 .erase_28F_card_blocks
                     CALL FlashEprBlockErase  ; erase top sector of card, and downwards...
                     JR   C, exit_FlashEprCardErase
@@ -115,7 +115,8 @@ DEFC VppBit = 1
                     RRCA
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
                     LD   B,A                 ; bottom bank of slot C
-                    LD   C,MS_S1             ; that are specified to be erased
+                    LD   HL,0
+                    CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
                     CALL MemDefBank
                     PUSH BC                  ; preserve old bank binding
 
@@ -146,11 +147,11 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Erase an AMD 29Fxxxx Flash Memory Card, which is bound
-; into segment 1 ($4000 - $7FFF).
+; Erase an AMD 29Fxxxx Flash Memory Card, using segment x, which
+; HL points into.
 ;
 ; In:
-;    -
+;    HL = points into bound bank of Flash Memory 
 ; Out:
 ;    Success:
 ;        Fc = 0
@@ -164,8 +165,17 @@ DEFC VppBit = 1
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseCard_29F
-                    LD   HL, $4555
-                    LD   DE, $42AA
+                    LD   A,H
+                    AND  @11000000
+                    LD   H,A
+                    LD   D,A
+                    OR   $05
+                    LD   H,A
+                    LD   L,$55               ; HL = $x555
+                    LD   A,D
+                    OR   $02
+                    LD   D,A
+                    LD   E,$AA               ; DE = $x2AA
 
                     LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
                     EX   DE,HL

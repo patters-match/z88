@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId, MemDefBank, ExecRoutineOnStack
+     LIB FlashEprCardId, SafeBHLSegment, MemDefBank, ExecRoutineOnStack
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -119,8 +119,9 @@ DEFC VppBit = 1
                     LD   A,RC_BER            ; Fc = 1, sector not available (could not erase block/sector)
                     JR   exit_FlashEprBlockErase
 .sector_exists                                        
-                    LD   B,D                 ; bind sector to segment 1
-                    LD   C,MS_S1             ; that are specified to be erased
+                    LD   B,D                 ; bind sector to segment x
+                    LD   HL,0
+                    CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
                     CALL MemDefBank
                     PUSH BC                  ; preserve old bank binding
 
@@ -143,12 +144,15 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Erase block, identified by bank A, using segment 1.
+; Erase block, identified by bank A, using segment x, which
+; HL points into.
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
 ;    A = FE_28F or FE_29F (depending on Flash Memory type in slot)
 ;    E = slot number (1, 2 or 3) of Flash Memory Card
+;    HL = points into bound bank of Flash Memory 
+;
 ; Out:
 ;    Success:
 ;        Fc = 0
@@ -193,10 +197,10 @@ DEFC VppBit = 1
 ; ***************************************************************
 ;
 ; Erase block on an INTEL 28Fxxxx Flash Memory, which is bound
-; into segment 1 ($4000 - $7FFF).
+; into segment x that HL points into.
 ;
 ; In:
-;    -
+;    HL = points into bound Flash Memory sector
 ; Out:
 ;    Success:
 ;        Fc = 0
@@ -217,7 +221,6 @@ DEFC VppBit = 1
                     LD   (BC),A
                     OUT  (C),A               ; Enable Vpp in slot 3
 
-                    LD   HL,$4000            ; point into start of Flash Memory Sector
                     LD   (HL), FE_ERA
                     LD   (HL), FE_CON
 .erase_28f_busy_loop
@@ -257,10 +260,10 @@ DEFC VppBit = 1
 ; ***************************************************************
 ;
 ; Erase block on an AMD 29Fxxxx Flash Memory, which is bound
-; into segment 1 ($4000 - $7FFF).
+; into segment x that HL points into.
 ;
 ; In:
-;    -
+;    HL = points into bound Flash Memory sector
 ; Out:
 ;    Success:
 ;        Fc = 0
@@ -274,8 +277,17 @@ DEFC VppBit = 1
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock_29F
-                    LD   HL, $4555
-                    LD   DE, $42AA
+                    LD   A,H
+                    AND  @11000000
+                    LD   H,A
+                    LD   D,A
+                    OR   $05
+                    LD   H,A
+                    LD   L,$55               ; HL = $x555
+                    LD   A,D
+                    OR   $02
+                    LD   D,A
+                    LD   E,$AA               ; DE = $x2AA
 
                     LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
                     EX   DE,HL
@@ -287,7 +299,6 @@ DEFC VppBit = 1
                     EX   DE,HL
                     LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
                                         
-                    LD   HL,$4000            ; point into start of Flash Memory Sector
                     LD   (HL),$30            ; 30 -> (XXXXX), begin format of sector...
 .toggle_wait_loop
                     LD   A,(HL)              ; get first DQ6 programming status

@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank, ExecRoutineOnStack
+     LIB SafeBHLSegment, MemDefBank, ExecRoutineOnStack
      
      INCLUDE "interrpt.def"
      INCLUDE "flashepr.def"
@@ -38,7 +38,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 ; In:
 ;         C = slot number (1, 2 or 3)
-;
 ; Out:
 ;         Success:
 ;              Fc = 0
@@ -59,11 +58,12 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Jul-Aug 2004
+;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Jul-Sep 2004
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------
 ;
 .FlashEprCardId
+                    PUSH IY
                     PUSH DE
                     PUSH BC
 
@@ -75,7 +75,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     RRCA
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
                     LD   B,A
-                    LD   C, MS_S1           
+                    LD   HL,0
+                    CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
                     CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
                                              ; old bank binding in BC...                    
                     CALL CheckRam
@@ -94,6 +95,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
                     LD   C,E                 ; original C restored
                     POP  DE                  ; original DE restored
+                    POP  IY
                     RET                      ; Fc = 0, Fz = 1
 .no_flashcard
                     CALL MemDefBank          ; restore original bank in segment 1 (defined in BC)
@@ -105,6 +107,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
                     POP  BC
                     POP  DE
+                    POP  IY
                     RET
 
 
@@ -124,7 +127,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; executed on the card itself that are being polled.
 ;
 ; In:
-;    -
+;    HL = points into bound bank of potential Flash Memory 
 ; 
 ; Out:
 ;    Fc = 0 (FE was recognized in slot C)
@@ -133,8 +136,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    Fc = 1 (FE was NOT recognized in slot C)
 ;
 ; Registers changed on return:
-;    A.BCDE../IXIY af...... same
-;    .F....HL/.... ..bcdehl different
+;    A.BCDE../IX.. af...... same
+;    .F....HL/..IY ..bcdehl different
 ;
 .FetchCardID
                     PUSH BC
@@ -142,7 +145,9 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH DE
                     PUSH IX
                     
-                    LD   HL, $4000
+                    PUSH HL
+                    POP  IY                  ; preserve pointer to Flash Memory segment
+                    
                     LD   D,(HL)              
                     INC  HL                  ; get a copy into DE of the slot contents at the location 
                     LD   E,(HL)              ; where the ID is fetched (through the FE command interface)
@@ -158,11 +163,13 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     SBC  HL,DE               ; if the ID in HL is different from DE
                     POP  HL
                     JR   NZ, found_FetchCardID; then an ID was fetched from an INTEL FlashFile Memory...
-                    
+
                     LD   IX, Fetch_AM29F0xxx_ID 
                     EXX
                     LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID 
                     EXX
+                    PUSH IY
+                    POP  HL                  ; pointer to Flash Memory segment
                     CALL ExecRoutineOnStack
 
                     CP   A 
@@ -189,7 +196,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; (code will be executed on stack...)
 ;
 ; In:
-;    -
+;    HL points into bound bank of potential Flash Memory 
 ; 
 ; Out:
 ;    H = manufacturer code (at $00 0000 on chip)
@@ -201,7 +208,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 .Fetch_I28F0xxxx_ID
                     PUSH DE
-                    LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
                     LD   (HL), FE_IID        ; FlashFile Memory Card ID command
                     LD   D,(HL)              ; D = Manufacturer Code (at $00 0000)
                     INC  HL
@@ -219,7 +225,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; (code will be executed on stack...)
 ;
 ; In:
-;    -
+;    HL = points into bound bank of potential Flash Memory 
 ; 
 ; Out:
 ;    H = manufacturer code (at $00 0000 on chip)
@@ -234,16 +240,26 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH BC
                     PUSH DE
                     
-                    LD   HL, $4555
-                    LD   DE, $42AA
+                    PUSH HL
+                    LD   A,H
+                    AND  @11000000
+                    LD   H,A
+                    LD   D,A
+                    OR   $05
+                    LD   H,A
+                    LD   L,$55               ; HL = $x555
+                    LD   A,D
+                    OR   $02
+                    LD   D,A
+                    LD   E,$AA               ; DE = $x2AA
 
                     LD   (HL),$AA            ; AA -> (XX555), first unlock cycle
                     EX   DE,HL
                     LD   (HL),$55            ; 55 -> (XX2AA), second unlock cycle
                     EX   DE,HL
                     LD   (HL),$90            ; 90 -> (XX555), autoselect mode
+                    POP  HL
 
-                    LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
                     LD   D,(HL)              
                     INC  HL
                     LD   E,(HL)              
@@ -265,7 +281,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; verify that it was properly written)
 ;
 ; IN:
-;    -
+;    HL points into bound bank of potential Flash Memory 
 ;
 ; OUT:
 ;    Fc = 0, empty slot or EPROM/FLASH Card in slot C
@@ -277,10 +293,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 .CheckRam                
                     PUSH BC
-                    PUSH HL
                     PUSH AF
                     
-                    LD   HL,$4000
                     LD   B,(HL)              ; preserve the original byte (needs to be restored)
                     LD   A,1                 ; initial test bit pattern (bit 0 set)
 .test_ram_loop                    
@@ -291,16 +305,14 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     JR   NC, test_ram_loop
                                              
                     LD   (HL),B              ; restore original byte at RAM location
-                    POP  HL                  
-                    LD   A,H                 ; restore original A
-                    POP  HL
+                    POP  BC
+                    LD   A,B                 ; restore original A
                     POP  BC
                     RET                      ; this is a RAM card!  (Fc = 1)
 .not_written
                     CP   A                   ; Fc = 0, this is not a RAM card
-                    POP  HL
-                    LD   A,H                 ; restore original A
-                    POP  HL
+                    POP  BC
+                    LD   A,B                 ; restore original A
                     POP  BC
                     RET                                        
 

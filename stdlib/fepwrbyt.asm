@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB SafeBHLSegment, MemDefBank
      LIB EnableInt, DisableInt
      LIB FlashEprCardId, ExecRoutineOnStack
 
@@ -97,11 +97,9 @@ DEFC VppBit = 1
                     PUSH HL                  ; preserve original pointer
                     PUSH IX
 
-                    RES  7,H
-                    SET  6,H                 ; HL will be working in segment 1...
+                    CALL SafeBHLSegment      ; get a safe segment (not this executing segment!)
+                                             ; C = Safe MS_Sx segment, HL points into segment C                                             
                     LD   D,B                 ; copy of bank number
-                    
-                    LD   C,MS_S1
                     CALL MemDefBank          ; bind bank B into segment...
                     PUSH BC
                     CALL FEP_BlowByte        ; blow byte in A to (BHL) address
@@ -134,7 +132,8 @@ DEFC VppBit = 1
 ;    A.BCDEHL/IXIY same
 ;    .F....../.... different
 ;
-.FEP_Blowbyte       
+.FEP_Blowbyte
+                    PUSH IX
                     EX   AF,AF'              ; check for pre-defined Flash Memory programming...
                     CP   FE_28F
                     JR   Z, use_28F_programming
@@ -149,7 +148,7 @@ DEFC VppBit = 1
                     EX   DE,HL               ; preserve HL (pointer to write byte)
                     CALL FlashEprCardId
                     EX   DE,HL               
-                    RET  C                   ; Fc = 1, A = RC error code (Flash Memory not found)
+                    JR   C, exit_FEP_Blowbyte ; Fc = 1, A = RC error code (Flash Memory not found)
                     
                     CP   FE_28F              ; now, we've got the chip series
                     JR   NZ, use_29F_programming ; and this one may be programmed in any slot...
@@ -159,31 +158,31 @@ DEFC VppBit = 1
                     JR   Z,use_28F_programming ; to make a successful "write" of the byte...
                     SCF
                     LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
+.exit_FEP_Blowbyte
+                    POP  IX
                     RET                      
                                         
 .use_28F_programming
                     CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
-                    PUSH IX
                     EX   AF,AF'              ; byte to be blown...
                     LD   IX, FEP_ExecBlowbyte_28F
                     EXX
                     LD   BC, end_FEP_ExecBlowbyte_28F - FEP_ExecBlowbyte_28F
                     EXX
                     CALL ExecRoutineOnStack
-                    POP  IX
                     CALL EnableInt           ; enable maskable interrupts
+                    POP  IX
                     RET
 .use_29F_programming
                     CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
-                    PUSH IX
                     EX   AF,AF'              ; byte to be blown...
                     LD   IX, FEP_ExecBlowbyte_29F
                     EXX
                     LD   BC, end_FEP_ExecBlowbyte_29F - FEP_ExecBlowbyte_29F
                     EXX
                     CALL ExecRoutineOnStack
-                    POP  IX
                     CALL EnableInt           ; enable maskable interrupts
+                    POP  IX
                     RET
                                         
           
@@ -254,9 +253,19 @@ DEFC VppBit = 1
 ;        A = RC_BWR, byte not blown
 ;
 .FEP_ExecBlowbyte_29F
+                    PUSH AF
                     PUSH HL                  ; preserve byte program address
-                    LD   HL, $4555
-                    LD   DE, $42AA
+                    LD   A,H
+                    AND  @11000000
+                    LD   H,A
+                    LD   D,A
+                    OR   $05
+                    LD   H,A
+                    LD   L,$55               ; HL = $x555
+                    LD   A,D
+                    OR   $02
+                    LD   D,A
+                    LD   E,$AA               ; DE = $x2AA
 
                     LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
                     EX   DE,HL
@@ -264,6 +273,7 @@ DEFC VppBit = 1
                     EX   DE,HL
                     LD   (HL),$A0            ; A0 -> (XX555), Byte Program Mode
                     POP  HL
+                    POP  AF
                     LD   (HL),A              ; program byte to Flash Memory Address
                     LD   B,A                 ; preserve a copy of byte for later verification
 .toggle_wait_loop
