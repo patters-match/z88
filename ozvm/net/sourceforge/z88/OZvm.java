@@ -59,6 +59,56 @@ public class OZvm {
 	 */
 	Dz dz;
 
+	private StringBuffer z80Flags() {
+		StringBuffer dzFlags = new StringBuffer(8);
+		
+		dzFlags.append( z88.Sset() == true ? "S" : "0");
+		dzFlags.append( z88.Zset() == true ? "Z" : "0");
+		dzFlags.append( z88.f5set() == true ? "1" : "0");
+		dzFlags.append( z88.Hset() == true ? "H" : "0");
+		dzFlags.append( z88.f3set() == true ? "1" : "0");
+		dzFlags.append( z88.PVset() == true ? "P" : "V");
+		dzFlags.append( z88.Nset() == true ? "N" : "0");
+		dzFlags.append( z88.Cset() == true ? "C" : "0");
+		
+		return dzFlags;
+	}
+	
+	/**
+	 * Dump current Z80 Registers and instruction disassembly to stdout.  
+	 */
+	private void z80Status() {
+		StringBuffer dzBuffer = new StringBuffer(1024);
+		
+		dzBuffer.append(" ").append("BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
+		dzBuffer.append(" ").append("DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
+		dzBuffer.append(" ").append("HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
+		dzBuffer.append(" ").append("IX=").append(dz.addrToHex(z88.IX(),false)).append(" ");
+		dzBuffer.append(" ").append("IY=").append(dz.addrToHex(z88.IY(),false)).append(" ");
+		dzBuffer.append(" ").append("\n");
+		z88.exx();
+		dzBuffer.append("'BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
+		dzBuffer.append("'DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
+		dzBuffer.append("'HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
+		z88.exx();
+		dzBuffer.append(" ").append("SP=").append(dz.addrToHex(z88.SP(),false)).append(" ");
+		dzBuffer.append(" ").append("PC=").append(dz.addrToHex(z88.PC(),false)).append("\n");
+		dzBuffer.append(" ").append("AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
+		dzBuffer.append(" ").append("A=").append(dz.byteToHex(z88.A(),false)).append(" ");
+		dzBuffer.append(" ").append("F=").append(z80Flags()).append(" ");
+		dzBuffer.append(" ").append("I=").append(z88.I()).append("\n");
+		z88.ex_af_af();
+		dzBuffer.append("'AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
+		dzBuffer.append("'A=").append(dz.byteToHex(z88.A(),false)).append(" ");
+		dzBuffer.append("'F=").append(z80Flags()).append(" ");
+		dzBuffer.append(" ").append("R=").append(z88.R()).append("\n");
+		
+		System.out.println(dzBuffer);
+		
+		dz.getInstrAscii(dzBuffer, z88.PC(), true);
+		System.out.println(dzBuffer);
+	}
+	
 	private boolean loadRom(String[] args) {
 		try {
 			if (args.length == 0) {
@@ -85,7 +135,8 @@ public class OZvm {
 		
 		BufferedReader in =
 			new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Type 'h' or 'help' for command line options\n$");
+		System.out.println("Type 'h' or 'help' for command line options\n");
+		z80Status();
 		
 		StringBuffer dzLine = new StringBuffer(64);
 		StringBuffer prevCmdline = new StringBuffer();
