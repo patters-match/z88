@@ -384,10 +384,14 @@ ExprOffset16 (int listoffset)
                 {
                   constant = EvalPfixExpr (pfixexpr);
                   RemovePfixlist (pfixexpr);
-                  if (constant >= 0 && constant <= 16383)
-                    StoreWord((unsigned short) constant, codeptr);
-                  else
+                  if ( (constant < 0) || (constant > 65535) )
                     ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IntegerRange);
+                  else
+                    {
+                      StoreWord((unsigned short) constant, codeptr);
+                      if (constant >= 16384)
+                        ReportWarning (CURRENTFILE->fname, CURRENTFILE->line, Warn_OffsetBoundary);
+                    }
                 }
             }
         }
@@ -404,7 +408,7 @@ int
 ExprUnsigned8 (int listoffset)
 {
   expression_t *pfixexpr;
-  unsigned long constant;
+  long constant;
   int flag = 1;
 
   if ((pfixexpr = ParseNumExpr ()) != NULL)
@@ -428,10 +432,10 @@ ExprUnsigned8 (int listoffset)
                 {
                   constant = EvalPfixExpr (pfixexpr);
                   RemovePfixlist (pfixexpr);
-                  if (constant >= 0 && constant <= 255)
-                    *codeptr = (unsigned char) constant;
-                  else
+                  if ((constant < -128) || (constant > 255))
                     ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IntegerRange);
+                  else
+                    *codeptr = (unsigned char) constant;
                 }
             }
         }
@@ -540,11 +544,11 @@ CalcExpression (enum symbols opr, pfixstack_t **stackptr)
   switch (opr)
     {
       case bin_and:
-        PushItem ((leftoperand & rightoperand), stackptr);
+        PushItem (leftoperand & rightoperand, stackptr);
         break;
 
       case bin_or:
-        PushItem ((leftoperand | rightoperand), stackptr);
+        PushItem (leftoperand | rightoperand, stackptr);
         break;
 
       case bin_nor:
@@ -552,35 +556,35 @@ CalcExpression (enum symbols opr, pfixstack_t **stackptr)
         break;
 
       case bin_xor:
-        PushItem ((leftoperand ^ rightoperand), stackptr);
+        PushItem (leftoperand ^ rightoperand, stackptr);
         break;
 
       case plus:
-        PushItem ((leftoperand + rightoperand), stackptr);
+        PushItem (leftoperand + rightoperand, stackptr);
         break;
 
       case minus:
-        PushItem ((leftoperand - rightoperand), stackptr);
+        PushItem (leftoperand - rightoperand, stackptr);
         break;
 
       case multiply:
-        PushItem ((leftoperand * rightoperand), stackptr);
+        PushItem (leftoperand * rightoperand, stackptr);
         break;
 
       case divi:
-        PushItem ((leftoperand / rightoperand), stackptr);
+        PushItem (leftoperand / rightoperand, stackptr);
         break;
 
       case mod:
-        PushItem ((leftoperand % rightoperand), stackptr);
+        PushItem (leftoperand % rightoperand, stackptr);
         break;
 
       case lshift:
-        PushItem (( (unsigned long) leftoperand >> (rightoperand % 32)), stackptr);
+        PushItem (leftoperand << (rightoperand % 32), stackptr);
         break;
 
       case rshift:
-        PushItem ((leftoperand << (rightoperand % 32)), stackptr);
+        PushItem ((unsigned long) leftoperand >> (rightoperand % 32), stackptr);
         break;
 
       case power:
