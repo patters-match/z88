@@ -131,6 +131,7 @@ public class OZvm implements KeyListener {
 					if ( args[arg].compareTo("ram0") != 0 & args[arg].compareTo("ram1") != 0 &
 						 args[arg].compareTo("ram2") != 0 & args[arg].compareTo("ram3") != 0 &
 						 args[arg].compareTo("epr1") != 0 & args[arg].compareTo("epr2") != 0 & args[arg].compareTo("epr3") != 0 &						 
+						 args[arg].compareTo("crd1") != 0 & args[arg].compareTo("crd2") != 0 & args[arg].compareTo("crd3") != 0 &						 
 						 args[arg].compareTo("s1") != 0 & args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") != 0 &
 						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug") != 0 &
 						 args[arg].compareTo("initdebug") != 0) {
@@ -167,7 +168,7 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].startsWith("epr") == true)) {
 						int eprSlotNumber = args[arg].charAt(3) - 48;
 						eprSizeArg = Integer.parseInt(args[arg+1], 10);
-						if (memory.insertEprCard(eprSizeArg * 1024, eprSlotNumber, args[arg+2]) == true) {
+						if (memory.insertEprCard(eprSlotNumber, eprSizeArg, args[arg+2]) == true) {
 							String insertEprMsg = "Inserted " + eprSlotNumber + " set to " + eprSizeArg + "K.";
 							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K UV Eprom Card in slot " + eprSlotNumber; 
 							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
@@ -176,6 +177,20 @@ public class OZvm implements KeyListener {
 						} else
 							Gui.displayRtmMessage("Eprom Card size/type configuration is illegal.");
 						arg+=3;
+						continue;
+					}
+
+					if (arg<args.length && (args[arg].startsWith("crd") == true)) {
+						int eprSlotNumber = args[arg].charAt(3) - 48;
+						eprSizeArg = Integer.parseInt(args[arg+1], 10);
+						file = new RandomAccessFile(args[arg+3], "r");
+						memory.loadImageOnEprom(eprSlotNumber, eprSizeArg, args[arg+2], file);
+						String insertEprMsg = "";
+						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg = "Loaded file image '" + args[arg+3] + "' on " + eprSizeArg + "K UV Eprom Card in slot " + eprSlotNumber; 
+						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg = "Loaded file image '" + args[arg+3] + "' on " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
+						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg = "Loaded file image '" + args[arg+3] + "' on " + eprSizeArg + "K Amd Flash Card in slot " + eprSlotNumber;
+						Gui.displayRtmMessage(insertEprMsg);
+						arg+=4;
 						continue;
 					}
 					

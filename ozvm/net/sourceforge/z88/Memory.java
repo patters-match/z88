@@ -231,7 +231,7 @@ public final class Memory {
 	}
 	
 	/**
-	 * Insert Eprom Card into Z88 memory system, slots 0 - 3. 
+	 * Insert empty Eprom Card into Z88 memory system, slots 0 - 3. 
 	 * Eprom Card is loaded from bottom bank of slot and upwards.
 	 * 
 	 * Slot 0 (512Kb): banks 00 - 1F
@@ -242,18 +242,18 @@ public final class Memory {
 	 * Slot 0 is special; max 512K Memory in bottom 512K address space.
 	 * (bottom 512K address space in slot 0 is reserved for ROM/EPROM, banks 00-1F)
 	 * 
-	 * @param size
-	 * @param slot
+	 * @param slot number which Card will be inserted into
+	 * @param size of Eprom in K
 	 * @param eprType "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
-	public boolean insertEprCard(int size, int slot, String eprType) {
+	public boolean insertEprCard(int slot, int size, String eprType) {
 		int totalEprBanks, totalSlotBanks, curBank;
 		int eprSubType = 0;
 
 		slot %= 4; // allow only slots 0 - 3 range.
-		size -= (size % Bank.SIZE);
-		totalEprBanks = size / Bank.SIZE; // number of 16K banks in Eprom Card
+		size -= (size % (Bank.SIZE/1024));
+		totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Eprom Card
 		if (eprType.compareToIgnoreCase("27C") == 0) {
 			// Traditional UV Eproms (all size configurations allowed)
 			if (totalEprBanks <= 2) 
@@ -373,10 +373,18 @@ public final class Memory {
 
 	/**
 	 * Load Card Image (from opened file ressource) into Z88 memory system,
-	 * at defined slot.
+	 * at defined slot. The file size of the Card image will determine the
+	 * hardware Eprom Card emulation:
+	 * <pre>
+	 *   16/32K: UV Eprom (27C)
+	 *     128K: AM29F010B Flash Card (29F)
+	 *     256K: UV Eprom (27C)
+	 *     512K: I28F004S5 Flash Card
+	 *    1024K: AM29F080B Flash Card
+	 * </pre> 
 	 *
-	 * @param slot
-	 * @param card
+	 * @param slot where to insert card image
+	 * @param card contains the binary image
 	 * @throws IOException
 	 */
 	public void loadCardBinary(int slot, RandomAccessFile card) throws IOException {
@@ -401,16 +409,16 @@ public final class Memory {
 				cardBanks[curBank] = new EpromBank(EpromBank.VPP32KB);
 				break;
 			case 8:
-				cardBanks[curBank] = new EpromBank(AmdFlashBank.AM29F010B);
+				cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B);
 				break;
 			case 16:
 				cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
 				break;
 			case 32:
-				cardBanks[curBank] = new EpromBank(IntelFlashBank.I28F004S5);
+				cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F004S5);
 				break;
 			case 64:
-				cardBanks[curBank] = new EpromBank(AmdFlashBank.AM29F080B);
+				cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F080B);
 				break;
 			default:
 				// all other sizes will be interpreted as UV EPROM's 
@@ -443,6 +451,96 @@ public final class Memory {
 		insertCard(cardBanks, slot);
 	}
 
+	/**
+	 * Load Card Image (from opened file ressource) on specific Eprom Card Hardware.
+	 * The image will be loaded to the top of the card, eg. a 32K image will be loaded
+	 * into the top two banks of the Eprom card ($3E and $3F. The remaining banks of the 
+	 * Eprom card will be left untouched (initialized as being empty).
+	 * 
+	 * The File image must represent an Application Card or a File Eprom
+	 * ("OZ" or "oz" watermark in two bytes of the file). 
+	 *
+	 * @param slot to insert Eprom card with loaded binary image
+	 * @param size of Eprom Card in K  
+	 * @param type of Eprom: "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
+	 * @param fileImage the File image to be loaded (in 16K boundary size)
+	 * @throws IOException
+	 */
+	public void loadImageOnEprom(int slot, int size, String eprType, RandomAccessFile fileImage) throws IOException {
+		int totalEprBanks, totalSlotBanks, curBank;
+		int eprSubType = 0;
+
+		if (fileImage.length() > (1024 * size)) {
+			throw new IOException("Binary image larger than specified Eprom Card size!");
+		}
+		if (fileImage.length() % Bank.SIZE > 0) {
+			throw new IOException("Binary image must be in 16K sizes!");
+		}
+
+		slot %= 4; // allow only slots 0 - 3 range.
+		size -= (size % (Bank.SIZE/1024));
+		totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Eprom Card
+		if (eprType.compareToIgnoreCase("27C") == 0) {
+			// Traditional UV Eproms (all size configurations allowed)
+			if (totalEprBanks <= 2) 
+				eprSubType = EpromBank.VPP32KB;
+			else
+				eprSubType = EpromBank.VPP128KB;			
+		}
+		if (eprType.compareToIgnoreCase("28F") == 0) {
+			// Intel Flash Eprom Cards exists in 512K and 1MB configurations
+			switch(totalEprBanks) {
+				case 32: eprSubType = IntelFlashBank.I28F004S5; break;
+				case 64: eprSubType = IntelFlashBank.I28F008S5; break;
+				default:
+					throw new IOException("Illegal size for Intel Flash Card type!");
+			}
+		}
+		if (eprType.compareToIgnoreCase("29F") == 0) {
+			// Amd Flash Eprom Cards exists in 128K, 512K and 1MB configurations 
+			switch(totalEprBanks) {
+				case 8: eprSubType = AmdFlashBank.AM29F010B; break;
+				case 32: eprSubType = AmdFlashBank.AM29F040B; break;
+				case 64: eprSubType = AmdFlashBank.AM29F080B; break;
+				default:
+					throw new IOException("Illegal size for Amd Flash Card type!");
+			}
+		}
+		
+		// Create the Eprom card (of specified type)...
+		Bank banks[] = new Bank[totalEprBanks]; 
+		for (curBank = 0; curBank < totalEprBanks; curBank++) {
+			if (eprType.compareToIgnoreCase("27C") == 0) banks[curBank] = new EpromBank(eprSubType); 
+			if (eprType.compareToIgnoreCase("28F") == 0) banks[curBank] = new IntelFlashBank(eprSubType);
+			if (eprType.compareToIgnoreCase("29F") == 0) banks[curBank] = new AmdFlashBank(eprSubType);
+		}
+		
+		// allocate intermediate load buffer
+		byte bankBuffer[] = new byte[Bank.SIZE];
+		for (curBank = totalEprBanks - ((int) fileImage.length()/Bank.SIZE); curBank < totalEprBanks; curBank++) {
+			fileImage.readFully(bankBuffer); // load 16K from file, sequentially
+			banks[curBank].loadBytes(bankBuffer, 0); // and load fully into bank
+		}
+
+		// Check for Z88 Application Card Watermark
+		if (banks[banks.length-1].getByte(0x3FFE) == 'O' &
+			banks[banks.length-1].getByte(0x3FFF) == 'Z') {
+			Gui.displayRtmMessage("Application Card was inserted into slot " + slot);
+		} else {
+			// Check for Z88 File Card Watermark
+			if (banks[banks.length-1].getByte(0x3FFE) == 'o' &
+				banks[banks.length-1].getByte(0x3FFF) == 'z') {
+				Gui.displayRtmMessage("File Card was inserted into slot " + slot);
+			} else {
+				throw new IOException("This is not a Z88 Application Card nor a File Card.");
+			}
+		}
+
+		// complete Card image now loaded into container
+		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
+		insertCard(banks, slot);
+	}
+	
 
 	/**
 	 * Load file image (from opened file ressource) into Z88 Bank offset.
