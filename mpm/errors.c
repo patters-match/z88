@@ -43,7 +43,7 @@ extern FILE *errfile;
 
 
 /* global variables */
-int ASSEMBLE_ERROR, ERRORS, TOTALERRORS;
+int ASSEMBLE_ERROR, ERRORS, TOTALERRORS, WARNINGS, TOTALWARNINGS;
 
 
 /* local variables */
@@ -81,9 +81,53 @@ static char *errmsg[] = {
  "Mpm library file not recognized",                              /* 30 */
  "Environment variable not defined",                             /* 31 */
  "Cannot include file recursively",                              /* 32 */
+ "warnings occurred during assembly",                            /* 33 */
+ "Warning: offset reaches beyond 16K boundary"                   /* 34 */
 
 };
 
+
+void
+ReportWarning (char *filename, short lineno, int warnno)
+{
+  char wrnstr[256], wrnflnmstr[128], wrnmodstr[128], wrnlinestr[64];
+
+  wrnflnmstr[0] = '\0';
+  wrnmodstr[0] = '\0';
+  wrnlinestr[0] = '\0';
+  wrnstr[0] = '\0';
+
+  if (filename != NULL)
+    sprintf (wrnflnmstr,"File '%s', ", filename);
+
+  if (CURRENTMODULE != NULL)
+    if ( CURRENTMODULE->mname != NULL )
+      sprintf(wrnmodstr,"Module '%s', ", CURRENTMODULE->mname);
+
+  if (lineno != 0)
+    sprintf (wrnlinestr, "at line %d, ", lineno);
+
+  strcpy(wrnstr, wrnflnmstr);
+  strcat(wrnstr, wrnmodstr);
+  strcat(wrnstr, wrnlinestr);
+  strcat(wrnstr, errmsg[warnno]);
+
+  switch(warnno)
+    {
+      case Warn_Status:
+        fprintf (stderr, "%d %s\n", TOTALWARNINGS, errmsg[warnno]);
+        break;
+
+      default:
+        if (errfile == NULL)
+          fprintf (stderr, "%s\n", wrnstr);
+        else
+          fprintf (errfile, "%s\n", wrnstr);
+     }
+
+  ++WARNINGS;
+  ++TOTALWARNINGS;
+}
 
 
 void
