@@ -692,11 +692,10 @@ public final class Blink extends Z80 {
 	 * 
 	 * @param offset
 	 * @param bank
-	 * @param bits
 	 * @return int
 	 */
-	public int getByte(final int offset, final int bankno, final int bits) {
-		return memory[bankno].bank[0x3FFF & offset];
+	public int getByte(final int offset, final int bankno) {
+		return memory[bankno].bank[offset & 0x3FFF];
 	}
 
 	/**
