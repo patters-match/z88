@@ -63,7 +63,6 @@ Module FileAreaFormat
 ;         Fc = 1, Format process failed.
 ;
 .FormatCommand
-                    call cls
                     call PollFileFormatSlots      ; investigate slots 1-3 for Flash Cards that can be formatted
                     or   a
                     jr   z, no_format_available   ; no available Flash Cards available that may be formatted...
@@ -74,7 +73,8 @@ Module FileAreaFormat
                     call SaveNullFile             ; save the hidden "null" file to avoid Intel FE bootstrapping
                     ret
 .no_format_available
-                    LD   HL, noformat_msg
+                    CALL DispCtlgWindow           ; make sure that main catalogue window is available when displaying error
+                    LD   HL, noformat_msg         ; message on FlashStore popdown startup.
                     CALL DispErrMsg
                     scf
                     ret
@@ -100,7 +100,6 @@ Module FileAreaFormat
                     call ungreyscr
                     CALL FileEpromStatistics
                     CALL DispCtlgWindow
-                    call cls
                     ld   hl,ffm1_bnr
                     call wbar                     ; "Format Flash eprom" head line
 
