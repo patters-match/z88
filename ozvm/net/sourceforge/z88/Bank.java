@@ -13,26 +13,31 @@ import java.io.*;
  * $Id$
  */
 public class Bank {
-	public static final int RAM = 0;	// 32Kb, 128Kb, 512Kb, 1Mb
-	public static final int EPROM = 1;	// 32Kb, 128Kb & 256Kb
-	public static final int FLASH = 2;	// 1Mb Flash
+	public static final int RAM = 0;		// 32Kb, 128Kb, 512Kb, 1Mb
+	public static final int EPROM = 1;		// 32Kb, 128Kb & 256Kb
+	public static final int FLASH = 2;		// 1Mb Flash
+	public static final int SIZE = 16384;	// Always 16384 bytes in a bank
 		
 	private int type;
 	private int memory[];
 	
 	Bank() {
-		type = 0;	// RAM
-		memory = new int[16384];	// all default memory cells are 0.
+		type = Bank.RAM;
+		memory = new int[Bank.SIZE];	// all default memory cells are 0.
 	}
 	
 	Bank(int banktype) {
 		type = banktype;
-		memory = new int[16384];
+		memory = new int[Bank.SIZE];
 		
 		if (type != Bank.RAM) {
 			for (int i=0; i<memory.length; i++)
-				memory[i] = 0xFF;	// empty Eprom or Flash contain's FF's
+				memory[i] = 0xFF;	// empty Eprom or Flash stores FF's
 		}
+	}
+	
+	public int getType() {
+		return type;
 	}
 	
 	public int readByte(int offset) {
@@ -44,6 +49,17 @@ public class Bank {
 			memory[0x3FFF & offset] = 0xFF & b;
 	}
 	
-	public void loadBytes(InputStream is, int offset, int length ) throws Exception {
+	/**
+	 * Load bytes from buffer array of block.length
+	 * to bank offset, onwards.
+	 * Naturally, loading is only allowed inside 16Kb boundary.
+	 */
+	public void loadBytes(byte[] block, int offset) {
+		offset %= Bank.SIZE;	// stay within boundary..
+		int length = (offset+block.length) > Bank.SIZE ? Bank.SIZE-offset : block.length;
+
+		int bufidx=0;
+		while(length-- > 0)
+			memory[offset++] = block[bufidx++] & 0xFF;
 	}
 }
