@@ -976,9 +976,11 @@ public final class Blink extends Z80 {
 				break;
 
 			default :
-				displayRtmMessage("WARNING:\n" +
-								   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-								   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);
+				if (OZvm.debugMode == true) {
+					displayRtmMessage("WARNING:\n" +
+									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+									   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);
+				}
 				res = 0;
 		}
 
@@ -1013,10 +1015,11 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0xB3 : // EPR, Eprom programming (not yet implemented)
-				displayRtmMessage("WARNING:\n" +
-								   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-								   "Eprom programming emulation not yet implemented.", true);			
-			
+				if (OZvm.debugMode == true) {
+					displayRtmMessage("WARNING:\n" +
+									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+									   "Eprom programming emulation not yet implemented.", true);			
+				}
 				break;
 
 			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
@@ -1054,18 +1057,22 @@ public final class Blink extends Z80 {
 			case 0xE2 : // RXC, Receiver Control (not yet implemented)
 			case 0xE3 : // TXD, Transmit Data (not yet implemented)
 			case 0xE4 : // TXC, Transmit Control (not yet implemented)
-				displayRtmMessage("WARNING:\n" +
-								   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-								   "UART Serial Port emulation not yet implemented.", true);						
+				if (OZvm.debugMode == true) {	
+					displayRtmMessage("WARNING:\n" +
+									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+									   "UART Serial Port emulation not yet implemented.", true);
+				}
 				break;
 			case 0xE5 : // UMK, UART int. mask (not yet implemented)
 			case 0xE6 : // UAK, UART acknowledge int. mask (not yet implemented)
 				break;
 			
 			default:
-				displayRtmMessage("WARNING:\n" +
-								   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
-								   "Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);			
+				if (OZvm.debugMode == true) {
+					displayRtmMessage("WARNING:\n" +
+									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()).toString() + "\n" +
+									   "Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.", true);
+				}
 		}
 	}
 
