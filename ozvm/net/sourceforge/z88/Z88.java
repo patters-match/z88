@@ -86,7 +86,7 @@ public class Z88 extends Z80 {
 	
 	/**
 	 * Constructor.
-	 * Initialize Z88 Hardware .
+	 * Initialize Z88 Hardware.
 	 */
 	public Z88() throws Exception {
 		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster...)
@@ -101,8 +101,65 @@ public class Z88 extends Z80 {
 		
 		// Initialize Z88 Memory address space.
 		for (int i=0; i<z88Memory.length; i++) z88Memory[i] = nullBank;
+		insertRamCard(128*1024, 0);	// 128K RAM in slot 0
 	}
 
+
+	/**
+	 * Insert RAM Card into Z88 memory system.
+	 * Size must be in modulus 32Kb (even numbered 16Kb banks).
+	 * RAM may be inserted into slots 0 - 3.
+	 * RAM is loaded from bottom bank of slot and upwards.
+	 * Slot 0 (512Kb): banks 20 - 3F
+	 * Slot 1 (1Mb):   banks 40 - 7F
+	 * Slot 2 (1Mb):   banks 80 - BF
+	 * Slot 3 (1Mb):   banks C0 - FF
+	 * 
+	 * Slot 0 is special; max 512K RAM in top 512K address space.
+	 * (bottom 512K address space in slot 0 is reserved for ROM, banks 00-1F)
+	 */
+	public void insertRamCard(int size, int slot) {
+		int totalRamBanks, totalSlotBanks, curBank, slotBank;
+		
+		slot %= 3;						// allow only slots 0 - 3 range.
+		size %= 32768;					// allow only modulus 32Kb RAM.
+		totalRamBanks = size / 16384;	// number of 16K banks in Ram Card
+		
+		if (slot == 0) {
+			slotBank = 0x20;
+			totalSlotBanks = 32;	// slot 0 has 32 * 16Kb = 512K address space for RAM
+		} else {
+			slotBank = slot << 6;	// convert slot number to bottom bank of slot
+			totalSlotBanks = 64;	// slots 1 - 3 have 64 * 16Kb = 1Mb address space for RAM
+		}
+				
+		Bank ramBanks[] = new Bank[totalRamBanks];	// the RAM card (transferred into memory)
+		for (curBank=0; curBank<totalRamBanks; curBank++) {
+			ramBanks[curBank] = new Bank(Bank.RAM);
+			z88Memory[slotBank++] = ramBanks[curBank];	// "insert" 16Kb bank into Z88 memory	
+			--totalSlotBanks;
+		}
+		
+		// - the bottom of the slot has been loaded with the RAM Card.
+		// Now, we need to fill the 1MB address space in the slot with the card.
+		// Note, that most cards and the internal memory do not exploit 
+		// the full lMB addressing range, but only decode the lower address lines. 
+		// This means that memory will appear more than once within the lMB range. 
+		// The memory of a 32K card in slot 1 would appear at banks $40 and $41, 
+		// $42 and $43, ..., $7E and $7F. Alternatively a 128K EPROM in slot 3 would 
+		// appear at $C0 to $C7, $C8 to $CF, ..., $F8 to $FF. 
+		// This way of addressing is assumed by the system.
+		// Note that the lowest and highest bank in an EPROM can always be addressed 
+		// by looking at the bank at the bottom of the 1MB address range and the bank 
+		// at the top respectively. 
+		while (totalSlotBanks > 0) {
+			for (curBank=0; curBank<totalRamBanks; curBank++) {
+				z88Memory[slotBank++] = ramBanks[curBank];	// "shadow" banks into remaining slot
+				--totalSlotBanks;
+			}
+		}
+	}
+	
 	
 	/** 
 	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word 
