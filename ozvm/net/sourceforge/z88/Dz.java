@@ -4217,7 +4217,7 @@ public class Dz {
 
 				case -1 : /* relative jump addressing (+/- 128 byte range) */
 					byte reljmp = (byte) opcode[instrOpcodeOffset];
-					int reladdr = (origPc + 1 + reljmp) & 0xFFFF;
+					int reladdr = (origPc + 2 + reljmp) & 0xFFFF;
 					mnemonic.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr, true));
 
 					instrOpcodeOffset++; /* move past opcode */
