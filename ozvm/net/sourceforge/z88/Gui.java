@@ -26,12 +26,20 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
+
 /**
  * Gui framework for OZvm.
  */
 public class Gui extends JFrame {
 
-	private Z88display z88Screen = null;  
+	private static final class singletonContainer {
+		static final Gui singleton = new Gui();  
+	}
+	
+	public static Gui getInstance() {
+		return singletonContainer.singleton;
+	}
+	
 	private javax.swing.JMenuBar jJMenuBar = null;
 	private javax.swing.JMenu jFileMenu = null;  
 	private javax.swing.JMenu jHelpMenu = null;
@@ -63,10 +71,10 @@ public class Gui extends JFrame {
 		  System.out.println("Error setting native LAF: " + e);
 		}
 		Container content = getContentPane();
-
+		
 		// this.setJMenuBar(getOZvmMenuBar());
 		this.setSize(640, 480);
-		content.add(z88Screen(), BorderLayout.NORTH);
+		content.add(Z88display.getInstance(), BorderLayout.NORTH);
 		
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.pack();
@@ -81,18 +89,6 @@ public class Gui extends JFrame {
 		});
 	}
 	
-	/**
-	 * This method initializes jContentPane
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	public Z88display z88Screen() {
-		if (z88Screen == null) {
-			z88Screen = new Z88display();
-		}
-		return z88Screen;
-	}
-
 	/**
 	 * This method initializes the Menu bar for OZvm
 	 *
@@ -260,10 +256,9 @@ public class Gui extends JFrame {
 	}
 
 	public static void main(String[] args) {
+		Gui gg = Gui.getInstance();
 
-		Gui gg = new Gui();
-
-		OZvm ozvm = new OZvm(gg);
+		OZvm ozvm = new OZvm();
 		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
@@ -273,7 +268,7 @@ public class Gui extends JFrame {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
 			gg.show();
 			ozvm.bootZ88Rom();
-			gg.z88Screen().grabFocus();	// make sure that keyboard focus is available for Z88 
+			Z88display.getInstance().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
 			gg.getRtmOutputArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 			gg.getContentPane().add(gg.getCommandArea(), BorderLayout.SOUTH);
