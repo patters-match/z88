@@ -320,7 +320,7 @@ public class OZvm {
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
 		if (cmdLineTokens.length == 2) {
 			int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
-			int bpBank = z88.getSegmentBank( (bpAddress >>> 16) & 0xFF);
+			int bpBank = (bpAddress >>> 16) & 0xFF;
 			bpAddress &= 0xFFFF; 
 			
 			breakp.toggleBreakpoint(bpAddress, bpBank);
@@ -341,7 +341,7 @@ public class OZvm {
 			// one arguments; the local Z80 64K address or a compact 24bit extended address
 			dzAddr = Integer.parseInt(cmdLineTokens[1], 16);
 			if (dzAddr > 65535) {
-				dzBank = z88.getSegmentBank( (dzAddr >>> 16) & 0xFF);
+				dzBank = (dzAddr >>> 16) & 0xFF;
 				dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 			} else {
 				if (cmdLineTokens[1].length() == 6) {
@@ -437,8 +437,9 @@ public class OZvm {
 		if (cmdLineTokens.length == 2) {
 			// one argument; the local Z80 64K address or 24bit compact ext. address
 			memAddr = Integer.parseInt(cmdLineTokens[1], 16);
+						
 			if (memAddr > 65535) {
-				memBank = z88.getSegmentBank( (memAddr >>> 16) & 0xFF);
+				memBank = (memAddr >>> 16) & 0xFF;
 				memAddr &= 0x3FFF; 
 			} else {
 				if (cmdLineTokens[1].length() == 6) {
