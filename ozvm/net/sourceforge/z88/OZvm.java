@@ -28,8 +28,8 @@ public class OZvm {
 		try {
 			z88 = new Blink();
 
-			// Insert 128K RAM in slot 0 (top 512K address space)
-			z88.insertRamCard(128 * 1024, 0);			
+			z88.insertRamCard(32 * 1024, 0);	// 32K RAM in slot (standard machine)	
+			z88.insertRamCard(128 * 1024, 1);	// Insert 128K RAM in slot 1			
 			z88.hardReset();
 
 			z80Speed = new MonitorZ80();
