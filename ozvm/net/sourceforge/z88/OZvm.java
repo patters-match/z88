@@ -44,7 +44,9 @@ public class OZvm {
 	public static OZvm getInstance() {
 		return singletonContainer.singleton;
 	}
-	
+
+	public static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
+
 	public static final String VERSION = "0.5.dev.3";
 	public static boolean debugMode = false;
 
@@ -68,192 +70,221 @@ public class OZvm {
 	public boolean boot(String[] args) {
 		RandomAccessFile file;
 		boolean	loadedRom = false;
+		boolean	loadedSnapshot = false;
 		boolean	ramSlot0 = false;
 		int ramSizeArg = 0, eprSizeArg = 0;
 
 		try {
-			if (args.length	>= 1) {
-				int arg	= 0;
-				while (arg<args.length)	{
-					if ( args[arg].compareTo("ram0") != 0 &	args[arg].compareTo("ram1") != 0 &
-						 args[arg].compareTo("ram2") !=	0 & args[arg].compareTo("ram3")	!= 0 &
-						 args[arg].compareTo("epr1") !=	0 & args[arg].compareTo("epr2")	!= 0 & args[arg].compareTo("epr3") != 0	&
-						 args[arg].compareTo("fcd1") !=	0 & args[arg].compareTo("fcd2")	!= 0 & args[arg].compareTo("fcd3") != 0	&
-						 args[arg].compareTo("crd1") !=	0 & args[arg].compareTo("crd2")	!= 0 & args[arg].compareTo("crd3") != 0	&
-						 args[arg].compareTo("s1") != 0	& args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") !=	0 &
-						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug")	!= 0 &
-						 args[arg].compareTo("initdebug") != 0)	{
-						Gui.displayRtmMessage("Loading '" + args[0] + "' into ROM space	in slot	0.");
-						memory.loadRomBinary(new File(args[0]));
-						Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
-						loadedRom = true;
-						arg++;
+			int arg	= 0;
+			while (arg<args.length)	{
+				if ( args[arg].compareTo("rom") != 0 &
+					 args[arg].compareTo("ram0") != 0 &	args[arg].compareTo("ram1") != 0 & 
+					 args[arg].compareTo("ram2") !=	0 & args[arg].compareTo("ram3")	!= 0 &
+					 args[arg].compareTo("epr1") !=	0 & args[arg].compareTo("epr2")	!= 0 & args[arg].compareTo("epr3") != 0	&
+					 args[arg].compareTo("fcd1") !=	0 & args[arg].compareTo("fcd2")	!= 0 & args[arg].compareTo("fcd3") != 0	&
+					 args[arg].compareTo("crd1") !=	0 & args[arg].compareTo("crd2")	!= 0 & args[arg].compareTo("crd3") != 0	&
+					 args[arg].compareTo("s1") != 0	& args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") !=	0 &
+					 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug")	!= 0 &
+					 args[arg].compareTo("initdebug") != 0)	{
+
+					// try to install specified snapshot file
+					SaveRestoreVM srVm = new SaveRestoreVM();
+					String vmFileName = args[arg];
+					if (vmFileName.toLowerCase().lastIndexOf(".z88") == -1)
+						vmFileName += ".z88"; // '.z88' extension was missing.
+					
+					if (srVm.loadSnapShot(vmFileName) == true) {
+						Gui.displayRtmMessage("Snapshot successfully installed from " + vmFileName);
+						loadedSnapshot = true;
+					} else {
+				    	// loading of snapshot failed (file not found, corrupt or not a snapshot file
+						// define a default Z88 system as fall back plan.
+				    	memory.setDefaultSystem();
+				    	z88.reset();				
+				    	z88.resetBlinkRegisters();
 					}
-
-					if (arg<args.length && (args[arg].startsWith("ram") == true)) {
-						int ramSlotNumber = args[arg].charAt(3)	- 48;
-						ramSizeArg = Integer.parseInt(args[arg+1], 10);
-						if (ramSlotNumber == 0)	{
-							if ((ramSizeArg	<32) | (ramSizeArg>512)) {
-								Gui.displayRtmMessage("Only 32K-512K RAM Card size allowed in slot " + ramSlotNumber);
-								return false;
-							}
-						} else {
-							if ((ramSizeArg<32) | (ramSizeArg>1024)) {
-								Gui.displayRtmMessage("Only 32K-1024K RAM Card size allowed in slot " +	ramSlotNumber);
-								return false;
-							}
-						}
-						memory.insertRamCard(ramSizeArg	* 1024,	ramSlotNumber);	// RAM Card specified for slot x...
-						if (ramSlotNumber == 0)	ramSlot0 = true;
-						Gui.displayRtmMessage("Inserted	" + ramSizeArg + "K RAM	Card in	slot " + ramSlotNumber);
-
-						arg+=2;
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].startsWith("epr") == true)) {
-						int eprSlotNumber = args[arg].charAt(3)	- 48;
-						eprSizeArg = Integer.parseInt(args[arg+1], 10);
-						if (memory.insertEprCard(eprSlotNumber,	eprSizeArg, args[arg+2]) == true) {
-							String insertEprMsg = "Inserted	" + eprSlotNumber + " set to " + eprSizeArg + "K.";
-							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV Eprom Card in slot " +	eprSlotNumber;
-							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
-							if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
-							Gui.displayRtmMessage(insertEprMsg);
-						} else
-							Gui.displayRtmMessage("Eprom Card size/type configuration is illegal.");
-						arg+=3;
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].startsWith("fcd") == true)) {
-						int eprSlotNumber = args[arg].charAt(3)	- 48;
-						eprSizeArg = Integer.parseInt(args[arg+1], 10);
-						if (memory.insertFileEprCard(eprSlotNumber, eprSizeArg,	args[arg+2]) ==	true) {
-							String insertEprMsg = "Inserted	" + eprSlotNumber + " set to " + eprSizeArg + "K.";
-							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV File Eprom Card in slot " + eprSlotNumber;
-							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel File Flash Card in slot " +	eprSlotNumber;
-							if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd File Flash Card in slot " + eprSlotNumber;
-							Gui.displayRtmMessage(insertEprMsg);
-						} else
-							Gui.displayRtmMessage("Eprom File Card size/type configuration is illegal.");						
-						arg+=3;
-						
-						if (arg < args.length) {
-							FileArea fa = new FileArea(eprSlotNumber);
-							// optional: import files from host system into file area.
-							while(args[arg].compareToIgnoreCase("-d") == 0 | args[arg].compareToIgnoreCase("-f") == 0) {
-								if (args[arg].compareToIgnoreCase("-f") == 0) fa.importHostFile(new File(args[arg+1]));
-								if (args[arg].compareToIgnoreCase("-d") == 0) fa.importHostFiles(new File(args[arg+1]));
-								arg+=2;
-								if (arg >= args.length) break;
-							}
-						}
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].startsWith("crd") == true)) {
-						int eprSlotNumber = args[arg].charAt(3)	- 48;
-						eprSizeArg = Integer.parseInt(args[arg+1], 10);
-						if (args[arg+3].compareToIgnoreCase("-b") == 0) {
-							memory.loadBankFilesOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], args[arg+4]);
-							arg+=5;
-						} else {
-							file = new RandomAccessFile(args[arg+3], "r");
-							memory.loadImageOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
-							String insertEprMsg = "";
-							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
-							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
-							if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
-							Gui.displayRtmMessage(insertEprMsg);
-							arg+=4;
-						}
-						continue;
-					}
-
-					if (arg<args.length && ( args[arg].compareTo("s1") == 0	| args[arg].compareTo("s2") == 0 | args[arg].compareTo("s3") ==	0)) {
-						int slotNumber = Integer.parseInt(args[arg].substring(1));
-						String crdType = "27C";
-						if (args[arg+1].compareToIgnoreCase("-t") == 0)	{
-							// Optional type argument
-							crdType	= args[arg+2];
-							arg += 3;
-						} else {
-							arg++;
-						}
-						file = new RandomAccessFile(args[arg], "r");
-						Gui.displayRtmMessage("Loading '" + args[arg] +	"' into	slot " + slotNumber + ".");
-						memory.loadEprCardBinary(slotNumber, crdType, file);
-						file.close();
-						arg++;
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].compareTo("debug") ==	0)) {
-						commandLine(true);
-						arg++;
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].compareTo("initdebug") == 0))	{
-						commandLine(true);
-
-						file = new RandomAccessFile(args[arg+1], "r");
-						cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
-						String cmd = null;
-						while (	(cmd = file.readLine())	!= null) {
-							cmdLine.parseCommandLine(cmd);
-							Thread.yield();
-						}
-						cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
-						file.close();
-						Gui.displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
-
-						arg+=2;
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].compareTo("kbl") == 0)) {
-						if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en")	== 0) {
-							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
-							Gui.displayRtmMessage("Using English (UK) keyboard layout.");
-						}
-						if (args[arg+1].compareTo("fr")	== 0) {
-							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
-							Gui.displayRtmMessage("Using French keyboard layout.");
-						}
-						if (args[arg+1].compareTo("dk")	== 0) {
-							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
-							Gui.displayRtmMessage("Using Danish keyboard layout.");
-						}
-						if (args[arg+1].compareTo("se")	== 0) {
-							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
-							Gui.displayRtmMessage("Using Swedish keyboard layout.");
-						}
-						if (args[arg+1].compareTo("fi")	== 0) {
-							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
-							Gui.displayRtmMessage("Using Finish keyboard layout.");
-						}
-						arg+=2;
-						continue;
-					}
+					arg++;
 				}
-			}
 
-			if (loadedRom == false)	{
+				if (arg<args.length && (args[arg].compareTo("rom") == 0)) {
+					Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into ROM space	in slot	0.");
+					memory.loadRomBinary(new File(args[arg+1]));
+					Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
+					loadedRom = true;
+					arg+=2;						
+				}
+				
+				if (arg<args.length && (args[arg].startsWith("ram") == true)) {
+					int ramSlotNumber = args[arg].charAt(3)	- 48;
+					ramSizeArg = Integer.parseInt(args[arg+1], 10);
+					if (ramSlotNumber == 0)	{
+						if ((ramSizeArg	<32) | (ramSizeArg>512)) {
+							Gui.displayRtmMessage("Only 32K-512K RAM Card size allowed in slot " + ramSlotNumber);
+							return false;
+						}
+					} else {
+						if ((ramSizeArg<32) | (ramSizeArg>1024)) {
+							Gui.displayRtmMessage("Only 32K-1024K RAM Card size allowed in slot " +	ramSlotNumber);
+							return false;
+						}
+					}
+					memory.insertRamCard(ramSizeArg	* 1024,	ramSlotNumber);	// RAM Card specified for slot x...
+					if (ramSlotNumber == 0)	ramSlot0 = true;
+					Gui.displayRtmMessage("Inserted	" + ramSizeArg + "K RAM	Card in	slot " + ramSlotNumber);
+
+					arg+=2;
+					continue;
+				}
+
+				if (arg<args.length && (args[arg].startsWith("epr") == true)) {
+					int eprSlotNumber = args[arg].charAt(3)	- 48;
+					eprSizeArg = Integer.parseInt(args[arg+1], 10);
+					if (memory.insertEprCard(eprSlotNumber,	eprSizeArg, args[arg+2]) == true) {
+						String insertEprMsg = "Inserted	" + eprSlotNumber + " set to " + eprSizeArg + "K.";
+						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV Eprom Card in slot " +	eprSlotNumber;
+						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
+						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
+						Gui.displayRtmMessage(insertEprMsg);
+					} else
+						Gui.displayRtmMessage("Eprom Card size/type configuration is illegal.");
+					arg+=3;
+					continue;
+				}
+
+				if (arg<args.length && (args[arg].startsWith("fcd") == true)) {
+					int eprSlotNumber = args[arg].charAt(3)	- 48;
+					eprSizeArg = Integer.parseInt(args[arg+1], 10);
+					if (memory.insertFileEprCard(eprSlotNumber, eprSizeArg,	args[arg+2]) ==	true) {
+						String insertEprMsg = "Inserted	" + eprSlotNumber + " set to " + eprSizeArg + "K.";
+						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV File Eprom Card in slot " + eprSlotNumber;
+						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel File Flash Card in slot " +	eprSlotNumber;
+						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd File Flash Card in slot " + eprSlotNumber;
+						Gui.displayRtmMessage(insertEprMsg);
+					} else
+						Gui.displayRtmMessage("Eprom File Card size/type configuration is illegal.");						
+					arg+=3;
+					
+					if (arg < args.length) {
+						FileArea fa = new FileArea(eprSlotNumber);
+						// optional: import files from host system into file area.
+						while(args[arg].compareToIgnoreCase("-d") == 0 | args[arg].compareToIgnoreCase("-f") == 0) {
+							if (args[arg].compareToIgnoreCase("-f") == 0) fa.importHostFile(new File(args[arg+1]));
+							if (args[arg].compareToIgnoreCase("-d") == 0) fa.importHostFiles(new File(args[arg+1]));
+							arg+=2;
+							if (arg >= args.length) break;
+						}
+					}
+					continue;
+				}
+
+				if (arg<args.length && (args[arg].startsWith("crd") == true)) {
+					int eprSlotNumber = args[arg].charAt(3)	- 48;
+					eprSizeArg = Integer.parseInt(args[arg+1], 10);
+					if (args[arg+3].compareToIgnoreCase("-b") == 0) {
+						memory.loadBankFilesOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], args[arg+4]);
+						arg+=5;
+					} else {
+						file = new RandomAccessFile(args[arg+3], "r");
+						memory.loadImageOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
+						String insertEprMsg = "";
+						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
+						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
+						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
+						Gui.displayRtmMessage(insertEprMsg);
+						arg+=4;
+					}
+					continue;
+				}
+
+				if (arg<args.length && ( args[arg].compareTo("s1") == 0	| args[arg].compareTo("s2") == 0 | args[arg].compareTo("s3") ==	0)) {
+					int slotNumber = Integer.parseInt(args[arg].substring(1));
+					String crdType = "27C";
+					if (args[arg+1].compareToIgnoreCase("-t") == 0)	{
+						// Optional type argument
+						crdType	= args[arg+2];
+						arg += 3;
+					} else {
+						arg++;
+					}
+					file = new RandomAccessFile(args[arg], "r");
+					Gui.displayRtmMessage("Loading '" + args[arg] +	"' into	slot " + slotNumber + ".");
+					memory.loadEprCardBinary(slotNumber, crdType, file);
+					file.close();
+					arg++;
+					continue;
+				}
+
+				if (arg<args.length && (args[arg].compareTo("debug") ==	0)) {
+					commandLine(true);
+					arg++;
+					continue;
+				}
+
+				if (arg<args.length && (args[arg].compareTo("initdebug") == 0))	{
+					commandLine(true);
+
+					file = new RandomAccessFile(args[arg+1], "r");
+					cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
+					String cmd = null;
+					while (	(cmd = file.readLine())	!= null) {
+						cmdLine.parseCommandLine(cmd);
+						Thread.yield();
+					}
+					cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
+					file.close();
+					Gui.displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
+
+					arg+=2;
+					continue;
+				}
+
+				if (arg<args.length && (args[arg].compareTo("kbl") == 0)) {
+					if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en")	== 0) {
+						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
+						Gui.displayRtmMessage("Using English (UK) keyboard layout.");
+					}
+					if (args[arg+1].compareTo("fr")	== 0) {
+						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+						Gui.displayRtmMessage("Using French keyboard layout.");
+					}
+					if (args[arg+1].compareTo("dk")	== 0) {
+						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+						Gui.displayRtmMessage("Using Danish keyboard layout.");
+					}
+					if (args[arg+1].compareTo("se")	== 0) {
+						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+						Gui.displayRtmMessage("Using Swedish keyboard layout.");
+					}
+					if (args[arg+1].compareTo("fi")	== 0) {
+						Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
+						Gui.displayRtmMessage("Using Finish keyboard layout.");
+					}
+					arg+=2;
+					continue;
+				}
+			}				
+
+			// all operating system shell command options parsed,
+			// if no snapshot file was specified, try to load the default 'boot.z88' snapshot
+			if (loadedSnapshot == false) {
+				SaveRestoreVM srVm = new SaveRestoreVM();
+				if (srVm.loadSnapShot(OZvm.defaultVmFile) == true) {
+					Gui.displayRtmMessage("Snapshot successfully installed from " + OZvm.defaultVmFile);
+					loadedSnapshot = true;
+				}					
+			}
+			
+			if (loadedSnapshot == false & loadedRom == false)	{
 				Gui.displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
 				JarURLConnection jarConnection = (JarURLConnection) z88.getClass().getResource("/Z88.rom").openConnection();
 				memory.loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
 				Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
 			}
 
-			if (ramSlot0 ==	false) {
+			if (loadedSnapshot == false && ramSlot0 == false) {
 				Gui.displayRtmMessage("RAM0 set	to default 32K.");
 				memory.insertRamCard(32	* 1024,	0);	// no RAM specified for	slot 0,	set to default 32K RAM...
 			}
-			return true;
-
 		} catch	(FileNotFoundException e) {
 			System.out.println("Couldn't load ROM/EPROM image:\n" +	e.getMessage() + "\nOzvm terminated.");
 			return false;
@@ -267,6 +298,8 @@ public class OZvm {
 			System.out.println("Problem with importing file into File Card:\n" + e.getMessage() + "\nOzvm terminated.");
 			return false;
 		}
+		
+		return true;
 	}
 
 	public void commandLine(boolean status) {				
