@@ -16,7 +16,8 @@ import java.util.Iterator;
  */
 public class Breakpoints {
     private Map breakPoints = null;
-    Blink blink;
+    private Blink blink;
+	private Breakpoint bpSearchKey = null;
 
     /**
      * Just instantiate this Breakpoint Manager
@@ -24,6 +25,8 @@ public class Breakpoints {
     Breakpoints(Blink b) {
         breakPoints = new HashMap();
         blink = b;
+        
+		bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (to be used later) 
     }
 
     /**
@@ -60,21 +63,6 @@ public class Breakpoints {
 		toggleBreakpoint(bpAddress, bpBank, stopStatus);
 	}
 
-	/**
-	 * Get the original Z80 opcode, located at this breakpoint
-	 *
-	 * @param address 24bit extended (breakpoint) address
-	 * @return Z80 opcode of breakpoint, or -1 if breakpoint wasn't found
-	 */
-	public int getOrigZ80Opcode(int bpAddress) {
-		Breakpoint bp = new Breakpoint(bpAddress);
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bp);
-		if (bpv != null) {
-			return bpv.getCopyOfOpcode();
-		} else
-			return -1;
-	}
-
     /**
      * Add (if not created) or remove breakpoint (if prev. created).
      *
@@ -105,16 +93,34 @@ public class Breakpoints {
 	}
 
 	/**
-	 * Return <true> if breakpoint will stop exection.
+	 * Get the original Z80 opcode, located at this breakpoint.
+	 *
+	 * @param address 24bit extended (breakpoint) address
+	 * @return Z80 opcode of breakpoint, or -1 if breakpoint wasn't found
+	 */
+	public int getOrigZ80Opcode(int bpAddress) {
+		bpSearchKey.setBpAddress(bpAddress);
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+		if (bpv != null) {
+			return bpv.getCopyOfOpcode();
+		} else
+			return -1;
+	}
+
+	/**
+	 * Return <true> if breakpoint will stop Z80 exection.
 	 *
 	 * @param bpAddress 24bit extended address
 	 * @return true, if breakpoint is defined to stop execution.
 	 */
 	public boolean isStoppable(int bpAddress) {
-		int bpBank = bpAddress >>> 16;
-		bpAddress &= 0xFFFF;
+		bpSearchKey.setBpAddress(bpAddress);
 
-		return isStoppable(bpAddress, bpBank);
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+		if (bpv != null && bpv.stop == true) {
+			return true;
+		} else
+			return false;
 	}
 
 	/**
@@ -125,8 +131,9 @@ public class Breakpoints {
 	 * @return true, if breakpoint is defined to stop execution.
 	 */
 	public boolean isStoppable(int offset, int bank) {
-		Breakpoint bp = new Breakpoint(offset, bank);
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bp);
+		bpSearchKey.setBpAddress( (bank << 16) | offset );
+
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
 		if (bpv != null && bpv.stop == true) {
 			return true;
 		} else
@@ -253,8 +260,8 @@ public class Breakpoints {
 			setCopyOfOpcode(blink.getByte(offset, bank));
 		}
 
-        private int setBpAddress() {
-            return addressKey;
+        private void setBpAddress(int bpAddress) {
+            addressKey = bpAddress;
         }
 
         private int getBpAddress() {
