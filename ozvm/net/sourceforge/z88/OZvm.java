@@ -197,7 +197,6 @@ public class OZvm implements KeyListener {
 						continue;
 					}
 					
-					
 					if (arg<args.length && (args[arg].startsWith("crd") == true)) {
 						int eprSlotNumber = args[arg].charAt(3) - 48;
 						eprSizeArg = Integer.parseInt(args[arg+1], 10);
@@ -212,28 +211,11 @@ public class OZvm implements KeyListener {
 						continue;
 					}
 					
-					if (arg<args.length && (args[arg].compareTo("s1") == 0)) {
+					if (arg<args.length && ( args[arg].compareTo("s1") == 0 | args[arg].compareTo("s2") == 0 | args[arg].compareTo("s3") == 0)) {
+						int slotNumber = Integer.parseInt(args[arg].substring(1));
 						file = new RandomAccessFile(args[arg+1], "r");
-						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot 1.");
+						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot " + slotNumber + ".");
 						memory.loadCardBinary(1, file);
-						file.close();
-						arg+=2;
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].compareTo("s2") == 0)) {
-						file = new RandomAccessFile(args[arg+1], "r");
-						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot 2.");
-						memory.loadCardBinary(2, file);
-						file.close();
-						arg+=2;
-						continue;
-					}
-
-					if (arg<args.length && (args[arg].compareTo("s3") == 0)) {
-						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot 3.");
-						file = new RandomAccessFile(args[arg+1], "r");
-						memory.loadCardBinary(3, file);
 						file.close();
 						arg+=2;
 						continue;
