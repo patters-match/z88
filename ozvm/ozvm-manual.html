@@ -319,8 +319,8 @@ active)</b></font></font></p>
       <p align="left"><font color="#3f5fbf"><font face="monospace"><b>HOME</b></font></font></p>
       </td>
       <td width="69%">
-      <p align="left"><b><font face="monospace"><font color="#3f5fbf">SHIFT
-LeftArrow</font></font></b></p>
+      <p align="left"><font color="#3f5fbf"><font face="monospace"><b>DIAMOND</b></font></font><b><font
+ face="monospace"><font color="#3f5fbf"> LeftArrow</font></font></b></p>
       </td>
     </tr>
     <tr valign="top">
@@ -328,8 +328,8 @@ LeftArrow</font></font></b></p>
       <p><font color="#3f5fbf"><font face="monospace"><b>END</b></font></font></p>
       </td>
       <td width="69%">
-      <p><b><font face="monospace"><font color="#3f5fbf">SHIFT
-RightArrow</font></font></b></p>
+      <p><font color="#3f5fbf"><font face="monospace"><b>DIAMOND</b></font></font><b><font
+ face="monospace"><font color="#3f5fbf"> RightArrow</font></font></b></p>
       </td>
     </tr>
     <tr valign="top">
@@ -378,7 +378,8 @@ V
 NUM9</font></font></b></p>
       </td>
       <td width="69%">
-      <p align="left"><font color="#3f5fbf"><font face="monospace"><b>0 - 9
+      <p align="left"><font color="#3f5fbf"><font face="monospace"><b>0
+- 9
 (useful on a french Z88 keyboard!)</b></font></font></p>
       </td>
     </tr>
@@ -475,7 +476,7 @@ for executing OZvm:</p>
 available
 (all specified in lower case!):</p>
 <p style="margin-bottom: 0cm;" align="left">&nbsp;</p>
-<table style="width: 100%;" border="0" cellpadding="0" cellspacing="0">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
   <col width="80*"> <col width="176*"><tbody>
     <tr valign="top">
       <td width="31%">
@@ -636,8 +637,8 @@ card image, typically if you want to make a 1Mb hybrid application/file
 card and preload the top 512K with a file image of a previous 512K
 application card - the bottom 512Kb can then be created with a file
 area.&nbsp;</font></p>
-      <p><font color="#3f5fbf">For example:</font> <font
- color="#3f5fbf"><span style="font-family: monospace;">crd2
+      <p><font color="#3f5fbf">For example:</font>
+      <font color="#3f5fbf"><span style="font-family: monospace;">crd2
 1024 29f
 flashstore.epr </span></font><font color="#3f5fbf">means that an empty
 1Mb Amd Flash
@@ -700,8 +701,8 @@ file. The following default types are assigned:</font></p>
       <font color="#3f5fbf">512K
 = Intel Flash Card</font> <font color="#3f5fbf">(use
 -t 29F to change to an AMD 512K Flash Card)</font><font color="#3f5fbf"><br>
-1024K =</font> <font color="#3f5fbf">Intel Flash Card</font> <font
- color="#3f5fbf">(use
+1024K =</font> <font color="#3f5fbf">Intel Flash Card</font>
+      <font color="#3f5fbf">(use
 -t 29F to change to an AMD 1024K Flash Card)<br>
       <br>
 You can override the evaluate the above by specifying the following
@@ -827,8 +828,9 @@ commands below are just displayed in upper case for readability):</p>
       </td>
     </tr>
     <tr valign="top">
-      <td style="vertical-align: top;"> <b><font face="monospace"><font
- color="#3f5fbf">help</font></font></b> </td>
+      <td style="vertical-align: top;">
+      <b><font face="monospace"><font color="#3f5fbf">help</font></font></b>
+      </td>
       <td><font color="#3f5fbf">Display a list of the available
 commands (see
 below).</font><font color="#3f5fbf"><font face="monospace"><b><br>
@@ -840,7 +842,8 @@ below).</font><font color="#3f5fbf"><font face="monospace"><b><br>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <b><font
- face="monospace"><font color="#3f5fbf">run</font></font></b> </td>
+ face="monospace"><font color="#3f5fbf">run</font></font></b>
+      </td>
       <td width="69%"><font color="#3f5fbf">Execute Z88 from PC
 register.</font></td>
     </tr>
@@ -867,9 +870,10 @@ when Z88 window has focus).</font></td>
     <tr valign="top">
       <td width="31%"> <font color="#3f5fbf"><font face="monospace"><b>z</b></font></font>
       </td>
-      <td width="69%"><font color="#3f5fbf">Run z88 machine</font> <font
- color="#3f5fbf">at
-PC register (typically a sub routine)</font> <font color="#3f5fbf">and
+      <td width="69%"><font color="#3f5fbf">Run z88 machine</font>
+      <font color="#3f5fbf">at
+PC register (typically a sub routine)</font>
+      <font color="#3f5fbf">and
 break at next instruction on same call level.</font></td>
     </tr>
     <tr valign="top">
@@ -894,7 +898,8 @@ register.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>dz
-[&lt;address&gt;]</b></font></font> </td>
+[&lt;address&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Disassemble at default PC
 register
 (if no
@@ -927,9 +932,10 @@ slot.</font><font color="#3f5fbf"><font face="monospace"><b><br>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <b><font
- face="monospace"><font color="#3f5fbf">wb</font></font></b> <b><font
- face="monospace"><font color="#3f5fbf">&lt;ext.address&gt;
-&lt;byte&gt; [&lt;byte&gt;]</font></font></b> </td>
+ face="monospace"><font color="#3f5fbf">wb</font></font></b>
+      <b><font face="monospace"><font color="#3f5fbf">&lt;ext.address&gt;
+&lt;byte&gt; [&lt;byte&gt;]</font></font></b>
+      </td>
       <td width="69%"><font color="#3f5fbf">Write a single or several
 byte(s) to
 memory at address.</font></td>
@@ -943,7 +949,8 @@ memory at address.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>m
-[&lt;address&gt;]</b></font></font> </td>
+[&lt;address&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">View memory at default PC
 register
 (if no
@@ -956,7 +963,8 @@ address), otherwise at specified address.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>bp
-[&lt;address&gt;]</b></font></font> </td>
+[&lt;address&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">List breakpoints (if no
 address),
 otherwise toggle stop breakpoint at specified address.</font></td>
@@ -968,7 +976,8 @@ otherwise toggle stop breakpoint at specified address.</font></td>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>bpd
-[&lt;address&gt;]</b></font></font> </td>
+[&lt;address&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">List display breakpoints
 (if no
 address),
@@ -1002,7 +1011,8 @@ information from the application DOR.<br>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
- color="#3f5fbf"><font face="monospace"><b>bl</b></font></font> </td>
+ color="#3f5fbf"><font face="monospace"><b>bl</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Display Blink register
 contents.</font></td>
     </tr>
@@ -1012,7 +1022,8 @@ contents.</font></td>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <font
- color="#3f5fbf"><font face="monospace"><b>sr</b></font></font> </td>
+ color="#3f5fbf"><font face="monospace"><b>sr</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Display Blink Segment
 Register Bank
 Binding.</font></td>
@@ -1053,7 +1064,8 @@ window.</font></td>
     </tr>
     <tr valign="top">
       <td style="vertical-align: top;"><font color="#3f5fbf"><font
- face="monospace"><b>fcdX <span style="font-style: italic;">[options]<br>
+ face="monospace"><b>fcdX
+      <span style="font-style: italic;">[options]<br>
       <br>
       </span></b></font></font><br>
       </td>
@@ -1092,7 +1104,8 @@ lost.</font></td>
         <li><font color="#3f5fbf"><font face="monospace"><b>cardhdr</b></font></font></li>
       </ul>
       </td>
-      <td><font color="#3f5fbf">Create a file area header in specified
+      <td><font color="#3f5fbf">Create a file area header in
+specified
 slot,&nbsp; but without formatting the file area.<br>
       </font></td>
     </tr>
@@ -1103,13 +1116,14 @@ slot,&nbsp; but without formatting the file area.<br>
       </ul>
       </td>
       <td style="vertical-align: top;"><font color="#3f5fbf">Preserve
-current active files and reclaim file space of deleted files</font> </td>
+current active files and reclaim file space of deleted files</font>
+      </td>
     </tr>
     <tr valign="top">
       <td>
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>del <span
- style="font-style: italic;">filename</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>del
+          <span style="font-style: italic;">filename</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Mark specified "oz" file in file area
@@ -1120,24 +1134,24 @@ deleted.<br>
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>ipf <span
- style="font-style: italic;">host-filename</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>ipf
+          <span style="font-style: italic;">host-filename</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Import file from the host operating
 system into the
 file area. The file will be added to the end&nbsp; of the current
 file list.
-The filename is operating system dependent.</font> <font
- color="#3f5fbf">Imported
+The filename is operating system dependent.</font>
+      <font color="#3f5fbf">Imported
 file(name)s are stripped of any path that was specified from
 the host file system.</font></td>
     </tr>
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>ipd <span
- style="font-style: italic;">host-path</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>ipd
+          <span style="font-style: italic;">host-path</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Import files from the host operating
@@ -1145,8 +1159,8 @@ system directory
 into the file area. The files will be added to the end of the current
 file
 list. The</font> <font color="#3f5fbf">directory-path</font><font
- color="#3f5fbf">is operating system dependent.</font> <font
- color="#3f5fbf">Imported
+ color="#3f5fbf">is operating system dependent.</font>
+      <font color="#3f5fbf">Imported
 file(name)s are stripped of any path that was specified from the host
 file
 system.</font></td>
@@ -1154,8 +1168,8 @@ system.</font></td>
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>xpf <span
- style="font-style: italic;">filename
+        <li><font color="#3f5fbf"><font face="monospace"><b>xpf
+          <span style="font-style: italic;">filename
 host-path<br>
           </span></b></font></font></li>
       </ul>
@@ -1174,8 +1188,8 @@ the file in the specified <span style="font-style: italic;">host-path</span>.<br
     <tr valign="top">
       <td style="vertical-align: top;">
       <ul>
-        <li><font color="#3f5fbf"><font face="monospace"><b>xpc <span
- style="font-style: italic;">host-path</span></b></font></font></li>
+        <li><font color="#3f5fbf"><font face="monospace"><b>xpc
+          <span style="font-style: italic;">host-path</span></b></font></font></li>
       </ul>
       </td>
       <td><font color="#3f5fbf">Export file card (area) to the host
@@ -1207,10 +1221,12 @@ X -b [dir/filename]</b></font></font></td>
 (1-3) as 16K banks, optionally to specified directory, otherwise dumped
 to
 current OZvm program directory. Default filename is
-"slotXbank.&lt;bankNo&gt;'. You can also specify a base filename for
+"slotXbank.&lt;bankNo&gt;'. You can also specify a base
+filename for
 the 16K bank files, eg. "dumpslot 2 -b E:\temp\app2005" will dump the
 16K bank files in "E:\temp" using "app2005.0" - </font><font
- color="#3f5fbf">"app2005.63" (if a 1Mb card were dumped).<br>
+ color="#3f5fbf">"app2005.63" (if a 1Mb card were
+dumped).<br>
       </font></td>
     </tr>
     <tr>
@@ -1221,7 +1237,8 @@ the 16K bank files, eg. "dumpslot 2 -b E:\temp\app2005" will dump the
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>BC
 DE HL IX IY
-SP PC[&lt;address&gt;]</b></font></font> </td>
+SP PC[&lt;address&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Display or set 16bit
 registers, eg HL
 40CC (set register).</font></td>
@@ -1230,7 +1247,8 @@ registers, eg HL
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>A
 B C D E H L
-[&lt;byte&gt;]</b></font></font> </td>
+[&lt;byte&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Display or set 8bit
 registers, eg B
 40
@@ -1240,7 +1258,8 @@ registers, eg B
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>BC'
 DE' HL'
-[&lt;address&gt;]</b></font></font> </td>
+[&lt;address&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Display or set 16bit
 alternate
 registers.</font></td>
@@ -1249,7 +1268,8 @@ registers.</font></td>
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>A'
 B' C' D' E'
-H' L' [&lt;byte&gt;]</b></font></font> </td>
+H' L' [&lt;byte&gt;]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Display or set 8bit
 alternate
 registers.</font></td>
@@ -1258,7 +1278,8 @@ registers.</font></td>
       <td style="width: 31%; vertical-align: top;"> <font
  color="#3f5fbf"><font face="monospace"><b>FZ,
 FC, FN, FS,
-FV, FH [1 | 0]</b></font></font> </td>
+FV, FH [1 | 0]</b></font></font>
+      </td>
       <td width="69%"><font color="#3f5fbf">Display or set Flag
 Register bits,
 eg. FZ
