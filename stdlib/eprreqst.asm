@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,12 +12,12 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
-     LIB ApplEprType, MemReadByte, MemWriteByte
+     LIB FlashEprCardId, ApplEprType, MemReadByte, MemWriteByte
 
      include "error.def"
      include "memory.def"
@@ -28,16 +28,18 @@
 ; Check for "oz" File Eprom (on a conventional Eprom or on a Flash Memory)
 ;
 ;    1) Check for a standard "oz" File Eprom, if that fails -
-;    2) Check if that slot contains an Application ROM, then check for the 
-;       Header Identifier in the first top block below reserved 
-;       application banks on the card.
+;    2) Check if that slot contains an Application ROM, then check for the
+;       Header Identifier below the application bank area. For Flash Cards,
+;       the File Header might be on first top bank of a free 64K sector.
+;       For Eproms, the File Header might be on the first top bank below
+;       the application bank area.
 ;    3) If a Rom Front Dor is located in a RAM Card, then this slot
 ;       is regarded as a non-valid card as a File Eprom, ie. not present.
 ;
-;    On partial success, if a Header is not found, the returned pointer 
+;    On partial success, if a Header is not found, the returned pointer
 ;    indicates that the card might hold a file area, beginning at this location.
 ;
-;    If the routine returns HL = $3FC0, it's an "oz" File Eprom Header 
+;    If the routine returns HL = $3FC0, it's an "oz" File Eprom Header
 ;    (pointing to 64 byte header)
 ;
 ; In:
@@ -68,7 +70,7 @@
 ; ---------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, Dec 1997-Aug 1998, July-Sept 2004
 ;----------------------------------------------------------------------------
-; 
+;
 .FileEprRequest
                     PUSH DE
 
@@ -89,7 +91,7 @@
                                              ; B = app card banks, C = total size of card in banks
                     LD   E,C                 ; preserve card size in E
                     LD   C,D                 ; C = slot number
-  
+
                     CALL DefHeaderPosition   ; locate and validate File Eprom Header
                     JR   C, no_filespace     ; whole card used for Applications...
                     POP  HL                  ; old DE
@@ -109,15 +111,19 @@
                     SCF
                     LD   A,RC_ONF
                     RET
-                                        
+
 
 
 ; ************************************************************************
 ;
-; Define the position of the Header, starting from top bank 
-; of free card space area, calculated by number of reserved banks for 
-; application usage, then using the top bank of the first free 64K block
-; below the last used 64K block containg application code.
+; Define the position of the Header, starting from top bank
+; of free card space area, calculated by number of reserved banks for
+; application usage, then
+; For Flash Cards:
+;    Check the top bank of the first free 64K block below the last used
+;    64K block containg application code, for a File Header.
+; For Eprom's:
+;    Check the top bank below the last application bank for a File Header.
 ;
 ; If no space is left for a file area (all banks used for applications),
 ; then Fc = 1 is returned.
@@ -145,40 +151,45 @@
 .DefHeaderPosition
                     LD   A,$40
                     SUB  B                   ; $40 - <ROM banks> = lowest bank of ROM area
-
+                    LD   D,A
+                    PUSH BC
+                    CALL FlashEprCardId
+                    POP  BC
+                    LD   A,D
+                    JR   C, epr_filearea     ; there's no Flash Card, so check top bank below app area
                     CP   3                   ;
-                    JR   Z, appcard_no_room  ; Application card uses banks 
+                    JR   Z, appcard_no_room  ; Application card uses banks
                     RET  C                   ; in lowest 64K block of card...
-
-                    AND  @11111100
-                    DEC  A                   ; A = Top Bank of File Area (in isolated 64K block)
+                    AND  @11111100           ; File area are only found in Flash Card sector boundaries
+.epr_filearea
+                    DEC  A                   ; A = Top Bank of File Area
                     LD   B,A                 ; B = relative bank number of "oz" header (or potential), C = slot number
                     CALL CheckFileEprHeader
                     RET  NC                  ; header found, at absolute bank B, C = File Area in banks
                     EX   AF,AF'
                     LD   A,C
-                    LD   C,B                 
-                    INC  C                   ; C = potential size of file area in banks 
+                    LD   C,B
+                    INC  C                   ; C = potential size of file area in banks
                     RRCA
                     RRCA
                     OR   B
                     LD   B,A                 ; relative bank B --> absolute bank B
                     EX   AF,AF'
-                    JR   C, new_filearea     ; "oz" File Eprom Header not found, but potential area...                                             
+                    JR   C, new_filearea     ; "oz" File Eprom Header not found, but potential area...
                     CP   A                   ; B = absolute bank of "oz" Header, C = size of File Area in banks
                     RET                      ; return flag status = found!
-.new_filearea       
+.new_filearea
                     OR   B                   ; Fc = 0, Fz = 0, indicate potential file area
                     RET
 .appcard_no_room
                     LD   A,RC_ROOM
                     SCF
                     RET
-                    
+
 
 ; ************************************************************************
 ;
-; Return File Eprom Area status in slot x (1, 2 or 3), 
+; Return File Eprom Area status in slot x (1, 2 or 3),
 ; with top of area at bank B (00h - 3Fh).
 ;
 ; In:
@@ -194,7 +205,7 @@
 ;         C = size of File Eprom Area in 16K banks
 ;
 ;    Failure:
-;         Fc = 1, 
+;         Fc = 1,
 ;         A = RC_ONF ("oz" File Eprom not found)
 ;         C = slot number (1, 2 or 3)
 ;         B = bank of "oz" header (slot relative, 00 - $3F)
@@ -212,7 +223,7 @@
                     AND  @00000011           ; slots (0), 1, 2 or 3 possible
                     RRCA
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    OR   B                   
+                    OR   B
                     LD   B,A                 ; bank B of slot C...
                     LD   HL, $3F00
 
@@ -237,17 +248,17 @@
                     INC  A
                     CALL MemWriteByte        ; 0 --> ($3FFF)
                     CALL MemReadByte
-                    LD   E,A                 ; E <-- ($3FFF)  
+                    LD   E,A                 ; E <-- ($3FFF)
                     LD   A,$FE
                     CALL MemReadByte
                     LD   D,A                 ; D <-- ($3FFE)
-                    
+
                     CP   A
                     LD   HL,$6F7A
                     SBC  HL,DE               ; $(3FFE) = 'oz' ?
                     JR   Z, fileeprom_found  ; 0 was written at $(3FFE) and 'oz' was still returned!
-                                             
-                    POP  DE                  ; we might have written to a RAM card... 
+
+                    POP  DE                  ; we might have written to a RAM card...
                     LD   C,D                 ; get original values from $3FFE
                     LD   A,$FE               ; and write them back...
                     CALL MemWriteByte        ; D --> ($3FFE)
@@ -255,13 +266,13 @@
                     LD   A,$FF
                     CALL MemWriteByte        ; E --> ($3FFE)
                     POP  BC
-                    JR   no_fileeprom        
+                    JR   no_fileeprom
 .fileeprom_found
                     POP  DE
                     POP  BC
                     LD   A,C                 ; A = sub type of File Eprom
                     CP   A                   ; return Fc = 0
-                    POP  DE                  ; B = absolute bank no of hdr, 
+                    POP  DE                  ; B = absolute bank no of hdr,
                     LD   C,D                 ; C = size of File Area in banks
 
                     POP  HL                  ; original HL restored
@@ -273,6 +284,6 @@
                     LD   A,RC_ONF
                     SCF
                     POP HL
-                    POP BC            
+                    POP BC
                     POP DE                   ; original BC, DE & HL restored
                     RET
