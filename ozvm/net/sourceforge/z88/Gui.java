@@ -39,7 +39,6 @@ public class Gui extends JFrame {
 	private javax.swing.JTextArea jCmdOutput = null;  
 	private javax.swing.JTextField jCmdlineInput = null;  
 	private javax.swing.JTextArea jRtmMessages = null;  
-	private javax.swing.JFrame jRtmOutputWindow = null;  
 	private javax.swing.JPanel jRtmOutputWindowContentPane = null;
 	private javax.swing.JButton jClearMessagesButton = null;
 	private javax.swing.JScrollPane jRtmOutputScrollPane = null;
@@ -145,6 +144,7 @@ public class Gui extends JFrame {
 	private javax.swing.JPanel getCommandArea() {
 		if(jCommandArea == null) {
 			jCommandArea = new javax.swing.JPanel(new BorderLayout());
+			jCommandArea.add(getRtmWindowContentPane(), BorderLayout.NORTH);
 			jCommandArea.add(getCmdLineScrollPane(), BorderLayout.CENTER);
 			jCommandArea.add(getCmdLineInputArea(), BorderLayout.SOUTH);
 			jCommandArea.setVisible(true);
@@ -201,23 +201,6 @@ public class Gui extends JFrame {
 		return jRtmOutputWindowContentPane;
 	}
 	
-	/**
-	 * This method initializes the Runtime Output Window
-	 *
-	 * @return javax.swing.JFrame
-	 */
-	private javax.swing.JFrame getRtmOutputWindow() {
-		if(jRtmOutputWindow == null) {
-			jRtmOutputWindow = new javax.swing.JFrame();
-			jRtmOutputWindow.setContentPane(getRtmWindowContentPane());
-			jRtmOutputWindow.setTitle("Runtime Messages");
-			jRtmOutputWindow.setResizable(true);
-			jRtmOutputWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-			jRtmOutputWindow.pack();
-			jRtmOutputWindow.show();
-		}
-		return jRtmOutputWindow;
-	}
 	
 	/**
 	 * This method initializes jButton
@@ -227,7 +210,7 @@ public class Gui extends JFrame {
 	private javax.swing.JButton getClearRtmMessagesButton() {
 		if(jClearMessagesButton == null) {
 			jClearMessagesButton = new javax.swing.JButton();
-			jClearMessagesButton.setText("Clear output");
+			jClearMessagesButton.setText("Clear runtime messages");
 			jClearMessagesButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					getRtmOutputArea().setText("");
@@ -249,6 +232,19 @@ public class Gui extends JFrame {
 		}
 		return jRtmOutputScrollPane;
 	}
+	/**
+	 * This method initializes jTextArea
+	 *
+	 * @return javax.swing.JTextArea
+	 */
+	public javax.swing.JTextArea getRtmOutputArea() {
+		if(jRtmOutputArea == null) {
+			jRtmOutputArea = new javax.swing.JTextArea(7,80);
+			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
+			jRtmOutputArea.setEditable(false);
+		}
+		return jRtmOutputArea;
+	}
 
 	/**
 	 * This method initializes jScrollPane2
@@ -261,20 +257,6 @@ public class Gui extends JFrame {
 			jCmdLineScrollPane.setViewportView(getCmdlineOutputArea());
 		}
 		return jCmdLineScrollPane;
-	}
-
-	/**
-	 * This method initializes jTextArea
-	 *
-	 * @return javax.swing.JTextArea
-	 */
-	public javax.swing.JTextArea getRtmOutputArea() {
-		if(jRtmOutputArea == null) {
-			jRtmOutputArea = new javax.swing.JTextArea(30,80);
-			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
-			jRtmOutputArea.setEditable(false);
-		}
-		return jRtmOutputArea;
 	}
 
 	public static void main(String[] args) {
@@ -293,7 +275,6 @@ public class Gui extends JFrame {
 			ozvm.bootZ88Rom();
 			gg.z88Screen().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
-			JFrame rtmOut = gg.getRtmOutputWindow();
 			gg.getRtmOutputArea().append("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 			gg.getContentPane().add(gg.getCommandArea(), BorderLayout.SOUTH);
 			gg.pack();
