@@ -41,7 +41,7 @@ public class ApplicationCardHeader {
 		
 		if (slotinfo.isApplicationCard(slotNo) == true) {
 			// top bank of card
-			int bankNo = ((slotNo & 3) << 6) | (memory.getCardSize(slotNo)-1);
+			int bankNo = ((slotNo & 3) << 6) | (memory.getExternalCardSize(slotNo)-1);
 			
 			cardId = (memory.getByte(0x3FF9, bankNo) << 8) | memory.getByte(0x3FF8, bankNo);
 			countryCode = memory.getByte(0x3FFA, bankNo);

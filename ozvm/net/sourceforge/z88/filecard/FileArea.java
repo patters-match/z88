@@ -547,25 +547,25 @@ public class FileArea {
 					ApplicationCardHeader appCrdHdr = new ApplicationCardHeader(
 							slotNumber);
 					if (bank instanceof EpromBank == true) {
-						if (memory.getCardSize(slotNumber) == appCrdHdr
+						if (memory.getExternalCardSize(slotNumber) == appCrdHdr
 								.getAppAreaSize()) {
 							return false; // no room for a file area on Eprom
 						} else {
 							// format file area just below application area...
 							int topFileAreaBank = bottomBankNo
-									+ (memory.getCardSize(slotNumber)
+									+ (memory.getExternalCardSize(slotNumber)
 											- appCrdHdr.getAppAreaSize() - 1);
 							formatFileArea(bottomBankNo, topFileAreaBank);
 							createFileHeader(topFileAreaBank);
 						}
 					} else {
 						// check if app area moves into bottom 64K sector...
-						if (memory.getCardSize(slotNumber)
+						if (memory.getExternalCardSize(slotNumber)
 								- appCrdHdr.getAppAreaSize() < 4)
 							return false; // no room for a file area on flash card...
 
 						// create file area of 64K sector size...
-						int fileAreaSize = memory.getCardSize(slotNumber)
+						int fileAreaSize = memory.getExternalCardSize(slotNumber)
 								- appCrdHdr.getAppAreaSize();
 						fileAreaSize -= (fileAreaSize % 4);
 						int topFileAreaBank = bottomBankNo + fileAreaSize - 1;
@@ -576,9 +576,9 @@ public class FileArea {
 				} else {
 					// empty card, write file header at top of card...
 					formatFileArea(bottomBankNo, bottomBankNo
-							+ memory.getCardSize(slotNumber) - 1);
+							+ memory.getExternalCardSize(slotNumber) - 1);
 					createFileHeader(bottomBankNo
-							+ memory.getCardSize(slotNumber) - 1);
+							+ memory.getExternalCardSize(slotNumber) - 1);
 				}
 			}
 
@@ -626,11 +626,11 @@ public class FileArea {
 
 			// size of file area is from bank of header downwards to bottom of
 			// card.
-			int fileAreaSize = (bankNo & (memory.getCardSize(slotNo) - 1)) + 1;
+			int fileAreaSize = (bankNo & (memory.getExternalCardSize(slotNo) - 1)) + 1;
 			memory.setByte(0x3FFC, bankNo, fileAreaSize);
 
 			if ((bank instanceof EpromBank == true)
-					& (memory.getCardSize(slotNo) == 2))
+					& (memory.getExternalCardSize(slotNo) == 2))
 				memory.setByte(0x3FFD, bankNo, 0x7E); // a 32K Eprom was
 			// identified...
 			else
