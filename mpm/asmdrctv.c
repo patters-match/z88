@@ -858,6 +858,43 @@ DEFW (void)
 }
 
 
+/* Z88 specific feature: a 24bit pointer; 16 offset within bank, then bank number */
+void
+DEFP (void)
+{
+  long bytepos = 0;
+
+  do
+    {
+      if ((PC+3) > MAXCODESIZE)
+        {
+           ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_MaxCodeSize);
+           return;
+        }
+
+      GetSym ();
+      if (!ExprAddr16 (bytepos))
+        break;                  /* syntax error - get next line from file... */
+      PC += 2;                  /* DEFW allocated, update assembler PC */
+      bytepos += 2;
+
+      if (sym != comma)
+        {
+          ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
+          break;
+        }
+      else
+        {
+          GetSym ();
+          if (!ExprUnsigned8 (bytepos))
+            break;                  /* syntax error - get next line from file... */
+          ++PC;                     /* Bank number allocated, update assembler PC */
+          ++bytepos;
+        }
+    }
+  while (sym == comma);         /* get all DEFP definitions separated by comma */
+}
+
 
 void
 DEFL (void)

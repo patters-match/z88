@@ -28,7 +28,7 @@
 ptrfunc SearchFunction (identfunc_t asmident[], size_t totalid);
 void ALIGN(void);
 void BINARY (void);
-void DEFB (void), DEFC (void), DEFM (void), DEFMZ (void), DEFW (void), DEFL (void);
+void DEFB (void), DEFC (void), DEFM (void), DEFMZ (void), DEFW (void), DEFP (void), DEFL (void);
 void DEFGROUP (void), DEFVARS (void), DEFS (void);
 void DeclExternIdent (void), DeclGlobalIdent (void), DeclLibIdent (void), DeclGlobalLibIdent (void);
 void DeclModule (void);
