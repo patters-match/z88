@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB MemDefBank, ExecRoutineOnStack
      
      INCLUDE "interrpt.def"
      INCLUDE "flashepr.def"
@@ -150,7 +150,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     
                     LD   IX, Fetch_I28F0xxxx_ID
                     LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
-                    CALL ExecPollRoutineOnStack
+                    CALL ExecRoutineOnStack
                     
                     CP   A                   ; Assume that no INTEL Flash Memory ID is stored at that location!
                     PUSH HL
@@ -178,49 +178,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   A,B                   ; restore original A
                     POP  BC
                     RET
-
-
-; ***************************************************************
-;
-; IN:
-;     BC = size of polling routine.
-;     IX = pointer to polling routine.
-; OUT:
-;     HL = Flash Memory chip ID
-;
-; Registers changed on return:
-;    A.BCDE../IXIY ........ same
-;    .F....HL/.... afbcdehl different
-;
-.ExecPollRoutineOnStack
-                    PUSH BC
-                    EXX
-                    POP  BC                  ; length of routine
-                    LD   HL,0
-                    ADD  HL,SP
-                    LD   D,H
-                    LD   E,L                 ; current SP in DE...
-                    CP   A                   ; Fc = 0
-                    SBC  HL,BC               ; make room for routine on stack (which moves downwards...)
-                    LD   SP,HL               ; new SP defined, space for buffer for routine ready...
-                    EX   DE,HL               ; HL = old SP (top of buffer), DE = new SP (destination)
-                    PUSH HL                  ; original SP will be restored after polling routine has completed
-                    PUSH DE                  ; execute polling routine by a RET instruction
-
-                    PUSH IX
-                    POP  HL   
-                    LDIR                     ; copy polling routine to stack buffer...
-                    LD   HL,exit_fetchid
-                    EX   (SP),HL             ; the RET at the end of the polling routine will jump to
-                    PUSH HL                  ; .exit_fetchid, which will restore the original SP and get
-                    EXX                      ; back to the outside world 
-                    RET                      ; (SP) = CALL Polling routine on stack...
-.exit_fetchid                 
-                    EXX
-                    POP  HL
-                    LD   SP,HL               ; restore original SP (purge buffer routine on stack)
-                    EXX
-                    RET                      ; return HL = Flash Memory ID...
 
 
 ; ***************************************************************
