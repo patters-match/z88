@@ -158,6 +158,7 @@ public class Breakpoints {
      */
     public String listBreakpoints() {
     	StringBuffer output = new StringBuffer(1024);
+    	output.append("Breakpoints:\n");
         if (breakPoints.isEmpty() == true) {
             return new String("No Breakpoints defined.");
         } else {
