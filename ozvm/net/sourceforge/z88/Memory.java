@@ -884,10 +884,10 @@ public final class Memory {
 		slot &= 3; // only slots 0 - 3
 		int totalBanks = size / Bank.SIZE;
 		
-		if ((slot == 0) & (size > 1024 * 512)) {
+		if ((slot == 0) & (size > 1024*512)) {
 			throw new IllegalArgumentException("Max 512K size for RAM or ROM in slot 0!");
 		}
-		if ((slot > 0) & (size > 1024)) {
+		if ((slot > 0) & (size > 1024*1024)) {
 			throw new IllegalArgumentException("Max 1024K size for card binary in slots 1-3!");
 		}		
 		if (size % Bank.SIZE > 0) {
