@@ -461,6 +461,17 @@ public final class Blink extends Z80 {
 	}
 
 	/**
+	 * Decode Z80 Address Space to extended Blink Address (offset,bank).
+	 * 
+	 * @param pc 16bit word that points into Z80 Local Address Space
+	 * @return int 24bit extended address (packed in LSB order) 
+	 */
+	public int decodeLocalAddress(int pc) {
+
+		return 0;
+	}
+	
+	/**
 	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word
 	 * that points into the Z80 64K address space.
 	 *

@@ -4022,6 +4022,30 @@ public class Dz {
 
 
 	/**
+	 * Disassemble Z80 instruction at extended address offset, bank. 
+	 * 
+	 * The Ascii string is generated into the mnemonic argument, which the caller
+	 * can display appropriately. The address of the next instruction is
+	 * returned, when disassembly has completed. You can therefore use this
+	 * method in a loop and perform continous disassembly.
+	 * 
+	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
+	 * @param offset the 16bit offset within bank
+	 * @param bank the bank number (0-255)
+	 * @param dispaddr boolean, display Hex address as part of disassembly
+	 * @return int offset of following instruction in bank
+	 */
+	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispaddr) {
+		int i = 0;
+/*
+		for ()		
+		offset += dzInstrAscii(mnemonic, offset, i, dispaddr);
+*/		
+		return offset;
+	}
+
+
+	/**
 	 * Disassemble Z80 instruction at address pc in local 64K address space, as
 	 * defined by the current bank bindings for segments 0 - 3. 
 	 * 
@@ -4035,62 +4059,87 @@ public class Dz {
 	 * @param dispaddr boolean, display Hex address as part of disassembly
 	 * @return int address of following instruction
 	 */
-	public final int getInstrAscii(StringBuffer opcode, int pc, boolean dispaddr) {
-		int i, addr, origPc;
+	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispaddr) {		
+		pc += dzInstrAscii(mnemonic, pc, blink.readInstruction(pc), dispaddr);
+		
+		return pc;
+	}
+
+
+	/**
+	 * Disassemble Z80 instruction opcode located at address origPc. 
+	 * (Internal processing routine)
+	 * 
+	 * The Ascii string is generated into the mnemonic argument, which the caller
+	 * can display appropriately. The opcode size of the current instruction is
+	 * returned, when disassembly has completed. 
+	 * 
+	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
+	 * @param origPc int, the address (Program Counter of Z80 instruction)
+	 * @param instrOpcode int, the 4 byte instruction opcode, packed in LSB order
+	 * @param dispaddr boolean, display Hex address as part of disassembly
+	 * @return int size of instruction opcode
+	 */
+	private final int dzInstrAscii(StringBuffer mnemonic, int origPc, int instrOpcode, boolean dispaddr) {
+		int i, instrOpcodeOffset = 0;
 		byte relidx;
 		String strMnem[] = null;
 		int argsMnem[] = null;
 
-		opcode.setLength(64);
-		opcode.delete(0,63);	// StringBuffer cleaned.
-		opcode.setCharAt(0, ' ');
-		
-		origPc = addr = pc;
+		mnemonic.setLength(64);
+		mnemonic.delete(0,63);	// StringBuffer cleaned.
+		mnemonic.setCharAt(0, ' ');
 
-		i = blink.readByte(pc++);
+		int opcode[] = new int[4];
+		for (int opc = 0; opc < 4; opc++) {
+			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode, low byte, high byte order...
+			instrOpcode >>>= 8;
+		}
+		
+		i = opcode[instrOpcodeOffset++];
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
 				strMnem = cbStrMnem;
 				argsMnem = null;
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				break;
 
 			case 237 : /* ED opcode strMnem */
 				strMnem = edStrMnem;
 				argsMnem = edArgsMnem;
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				break;
 
 			case 221 : /* DD CB opcode strMnem */
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				if (i == 203) {
 					strMnem = ddcbStrMnem;
 					argsMnem = ddcbArgsMnem;
-					i = blink.readByte(pc + 2);
-					pc++;
+					i = opcode[instrOpcodeOffset+2];
+					instrOpcodeOffset++;
 				} else {
 					strMnem = ddStrMnem;
 					argsMnem = ddArgsMnem;
-					i = blink.readByte(pc++);
+					i = opcode[instrOpcodeOffset++];
 				}
 				break;
 
 			case 253 : /* FD CB opcode strMnem */
-				i = blink.readByte(pc);
+				i = opcode[instrOpcodeOffset];
 				if (i == 203) {
 					strMnem = fdcbStrMnem;
 					argsMnem = fdcbArgsMnem;
-					i = blink.readByte(pc + 2);
-					pc++;
+					i = opcode[instrOpcodeOffset+2];
+					instrOpcodeOffset++;
 				} else {
 					strMnem = fdStrMnem;
 					argsMnem = fdArgsMnem;
-					i = blink.readByte(pc++);
+					i = opcode[instrOpcodeOffset++];
 				}
 				break;
 
 			case 223 : /* RST 18h, FPP interface */
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				strMnem = ozfppStrMnem;
 				if ((i % 3 == 0) && (i >= 0x21 && i <= 0xa2))
 					i = (i / 3) - 11;
@@ -4099,11 +4148,11 @@ public class Dz {
 				break;
 
 			case 231 : /* RST 20h, main OS interface */
-				i = blink.readByte(pc++);
+				i = opcode[instrOpcodeOffset++];
 				switch (i) {
 					case 6 : /* OS 2 byte low level calls */
 						strMnem = ozos2StrMnem;
-						i = blink.readByte(pc++);
+						i = opcode[instrOpcodeOffset++];
 						if ((i % 2 == 0) && (i >= 0xca && i <= 0xfe))
 							i = (i / 2) - 101;
 						else
@@ -4112,7 +4161,7 @@ public class Dz {
 
 					case 9 : /* GN 2 byte general calls */
 						strMnem = ozgnStrMnem;
-						i = blink.readByte(pc++);
+						i = opcode[instrOpcodeOffset++];
 						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x78))
 							i = (i / 2) - 3;
 						else
@@ -4121,7 +4170,7 @@ public class Dz {
 
 					case 12 : /* DC 2 byte low level calls */
 						strMnem = ozdcStrMnem;
-						i = blink.readByte(pc++);
+						i = opcode[instrOpcodeOffset++];
 						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x24))
 							i = (i / 2) - 3;
 						else
@@ -4142,22 +4191,22 @@ public class Dz {
 				argsMnem = mainArgsMnem;
 		}
 		
-		opcode.append(strMnem[i]);	// the instruction opcode string...
+		mnemonic.append(strMnem[i]);	// the instruction opcode string...
 		if (argsMnem != null) {
-			int replaceMacro = opcode.indexOf("{0}");
+			int replaceMacro = mnemonic.indexOf("{0}");
 			
 			switch (argsMnem[i]) {
 				case 2 :
-					addr = blink.readByte(pc);
-					addr += 256 * blink.readByte(pc + 1);
+					int addr = opcode[instrOpcodeOffset];
+					addr += 256 * opcode[instrOpcodeOffset+1];
 										
-					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
-					pc += 2; /* move past opcode */
+					mnemonic.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
+					instrOpcodeOffset += 2; /* move past opcode */
 					break;
 
 				case 1 :
-					opcode.replace(replaceMacro, replaceMacro+3, byteToHex(blink.readByte(pc), true));
-					pc++; /* move past opcode */
+					mnemonic.replace(replaceMacro, replaceMacro+3, byteToHex(opcode[instrOpcodeOffset], true));
+					instrOpcode++; /* move past opcode */
 					break;
 
 				case 0 :
@@ -4165,43 +4214,43 @@ public class Dz {
 					break;
 
 				case -1 : /* relative jump addressing (+/- 128 byte range) */
-					byte reljmp = (byte) blink.readByte(pc);
-					int reladdr = (pc + 1 + reljmp) & 0xFFFF;
-					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr, true));
+					byte reljmp = (byte) opcode[instrOpcodeOffset];
+					int reladdr = (origPc + 1 + reljmp) & 0xFFFF;
+					mnemonic.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr, true));
 
-					pc++; /* move past opcode */
+					instrOpcodeOffset++; /* move past opcode */
 					break;
 
 				case -2 : /* ix/iy bit manipulation */
-					relidx = (byte) blink.readByte(pc);
+					relidx = (byte) opcode[instrOpcodeOffset];
 					if (relidx >= 0)
-						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
+						mnemonic.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
-						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
+						mnemonic.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 
-					pc += 2; /* move past opcode */
+					instrOpcodeOffset += 2; /* move past opcode */
 					break;
 
 				case -3 : /* LD (IX/IY+r),n */
-					int replaceOperand = opcode.indexOf("{1}");
-					relidx = (byte) blink.readByte(pc++);
+					int replaceOperand = mnemonic.indexOf("{1}");
+					relidx = (byte) opcode[instrOpcodeOffset++];
 
 					if (relidx >= 0)
-						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
+						mnemonic.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
-						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
+						mnemonic.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 						
-					opcode.replace(replaceOperand, replaceOperand+3, byteToHex(blink.readByte(pc++), true));
+					mnemonic.replace(replaceOperand, replaceOperand+3, byteToHex(opcode[instrOpcodeOffset++], true));
 					break;
 
 				case -4 :
 					/* IX/IY offset, positive/negative constant presentation */
-					relidx = (byte) blink.readByte(pc++);
+					relidx = (byte) opcode[instrOpcodeOffset++];
 
 					if (relidx >= 0)
-						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
+						mnemonic.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
-						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
+						mnemonic.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 
 					break;
 			}
@@ -4212,54 +4261,42 @@ public class Dz {
 			StringBuffer instrBytes = new StringBuffer(24);
 			instrBytes.append(addrToHex(origPc, false)).append(' ');
 			
-			for(int p=origPc; p<pc; p++) 
-				instrBytes.append(byteToHex(blink.readByte(p), false)).append(' '); 
-			for(int space=4-(pc-origPc); space>0; space--)
+			for(int p=0; p<instrOpcodeOffset; p++) 
+				instrBytes.append(byteToHex(opcode[p], false)).append(' '); 
+			for(int space=4 - instrOpcodeOffset; space>0; space--)
 				instrBytes.append("   ");		// pad with spaces, to right-align with Mnemonic
 			
-			opcode.insert(0, instrBytes.toString());
+			mnemonic.insert(0, instrBytes.toString());
 			
 		}
 
-		return pc; // return the location of the next instruction
+		return instrOpcodeOffset; // return the size of bytes of this instruction
 	}
 
+	
+
 	/**
-	 * Disassemble Z80 instruction at extended address offset, bank. 
-	 * 
-	 * The Ascii string is generated into the opcode argument, which the caller
-	 * can display appropriately. The address of the next instruction is
-	 * returned, when disassembly has completed. You can therefore use this
-	 * method in a loop and perform continous disassembly.
-	 * 
-	 * @param opcode StringBuffer, the container for the Ascii disassembly
+	 * Decode Z80 instruction at extended address offset, bank and
+	 * return the next PC address. 
+
 	 * @param offset the 16bit offset within bank
 	 * @param bank the bank number (0-255)
-	 * @param dispaddr boolean, display Hex address as part of disassembly
 	 * @return int address of following instruction
 	 */
-	public final int getInstrAscii(StringBuffer opcode, int offset, int bank, boolean dispaddr) {
-		int i, addr, origPc;
-		byte relidx;
-		String strMnem[] = null;
+	public final int getNextInstrAddress(int offset, int bank) {
+		int i, origPc;
 		int argsMnem[] = null;
 
-		opcode.setLength(64);
-		opcode.delete(0,63);	// StringBuffer cleaned.
-		opcode.setCharAt(0, ' ');
-		
-		origPc = addr = offset;
+		origPc = offset;
 
 		i = blink.getByte(offset++, bank);
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
-				strMnem = cbStrMnem;
 				argsMnem = null;
 				i = blink.getByte(offset++, bank);
 				break;
 
 			case 237 : /* ED opcode strMnem */
-				strMnem = edStrMnem;
 				argsMnem = edArgsMnem;
 				i = blink.getByte(offset++, bank);
 				break;
@@ -4267,12 +4304,10 @@ public class Dz {
 			case 221 : /* DD CB opcode strMnem */
 				i = blink.getByte(offset++, bank);
 				if (i == 203) {
-					strMnem = ddcbStrMnem;
 					argsMnem = ddcbArgsMnem;
 					i = blink.getByte(offset + 2, bank);
 					offset++;
 				} else {
-					strMnem = ddStrMnem;
 					argsMnem = ddArgsMnem;
 					i = blink.getByte(offset++, bank);
 				}
@@ -4281,85 +4316,45 @@ public class Dz {
 			case 253 : /* FD CB opcode strMnem */
 				i = blink.getByte(offset, bank);
 				if (i == 203) {
-					strMnem = fdcbStrMnem;
 					argsMnem = fdcbArgsMnem;
 					i = blink.getByte(offset + 2, bank);
 					offset++;
 				} else {
-					strMnem = fdStrMnem;
 					argsMnem = fdArgsMnem;
 					i = blink.getByte(offset++, bank);
 				}
 				break;
 
 			case 223 : /* RST 18h, FPP interface */
-				i = blink.getByte(offset++, bank);
-				strMnem = ozfppStrMnem;
-				if ((i % 3 == 0) && (i >= 0x21 && i <= 0xa2))
-					i = (i / 3) - 11;
-				else
-					i = strMnem.length - 1; /* unknown parameter */
-				break;
+				return ++offset;
 
 			case 231 : /* RST 20h, main OS interface */
 				i = blink.getByte(offset++, bank);
 				switch (i) {
 					case 6 : /* OS 2 byte low level calls */
-						strMnem = ozos2StrMnem;
-						i = blink.getByte(offset++, bank);
-						if ((i % 2 == 0) && (i >= 0xca && i <= 0xfe))
-							i = (i / 2) - 101;
-						else
-							i = strMnem.length - 1; /* unknown parameter */
-						break;
+						return ++offset;
 
 					case 9 : /* GN 2 byte general calls */
-						strMnem = ozgnStrMnem;
-						i = blink.getByte(offset++, bank);
-						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x78))
-							i = (i / 2) - 3;
-						else
-							i = strMnem.length - 1; /* unknown parameter */
-						break;
+						return ++offset;
 
 					case 12 : /* DC 2 byte low level calls */
-						strMnem = ozdcStrMnem;
-						i = blink.getByte(offset++, bank);
-						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x24))
-							i = (i / 2) - 3;
-						else
-							i = strMnem.length - 1; /* unknown parameter */
-						break;
+						return ++offset;
 
 					default : /* OS 1 byte low level calls */
-						strMnem = ozos1StrMnem;
-						if ((i % 3 == 0) && (i >= 0x21 && i <= 0x8d))
-							i = (i / 3) - 11;
-						else
-							i = strMnem.length - 1; /* unknown parameter */
+						return offset;
 				}
-				break;
 
 			default : /* standard Z80 (Intel 8080 compatible) opcodes */
-				strMnem = mainStrMnem;
 				argsMnem = mainArgsMnem;
 		}
-		
-		opcode.append(strMnem[i]);	// the instruction opcode string...
-		if (argsMnem != null) {
-			int replaceMacro = opcode.indexOf("{0}");
-			
+
+		if (argsMnem != null) {			
 			switch (argsMnem[i]) {
 				case 2 :
-					addr = blink.getByte(offset, bank);
-					addr += 256 * blink.getByte(offset + 1, bank);
-										
-					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
 					offset += 2; /* move past opcode */
 					break;
 
 				case 1 :
-					opcode.replace(replaceMacro, replaceMacro+3, byteToHex(blink.getByte(offset, bank), true));
 					offset++; /* move past opcode */
 					break;
 
@@ -4368,62 +4363,132 @@ public class Dz {
 					break;
 
 				case -1 : /* relative jump addressing (+/- 128 byte range) */
-					byte reljmp = (byte) blink.getByte(offset, bank);
-					int reladdr = (offset + 1 + reljmp) & 0xFFFF;
-					opcode.replace(replaceMacro, replaceMacro+3, addrToHex(reladdr, true));
-
 					offset++; /* move past opcode */
 					break;
 
 				case -2 : /* ix/iy bit manipulation */
-					relidx = (byte) blink.getByte(offset, bank);
-					if (relidx >= 0)
-						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
-					else
-						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
-
 					offset += 2; /* move past opcode */
 					break;
 
 				case -3 : /* LD (IX/IY+r),n */
-					int replaceOperand = opcode.indexOf("{1}");
-					relidx = (byte) blink.getByte(offset++, bank);
-
-					if (relidx >= 0)
-						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
-					else
-						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
-						
-					opcode.replace(replaceOperand, replaceOperand+3, byteToHex(blink.getByte(offset++, bank), true));
+					offset += 2; /* move past opcode */
 					break;
 
 				case -4 :
 					/* IX/IY offset, positive/negative constant presentation */
-					relidx = (byte) blink.getByte(offset++, bank);
-
-					if (relidx >= 0)
-						opcode.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
-					else
-						opcode.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
-
+					offset++; /* move past opcode */
 					break;
 			}
 		}
 
-		if (dispaddr == true) {
-			// display address and opcodes, before instruction mnemonic...
-			StringBuffer instrBytes = new StringBuffer(24);
-			instrBytes.append(addrToHex(origPc, false)).append(' ');
-			
-			for(int p=origPc; p<offset; p++) 
-				instrBytes.append(byteToHex(blink.getByte(p, bank), false)).append(' '); 
-			for(int space=4-(offset-origPc); space>0; space--)
-				instrBytes.append("   ");		// pad with spaces, to right-align with Mnemonic
-			
-			opcode.insert(0, instrBytes.toString());
-			
+		return offset;
+	}
+
+
+	/**
+	 * Decode Z80 instruction at address pc in local 64K address space, as
+	 * defined by the current bank bindings for segments 0 - 3 and
+	 * return the next PC address. 
+	 *
+	 * @param pc the current address (Program Counter of Z80 instruction
+	 * @return address of following instruction
+	 */
+	public final int getNextInstrAddress(int pc) {
+		int i, origPc;
+		int argsMnem[] = null;
+
+		origPc = pc;
+
+		i = blink.readByte(pc++);
+		switch (i) {
+			case 203 : /* CB opcode strMnem */
+				argsMnem = null;
+				i = blink.readByte(pc++);
+				break;
+
+			case 237 : /* ED opcode strMnem */
+				argsMnem = edArgsMnem;
+				i = blink.readByte(pc++);
+				break;
+
+			case 221 : /* DD CB opcode strMnem */
+				i = blink.readByte(pc++);
+				if (i == 203) {
+					argsMnem = ddcbArgsMnem;
+					i = blink.readByte(pc + 2);
+					pc++;
+				} else {
+					argsMnem = ddArgsMnem;
+					i = blink.readByte(pc++);
+				}
+				break;
+
+			case 253 : /* FD CB opcode strMnem */
+				i = blink.readByte(pc);
+				if (i == 203) {
+					argsMnem = fdcbArgsMnem;
+					i = blink.readByte(pc + 2);
+					pc++;
+				} else {
+					argsMnem = fdArgsMnem;
+					i = blink.readByte(pc++);
+				}
+				break;
+
+			case 223 : /* RST 18h, FPP interface */
+				return ++pc;
+
+			case 231 : /* RST 20h, main OS interface */
+				i = blink.readByte(pc++);
+				switch (i) {
+					case 6 : /* OS 2 byte low level calls */
+						return ++pc;
+					case 9 : /* GN 2 byte general calls */
+						return ++pc;
+
+					case 12 : /* DC 2 byte low level calls */
+						return ++pc;
+					default : /* OS 1 byte low level calls */
+						return pc;
+				}
+
+			default : /* standard Z80 (Intel 8080 compatible) opcodes */
+				argsMnem = mainArgsMnem;
 		}
 
-		return offset; // return the location of the next instruction
+		if (argsMnem != null) {			
+			switch (argsMnem[i]) {
+				case 2 :
+					pc += 2; /* move past opcode */
+					break;
+
+				case 1 :
+					pc++; /* move past opcode */
+					break;
+
+				case 0 :
+					/* no replace macro, ie. no arguments for instruction */
+					break;
+
+				case -1 : /* relative jump addressing (+/- 128 byte range) */
+					pc++; /* move past opcode */
+					break;
+
+				case -2 : /* ix/iy bit manipulation */
+					pc += 2; /* move past opcode */
+					break;
+
+				case -3 : /* LD (IX/IY+r),n */
+					pc += 2; /* move past opcode */
+					break;
+
+				case -4 :
+					/* IX/IY offset, positive/negative constant presentation */
+					pc++; /* move past opcode */
+					break;
+			}
+		}
+
+		return pc;
 	}
 }

@@ -119,38 +119,48 @@ public class OZvm {
 		
 		return blinkComFlags;
 	}
+
+	/**
+	 * Dump current Z80 Registers.  
+	 */
+	private void displayZ80Registers() {
+		StringBuffer dzRegisters = new StringBuffer(1024);
+
+		dzRegisters.append(" ").append("BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
+		dzRegisters.append(" ").append("DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
+		dzRegisters.append(" ").append("HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
+		dzRegisters.append(" ").append("IX=").append(dz.addrToHex(z88.IX(),false)).append(" ");
+		dzRegisters.append(" ").append("IY=").append(dz.addrToHex(z88.IY(),false)).append(" ");
+		dzRegisters.append(" ").append("\n");
+		z88.exx();
+		dzRegisters.append("'BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
+		dzRegisters.append("'DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
+		dzRegisters.append("'HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
+		z88.exx();
+		dzRegisters.append(" ").append("SP=").append(dz.addrToHex(z88.SP(),false)).append(" ");
+		dzRegisters.append(" ").append("PC=").append(dz.addrToHex(z88.PC(),false)).append("\n");
+		dzRegisters.append(" ").append("AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
+		dzRegisters.append(" ").append("A=").append(dz.byteToHex(z88.A(),false)).append(" ");
+		dzRegisters.append(" ").append("F=").append(z80Flags()).append(" ");
+		dzRegisters.append(" ").append("I=").append(z88.I()).append("\n");
+		z88.ex_af_af();
+		dzRegisters.append("'AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
+		dzRegisters.append("'A=").append(dz.byteToHex(z88.A(),false)).append(" ");
+		dzRegisters.append("'F=").append(z80Flags()).append(" ");
+		dzRegisters.append(" ").append("R=").append(z88.R()).append("\n");
+		
+		System.out.println(dzRegisters);
+	}
 	
 	/**
 	 * Dump current Z80 Registers and instruction disassembly to stdout.  
 	 */
 	private void z80Status() {
-		StringBuffer dzBuffer = new StringBuffer(1024);
-		
-		dzBuffer.append(" ").append("BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
-		dzBuffer.append(" ").append("DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
-		dzBuffer.append(" ").append("HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
-		dzBuffer.append(" ").append("IX=").append(dz.addrToHex(z88.IX(),false)).append(" ");
-		dzBuffer.append(" ").append("IY=").append(dz.addrToHex(z88.IY(),false)).append(" ");
-		dzBuffer.append(" ").append("\n");
-		z88.exx();
-		dzBuffer.append("'BC=").append(dz.addrToHex(z88.BC(),false)).append(" ");
-		dzBuffer.append("'DE=").append(dz.addrToHex(z88.DE(),false)).append(" ");
-		dzBuffer.append("'HL=").append(dz.addrToHex(z88.HL(),false)).append(" ");
-		z88.exx();
-		dzBuffer.append(" ").append("SP=").append(dz.addrToHex(z88.SP(),false)).append(" ");
-		dzBuffer.append(" ").append("PC=").append(dz.addrToHex(z88.PC(),false)).append("\n");
-		dzBuffer.append(" ").append("AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
-		dzBuffer.append(" ").append("A=").append(dz.byteToHex(z88.A(),false)).append(" ");
-		dzBuffer.append(" ").append("F=").append(z80Flags()).append(" ");
-		dzBuffer.append(" ").append("I=").append(z88.I()).append("\n");
-		z88.ex_af_af();
-		dzBuffer.append("'AF=").append(dz.addrToHex(z88.AF(),false)).append(" ");
-		dzBuffer.append("'A=").append(dz.byteToHex(z88.A(),false)).append(" ");
-		dzBuffer.append("'F=").append(z80Flags()).append(" ");
-		dzBuffer.append(" ").append("R=").append(z88.R()).append("\n");
-		
-		System.out.println(dzBuffer);
-		
+		StringBuffer dzBuffer = new StringBuffer(64);
+
+		System.out.println(blinkBankBindings() + "\n");
+		displayZ80Registers();
+						
 		dz.getInstrAscii(dzBuffer, z88.PC(), true);
 		System.out.println(dzBuffer);
 	}
@@ -186,7 +196,8 @@ public class OZvm {
 		System.out.println("m [address [bank]] - view memory at specified address.");
 		System.out.println("bp - list breakpoints.");
 		System.out.println("bp [address bank] - toggle breakpoint.");
-		System.out.println("blsr - Blink: segment register bank binding.");
+		System.out.println("blsr - Blink: Segment Register Bank Binding.");
+		System.out.println("r - Display current Z80 Registers.");
 	}
 	
 	private void commandLine() throws IOException {
@@ -238,6 +249,12 @@ public class OZvm {
 				cmdLineTokens = cmdline.split(" ");
 			}
 
+			if (cmdLineTokens[0].equalsIgnoreCase("r") == true) {
+				displayZ80Registers();
+				cmdline = ""; // wait for a new command...
+				cmdLineTokens = cmdline.split(" ");
+			}
+
 			if (cmdLineTokens[0].equalsIgnoreCase("bp") == true) {
 				bpCommandline(cmdLineTokens);
 				cmdLineTokens[0] = ""; // wait for a new command...				
@@ -246,6 +263,7 @@ public class OZvm {
 			if (cmdLineTokens[0].length() > 0 &&
 				cmdLineTokens[0].equalsIgnoreCase(".") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("d") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("r") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("h") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("m") == false &&				
 				cmdLineTokens[0].equalsIgnoreCase("help") == false &&
@@ -504,19 +522,42 @@ public class OZvm {
 
 		// The breakpoint container.
 		private class Breakpoint {
-			int addressKey;		// the 24bit address of the breakpoint
-			int instr;			// the original 16bit opcode at breakpoint
+			int addressKey;			// the 24bit address of the breakpoint
+			int instr;				// the original 16bit opcode at breakpoint
+			boolean singleStep;		// is this a temporary, single step break point?
 			
 			Breakpoint(int offset, int bank) {
 				// the encoded key for the SortedSet...
 				addressKey = bank << 16 | offset;
 			
 				// the original 2 byte opcode bit pattern in Z88 memory.
-				setInstruction(z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank));				
+				setInstruction(z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank));
+				singleStep = false;				
+			}
+
+			Breakpoint(int offset, int bank, boolean stbp) {
+				// the encoded key for the SortedSet...
+				addressKey = bank << 16 | offset;
+			
+				// the original 2 byte opcode bit pattern in Z88 memory.
+				setInstruction(z88.getByte(offset+1, bank) << 8 | z88.getByte(offset, bank));
+				singleStep = stbp;				
 			}
 			
+			private int setAddress() {
+				return addressKey;
+			}
+
 			private int getAddress() {
 				return addressKey;
+			}
+			
+			private void setSingleStepBreakpoint(boolean stbp) {
+				singleStep = stbp;
+			}
+
+			private boolean getSingleStepBreakpoint() {
+				return singleStep;
 			}
 			
 			private void setInstruction(int z80instr) {
