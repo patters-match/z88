@@ -105,7 +105,6 @@ Module SaveFiles
                     jp   nc,save_mailbox
                     CP   RC_SUSP
                     JR   Z, fname_sip
-                    CALL ReportStdError
                     RET
 .save_mailbox
                     call cls
