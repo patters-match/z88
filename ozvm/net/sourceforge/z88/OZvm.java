@@ -85,6 +85,7 @@ public class OZvm {
 						 args[arg].compareTo("initdebug") != 0)	{
 						Gui.displayRtmMessage("Loading '" + args[0] + "' into ROM space	in slot	0.");
 						memory.loadRomBinary(new File(args[0]));
+						Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
 						loadedRom = true;
 						arg++;
 					}
@@ -156,11 +157,11 @@ public class OZvm {
 						int eprSlotNumber = args[arg].charAt(3)	- 48;
 						eprSizeArg = Integer.parseInt(args[arg+1], 10);
 						if (args[arg+3].compareToIgnoreCase("-b") == 0) {
-							memory.loadBankFilesOnCard(eprSlotNumber, eprSizeArg, args[arg+2], args[arg+4]);
+							memory.loadBankFilesOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], args[arg+4]);
 							arg+=5;
 						} else {
 							file = new RandomAccessFile(args[arg+3], "r");
-							memory.loadImageOnCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
+							memory.loadImageOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
 							String insertEprMsg = "";
 							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
 							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
@@ -183,7 +184,7 @@ public class OZvm {
 						}
 						file = new RandomAccessFile(args[arg], "r");
 						Gui.displayRtmMessage("Loading '" + args[arg] +	"' into	slot " + slotNumber + ".");
-						memory.loadCardBinary(slotNumber, crdType, file);
+						memory.loadEprCardBinary(slotNumber, crdType, file);
 						file.close();
 						arg++;
 						continue;
@@ -244,6 +245,7 @@ public class OZvm {
 				Gui.displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
 				JarURLConnection jarConnection = (JarURLConnection) z88.getClass().getResource("/Z88.rom").openConnection();
 				memory.loadRomBinary(jarConnection.getJarEntry(), jarConnection.getInputStream());
+				Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
 			}
 
 			if (ramSlot0 ==	false) {
