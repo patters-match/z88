@@ -179,3 +179,7 @@
                     LD   HL,$3FC0            ; BHL = pointer to "oz" File Eprom Header
                     CP   A                   ; return flag status = found!
                     RET
+.hdr_not_found
+                    SCF
+                    RET
+                    
