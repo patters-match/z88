@@ -76,25 +76,10 @@ public class OZvm implements KeyListener {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			displayRtmMessage("\n\nCouldn't initialize Z88 virtual machine.");
+			Gui.displayRtmMessage("\n\nCouldn't initialize Z88 virtual machine.");
 		}
 	}
 
-	public static void displayRtmMessage(final String msg) {
-		if (OZvm.debugMode == true) {
-			Thread displayMsgThread = new Thread() {
-				public void run() {					
-					gui.getRtmOutputArea().append(msg + "\n");
-					gui.getRtmOutputArea().setCaretPosition(gui.getRtmOutputArea().getDocument().getLength());
-				}
-			};
-
-			displayMsgThread.setPriority(Thread.MIN_PRIORITY);
-			displayMsgThread.start();
-		} else {
-			System.out.println(msg);
-		}
-	}
 	
 	public void startInterrupts() {
 		z88.startInterrupts();
@@ -133,7 +118,7 @@ public class OZvm implements KeyListener {
 						 args[arg].compareTo("s1") != 0 & args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") != 0 &
 						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug") != 0 &
 						 args[arg].compareTo("initdebug") != 0) {
-						displayRtmMessage("Loading '" + args[0] + "' into ROM space in slot 0.");
+						Gui.displayRtmMessage("Loading '" + args[0] + "' into ROM space in slot 0.");
 						file = new RandomAccessFile(args[0], "r");
 						memory.loadRomBinary(file);
 						file.close();
@@ -146,18 +131,18 @@ public class OZvm implements KeyListener {
 						ramSizeArg = Integer.parseInt(args[arg+1], 10);
 						if (ramSlotNumber == 0) {
 							if ((ramSizeArg <32) | (ramSizeArg>512)) {
-								displayRtmMessage("Only 32K-512K RAM Card size allowed in slot " + ramSlotNumber);
+								Gui.displayRtmMessage("Only 32K-512K RAM Card size allowed in slot " + ramSlotNumber);
 								return false;
 							}
 						} else {
 							if ((ramSizeArg<32) | (ramSizeArg>1024)) {
-								displayRtmMessage("Only 32K-1024K RAM Card size allowed in slot " + ramSlotNumber);
+								Gui.displayRtmMessage("Only 32K-1024K RAM Card size allowed in slot " + ramSlotNumber);
 								return false;
 							}
 						}
 						memory.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM Card specified for slot x...
 						if (ramSlotNumber == 0) ramSlot0 = true; 
-						displayRtmMessage("Inserted " + ramSizeArg + "K RAM Card in slot " + ramSlotNumber);
+						Gui.displayRtmMessage("Inserted " + ramSizeArg + "K RAM Card in slot " + ramSlotNumber);
 
 						arg+=2;
 						continue;
@@ -171,16 +156,16 @@ public class OZvm implements KeyListener {
 							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K UV Eprom Card in slot " + eprSlotNumber; 
 							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
 							if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Amd Flash Card in slot " + eprSlotNumber;
-							displayRtmMessage(insertEprMsg);
+							Gui.displayRtmMessage(insertEprMsg);
 						} else
-							displayRtmMessage("Eprom Card size/type configuration is illegal.");
+							Gui.displayRtmMessage("Eprom Card size/type configuration is illegal.");
 						arg+=3;
 						continue;
 					}
 					
 					if (arg<args.length && (args[arg].compareTo("s1") == 0)) {
 						file = new RandomAccessFile(args[arg+1], "r");
-						displayRtmMessage("Loading '" + args[arg+1] + "' into slot 1.");
+						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot 1.");
 						memory.loadCardBinary(1, file);
 						file.close();
 						arg+=2;
@@ -189,7 +174,7 @@ public class OZvm implements KeyListener {
 
 					if (arg<args.length && (args[arg].compareTo("s2") == 0)) {
 						file = new RandomAccessFile(args[arg+1], "r");
-						displayRtmMessage("Loading '" + args[arg+1] + "' into slot 2.");
+						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot 2.");
 						memory.loadCardBinary(2, file);
 						file.close();
 						arg+=2;
@@ -197,7 +182,7 @@ public class OZvm implements KeyListener {
 					}
 
 					if (arg<args.length && (args[arg].compareTo("s3") == 0)) {
-						displayRtmMessage("Loading '" + args[arg+1] + "' into slot 3.");
+						Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into slot 3.");
 						file = new RandomAccessFile(args[arg+1], "r");
 						memory.loadCardBinary(3, file);
 						file.close();
@@ -239,7 +224,7 @@ public class OZvm implements KeyListener {
 						commandOutput = tmpOutput;
 						gui.getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
 						file.close();						
-						displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
+						Gui.displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
 						arg+=2;						
 						continue;
 					}
@@ -247,23 +232,23 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].compareTo("kbl") == 0)) {
 						if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en") == 0) {
 							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
-							displayRtmMessage("Using English (UK) keyboard layout.");
+							Gui.displayRtmMessage("Using English (UK) keyboard layout.");
 						}
 						if (args[arg+1].compareTo("fr") == 0) {
 							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
-							displayRtmMessage("Using French keyboard layout.");
+							Gui.displayRtmMessage("Using French keyboard layout.");
 						}
 						if (args[arg+1].compareTo("dk") == 0) {
 							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
-							displayRtmMessage("Using Danish keyboard layout.");
+							Gui.displayRtmMessage("Using Danish keyboard layout.");
 						}
 						if (args[arg+1].compareTo("se") == 0) {
 							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
-							displayRtmMessage("Using Swedish keyboard layout.");
+							Gui.displayRtmMessage("Using Swedish keyboard layout.");
 						}
 						if (args[arg+1].compareTo("fi") == 0) {
 							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
-							displayRtmMessage("Using Finish keyboard layout.");
+							Gui.displayRtmMessage("Using Finish keyboard layout.");
 						}
 						arg+=2;
 						continue;
@@ -272,12 +257,12 @@ public class OZvm implements KeyListener {
 			}
 
 			if (loadedRom == false) {
-				displayRtmMessage("No external ROM image specified, using default Z88.rom (V4.0 UK)");
+				Gui.displayRtmMessage("No external ROM image specified, using default Z88.rom (V4.0 UK)");
 				memory.loadRomBinary(z88.getClass().getResource("/Z88.rom"));
 			}
 
 			if (ramSlot0 == false) {
-				displayRtmMessage("RAM0 set to default 32K.");
+				Gui.displayRtmMessage("RAM0 set to default 32K.");
 				memory.insertRamCard(32 * 1024, 0);	// no RAM specified for slot 0, set to default 32K RAM...
 			}
 			return true;
@@ -1158,8 +1143,10 @@ public class OZvm implements KeyListener {
 	}
 
 	private Thread runZ80Engine(final int oneStopBreakpoint) {
-		displayRtmMessage("Z88 virtual machine was started.");
-
+		Gui.displayRtmMessage("Z88 virtual machine was started.");
+		z80Thread = null;
+		System.gc(); // try to garbage collect...
+		
 		Thread thread = new Thread() {
 			public void run() {
 
@@ -1171,6 +1158,7 @@ public class OZvm implements KeyListener {
 				// restore (patch) breakpoints into code
 				breakPointManager.installBreakpoints();
 				z88.startInterrupts(); // enable Z80/Z88 core interrupts
+				Z88display.getInstance().grabFocus(); // default keyboard input focus to the Z88
 				z88.execZ80();
 				// execute Z80 code at full speed until breakpoint is encountered...
 				// (or F5 emergency break is used!)
@@ -1189,8 +1177,9 @@ public class OZvm implements KeyListener {
 			}
 		};
 
-		thread.setPriority(Thread.MIN_PRIORITY);
+		thread.setPriority(Thread.NORM_PRIORITY - 1); // execute the Z80 engine just below normal thread priority...
 		thread.start();
+		Thread.yield(); // the command line is not that important right now...
 
 		return thread;
 	}
