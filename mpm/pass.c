@@ -341,6 +341,10 @@ SourceFilePass2 (void)
                         StoreExpr (pass2expr, 'C');
                         break;
 
+                      case RANGE_16OFFSET:
+                        StoreExpr (pass2expr, 'O');
+                        break;
+
                       case RANGE_8UNSIGN:
                         StoreExpr (pass2expr, 'U');
                         break;
@@ -353,7 +357,7 @@ SourceFilePass2 (void)
             }
           if ((pass2expr->rangetype & NOTEVALUABLE) && (pass2expr->stored==OFF))
             {
-              if (((pass2expr->rangetype & RANGE) == RANGE_JROFFSET8) || ((pass2expr->rangetype & RANGE) == RANGE_JROFFSET16))
+              if ((pass2expr->rangetype & RANGE) == RANGE_JROFFSET8)
                 {
                   if (pass2expr->rangetype & SYMXREF)
                     ReportError (pass2expr->srcfile, pass2expr->curline, Err_ReljumpLocal);   /* Jump Relative used an external label - */
@@ -385,20 +389,6 @@ SourceFilePass2 (void)
                           free (prevJR);
                           break;
 
-                  case RANGE_JROFFSET16:
-                    constant -= curJR->pcaddr;    /* get module PC at Branch Relative instruction */
-                    constant >>= 2;
-
-                    if (constant >= -32768 && constant <= 65535)
-                      StoreWord((short) constant, patchptr); /* store relative jump */
-                    else
-                      ReportError (pass2expr->srcfile, pass2expr->curline, Err_ExprOutOfRange);
-
-                    prevJR = curJR;
-                    curJR = curJR->nextref;       /* get ready for JR instruction */
-                    free (prevJR);
-                    break;
-
                   case RANGE_8UNSIGN:
                     *patchptr = (unsigned char) constant; /* opcode is stored, now store byte */
                     break;
@@ -415,6 +405,13 @@ SourceFilePass2 (void)
 
                   case RANGE_16CONST:
                     if (constant >= -32768 && constant <= 65535)
+                      StoreWord((unsigned short) constant, patchptr);
+                    else
+                      ReportError (pass2expr->srcfile, pass2expr->curline, Err_ExprOutOfRange);
+                    break;
+
+                  case RANGE_16OFFSET:
+                    if (constant >= 0 && constant <= 16383)
                       StoreWord((unsigned short) constant, patchptr);
                     else
                       ReportError (pass2expr->srcfile, pass2expr->curline, Err_ExprOutOfRange);
@@ -655,8 +652,6 @@ WriteListFileLine (void)
 }
 
 
-
-
 void
 AddAddress (symbol_t *label, labels_t **stackpointer)
 {
@@ -860,36 +855,8 @@ PatchListFile (expression_t *pass2expr)
             fprintf (listfile, "%02X", (unsigned char) c);
             break;
 
-          case RANGE_32UP16:
-            c = c >> 16;
-            if (USEBIGENDIAN == ON)
-              {
-                fprintf (listfile, "%02X ", (unsigned short) c / 256);
-                fprintf (listfile, "%02X", (unsigned short) c % 256);
-              }
-            else
-              {
-                fprintf (listfile, "%02X ", (unsigned short) c % 256);
-                fprintf (listfile, "%02X", (unsigned short) c / 256);
-              }
-            break;
-
-          case RANGE_32LO16:
-            c = c & 0xFFFF;
-            if (USEBIGENDIAN == ON)
-              {
-                fprintf (listfile, "%02X ", (unsigned short) c / 256);
-                fprintf (listfile, "%02X", (unsigned short) c % 256);
-              }
-            else
-              {
-                fprintf (listfile, "%02X ", (unsigned short) c % 256);
-                fprintf (listfile, "%02X", (unsigned short) c / 256);
-              }
-            break;
-
           case RANGE_16CONST:
-          case RANGE_JROFFSET16:
+          case RANGE_16OFFSET:
             if (USEBIGENDIAN == ON)
               {
                 fprintf (listfile, "%02X ", (unsigned short) c / 256);
