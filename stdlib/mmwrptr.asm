@@ -17,24 +17,22 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB SafeBHLSegment, MemDefBank
 
 
 ; ******************************************************************************
 ;
 ; Set pointer in CDE, at pointer in BHL,A.
-; Segment specifier must be included in HL.
 ;
 ;    Register affected on return:
-;         AFBCDEHL/IXIY same
-;         ......../.... different
+;         A.BCDEHL/IXIY same
+;         .F....../.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, 1995-98
+; Design & programming by Gunther Strube, 1995-98, Sept. 2004
 ; ----------------------------------------------------------------------
 ;
 .MemWritePointer    PUSH HL
-                    PUSH AF
                     PUSH DE
                     PUSH BC
                     PUSH DE
@@ -43,12 +41,9 @@
                     LD   E,A
                     ADD  HL,DE                    ; add offset to pointer
 
-                    LD   A,H
-                    RLCA
-                    RLCA
-                    AND  3                        ; top address bits of pointer identify
-                    LD   C,A                      ; B = Bank, C = MS_Sx Segment Specifier
-
+                    CALL SafeBHLSegment           ; get a safe segment (not this executing segment!)
+                                                  ; C = Safe MS_Sx segment
+                                                  ; HL points into segment C
                     CALL MemDefBank               ; page in bank temporarily
                     POP  DE
                     LD   (HL),E                   ; write word at extended address
@@ -59,8 +54,7 @@
                     LD   (HL),E                   ; C (write bank specifier of pointer CDE)
                     CALL MemDefBank               ; restore prev. binding (original B register)
 
-                    LD   C,E                      ; BC restored
+                    LD   C,E                      ; original BC restored
                     POP  DE
-                    POP  AF
                     POP  HL
                     RET

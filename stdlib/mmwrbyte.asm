@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB SafeBHLSegment, MemDefBank
 
 
 ; ******************************************************************************
@@ -25,37 +25,31 @@
 ; Set byte in C, at pointer in BHL,A.
 ;
 ;    Register affected on return:
-;         AFBCDEHL/IXIY same
-;         ......../.... different
+;         A.BCDEHL/IXIY same
+;         .F....../.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, 1995-97
+; Design & programming by Gunther Strube, 1995-97, 2004
 ; ----------------------------------------------------------------------
 ;
 .MemWriteByte       PUSH HL
                     PUSH DE
-                    PUSH AF
                     PUSH BC
 
+                    LD   D,0
                     LD   E,A
-                    XOR  A
-                    LD   D,A
                     ADD  HL,DE                    ; add offset to pointer
 
-                    LD   A,H
-                    RLCA
-                    RLCA
-                    AND  3                        ; top address bits of pointer identify
-                    LD   C,A                      ; B = Bank, C = MS_Sx Segment Specifier
-
+                    CALL SafeBHLSegment           ; get a safe segment (not this executing segment!)
+                                                  ; C = Safe MS_Sx segment
+                                                  ; HL points into segment C
                     CALL MemDefBank               ; page in bank temporarily
                     POP  DE
                     LD   (HL),E                   ; write byte at extended address
                     CALL MemDefBank               ; restore prev. binding
 
                     LD   B,D
-                    LD   C,E                      ; BC restored...
-                    POP  AF
+                    LD   C,E                      ; original BC restored...
                     POP  DE
                     POP  HL
                     RET

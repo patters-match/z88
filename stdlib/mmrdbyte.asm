@@ -17,37 +17,33 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB SafeBHLSegment, MemDefBank
 
 
 ; ******************************************************************************
 ;
-; Read byte at pointer in BHL, offset A. Return byte in A.
+; Read byte at pointer in BHL, offset A, returned in A.
 ;
 ;    Register affected on return:
 ;         ..BCDEHL/IXIY same
 ;         AF....../.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, 1997
+; Design & programming by Gunther Strube, 1997, Sept. 2004
 ; ----------------------------------------------------------------------
 ;
 .MemReadByte        PUSH HL
                     PUSH DE
                     PUSH BC
 
+                    LD   D,0
                     LD   E,A
-                    XOR  A
-                    LD   D,A
                     ADD  HL,DE                    ; add offset to pointer
 
-                    LD   A,H
-                    RLCA
-                    RLCA
-                    AND  3                        ; top address bits of pointer identify
-                    LD   C,A                      ; B = Bank, C = MS_Sx Segment Specifier
-
-                    CALL MemDefBank               ; page in bank temporarily
+                    CALL SafeBHLSegment           ; get a safe segment (not this executing segment!)
+                                                  ; C = Safe MS_Sx segment
+                                                  ; HL points into segment C
+                    CALL MemDefBank               ; page in bank B temporarily into segment C
                     LD   A,(HL)                   ; read byte at extended address
                     CALL MemDefBank               ; restore prev. binding
 

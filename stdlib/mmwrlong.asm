@@ -17,23 +17,22 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB SafeBHLSegment, MemDefBank
 
 
 ; ******************************************************************************
 ;
-; Set long integer in debc, at pointer in BHL,A.
-; Segment specifier must be included in HL.
+; Set long integer in debc (alternate), at pointer in BHL,A.
 ;
 ;    Register affected on return:
-;         AFBCDEHL/IXIY same
-;         ......../.... different
+;         A.BCDEHL/IXIY same
+;         .F....../.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, 1995-98
+; Design & programming by Gunther Strube, 1995-98, Sept. 2004
 ; ----------------------------------------------------------------------
 ;
-.MemWriteLong       PUSH AF
+.MemWriteLong       
                     PUSH BC
                     PUSH DE
                     PUSH HL
@@ -42,12 +41,9 @@
                     LD   E,A
                     ADD  HL,DE                    ; add offset to pointer
 
-                    LD   A,H
-                    RLCA
-                    RLCA
-                    AND  3                        ; top address bits of pointer identify
-                    LD   C,A                      ; B = Bank, C = MS_Sx Segment Specifier
-
+                    CALL SafeBHLSegment           ; get a safe segment (not this executing segment!)
+                                                  ; C = Safe MS_Sx segment
+                                                  ; HL points into segment C
                     CALL MemDefBank               ; page in bank temporarily
                     PUSH HL
                     EXX
@@ -65,5 +61,4 @@
                     POP  HL
                     POP  DE
                     POP  BC
-                    POP  AF
                     RET

@@ -17,45 +17,38 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB SafeBHLSegment, MemDefBank
 
 
 ; ******************************************************************************
 ;
 ; Read word at record defined as extended (base) address in BHL, offset A.
-; Segment mask must be specified in H.
-;
 ; Return word in DE.
 ;
 ;    Register affected on return:
-;         AFBC..HL/IXIY same
-;         ....DE../.... different
+;         A.BC..HL/IXIY same
+;         .F..DE../.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, July 1998
+; Design & programming by Gunther Strube, July 1998, Sept. 2004
 ; ----------------------------------------------------------------------
 ;
 .MemReadWord        PUSH HL
                     PUSH BC
-                    PUSH AF
 
                     LD   D,0
                     LD   E,A
                     ADD  HL,DE               ; add offset to pointer
 
-                    LD   A,H
-                    RLCA
-                    RLCA
-                    AND  3                   ; top address bits of pointer identify
-                    LD   C,A                 ; B = Bank, C = MS_Sx Segment Specifier
-
+                    CALL SafeBHLSegment      ; get a safe segment (not this executing segment!)
+                                             ; C = Safe MS_Sx segment
+                                             ; HL points into segment C
                     CALL MemDefBank          ; page in bank temporarily
                     LD   E,(HL)
                     INC  HL
                     LD   D,(HL)
                     CALL MemDefBank          ; restore prev. binding
 
-                    POP  AF
                     POP  BC
                     POP  HL
                     RET

@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank
+     LIB SafeBHLSegment, MemDefBank
 
 
 ; ******************************************************************************
@@ -30,22 +30,20 @@
 ;         ..B...HL/.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, 1997
+; Design & programming by Gunther Strube, 1997, Sept. 2004
 ; ----------------------------------------------------------------------
 ;
 .MemReadPointer     PUSH DE
+                    PUSH AF
                     PUSH BC
 
                     LD   D,0
                     LD   E,A
                     ADD  HL,DE               ; add offset to pointer
 
-                    LD   A,H
-                    RLCA
-                    RLCA
-                    AND  3                   ; top address bits of pointer identify
-                    LD   C,A                 ; B = Bank, C = MS_Sx Segment Specifier
-
+                    CALL SafeBHLSegment      ; get a safe segment (not this executing segment!)
+                                             ; C = Safe MS_Sx segment
+                                             ; HL points into segment C
                     CALL MemDefBank          ; page in bank temporarily
                     LD   E,(HL)
                     INC  HL
@@ -57,5 +55,6 @@
 
                     POP  BC
                     LD   B,A                 ; BHL is new pointer
+                    POP  AF
                     POP  DE
                     RET
