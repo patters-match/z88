@@ -26,6 +26,7 @@ import java.awt.GridBagConstraints;
 import javax.swing.JLabel;
 import java.awt.Dimension;
 import javax.swing.border.BevelBorder;
+import javax.swing.BorderFactory;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -36,13 +37,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
 import javax.swing.JCheckBoxMenuItem;
 import java.awt.FlowLayout;
-import javax.swing.SwingConstants;
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.Color;
 import javax.swing.JToggleButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 /**
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
@@ -163,16 +165,17 @@ public class Gui extends JFrame {
 		getContentPane().add(panel_1, gridBagConstraints_3);
 
 		final JButton button_3 = new JButton();
+		button_3.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_3.setForeground(Color.WHITE);
 		button_3.setBackground(Color.BLACK);
 		button_3.setPreferredSize(new Dimension(32, 32));
-		button_3.setMargin(new Insets(2, 1, 2, 1));
+		button_3.setMargin(new Insets(2, 2, 2, 2));
 		button_3.setAlignmentX(Component.CENTER_ALIGNMENT);
-		button_3.setHorizontalAlignment(SwingConstants.LEFT);
 		panel_1.add(button_3);
 		button_3.setText("ESC");
 
 		final JButton button_4 = new JButton();
+		button_4.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_4.setForeground(Color.WHITE);
 		button_4.setBackground(Color.BLACK);
 		button_4.setPreferredSize(new Dimension(32, 32));
@@ -181,6 +184,7 @@ public class Gui extends JFrame {
 		button_4.setText("1");
 
 		final JButton button_5 = new JButton();
+		button_5.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_5.setForeground(Color.WHITE);
 		button_5.setBackground(Color.BLACK);
 		button_5.setPreferredSize(new Dimension(32, 32));
@@ -189,6 +193,7 @@ public class Gui extends JFrame {
 		button_5.setText("2");
 
 		final JButton button_6 = new JButton();
+		button_6.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_6.setForeground(Color.WHITE);
 		button_6.setBackground(Color.BLACK);
 		button_6.setPreferredSize(new Dimension(32, 32));
@@ -197,6 +202,7 @@ public class Gui extends JFrame {
 		button_6.setText("3");
 
 		final JButton button_7 = new JButton();
+		button_7.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_7.setForeground(Color.WHITE);
 		button_7.setBackground(Color.BLACK);
 		button_7.setPreferredSize(new Dimension(32, 32));
@@ -205,6 +211,7 @@ public class Gui extends JFrame {
 		button_7.setText("4");
 
 		final JButton button_8 = new JButton();
+		button_8.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_8.setForeground(Color.WHITE);
 		button_8.setBackground(Color.BLACK);
 		button_8.setPreferredSize(new Dimension(32, 32));
@@ -213,6 +220,7 @@ public class Gui extends JFrame {
 		button_8.setText("5");
 
 		final JButton button_9 = new JButton();
+		button_9.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_9.setForeground(Color.WHITE);
 		button_9.setBackground(Color.BLACK);
 		button_9.setPreferredSize(new Dimension(32, 32));
@@ -221,6 +229,7 @@ public class Gui extends JFrame {
 		button_9.setText("6");
 
 		final JButton button_10 = new JButton();
+		button_10.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_10.setForeground(Color.WHITE);
 		button_10.setBackground(Color.BLACK);
 		button_10.setPreferredSize(new Dimension(32, 32));
@@ -229,6 +238,7 @@ public class Gui extends JFrame {
 		button_10.setText("7");
 
 		final JButton button_11 = new JButton();
+		button_11.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_11.setForeground(Color.WHITE);
 		button_11.setBackground(Color.BLACK);
 		button_11.setPreferredSize(new Dimension(32, 32));
@@ -237,6 +247,7 @@ public class Gui extends JFrame {
 		button_11.setText("8");
 
 		final JButton button_12 = new JButton();
+		button_12.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_12.setForeground(Color.WHITE);
 		button_12.setBackground(Color.BLACK);
 		button_12.setPreferredSize(new Dimension(32, 32));
@@ -245,6 +256,7 @@ public class Gui extends JFrame {
 		button_12.setText("9");
 
 		final JButton button_13 = new JButton();
+		button_13.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_13.setForeground(Color.WHITE);
 		button_13.setBackground(Color.BLACK);
 		button_13.setPreferredSize(new Dimension(32, 32));
@@ -253,6 +265,7 @@ public class Gui extends JFrame {
 		button_13.setText("0");
 
 		final JButton button_14 = new JButton();
+		button_14.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_14.setForeground(Color.WHITE);
 		button_14.setBackground(Color.BLACK);
 		button_14.setPreferredSize(new Dimension(32, 32));
@@ -262,6 +275,7 @@ public class Gui extends JFrame {
 		button_14.setText("-");
 
 		final JButton button_15 = new JButton();
+		button_15.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_15.setForeground(Color.WHITE);
 		button_15.setBackground(Color.BLACK);
 		button_15.setPreferredSize(new Dimension(32, 32));
@@ -270,6 +284,7 @@ public class Gui extends JFrame {
 		button_15.setText("=");
 
 		final JButton button_16 = new JButton();
+		button_16.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_16.setForeground(Color.WHITE);
 		button_16.setBackground(Color.BLACK);
 		button_16.setPreferredSize(new Dimension(32, 32));
@@ -278,12 +293,14 @@ public class Gui extends JFrame {
 		button_16.setText("\\");
 
 		final JButton button_17 = new JButton();
+		button_17.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 		button_17.setForeground(Color.WHITE);
 		button_17.setBackground(Color.BLACK);
 		button_17.setPreferredSize(new Dimension(32, 32));
 		button_17.setMargin(new Insets(2, 1, 2, 1));
 		panel_1.add(button_17);
 		button_17.setText("DEL");
+		
 		final GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
 		gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
 		gridBagConstraints_4.ipadx = -5;
@@ -371,12 +388,12 @@ public class Gui extends JFrame {
 	{
 		if (button_3 == null) {
 			button_3 = new JButton();
+			button_3.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_3.setForeground(Color.WHITE);
 			button_3.setBackground(Color.BLACK);
 			button_3.setBounds(10, 5, 56, 32);
 			button_3.setPreferredSize(new Dimension(56, 32));
 			button_3.setMargin(new Insets(2, 13, 2, 12));
-			button_3.setHorizontalAlignment(SwingConstants.LEFT);
 			button_3.setAlignmentX(Component.CENTER_ALIGNMENT);
 			button_3.setText("TAB");
 		}
@@ -387,6 +404,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4 == null) {
 			button_4 = new JButton();
+			button_4.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4.setForeground(Color.WHITE);
 			button_4.setBackground(Color.BLACK);
 			button_4.setBounds(76, 5, 32, 32);
@@ -401,6 +419,7 @@ public class Gui extends JFrame {
 	{
 		if (button_5 == null) {
 			button_5 = new JButton();
+			button_5.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_5.setForeground(Color.WHITE);
 			button_5.setBackground(Color.BLACK);
 			button_5.setBounds(118, 5, 32, 32);
@@ -415,6 +434,7 @@ public class Gui extends JFrame {
 	{
 		if (button_6 == null) {
 			button_6 = new JButton();
+			button_6.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_6.setForeground(Color.WHITE);
 			button_6.setBackground(Color.BLACK);
 			button_6.setBounds(160, 5, 32, 32);
@@ -429,6 +449,7 @@ public class Gui extends JFrame {
 	{
 		if (button_7 == null) {
 			button_7 = new JButton();
+			button_7.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_7.setForeground(Color.WHITE);
 			button_7.setBackground(Color.BLACK);
 			button_7.setBounds(202, 5, 32, 32);
@@ -443,6 +464,7 @@ public class Gui extends JFrame {
 	{
 		if (button_8 == null) {
 			button_8 = new JButton();
+			button_8.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_8.setForeground(Color.WHITE);
 			button_8.setBackground(Color.BLACK);
 			button_8.setBounds(244, 5, 32, 32);
@@ -457,6 +479,7 @@ public class Gui extends JFrame {
 	{
 		if (button_9 == null) {
 			button_9 = new JButton();
+			button_9.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_9.setForeground(Color.WHITE);
 			button_9.setBackground(Color.BLACK);
 			button_9.setBounds(286, 5, 32, 32);
@@ -471,6 +494,7 @@ public class Gui extends JFrame {
 	{
 		if (button_10 == null) {
 			button_10 = new JButton();
+			button_10.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_10.setForeground(Color.WHITE);
 			button_10.setBackground(Color.BLACK);
 			button_10.setBounds(328, 5, 32, 32);
@@ -485,6 +509,7 @@ public class Gui extends JFrame {
 	{
 		if (button_11 == null) {
 			button_11 = new JButton();
+			button_11.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_11.setForeground(Color.WHITE);
 			button_11.setBackground(Color.BLACK);
 			button_11.setBounds(370, 5, 32, 32);
@@ -499,6 +524,7 @@ public class Gui extends JFrame {
 	{
 		if (button_12 == null) {
 			button_12 = new JButton();
+			button_12.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_12.setForeground(Color.WHITE);
 			button_12.setBackground(Color.BLACK);
 			button_12.setBounds(412, 5, 32, 32);
@@ -512,10 +538,21 @@ public class Gui extends JFrame {
 	{
 		if (button_13 == null) {
 			button_13 = new JButton();
-			button_13.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+			button_13.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+			
+			button_13.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0, 0);
 				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0, 0);
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
 			});
+			
 			button_13.setForeground(Color.WHITE);
 			button_13.setBackground(Color.BLACK);
 			button_13.setBounds(454, 5, 32, 32);
@@ -529,12 +566,13 @@ public class Gui extends JFrame {
 	{
 		if (button_14 == null) {
 			button_14 = new JButton();
+			button_14.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_14.setForeground(Color.WHITE);
 			button_14.setBackground(Color.BLACK);
 			button_14.setBounds(496, 5, 32, 32);
 			button_14.setPreferredSize(new Dimension(32, 32));
 			button_14.setMargin(new Insets(2, 2, 2, 2));
-			button_14.setText("?");
+			button_14.setText("[");
 		}
 		return button_14;
 	}
@@ -542,12 +580,13 @@ public class Gui extends JFrame {
 	{
 		if (button_15 == null) {
 			button_15 = new JButton();
+			button_15.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_15.setForeground(Color.WHITE);
 			button_15.setBackground(Color.BLACK);
 			button_15.setBounds(538, 5, 32, 32);
 			button_15.setPreferredSize(new Dimension(32, 32));
 			button_15.setMargin(new Insets(2, 2, 2, 2));
-			button_15.setText("?");
+			button_15.setText("]");
 		}
 		return button_15;
 	}
@@ -555,10 +594,26 @@ public class Gui extends JFrame {
 	{
 		if (button == null) {
 			button = new JButton();
+			button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button.setForeground(Color.WHITE);
 			button.setBackground(Color.BLACK);
 			button.setBounds(587, 5, 57, 74);
 			button.setText("CR");
+			
+			button.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent arg0) {
+					Z88Keyboard.getInstance().pressZ88key(0x00, 0xBF);
+				}
+				public void mouseReleased(MouseEvent arg0) {
+					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xBF);
+					Z88display.getInstance().grabFocus();
+				}
+
+				public void mouseClicked(MouseEvent arg0) {}
+				public void mouseEntered(MouseEvent arg0) {}
+				public void mouseExited(MouseEvent arg0) {}				
+			});
+			
 		}
 		return button;
 	}
@@ -566,11 +621,12 @@ public class Gui extends JFrame {
 	{
 		if (button_15_1 == null) {
 			button_15_1 = new JButton();
+			button_15_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_15_1.setForeground(Color.WHITE);
 			button_15_1.setBackground(Color.BLACK);
 			button_15_1.setBounds(544, 47, 32, 32);
 			button_15_1.setMargin(new Insets(2, 2, 2, 2));
-			button_15_1.setText("?");
+			button_15_1.setText("£");
 		}
 		return button_15_1;
 	}
@@ -578,11 +634,11 @@ public class Gui extends JFrame {
 	{
 		if (button_3_1 == null) {
 			button_3_1 = new JButton();
+			button_3_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_3_1.setForeground(Color.WHITE);
 			button_3_1.setBackground(Color.BLACK);
 			button_3_1.setBounds(10, 47, 63, 32);
 			button_3_1.setMargin(new Insets(2, 22, 2, 10));
-			button_3_1.setHorizontalAlignment(SwingConstants.LEFT);
 			button_3_1.setAlignmentX(Component.CENTER_ALIGNMENT);
 			button_3_1.setText("<>");
 		}
@@ -592,6 +648,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1 == null) {
 			button_4_1 = new JButton();
+			button_4_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1.setForeground(Color.WHITE);
 			button_4_1.setBackground(Color.BLACK);
 			button_4_1.setBounds(82, 47, 32, 32);
@@ -604,6 +661,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1 == null) {
 			button_4_1_1 = new JButton();
+			button_4_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1.setForeground(Color.WHITE);
 			button_4_1_1.setBackground(Color.BLACK);
 			button_4_1_1.setBounds(124, 47, 32, 32);
@@ -616,6 +674,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1 == null) {
 			button_4_1_1_1 = new JButton();
+			button_4_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1.setBounds(165, 47, 32, 32);
@@ -628,6 +687,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1 == null) {
 			button_4_1_1_1_1 = new JButton();
+			button_4_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1.setBounds(207, 47, 32, 32);
@@ -640,6 +700,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1_1 == null) {
 			button_4_1_1_1_1_1 = new JButton();
+			button_4_1_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1_1.setBounds(249, 47, 32, 32);
@@ -652,6 +713,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1_1_1 == null) {
 			button_4_1_1_1_1_1_1 = new JButton();
+			button_4_1_1_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1_1_1.setBounds(291, 47, 32, 32);
@@ -664,6 +726,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1_1_1_1 == null) {
 			button_4_1_1_1_1_1_1_1 = new JButton();
+			button_4_1_1_1_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1_1_1_1.setBounds(333, 47, 32, 32);
@@ -676,6 +739,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1_1_1_1_1 == null) {
 			button_4_1_1_1_1_1_1_1_1 = new JButton();
+			button_4_1_1_1_1_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1_1_1_1_1.setBounds(375, 47, 32, 32);
@@ -688,6 +752,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1_1_1_1_1_1 == null) {
 			button_4_1_1_1_1_1_1_1_1_1 = new JButton();
+			button_4_1_1_1_1_1_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1_1_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1_1_1_1_1_1.setBounds(417, 47, 32, 32);
@@ -700,11 +765,12 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1_1_1_1_1_1_1 == null) {
 			button_4_1_1_1_1_1_1_1_1_1_1 = new JButton();
+			button_4_1_1_1_1_1_1_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1_1_1_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1_1_1_1_1_1_1.setBounds(459, 47, 32, 32);
 			button_4_1_1_1_1_1_1_1_1_1_1.setMargin(new Insets(2, 2, 2, 2));
-			button_4_1_1_1_1_1_1_1_1_1_1.setText("?");
+			button_4_1_1_1_1_1_1_1_1_1_1.setText(";");
 		}
 		return button_4_1_1_1_1_1_1_1_1_1_1;
 	}
@@ -712,11 +778,12 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_1_1_1_1_1_1_1_1_1_1 == null) {
 			button_4_1_1_1_1_1_1_1_1_1_1_1 = new JButton();
+			button_4_1_1_1_1_1_1_1_1_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_1_1_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 			button_4_1_1_1_1_1_1_1_1_1_1_1.setBackground(Color.BLACK);
 			button_4_1_1_1_1_1_1_1_1_1_1_1.setBounds(501, 47, 32, 32);
 			button_4_1_1_1_1_1_1_1_1_1_1_1.setMargin(new Insets(2, 2, 2, 2));
-			button_4_1_1_1_1_1_1_1_1_1_1_1.setText("?");
+			button_4_1_1_1_1_1_1_1_1_1_1_1.setText("'");
 		}
 		return button_4_1_1_1_1_1_1_1_1_1_1_1;
 	}
@@ -724,6 +791,7 @@ public class Gui extends JFrame {
 	{
 		if (button_3_1_1 == null) {
 			button_3_1_1 = new JToggleButton();
+			button_3_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_3_1_1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 				}
@@ -732,7 +800,6 @@ public class Gui extends JFrame {
 			button_3_1_1.setBackground(Color.BLACK);
 			button_3_1_1.setBounds(10, 89, 82, 32);
 			button_3_1_1.setMargin(new Insets(2, 22, 2, 10));
-			button_3_1_1.setHorizontalAlignment(SwingConstants.LEFT);
 			button_3_1_1.setAlignmentX(Component.CENTER_ALIGNMENT);
 			button_3_1_1.setText("SHIFT");
 		}
@@ -742,6 +809,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_1_2 == null) {
 			button_4_1_2 = new JButton();
+			button_4_1_2.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_1_2.setForeground(Color.WHITE);
 			button_4_1_2.setBackground(Color.BLACK);
 			button_4_1_2.setBounds(101, 89, 32, 32);
@@ -754,6 +822,7 @@ public class Gui extends JFrame {
 	{
 		if (button_4_2 == null) {
 			button_4_2 = new JButton();
+			button_4_2.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_4_2.setForeground(Color.WHITE);
 			button_4_2.setBackground(Color.BLACK);
 			button_4_2.setBounds(142, 89, 32, 32);
@@ -766,6 +835,7 @@ public class Gui extends JFrame {
 	{
 		if (button_6_1 == null) {
 			button_6_1 = new JButton();
+			button_6_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_6_1.setForeground(Color.WHITE);
 			button_6_1.setBackground(Color.BLACK);
 			button_6_1.setBounds(183, 89, 32, 32);
@@ -778,6 +848,7 @@ public class Gui extends JFrame {
 	{
 		if (button_7_1 == null) {
 			button_7_1 = new JButton();
+			button_7_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_7_1.setForeground(Color.WHITE);
 			button_7_1.setBackground(Color.BLACK);
 			button_7_1.setBounds(225, 89, 32, 32);
@@ -790,6 +861,7 @@ public class Gui extends JFrame {
 	{
 		if (button_9_1 == null) {
 			button_9_1 = new JButton();
+			button_9_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_9_1.setForeground(Color.WHITE);
 			button_9_1.setBackground(Color.BLACK);
 			button_9_1.setBounds(266, 89, 32, 32);
@@ -802,6 +874,7 @@ public class Gui extends JFrame {
 	{
 		if (button_10_1 == null) {
 			button_10_1 = new JButton();
+			button_10_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_10_1.setForeground(Color.WHITE);
 			button_10_1.setBackground(Color.BLACK);
 			button_10_1.setBounds(308, 89, 32, 32);
@@ -814,6 +887,7 @@ public class Gui extends JFrame {
 	{
 		if (button_11_1 == null) {
 			button_11_1 = new JButton();
+			button_11_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_11_1.setForeground(Color.WHITE);
 			button_11_1.setBackground(Color.BLACK);
 			button_11_1.setBounds(350, 89, 32, 32);
@@ -826,6 +900,7 @@ public class Gui extends JFrame {
 	{
 		if (button_12_1 == null) {
 			button_12_1 = new JButton();
+			button_12_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_12_1.setForeground(Color.WHITE);
 			button_12_1.setBackground(Color.BLACK);
 			button_12_1.setBounds(392, 89, 32, 32);
@@ -838,6 +913,7 @@ public class Gui extends JFrame {
 	{
 		if (button_13_1 == null) {
 			button_13_1 = new JButton();
+			button_13_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_13_1.setForeground(Color.WHITE);
 			button_13_1.setBackground(Color.BLACK);
 			button_13_1.setBounds(434, 89, 32, 32);
@@ -850,11 +926,12 @@ public class Gui extends JFrame {
 	{
 		if (button_14_1 == null) {
 			button_14_1 = new JButton();
+			button_14_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_14_1.setForeground(Color.WHITE);
 			button_14_1.setBackground(Color.BLACK);
 			button_14_1.setBounds(476, 89, 32, 32);
 			button_14_1.setMargin(new Insets(2, 2, 2, 2));
-			button_14_1.setText("?");
+			button_14_1.setText("/");
 		}
 		return button_14_1;
 	}
@@ -862,6 +939,7 @@ public class Gui extends JFrame {
 	{
 		if (button_3_1_1_1 == null) {
 			button_3_1_1_1 = new JToggleButton();
+			button_3_1_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_3_1_1_1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 				}
@@ -870,7 +948,6 @@ public class Gui extends JFrame {
 			button_3_1_1_1.setBackground(Color.BLACK);
 			button_3_1_1_1.setBounds(517, 89, 85, 32);
 			button_3_1_1_1.setMargin(new Insets(2, 24, 2, 10));
-			button_3_1_1_1.setHorizontalAlignment(SwingConstants.LEFT);
 			button_3_1_1_1.setAlignmentX(Component.CENTER_ALIGNMENT);
 			button_3_1_1_1.setText("SHIFT");
 		}
@@ -880,6 +957,7 @@ public class Gui extends JFrame {
 	{
 		if (button_17 == null) {
 			button_17 = new JButton();
+			button_17.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_17.setForeground(Color.WHITE);
 			button_17.setBackground(Color.BLACK);
 			button_17.setBounds(612, 89, 32, 32);
@@ -892,6 +970,7 @@ public class Gui extends JFrame {
 	{
 		if (button_15_2 == null) {
 			button_15_2 = new JButton();
+			button_15_2.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_15_2.setForeground(Color.WHITE);
 			button_15_2.setBackground(Color.BLACK);
 			button_15_2.setBounds(10, 130, 32, 32);
@@ -904,6 +983,7 @@ public class Gui extends JFrame {
 	{
 		if (button_15_2_1 == null) {
 			button_15_2_1 = new JButton();
+			button_15_2_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_15_2_1.setForeground(Color.WHITE);
 			button_15_2_1.setBackground(Color.BLACK);
 			button_15_2_1.setBounds(51, 130, 32, 32);
@@ -916,6 +996,7 @@ public class Gui extends JFrame {
 	{
 		if (button_8_1 == null) {
 			button_8_1 = new JButton();
+			button_8_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_8_1.setForeground(Color.WHITE);
 			button_8_1.setBackground(Color.BLACK);
 			button_8_1.setBounds(92, 130, 32, 32);
@@ -928,6 +1009,7 @@ public class Gui extends JFrame {
 	{
 		if (button_8_1_1 == null) {
 			button_8_1_1 = new JButton();
+			button_8_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_8_1_1.setForeground(Color.WHITE);
 			button_8_1_1.setBackground(Color.BLACK);
 			button_8_1_1.setBounds(133, 130, 32, 32);
@@ -940,11 +1022,11 @@ public class Gui extends JFrame {
 	{
 		if (button_3_1_1_2 == null) {
 			button_3_1_1_2 = new JButton();
+			button_3_1_1_2.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_3_1_1_2.setForeground(Color.WHITE);
 			button_3_1_1_2.setBackground(Color.BLACK);
 			button_3_1_1_2.setBounds(174, 130, 303, 32);
 			button_3_1_1_2.setMargin(new Insets(2, 22, 2, 10));
-			button_3_1_1_2.setHorizontalAlignment(SwingConstants.LEFT);
 			button_3_1_1_2.setAlignmentX(Component.CENTER_ALIGNMENT);
 		}
 		return button_3_1_1_2;
@@ -953,6 +1035,7 @@ public class Gui extends JFrame {
 	{
 		if (button_14_1_1 == null) {
 			button_14_1_1 = new JButton();
+			button_14_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_14_1_1.setForeground(Color.WHITE);
 			button_14_1_1.setBackground(Color.BLACK);
 			button_14_1_1.setBounds(487, 130, 32, 32);
@@ -965,6 +1048,7 @@ public class Gui extends JFrame {
 	{
 		if (button_17_1 == null) {
 			button_17_1 = new JButton();
+			button_17_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_17_1.setForeground(Color.WHITE);
 			button_17_1.setBackground(Color.BLACK);
 			button_17_1.setBounds(612, 130, 32, 32);
@@ -977,6 +1061,7 @@ public class Gui extends JFrame {
 	{
 		if (button_17_1_1 == null) {
 			button_17_1_1 = new JButton();
+			button_17_1_1.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_17_1_1.setForeground(Color.WHITE);
 			button_17_1_1.setBackground(Color.BLACK);
 			button_17_1_1.setBounds(529, 130, 32, 32);
@@ -989,6 +1074,7 @@ public class Gui extends JFrame {
 	{
 		if (button_17_2 == null) {
 			button_17_2 = new JButton();
+			button_17_2.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			button_17_2.setForeground(Color.WHITE);
 			button_17_2.setBackground(Color.BLACK);
 			button_17_2.setBounds(570, 130, 32, 32);
