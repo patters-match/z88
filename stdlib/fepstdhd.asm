@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB SafeSegmentMask, FlashEprCardId, FlashEprWriteBlock
+     LIB SafeSegmentMask, FlashEprCardId, FlashEprWriteBlock, D8
 
      INCLUDE "saverst.def"
      INCLUDE "memory.def"
@@ -61,8 +61,8 @@
 ;         A = RC_NFE (not a recognized Flash Memory Chip)
 ;
 ; Registers changed after return:
-;    ..BCDEHL/IXIY same
-;    AF....../.... different
+;    A.BCDEHL/IXIY same
+;    .F....../.... different
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by
@@ -71,13 +71,21 @@
 ; ------------------------------------------------------------------------
 ;
 .FlashEprStdFileHeader
-
                     PUSH BC
                     PUSH AF
                     PUSH DE
                     PUSH HL
                     PUSH IX
 
+                    LD   D,B                 
+                    LD   A,B
+                    AND  @11000000
+                    RLCA
+                    RLCA                     
+                    LD   C,A                      ; get size of card in B of slot C 
+                    CALL FlashEprCardId
+                    JR   C, err_FlashEprStdFileHeader  ; Fc = 1, A = RC error code (Flash Memory not found)
+                    
                     LD   HL,0
                     ADD  HL,SP
                     LD   IX,-66
@@ -85,7 +93,8 @@
                     LD   SP,IX                    ; 64 byte buffer created...
                     PUSH HL                       ; preserve original SP
 
-                    PUSH BC                       ; preserve bank number for header
+                    LD   E,B                      ; preserve E = total of banks on card
+                    PUSH DE                       ; preserve D = bank to blow header
 
                     PUSH IX
                     POP  HL
@@ -111,15 +120,21 @@
                     EX   DE,HL
                     LD   HL, stdromhdr
                     LDIR
-                    POP  BC                       ; blow header at bank B
-                    
-                    PUSH BC
-                    RES  7,B
-                    RES  6,B
-                    INC  B
-                    LD   (IX + $3C),B             ; total of banks on File Eprom = Bank+1
-                    POP  BC 
-
+                    POP  HL                       ; H = blow header at bank, L = total of banks on Flash Memory Card
+                    LD   B,H                      ; B = blow header at bank
+                    LD   C,L
+                    RES  7,H
+                    RES  6,H
+                    INC  H
+                    CALL d8                       ; get true file eprom size, no matter where bank header is blown
+                    INC  L
+                    DEC  L
+                    JR   Z, whole_card
+                    LD   (IX + $3C),L             ; File Eprom area smaller than card size
+                    JR   blow_header                    
+.whole_card         
+                    LD   (IX + $3C),C             ; File Eprom area uses whole card
+.blow_header                    
                     PUSH IX
                     POP  DE                       ; start of File Eprom Header
                     CALL SafeSegmentMask          ; get a safe segment (not this executing segment!)
@@ -128,12 +143,12 @@
                     LD   C,A                      ; use segment x to blow bytes
                     LD   HL, $3FC0                ; blown at address B,$3FC0
                     LD   IY, 64                   ; of size
-
                     CALL FlashEprWriteBlock       ; blow header...
 
                     POP  HL
                     LD   SP,HL                    ; restore original Stack Pointer
-
+                    JR   C, err_FlashEprStdFileHeader
+ 
                     POP  IX                       ; restore registers...
                     POP  HL
                     POP  DE
@@ -141,5 +156,11 @@
                     LD   A,B                      ; A restored
                     POP  BC
                     RET
-
+.err_FlashEprStdFileHeader
+                    POP  IX                       ; restore registers...
+                    POP  HL
+                    POP  DE
+                    POP  BC                       ; return error code in AF...
+                    POP  BC
+                    RET
 .stdromhdr          DEFB $01, $80, $40, $7C, $6F, $7A
