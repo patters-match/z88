@@ -559,14 +559,22 @@ public abstract class Z80 {
 	public boolean singleSteppingMode() {
         return singleStepping;
     }
+    
+    public boolean isZ80running() {
+    	return !z80Stopped;
+    }
 
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
     public final void run(boolean singleStep) {
+		z80Stopped = false;
 
         singleStepping = singleStep;
 
         do {
-			if (isZ80Stopped() == true) return;
+			if (isZ80Stopped() == true) {
+				z80Stopped = true;
+				return;
+			} 
 
             if (singleStep == false && IFF1() == true && interruptTriggered() == true) {
                 // a maskable interrupt want's to be executed...
@@ -2103,8 +2111,6 @@ public abstract class Z80 {
             }
         }
         while (singleStep == false && z80Stopped == false);
-
-		z80Stopped = false;
     }
 
     private final int execute_ed(int tstatesCounter) {
