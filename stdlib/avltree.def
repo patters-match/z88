@@ -1,0 +1,16 @@
+lstoff
+
+; Structured data type for avltree node
+; a pointer is defined as extended address consisting of a bank offset,
+; followed by a bank number.
+
+     DEFVARS 0
+     {
+          avltree_height      ds.b 1    ; Height of subtree of node
+          avltree_data        ds.p 1    ; Pointer to data of node (defined by user)
+          avltree_left        ds.p 1    ; Pointer to left subtree of node
+          avltree_right       ds.p 1    ; Pointer to right subtree od node
+          SIZEOF_avltree
+     }
+
+lston

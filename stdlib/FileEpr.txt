@@ -1,0 +1,162 @@
+Flash/File Eprom Library for Z88
+
+                                                  Kopenhagen, 22nd March, 1999
+
+ * Introduction *
+
+This text describes the standard File Eprom Library for the 1MB Flash
+Eprom, used in conjunction with the Z80 Module Assembler for the Z88, or 
+equivalent cross assembler versions on other platforms (MSDOS, etc.). 
+
+The library enables you to write data to the new Rakewell/Zlab 1MB Intel 
+Flash Eprom Card. Reading data from the card is done through the usual bank
+binding and reading techniques as with other Z88 memory.
+
+If you want further information about the chip hardware, please look at
+Rakewell's Homepage, http://homepages.nildram.co.uk/~rakewell .
+
+
+ * The Library *
+
+This library is a collection of several libraries. Please note the FlashStore
+library is partly implemented, containing only necessary routines that are
+used by the FlashStore application V1.6.9 (or newer).
+
+Listed and grouped below, they are:
+
+ Filename:          Library name (XLIB):     Description:
+ ---------------------------------------------------------------------------------
+ (FepStd)
+ FepBlEra.asm       FlashEprBlockErase       Erase/format 64K memory blocks
+ FepBlwBt.asm       FlashEprBlowByte         Low level Write Byte
+ FepWrByt.asm       FlashEprWriteByte        Write/blow a single byte
+ FepCrdId.asm       FlashEprCardId           Obtain the Intel chip ID
+ FepVppOf.asm       FlashEprVppOff           Disable VPP in slot 3, reset chip
+ FepVppOn.asm       FlashEprVppOn            Enable VPP in slot 3, reset chip
+ FepWrBlk.asm       FlashEprWriteBlock       Write/blow a block of bytes (max 16K)
+
+ (FepEpr)
+ FepFdel.asm        FlashEprFileDelete       Mark File Entry as deleted
+ FepFsave.asm       FlashEprFileSave         Save single file to Flash Eprom 
+ FepStdHd.asm       FlashEprStdFileHeader    Blow File Eprom header 
+ FepType.asm        FlashEprType             Validate File Eprom status in slot x
+
+ (EprStd)
+ EprPtNxB.asm       PointerNextByte          Increment BHL Extended address 
+ EprPtAdr.asm       ConvPtrToAddr            Convert rel. ptr BHL to 20bit addr
+ EprAdrPt.asm       ConvAddrToPtr            Convert 20bit addr. to rel. ptr in BHL
+ EprPdist.asm       AddPointerDistance       Add distance CDE to pointer BHL
+ EprType.asm        FileEprType              Pointer to Std File Eprom Hdr 
+ EprRndID.asm       FileEprRandomID          Random ID from File Eprom Hdr 
+ EprFsize.asm       FileEprFileSize          File size of File Entry at BHL
+ EprFreSp.asm       FileEprFreeSpace         Free space in File Eprom 
+ EprFnext.asm       FileEprNextFile          Ptr to next file entry in File Eprom
+ EprFndFl.asm       FileEprFindFile          Find active File(name) in File Eprom
+ EprFname.asm       FileEprFileName          Return file name of File Entry at BHL
+ EprFinfo.asm       FileEprFileEntryInfo     Read File Entry information
+ EprFimag.asm       FileEprFileImage         Ptr to start of File Image of File Entry 
+ EprFfrst.asm       FileEprFirstFile         First File Entry ptr on File Eprom
+ EprFetch.asm       FileEprFetchFile         Fetch File (image) from File Eprom
+ EprFaloc.asm       FileEprAllocFilePtr      Ptr to free space in File Eprom 
+ EprDelSp.asm       FileEprDelSpace          Amount of del. file space in File Eprom
+ EprCntFl.asm       FileEprCntFiles          Active/deleted files on File Eprom 
+ EprRdByt.asm       FileEprReadByte          Read byte at (BHL), BHL++
+ 
+ (MmStd)
+ SafSgMsk.asm       SafeSegmentMask          Return a complement segment mask
+ Aplsgmsk.asm       ApplSegmentMask          Segment mask of executing routine
+ MmAbsPtr.asm       MemAbsPtr                Convert rel. BHL ptr to absolute ptr
+ MmGetbnk.asm       MemGetBank               Current bank binding for segment
+ MmDefbnk.asm       MemDefBank               Define new bank binding for segment
+ MmRdbyte.asm       MemReadByte              Read byte at ptr. in BHL, offset A
+ MmRdWord.asm       MemReadWord              Read word at ptr. in BHL, offset A
+ MmRdPtr.asm        MemReadPointer           Read pointer at BHL, offset A
+ MmRdlong.asm       MemReadLong              Read long int at BHL, offset A
+ MmWrbyte.asm       MemWriteByte             Write byte at pointer in BHL offset A
+ MmWrWord.asm       MemWriteWord             Write word at pointer in BHL offset A
+ MmWrPtr.asm        MemWritePointer          Write pointer at BHL offset A
+ MmWrLong.asm       MemWriteLong             Write long int at BHL offset A
+
+ (Fstore)
+ FStFrmt.asm        XLIB FlashStoreFormat    Create & Remove FS II Partitions, 
+                                             Create Sub File Eprom on Appl. Card
+ ---------------------------------------------------------------------------------
+
+
+ * Using the library *
+
+The routines are easily interfaced into your source file by specifying
+a LIB directive at the top (or before the actual reference of the routine).
+For example:
+
+     LIB FlashEprCardId
+     ...
+     CALL FlashEprCardId
+
+The library will be linked, using the -i option and the name of
+the library, eg.
+
+     z80asm -a -istdepr.lib #yourproject
+
+For further information, please read the "z80asm.txt" file which explains
+everything.
+
+
+ * The "flashepr.def" file *
+
+The definition file contains various constant mnemonic definitions
+to identify codes applying a more readable form of the magic numbers
+of the Flash Eprom.
+Please include this file with the other OZ definition files in your
+assembler workbench development setup. You will also see these definitions
+in the library documentation below. The file is not necessary when only using
+the above library references.
+
+
+ * The "flstore.def" file *
+The definition file contains various constant mnemonic definitions
+to identify codes applying to the FS II format library.
+Please include this file with the other OZ definition files in your
+assembler workbench development setup. You will also see these definitions
+in the library documentation below. The file is not necessary when only using
+the above library references.
+ 
+ 
+ * Important *
+
+To ensure 100% safe programming of data to the Flash Eprom, it is vital that
+you check the battery low status before blowing data to the card. 
+
+All the write/blow routines verify the data and return an error condition if
+something went wrong. Still, it is better to ensure that sufficient battery 
+power is available before starting the actual blowing process.
+
+The CheckBattLow routine will return the hardware status of the batteries.
+
+
+ * Copyright notice *
+
+These routines are open source as defined by the GNU copyleft, and may be used 
+in your application software as long as you make a notice in your software 
+documentation or on-line help about the usage of these routines and the 
+copyright holders:
+
+     Core Flash Eprom Library (FepStd & FepEpr):
+          Copyright (C) Gunther Strube, InterLogic, Dec 1997-98
+          Copyright (C) Thierry Peycru, Zlab, Dec 1997
+
+     Generic File Eprom Library (EprStd):
+          Copyright (C) Gunther Strube, InterLogic, Dec 1997-98
+
+     Extended Memory Manipulation Library (MmStd):
+          Copyright (C) Gunther Strube, InterLogic, Dec 1997-98
+
+     FlashStore Partition/File Format (Fstore):
+          Copyright (C) Gunther Strube, InterLogic, Dec 1997-98
+          
+
+* Contacting the authors *
+
+You may reach either Gunther Strube or Thierry Peycru on the Internet:
+     gbs@image.dk (Gunther Strube)
+     tpeycru@club-internet.fr (Thierry Peycru)

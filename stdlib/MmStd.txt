@@ -1,0 +1,245 @@
+ *********************************************************************************
+
+ Library for Z88 extended memory manipulation.
+ 
+ All routines are "Open Source" as designed by the GPL.
+
+ This text describes a reference of all the memory routines and their 
+ interface arguments. For further information, please refer to the actual source file.
+  
+ Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998.
+
+ *********************************************************************************
+
+ Filename:		Library name:				Description:
+ -----------------------------------------------------------------------------------
+ MmStd			library project file to be used for compiling
+ MmStd.lib		object file library 
+
+ SafSgMsk.asm		XLIB SafeSegmentMask		Return a complement segment mask
+ Aplsgmsk.asm		XLIB ApplSegmentMask		Segment mask of executing routine
+ MmAbsPtr.asm		XLIB MemAbsPtr				Convert rel. BHL ptr to absolute ptr
+ MmGetbnk.asm		XLIB MemGetBank			Current bank binding for segment
+ MmDefbnk.asm		XLIB MemDefBank			Define new bank binding for segment
+ MmRdbyte.asm		XLIB MemReadByte			Read byte at ptr. in BHL, offset A
+ MmRdWord.asm		XLIB MemReadWord			Read word at ptr. in BHL, offset A
+ MmRdPtr.asm		XLIB MemReadPointer			Read pointer at BHL, offset A
+ MmRdlong.asm		XLIB MemReadLong			Read long int at BHL, offset A
+ MmWrbyte.asm		XLIB MemWriteByte			Write byte at pointer in BHL offset A
+ MmWrWord.asm		XLIB MemWriteWord			Write word at pointer in BHL offset A
+ MmWrPtr.asm		XLIB MemWritePointer		Write pointer at BHL offset A
+ MmWrLong.asm		XLIB MemWriteLong			Write long int at BHL offset A
+
+
+; ********************************************************************************
+;
+;	XLIB MemWriteLong
+;
+; Set long integer in debc, at pointer in BHL,A.
+; Segment mask as defined by H is used for bank binding.
+;
+;	Register affected on return:
+;		AFBCDEHL/IXIY same
+;		......../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemWritePointer
+;
+; Set pointer in CDE, at pointer in BHL,A.
+; Segment mask as defined by H is used for bank binding.
+;
+;	Register affected on return:
+;		AFBCDEHL/IXIY same
+;		......../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemWriteWord
+;
+; Set word in DE, at pointer in BHL,A.
+; Segment mask as defined by H is used for bank binding.
+;
+;	Register affected on return:
+;		AFBCDEHL/IXIY same
+;		......../.... different
+;
+; ********************************************************************************
+
+ 
+; ********************************************************************************
+;
+;	XLIB MemWriteByte
+;
+; Set byte in C, at pointer in BHL,A.
+; Segment mask as defined by H is used for bank binding.
+;
+;	Register affected on return:
+;		AFBCDEHL/IXIY same
+;		......../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemReadLong
+;
+; Read long integer (in debc) at pointer in BHL,A.
+; Segment mask as defined by H is used for bank binding.
+;
+;	Register affected on return:
+;		..BCDEHL/IXIY .......  same
+;		AF....../.... afbcdehl different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemReadPointer
+;
+; Read pointer at record defined as extended (base) address in BHL, offset A.
+; Return (extended) pointer in BHL.
+; Segment mask as defined by H is used for bank binding.
+;
+;	Register affected on return:
+;		AF.CDE../IXIY same
+;		..B...HL/.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemReadWord
+;
+; Read word at record defined as extended (base) address in BHL, offset A.
+; Segment mask as defined by H is used for bank binding.
+;
+; Return word in DE.
+;
+;	Register affected on return:
+;		AFBC..HL/IXIY same
+;		....DE../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemReadByte
+;
+; Read byte at pointer in BHL, offset A. Return byte in A.
+; Segment mask as defined by H is used for bank binding.
+;
+;	Register affected on return:
+;		..BCDEHL/IXIY same
+;		AF....../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemDefBank
+;
+; Bind bank, defined in B, into segment C. Return old bank binding in B.
+; This is the functional equivalent of OS_MPB, but much faster.
+;
+;	Register affected on return:
+;		AF.CDEHL/IXIY same
+;		..B...../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemGetBank
+;
+; Get current Bank binding for specified segment, defined in C.
+; This is the functional equivalent of OS_MGB, but much faster.
+;
+;	Register affected on return:
+;		AF.CDEHL/IXIY same
+;		..B...../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB MemAbsPtr
+;
+; Convert relative BHL pointer for slot number A (0 to 3) to absolute
+; pointer, addressed for safe bank binding segment.
+;
+; Internal Support Library Routine.
+;
+; IN:
+;	A = slot number (0 to 3)
+;	BHL = relative pointer 
+;
+; OUT:
+;	BHL pointer, absolute addressed for physical slot C, and specific segment.
+;
+; Registers changed after return:
+;	...CDE../IXIY same
+;	AFB...HL/.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;	XLIB ApplSegmentMask
+;
+; This library routine returns the segment mask of this
+; executing library routine.
+;
+; The sole purpose of this is for the application to
+; determine which segment it is running in.
+;
+;	In:
+;		None.
+;	Out:
+;		A = MM_Sx
+;
+;	Registers changed after return:
+;		..BCDEHL/IXIY same
+;		AF....../.... different
+;
+; ********************************************************************************
+ 
+
+; ********************************************************************************
+;
+;	XLIB SafeSegmentMask
+;
+; This library routine returns a complement segment mask
+; that's outside the scope of the executing code (in a bound bank).
+;
+; The sole purpose of this is for the application to
+; determine another segment than which the application executes in
+; at this point of call (the current segment of the PC), to be
+; used for reading extended pointer information without swapping
+; out the executing program, resided in a potential identical segment.
+;
+;	In:
+;		None
+;	Out:
+;		A = Safe MM_Sx, but never in segment 0.
+;
+;	Registers changed after return:
+;		..BCDEHL/IXIY same
+;		AF....../...  different
+;
+; ********************************************************************************
+

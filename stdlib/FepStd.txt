@@ -1,0 +1,238 @@
+ *********************************************************************************
+
+ Core Level Flash Eprom Library for Intel Flash Eprom chips:
+ 28F008SA (1024K), 28F008S5 (1024K), 28F004S5 (512K), INTEL 28F020 (256K)
+ 
+ All routines are "Open Source" as designed by the GPL.
+
+ This text describes a reference of all the basic routines to manipulate the
+ Flash Eprom Card and their interface arguments. For further information, 
+ please refer to the actual source file.
+ 
+ All routines (except FlashEprBlowByte) may be executed in slot 3 on a Flash Eprom.
+ This is possible since they all copy a small subroutine of their own on the
+ Z80 stack to be executed there while the Flash Eprom is in non-read-array-mode.
+ 
+ Design & programming by:
+     Gunther Strube, InterLogic, Dec 1997 - Apr 1998
+     Thierry Peycru, Zlab, Dec 1997
+
+ *********************************************************************************
+
+ Filename:               Library name:            Description:
+ ---------------------------------------------------------------------------------
+ FepStd                  library project file to be used for compiling
+ FepStd.lib              object file library
+
+ FepBlEra.asm            XLIB FlashEprBlockErase  Erase/format 64K memory blocks
+ FepBlwBt.asm            XLIB FlashEprBlowByte    Low level Write Byte
+ FepWrByt.asm            XLIB FlashEprWriteByte   Write/blow a single byte
+ FepCrdId.asm            XLIB FlashEprCardId      Obtain the Intel chip ID
+ FepVppOf.asm            XLIB FlashEprVppOff      Disable VPP in slot 3, reset chip
+ FepVppOn.asm            XLIB FlashEprVppOn       Enable VPP in slot 3, reset chip
+ FepWrBlk.asm            XLIB FlashEprWriteBlock  Write/blow a block of bytes (max 16K)
+
+
+; ********************************************************************************
+;
+;    XLIB FlashEprWriteBlock
+;
+; Write a block of bytes to the Flash Eprom Card (in slot 3), from address
+; DE to BHL of block size IX.
+;
+; This routine is primarily used for File Eprom management, but is well
+; suited for other purposes.
+;
+; Use segment specifier C to blow the bytes (MS_S0 - MS_S3)
+;
+; BHL pointer is assumed relative, ie. B = 00h - 3Fh, HL = 0000h - 3FFFh.
+;
+; This routine enables Vpp temporarily while the block is being blown.
+;
+; Further, the local buffer must be available in local address space and not
+; part of the segment used for blowing bytes.
+;
+; The routine writes across bank boundaries.
+;
+; On return, BHL points at the byte after the last written byte.
+; (BHL returned relative to slot 3, B=00h-3Fh, HL=0000h-3FFFh)
+;
+; In :
+;         DE = local pointer to start of block (located in available segment)
+;         C = MS_Sx segment specifier
+;         BHL = extended address to start of destination
+;         IX = size of block to blow
+; Out:
+;         Success:
+;              Fc = 0
+;              BHL updated
+;         Failure:
+;              Fc = 1
+;              A = RC_BWR
+;
+; Registers changed on return:
+;    A..CDE../IXIY same
+;    .FB...HL/.... different
+; 
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;    XLIB FlashEprVppOn
+;
+; Set Flash Eprom chip in programming mode
+;
+; 1) set Vpp (12V) on
+; 2) clear the chip status register
+;
+; IN:
+;         -
+; OUT:
+;         -
+;
+; Registers changed on return:
+;    AFBCDEHL/IXIY same
+;    ......../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;    XLIB FlashEprVppOff
+;
+; Disable VPP and reset Flash Eprom chip in read array mode (like a
+; standard eprom chip)
+;
+; 1) Set Vpp (12V) off
+; 2) Reset Flash Eprom Chip
+;
+; In:
+;         -
+; Out:
+;         -
+;
+; Registers changed on return:
+;    AFBCDEHL/IXIY same
+;    ......../.... different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;    XLIB FlashEprCardId
+;
+; Intel Flash Eprom Chip Identification.
+;
+; In:
+;         -
+; Out:
+;         Success:
+;              Fc = 0
+;              Fz = 1
+;              A = Intel Device Code
+;                   fe_i016 ($AA), an INTEL 28F016S5 (2048K)
+;                   fe_i008 ($A2), an INTEL 28F008SA (1024K)
+;                   fe_i8s5 ($A6), an INTEL 28F008S5 (1024K)
+;                   fe_i004 ($A7), an INTEL 28F004S5 (512K)
+;                   fe_i020 ($BD), an INTEL 28F020 (256K)
+;              B = total of 64K blocks on Flash Eprom.
+;
+;         Failure:
+;              Fc = 1
+;              A = RC_NFE (not a recognised Intel Flash Eprom)
+;
+; Registers changed on return:
+;    ...CDEHL/IXIY ........ same
+;    AFB...../.... afbcdehl different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;    XLIB FlashEprWriteByte
+;
+; Write a byte to the Flash Eprom Card (in slot 3), at address BHL
+;
+; BHL pointer is assumed relative, ie. B = 00h - 3Fh, HL = 0000h - 3FFFh.
+;
+; This routine will temporarily set Vpp while blowing the byte.
+;
+; In:
+;         A = byte
+;         BHL = pointer to Flash Eprom address (B=00h-3Fh, HL=0000h-3FFFh)
+; Out:
+;         Success:
+;              A = A(in)
+;              Fc = 0
+;         Failure:
+;              Fc = 1
+;              A = RC_BWR
+;
+; Registers changed on return:
+;    A.BCDEHL/IXIY ........ same
+;    .F....../.... afbcdehl different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;    XLIB FlashEprBlockErase
+;
+; Erase Flash Eprom 64K Block number, defined in A (0 - 15)
+; (16 blocks in total define the 1MB chip size)
+;
+; This routine will temporarily set the Vpp pin while the block is 
+; being erased.
+;
+; IN:
+;         A = 64K Block number on chip to be erased (0 - 15)
+;              (available block numbers depend on chip size)
+;
+; OUT:
+;         Success:
+;              Fc = 0
+;              A = 0
+;         Failure:
+;              Fc = 1
+;              A = RC_BER
+;
+; Registers changed on return:
+;    ..BCDEHL/IXIY ........ same
+;    AF....../.... afbcdehl different
+;
+; ********************************************************************************
+
+
+; ********************************************************************************
+;
+;    XLIB FlashEprBlowByte
+;
+; Write a byte to the Flash Eprom Card (in slot 3), at (local) address HL.
+;
+; This Routine is absolutely low level and assumes that Vpp is enabled 
+; (CALL'ed FlashEprVppOn routine), and that the corresponding bank 
+; of the Flash Eprom is bound into the segment that HL points into.
+;
+; Warning:
+; This routine cannot be executed on the Flash Eprom Card
+; (in slot 3), since the Flash Eprom is not in Read Array Mode
+; while the byte is being blown.
+;
+; IN:
+;    A = byte
+;    HL = pointer to physical address in segment (of bound bank).
+;
+; OUT:
+;    Fc = 0, byte blown successfully to the Flash Card
+;    Fc = 1, A = RC_ error code, byte not blown
+;
+; Registers changed after return:
+;    A.BCDEHL/IXIY same
+;    .F....../.... different
+;
+; ********************************************************************************

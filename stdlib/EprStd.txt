@@ -1,0 +1,575 @@
+ *********************************************************************************
+
+ File Eprom Library for Z88 32K, 128K, 256K std. UV Eproms and 1MB Flash Eproms.
+ 
+ Even though particular types are mentioned, all Eprom sizes may apply, up to
+ 1MB range. All routines are implemented as slot independent routines, 
+ using relative bank number references (00h - 3Fh) and 16K offsets.
+ 
+ The major routines uses the new File Eprom format, which allows applications
+ and trad. File Eprom Images to co-exist. These routines are referenced in this
+ library, but actually described "flstore.txt", the advanced Flash 
+ Store Filing system library (which is partly implemented).
+
+ All routines are "Open Source" as designed by the GPL.
+
+ This text describes a reference of all the Generic File Eprom routines and their 
+ interface arguments. For further information, please refer to the actual source file.
+  
+ Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998.
+
+ *********************************************************************************
+
+ Filename:          Library name:                 Description:
+ -----------------------------------------------------------------------------------
+ EprStd             library project file to be used for compiling
+ EprStd.lib         object file library 
+ 
+ EprPtNxB.asm       XLIB PointerNextByte          Increment BHL Extended address 
+ EprPtAdr.asm       XLIB ConvPtrToAddr            Convert rel. ptr BHL to 20bit addr
+ EprAdrPt.asm       XLIB ConvAddrToPtr            Convert 20bit addr. to rel. ptr in BHL
+ EprPdist.asm       XLIB AddPointerDistance       Add distance CDE to pointer BHL
+ EprType.asm        XLIB FileEprType              Pointer to Std File Eprom Hdr 
+ EprRndID.asm       XLIB FileEprRandomID          Random ID from File Eprom Hdr 
+ EprFsize.asm       XLIB FileEprFileSize          File size of File Entry at BHL
+ EprFreSp.asm       XLIB FileEprFreeSpace         Free space in File Eprom 
+ EprFnext.asm       XLIB FileEprNextFile          Ptr to next file entry in File Eprom
+ EprFndFl.asm       XLIB FileEprFindFile          Find active File(name) in File Eprom
+ EprFname.asm       XLIB FileEprFileName          Return file name of File Entry at BHL
+ EprFinfo.asm       XLIB FileEprFileEntryInfo     Read File Entry information
+ EprFimag.asm       XLIB FileEprFileImage         Ptr to start of File Image of File Entry 
+ EprFfrst.asm       XLIB FileEprFirstFile         First File Entry ptr on File Eprom
+ EprFetch.asm       XLIB FileEprFetchFile         Fetch File (image) from File Eprom
+ EprFaloc.asm       XLIB FileEprAllocFilePtr      Ptr to free space in File Eprom 
+ EprDelSp.asm       XLIB FileEprDelSpace          Amount of del. file space in File Eprom
+ EprCntFl.asm       XLIB FileEprCntFiles          Total of active/deleted files on File Eprom 
+ EprRdByt.asm       XLIB FileEprReadByte          Read byte at (BHL), BHL++
+
+; *********************************************************************************
+;
+;    XLIB ConvAddrToPtr
+;
+; Convert 1MB 20bit address to relative pointer in BHL
+; (B = 00h - 3Fh, HL = 0000h - 3FFFh).
+;
+; This routine is primarily used File Eprom management
+;
+; IN:
+;    EBC = 24bit integer (actually 20bit 1MB address)
+;
+; OUT:
+;    BHL = pointer
+;
+; Registers changed after return:
+;    AF.CDE../IXIY same
+;    ..B...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprCntFiles
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Count total of active and deleted files on File Eprom in slot C
+;
+; IN:
+;    C = slot number containing File Eprom Area
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         HL = total of active (visible) files
+;         DE = total of (marked as) deleted files
+;         (HL + DE would total files on the card)
+;
+;    Fc = 1, File Eprom was not found at slot C
+;
+; Registers changed after return:
+;    ..BC..../IXIY same
+;    AF..DEHL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprDelSpace
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Return amount of deleted file space in File Eprom Area, inserted in slot C.
+;
+; IN:
+;    C = slot number containing File Eprom Area
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         DEBC = Amount of deleted file space used on File Eprom
+;
+;    Fc = 1, 
+;         A = RC_ONF
+;         File Eprom was not found in slot C.
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprAllocFilePtr
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Return pointer to free space in File Eprom Area, inserted in slot C.
+; (B=00h-3Fh, HL=0000h-3FFFh)
+;
+; IN:
+;    C = slot number containing File Eprom Area
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         BHL = pointer to first byte of free space
+;
+;    Fc = 1, File Eprom was not found in slot C
+;
+; Registers changed after return:
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFetchFile
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; Area in application cards (below application banks in first free 64K boundary)
+;
+; Fetch file (image) from File Eprom, identified by File Entry at BHL, slot C
+; (B=00h-3Fh, HL=0000h-3FFFh)
+;
+; IN:
+;    C = slot number containing File Eprom (1, 2 or 3)
+;    IX = handle of file stream (opened as OP_OUT, refer to GN_Opf sys call)
+;    BHL = pointer to Eprom File Entry
+;
+; OUT:
+;    Fc = 0,
+;         File Image transferred successfully to RAM file.
+;
+;    Fc = 1,
+;         A = RC_ONF, File Eprom or File Entry was not found in slot C
+;         A = RC_xxx, I/O error during saving process.
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFirstFile
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Return first file entry pointer on Standard File Eprom, inserted in slot C
+;
+; IN:
+;    C = slot number containing File Eprom
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         Fz = 1, File Entry marked as deleted
+;         Fz = 0, File Entry is active.
+;         BHL = pointer to first file entry (B=00h-3Fh, HL=0000h-3FFFh).
+;
+;    Fc = 1,
+;         A = RC_Onf
+;         File Eprom was not found in slot C, or File Entry not available
+;
+; Registers changed after return:
+;    A..CDE../IXIY same
+;    .FB...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFileImage
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Return pointer to start of file image of File Entry at BHL, slot C
+; (B=00h-3Fh, HL=0000h-3FFFh)
+;
+; IN:
+;    C = slot number containing File Eprom Area
+;    BHL = pointer to Eprom File Entry
+;
+; OUT:
+;    Fc = 0, File Eprom available, File Entry available
+;         BHL = pointer to start of file image (relative bank, offset)
+;
+;    Fc = 1,
+;         A = RC_Onf
+;         File Eprom was not found in slot C, or File Entry not available
+;
+; Registers changed after return:
+;    A..CDE../IXIY same
+;    .FB...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFileEntryInfo
+;
+; Standard Z88 File Eprom Format.
+;
+; Read File Entry information, if available.
+;
+; NB:     This routine might be used by applications, but is primarily called by
+;         High level File Eprom interface routines.
+;
+; IN:
+;    BHL = pointer to start of file entry
+;         The Bank specifier contains the slot mask, ie. defines which slot
+;         is being read.
+;         The offset must be used with a segment specifier MM_Sx in H register
+;         (which segment will be used for bank implicit bank binding).
+;
+; OUT:
+;    Fc = 0, File Entry available
+;         Fz = 1, deleted file
+;         Fz = 0, active file
+;         A = length of filename
+;         BHL = pointer to next File Entry (or free space)
+;         CDE = length of file
+;
+;    Fc = 1, File Entry not available ($FF was first byte of entry)
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFileName
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Return file name of File Entry at BHL, slot C
+; (B=00h-3Fh, HL=0000h-3FFFh)
+;
+; IN:
+;    C = slot number containing File Eprom
+;    DE = buffer to hold returned filename
+;    BHL = pointer to Eprom File Entry
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         Fz = 1, File Entry marked as deleted
+;         Fz = 0, File Entry marked as active
+;         A = length of filename
+;         (DE) contains a copy of filename, null-terminated.
+;
+;    Fc = 1,
+;         A = RC_Onf
+;         File Eprom was not found in slot C, or File Entry not available
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF...../.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFindFile
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Find active File(name) on Standard File Eprom in slot C.
+;
+; IN:
+;    C = slot number containing File Eprom
+;    DE = pointer to null-terminated filename to be searched for.
+;         The filename is excl. device name and must begin with '/'.
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         Fz = 1, File Entry found.
+;              BHL = pointer to File Entry.
+;         Fz = 0, No file were found on the File Eprom.
+;              BHL = pointer to free byte on Eprom
+;
+;         The BHL pointer is returned relative to slot.
+;         (B=00h-3Fh, HL=0000h-3FFFh)
+;
+;    Fc = 1,
+;         A = RC_Onf
+;         File Eprom was not found at slot C
+;
+; Registers changed after return:
+;    A..CDE../IXIY same
+;    .FB...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprNextFile
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Return next file entry pointer on Standard File Eprom, inserted in slot C.
+; (B=00h-3Fh, HL=0000h-3FFFh).
+;
+; IN:
+;    C = slot number containing File Eprom
+;    BHL = pointer to File Entry
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         BHL = pointer to next file entry (B=00h-3Fh, HL=0000h-3FFFh).
+;
+;    Fc = 1,
+;         A = RC_Onf
+;         File Eprom was not found in slot C, or File Entry not available
+;
+; Registers changed after return:
+;    A..CDE../IXIY same
+;    .FB...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFreeSpace
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; Area in application cards (below application banks in first free 64K boundary)
+;
+; Return free space in Standard File Eprom Area, inserted in slot C
+;
+; IN:
+;    C = slot number containing File Eprom Area
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         DEBC = Free space available
+;
+;    Fc = 1, File Eprom was not found in slot C
+;
+; Registers changed after return:
+;    ......HL/IXIY same
+;    AFBCDE../.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprFileSize
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; Area in application cards (below application banks in first free 64K boundary)
+;
+; Return file size of File Entry at pointer BHL, slot C
+; (B=00h-3Fh, HL=0000h-3FFFh)
+;
+; IN:
+;    C = slot number containing File Eprom
+;    BHL = Pointer to File Entry (slot relative)
+;
+; OUT:
+;    Fc = 0, File Eprom available
+;         Fz = 1, File Entry marked as deleted
+;         Fz = 0, File Entry active
+;              CDE = size of file (24bit integer, C = high byte)
+;
+;    Fc = 1, 
+;         A = RC_ONF
+;         File Eprom was not found in slot C, or File Entry not available
+;
+; Registers changed after return:
+;    A.B...HL/IXIY same
+;    .F.CDE../.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB AddPointerDistance
+;
+; Add distance CDE (24bit integer) to current pointer address BHL
+;
+; A new pointer is returned in BHL, preserving original
+; slot mask and segment mask.
+;
+; This routine is primarily used for File Eprom management.
+;
+; Registers changed after return:
+;    AF.CDE../IXIY same
+;    ..B...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB ConvPtrToAddr
+;
+; Convert relative pointer BHL (B = 00h - 3Fh, HL = 0000h - 3FFFh)
+; to absolute 20bit 1MB address.
+;
+; This routine primarily used for File Eprom Management.
+;
+; IN:
+;    BHL = pointer
+;
+; OUT:
+;    DEBC = 32bit integer (actually 24bit)
+;
+; Registers changed after return:
+;    AF....HL/IXIY same
+;    ..BCDE../.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB PointerNextByte
+;
+; Update extended address to point at next physical address on Eprom (or RAM)
+; If the offset address crosses a bank boundary, the bank number is
+; increased to use the next, adjacent bank, and the offset is positioned
+; at the start of the bank.
+;
+; This routine is primarily used for File Eprom management.
+;
+; IN:
+;    BHL = ext. address
+;
+; OUT:
+;    BHL++
+;
+; Registers changed after return:
+;    AF.CDE../IXIY same
+;    ..B...HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprType
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; area in application cards (below application banks in first free 64K boundary)
+;
+; Return pointer to Standard File Eprom "oz" header in slot x (1, 2 or 3).
+;
+; In:
+;    C = slot number (1, 2 or 3)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              A = Sub type of Eprom.
+;                   Standard 32K, 128K, 256K Eprom (or 1MB Flash Eprom)
+;              BHL = Pointer to "oz" header in slot.
+;              C = size of File Eprom in total of banks.
+;
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, File Eprom not found
+;
+; Registers changed after return:
+;    ....DE../IXIY same
+;    AFBC..HL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprRandomID
+;
+; Standard Z88 File Eprom Format, including support for sub File Eprom
+; Area in application cards (below application banks in first free 64K boundary)
+;
+; Return File Eprom "oz" Header Random ID from slot x (1, 2 or 3)
+;
+; -----------------------------------------------------------------------
+;
+; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998
+;
+; -----------------------------------------------------------------------
+;
+; In:
+;    C = slot number (1, 2 or 3)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              DEBC = Random ID (32bit integer)
+;
+;    Failure:
+;         Fc = 1,
+;         A = RC_ONF, File Eprom not found
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+; *********************************************************************************
+
+
+; *********************************************************************************
+;
+;    XLIB FileEprReadByte
+;
+; Read byte at BHL Eprom address, returned in A.
+; Increment pointer to next Eprom address
+;
+; This is used as internal support routine for high level library functions.
+;
+; IN:
+;    BHL = pointer, B = absolute bank number
+;
+; OUT:
+;         A = byte at old (BHL)
+;         BHL points at next byte in Eprom
+;
+; Registers changed after return:
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
+;
+; *********************************************************************************
