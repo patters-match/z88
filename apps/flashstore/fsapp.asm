@@ -301,7 +301,7 @@
                     RET
 .SelectMenuWindow   DEFM 1, "2H1", 0                   ; activate menu window for menu bar control
 .MenuBar            DEFM 1, "2+R"                      ; set reverse video
-                    DEFM 1, "2E", 32+15                ; XOR 'display' menu bar (15 chars wide)
+                    DEFM 1, "2E", 32+17                ; XOR 'display' menu bar (15 chars wide)
                     DEFM 1, "2-R", 0                   ; back to normal video
 ; *************************************************************************************
 
@@ -316,7 +316,7 @@
 .dispcw
                     ld   a,'1' | 128
                     ld   bc,$0000
-                    ld   de,$080F
+                    ld   de,$0811
                     ld   hl, cmds_banner
                     call CreateWindow
 
@@ -370,8 +370,8 @@
                     push hl
 
                     ld   a,'2' | 128
-                    ld   bc,$0011
-                    ld   de,$0837
+                    ld   bc,$0013
+                    ld   de,$0835
                     ld   hl, catalog_banner
                     call CreateWindow
 
@@ -583,24 +583,24 @@
 ; *************************************************************************************
 ; Text & VDU constants.
 ;
-.catalog_banner     DEFM "FLASHSTORE V1.7.rc6, (C) 1997-2005 Zlab & InterLogic",0
+.catalog_banner     DEFM "FLASHSTORE V1.7.rc8, (C) 1997-2005 Zlab & InterLogic",0
 
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
                     DEFM 1, "2-G", 1, "2+T"
-                    DEFM 1,"3@",32+1,32+0, "CATALOG FILES"
+                    DEFM 1,"3@",32+1,32+0, "CATALOGUE FILES"
                     DEFM 1,"3@",32+1,32+1, "SELECT CARD"
-                    DEFM 1,"3@",32,32+2, " SAVE FILES    "
-                    DEFM 1,"3@",32+1,32+3, "FETCH FILES"
-                    DEFM 1,"3@",32,32+4, " BACKUP RAM    "
-                    DEFM 1,"3@",32+1,32+5, "RESTORE RAM"
+                    DEFM 1,"3@",32,32+2, " SAVE TO CARD    "
+                    DEFM 1,"3@",32+1,32+3, "FETCH FROM CARD"
+                    DEFM 1,"3@",32,32+4, " BACKUP FROM RAM "
+                    DEFM 1,"3@",32+1,32+5, "RESTORE TO RAM"
                     DEFM 1,"3@",32+1,32+6, "DEFAULT RAM"
                     DEFM 1,"2-C"
                     defb 0
 
 .grey_wrercmds      DEFM 1, "2+G"
-                    DEFM 1, "3@", 32+0, 32+2, 1, "2E", 32+15
-                    DEFM 1, "3@", 32+0, 32+4, 1, "2E", 32+15
+                    DEFM 1, "3@", 32+0, 32+2, 1, "2E", 32+17
+                    DEFM 1, "3@", 32+0, 32+4, 1, "2E", 32+17
                     DEFM 1, "2-G", 0
 
 .grey_msg           DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G+",0
@@ -610,7 +610,7 @@
                     DEFM 1,"2C1",0
 
 .bar1_sq            DEFM 1,"4+TUR",1,"2JC",1,"3@  ",0
-.bar2_sq            DEFM 1,"3@  ",1,"2A",87,1,"4-TUR",1,"2JN",0
+.bar2_sq            DEFM 1,"3@  ",1,"2A",85,1,"4-TUR",1,"2JN",0
 
 .failed_msg         DEFM " Failed.",0
 
