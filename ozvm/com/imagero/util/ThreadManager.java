@@ -165,6 +165,7 @@ public class ThreadManager {
 
 		public Runner() {
 			num = count++;
+			this.setPriority(Thread.MIN_PRIORITY);
 		}
 
 		public void stopMe() {
