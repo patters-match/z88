@@ -476,7 +476,10 @@ public final class Blink extends Z80 {
 		int keyColumn = 0xFF;	// Default to no keys pressed...
         
 		do {
+            // F5 was pressed, get out of here!
             if (stopZ88 == true) return 0xFF;
+            // an interrupt has been signalled, go execute it!
+            if (interruptTriggered() == true) return 0xFF;
 
             switch(row) {
                 case 0x7F:	// Row 01111111:
@@ -563,9 +566,8 @@ public final class Blink extends Z80 {
             }
         }
 		// Only get out of loop if we have INT.KWAIT (snooze) and a key was pressed...
-		while( (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xFF);
+		while( singleSteppingMode() == false && (INT & BM_INTKWAIT) == BM_INTKWAIT && keyColumn == 0xFF);
 		
-        if ((INT & BM_INTKWAIT) == BM_INTKWAIT) System.out.println("Snooze state exited, returning keycolumn " + Integer.toBinaryString(keyColumn) + ".");
 		return keyColumn;
 	}
 
