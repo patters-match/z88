@@ -47,14 +47,13 @@
 ;    Success, File Area (or potential) available:
 ;         Fc = 0,
 ;              BHL = pointer to File Header for slot C (B = absolute bank of slot).
-;                    (or pointer to free space in File Area).
+;                    (or pointer to free space in potential new File Area).
+;                C = size of File Eprom Area in 16K banks
 ;              Fz = 1, File Header found
 ;                   A = "oz" File Eprom sub type
-;                   C = size of File Eprom Area in 16K banks
 ;                   D = size of card in 16K banks (0 - 64)
 ;              Fz = 0, File Header not found
 ;                   A undefined
-;                   C undefined
 ;                   D undefined
 ;    Failure:
 ;         Fc = 1,
@@ -89,10 +88,12 @@
                                              ; B = app card banks, C = total size of card in banks
                     LD   E,C                 ; preserve card size in E
                     LD   C,D                 ; C = slot number
+  
+  
                     CALL DefHeaderPosition   ; locate and validate File Eprom Header
                     JR   C, no_filespace     ; whole card used for Applications...
                     POP  HL                  ; old DE
-                    LD   D,E                 ; C = size of file area in 16K banks, D = size of card in 16K banks
+                    LD   D,E                 ; D = size of card in 16K banks, C = size of File Area in banks
                     LD   E,L                 ; restore original E
                     LD   HL,$3FC0            ; BHL = absolute pointer to "oz" File Header below applications in slot
                     RET                      ; A = File Eprom sub type, Fc = 0, Fz = indicated by DefHeaderPosition
@@ -142,7 +143,7 @@
 ;                   A undefined
 ;                   C undefined
 ;                   D undefined
-;              BHL = pointer to "oz" header (or potential)
+;              BHL = absolute pointer to "oz" header (or potential)
 ;         Fc = 1 (failure),
 ;              A = RC_ROOM (No room for File Eprom Area)
 ;
@@ -151,9 +152,8 @@
 ;    AFBCD.HL/.... different
 ;
 .DefHeaderPosition
-                    LD   A,$3F
-                    SUB  B                   ; $3F - <ROM banks>
-                    INC  A                   ; A = lowest bank of ROM area
+                    LD   A,$40
+                    SUB  B                   ; $40 - <ROM banks> = lowest bank of ROM area
 
                     CP   3                   ;
                     JR   Z, appcard_no_room  ; Application card uses banks 
@@ -161,10 +161,20 @@
 
                     AND  @11111100
                     DEC  A                   ; A = Top Bank of File Area (in isolated 64K block)
-                    LD   B,A                 ; B = bank number of "oz" header (or potential), C = slot number                                             
+                    LD   B,A                 ; B = relative bank number of "oz" header (or potential), C = slot number
                     CALL CheckFileEprHeader
+                    RET  NC                  ; header found, at absolute bank B, C = File Area in banks
+                    EX   AF,AF'
+                    LD   A,C
+                    LD   C,B                 
+                    INC  C                   ; C = potential size of file area in banks 
+                    RRCA
+                    RRCA
+                    OR   B
+                    LD   B,A                 ; relative bank B --> absolute bank B
+                    EX   AF,AF'
                     JR   C, new_filearea     ; "oz" File Eprom Header not found, but potential area...                                             
-                    CP   A                   ; B = bank of "oz" Header, C = banks in "oz" File Eprom Area
+                    CP   A                   ; B = absolute bank of "oz" Header, C = size of File Area in banks
                     RET                      ; return flag status = found!
 .new_filearea       
                     OR   B                   ; Fc = 0, Fz = 0, indicate potential file area
@@ -186,7 +196,7 @@
 ;
 ; Out:
 ;    Success:
-;         Fc = 0,
+;         Fc = 0, Fz = 0
 ;              File Eprom found
 ;              A = Sub type of Eprom
 ;         B = absolute bank (embedded slot mask) of File Eprom Header
@@ -235,7 +245,7 @@
                     LD   A,C                 ; A = sub type of File Eprom
                     CP   A                   ; return Fc = 0
                     POP  DE                  ; B = absolute bank no of hdr, 
-                    LD   C,D                 ; C = size of Eprom Card in banks
+                    LD   C,D                 ; C = size of File Area in banks
 
                     POP  HL                  ; original HL restored
                     POP  DE                  ; ignore old BC -> new values are returned...
