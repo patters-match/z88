@@ -46,7 +46,12 @@ public class Z88 extends Z80 {
 	 * The Z88 disassembly engine
 	 */
 	private Dz dz;
-	
+
+	/**
+	 * Internal static buffer for runtime disassembly for max speed..
+	 */
+	private static final StringBuffer dzBuffer = new StringBuffer(32);
+		
     /**
      * The Z88 memory organisation.
      * Array for 256 16K banks = 4Mb memory
@@ -138,7 +143,6 @@ public class Z88 extends Z80 {
 		}
 
 		resetRam();				// reset memory of all available RAM in Z88 memory
-		execute();				// then full steam ahead... 
 	}
 
 
@@ -367,10 +371,9 @@ public class Z88 extends Z80 {
 	 * disassembly.
 	 */
 	public void disassemble( int addr ) {
-		final String dzOpcode[] = new String[1];
 		
-		dz.getInstrAscii(dzOpcode, addr, true);
-		System.out.println(dzOpcode[0]);	// display executing instruction in shell
+		dz.getInstrAscii(dzBuffer, addr, true);
+		System.out.println(dzBuffer);	// display executing instruction in shell
 	}
 	
 	/** 
