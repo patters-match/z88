@@ -17,7 +17,7 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.3.1";
+	public static final String VERSION = "0.3.2";
 
 	private Blink z88 = null;
     private DisplayStatus blinkStatus;
@@ -47,15 +47,18 @@ public class OZvm implements KeyListener {
 	 * @param area
 	 * @param area2
 	 */
-	public OZvm(JPanel canvas, JTextField cmdInput, JTextArea cmdOutput, JTextArea rtmOutput) {
+	public OZvm(Z88display z88Display, JTextField cmdInput, JTextArea cmdOutput, JTextArea rtmOutput) {
 
 		try {
 			runtimeOutput = rtmOutput;
 			commandInput = cmdInput;
 			commandOutput = cmdOutput;
-			z88Screen = canvas;
+			z88Screen = z88Display;
 			
-			z88 = new Blink(canvas, cmdInput, rtmOutput);
+			z88 = new Blink(z88Display, cmdInput, rtmOutput);
+			z88Display.init();
+			z88Display.setBlink(z88);
+			z88Display.start();
 			z88.hardReset();
 
 			z80Speed = new MonitorZ80(z88);
