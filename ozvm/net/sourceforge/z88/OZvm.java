@@ -219,8 +219,6 @@ public class OZvm implements KeyListener {
 							}
 						});
 						commandInput.addKeyListener(this);
-						Z88Keyboard.getInstance().setDebugModeCmdLineField(commandInput);					
-
 						cmdList = new CommandHistory();
 
 						commandOutput = gui.getCmdlineOutputArea();
@@ -1186,7 +1184,8 @@ public class OZvm implements KeyListener {
 
 				gui.getCmdLineInputArea().setText(getNextStepCommand());
 				gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-				gui.getCmdLineInputArea().selectAll();							
+				gui.getCmdLineInputArea().selectAll();	
+				commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
 			}
 		};
 
