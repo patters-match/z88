@@ -24,6 +24,9 @@
   Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+/* $Id$ */
+
+
 #define Err_FileIO 0               /* "File open/read error" */
 #define Err_Syntax 1               /* "Syntax error" */
 #define Err_SymNotDefined 2        /* "symbol not defined" */

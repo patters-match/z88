@@ -24,6 +24,10 @@
   Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+/* $Id$ */
+
+
+
 typedef struct avlnode {
                         short           height;        /* height of avltree (max search levels from node) */
                         void           *data;          /* pointer to data of node */

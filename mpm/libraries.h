@@ -24,6 +24,9 @@
   Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+/* $Id$ */
+
+
 /* globally defined functions */
 int LinkLibModules (char *objfilename, long fptr_base, long startnames, long endnames);
 int SearchLibfile (libfile_t *curlib, char *modname);
