@@ -244,7 +244,7 @@ public class OZvm {
 			if (loadedRom == false)	{
 				Gui.displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
 				JarURLConnection jarConnection = (JarURLConnection) z88.getClass().getResource("/Z88.rom").openConnection();
-				memory.loadRomBinary(jarConnection.getJarEntry(), jarConnection.getInputStream());
+				memory.loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
 				Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
 			}
 

@@ -27,7 +27,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.util.zip.ZipEntry;
 
 import net.sourceforge.z88.filecard.FileArea;
 
@@ -825,7 +824,8 @@ public final class Memory {
 	}
 
 	/**
-	 * Load ROM image (from file ressource) into Z88 memory system, slot 0.
+	 * Load ROM image (from external file ressource) into Z88 memory system, slot 0
+	 * (lower 512K of address space).
 	 *
 	 * @param file
 	 * @throws IOException
@@ -835,57 +835,44 @@ public final class Memory {
 		int fileLength = (int) rom.length(); 
 		rom.close();
 		
-		if (fileLength > (1024 * 512)) {
-			throw new IOException("Max 512K ROM!");
-		}
-		if (fileLength % (Bank.SIZE * 2) > 0) {
-			throw new IOException("ROM must be in even banks!");
-		}
-		
-		loadRomBinary(fileLength / Bank.SIZE, new FileInputStream(file));
+		loadRomBinary(fileLength , new FileInputStream(file));
 	}
 	
 	/**
-	 * Load ROM image from a Zip file entry into Z88 memory system, slot 0
-	 * (entry might be from the z88.jar or from a snapshot).
-	 *
-	 * @param zipEntry
-	 * @param inpStream
-	 * @throws IOException
-	 */
-	public void loadRomBinary(ZipEntry zipEntry, InputStream inpStream) throws IOException {
-		if (zipEntry.getSize() > (1024 * 512)) {
-			throw new IOException("Max 512K ROM!");
-		}
-		if (zipEntry.getSize() % Bank.SIZE > 0) {
-			throw new IOException("ROM must be in 16K sizes!");
-		}
-
-		loadRomBinary((int) zipEntry.getSize() / Bank.SIZE, inpStream);
-	}
-	
-	/**
-	 * The internal :ROM.0 image loader.
+	 * Load ROM image from Jar/Zip ressource into Z88 memory system, slot 0
+	 * (lower 512K of address space).
 	 * 
-	 * @param totalBanks size of ROM in 16K banks 
+	 * For all sizes, except 512K, a normal ROM type will be used.
+	 * For 512K, an AMD Flash Chip will assigned (this allows to update the
+	 * ROM via software!)
+	 * 
+	 * @param size ROM size in bytes, eg. 131072 is a 128K ROM 
 	 * @param iStream input stream from a file ressource
 	 * @throws IOException
 	 */
-	private void loadRomBinary(int totalBanks, InputStream iStream) throws IOException {
+	public void loadRomBinary(int size, InputStream iStream) throws IOException {		
+		if (size > (1024 * 512)) {
+			throw new IOException("Max 512K ROM!");
+		}
+		if (size % Bank.SIZE > 0) {
+			throw new IOException("ROM must be in 16K sizes!");
+		}
+		if (size % (Bank.SIZE * 2) > 0) {
+			throw new IOException("ROM must be in even banks!");
+		}
+		int totalBanks = size / Bank.SIZE;
+		
 		BufferedInputStream bis = new BufferedInputStream(iStream, Bank.SIZE);
 		Bank romBanks[] = new Bank[totalBanks]; // allocate ROM container
 		byte bankBuffer[] = new byte[Bank.SIZE]; // allocate intermediate load buffer
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
 			switch((int) romBanks.length) {
-				case 8: 
-					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 128K, use the AMD Flash Memory AM29F010B 
-					break;
 				case 32: 
-					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 512K, use the AMD Flash Memory AM29F040B 
+					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F040B); // 512K, use the AMD Flash Memory AM29F040B 
 					break;
 				default:
-					romBanks[curBank] = new RomBank();
+					romBanks[curBank] = new RomBank(); // for all other sizes, normal ROM
 			}
 
 			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
