@@ -131,7 +131,8 @@ public class OZvm implements KeyListener {
 				while (arg<args.length) {
 					if ( args[arg].compareTo("ram0") != 0 & args[arg].compareTo("ram1") != 0 &
 						 args[arg].compareTo("ram2") != 0 & args[arg].compareTo("ram3") != 0 &
-						 args[arg].compareTo("epr1") != 0 & args[arg].compareTo("epr2") != 0 & args[arg].compareTo("epr3") != 0 &						 
+						 args[arg].compareTo("epr1") != 0 & args[arg].compareTo("epr2") != 0 & args[arg].compareTo("epr3") != 0 &
+						 args[arg].compareTo("fcd1") != 0 & args[arg].compareTo("fcd2") != 0 & args[arg].compareTo("fcd3") != 0 &
 						 args[arg].compareTo("crd1") != 0 & args[arg].compareTo("crd2") != 0 & args[arg].compareTo("crd3") != 0 &						 
 						 args[arg].compareTo("s1") != 0 & args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") != 0 &
 						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug") != 0 &
@@ -181,6 +182,22 @@ public class OZvm implements KeyListener {
 						continue;
 					}
 
+					if (arg<args.length && (args[arg].startsWith("fcd") == true)) {
+						int eprSlotNumber = args[arg].charAt(3) - 48;
+						eprSizeArg = Integer.parseInt(args[arg+1], 10);
+						if (memory.insertFileEprCard(eprSlotNumber, eprSizeArg, args[arg+2]) == true) {
+							String insertEprMsg = "Inserted " + eprSlotNumber + " set to " + eprSizeArg + "K.";
+							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K UV File Eprom Card in slot " + eprSlotNumber; 
+							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Intel File Flash Card in slot " + eprSlotNumber;
+							if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Amd File Flash Card in slot " + eprSlotNumber;
+							Gui.displayRtmMessage(insertEprMsg);
+						} else
+							Gui.displayRtmMessage("Eprom File Card size/type configuration is illegal.");
+						arg+=3;
+						continue;
+					}
+					
+					
 					if (arg<args.length && (args[arg].startsWith("crd") == true)) {
 						int eprSlotNumber = args[arg].charAt(3) - 48;
 						eprSizeArg = Integer.parseInt(args[arg+1], 10);
