@@ -1238,6 +1238,20 @@ public final class Blink extends Z80 {
 			RAMS = memory[0x00];
 		}
 
+		if ((bits & Blink.BM_COMVPPON) == Blink.BM_COMVPPON) {
+			// Enable VPP pin on Eprom / Flash chip in slot 3, if available.
+			if (memory[0xFF].isVppPinEnabled() == false & 
+				(memory[0xFF].getType() == Bank.EPROM | memory[0xFF].getType() == Bank.FLASH)) {
+				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(true);
+			}
+		} else {
+			// Disable VPP pin on Eprom / Flash chip in slot 3, if available and previously enabled...
+			if (memory[0xFF].isVppPinEnabled() == true & 
+					(memory[0xFF].getType() == Bank.EPROM | memory[0xFF].getType() == Bank.FLASH)) {
+				for (int bnk=0xC0; bnk <= 0xFF; bnk++) memory[bnk].setVppPin(false);
+			}			
+		}
+		
 		COM = bits;
 	}
 
