@@ -90,9 +90,9 @@
                     DEFW FS_Dor
                     DEFB $3F                      ; point to commands (none)
                     DEFW FS_Help
-                    DEFB $3F                      ; point to help
+                    DEFB $3F                      ; point to help (none)
                     DEFW FS_Dor
-                    DEFB $3F                      ; point to token base
+                    DEFB $3F                      ; point to token base (none)
                     DEFB 'N'                      ; Key to name section
                     DEFB NameEnd0-NameStart0      ; length of name
 .NameStart0         DEFM "FlashStore",0
@@ -842,6 +842,11 @@
                     call FileEprRequest
                     ret  c
 
+                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    call c,DispIntelSlotErr       
+                    ret  c                        ; it didn't...
+                    ret  nz                       ; (and flash chip was not found in slot!)
+
                     ld   hl,0
                     ld   (savedfiles),hl     ; reset counter to No files saved...
 .fname_sip
@@ -1110,6 +1115,11 @@
                     ld   c,a
                     call FileEprRequest
                     ret  c
+
+                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    call c,DispIntelSlotErr       
+                    ret  c                        ; it didn't...
+                    ret  nz                       ; (and flash chip was not found in slot!)
 
                     call cls
                     ld   hl,delfile_br
@@ -1746,12 +1756,17 @@
                     call cls
 .init_format_main
                     call FormatCard
-                    ret  c
+                    ret  c                        ; format failed, or Intel Flash format not functional in slot..
                     ret  nz
 
                     call save_null_file           ; save the hidden "null" file to avoid FE bootstrapping
                     ret
 .FormatCard
+                    call FlashWriteSupport        ; check if Flash Card in current slot supports formatting?
+                    call c,DispIntelSlotErr       
+                    ret  c                        ; it didn't...
+                    ret  nz                       ; (and flash chip was not found in slot!)
+
                     call CheckBatteryStatus       ; don't format Flash Eprom
                     ret  c                        ; if Battery Low is enabled...
 
@@ -1816,6 +1831,16 @@
                          LD   HL, hdrerr_ms
                          CALL DispErrMsg
                     RET
+
+; *************************************************************************************
+; Due to a strange side effect with Intel Flash Chips, a special "NULL" file is saved
+; as the first file to the Card. These byte occupies the first bytes that othewise
+; could be interpreted as a random boot command for the Intel chip - the behaviour
+; is an Intel chip suddenly gone into command mode for no particular reason.
+;
+; The NULL file prevents this possible behaviour by save a file that avoids any kind 
+; of boot commands which sends the chip into command mode when the card has been inserted
+; into a Z88 slot.
 .save_null_file
                     ld   A,(curslot)
                     CP   3
@@ -2201,6 +2226,30 @@
 
 
 ; *************************************************************************************
+.DispIntelSlotErr
+                    push af
+                    push hl
+                    
+                    ld   hl, intelslot_err1_ms
+                    call_oz GN_Sop
+                    ld   a,(curslot)
+                    add  a,48
+                    call_oz OS_Out
+                    ld   hl, intelslot_err2_ms
+                    call sopnln
+                    CALL ResSpace            ; "Press SPACE to resume" ...                    
+                    
+                    pop  hl
+                    pop  af
+                    ret
+                    
+.intelslot_err1_ms  DEFM 1,"BAn Intel Flash Card was found in (current) slot ",0
+.intelslot_err2_ms  DEFM ".",1,"B", 13, 10, "You can only format file area, save files or mark", 13, 10
+                    DEFM "files as deleted in slot 3.", 13, 10, 0
+; *************************************************************************************
+
+
+; *************************************************************************************
 ;
 ; Write Error message, and wait for ESC wait to be acknowledged.
 ;
@@ -2212,7 +2261,7 @@
                     PUSH AF                  ; preserve error status...
                     PUSH HL
                     CALL sopnln
-                    CALL ResSpace            ; "Press ESC to resume" ...
+                    CALL ResSpace            ; "Press SPACE to resume" ...
                     POP  HL
                     POP  AF
                     RET
@@ -2256,6 +2305,60 @@
 ; *************************************************************************************
 
 
+
+; *************************************************************************************
+;
+; Validate the Flash Card erase/write functionality in the current slot.
+; If the Flash Card in the current slot contains an Intel chip, the current
+; slot must be 3 for format, save and delete functionality.
+; Write an error message to the content window and return with Fc = 1, if an
+; Intel Flash chip was recognized in all slots except 3. 
+;
+; (This routine is called by format, save & delete functionality in FlashStore)
+; 
+; IN:
+;    (curslot), (flashid) safe workspace variables.
+;
+; OUT:
+;    Fz = 1, if a Flash Card is available in the current slot (Fz = 0, no Flash Card available!)
+;    Fc = 1, if no erase/write support is available for current slot.
+;
+; Registers changed after return:
+;    A.BCDEHL/IXIY same
+;    .F....../.... different
+;
+.FlashWriteSupport
+                    push hl
+                    push de
+                    push bc
+                    push af
+                    ld   a,(curslot)
+                    ld   c,a
+                    call CheckFlashCardID    
+                    jr   nc, flashcard_found
+                    or   c                   ; Fz = 0, indicate no Flash Card available in slot
+                    scf                      ; Fc = 1, indicate no erase/write support either...
+                    jr   exit_chckflsupp
+.flashcard_found                    
+                    ld   a,c
+                    cp   3
+                    jr   z, exit_chckflsupp  ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
+                    ld   a,$01
+                    cp   h                   ; Intel flash chip in slot 0,1 or 2?
+                    jr   z, exit_chckflsupp  ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
+                    cp   a                   ; (Fz=1, indicate that Flash is available..) 
+                    scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
+.exit_chckflsupp
+                    pop  bc                  
+                    ld   a,b                 ; A restored (f changed)
+                    pop  bc
+                    pop  de
+                    pop  hl
+                    ret
+; *************************************************************************************
+
+                    
+
 ; *************************************************************************************
 ;
 ; Check/Fetch Flash Card ID (Manufacturer & Device Code)
@@ -2265,7 +2368,7 @@
 ;
 ; Out:
 ;    Register status from FlashEprCardId library routine
-;    (flashid) variable updated: FFFF = no Flash Card found, MMDD = Flash ID
+;    (flashid) variable updated: FFFF = no Flash Card found, otherwise HL -> (flashid)
 ;
 .CheckFlashCardID
                     call FlashEprCardId
