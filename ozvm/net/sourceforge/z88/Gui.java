@@ -2409,6 +2409,8 @@ public class Gui extends JFrame {
 		addRtmMessagesPanel();
 		addKeyboardPanel();
 						
+		getUkLayoutMenuItem().doClick();
+		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.setResizable(false);
