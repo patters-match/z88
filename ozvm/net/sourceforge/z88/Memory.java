@@ -989,7 +989,8 @@ public final class Memory {
 		}
 		int totalBanks = size / Bank.SIZE;
 		
-		BufferedInputStream bis = new BufferedInputStream(iStream, Bank.SIZE);
+		BufferedInputStream bis = new BufferedInputStream(iStream, size);
+		
 		Bank romBanks[] = new Bank[totalBanks]; // allocate ROM container
 		byte bankBuffer[] = new byte[Bank.SIZE]; // allocate intermediate load buffer
 
