@@ -9,8 +9,8 @@
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with FlashStore;
-; see the file COPYING. If not, write to the
+; You should have received a copy of the GNU General Public License along with the
+; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ; 
 ; $Id$  
@@ -31,7 +31,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; ==========================================================================================
 
 
-; ***************************************************************
+
+; ***************************************************************************************
 ;
 ; Identify Flash Memory Chip in slot C.
 ;
@@ -81,7 +82,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     CALL CheckRam
                     JR   C, unknown_device   ; RAM card in slot C, abort...
 
-                    CALL FetchCardID         ; get info of Intel chip in HL...
+                    CALL FetchCardID         ; get info of Flash Memory chip in HL...                    
 
                     POP  BC
                     CALL MemDefBank          ; restore original bank in segment 1
@@ -89,7 +90,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  AF                  ; old interrupt status
                     CALL OZ_EI               ; enable IM 1 interrupts again...
                     
-                    CALL VerifyCardID        ; return no. of 16K banks of Flash Memory in B
+                    CALL VerifyCardID        ; verify Flash Memory ID with know Manufacturer & Device Codes
                     JR   C, unknown_device
                                              ; H = Manufacturer Code, L = Device Code 
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
@@ -158,6 +159,9 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  AF
                     RET
 
+
+; ***************************************************************
+;
 ; IN:
 ;     BC = size of polling routine.
 ;     IX = pointer to polling routine.
@@ -230,6 +234,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
 ; ***************************************************************
 ;
+; Investigate if a RAM card is inserted in slot C
+; (by trying to write a byte to address $00 0000 and
+; verify that it was properly written)
+;
 ; IN:
 ;    -
 ;
@@ -237,9 +245,39 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    Fc = 0, empty slot or EPROM/FLASH Card in slot C
 ;    Fc = 1, RAM card found in slot C
 ;
-.CheckRam
-                    RET
-                                        
+; Registers changed on return:
+;   ..BCDEHL/IXIY same
+;   .F....../.... different
+;
+.CheckRam                
+                    PUSH BC
+                    PUSH HL
+                    PUSH AF
+                    
+                    LD   HL,$4000
+                    LD   B,(HL)              ; preserve the original byte (needs to be restored)
+                    LD   A,1                 ; initial test bit pattern (bit 0 set)
+.test_ram_loop                    
+                    LD   (HL),A              ; write bit pattern to card at bottom location
+                    CP   (HL)                ; and check whether it was written
+                    JR   NZ, not_written     ; bit pattern wasn't written...
+                    RLCA                     ; check that all bits are written properly
+                    JR   NC, test_ram_loop
+                                             
+                    LD   (HL),B              ; restore original byte at RAM location
+                    POP  HL                  
+                    LD   A,H                 ; restore original A
+                    POP  HL
+                    POP  BC
+                    RET                      ; this is a RAM card!  (Fc = 1)
+.not_written
+                    CP   A                   ; Fc = 0, this is not a RAM card
+                    POP  HL
+                    LD   A,H                 ; restore original A
+                    POP  HL
+                    POP  BC
+                    RET                                        
+
 
 ; ***************************************************************
 ;
