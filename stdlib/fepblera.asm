@@ -27,12 +27,14 @@
 
 ; ==========================================================================================
 ; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
+
 DEFC FE_RST = $FF           ; reset chip in read array mode
 DEFC FE_RSR = $70           ; read status register
 DEFC FE_CSR = $50           ; clear status register
 DEFC FE_ERA = $20           ; erase block (64Kb) command
 DEFC FE_CON = $D0           ; confirm erasure
 ; ==========================================================================================
+
 
 ; ***************************************************************
 ;

@@ -25,6 +25,15 @@
 
      DEFC VppBit = 1
 
+; ==========================================================================================
+; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
+
+DEFC FE_RST = $FF           ; reset chip in read array mode
+DEFC FE_RSR = $70           ; read status register
+DEFC FE_CSR = $50           ; clear status register
+DEFC FE_WRI = $40           ; byte write command
+; ==========================================================================================
+
 
 ; ***************************************************************************
 ;

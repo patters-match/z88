@@ -28,15 +28,8 @@
 
 DEFC FE_RST = $FF           ; reset chip in read array mode
 DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer and device)
-DEFC FE_RSR = $70           ; read status register
-DEFC FE_CSR = $50           ; clear status register
-DEFC FE_ERA = $20           ; erase block (64Kb) command
-DEFC FE_CON = $D0           ; confirm erasure
-DEFC FE_SUS = $B0           ; suspend erasure
-DEFC FE_RES = $D0           ; resume erasure
-DEFC FE_WRI = $40           ; byte write command
-DEFC FE_ALW = $10           ; alternate byte write command
 ; ==========================================================================================
+
 
 ; ***************************************************************
 ;
