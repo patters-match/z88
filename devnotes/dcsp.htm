@@ -1,98 +1,76 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-
 <html>
 
 <head>
-
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-
-   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-
-   <title>System Calls Reference</title>
-
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>System Calls Reference</title>
 </head>
 
 <body>
 
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-
-<tr>
-
-<th COLSPAN="3">Z88 Developers' Notes</th>
-
-</tr>
-
-
-
-<tr>
-
-<td VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
-
-
-
-<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
-
-
-
-<td nowrap ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents of System Calls</a></td>
-
-</tr>
-
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <th colspan="3">Z88 Developers' Notes</th>
+    </tr>
+    <tr>
+        <td valign="bottom" width="10%"><a href="index.htm">Contents</a></td>
+        <td align="center" valign="bottom" width="80%">&nbsp;</td>
+        <td align="right" valign="bottom" width="10%" nowrap><a
+        href="sysref.htm">Contents of System Calls</a></td>
+    </tr>
 </table>
-
-
 
 <hr>
 
-<p><b><font size=+1>DC_Sp, handle Director/CLI settings</font></b>
+<p><font size="4"><b>DC_Sp, handle Director/CLI settings</b></font>
+</p>
 
-<p><tt>RST 20H, DEFW $180C</tt>
+<p><tt>RST 20H, DEFW $180C</tt> </p>
 
-<pre>IN:</pre>
-
-
+<p>IN:</p>
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; C = reason code
-
+     &nbsp;&nbsp;&nbsp;&nbsp; DQ_Dev ($00), define default device&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;      DQ_Dir ($03), define default directory&nbsp;
+ &nbsp;&nbsp;&nbsp;      DQ_Fnm ($06), define filename match string
 &nbsp;&nbsp;&nbsp;&nbsp; B = 0, always
-
 &nbsp;&nbsp;&nbsp;&nbsp; HL = points to a null-terminated string, the argument</pre>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reason codes are
+<p>OUT:</p>
 
-:
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0,&nbsp;&nbsp; Successful
+&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1,&nbsp;A = RC error&nbsp;if failure</pre>
 
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; $00 DQ_Dev : define default device&nbsp;
+<p>Registers affected after return: </p>
 
-&nbsp;&nbsp;&nbsp;&nbsp; $03 DQ_Dir : define default directory&nbsp;
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; ..BCDEHL/IXIY same
+&nbsp;&nbsp;&nbsp;&nbsp; AF....../.... different</pre>
 
-&nbsp;&nbsp;&nbsp;&nbsp; $06 DQ_Fnm : define filename match string</pre>
+<p>Notes: </p>
 
+<blockquote>
+    <p>Internal operating system usage. <br>
+    DC_SP is a subcall of OS_SP, use <a href="ossp.htm">OS_SP</a>
+    instead.<br>
+    Attribute (Dev, Dir, Fnm) is set into Filer process if it is
+    running, otherwise by Index.<br>
+    If DQ_Dev argument points to null byte, PA_Dev is used as
+    source.<br>
+    Works if string at HL is terminated by a control-char
+    ($00-$1F).</p>
+</blockquote>
 
+<p>Bugs: -</p>
 
-<pre>
+<p>Related calls: </p>
 
-OUT:</pre>
-
-
-
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0:&nbsp;&nbsp; Successful
-
-&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:&nbsp;&nbsp; Failure, A = RC error</pre>
-
-Notes:
-
-<blockquote>Internal operating system usage.
-
-<br>This call is used by the OS_NQ if B = $8C.
-
-<br>Use it directly for these reasons (instead of OS_SP). It will be faster.</blockquote>
-
-Bugs:
-
-<br>&nbsp;
-
+<blockquote>
+    <p><a href="dcsp.htm">DC_Sp</a>, DC specify<br>
+    <a href="dcnq.htm">DC_Nq</a>, DC enquire<br>
+    <a href="ossp.htm">OS_Sp</a>, specify<br>
+    <a href="osnq.htm">OS_NQ</a>, enquire<br>
+    </p>
+</blockquote>
 </body>
-
 </html>
-

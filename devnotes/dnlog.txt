@@ -1,17 +1,26 @@
 DN Corrections, Modifications log
 
+DN 3.2.8 (TP, 15.12.02)
+- added notes about undocumented DC_ calls. Info from Jorma Oksanen.
+- dcin.htm, dcout.htm, dcprt.htm, dcxin.htm, dcicl.htm, dcrbd.htm, dcgen.htm updated 
+- dc_bye.htm, dcent.htm, dcnam.htm, dcalt.htm, dcpol.htm  updated
+- oscli.htm, osnq.htm, ossp.htm updated
+- scrdrver.htm, scrdrv2.htm updated with printer redirection toggle
+- TBD hardware.htm, scrfiles.htm corrected
+- TBD : 10 ms INT, CLI .[ .], Dennis corrections
+
 DN 3.2.7 (DG, 12.12.99)
-- scrfiles.htm, UDG assignment order info from Dominic Morris. 
+- scrfiles.htm, UDG assignment order info from Dominic Morris.
   Hires0 overlapping Lores0 on unexpanded Z88s.
 
 DN 3.2.6 (GS, 12.12.99)
 - z80instr.htm, <SMALL> tag added to allow for A4 printing of HTML.
 
 DN 3.2.5 (DG, 10.12.99)
-- scrdrver.htm,	Horizontal and vertical scrolling clarified.
+- scrdrver.htm, Horizontal and vertical scrolling clarified.
 - fppref.htm, Clarified fp_idv, fp_mod and fp_str.
-- index.htm, motherboard.htm, z80undoc.htm, scrdrver.htm, serintfc.htm, 
-  release.htm, intro.htm, hardware.htm, manifest.htm, fppref.htm, 
+- index.htm, motherboard.htm, z80undoc.htm, scrdrver.htm, serintfc.htm,
+  release.htm, intro.htm, hardware.htm, manifest.htm, fppref.htm,
   z80instr.htm, z80undoc.htm, scrfiles.htm, various minor layout changes.
 
 DN 3.2.4 (TP, 10.12.99)
@@ -20,15 +29,15 @@ DN 3.2.4 (TP, 10.12.99)
 - pushfram.htm removed from the Quick ref. and added to manif2.htm
 
 DN 3.2.3 (DG, 18.10.99)
-- scrdrver.htm, Noted NUL, 1,"2.[" and 1,"2.] possibly used for control 
-  of screen restoring. PipeDream map window type. New command delete window. 
-  Clarified window select and set margins. Corrected Output n copies of the 
-  code m and Beep sequence. Corrected SD_DWN / SD_DWN value mixup. 
+- scrdrver.htm, Noted NUL, 1,"2.[" and 1,"2.] possibly used for control
+  of screen restoring. PipeDream map window type. New command delete window.
+  Clarified window select and set margins. Corrected Output n copies of the
+  code m and Beep sequence. Corrected SD_DWN / SD_DWN value mixup.
   Added quick ref to screen driver scrdrv2.htm and rearranged scrdrver.htm.
 - manifest.htm, Corrected SD_DWN / SD_DWN value mixup.
 - Renamed Z80inst*.htm to z80inst*.htm and updated references.
 - ossi.htm, corrected SI_HRD and SI_SFT details.
-- hardware.htm, added user defined character layout in LORES0. 
+- hardware.htm, added user defined character layout in LORES0.
 
 DN 3.2.2 (TP, 13.10.99)
 - index.htm, manually reorganised. PLEASE, update it manually NOW!

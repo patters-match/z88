@@ -1,312 +1,84 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-
 <html>
 
 <head>
-
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-
-   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-
-   <title>System Calls Reference</title>
-
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>System Calls Reference</title>
 </head>
 
 <body>
 
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-
-<tr>
-
-<th COLSPAN="3">Z88 Developers' Notes</th>
-
-</tr>
-
-
-
-<tr>
-
-<td VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
-
-
-
-<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
-
-
-
-<td ALIGN=RIGHT VALIGN=BOTTOM NOWRAP WIDTH="10%"><a href="sysref.htm">Contents
-
-of System Calls</a></td>
-
-</tr>
-
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <th colspan="3">Z88 Developers' Notes</th>
+    </tr>
+    <tr>
+        <td valign="bottom" width="10%"><a href="index.htm">Contents</a></td>
+        <td align="center" valign="bottom" width="80%">&nbsp;</td>
+        <td align="right" valign="bottom" width="10%" nowrap><a
+        href="sysref.htm">Contents of System Calls</a></td>
+    </tr>
 </table>
-
-
 
 <hr>
 
-<p><b><font size=+1>DC_Nq, handle Director/CLI enquiries</font></b>
+<p><font size="4"><b>DC_Nq, handle Director/CLI enquiries</b></font>
+</p>
 
-<p><tt>RST 20H, DEFW $160C</tt>
+<p><tt>RST 20H, DEFW $160C</tt> </p>
 
-<pre>IN:</pre>
-
-
-
-<blockquote>
-
-<pre>C = reason code
-
-B = 0, always</pre>
-
-</blockquote>
-
-
+<dl>
+    <dt>IN:</dt>
+</dl>
 
 <blockquote>
-
-<pre>The reason codes are:</pre>
-
-
-
-<table BORDER=0 CELLPADDING=0 >
-
-<tr>
-
-<td NOWRAP><b><font face="Courier New"><font size=-1>Value&nbsp;&nbsp;&nbsp;&nbsp;</font></font></b></td>
-
-
-
-<td NOWRAP><b><font face="Courier New"><font size=-1>Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></font></b></td>
-
-
-
-<td NOWRAP><b><font face="Courier New"><font size=-1>Description</font></font></b></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$00</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Dev</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>Get default device</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$03</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Dir</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>Get default directory</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$06</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Fnm</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>Get filename match string</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$09</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Dmh</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>Get the director memory
-
-handle</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$0C</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Inp</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>*** NQ_Ihn ($8615) link
-
-(IX=$0006 always)</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$1F</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Out</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>*** NQ_Ohn ($8618) link
-
-(IX=$0007 always)</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$12</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Prt</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>*** NQ_Phn ($8609) link
-
-(IX=$0003 always)</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td><font face="Courier New"><font size=-1>$15</font></font></td>
-
-
-
-<td><font face="Courier New"><font size=-1>DQ_Tin</font></font></td>
-
-
-
-<td><font face="Courier New"><font size=-1>Get input-T handle</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$18</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Tot</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>Get output-T handle</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$1B</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Tpr</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>Get printer-T handle</font></font></td>
-
-</tr>
-
-
-
-<tr>
-
-<td NOWRAP><font face="Courier New"><font size=-1>$1E</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>DQ_Chn</font></font></td>
-
-
-
-<td NOWRAP><font face="Courier New"><font size=-1>Reset serial port and
-
-get NQ_Chn ($8612)</font></font></td>
-
-</tr>
-
-</table>
-
+    <pre>B = 0, always
+C = reason code</pre>
+    <blockquote>
+        <pre>DQ_Dev ($00), get default device
+DQ_Dir ($03), get default directory
+DQ_Fnm ($06), get filename match string
+DQ_Dmh ($09), get the director memory handle
+DQ_Inp ($0C), get std. input handle
+DQ_Out ($1F), get std. output handle
+DQ_Prt ($12), get printer stream handle
+DQ_Tin ($15), <font size="3">get input-T handle
+DQ_Tot ($18), get output-T handle
+DQ_Tpr ($1B), get printer-T handle
+DQ_Chn ($1E), reset serial port and get NQ_Chn
+</font></pre>
+    </blockquote>
 </blockquote>
 
-
-
-<pre>OUT:</pre>
-
-
+<p>OUT:</p>
 
 <blockquote>
-
-<pre>Fc = 0:&nbsp;&nbsp; Success, result in IX
-
-Fc = 1:&nbsp;&nbsp; A = RC_UNK ($03)</pre>
-
+    <pre>Fc = 0,&nbsp;&nbsp; success
+     result in IX for DQ_Dmh, DQ_Inp, DQ_Out, DQ_Prt, DQ_Tin, DQ_Tot, DQ_Tpr, DQ_Chn
+     result in BHL for DQ_Dev, DQ_Dir, DQ_Fnm
+Fc = 1,&nbsp;&nbsp; A = RC_UNK ($03)</pre>
 </blockquote>
 
-Notes:
+<p>Notes: </p>
 
-<blockquote>Internal operating system usage.
+<blockquote>
+    <p>Internal operating system usage. <br>
+    DC_NQ is a subcall of OS_NQ, use <a href="osnq.htm">OS_NQ</a>
+    instead.<br>
+    Dev, Dir, Fnm get the attribute from Filer if it is open,
+    otherwise from Index.</p>
+</blockquote>
 
-<br>This call is used by the OS_NQ if B = $8C.
+<p>Bugs: -</p>
 
-<br>Some reasons are specific, some of them are direct link to the OS_NQ.
+<p>Related calls: </p>
 
-<br>For DQ_Inp, DQ_Out, DQ_Prt use OS_NQ.</blockquote>
-
-Bugs:
-
-<br>&nbsp;
-
-<br>&nbsp;
-
+<blockquote>
+    <p><a href="dcsp.htm">DC_Sp</a>, DC specify<br>
+    <a href="ossp.htm">OS_Sp</a>, specify<br>
+    <a href="osnq.htm">OS_NQ</a>, enquire<br>
+    </p>
+</blockquote>
 </body>
-
 </html>
-
