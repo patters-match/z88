@@ -44,7 +44,7 @@ enum flag           { OFF, ON };
 
 enum symbols        { space, bin_and, dquote, squote, semicolon, comma, fullstop, lparen, lcurly, rcurly, rparen,
                       plus, minus, multiply, divi, mod, bin_xor, assign, bin_or, bin_nor, colon = bin_nor, bin_not, less,
-                      div256 = less, greater, mod256 = greater, log_not, hash, constexpr, newline, power, lshift, rshift,
+                      mod256 = less, greater, div256 = greater, log_not, hash, constexpr, newline, power, lshift, rshift,
                       lessequal, greatequal, notequal, name, number, decmconst, hexconst, binconst, charconst, registerid,
                       strconq = fullstop, negated, nil, ifstatm, elsestatm, endifstatm
                     };
