@@ -1,4 +1,4 @@
-     MODULE flash16
+     MODULE flash17
 
 ; ********************************************************************************************
 ; FlashStore
@@ -160,7 +160,7 @@ IF !DEBUG
                     DEFM "Freeware utility (GPL licence) by",$7F
                     DEFM "Thierry Peycru (Zlab) & Gunther Strube (InterLogic)",$7F
                     DEFM $7F
-                    DEFM "Release V2.dev, October 2004",$7F
+                    DEFM "Release V1.7.dev, November 2004",$7F
                     DEFM "(C) Copyright 1997-2004. All rights reserved",0
 
 
@@ -207,8 +207,6 @@ ENDIF
 ; ************************************************************************
 ;
 .mainmenu
-                    CALL DispZlabLogo
-                    CALL DispInterLogicLogo
                     CALL DispCmdWindow
                     CALL DispCtlgWindow
                     CALL FileEpromStatistics      ; parse for free space and total of files...
@@ -290,7 +288,7 @@ ENDIF
                     call CreateWindow
                     ret
 
-.catalog_banner     defm "FLASHSTORE V2.dev, (C) 1997-2004 Zlab & InterLogic",0
+.catalog_banner     defm "FLASHSTORE V1.7.dev, (C) 1997-2004 Zlab & InterLogic",0
 
 
 .PollSlots
@@ -353,24 +351,26 @@ ENDIF
 ; with the first byte indicating the total of File Eproms available.
 ;
 .PollFileEproms
-                    call PollSlots                    
+                    call PollSlots
                     or   a
                     jr   nz, select_slot     ; one or more File Eprom's were found, select one...
-.check_slot3
-                         ld   a,3                 ; no File Eprom's found
-                         ld   (curslot),a         ; select slot 3 as default
-
-                         ld   c,a
-                         call FlashEprCardId      ; Flash Eprom in slot 3?
+                         ld   c,3
+.check_for_flash_cards
+                         call FlashEprCardId      ; Empty Flash Cards in slots 3-1?
                          jr   nc, chip_found      ; Yes...
+                         dec  c
+                         jr   nz, check_for_flash_cards
+                         
                          CALL greyscr
                          CALL DispCtlgWindow
 .unkn_chip
-                         ld   hl, cbad_ms
+                         ld   hl, noflash_ms
                          call DispErrMsg
                          scf
                          ret
-.chip_found                                       ; a Flash Eprom was found,
+.chip_found                                       
+                         LD   A,C
+                         LD   (curslot),A         ; use found Flash Card this as current slot...
                          CALL greyscr
                          CALL DispCtlgWindow
                          call format_main         ; format Flash Eprom for new File Eprom Area
@@ -380,7 +380,6 @@ ENDIF
                     jr   z, select_default
 
                     call SelectSlot          ; User selects a slot from a list...
-                    jr   c, check_slot3      ; user aborted selection, ask user to create file area
                     ret
 .select_default                              ; select the only File Eprom available
                     ld   hl, availslots+1
@@ -746,7 +745,7 @@ ENDIF
                     CP   $3F            ; is header located in top bank?
                     JR   Z, true_size   ; Yes - real File Eprom found...
 
-                    LD   HL, flashvdu
+                    LD   HL, tinyvdu
                     CALL_OZ(Gn_Sop)
                     CALL DispEprSize
                     LD   HL, ksize
@@ -772,10 +771,9 @@ ENDIF
                     RET
 
 .t701_ms            defm 1,"3@",33,33,0
-.flashvdu           DEFM 1,"2+F"
 .tinyvdu            DEFM 1,"2+T",0
 .ksize              DEFM "K ",0
-.fepr               DEFM "FILE AREA",1,"3-TF",0
+.fepr               DEFM "FILE AREA",1,"2-T",0
 
 
 
@@ -838,12 +836,6 @@ ENDIF
                     call CheckBatteryStatus
                     ret  c                        ; batteries are low - operation aborted
 
-                    ld   a,(curslot)
-                    cp   3
-                    jr   z, init_save_main
-                         ld   hl, nosave_ms
-                         call disperrmsg          ; "files can only be saved in slot 3."
-                    ret
 .init_save_main
                     ld   a,(curslot)
                     ld   c,a
@@ -1018,7 +1010,7 @@ ENDIF
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
                     CALL FindFile                      ; find File Entry of old file, if present
 
-                    ld   a,3                           ; slot 3
+                    ld   a,(curslot)
                     ld   bc, BufferSize
                     ld   de, BufferStart
                     ld   hl, buf3
@@ -1141,7 +1133,7 @@ ENDIF
                     CALL file_markdeleted
                     RET
 
-.delfile_br         DEFM "MARK FILE AS DELETE ON EPROM",0
+.delfile_br         DEFM "MARK FILE AS DELETED ON EPROM",0
 
 ; **************************************************************************
 ;
@@ -1304,6 +1296,10 @@ ENDIF
 .fetf_ms            DEFM 1,"2+C Fetching to ",0
 .done_ms            DEFM " Completed.",$0D,$0A,0
 .ffet_ms            DEFM 13," Fetch as : ",0
+
+.disp_exis_ms       LD   HL, exis_ms
+                    CALL_OZ GN_Sop
+                    RET
 .exis_ms            DEFM 13," Overwrite RAM file : ",0
 
 
@@ -1527,7 +1523,7 @@ ENDIF
                     CALL_OZ(GN_Cl)
 
                     CALL_OZ GN_nln
-                    LD   HL, exis_ms
+                    LD   HL, disp_exis_ms
                     LD   DE, yes_ms
                     CALL yesno               ; file exists, prompt "Overwrite file?"
                     JR   Z,exit_overwrfile
@@ -1608,7 +1604,7 @@ ENDIF
                     ld   hl, linecnt
                     ld   (hl),a
 
-                    ld   hl, prompt_delfiles_ms
+                    ld   hl, disp_prompt_delfiles_ms
                     ld   de, no_ms
                     call yesno
                     jr   nz, begin_catalogue
@@ -1713,6 +1709,11 @@ ENDIF
 .jrsz_sq            defm 1,"2JR",0
 .jnsz_sq            defm 1,"2JN",0
 .endf_ms            defm 1,"2-G",1,"4+TUR END ",1,"4-TUR",0
+
+.disp_prompt_delfiles_ms
+                    LD   HL, prompt_delfiles_ms
+                    CALL_OZ gn_sop
+                    RET
 .prompt_delfiles_ms defm "Show deleted files? ",0
 
 
@@ -1735,41 +1736,37 @@ ENDIF
                     ret  nz
 
                     call save_null_file           ; save the hidden "null" file to avoid FE bootstrapping
-                    ret  c                        ; return errors state
-
-                    ld   a,3
-                    ld   (curslot),a              ; automatically select slot 3 as new default...
-                    cp   a                        ; otherwise indicate "Flash Eprom formatted"...
                     ret
 .FormatCard
                     call CheckBatteryStatus       ; don't format Flash Eprom
                     ret  c                        ; if Battery Low is enabled...
 
-                    ld   c,3
+                    ld   A,(curslot)
+                    LD   C,A
                     CALL FlashEprCardId
-                    JP   C, unkn_chip             ; Ups - Flash Eprom not available in slot 3
+                    JP   C, unkn_chip             ; Ups - Flash Eprom not available in current slot 
 
                     ld   hl,ffm1_br
                     call wbar                     ; "Format Flash eprom" head line
 
-                    LD   C,3
+                    LD   A,(curslot)
+                    LD   C,A
                     CALL FileEprRequest
                     JR   Z, area_found
-                         LD   C,3
+                         LD   A,(curslot)
+                         LD   C,A
                          CALL ApplEprType
                          JR   C, displ_noaplepr
-                              LD   HL,fmt2_ms     ; "No File Area on Application Card."
-                              CALL sopnln
+                              CALL NoAppFileAreaMsg
                               JR   ackn_format
 .displ_noaplepr
                               LD   HL,fmt1_ms     ; "No File Area on Flash Eprom."
                               CALL sopnln
                               JR   ackn_format
 .area_found
-                         LD   HL,fmt3_ms          ; "Re-format File Area (All data will be lost)."
-                         CALL sopnln
+                         CALL Disp_reformat_ms    ; "Re-format File Area (All data will be lost)."
 .ackn_format
-                    ld   hl,sure_ms
+                    ld   hl,disp_filefmt_ask_ms
                     ld   de,no_ms
                     call yesno
                     ret  nz
@@ -1783,7 +1780,8 @@ ENDIF
                     LD   HL,wroz_ms
                     CALL sopnln
 
-                    LD   C,3
+                    LD   A,(curslot)
+                    LD   C,A
                     CALL FlashEprFileFormat       ; blow "oz" header on top of Card
                     JR   C, WriteHdrError         ; or at top of free area.
 
@@ -1807,8 +1805,21 @@ ENDIF
                          CALL DispErrMsg
                     RET
 .save_null_file
-                    ld   b,$c0               ; bottom of slot 3...
-                    ld   hl,0                ; blow null file at bottom of card
+                    ld   A,(curslot)
+                    CP   3
+                    JR   Z, poll_intel_card
+.exit_null_file     CP   A                   ; It was not an Intel Flash that was formated, return "happy"
+                    RET                      
+.poll_intel_card
+                    LD   C,A
+                    CALL FlashEprCardId
+                    JR   C, exit_null_file
+                    LD   A,$89               ; Check for Intel Manufacturer code
+                    CP   H
+                    JR   NZ, exit_null_file  ; it was not an Intel chip, then the null file is not necessary...
+                                             
+                    ld   b,$c0               ; Intel Flash available 
+                    ld   hl,0                ; blow null file at bottom of card in slot 3... 
                     ld   de, nullfile
                     ld   c, MS_S1            ; use segment 1 to blow the bytes...
                     ld   iy,6                ; Initial File Entry is 6 bytes long...
@@ -1822,20 +1833,41 @@ ENDIF
 .fferr_ms           defm "File Area was not formatted/erased properly!",$0D,$0A,0
 .ffm1_br            defm "FORMAT FLASH CARD",0
 .ffm2_br            defm "Formatting Flash Card - please wait...",0
-.sure_ms            defm 1,"2+C",13,"Format (or create new) area in slot 3? ",0
 .wroz_ms            DEFM " Writing File Eprom Header...",$0D,$0A,0
 .fmt1_ms            DEFM 1,"BNo File Area on Flash Card.",1,"B",0
-.fmt2_ms            DEFM 1,"BNo File Area on Application Card.",1,"B",0
-.fmt3_ms            DEFM 1,"BRe-format File Area in slot 3 (All data will be lost).",1,"B",0
-.cbad_ms            defm 1,"BFlash Card not found in slot 3.",1,"B",0
+.no_appflarea1_ms   DEFM 1,"BNo File Area available on Application Card in slot ",0
+.no_appflarea2_ms   DEFM ".",1,"B",0
+.noflash_ms         defm 1,"BNo Flash Cards were found in slots 1-3.",1,"B",0
 
+.disp_reformat_ms
+                    LD   HL, reformat1_ms
+                    CALL_OZ GN_Sop
+                    LD   A,(curslot)
+                    ADD  A,48
+                    CALL_OZ OS_Out
+                    LD   HL, reformat2_ms
+                    CALL sopnln
+                    RET
+.reformat1_ms       DEFM 1,"BRe-format File Area in slot ",0
+.reformat2_ms       DEFM " (All data will be lost).",1,"B",0
+
+.disp_filefmt_ask_ms
+                    LD   HL, filefmt_ask1_ms
+                    CALL_OZ GN_Sop
+                    LD   A,(curslot)
+                    ADD  A,48
+                    CALL_OZ OS_Out
+                    LD   HL, filefmt_ask2_ms
+                    CALL_OZ GN_Sop
+                    RET
+.filefmt_ask1_ms    defm 1,"2+C",13,"Format (or create new) area in slot ",0
+.filefmt_ask2_ms    defm "? ",0            
 
 
 ; ****************************************************************************
 ;
 ; Various standard routines
 ;
-
 
 ; ****************************************************************************
 ;
@@ -1911,7 +1943,9 @@ ENDIF
 ; ****************************************************************************
 ;
 .yesno
-                    CALL_OZ gn_sop
+                    LD   BC, yesno_loop
+                    PUSH BC
+                    JP   (HL)                ; call display message
 .yesno_loop         LD   H,D
                     LD   L,E
                     CALL_OZ gn_sop
@@ -2088,6 +2122,18 @@ ENDIF
 .hexnumb_list       defm "0123456789ABCDEF",0
 
 
+; ****************************************************************************
+.NoAppFileAreaMsg   PUSH HL
+                    LD   HL,no_appflarea1_ms    ; "No File Area on Application Card."
+                    CALL_OZ GN_Sop
+                    LD   A,(curslot)
+                    ADD  A,48
+                    CALL_OZ OS_Out
+                    LD   HL,no_appflarea2_ms
+                    CALL sopnln
+                    POP  HL
+                    RET
+
 
 ; ****************************************************************************
 ;
@@ -2167,33 +2213,6 @@ ENDIF
 .void               JR   void
 
 
-
-; ************************************************************************
-;
-.DispZlabLogo
-                    LD   HL, zlab_logo
-                    CALL_OZ(Gn_Sop)
-                    RET
-.zlab_logo
-                    defm 1,138,"=",64,63,32,39,39,39,38,36,32
-                    defm 1,138,"=",65,63,128,63,63,48,128,128,3
-                    defm 1,138,"=",66,63,128,63,63,3,15,60,48
-                    defm 1,138,"=",67,63,1,57,57,49,1,1,1
-                    defm 1,138,"=",68,32,32,35,39,39,32,38,38
-                    defm 1,138,"=",69,15,60,48,63,63,128,3,6
-                    defm 1,138,"=",70,128,128,3,63,63,128,35,22
-                    defm 1,138,"=",71,9,25,57,57,57,1,33,17
-                    defm 1,138,"=",72,38,38,38,38,38,39,32,63
-                    defm 1,138,"=",73,6,7,6,6,6,54,128,63
-                    defm 1,138,"=",74,22,55,22,22,22,23,128,63
-                    defm 1,138,"=",75,17,33,17,9,9,49,1,63
-
-                    defm 1,"2H7"
-                    defm 1,"3@",35,34,1,"2?","@",1,"2?","A",1,"2?","B",1,"2?","C"
-                    defm 1,"3@",35,35,1,"2?","D",1,"2?","E",1,"2?","F",1,"2?","G"
-                    defm 1,"3@",35,36,1,"2?","H",1,"2?","I",1,"2?","J",1,"2?","K"
-                    defb 0
-
 .FlashEprTypes
                     DEFB 6
                     DEFW FE_I28F004S5, 8, mnem_i004
@@ -2210,13 +2229,6 @@ ENDIF
 .mnem_am040b        DEFM "AM29F040B (512K)", 0
 .mnem_am080b        DEFM "AM29F080B (1024K)", 0
 
-
-; ************************************************************************
-;
-. DispInterLogicLogo
-                    LD   HL, InterLogic_logo
-                    CALL_OZ(Gn_Sop)
-                    RET
 
 .InterLogic_logo    defb 1, 138, '=', 'L', @10000000, @10000000, @10000000, @10000000, @10000000, @10000000, @10000000, @10000000
                     defb 1, 138, '=', 'M', @10000000, @10000000, @10000000, @10010000, @10010001, @10000010, @10010000, @10010000
@@ -2237,14 +2249,27 @@ ENDIF
                     defb 1, 138, '=', 'b', @10111110, @10111111, @10111111, @10111100, @10110000, @10000000, @10000000, @10000000
                     defb 1, 138, '=', 'c', @10110000, @10100000, @10000000, @10000000, @10000000, @10000000, @10000000, @10000000
 
-                    defm 1,"2H7"
                     defm 1,"3@",34,37,1,"2?","L",1,"2?","M",1,"2?","N",1,"2?","O",1,"2?","P",1,"2?","Q"
                     defm 1,"3@",34,38,1,"2?","R",1,"2?","S",1,"2?","T",1,"2?","U",1,"2?","V",1,"2?","W"
                     defm 1,"3@",34,39,1,"2?","X",1,"2?","Y",1,"2?","Z",1,"2?","a",1,"2?","b",1,"2?","c"
                     defb 0
 
+.zlab_logo
+                    defm 1,138,"=",64,63,32,39,39,39,38,36,32
+                    defm 1,138,"=",65,63,128,63,63,48,128,128,3
+                    defm 1,138,"=",66,63,128,63,63,3,15,60,48
+                    defm 1,138,"=",67,63,1,57,57,49,1,1,1
+                    defm 1,138,"=",68,32,32,35,39,39,32,38,38
+                    defm 1,138,"=",69,15,60,48,63,63,128,3,6
+                    defm 1,138,"=",70,128,128,3,63,63,128,35,22
+                    defm 1,138,"=",71,9,25,57,57,57,1,33,17
+                    defm 1,138,"=",72,38,38,38,38,38,39,32,63
+                    defm 1,138,"=",73,6,7,6,6,6,54,128,63
+                    defm 1,138,"=",74,22,55,22,22,22,23,128,63
+                    defm 1,138,"=",75,17,33,17,9,9,49,1,63
 
-; *****************************************************************************
-;
-; Library calls are added here by linker...
-;
+                    defm 1,"2H7"
+                    defm 1,"3@",35,34,1,"2?","@",1,"2?","A",1,"2?","B",1,"2?","C"
+                    defm 1,"3@",35,35,1,"2?","D",1,"2?","E",1,"2?","F",1,"2?","G"
+                    defm 1,"3@",35,36,1,"2?","H",1,"2?","I",1,"2?","J",1,"2?","K"
+                    defb 0
