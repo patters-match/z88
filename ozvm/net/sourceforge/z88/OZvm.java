@@ -137,12 +137,15 @@ public class OZvm {
 							Gui.displayRtmMessage("Eprom File Card size/type configuration is illegal.");						
 						arg+=3;
 						
-						FileArea fa = new FileArea(eprSlotNumber);
-						// optional: import files from host system into file area.
-						while(args[arg].compareToIgnoreCase("-d") == 0 | args[arg].compareToIgnoreCase("-f") == 0) {
-							if (args[arg].compareToIgnoreCase("-f") == 0) fa.importHostFile(new File(args[arg+1]));
-							if (args[arg].compareToIgnoreCase("-d") == 0) fa.importHostFiles(new File(args[arg+1]));
-							arg+=2;
+						if (arg < args.length) {
+							FileArea fa = new FileArea(eprSlotNumber);
+							// optional: import files from host system into file area.
+							while(args[arg].compareToIgnoreCase("-d") == 0 | args[arg].compareToIgnoreCase("-f") == 0) {
+								if (args[arg].compareToIgnoreCase("-f") == 0) fa.importHostFile(new File(args[arg+1]));
+								if (args[arg].compareToIgnoreCase("-d") == 0) fa.importHostFiles(new File(args[arg+1]));
+								arg+=2;
+								if (arg >= args.length) break;
+							}
 						}
 						continue;
 					}
