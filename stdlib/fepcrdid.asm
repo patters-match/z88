@@ -23,7 +23,7 @@
 
 ; ***************************************************************
 ;
-; Identify Intel Flash Eprom Chip in slot C.
+; Identify Flash Memory Chip in slot C.
 ;
 ; In:
 ;         C = slot number (1, 2 or 3)
@@ -32,18 +32,18 @@
 ;         Success:
 ;              Fc = 0
 ;              Fz = 1
-;              A = Intel Device Code
-;                   fe_i016 ($AA), an INTEL 28F016S5 (2048K)
-;                   fe_i008 ($A2), an INTEL 28F008SA (1024K)
-;                   fe_i8s5 ($A6), an INTEL 28F008S5 (1024K)
-;                   fe_i004 ($A7), an INTEL 28F004S5 (512K)
-;                   fe_i020 ($BD), an INTEL 28F020 (256K)
-;              B = total of 64K blocks on Flash Eprom.
+;              A = Flash Memory Device Code
+;                   fe_i016 ($AA), an INTEL 28F016S5 (2048Kb)
+;                   fe_i008 ($A2), an INTEL 28F008SA (1024Kb)
+;                   fe_i8s5 ($A6), an INTEL 28F008S5 (1024Kb)
+;                   fe_i004 ($A7), an INTEL 28F004S5 (512Kb)
+;                   fe_i020 ($BD), an INTEL 28F020 (256Kb)
+;              B = total of 16K banks on Flash Memory Chip.
 ;
 ;         Failure:
 ;              Fc = 1
 ;              Fz = 0
-;              A = RC_NFE (not a recognised Intel Flash Eprom)
+;              A = RC_NFE (not a recognised Flash Memory Chip)
 ;
 ; Registers changed on return:
 ;    ...CDEHL/IXIY ........ same
@@ -60,11 +60,11 @@
                     PUSH BC
 
                     CALL FetchCardID         ; get info of Intel chip in HL...
-                    LD   A, FE_INT           ; Intel Flash Eprom?
+                    LD   A, FE_INT           ; Intel FlashFile Memory?
                     CP   H
                     JR   NZ, unknown_device  ; not an Intel Chip...
 
-                    LD   A,L                 ; Fc = 0, Fz = 1, A = device code
+                    LD   A,L                 ; Fc = 0, Fz = 1, A = Device Code
                     CALL GetTotalBlocks      ; return no. of blocks in B
                     POP  HL
                     LD   C,L                 ; original C restored
@@ -80,7 +80,7 @@
 
 ; ***************************************************************
 ;
-; Get the Manufactor and device code from the Intel chip.
+; Get the Manufacturer and Device Code from the Intel chip.
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
@@ -128,19 +128,19 @@
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
                     LD   B,A
                     LD   C, $01           
-                    CALL_OZ(OS_MPB)          ; Get bottom Bank of slot 3 into segment 1
+                    CALL MemDefBank          ; Get bottom Bank of slot 3 into segment 1
                     PUSH BC                  ; preserve old bank binding
 
                     LD   HL, $4000           ; Pointer at beginning of segment 1 ($0000)
-                    LD   (HL), FE_IID        ; Flash Eprom Card ID command
+                    LD   (HL), FE_IID        ; Flash Memory Card ID command
                     LD   B,(HL)              ; B = manufacturer code (at $00 0000)
                     INC  HL
                     LD   C,(HL)              ; C = device code (at $00 0001)
-                    LD   (HL), FE_RST        ; Reset Flash Eprom Chip to read array mode
+                    LD   (HL), FE_RST        ; Reset Flash Memory Chip to read array mode
                     PUSH BC
                     POP  HL
                     POP  BC
-                    CALL_OZ(OS_MPB)          ; restore original bank in segment 1
+                    CALL MemDefBank          ; restore original bank in segment 1
                     RET
 .RAM_code_end
 
@@ -148,10 +148,10 @@
 ; ***************************************************************
 ;
 ; IN:
-;    A = Device code
+;    A = Flash Memory Device code
 ;
 ; OUT:
-;    B = total of 64K blocks on Flash Eprom
+;    B = total of 16K banks on Flash Memory
 ;
 ; Registers changed on return:
 ;   AF.CDE../IXIY same
@@ -160,7 +160,7 @@
 .GetTotalBlocks     PUSH AF
 
                     LD   HL, FlashEprTypes
-                    LD   B,(HL)                   ; no. of Flash Eprom Types in table
+                    LD   B,(HL)                   ; no. of Flash Memory Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
                     INC  HL
@@ -174,9 +174,8 @@
                     RET
 .FlashEprTypes
                     DEFB 5
-                    DEFB fe_i020, 4
-                    DEFB fe_i004, 8
-                    DEFB fe_i008, 16
-                    DEFB fe_i8s5, 16
-                    DEFB fe_i016, 32
-                    DEFB fe_i8s5, 16
+                    DEFB fe_i020, 16               ; 4 x 64K blocks or 16 x 16K banks (256Kb)
+                    DEFB fe_i004, 32               ; 8 x 64K blocks or 32 x 16K banks (512Kb)
+                    DEFB fe_i008, 64               ; 16 x 64K blocks or 64 x 16K banks (1024Kb)
+                    DEFB fe_i8s5, 64               ; 16 x 64K blocks or 64 x 16K banks (1024Kb)
+                    DEFB fe_i016, 128              ; 32 x 64K blocks or 128 x 16K banks (2048Kb)
