@@ -464,11 +464,24 @@ public final class Blink extends Z80 {
 	 * Decode Z80 Address Space to extended Blink Address (offset,bank).
 	 * 
 	 * @param pc 16bit word that points into Z80 Local Address Space
-	 * @return int 24bit extended address (packed in LSB order) 
+	 * @return int 24bit extended address 
 	 */
-	public int decodeLocalAddress(int pc) {
+	public int decodeLocalAddress(final int pc) {
+		int bankno;
+		
+		if (pc >= 0x2000) {
+			bankno = sR[pc >>> 14];
+		} else {
+			// return lower 8K Bank binding
+			// Lower 8K is System Bank 0x00 (ROM on hard reset)
+			// or 0x20 (RAM for Z80 stack and system variables)
+			if ((COM & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
+				bankno = 0x20;	// RAM Bank 20h
+			else
+				bankno = 0x00;	// ROM bank 00h
+		}
 
-		return 0;
+		return (bankno << 16) | (pc & 0x3FFF);
 	}
 	
 	/**
