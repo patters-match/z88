@@ -316,7 +316,24 @@ public class SaveRestoreVM {
 	        blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("Z88StoppedAtTime")));
 	        
 	        if (properties.getProperty("Z88KbLayout") != null) {
-		        Z88Keyboard.getInstance().setKeyboardLayout(Integer.parseInt(properties.getProperty("Z88KbLayout")));
+	        	int kbLayoutCountryCode = Integer.parseInt(properties.getProperty("Z88KbLayout"));
+	        	switch(kbLayoutCountryCode) {
+	        		case Z88Keyboard.COUNTRY_EN:
+	        			Gui.getInstance().getUkLayoutMenuItem().doClick();
+	        			break;
+	        		case Z88Keyboard.COUNTRY_DK:
+	        			Gui.getInstance().getDkLayoutMenuItem().doClick();
+	        			break;
+	        		case Z88Keyboard.COUNTRY_FR:
+	        			Gui.getInstance().getFrLayoutMenuItem().doClick();
+	        			break;
+	        		case Z88Keyboard.COUNTRY_SE: // Swedish/Finish
+	        			Gui.getInstance().getSeLayoutMenuItem().doClick();
+	        			break;
+	        		default:
+	        			// all other keyboard are default UK (since they're not implemented yet)
+	        			Gui.getInstance().getUkLayoutMenuItem().doClick();	        			
+	        	}
 	        }      
 
 	        if (properties.getProperty("RtmMessages") != null) {
