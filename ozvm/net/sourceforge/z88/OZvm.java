@@ -171,6 +171,7 @@ public class OZvm {
 		System.out.println("Commands:");
 		System.out.println("exit - end OZvm application");
 		System.out.println("run - execute Z88 machine from PC");
+		System.out.println("z - run z88 machine and break at next instruction");
 		System.out.println(". - Single step instruction at PC");
 		System.out.println("d - Disassembly at PC");
 		System.out.println("d [local address | extended address] - Disassemble at address");
@@ -180,9 +181,24 @@ public class OZvm {
 		System.out.println("bp - List breakpoints");
 		System.out.println("bl - Display Blink register contents");        
 		System.out.println("bp <extended address> - Toggle breakpoint");
-		System.out.println("blsr - Blink: Segment Register Bank Binding");
+		System.out.println("sr - Blink: Segment Register Bank Binding");
 		System.out.println("r - Display current Z80 Registers");
 	}
+
+
+	private StringBuffer dzPcStatus() {
+		StringBuffer dzBuffer = new StringBuffer(64);
+		int bank = ((z88.decodeLocalAddress(z88.PC()) | (z88.PC() & 0xF000)) >>> 16) & 0xFF;
+		dzBuffer.append(Dz.byteToHex(bank, false));
+						
+		dz.getInstrAscii(dzBuffer, z88.PC(), true);
+		for(int space=35 - dzBuffer.length(); space>0; space--)
+			dzBuffer.append(" ");		// pad with spaces, to right-align with Mnemonic				
+		dzBuffer.append(blinkStatus.quickZ80Dump());
+		
+		return dzBuffer; 			
+	}
+	
 	
 	public void commandLine() throws IOException {
 		int breakpointProgramCounter = -1;
@@ -199,7 +215,6 @@ public class OZvm {
 		do {
 			if (z80Thread != null && z80Thread.isAlive() == false) {
 				z80Thread = null;	// garbage collect dead thread...
-				System.out.println("Z88 stopped running");
 			}
 
 			if (cmdLineTokens[0].equalsIgnoreCase("h") == true || cmdLineTokens[0].equalsIgnoreCase("help") == true) {
@@ -209,8 +224,15 @@ public class OZvm {
 			}
 
 			if (cmdLineTokens[0].equalsIgnoreCase("run") == true) {
-				z80Thread = run();				
-				
+				if (z80Thread == null) {
+					 z80Thread = run();
+				} else {				
+					if (z80Thread.isAlive() == true) 
+						System.out.println("Z88 is already running.");
+					else
+						z80Thread = run();
+				}
+
                 cmdline = "";
 				cmdLineTokens = cmdline.split(" "); // wait for a new command...
 			}
@@ -224,8 +246,39 @@ public class OZvm {
 
 			if (cmdLineTokens[0].equalsIgnoreCase(".") == true) {
 				z88.run(true);		// single stepping (no interrupts running)...				
-				z80Status();
+				System.out.println(dzPcStatus());
+
 				cmdLineTokens[0] = ""; // wait for a new command...
+			}
+
+			if (cmdLineTokens[0].equalsIgnoreCase("z") == true) {
+				if (z80Thread != null) {
+					if (z80Thread.isAlive() == true) 
+						System.out.println("Z88 is already running.");
+
+						cmdLineTokens[0] = ""; // wait for a new command...
+						continue;						
+				}
+
+				Breakpoints breakPoints = getBreakpointManager();	// get the current breakpoints
+				Breakpoints singleBreakpoint = new Breakpoints(z88);
+				int nextInstrAddress = dz.getNextInstrAddress(z88.PC());
+				nextInstrAddress = z88.decodeLocalAddress(nextInstrAddress);	// convert 16bit address to 24bit address
+				int nextInstrAddressBank = (nextInstrAddress >>> 16) & 0xFF;
+				nextInstrAddress &= 0xFFFF; 
+
+				singleBreakpoint.toggleBreakpoint(nextInstrAddress,nextInstrAddressBank);  // set breakpoint at next instruction
+				setBreakpointManager(singleBreakpoint);	// use this single breakpoint
+				z80Thread = run();	// let Z80 engine run until breakpoint is reached...
+				while(z80Thread.isAlive() == true) {
+					try {
+						Thread.sleep(1);	// wait for Z88 to reach breakpoint...
+					} catch (InterruptedException e) {}				
+				}
+				setBreakpointManager(breakPoints);	// restore user defined break points
+
+				System.out.println(dzPcStatus());
+				cmdLineTokens[0] = ""; // wait for a new command...				
 			}
 			
 			if (cmdLineTokens[0].equalsIgnoreCase("d") == true) {
@@ -246,7 +299,7 @@ public class OZvm {
 				cmdLineTokens = cmdline.split(" ");
 			}
 
-			if (cmdLineTokens[0].equalsIgnoreCase("blsr") == true) {
+			if (cmdLineTokens[0].equalsIgnoreCase("sr") == true) {
 				blinkStatus.displayBankBindings();
 				cmdline = ""; // wait for a new command...
 				cmdLineTokens = cmdline.split(" ");
@@ -277,6 +330,7 @@ public class OZvm {
 				cmdLineTokens[0].equalsIgnoreCase("wb") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("help") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("z") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("stop") == false &&
 			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("blsr") == false &&
@@ -314,6 +368,7 @@ public class OZvm {
 				bpAddress &= 0xFFFF; 
 			
 				breakp.toggleBreakpoint(bpAddress, bpBank);
+				breakp.listBreakpoints();
 			}
 		}
 
@@ -526,4 +581,19 @@ public class OZvm {
 		z88.setDebugMode(b);
 		debugMode = b;
 	}
+
+	/**
+	 * @return
+	 */
+	private Breakpoints getBreakpointManager() {
+		return breakp;
+	}
+
+	/**
+	 * @param breakpoints
+	 */
+	private void setBreakpointManager(Breakpoints breakpoints) {
+		breakp = breakpoints;
+	}
+
 }
