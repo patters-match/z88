@@ -376,19 +376,12 @@ public class Z88display extends JLabel implements MouseListener {
 	}
 
 	private void renderImageToComponent() {
-		if (image != null) {
-			// release previous bitmap to the system;
-			// it's been dumped to video already and is now useless...
-			image.flush();
-			image = null;
-		}
-
 		image = new BufferedImage(Z88SCREENWIDTH, Z88SCREENHEIGHT,
 				BufferedImage.TYPE_4BYTE_ABGR);
 		image.setRGB(0, 0, Z88SCREENWIDTH, Z88SCREENHEIGHT, displayMatrix, 0,
 				Z88SCREENWIDTH);
 		
-		// finally make the new screen frame visible in the GUI.
+		// make the new screen frame visible in the GUI.
 		this.setIcon(new ImageIcon(image));
 	}
 
