@@ -3981,7 +3981,7 @@ public class Dz {
 		z80vm = vm;
 	}
 
-	public final int Disassemble(String[] opcode, int pc, boolean dispaddr) {
+	public final int getInstrAscii(String[] opcode, int pc, boolean dispaddr) {
 		int i, addr;
 		byte relidx;
 		StringBuffer tmpstr = new StringBuffer(32);
