@@ -18,7 +18,7 @@
 ;***************************************************************************************************
 
      LIB FileEprFirstFile, FileEprNextFile
-     LIB FileEprFileEntryInfo
+     LIB FileEprFileStatus
 
      INCLUDE "error.def"
 
@@ -60,30 +60,24 @@
 .scan_filearea                                    ; scan the File Area until last File Entry found...
                     LD   C,B
                     LD   D,H
-                    LD   E,L                      ; preserve current File Entry
-                    PUSH AF                       ; preserve file status of current File Entry
+                    LD   E,L                      
+                    PUSH AF                       ; preserve current File Entry in CDE,F
                     CALL FileEprNextFile          ; get next file entry in BHL
-                    PUSH BC
-                    PUSH DE
-                    PUSH HL
-                    CALL FileEprFileEntryInfo     ; validate next file entry.
-                    POP  HL
-                    POP  DE
-                    POP  BC
+                    CALL FileEprFileStatus        ; validate next file entry.
                     EX   AF,AF'
                     POP  AF
                     EX   AF,AF'
                     JR   NC, scan_filearea
-.end_filearea                                     ; next file entry was pointing to empty space
+                                                  ; next file entry was pointing to empty space
                     EX   AF,AF'                   ; file status of last file entry restored.
                     LD   B,C
-                    EX   DE,HL
+                    EX   DE,HL                    ; BHL = pointer to last File Entry
 
-                    POP  DE                       ; return BHL = pointer to last File Entry
+                    POP  DE                       
                     LD   C,E                      ; original C restored
                     POP  DE
                     LD   A,D                      ; original A restored
-                    POP  DE
+                    POP  DE                       ; original DE restored
                     RET
 
 .no_entry           SCF
@@ -91,5 +85,5 @@
                     POP  DE
                     LD   C,E                      ; original C register restored
                     POP  DE                       ; ignore original AF...
-                    POP  DE
+                    POP  DE                       ; original DE restored
                     RET

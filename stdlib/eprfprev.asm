@@ -18,7 +18,7 @@
 ;***************************************************************************************************
 
      LIB FileEprFirstFile, FileEprNextFile
-     LIB FileEprFileEntryInfo
+     LIB FileEprFileStatus
 
      INCLUDE "error.def"
 
@@ -80,8 +80,10 @@
                     JR   Z, no_entry            ; BHL lib routine argument was the first file entry!
                     JR   scan_filearea
 .get_next_entry
-                    POP  AF
-                    POP  AF                     ; get rid of old file entry
+                    INC  SP
+                    INC  SP
+                    INC  SP
+                    INC  SP                     ; get rid of old file entry
 .scan_filearea
                     PUSH BC
                     PUSH HL                     ; preserve current File Entry
@@ -98,11 +100,7 @@
 
                     POP  HL                     ; scanning found current File Entry (lib routine argument)
                     POP  BC                     ; get 'previous' entry in BHL and return that to caller
-                    PUSH BC
-                    PUSH HL
-                    CALL FileEprFileEntryInfo   ; get File Status of Previous File Entry...
-                    POP  HL
-                    POP  BC
+                    CALL FileEprFileStatus      ; get File Status of Previous File Entry...
 
                     POP  DE                     ; BHL = pointer to previous File Entry, Fz = file status
                     LD   C,E                    ; original C restored
