@@ -346,11 +346,8 @@ public abstract class Z80 {
 
 
 	/** IO ports */
-	public void outb( int port, int bite, int tstates ) {
-	}
-	public int inb( int port ) {
-		return 0xff;
-	}
+	public abstract void outByte( int port, int b);	
+	public abstract int inByte( int port );
 
 	/** Interrupt handlers */
 	private static final boolean interruptTriggered( int tstates ) {
@@ -1162,13 +1159,13 @@ public abstract class Z80 {
 		{ local_tstates += execute_cb(); break; }
 		case 211:    /* OUT (n),A */
 		{
-			outb( nxtpcb(), A(), local_tstates );
+			outByte( nxtpcb(), A());
 			local_tstates += ( 11 );
 			break;
 		}
 		case 219:    /* IN A,(n) */
 		{
-			A( inb((A() << 8) | nxtpcb()) );
+			A( inByte((A() << 8) | nxtpcb()) );
 			local_tstates += ( 11 );
 			break;
 		}
@@ -1537,21 +1534,21 @@ public abstract class Z80 {
 
 		/* OUT (c),r */
 		case 65:  /* OUT (c),B */
-		{ outb( BC(), B(), local_tstates ); return ( 12 ); }
+		{ outByte( BC(), B()); return ( 12 ); }
 		case 73:  /* OUT (c),C */
-		{ outb( BC(), C(), local_tstates ); return ( 12 ); }
+		{ outByte( BC(), C()); return ( 12 ); }
 		case 81:  /* OUT (c),D */
-		{ outb( BC(), D(), local_tstates ); return ( 12 ); }
+		{ outByte( BC(), D()); return ( 12 ); }
 		case 89:  /* OUT (c),E */
-		{ outb( BC(), E(), local_tstates ); return ( 12 ); }
+		{ outByte( BC(), E()); return ( 12 ); }
 		case 97:  /* OUT (c),H */
-		{ outb( BC(), H(), local_tstates ); return ( 12 ); }
+		{ outByte( BC(), H()); return ( 12 ); }
 		case 105:  /* OUT (c),L */
-		{ outb( BC(), L(), local_tstates ); return ( 12 ); }
+		{ outByte( BC(), L()); return ( 12 ); }
 		case 113:  /* OUT (c),0 */
-		{ outb( BC(), 0, local_tstates ); return ( 12 ); }
+		{ outByte( BC(), 0); return ( 12 ); }
 		case 121:  /* OUT (c),A */
-		{ outb( BC(), A(), local_tstates ); return ( 12 ); }
+		{ outByte( BC(), A()); return ( 12 ); }
 
 		/* SBC/ADC HL,ss */
 		case 66:  /* SBC HL,BC */
@@ -1684,7 +1681,7 @@ public abstract class Z80 {
 		case 162:  /* INI */
 		{
 			int b;
-			writeByte( HL(), inb( BC() ) );
+			writeByte( HL(), inByte( BC() ) );
 			B( b = qdec8( B() ) );
 			HL( inc16( HL() ) );
 
@@ -1697,7 +1694,7 @@ public abstract class Z80 {
 		{
 			int b;
 			B( b = qdec8( B() ) );
-			outb( BC(), readByte( HL() ), local_tstates );
+			outByte( BC(), readByte(HL()));
 			HL( inc16( HL() ) );
 
 			setZ( b == 0 );
@@ -1736,7 +1733,7 @@ public abstract class Z80 {
 		case 170:  /* IND */
 		{
 			int b;
-			writeByte( HL(), inb( BC() ) );
+			writeByte( HL(), inByte( BC() ) );
 			B( b = qdec8( B() ) );
 			HL( dec16( HL() ) );
 
@@ -1749,7 +1746,7 @@ public abstract class Z80 {
 		{
 			int b;
 			B( b = qdec8( B() ) );
-			outb( BC(), readByte( HL() ), local_tstates );
+			outByte( BC(), readByte(HL()));
 			HL( dec16( HL() ) );
 
 			setZ( b == 0 );
@@ -1819,7 +1816,7 @@ public abstract class Z80 {
 		case 178:  /* INIR */
 		{
 			int b;
-			writeByte( HL(), inb( BC() ) );
+			writeByte( HL(), inByte( BC() ) );
 			B( b = qdec8( B() ) );
 			HL( inc16( HL() ) );
 
@@ -1835,7 +1832,7 @@ public abstract class Z80 {
 		{
 			int b;
 			B( b = qdec8( B() ) );
-			outb( BC(), readByte( HL() ), local_tstates );
+			outByte( BC(), readByte(HL()));
 			HL( inc16( HL() ) );
 
 			setZ( true );
@@ -1908,7 +1905,7 @@ public abstract class Z80 {
 		case 186:  /* INDR */
 		{
 			int b;
-			writeByte( HL(), inb( BC() ) );
+			writeByte( HL(), inByte( BC() ) );
 			B( b = qdec8( B() ) );
 			HL( dec16( HL() ) );
 
@@ -1924,7 +1921,7 @@ public abstract class Z80 {
 		{
 			int b;
 			B( b = qdec8( B() ) );
-			outb( BC(), readByte( HL() ), local_tstates );
+			outByte( BC(), readByte( HL()));
 			HL( dec16( HL() ) );
 
 			setZ( true );
@@ -3518,7 +3515,7 @@ public abstract class Z80 {
 
 
 	private final int in_bc() {
-		int        ans = inb( BC() );
+		int        ans = inByte( BC() );
 
 		setZ( ans == 0 );
 		setS( (ans & F_S)!=0 );
