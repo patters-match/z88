@@ -98,9 +98,9 @@
                     OR   $C0                           ; (bank B mapped to slot 3)
                     LD   B,A                           ; into
                     LD   C, MS_S2                      ; segment 2
+                    PUSH IY
                     PUSH BC
                     CALL Get_AbsRange                  ; get start ranges in HL, DE, length in BC
-                    PUSH IY
                     PUSH BC
                     POP  IY                            ; IY = size of block
                     POP  BC                            ; B = Bank of Eprom
@@ -235,6 +235,8 @@
 
                     LD   A,E
                     AND  15                            ; Block number range is 0 - 15
+                    LD   B,A
+                    LD   C,3
                     CALL FlashEprBlockErase
                     JR   C, format_error
 .block_formatted
@@ -292,12 +294,14 @@
 ;         HL = pointer to Mnemonic description of Flash Eprom
 ;    Fc = 1, Flash Eprom not found in slot 3, or Device code not found
 ;
-.FlashEprInfo       CALL FlashEprCardId
+.FlashEprInfo       LD   C,3
+                    CALL FlashEprCardId
                     RET  C
 
+                    LD   A,L                      ; get Device Code in A.
                     PUSH DE
                     LD   HL, FlashEprTypes
-                    LD   DE, 5                    ; each table entry is 5 bytes
+                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
                     LD   B,(HL)                   ; no. of Flash Eprom Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
@@ -306,6 +310,7 @@
                          INC  HL
                          LD   B,(HL)              ; B = total of block on Flash Eprom
                          INC  HL
+                         INC  HL                  ; points at mnemonic string description.
                          LD   E,(HL)
                          INC  HL
                          LD   D,(HL)
@@ -322,7 +327,8 @@
 ; ************************************************************************************************
 ; Check presence of Flash Eprom in slot 3
 ;
-.CheckFlashCard     CALL FlashEprCardId
+.CheckFlashCard     LD   C,3
+                    CALL FlashEprCardId
                     RET  NC
 
                     LD   A,23

@@ -88,19 +88,19 @@
 
 .FlashEprTypes
                     DEFB 6
-                    DEFW FE_I28F004S5, 8, mnem_i004 % 256, mnem_i004 / 256
-                    DEFW FE_I28F008SA, 16, mnem_i008 % 256, mnem_i008 / 256
-                    DEFW FE_I28F008S5, 16, mnem_i8s5 % 256, mnem_i8s5 / 256
-                    DEFW FE_AM29F010B, 2, mnem_am010b % 256, mnem_am010b / 256 
-                    DEFW FE_AM29F040B, 8, mnem_am040b % 256, mnem_am040b / 256
-                    DEFW FE_AM29F080B, 16, mnem_am080b % 256, mnem_am080b / 256
+                    DEFW FE_I28F004S5, 8, mnem_i004
+                    DEFW FE_I28F008SA, 16, mnem_i008
+                    DEFW FE_I28F008S5, 16, mnem_i8s5
+                    DEFW FE_AM29F010B, 8, mnem_am010b
+                    DEFW FE_AM29F040B, 8, mnem_am040b
+                    DEFW FE_AM29F080B, 16, mnem_am080b
 
 .mnem_i004          DEFM "INTEL 28F004S5 (512Kb, 8 x 64Kb sectors)", 0
 .mnem_i008          DEFM "INTEL 28F008SA (1024Kb, 16 x 64Kb sectors)", 0
 .mnem_i8S5          DEFM "INTEL 28F008S5 (1024Kb, 16 x 64Kb sectors)", 0
-.mnem_am010b        DEFM "AMD AM29F010B (128Kb, 2 x 64K sectors)", 0
+.mnem_am010b        DEFM "AMD AM29F010B (128Kb, 8 x 16K sectors)", 0
 .mnem_am040b        DEFM "AMD AM29F040B (512Kb, 8 x 64K sectors)", 0
-.mnem_am080b        DEFM "AMD AM29F080B (1024Kb, 8 x 64K sectors)", 0
+.mnem_am080b        DEFM "AMD AM29F080B (1024Kb, 16 x 64K sectors)", 0
 
 .Error_banner       DEFM "Error:", 0
 .status_banner      DEFM "ZPROM SETTINGS:", 0
