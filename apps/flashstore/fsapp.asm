@@ -66,6 +66,8 @@
      xref fnam_msg, fsok_msg       ; savefiles.asm
      xref BackupRamCommand         ; savefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
+     xref AboutCommand             ; about.asm
+     xref catalog_banner           ; about.asm
 
      xref FlashStoreTopics         ; mth.asm
      xref FlashStoreCommands       ; mth.asm
@@ -243,6 +245,8 @@
                     JP   Z, DeleteFileCommand
                     CP   FlashStore_CC_sv
                     JP   Z, DefaultRamCommand
+                    CP   FlashStore_CC_about
+                    JP   Z, AboutCommand
                     CP   IN_ENT                        ; no shortcut cmd, ENTER ?
                     JR   Z, get_command
                     CP   IN_DWN                        ; Cursor Down ?
@@ -583,7 +587,6 @@
 ; *************************************************************************************
 ; Text & VDU constants.
 ;
-.catalog_banner     DEFM "FLASHSTORE V1.7.rc8, (C) 1997-2005 Zlab & InterLogic",0
 
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
