@@ -60,21 +60,21 @@ public final class Blink extends Z80 {
 	 * The databus read/write methods for lower 8K of segment 0
 	 * (Access through RAMS register)
 	 */
-	private class LowerSegment0 implements DataBus {
-		public int readByte(final int addr) {
+	private final class LowerSegment0 implements DataBus {
+		public final int readByte(final int addr) {
 			return RAMS.readByte(addr);
 		}
 		
-		public void writeByte(final int addr, final int b) {
+		public final void writeByte(final int addr, final int b) {
 			RAMS.writeByte(addr, b);
 		}
 		
-		public int readWord(final int addr) {
+		public final int readWord(final int addr) {
 			return RAMS.readByte(addr) | (RAMS.readByte(addr+1) << 8);
 		}
 		
-		public void writeWord(final int addr, final int w) {
-			RAMS.writeByte(addr, w & 0xFF);
+		public final void writeWord(final int addr, final int w) {
+			RAMS.writeByte(addr, w);
 			RAMS.writeByte(addr+1, w >>> 8);
 		}		
 	}
@@ -88,27 +88,27 @@ public final class Blink extends Z80 {
 	 * Read/write occurs in address range 2000h-3FFFh of the 64K
 	 * Z80 address space.
 	 */
-	private class UpperSegment0 implements DataBus {
-		public int readByte(final int addr) {
+	private final class UpperSegment0 implements DataBus {
+		public final int readByte(final int addr) {
 			return memory.getBank(sR[0] & 0xFE).readByte( ((sR[0] & 1) << 13) | (addr & 0x1FFF) );
 		}		
 		
-		public void writeByte(final int addr, final int b) {
+		public final void writeByte(final int addr, final int b) {
 			memory.getBank(sR[0] & 0xFE).writeByte( ((sR[0] & 1) << 13) | (addr & 0x1FFF), b);
 		}
 		
-		public int readWord(int addr) {
+		public final int readWord(int addr) {
 			Bank b = memory.getBank(sR[0] & 0xFE);
 			addr = ((sR[0] & 1) << 13) | (addr & 0x1FFF);
 			
 			return b.readByte(addr) | (b.readByte(addr+1) << 8);
 		}
 		
-		public void writeWord(int addr, final int w) {
+		public final void writeWord(int addr, final int w) {
 			Bank b = memory.getBank(sR[0] & 0xFE);
 			addr = ((sR[0] & 1) << 13) | (addr & 0x1FFF);
 			
-			b.writeByte(addr, w & 0xFF); 
+			b.writeByte(addr, w); 
 			b.writeByte(addr+1, w >>> 8);
 		}		
 	}
@@ -119,25 +119,25 @@ public final class Blink extends Z80 {
 	 * Read/write occurs in address range 4000h-FFFFh of the 64K
 	 * Z80 address space.
 	 */
-	private class Segments1To3 implements DataBus {
-		public int readByte(final int addr) {
+	private final class Segments1To3 implements DataBus {
+		public final int readByte(final int addr) {
 			return memory.getBank(sR[(addr >>> 14) & 3]).readByte(addr);
 		}
 		
-		public void writeByte(final int addr, final int b) {
+		public final void writeByte(final int addr, final int b) {
 			memory.getBank(sR[(addr >>> 14) & 3]).writeByte(addr, b);
 		}
 		
-		public int readWord(final int addr) {
+		public final int readWord(final int addr) {
 			Bank b = memory.getBank(sR[(addr >>> 14) & 3]);
 			
 			return b.readByte(addr) | (b.readByte(addr+1) << 8);
 		}
 		
-		public void writeWord(final int addr, final int w) {
+		public final void writeWord(final int addr, final int w) {
 			Bank b = memory.getBank(sR[(addr >>> 14) & 3]);
 			
-			b.writeByte(addr, w & 0xFF);
+			b.writeByte(addr, w);
 			b.writeByte(addr+1, w >>> 8);
 		}		
 	}
