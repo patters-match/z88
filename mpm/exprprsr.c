@@ -213,6 +213,14 @@ EvalPfixExpr (expression_t *pfixlist)
           stackptr->stackconstant = ~(stackptr->stackconstant);
           break;
 
+        case div256:
+          stackptr->stackconstant = stackptr->stackconstant / 256;
+          break;
+
+        case mod256:
+          stackptr->stackconstant = stackptr->stackconstant % 256;
+          break;
+
         case constexpr:
           pfixlist->rangetype &= CLEAR_EXPRADDR;            /* convert to constant expression */
           break;
@@ -735,7 +743,27 @@ Factor (expression_t *pfixexpr)
       if (!Factor (pfixexpr))
         return 0;
       else
-        NewPfixSymbol (pfixexpr, 0, log_not, NULL, 0);  /* logical NOT...  */
+        NewPfixSymbol (pfixexpr, 0, log_not, NULL, 0);  /* Unary logical NOT... */
+      break;
+
+    case div256:
+      *pfixexpr->infixptr++ = separators[div256];
+      GetSym ();
+
+      if (!Factor (pfixexpr))
+        return 0;
+      else
+        NewPfixSymbol (pfixexpr, 0, div256, NULL, 0);  /* Unary Divide By 256 */
+      break;
+
+    case mod256:
+      *pfixexpr->infixptr++ = separators[mod256];
+      GetSym ();
+
+      if (!Factor (pfixexpr))
+        return 0;
+      else
+        NewPfixSymbol (pfixexpr, 0, mod256, NULL, 0);  /* Unary Modulus 256 */
       break;
 
     case bin_not:
@@ -745,7 +773,7 @@ Factor (expression_t *pfixexpr)
       if (!Factor (pfixexpr))
         return 0;
       else
-        NewPfixSymbol (pfixexpr, 0, bin_not, NULL, 0);  /* logical NOT...  */
+        NewPfixSymbol (pfixexpr, 0, bin_not, NULL, 0);  /* Unary Binary NOT... */
       break;
 
     case squote:
