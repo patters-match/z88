@@ -18,6 +18,9 @@
  */
 package net.sourceforge.z88.filecard;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
@@ -321,6 +324,76 @@ public class FileArea {
 		}
 	}
 
+	/**
+	 * Import a file from the Host file system into the Z88 File Area.
+	 * The Filename of the host file system will be converted into the
+	 * filenaming format of the Z88 File Card. Due to limits of the Z88
+	 * filename format, the host filename might get truncated.
+	 *   
+	 * @param hostFile
+	 * @throws FileAreaNotFoundException
+	 * @throws FileAreaExhaustedException
+	 * @throws IOException
+	 */
+	public void importHostFile(File hostFile)	
+		throws FileAreaNotFoundException, FileAreaExhaustedException, IOException {
+		
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (hostFile.isFile() == false) {
+				throw new IOException("Not a file.");
+			} else {
+				String z88FileName = convertHostFileName(hostFile);
+				if ( (1+z88FileName.length()+4+hostFile.length()) > getFreeSpace() )
+					// not enough free space for file entry header and file image
+					throw new FileAreaExhaustedException();
+				else {
+					RandomAccessFile hf = new RandomAccessFile(hostFile, "r");
+					byte[] fileData = new byte[(int) hf.length()];
+					hf.readFully(fileData);
+					hf.close();
+					storeFile(z88FileName, fileData);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Import all files from the Host directory into the Z88 File Area.
+	 * The filenames of the host file system will be converted into the
+	 * filenaming format of the Z88 File Card. Due to limits of the Z88
+	 * filename format, the host filename might get truncated.
+	 *   
+	 * @param hostDirectory
+	 * @throws FileAreaNotFoundException
+	 * @throws FileAreaExhaustedException
+	 * @throws IOException
+	 */
+	public void importHostFiles(File hostDirectory)	
+		throws FileAreaNotFoundException, FileAreaExhaustedException, IOException {
+		
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (hostDirectory.isDirectory() == false) {
+				throw new IOException("Not a directory.");
+			} else {
+				File[] fileList = hostDirectory.listFiles();
+				for (int f=0; f<fileList.length; f++) {
+					if (fileList[f].isFile() == true) importHostFile(fileList[f]);
+				}
+			}
+		}
+	}
+	
+	private String convertHostFileName(File hostFile) {
+		String newFilename = "/" + hostFile.getName();
+		
+		// a lot has to be checked and converted for this filename!
+		return newFilename;
+	}
+	
 	/**
 	 * Check if the file area is still available in the slot (card might have
 	 * been removed/replaced with another card), and update the linked list
