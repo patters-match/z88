@@ -34,10 +34,11 @@ import javax.swing.JTextField;
  */
 public class OZvm implements KeyListener {
 
-	public static final String VERSION = "0.4";
+	public static final String VERSION = "0.5.dev.1";
 	public static boolean debugMode = false;		// boot ROM and external cards immediately, unless "debug" is specified at cmdline
 
 	private Blink z88 = null;
+	private Memory memory = null;
     private DisplayStatus blinkStatus;
 
 	/**
@@ -58,22 +59,20 @@ public class OZvm implements KeyListener {
 	 */
 	private Breakpoints breakp;
 
-	public OZvm(Gui gg) {
+	public OZvm() {
 		
 		try {
-			gui = gg;
+			gui = Gui.getInstance();
 			
-			z88Screen = gui.z88Screen();
-			
-			z88 = new Blink(z88Screen);
+			z88 = Blink.getInstance();
+			memory = Memory.getInstance();
+			z88Screen = Z88display.getInstance();			
 			z88Screen.init();
-			z88Screen.setBlink(z88);
 			z88Screen.start();
 			z88.hardReset();
 
-			dz = new Dz(z88); // the disassembly engine, linked to the memory model
-			breakp = new Breakpoints(z88);
-			z88.setBreakPointManager(breakp);
+			dz = Dz.getInstance(); // the disassembly engine...
+			breakp = Breakpoints.getInstance();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -136,7 +135,7 @@ public class OZvm implements KeyListener {
 						 args[arg].compareTo("initdebug") != 0) {
 						displayRtmMessage("Loading '" + args[0] + "' into ROM space in slot 0.");
 						file = new RandomAccessFile(args[0], "r");
-						z88.loadRomBinary(file);
+						memory.loadRomBinary(file);
 						file.close();
 						loadedRom = true;
 						arg++;
@@ -145,7 +144,7 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].startsWith("ram") == true)) {
 						int ramSlotNumber = args[arg].charAt(3) - 48;
 						ramSizeArg = Integer.parseInt(args[arg+1], 10);
-						z88.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM Card specified for slot x...
+						memory.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM Card specified for slot x...
 						if (ramSlotNumber == 0) ramSlot0 = true; 
 						displayRtmMessage("Inserted " + ramSizeArg + "K RAM Card in slot " + ramSlotNumber);
 						arg+=2;
@@ -155,7 +154,7 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].startsWith("epr") == true)) {
 						int eprSlotNumber = args[arg].charAt(3) - 48;
 						eprSizeArg = Integer.parseInt(args[arg+1], 10);
-						if (z88.insertEprCard(eprSizeArg * 1024, eprSlotNumber, args[arg+2]) == true) {
+						if (memory.insertEprCard(eprSizeArg * 1024, eprSlotNumber, args[arg+2]) == true) {
 							String insertEprMsg = "Inserted " + eprSlotNumber + " set to " + eprSizeArg + "K.";
 							if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K UV Eprom Card in slot " + eprSlotNumber; 
 							if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg = "Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
@@ -170,7 +169,7 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].compareTo("s1") == 0)) {
 						file = new RandomAccessFile(args[arg+1], "r");
 						displayRtmMessage("Loading '" + args[arg+1] + "' into slot 1.");
-						z88.loadCardBinary(1, file);
+						memory.loadCardBinary(1, file);
 						file.close();
 						arg+=2;
 						continue;
@@ -179,7 +178,7 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].compareTo("s2") == 0)) {
 						file = new RandomAccessFile(args[arg+1], "r");
 						displayRtmMessage("Loading '" + args[arg+1] + "' into slot 2.");
-						z88.loadCardBinary(2, file);
+						memory.loadCardBinary(2, file);
 						file.close();
 						arg+=2;
 						continue;
@@ -188,7 +187,7 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].compareTo("s3") == 0)) {
 						displayRtmMessage("Loading '" + args[arg+1] + "' into slot 3.");
 						file = new RandomAccessFile(args[arg+1], "r");
-						z88.loadCardBinary(3, file);
+						memory.loadCardBinary(3, file);
 						file.close();
 						arg+=2;
 						continue;
@@ -208,12 +207,12 @@ public class OZvm implements KeyListener {
 							}
 						});
 						commandInput.addKeyListener(this);
-						z88.getZ88Keyboard().setDebugModeCmdLineField(commandInput);					
+						Z88Keyboard.getInstance().setDebugModeCmdLineField(commandInput);					
 
 						cmdList = new CommandHistory();
 
 						commandOutput = gui.getCmdlineOutputArea();
-			            blinkStatus = new DisplayStatus(z88, commandOutput);			
+			            blinkStatus = new DisplayStatus();			
 						displayCmdOutput("Type 'help' for available debugging commands");
 						
 						continue;
@@ -237,23 +236,23 @@ public class OZvm implements KeyListener {
 
 					if (arg<args.length && (args[arg].compareTo("kbl") == 0)) {
 						if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en") == 0) {
-							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
+							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
 							displayRtmMessage("Using English (UK) keyboard layout.");
 						}
 						if (args[arg+1].compareTo("fr") == 0) {
-							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
 							displayRtmMessage("Using French keyboard layout.");
 						}
 						if (args[arg+1].compareTo("dk") == 0) {
-							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
 							displayRtmMessage("Using Danish keyboard layout.");
 						}
 						if (args[arg+1].compareTo("se") == 0) {
-							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
 							displayRtmMessage("Using Swedish keyboard layout.");
 						}
 						if (args[arg+1].compareTo("fi") == 0) {
-							z88.getZ88Keyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
+							Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FI);
 							displayRtmMessage("Using Finish keyboard layout.");
 						}
 						arg+=2;
@@ -264,12 +263,12 @@ public class OZvm implements KeyListener {
 
 			if (loadedRom == false) {
 				displayRtmMessage("No external ROM image specified, using default Z88.rom (V4.0 UK)");
-				z88.loadRomBinary(z88.getClass().getResource("/Z88.rom"));
+				memory.loadRomBinary(z88.getClass().getResource("/Z88.rom"));
 			}
 
 			if (ramSlot0 == false) {
 				displayRtmMessage("RAM0 set to default 32K.");
-				z88.insertRamCard(32 * 1024, 0);	// no RAM specified for slot 0, set to default 32K RAM...
+				memory.insertRamCard(32 * 1024, 0);	// no RAM specified for slot 0, set to default 32K RAM...
 			}
 			return true;
 
@@ -368,8 +367,8 @@ public class OZvm implements KeyListener {
 				return;
 			}
 
-			Breakpoints origBreakPoints = this.getBreakpointManager();	// get the current breakpoints
-			Breakpoints singleBreakpoint = new Breakpoints(z88);
+			Breakpoints origBreakPoints = this.getBreakpointManager();	// get the current breakpoints Manager
+			Breakpoints singleBreakpoint = new Breakpoints(); // create a new temporary BreakPoint Manager
 			int nextInstrAddress = dz.getNextInstrAddress(z88.PC());
 			nextInstrAddress = z88.decodeLocalAddress(nextInstrAddress);	// convert 16bit address to 24bit address
 			singleBreakpoint.toggleBreakpoint(nextInstrAddress);  // set breakpoint at next instruction
@@ -446,7 +445,7 @@ public class OZvm implements KeyListener {
 		if (cmdLineTokens[0].compareToIgnoreCase("ldc") == 0) {
 			try {
 				RandomAccessFile file = new RandomAccessFile(cmdLineTokens[1], "r");
-				z88.loadBankBinary(Integer.parseInt(cmdLineTokens[2], 16), file);
+				memory.loadBankBinary(Integer.parseInt(cmdLineTokens[2], 16), file);
 				file.close();
 				displayCmdOutput("File image loaded into bank.");
 			} catch (IOException e) {
@@ -1053,11 +1052,11 @@ public class OZvm implements KeyListener {
 
 		memLine.delete(0,255);
 		for (memHex=memAddr; memHex < memAddr+16; memHex++) {
-			memLine.append(Dz.byteToHex(z88.getByte(memHex,memBank),false)).append(" ");
+			memLine.append(Dz.byteToHex(memory.getByte(memHex,memBank),false)).append(" ");
 		}
 
 		for (memAscii=memAddr; memAscii < memAddr+16; memAscii++) {
-			int b = z88.getByte(memAscii,memBank);
+			int b = memory.getByte(memAscii,memBank);
 			memLine.append( (b >= 32 && b <= 127) ? Character.toString( (char) b) : "." );
 		}
 
@@ -1086,7 +1085,7 @@ public class OZvm implements KeyListener {
 		temp = getMemoryAscii(memLine, memAddress, memBank);
 		displayCmdOutput("Before:\n" + memLine);
 		for (aByte= 0; aByte < cmdLineTokens.length - 2; aByte++) {
-			z88.setByte(memAddress + aByte, memBank, argByte[aByte]);
+			memory.setByte(memAddress + aByte, memBank, argByte[aByte]);
 		}
 
 		temp = getMemoryAscii(memLine, memAddress, memBank);
