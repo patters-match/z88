@@ -19,7 +19,6 @@
 
 package net.sourceforge.z88;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -131,7 +130,8 @@ public class Z88display extends JPanel {
 		renderRunning = false;
 
 		this.setPreferredSize(new Dimension(640, 64));
-		this.setLayout(new BorderLayout());
+		this.setIgnoreRepaint(true);
+		this.setOpaque(true);
 		this.setToolTipText("Use F12 to get keyboard focus to this window.");
 		this.setFocusable(true);
 
