@@ -26,6 +26,8 @@ defc	uwRandom2		=$01fe
 
 defc	ubResetType		=$0200
 defc	ubTimeout		=$0201
+defc	ubRepeat		=$0202
+defc	cKeyclick		=$0203
 defc	cSound			=$0204
 defc	ubBadSize		=$0205
 defc	ubScreenBase		=$020b
