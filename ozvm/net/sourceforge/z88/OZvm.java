@@ -54,10 +54,11 @@ public class OZvm implements KeyListener {
 	private Z88display z88Screen = null;
 	private CommandHistory cmdList = null;
 	private static Gui gui = null;
+
 	/**
 	 * The Breakpoint manager instance.
 	 */
-	private Breakpoints breakp;
+	private Breakpoints breakPointManager;
 
 	public OZvm() {
 		
@@ -69,10 +70,9 @@ public class OZvm implements KeyListener {
 			z88Screen = Z88display.getInstance();			
 			z88Screen.init();
 			z88Screen.start();
-			z88.hardReset();
 
 			dz = Dz.getInstance(); // the disassembly engine...
-			breakp = Breakpoints.getInstance();
+			breakPointManager = Breakpoints.getInstance();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -346,12 +346,12 @@ public class OZvm implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("run") == 0) {
 			if (z80Thread == null) {
-				 z80Thread = run();
+				 z80Thread = runZ80Engine(-1);
 			} else {
 				if (z80Thread.isAlive() == true)
 					displayCmdOutput("Z88 is already running.");
 				else
-					z80Thread = run();
+					z80Thread = runZ80Engine(-1);
 			}
 		}
 
@@ -365,7 +365,7 @@ public class OZvm implements KeyListener {
 				return;
 			}
 			
-			z88.run(true);		// single stepping (no interrupts running)...
+			z88.singleStepZ80();		// single stepping (no interrupts running)...
 			displayCmdOutput(blinkStatus.dzPcStatus(z88.PC()).toString());
 			
 			gui.getCmdLineInputArea().setText(getNextStepCommand());
@@ -377,30 +377,16 @@ public class OZvm implements KeyListener {
 			if (z80Thread != null && z80Thread.isAlive() == true) {
 				displayCmdOutput("Z88 is already running.");
 				return;
+			} else {
+				int nextInstrAddress = z88.decodeLocalAddress(dz.getNextInstrAddress(z88.PC()));
+				if (breakPointManager.isCreated(nextInstrAddress) == true) {
+					// there's already a breakpoint at that location...
+					z80Thread = runZ80Engine(-1); 
+				} else {
+					breakPointManager.toggleBreakpoint(nextInstrAddress); 	// set a temporary breakpoint at next instruction 
+					z80Thread = runZ80Engine(nextInstrAddress);				// and automatically remove it when the engine stops...	
+				}				
 			}
-
-			Breakpoints origBreakPoints = this.getBreakpointManager();	// get the current breakpoints Manager
-			Breakpoints singleBreakpoint = new Breakpoints(); // create a new temporary BreakPoint Manager
-			int nextInstrAddress = dz.getNextInstrAddress(z88.PC());
-			nextInstrAddress = z88.decodeLocalAddress(nextInstrAddress);	// convert 16bit address to 24bit address
-			singleBreakpoint.toggleBreakpoint(nextInstrAddress);  // set breakpoint at next instruction
-
-			this.setBreakPointManager(singleBreakpoint);	// use this single breakpoint
-			z88.setBreakPointManager(singleBreakpoint);
-			z80Thread = run();	// let Z80 engine run until breakpoint is reached...
-			while(z80Thread.isAlive() == true) {
-				try {
-					Thread.sleep(1);	// wait for Z88 to reach breakpoint...
-				} catch (InterruptedException err) {}
-			}
-			z88.setBreakPointManager(origBreakPoints);	// restore user defined break points
-			this.setBreakPointManager(origBreakPoints);
-
-			displayCmdOutput(blinkStatus.dzPcStatus(z88.PC()).toString());
-
-			gui.getCmdLineInputArea().setText(getNextStepCommand());
-			gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-			gui.getCmdLineInputArea().selectAll();			
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("dz") == 0) {
@@ -947,13 +933,13 @@ public class OZvm implements KeyListener {
 				}
 			}
 
-			breakp.toggleBreakpoint(bpAddress, true);
-			displayCmdOutput(breakp.listBreakpoints());
+			breakPointManager.toggleBreakpoint(bpAddress, true);
+			displayCmdOutput(breakPointManager.listBreakpoints());
 		}
 
 		if (cmdLineTokens.length == 1) {
 			// no arguments, use PC in current bank binding
-			displayCmdOutput(breakp.listBreakpoints());
+			displayCmdOutput(breakPointManager.listBreakpoints());
 		}
 	}
 
@@ -979,13 +965,13 @@ public class OZvm implements KeyListener {
 				}
 			}
 
-			breakp.toggleBreakpoint(bpAddress, false);
-			displayCmdOutput(breakp.listBreakpoints());
+			breakPointManager.toggleBreakpoint(bpAddress, false);
+			displayCmdOutput(breakPointManager.listBreakpoints());
 		}
 
 		if (cmdLineTokens.length == 1) {
 			// no arguments, use PC in current bank binding
-			displayCmdOutput(breakp.listBreakpoints());
+			displayCmdOutput(breakPointManager.listBreakpoints());
 		}
 	}
 
@@ -1164,28 +1150,43 @@ public class OZvm implements KeyListener {
 		gui.getCmdLineInputArea().selectAll();
 	}
 
+	/**
+	 * Just run the virtual machine if no debugging was enabled.
+	 * (No breakpoints are defined by default)
+	 *
+	 */
 	public void bootZ88Rom() {
-		z80Thread = run();
+		z80Thread = runZ80Engine(-1);
 	}
 
-	private Thread run() {
+	private Thread runZ80Engine(final int oneStopBreakpoint) {
 		displayRtmMessage("Z88 virtual machine was started.");
 
 		Thread thread = new Thread() {
 			public void run() {
 
-				if (breakp.isStoppable(z88.decodeLocalAddress(z88.PC())) == true) {
+				if (breakPointManager.isStoppable(z88.decodeLocalAddress(z88.PC())) == true) {
 					// we need to use single stepping mode to
 					// step past the break point at current instruction
-					z88.run(true);
+					z88.singleStepZ80();
 				}
 				// restore (patch) breakpoints into code
-				breakp.setBreakpoints();
+				breakPointManager.installBreakpoints();
 				z88.startInterrupts(); // enable Z80/Z88 core interrupts
-				z88.run(false);
+				z88.execZ80();
 				// execute Z80 code at full speed until breakpoint is encountered...
+				// (or F5 emergency break is used!)
 				z88.stopInterrupts();
-				breakp.clearBreakpoints();
+				breakPointManager.clearBreakpoints();
+
+				if (oneStopBreakpoint != -1)
+					breakPointManager.toggleBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
+					
+				displayCmdOutput(blinkStatus.dzPcStatus(z88.PC()).toString());
+
+				gui.getCmdLineInputArea().setText(getNextStepCommand());
+				gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
+				gui.getCmdLineInputArea().selectAll();							
 			}
 		};
 
@@ -1200,20 +1201,6 @@ public class OZvm implements KeyListener {
 	 */
 	public void setDebugMode(boolean b) {
 		debugMode = b;
-	}
-
-	/**
-	 * @return
-	 */
-	private Breakpoints getBreakpointManager() {
-		return breakp;
-	}
-
-	/**
-	 * @param breakpoints
-	 */
-	private void setBreakPointManager(Breakpoints breakpoints) {
-		breakp = breakpoints;
 	}
 
 	public void keyPressed(KeyEvent e) {
