@@ -124,7 +124,7 @@ public final class Memory {
 		// at the top respectively.
 		while (totalSlotBanks > 0) {
 			for (curBank = 0; curBank < card.length; curBank++) {
-				setBank(card[curBank], slotBank++);
+				memory[slotBank++] = card[curBank];
 				// "shadow" card banks into remaining slot
 				--totalSlotBanks;
 			}
