@@ -53,7 +53,7 @@
 ;              BHL = pointer to File Header for slot C (B = slot relative).
 ;                    (or pointer to free space in File Area).
 ;              Fz = 1, File Header found
-;                   A = Device Code of Flash Eprom (or "oz" File Eprom sub type)
+;                   A = "oz" File Eprom sub type
 ;                   C = size of card in 16K banks (0 - 64)
 ;                   D = size of partition in 16K banks
 ;              Fz = 0, File Header not found
@@ -73,14 +73,14 @@
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by Gunther Strube, InterLogic, 
-; Dec 1997 - Aug 1998, July 2004
+; Dec 1997 - Aug 1998, July-Aug 2004
 ;----------------------------------------------------------------
 ; 
 .FileEprRequest
                     PUSH DE
 
                     LD   B,$3F
-                    CALL FlashEprType        ; check for standard "oz" File Eprom in slot C...
+                    CALL CheckFileEprHeader  ; check for standard "oz" File Eprom in top bank of slot C...
                     JR   C, eval_applrom
                          POP  DE
                          LD   C,B            ; return C = number of 16K banks of card
@@ -141,17 +141,17 @@
 ;         D = slot number
 ; OUT:
 ;         Fc = 0 (success),
-;              Fz = 1, Top Header found
-;                   A = Intel Chip Device Code
+;              Fz = 1, Header found
+;                   A = sub type of File Eprom
 ;                   C = size of Card in 16K banks (defined by Device Code)
-;                   D = size of Partition in 16K banks
+;                   D = size of File Eprom Area in 16K banks
 ;              Fz = 0, Header not found
 ;                   A undefined
 ;                   C undefined
 ;                   D undefined
 ;              BHL = pointer to "oz" header (or potential)
 ;         Fc = 1 (failure),
-;              No room for File Area.
+;              No room for File Eprom Area.
 ;
 ; Registers changed after return:
 ;    .....E../IXIY same
@@ -172,7 +172,7 @@
                     LD   B,A
                     LD   C,D
                     LD   D,B                 ; preserve bank number of pointer
-                    CALL FlashEprType
+                    CALL CheckFileEprHeader
                     RET  C                   ; "oz" File Eprom Header not found
                     LD   C,B
                     LD   B,D
@@ -187,7 +187,7 @@
 
 ; ************************************************************************
 ;
-; Return (Flash) File Eprom Area status in slot x (1, 2 or 3), 
+; Return File Eprom Area status in slot x (1, 2 or 3), 
 ; with top of area at bank B (00h - 3Fh).
 ;
 ; In:
@@ -197,14 +197,7 @@
 ; Out:
 ;    Success:
 ;         Fc = 0,
-;         Fz = 1, Flash Eprom Card recognized
-;              A = Intel Device Code
-;                   fe_i016 ($AA), an INTEL 28F016S5 (2048K)
-;                   fe_i008 ($A2), an INTEL 28F008SA (1024K)
-;                   fe_i8s5 ($A6), an INTEL 28F008S5 (1024K)
-;                   fe_i004 ($A7), an INTEL 28F004S5 (512K)
-;                   fe_i020 ($BD), an INTEL 28F020 (256K)
-;         Fz = 0, Standard 32K, 128K, 256K Eprom or 1MB Eprom
+;              File Eprom found
 ;              A = Sub type of Eprom
 ;         B = size of File Eprom Area in 16K banks
 ;
@@ -215,7 +208,7 @@
 ;    ...CDEHL/IXIY same
 ;    AFB...../.... different
 ;
-.FlashEprType
+.CheckFileEprHeader
                     PUSH DE
                     PUSH HL
                     PUSH BC
@@ -251,32 +244,14 @@
                     JR   NZ,no_fileeprom
 
                     LD   E,B
-                    LD   A,C                 ; File Eprom found...
+                    LD   A,C                 ; File Eprom found, sub type in A...
                     POP  BC                  ; B = size of Eprom Card in banks
-                    LD   C,A                 ; C = sub type of File Eprom
-
-                    LD   A,E
-                    AND  @11000000           ; convert bottom bank
-                    RLCA
-                    RLCA                     ; into slot C
-.eval_flashepr                
-                    PUSH BC
-                    LD   C,A
-                    CALL FlashEprCardId      ; Flash Device in slot C?
-                    POP  BC
-                    CALL C, no_flash
-                    CALL NC, yes_flash
+                    CP   A                    
 .exit_FlashEprType
                     POP  HL                  ; B = size of Card in banks
                     LD   C,L                 ; original C restored
                     POP  HL                  ; original HL restored
                     POP  DE                  ; original DE restored
-                    RET
-
-.no_flash           LD   A,C                 ; A = sub type of std. Eprom
-                    OR   A
-                    RET
-.yes_flash          CP   A                   ; Yes, Fz = 1, A = Device code
                     RET
 
 .no_fileeprom       POP  AF
