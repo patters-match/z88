@@ -25,7 +25,7 @@ Module SelectCard
      XDEF PollFileEproms
 
      LIB CreateWindow, RamDevFreeSpace
-     LIB FileEprRequest, ApplEprType, FlashEprCardId
+     LIB FileEprRequest, FileEprFreeSpace, ApplEprType, FlashEprCardId
 
      XREF greyscr, greyfont, nocursor, nogreyfont, notinyfont
      XREF FlashWriteSupport, execute_format
@@ -38,6 +38,7 @@ Module SelectCard
 
 
      include "stdio.def"
+     include "integer.def"
      include "fsapp.def"
 
 
@@ -128,7 +129,7 @@ Module SelectCard
                          jr   nz, eprom_nofiles
                          ld   hl, filestxt
                          call_oz(Gn_Sop)          ; display size of sub file area in K on Eprom
-                         call DispSlotSize
+                         call DispFreeSpace
                          jp   nextline
 .eprom_nofiles
                          ld   hl, nofilestxt
@@ -150,7 +151,7 @@ Module SelectCard
                          ld   hl, filestxt        ; display "Files xxxxK"
                          call_oz(Gn_Sop)
                          ld   a,(free)
-                         call DispSlotSize
+                         call DispFreeSpace
                          jp   nextline
 .empty_slot
                     CALL SlotCardBoxCoord         ; the slot is empty (or contains an empty Eprom Card)
@@ -201,7 +202,7 @@ Module SelectCard
                     jr   nz, flash_nofiles
                          ld   hl, filestxt
                          call_oz(Gn_Sop)
-                         call DispSlotSize
+                         call DispFreeSpace
                          jr   nextline
 .flash_nofiles
                          ld   hl, nofilestxt
@@ -269,6 +270,24 @@ Module SelectCard
 
                     ld   a,'K'
                     call_oz(OS_Out)
+                    pop  hl
+                    pop  bc
+                    ret
+.DispFreeSpace
+                    push bc
+                    push hl
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FileEprFreeSpace
+                    push bc
+                    pop  hl
+                    ld   b,e            ; DEBC -> BHL
+                    ld   c,0
+                    ld   de,16384       ; BHL / 16384
+                    CALL_OZ(Gn_D24)
+                    ld   a,l
+                    inc  a				; no. of 16K banks free
+                    call DispSlotSize
                     pop  hl
                     pop  bc
                     ret
@@ -668,7 +687,7 @@ Module SelectCard
 .epromdev           DEFM 1,"2+T", "EPROM ", 0
 .flashdev           DEFM 1,"2+T", "FLASH ", 0
 .ramdev             DEFM 1,"2+T", "RAM ",0
-.filestxt           DEFM 1,"2+T", " FILES ", 0
+.filestxt           DEFM 1,"2+T", " FREE ", 0
 .appstxt            DEFM 1,"2+T", "APPLICATIONS",0
 .nofilestxt         DEFM 1,"2+T", "  NO FILES",0
 .slottxt1           DEFM "SLOT ",0
