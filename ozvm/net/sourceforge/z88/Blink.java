@@ -1139,22 +1139,18 @@ public final class Blink extends Z80 {
         }
 	}
 
-
 	public void haltZ80() {
-		// Let the Blink know that a HALT instruction occured
-		// so that the Z88 enters the correct state (coma, snooze, ...)
-
-		long w = System.currentTimeMillis();
+		// Z80 "Clock" is now stopped, but Blink "Clock" keeps running:
+		// wait until an INT signal is fired...
 		do {
 			try {
-				Thread.sleep(5);		// Z80 "sleeps" for 5ms ... (interrupts still occurs in Blink)
+				Thread.sleep(5);		// Z80 "sleeps" ... (interrupts still occurs in Blink)
 			} catch (InterruptedException e) {
 				e.printStackTrace(System.out);
-			}
+			}						
 		}
-		// Only get out of coma if an interrupt occurred..
+		// Only get out of snooze/coma if an interrupt occurred..
 		while(interruptTriggered() == false);
-		w = System.currentTimeMillis() - w;
 
 		// (back to main Z80 decode loop)
 	}
@@ -1730,6 +1726,7 @@ public final class Blink extends Z80 {
                 // signal Maskable interrupt to be executed, as soon as Z80 is ready to grab it...
                 setNmi(false);
                 setInterruptSignal();
+                Thread.yield();
 			}
 		}
 
