@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.JarURLConnection;
 
 import javax.swing.UIManager;
 
@@ -83,9 +84,7 @@ public class OZvm {
 						 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug")	!= 0 &
 						 args[arg].compareTo("initdebug") != 0)	{
 						Gui.displayRtmMessage("Loading '" + args[0] + "' into ROM space	in slot	0.");
-						file = new RandomAccessFile(args[0], "r");
-						memory.loadRomBinary(file);
-						file.close();
+						memory.loadRomBinary(new File(args[0]));
 						loadedRom = true;
 						arg++;
 					}
@@ -243,7 +242,8 @@ public class OZvm {
 
 			if (loadedRom == false)	{
 				Gui.displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
-				memory.loadRomBinary(z88.getClass().getResource("/Z88.rom"));
+				JarURLConnection jarConnection = (JarURLConnection) z88.getClass().getResource("/Z88.rom").openConnection();
+				memory.loadRomBinary(jarConnection.getJarEntry(), jarConnection.getInputStream());
 			}
 
 			if (ramSlot0 ==	false) {

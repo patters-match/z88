@@ -21,13 +21,13 @@ package net.sourceforge.z88;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.JarURLConnection;
-import java.net.URL;
+import java.util.zip.ZipEntry;
 
 import net.sourceforge.z88.filecard.FileArea;
 
@@ -466,54 +466,6 @@ public final class Memory {
 	}
 
 
-	/**
-	 * Load ROM image (from opened file ressource) into Z88 memory system, slot 0.
-	 *
-	 * @param rom
-	 * @throws IOException
-	 */
-	public void loadRomBinary(RandomAccessFile rom) throws IOException {
-		if (rom.length() > (1024 * 512)) {
-			throw new IOException("Max 512K ROM!");
-		}
-		if (rom.length() % (Bank.SIZE * 2) > 0) {
-			throw new IOException("ROM must be in even banks!");
-		}
-
-		Bank romBanks[] = new Bank[(int) rom.length() / Bank.SIZE];
-		// allocate ROM container
-		byte bankBuffer[] = new byte[Bank.SIZE];
-		// allocate intermediate load buffer
-
-		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			// A little cadeau to Thierry Peycru to simulate his modified Z88 motherboard...
-			switch((int) rom.length()) {
-				case 131072: 
-					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 128K, use the AMD Flash Memory AM29F010B 
-					break;
-				case 524288: 
-					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 512K, use the AMD Flash Memory AM29F040B 
-					break;
-				default:
-					romBanks[curBank] = new RomBank();
-			}
-			rom.readFully(bankBuffer); // load 16K from file, sequentially
-			romBanks[curBank].loadBytes(bankBuffer, 0);
-			// and load fully into bank
-		}
-
-		// Finally, check for Z88 ROM Watermark
-		if (romBanks[romBanks.length-1].getByte(0x3FFB) != 0x81 &
-		    romBanks[romBanks.length-1].getByte(0x3FFE) != 'O' &
-		    romBanks[romBanks.length-1].getByte(0x3FFF) != 'Z') {
-				throw new IOException("This is not a Z88 ROM");
-	    }
-
-		// complete ROM image now loaded into container
-		// insert container into Z88 memory, slot 0, banks $00 onwards.
-		insertCard(romBanks, 0);
-		Blink.getInstance().setRAMS(getBank(0));		// point at ROM bank 0
-	}
 
 
 	/**
@@ -860,38 +812,65 @@ public final class Memory {
 		b.loadBytes(bankBuffer, offset);					// and move buffer into bank
 	}
 
-	
 	/**
-	 * Load ROM image (from opened file ressource inside JAR)
-	 * into Z88 memory system, slot 0.
+	 * Load ROM image (from file ressource) into Z88 memory system, slot 0.
 	 *
-	 * @param jarRessource
+	 * @param rom
 	 * @throws IOException
 	 */
-	public void loadRomBinary(URL jarRessource) throws IOException {
-		JarURLConnection jarConnection = (JarURLConnection)jarRessource.openConnection();
-
-		if (jarConnection.getJarEntry().getSize() > (1024 * 512)) {
+	public void loadRomBinary(File file) throws IOException {
+		RandomAccessFile rom = new RandomAccessFile(file, "r");
+		int fileLength = (int) rom.length(); 
+		rom.close();
+		
+		if (fileLength > (1024 * 512)) {
 			throw new IOException("Max 512K ROM!");
 		}
-		if (jarConnection.getJarEntry().getSize() % Bank.SIZE > 0) {
+		if (fileLength % (Bank.SIZE * 2) > 0) {
+			throw new IOException("ROM must be in even banks!");
+		}
+		
+		loadRomBinary(fileLength / Bank.SIZE, new FileInputStream(file));
+	}
+	
+	/**
+	 * Load ROM image from a Zip file entry into Z88 memory system, slot 0.
+	 * (entry might be from the z88.jar or from a snapshot)
+	 *
+	 * @param zipEntry
+	 * @param inpStream
+	 * @throws IOException
+	 */
+	public void loadRomBinary(ZipEntry zipEntry, InputStream inpStream) throws IOException {
+
+		if (zipEntry.getSize() > (1024 * 512)) {
+			throw new IOException("Max 512K ROM!");
+		}
+		if (zipEntry.getSize() % Bank.SIZE > 0) {
 			throw new IOException("ROM must be in 16K sizes!");
 		}
 
-		Bank romBanks[] = new Bank[(int) jarConnection.getJarEntry().getSize() / Bank.SIZE];
-		// allocate ROM container
-		byte bankBuffer[] = new byte[Bank.SIZE];
-		// allocate intermediate load buffer
-
-		InputStream is = jarConnection.getInputStream();
-		BufferedInputStream bis = new BufferedInputStream( is, Bank.SIZE );
+		loadRomBinary((int) zipEntry.getSize() / Bank.SIZE, inpStream);
+	}
+	
+	/**
+	 * The internal ROM loader.
+	 * 
+	 * @param totalBanks size of ROM in 16K banks 
+	 * @param is the InputStream from a file ressource
+	 * @throws IOException
+	 */
+	private void loadRomBinary(int totalBanks, InputStream is) throws IOException {
+		BufferedInputStream bis = new BufferedInputStream(is, Bank.SIZE);
+		Bank romBanks[] = new Bank[totalBanks]; // allocate ROM container
+		byte bankBuffer[] = new byte[Bank.SIZE]; // allocate intermediate load buffer
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			switch((int) jarConnection.getJarEntry().getSize()) {
-				case 131072: 
+			switch((int) romBanks.length) {
+				case 8: 
 					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 128K, use the AMD Flash Memory AM29F010B 
 					break;
-				case 524288: 
+				case 32: 
 					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); // 512K, use the AMD Flash Memory AM29F040B 
 					break;
 				default:
@@ -902,6 +881,13 @@ public final class Memory {
 			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
 
+		// Finally, check for Z88 ROM Watermark
+		if (romBanks[romBanks.length-1].getByte(0x3FFB) != 0x81 &
+		    romBanks[romBanks.length-1].getByte(0x3FFE) != 'O' &
+		    romBanks[romBanks.length-1].getByte(0x3FFF) != 'Z') {
+				throw new IOException("This is not a Z88 ROM");
+	    }
+		
 		// complete ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
 		insertCard(romBanks, 0);
