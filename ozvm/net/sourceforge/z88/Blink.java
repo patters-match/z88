@@ -579,14 +579,14 @@ public final class Blink extends Z80 {
 				// -------------------------------------------------------------------------
 				// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
 
-				// check for two-key combinations, here as ALT or SHIFT with another key...
+				// check for two-key combinations, here ALT (SQUARE). 
 				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_ALT) == true) 
 					altKey = 0xBF; // SQUARE (10111111)
 				else
 					altKey = 0xFF; // not pressed
                         
 				switch(currentKey) {
-					// D7 RIGHT SHIFT - not implemented at the moment...
+					// D7 RIGHT SHIFT - not implemented at the moment (Coma not implemented)...
 					// D6 SQUARE is read above...
 					case java.awt.event.KeyEvent.VK_ESCAPE: keyColumn = 0xDF; break;	// ESC
 					case java.awt.event.KeyEvent.VK_F2: keyColumn = 0xEF; break;		// INDEX
@@ -608,12 +608,17 @@ public final class Blink extends Z80 {
 				// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
 
 				// check for two-key combinations, here as SHIFT or CTRL with another key...
-				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_CONTROL) == true) 
+				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_CONTROL) == true |
+					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_HOME) == true |
+					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_END) == true |
+					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_INSERT) == true) 
 					ctrlKey = 0xEF; // DIAMOND
 				else
 					ctrlKey = 0xFF; // not pressed
 				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true |
-					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_DELETE) == true) 
+					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_DELETE) == true |
+					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_PAGE_UP) == true |
+					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_PAGE_DOWN) == true) 
 					shiftKey = 0xBF; // (Right or Left) SHIFT
 				else 
 					shiftKey = 0xFF; // not pressed
@@ -660,7 +665,8 @@ public final class Blink extends Z80 {
 				// A12 (#4) | ]      LFT     2       W       S       X       M       P
 				switch(currentKey) {
 					// D7
-					case java.awt.event.KeyEvent.VK_LEFT: keyColumn = 0xBF; break;		// LEFT CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_LEFT: keyColumn = 0xBF; break;	// D6, LEFT CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_HOME: keyColumn = 0xBF; break;	// D6, PC HOME = DIAMOND LEFT CURSOR (10111111)
 					case java.awt.event.KeyEvent.VK_2: keyColumn = 0xDF; break;
 					case java.awt.event.KeyEvent.VK_W: keyColumn = 0xEF; break;
 					case java.awt.event.KeyEvent.VK_S: keyColumn = 0xF7; break;
@@ -678,7 +684,8 @@ public final class Blink extends Z80 {
 				// A11 (#3) | -      RGT     3       E       D       C       K       9
 				switch(currentKey) {
 					// D7
-					case java.awt.event.KeyEvent.VK_RIGHT: keyColumn = 0xBF; break;	// RIGHT CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_RIGHT: keyColumn = 0xBF; break;	// D6, RIGHT CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_END: keyColumn = 0xBF; break;	// D6, PC END = DIAMOND RIGHT CURSOR (10111111)					
 					case java.awt.event.KeyEvent.VK_3: keyColumn = 0xDF; break;
 					case java.awt.event.KeyEvent.VK_E: keyColumn = 0xEF; break;
 					case java.awt.event.KeyEvent.VK_D: keyColumn = 0xF7; break;
@@ -697,10 +704,12 @@ public final class Blink extends Z80 {
 				switch(currentKey) {
 					// D7
 					case java.awt.event.KeyEvent.VK_DOWN: keyColumn = 0xBF; break;		// DOWN CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_PAGE_DOWN: keyColumn = 0xBF; break;	// PC PAGE DOWN (10111111) = SHIFT DOWN CURSOR
 					case java.awt.event.KeyEvent.VK_4: keyColumn = 0xDF; break;
 					case java.awt.event.KeyEvent.VK_R: keyColumn = 0xEF; break;
 					case java.awt.event.KeyEvent.VK_F: keyColumn = 0xF7; break;
 					case java.awt.event.KeyEvent.VK_V: keyColumn = 0xFB; break;
+					case java.awt.event.KeyEvent.VK_INSERT: keyColumn = 0xFB; break;	// PC INSERT = DIAMOND V
 					case java.awt.event.KeyEvent.VK_J: keyColumn = 0xFD; break;
 					case java.awt.event.KeyEvent.VK_O: keyColumn = 0xFE; break;
 					default: keyColumn = 0xFF;	// no keys pressed in row...
@@ -714,7 +723,8 @@ public final class Blink extends Z80 {
 				// A9  (#1) | \      UP      5       T       G       B       U       I
 				switch(currentKey) {
 					// D7
-					case java.awt.event.KeyEvent.VK_UP: keyColumn = 0xBF; break;		// UP CURSOR
+					case java.awt.event.KeyEvent.VK_UP: keyColumn = 0xBF; break;		// D6, UP CURSOR (10111111)
+					case java.awt.event.KeyEvent.VK_PAGE_UP: keyColumn = 0xBF; break;	// D6, PC PAGE UP (SHIFT UP CURSOR)					
 					case java.awt.event.KeyEvent.VK_5: keyColumn = 0xDF; break;
 					case java.awt.event.KeyEvent.VK_T: keyColumn = 0xEF; break;
 					case java.awt.event.KeyEvent.VK_G: keyColumn = 0xF7; break;
@@ -763,7 +773,13 @@ public final class Blink extends Z80 {
 	 * 		INDEX 			= F2
 	 * 		MENU			= F3
 	 * 		<> (Diamond) 	= CTRL
-	 * 		[] (Square)		= ALT 
+	 * 		[] (Square)		= ALT
+	 * 		HOME			= SHIFT Left Cursor
+	 * 		END				= SHIFT Right Cursor
+	 * 		PAGE UP			= SHIFT Up Cursor
+	 * 		PAGE DOWN		= SHIFT Down Cursor
+	 * 		INSERT			= DIAMOND V
+	 * 		DELETE			= SHIFT BACKSPACE  
 	 * </PRE>
 	 * 
 	 * @return true, if one or several keys were pressed during scan.
@@ -815,7 +831,7 @@ public final class Blink extends Z80 {
 		if ( row == 0 || (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
 			// Z80 snoozes... (wait a little bit, then ask for key press from Blink)
 			try {
-				Thread.sleep(1);
+				Thread.sleep(5);
 			} catch (InterruptedException e) {}
 
 			// scan for all rows..
