@@ -1,0 +1,47 @@
+;          ZZZZZZZZZZZZZZZZZZZZ
+;        ZZZZZZZZZZZZZZZZZZZZ
+;                     ZZZZZ
+;                   ZZZZZ
+;                 ZZZZZ           PPPPPPPPPPPPPP     RRRRRRRRRRRRRR       OOOOOOOOOOO     MMMM       MMMM
+;               ZZZZZ             PPPPPPPPPPPPPPPP   RRRRRRRRRRRRRRRR   OOOOOOOOOOOOOOO   MMMMMM   MMMMMM
+;             ZZZZZ               PPPP        PPPP   RRRR        RRRR   OOOO       OOOO   MMMMMMMMMMMMMMM
+;           ZZZZZ                 PPPPPPPPPPPPPP     RRRRRRRRRRRRRR     OOOO       OOOO   MMMM MMMMM MMMM
+;         ZZZZZZZZZZZZZZZZZZZZZ   PPPP               RRRR      RRRR     OOOOOOOOOOOOOOO   MMMM       MMMM
+;       ZZZZZZZZZZZZZZZZZZZZZ     PPPP               RRRR        RRRR     OOOOOOOOOOO     MMMM       MMMM
+
+; **************************************************************************************************
+; This file is part of Zprom.
+;
+; Zprom is free software; you can redistribute it and/or modify it under 
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; Zprom is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with the Zprom; 
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; 
+; $Id$  
+;
+;***************************************************************************************************
+
+; Overview of bank usage in 128K ROM:
+;
+; Bank $3E:    Token base, Zprom MTH
+; Bank $3F:    Zprom application, Front DOR & ROM Header
+
+DEFC Zprom_MTH_bank = $3E, tokens_bank = Zprom_MTH_bank, Zprom_bank = $3F
+
+DEFC MTH_Zprom_ORG = $1200
+DEFC Token_base = 0
+
+DEFC Zprom_DOR = $C000, Zprom_workspace = 256
+
+; Command Codes for Zprom application:
+DEFC  Zprom_CC_mbl   = $80, Zprom_CC_mbs   = $8A, Zprom_CC_mbcl  = $8D, Zprom_CC_me    = $87, Zprom_CC_ms   = $8C
+DEFC  Zprom_CC_mv    = $81, Zprom_CC_eprog = $89, Zprom_CC_eprd  = $8B, Zprom_CC_epck  = $8E, Zprom_CC_epvf = $86
+DEFC  Zprom_CC_ev    = $82, Zprom_CC_es    = $88, Zprom_CC_et    = $85, Zprom_CC_eb    = $83, Zprom_CC_er   = $84
+DEFC  Zprom_CC_rbw   = $8F, Zprom_CC_br    = $90, Zprom_CC_be    = $91, Zprom_CC_bv    = $92, Zprom_CC_rbcl = $93
+DEFC  Zprom_CC_rclc  = $94, Zprom_CC_copy  = $95, Zprom_CC_clone = $96, Zprom_CC_bs    = $97, Zprom_CC_flbe =$98
+DEFC  Zprom_CC_fli   = $99, Zprom_CC_fltst = $9A
