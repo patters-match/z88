@@ -135,8 +135,9 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("rg - Display current Z80 Registers");
 		displayCmdOutput("f/F -	Display	current	Z80 Flag Register");
 		displayCmdOutput("cls -	Clear command output area\n");
-		displayCmdOutput("dumpslot X -b [directory] - Dump slot 1-3 as 16K banks, optionally to directory\n");
+		displayCmdOutput("dumpslot X -b [filename] - Dump slot 1-3 as 16K banks, optionally to dir/filename\n");
 		displayCmdOutput("dumpslot X [filename]- Dump slot 1-3 as file with 'filename', or 'slotX.epr'\n");
+		displayCmdOutput("fcdX cardhdr - Create a file area header in specified slot\n");
 		displayCmdOutput("fcdX format - Create or re-format a file area in specified slot\n");
 		displayCmdOutput("fcdX reclaim - Preserve active files and reclaim space of deleted files\n");
 		displayCmdOutput("fcdX del filename - Mark 'oz' file in slot X file area as deleted\n");
@@ -301,10 +302,11 @@ public class CommandLine implements KeyListener {
 
 			if (slotNumber > 0) {
 				if (cmdLineTokens.length == 2) {
-					// dumpslot X, dump the specified slot as a complete file
+					// "dumpslot X"
+					// dump the specified slot as a complete file
 					// using a default "slotX.epr" filename				
 				} else if (cmdLineTokens.length == 3) {
-					// either "-b" specified or a filename
+					// "dumpslot X -b" or "dumpslot X filename"
 					if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0) {
 						dumpFilename = "slot" + cmdLineTokens[1] + "bank";
 						exportAsBanks = true;
@@ -312,19 +314,29 @@ public class CommandLine implements KeyListener {
 						dumpFilename = cmdLineTokens[2]; 
 					}
 				} else if (cmdLineTokens.length == 4) {
-					if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0) { 
-						exportAsBanks = true;
+					// "dumpslot X -b base-filename"
+					// base filename (with optional path) for filename.bankNo
+					if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0)  
+						exportAsBanks = true;						
+					
+					File fl = new File(cmdLineTokens[3]); 
+					if (fl.isDirectory() == true) {
+						dumpDir = fl.getAbsolutePath();
 						dumpFilename = "slot" + cmdLineTokens[1] + "bank";
+					} else {
+						if (fl.getParent() != null) 
+							dumpDir = new File(fl.getParent()).getAbsolutePath();
+							
+						dumpFilename = fl.getName(); 
 					}
-					dumpDir = cmdLineTokens[3];
 				}
 
 				if (memory.isSlotEmpty(slotNumber) == false) {				
 					try {
 						memory.dumpSlot(slotNumber, exportAsBanks, dumpDir, dumpFilename);
-						displayCmdOutput("Slot was dumped successfully.");
+						displayCmdOutput("Slot was dumped successfully to " + dumpDir);
 					} catch (FileNotFoundException e1) {
-						displayCmdOutput("Couldn't create file!");
+						displayCmdOutput("Couldn't create file(s)!");
 					} catch (IOException e1) {
 						displayCmdOutput("I/O error while dumping slot!");
 					}			
@@ -770,10 +782,17 @@ public class CommandLine implements KeyListener {
 				}
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("format") == 0) {
 				// create or (re)format file area
-				if (FileArea.create((int) (cmdLineTokens[0].getBytes()[3]-48)) == true) 
+				if (FileArea.create((int) (cmdLineTokens[0].getBytes()[3]-48), true) == true) 
 					displayCmdOutput("File area were created/formatted.");
 				else
 					displayCmdOutput("File area could not be created/formatted.");
+			
+			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("cardhdr") == 0) {
+				// just create a file area header
+				if (FileArea.create((int) (cmdLineTokens[0].getBytes()[3]-48), false) == true) 
+					displayCmdOutput("File area header were created.");
+				else
+					displayCmdOutput("File area header could not be created.");
 			
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("reclaim") == 0) {
 				// reclaim deleted file space
