@@ -2,7 +2,7 @@
 
 -------------------------------------------------------------------------------
 
-  Copyright (C) 1991-2003, Gunther Strube
+  Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -29,12 +29,7 @@ code programming with our assembler.
 We have made an effort to produce a fairly easy-to-understand documentation. If
 you have any comments or corrections, please don't hesitate to contact us:
 
-Gunther Strube
-Roret 57
-DK-3070 Snekkersten
-Denmark
-e-mail gstrube@tiscali.dk
-
+z88-development@lists.sourceforge.net
 
 
 1.0 Running the asssembler

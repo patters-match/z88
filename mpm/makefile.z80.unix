@@ -18,7 +18,7 @@
 #
 # Generic Unix makefile for the Mpm Assembler, Z80 edition.
 #
-# Copyright (C) 1991-2003, Gunther Strube
+# Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
 #
 # Mpm is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the Free Software Foundation;
