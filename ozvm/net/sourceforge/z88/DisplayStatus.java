@@ -136,7 +136,7 @@ public class DisplayStatus {
     }
 
 
-	private StringBuffer z80Flags() {
+	public StringBuffer z80Flags() {
 		StringBuffer dzFlags = new StringBuffer(8);
 
 		dzFlags.append( z88.Sset() == true ? "S" : ".");
