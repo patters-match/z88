@@ -222,6 +222,10 @@ public class SaveRestoreVM {
     		}
     	}
 
+    	// remember the Host computer system time 
+    	// when a snapshot is installed and the Blink TIMx register are adjusted to "lost" time...
+    	properties.setProperty("z88StoppedAtTime", "" + blink.getZ88StoppedAtTime());
+		
     	// save the properties to a temp. file
 	    File pf = new File(propfilename);
 	    FileOutputStream pfs = new FileOutputStream(pf);
@@ -299,6 +303,8 @@ public class SaveRestoreVM {
 	        
 	        loadZ80Regs(properties); // restore Z80 processor registers
 	        loadBlinkRegs(properties); // restore Blink hardware registers
+	        
+	        blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("z88StoppedAtTime")));
 	        return true;
 	        
 	    } catch (IOException e) {
