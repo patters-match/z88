@@ -67,10 +67,12 @@ capabilities and to be able to install Java applications to the
 Desktop from the web (using the WebStart feature). OZvm has been born
 out of the need to debug Z88 applications and to continue development
 of the Z88 operating system, "OZ". All our development work with OZvm
-and the new OZ operating system are freely available under the Gnu Public
+and the new OZ operating system are freely available under the Gnu
+Public
 License, and can be downloaded from <a href="http://z88.sf.net/">http://z88.sf.net</a>.<br>
 <br>
-OZvm is also an attempt to document the Z88 for historical purposes. Since
+OZvm is also an attempt to document the Z88 for historical purposes.
+Since
 this computer is out of production, the company no longer exists,
 only a single supplier is available (<a href="http://www.rakewell.com/">http://www.rakewell.com</a>),
 and probably only a few thousand people still use it actively, it's
@@ -78,7 +80,8 @@ about time to establish a "Hall of Fame" for our beloved
 portable before it will be forgotten. Using OZvm, you can have a go
 at playing with the computer and it's embedded software, and even
 develop new software for it! We have all the tools; cross assembler
-&amp; linker, debugging environment (OZvm!) and Eprom programming hardware (the Z88!).<br>
+&amp; linker, debugging environment (OZvm!) and Eprom programming
+hardware (the Z88!).<br>
 <br>
 Z88 is a lesser known portable made in 1987 by
 Cambridge Computer Ltd (CC) in England. CC was established by Sir
@@ -128,10 +131,10 @@ Z88. We haven't tested OZvm on other processor architectures like
 PowerPC (the Mac computers), or Sun's SPARC, so we don't know how
 OZvm performs on those boxes.<br>
 <br>
-The OZvm application behaves well your operating system. It typically 
-uses 5% or less processing power of your computer in idle state 
-(waiting for keyboard input), and 10-20% when processing actual 
-Z80 machine code.<br>
+The OZvm application behaves well your operating system. It typically
+uses 5% or less processing power of your computer in idle state
+(waiting for keyboard input), and 10-20% when processing actual Z80
+machine code.<br>
 <br>
 <br>
 <span style="font-size: 13pt;"><a name="Getting_started"></a></span><b><font
@@ -617,8 +620,9 @@ easier to read in various output but is otherwise ignored by the
 command line.<br>
 </p>
 <p style="margin-bottom: 0cm;" align="left">The following debug and
-register commands are available (debug commands are lowe case,
-register commands upper case):</p>
+register commands displayed below can all be typed in upper or lower
+case (register commands below are just displayed in upper case for
+readability):</p>
 <p style="margin-bottom: 0cm;" align="left"><br>
 </p>
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -630,6 +634,16 @@ register commands upper case):</p>
       <td width="69%">
       <p><b>Function:</b></p>
       </td>
+    </tr>
+    <tr>
+      <td>
+      <p align="left"><b><font size="3"><font face="Courier"><font
+ color="#3f5fbf">help <br>
+      </font></font></font></b></p>
+      </td>
+      <td><font color="#3f5fbf"><font face="Courier"><font size="3"><b>Display
+a list of the available commands (see below)<br>
+      </b></font></font></font></td>
     </tr>
     <tr valign="top">
       <td width="31%">
@@ -725,7 +739,7 @@ has focus)</b></font></font></font></p>
     <tr valign="top">
       <td width="31%">
       <p align="left"><font color="#3f5fbf"><font face="Courier"><font
- size="3"><b>d [&lt;address&gt;]</b></font></font></font></p>
+ size="3"><b>dz [&lt;address&gt;]</b></font></font></font></p>
       </td>
       <td width="69%">
       <p align="left"><font color="#3f5fbf"><font face="Courier"><font
@@ -828,8 +842,8 @@ stop breakpoint at specified address</font></font></font></b></p>
       </td>
       <td width="69%">
       <p align="left"><b><font size="3"><font face="Courier"><font
- color="#3f5fbf">List breakpoints (if no address), otherwise toggle
-dump breakpoint at specified address</font></font></font></b></p>
+ color="#3f5fbf">List display breakpoints (if no address), otherwise
+toggle display breakpoint at specified address</font></font></font></b></p>
       </td>
     </tr>
     <tr valign="top">
@@ -885,7 +899,7 @@ dump breakpoint at specified address</font></font></font></b></p>
     <tr valign="top">
       <td width="31%">
       <p align="left"><font color="#3f5fbf"><font face="Courier"><font
- size="3"><b>r</b></font></font></font></p>
+ size="3"><b>rg</b></font></font></font></p>
       </td>
       <td width="69%">
       <p align="left"><font color="#3f5fbf"><font face="Courier"><font
