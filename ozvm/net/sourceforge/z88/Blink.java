@@ -44,6 +44,110 @@ public final class Blink extends Z80 {
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH.mm.ss.SSS");
 
 	/**
+	 * The Z80 databus methods for getting/writing bytes
+	 * to/from the memory system through the 64K Z80 address
+	 * space (and the segment bindings to the extended
+	 * memory model of the Z88).
+	 */
+	private interface DataBus {
+		public int readByte(final int addr);
+		public int readWord(final int addr);
+		public void writeByte(final int addr, final int b);
+		public void writeWord(final int addr, final int b);
+	}
+	
+	/**
+	 * The databus read/write methods for lower 8K of segment 0
+	 * (Access through RAMS register)
+	 */
+	private class LowerSegment0 implements DataBus {
+		public int readByte(final int addr) {
+			return RAMS.readByte(addr);
+		}
+		
+		public void writeByte(final int addr, final int b) {
+			RAMS.writeByte(addr, b);
+		}
+		
+		public int readWord(final int addr) {
+			return RAMS.readByte(addr) | (RAMS.readByte(addr+1) << 8);
+		}
+		
+		public void writeWord(final int addr, final int w) {
+			RAMS.writeByte(addr, w & 0xFF);
+			RAMS.writeByte(addr+1, w >>> 8);
+		}		
+	}
+		
+	/**
+	 * The databus read/write methods for upper 8K of segment 0
+	 * (Only even banks are mapped into this segment, where bit 0
+	 * of the bank number identifies whether the upper 8K or the 
+	 * lower 8K of the bank are bound into the upper 8K of 
+	 * segment 0)
+	 * Read/write occurs in address range 2000h-3FFFh of the 64K
+	 * Z80 address space.
+	 */
+	private class UpperSegment0 implements DataBus {
+		public int readByte(final int addr) {
+			return memory.getBank(sR[0] & 0xFE).readByte( ((sR[0] & 1) << 13) | (addr & 0x1FFF) );
+		}		
+		
+		public void writeByte(final int addr, final int b) {
+			memory.getBank(sR[0] & 0xFE).writeByte( ((sR[0] & 1) << 13) | (addr & 0x1FFF), b);
+		}
+		
+		public int readWord(int addr) {
+			Bank b = memory.getBank(sR[0] & 0xFE);
+			addr = ((sR[0] & 1) << 13) | (addr & 0x1FFF);
+			
+			return b.readByte(addr) | (b.readByte(addr+1) << 8);
+		}
+		
+		public void writeWord(int addr, final int w) {
+			Bank b = memory.getBank(sR[0] & 0xFE);
+			addr = ((sR[0] & 1) << 13) | (addr & 0x1FFF);
+			
+			b.writeByte(addr, w & 0xFF); 
+			b.writeByte(addr+1, w >>> 8);
+		}		
+	}
+	
+	/**
+	 * The databus read/write methods for segments 1 - 3.
+	 * 
+	 * Read/write occurs in address range 4000h-FFFFh of the 64K
+	 * Z80 address space.
+	 */
+	private class Segments1To3 implements DataBus {
+		public int readByte(final int addr) {
+			return memory.getBank(sR[(addr >>> 14) & 3]).readByte(addr);
+		}
+		
+		public void writeByte(final int addr, final int b) {
+			memory.getBank(sR[(addr >>> 14) & 3]).writeByte(addr, b);
+		}
+		
+		public int readWord(final int addr) {
+			Bank b = memory.getBank(sR[(addr >>> 14) & 3]);
+			
+			return b.readByte(addr) | (b.readByte(addr+1) << 8);
+		}
+		
+		public void writeWord(final int addr, final int w) {
+			Bank b = memory.getBank(sR[(addr >>> 14) & 3]);
+			
+			b.writeByte(addr, w & 0xFF);
+			b.writeByte(addr+1, w >>> 8);
+		}		
+	}
+	
+	private DataBus[] addressSpace = null;
+	private LowerSegment0 segm00addrSpace;
+	private UpperSegment0 segm01addrSpace;
+	private Segments1To3 segm13addrSpace;
+		
+	/**
 	 * Blink class default constructor.
 	 *
 	 * @param canvas
@@ -59,11 +163,21 @@ public final class Blink extends Z80 {
 		
 		// the segment register SR0 - SR3
 		sR = new int[4];
-		// all segment registers points at ROM bank 0
+		// all segment registers initialized to point at ROM bank 0
 		for (int segment = 0; segment < sR.length; segment++) {
 			sR[segment] = 0;
 		}
-
+		
+		segm00addrSpace = new LowerSegment0();
+		segm01addrSpace = new UpperSegment0();
+		segm13addrSpace = new Segments1To3(); 
+		addressSpace = new DataBus[] {
+					segm00addrSpace, segm00addrSpace, segm01addrSpace, segm01addrSpace,
+					segm13addrSpace, segm13addrSpace, segm13addrSpace, segm13addrSpace,
+					segm13addrSpace, segm13addrSpace, segm13addrSpace, segm13addrSpace,
+					segm13addrSpace, segm13addrSpace, segm13addrSpace, segm13addrSpace					
+				};
+		
 		timerDaemon = new Timer(true);
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
@@ -726,24 +840,7 @@ public final class Blink extends Z80 {
 	 * @return byte at bank, mapped into segment for specified address
 	 */
 	public final int readByte(final int addr) {
-		if (addr > 0x3FFF) {
-			return memory.getBank(sR[(addr >>> 14) & 3]).readByte(addr);
-		} else {
-			if (addr < 0x2000)
-				// return lower 8K Bank binding
-				// Lower 8K is System Bank 0x00 (ROM on hard reset)
-				// or 0x20 (RAM for Z80 stack and system variables)
-				return RAMS.readByte(addr);
-			else {
-				if ((sR[0] & 1) == 0)
-					// lower 8K of even bank bound into upper 8K of segment 0
-					return memory.getBank(sR[0] & 0xFE).readByte(addr & 0x1FFF);
-				else
-					// upper 8K of even bank bound into upper 8K of segment 0
-					// addr <= 0x3FFF...
-					return memory.getBank(sR[0] & 0xFE).readByte(addr);
-			}
-		}
+		return addressSpace[ (addr & 0xF000) >>> 12].readByte(addr);
 	}
 
 	/**
@@ -762,34 +859,7 @@ public final class Blink extends Z80 {
 	 * @return word at bank, mapped into segment for specified address
 	 */
 	public final int readWord(int addr) {
-		Bank bank;
-		
-		if ( (addr & 0x3FFF) != 0x3FFF ) {
-			if (addr > 0x3FFF) {
-				bank = memory.getBank(sR[(addr >>> 14) & 3]);
-				return (bank.readByte(addr+1) << 8) | bank.readByte(addr);
-			} else {
-				if (addr < 0x2000) {
-					// return lower 8K Bank binding
-					// Lower 8K is System Bank 0x00 (ROM on hard reset)
-					// or 0x20 (RAM for Z80 stack and system variables)
-					return (RAMS.readByte(addr+1) << 8) | RAMS.readByte(addr);
-				} else {
-					bank = memory.getBank(sR[0] & 0xFE);
-					if ((sR[0] & 1) == 0) {
-						// lower 8K of even bank bound into upper 8K of segment 0
-						addr &= 0x1FFF;
-					}
-					// else 
-					// upper 8K of even bank bound into upper 8K of segment 0
-					// addr = [0x2000 - 0x3FFF]...
-					return (bank.readByte(addr+1) << 8) | bank.readByte(addr);
-				}
-			}
-		} else {
-			// bank boundary will be crossed...
-			return (readByte(addr+1) << 8) | readByte(addr);
-		}
+		return addressSpace[ (addr & 0xF000) >>> 12].readWord(addr);
 	}
 
 	/**
@@ -806,29 +876,7 @@ public final class Blink extends Z80 {
 	 * @param b byte to be written into Z80 64K Address Space
 	 */
 	public final void writeByte(final int addr, final int b) {
-		Bank bank;
-
-		if (addr > 0x3FFF) {
-			// write byte to segments 1 - 3
-			memory.getBank(sR[(addr >>> 14) & 3]).writeByte(addr, b);
-		} else {
-			if (addr < 0x2000) {
-				// return lower 8K Bank binding
-				// Lower 8K is System Bank 0x00 (ROM on hard reset)
-				// or 0x20 (RAM for Z80 stack and system variables)
-				RAMS.writeByte(addr, b);
-			} else {
-				bank = memory.getBank(sR[0] & 0xFE);
-				if ((sR[0] & 1) == 0) {
-					// lower 8K of even bank bound into upper 8K of segment 0
-					bank.writeByte(addr & 0x1FFF, b);
-				} else {
-					// upper 8K of even bank bound into upper 8K of segment 0
-					// addr <= 0x3FFF...
-					bank.writeByte(addr, b);
-				}
-			}
-		}
+		addressSpace[ (addr & 0xF000) >>> 12].writeByte(addr, b);
 	}
 
 	/**
@@ -846,32 +894,7 @@ public final class Blink extends Z80 {
 	 * @param w word to be written into Z80 64K Address Space
 	 */
 	public final void writeWord(int addr, final int w) {
-		Bank bank;
-
-		if ( (addr & 0x3FFF) != 0x3FFF ) {
-			if (addr > 0x3FFF) {
-				bank = memory.getBank(sR[(addr >>> 14) & 3]);
-				bank.writeByte(addr, w);
-				bank.writeByte(addr+1, w >>> 8);
-			} else {
-				if (addr < 0x2000) {
-					// return lower 8K Bank binding
-					// Lower 8K is System Bank 0x00 (ROM on hard reset)
-					// or 0x20 (RAM for Z80 stack and system variables)
-					RAMS.writeByte(addr, w);
-					RAMS.writeByte(addr+1, w >>> 8);
-				} else {
-					bank = memory.getBank(sR[0] & 0xFE);
-					if ((sR[0] & 1) == 0) addr &= 0x1FFF; // lower 8K of even bank bound into upper 8K of segment 0
-					bank.writeByte(addr, w);
-					bank.writeByte(addr+1, w >>> 8);
-				}
-			}
-		} else {
-			// bank boundary will be crossed...
-			writeByte(addr, w);
-			writeByte(addr+1, w >>> 8);
-		}
+		addressSpace[ (addr & 0xF000) >>> 12].writeWord(addr, w);
 	}
 	
 	/**
