@@ -2213,13 +2213,13 @@ defc    DM_RAM                  =$81
         out     (BL_SR2), a
         ld      hl, ($bffe)                     ; last word
 
-        ld      d, 1                            ; 1, EPROM
+        ld      d, ST_EPROM
         ld      bc, 'z'<<8|'o'
         sbc     hl, bc
         add     hl, bc
         jr      z, vst_1                        ; "oz" found
 
-        inc     d                               ; 2, application ROM
+        inc     d                               ; ST_APPLROM
         ld      bc, 'Z'<<8|'O'
         or      a
         sbc     hl, bc
@@ -2238,5 +2238,5 @@ defc    DM_RAM                  =$81
         ret     c                               ; size ok? ret
 
 .vst_2
-        ld      d, 0                            ; no ROM
+        ld      d, ST_NOROM
         ret
