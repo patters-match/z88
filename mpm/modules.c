@@ -61,7 +61,8 @@ static int LinkTracedModule (char *filename, long baseptr);
 extern FILE *listfile, *mapfile, *srcasmfile, *errfile, *libfile;
 extern char line[], ident[];
 extern char *objfilename, *errfilename, *libfilename;
-extern char objext[], binext[], mapext[], errext[], libext[], defext[], binfilename[];
+extern const char objext[], binext[], mapext[], errext[], libext[], defext[];
+extern char binfilename[];
 extern char MPMobjhdr[];
 extern enum symbols sym, GetSym (void);
 extern enum flag uselistingfile, symtable, autorelocate, codesegment;
@@ -305,15 +306,11 @@ LinkModules (void)
   CURRENTMODULE = modulehdr->first;     /* begin with first module */
   lastobjmodule = modulehdr->last;      /* remember this last module, further modules are libraries */
 
-  if ((errfilename = AllocIdentifier (strlen (CURRENTFILE->fname) + 1)) != NULL)
+  errfilename = AddFileExtension((const char *) CURRENTFILE->fname, errext);
+  if (errfilename == NULL)
     {
-      strcpy (errfilename, CURRENTFILE->fname);
-      strcpy (errfilename + strlen (errfilename) - 4, errext);  /* overwrite '.asm' extension with '.err' */
-    }
-  else
-    {
-      ReportError (NULL, 0, Err_Memory);
-      return;                   /* No more room */
+      ReportError (NULL, 0, Err_Memory);   /* No more room */
+      return;
     }
 
   if ((errfile = fopen (errfilename, "a")) == NULL)
@@ -345,12 +342,8 @@ LinkModules (void)
 
       CURRENTFILE->line = 0;    /* no line references on errors during linking process */
 
-      if ((objfilename = AllocIdentifier (strlen (CURRENTFILE->fname) + 1)) != NULL)
-        {
-          strcpy (objfilename, CURRENTFILE->fname);
-          strcpy (objfilename + strlen (objfilename) - 4, objext);      /* overwrite '.asm' extension with '.obj' */
-        }
-      else
+      objfilename = AddFileExtension((const char *) CURRENTFILE->fname, objext);
+      if (objfilename == NULL)
         {
           ReportError (NULL, 0, Err_Memory);   /* No more room */
           break;
@@ -553,13 +546,20 @@ CreateBinFile (void)
   FILE *binaryfile;
 
   if (expl_binflnm == ON)
-    /* use predefined output filename from command line */
-    tmpstr = binfilename;
+    {
+      /* use predefined output filename from command line */
+      tmpstr = AddFileExtension( (const char *) binfilename, binext);
+    }
   else
     {
       /* create output filename, based on project filename */
-      tmpstr = modulehdr->first->cfile->fname;  /* get source filename from first module */
-      strcpy (tmpstr + strlen (tmpstr) - 4, binext);    /* replace '.asm' with '.bin' extension */
+      tmpstr = AddFileExtension( (const char *) modulehdr->first->cfile->fname, binext);
+    }
+
+  if (tmpstr == NULL)
+    {
+      ReportError (NULL, 0, Err_Memory);   /* No more room */
+      return;
     }
 
   binaryfile = fopen (tmpstr, "wb");    /* binary output to xxxxx.bin */
@@ -573,6 +573,8 @@ CreateBinFile (void)
     }
   else
     ReportIOError (tmpstr);
+
+  free (tmpstr);
 }
 
 
@@ -798,10 +800,14 @@ CreateDeffile (void)
 
   /* use first module filename to create global definition file */
 
-  if ((globaldefname = AllocIdentifier (strlen (modulehdr->first->cfile->fname) + 1)) != NULL)
+  globaldefname = AddFileExtension((const char *) modulehdr->first->cfile->fname, defext);
+  if (globaldefname == NULL)
     {
-      strcpy (globaldefname, modulehdr->first->cfile->fname);
-      strcpy (globaldefname + strlen (globaldefname) - 4, defext);      /* overwrite '.asm' extension with '.def' */
+      ReportError (NULL, 0, Err_Memory);   /* No more room */
+      createglobaldeffile = OFF;
+    }
+  else
+    {
       if ((deffile = fopen (globaldefname, "w")) != NULL)
         {
             InOrder (globalroot, (void (*)()) WriteGlobal);
@@ -813,12 +819,6 @@ CreateDeffile (void)
           ReportIOError (globaldefname);
           createglobaldeffile = OFF;
         }
-
-    }
-  else
-    {
-      ReportError (NULL, 0, Err_Memory);
-      createglobaldeffile = OFF;
     }
 
   free (globaldefname);
@@ -835,14 +835,10 @@ WriteMapFile (void)
 
   cmodule = modulehdr->first;   /* begin with first module */
 
-  if ((mapfilename = AllocIdentifier (strlen (cmodule->cfile->fname) + 1)) != NULL)
+  mapfilename = AddFileExtension((const char *) cmodule->cfile->fname, mapext);
+  if (mapfilename == NULL)
     {
-      strcpy (mapfilename, cmodule->cfile->fname);
-      strcpy (mapfilename + strlen (mapfilename) - 4, mapext);  /* overwrite '.asm' extension with '.map' */
-    }
-  else
-    {
-      ReportError (NULL, 0, Err_Memory);
+      ReportError (NULL, 0, Err_Memory);   /* No more room */
       return;
     }
 
@@ -877,7 +873,6 @@ WriteMapFile (void)
   else
     {
       ReportIOError (mapfilename);
-      return;
     }
 
   free (mapfilename);
@@ -943,13 +938,6 @@ NewModule (void)
       newm->cfile = NULL;
       newm->localroot = NULL;
       newm->notdeclroot = NULL;
-
-      /* new object module code is always placed on even boundary */
-      if (newm->startoffset % 2 != 0)
-        {
-          newm->startoffset++;
-          CODESIZE++;
-        }
 
       if ((newm->mexpr = AllocExprHdr ()) != NULL)
         {                       /* Allocate room for expression header */
