@@ -27,6 +27,10 @@
 ; IN:
 ;     BC = size of routine.
 ;     IX = pointer to routine.
+;
+;     Available parameter registers for the executing routine:
+;          A, A', DE, HL & IY
+;
 ; OUT:
 ;     Register changes are subroutine dependent
 ;
