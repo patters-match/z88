@@ -27,7 +27,11 @@ defc    OZCallTable             =$dead
 xdef    DefErrHandler
 xdef    INTReturn
 xdef    JpAHL
+xdef	OZ_RET1
+xdef	OZ_RET0
 xdef    OZ_BUF
+xdef	OZ_DI
+xdef	OZ_EI
 xdef    OZ_SCF
 xdef    OZCallJump
 xdef    OZCallReturn1
@@ -92,7 +96,9 @@ xdef    OZCallReturn3
 
 ;       OZ low level jump table
 
+.OZ_RET1
         jp      OZCallReturn1                   ; 0048
+.OZ_RET0
         jp      OZCallReturn0                   ; 004B
 .OZ_BUF
         jp      OZBUFmain                       ; 004E
