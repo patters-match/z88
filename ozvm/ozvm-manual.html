@@ -488,13 +488,11 @@ OZvm.</big></font></font></big></p>
 country specific Z88 keyboard layout. Available
 codes are: fr (french), dk (danish), uk / en (english), se
 (swedish), fi (finnish).</big></font></font></big></p>
-      <p><big> </big></p>
       </td>
     </tr>
     <tr valign="top">
       <td width="31%">
-      <p align="left"><br>
-      </p>
+      <p align="left"> </p>
       </td>
       <td width="69%">
       <p align="left"><br>
@@ -561,20 +559,33 @@ of &lt;type&gt;, for example: fcd1 1024 29f means that an empty
 Amd Flash Card will be inserted into slot 1 and preset with a 'oz'
 File Header at the top of the card.<br>
       <br>
-You can optionally import files from the host operating system into the
-file area. There's two methods; either specify each file using the -f <span
- style="font-style: italic;">filename</span> option (one or more), or
-specifying a directory on the host operating system using the -d <span
- style="font-style: italic;">directory-path</span> option (load all
-files in host directory into file area).<br>
-      <br>
-Available
-types:<br>
+      </big></font></font></big><big><font color="#3f5fbf"><font
+ size="2"><big>Available
+Card types for a File Card:<br>
 27C: Standard UV Eprom (all sizes allowed)<br>
 28F:
 Intel Flash Card (available sizes are 512 &amp;
 1024)<br>
-29F: Amd Flash Card (available sizes are 128, 512, 1024)</big></font></font></big></td>
+29F: Amd Flash Card (available sizes are 128, 512, 1024)<br>
+      <br>
+      </big></font></font></big><big><font color="#3f5fbf"><font
+ size="2"><big>You can optionally import files from the host operating
+system into the file area. There's two methods; either specify files
+using the -f <span style="font-style: italic;">filename</span> option,
+or specifying directories on the host operating system using the -d <span
+ style="font-style: italic;">directory-path</span> option (load all
+files in host directory into file area). You can specify several -f or
+-d options, as long as they are specified together, ie. -f <span
+ style="font-style: italic;">filename</span>1 -d <span
+ style="font-style: italic;">directory-path1</span> -f <span
+ style="font-style: italic;">filename2</span> -f <span
+ style="font-style: italic;">filename3</span> -</big></font></font></big><big><font
+ color="#3f5fbf"><font size="2"><big>d <span
+ style="font-style: italic;">directory-path1<br>
+      </span></big></font></font></big><big><font color="#3f5fbf"><font
+ size="2"><big>Imported file(name)s are stripped of any path that was
+specified from the host file system.<br>
+      </big></font></font></big></td>
     </tr>
     <tr>
       <td><br>
@@ -608,13 +619,11 @@ types:<br>
 Intel Flash Card (available sizes are 512 &amp;
 1024)<br>
 29F: Amd Flash Card (available sizes are 128, 512, 1024)</big></font></font></big></p>
-      <p><big> </big></p>
       </td>
     </tr>
     <tr>
       <td>
-      <p><br>
-      </p>
+      <p> </p>
       </td>
       <td><br>
       </td>
@@ -650,10 +659,7 @@ Card </font></big></font></big><big><font size="2"><big><font
 1024K = </font></big></font></big><big><font size="2"><big><font
  color="#3f5fbf">Intel Flash Card </font></big></font></big><big><font
  size="2"><big><font color="#3f5fbf">(use -t 29F to change to an AMD
-1024K Flash Card)</font></big></font></big><br>
-      <big><font size="2"><big></big></font></big>
-      <p><b><font size="2"><font face="Courier"><font color="#3f5fbf"> </font></font></font></b></p>
-      </td>
+1024K Flash Card)</font></big></font></big> </td>
     </tr>
     <tr valign="top">
       <td width="31%">
@@ -679,7 +685,6 @@ separate
 line. This allows you to preset the debugging environment with
 breakpoints, registers and possibly an autostart of Z80 execution
 engine.</big></font></font></big></p>
-      <p><big> </big></p>
       </td>
     </tr>
   </tbody>
@@ -821,9 +826,10 @@ has focus).</big></font></font> </big></td>
       <td width="69%"><big> <font color="#3f5fbf"><font size="2"><big>Run
 z88 machine</big></font></font> <font color="#3f5fbf"><font size="2"><big>at
 PC
-register </big></font></font><font color="#3f5fbf"><font size="2"><big>and
+register (typically a sub routine) </big></font></font><font
+ color="#3f5fbf"><font size="2"><big>and
 break at next
-instruction.</big></font></font> </big></td>
+instruction on same call level.</big></font></font> </big></td>
     </tr>
     <tr valign="top">
       <td width="31%">
@@ -1071,6 +1077,120 @@ window.</big></font></font> </big></td>
       <p align="left"><br>
       </p>
       </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><font color="#3f5fbf"><font
+ face="Courier"><font size="2"><b>fcdX <span
+ style="font-style: italic;">[options] <br>
+      <br>
+      </span><span style="font-style: italic;"></span></b></font></font></font><font
+ color="#3f5fbf"><font face="Courier"><font size="2"><b></b></font></font></font><font
+ color="#3f5fbf"><font face="Courier"><font size="2"><b></b></font></font></font><br>
+      </td>
+      <td style="vertical-align: top;"><big><font color="#3f5fbf"><font
+ size="2"><big>Manage file cards (or file areas in application cards).
+fcd1, fcd2 and fcd3 commands represent the base for a range of optional
+sub commands for slots 1-3. If&nbsp; no options are defined, a list of
+files </big></font></font></big><big><font color="#3f5fbf"><font
+ size="2"><big>that are stored in the file area </big></font></font></big><big><font
+ color="#3f5fbf"><font size="2"><big>are displayed to the console
+output window.<br>
+      </big></font></font></big></td>
+    </tr>
+    <tr>
+      <td><font color="#3f5fbf"><font face="Courier"><font size="2"><b>Options:</b></font></font></font></td>
+      <td><big><font color="#3f5fbf"><font size="2"><big><br>
+      </big></font></font></big></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">
+      <ul>
+        <li><font color="#3f5fbf"><font face="Courier"><font size="2"><b>fmt<span
+ style="font-style: italic;"></span></b></font></font></font></li>
+      </ul>
+      </td>
+      <td style="vertical-align: top;"><big><font color="#3f5fbf"><font
+ size="2"><big>Create or re-format a file area in specified slot. All
+current files in file area will be lost.<br>
+      </big></font></font></big></td>
+    </tr>
+    <tr>
+      <td>
+      <ul>
+        <li><font color="#3f5fbf"><font face="Courier"><font size="2"><b>del
+          <span style="font-style: italic;">filename</span><br>
+          </b></font></font></font></li>
+      </ul>
+      </td>
+      <td><big><font color="#3f5fbf"><font size="2"><big>Mark specified
+"oz" file in file area as deleted. <br>
+      </big></font></font></big></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">
+      <ul>
+        <li><font color="#3f5fbf"><font face="Courier"><font size="2"><b>ipf
+          <span style="font-style: italic;">host-filename</span></b></font></font></font></li>
+      </ul>
+      </td>
+      <td><big><font color="#3f5fbf"><font size="2"><big>Import file
+from the host operating system into the file area. The file will be
+added to the end&nbsp; of the current file list. The filename is
+operating system dependent. </big></font></font></big><big><font
+ color="#3f5fbf"><font size="2"><big>Imported file(name)s are stripped
+of any path that was specified from the host file system.</big></font></font></big></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">
+      <ul>
+        <li><font color="#3f5fbf"><font face="Courier"><font size="2"><b>ipd
+          <span style="font-style: italic;">host-path</span></b></font></font></font></li>
+      </ul>
+      </td>
+      <td><big><font color="#3f5fbf"><font size="2"><big>Import files
+from the
+host operating system directory into the file area. The files will
+be added to the
+end of the current file list. The </big></font></font></big><big><font
+ color="#3f5fbf"><font size="2"><big>directory-path</big></font></font></big><big><font
+ color="#3f5fbf"><font size="2"><big> is operating system dependent. </big></font></font></big><big><font
+ color="#3f5fbf"><font size="2"><big>Imported file(name)s are stripped
+of any path that was specified from the host file system.</big></font></font></big></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">
+      <ul>
+        <li><font color="#3f5fbf"><font face="Courier"><font size="2"><b>xpf
+          <span style="font-style: italic;">filename
+host-path<br>
+          </span></b></font></font></font></li>
+      </ul>
+      </td>
+      <td><big><font color="#3f5fbf"><font size="2"><big>Export file
+from the file area to the host operating system <span
+ style="font-style: italic;">host-path</span>. The filename must match
+the existing filename in "oz" fileformat, with a leading "/". The path
+of the "oz" filename will be stripped; the core filename will be used
+as to save the file in the specified <span style="font-style: italic;">host-path</span>.<br>
+      </big></font></font></big></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">
+      <ul>
+        <li><font color="#3f5fbf"><font face="Courier"><font size="2"><b>xpc
+          <span style="font-style: italic;">host-path</span></b></font></font></font></li>
+      </ul>
+      </td>
+      <td><big><font color="#3f5fbf"><font size="2"><big>Export file
+card (area) to the host operating system <span
+ style="font-style: italic;">host-path</span>.
+The path of "oz" filenames will be stripped; the core
+filename will be used as to save the file in the specified <span
+ style="font-style: italic;">host-path</span>.</big></font></font></big></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp; </td>
     </tr>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;">
