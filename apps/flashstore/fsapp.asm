@@ -583,7 +583,7 @@
 ; *************************************************************************************
 ; Text & VDU constants.
 ;
-.catalog_banner     DEFM "FLASHSTORE V1.7.rc5, (C) 1997-2005 Zlab & InterLogic",0
+.catalog_banner     DEFM "FLASHSTORE V1.7.rc6, (C) 1997-2005 Zlab & InterLogic",0
 
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
@@ -612,7 +612,7 @@
 .bar1_sq            DEFM 1,"4+TUR",1,"2JC",1,"3@  ",0
 .bar2_sq            DEFM 1,"3@  ",1,"2A",87,1,"4-TUR",1,"2JN",0
 
-.failed_msg         DEFM "Failed.",0
+.failed_msg         DEFM " Failed.",0
 
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
