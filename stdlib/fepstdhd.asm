@@ -27,25 +27,38 @@
 ;
 ; Standard Z88 File Eprom Format (using Flash Eprom Card).
 ;
-; Blow File Eprom "oz" header on Flash Eprom, in specified bank.
-; Traditional File Eprom's use the whole card with header in bank $3F.
+; Blow File Eprom "oz" header on Flash Eprom, in specified bank (which 
+; is part of the slot that the Flash Memory Card have been inserted into).
+;
+; Traditional File Eprom's use the whole card with header in top bank $3F.
 ;
 ; Pseudo File Eproms might be part of Application cards below the 
 ; reserved application area (as specified by the ROM Front DOR).
 ;
-; This routine will temporarily set the Vpp pin while the "oz" header
-; is being blown to the Flash Eprom.
+; Important: 
+; Third generation AMD Flash Memory chips may be programmed in all 
+; available slots (1-3). Only INTEL I28Fxxxx series Flash chips require 
+; the 12V VPP pin in slot 3 to successfully blow the File Eprom header on 
+; the memory chip. If the Flash Eprom card is inserted in slot 1 or 2, 
+; this routine will report a programming failure. 
+;
+; It is the responsibility of the application (before using this call) to 
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
+; this type of unnecessary error can be avoided.
 ;
 ; In:
-;    B = Bank (slot relative) where to blow header (at offset $3FC0)
+;    B = Absolute Bank (00h - FFh) where to blow header (at offset $3FC0)
+;        (bits 7,6 indicate slot number)
 ;
 ; Out:
 ;    Success:
 ;         Fc = 0, File Eprom Header successfully blown to Flash Eprom
 ;
 ;    Failure:
-;         Fc = 1,
-;              A = RC_BWR
+;         Fc = 1
+;         A = RC_BWR (couldn't write header to Flash Memory)
+;         A = RC_NFE (not a recognized Flash Memory Chip)
 ;
 ; Registers changed after return:
 ;    ..BCDEHL/IXIY same
@@ -98,27 +111,24 @@
                     EX   DE,HL
                     LD   HL, stdromhdr
                     LDIR
-
-                    LD   C,3                      ; check presence of FE in slot 3
-                    CALL FlashEprCardId
-                    POP  BC                       ; blow header at bank B (slot relative)
-                    JR   C, exit_romheader        ; Ups - Flash Eprom not available
-
+                    POP  BC                       ; blow header at bank B
+                    
+                    PUSH BC
                     RES  7,B
-                    RES  6,B                      ; ensure slot relative...
+                    RES  6,B
                     INC  B
                     LD   (IX + $3C),B             ; total of banks on File Eprom = Bank+1
-                    DEC  B
+                    POP  BC 
 
                     PUSH IX
                     POP  DE                       ; start of File Eprom Header
                     LD   C, MS_S1                 ; use segment 1 to blow bytes
-                    LD   HL, $3FC0                ; blown at address $3FC0 in bank B
-                    LD   IX, 64                   ; of size
+                    LD   HL, $3FC0                ; blown at address B,$3FC0
+                    LD   IY, 64                   ; of size
 
                     CALL FlashEprWriteBlock       ; blow header...
 
-.exit_romheader     POP  HL
+                    POP  HL
                     LD   SP,HL                    ; restore original Stack Pointer
 
                     POP  IX                       ; restore registers...
