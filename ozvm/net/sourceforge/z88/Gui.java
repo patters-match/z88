@@ -31,9 +31,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JToolBar;
 import javax.swing.JButton;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
 import javax.swing.JCheckBoxMenuItem;
@@ -58,6 +56,9 @@ public class Gui extends JFrame {
 	public static Gui getInstance() {
 		return singletonContainer.singleton;
 	}
+	
+	private javax.swing.JScrollPane jRtmOutputScrollPane = null;
+	private javax.swing.JTextArea jRtmOutputArea = null;
 	
 	private JButton button_2;
 	private JButton button_1;
@@ -141,19 +142,13 @@ public class Gui extends JFrame {
 		menu_1.add(checkBoxMenuItem);
 		checkBoxMenuItem.setText("Debug");
 
-		final JScrollPane scrollPane = new JScrollPane();
 		final GridBagConstraints gridBagConstraints_2 = new GridBagConstraints();
 		gridBagConstraints_2.ipady = 52;
 		gridBagConstraints_2.fill = GridBagConstraints.BOTH;
 		gridBagConstraints_2.ipadx = 275;
 		gridBagConstraints_2.gridy = 3;
 		gridBagConstraints_2.gridx = 0;
-		getContentPane().add(scrollPane, gridBagConstraints_2);
-
-		textArea = new JTextArea();
-		textArea.setEditable(false);
-		scrollPane.setViewportView(textArea);
-		textArea.setText("Runtime Messages");
+		getContentPane().add(getRtmOutputScrollPane(), gridBagConstraints_2);
 
 		final JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.BLACK);
@@ -1053,21 +1048,56 @@ public class Gui extends JFrame {
 		}
 		return button_2;
 	}
+		
+	/**
+	 * This method initializes jScrollPane1
+	 *
+	 * @return javax.swing.JScrollPane
+	 */
+	private javax.swing.JScrollPane getRtmOutputScrollPane() {
+		if(jRtmOutputScrollPane == null) {
+			jRtmOutputScrollPane = new javax.swing.JScrollPane();
+			jRtmOutputScrollPane.setViewportView(getRtmOutputArea());
+		}
+		return jRtmOutputScrollPane;
+	}
+	
+	/**
+	 * This method initializes jTextArea
+	 *
+	 * @return javax.swing.JTextArea
+	 */
+	public javax.swing.JTextArea getRtmOutputArea() {
+		if(jRtmOutputArea == null) {
+			jRtmOutputArea = new javax.swing.JTextArea();
+			jRtmOutputArea.setTabSize(1);
+			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
+			jRtmOutputArea.setEditable(false);
+		}
+		return jRtmOutputArea;
+	}
+	
+	public static void displayRtmMessage(final String msg) {
+		Gui.getInstance().getRtmOutputArea().append(msg + "\n");
+		Gui.getInstance().getRtmOutputArea().setCaretPosition(Gui.getInstance().getRtmOutputArea().getDocument().getLength());
+	}
 	
 	/**
 	 * This method initializes the z88 display window and menus
 	 */
 	private void initialize() {
-		try {
-		  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {
-		  System.out.println("Error setting native LAF: " + e);
-		}
-		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.setResizable(false);
 		this.pack();
 		this.setVisible(true);
+		
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			public void windowClosing(java.awt.event.WindowEvent e) {
+				System.out.println("OZvm application ended by user.");
+				//Blink.getInstance().stopZ80Execution();
+				System.exit(0);
+			}
+		});		
 	}	
 }

@@ -21,14 +21,12 @@ package net.sourceforge.z88;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JFrame;
-import javax.swing.UIManager;
 
 
 /**
- * Gui framework for OZvm.
+ * Gui framework OZvm debugging mode.
  */
 public class DebugGui extends JFrame {
 
@@ -43,15 +41,9 @@ public class DebugGui extends JFrame {
 	private javax.swing.JMenuBar jJMenuBar = null;
 	private javax.swing.JMenu jFileMenu = null;  
 	private javax.swing.JMenu jHelpMenu = null;
-	private javax.swing.JPanel jCommandArea = null;  
 	private javax.swing.JTextArea jCmdOutput = null;  
 	private javax.swing.JTextField jCmdlineInput = null;  
-	private javax.swing.JTextArea jRtmMessages = null;  
-	private javax.swing.JPanel jRtmOutputWindowContentPane = null;
-	private javax.swing.JButton jClearMessagesButton = null;
-	private javax.swing.JScrollPane jRtmOutputScrollPane = null;
 	private javax.swing.JScrollPane jCmdLineScrollPane = null;
-	private javax.swing.JTextArea jRtmOutputArea = null;
 
 	/**
 	 * This is the default constructor
@@ -65,33 +57,18 @@ public class DebugGui extends JFrame {
 	 * This method initializes the z88 display window and menus
 	 */
 	private void initialize() {
-		try {
-		  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {
-		  System.out.println("Error setting native LAF: " + e);
-		}
-		Container content = getContentPane();
-		
 		setJMenuBar(getOZvmMenuBar());
-//		JPanel panel = new JPanel();
-//		panel.add(Z88display.getInstance());
-//		
-//		content.add(panel, BorderLayout.NORTH);
+
+		add(getCmdLineScrollPane(), BorderLayout.CENTER);
+		add(getCmdLineInputArea(), BorderLayout.SOUTH);
 		
-		this.setTitle("OZvm V" + OZvm.VERSION);
-		this.setResizable(false);
+		this.setTitle("OZvm Debugger");
+		this.setResizable(true);
+		this.setForeground(java.awt.Color.green);
 		this.pack();
 		this.setVisible(true);
-		this.setForeground(java.awt.Color.green);
-		this.setBackground(java.awt.Color.black);
-
-		this.addWindowListener(new java.awt.event.WindowAdapter() {
-			public void windowClosing(java.awt.event.WindowEvent e) {
-				System.out.println("OZvm application ended by user.");
-				//Blink.getInstance().stopZ80Execution();
-				System.exit(0);
-			}
-		});
+		
+		getCmdLineInputArea().grabFocus();	// make sure that caret is blinking in command line area...		
 	}
 	
 	/**
@@ -138,22 +115,6 @@ public class DebugGui extends JFrame {
 	}
 	
 	/**
-	 * This method initializes the debug command area (below the Z88 screen)
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	public javax.swing.JPanel getCommandArea() {
-		if(jCommandArea == null) {
-			jCommandArea = new javax.swing.JPanel(new BorderLayout());
-			jCommandArea.add(getRtmWindowContentPane(), BorderLayout.NORTH);
-			jCommandArea.add(getCmdLineScrollPane(), BorderLayout.CENTER);
-			jCommandArea.add(getCmdLineInputArea(), BorderLayout.SOUTH);
-			jCommandArea.setVisible(true);
-		}
-		return jCommandArea;
-	}
-
-	/**
 	 * This method initializes the OZvm Command Debugging Output Area
 	 *
 	 * @return javax.swing.JTextArea
@@ -188,66 +149,6 @@ public class DebugGui extends JFrame {
 	}
 	
 	/**
-	 * This method initializes jContentPane
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	private javax.swing.JPanel getRtmWindowContentPane() {
-		if(jRtmOutputWindowContentPane == null) {
-			jRtmOutputWindowContentPane = new javax.swing.JPanel();
-			jRtmOutputWindowContentPane.setLayout(new java.awt.BorderLayout());
-			jRtmOutputWindowContentPane.add(getClearRtmMessagesButton(), java.awt.BorderLayout.NORTH);
-			jRtmOutputWindowContentPane.add(getRtmOutputScrollPane(), java.awt.BorderLayout.CENTER);
-		}
-		return jRtmOutputWindowContentPane;
-	}
-	
-	
-	/**
-	 * This method initializes jButton
-	 *
-	 * @return javax.swing.JButton
-	 */
-	private javax.swing.JButton getClearRtmMessagesButton() {
-		if(jClearMessagesButton == null) {
-			jClearMessagesButton = new javax.swing.JButton();
-			jClearMessagesButton.setText("Clear runtime messages");
-			jClearMessagesButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					getRtmOutputArea().setText("");
-				}
-			});
-		}
-		return jClearMessagesButton;
-	}
-	
-	/**
-	 * This method initializes jScrollPane1
-	 *
-	 * @return javax.swing.JScrollPane
-	 */
-	private javax.swing.JScrollPane getRtmOutputScrollPane() {
-		if(jRtmOutputScrollPane == null) {
-			jRtmOutputScrollPane = new javax.swing.JScrollPane();
-			jRtmOutputScrollPane.setViewportView(getRtmOutputArea());
-		}
-		return jRtmOutputScrollPane;
-	}
-	/**
-	 * This method initializes jTextArea
-	 *
-	 * @return javax.swing.JTextArea
-	 */
-	public javax.swing.JTextArea getRtmOutputArea() {
-		if(jRtmOutputArea == null) {
-			jRtmOutputArea = new javax.swing.JTextArea(6,80);
-			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
-			jRtmOutputArea.setEditable(false);
-		}
-		return jRtmOutputArea;
-	}
-
-	/**
 	 * This method initializes jScrollPane2
 	 *
 	 * @return javax.swing.JScrollPane
@@ -258,22 +159,5 @@ public class DebugGui extends JFrame {
 			jCmdLineScrollPane.setViewportView(getCmdlineOutputArea());
 		}
 		return jCmdLineScrollPane;
-	}
-
-	public static void displayRtmMessage(final String msg) {
-		if (OZvm.debugMode == true) {
-			Thread displayMsgThread = new Thread() {
-				public void run() {					
-					DebugGui.getInstance().getRtmOutputArea().append(msg + "\n");
-					DebugGui.getInstance().getRtmOutputArea().setCaretPosition(DebugGui.getInstance().getRtmOutputArea().getDocument().getLength());
-				}
-			};
-
-			displayMsgThread.setPriority(Thread.MIN_PRIORITY);
-			displayMsgThread.start();
-		} else {
-			System.out.println(msg);
-		}
-	}
-	
+	}	
 }

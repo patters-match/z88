@@ -41,7 +41,7 @@ import net.sourceforge.z88.filecard.FileEntry;
  */
 public class CommandLine implements KeyListener {
 
-	private	DebugGui gui;
+	private	DebugGui debugGui;
 	private	Blink z88;	
 
 	/** The Z88 disassembly engine */
@@ -64,19 +64,19 @@ public class CommandLine implements KeyListener {
 	 * Constructor 
 	 */
 	public CommandLine() {
-		gui = DebugGui.getInstance();
+		debugGui = DebugGui.getInstance();
 		z88 = Blink.getInstance();
 		memory = Memory.getInstance();
 		
 		dz = Dz.getInstance();
 		breakPointManager = Breakpoints.getInstance();
 		
-		commandOutput =	gui.getCmdlineOutputArea();
+		commandOutput =	debugGui.getCmdlineOutputArea();
 		initDebugMode();
 	}
 
 	private	void initDebugMode() {
-		commandInput = gui.getCmdLineInputArea();
+		commandInput = debugGui.getCmdLineInputArea();
 		commandInput.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				String cmdline = commandInput.getText();
@@ -88,7 +88,7 @@ public class CommandLine implements KeyListener {
 		commandInput.addKeyListener(this);
 		cmdList	= new CommandHistory();
 
-		commandOutput =	gui.getCmdlineOutputArea();
+		commandOutput =	debugGui.getCmdlineOutputArea();
 		displayCmdOutput("Type 'help' for available debugging commands");
 	}
 
@@ -205,9 +205,9 @@ public class CommandLine implements KeyListener {
 			z88.singleStepZ80();		// single stepping (no interrupts running)...
 			displayCmdOutput(Z88Info.dzPcStatus(z88.PC()));
 
-			gui.getCmdLineInputArea().setText(Dz.getNextStepCommand());
-			gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-			gui.getCmdLineInputArea().selectAll();
+			debugGui.getCmdLineInputArea().setText(Dz.getNextStepCommand());
+			debugGui.getCmdLineInputArea().setCaretPosition(debugGui.getCmdLineInputArea().getDocument().getLength());
+			debugGui.getCmdLineInputArea().selectAll();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("z") == 0) {
@@ -982,7 +982,7 @@ public class CommandLine implements KeyListener {
 				displayCmdOutput(Dz.addrToHex(origAddr,false) +	" (" + Dz.extAddrToHex(z88.decodeLocalAddress(origAddr),false).toString() + ") " + dzLine.toString());
 			}
 
-			gui.getCmdLineInputArea().setText("dz "	+ Dz.addrToHex(dzAddr,false));
+			debugGui.getCmdLineInputArea().setText("dz "	+ Dz.addrToHex(dzAddr,false));
 		} else {
 			// extended addressing
 			for (int dzLines = 0;  dzLines < 16; dzLines++)	{
@@ -991,10 +991,10 @@ public class CommandLine implements KeyListener {
 				displayCmdOutput(Dz.extAddrToHex((dzBank << 16)	| origAddr,false) + " "	+ dzLine);
 			}
 
-			gui.getCmdLineInputArea().setText("dz "	+ Dz.extAddrToHex((dzBank << 16) | dzAddr,false));
+			debugGui.getCmdLineInputArea().setText("dz "	+ Dz.extAddrToHex((dzBank << 16) | dzAddr,false));
 		}
-		gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-		gui.getCmdLineInputArea().selectAll();
+		debugGui.getCmdLineInputArea().setCaretPosition(debugGui.getCmdLineInputArea().getDocument().getLength());
+		debugGui.getCmdLineInputArea().selectAll();
 	}
 
 	private	int getMemoryAscii(StringBuffer	memLine, int memAddr) {
@@ -1101,7 +1101,7 @@ public class CommandLine implements KeyListener {
 						memLine.toString());
 			}
 
-			gui.getCmdLineInputArea().setText("m " + Dz.addrToHex(memAddr,false));
+			debugGui.getCmdLineInputArea().setText("m " + Dz.addrToHex(memAddr,false));
 		} else {
 			// extended addressing
 			for (int memLines = 0;	memLines < 16; memLines++) {
@@ -1111,11 +1111,11 @@ public class CommandLine implements KeyListener {
 				displayCmdOutput(Dz.extAddrToHex((memBank << 16) | origAddr,false) + " " + memLine.toString());
 			}
 
-			gui.getCmdLineInputArea().setText("m " + Dz.extAddrToHex((memBank << 16) | memAddr,false));
+			debugGui.getCmdLineInputArea().setText("m " + Dz.extAddrToHex((memBank << 16) | memAddr,false));
 		}
 
-		gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-		gui.getCmdLineInputArea().selectAll();
+		debugGui.getCmdLineInputArea().setCaretPosition(debugGui.getCmdLineInputArea().getDocument().getLength());
+		debugGui.getCmdLineInputArea().selectAll();
 	}
 
 	
@@ -1130,9 +1130,9 @@ public class CommandLine implements KeyListener {
 				// input from command history and remember new position	in list.
 				String prevCmd = cmdList.browsePrevCommand();
 				if (prevCmd != null) {
-					gui.getCmdLineInputArea().setText(prevCmd);
-					gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-					gui.getCmdLineInputArea().selectAll();
+					debugGui.getCmdLineInputArea().setText(prevCmd);
+					debugGui.getCmdLineInputArea().setCaretPosition(debugGui.getCmdLineInputArea().getDocument().getLength());
+					debugGui.getCmdLineInputArea().selectAll();
 				}
 				break;
 
@@ -1141,9 +1141,9 @@ public class CommandLine implements KeyListener {
 				// input from command history and remember new position	in list.
 				String nextCmd = cmdList.browseNextCommand();
 				if (nextCmd != null) {
-					gui.getCmdLineInputArea().setText(nextCmd);
-					gui.getCmdLineInputArea().setCaretPosition(gui.getCmdLineInputArea().getDocument().getLength());
-					gui.getCmdLineInputArea().selectAll();
+					debugGui.getCmdLineInputArea().setText(nextCmd);
+					debugGui.getCmdLineInputArea().setCaretPosition(debugGui.getCmdLineInputArea().getDocument().getLength());
+					debugGui.getCmdLineInputArea().selectAll();
 				}
 				break;
 		}
