@@ -81,7 +81,7 @@ defc    Reset3           = $c095
         ld      de, $4000                       ; destination b20 in S1
         ldir
         ld      a, 1
-        ld      ($4000+ubCallLevel), a
+        ld      ($4000+ubAppCallLevel), a
         ld      a, BM_COMRAMS|BM_COMLCDON
         ld      ($4000+BLSC_COM), a
         out     (BL_COM), a

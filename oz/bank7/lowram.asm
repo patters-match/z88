@@ -176,7 +176,7 @@ defc    OZCallTable             = $ff00
         ld      (BLSC_SR3), a                   ; set S3
         out     (BL_SR3), a
         push    hl                              ; decrement call level
-        ld      hl, ubCallLevel
+        ld      hl, ubAppCallLevel
         dec     (hl)
         pop     hl
         ex      af, af'
@@ -254,7 +254,7 @@ defc    OZCallTable             = $ff00
 .CallOZMain
         ex      af, af'
         exx
-        ld      hl, ubCallLevel                 ; increment call level
+        ld      hl, ubAppCallLevel              ; increment call level
         inc     (hl)
         pop     hl                              ; caller PC
         ld      e, (hl)                         ; get opByte
@@ -282,7 +282,7 @@ defc    OZCallTable             = $ff00
         ld      bc, (BLSC_SR2)                  ; remember S2/S3
         push    bc
         push    iy
-        ld      iy, ubCallLevel                 ; increment call level
+        ld      iy, ubAppCallLevel              ; increment call level
         inc     (iy+0)
         ld      iy, 0
         add     iy, sp                          ; IY=SP

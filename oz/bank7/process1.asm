@@ -53,7 +53,7 @@ defc    PutOSFrame_BC           = $D6EC
 
 .ClearUnsafeArea
         ld      hl, $1FFE                       ; stack top
-        ld      de, (pUnSafeArea)               ; unsafe area start
+        ld      de, (pAppUnSafeArea)               ; unsafe area start
 
 ;       clear memory from DE (inclusive) to HL (exclusive)
 
@@ -85,7 +85,7 @@ defc    PutOSFrame_BC           = $D6EC
         ld      de, (pAppStackPtr)
         call    ChkLimits
         jr      c, chkstk_1
-        ld      de, (pUnSafeArea)
+        ld      de, (pAppUnSafeArea)
         call    ChkLimits
         ret     nc
 .chkstk_1

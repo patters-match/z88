@@ -12,9 +12,9 @@
 
 .InitData
         defb    BL_SR2, 7                       ; SR2=b07
-        defb    BL_TMK, 7                       ; SR2=b07, enable all timer ints
-        defb    BL_INT, $2B                     ; enable flap | batlow | rtc ints outsie BLINK
-        defb    BL_TACK, 7                      ; ack RTC ints
-        defb    BL_ACK, $6C                     ; ack all ints
+        defb    BL_TMK, BM_TACKTICK|BM_TACKSEC|BM_TACKMIN
+        defb    BL_INT, BM_INTFLAP|BM_INTBTL|BM_INTTIME|BM_INTGINT
+        defb    BL_TACK, BM_TMKTICK|BM_TMKSEC|BM_TMKMIN
+        defb    BL_ACK, BM_ACKA19|BM_ACKFLAP|BM_ACKBTL|BM_ACKKEY
         defb    BL_EPR, 0                       ; reset EPROM port
         defb    0
