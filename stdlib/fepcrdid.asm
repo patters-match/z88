@@ -148,7 +148,9 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   E,(HL)              ; where the ID is fetched (through the FE command interface)
                     
                     LD   IX, Fetch_I28F0xxxx_ID
+                    EXX                    
                     LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
+                    EXX                    
                     CALL ExecRoutineOnStack
                     
                     CP   A                   ; Assume that no INTEL Flash Memory ID is stored at that location!
@@ -158,7 +160,9 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     JR   NZ, found_FetchCardID; then an ID was fetched from an INTEL FlashFile Memory...
                     
                     LD   IX, Fetch_AM29F0xxx_ID 
+                    EXX
                     LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID 
+                    EXX
                     CALL ExecRoutineOnStack
 
                     CP   A 

@@ -167,7 +167,9 @@ DEFC VppBit = 1
 ._erase_28F_block
                     PUSH IX                    
                     LD   IX, FEP_EraseBlock_28F
+                    EXX
                     LD   BC, end_FEP_EraseBlock_28F - FEP_EraseBlock_28F
+                    EXX
                     CALL ExecRoutineOnStack
 
                     POP  IX
@@ -175,7 +177,9 @@ DEFC VppBit = 1
 .erase_29F_block
                     PUSH IX                    
                     LD   IX, FEP_EraseBlock_29F
+                    EXX
                     LD   BC, end_FEP_EraseBlock_29F - FEP_EraseBlock_29F
+                    EXX
                     CALL ExecRoutineOnStack
                     POP  IX
                     RET

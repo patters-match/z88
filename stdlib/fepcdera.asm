@@ -124,7 +124,9 @@ DEFC VppBit = 1
 
                     PUSH IX                    
                     LD   IX, FEP_EraseCard_29F
+                    EXX
                     LD   BC, end_FEP_EraseCard_29F - FEP_EraseCard_29F
+                    EXX
                     CALL ExecRoutineOnStack
                     POP  IX
 

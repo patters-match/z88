@@ -165,7 +165,9 @@ DEFC VppBit = 1
                     PUSH IX
                     EX   AF,AF'              ; byte to be blown...
                     LD   IX, FEP_ExecBlowbyte_28F
+                    EXX
                     LD   BC, end_FEP_ExecBlowbyte_28F - FEP_ExecBlowbyte_28F
+                    EXX
                     CALL ExecRoutineOnStack
                     POP  IX
                     CALL EnableInt           ; enable maskable interrupts
@@ -175,7 +177,9 @@ DEFC VppBit = 1
                     PUSH IX
                     EX   AF,AF'              ; byte to be blown...
                     LD   IX, FEP_ExecBlowbyte_29F
+                    EXX
                     LD   BC, end_FEP_ExecBlowbyte_29F - FEP_ExecBlowbyte_29F
+                    EXX
                     CALL ExecRoutineOnStack
                     POP  IX
                     CALL EnableInt           ; enable maskable interrupts
