@@ -280,6 +280,7 @@ public class OZvm implements KeyListener {
 		displayCmdOutput("exit - end OZvm application");
 		displayCmdOutput("run - execute virtual Z88 from PC");
 		displayCmdOutput("stop - stop virtual Z88 (or press F5 when Z88 window has focus)");
+		displayCmdOutput("ldc filename <extended address> - Load file binary at address");
 		displayCmdOutput("z - run z88 machine and break at next instruction");
 		displayCmdOutput(". - Single step instruction at PC");
 		displayCmdOutput("d - Disassembly at PC");
@@ -412,6 +413,17 @@ public class OZvm implements KeyListener {
 				putByte(cmdLineTokens);
 			} catch (IOException e1) {
 				e1.printStackTrace();
+			}
+		}
+
+		if (cmdLineTokens[0].compareTo("ldc") == 0) {
+			try {
+				RandomAccessFile file = new RandomAccessFile(cmdLineTokens[1], "r");
+				z88.loadBankBinary(Integer.parseInt(cmdLineTokens[2], 16), file);
+				file.close();
+				displayCmdOutput("File image loaded into bank.");
+			} catch (IOException e) {
+				displayCmdOutput("Couldn't load file image into bank: '" + e.getMessage() + "'");
 			}
 		}
 
