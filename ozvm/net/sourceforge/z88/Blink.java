@@ -474,10 +474,10 @@ public final class Blink extends Z80 {
 	 */
 	public int getKbd(int row) {
 		int keyColumn = 0xFF;	// Default to no keys pressed...
-
-        if (stopZ88 == true) return keyColumn;
         
 		do {
+            if (stopZ88 == true) return 0xFF;
+
             switch(row) {
                 case 0x7F:	// Row 01111111:
                             //			| D7     D6      D5      D4      D3      D2      D1      D0
