@@ -728,4 +728,72 @@ public class FileArea {
 
 		return (bank << 16) | offset;
 	}
+	
+	/**
+	 * Reclaim deleted file space in file area, ie. get a copy of all the
+	 * active files, then reformat the file area (all traces of deleted files
+	 * are gone) and finally save the active files back to the file area.
+	 * @throws FileAreaNotFoundException
+	 */
+	public void reclaimDeletedFileSpace() throws FileAreaNotFoundException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			// Only reclaim if there's something in the file area...
+			if (filesList != null & filesList.size() > 0) {
+				
+				// The temporary list of cached File entries
+				LinkedList cachedFilesList = new LinkedList();
+
+				// get the active files in file area and cache them...
+				for(int f=0; f<filesList.size(); f++) {
+					FileEntry fe = (FileEntry) filesList.get(f);
+					if (fe.isDeleted() == false) {
+						FileEntryCache cachedEntry = new FileEntryCache(fe.getFileEntryPtr());
+						cachedFilesList.add(cachedEntry);
+					}
+				}		
+				
+				// all active files cached, reformat file area...
+				FileArea.create(slotNumber);
+				filesList = new LinkedList();
+				
+				// then restore the active files...
+				for(int f=0; f<cachedFilesList.size(); f++) {
+					FileEntryCache cachedEntry = (FileEntryCache) cachedFilesList.get(f);
+					try {
+						storeFile(cachedEntry.getFileName(), cachedEntry.getFileImage());
+					} catch (FileAreaExhaustedException e) {
+						// never happens!
+					}
+				}								
+			}						
+		}	
+	}
+	
+	/**
+	 * Private helper class used when reclaiming space of deleted files
+	 */
+	private class FileEntryCache extends FileEntry {		
+		/** The binary copy of the file image */
+		private byte[] fileImageCopy; 
+		
+		/**
+		 * Constructor.<br>
+		 * Create a cached FileEntry that also preserves the file image
+		 */
+		public FileEntryCache(int extAddress) {
+			super(extAddress);
+		
+			// copy the image from file area memory 
+			fileImageCopy = super.getFileImage();
+		}
+		
+		/**
+		 * Override, so that we get the cached copy of the file image. 
+		 */
+		public byte[] getFileImage() {
+			return fileImageCopy; 
+		}
+	}
 }
