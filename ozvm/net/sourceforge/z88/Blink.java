@@ -163,10 +163,7 @@ public final class Blink extends Z80 {
 		
 		// the segment register SR0 - SR3
 		sR = new int[4];
-		// all segment registers initialized to point at ROM bank 0
-		for (int segment = 0; segment < sR.length; segment++) {
-			sR[segment] = 0;
-		}
+		resetBlinkRegisters();
 		
 		segm00addrSpace = new LowerSegment0();
 		segm01addrSpace = new UpperSegment0();
@@ -1586,6 +1583,5 @@ public final class Blink extends Z80 {
 	 */
 	public void setRAMS(Bank rams) {
 		RAMS = rams;
-	}
-	
+	}	
 }
