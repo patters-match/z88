@@ -244,7 +244,8 @@ public class OZvm {
 				 
 				System.out.println(blinkBankBindings() + "\n");	// display bank bindings
 				z80Status();									// display Z80 register status
-				cmdLineTokens[0] = ""; // wait for a new command...
+                cmdline = "";
+				cmdLineTokens = cmdline.split(" "); // wait for a new command...
 			}
 
 			if (cmdLineTokens[0].equalsIgnoreCase(".") == true) {
@@ -314,9 +315,10 @@ public class OZvm {
 				else
 					cmdLineTokens = cmdline.split(" ");
 			} 
-		} while (cmdLineTokens[0].equalsIgnoreCase("exit") == false);		
+		} while (cmdLineTokens[0].equalsIgnoreCase("exit") == false);
 	}
 
+    
 	private void bpCommandline(String[] cmdLineTokens) throws IOException {
 		if (cmdLineTokens.length == 2) {
 			int bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
@@ -348,15 +350,18 @@ public class OZvm {
 					// bank defined as '00'
 					dzBank = 0;					
 				} else {
-					// Get current bank binding for local address segment.
-					dzBank = z88.getSegmentBank(dzAddr >>> 14);
+                    // get extended address from current bank binding
+                    dzAddr = z88.decodeLocalAddress(dzAddr);
+                    dzBank = (dzAddr >>> 16) & 0xFF;
+                    dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 				}
 			}
 		} else {
 			if (cmdLineTokens.length == 1) {
 				// no arguments, use PC in current bank binding
-				dzAddr = z88.PC();
-				dzBank = z88.getSegmentBank(dzAddr >>> 14);
+                dzAddr = z88.decodeLocalAddress(z88.PC());
+                dzBank = (dzAddr >>> 16) & 0xFF;
+                dzAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 			} else {
 				System.out.println("Illegal argument.");
 				System.out.print("$");
@@ -446,14 +451,17 @@ public class OZvm {
 					// bank defined as '00'
 					memBank = 0;					
 				} else {
-					memBank = z88.getSegmentBank(memAddr >>> 14);
+                    memAddr = z88.decodeLocalAddress(memAddr);
+                    memBank = (memAddr >>> 16) & 0xFF;
+                    memAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 				}
 			}
 		} else {
 			if (cmdLineTokens.length == 1) {
 				// no arguments, use PC in current bank binding
-				memAddr = z88.PC();
-				memBank = z88.getSegmentBank(memAddr >>> 14);
+                memAddr = z88.decodeLocalAddress(z88.PC());
+                memBank = (memAddr >>> 16) & 0xFF;
+                memAddr &= 0xFFFF;	// preserve local address look, makes it easier to read DZ code.. 
 			} else {
 				System.out.println("Illegal argument.");
 				System.out.print("$");
@@ -606,7 +614,7 @@ public class OZvm {
 			
 			Breakpoint(int offset, int bank) {
 				// the encoded key for the SortedSet...
-				addressKey = bank << 16 | offset;
+				addressKey = (bank << 16) | offset;
 			
 				// the original 1 byte opcode bit pattern in Z88 memory.
 				setInstruction(z88.getByte(offset, bank));
