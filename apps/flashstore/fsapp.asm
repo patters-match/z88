@@ -33,7 +33,7 @@
 
      ; Library references
      ;
-     
+
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib CreateWindow              ; Create windows...
      lib RamDevFreeSpace           ; poll for free space on RAM device
@@ -49,6 +49,8 @@
      lib FileEprCntFiles           ; Return total of active and deleted files
      lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
      lib FileEprNextFile           ; Return pointer to next File Entry on File Eprom
+     lib FileEprPrevFile           ; Return pointer to previous File Entry on File Eprom
+     lib FileEprLastFile           ; Return pointer to last File Entry on File Eprom
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
@@ -261,13 +263,13 @@
                     push bc
                     push de
                     push hl
-                    
+
                     ld   a,'2' | 128
                     ld   bc,$000F
                     ld   de,$0837
                     ld   hl, catalog_banner
                     call CreateWindow
-                    
+
                     pop  hl
                     pop  de
                     pop  bc
@@ -282,7 +284,7 @@
                     push bc
                     push de
                     push hl
-                     
+
                     ld   hl, availslots+1    ; point to counter of available slots
                     push hl
                     ld   c,1                 ; begin with external slot 1
@@ -320,7 +322,7 @@
                     cp   a                   ; Fc = 0
                     ret
 ; *************************************************************************************
-                    
+
 
 ; *************************************************************************************
 ;
@@ -348,7 +350,7 @@
                          jr   nc, chip_found      ; Yes...
                          dec  c
                          jr   nz, check_for_flash_cards
-                         
+
                          CALL greyscr
                          CALL DispCtlgWindow
 .unkn_chip
@@ -356,7 +358,7 @@
                          call DispErrMsg
                          scf
                          ret
-.chip_found                                       
+.chip_found
                          LD   A,C
                          LD   (curslot),A         ; use found Flash Card this as current slot...
                          CALL greyscr
@@ -422,7 +424,7 @@
                     ld   a,(curslot)
                     ld   c,a
                     call RamDevFreeSpace
-                    jr   c, poll_for_rom_card                         
+                    jr   c, poll_for_rom_card
                          ld   hl, ramdev
                          ld   c,a
                          call slotsize
@@ -444,7 +446,7 @@
                     call_oz(Gn_Sop)     ; display device name...
                     ld   a,(curslot)
                     add  a,48
-                    call_oz(Os_Out)     ; display device number (which is current slot number too)                    
+                    call_oz(Os_Out)     ; display device number (which is current slot number too)
                     call DispSlotSize   ; C = size of slot in 16K banks
                     ret
 .nextline
@@ -474,10 +476,10 @@
 .check_empty_flcard call FlashWriteSupport
                     jr   nz, select_slot_loop     ; no Flash Card in slot...
                     jp   nc, format_main          ; empty flash card in slot (no file area, and erase/write support)
-                    
+
                     CALL DispCmdWindow
                     CALL DispCtlgWindow
-                    CALL FileEpromStatistics      
+                    CALL FileEpromStatistics
                     call DispIntelSlotErr         ; Intel Flash Card found in slot, but no erase/write support in slot
                     cp   a
                     ret
@@ -683,17 +685,17 @@
                     ld   hl,lac
                     CALL_OZ gn_sop                ; centre justify...
 
-                    ld   hl,tinyvdu      
+                    ld   hl,tinyvdu
                     CALL_OZ gn_sop
-                    
+
                     ld   a,(curslot)
                     ld   c,a
                     CALL FlashEprInfo
                     CALL_OZ gn_sop
                     CALL_OZ(Gn_Nln)
-                    
+
                     CALL DisplayEpromSize
-                    
+
                     ld   hl,t704_ms
                     CALL_OZ gn_sop
                     ld   hl,free
@@ -857,7 +859,7 @@
                     ret  c
 
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
-                    call c,DispIntelSlotErr       
+                    call c,DispIntelSlotErr
                     ret  c                        ; it didn't...
                     ret  nz                       ; (and flash chip was not found in slot!)
 
@@ -1133,7 +1135,7 @@
                     ret  c
 
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
-                    call c,DispIntelSlotErr       
+                    call c,DispIntelSlotErr
                     ret  c                        ; it didn't...
                     ret  nz                       ; (and flash chip was not found in slot!)
 
@@ -1178,7 +1180,7 @@
                     JR   NZ, delfile_notfound     ; File Entry was not found...
 
                     CALL FlashEprFileDelete
-                    JR   NC, file_deleted                    
+                    JR   NC, file_deleted
 .delfile_notfound
                     LD   HL,delfile_err_ms
                     CALL DispErrMsg
@@ -1358,12 +1360,12 @@
                     ret  c
 
                     CALL cls
-                    
+
                     call FileEprCntFiles          ; any files to be restored?
                     ld   a,h
                     or   l
                     jr   z, no_active_files       ; no files available...
-                    
+
                     CALL cls
                     LD   HL,rest_banner
                     CALL wbar
@@ -1424,9 +1426,9 @@
 
                     LD   A,(curslot)
                     LD   C,A
-                    CALL FileEprFirstFile    ; get pointer to first file on Eprom
+                    CALL FileEprLastFile     ; get pointer to last file on Eprom
                     JR   C, no_files         ; Ups - the card was empty or not present...
-.restore_loop
+.restore_loop                                ; BHL points at current file entry
                     CALL FileEprFilename     ; get filename at (DE)
                     JR   C, restore_completed; all file entries scanned...
                     JR   Z, fetch_next       ; File Entry marked as deleted, get next...
@@ -1493,7 +1495,7 @@
                     POP  HL
                     POP  BC
 .fetch_next                                  ; BHL = current File Entry
-                    CALL FileEprNextFile     ; get pointer to next File Entry...
+                    CALL FileEprPrevFile     ; get pointer to previous File Entry...
                     JR   NC, restore_loop
 .restore_completed
                     CALL_OZ GN_nln
@@ -1806,7 +1808,7 @@
                     ld   a,(curslot)
                     ld   c,a
                     call FlashWriteSupport        ; check if Flash Card in current slot supports formatting?
-                    call c,DispIntelSlotErr       
+                    call c,DispIntelSlotErr
                     ret  c                        ; it didn't...
                     ret  nz                       ; (and flash chip was not found in slot!)
 
@@ -1819,7 +1821,7 @@
                     ld   A,(curslot)
                     LD   C,A
                     CALL CheckFlashCardID
-                    JP   C, unkn_chip             ; Ups - Flash Eprom not available in current slot 
+                    JP   C, unkn_chip             ; Ups - Flash Eprom not available in current slot
                     PUSH BC
                     CALL FileEprRequest           ; C = slot number...
                     POP  BC
@@ -1881,7 +1883,7 @@
 ; could be interpreted as a random boot command for the Intel chip - the behaviour
 ; is an Intel chip suddenly gone into command mode for no particular reason.
 ;
-; The NULL file prevents this possible behaviour by save a file that avoids any kind 
+; The NULL file prevents this possible behaviour by save a file that avoids any kind
 ; of boot commands which sends the chip into command mode when the card has been inserted
 ; into a Z88 slot.
 .save_null_file
@@ -1889,7 +1891,7 @@
                     CP   3
                     JR   Z, poll_intel_card
 .exit_null_file     CP   A                   ; It was not an Intel Flash that was formated, return "happy"
-                    RET                      
+                    RET
 .poll_intel_card
                     LD   C,A
                     CALL CheckFlashCardID
@@ -1897,9 +1899,9 @@
                     LD   A,$89               ; Check for Intel Manufacturer code
                     CP   H
                     JR   NZ, exit_null_file  ; it was not an Intel chip, then the null file is not necessary...
-                                             
-                    ld   b,$c0               ; Intel Flash available 
-                    ld   hl,0                ; blow null file at bottom of card in slot 3... 
+
+                    ld   b,$c0               ; Intel Flash available
+                    ld   hl,0                ; blow null file at bottom of card in slot 3...
                     ld   de, nullfile
                     ld   c, MS_S1            ; use segment 1 to blow the bytes...
                     ld   iy,6                ; Initial File Entry is 6 bytes long...
@@ -1913,7 +1915,7 @@
 .fferr_ms           defm "File Area was not formatted/erased properly!",$0D,$0A,0
 .ffm1_br            defm "FORMAT FLASH CARD",0
 .ffm2_br            defm "Formatting Flash Card - please wait...",0
-.wroz_ms            defm " Writing File Eprom Header...",$0D,$0A,0            
+.wroz_ms            defm " Writing File Eprom Header...",$0D,$0A,0
 .noflash_ms         defm 1,"BNo Flash Cards were found in slots 1-3.",1,"B",0
 ; *************************************************************************************
 
@@ -2030,7 +2032,7 @@
                     JR   NZ,yesno
                     LD   DE,no_ms
                     JR   yesno_loop
-                    
+
 .yes_ms             defm 1,"2+CYes",8,8,8,0
 .no_ms              defm 1,"2+CNo ",8,8,8,0
 ; *************************************************************************************
@@ -2228,12 +2230,12 @@
                     CALL sopnln
                     POP  HL
                     RET
-                    
+
 .empty_flcard1_ms   DEFM 1,"BFlash Card is empty in slot ", 0
 .empty_flcard2_ms   DEFM ".",1,"B",0
 ; *************************************************************************************
-                    
-                    
+
+
 ; *************************************************************************************
 .disp_reformat_ms
                     PUSH HL
@@ -2246,7 +2248,7 @@
                     CALL sopnln
                     POP  HL
                     RET
-                    
+
 .reformat1_ms       DEFM 1,"BRe-format File Area in slot ",0
 .reformat2_ms       DEFM " (All data will be lost).",1,"B",0
 ; *************************************************************************************
@@ -2262,9 +2264,9 @@
                     LD   HL, filefmt_ask2_ms
                     CALL_OZ GN_Sop
                     RET
-                    
+
 .filefmt_ask1_ms    defm 1,"2+C",13,"Format (or create new) file area in slot ",0
-.filefmt_ask2_ms    defm "? ",0            
+.filefmt_ask2_ms    defm "? ",0
 ; *************************************************************************************
 
 
@@ -2272,7 +2274,7 @@
 .DispIntelSlotErr
                     push af
                     push hl
-                    
+
                     call cls
                     ld   hl, intelslot_err1_ms
                     call_oz GN_Sop
@@ -2281,12 +2283,12 @@
                     call_oz OS_Out
                     ld   hl, intelslot_err2_ms
                     call sopnln
-                    CALL ResSpace            ; "Press SPACE to resume" ...                    
-                    
+                    CALL ResSpace            ; "Press SPACE to resume" ...
+
                     pop  hl
                     pop  af
                     ret
-                    
+
 .intelslot_err1_ms  DEFM 1,"BAn Intel Flash Card was found in (current) slot ",0
 .intelslot_err2_ms  DEFM ".",1,"B", 13, 10, "You can only format file area, save files or mark", 13, 10
                     DEFM "files as deleted in slot 3.", 13, 10, 0
@@ -2344,7 +2346,7 @@
                     LD   A, RC_Wp                 ; general failure...
                     SCF
                     RET
-                    
+
 .battlowmsg         DEFM "Batteries are low.",$0D,$0A,0
 ; *************************************************************************************
 
@@ -2353,13 +2355,13 @@
 ; *************************************************************************************
 ;
 ; Validate the Flash Card erase/write functionality in the specified slot.
-; If the Flash Card in the specified slot contains an Intel chip, the 
+; If the Flash Card in the specified slot contains an Intel chip, the
 ; slot must be 3 for format, save and delete functionality.
-; Report an error to the caller with Fc = 1, if an Intel Flash chip was recognized 
-; in all slots except 3. 
+; Report an error to the caller with Fc = 1, if an Intel Flash chip was recognized
+; in all slots except 3.
 ;
 ; (This routine is called by format, save & delete functionality in FlashStore)
-; 
+;
 ; IN:
 ;    C = slot number
 ;
@@ -2376,22 +2378,22 @@
                     push de
                     push bc
                     push af
-                    call CheckFlashCardID    
+                    call CheckFlashCardID
                     jr   nc, flashcard_found
                     or   c                   ; Fz = 0, indicate no Flash Card available in slot
                     scf                      ; Fc = 1, indicate no erase/write support either...
                     jr   exit_chckflsupp
-.flashcard_found                    
+.flashcard_found
                     ld   a,c
                     cp   3
                     jr   z, exit_chckflsupp  ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
                     ld   a,$01
                     cp   h                   ; Intel flash chip in slot 0,1 or 2?
                     jr   z, exit_chckflsupp  ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
-                    cp   a                   ; (Fz=1, indicate that Flash is available..) 
+                    cp   a                   ; (Fz=1, indicate that Flash is available..)
                     scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
 .exit_chckflsupp
-                    pop  bc                  
+                    pop  bc
                     ld   a,b                 ; A restored (f changed)
                     pop  bc
                     pop  de
@@ -2399,7 +2401,7 @@
                     ret
 ; *************************************************************************************
 
-                    
+
 
 ; *************************************************************************************
 ;
