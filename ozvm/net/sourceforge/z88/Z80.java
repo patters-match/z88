@@ -71,7 +71,7 @@ public abstract class Z80 {
         return i;
     }
 
-    private boolean externIntSignal = false;
+	private boolean externIntSignal = false;
     private boolean z80Halted = false;
 	private boolean z80Stopped = false;
 
@@ -290,14 +290,14 @@ public abstract class Z80 {
         _I = bite;
     }
 
-    private final boolean IFF1() {
+    public final boolean IFF1() {
         return _IFF1;
     }
     private final void IFF1(boolean iff1) {
         _IFF1 = iff1;
     }
 
-    private final boolean IFF2() {
+    public final boolean IFF2() {
         return _IFF2;
     }
     private final void IFF2(boolean iff2) {
@@ -477,12 +477,13 @@ public abstract class Z80 {
     /** Interrupt handler */
     public final void setInterruptSignal() {
         externIntSignal = true;
+		z80Halted = false;
     }
 
     /** Interrupt handler */
     private final void acknowledgeInterrupt() {
         externIntSignal = false;
-        z80Halted = false;
+		z80Halted = false;
     }
 
     /** process interrupt */
@@ -524,12 +525,7 @@ public abstract class Z80 {
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
     public final void run() {
 
-        while (true) {
-
-			if (z80Stopped == true) {
-				// a breakpoint was encountered
-				break;
-			}
+        while (z80Stopped == false) {
 			
             // INT occurred
             if (interruptTriggered() == true) {
@@ -1199,7 +1195,7 @@ public abstract class Z80 {
 					    // let the external system know about HALT instruction
 					    // Z80 processor execution now performs simulated NOP's and
 					    // awaits external interrupt to wake processor execution up again.
-                        haltInstruction();
+						haltInstruction();
                         z80Halted = true;
                         tstatesCounter += 4;
                         break;
@@ -1819,8 +1815,8 @@ public abstract class Z80 {
                         break;
                     }
                 case 251 : /* EI */ {
-                        IFF1(true);
-                        IFF2(true);
+						IFF1(true);
+						IFF2(true);
                         tstatesCounter += 4;
                         break;
                     }
