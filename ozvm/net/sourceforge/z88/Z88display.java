@@ -119,7 +119,7 @@ public class Z88display
                         scrBaseCoordX += 6;		
                     } else {
                         if ((scrCharAttr & attrNull) != attrNull) {
-                            // Draw a HIRES character (UDG or PipeDream MAP)
+                            // Draw a HIRES character (PipeDream MAP / OZ window fonts)
                             drawHiresChar(scrBaseCoordX, scrBaseCoordY, scrCharAttr, scrChar);
                             scrBaseCoordX += 8;							
                         }
@@ -172,7 +172,7 @@ public class Z88display
         
 		int offset = ((charAttr & 1) << 8) | scrChar;
 		if (offset >= 0x1c0) { 
-			offset = lores0 + (scrChar << 3);	// User defined graphics, default in RAM.0
+			offset = lores0 + (offset << 3);	// User defined graphics, default in RAM.0
 			bank = bankLores0;
 		}
 		else {
@@ -225,7 +225,7 @@ public class Z88display
 
         int offset = ((charAttr & 1) << 8) | scrChar;
         if (offset >= 0x1c0) { 
-            offset = lores0 + (scrChar << 3);	// User defined graphics, default in RAM.0
+            offset = lores0 + (offset << 3); // User defined graphics, default in RAM.0
             bank = bankLores0;
         }
         else {
