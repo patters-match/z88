@@ -1,0 +1,38 @@
+<HTML>
+<HEAD><TITLE>System Description</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="eprprog.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="keybd.htm">Next</A></TD>
+</TR>
+</TABLE>
+<HR>
+<H4>8. DISPLAY HANDLING</H4>
+<P>The liquid crystal display (LCD) is a sealed unit comprising a 640 x 64 dot LCD panel and the corresponding row/column drivers.
+<P>Display data is held in RAM within the Z88 and accessed by the gate array on a regular basis for output to the LCD. Power for the LCD is provided by a switched source, which is turned off when the machine is in the doze or coma state, thus blanking the display.
+<P><B>Data Output</B>
+<P>Referring to <A HREF="fig12.gif">Figure 1.2</A>, data is output by the gate array as nibbles of LD0 - LD3 and clocked into a 640-bit shift register within the LCD by XSCL. When data for a complete row is loaded, the array generates the line purse LP which latches and displays the data and increments the row counter. This process is repeated 64 times, each row being displayed in quick succession giving the appearance of a complete display frame. At the end of each frame (ie once every 10 mS) the array reverses the logic state of the LCD frame signal FR. This prevents any electro-chemical reaction within the LCD degrading the display which would otherwise occur when, as in this case, the display is driven with dc. Figure 1.2 shows the timing for the gate array drive signals.
+<P><B>LCD Power Supply</B>
+<P>DC drive for the LCD is provided by the -18V rail switched via TR8. D8 limits the voltage on TR8 collector to approximately -15.6V; RV1/RV2 and R14 control the display contrast. TR8 is turned on by TR6/7 in the presence of the 50 Hz frame pulse from the gate array on IC4 pin 46, filtered in R10/C12. When the Z88 is in the coma or doze state, the frame pulse FP is inhibited, thus turning TR6 - TR8 off and blanking the display.
+
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="eprprog.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="keybd.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">EPROM Programmer</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">Display handling</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Keyboard handling</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,15 @@
+Z88 Service Manual Corrections, Modifications log
+
+SM 1.2.1 (DG, 31.10.99)
+- Corrected EPROM type NEC 27Cl000D-20
+
+SM 1.2.0 (TP, 14.10.99)
+- Orthographic fixes
+- Layout change according Gunthers' look
+
+SM 1.1.0 (TP, June 1998)
+- OCRed and HTML port
+
+SM 1.0.0 (Bravemay Ltd, January 1985)
+- Original version
+- Thanks to JP CATTIN who lend it to me

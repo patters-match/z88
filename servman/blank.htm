@@ -1,0 +1,82 @@
+<HTML>
+<HEAD><TITLE>Test Equipments</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="equipint.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF=""></A></TD>
+</TR>
+</TABLE>
+<HR>
+<H4>2. 32k RAM PACK MODIFICATION</H4>
+<P>In order to modify a standard 32k RAM pack to produce a test pack for use in System Test, certain wiring must be connected from the chip to the card connectors as follows:
+
+<TABLE BORDER=1 WIDTH="80%">
+<TR><TD><I>32k RAM Chip</I></TD><TD><I>Card Connector</I></TD></TR>
+<TR><TD>A12 (pin 2)</TD><TD>wire to A17 (pin 36)</TD></TR>
+<TR><TD>A13 (pin 26)</TD><TD>wire to A18 (pin 37)</TD></TR>
+<TR><TD>A14 (pin 1)</TD><TD>wire to A19 (pin 38)</TD></TR>
+</TABLE>
+<P>
+
+<HR><B>FIGURE A.1 PSU FOR TEST FIXTURE</B>
+<P>NOTE: Output is as follows depending on the position of switch A:
+<UL>
+<P><LI>Position 1 - 2.8V</LI>
+<P><LI>Position 2 - 3.8V to 4.6V</LI>
+<P><LI>Position 3 - 4.6V to 6.1V</LI>
+</UL>
+
+<HR><B>FIGURE A.2 RS232 LOOPBACK TEST PLUG</B>
+<P>NOTES:
+<UL>
+<P><LI>1. The principal aim is to check that every wire is connected to the 9-way socket including the 10M between pin 1 and the socket frame.</LI>
+<P><LI>2. For the serial port to work, both CTS and DCD must be high.</LI>
+</UL>
+
+<HR><B>FIGURE A.3 CARD TESTER CIRCUIT FOR SLOT CONNECTORS AND BUS EXTENSION CONNECTOR</B>
+<P>NOTES:
+<UL>
+<P><LI>1. The 'test head' of both the slot connector tester and the bus extension connector tester use the above circuit.</LI>
+<P><LI>2. The LED is connected between pins 4 and 5 on the test connector test head.</LI>
+<P><LI>3. A 0.4 mm thick spacer is installed between the connector side of the pcb and the plastic housing. This builds in a deliberate spacing so that the test pcb will only make contact provided all 38 connector springs are positive.</LI>
+<P><LI>4. The Z88 mains adaptor is connected for the slot connector tester and the Spectrum adaptor is connected for the bus extension tester.</LI>
+</UL>
+
+<HR><B>FIGURE A.4 SLOT TESTER TEST HEAD CIRCUIT DIAGRAM</B>
+<P>NOTES:
+<UL>
+<P><LI>1. There is no R16 or D16 connected.</LI>
+<P><LI>2. All resistors are 1 Mohm, all diodes lN4148.</LI>
+</UL>
+
+<HR><B>FIGURE A.5 BUS EXTENSION TESTER TEST HEAD CIRCUIT DIAGRAM</B>
+<P>NOTES:
+<UL>
+<P><LI>1. Slot is in pin 18 position.</LI>
+<P><LI>2. Side A of the connector is the component side.</LI>
+<P><LI>3. All resistors are 1 i10hm, all diodes lN4148.</LI>
+<P><LI>4. GND goes to connector pi n A14.</LI>
+<P><LI>5. Sense connections are made to all except pins A14, B1 and B24.</LI>
+</UL>
+
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="fault.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="equipmt.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Fault diagnosis and repair</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">Parts list</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Test equipment</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

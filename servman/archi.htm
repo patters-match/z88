@@ -1,0 +1,47 @@
+<HTML>
+<HEAD><TITLE>System Description</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="builtstd.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="z80cpu.htm">Next</A></TD>
+</TR>
+</TABLE>
+<HR>
+<H4>3. ARCHITECTURE</H4><P>
+The architecture of the Z88 computer, shown in <A HREF="">Figure 1.4</A>, is characterized by the small chip count. They include a CMOS version of the Z80 microprocessor, a 128k byte EPROM and a 32k byte RAM. A customised gate array connected between the CPU and the memory completes the basic design, providing the memory, liquid crystal display (LCD) and RS232 interfaces. The keyboard interface with the CPU is via the computer data and address buses.<P>
+<A HREF="">Figure 1.5</A> shows the LCD and RS232 interfaces together with the discrete power circuit. The latter includes the power supply, fed either from the internal batteries or a plug in mains adaptor, and various monitoring circuits designed to sense abnormal circuit conditions and effect an ordered shut down of the 
+machine. The gate array 'sense' line used for this purpose also monitors the memory and peripheral expansion slots, shutting the machine down whever a memory or peripheral card is inserted or removed.<P>
+Machine States : For diagnostic purposes, it is important to recognize that the Z88 has four operational 
+states. These are:<P>
+
+<UL>
+<LI><B>Active</B> : Z80 clock running and the LCD display on (ie Z80 running program instructions).</LI>
+<LI><B>Snooze</B> : Z80 clock stopped and the LCD display on (ie Z80 waiting for a keyboard input).</LI>
+<LI><B>Doze</B> : Z80 clock running (ie programming the plug-in EPROM).</LI>
+<LI><B>Coma</B> : Z80 clock stopped and LCD display off (ie Z88 shut down).</LI>
+</UL><P>
+</OL>
+<P>
+
+
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="builtstd.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="z80cpu.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Built standard</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">Architecture</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Z80 CPU</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

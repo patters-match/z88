@@ -1,0 +1,39 @@
+<HTML>
+<HEAD><TITLE>System Description</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="keybd.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="power.htm">Next</A></TD>
+</TR>
+</TABLE>
+<HR>
+<H4>10. RS232C INTERFACE</H4>
+<P>The RS232C port is controlled by registers within the gate array accessed by the CPU during I/O read/write cycles to locations with address bit 4 (A3) set to 0. Single bit latches register the state of the interface control signals RTS, CTS and DCD shift registers clocked at the selected baud rate perform the serial/parallel conversions for data transmission and reception. The physical port is presented on SK10, the conversion from RS232C levels to/from logic levels being carried out by discrete components (see <A HREF="">Figure 1.6</A>).
+<P><B>Output Circuits</B>
+<P>Output circuits TXD and RTS, on the emitter of TR14 and TR15 respectively, switch between +SV driven by outputs from the gate array on IC4 pins 37 and 38. When the gate array outputs are at +5V (logic 1) TR14 and TR15 are turned on, switching the respective output circuit to -6V. Conversely, when the array's outputs are at OY (logic O) TR11 and TR12 are turned on, switching the respective output circuits to +5V.
+<P><B>Switched Power Rails</B>
+<P>It will be noted that the -6V rail for the output circuits is switched via TR16, the latter controlled by TR13/17 and the line pulse output on IC4 pin 45. Except during the coma and doze states, when the display is turned off, LP filtered by R39/C10 turns TR17, TR13 and TR16 on, enabling both the +5.5V and -6V switched power rails. In the coma and doze states, LP and the base of TR17 are both held at +5.5V turning off all three transistors and the switched power rails. In this state, with IC4 pins 37 and 38 held at +5.5V, the TXD and RTS output circuits on SK10 are allowed to float.
+<P><B>Input Circuits</B>
+<P>Input circuits RXD, CTS and DCD are routed to IC4 pins 41, 42 and 43 via identical resistor/diode networks. Zener diodes D9 - D10 limit the excursion of the input signals to between +5.1V (logic O) and -0.5V (logic 1); resistors R23, 26 and 29 maintain the inputs at OV when the interface is disconnected.
+<P>Resistor R82 attached between the body of SK10 and the +5.5V supply available on pin 1, serves as a discharge path for any static build-up on the mating connector.
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="keybd.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="power.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Keyboard handling</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">RS232C Interface</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Power supplies</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,90 @@
+<HTML>
+<HEAD><TITLE>Fault diagnosis and repair</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="fault2.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="parts.htm">Next</A></TD>
+</TR>
+</TABLE>
+<HR>
+<H4>3. REPAIR</H4>
+<P><B><A NAME="general"></A>General</B>
+<P>Renewal of components should be carried out using recognised desoldering/heatsinking techniques to prevent damage to the component or to the printed circuit board. Note the following points:
+<UL>
+<LI>When handling ICs take normal anti-static precautions. It is recommended that only a suitably earthed, low power soldering iron be used.</LI>
+<LI>When renewing/replacing the plug-in IC (IC3) it is advisable to use the correct removal and insertion tools. Avoid contaminating the connection pins by handling them.</LI>
+<LI>When replacing a keyboard assembly, ensure that the ribbon connectors are correctly aligned, fully inserted into the board connectors and are not kinked during insertion.</LI>
+<LI>After repairing a 32k RAM pack, the cover should be swaged using a centre punch and a little hammer.</LI>
+<LI>After any component has been renewed, the circuit board should be examined carefully to ensure that there are no solder splatters which may cause short circuits between tracks or connector pins.</LI>
+<LI>Respect those LCD Display Handling Precautions</LI>
+<UL>
+<LI>The display modules consist of two thin glass plates with polarizers (with UV cut filters) which are easily damaged. Extreme care should be used when handling the display panel.</LI>
+<LI>When cleaning the display surface use a soft cloth (eg gauze) with a solvent (recommended below) and wipe lightly:</LI>
+<UL>
+<LI>isopropyl alcohol</LI>
+<LI>ethyl alcohol</LI>
+<LI>trichlorotrifloroethane</LI>
+</UL>
+<LI>Do not wipe the display surface with dry or hard materials that will damage the polarizer surface.</LI>
+<LI>Do not use the following solvents:</LI>
+<UL>
+<LI>water</LI>
+<LI>ketone</LI>
+<LI>aromatics</LI>
+</UL>
+<LI>The LCD modules use CMOS LSI drivers and it is recommended that the body, work/assembly areas, and assembly equipment is grounded to protect against static electricity.</LI>
+<LI>Avoid intense shock and falls from a height which would damage LCD elements.</LI>
+<LI>To prevent modules from degradation, do not operate or store them exposed to direct sunshine or high temperature/humidity.</LI>
+</UL>
+</UL>
+
+<P><B><A NAME="epromsubst"></A>EPROM Substitution</B>
+
+<P>It is possible that some service centres may wish to replace the 1 Mbit ROM compatible EPROM with EPROMs conforming to the JEDEC pinout. This requires a small modification to the board involving the interchange of pins 2 and 24. This applies to both the Z88 and the EPROM PACK. In order to modify the Z88, proceed as follows:
+<UL>
+<LI>Cut the track in one place and add three wire links as shown in <A HREF="">Figure 4.1(a)</A>.</LI>
+<LI>Cut two tracks as shown in <A HREF="">Figure 4.1(b)</A>.</LI>
+</UL>
+
+<P>In the case of the EPROM card, add external wiring to transpose pins 2 and 24. A summary of the action required for the various manufacturers' products is set out in the table below.
+
+<P>
+<TABLE BORDER=1 WIDTH="100%">
+<TR><TD><I>EPROM Type</I></TD>
+<TD><I>Swap Pins 2 and 24 on 128k EPROM card?</I></TD>
+<TD><I>Modify Z88 or OKAY as is?</I></TD>
+<TD><I>ROM or JEDEC?</I></TD></TR>
+<TR><TH>Toshiba</TH><TH></TH><TH></TH><TH></TH></TR>
+<TR><TD>TC571000D-20</TD><TD> YES</TD><TD> MODIFY</TD><TD> JEDEC</TD></TR>
+<TR><TD>TC571001D-20</TD><TD> NO</TD><TD> OK</TD><TD> ROM</TD></TR>
+<TR><TH>NEC</TH><TH></TH><TH></TH><TH></TH></TR>
+<TR><TD>uPD27Cl000D-20</TD><TD> NO</TD><TD> OK</TD><TD> ROM</TD></TR>
+<TR><TD>uPD27Cl00lD-20</TD><TD> YES</TD><TD> MODIFY</TD><TD> JEDEC</TD></TR>
+<TR><TH>Hitachi</TH><TH></TH><TH></TH><TH></TH></TR>
+<TR><TD>HN27Cl0lG-20</TD><TD> YES</TD><TD> MODIFY</TD><TD> JEDEC</TD></TR>
+<TR><TD>HN27C301G-20</TD><TD> NO</TD><TD> OK</TD><TD> ROM</TD></TR>
+</TABLE>
+<P><I>NOTE</I>: The NEC and Toshiba parts are opposite types but with similar part numbers.
+<P>
+
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="fault2.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="parts.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Fault diagnosis</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">Repair</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Parts list</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

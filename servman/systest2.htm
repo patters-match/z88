@@ -1,0 +1,148 @@
+<HTML>
+<HEAD><TITLE>System Test</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="testintr.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="adaptest.htm">Next</A></TD>
+</TR>
+</TABLE>
+<HR>
+
+<H4>2. SYSTEM TEST</H4>
+<P><B>General</B>
+<P>The system test is carried out with the repaired Z88, in its case, mounted on a test frame. The full test equipment required is set out in the table below:
+<P>
+<TABLE WIDTH="100%">
+<TR><TD><I>Equipment</I></TD><TD><I>Specification/Manufacturer</I></TD><TD><I>Item No.</I></TD></TR>
+<TR><TD>Sinclair Spectrum Mains Adaptor</TD><TD>Cambridge Computer</TD><TD>1</TD></TR>
+<TR><TD>Z88 Cased Unit Test Fixtures</TD><TD>Cambridge Computer</TD><TD>2</TD></TR>
+<TR><TD>Special Test Box (with separate power supply)</TD><TD>Cambridge Computer</TD><TD>3</TD></TR>
+<TR><TD>Test Card Connector for SKT2</TD><TD>Cambridge Computer</TD><TD>4</TD></TR>
+<TR><TD>Test Card Connector for SKT3</TD><TD>Cambridge Computer</TD><TD>5</TD></TR>
+<TR><TD>Test Card Connector for SKT4</TD><TD>Cambridge Computer</TD><TD>6</TD></TR>
+<TR><TD>Test Card for Peripheral Expansion Connector</TD><TD>Cambridge Computer</TD><TD>7</TD></TR>
+<TR><TD>RS232 Termination Connector</TD><TD>Cambridge Computer</TD><TD>8</TD></TR>
+<TR><TD>Standard RAM Pack</TD><TD>Cambridge Computer</TD><TD>9</TD></TR>
+<TR><TD>Special Modified 32K RAM Pack</TD><TD>Local modification</TD><TD>10</TD></TR>
+<TR><TD>128K EPROM Test Program Pack</TD><TD>Cambridge Computer</TD><TD>11</TD></TR>
+<TR><TD>240 V Variable Transformer (with flying mains socket attached)</TD><TD>Local Purchase</TD><TD>12</TD></TR>
+<TR><TD>Adaptor Test Box</TD><TD>Cambridge Computer/Local manufacturer</TD><TD>13</TD></TR>
+</TABLE>
+
+<P><B>Preparation for Test</B>
+<P>Before commencing the test verify the following:
+<OL>
+<LI>A gap exists between the case and the Reset switch.</LI>
+<LI>The Flap switch button is depressed and released when the flap is opened and closed.</LI>
+<LI>The adaptor is connected to the mains and its jack plug is inserted in the test box.</LI>
+<LI>The two banana fly leads from the test box are connected to the test fixture.</LI>
+</OL>
+<P><B>Test Functions</B>
+<P>The system test exercises all the Z88 functions and by use of screen prompts progresses through six defined states. The software test is followed by a comprehensive test of all power functions, including current drain in the operational and coma states and a check of the 'supercap' operation.
+
+<P><B>Procedure</B>
+
+<OL>
+<LI>Set Switch B on the test fixture to position 2 (jack).</LI>
+<LI>Connect up the test rig as shown in <A HREF="fig31.gif">Figure 3.1</A>.</LI>
+<LI>Place the cased unit for test in the test fixture and slide the arms outward and down to lock it into position.</LI>
+<LI>Insert the special test card (Item 7) into the peripheral expansion slot and check that the LED is always ON. Remove test card.</LI>
+<LI>Insert the special test card (Item 3) into slots 1, 2 and 3 in turn and check that for each slot the LED is always ON.</LI>
+<LI>Remove the special test card from slot 3, leaving the flap open.</LI>
+<LI>Insert the jack plug from the test box (Item 2) into the jack socket of the unit under test.</LI>
+<LI>Close the flap and press the reset button (it may need to be pressed two or three times). Check that the display comes on showing the INDEX screen.
+<LI>Carry out the following:
+<UL>
+<LI>Insert the RS232 termination connector (Item 8).</LI>
+<LI>Insert the software packs:</LI>
+<UL>
+<LI>Slot 1 - 32 K RAM pack (Item 4)</LI>
+<LI>Slot 2 - modified 32K RAM pack (Item 5)</LI>
+<LI>Slot 3 - test program 128K EPROM pack (Item 6)</LI>
+</UL>
+<LI>Close the flap.</LI>
+<LI><I>Notes:</I>
+<UL>
+<LI>Slot 1 checks SE1 in particular.</LI>
+<LI>Slot 2 checks A17, A18, A19, SE2.</LI>
+<LI>Slot 3 checks SE3 and Pay.</LI>
+<LI>This combination of cards checks every slot signal line except ROE which is checked by the internal EPROM.</LI>
+</UL>
+</UL></LI>
+
+<LI>Press the RESET button on the unit and follow the screen prompt to check the following:</LI>
+
+<UL>
+<LI>the keyboard</LI>
+<LI>contrast</LI>
+<LI>the RS232 serial link</LI>
+<LI>the speaker</LI>
+<LI>the jack plug</LI>
+<LI>the connectors</LI>
+</UL>
+
+<LI>At the end of the test check that TEST COMPLETE is displayed on the screen.</LI>
+<LI>Open the flap and check that the display goes OFF.</LI>
+<LI>Remove the software cards from slots 1, 2 and 3 and close the flap.</LI>
+<LI>Press the Reset button and check that the display comes ON.</LI>
+<LI>Set switch B on the test box to position 1 and check that the display remains ON.</LI>
+<LI>Remove the jack plug from the unit and check that the display remains ON.</LI>
+<LI>Tap the unit a few times and check that this has no effect on the display screen, ie no screen flickering etc.</LI>
+<LI>Open the flap and check that the display goes OFF.</LI>
+<LI>Close the flap and check that the BAT LOW (battery low) indication is NOT displayed on the screen.</LI>
+<LI>Set switch A on the test box to position 2 and release. Check that the BAT LOW indication is displayed on the screen.</LI>
+<LI>Carry out the following:
+<UL>
+<LI>Set switch A on the test box to position 1, and hold. Check that the display goes OFF while the switch is held in position 1.</LI>
+<LI> Release switch A and check:</LI>
+	<UL>
+	<LI>the display comes back ON</LI>
+	<LI>the meter on the the test box is in the GREEN band</LI>
+	</UL>
+<P>
+</UL></LI>
+
+<LI>Press both SHIFT Keys simultaneously to put the Z88 into the coma state. <LI>Carry out the following:
+<UL>
+<LI>Operate switch C and hold.</LI>
+<LI>Check that the test box meter is in the GREEN band while the switch is held.</LI>
+<LI>Release switch C.</LI>
+</UL></LI>
+<LI>Press both SHIFT keys simultaneously and check that the display comes back ON.</LI>
+<LI>Carry out the following:
+<UL>
+<LI>Press and hold switch D for approximately 1 second.</LI>
+<LI>Check that the display goes OFF while the switch is held.</LI>
+<LI>Check that the display comes back ON when the switch is released and that the display is not corrupted.</LI>
+</UL></LI>
+<LI>Carry out the following:
+<UL>
+<LI>Disonnect the input jack plug from the test box.</LI>
+<LI>Remove the jack plug from the cased unit.</LI>
+<LI>Remove the RS232 termination connector.</LI>
+<LI>Remove the cased unit from the test fixture.</LI>
+</UL>
+</LI>
+</OL>
+
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="testintr.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="adaptest.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Introduction to system test</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">System test</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Adaptator test</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

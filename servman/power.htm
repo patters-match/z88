@@ -1,0 +1,43 @@
+<HTML>
+<HEAD><TITLE>System Description</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="rs232.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="disassem.htm">Next</A></TD>
+</TR>
+</TABLE>
+<H4>11. POWER SUPPLIES</H4>
+<P>A block diagram of the power supply circuits is given in <A HREF="">Figure 1.5</A>. The basis of the circuit is a flyback converter, driven by a blocking oscillator, providing voltage outputs of +12V, +5.5V, -6V and -18V. Voltage regulation is effected by sensing the +5.5V rail and turning the blocking oscillator on and off as the voltage falls or rises above this level. Input power is supplied by four AA size batteries or a plug-in mains adaptor; battery/adaptor positive is connected to ground. A 'supercapacitor' across the +5.5V rail retains its charge for a maximum of 6 minutes during battery changes, sufficient to preserve the contents of the RAM memory and keep the real-time clock running.
+<P>Input voltage and current levels are monitored together with current drawn from the +5.5V rail. Overcurrent on either supply or undervolts on they nput supply causes the Z88 to adopt the coma state in which the Z80 CPU and the display are switched off to conserve battery life. Low battery voltage is a condition flagged to the CPU resulting in the 'battery low' message being displayed on the LCD display.
+<P><B>Battery Input Circuits</B>
+<P>Referring to the circuit diagram in Figure 1.6, primary power is provided by the internal batteries or a Z88 adaptor supplying a 6.5V dc input via SKI. D23 provides reverse voltage protection; D24 isolates the battery from the negative rail when the adaptor is connected and delivering its full output.
+<P>TR10 monitors the input supply, generating a 'battery low' signal for the gate array on IC4 pin 96 when the battery eve line falls below 4.2V. Provided the Z88 is not in its coma state, this signal prompts the array to send a maskable interrupt to the CPU, the CPU in turn 'writing' the 'battery low' message to the LCD. This message is not cleared until the Z88 is turned off and then on again. Under marginal battery conditions, the interrupt can be generated as the adaptor is plugged in. This occurs as a result of the battery voltage drop across D24 when the insulated shirt on the adaptor plug body initially opens the spring contact on SK1.
+<P>A second transistor (TR25) also monitors the input supply, driving the sense line input to the gate array on IC4 pin 94 low when the battery eve line falls below 3.2V. At this level the battery is unable to sustain full operation of the Z88 and thus the machine must be forced into the coma state. This action is initiated by the sense signal which prompts the gate array to send a non-maskable interrupt to the CPU, the CPU in turn executing a HALT instruction. The resultant HALT signal output by the CPU to the gate array on IC4 pin 6 is responsible for triggering the shut-down sequence. Principally this entails turning off the LCD display and stopping the clock supplying the CPU.
+<P>A similar chain of events is triggered if the batteries are removed for replacement while the Z88 is turned on and in the snooze state. However, because in this state the clock to the CPU is stopped, the CPU will not immediately recognize the interrupt. Ordinarily this does not cause a problem, since within 10 mS of generating the interrupt the gate array restores the clock preparatory to requesting a keyboard scan. The CPU would then recognise the interrupt and take the necessary steps to shut down the machine. However, due to the limited capacity of the +5.5V storage capacitors C4/C5 and the need to conserve the charge on the supercapacitor C22 for the RAM during the battery change, shut-down must occur within approximately 1 mS of the interrupt occurring. This is effected by using the ~: to force an immediate keyboard interrupt by driving data bus D2 low via D30. The principle is described in pare 9.2.5.
+
+<P><B>Power Supply and Voltage Regulator</B>
+<P>The flyback converter comprises inductor L2 driven by the blocking oscillator TR5, C10 and R8. Energy stored in L2 while TR5 is turned on is released during flyback, charging the various storage capacitors via rectifiers D1 to D6. With reference to the supply outputs, L1 and decoupling capacitors C5 and C24 to C27 together provide a smooth +5.5V supply, distributed within the Z88 as Vcc +5.5V is chosen so as to meet the programming requirements of the plug-in EPROMs. D6 between the +5.5V and +12V rails limits the positive excursion of the +12V rail (which can rise to approximately ??V in the coma state) to +16.5V.
+<P>Supply regulation is provided by TR1 to TR4 which source drive for the blocking oscillator TR5. Z1 in the emitter circuit of TR1 senses the level of the +5.5V rail, turning TR1 off when the supply drops below +5.5V. TR1 off turns TR2/TR4 on sourcing drive current for TR5. As a result, TR5 is allowed to oscillate, restoring the level of the +5.5V rail. At this point, TR1 is turned on, TR1/TR4 turn off and oscillation of TR5 ceases. Feedback between TR4 emitter and TR1 base via R3 limits the gain of the regulator, preventing it from breaking into violent oscillation. R5 senses the drive current taken by TR5 turning on TR3 when the current drawn from battery exceeds ?? mA. In these circumstances, TR3 diverts drive current to TR5, shutting down the oscillator and with it the power supply.
+<P>TR9 monitors the current drawn from the +5.5V power rails, turning on when the emitter voltage goes sufficiently negative to forward bias the base emitter junction. This is only true when the -6V switched supply is enabled (ie the machine is not in the coma or doze state - see para. 10.3.1) and the voltage on TR1 emitter, as a result of excess current drawn from the +5.5V rail, drops to approximately OV. Under these conditions, the voltage drop across D26 fixes TR9 emitter at approximately -0.5V and since the base is tied to OV, TR9 turns on. TR9 turning on drives the sense line input to the gate array on IC4 pin 94, forcing the Z88 into the coma stab as described in para. 11.3.3.
+
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="rs232.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="disassem.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">RS232C interface</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">Power supplies</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Disassembly / Assembly</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,185 @@
+<HTML>
+<HEAD><TITLE>Fault diagnosis and repair</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="diagintr.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="repair.htm">Next</A></TD>
+</TR>
+</TABLE>
+<HR>
+
+<H4>2. FAULT DIAGNOSIS</H4>
+<P><B><A NAME="techniques"></A>Techniques</B>
+<P>In a highly complex electronic device such as the Z88, it is not possible to fully categorise the fault-finding procedure. It is anticipated that practical experience of machine faults, perhaps comparing measurements on a known good unit, will build up the knowledge to pinpoint most faults.
+<P>Due to the proven reliability of the electronic components, particularly the integrated circuits, it is expected that most faults will be of a mechanical type, eg faulty connectors, broken RS232 wires, faulty switch operation.
+<P>It is believed that as yet few service centres will have the facilities to change surface mounted components - in particular the gate array IC4. To check on a suspect gate array that all legs have been soldered correctly, run a small screwdriver over each leg array. Any poorly connected leg will distort. When a fault has been definitely narrowed down and assigned to this component, the complete unit should be returned to the manufacturers for repair. Faulty memory cards containing surface mounted components should also be returned to the manufacturer.
+<P>An initial physical examination of the board can sometimes indicate an obvious fault such as a burnt-out component or over-heated track. If it is suspected that an amateur has been at work on the board, it should be remembered that short circuits caused by hairline solder 'splatter' can cause some very misleading effects.
+<P>Customer notes on the nature of the fault should in general be ignored. It is often better that the repair task is approached with an open mind and with no pre-conceived idea of the fault.
+<P>In the case where the customer has returned peripheral equipment (eg memory cards) with his faulty unit, the unit must first be tested with the plug-in modules disconnected. The unit under repair should have the bezel removed and the keyboard detached from the bottom cover assembly. Batteries should also be removed and power applied from a serviceable adaptor.
+<P>Where the substitution method is used to check a suspect component, the suspect component should be connected into the known serviceable unit rather than the other way round. The faulty component is less likely to damage the working unit, thus safeguarding the unit and the known serviceable component.
+<P>In order to prevent the Z88 from switching itself off after its 5 minute time-out period, which on a critical fault could be frustrating, change the time-out period as follows:
+<UL>
+<LI>Select the Index display and the Panel option.</LI>
+<LI>Select the required field indicated by the flashing digit 5.</LI>
+<LI>Key in the digit 0 and press ENTER.</LI>
+</UL>
+<P>The Z88 will now stay on permanently. In order to revert to the 5 minute time-out period, press the Reset switch.
+<P>Typical waveforms and voltages taken from a serviceable unit with the Index displayed are set out in Tables <A HREF="#table41">4.1</A>, <A HREF="#table42">4.2</A> and <A HREF="#table43">4.3</A> below. Voltages present when the Z88 is in the coma state are listed in <A HREF="#table44">Table 4.4</A>.
+<P><B><A NAME="powerup"></A>Power Up</B>
+<P>If, when the two SHIFT keys are depressed, the Index is displayed it can be assumed that most of the system is working. If it is possible to select Pipedream and generate and store a file, then it can be assumed that the basic system is healthy.
+<P>If, when the two SHIFT keys are depressed, the unit does not display the Index and the screen remains blank, carry out the following procedure.
+<OL>
+<LI>Check that the ribbon connector to the LCD is aligned and connected correctly. It is possible for this connector to be misaligned causing a blank screen.</LI>
+<LI>Press both SHIFT keys to power up the unit.</LI>
+<LI>If the unit does not power up, disconnect the two keyboard ribbon connectors. This action should switch on the unit. If the unit does not switch on, reconnect the two keyboard connectors.</LI>
+<LI>Check the following signals to find out if the pseudo-static RAM is being refreshed:</LI>
+<TABLE BORDER=1 WIDTH="80%">
+<TR><TD><I>Signal</I></TD><TD><I>Level</I></TD><TD><I>Test Point</I></TD></TR>
+<TR><TD>IRCE</TD><TD>High</TD><TD>IC2, pin 22</TD></TR>
+<TR><TD>SE1</TD><TD>High</TD><TD>SK1, pin 30</TD></TR>
+<TR><TD>SE2</TD><TD>High</TD><TD>SK2, pin 30</TD></TR>
+<TR><TD>SE3</TD><TD>High</TD><TD>SK3, pin 30</TD></TR>
+<TR><TD>POE</TD><TD>Low</TD><TD>IC2, pin 1</TD></TR>
+</TABLE>
+<LI>If the signals in the point above are not present, a serious fault exists. Check for 5.5V at R74 and trouble-shoot for a power supply fault if not present.</LI>
+<LI>Check for the 25.6 KHz clock at the collector of T24. If this signal is not present, the computer does not come out of the coma state.</LI>
+<LI>Check at C21 if the 40 uS reset pulses are reaching the gate array. The level is normally high and goes low for the duration of the pulse. Allow 1 second between pressings of the Reset switch.
+<P><B>CAUTION:</B><BR>
+DO NOT ATTEMPT TO MEASURE THE 9 MHz CLOCK WITH AN UNPROTECTED PROBE. USE A 1 Of CAPACITOR IN SERIES WITH THE PROBE OR ATTEMPT TO t PICK UP' THE OSCILLATOR SIGNAL WITH THE PROBE CLOSE TO BUT NOT TOUCHING THE CIRCUIT.<P></LI>
+<LI>If the reset is present, use the frequency meter to check at R43 for the 9.83040 MHz clock signal. If the clock is not present, check at R42 for the switched 5.5Y rail. If 5.5V is not present, check at R39 for a low LP signal from the gate array.</LI>
+<LI>Check at IC1 pin 26 that reset pulses from the gate array are getting through to the Z80. If reset pulses are present, check at ICI pin 6 that 5.5V 3.2768 MHz pulses are present.</LI>
+<LI>If the Z80 is not being reset, check at the collector of R25 for a high level (+5.5V). If this is not present, the computer cannot leave the coma state.</LI>
+<LI>If no progress is being made, check for correct operation of the Flap switch - normally open.</LI>
+</OL>
+
+<P><B>
+<A NAME="table41"></A>Table 4.1 - Power Supply Voltages</B>
+<TABLE BORDER=1 WIDTH="80%">
+<TR><TD><I>Test Point</I></TD><TD><I>Voltage</I></TD></TR>
+<TR><TD>SK8, pin 12</TD><TD>+5.5V</TD></TR>
+<TR><TD>R9</TD><TD>+16.3V</TD></TR>
+<TR><TD>R38</TD><TD>-6.0V</TD></TR>
+<TR><TD>T8 emitter</TD><TD>-18.0V</TD></TR>
+</TABLE>
+<P>
+<P><B>
+<A NAME="table42"></A>Table 4.2 - Typical Voltages</B>
+<TABLE BORDER=1 WIDTH="80%">
+<TR><TD><I>Transistor</I></TD><TD><I>Emitter</I></TD><TD><I>Base</I></TD><TD><I>Collector</I></TD></TR>
+<TR><TD>T1</TD><TD>+0.4V</TD><TD>0.0V</TD><TD>-0.4V</TD></TR>
+<TR><TD>T2</TD><TD>-0.3V</TD><TD>-0.4V</TD><TD>-5.6V</TD></TR>
+<TR><TD>T3</TD><TD>0.0V</TD><TD>0.0V</TD><TD>-0.3V</TD></TR>
+<TR><TD>T4</TD><TD>0.0V</TD><TD>-0.3V</TD><TD>-6.1V</TD></TR>
+<TR><TD>T5</TD><TD>0.0V</TD><TD>-6.2V</TD><TD>-5.6V</TD></TR>
+<TR><TD>T6</TD><TD>+5.5V</TD><TD>+4.9V</TD><TD>+5.4V</TD></TR>
+<TR><TD>T7</TD><TD>+0.4V</TD><TD>0.0V</TD><TD>-18.0V</TD></TR>
+<TR><TD>T8</TD><TD>-18.0V</TD><TD>-18.0V</TD><TD>+5.5V</TD></TR>
+<TR><TD>T9</TD><TD>0.0V</TD><TD>0.0V</TD><TD>+5.0V</TD></TR>
+<TR><TD>T10</TD><TD>0.0V</TD><TD>-0.4V</TD><TD>+5.0V</TD></TR>
+<TR><TD>Tll</TD><TD>+5.5V</TD><TD>+5.5V</TD><TD>-5.8V</TD></TR>
+<TR><TD>T12</TD><TD>+5.5V</TD><TD>+4.9V</TD><TD>+5.5V</TD></TR>
+<TR><TD>T13</TD><TD>+0.5V</TD><TD>0.0V</TD><TD>-5.3V</TD></TR>
+<TR><TD>T14</TD><TD>-5.4V</TD><TD>-5.6V</TD><TD>-6.0V</TD></TR>
+<TR><TD>T15</TD><TD>+5.5V</TD><TD>+5.5V</TD><TD>-6.0V</TD></TR>
+<TR><TD>T16</TD><TD>-5.9V</TD><TD>-5.3V</TD><TD>-6.0V</TD></TR>
+<TR><TD>T17</TD><TD>+5.5V</TD><TD>+4.8V</TD><TD>+5.5V</TD></TR>
+<TR><TD>T18</TD><TD>+2.7V</TD><TD>+2.3V</TD><TD>+5.5V</TD></TR>
+<TR><TD>Tl9</TD><TD>0.0V</TD><TD>-0.5V</TD><TD>+2.7V</TD></TR>
+<TR><TD>T20</TD><TD>+14.0V</TD><TD>+14.0V</TD><TD>+5.3V</TD></TR>
+<TR><TD>T21</TD><TD>0.0V</TD><TD>0.0V</TD><TD>+14.0V</TD></TR>
+<TR><TD>T22</TD><TD>0.0V</TD><TD>+0.2V</TD><TD>+2.8V</TD></TR>
+<TR><TD>T23</TD><TD>+5.5V</TD><TD>+5.1V</TD><TD>+.2.8V</TD></TR>
+<TR><TD>T24</TD><TD>+5.5V</TD><TD>+6.0V</TD><TD>+2.8V</TD></TR>
+<TR><TD>T25</TD><TD>-0.9V</TD><TD>0.0V</TD><TD>+5.0V</TD></TR>
+</TABLE>
+<P>
+<P><B>
+<A NAME="table43"></A>Table 4.3 - Typical Waveforms and Voltages</B>
+<TABLE BORDER=1 WIDTH="80%">
+<TR><TD><I>Test point</I></TD><TD><I>Waveform</I></TD></TR>
+
+<TR><TD><I>General</I></TD><TD></TD></TR>
+<TR><TD>R44</TD><TD>5.5V sinewave 9.8304 MHz (MCK) NOTE: Before attempting to measure this signal, refer to the CAUTION on page 4.4</TD></TR>
+<TR><TD>C18</TD><TD> 5.2V sinewave 25.6 KHz</TD></TR>
+<TR><TD>T24</TD><TD> Collector 5.2V squarwave 25.6 KHz (SCK)</TD></TR>
+<TR><TD>C21</TD><TD> 40 US reset pulse, negative going (press Reset switch)</TD></TR>
+<TR><TD>T25</TD><TD> Collector +5.0V sense line (SNS)</TD></TR>
+<TR><TD>C14</TD><TD> +2.4V (LP)</TD></TR>
+
+<TR><TD><I>IC1</I></TD><TD></TD></TR>
+<TR><TD>Pin 6</TD><TD> Squarewave 5.5V 3.2768 MHz (Z80 clock)</TD></TR>
+<TR><TD>Pin 11</TD><TD> +5.5V</TD></TR>
+<TR><TD>Pin 16</TD><TD> Negative going 5.5V pulses, 100 Hz (/INT)</TD></TR>
+<TR><TD>Pin 17</TD><TD> Negative going 5.5V pulses, 100 Hz (/NMI)</TD></TR>
+<TR><TD>Pin 18</TD><TD> Negative going 5.5V pulses, 100 Hz (/HALT)</TD></TR>
+<TR><TD>Pin 20</TD><TD> Negative going 5.5V pulses, 100 Hz (/IORQ)</TD></TR>
+<TR><TD>Pin 26</TD><TD> Negative going reset pulse, (/RST, press Reset switch)</TD></TR>
+
+<TR><TD><I>Display SK5</I></TD><TD></TD></TR>
+<TR><TD>Pin 1</TD><TD> +5.5V</TD></TR>
+<TR><TD>Pin 3</TD><TD> -6.6V to -10.5V variable by RV1</TD></TR>
+<TR><TD>Pin 4</TD><TD> +5.5V pulses, 300 nS pulse width, period 156 US</TD></TR>
+<TR><TD>Pin 5</TD><TD> 5.5V squarewave 50 Hz (FR)</TD></TR>
+<TR><TD>Pin 6</TD><TD> +5.5V</TD></TR>
+<TR><TD>Pins 8,11,12,13,14</TD><TD> Data</TD></TR>
+<TR><TD>Pin 9</TD><TD> 5.5V squarewave 3 MHz (display shift clock, XSCL)</TD></TR>
+</TABLE>
+<P>
+<P><B>
+<A NAME="table44"></A>Table 4.4 - Coma Voltages</B>
+<TABLE BORDER=1 WIDTH="80%">
+<TR><TD><I>Test point</I></TD><TD><I>Voltage</I></TD></TR>
+<TR><TD>IC2, pin 20</TD><TD> +5.5V (IRCE)</TD></TR>
+<TR><TD>SKI, pin 30</TD><TD> +5.5V (SET)</TD></TR>
+<TR><TD>SK2, pin 30</TD><TD> +5.5V (SE2)</TD></TR>
+<TR><TD>SK3, pin 30</TD><TD> +5.5V (SE2)</TD></TR>
+<TR><TD>IC2, pin 22</TD><TD> O.OV (POE,/OE)</TD></TR>
+</TABLE>
+</CENTER>
+<P>
+<P><B><A NAME="keyboard"></A>Keyboard</B>
+<P>The keyboard interconnection diagram is shown in <A HREF="">Figure 4.1</A>. the configuration is a straightforward 8 by 8 matrix. The main objective is to establish whether the fault is on the keyboard or the main board. From a comparison between the keys pressed and the characters displayed it should be possible to isolate a faulty membrane. It should be remembered that it is possible, although a very rare occurrence, that the silicon mat itself is faulty. The keyboard is moisture susceptible.
+<P>With any apparent major problem with the keyboard, it is recommended that a known serviceable assembly be substituted in order to isolate the fault.
+<P>Faults are most likely to occur on the membrane or the connectors and are likely to fall into one of three categories: key on all the time - wrong character selected - no selection.
+<P>If a given row or column does not respond, the connector is suspect. If a short circuit exists between two keys, the system will not leave the coma state since it will be unable to recognise any key depressions. If a short is suspected, substitute the keyboard for a known good component. Ensure that ribbon connectors are correctly aligned in their sockets.
+<P>If a break in a ribbon cable line occurs close to a connector, it may be possible to remove the connector and slice off a short section above the break. The insulation may then be peeled off to expose the connector pins and the cable re-connected.
+<P>In order to see what is going on on the keyboard, trigger the oscilloscope from 10RQ (SK8, pin 21) and monitor sockets SK6 and SK7.
+
+<P><B><A NAME="rampacks"></A>128k RAM Packs</B>
+
+<P>Some difficulty was encountered in early 128k RAM packs with the pack drawing more current than it should. If this problem is encountered failures can be reduced by reinforcing the joints on pins 9 and 10 of IC6 by bridging them together with solder. Pins 12 and 13 of ICE can also be bridged. Since the RAM pack uses surface mounting techniques in its manufacture, the item is not repairable.
+<P>Testing the supply current drawn using a 128k RAM pack test jig is the only way to properly test the packs. In order to convert a Z88 into a 128k RAM pack test jig, remove resistor R48. The test rig must have the batteries removed and be powered by a Z88 adaptor with an ammeter connected in series. The batteries must be removed because unloaded batteries can have a higher voltage than an adaptor and would thus provide some or all of the standby current via the adaptor failure protection diode D24. Carry out the test as follows:
+<P><I>Test 1</I>
+<UL>
+<LI>Plug in the 128k RAM pack to the RAM pack test jig.</LI>
+<LI>Switch on the modified Z88 test jig.</LI>
+<LI>Check that the current being drawn by the system is 100 mA +20 mA.</LI>
+</UL>
+<P><I>Test 2</I>
+<UL>
+<LI>Plug in the 128k RAM pack to the RAM pack test jig.</LI>
+<LI>Using the two SHIFT keys, switch the test rig OFF.</LI>
+<LI>Monitor the supply current for a period of two minutes and check that the current at no time exceeds 0.8 mA.</LI>
+</UL>
+
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="diagintr.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="repair.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Introduction to fault diagnosis and repair</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">Fault diagnosis</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Repair</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

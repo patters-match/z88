@@ -1,0 +1,36 @@
+<HTML>
+<HEAD><TITLE>System Description</TITLE></HEAD>
+<BODY>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TH ALIGN=CENTER COLSPAN="3">Z88 Service Manual</TH>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><A HREF="z80cpu.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><A HREF="memorg.htm">Next</A></TD>
+</TR>
+</TABLE>
+<HR>
+<H4>5. SYSTEM CLOCKS</H4>
+<P>The Z88 has two system clocks - a low power 25.6 KHz clock active during the machine's coma state, and a 9.8304 MHz master clock active at all other times.
+<P>Referring to <A HREF="">Figure 1.6</A>, crystal oscillator TR18/XT1 generates the master clock, the resultant signal MCK being divided in the gate array to produce a 3.278 MHz clock for the CPU on ICI pin 6 and the LCD on SK5 pin 9. Typically, the clock consumes 2 mA and is switched off to conserve battery life by suppressing the +5.5V switched power rail (see para. 10.3.1).
+<P>Crystal XT2 sources the standby clock SCK, buffered by TR19/24. This signal is always presented to the gate array but is only effective when the machine is in coma. In the coma state, SCK maintains the real-time clock and drives the minimum amount of circuitry required to
+monitor the keyboard inputs.
+<P>
+<HR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%"><A HREF="z80cpu.htm">Previous</A></TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><A HREF="memorg.htm">Next</A></TD>
+</TR>
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="33%">Z80 CPU</TD>
+<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%">System clocks</TD>
+<TD ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Memory organisation</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>
