@@ -96,7 +96,9 @@ xdef    OZCallReturn3
         jp      OZCallReturn0                   ; 004B
 .OZ_BUF
         jp      OZBUFmain                       ; 004E
+.OZ_DI
         jp      OZDImain                        ; 0051
+.OZ_EI
         jp      OZEImain                        ; 0054
 .OZ_SCF
         jp      OZSCFmain                       ; 0057
