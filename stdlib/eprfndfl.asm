@@ -34,19 +34,16 @@
 ; Find active File(name) on Standard File Eprom in slot C.
 ;
 ; IN:
-;    C = slot number containing File Eprom
+;    C = slot number of File Eprom (Area)
 ;    DE = pointer to null-terminated filename to be searched for.
 ;         The filename is excl. device name and must begin with '/'.
 ;
 ; OUT:
 ;    Fc = 0, File Eprom available
 ;         Fz = 1, File Entry found.
-;              BHL = pointer to File Entry.
+;              BHL = pointer to File Entry in card at slot
 ;         Fz = 0, No file were found on the File Eprom.
-;              BHL = pointer to free byte on Eprom
-;
-;         The BHL pointer is returned relative to slot.
-;         (B=00h-3Fh, HL=0000h-3FFFh)
+;              BHL = pointer to free byte on File Eprom in slot
 ;
 ;    Fc = 1,
 ;         A = RC_Onf
@@ -57,7 +54,7 @@
 ;    .FB...HL/.... different
 ;
 ; -----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004
 ; -----------------------------------------------------------------------
 ;
 .FileEprFindFile    PUSH DE
@@ -82,7 +79,7 @@
                     INC  A
                     LD   B,A                      ; B is now bottom bank of File Eprom Area
                     EX   DE,HL                    ; DE points at local null-terminated filename
-                    LD   HL, $4000                ; BHL points at first File Entry
+                    LD   HL, $0000                ; BHL points at first File Entry
 
 .find_file          XOR  A
                     CALL MemReadByte
@@ -98,24 +95,11 @@
                     POP  BC
                     JR   Z, file_found            ; Yes, return ptr. to current File Entry...
 
-                    LD   A,B
-                    AND  @11000000                ; preserve slot mask
-
                     CALL FileEprNextFile          ; get pointer to next File Entry in slot C...
-
-                    OR   B                        ; re-install slot mask...
-                    LD   B,A
-                    RES  7,H
-                    SET  6,H                      ; BHL adjusted for slot C and segment 1
                     JR   find_file
 
 .finished           OR   B                        ; Fc = 0, Fz = 0, File not found.
-
-.file_found         RES  7,B                      ; return ptr. to File Entry...
-                    RES  6,B
-                    RES  7,H
-                    RES  6,H                      ; slot and segment details stripped...
-
+.file_found         
                     POP  DE
                     LD   C,E                      ; original C restored
                     POP  DE
