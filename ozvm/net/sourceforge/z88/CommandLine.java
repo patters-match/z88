@@ -717,13 +717,19 @@ public class CommandLine implements KeyListener {
 										", entry=" + Dz.extAddrToHex(fe.getFileEntryPtr(),true));
 					}					
 				}
-			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("fmt") == 0) {
+			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("format") == 0) {
 				// create or (re)format file area
 				if (FileArea.create((int) (cmdLineTokens[0].getBytes()[3]-48)) == true) 
 					displayCmdOutput("File area were created/formatted.");
 				else
 					displayCmdOutput("File area could not be created/formatted.");
-				
+			
+			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("reclaim") == 0) {
+				// reclaim deleted file space
+ 				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				fa.reclaimDeletedFileSpace(); 
+				displayCmdOutput("Deleted files have been removed from file area.");
+
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("del") == 0) {
 				// mark file as deleted
 				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
