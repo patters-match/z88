@@ -1663,14 +1663,21 @@ public final class Blink extends Z80 {
 		 * </PRE>
 		 */ 
 		private void scanKeyboard() {
-			int currentKey = z88Keyboard.getCurrentlyPressedKey();			
-            if (currentKey == java.awt.event.KeyEvent.VK_F5) {
-                stopZ88 = true;
-                return;
-            }
+			int currentKey = z88Keyboard.getCurrentlyPressedKey();
+			switch (currentKey) {			
+				case KeyboardDevice.NO_KEYS_PRESSED:
+					keybRowA15 = keybRowA14 = keybRowA13 = keybRowA12 = 
+					keybRowA11 = keybRowA10 = keybRowA9 = keybRowA8 = 0xFF;
+					return;
+				case java.awt.event.KeyEvent.VK_F5:
+					stopZ88 = true;
+					return;				
+			}
 
+			// a keypress is available, put it into the appropriate Z88 hardware keyrow...
+			// if this key exists in the Z88 world...
 			int row = 0xFE;		// start with A8, then upwards..
-            int keyColumn = 0xFF;
+			int keyColumn = 0xFF;
 			for (int scanRow=0; scanRow<8; scanRow++) {
 				switch(row) {
 					case 0x7F:	// Row 01111111:
@@ -1828,12 +1835,10 @@ public final class Blink extends Z80 {
 				row &= 0xFF;	// only 8bit boundary...
 			}
             
-			if (currentKey != KeyboardDevice.NO_KEYS_PRESSED) {                
-				if ( (keyColumn != 0xFF) && ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
-                    // If keyboard interrupts are enabled, then signal that a key was pressed.
-					STA |= BM_STAKEY;
-				}
-			}			
+			if ( (keyColumn != 0xFF) && ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
+                // If keyboard interrupts are enabled, then signal that a key was pressed.
+				STA |= BM_STAKEY;
+			}
 		}
 
 
