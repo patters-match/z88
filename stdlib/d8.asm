@@ -59,7 +59,7 @@
         inc  h          ; and setting the next digit of the quotient
 .nextbit
         djnz div8loop
-        ld   l,a
+        ld   l,a        ; H = quotient, L = remainder
         pop  bc
         pop  af
         ret
