@@ -117,9 +117,9 @@ public class Z88display
 			// find out if pixels remain up to the 639'th pixel;
 			// these need to get "blanked", before beginning with the next row...
 			if (scrBaseCoordX < Z88SCREENWIDTH-1) {
-				for(int y=scrBaseCoordY * Z88SCREENWIDTH; y < (8*Z88SCREENWIDTH); y+=Z88SCREENWIDTH) {		
+				for(int y=scrBaseCoordY * Z88SCREENWIDTH; y < (scrBaseCoordY*Z88SCREENWIDTH + 8*Z88SCREENWIDTH); y+=Z88SCREENWIDTH) {		
 					// render x blank pixels until right edge of screen...
-					for(int bit = Z88SCREENWIDTH - scrBaseCoordX; bit < Z88SCREENWIDTH; bit++) {
+					for(int bit = 0; bit < Z88SCREENWIDTH - scrBaseCoordX; bit++) {
 						displayMatrix[y + scrBaseCoordX + bit] = PXCOLOFF;   
 					}			
 				}			 			
