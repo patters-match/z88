@@ -149,8 +149,6 @@ public class Z88display extends JPanel implements MouseListener {
 		this.addMouseListener(this);
 
 		this.setDoubleBuffered(false);
-		blink = Blink.getInstance();
-		memory = Memory.getInstance();
 	}
 
 	public void init() {
@@ -633,6 +631,9 @@ public class Z88display extends JPanel implements MouseListener {
 	 * Start fps Z88 screen renderer (and supervisor).
 	 */
 	public void start() {
+		blink = Blink.getInstance();
+		memory = Memory.getInstance();
+		
 		if (renderRunning == false) {
 			renderPerMs = new RenderPerMs();
 			blink.getTimerDaemon().scheduleAtFixedRate(
