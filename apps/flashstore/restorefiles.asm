@@ -32,6 +32,7 @@ Module RestoreFiles
      lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
 
      xref FilesAvailable
+     xref GetDefaultRamDevice
      xref disp_no_filearea_msg, no_files, DispErrMsg
      xref cls, sopnln, wbar
      xref fetf_msg, fsok_msg, done_msg, no_msg, yes_msg
@@ -40,7 +41,6 @@ Module RestoreFiles
 
      ; system definitions
      include "stdio.def"
-     include "syspar.def"
      include "fileio.def"
      include "error.def"
 
@@ -75,7 +75,7 @@ Module RestoreFiles
                     CALL sopnln
                     LD   HL,dest_msg
                     CALL_OZ gn_sop
-                    CALL GetDefaultDevice
+                    CALL GetDefaultRamDevice
                     LD   DE,buf1
                     LD   A,@00100011
                     LD   BC,$4007
@@ -293,27 +293,6 @@ Module RestoreFiles
                     POP  HL
                     POP  DE
                     POP  BC
-                    RET
-; *************************************************************************************
-
-
-
-; *************************************************************************************
-;
-; Put Default Device (Panel setting) at (buf1).
-;
-.GetDefaultDevice
-                    LD    A, 64
-                    LD   BC, PA_Dev                    ; Read default device
-                    LD   DE, buf1                      ; buffer for device name
-                    PUSH DE                            ; save pointer to buffer
-                    CALL_OZ (Os_Nq)
-                    POP  DE
-                    LD   B,0
-                    LD   C,A                           ; actual length of string...
-                    EX   DE,HL
-                    ADD  HL,BC
-                    LD   (HL),0                        ; null-terminate device name
                     RET
 ; *************************************************************************************
 
