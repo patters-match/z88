@@ -45,7 +45,7 @@ public final class Blink {
 	 * The main Timer daemon that runs the Rtc clock and sends 10ms interrupts
 	 * to the Z80 virtual processor.
 	 */
-	Timer timerDaemon = null;
+	private Timer timerDaemon = null;
 
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
@@ -368,8 +368,8 @@ public final class Blink {
 	 * 
 	 * @return Bank
 	 */
-	public Bank getBank(int bankNo) {
-		return memory[bankNo % 256];
+	public Bank getBank(final int bankNo) {
+		return memory[bankNo & 0xFF];
 	}
 
 	/**
@@ -378,8 +378,8 @@ public final class Blink {
 	 * @param bank
 	 * @param bankNo
 	 */
-	public void setBank(Bank bank, int bankNo) {
-		memory[bankNo % 256] = bank;
+	public void setBank(final Bank bank, final int bankNo) {
+		memory[bankNo & 0xFF] = bank;
 	}
 
 	/**
@@ -422,8 +422,8 @@ public final class Blink {
 	 * 
 	 * @return int
 	 */
-	public int getSegmentBank(int segment) {
-		return sR[segment % 4];
+	public int getSegmentBank(final int segment) {
+		return sR[segment & 0x03];
 	}
 
 	/**
@@ -434,8 +434,8 @@ public final class Blink {
 	 * special, however. Please refer to hardware section of the Developer's
 	 * Notes.
 	 */
-	public void setSegmentBank(int segment, int BankNo) {
-		sR[segment % 4] = (BankNo % 256);
+	public void setSegmentBank(final int segment, final int BankNo) {
+		sR[segment & 0x03] = (BankNo & 0xFF);
 	}
 
 	/**
@@ -447,7 +447,7 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public int readByte(int addr) {
+	public int readByte(final int addr) {
 		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 
 		// the OZ spends most of the time in segments 1 - 3,
@@ -490,7 +490,7 @@ public final class Blink {
 	 * on the Z88. Bank 0 is special, however.
 	 * Please refer to hardware section of the Developer's Notes.
 	 */
-	public void writeByte(int addr, int b) {
+	public void writeByte(final int addr, final int b) {
 		int segment = addr >>> 14; // bit 15 & 14 identifies segment
 
 		// the OZ spends most of the time in segments 1 - 3,
@@ -591,7 +591,7 @@ public final class Blink {
 	/** 
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
-	private class Rtc {
+	private final class Rtc {
 
 		private Rtc() {
 			rtcRunning = false;
@@ -604,7 +604,7 @@ public final class Blink {
 			TACK = BM_TACKMIN | BM_TACKSEC | BM_TACKTICK;
 		}
 
-		private class Counter extends TimerTask {
+		private final class Counter extends TimerTask {
 			/**
 			 * Execute the RTC counter each 5ms, and set the various RTC interrupts
 			 * if they are enabled, but only if INT.TIME = 1.
@@ -788,11 +788,11 @@ public final class Blink {
 	 * An INT is fired each 10ms, which the Z80 responds to through IM 1
 	 * (executing a RST 38H instruction).
 	 */
-	private class Z80interrupt {
+	private final class Z80interrupt {
 
 		TimerTask intIm1 = null;
 
-		private class Int10ms extends TimerTask {
+		private final class Int10ms extends TimerTask {
 			/**
 			 * Send an INT each 10ms to the Z80 processor...
 			 * 
