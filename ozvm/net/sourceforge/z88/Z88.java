@@ -1,6 +1,8 @@
 package net.sourceforge.z88;
 
 import java.io.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 
@@ -43,9 +45,12 @@ public class Z88 extends Z80 {
 		insertRamCard(128 * 1024, 0);
 		// Insert 128K RAM in slot 0 (top 512K address space)
 
-		dz = new Dz(this); // the disassembly engine         
+		dz = new Dz(this); 				// the disassembly engine         
+		z80Speed = new MonitorZ80();	// finally, set up a monitor that display current Z80 speed
 	}
 
+	private MonitorZ80 z80Speed = null;
+	
 	/**
 	 * Z80 processor is hardwired to the BLINK chip logic.
 	 */
@@ -368,4 +373,47 @@ public class Z88 extends Z80 {
 			dz.getInstrAscii(dzBuffer, addr, true);
 			System.out.println(dzBuffer); // display executing instruction in shell			
 	}
+
+	/** 
+	 * Z80 instruction speed monitor. 
+	 * Polls each second for the execution speed and displays it to std out.
+	 */
+	private class MonitorZ80 {
+
+		Timer timer = null;
+		TimerTask monitor = null;
+
+		private class SpeedPoll extends TimerTask {
+			/**
+			 * Send an INT each 10ms to the Z80 processor...
+			 * 
+			 * @see java.lang.Runnable#run()
+			 */
+			public void run() {
+				System.out.println( "IPS=" + getInstructionCounter() + 
+                                   ",TPS=" + getTstatesCounter());
+			}			
+		}
+		
+		private MonitorZ80() {
+			timer = new Timer();
+			start();
+		}
+
+		/**
+		 * Stop the Z80 Speed Monitor.
+		 */
+		public void stop() {
+			if (timer != null)
+				timer.cancel();
+		}
+
+		/**
+		 * Speed polling monitor asks each second for Z80 speed status.
+		 */
+		public void start() {
+			monitor = new SpeedPoll();
+			timer.scheduleAtFixedRate(monitor, 0, 1000);
+		}
+	} 
 }
