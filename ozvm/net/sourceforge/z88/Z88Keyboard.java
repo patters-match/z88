@@ -117,7 +117,7 @@ public class Z88Keyboard {
 			}
 		};
 
-		thread.setPriority(Thread.NORM_PRIORITY);
+		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();		
     }
 
