@@ -30,29 +30,30 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
-import javax.swing.JCheckBoxMenuItem;
 import java.awt.FlowLayout;
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.Color;
+
 import javax.swing.JToggleButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import javax.swing.JCheckBoxMenuItem;
 
 /**
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
  */
 public class Gui extends JFrame {
 
-	private JMenuItem menuAboutOZvmItem;
-	private JMenuItem menuUserManualItem;
 	private static final class singletonContainer {
 		static final Gui singleton = new Gui();  
 	}
@@ -61,9 +62,16 @@ public class Gui extends JFrame {
 		return singletonContainer.singleton;
 	}
 	
-	private javax.swing.JScrollPane jRtmOutputScrollPane = null;
-	private javax.swing.JTextArea jRtmOutputArea = null;
-	private javax.swing.JMenu jHelpMenu = null;
+	private JScrollPane jRtmOutputScrollPane = null;
+	private JTextArea jRtmOutputArea = null;
+	
+	private JToolBar toolBar;
+	private JButton toolBarButton1;
+	private JButton toolBarButton2;
+	private JLabel z88Display;
+
+	private JToggleButton rightShiftKeyButton;
+	private JToggleButton leftShiftKeyButton;
 	private JButton escKeyButton;
 	private JButton helpKeyButton;
 	private JButton rightArrowKeyButton;
@@ -81,12 +89,6 @@ public class Gui extends JFrame {
 	private JButton key027fButton;
 	private JButton key017fButton;
 	private JButton delKeyButton;
-	
-	private JButton button_2;
-	private JButton button_1;
-	private JToolBar toolBar;
-	private JLabel z88Display;
-	private JPanel panel_2;
 	private JButton leftArrowKeyButton;
 	private JButton downArrowKeyButton;
 	private JButton capslockKeyButton;
@@ -95,8 +97,6 @@ public class Gui extends JFrame {
 	private JButton menuKeyButton;
 	private JButton indexKeyButton;
 	private JButton upArrowKeyButton;
-	private JToggleButton rightShiftKeyButton;
-	private JToggleButton leftShiftKeyButton;
 	private JButton key07FdButton;
 	private JButton key07FbButton;
 	private JButton key06FbButton;
@@ -134,154 +134,112 @@ public class Gui extends JFrame {
 	private JButton key04EfButton;
 	private JButton key05EfButton;
 	private JButton tabKeyButton;
-	private JPanel panel_1;
+	
+	private JPanel z88ScreenPanel;
+	private JPanel keyboardPanel2;
+	private JPanel keyboardPanel1;
+
+	private JMenuBar menuBar; 
+	private JMenu fileMenu;
+	private JMenu helpMenu;
+	private JMenu viewMenu;
+	private JMenuItem fileExitMenuItem;
+	private JMenuItem fileDebugMenuItem;
+	private JMenuItem aboutOZvmMenuItem;
+	private JMenuItem userManualMenuItem;
+	private JCheckBoxMenuItem z88keyboardMenuItem;
+	private JCheckBoxMenuItem rtmMessagesMenuItem;
 	
 	private Gui() {
 		super();
-		getContentPane().setLayout(new GridBagLayout());
-
-		final JMenuBar menuBar = new JMenuBar();
-		menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
-		setJMenuBar(menuBar);
-
-		final JMenu menu = new JMenu();
-		menu.setMnemonic(KeyEvent.VK_F);
-		menuBar.add(menu);
-		menu.setText("File");
-
-		final JMenuItem menuItem = new JMenuItem();
-		menuItem.setMnemonic(KeyEvent.VK_E);
-		menu.add(menuItem);
-		menuItem.setText("Exit");
-
-		final JMenu menu_1 = new JMenu();
-		menu_1.setMnemonic(KeyEvent.VK_R);
-		menuBar.add(menu_1);
-		menu_1.setText("Run");
-
-		final JCheckBoxMenuItem checkBoxMenuItem = new JCheckBoxMenuItem();
-		menu_1.add(checkBoxMenuItem);
-		checkBoxMenuItem.setText("Debug");
-
-		menuBar.add(getHelpMenu());
-		
-		final GridBagConstraints gridBagConstraints_2 = new GridBagConstraints();
-		gridBagConstraints_2.ipady = 65;
-		gridBagConstraints_2.fill = GridBagConstraints.BOTH;
-		gridBagConstraints_2.ipadx = 275;
-		gridBagConstraints_2.gridy = 3;
-		gridBagConstraints_2.gridx = 0;
-		getContentPane().add(getRtmOutputScrollPane(), gridBagConstraints_2);
-
-		final JPanel panel_1 = new JPanel();
-		panel_1.setBackground(Color.BLACK);
-		final FlowLayout flowLayout = new FlowLayout();
-		flowLayout.setHgap(11);
-		panel_1.setLayout(flowLayout);
-		final GridBagConstraints gridBagConstraints_3 = new GridBagConstraints();
-		gridBagConstraints_3.fill = GridBagConstraints.HORIZONTAL;
-		gridBagConstraints_3.ipadx = -2;
-		gridBagConstraints_3.gridy = 5;
-		gridBagConstraints_3.gridx = 0;
-		getContentPane().add(panel_1, gridBagConstraints_3);
-
-		panel_1.add(getEscKeyButton());
-		panel_1.add(getNumKey1Button());
-		panel_1.add(getNumKey2Button());
-		panel_1.add(getNumKey3Button());
-		panel_1.add(getNumKey4Button());
-		panel_1.add(getNumKey5Button());
-		panel_1.add(getNumKey6Button());
-		panel_1.add(getNumKey7Button());
-		panel_1.add(getNumKey8Button());
-		panel_1.add(getNumKey9Button());
-		panel_1.add(getNumKey0Button());
-		panel_1.add(getKey037fButton());
-		panel_1.add(getKey027fButton());
-		panel_1.add(getKey017fButton());
-		panel_1.add(getDelKeyButton());
-		
-		final GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
-		gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
-		gridBagConstraints_4.ipadx = -5;
-		gridBagConstraints_4.anchor = GridBagConstraints.WEST;
-		gridBagConstraints_4.ipady = 166;
-		gridBagConstraints_4.gridy = 6;
-		gridBagConstraints_4.gridx = 0;
-		getContentPane().add(getPanel_1(), gridBagConstraints_4);
-		final GridBagConstraints gridBagConstraints = new GridBagConstraints();
-		gridBagConstraints.ipady = 5;
-		gridBagConstraints.insets = new Insets(0, 0, 0, 0);
-		gridBagConstraints.fill = GridBagConstraints.BOTH;
-		gridBagConstraints.gridx = 0;
-		gridBagConstraints.gridy = 1;
-		getContentPane().add(getPanel_2(), gridBagConstraints);
-		final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
-		gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
-		gridBagConstraints_1.gridx = 0;
-		gridBagConstraints_1.gridy = 0;
-		getContentPane().add(getToolBar(), gridBagConstraints_1);
-		
 		initialize();
 	}
+
+	private JPanel getKeyboardPanel1() {
+		if (keyboardPanel1 == null) {
+			keyboardPanel1 = new JPanel();
+			keyboardPanel1.setBackground(Color.BLACK);
+			final FlowLayout flowLayout = new FlowLayout();
+			flowLayout.setHgap(11);
+			keyboardPanel1.setLayout(flowLayout);
+			
+			keyboardPanel1.add(getEscKeyButton());
+			keyboardPanel1.add(getNumKey1Button());
+			keyboardPanel1.add(getNumKey2Button());
+			keyboardPanel1.add(getNumKey3Button());
+			keyboardPanel1.add(getNumKey4Button());
+			keyboardPanel1.add(getNumKey5Button());
+			keyboardPanel1.add(getNumKey6Button());
+			keyboardPanel1.add(getNumKey7Button());
+			keyboardPanel1.add(getNumKey8Button());
+			keyboardPanel1.add(getNumKey9Button());
+			keyboardPanel1.add(getNumKey0Button());
+			keyboardPanel1.add(getKey037fButton());
+			keyboardPanel1.add(getKey027fButton());
+			keyboardPanel1.add(getKey017fButton());
+			keyboardPanel1.add(getDelKeyButton());
+		} 
+		
+		return keyboardPanel1;		
+	}
 	
-	protected JPanel getPanel_1()
-	{
-		if (panel_1 == null) {
-			panel_1 = new JPanel();
-			panel_1.setBackground(Color.BLACK);
-			panel_1.setLayout(null);
-			panel_1.add(getTabKeyButton());
-			panel_1.add(getKey05EfButton());
-			panel_1.add(getKey04EfButton());
-			panel_1.add(getKey03EfButton());
-			panel_1.add(getKey02EfButton());
-			panel_1.add(getKey01EfButton());
-			panel_1.add(getKey00EfButton());
-			panel_1.add(getKey01FdButton());
-			panel_1.add(getKey01FeButton());
-			panel_1.add(getKey02FeButton());
-			panel_1.add(getKey04FeButton());
-			panel_1.add(getKey057fButton());
-			panel_1.add(getKey047fButton());
-			panel_1.add(getEnterKeyButton());
-			panel_1.add(getKey07FeButton());
-			panel_1.add(getDiamondKeyButton());
-			panel_1.add(getKey05F7Button());
-			panel_1.add(getKey04F7Button());
-			panel_1.add(getKey03F7Button());
-			panel_1.add(getKey02F7Button());
-			panel_1.add(getKey01F7Button());
-			panel_1.add(getKey00F7Button());
-			panel_1.add(getKey02FdButton());
-			panel_1.add(getKey03FdButton());
-			panel_1.add(getKey05FdButton());
-			panel_1.add(getKey06FdButton());
-			panel_1.add(getKey06FeButton());
-			panel_1.add(getLeftShiftKeyButton());
-			panel_1.add(getKey05FbButton());
-			panel_1.add(getKey04FbButton());
-			panel_1.add(getKey03FbButton());
-			panel_1.add(getKey02FbButton());
-			panel_1.add(getKey01FbButton());
-			panel_1.add(getKey00FbButton());
-			panel_1.add(getKey04FdButton());
-			panel_1.add(getKey06FbButton());
-			panel_1.add(getKey07FbButton());
-			panel_1.add(getKey07FdButton());
-			panel_1.add(getRightShiftKeyButton());
-			panel_1.add(getUpArrowKeyButton());
-			panel_1.add(getIndexKeyButton());
-			panel_1.add(getMenuKeyButton());
-			panel_1.add(getHelpKeyButton());
-			panel_1.add(getSquareKeyButton());
-			panel_1.add(getSpaceKeyButton());
-			panel_1.add(getCapslockKeyButton());
-			panel_1.add(getDownArrowKeyButton());
-			panel_1.add(getLeftArrowKeyButton());
-			panel_1.add(getRightArrowKeyButton());
+	private JPanel getKeyboardPanel2() {
+		if (keyboardPanel2 == null) {
+			keyboardPanel2 = new JPanel();
+			keyboardPanel2.setBackground(Color.BLACK);
+			keyboardPanel2.setLayout(null);
+			keyboardPanel2.add(getTabKeyButton());
+			keyboardPanel2.add(getKey05EfButton());
+			keyboardPanel2.add(getKey04EfButton());
+			keyboardPanel2.add(getKey03EfButton());
+			keyboardPanel2.add(getKey02EfButton());
+			keyboardPanel2.add(getKey01EfButton());
+			keyboardPanel2.add(getKey00EfButton());
+			keyboardPanel2.add(getKey01FdButton());
+			keyboardPanel2.add(getKey01FeButton());
+			keyboardPanel2.add(getKey02FeButton());
+			keyboardPanel2.add(getKey04FeButton());
+			keyboardPanel2.add(getKey057fButton());
+			keyboardPanel2.add(getKey047fButton());
+			keyboardPanel2.add(getEnterKeyButton());
+			keyboardPanel2.add(getKey07FeButton());
+			keyboardPanel2.add(getDiamondKeyButton());
+			keyboardPanel2.add(getKey05F7Button());
+			keyboardPanel2.add(getKey04F7Button());
+			keyboardPanel2.add(getKey03F7Button());
+			keyboardPanel2.add(getKey02F7Button());
+			keyboardPanel2.add(getKey01F7Button());
+			keyboardPanel2.add(getKey00F7Button());
+			keyboardPanel2.add(getKey02FdButton());
+			keyboardPanel2.add(getKey03FdButton());
+			keyboardPanel2.add(getKey05FdButton());
+			keyboardPanel2.add(getKey06FdButton());
+			keyboardPanel2.add(getKey06FeButton());
+			keyboardPanel2.add(getLeftShiftKeyButton());
+			keyboardPanel2.add(getKey05FbButton());
+			keyboardPanel2.add(getKey04FbButton());
+			keyboardPanel2.add(getKey03FbButton());
+			keyboardPanel2.add(getKey02FbButton());
+			keyboardPanel2.add(getKey01FbButton());
+			keyboardPanel2.add(getKey00FbButton());
+			keyboardPanel2.add(getKey04FdButton());
+			keyboardPanel2.add(getKey06FbButton());
+			keyboardPanel2.add(getKey07FbButton());
+			keyboardPanel2.add(getKey07FdButton());
+			keyboardPanel2.add(getRightShiftKeyButton());
+			keyboardPanel2.add(getUpArrowKeyButton());
+			keyboardPanel2.add(getIndexKeyButton());
+			keyboardPanel2.add(getMenuKeyButton());
+			keyboardPanel2.add(getHelpKeyButton());
+			keyboardPanel2.add(getSquareKeyButton());
+			keyboardPanel2.add(getSpaceKeyButton());
+			keyboardPanel2.add(getCapslockKeyButton());
+			keyboardPanel2.add(getDownArrowKeyButton());
+			keyboardPanel2.add(getLeftArrowKeyButton());
+			keyboardPanel2.add(getRightArrowKeyButton());
 		}
-		return panel_1;
+		
+		return keyboardPanel2;
 	}
 	
 	protected JButton getTabKeyButton()
@@ -303,7 +261,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -330,7 +288,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -358,7 +316,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -387,7 +345,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -416,7 +374,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -444,7 +402,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -472,7 +430,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -502,7 +460,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -531,7 +489,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -561,7 +519,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -590,7 +548,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -619,7 +577,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0x7F);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -648,7 +606,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0x7F);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -674,7 +632,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xBF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -701,7 +659,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -731,7 +689,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -758,7 +716,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -787,7 +745,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -815,7 +773,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -844,7 +802,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -872,7 +830,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -900,7 +858,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -929,7 +887,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -957,7 +915,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -985,7 +943,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1013,7 +971,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1042,7 +1000,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1072,7 +1030,7 @@ public class Gui extends JFrame {
 					} else {
 						Z88Keyboard.getInstance().releaseZ88key(0x06, 0xBF);						
 					}
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 			});
 		}
@@ -1095,7 +1053,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1123,7 +1081,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1150,7 +1108,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1178,7 +1136,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1205,7 +1163,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1234,7 +1192,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1262,7 +1220,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1290,7 +1248,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1317,7 +1275,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xFB);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1346,7 +1304,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1377,7 +1335,7 @@ public class Gui extends JFrame {
 					} else {
 						Z88Keyboard.getInstance().releaseZ88key(0x07, 0x7F);						
 					}
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 			});			
 		}
@@ -1400,7 +1358,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xBF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1427,7 +1385,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xEF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1455,7 +1413,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1483,7 +1441,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x06, 0x7F);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1511,7 +1469,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xBF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1539,7 +1497,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xBF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1568,7 +1526,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xF7);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1595,7 +1553,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xBF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1623,7 +1581,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xBF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1651,7 +1609,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xBF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1659,25 +1617,22 @@ public class Gui extends JFrame {
 				public void mouseExited(MouseEvent arg0) {}				
 			});												
 		}
+		
 		return rightArrowKeyButton;
 	}
 	
-	protected JPanel getPanel_2()
-	{
-		if (panel_2 == null) {
-			panel_2 = new JPanel();
-			panel_2.setPreferredSize(new Dimension(648, 72));
-			panel_2.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.GRAY, Color.WHITE));
-			panel_2.setLayout(new FlowLayout());
-			panel_2.setForeground(Color.WHITE);
-			panel_2.setBackground(Color.BLACK);
-			panel_2.add(getZ88Display());
+	protected JPanel getZ88ScreenPanel() {
+		if (z88ScreenPanel == null) {
+			z88ScreenPanel = new JPanel();
+			z88ScreenPanel.setPreferredSize(new Dimension(648, 68));
+			z88ScreenPanel.setBackground(Color.GRAY);
+			z88ScreenPanel.add(getZ88Display());
 		}
-		return panel_2;
+		
+		return z88ScreenPanel;
 	}
 	
-	protected JLabel getZ88Display()
-	{
+	protected JLabel getZ88Display() {
 		if (z88Display == null) {
 			z88Display = Z88display.getInstance();
 			z88Display.setLayout(null);
@@ -1687,33 +1642,31 @@ public class Gui extends JFrame {
 		return z88Display;
 	}
 	
-	protected JToolBar getToolBar()
-	{
+	protected JToolBar getToolBar()	{
 		if (toolBar == null) {
 			toolBar = new JToolBar();
-			toolBar.add(getButton_1());
-			toolBar.add(getButton_2());
+			toolBar.add(getToolBarButton1());
+			toolBar.add(getToolBarButton2());
 			toolBar.setVisible(false);
 		}
 		return toolBar;
 	}
 	
-	protected JButton getButton_1()
-	{
-		if (button_1 == null) {
-			button_1 = new JButton();
-			button_1.setText("New JButton");
+	protected JButton getToolBarButton1()	{
+		if (toolBarButton1 == null) {
+			toolBarButton1 = new JButton();
+			toolBarButton1.setText("New JButton");
 		}
-		return button_1;
+		return toolBarButton1;
 	}
 	
-	protected JButton getButton_2()
+	protected JButton getToolBarButton2()
 	{
-		if (button_2 == null) {
-			button_2 = new JButton();
-			button_2.setText("New JButton");
+		if (toolBarButton2 == null) {
+			toolBarButton2 = new JButton();
+			toolBarButton2.setText("New JButton");
 		}
-		return button_2;
+		return toolBarButton2;
 	}
 
 	protected JButton getEscKeyButton() {
@@ -1733,7 +1686,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1760,7 +1713,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1787,7 +1740,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1814,7 +1767,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1841,7 +1794,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1868,7 +1821,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1895,7 +1848,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1922,7 +1875,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xDF);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1949,7 +1902,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFD);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1976,7 +1929,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2003,7 +1956,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xFE);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2030,7 +1983,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x03, 0x7F);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2057,7 +2010,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x02, 0x7F);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2084,7 +2037,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x01, 0x7F);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2111,7 +2064,7 @@ public class Gui extends JFrame {
 				}
 				public void mouseReleased(MouseEvent arg0) {
 					Z88Keyboard.getInstance().releaseZ88key(0x00, 0x7F);
-					Z88display.getInstance().grabFocus();
+					getZ88Display().grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2122,6 +2075,19 @@ public class Gui extends JFrame {
 
 		return delKeyButton;
 	}
+	
+	public static void displayRtmMessage(final String msg) {
+		Gui.getInstance().getRtmOutputArea().append("\n" + msg);
+		Gui.getInstance().getRtmOutputArea().setCaretPosition(Gui.getInstance().getRtmOutputArea().getDocument().getLength());
+	}
+	
+	private void addRtmMessagesPanel() {
+		GridBagConstraints gridBagConstraints = new GridBagConstraints();
+		gridBagConstraints.fill = GridBagConstraints.BOTH;
+		gridBagConstraints.gridy = 3;
+		gridBagConstraints.gridx = 0;
+		getContentPane().add(getRtmOutputScrollPane(), gridBagConstraints);		
+	}
 
 	/**
 	 * This method initializes jScrollPane1
@@ -2130,7 +2096,7 @@ public class Gui extends JFrame {
 	 */
 	private javax.swing.JScrollPane getRtmOutputScrollPane() {
 		if(jRtmOutputScrollPane == null) {
-			jRtmOutputScrollPane = new javax.swing.JScrollPane();
+			jRtmOutputScrollPane = new JScrollPane();			
 			jRtmOutputScrollPane.setViewportView(getRtmOutputArea());
 		}
 		return jRtmOutputScrollPane;
@@ -2141,9 +2107,9 @@ public class Gui extends JFrame {
 	 *
 	 * @return javax.swing.JTextArea
 	 */
-	public javax.swing.JTextArea getRtmOutputArea() {
+	private javax.swing.JTextArea getRtmOutputArea() {
 		if(jRtmOutputArea == null) {
-			jRtmOutputArea = new javax.swing.JTextArea();
+			jRtmOutputArea = new javax.swing.JTextArea(6,80);
 			jRtmOutputArea.setTabSize(1);
 			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			jRtmOutputArea.setEditable(false);
@@ -2151,16 +2117,194 @@ public class Gui extends JFrame {
 		return jRtmOutputArea;
 	}
 	
-	public static void displayRtmMessage(final String msg) {
-		Gui.getInstance().getRtmOutputArea().append("\n" + msg);
-		Gui.getInstance().getRtmOutputArea().setCaretPosition(Gui.getInstance().getRtmOutputArea().getDocument().getLength());
+	/**
+	 * This method initializes main Help Menu dropdown
+	 *
+	 * @return javax.swing.JMenu
+	 */
+	private javax.swing.JMenu getHelpMenu() {
+		if(helpMenu == null) {		
+			helpMenu = new javax.swing.JMenu();
+			helpMenu.setText("Help");
+			helpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
+			
+			helpMenu.add(getUserManualMenuItem());
+			helpMenu.add(getAboutOZvmMenuItem());			
+		}
+		
+		return helpMenu;
+	}
+	
+	protected JMenuItem getUserManualMenuItem() {
+		if (userManualMenuItem == null) {
+			userManualMenuItem = new JMenuItem();
+			userManualMenuItem.setMnemonic(KeyEvent.VK_U);
+			userManualMenuItem.setText("User Manual");
+			
+			userManualMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						HelpViewer hv = new HelpViewer(Blink.getInstance().getClass().getResource("/ozvm-manual.html"));
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}					
+				}
+			});
+		}
+		
+		return userManualMenuItem;
+	}
+	
+	protected JMenuItem getAboutOZvmMenuItem() {
+		if (aboutOZvmMenuItem == null) {
+			aboutOZvmMenuItem = new JMenuItem();
+			aboutOZvmMenuItem.setMnemonic(KeyEvent.VK_A);
+			aboutOZvmMenuItem.setText("About");
+		}
+		return aboutOZvmMenuItem;
+	}
+	
+	protected JMenuBar getMainMenuBar() {
+		if (menuBar == null) {
+			menuBar = new JMenuBar();
+			menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));		
+			menuBar.add(getFileMenu());
+			menuBar.add(getViewMenu());
+			menuBar.add(getHelpMenu());
+		}
+		
+		return menuBar;
 	}
 
+	protected JMenu getFileMenu() {
+		if (fileMenu == null) {
+			fileMenu = new JMenu();
+			fileMenu.setMnemonic(KeyEvent.VK_F);
+			fileMenu.setText("File");
+
+			fileMenu.add(getFileDebugMenuItem());
+			fileMenu.add(getFileExitMenuItem());			
+		}
+		
+		return fileMenu;
+	}
+	
+	protected JMenuItem getFileDebugMenuItem() {
+		if (fileDebugMenuItem == null) {
+			fileDebugMenuItem = new JMenuItem();
+			fileDebugMenuItem.setMnemonic(KeyEvent.VK_D);
+			fileDebugMenuItem.setText("Debug Mode");
+		}
+		
+		return fileDebugMenuItem;
+	}
+	
+	protected JMenuItem getFileExitMenuItem() {
+		if (fileExitMenuItem == null) {
+			fileExitMenuItem = new JMenuItem();
+			fileExitMenuItem.setMnemonic(KeyEvent.VK_E);
+			fileExitMenuItem.setText("Exit");
+		}
+		
+		return fileExitMenuItem;
+	}
+	
+	protected JMenu getViewMenu() {
+		if (viewMenu == null) {
+			viewMenu = new JMenu();
+			viewMenu.setMnemonic(KeyEvent.VK_V);
+			viewMenu.setText("View");			
+			viewMenu.add(getRtmMessagesMenuItem());
+			viewMenu.add(getZ88keyboardMenuItem());			
+		}
+		return viewMenu;
+	}
+	
+	protected JCheckBoxMenuItem getRtmMessagesMenuItem() {
+		if (rtmMessagesMenuItem == null) {
+			rtmMessagesMenuItem = new JCheckBoxMenuItem();
+			rtmMessagesMenuItem.setSelected(true);
+			rtmMessagesMenuItem.setText("Runtime Messages");
+			rtmMessagesMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (rtmMessagesMenuItem.isSelected() == true) {
+						addRtmMessagesPanel();
+					} else {
+						getContentPane().remove(getRtmOutputScrollPane());
+					}
+					Gui.this.pack();
+				}
+			});
+		}
+
+		return rtmMessagesMenuItem;
+	}
+	
+	protected JCheckBoxMenuItem getZ88keyboardMenuItem() {
+		if (z88keyboardMenuItem == null) {
+			z88keyboardMenuItem = new JCheckBoxMenuItem();
+			z88keyboardMenuItem.setSelected(true);
+			z88keyboardMenuItem.setText("Z88 Keyboard");
+			z88keyboardMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (z88keyboardMenuItem.isSelected() == true) {
+						addKeyboardPanel();
+					} else {
+						getContentPane().remove(getKeyboardPanel1());
+						getContentPane().remove(getKeyboardPanel2());
+					}
+					Gui.this.pack();
+				}
+			});
+		}
+		return z88keyboardMenuItem;
+	}	
+
+	private void addKeyboardPanel() {
+		GridBagConstraints gridBagConstraints_3 = new GridBagConstraints();
+		gridBagConstraints_3.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_3.ipadx = -2;
+		gridBagConstraints_3.gridy = 5;
+		gridBagConstraints_3.gridx = 0;
+		getContentPane().add(getKeyboardPanel1(), gridBagConstraints_3);
+		
+		GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
+		gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_4.ipadx = -5;
+		gridBagConstraints_4.anchor = GridBagConstraints.WEST;
+		gridBagConstraints_4.ipady = 166;
+		gridBagConstraints_4.gridy = 6;
+		gridBagConstraints_4.gridx = 0;
+		getContentPane().add(getKeyboardPanel2(), gridBagConstraints_4);		
+	}
 	
 	/**
-	 * This method initializes the main z88 window with screen menus and keyboard
+	 * This method initializes the main z88 window with screen menus,
+	 * runtime messages and keyboard.
 	 */
 	private void initialize() {
+		getContentPane().setLayout(new GridBagLayout());
+
+		setJMenuBar(getMainMenuBar());
+								
+		final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
+		gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_1.gridy = 0;
+		gridBagConstraints_1.gridx = 0;
+		getContentPane().add(getToolBar(), gridBagConstraints_1);
+
+		final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+		gridBagConstraints.ipady = 5;
+		gridBagConstraints.insets = new Insets(0, 0, 0, 0);
+		gridBagConstraints.fill = GridBagConstraints.BOTH;
+		gridBagConstraints.gridy = 1;
+		gridBagConstraints.gridx = 0;
+		getContentPane().add(getZ88ScreenPanel(), gridBagConstraints);
+
+		addRtmMessagesPanel();
+		addKeyboardPanel();
+						
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.setResizable(false);
@@ -2173,50 +2317,4 @@ public class Gui extends JFrame {
 			}
 		});		
 	}
-
-	/**
-	 * This method initializes main Help Menu dropdown
-	 *
-	 * @return javax.swing.JMenu
-	 */
-	private javax.swing.JMenu getHelpMenu() {
-		if(jHelpMenu == null) {
-			jHelpMenu = new javax.swing.JMenu();
-			jHelpMenu.setText("Help");
-			jHelpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
-			jHelpMenu.add(getMenuUserManualItem());
-			jHelpMenu.add(getMenuAboutOZvmItem());
-		}
-		return jHelpMenu;
-	}
-	
-	protected JMenuItem getMenuUserManualItem() {
-		if (menuUserManualItem == null) {
-			menuUserManualItem = new JMenuItem();
-			menuUserManualItem.setMnemonic(KeyEvent.VK_U);
-			menuUserManualItem.setText("User Manual");
-			
-			menuUserManualItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					try {
-						HelpViewer hv = new HelpViewer(Blink.getInstance().getClass().getResource("/ozvm-manual.html"));
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}					
-				}
-			});
-		}
-		
-		return menuUserManualItem;
-	}
-	
-	protected JMenuItem getMenuAboutOZvmItem() {
-		if (menuAboutOZvmItem == null) {
-			menuAboutOZvmItem = new JMenuItem();
-			menuAboutOZvmItem.setMnemonic(KeyEvent.VK_A);
-			menuAboutOZvmItem.setText("About");
-		}
-		return menuAboutOZvmItem;
-	}	
 }
