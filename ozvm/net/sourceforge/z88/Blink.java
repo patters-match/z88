@@ -366,8 +366,8 @@ public final class Blink extends Z80 {
 	 * (The 8 * 8 pixel per char PipeDream Map, max. 256x8 pixels)
 	 */	
 	public int getPb2() {
-		int extAddressBank = (PB2 << 7) & 0xFE00;
-		int extAddressOffset = (PB2 << 5) & 0x10;
+		int extAddressBank = (PB2 << 7) & 0xFF00;
+		int extAddressOffset = (PB2 << 5) & 0x0020;
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
@@ -391,8 +391,8 @@ public final class Blink extends Z80 {
 	 * (The 8 * 8 pixel per char fonts for the OZ window)
 	 */	
 	public int getPb3() {
-		int extAddressBank = (PB3 << 5) & 0xE000;
-		int extAddressOffset = (PB3 << 3) & 0x0031;
+		int extAddressBank = (PB3 << 5) & 0xFF00;
+		int extAddressOffset = (PB3 << 3) & 0x0038;
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
@@ -419,8 +419,8 @@ public final class Blink extends Z80 {
 	 * If this register is 0, then the system cannot render the pixel screen.
 	 */	
 	public int getSbr() {
-		int extAddressBank = (PB3 << 5) & 0xE000;
-		int extAddressOffset = (PB3 << 3) & 0x0031;
+		int extAddressBank = (SBR << 5) & 0xFF00;
+		int extAddressOffset = (SBR << 3) & 0x0038;
 
 		return (extAddressBank | extAddressOffset) << 8;
 	}
@@ -883,31 +883,31 @@ public final class Blink extends Z80 {
 			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
 				System.out.print("PB0, LORES0 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb0((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Integer.toHexString(getPb0()) + ")");
+				System.out.println( " (ext.address = " + Dz.byteToHex(getPb0() >>> 16, false) + Dz.addrToHex(getPb0() & 0x00FFFF, false) + ")");
 				break;				
 
 			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
 				System.out.print("PB1, LORES1 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb1((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Integer.toHexString(getPb1()) + ")");
+				System.out.println( " (ext.address = " + Dz.byteToHex(getPb1() >>> 16, false) + Dz.addrToHex(getPb1() & 0x00FFFF, false) + ")");
 				break;				
 
 			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
 				System.out.print("PB2, HIRES0 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb2((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Integer.toHexString(getPb2()) + ")");
+				System.out.println( " (ext.address = " + Dz.byteToHex(getPb2() >>> 16, false) + Dz.addrToHex(getPb2() & 0x00FFFF, false) + ")");				
 				break;				
 
 			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
 				System.out.print("PB3, HIRES1 = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setPb3((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Integer.toHexString(getPb3()) + ")");
+				System.out.println( " (ext.address = " + Dz.byteToHex(getPb3() >>> 16, false) + Dz.addrToHex(getPb3() & 0x00FFFF, false) + ")");
 				break;				
 
 			case 0x74 : // SBR, Screen Base Register 
 				System.out.print("SBR, Screen Base Register = " + Dz.byteToHex(addrA15, false) + Dz.byteToHex(outByte, false));
 				setSbr((addrA15 << 8) | outByte);
-				System.out.println( " (ext.address = " + Integer.toHexString(getSbr()) + ")");
+				System.out.println( " (ext.address = " + Dz.byteToHex(getSbr() >>> 16, false) + Dz.addrToHex(getSbr() & 0x00FFFF, false) + ")");
 				break;				
 		}
 	}
