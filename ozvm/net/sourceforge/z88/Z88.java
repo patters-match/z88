@@ -28,52 +28,129 @@ import java.net.*;
 
 public class Z88 extends Z80 {
 
- 	public boolean	runAtFullSpeed = true;
-
-	/** Since execute runs as a tight loop, some Java VM implementations
-	 *  don't allow any other threads to get a look in. This give the
-	 *  GUI time to update. If anyone has a better solution please 
-	 *  email us at mailto:spectrum@odie.demon.co.uk
-	 */
-	public  int     sleepHack = 0;
 	public  int     refreshRate = 1;  // refresh every 'n' interrupts
 
 	private int     interruptCounter = 0;
 	private boolean resetAtNextInterrupt = false;
 	private boolean pauseAtNextInterrupt = false;
 	private boolean refreshNextInterrupt = true;
-	private boolean loadFromURLFieldNextInterrupt = false;
 
 	public  Thread  pausedThread = null;
 	public  long    timeOfLastInterrupt = 0;
 	private long    timeOfLastSample = 0;
 
-	public long oldTime = 0;
-	public int oldSpeed = -1; // -1 mean update progressBar
-	public int newSpeed = 0;
-	public boolean showStats = true;
-	public String statsMessage = null;
-	private boolean flashInvert = false;
+	// **************  Z88 Hardware ************************
+	private Bank z88Memory[];	// array for 256 16K banks, addressing 4Mb
+	private Bank RAMS;			// reference bank bank 0x00 or 0x20 
+	
+	// Segment register array for SR0 - SR3
+	// Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
+	// Segment register 1, SR1, bank binding for 0x4000 - 0x7FFF
+	// Segment register 2, SR2, bank binding for 0x8000 - 0xBFFF	
+	// Segment register 3, SR3, bank binding for 0xC000 - 0xFFFF
+	//
+	// any of the registers contains a bank number, 0 - 255 that
+	// is currently bound into the corresponding segment in the
+	// Z80 address space. 
+	private int sR[];	
 
-	private Bank z88Memory[];
-		
+	
+	// **************  Initialize Z88 Hardware ************************
 	public Z88() throws Exception {
-		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster)
+		// Z88 runs at 3.2768Mhz (the old spectrum was 3.5Mhz, a bit faster...)
 		super( 3.2768 );
 
-		// Initialize Z88 memory
-		z88Memory = new Bank[256];	// The Z88 memory organisation can address 256 banks * 16K = 4MB!
+		// Initialize Z88 memory model
+		z88Memory = new Bank[256];	// The Z88 memory addresses 256 banks = 4MB!
+		sR = new int[4];			// the segment register SR0 - SR3
 	}
-
-	/** Byte access to virtual memory model */
+	// *****************************************************************
+	
+	/** 
+	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word 
+	 * that points into the Z80 64K address space.
+	 * 
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space 
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes. 
+	 **/
 	public int readByte( int addr ) {
-		return 0;
+		int segment = (addr & 0xC000) >>> 14; // bit 15 & 14 identifies segment
+		
+		// the Z88 spends most of the time in segments 1 - 3,
+		// therefore we should ask for this first...
+		if (segment > 0) {
+			return z88Memory[sR[segment]].readByte(addr);
+		} else {
+			// Bank 0 is split into two 8K blocks.
+			// Lower 8K is System Bank 0x00 (ROM on hard reset) 
+			// or 0x20 (RAM for Z80 stack and system variables)
+			if (addr < 0x2000) {
+				return RAMS.readByte(addr);
+			} else {
+				// determine which 8K of bank has been bound into 
+				// upper half of segment 0. Only even numbered banks
+				// can be bound into upper segment 0.
+				// (to implement this hardware feature, we strip bit 0
+				// of the bank number with the bit mask 0xFE)
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of 
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF 
+					// (upper half of bank)
+					return z88Memory[sR[0] & 0xFE].readByte(addr);
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					return z88Memory[sR[0] & 0xFE].readByte(addr & 0x1FFF);
+				}
+			}
+		}
 	}
 	
-	/** Write byte to virtual memory model */
+	/** 
+	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word 
+	 * that points into the Z80 64K address space.
+	 * 
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space 
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes. 
+	 **/
 	public void writeByte ( int addr, int b ) {
+		int segment = (addr & 0xC000) >>> 14; // bit 15 & 14 identifies segment
+		
+		// the Z88 spends most of the time in segments 1 - 3,
+		// therefore we should try this first...
+		if (segment > 0) {
+			z88Memory[sR[segment]].writeByte(addr, b);
+		} else {
+			// Bank 0 is split into two 8K blocks.
+			// Lower 8K is System Bank 0x00 (ROM on hard reset) 
+			// or 0x20 (RAM for Z80 stack and system variables)
+			if (addr < 0x2000) {
+				RAMS.writeByte(addr, b);
+			} else {
+				// determine which 8K of bank has been bound into 
+				// upper half of segment 0. Only even numbered banks
+				// can be bound into upper segment 0.
+				// (to implement this hardware feature, we strip bit 0
+				// of the bank number with the bit mask 0xFE)
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of 
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF 
+					// (upper half of bank)
+					z88Memory[sR[0] & 0xFE].writeByte(addr, b);
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					z88Memory[sR[0] & 0xFE].writeByte(addr & 0x1FFF, b);
+				}
+			}
+		}
 	}
-
 
 	/**
 	 * Z80 hardware interface
@@ -83,6 +160,7 @@ public class Z88 extends Z80 {
 
 		return(res);
 	}
+
 	public void outb( int port, int outByte, int tstates ) {
 	}
 
@@ -113,12 +191,7 @@ public class Z88 extends Z80 {
 
 		// Characters flash every 1/2 a second
 		if ( (interruptCounter % 25) == 0 ) {
-			refreshFlashChars();
-		}
-
-		// Update speed indicator every 2 seconds of 'Spectrum time'
-		if ( (interruptCounter % 100) == 0 ) {
-			refreshSpeed();
+			// refreshFlashChars();
 		}
 
 		// Refresh every interrupt by default
@@ -134,19 +207,8 @@ public class Z88 extends Z80 {
 		if ( (interruptCounter % 4) == 0 ) {
 			long durOfLastInterrupt = timeOfLastInterrupt - timeOfLastSample;
 			timeOfLastSample = timeOfLastInterrupt;
-			if ( !runAtFullSpeed && (durOfLastInterrupt < 40) ) {
-				try { Thread.sleep( 50 - durOfLastInterrupt ); }
-				catch ( Exception ignored ) {}
-			}
 		}
 
-		// This was put in to handle Netscape 2 which was prone to
-		// locking up if one thread never gave up its timeslice.
-		if ( sleepHack > 0 ) {
-			try { Thread.sleep( sleepHack ); }
-			catch ( Exception ignored ) {}
-		}
-		
 		return super.interrupt();
 	}
 
@@ -170,24 +232,6 @@ public class Z88 extends Z80 {
 		super.reset();
 	}
 
-
-	public final void refreshSpeed() {
-		long newTime = timeOfLastInterrupt;
-
-		if ( oldTime != 0 ) {
-			newSpeed = (int) (200000.0 / (newTime - oldTime));
-		}
-
-		oldTime = newTime;
-	}
-
-	private final void refreshFlashChars() {
-		flashInvert = !flashInvert;
-	}
-
-	private final void toggleSpeed() {
-		runAtFullSpeed = !runAtFullSpeed;
-	}
 
 	private int readBytes( InputStream is, int a[], int off, int n ) throws Exception {
 		try {
