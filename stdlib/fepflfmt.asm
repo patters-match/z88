@@ -81,11 +81,14 @@
                     PUSH DE
                     PUSH BC
                     PUSH HL
-
+                    CALL FlashEprCardId           
+                    JR   C, format_error
+                    LD   E,B                      ; preserve no of 16K banks on FC
+                    PUSH HL                       
                     CALL FileEprRequest           ; get pointer to File Eprom Header (or potential) in slot C
-                    JR   C,format_error           ; No File Eprom available...
-
-                    CALL ErasePtBlocks            ; always erase available file area (all sectors)
+                    CALL C, no_filearea           ; no file area found, setup parameters to format complete card
+                    POP  HL                       ; Flash Card ID
+                    CALL ErasePtBlocks            ; erase all sectors of file area
                     JR   C,format_error
 .just_fehdr                                       ; empty banks are assumed below header (containing FF's)...
                     CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
@@ -102,16 +105,32 @@
                     POP  BC
                     POP  DE
                     RET
-
+; when no file area was found, we format the complete card as a file area
+.no_filearea
+                    LD   B,E                      ; no of 16K banks on Flash Card
+                    DEC  B                        ; no. of banks on Flash Card --> relative top bank of card
+                    LD   A,C                      ; slot number
+                    RRCA
+                    RRCA
+                    OR   B
+                    LD   B,A                      ; B = top Bank of slot to erased
+                    LD   C,E                      ; C = total banks to be erased on card.
+                    RET
+                    
 
 ; ************************************************************************
 ;
+; Erase / format sectors, based on information from FileEprRequest lib.
+;
 ; Erase all sectors in Flash File Eprom, from the top (that includes
-; the File Eprom Header) and downwards to the bottom of the card.
+; the File Eprom Header) and downwards to the bottom of the card if no
+; OZ header information was found, otherwise format only sectors below
+; the application area.
 ;
 ; IN:
-;    B = Top bank of File Eprom (absolute bank with embedded slot mask)
+;    B = Top bank of File Eprom (absolute bank with embedded slot mask) (if Fc = 0)
 ;    C = Number of 16K banks in File Eprom Area
+;    HL = Card ID
 ;
 ; OUT:
 ;    Fc = 0, 
@@ -137,10 +156,10 @@
                     RLCA
                     RLCA                     
                     LD   C,A                 ; Flash Memory card is in slot C
-                    CALL FlashEprCardId      ; get the Card ID in HL...
-                    JR   C, exit_ErasePtBlocks
+                    
                     PUSH DE
                     LD   DE,FE_AM29F010B
+                    CP   A
                     SBC  HL,DE               ; AM29F010B Flash Memory in slot C?
                     POP  DE
                     JR   NZ, _64K_block_fe   ; no, it's a 64K sector architecture Flash Memory
