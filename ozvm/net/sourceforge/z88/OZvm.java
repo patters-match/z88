@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 
+import javax.swing.JPanel;
+
 /**
  * Main entry of the Z88 virtual machine.
  * 
@@ -33,7 +35,7 @@ public class OZvm {
 	 */
 	private Breakpoints breakp;
     
-	OZvm(java.awt.Canvas canvas) {
+	OZvm(JPanel canvas) {
 		try {
 			z88 = new Blink(canvas);
 
