@@ -273,7 +273,7 @@ ENDIF
                     defm 1,"B S",1,"Bave file",$0D,$0A
                     defm 1,"B F",1,"Betch file",$0D,$0A
                     defm 1,"B R",1,"Bestore",$0D,$0A
-                    defm " De", 1,"Bv",1,"Bice",$0D,$0A
+                    defm " De", 1,"BV",1,"Bice",$0D,$0A
                     defm 1,"B D",1,"Belete file",$0D,$0A
                     defm 1,"B ! ",1,"BFormat"
                     defm 1,"2-C"
@@ -677,8 +677,17 @@ ENDIF
                     ld   hl,lac
                     CALL_OZ gn_sop                ; centre justify...
 
+                    ld   hl,tinyvdu      
+                    CALL_OZ gn_sop
+                    
+                    ld   a,(curslot)
+                    ld   c,a
+                    CALL FlashEprInfo
+                    CALL_OZ gn_sop
+                    CALL_OZ(Gn_Nln)
+                    
                     CALL DisplayEpromSize
-
+                    
                     ld   hl,t704_ms
                     CALL_OZ gn_sop
                     ld   hl,free
@@ -707,7 +716,7 @@ ENDIF
 
 .slot_br            defm "SLOT "
 .lac                defm 1,"2JC",0
-.t704_ms            defm 1,"3@",33,34,0
+.t704_ms            defm 1,"3@",33,35,0
 .bfre_ms            defm " bytes free",0
 .fisa_ms            defm " files saved",0
 .fdel_ms            defm " files deleted",0
@@ -766,7 +775,7 @@ ENDIF
 .flashvdu           DEFM 1,"2+F"
 .tinyvdu            DEFM 1,"2+T",0
 .ksize              DEFM "K ",0
-.fepr               DEFM "FILE EPROM",1,"3-TF",0
+.fepr               DEFM "FILE AREA",1,"3-TF",0
 
 
 
@@ -1958,6 +1967,48 @@ ENDIF
                     POP  AF
                     RET
 
+; ************************************************************************************************
+; Fetch Intel Flash Eprom Device Code and return information of chip.
+;
+; IN:
+;    None.
+;
+; OUT:
+;    Fc = 0, Flash Eprom Recognized in slot 3
+;         B = total of Blocks on Flash Eprom
+;         HL = pointer to Mnemonic description of Flash Eprom
+;    Fc = 1, Flash Eprom not found in slot X, or Device code not found
+;
+.FlashEprInfo       LD   A,(curslot)
+                    LD   C,A
+                    CALL FlashEprCardId
+                    RET  C
+
+                    LD   A,L                      ; get Device Code in A.
+                    PUSH DE
+                    LD   HL, FlashEprTypes
+                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
+                    LD   B,(HL)                   ; no. of Flash Eprom Types in table
+                    INC  HL
+.find_loop          CP   (HL)                     ; device code found?
+                    JR   NZ, get_next
+                         INC  HL                  ; points at manufacturer code
+                         INC  HL
+                         LD   B,(HL)              ; B = total of block on Flash Eprom
+                         INC  HL
+                         INC  HL                  ; points at mnemonic string description.
+                         LD   E,(HL)
+                         INC  HL
+                         LD   D,(HL)
+                         EX   DE,HL               ; HL = pointer to mnemonic string
+                         POP  DE
+                         RET                      ; Fc = 0, Flash Eprom data returned...
+.get_next           ADD  HL,DE
+                    DJNZ find_loop                ; point at next entry...
+                    SCF
+                    POP  DE                       ; Flash Eprom Device Code not recognised
+                    RET
+
 
 ; ************************************************************************
 ;
@@ -2142,6 +2193,22 @@ ENDIF
                     defm 1,"3@",35,35,1,"2?","D",1,"2?","E",1,"2?","F",1,"2?","G"
                     defm 1,"3@",35,36,1,"2?","H",1,"2?","I",1,"2?","J",1,"2?","K"
                     defb 0
+
+.FlashEprTypes
+                    DEFB 6
+                    DEFW FE_I28F004S5, 8, mnem_i004
+                    DEFW FE_I28F008SA, 16, mnem_i008
+                    DEFW FE_I28F008S5, 16, mnem_i8s5
+                    DEFW FE_AM29F010B, 8, mnem_am010b
+                    DEFW FE_AM29F040B, 8, mnem_am040b
+                    DEFW FE_AM29F080B, 16, mnem_am080b
+
+.mnem_i004          DEFM "I28F004S5 (512K)", 0
+.mnem_i008          DEFM "I28F008SA (1024K)", 0
+.mnem_i8S5          DEFM "I28F008S5 (1024K)", 0
+.mnem_am010b        DEFM "AM29F010B (128K)", 0
+.mnem_am040b        DEFM "AM29F040B (512K)", 0
+.mnem_am080b        DEFM "AM29F080B (1024K)", 0
 
 
 ; ************************************************************************
