@@ -2054,7 +2054,6 @@ public class Gui extends JFrame {
 		if(helpMenu == null) {		
 			helpMenu = new javax.swing.JMenu();
 			helpMenu.setText("Help");
-			helpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
 			
 			helpMenu.add(getUserManualMenuItem());
 			helpMenu.add(getAboutOZvmMenuItem());			
@@ -2108,7 +2107,6 @@ public class Gui extends JFrame {
 	private JMenu getFileMenu() {
 		if (fileMenu == null) {
 			fileMenu = new JMenu();
-			fileMenu.setMnemonic(KeyEvent.VK_F);
 			fileMenu.setText("File");
 
 			fileMenu.add(getFileDebugMenuItem());
@@ -2156,7 +2154,6 @@ public class Gui extends JFrame {
 	private JMenu getViewMenu() {
 		if (viewMenu == null) {
 			viewMenu = new JMenu();
-			viewMenu.setMnemonic(KeyEvent.VK_V);
 			viewMenu.setText("View");			
 			viewMenu.add(getRtmMessagesMenuItem());
 			viewMenu.add(getZ88keyboardMenuItem());			
