@@ -466,6 +466,10 @@ public class OZvm {
 		return memCmdline;
 	}
 
+	public void bootZ88Rom() {
+		z80Thread = run();
+	}
+	
 	private Thread run() {
 		Thread thread = new Thread() {
 			public void run() {
