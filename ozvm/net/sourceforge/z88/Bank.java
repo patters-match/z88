@@ -44,6 +44,6 @@ public class Bank {
 			memory[0x3FFF & offset] = 0xFF & b;
 	}
 	
-	public void loadBank(InputStream is, int offset, int n ) throws Exception {
+	public void loadBytes(InputStream is, int offset, int  ) throws Exception {
 	}
 }
