@@ -194,7 +194,7 @@ public class Gui extends JFrame {
 			key05EfButton.setBounds(73, 49, 32, 32);
 			key05EfButton.setPreferredSize(new Dimension(32, 32));
 			key05EfButton.setMargin(new Insets(2, 2, 2, 2));
-			key05EfButton.setText("Q");
+			key05EfButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/q.gif")));
 			key05EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x05, 0xEF);
@@ -222,7 +222,7 @@ public class Gui extends JFrame {
 			key04EfButton.setBounds(115, 49, 32, 32);
 			key04EfButton.setPreferredSize(new Dimension(32, 32));
 			key04EfButton.setMargin(new Insets(2, 2, 2, 2));
-			key04EfButton.setText("W");
+			key04EfButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/w.gif")));
 			key04EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x04, 0xEF);
@@ -250,7 +250,7 @@ public class Gui extends JFrame {
 			key03EfButton.setBounds(157, 49, 32, 32);
 			key03EfButton.setPreferredSize(new Dimension(32, 32));
 			key03EfButton.setMargin(new Insets(2, 2, 2, 2));
-			key03EfButton.setText("E");
+			key03EfButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/e.gif")));
 			
 			key03EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -280,7 +280,7 @@ public class Gui extends JFrame {
 			key02EfButton.setBounds(199, 49, 32, 32);
 			key02EfButton.setPreferredSize(new Dimension(32, 32));
 			key02EfButton.setMargin(new Insets(2, 2, 2, 2));
-			key02EfButton.setText("R");
+			key02EfButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/r.gif")));
 			key02EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
 					Z88Keyboard.getInstance().pressZ88key(0x02, 0xEF);
@@ -307,7 +307,7 @@ public class Gui extends JFrame {
 			key01EfButton.setBounds(241, 49, 32, 32);
 			key01EfButton.setPreferredSize(new Dimension(32, 32));
 			key01EfButton.setMargin(new Insets(2, 2, 2, 2));
-			key01EfButton.setText("T");
+			key01EfButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/t.gif")));
 			
 			key01EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -335,7 +335,7 @@ public class Gui extends JFrame {
 			key00EfButton.setBounds(283, 49, 32, 32);
 			key00EfButton.setPreferredSize(new Dimension(32, 32));
 			key00EfButton.setMargin(new Insets(2, 2, 2, 2));
-			key00EfButton.setText("Y");
+			key00EfButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/y.gif")));
 			
 			key00EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -365,7 +365,7 @@ public class Gui extends JFrame {
 			key01FdButton.setBounds(325, 49, 32, 32);
 			key01FdButton.setPreferredSize(new Dimension(32, 32));
 			key01FdButton.setMargin(new Insets(2, 2, 2, 2));
-			key01FdButton.setText("U");
+			key01FdButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/u.gif")));
 			
 			key01FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -394,7 +394,7 @@ public class Gui extends JFrame {
 			key01FeButton.setBounds(367, 49, 32, 32);
 			key01FeButton.setPreferredSize(new Dimension(32, 32));
 			key01FeButton.setMargin(new Insets(2, 2, 2, 2));
-			key01FeButton.setText("I");
+			key01FeButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/i.gif")));
 
 			key01FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -424,7 +424,7 @@ public class Gui extends JFrame {
 			key02FeButton.setBounds(409, 49, 32, 32);
 			key02FeButton.setPreferredSize(new Dimension(32, 32));
 			key02FeButton.setMargin(new Insets(2, 2, 2, 2));
-			key02FeButton.setText("O");
+			key02FeButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/o.gif")));
 			
 			key02FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -453,7 +453,7 @@ public class Gui extends JFrame {
 			key04FeButton.setBounds(451, 49, 32, 32);
 			key04FeButton.setPreferredSize(new Dimension(32, 32));
 			key04FeButton.setMargin(new Insets(2, 2, 2, 2));
-			key04FeButton.setText("P");
+			key04FeButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/p.gif")));
 			
 			key04FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -621,7 +621,7 @@ public class Gui extends JFrame {
 			key05F7Button.setBackground(Color.BLACK);
 			key05F7Button.setBounds(79, 91, 32, 32);
 			key05F7Button.setMargin(new Insets(2, 2, 2, 2));
-			key05F7Button.setText("A");
+			key05F7Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/a.gif")));
 			
 			key05F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -650,7 +650,7 @@ public class Gui extends JFrame {
 			key04F7Button.setBackground(Color.BLACK);
 			key04F7Button.setBounds(121, 91, 32, 32);
 			key04F7Button.setMargin(new Insets(2, 2, 2, 2));
-			key04F7Button.setText("S");
+			key04F7Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/s.gif")));
 			
 			key04F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -678,7 +678,7 @@ public class Gui extends JFrame {
 			key03F7Button.setBackground(Color.BLACK);
 			key03F7Button.setBounds(162, 91, 32, 32);
 			key03F7Button.setMargin(new Insets(2, 2, 2, 2));
-			key03F7Button.setText("D");
+			key03F7Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/d.gif")));
 			
 			key03F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -707,7 +707,7 @@ public class Gui extends JFrame {
 			key02F7Button.setBackground(Color.BLACK);
 			key02F7Button.setBounds(204, 91, 32, 32);
 			key02F7Button.setMargin(new Insets(2, 2, 2, 2));
-			key02F7Button.setText("F");
+			key02F7Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/f.gif")));
 			
 			key02F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -735,7 +735,7 @@ public class Gui extends JFrame {
 			key01F7Button.setBackground(Color.BLACK);
 			key01F7Button.setBounds(246, 91, 32, 32);
 			key01F7Button.setMargin(new Insets(2, 2, 2, 2));
-			key01F7Button.setText("G");
+			key01F7Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/g.gif")));
 			
 			key01F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -763,7 +763,7 @@ public class Gui extends JFrame {
 			key00F7Button.setBackground(Color.BLACK);
 			key00F7Button.setBounds(288, 91, 32, 32);
 			key00F7Button.setMargin(new Insets(2, 2, 2, 2));
-			key00F7Button.setText("H");
+			key00F7Button.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/h.gif")));
 			
 			key00F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -792,7 +792,7 @@ public class Gui extends JFrame {
 			key02FdButton.setBackground(Color.BLACK);
 			key02FdButton.setBounds(330, 91, 32, 32);
 			key02FdButton.setMargin(new Insets(2, 2, 2, 2));
-			key02FdButton.setText("J");
+			key02FdButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/j.gif")));
 			
 			key02FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -820,7 +820,7 @@ public class Gui extends JFrame {
 			key03FdButton.setBackground(Color.BLACK);
 			key03FdButton.setBounds(372, 91, 32, 32);
 			key03FdButton.setMargin(new Insets(2, 2, 2, 2));
-			key03FdButton.setText("K");
+			key03FdButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/k.gif")));
 			
 			key03FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -848,7 +848,7 @@ public class Gui extends JFrame {
 			key05FdButton.setBackground(Color.BLACK);
 			key05FdButton.setBounds(414, 91, 32, 32);
 			key05FdButton.setMargin(new Insets(2, 2, 2, 2));
-			key05FdButton.setText("L");
+			key05FdButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/l.gif")));
 			
 			key05FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -958,7 +958,7 @@ public class Gui extends JFrame {
 			key05FbButton.setBackground(Color.BLACK);
 			key05FbButton.setBounds(98, 133, 32, 32);
 			key05FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key05FbButton.setText("Z");
+			key05FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/z.gif")));
 			
 			key05FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -986,7 +986,7 @@ public class Gui extends JFrame {
 			key04FbButton.setBackground(Color.BLACK);
 			key04FbButton.setBounds(139, 133, 32, 32);
 			key04FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key04FbButton.setText("X");
+			key04FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/x.gif")));
 			
 			key04FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1013,7 +1013,7 @@ public class Gui extends JFrame {
 			key03FbButton.setBackground(Color.BLACK);
 			key03FbButton.setBounds(180, 133, 32, 32);
 			key03FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key03FbButton.setText("C");
+			key03FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/c.gif")));
 			
 			key03FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1041,7 +1041,7 @@ public class Gui extends JFrame {
 			key02FbButton.setBackground(Color.BLACK);
 			key02FbButton.setBounds(222, 133, 32, 32);
 			key02FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key02FbButton.setText("V");
+			key02FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/v.gif")));
 			
 			key02FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1068,7 +1068,7 @@ public class Gui extends JFrame {
 			key01FbButton.setBackground(Color.BLACK);
 			key01FbButton.setBounds(263, 133, 32, 32);
 			key01FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key01FbButton.setText("B");
+			key01FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/b.gif")));
 			
 			key01FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1097,7 +1097,7 @@ public class Gui extends JFrame {
 			key00FbButton.setBackground(Color.BLACK);
 			key00FbButton.setBounds(305, 133, 32, 32);
 			key00FbButton.setMargin(new Insets(2, 2, 2, 2));
-			key00FbButton.setText("N");
+			key00FbButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/n.gif")));
 			
 			key00FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
@@ -1125,7 +1125,7 @@ public class Gui extends JFrame {
 			key04FdButton.setBackground(Color.BLACK);
 			key04FdButton.setBounds(347, 133, 32, 32);
 			key04FdButton.setMargin(new Insets(2, 2, 2, 2));
-			key04FdButton.setText("M");
+			key04FdButton.setIcon(new ImageIcon(Blink.getInstance().getClass().getResource("/pixel/keys/std/m.gif")));
 			
 			key04FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
