@@ -22,6 +22,9 @@ import java.util.TimerTask;
  */
 public class OZvm {
 
+	Blink z88 = null;
+	private MonitorZ80 z80Speed = null;
+
 	OZvm() {
 		try {
 			z88 = new Blink();
@@ -40,10 +43,6 @@ public class OZvm {
 			System.out.println("\n\nCouldn't initialize Z88 virtual machine.");
 		}
 	}
-	
-	Blink z88 = null;
-
-	private MonitorZ80 z80Speed = null;
 
 	public void startZ80SpeedPolling() {
 		z80Speed.start();
