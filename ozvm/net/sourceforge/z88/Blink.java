@@ -306,7 +306,6 @@ public final class Blink extends Z80 {
 	 * Pixel Base Register 0
 	 */
 	public void setPb0(int bits) {
-		System.out.println("PB0, Pixel Base Register 0 = " + Integer.toHexString(bits));
 		PB0 = bits;
 	}
 	
@@ -319,7 +318,6 @@ public final class Blink extends Z80 {
 	 * Pixel Base Register 1
 	 */
 	public void setPb1(int bits) {
-		System.out.println("PB1, Pixel Base Register 1 = " + Integer.toHexString(bits));
 		PB1 = bits;
 	}
 	
@@ -332,7 +330,6 @@ public final class Blink extends Z80 {
 	 * Pixel Base Register 2
 	 */
 	public void setPb2(int bits) {
-		System.out.println("PB2, Pixel Base Register 2 = " + Integer.toHexString(bits));
 		PB2 = bits;
 	}
 	
@@ -345,7 +342,6 @@ public final class Blink extends Z80 {
 	 * Set Pixel Base Register 3
 	 */
 	public void setPb3(int bits) {
-		System.out.println("PB3, Pixel Base Register 3 = " + Integer.toHexString(bits));
 		PB3 = bits;
 	}
 	
@@ -358,7 +354,6 @@ public final class Blink extends Z80 {
 	 * Set Screen Base Register
 	 */	
 	public void setSbr(int bits) {
-		System.out.println("SBR, Screen Base Register = " + Integer.toHexString(bits));
 		SBR = bits;
 	}
 	
@@ -470,7 +465,7 @@ public final class Blink extends Z80 {
 		int bankno;
 		
 		if (pc >= 0x2000) {
-			bankno = sR[pc >>> 14];
+			bankno = sR[(pc >>> 14) & 0x03];
 		} else {
 			// return lower 8K Bank binding
 			// Lower 8K is System Bank 0x00 (ROM on hard reset)
@@ -782,7 +777,6 @@ public final class Blink extends Z80 {
 	/**
 	 * Implement Z88 output port Blink hardware. 
 	 * (RTC, Screen, Keyboard, Memory model, Serial port, CPU state).
-
 	 * 
 	 * @param addrA8 LSB of port address
 	 * @param addrA15 MSB of port address
@@ -818,22 +812,28 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
+				System.out.println("PB0, Pixel Base Register 0 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
+
 				setPb0(outByte);
 				break;				
 
 			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
+				System.out.println("PB1, Pixel Base Register 1 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
 				setPb1(outByte);
 				break;				
 
 			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
+				System.out.println("PB2, Pixel Base Register 2 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
 				setPb2(outByte);
 				break;				
 
 			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
+				System.out.println("PB3, Pixel Base Register 3 = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
 				setPb3(outByte);
 				break;				
 
 			case 0x74 : // SBR, Screen Base Register 
+				System.out.println("SBR, Screen Base Register = " + Integer.toHexString(addrA15) + Integer.toHexString(outByte));
 				setSbr(outByte);
 				break;				
 		}
