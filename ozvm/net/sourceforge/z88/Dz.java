@@ -2,20 +2,20 @@ package net.sourceforge.z88;
 
 /**
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
- * 
+ *
  * Z88 (Z80) Disassembler. All Z88 OZ manifests are recognised. Code converted &
  * improved from C source, as part of the DZasm 0.22 utility.
  *
  * All 'undocumented' Z80 instructions are recognized, eg. SLL or LD  ixh,ixl.
- * 
+ *
  * $Id$
  */
 
 public class Dz {
 
-	private static final char[] hexcodes = 
+	private static final char[] hexcodes =
 		{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-	
+
 	private static final String mainStrMnem[] = {
 		"NOP", /* 00 */
 		"LD   BC,{0}", /* 01 */
@@ -3934,7 +3934,7 @@ public class Dz {
 		"OZ   GN_M24", /* E7 7609 */
 		"OZ   GN_D24", /* E7 7809 */
 		"OZ   UNKNOWN", };
-         
+
 	private static final String ozfppStrMnem[] = {
 		"FPP  FP_AND", /* DF 21 */
 		"FPP  FP_IDV", /* DF 24 */
@@ -3986,31 +3986,31 @@ public class Dz {
 
 	/**
 	 * Return Hex 8bit string in XXh zero prefixed format.
-	 * 
+	 *
 	 * @param b The byte to be converted to hex string
 	 * @param hexTrailer append 'h' if true.
 	 * @return String
 	 */
 	public static final String byteToHex(final int b, final boolean hexTrailer) {
 		StringBuffer hexString = new StringBuffer(3);
-		
+
 		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]);
 		if (hexTrailer == true) hexString.append('h');
-		
-		return hexString.toString();		
+
+		return hexString.toString();
 	}
 
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
-	 * 
+	 *
 	 * @param addr The 16bit address to be converted to hex string
 	 * @param hexTrailer append 'h' if true.
 	 * @return String
-	 */	
+	 */
 	public static final String addrToHex(final int addr, final boolean hexTrailer) {
 		int msb = addr >>> 8, lsb = addr & 0xFF;
 		StringBuffer hexString = new StringBuffer(5);
-		
+
 		hexString.append(hexcodes[msb/16]).append(hexcodes[msb%16]);
 		hexString.append(hexcodes[lsb/16]).append(hexcodes[lsb%16]);
 		if (hexTrailer == true) hexString.append('h');
@@ -4020,16 +4020,16 @@ public class Dz {
 
 	/**
 	 * Return 24bit address string in XXXXXXh zero prefixed format.
-	 * 
+	 *
 	 * @param addr The 24bit address to be converted to hex string
 	 * @param hexTrailer append 'h' if true.
 	 * @return String
-	 */	
+	 */
 	public static final String extAddrToHex(final int addr, final boolean hexTrailer) {
 		int bank = addr >>> 16 & 0xFF;
 		int msb = addr >>> 8 & 0xFF, lsb = addr & 0xFF;
 		StringBuffer hexString = new StringBuffer(7);
-		
+
 		hexString.append(hexcodes[bank/16]).append(hexcodes[bank%16]);
 		hexString.append(hexcodes[msb/16]).append(hexcodes[msb%16]);
 		hexString.append(hexcodes[lsb/16]).append(hexcodes[lsb%16]);
@@ -4037,20 +4037,20 @@ public class Dz {
 
 		return hexString.toString();
 	}
-	
+
 	public Dz(Blink z88Blink) {
 		blink = z88Blink;
 	}
 
 
 	/**
-	 * Disassemble Z80 instruction at extended address offset, bank. 
-	 * 
+	 * Disassemble Z80 instruction at extended address offset, bank.
+	 *
 	 * The Ascii string is generated into the mnemonic argument, which the caller
 	 * can display appropriately. The address of the next instruction is
 	 * returned, when disassembly has completed. You can therefore use this
 	 * method in a loop and perform continous disassembly.
-	 * 
+	 *
 	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
 	 * @param offset the 16bit offset within bank
 	 * @param bank the bank number (0-255)
@@ -4062,7 +4062,7 @@ public class Dz {
 				blink.getByte(offset+2,bank) << 16 |
 				blink.getByte(offset+1,bank) << 8 |
 				blink.getByte(offset+0,bank);
-			
+
 		offset += dzInstrAscii(mnemonic, offset, i, dispaddr);
 
 		return offset;
@@ -4071,21 +4071,21 @@ public class Dz {
 
 	/**
 	 * Disassemble Z80 instruction at address pc in local 64K address space, as
-	 * defined by the current bank bindings for segments 0 - 3. 
-	 * 
+	 * defined by the current bank bindings for segments 0 - 3.
+	 *
 	 * The Ascii string is generated into the opcode argument, which the caller
 	 * can display appropriately. The address of the next instruction is
 	 * returned, when disassembly has completed. You can therefore use this
 	 * method in a loop and perform continous disassembly.
-	 * 
+	 *
 	 * @param opcode StringBuffer, the container for the Ascii disassembly
 	 * @param pc int, the current address (Program Counter of Z80 instruction
 	 * @param dispaddr boolean, display Hex address as part of disassembly
 	 * @return int address of following instruction
 	 */
-	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispaddr) {		
+	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispaddr) {
 		pc += dzInstrAscii(mnemonic, pc, blink.readInstruction(pc), dispaddr);
-		
+
 		return pc;
 	}
 
@@ -4093,16 +4093,16 @@ public class Dz {
 	/**
 	 * Disassemble Z80 instruction opcode stored in packed 4 byte integer.
 	 * (Z80 instruction vary in length between 1 and 4 bytes)
-	 * 
+	 *
 	 * The Ascii string is generated into the mnemonic argument, which the caller
 	 * can display appropriately. The opcode size of the current instruction is
-	 * returned, when disassembly has completed. 
-	 * 
+	 * returned, when disassembly has completed.
+	 *
 	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
 	 * @param origPc int, a display address (possibly the Program Counter of Z80 instruction)
 	 * @param instrOpcode int, the 4 byte instruction opcode, packed in MSB order
 	 * @param dispaddr boolean, display Program Counter Hex address as part of disassembly
-	 * @return int the actual size of instruction opcode 
+	 * @return int the actual size of instruction opcode
 	 */
 	public static final int dzInstrAscii(final StringBuffer mnemonic, final int origPc, int instrOpcode, final boolean dispaddr) {
 		int i, instrOpcodeOffset = 0;
@@ -4119,7 +4119,7 @@ public class Dz {
 			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode array in low byte, high byte order...
 			instrOpcode >>>= 8;
 		}
-		
+
 		i = opcode[instrOpcodeOffset++];
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
@@ -4134,7 +4134,7 @@ public class Dz {
 				i = opcode[instrOpcodeOffset++];
 				break;
 
-			case 221 : 
+			case 221 :
 				i = opcode[instrOpcodeOffset];
 				if (i == 203) {
 					/* DD CB op xx opcode strMnem */
@@ -4149,7 +4149,7 @@ public class Dz {
 				instrOpcodeOffset++;
 				break;
 
-			case 253 : 
+			case 253 :
 				i = opcode[instrOpcodeOffset];
 				if (i == 203) {
 					/* FD CB op xx opcode strMnem */
@@ -4216,16 +4216,16 @@ public class Dz {
 				strMnem = mainStrMnem;
 				argsMnem = mainArgsMnem;
 		}
-		
+
 		mnemonic.append(strMnem[i]);	// the instruction opcode string...
 		if (argsMnem != null) {
 			int replaceMacro = mnemonic.indexOf("{0}");
-			
+
 			switch (argsMnem[i]) {
 				case 2 :
 					int addr = opcode[instrOpcodeOffset];
 					addr += 256 * opcode[instrOpcodeOffset+1];
-										
+
 					mnemonic.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
 					instrOpcodeOffset += 2; /* move past opcode */
 					break;
@@ -4265,7 +4265,7 @@ public class Dz {
 						mnemonic.replace(replaceMacro, replaceMacro+3, "+" + Integer.toString(relidx));
 					else
 						mnemonic.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
-						
+
 					mnemonic.replace(replaceOperand, replaceOperand+3, byteToHex(opcode[instrOpcodeOffset++], true));
 					break;
 
@@ -4286,24 +4286,24 @@ public class Dz {
 			// display address and opcodes, before instruction mnemonic...
 			StringBuffer instrBytes = new StringBuffer(24);
 			instrBytes.append(addrToHex(origPc, false)).append(' ');
-			
-			for(int p=0; p<instrOpcodeOffset; p++) 
-				instrBytes.append(byteToHex(opcode[p], false)).append(' '); 
+
+			for(int p=0; p<instrOpcodeOffset; p++)
+				instrBytes.append(byteToHex(opcode[p], false)).append(' ');
 			for(int space=4 - instrOpcodeOffset; space>0; space--)
 				instrBytes.append("   ");		// pad with spaces, to right-align with Mnemonic
-			
+
 			mnemonic.insert(0, instrBytes.toString());
-			
+
 		}
 
 		return instrOpcodeOffset; // return the size of bytes of this instruction
 	}
 
-	
+
 
 	/**
 	 * Decode Z80 instruction at extended address offset, bank and
-	 * return the next PC address. 
+	 * return the next PC address.
 
 	 * @param offset the 16bit offset within bank
 	 * @param bank the bank number (0-255)
@@ -4316,7 +4316,7 @@ public class Dz {
 				blink.getByte(offset+0,bank);
 
 		offset += calcInstrOpcodeSize(i);
-		
+
 		return offset;
 	}
 
@@ -4324,7 +4324,7 @@ public class Dz {
 	/**
 	 * Decode Z80 instruction at address pc in local 64K address space, as
 	 * defined by the current bank bindings for segments 0 - 3 and
-	 * return the next PC address. 
+	 * return the next PC address.
 	 *
 	 * @param pc the current address (Program Counter of Z80 instruction
 	 * @return address of following instruction
@@ -4335,7 +4335,7 @@ public class Dz {
 		return pc;
 	}
 
-	
+
 	/**
 	 * Decode Z80 instruction and return size of instruction opcode.
 	 * The instrOpcode contains a 4 byte sequense (MSB format) which contains
@@ -4353,7 +4353,7 @@ public class Dz {
 			opcode[opc] = instrOpcode & 0xFF;	// instruction opcode array in low byte, high byte order...
 			instrOpcode >>>= 8;
 		}
-		
+
 		i = opcode[instrOpcodeOffset++];
 		switch (i) {
 			case 203 : /* CB opcode strMnem */
@@ -4411,7 +4411,7 @@ public class Dz {
 				argsMnem = mainArgsMnem;
 		}
 
-		if (argsMnem != null) {			
+		if (argsMnem != null) {
 			switch (argsMnem[i]) {
 				case 2 :
 					instrOpcodeOffset += 2; /* move past opcode */

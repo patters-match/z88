@@ -31,11 +31,11 @@ public class Z88Keyboard implements KeyListener {
 	public static final int COUNTRY_NO = 10;	// Norwegian Keyboard layout
 	public static final int COUNTRY_CH = 11;	// Keyboard layout for Schweiz
 	public static final int COUNTRY_TR = 12;	// Keyboard layout for Turkey
-	
+
     private Map currentLayout = null;
-    private Map[] z88Keyboards = null;			// country specific keyboard layouts  
-	
-	private int keyRows[] = new int[8];			// Z88 Hardware Keyboard (8x8) Matrix 
+    private Map[] z88Keyboards = null;			// country specific keyboard layouts
+
+	private int keyRows[] = new int[8];			// Z88 Hardware Keyboard (8x8) Matrix
 	private KeyPress z88RshKey = null;			// Right Shift Key
 	private KeyPress z88LshKey = null;			// Left Shift Key
 
@@ -54,13 +54,13 @@ public class Z88Keyboard implements KeyListener {
 	private KeyPress z88HelpKey = null;
 	private KeyPress z88MenuKey = null;
 	private KeyPress z88SpaceKey = null;
-	
+
 	private Blink blink = null;
 
 	// The Key.
 	private class KeyPress {
 		private int keyCode;		// The unique host 'key' for this entity, typically a SWT.xxx constant
-		private int keyZ88Typed;	// The Z88 Keyboard Matrix Entry for single typed key, eg. "A" 
+		private int keyZ88Typed;	// The Z88 Keyboard Matrix Entry for single typed key, eg. "A"
 		private int keyZ88Modifier;	// The Z88 Keyboard Matrix Entry for Z88 modifier key, eg. SHIFT OR DIAMOND
 
 		public KeyPress(int kcd, int keyTyped) {
@@ -68,97 +68,97 @@ public class Z88Keyboard implements KeyListener {
 			keyZ88Typed = keyTyped;
 		}
 	}
- 
+
 
     /**
      * Create the instance to bind the blink and SWT widget together.
-     * 
+     *
      */
 	public Z88Keyboard(Blink bl, JPanel cnv) {
 		blink = bl;
-		
+
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
-		
+
 		z88Keyboards = new Map[13];					// create the container for the various country keyboard layouts.
 		createSystemKeys();
 		createKbLayouts();
 		currentLayout = z88Keyboards[COUNTRY_EN];	// use default UK keyboard layout for default UK V4 ROM.
-		 
+
 		// map Host keyboard events to this z88 keyboard, so that the emulator responds to keypresses.
-		cnv.setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas 
-		cnv.addKeyListener(this);		
+		cnv.setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas
+		cnv.addKeyListener(this);
     }
 
 
 	private void createKbLayouts() {
 		Map defaultKbLayout = createUkLayout();
-		
+
 		// just use english keyboard for all countries that haven't got their layout implemented yet
-		for (int l=0; l<z88Keyboards.length; l++) z88Keyboards[l] = defaultKbLayout;  
+		for (int l=0; l<z88Keyboards.length; l++) z88Keyboards[l] = defaultKbLayout;
 
 		z88Keyboards[COUNTRY_FR] = createFrLayout();	// implement French keyboard layout
 		z88Keyboards[COUNTRY_DK] = createDkLayout();	// implement Danish keyboard layout
 		z88Keyboards[COUNTRY_SE] = createSeFiLayout();	// implement Swedish/Finish keyboard layout
-		z88Keyboards[COUNTRY_FI] = z88Keyboards[COUNTRY_SE]; 
+		z88Keyboards[COUNTRY_FI] = z88Keyboards[COUNTRY_SE];
 	}
 
-	
+
 	private void createSystemKeys() {
-		// RSH: row 7 (0x7F), column 7 (0x7F, 01111111)		
+		// RSH: row 7 (0x7F), column 7 (0x7F, 01111111)
 		z88RshKey = new KeyPress(KeyEvent.VK_SHIFT, 0x077F);
 
-		// LSH: row 6 (0xBF), column 7 (0xBF, 10111111)		
+		// LSH: row 6 (0xBF), column 7 (0xBF, 10111111)
 		z88LshKey = new KeyPress(KeyEvent.VK_SHIFT, 0x06BF);
 
 		// SQR: row 7 (0x7F), column 6 (0xBF, 10111111)
-		z88SquareKey = new KeyPress(KeyEvent.VK_ALT, 0x07BF); 
+		z88SquareKey = new KeyPress(KeyEvent.VK_ALT, 0x07BF);
 
-		// DIA: row 6 (0xBF), column 4 (0xEF, 11101111)		
-		z88DiamondKey = new KeyPress(KeyEvent.VK_CONTROL, 0x06EF); 
+		// DIA: row 6 (0xBF), column 4 (0xEF, 11101111)
+		z88DiamondKey = new KeyPress(KeyEvent.VK_CONTROL, 0x06EF);
 
-		// TAB = TAB, row 6 (0xBF), column 5 (0xDF, 11011111)		
-		z88TabKey = new KeyPress(KeyEvent.VK_TAB, 0x06DF); 
+		// TAB = TAB, row 6 (0xBF), column 5 (0xDF, 11011111)
+		z88TabKey = new KeyPress(KeyEvent.VK_TAB, 0x06DF);
 
-		// DEL = Back Space, row 0 (0xFE), column 7 (0x7F, 01111111)		
+		// DEL = Back Space, row 0 (0xFE), column 7 (0x7F, 01111111)
 		z88DelKey = new KeyPress(KeyEvent.VK_BACK_SPACE, 0x007F);
 
-		// ENTER, row 0 (0xFE), column 6 (0xBF, 10111111)		
+		// ENTER, row 0 (0xFE), column 6 (0xBF, 10111111)
 		z88EnterKey = new KeyPress(KeyEvent.VK_ENTER, 0x00BF);
 
-		// ARROW LEFT, row 4 (0xEF), column 6 (0xBF, 10111111)		
-		z88ArrowLeftKey = new KeyPress(KeyEvent.VK_LEFT, 0x04BF); 
+		// ARROW LEFT, row 4 (0xEF), column 6 (0xBF, 10111111)
+		z88ArrowLeftKey = new KeyPress(KeyEvent.VK_LEFT, 0x04BF);
 
-		// ARROW RIGHT, row 3 (0xF7), column 6 (0xBF, 10111111)		
-		z88ArrowRightKey = new KeyPress(KeyEvent.VK_RIGHT, 0x03BF); 
+		// ARROW RIGHT, row 3 (0xF7), column 6 (0xBF, 10111111)
+		z88ArrowRightKey = new KeyPress(KeyEvent.VK_RIGHT, 0x03BF);
 
-		// ARROW DOWN, row 2 (0xFB), column 6 (0xBF, 10111111)		
-		z88ArrowDownKey = new KeyPress(KeyEvent.VK_DOWN, 0x02BF); 
+		// ARROW DOWN, row 2 (0xFB), column 6 (0xBF, 10111111)
+		z88ArrowDownKey = new KeyPress(KeyEvent.VK_DOWN, 0x02BF);
 
-		// ARROW UP, row 1 (0xFD), column 6 (0xBF, 10111111)		
-		z88ArrowUpKey = new KeyPress(KeyEvent.VK_UP, 0x01BF); 
+		// ARROW UP, row 1 (0xFD), column 6 (0xBF, 10111111)
+		z88ArrowUpKey = new KeyPress(KeyEvent.VK_UP, 0x01BF);
 
 		// CAPS LOCK = CAPS, row 7 (0x7F), column 3 (0xF7, 11110111)
-		z88CapslockKey = new KeyPress(KeyEvent.VK_CAPS_LOCK, 0x07F7); 
+		z88CapslockKey = new KeyPress(KeyEvent.VK_CAPS_LOCK, 0x07F7);
 
 		// ESC = ESC, row 7 (0x7F), column 5 (0xDF, 11011111)
-		z88EscKey = new KeyPress(KeyEvent.VK_ESCAPE, 0x07DF); 
+		z88EscKey = new KeyPress(KeyEvent.VK_ESCAPE, 0x07DF);
 
 		// INDEX = F2, row 7 (0x7F), column 4 (0xEF, 11101111)
-		z88IndexKey = new KeyPress(KeyEvent.VK_F2, 0x07EF); 
+		z88IndexKey = new KeyPress(KeyEvent.VK_F2, 0x07EF);
 
-		// HELP = F1, row 6 (0xBF), column 7 (0x7F, 01111111)		
-		z88HelpKey = new KeyPress(KeyEvent.VK_F1, 0x067F); 
+		// HELP = F1, row 6 (0xBF), column 7 (0x7F, 01111111)
+		z88HelpKey = new KeyPress(KeyEvent.VK_F1, 0x067F);
 
-		// MENU = F3, row 6 (0xBF), column 3 (0xF7, 11110111)		
-		z88MenuKey = new KeyPress(KeyEvent.VK_F3, 0x06F7); 
+		// MENU = F3, row 6 (0xBF), column 3 (0xF7, 11110111)
+		z88MenuKey = new KeyPress(KeyEvent.VK_F3, 0x06F7);
 
 		// SPACE, row 5 (0xEF), column 6 (0xBF, 10111111)
-		z88SpaceKey = new KeyPress(KeyEvent.VK_SPACE, 0x05BF); 
+		z88SpaceKey = new KeyPress(KeyEvent.VK_SPACE, 0x05BF);
 	}
 
 
 	/**
-	 * All Z88 keyboard layouts, whatever country, has the same system 
+	 * All Z88 keyboard layouts, whatever country, has the same system
 	 * key positions in the matrix (<>, [], INDEX, HELP, CAPS...)<p>
 	 *
 	 * A few conventions have been defined to map the special keys in the Z88
@@ -175,33 +175,33 @@ public class Z88Keyboard implements KeyListener {
 	 * 		PAGE DOWN		= SHIFT DownArrow
 	 * 		DELETE			= SHIFT BackSpace
 	 * </PRE>
-	 * 
+	 *
 	 */
 	private void mapSystemKeys(Map keyboardLayout) {
-		// TAB = TAB, row 6 (0xBF), column 5 (0xDF, 11011111)		
+		// TAB = TAB, row 6 (0xBF), column 5 (0xDF, 11011111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_TAB), (KeyPress) z88TabKey);
 
-		// DEL = Back Space, row 0 (0xFE), column 7 (0x7F, 01111111)		
+		// DEL = Back Space, row 0 (0xFE), column 7 (0x7F, 01111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_BACK_SPACE), (KeyPress) z88DelKey);
 
-		// ENTER, row 0 (0xFE), column 6 (0xBF, 10111111)		
+		// ENTER, row 0 (0xFE), column 6 (0xBF, 10111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_ENTER), (KeyPress) z88EnterKey);
-		 
-		// ARROW LEFT, row 4 (0xEF), column 6 (0xBF, 10111111)		
+
+		// ARROW LEFT, row 4 (0xEF), column 6 (0xBF, 10111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_LEFT), (KeyPress) z88ArrowLeftKey);
-		keyboardLayout.put(new Integer(KeyEvent.VK_KP_LEFT), (KeyPress) z88ArrowLeftKey);		
-		
-		// ARROW RIGHT, row 3 (0xF7), column 6 (0xBF, 10111111)		
+		keyboardLayout.put(new Integer(KeyEvent.VK_KP_LEFT), (KeyPress) z88ArrowLeftKey);
+
+		// ARROW RIGHT, row 3 (0xF7), column 6 (0xBF, 10111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_RIGHT), (KeyPress) z88ArrowRightKey);
-		keyboardLayout.put(new Integer(KeyEvent.VK_KP_RIGHT), (KeyPress) z88ArrowRightKey);		
-		
-		// ARROW DOWN, row 2 (0xFB), column 6 (0xBF, 10111111)		
+		keyboardLayout.put(new Integer(KeyEvent.VK_KP_RIGHT), (KeyPress) z88ArrowRightKey);
+
+		// ARROW DOWN, row 2 (0xFB), column 6 (0xBF, 10111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_DOWN), (KeyPress) z88ArrowDownKey);
 		keyboardLayout.put(new Integer(KeyEvent.VK_KP_DOWN), (KeyPress) z88ArrowDownKey);
-				
-		// ARROW UP, row 1 (0xFD), column 6 (0xBF, 10111111)		
+
+		// ARROW UP, row 1 (0xFD), column 6 (0xBF, 10111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_UP), (KeyPress) z88ArrowUpKey);
-		keyboardLayout.put(new Integer(KeyEvent.VK_KP_UP), (KeyPress) z88ArrowUpKey);		
+		keyboardLayout.put(new Integer(KeyEvent.VK_KP_UP), (KeyPress) z88ArrowUpKey);
 
 		// CAPS LOCK = CAPS, row 7 (0x7F), column 3 (0xF7, 11110111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_CAPS_LOCK), (KeyPress) z88CapslockKey);
@@ -212,19 +212,19 @@ public class Z88Keyboard implements KeyListener {
 		// CAPS LOCK = CAPS LOCK, row 7 (0x7F), column 3 (0xF7, 11110111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_CAPS_LOCK), (KeyPress) z88CapslockKey);
 
-		// HELP = F1, row 6 (0xBF), column 7 (0x7F, 01111111)		
+		// HELP = F1, row 6 (0xBF), column 7 (0x7F, 01111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_F1), (KeyPress) z88HelpKey);
 
 		// INDEX = F2, row 7 (0x7F), column 4 (0xEF, 11101111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_F2), (KeyPress) z88IndexKey);
 
-		// MENU = F3, row 6 (0xBF), column 3 (0xF7, 11110111)		
-		keyboardLayout.put(new Integer(KeyEvent.VK_F3), (KeyPress) z88MenuKey);		
+		// MENU = F3, row 6 (0xBF), column 3 (0xF7, 11110111)
+		keyboardLayout.put(new Integer(KeyEvent.VK_F3), (KeyPress) z88MenuKey);
 
 		// SPACE, row 5 (0xEF), column 6 (0xBF, 10111111)
 		keyboardLayout.put(new Integer(KeyEvent.VK_SPACE), (KeyPress) z88SpaceKey);
 	}
-	
+
 
 	/**
 	 * Create Key Event mappings for Z88 english (UK) keyboard matrix.
@@ -232,15 +232,15 @@ public class Z88Keyboard implements KeyListener {
 	 * All key entry mappings are implemented using the
 	 * International 104 PC Keyboard with the UK layout.
 	 * In other words, to obtain the best Z88 keyboard access
-	 * on an english (UK) Rom, you need to use the english keyboard 
-	 * layout on your host operating system.  
-	 * 
+	 * on an english (UK) Rom, you need to use the english keyboard
+	 * layout on your host operating system.
+	 *
 	 * The mappings only contains the single key press access.
 	 * Modifier key combinations (with Shift, Diamond, Square) are
 	 * automatically handled by the Z88 operating system. "OZvm"
 	 * just maps the modifier keys to host PC keyboard and let
 	 * OZ decide what to display on the Z88.
-	 * 
+	 *
 	 * <PRE>
 	 *	------------------------------------------------------------------------
 	 *	UK Keyboard matrix
@@ -262,7 +262,7 @@ public class Z88Keyboard implements KeyListener {
 	private Map createUkLayout() {
 		Map keyboardLayout;
 		KeyPress keyp;
-				
+
 		keyboardLayout = new HashMap();
 		mapSystemKeys(keyboardLayout);
 
@@ -273,7 +273,7 @@ public class Z88Keyboard implements KeyListener {
 		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_PERIOD, 0x07FB); keyboardLayout.put(new Integer(KeyEvent.VK_PERIOD), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_SLASH, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_SLASH), (KeyPress) keyp);		
+		keyp = new KeyPress(KeyEvent.VK_SLASH, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_SLASH), (KeyPress) keyp);
 
 		// The '£' key is not available as a single letter on UK Internatial PC keyboards
 		// Therefore we use the '#' key (the same position on the host UK keyboard layout as on the Z88 keyboard)
@@ -317,7 +317,7 @@ public class Z88Keyboard implements KeyListener {
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11101111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
-		// -------------------------------------------------------------------------			
+		// -------------------------------------------------------------------------
 		// A12 (#4) | ]      LFT     2       W       S       X       M       P
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_CLOSE_BRACKET, 0x047F); keyboardLayout.put(new Integer(KeyEvent.VK_CLOSE_BRACKET), (KeyPress) keyp);
@@ -335,7 +335,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11110111
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A11 (#3) | -      RGT     3       E       D       C       K       9
 		// Single key:
@@ -356,7 +356,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111011
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A10 (#2) | =      DWN     4       R       F       V       J       O
 		// Single key:
@@ -375,7 +375,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111101
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A9  (#1) | \      UP      5       T       G       B       U       I
 		// Single key:
@@ -390,11 +390,11 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_U, 0x01FD); keyboardLayout.put(new Integer(KeyEvent.VK_U), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_I, 0x01FE); keyboardLayout.put(new Integer(KeyEvent.VK_I), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
-		
+
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111110
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
 		// Single key:
@@ -423,14 +423,14 @@ public class Z88Keyboard implements KeyListener {
 	 * International 104 PC Keyboard with the french (FR) layout.
 	 * In other words, to obtain the best Z88 keyboard access
 	 * on a French Z88 Rom, you need to use the French keyboard layout on
-	 * your host operating system.  
-	 * 
+	 * your host operating system.
+	 *
 	 * The mappings only contains the single key press access.
 	 * Modifier key combinations (with Shift, Diamond, Square) are
 	 * automatically handled by the Z88 operating system. "OZvm"
 	 * just maps the modifier keys to host PC keyboard and let
 	 * OZ decide what to display on the Z88.
-	 * 
+	 *
 	 * <PRE>
 	 *	------------------------------------------------------------------------
 	 *	FR Keyboard matrix
@@ -452,7 +452,7 @@ public class Z88Keyboard implements KeyListener {
 	private Map createFrLayout() {
 		Map keyboardLayout;
 		KeyPress keyp;
-				
+
 		keyboardLayout = new HashMap();
 		mapSystemKeys(keyboardLayout);
 
@@ -463,7 +463,7 @@ public class Z88Keyboard implements KeyListener {
 		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    :       $       ^
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_COLON, 0x07FB); keyboardLayout.put(new Integer(KeyEvent.VK_COLON), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_DOLLAR, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_DOLLAR), (KeyPress) keyp);		
+		keyp = new KeyPress(KeyEvent.VK_DOLLAR, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_DOLLAR), (KeyPress) keyp);
 
 		keyp = new KeyPress(KeyEvent.VK_DEAD_CIRCUMFLEX, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_DEAD_CIRCUMFLEX), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
@@ -499,7 +499,7 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_L, 0x05FD); keyboardLayout.put(new Integer(KeyEvent.VK_L), (KeyPress) keyp);
 
 		keyp = new KeyPress((0x10000 | 'à'), 0x05FE); keyboardLayout.put(new Integer((0x10000 | 'à')), (KeyPress) keyp);
-		keyp = new KeyPress((0x10000 | 128), 0x05FE); keyboardLayout.put(new Integer((0x10000 | 128)), (KeyPress) keyp); // CTRL à 
+		keyp = new KeyPress((0x10000 | 128), 0x05FE); keyboardLayout.put(new Integer((0x10000 | 128)), (KeyPress) keyp); // CTRL à
 		keyp = new KeyPress((0x10000 | KeyEvent.VK_0), 0x05FE); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_0)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD0, 0x05FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD0), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
@@ -508,7 +508,7 @@ public class Z88Keyboard implements KeyListener {
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11101111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
-		// -------------------------------------------------------------------------			
+		// -------------------------------------------------------------------------
 		// A12 (#4) | =      LFT     é       Z       S       X       ,       P
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_EQUALS, 0x047F); keyboardLayout.put(new Integer(KeyEvent.VK_EQUALS), (KeyPress) keyp);
@@ -528,7 +528,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11110111
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A11 (#3) | )      RGT     "       E       D       C       K       ç
 		// Single key:
@@ -543,7 +543,7 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_K, 0x03FD); keyboardLayout.put(new Integer(KeyEvent.VK_K), (KeyPress) keyp);
 
 		keyp = new KeyPress((0x10000 | 'ç'), 0x03FE); keyboardLayout.put(new Integer((0x10000 | 'ç')), (KeyPress) keyp);
-		keyp = new KeyPress((0x10000 | 135), 0x03FE); keyboardLayout.put(new Integer((0x10000 | 135)), (KeyPress) keyp); // CTRL ç 
+		keyp = new KeyPress((0x10000 | 135), 0x03FE); keyboardLayout.put(new Integer((0x10000 | 135)), (KeyPress) keyp); // CTRL ç
 		keyp = new KeyPress((0x10000 | KeyEvent.VK_9), 0x03FE); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_9)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD9, 0x03FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD9), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111011
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A10 (#2) | -      DWN     '       R       F       V       J       O
 		// Single key:
@@ -570,7 +570,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111101
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A9  (#1) | <      UP      (       T       G       B       U       I
 		// Single key:
@@ -585,17 +585,17 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_U, 0x01FD); keyboardLayout.put(new Integer(KeyEvent.VK_U), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_I, 0x01FE); keyboardLayout.put(new Integer(KeyEvent.VK_I), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
-		
+
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111110
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A8  (#0) | DEL    ENTER   §       Y       H       N       è       !
 		// Single key:
-		
+
 		// '§' is impossible to implement with french host keyboard and Z88, so we use the
-		// '²' key to get single key § for Z88, and indirectly the ^ key with CTRL 
+		// '²' key to get single key § for Z88, and indirectly the ^ key with CTRL
 		keyp = new KeyPress((0x10000 | '²'), 0x00DF); keyboardLayout.put(new Integer((0x10000 | '²')), (KeyPress) keyp);
 		keyp = new KeyPress((0x10000 | KeyEvent.VK_6), 0x00DF); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_6)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD6, 0x00DF); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD6), (KeyPress) keyp);
@@ -605,11 +605,11 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_N, 0x00FB); keyboardLayout.put(new Integer(KeyEvent.VK_N), (KeyPress) keyp);
 
 		keyp = new KeyPress((0x10000 | 'è'), 0x00FD); keyboardLayout.put(new Integer((0x10000 | 'è')), (KeyPress) keyp);
-		keyp = new KeyPress((0x10000 | 136), 0x00FD); keyboardLayout.put(new Integer((0x10000 | 136)), (KeyPress) keyp); // CTRL è 
+		keyp = new KeyPress((0x10000 | 136), 0x00FD); keyboardLayout.put(new Integer((0x10000 | 136)), (KeyPress) keyp); // CTRL è
 		keyp = new KeyPress((0x10000 | KeyEvent.VK_7), 0x00FD); keyboardLayout.put(new Integer((0x10000 | KeyEvent.VK_7)), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD7, 0x00FD); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD7), (KeyPress) keyp);
-		
-		keyp = new KeyPress(KeyEvent.VK_UNDERSCORE, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_UNDERSCORE), (KeyPress) keyp);  // [_ 8] on host keyboard gives [§ 8] on Z88 
+
+		keyp = new KeyPress(KeyEvent.VK_UNDERSCORE, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_UNDERSCORE), (KeyPress) keyp);  // [_ 8] on host keyboard gives [§ 8] on Z88
 		keyp = new KeyPress(KeyEvent.VK_EXCLAMATION_MARK, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_EXCLAMATION_MARK), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_NUMPAD8, 0x00FE); keyboardLayout.put(new Integer(KeyEvent.VK_NUMPAD8), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
@@ -624,15 +624,15 @@ public class Z88Keyboard implements KeyListener {
 	 * All key entry mappings are implemented using the
 	 * International 104 PC Keyboard using the danish layout.
 	 * In other words, to obtain the best Z88 keyboard access
-	 * on a danish (DK) Rom, you need to use the danish keyboard 
-	 * layout on your host operating system.  
-	 * 
+	 * on a danish (DK) Rom, you need to use the danish keyboard
+	 * layout on your host operating system.
+	 *
 	 * The mappings only contains the single key press access.
 	 * Modifier key combinations (with Shift, Diamond, Square) are
 	 * automatically handled by the Z88 operating system. "OZvm"
 	 * just maps the modifier keys to host PC keyboard and let
 	 * OZ decide what to display on the Z88.
-	 * 
+	 *
 	 * <PRE>
 	 *	------------------------------------------------------------------------
 	 *	DK Keyboard matrix
@@ -654,7 +654,7 @@ public class Z88Keyboard implements KeyListener {
 	private Map createDkLayout() {
 		Map keyboardLayout;
 		KeyPress keyp;
-				
+
 		keyboardLayout = new HashMap();
 		mapSystemKeys(keyboardLayout);
 
@@ -665,7 +665,7 @@ public class Z88Keyboard implements KeyListener {
 		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_PERIOD, 0x07FB); keyboardLayout.put(new Integer(KeyEvent.VK_PERIOD), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);		
+		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);
 
 		// The '£' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
 		keyp = new KeyPress(KeyEvent.VK_LESS, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_LESS), (KeyPress) keyp);
@@ -714,7 +714,7 @@ public class Z88Keyboard implements KeyListener {
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11101111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
-		// -------------------------------------------------------------------------			
+		// -------------------------------------------------------------------------
 		// A12 (#4) | '      LFT     2       W       S       X       M       P
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_QUOTE, 0x047F); keyboardLayout.put(new Integer(KeyEvent.VK_QUOTE), (KeyPress) keyp);
@@ -732,7 +732,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11110111
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A11 (#3) | =      RGT     3       E       D       C       K       9
 		// Single key:
@@ -754,7 +754,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111011
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A10 (#2) | +      DWN     4       R       F       V       J       O
 		// Single key:
@@ -773,7 +773,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111101
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A9  (#1) | /      UP      5       T       G       B       U       I
 		// Single key:
@@ -789,11 +789,11 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_U, 0x01FD); keyboardLayout.put(new Integer(KeyEvent.VK_U), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_I, 0x01FE); keyboardLayout.put(new Integer(KeyEvent.VK_I), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
-		
+
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111110
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
 		// Single key:
@@ -821,15 +821,15 @@ public class Z88Keyboard implements KeyListener {
 	 * All key entry mappings are implemented using the
 	 * International 104 PC Keyboard using the swedish/finish layout.
 	 * In other words, to obtain the best Z88 keyboard access
-	 * on a swedish/finish (SE/FI) Rom, you need to use the 
-	 * swedish/finish keyboard layout on your host operating system.  
-	 * 
+	 * on a swedish/finish (SE/FI) Rom, you need to use the
+	 * swedish/finish keyboard layout on your host operating system.
+	 *
 	 * The mappings only contains the single key press access.
 	 * Modifier key combinations (with Shift, Diamond, Square) are
 	 * automatically handled by the Z88 operating system. "OZvm"
 	 * just maps the modifier keys to host PC keyboard and let
 	 * OZ decide what to display on the Z88.
-	 * 
+	 *
 	 * <PRE>
 	 *	------------------------------------------------------------------------
 	 *	SE/FI Keyboard matrix
@@ -851,7 +851,7 @@ public class Z88Keyboard implements KeyListener {
 	private Map createSeFiLayout() {
 		Map keyboardLayout;
 		KeyPress keyp;
-				
+
 		keyboardLayout = new HashMap();
 		mapSystemKeys(keyboardLayout);
 
@@ -862,7 +862,7 @@ public class Z88Keyboard implements KeyListener {
 		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_PERIOD, 0x07FB); keyboardLayout.put(new Integer(KeyEvent.VK_PERIOD), (KeyPress) keyp);
-		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);		
+		keyp = new KeyPress(KeyEvent.VK_MINUS, 0x07FD); keyboardLayout.put(new Integer(KeyEvent.VK_MINUS), (KeyPress) keyp);
 
 		// The '£' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
 		keyp = new KeyPress(KeyEvent.VK_LESS, 0x07FE); keyboardLayout.put(new Integer(KeyEvent.VK_LESS), (KeyPress) keyp);
@@ -911,7 +911,7 @@ public class Z88Keyboard implements KeyListener {
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11101111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
-		// -------------------------------------------------------------------------			
+		// -------------------------------------------------------------------------
 		// A12 (#4) | '      LFT     2       W       S       X       M       P
 		// Single key:
 		keyp = new KeyPress(KeyEvent.VK_QUOTE, 0x047F); keyboardLayout.put(new Integer(KeyEvent.VK_QUOTE), (KeyPress) keyp);
@@ -929,7 +929,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11110111
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A11 (#3) | =      RGT     3       E       D       C       K       9
 		// Single key:
@@ -951,7 +951,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111011
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A10 (#2) | +      DWN     4       R       F       V       J       O
 		// Single key:
@@ -970,7 +970,7 @@ public class Z88Keyboard implements KeyListener {
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111101
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A9  (#1) | /      UP      5       T       G       B       U       I
 		// Single key:
@@ -986,11 +986,11 @@ public class Z88Keyboard implements KeyListener {
 		keyp = new KeyPress(KeyEvent.VK_U, 0x01FD); keyboardLayout.put(new Integer(KeyEvent.VK_U), (KeyPress) keyp);
 		keyp = new KeyPress(KeyEvent.VK_I, 0x01FE); keyboardLayout.put(new Integer(KeyEvent.VK_I), (KeyPress) keyp);
 		// --------------------------------------------------------------------------------------------------------------------------
-		
+
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11111110
-		//			| D7     D6      D5      D4      D3      D2      D1      D0			
+		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
 		// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
 		// Single key:
@@ -1013,17 +1013,17 @@ public class Z88Keyboard implements KeyListener {
 
 
 	/**
-	 * Scans Z88 hardware keyboard row(s), and returns the 
+	 * Scans Z88 hardware keyboard row(s), and returns the
 	 * corresponding key column(s).<br>
-	 * 
-	 * Typically, only a single row is scanned, eg. @10111111, 
+	 *
+	 * Typically, only a single row is scanned, eg. @10111111,
 	 * but several columns might be polled for simultaneously,
 	 * eg @00111111 (this example would catch left & right SHIFT's
 	 * simultaneously).
-	 * 
+	 *
 	 * If the Z88 wanted to check for a key press in all rows,
-	 * 0 would be specified. 
-	 * 
+	 * 0 would be specified.
+	 *
 	 * @param row, of Z88 keyboard to be scanned, eg @10111111
 	 * @return keyColumn, the column containing one or several key presses.
 	 */
@@ -1044,10 +1044,10 @@ public class Z88Keyboard implements KeyListener {
 	 */
 	private void pressZ88key(KeyPress keyp) {
 		int keyMatrixRow, keyMask;
-		 
+
 		keyMatrixRow = (keyp.keyZ88Typed & 0xff00) >>> 8;
 		keyMask = keyp.keyZ88Typed & 0xff;
-		keyRows[keyMatrixRow] &= keyMask;			
+		keyRows[keyMatrixRow] &= keyMask;
 	}
 
 
@@ -1059,15 +1059,15 @@ public class Z88Keyboard implements KeyListener {
 
 		keyMatrixRow = (keyp.keyZ88Typed & 0xff00) >>> 8;
 		keyMask = keyp.keyZ88Typed & 0xff;
-		keyRows[keyMatrixRow] |= (~keyMask & 0xff);			
-	}	
+		keyRows[keyMatrixRow] |= (~keyMask & 0xff);
+	}
 
 
 	/**
-	 * Set the Z88 keyboard layout to be used for mapping 
+	 * Set the Z88 keyboard layout to be used for mapping
 	 * host keyboard events to Z88 keys. The following
 	 * country codes are available:
-	 *  
+	 *
 	 * <PRE>
 	 *	COUNTRY_US = 0;		// English/US Keyboard layout
 	 *	COUNTRY_FR = 1;		// French Keyboard layout
@@ -1084,37 +1084,37 @@ public class Z88Keyboard implements KeyListener {
 	 * 	COUNTRY_TR = 12;	// Keyboard layout for Turkey
 	 *	COUNTRY_FI = 13;	// Finnish Keyboard layout
 	 * </PRE>
-	 * 
-	 * @param kbl the country code ID 
+	 *
+	 * @param kbl the country code ID
 	 */
 	public void setKeyboardLayout(int kbl) {
-		kbl %= z88Keyboards.length;		
-		
+		kbl %= z88Keyboards.length;
+
 		currentLayout = z88Keyboards[kbl];
 	}
-	
+
 
 	/**
 	 * This event is fired whenever a key press is recognised on the java.awt.Canvas.
 	 */
 	public void keyPressed(KeyEvent e) {
 		KeyPress kp = null;
-		
+
 		// System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SHIFT:
 				// check if left or right SHIFT were pressed
 				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) pressZ88key(z88LshKey);
-				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) pressZ88key(z88RshKey);  
+				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) pressZ88key(z88RshKey);
 				break;
 
 			case KeyEvent.VK_CONTROL:
-				pressZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key   
+				pressZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key
 				break;
-				
+
 			case KeyEvent.VK_ALT:
-				pressZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key 
+				pressZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key
 				break;
 
 			case KeyEvent.VK_DELETE:
@@ -1161,21 +1161,21 @@ public class Z88Keyboard implements KeyListener {
 				break;
 
 			case 0:
-				// Special characters 
+				// Special characters
 				kp = (KeyPress) currentLayout.get(new Integer((0x10000 | e.getKeyChar())));
 				if (kp != null) {
 					pressZ88key(kp);
 				}
 				break;
-				
+
 			default:
 				// All other keypresses are available in keyboard map layout
 				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
 				if (kp != null) {
 					pressZ88key(kp);
 				}
-				break;				
-		}		
+				break;
+		}
 	}
 
 
@@ -1184,7 +1184,7 @@ public class Z88Keyboard implements KeyListener {
 	 */
 	public void keyReleased(KeyEvent e) {
 		KeyPress kp = null;
-		
+
 		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
@@ -1195,15 +1195,15 @@ public class Z88Keyboard implements KeyListener {
 			case KeyEvent.VK_SHIFT:
 				// check if left or right SHIFT were pressed
 				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) releaseZ88key(z88LshKey);
-				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) releaseZ88key(z88RshKey);  
+				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) releaseZ88key(z88RshKey);
 				break;
 
 			case KeyEvent.VK_CONTROL:
-				releaseZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key   
+				releaseZ88key(z88DiamondKey);		// CTRL executes single Z88 DIAMOND key
 				break;
-				
+
 			case KeyEvent.VK_ALT:
-				releaseZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key 
+				releaseZ88key(z88SquareKey);		// ALT executes single Z88 SQUARE key
 				break;
 
 			case KeyEvent.VK_DELETE:
@@ -1228,7 +1228,7 @@ public class Z88Keyboard implements KeyListener {
 					releaseZ88key(z88RshKey);
 				}
 				break;
-				
+
 			case KeyEvent.VK_HOME:
 				releaseZ88key(z88ArrowLeftKey);
 				releaseZ88key(z88DiamondKey);
@@ -1256,14 +1256,14 @@ public class Z88Keyboard implements KeyListener {
 					releaseZ88key(kp);
 				}
 				break;
-												
+
 			default:
 				// All other key releases are available in keyboard map layout
 				kp = (KeyPress) currentLayout.get(new Integer(e.getKeyCode()));
 				if (kp != null) {
 					releaseZ88key(kp);
 				}
-				break;				
+				break;
 		}
 	}
 

@@ -9,8 +9,8 @@ package net.sourceforge.z88;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/** 
- * Z80 instruction speed monitor. 
+/**
+ * Z80 instruction speed monitor.
  * Polls each second for the execution speed and displays it to std out.
  */
 public class MonitorZ80 {
@@ -24,11 +24,11 @@ public class MonitorZ80 {
         blink = b;
         timer = new Timer(true);
     }
-    
+
     private class SpeedPoll extends TimerTask {
         /**
          * Request poll each second, or try to hit the 1 sec time frame...
-         * 
+         *
          * @see java.lang.Runnable#run()
          */
         public void run() {
@@ -39,7 +39,7 @@ public class MonitorZ80 {
             // System.out.println( "IPS=" + ips + ",TPS=" + tps);
 
             oldTimeMs = System.currentTimeMillis();
-        }			
+        }
     }
 
 
@@ -59,4 +59,4 @@ public class MonitorZ80 {
         oldTimeMs = 0;
         timer.scheduleAtFixedRate(monitor, 0, 1000);
     }
-} 
+}
