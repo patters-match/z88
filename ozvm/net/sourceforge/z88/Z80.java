@@ -543,9 +543,9 @@ public abstract class Z80 {
             REFRESH(1);
 
             if (z80Halted == true && z80Stopped == false && singleStepping == false) {
-            	try {
-					Thread.sleep(10);		// make OZvm more relaxed towards outside OS when doing "waiting"
-				} catch (InterruptedException e) {}			
+//            	try {
+//					Thread.sleep(10);		// make OZvm more relaxed towards outside OS when doing "waiting"
+//				} catch (InterruptedException e) {}			
                 continue;                   // back to main decode loop and wait for external interrupt
             }
 
