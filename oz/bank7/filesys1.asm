@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    IsSpecialHandle
 xdef    OpenMem
@@ -17,18 +18,7 @@ xdef    OSRen
 xdef    OSDel
 xdef    FileNameDate
 
-defc    AllocHandle             = $D642
-defc    CopyMemHL_DE            = $D793
-defc    DORHandleFree           = $CB14
-defc    DORHandleFreeDirect     = $CB1A
-defc    DORHandleInUse          = $CCF8
-defc    FreeMemHandle           = $B224
-defc    GetOSFrame_HL           = $D6E5
-defc    InitMemHandle           = $F22C
-defc    loc_F245                = $f245
-defc    MvToFile                = $F4F1
-defc    VerifyHandle            = $D6C6
-
+xref	FreeMemHandle
 
 
 ;       ----

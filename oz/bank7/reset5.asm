@@ -10,13 +10,11 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    Reset5                                  ; Reset4
 
-
-defc    TimeReset       = $9564
-defc    MountAllRAM     = $fe9d
-defc    OSSp_PAGfi      = $f8fa
+xref	TimeReset
 
 
 .Reset5

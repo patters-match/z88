@@ -10,15 +10,10 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    OSCliMain
 
-defc    ApplyQualifiers         = $DCD9
-defc    AtoN_upper              = $D727
-defc    RdKbBuffer              = $EEAB
-defc    PutOSFrame_BC           = $D6EC
-defc    PutOSFrame_DE           = $D6F3
-defc    SetPendingOZwd          = $CDB2
 
 
 .OSCliMain

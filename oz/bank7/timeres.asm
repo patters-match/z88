@@ -10,11 +10,10 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    TimeReset                               ; Reset5
 
-defc    MS1BankA        = $d710
-defc    IntSecond       = $da83
 
 .TimeReset
         ld      a, $21                          ; bind in b21

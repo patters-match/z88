@@ -4,43 +4,20 @@
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module Process1
+        Module NqSp
 
         org $a6d9                            ; 976 bytes
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    OSSpMain
 xdef    OSNqMain
 
-defc    ClearMemHL_A    = $D76F
-defc    CopyMemDE_HL    = $D781
-defc    GetCrsrYX       = $B044
-defc    GetOSFrame_DE   = $D6DE
-defc    GetOSFrame_HL   = $D6E5
-defc    GetWdStartXY    = $FCA6
-defc    GetWindowFrame  = $F1BF
-defc    InitFsMemHandle = $F228
-defc    NqRDS           = $F1DC
-defc    OSNqMemory      = $E70B
-defc    OSNqProcess     = $9B60
-defc    OSSp_89         = $E6FB
-defc    OSSp_PAGfi      = $F8FA
-defc    PeekHLinc       = $D7E2
-defc    PokeHLinc       = $D84C
-defc    PutOSFrame_BC   = $D6EC
-defc    PutOSFrame_DE   = $D6F3
-defc    PutOSFrame_HL   = $D6FD
-defc    RdFile          = $F8A0
-defc    NqSp_ret        = $F1B5
-defc    ScrD_GetMargins = $AEBA
-defc    ScreenClose     = $FAF6
-defc    ScreenOpen      = $FAEA
-defc    SetMemHandlePos = $F222
-defc    WrFile          = $F89D
-defc    FreeMemData     = $F275
-
+xref	ScrD_GetMargins
+xref	GetCrsrYX
+xref	OSNqProcess
 
 .OSNqWindow
         cp      9                               ; range check

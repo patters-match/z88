@@ -10,12 +10,8 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
-defc    INTEntry                = $d8d0
-defc    NMIEntry                = $d02b
-defc    CallErrorHandler        = $d08e
-defc    OZBuffCallTable         = $fee9
-defc    OZCallTable             = $ff00
 
 ; this code is copied to 0000 - 01A4
 
@@ -401,3 +397,4 @@ defc    OZCallTable             = $ff00
         ret     c                               ; ints were disabled? exit
         ei
         ret
+

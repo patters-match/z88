@@ -10,16 +10,10 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    OSAlmMain
 
-defc    AllocHandle             = $D642
-defc    CopyMemHL_DE            = $D793
-defc    DecActiveAlm            = $DAAF
-defc    FreeHandle              = $D628
-defc    GetOSFrame_HL           = $D6E5
-defc    IncActiveAlm            = $daa9
-defc    MaySetPendingAlmTask    = $DAB3
 
 ;       ----
 

@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    OSPoll
 xdef    ClearUnsafeArea
@@ -18,10 +19,6 @@ xdef    ChkStkLimits
 xdef    Mailbox2Stack
 xdef    OSNqProcess
 
-defc    CopyMemBHL_DE           = $D795
-defc    GetAppDOR               = $EA2B
-defc    NQAin                   = $c206
-defc    PutOSFrame_BC           = $D6EC
 
 
 

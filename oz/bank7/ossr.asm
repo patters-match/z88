@@ -10,31 +10,16 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    OSSr_Sus
 xdef    OSSr_Fus                                ; OS_Ent
 xdef    FreeMemHandle                           ; OpenMem, sub_F669
 
-
-defc    AllocHandle     = $d642
-defc    InitMemHandle   = $f22c
-defc    SaveScreen      = $fe39
-defc    VerifyHandle    = $d6c6
-defc    loc_F245        = $f245
-defc    RestoreScreen   = $fe35
-defc    FixPtr          = $d8a2
-defc    CopyMemBHL_DE   = $d795
-defc    CopyMemDE_BHL   = $d785
-defc    sub_F25D        = $f25d
-defc    FreeHandle      = $d628
-defc    GetCurrentWdInfo= $a4f4
-defc    loc_A59C        = $a59c
-defc    MTHPrint        = $e7a2
-defc    loc_A553        = $a553
-defc    RestoreActiveWd = $a500
-defc    PutOSFrame_BC   = $d6ec
-defc    PutOSFrame_DE   = $d6f3
-
+xref	GetCurrentWdInfo
+xref	InitTopicWd
+xref	DrawTopicWd
+xref	RestoreActiveWd
 
 .OSSr_Err
         ld      a, RC_Fail
@@ -180,7 +165,7 @@ defc    PutOSFrame_DE   = $d6f3
         ret     nz                              ; CLI active? exit
 
         call    GetCurrentWdInfo
-        call    loc_A59C
+        call    InitTopicWd
         call    MTHPrint
         defm    1,"2I7"
         defm    1,"2C",$FE
@@ -212,7 +197,7 @@ defc    PutOSFrame_DE   = $d6f3
         jr      nc, sr_12                       ; go see if it's extended char
 .sr_13
         push    af
-        call    loc_A553
+        call    DrawTopicWd
         pop     af
         call    RestoreActiveWd
         ret     nc

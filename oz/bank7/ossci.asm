@@ -10,12 +10,10 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    OsSci
 
-defc    ScreenOpen      = $faea
-defc    ScreenClose     = $faf6
-defc    InitSBF         = $f936                 ; !! should be local
 
 .Table
         defb 0, 3, 6, 7, 5, 5                   ; #low bits ignored

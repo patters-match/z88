@@ -10,17 +10,11 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    StoreCardIDs
 xdef    ChkCardChange
 
-defc    AddRAMCard              =$ca17
-defc    DrawOZwd                =$FA11
-defc    MS1BankA                =$D710
-defc    OZwd__fail              =$F9E7
-defc    OZwd_card               =$F9D2
-defc    OZwd_index              =$F9D7
-defc    S2VerifySlotType        =$D71C
 
 ;       ----
 

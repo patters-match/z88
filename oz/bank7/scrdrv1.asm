@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 ;       most of these xdefs/xrefs go away if all screen code is moved to bank 7
 ;       second part of code is at $f90c-fdf4
@@ -22,6 +23,7 @@ xdef    OSIsq                                   ; Printer driver
 xdef    OSWsq
 xdef    StorePrefixed                           ; Printer driver
 xdef    InitUserAreaGrey                        ; MTH, OS_Ent
+xdef	ScrD_GetMargins				; NqSp
 
 xdef    VDU2ChrCode                             ; NqRDS    all these are screen related code in b00
 xdef    GetCrsrYX                               ; NqRDS
@@ -31,39 +33,6 @@ xdef    ScrD_GetNewXY                           ; screen driver code reference
 xdef    GetWindowNum                            ; screen driver code reference
 xdef    ScrDrvAttrTable                         ; screen driver code reference
 
-defc    AtoN_upper              = $D727
-defc    KPrint                  = $D74D
-defc    CopyMemDE_BHL           = $D785
-defc    Chk128KB                = $FF9F
-
-defc    InitWindowFrame         = $F94E          ; all these will go away too, I hope
-defc    ResetWdAttrs            = $F992
-defc    TogglePrFilter          = $F9C0
-defc    ScreenOpen              = $FAEA
-defc    ScreenClose             = $FAF6
-defc    MoveToXY                = $FAFA
-defc    ScrDrvGetAttrBits       = $FB05
-defc    sub_FB26                = $FB26
-defc    SetScrAttr              = $FB50
-defc    ResetScrAttr            = $FB51
-defc    ToggleScrDrvFlags       = $FB6E
-defc    CallFuncDE              = $FB83
-defc    PutBoxChar              = $FB99
-defc    ScreenCR                = $FBA1
-defc    CursorLeft              = $FBA5
-defc    CursorRight             = $FBF1
-defc    CursorUp                = $FC1B
-defc    CursorDown              = $FC36
-defc    ClearEOW                = $FC66
-defc    ClearScr                = $FC6C
-defc    ClearEOL                = $FCAD
-defc    ScrollUp                = $FD18
-defc    ScrollDown              = $FD4E
-defc    ClearCarry              = $FDD1
-defc    NewXValid               = $FDDB
-defc    NewYValid               = $FDE8
-defc    OSBlp                   = $FDF5
-defc    ScreenBL                = $FE1A
 
 
 ;       ----

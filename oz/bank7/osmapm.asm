@@ -10,19 +10,12 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    OSMapMain
 
-defc    Chk128KB                = $FF9F
-defc    GetCurrentWdInfo        = $A4F4
-defc    GetWindowFrame          = $F1BF
-defc    HoldCurrentWd           = $A500
-defc    KPrint                  = $D74D
-defc    PeekHLinc               = $D7E2
-defc    PokeBHL                 = $D857
-defc    PutOSFrame_BC           = $D6EC
-defc    ScreenClose             = $FAF6
-defc    ScreenOpen              = $FAEA
+xref	GetCurrentWdInfo
+xref	RestoreActiveWd
 
 
 .OSMapMain
@@ -124,7 +117,7 @@ defc    ScreenOpen              = $FAEA
 
         ld      a, (iy+OSFrame_A)
         OZ      OS_Out                          ; write a byte to std. output
-        call    HoldCurrentWd
+        call    RestoreActiveWd
         pop     de
         pop     bc
         ld      (ix+wdf_rmargin), d

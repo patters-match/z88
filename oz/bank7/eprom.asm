@@ -10,8 +10,8 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
-defc    HND_TEMP        = $FA
 
 xdef    OSEprTable
 

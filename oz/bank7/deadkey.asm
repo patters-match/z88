@@ -10,11 +10,11 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    KbdDeadKeys
 xdef    Key2Code
 
-defc    DrawOZwd                = $FA11
 
 
 .KbdDeadKeys

@@ -10,6 +10,7 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 
 xdef    DoHelp
@@ -25,49 +26,7 @@ xdef    DrawTopicWd
 xdef    InitTopicWd
 xdef    InitHelpWd
 
-defc    ReserveStkBuf           =$d7a3
-defc    sub_EFBB                =$efbb
-defc    InitUserAreaGrey        =$afa8
-defc    SetHlpActiveHelp        =$c9c8
-defc    GetTpcAttrByNum         =$f160
-defc    MTHPrint                =$e7a2
-defc    KPrint                  =$d74d
-defc    MTHExpandChar           =$ed17
-defc    GetFirstNonInfoTopic    =$f154
-defc    GetNextNonInfoTopic     =$f151
-defc    InitHlpActiveCmd        =$c9d0
-defc    GetNonInfoTopicByNum    =$f156
-defc    GetCmdAttrByNum         =$f17a
-defc    sub_EF92                =$ef92
-defc    Beep_X                  =$fe11
-defc    ChgHelpFile             =$ebdb
-defc    GetHlp_sub              =$eac6
-defc    RdStdinNoTO             =$ee89
-defc    InitHlpActiveHelp       =$c9c6
-defc    SetHlpAppChgFile        =$ebd5
-defc    PrevAppDOR              =$ea1d
-defc    GetFirstTopicHelp       =$f145
-defc    NextAppDOR              =$ea17
-defc    DrawTopicHelpWd         =$e801
-defc    Get2ndTopicHelp         =$f13f
-defc    GetFirstCmdHelp         =$f133
-defc    GetNextTopicHelp        =$f142
-defc    DrawCmdHelpWd           =$e897
-defc    GetNextCmdHelp          =$f130
-defc    SetActiveAppDOR         =$ea28
-defc    loc_EC00                =$ec00
-defc    sub_F179                =$f179
-defc    aRom_Help               =$e9c1
-defc    FilenameDOR             =$ea09
-defc    CopyAppPointers         =$e9cd
-defc    DORHandleFree           =$cb14
-defc    MayMTHPrint             =$e9b8
-defc    InputEmpty              =$e9a9
-defc    MTH_ToggleLT            =$d75b
-defc    PrintTopic              =$e935
-defc    MTHPrintTokenized       =$e990
-defc    PrntAppname             =$e91c
-defc    GetHlpHelp              =$eaa8
+xref	InitUserAreaGrey
 
 ; handle menu/help/index from OSTin
 
@@ -669,7 +628,7 @@ defc    GetHlpHelp              =$eaa8
 
 .loc_A2AD
         call    sub_A517
-        call    loc_EC00
+        call    DrawMenuWd
 
         call    KPrint
         defm    1,"6#6",$20+1,$20+0,$20+92,$20+8, 0

@@ -10,6 +10,8 @@
 
         include "all.def"
 
+xdef	InitData
+
 .InitData
         defb    BL_SR2, 7                       ; SR2=b07
         defb    BL_TMK, BM_TACKTICK|BM_TACKSEC|BM_TACKMIN

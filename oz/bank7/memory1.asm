@@ -10,10 +10,10 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    MemCallAttrVerify
 
-defc    VerifyHandle            = $D6C6
 
 ;       ----
 .MemCallAttrVerify

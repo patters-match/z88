@@ -10,13 +10,12 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    RAMDORtable                             ; MountAllRAM
 xdef    InitHandle                              ; OSDor, E9E8+D
 xdef    RAMxDOR                                 ; MountAllRAM
 
-defc    loc_CD42                = $cd42
-defc    S2VerifySlotType        = $d71c
 
 
 ;               bank, DOR address low byte, char

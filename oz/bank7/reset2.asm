@@ -10,18 +10,13 @@
 
         include "all.def"
         include "sysvar.def"
+        include "bank0.def"
 
 xdef    Reset2                                  ; Reset1
 
-defc    InitData         = $aaa9
-defc    LowCode          = $aab6
-defc    LowCodeEnd       = $ac5b
-defc    ResetHandles     = $d607
-defc    ResetTimeout     = $cee0
-defc    InitBufKBD_RX_TX = $c6a0
-defc    KPrint           = $d74d
-defc    Reset3           = $c095
-
+xref	InitData
+xref	LowRAMcode
+xref	LowRAMcode_e
 
 .Reset2
         xor     a
@@ -77,7 +72,7 @@ defc    Reset3           = $c095
 ;       copy low RAM code
 
 .rst2_3
-        ld      bc, LowCodeEnd-LowCode
+        ld      bc, ?LowRAMcode_e-LowRAMcode
         ld      de, $4000                       ; destination b20 in S1
         ldir
         ld      a, 1
