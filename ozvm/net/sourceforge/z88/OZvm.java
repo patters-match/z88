@@ -144,9 +144,21 @@ public class OZvm implements KeyListener {
 					if (arg<args.length && (args[arg].startsWith("ram") == true)) {
 						int ramSlotNumber = args[arg].charAt(3) - 48;
 						ramSizeArg = Integer.parseInt(args[arg+1], 10);
+						if (ramSlotNumber == 0) {
+							if (ramSizeArg <32 || ramSizeArg>512) {
+								displayRtmMessage("Only 32K-512K RAM Card size allowed in slot " + ramSlotNumber);
+								return false;
+							}
+						} else {
+							if (ramSizeArg >=32 && ramSizeArg<=1024) {
+								displayRtmMessage("Only 32K-1024K RAM Card size allowed in slot " + ramSlotNumber);
+								return false;
+							}
+						}
 						memory.insertRamCard(ramSizeArg * 1024, ramSlotNumber);	// RAM Card specified for slot x...
 						if (ramSlotNumber == 0) ramSlot0 = true; 
 						displayRtmMessage("Inserted " + ramSizeArg + "K RAM Card in slot " + ramSlotNumber);
+
 						arg+=2;
 						continue;
 					}
