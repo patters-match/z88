@@ -37,9 +37,10 @@ package net.sourceforge.z88;
 public final class Bank {
 	public static final int VOID = 0; // This bank represent an empty space (no card inserted in slot)
 	public static final int RAM = 1; // 32Kb, 128Kb, 512Kb, 1Mb
-	public static final int ROM = 2; // 128Kb
-	public static final int EPROM = 3; // 32Kb, 128Kb & 256Kb
-	public static final int FLASH = 4; // 1Mb Flash
+	public static final int ROM = 2; // 128Kb, read-only
+	public static final int EPROM_32KB = 3; // U/V Erasable 32Kb EPROM
+	public static final int EPROM_128KB = 4; // U/V Erasable 128Kb/256Kb EPROM
+	public static final int FLASH = 5; // 1Mb EEPROM (Flash) 
 	public static final int SIZE = 16384; // Always 16384 bytes in a bank
 
 	private int type;
@@ -61,10 +62,27 @@ public final class Bank {
 		}
 	}
 
+	/**
+	 * Get Bank type, ie. identify the type of card that is inserted into
+	 * a particular slot.
+	 * 
+	 * @return type of Bank (type of Card) (VOID, RAM, ROM, EPROM, FLASH)  
+	 */
 	public int getType() {
 		return type;
 	}
 
+	/**
+	 * Set Bank type, ie. set the identify of the card that is inserted into
+	 * a particular slot. This method must be used with equal types for all
+	 * banks in particular slot (that defines the card).
+	 * 
+	 * @param type (type of Card) (VOID, RAM, ROM, EPROM, FLASH)  
+	 */
+	public void setType(int type) {
+		this.type = type;
+	}
+	
 	/**
 	 * Read byte from bank. <addr> is a 16bit word
 	 * that points into the 16K address space of the bank.
