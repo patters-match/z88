@@ -53,6 +53,14 @@ public class Z88 extends Z80 {
 	public void stopZ80SpeedPolling() {
 		z80Speed.stop();
 	}
+
+	public void startInterrupts() {
+		blink.startInterrupts();
+	}
+
+	public void stopInterrupts() {
+		blink.stopInterrupts();
+	}
 	
 	/**
 	 * Z80 processor is hardwired to the BLINK chip logic.
@@ -67,7 +75,6 @@ public class Z88 extends Z80 {
 
 	public void hardReset() {
 		reset(); // reset Z80 registers
-		blink.setCom(0); // reset COM register
 		blink.resetRam(); // reset memory of all available RAM in Z88 memory
 	}
 
@@ -85,6 +92,7 @@ public class Z88 extends Z80 {
 	 */
 	public void loadRom(String filename)
 		throws FileNotFoundException, IOException {
+		System.out.println(filename);
 		RandomAccessFile rom = new RandomAccessFile(filename, "r");		
 		blink.loadRomBinary(rom);	
 	}
@@ -96,10 +104,9 @@ public class Z88 extends Z80 {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void loadRom(URL filename)
+	public void loadRom(URL fileRessource)
 		throws FileNotFoundException, IOException {
-		RandomAccessFile rom = new RandomAccessFile(filename.getFile(),"r");		
-		blink.loadRomBinary(rom);	
+		blink.loadRomBinary(fileRessource);	
 	}
 
 	/**
@@ -291,16 +298,22 @@ public class Z88 extends Z80 {
 
 		Timer timer = null;
 		TimerTask monitor = null;
+		private long oldTimeMs = 0;
 
 		private class SpeedPoll extends TimerTask {
 			/**
-			 * Send an INT each 10ms to the Z80 processor...
+			 * Request poll each second, or try to hit the 1 sec time frame...
 			 * 
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
-				System.out.println( "IPS=" + getInstructionCounter() + 
-                                   ",TPS=" + getTstatesCounter());
+				float realMs = System.currentTimeMillis() - oldTimeMs;
+				int ips = (int) (getInstructionCounter() * realMs/1000);
+				int tps = getTstatesCounter();
+
+				System.out.println( "IPS=" + ips + ",TPS=" + tps);
+
+				oldTimeMs = System.currentTimeMillis();
 			}			
 		}
 		
@@ -321,6 +334,7 @@ public class Z88 extends Z80 {
 		 */
 		public void start() {
 			monitor = new SpeedPoll();
+			oldTimeMs = 0;
 			timer.scheduleAtFixedRate(monitor, 0, 1000);
 		}
 	} 
