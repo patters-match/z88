@@ -320,7 +320,7 @@ public class OZvm implements KeyListener {
 			commandInput.selectAll();
 			
 			z88.run(true);		// single stepping (no interrupts running)...
-			displayCmdOutput(blinkStatus.dzPcStatus().toString());
+			displayCmdOutput(blinkStatus.dzPcStatus(z88.PC()).toString());
 		}
 
 		if (cmdLineTokens[0].compareTo("z") == 0) {
@@ -346,7 +346,7 @@ public class OZvm implements KeyListener {
 			z88.setBreakPointManager(origBreakPoints);	// restore user defined break points
 			this.setBreakPointManager(origBreakPoints);
 
-			displayCmdOutput(blinkStatus.dzPcStatus().toString());
+			displayCmdOutput(blinkStatus.dzPcStatus(z88.PC()).toString());
 		}
 
 		if (cmdLineTokens[0].compareTo("d") == 0) {
