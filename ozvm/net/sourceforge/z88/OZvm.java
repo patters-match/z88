@@ -188,20 +188,20 @@ public class OZvm {
 	}
 
 	private void cmdHelp() {
-		System.out.println("All argument are in Hex: Local address = 64K address space,\nExtended address = 24bit address, eg. 073800 (bank 07h, offset 3800h)\n");
+		System.out.println("All arguments are in Hex: Local address = 64K address space,\nExtended address = 24bit address, eg. 073800 (bank 07h, offset 3800h)\n");
 		System.out.println("Commands:");
-		System.out.println("run - execute Z88 machine from PC.");
-		System.out.println("exit - exit OZvm.");
-		System.out.println("");
-		System.out.println(". - single step instruction at PC.");		
-		System.out.println("d - disassembly at PC.");
-		System.out.println("d [local address | extended address] - disassemble.");
-		System.out.println("m - view memory at PC.");
-		System.out.println("m [local address | extended address] - view memory.");
-		System.out.println("bp - list breakpoints.");
-		System.out.println("bp <extended address> - toggle breakpoint.");
-		System.out.println("blsr - Blink: Segment Register Bank Binding.");
-		System.out.println("r - Display current Z80 Registers.");
+		System.out.println("exit - end OZvm application");
+		System.out.println("run - execute Z88 machine from PC");
+		System.out.println(". - Single step instruction at PC");		
+		System.out.println("d - Disassembly at PC");
+		System.out.println("d [local address | extended address] - Disassemble at address");
+		System.out.println("wb <extended address> <byte> [<byte>] - Write byte(s) to memory");
+		System.out.println("m - View memory at PC");
+		System.out.println("m [local address | extended address] - View memory at address");
+		System.out.println("bp - List breakpoints");
+		System.out.println("bp <extended address> - Toggle breakpoint");
+		System.out.println("blsr - Blink: Segment Register Bank Binding");
+		System.out.println("r - Display current Z80 Registers");
 	}
 	
 	private void commandLine() throws IOException {
@@ -281,13 +281,19 @@ public class OZvm {
 				bpCommandline(cmdLineTokens);
 				cmdLineTokens[0] = ""; // wait for a new command...				
 			}
+
+			if (cmdLineTokens[0].equalsIgnoreCase("wb") == true) {
+				putByte(cmdLineTokens);
+				cmdLineTokens[0] = ""; // wait for a new command...				
+			}
 			
 			if (cmdLineTokens[0].length() > 0 &&
 				cmdLineTokens[0].equalsIgnoreCase(".") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("d") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("r") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("h") == false &&
-				cmdLineTokens[0].equalsIgnoreCase("m") == false &&				
+				cmdLineTokens[0].equalsIgnoreCase("m") == false &&
+				cmdLineTokens[0].equalsIgnoreCase("wb") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("help") == false &&
 				cmdLineTokens[0].equalsIgnoreCase("run") == false &&
 			    cmdLineTokens[0].equalsIgnoreCase("bp") == false &&
@@ -392,6 +398,36 @@ public class OZvm {
 		
 		return memAscii;	
 	}
+
+
+	private void putByte(String[] cmdLineTokens) throws IOException {
+		String cmdline = null;
+		int argByte[], memAddress, memBank, temp, aByte; 
+
+		if (cmdLineTokens.length >= 3 & cmdLineTokens.length <= 18) {
+			memAddress = Integer.parseInt(cmdLineTokens[1], 16);
+			memBank = (memAddress >>> 16) & 0xFF;
+			memAddress &= 0xFFFF;
+			argByte = new int[cmdLineTokens.length - 2];
+			for (aByte= 0; aByte < cmdLineTokens.length - 2; aByte++) {
+				argByte[aByte] = Integer.parseInt(cmdLineTokens[2 + aByte], 16);
+			}						 
+		} else {
+			System.out.println("Illegal argument(s).");
+			return;
+		}
+		
+		StringBuffer memLine = new StringBuffer(256);
+		temp = getMemoryAscii(memLine, memAddress, memBank);
+		System.out.println("Before:\n" + memLine);
+		for (aByte= 0; aByte < cmdLineTokens.length - 2; aByte++) {
+			z88.setByte(memAddress + aByte, memBank, argByte[aByte]);
+		}		
+		
+		temp = getMemoryAscii(memLine, memAddress, memBank);
+		System.out.println("After:\n" + memLine);
+	}
+
 	
 	private String viewMemory(BufferedReader in, String[] cmdLineTokens) throws IOException {
 		int memAddr = 0, memBank = 0;		
