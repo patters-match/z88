@@ -33,6 +33,8 @@ public class Z88 extends Z80 {
 		// interrupt signals each 10ms from BLINK to Z80 through INT pin
 		super();
 
+		blink = new Blink(this); // initialize BLINK chip
+
 		slotCards = new Bank[4][];
 		// Instantiate the slot containers for Cards...
 		for (int slot = 0; slot < 4; slot++)
@@ -41,7 +43,6 @@ public class Z88 extends Z80 {
 		insertRamCard(128 * 1024, 0);
 		// Insert 128K RAM in slot 0 (top 512K address space)
 
-		blink = new Blink(this); // initialize BLINK chip
 		dz = new Dz(this); // the disassembly engine         
 	}
 
@@ -248,7 +249,8 @@ public class Z88 extends Z80 {
 	}
 
 	/**
-	 * Implement Z88 input port hardware (BLINK).
+	 * Implement Z88 input port BLINK hardware 
+	 * (RTC, Keyboard, Flap, Batt Low, Serial port).
 	 * 
 	 * @param addrA8
 	 * @param addrA15
@@ -260,37 +262,50 @@ public class Z88 extends Z80 {
 			case 0xD0:
 				res = blink.getTim0();	// TIM0, 5ms period, counts to 199  
 				break;
+				
 			case 0xD1:
 				res = blink.getTim1();	// TIM1, 1 second period, counts to 59  
 				break;
+				
 			case 0xD2:
 				res = blink.getTim2();	// TIM2, 1 minute period, counts to 255  
 				break;
+				
 			case 0xD3:
 				res = blink.getTim3();	// TIM3, 256 minutes period, counts to 255     
 				break;
+				
 			case 0xD4:
 				res = blink.getTim4();	// TIM4, 64K minutes Period, counts to 31        
 				break;
+				
 			case 0xB1:
 				res = blink.getSta();	// STA, Main Blink Interrupt Status
 				break;
-			case 0xB5:
-				blink.getTsta(); 		// TSTA, RTC Interrupt Status
+				
+			case 0xB2:
+				res = blink.getKbd(addrA15);	// KBD, Keyboard matrix for specified row.
 				break;
+				
+			case 0xB5:
+				res = blink.getTsta(); 	// TSTA, RTC Interrupt Status
+				break;
+				
 			default :
-				res = 0;
+				res = 0;				// all other ports in BLINK not yet implemented...
 		}
 
 		return res;
 	}
 
 	/**
-	 * Implement Z88 output port hardware (BLINK).
+	 * Implement Z88 output port Blink hardware. 
+	 * (RTC, Screen, Keyboard, Memory model, Serial port, CPU state).
+
 	 * 
-	 * @param addrA8
-	 * @param addrA15
-	 * @param outByte
+	 * @param addrA8 LSB of port address
+	 * @param addrA15 MSB of port address
+	 * @param outByte the data to send to the hardware
 	 */
 	public void outByte(int addrA8, int addrA15, int outByte) {
 		switch (addrA8) {
@@ -342,15 +357,15 @@ public class Z88 extends Z80 {
 				break;				
 		}
 	}
-
+	
 	/**
 	 * Disassemble implementation for Z88 virtual machine.
 	 * This method will be called by the Z80 processing engine
 	 * (the super class), when instructed to perform runtime
 	 * disassembly.
 	 */
-	public void disassemble(int addr) {
-		dz.getInstrAscii(dzBuffer, addr, true);
-		System.out.println(dzBuffer); // display executing instruction in shell
+	public void disassemble(int addr) {		
+			dz.getInstrAscii(dzBuffer, addr, true);
+			System.out.println(dzBuffer); // display executing instruction in shell			
 	}
 }
