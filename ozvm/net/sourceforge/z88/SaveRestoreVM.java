@@ -262,8 +262,9 @@ public class SaveRestoreVM {
 		ZipEntry ze;
 		Properties properties = new Properties();
 		
-		// Remove all current active memory before restoring a snapshot.
+		// Remove all current active memory and reset Blink before restoring a snapshot.
 		memory.setVoidMemory();
+		blink.resetBlinkRegisters();
 		
 	    try {
 	        // Open the snapshot (Zip) file
