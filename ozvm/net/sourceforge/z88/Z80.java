@@ -75,6 +75,7 @@ public abstract class Z80 {
 	private boolean externIntSignal = false;
     private boolean z80Halted = false;
 	private boolean z80Stopped = false;
+    private boolean singleStepping = false;
 
 	private int cachedInstruction = 0;
 	private int cachedOpcodes = 0;
@@ -555,10 +556,17 @@ public abstract class Z80 {
         }
     }
 
-	
+    /**
+     * Ask the Z80 engine whether it's single stepping or not.
+     */
+	public boolean singleSteppingMode() {
+        return singleStepping;
+    }
+    
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
-    public final void run(boolean singleStepping) {
-
+    public final void run(boolean singleStep) {
+        singleStepping = singleStep;
+        
         do {
 			if (abortZ80() == true) return;
 						
@@ -2090,7 +2098,7 @@ public abstract class Z80 {
                     }
             }
         }
-        while (singleStepping == false && z80Stopped == false);        
+        while (singleStep == false && z80Stopped == false);
 
 		z80Stopped = false;
     }
