@@ -11,6 +11,301 @@ import java.util.TimerTask;
  */
 public final class Blink {
 
+	/**
+	 * Blink class default constructor.
+	 */
+	Blink(Z88 vm) {
+		z88vm = vm;		// know about the processor environment outside the BLINK
+		
+		// the segment register SR0 - SR3
+		sR = new int[4];
+		// all segment registers points at ROM bank 0
+		for (int segment = 0; segment < sR.length; segment++) {
+			sR[segment] = 0;
+		}
+
+		memory = new Bank[256];          // The Z88 memory addresses 256 banks = 4MB!
+		nullBank = new Bank(Bank.EPROM);
+		for (int bank=0; bank<memory.length; bank++) memory[bank] = nullBank;
+
+		rtc = new Rtc(); // start the Real Time Clock...
+	}
+
+	/**
+	 * Reference to the Z80 processor / Z88 virtual machine 
+	 * (which the BLINK is collaborating with).
+	 */
+	private Z88 z88vm;
+
+	/**
+	 * The Real Time Clock (RTC) inside the BLINK...
+	 */
+	private Rtc rtc;
+
+	/**
+	 * Get current TIM0 register from the RTC.
+	 * 
+	 * @return int
+	 */
+	public int getTim0() {
+		return rtc.getTim0();
+	}
+
+	/**
+	 * Get current TIM1 register from the RTC.
+	 * 
+	 * @return int
+	 */
+	public int getTim1() {
+		return rtc.getTim1();
+	}
+
+	/**
+	 * Get current TIM2 register from the RTC.
+	 * 
+	 * @return int
+	 */
+	public int getTim2() {
+		return rtc.getTim2();
+	}
+
+	/**
+	 * Get current TIM3 register from the RTC.
+	 * 
+	 * @return int
+	 */
+	public int getTim3() {
+		return rtc.getTim3();
+	}
+
+	/**
+	 * Get current TIM4 register from the RTC.
+	 * 
+	 * @return int
+	 */
+	public int getTim4() {
+		return rtc.getTim4();
+	}
+
+	/**
+	 * System bank for lower 8K of segment 0.
+	 * References bank 0x00 or 0x20 of slot 0.
+	 */
+	private Bank RAMS;
+
+	/**
+	 * Get Bank, referenced by it's number [0-255] in the BLINK memory model 
+	 * 
+	 * @return Bank
+	 */
+	public Bank getBank(int bankNo) {
+		return memory[bankNo % 256];
+	}
+
+	/**
+	 * Install Bank entity into BLINK 16K memory system [0-255].
+	 *  
+	 * @param bank
+	 * @param bankNo
+	 */
+	public void setBank(Bank bank, int bankNo) {
+		memory[bankNo % 256] = bank;
+	}
+	
+	/**
+	 * Segment register array for SR0 - SR3
+	 * Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
+	 * Segment register 1, SR1, bank binding for 0x4000 - 0x7FFF
+	 * Segment register 2, SR2, bank binding for 0x8000 - 0xBFFF
+	 * Segment register 3, SR3, bank binding for 0xC000 - 0xFFFF
+	 *
+	 * Any of the registers contains a bank number, 0 - 255 that
+	 * is currently bound into the corresponding segment in the
+	 * Z80 address space.
+	 */
+	private int sR[];
+
+	/**
+	 * The Z88 memory organisation.
+	 * Array for 256 x 16K banks = 4Mb memory
+	 */
+	private Bank memory[];
+
+	/**
+	 * Null bank. This is used in for unassigned banks,
+	 * ie. when a card slot is empty in the Z88
+	 * The contents of this bank contains 0xFF and is
+	 * write-protected (just as an empty bank in an Eprom).
+	 */
+	private Bank nullBank;
+
+	/**
+	 * Get current bank [0; 255] binding in segments [0; 3] 
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes.
+	 * 
+	 * @return int
+	 */
+	public int getSegmentBank(int segment) {
+		return sR[segment % 4];
+	}
+
+	/**
+	 * Bind bank [0-255] to segments [0-3] in the Z80 address space.
+	 * 
+	 * <p>On the Z88, the 64K is split into 4 sections of 16K segments. Any of
+	 * the 256 x 16K banks can be bound into the address space on the Z88. Bank
+	 * 0 is special, however. Please refer to hardware section of the
+	 * Developer's Notes.</p>
+	 */
+	public void setSegmentBank(int segment, int BankNo) {
+		sR[segment % 4] = (BankNo % 256);
+	}
+
+	/**
+	 * Read byte from Z80 virtual memory model. <addr> is a 16bit word
+	 * that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes.
+	 */
+	public int readByte( int addr ) {
+		int segment = addr >>> 14; // bit 15 & 14 identifies segment
+
+		// the OZ spends most of the time in segments 1 - 3,
+		// therefore we should ask for this first...
+		if (segment > 0) {
+			return memory[sR[segment]].readByte(addr);
+		} else {
+			// Bank 0 is split into two 8K blocks.
+			// Lower 8K is System Bank 0x00 (ROM on hard reset)
+			// or 0x20 (RAM for Z80 stack and system variables)
+			if (addr < 0x2000) {
+				return RAMS.readByte(addr);
+			} else {
+				// determine which 8K of bank has been bound into
+				// upper half of segment 0. Only even numbered banks
+				// can be bound into upper segment 0.
+				// (to implement this hardware feature, we strip bit 0
+				// of the bank number with the bit mask 0xFE)
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF
+					// (upper half of bank)
+					return memory[sR[0] & 0xFE].readByte(addr);
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					return memory[sR[0] & 0xFE].readByte(addr & 0x1FFF);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
+	 * that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes.
+	 */
+	public void writeByte ( int addr, int b ) {
+		int segment = addr >>> 14; // bit 15 & 14 identifies segment
+
+		// the OZ spends most of the time in segments 1 - 3,
+		// therefore we should ask for this first...
+		if (segment > 0) {
+			memory[sR[segment]].writeByte(addr, b);
+		} else {
+			// Bank 0 is split into two 8K blocks.
+			// Lower 8K is System Bank 0x00 (ROM on hard reset)
+			// or 0x20 (RAM for Z80 stack and system variables)
+			if (addr < 0x2000) {
+				RAMS.writeByte(addr, b);
+			} else {
+				// determine which 8K of bank has been bound into
+				// upper half of segment 0. Only even numbered banks
+				// can be bound into upper segment 0.
+				// (to implement this hardware feature, we strip bit 0
+				// of the bank number with the bit mask 0xFE)
+				if ((sR[0] & 1) == 1) {
+					// bit 0 is set in even bank number, ie. upper half of
+					// 8K bank is bound into upper segment 0...
+					// address is already in range of 0x2000 - 0x3FFF
+					// (upper half of bank)
+					memory[sR[0] & 0xFE].writeByte(addr, b);
+				} else {
+					// lower half of 8K bank is bound into upper segment 0...
+					// force address to read in the range 0 - 0x1FFF of bank
+					memory[sR[0] & 0xFE].writeByte(addr & 0x1FFF, b);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * BLINK Command Register
+	 * 
+	 *	Bit	 7, SRUN
+	 *	Bit	 6, SBIT
+	 *	Bit	 5, OVERP
+	 *	Bit	 4, RESTIM
+	 *	Bit	 3, PROGRAM
+	 *	Bit	 2, RAMS
+	 *	Bit	 1, VPPON
+	 *	Bit	 0, LCDON
+	 */
+	private int COM;
+
+	/**
+	 * Set Blink Command Register flags, port $B0
+	 *	Bit	 7, SRUN
+	 *	Bit	 6, SBIT
+	 *	Bit	 5, OVERP
+	 *	Bit	 4, RESTIM
+	 *	Bit	 3, PROGRAM
+	 *	Bit	 2, RAMS
+	 *	Bit	 1, VPPON
+	 *	Bit	 0, LCDON
+	 *
+	 *	@param bits
+	 */
+	public void setCOM(int bits) {
+		COM = bits;
+		if ( (bits & Blink.BM_COMRAMS) == Blink.BM_COMRAMS)
+			// RAM is bound into lower 8K of segment 0
+			RAMS = memory[0x20];
+		else
+			// ROM bank 0 is bound into lower 8K of segment 0
+			RAMS = memory[0x00];		
+	}
+
+	/**
+	 * Get Command Register status.
+	 * 
+	 * @return int
+	 */
+	public int getCOM() {
+		return COM;
+	}
+
+	public static final int BM_COMSRUN = 0x80; // Bit 7, SRUN
+	public static final int BM_COMSBIT = 0x40; // Bit 6, SBIT
+	public static final int BM_COMOVERP = 0x20; // Bit 5, OVERP
+	public static final int BM_COMRESTIM = 0x10; // Bit 4, RESTIM
+	public static final int BM_COMPROGRAM = 0x08; // Bit 3, PROGRAM
+	public static final int BM_COMRAMS = 0x04; // Bit 2, RAMS
+	public static final int BM_COMVPPON = 0x02; // Bit 1, VPPON
+	public static final int BM_COMLCDON = 0x01; // Bit 0, LCDON
+
 	/** 
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
@@ -139,181 +434,4 @@ public final class Blink {
 			}
 		}
 	} /* Rtc class */
-
-	/**
-	 * The RTC inside the BLINK...
-	 */
-	private Rtc rtc;
-
-	/**
-	 * Blink class default constructor.
-	 */
-	Blink() {
-		// the segment register SR0 - SR3
-		sR = new int[4];
-		// all segment registers points at ROM bank 0
-		for (int segment = 0; segment < sR.length; segment++) {
-			sR[segment] = 0;
-		}
-
-		rtc = new Rtc(); // start the Real Time Clock...
-	}
-
-	/**
-	 * Get current TIM0 register from the RTC.
-	 * 
-	 * @return int
-	 */
-	public int getTim0() {
-		return rtc.getTim0();
-	}
-
-	/**
-	 * Get current TIM1 register from the RTC.
-	 * 
-	 * @return int
-	 */
-	public int getTim1() {
-		return rtc.getTim1();
-	}
-
-	/**
-	 * Get current TIM2 register from the RTC.
-	 * 
-	 * @return int
-	 */
-	public int getTim2() {
-		return rtc.getTim2();
-	}
-
-	/**
-	 * Get current TIM3 register from the RTC.
-	 * 
-	 * @return int
-	 */
-	public int getTim3() {
-		return rtc.getTim3();
-	}
-
-	/**
-	 * Get current TIM4 register from the RTC.
-	 * 
-	 * @return int
-	 */
-	public int getTim4() {
-		return rtc.getTim4();
-	}
-
-	/**
-	 * System bank for lower 8K of segment 0.
-	 * References bank 0x00 or 0x20 of slot 0.
-	 */
-	private Bank RAMS;
-
-	/**
-	 * Get current System Bank for lower 8K of segment 0. 
-	 * References bank 0x00 or 0x20 of slot 0.
-	 * 
-	 * @return Bank
-	 */
-	public Bank getRAMS() {
-		return RAMS;
-	}
-
-	/**
-	 * Set System Bank binding for lower 8K of segment 0. 
-	 * References bank 0x00 or 0x20 of slot 0.
-	 * 
-	 */
-	public void setRAMS(Bank b) {
-		RAMS = b;
-	}
-
-	/**
-	 * Segment register array for SR0 - SR3
-	 * Segment register 0, SR0, bank binding for 0x2000 - 0x3FFF
-	 * Segment register 1, SR1, bank binding for 0x4000 - 0x7FFF
-	 * Segment register 2, SR2, bank binding for 0x8000 - 0xBFFF
-	 * Segment register 3, SR3, bank binding for 0xC000 - 0xFFFF
-	 *
-	 * Any of the registers contains a bank number, 0 - 255 that
-	 * is currently bound into the corresponding segment in the
-	 * Z80 address space.
-	 */
-	private int sR[];
-
-	/**
-	 * Get current bank [0; 255] binding in segments [0; 3] 
-	 *
-	 * On the Z88, the 64K is split into 4 sections of 16K segments.
-	 * Any of the 256 16K banks can be bound into the address space
-	 * on the Z88. Bank 0 is special, however.
-	 * Please refer to hardware section of the Developer's Notes.
-	 * 
-	 * @return int
-	 */
-	public int getSegmentBank(int segment) {
-		return sR[segment % 4];
-	}
-
-	/**
-	 * Bind bank [0-255] to segments [0-3] in the Z80 address space.
-	 *
-	 * On the Z88, the 64K is split into 4 sections of 16K segments.
-	 * Any of the 256 x 16K banks can be bound into the address space on the
-	 * Z88. Bank 0 is special, however. Please refer to hardware section of the
-	 * Developer's Notes.
-	 */
-	public void setSegmentBank(int segment, int BankNo) {
-		sR[segment % 4] = (BankNo % 256);
-	}
-
-	/**
-	 * BLINK Command Register
-	 * 
-	 *	Bit	 7, SRUN
-	 *	Bit	 6, SBIT
-	 *	Bit	 5, OVERP
-	 *	Bit	 4, RESTIM
-	 *	Bit	 3, PROGRAM
-	 *	Bit	 2, RAMS
-	 *	Bit	 1, VPPON
-	 *	Bit	 0, LCDON
-	 */
-	private int COM;
-
-	/**
-	 * Set Blink Command Register flags, port $B0
-	 *	Bit	 7, SRUN
-	 *	Bit	 6, SBIT
-	 *	Bit	 5, OVERP
-	 *	Bit	 4, RESTIM
-	 *	Bit	 3, PROGRAM
-	 *	Bit	 2, RAMS
-	 *	Bit	 1, VPPON
-	 *	Bit	 0, LCDON
-	 *
-	 *	@param bits
-	 */
-	public void setCOM(int bits) {
-		COM = bits;
-	}
-
-	/**
-	 * Get Command Register status.
-	 * 
-	 * @return int
-	 */
-	public int getCOM() {
-		return COM;
-	}
-
-	public static final int BM_COMSRUN = 0x80; // Bit 7, SRUN
-	public static final int BM_COMSBIT = 0x40; // Bit 6, SBIT
-	public static final int BM_COMOVERP = 0x20; // Bit 5, OVERP
-	public static final int BM_COMRESTIM = 0x10; // Bit 4, RESTIM
-	public static final int BM_COMPROGRAM = 0x08; // Bit 3, PROGRAM
-	public static final int BM_COMRAMS = 0x04; // Bit 2, RAMS
-	public static final int BM_COMVPPON = 0x02; // Bit 1, VPPON
-	public static final int BM_COMLCDON = 0x01; // Bit 0, LCDON
 }
