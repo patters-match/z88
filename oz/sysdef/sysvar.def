@@ -69,23 +69,39 @@ defc	ubNextAlmMinutesB	=$0269
 defc	ubSoundActive		=$026a
 defc	pFirstAlarm		=$0272
 defc	pNextAlmHandle		=$0274
+defc	ubActiveCommand		=$0287
+defc	ubActiveTopic		=$0288
+defc	byte_0289		=$0289
+defc	pActiveAppPtr		=$028a
+defc	pAppDOR			=$028c
+defc	pOSEntHandle		=$02ad
+
+;	uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
 
 defc	uwAppStaticHnd		=$03b0
 defc	ubAppDynID		=$03b2		; was uwApplDynID
+defc	ubAppResCycle		=$03b3
+defc	pAppEntrypoint		=$03b4
 defc	ubAppDORFlags		=$03b6
+defc	ubAppDORFlags2		=$03b7
+defc	uwAppEnvOverhead	=$03b8
 defc	pAppStackPtr		=$03ba
 defc	pAppUnSafeArea		=$03bc		; was pUnSafeArea
-defc	pAppExtrastackArea	=$03be
+defc	pAppBadMemTable		=$03be		; was pAppExtrastackArea
 defc	pAppBadMemHandle	=$03c0
 defc	ubAppContRAM		=$03c2
-defc	ubAppS0Binding		=$03c3
+defc	ubAppBindings		=$03c3		; was ubAppS[0123]Binding
 defc	ubAppKbdBits		=$03c7
 defc	pMailbox		=$03c8
 defc	ubMailboxSize		=$03ca
 defc	pAppErrorHandler	=$03cc
 defc	ubAppLastError		=$03ce
-defc	ubAppCallLevel		=$03cf
-defc	ubCallLevel		=$03cf
+defc	ubAppCallLevel		=$03cf		; was ubCallLevel
+defc	ubOldCallLevel		=$03d0
+defc	pAppHelpHandle		=$03d1
+defc	ubAppHelpBank		=$03d3
+
+defc	pAppEnvHandle		=$03f0
 defc	uwFreeRAMPages		=$03f2
 defc	pFirstHandle		=$03f4
 defc	ubIntTaskToDo		=$03f6
@@ -151,6 +167,12 @@ defc	IdxZKeyTable		=$0e66
 defc	IdxZZKeyTable		=$0e98
 				;$0eca
 
+defc	word_1853		=$1853
+defc	uwStkEntUsedStkSize	=$1859
+defc	pStkTempStkTop		=$185b
+defc	stkBottom		=$185d
+defc	pStkEntUsedStkBottom	=$1857
+defc	unk_1864		=$1864
 
 ;	ubIdxPubFlags
 
@@ -439,7 +461,7 @@ defc	fhnd_filepos_h		=$07
 defc	fhnd_filepos_lo		=$08
 defc	fhnd_attr		=$09
 defc	fhnd_flags		=$0a
-
+defc	fhnd_Bank		=$0d
 
 defc	FATR_B_READABLE		=0
 defc	FATR_B_WRITABLE		=1
