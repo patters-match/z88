@@ -118,7 +118,7 @@ public abstract class Z80 {
     private int _IM = 2;
 
     /** 16 bit register access */
-    private final int AF() {
+    public final int AF() {
         return (A() << 8) | F();
     }
     private final void AF(int word) {
@@ -126,7 +126,7 @@ public abstract class Z80 {
         F(word & 0xff);
     }
 
-    private final int BC() {
+    public final int BC() {
         return (B() << 8) | C();
     }
     private final void BC(int word) {
@@ -134,14 +134,14 @@ public abstract class Z80 {
         C(word & 0xff);
     }
 
-    private final int DE() {
+    public final int DE() {
         return _DE;
     }
     private final void DE(int word) {
         _DE = word;
     }
 
-    private final int HL() {
+    public final int HL() {
         return _HL;
     }
     private final void HL(int word) {
@@ -157,7 +157,7 @@ public abstract class Z80 {
         _PC = word;
     }
 
-    private final int SP() {
+    public final int SP() {
         return _SP;
     }
     private final void SP(int word) {
@@ -171,14 +171,14 @@ public abstract class Z80 {
         _ID = word;
     }
 
-    private final int IX() {
+    public final int IX() {
         return _IX;
     }
     private final void IX(int word) {
         _IX = word;
     }
 
-    private final int IY() {
+    public final int IY() {
         return _IY;
     }
     private final void IY(int word) {
@@ -186,14 +186,14 @@ public abstract class Z80 {
     }
 
     /** 8 bit register access */
-    private final int A() {
+    public final int A() {
         return _A;
     }
     private final void A(int bite) {
         _A = bite;
     }
 
-    private final int F() {
+    public final int F() {
         return (Sset() ? F_S : 0)
             | (Zset() ? F_Z : 0)
             | (f5 ? F_5 : 0)
@@ -270,7 +270,7 @@ public abstract class Z80 {
     private final int R7() {
         return _R7;
     }
-    private final int R() {
+    public final int R() {
         return (_R & 0x7f) | _R7;
     }
     private final void R(int bite) {
@@ -283,7 +283,7 @@ public abstract class Z80 {
     }
 
     /** Interrupt modes/register */
-    private final int I() {
+    public final int I() {
         return _I;
     }
     private final void I(int bite) {
@@ -337,22 +337,29 @@ public abstract class Z80 {
         f5 = f;
     }
 
-    private final boolean Zset() {
+	public final boolean f3set() {
+		return f3;
+	}
+	public final boolean f5set() {
+		return f5;
+	}
+
+    public final boolean Zset() {
         return fZ;
     }
-    private final boolean Cset() {
+    public final boolean Cset() {
         return fC;
     }
-    private final boolean Sset() {
+    public final boolean Sset() {
         return fS;
     }
-    private final boolean Hset() {
+    public final boolean Hset() {
         return fH;
     }
-    private final boolean Nset() {
+    public final boolean Nset() {
         return fN;
     }
-    private final boolean PVset() {
+    public final boolean PVset() {
         return fPV;
     }
 
@@ -6040,7 +6047,7 @@ public abstract class Z80 {
     }
 
     /** EXX */
-    private final void exx() {
+    public final void exx() {
         int t;
 
         t = HL();
@@ -6057,7 +6064,7 @@ public abstract class Z80 {
     }
 
     /** EX AF,AF' */
-    private final void ex_af_af() {
+    public final void ex_af_af() {
         int t;
         t = AF();
         AF(_AF_);
