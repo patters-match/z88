@@ -45,7 +45,7 @@ public class Z88 extends Z80 {
 		insertRamCard(128 * 1024, 0);
 		// Insert 128K RAM in slot 0 (top 512K address space)
 
-		// z80Speed = new MonitorZ80();	// finally, set up a monitor that display current Z80 speed
+		z80Speed = new MonitorZ80();	// finally, set up a monitor that display current Z80 speed
 	}
 
 	private MonitorZ80 z80Speed = null;
@@ -246,6 +246,51 @@ public class Z88 extends Z80 {
 	 */
 	public final void writeByte(final int addr, final int b) {
 		blink.writeByte(addr, b);
+	}
+
+	/**
+	 * Read word (16bits) from Z80 virtual memory model. 
+	 * <addr> is a 16bit word that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes.
+	 */
+	public final int readWord(final int addr) {
+		return blink.readWord(addr);
+	}
+
+	/**
+	 * Write word (16bits) to Z80 virtual memory model. <addr> is a 16bit word
+	 * that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 * Please refer to hardware section of the Developer's Notes.
+	 */
+	public final void writeWord(final int addr, final int w) {
+		blink.writeWord(addr, w);
+	}
+
+	/**
+	 * Read Z80 instruction as a 4 byte entity from Z80 virtual memory model,
+	 * starting from offset, onwards. <addr> is a 16bit word that points into
+	 * the Z80 64K address space. Z80 instructions varies between 1 and 4 bytes,
+	 * but here a complete 4 byte sequence is cached in the return argument,
+	 * without knowing the actual length.
+	 * 
+	 * The instruction is returned as a 32bit integer for compactness, in low
+	 * byte, high byte order, ie. lowest 8bit is the first byte of the
+	 * instruction, highest 8bit of 32bit integer is the 4th byte of the
+	 * instruction.
+	 *  
+	 * @param addr address offset in bank
+	 * @return int 4 byte Z80 instruction 
+	 */
+	public final int readInstruction(final int addr) {
+		return blink.readInstruction(addr);
 	}
 
 	/**
