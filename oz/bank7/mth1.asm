@@ -730,7 +730,7 @@ xref	InitUserAreaGrey
 .mnu_r1
         push    bc
         ld      a, h
-        call    sub_F179
+        call    GetNextCmdAttr
         ld      h, a
         pop     bc
         ld      a, d
@@ -747,7 +747,7 @@ xref	InitUserAreaGrey
         jr      nz, mnu_r1
         push    bc
         ld      a, h
-        call    sub_F179
+        call    GetNextCmdAttr
         ld      h, a
         pop     af
         cp      d
