@@ -53,6 +53,7 @@ public abstract class Z80 {
 
 	private int tstatesPerInterrupt = 0;
 	private boolean externIntSignal = false;
+	private boolean z80Halted = false;
 
 	private final int IM0 = 0;
 	private final int IM1 = 1;
@@ -450,10 +451,11 @@ public abstract class Z80 {
 	/** Interrupt handler */
 	private final void acknowledgeInterrupt() {
 		externIntSignal = false;
+		z80Halted = false;
 	}
 
 	/** process interrupt */
-	private int interrupt() {
+	private int execInterrupt() {
 		// If not a non-maskable interrupt
 		if (!IFF1()) {
 			return 0;
@@ -491,10 +493,16 @@ public abstract class Z80 {
 		while (true) {
 
 			if (interruptTriggered()) {
-				interrupt();
+				acknowledgeInterrupt();
+				execInterrupt();
 			}
 
 			REFRESH(1);
+
+			if (z80Halted == true) {
+				local_tstates += (4);	// perform a simulated NOP, but PC is same address
+				continue;				// back to main decode loop and wait for external interrupt
+			}
 
 			disassemble(PC());
 			// display some instruction stuff to the console, if enabled...
@@ -1152,9 +1160,11 @@ public abstract class Z80 {
 					}
 				case 118 : /* HALT */ {
 						haltInstruction();
+						z80Halted = true;
 						// let the external system know about HALT instruction
-						// stop Z80 processor execution (but registers are preserved).
-						return;
+						// Z80 processor execution now performs simulated NOP's and 
+						// awaits external interrupt to wake processor execution up again.
+						break;
 					}
 				case 119 : /* LD (HL),A */ {
 						writeByte(HL(), A());
@@ -2468,7 +2478,7 @@ public abstract class Z80 {
 						REFRESH(2);
 						if (interruptTriggered()) {
 							// execute the interrupt, then continue processing
-							interrupt();
+							execInterrupt();
 						}
 					} while (count != 0);
 					if (count != 0) {
@@ -2552,7 +2562,7 @@ public abstract class Z80 {
 						_local_tstates += (21);
 						REFRESH(2);
 						if (interruptTriggered() == true) {
-							interrupt();
+							execInterrupt();
 							break;
 						}
 					} while (count != 0);
