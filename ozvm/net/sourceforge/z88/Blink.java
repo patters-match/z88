@@ -1,5 +1,7 @@
 package net.sourceforge.z88;
 
+import gameframe.GameFrameException;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -9,13 +11,10 @@ import java.net.JarURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import gameframe.GameFrameException;
-import gameframe.input.KeyboardDevice;
-
 /**
  * Blink chip, the "mind" of the Z88.
  * @author <A HREF="mailto:gstrube@tiscali.dk">Gunther Strube</A>
- * 
+ *
  * $Id$
  */
 public final class Blink extends Z80 {
@@ -23,9 +22,9 @@ public final class Blink extends Z80 {
 	/**
 	 * Blink class default constructor.
 	 */
-	Blink() throws GameFrameException {
+	Blink(java.awt.Canvas canvas) throws GameFrameException {
 		super();
-		
+
 		// the segment register SR0 - SR3
 		sR = new int[4];
 		// all segment registers points at ROM bank 0
@@ -44,14 +43,14 @@ public final class Blink extends Z80 {
 			slotCards[slot] = null; // nothing available in slots..
 
 		RAMS = memory[0];				// point at ROM bank 0 (null at the moment)
-		
+
 		timerDaemon = new Timer(true);
-		
+
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 		z80Int = new Z80interrupt(); 	// the INT signals each 10ms to Z80, not yet started...
-		
-		z88Display = new Z88display(this);				// create window, but without activity yet...
-		z88Keyboard = z88Display.getKeyboardDevice();	// keys are read from Z88 Window... 
+
+		z88Display = new Z88display(this, canvas);		// create window, but without activity yet...
+		z88Keyboard = new Z88Keyboard(this, canvas);
 	}
 
 	/**
@@ -59,20 +58,20 @@ public final class Blink extends Z80 {
 	 * to the Z80 virtual processor.
 	 */
 	private Timer timerDaemon = null;
-	
+
 	public Timer getTimerDaemon() {
 		return timerDaemon;
 	}
 
 	/**
-	 * The 640x64 pixel display (here a window).
+	 * The 640x64 pixel display.
 	 */
 	private Z88display z88Display;
-			
+
 	/**
-	 * The keyboard hardware (wich will be mapped to IN port)
+	 * The keyboard hardware (receiving input from Host OS).
 	 */
-	private KeyboardDevice z88Keyboard;
+	private Z88Keyboard z88Keyboard;
 	
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
@@ -120,8 +119,8 @@ public final class Blink extends Z80 {
 	public static final int BM_INTGINT = 0x01;	// Bit 0, If clear, no interrupts get out of blink
 
 	/**
-	 * Set main Blink Interrrupts (INT), Z80 OUT Write Register. 
-	 * 
+	 * Set main Blink Interrrupts (INT), Z80 OUT Write Register.
+	 *
 	 * <pre>
 	 * BIT 7, KWAIT  If set, reading the keyboard will Snooze
 	 * BIT 6, A19    If set, an active high on A19 will exit Coma
@@ -136,9 +135,20 @@ public final class Blink extends Z80 {
 	 * @param bits
 	 */
 	public void setBlinkInt(int bits) {
-		bits &= ~BM_INTUART;		// OZvm does not support UART...
-		bits |= 1;       			// force GINT = 1, always...
-		setByte(0x04B1,0x20, bits);	// force update soft copy!
+//		System.out.println("Setting INT:");
+//		if ((bits & BM_INTKWAIT) != 0) System.out.println("INT.BM_INTKWAIT");
+//		if ((bits & BM_INTA19) != 0) System.out.println("INT.BM_INTA19");
+//		if ((bits & BM_INTFLAP) != 0) System.out.println("INT.BM_INTFLAP");
+//		if ((bits & BM_INTUART) != 0) System.out.println("INT.BM_INTUART");
+//		if ((bits & BM_INTBTL) != 0) System.out.println("INT.BM_INTBTL");
+//		if ((bits & BM_INTKEY) != 0) System.out.println("INT.BM_INTKEY");
+//		if ((bits & BM_INTTIME) != 0) System.out.println("INT.BM_INTTIME");
+//		if ((bits & BM_INTGINT) != 0) System.out.println("INT.BM_INTGINT");
+//		
+//		System.out.println("Soft Copy of INT = " + Integer.toBinaryString(getByte(0x04B1,0x20)));
+		//bits &= ~BM_INTUART;		// OZvm does not support UART...
+		//bits |= 1;       			// force GINT = 1, always...
+		//setByte(0x04B1,0x20, bits);	// force update soft copy!
 		INT = bits;		
 	}
 
@@ -155,7 +165,7 @@ public final class Blink extends Z80 {
 	 * BIT 1, TIME   If set, RTC interrupts are enabled
 	 * BIT 0, GINT   If clear, no interrupts get out of blink
 	 * </pre>
-	 * 
+	 *
 	 * @return INT Blink Register
 	 */
    	public int getBlinkInt() {
@@ -178,6 +188,7 @@ public final class Blink extends Z80 {
 	public static final int BM_ACKFLAP = 0x20;	// Bit 5, Acknowledge flap interrupt
 	public static final int BM_ACKBTL = 0x08;	// Bit 3, Acknowledge battery low interrupt
 	public static final int BM_ACKKEY = 0x04;	// Bit 2, Acknowledge keyboard interrupt
+	public static final int BM_ACKTIME = 0x01;	// Bit 0, Acknowledge TIME interrupt
 	
 	/**
 	 * Set Main Blink Interrupt Acknowledge (ACK), Z80 OUT Register
@@ -192,15 +203,16 @@ public final class Blink extends Z80 {
 	 * @param bits
 	 */
 	public void setBlinkAck(int bits) {
-		ACK = bits;
-		
-		STA &= ~bits;	// reset Blink occurred interrupts according to acknowledge...
-        STA |= 1;       // force GINT = 1
+		System.out.println("Blink, Acknowledge interrupts: " + Integer.toBinaryString(bits));
+		if ((bits & BM_ACKA19) == BM_ACKA19) {STA &= ~BM_STAA19; System.out.println("BM_ACKA19");} 
+		if ((bits & BM_ACKBTL) == BM_ACKBTL) {STA &= ~BM_STABTL; System.out.println("BM_ACKBTL");}
+		if ((bits & BM_ACKFLAP) == BM_ACKFLAP) {STA &= ~BM_STAFLAP; System.out.println("BM_ACKFLAP");} 
+		if ((bits & BM_ACKTIME) == BM_ACKTIME) {STA &= ~BM_STATIME; System.out.println("BM_ACKTIME");}
 	}
 
    	/**
 	 * Get Main Blink Interrupt Acknowledge (ACK), Z80 OUT Register
-	 * 
+	 *
 	 * <PRE>
 	 * BIT 6, A19    Acknowledge active high on A19 
 	 * BIT 5, FLAP   Acknowledge Flap interrupts
@@ -236,7 +248,7 @@ public final class Blink extends Z80 {
 	public static final int BM_STAUART = 0x10;	// Bit 4, If set, an enabled UART interrupt is active
 	public static final int BM_STABTL = 0x08;	// Bit 3, If set, battery low pin is active
 	public static final int BM_STAKEY = 0x04;	// Bit 2, If set, a column has gone low in snooze (or coma)
-	public static final int BM_STATIME = 0x02;	// Bit 1, If set, an enabled TSTA interrupt is active
+	public static final int BM_STATIME = 0x01;	// Bit 1, If set, an enabled TSTA interrupt is active
 	
 	/**
 	 * Get Main Blink Interrupt Status (STA).
@@ -253,7 +265,17 @@ public final class Blink extends Z80 {
 	 * </PRE>
 	 */
 	public int getBlinkSta() {
-        STA |= 1;       // force GINT = 1
+//		System.out.println("STA = " + Integer.toBinaryString(STA));
+//
+//		if ((STA & BM_STAFLAPOPEN) != 0) System.out.println("STA.BM_STAFLAPOPEN");
+//		if ((STA & BM_STAA19) != 0) System.out.println("STA.BM_STAA19");
+//		if ((STA & BM_STAFLAP) != 0) System.out.println("STA.BM_STAFLAP");
+//		if ((STA & BM_STAUART) != 0) System.out.println("STA.BM_STAUART");
+//		if ((STA & BM_STABTL) != 0) System.out.println("STA.BM_STABTL");
+//		if ((STA & BM_STAKEY) != 0) System.out.println("STA.BM_STAKEY");
+//		if ((STA & BM_STATIME) != 0) System.out.println("STA.BM_STATIME");
+//		if ((STA & BM_STAGINT) != 0) System.out.println("STA.BM_STAGINT");
+		
 		return STA;
 	}
 	
@@ -273,17 +295,22 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Set Timer interrupt acknowledge (TACK), Z80 OUT Write Register.
+	 * Set Timer Interrupt Acknowledge (TACK), Z80 OUT Write Register.
 	 * 
 	 * <PRE>
 	 * BIT 2, MIN, Set to acknowledge minute interrupt
-	 * BIT 1, SEC, Set to acknowledge
+	 * BIT 1, SEC, Set to acknowledge second interrupt
 	 * BIT 0, TICK, Set to acknowledge tick interrupt
 	 * </PRE>
 	 */
 	public void setBlinkTack(int bits) {
-		rtc.TACK = bits;
-		rtc.TSTA &= ~bits; 		// reset appropriate TSTA bits (the prev. raised interrupt get cleared) 
+
+		// reset appropriate TSTA bits (the prev. raised interrupt get cleared)
+		if ((bits & Rtc.BM_TACKMIN) == Rtc.BM_TACKMIN) rtc.TSTA &= ~Rtc.BM_TACKMIN;
+		if ((bits & Rtc.BM_TACKSEC) == Rtc.BM_TACKSEC) rtc.TSTA &= ~Rtc.BM_TACKSEC;
+		if ((bits & Rtc.BM_TACKTICK) == Rtc.BM_TACKTICK) rtc.TSTA &= ~Rtc.BM_TACKTICK;
+		
+		STA &= ~BM_STATIME;			// also acknowledge enabled STA.TIME interrupt		
 	}
 
 	/**
@@ -461,7 +488,7 @@ public final class Blink extends Z80 {
 	/**
 	 * Get Address of HIRES0 (PB2 register) in 24bit extended address format.
 	 * (The 8 * 8 pixel per char PipeDream Map)
-	 */	
+	 */
 	public int getBlinkPb2Address() {
 		int extAddressBank = (PB2 << 7) & 0xFF00;
 		int extAddressOffset = (PB2 << 5) & 0x0020;
@@ -513,7 +540,7 @@ public final class Blink extends Z80 {
 	 * Set Screen Base Register (16bits register)
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
-	 */	
+	 */
 	public void setBlinkSbr(int bits) {
 		SBR = bits;
 	}
@@ -522,7 +549,7 @@ public final class Blink extends Z80 {
 	 * Get Screen Base Register (16bits register)
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
-	 */	
+	 */
 	public int getBlinkSbr() {
 		return SBR;
 	}
@@ -531,7 +558,7 @@ public final class Blink extends Z80 {
 	 * Get Screen Base in 24bit extended address format.
 	 * (The Screen base File (2K size), containing char info about screen)
 	 * If this register is 0, then the system cannot render the pixel screen.
-	 */	
+	 */
 	public int getBlinkSbrAddress() {
 		int extAddressBank = (SBR << 5) & 0xFF00;
 		int extAddressOffset = (SBR << 3) & 0x0038;
@@ -539,314 +566,50 @@ public final class Blink extends Z80 {
 		return (extAddressBank | extAddressOffset) << 8;
 	}
 
-	
-	private int keyRows[] = new int[8];
-
-	/**
-	 * 
-	 * Scans a particular Z88 hardware keyboard row, and returns the 
-	 * corresponding key column.<br>
-	 * 
-	 * <PRE>
-	 *	------------------------------------------------------------------------
-	 *	UK Keyboard matrix
-	 *	-------------------------------------------------------------------------
-	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
-	 *	-------------------------------------------------------------------------
-	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
-	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
-	 *	A13 (#5) | [      SPACE   1       Q       A       Z       L       0
-	 *	A12 (#4) | ]      LFT     2       W       S       X       M       P
-	 *	A11 (#3) | -      RGT     3       E       D       C       K       9
-	 *	A10 (#2) | =      DWN     4       R       F       V       J       O
-	 *	A9  (#1) | \      UP      5       T       G       B       U       I
-	 *	A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
-	 *	-------------------------------------------------------------------------
-	 * </PRE>
-	 * 
-	 * @param row, of Z88 keyboard to be scanned
-	 * @return keyColumn, the column containing one or several key presses.
-	 */
-	private int scanKeyRow(int row) {
-		int shiftKey = 0xFF, altKey=0xFF, ctrlKey=0xFF;
-		int keyColumn = 0xFF;
-		int currentKey = z88Keyboard.getCurrentlyPressedKey();
-			
-		switch(row) {
-			case 0x7F:	
-				// Row 01111111:
-				//			| D7     D6      D5      D4      D3      D2      D1      D0
-				// -------------------------------------------------------------------------
-				// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
-
-				// check for two-key combinations, here ALT (SQUARE). 
-				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_ALT) == true) 
-					altKey = 0xBF; // SQUARE (10111111)
-				else
-					altKey = 0xFF; // not pressed
-                        
-				switch(currentKey) {
-					// D7 RIGHT SHIFT - not implemented at the moment (Coma not implemented)...
-					// D6 SQUARE is read above...
-					case java.awt.event.KeyEvent.VK_ESCAPE: keyColumn = 0xDF; break;	// ESC
-					case java.awt.event.KeyEvent.VK_F2: keyColumn = 0xEF; break;		// INDEX
-					case java.awt.event.KeyEvent.VK_CAPS_LOCK: keyColumn = 0xF7; break;	// CAPS LOCK
-					// D2
-					// D1
-					// D0
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}
-						
-				keyColumn = ~(altKey ^ keyColumn);
-				keyColumn &= 0xFF; 						
-				break;
-
-			case 0xBF:	
-				// 10111111
-				//			| D7     D6      D5      D4      D3      D2      D1      D0
-				// -------------------------------------------------------------------------
-				// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
-
-				// check for two-key combinations, here as SHIFT or CTRL with another key...
-				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_CONTROL) == true |
-					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_HOME) == true |
-					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_END) == true |
-					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_INSERT) == true) 
-					ctrlKey = 0xEF; // DIAMOND
-				else
-					ctrlKey = 0xFF; // not pressed
-				if (z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_SHIFT) == true |
-					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_DELETE) == true |
-					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_PAGE_UP) == true |
-					z88Keyboard.isKeyDown(java.awt.event.KeyEvent.VK_PAGE_DOWN) == true) 
-					shiftKey = 0xBF; // (Right or Left) SHIFT
-				else 
-					shiftKey = 0xFF; // not pressed
-
-				switch(currentKey) {
-					case java.awt.event.KeyEvent.VK_F1: keyColumn = 0x7F; break; 		// HELP
-					// D6, LEFT SHIFT, implemented above
-					// D6, LEFT SHIFT/DEL (embedded as SHIFT BACKSPACE), implemented above 
-					case java.awt.event.KeyEvent.VK_TAB: keyColumn = 0xDF; break;		// TAB
-					// D4, DIAMOND - implemented above...
-					case java.awt.event.KeyEvent.VK_F3: keyColumn = 0xF7; break;		// MENU 
-					// D2
-					// D1
-					// D0
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}
-	
-				keyColumn = (~ctrlKey ^ shiftKey) ^ (~keyColumn);
-				keyColumn &= 0xFF; 
-				break;
-
-			case 0xDF:	
-				// 11011111
-				//			| D7     D6      D5      D4      D3      D2      D1      D0
-				// -------------------------------------------------------------------------
-				// A13 (#5) | [      SPACE   1       Q       A       Z       L       0
-				switch(currentKey) {
-					// D7
-					case java.awt.event.KeyEvent.VK_SPACE: keyColumn = 0xBF; break;	// SPACE (10111111)
-					case java.awt.event.KeyEvent.VK_1: keyColumn = 0xDF; break;
-					case java.awt.event.KeyEvent.VK_Q: keyColumn = 0xEF; break;
-					case java.awt.event.KeyEvent.VK_A: keyColumn = 0xF7; break;
-					case java.awt.event.KeyEvent.VK_Z: keyColumn = 0xFB; break;
-					case java.awt.event.KeyEvent.VK_L: keyColumn = 0xFD; break;
-					case java.awt.event.KeyEvent.VK_0: keyColumn = 0xFE; break;
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}												
-				break;
-
-			case 0xEF:	
-				// 11101111
-				//			| D7     D6      D5      D4      D3      D2      D1      D0
-				// -------------------------------------------------------------------------			
-				// A12 (#4) | ]      LFT     2       W       S       X       M       P
-				switch(currentKey) {
-					// D7
-					case java.awt.event.KeyEvent.VK_LEFT: keyColumn = 0xBF; break;	// D6, LEFT CURSOR (10111111)
-					case java.awt.event.KeyEvent.VK_HOME: keyColumn = 0xBF; break;	// D6, PC HOME = DIAMOND LEFT CURSOR (10111111)
-					case java.awt.event.KeyEvent.VK_2: keyColumn = 0xDF; break;
-					case java.awt.event.KeyEvent.VK_W: keyColumn = 0xEF; break;
-					case java.awt.event.KeyEvent.VK_S: keyColumn = 0xF7; break;
-					case java.awt.event.KeyEvent.VK_X: keyColumn = 0xFB; break;
-					case java.awt.event.KeyEvent.VK_M: keyColumn = 0xFD; break;
-					case java.awt.event.KeyEvent.VK_P: keyColumn = 0xFE; break;                                    
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}
-				break;
-				
-			case 0xF7:	
-				// 11110111
-				//			| D7     D6      D5      D4      D3      D2      D1      D0			
-				// -------------------------------------------------------------------------
-				// A11 (#3) | -      RGT     3       E       D       C       K       9
-				switch(currentKey) {
-					// D7
-					case java.awt.event.KeyEvent.VK_RIGHT: keyColumn = 0xBF; break;	// D6, RIGHT CURSOR (10111111)
-					case java.awt.event.KeyEvent.VK_END: keyColumn = 0xBF; break;	// D6, PC END = DIAMOND RIGHT CURSOR (10111111)					
-					case java.awt.event.KeyEvent.VK_3: keyColumn = 0xDF; break;
-					case java.awt.event.KeyEvent.VK_E: keyColumn = 0xEF; break;
-					case java.awt.event.KeyEvent.VK_D: keyColumn = 0xF7; break;
-					case java.awt.event.KeyEvent.VK_C: keyColumn = 0xFB; break;
-					case java.awt.event.KeyEvent.VK_K: keyColumn = 0xFD; break;
-					case java.awt.event.KeyEvent.VK_9: keyColumn = 0xFE; break;
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}
-				break;
-				
-			case 0xFB:	
-				// 11111011
-				//			| D7     D6      D5      D4      D3      D2      D1      D0			
-				// -------------------------------------------------------------------------
-				// A10 (#2) | =      DWN     4       R       F       V       J       O
-				switch(currentKey) {
-					// D7
-					case java.awt.event.KeyEvent.VK_DOWN: keyColumn = 0xBF; break;		// DOWN CURSOR (10111111)
-					case java.awt.event.KeyEvent.VK_PAGE_DOWN: keyColumn = 0xBF; break;	// PC PAGE DOWN (10111111) = SHIFT DOWN CURSOR
-					case java.awt.event.KeyEvent.VK_4: keyColumn = 0xDF; break;
-					case java.awt.event.KeyEvent.VK_R: keyColumn = 0xEF; break;
-					case java.awt.event.KeyEvent.VK_F: keyColumn = 0xF7; break;
-					case java.awt.event.KeyEvent.VK_V: keyColumn = 0xFB; break;
-					case java.awt.event.KeyEvent.VK_INSERT: keyColumn = 0xFB; break;	// PC INSERT = DIAMOND V
-					case java.awt.event.KeyEvent.VK_J: keyColumn = 0xFD; break;
-					case java.awt.event.KeyEvent.VK_O: keyColumn = 0xFE; break;
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}
-				break;
-				
-			case 0xFD:	
-				// 11111101
-				//			| D7     D6      D5      D4      D3      D2      D1      D0			
-				// -------------------------------------------------------------------------
-				// A9  (#1) | \      UP      5       T       G       B       U       I
-				switch(currentKey) {
-					// D7
-					case java.awt.event.KeyEvent.VK_UP: keyColumn = 0xBF; break;		// D6, UP CURSOR (10111111)
-					case java.awt.event.KeyEvent.VK_PAGE_UP: keyColumn = 0xBF; break;	// D6, PC PAGE UP (SHIFT UP CURSOR)					
-					case java.awt.event.KeyEvent.VK_5: keyColumn = 0xDF; break;
-					case java.awt.event.KeyEvent.VK_T: keyColumn = 0xEF; break;
-					case java.awt.event.KeyEvent.VK_G: keyColumn = 0xF7; break;
-					case java.awt.event.KeyEvent.VK_B: keyColumn = 0xFB; break;
-					case java.awt.event.KeyEvent.VK_U: keyColumn = 0xFD; break;
-					case java.awt.event.KeyEvent.VK_I: keyColumn = 0xFE; break;                                    
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}
-				break;
-				
-			case 0xFE:	
-				// 11111110
-				//			| D7     D6      D5      D4      D3      D2      D1      D0			
-				// -------------------------------------------------------------------------
-				// A8  (#0) | DEL    ENTER   6       Y       H       N       7       8
-				switch(currentKey) {
-					case java.awt.event.KeyEvent.VK_BACK_SPACE: keyColumn = 0x7F; break; 	// BACKSPACE
-					case java.awt.event.KeyEvent.VK_DELETE: keyColumn = 0x7F; break;        // (PC) DELETE = SHIFT BACKSPACE
-					case java.awt.event.KeyEvent.VK_ENTER: keyColumn = 0xBF; break;			// ENTER
-					case java.awt.event.KeyEvent.VK_6: keyColumn = 0xDF; break;
-					case java.awt.event.KeyEvent.VK_Y: keyColumn = 0xEF; break;
-					case java.awt.event.KeyEvent.VK_H: keyColumn = 0xF7; break;
-					case java.awt.event.KeyEvent.VK_N: keyColumn = 0xFB; break;
-					case java.awt.event.KeyEvent.VK_7: keyColumn = 0xFD; break;
-					case java.awt.event.KeyEvent.VK_8: keyColumn = 0xFE; break;
-					default: keyColumn = 0xFF;	// no keys pressed in row...
-				}
-				break;
-		}
-			
-		return keyColumn;					
-	}
-		
-		
-	/**
-	 * Scans the hardware keyboard, and returns true if one or several keys
-	 * were pressed.<p> 
-	 *
-	 * The keyRows[] property contains all current keycolumns of this scan.<br>
-	 * If INT.KEY interrupts are enabled, STA.KEY is set.
-	 * 
-	 * A few conventions have been defined to map the special keys in the Z88
-	 * to a conventional computer keyboard:
-	 * <PRE>
-	 * 		HELP			= F1
-	 * 		INDEX 			= F2
-	 * 		MENU			= F3
-	 * 		<> (Diamond) 	= CTRL
-	 * 		[] (Square)		= ALT
-	 * 		HOME			= SHIFT Left Cursor
-	 * 		END				= SHIFT Right Cursor
-	 * 		PAGE UP			= SHIFT Up Cursor
-	 * 		PAGE DOWN		= SHIFT Down Cursor
-	 * 		INSERT			= DIAMOND V
-	 * 		DELETE			= SHIFT BACKSPACE  
-	 * </PRE>
-	 * 
-	 * @return true, if one or several keys were pressed during scan.
-	 */ 
-	private boolean scanKeyboard() {
-		boolean keyPressed = false;
-
-		if (z88Keyboard.getCurrentlyPressedKey() == java.awt.event.KeyEvent.VK_F5) {
-			stopZ88 = true;
-			return false;				
-		}
-
-		// a keypress is available, put it into the appropriate Z88 hardware keyrow, 
-		// if this key exists in the Z88 world...
-		int row = 0xFE;		// start with A8, then upwards..
-		for (int scanRow=0; scanRow < keyRows.length; scanRow++) {
-			keyRows[scanRow] = scanKeyRow(row);
-				
-			if ( keyRows[scanRow] != 0xFF) {
-				keyPressed = true;
-				if ( ((INT & Blink.BM_INTKEY) == Blink.BM_INTKEY) ) {
-					// If keyboard interrupts are enabled, then signal that a key was pressed.
-					STA |= BM_STAKEY;
-				}
-			} 
-
-			row <<= 1;		// look at next row...
-			row |= 1;		// make sure that left shift always contains 1 at bit 0...
-			row &= 0xFF;	// only 8bit boundary...				
-		}       
-			
-		return keyPressed;     
-	}
-	
 
 	/**
 	 * Fetch a keypress from the specified row matrix, or 0 for all rows.<br>
 	 * Interface call for IN r,(B2h).<br>
-	 * 
+	 *
 	 * @param row
 	 * @return int keycolumn status of row
 	 */
 	public int getBlinkKbd(int row) {
-		int keyColumn = 0xFF;	// Default to no keys pressed...
-        
-        // F5 was pressed, get out of here!
-        if (stopZ88 == true) return 0xFF;
+		int keyCol = 0xFF;	// Default to no keys pressed...
 
-		if ( row == 0 || (INT & BM_INTKWAIT) == BM_INTKWAIT ) {
+		// F5 was pressed, get out of here!
+		if (stopZ88 == true) return 0xFF;
+
+		if ( (INT & BM_INTKWAIT) != 0) {
 			// Z80 snoozes... (wait a little bit, then ask for key press from Blink)
 			try {
-				Thread.sleep(5);
+				Thread.sleep(1);
 			} catch (InterruptedException e) {}
+		}
 
+		if ( row == 0 ) {						
 			// scan for all rows..
-			if (scanKeyboard() == true) {
-				for (int scanRow = 0; scanRow < keyRows.length; scanRow++) {
-					if ( keyRows[scanRow] != 0xFF ) return keyRows[scanRow];  
+			keyCol = z88Keyboard.getActiveKeyRow();
+			if (keyCol != 0xFF) {
+				if ( ((INT & Blink.BM_INTKEY) != 0) ) {
+					// If keyboard interrupts are enabled, then signal that a key was pressed.
+					STA |= BM_STAKEY;
 				}
+				
+				return keyCol;
 			} else {
 				return 0xFF;
 			}            
         } else {
-			keyColumn = scanKeyRow(row);                    
+			keyCol = z88Keyboard.scanKeyRow(row);
+
+			if ( keyCol != 0xFF && ((INT & Blink.BM_INTKEY) != 0) ) {
+				// If keyboard interrupts are enabled, then signal that a key was pressed.
+				STA |= BM_STAKEY;
+			}			
         }
 		
-		return keyColumn;
+		return keyCol;
 	}
 
     
@@ -1218,7 +981,7 @@ public final class Blink extends Z80 {
 			case 0xB2:
 				res = getBlinkKbd(addrA15);	// KBD, get Keyboard column for specified row.
 				break;
-				
+
 			case 0xB5:
                 if ((INT & BM_INTTIME) == BM_INTTIME) {
                     res = getBlinkTsta();	// RTC interrupts are enabled, so TSTA is active...
@@ -1291,23 +1054,23 @@ public final class Blink extends Z80 {
 
 			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
 				setBlinkPb0((addrA15 << 8) | outByte);
-				break;				
+				break;
 
 			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
 				setBlinkPb1((addrA15 << 8) | outByte);
-				break;				
+				break;
 
 			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
 				setBlinkPb2((addrA15 << 8) | outByte);
-				break;				
+				break;
 
 			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
 				setBlinkPb3((addrA15 << 8) | outByte);
-				break;				
+				break;
 
-			case 0x74 : // SBR, Screen Base Register 
+			case 0x74 : // SBR, Screen Base Register
 				setBlinkSbr((addrA15 << 8) | outByte);
-				break;				
+				break;
 		}
 	}
 
@@ -1356,7 +1119,7 @@ public final class Blink extends Z80 {
 
 	/**
 	 * BLINK Command Register.
-	 * 
+	 *
 	 * <PRE>
 	 *	Bit	 7, SRUN
 	 *	Bit	 6, SBIT
@@ -1731,9 +1494,6 @@ public final class Blink extends Z80 {
 			// enable minute, second and 1/100 second interrups
 			TMK = BM_TMKMIN | BM_TMKSEC | BM_TMKTICK;
 			TSTA = TACK = 0;
-
-			// first interrupt events needs an acknowledge!
-			TACK = BM_TACKMIN | BM_TACKSEC | BM_TACKTICK;
 		}
 
 		private final class Counter extends TimerTask {
@@ -1751,7 +1511,8 @@ public final class Blink extends Z80 {
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKTICK) == BM_TMKTICK)) {
 						// INT.TIME interrupts are enabled and TMK.TICK interrupts are enabled:
 						// Signal that a tick interrupt occurred
-						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
+						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1						
+						STA |= BM_STATIME;
 					}
 				}
 
@@ -1763,6 +1524,7 @@ public final class Blink extends Z80 {
 						// INT.TIME interrupts are enabled and TMK.SEC interrupts are enabled:
 						// Signal that a second interrupt occurred
 						TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
+						STA |= BM_STATIME;
 					}
 
 					if (++TIM1 > 59) {
@@ -1772,6 +1534,7 @@ public final class Blink extends Z80 {
 							// INT.TIME interrupts are enabled and TMK.MIN interrupts are enabled:
 							// Signal that a minute interrupt occurred
 							TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
+							STA |= BM_STATIME;
 						}
 
 						if (++TIM2 > 255) {
@@ -1933,5 +1696,5 @@ public final class Blink extends Z80 {
 			intIm1 = new Int10ms();
 			timerDaemon.scheduleAtFixedRate(intIm1, 10, 10);
 		}
-	} /* Z80interrupt class */
+	}
 }
