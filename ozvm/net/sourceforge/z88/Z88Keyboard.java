@@ -122,10 +122,6 @@ public class Z88Keyboard {
 		thread.start();		
     }
 
-	public void setDebugModeCmdLineField(JTextField cmdInput) {
-		commandInput = cmdInput;
-	}
-
 	private void createKbLayouts() {
 		Map defaultKbLayout = createUkLayout();
 
@@ -1149,8 +1145,7 @@ public class Z88Keyboard {
 
 				case KeyEvent.VK_F5:
 					if (OZvm.debugMode == true) {
-						Blink.getInstance().stopZ80Execution();
-						if (commandInput != null) commandInput.grabFocus();	// Z88 is stopped, get focus to debug command line.
+						Blink.getInstance().stopZ80Execution();						
 					}
 					break;
 
