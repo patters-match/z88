@@ -1200,14 +1200,16 @@ public class Z88Keyboard implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 		KeyPress kp = null;
 
-		// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+		//System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 		switch(e.getKeyCode()) {
 
 			case KeyEvent.VK_SHIFT:
-				// check if left or right SHIFT were pressed
-				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) releaseZ88key(z88LshKey);
-				if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) releaseZ88key(z88RshKey);
+				// BUG in JVM:
+				// always release both SHIFT's on Z88, since this event doesn't 
+				// always properly signal left or right SHIFT releases in JVM. 
+				releaseZ88key(z88LshKey);
+				releaseZ88key(z88RshKey);
 				break;
 
 			case KeyEvent.VK_CONTROL:
