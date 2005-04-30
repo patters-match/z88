@@ -1099,6 +1099,32 @@ public class Z88Keyboard {
 		keyMatrixRow = (keyp.keyZ88Typed & 0xff00) >>> 8;
 		keyMask = keyp.keyZ88Typed & 0xff;
 		keyRows[keyMatrixRow] &= keyMask;
+		
+		Blink.getInstance().signalKeyPressed();
+	}
+
+	
+	/**
+	 * "Press" the Z88 key according to the hardware matrix.
+	 * 
+	 * @param keyMatrixRow
+	 * @param keyMask
+	 */
+	public void pressZ88key(int keyMatrixRow, int keyMask) {
+		keyRows[keyMatrixRow] &= keyMask;
+		Blink.getInstance().signalKeyPressed();
+	}
+
+	
+	/**
+	 * "Release" the Z88 key according to the hardware matrix.
+	 * 
+	 * @param keyMatrixRow
+	 * @param keyMask
+	 */
+	public void releaseZ88key(int keyMatrixRow, int keyMask) {
+		keyRows[keyMatrixRow] |= (~keyMask & 0xff);
+		Blink.getInstance().signalKeyPressed();
 	}
 
 	
@@ -1113,25 +1139,6 @@ public class Z88Keyboard {
 		keyRows[keyMatrixRow] |= (~keyMask & 0xff);
 	}
 
-	/**
-	 * "Press" the Z88 key according to the hardware matrix.
-	 * 
-	 * @param keyMatrixRow
-	 * @param keyMask
-	 */
-	public void pressZ88key(int keyMatrixRow, int keyMask) {
-		keyRows[keyMatrixRow] &= keyMask;		
-	}
-
-	/**
-	 * "Release" the Z88 key according to the hardware matrix.
-	 * 
-	 * @param keyMatrixRow
-	 * @param keyMask
-	 */
-	public void releaseZ88key(int keyMatrixRow, int keyMask) {
-		keyRows[keyMatrixRow] |= (~keyMask & 0xff);		
-	}
 
 	/**
 	 * Set the Z88 keyboard layout to be used for mapping
@@ -1232,6 +1239,10 @@ public class Z88Keyboard {
 					if (OZvm.debugMode == true) {
 						Blink.getInstance().stopZ80Execution();						
 					}
+					break;
+
+				case KeyEvent.VK_F11:
+					Blink.getInstance().openFlap(); // test..
 					break;
 
 				case KeyEvent.VK_F12:
@@ -1493,7 +1504,10 @@ public class Z88Keyboard {
 			//System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 			switch(e.getKeyCode()) {
-
+				case KeyEvent.VK_F11:
+					Blink.getInstance().closeFlap(); // test..
+					break;
+			
 				case KeyEvent.VK_SHIFT:
 					// BUG in JVM:
 					// always release both SHIFT's on Z88, since this event doesn't 
