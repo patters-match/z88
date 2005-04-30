@@ -143,7 +143,7 @@ public class SlotInfo {
 	 */
 	public int getCardType(final int slotNo) {
 		// top bank of slot
-		int bankNo = ((slotNo & 3) << 6) | 0x3F;
+		int bankNo = ((slotNo & 3) << 6);
 
 		if (memory.getBank(bankNo) instanceof VoidBank == true)
 			return EmptySlot;
