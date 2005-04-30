@@ -105,6 +105,9 @@ public class SaveRestoreVM {
 		blink.IFF2(Boolean.valueOf(properties.getProperty("IFF2")).booleanValue());		
 	}
 	
+	/**
+	 * Restore register values into the Blink hardware.
+	 */
 	private void storeBlinkRegs(Properties properties) {
 		properties.setProperty("PB0", Dz.addrToHex(blink.getBlinkPb0(),false));
 		properties.setProperty("PB1", Dz.addrToHex(blink.getBlinkPb1(),false));
@@ -173,14 +176,46 @@ public class SaveRestoreVM {
 		
 		// UART Registers not yet implemented		
 	}
+
+	/**
+	 * Fetch the 'Breakpoints' entry from the properties collection, which is
+	 * a comma separated list of breakpoint adresses and install them into
+	 * the breakpoint container (part of Blink).
+	 * 
+	 * @param properties
+	 */
+	private void loadBreakpoints(Properties properties) {
+		Breakpoints bp = Blink.getInstance().getBreakpoints(); 
+		String breakpoints = properties.getProperty("Breakpoints");
+		if (breakpoints == null)
+			return;
+		
+		String[] breakpointList = breakpoints.split(",");
+		for(int l=0; l<breakpointList.length; l++) {
+			String breakpointAscii = breakpointList[l];
+			
+			if (breakpointAscii != null) {
+				if (breakpointAscii.length() > 0) {
+					if (breakpointAscii.startsWith("[d]") == true) {
+						// remove display breakpoint indicator
+						breakpointAscii = breakpointAscii.substring(3);
+						bp.toggleBreakpoint(Integer.parseInt(breakpointAscii, 16), false);
+					} else {
+						bp.toggleBreakpoint(Integer.parseInt(breakpointAscii, 16));
+					}				
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Save contents of virtual machine into a snapshot file (Zip file).
-	 * 
+	 *
+	 * @param autorun 
 	 * @param snapshotFileName
 	 * @throws IOException
 	 */
-	public void storeSnapShot(String snapshotFileName) throws IOException {
+	public void storeSnapShot(String snapshotFileName, boolean autorun) throws IOException {
 		String propfilename = System.getProperty("user.dir") + File.separator + "snapshot.settings";
 		String snapshotPngFile = System.getProperty("user.dir") + File.separator + "snapshot.png";
 		Properties properties = new Properties();
@@ -236,17 +271,23 @@ public class SaveRestoreVM {
 
     	// remember the visual state of the Z88 Keyboard panel
     	properties.setProperty("Z88Keyboard", Boolean.toString(Gui.getInstance().getZ88keyboardMenuItem().isSelected()));
+
+    	// remember the breakpoints
+    	properties.setProperty("Breakpoints", blink.getBreakpoints().breakpointList());
+		
+    	// remember if virtual machine is to be auto-executed after restore,
+    	// or just activate the debug command line..
+    	properties.setProperty("Autorun", Boolean.toString(autorun));
     	
     	// save the properties to a temp. file
 	    File pf = new File(propfilename);
 	    FileOutputStream pfs = new FileOutputStream(pf);
         properties.store(pfs, null);
-        pfs.close();
-        
+        pfs.close();        
         // Transfer the properties file to the ZIP archive
     	copyToZip(propfilename, "snapshot.settings", zipOut);
         pf.delete(); // temp. properties file no longer needed in filing system...
-    	
+        
         zipOut.close();            
 	}
 	
@@ -274,11 +315,14 @@ public class SaveRestoreVM {
 	 * Restore virtual machine from snapshot file.
 	 * 
 	 * @param snapshotFileName
+	 * @return true if virtual machine is to be automatically executed after restore
+	 * @throws IOException
 	 */
-	public boolean loadSnapShot(String snapshotFileName) {
+	public boolean loadSnapShot(String snapshotFileName) throws IOException {
 		ZipFile zf;
 		ZipEntry ze;
 		Properties properties = new Properties();
+		boolean autorun;
 		
 		if (snapshotFileName.toLowerCase().lastIndexOf(".z88") == -1)
 			snapshotFileName += ".z88"; // '.z88' extension is missing.
@@ -286,83 +330,88 @@ public class SaveRestoreVM {
 		// Remove all current active memory and reset Blink before restoring a snapshot.
 		memory.setVoidMemory();
 		blink.resetBlinkRegisters();
+		blink.setBreakpoints(new Breakpoints()); // reset to new Breakpoint container
 		
-	    try {
-	        // Open the snapshot (Zip) file
-	        zf = new ZipFile(snapshotFileName);
-	    
-	        // start with loading the properties...
-	        ze = zf.getEntry("snapshot.settings");
-	        if (ze != null)
-	        	properties.load(zf.getInputStream(ze));
-	        else 
-	        	return false;
-	        
-	        ze = zf.getEntry("rom.bin"); // default slot 0 ROM
-	        if (ze != null) 
-	        	memory.loadRomBinary((int) ze.getSize(), zf.getInputStream(ze));
-	        else
-	        	return false;
+        // Open the snapshot (Zip) file
+        zf = new ZipFile(snapshotFileName);
+    
+        // start with loading the properties...
+        ze = zf.getEntry("snapshot.settings");
+        if (ze != null)
+        	properties.load(zf.getInputStream(ze));
+        else 
+        	throw new IOException("'snapshot.settings' is missing!");
+        
+        ze = zf.getEntry("rom.bin"); // default slot 0 ROM
+        if (ze != null) 
+        	memory.loadRomBinary((int) ze.getSize(), zf.getInputStream(ze));
+        else
+        	throw new IOException("ROM image is missing!");
 
-	        ze = zf.getEntry("ram.bin"); // default slot 0 RAM
-	        if (ze != null) 
-	        	memory.loadCardBinary(0, (int) ze.getSize(), SlotInfo.RamCard, zf.getInputStream(ze));
-	        else
-	        	return false;
-			
-	        for (int slotNo=1; slotNo<=3; slotNo++) {
-		        ze = zf.getEntry("slot" + slotNo + ".bin");
-		        if (ze != null) {
-		        	memory.loadCardBinary(slotNo, (int) ze.getSize(), 
-		        			Integer.parseInt(properties.getProperty("SLOT" + slotNo + "TYPE"), 16), 
-							zf.getInputStream(ze));
-		        }
+        ze = zf.getEntry("ram.bin"); // default slot 0 RAM
+        if (ze != null) 
+        	memory.loadCardBinary(0, (int) ze.getSize(), SlotInfo.RamCard, zf.getInputStream(ze));
+        else
+        	throw new IOException("RAM.0 image is missing!");
+		
+        for (int slotNo=1; slotNo<=3; slotNo++) {
+	        ze = zf.getEntry("slot" + slotNo + ".bin");
+	        if (ze != null) {
+	        	memory.loadCardBinary(slotNo, (int) ze.getSize(), 
+	        			Integer.parseInt(properties.getProperty("SLOT" + slotNo + "TYPE"), 16), 
+						zf.getInputStream(ze));
 	        }
-	        
-	        loadZ80Regs(properties); // restore Z80 processor registers
-	        loadBlinkRegs(properties); // restore Blink hardware registers
-	        
-	        blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("Z88StoppedAtTime")));
-	        
-	        if (properties.getProperty("Z88KbLayout") != null) {
-	        	int kbLayoutCountryCode = Integer.parseInt(properties.getProperty("Z88KbLayout"));
-	        	switch(kbLayoutCountryCode) {
-	        		case Z88Keyboard.COUNTRY_EN:
-	        			Gui.getInstance().getUkLayoutMenuItem().doClick();
-	        			break;
-	        		case Z88Keyboard.COUNTRY_DK:
-	        			Gui.getInstance().getDkLayoutMenuItem().doClick();
-	        			break;
-	        		case Z88Keyboard.COUNTRY_FR:
-	        			Gui.getInstance().getFrLayoutMenuItem().doClick();
-	        			break;
-	        		case Z88Keyboard.COUNTRY_SE: // Swedish/Finish
-	        			Gui.getInstance().getSeLayoutMenuItem().doClick();
-	        			break;
-	        		default:
-	        			// all other keyboard are default UK (since they're not implemented yet)
-	        			Gui.getInstance().getUkLayoutMenuItem().doClick();	        			
-	        	}
-	        }      
+        }
+        
+        loadZ80Regs(properties); // restore Z80 processor registers
+        loadBlinkRegs(properties); // restore Blink hardware registers
+        loadBreakpoints(properties); // restore breakpoints from snapshot
+        
+        if (properties.getProperty("Z88StoppedAtTime") != null)
+        	blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("Z88StoppedAtTime")));
+        else
+        	blink.setZ88StoppedAtTime(System.currentTimeMillis());
+        
+        if (properties.getProperty("Z88KbLayout") != null) {
+        	int kbLayoutCountryCode = Integer.parseInt(properties.getProperty("Z88KbLayout"));
+        	switch(kbLayoutCountryCode) {
+        		case Z88Keyboard.COUNTRY_EN:
+        			Gui.getInstance().getUkLayoutMenuItem().doClick();
+        			break;
+        		case Z88Keyboard.COUNTRY_DK:
+        			Gui.getInstance().getDkLayoutMenuItem().doClick();
+        			break;
+        		case Z88Keyboard.COUNTRY_FR:
+        			Gui.getInstance().getFrLayoutMenuItem().doClick();
+        			break;
+        		case Z88Keyboard.COUNTRY_SE: // Swedish/Finish
+        			Gui.getInstance().getSeLayoutMenuItem().doClick();
+        			break;
+        		default:
+        			// all other keyboard layouts are default UK (since they're not implemented yet)
+        			Gui.getInstance().getUkLayoutMenuItem().doClick();	        			
+        	}
+        }      
 
-	        if (properties.getProperty("RtmMessages") != null) {
-	        	boolean dispRtmPanel = Boolean.valueOf(properties.getProperty("RtmMessages")).booleanValue();
-	        	Gui.getInstance().getRtmMessagesMenuItem().setSelected(dispRtmPanel);
-	        	Gui.getInstance().displayRunTimeMessagesPane(dispRtmPanel);
-	        }      
+        if (properties.getProperty("RtmMessages") != null) {
+        	boolean dispRtmPanel = Boolean.valueOf(properties.getProperty("RtmMessages")).booleanValue();
+        	Gui.getInstance().getRtmMessagesMenuItem().setSelected(dispRtmPanel);
+        	Gui.getInstance().displayRunTimeMessagesPane(dispRtmPanel);
+        }      
 
-	        if (properties.getProperty("Z88Keyboard") != null) {
-	        	boolean dispZ88Kb = Boolean.valueOf(properties.getProperty("Z88Keyboard")).booleanValue();
-	        	Gui.getInstance().getZ88keyboardMenuItem().setSelected(dispZ88Kb);
-	        	Gui.getInstance().displayZ88Keyboard(dispZ88Kb);
-	        }      
-	        
-	        zf.close();
-	        return true;
-	        
-	    } catch (IOException e) {
-	    	return false;
-	    }		
+        if (properties.getProperty("Z88Keyboard") != null) {
+        	boolean dispZ88Kb = Boolean.valueOf(properties.getProperty("Z88Keyboard")).booleanValue();
+        	Gui.getInstance().getZ88keyboardMenuItem().setSelected(dispZ88Kb);
+        	Gui.getInstance().displayZ88Keyboard(dispZ88Kb);
+        }      
+
+        if (properties.getProperty("Autorun") != null)
+        	autorun = Boolean.valueOf(properties.getProperty("Autorun")).booleanValue();        	
+        else
+        	autorun = true;
+        
+        zf.close();
+        return autorun;	        
 	}	
 
 	/** 
@@ -394,17 +443,17 @@ public class SaveRestoreVM {
 	        	        // Try to open the snapshot (Zip) file
 	        	        zf = new ZipFile(f);
 	        	    
-//	        	        // try to load the properties...
-//	        	        ze = zf.getEntry("snapshot.settings");
-//	        	        if (ze != null)
-//	        	        	properties.load(zf.getInputStream(ze));
-//	        	        else 
-//	        	        	return false;
-//	        	        
-//	        	        ze = zf.getEntry("rom.bin");
-//	        	        if (ze == null) 
-//	        	        	return false;
+	        	        // try to load the properties...
+	        	        ze = zf.getEntry("snapshot.settings");
+	        	        if (ze != null)
+	        	        	properties.load(zf.getInputStream(ze));
+	        	        else 
+	        	        	return false;
 	        	        
+	        	        ze = zf.getEntry("rom.bin");
+	        	        if (ze == null) 
+	        	        	return false;
+       	        
 	        	        zf.close();
 	        		} catch (IOException e) {
 	        			return false;
