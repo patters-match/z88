@@ -36,6 +36,7 @@ import javax.swing.JToolBar;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Color;
 
@@ -52,9 +53,7 @@ import net.sourceforge.z88.screen.Z88display;
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
  */
 public class Gui extends JFrame {
-
-	private JMenuItem createSnapshotMenuItem;
-	private JMenuItem loadSnapshotMenuItem;
+	
 	private static final class singletonContainer {
 		static final Gui singleton = new Gui();
 	}
@@ -67,6 +66,9 @@ public class Gui extends JFrame {
 		super();
 		initialize();
 	}
+
+	private JMenuItem createSnapshotMenuItem;
+	private JMenuItem loadSnapshotMenuItem;
 
 	private ButtonGroup kbLayoutButtonGroup = new ButtonGroup();
 	private JCheckBoxMenuItem seLayoutMenuItem;
@@ -85,6 +87,7 @@ public class Gui extends JFrame {
 
 	private JPanel z88ScreenPanel;
 	private RubberKeyboard keyboardPanel;
+	private Slots slotsPanel;
 
 	private JMenuBar menuBar;
 	private JMenu fileMenu;
@@ -181,7 +184,7 @@ public class Gui extends JFrame {
 		if(jRtmOutputArea == null) {
 			jRtmOutputArea = new javax.swing.JTextArea(6,80);
 			jRtmOutputArea.setTabSize(1);
-			jRtmOutputArea.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
+			jRtmOutputArea.setFont(new Font("Monospaced",Font.PLAIN, 11));
 			jRtmOutputArea.setEditable(false);
 		}
 		return jRtmOutputArea;
@@ -371,6 +374,22 @@ public class Gui extends JFrame {
 		getContentPane().add(getKeyboardPanel(), gridBagConstraints);
 	}
 
+	private void addSlotsPanel() {
+		final GridBagConstraints gridBagConstraints_2 = new GridBagConstraints();
+		gridBagConstraints_2.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_2.gridy = 7;
+		gridBagConstraints_2.gridx = 0;
+		getContentPane().add(getSlotsPanel(), gridBagConstraints_2);		
+	}
+	
+	public Slots getSlotsPanel() {
+		if (slotsPanel == null) {
+			slotsPanel = new Slots();
+		}
+
+		return slotsPanel;		
+	}
+	
 	private RubberKeyboard getKeyboardPanel() {
 		if (keyboardPanel == null) {
 			keyboardPanel = new RubberKeyboard();
@@ -478,17 +497,24 @@ public class Gui extends JFrame {
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						String fileName = chooser.getSelectedFile().getAbsolutePath();
 						
-						if (srVM.loadSnapShot(fileName) == true)
+						try {
+							boolean autorun = srVM.loadSnapShot(fileName);
 							displayRtmMessage("Snapshot successfully installed from " + fileName);
-						else {
+							if (autorun == true)
+								OZvm.getInstance().runZ80Engine(-1);
+							else {
+								OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+								OZvm.getInstance().getCommandLine().initDebugCmdline();
+							}
+						} catch (IOException e1) {
 							displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");
 					    	Memory.getInstance().setDefaultSystem();
 					    	Blink.getInstance().reset();				
 					    	Blink.getInstance().resetBlinkRegisters();							
-						}					
+					    	OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+							OZvm.getInstance().getCommandLine().initDebugCmdline();
+						}						
 					}					
-
-					OZvm.getInstance().runZ80Engine(-1);
 				}
 			});
 		}
@@ -502,6 +528,7 @@ public class Gui extends JFrame {
 			
 			createSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					boolean autorun;
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
 					chooser.setDialogTitle("Create Z88 snaphot");
@@ -509,20 +536,28 @@ public class Gui extends JFrame {
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					chooser.setFileFilter(srVM.getSnapshotFilter());
 					chooser.setSelectedFile(new File(OZvm.defaultVmFile));
-					Blink.getInstance().stopZ80Execution();
+					
+					if ((OZvm.getInstance().getZ80engine() != null)) {
+						autorun = true;
+						Blink.getInstance().stopZ80Execution();
+					} else {
+						autorun = false;
+					}
 					
 					int returnVal = chooser.showSaveDialog(getContentPane().getParent());
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						String fileName = chooser.getSelectedFile().getAbsolutePath();
 						try {
-							srVM.storeSnapShot(fileName);
+							srVM.storeSnapShot(fileName, autorun);
 							displayRtmMessage("Snapshot successfully created in " + fileName);
 						} catch (IOException e1) {
 							displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
 						}						
 					}					
 
-					OZvm.getInstance().runZ80Engine(-1);
+					if (autorun == true)
+						// Z80 engine was temporary stopped, now continue to execute...
+						OZvm.getInstance().runZ80Engine(-1);
 				}
 			});
 		}
@@ -552,10 +587,11 @@ public class Gui extends JFrame {
 
 		addRtmMessagesPanel();
 		addKeyboardPanel();
+		addSlotsPanel();
 		getUkLayoutMenuItem().doClick();
 		
 		setJMenuBar(getMainMenuBar());
-
+		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.setResizable(false);
