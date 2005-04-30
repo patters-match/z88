@@ -24,9 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.JarURLConnection;
-
 import javax.swing.UIManager;
-
 import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
 import net.sourceforge.z88.filecard.FileAreaNotFoundException;
@@ -34,7 +32,6 @@ import net.sourceforge.z88.screen.Z88display;
 
 /**
  * Main	entry of the Z88 virtual machine.
- *
  */
 public class OZvm {
 
@@ -46,11 +43,15 @@ public class OZvm {
 		return singletonContainer.singleton;
 	}
 
+	/** default boot snapshot filename */
 	public static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
 
-	public static final String VERSION = "0.5.dev.3";
+	public static final String VERSION = "0.5.dev.4";
 	public static boolean debugMode = false;
 
+	/** (default) boot the virtual machine, once it has been loaded */
+	private boolean autoRun = true;
+	
 	private	Blink z88 = null;
 	private	Memory memory =	null;
 	private CommandLine cmdLine = null;
@@ -62,6 +63,10 @@ public class OZvm {
 		Z88display.getInstance().start();
 	}
 
+	public boolean getAutorunStatus() {
+		return autoRun;
+	}
+	
 	/**
 	 * Parse boot time operating system shell command line arguments
 	 * 
@@ -95,12 +100,13 @@ public class OZvm {
 					String vmFileName = args[arg];
 					if (vmFileName.toLowerCase().lastIndexOf(".z88") == -1)
 						vmFileName += ".z88"; // '.z88' extension was missing.
-					
-					if (srVm.loadSnapShot(vmFileName) == true) {
+
+					try {
+						autoRun = srVm.loadSnapShot(vmFileName);
 						Gui.displayRtmMessage("Snapshot successfully installed from " + vmFileName);
 						loadedSnapshot = true;
-					} else {
-				    	// loading of snapshot failed (file not found, corrupt or not a snapshot file
+					} catch (IOException ee) {
+						// loading of snapshot failed (file not found, corrupt or not a snapshot file
 						// define a default Z88 system as fall back plan.
 				    	memory.setDefaultSystem();
 				    	z88.reset();				
@@ -225,12 +231,14 @@ public class OZvm {
 				}
 
 				if (arg<args.length && (args[arg].compareTo("debug") ==	0)) {
+					autoRun = false;
 					commandLine(true);
 					arg++;
 					continue;
 				}
 
 				if (arg<args.length && (args[arg].compareTo("initdebug") == 0))	{
+					autoRun = false;
 					commandLine(true);
 
 					file = new RandomAccessFile(args[arg+1], "r");
@@ -274,10 +282,13 @@ public class OZvm {
 			// if no snapshot file was specified or other resources installed, try to load the default 'boot.z88' snapshot
 			if (loadedSnapshot == false & installedCard == false & loadedRom == false) {
 				SaveRestoreVM srVm = new SaveRestoreVM();
-				if (srVm.loadSnapShot(OZvm.defaultVmFile) == true) {
-					Gui.displayRtmMessage("Snapshot successfully installed from " + OZvm.defaultVmFile);
+				try {
+					autoRun = srVm.loadSnapShot(OZvm.defaultVmFile);
 					loadedSnapshot = true;
-				}					
+					Gui.displayRtmMessage("Snapshot successfully installed from " + OZvm.defaultVmFile);
+				} catch (IOException ee) {
+					// 'boot.z88' wasn't available, or an error occurred - ignore it...
+				}
 			}
 			
 			if (loadedSnapshot == false & loadedRom == false) {
@@ -292,16 +303,16 @@ public class OZvm {
 				memory.insertRamCard(32	* 1024,	0);	// no RAM specified for	slot 0,	set to default 32K RAM...
 			}
 		} catch	(FileNotFoundException e) {
-			System.out.println("Couldn't load ROM/EPROM image:\n" +	e.getMessage() + "\nOzvm terminated.");
+			System.out.println("Couldn't load ROM/EPROM image:\n" +	e.getMessage());
 			return false;
 		} catch	(IOException e)	{
-			System.out.println("Problem with ROM/EPROM image or I/O:\n" + e.getMessage() + "\nOzvm terminated.");
+			System.out.println("Problem with ROM/EPROM image or I/O:\n" + e.getMessage());
 			return false;
 		} catch (FileAreaNotFoundException e) {
-			System.out.println("Problem with importing file into File Card:\n" + e.getMessage() + "\nOzvm terminated.");
+			System.out.println("Problem with importing file into File Card:\n" + e.getMessage());
 			return false;
 		} catch (FileAreaExhaustedException e) {
-			System.out.println("Problem with importing file into File Card:\n" + e.getMessage() + "\nOzvm terminated.");
+			System.out.println("Problem with importing file into File Card:\n" + e.getMessage());
 			return false;
 		}
 		
@@ -310,10 +321,10 @@ public class OZvm {
 
 	public void commandLine(boolean status) {				
 		if (status == true) {
-			if (debugMode == true)
+			if (debugMode == true) {
 				cmdLine.getDebugGui().getCmdLineInputArea().grabFocus();
-			else
-				cmdLine = new CommandLine(z80Engine);
+			} else
+				cmdLine = new CommandLine();
 		} else
 			cmdLine = null;
 		
@@ -328,15 +339,19 @@ public class OZvm {
 	 * Execute a Z80 thread.
 	 * 
 	 * @param oneStopBreakpoint
-	 * @return
+	 * @return true if thread was successfully started.
 	 */
-	public Thread runZ80Engine(final int oneStopBreakpoint) {
+	public boolean runZ80Engine(final int oneStopBreakpoint) {	
+		if (z80Engine != null && z80Engine.isAlive() ==	true) {
+			return false;
+		}		
+
 		Gui.displayRtmMessage("Z88 virtual machine was started.");
 		System.gc(); //	try to garbage collect...
 		
 		z80Engine =	new Thread() {
 			public void run() {
-				Breakpoints breakPointManager = Breakpoints.getInstance();
+				Breakpoints breakPointManager = z88.getBreakpoints();
 
 				if (breakPointManager.isStoppable(z88.decodeLocalAddress(z88.PC())) == true) {
 					// we need to use single stepping mode to
@@ -355,14 +370,12 @@ public class OZvm {
 
 				if (oneStopBreakpoint != -1)
 					breakPointManager.toggleBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
+				
+				z80Engine = null;
 
-				if (cmdLine != null) {
-					cmdLine.displayCmdOutput(Z88Info.dzPcStatus(z88.PC()));
-					cmdLine.getDebugGui().getCmdLineInputArea().setText(Dz.getNextStepCommand());
-					cmdLine.getDebugGui().getCmdLineInputArea().setCaretPosition(cmdLine.getDebugGui().getCmdLineInputArea().getDocument().getLength());
-					cmdLine.getDebugGui().getCmdLineInputArea().selectAll();
-					cmdLine.getDebugGui().getCmdLineInputArea().grabFocus();	// Z88 is stopped, get focus to	debug command line.
-				}
+				if (getCommandLine() != null) { 
+					getCommandLine().initDebugCmdline();
+				}				
 			}
 		};
 
@@ -370,18 +383,31 @@ public class OZvm {
 		z80Engine.start();
 		Thread.yield();	// the command line is not that	important right	now...
 
-		return z80Engine;
+		return true;
 	}
 
+	/** 
+	 * Get a reference to the currently running Z80 engine.
+	 *  
+	 * @return
+	 */
+	public Thread getZ80engine() {
+		return z80Engine; 
+	}
 
 	/**
 	 * Just	run the	virtual	machine	if no debugging	was enabled.
 	 * (No breakpoints are defined by default)
 	 */
 	public void bootZ88Rom() {
-		z80Engine = runZ80Engine(-1);
+		runZ80Engine(-1);
 	}
 	
+	/**
+	 * OZvm application startup.
+	 * 
+	 * @param args shell command line arguments
+	 */
 	public static void main(String[] args) {
 		try {
 			  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
@@ -397,12 +423,16 @@ public class OZvm {
 			System.exit(0);
 		}
 
-		if (OZvm.debugMode == false) {
+		// display info about slot contents..
+		Gui.getInstance().getSlotsPanel().refreshSlotInfo();
+
+		if (ozvm.getAutorunStatus() == true) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
 			ozvm.bootZ88Rom();
 			Z88display.getInstance().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
 			ozvm.commandLine(true);
+			ozvm.getCommandLine().initDebugCmdline();
 		}
 	}
 }
