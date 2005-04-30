@@ -325,7 +325,7 @@ public abstract class Z80 {
         return nmi;
     }
 
-    public void setNmi(boolean nmiState) {
+    public synchronized void setNmi(boolean nmiState) {
         nmi = nmiState;
     }
 
@@ -480,7 +480,8 @@ public abstract class Z80 {
     }
 
     /** Interrupt handler */
-    public final synchronized void setInterruptSignal() {
+    public final synchronized void setInterruptSignal(boolean nmiState) {
+        nmi = nmiState;  
         externIntSignal = true;
     }
 
