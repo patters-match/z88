@@ -4026,6 +4026,26 @@ public class Dz {
 	}
 
 	/**
+	 * Return Binary 8bit string in 01010101b zero prefixed format.
+	 *
+	 * @param b The byte to be converted to binary string
+	 * @param binTrailer append 'b' if true.
+	 * @return String
+	 */
+	public static final String byteToBin(final int b, final boolean binTrailer) {
+		StringBuffer binString = new StringBuffer(9);
+
+		for (int bit=7; bit>=0; bit--) {
+			if ((b & (2 << bit)) == 0) 
+				binString.append("0");
+			else
+				binString.append("1");
+		}
+		if (binTrailer == true) binString.append('b');
+
+		return binString.toString();
+	}	
+	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
 	 *
 	 * @param addr The 16bit address to be converted to hex string
