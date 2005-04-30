@@ -30,19 +30,11 @@ import java.util.Iterator;
 public class Breakpoints {
     private Map breakPoints = null;
 	private Breakpoint bpSearchKey = null;
-
-	private static final class singletonContainer {
-		static final Breakpoints singleton = new Breakpoints();  
-	}
-	
-	public static Breakpoints getInstance() {
-		return singletonContainer.singleton;
-	}
 	
     /**
      * Just instantiate this Breakpoint Manager
      */
-    private Breakpoints() {
+    public Breakpoints() {
         breakPoints = new HashMap();        
 		bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (used by internal lookup) 
     }
@@ -168,7 +160,7 @@ public class Breakpoints {
     /**
      * List breakpoints into String, so that caller decides to display them.
      */
-    public String listBreakpoints() {
+    public String displayBreakpoints() {
     	StringBuffer output = new StringBuffer(1024);
     	output.append("Breakpoints:\n");
         if (breakPoints.isEmpty() == true) {
@@ -190,6 +182,33 @@ public class Breakpoints {
         return output.toString();
     }
 
+    /**
+     * List breakpoints into String, that can be saved in a property.<br>
+     * Each breakpoint is written in hex, separated with a comma.
+     * If a break is a display-breakpoint, it is preceeded with a '[d]'. 
+     * If no breakpoints are defined, an empty string is returned.
+     */
+    public String breakpointList() {
+    	StringBuffer output = new StringBuffer(1024);
+        if (breakPoints.isEmpty() == true) {
+            return "";
+        } else {
+            Iterator keyIterator = breakPoints.entrySet().iterator();
+
+            while(keyIterator.hasNext()) {
+                Map.Entry e = (Map.Entry) keyIterator.next();
+                Breakpoint bp = (Breakpoint) e.getKey();
+
+				output.append(bp.stop == false ? "[d]" : "");
+				output.append(Dz.extAddrToHex(bp.getBpAddress(),false));
+				if (keyIterator.hasNext() == true)
+					output.append(",");
+            }
+        }
+        
+        return output.toString();
+    }
+    
     /**
      * Install the "breakpoint" instruction in Z88 memory for all
      * currently defined (and active) breakpoints.
