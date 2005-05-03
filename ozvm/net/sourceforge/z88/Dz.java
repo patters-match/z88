@@ -4034,9 +4034,9 @@ public class Dz {
 	 */
 	public static final String byteToBin(final int b, final boolean binTrailer) {
 		StringBuffer binString = new StringBuffer(9);
-
+		
 		for (int bit=7; bit>=0; bit--) {
-			if ((b & (2 << bit)) == 0) 
+			if ((b & (1 << bit)) == 0) 
 				binString.append("0");
 			else
 				binString.append("1");
