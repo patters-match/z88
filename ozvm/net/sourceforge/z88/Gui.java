@@ -499,6 +499,7 @@ public class Gui extends JFrame {
 						
 						try {
 							boolean autorun = srVM.loadSnapShot(fileName);
+							getSlotsPanel().refreshSlotInfo();
 							displayRtmMessage("Snapshot successfully installed from " + fileName);
 							if (autorun == true)
 								OZvm.getInstance().runZ80Engine(-1);
