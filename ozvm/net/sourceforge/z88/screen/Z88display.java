@@ -316,7 +316,7 @@ public class Z88display extends JLabel implements MouseListener {
 				Gui.displayRtmMessage("Screen recording to '" + movieFilename + "' activated.");
 			} catch (IOException e) {
 				recordingMovie = false;
-				System.out.println("Could not create animated Gif file.");
+				Gui.displayRtmMessage("Could not create animated Gif file.");
 			}			
 		} else {
 			// stop screen recording; append Gif trailer and close GIF file
