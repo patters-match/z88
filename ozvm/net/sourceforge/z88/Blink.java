@@ -788,12 +788,17 @@ public final class Blink extends Z80 {
 	 * snooze state and fires KEY interrupts, if enabled. 
 	 */
 	public void signalKeyPressed() {
-		snooze = false;
+		// processor always awakes on a key press (even if INT.GINT = 0)
+		snooze = false; 
 		
-		if ( ((INT & Blink.BM_INTKEY) != 0) ) {
+		if ( (INT & Blink.BM_INTKEY) == Blink.BM_INTKEY ) {
 			// If keyboard interrupts are enabled, then signal that a key was pressed.
 			STA |= BM_STAKEY;
-			setInterruptSignal(false);
+
+			if (((INT & BM_INTGINT) == BM_INTGINT)) {
+				coma = false;
+				setInterruptSignal(false);
+			}
 		}
 	}
 	
@@ -807,16 +812,18 @@ public final class Blink extends Z80 {
 	 */
 	public int getBlinkKbd(int row) {		
 		if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
-			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 			snooze = true;
 			
-			while( snooze == true ) {
-				// The processor is set into snooze mode when INT.KWAIT is enabled 
-				// and the hardware keyboard matrix is scanned.
-				// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
-				Thread.yield();
+			while( snooze == true & stopZ88 == false) {
+				try {
+					// The processor is set into snooze mode when INT.KWAIT is enabled 
+					// and the hardware keyboard matrix is scanned.
+					// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
+					// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+				}
 			}
-			Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 		}
 
 		return Z88Keyboard.getInstance().scanKeyRow(row);
@@ -1230,17 +1237,20 @@ public final class Blink extends Z80 {
 
 	/**
 	 * a HALT instruction was executed by the Z80 processor.
-	 * go into snooze and wait for something to happen..
+	 * go into coma and wait for an interrupt..
 	 */
 	public void haltZ80() {
-		// Z80 "Clock" is now stopped, but Blink "Clock" keeps running:
-		// wait until an INT signal is fired...
-		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+		// Z80 "Clock" is now stopped, 
+		// wait until an interrupt is fired...
+		
+		coma = true;
 		do {
-			Thread.yield();
-		} // Only get out of coma if an interrupt occurred..
-		while(interruptTriggered() == false);
-		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+			}
+		} // Only get out of coma if an interrupt occurred or if Z80 engine was stopped..
+		while(coma == true & stopZ88 == false);
 
 		// (back to main Z80 decode loop)
 	}
@@ -1373,8 +1383,12 @@ public final class Blink extends Z80 {
 						// Signal that a tick interrupt occurred
 						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
 						STA |= BM_STATIME;
-						snooze = false;
-						setInterruptSignal(false);
+						
+						if (((INT & BM_INTGINT) == BM_INTGINT)) {
+							snooze = false;
+							coma = false;
+							setInterruptSignal(false);
+						}
 					}
 				}
 
@@ -1387,8 +1401,12 @@ public final class Blink extends Z80 {
 						// Signal that a second interrupt occurred
 						TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
 						STA |= BM_STATIME;
-						snooze = false;
-						setInterruptSignal(false);
+
+						if (((INT & BM_INTGINT) == BM_INTGINT)) {
+							snooze = false;
+							coma = false;
+							setInterruptSignal(false);
+						}
 					}
 
 					if (++TIM1 > 59) {
@@ -1399,8 +1417,12 @@ public final class Blink extends Z80 {
 							// Signal that a minute interrupt occurred
 							TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
 							STA |= BM_STATIME;
-							snooze = false;
-							setInterruptSignal(false);
+
+							if (((INT & BM_INTGINT) == BM_INTGINT)) {
+								snooze = false;
+								coma = false;
+								setInterruptSignal(false);
+							}
 						}
 
 						if (++TIM2 > 255) {
