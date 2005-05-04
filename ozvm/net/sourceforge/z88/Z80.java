@@ -78,7 +78,6 @@ public abstract class Z80 {
     }
 
 	private boolean externIntSignal = false;
-    private boolean z80Halted = false;
 	private boolean z80Stopped = false;
     private boolean singleStepping = false;
 
@@ -480,7 +479,7 @@ public abstract class Z80 {
     }
 
     /** Interrupt handler */
-    public final synchronized void setInterruptSignal(boolean nmiState) {
+    public final void setInterruptSignal(boolean nmiState) {
         nmi = nmiState;  
         externIntSignal = true;
     }
@@ -545,10 +544,10 @@ public abstract class Z80 {
     }
 
     /** Z80 fetch/execute loop, all engines, full throttle ahead.. */
-    public void run(boolean singleStep) {
+    public void run(boolean debugMode) {
 		z80Stopped = false;
 
-        singleStepping = singleStep;
+        singleStepping = debugMode;
 
         do {
 			instrPC = _PC;		// define origin PC of current instruction
@@ -558,7 +557,7 @@ public abstract class Z80 {
 				return;
 			} 
 
-            if (singleStep == false && IFF1() == true && interruptTriggered() == true) {
+            if (debugMode == false && IFF1() == true && interruptTriggered() == true) {
                 // a maskable interrupt want's to be executed...
                 execInterrupt();
             }
@@ -943,7 +942,7 @@ public abstract class Z80 {
                     /* LD B,? */
                 case 64 : /* LD B,B */ {
                 		// Stop at encountered breakpoint, if found...
-                		if (singleStepping == false) z80Stopped = breakPointAction(); 
+                		z80Stopped = breakPointAction(); 
                         tstatesCounter += 4;
                         break;
                     }
@@ -991,7 +990,7 @@ public abstract class Z80 {
                     }
                 case 73 : /* LD C,C */ {
 						// Dump Z80 register info at breakpoint, then continue execution
-            			if (singleStepping == false) breakPointAction();
+            			breakPointAction();
                         tstatesCounter += 4;
                         break;
                     }
@@ -1226,10 +1225,8 @@ public abstract class Z80 {
 					    // let the external system know about HALT instruction
 					    // Z80 processor execution now awaits external interrupt
                         // to wake processor execution up again.
-                        if (singleStep == false) {
-							z80Halted = true;
-							haltZ80();
-                        }
+						
+						haltZ80();
                         tstatesCounter += 4;
                         break;
 
@@ -2094,7 +2091,7 @@ public abstract class Z80 {
                     }
             }
         }
-        while (singleStep == false && z80Stopped == false);
+        while (debugMode == false && z80Stopped == false);
     }
 
     private final int execute_ed(int tstatesCounter) {
