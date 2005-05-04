@@ -186,13 +186,14 @@ public class Z88Info {
 
 
     /**
-     * Bit status of Blink COM register
+     * Bit status of Blink COM register.
      */
 	public static String blinkComInfo() {
 		StringBuffer blinkComFlags = new StringBuffer(128);
 		Blink z88 = Blink.getInstance();
-        int blComReg = z88.getBlinkCom();
+        int blComReg = z88.getBlinkCom() & 0xFF;
 
+        blinkComFlags.append("COM (B0h) = " + Dz.byteToBin(blComReg, true) + " : ");
         if ( ((blComReg & Blink.BM_COMSRUN) == 0) & ((blComReg & Blink.BM_COMSBIT) == 0) )
             blinkComFlags.append("Speaker=Low");
         if ( ((blComReg & Blink.BM_COMSRUN) == 0) & ((blComReg & Blink.BM_COMSBIT) == Blink.BM_COMSBIT) )
@@ -219,7 +220,7 @@ public class Z88Info {
         if ( ((blComReg & Blink.BM_COMLCDON) == Blink.BM_COMLCDON) )
             blinkComFlags.append(",LCDON");
 
-        return "COM (B0h): " + blinkComFlags;
+        return blinkComFlags.toString();
 	}
 
 
@@ -228,38 +229,38 @@ public class Z88Info {
      */
     public static String blinkIntInfo() {
 		StringBuffer blinkIntFlags = new StringBuffer(128);
-		Blink z88 = Blink.getInstance();		
-		int blIntReg = z88.getBlinkInt();
+		int blIntReg = Blink.getInstance().getBlinkInt() & 0xFF;
 		
-        if ( ((blIntReg & Blink.BM_INTKWAIT) == Blink.BM_INTKWAIT) )
-            blinkIntFlags.append("KWAIT");
-        if ( ((blIntReg & Blink.BM_INTA19) == Blink.BM_INTA19) )
-            blinkIntFlags.append(",A19");
-        if ( ((blIntReg & Blink.BM_INTFLAP) == Blink.BM_INTFLAP) )
-            blinkIntFlags.append(",FLAP");
-        if ( ((blIntReg & Blink.BM_INTUART) == Blink.BM_INTUART) )
-            blinkIntFlags.append(",UART");
-        if ( ((blIntReg & Blink.BM_INTBTL) == Blink.BM_INTBTL) )
-            blinkIntFlags.append(",BTL");
-        if ( ((blIntReg & Blink.BM_INTKEY) == Blink.BM_INTKEY) )
-            blinkIntFlags.append(",KEY");
-        if ( ((blIntReg & Blink.BM_INTTIME) == Blink.BM_INTTIME) )
-            blinkIntFlags.append(",TIME");
-        if ( ((blIntReg & Blink.BM_INTGINT) == Blink.BM_INTGINT) )
-            blinkIntFlags.append(",GINT");
+		blinkIntFlags.append("INT (B1h) = " + Dz.byteToBin(blIntReg,true) + " : ");
+        if ( (blIntReg & Blink.BM_INTKWAIT) == Blink.BM_INTKWAIT ) 
+        	blinkIntFlags.append("KWAIT");
+        if ( (blIntReg & Blink.BM_INTA19) == Blink.BM_INTA19 ) 
+        	blinkIntFlags.append(",A19");
+        if ( (blIntReg & Blink.BM_INTFLAP) == Blink.BM_INTFLAP ) 
+        	blinkIntFlags.append(",FLAP");
+        if ( (blIntReg & Blink.BM_INTUART) == Blink.BM_INTUART ) 
+        	blinkIntFlags.append(",UART");
+        if ( (blIntReg & Blink.BM_INTBTL) == Blink.BM_INTBTL ) 
+        	blinkIntFlags.append(",BTL");
+        if ( (blIntReg & Blink.BM_INTKEY) == Blink.BM_INTKEY ) 
+        	blinkIntFlags.append(",KEY");
+        if ( (blIntReg & Blink.BM_INTTIME) == Blink.BM_INTTIME ) 
+        	blinkIntFlags.append(",TIME");
+        if ( (blIntReg & Blink.BM_INTGINT) == Blink.BM_INTGINT ) 
+        	blinkIntFlags.append(",GINT");
 
-        return "INT (B1h): " + blinkIntFlags;
+        return blinkIntFlags.toString();
     }
 
 
     /**
-     * Bit status of Blink STA register
+     * Bit status of Blink STA register.
      */
     public static String blinkStaInfo() {
 		StringBuffer blinkStaFlags = new StringBuffer(128);
-		Blink z88 = Blink.getInstance();
-        int blStaReg = z88.getBlinkSta();
+        int blStaReg = Blink.getInstance().getBlinkSta() & 0xFF;
 		
+        blinkStaFlags.append("STA (B1h) = " + Dz.byteToBin(blStaReg, true) + " : ");
         if ( ((blStaReg & Blink.BM_STAFLAPOPEN) == Blink.BM_STAFLAPOPEN) )
             blinkStaFlags.append("FLAPOPEN");
         if ( ((blStaReg & Blink.BM_STAA19) == Blink.BM_STAA19) )
@@ -275,37 +276,37 @@ public class Z88Info {
         if ( ((blStaReg & Blink.BM_STATIME) == Blink.BM_STATIME) )
             blinkStaFlags.append(",TIME");
 
-        return "STA (B1h): " + blinkStaFlags;
+        return blinkStaFlags.toString();
     }
 
     /**
-     * Bit status of Blink ACK register
+     * Bit status of Blink ACK register.
      */
     public static String blinkAckInfo() {
-		Blink z88 = Blink.getInstance();
-        int blAckReg = z88.getBlinkAck();
+        int blAckReg = Blink.getInstance().getBlinkAck() & 0xFF;
 		StringBuffer blinkAckFlags = new StringBuffer(128);
 		
-        if ( ((blAckReg & Blink.BM_ACKA19) == Blink.BM_ACKA19) )
+		blinkAckFlags.append("ACK (B6h) = " + Dz.byteToBin(blAckReg, true) + " : ");
+        if ( (blAckReg & Blink.BM_ACKA19) == Blink.BM_ACKA19 )
             blinkAckFlags.append("A19");
-        if ( ((blAckReg & Blink.BM_ACKFLAP) == Blink.BM_ACKFLAP) )
+        if ( (blAckReg & Blink.BM_ACKFLAP) == Blink.BM_ACKFLAP )
             blinkAckFlags.append(",FLAP");
-        if ( ((blAckReg & Blink.BM_ACKBTL) == Blink.BM_ACKBTL) )
+        if ( (blAckReg & Blink.BM_ACKBTL) == Blink.BM_ACKBTL )
             blinkAckFlags.append(",BTL");
-        if ( ((blAckReg & Blink.BM_ACKKEY) == Blink.BM_ACKKEY) )
+        if ( (blAckReg & Blink.BM_ACKKEY) == Blink.BM_ACKKEY )
             blinkAckFlags.append(",KEY");
 
-        return "ACK (B6h): " + blinkAckFlags;
+        return blinkAckFlags.toString();
     }
 
 	/**
 	 * Bit status of Blink TSTA register.
 	 */
 	public static String blinkTstaInfo() {
-		Blink z88 = Blink.getInstance();
-		int blTstaReg = z88.getBlinkTsta();
+		int blTstaReg = Blink.getInstance().getBlinkTsta() & 0xFF;
 		StringBuffer blinkTstaFlags = new StringBuffer(128);
 		
+		blinkTstaFlags.append("TSTA (B5h) = " + Dz.byteToBin(blTstaReg, true) + " : ");
 		if ( ((blTstaReg & Blink.Rtc.BM_TSTAMIN) == Blink.Rtc.BM_TSTAMIN) )
 			blinkTstaFlags.append("MIN");
 		if ( ((blTstaReg & Blink.Rtc.BM_TSTASEC) == Blink.Rtc.BM_TSTASEC) )
@@ -313,17 +314,17 @@ public class Z88Info {
 		if ( ((blTstaReg & Blink.Rtc.BM_TSTATICK) == Blink.Rtc.BM_TSTATICK) )
 			blinkTstaFlags.append(",TICK");
 
-		return "TSTA (B5h): " + blinkTstaFlags;
+		return blinkTstaFlags.toString();
 	}
 
 	/**
-	 * Bit status of Blink TSTA register
+	 * Bit status of Blink TMK register.
 	 */
 	public static String blinkTmkInfo() {
-		Blink z88 = Blink.getInstance();		
-		int blTmkReg = z88.getBlinkTmk();
+		int blTmkReg = Blink.getInstance().getBlinkTmk() & 0xFF;
 		StringBuffer blinkTmkFlags = new StringBuffer(128);
 		
+		blinkTmkFlags.append("Tmk (B5h) = " + Dz.byteToBin(blTmkReg, true) + " : ");
 		if ( ((blTmkReg & Blink.Rtc.BM_TMKMIN) == Blink.Rtc.BM_TMKMIN) )
 			blinkTmkFlags.append("MIN");
 		if ( ((blTmkReg & Blink.Rtc.BM_TMKSEC) == Blink.Rtc.BM_TMKSEC) )
@@ -331,17 +332,17 @@ public class Z88Info {
 		if ( ((blTmkReg & Blink.Rtc.BM_TMKTICK) == Blink.Rtc.BM_TMKTICK) )
 			blinkTmkFlags.append(",TICK");
 
-		return "Tmk (B5h): " + blinkTmkFlags;
+		return blinkTmkFlags.toString();
 	}
 	
 	/**
-	 * Bit status of Blink TACK register
+	 * Bit status of Blink TACK register.
 	 */
 	public static String blinkTackInfo() {
-		Blink z88 = Blink.getInstance();		
-		int blTackReg = z88.getBlinkTack();
+		int blTackReg = Blink.getInstance().getBlinkTack() & 0xFF;
 		StringBuffer blinkTackFlags = new StringBuffer(128);
 		
+		blinkTackFlags.append("Tack (B4h) = " + Dz.byteToBin(blTackReg, true) + " : ");
 		if ( ((blTackReg & Blink.Rtc.BM_TACKMIN) == Blink.Rtc.BM_TACKMIN) )
 			blinkTackFlags.append("MIN");
 		if ( ((blTackReg & Blink.Rtc.BM_TACKSEC) == Blink.Rtc.BM_TACKSEC) )
@@ -349,7 +350,7 @@ public class Z88Info {
 		if ( ((blTackReg & Blink.Rtc.BM_TACKTICK) == Blink.Rtc.BM_TACKTICK) )
 			blinkTackFlags.append(",TICK");
 
-		return "Tack (B4h): " + blinkTackFlags;
+		return blinkTackFlags.toString();
 	}
 
 	/**
