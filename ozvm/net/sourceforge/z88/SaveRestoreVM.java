@@ -186,9 +186,16 @@ public class SaveRestoreVM {
 	 */
 	private void loadBreakpoints(Properties properties) {
 		Breakpoints bp = Blink.getInstance().getBreakpoints(); 
+
+		// remove current breakpoints before loading a new set 
+		// from the snapshot (the old breakpoints doesn't theoretically
+		// match the memory of another snapshot)
+		bp.removeBreakPoints();
+		
 		String breakpoints = properties.getProperty("Breakpoints");
 		if (breakpoints == null)
 			return;
+		
 		
 		String[] breakpointList = breakpoints.split(",");
 		for(int l=0; l<breakpointList.length; l++) {
@@ -330,7 +337,6 @@ public class SaveRestoreVM {
 		// Remove all current active memory and reset Blink before restoring a snapshot.
 		memory.setVoidMemory();
 		blink.resetBlinkRegisters();
-		blink.setBreakpoints(new Breakpoints()); // reset to new Breakpoint container
 		
         // Open the snapshot (Zip) file
         zf = new ZipFile(snapshotFileName);
