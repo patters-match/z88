@@ -53,6 +53,7 @@ public class Breakpoints {
             breakPoints.remove((Breakpoint) bp);
 	}
 
+	
 	/**
 	 * Add (if not created) or remove breakpoint (if prev. created).
 	 *
@@ -67,6 +68,7 @@ public class Breakpoints {
 			breakPoints.remove((Breakpoint) bp);
 	}
 
+	
 	/**
 	 * Get the original Z80 opcode, located at this breakpoint.
 	 *
@@ -82,6 +84,7 @@ public class Breakpoints {
 			return -1;
 	}
 
+	
 	/**
 	 * Check if this breakpoint has been created.
 	 *
@@ -96,6 +99,7 @@ public class Breakpoints {
 		} else
 			return false;
 	}
+	
 	
 	/**
 	 * Return <true> if breakpoint will stop Z80 exection.
@@ -114,6 +118,7 @@ public class Breakpoints {
 			return false;
 	}
 
+	
 	/**
 	 * Mark breakpoint as active.
 	 * 
@@ -127,6 +132,7 @@ public class Breakpoints {
 			bpv.active = true;		
 	}
 
+	
 	/**
 	 * Mark breakpoint as suspended.
 	 * 
@@ -140,6 +146,7 @@ public class Breakpoints {
 			bpv.active = false;		
 	}
 
+	
 	/**
 	 * Return <true> if breakpoint is active
 	 * (<false> if breakpoint is suspended; ie. will be ignored)
@@ -157,6 +164,7 @@ public class Breakpoints {
 			return false;
 	}
 
+	
     /**
      * List breakpoints into String, so that caller decides to display them.
      */
@@ -182,6 +190,7 @@ public class Breakpoints {
         return output.toString();
     }
 
+    
     /**
      * List breakpoints into String, that can be saved in a property.<br>
      * Each breakpoint is written in hex, separated with a comma.
@@ -209,6 +218,7 @@ public class Breakpoints {
         return output.toString();
     }
     
+    
     /**
      * Install the "breakpoint" instruction in Z88 memory for all
      * currently defined (and active) breakpoints.
@@ -233,6 +243,7 @@ public class Breakpoints {
         }
     }
 
+    
     /**
      * Clear the "breakpoint" instruction; ie. restore original bitpattern
      * that was overwritten by the "breakpoint" instruction in Z88 memory.
@@ -254,13 +265,27 @@ public class Breakpoints {
         }
     }
 
+    
+    /**
+     * Remove all registered breakpoints withing this container 
+     * (using the displayBreakpoints() method afterwards will 
+     * return a "No Breakpoints defined." string).<p>
+     * 
+     * This method is typically used when a snapshot is being loaded 
+     * that might contain a different set of breakpoints; the current
+     * set therefore needs to be removed before a new is loaded.  
+     */
+    public void removeBreakPoints() {
+    	breakPoints.clear();
+    }
+
+    
     // The breakpoint container.
     private class Breakpoint {
-        int addressKey;			// the 24bit address of the breakpoint
-        int instr;				// the original 8bit opcode at breakpoint
-        boolean stop;			// true = stoppable breakpoint, false = display breakpoint
-        boolean active;			// true = breakpoint is active, false = breakpoint is suspended
-
+        private int addressKey;			// the 24bit address of the breakpoint
+        private int instr;				// the original 8bit opcode at breakpoint
+        private boolean stop;			// true = stoppable breakpoint, false = display breakpoint
+        private boolean active;			// true = breakpoint is active, false = breakpoint is suspended
 
 		/**
 		 * Create a breakpoint object.
