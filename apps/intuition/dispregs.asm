@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -97,39 +97,39 @@
 
                     DEFB 3                             ; 3 columns on this line
                     DEFW BC_Mnemonic
-                    DEFB VP_BC, 2^7                    ; BC register
+                    DEFB VP_BC, 2**7                    ; BC register
                     DEFW BCx_Mnemonic
-                    DEFB VP_BCx, 2^7                   ; alternate BC register
+                    DEFB VP_BCx, 2**7                   ; alternate BC register
                     DEFW A_Mnemonic
-                    DEFB VP_AF+1, 2^6                  ; A register
+                    DEFB VP_AF+1, 2**6                  ; A register
 
                     DEFB 3
                     DEFW DE_Mnemonic
-                    DEFB VP_DE, 2^7                    ; DE register
+                    DEFB VP_DE, 2**7                    ; DE register
                     DEFW DEx_Mnemonic
-                    DEFB VP_DEx, 2^7                   ; alternate DE register
+                    DEFB VP_DEx, 2**7                   ; alternate DE register
                     DEFW Ax_Mnemonic
-                    DEFB VP_AFx+1, 2^6                 ; alternate A register
+                    DEFB VP_AFx+1, 2**6                 ; alternate A register
 
                     DEFB 2
                     DEFW HL_Mnemonic
-                    DEFB VP_HL, 2^7                    ; HL register
+                    DEFB VP_HL, 2**7                    ; HL register
                     DEFW HLx_Mnemonic
-                    DEFB VP_HLx, 2^7                   ; alternate HL register
+                    DEFB VP_HLx, 2**7                   ; alternate HL register
 
                     DEFB 3
                     DEFW IX_Mnemonic
-                    DEFB VP_IX, 2^7                    ; IX register
+                    DEFB VP_IX, 2**7                    ; IX register
                     DEFW SP_Mnemonic
-                    DEFB VP_SP, 2^7                    ; SP register
+                    DEFB VP_SP, 2**7                    ; SP register
                     DEFW F_Mnemonic
                     DEFB VP_AF, 0                      ; F register
 
                     DEFB 3
                     DEFW IY_Mnemonic
-                    DEFB VP_IY, 2^7                    ; IY register
+                    DEFB VP_IY, 2**7                    ; IY register
                     DEFW PC_Mnemonic
-                    DEFB VP_PC, 2^7                    ; PC register
+                    DEFB VP_PC, 2**7                    ; PC register
                     DEFW Fx_Mnemonic
                     DEFB VP_AFx, 0                     ; alternate F register
 

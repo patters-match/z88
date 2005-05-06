@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -38,12 +38,12 @@
 ;
 .Toggle_TraceMode BIT  Flg_TraceSubr,(IY + FlagStat3)
                   RET  NZ                              ; if 'Trace until RET' is ON then ignore...
-                  LD   BC, 2^Flg_RTM_Trace*256 + FlagStat2
+                  LD   BC, 2**Flg_RTM_Trace*256 + FlagStat2
                   SCF
                   JP   Switch_bitnumber
 
 ; '.TS' - Set Trace Subroutine flag         ;                                       ** V0.26e
-.tracesubr_flag   LD   BC, 2^Flg_TraceSubr*256 + Flagstat3
+.tracesubr_flag   LD   BC, 2**Flg_TraceSubr*256 + Flagstat3
                   SCF
                   CALL Switch_bitnumber
                   BIT  Flg_TraceSubr,A                 ; check the 'Trace until RET' flag
@@ -69,7 +69,7 @@
 ; BIT 0 set  : Auto Dissassemble mode ON
 ; BIT 0 reset:                        OFF
 ;
-.Toggle_DasmMode  LD   BC, 2^Flg_RTM_DZ*256 + FlagStat2
+.Toggle_DasmMode  LD   BC, 2**Flg_RTM_DZ*256 + FlagStat2
                   SCF
                   JR   Switch_bitnumber
 
@@ -81,7 +81,7 @@
 ; BIT set  : Keyboard interrupt mode ON.
 ; BIT reset:                         Off.
 ;
-.Toggle_KbIntMode LD   BC, 2^Flg_RTM_Kesc*256 + FlagStat2
+.Toggle_KbIntMode LD   BC, 2**Flg_RTM_Kesc*256 + FlagStat2
                   SCF
                   JR   Switch_bitnumber
 
@@ -93,7 +93,7 @@
 ; BIT set  : Auto Register Dump ON.
 ; BIT reset:                    Off.
 ;
-.Toggle_RegDump   LD   BC, 2^Flg_DZRegDmp*256 + Flagstat1
+.Toggle_RegDump   LD   BC, 2**Flg_DZRegDmp*256 + Flagstat1
                   SCF
                   JR   Switch_bitnumber
 
@@ -102,7 +102,7 @@
 ;
 ; Toggle Breakpoint Register Dump mode  (IY + FlagStat3) ** V0.29
 ;
-.Toggle_Brkpdump  LD   BC, 2^Flg_BreakDump*256 + Flagstat3
+.Toggle_Brkpdump  LD   BC, 2**Flg_BreakDump*256 + Flagstat3
                   SCF
                   JR   Switch_bitnumber
 
@@ -111,7 +111,7 @@
 ;
 ; Toggle Disassemble opcode mode  (IY + FlagStat3) ** V1.02
 ;
-.Toggle_DZopc     LD   BC, 2^Flg_DZopcode*256 + Flagstat3
+.Toggle_DZopc     LD   BC, 2**Flg_DZopcode*256 + Flagstat3
                   SCF
                   JR   Switch_bitnumber
 
@@ -120,7 +120,7 @@
 ;
 ; Toggle Break at OZ error (IY + FlagStat3) ** V0.32
 ;
-.Toggle_BrkOZ     LD   BC, 2^Flg_BreakOZ*256 + flagstat3
+.Toggle_BrkOZ     LD   BC, 2**Flg_BreakOZ*256 + flagstat3
                   SCF
                   JR   Switch_bitnumber
 

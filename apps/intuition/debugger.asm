@@ -306,7 +306,7 @@ ENDIF
                   BIT  Flg_RTM_Kesc, A            ;                                            ** V0.17/V0.28
                   CALL NZ, Keyboard_interrupt     ; <LSH><DIAMOND> pressed?                    ** V0.17/V0.28
 
-                  AND 2^Flg_RTM_Breakp | 2^Flg_RTM_error | 2^Flg_RTM_BpInst | 2^Flg_RTM_Trace | 2^Flg_RTM_DZ
+                  AND 2**Flg_RTM_Breakp | 2**Flg_RTM_error | 2**Flg_RTM_BpInst | 2**Flg_RTM_Trace | 2**Flg_RTM_DZ
                   CALL NZ, Check_RTMflags         ; An RTM flag indicates a runtime action     ** V1.04
 
 ; decode instruction at (PC). The following registers are used by the virtual processor:
@@ -3277,11 +3277,11 @@ ENDIF
                   LD   (IY + LogfileNr),255       ; initialise log file number                ** V0.19
 
                   ; Status byte 1:
-                  LD   (IY + Flagstat1), 2^Flg_IntWin       ; Use Intuition window #1
+                  LD   (IY + Flagstat1), 2**Flg_IntWin       ; Use Intuition window #1
 
                   ; Status byte 2:
-                  LD   (IY + FlagStat2), 2^Flg_RTM_Trace    ; Single Step mode
+                  LD   (IY + FlagStat2), 2**Flg_RTM_Trace    ; Single Step mode
 
                   ; Status byte 3:
-                  LD   (IY + FlagStat3), 2^Flg_WinMode | 2^Flg_DZopcode ;                      ** V0.26e
+                  LD   (IY + FlagStat3), 2**Flg_WinMode | 2**Flg_DZopcode ;                   ** V0.26e
                   RET
