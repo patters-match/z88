@@ -1,5 +1,5 @@
 :: *************************************************************************************
-:: Intuition
+:: Intuition Z88 application make script
 :: (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2005
 ::
 :: Intuition is free software; you can redistribute it and/or modify it under the terms of the
@@ -21,5 +21,4 @@ del *.obj *.bin *.map *.epr
 ..\..\csrc\mpm\mpm -b -I..\oz\sysdef -l..\stdlib\standard.lib @debugapl
 ..\..\csrc\mpm\mpm -b romhdr
 java -jar ..\..\makeapp.jar -sz 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
-::java -jar ..\..\z88.jar ram1 1024 fcd3 512 28f crd2 1024 29f flashstore.epr debug
 java -jar ..\..\z88.jar ram0 512 s3 intuition.epr
