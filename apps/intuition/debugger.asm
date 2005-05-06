@@ -1,43 +1,30 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
     MODULE Debugger
 
 
-if MSDOS
-     INCLUDE "defs.h"
-     INCLUDE "stdio.def"
-     IF SEGMENT2
-          INCLUDE "..\applic.h"
-          INCLUDE "..\MTHdbg.def"
-          INCLUDE "fileio.def"
-          INCLUDE "director.def"
-     ENDIF
-endif
-if UNIX
-     INCLUDE "defs.h"
-     INCLUDE "stdio.def"
-     IF SEGMENT2
-          INCLUDE "../applic.h"
-          INCLUDE "../MTHdbg.def"
-          INCLUDE "fileio.def"
-          INCLUDE "director.def"
-     ENDIF
-endif
+INCLUDE "defs.h"
+INCLUDE "stdio.def"
+IF SEGMENT2
+     INCLUDE "mthdbg.def"
+     INCLUDE "fileio.def"
+     INCLUDE "director.def"
+ENDIF
 
 if INT_SEGM0
     XREF ExtRoutine_s01
@@ -173,8 +160,7 @@ IF SEGMENT2
      ORG Z80dbg_DOR
 
                     DEFB 0, 0, 0                        ; link to parent
-                    DEFW EasyLink_DOR
-                    DEFB EasyLink_bank
+                    DEFB 0, 0, 0                        ; link to brother (no app)
                     DEFB 0, 0, 0
                     DEFB $83                            ; DOR type - application ROM
                     DEFB DOREnd2-DORStart2              ; total length of DOR
@@ -186,7 +172,7 @@ IF SEGMENT2
                     DEFW 0                              ;
                     DEFW 0                              ; Unsafe workspace
                     DEFW Z80dbg_workspace               ; Safe workspace
-                    DEFW Z80debug_entry                 ; Entry point of code in seg. 3
+                    DEFW Z80dbg_entry                   ; Entry point of code in seg. 3
                     DEFB 0                              ; bank binding to segment 0
                     DEFB 0                              ; bank binding to segment 1
                     DEFB 0                              ; bank binding to segment 2
@@ -201,7 +187,7 @@ IF SEGMENT2
                     DEFB Z80dbg_MTH_bank                ; pointer to commands (info)
                     DEFW Z80dbg_help
                     DEFB Z80dbg_MTH_bank                ; point to help
-                    DEFW token_base
+                    DEFW tokens_base
                     DEFB tokens_bank                    ; point to token base
                     DEFB 'N'                            ; Key to name section
                     DEFB NameEnd2-NameStart2            ; length of name
@@ -214,11 +200,11 @@ IF SEGMENT2
 ;
 ; Intuition Application Entry Point ( after pressing []ZI )
 ;
-.Z80debug_entry   JP  Z80debug_init         ; run Intuition application
+.Z80dbg_entry     JP  Z80dbg_init           ; run Intuition application
                   SCF
                   RET                       ; continious RAM remains allocated...
 
-.Z80debug_init    PUSH IX                   ; preserve pointer to information block
+.Z80dbg_init      PUSH IX                   ; preserve pointer to information block
                   LD   IX, -1               ; return system values...
                   LD   A, FA_EOF
                   LD   DE,0

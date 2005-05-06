@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -25,19 +25,17 @@ To compile the debugger application and executable files, execute the following:
 
 2) There are several versions of the debugger:
 
-        1) The "Intuition" application for 128K card:
+        1) The "Intuition" application for 32K card:
           Change to DEFINE SEGMENT2 in "defs.h".
-          
-                mpm -b -i @debugapl
 
-                This will create the executable files "debugapl.bin".
-                Please refer to "applic.h" for position of code in 128K
-                application card.
+                execute 'make.debugapp.bat' (Widows/DOS) or 'make.debugapp.sh' (Unix)
+
+                This will create a 32K image that may be inserted into the Z88.
 
         2) The debugger executable files for application card debugging:
 
           Change to DEFINE INT_SEGM0, SEGMENT3 in "defs.h".
-          
+
                 1) The debugger for segment 0 (upper 8K = 2000h):
                    This version is made of two separate 8K executable, both
                    to be joined in a 16K file (identified as a bank). The
@@ -71,7 +69,7 @@ To compile the debugger application and executable files, execute the following:
 
                 2) The debugger for segment 1 (4000h):
                Change to DEFINE SEGMENT3 in "defs.h".
-               
+
                         mpm -b -i -r4000 @debug
 
                         This will create the "debug.bin" file. For convenience
@@ -80,7 +78,7 @@ To compile the debugger application and executable files, execute the following:
 
                 3) The debugger for segment 2 (8000h):
                Change to DEFINE SEGMENT3 in "defs.h".
-               
+
                         mpm -b -i -r8000 @debug
 
                         (If you have previuosly compiled for segment 1 then just
