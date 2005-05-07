@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -57,31 +57,29 @@
     XDEF bitcode_190_index, bitcode_198_index, bitcode_206_index, bitcode_214_index, bitcode_222_index
     XDEF bitcode_230_index, bitcode_238_index, bitcode_246_index, bitcode_254_index
 
-    ; Routine defined in 'Intuition_asm':
     XREF Calc_RelAddress
 
 
     INCLUDE "defs.h"
 
 
-; ** V1.04:
-; NB: All $CB instructions are entered with virtual AF installed 
+; NB: All $CB instructions are entered with virtual AF installed
 
 
 ; ******************************************************************
 ; Global service routine for (HL) related CB instructions
-; Return byte at (HL) in B. 
+; Return virtual cached HL in main register set
 ;
 ;       AF.CDEHL/IXIY  same
 ;       ..B...../....  different
 ;
-.Get_byte_at_HL
-                  EX   AF,AF'               ; do not use virtual AF yet       ** V1.1.1
+.Get_vHL
                   EXX                       ;                                 ** V1.1.1
-                  LD   A,(BC)               ; (HL)                            ** V1.1.1 
+                  PUSH BC                   ;                                 ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
-                  LD   B,A                  ;                                 ** V1.1.1
-                  EX   AF,AF'               ; get AF                          ** V0.23
+                  POP  HL                   ;                                 ** V1.1.1
+                  RET
+
 
 ; ******************************************************************
 ;
@@ -119,7 +117,7 @@
 ;
 ; RLC  H                                    2 bytes
 ;
-.BitCode_4        
+.BitCode_4
                   EXX                       ; ** V1.1.1
                   RLC  B                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -130,7 +128,7 @@
 ;
 ; RLC  L                                    2 bytes
 ;
-.BitCode_5        
+.BitCode_5
                   EXX                       ; ** V1.1.1
                   RLC  C                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -141,9 +139,11 @@
 ;
 ; RLC  (HL)                                 2 bytes
 ;
-.BitCode_6        CALL Get_byte_at_HL       ; ** V1.1.1
-                  RLC  B                    ; ** V1.1.1
+.BitCode_6        CALL Get_vHL              ; ** V1.1.1
+                  RLC  (HL)                 ; ** V1.1.1
                   RET
+
+
 
 ; ******************************************************************
 ;
@@ -199,7 +199,7 @@
 ;
 ; RRC  H                                    2 bytes
 ;
-.BitCode_12       
+.BitCode_12
                   EXX                       ; ** V1.1.1
                   RRC  B                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -210,7 +210,7 @@
 ;
 ; RRC  L                                    2 bytes
 ;
-.BitCode_13       
+.BitCode_13
                   EXX                       ; ** V1.1.1
                   RRC  C                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -221,9 +221,9 @@
 ;
 ; RRC  (HL)                                 2 bytes
 ;
-.BitCode_14       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RRC  B                    ; ** V1.1.1
+.BitCode_14
+                  CALL Get_vHL              ; ** V1.1.1
+                  RRC  (HL)                 ; ** V1.1.1
                   RET
 
 ; ******************************************************************
@@ -280,7 +280,7 @@
 ;
 ; RL   H                                    2 bytes
 ;
-.BitCode_20       
+.BitCode_20
                   EXX                       ; ** V1.1.1
                   RL   B                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -291,7 +291,7 @@
 ;
 ; RL   L                                    2 bytes
 ;
-.BitCode_21       
+.BitCode_21
                   EXX                       ; ** V1.1.1
                   RL   C                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -302,9 +302,9 @@
 ;
 ; RL   (HL)                                  2 bytes
 ;
-.BitCode_22       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RL   B                    ; ** V1.1.1
+.BitCode_22
+                  CALL Get_vHL              ; ** V1.1.1
+                  RL   (HL)                 ; ** V1.1.1
                   RET
 
 ; ******************************************************************
@@ -361,7 +361,7 @@
 ;
 ; RR   H                                    2 bytes
 ;
-.BitCode_28       
+.BitCode_28
                   EXX                       ; ** V1.1.1
                   RR   B                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -372,7 +372,7 @@
 ;
 ; RR   L                                    2 bytes
 ;
-.BitCode_29       
+.BitCode_29
                   EXX                       ; ** V1.1.1
                   RR   C                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -383,12 +383,12 @@
 ;
 ; RR   (HL)                                 2 bytes
 ;
-.BitCode_30       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RR   B                    ; ** V1.1.1
+.BitCode_30
+                  CALL Get_vHL              ; ** V1.1.1
+                  RR   (HL)                 ; ** V1.1.1
                   RET
 
-                  
+
 ; ******************************************************************
 ;
 ; RR   (IX+d)                               4 bytes
@@ -443,7 +443,7 @@
 ;
 ; SLA  H                                    2 bytes
 ;
-.BitCode_36       
+.BitCode_36
                   EXX                       ; ** V1.1.1
                   SLA  B                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -454,7 +454,7 @@
 ;
 ; SLA  L                                    2 bytes
 ;
-.BitCode_37       
+.BitCode_37
                   EXX                       ; ** V1.1.1
                   SLA  C                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -465,9 +465,9 @@
 ;
 ; SLA  (HL)                                 2 bytes
 ;
-.BitCode_38       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SLA  B                    ; ** V1.1.1
+.BitCode_38
+                  CALL Get_vHL              ; ** V1.1.1
+                  SLA  (HL)                 ; ** V1.1.1
                   RET
 
 ; ******************************************************************
@@ -523,7 +523,7 @@
 ;
 ; SRA  H                                    2 bytes
 ;
-.BitCode_44       
+.BitCode_44
                   EXX                       ; ** V1.1.1
                   SRA  B                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -534,7 +534,7 @@
 ;
 ; SRA  L                                    2 bytes
 ;
-.BitCode_45       
+.BitCode_45
                   EXX                       ; ** V1.1.1
                   SRA  C                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -545,12 +545,12 @@
 ;
 ; SRA  (HL)                                 2 bytes
 ;
-.BitCode_46       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SRA  B                    ; ** V1.1.1
+.BitCode_46
+                  CALL Get_vHL              ; ** V1.1.1
+                  SRA  (HL)                 ; ** V1.1.1
                   RET
 
-                  
+
 ; ******************************************************************
 ;
 ; SRA  (IX+d)                               4 bytes
@@ -605,7 +605,7 @@
 ;
 ; SRL  H                                    2 bytes
 ;
-.BitCode_60       
+.BitCode_60
                   EXX                       ; ** V1.1.1
                   SRL  B                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -616,7 +616,7 @@
 ;
 ; SRL  L                                    2 bytes
 ;
-.BitCode_61       
+.BitCode_61
                   EXX                       ; ** V1.1.1
                   SRL  C                    ; ** V1.1.1
                   EXX                       ; ** V1.1.1
@@ -627,9 +627,9 @@
 ;
 ; SRL  (HL)                                 2 bytes
 ;
-.BitCode_62       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SRL  B                    ; ** V1.1.1
+.BitCode_62
+                  CALL Get_vHL              ; ** V1.1.1
+                  SRL  (HL)                 ; ** V1.1.1
                   RET
 
 
@@ -687,10 +687,10 @@
 ;
 ; BIT  0,H                                  2 bytes
 ;
-.BitCode_68       
+.BitCode_68
                   EXX                       ; ** V1.1.1
                   BIT  0,B                  ; ** V1.1.1
-                  EXX                       ; ** V1.1.1                  
+                  EXX                       ; ** V1.1.1
                   RET
 
 
@@ -698,10 +698,10 @@
 ;
 ; BIT  0,L                                  2 bytes
 ;
-.BitCode_69       
+.BitCode_69
                   EXX                       ; ** V1.1.1
                   BIT  0,C                  ; ** V1.1.1
-                  EXX                       ; ** V1.1.1                  
+                  EXX                       ; ** V1.1.1
                   RET
 
 
@@ -709,9 +709,9 @@
 ;
 ; BIT  0,(HL)                               2 bytes
 ;
-.BitCode_70       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  0,B                  ; ** V1.1.1
+.BitCode_70
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  0,(HL)               ; ** V1.1.1
                   RET
 
 ; ******************************************************************
@@ -789,10 +789,11 @@
 ;
 ; BIT  1,(HL)                               2 bytes
 ;
-.BitCode_78       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  1,B                  ; ** V1.1.1
+.BitCode_78
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  1,(HL)               ; ** V1.1.1
                   RET
+
 
 ; ******************************************************************
 ;
@@ -869,9 +870,9 @@
 ;
 ; BIT  2,(HL)                               2 bytes
 ;
-.BitCode_86       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  2,B                  ; ** V1.1.1
+.BitCode_86
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  2,(HL)               ; ** V1.1.1
                   RET
 
 ; ******************************************************************
@@ -949,10 +950,11 @@
 ;
 ; BIT  3,(HL)                               2 bytes
 ;
-.BitCode_94       
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  3,B                  ; ** V1.1.1
+.BitCode_94
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  3,(HL)               ; ** V1.1.1
                   RET
+
 
 ; ******************************************************************
 ;
@@ -1029,10 +1031,11 @@
 ;
 ; BIT  4,(HL)                               2 bytes
 ;
-.BitCode_102      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  4,B                  ; ** V1.1.1
+.BitCode_102
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  4,(HL)               ; ** V1.1.1
                   RET
+
 
 ; ******************************************************************
 ;
@@ -1109,9 +1112,9 @@
 ;
 ; BIT  5,(HL)                               2 bytes
 ;
-.BitCode_110      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  5,B                  ; ** V1.1.1
+.BitCode_110
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  5,(HL)               ; ** V1.1.1
                   RET
 
 ; ******************************************************************
@@ -1189,10 +1192,11 @@
 ;
 ; BIT  6,(HL)                               2 bytes
 ;
-.BitCode_118      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  6,B                  ; ** V1.1.1
+.BitCode_118
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  6,(HL)               ; ** V1.1.1
                   RET
+
 
 ; ******************************************************************
 ;
@@ -1269,9 +1273,9 @@
 ;
 ; BIT  7,(HL)                               2 bytes
 ;
-.BitCode_126      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  BIT  7,B                  ; ** V1.1.1
+.BitCode_126
+                  CALL Get_vHL              ; ** V1.1.1
+                  BIT  7,(HL)               ; ** V1.1.1
                   RET
 
 ; ******************************************************************
@@ -1349,10 +1353,11 @@
 ;
 ; RES  0,(HL)
 ;
-.BitCode_134      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  0,B                  ; ** V1.1.1
+.BitCode_134
+                  CALL Get_vHL               ; ** V1.1.1
+                  RES  0,(HL)                ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1428,10 +1433,11 @@
 ;
 ; RES  1,(HL)
 ;
-.BitCode_142      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  1,B
+.BitCode_142
+                  CALL Get_vHL              ; ** V1.1.1
+                  RES  1,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1507,10 +1513,11 @@
 ;
 ; RES  2,(HL)
 ;
-.BitCode_150      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  2,B
+.BitCode_150
+                  CALL Get_vHL              ; ** V1.1.1
+                  RES  2,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1586,10 +1593,11 @@
 ;
 ; RES  3,(HL)
 ;
-.BitCode_158      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  3,B
+.BitCode_158
+                  CALL Get_vHL              ; ** V1.1.1
+                  RES  3,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1665,10 +1673,11 @@
 ;
 ; RES  4,(HL)
 ;
-.BitCode_166      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  4,B
+.BitCode_166
+                  CALL Get_vHL              ; ** V1.1.1
+                  RES  4,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1744,10 +1753,11 @@
 ;
 ; RES  5,(HL)
 ;
-.BitCode_174      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  5,B
+.BitCode_174
+                  CALL Get_vHL              ; ** V1.1.1
+                  RES  5,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1823,10 +1833,11 @@
 ;
 ; RES  6,(HL)
 ;
-.BitCode_182      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  6,B
+.BitCode_182
+                  CALL Get_vHL              ; ** V1.1.1
+                  RES  6,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1902,10 +1913,11 @@
 ;
 ; RES  7,(HL)
 ;
-.BitCode_190      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  RES  7,B
+.BitCode_190
+                  CALL Get_vHL              ; ** V1.1.1
+                  RES  7,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -1982,10 +1994,11 @@
 ;
 ; SET  0,(HL)
 ;
-.BitCode_198      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  0,B
+.BitCode_198
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  0,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -2061,10 +2074,11 @@
 ;
 ; SET  1,(HL)
 ;
-.BitCode_206      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  1,B
+.BitCode_206
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  1,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -2140,10 +2154,11 @@
 ;
 ; SET  2,(HL)
 ;
-.BitCode_214      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  2,B
+.BitCode_214
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  2,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -2219,10 +2234,11 @@
 ;
 ; SET  3,(HL)
 ;
-.BitCode_222      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  3,B
+.BitCode_222
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  3,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -2298,10 +2314,11 @@
 ;
 ; SET  4,(HL)
 ;
-.BitCode_230      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  4,B
+.BitCode_230
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  4,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -2377,10 +2394,11 @@
 ;
 ; SET  5,(HL)
 ;
-.BitCode_238      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  5,B
+.BitCode_238
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  5,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -2456,10 +2474,11 @@
 ;
 ; SET  6,(HL)
 ;
-.BitCode_246      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  6,B
+.BitCode_246
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  6,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
@@ -2535,10 +2554,11 @@
 ;
 ; SET  7,(HL)
 ;
-.BitCode_254      
-                  CALL Get_byte_at_HL       ; ** V1.1.1
-                  SET  7,B
+.BitCode_254
+                  CALL Get_vHL              ; ** V1.1.1
+                  SET  7,(HL)               ; ** V1.1.1
                   RET
+
 
 ; *********************************************************************************
 ;
