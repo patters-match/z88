@@ -312,12 +312,10 @@ ENDIF
 ; decode instruction at (PC). The following registers are used by the virtual processor:
 ;         A  :      1. Opcode of new instruction
 ;     BCDEHL :      Buffer / work registers.
-;         IX :      The Virtual HL register                                               ** V1.04
 ;         IY :      Base of Intuition work area. Initialised at startup. Never changed.
 ;         AF':      The Virtual AF register (Accumulator and Flag register).              ** V0.23
-;         B' :      Displacement in IX/IY instructions / work register.                   ** V0.23
-;         C' :      Work register.                                                        ** V0.27e
-;         DE':      The Virtual Stack Pointer.                                            ** V0.23
+;         BC':      The Virtual HL register                                               ** V1.1.1
+;         DE':      The Virtual Stack Pointer (SP).                                       ** V0.23
 ;         HL':      The Virtual Program Counter (PC).                                     ** V0.16
 
 .decode_instr     EXX                       ; Now decode the instruction to be fetched at (PC)
