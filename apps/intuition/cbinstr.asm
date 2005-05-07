@@ -70,14 +70,14 @@
 ; Global service routine for (HL) related CB instructions
 ; Return virtual cached HL in main register set
 ;
-;       AF.CDEHL/IXIY  same
-;       ..B...../....  different
+;       AFBCDE../IXIY  same
+;       ......HL/....  different
 ;
 .Get_vHL
-                  EXX                       ;                                 ** V1.1.1
-                  PUSH BC                   ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1
-                  POP  HL                   ;                                 ** V1.1.1
+                  EXX                       ; ** V1.1.1
+                  PUSH BC                   ; ** V1.1.1
+                  EXX                       ; ** V1.1.1
+                  POP  HL                   ; ** V1.1.1
                   RET
 
 
