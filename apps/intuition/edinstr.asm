@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -19,7 +19,7 @@
 
     XREF RestoreMainReg
 
-    ; Routines defined in 'Stdinstr_asm'
+    ; Routines defined in 'stdinstr.asm'
     XREF Opcode_201
 
     INCLUDE "defs.h"
@@ -101,7 +101,7 @@
 ;
 ; SBC  HL,BC      instruction               1 byte
 ;
-.EDcode_66        
+.EDcode_66
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   LD   C,(IY + VP_C)        ;                                 ** V1.04
@@ -120,7 +120,7 @@
 ;
 ; SBC  HL,DE      instruction               1 byte
 ;
-.EDcode_82        
+.EDcode_82
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   LD   C,(IY + VP_E)        ;                                 ** V1.04
@@ -139,7 +139,7 @@
 ;
 ; ADC  HL,BC      instruction               1 byte
 ;
-.EDcode_74        
+.EDcode_74
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   LD   C,(IY + VP_C)        ;                                 ** V1.04
@@ -159,7 +159,7 @@
 ;
 ; ADC  HL,DE      instruction               1 byte
 ;
-.EDcode_90        
+.EDcode_90
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   LD   C,(IY + VP_E)        ;                                 ** V1.04
@@ -178,7 +178,7 @@
 ;
 ; SBC  HL,HL      instruction               1 byte
 ;
-.EDcode_98        
+.EDcode_98
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   EX   (SP),HL              ; preserve PC, use HL as acc.     ** V1.04
@@ -195,7 +195,7 @@
 ;
 ; ADC  HL,HL      instruction               1 byte
 ;
-.EDcode_106       
+.EDcode_106
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   EX   (SP),HL              ; preserve PC, use HL as acc.     ** V1.04
@@ -254,8 +254,8 @@
 ;
 ; OUT  (C),H
 ;
-.EDcode_97        
-                  EXX                     ;                          ** V1.1.1 
+.EDcode_97
+                  EXX                     ;                          ** V1.1.1
                   LD   A,B                ;                          ** V1.1.1
                   EXX                     ;                          ** V1.1.1
                   LD   D,A                ;                          ** V1.1.1
@@ -266,8 +266,8 @@
 ;
 ; OUT  (C),L
 ;
-.EDcode_105       
-                  EXX                     ;                          ** V1.1.1 
+.EDcode_105
+                  EXX                     ;                          ** V1.1.1
                   LD   A,C                ;                          ** V1.1.1
                   EXX                     ;                          ** V1.1.1
                   LD   D,A                ;                          ** V1.1.1
@@ -380,9 +380,9 @@
 
 ; ****************************************************************************
 ;
-.Get_address_indd EXX                       ; 
+.Get_address_indd EXX                       ;
                   PUSH HL                   ; get PC into main registers
-                  EXX  
+                  EXX
                   POP  HL
                   LD   E,(HL)               ; nn, low byte
                   INC  HL
@@ -438,10 +438,10 @@
 
 ; ****************************************************************************
 ;
-.Get_nn           EXX                       ; swap to alternate registers     
+.Get_nn           EXX                       ; swap to alternate registers
                   PUSH HL                   ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1 
-                  POP  HL                   ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
+                  POP  HL                   ;                                 ** V1.1.1
                   LD   E,(HL)               ; get low byte of address
                   INC  HL
                   LD   D,(HL)               ; get high byte of address
@@ -450,7 +450,7 @@
                   PUSH DE
                   EXX
                   POP  HL                   ; PC updated
-                  EXX 
+                  EXX
                   RET
 
 
@@ -509,28 +509,38 @@
 ;
 ; IM  0
 ;
-.EDcode_70        RET
+.EDcode_70
+                 IM   0                     ; no flags affected             ** V1.1.1
+                 RET
 
 
 ; ****************************************************************************
 ;
 ; IM  1
 ;
-.EDcode_86        RET
+.EDcode_86
+                 IM   1                     ; no flags affected             ** V1.1.1
+                 RET
 
 
 ; ****************************************************************************
 ;
 ; IM  2
 ;
-.EDcode_94        RET
+.EDcode_94
+                 IM   2                     ; no flags affected             ** V1.1.1
+                 RET
 
 
 ; ****************************************************************************
 ;
 ; LD   I,A
 ;
-.EDcode_71        RET
+.EDcode_71
+                 EX   AF,AF'                ; ** V1.1.1
+                 LD   I,A                   ;
+                 EX   AF,AF'                ; ** V1.1.1
+                 RET
 
 
 ; ****************************************************************************
@@ -567,7 +577,7 @@
 ;
 ; RRD
 ;
-.EDcode_103       
+.EDcode_103
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   EX   (SP),HL              ; preserve PC, install virtual HL ** V1.04
@@ -576,7 +586,7 @@
                   EX   AF,AF'               ;                                 ** V1.04
                   EX   (SP),HL              ; restore PC                      ** V1.04
                   POP  BC                   ; restore virtual HL              ** V1.1.1
-                  EXX                       ;                                 ** V0.28                 
+                  EXX                       ;                                 ** V0.28
                   RET
 
 
@@ -584,7 +594,7 @@
 ;
 ; RLD
 ;
-.EDcode_111       
+.EDcode_111
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ;                                 ** V1.1.1
                   EX   (SP),HL              ; preserve PC, install virtual HL ** V1.04
@@ -593,7 +603,7 @@
                   EX   AF,AF'               ; restore virtual AF              ** V1.04
                   EX   (SP),HL              ; restore virtual PC              ** V1.04
                   POP  BC                   ; restore virtual HL              ** V1.1.1
-                  EXX                       ;                                 ** V0.28                 
+                  EXX                       ;                                 ** V0.28
                   RET
 
 
@@ -741,14 +751,9 @@
                   JP   SaveBlockRegs
 
 
-.FetchBlockRegs   EXX
-                  PUSH HL
-                  EXX
+.FetchBlockRegs
                   CALL RestoreMainReg
-                  EXX
-                  POP  HL
-                  EXX
-                  EX   AF,AF'
+                  EX   AF,AF'               ; AF installed
                   RET
 
 .SaveBlockRegs    EX   AF,AF'
