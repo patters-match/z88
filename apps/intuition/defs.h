@@ -83,7 +83,6 @@ DEFVARS 0
      FlagStat3      DS.B 1         ; Flag Status byte 3
 
      RtmError       DS.B 1         ; Runtime Error number
-     IntrptStat     DS.W 1         ; Z80 Interrrupt status
      SPlevel        DS.W 1         ; Initial stack pointer level (subroutine tracing)
      InstrBreakPatt DS.B 5         ; Instruction break bit pattern (max. 4 bytes)
      ApplErhClvl    DS.B 1         ; Application Error handler call level
