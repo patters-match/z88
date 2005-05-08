@@ -480,7 +480,7 @@ ENDIF
                   LD   H,(IY + VP_PC+1)       ;                                 ** V0.28
                   PUSH HL                   ; PC on (new) stack               ** V0.28
                   LD   L,(IY + ExecBuffer+2)
-                  LD   H,(IY + ExecBuffer+2)
+                  LD   H,(IY + ExecBuffer+3)
                   PUSH HL                   ; HL on stack                     ** V0.28
                   LD   L,(IY + ExecBuffer)    ;                                 ** V1.1.1
                   LD   H,(IY + ExecBuffer+1)  ;                                 ** V1.1.1
