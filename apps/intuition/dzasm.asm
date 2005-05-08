@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -183,8 +183,8 @@ endif
 ;
 .DZ_Z80pc         EXX
                   LD   DE,0                 ; bit masks zeroed = local address...
-                  LD   L,(IY+22)            ;                                           ** V0.28
-                  LD   H,(IY+23)            ; get PC                                    ** V0.28
+                  LD   L,(IY + VP_PC        ;                                           ** V0.28
+                  LD   H,(IY + VP_PC+1)     ; get PC                                    ** V0.28
                   EXX                       ; (refer to Get_DZ_PC )
 
 

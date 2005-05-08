@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -77,7 +77,7 @@
 ; Memory View/Edit                          V0.19
 ;
 .Mem_dump         LD   HL, window2          ; use window #2 for
-                  LD   A,(IY+70)            ; get current Intuition window ID           ** V0.26
+                  LD   A,(IY + IntWinID)    ; get current Intuition window ID           ** V0.26
                   CALL Window_VDU           ; memory dump without cursor                ** V0.26
                   LD   HL, simple_window    ; enabled and vertical scrolling on
                   CALL Window_VDU           ;                                           ** V0.26
@@ -156,10 +156,10 @@
                   CALL Disp_Monitor_win
                   RET
 
-.next_12_bytes    LD   A,(IY+74)            ; get CY                                    ** V0.24d
+.next_12_bytes    LD   A,(IY + CY)          ; get CY                                    ** V0.24d
                   CP   7                    ; cursor at bottom line?                    ** V0.24d
                   JR   Z, scroll_12_up      ; Yes - display a new line of bytes         ** V0.24d
-                  INC  (IY+74)              ; move cursor one line down                 ** V0.24d
+                  INC  (IY + CY)            ; move cursor one line down                 ** V0.24d
                   JP   mem_view_loop        ;                                           ** V0.24d
 .scroll_12_up     PUSH HL
                   EXX
@@ -217,10 +217,10 @@
                   POP  HL                   ; new BOTTOM dump_address restored
                   JP   mem_view_loop
 
-.prev_12_bytes    LD   A,(IY+74)            ; get CY                                    ** V0.24d
+.prev_12_bytes    LD   A,(IY + CY)          ; get CY                                    ** V0.24d
                   CP   0                    ; cursor at top line?                       ** V0.24d
                   JR   Z, scroll_12_down    ; Yes - display a new line of bytes         ** V0.24d
-                  DEC  (IY+74)              ; move cursor one line up                   ** V0.24d
+                  DEC  (IY + CY)            ; move cursor one line up                   ** V0.24d
                   JP   mem_view_loop        ;                                           ** V0.24d
 .scroll_12_down   PUSH DE
                   EXX                       ; alternate...
@@ -289,28 +289,28 @@
 .HexAscii_Cursor  BIT  Flg_HexCursor,(IY + FlagStat1)            ;                                           ** V0.24d
                   JR   Z, set_HexCursor     ; ASCII cursor active, set HEX cursor       ** V0.24d
                   RES  Flg_HexCursor,(IY + FlagStat1)            ; HEX cursor active, set ASCII cursor       ** V0.24d
-                  LD   (IY+71),42           ; SC = 42                                   ** V0.24d
-                  LD   (IY+72),1            ; CI = 1                                    ** V0.24d
+                  LD   (IY + SC),42         ; SC = 42                                   ** V0.24d
+                  LD   (IY + CI),1          ; CI = 1                                    ** V0.24d
                   JP   mem_view_loop        ;                                           ** V0.24d
 .set_HexCursor    SET  Flg_HexCursor,(IY + FlagStat1)            ;                                           ** V0.24d
-                  LD   (IY+71),6            ; SC = 6                                    ** V0.24d
-                  LD   (IY+72),3            ; CI = 3                                    ** V0.24d
+                  LD   (IY + SC),6          ; SC = 6                                    ** V0.24d
+                  LD   (IY + CI),3          ; CI = 3                                    ** V0.24d
                   JP   mem_view_loop        ;                                           ** V0.24d
 
-.mv_cursor_left   LD   A,(IY+73)            ; get CX                                    ** V0.24d
+.mv_cursor_left   LD   A,(IY + CX)          ; get CX                                    ** V0.24d
                   CP   0                    ; cursor reached left boundary?             ** V0.24d
                   JR   Z, wrap_curs_right   ; Yes - wrap to right boundary              ** V0.24d
-                  DEC  (IY+73)              ; move cursor 1 byte left                   ** V0.24d
+                  DEC  (IY + CX)            ; move cursor 1 byte left                   ** V0.24d
                   JP   mem_view_loop        ;                                           ** V0.24d
-.wrap_curs_right  LD   (IY+73),11           ;                                           ** V0.24d
+.wrap_curs_right  LD   (IY + CX),11         ;                                           ** V0.24d
                   JP   prev_12_bytes        ;                                           ** V0.24d/V0.28
 
-.mv_cursor_right  LD   A,(IY+73)            ; get CX                                    ** V0.24d
+.mv_cursor_right  LD   A,(IY + CX)          ; get CX                                    ** V0.24d
                   CP   11                   ; cursor reached right boundary?            ** V0.24d
                   JR   Z, wrap_curs_left    ; Yes - wrap to left boundary               ** V0.24d
-                  INC  (IY+73)              ; move cursor 1 byte right                  ** V0.24d
+                  INC  (IY + CX)            ; move cursor 1 byte right                  ** V0.24d
                   JP   mem_view_loop        ;                                           ** V0.24d
-.wrap_curs_left   LD   (IY+73),0            ;                                           ** V0.24d
+.wrap_curs_left   LD   (IY + CX),0          ;                                           ** V0.24d
                   JP   next_12_bytes        ;                                           ** V0.24d/V0.28
 
 ;
@@ -329,13 +329,13 @@
 ; display memory dump at current cursor line
 ;
 .DisplayCurLine   CALL Get_CurOffset        ; get cursor offset
-                  SUB  (IY+73)              ; to start of line, (CY*12-CX)
+                  SUB  (IY + CX)            ; to start of line, (CY*12-CX)
                   CALL Get_OffsetPtr
                   PUSH BC
                   EXX
                   POP  HL                   ; into HL'
                   EXX
-                  LD   B,(IY+74)            ; get CY (current cursor line)
+                  LD   B,(IY + CY)          ; get CY (current cursor line)
                   LD   C,0                  ; start of line
                   CALL Set_CurPos           ; set cursor position
                   CALL Dump_12_bytes        ; dump memory...
@@ -346,14 +346,14 @@
 ; (also referenced as offset from TOP pointer)
 ;
 .Get_CurOffset    PUSH BC
-                  LD   A,(IY+74)            ; get CY
+                  LD   A,(IY + CY)          ; get CY
                   CP   0
                   JR   Z, CY_multiplied
                   LD   C,A
                   LD   B,11
 .CY_x_12          ADD  A,C                  ; CY*12
                   DJNZ, CY_x_12
-.CY_multiplied    ADD  A,(IY+73)            ; CY*12+CX = cursor offset from TOP
+.CY_multiplied    ADD  A,(IY + CX)          ; CY*12+CX = cursor offset from TOP
                   POP  BC
                   RET
 
@@ -378,17 +378,14 @@
 
 
 ; *********************************************************************************
-;
-; (IY+71) = SC, (IY+72) = CI, (IY+73) = CX, (IY+74) = CY
-;
 ; Reset cursor position in window           V0.24d
 ;
 ; - No registers affected
 ;
-.ResetCurPos      LD   (IY+71),6            ; cursor begins at tab 6
-                  LD   (IY+72),3            ; CI = 3 with Hex cursor
-                  LD   (IY+73),0            ; CX = 0
-                  LD   (IY+74),0            ; CY = 0
+.ResetCurPos      LD   (IY + SC),6            ; cursor begins at tab 6
+                  LD   (IY + CI),3            ; CI = 3 with Hex cursor
+                  LD   (IY + CX),0            ; CX = 0
+                  LD   (IY + CY),0            ; CY = 0
                   SET  Flg_HexCursor,(IY + FlagStat1)            ; Indicate Hex cursor
                   RET
 
@@ -401,16 +398,16 @@
 ;
 .DisplayCurPos    PUSH AF
                   PUSH BC
-                  LD   A,(IY+73)            ; get CX
-                  LD   B,(IY+72)            ; get CI
+                  LD   A,(IY + CX)          ; get CX
+                  LD   B,(IY + CI)          ; get CI
                   DEC  B
                   JR   Z, CX_calculated
                   LD   C,A
 .tab_loop         ADD  A,C                  ; CX*CI
                   DJNZ,tab_loop
-.CX_calculated    ADD  A,(IY+71)            ; add rel. horisontal start in window
+.CX_calculated    ADD  A,(IY + SC)          ; add rel. horisontal start in window
                   LD   C,A                  ; CX position in window ready.
-                  LD   B,(IY+74)            ; get CY
+                  LD   B,(IY + CY)          ; get CY
                   CALL Set_CurPos           ; display cursor at CX,CY
                   POP  BC
                   POP  AF

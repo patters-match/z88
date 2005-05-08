@@ -47,26 +47,26 @@
 ;       AF....../IXIY  same
 ;       ..BCDEHL/....  different
 ;
-.RST_appl_window  PUSH AF
-                  PUSH IX
-                  CALL Save_alternate
-                  BIT  Flg_AplScr,(IY + Flagstat1)
-                  JR   Z, redirect_output
-                  LD   L,(IY+66)
-                  LD   H,(IY+67)
-                  PUSH HL
-                  POP  IX                   ; screen copy handle...
-                  LD   A, Sr_Rus            ; restore application screen
-                  CALL_OZ(Os_Sr)
-.redirect_output  LD   HL, redirect_window  ;                                           ** V0.26
-                  LD   A,(IY + ApplWinID)   ; get application window ID                 ** V0.26
-                  CALL Window_VDU           ; execute VDU string                        ** V0.26
-                  RES  Flg_IntWinActv,(IY + FlagStat1) ; indicate application window active  ** V0.24a
-                  RES  Flg_AplScr,(IY + Flagstat1)
-                  CALL Restore_Alternate    ; - output redirected to appl. window
-                  POP  IX
-                  POP  AF
-                  RET
+.RST_appl_window    PUSH AF
+                    PUSH IX
+                    CALL Save_alternate
+                    BIT  Flg_AplScr,(IY + Flagstat1)
+                    JR   Z, redirect_output
+                    LD   L,(IY + ApplScrID)
+                    LD   H,(IY + ApplScrID+1)
+                    PUSH HL
+                    POP  IX                   ; screen copy handle...
+                    LD   A, Sr_Rus            ; restore application screen
+                    CALL_OZ(Os_Sr)
+.redirect_output    LD   HL, redirect_window  ;                                           ** V0.26
+                    LD   A,(IY + ApplWinID)   ; get application window ID                 ** V0.26
+                    CALL Window_VDU           ; execute VDU string                        ** V0.26
+                    RES  Flg_IntWinActv,(IY + FlagStat1) ; indicate application window active  ** V0.24a
+                    RES  Flg_AplScr,(IY + Flagstat1)
+                    CALL Restore_Alternate    ; - output redirected to appl. window
+                    POP  IX
+                    POP  AF
+                    RET
 
 
 
@@ -245,12 +245,12 @@
 ;
 .Disp_window_ID   LD   HL, Int_ID_msg
                   CALL Display_String
-                  LD   A,(IY+70)            ; get current Intuition window ID
+                  LD   A,(IY + IntWinID)      ; get current Intuition window ID
                   CALL Display_Char
                   CALL Write_CRLF
                   LD   HL, Appl_ID_msg
                   CALL Display_String
-                  LD   A,(IY+65)            ; get current application window ID
+                  LD   A,(IY + ApplWinID)     ; get current application window ID
                   CALL Display_Char
                   CALL Write_CRLF
                   RET

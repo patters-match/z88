@@ -3112,8 +3112,8 @@ IF !INT_SEGM0
 .continue2_DZ
                   CALL DZ_Z80pc             ; Disassemble instruction at (PC)
                   CALL Write_CRLF
-                  LD   L,(IY+22)
-                  LD   H,(IY+23)
+                  LD   L,(IY + VP_PC)
+                  LD   H,(IY + VP_PC+1)
                   LD   A,(HL)               ; get 1. opcode                             ** V0.24a
                   CP   RST_20H              ; Intuition about to execute RST 20h?       ** V0.24a
                   CALL Z, RST_appl_window   ; Yes, restore application screen           ** V0.24a
@@ -3138,8 +3138,8 @@ ELSE
                   LD   IX, DZ_Z80pc                    ; Disassemble instruction at (PC)
                   CALL ExtRoutine_s01
                   CALL_OZ(Gn_Nln)
-                  LD   L,(IY+22)
-                  LD   H,(IY+23)
+                  LD   L,(IY + VP_PC)
+                  LD   H,(IY + VP_PC+1)
                   LD   A,(HL)               ; get 1. opcode                             ** V0.24a
                   CP   RST_20H              ; Intuition about to execute RST 20h?       ** V0.24a
                   LD   IX, RST_appl_window

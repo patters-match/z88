@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -535,7 +535,7 @@
                   JP   M, Opcode_201x       ; Yes...                          ** V0.29
                   EX   AF,AF'               ;                                 ** V0.23
                   RET
-                  
+
 
 ; ************************************************************************************************
 ;
@@ -576,7 +576,7 @@
                   INC  DE                   ; v.p. SP updated                 ** V0.23
                   EXX                       ;                                 ** V0.28
                   JP   (HL)                 ; return...                       ** V0.16
-                  
+
 ; ************************************************************************************************
 ;
 ; POP  IX
@@ -612,7 +612,7 @@
                   EXX                       ;                                 ** V0.28
                   JP   (HL)                 ; return...                       ** V0.16
 
-                  
+
 ; ************************************************************************************************
 ;
 ; PUSH BC                                   1 byte
@@ -696,7 +696,7 @@
                   LD   B,A                  ; get A register                  ** V0.23
                   EX   AF,AF'               ;                                 ** V0.23
                   OUT  (C),B                ; and put contents to port n
-                  POP  BC                   ;                                 ** V1.1.1 
+                  POP  BC                   ;                                 ** V1.1.1
                   EXX                       ;                                 ** V0.28
                   RET                       ; - no flags affected...
 
@@ -713,7 +713,7 @@
                   LD   B,A                  ; get A8 to A15 = A               ** V0.23
                   IN   A,(C)                ; C = n provides A0 to A7
                   EX   AF,AF'               ;                                 ** V0.23
-                  POP  BC                   ;                                 ** V1.1.1 
+                  POP  BC                   ;                                 ** V1.1.1
                   EXX                       ;                                 ** V0.28
                   RET                       ; with   IN   A,(n) ...
 
@@ -877,16 +877,16 @@
 
 ; *******************************************************************************************************
 ;
-; Restore original values of Main Z80 registers (BC, DE, HL & IX)      
+; Restore original values of Main Z80 registers (BC, DE, HL & IX)
 ;
 .RestoreMainReg   EXX                       ;                                 ** V1.1.1
                   PUSH BC                   ; (get copy of virtual HL)        ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   LD   C,(IY + VP_C)        ;                                 ** V1.1.1
-                  LD   B,(IY + VP_B)        ; BC restored                     ** V1.1.1 
+                  LD   B,(IY + VP_B)        ; BC restored                     ** V1.1.1
                   LD   E,(IY + VP_E)        ;                                 ** V1.1.1
                   LD   D,(IY + VP_D)        ; DE restored                     ** V1.1.1
-                  LD   L,(IY + VP_IX)       ;                                 ** V1.1.1 
+                  LD   L,(IY + VP_IX)       ;                                 ** V1.1.1
                   LD   H,(IY + VP_IX+1)     ;                                 ** V1.1.1
                   PUSH HL                   ;                                 ** V1.1.1
                   POP  IX                   ; IX restored                     ** V1.1.1
@@ -908,7 +908,7 @@
                   EXX                       ;                                 ** V1.1.1
                   JP   (HL)                 ;                                 ** V1.04
 
-                  
+
 ; ************************************************************************************
 ;
 ; EX   (SP),IX                              2 byte
@@ -933,12 +933,12 @@
 ; EX   AF, AF'    instruction               1 byte
 ;
 .Opcode_8         EX   AF,AF'
-                  LD   C,(IY+14)
-                  LD   B,(IY+15)
+                  LD   C,(IY + VP_AFx)
+                  LD   B,(IY + VP_AFx+1)
                   PUSH AF
                   POP  DE
-                  LD   (IY+14),E
-                  LD   (IY+15),D            ; save new AF'
+                  LD   (IY + VP_AFx),E
+                  LD   (IY + VP_AFx+1),D    ; save new AF'
                   PUSH BC
                   POP  AF
                   EX   AF,AF'               ; new AF installed
@@ -955,7 +955,7 @@
                   EXX                       ;                                 ** V1.1.1
                   LD   (IY + VP_E),C        ;                                 ** V1.1.1
                   LD   (IY + VP_D),B        ; new DE stored (current HL)      ** V1.1.1
-                  POP  BC                   ; new HL stored (current DE)      ** V1.1.1 
+                  POP  BC                   ; new HL stored (current DE)      ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   RET
 
@@ -964,8 +964,8 @@
 ;
 ; EXX
 ;
-.Opcode_217              
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_217
+                  EXX                       ;                                 ** V1.1.1
                   LD   (IY + VP_L),C        ;                                 ** V1.1.1
                   LD   (IY + VP_H),B        ; store "fast" HL into reg-area   ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
@@ -986,7 +986,7 @@
                   INC  DE                   ; point at next register...       ** V0.27a
                   DJNZ swap_reg_loop        ; swap next 8bit register         ** V0.27a
                   EXX                       ;                                 ** V1.1.1
-                  LD   C,(IY + VP_L)        ;                                 ** V1.1.1 
+                  LD   C,(IY + VP_L)        ;                                 ** V1.1.1
                   LD   B,(IY + VP_H)        ;                                 ** V1.1.1
                   EXX                       ;  new virtual HL installed       ** V1.1.1
                   RET
@@ -1000,7 +1000,7 @@
 ;       ..BCDE../IXIY  same
 ;       AF....HL/....  different
 ;
-.Calc_RelAddress  PUSH BC                   ;                                 ** V1.1.1                                 
+.Calc_RelAddress  PUSH BC                   ;                                 ** V1.1.1
                   LD   C,A                  ; prepare for calculation         ** V1.03
                   RLA                       ; sign bit into Fc                ** V1.04
                   SBC  A,A                  ; 0 or -1 depending on Fc         ** V1.04
@@ -1017,11 +1017,11 @@
 ;
 .Select_IXIY      CP   $FD
                   JR   Z, select_IY
-                  LD   L,(IY+16)            ; get contents of IX
-                  LD   H,(IY+17)
+                  LD   L,(IY + VP_IXl)        ; get contents of IX
+                  LD   H,(IY + VP_IXh)
                   RET
-.select_IY        LD   L,(IY+18)            ; get contents of IY
-                  LD   H,(IY+19)
+.select_IY        LD   L,(IY + VP_IYl)        ; get contents of IY
+                  LD   H,(IY + VP_IYh)
                   RET
 
 
@@ -1032,17 +1032,17 @@
 .Select_IXIY_disp
                   CP   $FD
                   JR   Z, select_IY_disp
-.select_IX_disp   LD   L,(IY+16)            ; get contents of IX
-                  LD   H,(IY+17)
-                  EXX                       ; select alternate registers...   ** V0.23
-                  LD   A,(HL)               ; get displacement                ** V0.27e
-                  INC  HL                   ;                                 ** V0.27e
-                  EXX                       ;                                 ** V0.23
+.select_IX_disp   LD   L,(IY + VP_IXl)        ; get contents of IX
+                  LD   H,(IY + VP_IXh)
+                  EXX                         ; select alternate registers...   ** V0.23
+                  LD   A,(HL)                 ; get displacement                ** V0.27e
+                  INC  HL                     ;                                 ** V0.27e
+                  EXX                         ;                                 ** V0.23
                   JP   Calc_RelAddress
-.select_IY_disp   LD   L,(IY+18)            ; get contents of IY
-                  LD   H,(IY+19)
-                  EXX                       ;                                 ** V0.23
-                  LD   A,(HL)               ; get displacement                ** V0.27e
-                  INC  HL                   ;                                 ** V0.27e
-                  EXX                       ;                                 ** V0.23
+.select_IY_disp   LD   L,(IY + VP_IYl)        ; get contents of IY
+                  LD   H,(IY + VP_IYh)
+                  EXX                         ;                                 ** V0.23
+                  LD   A,(HL)                 ; get displacement                ** V0.27e
+                  INC  HL                     ;                                 ** V0.27e
+                  EXX                         ;                                 ** V0.23
                   JP   Calc_RelAddress

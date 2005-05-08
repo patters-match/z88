@@ -222,7 +222,7 @@
 ;
 ; OUT  (C),B
 ;
-.EDcode_65        LD   D,(IY + 1)
+.EDcode_65        LD   D,(IY + VP_B)
                   JR   Out_direction
 
 
@@ -230,7 +230,7 @@
 ;
 ; OUT  (C),C
 ;
-.EDcode_73        LD   D,(IY + 0)
+.EDcode_73        LD   D,(IY + VP_C)
                   JR   Out_direction
 
 
@@ -238,7 +238,7 @@
 ;
 ; OUT  (C),D
 ;
-.EDcode_81        LD   D,(IY+3)
+.EDcode_81        LD   D,(IY + VP_D)
                   JR   Out_direction
 
 
@@ -246,7 +246,7 @@
 ;
 ; OUT  (C),E
 ;
-.EDcode_89        LD   D,(IY+2)
+.EDcode_89        LD   D,(IY + VP_E)
                   JR   Out_direction
 
 
@@ -290,8 +290,8 @@
 
 ; ****************************************************************************
 ;
-.IN_r             LD   B,(IY+1)             ; get A8 to A15
-                  LD   C,(IY+0)             ; port (C)
+.IN_r             LD   B,(IY + VP_B)        ; get A8 to A15
+                  LD   C,(IY + VP_C)        ; port (C)
                   EX   AF,AF'               ;
                   IN   C,(C)                ; receive byte into C
                   EX   AF,AF'               ;
@@ -303,7 +303,7 @@
 ;    IN  B,(C)
 ;
 .EDcode_64        CALL IN_r
-                  LD   (IY+1),C             ; B
+                  LD   (IY + VP_B),C        ; B
                   RET
 
 
@@ -312,7 +312,7 @@
 ;    IN  C,(C)
 ;
 .EDcode_72        CALL IN_r
-                  LD   (IY+0),C             ; C
+                  LD   (IY + VP_C),C        ; C
                   RET
 
 
@@ -321,7 +321,7 @@
 ;    IN  D,(C)
 ;
 .EDcode_80        CALL IN_r
-                  LD   (IY+3),C             ; D
+                  LD   (IY + VP_D),C        ; D
                   RET
 
 
@@ -330,7 +330,7 @@
 ;    IN  E,(C)
 ;
 .EDcode_88        CALL IN_r
-                  LD   (IY+2),C             ; E
+                  LD   (IY + VP_E),C        ; E
                   RET
 
 
@@ -761,8 +761,8 @@
                   EXX
                   POP  BC                   ;      HL
                   EXX
-                  LD   (IY+0),C
-                  LD   (IY+1),B             ;      BC
-                  LD   (IY+2),E
-                  LD   (IY+3),D             ;      DE
+                  LD   (IY + VP_C),C
+                  LD   (IY + VP_B),B        ;      BC
+                  LD   (IY + VP_E),E
+                  LD   (IY + VP_D),D        ;      DE
                   RET
