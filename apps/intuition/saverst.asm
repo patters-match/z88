@@ -1,60 +1,26 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
      MODULE SAVE_RESTORE
 
      XDEF Save_SPAFHLPC, Restore_SPAFHLPC
-     XDEF Enable_INT, Disable_INT
      XDEF Save_Alternate, Restore_alternate
 
      INCLUDE "defs.h"
-     INCLUDE "interrpt.def"
-
-
-; **************************************************************************************************
-;
-; Disable Z80 IM 2 interrupts
-;
-.Disable_INT      PUSH AF
-                  PUSH HL
-                  CALL OZ_DI                ; Disable interrupts
-                  PUSH AF
-                  POP  HL
-                  LD   (IY + IntrptStat  ),L
-                  LD   (IY + IntrptStat+1),H
-                  POP  HL
-                  POP  AF
-                  RET
-
-
-; **************************************************************************************************
-;
-; Enable Z80 IM 2 interrupts
-;
-.Enable_INT       PUSH AF
-                  PUSH HL
-                  LD   L,(IY + IntrptStat)
-                  LD   H,(IY + IntrptStat+1)
-                  PUSH HL
-                  POP  AF
-                  CALL OZ_EI                ; Enable interrupts
-                  POP  HL
-                  POP  AF
-                  RET
 
 
 
@@ -69,17 +35,15 @@
                  LD   (IY + VP_PC+1),H      ; save virtual PC
                  LD   (IY + VP_SP)  ,E
                  LD   (IY + VP_SP+1),D      ; save virtual SP
+                 LD   (IY + VP_SP)  ,C      ;                                       ** V1.1.1
+                 LD   (IY + VP_SP+1),B      ; save virtual HL                       ** V1.1.1
                  EXX
-                 PUSH IX
-                 POP  HL
-                 LD   (IY + VP_L),L
-                 LD   (IY + VP_H),H         ; save virtual HL
                  EX   AF,AF'
                  PUSH AF
                  EX   AF,AF'
                  POP  HL
                  LD   (IY + VP_AF)  ,L
-                 LD   (IY + VP_AF+1),H
+                 LD   (IY + VP_AF+1),H      ; save virtual AF
                  RET
 
 
@@ -91,11 +55,9 @@
 ;
 .Restore_SPAFHLPC
                  POP  HL                    ; get return address                    ** V0.28
-                 LD   E, (IY + VP_L)        ;                                       ** V1.04
-                 LD   D, (IY + VP_H)        ;                                       ** V1.04
-                 PUSH DE                    ;                                       ** V1.04
-                 POP  IX                    ; virtual HL installed                  ** V1.04
                  EXX                        ; get alternate set
+                 LD   C, (IY + VP_L)        ;                                       ** V1.1.1
+                 LD   B, (IY + VP_H)        ; virtual HL installed                  ** V1.1.1
                  LD   E,(IY + VP_PC)
                  LD   D,(IY + VP_PC+1)      ; restore PC
                  LD   L,(IY + VP_SP)
