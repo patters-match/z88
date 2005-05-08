@@ -2588,13 +2588,13 @@
                   JR   Z, CB_IY_disp
                   LD   L,(IY + VP_IX)       ; get contents of IX
                   LD   H,(IY + VP_IX+1)
-                  LD   A,(IY+ExecBuffer)    ; get displacement                ** V1.1.1
+                  LD   A,(IY + ExecBuffer)  ; get displacement                ** V1.1.1
                   CALL Calc_RelAddress
                   EX   AF,AF'               ; swap to virtual AF              ** V0.29
                   RET                       ;                                 ** V0.29
 .CB_IY_disp       LD   L,(IY + VP_IY)       ; get contents of IY
                   LD   H,(IY + VP_IY+1)
-                  LD   A,(IY+ExecBuffer)    ; get displacement                ** V1.1.1
+                  LD   A,(IY + ExecBuffer)  ; get displacement                ** V1.1.1
                   CALL Calc_RelAddress
                   EX   AF,AF'               ; swap to virtual AF              ** V0.29
                   RET                       ;                                 ** V0.29
