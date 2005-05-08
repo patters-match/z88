@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -21,7 +21,7 @@
     ; Routines defined in 'stdinstr.asm':
     XREF Select_IXIY, Select_IXIY_disp
 
-    ; Global routines defined in 'LDinstr_asm':
+    ; Global routines defined in 'ldinstr.asm':
     XDEF Opcode_1, Opcode_2, Opcode_6, Opcode_10, Opcode_14, Opcode_17, Opcode_18, Opcode_22
     XDEF Opcode_26, Opcode_30, Opcode_33, Opcode_34, Opcode_38, Opcode_42, Opcode_46, Opcode_49
     XDEF Opcode_50, Opcode_54, Opcode_58, Opcode_62, Opcode_65, Opcode_66, Opcode_67, Opcode_68
@@ -52,7 +52,7 @@
                   LD   (IY + VP_C),A        ; save new BC value
                   INC  HL                   ; PC = PC + 1
                   LD   A,(HL)               ; get high byte for B
-                  INC  HL                   ; prepare for next instruction                  
+                  INC  HL                   ; prepare for next instruction
                   LD   (IY + VP_B),A        ;                                   ** V1.1.1
                   EXX                       ;                                   ** V0.28
                   RET
@@ -78,9 +78,9 @@
 ; LD   HL, nn    instruction                3 bytes
 ;
 .Opcode_33        EXX                       ;                                 ** V0.28
-                  LD   C,(HL)               ; get low byte of nn              ** V0.27e
+                  LD   C,(HL)               ; get low byte of nn              ** V1.1.1
                   INC  HL                   ;                                 ** V0.27e
-                  LD   B,(HL)               ;                                 ** V0.27e
+                  LD   B,(HL)               ;                                 ** V1.1.1
                   INC  HL                   ;                                 ** V0.27e
                   EXX                       ;                                 ** V0.28
                   RET
@@ -91,22 +91,22 @@
 ; LD   IX, nn    instruction                4 bytes
 ; LD   IY, nn    instruction                4 bytes
 ;
-.Opcode_33_index  
+.Opcode_33_index
                   CP   $DD
                   JR   Z, operand_to_IX_33
                   EXX                       ;                                 ** V0.28
                   LD   A,(HL)               ; get low byte of nn              ** V1.1.1
-                  LD   (IY + VP_IY)  ,A     ;                                 ** V1.1.1  
+                  LD   (IY + VP_IY)  ,A     ;                                 ** V1.1.1
                   INC  HL                   ;                                 ** V0.27e
                   LD   A,(HL)               ;                                 ** V1.1.1
                   LD   (IY + VP_IY+1),A     ;                                 ** V1.1.1
                   INC  HL                   ;                                 ** V0.27e
                   EXX                       ;                                 ** V0.28
                   RET
-.operand_to_IX_33 
+.operand_to_IX_33
                   EXX                       ;                                 ** V0.28
                   LD   A,(HL)               ; get low byte of nn              ** V1.1.1
-                  LD   (IY + VP_IX)  ,A     ;                                 ** V1.1.1  
+                  LD   (IY + VP_IX)  ,A     ;                                 ** V1.1.1
                   INC  HL                   ;                                 ** V0.27e
                   LD   A,(HL)               ;                                 ** V1.1.1
                   LD   (IY + VP_IX+1),A     ;                                 ** V1.1.1
@@ -142,7 +142,7 @@
                   INC  HL                   ; PC = PC + 1                     ** V0.27e
                   LD   B,(HL)               ; get high byte of address        ** V0.27e
                   INC  HL                   ; prepare for next instruction    ** V0.27e
-                  EX   (SP),HL              ; get virtual HL (preserve PC)    ** V1.1.1                                
+                  EX   (SP),HL              ; get virtual HL (preserve PC)    ** V1.1.1
                   LD   A,L                  ;                                 ** V1.1.1
                   LD   (BC),A               ;                                 ** V1.04
                   INC  BC                   ;                                 ** V1.04
@@ -191,7 +191,7 @@
                   LD   B,(HL)               ; get high byte of address        ** V0.27e
                   INC  HL                   ; prepare for next instruction    ** V0.27e
                   LD   A,(BC)               ;                                 ** V1.04
-                  EX   (SP),HL              ; get virtual HL (preserve PC)    ** V1.1.1                                
+                  EX   (SP),HL              ; get virtual HL (preserve PC)    ** V1.1.1
                   LD   L,A                  ;                                 ** V1.1.1
                   INC  BC                   ;                                 ** V1.04
                   LD   A,(BC)               ;                                 ** V1.04
@@ -325,7 +325,7 @@
                   EX   AF,AF'               ; get A                           ** V0.23
                   LD   (BC),A
                   EX   AF,AF'               ;                                 ** V0.23
-                  POP  BC                   ; restore virtual HL              ** V1.1.1  
+                  POP  BC                   ; restore virtual HL              ** V1.1.1
                   EXX                       ;                                 ** V0.28
                   RET
 
@@ -343,7 +343,7 @@
                   EX   AF,AF'               ; get AF                          ** V0.23
                   LD   A,(BC)
                   EX   AF,AF'               ;                                 ** V0.23
-                  POP  BC                   ; restore virtual HL              ** V1.1.1  
+                  POP  BC                   ; restore virtual HL              ** V1.1.1
                   EXX                       ;                                 ** V0.28
                   RET
 
@@ -394,7 +394,7 @@
 ;
 .Opcode_124       EX   AF,AF'               ; install A                       ** V0.23
                   EXX                       ;                                 ** V1.1.1
-                  LD   A,B                  ;                                 ** V1.1.1 
+                  LD   A,B                  ;                                 ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   EX   AF,AF'               ;                                 ** V0.23
                   RET
@@ -406,7 +406,7 @@
 ;
 .Opcode_125       EX   AF,AF'               ; install A                       ** V0.23
                   EXX                       ;                                 ** V1.1.1
-                  LD   A,C                  ;                                 ** V1.1.1 
+                  LD   A,C                  ;                                 ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   EX   AF,AF'               ;                                 ** V0.23
                   RET
@@ -418,7 +418,7 @@
 ;
 .Opcode_126       EX   AF,AF'               ;                                 ** V0.23
                   EXX                       ;                                 ** V1.1.1
-                  LD   A,(BC)               ;                                 ** V1.1.1 
+                  LD   A,(BC)               ;                                 ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   EX   AF,AF'               ;                                 ** V0.23
                   RET
@@ -576,7 +576,7 @@
 ;
 .Opcode_68        EXX                       ;                                 ** V1.1.1
                   LD   (IY + VP_B),B
-                  EXX                       ;                                 ** V1.1.1                
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -584,9 +584,9 @@
 ;
 ; LD   B,L        instruction               1 byte
 ;
-.Opcode_69        EXX                       ;                                 ** V1.1.1                
+.Opcode_69        EXX                       ;                                 ** V1.1.1
                   LD   (IY + VP_B),C        ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1                               
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -594,11 +594,11 @@
 ;
 ; LD   B,(HL)     instruction               1 byte
 ;
-.Opcode_70        
-                  EXX                       ;                                 ** V1.1.1                
+.Opcode_70
+                  EXX                       ;                                 ** V1.1.1
                   LD   A,(BC)               ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1                
                   LD   (IY + VP_B),A        ; B <- (HL)                       ** V1.1.1
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -653,10 +653,10 @@
 ;
 ; LD   C,H        instruction               1 byte
 ;
-.Opcode_76        
-                  EXX                       ;                                 ** V1.1.1                
-                  LD   (IY + VP_C),B        ;                                 ** V1.1.1 
-                  EXX                       ;                                 ** V1.1.1                
+.Opcode_76
+                  EXX                       ;                                 ** V1.1.1
+                  LD   (IY + VP_C),B        ;                                 ** V1.1.1
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -664,10 +664,10 @@
 ;
 ; LD   C,L        instruction               1 byte
 ;
-.Opcode_77        
-                  EXX                       ;                                 ** V1.1.1                
-                  LD   (IY + VP_C),C        ;                                 ** V1.1.1 
-                  EXX                       ;                                 ** V1.1.1                
+.Opcode_77
+                  EXX                       ;                                 ** V1.1.1
+                  LD   (IY + VP_C),C        ;                                 ** V1.1.1
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -675,10 +675,10 @@
 ;
 ; LD   C,(HL)     instruction               1 byte
 ;
-.Opcode_78        EXX                       ;                                 ** V1.1.1                
+.Opcode_78        EXX                       ;                                 ** V1.1.1
                   LD   A,(BC)               ;                                 ** V1.1.1
-                  LD   (IY + VP_C),A        ;                                 ** V1.1.1 
-                  EXX                       ;                                 ** V1.1.1                
+                  LD   (IY + VP_C),A        ;                                 ** V1.1.1
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -742,8 +742,8 @@
 ;
 ; LD   D,L        instruction               1 byte
 ;
-.Opcode_85        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_85
+                  EXX                       ;                                 ** V1.1.1
                   LD   (IY + VP_D),C        ;                                 ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   RET
@@ -753,11 +753,11 @@
 ;
 ; LD   D,(HL)     instruction               1 byte
 ;
-.Opcode_86        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_86
+                  EXX                       ;                                 ** V1.1.1
                   LD   A,(BC)               ;                                 ** V1.1.1
                   LD   (IY + VP_D),A        ; save D
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -812,10 +812,10 @@
 ;
 ; LD   E,H        instruction               1 byte
 ;
-.Opcode_92        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_92
+                  EXX                       ;                                 ** V1.1.1
                   LD   (IY + VP_E),B        ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -823,10 +823,10 @@
 ;
 ; LD   E,L        instruction               1 byte
 ;
-.Opcode_93        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_93
+                  EXX                       ;                                 ** V1.1.1
                   LD   (IY + VP_E),C        ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -834,11 +834,11 @@
 ;
 ; LD   E,(HL)     instruction               1 byte
 ;
-.Opcode_94        
-                  EXX                       ;                                 ** V1.1.1 
-                  LD   A,(BC)               ;                                 ** V1.1.1 
+.Opcode_94
+                  EXX                       ;                                 ** V1.1.1
+                  LD   A,(BC)               ;                                 ** V1.1.1
                   LD   (IY + VP_E),A        ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -866,10 +866,10 @@
 ;
 ; LD   H,B        instruction               1 byte
 ;
-.Opcode_96        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_96
+                  EXX                       ;                                 ** V1.1.1
                   LD   B,(IY + VP_B)
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -877,10 +877,10 @@
 ;
 ; LD   H,C        instruction               1 byte
 ;
-.Opcode_97        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_97
+                  EXX                       ;                                 ** V1.1.1
                   LD   B,(IY + VP_C)
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -888,10 +888,10 @@
 ;
 ; LD   H,D        instruction               1 byte
 ;
-.Opcode_98        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_98
+                  EXX                       ;                                 ** V1.1.1
                   LD   B,(IY + VP_D)
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -899,10 +899,10 @@
 ;
 ; LD   H,E        instruction               1 byte
 ;
-.Opcode_99        
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_99
+                  EXX                       ;                                 ** V1.1.1
                   LD   B,(IY + VP_E)
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -910,10 +910,10 @@
 ;
 ; LD   H,L        instruction               1 byte
 ;
-.Opcode_101       
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_101
+                  EXX                       ;                                 ** V1.1.1
                   LD   B,C                  ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 
@@ -921,11 +921,11 @@
 ;
 ; LD   H,(HL)     instruction               1 byte
 ;
-.Opcode_102       
-                  EXX                       ;                                 ** V1.1.1 
+.Opcode_102
+                  EXX                       ;                                 ** V1.1.1
                   LD   A,(BC)               ;                                 ** V1.1.1
                   LD   B,A                  ;                                 ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1 
+                  EXX                       ;                                 ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -935,9 +935,9 @@
 ;
 .Opcode_102_index CALL Select_IXIY_disp     ;                                ** V1.04
                   LD   A,(HL)
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   LD   B,A                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -946,9 +946,9 @@
 ; LD   H,A        instruction               1 byte
 ;
 .Opcode_103       EX   AF,AF'               ; get A                          ** V0.23
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   LD   B,A                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   EX   AF,AF'               ;                                ** V0.23
                   RET
 
@@ -957,10 +957,10 @@
 ;
 ; LD   L,B        instruction               1 byte
 ;
-.Opcode_104       
-                  EXX                       ;                                ** V1.1.1                 
+.Opcode_104
+                  EXX                       ;                                ** V1.1.1
                   LD   C,(IY + VP_B)        ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -968,10 +968,10 @@
 ;
 ; LD   L,C        instruction               1 byte
 ;
-.Opcode_105       
-                  EXX                       ;                                ** V1.1.1                 
+.Opcode_105
+                  EXX                       ;                                ** V1.1.1
                   LD   C,(IY + VP_C)        ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -979,10 +979,10 @@
 ;
 ; LD   L,D        instruction               1 byte
 ;
-.Opcode_106       
-                  EXX                       ;                                ** V1.1.1                 
+.Opcode_106
+                  EXX                       ;                                ** V1.1.1
                   LD   C,(IY + VP_D)        ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -990,10 +990,10 @@
 ;
 ; LD   L,E        instruction               1 byte
 ;
-.Opcode_107       
-                  EXX                       ;                                ** V1.1.1                 
+.Opcode_107
+                  EXX                       ;                                ** V1.1.1
                   LD   C,(IY + VP_E)        ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -1001,10 +1001,10 @@
 ;
 ; LD   L,H        instruction               1 byte
 ;
-.Opcode_108       
-                  EXX                       ;                                ** V1.1.1                 
+.Opcode_108
+                  EXX                       ;                                ** V1.1.1
                   LD   C,B                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -1012,11 +1012,11 @@
 ;
 ; LD   L,(HL)     instruction               1 byte
 ;
-.Opcode_110       
-                  EXX                       ;                                ** V1.1.1                 
+.Opcode_110
+                  EXX                       ;                                ** V1.1.1
                   LD   A,(BC)               ;                                ** V1.1.1
                   LD   C,A                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -1026,9 +1026,9 @@
 ;
 .Opcode_110_index CALL Select_IXIY_disp     ;                                ** V1.04
                   LD   A,(HL)
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   LD   C,A                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -1037,9 +1037,9 @@
 ; LD   L,A        instruction               1 byte
 ;
 .Opcode_111       EX   AF,AF'               ; get A                          ** V0.23
-                  EXX                       ;                                ** V1.1.1                 
+                  EXX                       ;                                ** V1.1.1
                   LD   C,A                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   EX   AF,AF'               ;                                ** V0.23
                   RET
 
@@ -1048,11 +1048,11 @@
 ;
 ; LD   (HL),B     instruction               1 byte
 ;
-.Opcode_112       
-                  EXX                       ;                                ** V1.1.1                                
+.Opcode_112
+                  EXX                       ;                                ** V1.1.1
                   LD   A,(IY + VP_B)        ;                                ** V1.1.1
                   LD   (BC),A               ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -1070,11 +1070,11 @@
 ;
 ; LD   (HL),C     instruction               1 byte
 ;
-.Opcode_113       
-                  EXX                       ;                                ** V1.1.1                                
+.Opcode_113
+                  EXX                       ;                                ** V1.1.1
                   LD   A,(IY + VP_C)        ;                                ** V1.1.1
                   LD   (BC),A               ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -1092,11 +1092,11 @@
 ;
 ; LD   (HL),D     instruction               1 byte
 ;
-.Opcode_114       
-                  EXX                       ;                                ** V1.1.1                                
+.Opcode_114
+                  EXX                       ;                                ** V1.1.1
                   LD   A,(IY + VP_D)        ;                                ** V1.1.1
                   LD   (BC),A               ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -1114,11 +1114,11 @@
 ;
 ; LD   (HL),E     instruction               1 byte
 ;
-.Opcode_115       
-                  EXX                       ;                                ** V1.1.1                                
+.Opcode_115
+                  EXX                       ;                                ** V1.1.1
                   LD   A,(IY + VP_E)        ;                                ** V1.1.1
                   LD   (BC),A               ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -1136,11 +1136,11 @@
 ;
 ; LD   (HL),H     instruction               1 byte
 ;
-.Opcode_116       
-                  EXX                       ;                                ** V1.1.1                                
+.Opcode_116
+                  EXX                       ;                                ** V1.1.1
                   LD   A,B                  ;                                ** V1.1.1
                   LD   (BC),A               ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 
@@ -1150,9 +1150,9 @@
 ; LD   (IY+d),H   instruction               3 byte
 ;
 .Opcode_116_index CALL Select_IXIY_disp     ;                                ** V1.04
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   LD   A,B                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   LD   (HL),A               ;                                ** V1.04
                   RET
 
@@ -1161,11 +1161,11 @@
 ;
 ; LD   (HL),L     instruction               1 byte
 ;
-.Opcode_117       
-                  EXX                       ;                                ** V1.1.1                                
+.Opcode_117
+                  EXX                       ;                                ** V1.1.1
                   LD   A,C                  ;                                ** V1.1.1
                   LD   (BC),A               ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   RET
 
 ; ***************************************************************************
@@ -1174,9 +1174,9 @@
 ; LD   (IY+d),L   instruction               3 byte
 ;
 .Opcode_117_index CALL Select_IXIY_disp     ;                                ** V1.04
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   LD   A,C                  ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   LD   (HL),A               ;                                ** V1.04
                   RET
 
@@ -1186,9 +1186,9 @@
 ; LD   (HL),A     instruction               1 byte
 ;
 .Opcode_119       EX   AF,AF'               ; get A                          ** V0.23
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   LD   (BC),A               ;                                ** V1.1.1
-                  EXX                       ;                                ** V1.1.1                                
+                  EXX                       ;                                ** V1.1.1
                   EX   AF,AF'               ;                                ** V0.23
                   RET
 
