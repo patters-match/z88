@@ -18,7 +18,6 @@
      MODULE Command_line
 
      XREF Save_SPAFHLPC, Restore_SPAFHLPC
-     XREF Enable_INT, Disable_INT
      XREF Save_alternate, Restore_alternate
 
      XREF DisplayRegisters                   ; Routine defined in 'DispRegs_asm':
@@ -450,11 +449,11 @@ ENDIF
 ;
 .Release_debugger CALL RST_appl_window      ; restore application screen window         ** V0.22
                   CALL RST_ApplErrhandler   ; restore application error handler         ** V0.31
-                  CALL Disable_INT          ;                                 ** V0.28
+
                   LD   SP,IY                ; point at start of Runtime Area  ** V0.28
                   POP  BC                   ; BC restored                     ** V0.28
                   POP  DE                   ; DE restored                     ** V0.28
-                  POP  AF                   ; skip HL...                      ** V0.28
+                  POP  IX                   ; HL in IX temporarily...         ** V1.1.1
                   POP  AF                   ; AF restored                     ** V0.28
                   EXX                       ;                                 ** V0.28
                   POP  BC                   ; BC' restored                    ** V0.28
@@ -464,21 +463,28 @@ ENDIF
                   EX   AF,AF'               ;                                 ** V0.28
                   POP  AF                   ; AF' restored                    ** V0.28
                   EX   AF,AF'               ;                                 ** V0.28
-                  POP  IX                   ; IX restored                     ** V0.28
+                  EX   (SP),IX              ; IX restored, orig HL on stack   ** V1.1.1
+                  LD   L,(IY + VP_IYl)
+                  LD   H,(IY + VP_IYh)
+                  LD   (IY + ExecBuffer),L
+                  LD   (IY + ExecBuffer+1),H  ; preserve orig IY above SP,PC
+                  POP  HL
+                  LD   (IY + ExecBuffer+2),L
+                  LD   (IY + ExecBuffer+3),H  ; preserve orig HL
+
                   INC  SP                   ;                                 ** V0.28
                   INC  SP                   ; skip IY                         ** V0.28
                   POP  HL                   ; get SP                          ** V0.28
-                  LD   SP,HL                ; install SP                      ** V0.28
-                  LD   L,(IY+22)            ;                                 ** V0.28
-                  LD   H,(IY+23)            ;                                 ** V0.28
-                  PUSH HL                   ; PC on stack                     ** V0.28
-                  LD   L,(IY+4)             ;                                 ** V0.28
-                  LD   H,(IY+5)             ;                                 ** V0.28
+                  LD   SP,HL                ; install SP (assume it below)    ** V0.28
+                  LD   L,(IY + VP_PC)         ;                                 ** V0.28
+                  LD   H,(IY + VP_PC+1)       ;                                 ** V0.28
+                  PUSH HL                   ; PC on (new) stack               ** V0.28
+                  LD   L,(IY + ExecBuffer+2)
+                  LD   H,(IY + ExecBuffer+2)
                   PUSH HL                   ; HL on stack                     ** V0.28
-                  LD   L,(IY+18)            ;                                 ** V0.28
-                  LD   H,(IY+19)            ;                                 ** V0.28
+                  LD   L,(IY + ExecBuffer)    ;                                 ** V1.1.1
+                  LD   H,(IY + ExecBuffer+1)  ;                                 ** V1.1.1
                   PUSH HL                   ;                                 ** V0.28
-                  CALL Enable_INT           ;                                 ** V0.34
                   POP  IY                   ; IY restored                     ** V0.28
                   POP  HL                   ; HL restored                     ** V0.28
                   RET                       ; release Z80 to application      ** V0.34
