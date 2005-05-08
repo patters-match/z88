@@ -35,8 +35,8 @@
                  LD   (IY + VP_PC+1),H      ; save virtual PC
                  LD   (IY + VP_SP)  ,E
                  LD   (IY + VP_SP+1),D      ; save virtual SP
-                 LD   (IY + VP_SP)  ,C      ;                                       ** V1.1.1
-                 LD   (IY + VP_SP+1),B      ; save virtual HL                       ** V1.1.1
+                 LD   (IY + VP_L)   ,C      ;                                       ** V1.1.1
+                 LD   (IY + VP_H)   ,B      ; save virtual HL                       ** V1.1.1
                  EXX
                  EX   AF,AF'
                  PUSH AF
