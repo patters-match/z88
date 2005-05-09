@@ -1217,18 +1217,7 @@ public class Z88Keyboard {
 
 			//System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
-			switch(e.getKeyCode()) {
-				
-				case KeyEvent.VK_F6:
-					// grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).
-					z88Display.grabScreenFrameToFile();
-					break;
-
-				case KeyEvent.VK_F7:
-					// record an animated Gif movie of the Z88 screen activity
-					z88Display.toggleMovieRecording();
-					break;
-					
+			switch(e.getKeyCode()) {								
 				case KeyEvent.VK_SHIFT:
 					// check if left or right SHIFT were pressed
 					if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) pressZ88key(z88LshKey);
