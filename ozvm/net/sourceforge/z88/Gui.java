@@ -33,6 +33,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
@@ -72,7 +73,6 @@ public class Gui extends JFrame {
 	private JCheckBoxMenuItem frLayoutMenuItem;
 	private JCheckBoxMenuItem dkLayoutMenuItem;
 	private JCheckBoxMenuItem ukLayoutMenuItem;
-	private JMenu keyboardMenu;
 	
 	private JScrollPane jRtmOutputScrollPane = null;
 	private JTextArea jRtmOutputArea = null;
@@ -91,6 +91,8 @@ public class Gui extends JFrame {
 	private JMenu helpMenu;
 	private JMenu viewMenu;
 	private JMenu z88Menu;
+	private JMenu screenMenu;
+	private JMenu keyboardMenu;
 	private JMenuItem fileExitMenuItem;
 	private JMenuItem fileDebugMenuItem;
 	private JMenuItem aboutOZvmMenuItem;
@@ -98,6 +100,8 @@ public class Gui extends JFrame {
 	private JMenuItem loadSnapshotMenuItem;
 	private JMenuItem resetZ88MenuItem;
 	private JMenuItem userManualMenuItem;
+	private JMenuItem gifMovieMenuItem;
+	private JMenuItem screenSnapshotMenuItem;
 	private JCheckBoxMenuItem z88keyboardMenuItem;
 	private JCheckBoxMenuItem rtmMessagesMenuItem;
 	
@@ -261,6 +265,7 @@ public class Gui extends JFrame {
 			fileMenu.addSeparator();
 			fileMenu.add(getLoadSnapshotMenuItem());
 			fileMenu.add(getCreateSnapshotMenuItem());
+			fileMenu.add(getCreateScreenMenu());
 
 			fileMenu.addSeparator();
 			fileMenu.add(getFileExitMenuItem());
@@ -483,13 +488,13 @@ public class Gui extends JFrame {
 	private JMenuItem getLoadSnapshotMenuItem() {
 		if (loadSnapshotMenuItem == null) {
 			loadSnapshotMenuItem = new JMenuItem();
-			loadSnapshotMenuItem.setText("Load snapshot");
+			loadSnapshotMenuItem.setText("Load Z88 state");
 			
 			loadSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
-					chooser.setDialogTitle("Load Z88 snaphot");
+					chooser.setDialogTitle("Load/resume Z88 state");
 					chooser.setMultiSelectionEnabled(false);
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					chooser.setFileFilter(srVM.getSnapshotFilter());
@@ -527,14 +532,14 @@ public class Gui extends JFrame {
 	private JMenuItem getCreateSnapshotMenuItem() {
 		if (createSnapshotMenuItem == null) {
 			createSnapshotMenuItem = new JMenuItem();
-			createSnapshotMenuItem.setText("Create snapshot");
+			createSnapshotMenuItem.setText("Save Z88 state");
 			
 			createSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					boolean autorun;
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
-					chooser.setDialogTitle("Create Z88 snaphot");
+					chooser.setDialogTitle("Save Z88 state");
 					chooser.setMultiSelectionEnabled(false);
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					chooser.setFileFilter(srVM.getSnapshotFilter());
@@ -628,5 +633,46 @@ public class Gui extends JFrame {
 			resetZ88MenuItem.setText("Reset");
 		}
 		return resetZ88MenuItem;
-	}	
+	}
+	
+	private JMenu getCreateScreenMenu() {
+		if (screenMenu == null) {
+			screenMenu = new JMenu();
+			screenMenu.setText("Create Screen");
+			screenMenu.add(getCreateScreenSnapshotMenuItem());
+			screenMenu.add(getCreateGifMovieMenuItem());
+		}
+		return screenMenu;
+	}
+	
+	private JMenuItem getCreateScreenSnapshotMenuItem() {
+		if (screenSnapshotMenuItem == null) {
+			screenSnapshotMenuItem = new JMenuItem();
+			screenSnapshotMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					// grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).					
+					Z88display.getInstance().grabScreenFrameToFile();
+				}
+			});
+			
+			screenSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
+			screenSnapshotMenuItem.setText("Snapshot");
+		}
+		return screenSnapshotMenuItem;
+	}
+	
+	private JMenuItem getCreateGifMovieMenuItem() {
+		if (gifMovieMenuItem == null) {
+			gifMovieMenuItem = new JMenuItem();
+			gifMovieMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					// record an animated Gif movie of the Z88 screen activity					
+					Z88display.getInstance().toggleMovieRecording();					
+				}
+			});
+			gifMovieMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
+			gifMovieMenuItem.setText("Gif movie (start/stop)");
+		}
+		return gifMovieMenuItem;
+	}
 }
