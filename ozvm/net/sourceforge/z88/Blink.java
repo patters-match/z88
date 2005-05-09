@@ -1374,9 +1374,10 @@ public final class Blink extends Z80 {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
-
+				boolean signalTimeInterrupt = false;
+				
 				if (++tick > 1) {
-					// 1/100 second has passed
+					// 1/100 second has passed (two 5ms ticks..)
 					tick = 0;
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKTICK) == BM_TMKTICK)) {
 						// INT.TIME interrupts are enabled and TMK.TICK interrupts are enabled:
@@ -1385,15 +1386,13 @@ public final class Blink extends Z80 {
 						STA |= BM_STATIME;
 						
 						if (((INT & BM_INTGINT) == BM_INTGINT)) {
-							snooze = false;
-							coma = false;
-							setInterruptSignal(false);
+							signalTimeInterrupt = true;
 						}
 					}
 				}
 
 				if (++TIM0 > 199) {
-					// 1 second has passed...
+					// 1 second has passed... (200 * 5 ms ticks = 1 sec)
 					TIM0 = 0;
 
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKSEC) == BM_TMKSEC)) {
@@ -1403,15 +1402,14 @@ public final class Blink extends Z80 {
 						STA |= BM_STATIME;
 
 						if (((INT & BM_INTGINT) == BM_INTGINT)) {
-							snooze = false;
-							coma = false;
-							setInterruptSignal(false);
+							signalTimeInterrupt = true;
 						}
 					}
 
 					if (++TIM1 > 59) {
 						// 1 minute has passed
 						TIM1 = 0;
+						
 						if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKMIN) == BM_TMKMIN)) {
 							// INT.TIME interrupts are enabled and TMK.MIN interrupts are enabled:
 							// Signal that a minute interrupt occurred
@@ -1419,9 +1417,7 @@ public final class Blink extends Z80 {
 							STA |= BM_STATIME;
 
 							if (((INT & BM_INTGINT) == BM_INTGINT)) {
-								snooze = false;
-								coma = false;
-								setInterruptSignal(false);
+								signalTimeInterrupt = true;
 							}
 						}
 
@@ -1434,8 +1430,15 @@ public final class Blink extends Z80 {
 								}
 							}
 						}
-					}
+					}					
 				}
+				
+				if (signalTimeInterrupt == true) {
+					// fire a single interrupt for one or several TIMx registers...
+					snooze = false;
+					coma = false;
+					setInterruptSignal(false);
+				}				
 			}
 		}
 
