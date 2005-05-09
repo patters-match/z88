@@ -67,9 +67,6 @@ public class Gui extends JFrame {
 		initialize();
 	}
 
-	private JMenuItem createSnapshotMenuItem;
-	private JMenuItem loadSnapshotMenuItem;
-
 	private ButtonGroup kbLayoutButtonGroup = new ButtonGroup();
 	private JCheckBoxMenuItem seLayoutMenuItem;
 	private JCheckBoxMenuItem frLayoutMenuItem;
@@ -93,9 +90,13 @@ public class Gui extends JFrame {
 	private JMenu fileMenu;
 	private JMenu helpMenu;
 	private JMenu viewMenu;
+	private JMenu z88Menu;
 	private JMenuItem fileExitMenuItem;
 	private JMenuItem fileDebugMenuItem;
 	private JMenuItem aboutOZvmMenuItem;
+	private JMenuItem createSnapshotMenuItem;
+	private JMenuItem loadSnapshotMenuItem;
+	private JMenuItem resetZ88MenuItem;
 	private JMenuItem userManualMenuItem;
 	private JCheckBoxMenuItem z88keyboardMenuItem;
 	private JCheckBoxMenuItem rtmMessagesMenuItem;
@@ -241,6 +242,7 @@ public class Gui extends JFrame {
 			menuBar = new JMenuBar();
 			menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
 			menuBar.add(getFileMenu());
+			menuBar.add(getZ88Menu());
 			menuBar.add(getKeyboardMenu());
 			menuBar.add(getViewMenu());
 			menuBar.add(getHelpMenu());
@@ -604,5 +606,27 @@ public class Gui extends JFrame {
 				System.exit(0);
 			}
 		});
+	}
+	
+	private JMenu getZ88Menu() {
+		if (z88Menu == null) {
+			z88Menu = new JMenu();
+			z88Menu.setText("Z88");
+			z88Menu.add(getResetZ88MenuItem());
+		}
+		return z88Menu;
+	}
+	
+	private JMenuItem getResetZ88MenuItem() {
+		if (resetZ88MenuItem == null) {
+			resetZ88MenuItem = new JMenuItem();
+			resetZ88MenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Blink.getInstance().pressResetButton();
+				}
+			});
+			resetZ88MenuItem.setText("Reset");
+		}
+		return resetZ88MenuItem;
 	}	
 }

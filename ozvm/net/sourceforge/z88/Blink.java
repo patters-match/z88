@@ -224,6 +224,17 @@ public final class Blink extends Z80 {
 	private Rtc rtc;
 
 	/**
+	 * 'Press' the reset button on the left side of the Z88
+	 * (hidden in the small crack next to the power plug)
+	 *
+	 */
+	public void pressResetButton() {
+		int comReg = getBlinkCom();
+		comReg &= ~Blink.BM_COMRAMS;	// COM.RAMS = 0 (lower 8K = Bank 0)
+		PC(0x000);						// execute (soft/hard) reset
+	}
+	
+	/**
 	 * Reset Blink Registers to Power-On-State.
 	 */
 	public void resetBlinkRegisters() {
