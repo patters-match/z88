@@ -114,7 +114,10 @@ public class Z88display extends JLabel implements MouseListener {
 
 	/** output stream to animated Gif movie */
 	private OutputStream movieOutputStream;
-		
+
+	/** current filename of animated Gif file used during screen recording */
+	private String movieFilename;
+
 	/** The image (based on pixel data array) to be rendered onto Swing Component */
 	private BufferedImage image = null;
 
@@ -291,6 +294,8 @@ public class Z88display extends JLabel implements MouseListener {
 		
 		File file = new File(System.getProperty("user.dir") + File.separator + 
 								"z88screen" + scrdumpCounter++ + ".png");
+		Gui.displayRtmMessage("Screen captured to '" + file.getAbsolutePath() + "'.");
+		
 		try {
 			ImageIO.write(img, "PNG", file);
 		} catch (IOException e) {
@@ -307,7 +312,7 @@ public class Z88display extends JLabel implements MouseListener {
 		if (recordingMovie == false) {
 			// enable screen recording
 			try {
-				String movieFilename = System.getProperty("user.dir") + File.separator + 
+				movieFilename = System.getProperty("user.dir") + File.separator + 
 										"z88movie" + movieCounter++ + ".gif";
 				// create a 16K buffered output stream to the animated Gif file
 				movieOutputStream = new BufferedOutputStream(new FileOutputStream(movieFilename), 16*1024);
@@ -324,7 +329,7 @@ public class Z88display extends JLabel implements MouseListener {
 			recordingMovie = false;
 			ScreenFrameAction frameAction = new ScreenFrameAction(movieOutputStream);
 			screenFrameQueue.add(frameAction);				
-			Gui.displayRtmMessage("Screen recording stopped.");
+			Gui.displayRtmMessage("Screen recording stopped. Saved in '" + movieFilename + "'.");
 		}
 	}
 
