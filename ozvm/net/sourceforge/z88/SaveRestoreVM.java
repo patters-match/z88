@@ -273,12 +273,15 @@ public class SaveRestoreVM {
     	// remember the current Z88 keyboard layout
     	properties.setProperty("Z88KbLayout", "" + Z88Keyboard.getInstance().getKeyboardLayout());
 		
-    	// remember the visual state of the runtime message panel
+    	// remember the visual state of the Runtime Message Panel
     	properties.setProperty("RtmMessages", Boolean.toString(Gui.getInstance().getRtmMessagesMenuItem().isSelected()));
 
-    	// remember the visual state of the Z88 Keyboard panel
+    	// remember the visual state of the Z88 Keyboard Panel
     	properties.setProperty("Z88Keyboard", Boolean.toString(Gui.getInstance().getZ88keyboardMenuItem().isSelected()));
 
+    	// remember the visual state of the Z88 Card Slots Panel
+    	properties.setProperty("Z88CardSlots", Boolean.toString(Gui.getInstance().getZ88CardSlotsMenuItem().isSelected()));
+    	
     	// remember the breakpoints
     	properties.setProperty("Breakpoints", blink.getBreakpoints().breakpointList());
 		
@@ -401,22 +404,25 @@ public class SaveRestoreVM {
 
         if (properties.getProperty("RtmMessages") != null) {
         	boolean dispRtmPanel = Boolean.valueOf(properties.getProperty("RtmMessages")).booleanValue();
-        	Gui.getInstance().getRtmMessagesMenuItem().setSelected(dispRtmPanel);
         	Gui.getInstance().displayRunTimeMessagesPane(dispRtmPanel);
         }      
 
         if (properties.getProperty("Z88Keyboard") != null) {
         	boolean dispZ88Kb = Boolean.valueOf(properties.getProperty("Z88Keyboard")).booleanValue();
-        	Gui.getInstance().getZ88keyboardMenuItem().setSelected(dispZ88Kb);
         	Gui.getInstance().displayZ88Keyboard(dispZ88Kb);
         }      
-
+        if (properties.getProperty("Z88CardSlots") != null) {
+        	boolean dispZ88CrdSlots = Boolean.valueOf(properties.getProperty("Z88CardSlots")).booleanValue();
+        	Gui.getInstance().displayZ88CardSlots(dispZ88CrdSlots);
+        }      
+        
         if (properties.getProperty("Autorun") != null)
         	autorun = Boolean.valueOf(properties.getProperty("Autorun")).booleanValue();        	
         else
         	autorun = true;
         
         zf.close();
+                
         return autorun;	        
 	}	
 
