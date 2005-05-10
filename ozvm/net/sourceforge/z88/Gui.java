@@ -103,6 +103,7 @@ public class Gui extends JFrame {
 	private JMenuItem gifMovieMenuItem;
 	private JMenuItem screenSnapshotMenuItem;
 	private JCheckBoxMenuItem z88keyboardMenuItem;
+	private JCheckBoxMenuItem z88CardSlotsMenuItem;
 	private JCheckBoxMenuItem rtmMessagesMenuItem;
 	
 	private JPanel getZ88ScreenPanel() {
@@ -315,33 +316,20 @@ public class Gui extends JFrame {
 			viewMenu.setText("View");
 			viewMenu.add(getRtmMessagesMenuItem());
 			viewMenu.add(getZ88keyboardMenuItem());
+			viewMenu.add(getZ88CardSlotsMenuItem());
 		}
 		return viewMenu;
-	}
-
-	public JCheckBoxMenuItem getRtmMessagesMenuItem() {
-		if (rtmMessagesMenuItem == null) {
-			rtmMessagesMenuItem = new JCheckBoxMenuItem();
-			rtmMessagesMenuItem.setSelected(true);
-			rtmMessagesMenuItem.setText("Runtime Messages");
-			rtmMessagesMenuItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					displayRunTimeMessagesPane(rtmMessagesMenuItem.isSelected());
-				}
-			});
-		}
-
-		return rtmMessagesMenuItem;
 	}
 
 	public void displayRunTimeMessagesPane(boolean display) {
 		if (display == true) {
 			getContentPane().remove(getRtmOutputScrollPane());
 			addRtmMessagesPanel();
+			getRtmMessagesMenuItem().setSelected(true);
 		} else {
 			getContentPane().remove(getRtmOutputScrollPane());
+			getRtmMessagesMenuItem().setSelected(false);
 		}
-		Gui.this.pack();
 		getZ88Display().grabFocus();
 	}
 
@@ -349,21 +337,51 @@ public class Gui extends JFrame {
 		if (display == true) {
 			getContentPane().remove(getKeyboardPanel());
 			addKeyboardPanel();
+			getZ88keyboardMenuItem().setSelected(true);
 		} else {
 			getContentPane().remove(getKeyboardPanel());
+			getZ88keyboardMenuItem().setSelected(false);
 		}
-		Gui.this.pack();
 		getZ88Display().grabFocus();
 	}
 
+	public void displayZ88CardSlots(boolean display) {
+		if (display == true) {
+			getContentPane().remove(getSlotsPanel());
+			addSlotsPanel();
+			getZ88CardSlotsMenuItem().setSelected(true);
+		} else {
+			getContentPane().remove(getSlotsPanel());
+			getZ88CardSlotsMenuItem().setSelected(false);
+		}
+		getZ88Display().grabFocus();
+	}
+	
+	public JCheckBoxMenuItem getRtmMessagesMenuItem() {
+		if (rtmMessagesMenuItem == null) {
+			rtmMessagesMenuItem = new JCheckBoxMenuItem();
+			rtmMessagesMenuItem.setSelected(false);
+			rtmMessagesMenuItem.setText("Runtime Messages");
+			rtmMessagesMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayRunTimeMessagesPane(rtmMessagesMenuItem.isSelected());
+					Gui.this.pack();
+				}
+			});
+		}
+
+		return rtmMessagesMenuItem;
+	}
+	
 	public JCheckBoxMenuItem getZ88keyboardMenuItem() {
 		if (z88keyboardMenuItem == null) {
 			z88keyboardMenuItem = new JCheckBoxMenuItem();
-			z88keyboardMenuItem.setSelected(true);
+			z88keyboardMenuItem.setSelected(false);
 			z88keyboardMenuItem.setText("Z88 Keyboard");
 			z88keyboardMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					displayZ88Keyboard(z88keyboardMenuItem.isSelected());
+					Gui.this.pack();
 				}
 			});
 		}
@@ -371,6 +389,22 @@ public class Gui extends JFrame {
 		return z88keyboardMenuItem;
 	}
 
+	public JCheckBoxMenuItem getZ88CardSlotsMenuItem() {
+		if (z88CardSlotsMenuItem == null) {
+			z88CardSlotsMenuItem = new JCheckBoxMenuItem();
+			z88CardSlotsMenuItem.setSelected(false);
+			z88CardSlotsMenuItem.setText("Z88 Card Slots");
+			z88CardSlotsMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayZ88CardSlots(z88CardSlotsMenuItem.isSelected());
+					Gui.this.pack();					
+				}
+			});
+		}
+
+		return z88CardSlotsMenuItem;
+	}
+	
 	private void addKeyboardPanel() {
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();
 		gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -382,21 +416,13 @@ public class Gui extends JFrame {
 	}
 
 	private void addSlotsPanel() {
-		final GridBagConstraints gridBagConstraints_2 = new GridBagConstraints();
-		gridBagConstraints_2.fill = GridBagConstraints.HORIZONTAL;
-		gridBagConstraints_2.gridy = 7;
-		gridBagConstraints_2.gridx = 0;
-		getContentPane().add(getSlotsPanel(), gridBagConstraints_2);		
+		final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+		gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints.gridy = 7;
+		gridBagConstraints.gridx = 0;
+		getContentPane().add(getSlotsPanel(), gridBagConstraints);		
 	}
-	
-	public Slots getSlotsPanel() {
-		if (slotsPanel == null) {
-			slotsPanel = new Slots();
-		}
-
-		return slotsPanel;		
-	}
-	
+		
 	private RubberKeyboard getKeyboardPanel() {
 		if (keyboardPanel == null) {
 			keyboardPanel = new RubberKeyboard();
@@ -415,6 +441,14 @@ public class Gui extends JFrame {
 			keyboardMenu.add(getSeLayoutMenuItem());
 		}
 		return keyboardMenu;
+	}
+
+	public Slots getSlotsPanel() {
+		if (slotsPanel == null) {
+			slotsPanel = new Slots();
+		}
+
+		return slotsPanel;		
 	}
 
 	public JCheckBoxMenuItem getUkLayoutMenuItem() {
@@ -516,6 +550,8 @@ public class Gui extends JFrame {
 							boolean autorun = srVM.loadSnapShot(fileName);
 							getSlotsPanel().refreshSlotInfo();
 							displayRtmMessage("Snapshot successfully installed from " + fileName);
+							Gui.this.pack(); // update the UI, if Runtime Msg, Z88 Kb or Card Slot display were changed
+							
 							if (autorun == true)
 								OZvm.getInstance().runZ80Engine(-1);
 							else {
@@ -591,6 +627,7 @@ public class Gui extends JFrame {
 	 */
 	private void initialize() {
 		getContentPane().setLayout(new GridBagLayout());
+		setJMenuBar(getMainMenuBar());
 
 		final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
 		gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
@@ -606,18 +643,11 @@ public class Gui extends JFrame {
 		gridBagConstraints.gridx = 0;
 		getContentPane().add(getZ88ScreenPanel(), gridBagConstraints);
 
-		addRtmMessagesPanel();
-		addKeyboardPanel();
-		addSlotsPanel();
-		getUkLayoutMenuItem().doClick();
-		
-		setJMenuBar(getMainMenuBar());
-		
+		getUkLayoutMenuItem().doClick(); // preset to UK Keyboard layout.
+				
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("OZvm V" + OZvm.VERSION);
 		this.setResizable(false);
-		this.pack();
-		this.setVisible(true);
 
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
