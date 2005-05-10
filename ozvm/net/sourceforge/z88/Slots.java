@@ -241,8 +241,8 @@ public class Slots extends JPanel {
 		if (slot1Button == null) {
 			slot1Button = new JButton();
 			slot1Button.setHorizontalAlignment(SwingConstants.LEFT);
-			slot1Button.setPreferredSize(new Dimension(140, 20));
-			slot1Button.setMaximumSize(new Dimension(140, 20));
+			slot1Button.setPreferredSize(new Dimension(139, 20));
+			slot1Button.setMaximumSize(new Dimension(139, 20));
 			slot1Button.setFont(buttonFont);
 			slot1Button.setMargin(new Insets(2, 4, 2, 4));
 		}
@@ -254,8 +254,8 @@ public class Slots extends JPanel {
 		if (slot2Button == null) {
 			slot2Button = new JButton();
 			slot2Button.setHorizontalAlignment(SwingConstants.LEFT);
-			slot2Button.setPreferredSize(new Dimension(140, 20));
-			slot2Button.setMaximumSize(new Dimension(140, 20));
+			slot2Button.setPreferredSize(new Dimension(139, 20));
+			slot2Button.setMaximumSize(new Dimension(139, 20));
 			slot2Button.setFont(buttonFont);
 			slot2Button.setMargin(new Insets(2, 4, 2, 4));
 		}
@@ -267,8 +267,8 @@ public class Slots extends JPanel {
 		if (slot3Button == null) {
 			slot3Button = new JButton();
 			slot3Button.setHorizontalAlignment(SwingConstants.LEFT);
-			slot3Button.setPreferredSize(new Dimension(140, 20));
-			slot3Button.setMaximumSize(new Dimension(140, 20));
+			slot3Button.setPreferredSize(new Dimension(139, 20));
+			slot3Button.setMaximumSize(new Dimension(139, 20));
 			slot3Button.setFont(buttonFont);
 			slot3Button.setMargin(new Insets(2, 4, 2, 4));
 		}
