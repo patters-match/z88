@@ -316,6 +316,16 @@ public class OZvm {
 			return false;
 		}
 		
+		if (loadedSnapshot == false) {
+			// default display; show runtime messages window, Z88 Keyboard and Card Slots..
+			Gui.getInstance().displayRunTimeMessagesPane(true);
+			Gui.getInstance().displayZ88Keyboard(true);
+			Gui.getInstance().displayZ88CardSlots(true);			
+		}
+		
+		Gui.getInstance().pack(); // update the application UI
+		Gui.getInstance().setVisible(true);
+		
 		return true;
 	}
 
