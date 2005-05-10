@@ -492,13 +492,21 @@ public class Gui extends JFrame {
 			
 			loadSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					boolean resumeExecution;
+					
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
 					chooser.setDialogTitle("Load/resume Z88 state");
 					chooser.setMultiSelectionEnabled(false);
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					chooser.setFileFilter(srVM.getSnapshotFilter());
-					Blink.getInstance().stopZ80Execution();
+
+					if ((OZvm.getInstance().getZ80engine() != null)) {
+						resumeExecution = true;
+						Blink.getInstance().stopZ80Execution();
+					} else {
+						resumeExecution = false;
+					}
 					
 					int returnVal = chooser.showOpenDialog(getContentPane().getParent());
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -522,7 +530,12 @@ public class Gui extends JFrame {
 					    	OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
 							OZvm.getInstance().getCommandLine().initDebugCmdline();
 						}						
-					}					
+					} else {
+						// User aborted Loading of snapshot..
+						if (resumeExecution == true) {							
+							OZvm.getInstance().runZ80Engine(-1);							
+						}
+					}
 				}
 			});
 		}
