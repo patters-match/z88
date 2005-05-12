@@ -154,7 +154,7 @@ public final class Blink extends Z80 {
 	private LowerSegment0 segm00addrSpace;
 	private UpperSegment0 segm01addrSpace;
 	private Segments1To3 segm13addrSpace;
-
+	
 	/**
 	 * Blink class default constructor.
 	 */
@@ -827,11 +827,17 @@ public final class Blink extends Z80 {
 			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 			
 			while( snooze == true & stopZ88 == false) {
-				// The processor is set into snooze mode when INT.KWAIT is enabled 
-				// and the hardware keyboard matrix is scanned.
-				// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
-				// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
-				Thread.yield();
+				try {
+					// The processor is set into snooze mode when INT.KWAIT is enabled 
+					// and the hardware keyboard matrix is scanned.
+					// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
+					// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
+					if (System.currentTimeMillis() % 13 != 0)
+						Thread.sleep(0,100);
+					else
+						Thread.yield();					
+				} catch (InterruptedException e) {
+				}
 			}
 			
 			Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
@@ -1632,6 +1638,9 @@ public final class Blink extends Z80 {
 
 	public void openFlap() {
 		flapOpen = true;
+		STA |= BM_STAFLAPOPEN;
+		snooze = coma = false;
+		setInterruptSignal(false);
 	}
 
 	public void closeFlap() {
