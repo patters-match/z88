@@ -98,7 +98,8 @@ public class Gui extends JFrame {
 	private JMenuItem aboutOZvmMenuItem;
 	private JMenuItem createSnapshotMenuItem;
 	private JMenuItem loadSnapshotMenuItem;
-	private JMenuItem resetZ88MenuItem;
+	private JMenuItem softResetMenuItem;
+	private JMenuItem hardResetMenuItem;
 	private JMenuItem userManualMenuItem;
 	private JMenuItem gifMovieMenuItem;
 	private JMenuItem screenSnapshotMenuItem;
@@ -660,22 +661,38 @@ public class Gui extends JFrame {
 		if (z88Menu == null) {
 			z88Menu = new JMenu();
 			z88Menu.setText("Z88");
-			z88Menu.add(getResetZ88MenuItem());
+			z88Menu.add(getSoftResetMenuItem());
+			z88Menu.add(getHardResetMenuItem());
 		}
 		return z88Menu;
 	}
 	
-	private JMenuItem getResetZ88MenuItem() {
-		if (resetZ88MenuItem == null) {
-			resetZ88MenuItem = new JMenuItem();
-			resetZ88MenuItem.addActionListener(new ActionListener() {
+	private JMenuItem getSoftResetMenuItem() {
+		if (softResetMenuItem == null) {
+			softResetMenuItem = new JMenuItem();
+			softResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					Blink.getInstance().setBlinkAck(Blink.BM_STAFLAPOPEN);	// close flap (if open)				
 					Blink.getInstance().pressResetButton();
 				}
 			});
-			resetZ88MenuItem.setText("Reset");
+			softResetMenuItem.setText("Soft Reset");
 		}
-		return resetZ88MenuItem;
+		return softResetMenuItem;
+	}
+	
+	private JMenuItem getHardResetMenuItem() {		
+		if (hardResetMenuItem == null) {
+			hardResetMenuItem = new JMenuItem();
+			hardResetMenuItem.setText("Hard Reset");
+			hardResetMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Blink.getInstance().setBlinkSta(Blink.BM_STAFLAPOPEN); // Indicate that flap is opened
+					Blink.getInstance().pressResetButton();
+				}
+			});
+		}
+		return hardResetMenuItem;
 	}
 	
 	private JMenu getCreateScreenMenu() {
@@ -717,5 +734,5 @@ public class Gui extends JFrame {
 			gifMovieMenuItem.setText("Gif movie (start/stop)");
 		}
 		return gifMovieMenuItem;
-	}
+	}	
 }
