@@ -265,21 +265,21 @@ public class Z88display extends JLabel implements MouseListener {
 		sbr = blink.getBlinkSbrAddress();
 		// Memory base address of Screen Base File (2K)
 
-		if ((blink.getBlinkCom() & Blink.BM_COMLCDON) != 0) {
-			if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0
-					| hires1 == 0) {
-				// Don't render frame if one of the Screen Registers hasn't been
-				// setup yet...
-				renderNoScreenFrame();
-			} else {
-				// screen is ON and Blink registers are all pointing to font
-				// areas...
-				renderScreenFrame();
-			}
-		} else {
-			// Screen has been switched off (usually by using the SHIFT keys)
+		if ( ((blink.getBlinkCom() & Blink.BM_COMLCDON) == 0) | (blink.coma == true)) {
+			// Screen has been switched off (usually by using the SHIFT keys, or 
+			// Blink is in Coma state)
 			renderNoScreenFrame();
+			return;
 		}
+		
+		if (sbr == 0 | lores1 == 0 | lores0 == 0 | hires0 == 0 | hires1 == 0) {
+			// Don't render frame if one of the Screen Registers hasn't been setup yet...
+			renderNoScreenFrame();
+			return;
+		}
+		
+		// screen is ON and Blink registers are all pointing to font areas...
+		renderScreenFrame();
 	}
 
 	/**
