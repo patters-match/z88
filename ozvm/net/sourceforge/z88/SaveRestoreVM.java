@@ -119,13 +119,11 @@ public class SaveRestoreVM {
 		properties.setProperty("INT", Dz.byteToHex(blink.getBlinkInt(),false));
 		properties.setProperty("STA", Dz.byteToHex(blink.getBlinkSta(),false));
 		
-		// KBD is not preserved (not needed)
+		// KBD,ACK,TACK is not preserved (not needed)
 		// EPR not yet implemented
 
-		properties.setProperty("TACK", Dz.byteToHex(blink.getBlinkTack(),false));
 		properties.setProperty("TMK", Dz.byteToHex(blink.getBlinkTmk(),false));
 		properties.setProperty("TSTA", Dz.byteToHex(blink.getBlinkTsta(),false));
-		properties.setProperty("ACK", Dz.byteToHex(blink.getBlinkAck(),false));
 		
 		properties.setProperty("SR0", Dz.byteToHex(blink.getSegmentBank(0),false));
 		properties.setProperty("SR1", Dz.byteToHex(blink.getSegmentBank(1),false));
@@ -155,13 +153,11 @@ public class SaveRestoreVM {
 		blink.setBlinkInt(Integer.parseInt(properties.getProperty("INT"), 16));
 		blink.setBlinkSta(Integer.parseInt(properties.getProperty("STA"), 16));
 		
-		// KBD is not preserved (not needed)
+		// KBD,ACK,TACK is not preserved (not needed)
 		// EPR not yet implemented
 
-		blink.setBlinkTack(Integer.parseInt(properties.getProperty("TACK"), 16));
 		blink.setBlinkTmk(Integer.parseInt(properties.getProperty("TMK"), 16));
 		blink.setBlinkTsta(Integer.parseInt(properties.getProperty("TSTA"), 16));
-		blink.setBlinkAck(Integer.parseInt(properties.getProperty("ACK"), 16));
 		
 		blink.setSegmentBank(0, Integer.parseInt(properties.getProperty("SR0"), 16));		
 		blink.setSegmentBank(1, Integer.parseInt(properties.getProperty("SR1"), 16));

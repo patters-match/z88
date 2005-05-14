@@ -348,22 +348,6 @@ public final class Blink extends Z80 {
 		STA &= ~(bits & 0xff);	// Acknowledge (and clear) occurred STA interrupts (NAND)
 	}
 
-   	/**
-	 * Get Main Blink Interrupt Acknowledge (ACK), Z80 OUT Register
-	 *
-	 * <PRE>
-	 * BIT 6, A19    Acknowledge active high on A19
-	 * BIT 5, FLAP   Acknowledge Flap interrupts
-	 * BIT 3, BTL    Acknowledge battery low interrupt
-	 * BIT 2, KEY    Acknowledge keyboard interrupt
-	 * </PRE>
-	 *
-	 * @param bits
-	 */
-	public int getBlinkAck() {
-		return ACK;
-	}
-
 	/**
 	 * Main Blink Interrupt Status (STA)
 	 *
@@ -467,19 +451,6 @@ public final class Blink extends Z80 {
 	 */
 	public void setBlinkTack(int bits) {
 		rtc.TSTA &= ~(bits & 0xff);		// acknowledge occurred TSTA interrupts
-	}
-
-	/**
-	 * Get Timer interrupt acknowledge (TACK), Z80 OUT Write Register.
-	 *
-	 * <PRE>
-	 * BIT 2, MIN, Set to acknowledge minute interrupt
-	 * BIT 1, SEC, Set to acknowledge
-	 * BIT 0, TICK, Set to acknowledge tick interrupt
-	 * </PRE>
-	 */
-	public int getBlinkTack() {
-		return rtc.TACK;
 	}
 
 	/**
