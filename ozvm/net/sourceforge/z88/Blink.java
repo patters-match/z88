@@ -49,7 +49,7 @@ public final class Blink extends Z80 {
 	private boolean snooze = false;
 	
 	/** Blink Coma state */
-	private boolean coma = false;
+	public boolean coma = false;
 	
 	/**
 	 * The Z80 databus methods for getting/writing bytes
@@ -291,16 +291,6 @@ public final class Blink extends Z80 {
 	 * @param bits
 	 */
 	public void setBlinkInt(int bits) {
-//		System.out.println("Setting INT:");
-//		if ((bits & BM_INTKWAIT) != 0) System.out.println("INT.BM_INTKWAIT");
-//		if ((bits & BM_INTA19) != 0) System.out.println("INT.BM_INTA19");
-//		if ((bits & BM_INTFLAP) != 0) System.out.println("INT.BM_INTFLAP");
-//		if ((bits & BM_INTUART) != 0) System.out.println("INT.BM_INTUART");
-//		if ((bits & BM_INTBTL) != 0) System.out.println("INT.BM_INTBTL");
-//		if ((bits & BM_INTKEY) != 0) System.out.println("INT.BM_INTKEY");
-//		if ((bits & BM_INTTIME) != 0) System.out.println("INT.BM_INTTIME");
-//		if ((bits & BM_INTGINT) != 0) System.out.println("INT.BM_INTGINT");
-//
 		INT = bits;
 	}
 
@@ -354,11 +344,8 @@ public final class Blink extends Z80 {
 	 *
 	 * @param bits
 	 */
-	public void setBlinkAck(int bits) {		
-		if ((bits & BM_ACKA19) == BM_ACKA19) STA &= ~BM_STAA19;
-		if ((bits & BM_ACKBTL) == BM_ACKBTL) STA &= ~BM_STABTL;
-		if ((bits & BM_ACKFLAP) == BM_ACKFLAP) STA &= ~BM_STAFLAP;
-		if ((bits & BM_ACKTIME) == BM_ACKTIME) STA &= ~BM_STATIME;
+	public void setBlinkAck(int bits) {
+		STA &= ~(bits & 0xff);	// Acknowledge (and clear) occurred STA interrupts (NAND)
 	}
 
    	/**
@@ -416,17 +403,6 @@ public final class Blink extends Z80 {
 	 * </PRE>
 	 */
 	public int getBlinkSta() {
-//		System.out.println("STA = " + Dz.byteToBin(STA,true));
-//
-//		if ((STA & BM_STAFLAPOPEN) != 0) System.out.println("STA.BM_STAFLAPOPEN");
-//		if ((STA & BM_STAA19) != 0) System.out.println("STA.BM_STAA19");
-//		if ((STA & BM_STAFLAP) != 0) System.out.println("STA.BM_STAFLAP");
-//		if ((STA & BM_STAUART) != 0) System.out.println("STA.BM_STAUART");
-//		if ((STA & BM_STABTL) != 0) System.out.println("STA.BM_STABTL");
-//		if ((STA & BM_STAKEY) != 0) System.out.println("STA.BM_STAKEY");
-//		if ((STA & BM_STATIME) != 0) System.out.println("STA.BM_STATIME");
-//		if ((STA & BM_STAGINT) != 0) System.out.println("STA.BM_STAGINT");
-
 		return STA;
 	}
 
@@ -490,13 +466,7 @@ public final class Blink extends Z80 {
 	 * </PRE>
 	 */
 	public void setBlinkTack(int bits) {
-
-		// reset appropriate TSTA bits (the prev. raised interrupt get cleared)
-		if ((bits & Rtc.BM_TACKMIN) == Rtc.BM_TACKMIN) rtc.TSTA &= ~Rtc.BM_TACKMIN;
-		if ((bits & Rtc.BM_TACKSEC) == Rtc.BM_TACKSEC) rtc.TSTA &= ~Rtc.BM_TACKSEC;
-		if ((bits & Rtc.BM_TACKTICK) == Rtc.BM_TACKTICK) rtc.TSTA &= ~Rtc.BM_TACKTICK;
-
-		STA &= ~BM_STATIME;			// also acknowledge enabled STA.TIME interrupt
+		rtc.TSTA &= ~(bits & 0xff);		// acknowledge occurred TSTA interrupts
 	}
 
 	/**
@@ -1133,7 +1103,7 @@ public final class Blink extends Z80 {
 				setBlinkTmk(outByte);
 				break;
 
-			case 0xB6 : // ACK, Acknowledge Main Interrupts
+			case 0xB6 : // ACK, Acknowledge INT Interrupts
 				setBlinkAck(outByte);
 				break;
 
@@ -1258,9 +1228,11 @@ public final class Blink extends Z80 {
 	 */
 	public void haltZ80() {
 		// Z80 "Clock" is now stopped, 
-		// wait until an interrupt is fired...
+		// wait until an interrupt is fired from the Blink...
 		
 		coma = true;
+		//System.out.println(System.currentTimeMillis() + ": Coma state.");
+		
 		do {
 			try {
 				Thread.sleep(1);
@@ -1268,7 +1240,8 @@ public final class Blink extends Z80 {
 			}
 		} // Only get out of coma if an interrupt occurred or if Z80 engine was stopped..
 		while(coma == true & stopZ88 == false);
-
+		
+		//System.out.println(System.currentTimeMillis() + ": Awakened from coma.");
 		// (back to main Z80 decode loop)
 	}
 
@@ -1638,7 +1611,7 @@ public final class Blink extends Z80 {
 
 	public void openFlap() {
 		flapOpen = true;
-		STA |= BM_STAFLAPOPEN;
+		STA |= (BM_STAFLAPOPEN | BM_STAFLAP) ;
 		snooze = coma = false;
 		setInterruptSignal(false);
 	}
