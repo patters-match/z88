@@ -878,8 +878,10 @@ below).</font><font color="#3f5fbf"><font face="monospace"><b><br>
     <tr valign="top">
       <td style="width: 31%; vertical-align: top;"> <b><font
  face="monospace"><font color="#3f5fbf">run</font></font></b> </td>
-      <td width="69%"><font color="#3f5fbf">Execute Z88 from PC
-register.</font></td>
+      <td width="69%"><font color="#3f5fbf">Execute Z88 virtual machine
+from PC
+register; the Z80 processor is run and the Blink interrupt scheme is
+enabled/resumed.</font></td>
     </tr>
     <tr valign="top">
       <td width="31%">
@@ -904,10 +906,12 @@ when Z88 window has focus).</font></td>
     <tr valign="top">
       <td width="31%"> <font color="#3f5fbf"><font face="monospace"><b>z</b></font></font>
       </td>
-      <td width="69%"><font color="#3f5fbf">Run z88 machine</font> <font
- color="#3f5fbf">at
-PC register (typically a sub routine)</font> <font color="#3f5fbf">and
-break at next instruction on same call level.</font></td>
+      <td width="69%"><font color="#3f5fbf">Trace z88 subroutine
+machine code</font> <font color="#3f5fbf">at
+PC register&nbsp;</font><font color="#3f5fbf">and
+break at next instruction on same call level. Blink interrupts are not
+enabled&nbsp;during&nbsp;tracing (only the 'run' command enables Blink
+interrupts).</font></td>
     </tr>
     <tr valign="top">
       <td width="31%"> </td>
@@ -918,7 +922,8 @@ break at next instruction on same call level.</font></td>
       </td>
       <td width="69%"><font color="#3f5fbf">Single step instruction at
 PC
-register.</font></td>
+register.&nbsp;</font><font color="#3f5fbf">Blink interrupts are not
+enabled&nbsp;during single stepping.</font></td>
     </tr>
     <tr valign="top">
       <td width="31%">
@@ -1397,7 +1402,8 @@ matches the keyboard layout of the Z88. <br>
     </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;" align="left">There's no Gui access.
+    <p style="margin-bottom: 0cm;" align="left">There's limited Gui
+access.
 Sorry, it's still
 an early development release. There's going to be plenty of Gui
 features
