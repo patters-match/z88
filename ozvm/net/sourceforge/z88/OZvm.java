@@ -55,7 +55,6 @@ public class OZvm {
 	private	Blink z88 = null;
 	private	Memory memory =	null;
 	private CommandLine cmdLine = null;
-	private Thread z80Engine = null;
 
 	private OZvm() {
 		z88 = Blink.getInstance();
@@ -345,73 +344,6 @@ public class OZvm {
 		return cmdLine; 
 	}
 
-	/**
-	 * Execute a Z80 thread.
-	 * 
-	 * @param oneStopBreakpoint
-	 * @return true if thread was successfully started.
-	 */
-	public boolean runZ80Engine(final int oneStopBreakpoint) {	
-		if (z80Engine != null && z80Engine.isAlive() ==	true) {
-			return false;
-		}		
-
-		Gui.displayRtmMessage("Z88 virtual machine was started.");
-		System.gc(); //	try to garbage collect...
-		
-		z80Engine =	new Thread() {
-			public void run() {
-				Breakpoints breakPointManager = z88.getBreakpoints();
-
-				if (breakPointManager.isStoppable(z88.decodeLocalAddress(z88.PC())) == true) {
-					// we need to use single stepping mode to
-					// step	past the break point at	current	instruction
-					z88.singleStepZ80();
-				}
-				// restore (patch) breakpoints into code
-				breakPointManager.installBreakpoints();
-				z88.startInterrupts(); // enable Z80/Z88 core interrupts
-				Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
-				z88.execZ80();
-				// execute Z80 code at full speed until	breakpoint is encountered...
-				// (or F5 emergency break is used!)
-				z88.stopInterrupts();
-				breakPointManager.clearBreakpoints();
-
-				if (oneStopBreakpoint != -1)
-					breakPointManager.toggleBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
-				
-				z80Engine = null;
-
-				if (getCommandLine() != null) { 
-					getCommandLine().initDebugCmdline();
-				}				
-			}
-		};
-
-		z80Engine.setPriority(Thread.NORM_PRIORITY); // execute the Z80 engine in normal thread priority...
-		z80Engine.start();
-		Thread.yield();	// the command line is not that	important right	now...
-
-		return true;
-	}
-
-	/** 
-	 * Get a reference to the currently running Z80 engine.
-	 *  
-	 * @return
-	 */
-	public Thread getZ80engine() {
-		return z80Engine; 
-	}
-
-	/**
-	 * Just	run the	virtual	machine	if no debugging	was enabled.
-	 * (No breakpoints are defined by default)
-	 */
-	public void bootZ88Rom() {
-		runZ80Engine(-1);
-	}
 	
 	/**
 	 * OZvm application startup.
@@ -438,7 +370,7 @@ public class OZvm {
 
 		if (ozvm.getAutorunStatus() == true) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
-			ozvm.bootZ88Rom();
+			Blink.getInstance().runZ80Engine(-1, true);
 			Z88display.getInstance().grabFocus();	// make sure that keyboard focus is available for Z88 
 		} else {
 			ozvm.commandLine(true);

@@ -112,7 +112,7 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("\n" + Z88Info.z80RegisterInfo());
 
 		dz.getInstrAscii(dzBuffer, z88.PC(), true, true);
-		displayCmdOutput( Dz.byteToHex(bank, false) + dzBuffer);
+		displayCmdOutput(Dz.byteToHex(bank, false) + dzBuffer);
 	}
 	
 	private	void cmdHelp() {
@@ -122,7 +122,7 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("run -	execute	virtual	Z88 from PC");
 		displayCmdOutput("stop - stop virtual Z88 (or press F5 when Z88	window has focus)");
 		displayCmdOutput("ldc filename <extended address> - Load file binary at	address");
-		displayCmdOutput("z - run z88 machine (eg. CALL	subroutine) and	break at next instruction");
+		displayCmdOutput("z - trace (subroutine) code at PC and break at next instruction");
 		displayCmdOutput(". - Single step instruction at PC");
 		displayCmdOutput("dz - Disassembly at PC");
 		displayCmdOutput("dz [local address | extended address]	- Disassemble at address");
@@ -176,7 +176,7 @@ public class CommandLine implements KeyListener {
 			}
 
 			try {
-				if (OZvm.getInstance().getZ80engine() == null) {
+				if (z88.getZ80engine() == null) {
 					srVm.storeSnapShot(vmFileName, false);
 					displayCmdOutput("Snapshot successfully saved to " + vmFileName);
 				} else {
@@ -197,12 +197,12 @@ public class CommandLine implements KeyListener {
 					vmFileName += ".z88"; // '.z88' extension was missing.
 			}
 
-			if (OZvm.getInstance().getZ80engine() == null) {
+			if (z88.getZ80engine() == null) {
 				try {
 					boolean autorun = srVm.loadSnapShot(vmFileName);
 					displayCmdOutput("Snapshot successfully installed from " + vmFileName);
 					if (autorun == true)
-						OZvm.getInstance().runZ80Engine(-1);
+						z88.runZ80Engine(-1, true);
 					else
 						initDebugCmdline();
 				} catch (IOException e) {
@@ -237,7 +237,7 @@ public class CommandLine implements KeyListener {
 		}
 		
 		if (cmdLineTokens[0].compareToIgnoreCase("run")	== 0) {
-			if (OZvm.getInstance().runZ80Engine(-1) == false)
+			if (z88.runZ80Engine(-1, true) == false)
 				displayCmdOutput("Z88 is already running.");				
 		}
 
@@ -246,7 +246,7 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareTo(".") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Z88 is already running.");
 				return;
 			}
@@ -260,17 +260,17 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("z") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Z88 is already running.");
 				return;
 			} else {
 				int nextInstrAddress = z88.decodeLocalAddress(dz.getNextInstrAddress(z88.PC()));
 				if (breakPointManager.isCreated(nextInstrAddress) == true) {
 					// there's already a breakpoint	at that	location...
-					OZvm.getInstance().runZ80Engine(-1);
+					z88.runZ80Engine(-1, false);
 				} else {
 					breakPointManager.toggleBreakpoint(nextInstrAddress);	// set a temporary breakpoint at next instruction
-					OZvm.getInstance().runZ80Engine(nextInstrAddress);	// and automatically remove it when the	engine stops...
+					z88.runZ80Engine(nextInstrAddress, false);	// and automatically remove it when the	engine stops...
 				}
 			}
 		}
@@ -400,7 +400,7 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fz") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Cannot change	Zero flag while	Z88 is running!");
 				return;
 			}
@@ -417,7 +417,7 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fc") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Cannot change	Carry flag while Z88 is	running!");
 				return;
 			}
@@ -434,7 +434,7 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fs") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Cannot change	Sign flag while	Z88 is running!");
 				return;
 			}
@@ -451,7 +451,7 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fh") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Cannot change	Half Carry flag	while Z88 is running!");
 				return;
 			}
@@ -468,7 +468,7 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fn") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Cannot change	Add./Sub. flag while Z88 is running!");
 				return;
 			}
@@ -485,7 +485,7 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fv") == 0) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Cannot change	Parity flag while Z88 is running!");
 				return;
 			}
@@ -503,7 +503,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("a") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	A register while Z88 is	running!");
 					return;
 				}
@@ -514,7 +514,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("a'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate A register while Z88 is running!");
 					return;
 				}
@@ -529,7 +529,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("b") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	B register while Z88 is	running!");
 					return;
 				}
@@ -540,7 +540,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("c") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	C register while Z88 is	running!");
 					return;
 				}
@@ -551,7 +551,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("b'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate B register while Z88 is running!");
 					return;
 				}
@@ -566,7 +566,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("c'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate C register while Z88 is running!");
 					return;
 				}
@@ -581,7 +581,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("bc") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	BC register while Z88 is running!");
 					return;
 				}
@@ -592,7 +592,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("bc'")	== 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate BC register while Z88	is running!");
 					return;
 				}
@@ -607,7 +607,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("d") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	D register while Z88 is	running!");
 					return;
 				}
@@ -618,7 +618,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("e") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	E register while Z88 is	running!");
 					return;
 				}
@@ -629,7 +629,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("d'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate D register while Z88 is running!");
 					return;
 				}
@@ -644,7 +644,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("e'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate E register while Z88 is running!");
 					return;
 				}
@@ -659,7 +659,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("de") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	DE register while Z88 is running!");
 					return;
 				}
@@ -670,7 +670,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("de'")	== 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate DE register while Z88	is running!");
 					return;
 				}
@@ -685,7 +685,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("h") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	H register while Z88 is	running!");
 					return;
 				}
@@ -696,7 +696,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("l") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	L register while Z88 is	running!");
 					return;
 				}
@@ -707,7 +707,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("h'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate H register while Z88 is running!");
 					return;
 				}
@@ -722,7 +722,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("l'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate L register while Z88 is running!");
 					return;
 				}
@@ -737,7 +737,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("hl") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	HL register while Z88 is running!");
 					return;
 				}
@@ -748,7 +748,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("hl'")	== 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate HL register while Z88	is running!");
 					return;
 				}
@@ -763,7 +763,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("ix") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	IX register while Z88 is running!");
 					return;
 				}
@@ -774,7 +774,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("iy") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	IY register while Z88 is running!");
 					return;
 				}
@@ -785,7 +785,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("sp") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	SP register while Z88 is running!");
 					return;
 				}
@@ -796,7 +796,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("pc") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (OZvm.getInstance().getZ80engine() != null) {
+				if (z88.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	PC register while Z88 is running!");
 					return;
 				}
@@ -940,7 +940,7 @@ public class CommandLine implements KeyListener {
 		int bpAddress;
 
 		if (cmdLineTokens.length == 2) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Breakpoints cannot be	edited while Z88 is running.");
 				return;
 			} else {
@@ -972,7 +972,7 @@ public class CommandLine implements KeyListener {
 		int bpAddress;
 
 		if (cmdLineTokens.length == 2) {
-			if (OZvm.getInstance().getZ80engine() != null) {
+			if (z88.getZ80engine() != null) {
 				displayCmdOutput("Display Breakpoints cannot be	edited while Z88 is running.");
 				return;
 			} else {

@@ -536,7 +536,7 @@ public class Gui extends JFrame {
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					chooser.setFileFilter(srVM.getSnapshotFilter());
 
-					if ((OZvm.getInstance().getZ80engine() != null)) {
+					if ((Blink.getInstance().getZ80engine() != null)) {
 						resumeExecution = true;
 						Blink.getInstance().stopZ80Execution();
 					} else {
@@ -554,7 +554,7 @@ public class Gui extends JFrame {
 							Gui.this.pack(); // update the UI, if Runtime Msg, Z88 Kb or Card Slot display were changed
 							
 							if (autorun == true)
-								OZvm.getInstance().runZ80Engine(-1);
+								Blink.getInstance().runZ80Engine(-1, true);
 							else {
 								OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
 								OZvm.getInstance().getCommandLine().initDebugCmdline();
@@ -570,7 +570,7 @@ public class Gui extends JFrame {
 					} else {
 						// User aborted Loading of snapshot..
 						if (resumeExecution == true) {							
-							OZvm.getInstance().runZ80Engine(-1);							
+							Blink.getInstance().runZ80Engine(-1, true);							
 						}
 					}
 				}
@@ -595,7 +595,7 @@ public class Gui extends JFrame {
 					chooser.setFileFilter(srVM.getSnapshotFilter());
 					chooser.setSelectedFile(new File(OZvm.defaultVmFile));
 					
-					if ((OZvm.getInstance().getZ80engine() != null)) {
+					if ((Blink.getInstance().getZ80engine() != null)) {
 						autorun = true;
 						Blink.getInstance().stopZ80Execution();
 					} else {
@@ -615,7 +615,7 @@ public class Gui extends JFrame {
 
 					if (autorun == true)
 						// Z80 engine was temporary stopped, now continue to execute...
-						OZvm.getInstance().runZ80Engine(-1);
+						Blink.getInstance().runZ80Engine(-1, true);
 				}
 			});
 		}

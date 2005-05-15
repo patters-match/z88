@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.sourceforge.z88.screen.Z88display;
+
 
 /**
  * Blink chip, the "body" of the Z88, defining the surrounding hardware
@@ -51,6 +53,15 @@ public final class Blink extends Z80 {
 	/** Blink Coma state */
 	public boolean coma = false;
 	
+    private boolean singleStepping = true;
+    
+    /**
+     * Ask the Blink whether it's single stepping or not.
+     */
+	public boolean singleSteppingMode() {
+        return singleStepping;
+    }
+    
 	/**
 	 * The Z80 databus methods for getting/writing bytes
 	 * to/from the memory system through the 64K Z80 address
@@ -190,6 +201,7 @@ public final class Blink extends Z80 {
 	 * execute a single Z80 instruction and return
 	 */
 	public void singleStepZ80() {
+		singleStepping = true;
 		run(true);
 	}
 
@@ -198,6 +210,7 @@ public final class Blink extends Z80 {
 	 * stop command is entered or F5 was pressed in Z88 screen
 	 */
     public void execZ80() {
+    	singleStepping = false;
     	run(false);			// run until we drop dread!
     }
 
@@ -760,28 +773,30 @@ public final class Blink extends Z80 {
 	 * @param row, eg @10111111, or 0 for all rows.
 	 * @return int keycolumn status of row or merge of columns for specified rows.
 	 */
-	public int getBlinkKbd(int row) {		
-		if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
-			snooze = true;
-			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-			
-			while( snooze == true & stopZ88 == false) {
-				try {
-					// The processor is set into snooze mode when INT.KWAIT is enabled 
-					// and the hardware keyboard matrix is scanned.
-					// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
-					// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
-					if (System.currentTimeMillis() % 13 != 0)
-						Thread.sleep(0,100);
-					else
-						Thread.yield();					
-				} catch (InterruptedException e) {
+	public int getBlinkKbd(int row) {
+		if (singleSteppingMode() == false) {
+			if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
+				snooze = true;
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				
+				while( snooze == true & stopZ88 == false) {
+					try {
+						// The processor is set into snooze mode when INT.KWAIT is enabled 
+						// and the hardware keyboard matrix is scanned.
+						// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
+						// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
+						if (System.currentTimeMillis() % 13 != 0)
+							Thread.sleep(0,100);
+						else
+							Thread.yield();					
+					} catch (InterruptedException e) {
+					}
 				}
+				
+				Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 			}
-			
-			Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 		}
-
+		
 		return Z88Keyboard.getInstance().scanKeyRow(row);
 	}
 
@@ -1192,26 +1207,28 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * a HALT instruction was executed by the Z80 processor.
-	 * go into coma and wait for an interrupt..
+	 * A HALT instruction was executed by the Z80 processor; Go into coma 
+	 * and wait for an interrupt. HALT is ignored is Blink is in single stepping
+	 * mode. 
 	 */
-	public void haltZ80() {
-		// Z80 "Clock" is now stopped, 
-		// wait until an interrupt is fired from the Blink...
-		
-		coma = true;
-		//System.out.println(System.currentTimeMillis() + ": Coma state.");
-		
-		do {
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-			}
-		} // Only get out of coma if an interrupt occurred or if Z80 engine was stopped..
-		while(coma == true & stopZ88 == false);
-		
-		//System.out.println(System.currentTimeMillis() + ": Awakened from coma.");
-		// (back to main Z80 decode loop)
+	public void haltZ80() {		
+		if (singleSteppingMode() == false) { 
+			// HALT is only relevant while running the Z80 real time...
+			
+			coma = true;
+			//System.out.println(System.currentTimeMillis() + ": Coma state.");
+			
+			do {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+				}
+			} // Only get out of coma if an interrupt occurred or if Z80 engine was stopped..
+			while(coma == true & stopZ88 == false);
+			
+			//System.out.println(System.currentTimeMillis() + ": Awakened from coma.");
+			// (back to main Z80 decode loop)
+		}
 	}
 
 
@@ -1257,7 +1274,6 @@ public final class Blink extends Z80 {
 	 *	@param bits
 	 */
 	public void setBlinkCom(int bits) {
-		int cardType;
 
 		if (rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
 			// Stop Real Time Clock (RESTIM = 1)
@@ -1588,4 +1604,68 @@ public final class Blink extends Z80 {
 	public void closeFlap() {
 		flapOpen = false;
 	}
+
+	/**
+	 * Reference to the current executing Z80 processor.
+	 */
+	private Thread z80Engine = null;
+	
+	/**
+	 * Execute a Z80 thread.
+	 * 
+	 * @param oneStopBreakpoint
+	 * @param activateInterrupts
+	 * 
+	 * @return true if thread was successfully started.
+	 */
+	public boolean runZ80Engine(final int oneStopBreakpoint, final boolean activateInterrupts) {	
+		if (z80Engine != null && z80Engine.isAlive() ==	true) {
+			return false;
+		}		
+
+		Gui.displayRtmMessage("Z88 virtual machine was started.");
+		
+		z80Engine =	new Thread() {
+			public void run() {
+				Breakpoints breakPointManager = getBreakpoints();
+
+				if (breakPointManager.isStoppable(decodeLocalAddress(PC())) == true) {
+					// we need to use single stepping mode to
+					// step	past the break point at	current	instruction
+					singleStepZ80();
+				}
+				// restore (patch) breakpoints into code
+				breakPointManager.installBreakpoints();
+				if (activateInterrupts == true) startInterrupts(); // enable Z80/Z88 core interrupts
+				Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
+				execZ80();
+				// execute Z80 code at full speed until	breakpoint is encountered...
+				// (or F5 emergency break is used!)
+				if (activateInterrupts == true) stopInterrupts();
+				breakPointManager.clearBreakpoints();
+
+				if (oneStopBreakpoint != -1)
+					breakPointManager.toggleBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
+				
+				z80Engine = null;
+
+				OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+				OZvm.getInstance().getCommandLine().initDebugCmdline();
+			}
+		};
+
+		z80Engine.setPriority(Thread.NORM_PRIORITY); // execute the Z80 engine in normal thread priority...
+		z80Engine.start();
+
+		return true;
+	}
+
+	/** 
+	 * Get a reference to the currently running Z80 engine.
+	 *  
+	 * @return
+	 */
+	public Thread getZ80engine() {
+		return z80Engine; 
+	}	
 }
