@@ -27,5 +27,5 @@ del *.def *.obj *.bin *.map
 :: 'debug0b.bin' contains the debugger command line
 java -jar ..\..\makeapp.jar debugS00.bin debug0a.bin 0000 debug0b.bin 2000
 
-# delete the redundant output binaries
+:: delete the redundant output binaries
 del debug0a.bin debug0b.bin
