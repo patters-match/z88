@@ -19,4 +19,4 @@
 :: compile Intuition code from scratch
 :: Intuition uses segment 3 for bank switching (Intuition is located at $4000 - segment 1)
 del *.def *.obj *.bin *.map
-..\..\csrc\mpm\mpm -b -DSEGMENT3 -r4000 -I..\oz\sysdef -l..\stdlib\standard.lib @debug
+..\..\csrc\mpm\mpm -b -DSEGMENT3 -r4000 -odebugS01.bin -I..\oz\sysdef -l..\stdlib\standard.lib @debug
