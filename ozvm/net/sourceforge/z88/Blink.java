@@ -1340,13 +1340,13 @@ public final class Blink extends Z80 {
 				if (++tick > 1) {
 					// 1/100 second has passed (two 5ms ticks..)
 					tick = 0;
-					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKTICK) == BM_TMKTICK)) {
-						// INT.TIME interrupts are enabled and TMK.TICK interrupts are enabled:
-						// Signal that a tick interrupt occurred
+					if ((TMK & BM_TMKTICK) == BM_TMKTICK) {
+						// TMK.TICK interrupts are enabled, signal that a tick occurred
 						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
-						STA |= BM_STATIME;
 						
-						if (((INT & BM_INTGINT) == BM_INTGINT)) {
+						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
+							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
+							STA |= BM_STATIME;
 							signalTimeInterrupt = true;
 						}
 					}
@@ -1357,12 +1357,12 @@ public final class Blink extends Z80 {
 					TIM0 = 0;
 
 					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKSEC) == BM_TMKSEC)) {
-						// INT.TIME interrupts are enabled and TMK.SEC interrupts are enabled:
-						// Signal that a second interrupt occurred
+						// TMK.SEC interrupts are enabled, signal that a second occurred
 						TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
-						STA |= BM_STATIME;
 
-						if (((INT & BM_INTGINT) == BM_INTGINT)) {
+						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
+							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
+							STA |= BM_STATIME;
 							signalTimeInterrupt = true;
 						}
 					}
@@ -1372,12 +1372,12 @@ public final class Blink extends Z80 {
 						TIM1 = 0;
 						
 						if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKMIN) == BM_TMKMIN)) {
-							// INT.TIME interrupts are enabled and TMK.MIN interrupts are enabled:
-							// Signal that a minute interrupt occurred
+							// TMK.MIN interrupts are enabled, signal that a minute occurred
 							TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
-							STA |= BM_STATIME;
 
-							if (((INT & BM_INTGINT) == BM_INTGINT)) {
+							if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
+								// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
+								STA |= BM_STATIME;
 								signalTimeInterrupt = true;
 							}
 						}
