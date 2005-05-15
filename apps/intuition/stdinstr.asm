@@ -22,6 +22,7 @@
 
     ; Global routines defined in this module:
     XDEF Opcode_0, Opcode_8, Opcode_16, Opcode_24, Opcode_32, Opcode_40, Opcode_48, Opcode_56
+    XDEF Opcode_118
     XDEF Opcode_192, Opcode_193, Opcode_194, Opcode_195, Opcode_196, Opcode_197, Opcode_200, Opcode_201
     XDEF Opcode_202, Opcode_204, Opcode_205, Opcode_208, Opcode_209, Opcode_210, Opcode_211, Opcode_212
     XDEF Opcode_213, Opcode_216, Opcode_217, Opcode_218, Opcode_219, Opcode_220, Opcode_223, Opcode_224
@@ -990,6 +991,15 @@
                   LD   B,(IY + VP_H)        ;                                 ** V1.1.1
                   EXX                       ;  new virtual HL installed       ** V1.1.1
                   RET
+
+
+; ************************************************************************************
+;
+; HALT
+;
+.Opcode_118       HALT
+                  RET
+
 
 
 ; **********************************************************************************

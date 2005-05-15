@@ -33,7 +33,7 @@ endif
     XREF DisplayRegisters
     XREF DZ_Z80pc
 
-    ; Routines defined in 'Cmdline_asm':
+    ; Routines defined in 'cmdline.asm':
     XREF Command_line, Disp_RTM_error
     XREF SV_appl_window, RST_appl_window, Disp_monitor_win
     XREF Write_CRLF
@@ -42,7 +42,7 @@ endif
     XREF FindBreakPoint, FindInstruction
 
 
-    ; Routines defined in 'LDinstr_asm':
+    ; Routines defined in 'ldinstr.asm':
     XREF Opcode_1, Opcode_2, Opcode_6, Opcode_10, Opcode_14, Opcode_17, Opcode_18, Opcode_22
     XREF Opcode_26, Opcode_30, Opcode_33, Opcode_34, Opcode_38, Opcode_42, Opcode_46, Opcode_49
     XREF Opcode_50, Opcode_54, Opcode_58, Opcode_62, Opcode_65, Opcode_66, Opcode_67, Opcode_68
@@ -60,8 +60,8 @@ endif
     XREF Opcode_115_index, Opcode_116_index, Opcode_117_index, Opcode_119_index
 
 
-    ; Routines defined in 'STDinstr_asm':
-    XREF Opcode_0, Opcode_8, Opcode_16, Opcode_24, Opcode_32, Opcode_40, Opcode_48, Opcode_56
+    ; Routines defined in 'stdinstr.asm':
+    XREF Opcode_0, Opcode_8, Opcode_16, Opcode_24, Opcode_32, Opcode_40, Opcode_48, Opcode_56, Opcode_118
     XREF Opcode_192, Opcode_193, Opcode_194, Opcode_195, Opcode_196, Opcode_197, Opcode_200, Opcode_201
     XREF Opcode_202, Opcode_204, Opcode_205, Opcode_208, Opcode_209, Opcode_210, Opcode_211, Opcode_212
     XREF Opcode_213, Opcode_216, Opcode_217, Opcode_218, Opcode_219, Opcode_220, Opcode_223, Opcode_224
@@ -71,7 +71,7 @@ endif
 
     XREF Opcode_233_index, Opcode_229_index, Opcode_225_index, Opcode_227_index
 
-    ; Routines defined in 'arithLog.asm':
+    ; Routines defined in 'arithlog.asm':
     XREF Opcode_3, Opcode_4, Opcode_5, Opcode_7, Opcode_9, Opcode_11, Opcode_12, Opcode_13
     XREF Opcode_15, Opcode_19, Opcode_20, Opcode_21, Opcode_23, Opcode_25, Opcode_27, Opcode_28
     XREF Opcode_29, Opcode_31, Opcode_35, Opcode_36, Opcode_37, Opcode_39, Opcode_41, Opcode_43
@@ -93,7 +93,7 @@ endif
     XREF Opcode_57_index
 
 
-    ; Routines defined in 'CBinstr_asm':
+    ; Routines defined in 'cbinstr.asm':
     XREF Bitcode_0, Bitcode_1, Bitcode_2, Bitcode_3, Bitcode_4, Bitcode_5, Bitcode_6, Bitcode_7
     XREF Bitcode_8, Bitcode_9, Bitcode_10, Bitcode_11, Bitcode_12, Bitcode_13, Bitcode_14, Bitcode_15
     XREF Bitcode_16, Bitcode_17, Bitcode_18, Bitcode_19, Bitcode_20, Bitcode_21, Bitcode_22, Bitcode_23
@@ -134,7 +134,7 @@ endif
     XREF bitcode_230_index, bitcode_238_index, bitcode_246_index, bitcode_254_index
 
 
-    ; Routines defined in 'EDinstr_asm':
+    ; Routines defined in 'edinstr.asm':
     XREF EDcode_64, EDcode_65, EDcode_66, EDcode_67, EDcode_68, EDcode_69, EDcode_70, EDcode_71, EDcode_72, EDcode_73
     XREF EDcode_74, EDcode_75
     XREF EDcode_77
@@ -557,7 +557,7 @@ ENDIF
                   DEFB Opcode_115 % 256     ; LD   (HL),E
                   DEFB Opcode_116 % 256     ; LD   (HL),H
                   DEFB Opcode_117 % 256     ; LD   (HL),L
-                  DEFB Opcode_0   % 256     ; HALT                            ** V0.18
+                  DEFB Opcode_118 % 256     ; HALT                            ** V1.1.1
                   DEFB Opcode_119 % 256     ; LD   (HL),A
                   DEFB Opcode_120 % 256     ; LD   A,B
                   DEFB Opcode_121 % 256     ; LD   A,C
@@ -819,7 +819,7 @@ ENDIF
                   DEFB Opcode_115 / 256     ; LD   (HL),E
                   DEFB Opcode_116 / 256     ; LD   (HL),H
                   DEFB Opcode_117 / 256     ; LD   (HL),L
-                  DEFB Opcode_0   / 256     ; HALT                            ** V0.18
+                  DEFB Opcode_118 / 256     ; HALT                            ** V1.1.1
                   DEFB Opcode_119 / 256     ; LD   (HL),A
                   DEFB Opcode_120 / 256     ; LD   A,B
                   DEFB Opcode_121 / 256     ; LD   A,C
