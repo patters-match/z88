@@ -1,5 +1,5 @@
 :: *************************************************************************************
-:: Intuition Z88 application make script
+:: Intuition Z88 application make script for DOS/Windows
 :: (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2005
 ::
 :: Intuition is free software; you can redistribute it and/or modify it under the terms of the
@@ -16,9 +16,19 @@
 ::
 :: *************************************************************************************
 
-del *.obj *.bin *.map *.epr
-..\..\csrc\mpm\mpm -b -g -I..\oz\sysdef -l..\stdlib\standard.lib mthdbg tokens mthtext
-..\..\csrc\mpm\mpm -b -I..\oz\sysdef -l..\stdlib\standard.lib @debugapl
-..\..\csrc\mpm\mpm -b romhdr
+:: compile Intuition application from scratch
+:: Intuition application uses segment 2 for bank switching (Intuition application is located in segment 3)
+del *.def *.obj *.bin *.map *.epr
+..\..\csrc\mpm\mpm -b -g -DSEGMENT2 -I..\oz\sysdef -l..\stdlib\standard.lib mthdbg tokens mthtext
+..\..\csrc\mpm\mpm -b -DSEGMENT2 -I..\oz\sysdef -l..\stdlib\standard.lib @debugapl
+..\..\csrc\mpm\mpm -b -DSEGMENT2 romhdr
+
+:: produce individual banks to be blown by RomCombiner or Zprom on real cards
+java -jar ..\..\makeapp.jar intuition.62 mthdbg.bin 0000
+java -jar ..\..\makeapp.jar intuition.63 debugger.bin 0000 romhdr.bin 3fc0
+
+:: produce a complete 32K card image for OZvm
 java -jar ..\..\makeapp.jar -sz 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
-java -jar ..\..\z88.jar ram0 512 s3 intuition.epr
+
+:: execute OZvm and install card, ready to be used after initial hard reset of the virtual Z88
+java -jar ..\..\z88.jar ram0 512 s2 intuition.epr fcd3 128 27C

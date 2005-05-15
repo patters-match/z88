@@ -18,8 +18,8 @@
 lstoff
 
 ; Intuition assembly directives:
-;     DEFINE SEGMENT3                   ; Intuition uses segment 3 for bank switching (segment 1 & segment 2 versions)
-     DEFINE SEGMENT2                   ; Intuition uses segment 2 for bank switching (segment 3 version; Intuition application)
+;     DEFINE SEGMENT3                   ; Intuition uses segment 3 for bank switching (Intuition executed in segment 1 or segment 2)
+;     DEFINE SEGMENT2                   ; Intuition uses segment 2 for bank switching (Intuition application runs in segment 3)
 ;     DEFINE INT_SEGM0, SEGMENT3        ; Intuition running in the upper half of segment 0 (two 8K half banks swapped)
 
 IF SEGMENT2
@@ -85,8 +85,8 @@ DEFVARS 0
      RtmError       DS.B 1         ; Runtime Error number
      SPlevel        DS.W 1         ; Initial stack pointer level (subroutine tracing)
      InstrBreakPatt DS.B 5         ; Instruction break bit pattern (max. 4 bytes)
-     ApplErhClvl    DS.B 1         ; Application Error handler call level
-     ApplErhAddr    DS.W 1         ; Application Error handler address
+     ApplErhClvl    DS.B 1         ; Application Error Handler Call Level
+     ApplErhAddr    DS.W 1         ; Application Error Handler Address
      RamTopPage     DS.B 1         ; Top Page of allocated application RAM (Z80debug only)
      Int_Worksp                    ; Number of bytes in Intuition Workspace (RTM)
 }
@@ -121,7 +121,6 @@ DEFVARS 0
     DEFC Flg_WinMode    = 4           ; BIT 4:    Application window protection mode
     DEFC Flg_BreakDump  = 5           ; BIT 5:    Dump Registers at break point
     DEFC Flg_BreakOZ    = 6           ; BIT 6:    Break at OZ error (Fc = 1)
-
 
     DEFC ERR_unknown_instr = $80
     DEFC ERR_RET_unbalanced = $81
