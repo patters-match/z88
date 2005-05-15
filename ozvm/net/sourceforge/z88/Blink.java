@@ -358,8 +358,8 @@ public final class Blink extends Z80 {
 	 * Bit 4, UART, If set, an enabled UART interrupt is active
 	 * Bit 3, BTL, If set, battery low pin is active
 	 * Bit 2, KEY, If set, a column has gone low in snooze (or coma)
-	 * Bit 1, TIME, If set, an enabled TIME interrupt is active
-	 * Bit 0, not defined.
+	 * Bit 1, not defined.
+	 * Bit 0, TIME, If set, an enabled TSTA interrupt is active
 	 * </PRE>
 	 */
 	private int STA;
@@ -370,7 +370,7 @@ public final class Blink extends Z80 {
 	public static final int BM_STAUART = 0x10;	// Bit 4, If set, an enabled UART interrupt is active
 	public static final int BM_STABTL = 0x08;	// Bit 3, If set, battery low pin is active
 	public static final int BM_STAKEY = 0x04;	// Bit 2, If set, a column has gone low in snooze (or coma)
-	public static final int BM_STATIME = 0x01;	// Bit 1, If set, an enabled TSTA interrupt is active
+	public static final int BM_STATIME = 0x01;	// Bit 0, If set, an enabled TSTA interrupt is active
 
 	/**
 	 * Get Main Blink Interrupt Status (STA).
@@ -382,8 +382,6 @@ public final class Blink extends Z80 {
 	 * Bit 4, UART, If set, an enabled UART interrupt is active
 	 * Bit 3, BTL, If set, battery low pin is active
 	 * Bit 2, KEY, If set, a column has gone low in snooze (or coma)
-	 * Bit 1, TIME, If set, an enabled TSTA interrupt is active
-	 * Bit 0, not defined.
 	 * </PRE>
 	 */
 	public int getBlinkSta() {
@@ -401,8 +399,8 @@ public final class Blink extends Z80 {
 	 * Bit 4, UART, If set, an enabled UART interrupt is active
 	 * Bit 3, BTL, If set, battery low pin is active
 	 * Bit 2, KEY, If set, a column has gone low in snooze (or coma)
-	 * Bit 1, TIME, If set, an enabled TSTA interrupt is active
-	 * Bit 0, not defined.
+	 * Bit 1, not defined.
+	 * Bit 0, TIME, If set, an enabled TSTA interrupt is active
 	 * </PRE>
 	 */
 	public void setBlinkSta(int staBits) {
