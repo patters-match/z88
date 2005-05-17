@@ -892,7 +892,6 @@ public final class Blink extends Z80 {
 	 * @return int 16bit word that points into Z80 64K Address Space
 	 */
 	public int decodeExtendedAddress(int extaddr, int segment) {
-		int bankNo = extaddr >>> 16;
 		segment &= 0x03; // there's only 4 segments in Z80 address space..
 
 		if (segment > 0) {
