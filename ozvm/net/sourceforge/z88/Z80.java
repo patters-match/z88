@@ -218,7 +218,7 @@ public abstract class Z80 {
 				| (Nset() ? F_N : 0) | (Cset() ? F_C : 0);
 	}
 
-	private final void F(int bite) {
+	public final void F(int bite) {
 		fS = (bite & F_S) != 0;
 		fZ = (bite & F_Z) != 0;
 		f5 = (bite & F_5) != 0;
