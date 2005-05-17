@@ -299,8 +299,6 @@ public class FileArea {
 	 * @throws FileAreaNotFoundException
 	 */
 	private int getFreeSpacePtr() throws FileAreaNotFoundException {
-		int freeSpace = 0;
-
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
