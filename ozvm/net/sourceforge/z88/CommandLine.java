@@ -1371,7 +1371,7 @@ public class CommandLine implements KeyListener {
 
 
 	private	void putByte(String[] cmdLineTokens) throws IOException	{
-		int argByte[], memAddress, memBank, temp, aByte;
+		int argByte[], memAddress, memBank, aByte;
 
 		if (cmdLineTokens.length >= 3 &	cmdLineTokens.length <=	18) {
 			memAddress = Integer.parseInt(cmdLineTokens[1],	16);
@@ -1387,13 +1387,13 @@ public class CommandLine implements KeyListener {
 		}
 
 		StringBuffer memLine = new StringBuffer(256);
-		temp = getMemoryAscii(memLine, memAddress, memBank);
+		getMemoryAscii(memLine, memAddress, memBank);
 		displayCmdOutput("Before:\n" + memLine);
 		for (aByte= 0; aByte < cmdLineTokens.length - 2; aByte++) {
 			memory.setByte(memAddress + aByte, memBank, argByte[aByte]);
 		}
 
-		temp = getMemoryAscii(memLine, memAddress, memBank);
+		getMemoryAscii(memLine, memAddress, memBank);
 		displayCmdOutput("After:\n" + memLine);
 	}
 
