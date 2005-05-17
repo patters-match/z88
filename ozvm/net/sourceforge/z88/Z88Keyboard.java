@@ -1089,6 +1089,34 @@ public class Z88Keyboard {
 		return columns;
 	}
 
+	/**
+	 * Debug Command line interface.
+	 * Press/release one or more keys programmatically.
+	 *
+	 */
+	public void setKeyRow(int keyMatrixRow, int keyMask) {
+		int columns = 0xFF; int mask = 1;
+
+		for (int bit = 0; bit < 8; bit++) {
+			if ((keyMatrixRow & mask) == 0) keyRows[bit] = keyMask;
+			mask <<= 1;
+		}		
+	}
+	
+	/**
+	 * Get a string representation of the current KBD matrix,
+	 * each row on a 'separate' line (using a \n).
+	 * 
+	 * @return
+	 */
+	public String getKbdMatrix() {
+		StringBuffer kbdRows = new StringBuffer(128);
+		
+		for(int r=0; r<8; r++) 
+			kbdRows.append("A" + (15-r < 10 ? "0": "") + (15-r) + ": " + Dz.byteToBin(keyRows[7-r],false) + "\n");
+		
+		return kbdRows.toString();
+	}
 	
 	/**
 	 * Type a Z88 key into the Z88 hardware keyboard matrix.

@@ -446,7 +446,16 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("kbd") == 0) {
-			// TBD
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 65535) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					Z88Keyboard.getInstance().setKeyRow( arg >>> 8, arg & 0xFF);
+			}			
+			displayCmdOutput(Z88Keyboard.getInstance().getKbdMatrix());
 		}
 		
 		if (cmdLineTokens[0].compareToIgnoreCase("ack") == 0) {
