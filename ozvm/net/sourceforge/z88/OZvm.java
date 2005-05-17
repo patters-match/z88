@@ -47,7 +47,6 @@ public class OZvm {
 	public static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
 
 	public static final String VERSION = "0.5.dev.4";
-	public static boolean debugMode = false;
 
 	/** (default) boot the virtual machine, once it has been loaded */
 	private boolean autoRun = true;
@@ -330,14 +329,14 @@ public class OZvm {
 
 	public void commandLine(boolean status) {				
 		if (status == true) {
-			if (debugMode == true) {
+			if (Blink.getInstance().getDebugMode() == true) {
 				cmdLine.getDebugGui().getCmdLineInputArea().grabFocus();
 			} else
 				cmdLine = new CommandLine();
 		} else
 			cmdLine = null;
 		
-		debugMode = status;
+		Blink.getInstance().setDebugMode(status);
 	}
 	
 	public CommandLine getCommandLine() {

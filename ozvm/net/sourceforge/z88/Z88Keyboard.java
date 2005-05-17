@@ -1225,9 +1225,8 @@ public class Z88Keyboard {
 					break;
 
 				case KeyEvent.VK_F5:
-					if (OZvm.debugMode == true) {
-						Blink.getInstance().stopZ80Execution();						
-					}
+					OZvm.getInstance().commandLine(true);
+					Blink.getInstance().stopZ80Execution();						
 					break;
 
 				case KeyEvent.VK_F11:
@@ -1235,7 +1234,7 @@ public class Z88Keyboard {
 					break;
 
 				case KeyEvent.VK_F12:
-					if (OZvm.debugMode == true) { 
+					if (Blink.getInstance().getDebugMode() == true) { 
 						OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
 					}
 					break;

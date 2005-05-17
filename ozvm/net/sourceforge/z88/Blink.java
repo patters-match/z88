@@ -196,7 +196,14 @@ public final class Blink extends Z80 {
 		resetBlinkRegisters();
 	}
 
+	public boolean getDebugMode() {
+		return debugMode;
+	}
 
+	public void setDebugMode(boolean dbgMode) {
+		debugMode = dbgMode;
+	}
+	
 	/**
 	 * execute a single Z80 instruction and return
 	 */
@@ -1032,7 +1039,7 @@ public final class Blink extends Z80 {
 				break;
 
 			default :
-				if (OZvm.debugMode == true) {
+				if (debugMode == true) {
 					Gui.displayRtmMessage("WARNING:\n" +
 									   Z88Info.dzPcStatus(getInstrPC()) + "\n" +
 									   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
@@ -1113,7 +1120,7 @@ public final class Blink extends Z80 {
 			case 0xE2 : // RXC, Receiver Control (not yet implemented)
 			case 0xE3 : // TXD, Transmit Data (not yet implemented)
 			case 0xE4 : // TXC, Transmit Control (not yet implemented)
-				if (OZvm.debugMode == true) {
+				if (debugMode == true) {
 					Gui.displayRtmMessage("WARNING:\n" +
 										Z88Info.dzPcStatus(getInstrPC()) + "\n" +
 										"UART Serial Port emulation not yet implemented.");
@@ -1124,7 +1131,7 @@ public final class Blink extends Z80 {
 				break;
 
 			default:
-				if (OZvm.debugMode == true) {
+				if (debugMode == true) {
 					Gui.displayRtmMessage("WARNING:\n" +
 										Z88Info.dzPcStatus(getInstrPC()) + "\n" +
 										"Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
@@ -1648,8 +1655,10 @@ public final class Blink extends Z80 {
 				
 				z80Engine = null;
 
-				OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-				OZvm.getInstance().getCommandLine().initDebugCmdline();
+				if (debugMode == true) {
+					OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+					OZvm.getInstance().getCommandLine().initDebugCmdline();
+				}
 			}
 		};
 
