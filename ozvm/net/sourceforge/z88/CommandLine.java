@@ -42,6 +42,8 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class CommandLine implements KeyListener {
 
+	private static final String illegalArgumentMessage = "Illegal Argument";
+	
 	private	DebugGui debugGui;
 	private	Blink z88;	
 
@@ -152,7 +154,15 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("loadvm [filename] - load a Z88 snapshot (replaces current virtual machine).");
 		displayCmdOutput("                    (default file is 'boot.z88'. Extension '.z88' is default)");
 		displayCmdOutput("");
-		displayCmdOutput("Registers are	edited using their name, ex. A 01 or sp	1FFE");
+		displayCmdOutput("Blink registers are edited using their name, ex. INT 0B or int 00001011.");
+		displayCmdOutput("TACK, ACK Blink interrupt acknowledge registers affects appropriate");
+		displayCmdOutput("interrupt 'status' registers, ex. ACK 20 (00100000b) will acknowledge (reset)");
+		displayCmdOutput("the FLAP interrupt in STA (acknowledge registers are not displayed, they serve");
+		displayCmdOutput("only to reset interrupt status registers)."); 
+		displayCmdOutput("Blink registers may be edited while Z88 is running. Available registers:");
+		displayCmdOutput("COM, INT, STA, TACK, TMK, TSTA, ACK, PB0-3, SBR, SR0-3, TIM0-4");
+		displayCmdOutput("");
+		displayCmdOutput("Z80 Registers are	edited using their name, ex. A 01 or sp	1FFE");
 		displayCmdOutput("Alternate registers are specified with ', ex.	a' 01 or BC' C000");
 		displayCmdOutput("Flags	are toggled using FZ, FC, FN, FS, FV and FH commands or");
 		displayCmdOutput("set/reset using 1 or 0 argument, eg. fz 1 to enable Zero flag.");
@@ -160,6 +170,7 @@ public class CommandLine implements KeyListener {
 	
 	public void parseCommandLine(String cmdLineText) {
 		String[] cmdLineTokens = cmdLineTokens = cmdLineText.split(" ");
+		int arg;
 
 		if (cmdLineTokens[0].compareToIgnoreCase("help") == 0) {
 			cmdHelp();
@@ -393,6 +404,278 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Slot is empty!");
 				}				
 			}
+		}
+		
+		if (cmdLineTokens[0].compareToIgnoreCase("com") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkCom(arg);
+			}
+			displayCmdOutput(Z88Info.blinkComInfo());
+		}
+		
+		if (cmdLineTokens[0].compareToIgnoreCase("int") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkInt(arg);
+			}
+			displayCmdOutput(Z88Info.blinkIntInfo());
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("sta") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkSta(arg);
+			}
+			displayCmdOutput(Z88Info.blinkStaInfo());
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("kbd") == 0) {
+			// TBD
+		}
+		
+		if (cmdLineTokens[0].compareToIgnoreCase("ack") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkAck(arg);
+			}
+			displayCmdOutput(Z88Info.blinkStaInfo());  // ACK affects STA
+		}
+		
+		if (cmdLineTokens[0].compareToIgnoreCase("epr") == 0) {
+			// Not yet implemented
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("tsta") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTsta(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTstaInfo());
+		}
+		
+		if (cmdLineTokens[0].compareToIgnoreCase("tack") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTack(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTstaInfo()); // TACK affects TSTA
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("tmk") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTmk(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTmkInfo());
+		}
+		
+		
+		if (cmdLineTokens[0].compareToIgnoreCase("pb0") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 65535) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkPb0(arg);
+			}
+			displayCmdOutput(Z88Info.blinkScreenInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("pb1") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 65535) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkPb1(arg);
+			}
+			displayCmdOutput(Z88Info.blinkScreenInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("pb2") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 65535) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkPb2(arg);
+			}
+			displayCmdOutput(Z88Info.blinkScreenInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("pb3") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 65535) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkPb3(arg);
+			}
+			displayCmdOutput(Z88Info.blinkScreenInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("sbr") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 65535) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkSbr(arg);
+			}
+			displayCmdOutput(Z88Info.blinkScreenInfo());
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("sr0") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setSegmentBank(0, arg);
+			}
+			displayCmdOutput(Z88Info.blinkSegmentsInfo());
+		}
+		
+		if (cmdLineTokens[0].compareToIgnoreCase("sr1") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setSegmentBank(1, arg);
+			}
+			displayCmdOutput(Z88Info.blinkSegmentsInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("sr2") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setSegmentBank(2, arg);
+			}
+			displayCmdOutput(Z88Info.blinkSegmentsInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("sr3") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if ( arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setSegmentBank(3, arg);
+			}
+			displayCmdOutput(Z88Info.blinkSegmentsInfo());
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("tim0") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTim0(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTimersInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("tim1") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTim1(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTimersInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("tim2") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTim2(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTimersInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("tim3") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTim3(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTimersInfo());
+		}
+		if (cmdLineTokens[0].compareToIgnoreCase("tim4") == 0) {
+			if (cmdLineTokens.length == 2) {
+				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				if (arg == -1 | arg > 255) {
+					displayCmdOutput(illegalArgumentMessage);
+					return;
+				}
+				else
+					z88.setBlinkTim4(arg);
+			}
+			displayCmdOutput(Z88Info.blinkTimersInfo());
 		}
 		
 		if (cmdLineTokens[0].compareToIgnoreCase("f") == 0) {
