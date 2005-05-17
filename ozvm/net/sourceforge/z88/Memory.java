@@ -410,7 +410,7 @@ public final class Memory {
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
 	public boolean insertEprCard(int slot, int size, String eprType) {
-		int totalEprBanks, totalSlotBanks, curBank;
+		int totalEprBanks, curBank;
 		int eprSubType = 0;
 
 		slot %= 4; // allow only slots 0 - 3 range.
@@ -492,7 +492,7 @@ public final class Memory {
 	 * @param slot (0 - 3)
 	 */
 	public void insertRamCard(int size, int slot) {
-		int totalRamBanks, totalSlotBanks, curBank;
+		int totalRamBanks, curBank;
 
 		slot %= 4; // allow only slots 0 - 3 range.
 		size -= (size % Bank.SIZE);
@@ -618,7 +618,7 @@ public final class Memory {
 	 * @throws IOException
 	 */
 	public void loadImageOnEprCard(int slot, int size, String eprType, RandomAccessFile fileImage) throws IOException {
-		int totalEprBanks, totalSlotBanks, curBank;
+		int totalEprBanks, curBank;
 		int eprSubType = 0;
 
 		if (fileImage.length() > (1024 * size)) {
@@ -706,7 +706,7 @@ public final class Memory {
 	 * @throws IOException
 	 */
 	public void loadBankFilesOnEprCard(int slot, int size, String eprType, String fileNameBase) throws IOException {
-		int totalEprBanks, totalSlotBanks, curBank;
+		int totalEprBanks, curBank;
 		int eprSubType = 0;
 		int bankNo;
 
@@ -939,7 +939,7 @@ public final class Memory {
 					cardBanks[curBank] = new RomBank(); // for unknown types use ROM
 			}
 
-			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
+			bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
 			cardBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
 		bis.close();
@@ -1003,7 +1003,7 @@ public final class Memory {
 					romBanks[curBank] = new RomBank(); // for all other sizes, normal ROM
 			}
 
-			int bytesRead = bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
+			bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
 			romBanks[curBank].loadBytes(bankBuffer, 0); 		// and load fully into bank
 		}
 		bis.close();
