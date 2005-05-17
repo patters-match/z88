@@ -1371,7 +1371,6 @@ public class CommandLine implements KeyListener {
 
 
 	private	void putByte(String[] cmdLineTokens) throws IOException	{
-		String cmdline = null;
 		int argByte[], memAddress, memBank, temp, aByte;
 
 		if (cmdLineTokens.length >= 3 &	cmdLineTokens.length <=	18) {
