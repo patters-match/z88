@@ -117,7 +117,12 @@ public class StringEval {
 			// decimal number will be interpreted as a hexadecimal number (default)
 			return Integer.parseInt(strNumber,16) & 0xFFFF;
 		}
-		
+
+		if (decSequence == true & strNumber.length() <= 5) {
+			// a decimal number, likely in the 64K range
+			return Integer.parseInt(strNumber,10) & 0xFFFF;
+		}
+
 		return -1; // syntax error...
 	}
 }
