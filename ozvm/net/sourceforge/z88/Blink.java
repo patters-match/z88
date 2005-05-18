@@ -1366,7 +1366,6 @@ public final class Blink extends Z80 {
 						
 						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
-							STA |= BM_STATIME;
 							signalTimeInterrupt = true;
 						}
 					}
@@ -1382,7 +1381,6 @@ public final class Blink extends Z80 {
 
 						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
-							STA |= BM_STATIME;
 							signalTimeInterrupt = true;
 						}
 					}
@@ -1397,7 +1395,6 @@ public final class Blink extends Z80 {
 
 							if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 								// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
-								STA |= BM_STATIME;
 								signalTimeInterrupt = true;
 							}
 						}
@@ -1415,10 +1412,16 @@ public final class Blink extends Z80 {
 				}
 				
 				if (signalTimeInterrupt == true) {
-					// fire a single interrupt for one or several TIMx registers...
-					snooze = false;
-					coma = false;
-					setInterruptSignal(false);
+					// fire a single interrupt for one or several TIMx registers,
+					// but only if the flap is closed (the Blink doesn't emit
+					// RTC interrupts while the flap is open, even if INT.TIME
+					// is enabled)
+					if ((STA & BM_STAFLAPOPEN) == 0) {
+						snooze = false;
+						coma = false;
+						STA |= BM_STATIME;
+						setInterruptSignal(false);
+					}
 				}				
 			}
 		}
@@ -1590,25 +1593,33 @@ public final class Blink extends Z80 {
 		this.breakpoints = breakpoints;
 	}
 
-	/**
-	 * Internal status of the flap; whether it has been
-	 * openened (to insert/remove cards from the external
-	 * slots) or not.
-	 *
-	 * The status is being monitored by the Blink and will
-	 * define the BM_STAFLAPOPEN bit of the STA hardware register.
-	 */
-	private boolean flapOpen = false;
 
-	public void openFlap() {
-		flapOpen = true;
-		STA |= (BM_STAFLAPOPEN | BM_STAFLAP) ;
-		snooze = coma = false;
-		setInterruptSignal(false);
+	/**
+	 * The Blink only fires an IM 1 interrupt when the flap is opened 
+	 * and when INT.FLAP is enabled. Both STA.FLAPOPEN and STA.FLAP is
+	 * set at the time of the interrupt. As long as the flap is open,
+	 * no STA.TIME interrupts gets out of the Blink (even though INT.TIME
+	 * may be enabled and signals it to fire those RTC interrupts).
+	 * The Flap interrupt is only fired once; when the flap is closed, and
+	 * then opened. STA.FLAPOPEN remains enabled as long as the flap is open;
+	 * when the flap is closed, NO interrupt is fired - only STA.FLAPOPEN is
+	 * set to 0. 
+	 */
+	public void signalFlapOpened() {
+		if ((INT & BM_INTFLAP) == BM_INTFLAP) {
+			STA = (STA | BM_STAFLAPOPEN | BM_STAFLAP) & ~BM_STATIME;
+			snooze = coma = false;
+			setInterruptSignal(false);
+		}
 	}
 
-	public void closeFlap() {
-		flapOpen = false;
+	/**
+	 * Signal that the flap was closed.<p>
+	 * The Blink will start to fire STA.TIME interrupts again if the INT.TIME
+	 * is enabled and TMK has been setup to fire Minute, Second or TICK's.
+	 */
+	public void signalFlapClosed() {
+		STA &= ~BM_STAFLAPOPEN; 
 	}
 
 	/**
