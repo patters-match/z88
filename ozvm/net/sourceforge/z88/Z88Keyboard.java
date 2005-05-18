@@ -1257,10 +1257,6 @@ public class Z88Keyboard {
 					Blink.getInstance().stopZ80Execution();						
 					break;
 
-				case KeyEvent.VK_F11:
-					Blink.getInstance().openFlap(); // test..
-					break;
-
 				case KeyEvent.VK_F12:
 					if (Blink.getInstance().getDebugMode() == true) { 
 						OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
@@ -1519,11 +1515,7 @@ public class Z88Keyboard {
 
 			//System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
-			switch(e.getKeyCode()) {
-				case KeyEvent.VK_F11:
-					Blink.getInstance().closeFlap(); // test..
-					break;
-			
+			switch(e.getKeyCode()) {			
 				case KeyEvent.VK_SHIFT:
 					// BUG in JVM:
 					// always release both SHIFT's on Z88, since this event doesn't 
