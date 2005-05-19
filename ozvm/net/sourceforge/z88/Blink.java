@@ -785,8 +785,7 @@ public final class Blink extends Z80 {
 		if (singleSteppingMode() == false) {
 			if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
 				snooze = true;
-				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-				
+								
 				while( snooze == true & stopZ88 == false) {
 					try {
 						// The processor is set into snooze mode when INT.KWAIT is enabled 
@@ -800,8 +799,6 @@ public final class Blink extends Z80 {
 					} catch (InterruptedException e) {
 					}
 				}
-				
-				Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 			}
 		}
 		
@@ -992,7 +989,7 @@ public final class Blink extends Z80 {
 
 		switch (addrA8) {
 			case 0xB1:
-                res = getBlinkSta();		// STA, Main Blink Interrupt Status
+                res = getBlinkSta(); // STA, Main Blink Interrupt Status
 				break;
 
 			case 0xB2:
@@ -1000,9 +997,7 @@ public final class Blink extends Z80 {
 				break;
 
 			case 0xB5:
-                if ((INT & BM_INTTIME) == BM_INTTIME) {
-                    res = getBlinkTsta();	// RTC interrupts are enabled, so TSTA is active...
-                }
+                res = getBlinkTsta();	// TSTA, which RTC interrupt occurred...
 				break;
 
             case 0xD0:
@@ -1670,7 +1665,7 @@ public final class Blink extends Z80 {
 			}
 		};
 
-		z80Engine.setPriority(Thread.NORM_PRIORITY); // execute the Z80 engine in normal thread priority...
+		z80Engine.setPriority(Thread.MIN_PRIORITY); // execute the Z80 engine in minimal thread priority...
 		z80Engine.start();
 
 		return true;
