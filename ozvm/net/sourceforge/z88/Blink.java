@@ -758,15 +758,16 @@ public final class Blink extends Z80 {
 	 * snooze state and fires KEY interrupts, if enabled. 
 	 */
 	public void signalKeyPressed() {
-		// processor always awakes on a key press (even if INT.GINT = 0)
+		// processor snooze always awakes on a key press (even if INT.GINT = 0)
 		snooze = false; 
 		
 		if ( (INT & Blink.BM_INTKEY) == Blink.BM_INTKEY ) {
 			// If keyboard interrupts are enabled, then signal that a key was pressed.
-			STA |= BM_STAKEY;
 
-			if (((INT & BM_INTGINT) == BM_INTGINT)) {
+			if ((INT & BM_INTGINT) == BM_INTGINT) {
+				// But only if the interrupt is allowed to escape the Blink...
 				coma = false;
+				STA |= BM_STAKEY;
 				setInterruptSignal(false);
 			}
 		}
@@ -989,8 +990,6 @@ public final class Blink extends Z80 {
 	public final int inByte(int addrA8, int addrA15) {
 		int res = 0;
 
-		Thread.yield();	// let the Java System work on the other thread for a short while...
-
 		switch (addrA8) {
 			case 0xB1:
                 res = getBlinkSta();		// STA, Main Blink Interrupt Status
@@ -1059,8 +1058,6 @@ public final class Blink extends Z80 {
 	 * @param outByte the data to send to the hardware
 	 */
 	public final void outByte(final int addrA8, final int addrA15, final int outByte) {
-		Thread.yield();	// let the Java System work on the other thread for a short while...
-
 		switch (addrA8) {
 			case 0xD0 : // SR0, Segment register 0
 			case 0xD1 : // SR1, Segment register 1
@@ -1606,7 +1603,7 @@ public final class Blink extends Z80 {
 	 * set to 0. 
 	 */
 	public void signalFlapOpened() {
-		if ((INT & BM_INTFLAP) == BM_INTFLAP) {
+		if (((INT & BM_INTFLAP) == BM_INTFLAP) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 			STA = (STA | BM_STAFLAPOPEN | BM_STAFLAP) & ~BM_STATIME;
 			snooze = coma = false;
 			setInterruptSignal(false);
