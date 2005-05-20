@@ -51,8 +51,8 @@ public class DebugGui extends JFrame {
 	private void initialize() {
 		setJMenuBar(getOZvmMenuBar());
 
-		add(getCmdLineScrollPane(), BorderLayout.CENTER);
-		add(getCmdLineInputArea(), BorderLayout.SOUTH);
+		getContentPane().add(getCmdLineScrollPane(), BorderLayout.CENTER);
+		getContentPane().add(getCmdLineInputArea(), BorderLayout.SOUTH);
 		
 		this.setTitle("OZvm Debugger");
 		this.setResizable(true);
