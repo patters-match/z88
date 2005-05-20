@@ -48,6 +48,8 @@ import java.io.IOException;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ButtonGroup;
 
+import com.imagero.util.ThreadManager;
+
 import net.sourceforge.z88.screen.Z88display;
 
 /**
@@ -65,8 +67,10 @@ public class Gui extends JFrame {
 
 	private Gui() {
 		super();
+		treadMgr = new ThreadManager();
 		initialize();
 	}
+	ThreadManager treadMgr;  
 
 	private ButtonGroup kbLayoutButtonGroup = new ButtonGroup();
 	private JCheckBoxMenuItem seLayoutMenuItem;
@@ -672,7 +676,7 @@ public class Gui extends JFrame {
 			softResetMenuItem = new JMenuItem();
 			softResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Blink.getInstance().setBlinkAck(Blink.BM_STAFLAPOPEN);	// close flap (if open)				
+					Blink.getInstance().signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
 					Blink.getInstance().pressResetButton();
 				}
 			});
@@ -687,8 +691,23 @@ public class Gui extends JFrame {
 			hardResetMenuItem.setText("Hard Reset");
 			hardResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Blink.getInstance().setBlinkSta(Blink.BM_STAFLAPOPEN); // Indicate that flap is opened
-					Blink.getInstance().pressResetButton();
+					treadMgr.addTask( new Runnable() {
+						public void run() {
+							Blink.getInstance().signalFlapOpened();
+							try { Thread.sleep(100);
+							} catch (InterruptedException e1) {}
+							
+							// press reset button while flap is opened							
+							Blink.getInstance().pressResetButton();
+							
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e1) {}
+							
+							// waited a little while, then close flap (hard reset begins...)
+							Blink.getInstance().signalFlapClosed(); 
+						}
+					});	
 				}
 			});
 		}
