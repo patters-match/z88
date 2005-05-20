@@ -1002,6 +1002,7 @@ public final class Blink extends Z80 {
 				break;
 
             case 0xD0:
+            	Thread.yield();
 				res = getBlinkTim0();	// TIM0, 5ms period, counts to 199
 				break;
 
