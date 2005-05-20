@@ -30,6 +30,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -674,13 +675,19 @@ public class Gui extends JFrame {
 	private JMenuItem getSoftResetMenuItem() {
 		if (softResetMenuItem == null) {
 			softResetMenuItem = new JMenuItem();
+			softResetMenuItem.setText("Soft Reset");
 			softResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Blink.getInstance().signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
-					Blink.getInstance().pressResetButton();
+					if (Blink.getInstance().getZ80engine() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Soft Reset Z88?") == JOptionPane.YES_OPTION) {
+							Blink.getInstance().signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
+							Blink.getInstance().pressResetButton();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}
 				}
 			});
-			softResetMenuItem.setText("Soft Reset");
 		}
 		return softResetMenuItem;
 	}
@@ -691,23 +698,29 @@ public class Gui extends JFrame {
 			hardResetMenuItem.setText("Hard Reset");
 			hardResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					treadMgr.addTask( new Runnable() {
-						public void run() {
-							Blink.getInstance().signalFlapOpened();
-							try { Thread.sleep(100);
-							} catch (InterruptedException e1) {}
-							
-							// press reset button while flap is opened							
-							Blink.getInstance().pressResetButton();
-							
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException e1) {}
-							
-							// waited a little while, then close flap (hard reset begins...)
-							Blink.getInstance().signalFlapClosed(); 
+					if (Blink.getInstance().getZ80engine() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
+							treadMgr.addTask( new Runnable() {
+								public void run() {
+									Blink.getInstance().signalFlapOpened();
+									try { Thread.sleep(100);
+									} catch (InterruptedException e1) {}
+									
+									// press reset button while flap is opened							
+									Blink.getInstance().pressResetButton();
+									
+									try {
+										Thread.sleep(100);
+									} catch (InterruptedException e1) {}
+									
+									// waited a little while, then close flap (hard reset begins...)
+									Blink.getInstance().signalFlapClosed(); 
+								}
+							});	
 						}
-					});	
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
 				}
 			});
 		}
