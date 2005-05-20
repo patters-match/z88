@@ -249,6 +249,7 @@ public final class Blink extends Z80 {
 	 *
 	 */
 	public void pressResetButton() {
+		coma = false; snooze = false;	// reset button always awake from coma or snooze...  
 		int comReg = getBlinkCom();
 		comReg &= ~Blink.BM_COMRAMS;	// COM.RAMS = 0 (lower 8K = Bank 0)
 		PC(0x000);						// execute (soft/hard) reset
