@@ -1086,8 +1086,6 @@ public class Z88Keyboard {
 			mask <<= 1;
 		}
 
-		// if (row != 0) System.out.println(System.currentTimeMillis() + " " + Dz.byteToBin(row,true) + ":" + Dz.byteToBin(columns,true));
-		
 		return columns;
 	}
 
@@ -1519,8 +1517,11 @@ public class Z88Keyboard {
 
 			switch(e.getKeyCode()) {			
 				case KeyEvent.VK_SHIFT:
-					if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) releaseZ88key(z88LshKey);
-					if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) releaseZ88key(z88RshKey);
+					// BUG in JVM on Windows:
+					// always release both SHIFT's on Z88, since this event doesn't 
+					// always properly signal left or right SHIFT releases in JVM. 
+					releaseZ88key(z88LshKey);
+					releaseZ88key(z88RshKey);
 					break;
 
 				case KeyEvent.VK_CONTROL:
