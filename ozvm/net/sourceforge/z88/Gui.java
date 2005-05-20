@@ -58,6 +58,13 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class Gui extends JFrame {
 	
+	private static final String aboutDialogText = 	"<html><center>" + 
+													"<h2>OZvm " + OZvm.VERSION + "</h2>" +
+													"<h3>The Z88 emulator & debugging environment</h3>" +
+													"Open Source (GPL) software by Gunther Strube<br>" + 
+													"<tt>gbs@users.sourceforge.net</tt><br><br>" +
+													"<tt>http://z88.sf.net</tt>" +
+													"</center></html>";
 	private static final class singletonContainer {
 		static final Gui singleton = new Gui();
 	}
@@ -244,6 +251,11 @@ public class Gui extends JFrame {
 			aboutOZvmMenuItem = new JMenuItem();
 			aboutOZvmMenuItem.setMnemonic(KeyEvent.VK_A);
 			aboutOZvmMenuItem.setText("About");
+			aboutOZvmMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JOptionPane.showMessageDialog(Gui.this, aboutDialogText, "About OZvm", JOptionPane.PLAIN_MESSAGE);
+				}
+			});
 		}
 		return aboutOZvmMenuItem;
 	}
