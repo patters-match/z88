@@ -47,8 +47,8 @@ public class HelpViewer extends JFrame {
 		viewer.setEditable(false);
 		viewer.addHyperlinkListener(new Hyperactive());
 		getContentPane().add(BorderLayout.CENTER, new JScrollPane(viewer));
+		getContentPane().setPreferredSize(new Dimension(800, 600));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setSize(new Dimension(800, 600));
 		pack();
 		setVisible(true);
 	}
