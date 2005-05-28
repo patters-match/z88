@@ -38,15 +38,28 @@ import javax.swing.JLabel;
 import com.imagero.util.ThreadManager;
 
 import net.sourceforge.z88.Blink;
-import net.sourceforge.z88.Gui;
 import net.sourceforge.z88.Memory;
+import net.sourceforge.z88.OZvm;
 
 /**
  * The display renderer of the Z88 virtual machine, updating
- * the Z88 screen 25 frames per second (
+ * the Z88 screen 10, 25, 50 or 100 frames per second, 
+ * depending on runtime configuration.
  */
 public class Z88display extends JLabel implements MouseListener {
 
+	/** 10 fps (poll for screen changes every 100 milli-seconds) */
+	public static final int FPS10 = 0;
+
+	/** 25 fps (poll for screen changes every 40 milli-seconds), default */
+	public static final int FPS25 = 1; 
+	
+	/** 50 fps (poll for screen changes every 20 milli-seconds) */
+	public static final int FPS50 = 2;
+	
+	/** 100 fps (poll for screen changes every 10 milli-seconds) */
+	public static final int FPS100 = 3;
+	
 	private static final class singletonContainer {
 		static final Z88display singleton = new Z88display();
 	}
@@ -63,12 +76,21 @@ public class Z88display extends JLabel implements MouseListener {
 
 	/** Size of Z88 Screen Base File (in bytes) */
 	private static final int SBRSIZE = 2048;
+	
+	/** The internal screen frame renderer */
+	private RenderPerMs renderPerMs = null;
+	
+	/** is the screen being updated at the moment, or not... */	
+	private boolean renderRunning = false;
+		
+	/** points at the current framerate group, default 25 fps */
+	private int curRenderSpeedIndex = FPS25;
+	
+	/** Runtime selection of Z88 screen frames per second */
+	private static final int fps[] = new int[] {10, 25, 50, 100};
 
-	/** Z88 screen frames per second */
-	private static final int fps = 25;
-
-	/** Flash cursor duration frame counter */
-	private static final int fcd = 18;
+	/** Flash cursor duration frame counter (speed of each frame is controlled in fps[]) */
+	private static final int fcd[] = new int[] {7, 18, 35, 70};
 
 	/** Enabled pixel */
 	private static final int PXCOLON = 0xff461B7D;
@@ -130,6 +152,10 @@ public class Z88display extends JLabel implements MouseListener {
 	/** The currently recording screen movie */
 	private Gif89Encoder gifEncoder; 
 
+	/**
+	 * Internal helper class that represent each frame to be saved
+	 * into the animated Gif screen movie file.
+	 */
 	private class ScreenFrameAction {
 		private static final int actionEncodeFrame = 1;
 		private static final int actionCloseGifFile = 2;
@@ -181,8 +207,7 @@ public class Z88display extends JLabel implements MouseListener {
 			}			
 		}
 	}
-	
-	
+		
 	/** 
 	 * Accumulated time in ms since last displayed frame,
 	 * produced by renderDisplay().
@@ -201,14 +226,8 @@ public class Z88display extends JLabel implements MouseListener {
 	/**Access to Memory model */
 	private Memory memory = null;
 
-	/** The internal screen frame renderer */
-	private RenderPerMs renderPerMs = null;
-
 	/** identifies whether screen activity is being recorded or not */	
 	private boolean recordingMovie = false;
-
-	/** is the screen being updated at the moment, or not... */	
-	private boolean renderRunning = false;
 
 	/** Start cursor flash as dark */
 	private boolean cursorInverse = true;
@@ -231,11 +250,10 @@ public class Z88display extends JLabel implements MouseListener {
 	/** bank references to the font pixels in OZ */
 	private int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 
-	
 	/** constructor */
 	private Z88display() {
 		super();
-
+		
 		blink = Blink.getInstance();
 		memory = Memory.getInstance();
 		
@@ -245,11 +263,49 @@ public class Z88display extends JLabel implements MouseListener {
 		renderRunning = false;
 
 		this.setPreferredSize(new Dimension(640, 64));
-		this.setToolTipText("Click with the mouse on this window or use F12 to get Z88 keyboard focus.");
+		this.setToolTipText("Click on this window with the mouse to get Z88 keyboard focus.");
 		this.setFocusable(true);
 		this.addMouseListener(this);
 	}
 
+	/**
+	 * Set the update frequency or frames per second (fps) of the Z88 screen. 
+	 * The following values are possible:
+	 * <pre>
+	 * 	0: 10 fps (poll for screen changes every 100 milli-seconds)
+	 * 	1: 25 fps (poll for screen changes every 40 milli-seconds)
+	 * 	2: 50 fps (poll for screen changes every 20 milli-seconds)
+	 * 	3: 100 fps (poll for screen changes every 10 milli-seconds)
+	 * </pre>
+	 * 
+	 * 25 fps is the default. Use 10 fps when running the emulator on 'slow' 
+	 * PC's (600Mhz or lower). Only use 50 or 100 fps on high end computers 
+	 * (1 Ghz or higher). The real Z88 screen uses 100 fps.  
+	 *  
+	 * @param frameRateIndex
+	 */
+	public void setFrameRate(final int frameRateIndex) {
+		stop(); // stop the current frames per second renderer
+		
+		curRenderSpeedIndex = frameRateIndex % fps.length; // only array range
+		start(); // restart renderer with new timings
+	}
+
+	/**
+	 * Get the current Frame Per Second Index. The following value is returned:
+	 * <pre>
+	 * 	0: 10 fps (poll for screen changes every 100 milli-seconds)
+	 * 	1: 25 fps (poll for screen changes every 40 milli-seconds)
+	 * 	2: 50 fps (poll for screen changes every 20 milli-seconds)
+	 * 	3: 100 fps (poll for screen changes every 10 milli-seconds)
+	 * </pre>
+	 *  
+	 * @return
+	 */
+	public int getCurrentFrameRate() {
+		return curRenderSpeedIndex;
+	}
+	
 	/**
 	 * The core Z88 Display renderer. This code is called by RenderPerMs.
 	 */
@@ -294,7 +350,7 @@ public class Z88display extends JLabel implements MouseListener {
 		
 		File file = new File(System.getProperty("user.dir") + File.separator + 
 								"z88screen" + scrdumpCounter++ + ".png");
-		Gui.displayRtmMessage("Screen captured to '" + file.getAbsolutePath() + "'.");
+		OZvm.displayRtmMessage("Screen captured to '" + file.getAbsolutePath() + "'.");
 		
 		try {
 			ImageIO.write(img, "PNG", file);
@@ -304,9 +360,7 @@ public class Z88display extends JLabel implements MouseListener {
 	}
 	
 	/**
-	 * Enable/disable recording of Z88 screen into GIF movie.
-	 * @throws IOException
-	 * @throws IOException
+	 * Enable/disable recording of Z88 screen into animated GIF movie.
 	 */
 	public void toggleMovieRecording() {
 		if (recordingMovie == false) {
@@ -318,10 +372,10 @@ public class Z88display extends JLabel implements MouseListener {
 				movieOutputStream = new BufferedOutputStream(new FileOutputStream(movieFilename), 16*1024);
 				gifEncoder = new Gif89Encoder();
 				recordingMovie = true;
-				Gui.displayRtmMessage("Screen recording to '" + movieFilename + "' activated.");
+				OZvm.displayRtmMessage("Screen recording to '" + movieFilename + "' activated.");
 			} catch (IOException e) {
 				recordingMovie = false;
-				Gui.displayRtmMessage("Could not create animated Gif file.");
+				OZvm.displayRtmMessage("Could not create animated Gif file.");
 			}			
 		} else {
 			// stop screen recording; append Gif trailer and close GIF file
@@ -329,7 +383,7 @@ public class Z88display extends JLabel implements MouseListener {
 			recordingMovie = false;
 			ScreenFrameAction frameAction = new ScreenFrameAction(movieOutputStream);
 			screenFrameQueue.add(frameAction);				
-			Gui.displayRtmMessage("Screen recording stopped. Saved in '" + movieFilename + "'.");
+			OZvm.displayRtmMessage("Screen recording stopped. Saved in '" + movieFilename + "'.");
 		}
 	}
 
@@ -363,7 +417,7 @@ public class Z88display extends JLabel implements MouseListener {
 	/**
 	 * Render a "Z88 screen is switched off" image.
 	 */
-	private void renderNoScreenFrame() {
+	private void renderNoScreenFrame() {		
 		// assume that screen hasn't changed (status might change inside
 		// writePixels() method)...
 		screenChanged = false;
@@ -373,14 +427,13 @@ public class Z88display extends JLabel implements MouseListener {
 
 		if (screenChanged == true) {
 			// pixels changed on the screen. Create an image, based on pixel
-			// matrix,
-			// and render it via double buffering to the Awt/Swing component
+			// matrix, and render it via double buffering to the Awt/Swing component
 			renderImageToComponent();
 		}
 	}
 
 	/**
-	 * Scan the Screen file in OZ, and render a pixel image, if a change
+	 * Scan the Screen file in OZ, and render a pixel image if a change
 	 * was identified since the last displayed pixel image. 
 	 */
 	private void renderScreenFrame() {
@@ -479,9 +532,6 @@ public class Z88display extends JLabel implements MouseListener {
 			// schedule item on the screen frame queue to be executed by a background thread...
 			scheduleFrameAction((ScreenFrameAction) screenFrameQueue.removeFirst());
 		}
-
-		// end of this screen rendering poll
-		Thread.yield();
 	}
 
 	/**
@@ -735,13 +785,12 @@ public class Z88display extends JLabel implements MouseListener {
 	 * second, remaining 30% renders the char as normal.
 	 */
 	private void flashCounter() {
-		if (frameCounter++ > fps) { // 1 second has passed
+		if (frameCounter++ > fps[curRenderSpeedIndex]) { // 1 second has passed
 			frameCounter = 0;
-			flashTextEmpty = !flashTextEmpty; // invert current text flashing
-			// mode
+			flashTextEmpty = !flashTextEmpty; // invert current text flashing mode
 		}
 
-		if (frameCounter < fcd)
+		if (frameCounter < fcd[curRenderSpeedIndex])
 			cursorInverse = true; // most of the time, cursor is black
 		else
 			cursorInverse = false; // rest of the time, cursor is invisible
@@ -754,8 +803,15 @@ public class Z88display extends JLabel implements MouseListener {
 	 * when the Z80 execution engine stops).
 	 */
 	private class RenderPerMs extends TimerTask {		
+		boolean priorityDefined = false;
+		
 		public void run() {
-			frameDelay += (1000 / fps);
+			if (priorityDefined == false) {
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				priorityDefined = true;
+			}
+			
+			frameDelay += (1000 / fps[curRenderSpeedIndex]);
 			
 			// update cursor flash and ordinary flash counters
 			if (blink.isZ80running() == true)
@@ -780,11 +836,14 @@ public class Z88display extends JLabel implements MouseListener {
 	public void start() {
 		if (renderRunning == false) {
 			renderPerMs = new RenderPerMs();
-			blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 0, 1000 / fps);
+			blink.getTimerDaemon().scheduleAtFixedRate(renderPerMs, 0,
+					1000 / fps[curRenderSpeedIndex]);
+
 			renderRunning = true;
 		}
 	}
 
+	
 	/*
 	 * (non-Javadoc)
 	 * 
