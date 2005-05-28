@@ -19,11 +19,15 @@
 
 package	net.sourceforge.z88;
 
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.JarURLConnection;
+
 import javax.swing.UIManager;
 import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
@@ -46,16 +50,35 @@ public class OZvm {
 	/** default boot snapshot filename */
 	public static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
 
-	public static final String VERSION = "0.5.dev.4";
+	/** current release version string */
+	public static final String VERSION = "0.5.dev.5";
 
 	/** (default) boot the virtual machine, once it has been loaded */
 	private boolean autoRun = true;
 	
+	/** Graphics device used for full screen mode */
+	private GraphicsDevice device;
+	
+	/** Display mode for full screen (640x480) */
+	private DisplayMode displayModeFullScreen;
+	
+	private String guiKbLayout;
+	
 	private	Blink z88 = null;
 	private	Memory memory =	null;
-	private CommandLine cmdLine = null;
+	private CommandLine cmdLine = null;	
+	private Gui gui = null;
 
 	private OZvm() {
+		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        device = environment.getDefaultScreenDevice();
+		
+        // get a display mode for 640x480, 16bit colour depth, used for full screen display
+        displayModeFullScreen = new DisplayMode(640, 480, 16, DisplayMode.REFRESH_RATE_UNKNOWN);
+    
+        // default keyboard layout is UK (for english 4.0 ROM)
+        guiKbLayout = "uk";
+        
 		z88 = Blink.getInstance();
 		memory = Memory.getInstance();
 		Z88display.getInstance().start();
@@ -64,9 +87,49 @@ public class OZvm {
 	public boolean getAutorunStatus() {
 		return autoRun;
 	}
+
+	/** 
+	 * Get a reference to the main graphical user interface.
+	 * 
+	 * @return
+	 */
+	public Gui getGui() {
+		return gui;
+	}
+		
+	public boolean isFullScreenSupported() {
+		return device.isFullScreenSupported();
+	}
+	
+    /**
+     * Enters full screen mode (if system allows it) and change the 
+     * display mode to 640x480 in 16bit colour depth. OZvm stays in
+     * full screen mode until aborted (operating system returns
+     * to window mode automatically when OZvm exits). 
+     */
+	public void setFullScreenMode() {	
+		if (gui != null) {
+			// get rid of current window mode main Gui window...
+			gui.removeAll(); // release all widgets inside...
+			gui.dispose(); // then remove it from the operating system view			
+		}
+		
+		gui = new Gui(true); // new main gui for full screen mode (old object garbage collected)
+	    device.setFullScreenWindow(gui);	    
+
+	    try {
+            device.setDisplayMode(displayModeFullScreen);
+        }
+        catch (IllegalArgumentException ex) {
+            // ignore - illegal mode for this device
+        }
+
+        // finally, let's see the new stuff
+	    gui.repaint();
+	}
 	
 	/**
-	 * Parse boot time operating system shell command line arguments
+	 * Boot OZvm and parse operating system shell command line arguments
 	 * 
 	 * @param args
 	 * @return
@@ -79,6 +142,8 @@ public class OZvm {
 		boolean	ramSlot0 = false;
 		int ramSizeArg = 0, eprSizeArg = 0;
 
+		gui = new Gui(); // instantiated but not yet displayed... 			
+		
 		try {
 			int arg	= 0;
 			while (arg<args.length)	{
@@ -101,7 +166,7 @@ public class OZvm {
 
 					try {
 						autoRun = srVm.loadSnapShot(vmFileName);
-						Gui.displayRtmMessage("Snapshot successfully installed from " + vmFileName);
+						displayRtmMessage("Snapshot successfully installed from " + vmFileName);
 						loadedSnapshot = true;
 					} catch (IOException ee) {
 						// loading of snapshot failed (file not found, corrupt or not a snapshot file
@@ -114,7 +179,7 @@ public class OZvm {
 				}
 
 				if (arg<args.length && (args[arg].compareTo("rom") == 0)) {
-					Gui.displayRtmMessage("Loading '" + args[arg+1] + "' into ROM space	in slot	0.");
+					displayRtmMessage("Loading '" + args[arg+1] + "' into ROM space	in slot	0.");
 					memory.loadRomBinary(new File(args[arg+1]));
 					Blink.getInstance().resetBlinkRegisters();
 					Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
@@ -127,18 +192,18 @@ public class OZvm {
 					ramSizeArg = Integer.parseInt(args[arg+1], 10);
 					if (ramSlotNumber == 0)	{
 						if ((ramSizeArg	<32) | (ramSizeArg>512)) {
-							Gui.displayRtmMessage("Only 32K-512K RAM Card size allowed in slot " + ramSlotNumber);
+							displayRtmMessage("Only 32K-512K RAM Card size allowed in slot " + ramSlotNumber);
 							return false;
 						}
 					} else {
 						if ((ramSizeArg<32) | (ramSizeArg>1024)) {
-							Gui.displayRtmMessage("Only 32K-1024K RAM Card size allowed in slot " +	ramSlotNumber);
+							displayRtmMessage("Only 32K-1024K RAM Card size allowed in slot " +	ramSlotNumber);
 							return false;
 						}
 					}
 					memory.insertRamCard(ramSizeArg	* 1024,	ramSlotNumber);	// RAM Card specified for slot x...
 					if (ramSlotNumber == 0)	ramSlot0 = true;
-					Gui.displayRtmMessage("Inserted	" + ramSizeArg + "K RAM	Card in	slot " + ramSlotNumber);
+					displayRtmMessage("Inserted	" + ramSizeArg + "K RAM	Card in	slot " + ramSlotNumber);
 					installedCard = true;
 
 					arg+=2;
@@ -153,10 +218,10 @@ public class OZvm {
 						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV Eprom Card in slot " +	eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
-						Gui.displayRtmMessage(insertEprMsg);
+						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 					} else
-						Gui.displayRtmMessage("Eprom Card size/type configuration is illegal.");
+						displayRtmMessage("Eprom Card size/type configuration is illegal.");
 					arg+=3;
 					continue;
 				}
@@ -169,10 +234,10 @@ public class OZvm {
 						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV File Eprom Card in slot " + eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel File Flash Card in slot " +	eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd File Flash Card in slot " + eprSlotNumber;
-						Gui.displayRtmMessage(insertEprMsg);
+						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 					} else
-						Gui.displayRtmMessage("Eprom File Card size/type configuration is illegal.");						
+						displayRtmMessage("Eprom File Card size/type configuration is illegal.");						
 					arg+=3;
 					
 					if (arg < args.length) {
@@ -202,7 +267,7 @@ public class OZvm {
 						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
 						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
-						Gui.displayRtmMessage(insertEprMsg);
+						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 						arg+=4;
 					}
@@ -220,7 +285,7 @@ public class OZvm {
 						arg++;
 					}
 					file = new RandomAccessFile(args[arg], "r");
-					Gui.displayRtmMessage("Loading '" + args[arg] +	"' into	slot " + slotNumber + ".");
+					displayRtmMessage("Loading '" + args[arg] +	"' into	slot " + slotNumber + ".");
 					memory.loadEprCardBinary(slotNumber, crdType, file);
 					file.close();
 					installedCard = true;
@@ -248,29 +313,26 @@ public class OZvm {
 					}
 					cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
 					file.close();
-					Gui.displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
+					displayRtmMessage("Parsed '" + args[arg+1] + "' command file.");
 
 					arg+=2;
 					continue;
 				}
 
-				if (arg<args.length && (args[arg].compareTo("kbl") == 0)) {
+				if (arg<args.length && (args[arg].compareTo("kbl") == 0)) {					
 					if (args[arg+1].compareToIgnoreCase("uk") == 0 || args[arg+1].compareToIgnoreCase("en")	== 0) {
-						Gui.getInstance().getUkLayoutMenuItem().doClick();
-						Gui.displayRtmMessage("Using English (UK) keyboard layout.");
+						guiKbLayout = "uk";
 					}
 					if (args[arg+1].compareTo("fr")	== 0) {
-						Gui.getInstance().getFrLayoutMenuItem().doClick();
-						Gui.displayRtmMessage("Using French keyboard layout.");
+						guiKbLayout = "fr";
 					}
 					if (args[arg+1].compareTo("dk")	== 0) {
-						Gui.getInstance().getDkLayoutMenuItem().doClick();
-						Gui.displayRtmMessage("Using Danish keyboard layout.");
+						guiKbLayout = "dk";
 					}
 					if (args[arg+1].compareTo("se")	== 0 | args[arg+1].compareTo("fi")	== 0) {
-						Gui.getInstance().getSeLayoutMenuItem().doClick();
-						Gui.displayRtmMessage("Using Swedish/Finish keyboard layout.");
+						guiKbLayout = "se";
 					}
+					
 					arg+=2;
 					continue;
 				}
@@ -283,21 +345,21 @@ public class OZvm {
 				try {
 					autoRun = srVm.loadSnapShot(OZvm.defaultVmFile);
 					loadedSnapshot = true;
-					Gui.displayRtmMessage("Snapshot successfully installed from " + OZvm.defaultVmFile);
+					displayRtmMessage("Snapshot successfully installed from " + OZvm.defaultVmFile);
 				} catch (IOException ee) {
 					// 'boot.z88' wasn't available, or an error occurred - ignore it...
 				}
 			}
 			
 			if (loadedSnapshot == false & loadedRom == false) {
-				Gui.displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
+				displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
 				JarURLConnection jarConnection = (JarURLConnection) z88.getClass().getResource("/Z88.rom").openConnection();
 				memory.loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
 				Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
 			}
 
 			if (loadedSnapshot == false && ramSlot0 == false) {
-				Gui.displayRtmMessage("RAM0 set	to default 32K.");
+				displayRtmMessage("RAM0 set	to default 32K.");
 				memory.insertRamCard(32	* 1024,	0);	// no RAM specified for	slot 0,	set to default 32K RAM...
 			}
 		} catch	(FileNotFoundException e) {
@@ -314,19 +376,38 @@ public class OZvm {
 			return false;
 		}
 		
-		if (loadedSnapshot == false) {
-			// default display; show runtime messages window, Z88 Keyboard and Card Slots..
-			Gui.getInstance().displayRunTimeMessagesPane(true);
-			Gui.getInstance().displayZ88Keyboard(true);
-			Gui.getInstance().displayZ88CardSlots(true);			
-		}
+		if (loadedSnapshot == false) displayDefaultGui();
 		
-		Gui.getInstance().pack(); // update the application UI
-		Gui.getInstance().setVisible(true);
+		gui.pack(); // update the application UI
+		gui.setVisible(true);		
 		
 		return true;
 	}
 
+	private void displayDefaultGui() {
+		// default display; show runtime messages window, Z88 Keyboard and Card Slots..
+		gui.displayRunTimeMessagesPane(true);
+		gui.displayZ88Keyboard(true);
+		gui.displayZ88CardSlots(true);			
+
+		if (guiKbLayout.compareToIgnoreCase("uk") == 0) {
+			getGui().getUkLayoutMenuItem().doClick();
+			displayRtmMessage("Using English (UK) keyboard layout.");
+		}
+		if (guiKbLayout.compareTo("fr")	== 0) {
+			getGui().getFrLayoutMenuItem().doClick();
+			displayRtmMessage("Using French keyboard layout.");
+		}
+		if (guiKbLayout.compareTo("dk")	== 0) {
+			getGui().getDkLayoutMenuItem().doClick();
+			displayRtmMessage("Using Danish keyboard layout.");
+		}
+		if (guiKbLayout.compareTo("se")	== 0) {
+			getGui().getSeLayoutMenuItem().doClick();
+			displayRtmMessage("Using Swedish/Finish keyboard layout.");
+		}		
+	}
+	
 	public void commandLine(boolean status) {				
 		if (status == true) {
 			if (Blink.getInstance().getDebugMode() == true) {
@@ -343,6 +424,9 @@ public class OZvm {
 		return cmdLine; 
 	}
 
+	public static void displayRtmMessage(final String msg) {
+		if (OZvm.getInstance().getGui() != null) OZvm.getInstance().getGui().displayRtmMessage(msg);
+	}
 	
 	/**
 	 * OZvm application startup.
@@ -357,15 +441,11 @@ public class OZvm {
 		}
 		
 		OZvm ozvm = OZvm.getInstance();		
-		Gui.displayRtmMessage("OZvm V" + OZvm.VERSION + ", Z88 Virtual Machine\n");
 		
 		if (ozvm.boot(args) == false) {
 			System.out.println("Ozvm terminated.");
 			System.exit(0);
 		}
-
-		// display info about slot contents..
-		Gui.getInstance().getSlotsPanel().refreshSlotInfo();
 
 		if (ozvm.getAutorunStatus() == true) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
