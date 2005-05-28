@@ -64,6 +64,7 @@ public class Slots extends JPanel {
 	
 	public Slots() {
 		super();
+		setBackground(Color.BLACK);
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(getSlot0Panel());
@@ -210,8 +211,8 @@ public class Slots extends JPanel {
 	private JButton getRom0Button() {
 		if (rom0Button == null) {
 			rom0Button = new JButton();
-			rom0Button.setPreferredSize(new Dimension(88, 20));
-			rom0Button.setMaximumSize(new Dimension(88, 20));
+			rom0Button.setPreferredSize(new Dimension(87, 20));
+			rom0Button.setMaximumSize(new Dimension(87, 20));
 			rom0Button.setHorizontalAlignment(SwingConstants.LEFT);
 			rom0Button.setFont(buttonFont);
 			rom0Button.setForeground(Color.BLACK);
@@ -225,8 +226,8 @@ public class Slots extends JPanel {
 	private JButton getRam0Button() {
 		if (ram0Button == null) {
 			ram0Button = new JButton();
-			ram0Button.setPreferredSize(new Dimension(88, 20));
-			ram0Button.setMaximumSize(new Dimension(88, 20));
+			ram0Button.setPreferredSize(new Dimension(87, 20));
+			ram0Button.setMaximumSize(new Dimension(87, 20));
 			ram0Button.setHorizontalAlignment(SwingConstants.LEFT);
 			ram0Button.setFont(buttonFont);
 			ram0Button.setForeground(Color.BLACK);
