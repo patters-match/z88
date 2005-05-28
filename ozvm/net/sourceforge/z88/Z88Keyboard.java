@@ -78,6 +78,8 @@ public class Z88Keyboard {
 
 	private Z88display z88Display = null;
 
+	private RubberKeyboard rubberKb;
+	
 	/** Current Keyboard layout Country Code (default = COUNTRY_EN during boot of OZvm) */ 
     private int currentKbLayoutCountryCode = COUNTRY_EN;
 
@@ -130,6 +132,8 @@ public class Z88Keyboard {
      *
      */
 	private Z88Keyboard() {
+		rubberKb = new RubberKeyboard(); // prepare the Gui keyboard
+		
 		z88Display = Z88display.getInstance();
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
@@ -1172,6 +1176,9 @@ public class Z88Keyboard {
 	 * Set the Z88 keyboard layout to be used for mapping
 	 * host keyboard events to Z88 keys. The following
 	 * country codes are available:
+	 * 
+	 * The instance of the graphical representation (Rubberkeyboard)
+	 * are also updated with the appropriate icons. 
 	 *
 	 * <PRE>
 	 *	COUNTRY_US = 0;		// English/US Keyboard layout
@@ -1197,6 +1204,20 @@ public class Z88Keyboard {
 
 		currentKbLayoutCountryCode = kbl;
 		currentKbLayout = z88Keyboards[kbl];
+		rubberKb.setKeyboardCountrySpecificIcons(kbl);
+	}
+
+	/**
+	 * Get a reference to Rubberkeyboard, which is the graphical
+	 * representation of the Z88 keyboard (a JPanel)
+	 * 
+	 * The Rubberkeyboard is auto-loaded with the key caps (icons) of the
+	 * current defined keyboard layout.
+	 * 
+	 * @return
+	 */
+	public RubberKeyboard getRubberKeyboard() {
+		return rubberKb;
 	}
 	
 	/**
