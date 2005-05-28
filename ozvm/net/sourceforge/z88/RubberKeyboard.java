@@ -2119,24 +2119,53 @@ public class RubberKeyboard extends JPanel {
 	/**
 	 * Define the icons on key buttons according to the current
 	 * keyboard language code.
+	 * 
+	 * <PRE>
+	 *	COUNTRY_US = 0;		// English/US Keyboard layout
+	 *	COUNTRY_FR = 1;		// French Keyboard layout
+	 *	COUNTRY_DE = 2;		// German Keyboard layout
+	 *	COUNTRY_EN = 3;		// English/UK Keyboard layout
+	 *	COUNTRY_DK = 4;		// Danish Keyboard layout
+	 *	COUNTRY_SE = 5;		// Swedish Keyboard layout
+	 *	COUNTRY_IT = 6;		// Italian Keyboard layout
+	 *	COUNTRY_ES = 7;		// Spanish Keyboard layout
+	 *	COUNTRY_JP = 8;		// Japanese Keyboard layout
+	 *	COUNTRY_IS = 9;		// Icelandic Keyboard layout
+	 *	COUNTRY_NO = 10;	// Norwegian Keyboard layout
+	 *	COUNTRY_CH = 11;	// Swiss Keyboard layout 
+	 * 	COUNTRY_TR = 12;	// Turkish Keyboard layout
+	 *	COUNTRY_FI = 13;	// Finnish Keyboard layout
+	 * </PRE>
+	 * 
+	 * The above constant are predefined in Z88Keyboard class.
 	 */
-	public void setKeyboardCountrySpecificIcons(final String countryCode) {
-		
+	public void setKeyboardCountrySpecificIcons(final int kbl) {		
 		threadMgr.addTask( new Runnable() {
 			public void run() {
 				Hashtable keyIcons;
 				
-				if (countryCode.compareTo("uk") == 0) 
-					keyIcons = kbLanguageIconsUk;
-				else if (countryCode.compareTo("se") == 0)
-					keyIcons = kbLanguageIconsSe;
-				else if (countryCode.compareTo("dk") == 0)
-					keyIcons = kbLanguageIconsDk;
-				else if (countryCode.compareTo("fr") == 0)
-					keyIcons = kbLanguageIconsFr;
-				else
-					keyIcons = kbLanguageIconsUk;
-
+				switch(kbl) {
+					case Z88Keyboard.COUNTRY_EN:
+					case Z88Keyboard.COUNTRY_US:
+						keyIcons = kbLanguageIconsUk;
+						break;
+					
+					// swedish/finish
+					case Z88Keyboard.COUNTRY_SE:
+						keyIcons = kbLanguageIconsSe;
+						break;
+						
+					case Z88Keyboard.COUNTRY_DK:
+						keyIcons = kbLanguageIconsDk;
+						break;
+					case Z88Keyboard.COUNTRY_FR:
+						keyIcons = kbLanguageIconsFr;
+						break;
+					
+					default:
+						keyIcons = kbLanguageIconsUk;
+				}
+				
 				getNumKey1Button().setIcon((ImageIcon) keyIcons.get("numkey1"));
 				getNumKey2Button().setIcon((ImageIcon) keyIcons.get("numkey2"));
 				getNumKey3Button().setIcon((ImageIcon) keyIcons.get("numkey3"));
@@ -2177,7 +2206,7 @@ public class RubberKeyboard extends JPanel {
 				getKey01FbButton().setIcon((ImageIcon) kbStdIcons.get("b"));
 				getKey00FbButton().setIcon((ImageIcon) kbStdIcons.get("n"));
 				
-				if (countryCode.compareTo("fr") == 0) {
+				if (kbl == Z88Keyboard.COUNTRY_FR) {
 					getKey05EfButton().setIcon((ImageIcon) kbStdIcons.get("a"));
 					getKey04EfButton().setIcon((ImageIcon) kbStdIcons.get("z"));
 					getKey05F7Button().setIcon((ImageIcon) kbStdIcons.get("q"));
