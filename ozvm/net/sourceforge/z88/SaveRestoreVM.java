@@ -270,13 +270,13 @@ public class SaveRestoreVM {
     	properties.setProperty("Z88KbLayout", "" + Z88Keyboard.getInstance().getKeyboardLayout());
 		
     	// remember the visual state of the Runtime Message Panel
-    	properties.setProperty("RtmMessages", Boolean.toString(Gui.getInstance().getRtmMessagesMenuItem().isSelected()));
+    	properties.setProperty("RtmMessages", Boolean.toString(OZvm.getInstance().getGui().getRtmMessagesMenuItem().isSelected()));
 
     	// remember the visual state of the Z88 Keyboard Panel
-    	properties.setProperty("Z88Keyboard", Boolean.toString(Gui.getInstance().getZ88keyboardMenuItem().isSelected()));
+    	properties.setProperty("Z88Keyboard", Boolean.toString(OZvm.getInstance().getGui().getZ88keyboardMenuItem().isSelected()));
 
     	// remember the visual state of the Z88 Card Slots Panel
-    	properties.setProperty("Z88CardSlots", Boolean.toString(Gui.getInstance().getZ88CardSlotsMenuItem().isSelected()));
+    	properties.setProperty("Z88CardSlots", Boolean.toString(OZvm.getInstance().getGui().getZ88CardSlotsMenuItem().isSelected()));
     	
     	// remember the breakpoints
     	properties.setProperty("Breakpoints", blink.getBreakpoints().breakpointList());
@@ -381,35 +381,35 @@ public class SaveRestoreVM {
         	int kbLayoutCountryCode = Integer.parseInt(properties.getProperty("Z88KbLayout"));
         	switch(kbLayoutCountryCode) {
         		case Z88Keyboard.COUNTRY_EN:
-        			Gui.getInstance().getUkLayoutMenuItem().doClick();
+        			OZvm.getInstance().getGui().getUkLayoutMenuItem().doClick();
         			break;
         		case Z88Keyboard.COUNTRY_DK:
-        			Gui.getInstance().getDkLayoutMenuItem().doClick();
+        			OZvm.getInstance().getGui().getDkLayoutMenuItem().doClick();
         			break;
         		case Z88Keyboard.COUNTRY_FR:
-        			Gui.getInstance().getFrLayoutMenuItem().doClick();
+        			OZvm.getInstance().getGui().getFrLayoutMenuItem().doClick();
         			break;
         		case Z88Keyboard.COUNTRY_SE: // Swedish/Finish
-        			Gui.getInstance().getSeLayoutMenuItem().doClick();
+        			OZvm.getInstance().getGui().getSeLayoutMenuItem().doClick();
         			break;
         		default:
         			// all other keyboard layouts are default UK (since they're not implemented yet)
-        			Gui.getInstance().getUkLayoutMenuItem().doClick();	        			
+        			OZvm.getInstance().getGui().getUkLayoutMenuItem().doClick();	        			
         	}
         }      
 
         if (properties.getProperty("RtmMessages") != null) {
         	boolean dispRtmPanel = Boolean.valueOf(properties.getProperty("RtmMessages")).booleanValue();
-        	Gui.getInstance().displayRunTimeMessagesPane(dispRtmPanel);
+        	OZvm.getInstance().getGui().displayRunTimeMessagesPane(dispRtmPanel);
         }      
 
         if (properties.getProperty("Z88Keyboard") != null) {
         	boolean dispZ88Kb = Boolean.valueOf(properties.getProperty("Z88Keyboard")).booleanValue();
-        	Gui.getInstance().displayZ88Keyboard(dispZ88Kb);
+        	OZvm.getInstance().getGui().displayZ88Keyboard(dispZ88Kb);
         }      
         if (properties.getProperty("Z88CardSlots") != null) {
         	boolean dispZ88CrdSlots = Boolean.valueOf(properties.getProperty("Z88CardSlots")).booleanValue();
-        	Gui.getInstance().displayZ88CardSlots(dispZ88CrdSlots);
+        	OZvm.getInstance().getGui().displayZ88CardSlots(dispZ88CrdSlots);
         }      
         
         if (properties.getProperty("Autorun") != null)
