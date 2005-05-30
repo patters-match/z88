@@ -147,6 +147,7 @@
      XREF rw_date
      XREF Use_StdTranslations
      XREF Dump_serport_in_byte, serdmpfile_in, serdmpfile_out
+     XREF SafeSegmentMask
 
      XDEF ErrHandler
      XDEF Write_message
@@ -164,8 +165,11 @@ IF DEBUGGING
 ; Run EazyLink Server inside Intuition application
 
     ORG $4000
-
-    JR continue_ez   ; skip popdown init code
+               LD   HL,SafeSegmentMask+6              ; patch SafeSegmentMask library to use segment 2 ($8000)
+               LD   (HL),$3E
+               INC  HL
+               LD   (HL),$80                          ; LD A,$80
+               JR   continue_ez                       ; skip popdown init code
 
 ELSE
      ORG $C000
