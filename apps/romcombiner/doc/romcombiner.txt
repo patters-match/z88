@@ -27,6 +27,11 @@ available from the Z88 Forever! website.
 
 Using the program
 =================
+RomCombiner is a collection of three files: 'romcombiner.bas', 
+'romutil.bas' and 'romcombiner.bin'. Load all three files into your
+Z88 in the same directory, start a BBC BASIC application with #B and
+RUN "ROMCOMBINER.BAS".
+
 The main menu provides eight options, allowing you to create image
 files from a ROM in the Z88, combine one or more sets of images, and
 program a blank EPROM with a set of images. You can also check EPROMs
