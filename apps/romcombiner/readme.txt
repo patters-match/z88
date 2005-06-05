@@ -26,6 +26,9 @@ contains the functionality to erase/program flash cards and
 program traditional 32K, 128K or 256K Eproms. Upload the
 'romcombiner.bin' file to your Z88 in the same directory as
 the two BBC BASIC programs.
+To compile the assembler file you need the 'mpm' assembler
+and related standard Z88 library. All can be fetched from
+the CVS source repository at http://www.sf.et/project/z88.
 
 6) Start a new BBC BASIC application with #B and RUN "romcombiner.bas"
 Please refer to 'doc/romcombiner.txt' for instructions to use
