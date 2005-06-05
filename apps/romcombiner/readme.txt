@@ -28,7 +28,7 @@ program traditional 32K, 128K or 256K Eproms. Upload the
 the two BBC BASIC programs.
 To compile the assembler file you need the 'mpm' assembler
 and related standard Z88 library. All can be fetched from
-the CVS source repository at http://www.sf.et/project/z88.
+the CVS source repository at http://sourceforge.net/projects/z88.
 
 6) Start a new BBC BASIC application with #B and RUN "romcombiner.bas"
 Please refer to 'doc/romcombiner.txt' for instructions to use
