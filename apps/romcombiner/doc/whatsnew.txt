@@ -4,7 +4,7 @@ ROMCombiner v2.02 - What's New?
 ROMCombiner has been updated to use the latest Flash Card technology
 from Rakewell Ltd. The Flash Cards uses Flash chips from AMD and can
 be updated in any slot (erase/write data). To maintain user interface
-functionality, all Flash Cards are that managed by ROMCombiner are
+functionality, all Flash Cards that are managed by ROMCombiner, are
 to be inserted in slot 3.
 
 Gunther Strube, 9th January 2005
