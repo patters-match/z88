@@ -1,0 +1,244 @@
+.; *************************************************************************************
+.; RomCombiner - utilities
+.; (c) Garry Lancaster, 2000-2005 (yahoogroups@zxplus3e.plus.com)
+.;
+.; RomCombiner is free software; you can redistribute it and/or modify it under the terms of the
+.; GNU General Public License as published by the Free Software Foundation;
+.; either version 2, or (at your option) any later version.
+.; RomCombiner is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+.; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.; See the GNU General Public License for more details.
+.; You should have received a copy of the GNU General Public License along with RomCombiner;
+.; see the file COPYING. If not, write to the
+.; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+.;
+.; $Id$
+.;
+.; *************************************************************************************
+#B
+.J
+NEW
+   10 *NAME RomCombiner
+   20 HIMEM=&BA00
+   30 DIM bank% 16383
+   40 DIM fname 255
+   50 DIM inbuffer 255
+   70 blowbank=&BA00:readbank=&BA94:eraseflash=&BAA8:checkbank=&BA72
+  140 WaitLS%=W%:ShowApps%=S%
+  150 $inbuffer=""
+  160 r1$=CHR$(1)+"2+R":r0$=CHR$(1)+"2-R"
+  170 b1$=CHR$(1)+"2+B":b0$=CHR$(1)+"2-B"
+  180 PROCload(":*//romcombiner.bin",blowbank)
+  190 IF F%=1 THEN PROCBlowROM
+  200 IF F%=2 THEN PROCFlashErase
+  210 IF F%=3 THEN PROCEprConvert
+  220 IF F%=4 THEN PROCReadROM
+  230 IF F%=5 THEN PROCVerify
+  240 RUN "ROMCOMBINER.BAS"
+
+ 1100 DEF PROCDispTitle
+ 1110 CLS
+ 1120 PRINT r1$;"  RomCombiner v2.02 (c) Garry Lancaster, 2000-2005  ";r0$;
+ 1130 PRINT "  Pause mode ";
+ 1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
+ 1150 PRINT "  Display mode ";
+ 1160 IF ShowApps% THEN PRINT "ON" ELSE PRINT "OFF"
+ 1170 ENDPROC
+
+ 3250 DEF PROCErrMsg(err$)
+ 3260 LOCAL I%
+ 3270 PRINT err$
+ 3280 VDU 7
+ 3290 I%=INKEY(300)
+ 3300 ENDPROC
+
+ 3310 DEF PROCsave($fname)
+ 3320 LOCAL H%,L%,D%,E%,B%,C%,K
+ 3340 L%=fname
+ 3350 E%=bank%:C%=16384
+ 3360 H%=L% DIV 256:D%=E% DIV 256:B%=C% DIV 256
+ 3370 CALL(&FEA6)
+ 3380 IF WaitLS% THEN PRINT "  Image ";$fname;" saved - press any key":K=GET
+ 3390 $inbuffer=$fname:bufchange%=FALSE
+ 3400 ENDPROC
+
+ 3410 DEF PROCload($fname,E%)
+ 3420 LOCAL H%,L%,D%,B%,C%,K
+ 3430 IF $inbuffer=$fname THEN ENDPROC
+ 3450 IF WaitLS% THEN PRINT "  Press any key to load image ";$fname:K=GET
+ 3460 L%=fname
+ 3470 H%=L% DIV 256:D%=E% DIV 256:B%=255:C%=255
+ 3480 CALL(&FEA3)
+ 3490 $inbuffer=$fname
+ 3500 ENDPROC
+
+ 3610 DEF FNGetb(add%)
+ 3620 =bank%?(add% AND &3FFF)
+
+ 3630 DEF FNGetc$(add%)
+ 3640 =CHR$(bank%?(add% AND &3FFF))
+
+ 3680 DEF FNbankfile$(N$,B%)
+ 3690 =N$+"."+STR$(B%)
+
+ 3750 DEF PROCReadBank(N$,I%)
+ 3760 PRINT "Creating image of bank ";I%
+ 3770 B%=S%*64+I%
+ 3780 D%=bank% DIV 256:E%=bank% MOD 256
+ 3790 CALL(readbank)
+ 3800 bufchange%=TRUE
+ 3810 PROCsave(FNbankfile$(N$,I%))
+ 3820 ENDPROC
+
+ 3830 DEF PROCReadROM
+ 3840 LOCAL K$,I%,BK%,BK2%
+ 3850 PROCDispTitle
+ 3860 PRINT
+ 3870 INPUT "Read ROM from which slot (1-3)";S%
+ 3880 IF S%<1 OR S%>3 THEN PROCErrMsg("Invalid slot!"):ENDPROC
+ 3890 INPUT "Card name";N$
+ 3900 PRINT b1$;"F";b0$;"ull ROM or ";b1$;"R";b0$;"ange of banks?"
+ 3910 REPEAT
+ 3920   K$=GET$
+ 3930 UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
+ 3940 IF K$="F" OR K$="f" THEN 4030
+ 3950 INPUT "First bank (0-63)";BK%
+ 3960 IF BK%<0 OR BK%>63 THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 3970 INPUT "Last bank (0-63)";BK2%
+ 3980 IF BK2%<0 OR BK2%>63 OR BK2%<BK% THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 3990 FOR I%=BK% TO BK2%
+ 4000   PROCReadBank(N$,I%)
+ 4010 NEXT I%
+ 4020 GOTO 4120
+ 4030 B%=S%*64+63
+ 4040 D%=bank% DIV 256:E%=bank% MOD 256
+ 4050 CALL(readbank)
+ 4060 OZ$=FNGetc$(&3FFE)+FNGetc$(&3FFF)
+ 4070 IF OZ$<>"OZ" AND OZ$<>"oz" THEN PROCErrMsg("Card not detected!"):ENDPROC
+ 4080 CS%=FNGetb(&3FFC):IF CS%=0 OR CS%>64 THEN PROCErrMsg("Invalid ROM card!"):ENDPROC
+ 4090 FOR I%=63 TO 64-CS% STEP -1
+ 4100   PROCReadBank(N$,I%)
+ 4110 NEXT I%
+ 4120 PRINT "Images successfully created! - press any key"+CHR$(7):K=GET
+ 4130 ENDPROC
+
+ 4140 DEF FNBlowBank(N$,B%)
+ 4150 PRINT "Blowing bank ";B%
+ 4160 PROCload(FNbankfile$(N$,B%),bank%)
+ 4170 D%=bank% DIV 256:E%=bank% MOD 256
+ 4180 C%=&69:IF EP%=32 THEN C%=&48 ELSE IF EP%=0 THEN C%=0
+ 4190 =(USR(blowbank)/&10000) AND &FFFF
+
+ 4200 DEF PROCBlowROM
+ 4210 LOCAL K$,F,FLASH,I%,BK%,BK2%
+ 4220 PROCDispTitle
+ 4230 PRINT
+ 4240 F=0:FLASH=0
+ 4250 INPUT "What EPROM type is in slot 3 (32, 128, 256 or FLASH)";EP%
+ 4260 IF EP%<>32 AND EP%<>128 AND EP%<>256 AND EP%<>0 THEN PROCErrMsg("Invalid EPROM type!"):ENDPROC
+ 4270 INPUT "Card name";N$
+ 4280 PRINT b1$;"F";b0$;"ull ROM or ";b1$;"R";b0$;"ange of banks?"
+ 4290 REPEAT
+ 4300   K$=GET$
+ 4310 UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
+ 4320 IF K$="F" OR K$="f" THEN 4440
+ 4330 INPUT "First bank (0-63)";BK%
+ 4340 IF BK%<0 OR BK%>63 THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 4350 INPUT "Last bank (0-63)";BK2%
+ 4360 IF BK2%<0 OR BK2%>63 OR BK2%<BK% THEN PROCErrMsg("Invalid bank!"):ENDPROC
+ 4370 FOR I%=BK% TO BK2%
+ 4380   IF FNmissing(FNbankfile$(N$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 4410
+ 4390   X%=FNBlowBank(N$,I%)
+ 4400   IF X% THEN PROCErrMsg("Error blowing bank "+STR$(I%)+" at byte "+STR$(X%-49152)):I%=100
+ 4410 NEXT I%
+ 4420 IF I%<100 PRINT "Banks successfully blown!"+CHR$(7)
+ 4430 GOTO 4540
+ 4440 IF FNmissing(FNbankfile$(N$,63)) THEN PROCErrMsg("Card images not found!"):ENDPROC
+ 4450 PROCload(FNbankfile$(N$,63),bank%)
+ 4460 CS%=FNGetb(&3FFC)
+ 4470 IF CS%=0 OR CS%>64 THEN PROCErrMsg("Invalid card!"):ENDPROC
+ 4480 FOR I%=64-CS% TO 63
+ 4485   IF FNmissing(FNbankfile$(N$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 4510
+ 4490   X%=FNBlowBank(N$,I%)
+ 4500   IF X% THEN PROCErrMsg("Error blowing EPROM at byte "+STR$(X%-49152)):I%=100
+ 4510 NEXT I%
+ 4515 IF I%>=100 GOTO 4540
+ 4520 PRINT "ROM successfully blown!"+CHR$(7)
+ 4530 PRINT "Go to Index, remove card, close flap and re-insert card to activate"
+ 4540 PRINT "Press any key to continue":K=GET
+ 4550 ENDPROC
+
+ 4560 DEF FNmissing(N$)
+ 4570 LOCAL X%
+ 4580 X%=OPENIN(N$)
+ 4590 IF X% THEN CLOSE#X%:X%=FALSE ELSE X%=TRUE
+ 4600 =X%
+
+ 4610 DEF PROCFlashErase
+ 4620 LOCAL E%
+ 4630 REPEAT
+ 4640   PROCDispTitle
+ 4650   PRINT
+ 4660   INPUT "Flash EPROM block to erase (1-16,256=all,0=end)";E%
+ 4670   E%=E%-1
+ 4680   IF E%<0 THEN 4700
+ 4690   IF ((USR(eraseflash)/&10000) AND &FFFF) THEN PROCErrMsg("Error erasing Flash EPROM block!") ELSE PROCErrMsg("Successful!")
+ 4700 UNTIL E%<0
+ 4710 ENDPROC
+
+ 4720 DEF PROCVerify
+ 4730 LOCAL K$,B%,S%,F%,P%
+ 4740 PROCDispTitle
+ 4750 PRINT
+ 4751 PRINT b1$;"F";b0$;"ull EPROM or ";b1$;"R";b0$;"ange of banks?"
+ 4752 REPEAT
+ 4753   K$=GET$
+ 4754 UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
+ 4755 IF K$="R" OR K$="r" THEN 4760
+ 4756 REPEAT:INPUT "EPROM size (32-1024)";F%:S%=64-(F% DIV 16)
+ 4758 UNTIL (S%>=0) AND (S%<=62) AND ((F% MOD 16)=0)
+ 4759 F%=63:GOTO 4780
+ 4760 REPEAT:INPUT "First bank to verify (0-63)";S%:UNTIL S%>=0 AND S%<=63
+ 4770 REPEAT:INPUT "Last bank to verify (0-63)";F%:UNTIL F%>=S% AND F%<=63
+ 4780 P%=TRUE
+ 4790 FOR B%=S% TO F%
+ 4800   IF (USR(checkbank)/&10000) AND &FFFF THEN PROCErrMsg("Bank "+STR$(B%)+" not properly erased!"):P%=FALSE
+ 4810 NEXT B%
+ 4820 IF P% THEN PROCErrMsg("Bank(s) properly erased and ready to program!")
+ 4830 ENDPROC
+
+ 4840 DEF PROCEprConvert
+ 4850 LOCAL N$,X%,SZ%,I%,J%,Q$
+ 4860 PROCDispTitle
+ 4870 PRINT
+ 4880 INPUT "Name of card to convert";N$
+ 4890 X%=OPENIN(N$+".epr")
+ 4900 IF X%=0 THEN 5010
+ 4910 PRINT "Creating bank images from .EPR file..."
+ 4920 SZ%=EXT#X% DIV 16384
+ 4930 IF (EXT#X% MOD 16384)<>0 OR SZ%=0 THEN PROCErrMsg("Invalid emulator file!"):ENDPROC
+ 4940 FOR I%=64-SZ% TO 63
+ 4950   PRINT "Generating bank ";I%
+ 4960   FOR J%=0 TO 16383:bank%?J%=BGET#X%:NEXT J%
+ 4970   bufchange%=TRUE
+ 4980   PROCsave(FNbankfile$(N$,I%))
+ 4990 NEXT I%
+ 5000 GOTO 5140
+ 5010 IF FNmissing(FNbankfile$(N$,63)) THEN PROCErrMsg("Card not found!"):ENDPROC
+ 5020 PROCload(FNbankfile$(N$,63),bank%)
+ 5030 SZ%=FNGetb(&3FFC)
+ 5040 IF (FNGetc$(&3FFE)+FNGetc$(&3FFF)<>"OZ") OR SZ%=0 THEN PROCErrMsg("Invalid application card!"):ENDPROC
+ 5050 INPUT "Delete source images (Y/N)";Q$
+ 5060 PRINT "Creating .EPR file from bank images..."
+ 5070 X%=OPENOUT(N$+".epr")
+ 5080 FOR I%=64-SZ% TO 63
+ 5090   PRINT "Adding bank ";I%
+ 5095   IF FNmissing(FNbankfile$(N$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 5130
+ 5100   PROCload(FNbankfile$(N$,I%),bank%)
+ 5110   IF ASC(Q$)=ASC("Y") OR ASC(Q$)=ASC("y") THEN OSCLI("*ERASE "+FNbankfile$(N$,I%))
+ 5120   FOR J%=0 TO 16383:BPUT#X%,bank%?J%:NEXT J%
+ 5130 NEXT I%
+ 5140 IF I%>=100 THEN PROCErrMsg("Incomplete!") ELSE PROCErrMsg("Completed!")
+ 5150 CLOSE#X%
+ 5160 ENDPROC
+
