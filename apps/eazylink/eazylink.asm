@@ -107,7 +107,14 @@
 ; V5.0, 20.12.97         Several messages were not placed in log window. Now fixed.
 ;                        OZ internal keyboard queue purged while using hardware scanning
 ;                        of keybard.
-
+;
+; V5.0.4, 07.06.2005     Serial port logging to "/serdump.in" and "/serdump.out".
+;                        (Implemented as MTH commands)
+;                        Auto Software handshaking used for PCLINK II protocol: Xon/Xoff Yes
+;                        Auto Hardware handshaking used for EazyLink protocol (Xon/Xoff No)
+;                        (Software handshaking is default when EazyLink is started)
+;                        "PCLINK II" blinking message in topic window during PCLINK II protocol
+;
 
     ; Various constant & operating system definitions...
 
@@ -134,7 +141,7 @@
      XREF msg_serdmpfile_enable, msg_serdmpfile_disable
      XREF Message1, Message2, Message10, Message11, Message12, Message13, Message21, Message22
      XREF Message23, Message24, Message25, Message26, Message27, Message28
-     XREF Message29, Message30, Message31, Message32, Message33, Message34
+     XREF Message29, Message30, Message31, Message32, Message33, Message34, Message35, Message36
      XREF Error_Message0, Error_Message1, Error_Message2, Error_Message3
      XREF Error_Message4, Error_Message5, Error_Message6
      XREF Serial_port, BaudRate, No_parameter, Yes_Parameter, EasyLinkVersion
@@ -149,6 +156,11 @@
      XREF Dump_serport_in_byte, serdmpfile_in, serdmpfile_out
      XREF SafeSegmentMask
 
+     XREF EazyLinkTopics
+     XREF EazyLinkCommands
+     XREF EazyLinkHelp
+
+
      XDEF ErrHandler
      XDEF Write_message
      XDEF Msg_File_Open_error, Msg_Protocol_error, Msg_file_aborted, Msg_No_Room
@@ -160,12 +172,13 @@
      XDEF ESC_V_cmd, ESC_X_cmd, ESC_U_cmd, ESC_U_cmd2, ESC_F_cmd
      XDEF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd
      XDEF ESC_G_cmd2, ESC_M_cmd, ESC_P_cmd, ESC_E_cmd, ESC_M_cmd2
+     XDEF UseHardwareHandshaking, UseSoftwareHandshaking
 
 IF DEBUGGING
-; Run EazyLink Server inside Intuition application
+; Run EazyLink Server inside Intuition debugger application
 
     ORG $4000
-               LD   HL,SafeSegmentMask+6              ; patch SafeSegmentMask library to use segment 2 ($8000)
+               LD   HL,SafeSegmentMask+6              ; patch SafeSegmentMask library to always use segment 2 ($8000)
                LD   (HL),$3E
                INC  HL
                LD   (HL),$80                          ; LD A,$80
@@ -199,25 +212,19 @@ ELSE
                DEFB 0                                ; no caps lock
 .InfoEnd6      DEFB 'H'                              ; Key to help section
                DEFB 12                               ; total length of help section
-               DEFW EasyLink1_DOR
-               DEFB $3F                              ; No topics - point to 3 zeros
-               DEFW EasyLink1_DOR
-               DEFB $3F                              ; No commands
-               DEFW EasyLink_Notice
+               DEFW EazyLinkTopics
+               DEFB $3F                              ; topics 'Command'
+               DEFW EazyLinkCommands
+               DEFB $3F                              ; commands
+               DEFW EazyLinkHelp
                DEFB $3F
-               DEFB 0, 0, 0
+               DEFB 0, 0, 0                          ; no token base
                DEFB 'N'                              ; Key to name section
                DEFB NameEnd6-NameStart6              ; length of name
 .NameStart6    DEFM "EazyLink", 0
 .NameEnd6      DEFB $FF
 .DOREnd6
 ENDIF
-
-.EasyLink_notice
-               DEFB $7F
-               DEFM "EazyLink V5.0.3 - flexible file transfer", $7F
-               DEFB 0
-
 
 
 ; ***************************************************************************************************
@@ -388,9 +395,9 @@ ENDIF
                JR   Z, MVbar_down
                CP   IN_UP                         ; Cursor Up ?
                JR   Z, MVbar_up
-               CP   EOT
+               CP   EazyLink_CC_dbgOn
                CALL Z,EnableSerportLogging        ; <>D, Enable Serial port logging
-               CP   SUB
+               CP   EazyLink_CC_dbgOff
                CALL Z,DisableSerportLogging         ; <>Z, Disable Serial port logging
                JR   main_loop                     ; ignore keypress, get another...
 
@@ -428,9 +435,10 @@ ENDIF
                LD   HL, -1
                LD   (PopDownTimeout),HL           ; reset timeout to approx 10 minutes
 .ReadKeyboard_loop
-               LD   BC,5                          ; keyboard polled, now check serial port...
-               LD   IX,(serport_handle)
+               LD   BC,10                         ; keyboard polled, now check for serial port in 1/10 sec...
+               LD   IX,(serport_Inp_handle)
                CALL_OZ (Os_Gbt)                   ; get a byte from serial port
+               CALL C, CheckHandshakeMode         ; probably timeout from serial port, check for handshake signal
                CALL C, Errhandler                 ; no byte available (or ESC pressed)...
                CALL NC,Dump_serport_in_byte       ; save a copy to the log dump file
                JR   NC, evaluate_byte             ; then let it be processed by main loop.
@@ -443,6 +451,42 @@ ENDIF
                POP  HL                            ; remove this RETurn address
                POP  HL                            ; get RETurn address to Fetch_synch
                JP   (HL)
+
+
+; ******************************************************************************************
+; When there is a pause in the byte stream (a timeout occurred), check if a serial port
+; handshake change was signaled in the previous main Fetch synch loop.
+; If a change was signaled and the current serial port handshake settings are
+; different to the signaled handshake mode, then re-configure the serial port while
+; there is no communication activity from the client.
+;
+.CheckHandshakeMode
+               PUSH AF
+               PUSH BC
+
+               LD   A,(PollHandshakeCounter)      ; get timeout counter for handshake check
+               INC  A
+               CP   20
+               JR   NZ, exit_handshake_change     ; we're not allowing a handshake check until 2 seconds has passed
+
+               LD   A,(CurrentSerportMode)
+               LD   B,A                           ; get current serial handshake mode
+               LD   A,(SignalSerportMode)
+               OR   A
+               JR   Z, no_handshake_change        ; no handshake change was signaled
+               CP   B
+               JR   Z, no_handshake_change        ; synch loop signaled current handshake
+               CP   SerportXonXoffMode
+               CALL Z, UseSoftwareHandshaking     ; change from Hardware Handshake to Xon/Xoff Handshake
+               CALL NZ,UseHardwareHandshaking     ; change from Xon/Xoff Handshake to Hardware Handshake
+.no_handshake_change
+               XOR  A
+               LD   (SignalSerportMode),A         ; clear handshake signal flag
+.exit_handshake_change
+               LD   (PollHandshakeCounter),A      ; update timeout counter for next call to this routine
+               POP  BC
+               POP  AF
+               RET
 
 
 ; ******************************************************************************************
@@ -461,9 +505,9 @@ ENDIF
                RET  Z
                CP   IN_ENT
                RET  Z
-               CP   EOT                 ; <>D
+               CP   EazyLink_CC_dbgOn   ; <>D
                RET  Z
-               CP   SUB                 ; <>Z
+               CP   EazyLink_CC_dbgOff  ; <>Z
                RET  Z
                XOR  A
                RET
@@ -576,6 +620,12 @@ ENDIF
                CALL Check_synch                   ; is it really a synch?
                RET  C                             ; return on system error
                JR   Z,Fetch_synch_loop            ; timeout or bad synch...
+
+               XOR  A
+               LD   (PollHandshakeCounter),A      ; reset timeout counter for handshake check
+               LD   A,SerportHardwareMode         ; EazyLink protocol...
+               LD   (SignalSerportMode),A         ; signal that hardware handshake is needed
+
                CALL Send_synch                    ; acknowledge synch to terminal
                RET  C                             ; return on system error
                JR   Z,Fetch_synch_loop            ; timeout - communication stopped
@@ -593,11 +643,19 @@ ENDIF
                CALL Check_synch                   ; is it really a synch?
                RET  C                             ; return on system error
                JR   Z,Fetch_synch_loop            ; timeout or bad synch...
+
+               XOR  A
+               LD   (PollHandshakeCounter),A      ; reset timeout counter for handshake check
+               LD   A,SerportXonXoffMode          ; Pclink II protocol...
+               LD   (SignalSerportMode),A         ; signal that software handshake is needed
+               CALL DisplayPclinkIIText           ; display a flashing 'PCLINK II' text in topic window
+
                CALL Send_synch                    ; acknowledge - B = length of synch
                RET  C                             ; return on system error
                JR   Z,Fetch_synch_loop            ; timeout - communication stopped
                CALL Pclink_ESC_commands           ; synch sent - wait for commands
                RET  C                             ; return on system error
+               CALL Z,RemovePclinkIIText
                JR   Z,Fetch_synch                 ; command executed, wait for new
                RET                                ; ESC "Q" command received...
 
@@ -659,14 +717,86 @@ ENDIF
 .greycmdwin    DEFM 1, "2H2", 1, "2G+", 0
 
 
+; ***********************************************************************
+; A = SerportXonXoffMode
+;
+.UseSoftwareHandshaking
+               PUSH AF
+               PUSH BC
+               PUSH HL
+               LD  (CurrentSerportMode),A         ; remember new setting
+
+               LD   HL, Message35
+               Call Write_Message                 ; "Switching to Xon/Xoff serial port handshake"
+
+               CALL Close_serialport              ; close streams to serial port...
+               CALL Use_Software_Handshaking      ; For PCLINK II protocol, use 9600 Tx/Rx, Parity No, Xon/Xoff Yes
+               CALL Open_serialport               ; re-open with new settings...
+
+               POP  HL
+               POP  BC
+               POP  AF
+               RET
+
+; ***********************************************************************
+; A = UseHardwareHandshaking
+;
+.UseHardwareHandshaking
+               PUSH AF
+               PUSH BC
+               PUSH HL
+    LD  (CurrentSerportMode),A         ; remember new setting
+
+               LD   HL, Message36
+               Call Write_Message                 ; "Switching to Hardware serial port handshake"
+
+               CALL Close_serialport              ; close streams to serial port...
+               CALL Use_Hardware_Handshaking      ; For EazyLink protocol, use 9600 Tx/Rx, Parity No, Xon/Xoff No
+               CALL Open_serialport               ; re-open with new settings...
+
+               POP  HL
+               POP  BC
+               POP  AF
+               RET
+
+
+; ***********************************************************************
+; Display a flashing 'PCLINK II' text in bottom of topic window.
+; (while a PCLINK II command is being executed)
+;
+.DisplayPclinkIIText
+               PUSH AF
+               PUSH HL
+               LD   HL, pclink2txt
+               CALL_OZ(GN_Sop)
+               POP  HL
+               POP  AF
+               RET
+.pclink2txt    DEFM 1, "2H7", 1, '3', '@', 32+0, 32+7, 1, "2+F", 1, "2-G", "PCLINK II", 1, "2-F", 0
+
+
+; ***********************************************************************
+; Remove the flashing 'PCLINK II' text in bottom of topic window.
+; (a PCLINK II command was completed)
+;
+.RemovePclinkIIText
+               PUSH AF
+               PUSH HL
+               LD   HL, removepcl2txt
+               CALL_OZ(GN_Sop)
+               POP  HL
+               POP  AF
+               RET
+.removepcl2txt DEFM 1, "2H7", 1, '3', '@', 32+0, 32+7, 1, '2', 'C', 253, 0
+
 
 ; ***********************************************************************
 .Calc_HexNibble
-               CP   '@'                           ; digit >= "A"?
+               CP   $3A                           ; digit >= "A"?
                JR   NC,hex_alpha                  ; digit is in interval "A" - "F"
-               SUB  48                            ; digit is in interval "0" - "9"
+               SUB  $30                           ; digit is in interval "0" - "9"
                RET
-.hex_alpha     SUB  55
+.hex_alpha     SUB  $37
                RET
 
 
@@ -1550,11 +1680,18 @@ ENDIF
 
 ; ***********************************************************************
 .Open_serialport
-               LD   A,op_up
+               LD   A,op_in
                LD   HL,serial_port
                LD   DE,filename_buffer
-               CALL Get_file_handle               ; get INPUT/OUTPUT handle for ":COM.0" device
-               LD   (serport_handle), IX
+               PUSH DE
+               PUSH HL
+               CALL Get_file_handle               ; get INPUT handle for ":COM.0" device
+               LD   (serport_Inp_handle), IX
+               LD   A,op_out
+               POP  HL
+               POP  DE
+               CALL Get_file_handle               ; get OUTPUT handle for ":COM.0" device
+               LD   (serport_Out_handle), IX
                RET
 
 
@@ -1562,7 +1699,9 @@ ENDIF
 .Close_serialport
                PUSH AF
                PUSH IX
-               LD   IX,(serport_handle)
+               LD   IX,(serport_Inp_handle)
+               CALL_OZ(Gn_Cl)
+               LD   IX,(serport_Out_handle)
                CALL_OZ(Gn_Cl)
                POP  IX
                POP  AF
@@ -1682,7 +1821,7 @@ ENDIF
                CALL Fetch_PanelSettings
 
                ; Relevant parameters are now copied. Install now (temporarily) the new
-               ; serial port parameters (9600 baud , No Xon/Xoff, No Parity):
+               ; serial port parameters (9600 baud,  Parity No, Xon/Xoff Yes):
 
                CALL Define_PanelSettings
                RET
@@ -1718,22 +1857,36 @@ ENDIF
 
 
 ; ***********************************************************************
-; serial port parameters: 9600 baud, No Xon/Xoff, No Parity
+; Default Serial port parameters: 9600 baud, Xon/Xoff yes, Parity No
+; (Software handshaking is default, when EazyLink starts up)
 ;
 .Define_PanelSettings
+               XOR  A
+               LD   (SignalSerportMode),A         ; no handshake yet to be signaled
+               LD   A,SerportXonXoffMode
+               LD   (CurrentSerportMode),A        ; default software handshake
+
                LD   A, 2                          ; word size
                LD   BC, PA_Txb                    ; new transmit baud rate, 9600
                LD   HL, BaudRate
                CALL_OZ (Os_Sp)
                LD   BC, PA_Rxb                    ; new receive baud rate, 9600
                CALL_OZ (Os_Sp)
+               LD   BC, PA_Par                    ; Parity No
+               LD   HL, No_Parameter
+               CALL_OZ (Os_Sp)
+.Use_Software_Handshaking
+               LD   A, 1
+               LD   BC, PA_Xon                    ; Xon/Xoff Yes (default)
+               LD   HL, Yes_Parameter
+               CALL_OZ (Os_Sp)
+               JR   install_settings
+.Use_Hardware_Handshaking
                LD   A, 1
                LD   BC, PA_Xon                    ; Xon/Xoff No
                LD   HL, No_Parameter
                CALL_OZ (Os_Sp)
-               LD   BC, PA_Par                    ; No Parity
-               LD   HL, No_Parameter
-               CALL_OZ (Os_Sp)
+.install_settings
                XOR  A
                LD   BC, PA_Gfi                    ; install new parameters
                CALL_OZ (Os_Sp)
@@ -1785,7 +1938,8 @@ ENDIF
 ;
 .InitHandles   PUSH HL
                LD   HL,0
-               LD   (serport_handle),HL
+               LD   (serport_Inp_handle),HL
+               LD   (serport_Out_handle),HL
                LD   (serfile_in_handle),HL
                LD   (serfile_out_handle),HL
                LD   (file_handle),HL
@@ -1874,4 +2028,3 @@ ENDIF
                LD   HL,error_message2
                CALL Write_message                 ; No flags will be changed...
                RET
-

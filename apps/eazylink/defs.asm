@@ -27,8 +27,19 @@ DEFC TotalOfCmds = 33
 
 DEFC RAM_pages = 6                 ; allocate 6 * 256 bytes contigous memory from $2000...
 
+DEFC SerportXonXoffMode = 1        ; Parity No, Xon/Xoff Yes (serial port software handshake)
+DEFC SerportHardwareMode = 2       ; Parity No, Xon/Xoff No (serial port hardware handshake)
+
+; MTH Command Code Definitions
+DEFC EazyLink_CC_dbgOn = $80       ; Serial Dump Enable
+DEFC EazyLink_CC_dbgOff = $81      ; Serial Dump Disable
+
+
 DEFVARS $2000                      ; work space buffer for popdown...
 {
+    CurrentSerportMode   ds.b 1    ; Software (1) or hardware handshake (2) mode
+    SignalSerportMode    ds.b 1    ; a command signals a handshake mode (1 or 2)
+    PollHandshakeCounter ds.b 1    ; Change handshake if signaled after 1 complete second timeout (10 X serial port timeouts)
     UserToggles          ds.b 1    ; various user toggles
     Cpy_PA_Txb           ds.b 3    ; Length byte + 2 byte Txb baud rate
     Cpy_PA_Rxb           ds.b 3    ; Length byte + 2 byte Txb baud rate
@@ -42,7 +53,8 @@ DEFVARS $2000                      ; work space buffer for popdown...
     CRLF_flag            ds.b 1    ; $FF, when active
     buffer               ds.w 1    ; Address of next free byte in buffer
     buflen               ds.b 1    ; Current length of buffer
-    serport_handle       ds.w 1    ; Handle to serial port input.
+    serport_Inp_handle   ds.w 1    ; Handle to serial port input
+    serport_Out_handle   ds.w 1    ; Handle to serial port output.
     serfile_in_handle    ds.w 1    ; Handle to dump file of serial port input
     serfile_out_handle   ds.w 1    ; Handle to dump file of serial port output
     file_handle          ds.w 1    ; Handle of opened file (read/write)

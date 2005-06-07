@@ -42,11 +42,11 @@
     XDEF Fetch_pathname
 
 
-     INCLUDE "defs.asm"
-     INCLUDE "error.def"
-     INCLUDE "fileio.def"
-     INCLUDE "dor.def"
-     INCLUDE "stdio.def"
+    INCLUDE "defs.asm"
+    INCLUDE "error.def"
+    INCLUDE "fileio.def"
+    INCLUDE "dor.def"
+    INCLUDE "stdio.def"
 
 
 ; ***********************************************************************

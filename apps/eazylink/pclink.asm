@@ -36,17 +36,18 @@
     XREF Message11, Message12
     XREF Set_Traflag, Restore_Traflag, SearchFileSystem, Get_directories
     XREF Open_Serialport, Calc_hexnibble
+
     XREF Create_directory
 
     XDEF ESC_A_cmd1, ESC_H_cmd1, ESC_D_cmd1, ESC_N_cmd1, ESC_S_cmd1, ESC_G_cmd1, ESC_Q_cmd1
     XDEF FetchBytes_ackn
     XDEF Def_Ramdev_wildc
 
-     INCLUDE "defs.asm"
-     INCLUDE "fileio.def"
-     INCLUDE "dor.def"
-     INCLUDE "ctrlchar.def"
-     INCLUDE "error.def"
+    INCLUDE "defs.asm"
+    INCLUDE "fileio.def"
+    INCLUDE "dor.def"
+    INCLUDE "ctrlchar.def"
+    INCLUDE "error.def"
 
 
 ; ********************************************************************
@@ -328,6 +329,8 @@
 
 
 ; ***********************************************************************
+; Send files to Z88..
+;
 .Receive_files_ackn
                   CALL Getbyte_raw_ackn              ; byte in A.
                   JR   C, rec_file_aborted           ; system error
@@ -364,29 +367,24 @@
 .transfer_loop_ackn
                   CALL Getbyte_ackn                  ; byte in A.
                   JP   C, ESC_S_aborted              ; system error
-                  JP   Z, ESC_S_aborted              ; timeout...
                   CP   ESC
                   JR   Z,fetch_ESC_ackn
                   JR   byte_to_file_ackn
 .fetch_ESC_ackn
-                  CALL Getbyte_ackn                  ; ESC command ...
+                  CALL Getbyte_raw_ackn              ; ESC command ...
                   JR   C, ESC_S_aborted              ; system error
-                  JR   Z, ESC_S_aborted              ; timeout...
                   CP   'B'
                   JR   NZ, is_eof_reached            ; check for ESC E...
-                  ; ESC B HH sequense...
-                  CALL Getbyte_raw_ackn
+                  CALL Getbyte_raw_ackn              ; ESC B HH sequense...
                   JR   C, ESC_S_aborted              ; system error
-                  JR   Z, ESC_S_aborted              ; timeout...
                   CALL Calc_HexNibble
-                  SLA  A
-                  SLA  A
-                  SLA  A
-                  SLA  A                             ; first hex nibble * 16
+                  RLCA
+                  RLCA
+                  RLCA
+                  RLCA                               ; first hex nibble * 16
                   LD   B,A
                   CALL Getbyte_raw_ackn
                   JR   C, ESC_S_aborted              ; system error
-                  JR   Z, ESC_S_aborted              ; timeout...
                   CALL Calc_HexNibble                ; calculate second 4 bit nibble
                   OR   B                             ; byte calculated.
                   JR   byte_to_file_ackn
@@ -419,7 +417,7 @@
                   JR   Z,ESC_S_aborted
                   CALL Msg_No_Room
                   CALL Msg_file_aborted
-                  LD   A,$01                          ; to acknowledge back to terminal with error...
+                  LD   A,$01                         ; to acknowledge back to terminal with error...
                   CALL Putbyte
                   RET  C
                   XOR  A

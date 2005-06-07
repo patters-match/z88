@@ -39,6 +39,7 @@
     XDEF Message16, Message17, Message18, Message19, Message20, Message21, Message22
     XDEF Message23, Message24, Message25, Message26, Message27, Message28
     XDEF Message29, Message30, Message31, Message32, Message33, Message34
+    XDEF Message35, Message36
     XDEF Error_Message0, Error_Message1, Error_Message2, Error_Message3
     XDEF Error_Message4, Error_Message5
     XDEF ESC_Z, ESC_F, ESC_N, ESC_E, ESC_Y, ESC_B, ESC_ESC, CRLF
@@ -60,14 +61,14 @@
 .TraFilename        DEFM ":*//Translate.dat", 0
 .serial_port        DEFM ":COM.0", 0
 .ramdev_wildcard    DEFM ":RAM.*", 0
-.serdmpfile_in      DEFM ":RAM.-/serdump.in", 0
-.serdmpfile_out     DEFM ":RAM.-/serdump.out", 0
+.serdmpfile_in      DEFM "/serdump.in", 0                        ; create files in default RAM device
+.serdmpfile_out     DEFM "/serdump.out", 0
 .msg_serdmpfile_enable DEFM "Serial port logging enabled"  , 0
 .msg_serdmpfile_disable DEFM "Serial port logging disabled", 0
 .pclink_synch       DEFB 5, 6
 .extended_synch     DEFB 1, 2
 
-.menu_banner        DEFM "EazyLink V5.0.3", 0
+.menu_banner        DEFM "EazyLink V5.0.4", 0
 .command_banner     DEFM "Commands", 0
 .message1           DEFM "Running",    0
 .message2           DEFM "Waiting...", 0
@@ -103,6 +104,8 @@
 .message32          DEFM "Set System Clock", 0
 .message33          DEFM "Get System Clock", 0
 .message34          DEFM "Get Explicit Free Memory", 0
+.message35          DEFM "Switching to Xon/Xoff serial port handshake", 0
+.message36          DEFM "Switching to Hardware serial port handshake", 0
 
 .error_message0     DEFM "Escape pressed....", 0
 .error_message1     DEFM "File open error.", 0
@@ -128,7 +131,7 @@
 .Yes_Parameter      DEFB 'Y'
 
 ; Lookup table of commands available.
-; total of commands defined in "defs_asm"
+; total of commands defined in "defs.asm"
 .EscCommands        DEFB 'A'                 ; PCLINK  II 'Hello'
                     DEFB 'H'                 ; PCLINK  II Devices
                     DEFB 'D'                 ; PCLINK  II Directories

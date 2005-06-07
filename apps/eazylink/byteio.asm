@@ -69,7 +69,7 @@
 ; ***********************************************************************
 .Getbyte          PUSH BC
                   LD   BC,3000                       ; 30 sek. timeout
-                  LD   IX,(serport_handle)
+                  LD   IX,(serport_Inp_handle)
                   CALL_OZ (Os_Gbt)                   ; get a byte from serial port
                   CALL C,Check_timeout
                   JR   C,Getbyte_error
@@ -94,7 +94,7 @@
 ;
 .Getbyte_ackn     PUSH BC
                   LD   BC,3000                       ; 30 sek. timeout
-                  LD   IX,(serport_handle)
+                  LD   IX,(serport_Inp_handle)
                   CALL_OZ (Os_Gbt)                   ; get a byte from serial port
                   CALL C,Check_timeout               ; byte in A
                   JR   C,end_GetbyteAckn
@@ -104,7 +104,8 @@
                   LD   D,A
                   LD   A,0                           ; acknowledge byte...
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
-                  LD   BC,50
+                  LD   BC,1000
+                  LD   IX,(serport_Out_handle)
                   CALL_OZ (Os_Pbt)
                   LD   A,D
                   POP  DE
@@ -127,7 +128,7 @@
 ;
 .Getbyte_raw_ackn PUSH BC
                   LD   BC,3000                       ; 30 sek. timeout
-                  LD   IX,(serport_handle)
+                  LD   IX,(serport_Inp_handle)
                   CALL_OZ (Os_Gbt)                   ; get a byte from serial port
                   CALL C,Check_timeout               ; byte in A
                   JR   C,end_Getbyte_raw_ackn
@@ -137,7 +138,8 @@
                   LD   D,A
                   LD   A,0                           ; acknowledge byte...
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
-                  LD   BC,50
+                  LD   BC,1000
+                  LD   IX,(serport_Out_handle)
                   CALL_OZ (Os_Pbt)
                   LD   A,D
                   POP  DE
@@ -152,7 +154,7 @@
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
                   LD   HL,TraTableIn
                   CALL TranslateByte                 ; A contains translated byte
-                  LD   IX,(serport_handle)
+                  LD   IX,(serport_Out_handle)
                   CALL_OZ (Os_Pb)                    ; send byte to serial port
                   CALL C,Check_timeout               ; byte in A.
                   JR   C,Putbyte_error
@@ -170,12 +172,13 @@
                   LD   HL,TraTableIn
                   CALL TranslateByte                 ; A contains translated byte
                   LD   BC,1000                       ; 10 sek. timeout
-                  LD   IX, (Serport_handle)
+                  LD   IX, (Serport_Out_handle)
                   CALL_OZ (Os_Pbt)                   ; send byte to serial port
                   CALL C,Check_timeout
                   JR   C,error_Putbyte_ackn          ; byte in A.
                   JR   Z,error_Putbyte_ackn
                   LD   BC,3000                       ; 30 sek. timeout.
+                  LD   IX,(serport_Inp_handle)
                   CALL_OZ (Os_Gbt)
                   CALL C,Check_timeout
                   JR   C,error_Putbyte_ackn
@@ -196,12 +199,13 @@
                   PUSH HL                            ; save counter
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
                   LD   BC,1000                       ; 10 sek. timeout
-                  LD   IX, (Serport_handle)
+                  LD   IX, (Serport_Out_handle)
                   CALL_OZ (Os_Pbt)                   ; send byte to serial port
                   CALL C,Check_timeout
                   JR   C,error_Putbyte_raw_ackn      ; byte in A.
                   JR   Z,error_Putbyte_raw_ackn
                   LD   BC,3000                       ; 30 sek. timeout.
+                  LD   IX,(serport_Inp_handle)
                   CALL_OZ (Os_Gbt)
                   CALL C,Check_timeout
                   JR   C,error_Putbyte_raw_ackn
