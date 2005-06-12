@@ -246,13 +246,17 @@ public class Slots extends JPanel {
 								Blink.getInstance().pressHardReset(); // ROM installed, do a hard reset
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(Slots.this, "Selected file couldn't be opened!");
+								Blink.getInstance().signalFlapClosed();
 							} catch (IllegalArgumentException e2) {
 								JOptionPane.showMessageDialog(Slots.this, "Selected file was not a Z88 ROM!");
+								Blink.getInstance().signalFlapClosed();
 							}
 						} 
+					} else {
+						// User aborted...
+						Blink.getInstance().signalFlapClosed();						
 					}
 					
-					Blink.getInstance().signalFlapClosed();
 					Z88display.getInstance().grabFocus();
 				}
 			});			
