@@ -830,23 +830,7 @@ public class Gui extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					if (Blink.getInstance().getZ80engine() != null) {						
 						if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
-							treadMgr.addTask( new Runnable() {
-								public void run() {
-									Blink.getInstance().signalFlapOpened();
-									try { Thread.sleep(100);
-									} catch (InterruptedException e1) {}
-									
-									// press reset button while flap is opened							
-									Blink.getInstance().pressResetButton();
-									
-									try {
-										Thread.sleep(100);
-									} catch (InterruptedException e1) {}
-									
-									// waited a little while, then close flap (hard reset begins...)
-									Blink.getInstance().signalFlapClosed(); 
-								}
-							});	
+							Blink.getInstance().pressHardReset();
 						}
 					} else {
 						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");

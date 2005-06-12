@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.imagero.util.ThreadManager;
+
 import net.sourceforge.z88.screen.Z88display;
 
 
@@ -253,6 +255,27 @@ public final class Blink extends Z80 {
 		int comReg = getBlinkCom();
 		comReg &= ~Blink.BM_COMRAMS;	// COM.RAMS = 0 (lower 8K = Bank 0)
 		PC(0x000);						// execute (soft/hard) reset
+	}
+	
+	public void pressHardReset() {
+		ThreadManager treadMgr = new ThreadManager(); 
+		treadMgr.addTask( new Runnable() {
+			public void run() {
+				signalFlapOpened();
+				try { Thread.sleep(100);
+				} catch (InterruptedException e1) {}
+				
+				// press reset button while flap is opened							
+				pressResetButton();
+				
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e1) {}
+				
+				// waited a little while, then close flap (hard reset begins...)
+				signalFlapClosed(); 
+			}
+		});			
 	}
 	
 	/**
