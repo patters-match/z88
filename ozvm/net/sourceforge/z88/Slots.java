@@ -22,16 +22,23 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import net.sourceforge.z88.datastructures.SlotInfo;
+import net.sourceforge.z88.screen.Z88display;
 
 /**
  * Gui management of insertion and removal of cards in internal and external Z88
@@ -39,6 +46,7 @@ import net.sourceforge.z88.datastructures.SlotInfo;
  */
 public class Slots extends JPanel {
 	
+	private static final String installRomMsg = "Install new ROM?\nWARNING: Installing a ROM will automatically perform a reset";
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
 	private JLabel spaceLabel;
@@ -218,6 +226,36 @@ public class Slots extends JPanel {
 			rom0Button.setForeground(Color.BLACK);
 			rom0Button.setBackground(Color.LIGHT_GRAY);
 			rom0Button.setMargin(new Insets(2, 4, 2, 4));
+			
+			rom0Button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Blink.getInstance().signalFlapOpened();							
+
+					if (JOptionPane.showConfirmDialog(Slots.this, installRomMsg) == JOptionPane.YES_OPTION) {
+						JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
+						chooser.setDialogTitle("Load/install Z88 ROM into slot 0");
+						chooser.setMultiSelectionEnabled(false);
+						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+						int returnVal = chooser.showOpenDialog(Slots.this);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File romFile = new File(chooser.getSelectedFile().getAbsolutePath());
+							
+							try {
+								Memory.getInstance().loadRomBinary(romFile);
+								Blink.getInstance().pressResetButton(); // ROM installed, do a reset
+							} catch (IOException e1) {
+								JOptionPane.showMessageDialog(Slots.this, "Selected file couldn't be opened!");
+							} catch (IllegalArgumentException e2) {
+								JOptionPane.showMessageDialog(Slots.this, "Selected file was not a Z88 ROM!");
+							}
+						} 
+					}
+					
+					Blink.getInstance().signalFlapClosed();
+					Z88display.getInstance().grabFocus();
+				}
+			});			
 		}
 
 		return rom0Button;

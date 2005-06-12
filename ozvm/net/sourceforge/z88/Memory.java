@@ -957,7 +957,7 @@ public final class Memory {
 	 * @param file
 	 * @throws IOException
 	 */
-	public void loadRomBinary(File file) throws IOException {
+	public void loadRomBinary(File file) throws IOException, IllegalArgumentException {
 		RandomAccessFile rom = new RandomAccessFile(file, "r");
 		int fileLength = (int) rom.length(); 
 		rom.close();
@@ -977,7 +977,7 @@ public final class Memory {
 	 * @param iStream input stream from a file ressource
 	 * @throws IOException
 	 */
-	public void loadRomBinary(int size, InputStream iStream) throws IOException {		
+	public void loadRomBinary(int size, InputStream iStream) throws IOException, IllegalArgumentException {		
 		if (size > (1024 * 512)) {
 			throw new IllegalArgumentException("Max 512K ROM!");
 		}
