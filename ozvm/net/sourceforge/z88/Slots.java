@@ -46,7 +46,7 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class Slots extends JPanel {
 	
-	private static final String installRomMsg = "Install new ROM?\nWARNING: Installing a ROM will automatically perform a reset";
+	private static final String installRomMsg = "Install new ROM?\nWARNING: Installing a ROM will automatically perform a hard reset";
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
 	private JLabel spaceLabel;
@@ -243,7 +243,7 @@ public class Slots extends JPanel {
 							
 							try {
 								Memory.getInstance().loadRomBinary(romFile);
-								Blink.getInstance().pressResetButton(); // ROM installed, do a reset
+								Blink.getInstance().pressHardReset(); // ROM installed, do a hard reset
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(Slots.this, "Selected file couldn't be opened!");
 							} catch (IllegalArgumentException e2) {
