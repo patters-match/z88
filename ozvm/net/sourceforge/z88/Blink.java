@@ -19,7 +19,6 @@
 
 package net.sourceforge.z88;
 
-import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,11 +40,6 @@ public final class Blink extends Z80 {
 	public static Blink getInstance() {
 		return singletonContainer.singleton;
 	}
-
-	/**
-	 * "HH.mm.ss.SSS" Time format used when displaying a runtime system message
-	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH.mm.ss.SSS");
 
 	private Breakpoints breakpoints = new Breakpoints();
 
@@ -284,7 +278,7 @@ public final class Blink extends Z80 {
 	public void resetBlinkRegisters() {
 		PB0 = PB1 = PB2 = PB3 = SBR = 0;
 		COM = INT = STA = 0;
-		rtc.TACK = rtc.TMK = rtc.TSTA = ACK = 0;
+		rtc.TMK = rtc.TSTA = 0;
 		rtc.TIM0 = rtc.TIM1 = rtc.TIM2 = rtc.TIM3 = rtc.TIM4 = 0;
 
 		// SR0, SR1, SR2, SR3 = 0
@@ -359,22 +353,34 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Acknowledge Main Blink Interrrupts (ACK)
-	 *
-	 * <PRE>
+	 * Acknowledge Main Blink Interrrupts (INT):
 	 * BIT 6, A19    Acknowledge active high on A19
-	 * BIT 5, FLAP   Acknowledge Flap interrupts
-	 * BIT 3, BTL    Acknowledge battery low interrupt
-	 * BIT 2, KEY    Acknowledge keyboard interrupt
-	 * </PRE>
 	 */
-	private int ACK = 0;
+	public static final int BM_ACKA19 = 0x40;
 
-	public static final int BM_ACKA19 = 0x40;	// Bit 6, Acknowledge A19 interrupt
-	public static final int BM_ACKFLAP = 0x20;	// Bit 5, Acknowledge flap interrupt
-	public static final int BM_ACKBTL = 0x08;	// Bit 3, Acknowledge battery low interrupt
-	public static final int BM_ACKKEY = 0x04;	// Bit 2, Acknowledge keyboard interrupt
-	public static final int BM_ACKTIME = 0x01;	// Bit 0, Acknowledge TIME interrupt
+	/**
+	 * Acknowledge Main Blink Interrrupts (INT):
+	 * BIT 5, FLAP   Acknowledge Flap interrupts
+	 */
+	public static final int BM_ACKFLAP = 0x20;
+
+	/**
+	 * Acknowledge Main Blink Interrrupts (INT):
+	 * BIT 3, BTL    Acknowledge battery low interrupt
+	 */
+	public static final int BM_ACKBTL = 0x08;
+
+	/**
+	 * Acknowledge Main Blink Interrrupts (INT):
+	 * BIT 2, KEY    Acknowledge keyboard interrupt
+	 */
+	public static final int BM_ACKKEY = 0x04;
+
+	/**
+	 * Acknowledge Main Blink Interrrupts (INT):
+	 * Bit 0, TIME   Acknowledge TIME interrupt
+	 */
+	public static final int BM_ACKTIME = 0x01; 
 
 	/**
 	 * Set Main Blink Interrupt Acknowledge (ACK), Z80 OUT Register
@@ -1361,7 +1367,7 @@ public final class Blink extends Z80 {
 
 			// enable minute, second and 1/100 second interrups
 			TMK = BM_TMKMIN | BM_TMKSEC | BM_TMKTICK;
-			TSTA = TACK = 0;
+			TSTA = 0;
 		}
 
 		private final class Counter extends TimerTask {
@@ -1498,11 +1504,6 @@ public final class Blink extends Z80 {
 		public static final int BM_TMKSEC = 0x02;
 		// Set to enable tick interrupt
 		public static final int BM_TMKTICK = 0x01;
-
-		/**
-		 * TACK, Timer interrupt acknowledge, Z80 OUT Write Register
-		 */
-		private int TACK = 0;
 
 		// Set to acknowledge minute interrupt
 		public static final int BM_TACKMIN = 0x04;
