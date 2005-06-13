@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -46,7 +48,9 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class Slots extends JPanel {
 	
-	private static final String installRomMsg = "Install new ROM?\nWARNING: Installing a ROM will automatically perform a hard reset";
+	private static final String installRomMsg = "Install new ROM in slot 0?\nWARNING: Installing a ROM will automatically perform a hard reset!";
+	private static final String installRamMsg = "Install new RAM into slot 0?\nWARNING: Installing RAM will automatically perform a hard reset!";
+	
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
 	private JLabel spaceLabel;
@@ -257,6 +261,7 @@ public class Slots extends JPanel {
 						Blink.getInstance().signalFlapClosed();						
 					}
 					
+					refreshSlotInfo(0);
 					Z88display.getInstance().grabFocus();
 				}
 			});			
@@ -275,6 +280,47 @@ public class Slots extends JPanel {
 			ram0Button.setForeground(Color.BLACK);
 			ram0Button.setBackground(Color.LIGHT_GRAY);
 			ram0Button.setMargin(new Insets(2, 4, 2, 4));
+
+			ram0Button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Blink.getInstance().signalFlapOpened();							
+
+					if (JOptionPane.showConfirmDialog(Slots.this, installRamMsg) == JOptionPane.YES_OPTION) {
+						JComboBox selectRam = new JComboBox();
+						selectRam.setModel(new DefaultComboBoxModel(
+										new String[] {"32K RAM", "128K RAM", "256K RAM", "512K RAM"}));
+
+						selectRam.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								JComboBox selectedRam = (JComboBox) e.getSource();
+								switch(selectedRam.getSelectedIndex()) {
+									case 0:
+										Memory.getInstance().insertRamCard(32 * 1024, 0);
+										break;
+									case 1:
+										Memory.getInstance().insertRamCard(128 * 1024, 0);
+										break;
+									case 2:
+										Memory.getInstance().insertRamCard(256 * 1024, 0);
+										break;
+									case 3:
+										Memory.getInstance().insertRamCard(512 * 1024, 0);
+										break;																			
+								}
+							}
+						});
+
+						JOptionPane.showMessageDialog(Slots.this, selectRam, "Select RAM size for slot 0", JOptionPane.NO_OPTION);
+						Blink.getInstance().pressHardReset();
+					} else {
+						// User aborted...
+						Blink.getInstance().signalFlapClosed();						
+					}
+					
+					refreshSlotInfo(0);
+					Z88display.getInstance().grabFocus();
+				}
+			});						
 		}
 
 		return ram0Button;
