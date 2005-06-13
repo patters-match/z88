@@ -103,20 +103,7 @@ public class CommandLine implements KeyListener {
 			commandOutput.setCaretPosition(commandOutput.getDocument().getLength());
 		}
 	}
-	
-	/**
-	 * Dump	current	Z80 Registers and instruction disassembly to command output window.
-	 */
-	private	void z80Status() {
-		StringBuffer dzBuffer =	new StringBuffer(64);
-		int bank = ((z88.decodeLocalAddress(z88.PC()) |	(z88.PC() & 0xF000)) >>> 16) & 0xFF;
-
-		displayCmdOutput("\n" + Z88Info.z80RegisterInfo());
-
-		dz.getInstrAscii(dzBuffer, z88.PC(), true, true);
-		displayCmdOutput(Dz.byteToHex(bank, false) + dzBuffer);
-	}
-	
+		
 	private	void cmdHelp() {
 		displayCmdOutput("\nUse	F12 to toggle keyboard focus between debug command line	and Z88	window.");
 		displayCmdOutput("All arguments	are in Hex: Local address = 64K	address	space,\nExtended address = 24bit address, eg. 073800 (bank 07h,	offset 3800h)");
