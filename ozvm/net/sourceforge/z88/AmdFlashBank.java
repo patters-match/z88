@@ -127,12 +127,6 @@ public class AmdFlashBank extends Bank {
 	private int executingCommandCode = 0;
 
 	/** 
-	 * Access to the Z88 hardware & memory model (needed when the Erase command
-	 * needs to erase a sector; accessing the other banks besides this one) 
-	 */
-	private Blink blink;
-	
-	/** 
 	 * The actual Flash Memory Device Code of this bank instance 
 	 */
 	private int deviceCode;
@@ -147,7 +141,6 @@ public class AmdFlashBank extends Bank {
 	 */
 	public AmdFlashBank(int dc) {
 		super(-1);		
-		blink = Blink.getInstance();
 		deviceCode = dc;
 		
 		eraseBank(); // Flash Memory Bank is empty by default...
