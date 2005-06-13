@@ -22,21 +22,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import net.sourceforge.z88.Memory;
-
 /**
  * Get Access to Z88 Application Information (DOR) for available slot.
  */
 public class ApplicationInfo {
 	
-	/** reference to available memory hardware and functionality */
-	private Memory memory = null;
-	
 	private List[] appSlotList = null;	// array of Application DOR lists for all slots
 		
 	public ApplicationInfo() {
-		memory = Memory.getInstance(); // get access to Z88 memory model	
-		
 		// linked application DOR lists for slots 0-3
 		appSlotList = new List[4];	
 		
