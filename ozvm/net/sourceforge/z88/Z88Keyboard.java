@@ -118,7 +118,6 @@ public class Z88Keyboard {
 	private class KeyPress {
 		private int keyCode;		// The unique host 'key' for this entity, typically a SWT.xxx constant
 		private int keyZ88Typed;	// The Z88 Keyboard Matrix Entry for single typed key, eg. "A"
-		private int keyZ88Modifier;	// The Z88 Keyboard Matrix Entry for Z88 modifier key, eg. SHIFT OR DIAMOND
 
 		public KeyPress(int kcd, int keyTyped) {
 			keyCode = kcd;			// the KeyEvent.* definition host keyboard constants
@@ -1099,7 +1098,7 @@ public class Z88Keyboard {
 	 *
 	 */
 	public void setKeyRow(int keyMatrixRow, int keyMask) {
-		int columns = 0xFF; int mask = 1;
+		int mask = 1;
 
 		for (int bit = 0; bit < 8; bit++) {
 			if ((keyMatrixRow & mask) == 0) keyRows[bit] = keyMask;

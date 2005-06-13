@@ -19,7 +19,6 @@
 package net.sourceforge.z88.filecard;
 
 import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.datastructures.SlotInfo;
 
 /**
  * Information about File Entry in a File Area 
@@ -38,9 +37,6 @@ public class FileEntry {
 
 	/** Reference to available memory hardware and functionality */
 	private Memory memory = null;
-	
-	/** Utility Class to get slot information */
-	private SlotInfo slotinfo = null;
 	
 	/**
 	 * Filename of entry. If the entry is active, the filename begins
@@ -73,7 +69,6 @@ public class FileEntry {
 	 */
 	public FileEntry(int extAddress) {
 		memory = Memory.getInstance();
-		slotinfo = SlotInfo.getInstance();
 		
 		// remember the pointer to this File Entry 
 		fileEntryPtr = extAddress;

@@ -65,7 +65,7 @@ public class HelpViewer extends JFrame {
 					try {
 						if (e.getURL().toString().startsWith("http") == true) {
 							// External links in help are displayed in new window...
-							HelpViewer hv = new HelpViewer(e.getURL());
+							new HelpViewer(e.getURL());
 						} else {
 							pane.setPage(e.getURL());
 						}

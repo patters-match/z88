@@ -247,7 +247,7 @@ public class Gui extends JFrame {
 			userManualMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
-						HelpViewer hv = new HelpViewer(Blink.getInstance().getClass().getResource("/ozvm-manual.html"));
+						new HelpViewer(Blink.getInstance().getClass().getResource("/ozvm-manual.html"));
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}

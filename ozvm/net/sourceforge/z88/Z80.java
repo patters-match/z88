@@ -91,10 +91,6 @@ public abstract class Z80 {
 
 	private final int F_S = 0x80;
 
-	private final int PF = F_PV;
-
-	private final int p_ = 0;
-
 	private final boolean parity[];
 
 	/** Main registers */
