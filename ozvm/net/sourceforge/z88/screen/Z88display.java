@@ -104,12 +104,6 @@ public class Z88display extends JLabel implements MouseListener {
 	/** Empty pixel, screen is switched off */
 	private static final int PXCOLSCROFF = 0xffE0E0E0;
 
-	/** Font attribute Bold Mask (LORES1) */
-	private static final int attrBold = 0x80;
-
-	/** Font attribute Tiny Mask (LORES1) */
-	private static final int attrTiny = 0x40;
-
 	/** Font attribute Hires Mask (HIRES1) */
 	private static final int attrHrs = 0x20;
 
@@ -170,7 +164,7 @@ public class Z88display extends JLabel implements MouseListener {
 		private DirectGif89Frame gifFrame;
 		
 		/** The Gif file encoder */
-		private Gif89Encoder gifEncoder;
+		private Gif89Encoder gifEnc;
 				
 		/** the constructor for closing the animated Gif File */
 		public ScreenFrameAction(OutputStream out) {
@@ -179,10 +173,10 @@ public class Z88display extends JLabel implements MouseListener {
 			fileAction = actionCloseGifFile;			
 		}
 		
-		public ScreenFrameAction(OutputStream out, Gif89Encoder gifEnc, int scrWidth, int scrHeight, int[] screen) {
+		public ScreenFrameAction(OutputStream out, Gif89Encoder ge, int scrWidth, int scrHeight, int[] screen) {
 			// encode the frame to the Gif file.
 			outStream = out;
-			gifEncoder = gifEnc;
+			gifEnc = ge;
 			fileAction = actionEncodeFrame;
 			gifFrame = new DirectGif89Frame(scrWidth, scrHeight, screen);
 			gifFrame.setDelay(50); // default delay is 0.5 sec
@@ -197,7 +191,7 @@ public class Z88display extends JLabel implements MouseListener {
 		/** execute the action */
 		public void action() throws IOException {
 			if (fileAction == actionEncodeFrame) {
-				gifEncoder.encodeFrame(outStream, gifFrame);
+				gifEnc.encodeFrame(outStream, gifFrame);
 			}
 
 			if (fileAction == actionCloseGifFile) {
