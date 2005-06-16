@@ -47,10 +47,29 @@ import net.sourceforge.z88.screen.Z88display;
  * slots (0 - 3).
  */
 public class Slots extends JPanel {
-	
+
 	private static final String installRomMsg = "Install new ROM in slot 0?\nWARNING: Installing a ROM will automatically perform a hard reset!";
+
 	private static final String installRamMsg = "Install new RAM into slot 0?\nWARNING: Installing RAM will automatically perform a hard reset!";
-	
+
+	private static final DefaultComboBoxModel newCardTypes = new DefaultComboBoxModel(
+			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH" });
+
+	private static final DefaultComboBoxModel ram0Sizes = new DefaultComboBoxModel(
+			new String[] { "32K", "128K", "256K", "512K" });
+
+	private static final DefaultComboBoxModel ramCardSizes = new DefaultComboBoxModel(
+			new String[] { "32K", "128K", "512K", "1MB" });
+
+	private static final DefaultComboBoxModel eprSizes = new DefaultComboBoxModel(
+			new String[] { "32K", "128K", "256K" });
+
+	private static final DefaultComboBoxModel amdFlashSizes = new DefaultComboBoxModel(
+			new String[] { "128K", "512K", "1Mb" });
+
+	private static final DefaultComboBoxModel intelFlashSizes = new DefaultComboBoxModel(
+			new String[] { "512K", "1Mb" });
+
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
 	private JLabel spaceLabel;
@@ -73,9 +92,22 @@ public class Slots extends JPanel {
 
 	private JButton slot3Button;
 
-	
+	private JComboBox cardSizeComboBox;
+
+	private JLabel cardSizeLabel;
+
+	private JComboBox cardTypeComboBox;
+
+	private JLabel cardTypeLabel;
+
+	private JPanel newCardPanel;
+
+	Memory memory;
+
 	public Slots() {
 		super();
+		memory = Memory.getInstance();
+
 		setBackground(Color.BLACK);
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -86,81 +118,83 @@ public class Slots extends JPanel {
 	}
 
 	/**
-	 * Update the button caption text, reflecting the contents
-	 * of all slots (0 - 3).
+	 * Update the button caption text, reflecting the contents of all slots (0 -
+	 * 3).
 	 */
 	public void refreshSlotInfo() {
-		for (int s=0; s<4; s++) {
+		for (int s = 0; s < 4; s++) {
 			refreshSlotInfo(s);
 		}
 	}
 
 	/**
-	 * Update the button caption text, reflecting the contents
-	 * of the specified slot.
+	 * Update the button caption text, reflecting the contents of the specified
+	 * slot.
 	 * 
-	 * @param slotNo (0 - 3)
+	 * @param slotNo
+	 *            (0 - 3)
 	 */
 	public void refreshSlotInfo(int slotNo) {
-		Memory memory =	Memory.getInstance();
 		String slotText = null;
-		Color foregroundColor = Color.WHITE;	// default empty slot colours
+		Color foregroundColor = Color.WHITE; // default empty slot colours
 		Color backgroundColor = Color.BLACK;
 		slotNo &= 3;
 
 		int slotType = SlotInfo.getInstance().getCardType(slotNo);
-		switch(slotType) {
-			case SlotInfo.EmptySlot:
-				slotText = "Empty";
-				break;
-			case SlotInfo.AmdFlashCard:
-				slotText = "AMD FLASH";
-				break;			
-			case SlotInfo.EpromCard:
-				slotText = "EPROM";
-				break;			
-			case SlotInfo.IntelFlashCard:
-				slotText = "INTEL FLASH";
-				break;			
-			case SlotInfo.RamCard:
-				slotText = "RAM";
-				break;			
-			case SlotInfo.RomCard:
-				slotText = "ROM";
-				break;			
+		switch (slotType) {
+		case SlotInfo.EmptySlot:
+			slotText = "Empty";
+			break;
+		case SlotInfo.AmdFlashCard:
+			slotText = "AMD FLASH";
+			break;
+		case SlotInfo.EpromCard:
+			slotText = "EPROM";
+			break;
+		case SlotInfo.IntelFlashCard:
+			slotText = "INTEL FLASH";
+			break;
+		case SlotInfo.RamCard:
+			slotText = "RAM";
+			break;
+		case SlotInfo.RomCard:
+			slotText = "ROM";
+			break;
 		}
 
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
-				slotText += (" " + (memory.getExternalCardSize(slotNo)*16) + "K");
+				slotText += (" " + (memory.getExternalCardSize(slotNo) * 16) + "K");
 				foregroundColor = Color.BLACK;
 				backgroundColor = Color.LIGHT_GRAY;
 			}
 		}
-		
+
 		switch (slotNo) {
-			case 0:
-				getRom0Button().setText("ROM " + (memory.getInternalRomSize()*16) + "K");
-				getRam0Button().setText("RAM " + (memory.getInternalRamSize()*16) + "K");
-				break;
-			case 1:
-				getSlot1Button().setText(slotText);
-				getSlot1Button().setForeground(foregroundColor);
-				getSlot1Button().setBackground(backgroundColor);
-				break;
-			case 2:
-				getSlot2Button().setText(slotText);
-				getSlot2Button().setForeground(foregroundColor);
-				getSlot2Button().setBackground(backgroundColor);
-				break;
-			case 3:
-				getSlot3Button().setText(slotText);
-				getSlot3Button().setForeground(foregroundColor);
-				getSlot3Button().setBackground(backgroundColor);
-				break;
+		case 0:
+			getRom0Button().setText(
+					"ROM " + (memory.getInternalRomSize() * 16) + "K");
+			getRam0Button().setText(
+					"RAM " + (memory.getInternalRamSize() * 16) + "K");
+			break;
+		case 1:
+			getSlot1Button().setText(slotText);
+			getSlot1Button().setForeground(foregroundColor);
+			getSlot1Button().setBackground(backgroundColor);
+			break;
+		case 2:
+			getSlot2Button().setText(slotText);
+			getSlot2Button().setForeground(foregroundColor);
+			getSlot2Button().setBackground(backgroundColor);
+			break;
+		case 3:
+			getSlot3Button().setText(slotText);
+			getSlot3Button().setForeground(foregroundColor);
+			getSlot3Button().setBackground(backgroundColor);
+			break;
 		}
 	}
-	
+
 	private JPanel getSlot0Panel() {
 		if (slot0Panel == null) {
 			slot0Panel = new JPanel();
@@ -230,41 +264,48 @@ public class Slots extends JPanel {
 			rom0Button.setForeground(Color.BLACK);
 			rom0Button.setBackground(Color.LIGHT_GRAY);
 			rom0Button.setMargin(new Insets(2, 4, 2, 4));
-			
+
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Blink.getInstance().signalFlapOpened();							
+					Blink.getInstance().signalFlapOpened();
 
-					if (JOptionPane.showConfirmDialog(Slots.this, installRomMsg) == JOptionPane.YES_OPTION) {
-						JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
-						chooser.setDialogTitle("Load/install Z88 ROM into slot 0");
+					if (JOptionPane
+							.showConfirmDialog(Slots.this, installRomMsg) == JOptionPane.YES_OPTION) {
+						JFileChooser chooser = new JFileChooser(new File(System
+								.getProperty("user.dir")));
+						chooser
+								.setDialogTitle("Load/install Z88 ROM into slot 0");
 						chooser.setMultiSelectionEnabled(false);
 						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 						int returnVal = chooser.showOpenDialog(Slots.this);
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							File romFile = new File(chooser.getSelectedFile().getAbsolutePath());
-							
+							File romFile = new File(chooser.getSelectedFile()
+									.getAbsolutePath());
+
 							try {
-								Memory.getInstance().loadRomBinary(romFile);
-								Blink.getInstance().pressHardReset(); // ROM installed, do a hard reset
+								memory.loadRomBinary(romFile);
+								// ROM installed, do a hard reset
+								Blink.getInstance().pressHardReset(); 
 							} catch (IOException e1) {
-								JOptionPane.showMessageDialog(Slots.this, "Selected file couldn't be opened!");
+								JOptionPane.showMessageDialog(Slots.this,
+										"Selected file couldn't be opened!");
 								Blink.getInstance().signalFlapClosed();
 							} catch (IllegalArgumentException e2) {
-								JOptionPane.showMessageDialog(Slots.this, "Selected file was not a Z88 ROM!");
+								JOptionPane.showMessageDialog(Slots.this,
+										"Selected file was not a Z88 ROM!");
 								Blink.getInstance().signalFlapClosed();
 							}
-						} 
+						}
 					} else {
 						// User aborted...
-						Blink.getInstance().signalFlapClosed();						
+						Blink.getInstance().signalFlapClosed();
 					}
-					
+
 					refreshSlotInfo(0);
 					Z88display.getInstance().grabFocus();
 				}
-			});			
+			});
 		}
 
 		return rom0Button;
@@ -283,44 +324,40 @@ public class Slots extends JPanel {
 
 			ram0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Blink.getInstance().signalFlapOpened();							
+					Blink.getInstance().signalFlapOpened();
 
-					if (JOptionPane.showConfirmDialog(Slots.this, installRamMsg) == JOptionPane.YES_OPTION) {
-						JComboBox selectRam = new JComboBox();
-						selectRam.setModel(new DefaultComboBoxModel(
-										new String[] {"32K RAM", "128K RAM", "256K RAM", "512K RAM"}));
+					if (JOptionPane
+							.showConfirmDialog(Slots.this, installRamMsg) == JOptionPane.YES_OPTION) {
+						getCardSizeComboBox().setModel(ram0Sizes);
+						JOptionPane.showMessageDialog(Slots.this,
+								getCardSizeComboBox(),
+								"Select RAM size for slot 0",
+								JOptionPane.NO_OPTION);
 
-						selectRam.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								JComboBox selectedRam = (JComboBox) e.getSource();
-								switch(selectedRam.getSelectedIndex()) {
-									case 0:
-										Memory.getInstance().insertRamCard(32 * 1024, 0);
-										break;
-									case 1:
-										Memory.getInstance().insertRamCard(128 * 1024, 0);
-										break;
-									case 2:
-										Memory.getInstance().insertRamCard(256 * 1024, 0);
-										break;
-									case 3:
-										Memory.getInstance().insertRamCard(512 * 1024, 0);
-										break;																			
-								}
-							}
-						});
-
-						JOptionPane.showMessageDialog(Slots.this, selectRam, "Select RAM size for slot 0", JOptionPane.NO_OPTION);
+						switch (getCardSizeComboBox().getSelectedIndex()) {
+						case 0:
+							memory.insertRamCard(32 * 1024, 0);
+							break;
+						case 1:
+							memory.insertRamCard(128 * 1024, 0);
+							break;
+						case 2:
+							memory.insertRamCard(256 * 1024, 0);
+							break;
+						case 3:
+							memory.insertRamCard(512 * 1024, 0);
+							break;
+						}
 						Blink.getInstance().pressHardReset();
 					} else {
 						// User aborted...
-						Blink.getInstance().signalFlapClosed();						
+						Blink.getInstance().signalFlapClosed();
 					}
-					
+
 					refreshSlotInfo(0);
 					Z88display.getInstance().grabFocus();
 				}
-			});						
+			});
 		}
 
 		return ram0Button;
@@ -334,6 +371,11 @@ public class Slots extends JPanel {
 			slot1Button.setMaximumSize(new Dimension(139, 20));
 			slot1Button.setFont(buttonFont);
 			slot1Button.setMargin(new Insets(2, 4, 2, 4));
+			slot1Button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					manageSlotCard((JButton) e.getSource(), 1);
+				}
+			});
 		}
 
 		return slot1Button;
@@ -347,6 +389,11 @@ public class Slots extends JPanel {
 			slot2Button.setMaximumSize(new Dimension(139, 20));
 			slot2Button.setFont(buttonFont);
 			slot2Button.setMargin(new Insets(2, 4, 2, 4));
+			slot2Button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					manageSlotCard((JButton) e.getSource(), 2);
+				}
+			});
 		}
 
 		return slot2Button;
@@ -360,6 +407,11 @@ public class Slots extends JPanel {
 			slot3Button.setMaximumSize(new Dimension(139, 20));
 			slot3Button.setFont(buttonFont);
 			slot3Button.setMargin(new Insets(2, 4, 2, 4));
+			slot3Button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					manageSlotCard((JButton) e.getSource(), 3);
+				}
+			});
 		}
 
 		return slot3Button;
@@ -372,5 +424,173 @@ public class Slots extends JPanel {
 		}
 
 		return spaceLabel;
+	}
+
+	/**
+	 * Insert/remove a card (RAM/EPROM/FLASH) into slot.
+	 * <p>
+	 * Insertion may be a new (created) card or loaded from the filing system.
+	 * Equally, an Eprom/Flash card may be removed from the slot and saved as an
+	 * .epr file (Ram card has no meaning to be saved).
+	 * <p>
+	 * Finally, it may be possible to save a copy of an inserted Eprom/Flash
+	 * Card as a file on the fly.
+	 * 
+	 * @param slotNo
+	 */
+	private void manageSlotCard(JButton slotButton, int slotNo) {
+		int slotType = SlotInfo.getInstance().getCardType(slotNo);
+
+		if (slotType == SlotInfo.EmptySlot) {
+			// slot is empty, a card may be inserted;
+			// load a card .Epr file or insert a new card (type)
+			getCardTypeComboBox().setModel(newCardTypes);
+			getCardSizeComboBox().setModel(ramCardSizes);
+			getCardTypeComboBox().setSelectedIndex(0); // default RAM card
+			getCardSizeComboBox().setSelectedIndex(0); // default 32K size
+
+			getCardTypeComboBox().addActionListener(new ActionListener() {
+				// when the Card type is changed, also change available size for
+				// Card type
+				public void actionPerformed(ActionEvent e) {
+					JComboBox typeComboBox = (JComboBox) e.getSource();
+					switch (typeComboBox.getSelectedIndex()) {
+					case 0:
+						// define available RAM Card sizes
+						getCardSizeComboBox().setModel(ramCardSizes);
+						break;
+					case 1:
+						// define available (UV) EPROM Card sizes
+						getCardSizeComboBox().setModel(eprSizes);
+						break;
+					case 2:
+						// define available Intel Flash Card sizes
+						getCardSizeComboBox().setModel(intelFlashSizes);
+						break;
+					case 3:
+						// define available Amd Flash Card sizes
+						getCardSizeComboBox().setModel(amdFlashSizes);
+						break;
+					}
+				}
+			});
+
+			Blink.getInstance().signalFlapOpened();
+			if (JOptionPane.showConfirmDialog(Slots.this, getNewCardPanel(),
+					"Insert new card into slot " + slotNo,
+					JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
+				switch (getCardTypeComboBox().getSelectedIndex()) {
+				case 0:
+					// insert selected RAM Card
+					switch (getCardSizeComboBox().getSelectedIndex()) {
+					case 0:
+						memory.insertRamCard(32 * 1024, slotNo);
+						break;
+					case 1:
+						memory.insertRamCard(128 * 1024, slotNo);
+						break;
+					case 2:
+						memory.insertRamCard(512 * 1024, slotNo);
+						break;
+					case 3:
+						memory.insertRamCard(1024 * 1024, slotNo);
+						break;
+					}
+					break;
+				case 1:
+					// insert selected (UV) EPROM Card "32K", "128K", "256K"
+					switch (getCardSizeComboBox().getSelectedIndex()) {
+					case 0:
+						memory.insertEprCard(slotNo, 32, "27C");
+						break;
+					case 1:
+						memory.insertEprCard(slotNo, 128, "27C");
+						break;
+					case 2:
+						memory.insertEprCard(slotNo, 256, "27C");
+						break;
+					}
+					break;
+				case 2:
+					// insert selected Intel Flash Card sizes
+					switch (getCardSizeComboBox().getSelectedIndex()) {
+					case 0:
+						memory.insertEprCard(slotNo, 512, "28F");
+						break;
+					case 1:
+						memory.insertEprCard(slotNo, 1024, "28F");
+						break;
+					}
+					break;
+				case 3:
+					// insert selected Amd Flash Card sizes
+					switch (getCardSizeComboBox().getSelectedIndex()) {
+					case 0:
+						memory.insertEprCard(slotNo, 128, "29F");
+						break;
+					case 1:
+						memory.insertEprCard(slotNo, 512, "29F");
+						break;
+					case 2:
+						memory.insertEprCard(slotNo, 1024, "29F");
+						break;
+					}
+					break;
+				}
+
+				refreshSlotInfo(slotNo);
+				Z88display.getInstance().grabFocus();
+			}
+
+			Blink.getInstance().signalFlapClosed();
+		} else {
+			// remove a card, or for Eprom/Flash cards, and/or save a copy
+			// of the card to an .Epr file...
+		}
+	}
+
+	private JPanel getNewCardPanel() {
+		if (newCardPanel == null) {
+			newCardPanel = new JPanel();
+			newCardPanel.setBorder(new TitledBorder(new EtchedBorder(
+					EtchedBorder.LOWERED), "New Card",
+					TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, null, null));
+			newCardPanel.add(getCardTypeLabel());
+			newCardPanel.add(getCardTypeComboBox());
+			newCardPanel.add(getCardSizeLabel());
+			newCardPanel.add(getCardSizeComboBox());
+		}
+		return newCardPanel;
+	}
+
+	private JLabel getCardTypeLabel() {
+		if (cardTypeLabel == null) {
+			cardTypeLabel = new JLabel();
+			cardTypeLabel.setText("Type:");
+		}
+		return cardTypeLabel;
+	}
+
+	private JComboBox getCardTypeComboBox() {
+		if (cardTypeComboBox == null) {
+			cardTypeComboBox = new JComboBox();
+		}
+		return cardTypeComboBox;
+	}
+
+	private JLabel getCardSizeLabel() {
+		if (cardSizeLabel == null) {
+			cardSizeLabel = new JLabel();
+			cardSizeLabel.setText("Size:");
+		}
+		return cardSizeLabel;
+	}
+
+	private JComboBox getCardSizeComboBox() {
+		if (cardSizeComboBox == null) {
+			cardSizeComboBox = new JComboBox();
+		}
+		return cardSizeComboBox;
 	}
 }
