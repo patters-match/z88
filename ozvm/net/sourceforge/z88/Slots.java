@@ -59,16 +59,16 @@ public class Slots extends JPanel {
 			new String[] { "32K", "128K", "256K", "512K" });
 
 	private static final DefaultComboBoxModel ramCardSizes = new DefaultComboBoxModel(
-			new String[] { "32K", "128K", "512K", "1MB" });
+			new String[] { "32K", "128K", "512K", "1024K" });
 
 	private static final DefaultComboBoxModel eprSizes = new DefaultComboBoxModel(
 			new String[] { "32K", "128K", "256K" });
 
 	private static final DefaultComboBoxModel amdFlashSizes = new DefaultComboBoxModel(
-			new String[] { "128K", "512K", "1Mb" });
+			new String[] { "128K", "512K", "1024" });
 
 	private static final DefaultComboBoxModel intelFlashSizes = new DefaultComboBoxModel(
-			new String[] { "512K", "1Mb" });
+			new String[] { "512K", "1024" });
 
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
@@ -334,20 +334,8 @@ public class Slots extends JPanel {
 								"Select RAM size for slot 0",
 								JOptionPane.NO_OPTION);
 
-						switch (getCardSizeComboBox().getSelectedIndex()) {
-						case 0:
-							memory.insertRamCard(32 * 1024, 0);
-							break;
-						case 1:
-							memory.insertRamCard(128 * 1024, 0);
-							break;
-						case 2:
-							memory.insertRamCard(256 * 1024, 0);
-							break;
-						case 3:
-							memory.insertRamCard(512 * 1024, 0);
-							break;
-						}
+						String size = (String) ram0Sizes.getElementAt(getCardSizeComboBox().getSelectedIndex());
+						memory.insertRamCard(Integer.parseInt(size.substring(0,size.indexOf("K"))) * 1024, 0);
 						Blink.getInstance().pressHardReset();
 					} else {
 						// User aborted...
@@ -479,62 +467,24 @@ public class Slots extends JPanel {
 			if (JOptionPane.showConfirmDialog(Slots.this, getNewCardPanel(),
 					"Insert new card into slot " + slotNo,
 					JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
+				String size = (String) getCardSizeComboBox().getModel().getElementAt(getCardSizeComboBox().getSelectedIndex());
+				
 				switch (getCardTypeComboBox().getSelectedIndex()) {
 				case 0:
 					// insert selected RAM Card
-					switch (getCardSizeComboBox().getSelectedIndex()) {
-					case 0:
-						memory.insertRamCard(32 * 1024, slotNo);
-						break;
-					case 1:
-						memory.insertRamCard(128 * 1024, slotNo);
-						break;
-					case 2:
-						memory.insertRamCard(512 * 1024, slotNo);
-						break;
-					case 3:
-						memory.insertRamCard(1024 * 1024, slotNo);
-						break;
-					}
+					memory.insertRamCard(Integer.parseInt(size.substring(0,size.indexOf("K"))) * 1024, slotNo);
 					break;
 				case 1:
 					// insert selected (UV) EPROM Card "32K", "128K", "256K"
-					switch (getCardSizeComboBox().getSelectedIndex()) {
-					case 0:
-						memory.insertEprCard(slotNo, 32, "27C");
-						break;
-					case 1:
-						memory.insertEprCard(slotNo, 128, "27C");
-						break;
-					case 2:
-						memory.insertEprCard(slotNo, 256, "27C");
-						break;
-					}
+					memory.insertEprCard(slotNo, Integer.parseInt(size.substring(0,size.indexOf("K"))), "27C");
 					break;
 				case 2:
 					// insert selected Intel Flash Card sizes
-					switch (getCardSizeComboBox().getSelectedIndex()) {
-					case 0:
-						memory.insertEprCard(slotNo, 512, "28F");
-						break;
-					case 1:
-						memory.insertEprCard(slotNo, 1024, "28F");
-						break;
-					}
+					memory.insertEprCard(slotNo, Integer.parseInt(size.substring(0,size.indexOf("K"))), "28F");
 					break;
 				case 3:
 					// insert selected Amd Flash Card sizes
-					switch (getCardSizeComboBox().getSelectedIndex()) {
-					case 0:
-						memory.insertEprCard(slotNo, 128, "29F");
-						break;
-					case 1:
-						memory.insertEprCard(slotNo, 512, "29F");
-						break;
-					case 2:
-						memory.insertEprCard(slotNo, 1024, "29F");
-						break;
-					}
+					memory.insertEprCard(slotNo, Integer.parseInt(size.substring(0,size.indexOf("K"))), "29F");
 					break;
 				}
 
