@@ -65,10 +65,10 @@ public class Slots extends JPanel {
 			new String[] { "32K", "128K", "256K" });
 
 	private static final DefaultComboBoxModel amdFlashSizes = new DefaultComboBoxModel(
-			new String[] { "128K", "512K", "1024" });
+			new String[] { "128K", "512K", "1024K" });
 
 	private static final DefaultComboBoxModel intelFlashSizes = new DefaultComboBoxModel(
-			new String[] { "512K", "1024" });
+			new String[] { "512K", "1024K" });
 
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
