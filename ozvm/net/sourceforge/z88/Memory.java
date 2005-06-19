@@ -603,7 +603,7 @@ public final class Memory {
 	}
 
 	/**
-	 * Load File Image (from opened file ressource) on specific Eprom Card Hardware.
+	 * Load File Image (from opened file ressource) on specific (flash) Eprom Card Hardware.
 	 * The image will be loaded to the top of the card and downwards, eg. a 32K image will be loaded
 	 * into the top two banks of the Eprom card ($3E and $3F. The remaining banks of the 
 	 * card will be left untouched (initialized as being empty).
@@ -622,7 +622,7 @@ public final class Memory {
 		int eprSubType = 0;
 
 		if (fileImage.length() > (1024 * size)) {
-			throw new IOException("Binary image larger than specified Eprom Card size!");
+			throw new IOException("Binary image larger than specified Card size!");
 		}
 		if (fileImage.length() % Bank.SIZE > 0) {
 			throw new IOException("Binary image must be in 16K sizes!");
