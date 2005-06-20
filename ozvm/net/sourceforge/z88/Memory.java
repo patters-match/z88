@@ -995,7 +995,7 @@ public final class Memory {
 		byte bankBuffer[] = new byte[Bank.SIZE]; // allocate intermediate load buffer
 
 		for (int curBank = 0; curBank < romBanks.length; curBank++) {
-			switch((int) romBanks.length) {
+			switch(romBanks.length) {
 				case 32: 
 					romBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F040B); // 512K, use the AMD Flash Memory AM29F040B 
 					break;
