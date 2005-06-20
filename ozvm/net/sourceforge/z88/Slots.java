@@ -115,7 +115,7 @@ public class Slots extends JPanel {
 
 	private JButton browseAppsButton;
 
-	private JCheckBox appAreaCheckBox;
+	private JLabel appAreaLabel;
 
 	private JButton browseFilesButton;
 
@@ -129,10 +129,15 @@ public class Slots extends JPanel {
 
 	private JFileChooser fileAreaChooser;
 
+	private File currentEpromDir;
+	private File currentFilesDir;
+	
 	public Slots() {
 		super();
 		memory = Memory.getInstance();
 		eprfileFilter = new EpromFileFilter();
+		currentEpromDir = new File(System.getProperty("user.dir"));
+		currentFilesDir = new File(System.getProperty("user.dir"));
 
 		setBackground(Color.BLACK);
 
@@ -297,15 +302,16 @@ public class Slots extends JPanel {
 
 					if (JOptionPane
 							.showConfirmDialog(Slots.this, installRomMsg) == JOptionPane.YES_OPTION) {
-						JFileChooser chooser = new JFileChooser(new File(System
-								.getProperty("user.dir")));
-						chooser
-								.setDialogTitle("Load/install Z88 ROM into slot 0");
+						JFileChooser chooser = new JFileChooser(currentEpromDir);
+						chooser.setDialogTitle("Load/install Z88 ROM into slot 0");
 						chooser.setMultiSelectionEnabled(false);
 						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 						int returnVal = chooser.showOpenDialog(Slots.this);
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							// remember current directory for next time..
+							currentEpromDir = chooser.getCurrentDirectory();
+							
 							File romFile = new File(chooser.getSelectedFile()
 									.getAbsolutePath());
 
@@ -469,12 +475,11 @@ public class Slots extends JPanel {
 			getCardSizeComboBox().setSelectedIndex(0); // default 32K size
 			getFileAreaCheckBox().setSelected(false); // default no Eprom
 													  // card...
-			getAppAreaCheckBox().setSelected(false);
-			getAppAreaCheckBox().setText(defaultAppLoadText);
+			getAppAreaLabel().setText(defaultAppLoadText);
 			epromFileChooser = fileAreaChooser = null;
 
 			getBrowseAppsButton().setEnabled(false);
-			getAppAreaCheckBox().setEnabled(false);
+			getAppAreaLabel().setEnabled(false);
 			getBrowseFilesButton().setEnabled(false);
 			getFileAreaCheckBox().setEnabled(false);
 
@@ -483,33 +488,33 @@ public class Slots extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					JComboBox typeComboBox = (JComboBox) e.getSource();
 					switch (typeComboBox.getSelectedIndex()) {
-					case 0:
-						// define available RAM Card sizes
-						getCardSizeComboBox().setModel(ramCardSizes);
-						break;
-					case 1:
-						// define available (UV) EPROM Card sizes
-						getCardSizeComboBox().setModel(eprSizes);
-						break;
-					case 2:
-						// define available Intel Flash Card sizes
-						getCardSizeComboBox().setModel(intelFlashSizes);
-						break;
-					case 3:
-						// define available Amd Flash Card sizes
-						getCardSizeComboBox().setModel(amdFlashSizes);
-						break;
+						case 0:
+							// define available RAM Card sizes
+							getCardSizeComboBox().setModel(ramCardSizes);
+							break;
+						case 1:
+							// define available (UV) EPROM Card sizes
+							getCardSizeComboBox().setModel(eprSizes);
+							break;
+						case 2:
+							// define available Intel Flash Card sizes
+							getCardSizeComboBox().setModel(intelFlashSizes);
+							break;
+						case 3:
+							// define available Amd Flash Card sizes
+							getCardSizeComboBox().setModel(amdFlashSizes);
+							break;
 					}
 
 					if (getCardTypeComboBox().getSelectedIndex() == 0) {
 						// RAM card is selected
 						getFileAreaCheckBox().setEnabled(false);
-						getAppAreaCheckBox().setEnabled(false);
+						getAppAreaLabel().setEnabled(false);
 						getBrowseFilesButton().setEnabled(false);
 						getBrowseAppsButton().setEnabled(false);
 					} else {
 						getFileAreaCheckBox().setEnabled(true);
-						getAppAreaCheckBox().setEnabled(true);
+						getAppAreaLabel().setEnabled(true);
 						getBrowseFilesButton().setEnabled(true);
 						getBrowseAppsButton().setEnabled(true);
 					}
@@ -523,8 +528,7 @@ public class Slots extends JPanel {
 						.getElementAt(getCardSizeComboBox().getSelectedIndex());
 				int cardSizeK = Integer.parseInt(size.substring(0,size.indexOf("K")));
 
-				if (getAppAreaCheckBox().isSelected() == true
-						& epromFileChooser != null) {
+				if (epromFileChooser != null) {
 					try {
 						// load an EPR image on the card: start with opening the file
 						eprFileImage = new RandomAccessFile(epromFileChooser
@@ -543,25 +547,25 @@ public class Slots extends JPanel {
 				}
 
 				switch (getCardTypeComboBox().getSelectedIndex()) {
-				case 0:
-					// insert selected RAM Card
-					memory.insertRamCard(cardSizeK * 1024, slotNo);
-					break;
-				case 1:
-					// insert an (UV) EPROM Card 
-					internalCardType = "27C";
-					break;
-				case 2:
-					// insert an Intel Flash Card 
-					internalCardType = "28F";
-					break;
-				case 3:
-					// insert an Amd Flash Card 
-					internalCardType = "29F";
-					break;
+					case 0:
+						// insert selected RAM Card
+						memory.insertRamCard(cardSizeK * 1024, slotNo);
+						break;
+					case 1:
+						// insert an (UV) EPROM Card 
+						internalCardType = "27C";
+						break;
+					case 2:
+						// insert an Intel Flash Card 
+						internalCardType = "28F";
+						break;
+					case 3:
+						// insert an Amd Flash Card 
+						internalCardType = "29F";
+						break;
 				}
 
-				if (eprFileImage != null)
+				if (eprFileImage != null) {
 					// A selected Eprom was also marked to load an (app) image.. 
 					try {
 						memory.loadImageOnEprCard(slotNo, cardSizeK, internalCardType, eprFileImage);
@@ -576,16 +580,18 @@ public class Slots extends JPanel {
 						Z88display.getInstance().grabFocus();
 						return;
 					}
-				else
+				} else {
 					// Insert a selected Eprom type (which is not to be loaded with a file image...
 					if (internalCardType != null)
 						memory.insertEprCard(slotNo, cardSizeK, internalCardType);
+				}
 				
-				if (eprFileImage != null)
+				if (eprFileImage != null) {
+					// EPR file image was processed, now close it...
 					try {
-						// EPR file image was processed, now close it...
 						eprFileImage.close();
 					} catch (IOException e2) {}
+				}
 				
 				// User has also chosen to create a file area on card...
 				if (getFileAreaCheckBox().isSelected() == true) {
@@ -626,6 +632,47 @@ public class Slots extends JPanel {
 		} else {
 			// remove a card, or for Eprom/Flash cards, and/or save a copy
 			// of the card to an .Epr file...
+			Blink.getInstance().signalFlapOpened();
+			if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.RamCard) {
+				if (JOptionPane.showConfirmDialog(Slots.this, "Remove RAM card?\nWarning: A soft reset is automatically performed after removal",
+						"Remove card from slot " + slotNo, JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {				
+					memory.removeCard(slotNo);
+					Blink.getInstance().signalFlapClosed();
+					Blink.getInstance().pressResetButton();
+				}				
+			} else {
+				if (JOptionPane.showConfirmDialog(Slots.this, "Remove card?",
+						"Remove card from slot " + slotNo, JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {				
+
+					if (JOptionPane.showConfirmDialog(Slots.this, "Save card to a *.EPR file, before removing it?",
+								"Remove card from slot " + slotNo, JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
+						JFileChooser chooser = new JFileChooser(currentEpromDir);
+						chooser.setDialogTitle("Save Z88 Card");
+						chooser.setMultiSelectionEnabled(false);
+						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+						chooser.setFileFilter(eprfileFilter);
+												
+						int returnVal = chooser.showSaveDialog(Slots.this.getParent());
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							try {
+								memory.dumpSlot(slotNo, false, "", chooser.getSelectedFile().getAbsolutePath());
+							} catch (FileNotFoundException e) {
+								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+							} catch (IOException e) {
+								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+							}
+						}												
+					}
+					
+					memory.removeCard(slotNo);
+				}				
+			}
+			
+			Blink.getInstance().signalFlapClosed();
+			refreshSlotInfo(slotNo);
+			Z88display.getInstance().grabFocus();
 		}
 	}
 
@@ -681,7 +728,7 @@ public class Slots extends JPanel {
 			gridBagConstraints_6.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints_6.gridy = 2;
 			gridBagConstraints_6.gridx = 0;
-			newCardPanel.add(getAppAreaCheckBox(), gridBagConstraints_6);
+			newCardPanel.add(getAppAreaLabel(), gridBagConstraints_6);
 
 			final GridBagConstraints gridBagConstraints_7 = new GridBagConstraints();
 			gridBagConstraints_7.fill = GridBagConstraints.HORIZONTAL;
@@ -739,8 +786,7 @@ public class Slots extends JPanel {
 
 			browseFilesButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					fileAreaChooser = new JFileChooser(new File(System
-							.getProperty("user.dir")));
+					fileAreaChooser = new JFileChooser(currentFilesDir);
 					fileAreaChooser
 							.setDialogTitle("Import files into Eprom Card File Area");
 					fileAreaChooser.setMultiSelectionEnabled(true);
@@ -751,6 +797,8 @@ public class Slots extends JPanel {
 							.getParent());
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						getFileAreaCheckBox().setSelected(true);
+						// remember current directory for next time..
+						currentFilesDir = fileAreaChooser.getCurrentDirectory();
 					} else {
 						getFileAreaCheckBox().setSelected(false);
 					}
@@ -761,12 +809,12 @@ public class Slots extends JPanel {
 		return browseFilesButton;
 	}
 
-	private JCheckBox getAppAreaCheckBox() {
-		if (appAreaCheckBox == null) {
-			appAreaCheckBox = new JCheckBox();
-			appAreaCheckBox.setText(defaultAppLoadText);
+	private JLabel getAppAreaLabel() {
+		if (appAreaLabel == null) {
+			appAreaLabel = new JLabel();
+			appAreaLabel.setText(defaultAppLoadText);
 		}
-		return appAreaCheckBox;
+		return appAreaLabel;
 	}
 
 	private JButton getBrowseAppsButton() {
@@ -777,8 +825,7 @@ public class Slots extends JPanel {
 
 			browseAppsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					epromFileChooser = new JFileChooser(new File(System
-							.getProperty("user.dir")));
+					epromFileChooser = new JFileChooser(currentEpromDir);
 					epromFileChooser
 							.setDialogTitle("Install (flash) Eprom file into card");
 					epromFileChooser.setMultiSelectionEnabled(false);
@@ -789,12 +836,13 @@ public class Slots extends JPanel {
 					int returnVal = epromFileChooser.showOpenDialog(Slots.this
 							.getParent());
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						getAppAreaCheckBox().setSelected(true);
-						getAppAreaCheckBox().setText(
+						// remember current directory for next time..
+						currentEpromDir = epromFileChooser.getCurrentDirectory();
+						
+						getAppAreaLabel().setText(
 								epromFileChooser.getSelectedFile().getName());
 					} else {
-						getAppAreaCheckBox().setSelected(false);
-						getAppAreaCheckBox().setText(defaultAppLoadText);
+						getAppAreaLabel().setText(defaultAppLoadText);
 					}
 				}
 			});
