@@ -252,11 +252,14 @@ public final class Memory {
 	
 	/**
 	 * Remove inserted card, ie. null'ify the banks for the specified slot.
-	 * (Not yet implemented)
 	 * 
 	 * @param slot (1-3)
 	 */
-	public void removeCard(int slot) {		
+	public void removeCard(final int slot) {
+		int slotBank = (slot & 3) << 6; // convert slot number to bottom bank of slot
+		int slotTopBank = slotBank | 0x3F; 
+		
+		while (slotBank <= slotTopBank) memory[slotBank++] = nullBank;
 	}
 	
 	
