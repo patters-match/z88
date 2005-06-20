@@ -47,10 +47,10 @@ public class Breakpoints {
 	 */
 	public void toggleBreakpoint(int bpAddress) {
         Breakpoint bp = new Breakpoint(bpAddress);
-        if (breakPoints.containsKey( (Breakpoint) bp) == false)
-            breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
+        if (breakPoints.containsKey( bp) == false)
+            breakPoints.put( bp, bp);
         else
-            breakPoints.remove((Breakpoint) bp);
+            breakPoints.remove( bp);
 	}
 
 	
@@ -62,10 +62,10 @@ public class Breakpoints {
 	 */
 	public void toggleBreakpoint(int bpAddress, boolean stopStatus ) {
 		Breakpoint bp = new Breakpoint(bpAddress, stopStatus);
-		if (breakPoints.containsKey( (Breakpoint) bp) == false)
-			breakPoints.put((Breakpoint) bp, (Breakpoint) bp);
+		if (breakPoints.containsKey( bp) == false)
+			breakPoints.put( bp, bp);
 		else
-			breakPoints.remove((Breakpoint) bp);
+			breakPoints.remove(bp);
 	}
 
 	

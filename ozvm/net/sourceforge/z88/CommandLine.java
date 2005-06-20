@@ -1258,7 +1258,7 @@ public class CommandLine implements KeyListener {
 		try {
 			if (cmdLineTokens.length == 1) {
 				// no sub-commands are specified, just list file area contents...
-				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				ListIterator fileEntries = fa.getFileEntries();
 
 				if (fileEntries == null) {
@@ -1275,27 +1275,27 @@ public class CommandLine implements KeyListener {
 				}
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("format") == 0) {
 				// create or (re)format file area
-				if (FileArea.create((int) (cmdLineTokens[0].getBytes()[3]-48), true) == true) 
+				if (FileArea.create( cmdLineTokens[0].getBytes()[3]-48, true) == true) 
 					displayCmdOutput("File area were created/formatted.");
 				else
 					displayCmdOutput("File area could not be created/formatted.");
 			
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("cardhdr") == 0) {
 				// just create a file area header
-				if (FileArea.create((int) (cmdLineTokens[0].getBytes()[3]-48), false) == true) 
+				if (FileArea.create( cmdLineTokens[0].getBytes()[3]-48, false) == true) 
 					displayCmdOutput("File area header were created.");
 				else
 					displayCmdOutput("File area header could not be created.");
 			
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("reclaim") == 0) {
 				// reclaim deleted file space
- 				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+ 				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				fa.reclaimDeletedFileSpace(); 
 				displayCmdOutput("Deleted files have been removed from file area.");
 
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("del") == 0) {
 				// mark file as deleted
-				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				if (fa.markAsDeleted(cmdLineTokens[2]) == true) 
 					displayCmdOutput("File was marked as deleted.");
 				else
@@ -1303,19 +1303,19 @@ public class CommandLine implements KeyListener {
 				
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipf") == 0) {
 				// import file from host file system into file area...
-				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				fa.importHostFile(new File(cmdLineTokens[2]));
 				displayCmdOutput("File " + cmdLineTokens[2] + " was successfully imported.");
 				
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipd") == 0) {
 				// import all files from host file system directory into file area...
-				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				fa.importHostFiles(new File(cmdLineTokens[2]));
 				displayCmdOutput("Directory '"+cmdLineTokens[2] + "' was successfully imported.");
 				
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("xpc") == 0) {
 				// export all files from file area to directory on host file system..
-				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				ListIterator fileEntries = fa.getFileEntries();
 				if (fa.getActiveFileCount() == 0) {
 					displayCmdOutput("No files available to export.");
@@ -1342,7 +1342,7 @@ public class CommandLine implements KeyListener {
 				
 			} else if (cmdLineTokens.length == 4 & cmdLineTokens[1].compareToIgnoreCase("xpf") == 0) {
 				// export file from file area to directory on host file system
-				FileArea fa = new FileArea((int) (cmdLineTokens[0].getBytes()[3]-48));
+				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				FileEntry fe = fa.getFileEntry(cmdLineTokens[2]);
 				if (fe == null) {
 					displayCmdOutput("File not found.");
