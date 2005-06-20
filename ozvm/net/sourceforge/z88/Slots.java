@@ -46,6 +46,9 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import net.sourceforge.z88.datastructures.SlotInfo;
+import net.sourceforge.z88.filecard.FileArea;
+import net.sourceforge.z88.filecard.FileAreaExhaustedException;
+import net.sourceforge.z88.filecard.FileAreaNotFoundException;
 import net.sourceforge.z88.screen.Z88display;
 
 /**
@@ -585,7 +588,34 @@ public class Slots extends JPanel {
 					} catch (IOException e2) {}
 				
 				// User has also chosen to create a file area on card...
-				// if (getFileAreaCheckBox().isSelected() == true)
+				if (getFileAreaCheckBox().isSelected() == true) {
+					// user has chosen to create/format a file area on the card
+					if (FileArea.create(slotNo, true) == true) {
+						try {
+							FileArea fa = new FileArea(slotNo);
+
+							if (fileAreaChooser != null) {
+								File selectedFiles[] = fileAreaChooser.getSelectedFiles();
+								// import files into file area, if selected by user...
+								for (int f=0; f<selectedFiles.length; f++) {
+									fa.importHostFile(selectedFiles[f]);
+								}
+							}
+						} catch (FileAreaNotFoundException e1) {
+							JOptionPane.showMessageDialog(Slots.this, "File Area not available in slot" + slotNo,
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+						} catch (FileAreaExhaustedException e) {
+							JOptionPane.showMessageDialog(Slots.this, "File Area exhausted during import",
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+						} catch (IOException e) {
+							JOptionPane.showMessageDialog(Slots.this, "I/O error during File Area import",
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+						}
+					} else {
+						JOptionPane.showMessageDialog(Slots.this, "File Area could not be created",
+								"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+					}
+				}
 
 				// card has been successfully inserted into slot... 
 				refreshSlotInfo(slotNo);
