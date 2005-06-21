@@ -469,57 +469,12 @@ public class Slots extends JPanel {
 		if (slotType == SlotInfo.EmptySlot) {
 			// slot is empty, a card may be inserted;
 			// load a card .Epr file or insert a new card (type)
-			getCardTypeComboBox().setModel(newCardTypes);
-			getCardSizeComboBox().setModel(ramCardSizes);
-			getCardTypeComboBox().setSelectedIndex(0); // default RAM card
-			getCardSizeComboBox().setSelectedIndex(0); // default 32K size
-			getFileAreaCheckBox().setSelected(false); // default no Eprom
-													  // card...
+			getCardSizeComboBox().setModel(amdFlashSizes);
+			getCardTypeComboBox().setSelectedIndex(3); // default AMD Flash card
+			getCardSizeComboBox().setSelectedIndex(2); // default 1024K size
+			getFileAreaCheckBox().setSelected(false); // default no file area on card...
 			getAppAreaLabel().setText(defaultAppLoadText);
 			epromFileChooser = fileAreaChooser = null;
-
-			getBrowseAppsButton().setEnabled(false);
-			getAppAreaLabel().setEnabled(false);
-			getBrowseFilesButton().setEnabled(false);
-			getFileAreaCheckBox().setEnabled(false);
-
-			getCardTypeComboBox().addActionListener(new ActionListener() {
-				// when the Card type is changed, also change available sizes
-				public void actionPerformed(ActionEvent e) {
-					JComboBox typeComboBox = (JComboBox) e.getSource();
-					switch (typeComboBox.getSelectedIndex()) {
-						case 0:
-							// define available RAM Card sizes
-							getCardSizeComboBox().setModel(ramCardSizes);
-							break;
-						case 1:
-							// define available (UV) EPROM Card sizes
-							getCardSizeComboBox().setModel(eprSizes);
-							break;
-						case 2:
-							// define available Intel Flash Card sizes
-							getCardSizeComboBox().setModel(intelFlashSizes);
-							break;
-						case 3:
-							// define available Amd Flash Card sizes
-							getCardSizeComboBox().setModel(amdFlashSizes);
-							break;
-					}
-
-					if (getCardTypeComboBox().getSelectedIndex() == 0) {
-						// RAM card is selected
-						getFileAreaCheckBox().setEnabled(false);
-						getAppAreaLabel().setEnabled(false);
-						getBrowseFilesButton().setEnabled(false);
-						getBrowseAppsButton().setEnabled(false);
-					} else {
-						getFileAreaCheckBox().setEnabled(true);
-						getAppAreaLabel().setEnabled(true);
-						getBrowseFilesButton().setEnabled(true);
-						getBrowseAppsButton().setEnabled(true);
-					}
-				}
-			});
 
 			Blink.getInstance().signalFlapOpened();
 			if (JOptionPane.showConfirmDialog(Slots.this, getNewCardPanel(),
@@ -596,10 +551,26 @@ public class Slots extends JPanel {
 				// User has also chosen to create a file area on card...
 				if (getFileAreaCheckBox().isSelected() == true) {
 					// user has chosen to create/format a file area on the card
-					if (FileArea.create(slotNo, true) == true) {
+					if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
+						// a file area already exists on the card!
+						if (JOptionPane.showConfirmDialog(Slots.this, "Re-format file area on card?\nWarning: All current files is lost",
+								"File Area available on card", JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
+							if (FileArea.create(slotNo, true) == false) {
+								JOptionPane.showMessageDialog(Slots.this, "File Area could not be re-formatted",
+										"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
+							}
+						}
+					} else {
+						if (FileArea.create(slotNo, true) == false) {
+							JOptionPane.showMessageDialog(Slots.this, "File Area could not be created",
+									"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
+						}						
+					}
+					
+					if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
 						try {
 							FileArea fa = new FileArea(slotNo);
-
+	
 							if (fileAreaChooser != null) {
 								File selectedFiles[] = fileAreaChooser.getSelectedFiles();
 								// import files into file area, if selected by user...
@@ -617,9 +588,6 @@ public class Slots extends JPanel {
 							JOptionPane.showMessageDialog(Slots.this, "I/O error during File Area import",
 									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
 						}
-					} else {
-						JOptionPane.showMessageDialog(Slots.this, "File Area could not be created",
-								"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
 					}
 				}
 
@@ -641,7 +609,7 @@ public class Slots extends JPanel {
 					Blink.getInstance().pressResetButton();
 				}				
 			} else {
-				if (JOptionPane.showConfirmDialog(Slots.this, "Remove card?",
+				if (JOptionPane.showConfirmDialog(Slots.this, "Remove "+ slotButton.getText() + " card?",
 						"Remove card from slot " + slotNo, JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {				
 
 					if (JOptionPane.showConfirmDialog(Slots.this, "Save card to a *.EPR file, before removing it?",
@@ -751,7 +719,47 @@ public class Slots extends JPanel {
 	private JComboBox getCardTypeComboBox() {
 		if (cardTypeComboBox == null) {
 			cardTypeComboBox = new JComboBox();
+			cardTypeComboBox.setModel(newCardTypes);
+		
+			cardTypeComboBox.addActionListener(new ActionListener() {
+				// when the Card type is changed, also change available sizes
+				public void actionPerformed(ActionEvent e) {
+					JComboBox typeComboBox = (JComboBox) e.getSource();
+					switch (typeComboBox.getSelectedIndex()) {
+						case 0:
+							// define available RAM Card sizes
+							getCardSizeComboBox().setModel(ramCardSizes);
+							break;
+						case 1:
+							// define available (UV) EPROM Card sizes
+							getCardSizeComboBox().setModel(eprSizes);
+							break;
+						case 2:
+							// define available Intel Flash Card sizes
+							getCardSizeComboBox().setModel(intelFlashSizes);
+							break;
+						case 3:
+							// define available Amd Flash Card sizes
+							getCardSizeComboBox().setModel(amdFlashSizes);
+							break;
+					}
+
+					if (getCardTypeComboBox().getSelectedIndex() == 0) {
+						// RAM card is selected
+						getFileAreaCheckBox().setEnabled(false);
+						getAppAreaLabel().setEnabled(false);
+						getBrowseFilesButton().setEnabled(false);
+						getBrowseAppsButton().setEnabled(false);
+					} else {
+						getFileAreaCheckBox().setEnabled(true);
+						getAppAreaLabel().setEnabled(true);
+						getBrowseFilesButton().setEnabled(true);
+						getBrowseAppsButton().setEnabled(true);
+					}
+				}
+			});
 		}
+		
 		return cardTypeComboBox;
 	}
 
