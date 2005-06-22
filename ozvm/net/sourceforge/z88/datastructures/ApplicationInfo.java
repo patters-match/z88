@@ -18,12 +18,17 @@
  */
 package net.sourceforge.z88.datastructures;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
 /**
  * Get Access to Z88 Application Information (DOR) for available slot.
+ * Also, validate Application Card Image.
  */
 public class ApplicationInfo {
 	
@@ -86,4 +91,45 @@ public class ApplicationInfo {
 		else
 			return null;
 	}
+
+	/**
+	 * Validate that the file image contains data for an application card:
+	 * Identified with an 'OZ' watermark at the top of the card and
+	 * a bank counter less or equal to the size of the image.  
+	 * 
+	 * @param applImage
+	 * @return true if a file area was properly identified
+	 */
+	public static boolean checkAppImage(File applImage) {
+		boolean fileImageStatus = true;
+		
+		try {
+			RandomAccessFile f = new RandomAccessFile(applImage, "r");
+			if ((f.length() > 1024*1024) | (f.length() % 16384 != 0))
+				// illegal card size
+				fileImageStatus = false;
+			
+			// get bank size byte
+			f.seek(f.length() - 4);
+			if (f.readByte() * 16384 > f.length())
+				// total number of banks larger than image size...
+				fileImageStatus = false;
+			
+			f.readByte(); // skip..
+			
+			// read 'OZ' application card watermark
+			int wm_o = f.readByte();
+			int wm_z = f.readByte();
+			if (wm_o != 0x4F & wm_z != 0x5A)
+				fileImageStatus = false;
+			
+			f.close();			
+		} catch (FileNotFoundException e) {			
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+		
+		return fileImageStatus;
+	}	
 }

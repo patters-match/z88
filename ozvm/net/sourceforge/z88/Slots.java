@@ -45,6 +45,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
+import net.sourceforge.z88.datastructures.ApplicationInfo;
 import net.sourceforge.z88.datastructures.SlotInfo;
 import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
@@ -57,7 +58,7 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class Slots extends JPanel {
 
-	private static final String defaultAppLoadText = "Load Applications (*.EPR):";
+	private static final String defaultAppLoadText = "Load File/Application image (*.EPR):";
 
 	private static final String installRomMsg = "Install new ROM in slot 0?\nWARNING: Installing a ROM will automatically perform a hard reset!";
 
@@ -522,18 +523,29 @@ public class Slots extends JPanel {
 
 				if (eprFileImage != null) {
 					// A selected Eprom was also marked to load an (app) image.. 
-					try {
-						memory.loadImageOnEprCard(slotNo, cardSizeK, internalCardType, eprFileImage);
-					} catch (IOException e1) {
-						// an error occurred when inserting the card..
+					if (FileArea.checkFileAreaImage(epromFileChooser.getSelectedFile()) == true |
+						ApplicationInfo.checkAppImage(epromFileChooser.getSelectedFile()) == true) {
+						
 						try {
-							eprFileImage.close();
-						} catch (IOException e2) {}
-						JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
+							memory.loadImageOnEprCard(slotNo, cardSizeK, internalCardType, eprFileImage);
+						} catch (IOException e1) {
+							// an error occurred when inserting the card..
+							try {
+								eprFileImage.close();
+							} catch (IOException e2) {}
+							JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
+									"Insert Card Error", JOptionPane.ERROR_MESSAGE);
+							Blink.getInstance().signalFlapClosed();
+							Z88display.getInstance().grabFocus();
+							return;
+						}
+					} else {
+						JOptionPane.showMessageDialog(Slots.this, 
+								"Selected EPR file image didn't contain a File or Application Card" ,
 								"Insert Card Error", JOptionPane.ERROR_MESSAGE);
 						Blink.getInstance().signalFlapClosed();
 						Z88display.getInstance().grabFocus();
-						return;
+						return;						
 					}
 				} else {
 					// Insert a selected Eprom type (which is not to be loaded with a file image...

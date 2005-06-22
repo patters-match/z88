@@ -19,6 +19,7 @@
 package net.sourceforge.z88.filecard;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.LinkedList;
@@ -36,6 +37,7 @@ import net.sourceforge.z88.datastructures.SlotInfo;
 
 /**
  * Management of files in File Area of inserted card in specified slot (1-3).
+ * Also validation of File Card image.
  */
 public class FileArea {
 	/** null-file for Intel Flash Card */
@@ -609,6 +611,55 @@ public class FileArea {
 		}
 	}
 	
+	/**
+	 * Validate that the file image is in fact a copy of a file card:
+	 * identified with an 'oz' watermark at the top of the card and 
+	 * make sure that the file size is matches a known card size, eg. 
+	 * 32K, 128K .. 1024K.
+	 * 
+	 * @param fileEprImage
+	 * @return true if a file area was properly identified
+	 */
+	public static boolean checkFileAreaImage(File fileEprImage) {
+		boolean fileAreaStatus = true;
+		
+		try {
+			RandomAccessFile f = new RandomAccessFile(fileEprImage, "r");
+			switch((int) f.length()) {
+				case 32*1024: // 32K UV Eprom
+				case 128*1024: // 128K UV Eprom, or 128K Amd Flash
+				case 256*1024: // 256K UV Eprom
+				case 512*1024: // 512K Intel Flash or 512K Amd Flash
+				case 1024*1024: // 1024K Intel Flash or Amd Flash
+					break;
+				default:
+					// illegal card size
+					fileAreaStatus = false;
+			}
+			
+			// get bank size byte
+			f.seek(f.length() - 4);
+			if (f.readByte() * 16384 != f.length())
+				// total number of banks doesn't match file image size...
+				fileAreaStatus = false;
+			
+			f.readByte(); // skip Card subtype
+			
+			// read 'oz' File card watermark
+			int wm_o = f.readByte();
+			int wm_z = f.readByte();
+			if (wm_o != 0x6F & wm_z != 0x7A)
+				fileAreaStatus = false;
+			
+			f.close();			
+		} catch (FileNotFoundException e) {			
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+		
+		return fileAreaStatus;
+	}
 	
 	/**
 	 * Write a file header in one of the external slots (1-3) at specified
