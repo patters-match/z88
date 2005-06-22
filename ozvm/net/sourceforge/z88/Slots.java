@@ -541,7 +541,7 @@ public class Slots extends JPanel {
 						}
 					} else {
 						JOptionPane.showMessageDialog(Slots.this, 
-								"Selected EPR file image didn't contain a File or Application Card" ,
+								"Selected EPR file image didn't contain a valid File or Application Card" ,
 								"Insert Card Error", JOptionPane.ERROR_MESSAGE);
 						Blink.getInstance().signalFlapClosed();
 						Z88display.getInstance().grabFocus();
