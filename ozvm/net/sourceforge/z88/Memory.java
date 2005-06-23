@@ -253,13 +253,21 @@ public final class Memory {
 	/**
 	 * Remove inserted card, ie. null'ify the banks for the specified slot.
 	 * 
-	 * @param slot (1-3)
+	 * @param slotNo (1-3)
+	 * @return a transferred copy of the slot in a card container
 	 */
-	public void removeCard(final int slot) {
-		int slotBank = (slot & 3) << 6; // convert slot number to bottom bank of slot
+	public Bank[] removeCard(final int slotNo) {
+		Bank cardContainer[] = new Bank[getExternalCardSize(slotNo)];
+		
+		int slotBank = (slotNo & 3) << 6; // convert slot number to bottom bank of slot
 		int slotTopBank = slotBank | 0x3F; 
 		
-		while (slotBank <= slotTopBank) memory[slotBank++] = nullBank;
+		while (slotBank <= slotTopBank) {
+			cardContainer[slotBank & 0x3F] = memory[slotBank]; // transfer bank to container 
+			memory[slotBank++] = nullBank; // then "remove" it from slot.
+		}
+		
+		return cardContainer;
 	}
 	
 	
