@@ -58,7 +58,7 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class Slots extends JPanel {
 
-	private static final String defaultAppLoadText = "Load File/Application image (*.EPR):";
+	private static final String defaultAppLoadText = "Select Application or File Card Image:";
 
 	private static final String installRomMsg = "Install new ROM in slot 0?\nWARNING: Installing a ROM will automatically perform a hard reset!";
 
@@ -130,6 +130,9 @@ public class Slots extends JPanel {
 
 	private JFileChooser fileAreaChooser;
 
+	/** Keep a copy of each last removed (flash) eprom card from external slot */
+	private Bank lastRemovedCard[][];
+	
 	private File currentEpromDir;
 	private File currentFilesDir;
 	
@@ -140,6 +143,9 @@ public class Slots extends JPanel {
 		currentEpromDir = new File(System.getProperty("user.dir"));
 		currentFilesDir = new File(System.getProperty("user.dir"));
 
+		// references to last removed card (bank containers)
+		lastRemovedCard = new Bank[3][]; 
+		
 		setBackground(Color.BLACK);
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -454,16 +460,25 @@ public class Slots extends JPanel {
 		RandomAccessFile eprFileImage = null;
 		String internalCardType = null;
 
-		getCardSizeComboBox().setModel(amdFlashSizes);
-		getCardTypeComboBox().setSelectedIndex(3); // default AMD Flash card
-		getCardSizeComboBox().setSelectedIndex(2); // default 1024K size
+		if (slotNo == 1) {
+			// default select RAM card for slot 1 (easier for users)
+			getCardSizeComboBox().setModel(ramCardSizes);
+			getCardTypeComboBox().setSelectedIndex(0); // default RAM card
+			getCardSizeComboBox().setSelectedIndex(3); // default 1024K size						
+		} else {
+			// for all other slots, defualt select a (Flash) Eprom
+			getCardSizeComboBox().setModel(amdFlashSizes);
+			getCardTypeComboBox().setSelectedIndex(3); // default AMD Flash card
+			getCardSizeComboBox().setSelectedIndex(2); // default 1024K size			
+		}
+		
 		getFileAreaCheckBox().setSelected(false); // default no file area on card...
 		getAppAreaLabel().setText(defaultAppLoadText);
 		epromFileChooser = fileAreaChooser = null;
 
 		Blink.getInstance().signalFlapOpened();
 		if (JOptionPane.showConfirmDialog(Slots.this, getNewCardPanel(),
-				"Insert card into slot " + slotNo, JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
+				"Create Card to insert into slot " + slotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			String size = (String) getCardSizeComboBox().getModel()
 					.getElementAt(getCardSizeComboBox().getSelectedIndex());
 			int cardSizeK = Integer.parseInt(size.substring(0,size.indexOf("K")));
@@ -600,7 +615,7 @@ public class Slots extends JPanel {
 		if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.RamCard) {
 			if (JOptionPane.showConfirmDialog(Slots.this, 
 					"Remove RAM card?\nWarning: A soft reset is automatically performed after removal",
-					"Remove card from slot " + slotNo, JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {				
+					"Remove card from slot " + slotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {				
 				memory.removeCard(slotNo);
 				Blink.getInstance().signalFlapClosed();
 				Blink.getInstance().pressResetButton();
@@ -609,12 +624,12 @@ public class Slots extends JPanel {
 			if (JOptionPane.showConfirmDialog(Slots.this, 
 					"Remove "+ slotButton.getText() + " card?",
 					"Remove card from slot " + slotNo, 
-					JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {				
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {				
 
 				if (JOptionPane.showConfirmDialog(Slots.this, 
 						"Save card to a *.EPR file, before removing it?",
 						"Remove card from slot " + slotNo, 
-						JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					JFileChooser chooser = new JFileChooser(currentEpromDir);
 					chooser.setDialogTitle("Save Z88 Card");
 					chooser.setMultiSelectionEnabled(false);
@@ -623,8 +638,14 @@ public class Slots extends JPanel {
 											
 					int returnVal = chooser.showSaveDialog(Slots.this.getParent());
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						String eprFilename = chooser.getSelectedFile().getAbsolutePath();
+						if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
+							// append ".epr" extension if not specified by user... 
+							eprFilename += ".epr";
+						}
+						
 						try {
-							memory.dumpSlot(slotNo, false, "", chooser.getSelectedFile().getAbsolutePath());
+							memory.dumpSlot(slotNo, false, "", eprFilename);
 						} catch (FileNotFoundException e) {
 							JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
 									"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
@@ -673,7 +694,7 @@ public class Slots extends JPanel {
 			newCardPanel = new JPanel();
 			newCardPanel.setLayout(new GridBagLayout());
 			newCardPanel.setBorder(new TitledBorder(new EtchedBorder(
-					EtchedBorder.LOWERED), "Card",
+					EtchedBorder.LOWERED), "Create Card",
 					TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, null, null));
 
@@ -702,31 +723,33 @@ public class Slots extends JPanel {
 			gridBagConstraints_3.gridx = 3;
 			newCardPanel.add(getCardSizeComboBox(), gridBagConstraints_3);
 
-			final GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
-			gridBagConstraints_4.gridwidth = 3;
-			gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_4.gridy = 1;
-			gridBagConstraints_4.gridx = 0;
-			newCardPanel.add(getFileAreaCheckBox(), gridBagConstraints_4);
-
-			final GridBagConstraints gridBagConstraints_5 = new GridBagConstraints();
-			gridBagConstraints_5.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_5.gridy = 1;
-			gridBagConstraints_5.gridx = 3;
-			newCardPanel.add(getBrowseFilesButton(), gridBagConstraints_5);
-
 			final GridBagConstraints gridBagConstraints_6 = new GridBagConstraints();
 			gridBagConstraints_6.gridwidth = 3;
+			gridBagConstraints_6.insets = new Insets(0, 0, 0, 20);
 			gridBagConstraints_6.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_6.gridy = 2;
+			gridBagConstraints_6.gridy = 1;
 			gridBagConstraints_6.gridx = 0;
 			newCardPanel.add(getAppAreaLabel(), gridBagConstraints_6);
 
 			final GridBagConstraints gridBagConstraints_7 = new GridBagConstraints();
 			gridBagConstraints_7.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_7.gridy = 2;
+			gridBagConstraints_7.gridy = 1;
 			gridBagConstraints_7.gridx = 3;
 			newCardPanel.add(getBrowseAppsButton(), gridBagConstraints_7);
+
+			final GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
+			gridBagConstraints_4.gridwidth = 3;
+			gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints_4.gridy = 2;
+			gridBagConstraints_4.gridx = 0;
+			newCardPanel.add(getFileAreaCheckBox(), gridBagConstraints_4);
+
+			final GridBagConstraints gridBagConstraints_5 = new GridBagConstraints();
+			gridBagConstraints_5.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints_5.gridy = 2;
+			gridBagConstraints_5.gridx = 3;
+			newCardPanel.add(getBrowseFilesButton(), gridBagConstraints_5);
+
 		}
 
 		return newCardPanel;
@@ -814,7 +837,7 @@ public class Slots extends JPanel {
 		if (browseFilesButton == null) {
 			browseFilesButton = new JButton();
 			browseFilesButton.setFont(buttonFont);
-			browseFilesButton.setText("Add files..");
+			browseFilesButton.setText("Load Files..");
 
 			browseFilesButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -989,7 +1012,7 @@ public class Slots extends JPanel {
 		if (browseAppsButton == null) {
 			browseAppsButton = new JButton();
 			browseAppsButton.setFont(buttonFont);
-			browseAppsButton.setText("Browse..");
+			browseAppsButton.setText("Load Image..");
 
 			browseAppsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -1053,7 +1076,7 @@ public class Slots extends JPanel {
 
 		/** The description of this filter */
 		public String getDescription() {
-			return "Z88 (flash) Eprom files";
+			return "Z88 (flash) Eprom files *.EPR";
 		}
 
 		/** Get the extension of a file */
