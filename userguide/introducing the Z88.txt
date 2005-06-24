@@ -1,0 +1,54 @@
+Introducing the Z88
+
+The Z88 is a unique computer for several reasons.
+
+For the first time in a machine of its size and portability it offers you a
+powerful productivity tool, PipeDream, capable of tackling the most
+demanding applications and providing all the capabilities normally only
+obtained by working with separate programs on much larger computers;
+It combines in one program most facilities provided by the best word
+processors, database programs, and spreadsheets.
+
+To complement PipeDream, the Z88 comes complete with a range of
+utility programs, designed to anticipate any task you might wish to
+perform in the home or office; these include a clock, calculator, diary and
+organiser I and an alarm reminder.
+
+The Z88 also avoids the problems of storing documents and applications
+long-term by providing battery-powered circuitry which will retain all
+the information in the computer for over a year while it is switched off.
+The batteries also maintain the correct time and date in an intemal clock
+and calendar.
+
+In addition, communication with larger computers is catered for by built-
+in transfer programs.
+
+In no time, the Z88 will revolutionise your life by making it possible for
+you to work with the tools you need, wherever and whenever you want.
+
+Conventions in this manual
+In this manual, anything displayed on the Z88 screen is shown in a
+computer typeface, such as
+
+     Name of file to save
+
+Anything that you should type at the keyboard is shown in a different
+typeface to designate the keyboard keys; for example
+
+You are invited to a party
+
+The keys on the keyboard with a special function are shown in the text
+with key legends. So, for example, if you are asked to type
+
+myfile [ENTER]
+
+you would actually type the letters m y f i 1 e and then press the
+[ENTER].
+
+In general, references to menu headings are in bold caps; for example
+LAYOUT
+
+References to individual commands are in bold; for example Save or Load.
+
+References to options displayed by a command are in italics; for
+example Save only range of columns.

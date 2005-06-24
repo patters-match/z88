@@ -1,0 +1,31 @@
+INTRODUCTION
+
+Section One - Getting started 3
+
+Introducing the Z88 4
+Conventions in this manual 4
+
+Up and running 6
+Fitting batteries 6
+Inserting the batteries 7
+Initialise the Z88 8
+Adjust the display 8
+Set the clock 9
+Try typing text 9
+Switch off 10
+
+The Z88 applications and popdowns 11
+The applications 11
+The popdowns 13
+
+Basic concepts 15
+The keyboard 15
+The Index 18
+Entering an application 19
+Suspended activities 20
+Using menus 20
+Short cuts - <> 23
+Line editing 24
+Memory low condition 24
+Soft and hard reset 24
+Help 25
