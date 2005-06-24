@@ -122,6 +122,8 @@ public class Slots extends JPanel {
 
 	private JCheckBox fileAreaCheckBox;
 	
+	private JCheckBox saveAsBanksCheckBox;
+	
 	private JCheckBox insertCardCopyCheckBox;
 	
 	private Memory memory;
@@ -132,11 +134,15 @@ public class Slots extends JPanel {
 
 	private JFileChooser fileAreaChooser;
 
-	/** Keep a copy of each last removed (flash) eprom card from external slot */
+	/** Keep a copy of each last removed (flash) eprom card from slots (1-3) */
 	private Bank lastRemovedCard[][];
 	
 	private File currentEpromDir;
 	private File currentFilesDir;
+
+	private JPanel saveAsBanksPanel;
+
+	private JLabel saveAsBanksLabel;
 	
 	public Slots() {
 		super();
@@ -663,40 +669,65 @@ public class Slots extends JPanel {
 				Blink.getInstance().signalFlapClosed();
 				Blink.getInstance().pressResetButton();
 			}				
-		} else {
+		} else {		
 			if (JOptionPane.showConfirmDialog(Slots.this, 
 					"Remove "+ slotButton.getText() + " card?",
 					"Remove card from slot " + slotNo, 
 					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {				
 
 				if (JOptionPane.showConfirmDialog(Slots.this, 
-						"Save card to a *.EPR file, before removing it?",
+						getSaveAsBanksPanel(),
 						"Remove card from slot " + slotNo, 
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-					JFileChooser chooser = new JFileChooser(currentEpromDir);
-					chooser.setDialogTitle("Save Z88 Card");
-					chooser.setMultiSelectionEnabled(false);
-					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					chooser.setFileFilter(eprfileFilter);
-											
-					int returnVal = chooser.showSaveDialog(Slots.this.getParent());
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						String eprFilename = chooser.getSelectedFile().getAbsolutePath();
-						if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
-							// append ".epr" extension if not specified by user... 
-							eprFilename += ".epr";
-						}
+					if (getSaveAsBanksCheckBox().isSelected() == false) {
+						// save card as an EPR image file...
+						JFileChooser chooser = new JFileChooser(currentEpromDir);
+						chooser.setDialogTitle("Save Z88 Card as a single image file (*.EPR)");
+						chooser.setMultiSelectionEnabled(false);
+						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+						chooser.setFileFilter(eprfileFilter);
+												
+						int returnVal = chooser.showSaveDialog(Slots.this.getParent());
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							String eprFilename = chooser.getSelectedFile().getAbsolutePath();
+							if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
+								// append ".epr" extension if not specified by user... 
+								eprFilename += ".epr";
+							}
+							
+							try {
+								memory.dumpSlot(slotNo, false, "", eprFilename);
+							} catch (FileNotFoundException e) {
+								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+							} catch (IOException e) {
+								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+							}
+						}												
+					} else {
+						// save card as 16K bank files...
+						JFileChooser chooser = new JFileChooser(currentEpromDir);
+						chooser.setDialogTitle("Save Z88 Card as 16 Bank files (.0 - .63)");
+						chooser.setMultiSelectionEnabled(false);
+						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+												
+						int returnVal = chooser.showSaveDialog(Slots.this.getParent());
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							String filenameDir = chooser.getSelectedFile().getParent();
+							
+							try {
+								memory.dumpSlot(slotNo, true, filenameDir, chooser.getSelectedFile().getName());
+							} catch (FileNotFoundException e) {
+								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card as 16k bank files",
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+							} catch (IOException e) {
+								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card as 16k bank files",
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+							}
+						}												
 						
-						try {
-							memory.dumpSlot(slotNo, false, "", eprFilename);
-						} catch (FileNotFoundException e) {
-							JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
-									"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
-						} catch (IOException e) {
-							JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
-									"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
-						}
-					}												
+					}
 				}
 				
 				// keep a copy of removed File/App card...
@@ -707,6 +738,26 @@ public class Slots extends JPanel {
 		Blink.getInstance().signalFlapClosed();
 		refreshSlotInfo(slotNo);
 		Z88display.getInstance().grabFocus();		
+	}
+
+	private JLabel getSaveAsBanksLabel() {
+		if (saveAsBanksLabel == null) {
+			saveAsBanksLabel = new JLabel();
+			saveAsBanksLabel.setText("Dump card to filing system, before removing it?");
+		}
+
+		return saveAsBanksLabel;
+	}
+	
+	private JPanel getSaveAsBanksPanel() {
+		if (saveAsBanksPanel == null) {
+			saveAsBanksPanel = new JPanel();
+			saveAsBanksPanel.setLayout(new BoxLayout(saveAsBanksPanel, BoxLayout.Y_AXIS));
+			saveAsBanksPanel.add(getSaveAsBanksLabel());
+			saveAsBanksPanel.add(getSaveAsBanksCheckBox());
+		}
+		
+		return saveAsBanksPanel;
 	}
 	
 
@@ -898,6 +949,15 @@ public class Slots extends JPanel {
 		return fileAreaCheckBox;
 	}
 
+	private JCheckBox getSaveAsBanksCheckBox() {
+		if (saveAsBanksCheckBox == null) {
+			saveAsBanksCheckBox = new JCheckBox();
+			saveAsBanksCheckBox.setText("Save Card as 16K bank files (0-63)");			
+		}
+
+		return saveAsBanksCheckBox;
+	}
+	
 	private JButton getBrowseFilesButton() {
 		if (browseFilesButton == null) {
 			browseFilesButton = new JButton();
@@ -1145,7 +1205,7 @@ public class Slots extends JPanel {
 
 		/** The description of this filter */
 		public String getDescription() {
-			return "Z88 (flash) Eprom files *.EPR";
+			return "Z88 Card image files (*.epr)";
 		}
 
 		/** Get the extension of a file */
@@ -1157,6 +1217,7 @@ public class Slots extends JPanel {
 			if (i > 0 && i < s.length() - 1) {
 				ext = s.substring(i + 1).toLowerCase();
 			}
+			
 			return ext;
 		}
 	}
