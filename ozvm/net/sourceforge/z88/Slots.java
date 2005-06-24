@@ -121,7 +121,9 @@ public class Slots extends JPanel {
 	private JButton browseFilesButton;
 
 	private JCheckBox fileAreaCheckBox;
-
+	
+	private JCheckBox insertCardCopyCheckBox;
+	
 	private Memory memory;
 
 	private EpromFileFilter eprfileFilter;
@@ -144,7 +146,8 @@ public class Slots extends JPanel {
 		currentFilesDir = new File(System.getProperty("user.dir"));
 
 		// references to last removed card (bank containers)
-		lastRemovedCard = new Bank[3][]; 
+		// in external slots (1-3).
+		lastRemovedCard = new Bank[4][]; 
 		
 		setBackground(Color.BLACK);
 
@@ -407,7 +410,7 @@ public class Slots extends JPanel {
 					if (SlotInfo.getInstance().getCardType(1) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
-						insertCard(3);
+						insertCard(1);
 					} else {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
@@ -433,7 +436,7 @@ public class Slots extends JPanel {
 					if (SlotInfo.getInstance().getCardType(2) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
-						insertCard(3);
+						insertCard(2);
 					} else {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
@@ -497,9 +500,16 @@ public class Slots extends JPanel {
 			getCardSizeComboBox().setSelectedIndex(2); // default 1024K size			
 		}
 		
+		getReInsertCardCopyCheckBox().setSelected(false);
 		getFileAreaCheckBox().setSelected(false); // default no file area on card...
 		getAppAreaLabel().setText(defaultAppLoadText);
 		epromFileChooser = fileAreaChooser = null;
+
+		if (lastRemovedCard[slotNo] != null)
+			// The user may choose to re-insert a previously removed card
+			getReInsertCardCopyCheckBox().setEnabled(true);
+		else
+			getReInsertCardCopyCheckBox().setEnabled(false);
 
 		Blink.getInstance().signalFlapOpened();
 		if (JOptionPane.showConfirmDialog(Slots.this, getNewCardPanel(),
@@ -508,121 +518,127 @@ public class Slots extends JPanel {
 					.getElementAt(getCardSizeComboBox().getSelectedIndex());
 			int cardSizeK = Integer.parseInt(size.substring(0,size.indexOf("K")));
 
-			if (epromFileChooser != null) {
-				try {
-					// load an EPR image on the card: start with opening the file
-					eprFileImage = new RandomAccessFile(epromFileChooser
-							.getSelectedFile().getAbsolutePath(), "r");
-				} catch (FileNotFoundException e1) {
-					// file couldn't be opened, display an error message
-					JOptionPane.showMessageDialog(Slots.this,
-							epromFileChooser.getSelectedFile()
-									.getAbsolutePath()
-									+ ": " + e1.getMessage(),
-							"File I/O error", JOptionPane.ERROR_MESSAGE);
-					Blink.getInstance().signalFlapClosed();
-					Z88display.getInstance().grabFocus();
-					return;
-				}
-			}
-
-			switch (getCardTypeComboBox().getSelectedIndex()) {
-				case 0:
-					// insert selected RAM Card
-					memory.insertRamCard(cardSizeK * 1024, slotNo);
-					break;
-				case 1:
-					// insert an (UV) EPROM Card 
-					internalCardType = "27C";
-					break;
-				case 2:
-					// insert an Intel Flash Card 
-					internalCardType = "28F";
-					break;
-				case 3:
-					// insert an Amd Flash Card 
-					internalCardType = "29F";
-					break;
-			}
-
-			if (eprFileImage != null) {
-				// A selected Eprom was also marked to load an (app) image.. 
-				if (FileArea.checkFileAreaImage(epromFileChooser.getSelectedFile()) == true |
-					ApplicationInfo.checkAppImage(epromFileChooser.getSelectedFile()) == true) {
-					
+			if (getReInsertCardCopyCheckBox().isSelected() == true) {
+				// re-insert previously removed card
+				memory.insertCard(lastRemovedCard[slotNo], slotNo);
+				lastRemovedCard[slotNo] = null;
+			} else {
+				if (epromFileChooser != null) {
 					try {
-						memory.loadImageOnEprCard(slotNo, cardSizeK, internalCardType, eprFileImage);
-					} catch (IOException e1) {
-						// an error occurred when inserting the card..
-						try {
-							eprFileImage.close();
-						} catch (IOException e2) {}
-						JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
-								"Insert Card Error", JOptionPane.ERROR_MESSAGE);
+						// load an EPR image on the card: start with opening the file
+						eprFileImage = new RandomAccessFile(epromFileChooser
+								.getSelectedFile().getAbsolutePath(), "r");
+					} catch (FileNotFoundException e1) {
+						// file couldn't be opened, display an error message
+						JOptionPane.showMessageDialog(Slots.this,
+								epromFileChooser.getSelectedFile()
+										.getAbsolutePath()
+										+ ": " + e1.getMessage(),
+								"File I/O error", JOptionPane.ERROR_MESSAGE);
 						Blink.getInstance().signalFlapClosed();
 						Z88display.getInstance().grabFocus();
 						return;
 					}
-				} else {
-					JOptionPane.showMessageDialog(Slots.this, 
-							"Selected EPR file image didn't contain a valid File or Application Card" ,
-							"Insert Card Error", JOptionPane.ERROR_MESSAGE);
-					Blink.getInstance().signalFlapClosed();
-					Z88display.getInstance().grabFocus();
-					return;						
 				}
-			} else {
-				// Insert a selected Eprom type (which is not to be loaded with a file image...
-				if (internalCardType != null)
-					memory.insertEprCard(slotNo, cardSizeK, internalCardType);
-			}
-			
-			if (eprFileImage != null) {
-				// EPR file image was processed, now close it...
-				try {
-					eprFileImage.close();
-				} catch (IOException e2) {}
-			}
-			
-			// User has also chosen to create a file area on card...
-			if (getFileAreaCheckBox().isSelected() == true) {
-				// user has chosen to create/format a file area on the card
-				if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
-					// a file area already exists on the card!
-					if (JOptionPane.showConfirmDialog(Slots.this, "Re-format file area on card?\nWarning: All current files is lost",
-							"File Area available on card", JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
-						if (FileArea.create(slotNo, true) == false) {
-							JOptionPane.showMessageDialog(Slots.this, "File Area could not be re-formatted",
-									"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
+	
+				switch (getCardTypeComboBox().getSelectedIndex()) {
+					case 0:
+						// insert selected RAM Card
+						memory.insertRamCard(cardSizeK * 1024, slotNo);
+						break;
+					case 1:
+						// insert an (UV) EPROM Card 
+						internalCardType = "27C";
+						break;
+					case 2:
+						// insert an Intel Flash Card 
+						internalCardType = "28F";
+						break;
+					case 3:
+						// insert an Amd Flash Card 
+						internalCardType = "29F";
+						break;
+				}
+	
+				if (eprFileImage != null) {
+					// A selected Eprom was also marked to load an (app) image.. 
+					if (FileArea.checkFileAreaImage(epromFileChooser.getSelectedFile()) == true |
+						ApplicationInfo.checkAppImage(epromFileChooser.getSelectedFile()) == true) {
+						
+						try {
+							memory.loadImageOnEprCard(slotNo, cardSizeK, internalCardType, eprFileImage);
+						} catch (IOException e1) {
+							// an error occurred when inserting the card..
+							try {
+								eprFileImage.close();
+							} catch (IOException e2) {}
+							JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
+									"Insert Card Error", JOptionPane.ERROR_MESSAGE);
+							Blink.getInstance().signalFlapClosed();
+							Z88display.getInstance().grabFocus();
+							return;
 						}
+					} else {
+						JOptionPane.showMessageDialog(Slots.this, 
+								"Selected EPR file image didn't contain a valid File or Application Card" ,
+								"Insert Card Error", JOptionPane.ERROR_MESSAGE);
+						Blink.getInstance().signalFlapClosed();
+						Z88display.getInstance().grabFocus();
+						return;						
 					}
 				} else {
-					if (FileArea.create(slotNo, true) == false) {
-						JOptionPane.showMessageDialog(Slots.this, "File Area could not be created",
-								"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
-					}						
+					// Insert a selected Eprom type (which is not to be loaded with a file image...
+					if (internalCardType != null)
+						memory.insertEprCard(slotNo, cardSizeK, internalCardType);
 				}
 				
-				if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
+				if (eprFileImage != null) {
+					// EPR file image was processed, now close it...
 					try {
-						FileArea fa = new FileArea(slotNo);
-
-						if (fileAreaChooser != null) {
-							File selectedFiles[] = fileAreaChooser.getSelectedFiles();
-							// import files into file area, if selected by user...
-							for (int f=0; f<selectedFiles.length; f++) {
-								fa.importHostFile(selectedFiles[f]);
+						eprFileImage.close();
+					} catch (IOException e2) {}
+				}
+				
+				// User has also chosen to create a file area on card...
+				if (getFileAreaCheckBox().isSelected() == true) {
+					// user has chosen to create/format a file area on the card
+					if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
+						// a file area already exists on the card!
+						if (JOptionPane.showConfirmDialog(Slots.this, "Re-format file area on card?\nWarning: All current files is lost",
+								"File Area available on card", JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
+							if (FileArea.create(slotNo, true) == false) {
+								JOptionPane.showMessageDialog(Slots.this, "File Area could not be re-formatted",
+										"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
 							}
 						}
-					} catch (FileAreaNotFoundException e1) {
-						JOptionPane.showMessageDialog(Slots.this, "File Area not available in slot" + slotNo,
-								"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
-					} catch (FileAreaExhaustedException e) {
-						JOptionPane.showMessageDialog(Slots.this, "File Area exhausted during import",
-								"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
-					} catch (IOException e) {
-						JOptionPane.showMessageDialog(Slots.this, "I/O error during File Area import",
-								"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+					} else {
+						if (FileArea.create(slotNo, true) == false) {
+							JOptionPane.showMessageDialog(Slots.this, "File Area could not be created",
+									"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
+						}						
+					}
+					
+					if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
+						try {
+							FileArea fa = new FileArea(slotNo);
+	
+							if (fileAreaChooser != null) {
+								File selectedFiles[] = fileAreaChooser.getSelectedFiles();
+								// import files into file area, if selected by user...
+								for (int f=0; f<selectedFiles.length; f++) {
+									fa.importHostFile(selectedFiles[f]);
+								}
+							}
+						} catch (FileAreaNotFoundException e1) {
+							JOptionPane.showMessageDialog(Slots.this, "File Area not available in slot" + slotNo,
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+						} catch (FileAreaExhaustedException e) {
+							JOptionPane.showMessageDialog(Slots.this, "File Area exhausted during import",
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+						} catch (IOException e) {
+							JOptionPane.showMessageDialog(Slots.this, "I/O error during File Area import",
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+						}
 					}
 				}
 			}
@@ -755,6 +771,12 @@ public class Slots extends JPanel {
 			gridBagConstraints_5.gridx = 3;
 			newCardPanel.add(getBrowseFilesButton(), gridBagConstraints_5);
 
+			final GridBagConstraints gridBagConstraints_8 = new GridBagConstraints();
+			gridBagConstraints_8.gridwidth = 4;
+			gridBagConstraints_8.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints_8.gridy = 4;
+			gridBagConstraints_8.gridx = 0;
+			newCardPanel.add(getReInsertCardCopyCheckBox(), gridBagConstraints_8);						
 		}
 
 		return newCardPanel;
@@ -830,11 +852,49 @@ public class Slots extends JPanel {
 		return cardSizeComboBox;
 	}
 
+	private JCheckBox getReInsertCardCopyCheckBox() {
+		if (insertCardCopyCheckBox == null) {
+			insertCardCopyCheckBox = new JCheckBox();
+			insertCardCopyCheckBox.setText("Re-insert previously removed card");
+
+			insertCardCopyCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (insertCardCopyCheckBox.isSelected() == true) {
+						// disable all other insert-dialog features -
+						// the user wants to re-insert a previously removed card
+						getCardTypeLabel().setEnabled(false);
+						getCardTypeComboBox().setEnabled(false);
+						getCardSizeLabel().setEnabled(false);
+						getCardSizeComboBox().setEnabled(false);
+						getFileAreaCheckBox().setEnabled(false);
+						getBrowseFilesButton().setEnabled(false);
+						getAppAreaLabel().setEnabled(false);
+						getBrowseAppsButton().setEnabled(false);
+					} else {
+						// re-enable insert-card-dialog features -
+						// the user discarded the choice of re-inserting an old card
+						getCardTypeLabel().setEnabled(true);
+						getCardTypeComboBox().setEnabled(true);
+						getCardSizeLabel().setEnabled(true);
+						getCardSizeComboBox().setEnabled(true);
+						getFileAreaCheckBox().setEnabled(true);
+						getBrowseFilesButton().setEnabled(true);
+						getAppAreaLabel().setEnabled(true);
+						getBrowseAppsButton().setEnabled(true);
+					}
+				}
+			});			
+		}
+		
+		return insertCardCopyCheckBox;
+	}
+	
 	private JCheckBox getFileAreaCheckBox() {
 		if (fileAreaCheckBox == null) {
 			fileAreaCheckBox = new JCheckBox();
-			fileAreaCheckBox.setText("Create File Area:");
+			fileAreaCheckBox.setText("Create File Area:");			
 		}
+
 		return fileAreaCheckBox;
 	}
 
@@ -1056,6 +1116,10 @@ public class Slots extends JPanel {
 		return browseAppsButton;
 	}
 
+	/**
+	 *.EPR filter when browsing the filing system for Application or
+	 * File Cards.
+	 */
 	private class EpromFileFilter extends FileFilter {
 
 		/** Accept all directories and z88 files */
