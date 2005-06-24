@@ -306,9 +306,9 @@ public class Slots extends JPanel {
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Blink.getInstance().signalFlapOpened();
-
+					
 					if (JOptionPane
-							.showConfirmDialog(Slots.this, installRomMsg) == JOptionPane.YES_OPTION) {
+							.showConfirmDialog(Slots.this, installRomMsg, "Replace OZ operating system ROM", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						JFileChooser chooser = new JFileChooser(currentEpromDir);
 						chooser.setDialogTitle("Load/install Z88 ROM into slot 0");
 						chooser.setMultiSelectionEnabled(false);
@@ -319,22 +319,21 @@ public class Slots extends JPanel {
 							// remember current directory for next time..
 							currentEpromDir = chooser.getCurrentDirectory();
 							
-							File romFile = new File(chooser.getSelectedFile()
-									.getAbsolutePath());
-
+							File romFile = new File(chooser.getSelectedFile().getAbsolutePath());
 							try {
 								memory.loadRomBinary(romFile);
-								// ROM installed, do a hard reset
+								// ROM installed, do a hard reset (flap is automatically closed)
 								Blink.getInstance().pressHardReset();
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(Slots.this,
 										"Selected file couldn't be opened!");
-								Blink.getInstance().signalFlapClosed();
 							} catch (IllegalArgumentException e2) {
 								JOptionPane.showMessageDialog(Slots.this,
 										"Selected file was not a Z88 ROM!");
-								Blink.getInstance().signalFlapClosed();
 							}
+						} else {
+							// User aborted...
+							Blink.getInstance().signalFlapClosed();
 						}
 					} else {
 						// User aborted...
@@ -365,8 +364,8 @@ public class Slots extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					Blink.getInstance().signalFlapOpened();
 
-					if (JOptionPane
-							.showConfirmDialog(Slots.this, installRamMsg) == JOptionPane.YES_OPTION) {
+					if (JOptionPane							
+							.showConfirmDialog(Slots.this, installRamMsg, "Replace internal RAM memory", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						getCardSizeComboBox().setModel(ram0Sizes);
 						JOptionPane.showMessageDialog(Slots.this,
 								getCardSizeComboBox(),
@@ -378,6 +377,8 @@ public class Slots extends JPanel {
 										.getSelectedIndex());
 						memory.insertRamCard(Integer.parseInt(size.substring(0,
 								size.indexOf("K"))) * 1024, 0);
+						
+						// ROM installed, do a hard reset (flap is automatically closed)
 						Blink.getInstance().pressHardReset();
 					} else {
 						// User aborted...
@@ -403,7 +404,15 @@ public class Slots extends JPanel {
 			slot1Button.setMargin(new Insets(2, 4, 2, 4));
 			slot1Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					manageSlotCard((JButton) e.getSource(), 1);
+					if (SlotInfo.getInstance().getCardType(1) == SlotInfo.EmptySlot) {
+						// slot is empty, a card may be inserted;
+						// load a card .Epr file or insert a new card (type)
+						insertCard(3);
+					} else {
+						// remove a card, or for Eprom/Flash cards, and/or save a copy
+						// of the card to an .Epr file...
+						removeCard((JButton) e.getSource(), 1);
+					}					
 				}
 			});
 		}
@@ -421,7 +430,15 @@ public class Slots extends JPanel {
 			slot2Button.setMargin(new Insets(2, 4, 2, 4));
 			slot2Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					manageSlotCard((JButton) e.getSource(), 2);
+					if (SlotInfo.getInstance().getCardType(2) == SlotInfo.EmptySlot) {
+						// slot is empty, a card may be inserted;
+						// load a card .Epr file or insert a new card (type)
+						insertCard(3);
+					} else {
+						// remove a card, or for Eprom/Flash cards, and/or save a copy
+						// of the card to an .Epr file...
+						removeCard((JButton) e.getSource(), 2);
+					}					
 				}
 			});
 		}
@@ -439,7 +456,15 @@ public class Slots extends JPanel {
 			slot3Button.setMargin(new Insets(2, 4, 2, 4));
 			slot3Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					manageSlotCard((JButton) e.getSource(), 3);
+					if (SlotInfo.getInstance().getCardType(3) == SlotInfo.EmptySlot) {
+						// slot is empty, a card may be inserted;
+						// load a card .Epr file or insert a new card (type)
+						insertCard(3);
+					} else {
+						// remove a card, or for Eprom/Flash cards, and/or save a copy
+						// of the card to an .Epr file...
+						removeCard((JButton) e.getSource(), 3);
+					}					
 				}
 			});
 		}
@@ -617,6 +642,8 @@ public class Slots extends JPanel {
 					"Remove RAM card?\nWarning: A soft reset is automatically performed after removal",
 					"Remove card from slot " + slotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {				
 				memory.removeCard(slotNo);
+				lastRemovedCard[slotNo] = null; // RAM card is not preserved when removed from slot...
+				
 				Blink.getInstance().signalFlapClosed();
 				Blink.getInstance().pressResetButton();
 			}				
@@ -656,7 +683,8 @@ public class Slots extends JPanel {
 					}												
 				}
 				
-				memory.removeCard(slotNo);
+				// keep a copy of removed File/App card...
+				lastRemovedCard[slotNo] = memory.removeCard(slotNo);
 			}				
 		}
 		
@@ -665,29 +693,6 @@ public class Slots extends JPanel {
 		Z88display.getInstance().grabFocus();		
 	}
 	
-	/**
-	 * Insert/remove a card (RAM/EPROM/FLASH) into slot.
-	 * <p>
-	 * Insertion may be a new (created) card or loaded from the filing system.
-	 * Equally, an Eprom/Flash card may be removed from the slot and saved as an
-	 * .epr file (Ram card has no meaning to be saved).
-	 * <p>
-	 * Finally, it may be possible to save a copy of an inserted Eprom/Flash
-	 * Card as a file on the fly.
-	 * 
-	 * @param slotNo
-	 */
-	private void manageSlotCard(JButton slotButton, int slotNo) {
-		if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.EmptySlot) {
-			// slot is empty, a card may be inserted;
-			// load a card .Epr file or insert a new card (type)
-			insertCard(slotNo);
-		} else {
-			// remove a card, or for Eprom/Flash cards, and/or save a copy
-			// of the card to an .Epr file...
-			removeCard(slotButton, slotNo);
-		}
-	}
 
 	private JPanel getNewCardPanel() {
 		if (newCardPanel == null) {
