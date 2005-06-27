@@ -507,6 +507,8 @@ public class Slots extends JPanel {
 		}
 		
 		getReInsertCardCopyCheckBox().setSelected(false);
+		insertCardDialogAccessibility(true);
+		
 		getFileAreaCheckBox().setSelected(false); // default no file area on card...
 		getAppAreaLabel().setText(defaultAppLoadText);
 		epromFileChooser = fileAreaChooser = null;
@@ -903,6 +905,17 @@ public class Slots extends JPanel {
 		return cardSizeComboBox;
 	}
 
+	private void insertCardDialogAccessibility(boolean state) {
+		getCardTypeLabel().setEnabled(state);
+		getCardTypeComboBox().setEnabled(state);
+		getCardSizeLabel().setEnabled(state);
+		getCardSizeComboBox().setEnabled(state);
+		getFileAreaCheckBox().setEnabled(state);
+		getBrowseFilesButton().setEnabled(state);
+		getAppAreaLabel().setEnabled(state);
+		getBrowseAppsButton().setEnabled(state);
+	}
+	
 	private JCheckBox getReInsertCardCopyCheckBox() {
 		if (insertCardCopyCheckBox == null) {
 			insertCardCopyCheckBox = new JCheckBox();
@@ -910,29 +923,14 @@ public class Slots extends JPanel {
 
 			insertCardCopyCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (insertCardCopyCheckBox.isSelected() == true) {
+					if (insertCardCopyCheckBox.isSelected() == true) 
 						// disable all other insert-dialog features -
 						// the user wants to re-insert a previously removed card
-						getCardTypeLabel().setEnabled(false);
-						getCardTypeComboBox().setEnabled(false);
-						getCardSizeLabel().setEnabled(false);
-						getCardSizeComboBox().setEnabled(false);
-						getFileAreaCheckBox().setEnabled(false);
-						getBrowseFilesButton().setEnabled(false);
-						getAppAreaLabel().setEnabled(false);
-						getBrowseAppsButton().setEnabled(false);
-					} else {
+						insertCardDialogAccessibility(false);
+					else
 						// re-enable insert-card-dialog features -
 						// the user discarded the choice of re-inserting an old card
-						getCardTypeLabel().setEnabled(true);
-						getCardTypeComboBox().setEnabled(true);
-						getCardSizeLabel().setEnabled(true);
-						getCardSizeComboBox().setEnabled(true);
-						getFileAreaCheckBox().setEnabled(true);
-						getBrowseFilesButton().setEnabled(true);
-						getAppAreaLabel().setEnabled(true);
-						getBrowseAppsButton().setEnabled(true);
-					}
+						insertCardDialogAccessibility(true);					
 				}
 			});			
 		}
