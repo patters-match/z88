@@ -22,8 +22,6 @@ package net.sourceforge.z88;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.imagero.util.ThreadManager;
-
 import net.sourceforge.z88.screen.Z88display;
 
 
@@ -252,8 +250,7 @@ public final class Blink extends Z80 {
 	}
 	
 	public void pressHardReset() {
-		ThreadManager treadMgr = new ThreadManager(); 
-		treadMgr.addTask( new Runnable() {
+		Thread thread = new Thread() {
 			public void run() {
 				signalFlapOpened();
 				try { Thread.sleep(100);
@@ -269,7 +266,9 @@ public final class Blink extends Z80 {
 				// waited a little while, then close flap (hard reset begins...)
 				signalFlapClosed(); 
 			}
-		});			
+		};
+		
+		thread.start();
 	}
 	
 	/**
@@ -1639,7 +1638,7 @@ public final class Blink extends Z80 {
 	public void signalFlapClosed() {
 		STA &= ~BM_STAFLAPOPEN; 
 	}
-
+	
 	/**
 	 * Reference to the current executing Z80 processor.
 	 */
