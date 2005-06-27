@@ -211,7 +211,7 @@ public class Slots extends JPanel {
 
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
-				slotText += (" " + (memory.getExternalCardSize(slotNo) * 16) + "K");
+				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
 				foregroundColor = Color.BLACK;
 				backgroundColor = Color.LIGHT_GRAY;
 			}
@@ -220,9 +220,9 @@ public class Slots extends JPanel {
 		switch (slotNo) {
 		case 0:
 			getRom0Button().setText(
-					"ROM " + (memory.getInternalRomSize() * 16) + "K");
+					(memory.getInternalRomSize() * 16) + "K ROM ");
 			getRam0Button().setText(
-					"RAM " + (memory.getInternalRamSize() * 16) + "K");
+					(memory.getInternalRamSize() * 16) + "K RAM");
 			break;
 		case 1:
 			getSlot1Button().setText(slotText);
@@ -553,6 +553,7 @@ public class Slots extends JPanel {
 					case 0:
 						// insert selected RAM Card
 						memory.insertRamCard(cardSizeK * 1024, slotNo);
+						OZvm.displayRtmMessage(cardSizeK + "K RAM Card was inserted in slot " + slotNo);
 						break;
 					case 1:
 						// insert an (UV) EPROM Card 
@@ -663,13 +664,12 @@ public class Slots extends JPanel {
 		Blink.getInstance().signalFlapOpened();
 		if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.RamCard) {
 			if (JOptionPane.showConfirmDialog(Slots.this, 
-					"Remove RAM card?\nWarning: A soft reset is automatically performed after removal",
+					"Remove RAM card?\nWarning: Z88 enters \"fail\" mode after removal.\nPerform a (suggested) hard reset in the 'Z88' menu.",
 					"Remove card from slot " + slotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {				
 				memory.removeCard(slotNo);
 				lastRemovedCard[slotNo] = null; // RAM card is not preserved when removed from slot...
 				
 				Blink.getInstance().signalFlapClosed();
-				Blink.getInstance().pressResetButton();
 			}				
 		} else {		
 			if (JOptionPane.showConfirmDialog(Slots.this, 
@@ -738,6 +738,9 @@ public class Slots extends JPanel {
 		}
 		
 		Blink.getInstance().signalFlapClosed();
+
+		if (memory.isSlotEmpty(slotNo) == true)
+			OZvm.displayRtmMessage(slotButton.getText() + " Card was removed from slot " + slotNo);
 		refreshSlotInfo(slotNo);
 		Z88display.getInstance().grabFocus();		
 	}
