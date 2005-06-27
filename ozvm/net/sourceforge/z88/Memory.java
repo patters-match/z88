@@ -247,11 +247,16 @@ public final class Memory {
 				--totalSlotBanks;
 			}
 		}
+		
+		if (slot > 0)
+			// the external slot connector has sensed that a card was inserted...
+			slotConnectorSenseLine();
 	}
 
 	
 	/**
-	 * Remove inserted card, ie. null'ify the banks for the specified slot.
+	 * Remove inserted card in external slot, 
+	 * ie. null'ify the banks for the specified slot.
 	 * 
 	 * @param slotNo (1-3)
 	 * @return a transferred copy of the slot in a card container
@@ -266,6 +271,9 @@ public final class Memory {
 			cardContainer[slotBank & 0x3F] = memory[slotBank]; // transfer bank to container 
 			memory[slotBank++] = nullBank; // then "remove" it from slot.
 		}
+
+		// the slot connector has sensed that a card was removed...
+		slotConnectorSenseLine();
 		
 		return cardContainer;
 	}
@@ -1108,4 +1116,27 @@ public final class Memory {
 			return cardSize;			
 		}
 	}	
+	
+	/**
+	 * When a Card is inserted or removed, a NMI interrupt is signaled
+	 * from the Blink (the Z80 is instructed to execute a RST 66H instruction).
+	 */
+	private void slotConnectorSenseLine() {
+		final Blink bl = Blink.getInstance();
+		
+		Thread thread = new Thread() {
+			public void run() {
+				bl.setInterruptSignal(true);
+				try { Thread.sleep(100); 
+				} catch (InterruptedException e1) {}
+				
+				// after a 0.1 sec, get out of coma...
+				// (the card manager goes automatically into coma
+				// when a card has been inserted or removed)
+				bl.coma = false; 
+			}
+		};				
+		
+		thread.start();
+	}
 }
