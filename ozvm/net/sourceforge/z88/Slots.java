@@ -530,6 +530,7 @@ public class Slots extends JPanel {
 				// re-insert previously removed card
 				memory.insertCard(lastRemovedCard[slotNo], slotNo);
 				lastRemovedCard[slotNo] = null;
+				OZvm.displayRtmMessage("Re-inserted previously removed Card back to slot " + slotNo);
 			} else {
 				if (epromFileChooser != null) {
 					try {
