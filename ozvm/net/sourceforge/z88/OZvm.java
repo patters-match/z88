@@ -359,8 +359,8 @@ public class OZvm {
 			}
 
 			if (loadedSnapshot == false && ramSlot0 == false) {
-				displayRtmMessage("RAM0 set	to default 32K.");
-				memory.insertRamCard(32	* 1024,	0);	// no RAM specified for	slot 0,	set to default 32K RAM...
+				displayRtmMessage("RAM0 set	to default 128K.");
+				memory.insertRamCard(128 * 1024, 0);	// no RAM specified for	slot 0,	set to default 128K RAM...
 			}
 		} catch	(FileNotFoundException e) {
 			System.out.println("Couldn't load ROM/EPROM image:\n" +	e.getMessage());
