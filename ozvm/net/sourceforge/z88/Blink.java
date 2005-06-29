@@ -1636,7 +1636,19 @@ public final class Blink extends Z80 {
 	 * is enabled and TMK has been setup to fire Minute, Second or TICK's.
 	 */
 	public void signalFlapClosed() {
-		STA &= ~BM_STAFLAPOPEN; 
+		Thread thread = new Thread() {
+			public void run() {
+				try { Thread.sleep(100);
+				} catch (InterruptedException e1) {}
+				
+				// delay the flap close 0.1 sec (after this method was executed) 
+				// this is to ensure that a flap is never closed too fast
+				// after a previous insert or remove card in slot
+				STA &= ~BM_STAFLAPOPEN; 				
+			}
+		};
+		
+		thread.start();		
 	}
 	
 	/**
