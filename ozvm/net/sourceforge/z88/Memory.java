@@ -267,9 +267,11 @@ public final class Memory {
 		int slotBank = (slotNo & 3) << 6; // convert slot number to bottom bank of slot
 		int slotTopBank = slotBank | 0x3F; 
 		
-		while (slotBank <= slotTopBank) {
-			cardContainer[slotBank & 0x3F] = memory[slotBank]; // transfer bank to container 
-			memory[slotBank++] = nullBank; // then "remove" it from slot.
+		for (int b=0; b<cardContainer.length; b++)
+			cardContainer[b] = memory[slotBank+b]; // transfer card to container
+		
+		while (slotBank <= slotTopBank) {			
+			memory[slotBank++] = nullBank; // then "remove" it from slot (1Mb range is emptied).
 		}
 
 		// the slot connector has sensed that a card was removed...
