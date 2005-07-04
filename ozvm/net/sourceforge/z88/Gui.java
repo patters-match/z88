@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import java.awt.Dimension;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -907,6 +908,7 @@ public class Gui extends JFrame {
 		
 		// Main Gui window is never resizable
 		setResizable(false);
+		setIconImage(new ImageIcon(this.getClass().getResource("/pixel/title.gif")).getImage());
 		setJMenuBar(getMainMenuBar());
 				
 		if (fullScreen == true) {
