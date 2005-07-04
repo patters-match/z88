@@ -493,6 +493,8 @@ public class Slots extends JPanel {
 
 	private void insertCard(int slotNo) {
 		RandomAccessFile eprFileImage = null;
+		File eprFile = null;
+		String eprFilename = null;
 		String internalCardType = null;
 
 		if (slotNo == 1) {
@@ -536,14 +538,18 @@ public class Slots extends JPanel {
 				if (epromFileChooser != null) {
 					try {
 						// load an EPR image on the card: start with opening the file
-						eprFileImage = new RandomAccessFile(epromFileChooser
-								.getSelectedFile().getAbsolutePath(), "r");
+						eprFilename = epromFileChooser.getSelectedFile().getAbsolutePath();						
+						if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
+							// append ".epr" extension if not specified by user... 
+							eprFilename += ".epr";
+						}
+						eprFile = new File(eprFilename);
+						eprFileImage = new RandomAccessFile(eprFilename, "r");
+						
 					} catch (FileNotFoundException e1) {
 						// file couldn't be opened, display an error message
 						JOptionPane.showMessageDialog(Slots.this,
-								epromFileChooser.getSelectedFile()
-										.getAbsolutePath()
-										+ ": " + e1.getMessage(),
+								eprFilename + ": " + e1.getMessage(),
 								"File I/O error", JOptionPane.ERROR_MESSAGE);
 						Blink.getInstance().signalFlapClosed();
 						Z88display.getInstance().grabFocus();
@@ -573,8 +579,8 @@ public class Slots extends JPanel {
 	
 				if (eprFileImage != null) {
 					// A selected Eprom was also marked to load an (app) image.. 
-					if (FileArea.checkFileAreaImage(epromFileChooser.getSelectedFile()) == true |
-						ApplicationInfo.checkAppImage(epromFileChooser.getSelectedFile()) == true) {
+					if (FileArea.checkFileAreaImage(eprFile) == true |
+						ApplicationInfo.checkAppImage(eprFile) == true) {
 						
 						try {
 							memory.loadImageOnEprCard(slotNo, cardSizeK, internalCardType, eprFileImage);
@@ -1156,19 +1162,24 @@ public class Slots extends JPanel {
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						// remember current directory for next time..
 						currentEpromDir = epromFileChooser.getCurrentDirectory();
-
-						if (FileArea.checkFileAreaImage(epromFileChooser.getSelectedFile()) == true) {
+						String eprFilename = epromFileChooser.getSelectedFile().getAbsolutePath();
+						if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
+							// append ".epr" extension if not specified by user... 
+							eprFilename += ".epr";
+						}
+						File eprFile = new File(eprFilename);
+						
+						if (FileArea.checkFileAreaImage(eprFile) == true) {
 							// The selected image file from the file chooser identifies a File Card.
 							// If needed, auto-select size and probably type of card for the image file  
-							adjustFileCardTypeSize(epromFileChooser.getSelectedFile());
-						} else if (ApplicationInfo.checkAppImage(epromFileChooser.getSelectedFile()) == true) {
+							adjustFileCardTypeSize(eprFile);
+						} else if (ApplicationInfo.checkAppImage(eprFile) == true) {
 							// The selected image file from the file chooser identifies an Application Card.
 							// auto-adjust for minium card type & size to host the application image.
-							adjustAppCardTypeSize(epromFileChooser.getSelectedFile());
+							adjustAppCardTypeSize(eprFile);
 						}
 						
-						getAppAreaLabel().setText(
-								epromFileChooser.getSelectedFile().getName());
+						getAppAreaLabel().setText(eprFile.getName());
 					} else {
 						getAppAreaLabel().setText(defaultAppLoadText);
 					}
