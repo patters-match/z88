@@ -331,6 +331,7 @@ public class Slots extends JPanel {
 							File romFile = new File(chooser.getSelectedFile().getAbsolutePath());
 							try {
 								memory.loadRomBinary(romFile);
+								OZvm.getInstance().getGui().setWindowTitle("[" + (romFile.getName()) + "]");
 								// ROM installed, do a hard reset (flap is automatically closed)
 								Blink.getInstance().pressHardReset();
 							} catch (IOException e1) {

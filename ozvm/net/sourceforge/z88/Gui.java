@@ -714,6 +714,7 @@ public class Gui extends JFrame {
 							getSlotsPanel().refreshSlotInfo();
 							if (fullScreenMode == false) {
 								displayRtmMessage("Snapshot successfully installed from " + fileName);
+								setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 								Gui.this.pack(); // update Gui window (might have changed by snapshot file...)
 							}
 							
@@ -776,6 +777,7 @@ public class Gui extends JFrame {
 						try {
 							srVM.storeSnapShot(fileName, autorun);
 							displayRtmMessage("Snapshot successfully created in " + fileName);
+							setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 						} catch (IOException e1) {
 							displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
 						}						
@@ -897,6 +899,15 @@ public class Gui extends JFrame {
 	}	
 
 	/**
+	 * Set the window title which is appended after the 'OZvm VX ' text
+	 * 
+	 * @param title
+	 */
+	public void setWindowTitle(String title) {
+		this.setTitle("OZvm V" + OZvm.VERSION + "  " + title);	
+	}
+	
+	/**
 	 * This method initializes the main z88 window with screen menus,
 	 * runtime messages and keyboard.
 	 */
@@ -928,7 +939,7 @@ public class Gui extends JFrame {
 			getContentPane().add(getToolBar(), gridBagConstraints_1);
 
 			displayZ88ScreenPane();
-			this.setTitle("OZvm V" + OZvm.VERSION);
+			setWindowTitle("");
 		}		
 		
 		// pre-select the Screen Refresh Rate Menu Item

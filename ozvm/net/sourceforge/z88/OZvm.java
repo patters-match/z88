@@ -167,6 +167,7 @@ public class OZvm {
 					try {
 						autoRun = srVm.loadSnapShot(vmFileName);
 						displayRtmMessage("Snapshot successfully installed from " + vmFileName);
+						gui.setWindowTitle("[" + (new File(vmFileName).getName()) + "]");
 						loadedSnapshot = true;
 					} catch (IOException ee) {
 						// loading of snapshot failed (file not found, corrupt or not a snapshot file
@@ -180,7 +181,9 @@ public class OZvm {
 
 				if (arg<args.length && (args[arg].compareTo("rom") == 0)) {
 					displayRtmMessage("Loading '" + args[arg+1] + "' into ROM space	in slot	0.");
-					memory.loadRomBinary(new File(args[arg+1]));
+					File romFile = new File(args[arg+1]);
+					memory.loadRomBinary(romFile);
+					gui.setWindowTitle("[" + (romFile.getName()) + "]");
 					Blink.getInstance().resetBlinkRegisters();
 					Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
 					loadedRom = true;
@@ -346,6 +349,7 @@ public class OZvm {
 					autoRun = srVm.loadSnapShot(OZvm.defaultVmFile);
 					loadedSnapshot = true;
 					displayRtmMessage("Snapshot successfully installed from " + OZvm.defaultVmFile);
+					gui.setWindowTitle("[boot.z88]");
 				} catch (IOException ee) {
 					// 'boot.z88' wasn't available, or an error occurred - ignore it...
 				}
