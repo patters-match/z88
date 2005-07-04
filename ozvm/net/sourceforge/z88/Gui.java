@@ -754,6 +754,10 @@ public class Gui extends JFrame {
 						  System.out.println("Error setting cross platform LAF: " + e2);
 					}					
 					
+					// the LAF changes sometimes affect the gui, 
+					// redraw the slots panel and all is nice again...
+					getSlotsPanel().repaint();
+					
 					Gui.this.pack(); // update Gui window (might have changed by snapshot file...)					
 				}
 			});
@@ -809,6 +813,10 @@ public class Gui extends JFrame {
 					} catch(Exception e2) {
 						  System.out.println("Error setting cross platform LAF: " + e2);
 					}					
+					
+					// the LAF changes sometimes affect the gui, 
+					// redraw the slots panel and all is nice again...
+					getSlotsPanel().repaint();
 					
 					if (autorun == true)
 						// Z80 engine was temporary stopped, now continue to execute...
