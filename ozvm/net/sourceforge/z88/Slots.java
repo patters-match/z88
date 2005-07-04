@@ -743,10 +743,10 @@ public class Slots extends JPanel {
 
 			// card has been successfully inserted into slot... 
 			refreshSlotInfo(slotNo);
-			Z88display.getInstance().grabFocus();
 		}
-
+		
 		Blink.getInstance().signalFlapClosed();		
+		Z88display.getInstance().grabFocus();
 	}
 
 	private void removeCard(JButton slotButton, int slotNo) {
@@ -832,6 +832,7 @@ public class Slots extends JPanel {
 		if (memory.isSlotEmpty(slotNo) == true)
 			OZvm.displayRtmMessage(slotButton.getText() + " Card was removed from slot " + slotNo);
 		refreshSlotInfo(slotNo);
+		
 		Z88display.getInstance().grabFocus();		
 	}
 
