@@ -36,6 +36,7 @@ import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.JButton;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
 import java.awt.BorderLayout;
@@ -691,6 +692,12 @@ public class Gui extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					boolean resumeExecution;
 					
+					try {
+						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch(Exception e1) {
+						  System.out.println("Error setting native LAF: " + e1);
+					}
+					
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
 					chooser.setDialogTitle("Load/resume Z88 state");
@@ -715,7 +722,6 @@ public class Gui extends JFrame {
 							if (fullScreenMode == false) {
 								displayRtmMessage("Snapshot successfully installed from " + fileName);
 								setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
-								Gui.this.pack(); // update Gui window (might have changed by snapshot file...)
 							}
 							
 							if (autorun == true | fullScreenMode == true)
@@ -741,6 +747,14 @@ public class Gui extends JFrame {
 							Blink.getInstance().runZ80Engine(-1, true);							
 						}
 					}
+					
+					try {
+						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					} catch(Exception e2) {
+						  System.out.println("Error setting cross platform LAF: " + e2);
+					}					
+					
+					Gui.this.pack(); // update Gui window (might have changed by snapshot file...)					
 				}
 			});
 		}
@@ -756,6 +770,13 @@ public class Gui extends JFrame {
 			createSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					boolean autorun;
+
+					try {
+						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch(Exception e1) {
+						  System.out.println("Error setting native LAF: " + e1);
+					}
+					
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
 					chooser.setDialogTitle("Save Z88 state");
@@ -783,6 +804,12 @@ public class Gui extends JFrame {
 						}						
 					}					
 
+					try {
+						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					} catch(Exception e2) {
+						  System.out.println("Error setting cross platform LAF: " + e2);
+					}					
+					
 					if (autorun == true)
 						// Z80 engine was temporary stopped, now continue to execute...
 						Blink.getInstance().runZ80Engine(-1, true);

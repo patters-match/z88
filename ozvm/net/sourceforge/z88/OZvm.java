@@ -440,8 +440,8 @@ public class OZvm {
 	public static void main(String[] args) {
 		try {
 			  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-		} catch(Exception e) {
-			  System.out.println("Error setting native LAF: " + e);
+		} catch(Exception e1) {
+			  System.out.println("Error setting cross platform LAF: " + e1);
 		}
 		
 		OZvm ozvm = OZvm.getInstance();		

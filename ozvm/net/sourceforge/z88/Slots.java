@@ -41,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
@@ -315,6 +316,12 @@ public class Slots extends JPanel {
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Blink.getInstance().signalFlapOpened();
+
+					try {
+						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch(Exception e1) {
+						  System.out.println("Error setting native LAF: " + e1);
+					}
 					
 					if (JOptionPane
 							.showConfirmDialog(Slots.this, installRomMsg, "Replace OZ operating system ROM", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -350,6 +357,16 @@ public class Slots extends JPanel {
 						Blink.getInstance().signalFlapClosed();
 					}
 
+					try {
+						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					} catch(Exception e2) {
+						  System.out.println("Error setting cross platform LAF: " + e2);
+					}					
+
+					// the LAF changes sometimes affect the gui, 
+					// redraw the slots panel and all is nice again...
+					Slots.this.repaint();
+					
 					refreshSlotInfo(0);
 					Z88display.getInstance().grabFocus();
 				}
@@ -374,6 +391,12 @@ public class Slots extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					Blink.getInstance().signalFlapOpened();
 
+					try {
+						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch(Exception e1) {
+						  System.out.println("Error setting native LAF: " + e1);
+					}
+					
 					if (JOptionPane							
 							.showConfirmDialog(Slots.this, installRamMsg, "Replace internal RAM memory", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						getCardSizeComboBox().setModel(ram0Sizes);
@@ -395,6 +418,16 @@ public class Slots extends JPanel {
 						Blink.getInstance().signalFlapClosed();
 					}
 
+					try {
+						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					} catch(Exception e2) {
+						  System.out.println("Error setting cross platform LAF: " + e2);
+					}					
+					
+					// the LAF changes sometimes affect the gui, 
+					// redraw the slots panel and all is nice again...
+					Slots.this.repaint();
+					
 					refreshSlotInfo(0);
 					Z88display.getInstance().grabFocus();
 				}
@@ -414,6 +447,12 @@ public class Slots extends JPanel {
 			slot1Button.setMargin(new Insets(2, 4, 2, 4));
 			slot1Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					try {
+						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch(Exception e1) {
+						  System.out.println("Error setting native LAF: " + e1);
+					}
+					
 					if (SlotInfo.getInstance().getCardType(1) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
@@ -422,7 +461,17 @@ public class Slots extends JPanel {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 1);
+					}	
+					
+					try {
+						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					} catch(Exception e2) {
+						  System.out.println("Error setting cross platform LAF: " + e2);
 					}					
+
+					// the LAF changes sometimes affect the gui, 
+					// redraw the slots panel and all is nice again...
+					Slots.this.repaint(); 					
 				}
 			});
 		}
@@ -440,6 +489,12 @@ public class Slots extends JPanel {
 			slot2Button.setMargin(new Insets(2, 4, 2, 4));
 			slot2Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					try {
+						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch(Exception e1) {
+						  System.out.println("Error setting native LAF: " + e1);
+					}
+					
 					if (SlotInfo.getInstance().getCardType(2) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
@@ -448,7 +503,17 @@ public class Slots extends JPanel {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 2);
-					}					
+					}
+					
+					try {
+						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					} catch(Exception e2) {
+						  System.out.println("Error setting cross platform LAF: " + e2);
+					}
+
+					// the LAF changes sometimes affect the gui, 
+					// redraw the slots panel and all is nice again...
+					Slots.this.repaint(); 					
 				}
 			});
 		}
@@ -466,6 +531,12 @@ public class Slots extends JPanel {
 			slot3Button.setMargin(new Insets(2, 4, 2, 4));
 			slot3Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					try {
+						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch(Exception e1) {
+						  System.out.println("Error setting native LAF: " + e1);
+					}
+					
 					if (SlotInfo.getInstance().getCardType(3) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
@@ -474,7 +545,17 @@ public class Slots extends JPanel {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 3);
+					}
+					
+					try {
+						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					} catch(Exception e2) {
+						  System.out.println("Error setting cross platform LAF: " + e2);
 					}					
+					
+					// the LAF changes sometimes affect the gui, 
+					// redraw the slots panel and all is nice again...
+					Slots.this.repaint(); 
 				}
 			});
 		}
@@ -669,6 +750,7 @@ public class Slots extends JPanel {
 	}
 
 	private void removeCard(JButton slotButton, int slotNo) {
+
 		Blink.getInstance().signalFlapOpened();
 		if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.RamCard) {
 			if (JOptionPane.showConfirmDialog(Slots.this, 
@@ -744,7 +826,7 @@ public class Slots extends JPanel {
 				lastRemovedCard[slotNo] = memory.removeCard(slotNo);
 			}				
 		}
-		
+				
 		Blink.getInstance().signalFlapClosed();
 
 		if (memory.isSlotEmpty(slotNo) == true)
@@ -1150,6 +1232,7 @@ public class Slots extends JPanel {
 
 			browseAppsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+
 					epromFileChooser = new JFileChooser(currentEpromDir);
 					epromFileChooser
 							.setDialogTitle("Load EPR image file into card");
@@ -1182,7 +1265,7 @@ public class Slots extends JPanel {
 						getAppAreaLabel().setText(eprFile.getName());
 					} else {
 						getAppAreaLabel().setText(defaultAppLoadText);
-					}
+					}					
 				}
 			});
 		}
