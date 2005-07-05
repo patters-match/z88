@@ -344,9 +344,11 @@ public class Slots extends JPanel {
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(Slots.this,
 										"Selected file couldn't be opened!");
+								Blink.getInstance().signalFlapClosed();
 							} catch (IllegalArgumentException e2) {
 								JOptionPane.showMessageDialog(Slots.this,
 										"Selected file was not a Z88 ROM!");
+								Blink.getInstance().signalFlapClosed();
 							}
 						} else {
 							// User aborted...
@@ -582,16 +584,22 @@ public class Slots extends JPanel {
 			// default select RAM card for slot 1 (easier for users)
 			getCardSizeComboBox().setModel(ramCardSizes);
 			getCardTypeComboBox().setSelectedIndex(0); // default RAM card
-			getCardSizeComboBox().setSelectedIndex(3); // default 1024K size						
+			getCardSizeComboBox().setSelectedIndex(3); // default 1024K size	
+			
+			getFileAreaCheckBox().setEnabled(false); // remaining widgets disabled...
+			getAppAreaLabel().setEnabled(false);
+			getBrowseFilesButton().setEnabled(false);
+			getBrowseAppsButton().setEnabled(false);			
 		} else {
-			// for all other slots, defualt select a (Flash) Eprom
+			// for all other slots, default select a (Flash) Eprom
 			getCardSizeComboBox().setModel(amdFlashSizes);
 			getCardTypeComboBox().setSelectedIndex(3); // default AMD Flash card
 			getCardSizeComboBox().setSelectedIndex(2); // default 1024K size			
+
+			insertCardDialogAccessibility(true);
 		}
 		
 		getReInsertCardCopyCheckBox().setSelected(false);
-		insertCardDialogAccessibility(true);
 		
 		getFileAreaCheckBox().setSelected(false); // default no file area on card...
 		getAppAreaLabel().setText(defaultAppLoadText);
