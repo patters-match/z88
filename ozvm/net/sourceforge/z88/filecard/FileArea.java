@@ -25,6 +25,7 @@ import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
+import java.util.Vector;
 
 import net.sourceforge.z88.AmdFlashBank;
 import net.sourceforge.z88.Bank;
@@ -140,6 +141,35 @@ public class FileArea {
 		}
 	}	
 
+	/**
+	 * Get an array of Strings that contains all active file names
+	 * in the file area. Used typically for JList Swing widget.
+	 *  
+	 * @return an array of String objects or null if no files available
+	 * @throws FileAreaNotFoundException
+	 */
+	public String[] getFileEntryNames() throws FileAreaNotFoundException {
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			if (filesList != null & filesList.size() > 0) {
+				String[] fileNames = new String[getActiveFileCount()];
+				int fi = 0;
+				
+				// scan the file list for active files...
+				for(int f=0; f<filesList.size(); f++) {
+					FileEntry fe = (FileEntry) filesList.get(f);
+					if (fe.isDeleted() == false) {
+						fileNames[fi++] = fe.getFileName();
+					}
+				}		
+				
+				return fileNames;
+			} else
+				return null;
+		}
+	}
+	
 	/**
 	 * Find file entry by filename and return a reference to the found
 	 * object, or return null if the file entry wasn't found in the file area.
