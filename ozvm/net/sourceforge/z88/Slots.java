@@ -19,6 +19,7 @@
 package net.sourceforge.z88;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -26,6 +27,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,8 +41,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
@@ -51,6 +59,7 @@ import net.sourceforge.z88.datastructures.SlotInfo;
 import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
 import net.sourceforge.z88.filecard.FileAreaNotFoundException;
+import net.sourceforge.z88.filecard.FileEntry;
 import net.sourceforge.z88.screen.Z88display;
 
 /**
@@ -139,11 +148,14 @@ public class Slots extends JPanel {
 	private Bank lastRemovedCard[][];
 	
 	private File currentEpromDir;
+	
 	private File currentFilesDir;
 
 	private JPanel saveAsBanksPanel;
 
 	private JLabel saveAsBanksLabel;
+
+	private MouseAdapter externSlotPopupMenuListener[];
 	
 	public Slots() {
 		super();
@@ -155,6 +167,9 @@ public class Slots extends JPanel {
 		// references to last removed card (bank containers)
 		// in external slots (1-3).
 		lastRemovedCard = new Bank[4][]; 
+		
+		// references to active popup menu listeners in slots 1-3
+		externSlotPopupMenuListener = new MouseAdapter[4];
 		
 		setBackground(Color.BLACK);
 
@@ -301,7 +316,7 @@ public class Slots extends JPanel {
 
 		return slot3Panel;
 	}
-
+	
 	private JButton getRom0Button() {
 		if (rom0Button == null) {
 			rom0Button = new JButton();
@@ -312,7 +327,7 @@ public class Slots extends JPanel {
 			rom0Button.setForeground(Color.BLACK);
 			rom0Button.setBackground(Color.LIGHT_GRAY);
 			rom0Button.setMargin(new Insets(2, 4, 2, 4));
-
+			
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Blink.getInstance().signalFlapOpened();
@@ -458,7 +473,7 @@ public class Slots extends JPanel {
 					if (SlotInfo.getInstance().getCardType(1) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
-						insertCard(1);
+						insertCard((JButton) e.getSource(), 1);
 					} else {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
@@ -500,7 +515,7 @@ public class Slots extends JPanel {
 					if (SlotInfo.getInstance().getCardType(2) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
-						insertCard(2);
+						insertCard((JButton) e.getSource(), 2);
 					} else {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
@@ -542,7 +557,7 @@ public class Slots extends JPanel {
 					if (SlotInfo.getInstance().getCardType(3) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
-						insertCard(3);
+						insertCard((JButton) e.getSource(), 3);
 					} else {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
@@ -574,8 +589,15 @@ public class Slots extends JPanel {
 		return spaceLabel;
 	}
 
-	private void insertCard(int slotNo) {
+	/**
+	 * Insert card functionality, controlled via Gui dialogs.
+	 *  
+	 * @param slotButton
+	 * @param slotNo
+	 */
+	private void insertCard(JButton slotButton, int slotNo) {
 		RandomAccessFile eprFileImage = null;
+		FileArea fa = null; 
 		File eprFile = null;
 		String eprFilename = null;
 		String internalCardType = null;
@@ -726,7 +748,7 @@ public class Slots extends JPanel {
 					
 					if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
 						try {
-							FileArea fa = new FileArea(slotNo);
+							fa = new FileArea(slotNo);
 	
 							if (fileAreaChooser != null) {
 								File selectedFiles[] = fileAreaChooser.getSelectedFiles();
@@ -749,6 +771,9 @@ public class Slots extends JPanel {
 				}
 			}
 
+			// add a right-click popup for file area management, if a file area exists on card...
+			externSlotPopupMenuListener[slotNo] = addPopup(slotButton, new CardPopupMenu(slotNo));
+			
 			// card has been successfully inserted into slot... 
 			refreshSlotInfo(slotNo);
 		}
@@ -757,9 +782,15 @@ public class Slots extends JPanel {
 		Z88display.getInstance().grabFocus();
 	}
 
+	/**
+	 * Remove card functionality, controlled via Gui dialogs.
+	 * 
+	 * @param slotButton
+	 * @param slotNo
+	 */
 	private void removeCard(JButton slotButton, int slotNo) {
-
 		Blink.getInstance().signalFlapOpened();
+		
 		if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.RamCard) {
 			if (JOptionPane.showConfirmDialog(Slots.this, 
 					"Remove RAM card?\nWarning: Z88 enters \"fail\" mode after removal.\nPerform a (suggested) hard reset in the 'Z88' menu.",
@@ -832,6 +863,9 @@ public class Slots extends JPanel {
 				
 				// keep a copy of removed File/App card...
 				lastRemovedCard[slotNo] = memory.removeCard(slotNo);
+				
+				// remove right-click popup menu, if created for this slot button...
+				removePopup(slotButton, externSlotPopupMenuListener[slotNo]);
 			}				
 		}
 				
@@ -1068,7 +1102,7 @@ public class Slots extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					fileAreaChooser = new JFileChooser(currentFilesDir);
 					fileAreaChooser
-							.setDialogTitle("Import files into Eprom Card File Area");
+							.setDialogTitle("Import files into Card File Area");
 					fileAreaChooser.setMultiSelectionEnabled(true);
 					fileAreaChooser
 							.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -1326,5 +1360,255 @@ public class Slots extends JPanel {
 			
 			return ext;
 		}
+	}
+	
+	/**
+	 * Extended Popup menu with context sensitive menu items
+	 * that enables the user to import/export files to the file area 
+	 * of the card. 
+	 */
+	private class CardPopupMenu extends JPopupMenu {
+		private static final String expFilesMsg = "Export files from File Area";
+		private static final String impFilesMsg = "Import files into File Area";
+		
+		private FileArea cardFileArea;
+		private int cardSlotNo;
+		private JMenuItem importFilesMenuItem;
+		private JMenuItem exportFilesMenuItem;
+		
+		public CardPopupMenu(int slotNo) {
+			super();			
+			
+			// remember in which slot this card is located...			
+			cardSlotNo = slotNo;
+			
+			if (isFileAreaAvailable() == true) {
+				// only define a right-click menu if a
+				// file area is available...
+				try {
+					cardFileArea = new FileArea(slotNo);
+				} catch (FileAreaNotFoundException e) {}
+				
+				add(getImportFilesMenuItem());
+				add(getExportFilesMenuItem());
+			}
+		}
+
+		private boolean isFileAreaAvailable() {
+			return SlotInfo.getInstance().getFileHeaderBank(cardSlotNo) != -1;
+		}
+		
+		private JMenuItem getExportFilesMenuItem() {
+			if (exportFilesMenuItem == null) {
+				exportFilesMenuItem = new JMenuItem();
+				exportFilesMenuItem.setText(expFilesMsg);
+				exportFilesMenuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						try {
+							try {
+								  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+							} catch(Exception e1) {
+								  System.out.println("Error setting native LAF: " + e1);
+							}
+
+							// refresh file list in file area
+							cardFileArea.scanFileArea();
+							
+							// get a list of filenames and display it in a JList widget
+							// which the user can select from...
+							JList list = new JList(cardFileArea.getFileEntryNames());
+							list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);			
+							JScrollPane scrollListPane = new JScrollPane();
+							scrollListPane.setViewportView(list);
+
+							if (JOptionPane.showConfirmDialog(Slots.this, scrollListPane,
+								expFilesMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+								
+								JFileChooser chooser = new JFileChooser(currentFilesDir);
+								chooser.setDialogTitle(expFilesMsg + " in slot " + cardSlotNo + " to filing system");
+								chooser.setMultiSelectionEnabled(false);
+								chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+								int returnVal = chooser.showSaveDialog(Slots.this);
+								if (returnVal == JFileChooser.APPROVE_OPTION) {
+									int totalExportedFiles = 0;
+									currentFilesDir = chooser.getSelectedFile();
+									String exportDirectory = chooser.getSelectedFile().getAbsolutePath();
+									
+									if (list.getSelectedIndex() == -1) {
+										// no selection made, export all active files..
+										totalExportedFiles = list.getModel().getSize();
+										for(int i = 0; i < list.getModel().getSize(); i++) {
+											String selectedFilename = (String) list.getModel().getElementAt(i);
+											FileEntry fe = cardFileArea.getFileEntry(selectedFilename);
+											exportFileEntry(fe, exportDirectory);
+										 }										
+									} else {
+										// export only selected files...
+										int selectedItems[] = list.getSelectedIndices();
+										totalExportedFiles = selectedItems.length;
+										
+										for (int f=0; f<selectedItems.length; f++) {
+											list.setSelectedIndex(selectedItems[f]);
+											String selectedFilename = (String) list.getSelectedValue();
+											FileEntry fe = cardFileArea.getFileEntry(selectedFilename);
+											exportFileEntry(fe, exportDirectory);
+										}
+									}
+									
+									JOptionPane.showMessageDialog(Slots.this, 
+											totalExportedFiles + " file(s) were exported to " + exportDirectory,
+											expFilesMsg + " in slot " + cardSlotNo, 
+											JOptionPane.INFORMATION_MESSAGE);
+								}								
+							}							
+						} catch (FileAreaNotFoundException e1) {
+							// this exception will never get called...
+						} catch (IOException e2) {
+							JOptionPane.showMessageDialog(Slots.this, e2.getMessage(),
+									expFilesMsg + " in slot " + cardSlotNo + 
+									" to filing system", JOptionPane.ERROR_MESSAGE);
+						}
+
+						try {
+							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+						} catch(Exception e2) {
+							  System.out.println("Error setting cross platform LAF: " + e2);
+						}					
+						
+						// the LAF changes sometimes affect the gui, 
+						// redraw the slots panel and all is nice again...
+						Slots.this.repaint(); 						
+					}
+				});					
+			}
+			
+			return exportFilesMenuItem;
+		}
+		
+		private JMenuItem getImportFilesMenuItem() {
+			if (importFilesMenuItem == null) {
+				importFilesMenuItem = new JMenuItem();
+				importFilesMenuItem.setText(impFilesMsg);
+				
+				importFilesMenuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						File selectedFiles[] = null;
+
+						try {
+							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						} catch(Exception e1) {
+							  System.out.println("Error setting native LAF: " + e1);
+						}
+						
+						try {							
+							JFileChooser chooser = new JFileChooser(currentFilesDir);
+							chooser.setDialogTitle(impFilesMsg);
+							chooser.setMultiSelectionEnabled(true);
+							chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+							if (chooser.showOpenDialog(Slots.this.getParent()) == JFileChooser.APPROVE_OPTION) {
+								// remember current directory for next time..
+								currentFilesDir = chooser.getCurrentDirectory();
+								
+								// refresh file list in file area
+								cardFileArea.scanFileArea();
+
+								selectedFiles = chooser.getSelectedFiles();
+								// import selected files into file area...
+								for (int f=0; f<selectedFiles.length; f++) {
+									cardFileArea.importHostFile(selectedFiles[f]);
+								}
+							}
+							
+							JOptionPane.showMessageDialog(Slots.this, 
+									selectedFiles.length + " file(s) were imported",
+									impFilesMsg + " in slot " + cardSlotNo, 
+									JOptionPane.INFORMATION_MESSAGE);
+							
+						} catch (FileAreaNotFoundException e1) {
+							// this exception will never get called...
+						} catch (FileAreaExhaustedException e2) {
+							JOptionPane.showMessageDialog(Slots.this, "File Area exhausted during import",
+							impFilesMsg + " in slot " + cardSlotNo, 
+							JOptionPane.ERROR_MESSAGE);							
+						} catch (IOException e3) {
+							JOptionPane.showMessageDialog(Slots.this, e3.getMessage(),
+							impFilesMsg + " in slot " + cardSlotNo, 
+							JOptionPane.ERROR_MESSAGE);
+						}
+						
+						try {
+							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+						} catch(Exception e2) {
+							  System.out.println("Error setting cross platform LAF: " + e2);
+						}					
+						
+						// the LAF changes sometimes affect the gui, 
+						// redraw the slots panel and all is nice again...
+						Slots.this.repaint(); 						
+					}
+				});									
+			}
+			
+			return importFilesMenuItem;
+		}
+
+		private void exportFileEntry(FileEntry fe, String hostExpDir) throws IOException {
+			// strip the "oz" path of the filename
+			String hostFileName = fe.getFileName();
+			hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
+			// and build a complete file name for the host file system
+			hostFileName = hostExpDir + File.separator + hostFileName;
+
+			// create a new file in specified host directory
+			RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
+			expFile.write(fe.getFileImage()); // export file image to host file system
+			expFile.close();			
+		}
+				
+		/**
+		 * If the card contains a file area,
+		 * a popup menu is displayed at the position x,y in 
+		 * the coordinate space of the component invoker.
+		 * 
+		 * @param invoker
+		 * @param x
+		 * @param y 
+		 */
+		public void show(Component invoker, int x, int y) {
+			if (isFileAreaAvailable() == true)
+				super.show(invoker, x, y);
+		}
+	}
+		
+	private MouseAdapter addPopup(Component component, final JPopupMenu popup) {
+		MouseAdapter mouseAdapter = new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger())
+					showMenu(e);
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger())
+					showMenu(e);
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		};
+
+		component.addMouseListener(mouseAdapter);	
+		return mouseAdapter; // return a reference, for future removal.
+	}	
+	
+	/**
+	 * Remove right-click pop-up menu from a component
+	 * 
+	 * @param component 
+	 * @param mouseAdapter
+	 */
+	private void removePopup(Component component, MouseAdapter mouseAdapter) {
+		if (mouseAdapter != null)
+			component.removeMouseListener(mouseAdapter);
 	}
 }
