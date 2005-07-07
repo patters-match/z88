@@ -335,7 +335,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					} catch(Exception e1) {
-						  System.out.println("Error setting native LAF: " + e1);
+						  System.out.println(e1.getMessage());
 					}
 					
 					if (JOptionPane
@@ -377,7 +377,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 					} catch(Exception e2) {
-						  System.out.println("Error setting cross platform LAF: " + e2);
+						  System.out.println(e2.getMessage());
 					}					
 
 					// the LAF changes sometimes affect the gui, 
@@ -411,7 +411,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					} catch(Exception e1) {
-						  System.out.println("Error setting native LAF: " + e1);
+						  System.out.println(e1.getMessage());
 					}
 					
 					if (JOptionPane							
@@ -438,7 +438,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 					} catch(Exception e2) {
-						  System.out.println("Error setting cross platform LAF: " + e2);
+						  System.out.println(e2.getMessage());
 					}					
 					
 					// the LAF changes sometimes affect the gui, 
@@ -467,7 +467,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					} catch(Exception e1) {
-						  System.out.println("Error setting native LAF: " + e1);
+						  System.out.println(e1.getMessage());
 					}
 					
 					if (SlotInfo.getInstance().getCardType(1) == SlotInfo.EmptySlot) {
@@ -483,7 +483,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 					} catch(Exception e2) {
-						  System.out.println("Error setting cross platform LAF: " + e2);
+						  System.out.println(e2.getMessage());
 					}					
 
 					// the LAF changes sometimes affect the gui, 
@@ -509,7 +509,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					} catch(Exception e1) {
-						  System.out.println("Error setting native LAF: " + e1);
+						  System.out.println(e1.getMessage());
 					}
 					
 					if (SlotInfo.getInstance().getCardType(2) == SlotInfo.EmptySlot) {
@@ -525,7 +525,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 					} catch(Exception e2) {
-						  System.out.println("Error setting cross platform LAF: " + e2);
+						  System.out.println(e2.getMessage());
 					}
 
 					// the LAF changes sometimes affect the gui, 
@@ -551,7 +551,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					} catch(Exception e1) {
-						  System.out.println("Error setting native LAF: " + e1);
+						  System.out.println(e1.getMessage());
 					}
 					
 					if (SlotInfo.getInstance().getCardType(3) == SlotInfo.EmptySlot) {
@@ -567,7 +567,7 @@ public class Slots extends JPanel {
 					try {
 						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 					} catch(Exception e2) {
-						  System.out.println("Error setting cross platform LAF: " + e2);
+						  System.out.println(e2.getMessage());
 					}					
 					
 					// the LAF changes sometimes affect the gui, 
@@ -1370,11 +1370,17 @@ public class Slots extends JPanel {
 	private class CardPopupMenu extends JPopupMenu {
 		private static final String expFilesMsg = "Export files from File Area";
 		private static final String impFilesMsg = "Import files into File Area";
+		private static final String formatFileAreaMsg = "Format File Area";
+		private static final String reclaimDelSpaceMsg = "Reclaim deleted space in File Area";
+		private static final String markFileDeletedMsg = "Mark file(s) as deleted in File Area";
 		
 		private FileArea cardFileArea;
 		private int cardSlotNo;
 		private JMenuItem importFilesMenuItem;
 		private JMenuItem exportFilesMenuItem;
+		private JMenuItem formatFileAreaMenuItem;
+		private JMenuItem reclaimDelSpaceMenuItem;
+		private JMenuItem markFileDeletedMenuItem;
 		
 		public CardPopupMenu(int slotNo) {
 			super();			
@@ -1391,6 +1397,9 @@ public class Slots extends JPanel {
 				
 				add(getImportFilesMenuItem());
 				add(getExportFilesMenuItem());
+				add(getMarkFileDeletedMenuItem());
+				add(getReclaimDelSpaceMenuItem());
+				add(getFormatFileAreaMenuItem());
 			}
 		}
 
@@ -1408,7 +1417,7 @@ public class Slots extends JPanel {
 							try {
 								  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 							} catch(Exception e1) {
-								  System.out.println("Error setting native LAF: " + e1);
+								  System.out.println(e1.getMessage());
 							}
 
 							// refresh file list in file area
@@ -1473,7 +1482,7 @@ public class Slots extends JPanel {
 						try {
 							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 						} catch(Exception e2) {
-							  System.out.println("Error setting cross platform LAF: " + e2);
+							  System.out.println(e2.getMessage());
 						}					
 						
 						// the LAF changes sometimes affect the gui, 
@@ -1498,7 +1507,7 @@ public class Slots extends JPanel {
 						try {
 							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 						} catch(Exception e1) {
-							  System.out.println("Error setting native LAF: " + e1);
+							  System.out.println(e1.getMessage());
 						}
 						
 						try {							
@@ -1541,7 +1550,7 @@ public class Slots extends JPanel {
 						try {
 							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 						} catch(Exception e2) {
-							  System.out.println("Error setting cross platform LAF: " + e2);
+							  System.out.println(e2.getMessage());
 						}					
 						
 						// the LAF changes sometimes affect the gui, 
@@ -1552,6 +1561,162 @@ public class Slots extends JPanel {
 			}
 			
 			return importFilesMenuItem;
+		}
+
+		private JMenuItem getFormatFileAreaMenuItem() {
+			if (formatFileAreaMenuItem == null) {
+				formatFileAreaMenuItem = new JMenuItem();
+				formatFileAreaMenuItem.setText(formatFileAreaMsg);
+				formatFileAreaMenuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {						
+						try {
+							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						} catch(Exception e1) {
+							  System.out.println(e1.getMessage());
+						}
+
+						if (JOptionPane.showConfirmDialog(Slots.this, "(Re)format file area?\nWarning: All files will be lost.",
+								formatFileAreaMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+							if (FileArea.create(cardSlotNo, true) == true)
+								JOptionPane.showMessageDialog(Slots.this, 
+										"File area was successfully formatted",
+										formatFileAreaMsg + " in slot " + cardSlotNo, 
+										JOptionPane.INFORMATION_MESSAGE);
+							else
+								JOptionPane.showMessageDialog(Slots.this, 
+										"An error occurred. File area was not formatted",
+										formatFileAreaMsg + " in slot " + cardSlotNo, 
+										JOptionPane.ERROR_MESSAGE);
+						}
+					
+						try {
+							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+						} catch(Exception e2) {
+							  System.out.println(e2.getMessage());
+						}					
+						
+						// the LAF changes sometimes affect the gui, 
+						// redraw the slots panel and all is nice again...
+						Slots.this.repaint(); 											
+					}
+				});
+			}
+			
+			return formatFileAreaMenuItem;
+		}
+
+		private JMenuItem getReclaimDelSpaceMenuItem() {
+			if (reclaimDelSpaceMenuItem == null) {
+				reclaimDelSpaceMenuItem = new JMenuItem();
+				reclaimDelSpaceMenuItem.setText(reclaimDelSpaceMsg);
+				reclaimDelSpaceMenuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {					
+						try {
+							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						} catch(Exception e1) {
+							  System.out.println(e1.getMessage());
+						}
+
+						if (JOptionPane.showConfirmDialog(Slots.this, "Reclaim deleted file space?",
+								reclaimDelSpaceMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+							try {
+								// refresh file list in file area
+								cardFileArea.scanFileArea();
+								// then reclaim deleted file space..
+								cardFileArea.reclaimDeletedFileSpace();
+
+								JOptionPane.showMessageDialog(Slots.this, 
+										"Files marked as deleted were removed from File Area.",
+										reclaimDelSpaceMsg + " in slot " + cardSlotNo, 
+										JOptionPane.INFORMATION_MESSAGE);
+							} catch (FileAreaNotFoundException e1) {
+								// this exception is never called..
+							}
+						}
+					
+						try {
+							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+						} catch(Exception e2) {
+							  System.out.println(e2.getMessage());
+						}					
+						
+						// the LAF changes sometimes affect the gui, 
+						// redraw the slots panel and all is nice again...
+						Slots.this.repaint(); 											
+					}
+				});
+			}
+
+			return reclaimDelSpaceMenuItem;
+		}
+
+		private JMenuItem getMarkFileDeletedMenuItem() {
+			if (markFileDeletedMenuItem == null) {
+				markFileDeletedMenuItem = new JMenuItem();
+				markFileDeletedMenuItem.setText(markFileDeletedMsg);
+				markFileDeletedMenuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {					
+						try {
+							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						} catch(Exception e1) {
+							  System.out.println(e1.getMessage());
+						}
+
+						try {
+							// refresh file list in file area
+							cardFileArea.scanFileArea();
+
+							// get a list of filenames and display it in a JList widget
+							// which the user can select from...
+							JList list = new JList(cardFileArea.getFileEntryNames());
+							list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);			
+							JScrollPane scrollListPane = new JScrollPane();
+							scrollListPane.setViewportView(list);
+
+							if (JOptionPane.showConfirmDialog(Slots.this, scrollListPane,
+									markFileDeletedMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+
+								if (list.getSelectedIndex() == -1) {
+									// no selection made, export all active files..
+									JOptionPane.showMessageDialog(Slots.this, 
+											"No files were marked to be 'deleted'.",
+											markFileDeletedMsg + " in slot " + cardSlotNo, 
+											JOptionPane.INFORMATION_MESSAGE);
+								} else {
+									// only selected files will be marked as deleted...
+									int selectedItems[] = list.getSelectedIndices();
+									
+									for (int f=0; f<selectedItems.length; f++) {
+										list.setSelectedIndex(selectedItems[f]);
+										String selectedFilename = (String) list.getSelectedValue();
+										cardFileArea.markAsDeleted(selectedFilename);
+									}
+
+									JOptionPane.showMessageDialog(Slots.this, 
+											selectedItems.length + " files were marked as deleted.",
+											markFileDeletedMsg + " in slot " + cardSlotNo, 
+											JOptionPane.INFORMATION_MESSAGE);									
+								}								
+							}
+							
+						} catch (FileAreaNotFoundException e1) {
+							// this exception is never called..
+						}						
+					
+						try {
+							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+						} catch(Exception e2) {
+							System.out.println(e2.getMessage());
+						}					
+						
+						// the LAF changes sometimes affect the gui, 
+						// redraw the slots panel and all is nice again...
+						Slots.this.repaint(); 											
+					}
+				});
+			}
+
+			return markFileDeletedMenuItem;
 		}
 
 		private void exportFileEntry(FileEntry fe, String hostExpDir) throws IOException {
