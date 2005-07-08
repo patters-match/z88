@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprFirstFile
+     LIB FileEprRequest
      LIB FileEprFileEntryInfo
      LIB ConvPtrToAddr
 
@@ -50,16 +50,18 @@
 ;
 .FileEprUsedSpace   PUSH HL
 
-                    CALL FileEprFirstFile         ; return BHL to first file entry
+                    LD   E,C                      ; preserve slot number
+                    CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot C
                     JR   C, err_FileEprUsedSpace  ; File Area not available...
 
-                    LD   A,C                      ; get slot number
+                    LD   A,E                      ; get slot number
                     AND  @00000011                ; only slots (0), 1, 2 or 3 possible
                     RRCA
                     RRCA                          ; converted to Slot mask $40, $80 or $C0
-                    LD   B,A                      ; first file seen from bottom bank of slot
+                    LD   B,A
+                    LD   HL,0                     ; first file seen from bottom bank of slot
 
-                    ; scan all file entries, to point at first free byte
+                    ; scan file entries, to point at first free byte
 .scan_eprom         CALL FileEprFileEntryInfo
                     JR   NC, scan_eprom
 
