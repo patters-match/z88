@@ -1,4 +1,4 @@
-     XLIB FileEprFreeSpace
+     XLIB FileEprUsedSpace
 
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
@@ -17,7 +17,8 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprRequest, FileEprUsedSpace
+     LIB FileEprFirstFile
+     LIB FileEprFileEntryInfo
      LIB ConvPtrToAddr
 
      include "error.def"
@@ -28,14 +29,14 @@
 ; Standard Z88 File Eprom Format, including support for sub File Eprom
 ; Area in application cards (below application banks in first free 64K boundary)
 ;
-; Return free space in Standard File Eprom Area, inserted in slot C
+; Return used space in Standard File Eprom Area, inserted in slot C
 ;
 ; IN:
 ;    C = slot number containing File Eprom Area
 ;
 ; OUT:
 ;    Fc = 0, File Eprom available
-;         DEBC = Free space available
+;         DEBC = Used space in bytes
 ;
 ;    Fc = 1, File Eprom was not found in slot C
 ;
@@ -44,39 +45,33 @@
 ;    AFBCDE../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997-Aug 1998, July 2005
+; Design & programming by Gunther Strube, July 2005
 ; -----------------------------------------------------------------------
 ;
-.FileEprFreeSpace   PUSH HL
+.FileEprUsedSpace   PUSH HL
 
-                    LD   E,C                      ; preserve slot number
-                    CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot
-                    JR   C, err_FileEprFreeSpace
-                    JR   NZ, err_FileEprFreeSpace ; File Eprom not available in slot...
+                    CALL FileEprFirstFile         ; return BHL to first file entry
+                    JR   C, err_FileEprUsedSpace  ; File Area not available...
 
-                    LD   A,E                      ; preserve slot number in A
-                    LD   B,C
-                    DEC  B
-                    LD   HL,$3FC0                 ; File Header at relative BHL (seen from bottom of bank)
-                    CALL ConvPtrToAddr            ; File header -> DEBC (total bytes in file area)
-                    PUSH DE
-                    PUSH BC
+                    LD   A,C                      ; get slot number
+                    AND  @00000011                ; only slots (0), 1, 2 or 3 possible
+                    RRCA
+                    RRCA                          ; converted to Slot mask $40, $80 or $C0
+                    LD   B,A                      ; first file seen from bottom bank of slot
 
-                    LD   C,A                      ; slot number.
-                    CALL FileEprUsedSpace         ; get used file space in file area in DEBC
+                    ; scan all file entries, to point at first free byte
+.scan_eprom         CALL FileEprFileEntryInfo
+                    JR   NC, scan_eprom
 
-                    CP   A
-                    POP  HL
-                    SBC  HL,BC                    ; <Capacity> - <UsedSpace> = Free Space
-                    LD   B,H
-                    LD   C,L
-                    POP  HL
-                    SBC  HL,DE
-                    EX   DE,HL                    ; return free space of File Eprom in DEBC
-.exit_freespace
+                    RES  7,B
+                    RES  6,B
+                    RES  7,H
+                    RES  6,H                      ; strip physical attributes of pointer...
+                    CALL ConvPtrToAddr            ; BHL (ptr to free space) => DEBC used space
+.exit_usedspace
                     POP  HL
                     RET
-.err_FileEprFreeSpace
+.err_FileEprUsedSpace
                     SCF
                     LD   A, RC_ONF
                     POP  HL
