@@ -1406,13 +1406,16 @@ public class Slots extends JPanel {
 			
 			if (SlotInfo.getInstance().getFileHeaderBank(cardSlotNo) != -1) {
 				// The physical poll of the slot indicates a file area.. 
-				if (cardFileArea == null) {
-					// File Area Management hasn't been instantiated yet...
-					try {
-						cardFileArea = new FileArea(cardSlotNo);
-					} catch (FileAreaNotFoundException e) {
-						// this will never get called
+				try {
+					if (cardFileArea == null) {
+						// File Area Management hasn't been instantiated yet...
+							cardFileArea = new FileArea(cardSlotNo);
+					} else {
+						// refresh file list in file area
+						cardFileArea.scanFileArea();					
 					}
+				} catch (FileAreaNotFoundException e) {
+					// this will never get called
 				}
 				
 				FileAreaStatus = true;
@@ -1433,9 +1436,6 @@ public class Slots extends JPanel {
 							} catch(Exception e1) {
 								  System.out.println(e1.getMessage());
 							}
-
-							// refresh file list in file area
-							cardFileArea.scanFileArea();
 							
 							// get a list of filenames and display it in a JList widget
 							// which the user can select from...
@@ -1534,9 +1534,6 @@ public class Slots extends JPanel {
 								// remember current directory for next time..
 								currentFilesDir = chooser.getCurrentDirectory();
 								
-								// refresh file list in file area
-								cardFileArea.scanFileArea();
-
 								selectedFiles = chooser.getSelectedFiles();
 								// import selected files into file area...
 								for (int f=0; f<selectedFiles.length; f++) {
@@ -1634,8 +1631,6 @@ public class Slots extends JPanel {
 						if (JOptionPane.showConfirmDialog(Slots.this, "Reclaim deleted file space?",
 								reclaimDelSpaceMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 							try {
-								// refresh file list in file area
-								cardFileArea.scanFileArea();
 								// then reclaim deleted file space..
 								cardFileArea.reclaimDeletedFileSpace();
 
@@ -1677,9 +1672,6 @@ public class Slots extends JPanel {
 						}
 
 						try {
-							// refresh file list in file area
-							cardFileArea.scanFileArea();
-
 							// get a list of filenames and display it in a JList widget
 							// which the user can select from...
 							JList list = new JList(cardFileArea.getFileEntryNames());
@@ -1756,8 +1748,27 @@ public class Slots extends JPanel {
 		 * @param y 
 		 */
 		public void show(Component invoker, int x, int y) {
-			if (isFileAreaAvailable() == true)
+			if (isFileAreaAvailable() == true) {
+				try {
+					if (cardFileArea.getActiveFileCount() > 0) {
+						getExportFilesMenuItem().setEnabled(true);
+						getMarkFileDeletedMenuItem().setEnabled(true);
+					} else {
+						getExportFilesMenuItem().setEnabled(false);
+						getMarkFileDeletedMenuItem().setEnabled(false);
+					}
+
+					if (cardFileArea.getDeletedFileCount() > 0) {
+						getReclaimDelSpaceMenuItem().setEnabled(true);					
+					} else {
+						getReclaimDelSpaceMenuItem().setEnabled(false);
+					}
+				} catch (FileAreaNotFoundException e) {
+					// This exception is never reached...
+				}
+								
 				super.show(invoker, x, y);
+			}
 		}
 	}
 		
