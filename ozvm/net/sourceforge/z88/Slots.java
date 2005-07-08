@@ -462,6 +462,10 @@ public class Slots extends JPanel {
 			slot1Button.setMaximumSize(new Dimension(139, 20));
 			slot1Button.setFont(buttonFont);
 			slot1Button.setMargin(new Insets(2, 4, 2, 4));
+			
+			// add a right-click popup for file area management
+			externSlotPopupMenuListener[1] = addPopup(slot1Button, new CardPopupMenu(1));
+			
 			slot1Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
@@ -504,6 +508,10 @@ public class Slots extends JPanel {
 			slot2Button.setMaximumSize(new Dimension(139, 20));
 			slot2Button.setFont(buttonFont);
 			slot2Button.setMargin(new Insets(2, 4, 2, 4));
+
+			// add a right-click popup for file area management
+			externSlotPopupMenuListener[2] = addPopup(slot2Button, new CardPopupMenu(2));
+			
 			slot2Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
@@ -546,6 +554,10 @@ public class Slots extends JPanel {
 			slot3Button.setMaximumSize(new Dimension(139, 20));
 			slot3Button.setFont(buttonFont);
 			slot3Button.setMargin(new Insets(2, 4, 2, 4));
+
+			// add a right-click popup for file area management
+			externSlotPopupMenuListener[3] = addPopup(slot3Button, new CardPopupMenu(3));
+
 			slot3Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
@@ -770,9 +782,6 @@ public class Slots extends JPanel {
 					}
 				}
 			}
-
-			// add a right-click popup for file area management, if a file area exists on card...
-			externSlotPopupMenuListener[slotNo] = addPopup(slotButton, new CardPopupMenu(slotNo));
 			
 			// card has been successfully inserted into slot... 
 			refreshSlotInfo(slotNo);
@@ -862,10 +871,7 @@ public class Slots extends JPanel {
 				}
 				
 				// keep a copy of removed File/App card...
-				lastRemovedCard[slotNo] = memory.removeCard(slotNo);
-				
-				// remove right-click popup menu, if created for this slot button...
-				removePopup(slotButton, externSlotPopupMenuListener[slotNo]);
+				lastRemovedCard[slotNo] = memory.removeCard(slotNo);				
 			}				
 		}
 				
@@ -1387,24 +1393,32 @@ public class Slots extends JPanel {
 			
 			// remember in which slot this card is located...			
 			cardSlotNo = slotNo;
-			
-			if (isFileAreaAvailable() == true) {
-				// only define a right-click menu if a
-				// file area is available...
-				try {
-					cardFileArea = new FileArea(slotNo);
-				} catch (FileAreaNotFoundException e) {}
-				
-				add(getImportFilesMenuItem());
-				add(getExportFilesMenuItem());
-				add(getMarkFileDeletedMenuItem());
-				add(getReclaimDelSpaceMenuItem());
-				add(getFormatFileAreaMenuItem());
-			}
+
+			add(getImportFilesMenuItem());
+			add(getExportFilesMenuItem());
+			add(getMarkFileDeletedMenuItem());
+			add(getReclaimDelSpaceMenuItem());
+			add(getFormatFileAreaMenuItem());
 		}
 
 		private boolean isFileAreaAvailable() {
-			return SlotInfo.getInstance().getFileHeaderBank(cardSlotNo) != -1;
+			boolean FileAreaStatus = false;
+			
+			if (SlotInfo.getInstance().getFileHeaderBank(cardSlotNo) != -1) {
+				// The physical poll of the slot indicates a file area.. 
+				if (cardFileArea == null) {
+					// File Area Management hasn't been instantiated yet...
+					try {
+						cardFileArea = new FileArea(cardSlotNo);
+					} catch (FileAreaNotFoundException e) {
+						// this will never get called
+					}
+				}
+				
+				FileAreaStatus = true;
+			} 
+			
+			return FileAreaStatus;
 		}
 		
 		private JMenuItem getExportFilesMenuItem() {
