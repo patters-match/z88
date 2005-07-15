@@ -22,7 +22,7 @@ Module DefaultRamDevice
      XDEF selctram_msg
 
      LIB RamDevFreeSpace
-     XREF cls, wbar, rdch, VduCursor, pwait
+     XREF cls, DispMainWindow, rdch, VduCursor, pwait
 
      ; system definitions
      include "stdio.def"
@@ -37,9 +37,9 @@ Module DefaultRamDevice
 ; Select Default RAM Device.
 ;
 .DefaultRamCommand
-                    CALL cls
                     LD   HL,defram_banner
-                    CALL wbar
+                    call DispMainWindow
+
                     LD   HL, selctram_msg
                     CALL_OZ(GN_Sop)
 
@@ -170,5 +170,5 @@ Module DefaultRamDevice
 
 .defram_banner      DEFM "SELECT DEFAULT RAM DEVICE", 0
 .ramdevname         DEFM ":RAM.", 0
-.selctram_msg       DEFM " Select slot number of available RAM device.", 13, 10
+.selctram_msg       DEFM 13,10, " Select slot number of available RAM device.", 13, 10
                     DEFM " Use keys 0-3 or ",1, "+J to toggle. ", 1, SD_ENT, " selects it.", 0

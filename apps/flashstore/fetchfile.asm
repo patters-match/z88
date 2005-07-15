@@ -21,7 +21,7 @@ Module FetchFile
 ; This module contains the command to fetch a file from a File Card to the current
 ; RAM device.
 
-     xdef FetchFileCommand
+     xdef FetchFileCommand, QuickFetchFile
      xdef exct_msg, fetf_msg, done_msg
      xdef disp_exis_msg
 
@@ -30,12 +30,15 @@ Module FetchFile
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
+     lib FileEprFileName           ; get a copy of the file name from the file entry.
+     lib FileEprFileStatus         ; get deleted (or active) status of file entry
 
      xref FilesAvailable
+     xref DispFiles
      xref CheckFreeRam, GetDefaultRamDevice
      xref PromptOverWrFile
      xref disp_no_filearea_msg, no_files, DispErrMsg
-     xref cls, wbar, sopnln
+     xref DispMainWindow, sopnln
      xref fnam_msg, failed_msg
 
      ; system definitions
@@ -55,7 +58,8 @@ Module FetchFile
 ; fetched into a specified RAM file.
 ;
 .FetchFileCommand
-                    call cls
+                    ld   hl,fetch_bnr
+                    call DispMainWindow
 
                     ld   a,(curslot)
                     ld   c,a
@@ -67,8 +71,6 @@ Module FetchFile
                     call FilesAvailable
                     jp   z, no_files             ; Fz = 1, no files available...
 
-                    ld   hl,fetch_bnr
-                    call wbar
                     ld   hl,exct_msg
                     call sopnln
                     ld   hl,fnam_msg
@@ -107,6 +109,39 @@ Module FetchFile
                     RET
 ; *************************************************************************************
 
+
+; *************************************************************************************
+;
+; Fetch file from File Eprom, based on BHL file entry, when user has pressed
+; ENTER on file entry in File Area window; the file might be marked as deleted
+; or be an 'active' file.
+;
+.QuickFetchFile
+                    ld   hl,fetch_bnr
+                    call DispMainWindow
+
+                    ld   hl,(CursorFilePtr)
+                    ld   a,(CursorFilePtr+2)
+                    ld   b,a
+                    ld   (fbnk),a
+                    ld   (fadr),hl           ; pointer to found File Entry...
+                    call FileEprFileSize
+                    ld   (free),de
+                    ld   a,c
+                    ld   (free+2),a
+
+                    ld   de,buf1
+                    call FileEprFileName
+                    ld   (linecnt),a         ; size of input
+
+                    call_oz Gn_nln
+
+                    call FileEprFileStatus   ; is file marked as deleted?
+                    jr   nz, get_name        ; no...
+
+                    ld   hl, warndel_msg     ; display a warning for a deleted file
+                    CALL_OZ gn_sop           ; before proceeding with the fetch dialog
+                    jr   get_name
 
 
 ; *************************************************************************************
@@ -149,6 +184,8 @@ Module FetchFile
                     ld   b,0
                     ld   c,a
                     ldir                     ; append filename after default RAM device.
+                    xor  a
+                    ld   (de),a              ; null-terminate
 
                     ld   de,buf1
                     LD   A,@00100011         ; buffer has filename
@@ -227,7 +264,12 @@ Module FetchFile
 ; constants
 
 .fetch_bnr          DEFM "FETCH FROM FILE AREA",0
-.exct_msg           DEFM " Enter exact filename (no wildcard).",0
+
+.warndel_msg        DEFM " ", 1, "4+F+RWARNING: You are fetching a deleted file", 1, "4-F-R", 13, 10
+                    DEFM " A newer version (an active file) might exist in", 13, 10
+                    DEFM " the file area.", 13, 10, 13, 10, 0
+
+.exct_msg           DEFM 13, 10, " Enter exact filename (no wildcard).",0
 
 .fetf_msg           DEFM 1,"2+C Fetching to ",0
 .done_msg           DEFM "Completed.",$0D,$0A,0

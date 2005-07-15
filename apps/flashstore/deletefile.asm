@@ -24,7 +24,8 @@ Module DeleteFile
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
 
-     xref cls, wbar, sopnln
+     xref InitFirstFileBar
+     xref DispMainWindow, sopnln
      xref DispErrMsg, disp_no_filearea_msg
      xref FilesAvailable, no_files
      xref FlashWriteSupport
@@ -46,7 +47,8 @@ Module DeleteFile
 ; it will be marked as deleted.
 ;
 .DeleteFileCommand
-                    call cls
+                    ld   hl,delfile_bnr
+                    call DispMainWindow
 
                     ld   a,(curslot)
                     ld   c,a
@@ -66,10 +68,6 @@ Module DeleteFile
                     call FilesAvailable
                     jp   z, no_files              ; Fz = 1, no files available...
 
-
-                    call cls
-                    ld   hl,delfile_bnr
-                    call wbar
                     ld   hl,exct_msg
                     call sopnln
                     ld   hl,fnam_msg
@@ -118,6 +116,10 @@ Module DeleteFile
                     CALL DispErrMsg
                     RET
 .file_deleted
+                    push af
+                    call InitFirstFileBar         ; reset file area information
+                    pop  af
+
                     LD   HL,filedel_msg
                     CALL DispErrMsg
                     RET

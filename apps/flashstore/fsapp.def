@@ -31,7 +31,10 @@ DEFC BufferSize = buf1-BufferStart      ; buffer for file I/O at $2000
 DEFVARS $1FFE - SafeWorkSpaceSize
 {
      linecnt        ds.b 1
-     MenuBarPosn    ds.b 1              ; Main Menu Bar vertical position in window
+     MenuBarPosn    ds.b 1              ; Main Menu Bar vertical position in window (0 - 6)
+     FileBarPosn    ds.b 1              ; File Bar vertical position in Catalogue window (0 - 6)
+     CursorFilePtr  ds.p 1              ; File Bar Pointer to current File Entry in File Area
+     barMode        ds.b 1              ; menu bar or file bar movement?
      nlen           ds.b 1              ; length of filename
      flen           ds.l 1              ; length of file (32bit)
      flenhdr        ds.l 1              ; length of File Entry Header
@@ -48,6 +51,7 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      availslots     ds.b 4              ; array of inserted File Eprom's in external slots
      curslot        ds.b 1              ; the current selected slot (possibly containing File Area)
      flashid        ds.w 1              ; the manufacturer and device code of the flash card in current slot
+     watermark      ds.b 5              ; the current File Area watermark (File Header Ramdom ID & size of banks)
      ramdevno       ds.b 1              ; the default Ascii RAM Device slot number ('0' - '3').
 }
 

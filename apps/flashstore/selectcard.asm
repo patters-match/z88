@@ -28,11 +28,12 @@ Module SelectCard
      LIB FileEprRequest, FileEprFreeSpace, ApplEprType, FlashEprCardId
 
      XREF greyscr, greyfont, nocursor, nogreyfont, notinyfont
+     XREF InitFirstFileBar
      XREF FormatCommand
      XREF PollFileFormatSlots
      XREF FlashWriteSupport, execute_format
      XREF CheckFlashCardID
-     XREF DispCmdWindow, DispCtlgWindow
+     XREF DispCmdWindow, DispFilesWindow
      XREF FileEpromStatistics, DispIntelSlotErr, DispKSize
      XREF pwait, rdch
      XREF m16
@@ -241,6 +242,7 @@ Module SelectCard
                     xor  a
                     cp   (hl)
                     jr   z, check_empty_flcard    ; user selected apparently void or illegal slot
+                    call InitFirstFileBar         ; initialize File Bar cursor for new slot..
                     cp   a                        ; slot selected successfully
                     ret
 
@@ -250,7 +252,7 @@ Module SelectCard
                     jp   nc, execute_format       ; empty flash card in slot (no file area, and erase/write support)
 
                     CALL DispCmdWindow
-                    CALL DispCtlgWindow
+                    CALL DispFilesWindow
                     CALL FileEpromStatistics
                     call DispIntelSlotErr         ; Intel Flash Card found in slot, but no erase/write support in slot
                     cp   a

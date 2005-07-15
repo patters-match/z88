@@ -19,7 +19,7 @@
      MODULE flash17
 
      ; public functionality & text constants
-     xdef DispCmdWindow, DispCtlgWindow
+     xdef DispCmdWindow, DispMainWindow, DisplBar
      xdef format_default
      xdef rdch, pwait, YesNo
      xdef greyscr, ungreyscr
@@ -33,8 +33,15 @@
 
      ; Library references
      lib CreateWindow              ; Create windows...
+     lib FileEprFileStatus
 
      ; external functionality in other modules
+     xref DispFiles                ; catalog.asm
+     xref InitFirstFileBar         ; catalog.asm
+     xref MoveFileBarDown          ; catalog.asm
+     xref MoveFileBarUp            ; catalog.asm
+     xref MoveToFirstFile          ; catalog.asm
+     xref MoveToLastFile           ; catalog.asm
      xref GetDefaultPanelRamDev    ; defaultram.asm
      xref DefaultRamCommand        ; defaultram.asm
      xref SelectFileArea           ; selectcard.asm
@@ -42,7 +49,7 @@
      xref PollSlots                ; selectcard.asm
      xref selslot_banner           ; selectcard.asm
      xref SelectDefaultSlot        ; selectcard.asm
-     xref FilesAvailable           ; catalog.asm
+     xref DispFilesWindow          ; catalog.asm
      xref VduCursor                ; selectcard.asm
      xref FileEpromStatistics      ; filestat.asm
      xref IntAscii                 ; filestat.asm
@@ -56,18 +63,17 @@
      xref no_files                 ; errmsg.asm
      xref FormatCommand            ; format.asm
      xref SaveFilesCommand         ; savefiles.asm
+     xref QuickFetchFile           ; fetchfile.asm
      xref FetchFileCommand         ; fetchfile.asm
      xref exct_msg                 ; fetchfile.asm
      xref execute_format           ; format.asm
      xref FlashWriteSupport        ; format.asm
-     xref CatalogCommand           ; catalog.asm
      xref RestoreFilesCommand      ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref fnam_msg, fsok_msg       ; savefiles.asm
      xref BackupRamCommand         ; savefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
      xref AboutCommand             ; about.asm
-     xref catalog_banner           ; about.asm
 
      xref FlashStoreTopics         ; mth.asm
      xref FlashStoreCommands       ; mth.asm
@@ -197,10 +203,17 @@
                     JP   C, suicide          ; no File Area available, or Flash didn't have write support in found slot
                     JP   NZ, suicide         ; user aborted
 
+                    CALL InitFirstFileBar    ; initialize File Bar to first active file in File Area
                     CALL ClearWindowArea     ; just clear whole window area available
+
+                    XOR  A
+                    LD   (barMode),A         ; bar placed in menu bar by default
 
                     LD   A,1
                     LD   (MenuBarPosn),A     ; Display menu bar initially at top line of command window
+
+                    ld   iy,status
+                    set  0,(iy+0)            ; display deleted files
 
                     CALL mainmenu
                     JP   suicide             ; main menu aborted, leave popdown...
@@ -212,15 +225,15 @@
 ;
 .mainmenu
                     CALL DispCmdWindow
-                    CALL DispCtlgWindow
+                    CALL DispFilesWindow
                     CALL FileEpromStatistics      ; parse for free space and total of files...
 
                     LD   HL, mainmenu
                     PUSH HL                       ; return address for functions...
 .inp_main
-                    CALL DisplMenuBar
+                    CALL DisplBar
                     CALL rdch
-                    CALL DisplMenuBar
+                    CALL DisplBar
                     JR   NC,no_inp_err
                     CP   A
                     JR   inp_main
@@ -235,8 +248,6 @@
                     JP   Z, BackupRamCommand
                     CP   FlashStore_CC_rf              ; Restore Files
                     JP   Z, RestoreFilesCommand
-                    CP   FlashStore_CC_cf
-                    JP   Z, CatalogCommand
                     CP   FlashStore_CC_ffa
                     JP   Z, FormatCommand
                     CP   FlashStore_CC_sc
@@ -248,36 +259,85 @@
                     CP   FlashStore_CC_about
                     JP   Z, AboutCommand
                     CP   IN_ENT                        ; no shortcut cmd, ENTER ?
-                    JR   Z, get_command
+                    JP   Z, execute_command
                     CP   IN_DWN                        ; Cursor Down ?
                     JR   Z, MVbar_down
                     CP   IN_UP                         ; Cursor Up ?
                     JR   Z, MVbar_up
+                    CP   IN_DUP                        ; <> Cursor Up ?
+                    JR   Z, MVFirstFile
+                    CP   IN_DDWN                       ; <> Cursor Down?
+                    JR   Z, MVLastFile
+                    CP   IN_LFT                        ; Cursor Left ?
+                    JR   Z, MVbar_left
+                    CP   IN_RGT                        ; Cursor Right ?
+                    JR   Z, MVbar_right
                     JR   inp_main                      ; ignore keypress, get another...
+.MVbar_left
+.MVbar_right
+                    LD   A,(barMode)
+                    OR   A
+                    JR   Z, selectFiles
+                    XOR  A
+                    LD   (barMode),A                   ; indicate that cursor has moved to menu window
+                    JR   inp_main
+.selectFiles
+                    ld   hl,(CursorFilePtr)
+                    ld   a,(CursorFilePtr+2)
+                    or   h
+                    or   l
+                    jr   z, inp_main                   ; no files to browse...
+                    ld   a,-1
+                    LD  (barMode),A                    ; indicate that cursor has moved to file window
+                    JR   inp_main
+.MVFirstFile
+                    LD   A,(barMode)
+                    OR   A
+                    RET  Z                             ; <>Up no effect in main menu
+                    CALL MoveToFirstFile
+                    JP   inp_main
+.MVLastFile
+                    CALL MoveToLastFile
+                    JP   inp_main
 
-.MVbar_down         LD   A,(MenuBarPosn)               ; get Y position of menu bar
+.MVbar_down
+                    LD   A,(barMode)
+                    OR   A
+                    JR   NZ,MVbar_file_down
+                    LD   A,(MenuBarPosn)               ; get Y position of menu bar
                     CP   7                             ; has m.bar already reached bottom?
                     JR   Z,Mbar_topwrap
                     INC  A
                     LD   (MenuBarPosn),A               ; update new m.bar position
-                    JR   inp_main                      ; display new m.bar position
-.Mbar_topwrap       LD   A,1
+                    JP   inp_main                      ; display new m.bar position
+.Mbar_topwrap
+                    LD   A,1
                     LD   (MenuBarPosn),A
-                    JR   inp_main
+                    JP   inp_main
+.MVbar_file_down    CALL MoveFileBarDown
+                    JP   inp_main
 
-.MVbar_up           LD   A,(MenuBarPosn)               ; get Y position of menu bar
+.MVbar_up           LD   A,(barMode)
+                    OR   A
+                    JR   NZ,MVbar_file_up
+                    LD   A,(MenuBarPosn)               ; get Y position of menu bar
                     CP   1                             ; has m.bar already reached top?
                     JR   Z,Mbar_botwrap
                     DEC  A
                     LD   (MenuBarPosn),A               ; update new m.bar position
-                    JR   inp_main                      ; display new m.bar position
-.Mbar_botwrap       LD   A,7
+                    JP   inp_main                      ; display new m.bar position
+.Mbar_botwrap
+                    LD   A,7
                     LD   (MenuBarPosn),A
-                    JR   inp_main
-.get_command
+                    JP   inp_main
+.MVbar_file_up      CALL MoveFileBarUp
+                    JP   inp_main
+
+.execute_command    LD   A,(barMode)
+                    OR   A
+                    JR   NZ, selectFile
+
                     LD   A,(MenuBarPosn)               ; use menu bar position as index to command
-                    CP   1
-                    JP   Z, CatalogCommand
                     CP   2
                     JP   Z, SelectCardCommand
                     CP   3
@@ -291,8 +351,18 @@
                     CP   7
                     JP   Z, DefaultRamCommand
                     JP   inp_main
-.DisplMenuBar
+
+.selectFile                                            ; a file was selected in file area window
+                    CALL QuickFetchFile
+                    CALL DispFilesWindow               ; refresh file area contents.
+                    JP   inp_main
+
+.DisplBar
                     PUSH AF
+                    LD   A,(barMode)
+                    OR   A
+                    JR   NZ, DisplFileBar
+.DisplMenuBar
                     LD   HL,SelectMenuWindow
                     CALL_OZ(Gn_Sop)
                     LD   B,1
@@ -303,9 +373,37 @@
                     CALL_OZ(Gn_Sop)
                     POP  AF
                     RET
+.DisplFileBar
+                    LD   HL,SelectFileWindow
+                    CALL_OZ(Gn_Sop)
+                    LD   B,0
+                    LD   A,(FileBarPosn)               ; get Y position of File Bar
+                    LD   C,A
+                    Call VduCursor
+                    ld   hl,(CursorFilePtr)
+                    ld   a,(CursorFilePtr+2)
+                    ld   b,a
+                    call FileEprFileStatus
+                    jr   nz, dfb                       ; file is active (no grey file bar)
+                    ld   hl, grey_delfile
+                    CALL_OZ(Gn_Sop)
+                    LD   B,0
+                    LD   A,(FileBarPosn)               ; get Y position of File Bar
+                    LD   C,A
+                    Call VduCursor
+.dfb
+                    LD   HL,FileBar                    ; now display file bar at cursor
+                    CALL_OZ(Gn_Sop)
+                    POP  AF
+                    RET
+
 .SelectMenuWindow   DEFM 1, "2H1", 0                   ; activate menu window for menu bar control
+.SelectFileWindow   DEFM 1, "2H2", 1,"2-C", 1,"2-S", 0 ; activate file window for file bar control
 .MenuBar            DEFM 1, "2+R"                      ; set reverse video
                     DEFM 1, "2E", 32+17                ; XOR 'display' menu bar (15 chars wide)
+                    DEFM 1, "2-R", 0                   ; back to normal video
+.FileBar            DEFM 1, "2+R"                      ; set reverse video
+                    DEFM 1, "2E", 32+53                ; XOR 'display' file bar (53 chars wide)
                     DEFM 1, "2-R", 0                   ; back to normal video
 ; *************************************************************************************
 
@@ -367,19 +465,18 @@
 
 ; *************************************************************************************
 ;
-.DispCtlgWindow
+; IN:
+;    HL = pointer to banner
+.DispMainWindow
                     push af
                     push bc
                     push de
-                    push hl
 
                     ld   a,'2' | 128
                     ld   bc,$0013
                     ld   de,$0835
-                    ld   hl, catalog_banner
                     call CreateWindow
 
-                    pop  hl
                     pop  de
                     pop  bc
                     pop  af
@@ -591,7 +688,7 @@
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
                     DEFM 1, "2-G", 1, "2+T"
-                    DEFM 1,"3@",32+1,32+0, "CATALOGUE FILES"
+                    DEFM 1,"3@",32+1,32+0, "VIEW ALL FILES"
                     DEFM 1,"3@",32+1,32+1, "SELECT CARD"
                     DEFM 1,"3@",32,32+2, " SAVE TO CARD    "
                     DEFM 1,"3@",32+1,32+3, "FETCH FROM CARD"
@@ -611,6 +708,8 @@
 .clsvdu             DEFM 1,"2H2",12,0
 .winbackground      DEFM 1,"7#1",32,32,32+94,32+8,128
                     DEFM 1,"2C1",0
+
+.grey_delfile       DEFM 1, "2+G", 1, "2E", 32+53, 1, "2-G", 0
 
 .bar1_sq            DEFM 1,"4+TUR",1,"2JC",1,"3@  ",0
 .bar2_sq            DEFM 1,"3@  ",1,"2A",85,1,"4-TUR",1,"2JN",0

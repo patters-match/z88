@@ -35,7 +35,7 @@ Module RestoreFiles
      xref FilesAvailable
      xref GetDefaultRamDevice
      xref disp_no_filearea_msg, no_files, DispErrMsg
-     xref cls, sopnln, wbar
+     xref DispMainWindow, sopnln
      xref fetf_msg, fsok_msg, done_msg, no_msg, yes_msg
      xref disp_exis_msg, failed_msg
      xref YesNo, ResSpace
@@ -56,7 +56,8 @@ Module RestoreFiles
 ; Restore ALL active files from current file card into a user defined RAM device (or path)
 ;
 .RestoreFilesCommand
-                    CALL cls
+                    ld   hl,rest_banner
+                    call DispMainWindow
 
                     ld   a,(curslot)
                     ld   c,a
@@ -70,9 +71,6 @@ Module RestoreFiles
                     call FilesAvailable
                     jp   z, no_active_files            ; Fz = 1, no files available...
 
-                    CALL cls
-                    LD   HL,rest_banner
-                    CALL wbar
                     LD   HL,defdst_msg
                     CALL sopnln
                     LD   HL,dest_msg
@@ -346,7 +344,7 @@ Module RestoreFiles
 .rest_banner        DEFM "RESTORE ALL FILES FROM FILE AREA",0
 .fetch_msg          DEFM $0D,$0A," Fetching... ",0
 .promptovwrite_msg  DEFM " Overwrite RAM files? ",13, 10, 0
-.defdst_msg         DEFM " Enter Device/path.",0
+.defdst_msg         DEFM 13, 10, " Enter Device/path.",0
 .dest_msg           DEFM 1,"2+C Device: ",0
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0

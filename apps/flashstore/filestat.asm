@@ -25,7 +25,7 @@ Module FileAreaStatistics
 
      LIB CreateWindow
      LIB FileEprRequest, FileEprCntFiles, FileEprFirstFile, FileEprFileSize
-     LIB FileEprFreeSpace
+     LIB FileEprUsedSpace, FileEprFreeSpace
 
      XREF VduCursor, centerjustify, tinyfont, nocursor
      XREF DispSlotSize, epromdev
@@ -73,7 +73,7 @@ Module FileAreaStatistics
                     xor  a
                     ld   (de),a                   ; null-terminate banner
 
-                    ld   a,'3' | 128 | 64
+                    ld   a,'3' | 128
                     ld   bc,$004A
                     ld   de,$0812
                     ld   hl, buf1
@@ -81,14 +81,15 @@ Module FileAreaStatistics
 
                     ld   a,(curslot)
                     ld   c,a
+                    push bc
                     call FileEprRequest
                     jr   z, cont_statistics
+                         pop  bc
                          ld   hl, nofepr_msg
                          call_oz (Gn_Sop)
                          ret
 .cont_statistics
-                    ld   a,(curslot)
-                    ld   c,a
+                    pop  bc
                     push bc                       ; preserve slot number
                     call FileEprCntFiles          ; files on current File Eprom
                     add  hl,de                    ; total files = active + deleted
@@ -111,9 +112,14 @@ Module FileAreaStatistics
                          ld   (fdel),hl           ; don't include hidden file entry in statistics
 .getfreesp
                     pop  bc                       ; c = slot number...
+                    push bc
                     call FileEprFreeSpace         ; free space on current File Eprom
                     ld   (free),bc
                     ld   (free+2),de
+                    pop  bc
+                    call FileEprUsedSpace         ; free space on current File Eprom
+                    ld   (flen),bc
+                    ld   (flen+2),de              ; used space on current File Eprom
 
                     ld   hl,centerjustify
                     CALL_OZ gn_sop                ; centre justify...
@@ -146,7 +152,14 @@ Module FileAreaStatistics
                     call IntAscii
                     CALL_OZ gn_sop
                     ld   hl,bfre_msg
+                    CALL_OZ gn_sop                ; "xxxx bytes free"
+                    CALL_OZ(Gn_Nln)
+
+                    ld   hl,flen
+                    call IntAscii
                     CALL_OZ gn_sop
+                    ld   hl,bused_msg
+                    CALL_OZ gn_sop                ; "xxxx bytes used"
                     CALL_OZ(Gn_Nln)
 
                     ld   hl,file
@@ -302,6 +315,7 @@ Module FileAreaStatistics
 .fepr               DEFM "FILE AREA",1,"2-T",0
 .slot_bnr           DEFM "SLOT ", 0
 .bfre_msg           DEFM " bytes free",0
+.bused_msg          DEFM " bytes used",0
 .fisa_msg           DEFM " files saved",0
 .fdel_msg           DEFM " files deleted",0
 .nofepr_msg         DEFM 13,10,13,10,1,"2JC",1,"2+F"

@@ -21,7 +21,6 @@ Module FileAreaFormat
 ; This module contains functionality to format the file area on Flash Cards.
 
      xdef FormatCommand, execute_format, FlashWriteSupport, CheckFlashCardID
-     xdef CheckBatteryStatus
 
      lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
      lib FlashEprWriteBlock        ; Write a block of byte to Flash Eprom
@@ -30,15 +29,16 @@ Module FileAreaFormat
      lib ApplEprType               ; check for presence of application card in slot
      lib CheckBattLow              ; Check Battery Low condition
 
+     xref InitFirstFileBar         ; catalog.asm
      xref FileEpromStatistics      ; filestat.asm
      xref SelectFileArea           ; selectcard.asm
-     xref DispCtlgWindow           ; fsapp.asm
+     xref DispMainWindow           ; fsapp.asm
      xref DispSlotErrorMsg         ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
      xref disp_empty_flcard_msg    ; errmsg.asm
      xref DispErrMsg
      xref sopnln
-     xref ungreyscr, cls, wbar
+     xref ungreyscr, cls
      xref yesno, no_msg, done_msg
      xref failed_msg
      xref ResSpace
@@ -67,14 +67,16 @@ Module FileAreaFormat
                     or   a
                     jr   z, no_format_available   ; no available Flash Cards available that may be formatted...
                     call FormatFileArea
+
                     ret  c                        ; format failed, or Intel Flash format not functional in slot..
                     ret  nz
 
                     call SaveNullFile             ; save the hidden "null" file to avoid Intel FE bootstrapping
                     ret
 .no_format_available
-                    CALL DispCtlgWindow           ; make sure that main catalogue window is available when displaying error
-                    LD   HL, noformat_msg         ; message on FlashStore popdown startup.
+                    LD   HL, ffm1_bnr
+                    CALL DispMainWindow           ; create main window when displaying error message
+                    LD   HL, noformat_msg         ; on FlashStore popdown startup.
                     CALL DispErrMsg
                     scf
                     ret
@@ -88,20 +90,17 @@ Module FileAreaFormat
                     ld   c,a
                     CALL FlashWriteSupport
                     ret  c                        ; user selected a non-formattable file-area...
-                    CALL DispCtlgWindow           ; redraw main catalogue window for format command interaction...
+                    LD   HL, ffm1_bnr
+                    CALL DispMainWindow           ; redraw main catalogue window for format command interaction...
                     JR   execute_format
 .preselect_slot
                     ld   a,c
                     ld   (curslot),a              ; the selected slot...
 .execute_format
-                    call CheckBatteryStatus       ; don't format Flash Card
-                    ret  c                        ; if Battery Low is enabled...
-
                     call ungreyscr
                     CALL FileEpromStatistics
-                    CALL DispCtlgWindow
                     ld   hl,ffm1_bnr
-                    call wbar                     ; "Format Flash eprom" head line
+                    CALL DispMainWindow
 
                     ld   a,(curslot)
                     ld   c,a
@@ -127,8 +126,6 @@ Module FileAreaFormat
                     ret  nz
 
                     call cls
-                    ld   hl,ffm1_bnr
-                    call wbar                     ; "Format Flash eprom" head line
 
                     ld   hl,ffm2_msg
                     CALL_OZ GN_Sop
@@ -136,11 +133,14 @@ Module FileAreaFormat
                     LD   A,(curslot)
                     LD   C,A
                     CALL FlashEprFileFormat       ; erase blocks of file area & blow "oz" header at top
+
+                    push af
+                    call InitFirstFileBar         ; reset file area information
+                    pop  af
+
                     JR   C, formaterr             ; or at top of free area.
 
                     call cls
-                    ld   hl,ffm1_bnr
-                    call wbar                     ; "Format Flash eprom" head line
                     ld   hl,ffm3_msg
                     CALL_OZ GN_Sop
 
@@ -151,11 +151,10 @@ Module FileAreaFormat
 
                     CALL ResSpace
                     CP   A                        ; Signal success (Fc = 0, Fz = 1)
+
                     RET
 .formaterr                                        ; current block was not formatted properly...
                     call cls
-                    ld   hl,ffm1_bnr
-                    call wbar                     ; "Format Flash eprom" head line
                     LD   HL, fferr_msg
                     CALL DispErrMsg
                     RET
@@ -330,33 +329,6 @@ Module FileAreaFormat
                     pop  hl
                     ret
 ; *************************************************************************************
-
-
-; *************************************************************************************
-;
-; Check for Battery Low status and report to user, if enabled.
-;
-; IN:
-;    None.
-;
-; Out:
-;    Fc = 1, if Battery Low Status is enabled
-;         A = RC_WP (Flash Eprom Write Protected)
-;    Fc = 0, Battery Power is operational for Flash Eprom action
-;
-.CheckBatteryStatus CALL CheckBattLow
-                    RET  NC
-
-                    PUSH HL
-                    LD   HL, battlowmsg
-                    CALL DispErrMsg
-                    POP  HL
-
-                    LD   A, RC_Wp                 ; general failure...
-                    SCF
-                    RET
-; *************************************************************************************
-
 
 
 ; *************************************************************************************

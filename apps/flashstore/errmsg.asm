@@ -109,7 +109,6 @@ Module ErrorMessages
 
                     CALL DispCmdWindow       ; Update the command window (Grey out)
                     CALL FileEpromStatistics ; Update the File Area Statistics window
-                    CALL ResSpace            ; "Press SPACE to resume" ...
                     POP  HL
                     RET
 ; *************************************************************************************
@@ -118,14 +117,14 @@ Module ErrorMessages
 ; *************************************************************************************
 .no_files
                     LD   HL, noeprfilesmsg
-                    CALL DispErrMsg
+                    CALL DispErrMsgNoWait
                     RET
 ; *************************************************************************************
 
 
 ; *************************************************************************************
 ; Fz & Fc flags are set according to FlashWriteSupport routine.
-; 
+;
 .DispIntelSlotErr
                     push af
                     push hl
@@ -143,6 +142,26 @@ Module ErrorMessages
                     pop  hl
                     pop  af
                     ret
+; *************************************************************************************
+
+; *************************************************************************************
+;
+; Write Error message, and wait for SPACE key to be pressed.
+;
+; Registers changed after return:
+;    AFBCDEHL/IXIY same
+;    ......../.... different
+;
+.DispErrMsgNoWait
+                    PUSH AF                  ; preserve error status...
+                    PUSH HL
+                    CALL_OZ GN_Nln
+                    CALL VduEnableCentreJustify
+                    CALL sopnln
+                    CALL VduEnableNormalJustify
+                    POP  HL
+                    POP  AF
+                    RET
 ; *************************************************************************************
 
 
