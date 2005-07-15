@@ -60,10 +60,10 @@
 .scan_filearea                                    ; scan the File Area until last File Entry found...
                     LD   C,B
                     LD   D,H
-                    LD   E,L                      
+                    LD   E,L
                     PUSH AF                       ; preserve current File Entry in CDE,F
                     CALL FileEprNextFile          ; get next file entry in BHL
-                    CALL FileEprFileStatus        ; validate next file entry.
+                    CALL FileEprFileStatus        ; validate status of next file entry.
                     EX   AF,AF'
                     POP  AF
                     EX   AF,AF'
@@ -73,7 +73,7 @@
                     LD   B,C
                     EX   DE,HL                    ; BHL = pointer to last File Entry
 
-                    POP  DE                       
+                    POP  DE
                     LD   C,E                      ; original C restored
                     POP  DE
                     LD   A,D                      ; original A restored
