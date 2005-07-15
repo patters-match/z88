@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprFileEntryInfo
+     LIB FileEprFileEntryInfo, FileEprFileStatus
 
      INCLUDE "error.def"
 
