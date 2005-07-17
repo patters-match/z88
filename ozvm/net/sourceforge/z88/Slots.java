@@ -1586,7 +1586,7 @@ public class Slots extends JPanel {
 							  System.out.println(e1.getMessage());
 						}
 
-						if (JOptionPane.showConfirmDialog(Slots.this, "(Re)format file area?\nWarning: All files will be lost.",
+						if (JOptionPane.showConfirmDialog(Slots.this, "Format file area?\nWarning: All files will be lost.",
 								formatFileAreaMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 							if (FileArea.create(cardSlotNo, true) == true)
 								JOptionPane.showMessageDialog(Slots.this, 
@@ -1749,6 +1749,7 @@ public class Slots extends JPanel {
 		 */
 		public void show(Component invoker, int x, int y) {
 			if (isFileAreaAvailable() == true) {
+				getImportFilesMenuItem().setEnabled(true);
 				try {
 					if (cardFileArea.getActiveFileCount() > 0) {
 						getExportFilesMenuItem().setEnabled(true);
@@ -1768,6 +1769,17 @@ public class Slots extends JPanel {
 				}
 								
 				super.show(invoker, x, y);
+			} else {
+				if (FileArea.isCreateable(cardSlotNo) == true) {
+					// a file area is not available, but can be created on card...
+					getImportFilesMenuItem().setEnabled(false);
+					getExportFilesMenuItem().setEnabled(false);
+					getMarkFileDeletedMenuItem().setEnabled(false);
+					getReclaimDelSpaceMenuItem().setEnabled(false);
+					getFormatFileAreaMenuItem().setEnabled(true);
+					
+					super.show(invoker, x, y);
+				}				
 			}
 		}
 	}
