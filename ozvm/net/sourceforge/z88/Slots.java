@@ -1119,6 +1119,19 @@ public class Slots extends JPanel {
 						getFileAreaCheckBox().setSelected(true);
 						// remember current directory for next time..
 						currentFilesDir = fileAreaChooser.getCurrentDirectory();
+						
+						File selectedFiles[] = fileAreaChooser.getSelectedFiles();
+						int totalSelectedSize = 0;
+						for (int f=0; f<selectedFiles.length; f++) {
+							if (selectedFiles[f].isFile() == true) {								
+								totalSelectedSize += 1 + selectedFiles[f].getName().length() + 
+													 4 + selectedFiles[f].length();
+							}	
+						}
+						
+						getFileAreaCheckBox().setText("Create File Area: (" + 
+								fileAreaChooser.getSelectedFiles().length + " files = " + 
+								totalSelectedSize/1024 + "K)");
 					} else {
 						getFileAreaCheckBox().setSelected(false);
 					}
