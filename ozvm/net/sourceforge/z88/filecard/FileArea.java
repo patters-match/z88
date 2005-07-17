@@ -535,6 +535,88 @@ public class FileArea {
 	}
 
 	/**
+	 * Evaluate whether a file area can be created on the card in the specified slot.
+	 * Ram card and empty slots will automatically be discarded (returns false).
+	 * If empty space is found on card (ie. below an application area) and that it 
+	 * conforms to the rules of minimum needed file space for flash cards (64K, except 
+	 * AMD 128K chip that has 16K sectors) and UV Eprom (16K) then true is returned. 
+	 * 
+	 * Use the create() method for the specified slot to actually create/format the file area. 
+	 * 
+	 * This method also returns true if an existing file area is found (which means that
+	 * the file area could be re-formatted).
+	 * 
+	 * @param slotNumber
+	 * @return true if a file area might be created on the card, otherwise return false
+	 */
+	public static boolean isCreateable(int slotNumber) {
+		Memory memory = Memory.getInstance();
+		SlotInfo slotinfo = SlotInfo.getInstance();
+		
+		slotNumber &= 3; // only slot 0-3...
+		if (slotNumber == 0)
+			return false; // slot 0 does not support file areas...
+		
+		int bottomBankNo = slotNumber << 6;
+
+		// get bottom bank of slot to determine card type...
+		Bank bank = memory.getBank(bottomBankNo);
+		if ((bank instanceof EpromBank == false)
+				& (bank instanceof AmdFlashBank == false)
+				& (bank instanceof IntelFlashBank == false)) {
+			// A file area can't be created on a Ram card or in an empty slot...
+			return false;
+		} else {
+			int fileHdrBank = slotinfo.getFileHeaderBank(slotNumber);
+			
+			if (fileHdrBank != -1) {
+				// file header found somewhere on card, file area can be re-formatted
+				return true;
+			} else {
+				// no file area found, investigate if there's space available
+				if (slotinfo.isApplicationCard(slotNumber) == true) {
+					ApplicationCardHeader appCrdHdr = new ApplicationCardHeader(
+							slotNumber);
+					if (bank instanceof EpromBank == true) {
+						if (memory.getExternalCardSize(slotNumber) == appCrdHdr
+								.getAppAreaSize()) {
+							return false; // no room for a file area on UV Eprom 
+						} else {
+							// there's 16K or more available for file area...
+							return true;
+						}
+					} else {
+						int freeBanks = memory.getExternalCardSize(slotNumber)- appCrdHdr.getAppAreaSize();
+						
+						// validate free space for Flash Cards...
+						if (bank instanceof AmdFlashBank == true) {
+							AmdFlashBank amdFlashBank = (AmdFlashBank) bank;
+							if (amdFlashBank.getDeviceCode() == AmdFlashBank.AM29F010B) {
+								// 128K AMD Flash uses 16K sectors,
+								// minimum 16K must be available to create a file area...
+								if (freeBanks >= 1) 
+									return true;
+								else
+									return false;
+							}
+						} 
+
+						// For all other Flash Card, 
+						// check if app area moves into bottom 64K sector...
+						if (freeBanks < 4)
+							return false;
+						else
+							return true; // 64K or more is available for file area...
+					}
+				} else {
+					// empty card, ready for complete file area...
+					return true;
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Create/reformat a file area in specified slot (1-3). Return <b>true </b> if a file 
 	 * area was formatted/created. A file area can only be created on Eprom or Flash
 	 * Cards.
@@ -600,15 +682,37 @@ public class FileArea {
 							createFileHeader(topFileAreaBank);
 						}
 					} else {
-						// check if app area moves into bottom 64K sector...
-						if (memory.getExternalCardSize(slotNumber)
-								- appCrdHdr.getAppAreaSize() < 4)
-							return false; // no room for a file area on flash card...
-
-						// create file area of 64K sector size...
+						// create file area in flash card...
 						int fileAreaSize = memory.getExternalCardSize(slotNumber)
 								- appCrdHdr.getAppAreaSize();
-						fileAreaSize -= (fileAreaSize % 4);
+						
+						// validate free space for Flash Cards...
+						if (bank instanceof AmdFlashBank == true) {
+							AmdFlashBank amdFlashBank = (AmdFlashBank) bank;
+							if (amdFlashBank.getDeviceCode() == AmdFlashBank.AM29F010B) {
+								// 128K AMD Flash uses 16K sectors,
+								// minimum 16K must be available to create a file area...
+								if (fileAreaSize < 1) 
+									return false;
+							} else {
+								// For all other AMD Flash Cards, 
+								// check that miminim 64K sector size is available...
+								if (fileAreaSize < 4)
+									return false;
+								else
+									// file area size is modulus 64K sector aligned  
+									fileAreaSize -= (fileAreaSize % 4);
+							}
+						} else {
+							// For all INTEL Flash Cards, 
+							// check that miminim 64K sector size is available...
+							if (fileAreaSize < 4)
+								return false;
+							else
+								// file area size is modulus 64K sector aligned  
+								fileAreaSize -= (fileAreaSize % 4);								
+						}
+						
 						int topFileAreaBank = bottomBankNo + fileAreaSize - 1;
 
 						if (formatArea == true) 
