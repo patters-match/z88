@@ -613,6 +613,9 @@ public class Slots extends JPanel {
 		File eprFile = null;
 		String eprFilename = null;
 		String internalCardType = null;
+		
+		// re-initialize standard checkbox text
+		getFileAreaCheckBox().setText("Create File Area:");
 
 		if (slotNo == 1) {
 			// default select RAM card for slot 1 (easier for users)
