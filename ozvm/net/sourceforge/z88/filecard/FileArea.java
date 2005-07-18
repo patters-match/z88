@@ -409,6 +409,40 @@ public class FileArea {
 	}
 
 	/**
+	 * Validate whether the selected files can fit into the current free space
+	 * of the file areal. 
+	 * 
+	 * @param selectedFiles an array of File objects
+	 * @return true if there is room enough for the seleted files, or false.
+	 * @throws FileAreaNotFoundException
+	 * @throws IOException 
+	 */
+	public boolean isImportable(File selectedFiles[] ) 
+			throws FileAreaNotFoundException, IOException {
+		int totalFileSize = 0;
+		
+		if (isFileAreaAvailable() == false)
+			throw new FileAreaNotFoundException();
+		else {
+			for (int f=0; f<selectedFiles.length; f++) {
+				if (selectedFiles[f].isFile() == false) {
+					throw new IOException("Not a file.");
+				} else {
+					String z88FileName = convertHostFileName(selectedFiles[f]);
+					totalFileSize += 1 + z88FileName.length() + 4 + selectedFiles[f].length();
+
+				}	
+			}
+
+			if ( totalFileSize <= getFreeSpace() )
+				return true;
+			else
+				// not enough free space for selected files 
+				return true;							
+		}
+	}
+	
+	/**
 	 * Import a file from the Host file system into the Z88 File Area.
 	 * The Filename of the host file system will be converted into the
 	 * filenaming format of the Z88 File Card. Due to limits of the Z88
