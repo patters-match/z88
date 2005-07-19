@@ -1,13 +1,13 @@
 <launch4jConfig>
   <headerType>0</headerType>
-  <jar>E:\z88\z88.jar</jar>
-  <outfile>E:\z88\z88.exe</outfile>
+  <jar>..\z88.jar</jar>
+  <outfile>..\z88.exe</outfile>
   <errTitle></errTitle>
   <jarArgs></jarArgs>
   <chdir></chdir>
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
-  <icon>E:\z88\ozvm\launch4j\z88.ico</icon>
+  <icon>.\z88.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.4.0</minVersion>
@@ -17,7 +17,7 @@
     <args></args>
   </jre>
   <splash>
-    <file>E:\z88\ozvm\launch4j\z88-splash.bmp</file>
+    <file>.\z88-splash.bmp</file>
     <waitForTitle></waitForTitle>
     <timeout>3</timeout>
     <timeoutErr>false</timeoutErr>
