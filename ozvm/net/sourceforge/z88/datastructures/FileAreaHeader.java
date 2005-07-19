@@ -29,7 +29,7 @@ import net.sourceforge.z88.Memory;
  */
 public class FileAreaHeader {
 	/** reference to available memory hardware and functionality */
-	private Memory memory = null;
+	private Memory memory;
 	
 	private int randomId;
 	private int size;

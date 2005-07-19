@@ -36,7 +36,7 @@ import net.sourceforge.z88.Memory;
 public class FileEntry {
 
 	/** Reference to available memory hardware and functionality */
-	private Memory memory = null;
+	private Memory memory;
 	
 	/**
 	 * Filename of entry. If the entry is active, the filename begins

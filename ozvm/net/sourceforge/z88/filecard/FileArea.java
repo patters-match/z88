@@ -45,10 +45,10 @@ public class FileArea {
 	private static byte[] nullFile = {1, 0, 0, 0, 0, 0}; 		
 
 	/** reference to available memory hardware and functionality */
-	private Memory memory = null;
+	private Memory memory;
 
 	/** Utility Class to get slot information */
-	private SlotInfo slotinfo = null;
+	private SlotInfo slotinfo;
 
 	/** the slot number of the File area. */
 	private int slotNumber;

@@ -32,7 +32,7 @@ import java.util.ListIterator;
  */
 public class ApplicationInfo {
 	
-	private List[] appSlotList = null;	// array of Application DOR lists for all slots
+	private List[] appSlotList;	// array of Application DOR lists for all slots
 		
 	public ApplicationInfo() {
 		// linked application DOR lists for slots 0-3

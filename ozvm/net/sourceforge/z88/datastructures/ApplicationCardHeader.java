@@ -25,10 +25,10 @@ import net.sourceforge.z88.Memory;
  */
 public class ApplicationCardHeader {
 	/** reference to available memory hardware and functionality */
-	private Memory memory = null;
+	private Memory memory;
 	
 	/** Utility Class to get slot information */
-	private SlotInfo slotinfo = null;
+	private SlotInfo slotinfo;
 
 	private int cardId;
 	private int countryCode;

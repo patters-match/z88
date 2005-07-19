@@ -74,14 +74,14 @@ public class Gif89Decoder {
   protected BufferedImage lastImage; // previous frame
 
   protected byte[] block = new byte[256]; // current data block
-  protected int blockSize = 0; // block size
+  protected int blockSize; // block size
 
   // last graphic control extension info
-  protected int dispose = 0;
+  protected int dispose;
   // 0=no action; 1=leave in place; 2=restore to bg; 3=restore to prev
-  protected int lastDispose = 0;
-  protected boolean transparency = false; // use transparent color
-  protected int delay = 0; // delay in milliseconds
+  protected int lastDispose;
+  protected boolean transparency; // use transparent color
+  protected int delay; // delay in milliseconds
   protected int transIndex; // transparent color index
 
   protected static final int MaxStackSize = 4096;
@@ -214,6 +214,9 @@ public class Gif89Decoder {
             case 4:
               iline = 1;
               inc = 2;
+              break;
+            default:
+              break;
           }
         }
         line = iline;
@@ -230,7 +233,7 @@ public class Gif89Decoder {
         int sx = i * iw; // start of line in source
         while (dx < dlim) {
           // map color and insert in destination
-          int index = ( (int) pixels[sx++]) & 0xff;
+          int index = pixels[sx++] & 0xff;
           int c = act[index];
           if (c != 0) {
             dest[dx] = c;
@@ -289,6 +292,7 @@ public class Gif89Decoder {
     }
     catch (IOException e) {
     }
+    
     return status;
   }
 
@@ -585,6 +589,8 @@ public class Gif89Decoder {
   protected void readContents() {
     // read GIF file content blocks
     boolean done = false;
+    StringBuffer app = new StringBuffer(12);
+
     while (! (done || err())) {
       int code = read();
       switch (code) {
@@ -602,11 +608,11 @@ public class Gif89Decoder {
 
             case 0xff: // application extension
               readBlock();
-              String app = "";
+              app.delete(0,12);
               for (int i = 0; i < 11; i++) {
-                app += (char) block[i];
+                app.append((char) block[i]);
               }
-              if (app.equals("NETSCAPE2.0")) {
+              if (app.toString().equals("NETSCAPE2.0")) {
                 readNetscapeExt();
               }
               else
@@ -651,11 +657,11 @@ public class Gif89Decoder {
    * Reads GIF file header information.
    */
   protected void readHeader() {
-    String id = "";
+    StringBuffer id = new StringBuffer(6);
     for (int i = 0; i < 6; i++) {
-      id += (char) read();
+      id.append( (char) read());
     }
-    if (!id.startsWith("GIF")) {
+    if (!id.toString().startsWith("GIF")) {
       status = STATUS_FORMAT_ERROR;
       return;
     }

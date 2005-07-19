@@ -78,10 +78,10 @@ public class Z88display extends JLabel implements MouseListener {
 	private static final int SBRSIZE = 2048;
 	
 	/** The internal screen frame renderer */
-	private RenderPerMs renderPerMs = null;
+	private RenderPerMs renderPerMs;
 	
 	/** is the screen being updated at the moment, or not... */	
-	private boolean renderRunning = false;
+	private boolean renderRunning;
 		
 	/** points at the current framerate group, default 25 fps */
 	private int curRenderSpeedIndex = FPS25;
@@ -135,13 +135,13 @@ public class Z88display extends JLabel implements MouseListener {
 	private String movieFilename;
 
 	/** The image (based on pixel data array) to be rendered onto Swing Component */
-	private BufferedImage image = null;
+	private BufferedImage image;
 
 	/** Screen dump counter */
-	private int scrdumpCounter = 0;
+	private int scrdumpCounter;
 
 	/** Animated Gif Movie Counter */
-	private int movieCounter = 0;
+	private int movieCounter;
 
 	/** The currently recording screen movie */
 	private Gif89Encoder gifEncoder; 
@@ -196,8 +196,9 @@ public class Z88display extends JLabel implements MouseListener {
 
 			if (fileAction == actionCloseGifFile) {
 				// the write GIF TRAILER
-				outStream.write((int) ';');
-				outStream.close();			
+				outStream.write(';');
+				outStream.close();
+				outStream = null;
 			}			
 		}
 	}
@@ -206,37 +207,37 @@ public class Z88display extends JLabel implements MouseListener {
 	 * Accumulated time in ms since last displayed frame,
 	 * produced by renderDisplay().
 	 */
-	private int frameDelay = 0;
+	private int frameDelay;
 	
 	/** queue of frames to be encoded as animated Gif's */
 	private LinkedList screenFrameQueue = new LinkedList();	
 	
 	/** Cyclic counter that identifies number of frames displayed per second */
-	private int frameCounter = 0;
+	private int frameCounter;
 
 	/** Access to Blink hardware (screen, keyboard, timers...) */
-	private Blink blink = null;
+	private Blink blink;
 
 	/**Access to Memory model */
-	private Memory memory = null;
+	private Memory memory;
 
 	/** identifies whether screen activity is being recorded or not */	
-	private boolean recordingMovie = false;
+	private boolean recordingMovie;
 
 	/** Start cursor flash as dark */
 	private boolean cursorInverse = true;
 
 	/** Start text flash as dark, ie. text looks normal for 1 sec */
-	private boolean flashTextEmpty = false;
+	private boolean flashTextEmpty;
 
 	/** The actual low level pixel video data (used to create the AWT Image) */
-	private int[] displayMatrix = null;
+	private int[] displayMatrix;
 
 	/** A copy of the previously rendered pixel matrix frame. */
-	private int[] cpyDisplayMatrix = null;
+	private int[] cpyDisplayMatrix;
 
 	/** Set to true, if a pixel was changed since the last screen frame rendering */
-	private boolean screenChanged = false;
+	private boolean screenChanged;
 
 	/** bank offset pointers to the font pixels in OZ */
 	private int lores0, lores1, hires0, hires1, sbr;
@@ -349,7 +350,9 @@ public class Z88display extends JLabel implements MouseListener {
 		try {
 			ImageIO.write(img, "PNG", file);
 		} catch (IOException e) {
-			e.printStackTrace();
+			// hmm...
+		} finally {
+			img = null;
 		}
 	}
 	
@@ -376,7 +379,8 @@ public class Z88display extends JLabel implements MouseListener {
 			// (executed later by background thread)
 			recordingMovie = false;
 			ScreenFrameAction frameAction = new ScreenFrameAction(movieOutputStream);
-			screenFrameQueue.add(frameAction);				
+			screenFrameQueue.add(frameAction);
+			
 			OZvm.displayRtmMessage("Screen recording stopped. Saved in '" + movieFilename + "'.");
 		}
 	}
@@ -797,7 +801,7 @@ public class Z88display extends JLabel implements MouseListener {
 	 * when the Z80 execution engine stops).
 	 */
 	private class RenderPerMs extends TimerTask {		
-		boolean priorityDefined = false;
+		boolean priorityDefined;
 		
 		public void run() {
 			if (priorityDefined == false) {

@@ -51,7 +51,7 @@ public class SlotInfo {
 	}
 	
 	/** reference to available memory hardware and functionality */
-	private Memory memory = null;
+	private Memory memory;
 		
 	/**
 	 * Initialise slot information with getting access to

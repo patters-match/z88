@@ -33,7 +33,7 @@ import net.sourceforge.z88.Memory;
 public class ApplicationFrontDor {
 
 	/** reference to available memory hardware and functionality */
-	private Memory memory = null;
+	private Memory memory;
 
 	/**
 	 * Extended, absolute address pointer to first Application DOR on card

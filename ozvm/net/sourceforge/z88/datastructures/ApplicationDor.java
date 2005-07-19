@@ -26,7 +26,7 @@ import net.sourceforge.z88.Memory;
 public class ApplicationDor {
 
 	/** reference to available memory hardware and functionality */
-	private Memory memory = null;
+	private Memory memory;
 
 	/**
 	 * extended address pointer to next Application DOR
@@ -175,7 +175,9 @@ public class ApplicationDor {
 				break;
 			case 3:
 				entryPoint |= ( (segment3Bank & 0xFF) << 16);
-				break;		
+				break;
+			default:
+				break;
 		}
 		
 		offset++;

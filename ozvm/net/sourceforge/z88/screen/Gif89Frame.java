@@ -281,6 +281,8 @@ class GifPixelsEncoder {
           case 3:
             yCur += 2;
             break;
+          default:
+        	break;
         }
     }
   }
@@ -351,11 +353,11 @@ class GifPixelsEncoder {
 
   int hsize = HSIZE;                // for dynamic table sizing
 
-  int free_ent = 0;                        // first unused entry
+  int free_ent;                     // first unused entry
 
   // block compression parameters -- after all codes are used up,
   // and compression rate changes, start over.
-  boolean clear_flg = false;
+  boolean clear_flg;
 
   // Algorithm:  use open addressing double hashing (no chaining) on the
   // prefix code / next character combination.  We do a variant of Knuth's
@@ -469,8 +471,8 @@ class GifPixelsEncoder {
   // fit in it exactly).  Use the VAX insv instruction to insert each
   // code in turn.  When the buffer fills up empty it and start over.
 
-  int cur_accum = 0;
-  int cur_bits = 0;
+  int cur_accum;
+  int cur_bits;
 
   int masks[] = { 0x0000, 0x0001, 0x0003, 0x0007, 0x000F,
                   0x001F, 0x003F, 0x007F, 0x00FF,

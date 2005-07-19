@@ -87,7 +87,7 @@ public class Gif89Encoder {
 
   private Dimension     dispDim = new Dimension(0, 0);
   private GifColorTable colorTable;
-  private int           bgIndex = 0;
+  private int           bgIndex;
   private int           loopCount = 1;
   private String        theComments;
   private Vector        vFrames = new Vector();
@@ -318,7 +318,7 @@ public class Gif89Encoder {
       ((Gif89Frame) vFrames.elementAt(i)).setDelay(interval);  
   }    
 
-	private boolean gifHdrWritten = false;
+	private boolean gifHdrWritten;
 	
 	/**
 	 * Write the Gif frame directly to the [out] stream, avoiding the
@@ -512,7 +512,7 @@ class GifColorTable {
   private int   transparentIndex = -1;
 
   // these fields track color-index info across frames
-  private int             ciCount = 0; // count of distinct color indices
+  private int             ciCount; // count of distinct color indices
   private ReverseColorMap ciLookup;    // cumulative rgb-to-ci lookup table
 
   //----------------------------------------------------------------------------
@@ -694,8 +694,7 @@ class ReverseColorMap {
     for ( int itable = rgb % hTable.length;    
           (rec = hTable[itable]) != null && rec.rgb != rgb;
           itable = ++itable % hTable.length
-        ) 
-      ;
+        ) {}
 
     if (rec != null)
       return rec.ipalette;
@@ -713,8 +712,7 @@ class ReverseColorMap {
     for ( itable = rgb % hTable.length;    
           hTable[itable] != null;
           itable = ++itable % hTable.length
-        ) 
-      ;    
+        ) {}
 
     hTable[itable] = new ColorRecord(rgb, ipalette);   
   }
