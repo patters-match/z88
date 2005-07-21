@@ -17,7 +17,10 @@
 :: *************************************************************************************
 
 del *.obj *.bin *.map *.epr
-..\..\csrc\mpm\mpm -bv -I..\oz\sysdef -l..\stdlib\standard.lib @flashstore
-..\..\csrc\mpm\mpm -bv romhdr
+..\..\csrc\mpm\mpm -a -I..\oz\sysdef -l..\stdlib\standard.lib @flashstore
+..\..\csrc\mpm\mpm -b romhdr
+:: java -jar ..\..\makeapp.jar -sz 32 appfiles.crd filearea.bnk 3e0000 flashstore.epr 3f0000
 java -jar ..\..\makeapp.jar flashstore.epr fsapp.bin 3f0000 romhdr.bin 3f3fc0
-java -jar ..\..\z88.jar ram1 1024 crd3 1024 29f flashstore.epr
+:: java -jar ..\..\z88.jar ram0 512 epr1 1024 29f epr2 1024 28f crd3 128 27c flashstore.epr
+:: java -jar ..\..\z88.jar ram0 512 crd3 128 27c flashstore.epr
+java -jar ..\..\z88.jar fcd3 512 28f crd2 1024 29f flashstore.epr
