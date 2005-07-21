@@ -633,7 +633,7 @@ Module SelectCard
                     defb 0
 .cardside           DEFM 1, "2*J", 0
 
-.padlock            DEFM 1, 138, '=', 'A'
+.padlock            DEFM 1, 138, '=', 'Z'
                     DEFM @10001100
                     DEFM @10010010
                     DEFM @10010010
@@ -642,7 +642,7 @@ Module SelectCard
                     DEFM @10111111
                     DEFM @10111111
                     DEFM @10011110
-                    DEFM " ", 1, "2?A", " ", 0
+                    DEFM " ", 1, "2?Z", " ", 0
 
 .selectdevhelp      DEFM 1,"2JC", 1,"3-SC"
                     DEFM "Select card", 13, 10
