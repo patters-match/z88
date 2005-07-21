@@ -115,8 +115,6 @@ Module CatalogFiles
                     ret
 
 
-
-
 ; *************************************************************************************
 ; Move the File Bar one file down the list - scroll the window contents one line
 ; upwards and display next file line, when file bar goes beyond the window bottom
@@ -412,5 +410,3 @@ Module CatalogFiles
 .endf_msg           DEFM 1,"2-G",1,"4+TUR END ",1,"4-TUR",0
 .scroll_up          DEFM 1, SD_UP, 0
 .scroll_down        DEFM 1, SD_DWN, 0
-
-.prompt_delfiles_msg DEFM 13, 10, " Show deleted files? ",13,10,0
