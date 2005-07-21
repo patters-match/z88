@@ -218,4 +218,4 @@ Module ErrorMessages
 .nofilearea1_msg    DEFM 13, 10, 1,"BFile Area not detected in slot ",0
 .nofilearea2_msg    DEFM ".",1,"B", 13, 10, "(card was possibly removed whilst FlashStore running)", 13, 10, 0
 
-.noeprfilesmsg      DEFM "Empty File Area.",$0D,$0A,0
+.noeprfilesmsg      DEFM 1, "2+TNO FILES AVAILABLE IN FILE AREA", 1, "2-T",$0D,$0A,0
