@@ -31,6 +31,8 @@ DEFC BufferSize = buf1-BufferStart      ; buffer for file I/O at $2000
 DEFVARS $1FFE - SafeWorkSpaceSize
 {
      linecnt        ds.b 1
+     freespacebar   ds.w 1              ; base pointer to UDG font memory for 'Q' - '@' characters.
+     bytesperline   ds.w 1              ; number of bytes that represents each drawn vertical line in horisontal space bar
      MenuBarPosn    ds.b 1              ; Main Menu Bar vertical position in window (0 - 6)
      FileBarPosn    ds.b 1              ; File Bar vertical position in Catalogue window (0 - 6)
      CursorFilePtr  ds.p 1              ; File Bar Pointer to current File Entry in File Area
