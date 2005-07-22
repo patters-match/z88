@@ -60,6 +60,9 @@ Module SaveFiles
                     ld   hl,bckp_bnr
                     call DispMainWindow
 
+                    ld   hl,0
+                    ld   (savedfiles),hl          ; reset counter to No files saved...
+
                     call CheckFileArea
                     ret  c                        ; no file area nor write support
                     ret  nz                       ; flash chip was not found in slot!
