@@ -1,4 +1,4 @@
-     XLIB FileEprDelSpace
+     XLIB FileEprDeletedSpace
 
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
@@ -36,20 +36,24 @@
 ; OUT:
 ;    Fc = 0, File Eprom available
 ;         DEBC = Amount of deleted file space used on File Eprom
+;                (DE = high 16bit, BC = low 16bit)
 ;
 ;    Fc = 1, 
 ;         A = RC_ONF
 ;         File Eprom was not found in slot C.
 ;
-; Registers changed after return:
-;    ......../IXIY same
-;    AFBCDEHL/.... different
+; Registers changed after (successful) return:
+;    A.....HL/IXIY same
+;    .FBCDE../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998
+; Design & programming by Gunther Strube, InterLogic, Dec 1997-Aug 1998, July 2005
 ; ------------------------------------------------------------------------
 ;
-.FileEprDelSpace
+.FileEprDeletedSpace
+                    PUSH HL
+                    PUSH AF
+                    
                     LD   E,C                      ; preserve slot number
                     CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot
                     JR   C, no_fileepr
@@ -77,10 +81,15 @@
 
                     EXX                           ; return DEBC (amount of deleted file space)
                     CP   A                        ; Fc = 0, File Eprom parsed...
+                    POP  HL
+                    LD   A,H                      ; original A restored
+                    POP  HL                       ; original HL restored
                     RET
 .no_fileepr
+                    POP  HL                       ; ignore old AF
                     SCF
                     LD   A,RC_ONF
+                    POP  HL                       ; restore original HL
                     RET
 
 
