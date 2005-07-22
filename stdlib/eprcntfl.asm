@@ -63,11 +63,11 @@
                     INC  A
                     LD   B,A                      ; B is now bottom bank of File Eprom
                     LD   HL,$0000                 ; BHL points at first File Entry...
-
+                    PUSH HL
+                    PUSH HL
                     EXX
-                    LD   DE,0                     ; reset "deleted" files counter
-                    LD   H,D
-                    LD   L,E                      ; reset active files counter
+                    POP  HL                       ; reset "deleted" files counter
+                    POP  DE                       ; reset active files counter
                     EXX
 
                     ; scan all file entries, and count
