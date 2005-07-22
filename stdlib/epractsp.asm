@@ -17,10 +17,9 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprUsedSpace, FileEprDeletedSpace
+     LIB FileEprTotalSpace
 
      include "error.def"
-
 
 ; ************************************************************************
 ;
@@ -28,6 +27,7 @@
 ; area in application cards (below application banks in first free 64K boundary)
 ;
 ; Return amount of active (visible) file space in File Eprom Area, inserted in slot C.
+; (API wrapper of FileEprTotalSpace)
 ;
 ; IN:
 ;    C = slot number containing File Eprom Area
@@ -51,23 +51,20 @@
 ;
 .FileEprActiveSpace
                     PUSH HL
+                    PUSH AF
                     
-                    LD   L,C                      ; preserve slot number
-                    CALL FileEprUsedSpace
+                    CALL FileEprTotalSpace
                     JR   C,err_FileEprActiveSpace ; File Area not available
-                    PUSH DE
-                    PUSH BC                       ; preserve amount of used space
-                    
-                    LD   C,L
-                    CALL FileEprDeletedSpace      ; returns deleted space in DEBC, Fc = 0
+                    PUSH HL
+                    LD   D,0                      ; BHL = Amount of active file space in bytes
+                    LD   E,B
+                    POP  BC                       ; BHL -> DEBC
+
                     POP  HL
-                    SBC  HL,BC                    ; Used Space - Deleted Space = Active Space
-                    LD   B,H
-                    LD   C,L                      ; result, BC = low 16bits
-                    POP  HL
-                    SBC  HL,DE
-                    EX   DE,HL                    ; result, DE = high 16bits  
-                                                  ; (Fc = 0)
+                    LD   A,H                      ; original A restored
+                    POP  HL                       ; original HL restored
+                    RET                    
 .err_FileEprActiveSpace
-                    POP  HL
+                    POP  HL                       ; discard old AF...
+                    POP  HL                       ; original HL restored
                     RET

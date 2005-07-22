@@ -17,8 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprRequest
-     LIB FileEprFileEntryInfo
+     LIB FileEprTotalSpace
 
      include "error.def"
 
@@ -29,6 +28,7 @@
 ; area in application cards (below application banks in first free 64K boundary)
 ;
 ; Return amount of deleted file space in File Eprom Area, inserted in slot C.
+; (API wrapper of FileEprTotalSpace)
 ;
 ; IN:
 ;    C = slot number containing File Eprom Area
@@ -47,79 +47,25 @@
 ;    .FBCDE../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997-Aug 1998, July 2005
+; Design & programming by Gunther Strube, InterLogic, July 2005
 ; ------------------------------------------------------------------------
 ;
 .FileEprDeletedSpace
                     PUSH HL
                     PUSH AF
                     
-                    LD   E,C                      ; preserve slot number
-                    CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot
+                    CALL FileEprTotalSpace
                     JR   C, no_fileepr
-                    JR   NZ, no_fileepr           ; File Eprom not available in slot...
-                    
-                    LD   A,E
-                    AND  @00000011                ; slots (0), 1, 2 or 3 possible
-                    RRCA
-                    RRCA                          ; converted to Slot mask $40, $80 or $C0
-                    OR   B
-                    SUB  C                        ; C = total banks of File Eprom Area
-                    INC  A
-                    LD   B,A                      ; B is now bottom bank of File Eprom
-                    LD   HL,$0000                 ; BHL points at first File Entry...
-
-                    EXX
-                    LD   BC,0
-                    LD   D,B
+                    PUSH DE
+                    LD   D,0                      ; CDE = Amount of deleted file space in bytes
                     LD   E,C
-                    EXX
-.scan_eprom
-                    CALL FileEprFileEntryInfo     ; scan all file entries...
-                    CALL CalcDelFileSpace         ; add file space (for deleted file entry)
-                    JR   NC, scan_eprom           ; look in next File Entry...
-
-                    EXX                           ; return DEBC (amount of deleted file space)
-                    CP   A                        ; Fc = 0, File Eprom parsed...
+                    POP  BC                       ; CDE -> DEBC
+                    
                     POP  HL
                     LD   A,H                      ; original A restored
                     POP  HL                       ; original HL restored
                     RET
 .no_fileepr
                     POP  HL                       ; ignore old AF
-                    SCF
-                    LD   A,RC_ONF
                     POP  HL                       ; restore original HL
-                    RET
-
-
-; ************************************************************************
-;
-; Add file space to current sum, if file is marked as deleted.
-;
-; IN:
-;    Fz = File status (active or deleted)
-;    CDE = length of file
-;
-; OUT:
-;    (Amount of deleted file space updated)
-;
-.CalcDelFileSpace   RET  C                        ; not a valid File Entry
-                    RET  NZ                       ; file is active, ignore
-                    PUSH AF                       ; preserve Z80 status flags
-
-                    PUSH BC
-                    PUSH DE
-                    EXX
-                    POP  HL
-                    ADD  HL,BC
-                    LD   B,H
-                    LD   C,L
-                    POP  HL
-                    LD   A,E
-                    ADC  A,L
-                    LD   E,A                      ; delspace (DEBC) += <file length>
-                    EXX
-
-                    POP  AF
                     RET

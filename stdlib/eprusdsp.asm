@@ -17,12 +17,9 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprRequest
-     LIB FileEprFileEntryInfo
-     LIB ConvPtrToAddr
+     LIB FileEprTotalSpace
 
      include "error.def"
-
 
 ; ************************************************************************
 ;
@@ -30,6 +27,7 @@
 ; Area in application cards (below application banks in first free 64K boundary)
 ;
 ; Return used space in Standard File Eprom Area, inserted in slot C
+; (API wrapper of FileEprTotalSpace)
 ;
 ; IN:
 ;    C = slot number containing File Eprom Area
@@ -53,26 +51,15 @@
 .FileEprUsedSpace   PUSH HL
                     PUSH AF
 
-                    LD   E,C                      ; preserve slot number
-                    CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot C
-                    JR   C, err_FileEprUsedSpace  ; File Area not available...
-
-                    LD   A,E                      ; get slot number
-                    AND  @00000011                ; only slots (0), 1, 2 or 3 possible
-                    RRCA
-                    RRCA                          ; converted to Slot mask $40, $80 or $C0
-                    LD   B,A
-                    LD   HL,0                     ; first file seen from bottom bank of slot
-
-                    ; scan file entries, to point at first free byte
-.scan_eprom         CALL FileEprFileEntryInfo
-                    JR   NC, scan_eprom
-
-                    RES  7,B
-                    RES  6,B
-                    RES  7,H
-                    RES  6,H                      ; strip physical attributes of BHL pointer...
-                    CALL ConvPtrToAddr            ; ptr to free space seen from bottom bank) => DEBC used space
+                    CALL FileEprTotalSpace
+                    JR   C, err_FileEprUsedSpace
+                    ADD  HL,DE
+                    LD   A,B
+                    ADC  A,C
+                    LD   D,0
+                    LD   E,A
+                    PUSH HL
+                    POP  BC                       ; BHL + CDE -> DEBC
 .exit_usedspace
                     POP  HL
                     LD   A,H                      ; restored original A, Fc = 0..
@@ -80,7 +67,5 @@
                     RET
 .err_FileEprUsedSpace
                     POP  HL                       ; discard old AF
-                    SCF
-                    LD   A, RC_ONF
-                    POP  HL
+                    POP  HL                       ; original HL restored
                     RET
