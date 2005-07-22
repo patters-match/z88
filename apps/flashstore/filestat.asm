@@ -25,7 +25,7 @@ Module FileAreaStatistics
 
      LIB CreateWindow
      LIB FileEprRequest, FileEprCntFiles, FileEprFirstFile, FileEprFileSize
-     LIB FileEprUsedSpace, FileEprDelSpace, FileEprFreeSpace
+     LIB FileEprTotalSpace, FileEprFreeSpace
      LIB MemDefBank, divu8
 
      XREF VduCursor, centerjustify, tinyfont, nocursor
@@ -116,13 +116,24 @@ Module FileAreaStatistics
 .getfreesp
                     pop  bc                       ; c = slot number...
                     push bc
-                    call FileEprFreeSpace         ; free space on current File Eprom
+                    call FileEprFreeSpace         ; get free space on current File Eprom
                     ld   (free),bc
                     ld   (free+2),de
                     pop  bc
-                    call FileEprUsedSpace         ; free space on current File Eprom
-                    ld   (flen),bc
-                    ld   (flen+2),de              ; used space on current File Eprom
+                    call FileEprTotalSpace        ; get total used space on current File Eprom (active & deleted)
+                    ld   (active),hl
+                    ld   a,b
+                    ld   (active+2),a             ; remember total active file space
+                    ld   (deleted),de
+                    ld   a,c
+                    ld   (deleted+2),a            ; remember total deleted file space
+                    add  hl,de
+                    ld   a,b
+                    adc  a,c
+                    ld   b,0
+                    ld   c,a
+                    ld   (total),hl
+                    ld   (total+2),bc             ; remember total used space (active+deleted)
 
                     ld   hl,centerjustify
                     CALL_OZ gn_sop                ; centre justify...
@@ -161,7 +172,7 @@ Module FileAreaStatistics
                     CALL_OZ gn_sop                ; "xxxx bytes free"
                     CALL_OZ(Gn_Nln)
 
-                    ld   hl,flen
+                    ld   hl,total
                     call IntAscii
                     CALL_OZ gn_sop
                     ld   hl,bused_msg
@@ -410,13 +421,8 @@ Module FileAreaStatistics
                     ld   (bytesperline),hl        ; banksize / 106 = no of bytes per vertical line in free space bar
                     push hl
 
-                    ld   a,(curslot)
-                    ld   c,a
-                    call FileEprDelSpace          ; get total deleted space
-                    ld   (free),bc
-                    ld   (free+2),de
-                    ld   h,b
-                    ld   l,c
+                    ld   hl,(deleted)
+                    ld   de,(deleted+2)
                     ld   b,e                      ; bhl = deleted space
                     ld   c,0
                     pop  de                       ; cde = bytes per line
@@ -437,15 +443,9 @@ Module FileAreaStatistics
 .no_delspace
                     push hl                       ; remember position of line pointer
 
-                    ld   hl,(flen)
-                    ld   de,(free)
-                    sbc  hl,de
-                    ex   de,hl
-                    ld   hl,(flen+2)
-                    ld   bc,(free+2)
-                    sbc  hl,bc                    ; Used Space - Deleted space = Active file space
-                    ld   b,l
-                    ex   de,hl                    ; BHL = Active file space
+                    ld   hl,(active)
+                    ld   a,(active+2)
+                    ld   b,a                      ; BHL = Active file space
                     ld   c,0
                     ld   de,(bytesperline)
                     call_oz GN_D24                ; Active file space / bytes per line
