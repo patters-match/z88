@@ -16,7 +16,7 @@
 ;
 ; *************************************************************************************
 
-DEFC SafeWorkSpaceSize = 64             ; 64 bytes for various variables...
+DEFC SafeWorkSpaceSize = 96             ; 96 bytes for various variables...
 DEFC RAM_pages = 6                      ; allocate 6 * 256 bytes contigous memory from $2000...
 
 DEFVARS $2000
@@ -41,12 +41,15 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      flen           ds.l 1              ; length of file (32bit)
      flenhdr        ds.l 1              ; length of File Entry Header
      delv           ds.l 1              ; pointer to <Deleted File> mark of File Entry
+     free           ds.l 1              ; free bytes on File Area
+     deleted        ds.l 1              ; total bytes of deleted file space in File Area
+     active         ds.l 1              ; total bytes of active file space in File Area
+     total          ds.l 1              ; total bytes of active+deleted file space in File Area
+     file           ds.l 1              ; total count of files in File Area (active + deleted)
+     fdel           ds.l 1              ; total count of deleted files on Flash Eprom
+     savedfiles     ds.l 1              ; total of files saved in a "Save" session
      fbnk           ds.b 1              ; Eprom Bank (relative)
      fadr           ds.w 1              ; Eprom Bank offset address
-     free           ds.l 1              ; free bytes on Flash Eprom
-     file           ds.l 1              ; total of files on Flash Eprom (active + deleted)
-     fdel           ds.l 1              ; total of deleted files on Flash Eprom
-     savedfiles     ds.l 1              ; total of files saved in a "Save" session
      flentry        ds.p 1              ; pointer to existing file entry
      status         ds.b 1              ; general purpose status flag
      wcard_handle   ds.w 1              ; Wildcard handle from GN_OPW
