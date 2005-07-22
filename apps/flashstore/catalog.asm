@@ -80,9 +80,7 @@ Module CatalogFiles
                     jr   c, nofilesavail        ; no file area...
                     jr   nz, nofilesavail
 
-                    push bc                     ; file area available, but
                     call FileEprCntFiles        ; any files available in File Area?
-                    pop  bc                     ; slot no in C...
                     ld   a,h
                     or   l
                     or   d
