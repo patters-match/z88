@@ -302,11 +302,13 @@ Module SelectCard
                     pop  hl
                     ld   b,e            ; DEBC -> BHL
                     ld   c,0
-                    ld   de,16384       ; BHL / 16384
+                    ld   de,1024        ; BHL / 1024
                     CALL_OZ(Gn_D24)
-                    ld   a,l
-                    inc  a				; no. of 16K banks free
-                    call DispSlotSize
+                    ex   de,hl
+                    inc  de
+                    call DispKSize      ; no. of K free
+                    ld   a, 'K'
+                    call_oz OS_Out
                     pop  hl
                     pop  bc
                     ret
