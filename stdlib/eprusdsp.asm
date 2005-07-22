@@ -36,19 +36,22 @@
 ;
 ; OUT:
 ;    Fc = 0, File Eprom available
-;         DEBC = Used space in bytes
+;         DEBC = Used space (amount of deleted & active files) in bytes
+;                (DE = high 16bit, BC = low 16bit)
 ;
 ;    Fc = 1, File Eprom was not found in slot C
+;         A = RC_ONF
 ;
-; Registers changed after return:
-;    ......HL/IXIY same
-;    AFBCDE../.... different
+; Registers changed after (succesful) return:
+;    A.....HL/IXIY same
+;    .FBCDE../.... different
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, July 2005
 ; -----------------------------------------------------------------------
 ;
 .FileEprUsedSpace   PUSH HL
+                    PUSH AF
 
                     LD   E,C                      ; preserve slot number
                     CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot C
@@ -68,12 +71,15 @@
                     RES  7,B
                     RES  6,B
                     RES  7,H
-                    RES  6,H                      ; strip physical attributes of pointer...
-                    CALL ConvPtrToAddr            ; BHL (ptr to free space) => DEBC used space
+                    RES  6,H                      ; strip physical attributes of BHL pointer...
+                    CALL ConvPtrToAddr            ; ptr to free space seen from bottom bank) => DEBC used space
 .exit_usedspace
                     POP  HL
+                    LD   A,H                      ; restored original A, Fc = 0..
+                    POP  HL                       ; restored original HL
                     RET
 .err_FileEprUsedSpace
+                    POP  HL                       ; discard old AF
                     SCF
                     LD   A, RC_ONF
                     POP  HL

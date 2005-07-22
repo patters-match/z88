@@ -34,20 +34,22 @@
 ;    C = slot number containing File Eprom Area
 ;
 ; OUT:
-;    Fc = 0, File Eprom available
+;    Fc = 0, File Area available
 ;         DEBC = Free space available
 ;
-;    Fc = 1, File Eprom was not found in slot C
+;    Fc = 1, File Area was not found in slot C
+;         A = RC_ONF
 ;
-; Registers changed after return:
-;    ......HL/IXIY same
-;    AFBCDE../.... different
+; Registers changed after (successful) return:
+;    A.....HL/IXIY same
+;    .FBCDE../.... different
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, InterLogic, Dec 1997-Aug 1998, July 2005
 ; -----------------------------------------------------------------------
 ;
 .FileEprFreeSpace   PUSH HL
+                    PUSH AF
 
                     LD   E,C                      ; preserve slot number
                     CALL FileEprRequest           ; check for presence of "oz" File Eprom in slot
@@ -65,7 +67,6 @@
                     LD   C,A                      ; slot number.
                     CALL FileEprUsedSpace         ; get used file space in file area in DEBC
 
-                    CP   A
                     POP  HL
                     SBC  HL,BC                    ; <Capacity> - <UsedSpace> = Free Space
                     LD   B,H
@@ -75,9 +76,12 @@
                     EX   DE,HL                    ; return free space of File Eprom in DEBC
 .exit_freespace
                     POP  HL
+                    LD   A,H                      ; restored original A
+                    POP  HL                       ; restored original HL
                     RET
 .err_FileEprFreeSpace
+                    POP  HL                       ; ignore old AF
                     SCF
                     LD   A, RC_ONF
-                    POP  HL
+                    POP  HL                       ; restored original HL
                     RET
