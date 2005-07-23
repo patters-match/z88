@@ -924,16 +924,22 @@ public class FileArea {
 	 */
 	private static void formatFileArea(int bank, int topBank) {
 		Memory memory = Memory.getInstance();
-		
-		// format file area from bottom bank, upwards...
-		do {
-			for (int offset = 0; offset < 0x4000; offset++)
-				memory.setByte(offset, bank, 0xFF);
-		} while (++bank < topBank);
 
-		// top bank is only formatted until file header...
-		for (int offset = 0; offset < 0x3FC0; offset++)
-			memory.setByte(offset, bank, 0xFF);
+		if (bank == topBank) {
+			// only a single 16K file area.
+			for (int offset = 0; offset < 0x3FC0; offset++)
+				memory.setByte(offset, bank, 0xFF);
+		} else {		
+			// format file area from bottom bank, upwards...
+			do {
+				for (int offset = 0; offset < 0x4000; offset++)
+					memory.setByte(offset, bank, 0xFF);
+			} while (++bank < topBank);
+	
+			// top bank is only formatted until file header...
+			for (int offset = 0; offset < 0x3FC0; offset++)
+				memory.setByte(offset, bank, 0xFF);
+		}
 	}
 
 	
