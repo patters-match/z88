@@ -18,11 +18,14 @@
 
 Module DeleteFile
 
-     xdef DeleteFileCommand
-
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
+     lib FileEprFileStatus         ;
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
+     lib FileEprFilename           ; get filename at (DE) from current file entry
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
+
+     xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
+     xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
 
      xref InitFirstFileBar
      xref DispMainWindow, sopnln
@@ -31,6 +34,7 @@ Module DeleteFile
      xref FlashWriteSupport
      xref DispIntelSlotErr
      xref exct_msg, fnam_msg
+     xref YesNo, no_msg, yes_msg
 
      ; system definitions
      include "stdio.def"
@@ -41,20 +45,29 @@ Module DeleteFile
 
 
 ; *************************************************************************************
+; Initialize middle window with 'mark as deleted file' command window.
+; and evaluate whether a flash card supports byte programming in current slot.
+;
+.InitDeleteCommand
+                    ld   hl,delfile_bnr
+                    call DispMainWindow
+
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    call c,DispIntelSlotErr
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
 ;
 ; Mark file as Deleted in File Area
 ; User enters name of file that will be searched for, and if found,
 ; it will be marked as deleted.
 ;
 .DeleteFileCommand
-                    ld   hl,delfile_bnr
-                    call DispMainWindow
-
-                    ld   a,(curslot)
-                    ld   c,a
-
-                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
-                    call c,DispIntelSlotErr
+                    call InitDeleteCommand        ; init command window and check if Flash Card supports deleting files?
                     ret  c                        ; it didn't...
                     ret  nz                       ; (and flash chip was not found in slot!)
 
@@ -96,6 +109,49 @@ Module DeleteFile
 ; *************************************************************************************
 
 
+; *************************************************************************************
+; User pressed DEL key on current file in file area window
+; If the file is an active type (not yet marked as deleted), then allow the file
+; to be deleted if the current slot contains a Flash Card that supports byte programming.
+;
+.QuickDeleteFile
+                    ld   hl,(CursorFilePtr)
+                    ld   a,(CursorFilePtr+2)
+                    ld   b,a                      ; get pointer to current file entry (file bar)
+                    call FileEprFileStatus        ; check file entry status...
+                    ret  c                        ; no file area...
+                    ret  z                        ; file already marked as deleted..
+
+                    push bc
+                    push hl
+                    call InitDeleteCommand        ; init command window and check if Flash Card supports deleting files?
+                    pop  hl
+                    pop  bc
+                    ret  c                        ; it didn't...
+                    ret  nz                       ; (and flash chip was not found in slot!)
+
+                    ld   de, buf3                 ; write filename at (DE), null-terminated
+                    call FileEprFilename          ; copy filename from current file entry
+
+                    push bc
+                    push hl
+                    ld   hl, pre_filename
+                    call_oz GN_sop
+                    ld   hl,buf3
+                    call_oz GN_sop
+                    ld   hl, post_filename
+                    call_oz GN_sop                ; display filename in Bold, followed by newline
+
+                    ld   hl, disp_markdel_prompt
+                    ld   de, no_msg               ; default to no
+                    call YesNo                    ; "mark file as deleted?"
+                    pop  hl
+                    pop  bc                       ; BHL = file entry to mark as deleted
+
+                    jr   z,exec_delfile           ; User pressed Y (for Yes)
+                    ret
+; *************************************************************************************
+
 
 ; *************************************************************************************
 ;
@@ -106,7 +162,7 @@ Module DeleteFile
                     CALL FileEprFindFile          ; search for <buf1> filename on File Eprom...
                     JR   C, delfile_notfound      ; File Eprom or File Entry was not available
                     JR   NZ, delfile_notfound     ; File Entry was not found...
-
+.exec_delfile
                     CALL FlashEprFileDelete
                     JR   NC, file_deleted
                     LD   HL,markdelete_failed
@@ -116,22 +172,26 @@ Module DeleteFile
                     CALL DispErrMsg
                     RET
 .file_deleted
-                    push af
-                    call InitFirstFileBar         ; reset file area information
-                    pop  af
-
                     LD   HL,filedel_msg
                     CALL DispErrMsg
                     RET
 ; *************************************************************************************
 
 
+.disp_markdel_prompt
+                    LD   HL,markdel_prompt
+                    CALL_OZ GN_Sop
+                    RET
+
 
 ; *************************************************************************************
 ; constants
 
-.delfile_bnr        DEFM "DELETE FILE IN FILE AREA",0
+.delfile_bnr        DEFM "MARK FILE AS DELETED IN FILE AREA",0
 
 .delfile_err_msg    DEFM "File not found.", 0
-.markdelete_failed  DEFM "Error. File not deleted.",0
-.filedel_msg        DEFM 1,"2JC", "File deleted.",1,"2JN", 0
+.markdelete_failed  DEFM "Error. File was not marked as deleted.",0
+.filedel_msg        DEFM 1,"2JC", "File marked as deleted.",1,"2JN", 0
+.markdel_prompt     DEFM " Mark file as deleted?", 13, 10, 0
+.pre_filename       DEFM 13, 10, 1, "B ", 0
+.post_filename      DEFM 1, "B", 13, 10, 0

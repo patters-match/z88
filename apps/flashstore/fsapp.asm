@@ -73,6 +73,7 @@
      xref fnam_msg, fsok_msg       ; savefiles.asm
      xref BackupRamCommand         ; savefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
+     xref QuickDeleteFile          ; deletefile.asm
      xref AboutCommand             ; about.asm
 
      xref FlashStoreTopics         ; mth.asm
@@ -258,6 +259,8 @@
                     JP   Z, DefaultRamCommand
                     CP   FlashStore_CC_about
                     JP   Z, AboutCommand
+                    CP   IN_DEL
+                    JP   Z, delfile_command
                     CP   IN_ENT                        ; no shortcut cmd, ENTER ?
                     JP   Z, execute_command
                     CP   IN_DWN                        ; Cursor Down ?
@@ -289,7 +292,7 @@
                     jr   z, inp_main                   ; no files to browse...
                     ld   a,-1
                     LD  (barMode),A                    ; indicate that cursor has moved to file window
-                    JR   inp_main
+                    JP   inp_main
 .MVFirstFile
                     LD   A,(barMode)
                     OR   A
@@ -331,6 +334,14 @@
                     LD   (MenuBarPosn),A
                     JP   inp_main
 .MVbar_file_up      CALL MoveFileBarUp
+                    JP   inp_main
+
+.delfile_command    LD   A,(barMode)                   ; DEL key pressed - mark file as deleted
+                    OR   A
+                    JP   Z,inp_main                    ; delete file command only works when
+                    CALL QuickDeleteFile               ; cursor is in file area
+                    JP   C,inp_main                    ; file was already marked deleted, or no file area
+                    CALL DispFilesWindow               ; file marked as deleted, refresh file area contents.
                     JP   inp_main
 
 .execute_command    LD   A,(barMode)
