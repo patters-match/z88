@@ -342,6 +342,7 @@
                     CALL QuickDeleteFile               ; cursor is in file area
                     JP   C,inp_main                    ; file was already marked deleted, or no file area
                     CALL DispFilesWindow               ; file marked as deleted, refresh file area contents.
+                    CALL FileEpromStatistics           ; refresh file area statistics...
                     JP   inp_main
 
 .execute_command    LD   A,(barMode)
