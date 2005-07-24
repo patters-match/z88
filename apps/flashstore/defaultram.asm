@@ -60,6 +60,7 @@ Module DefaultRamDevice
 ;    A = Ascii Slot Number ('0' - '3') of selected RAM Device
 ;
 .SelectRamDevice
+                    LD   DE,buf1
                     CALL GetDefaultRamDevice      ; the default RAM device at (buf1)
 .inp_dev_loop
                     CALL VduCursor                ; put VDU cursor at (X,Y) = (B,C)
@@ -107,6 +108,7 @@ Module DefaultRamDevice
                     ADD  A,48
                     JR   upd_slotno
 .dev_aborted
+                    LD   DE,buf1
                     CALL GetDefaultRamDevice      ; restore current default RAM Device
                     SCF                           ; indicate abort command
 .dev_selected
@@ -123,13 +125,12 @@ Module DefaultRamDevice
 
 ; *************************************************************************************
 ;
-; Get FlashStore's Default RAM Device at (buf1).
+; Get FlashStore's Default RAM Device at (DE).
 ;
 .GetDefaultRamDevice
                     PUSH BC
 
                     LD   HL, ramdevname
-                    LD   DE, buf1
                     LD   BC, 5
                     LDIR
                     LD   A,(ramdevno)
