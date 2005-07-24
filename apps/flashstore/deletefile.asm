@@ -87,7 +87,7 @@ Module DeleteFile
                     ld   hl,fnam_msg
                     CALL_OZ gn_sop
 
-                    LD   HL,buf1                  ; preset input line with '/'
+                    LD   HL,bufferstart           ; preset input line with '/'
                     LD   (HL),'/'
                     INC  HL
                     LD   (HL),0
@@ -95,13 +95,13 @@ Module DeleteFile
                     EX   DE,HL
 
                     LD   A,@00100011
-                    LD   BC,$4001
-                    LD   L,$20
+                    LD   BC,$FF01
+                    LD   L,$28
                     CALL_OZ gn_sip
                     jp   c,sip_error
                     CALL_OZ gn_nln
 
-                    CALL file_markdeleted
+                    CALL FindToMarkDeleted        ; try to find entered filename, and confirm to mark deleted
                     RET
 .sip_error
                     CP   RC_SUSP
@@ -131,6 +131,15 @@ Module DeleteFile
                     ret  c                        ; it didn't...
                     ret  nz                       ; (and flash chip was not found in slot!)
 
+                    call_oz GN_Nln
+                    call ConfirmDelete            ; ask user to confirm mark as deleted.
+                    jr   z, exec_delete           ; User acknowledged with Yes...
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+.ConfirmDelete
                     call CompressedFileEntryName  ; get compressed filename from file entry (BHL) to (DE)
 
                     push bc
@@ -147,23 +156,29 @@ Module DeleteFile
                     call YesNo                    ; "mark file as deleted?"
                     pop  hl
                     pop  bc                       ; BHL = file entry to mark as deleted
-
-                    jr   z,exec_delfile           ; User pressed Y (for Yes)
                     ret
 ; *************************************************************************************
 
 
 ; *************************************************************************************
 ;
-.file_markdeleted
+.FindToMarkDeleted
                     LD   A,(curslot)
                     LD   C,A
-                    LD   DE,buf1
+                    LD   DE,bufferstart
                     CALL FileEprFindFile          ; search for <buf1> filename on File Eprom...
                     JR   C, delfile_notfound      ; File Eprom or File Entry was not available
                     JR   NZ, delfile_notfound     ; File Entry was not found...
-.exec_delfile
-                    CALL FlashEprFileDelete
+
+                    push hl
+                    ld   hl, found_msg
+                    call_oz GN_sop
+                    pop  hl
+
+                    call ConfirmDelete            ; file found, confirm to mark as deleted.
+                    ret  nz                       ; User aborted...
+.exec_delete
+                    CALL FlashEprFileDelete       ; User pressed Y (for Yes)
                     JR   NC, file_deleted
                     LD   HL,markdelete_failed
                     CALL DispErrMsg
@@ -190,8 +205,9 @@ Module DeleteFile
 .delfile_bnr        DEFM "MARK FILE AS DELETED IN FILE AREA",0
 
 .delfile_err_msg    DEFM "File not found.", 0
+.found_msg          DEFM 13, 10, " Found", 0
 .markdelete_failed  DEFM "Error. File was not marked as deleted.",0
 .filedel_msg        DEFM 1,"2JC", "File marked as deleted.",1,"2JN", 0
 .markdel_prompt     DEFM " Mark file as deleted?", 13, 10, 0
-.pre_filename       DEFM 13, 10, 1, "B ", 0
+.pre_filename       DEFM 1, "B ", 0
 .post_filename      DEFM 1, "B", 13, 10, 0
