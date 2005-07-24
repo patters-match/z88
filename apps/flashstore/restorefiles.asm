@@ -75,8 +75,10 @@ Module RestoreFiles
                     CALL sopnln
                     LD   HL,dest_msg
                     CALL_OZ gn_sop
-                    CALL GetDefaultRamDevice
                     LD   DE,buf1
+                    PUSH DE
+                    CALL GetDefaultRamDevice
+                    POP  DE
                     LD   A,@00100011
                     LD   BC,$4007
                     LD   L,$20

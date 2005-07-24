@@ -104,8 +104,10 @@ Module SaveFiles
                     LD   HL,fnam_msg
                     CALL_OZ gn_sop
 
+                    ld   de, buf1
+                    push de
                     CALL GetDefaultRamDevice
-                    ld   hl, buf1
+                    pop  hl
                     ld   de, buf3
                     ld   bc, 6
                     ldir
