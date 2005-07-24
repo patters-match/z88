@@ -27,6 +27,7 @@ Module DeleteFile
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
      xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
 
+     xref CompressedFileEntryName
      xref InitFirstFileBar
      xref DispMainWindow, sopnln
      xref DispErrMsg, disp_no_filearea_msg
@@ -130,15 +131,14 @@ Module DeleteFile
                     ret  c                        ; it didn't...
                     ret  nz                       ; (and flash chip was not found in slot!)
 
-                    ld   de, buf3                 ; write filename at (DE), null-terminated
-                    call FileEprFilename          ; copy filename from current file entry
+                    call CompressedFileEntryName  ; get compressed filename from file entry (BHL) to (DE)
 
                     push bc
                     push hl
                     ld   hl, pre_filename
                     call_oz GN_sop
-                    ld   hl,buf3
-                    call_oz GN_sop
+                    ex   de,hl
+                    call_oz GN_sop                ; display filename (may have been compressed..)
                     ld   hl, post_filename
                     call_oz GN_sop                ; display filename in Bold, followed by newline
 
