@@ -21,6 +21,7 @@ Module CatalogFiles
 ; This module contains the file navigation functionality in the File Area Window.
 
      xdef DispFilesWindow, DispFiles, FilesAvailable
+     xdef CompressedFileEntryName
      xdef MoveToFirstFile
      xdef MoveToLastFile
      xdef InitFirstFileBar
@@ -36,6 +37,7 @@ Module CatalogFiles
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprCntFiles           ; Return total of active and deleted files
+     lib FileEprFileStatus         ; Return Active/Deleted status of file entry
 
      xref DispMainWindow, DisplBar
      xref IntAscii
@@ -44,11 +46,11 @@ Module CatalogFiles
      xref yesno, no_msg, done_msg
      xref pwait, rdch
      xref VduCursor
-
      xref no_files                 ; errmsg.asm
 
      ; system definitions
      include "stdio.def"
+     include "fileio.def"
      include "error.def"
 
      ; FlashStore popdown variables
@@ -328,8 +330,7 @@ Module CatalogFiles
 ; windfow, as defined by file entry BHL.
 ;
 .DisplayFile
-                    ld   de, buf3               ; write filename at (DE), null-terminated
-                    call FileEprFilename        ; copy filename from current file entry
+                    call FileEprFileStatus
                     jr   c, end_cat             ; Ups - last file(name) has been displayed...
                     jr   nz, disp_filename      ; active file, display...
 
@@ -339,6 +340,7 @@ Module CatalogFiles
                     ex   af,af'
 
 .disp_filename      set  1,(iy+0)               ; indicate display of filename...
+                    call CompressedFileEntryName
                     push bc
                     push hl
 
@@ -371,6 +373,51 @@ Module CatalogFiles
                     CALL_OZ gn_sop
                     pop  af
                     ret
+
+
+; *************************************************************************************
+; Fetches the filename of the current file entry (supplied as BHL) The filename is
+; compressed using GN_Fcm to use max. 45 characters (so that a very long filename
+; can be displayed sensibly in the file area window).
+;
+; IN:
+;    BHL = pointer to current File Entry (B = absolute bank number)
+;
+; OUT:
+;    DE = local pointer to compressed filename
+.CompressedFileEntryName
+                    push af
+                    push bc
+                    push hl
+
+                    ld   de, bufferstart        ; write filename at (DE), null-terminated
+                    call FileEprFilename        ; copy filename from current file entry at (DE)
+                    jr   c, end_GetCompressedFilename
+                    cp   42
+                    jr   c, end_GetCompressedFilename  ; complete filename fits within 43 characters
+                    ex   de,hl
+                    ld   b,0                    ; HL pointer to local filename
+                    ld   c,42                   ; compressed filename max. 45 chars (including '/..')
+                    ld   de,buf1                ; make compressed filename at buf1
+                    push de
+                    ld   a,'/'
+                    ld   (de),a
+                    inc  de
+                    ld   a,'.'
+                    ld   (de),a
+                    inc  de
+                    ld   (de),a                 ; preset the filename with '/..' before compressed filename
+                    inc  de
+                    call_oz GN_Fcm              ; compress filename..
+                    xor  a
+                    ld   (de),a                 ; null-terminate
+                    pop  de                     ; start of compressed filename
+.end_GetCompressedFilename
+                    pop  hl
+                    pop  bc
+                    pop  af
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
