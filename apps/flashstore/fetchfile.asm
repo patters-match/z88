@@ -69,14 +69,14 @@ Module FetchFile
                     ret
 .check_fetchable_files
                     call FilesAvailable
-                    jp   z, no_files             ; Fz = 1, no files available...
+                    jp   z, no_files              ; Fz = 1, no files available...
 
                     ld   hl,exct_msg
                     call sopnln
                     ld   hl,fnam_msg
                     CALL_OZ gn_sop
 
-                    LD   HL,buf1                  ; preset input line with '/'
+                    LD   HL,bufferstart           ; preset input line with '/'
                     LD   (HL),'/'
                     INC  HL
                     LD   (HL),0
@@ -84,8 +84,8 @@ Module FetchFile
                     EX   DE,HL
 
                     LD   A,@00100011
-                    LD   BC,$4001
-                    LD   L,$20
+                    LD   BC,$FF01                 ; allow 255 char input, place cursor after '/'
+                    LD   L,$28                    ; 40 char input visible
                     CALL_OZ gn_sip
                     ld   a,b
                     ld   (linecnt),a
@@ -130,7 +130,7 @@ Module FetchFile
                     ld   a,c
                     ld   (free+2),a
 
-                    ld   de,buf1
+                    ld   de,bufferstart
                     call FileEprFileName
                     ld   (linecnt),a         ; size of input
 
@@ -139,7 +139,7 @@ Module FetchFile
                     call FileEprFileStatus   ; is file marked as deleted?
                     jr   nz, get_name        ; no...
 
-                    ld   hl, warndel_msg     ; display a warning for a deleted file
+                    ld   hl, warndel1_msg    ; display a flash warning for files marked as deleted
                     CALL_OZ gn_sop           ; before proceeding with the fetch dialog
                     jr   get_name
 
@@ -149,7 +149,7 @@ Module FetchFile
 .file_fetch
                     LD   A,(curslot)
                     LD   C,A
-                    LD   DE,buf1
+                    LD   DE,bufferstart
                     CALL FileEprFindFile     ; search for <buf1> filename on File Eprom...
                     JP   C, not_found_err    ; File Eprom or File Entry was not available
                     JP   NZ, not_found_err   ; File Entry was not found...
@@ -171,26 +171,32 @@ Module FetchFile
                     ld   hl,ffet_msg          ; get destination filename from user...
                     CALL_OZ gn_sop
 
-                    ld   hl, buf1
-                    ld   de, buf3
+                    ld   hl, bufferstart
+                    ld   de, bufferstart+256
                     ld   a,(linecnt)         ; size of input
                     ld   b,0
                     ld   c,a
                     ldir
+                    ld   de,bufferstart
                     CALL GetDefaultRamDevice ; default ram to buf1 (6 chars)
-                    ld   hl, buf3
-                    ld   de, buf1+6
+                    ld   hl, bufferstart+256
+                    ld   de, bufferstart+6   ;
                     ld   a,(linecnt)
                     ld   b,0
                     ld   c,a
+                    push bc
                     ldir                     ; append filename after default RAM device.
                     xor  a
                     ld   (de),a              ; null-terminate
 
-                    ld   de,buf1
+                    ld   de,bufferstart
+                    POP  BC                  ;
+                    LD   B,$FF
+                    LD   A,C
+                    ADD  A,6
+                    LD   C,A                 ; place cursor at end of filename, C
                     LD   A,@00100011         ; buffer has filename
-                    LD   BC,$4000
-                    LD   L,$20
+                    LD   L,$28
                     CALL_OZ gn_sip
                     jr   nc,open_file
                     cp   rc_susp
@@ -199,7 +205,7 @@ Module FetchFile
                     ret                      ; user aborted...
 .open_file
                     CALL_OZ(GN_Nln)
-                    ld   hl,buf1
+                    ld   hl,bufferstart
                     call PromptOverWrFile
                     jr   c, check_fetch_abort; file doesn't exist (or in use), or user aborted
                     jr   z, create_file      ; file exists, user acknowledged Yes...
@@ -211,25 +217,30 @@ Module FetchFile
                          CP   A
                          RET                 ; abort file fetching, indicate success
 .create_file
-                    ld   bc,$80
-                    ld   hl,buf1
-                    ld   de,buf2             ; generate expanded filename...
+                    ld   bc,255              ; filename size (max file entry name + RAM device)
+                    ld   hl,bufferstart      ; pointer to file entry name
+                    ld   de,bufferstart+256  ; generate expanded filename...
                     CALL_OZ (Gn_Fex)
-                    ret  c                   ; invalid filename...
+                    jr   c, report_error     ; invalid filename...
 
                     call CheckFreeRam
-                    JR   C, no_room
+                    JR   C, report_error
 
                     ld   b,0                 ; (local pointer)
-                    ld   hl,buf2             ; pointer to filename...
+                    ld   hl,bufferstart+256  ; pointer to filename...
                     call CreateFilename      ; create file with and path
-                    ret  c
+                    jr   c, report_error
 
                     CALL_OZ gn_nln           ; IX = handle of created file...
                     ld   hl,fetf_msg
                     CALL_OZ gn_sop
-                    ld   hl,buf2
-                    call sopnln              ; display created RAM filename (expanded)...
+                    ld   hl,bufferstart+256
+                    ld   c,36
+                    ld   de,buf1
+                    push de
+                    call_oz GN_Fcm           ; compress filename to fit nicely at one line...
+                    pop  hl
+                    call sopnln              ; display created RAM filename (36 char compressed)...
 
                     LD   A,(fbnk)
                     LD   B,A
@@ -238,14 +249,14 @@ Module FetchFile
                     PUSH AF                  ; to RAM file, identified by IX handle
                     CALL_OZ(Gn_Cl)           ; then, close file.
                     POP  AF
-                    RET  C
+                    JR   C,report_error
 
                     LD   HL, done_msg
                     CALL DispErrMsg
                     CP   A                   ; Fc = 0, File successfully fetched into RAM...
                     RET
-.no_room
-                    CALL_OZ(Gn_Err)          ; report fatal error and exit to main menu...
+.report_error
+                    CALL_OZ(Gn_Err)          ; report error and exit to main menu...
                     LD   HL, failed_msg
                     CALL DispErrMsg
                     RET
@@ -265,14 +276,14 @@ Module FetchFile
 
 .fetch_bnr          DEFM "FETCH FROM FILE AREA",0
 
-.warndel_msg        DEFM " ", 1, "4+F+RWARNING: You are fetching a deleted file", 1, "4-F-R", 13, 10
-                    DEFM " A newer version (an active file) might exist in", 13, 10
-                    DEFM " the file area.", 13, 10, 13, 10, 0
+.warndel1_msg       DEFM " ", 1, "4+F+RWARNING: File is marked as deleted", 1, "4-F-R", 13, 10, 13, 10, 0
+
+.warndel2_msg       DEFM " A newer, active file version exists in the file area", 13, 10, 13, 10, 0
 
 .exct_msg           DEFM 13, 10, " Enter exact filename (no wildcard).",0
 
 .fetf_msg           DEFM 1,"2+C Fetching to ",0
 .done_msg           DEFM "Completed.",$0D,$0A,0
-.ffet_msg           DEFM 13," Fetch as : ",0
-.exis_msg           DEFM 13," Overwrite RAM file : ", 13, 10, 0
+.ffet_msg           DEFM 13,1,"B Fetch as: ", 1,"B",0
+.exis_msg           DEFM 13," RAM file already exists. Overwrite?", 13, 10, 0
 .file_not_found_msg DEFM "File not found in File Area.", 0
