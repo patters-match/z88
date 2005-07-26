@@ -96,7 +96,7 @@ Module SaveFiles
                     ret  nz                       ; flash chip was not found in slot!
 
                     ld   hl,0
-                    ld   (savedfiles),hl     ; reset counter to No files saved...
+                    ld   (savedfiles),hl          ; reset counter to No files saved...
 .fname_sip
                     ld   hl,wcrd_msg
                     call sopnln
@@ -109,21 +109,21 @@ Module SaveFiles
                     CALL GetDefaultRamDevice
                     pop  hl
                     ld   de, buf3
+                    push de
                     ld   bc, 6
                     ldir
                     ld   a,'/'
                     ld   (de),a
                     inc  de
                     xor  a
-                    ld   (de),a
-                    inc  c                   ; C = set cursor to char after path...
+                    ld   (de),a              ; append '/' and null-terminator after default RAM devive
 
-                    LD   DE,buf3
+                    pop  de                  ; buf3
                     LD   A,@00100011
-                    LD   B,$40
-                    LD   C,7
-                    LD   L,$20
-                    CALL_OZ gn_sip
+                    LD   B,$80
+                    LD   C,7                 ; C = set cursor to char after path...
+                    LD   L,$28
+                    CALL_OZ gn_sip           ; user enter wildcard string with pre-insert default RAM device
                     jp   nc,save_mailbox
                     CP   RC_SUSP
                     JR   Z, fname_sip
@@ -134,28 +134,28 @@ Module SaveFiles
                     ld   bc,$0080
                     ld   hl,buf3
                     ld   de,buf1
-                    CALL_OZ gn_fex
+                    CALL_OZ gn_fex                     ; expand wild card string (max 128 bytes)
                     CALL C, ReportStdError             ; illegal wild card string
                     JR   C, end_save
 .scan_filesystem
                     xor  a
                     ld   b,a
                     LD   HL,buf1
-                    CALL_OZ gn_opw
+                    CALL_OZ gn_opw                     ; open wildcard handler
                     CALL C, ReportStdError             ; wild card string illegal or no names found
                     JR   C, end_save                   ; no files to save...
                     LD   (wcard_handle),IX
 .next_name
                     LD   DE,buf2
-                    LD   C,$80                         ; write found name at (buf2) using max. 128 bytes
+                    LD   C,$ff                         ; write found name at (buf2) using max. 255 bytes
                     LD   IX,(wcard_handle)
                     CALL_OZ(GN_Wfn)
                     JR   C, save_completed
                     CP   Dn_Fil                        ; file found?
                     JR   NZ, next_name
 .re_save
-                    CALL file_save                     ; Yes, save to Flash File Eprom...
-                    JR   NC, next_name                 ; saved successfully, fetch next file..
+                    CALL SaveFileToCard                ; save found RAM file to Flash Card...
+                    JR   NC, next_name                 ; saved successfully, fetch next file in RAM..
 
                     CP   RC_BWR
                     JR   Z, re_save                    ; not saved successfully to Flash Eprom, try again...
@@ -164,7 +164,6 @@ Module SaveFiles
                     LD   IX,(wcard_handle)
                     CALL_OZ(GN_Wcl)                    ; All files parsed, close Wild Card Handler
 .end_save
-                    CALL InitFirstFileBar
                     LD   HL,(savedfiles)
                     LD   A,H
                     OR   L
@@ -176,12 +175,12 @@ Module SaveFiles
 .CheckFileArea
                     ld   a,(curslot)
                     ld   c,a
-                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    call FlashWriteSupport             ; check if Flash Card in current slot supports saveing files?
                     jp   c,DispIntelSlotErr
                     jp   nz,DispIntelSlotErr
 
                     call FileEprRequest
-                    ret  z                        ; File Area header was found..
+                    ret  z                             ; File Area header was found..
                     call disp_no_filearea_msg
                     ret
 
@@ -203,6 +202,8 @@ Module SaveFiles
                     CALL_OZ(OS_Out)
 .endsx              LD   HL, ends1_msg
                     CALL_OZ(GN_Sop)
+                    
+                    CALL InitFirstFileBar               ; initialize file area variables...
                     POP  AF
                     RET
 
@@ -210,7 +211,7 @@ Module SaveFiles
                     CALL_OZ(GN_Sop)
                     RET
 
-.filesaved          LD   HL,(savedfiles)               ; another file has been saved...
+.CountFileSaved     LD   HL,(savedfiles)               ; another file has been saved...
                     INC  HL
                     LD   (savedfiles),HL               ; savedfiles++
                     RET
@@ -219,59 +220,48 @@ Module SaveFiles
 
 ; *************************************************************************************
 ;
-; Save file to Flash Eprom, filename at (buf2), null-terminated.
+; Save file to Flash Eprom, filename (might contain wildcards) at (buf2), null-terminated.
 ;
-.file_save
-                    LD   BC,$0080
-                    LD   HL,buf2
-                    LD   DE,buf3                       ; expanded filename may have 128 byte size...
+.SaveFileToCard
+                    LD   BC,255
+                    LD   HL,buf2                       ; partial expanded (wildcard) filename
+                    LD   DE,buf3                       ; output buffer for expanded filename (max 255 byte)...
                     LD   A, op_in
                     CALL_OZ(GN_Opf)
                     RET  C
 
-                    LD   A,C
-                    SUB  7
-                    LD   (nlen),A                      ; length of filename excl. device name...
+                    ld   hl,buf3                       
+                    ld   bc,38                         ; compress expanded file name to use max 38 chars
+                    ld   de,buf2
+                    call_oz GN_Fcm                     ; compress filename (at buf3) to fit nicely at one line (at buf2)...
+
                     LD   A,fa_ext
                     LD   DE,0
                     CALL_OZ(OS_Frm)                    ; file size in DEBC...
                     CALL_OZ(Gn_Cl)                     ; close file
 
-                    LD   (flen),BC
-                    LD   (flen+2),DE
-
-                    XOR  A
-                    OR   B
-                    OR   C
-                    OR   D
-                    OR   E
-                    JP   Z, file_zero_length
-
-                    LD   A,(nlen)                      ; calculate size of File Entry Header
-                    ADD  A,4+1                         ; total size = length of filename + 1 + 32bit file length
-                    LD   H,0
-                    LD   L,A
-                    LD   (flenhdr),HL
-                    LD   HL,0
-                    LD   (flenhdr+2),HL                ; size of File Entry Header
+                    LD   H,B
+                    LD   L,C
+                    ADC  HL,DE
+                    JR   Z, file_zero_length           ; Ups, file has zero length - will not be saved...
 
                     LD   HL,savf_msg
-                    CALL_OZ gn_sop
-                    LD   HL,buf3                       ; display expanded filename
-                    CALL_OZ gn_sop
+                    CALL_OZ gn_sop                    
+                    ld   hl,buf2
+                    CALL_OZ gn_sop                     ; display "Saving " + compressed filename, to user...
 
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
-                    CALL FindFile                      ; find File Entry of old file, if present
+                    CALL FindFile                      ; find a matching File Entry, and remember it to be deleted later...
 
                     ld   a,(curslot)
                     ld   bc, BufferSize
-                    ld   de, BufferStart
-                    ld   hl, buf3
+                    ld   de, buffer                    ; use 1K RAM buffer to blow file hdr + image
+                    ld   hl,buf3                       ; the expanded RAM filename at buf3 (< 255 char length)...
                     call FlashEprFileSave
                     jr   c, filesave_err               ; write error or no room for file...
 
-                    CALL DeleteOldFile                 ; mark previous file as deleted, if any...
-                    CALL filesaved
+                    CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...
+                    CALL CountFileSaved
                     LD   HL,fsok_msg
                     CALL_OZ gn_sop
                     CP   A
@@ -290,7 +280,7 @@ Module SaveFiles
                     RET
 
 .file_zero_length
-                    LD   HL,buf3                       ; display expanded filename
+                    LD   HL,buf2                       ; display (compressed) filename
                     call sopnln
                     LD   HL,zerolen_msg
                     call sopnln
@@ -322,8 +312,8 @@ Module SaveFiles
                     RET  NZ                            ; File Entry was not found...
 
                     LD   A,B
-                    LD   (flentry+2),A
                     LD   (flentry),HL                  ; preserve ptr to current File Entry...
+                    LD   (flentry+2),A
                     RET
 ; *************************************************************************************
 
