@@ -76,7 +76,7 @@ Module FetchFile
                     ld   hl,fnam_msg
                     CALL_OZ gn_sop
 
-                    LD   HL,bufferstart           ; preset input line with '/'
+                    LD   HL,buffer                ; preset input line with '/'
                     LD   (HL),'/'
                     INC  HL
                     LD   (HL),0
@@ -130,7 +130,7 @@ Module FetchFile
                     ld   a,c
                     ld   (free+2),a
 
-                    ld   de,bufferstart
+                    ld   de,buffer
                     call FileEprFileName
                     ld   (linecnt),a         ; size of input
 
@@ -149,7 +149,7 @@ Module FetchFile
 .file_fetch
                     LD   A,(curslot)
                     LD   C,A
-                    LD   DE,bufferstart
+                    LD   DE,buffer
                     CALL FileEprFindFile     ; search for <buf1> filename on File Eprom...
                     JP   C, not_found_err    ; File Eprom or File Entry was not available
                     JP   NZ, not_found_err   ; File Entry was not found...
@@ -171,16 +171,16 @@ Module FetchFile
                     ld   hl,ffet_msg          ; get destination filename from user...
                     CALL_OZ gn_sop
 
-                    ld   hl, bufferstart
-                    ld   de, bufferstart+256
+                    ld   hl, buffer
+                    ld   de, buffer+256
                     ld   a,(linecnt)         ; size of input
                     ld   b,0
                     ld   c,a
                     ldir
-                    ld   de,bufferstart
+                    ld   de,buffer
                     CALL GetDefaultRamDevice ; default ram to buf1 (6 chars)
-                    ld   hl, bufferstart+256
-                    ld   de, bufferstart+6   ;
+                    ld   hl, buffer+256
+                    ld   de, buffer+6
                     ld   a,(linecnt)
                     ld   b,0
                     ld   c,a
@@ -189,7 +189,7 @@ Module FetchFile
                     xor  a
                     ld   (de),a              ; null-terminate
 
-                    ld   de,bufferstart
+                    ld   de,buffer
                     POP  BC                  ;
                     LD   B,$FF
                     LD   A,C
@@ -205,7 +205,7 @@ Module FetchFile
                     ret                      ; user aborted...
 .open_file
                     CALL_OZ(GN_Nln)
-                    ld   hl,bufferstart
+                    ld   hl,buffer
                     call PromptOverWrFile
                     jr   c, check_fetch_abort; file doesn't exist (or in use), or user aborted
                     jr   z, create_file      ; file exists, user acknowledged Yes...
@@ -218,8 +218,8 @@ Module FetchFile
                          RET                 ; abort file fetching, indicate success
 .create_file
                     ld   bc,255              ; filename size (max file entry name + RAM device)
-                    ld   hl,bufferstart      ; pointer to file entry name
-                    ld   de,bufferstart+256  ; generate expanded filename...
+                    ld   hl,buffer           ; pointer to file entry name
+                    ld   de,buffer+256       ; generate expanded filename...
                     CALL_OZ (Gn_Fex)
                     jr   c, report_error     ; invalid filename...
 
@@ -227,14 +227,14 @@ Module FetchFile
                     JR   C, report_error
 
                     ld   b,0                 ; (local pointer)
-                    ld   hl,bufferstart+256  ; pointer to filename...
+                    ld   hl,buffer+256       ; pointer to filename...
                     call CreateFilename      ; create file with and path
                     jr   c, report_error
 
                     CALL_OZ gn_nln           ; IX = handle of created file...
                     ld   hl,fetf_msg
                     CALL_OZ gn_sop
-                    ld   hl,bufferstart+256
+                    ld   hl,buffer+256
                     ld   c,36
                     ld   de,buf1
                     push de

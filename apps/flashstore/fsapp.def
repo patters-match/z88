@@ -17,16 +17,16 @@
 ; *************************************************************************************
 
 DEFC SafeWorkSpaceSize = 96             ; 96 bytes for various variables...
-DEFC RAM_pages = 6                      ; allocate 6 * 256 bytes contigous memory from $2000...
+DEFC RAM_pages = 6                      ; allocate 6 * 256 (1.5K) bytes contigous memory from $2000...
 
 DEFVARS $2000
 {
-     BufferStart    ds.b 1024
-     buf1           ds.b $40
+     buffer         ds.b 1024
+     buf1           ds.b $80
      buf2           ds.b $80            ; filename buffer...
-     buf3           ds.b $80            ; for expanded filenames
+     buf3           ds.b $ff            ; for expanded filenames
 }
-DEFC BufferSize = buf1-BufferStart      ; buffer for file I/O at $2000
+DEFC BufferSize = buf1-buffer           ; buffer for file I/O at $2000
 
 DEFVARS $1FFE - SafeWorkSpaceSize
 {

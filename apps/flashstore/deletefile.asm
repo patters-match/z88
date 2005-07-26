@@ -87,7 +87,7 @@ Module DeleteFile
                     ld   hl,fnam_msg
                     CALL_OZ gn_sop
 
-                    LD   HL,bufferstart           ; preset input line with '/'
+                    LD   HL,buffer                ; preset input line with '/'
                     LD   (HL),'/'
                     INC  HL
                     LD   (HL),0
@@ -165,7 +165,7 @@ Module DeleteFile
 .FindToMarkDeleted
                     LD   A,(curslot)
                     LD   C,A
-                    LD   DE,bufferstart
+                    LD   DE,buffer
                     CALL FileEprFindFile          ; search for <buf1> filename on File Eprom...
                     JR   C, delfile_notfound      ; File Eprom or File Entry was not available
                     JR   NZ, delfile_notfound     ; File Entry was not found...

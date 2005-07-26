@@ -390,7 +390,7 @@ Module CatalogFiles
                     push bc
                     push hl
 
-                    ld   de, bufferstart        ; write filename at (DE), null-terminated
+                    ld   de, buffer             ; write filename at (DE), null-terminated
                     call FileEprFilename        ; copy filename from current file entry at (DE)
                     jr   c, end_GetCompressedFilename
                     cp   42
