@@ -22,7 +22,7 @@ Module FetchFile
 ; RAM device.
 
      xdef FetchFileCommand, QuickFetchFile
-     xdef exct_msg, fetf_msg, done_msg
+     xdef exct_msg, done_msg
      xdef disp_exis_msg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
@@ -40,6 +40,7 @@ Module FetchFile
      xref disp_no_filearea_msg, no_files, DispErrMsg
      xref DispMainWindow, sopnln
      xref fnam_msg, failed_msg
+     xref CompressRamFileName
 
      ; system definitions
      include "stdio.def"
@@ -222,25 +223,25 @@ Module FetchFile
                     ld   de,buffer+256       ; generate expanded filename...
                     CALL_OZ (Gn_Fex)
                     jr   c, report_error     ; invalid filename...
-
+                    push bc                  ; preserve length of expanded filename
                     call CheckFreeRam
+                    pop  bc
                     JR   C, report_error
 
+                    push bc
                     ld   b,0                 ; (local pointer)
                     ld   hl,buffer+256       ; pointer to filename...
                     call CreateFilename      ; create file with and path
+                    pop  bc
                     jr   c, report_error
 
                     CALL_OZ gn_nln           ; IX = handle of created file...
                     ld   hl,fetf_msg
                     CALL_OZ gn_sop
-                    ld   hl,buffer+256
-                    ld   c,36
-                    ld   de,buf1
-                    push de
-                    call_oz GN_Fcm           ; compress filename to fit nicely at one line...
-                    pop  hl
-                    call sopnln              ; display created RAM filename (36 char compressed)...
+
+                    ld   hl,buffer+256       ; C = length of expanded filename
+                    call CompressRamFileName
+                    call sopnln              ; display created RAM filename (compressed, if > 45 chars)...
 
                     LD   A,(fbnk)
                     LD   B,A
@@ -282,7 +283,7 @@ Module FetchFile
 
 .exct_msg           DEFM 13, 10, " Enter exact filename (no wildcard).",0
 
-.fetf_msg           DEFM 1,"2+C Fetching to ",0
+.fetf_msg           DEFM 1,"2+CFetching ",0
 .done_msg           DEFM "Completed.",$0D,$0A,0
 .ffet_msg           DEFM 13,1,"B Fetch as: ", 1,"B",0
 .exis_msg           DEFM 13," RAM file already exists. Overwrite?", 13, 10, 0
