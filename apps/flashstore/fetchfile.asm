@@ -41,6 +41,7 @@ Module FetchFile
      xref DispMainWindow, sopnln
      xref fnam_msg, failed_msg
      xref CompressRamFileName
+     xref GetCursorFilePtr
 
      ; system definitions
      include "stdio.def"
@@ -121,9 +122,7 @@ Module FetchFile
                     ld   hl,fetch_bnr
                     call DispMainWindow
 
-                    ld   hl,(CursorFilePtr)
-                    ld   a,(CursorFilePtr+2)
-                    ld   b,a
+                    call GetCursorFilePtr    ; BHL <-- (CursorFilePtr), ptr to cur. file entry
                     ld   (fbnk),a
                     ld   (fadr),hl           ; pointer to found File Entry...
                     call FileEprFileSize

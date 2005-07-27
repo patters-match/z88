@@ -21,6 +21,7 @@ Module CatalogFiles
 ; This module contains the file navigation functionality in the File Area Window.
 
      xdef DispFilesWindow, DispFiles, FilesAvailable
+     xdef StoreCursorFilePtr, GetCursorFilePtr
      xdef CompressedFileEntryName
      xdef MoveToFirstFile
      xdef MoveToLastFile
@@ -83,13 +84,10 @@ Module CatalogFiles
                     jr   nz, nofilesavail
 
                     call FileEprCntFiles        ; any files available in File Area?
-                    ld   a,h
-                    or   l
-                    or   d
-                    or   e
+                    adc  hl,de                  ; (HL = 0 & DE = 0)?
                     jr   z, nofilesavail        ; no files available...
 
-                    call FileEprFirstFile       ; get BHL of first file in File area
+                    call FileEprFirstFile       ; get BHL of first file in File area in slot C
 .getFirstFile       jr   c, nofilesavail        ; hmm..
                     jr   nz, foundFile
 
@@ -101,18 +99,26 @@ Module CatalogFiles
                     call FileEprNextFile        ; skip system file
                     jr   c, nofilesavail        ; officially, file area is empty...
 .foundFile
-                    ld   (CursorFilePtr),hl
-                    ld   a,b
-                    ld   (CursorFilePtr+2),a
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
                     ret
 .nofilesavail
-                    xor  a
-                    ld   h,a
-                    ld   l,a
-                    ld   (CursorFilePtr),hl
-                    ld   (CursorFilePtr+2),a    ; indicate no files (pointer = 0)
+                    ld   b,0
+                    ld   h,b
+                    ld   l,b
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), indicate no files (pointer = 0)
                     scf
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Move the File Bar to top of file list, place window cursor at top line in window
+; and display the file list.
+.MoveToFirstFile    call InitFirstFileBar       ; File Bar placed at first file in area
+                    ret  c                      ; no files
+                    call DispFiles              ; update file area window.
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -133,9 +139,7 @@ Module CatalogFiles
                     cp   e
                     jr   z, exit_fill_loop      ; try to fill window (7 lines) from bottom...
                     inc  e
-                    ld   (CursorFilePtr),hl
-                    ld   a,b
-                    ld   (CursorFilePtr+2),a
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
 
                     call FileEprPrevFile
                     jr   c, exit_fill_loop      ; reached top of files!
@@ -155,10 +159,9 @@ Module CatalogFiles
 
                     pop  hl
                     pop  bc
-                    ld   (CursorFilePtr),hl
-                    ld   a,b
-                    ld   (CursorFilePtr+2),a    ; real last file pointer
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
                     ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -166,9 +169,7 @@ Module CatalogFiles
 ; downwards and display previous file line, when file bar goes beyond the window bottom
 ;
 .MoveFileBarUp
-                    ld   hl,(CursorFilePtr)
-                    ld   a,(CursorFilePtr+2)
-                    ld   b,a
+                    call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
                     call FileEprPrevFile
                     jr   c, MoveToLastFile      ; File Bar at top of file list, wrap to last...
                     jr   nz, dispPrevFile       ; previous file is available, display it...
@@ -179,9 +180,7 @@ Module CatalogFiles
                     jr   nz, dispPrevFile
                     jr   MoveToLastFile         ; ignore hidden system file, wrap to last file...
 .dispPrevFile
-                    ld   (CursorFilePtr),hl
-                    ld   a,b
-                    ld   (CursorFilePtr+2),a    ; CursorFilePtr = FileEprPrevFile(CursorFilePtr)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprPrevFile(CursorFilePtr)
 
                     ld   a,(FileBarPosn)
                     cp   0
@@ -204,6 +203,7 @@ Module CatalogFiles
 
                     call DisplayFile
                     ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -211,16 +211,11 @@ Module CatalogFiles
 ; upwards and display next file line, when file bar goes beyond the window bottom
 ;
 .MoveFileBarDown
-                    ld   hl,(CursorFilePtr)
-                    ld   a,(CursorFilePtr+2)
-                    ld   b,a
+                    call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
                     call FileEprNextFile
                     jr   c, MoveToFirstFile     ; File Bar at end of file list, wrap to first...
 
-                    ld   (CursorFilePtr),hl
-                    ld   a,b
-                    ld   (CursorFilePtr+2),a    ; CursorFilePtr = FileEprNextFile(CursorFilePtr)
-
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprNextFile(CursorFilePtr)
                     ld   a,(FileBarPosn)
                     cp   6
                     jr   z, scroll_filearea_up
@@ -242,15 +237,7 @@ Module CatalogFiles
                     pop  bc
                     call DisplayFile
                     ret
-
-
 ; *************************************************************************************
-; Move the File Bar to top of file list, place window cursor at top line in window
-; and display the file list.
-.MoveToFirstFile    call InitFirstFileBar       ; File Bar placed at first file in area
-                    ret  c                      ; no files
-                    call DispFiles              ; update file area window.
-                    ret
 
 
 ; *************************************************************************************
@@ -282,12 +269,9 @@ Module CatalogFiles
                     res  1,(iy+0)               ; preset to no lines displayed
 
                     xor  a
-                    ld   hl, linecnt
-                    ld   (hl),a
+                    ld   (linecnt),a
 .begin_catalogue
-                    ld   hl,(CursorFilePtr)
-                    ld   a,(CursorFilePtr+2)
-                    ld   b,a
+                    call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
 .cat_main_loop
                     call DisplayFile
                     ret  c
@@ -322,6 +306,7 @@ Module CatalogFiles
                     CALL_OZ gn_sop
                     pop  af
                     ret
+; *************************************************************************************
 
 
 
@@ -373,6 +358,7 @@ Module CatalogFiles
                     CALL_OZ gn_sop
                     pop  af
                     ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -422,6 +408,7 @@ Module CatalogFiles
 
 ; *************************************************************************************
 ; Check if there's active/deleted files availabe in the File Area
+; return Fz = 1, if no files available
 ;
 .FilesAvailable
                     push bc
@@ -432,22 +419,40 @@ Module CatalogFiles
                     ld   c,a
                     call FileEprCntFiles          ; any files available in File Area?
                     jr   c, exit_checkfiles       ; no file area!
-                    ld   a,h
-                    or   l
-                    jr   nz, exit_checkfiles      ; active files available...
-                    ld   a,d
-                    or   e
-                    jr   z, exit_checkfiles       ; no active nor deleted files available...
-                    cp   1                        ; check for Intel deleted file...
+                    adc  hl,de
 .exit_checkfiles
                     pop  hl
                     pop  de
                     pop  bc
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; BHL --> (CursorFilePtr)
+;
+.StoreCursorFilePtr
+                    ld   (CursorFilePtr),hl
+                    ld   a,b
+                    ld   (CursorFilePtr+2),a    ; real last file pointer
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; BHL <-- (CursorFilePtr)
+;
+.GetCursorFilePtr
+                    ld   hl,(CursorFilePtr)
+                    ld   a,(CursorFilePtr+2)
+                    ld   b,a
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
 ; constants
+;
 .filearea_banner    DEFM "FILE AREA", 0
 .norm_sq            DEFM 1,"2-G",1,"4+TRUF",1,"4-TRU ",0
 .tiny_sq            DEFM 1,"5+TRGUd",1,"3-RU ",0

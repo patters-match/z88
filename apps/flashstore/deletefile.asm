@@ -27,6 +27,7 @@ Module DeleteFile
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
      xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
 
+     xref StoreCursorFilePtr, GetCursorFilePtr
      xref CompressedFileEntryName
      xref InitFirstFileBar
      xref DispMainWindow, sopnln
@@ -116,9 +117,7 @@ Module DeleteFile
 ; to be deleted if the current slot contains a Flash Card that supports byte programming.
 ;
 .QuickDeleteFile
-                    ld   hl,(CursorFilePtr)
-                    ld   a,(CursorFilePtr+2)
-                    ld   b,a                      ; get pointer to current file entry (file bar)
+                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
                     call FileEprFileStatus        ; check file entry status...
                     ret  c                        ; no file area...
                     ret  z                        ; file already marked as deleted..

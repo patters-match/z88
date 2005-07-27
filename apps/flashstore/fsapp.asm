@@ -36,6 +36,7 @@
      lib FileEprFileStatus
 
      ; external functionality in other modules
+     xref GetCursorFilePtr         ; catalog.asm
      xref DispFiles                ; catalog.asm
      xref InitFirstFileBar         ; catalog.asm
      xref MoveFileBarDown          ; catalog.asm
@@ -285,8 +286,7 @@
                     LD   (barMode),A                   ; indicate that cursor has moved to menu window
                     JR   inp_main
 .selectFiles
-                    ld   hl,(CursorFilePtr)
-                    ld   a,(CursorFilePtr+2)
+                    call GetCursorFilePtr              ; BHL <-- (CursorFilePtr)
                     or   h
                     or   l
                     jr   z, inp_main                   ; no files to browse...
@@ -392,9 +392,7 @@
                     LD   A,(FileBarPosn)               ; get Y position of File Bar
                     LD   C,A
                     Call VduCursor
-                    ld   hl,(CursorFilePtr)
-                    ld   a,(CursorFilePtr+2)
-                    ld   b,a
+                    call GetCursorFilePtr              ; BHL <-- (CursorFilePtr)
                     call FileEprFileStatus
                     jr   nz, dfb                       ; file is active (no grey file bar)
                     ld   hl, grey_delfile
