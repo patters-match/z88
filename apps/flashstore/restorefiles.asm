@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sourceforge.net) & Thierry Peycru (pek@free.fr), 1997-2004
+; (C) Gunther Strube (gbs@users.sourceforge.net) & Thierry Peycru (pek@free.fr), 1997-2005
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -143,7 +143,7 @@ Module RestoreFiles
                     LD   (free+2),A
                     OR   D
                     OR   E                   ; is file empty (zero length)?
-                    POP  DE                  
+                    POP  DE
                     LD   C,D                 ; C = length of explicit filename
                     POP  DE
                     JR   Z, fetch_next       ; yes, try to fetch next...
@@ -196,7 +196,7 @@ Module RestoreFiles
                     POP  AF
                     JR   C, filecreerr       ; not possible to transfer, exit restore...
 
-                    CALL_OZ GN_Nln 
+                    CALL_OZ GN_Nln
 .fetch_next                                  ; BHL = current File Entry
                     CALL FileEprPrevFile     ; get pointer to previous File Entry...
                     JR   NC, restore_loop
