@@ -21,7 +21,8 @@ Module SaveFiles
 ; This module contains the Save Files to Flash Card Command
 
      xdef SaveFilesCommand, BackupRamCommand
-     xdef fnam_msg, fsok_msg
+     xdef fnam_msg
+     xdef CompressRamFileName
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FlashEprFileSave          ; Save RAM file to Flash Eprom
@@ -202,7 +203,7 @@ Module SaveFiles
                     CALL_OZ(OS_Out)
 .endsx              LD   HL, ends1_msg
                     CALL_OZ(GN_Sop)
-                    
+
                     CALL InitFirstFileBar               ; initialize file area variables...
                     POP  AF
                     RET
@@ -230,10 +231,9 @@ Module SaveFiles
                     CALL_OZ(GN_Opf)
                     RET  C
 
-                    ld   hl,buf3                       
-                    ld   bc,38                         ; compress expanded file name to use max 38 chars
-                    ld   de,buf2
-                    call_oz GN_Fcm                     ; compress filename (at buf3) to fit nicely at one line (at buf2)...
+                    ld   hl,buf3                       ; C = size of explicit filename in (buf3)
+                    call CompressRamFileName
+                    PUSH HL                            ; preserve pointer to (optionally compressed) filename
 
                     LD   A,fa_ext
                     LD   DE,0
@@ -243,11 +243,13 @@ Module SaveFiles
                     LD   H,B
                     LD   L,C
                     ADC  HL,DE
+                    POP  HL
                     JR   Z, file_zero_length           ; Ups, file has zero length - will not be saved...
 
+                    PUSH HL
                     LD   HL,savf_msg
-                    CALL_OZ gn_sop                    
-                    ld   hl,buf2
+                    CALL_OZ gn_sop
+                    POP  HL
                     CALL_OZ gn_sop                     ; display "Saving " + compressed filename, to user...
 
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
@@ -262,8 +264,7 @@ Module SaveFiles
 
                     CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...
                     CALL CountFileSaved
-                    LD   HL,fsok_msg
-                    CALL_OZ gn_sop
+                    CALL_OZ GN_Nln
                     CP   A
                     RET
 .filesave_Err
@@ -288,6 +289,59 @@ Module SaveFiles
                     RET
 ; *************************************************************************************
 
+
+; *************************************************************************************
+;
+; IN:
+;    HL = pointer to explicit filename
+;     C = number of characters in expanded filename at (HL)
+
+; returns
+;    HL = pointer to compressed filename (buffer), or original HL
+;    length of filename fits within 42 characters.
+;
+.CompressRamFileName
+                    ld   a,c
+                    cp   42
+                    ret  c                             ; filename fits within 42 chars, return original HL
+
+                    push bc
+                    push de
+
+                    ld   de,buffer
+                    push de
+                    push hl
+                    ld   bc,42-9                       ; compress expanded file name to use max 42-9 chars
+                    call_oz GN_Fcm                     ; compress filename (at buffer) to fit nicely inside 42 chars...
+                    xor  a
+                    ld   (de),a                        ; null-terminate compressed filename
+
+                    push bc                            ; C = length of compressed filename
+                    ld   bc,9
+                    push de                            ; pointer to end of buffer
+                    ex   de,hl
+                    add  hl,bc                         ; HL = pointer at end of buffer + 9
+                    pop  de                            ; DE = end of buffer
+                    pop  bc
+                    ld   b,0
+                    ex   de,hl
+                    lddr                               ; shift filename 9 bytes up...
+                    pop  hl                            ; pointer to original explicit filename
+                    pop  de                            ; pointer to buffer (now with room for device...)
+                    push de
+
+                    ld   c,7
+                    ldir                               ; copy RAM device to compressed name
+                    ld   a,'.'
+                    ld   (de),a
+                    inc  de
+                    ld   (de),a                        ; compressed RAM filename is eg. ':RAM.1/..<compressed filename'
+                    pop  hl                            ; return HL = pointer to compressed filename
+
+                    pop  de
+                    pop  bc
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -355,6 +409,5 @@ Module SaveFiles
 .ends2_msg          DEFM $0D,$0A,1,"2JCNo files found in RAM card to be saved.",1,"2JN",$0D,$0A,0
 .savf_msg           DEFM "Saving ",0
 
-.fsok_msg           DEFM " Done.",$0D,$0A,0
 .blowerrmsg         DEFM "File not saved properly - will be re-saved.",$0D,$0A,0
 .zerolen_msg        DEFM "File has zero length - ignored.",$0D,$0A,0

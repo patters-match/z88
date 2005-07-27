@@ -36,9 +36,10 @@ Module RestoreFiles
      xref GetDefaultRamDevice
      xref disp_no_filearea_msg, no_files, DispErrMsg
      xref DispMainWindow, sopnln
-     xref fetf_msg, fsok_msg, done_msg, no_msg, yes_msg
+     xref fsok_msg, done_msg, no_msg, yes_msg
      xref disp_exis_msg, failed_msg
      xref YesNo, ResSpace
+     xref CompressRamFileName
 
      ; system definitions
      include "stdio.def"
@@ -133,32 +134,38 @@ Module RestoreFiles
                     JR   C, restore_completed; all file entries scanned...
                     JR   Z, fetch_next       ; File Entry marked as deleted, get next...
 
+                    ADD  A,6                 ; add length of device name
                     PUSH DE                  ; preserve local ptr to filename buffer...
+                    PUSH AF                  ; preserve length of explicit RAM file name
                     CALL FileEprFileSize
                     LD   (free),DE
                     LD   A,C
                     LD   (free+2),A
                     OR   D
-                    OR   E
-                    POP  DE                  ; is file empty (zero length)?
+                    OR   E                   ; is file empty (zero length)?
+                    POP  DE                  
+                    LD   C,D                 ; C = length of explicit filename
+                    POP  DE
                     JR   Z, fetch_next       ; yes, try to fetch next...
 
                     PUSH BC
                     PUSH HL                  ; pointer temporarily...
 
-                    LD   HL,fetf_msg          ; "Fetching to "
+                    LD   HL,restore_msg      ; "Restoring "
                     CALL_OZ gn_sop
-                    LD   HL,buf2
-                    CALL_OZ(Gn_Sop)          ; display RAM filename...
+                    LD   HL, buf2            ; C = size of explicit filename in (buf2)
+                    CALL CompressRamFileName ; get a displayable RAM filename
+                    PUSH HL
+                    CALL_OZ gn_sop           ; display RAM filename (optionally compressed, if too long)...
 
                     LD   HL,status
                     BIT  0,(HL)
+                    POP  HL
                     JR   NZ, restore_file    ; default - overwrite files...
 
-                    LD   HL, buf2
-                    call PromptOverWrFile
+                    call PromptOverWrFile    ; filename at (HL)...
                     jr   c, check_rest_abort
-                    jr   z, overwr_file      ; file exists, user acknowledged Yes...
+                    jr   z, restore_file     ; file exists, user acknowledged Yes...
                     jr   restore_ignored     ; file exists, user acknowledged No...
 .check_rest_abort
                          cp   RC_EOF
@@ -172,11 +179,8 @@ Module RestoreFiles
                     POP  HL
                     POP  BC
                     JR   fetch_next          ; user acknowledged No, get next file
-.overwr_file
-                    LD   HL, fetch_msg
-                    CALL_OZ(Gn_Sop)
-
-.restore_file       CALL CheckFreeRam        ; check if there's room for file in RAM...
+.restore_file
+                    CALL CheckFreeRam        ; check if there's room for file in RAM...
                     JR   C, no_room
 
                     LD   B,0                 ; (local pointer)
@@ -192,12 +196,7 @@ Module RestoreFiles
                     POP  AF
                     JR   C, filecreerr       ; not possible to transfer, exit restore...
 
-                    PUSH BC
-                    PUSH HL
-                    LD   HL, fsok_msg
-                    CALL_OZ(GN_Sop)          ; "Done"
-                    POP  HL
-                    POP  BC
+                    CALL_OZ GN_Nln 
 .fetch_next                                  ; BHL = current File Entry
                     CALL FileEprPrevFile     ; get pointer to previous File Entry...
                     JR   NC, restore_loop
@@ -344,10 +343,10 @@ Module RestoreFiles
 ; constants
 
 .rest_banner        DEFM "RESTORE ALL FILES FROM FILE AREA",0
-.fetch_msg          DEFM $0D,$0A," Fetching... ",0
 .promptovwrite_msg  DEFM " Overwrite RAM files? ",13, 10, 0
 .defdst_msg         DEFM 13, 10, " Enter Device/path.",0
 .dest_msg           DEFM 1,"2+C Device: ",0
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
 .no_restore_files   DEFM "No files available in File Area to restore.", 0
+.restore_msg        DEFM 1,"2+CRestoring ",0
