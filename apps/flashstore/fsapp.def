@@ -18,15 +18,15 @@
 
 DEFC SafeWorkSpaceSize = 96             ; 96 bytes for various variables...
 DEFC RAM_pages = 6                      ; allocate 6 * 256 (1.5K) bytes contigous memory from $2000...
+DEFC BufferSize = 1024                  ; buffer for file I/O at $2000
 
 DEFVARS $2000
 {
-     buffer         ds.b 1024
+     buffer         ds.b BufferSize
      buf1           ds.b $80
      buf2           ds.b $80            ; filename buffer...
      buf3           ds.b $ff            ; for expanded filenames
 }
-DEFC BufferSize = buf1-buffer           ; buffer for file I/O at $2000
 
 DEFVARS $1FFE - SafeWorkSpaceSize
 {
@@ -39,8 +39,6 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      barMode        ds.b 1              ; menu bar or file bar movement?
      nlen           ds.b 1              ; length of filename
      flen           ds.l 1              ; length of file (32bit)
-     flenhdr        ds.l 1              ; length of File Entry Header
-     delv           ds.l 1              ; pointer to <Deleted File> mark of File Entry
      free           ds.l 1              ; free bytes on File Area
      deleted        ds.l 1              ; total bytes of deleted file space in File Area
      active         ds.l 1              ; total bytes of active file space in File Area
