@@ -393,5 +393,3 @@ Module FileAreaFormat
                     DEFW filefmt_ask2_msg
 .filefmt_ask1_msg   DEFM 1,"2+C",13,"Format (or create new) file area in slot ",0
 .filefmt_ask2_msg   DEFM "? ",0
-
-.battlowmsg         DEFM "Batteries are low.",0
