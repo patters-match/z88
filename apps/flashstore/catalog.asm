@@ -23,12 +23,12 @@ Module CatalogFiles
      xdef DispFilesWindow, DispFiles, FilesAvailable
      xdef StoreCursorFilePtr, GetCursorFilePtr
      xdef CompressedFileEntryName
-     xdef MoveToFirstFile
-     xdef MoveToLastFile
+     xdef MoveFileBarDown, MoveFileBarUp
+     xdef MoveToFirstFile, MoveToLastFile
+     xdef MoveFileBarPageDown, MoveFileBarPageUp
+     
      xdef InitFirstFileBar
      xdef FileSelected
-     xdef MoveFileBarDown
-     xdef MoveFileBarUp
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
@@ -132,34 +132,16 @@ Module CatalogFiles
                     ret  c                      ; File Area not available...
 
                     push bc
-                    push hl                     ; CursorFilePtr = FileEprLastFile(slot)
-                    ld   e,0
-.fill_loop
+                    push hl
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprLastFile(slot)
+                    ld   c,6                    
+                    call pageup_loop            ; move 6 file entries upwards, if possible. C return no of entries left of 6
                     ld   a,6
-                    cp   e
-                    jr   z, exit_fill_loop      ; try to fill window (7 lines) from bottom...
-                    inc  e
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
-
-                    call FileEprPrevFile
-                    jr   c, exit_fill_loop      ; reached top of files!
-                    jr   nz, fill_loop          ; previous file was available, go back one more
-                    push de
-                    call FileEprFileSize
-                    ld   a,c
-                    or   d
-                    or   e
-                    pop  de
-                    jr   nz, fill_loop          ; deleted file wasn't Intel system file...
-.exit_fill_loop
-                    dec  e
-                    ld   a,e
-                    ld   (FileBarPosn),a        ; File Bar position at last file
-                    CALL DispFiles
-
+                    sub  c
+                    ld   (FileBarPosn),a        ; File Bar at last file entry in window (
                     pop  hl
-                    pop  bc
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
+                    pop  bc                    
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprLastFile(slot)
                     ret
 ; *************************************************************************************
 
@@ -204,8 +186,8 @@ Module CatalogFiles
                     call DisplayFile
                     ret
 ; *************************************************************************************
-
-
+                                                           
+                    
 ; *************************************************************************************
 ; Move the File Bar one file down the list - scroll the window contents one line
 ; upwards and display next file line, when file bar goes beyond the window bottom
@@ -225,6 +207,7 @@ Module CatalogFiles
 .scroll_filearea_up                             ; cursor at bottom line, scroll window contents
                     push bc                     ; one line upwards and display the next file
                     push hl                     ; at bottom line of window
+
                     ld   hl, scroll_down
                     call_oz Gn_sop
 
@@ -237,6 +220,55 @@ Module CatalogFiles
                     pop  bc
                     call DisplayFile
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Move the File Bar one page up (7 items) in the list of file entries -
+; Clear window and position the Bar cursor at the top line and list file entries.
+;
+.MoveFileBarPageUp
+                    xor  a
+                    ld   (FileBarPosn),a        ; File Bar at top of window
+                    ld   c,7                    ; move 7 file entries upwards, if possible
+.pageup_loop
+                    call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
+                    call FileEprPrevFile
+                    jr   c, end_MovePgUp        ; reached top of list, update file area window
+                    jr   nz, upd_prevptr        ; previous file was active...
+                    push bc
+                    push de
+                    call FileEprFileSize        ; previous file is marked as deleted, check   
+                    ld   a,c                    ; if it is the Intel 'null' file (0 length)
+                    or   d
+                    or   e
+                    pop  de
+                    pop  bc
+                    jr   z, end_MovePgUp        ; cursor stays at file entry before null file...
+.upd_prevptr
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprPrevFile(CursorFilePtr)
+                    dec  c
+                    jr   nz, pageup_loop                    
+.end_MovePgUp       jp   DispFiles
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Move the File Bar one page down (7 items) in the list of file entries -
+; Clear window and position the Bar cursor at the top line and list file entries.
+;
+.MoveFileBarPageDown
+                    xor  a
+                    ld   (FileBarPosn),a        ; File Bar at top of window
+                    ld   c,7                    ; move 7 file entries downwards, if possible
+.pagedwn_loop
+                    call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
+                    call FileEprNextFile
+                    jr   c, end_MovePgDwn       ; reached bottom of list, update file area window
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprNextFile(CursorFilePtr)
+                    dec  c
+                    jr   nz, pagedwn_loop                    
+.end_MovePgDwn      jp   DispFiles
 ; *************************************************************************************
 
 

@@ -41,6 +41,8 @@
      xref InitFirstFileBar         ; catalog.asm
      xref MoveFileBarDown          ; catalog.asm
      xref MoveFileBarUp            ; catalog.asm
+     xref MoveFileBarPageUp        ; catalog.asm
+     xref MoveFileBarPageDown      ; catalog.asm
      xref MoveToFirstFile          ; catalog.asm
      xref MoveToLastFile           ; catalog.asm
      xref GetDefaultPanelRamDev    ; defaultram.asm
@@ -267,11 +269,15 @@
                     CP   IN_DWN                        ; Cursor Down ?
                     JR   Z, MVbar_down
                     CP   IN_UP                         ; Cursor Up ?
-                    JR   Z, MVbar_up
+                    JP   Z, MVbar_up
                     CP   IN_DUP                        ; <> Cursor Up ?
                     JR   Z, MVFirstFile
                     CP   IN_DDWN                       ; <> Cursor Down?
                     JR   Z, MVLastFile
+                    CP   IN_SUP                        ; SHIFT Up?
+                    JR   Z, MVPrev7Files
+                    CP   IN_SDWN                       ; SHIFT Down?
+                    JR   Z, MVNext7Files
                     CP   IN_LFT                        ; Cursor Left ?
                     JR   Z, MVbar_left
                     CP   IN_RGT                        ; Cursor Right ?
@@ -286,7 +292,7 @@
                     LD   (barMode),A                   ; indicate that cursor has moved to menu window
                     JR   inp_main
 .selectFiles
-                    call GetCursorFilePtr              ; BHL <-- (CursorFilePtr)
+                    call GetCursorFilePtr              ; (A)BHL <-- (CursorFilePtr)
                     or   h
                     or   l
                     jr   z, inp_main                   ; no files to browse...
@@ -296,13 +302,28 @@
 .MVFirstFile
                     LD   A,(barMode)
                     OR   A
-                    RET  Z                             ; <>Up no effect in main menu
+                    JP   Z,inp_main                    ; <>Up no effect in main menu
                     CALL MoveToFirstFile
                     JP   inp_main
 .MVLastFile
+                    LD   A,(barMode)
+                    OR   A
+                    JP   Z,inp_main                    ; <>DWN no effect in main menu
                     CALL MoveToLastFile
                     JP   inp_main
-
+.MVPrev7Files
+                    LD   A,(barMode)
+                    OR   A
+                    JP   Z,inp_main                    ; SHIFT UP no effect in main menu
+                    CALL MoveFileBarPageUp
+                    JP   inp_main
+.MVNext7Files
+                    LD   A,(barMode)
+                    OR   A
+                    JP   Z,inp_main                    ; SHIFT DWN no effect in main menu
+                    CALL MoveFileBarPageDown
+                    JP   inp_main
+                    
 .MVbar_down
                     LD   A,(barMode)
                     OR   A
