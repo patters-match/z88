@@ -42,6 +42,7 @@ Module FetchFile
      xref fnam_msg, failed_msg
      xref CompressRamFileName
      xref GetCursorFilePtr
+     xref VduCursor
 
      ; system definitions
      include "stdio.def"
@@ -85,22 +86,25 @@ Module FetchFile
                     DEC  HL
                     EX   DE,HL
 
-                    LD   A,@00100011
                     LD   BC,$FF01                 ; allow 255 char input, place cursor after '/'
                     LD   L,$28                    ; 40 char input visible
+.re_enter_input
+                    LD   A,@00100011              ; buffer has filename
+                    PUSH BC
+                    LD   BC,$0b02
+                    CALL VduCursor
+                    POP  BC
                     CALL_OZ gn_sip
+                    JR   C, sip_error
                     ld   a,b
                     ld   (linecnt),a
-                    jr   c,sip_error
                     CALL_OZ gn_nln
-
                     call file_fetch
-                    JR   C, fetch_error
                     RET
 .sip_error
                     CP   rc_susp
-                    JR   Z, FetchFileCommand
-                    RET
+                    JR   Z, re_enter_input
+                    RET                           ; user aborted...
 .fetch_error
                     PUSH AF
                     LD   B,0
@@ -195,12 +199,17 @@ Module FetchFile
                     LD   A,C
                     ADD  A,6
                     LD   C,A                 ; place cursor at end of filename, C
-                    LD   A,@00100011         ; buffer has filename
                     LD   L,$28
+.re_enter_getname
+                    LD   A,@00100011         ; buffer has filename
+                    PUSH BC
+                    LD   BC,$0a01
+                    CALL VduCursor
+                    POP  BC
                     CALL_OZ gn_sip
                     jr   nc,open_file
                     cp   rc_susp
-                    jr   z,get_name
+                    jr   z,re_enter_getname
                     cp   a
                     ret                      ; user aborted...
 .open_file

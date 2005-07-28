@@ -37,6 +37,7 @@ Module DeleteFile
      xref DispIntelSlotErr
      xref exct_msg, fnam_msg
      xref YesNo, no_msg, yes_msg
+     xref VduCursor
 
      ; system definitions
      include "stdio.def"
@@ -95,9 +96,14 @@ Module DeleteFile
                     DEC  HL
                     EX   DE,HL
 
-                    LD   A,@00100011
                     LD   BC,$FF01
                     LD   L,$28
+.re_enter_flnm
+                    LD   A,@00100011              ; buffer has filename
+                    PUSH BC
+                    LD   BC,$0b02
+                    CALL VduCursor
+                    POP  BC
                     CALL_OZ gn_sip
                     jp   c,sip_error
                     CALL_OZ gn_nln
@@ -106,7 +112,7 @@ Module DeleteFile
                     RET
 .sip_error
                     CP   RC_SUSP
-                    JR   Z, DeleteFileCommand
+                    JR   Z, re_enter_flnm
                     RET
 ; *************************************************************************************
 

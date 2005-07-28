@@ -40,6 +40,7 @@ Module RestoreFiles
      xref disp_exis_msg, failed_msg
      xref YesNo, ResSpace
      xref CompressRamFileName
+     xref VduCursor
 
      ; system definitions
      include "stdio.def"
@@ -80,17 +81,19 @@ Module RestoreFiles
                     PUSH DE
                     CALL GetDefaultRamDevice
                     POP  DE
-                    LD   A,@00100011
                     LD   BC,$4007
                     LD   L,$20
+.re_enter_flnm
+                    LD   A,@00100011              ; buffer has filename
+                    PUSH BC
+                    LD   BC,$0902
+                    CALL VduCursor
+                    POP  BC
                     CALL_OZ gn_sip
-
-; add some code here for ESC detection...
-
                     jr   nc, process_path
                     CP   rc_susp
-                    JR   Z, RestoreFilesCommand      ; user aborted command...
-                    RET
+                    JR   Z, re_enter_flnm
+                    RET                           ; user aborted command...
 
 .no_active_files    ld   hl, no_restore_files
                     call DispErrMsg
