@@ -37,7 +37,7 @@ Module RestoreFiles
      xref disp_no_filearea_msg, no_files, DispErrMsg
      xref DispMainWindow, sopnln
      xref fsok_msg, done_msg, no_msg, yes_msg
-     xref disp_exis_msg, failed_msg
+     xref disp_exis_msg, failed_msg, fetf_msg
      xref YesNo, ResSpace
      xref CompressRamFileName
      xref VduCursor
@@ -154,7 +154,7 @@ Module RestoreFiles
                     PUSH BC
                     PUSH HL                  ; pointer temporarily...
 
-                    LD   HL,restore_msg      ; "Restoring "
+                    LD   HL,fetf_msg         ; "Saved to "
                     CALL_OZ gn_sop
                     LD   HL, buf2            ; C = size of explicit filename in (buf2)
                     CALL CompressRamFileName ; get a displayable RAM filename
@@ -352,4 +352,3 @@ Module RestoreFiles
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
 .no_restore_files   DEFM "No files available in File Area to restore.", 0
-.restore_msg        DEFM 1,"2+CRestored to ",0

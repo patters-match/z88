@@ -22,7 +22,7 @@ Module FetchFile
 ; RAM device.
 
      xdef FetchFileCommand, QuickFetchFile
-     xdef exct_msg, done_msg
+     xdef exct_msg, done_msg, fetf_msg
      xdef disp_exis_msg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
