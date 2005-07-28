@@ -349,4 +349,4 @@ Module RestoreFiles
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
 .no_restore_files   DEFM "No files available in File Area to restore.", 0
-.restore_msg        DEFM 1,"2+CRestoring ",0
+.restore_msg        DEFM 1,"2+CRestored to ",0

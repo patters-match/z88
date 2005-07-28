@@ -282,8 +282,8 @@ Module FetchFile
 
 .exct_msg           DEFM 13, 10, " Enter exact filename (no wildcard).",0
 
-.fetf_msg           DEFM 1,"2+CFetching ",0
+.fetf_msg           DEFM 1,"2+CSaved to ",0
 .done_msg           DEFM "Completed.",$0D,$0A,0
-.ffet_msg           DEFM 13,1,"B Fetch as: ", 1,"B",0
+.ffet_msg           DEFM 13,1,"B Save to: ", 1,"B",0
 .exis_msg           DEFM 13," RAM file already exists. Overwrite?", 13, 10, 0
 .file_not_found_msg DEFM "File not found in File Area.", 0
