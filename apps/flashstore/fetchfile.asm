@@ -24,6 +24,7 @@ Module FetchFile
      xdef FetchFileCommand, QuickFetchFile
      xdef exct_msg, done_msg, fetf_msg
      xdef disp_exis_msg
+     xdef InputFileName
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -88,23 +89,14 @@ Module FetchFile
 
                     LD   BC,$FF01                 ; allow 255 char input, place cursor after '/'
                     LD   L,$28                    ; 40 char input visible
-.re_enter_input
-                    LD   A,@00100011              ; buffer has filename
-                    PUSH BC
-                    LD   BC,$0b02
-                    CALL VduCursor
-                    POP  BC
-                    CALL_OZ gn_sip
-                    JR   C, sip_error
+                    CALL InputFileName
+                    RET  C
+                    
                     ld   a,b
                     ld   (linecnt),a
                     CALL_OZ gn_nln
                     call file_fetch
                     RET
-.sip_error
-                    CP   rc_susp
-                    JR   Z, re_enter_input
-                    RET                           ; user aborted...
 .fetch_error
                     PUSH AF
                     LD   B,0
@@ -188,28 +180,14 @@ Module FetchFile
                     ld   a,(linecnt)
                     ld   b,0
                     ld   c,a
-                    push bc
                     ldir                     ; append filename after default RAM device.
                     xor  a
                     ld   (de),a              ; null-terminate
 
                     ld   de,buffer
-                    POP  BC                  ;
-                    LD   B,$FF
-                    LD   A,C
-                    ADD  A,6
-                    LD   C,A                 ; place cursor at end of filename, C
-                    LD   L,$28
-.re_enter_getname
-                    LD   A,@00100011         ; buffer has filename
-                    PUSH BC
-                    LD   BC,$0a01
-                    CALL VduCursor
-                    POP  BC
-                    CALL_OZ gn_sip
+                    ld   C,0                    
+                    CALL InputFilename                    
                     jr   nc,open_file
-                    cp   rc_susp
-                    jr   z,re_enter_getname
                     cp   a
                     ret                      ; user aborted...
 .open_file
@@ -276,6 +254,49 @@ Module FetchFile
 
 .not_found_err      LD   HL, file_not_found_msg
                     CALL DispErrMsg
+                    RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+; IN:
+;    DE = buffer for string (pre-loaded)
+;    C = Cursor position
+;
+; OUT:
+;    Fc = 0, Input entered and acknowledged with ENTER
+;    Fc = 1, Input discarded 
+.InputFileName
+                    PUSH IX
+                    
+                    PUSH BC                       ; preserve cursor position argument
+                    PUSH DE                       ; preserve buffer pointer
+                    LD   A,0                      ; get cursor position
+                    LD   BC,NQ_WCUR
+                    CALL_OZ OS_NQ                 ; get current cursor position into IX
+                    POP  DE
+                    PUSH BC
+                    POP  IX                       ; cursor (X,Y)
+                    POP  BC                       ; original C argument restored
+                    
+                    LD   B,$FF                    ; always 255 char (max size for names in file area)
+                    LD   L,$28                    ; always 40 char visible width of input
+ .inp_loop
+                    LD   A,@00100011              ; buffer already has filename
+                    PUSH BC
+                    PUSH IX
+                    POP  BC
+                    CALL VduCursor                ; set cursor position
+                    POP  BC
+                    CALL_OZ gn_sip                ; then begin input at cursor position
+                    JP   C,sip_error                    
+                    POP  IX                       ; return input
+                    RET
+.sip_error
+                    CP   RC_SUSP
+                    JR   Z, inp_loop
+                    SCF                           ; signal that input was discarded by user.
+                    POP  IX
                     RET
 ; *************************************************************************************
 
