@@ -26,7 +26,6 @@ Module CatalogFiles
      xdef MoveFileBarDown, MoveFileBarUp
      xdef MoveToFirstFile, MoveToLastFile
      xdef MoveFileBarPageDown, MoveFileBarPageUp
-
      xdef InitFirstFileBar
      xdef FileSelected
 
@@ -40,14 +39,17 @@ Module CatalogFiles
      lib FileEprCntFiles           ; Return total of active and deleted files
      lib FileEprFileStatus         ; Return Active/Deleted status of file entry
 
-     xref DispMainWindow, DisplBar
-     xref IntAscii
-     xref disp_no_filearea_msg
-     xref cls, rightjustify, leftjustify
-     xref yesno, no_msg, done_msg
-     xref pwait, rdch
-     xref VduCursor
+     xref DispMainWindow, cls      ; fsapp.asm
+     xref DisplBar                 ; fsapp.asm
+     xref rightjustify             ; fsapp.asm
+     xref leftjustify              ; fsapp.asm
+     xref yesno, no_msg            ; fsapp.asm
+     xref pwait, rdch              ; fsapp.asm
+     xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
+     xref IntAscii                 ; filestat.asm
+     xref done_msg                 ; fetchfile.asm
+     xref VduCursor                ; selectcard.asm
 
      ; system definitions
      include "stdio.def"
@@ -74,17 +76,10 @@ Module CatalogFiles
 .InitFirstFileBar
                     xor  a
                     ld   (FileBarPosn),a        ; File Bar at top of window
+                    call nofilesavail           ; initialize to no files (before polling).
 
-                    ld   a,(curslot)
-                    ld   c,a
-                    push bc                     ; File Area in slot C?
-                    call FileEprRequest
-                    pop  bc
+                    call FilesAvailable         ; any files available in File Area?
                     jr   c, nofilesavail        ; no file area...
-                    jr   nz, nofilesavail
-
-                    call FileEprCntFiles        ; any files available in File Area?
-                    adc  hl,de                  ; (HL = 0 & DE = 0)?
                     jr   z, nofilesavail        ; no files available...
 
                     call FileEprFirstFile       ; get BHL of first file in File area in slot C
@@ -451,7 +446,23 @@ Module CatalogFiles
                     ld   c,a
                     call FileEprCntFiles          ; any files available in File Area?
                     jr   c, exit_checkfiles       ; no file area!
-                    adc  hl,de
+                    ld   a,h
+                    or   l
+                    jr   nz, exit_checkfiles      ; active files available...
+                    ld   a,e
+                    or   d
+                    jr   z, exit_checkfiles       ; no deleted files available...
+                    cp   1
+                    jr   nz, exit_checkfiles      ; more than a single deleted file..
+
+                    call FileEprFirstFile         ; exactly a single deleted file in file area!
+                    jr   nz, exit_checkfiles      ; but it' not the first file...
+
+                    call FileEprFileSize          ; check size of first deleted file
+                    ld   a,c
+                    or   d
+                    or   e                        ; CDE = 0?
+                                                  ; return Fz = 1, no files available
 .exit_checkfiles
                     pop  hl
                     pop  de
