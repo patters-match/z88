@@ -72,7 +72,7 @@ Module SaveFiles
                     LD   HL, selctram_msg
                     CALL_OZ(GN_Sop)
 
-                    LD   BC,$0103
+                    LD   BC,$0301
                     CALL SelectRamDevice          ; user selected RAM device at (buf1)
                     RET  C
 
@@ -127,7 +127,7 @@ Module SaveFiles
 .re_enter_flnm
                     LD   A,@00100011         ; buffer has filename
                     PUSH BC
-                    LD   BC,$0b02
+                    LD   BC,$020B
                     CALL VduCursor
                     POP  BC
                     CALL_OZ gn_sip           ; user enter wildcard string with pre-insert default RAM device

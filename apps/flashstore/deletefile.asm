@@ -37,7 +37,8 @@ Module DeleteFile
      xref DispIntelSlotErr
      xref exct_msg, fnam_msg
      xref YesNo, no_msg, yes_msg
-     xref VduCursor
+     xref InputFileName
+
 
      ; system definitions
      include "stdio.def"
@@ -94,25 +95,14 @@ Module DeleteFile
                     INC  HL
                     LD   (HL),0
                     DEC  HL
+
                     EX   DE,HL
+                    LD   C,$01
+                    CALL InputFileName            ; users enters filename to be searched in File Area
+                    RET  C
 
-                    LD   BC,$FF01
-                    LD   L,$28
-.re_enter_flnm
-                    LD   A,@00100011              ; buffer has filename
-                    PUSH BC
-                    LD   BC,$0b02
-                    CALL VduCursor
-                    POP  BC
-                    CALL_OZ gn_sip
-                    jp   c,sip_error
                     CALL_OZ gn_nln
-
                     CALL FindToMarkDeleted        ; try to find entered filename, and confirm to mark deleted
-                    RET
-.sip_error
-                    CP   RC_SUSP
-                    JR   Z, re_enter_flnm
                     RET
 ; *************************************************************************************
 

@@ -86,7 +86,7 @@ Module RestoreFiles
 .re_enter_flnm
                     LD   A,@00100011              ; buffer has filename
                     PUSH BC
-                    LD   BC,$0902
+                    LD   BC,$0209
                     CALL VduCursor
                     POP  BC
                     CALL_OZ gn_sip

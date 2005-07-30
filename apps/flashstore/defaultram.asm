@@ -43,7 +43,7 @@ Module DefaultRamDevice
                     LD   HL, selctram_msg
                     CALL_OZ(GN_Sop)
 
-                    LD   BC,$0103
+                    LD   BC,$0301
                     CALL SelectRamDevice
                     LD   (ramdevno),A             ; remember selected RAM Device slot no ('0' - '3').
                     RET
@@ -63,7 +63,7 @@ Module DefaultRamDevice
                     LD   DE,buf1
                     CALL GetDefaultRamDevice      ; the default RAM device at (buf1)
 .inp_dev_loop
-                    CALL VduCursor                ; put VDU cursor at (X,Y) = (B,C)
+                    CALL VduCursor                ; put VDU cursor at (X,Y) = (C,B)
                     LD   HL, buf1
                     CALL_OZ(GN_Sop)               ; display the current RAM device.
                     LD   A,8

@@ -163,7 +163,7 @@ Module FileAreaStatistics
                     ld   hl,tinyfont
                     CALL_OZ gn_sop
 
-                    ld   bc,$0103                 ; VDU (X,Y) = (1,3)
+                    ld   bc,$0301                 ; VDU (X,Y) = (3,1)
                     CALL VduCursor
                     ld   hl,free
                     call IntAscii

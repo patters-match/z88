@@ -323,7 +323,7 @@
                     JP   Z,inp_main                    ; SHIFT DWN no effect in main menu
                     CALL MoveFileBarPageDown
                     JP   inp_main
-                    
+
 .MVbar_down
                     LD   A,(barMode)
                     OR   A
@@ -398,9 +398,9 @@
 .DisplMenuBar
                     LD   HL,SelectMenuWindow
                     CALL_OZ(Gn_Sop)
-                    LD   B,1
                     LD   A,(MenuBarPosn)               ; get Y position of menu bar
-                    LD   C,A
+                    LD   B,A
+                    LD   C,1
                     Call VduCursor
                     LD   HL,MenuBar                    ; now display menu bar at cursor
                     CALL_OZ(Gn_Sop)
@@ -409,18 +409,18 @@
 .DisplFileBar
                     LD   HL,SelectFileWindow
                     CALL_OZ(Gn_Sop)
-                    LD   B,0
                     LD   A,(FileBarPosn)               ; get Y position of File Bar
-                    LD   C,A
+                    LD   B,A
+                    LD   C,0
                     Call VduCursor
                     call GetCursorFilePtr              ; BHL <-- (CursorFilePtr)
                     call FileEprFileStatus
                     jr   nz, dfb                       ; file is active (no grey file bar)
                     ld   hl, grey_delfile
                     CALL_OZ(Gn_Sop)
-                    LD   B,0
                     LD   A,(FileBarPosn)               ; get Y position of File Bar
-                    LD   C,A
+                    LD   B,A
+                    LD   C,0
                     Call VduCursor
 .dfb
                     LD   HL,FileBar                    ; now display file bar at cursor

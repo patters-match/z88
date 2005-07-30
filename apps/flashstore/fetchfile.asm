@@ -91,7 +91,7 @@ Module FetchFile
                     LD   L,$28                    ; 40 char input visible
                     CALL InputFileName
                     RET  C
-                    
+
                     ld   a,b
                     ld   (linecnt),a
                     CALL_OZ gn_nln
@@ -185,8 +185,8 @@ Module FetchFile
                     ld   (de),a              ; null-terminate
 
                     ld   de,buffer
-                    ld   C,0                    
-                    CALL InputFilename                    
+                    ld   C,0
+                    CALL InputFilename
                     jr   nc,open_file
                     cp   a
                     ret                      ; user aborted...
@@ -265,31 +265,31 @@ Module FetchFile
 ;
 ; OUT:
 ;    Fc = 0, Input entered and acknowledged with ENTER
-;    Fc = 1, Input discarded 
+;       Parameters according to GN_Sip
+;    Fc = 1, Input discarded
 .InputFileName
                     PUSH IX
-                    
+
                     PUSH BC                       ; preserve cursor position argument
                     PUSH DE                       ; preserve buffer pointer
                     LD   A,0                      ; get cursor position
                     LD   BC,NQ_WCUR
-                    CALL_OZ OS_NQ                 ; get current cursor position into IX
-                    POP  DE
+                    CALL_OZ OS_NQ                 ; get current cursor position
+                    POP  DE                       ; B = Y window coordinate, C = X window Coordinate
                     PUSH BC
                     POP  IX                       ; cursor (X,Y)
                     POP  BC                       ; original C argument restored
-                    
+ .inp_loop
                     LD   B,$FF                    ; always 255 char (max size for names in file area)
                     LD   L,$28                    ; always 40 char visible width of input
- .inp_loop
                     LD   A,@00100011              ; buffer already has filename
                     PUSH BC
                     PUSH IX
-                    POP  BC
-                    CALL VduCursor                ; set cursor position
+                    POP  BC                       ; B = Y window coordinate, C = X window coordinate
+                    CALL VduCursor                ; place start of input buffer at window (X,Y) coordinate
                     POP  BC
                     CALL_OZ gn_sip                ; then begin input at cursor position
-                    JP   C,sip_error                    
+                    JP   C,sip_error
                     POP  IX                       ; return input
                     RET
 .sip_error

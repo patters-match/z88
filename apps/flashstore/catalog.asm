@@ -26,7 +26,7 @@ Module CatalogFiles
      xdef MoveFileBarDown, MoveFileBarUp
      xdef MoveToFirstFile, MoveToLastFile
      xdef MoveFileBarPageDown, MoveFileBarPageUp
-     
+
      xdef InitFirstFileBar
      xdef FileSelected
 
@@ -134,13 +134,13 @@ Module CatalogFiles
                     push bc
                     push hl
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprLastFile(slot)
-                    ld   c,6                    
+                    ld   c,6
                     call pageup_loop            ; move 6 file entries upwards, if possible. C return no of entries left of 6
                     ld   a,6
                     sub  c
                     ld   (FileBarPosn),a        ; File Bar at last file entry in window (
                     pop  hl
-                    pop  bc                    
+                    pop  bc
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprLastFile(slot)
                     ret
 ; *************************************************************************************
@@ -176,9 +176,9 @@ Module CatalogFiles
                     ld   hl, scroll_up
                     call_oz Gn_sop
 
-                    LD   B,0
                     LD   A,(FileBarPosn)        ; get Y position of File Bar
-                    LD   C,A
+                    LD   B,A
+                    LD   C,0                    ; start of line
                     Call VduCursor
                     pop  hl
                     pop  bc
@@ -186,8 +186,8 @@ Module CatalogFiles
                     call DisplayFile
                     ret
 ; *************************************************************************************
-                                                           
-                    
+
+
 ; *************************************************************************************
 ; Move the File Bar one file down the list - scroll the window contents one line
 ; upwards and display next file line, when file bar goes beyond the window bottom
@@ -211,9 +211,9 @@ Module CatalogFiles
                     ld   hl, scroll_down
                     call_oz Gn_sop
 
-                    LD   B,0
                     LD   A,(FileBarPosn)        ; get Y position of File Bar
-                    LD   C,A
+                    LD   B,A
+                    LD   C,0                    ; start of line...
                     Call VduCursor
 
                     pop  hl
@@ -238,7 +238,7 @@ Module CatalogFiles
                     jr   nz, upd_prevptr        ; previous file was active...
                     push bc
                     push de
-                    call FileEprFileSize        ; previous file is marked as deleted, check   
+                    call FileEprFileSize        ; previous file is marked as deleted, check
                     ld   a,c                    ; if it is the Intel 'null' file (0 length)
                     or   d
                     or   e
@@ -248,7 +248,7 @@ Module CatalogFiles
 .upd_prevptr
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprPrevFile(CursorFilePtr)
                     dec  c
-                    jr   nz, pageup_loop                    
+                    jr   nz, pageup_loop
 .end_MovePgUp       jp   DispFiles
 ; *************************************************************************************
 
@@ -267,7 +267,7 @@ Module CatalogFiles
                     jr   c, end_MovePgDwn       ; reached bottom of list, update file area window
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprNextFile(CursorFilePtr)
                     dec  c
-                    jr   nz, pagedwn_loop                    
+                    jr   nz, pagedwn_loop
 .end_MovePgDwn      jp   DispFiles
 ; *************************************************************************************
 

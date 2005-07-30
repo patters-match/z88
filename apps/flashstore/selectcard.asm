@@ -104,9 +104,9 @@ Module SelectCard
                          LD   HL,ramdev
                          XOR  A
                          CALL DisplayCard
-                         dec  b
-                         inc  c
-                         inc  c
+                         dec  c
+                         inc  b
+                         inc  b
                          CALL VduCursor
                          EX   DE,HL          ; HL = free 256 bytes pages on RAM Card
                          LD   DE,64          ; HL / 64 = free 16K banks
@@ -126,13 +126,13 @@ Module SelectCard
                          ld   (free),bc           ; C = size of physical card
                          ld   a,4                 ; display PadLock (FlashStore does not support write to Eprom)
                          call DisplayCard         ; display size of card as defined by ROM header
-                         dec  b
-                         inc  c
-                         inc  c
+                         dec  c
+                         inc  b
+                         inc  b
                          CALL VduCursor
                          ld   hl, appstxt
                          call_oz(Gn_Sop)
-                         inc  c
+                         inc  b
                          CALL VduCursor
                          push bc
                          ld   a,(curslot)
@@ -160,9 +160,9 @@ Module SelectCard
                          ld   (free),a
                          ld   a,4                 ; display PadLock (FlashStore does not support write to Eprom)
                          call DisplayCard         ; display size of card as defined by ROM header
-                         dec  b
-                         inc  c
-                         inc  c
+                         dec  c
+                         inc  b
+                         inc  b
                          CALL VduCursor
                          ld   hl, freetxt        ; display "Files xxxxK"
                          call_oz(Gn_Sop)
@@ -173,12 +173,12 @@ Module SelectCard
                     CALL SlotCardBoxCoord         ; the slot is empty (or contains an empty Eprom Card)
                     LD   A, @00000011             ; draw a grey outline box
                     CALL DrawCardBox
-                    LD   A,B
-                    ADD  A,2
-                    LD   B,A
                     LD   A,C
-                    ADD  A,3
+                    ADD  A,2
                     LD   C,A
+                    LD   A,B
+                    ADD  A,3
+                    LD   B,A
                     CALL VduCursor
                     ld   hl, emptytxt             ; and write "empty slot" in the middle of the grey box
                     call_oz(Gn_Sop)
@@ -192,9 +192,9 @@ Module SelectCard
 .flash_writeable
                     ld   hl, flashdev
                     call DisplayCard
-                    dec  b
-                    inc  c
-                    inc  c                        ; prepare for "applications" text
+                    dec  c
+                    inc  b
+                    inc  b                        ; prepare for "applications" text
                     push bc
                     ld   a,(curslot)
                     ld   c,a
@@ -205,7 +205,7 @@ Module SelectCard
                          CALL VduCursor
                          ld   hl, appstxt
                          call_oz(Gn_Sop)
-                         inc c                    ; prepare for "files " text
+                         inc  b                    ; prepare for "files " text
 .flash_noapps
                     CALL VduCursor
                     push bc
@@ -263,13 +263,13 @@ Module SelectCard
 ;    HL = label ("FLASH", "EPROM", "RAM")
 ;    (free) = size of card in 16K banks
 ; OUT
-;    BC = (X,Y) of start of displayed label
+;    BC = (Y,X) of start of displayed label
 .DisplayCard
                     CALL SlotCardBoxCoord
                     CALL DrawCardBox
-                    INC  C              ; Y++
-                    INC  B
-                    INC  B
+                    INC  B              ; Y++
+                    INC  C
+                    INC  C
                     CALL VduCursor
                     CALL_OZ Gn_Sop      ; display device name (in HL)...
                     LD   A,(free)
@@ -373,12 +373,12 @@ Module SelectCard
                LD   HL,SelectMenuWindow
                CALL_OZ(Gn_Sop)
                CALL SlotCardBoxCoord
-               LD   A,B
-               ADD  A,9
-               LD   B,A                           ; display menu bar at (6,Y) of card box
                LD   A,C
+               ADD  A,9
+               LD   C,A                           ; display menu bar at (Y,6) of card box
+               LD   A,B
                ADD  A,6                           ; display menu bar at bottom line of card box
-               LD   C,A
+               LD   B,A
                CALL VduCursor
                LD   HL,MenuBarOn                  ; now display menu bar at cursor
                CALL_OZ(Gn_Sop)
@@ -396,12 +396,12 @@ Module SelectCard
                LD   HL,SelectMenuWindow
                CALL_OZ(Gn_Sop)
                CALL SlotCardBoxCoord
-               LD   A,B
-               ADD  A,9
-               LD   B,A                           ; display menu bar at (6,Y) of card box
                LD   A,C
+               ADD  A,9
+               LD   C,A                           ; display menu bar at (Y,6) of card box
+               LD   A,B
                ADD  A,6                           ; display menu bar at bottom line of card box
-               LD   C,A
+               LD   B,A
                CALL VduCursor
                LD   HL,MenuBarOff                 ; now display menu bar at cursor
                CALL_OZ(Gn_Sop)
@@ -483,7 +483,7 @@ Module SelectCard
 ;     A = BIT 0: draw card box in grey colour
 ;     A = BIT 1: draw only outline (not the card label line)
 ;     A = BIT 2: draw Padlock on left bottom edge.
-;    BC = (X,Y)
+;    BC = (Y,X)
 ;
 .DrawCardBox
                     PUSH BC
@@ -498,13 +498,13 @@ Module SelectCard
                     LD   HL, nocursor
                     CALL_OZ GN_Sop
 
-                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    CALL VduCursor      ; set VDU Cursor at (Y,X)
                     LD   HL,cardtop     ; draw top edge of card box
                     CALL_OZ GN_Sop
-                    INC  C              ; Y++
+                    INC  B              ; Y++
                     CALL DrawCardSides
-                    INC  C              ; Y++
-                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    INC  B              ; Y++
+                    CALL VduCursor      ; set VDU Cursor at (Y,X)
                     POP  AF
                     PUSH AF
                     BIT  1,A
@@ -515,14 +515,14 @@ Module SelectCard
                     LD   HL,cardmiddle  ; draw middle line of card box
                     CALL_OZ GN_Sop
 .next_cardside
-                    INC  C              ; Y++
+                    INC  B              ; Y++
                     CALL DrawCardSides
-                    INC  C              ; Y++
+                    INC  B              ; Y++
                     CALL DrawCardSides
-                    INC  C              ; Y++
+                    INC  B              ; Y++
                     CALL DrawCardSides
-                    INC  C              ; Y++
-                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    INC  B              ; Y++
+                    CALL VduCursor      ; set VDU Cursor at (Y,X)
                     LD   HL,cardbottom  ; draw bottom edge of card box
                     CALL_OZ GN_Sop
 
@@ -531,9 +531,9 @@ Module SelectCard
                     LD   HL, notinyfont
                     CALL_OZ GN_Sop
 
-                    LD   A,B
-                    ADD  A,9            ; (X+9,Y)
-                    LD   B,A
+                    LD   A,C
+                    ADD  A,9            ; (Y,X+9)
+                    LD   C,A
                     CALL VduCursor      ; set VDU cursor for slot number (bottom right edge)
                     LD   A,32
                     CALL_OZ OS_Out
@@ -547,9 +547,9 @@ Module SelectCard
                     PUSH AF
                     BIT  2,A
                     JR   Z, exit_DrawCardBox
-                    LD   A,B
-                    SUB  A,7            ; (X+2,Y)
-                    LD   B,A
+                    LD   A,C
+                    SUB  A,7            ; (Y,X+7)
+                    LD   C,A
                     CALL VduCursor
                     LD   HL, padlock
                     CALL_OZ GN_Sop
@@ -558,16 +558,16 @@ Module SelectCard
                     POP  HL
                     POP  BC
                     RET
-; BC = X,Y
+; BC = Y,X
 .DrawCardSides      PUSH BC
-                    CALL VduCursor      ; set VDU Cursor at (X,Y)
+                    CALL VduCursor      ; set VDU Cursor at (Y,X)
                     LD   HL, cardside
                     PUSH HL
                     CALL_OZ GN_Sop      ; draw left side
-                    LD   A,B
+                    LD   A,C
                     ADD  A,13
-                    LD   B,A
-                    CALL VduCursor      ; set VDU Cursor at (X+13,Y)
+                    LD   C,A
+                    CALL VduCursor      ; set VDU Cursor at (Y,X+13)
                     POP  HL
                     CALL_OZ GN_Sop      ; draw right side
                     POP  BC
@@ -576,15 +576,16 @@ Module SelectCard
 
 
 ; *************************************************************************************
-; BC = X,Y
+; Place window cursor at (Y,X)
+; B = Y window coordinate, C = X window Coordinate
 .VduCursor          PUSH AF
                     PUSH HL
                     LD   HL, xypos
                     CALL_OZ GN_Sop
-                    LD   A,B            ; X
+                    LD   A,C            ; X
                     ADD  A,32
                     CALL_OZ OS_Out
-                    LD   A,C            ; Y
+                    LD   A,B            ; Y
                     ADD  A,32
                     CALL_OZ OS_Out
                     POP  HL
@@ -594,10 +595,10 @@ Module SelectCard
 
 
 ; *************************************************************************************
-; Return VDU Card Box (X,Y) coordinate for slot X (1-3) fetched in (curslot)
+; Return VDU Card Box (0,X) coordinate for slot X (1-3) fetched in (curslot)
 ;
 ; OUT:
-;    BC = (X,Y)
+;    BC = (Y,X)
 ;
 .SlotCardBoxCoord
                     PUSH AF
@@ -608,8 +609,8 @@ Module SelectCard
                     JR   Z, cardbox_x_coord
 .get_x_coord        ADD  A,13
                     DJNZ get_x_coord
-.cardbox_x_coord    LD   B,A
-                    LD   C,0
+.cardbox_x_coord    LD   C,A
+                    LD   B,0
                     POP  HL
                     POP  AF
                     RET
