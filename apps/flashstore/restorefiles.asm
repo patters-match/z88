@@ -40,7 +40,7 @@ Module RestoreFiles
      xref disp_exis_msg, failed_msg, fetf_msg
      xref YesNo, ResSpace
      xref CompressRamFileName
-     xref VduCursor
+     xref InputFilename
 
      ; system definitions
      include "stdio.def"
@@ -81,18 +81,9 @@ Module RestoreFiles
                     PUSH DE
                     CALL GetDefaultRamDevice
                     POP  DE
-                    LD   BC,$4007
-                    LD   L,$20
-.re_enter_flnm
-                    LD   A,@00100011              ; buffer has filename
-                    PUSH BC
-                    LD   BC,$0209
-                    CALL VduCursor
-                    POP  BC
-                    CALL_OZ gn_sip
+                    LD   C,$07
+                    CALL InputFilename
                     jr   nc, process_path
-                    CP   rc_susp
-                    JR   Z, re_enter_flnm
                     RET                           ; user aborted command...
 
 .no_active_files    ld   hl, no_restore_files

@@ -39,7 +39,7 @@ Module SaveFiles
      xref ResSpace
      xref IntAscii
      xref DispErrMsg
-     xref VduCursor
+     xref InputFileName
 
      ; system definitions
      include "stdio.def"
@@ -118,23 +118,12 @@ Module SaveFiles
                     ld   (de),a
                     inc  de
                     xor  a
-                    ld   (de),a              ; append '/' and null-terminator after default RAM devive
-
-                    pop  de                  ; buf3
-                    LD   B,$80
-                    LD   C,7                 ; C = set cursor to char after path...
-                    LD   L,$28
-.re_enter_flnm
-                    LD   A,@00100011         ; buffer has filename
-                    PUSH BC
-                    LD   BC,$020B
-                    CALL VduCursor
-                    POP  BC
-                    CALL_OZ gn_sip           ; user enter wildcard string with pre-insert default RAM device
+                    ld   (de),a                        ; append '/' and null-terminator after default RAM devive
+                    pop  de                            ; point at start of input buffer (the device name)
+                    LD   C,7                           ; C = set cursor to char after path...
+                    CALL InputFileName
                     jp   nc,save_mailbox
-                    CP   RC_SUSP
-                    JR   Z, re_enter_flnm
-                    RET
+                    RET                                ; user aborted...
 .save_mailbox
                     call cls
 
