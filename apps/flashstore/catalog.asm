@@ -76,12 +76,13 @@ Module CatalogFiles
 .InitFirstFileBar
                     xor  a
                     ld   (FileBarPosn),a        ; File Bar at top of window
-                    call nofilesavail           ; initialize to no files (before polling).
 
                     call FilesAvailable         ; any files available in File Area?
                     jr   c, nofilesavail        ; no file area...
                     jr   z, nofilesavail        ; no files available...
 
+                    ld   a,(curslot)
+                    ld   c,a
                     call FileEprFirstFile       ; get BHL of first file in File area in slot C
 .getFirstFile       jr   c, nofilesavail        ; hmm..
                     jr   nz, foundFile
