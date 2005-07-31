@@ -18,10 +18,11 @@
 
 Module AboutFlashStore
 
-     XDEF AboutCommand, catalog_banner
-     XREF greyscr, pwait
+     LIB CreateWindow                   ; create an OZ window (with options banner, title, etc)
 
-     LIB CreateWindow
+     XDEF AboutCommand, catalog_banner
+
+     XREF greyscr, pwait                ; fsapp.asm
 
      include "stdio.def"
      include "fsapp.def"

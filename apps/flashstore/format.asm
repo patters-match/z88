@@ -32,16 +32,14 @@ Module FileAreaFormat
      xref InitFirstFileBar         ; catalog.asm
      xref FileEpromStatistics      ; filestat.asm
      xref SelectFileArea           ; selectcard.asm
-     xref DispMainWindow           ; fsapp.asm
+     xref done_msg                 ; fetchfile.asm
+     xref DispMainWindow,ResSpace  ; fsapp.asm
+     xref sopnln, ungreyscr, cls   ; fsapp.asm
+     xref yesno,no_msg,failed_msg  ; fsapp.asm
      xref DispSlotErrorMsg         ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
      xref disp_empty_flcard_msg    ; errmsg.asm
-     xref DispErrMsg
-     xref sopnln
-     xref ungreyscr, cls
-     xref yesno, no_msg, done_msg
-     xref failed_msg
-     xref ResSpace
+     xref DispErrMsg               ; errmsg.asm
 
      ; system definitions
      include "stdio.def"

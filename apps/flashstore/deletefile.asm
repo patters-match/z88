@@ -19,7 +19,7 @@
 Module DeleteFile
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
-     lib FileEprFileStatus         ;
+     lib FileEprFileStatus         ; Return deleted / active file status
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFilename           ; get filename at (DE) from current file entry
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
@@ -27,18 +27,16 @@ Module DeleteFile
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
      xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
 
-     xref StoreCursorFilePtr, GetCursorFilePtr
-     xref CompressedFileEntryName
-     xref InitFirstFileBar
-     xref DispMainWindow, sopnln
-     xref DispErrMsg, disp_no_filearea_msg
-     xref FilesAvailable, no_files
-     xref FlashWriteSupport
-     xref DispIntelSlotErr
-     xref exct_msg, fnam_msg
-     xref YesNo, no_msg, yes_msg
-     xref InputFileName
-
+     xref StoreCursorFilePtr, GetCursorFilePtr    ; catalog.asm
+     xref CompressedFileEntryName, FilesAvailable ; catalog.asm
+     xref InitFirstFileBar                        ; catalog.asm
+     xref DispErrMsg, disp_no_filearea_msg        ; errmsg.asm
+     xref DispIntelSlotErr, no_files              ; errmsg.asm
+     xref FlashWriteSupport                       ; format.asm
+     xref InputFileName, exct_msg                 ; fetchfile.asm
+     xref fnam_msg                                ; savefiles.asm
+     xref DispMainWindow, sopnln                  ; fsapp.asm
+     xref YesNo, no_msg, yes_msg                  ; fsapp.asm
 
      ; system definitions
      include "stdio.def"

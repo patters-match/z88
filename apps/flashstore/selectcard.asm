@@ -15,7 +15,7 @@
 ; $Id$
 ;
 ; *************************************************************************************
-;
+
 Module SelectCard
 
 ; This module contains functionality that displays the card / file area selection pop-up
@@ -24,21 +24,26 @@ Module SelectCard
      XDEF SelectFileArea, SelectCardCommand, SelectDefaultSlot, PollSlots, VduCursor
      XDEF selslot_banner, epromdev, DispSlotSize
 
-     LIB CreateWindow, RamDevFreeSpace
-     LIB FileEprRequest, FileEprFreeSpace, ApplEprType, FlashEprCardId
+     lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
+     lib RamDevFreeSpace           ; Get free space on RAM device
+     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
+     lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
+     lib ApplEprType               ; check for presence of application card in slot
+     lib FlashEprCardId            ; Return Intel Flash Eprom Device Code (if card available)
 
-     XREF greyscr, greyfont, nocursor, nogreyfont, notinyfont
-     XREF InitFirstFileBar
-     XREF FormatCommand
-     XREF PollFileFormatSlots
-     XREF FlashWriteSupport, execute_format
-     XREF CheckFlashCardID
-     XREF DispCmdWindow, DispFilesWindow
-     XREF FileEpromStatistics, DispIntelSlotErr, DispKSize
-     XREF pwait, rdch
-     XREF m16
-     XREF DispErrMsg
-
+     XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
+     XREF greyscr, greyfont, nocursor   ; fsapp.asm
+     XREF nogreyfont, notinyfont        ; fsapp.asm
+     XREF FormatCommand                 ; format.asm
+     XREF PollFileFormatSlots           ; format.asm
+     XREF FlashWriteSupport             ; format.asm
+     XREF execute_format                ; format.asm
+     XREF CheckFlashCardID              ; format.asm
+     XREF FileEpromStatistics,DispKSize ; filestat.asm
+     XREF m16                           ; filestat.asm
+     XREF DispFilesWindow               ; catalog.asm
+     XREF InitFirstFileBar              ; catalog.asm
+     XREF DispErrMsg, DispIntelSlotErr  ; errmsg.asm
 
      include "stdio.def"
      include "integer.def"
@@ -257,7 +262,10 @@ Module SelectCard
                     call DispIntelSlotErr         ; Intel Flash Card found in slot, but no erase/write support in slot
                     cp   a
                     ret
+; *************************************************************************************
 
+
+; *************************************************************************************
 ; IN
 ;    A = box draw args (padlock etc)
 ;    HL = label ("FLASH", "EPROM", "RAM")
@@ -475,8 +483,8 @@ Module SelectCard
                     ret
 ; *************************************************************************************
 
+
 ; *************************************************************************************
-;
 ; Draw a minimalistic Z88 Card outline using VDU Box characters.
 ;
 ; IN:

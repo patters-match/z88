@@ -20,7 +20,8 @@ Module SaveFiles
 
 ; This module contains the Save Files to Flash Card Command
 
-     xdef SaveFilesCommand, BackupRamCommand
+     xdef SaveFilesCommand
+     xdef BackupRamCommand
      xdef fnam_msg
      xdef CompressRamFileName
 
@@ -29,17 +30,20 @@ Module SaveFiles
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
-     xref SelectRamDevice, GetDefaultRamDevice, selctram_msg
-     xref InitFirstFileBar
-     xref FlashWriteSupport
-     xref DispMainWindow, cls, wbar, sopnln
-     xref ReportStdError, DispIntelSlotErr
-     xref VduEnableCentreJustify
-     xref disp_no_filearea_msg
-     xref ResSpace
-     xref IntAscii
-     xref DispErrMsg
-     xref InputFileName
+     xref InitFirstFileBar         ; catalog.asm
+     xref FlashWriteSupport        ; format.asm
+     xref IntAscii                 ; filestat.asm
+     xref InputFileName            ; fetchfile.asm
+     xref SelectRamDevice          ; defaultram.asm
+     xref GetDefaultRamDevice      ; defaultram.asm
+     xref selctram_msg             ; defaultram.asm
+     xref DispMainWindow, ResSpace ; fsapp.asm
+     xref cls, wbar, sopnln        ; fsapp.asm
+     xref VduEnableCentreJustify   ; fsapp.asm
+     xref ReportStdError           ; errmsg.asm
+     xref DispIntelSlotErr         ; errmsg.asm
+     xref DispErrMsg               ; errmsg.asm
+     xref disp_no_filearea_msg     ; errmsg.asm
 
      ; system definitions
      include "stdio.def"

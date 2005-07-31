@@ -32,15 +32,17 @@ Module RestoreFiles
      lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
      lib RamDevFreeSpace           ; Get free space on RAM device.
 
-     xref FilesAvailable
-     xref GetDefaultRamDevice
-     xref disp_no_filearea_msg, no_files, DispErrMsg
-     xref DispMainWindow, sopnln
-     xref fsok_msg, done_msg, no_msg, yes_msg
-     xref disp_exis_msg, failed_msg, fetf_msg
-     xref YesNo, ResSpace
-     xref CompressRamFileName
-     xref InputFilename
+     xref FilesAvailable           ; catalog.asm
+     xref GetDefaultRamDevice      ; defaultram.asm
+     xref CompressRamFileName      ; savefiles.asm
+     xref disp_no_filearea_msg     ; errmsg.asm
+     xref no_files, DispErrMsg     ; errmsg.asm
+     xref DispMainWindow, sopnln   ; fsapp.asm
+     xref YesNo, no_msg, yes_msg   ; fsapp.asm
+     xref ResSpace, failed_msg     ; fsapp.asm
+     xref disp_exis_msg, done_msg  ; fetchfile.asm
+     xref fetf_msg                 ; fetchfile.asm
+     xref InputFilename            ; fetchfile.asm
 
      ; system definitions
      include "stdio.def"
@@ -330,7 +332,6 @@ Module RestoreFiles
                     POP  BC
                     RET
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************

@@ -26,9 +26,11 @@ Module ErrorMessages
      XDEF disp_no_filearea_msg, DispIntelSlotErr
      XDEF no_files
 
-     XREF DispCmdWindow, FileEpromStatistics, DispCtlgWindow
-     XREF VduEnableCentreJustify, VduEnableNormalJustify
-     XREF cls, sopnln, ResSpace
+     XREF DispCmdWindow                 ; fsapp.asm
+     XREF VduEnableCentreJustify        ; fsapp.asm
+     XREF VduEnableNormalJustify        ; fsapp.asm
+     XREF cls, sopnln, ResSpace         ; fsapp.asm
+     XREF FileEpromStatistics           ; filestat.asm
 
      ; system definitions
      include "stdio.def"

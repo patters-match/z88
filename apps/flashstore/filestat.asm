@@ -20,17 +20,23 @@ Module FileAreaStatistics
 
 ; This module displays the File Area Statistics (right hand side window in main menu mode)
 
-
      XDEF FileEpromStatistics, m16, IntAscii, DispKSize
 
-     LIB CreateWindow
-     LIB FileEprRequest, FileEprCntFiles, FileEprFirstFile, FileEprFileSize
-     LIB FileEprTotalSpace, FileEprFreeSpace
-     LIB MemDefBank, divu8
+     lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
+     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
+     lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
+     lib FileEprTotalSpace         ; Return amount of active and deleted file space (in bytes)
+     lib FileEprCntFiles           ; Return total of active and deleted files
+     lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
+     lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
+     lib MemDefBank                ; Fast bank switching
+     lib divu8                     ; Unsigned 8bit integer division
 
-     XREF VduCursor, centerjustify, tinyfont, nocursor
-     XREF DispSlotSize, epromdev
-     XREF CheckFlashCardID
+     XREF VduCursor                ; selectcard.asm
+     XREF DispSlotSize, epromdev   ; selectcard.asm
+     XREF centerjustify, tinyfont  ; fsapp.asm
+     XREF nocursor                 ; fsapp.asm
+     XREF CheckFlashCardID         ; format.asm
 
      ; flash card library definitions
      include "flashepr.def"

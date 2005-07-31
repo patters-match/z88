@@ -21,8 +21,10 @@ Module DefaultRamDevice
      XDEF DefaultRamCommand, SelectRamDevice, GetDefaultRamDevice, GetDefaultPanelRamDev
      XDEF selctram_msg
 
-     LIB RamDevFreeSpace
-     XREF cls, DispMainWindow, rdch, VduCursor, pwait
+     lib RamDevFreeSpace                     ; Get free space on RAM device.
+
+     XREF cls, rdch, pwait, DispMainWindow   ; fsapp.asm
+     XREF VduCursor                          ; selectcard.asm
 
      ; system definitions
      include "stdio.def"
@@ -137,7 +139,7 @@ Module DefaultRamDevice
                     LD   (DE),A
                     INC  DE
                     XOR  A
-                    LD   (DE),A              ; null terminate RAM device name
+                    LD   (DE),A                   ; null terminate RAM device name
 
                     POP  BC
                     RET
@@ -150,17 +152,17 @@ Module DefaultRamDevice
 ;
 .GetDefaultPanelRamDev
                     LD    A, 64
-                    LD   BC, PA_Dev                    ; Read default device
-                    LD   DE, buf1                      ; buffer for device name
-                    PUSH DE                            ; save pointer to buffer
+                    LD   BC, PA_Dev               ; Read default device
+                    LD   DE, buf1                 ; buffer for device name
+                    PUSH DE                       ; save pointer to buffer
                     CALL_OZ (Os_Nq)
                     POP  DE
                     LD   B,0
-                    LD   C,A                           ; actual length of string...
+                    LD   C,A                      ; actual length of string...
                     DEC  BC
                     EX   DE,HL
                     ADD  HL,BC
-                    LD   A,(HL)                        ; get slot number of RAM device
+                    LD   A,(HL)                   ; get slot number of RAM device
                     LD   (ramdevno),A
                     RET
 ; *************************************************************************************

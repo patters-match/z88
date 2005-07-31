@@ -30,20 +30,23 @@ Module FetchFile
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
-     lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
+     lib FileEprFetchFile          ; Fetch file image from File Area, and store it to RAM file
      lib FileEprFileName           ; get a copy of the file name from the file entry.
      lib FileEprFileStatus         ; get deleted (or active) status of file entry
 
-     xref FilesAvailable
-     xref DispFiles
-     xref CheckFreeRam, GetDefaultRamDevice
-     xref PromptOverWrFile
-     xref disp_no_filearea_msg, no_files, DispErrMsg
-     xref DispMainWindow, sopnln
-     xref fnam_msg, failed_msg
-     xref CompressRamFileName
-     xref GetCursorFilePtr
-     xref VduCursor
+     xref FilesAvailable           ; catalog.asm
+     xref DispFiles                ; catalog.asm
+     xref GetCursorFilePtr         ; catalog.asm
+     xref CheckFreeRam             ; restorefiles.asm
+     xref PromptOverWrFile         ; restorefiles.asm
+     xref GetDefaultRamDevice      ; defaultram.asm
+     xref DispMainWindow, sopnln   ; fsapp.asm
+     xref failed_msg               ; fsapp.asm
+     xref fnam_msg                 ; savefiles.asm
+     xref CompressRamFileName      ; savefiles.asm
+     xref VduCursor                ; selectcard.asm
+     xref disp_no_filearea_msg     ; errmsg.asm
+     xref no_files, DispErrMsg     ; errmsg.asm
 
      ; system definitions
      include "stdio.def"
@@ -85,25 +88,15 @@ Module FetchFile
                     INC  HL
                     LD   (HL),0
                     DEC  HL
-                    EX   DE,HL
-
-                    LD   BC,$FF01                 ; allow 255 char input, place cursor after '/'
-                    LD   L,$28                    ; 40 char input visible
+                    EX   DE,HL                    ; DE = input buffer of filename to search for...
+                    LD   C,$01                    ; allow 255 char input, place cursor after '/'
                     CALL InputFileName
-                    RET  C
+                    RET  C                        ; user aborted
 
                     ld   a,b
-                    ld   (linecnt),a
+                    ld   (linecnt),a              ; B = size of filename that was entered
                     CALL_OZ gn_nln
-                    call file_fetch
-                    RET
-.fetch_error
-                    PUSH AF
-                    LD   B,0
-                    LD   HL, buf3                 ; an error occurred, delete file...
-                    CALL_OZ(Gn_Del)
-                    POP  AF
-                    CALL_OZ gn_err                ; display I/O error (or related)
+                    call FindFileToFetch
                     RET
 ; *************************************************************************************
 
@@ -138,11 +131,12 @@ Module FetchFile
                     ld   hl, warndel1_msg    ; display a flash warning for files marked as deleted
                     CALL_OZ gn_sop           ; before proceeding with the fetch dialog
                     jr   get_name
+; *************************************************************************************
 
 
 ; *************************************************************************************
 ;
-.file_fetch
+.FindFileToFetch
                     LD   A,(curslot)
                     LD   C,A
                     LD   DE,buffer
@@ -186,7 +180,7 @@ Module FetchFile
 
                     ld   de,buffer
                     ld   C,0
-                    CALL InputFilename
+                    CALL InputFilename       ; user may change the filename before saveing to RAM device
                     jr   nc,open_file
                     cp   a
                     ret                      ; user aborted...
@@ -218,10 +212,10 @@ Module FetchFile
                     ld   b,0                 ; (local pointer)
                     ld   hl,buffer+256       ; pointer to filename...
                     call CreateFilename      ; create file with and path
-                    pop  bc
+                    pop  bc                  ; IX = handle of created file...
                     jr   c, report_error
 
-                    CALL_OZ gn_nln           ; IX = handle of created file...
+                    CALL_OZ gn_nln
                     ld   hl,fetf_msg
                     CALL_OZ gn_sop
 

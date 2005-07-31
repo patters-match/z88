@@ -32,8 +32,8 @@
      xdef disp_exis_msg
 
      ; Library references
-     lib CreateWindow              ; Create windows...
-     lib FileEprFileStatus
+     lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
+     lib FileEprFileStatus         ; get deleted (or active) status of file entry
 
      ; external functionality in other modules
      xref GetCursorFilePtr         ; catalog.asm
@@ -45,6 +45,7 @@
      xref MoveFileBarPageDown      ; catalog.asm
      xref MoveToFirstFile          ; catalog.asm
      xref MoveToLastFile           ; catalog.asm
+     xref DispFilesWindow          ; catalog.asm
      xref GetDefaultPanelRamDev    ; defaultram.asm
      xref DefaultRamCommand        ; defaultram.asm
      xref SelectFileArea           ; selectcard.asm
@@ -52,7 +53,6 @@
      xref PollSlots                ; selectcard.asm
      xref selslot_banner           ; selectcard.asm
      xref SelectDefaultSlot        ; selectcard.asm
-     xref DispFilesWindow          ; catalog.asm
      xref VduCursor                ; selectcard.asm
      xref FileEpromStatistics      ; filestat.asm
      xref IntAscii                 ; filestat.asm
@@ -65,16 +65,16 @@
      xref disp_filefmt_ask_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
      xref FormatCommand            ; format.asm
+     xref execute_format           ; format.asm
+     xref FlashWriteSupport        ; format.asm
      xref SaveFilesCommand         ; savefiles.asm
+     xref fnam_msg, fsok_msg       ; savefiles.asm
+     xref BackupRamCommand         ; savefiles.asm
      xref QuickFetchFile           ; fetchfile.asm
      xref FetchFileCommand         ; fetchfile.asm
      xref exct_msg                 ; fetchfile.asm
-     xref execute_format           ; format.asm
-     xref FlashWriteSupport        ; format.asm
      xref RestoreFilesCommand      ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
-     xref fnam_msg, fsok_msg       ; savefiles.asm
-     xref BackupRamCommand         ; savefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
      xref QuickDeleteFile          ; deletefile.asm
      xref AboutCommand             ; about.asm
@@ -93,6 +93,7 @@
      include "flashepr.def"
      include "dor.def"
 
+     ; FlashStore variables
      include "fsapp.def"
 
      ORG $C000
