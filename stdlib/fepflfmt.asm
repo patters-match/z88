@@ -90,7 +90,7 @@
 ;    AFBC..HL/.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Apr 1998, Aug 2004
+; Design & programming by Gunther Strube, Dec 1997-Apr 1998, Aug 2004, July 2005
 ; ----------------------------------------------------------------------
 ;
 .FlashEprFileFormat
