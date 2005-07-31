@@ -27,6 +27,7 @@
 ; area in application cards (below application banks in first free 64K boundary)
 ;
 ; Count total of active and deleted files on File Eprom in slot C
+; (excl. NULL file on Intel Flash card)
 ;
 ; IN:
 ;    C = slot number containing File Eprom Area
@@ -44,7 +45,7 @@
 ;    AF..DEHL/.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998
+; Design & programming by Gunther Strube, InterLogic, Dec 1997-Aug 1998, July 2005
 ; ------------------------------------------------------------------------
 ;
 .FileEprCntFiles    PUSH BC
@@ -88,7 +89,16 @@
                     POP  BC
                     RET
 
-.DeletedFile        INC  DE
+.DeletedFile        EXX
+                    EX   AF,AF'                   ; preserve file status of entry
+                    XOR  A
+                    OR   C
+                    OR   D
+                    OR   E
+                    EXX
+                    JR   Z, ignore_nullfile       ; ignore NULL file
+                    INC  DE
+.ignore_nullfile    EX   AF,AF'
                     RET
 .ActiveFile         INC  HL
                     RET
