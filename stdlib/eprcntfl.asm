@@ -91,8 +91,7 @@
 
 .DeletedFile        EXX
                     EX   AF,AF'                   ; preserve file status of entry
-                    XOR  A
-                    OR   C
+                    LD   A,C
                     OR   D
                     OR   E
                     EXX
