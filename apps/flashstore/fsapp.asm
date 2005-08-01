@@ -218,7 +218,7 @@
                     LD   (MenuBarPosn),A     ; Display menu bar initially at top line of command window
 
                     ld   iy,status
-                    set  0,(iy+0)            ; display deleted files
+                    res  dspdelfiles,(iy+0)  ; display only active files in file area (default)
 
                     CALL mainmenu
                     JP   suicide             ; main menu aborted, leave popdown...
@@ -372,6 +372,8 @@
                     JR   NZ, selectFile
 
                     LD   A,(MenuBarPosn)               ; use menu bar position as index to command
+                    CP   1
+                    JP   Z, ToggleFileViewMode
                     CP   2
                     JP   Z, SelectCardCommand
                     CP   3
@@ -384,6 +386,21 @@
                     JP   Z, RestoreFilesCommand
                     CP   7
                     JP   Z, DefaultRamCommand
+                    JP   inp_main
+
+.ToggleFileViewMode
+                    bit  dspdelfiles,(iy+0)
+                    jr   z, viewdelfiles               ; no, only active files are displayed, signal no files...
+                    res  dspdelfiles,(iy+0)
+                    jr   refreshfileview
+.viewdelfiles       set  dspdelfiles,(iy+0)
+                    jr   refreshfileview
+.refreshfileview
+                    call FileViewMenutItem
+                    call_oz(Gn_Sop)
+                    CALL DisplMenuBar
+                    CALL InitFirstFileBar              ; reset File Bar Cursor to top of list (if any)
+                    CALL DispFilesWindow               ; refresh file area contents.
                     JP   inp_main
 
 .selectFile                                            ; a file was selected in file area window
@@ -456,6 +473,8 @@
 
                     ld   hl, menu_msg
                     call_oz(Gn_Sop)
+                    call FileViewMenutItem
+                    call_oz(Gn_Sop)
 
                     ld   a,(curslot)
                     ld   c,a
@@ -465,7 +484,14 @@
                     ld   hl, grey_wrercmds        ; grey out commands that has no effect in current slot
                     call_oz(Gn_Sop)
                     ret
+.FileViewMenutItem
+                    ld   hl, savedfiles_menuitem
+                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
+                    ret  z                        ; no, active files are displayed
+                    ld   hl, allfiles_menuitem
+                    ret
 ; *************************************************************************************
+
 
 
 ; *************************************************************************************
@@ -720,7 +746,6 @@
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
                     DEFM 1, "2-G", 1, "2+T"
-                    DEFM 1,"3@",32+1,32+0, "VIEW ALL FILES"
                     DEFM 1,"3@",32+1,32+1, "SELECT CARD"
                     DEFM 1,"3@",32,32+2, " SAVE TO CARD    "
                     DEFM 1,"3@",32+1,32+3, "FETCH FROM CARD"
@@ -728,7 +753,16 @@
                     DEFM 1,"3@",32+1,32+5, "RESTORE TO RAM"
                     DEFM 1,"3@",32+1,32+6, "DEFAULT RAM"
                     DEFM 1,"2-C"
+                    DEFB 0
+.allfiles_menuitem
+                    DEFM 1, "2-G", 1, "2+T"
+                    DEFM 1,"3@",32+1,32+0, "VIEW ALL FILES  "
                     defb 0
+.savedfiles_menuitem
+                    DEFM 1, "2-G", 1, "2+T"
+                    DEFM 1,"3@",32+1,32+0, "VIEW SAVED FILES"
+                    DEFB 0
+
 
 .grey_wrercmds      DEFM 1, "2+G"
                     DEFM 1, "3@", 32+0, 32+2, 1, "2E", 32+17
