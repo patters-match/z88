@@ -30,6 +30,7 @@ Module DeleteFile
      xref StoreCursorFilePtr, GetCursorFilePtr    ; catalog.asm
      xref CompressedFileEntryName, FilesAvailable ; catalog.asm
      xref InitFirstFileBar                        ; catalog.asm
+     xref MoveToFirstFile, GetNextFilePtr         ; catalog.asm
      xref DispErrMsg, disp_no_filearea_msg        ; errmsg.asm
      xref DispIntelSlotErr, no_files              ; errmsg.asm
      xref FlashWriteSupport                       ; format.asm
@@ -180,6 +181,13 @@ Module DeleteFile
                     CALL DispErrMsg
                     RET
 .file_deleted
+                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
+                    ret  nz                       ; yes, stay at file entry and let the window be re-drawn
+
+                    call GetNextFilePtr
+                    jp   c, MoveToFirstFile       ; File Bar at end of file list, wrap to first...
+                    call StoreCursorFilePtr       ; BHL --> (CursorFilePtr), CursorFilePtr = GetNextFilePtr(CursorFilePtr)
+
                     LD   HL,filedel_msg
                     CALL DispErrMsg
                     RET
