@@ -63,14 +63,8 @@ Module FileAreaFormat
 .FormatCommand
                     call PollFileFormatSlots      ; investigate slots 1-3 for Flash Cards that can be formatted
                     or   a
-                    jr   z, no_format_available   ; no available Flash Cards available that may be formatted...
-                    call FormatFileArea
-
-                    ret  c                        ; format failed, or Intel Flash format not functional in slot..
-                    ret  nz
-
-                    call SaveNullFile             ; save the hidden "null" file to avoid Intel FE bootstrapping
-                    ret
+                    jr   z, no_format_available   ; no Flash Cards available that may be formatted...
+                    jr   FormatFileArea
 .no_format_available
                     LD   HL, ffm1_bnr
                     CALL DispMainWindow           ; create main window when displaying error message
@@ -156,42 +150,6 @@ Module FileAreaFormat
                     LD   HL, fferr_msg
                     CALL DispErrMsg
                     RET
-; *************************************************************************************
-
-
-
-; *************************************************************************************
-; Due to a strange side effect with Intel Flash Chips, a special "NULL" file is saved
-; as the first file to the Card. These byte occupies the first bytes that othewise
-; could be interpreted as a random boot command for the Intel chip - the behaviour
-; is an Intel chip suddenly gone into command mode for no particular reason.
-;
-; The NULL file prevents this possible behaviour by save a file that avoids any kind
-; of boot commands which sends the chip into command mode when the card has been inserted
-; into a Z88 slot.
-.SaveNullFile
-                    ld   A,(curslot)
-                    CP   3
-                    JR   Z, poll_intel_card
-.exit_null_file     CP   A                   ; It was not an Intel Flash that was formated, return "happy"
-                    RET
-.poll_intel_card
-                    LD   C,A
-                    CALL CheckFlashCardID
-                    JR   C, exit_null_file
-                    LD   A,$89               ; Check for Intel Manufacturer code
-                    CP   H
-                    JR   NZ, exit_null_file  ; it was not an Intel chip, then the null file is not necessary...
-
-                    ld   b,$c0               ; Intel Flash available
-                    ld   hl,0                ; blow null file at bottom of card in slot 3...
-                    ld   de, nullfile
-                    ld   c, MS_S1            ; use segment 1 to blow the bytes...
-                    ld   iy,6                ; Initial File Entry is 6 bytes long...
-                    call FlashEprWriteBlock
-                    ret
-.nullfile
-                    defb 1, 0, 0, 0, 0, 0
 ; *************************************************************************************
 
 
