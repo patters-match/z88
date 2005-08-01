@@ -63,16 +63,8 @@ Module RestoreFiles
                     ld   hl,rest_banner
                     call DispMainWindow
 
-                    ld   a,(curslot)
-                    ld   c,a
-                    push bc
-                    call FileEprRequest
-                    pop  bc
-                    jr   z, check_restorable_files     ; File Area found
-                    call disp_no_filearea_msg
-                    ret
-.check_restorable_files
                     call FilesAvailable
+                    jp   c, disp_no_filearea_msg
                     jp   z, no_active_files            ; Fz = 1, no files available...
 
                     LD   HL,defdst_msg
