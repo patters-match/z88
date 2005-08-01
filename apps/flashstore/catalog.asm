@@ -26,6 +26,7 @@ Module CatalogFiles
      xdef MoveFileBarDown, MoveFileBarUp
      xdef MoveToFirstFile, MoveToLastFile
      xdef MoveFileBarPageDown, MoveFileBarPageUp
+     xdef GetNextFilePtr
      xdef InitFirstFileBar
      xdef FileSelected
 
@@ -76,6 +77,7 @@ Module CatalogFiles
 .InitFirstFileBar
                     xor  a
                     ld   (FileBarPosn),a        ; File Bar at top of window
+                    call nofilesavail           ; reset
 
                     call FilesAvailable         ; any files available in File Area?
                     jr   c, nofilesavail        ; no file area...
@@ -83,18 +85,8 @@ Module CatalogFiles
 
                     ld   a,(curslot)
                     ld   c,a
-                    call FileEprFirstFile       ; get BHL of first file in File area in slot C
-.getFirstFile       jr   c, nofilesavail        ; hmm..
-                    jr   nz, foundFile
-
-                    call FileEprFileSize
-                    ld   a,c
-                    or   d
-                    or   e                      ; CDE = 0?
-                    jr   nz, foundFile          ; accept normal deleted file...
-                    call FileEprNextFile        ; skip system file
-                    jr   c, nofilesavail        ; officially, file area is empty...
-.foundFile
+                    call GetFirstFilePtr        ; get BHL of first file in File area in slot C
+                    jr   c, nofilesavail        ; hmm..
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
                     ret
 .nofilesavail
@@ -148,7 +140,7 @@ Module CatalogFiles
 ;
 .MoveFileBarUp
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
-                    call FileEprPrevFile
+                    call GetPrevFilePtr
                     jr   c, MoveToLastFile      ; File Bar at top of file list, wrap to last...
                     jr   nz, dispPrevFile       ; previous file is available, display it...
                     call FileEprFileSize
@@ -158,7 +150,7 @@ Module CatalogFiles
                     jr   nz, dispPrevFile
                     jr   MoveToLastFile         ; ignore hidden system file, wrap to last file...
 .dispPrevFile
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprPrevFile(CursorFilePtr)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetPrevFilePtr(CursorFilePtr)
 
                     ld   a,(FileBarPosn)
                     cp   0
@@ -190,10 +182,10 @@ Module CatalogFiles
 ;
 .MoveFileBarDown
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
-                    call FileEprNextFile
+                    call GetNextFilePtr
                     jr   c, MoveToFirstFile     ; File Bar at end of file list, wrap to first...
 
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprNextFile(CursorFilePtr)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetNextFilePtr(CursorFilePtr)
                     ld   a,(FileBarPosn)
                     cp   6
                     jr   z, scroll_filearea_up
@@ -229,7 +221,7 @@ Module CatalogFiles
                     ld   c,7                    ; move 7 file entries upwards, if possible
 .pageup_loop
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
-                    call FileEprPrevFile
+                    call GetPrevFilePtr
                     jr   c, end_MovePgUp        ; reached top of list, update file area window
                     jr   nz, upd_prevptr        ; previous file was active...
                     push bc
@@ -242,7 +234,7 @@ Module CatalogFiles
                     pop  bc
                     jr   z, end_MovePgUp        ; cursor stays at file entry before null file...
 .upd_prevptr
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprPrevFile(CursorFilePtr)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetPrevFilePtr(CursorFilePtr)
                     dec  c
                     jr   nz, pageup_loop
 .end_MovePgUp       jp   DispFiles
@@ -259,9 +251,9 @@ Module CatalogFiles
                     ld   c,7                    ; move 7 file entries downwards, if possible
 .pagedwn_loop
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
-                    call FileEprNextFile
+                    call GetNextFilePtr
                     jr   c, end_MovePgDwn       ; reached bottom of list, update file area window
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprNextFile(CursorFilePtr)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetNextFilePtr(CursorFilePtr)
                     dec  c
                     jr   nz, pagedwn_loop
 .end_MovePgDwn      jp   DispFiles
@@ -275,19 +267,8 @@ Module CatalogFiles
                     ld   hl, filearea_banner
                     call DispMainWindow
 
-                    xor  a
-                    ld   (FileBarPosn),a        ; File Bar at top of window
-
-                    ld   a,(curslot)
-                    ld   c,a
-                    push bc
-                    call FileEprRequest
-                    pop  bc
-                    jr   z, check_availfiles    ; File Area header was found..
-                    call disp_no_filearea_msg
-                    ret                         ; abort - File Area apparently not available...
-.check_availfiles
                     call FilesAvailable
+                    jp   c, disp_no_filearea_msg
                     push af
                     call z,nofilesavail
                     pop  af
@@ -299,12 +280,14 @@ Module CatalogFiles
                     xor  a
                     ld   (linecnt),a
 .begin_catalogue
+                    xor  a
+                    ld   (FileBarPosn),a        ; File Bar at top of window
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
 .cat_main_loop
                     call DisplayFile
                     ret  c
 .get_next_filename
-                    call FileEprNextFile        ; get pointer to next File Entry in BHL...
+                    call GetNextFilePtr         ; get pointer to next File Entry in BHL...
 
                     bit  1,(iy+0)
                     jr   z, cat_main_loop       ; no file were displayed, fetch new filename
@@ -435,8 +418,11 @@ Module CatalogFiles
 
 
 ; *************************************************************************************
-; Check if there's active/deleted files availabe in the File Area
-; return Fz = 1, if no files available
+; Check if there's active/deleted files availabe in the current File Area.
+; If current file display setting signals also display of deleted files, Fz = 1 is
+; returned if there are also no deleted files.
+;
+; return Fz = 1, if no files available, and Fc = 1 if no file area available.
 ;
 .FilesAvailable
                     push bc
@@ -450,26 +436,87 @@ Module CatalogFiles
                     ld   a,h
                     or   l
                     jr   nz, exit_checkfiles      ; active files available...
+
+                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
+                    jr   z, exit_checkfiles       ; no, only active files are displayed, signal no files...
                     ld   a,e
-                    or   d
-                    jr   z, exit_checkfiles       ; no deleted files available...
-                    cp   1
-                    jr   nz, exit_checkfiles      ; more than a single deleted file..
-
-                    call FileEprFirstFile         ; exactly a single deleted file in file area!
-                    jr   nz, exit_checkfiles      ; but it' not the first file...
-
-                    call FileEprFileSize          ; check size of first deleted file
-                    ld   a,c
-                    or   d
-                    or   e                        ; CDE = 0?
-                                                  ; return Fz = 1, no files available
+                    or   d                        ; If deleted files are available, then Fz = 0...
 .exit_checkfiles
                     pop  hl
                     pop  de
                     pop  bc
                     ret
 ; *************************************************************************************
+
+; *************************************************************************************
+; Get pointer to first file entry. If only active files are currently displayed,
+; deleted file entries are skipped until an active file entry is found.
+;
+; IN:
+;    C = slot number of File area
+;
+; OUT:
+;    Fc = 1, End of list reached
+;    Fc = 0
+;         BHL = pointer to first file entry
+;
+.GetFirstFilePtr
+                    call FileEprFirstFile
+                    ret  c
+                    ret  nz                       ; an active file entry was found...
+.found_delfile
+                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
+                    call z,GetNextFilePtr         ; skip deleted file(s) until active file is found
+                    ret                           ; (and return BHL to that entry)
+; *************************************************************************************
+
+; *************************************************************************************
+; Get pointer to next file entry. If only active files are currently displayed,
+; deleted file entries are skipped until an active file entry is found.
+;
+; IN:
+;    BHL = current file entry pointer
+;
+; OUT:
+;    Fc = 1, End of list reached
+;    Fc = 0
+;         BHL = pointer to next file entry
+;
+.GetNextFilePtr
+.fetch_next_loop
+                    call FileEprNextFile
+                    ret  c
+                    ret  nz                       ; an active file entry was found...
+
+                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
+                    jr   z, fetch_next_loop       ; only active files, scan forward until active file..
+                    ret                           ; return 'marked as deleted' file entry
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Get pointer to previous file entry. If only active files are currently displayed,
+; deleted file entries are skipped until an active file entry is found.
+;
+; IN:
+;    BHL = current file entry pointer
+;
+; OUT:
+;    Fc = 1, Top of list reached
+;    Fc = 0
+;         BHL = pointer to previous file entry
+;
+.GetPrevFilePtr
+.fetch_prev_loop
+                    call FileEprPrevFile
+                    ret  c
+                    ret  nz                       ; an active file entry was found...
+
+                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
+                    jr   z, fetch_prev_loop       ; only active files, scan backward until active file..
+                    ret                           ; return 'marked as deleted' file entry
+; *************************************************************************************
+
 
 
 ; *************************************************************************************
