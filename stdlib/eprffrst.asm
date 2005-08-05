@@ -77,16 +77,15 @@
                     POP  HL
                     POP  BC
                     JR   C, no_entry              ; Ups - no File Entry found...
-
-                    EX   AF,AF'                   ; preserve File status, if it's not the NULL file
+                    JR   NZ, end_FeFirstFile      ; first file is an active file...
                     OR   D
                     OR   E                        ; CDE = 0 means that NULL file is present.
                     JR   NZ, no_null_file
                     CALL FileEprNextFile          ; ignore NULL file, get pointer to next file (entry)
-                    JR   return_nextfile
+                    JR   end_FeFirstFile          ; get pointer to next file entry and return Fz status
 .no_null_file
-                    EX   AF,AF'                   ; get file status back of first file
-.return_nextfile
+                    CP   A                        ; return Fz = 1, deleted file was not a Null file...
+.end_FeFirstFile
                     POP  DE                       ; BHL = pointer to first File Entry
                     LD   C,E                      ; original C restored
                     POP  DE
