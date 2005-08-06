@@ -4045,6 +4045,7 @@ public class Dz {
 
 		return binString.toString();
 	}	
+	
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
 	 *
@@ -4099,12 +4100,7 @@ public class Dz {
 	 * @return int offset of following instruction in bank
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispAddr, boolean dispOpcode) {
-		int i = Memory.getInstance().getByte(offset+3,bank) << 24 |
-				Memory.getInstance().getByte(offset+2,bank) << 16 |
-				Memory.getInstance().getByte(offset+1,bank) << 8 |
-				Memory.getInstance().getByte(offset+0,bank);
-
-		offset += dzInstrAscii(mnemonic, offset, i, dispAddr, dispOpcode);
+		offset += dzInstrAscii(mnemonic, offset, getInstrOpcode(offset, bank), dispAddr, dispOpcode);
 
 		return offset;
 	}
@@ -4126,12 +4122,10 @@ public class Dz {
 	 * @return int address of following instruction
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispAddr, boolean dispOpcode) {
-		int instrOpcode = (Blink.getInstance().readWord(pc+2) << 16) | Blink.getInstance().readWord(pc);		
-		pc += dzInstrAscii(mnemonic, pc, instrOpcode, dispAddr, dispOpcode);
+		pc += dzInstrAscii(mnemonic, pc, getInstrOpcode(pc), dispAddr, dispOpcode);
 
 		return pc;
 	}
-
 
 	/**
 	 * Disassemble Z80 instruction opcode stored in packed 4 byte integer.
@@ -4352,20 +4346,62 @@ public class Dz {
 
 	 * @param offset the 16bit offset within bank
 	 * @param bank the bank number (0-255)
-	 * @return int address of following instruction
+	 * @return int address of following instruction (offset in bank)
 	 */
 	public final int getNextInstrAddress(int offset, int bank) {
-		int i = Memory.getInstance().getByte(offset+3,bank) << 24 |
-				Memory.getInstance().getByte(offset+2,bank) << 16 |
-				Memory.getInstance().getByte(offset+1,bank) << 8 |
-				Memory.getInstance().getByte(offset+0,bank);
-
-		offset += calcInstrOpcodeSize(i);
+		offset += calcInstrOpcodeSize(getInstrOpcode(offset, bank));
 
 		return offset;
 	}
 
-
+	/**
+	 * Get a complete 4-byte instruction opcode sequense, packed into MSB order
+	 * at specified extended address in the Z88 4Mb memory model. 
+	 * The current breakpoints are examined, so that the instruction opcode sequence 
+	 * contains the true opcode and not a mix of the breakpoint instructions 
+	 * LD B,B or LD C,C. 
+	 * 
+	 * @param pc
+	 * @return 4 byte packed MSB instruction opcode 
+	 */
+	public int getInstrOpcode(int offset, int bank) {
+		offset &= 0x3FFF;		
+		Breakpoints bp = Blink.getInstance().getBreakpoints();
+		Memory mem = Memory.getInstance();
+		
+		int opcode3 = 	mem.getByte(offset+3,bank) << 24 |
+						mem.getByte(offset+2,bank) << 16 |
+						mem.getByte(offset+1,bank) << 8;
+		int opcode = mem.getByte(offset,bank);
+		
+		if (opcode == 64 | opcode == 73) {
+			// The opcode at specifified address might be a runtime breakpoint:
+			// LD B,B or LD C,C
+			if (bp.getOrigZ80Opcode((bank << 16) | offset) != -1) {
+				// there was indeed a breakpoint, use original instruction opcode
+				opcode = bp.getOrigZ80Opcode((bank << 16) | offset);
+			}
+		}
+		
+		return opcode3 | opcode;
+	}
+	
+	/**
+	 * Get a complete 4-byte instruction opcode sequense, packed into MSB order
+	 * at specified local (16bit) address in the current 64K address space 
+	 * (defined by Blink). The current breakpoints are examined, so that the 
+	 * instruction opcode sequence contains the true opcode and not a mix of 
+	 * the breakpoint instructions LD B,B or LD C,C. 
+	 * 
+	 * @param pc
+	 * @return 4 byte packed MSB instruction opcode 
+	 */
+	public int getInstrOpcode(final int pc) {
+		int extAddr = Blink.getInstance().decodeLocalAddress(pc);
+		
+		return getInstrOpcode(extAddr & 0x3FFF, extAddr >>> 16);
+	}
+	
 	/**
 	 * Decode Z80 instruction at address pc in local 64K address space, as
 	 * defined by the current bank bindings for segments 0 - 3 and
@@ -4374,10 +4410,9 @@ public class Dz {
 	 * @param pc the current address (Program Counter of Z80 instruction
 	 * @return address of following instruction
 	 */
-	public final int getNextInstrAddress(int pc) {
-		int instrOpcode = (Blink.getInstance().readWord(pc+2) << 16) | Blink.getInstance().readWord(pc);
-		pc += calcInstrOpcodeSize(instrOpcode);
-
+	public final int getNextInstrAddress(int pc) {				
+		pc += calcInstrOpcodeSize(getInstrOpcode(pc));
+		
 		return pc;
 	}
 
@@ -4392,8 +4427,17 @@ public class Dz {
 	 */
 	public static String getNextStepCommand() {
 		Blink z88 = Blink.getInstance();
+		Breakpoints bp = z88.getBreakpoints();
 		
 		int instrOpcode	= z88.readByte(z88.PC());	// get current instruction opcode (to be executed)
+		if (instrOpcode == 64 | instrOpcode == 73) {
+			// The opcode at specifified address might be a runtime breakpoint:
+			// LD B,B or LD C,C
+			if (bp.getOrigZ80Opcode(z88.decodeLocalAddress(z88.PC())) != -1) {
+				// there was indeed a breakpoint, use original instruction opcode
+				instrOpcode = bp.getOrigZ80Opcode(z88.decodeLocalAddress(z88.PC()));
+			}
+		}
 
 		switch(instrOpcode) {
 			case 0xDC: // CALL C,addr
