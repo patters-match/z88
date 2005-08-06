@@ -16,7 +16,7 @@
 ;
 ; *************************************************************************************
 
-     MODULE flash17
+     MODULE flash18
 
      ; public functionality & text constants
      xdef DispCmdWindow, DispMainWindow, DisplBar
@@ -390,17 +390,15 @@
 
 .ToggleFileViewMode
                     bit  dspdelfiles,(iy+0)
-                    jr   z, viewdelfiles               ; no, only active files are displayed, signal no files...
+                    jr   z, viewdelfiles               ; only active files are displayed, swap to all files...
                     res  dspdelfiles,(iy+0)
                     jr   refreshfileview
 .viewdelfiles       set  dspdelfiles,(iy+0)
-                    jr   refreshfileview
 .refreshfileview
                     call FileViewMenutItem
                     call_oz(Gn_Sop)
-                    CALL DisplMenuBar
-                    CALL InitFirstFileBar              ; reset File Bar Cursor to top of list (if any)
-                    CALL DispFilesWindow               ; refresh file area contents.
+                    CALL DisplMenuBar                  ; update top menu item with new text., 'ALL/SAVED'
+                    CALL DispFilesWindow               ; refresh file area contents at current file entry
                     JP   inp_main
 
 .selectFile                                            ; a file was selected in file area window
