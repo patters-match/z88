@@ -22,6 +22,8 @@ package net.sourceforge.z88;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 
@@ -49,6 +51,7 @@ public class DebugGui extends JFrame {
 	 * This method initializes the z88 display window and menus
 	 */
 	private void initialize() {
+		setIconImage(new ImageIcon(this.getClass().getResource("/pixel/debug.gif")).getImage());		
 		setJMenuBar(getOZvmMenuBar());
 
 		getContentPane().add(getCmdLineScrollPane(), BorderLayout.CENTER);
