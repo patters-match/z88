@@ -25,7 +25,6 @@ import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.Vector;
 
 import net.sourceforge.z88.AmdFlashBank;
 import net.sourceforge.z88.Bank;
