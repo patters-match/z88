@@ -101,9 +101,8 @@ Module FileAreaStatistics
                     pop  bc
                     push bc                       ; preserve slot number
                     call FileEprCntFiles          ; files on current File Eprom
-                    add  hl,de                    ; total files = active + deleted
-                    ld   (file),hl
-                    ld   (fdel),de
+                    ld   (file),hl                ; active files
+                    ld   (fdel),de                ; deleted files
 
                     pop  bc
                     push bc
