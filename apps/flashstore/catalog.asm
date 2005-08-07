@@ -225,17 +225,6 @@ Module CatalogFiles
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
                     call GetPrevFilePtr
                     jr   c, end_MovePgUp        ; reached top of list, update file area window
-                    jr   nz, upd_prevptr        ; previous file was active...
-                    push bc
-                    push de
-                    call FileEprFileSize        ; previous file is marked as deleted, check
-                    ld   a,c                    ; if it is the Intel 'null' file (0 length)
-                    or   d
-                    or   e
-                    pop  de
-                    pop  bc
-                    jr   z, end_MovePgUp        ; cursor stays at file entry before null file...
-.upd_prevptr
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetPrevFilePtr(CursorFilePtr)
                     dec  c
                     jr   nz, pageup_loop
@@ -289,7 +278,7 @@ Module CatalogFiles
 ; Display name and size of stored files on Flash Eprom.
 ;
 .DispFilesWindow
-                    ld   hl, filearea_banner
+                    call FileAreaBannerText       ; HL = banner for file area window
                     call DispMainWindow
 
                     call PollFileArea
@@ -339,6 +328,33 @@ Module CatalogFiles
                     ret
 ; *************************************************************************************
 
+
+; *************************************************************************************
+; Make the banner for the file area window.
+; Depending on the current view settings, the banner text is dynamically created
+; as follows:
+;    "FILE AREA [VIEW SAVED & DELETED FILES]" or
+;    "FILE AREA [VIEW ONLY SAVED FILES]"
+;
+.FileAreaBannerText
+                    ld   hl, filearea_banner
+                    ld   de, buf3
+                    push de
+                    ld   bc, 11
+                    ldir
+                    ld   hl, allfiles_banner
+                    ld   c, 27
+                    bit  dspdelfiles,(iy+0)
+                    jr   nz, append_viewtypetext  ; all files are displayed
+                    ld   hl, savedfiles_banner
+                    ld   c, 22                    ; only saved files displayed
+.append_viewtypetext
+                    ldir
+                    xor  a
+                    ld   (de),a                   ; null-terminate completed banner string
+                    pop  hl                       ; return pointer to start of banner text.
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -598,7 +614,10 @@ Module CatalogFiles
 ; *************************************************************************************
 ; constants
 ;
-.filearea_banner    DEFM "FILE AREA", 0
+.filearea_banner    DEFM "FILE AREA ["
+.allfiles_banner    DEFM "VIEW SAVED & DELETED FILES]"
+.savedfiles_banner  DEFM "VIEW ONLY SAVED FILES]"
+
 .norm_sq            DEFM 1,"2-G",1,"4+TRUF",1,"4-TRU ",0
 .tiny_sq            DEFM 1,"5+TRGUd",1,"3-RU ",0
 
