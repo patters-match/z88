@@ -395,9 +395,6 @@
                     jr   refreshfileview
 .viewdelfiles       set  dspdelfiles,(iy+0)
 .refreshfileview
-                    call FileViewMenutItem
-                    call_oz(Gn_Sop)
-                    CALL DisplMenuBar                  ; update top menu item with new text., 'ALL/SAVED'
                     CALL DispFilesWindow               ; refresh file area contents at current file entry
                     JP   inp_main
 
@@ -471,8 +468,6 @@
 
                     ld   hl, menu_msg
                     call_oz(Gn_Sop)
-                    call FileViewMenutItem
-                    call_oz(Gn_Sop)
 
                     ld   a,(curslot)
                     ld   c,a
@@ -482,14 +477,7 @@
                     ld   hl, grey_wrercmds        ; grey out commands that has no effect in current slot
                     call_oz(Gn_Sop)
                     ret
-.FileViewMenutItem
-                    ld   hl, savedfiles_menuitem
-                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
-                    ret  z                        ; no, active files are displayed
-                    ld   hl, allfiles_menuitem
-                    ret
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************
@@ -744,6 +732,7 @@
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
                     DEFM 1, "2-G", 1, "2+T"
+                    DEFM 1,"3@",32+1,32+0, "CHANGE FILE VIEW"
                     DEFM 1,"3@",32+1,32+1, "SELECT CARD"
                     DEFM 1,"3@",32,32+2, " SAVE TO CARD    "
                     DEFM 1,"3@",32+1,32+3, "FETCH FROM CARD"
@@ -752,15 +741,6 @@
                     DEFM 1,"3@",32+1,32+6, "DEFAULT RAM"
                     DEFM 1,"2-C"
                     DEFB 0
-.allfiles_menuitem
-                    DEFM 1, "2-G", 1, "2+T"
-                    DEFM 1,"3@",32+1,32+0, "VIEW ALL FILES  "
-                    defb 0
-.savedfiles_menuitem
-                    DEFM 1, "2-G", 1, "2+T"
-                    DEFM 1,"3@",32+1,32+0, "VIEW SAVED FILES"
-                    DEFB 0
-
 
 .grey_wrercmds      DEFM 1, "2+G"
                     DEFM 1, "3@", 32+0, 32+2, 1, "2E", 32+17
