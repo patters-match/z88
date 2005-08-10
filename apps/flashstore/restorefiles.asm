@@ -32,7 +32,7 @@ Module RestoreFiles
      lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
      lib RamDevFreeSpace           ; Get free space on RAM device.
 
-     xref FilesAvailable           ; catalog.asm
+     xref FilesAvailable           ; browse.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref CompressRamFileName      ; savefiles.asm
      xref disp_no_filearea_msg     ; errmsg.asm

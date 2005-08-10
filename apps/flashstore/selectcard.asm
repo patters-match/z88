@@ -41,8 +41,8 @@ Module SelectCard
      XREF CheckFlashCardID              ; format.asm
      XREF FileEpromStatistics,DispKSize ; filestat.asm
      XREF m16                           ; filestat.asm
-     XREF DispFilesWindow               ; catalog.asm
-     XREF InitFirstFileBar              ; catalog.asm
+     XREF DispFilesWindow               ; browse.asm
+     XREF InitFirstFileBar              ; browse.asm
      XREF DispErrMsg, DispIntelSlotErr  ; errmsg.asm
 
      include "stdio.def"

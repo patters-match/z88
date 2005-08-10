@@ -27,10 +27,10 @@ Module DeleteFile
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
      xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
 
-     xref StoreCursorFilePtr, GetCursorFilePtr    ; catalog.asm
-     xref CompressedFileEntryName, FilesAvailable ; catalog.asm
-     xref InitFirstFileBar                        ; catalog.asm
-     xref MoveToFirstFile, GetNextFilePtr         ; catalog.asm
+     xref StoreCursorFilePtr, GetCursorFilePtr    ; browse.asm
+     xref CompressedFileEntryName, FilesAvailable ; browse.asm
+     xref InitFirstFileBar                        ; browse.asm
+     xref MoveToFirstFile, GetNextFilePtr         ; browse.asm
      xref DispErrMsg, disp_no_filearea_msg        ; errmsg.asm
      xref DispIntelSlotErr, no_files              ; errmsg.asm
      xref FlashWriteSupport                       ; format.asm

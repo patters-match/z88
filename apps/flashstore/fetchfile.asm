@@ -34,9 +34,9 @@ Module FetchFile
      lib FileEprFileName           ; get a copy of the file name from the file entry.
      lib FileEprFileStatus         ; get deleted (or active) status of file entry
 
-     xref FilesAvailable           ; catalog.asm
-     xref DispFiles                ; catalog.asm
-     xref GetCursorFilePtr         ; catalog.asm
+     xref FilesAvailable           ; browse.asm
+     xref DispFiles                ; browse.asm
+     xref GetCursorFilePtr         ; browse.asm
      xref CheckFreeRam             ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref GetDefaultRamDevice      ; defaultram.asm

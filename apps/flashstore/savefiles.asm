@@ -30,7 +30,7 @@ Module SaveFiles
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
-     xref InitFirstFileBar         ; catalog.asm
+     xref InitFirstFileBar         ; browse.asm
      xref FlashWriteSupport        ; format.asm
      xref IntAscii                 ; filestat.asm
      xref InputFileName            ; fetchfile.asm

@@ -29,7 +29,7 @@ Module FileAreaFormat
      lib ApplEprType               ; check for presence of application card in slot
      lib CheckBattLow              ; Check Battery Low condition
 
-     xref InitFirstFileBar         ; catalog.asm
+     xref InitFirstFileBar         ; browse.asm
      xref FileEpromStatistics      ; filestat.asm
      xref SelectFileArea           ; selectcard.asm
      xref done_msg                 ; fetchfile.asm
