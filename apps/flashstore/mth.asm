@@ -23,6 +23,7 @@
      XDEF FlashStoreCommands
      XDEF FlashStoreHelp
 
+     include "stdio.def"
      include "fsapp.def"
 
 
@@ -153,7 +154,7 @@
                     DEFM "Backup files from RAM", 0
                     DEFB (cmd_bf_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_bf_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
-                    DEFB @00010001                                              ; command has help page
+                    DEFB @00010000                                              ; command has help page
                     DEFB cmd_bf_end - cmd_bf                                    ; length of command definition
 .cmd_bf_end
 
@@ -178,6 +179,39 @@
                     DEFB @00010000                                              ; command has help page, new column, safe
                     DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
 .cmd_ffa_end
+
+; <>TFV Change File View
+.cmd_tfv            DEFB cmd_tfv_end - cmd_tfv                                  ; length of command definition
+                    DEFB FlashStore_CC_tfv                                      ; command code
+                    DEFM "TFV", 0                                               ; keyboard sequense
+                    DEFM "Toggle File View", 0
+                    DEFB (cmd_tfv_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
+                    DEFB (cmd_tfv_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
+                    DEFB @00010001                                              ; command has help page
+                    DEFB cmd_about_end - cmd_about                              ; length of command definition
+.cmd_tfv_end
+
+; ENTER Fetch file at cursor
+.cmd_fetch          DEFB cmd_fetch_end - cmd_fetch                              ; length of command definition
+                    DEFB 13                                                     ; command code
+                    DEFM MU_ENT, 0                                              ; keyboard sequense
+                    DEFM "Fetch File at Cursor", 0
+                    DEFB 0                                                      ; no help
+                    DEFB 0                                                      ;
+                    DEFB @00010000                                              ; command has help page
+                    DEFB cmd_fetch_end - cmd_fetch                              ; length of command definition
+.cmd_fetch_end
+
+; DEL Delete file at cursor
+.cmd_delete         DEFB cmd_delete_end - cmd_delete                            ; length of command definition
+                    DEFB IN_DEL                                                 ; command code
+                    DEFM MU_DEL, 0                                              ; keyboard sequense
+                    DEFM "Delete File at Cursor", 0
+                    DEFB 0                                                      ; no help
+                    DEFB 0                                                      ;
+                    DEFB @00010000                                              ; command has help page
+                    DEFB cmd_delete_end - cmd_delete                            ; length of command definition
+.cmd_delete_end
 
 ; <>ABOUT About FlashStore
 .cmd_about          DEFB cmd_about_end - cmd_about                              ; length of command definition
@@ -236,6 +270,13 @@
                     DEFM $7F
                     DEFM "Formats and erases the complete file card area."
                     DEFB 0
+
+.cmd_tfv_help
+                    DEFM $7F
+                    DEFM "Changes between browsing only saved files or", $7F
+                    DEFM "browsing all files (both saved and marked as deleted)."
+                    DEFB 0
+
 .cmd_about_help
                     DEFM $7F
                     DEFM "Displays latest release information about FlashStore."
