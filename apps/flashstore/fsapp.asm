@@ -36,16 +36,17 @@
      lib FileEprFileStatus         ; get deleted (or active) status of file entry
 
      ; external functionality in other modules
-     xref GetCursorFilePtr         ; catalog.asm
-     xref DispFiles                ; catalog.asm
-     xref InitFirstFileBar         ; catalog.asm
-     xref MoveFileBarDown          ; catalog.asm
-     xref MoveFileBarUp            ; catalog.asm
-     xref MoveFileBarPageUp        ; catalog.asm
-     xref MoveFileBarPageDown      ; catalog.asm
-     xref MoveToFirstFile          ; catalog.asm
-     xref MoveToLastFile           ; catalog.asm
-     xref DispFilesWindow          ; catalog.asm
+     xref CatalogCommand           ; catalog.asm
+     xref GetCursorFilePtr         ; browse.asm
+     xref DispFiles                ; browse.asm
+     xref InitFirstFileBar         ; browse.asm
+     xref MoveFileBarDown          ; browse.asm
+     xref MoveFileBarUp            ; browse.asm
+     xref MoveFileBarPageUp        ; browse.asm
+     xref MoveFileBarPageDown      ; browse.asm
+     xref MoveToFirstFile          ; browse.asm
+     xref MoveToLastFile           ; browse.asm
+     xref DispFilesWindow          ; browse.asm
      xref GetDefaultPanelRamDev    ; defaultram.asm
      xref DefaultRamCommand        ; defaultram.asm
      xref SelectFileArea           ; selectcard.asm
@@ -245,6 +246,8 @@
 .no_inp_err
                     CP   IN_ESC
                     JP   Z, suicide
+                    CP   FlashStore_CC_cf
+                    JP   Z, CatalogCommand             ; Catalogue file (trad. listing of files)
                     CP   FlashStore_CC_fs              ; Save Files to File Card
                     JP   Z, SaveFilesCommand
                     CP   FlashStore_CC_fl              ; Fetch File from File Card
@@ -263,6 +266,8 @@
                     JP   Z, DefaultRamCommand
                     CP   FlashStore_CC_about
                     JP   Z, AboutCommand
+                    CP   FlashStore_CC_tfv
+                    JP   Z, ToggleFileViewMode
                     CP   IN_DEL
                     JP   Z, delfile_command
                     CP   IN_ENT                        ; no shortcut cmd, ENTER ?
@@ -291,12 +296,12 @@
                     JR   Z, selectFiles
                     XOR  A
                     LD   (barMode),A                   ; indicate that cursor has moved to menu window
-                    JR   inp_main
+                    JP   inp_main
 .selectFiles
                     call GetCursorFilePtr              ; (A)BHL <-- (CursorFilePtr)
                     or   h
                     or   l
-                    jr   z, inp_main                   ; no files to browse...
+                    jp   z, inp_main                   ; no files to browse...
                     ld   a,-1
                     LD  (barMode),A                    ; indicate that cursor has moved to file window
                     JP   inp_main
@@ -732,7 +737,7 @@
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
                     DEFM 1, "2-G", 1, "2+T"
-                    DEFM 1,"3@",32+1,32+0, "CHANGE FILE VIEW"
+                    DEFM 1,"3@",32+1,32+0, "TOGGLE FILE VIEW"
                     DEFM 1,"3@",32+1,32+1, "SELECT CARD"
                     DEFM 1,"3@",32,32+2, " SAVE TO CARD    "
                     DEFM 1,"3@",32+1,32+3, "FETCH FROM CARD"
@@ -749,7 +754,7 @@
 
 .grey_msg           DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G+",0
 .ungrey_msg         DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G-",0
-.clsvdu             DEFM 1,"2H2",12,0
+.clsvdu             DEFM 1,"2H2",1, SD_DTS, 1, 'S', 12,0
 .winbackground      DEFM 1,"7#1",32,32,32+94,32+8,128
                     DEFM 1,"2C1",0
 
