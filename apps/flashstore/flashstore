@@ -19,6 +19,7 @@ fsapp
 selectcard
 defaultram
 filestat
+browse
 catalog
 savefiles
 fetchfile
