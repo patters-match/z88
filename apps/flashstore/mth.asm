@@ -238,7 +238,7 @@
                     DEFB 0
 .cmd_cf_help
                     DEFM $7F
-                    DEFM "Lists filenames on file card area."
+                    DEFM "Lists filenames on file card area to a PipeDream file."
                     DEFB 0
 .cmd_sv_help
                     DEFM $7F
