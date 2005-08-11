@@ -134,6 +134,7 @@ Module DeleteFile
 
 ; *************************************************************************************
 .ConfirmDelete
+                    ld   de,buffer
                     call CompressedFileEntryName  ; get compressed filename from file entry (BHL) to (DE)
 
                     push bc
@@ -160,7 +161,7 @@ Module DeleteFile
                     LD   A,(curslot)
                     LD   C,A
                     LD   DE,buffer
-                    CALL FileEprFindFile          ; search for <buf1> filename on File Eprom...
+                    CALL FileEprFindFile          ; search for <buffer> filename on File Eprom...
                     JR   C, delfile_notfound      ; File Eprom or File Entry was not available
                     JR   NZ, delfile_notfound     ; File Entry was not found...
 
