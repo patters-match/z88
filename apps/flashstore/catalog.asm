@@ -92,14 +92,14 @@ Module CatalogFiles
                     ret
 .list_catalog
                     ld   hl,pdformat
-                    ld   bc,12
+                    ld   bc,20
                     call WriteLine               ; write PipeDream document format header to file...
 
                     ld   a,(curslot)
                     ld   c,a
                     call GetFirstFilePtr         ; BHL = first file entry
 .cat_main_loop
-                    ld   de, buf3+2              ; write filename at (DE), null-terminated
+                    ld   de, buffer+2            ; write filename at (DE), null-terminated
                     call CompressedFileEntryName ; copy filename from current file entry
                     call FileEprFileStatus
                     call CatalogueFile           ; catalogue current file
@@ -126,7 +126,7 @@ Module CatalogFiles
 
                     xor  a
                     ld   c,53
-                    ld   hl,buf3
+                    ld   hl,buffer
                     cpir                          ; find null-terminator
                     dec  hl
                     ld   b,c
@@ -155,7 +155,7 @@ Module CatalogFiles
                     ex   de,hl
                     ld   (hl),13
 
-                    ld   hl, buf3
+                    ld   hl, buffer
                     ld   bc,54
                     call WriteLine                ; List file data to Pipedream document
 
@@ -166,7 +166,7 @@ Module CatalogFiles
                     ld   a, 'F'
                     jr   dispsq
 .tiny_aff           ld   a, 'd'
-.dispsq             ld   de, buf3
+.dispsq             ld   de, buffer
                     ld   (de),a
                     inc  de
                     ld   a,' '
@@ -202,4 +202,4 @@ Module CatalogFiles
 .filename_msg       defm 1,"2+C Filename: ",0
 .catend_msg         defm " Catalogue written to file.", 0
 .defaultflnm        defm "/filearea.pdd",0
-.pdformat           defm "%CO:A,60,60%"
+.pdformat           defm "%OP%BON",13,"%CO:A,60,60%"   ; 60 char single column, no borders.
