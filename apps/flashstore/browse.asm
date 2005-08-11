@@ -30,6 +30,7 @@ Module BrowseFiles
      xdef PollFileArea
      xdef FileSelected
      xdef GetFirstFilePtr, GetNextFilePtr
+     xdef FileAreaBannerText
      xdef endf_msg
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -279,6 +280,8 @@ Module BrowseFiles
 ; Display name and size of stored files on Flash Eprom.
 ;
 .DispFilesWindow
+                    ld   hl, filearea_banner
+                    ld   bc, 9
                     call FileAreaBannerText       ; HL = banner for file area window
                     call DispMainWindow
 
@@ -332,18 +335,20 @@ Module BrowseFiles
 ;    "FILE AREA [VIEW SAVED & DELETED FILES]" or
 ;    "FILE AREA [VIEW ONLY SAVED FILES]"
 ;
+; IN:
+;       HL = Base banner text
+;       BC = length of banner text
+;
 .FileAreaBannerText
-                    ld   hl, filearea_banner
                     ld   de, buf3
                     push de
-                    ld   bc, 11
                     ldir
                     ld   hl, allfiles_banner
-                    ld   c, 27
+                    ld   c, 29
                     bit  dspdelfiles,(iy+0)
                     jr   nz, append_viewtypetext  ; all files are displayed
                     ld   hl, savedfiles_banner
-                    ld   c, 22                    ; only saved files displayed
+                    ld   c, 24                    ; only saved files displayed
 .append_viewtypetext
                     ldir
                     xor  a
@@ -368,7 +373,8 @@ Module BrowseFiles
                     ret  z                      ; ignore deleted file(name)...
                     ex   af,af'
 
-.disp_filename      call CompressedFileEntryName
+.disp_filename      ld   de,buffer
+                    call CompressedFileEntryName
                     push bc
                     push hl
 
@@ -410,16 +416,16 @@ Module BrowseFiles
 ; can be displayed sensibly in the file area window).
 ;
 ; IN:
+;    DE  = local pointer to compressed filename
 ;    BHL = pointer to current File Entry (B = absolute bank number)
 ;
 ; OUT:
-;    DE = local pointer to compressed filename
+;    DE = DE(in)
 .CompressedFileEntryName
                     push af
                     push bc
                     push hl
-
-                    ld   de, buffer             ; write filename at (DE), null-terminated
+                                                ; write filename at (DE), null-terminated
                     call FileEprFilename        ; copy filename from current file entry at (DE)
                     jr   c, end_GetCompressedFilename
                     cp   42
@@ -610,9 +616,9 @@ Module BrowseFiles
 ; *************************************************************************************
 ; constants
 ;
-.filearea_banner    DEFM "FILE AREA ["
-.allfiles_banner    DEFM "VIEW SAVED & DELETED FILES]"
-.savedfiles_banner  DEFM "VIEW ONLY SAVED FILES]"
+.filearea_banner    DEFM "FILE AREA"
+.allfiles_banner    DEFM " [VIEW SAVED & DELETED FILES]"
+.savedfiles_banner  DEFM " [VIEW ONLY SAVED FILES]"
 
 .norm_sq            DEFM 1,"2-G",1,"4+TRUF",1,"4-TRU ",0
 .tiny_sq            DEFM 1,"5+TRGUd",1,"3-RU ",0
