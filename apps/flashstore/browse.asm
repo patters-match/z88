@@ -415,8 +415,11 @@ Module BrowseFiles
 ; compressed using GN_Fcm to use max. 45 characters (so that a very long filename
 ; can be displayed sensibly in the file area window).
 ;
+; buf1 is used internally, so should not be used as external pointer (otherwise
+; no compression will executed).
+;
 ; IN:
-;    DE  = local pointer to compressed filename
+;    DE  = local pointer to put (optionally) compressed filename
 ;    BHL = pointer to current File Entry (B = absolute bank number)
 ;
 ; OUT:
@@ -430,6 +433,7 @@ Module BrowseFiles
                     jr   c, end_GetCompressedFilename
                     cp   42
                     jr   c, end_GetCompressedFilename  ; complete filename fits within 43 characters
+                    push de                     ; remember buffer pointer
                     ex   de,hl
                     ld   b,0                    ; HL pointer to local filename
                     ld   c,42                   ; compressed filename max. 45 chars (including '/..')
@@ -446,7 +450,12 @@ Module BrowseFiles
                     call_oz GN_Fcm              ; compress filename..
                     xor  a
                     ld   (de),a                 ; null-terminate
-                    pop  de                     ; start of compressed filename
+                    pop  hl
+                    pop  de                     ; start of original buffer
+                    push de
+                    ld   bc,45                  ; copy compressed filename to original buffer
+                    ldir
+                    pop  de
 .end_GetCompressedFilename
                     pop  hl
                     pop  bc
