@@ -42,6 +42,7 @@ Module CatalogFiles
      xref DispMainWindow           ; fsapp.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
+     xref PromptOverWrFile         ; restorefiles.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref InputFilename            ; fetchfile.asm
 
@@ -79,10 +80,21 @@ Module CatalogFiles
                     CALL GetDefaultRamDevice
                     CALL GetDefaultListingFilename
                     POP  DE
+                    PUSH DE
                     LD   C,15
                     CALL InputFilename
+                    POP  HL
                     ret  c                       ; user aborted command
 
+                    call PromptOverWrFile        ; check if specified file(name) exists and prompt
+                    jr   c, check_errcode        ; user aborted or file does not exist...
+                    jr   z, overwrite_catgf      ; file exists, user acknowledged Yes...
+                    ret                          ; user denied overwrite...
+.check_errcode
+                    cp   RC_Onf
+                    jr   z, overwrite_catgf      ; file doesn't exist, create it...
+                    ret
+.overwrite_catgf
                     CALL_OZ gn_nln
                     ld   b,0                     ; (local pointer)
                     ld   hl,buf1                 ; pointer to filename...
