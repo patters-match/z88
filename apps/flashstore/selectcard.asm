@@ -95,7 +95,7 @@ Module SelectCard
                     pop  hl
                     call CreateWindow        ; Device selection window.
 
-                    ld   a,1                 ; begin from slot 1...
+                    ld   a,3                 ; begin from slot 3...
 .disp_slot_loop
                     ld   (curslot),a
 
@@ -230,8 +230,7 @@ Module SelectCard
                          call_oz(Gn_Sop)
 .nextline
                     ld   a,(curslot)
-                    inc  a
-                    cp   4
+                    dec  a
                     jp   nz, disp_slot_loop
 
                     ; Now, user selects card (if possible) ...
@@ -466,18 +465,16 @@ Module SelectCard
 
 ; *************************************************************************************
 .SelectDefaultSlot                              ; select the first available Card File Area
-                    ld   hl, availslots+1
+                    ld   hl, availslots+3		; beginning from slot 3, towards slot 1...
                     ld   b,3
-                    ld   c,1
                     xor  a
 .sel_slot_loop
                     cp   (hl)
                     jr   nz, found_slot
-                    inc  hl
-                    inc  c
+                    dec  hl
                     djnz sel_slot_loop
 .found_slot
-                    ld   a,c
+                    ld   a,b
                     ld   (curslot),a         ; current slot selected...
                     cp   a
                     ret
