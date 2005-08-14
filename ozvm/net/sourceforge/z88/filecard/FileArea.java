@@ -711,8 +711,6 @@ public class FileArea {
 											- appCrdHdr.getAppAreaSize() - 1);
 							if (formatArea == true) 
 								formatFileArea(bottomBankNo, topFileAreaBank);
-							
-							createFileHeader(topFileAreaBank);
 						}
 					} else {
 						// create file area in flash card...
@@ -750,16 +748,11 @@ public class FileArea {
 
 						if (formatArea == true) 
 							formatFileArea(bottomBankNo, topFileAreaBank);
-						
-						createFileHeader(topFileAreaBank);
 					}
 				} else {
 					// empty card, write file header at top of card...
 					if (formatArea == true) 
 						formatFileArea(bottomBankNo, bottomBankNo
-							+ memory.getExternalCardSize(slotNumber) - 1);
-					
-					createFileHeader(bottomBankNo
 							+ memory.getExternalCardSize(slotNumber) - 1);
 				}
 			}
@@ -939,6 +932,8 @@ public class FileArea {
 			for (int offset = 0; offset < 0x3FC0; offset++)
 				memory.setByte(offset, bank, 0xFF);
 		}
+		
+		createFileHeader(topBank);
 	}
 
 	
