@@ -38,6 +38,7 @@
 ;    Success:
 ;         Fc = 0,
 ;              DEBC = Random ID (32bit integer)
+;              A = size of file area in 16K banks
 ;
 ;    Failure:
 ;         Fc = 1,
@@ -55,11 +56,12 @@
                     CALL FileEprRequest      ; check for presence of "oz" File Eprom in slot
                     JR   C, err_nofileepr
                     JR   NZ, err_nofileepr   ; File Eprom not available in slot...
-                                             ; BHL points at "oz" header of slot C
+                    LD   A,C                 ; BHL points at "oz" header of slot C
+                    PUSH AF                  ; return A = file area in 16K banks
                     LD   A,$38               ; $3fc0 + $38, position of Random ID is 3ff8h...
                     CALL MemReadLong
                     EXX                      ; return Random ID in DEBC...
-                    CP   A                   ; Fc = 0...
+                    POP  AF                  ; Fc = 0...
                     RET
 .err_nofileepr
                     SCF
