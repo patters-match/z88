@@ -33,6 +33,7 @@ Module SaveFiles
      xref InitFirstFileBar         ; browse.asm
      xref FlashWriteSupport        ; format.asm
      xref IntAscii                 ; filestat.asm
+     xref FileEpromStatistics      ; filestat.asm
      xref InputFileName            ; fetchfile.asm
      xref SelectRamDevice          ; defaultram.asm
      xref GetDefaultRamDevice      ; defaultram.asm
@@ -155,6 +156,7 @@ Module SaveFiles
                     JR   NZ, next_name
 .re_save
                     CALL SaveFileToCard                ; save found RAM file to Flash Card...
+                    CALL NC, UpdateFileAreaStats
                     JR   NC, next_name                 ; saved successfully, fetch next file in RAM..
 
                     CP   RC_BWR
@@ -171,7 +173,15 @@ Module SaveFiles
                     CALL Z, DispNoFiles
                     CALL ResSpace
                     RET
-
+.UpdateFileAreaStats
+                    PUSH AF
+                    PUSH HL
+                    CALL NC, FileEpromStatistics
+                    LD   HL, filewindow
+                    CALL_OZ GN_Sop
+                    POP  HL
+                    POP  AF
+                    RET
 .CheckFileArea
                     ld   a,(curslot)
                     ld   c,a
@@ -396,7 +406,7 @@ Module SaveFiles
 ; constants
 .bckp_bnr           DEFM "BACKUP RAM TO FILE CARD AREA",0
 .bckp_wildcard      DEFM "//*",0
-
+.filewindow         DEFM 1,"2H2",0
 .fsv1_bnr           DEFM "SAVE FILES TO FILE CARD AREA",0
 .wcrd_msg           DEFM 13, 10, " (Wildcards are allowed).",0
 .fnam_msg           DEFM 1,"2+C Filename: ",0
