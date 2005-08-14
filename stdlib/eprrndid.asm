@@ -49,7 +49,7 @@
 ;    AFBCDEHL/.... different
 ;
 ; -----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sept 2004
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sept 2004, Aug 2005
 ; -----------------------------------------------------------------------
 ;
 .FileEprRandomID
