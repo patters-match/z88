@@ -41,6 +41,7 @@ Module SelectCard
      XREF CheckFlashCardID              ; format.asm
      XREF FileEpromStatistics,DispKSize ; filestat.asm
      XREF m16                           ; filestat.asm
+     XREF PollFileCardWatermark         ; browse.asm
      XREF DispFilesWindow               ; browse.asm
      XREF InitFirstFileBar              ; browse.asm
      XREF DispErrMsg, DispIntelSlotErr  ; errmsg.asm
@@ -62,13 +63,16 @@ Module SelectCard
                     push bc
                     call PollSlots
                     ld   hl, selslot_banner
-                    call SelectFileArea          ; user selects a File Eprom Area in one of the external slots
+                    call SelectFileArea           ; user selects a File Eprom Area in one of the external slots
                     pop  bc
                     jp   c, user_aborted
-                    ret  z                   ; user selected a device, already stored in (curslot)...
+                    push af
+                    call z, PollFileCardWatermark ; get watermark from selected slot
+                    pop  af
+                    ret  z                        ; user selected a device, already stored in (curslot)...
 .user_aborted
                     ld   a,c
-                    ld   (curslot),a         ; user aborted selection, restore original slot...
+                    ld   (curslot),a              ; user aborted selection, restore original slot...
                     ret
 ; *************************************************************************************
 

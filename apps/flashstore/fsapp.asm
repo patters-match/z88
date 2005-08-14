@@ -37,6 +37,8 @@
 
      ; external functionality in other modules
      xref CatalogCommand           ; catalog.asm
+     xref PollFileCardWatermark    ; browse.asm
+     xref ResetFilesWindow         ; browse.asm
      xref GetCursorFilePtr         ; browse.asm
      xref DispFiles                ; browse.asm
      xref InitFirstFileBar         ; browse.asm
@@ -209,6 +211,7 @@
                     JP   C, suicide          ; no File Area available, or Flash didn't have write support in found slot
                     JP   NZ, suicide         ; user aborted
 
+                    CALL PollFileCardWatermark ; get watermark of current slot
                     CALL InitFirstFileBar    ; initialize File Bar to first active file in File Area
                     CALL ClearWindowArea     ; just clear whole window area available
 
@@ -244,6 +247,16 @@
                     CP   A
                     JR   inp_main
 .no_inp_err
+                    push af
+                    call PollFileCardWatermark         ; same card still available in current slot?
+                    call c,DispCmdWindow
+                    call z,DispCmdWindow
+                    call c,ResetFilesWindow            ; file area disappeared, redraw file window
+                    call c,FileEpromStatistics
+                    call z,ResetFilesWindow            ; file area changed, redraw file window
+                    call z,FileEpromStatistics
+                    pop  af
+
                     CP   IN_ESC
                     JP   Z, suicide
                     CP   FlashStore_CC_cf
@@ -288,7 +301,7 @@
                     JR   Z, MVbar_left
                     CP   IN_RGT                        ; Cursor Right ?
                     JR   Z, MVbar_right
-                    JR   inp_main                      ; ignore keypress, get another...
+                    JP   inp_main                      ; ignore keypress, get another...
 .MVbar_left
 .MVbar_right
                     LD   A,(barMode)
@@ -736,6 +749,7 @@
 
 .cmds_banner        DEFM "COMMANDS",0
 .menu_msg
+                    DEFM 1, "2H1"
                     DEFM 1, "2-G", 1, "2+T"
                     DEFM 1,"3@",32+1,32+0, "TOGGLE FILE VIEW"
                     DEFM 1,"3@",32+1,32+1, "SELECT CARD"
@@ -747,14 +761,15 @@
                     DEFM 1,"2-C"
                     DEFB 0
 
-.grey_wrercmds      DEFM 1, "2+G"
+.grey_wrercmds      DEFM 1, "2H1"
+                    DEFM 1, "2+G"
                     DEFM 1, "3@", 32+0, 32+2, 1, "2E", 32+17
                     DEFM 1, "3@", 32+0, 32+4, 1, "2E", 32+17
                     DEFM 1, "2-G", 0
 
 .grey_msg           DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G+",0
 .ungrey_msg         DEFM 1,"6#8  ",$7E,$28,1,"2H8",1,"2G-",0
-.clsvdu             DEFM 1,"2H2",1, SD_DTS, 1, 'S', 12,0
+.clsvdu             DEFM 1,"2C2", 1, 'S', 12,0
 .winbackground      DEFM 1,"7#1",32,32,32+94,32+8,128
                     DEFM 1,"2C1",0
 

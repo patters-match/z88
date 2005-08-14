@@ -21,6 +21,7 @@ Module BrowseFiles
 ; This module contains the file navigation functionality in the File Area Window.
 
      xdef DispFilesWindow, DispFiles, FilesAvailable
+     xdef ResetFilesWindow, PollFileCardWatermark, ResetWatermark
      xdef StoreCursorFilePtr, GetCursorFilePtr
      xdef CompressedFileEntryName
      xdef MoveFileBarDown, MoveFileBarUp
@@ -42,8 +43,10 @@ Module BrowseFiles
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprCntFiles           ; Return total of active and deleted files
      lib FileEprFileStatus         ; Return Active/Deleted status of file entry
+     lib FileEprRandomID           ; Return File Eprom "oz" Header Random ID
 
      xref DispMainWindow, cls      ; fsapp.asm
+     xref DispCmdWindow
      xref DisplBar                 ; fsapp.asm
      xref rightjustify             ; fsapp.asm
      xref leftjustify              ; fsapp.asm
@@ -62,6 +65,89 @@ Module BrowseFiles
 
      ; FlashStore popdown variables
      include "fsapp.def"
+
+
+
+; *************************************************************************************
+; Display name and size of stored files on Flash Eprom.
+;
+.DispFilesWindow
+                    ld   hl, filearea_banner
+                    ld   bc, 9
+                    call FileAreaBannerText       ; HL = banner for file area window
+                    call DispMainWindow
+
+                    call PollFileArea
+                    jp   c, disp_no_filearea_msg  ; file area not available
+                    jp   z, no_files              ; Fz = 1, no files available in file area...
+.DispFiles
+                    call cls
+                    xor  a
+                    ld   (linecnt),a
+                    xor  a
+                    ld   (FileBarPosn),a          ; File Bar at top of window
+                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr)
+.cat_main_loop
+                    call DisplayFile
+                    ret  c
+.get_next_filename
+                    call GetNextFilePtr           ; get pointer to next File Entry in BHL...
+                    push hl
+                    ld   hl, linecnt
+                    inc  (hl)
+                    ld   a,7
+                    cp   (hl)
+                    jr   nz,next_row
+                    ld   (hl),0
+                    pop  hl
+                    ret
+.next_row
+                    CALL_OZ gn_nln
+                    pop  hl
+                    jp   cat_main_loop
+
+.norm_aff           ld   hl,norm_sq
+                    jr   dispsq
+.tiny_aff           ld   hl,tiny_sq
+                    jr   dispsq
+.jrsz_aff           ld   hl, rightjustify
+                    jr   dispsq
+.jnsz_aff           ld   hl, leftjustify
+.dispsq             push af
+                    CALL_OZ gn_sop
+                    pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Make the banner for the file area window.
+; Depending on the current view settings, the banner text is dynamically created
+; as follows:
+;    "FILE AREA [VIEW SAVED & DELETED FILES]" or
+;    "FILE AREA [VIEW ONLY SAVED FILES]"
+;
+; IN:
+;       HL = Base banner text
+;       BC = length of banner text
+;
+.FileAreaBannerText
+                    ld   de, buf3
+                    push de
+                    ldir
+                    ld   hl, allfiles_banner
+                    ld   c, 29
+                    bit  dspdelfiles,(iy+0)
+                    jr   nz, append_viewtypetext  ; all files are displayed
+                    ld   hl, savedfiles_banner
+                    ld   c, 24                    ; only saved files displayed
+.append_viewtypetext
+                    ldir
+                    xor  a
+                    ld   (de),a                   ; null-terminate completed banner string
+                    pop  hl                       ; return pointer to start of banner text.
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -254,248 +340,6 @@ Module BrowseFiles
 
 
 ; *************************************************************************************
-; Poll current file area, and update File entry pointer if necessary
-;
-.PollFileArea
-                    call FilesAvailable
-                    jp   c, ResetFilePtr          ; no file area found in slot
-                    jp   z, ResetFilePtr          ; no files in file area
-
-                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr)
-                    or   h
-                    or   l
-                    call z,InitFirstFileBar       ; File Entry was zero, initialize to first in file area
-
-                    call FileEprFileStatus
-                    ret  nz                       ; current file entry is active, all OK whatever view...
-                    bit  dspdelfiles,(iy+0)
-                    ret  nz                       ; current deleted file may be displayed (display deleted files mode)...
-                    call MoveFileBarDown          ; get next (active) file to be displayed, Fc = 1, if there is no next file...
-                    jp   c, ResetFilePtr
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Display name and size of stored files on Flash Eprom.
-;
-.DispFilesWindow
-                    ld   hl, filearea_banner
-                    ld   bc, 9
-                    call FileAreaBannerText       ; HL = banner for file area window
-                    call DispMainWindow
-
-                    call PollFileArea
-                    jp   c, disp_no_filearea_msg  ; file area not available
-                    jp   z, no_files              ; Fz = 1, no files available in file area...
-.DispFiles
-                    call cls
-                    xor  a
-                    ld   (linecnt),a
-                    xor  a
-                    ld   (FileBarPosn),a          ; File Bar at top of window
-                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr)
-.cat_main_loop
-                    call DisplayFile
-                    ret  c
-.get_next_filename
-                    call GetNextFilePtr           ; get pointer to next File Entry in BHL...
-                    push hl
-                    ld   hl, linecnt
-                    inc  (hl)
-                    ld   a,7
-                    cp   (hl)
-                    jr   nz,next_row
-                    ld   (hl),0
-                    pop  hl
-                    ret
-.next_row
-                    CALL_OZ gn_nln
-                    pop  hl
-                    jp   cat_main_loop
-
-.norm_aff           ld   hl,norm_sq
-                    jr   dispsq
-.tiny_aff           ld   hl,tiny_sq
-                    jr   dispsq
-.jrsz_aff           ld   hl, rightjustify
-                    jr   dispsq
-.jnsz_aff           ld   hl, leftjustify
-.dispsq             push af
-                    CALL_OZ gn_sop
-                    pop  af
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Make the banner for the file area window.
-; Depending on the current view settings, the banner text is dynamically created
-; as follows:
-;    "FILE AREA [VIEW SAVED & DELETED FILES]" or
-;    "FILE AREA [VIEW ONLY SAVED FILES]"
-;
-; IN:
-;       HL = Base banner text
-;       BC = length of banner text
-;
-.FileAreaBannerText
-                    ld   de, buf3
-                    push de
-                    ldir
-                    ld   hl, allfiles_banner
-                    ld   c, 29
-                    bit  dspdelfiles,(iy+0)
-                    jr   nz, append_viewtypetext  ; all files are displayed
-                    ld   hl, savedfiles_banner
-                    ld   c, 24                    ; only saved files displayed
-.append_viewtypetext
-                    ldir
-                    xor  a
-                    ld   (de),a                   ; null-terminate completed banner string
-                    pop  hl                       ; return pointer to start of banner text.
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Display file name and size information to current VDU cursor in current active
-; window, as defined by file entry BHL.
-;
-.DisplayFile
-                    call FileEprFileStatus
-                    jr   c, end_cat             ; Ups - last file(name) has been displayed...
-                    jr   nz, disp_filename      ; active file, display...
-
-                    ex   af,af'
-                    cp   a                      ; fc = 0...
-                    bit  dspdelfiles,(iy+0)
-                    ret  z                      ; ignore deleted file(name)...
-                    ex   af,af'
-
-.disp_filename      ld   de,buffer
-                    call CompressedFileEntryName
-                    push bc
-                    push hl
-
-                    push de
-                    call nz,norm_aff
-                    call z,tiny_aff
-                    pop  hl
-                    CALL_OZ(Gn_sop)             ; display filename
-
-                    pop  hl
-                    pop  bc
-                    push bc
-                    push hl
-                    call FileEprFileSize        ; get size of File Entry in CDE
-                    ld   (flen),de
-                    ld   b,0
-                    ld   (flen+2),bc
-
-                    call jrsz_aff
-                    ld   hl,flen
-                    call IntAscii
-                    CALL_OZ gn_sop              ; display size of current File Entry
-                    call jnsz_aff
-                    pop  hl
-                    pop  bc
-                    ret
-.end_cat
-                    push af
-                    ld   hl,endf_msg
-                    CALL_OZ gn_sop
-                    pop  af
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Fetches the filename of the current file entry (supplied as BHL) The filename is
-; compressed using GN_Fcm to use max. 45 characters (so that a very long filename
-; can be displayed sensibly in the file area window).
-;
-; buf1 is used internally, so should not be used as external pointer (otherwise
-; no compression will executed).
-;
-; IN:
-;    DE  = local pointer to put (optionally) compressed filename
-;    BHL = pointer to current File Entry (B = absolute bank number)
-;
-; OUT:
-;    DE = DE(in)
-.CompressedFileEntryName
-                    push af
-                    push bc
-                    push hl
-                                                ; write filename at (DE), null-terminated
-                    call FileEprFilename        ; copy filename from current file entry at (DE)
-                    jr   c, end_GetCompressedFilename
-                    cp   42
-                    jr   c, end_GetCompressedFilename  ; complete filename fits within 43 characters
-                    push de                     ; remember buffer pointer
-                    ex   de,hl
-                    ld   b,0                    ; HL pointer to local filename
-                    ld   c,42                   ; compressed filename max. 45 chars (including '/..')
-                    ld   de,buf1                ; make compressed filename at buf1
-                    push de
-                    ld   a,'/'
-                    ld   (de),a
-                    inc  de
-                    ld   a,'.'
-                    ld   (de),a
-                    inc  de
-                    ld   (de),a                 ; preset the filename with '/..' before compressed filename
-                    inc  de
-                    call_oz GN_Fcm              ; compress filename..
-                    xor  a
-                    ld   (de),a                 ; null-terminate
-                    pop  hl
-                    pop  de                     ; start of original buffer
-                    push de
-                    ld   bc,45                  ; copy compressed filename to original buffer
-                    ldir
-                    pop  de
-.end_GetCompressedFilename
-                    pop  hl
-                    pop  bc
-                    pop  af
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Check if there's active/deleted files availabe in the current File Area.
-; If current file display setting signals also display of deleted files, Fz = 1 is
-; returned if there are also no deleted files.
-;
-; return Fz = 1, if no files available, and Fc = 1 if no file area available.
-;
-.FilesAvailable
-                    push bc
-                    push de
-                    push hl
-
-                    ld   a,(curslot)
-                    ld   c,a
-                    call FileEprCntFiles          ; any files available in File Area?
-                    jr   c, exit_checkfiles       ; no file area!
-                    ld   a,h
-                    or   l
-                    jr   nz, exit_checkfiles      ; active files available...
-
-                    bit  dspdelfiles,(iy+0)       ; no active files, are deleted files to be displayed in file area?
-                    jr   z, exit_checkfiles       ; no, only active files are displayed, then signal no files...
-                    ld   a,e
-                    or   d                        ; If no deleted files are available, then Fz = 0...
-.exit_checkfiles
-                    pop  hl
-                    pop  de
-                    pop  bc
-                    ret
-; *************************************************************************************
-
-; *************************************************************************************
 ; Get pointer to first file entry. If only active files are currently displayed,
 ; deleted file entries are skipped until an active file entry is found.
 ;
@@ -586,6 +430,237 @@ Module BrowseFiles
                     bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
                     call z,GetPrevFilePtr         ; skip deleted file(s) backward until active file is found
                     ret                           ; (and return BHL to that entry)
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Poll current file area, and update File entry pointer if necessary.
+;
+; Return Fc = 1, if no file area is available (possibly card was removed)
+; Return Fz = 1, if no files are available in file area
+;
+.PollFileArea
+                    call PollFileCardWatermark    ; same card still available in current slot?
+                    jp   c, ResetFilePtr          ; no file area found in slot
+                    jr   z, ResetFilesWindow      ; Ups, the card has been changed in the current slot!
+
+                    call FilesAvailable           ; same card still present, check if files area available...
+                    jp   z, ResetFilePtr          ; no files in file area
+
+                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr)
+                    or   h
+                    or   l
+                    call z,InitFirstFileBar       ; File Entry was zero, initialize to first in file area
+
+                    call FileEprFileStatus
+                    ret  nz                       ; current file entry is active, all OK whatever view...
+                    bit  dspdelfiles,(iy+0)
+                    ret  nz                       ; current deleted file may be displayed (display deleted files mode)...
+                    call MoveFileBarDown          ; get next (active) file to be displayed, Fc = 1, if there is no next file...
+                    jp   c, ResetFilePtr
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Reset file area window to point at first file and refresh the entire file window
+;
+.ResetFilesWindow   push af
+                    call InitFirstFileBar         ; Place the file cursor at the beginning of the file list
+                    call DispFilesWindow          ; and redraw the entire file area window
+                    pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; For the current slot, compare the random ID and size of the file area
+; (identified as the watermark) with the current stored values at (watermark).
+;
+; return Fc = 1, if no file area was found (watermark reset to 0)
+; return Fz = 1, if a new file area was found (watermark updated to new value)
+;
+.PollFileCardWatermark
+                    push bc
+                    push de
+                    push hl
+                    call getRandomId
+                    call c, resetwatermark        ; Ups, no card available in current slot
+                    jr   c, exit_PollFileCardWatermark
+                    ld   hl,watermark+4
+                    cp   (hl)
+                    jr   nz, newFileArea          ; a new card with a different size file area has been inserted
+                    call getRandomId              ; get Random ID of file header in DEBC...
+                    ld   hl,(watermark)
+                    sbc  hl,bc
+                    jr   nz,newFileArea           ; compare previous stored watermark with current from file area
+                    ld   hl,(watermark+2)
+                    sbc  hl,de
+                    jr   nz,newFileArea           ; watermark doesn't match - a new file area was found in slot
+                    or   a                        ; Fz = 0, indicate same file area...
+.exit_PollFileCardWatermark
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    ret
+.newFileArea
+                    call getRandomId              ; get Random ID of file header in DEBC...
+                    ld   (watermark),bc
+                    ld   (watermark+2),de
+                    ld  (watermark+4),a           ; size of file area in 16K banks
+                    cp   a                        ; Fz = 1, indicate new file area
+                    jr   exit_PollFileCardWatermark
+.getRandomId
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FileEprRandomID
+                    ret
+.ResetWatermark
+                    ld   a,0
+                    ld   h,a
+                    ld   l,a
+                    ld  (watermark),hl
+                    ld  (watermark+2),hl
+                    ld  (watermark+4),a
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Display file name and size information to current VDU cursor in current active
+; window, as defined by file entry BHL.
+;
+.DisplayFile
+                    call FileEprFileStatus
+                    jr   c, end_cat             ; Ups - last file(name) has been displayed...
+                    jr   nz, disp_filename      ; active file, display...
+
+                    ex   af,af'
+                    cp   a                      ; fc = 0...
+                    bit  dspdelfiles,(iy+0)
+                    ret  z                      ; ignore deleted file(name)...
+                    ex   af,af'
+
+.disp_filename      ld   de,buffer
+                    call CompressedFileEntryName
+                    push bc
+                    push hl
+
+                    push de
+                    call nz,norm_aff
+                    call z,tiny_aff
+                    pop  hl
+                    CALL_OZ(Gn_sop)             ; display filename
+
+                    pop  hl
+                    pop  bc
+                    push bc
+                    push hl
+                    call FileEprFileSize        ; get size of File Entry in CDE
+                    ld   (flen),de
+                    ld   b,0
+                    ld   (flen+2),bc
+
+                    call jrsz_aff
+                    ld   hl,flen
+                    call IntAscii
+                    CALL_OZ gn_sop              ; display size of current File Entry
+                    call jnsz_aff
+                    pop  hl
+                    pop  bc
+                    ret
+.end_cat
+                    push af
+                    ld   hl,endf_msg
+                    CALL_OZ gn_sop
+                    pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Fetches the filename of the current file entry (supplied as BHL) The filename is
+; compressed using GN_Fcm to use max. 45 characters (so that a very long filename
+; can be displayed sensibly in the file area window).
+;
+; buf1 is used internally, so should not be used as external pointer (otherwise
+; no compression will be executed).
+;
+; IN:
+;    DE  = local pointer to put (optionally) compressed filename
+;    BHL = pointer to current File Entry (B = absolute bank number)
+;
+; OUT:
+;    DE = DE(in)
+.CompressedFileEntryName
+                    push af
+                    push bc
+                    push hl
+                                                ; write filename at (DE), null-terminated
+                    call FileEprFilename        ; copy filename from current file entry at (DE)
+                    jr   c, end_GetCompressedFilename
+                    cp   42
+                    jr   c, end_GetCompressedFilename  ; complete filename fits within 43 characters
+                    push de                     ; remember buffer pointer
+                    ex   de,hl
+                    ld   b,0                    ; HL pointer to local filename
+                    ld   c,42                   ; compressed filename max. 45 chars (including '/..')
+                    ld   de,buf1                ; make compressed filename at buf1
+                    push de
+                    ld   a,'/'
+                    ld   (de),a
+                    inc  de
+                    ld   a,'.'
+                    ld   (de),a
+                    inc  de
+                    ld   (de),a                 ; preset the filename with '/..' before compressed filename
+                    inc  de
+                    call_oz GN_Fcm              ; compress filename..
+                    xor  a
+                    ld   (de),a                 ; null-terminate
+                    pop  hl
+                    pop  de                     ; start of original buffer
+                    push de
+                    ld   bc,45                  ; copy compressed filename to original buffer
+                    ldir
+                    pop  de
+.end_GetCompressedFilename
+                    pop  hl
+                    pop  bc
+                    pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Check if there's active/deleted files availabe in the current File Area.
+; If current file display setting signals also display of deleted files, Fz = 1 is
+; returned if there are also no deleted files.
+;
+; return Fz = 1, if no files available, and Fc = 1 if no file area available.
+;
+.FilesAvailable
+                    push bc
+                    push de
+                    push hl
+
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FileEprCntFiles          ; any files available in File Area?
+                    jr   c, exit_checkfiles       ; no file area!
+                    ld   a,h
+                    or   l
+                    jr   nz, exit_checkfiles      ; active files available...
+
+                    bit  dspdelfiles,(iy+0)       ; no active files, are deleted files to be displayed in file area?
+                    jr   z, exit_checkfiles       ; no, only active files are displayed, then signal no files...
+                    ld   a,e
+                    or   d                        ; If no deleted files are available, then Fz = 0...
+.exit_checkfiles
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    ret
 ; *************************************************************************************
 
 

@@ -29,7 +29,8 @@ Module FileAreaFormat
      lib ApplEprType               ; check for presence of application card in slot
      lib CheckBattLow              ; Check Battery Low condition
 
-     xref InitFirstFileBar         ; browse.asm
+     xref PollFileArea             ; browse.asm
+     xref ResetWatermark           ; browse.asm
      xref FileEpromStatistics      ; filestat.asm
      xref SelectFileArea           ; selectcard.asm
      xref done_msg                 ; fetchfile.asm
@@ -127,7 +128,7 @@ Module FileAreaFormat
                     CALL FlashEprFileFormat       ; erase blocks of file area & blow "oz" header at top
 
                     push af
-                    call InitFirstFileBar         ; reset file area information
+                    call PollFileArea             ; reset file area information
                     pop  af
 
                     JR   C, formaterr             ; or at top of free area.
@@ -149,6 +150,7 @@ Module FileAreaFormat
                     call cls
                     LD   HL, fferr_msg
                     CALL DispErrMsg
+                    CALL ResetWatermark
                     RET
 ; *************************************************************************************
 
