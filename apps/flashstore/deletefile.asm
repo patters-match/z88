@@ -29,7 +29,7 @@ Module DeleteFile
 
      xref StoreCursorFilePtr, GetCursorFilePtr    ; browse.asm
      xref CompressedFileEntryName, FilesAvailable ; browse.asm
-     xref InitFirstFileBar                        ; browse.asm
+     xref InitFirstFileBar, DispFiles             ; browse.asm
      xref MoveToFirstFile, GetNextFilePtr         ; browse.asm
      xref DispErrMsg, disp_no_filearea_msg        ; errmsg.asm
      xref DispIntelSlotErr, no_files              ; errmsg.asm
@@ -122,8 +122,8 @@ Module DeleteFile
                     call InitDeleteCommand        ; init command window and check if Flash Card supports deleting files?
                     pop  hl
                     pop  bc
-                    ret  c                        ; it didn't...
-                    ret  nz                       ; (and flash chip was not found in slot!)
+                    jp   c, DispFiles             ; it didn't...
+                    jp   nz, DispFiles            ; (and flash chip was not found in slot!)
 
                     call_oz GN_Nln
                     call ConfirmDelete            ; ask user to confirm mark as deleted.
