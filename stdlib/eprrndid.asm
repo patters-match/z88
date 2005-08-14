@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -56,7 +56,7 @@
                     JR   C, err_nofileepr
                     JR   NZ, err_nofileepr   ; File Eprom not available in slot...
                                              ; BHL points at "oz" header of slot C
-                    LD   A,$F8               ; offset $F8, position of Random ID
+                    LD   A,$38               ; $3fc0 + $38, position of Random ID is 3ff8h...
                     CALL MemReadLong
                     EXX                      ; return Random ID in DEBC...
                     CP   A                   ; Fc = 0...
