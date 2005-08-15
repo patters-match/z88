@@ -84,9 +84,7 @@ Module BrowseFiles
                     call cls
                     xor  a
                     ld   (linecnt),a
-                    xor  a
-                    ld   (FileBarPosn),a          ; File Bar at top of window
-                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr)
+                    call GetWindowFilePtr         ; BHL <-- (WindowFilePtr), top file entry of the window
 .cat_main_loop
                     call DisplayFile
                     ret  c
@@ -162,6 +160,7 @@ Module BrowseFiles
 ; If no file area were found, or no files present in file area:
 ;       Fc = 1
 ;       (CursorFilePtr) = 0
+;       (WindowFilePtr) = 0
 ;
 .InitFirstFileBar
                     xor  a
@@ -176,6 +175,7 @@ Module BrowseFiles
                     call GetFirstFilePtr        ; get BHL of first file in File area in slot C
                     jp   c, ResetFilePtr        ; hmm..
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
+                    call StoreWindowFilePtr     ; BHL --> (WindowFilePtr)
                     ld   a,255
                     or   a                      ; Fc = 0, Fz = 0
                     ret
@@ -212,6 +212,8 @@ Module BrowseFiles
                     ld   a,6
                     sub  c
                     ld   (FileBarPosn),a        ; File Bar at last file entry in window
+                    call GetCursorFilePtr
+                    call StoreWindowFilePtr     ; update the file entry pointer that is the top entry in the window
                     pop  hl
                     pop  bc
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprLastFile(slot)
@@ -229,14 +231,6 @@ Module BrowseFiles
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
                     call GetPrevFilePtr
                     jr   c, MoveToLastFile      ; File Bar at top of file list, wrap to last...
-                    jr   nz, dispPrevFile       ; previous file is available, display it...
-                    call FileEprFileSize
-                    ld   a,c
-                    or   d
-                    or   e
-                    jr   nz, dispPrevFile
-                    jr   MoveToLastFile         ; ignore hidden system file, wrap to last file...
-.dispPrevFile
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetPrevFilePtr(CursorFilePtr)
 
                     ld   a,(FileBarPosn)
@@ -246,14 +240,13 @@ Module BrowseFiles
                     ld   (FileBarPosn),a
                     ret
 .scroll_filearea_down
+                    call StoreWindowFilePtr     ; new top window file entry pointer...
                     push bc
                     push hl
                     ld   hl, scroll_up
                     call_oz Gn_sop
 
-                    LD   A,(FileBarPosn)        ; get Y position of File Bar
-                    LD   B,A
-                    LD   C,0                    ; start of line
+                    ld   bc,0                   ; (0,0) - the start of the top line in the file area window
                     Call VduCursor
                     pop  hl
                     pop  bc
@@ -283,6 +276,10 @@ Module BrowseFiles
 .scroll_filearea_up                             ; cursor at bottom line, scroll window contents
                     push bc                     ; one line upwards and display the next file
                     push hl                     ; at bottom line of window
+
+                    call GetWindowFilePtr
+                    call GetNextFilePtr
+                    call StoreWindowFilePtr     ; update the top window file entry to the next file entry...
 
                     ld   hl, scroll_down
                     call_oz Gn_sop
@@ -314,6 +311,7 @@ Module BrowseFiles
                     call GetPrevFilePtr
                     jr   c, end_MovePgUp        ; reached top of list, update file area window
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetPrevFilePtr(CursorFilePtr)
+                    call StoreWindowFilePtr     ; the top window file entry will be the same as the new file entry
                     dec  c
                     jr   nz, pageup_loop
 .end_MovePgUp       jp   DispFiles
@@ -333,6 +331,7 @@ Module BrowseFiles
                     call GetNextFilePtr
                     jr   c, end_MovePgDwn       ; reached bottom of list, update file area window
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetNextFilePtr(CursorFilePtr)
+                    call StoreWindowFilePtr     ; the top window file entry will be the same as the new file entry
                     dec  c
                     jr   nz, pagedwn_loop
 .end_MovePgDwn      jp   DispFiles
@@ -685,6 +684,27 @@ Module BrowseFiles
                     ret
 ; *************************************************************************************
 
+; *************************************************************************************
+; BHL --> (WindowFilePtr)
+;
+.StoreWindowFilePtr
+                    ld   (WindowFilePtr),hl
+                    ld   a,b
+                    ld   (WindowFilePtr+2),a    ; real last file pointer
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; BHL <-- (WindowFilePtr)
+;
+.GetWindowFilePtr
+                    ld   hl,(WindowFilePtr)
+                    ld   a,(WindowFilePtr+2)
+                    ld   b,a
+                    ret
+; *************************************************************************************
+
 
 ; *************************************************************************************
 .ResetFilePtr
@@ -692,6 +712,7 @@ Module BrowseFiles
                     ld   h,b
                     ld   l,b
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), indicate no files (pointer = 0)
+                    call StoreWindowFilePtr     ; BHL --> (WindowFilePtr), indicate no files (pointer = 0)
                     LD   (barMode),A            ; get cursor out of file window
                     ret
 ; *************************************************************************************

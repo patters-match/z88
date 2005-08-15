@@ -35,6 +35,7 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      bytesperline   ds.w 1              ; number of bytes that represents each drawn vertical line in horisontal space bar
      MenuBarPosn    ds.b 1              ; Main Menu Bar vertical position in window (0 - 6)
      FileBarPosn    ds.b 1              ; File Bar vertical position in Catalogue window (0 - 6)
+     WindowFilePtr  ds.p 1              ; Top Line Window Pointer to File Entry
      CursorFilePtr  ds.p 1              ; File Bar Pointer to current File Entry in File Area
      barMode        ds.b 1              ; menu bar or file bar movement?
      nlen           ds.b 1              ; length of filename
