@@ -44,7 +44,7 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      deleted        ds.l 1              ; total bytes of deleted file space in File Area
      active         ds.l 1              ; total bytes of active file space in File Area
      total          ds.l 1              ; total bytes of active+deleted file space in File Area
-     file           ds.l 1              ; total count of files in File Area (active + deleted)
+     file           ds.l 1              ; total count of active files in File Area
      fdel           ds.l 1              ; total count of deleted files on Flash Eprom
      savedfiles     ds.l 1              ; total of files saved in a "Save" session
      fbnk           ds.b 1              ; Eprom Bank (relative)
