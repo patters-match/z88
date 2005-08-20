@@ -37,6 +37,7 @@ Module FileAreaStatistics
      XREF centerjustify, tinyfont  ; fsapp.asm
      XREF nocursor                 ; fsapp.asm
      XREF CheckFlashCardID         ; format.asm
+     XREF FilesAvailable           ; browse.asm
 
      ; flash card library definitions
      include "flashepr.def"
@@ -98,14 +99,8 @@ Module FileAreaStatistics
                          call_oz (Gn_Sop)
                          ret
 .cont_statistics
-                    pop  bc
-                    push bc                       ; preserve slot number
-                    call FileEprCntFiles          ; files on current File Eprom
-                    ld   (file),hl                ; active files
-                    ld   (fdel),de                ; deleted files
-
-                    pop  bc
-                    push bc
+                    call FilesAvailable           ; update file count on current File Eprom
+                                                  ; (file) = active files, (fdel) = deleted files
                     call FileEprFirstFile
                     call FileEprFileSize
                     ld   a,c
