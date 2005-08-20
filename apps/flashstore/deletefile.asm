@@ -152,6 +152,10 @@ Module DeleteFile
                     pop  hl
                     pop  bc                       ; BHL = file entry to mark as deleted
                     ret
+.disp_markdel_prompt
+                    LD   HL,markdel_prompt
+                    CALL_OZ GN_Sop
+                    RET
 ; *************************************************************************************
 
 
@@ -174,31 +178,18 @@ Module DeleteFile
                     ret  nz                       ; User aborted...
 .exec_delete
                     CALL FlashEprFileDelete       ; User pressed Y (for Yes)
-                    JR   NC, file_deleted
+                    JR   C, delfile_failed
+                    LD   HL,filedel_msg
+                    CALL DispErrMsg
+                    RET
+.delfile_failed
                     LD   HL,markdelete_failed
                     CALL DispErrMsg
 .delfile_notfound
                     LD   HL,delfile_err_msg
                     CALL DispErrMsg
                     RET
-.file_deleted
-                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
-                    ret  nz                       ; yes, stay at file entry and let the window be re-drawn
-
-                    call GetNextFilePtr
-                    jp   c, MoveToFirstFile       ; File Bar at end of file list, wrap to first...
-                    call StoreCursorFilePtr       ; BHL --> (CursorFilePtr), CursorFilePtr = GetNextFilePtr(CursorFilePtr)
-
-                    LD   HL,filedel_msg
-                    CALL DispErrMsg
-                    RET
 ; *************************************************************************************
-
-
-.disp_markdel_prompt
-                    LD   HL,markdel_prompt
-                    CALL_OZ GN_Sop
-                    RET
 
 
 ; *************************************************************************************
