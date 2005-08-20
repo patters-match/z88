@@ -118,7 +118,14 @@ Module ErrorMessages
 
 ; *************************************************************************************
 .no_files
-                    LD   HL, noeprfilesmsg
+                    cp   a                   ; Fc = 0
+                    ld   hl,(file)           ; total active files
+                    ld   de,(fdel)           ; total deleted files
+                    adc  hl,de
+                    ld   hl, noeprfilesmsg
+                    jr   z, disp_no_files
+                    ld   hl, nofileviewsmsg
+.disp_no_files
                     CALL DispErrMsgNoWait
                     RET
 ; *************************************************************************************
@@ -221,3 +228,4 @@ Module ErrorMessages
 .nofilearea2_msg    DEFM ".",1,"B", 13, 10, "(card was possibly removed whilst FlashStore running)", 13, 10, 0
 
 .noeprfilesmsg      DEFM 1, "2+TNO FILES AVAILABLE IN FILE AREA", 1, "2-T",$0D,$0A,0
+.nofileviewsmsg     DEFM 1, "2+TNO FILES AVAILABLE IN CURRENT FILE VIEW", 1, "2-T",$0D,$0A,0
