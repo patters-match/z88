@@ -28,7 +28,6 @@ Module CatalogFiles
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFileStatus         ; Return Active/Deleted status of file entry
-     lib FileEprCntFiles           ; Return total of active and deleted files
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
 
      xref GetFirstFilePtr          ; browse.asm
