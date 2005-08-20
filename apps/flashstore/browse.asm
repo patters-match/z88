@@ -167,13 +167,13 @@ Module BrowseFiles
                     ld   (FileBarPosn),a        ; File Bar at top of window
 
                     call FilesAvailable         ; any files available in File Area?
-                    jp   c, ResetFilePtr        ; no file area...
-                    jp   z, ResetFilePtr        ; no files available...
+                    jp   c, ResetFilePtrs       ; no file area...
+                    jp   z, ResetFilePtrs       ; no files available...
 
                     ld   a,(curslot)
                     ld   c,a
                     call GetFirstFilePtr        ; get BHL of first file in File area in slot C
-                    jp   c, ResetFilePtr        ; hmm..
+                    jp   c, ResetFilePtrs       ; hmm..
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
                     call StoreWindowFilePtr     ; BHL --> (WindowFilePtr)
                     ld   a,255
@@ -440,23 +440,20 @@ Module BrowseFiles
 ;
 .PollFileArea
                     call PollFileCardWatermark    ; same card still available in current slot?
-                    jp   c, ResetFilePtr          ; no file area found in slot
+                    jp   c, ResetFilePtrs         ; no file area found in slot
                     jr   z, ResetFilesWindow      ; Ups, the card has been changed in the current slot!
 
                     call FilesAvailable           ; same card still present, check if files area available...
-                    jp   z, ResetFilePtr          ; no files in file area
+                    jp   z, ResetFilePtrs         ; no files in file area
+
+                    call AdjustWindowFileEntryPtr ; File Area Window top line points at file entry according to view setting
+                    jp   c, InitFirstFileBar      ; no files in file area
+                    call AdjustFileEntryPtr       ; Current file Entry File Bar adjusted to match adjusted Window File File Ptr
 
                     call GetCursorFilePtr         ; BHL <-- (CursorFilePtr)
                     or   h
                     or   l
                     call z,InitFirstFileBar       ; File Entry was zero, initialize to first in file area
-
-                    call FileEprFileStatus
-                    ret  nz                       ; current file entry is active, all OK whatever view...
-                    bit  dspdelfiles,(iy+0)
-                    ret  nz                       ; current deleted file may be displayed (display deleted files mode)...
-                    call MoveFileBarDown          ; get next (active) file to be displayed, Fc = 1, if there is no next file...
-                    jp   c, ResetFilePtr
                     ret
 ; *************************************************************************************
 
@@ -483,6 +480,7 @@ Module BrowseFiles
                     push bc
                     push de
                     push hl
+
                     call getRandomId
                     call c, resetwatermark        ; Ups, no card available in current slot
                     jr   c, exit_PollFileCardWatermark
@@ -707,13 +705,70 @@ Module BrowseFiles
 
 
 ; *************************************************************************************
-.ResetFilePtr
+; Adjust the top window line File entry to point at a file entry that matches the
+; current display setting, if necessary.
+; If the current file entry is marked as deleted and file view setting is
+; "only saved files", then try to move to next or previous saved file without wrapping
+; beyond end or start of list.
+;
+; return Fc = 1, if File Entry couldn't be updated (list is empty according to view setting)
+;
+.AdjustWindowFileEntryPtr
+                    call GetWindowFilePtr
+                    or   h
+                    or   l                      ; BHL = 0?
+                    jr   nz, check_entrystat
+                    scf                         ; nothing to update!
+                    ret
+.check_entrystat
+                    call FileEprFileStatus
+                    ret  nz                     ; top window line is an active file, no adjustment needed
+
+                    bit  dspdelfiles,(iy+0)
+                    ret  nz                     ; top file entry is marked as deleted, and deleted file view is active
+                    call GetNextFilePtr
+.updwptr
+                    call nc, StoreWindowFilePtr ; updated the top line File entry to an active file
+                    ret  nc
+
+                    call GetWindowFilePtr       ; reached end of list,
+                    call GetPrevFilePtr         ; try to get a previous active file entry
+                    jr   nc,updwptr             ; and update to that...
+                    call ResetFilePtrs          ; no active files available...
+                    ret                         ; return Fc = 1
+; *************************************************************************************
+
+
+; *************************************************************************************
+; adjust the current file entry pointer relative to the Window top line file entry
+.AdjustFileEntryPtr
+                    call GetWindowFilePtr
+                    ld   a,(FileBarPosn)
+                    ld   c,a                    ; position File Cursor relative to Window File Ptr
+.adjust_loop        call StoreCursorFilePtr
+                    inc  c
+                    dec  c
+                    ret  z                      ; File Entry cursor relocated according to file bar position in window
+                    call GetNextFilePtr         ; get next file entry according to display setting
+                    jr   c, adjustFileBarPosn   ; reached end of list before the current File Bar position
+                    dec  c
+                    jr   adjust_loop
+.adjustFileBarPosn                              ; the File Bar moves upwards toward the Window top line File entry
+                    ld   a,(FileBarPosn)
+                    sub  c
+                    ld   (FileBarPosn),a        ; the new File Bar Position points at last file entry in list
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+.ResetFilePtrs
                     ld   b,0
                     ld   h,b
                     ld   l,b
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), indicate no files (pointer = 0)
                     call StoreWindowFilePtr     ; BHL --> (WindowFilePtr), indicate no files (pointer = 0)
-                    LD   (barMode),A            ; get cursor out of file window
+                    LD   (barMode),A            ; get cursor out of file window into menu window...
                     ret
 ; *************************************************************************************
 
