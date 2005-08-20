@@ -645,6 +645,9 @@ Module BrowseFiles
                     ld   c,a
                     call FileEprCntFiles          ; any files available in File Area?
                     jr   c, exit_checkfiles       ; no file area!
+                    ld   (file),hl                ; update active files count
+                    ld   (fdel),de                ;        deleted
+
                     ld   a,h
                     or   l
                     jr   nz, exit_checkfiles      ; active files available...
