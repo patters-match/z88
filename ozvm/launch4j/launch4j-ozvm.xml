@@ -18,7 +18,6 @@
   </jre>
   <splash>
     <file>.\z88-splash.bmp</file>
-    <waitForTitle></waitForTitle>
     <timeout>3</timeout>
     <timeoutErr>false</timeoutErr>
   </splash>
