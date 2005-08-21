@@ -230,7 +230,7 @@
 ;
 .FlashStoreHelp
                     DEFM "Release V1.8 beta, August 2005",$7F, $7F
-                    DEFM "Manage files on Rakewell Flash Cards.", 0
+                    DEFM "Backup/restore files between Rakewell Flash Cards and RAM.", 0
 
 .cmd_sc_help
                     DEFM $7F
