@@ -40,7 +40,7 @@ Module SelectCard
      XREF execute_format                ; format.asm
      XREF CheckFlashCardID              ; format.asm
      XREF FileEpromStatistics,DispKSize ; filestat.asm
-     XREF m16                           ; filestat.asm
+     XREF m16, ksize_txt                ; filestat.asm
      XREF PollFileCardWatermark         ; browse.asm
      XREF DispFilesWindow               ; browse.asm
      XREF InitFirstFileBar              ; browse.asm
@@ -118,14 +118,14 @@ Module SelectCard
                          inc  b
                          CALL VduCursor
                          EX   DE,HL          ; HL = free 256 bytes pages on RAM Card
-                         LD   DE,64          ; HL / 64 = free 16K banks
+                         LD   DE,4           ; HL / 4 = free space in K
                          CALL_OZ(GN_D16)
-                         LD   H,L
-                         PUSH HL
+                         EX   DE,HL
                          LD   HL, freetxt
                          CALL_OZ(Gn_Sop)
-                         POP  AF
-                         CALL DispSlotSize
+                         CALL DispKSize      ; display free space in DE
+                         LD   HL, ksize_txt
+                         CALL_OZ(Gn_sop)
                          jp   nextline
 .poll_for_rom_card
                     ld   h,c                      ; preserve a copy of slot nubmer...
