@@ -33,6 +33,7 @@ Module BrowseFiles
      xdef GetFirstFilePtr, GetNextFilePtr
      xdef FileAreaBannerText
      xdef endf_msg
+     xdef LeftJustifyText, RightJustifyText
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
@@ -104,13 +105,13 @@ Module BrowseFiles
                     pop  hl
                     jp   cat_main_loop
 
-.norm_aff           ld   hl,norm_sq
+.NormalAttrText     ld   hl,norm_sq
                     jr   dispsq
-.tiny_aff           ld   hl,tiny_sq
+.TinyAttrText       ld   hl,tiny_sq
                     jr   dispsq
-.jrsz_aff           ld   hl, rightjustify
+.RightJustifyText   ld   hl, rightjustify
                     jr   dispsq
-.jnsz_aff           ld   hl, leftjustify
+.LeftJustifyText    ld   hl, leftjustify
 .dispsq             push af
                     CALL_OZ gn_sop
                     pop  af
@@ -544,8 +545,8 @@ Module BrowseFiles
                     push hl
 
                     push de
-                    call nz,norm_aff
-                    call z,tiny_aff
+                    call nz,NormalAttrText
+                    call z,TinyAttrText
                     pop  hl
                     CALL_OZ(Gn_sop)             ; display filename
 
@@ -558,11 +559,11 @@ Module BrowseFiles
                     ld   b,0
                     ld   (flen+2),bc
 
-                    call jrsz_aff
+                    call RightJustifyText
                     ld   hl,flen
                     call IntAscii
                     CALL_OZ gn_sop              ; display size of current File Entry
-                    call jnsz_aff
+                    call LeftJustifyText
                     pop  hl
                     pop  bc
                     ret
