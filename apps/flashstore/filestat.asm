@@ -21,6 +21,7 @@ Module FileAreaStatistics
 ; This module displays the File Area Statistics (right hand side window in main menu mode)
 
      XDEF FileEpromStatistics, m16, IntAscii, DispKSize
+     XDEF ksize_txt
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -225,7 +226,7 @@ Module FileAreaStatistics
                     LD   HL, tinyfont
                     CALL_OZ(Gn_Sop)
                     CALL DispKSize
-                    LD   HL, ksize
+                    LD   HL, ksize_txt
                     CALL_OZ(Gn_sop)
                     LD   HL,fepr
                     CALL_OZ(Gn_Sop)
@@ -234,7 +235,7 @@ Module FileAreaStatistics
 .true_size          LD   HL, tinyfont
                     CALL_OZ(Gn_Sop)
                     CALL DispKSize
-                    LD   HL, ksize
+                    LD   HL, ksize_txt
                     CALL_OZ(Gn_sop)
                     LD   HL,fepr
                     CALL_OZ(Gn_Sop)
@@ -548,7 +549,7 @@ Module FileAreaStatistics
 ; *************************************************************************************
 ; constants
 
-.ksize              DEFM "K ",0
+.ksize_txt          DEFM "K ",0
 .fepr               DEFM "FILE AREA",1,"2-T",0
 .slot_bnr           DEFM "SLOT ", 0
 .bfre_msg           DEFM " BYTES FREE",0
