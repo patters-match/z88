@@ -33,24 +33,29 @@ Module FetchFile
      lib FileEprFetchFile          ; Fetch file image from File Area, and store it to RAM file
      lib FileEprFileName           ; get a copy of the file name from the file entry.
      lib FileEprFileStatus         ; get deleted (or active) status of file entry
+     lib RamDevFreeSpace           ; Get free space on RAM device
 
      xref FilesAvailable           ; browse.asm
      xref DispFiles                ; browse.asm
      xref GetCursorFilePtr         ; browse.asm
+     xref LeftJustifyText          ; browse.asm
+     xref RightJustifyText         ; browse.asm
      xref CheckFreeRam             ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref DispMainWindow, sopnln   ; fsapp.asm
-     xref failed_msg               ; fsapp.asm
+     xref cls, failed_msg          ; fsapp.asm
      xref fnam_msg                 ; savefiles.asm
      xref CompressRamFileName      ; savefiles.asm
      xref VduCursor                ; selectcard.asm
+     xref IntAscii, ksize_txt      ; filestat.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files, DispErrMsg     ; errmsg.asm
 
      ; system definitions
      include "stdio.def"
      include "syspar.def"
+     include "integer.def"
      include "fileio.def"
      include "error.def"
 
@@ -95,7 +100,6 @@ Module FetchFile
 
                     ld   a,b
                     ld   (linecnt),a              ; B = size of filename that was entered
-                    CALL_OZ gn_nln
                     call FindFileToFetch
                     RET
 ; *************************************************************************************
@@ -111,23 +115,22 @@ Module FetchFile
                     ld   hl,fetch_bnr
                     call DispMainWindow
 
+                    call DisplayFreeRamDevs
+
                     call GetCursorFilePtr    ; BHL <-- (CursorFilePtr), ptr to cur. file entry
                     ld   (fbnk),a
                     ld   (fadr),hl           ; pointer to found File Entry...
-                    call FileEprFileSize
-                    ld   (free),de
-                    ld   a,c
-                    ld   (free+2),a
+
+                    call DisplayFileSize     ; display size of file right-justified
 
                     ld   de,buffer
                     call FileEprFileName
                     ld   (linecnt),a         ; size of input
 
-                    call_oz Gn_nln
-
                     call FileEprFileStatus   ; is file marked as deleted?
                     jr   nz, get_name        ; no...
 
+                    call_oz GN_Nln
                     ld   hl, warndel1_msg    ; display a flash warning for files marked as deleted
                     CALL_OZ gn_sop           ; before proceeding with the fetch dialog
                     jr   get_name
@@ -144,21 +147,20 @@ Module FetchFile
                     JP   C, not_found_err    ; File Eprom or File Entry was not available
                     JP   NZ, not_found_err   ; File Entry was not found...
 
-                    ld   a,b                 ; File entry found
+                    ld   a,b
                     ld   (fbnk),a
                     ld   (fadr),hl           ; preserve pointer to found File Entry...
-                    call FileEprFileSize
-                    ld   (free),de
-                    ld   a,c
-                    ld   (free+2),a
-                    or   d
-                    or   e                   ; is file empty (zero lenght)?
-                    jr   nz, get_name
-                         ld   a, RC_EOF
-                         scf                 ; indicate empty file...
-                         ret
+
+                    push bc
+                    push hl
+                    call DisplayFreeRamDevs
+                    pop  hl
+                    pop  bc
+
+                    call DisplayFileSize
 .get_name
-                    ld   hl,ffet_msg          ; get destination filename from user...
+                    call_oz GN_Nln
+                    ld   hl,ffet_msg         ; get destination filename from user...
                     CALL_OZ gn_sop
 
                     ld   hl, buffer
@@ -296,18 +298,122 @@ Module FetchFile
 
 
 ; *************************************************************************************
+; Display the size of the current File entry (in BHL), right justified in the format:
+; "File size = XXXX". 'XXXX' is displayed with a trailing 'K' or 'bytes'.
+;
+.DisplayFileSize
+                    push bc
+                    push hl                       ; preserve File entry pointer
+
+                    call FileEprFileSize          ; get file entry size in CDE
+                    ld   b,0
+                    ld   (free),de
+                    ld   (free+2),bc              ; store file size for CheckFreeRam routine
+
+                    call RightJustifyText         ; display text right justified...
+                    ld   hl, filesize_txt
+                    call_oz GN_Sop
+                    ld   b,c
+                    ex   de,hl
+                    call DispInt                  ; display BHL (file size)
+                    call_oz GN_Sop                ; display trailing "K" or " bytes"
+                    call LeftJustifyText          ; back to normal left justified display text...
+
+                    pop  hl
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Display the available free space for all RAM cards in the system, each on it's own
+; line in the format ":RAM.? = XXXX free". The value is displayed in K if it is
+; larger than 1024 bytes, or just as bytes.
+;
+.DisplayFreeRamDevs
+                    ld   a, 12
+                    call_oz OS_Out                ; clear window
+                    call_oz GN_Nln
+
+                    ld   c,-1                     ; start with displaying free space in :RAM.0
+.disp_freeram_loop  inc  c
+                    ld   a,c
+                    cp   4
+                    ret  z                        ; only three slots in Z88...
+                    call RamDevFreeSpace
+                    jr   c, disp_freeram_loop     ; no Ram device in slot C...
+                    push bc                       ; preserve slot number
+
+                    ld   hl,ramdev_basename
+                    CALL_OZ GN_Sop
+                    ld   a,c
+                    add  a,48
+                    call_oz OS_Out
+                    ld   hl, space_txt
+                    call_oz GN_Sop
+
+                    ex   de,hl                    ; DE = free 256 bytes pages on RAM Card
+                    ld   b,h
+                    ld   h,l
+                    ld   l,0                      ; BHL = DE * 256 = free space in bytes
+                    call Dispint
+                    call_oz Gn_sop                ; display trailing integer size
+                    ld   hl, free_txt
+                    call_oz Gn_sop
+
+                    pop  bc
+                    jr   disp_freeram_loop
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Display integer in BHL as Ascii to current VDU cursor position.
+;
+; Returns HL = pointer to string that contains a trailing 'K', if value > 1024, else
+; points to with a trailing ' bytes' string.
+;
+.DispInt
+                    xor  a
+                    ld   c,a
+                    ld   de,1024                  ; CDE = 24bit divisor
+
+                    or   b
+                    jr   nz, dispK                ; integer > 64K...
+                    push hl
+                    sbc  hl,de
+                    pop  hl
+                    jr   nc, dispK                ; integer > 1K
+                    call disp16bitInt             ; display integer in bytes
+                    ld   hl, bytes_txt
+                    ret
+.dispK
+                    call_oz GN_D24                ; 24bit free space / 1024 (convert into K)
+                    call disp16bitInt             ; HL = 16bit result
+                    ld   hl, ksize_txt
+                    ret
+.disp16bitInt
+                    push hl
+                    pop  bc                       ; free space always 16bit number...
+                    ld   hl,2
+                    CALL IntAscii
+                    call_oz GN_Sop                ; display the Ascii integer...
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; constants
 
-.fetch_bnr          DEFM "FETCH FROM FILE AREA",0
-
-.warndel1_msg       DEFM " ", 1, "4+F+RWARNING: File is marked as deleted", 1, "4-F-R", 13, 10, 13, 10, 0
-
-.warndel2_msg       DEFM " A newer, active file version exists in the file area", 13, 10, 13, 10, 0
-
-.exct_msg           DEFM 13, 10, " Enter exact filename (no wildcard).",0
-
-.fetf_msg           DEFM 1,"2+CSaved to ",0
-.done_msg           DEFM "Completed.",$0D,$0A,0
-.ffet_msg           DEFM 13,1,"B Save to: ", 1,"B",0
+.fetch_bnr          DEFM "FETCH FROM FILE AREA", 0
+.warndel1_msg       DEFM " ", 1, "4+F+RWARNING: File is marked as deleted", 1, "4-F-R", 0
+.exct_msg           DEFM 13, 10, " Enter exact filename (no wildcard).", 0
+.ramdev_basename    DEFM " :RAM.", 0
+.fetf_msg           DEFM 1,"2+CSaved to ", 0
+.done_msg           DEFM "Completed.", $0D, $0A, 0
+.ffet_msg           DEFM 13,1,"B Save to: ", 1,"B", 0
 .exis_msg           DEFM 13," RAM file already exists. Overwrite?", 13, 10, 0
 .file_not_found_msg DEFM "File not found in File Area.", 0
+.bytes_txt          DEFM " bytes ", 0
+.filesize_txt       DEFM "File size = ", 0
+.space_txt          DEFM " = ", 0
+.free_txt           DEFM "free", 13, 10, 0
