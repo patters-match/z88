@@ -54,6 +54,29 @@ Module FileAreaStatistics
 
 
 ; ****************************************************************************
+; Initialize file statistics window
+;
+.InitWindow
+                    push af
+                    push bc
+                    push de
+                    push hl
+
+                    ld   a,'3' | 128
+                    ld   bc,$004A
+                    ld   de,$0812
+                    ld   hl, buf1
+                    call CreateWindow
+
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    pop  af
+                    ret
+; ****************************************************************************
+
+
+; ****************************************************************************
 ;
 ; Eprom Statistics from current File Eprom (Area)
 ;
@@ -84,18 +107,14 @@ Module FileAreaStatistics
                     xor  a
                     ld   (de),a                   ; null-terminate banner
 
-                    ld   a,'3' | 128
-                    ld   bc,$004A
-                    ld   de,$0812
-                    ld   hl, buf1
-                    call CreateWindow
-
                     ld   a,(curslot)
                     ld   c,a
                     push bc
                     call FileEprRequest
                     jr   z, cont_statistics
                          pop  bc
+
+                         call InitWindow
                          ld   hl, nofepr_msg
                          call_oz (Gn_Sop)
                          ret
@@ -136,6 +155,7 @@ Module FileAreaStatistics
                     ld   (total),hl
                     ld   (total+2),bc             ; remember total used space (active+deleted)
 
+                    call InitWindow
                     ld   hl,centerjustify
                     CALL_OZ gn_sop                ; centre justify...
 
