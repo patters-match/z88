@@ -21,7 +21,7 @@ Module RestoreFiles
 ; This module contains the command to restore files from a File Card to a specified
 ; RAM device.
 
-     xdef RestoreFilesCommand, CheckFreeRam, PromptOverWrFile
+     xdef RestoreFilesCommand, PromptOverWrFile
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -168,9 +168,6 @@ Module RestoreFiles
                     POP  BC
                     JR   fetch_next          ; user acknowledged No, get next file
 .restore_file
-                    CALL CheckFreeRam        ; check if there's room for file in RAM...
-                    JR   C, no_room
-
                     LD   B,0                 ; (local pointer)
                     LD   HL,buf2             ; pointer to filename...
                     CALL CreateFilename      ; create file with implicit path...
@@ -196,43 +193,16 @@ Module RestoreFiles
                     POP  HL
                     POP  BC
 .filecreerr
+                    PUSH AF
+                    LD   B,0
+                    LD   HL, buf2            ; an error occurred, delete file...
+                    CALL_OZ(Gn_Del)
+                    POP  AF
                     CALL_OZ(Gn_Err)          ; report fatal error and exit to main menu...
                     LD   HL, failed_msg
                     CALL DispErrMsg
                     RET
-.CheckFreeRam
-                    PUSH BC
-                    PUSH DE
-                    PUSH HL
-
-                    LD   A,(buf2+5)          ; get the Ascii slot number from file name
-                    SUB  48
-                    CALL RamDevFreeSpace     ; slot number of RAM Device
-                    JR   C, end_checkram     ; RAM device not available..
-                    SRL  D
-                    RR   E
-                    SRL  D
-                    RR   E                   ; DE / 4 = Free Space in Kb
-                    PUSH DE
-                    LD   A,(free+2)
-                    LD   B,A
-                    LD   HL,(free)
-                    LD   C,0
-                    LD   DE,1024             ; BHL / 1024 = File size in Kb
-                    CALL_OZ(Gn_D24)
-                    CP   A                   ; Fc = 0
-                    EX   DE,HL
-                    POP  HL
-                    SBC  HL,DE
-                    JR   NC, end_checkram
-                    LD   A, RC_ROOM          ; Fc = 1, if file size > free RAM space...
-.end_checkram
-                    POP  HL
-                    POP  DE
-                    POP  BC
-                    RET
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************

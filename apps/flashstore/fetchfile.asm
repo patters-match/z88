@@ -40,7 +40,6 @@ Module FetchFile
      xref GetCursorFilePtr         ; browse.asm
      xref LeftJustifyText          ; browse.asm
      xref RightJustifyText         ; browse.asm
-     xref CheckFreeRam             ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref DispMainWindow, sopnln   ; fsapp.asm
@@ -205,11 +204,6 @@ Module FetchFile
                     ld   de,buffer+256       ; generate expanded filename...
                     CALL_OZ (Gn_Fex)
                     jr   c, report_error     ; invalid filename...
-                    push bc                  ; preserve length of expanded filename
-                    call CheckFreeRam
-                    pop  bc
-                    JR   C, report_error
-
                     push bc
                     ld   b,0                 ; (local pointer)
                     ld   hl,buffer+256       ; pointer to filename...
@@ -239,6 +233,12 @@ Module FetchFile
                     CP   A                   ; Fc = 0, File successfully fetched into RAM...
                     RET
 .report_error
+                    PUSH AF
+                    LD   B,0
+                    LD   HL, buffer+256      ; an error occurred, delete file...
+                    CALL_OZ(Gn_Del)
+                    POP  AF
+
                     CALL_OZ(Gn_Err)          ; report error and exit to main menu...
                     LD   HL, failed_msg
                     CALL DispErrMsg
