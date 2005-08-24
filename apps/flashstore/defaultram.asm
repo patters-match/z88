@@ -53,13 +53,13 @@ Module DefaultRamDevice
 
 
 ; *************************************************************************************
-; User selects RAM device by using keys 0-3 or using <> to toggle between available
+; User selects RAM device by using keys 0-3,'-' or using <>J to toggle between available
 ; devices.
 ;
 ; IN:
 ;    BC = VDU cursor (X,Y) to display current default RAM device.
 ; OUT:
-;    A = Ascii Slot Number ('0' - '3') of selected RAM Device
+;    A = Ascii Slot Number ('0' - '3', '-') of selected RAM Device
 ;
 .SelectRamDevice
                     LD   DE,buf1
@@ -77,7 +77,9 @@ Module DefaultRamDevice
                     cp   IN_ENT
                     jr   z, dev_selected          ; user has selected a RAM device
                     cp   LF
-                    jr   z, toggle_device
+                    jr   z, toggle_device         ; <>J
+                    cp   '-'
+                    jr   z, upd_slotno            ; allow for "-"
                     cp   48
                     jr   c,inp_dev_loop           ; only "0" to "3" allowed
                     cp   52
@@ -92,11 +94,13 @@ Module DefaultRamDevice
                     JR   inp_dev_loop             ; and let it be displayed.
 .toggle_device
                     LD   A,(buf1+5)
+                    CP   '-'
+                    JR   z, wrap_slotno           ; wrap from :RAM.- to :RAM.0
                     SUB  48
 .toggle_device_loop
                     INC  A
                     CP   4
-                    JR   Z, wrap_slotno           ; only scan slots 0 - 3...
+                    JR   Z, select_globalram      ; only scan slots 0 - 3, then automatically select :RAM.-
                     LD   H,A
                     CALL CheckRamDevice           ; RAM device at slot A?
                     JR   NC, ram_dev_found        ; yes!
@@ -105,6 +109,9 @@ Module DefaultRamDevice
 .wrap_slotno
                     LD   A,-1                     ; check slot 0 for a RAM device
                     JR   toggle_device_loop
+.select_globalram
+                    LD   A,'-'
+                    JR   upd_slotno
 .ram_dev_found
                     LD   A,H
                     ADD  A,48
@@ -173,5 +180,5 @@ Module DefaultRamDevice
 
 .defram_banner      DEFM "SELECT DEFAULT RAM DEVICE", 0
 .ramdevname         DEFM ":RAM.", 0
-.selctram_msg       DEFM 13,10, " Select slot number of available RAM device.", 13, 10
-                    DEFM " Use keys 0-3 or ",1, "+J to toggle. ", 1, SD_ENT, " selects it.", 0
+.selctram_msg       DEFM 13,10, " Select slot number of valid RAM device.", 13, 10
+                    DEFM " Use keys 0,1,2,3,- or ",1, "+J to toggle. ", 1, SD_ENT, " selects it.", 0
