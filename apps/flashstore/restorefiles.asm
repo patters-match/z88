@@ -139,18 +139,14 @@ Module RestoreFiles
                     PUSH BC
                     PUSH HL                  ; pointer temporarily...
 
-                    LD   HL,fetf_msg         ; "Saved to "
-                    CALL_OZ gn_sop
                     LD   HL, buf2            ; C = size of explicit filename in (buf2)
                     CALL CompressRamFileName ; get a displayable RAM filename
-                    PUSH HL
                     CALL_OZ gn_sop           ; display RAM filename (optionally compressed, if too long)...
 
                     LD   HL,status
                     BIT  0,(HL)
-                    POP  HL
                     JR   NZ, restore_file    ; default - overwrite files...
-
+                    ld   hl,buf2
                     call PromptOverWrFile    ; filename at (HL)...
                     jr   c, check_rest_abort
                     jr   z, restore_file     ; file exists, user acknowledged Yes...
