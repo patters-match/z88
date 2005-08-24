@@ -778,7 +778,7 @@
 .bar1_sq            DEFM 1,"4+TUR",1,"2JC",1,"3@  ",0
 .bar2_sq            DEFM 1,"3@  ",1,"2A",85,1,"4-TUR",1,"2JN",0
 
-.failed_msg         DEFM " Failed.",0
+.failed_msg         DEFM 13, 10, "Last file failed.",0
 
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
