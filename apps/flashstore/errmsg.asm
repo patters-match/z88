@@ -126,8 +126,7 @@ Module ErrorMessages
                     jr   z, disp_no_files
                     ld   hl, nofileviewsmsg
 .disp_no_files
-                    CALL DispErrMsgNoWait
-                    RET
+                    jp   DispErrMsgNoWait
 ; *************************************************************************************
 
 
