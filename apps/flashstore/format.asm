@@ -36,7 +36,7 @@ Module FileAreaFormat
      xref done_msg                 ; fetchfile.asm
      xref DispMainWindow,ResSpace  ; fsapp.asm
      xref sopnln, ungreyscr, cls   ; fsapp.asm
-     xref yesno,no_msg,failed_msg  ; fsapp.asm
+     xref yesno,no_msg             ; fsapp.asm
      xref DispSlotErrorMsg         ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
      xref disp_empty_flcard_msg    ; errmsg.asm
