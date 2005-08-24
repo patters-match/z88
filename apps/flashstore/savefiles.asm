@@ -255,11 +255,7 @@ Module SaveFiles
                     POP  HL
                     JR   Z, file_zero_length           ; Ups, file has zero length - will not be saved...
 
-                    PUSH HL
-                    LD   HL,savf_msg
-                    CALL_OZ gn_sop
-                    POP  HL
-                    CALL_OZ gn_sop                     ; display "Saving " + compressed filename, to user...
+                    CALL_OZ gn_sop                     ; display compressed filename, to user...
 
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
                     CALL FindFile                      ; find a matching File Entry, and remember it to be deleted later...
@@ -416,7 +412,6 @@ Module SaveFiles
 .ends0_msg          DEFM " file",0
 .ends1_msg          DEFM " has been saved.",$0D,$0A,0
 .ends2_msg          DEFM $0D,$0A,1,"2JCNo files found in RAM card to be saved.",1,"2JN",$0D,$0A,0
-.savf_msg           DEFM "Saving ",0
 
 .blowerrmsg         DEFM "File not saved properly - will be re-saved.",$0D,$0A,0
 .zerolen_msg        DEFM "File has zero length - ignored.",$0D,$0A,0
