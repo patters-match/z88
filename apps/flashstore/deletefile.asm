@@ -58,7 +58,7 @@ Module DeleteFile
                     ld   a,(curslot)
                     ld   c,a
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
-                    call c,DispIntelSlotErr
+                    jp   c,DispIntelSlotErr
                     ret
 ; *************************************************************************************
 
