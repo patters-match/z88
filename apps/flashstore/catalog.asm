@@ -83,8 +83,9 @@ Module CatalogFiles
                     LD   C,15
                     CALL InputFilename
                     POP  HL
-                    ret  c                       ; user aborted command
+                    RET  C                       ; user aborted command
 
+                    LD   DE, disp_exis_msg
                     call PromptOverWrFile        ; check if specified file(name) exists and prompt
                     jr   c, check_errcode        ; user aborted or file does not exist...
                     jr   z, overwrite_catgf      ; file exists, user acknowledged Yes...

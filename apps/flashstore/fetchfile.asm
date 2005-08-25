@@ -187,6 +187,7 @@ Module FetchFile
 .open_file
                     CALL_OZ(GN_Nln)
                     ld   hl,buffer
+                    ld   de, disp_exis_msg
                     call PromptOverWrFile
                     jr   c, check_fetch_abort; file doesn't exist (or in use), or user aborted
                     jr   z, create_file      ; file exists, user acknowledged Yes...
