@@ -29,7 +29,6 @@
      xdef VduEnableCentreJustify, VduEnableNormalJustify
      xdef done_msg, yes_msg, no_msg, failed_msg
      xdef fetf_msg
-     xdef disp_exis_msg
 
      ; Library references
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
@@ -59,7 +58,6 @@
      xref VduCursor                ; selectcard.asm
      xref FileEpromStatistics      ; filestat.asm
      xref IntAscii                 ; filestat.asm
-     xref DispErrMsg               ; errmsg.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref ReportStdError           ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
@@ -77,7 +75,6 @@
      xref FetchFileCommand         ; fetchfile.asm
      xref exct_msg                 ; fetchfile.asm
      xref RestoreFilesCommand      ; restorefiles.asm
-     xref PromptOverWrFile         ; restorefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
      xref QuickDeleteFile          ; deletefile.asm
      xref AboutCommand             ; about.asm
@@ -698,27 +695,27 @@
 
 
 ; *************************************************************************************
-;
 ; User is prompted with "Press SPACE to Resume". The keyboard is then scanned
-; for the SPACE key.
-;
-; The routine returns when the user has pressed ESC.
+; for the SPACE or as alternative the ESC key. The routine returns when the user
+; has pressed SPACE or ESC.
 ;
 ; Registers changed after return:
-;    None.
+;    AF changed, IN_ESC or IN_SPACE keys returned.
 ;
 .ResSpace
-                    PUSH AF
                     PUSH HL
                     LD   HL,ResSpace_msg
                     CALL_OZ gn_sop
 .escin
                     CALL rdch
                     JR   C,escin
+                    CP   IN_ESC
+                    JR   Z, exit_resSpace
                     CP   32
                     JR   NZ,escin
+.exit_resSpace
                     POP  HL
-                    POP  AF
+                    CP   A                   ; Fc = 0
                     RET
 ; *************************************************************************************
 
