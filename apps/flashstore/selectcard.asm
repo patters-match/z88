@@ -33,11 +33,12 @@ Module SelectCard
 
      XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
      XREF greyscr, greyfont, nocursor   ; fsapp.asm
-     XREF nogreyfont, notinyfont        ; fsapp.asm
+     XREF nogreyfont, notinyfont, cls   ; fsapp.asm
+     xref DispMainWindow                ; fsapp.asm
      XREF FormatCommand                 ; format.asm
      XREF PollFileFormatSlots           ; format.asm
      XREF FlashWriteSupport             ; format.asm
-     XREF execute_format                ; format.asm
+     XREF execute_format, noformat_msg  ; format.asm
      XREF CheckFlashCardID              ; format.asm
      XREF FileEpromStatistics,DispKSize ; filestat.asm
      XREF m16, ksize_txt                ; filestat.asm
@@ -60,8 +61,18 @@ Module SelectCard
                     CALL greyscr
                     ld   a,(curslot)
                     ld   c,a
-                    push bc
                     call PollSlots
+                    or   a                        ; if no file areas were found, then
+                    call z,PollFileFormatSlots    ; investigate slots 1-3 for Flash Cards that can be formatted
+                    or   a
+                    jr   nz,continue_selcard
+                         ld   hl,selslot_banner
+                         call DispMainWindow
+                         LD   HL, noformat_msg    ; no file areas, nor flash cards available!
+                         CALL DispErrMsg
+                         ret
+.continue_selcard
+                    push bc
                     ld   hl, selslot_banner
                     call SelectFileArea           ; user selects a File Eprom Area in one of the external slots
                     pop  bc
@@ -423,6 +434,9 @@ Module SelectCard
 
 
 ; *************************************************************************************
+; Poll all external slots for file areas and return A = count of found file areas,
+; or 0 if none were found.
+;
 .PollSlots
                     push bc
                     push de
