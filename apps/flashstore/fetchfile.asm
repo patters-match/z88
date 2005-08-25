@@ -40,6 +40,7 @@ Module FetchFile
      xref LeftJustifyText          ; browse.asm
      xref RightJustifyText         ; browse.asm
      xref PromptOverWrFile         ; restorefiles.asm
+     xref disp_exis_msg            ; restorefiles.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref DispMainWindow, sopnln   ; fsapp.asm
      xref cls, failed_msg          ; fsapp.asm

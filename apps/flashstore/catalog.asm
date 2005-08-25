@@ -42,6 +42,7 @@ Module CatalogFiles
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
      xref PromptOverWrFile         ; restorefiles.asm
+     xref disp_exis_msg            ; restorefiles.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref InputFilename            ; fetchfile.asm
 
