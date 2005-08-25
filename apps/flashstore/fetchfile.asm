@@ -23,7 +23,6 @@ Module FetchFile
 
      xdef FetchFileCommand, QuickFetchFile
      xdef exct_msg, done_msg, fetf_msg
-     xdef disp_exis_msg
      xdef InputFileName
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
@@ -194,10 +193,10 @@ Module FetchFile
                     CP   A
                     RET                      ; user acknowledged no, just return to main...
 .check_fetch_abort
-                    CP   RC_EOF
+                    CP   RC_ESC
                     JR   NZ, create_file
                          CP   A
-                         RET                 ; abort file fetching, indicate success
+                         RET                 ; abort file fetching with ESC, indicate success
 .create_file
                     ld   bc,255              ; filename size (max file entry name + RAM device)
                     ld   hl,buffer           ; pointer to file entry name
@@ -242,10 +241,6 @@ Module FetchFile
                     CALL_OZ(Gn_Err)          ; report error and exit to main menu...
                     LD   HL, failed_msg
                     CALL DispErrMsg
-                    RET
-
-.disp_exis_msg      LD   HL, exis_msg
-                    CALL_OZ GN_Sop
                     RET
 
 .not_found_err      LD   HL, file_not_found_msg
@@ -411,7 +406,6 @@ Module FetchFile
 .fetf_msg           DEFM 1,"2+CSaved to ", 0
 .done_msg           DEFM "Completed.", $0D, $0A, 0
 .ffet_msg           DEFM 13,1,"B Save to: ", 1,"B", 0
-.exis_msg           DEFM 13," RAM file already exists. Overwrite?", 13, 10, 0
 .file_not_found_msg DEFM "File not found in File Area.", 0
 .bytes_txt          DEFM " bytes ", 0
 .filesize_txt       DEFM "File size = ", 0
