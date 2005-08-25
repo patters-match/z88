@@ -21,7 +21,8 @@ Module RestoreFiles
 ; This module contains the command to restore files from a File Card to a specified
 ; RAM device.
 
-     xdef RestoreFilesCommand, PromptOverWrFile
+     xdef RestoreFilesCommand, PromptOverWrFile, PromptOverWrite
+     xdef disp_exis_msg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -40,7 +41,7 @@ Module RestoreFiles
      xref DispMainWindow, sopnln   ; fsapp.asm
      xref YesNo, no_msg, yes_msg   ; fsapp.asm
      xref ResSpace, failed_msg     ; fsapp.asm
-     xref disp_exis_msg, done_msg  ; fetchfile.asm
+     xref done_msg                 ; fetchfile.asm
      xref fetf_msg                 ; fetchfile.asm
      xref InputFilename            ; fetchfile.asm
 
@@ -109,8 +110,11 @@ Module RestoreFiles
                     DEC  DE
 .path_ok            INC  DE                  ; DE points at merge position,
                                              ; ready to receive filenames from File Eprom...
-                    CALL_OZ GN_nln
+                    LD   HL, ram_promptovwrite_msg
                     CALL PromptOverwrite     ; prompt for all existing files to be overwritten
+                    CP   IN_ESC
+                    RET  Z                   ; user aborted with ESC
+                    CALL_OZ GN_nln
                     CALL_OZ GN_nln
 
                     LD   A,(curslot)
@@ -143,21 +147,23 @@ Module RestoreFiles
                     CALL CompressRamFileName ; get a displayable RAM filename
                     CALL_OZ gn_sop           ; display RAM filename (optionally compressed, if too long)...
 
-                    LD   HL,status
-                    BIT  0,(HL)
+                    BIT  overwrfiles,(IY+0)
                     JR   NZ, restore_file    ; default - overwrite files...
-                    ld   hl,buf2
-                    call PromptOverWrFile    ; filename at (HL)...
-                    jr   c, check_rest_abort
+                    ld   hl, buf2
+                    push de                  ; preserve pointer to file area filename
+                    ld   de, disp_exis_msg
+                    call PromptOverWrFile    ; Does RAM filename at (HL) exist?...
+                    pop  de
+                    jr   c, check_rest_abort ; does not exist...
                     jr   z, restore_file     ; file exists, user acknowledged Yes...
                     jr   restore_ignored     ; file exists, user acknowledged No...
 .check_rest_abort
-                         cp   RC_EOF
-                         jr   nz, restore_file    ; file doesn't exist (or in use)
-                              POP  HL
-                              POP  BC
-                              CP   A         ; restore command aborted.
-                              RET
+                    cp   RC_ESC
+                    jr   nz, restore_file    ; file doesn't exist (or in use)
+                         POP  HL
+                         POP  BC
+                         CP   A              ; restore command aborted with ESC.
+                         RET
 .restore_ignored
                     CALL_OZ(Gn_Nln)
                     POP  HL
@@ -203,32 +209,30 @@ Module RestoreFiles
 
 ; *************************************************************************************
 ;
-; Prompt user to to overwrite all existing files (in RAM) when restoring
+; Prompt user to to overwrite all existing files when processing files.
 ;
-; IN: None
+; IN:
+;    HL = pointer to display prompt message routine
 ;
 ; OUT:
-;    (status), bit 1 = 1 if all files are to be overwritten...
+;    (status), bit 1 = 1 if all files are to be overwritten, else prompt...
 ;
 .PromptOverWrite    PUSH DE
                     PUSH HL
-                    LD   HL,status
-                    SET  0,(HL)              ; preset to Yes (to overwrite existing files)
 
-                    LD   HL, disp_promptovwrite_msg
+                    SET  overwrfiles,(IY+0)  ; preset to Yes (to overwrite existing files)
                     LD   DE, no_msg
                     CALL YesNo
                     JR   C, exit_promptoverwr
                     JR   Z, exit_promptoverwr; Yes selected...
 
-                    LD   HL,status
-                    RES  0,(HL)              ; No selected (to overwrite existing files)
+                    RES  overwrfiles,(IY+0)  ; No selected (to overwrite existing files)
 .exit_promptoverwr
                     POP  HL
                     POP  DE
                     RET
-.disp_promptovwrite_msg
-                    LD   HL, promptovwrite_msg
+.ram_promptovwrite_msg
+                    LD   HL, disp_ramovwrite_msg
                     CALL_OZ gn_sop
                     RET
 ; *************************************************************************************
@@ -241,6 +245,7 @@ Module RestoreFiles
 ;
 ; IN:
 ;    HL = (local) ptr to filename (null-terminated)
+;    DE = pointer to prompt file overwrite message routine
 ;
 ; OUT:
 ;    Fc = 0, file exists
@@ -257,9 +262,9 @@ Module RestoreFiles
 ;    AF....../.. different
 ;
 .PromptOverWrFile   PUSH BC
-                    PUSH DE
                     PUSH HL
                     PUSH IX
+                    PUSH DE
 
                     LD   A, OP_IN
                     LD   BC,$0040            ; expanded file, room for 64 bytes
@@ -270,7 +275,8 @@ Module RestoreFiles
                     CALL_OZ(GN_Cl)
 
                     CALL_OZ GN_nln
-                    LD   HL, disp_exis_msg
+                    POP  HL
+                    PUSH HL                  ; pointer to prompt display routine
                     LD   DE, yes_msg
                     CALL yesno               ; file exists, prompt "Overwrite file?"
                     JR   Z,exit_overwrfile
@@ -280,14 +286,21 @@ Module RestoreFiles
                          OR   A
                          JR   exit_overwrfile
 .abort_file
-                    LD   A,RC_EOF
+                    LD   A,RC_ESC
                     OR   A                   ; Fz = 0, Fc = 1
                     SCF
-
-.exit_overwrfile    POP  IX
-                    POP  HL
+.exit_overwrfile
                     POP  DE
+                    POP  IX
+                    POP  HL
                     POP  BC
+                    RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+.disp_exis_msg      LD   HL, exis_msg
+                    CALL_OZ GN_Sop
                     RET
 ; *************************************************************************************
 
@@ -296,9 +309,10 @@ Module RestoreFiles
 ; constants
 
 .rest_banner        DEFM "RESTORE ALL FILES FROM FILE AREA",0
-.promptovwrite_msg  DEFM " Overwrite RAM files? ",13, 10, 0
+.disp_ramovwrite_msg DEFM 13, 10, " Overwrite RAM files? ",13, 10, 0
 .defdst_msg         DEFM 13, 10, " Enter Device/path.",0
 .dest_msg           DEFM 1,"2+C Device: ",0
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
 .no_restore_files   DEFM "No files available in File Area to restore.", 0
+.exis_msg           DEFM 13," RAM file already exists. Overwrite?", 13, 10, 0
