@@ -21,6 +21,8 @@ Module FileAreaFormat
 ; This module contains functionality to format the file area on Flash Cards.
 
      xdef FormatCommand, execute_format, FlashWriteSupport, CheckFlashCardID
+     xdef PollFileFormatSlots
+     xdef noformat_msg
 
      lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
      lib FlashEprWriteBlock        ; Write a block of byte to Flash Eprom

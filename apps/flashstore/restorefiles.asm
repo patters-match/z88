@@ -22,7 +22,7 @@ Module RestoreFiles
 ; RAM device.
 
      xdef RestoreFilesCommand, PromptOverWrFile, PromptOverWrite
-     xdef disp_exis_msg
+     xdef disp_exis_msg, no_active_files
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
