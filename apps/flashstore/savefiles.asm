@@ -31,9 +31,11 @@ Module SaveFiles
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
      xref InitFirstFileBar         ; browse.asm
+     xref FilesAvailable           ; browse.asm
      xref FlashWriteSupport        ; format.asm
      xref PromptOverWrite          ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
+     xref no_active_files          ; restorefiles.asm
      xref IntAscii                 ; filestat.asm
      xref FileEpromStatistics      ; filestat.asm
      xref InputFileName            ; fetchfile.asm
@@ -72,6 +74,10 @@ Module SaveFiles
                     ld   hl,0
                     ld   (savedfiles),hl          ; reset counter to No files saved...
 
+                    call FilesAvailable
+                    jp   c, disp_no_filearea_msg
+                    jp   z, no_active_files       ; Fz = 1, no files available...
+
                     call CheckFileArea
                     ret  c                        ; no file area nor write support
                     ret  nz                       ; flash chip was not found in slot!
@@ -106,6 +112,10 @@ Module SaveFiles
 .SaveFilesCommand
                     ld   hl,fsv1_bnr
                     call DispMainWindow
+
+                    call FilesAvailable
+                    jp   c, disp_no_filearea_msg
+                    jp   z, no_active_files       ; Fz = 1, no files available...
 
                     call CheckFileArea
                     ret  c                        ; no file area nor write support
