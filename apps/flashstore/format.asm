@@ -144,7 +144,6 @@ Module FileAreaFormat
 
                     CALL ResSpace
                     CP   A                        ; Signal success (Fc = 0, Fz = 1)
-
                     RET
 .formaterr                                        ; current block was not formatted properly...
                     call cls
@@ -334,7 +333,7 @@ Module FileAreaFormat
 ; *************************************************************************************
 ; constants
 
-.noformat_msg       DEFM 1,"BNo Flash Cards available to be formatted.",1,"B",0
+.noformat_msg       DEFM 1,"BNo Flash Card or File Area detected.",1,"B",0
 
 .fferr_msg          DEFM "File Area not formatted properly!",$0D,$0A,0
 .ffm1_bnr           DEFM "FORMAT FILE AREA ON FLASH CARD",0
