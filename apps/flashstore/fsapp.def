@@ -59,7 +59,9 @@ DEFVARS $1FFE - SafeWorkSpaceSize
      ramdevno       ds.b 1              ; the default Ascii RAM Device slot number ('0' - '3').
 }
 
+; Status flags
 DEFC dspdelfiles = 0
+DEFC overwrfiles = 1
 
 ; MTH Command Code Definitions
 DEFC FlashStore_CC_sc = $80             ; Select Card
