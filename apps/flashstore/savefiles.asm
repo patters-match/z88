@@ -32,6 +32,8 @@ Module SaveFiles
 
      xref InitFirstFileBar         ; browse.asm
      xref FlashWriteSupport        ; format.asm
+     xref PromptOverWrite          ; restorefiles.asm
+     xref PromptOverWrFile         ; restorefiles.asm
      xref IntAscii                 ; filestat.asm
      xref FileEpromStatistics      ; filestat.asm
      xref InputFileName            ; fetchfile.asm
@@ -79,12 +81,19 @@ Module SaveFiles
 
                     LD   BC,$0301
                     CALL SelectRamDevice          ; user selected RAM device at (buf1)
-                    RET  C
+                    RET  C                        ; user aborted with ESC
 
                     LD   HL, bckp_wildcard
                     LD   DE, buf1+6
                     LD   BC, 4
                     LDIR                          ; append "//*", wich is ":RAM.X//*"
+
+                    LD   HL, filecard_promptovwrite_msg
+                    CALL PromptOverWrite          ; prompt user to overwrite all files on file card
+                    CP   IN_ESC
+                    RET  Z                        ; user aborted with ESC
+
+                    CALL_OZ(GN_Nln)
                     CALL_OZ(GN_Nln)
                     JR   scan_filesystem          ; backup selected RAM to Flash Card...
 ; *************************************************************************************
@@ -132,6 +141,13 @@ Module SaveFiles
 .save_mailbox
                     call cls
 
+                    LD   HL, filecard_promptovwrite_msg
+                    CALL PromptOverWrite               ; prompt user to overwrite all files on file card
+                    CP   IN_ESC
+                    RET  Z                             ; user aborted with ESC
+                    CALL_OZ(GN_Nln)
+                    CALL_OZ(GN_Nln)
+
                     ld   bc,$0080
                     ld   hl,buf3
                     ld   de,buf1
@@ -145,6 +161,7 @@ Module SaveFiles
                     CALL_OZ gn_opw                     ; open wildcard handler
                     CALL C, ReportStdError             ; wild card string illegal or no names found
                     JR   C, end_save                   ; no files to save...
+
                     LD   (wcard_handle),IX
 .next_name
                     LD   DE,buf2
@@ -159,6 +176,8 @@ Module SaveFiles
                     CALL NC, UpdateFileAreaStats
                     JR   NC, next_name                 ; saved successfully, fetch next file in RAM..
 
+                    CP   RC_ESC
+                    RET  Z                             ; user aborted command...
                     CP   RC_BWR
                     JR   Z, re_save                    ; not saved successfully to Flash Eprom, try again...
                     CALL ReportStdError                ; display all other std. errors...
@@ -166,12 +185,7 @@ Module SaveFiles
                     LD   IX,(wcard_handle)
                     CALL_OZ(GN_Wcl)                    ; All files parsed, close Wild Card Handler
 .end_save
-                    LD   HL,(savedfiles)
-                    LD   A,H
-                    OR   L
-                    CALL NZ, DispFilesSaved
-                    CALL Z, DispNoFiles
-                    CALL ResSpace
+                    CALL DispFilesSaved
                     RET
 .UpdateFileAreaStats
                     PUSH AF
@@ -198,10 +212,11 @@ Module SaveFiles
                     PUSH HL
                     CALL_OZ GN_Nln
                     CALL VduEnableCentreJustify
+                    LD   HL,(savedfiles)
                     ld   hl,savedfiles                 ; display no of files saved...
                     call IntAscii
                     CALL_OZ gn_sop
-                    LD   HL,ends0_msg                   ; " file"
+                    LD   HL,ends0_msg                  ; " file"
                     CALL_OZ(GN_Sop)
                     POP  HL
                     LD   A,H
@@ -212,18 +227,30 @@ Module SaveFiles
                     CALL_OZ(OS_Out)
 .endsx              LD   HL, ends1_msg
                     CALL_OZ(GN_Sop)
-
+                    CALL ResSpace
                     CALL InitFirstFileBar               ; initialize file area variables...
                     POP  AF
-                    RET
-
-.DispNoFiles        LD   HL, ends2_msg                  ; "No files saved".
-                    CALL_OZ(GN_Sop)
                     RET
 
 .CountFileSaved     LD   HL,(savedfiles)               ; another file has been saved...
                     INC  HL
                     LD   (savedfiles),HL               ; savedfiles++
+                    RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+.filecard_promptovwrite_msg
+                    LD   HL, disp_flcovwrite_msg
+                    CALL_OZ gn_sop
+                    RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+.filecard_ovwriteflc_msg
+                    LD   HL, flcexis_msg
+                    CALL_OZ gn_sop
                     RET
 ; *************************************************************************************
 
@@ -259,7 +286,17 @@ Module SaveFiles
 
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
                     CALL FindFile                      ; find a matching File Entry, and remember it to be deleted later...
+                    JR   nz, save_file_to_card         ; file doesn't exists in file area, just save the file from RAM
 
+                    BIT  overwrfiles,(IY+0)            ; file was found in file area, prompt user to overwrite?
+                    JR   NZ, save_file_to_card         ; user previously selected to overwrite all files by default
+
+                    ld   hl,buf2
+                    ld   de, filecard_ovwriteflc_msg
+                    call PromptOverWrFile              ; filename at (HL)...
+                    ret  c                             ; user aborted command or file didn't exist...
+                    ret  nz                            ; file exists, user acknowledged No...
+.save_file_to_card
                     ld   a,(curslot)
                     ld   bc, BufferSize
                     ld   de, buffer                    ; use 1K RAM buffer to blow file hdr + image
@@ -281,8 +318,7 @@ Module SaveFiles
                     RET                                ; otherwise, return with std. OZ errors...
 
 .file_wrerr         LD   HL, blowerrmsg
-                    CALL DispErrMsg
-                    SCF
+                    CALL DispErrMsg                    ; user may abort with ESC after error message.
                     RET
 
 .file_zero_length
@@ -357,8 +393,12 @@ Module SaveFiles
 ; IN:
 ;         DE = pointer to search string (filename)
 ;
+;         Fc = 1, No File Card
+;         Fc = 0,
+;              Fz = 0, file entry not found
+;              Fz = 1, file entry found
 .FindFile
-                    LD   A,$FF
+                    XOR  A
                     LD   H,A
                     LD   L,A
                     LD   (flentry),HL
@@ -387,11 +427,12 @@ Module SaveFiles
 ;
 .DeleteOldFile
                     LD   A,(flentry+2)
-                    CP   $FF                      ; Valid pointer to File Entry?
-                    RET  Z
-
                     LD   B,A
                     LD   HL,(flentry)
+                    OR   H
+                    OR   L                        ; Valid pointer to File Entry?
+                    RET  Z                        ; no, no file entry to be marked as deleted
+
                     CALL FlashEprFileDelete       ; Mark old File Entry as deleted
                     RET  C                        ; File Eprom not found or write error...
                     RET
@@ -406,12 +447,12 @@ Module SaveFiles
 .fsv1_bnr           DEFM "SAVE FILES TO FILE CARD AREA",0
 .wcrd_msg           DEFM 13, 10, " (Wildcards are allowed).",0
 .fnam_msg           DEFM 1,"2+C Filename: ",0
-
+.disp_flcovwrite_msg DEFM 13, 10, " Overwrite files in File Card Area? ",13, 10, 0
 .curdir             DEFM ".",0
 .fsv2_bnr           DEFM "SAVING TO FILE CARD AREA ...",0
 .ends0_msg          DEFM " file",0
 .ends1_msg          DEFM " has been saved.",$0D,$0A,0
-.ends2_msg          DEFM $0D,$0A,1,"2JCNo files found in RAM card to be saved.",1,"2JN",$0D,$0A,0
 
 .blowerrmsg         DEFM "File not saved properly - will be re-saved.",$0D,$0A,0
 .zerolen_msg        DEFM "File has zero length - ignored.",$0D,$0A,0
+.flcexis_msg        DEFM 13," File already exists in File Card. Overwrite?", 13, 10, 0
