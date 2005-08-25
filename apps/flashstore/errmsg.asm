@@ -182,15 +182,24 @@ Module ErrorMessages
 ;    ......../.... different
 ;
 .DispErrMsg
-                    PUSH AF                  ; preserve error status...
                     PUSH HL
+                    PUSH AF                  ; preserve error status...
+
                     CALL_OZ GN_Nln
                     CALL VduEnableCentreJustify
                     CALL sopnln
                     CALL VduEnableNormalJustify
                     CALL ResSpace            ; "Press SPACE to resume" ...
+                    CP   IN_ESC
+                    JR   NZ, space_pressed
+                    POP  HL                  ; ignore old AF...
                     POP  HL
+                    LD   A,RC_ESC            ; override the error status with RC_ESC
+                    SCF
+                    RET
+.space_pressed
                     POP  AF
+                    POP  HL
                     RET
 ; *************************************************************************************
 
