@@ -43,7 +43,7 @@ Module SelectCard
      XREF FileEpromStatistics,DispKSize ; filestat.asm
      XREF m16, ksize_txt                ; filestat.asm
      XREF PollFileCardWatermark         ; browse.asm
-     XREF DispFilesWindow               ; browse.asm
+     XREF FilesAvailable,DispFilesWindow ; browse.asm
      XREF InitFirstFileBar              ; browse.asm
      XREF DispErrMsg, DispIntelSlotErr  ; errmsg.asm
 
@@ -80,7 +80,15 @@ Module SelectCard
                     push af
                     call z, PollFileCardWatermark ; get watermark from selected slot
                     pop  af
-                    ret  z                        ; user selected a device, already stored in (curslot)...
+                    jr   nz, user_aborted
+
+                    call FilesAvailable
+                    ret  nc                       ; file area found, let user select it...
+                    ld   a,(curslot)
+                    ld   c,a
+                    call FlashWriteSupport        ; is this an empty flash card with write/format support?
+                    ret  c                        ; no flash write/format support for this slot.
+                    jp   execute_format           ; prompt the user to format the flash card.
 .user_aborted
                     ld   a,c
                     ld   (curslot),a              ; user aborted selection, restore original slot...
