@@ -33,6 +33,7 @@
      ; Library references
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib FileEprFileStatus         ; get deleted (or active) status of file entry
+     lib ToLower                   ; convert Ascii character to lower case
 
      ; external functionality in other modules
      xref CatalogCommand           ; catalog.asm
@@ -298,6 +299,11 @@
                     JR   Z, MVbar_left
                     CP   IN_RGT                        ; Cursor Right ?
                     JR   Z, MVbar_right
+                    CALL ToLower
+                    CP   'd'                           ; press 'D' (alternative to DEL) to mark file as deleted
+                    JP   Z, delfile_command
+                    CP   'f'                           ; press 'F' (alternative to ENTER) to fetch a file
+                    JP   Z, execute_command
                     JP   inp_main                      ; ignore keypress, get another...
 .MVbar_left
 .MVbar_right
@@ -378,8 +384,8 @@
                     JP   Z,inp_main                    ; delete file command only works when
                     CALL QuickDeleteFile               ; cursor is in file area
                     JP   C,inp_main                    ; file was already marked deleted, or no file area
-                    CALL DispFilesWindow               ; file marked as deleted, refresh file area contents.
-                    CALL FileEpromStatistics           ; refresh file area statistics...
+                    CALL NZ,DispFilesWindow            ; file marked as deleted, refresh file area contents.
+                    CALL NZ,FileEpromStatistics        ; refresh file area statistics...
                     JP   inp_main
 
 .execute_command    LD   A,(barMode)
@@ -669,7 +675,7 @@
                     CALL_OZ gn_sop
                     CALL_OZ(OS_Pur)          ; make sure no keys in sys. inp. buffer...
                     CALL rdch
-                    RET  C
+                    JR   C,yesno_loop        ; ignore pre-emption...
                     CP   IN_ESC
                     JR   Z, abort_yesno
                     CP   13
