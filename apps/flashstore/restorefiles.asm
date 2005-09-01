@@ -22,7 +22,7 @@ Module RestoreFiles
 ; RAM device.
 
      xdef RestoreFilesCommand, PromptOverWrFile, PromptOverWrite
-     xdef disp_exis_msg, no_active_files
+     xdef disp_exis_msg, saving_msg, no_active_files
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -166,7 +166,7 @@ Module RestoreFiles
                     call PromptOverWrFile    ; Does RAM filename at (HL) exist?...
                     pop  de
                     jr   c, check_rest_abort ; does not exist...
-                    jr   z, restore_file     ; file exists, user acknowledged Yes...
+                    jr   z, display_restore  ; file exists, user acknowledged Yes...
                     jr   restore_ignored     ; file exists, user acknowledged No...
 .check_rest_abort
                     cp   RC_ESC
@@ -180,6 +180,9 @@ Module RestoreFiles
                     POP  HL
                     POP  BC
                     JR   fetch_next          ; user acknowledged No, get next file
+.display_restore
+                    LD   HL, saving_msg
+                    CALL_OZ(Gn_Sop)
 .restore_file
                     LD   B,0                 ; (local pointer)
                     LD   HL,buf2             ; pointer to filename...
@@ -318,10 +321,11 @@ Module RestoreFiles
 ; *************************************************************************************
 ; constants
 
-.rest_banner        DEFM "RESTORE ALL FILES FROM FILE AREA",0
+.rest_banner        DEFM "RESTORE ALL FILES TO RAM",0
 .disp_ramovwrite_msg DEFM 13, 10, " Overwrite RAM files? ",13, 10, 0
 .defdst_msg         DEFM 13, 10, " Enter Device/path.",0
 .dest_msg           DEFM 1,"2+C Device: ",0
+.saving_msg         DEFM "Saving...", 13, 10, 0
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
 .no_restore_files   DEFM "No files available in File Area to restore.", 0
