@@ -74,7 +74,7 @@ Module BrowseFiles
 ;
 .DispFilesWindow
                     ld   hl, filearea_banner
-                    ld   bc, 9
+                    ld   bc, 28
                     call FileAreaBannerText       ; HL = banner for file area window
                     call DispMainWindow
 
@@ -135,11 +135,11 @@ Module BrowseFiles
                     push de
                     ldir
                     ld   hl, allfiles_banner
-                    ld   c, 29
+                    ld   c, 23
                     bit  dspdelfiles,(iy+0)
                     jr   nz, append_viewtypetext  ; all files are displayed
                     ld   hl, savedfiles_banner
-                    ld   c, 24                    ; only saved files displayed
+                    ld   c, 18                    ; only saved files displayed
 .append_viewtypetext
                     ldir
                     xor  a
@@ -780,9 +780,9 @@ Module BrowseFiles
 ; *************************************************************************************
 ; constants
 ;
-.filearea_banner    DEFM "FILE AREA"
-.allfiles_banner    DEFM " [VIEW SAVED & DELETED FILES]"
-.savedfiles_banner  DEFM " [VIEW ONLY SAVED FILES]"
+.filearea_banner    DEFM "FILE AREA [VIEW/FETCH/DELETE"
+.allfiles_banner    DEFM " SAVED & DELETED FILES]"
+.savedfiles_banner  DEFM " ONLY SAVED FILES]"
 
 .norm_sq            DEFM 1,"2-G",1,"4+TRUF",1,"4-TRU ",0
 .tiny_sq            DEFM 1,"5+TRGUd",1,"3-RU ",0
