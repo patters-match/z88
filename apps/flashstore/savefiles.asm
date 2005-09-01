@@ -24,6 +24,8 @@ Module SaveFiles
      xdef BackupRamCommand
      xdef fnam_msg
      xdef CompressRamFileName
+     xdef DispFilesSaved
+     xdef CountFileSaved
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FlashEprFileSave          ; Save RAM file to Flash Eprom
@@ -75,8 +77,7 @@ Module SaveFiles
                     ld   (savedfiles),hl          ; reset counter to No files saved...
 
                     call FilesAvailable
-                    jp   c, disp_no_filearea_msg
-                    jp   z, no_active_files       ; Fz = 1, no files available...
+                    jp   c, disp_no_filearea_msg  ; no file area!
 
                     call CheckFileArea
                     ret  c                        ; no file area nor write support
@@ -114,8 +115,7 @@ Module SaveFiles
                     call DispMainWindow
 
                     call FilesAvailable
-                    jp   c, disp_no_filearea_msg
-                    jp   z, no_active_files       ; Fz = 1, no files available...
+                    jp   c, disp_no_filearea_msg  ; no file area!
 
                     call CheckFileArea
                     ret  c                        ; no file area nor write support
@@ -171,7 +171,6 @@ Module SaveFiles
                     CALL_OZ gn_opw                     ; open wildcard handler
                     CALL C, ReportStdError             ; wild card string illegal or no names found
                     JR   C, end_save                   ; no files to save...
-
                     LD   (wcard_handle),IX
 .next_name
                     LD   DE,buf2
@@ -182,6 +181,11 @@ Module SaveFiles
                     CP   Dn_Fil                        ; file found?
                     JR   NZ, next_name
 .re_save
+                    LD   BC,5
+                    CALL_OZ OS_Tin
+                    CP   RC_ESC
+                    JR   Z, save_completed             ; ESC pressed - abort saving of files...
+
                     CALL SaveFileToCard                ; save found RAM file to Flash Card...
                     CALL NC, UpdateFileAreaStats
                     JR   NC, next_name                 ; saved successfully, fetch next file in RAM..
@@ -242,9 +246,11 @@ Module SaveFiles
                     POP  AF
                     RET
 
-.CountFileSaved     LD   HL,(savedfiles)               ; another file has been saved...
+.CountFileSaved     PUSH HL
+                    LD   HL,(savedfiles)               ; another file has been saved...
                     INC  HL
                     LD   (savedfiles),HL               ; savedfiles++
+                    POP  HL
                     RET
 ; *************************************************************************************
 
@@ -275,23 +281,10 @@ Module SaveFiles
                     LD   DE,buf3                       ; output buffer for expanded filename (max 255 byte)...
                     LD   A, op_in
                     CALL_OZ(GN_Opf)
-                    RET  C
+                    RET  C                             ; couldn't open file (in use / not found?)...
 
                     ld   hl,buf3                       ; C = size of explicit filename in (buf3)
                     call CompressRamFileName
-                    PUSH HL                            ; preserve pointer to (optionally compressed) filename
-
-                    LD   A,fa_ext
-                    LD   DE,0
-                    CALL_OZ(OS_Frm)                    ; file size in DEBC...
-                    CALL_OZ(Gn_Cl)                     ; close file
-
-                    LD   H,B
-                    LD   L,C
-                    ADC  HL,DE
-                    POP  HL
-                    JR   Z, file_zero_length           ; Ups, file has zero length - will not be saved...
-
                     CALL_OZ gn_sop                     ; display compressed filename, to user...
 
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
