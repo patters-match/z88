@@ -36,6 +36,8 @@ Module RestoreFiles
      xref FilesAvailable           ; browse.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref CompressRamFileName      ; savefiles.asm
+     xref DispFilesSaved           ; savefiles.asm
+     xref CountFileSaved           ; savefiles.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files, DispErrMsg     ; errmsg.asm
      xref DispMainWindow, sopnln   ; fsapp.asm
@@ -63,6 +65,9 @@ Module RestoreFiles
 .RestoreFilesCommand
                     ld   hl,rest_banner
                     call DispMainWindow
+
+                    ld   hl,0
+                    ld   (savedfiles),hl          ; reset counter to No files saved...
 
                     call FilesAvailable
                     jp   c, disp_no_filearea_msg
@@ -133,12 +138,9 @@ Module RestoreFiles
                     LD   (free),DE
                     LD   A,C
                     LD   (free+2),A
-                    OR   D
-                    OR   E                   ; is file empty (zero length)?
                     POP  DE
                     LD   C,D                 ; C = length of explicit filename
                     POP  DE
-                    JR   Z, fetch_next       ; yes, try to fetch next...
 
                     PUSH BC
                     PUSH HL                  ; pointer temporarily...
@@ -146,6 +148,15 @@ Module RestoreFiles
                     LD   HL, buf2            ; C = size of explicit filename in (buf2)
                     CALL CompressRamFileName ; get a displayable RAM filename
                     CALL_OZ gn_sop           ; display RAM filename (optionally compressed, if too long)...
+
+                    LD   BC,2
+                    CALL_OZ OS_Tin
+                    CP   RC_ESC
+                    JR   NZ, continue_restore
+                    POP  HL
+                    POP  BC
+                    JR   restore_completed   ; ESC pressed - abort restore...
+.continue_restore
 
                     BIT  overwrfiles,(IY+0)
                     JR   NZ, restore_file    ; default - overwrite files...
@@ -182,14 +193,13 @@ Module RestoreFiles
                     CALL_OZ(Gn_Cl)           ; then, close file.
                     POP  AF
                     JR   C, filecreerr       ; not possible to transfer, exit restore...
-
+                    CALL CountFileSaved
                     CALL_OZ GN_Nln
 .fetch_next                                  ; BHL = current File Entry
                     CALL FileEprPrevFile     ; get pointer to previous File Entry...
                     JR   NC, restore_loop
 .restore_completed
-                    LD   HL, done_msg
-                    CALL DispErrMsg
+                    CALL DispFilesSaved
                     RET
 .no_room
                     POP  HL
