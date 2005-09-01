@@ -38,6 +38,7 @@ Module SaveFiles
      xref PromptOverWrite          ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref no_active_files          ; restorefiles.asm
+     xref saving_msg               ; restorefiles.asm
      xref IntAscii                 ; filestat.asm
      xref FileEpromStatistics      ; filestat.asm
      xref InputFileName            ; fetchfile.asm
@@ -299,6 +300,9 @@ Module SaveFiles
                     call PromptOverWrFile              ; filename at (HL)...
                     ret  c                             ; user aborted command or file didn't exist...
                     ret  nz                            ; file exists, user acknowledged No...
+
+                    LD   HL, saving_msg
+                    CALL_OZ(Gn_Sop)
 .save_file_to_card
                     ld   a,(curslot)
                     ld   bc, BufferSize
@@ -444,7 +448,7 @@ Module SaveFiles
 
 ; *************************************************************************************
 ; constants
-.bckp_bnr           DEFM "BACKUP RAM TO FILE CARD AREA",0
+.bckp_bnr           DEFM "BACKUP FROM RAM TO FILE CARD AREA",0
 .bckp_wildcard      DEFM "//*",0
 .filewindow         DEFM 1,"2H2",0
 .fsv1_bnr           DEFM "SAVE FILES TO FILE CARD AREA",0
