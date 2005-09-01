@@ -115,7 +115,7 @@ Module DeleteFile
                     call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
                     call FileEprFileStatus        ; check file entry status...
                     ret  c                        ; no file area...
-                    ret  z                        ; file already marked as deleted..
+                    ret  z
 
                     push bc
                     push hl
@@ -127,7 +127,8 @@ Module DeleteFile
 
                     call_oz GN_Nln
                     call ConfirmDelete            ; ask user to confirm mark as deleted.
-                    jr   z, exec_delete           ; User acknowledged with Yes...
+                    call z, exec_delete           ; User acknowledged with Yes...
+                    or   a
                     ret
 ; *************************************************************************************
 
