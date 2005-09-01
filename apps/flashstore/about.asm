@@ -71,7 +71,7 @@ Module AboutFlashStore
 
 .catalog_banner
 .flashstore_banner
-                    DEFM "FLASHSTORE V1.8 RC2", 0
+                    DEFM "FLASHSTORE V1.8 RC3", 0
 
 .copyrightmsg
                     DEFM 1, "2JC"
