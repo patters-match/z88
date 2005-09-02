@@ -157,7 +157,6 @@ Module RestoreFiles
                     POP  BC
                     JR   restore_completed   ; ESC pressed - abort restore...
 .continue_restore
-
                     BIT  overwrfiles,(IY+0)
                     JR   NZ, restore_file    ; default - overwrite files...
                     ld   hl, buf2
