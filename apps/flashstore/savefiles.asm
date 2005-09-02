@@ -192,7 +192,7 @@ Module SaveFiles
                     JR   NC, next_name                 ; saved successfully, fetch next file in RAM..
 
                     CP   RC_ESC
-                    RET  Z                             ; user aborted command...
+                    JR   Z, save_completed             ; user aborted command (and release wild card handle)...
                     CP   RC_BWR
                     JR   Z, re_save                    ; not saved successfully to Flash Eprom, try again...
                     CALL ReportStdError                ; display all other std. errors...
@@ -277,12 +277,13 @@ Module SaveFiles
 ; Save file to Flash Eprom, filename (might contain wildcards) at (buf2), null-terminated.
 ;
 .SaveFileToCard
-                    LD   BC,255
+                    LD   BC,255                        ; local filename (pointer)..
                     LD   HL,buf2                       ; partial expanded (wildcard) filename
                     LD   DE,buf3                       ; output buffer for expanded filename (max 255 byte)...
                     LD   A, op_in
                     CALL_OZ(GN_Opf)
                     RET  C                             ; couldn't open file (in use / not found?)...
+                    call_oz GN_Cl                      ; close file again (we got the expanded filename)
 
                     ld   hl,buf3                       ; C = size of explicit filename in (buf3)
                     call CompressRamFileName
@@ -304,11 +305,20 @@ Module SaveFiles
                     LD   HL, saving_msg
                     CALL_OZ(Gn_Sop)
 .save_file_to_card
+                    LD   BC,255                        ; local filename (pointer)..
+                    LD   HL,buf2                       ; partial expanded (wildcard) filename
+                    LD   DE,buf3                       ; output buffer for expanded filename (max 255 byte)...
+                    LD   A, op_in
+                    CALL_OZ(GN_Opf)                    ; get file handle in IX...
+
                     ld   a,(curslot)
                     ld   bc, BufferSize
                     ld   de, buffer                    ; use 1K RAM buffer to blow file hdr + image
                     ld   hl,buf3                       ; the expanded RAM filename at buf3 (< 255 char length)...
-                    call FlashEprFileSave
+                    call FlashEprFileSave              ; IX handle refers to RAM file.
+                    push af
+                    call_oz GN_Cl                      ; close file (free file handle in IX)...
+                    pop  af
                     jr   c, filesave_err               ; write error or no room for file...
 
                     CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...
@@ -326,14 +336,7 @@ Module SaveFiles
 
 .file_wrerr         LD   HL, blowerrmsg
                     CALL DispErrMsg                    ; user may abort with ESC after error message.
-                    RET
-
-.file_zero_length
-                    LD   HL,buf2                       ; display (compressed) filename
-                    call sopnln
-                    LD   HL,zerolen_msg
-                    call sopnln
-                    CP   A
+                    CALL cls
                     RET
 ; *************************************************************************************
 
@@ -461,5 +464,4 @@ Module SaveFiles
 .ends1_msg          DEFM " saved.",$0D,$0A,0
 
 .blowerrmsg         DEFM "File not saved properly - will be re-saved.",$0D,$0A,0
-.zerolen_msg        DEFM "File has zero length - ignored.",$0D,$0A,0
 .flcexis_msg        DEFM 13," File already exists in File Card. Overwrite?", 13, 10, 0
