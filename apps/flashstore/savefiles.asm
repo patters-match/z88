@@ -458,7 +458,7 @@ Module SaveFiles
 .curdir             DEFM ".",0
 .fsv2_bnr           DEFM "SAVING TO FILE CARD AREA ...",0
 .ends0_msg          DEFM " file",0
-.ends1_msg          DEFM " has been saved.",$0D,$0A,0
+.ends1_msg          DEFM " saved.",$0D,$0A,0
 
 .blowerrmsg         DEFM "File not saved properly - will be re-saved.",$0D,$0A,0
 .zerolen_msg        DEFM "File has zero length - ignored.",$0D,$0A,0
