@@ -188,7 +188,6 @@ Module SaveFiles
                     JR   Z, save_completed             ; ESC pressed - abort saving of files...
 
                     CALL SaveFileToCard                ; save found RAM file to Flash Card...
-                    CALL NC, UpdateFileAreaStats
                     JR   NC, next_name                 ; saved successfully, fetch next file in RAM..
 
                     CP   RC_ESC
@@ -225,9 +224,11 @@ Module SaveFiles
 
 .DispFilesSaved     PUSH AF
                     PUSH HL
+
                     CALL_OZ GN_Nln
                     CALL VduEnableCentreJustify
                     LD   HL,(savedfiles)
+                    PUSH HL
                     ld   hl,savedfiles                 ; display no of files saved...
                     call IntAscii
                     CALL_OZ gn_sop
@@ -244,6 +245,8 @@ Module SaveFiles
                     CALL_OZ(GN_Sop)
                     CALL ResSpace
                     CALL InitFirstFileBar               ; initialize file area variables...
+
+                    POP  HL
                     POP  AF
                     RET
 
@@ -321,6 +324,7 @@ Module SaveFiles
                     pop  af
                     jr   c, filesave_err               ; write error or no room for file...
 
+                    CALL UpdateFileAreaStats           ; update the file statistics window - a new file was saved to the card.
                     CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...
                     CALL CountFileSaved
                     CALL_OZ GN_Nln
