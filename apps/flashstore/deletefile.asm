@@ -36,6 +36,7 @@ Module DeleteFile
      xref FlashWriteSupport                       ; format.asm
      xref InputFileName, exct_msg                 ; fetchfile.asm
      xref fnam_msg                                ; savefiles.asm
+     xref FileEpromStatistics                     ; filestat.asm
      xref DispMainWindow, sopnln                  ; fsapp.asm
      xref YesNo, no_msg, yes_msg                  ; fsapp.asm
 
@@ -182,6 +183,7 @@ Module DeleteFile
                     JR   C, delfile_failed
                     LD   HL,filedel_msg
                     CALL DispErrMsg
+                    CALL FileEpromStatistics      ; update save/deleted file counters in right hand side window
                     RET
 .delfile_failed
                     LD   HL,markdelete_failed
