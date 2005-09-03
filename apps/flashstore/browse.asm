@@ -642,6 +642,10 @@ Module BrowseFiles
                     push de
                     push hl
 
+                    ld   hl,0
+                    ld   (file),hl                ; reset active files count
+                    ld   (fdel),hl                ;       deleted
+
                     ld   a,(curslot)
                     ld   c,a
                     call FileEprCntFiles          ; any files available in File Area?
