@@ -121,18 +121,6 @@ Module FileAreaStatistics
 .cont_statistics
                     call FilesAvailable           ; update file count on current File Eprom
                                                   ; (file) = active files, (fdel) = deleted files
-                    call FileEprFirstFile
-                    call FileEprFileSize
-                    ld   a,c
-                    or   d
-                    or   e
-                    jr   nz, getfreesp
-                         ld   hl,(file)
-                         dec  hl
-                         ld   (file),hl
-                         ld   hl,(fdel)
-                         dec  hl
-                         ld   (fdel),hl           ; don't include hidden file entry in statistics
 .getfreesp
                     pop  bc                       ; c = slot number...
                     push bc
