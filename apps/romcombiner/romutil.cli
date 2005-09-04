@@ -28,13 +28,13 @@ NEW
   150 $inbuffer=""
   160 r1$=CHR$(1)+"2+R":r0$=CHR$(1)+"2-R"
   170 b1$=CHR$(1)+"2+B":b0$=CHR$(1)+"2-B"
-  180 PROCload(":*//romcombiner.bin",blowbank)
+  180 PROCload(":*//RomCombiner.bin",blowbank)
   190 IF F%=1 THEN PROCBlowROM
   200 IF F%=2 THEN PROCFlashErase
   210 IF F%=3 THEN PROCEprConvert
   220 IF F%=4 THEN PROCReadROM
   230 IF F%=5 THEN PROCVerify
-  240 RUN "ROMCOMBINER.BAS"
+  240 RUN ":*//RomCombiner.bas"
 
  1100 DEF PROCDispTitle
  1110 CLS
@@ -241,4 +241,3 @@ NEW
  5140 IF I%>=100 THEN PROCErrMsg("Incomplete!") ELSE PROCErrMsg("Completed!")
  5150 CLOSE#X%
  5160 ENDPROC
-

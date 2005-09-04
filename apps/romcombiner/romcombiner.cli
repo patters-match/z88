@@ -424,14 +424,14 @@ NEW
  3830 DEF PROCReadROM
  3840 IF bufchange% THEN PROCsave($inbuffer)
  3850 F%=4
- 3860 RUN "ROMUTIL.BAS"
+ 3860 RUN ":*//romutil.bas"
  3870 ENDPROC
 
  4200 DEF PROCBlowROM
  4210 IF bufchange% THEN PROCsave($inbuffer)
  4220 W%=WaitLS%:S%=ShowApps%
  4230 F%=1
- 4240 RUN "ROMUTIL.BAS"
+ 4240 RUN ":*//romutil.bas"
  4250 ENDPROC
 
  4560 DEF FNmissing(N$)
@@ -442,17 +442,17 @@ NEW
 
  4610 DEF PROCFlashErase
  4620 F%=2
- 4630 RUN "ROMUTIL.BAS"
+ 4630 RUN ":*//romutil.bas"
  4640 ENDPROC
 
  4720 DEF PROCVerify
  4730 F%=5
- 4740 RUN "ROMUTIL.BAS"
+ 4740 RUN ":*//romutil.bas"
  4750 ENDPROC
 
  4840 DEF PROCEprConvert
  4860 F%=3
- 4870 RUN "ROMUTIL.BAS"
+ 4870 RUN ":*//romutil.bas"
  4880 ENDPROC
 
  5170 DEF PROCSaveCfg
