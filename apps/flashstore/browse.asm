@@ -195,17 +195,17 @@ Module BrowseFiles
 
 
 ; *************************************************************************************
-; Move the File Bar one file down the list - scroll the window contents one line
-; upwards and display next file line, when file bar goes beyond the window bottom
+; Move the File Bar to the last file entry (top of file area) and try to fill the
+; list with 6 file entries above.
 ;
 .MoveToLastFile
-                    call GetCurrentSlot         ; C = (curslot)
-                    call GetLastFilePtr
-                    ret  c                      ; File Area not available...
+                    xor  a                      ; get a cache of all file entries
+                    call CacheFileEntries       ; and return BHL = last file entry in file area
+                    ret  c                      ; no file entries or no File Area available...
 
                     push bc
                     push hl
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = FileEprLastFile(slot)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
                     ld   c,6
                     call pageup_loop            ; move 6 file entries upwards, if possible. C return no of entries left of 6
                     ld   a,6
@@ -228,9 +228,12 @@ Module BrowseFiles
 ;
 .MoveFileBarUp
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
-                    call GetPrevFilePtr
+                    ld   a,255                  ; get a cache of all file entries until
+                    call CacheFileEntries       ; file entry in BHL, DE = pointer to cached entry
+                    ret  c                      ; no file entries or no File Area available...
+                    call GetPrevCachedFilePtr
                     jr   c, MoveToLastFile      ; File Bar at top of file list, wrap to last...
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetPrevFilePtr(CursorFilePtr)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
 
                     ld   a,(FileBarPosn)
                     cp   0
@@ -302,14 +305,20 @@ Module BrowseFiles
 ; Clear window and position the Bar cursor at the top line and list file entries.
 ;
 .MoveFileBarPageUp
+                    call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
+                    ld   a,255                  ; get a cache of all file entries until
+                    call CacheFileEntries       ; file entry in BHL, DE = pointer to cached entry
+                    ret  c                      ; no file entries or no File Area available...
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
+
                     xor  a
                     ld   (FileBarPosn),a        ; File Bar at top of window
                     ld   c,7                    ; move 7 file entries upwards, if possible
 .pageup_loop
                     call GetCursorFilePtr       ; BHL <-- (CursorFilePtr)
-                    call GetPrevFilePtr
+                    call GetPrevCachedFilePtr
                     jr   c, end_MovePgUp        ; reached top of list, update file area window
-                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), CursorFilePtr = GetPrevFilePtr(CursorFilePtr)
+                    call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
                     call StoreWindowFilePtr     ; the top window file entry will be the same as the new file entry
                     dec  c
                     jr   nz, pageup_loop
@@ -405,29 +414,6 @@ Module BrowseFiles
                     bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
                     jr   z, fetch_prev_loop       ; only active files, scan backward until active file..
                     ret                           ; return 'marked as deleted' file entry
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Get pointer to last file entry. If only active files are currently displayed,
-; deleted file entries are skipped (backwards) until an active file entry is found.
-;
-; IN:
-;    C = slot number of File area
-;
-; OUT:
-;    Fc = 1, End of list reached
-;    Fc = 0
-;         BHL = pointer to first file entry
-;
-.GetLastFilePtr
-                    call FileEprLastFile
-                    ret  c
-                    ret  nz                       ; an active file entry was found...
-
-                    bit  dspdelfiles,(iy+0)       ; are deleted files to be displayed in file area?
-                    call z,GetPrevFilePtr         ; skip deleted file(s) backward until active file is found
-                    ret                           ; (and return BHL to that entry)
 ; *************************************************************************************
 
 
@@ -773,6 +759,146 @@ Module BrowseFiles
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr), indicate no files (pointer = 0)
                     call StoreWindowFilePtr     ; BHL --> (WindowFilePtr), indicate no files (pointer = 0)
                     LD   (barMode),A            ; get cursor out of file window into menu window...
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Cache file entries for current view mode from beginning of file card until current
+; file entry in BHL, or all file entries.
+;
+; Caching is used for fast display of <Last File Entry> and <Page Up> browsing.
+;
+; The file entries will be be stored as three-byte entities beginning at (buffer+3),
+; onwards. (buffer) contains three zeroes to indicate bottom-of-file-list.
+; A pointer (16bit) will be returned that indicates the current file entry. The cache
+; can store 512 entries. This size is defined by size of <buffer> + <buf1> + <buf2> +
+; <buf3> = 1024 + 128 + 128 + 256 = 1536 / 3 = 512.
+; Last entry + 1 contains three zeroes to define top of file list.
+;
+; The cache needs to be built be before each <Page Up> or <Top File> cursor move
+; command.
+;
+; IN:
+;   A = 0: cache all file entries in file area (BHL not used)
+;   A <> 0: cache only file entries until current current entry.
+;       BHL = current file entry
+; OUT:
+;   Fc = 1
+;       No entries or no file area found.
+;   Fc = 0
+;       A(in) = 0,
+;           DE = pointer to last file entry in file area cache (current view).
+;           BHL = last file entry pointer in current slot
+;       A(in) <> 0,
+;           DE = pointer to current file entry in file area cache (current view).
+;           BHL = BHL(in)
+;
+.CacheFileEntries   push ix
+                    ld   ix,flentry
+
+                    push af
+                    ld   (flentry),hl
+                    ld   a,b
+                    ld   (flentry+2),a          ; remember current file entry
+                    pop  af
+
+                    ld   de,buffer
+                    call NUllEntry              ; (buffer) = 0, DE points at first cache entry
+
+                    call GetCurrentSlot         ; C = (curslot)
+                    call GetFirstFilePtr
+                    jr   c,exit_buildcache      ; couldn't get the first file entry...
+.cache_entries_loop
+                    call CacheFileEntry         ; (DE) <- BHL, DE = DE + 3
+                    or   a
+                    call nz,CompareFileEntry    ; build cache to current file entry?
+                    call GetNextFilePtr         ; BHL = GetNextFileEntry(BHL) (current view)
+                    jr   c, end_buildcache      ; reached end of file area..
+                    jr   cache_entries_loop
+.end_buildcache
+                    cp   a                      ; Fc = 0, indicate no error
+.exit_buildcache
+                    dec  de
+                    dec  de
+                    dec  de                     ; point at start of current cached file entry in BHL
+                    push af
+                    call GetCachedFileEntry     ; BHL <- (DE)
+                    pop  af
+                    pop  ix
+                    ret
+.CompareFileEntry                               ; reached the current file entry during caching?
+                    push af
+                    ld   a,b
+                    cp   (ix+2)
+                    jr   nz, fe_notequal
+                    ld   a,h
+                    cp   (ix+1)
+                    jr   nz, fe_notequal
+                    ld   a,l
+                    cp   (ix+0)
+                    jr   nz, fe_notequal
+                    pop  af                     ; stop caching at found BHL file entry...
+                    pop  af                     ; (pop return address)
+                    cp   a                      ; Fc = 0...
+                    jr   exit_buildcache
+.fe_notequal
+                    pop  af                     ; caching not reached file entry...
+                    ret
+
+.CacheFileEntry     push af                     ; store BHL at (DE), DE = DE+3
+                    ld   a,l
+                    ld   (de),a
+                    inc  de
+                    ld   a,h
+                    ld   (de),a
+                    inc  de
+                    ld   a,b
+                    ld   (de),a
+                    inc  de
+                    pop  af
+                    ret
+.NullEntry                                      ; (DE) = 0
+                    push af
+                    push bc
+                    xor  a
+                    ld   b,3
+.null_entry_loop
+                    ld   (de),a
+                    inc  de
+                    djnz null_entry_loop
+                    pop  bc
+                    pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Get previous cached file entry.
+;
+; IN:
+;   DE = pointer to current cached file entry
+;
+.GetPrevCachedFilePtr
+                    dec  de
+                    dec  de
+                    dec  de
+.GetCachedFileEntry                               ; Get cached file entry at (DE), returned in BHL
+                    push de
+                    ld   a,(de)
+                    inc  de
+                    ld   l,a
+                    ld   a,(de)
+                    inc  de
+                    ld   h,a
+                    ld   a,(de)
+                    ld   b,a
+                    or   h
+                    or   l
+                    jr   nz, end_getcachedfe
+                    scf                           ; reached beyond first file entry
+.end_getcachedfe
+                    pop  de
                     ret
 ; *************************************************************************************
 
