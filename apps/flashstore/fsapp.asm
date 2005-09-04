@@ -20,6 +20,7 @@
 
      ; public functionality & text constants
      xdef DispCmdWindow, DispMainWindow, DisplBar
+     xdef GetCurrentSlot
      xdef format_default
      xdef rdch, pwait, YesNo
      xdef greyscr, ungreyscr
@@ -490,8 +491,7 @@
                     ld   hl, menu_msg
                     call_oz(Gn_Sop)
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call FlashWriteSupport
                     ret  nc                       ; flash supports write/erase in slot.
 
@@ -524,6 +524,17 @@
 
                     ld   hl, selslot_banner
                     call SelectFileArea          ; User selects a slot from a list...
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Get current slot in C
+;
+.GetCurrentSlot     push af
+                    ld   a,(curslot)
+                    ld   c,a
+                    pop  af
                     ret
 ; *************************************************************************************
 

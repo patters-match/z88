@@ -37,7 +37,7 @@ Module DeleteFile
      xref InputFileName, exct_msg                 ; fetchfile.asm
      xref fnam_msg                                ; savefiles.asm
      xref FileEpromStatistics                     ; filestat.asm
-     xref DispMainWindow, sopnln                  ; fsapp.asm
+     xref DispMainWindow, GetCurrentSlot, sopnln  ; fsapp.asm
      xref YesNo, no_msg, yes_msg                  ; fsapp.asm
 
      ; system definitions
@@ -56,8 +56,7 @@ Module DeleteFile
                     ld   hl,delfile_bnr
                     call DispMainWindow
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
                     jp   c,DispIntelSlotErr
                     ret
@@ -164,8 +163,7 @@ Module DeleteFile
 ; *************************************************************************************
 ;
 .FindToMarkDeleted
-                    LD   A,(curslot)
-                    LD   C,A
+                    call GetCurrentSlot           ; C = (curslot)
                     LD   DE,buffer
                     CALL FileEprFindFile          ; search for <buffer> filename on File Eprom...
                     JR   C, delfile_notfound      ; File Eprom or File Entry was not available

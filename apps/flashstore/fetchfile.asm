@@ -44,6 +44,7 @@ Module FetchFile
      xref GetDefaultRamDevice      ; defaultram.asm
      xref DispMainWindow, sopnln   ; fsapp.asm
      xref cls, failed_msg          ; fsapp.asm
+     xref GetCurrentSlot           ; fsapp.asm
      xref fnam_msg                 ; savefiles.asm
      xref CompressRamFileName      ; savefiles.asm
      xref VduCursor                ; selectcard.asm
@@ -72,8 +73,7 @@ Module FetchFile
                     ld   hl,fetch_bnr
                     call DispMainWindow
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call FileEprRequest
                     jr   z, check_fetchable_files ; File Area found.
                     call disp_no_filearea_msg
@@ -139,8 +139,7 @@ Module FetchFile
 ; *************************************************************************************
 ;
 .FindFileToFetch
-                    LD   A,(curslot)
-                    LD   C,A
+                    call GetCurrentSlot      ; C = (curslot)
                     LD   DE,buffer
                     CALL FileEprFindFile     ; search for <buf1> filename on File Eprom...
                     JP   C, not_found_err    ; File Eprom or File Entry was not available

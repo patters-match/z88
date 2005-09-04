@@ -34,7 +34,7 @@ Module SelectCard
      XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
      XREF greyscr, greyfont, nocursor   ; fsapp.asm
      XREF nogreyfont, notinyfont, cls   ; fsapp.asm
-     xref DispMainWindow                ; fsapp.asm
+     xref GetCurrentSlot, DispMainWindow; fsapp.asm
      XREF FormatCommand                 ; format.asm
      XREF PollFileFormatSlots           ; format.asm
      XREF FlashWriteSupport             ; format.asm
@@ -59,8 +59,7 @@ Module SelectCard
 ;
 .SelectCardCommand
                     CALL greyscr
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call PollSlots
                     or   a                        ; if no file areas were found, then
                     call z,PollFileFormatSlots    ; investigate slots 1-3 for Flash Cards that can be formatted
@@ -84,8 +83,7 @@ Module SelectCard
 
                     call FilesAvailable
                     ret  nc                       ; file area found, let user select it...
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call FlashWriteSupport        ; is this an empty flash card with write/format support?
                     ret  c                        ; no flash write/format support for this slot.
                     jp   execute_format           ; prompt the user to format the flash card.
@@ -163,8 +161,7 @@ Module SelectCard
                          inc  b
                          CALL VduCursor
                          push bc
-                         ld   a,(curslot)
-                         ld   c,a
+                         call GetCurrentSlot      ; C = (curslot)
                          call FileEprRequest
                          ld   a,c
                          pop  bc
@@ -224,8 +221,7 @@ Module SelectCard
                     inc  b
                     inc  b                        ; prepare for "applications" text
                     push bc
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call ApplEprType
                     ld   a,c
                     pop  bc
@@ -237,8 +233,7 @@ Module SelectCard
 .flash_noapps
                     CALL VduCursor
                     push bc
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call FileEprRequest
                     ld   a,c
                     pop  bc
@@ -262,9 +257,8 @@ Module SelectCard
                     call UserMenu
                     ret  c                        ; user aborted selection
                     ld   hl, availslots
-                    ld   a,(curslot)
                     ld   b,0
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     add  hl,bc
                     xor  a
                     cp   (hl)
@@ -325,8 +319,7 @@ Module SelectCard
 .DispFreeSpace
                     push bc
                     push hl
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot ; C = (curslot)
                     call FileEprFreeSpace
                     push bc
                     pop  hl

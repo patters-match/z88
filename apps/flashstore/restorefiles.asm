@@ -43,6 +43,7 @@ Module RestoreFiles
      xref DispMainWindow, sopnln   ; fsapp.asm
      xref YesNo, no_msg, yes_msg   ; fsapp.asm
      xref ResSpace, failed_msg     ; fsapp.asm
+     xref GetCurrentSlot           ; fsapp.asm
      xref done_msg                 ; fetchfile.asm
      xref fetf_msg                 ; fetchfile.asm
      xref InputFilename            ; fetchfile.asm
@@ -122,8 +123,7 @@ Module RestoreFiles
                     CALL_OZ GN_nln
                     CALL_OZ GN_nln
 
-                    LD   A,(curslot)
-                    LD   C,A
+                    call GetCurrentSlot      ; C = (curslot)
                     CALL FileEprLastFile     ; get pointer to last file on Eprom
                     JP   C, no_files         ; Ups - the card was empty or not present...
 .restore_loop                                ; BHL points at current file entry

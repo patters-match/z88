@@ -39,6 +39,7 @@ Module FileAreaFormat
      xref DispMainWindow,ResSpace  ; fsapp.asm
      xref sopnln, ungreyscr, cls   ; fsapp.asm
      xref yesno,no_msg             ; fsapp.asm
+     xref GetCurrentSlot           ; fsapp.asm
      xref DispSlotErrorMsg         ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
      xref disp_empty_flcard_msg    ; errmsg.asm
@@ -81,8 +82,7 @@ Module FileAreaFormat
                     ld   hl, ffm1_bnr
                     CALL SelectFileArea           ; several file areas can be formatted, select one...
                     ret  c                        ; user aborted selection
-                    ld   a,(curslot)              ; the selected slot...
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     CALL FlashWriteSupport
                     ret  c                        ; user selected a non-formattable file-area...
                     LD   HL, ffm1_bnr
@@ -97,8 +97,7 @@ Module FileAreaFormat
                     ld   hl,ffm1_bnr
                     CALL DispMainWindow
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     PUSH BC
                     CALL FileEprRequest           ; C = slot number...
                     POP  BC
@@ -125,8 +124,7 @@ Module FileAreaFormat
                     ld   hl,ffm2_msg
                     CALL_OZ GN_Sop
 
-                    LD   A,(curslot)
-                    LD   C,A
+                    call GetCurrentSlot           ; C = (curslot)
                     CALL FlashEprFileFormat       ; erase blocks of file area & blow "oz" header at top
 
                     push af

@@ -47,8 +47,8 @@ Module BrowseFiles
      lib FileEprRandomID           ; Return File Eprom "oz" Header Random ID
 
      xref DispMainWindow, cls      ; fsapp.asm
-     xref DispCmdWindow
-     xref DisplBar                 ; fsapp.asm
+     xref DispCmdWindow            ; fsapp.asm
+     xref GetCurrentSlot, DisplBar ; fsapp.asm
      xref rightjustify             ; fsapp.asm
      xref leftjustify              ; fsapp.asm
      xref yesno, no_msg            ; fsapp.asm
@@ -171,8 +171,7 @@ Module BrowseFiles
                     jp   c, ResetFilePtrs       ; no file area...
                     jp   z, ResetFilePtrs       ; no files available...
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot         ; C = (curslot)
                     call GetFirstFilePtr        ; get BHL of first file in File area in slot C
                     jp   c, ResetFilePtrs       ; hmm..
                     call StoreCursorFilePtr     ; BHL --> (CursorFilePtr)
@@ -200,8 +199,7 @@ Module BrowseFiles
 ; upwards and display next file line, when file bar goes beyond the window bottom
 ;
 .MoveToLastFile
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot         ; C = (curslot)
                     call GetLastFilePtr
                     ret  c                      ; File Area not available...
 
@@ -347,7 +345,7 @@ Module BrowseFiles
 ;    C = slot number of File area
 ;
 ; OUT:
-;    Fc = 1, End of list reached
+;    Fc = 1, No file area or no file entries in file area.
 ;    Fc = 0
 ;         BHL = pointer to first file entry
 ;
@@ -509,8 +507,7 @@ Module BrowseFiles
                     cp   a                        ; Fz = 1, indicate new file area
                     jr   exit_PollFileCardWatermark
 .getRandomId
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call FileEprRandomID
                     ret
 .ResetWatermark
@@ -646,8 +643,7 @@ Module BrowseFiles
                     ld   (file),hl                ; reset active files count
                     ld   (fdel),hl                ;       deleted
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     call FileEprCntFiles          ; any files available in File Area?
                     jr   c, exit_checkfiles       ; no file area!
                     ld   (file),hl                ; update active files count

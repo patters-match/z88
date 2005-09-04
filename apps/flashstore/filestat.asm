@@ -37,6 +37,7 @@ Module FileAreaStatistics
      XREF DispSlotSize, epromdev   ; selectcard.asm
      XREF centerjustify, tinyfont  ; fsapp.asm
      XREF nocursor                 ; fsapp.asm
+     xref GetCurrentSlot           ; fsapp.asm
      XREF CheckFlashCardID         ; format.asm
      XREF FilesAvailable           ; browse.asm
 
@@ -107,8 +108,7 @@ Module FileAreaStatistics
                     xor  a
                     ld   (de),a                   ; null-terminate banner
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     push bc
                     call FileEprRequest
                     jr   z, cont_statistics
@@ -150,8 +150,7 @@ Module FileAreaStatistics
                     ld   hl,tinyfont
                     CALL_OZ gn_sop
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot           ; C = (curslot)
                     push bc
                     CALL FlashEprInfo
                     pop  bc
@@ -215,8 +214,7 @@ Module FileAreaStatistics
                     LD   BC, $0101
                     CALL VduCursor           ; VDU Cursor at (1,1)
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot      ; C = (curslot)
                     CALL FileEprRequest
                     ld   a,c
                     ld   (bytesperline),a    ; remember size of file area in 16K banks

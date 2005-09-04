@@ -48,6 +48,7 @@ Module SaveFiles
      xref DispMainWindow, ResSpace ; fsapp.asm
      xref cls, wbar, sopnln        ; fsapp.asm
      xref VduEnableCentreJustify   ; fsapp.asm
+     xref GetCurrentSlot           ; fsapp.asm
      xref ReportStdError           ; errmsg.asm
      xref DispIntelSlotErr         ; errmsg.asm
      xref DispErrMsg               ; errmsg.asm
@@ -211,8 +212,7 @@ Module SaveFiles
                     POP  AF
                     RET
 .CheckFileArea
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot                ; C = (curslot)
                     call FlashWriteSupport             ; check if Flash Card in current slot supports saveing files?
                     jp   c,DispIntelSlotErr
                     jp   nz,DispIntelSlotErr
@@ -418,8 +418,7 @@ Module SaveFiles
                     LD   (flentry),HL
                     LD   (flentry+2),A                 ; preset found File Entry to <None>...
 
-                    LD   A,(curslot)
-                    LD   C,A
+                    CALL GetCurrentSlot                ; C = (curslot)
                     CALL FileEprFindFile               ; search for filename on File Eprom...
                     RET  C                             ; File Eprom or File Entry was not available
                     RET  NZ                            ; File Entry was not found...

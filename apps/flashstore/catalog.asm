@@ -39,6 +39,7 @@ Module CatalogFiles
      xref cls, yesno, no_msg       ; fsapp.asm
      xref sopnln, pwait, ResSpace  ; fsapp.asm
      xref DispMainWindow           ; fsapp.asm
+     xref GetCurrentSlot           ; fsapp.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
      xref PromptOverWrFile         ; restorefiles.asm
@@ -108,8 +109,7 @@ Module CatalogFiles
                     ld   bc,20
                     call WriteLine               ; write PipeDream document format header to file...
 
-                    ld   a,(curslot)
-                    ld   c,a
+                    call GetCurrentSlot          ; C = (curslot)
                     call GetFirstFilePtr         ; BHL = first file entry
 .cat_main_loop
                     ld   de, buffer+2            ; write filename at (DE), null-terminated
