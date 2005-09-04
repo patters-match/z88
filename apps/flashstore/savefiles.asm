@@ -49,6 +49,7 @@ Module SaveFiles
      xref cls, wbar, sopnln        ; fsapp.asm
      xref VduEnableCentreJustify   ; fsapp.asm
      xref GetCurrentSlot           ; fsapp.asm
+     xref yes_msg, no_msg          ; fsapp.asm
      xref ReportStdError           ; errmsg.asm
      xref DispIntelSlotErr         ; errmsg.asm
      xref DispErrMsg               ; errmsg.asm
@@ -98,6 +99,7 @@ Module SaveFiles
                     LDIR                          ; append "//*", wich is ":RAM.X//*"
 
                     LD   HL, filecard_promptovwrite_msg
+                    LD   DE, yes_msg              ; default to Yes
                     CALL PromptOverWrite          ; prompt user to overwrite all files on file card
                     CP   IN_ESC
                     RET  Z                        ; user aborted with ESC
@@ -154,6 +156,7 @@ Module SaveFiles
                     call cls
 
                     LD   HL, filecard_promptovwrite_msg
+                    LD   DE, yes_msg                   ; default to Yes
                     CALL PromptOverWrite               ; prompt user to overwrite all files on file card
                     CP   IN_ESC
                     RET  Z                             ; user aborted with ESC

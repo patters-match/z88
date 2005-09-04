@@ -115,9 +115,12 @@ Module RestoreFiles
                     JR   NZ,path_ok
                     DEC  DE
 .path_ok            INC  DE                  ; DE points at merge position,
-                                             ; ready to receive filenames from File Eprom...
+                    PUSH DE                  ; ready to receive filenames from File Eprom...
+
                     LD   HL, ram_promptovwrite_msg
+                    LD   DE, no_msg          ; default 'No' to overwrite RAM files
                     CALL PromptOverwrite     ; prompt for all existing files to be overwritten
+                    POP  DE
                     CP   IN_ESC
                     RET  Z                   ; user aborted with ESC
                     CALL_OZ GN_nln
@@ -143,7 +146,7 @@ Module RestoreFiles
                     POP  DE
 
                     PUSH BC
-                    PUSH HL                  ; pointer temporarily...
+                    PUSH HL                  ; preserve file entry pointer temporarily...
 
                     LD   HL, buf2            ; C = size of explicit filename in (buf2)
                     CALL CompressRamFileName ; get a displayable RAM filename
@@ -151,8 +154,9 @@ Module RestoreFiles
 
                     LD   BC,2
                     CALL_OZ OS_Tin
-                    CP   RC_ESC
+                    CP   RC_ESC              ; has user tried to abort file restore to RAM?
                     JR   NZ, continue_restore
+
                     POP  HL
                     POP  BC
                     JR   restore_completed   ; ESC pressed - abort restore...
@@ -178,7 +182,7 @@ Module RestoreFiles
                     CALL_OZ(Gn_Nln)
                     POP  HL
                     POP  BC
-                    JR   fetch_next          ; user acknowledged No, get next file
+                    JR   fetch_next          ; user acknowledged No, get next file..
 .display_restore
                     LD   HL, saving_msg
                     CALL_OZ(Gn_Sop)
@@ -225,6 +229,7 @@ Module RestoreFiles
 ;
 ; IN:
 ;    HL = pointer to display prompt message routine
+;    DE = pointer to Yes_msg or No_msg (the default prompt)
 ;
 ; OUT:
 ;    (status), bit 1 = 1 if all files are to be overwritten, else prompt...
@@ -233,7 +238,6 @@ Module RestoreFiles
                     PUSH HL
 
                     SET  overwrfiles,(IY+0)  ; preset to Yes (to overwrite existing files)
-                    LD   DE, no_msg
                     CALL YesNo
                     JR   C, exit_promptoverwr
                     JR   Z, exit_promptoverwr; Yes selected...
