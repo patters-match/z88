@@ -23,9 +23,9 @@ DEFC BufferSize = 1024                  ; buffer for file I/O at $2000
 DEFVARS $2000
 {
      buffer         ds.b BufferSize
-     buf1           ds.b $80
-     buf2           ds.b $80            ; filename buffer...
-     buf3           ds.b $ff            ; for expanded filenames
+     buf1           ds.b 128
+     buf2           ds.b 128            ; filename buffer...
+     buf3           ds.b 256            ; for expanded filenames
 }
 
 DEFVARS $1FFE - SafeWorkSpaceSize
