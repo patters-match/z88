@@ -311,20 +311,11 @@ Module SaveFiles
                     LD   HL, saving_msg
                     CALL_OZ(Gn_Sop)
 .save_file_to_card
-                    LD   BC,255                        ; local filename (pointer)..
-                    LD   HL,buf2                       ; partial expanded (wildcard) filename
-                    LD   DE,buf3                       ; output buffer for expanded filename (max 255 byte)...
-                    LD   A, op_in
-                    CALL_OZ(GN_Opf)                    ; get file handle in IX...
-
                     ld   a,(curslot)
                     ld   bc, BufferSize
                     ld   de, buffer                    ; use 1K RAM buffer to blow file hdr + image
-                    ld   hl,buf3                       ; the expanded RAM filename at buf3 (< 255 char length)...
-                    call FlashEprFileSave              ; IX handle refers to RAM file.
-                    push af
-                    call_oz GN_Cl                      ; close file (free file handle in IX)...
-                    pop  af
+                    ld   hl,buf2                       ; the partial expanded RAM filename at buf2 (< 255 char length)...
+                    call FlashEprFileSave
                     jr   c, filesave_err               ; write error or no room for file...
 
                     CALL UpdateFileAreaStats           ; update the file statistics window - a new file was saved to the card.
@@ -344,6 +335,7 @@ Module SaveFiles
 .file_wrerr         LD   HL, blowerrmsg
                     CALL DispErrMsg                    ; user may abort with ESC after error message.
                     CALL cls
+                    SCF
                     RET
 ; *************************************************************************************
 
