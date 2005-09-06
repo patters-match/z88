@@ -602,7 +602,7 @@ Module BrowseFiles
                     pop  hl
                     pop  de                     ; start of original buffer
                     push de
-                    ld   bc,45                  ; copy compressed filename to original buffer
+                    ld   bc,46                  ; copy compressed filename (including null-terminator) to original buffer
                     ldir
                     pop  de
 .end_GetCompressedFilename
