@@ -112,20 +112,17 @@ Module DeleteFile
 ; to be deleted if the current slot contains a Flash Card that supports byte programming.
 ;
 .QuickDeleteFile
-                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
                     call FileEprFileStatus        ; check file entry status...
                     ret  c                        ; no file area...
                     ret  z
 
-                    push bc
-                    push hl
                     call InitDeleteCommand        ; init command window and check if Flash Card supports deleting files?
-                    pop  hl
-                    pop  bc
-                    jp   c, DispFiles             ; it didn't...
-                    jp   nz, DispFiles            ; (and flash chip was not found in slot!)
+                    ret  c                        ; it didn't...
+                    ret  nz                       ; (and flash chip was not found in slot!)
 
                     call_oz GN_Nln
+
+                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
                     call ConfirmDelete            ; ask user to confirm mark as deleted.
                     call z, exec_delete           ; User acknowledged with Yes...
                     or   a

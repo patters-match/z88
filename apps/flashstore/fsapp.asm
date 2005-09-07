@@ -384,9 +384,10 @@
                     OR   A
                     JP   Z,inp_main                    ; delete file command only works when
                     CALL QuickDeleteFile               ; cursor is in file area
-                    JP   C,inp_main                    ; file was already marked deleted, or no file area
-                    CALL NZ,DispFilesWindow            ; file marked as deleted, refresh file area contents.
-                    CALL NZ,FileEpromStatistics        ; refresh file area statistics...
+                    PUSH AF
+                    CALL DispFilesWindow               ; Refresh file area contents.
+                    POP  AF
+                    CALL NZ,FileEpromStatistics        ; refresh file area statistics, if file were marked as deleted...
                     JP   inp_main
 
 .execute_command    LD   A,(barMode)
