@@ -291,12 +291,14 @@ Module SaveFiles
                     RET  C                             ; couldn't open file (in use / not found?)...
                     call_oz GN_Cl                      ; close file again (we got the expanded filename)
 
-                    ld   hl,buf3                       ; C = size of explicit filename in (buf3)
-                    call CompressRamFileName
-                    CALL_OZ gn_sop                     ; display compressed filename, to user...
-
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
                     CALL FindFile                      ; find a matching File Entry, and remember it to be deleted later...
+
+                    push af                            ; preserve search status...
+                    ld   hl,buf3                       ; C = size of explicit filename in (buf3) returned from GN_Opf
+                    call CompressRamFileName
+                    CALL_OZ gn_sop                     ; display compressed filename, to user...
+                    pop  af
                     JR   nz, save_file_to_card         ; file doesn't exists in file area, just save the file from RAM
 
                     BIT  overwrfiles,(IY+0)            ; file was found in file area, prompt user to overwrite?
@@ -318,8 +320,8 @@ Module SaveFiles
                     call FlashEprFileSave
                     jr   c, filesave_err               ; write error or no room for file...
 
-                    CALL UpdateFileAreaStats           ; update the file statistics window - a new file was saved to the card.
                     CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...
+                    CALL UpdateFileAreaStats           ; update the file statistics window - a new file was saved to the card.
                     CALL CountFileSaved
                     CALL_OZ GN_Nln
                     CP   A
@@ -351,9 +353,11 @@ Module SaveFiles
 ;    length of filename fits within 42 characters.
 ;
 .CompressRamFileName
+                    push af
+
                     ld   a,c
                     cp   42
-                    ret  c                             ; filename fits within 42 chars, return original HL
+                    jr   c, flnm_short                 ; filename fits within 42 chars, return original HL
 
                     push bc
                     push de
@@ -390,6 +394,8 @@ Module SaveFiles
 
                     pop  de
                     pop  bc
+.flnm_short
+                    pop  af
                     ret
 ; *************************************************************************************
 
@@ -401,12 +407,15 @@ Module SaveFiles
 ;
 ; IN:
 ;         DE = pointer to search string (filename)
-;
+; OUT:
 ;         Fc = 1, No File Card
 ;         Fc = 0,
 ;              Fz = 0, file entry not found
 ;              Fz = 1, file entry found
 .FindFile
+                    PUSH BC
+                    PUSH HL
+
                     XOR  A
                     LD   H,A
                     LD   L,A
@@ -415,12 +424,15 @@ Module SaveFiles
 
                     CALL GetCurrentSlot                ; C = (curslot)
                     CALL FileEprFindFile               ; search for filename on File Eprom...
-                    RET  C                             ; File Eprom or File Entry was not available
-                    RET  NZ                            ; File Entry was not found...
+                    JR   C, exit_FindFile              ; File Eprom or File Entry was not available
+                    JR   NZ, exit_FindFile             ; File Entry was not found...
 
                     LD   A,B
                     LD   (flentry),HL                  ; preserve ptr to current File Entry...
                     LD   (flentry+2),A
+.exit_FindFile
+                    POP  HL
+                    POP  BC
                     RET
 ; *************************************************************************************
 
@@ -442,7 +454,6 @@ Module SaveFiles
                     RET  Z                        ; no, no file entry to be marked as deleted
 
                     CALL FlashEprFileDelete       ; Mark old File Entry as deleted
-                    RET  C                        ; File Eprom not found or write error...
                     RET
 ; *************************************************************************************
 
