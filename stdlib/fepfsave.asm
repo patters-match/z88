@@ -246,10 +246,9 @@
                     PUSH IX
                     POP  IY
                     CALL FlashEprWriteBlock       ; blow buffer to Flash Eprom at BHL...
-                    POP  IY
-                    JR   NC, save_file_loop
-                    CALL C,MarkDeleted            ; File was not blown properly...
-                    RET
+                    POP  IY                       ; restore base pointer to local stack variables...
+                    JR   C,MarkDeleted            ; exit saving, File was not blown properly (try to mark it as deleted)...
+                    JR   save_file_loop
 
 
 ; **************************************************************************
@@ -286,8 +285,8 @@
                     CALL FlashEprWriteBlock       ; blow File Entry to Flash Eprom
                     POP  IY
                     RET  NC
-                    CALL C,MarkDeleted            ; File Entry was not blown properly, mark it as 'deleted'...
-                    RET
+
+                    ; File Entry was not blown properly, mark it as 'deleted'...
 
 
 ; **************************************************************************
