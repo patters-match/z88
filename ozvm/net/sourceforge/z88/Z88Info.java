@@ -89,6 +89,7 @@ public class Z88Info {
 		dzRegisters.append(Dz.addrToHex(Blink.getInstance().BC(),false)).append(" ");
 		dzRegisters.append(Dz.addrToHex(Blink.getInstance().DE(),false)).append(" ");
 		dzRegisters.append(Dz.addrToHex(Blink.getInstance().HL(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(Blink.getInstance().SP(),false)).append(" ");
 		dzRegisters.append(Dz.addrToHex(Blink.getInstance().IX(),false)).append(" ");
 		dzRegisters.append(Dz.addrToHex(Blink.getInstance().IY(),false)).append(" ");
 		dzRegisters.append(z80Flags());
