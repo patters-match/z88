@@ -25,11 +25,9 @@ Module FileAreaFormat
      xdef noformat_msg
 
      lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
-     lib FlashEprWriteBlock        ; Write a block of byte to Flash Eprom
      lib FlashEprCardId            ; Return Intel Flash Eprom Device Code (if card available)
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib ApplEprType               ; check for presence of application card in slot
-     lib CheckBattLow              ; Check Battery Low condition
 
      xref PollFileArea             ; browse.asm
      xref ResetWatermark           ; browse.asm
