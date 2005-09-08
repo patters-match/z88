@@ -1552,21 +1552,18 @@ public final class Blink extends Z80 {
 
 	} /* Rtc class */
 
-
 	/**
 	 * Handle action on encountered breakpoint.<p>
-	 * (But ignore it, if the processor is just executing a LD B,B (T-Touch on the Z88 does it)!
+	 * (But ignore it, if the processor is just executing a LD B,B without a registered breakpoint
+	 * for that address (T-Touch on the Z88 does it)!
 	 *
 	 * @return true, if Z80 engine is to be stopped (a real breakpoint were found).
 	 */
 	public boolean breakPointAction() {
 		int bpAddress = decodeLocalAddress(getInstrPC());
-		int bpOpcode = memory.getByte(bpAddress);	// remember the breakpoint instruction opcode
 
-		int z80Opcode = breakpoints.getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
-		if (z80Opcode != -1) {
+		if (breakpoints.getOrigZ80Opcode(bpAddress) != -1) {
 			// a breakpoint was defined for that address;
-			// don't stop the processor if it's only a display breakpoint...
 			OZvm.displayRtmMessage(Z88Info.dzPcStatus(getInstrPC())); 	// dissassemble original instruction, with Z80 main reg dump
 
 			if (breakpoints.isActive(bpAddress) == true && breakpoints.isStoppable(bpAddress) == true) {
@@ -1574,7 +1571,7 @@ public final class Blink extends Z80 {
 				OZvm.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");
 
 				OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-				return true;
+				return true; // signal to stop the Z80 processor...
 			}
 		}
 
