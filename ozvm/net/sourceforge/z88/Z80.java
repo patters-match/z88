@@ -1013,7 +1013,18 @@ public abstract class Z80 {
 				case 73: /* LD C,C */{
 					// Dump Z80 register info at breakpoint, then continue execution
 					breakPointAction();
-					tstatesCounter += 4;
+
+					Blink blink = Blink.getInstance();
+					Memory memory = Memory.getInstance();
+					
+					PC(_PC - 1); // reset Program Counter to Display Breakpoint Opcode 
+					int bpAddress = blink.decodeLocalAddress(PC());
+					int bpOpcode = memory.getByte(bpAddress);	// remember the breakpoint instruction opcode
+
+					int z80Opcode = blink.getBreakpoints().getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
+					memory.setByte(bpAddress, z80Opcode); // patch the original opcode back into memory (temporarily)
+					run(true); // execute the original instruction at display breakpoint
+					memory.setByte(bpAddress, bpOpcode);  // re-patch the breakpoint opcode, for future encounter					
 					break;
 				}
 				case 74: /* LD C,D */{
