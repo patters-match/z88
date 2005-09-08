@@ -1567,9 +1567,8 @@ public final class Blink extends Z80 {
 		if (z80Opcode != -1) {
 			// a breakpoint was defined for that address;
 			// don't stop the processor if it's only a display breakpoint...
-			memory.setByte(bpAddress, z80Opcode);						// patch the original opcode back into memory (temporarily)
 			OZvm.displayRtmMessage(Z88Info.dzPcStatus(getInstrPC())); 	// dissassemble original instruction, with Z80 main reg dump
-			memory.setByte(bpAddress, bpOpcode);						// re-patch the breakpoint opcode, for future encounter
+
 			if (breakpoints.isActive(bpAddress) == true && breakpoints.isStoppable(bpAddress) == true) {
 				PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
 				OZvm.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");
