@@ -117,6 +117,7 @@ public class Gui extends JFrame {
 	private JMenuItem userManualMenuItem;
 	private JMenuItem gifMovieMenuItem;
 	private JMenuItem screenSnapshotMenuItem;
+	private JMenuItem clearRtmWindowMenuItem;	
 	private JMenuItem fullScreenModeMenuItem;
 
 	private JCheckBoxMenuItem z88keyboardMenuItem;
@@ -355,8 +356,10 @@ public class Gui extends JFrame {
 			viewMenu.add(getRtmMessagesMenuItem());
 			viewMenu.add(getZ88keyboardMenuItem());
 			viewMenu.add(getZ88CardSlotsMenuItem());
+			viewMenu.addSeparator();
+			viewMenu.add(getClearRtmWindowMenuItem());
+			
 			if (OZvm.getInstance().isFullScreenSupported() == true) {			
-				viewMenu.addSeparator();
 				viewMenu.add(getFullScreenModeMenuItem());
 			}
 		}
@@ -416,6 +419,21 @@ public class Gui extends JFrame {
 		}
 		
 		getZ88Display().grabFocus();
+	}
+	
+	public JMenuItem getClearRtmWindowMenuItem() {
+		if (clearRtmWindowMenuItem == null) {
+			clearRtmWindowMenuItem = new JMenuItem();
+			clearRtmWindowMenuItem.setSelected(false);
+			clearRtmWindowMenuItem.setText("Clear Runtime Messages");
+			clearRtmWindowMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					getRtmOutputArea().setText("");
+				}
+			});
+		}
+
+		return clearRtmWindowMenuItem;		
 	}
 	
 	public JMenuItem getFullScreenModeMenuItem() {
