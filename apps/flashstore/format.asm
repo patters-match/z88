@@ -333,7 +333,7 @@ Module FileAreaFormat
 ; *************************************************************************************
 ; constants
 
-.noformat_msg       DEFM 1,"BNo Flash Card or File Area detected.",1,"B",0
+.noformat_msg       DEFM 1,"BNo Flash Card or File Area found in slots 1-3.",1,"B",0
 
 .fferr_msg          DEFM "File Area not formatted properly!",$0D,$0A,0
 .ffm1_bnr           DEFM "FORMAT FILE AREA ON FLASH CARD",0
