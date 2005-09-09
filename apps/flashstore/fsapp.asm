@@ -66,6 +66,7 @@
      xref Disp_reformat_msg        ; errmsg.asm
      xref disp_filefmt_ask_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
+     xref DispIntelSlotErr         ; errmsg.asm
      xref FormatCommand            ; format.asm
      xref execute_format           ; format.asm
      xref FlashWriteSupport        ; format.asm
@@ -268,7 +269,7 @@
                     CP   FlashStore_CC_rf              ; Restore Files
                     JP   Z, RestoreFilesCommand
                     CP   FlashStore_CC_ffa
-                    JP   Z, FormatCommand
+                    JP   Z, InitFormatCommand
                     CP   FlashStore_CC_sc
                     JP   Z, SelectCardCommand
                     CP   FlashStore_CC_fe
@@ -425,6 +426,12 @@
                     CALL DispFilesWindow               ; refresh file area contents.
                     JP   inp_main
 
+.InitFormatCommand
+                    call GetCurrentSlot           ; C = (curslot)
+                    CALL FlashWriteSupport
+                    JP   C, DispIntelSlotErr
+                    JP   Z, FormatCommand
+                    JP   inp_main
 .DisplBar
                     PUSH AF
                     LD   A,(barMode)
