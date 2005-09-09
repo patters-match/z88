@@ -40,6 +40,7 @@ Module FileAreaStatistics
      xref GetCurrentSlot           ; fsapp.asm
      XREF CheckFlashCardID         ; format.asm
      XREF FilesAvailable           ; browse.asm
+     XREF DispInt                  ; fetchfile.asm
 
      ; flash card library definitions
      include "flashepr.def"
@@ -173,20 +174,29 @@ Module FileAreaStatistics
 
                     ld   bc,$0301                 ; VDU (X,Y) = (3,1)
                     CALL VduCursor
-                    ld   hl,free
-                    call IntAscii
+                    ld   a,(free+2)
+                    ld   b,a
+                    ld   hl,(free)
+                    call DispInt
                     CALL_OZ gn_sop
                     ld   hl,bfre_msg
-                    CALL_OZ gn_sop                ; "xxxx bytes free"
+                    CALL_OZ gn_sop                ; "xxxx free"
                     CALL_OZ(Gn_Nln)
 
-                    ld   hl,total
-                    call IntAscii
+                    ld   hl,(file)
+                    ld   de,(fdel)
+                    adc  hl,de                    ; don't display "Used" when there's no files...
+                    jr   z, disp_saved_files
+
+                    ld   a,(total+2)
+                    ld   b,a
+                    ld   hl,(total)
+                    call DispInt
                     CALL_OZ gn_sop
                     ld   hl,bused_msg
-                    CALL_OZ gn_sop                ; "xxxx bytes used"
+                    CALL_OZ gn_sop                ; "xxxx used"
                     CALL_OZ(Gn_Nln)
-
+.disp_saved_files
                     ld   hl,file
                     call IntAscii
                     CALL_OZ gn_sop
@@ -558,8 +568,8 @@ Module FileAreaStatistics
 .ksize_txt          DEFM "K ",0
 .fepr               DEFM "FILE AREA",1,"2-T",0
 .slot_bnr           DEFM "SLOT ", 0
-.bfre_msg           DEFM " BYTES FREE",0
-.bused_msg          DEFM " BYTES USED",0
+.bfre_msg           DEFM "FREE",0
+.bused_msg          DEFM "USED",0
 .fisa_msg           DEFM " FILES SAVED",0
 .fdel_msg           DEFM " FILES DELETED",0
 .nofepr_msg         DEFM 13,10,13,10,1,"2JC",1,"2+F"
