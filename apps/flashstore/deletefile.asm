@@ -112,6 +112,7 @@ Module DeleteFile
 ; to be deleted if the current slot contains a Flash Card that supports byte programming.
 ;
 .QuickDeleteFile
+                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
                     call FileEprFileStatus        ; check file entry status...
                     ret  c                        ; no file area...
                     ret  z
