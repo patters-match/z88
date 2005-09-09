@@ -24,6 +24,7 @@ Module FetchFile
      xdef FetchFileCommand, QuickFetchFile
      xdef exct_msg, done_msg, fetf_msg
      xdef InputFileName
+     xdef DispInt
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -384,6 +385,13 @@ Module FetchFile
                     ret
 .dispK
                     call_oz GN_D24                ; 24bit free space / 1024 (convert into K)
+                    push hl
+                    ld   hl,512
+                    sbc  hl,de                    ; if remainder > 512, add 1 to K size (round up)..
+                    pop  hl
+                    jr   nc, disp16b
+                    inc  hl
+.disp16b
                     call disp16bitInt             ; HL = 16bit result
                     ld   hl, ksize_txt
                     ret
