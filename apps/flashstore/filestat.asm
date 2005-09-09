@@ -185,8 +185,8 @@ Module FileAreaStatistics
 
                     ld   hl,(file)
                     ld   de,(fdel)
-                    adc  hl,de                    ; don't display "Used" when there's no files...
-                    jr   z, disp_saved_files
+                    adc  hl,de
+                    jr   z, disp_freespbar        ; just display the free space bar on an empty file area
 
                     ld   a,(total+2)
                     ld   b,a
@@ -196,7 +196,7 @@ Module FileAreaStatistics
                     ld   hl,bused_msg
                     CALL_OZ gn_sop                ; "xxxx used"
                     CALL_OZ(Gn_Nln)
-.disp_saved_files
+
                     ld   hl,file
                     call IntAscii
                     CALL_OZ gn_sop
@@ -209,7 +209,7 @@ Module FileAreaStatistics
                     CALL_OZ gn_sop
                     ld   hl,fdel_msg
                     CALL_OZ gn_sop
-
+.disp_freespbar
                     CALL DispFreeSpaceBar
 
                     ld   hl, nocursor
