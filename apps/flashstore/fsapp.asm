@@ -59,7 +59,6 @@
      xref SelectDefaultSlot        ; selectcard.asm
      xref VduCursor                ; selectcard.asm
      xref FileEpromStatistics      ; filestat.asm
-     xref IntAscii                 ; filestat.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref ReportStdError           ; errmsg.asm
      xref NoAppFileAreaMsg         ; errmsg.asm
