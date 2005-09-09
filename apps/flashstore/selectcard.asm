@@ -35,7 +35,6 @@ Module SelectCard
      XREF greyscr, greyfont, nocursor   ; fsapp.asm
      XREF nogreyfont, notinyfont, cls   ; fsapp.asm
      xref GetCurrentSlot, DispMainWindow; fsapp.asm
-     XREF FormatCommand                 ; format.asm
      XREF PollFileFormatSlots           ; format.asm
      XREF FlashWriteSupport             ; format.asm
      XREF execute_format, noformat_msg  ; format.asm
@@ -273,7 +272,7 @@ Module SelectCard
                     jp   nc, execute_format       ; empty flash card in slot (no file area, and erase/write support)
 
                     CALL DispCmdWindow
-                    CALL DispFilesWindow
+                    CALL DispMainWindow
                     CALL FileEpromStatistics
                     call DispIntelSlotErr         ; Intel Flash Card found in slot, but no erase/write support in slot
                     cp   a
