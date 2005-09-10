@@ -75,7 +75,7 @@ Module AboutFlashStore
 
 .copyrightmsg
                     DEFM 1, "2JC"
-                    DEFM "Development: G.Strube (gbs@users.sf.net) & T.Peycru (pek@free.fr)", 13, 10
+                    DEFM "Development: G.Strube (gbs@users.sf.net) & T.Peycru (pek@users.sf.net)", 13, 10
                     DEFM "User Interface & testing: V.Gerhardi (vic@rakewell.com)", 13, 10
                     DEFM "(C) Copyright T.Peycru, & G.Strube, 1997-2005. All rights reserved"
                     DEFM 1, "2JN"
