@@ -910,8 +910,8 @@ Module BrowseFiles
 .allfiles_banner    DEFM "SAVED & DELETED FILES]"
 .savedfiles_banner  DEFM "ONLY SAVED FILES]"
 
-.norm_sq            DEFM 1,"2-G",1,"4+TRUF",1,"4-TRU ",0
-.tiny_sq            DEFM 1,"5+TRGUd",1,"3-RU ",0
+.norm_sq            DEFM 1,"3-GT",1,"2+BF",1,"2-B ",0
+.tiny_sq            DEFM 1,"5+TGRUD",1,"4-GRU ", 0
 
 .endf_msg           DEFM 1,"2-G",1,"4+TUR END ",1,"4-TUR",0
 .scroll_up          DEFM 1, SD_UP, 0

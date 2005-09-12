@@ -455,17 +455,7 @@
                     LD   B,A
                     LD   C,0
                     Call VduCursor
-                    call GetCursorFilePtr              ; BHL <-- (CursorFilePtr)
-                    call FileEprFileStatus
-                    jr   nz, dfb                       ; file is active (no grey file bar)
-                    ld   hl, grey_delfile
-                    CALL_OZ(Gn_Sop)
-                    LD   A,(FileBarPosn)               ; get Y position of File Bar
-                    LD   B,A
-                    LD   C,0
-                    Call VduCursor
-.dfb
-                    LD   HL,FileBar                    ; now display file bar at cursor
+                    LD   HL,FileBar
                     CALL_OZ(Gn_Sop)
                     POP  AF
                     RET
@@ -793,8 +783,6 @@
 .clsvdu             DEFM 1,"2C2", 1, 'S', 12,0
 .winbackground      DEFM 1,"7#1",32,32,32+94,32+8,128
                     DEFM 1,"2C1",0
-
-.grey_delfile       DEFM 1, "2+G", 1, "2E", 32+53, 1, "2-G", 0
 
 .bar1_sq            DEFM 1,"4+TUR",1,"2JC",1,"3@  ",0
 .bar2_sq            DEFM 1,"3@  ",1,"2A",85,1,"4-TUR",1,"2JN",0
