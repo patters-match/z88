@@ -688,8 +688,8 @@
                     JR   Z, abort_yesno
                     CP   13
                     JR   NZ,yn1
-                    LD   A,E
-                    CP   yes_msg % 256        ; Yes, Fc = 0, Fz = 1
+                    LD   HL,yes_msg
+                    SBC  HL,DE               ; Yes, Fc = 0, Fz = 1
                     RET  Z
                     OR   A                   ; No, Fc = 0, Fz = 0
                     RET
