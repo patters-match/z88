@@ -1,14 +1,17 @@
 *********************************************************************
-              FlashStore Application Version 1.7
+              FlashStore Application Version 1.8
 *********************************************************************
 
-User Manual, 2nd. edition, updated 24th January 2005.
+User Manual, 3rd. edition, updated 13th September 2005.
 (revised from 1st edition, Paris, 29 September 1997)
 
 
 1M FLASH card
+=============
 
 OVERVIEW
+--------
+
 Thanks for using the new 1M (1024K) Flash card. Now, you will have a
 lot of room to save your files. The Z88 erases the Flash card, you no
 longer need an EPROM Eraser.
@@ -19,6 +22,7 @@ LOW POWER    - takes a tenth of the power used by a standard EPROM.
 
 
 FLASH CARDS AND EPROMS
+----------------------
 
 Unlike RAM packs, FLASH CARDS AND EPROMS retain their memory even when
 power is removed. This makes them the ideal small file backup device
@@ -26,14 +30,14 @@ for the Z88.
 
 Individual files do not get deleted on their own. When you save the
 same file again to the card, the new file gets saved and the old file
-gets marked as deleted. It is still there taking up space and can
-be recoved using EP-Fetch2 if required. There is even a 'Erase file
-from Card' in FlashStore but again this only marks the file as deleted.
-The only way of removing files is by formatting the file area which
-removes all the files.
+gets marked as deleted. It is still there taking up space and can be
+recovered. There is even an 'Erase file from Card' in FlashStore but
+again this only marks the file as deleted. The only way of removing
+files is by formatting the file area which removes all the files.
 
 
 FLASHSTORE APPLICATION
+======================
 
 FlashStore is supplied as an Application and is like the Filer (on the
 Z88) to save and fetch files.
@@ -47,24 +51,35 @@ applications are stored.
 
 The FILE area (the area that is left over) is where files are stored.
 This is the area that gets formatted (erased) when you want to clear
-the Flash card. Fortunately the Flash card can be erased in 64K sectors,
-allowing applications and files to be on the same device. Where the
-split is depends how many applications there are and where the 64K
-split line occurs.  This FILE area is calculated by FlashStore when the
-Flash card is formatted and is displayed in the right-hand window.
+the Flash card. Fortunately the Flash card can be erased in 64K
+sectors, allowing applications and files to be on the same device.
+Where the split is depends how many applications there are and where
+the 64K split line occurs.  This FILE area is calculated by FlashStore
+when the Flash card is formatted and is displayed in the right-hand
+window.
 
 INTEL stopped making Flash EPROM chips which were suitable for the Z88
-in 2002 but at the end of 2004 AMD made a simular chip that we could use
-if the FlashStore core software was changed.
+in 2002 but at the end of 2004 AMD made a similar chip that we could
+use if the FlashStore core software was changed.
 
-Gunter Strube re-wrote this program so the Flash card could still be
+Gunther Strube re-wrote this program so the Flash card could still be
 used on the Z88 and added more features whilst he was at it. After the
 INTEL stocks are exhausted, the AMD versions will appear and the only
 difference the user will notice is that he can write to or erase the
 Flash card in any slot instead of just slot 3.
 
+Rakewell only supply 1M Devices but Flashstore supports the following
+chips which is displayed in the information window.
 
-Forever application bundle
+   INTEL                 AMD
+
+I28F004S5 (512K)      AM29F010B (128K)
+I28F008SA (1024K)     AM29F040B (512K)
+I28F008S5 (1024K)     AM29F080B (1024K)
+
+
+FOREVER APPLICATION BUNDLE
+==========================
 
 As you would lose 64K's worth of space once FlashStore is on the Flash
 card, we have supplied it with Garry Lancaster's compilation FOREVER
@@ -72,21 +87,21 @@ and ZIP utilities to use up the spare space.
 
 Details of some of the Applications on Forever and ZIP utilities are:
 
-
 XYModem
+-------
 
-A Z88 popdown application for transfering files using the Xmodem and 
-Ymodem protocols. Transfer speed around 3300 cps at 38400 bps using 1K 
-blocks. Currently supported features are checksum and crc error 
-detection, 128 byte and 1K blocksize in any combination, streaming -G 
-mode (only for sending). Mailbox function to send a file marked in 
-Filer. Batch sending with wildcards. Use :*//* to send all files in all 
-directories on all :RAM devices. Ymodem preserves name, size and 
-modification date/time of transfered files. User interface similar to 
+A Z88 popdown application for transferring files using the Xmodem and
+Ymodem protocols. Transfer speed around 3300 cps at 38400 bps using 1K
+blocks. Currently supported features are checksum and crc error
+detection, 128 byte and 1K blocksize in any combination, streaming -G
+mode (only for sending). Mailbox function to send a file marked in
+Filer. Batch sending with wildcards. Use :*//* to send all files in all
+directories on all :RAM devices. Ymodem preserves name, size and
+modification date/time of transferred files. User interface similar to
 []X Imp-Export.
 
-
 EP-Fetch2 - new version
+-----------------------
 
 The version of EP-Fetch on this ROM has been specially modified to
 allow it to work with all sizes of EPROMs in any slot (1-3), including
@@ -99,6 +114,7 @@ New features have been added including printing filenames to a printer.
 See whatsnew.txt for more details.
 
 FreeRam
+-------
 
 FreeRam is a popdown which instantly displays the amount of memory
 available in the default RAM device, together with a graphical map
@@ -108,6 +124,7 @@ Press a number key (0-3) to view the RAM device (:RAM.0 to :RAM.3) of
 your choice.
 
 Alarmsafe
+---------
 
 AlarmSafe is a popdown which allows you to save all your current alarms
 to a datafile for backup purposes. If you need to reset your Z88 for
@@ -115,6 +132,7 @@ any reason, you can then simply load the datafile back into AlarmSafe
 which will automatically set all the alarms back up again.
 
 Lockup
+------
 
 Lockup is a popdown giving your Z88 an elementary level of security,
 which can only be circumvented by resetting the machine.
@@ -124,12 +142,13 @@ and then press the ESC key to switch the Z88 off. When the Z88 is
 turned back on, you must re-enter the password correctly before you can
 cancel the popdown (again using ESC).
 
-When entering passwords,every single key (including special keys like
+When entering passwords, every single key (including special keys like
 SHIFT and the square and diamond keys) counts as part of the password -
 only the ESC, DEL and ENTER keys cannot be included. Passwords can be
 up to 16 keystrokes long.
 
 Installer
+---------
 
 Installer allows you to run true Z88 applications from free RAM in your
 machine, rather than requiring them to be blown to EPROMs or cards.
@@ -138,6 +157,7 @@ ROM-creating facility. It is also very useful for developers, who can
 test software in a fraction of the usual time.
 
 Bootstrap
+---------
 
 Bootstrap is a popdown which runs automatically after every reset. It
 acts in a similar way to the built-in facility where a file called
@@ -147,7 +167,7 @@ after a reset.
 However, Bootstrap is much more flexible and after a reset will execute
 a CLI file called "bootstrap.cli" which can be located:
 
-in any directory of ay device (eg :RAM.1/system/bootstrap.cli)
+in any directory of any device (eg :RAM.1/system/bootstrap.cli)
 
 on any EPROM, Flash card or ROM/EPROM (created by RomCombiner) card in
 any slot, 1 to 3
@@ -190,8 +210,10 @@ site.
 
 
 TIPS
+====
 
 Filer, FlashStore & EP-Fetch2 with FLASH cards & EPROMs
+-------------------------------------------------------
 
 All these applications are very useful. Here is a summary of what they
 can do.
@@ -211,8 +233,8 @@ can do.
 | Fetch all Files from an EPROM card |       |   RESTORE  |           |
 | Fetch all Files from a FLASH card  |       |   RESTORE  |           |
 |                                    |       |            |           |
-| Fetch deleted Files from EPROM card|       |            |    YES    |
-| Fetch deleted Files from FLASH card|       |            |    YES    |
+| Fetch deleted Files from EPROM card|       |     YES    |    YES    |
+| Fetch deleted Files from FLASH card|       |     YES    |    YES    |
 +------------------------------------+-------+------------+-----------+
 | Delete a File from an EPROM card   |       |            |           |
 | Delete a File from a FLASH card    |       |     YES    |           |
@@ -221,20 +243,28 @@ can do.
 | Format File area from FLASH card   |       |     YES    |           |
 +------------------------------------+-------+------------+-----------+
 
-Fetching Files
-
-Although there is a Fetch file command in FlashStore, you can also use
-EP-Fetch2, which is a 'point and shoot' program. You can also fetch
-'deleted' files with this application.
-
 Fetching all Files
+------------------
 
 Don't forget the RESTORE function. Sometimes it is easier to fetch all
 the files and delete a few unwanted files afterwards.
 
-Using two Flash cards
+Erasing all files in the RAM card before Restoring
 
-USING TWO FLASH CARDS AT THE SAME TIME
+If you are using Directories and you want to erase the complete RAM try
+using the wildcard //* in the ERASE command in the Filer. It removes
+both files and directories.
+
+Restoring or Saving Files to base directories
+---------------------------------------------
+
+Restore is usually used to restore a complete Device in the root
+directory of the RAM. You can also add a Directory to restore
+the files as well. This could be used where you wish to compare
+files from two Flash Cards provided you have enough space.
+
+Using two Flash cards
+---------------------
 
 You can have your Applications (including FlashStore) in slot 2 and
 read any of your "master" files from there, whilst using the another
@@ -245,8 +275,12 @@ use in slot 2, with your master files. This is done by using it in slot
 3 to save your files first. You may elect to ZIP these files up
 beforehand (to save space).
 
-When moving the Flash card from Slot 3 to 2, follow the rules on
-removing and inserting Applications. These are:-
+When moving the Flash card from Slot 3 to 2, follow the following
+rules.
+
+
+REMOVING AND INSERTING APPLICATIONS
+===================================
 
 Go into the INDEX and check you are not running any of the applications
 on the ROM. If (for example) the Flash card is in slot 3, a number '3'
@@ -256,22 +290,22 @@ display.
 If you are, move the cursor over the SUSPENDED ACTIVITIES and use the
 <>KILL command to close it.
 
-Open the card flap (the Z88 should beeb) and remove the Flash card.
+Open the card flap (the Z88 should beep) and remove the Flash card.
 
-Close the flap (the Z88 should beeb again) and check that the INDEX
+Close the flap (the Z88 should beep again) and check that the INDEX
 flag has not appeared. This should not be displayed on the top
 right-hand corner.
 
-Open the card flap (the Z88 should beeb yet again) and put the Flash
+Open the card flap (the Z88 should beep yet again) and put the Flash
 card in slot 2.
 
 Close the flap and check that the Applications appear again in the list
 on the left-hand side.
 
 Don't be temped to put the Flash card out of one slot and into another
-without shutting the flap in-between times. The Index application manager
-needs to update it's external application list and therefore needs
-closing of the flap after a card removal.
+without shutting the flap in-between times. The Index application
+manager needs to update it's external application list and therefore
+needs closing of the flap after a card removal.
 
 On the 2nd Flash card, you may want to clear the Application area to
 give the full 1024K space for files. You only need one copy of
@@ -281,53 +315,121 @@ block erase command in RomCombiner to do this.
 You can only Save Files and Format the INTEL Flash card when it is in
 slot 3.
 
+Provided there are no Applications on your Flash card, you may change
+them whilst in Flashstore. If the card does not get read properly you
+may need to refreash the display using the Select Card command.
+
 
 RUNNING THE APPLICATION
+=======================
 
 To start the application either move the cursor down to the FlashStore
 (the application name in the command window in the Index) or start it
 with []J
 
-The three windows are:=
+The three windows are:-
 
-The command window - selects the mostly used commands
-The action window - shows you what flashstore is doing
-The information window - displays the chip type, file area, bytes free,
-files saved and deleted.
+The COMMAND window - selects the mostly used commands
+------------------
+
+The FILE AREA window - displays, fetches and deletes files.
+--------------------
+
+Shows you what flashstore is doing
+
+The INFORMATION window displays :-
+----------------------
+
+which slot you are using in the Banner
+
+Flash Chip Number or EPROM and Size
+
+File Area Size
+
+A Graphical Display of the complete file area. Deleted (grey), Saved
+files (black) and free area (white) give a quick indication of file
+usage and whether it is time to reformat the device and get rid of the
+deleted area.
+
+Free and Used Space in bytes up to 1K or KBytes
+
+Number of Deleted and Saved files.
+
+
+CURSOR MOVEMENTS
+================
+
+Flashstore supports all the cursor movement commands. These are useful
+when moving up and down in the FILE AREA or for moving the cursor to the
+beginning or end of line before editing.
+
+<>    Up Arrow    - Top of the list
+SHIFT Up Arrow    - Up a screen
+      Up Arrow    - Up a line
+      Down Arrow  - Down a line
+SHIFT Down Arrow  - Down a screen
+<>    Down Arrow  - Bottom of the list
+
+<>    Left Arrow  - Beginning of line
+SHIFT Left Arrow  - Back a word
+      Left Arrow  - Back a character
+      Right Arrow - Forward a character
+SHIFT Right Arrow - Forward a word
+<>    Right Arrow - End of line
+
+INFORMATION WINDOWS
+-------------------
+
+When executing Flashstore commands the information window replaces the
+File Area window. It displays the following:-
+
+Banner with the command name
+
+Relevant statistical information to allow informed choices.
+
+The filename already loaded in the command line ready for editing if
+required.
+
+Warnings if files are being overwritten or deleted.
+
+SPACE is used to leave the window.
 
 
 COMMANDS
+========
 
-You have ten commands. They are selected using
+You have eleven commands. They are selected using
 
      the MENU using cursor keys and the ENTER key
 or   using the <> key command sequence (useful for .cli files)
 or   use the quick command window - seven quick access useful commands
      are here using cursor keys and the ENTER key.
 
+Two of the commands -** are directly accessible from the FILE AREA
+window.
+
 <> KEYS            DESCRIPTION
 
-<>CE or   <>CF     Catalogue Files
+<>CE or   <>CF     Catalogue Card Files
 <>SC               Select Card
-<>ES or   <>FS     Save to Card
-<>EF or   <>FL     Fetch from Card
-<>BF               Backup from RAM
-<>RF               Restore to RAM
-<>SV               Default RAM
-<>ER or   <>FE     Erase file from Card
+<>FS               Save files to Card
+<>EF or   <>FL     Fetch file from Card  - **
+<>BF               Backup files from RAM
+<>RF               Restore files to RAM
+<>SV               Select RAM Device (Default RAM)
+<>TFV              Toggle File View
+<>ER or   <>FE     Erase file from Card  - **
 <>FFA              Format File Area
 <>ABOUT            About FlashStore
 -ESC-              Quits this application
 
-
 Notes
+-----
 
-The current Device and Directory (as selected by the Panel and the
-Filer) will be displayed on the command line with the Save and Restore
-commands.
-
-If the Z88's battery is low, you will not be able to FORMAT or SAVE
-files. This is a safety feature.
+If the Z88's battery is low ("BATT LOW" displayed in right hand side of
+the Z88 screen), you might still be able to save files, but the result
+may be unreliable. SAVING FILES OR FORMATTING A FLASH CARD WITH A
+BATTERY LOW CONDITION IS NOT RECOMMENDED.
 
 Before formatting make sure you have saved and have a copy of the files
 supplied! (See Format) After formatting, you will have the unused space
@@ -336,26 +438,69 @@ for saving your files.
 If the card you have selected does not support any of the commands due
 to slot position or type, that command will be greyed out.
 
+The -ESC- key can interrupt a command at any time (when user input is
+required).
+
+
+Select RAM Device (Default RAM)
+-------------------------------
+
+Changes the default RAM device for this session.
+
+FlashStore by default uses the RAM device that is the Default device
+set in the Panel []S. This can be changed for this session only, using
+this command. Instructions on changing the device are given on the
+screen. All commands that use the RAM will default to the value set
+here.
+
+FILE AREA - the point and shoot area to fetch and delete files.
+---------
+
+The middle window displays all files and size that are in your file
+card area. By moving the cursor over the filename pressing either
+
+the ENTER or F key will fetch that file to RAM or
+the DEL or D key will mark the file deleted.
+
+Toggle File View
+----------------
+
+Changes between browsing only saved files or browsing all files (both
+saved and marked as deleted).
+
+Normally the FILE AREA windows displays saved files only. By using the
+Toggle File View marked deleted files are displayed, allowing these to
+be fetched with the cursor.
 
 Catalogue Files
+---------------
 
-This command lists all the files in the Flash File Card. You have a
-choice whether to show deleted files or not. Deleted files are grayed
-and 'd' letter appears. On the right of the window you can see the size
-of the file.
+Lists filenames on file card area to a PipeDream file.
 
+This command creates a file (default name filearea.pdd) listing the
+filenames and size. Loading this file into PipeDream allows it to be
+viewed or printed. Depending on which File Area view is selected, it
+will either print saved files or saved and deleted files.
 
 Select Card
+-----------
 
-This allows multiple Flash cards and EPROMs to be read using the same
-FlashStore application. Highlight the Slot number (1, 2 or 3) with the
-cursor that you wish to use. You may also press digits '1', '2' or '3'
-to select the actual slot. The selected device will be displayed at the
-top of the right-hand window with the file information with current
-information of file data and space left on the card.
+Selects which file card to use when you have more than one.
 
+This allows multiple Flash cards and EPROMs
+to be read using the same FlashStore application. Highlight the Slot
+number (1, 2 or 3) with the cursor that you wish to use. You may also
+press digits '1', '2' or '3' to select the actual slot. The selected
+device will be displayed at the top of the right-hand window with the
+file information with current information of file data and space left
+on the card.
+
+The padlock indicates a read-only device.
 
 Save to Card
+------------
+
+Saves files from the RAM device to the file card area.
 
 Wildcards are allowed,
 Filename:  :RAM.1
@@ -372,8 +517,13 @@ and the file will be saved again. When the 'no room' message is
 displayed, the last filename that was trying to be saved can be viewed
 after pressing the ESC key.
 
+If the file does NOT save, this is usually because the filename has
+been mis-spelt or even that it does not exist.
 
 Fetch from Card
+---------------
+
+Fetches a file from the file card area to the RAM device.
 
 Enter exact filename (no wildcard).
 Filename:
@@ -385,15 +535,21 @@ Fetching...  Done.                [The file has been fetched]
 Completed                         [The Fetch command is finished]
 Press ESC to Resume               [ESC returns to Main Menu]
 
+Don't forget you can use the point and shoot option in the FILE AREA.
 
 Backup from RAM
+---------------
+
+Saves all the files from the RAM device to the file card area.
 
 This backs up all the files (until the flash card is full) in your
 current RAM device. Instructions on changing the device are given on
 the screen.
 
-
 Restore to RAM
+--------------
+
+Fetches all the files from the file card area to the RAM device.
 
 All files (including sub-directories) on the Flash card are fetched
 using the sub-menu commands. You might choose to restore all files
@@ -409,23 +565,22 @@ Fetching...  Done.                [The file has been fetched]
 Completed                         [The Restore command is finished]
 Press SPACE to Resume             [SPACE returns to Main Menu]
 
-
-Default RAM
-
-FlashStore by default uses the RAM device that is the Default device
-set in the Panel []S. This can be changed for this session only, using
-this command. Instructions on changing the device are given on the
-screen.
-
-
 Erase file from Card
+--------------------
+
+Marks a file in the file card area as deleted.
 
 Although files cannot be deleted from the flash card to gain space,
 this command allows a single file to be marked as deleted. This is
 useful for getting rid of those obsolete files that do not get
 overwritten.
 
+Don't forget you can use the point and shoot option in the FILE AREA.
+
 Format File Area
+----------------
+
+Formats and erases the complete file card area.
 
 This erases the File Area of the Flash card and formats it. If you have
 two flash cards that can be formatted you will be invited to choose
@@ -436,31 +591,72 @@ When the command is executed, it says:
 CAUTION! All data will be lost.
 Are you really sure? No          [Yes formats, No returns Main Menu]
 
-
 About FlashStore
 
-Gives general information about this application.
+Gives general information about this application (version and authors).
 
 -ESC- Quit this program.
+-----
+
+
+MESSAGES
+========
+
+All messages are factual i.e. they tell you what is happening. What
+they don't tell you is what you should do if you get an unusual
+message.
+
+File not found.
+--------------
+
+Usually caused by a spelling error. Use the interactive FILE AREA point
+& shoot screen so that it picks up the right name.
+
+Last file failed.
+----------------
+
+Usually happens when the target file has no room to be saved.
+
+
+MESSAGES YOU SHOULD NOT NORMALLY SEE.
+====================================
+
+File not saved properly - will be re-saved. Error. File was not marked
+as deleted.
+
+This message indicates that the Flash card is not working correctly,
+usually because of a dirty card slot connector. If this message comes
+up a lot, please contact Rakewell so that we can check the card.
+
+FILE IN USE
+
+If this appears you have a file that has not been closed properly,
+usually by the Filer. You can clear this either by doing a soft-reset
+or <>PURGE in the INDEX.
+
 
 
 NEWS - NEW PRODUCTS
+===================
 
 Use EazyLink, Z88 to PC transfer and more - written by Interlogic. A
 ROM with both Eazylink and FlashStore is out NOW.
 
-Application 2003 has all the best applications written for the Z88. For
+Application 2005 has all the best applications written for the Z88. For
 information and supply on any of these, contact Rakewell Ltd.
 
 
 DISCLAIMER
-We will not in any event event be liable for any loss, including
+==========
+
+We will not in any event be liable for any loss, including
 consequential loss, caused by any error, defect or inaccuracy in our
 hardware and software, including but not limited to loss of profit or
 loss of contracts.
 
 
 FAQ
+===
 
 1)   Do I need to format the EPROM before I can start saving files
      to it?
