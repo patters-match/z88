@@ -16,8 +16,7 @@
 ;
 ; *************************************************************************************
 
-DEFC SafeWorkSpaceSize = 96             ; 96 bytes for various variables...
-DEFC RAM_pages = 6                      ; allocate 6 * 256 (1.5K) bytes contigous memory from $2000...
+DEFC RAM_pages = 8                      ; allocate 7 * 256 (1.5K) bytes contigous memory from $2000...
 DEFC BufferSize = 1024                  ; buffer for file I/O at $2000
 
 DEFVARS $2000
@@ -26,37 +25,34 @@ DEFVARS $2000
      buf1           ds.b 128
      buf2           ds.b 128            ; filename buffer...
      buf3           ds.b 256            ; for expanded filenames
-}
 
-DEFVARS $1FFE - SafeWorkSpaceSize
-{
-     linecnt        ds.b 1
-     freespacebar   ds.w 1              ; base pointer to UDG font memory for 'Q' - '@' characters.
-     bytesperline   ds.w 1              ; number of bytes that represents each drawn vertical line in horisontal space bar
-     MenuBarPosn    ds.b 1              ; Main Menu Bar vertical position in window (0 - 6)
-     FileBarPosn    ds.b 1              ; File Bar vertical position in Catalogue window (0 - 6)
-     WindowFilePtr  ds.p 1              ; Top Line Window Pointer to File Entry
-     CursorFilePtr  ds.p 1              ; File Bar Pointer to current File Entry in File Area
-     barMode        ds.b 1              ; menu bar or file bar movement?
-     nlen           ds.b 1              ; length of filename
-     flen           ds.l 1              ; length of file (32bit)
-     free           ds.l 1              ; free bytes on File Area
-     deleted        ds.l 1              ; total bytes of deleted file space in File Area
-     active         ds.l 1              ; total bytes of active file space in File Area
-     total          ds.l 1              ; total bytes of active+deleted file space in File Area
-     file           ds.l 1              ; total count of active files in File Area
-     fdel           ds.l 1              ; total count of deleted files on Flash Eprom
-     savedfiles     ds.l 1              ; total of files saved in a "Save" session
-     fbnk           ds.b 1              ; Eprom Bank (relative)
-     fadr           ds.w 1              ; Eprom Bank offset address
-     flentry        ds.p 1              ; pointer to existing file entry
-     status         ds.b 1              ; general purpose status flag
-     wcard_handle   ds.w 1              ; Wildcard handle from GN_OPW
-     availslots     ds.b 4              ; array of inserted File Eprom's in external slots
-     curslot        ds.b 1              ; the current selected slot (possibly containing File Area)
-     flashid        ds.w 1              ; the manufacturer and device code of the flash card in current slot
-     watermark      ds.b 5              ; the current File Area watermark (File Header Ramdom ID & size of banks)
-     ramdevno       ds.b 1              ; the default Ascii RAM Device slot number ('0' - '3').
+     linecnt        ds.b 1              ; 1
+     freespacebar   ds.w 1              ; 2 3 base pointer to UDG font memory for 'Q' - '@' characters.
+     bytesperline   ds.w 1              ; 2 5 number of bytes that represents each drawn vertical line in horisontal space bar
+     MenuBarPosn    ds.b 1              ; 1 6 Main Menu Bar vertical position in window (0 - 6)
+     FileBarPosn    ds.b 1              ; 1 7 File Bar vertical position in Catalogue window (0 - 6)
+     WindowFilePtr  ds.p 1              ; 3 10 Top Line Window Pointer to File Entry
+     CursorFilePtr  ds.p 1              ; 3 13 File Bar Pointer to current File Entry in File Area
+     barMode        ds.b 1              ; 1 14 menu bar or file bar movement?
+     nlen           ds.b 1              ; 1 15 length of filename
+     flen           ds.l 1              ; 4 19 length of file (32bit)
+     free           ds.l 1              ; 4 23 free bytes on File Area
+     deleted        ds.l 1              ; 4 27 total bytes of deleted file space in File Area
+     active         ds.l 1              ; 4 31 total bytes of active file space in File Area
+     total          ds.l 1              ; 4 35 total bytes of active+deleted file space in File Area
+     file           ds.l 1              ; 4 39 total count of active files in File Area
+     fdel           ds.l 1              ; 4 43 total count of deleted files on Flash Eprom
+     savedfiles     ds.l 1              ; 4 47 total of files saved in a "Save" session
+     fbnk           ds.b 1              ; 1 48 Eprom Bank (relative)
+     fadr           ds.w 1              ; 2 50 Eprom Bank offset address
+     flentry        ds.p 1              ; 3 53 pointer to existing file entry
+     status         ds.b 1              ; 1 54 general purpose status flag
+     wcard_handle   ds.w 1              ; 2 56 Wildcard handle from GN_OPW
+     availslots     ds.b 4              ; 4 60 array of inserted File Eprom's in external slots
+     curslot        ds.b 1              ; 1 61 the current selected slot (possibly containing File Area)
+     flashid        ds.w 1              ; 2 63 the manufacturer and device code of the flash card in current slot
+     watermark      ds.b 5              ; 5 68 the current File Area watermark (File Header Ramdom ID & size of banks)
+     ramdevno       ds.b 1              ; 1 69 the default Ascii RAM Device slot number ('0' - '3').
 }
 
 ; Status flags

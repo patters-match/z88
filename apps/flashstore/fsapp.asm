@@ -114,10 +114,10 @@
                     DEFB InfoEnd0-InfoStart0      ; length of info section
 .InfoStart0         DEFW 0                        ; reserved...
                     DEFB 'J'                      ; application key letter
-                    DEFB RAM_pages                ; I/O buffer for FlashStore
+                    DEFB RAM_pages                ; I/O buffer / vars for FlashStore
                     DEFW 0                        ;
                     DEFW 0                        ; Unsafe workspace
-                    DEFW SafeWorkSpaceSize        ; Safe workspace
+                    DEFW 0                        ; Safe workspace
                     DEFW FS_Entry                 ; Entry point of code in seg. 3
                     DEFB 0                        ; bank binding to segment 0 (none)
                     DEFB 0                        ; bank binding to segment 1 (none)
@@ -152,7 +152,9 @@
 ;
 .FS_Entry
                     JP   app_main
-                    SCF                           ; all RAM returned on popdown suicicide
+                    ld   bc,$2000
+                    ld   de,$2000+((RAM_pages-1)*256)
+                    or   b
                     RET
 ; *************************************************************************************
 
@@ -190,7 +192,7 @@
 .app_main
                     LD   A,(IX+$02)          ; IX points at information block
                     CP   $20+RAM_pages       ; get end page+1 of contiguous RAM
-                    JR   Z, continue_fs      ; end page OK, RAM allocated...
+                    JR   NC, continue_fs     ; end page OK, RAM allocated...
 
                     LD   A,$07               ; No Room for FlashStore, return to Index
                     CALL_OZ(Os_Bye)          ; FlashStore suicide...
