@@ -152,9 +152,7 @@
 ;
 .FS_Entry
                     JP   app_main
-                    ld   bc,$2000
-                    ld   de,$2000+((RAM_pages-1)*256)
-                    or   b
+                    SCF
                     RET
 ; *************************************************************************************
 
@@ -197,6 +195,9 @@
                     LD   A,$07               ; No Room for FlashStore, return to Index
                     CALL_OZ(Os_Bye)          ; FlashStore suicide...
 .continue_fs
+                    ld   iy,status
+                    res  dspdelfiles,(iy+0)  ; display only active files in file area (default)
+
                     ld   a, sc_ena
                     call_oz(os_esc)          ; enable ESC detection
 
@@ -221,9 +222,6 @@
 
                     LD   A,1
                     LD   (MenuBarPosn),A     ; Display menu bar initially at top line of command window
-
-                    ld   iy,status
-                    res  dspdelfiles,(iy+0)  ; display only active files in file area (default)
 
                     CALL mainmenu
                     JP   suicide             ; main menu aborted, leave popdown...
