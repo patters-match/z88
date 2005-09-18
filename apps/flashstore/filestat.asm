@@ -197,15 +197,17 @@ Module FileAreaStatistics
                     CALL_OZ gn_sop                ; "xxxx used"
                     CALL_OZ(Gn_Nln)
 
-                    ld   hl,file
-                    call IntAscii
+                    ld   bc,(file)
+                    ld   hl,2
+                    call IntAscii                 ; convert 16bit integer in BC to Ascii...
                     CALL_OZ gn_sop
                     ld   hl,fisa_msg
                     CALL_OZ gn_sop
                     CALL_OZ(Gn_Nln)
 
-                    ld   hl,fdel
-                    call IntAscii
+                    ld   bc,(fdel)
+                    ld   hl,2
+                    call IntAscii                 ; convert 16bit integer in BC to Ascii...
                     CALL_OZ gn_sop
                     ld   hl,fdel_msg
                     CALL_OZ gn_sop

@@ -232,8 +232,9 @@ Module SaveFiles
                     CALL VduEnableCentreJustify
                     LD   HL,(savedfiles)
                     PUSH HL
-                    ld   hl,savedfiles                 ; display no of files saved...
-                    call IntAscii
+                    ld   bc,(savedfiles)               ; display no of files saved...
+                    ld   hl,2
+                    call IntAscii                      ; convert 16bit integer in BC to Ascii...
                     CALL_OZ gn_sop
                     LD   HL,ends0_msg                  ; " file"
                     CALL_OZ(GN_Sop)
