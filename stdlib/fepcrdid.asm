@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,13 +12,13 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
      LIB SafeBHLSegment, MemDefBank, ExecRoutineOnStack
-     
+
      INCLUDE "interrpt.def"
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -42,10 +42,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;         Success:
 ;              Fc = 0
 ;              Fz = 1
-;              A = FE_28F or FE_29F, defining the Flash Memory chip generation 
+;              A = FE_28F or FE_29F, defining the Flash Memory chip generation
 ;              HL = Flash Memory ID
 ;                   H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD)
-;                   L = Device Code (refer to flashepr.def) 
+;                   L = Device Code (refer to flashepr.def)
 ;              B = total of 16K banks on Flash Memory Chip.
 ;
 ;         Failure:
@@ -67,9 +67,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH DE
                     PUSH BC
 
-                    CALL OZ_DI               ; no IM 1 interrupts while we poll for Flash Memory stuff...
-                    PUSH AF                  ; preserve interupt status
-                    
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
                     RRCA
@@ -77,58 +74,47 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   B,A
                     LD   HL,0
                     CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
-                    CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
-                                             ; old bank binding in BC...                    
+
                     CALL CheckRam
-                    JR   C, no_flashcard     ; abort, if RAM card was found in slot C...
+                    JR   C, unknown_flashmem ; abort, if RAM card was found in slot C...
 
                     CALL FetchCardID         ; get info of Flash Memory chip in HL (if avail in slot C)...
-                    JR   C, no_flashcard     ; no ID's were polled from a (potential FE card) 
+                    JR   C, unknown_flashmem ; no ID's were polled from a (potential FE card)
 
-                    CALL MemDefBank          ; restore original bank in segment 1
-                    POP  AF                  ; old interrupt status
-                    CALL OZ_EI               ; enable IM 1 interrupts again...
-                    
                     CALL VerifyCardID        ; verify Flash Memory ID with known Manufacturer & Device Codes
                     JR   C, unknown_flashmem
-                                             ; H = Manufacturer Code, L = Device Code 
+                                             ; H = Manufacturer Code, L = Device Code
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
                     LD   C,E                 ; original C restored
+.end_FlashEprCardId
                     POP  DE                  ; original DE restored
                     POP  IY
                     RET                      ; Fc = 0, Fz = 1
-.no_flashcard
-                    CALL MemDefBank          ; restore original bank in segment 1 (defined in BC)
-                    POP  AF                  ; old interrupt status
-                    CALL OZ_EI               ; enable IM 1 interrupts again...
-.unknown_flashmem                    
+.unknown_flashmem
                     LD   A, RC_NFE
                     SCF                      ; signal error...
-
                     POP  BC
-                    POP  DE
-                    POP  IY
-                    RET
+                    JR   end_FlashEprCardId
 
 
 ; ***************************************************************
 ;
 ; Get the Manufacturer and Device Code from a Flash Eprom Chip
-; inserted in slot C (Bottom bank of slot C has already been 
-; bound into segment 1; address $0000 - $3FFF is bound at 
+; inserted in slot C (Bottom bank of slot C has already been
+; bound into segment 1; address $0000 - $3FFF is bound at
 ; $4000 - $7FFF)
 ;
 ; This routine will poll for known Intel I28Fxxxx and AMD AM29Fxxx
 ; Flash Memory chips and return the appropriate ID, if a card
 ; is recognized.
 ;
-; The core polling routines are cloned on the stack and 
-; executed there, which allowes this library routine to be 
+; The core polling routines are cloned on the stack and
+; executed there, which allowes this library routine to be
 ; executed on the card itself that are being polled.
 ;
 ; In:
-;    HL = points into bound bank of potential Flash Memory 
-; 
+;    HL = points into bound bank of potential Flash Memory
+;
 ; Out:
 ;    Fc = 0 (FE was recognized in slot C)
 ;         H = manufacturer code (at $00 0000 on chip)
@@ -144,45 +130,51 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH AF
                     PUSH DE
                     PUSH IX
-                    
+
+                    CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
+                    PUSH BC                  ; old bank binding in BC...
+
                     PUSH HL
                     POP  IY                  ; preserve pointer to Flash Memory segment
-                    
-                    LD   D,(HL)              
-                    INC  HL                  ; get a copy into DE of the slot contents at the location 
+
+                    LD   D,(HL)
+                    INC  HL                  ; get a copy into DE of the slot contents at the location
                     LD   E,(HL)              ; where the ID is fetched (through the FE command interface)
                     DEC  HL                  ; back at $00 0000
-                    
-                    LD   IX, Fetch_I28F0xxxx_ID
-                    EXX                    
-                    LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
-                    EXX                    
-                    CALL ExecRoutineOnStack
-                    
-                    CP   A                   ; Assume that no INTEL Flash Memory ID is stored at that location!
-                    PUSH HL
-                    SBC  HL,DE               ; if the ID in HL is different from DE
-                    POP  HL
-                    JR   NZ, found_FetchCardID; then an ID was fetched from an INTEL FlashFile Memory...
 
-                    LD   IX, Fetch_AM29F0xxx_ID 
+                    LD   IX, Fetch_I28F0xxxx_ID
                     EXX
-                    LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID 
+                    LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
+                    EXX
+                    CALL ExecRoutineOnStack
+
+                    CP   A                     ; Assume that no INTEL Flash Memory ID is stored at that location!
+                    PUSH HL
+                    SBC  HL,DE                 ; if the ID in HL is different from DE
+                    POP  HL
+                    JR   NZ, found_FetchCardID ; then an ID was fetched from an INTEL FlashFile Memory...
+
+                    LD   IX, Fetch_AM29F0xxx_ID
+                    EXX
+                    LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID
                     EXX
                     PUSH IY
-                    POP  HL                  ; pointer to Flash Memory segment
+                    POP  HL                    ; pointer to Flash Memory segment
                     CALL ExecRoutineOnStack
 
-                    CP   A 
-                    PUSH HL                  
-                    SBC  HL,DE               
+                    CP   A
+                    PUSH HL
+                    SBC  HL,DE
                     POP  HL
                     JR   NZ, found_FetchCardID ; if the ID in HL is equal to DE
                     SCF                        ; then no AMD Flash Memory responded to the ID request...
                     JR   exit_FetchCardID
 .found_FetchCardID
-                    CP   A  
+                    CP   A
 .exit_FetchCardID
+                    POP  BC
+                    CALL MemDefBank            ; restore original bank in segment 1 (defined in BC)
+
                     POP  IX
                     POP  DE
                     POP  BC                    ; get preserved AF
@@ -193,12 +185,12 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
 ; ***************************************************************
 ;
-; Polling code for I28F0xxxx (INTEL) FlashFile Memory Chip ID 
+; Polling code for I28F0xxxx (INTEL) FlashFile Memory Chip ID
 ; (code will be executed on stack...)
 ;
 ; In:
-;    HL points into bound bank of potential Flash Memory 
-; 
+;    HL points into bound bank of potential Flash Memory
+;
 ; Out:
 ;    H = manufacturer code (at $00 0000 on chip)
 ;    L = device code (at $00 0001 on chip)
@@ -208,6 +200,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    ......HL/.... different
 ;
 .Fetch_I28F0xxxx_ID
+                    PUSH AF
+                    CALL OZ_DI               ; no IM 1 interrupts while we poll for Flash Memory stuff...
+                    PUSH AF                  ; preserve interupt status
+
                     PUSH DE
                     LD   (HL), FE_IID        ; FlashFile Memory Card ID command
                     LD   D,(HL)              ; D = Manufacturer Code (at $00 0000)
@@ -216,18 +212,22 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   (HL), FE_RST        ; Reset Flash Memory Chip to read array mode
                     EX   DE,HL
                     POP  DE
+
+                    POP  AF                  ; get old interupt status
+                    CALL OZ_EI               ; enable IM 1 interrupts again...
+                    POP  AF
                     RET
 .end_Fetch_I28F0xxxx_ID
 
 
 ; ***************************************************************
 ;
-; Polling code for AM29F0xxx (AMD) Flash Memory Chip ID 
+; Polling code for AM29F0xxx (AMD) Flash Memory Chip ID
 ; (code will be executed on stack...)
 ;
 ; In:
-;    HL = points into bound bank of potential Flash Memory 
-; 
+;    HL = points into bound bank of potential Flash Memory
+;
 ; Out:
 ;    H = manufacturer code (at $00 0000 on chip)
 ;    L = device code (at $00 0001 on chip)
@@ -238,9 +238,12 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 .Fetch_AM29F0xxx_ID
                     PUSH AF
+                    CALL OZ_DI               ; no IM 1 interrupts while we poll for Flash Memory stuff...
+                    PUSH AF                  ; preserve interupt status
+
                     PUSH BC
                     PUSH DE
-                    
+
                     PUSH HL
                     LD   A,H
                     AND  @11000000
@@ -261,15 +264,17 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   (HL),$90            ; 90 -> (XX555), autoselect mode
                     POP  HL
 
-                    LD   D,(HL)              
+                    LD   D,(HL)
                     INC  HL
-                    LD   E,(HL)              
+                    LD   E,(HL)
                     LD   (HL),$F0            ; F0 -> (XXXXX), set Flash Memory to Read Array Mode
-
                     EX   DE,HL               ; H = Manufacturer Code (at $00 XX00)
                                              ; L = Device Code (at $00 XX01)
                     POP  DE
                     POP  BC
+
+                    POP  AF                  ; old interrupt status
+                    CALL OZ_EI               ; enable IM 1 interrupts again...
                     POP  AF
                     RET
 .end_Fetch_AM29F0xxx_ID
@@ -282,7 +287,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; verify that it was properly written)
 ;
 ; IN:
-;    HL points into bound bank of potential Flash Memory 
+;    HL points into bank of potential Flash Memory or RAM
 ;
 ; OUT:
 ;    Fc = 0, empty slot or EPROM/FLASH Card in slot C
@@ -292,36 +297,38 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;   ..BCDEHL/IXIY same
 ;   .F....../.... different
 ;
-.CheckRam                
+.CheckRam
                     PUSH BC
+                    CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
+                    PUSH BC                  ; old bank binding in BC...                    
                     PUSH AF
-                    
+
                     LD   B,(HL)              ; preserve the original byte (needs to be restored)
                     LD   A,1                 ; initial test bit pattern (bit 0 set)
-.test_ram_loop                    
+.test_ram_loop
                     LD   (HL),A              ; write bit pattern to card at bottom location
                     CP   (HL)                ; and check whether it was written
                     JR   NZ, not_written     ; bit pattern wasn't written...
                     RLCA                     ; check that all bits are written properly
                     JR   NC, test_ram_loop
-                                             
+.exit_CheckRam                               ; this is a RAM card!  (Fc = 1)
                     LD   (HL),B              ; restore original byte at RAM location
                     POP  BC
                     LD   A,B                 ; restore original A
                     POP  BC
-                    RET                      ; this is a RAM card!  (Fc = 1)
+                    CALL MemDefBank          ; restore original bank in segment 1 (defined in BC)
+
+                    POP  BC
+                    RET
 .not_written
                     CP   A                   ; Fc = 0, this is not a RAM card
-                    POP  BC
-                    LD   A,B                 ; restore original A
-                    POP  BC
-                    RET                                        
+                    JR   exit_CheckRam
 
 
 ; ***************************************************************
 ;
 ; IN:
-;    HL = Polled from potential Flash Memory Chip: 
+;    HL = Polled from potential Flash Memory Chip:
 ;         Manufacturer & Device Code
 ;
 ; OUT:
@@ -340,7 +347,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH DE
                     PUSH BC
                     PUSH AF
-                    
+
                     EX   DE,HL
                     LD   HL, DeviceCodeTable
                     LD   B,(HL)                   ; no. of Flash Memory ID's in table
@@ -358,7 +365,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                          LD   A,(HL)                   ; A = chip generation
                          JR   verified_id              ; Fc = 0, Flash Eprom data returned...
 .get_next0          INC  HL                       ; points at no of banks
-.get_next1          INC  HL                       ; points at chip generation                    
+.get_next1          INC  HL                       ; points at chip generation
                     INC  HL                       ; point at next entry...
                     DJNZ find_loop                ; and check for new Device Code
 
@@ -377,24 +384,24 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     RET
 .DeviceCodeTable
                     DEFB 7
-                    
+
                     DEFW FE_I28F004S5
                     DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-                    
+
                     DEFW FE_I28F008SA
                     DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    
+
                     DEFW FE_I28F008S5
                     DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    
+
                     DEFW FE_I28F016S5
                     DEFB 64, FE_28F               ; 32 x 64K sectors / 128 x 16K banks (2048Kb) (appears like FE_I28F008S5)
-                    
+
                     DEFW FE_AM29F010B
                     DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
-                    
+
                     DEFW FE_AM29F040B
                     DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-                    
+
                     DEFW FE_AM29F080B
                     DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
