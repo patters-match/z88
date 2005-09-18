@@ -84,14 +84,19 @@ public class Z88Info {
 	 */
 	private static StringBuffer quickZ80Dump() {
 		StringBuffer dzRegisters = new StringBuffer(1024);
+		Blink blink = Blink.getInstance();
 
-		dzRegisters.append(Dz.byteToHex(Blink.getInstance().A(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(Blink.getInstance().BC(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(Blink.getInstance().DE(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(Blink.getInstance().HL(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(Blink.getInstance().SP(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(Blink.getInstance().IX(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(Blink.getInstance().IY(),false)).append(" ");
+		dzRegisters.append(Dz.byteToHex(blink.A(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(blink.BC(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(blink.DE(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(blink.HL(),false)).append(" ");
+		dzRegisters.append("(").append(Dz.addrToHex(blink.SP(),false)).append(")=");
+		
+		// display contents of current SP
+		dzRegisters.append(Dz.addrToHex(blink.readWord(blink.SP()),false)).append(" ");
+		
+		dzRegisters.append(Dz.addrToHex(blink.IX(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(blink.IY(),false)).append(" ");
 		dzRegisters.append(z80Flags());
 
 		return dzRegisters;

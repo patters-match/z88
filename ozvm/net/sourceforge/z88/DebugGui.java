@@ -108,7 +108,7 @@ public class DebugGui extends JFrame {
 	 */
 	public javax.swing.JTextArea getCmdlineOutputArea() {
 		if(jCmdOutput == null) {
-			jCmdOutput = new javax.swing.JTextArea(20,80);
+			jCmdOutput = new javax.swing.JTextArea(20,90);
 			jCmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			jCmdOutput.setBackground(Color.BLACK);
 			jCmdOutput.setForeground(Color.GREEN);
@@ -129,7 +129,7 @@ public class DebugGui extends JFrame {
 		if(jCmdlineInput == null) {
 			jCmdlineInput = new javax.swing.JTextField();
 			jCmdlineInput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
-			jCmdlineInput.setPreferredSize(new Dimension(640,20));
+			jCmdlineInput.setPreferredSize(new Dimension(660,20));
 			jCmdlineInput.setToolTipText("Type your debugging commands here");
 			jCmdlineInput.setVisible(true);
 		}
