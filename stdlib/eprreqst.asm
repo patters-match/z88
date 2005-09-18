@@ -255,8 +255,10 @@
                     LD   D,A                 ; D <-- ($3FFE)
 
                     CP   A
+                    PUSH HL                  ; preserve bank offset to 'oz' header...
                     LD   HL,$6F7A
                     SBC  HL,DE               ; $(3FFE) = 'oz' ?
+                    POP  HL
                     JR   Z, fileeprom_found  ; 0 was written at $(3FFE) and 'oz' was still returned!
 
                     POP  DE                  ; we might have written to a RAM card...
