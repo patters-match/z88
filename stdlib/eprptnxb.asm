@@ -44,19 +44,17 @@
 .PointerNextByte
                     PUSH AF
                     LD   A,H
-                    AND  @11000000
-                    PUSH AF                  ; preserve segment mask of offset
+                    AND  @11000000           ; preserve segment mask
 
                     RES  7,H
-                    RES  6,H
+                    RES  6,H                 ; strip segment mask to determine bank boundary crossing
                     INC  HL                  ; ptr++
                     BIT  6,H                 ; crossed bank boundary?
                     JR   Z, not_crossed      ; no, offset still in current bank
                     INC  B
                     RES  6,H                 ; yes, HL = 0, B++
 .not_crossed
-                    POP  AF
-                    OR   H
+                    OR   H                   ; re-establish original segment mask for bank offset
                     LD   H,A
                     POP  AF
                     RET
