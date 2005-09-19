@@ -272,19 +272,17 @@ DEFC VppBit = 1
                     PUSH AF
 
                     LD   A,H                 ; BHL++
-                    AND  @11000000
-                    PUSH AF                  ; preserve segment mask of offset
+                    AND  @11000000           ; preserve segment mask
 
                     RES  7,H
-                    RES  6,H
+                    RES  6,H                 ; strip segment mask to determine bank boundary crossing
                     INC  HL                  ; ptr++
                     BIT  6,H                 ; crossed bank boundary?
                     JR   Z, not_crossed      ; no, offset still in current bank
                     INC  B
                     RES  6,H                 ; yes, HL = 0, B++
 .not_crossed
-                    POP  AF
-                    OR   H
+                    OR   H                   ; re-establish original segment mask for bank offset
                     LD   H,A
 
                     POP  AF
@@ -326,22 +324,12 @@ DEFC VppBit = 1
                     PUSH IY
                     POP  BC                  ; install block size.
                     EXX
-                    PUSH AF
-                    PUSH BC
-                    LD   BC,$04B0            ; Address of soft copy of COM register
-                    LD   A,(BC)
-                    SET  VppBit,A            ; Vpp On
-                    LD   (BC),A
-                    OUT  (C),A               ; Enable Vpp in slot 3
-                    POP  BC
-                    POP  AF
-
 .WriteBlockLoop_29F EXX
                     LD   A,B
                     OR   C
                     DEC  BC
                     EXX
-                    JR   Z, exit_write_block_29F ; block written successfully (Fc = 0)
+                    RET  Z                   ; block written successfully (Fc = 0)
 
                     LD   A,(DE)
                     PUSH BC                  ; preserve bank and MS_Sx while programming byte to card
@@ -396,19 +384,17 @@ DEFC VppBit = 1
                     PUSH AF
 
                     LD   A,H                 ; BHL++
-                    AND  @11000000
-                    PUSH AF                  ; preserve segment mask of offset
+                    AND  @11000000           ; preserve segment mask
 
                     RES  7,H
-                    RES  6,H
+                    RES  6,H                 ; strip segment mask to determine bank boundary crossing
                     INC  HL                  ; ptr++
                     BIT  6,H                 ; crossed bank boundary?
                     JR   Z, not_crossed_29F  ; no, offset still in current bank
                     INC  B
                     RES  6,H                 ; yes, HL = 0, B++
 .not_crossed_29F
-                    POP  AF
-                    OR   H
+                    OR   H                   ; re-establish original segment mask for bank offset
                     LD   H,A
 
                     POP  AF
@@ -427,15 +413,4 @@ DEFC VppBit = 1
                     POP  HL
                     POP  BC
                     JR   WriteBlockLoop_29F
-.exit_write_block_29F
-                    PUSH AF
-                    PUSH BC
-                    LD   BC,$04B0            ; Address of soft copy of COM register
-                    LD   A,(BC)
-                    RES  VppBit,A            ; Vpp Off
-                    LD   (BC),A
-                    OUT  (C),A               ; Disable Vpp in slot 3
-                    POP  BC
-                    POP  AF
-                    RET
 .end_FEP_ExecWriteBlock_29F
