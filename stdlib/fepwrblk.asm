@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -38,34 +38,34 @@ DEFC VppBit = 1
 ; ***************************************************************************
 ;
 ; Write a block of bytes to the Flash Eprom Card, from address
-; DE to BHL of block size IX. If a block will cross a bank boundary, it is 
+; DE to BHL of block size IX. If a block will cross a bank boundary, it is
 ; automatically continued on the next adjacent bank of the card.
 ; On return, BHL points at the byte after the last written byte.
 ;
-; The routine will internally ask the Flash Memory for identification and 
+; The routine will internally ask the Flash Memory for identification and
 ; intelligently use the correct programming algorithm for the appropriate
 ; chip.
 ;
 ; The routine is used by the File Eprom Management libraries, but is well
 ; suited for other application purposes.
 ;
-; Use segment specifier C (where BHL memory will be bound into the Z80 
-; address space) to blow the block of bytes (MS_S0 - MS_S3), which has to be 
+; Use segment specifier C (where BHL memory will be bound into the Z80
+; address space) to blow the block of bytes (MS_S0 - MS_S3), which has to be
 ; in a different segment than DE is referring.
 ;
-; BHL points to an absolute bank (which is part of the slot that the Flash 
+; BHL points to an absolute bank (which is part of the slot that the Flash
 ; Memory Card have been inserted into).
 ;
 ; Further, the local buffer must be available in local address space and not
 ; part of the segment used for blowing bytes.
 ;
-; Important: 
-; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
-; to successfully blow data to the memory chip. If the Flash Eprom card 
-; is inserted in slot 1 or 2, this routine will report a programming failure. 
+; Important:
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
+; to successfully blow data to the memory chip. If the Flash Eprom card
+; is inserted in slot 1 or 2, this routine will report a programming failure.
 ;
-; It is the responsibility of the application (before using this call) to 
-; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; It is the responsibility of the application (before using this call) to
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the
 ; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
 ; this type of unnecessary error can be avoided.
 ;
@@ -101,11 +101,11 @@ DEFC VppBit = 1
 
                     PUSH BC
                     PUSH HL
-                    LD   A,B                 
+                    LD   A,B
                     AND  @11000000
                     RLCA
-                    RLCA                     
-                    LD   C,A                           ; poll slot C for Flash Memory                                         
+                    RLCA
+                    LD   C,A                           ; poll slot C for Flash Memory
                     CALL FlashEprCardId                ; poll for card information in slot C
                     POP  HL
                     POP  BC                            ; we only need FE Programming type 28F or 29F...
@@ -124,7 +124,7 @@ DEFC VppBit = 1
                     CALL MemDefBank                    ; Bind slot x bank into segment C
                     PUSH BC                            ; preserve old bank segment C binding
                     LD   B,A                           ; but use current bank as reference...
-                    
+
                     CALL OZ_DI                         ; disable IM 1 interrupts
                     EX   AF,AF'                        ; FE Programming type in A, old interrupt status in AF'
                     CALL FEP_WriteBlock
@@ -168,7 +168,7 @@ DEFC VppBit = 1
 ;    Fc = 0, block blown successfully to the Flash Card
 ;         BHL = points at next free byte on Flash Eprom
 ;         DE = points beyond last byte of buffer
-;    Fc = 1, 
+;    Fc = 1,
 ;         A = RC_BWR  (block not blown properly)
 ;         DE,BHL points at byte not blown properly
 ;
@@ -176,31 +176,31 @@ DEFC VppBit = 1
 ;    A..C..../IXIY same
 ;    .FB.DEHL/.... different
 ;
-.FEP_WriteBlock     
+.FEP_WriteBlock
                     CP   FE_28F
                     JR   Z, write_28F_block
                     CP   FE_29F
                     JR   Z, write_29F_block
                     RET
 .write_28F_block
-                    LD   A,B                 
+                    LD   A,B
                     AND  @11000000
                     RLCA
-                    RLCA                     
+                    RLCA
                     CP   3                   ; when chip is FE_28F series, we need to be in slot 3
                     JR   Z,_write_28F_block  ; to write bytes successfully to card
                     LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
                     SCF
-                    RET                      
+                    RET
 ._write_28F_block
                     PUSH IX
                     LD   IX, FEP_ExecWriteBlock_28F
                     EXX
                     LD   BC, end_FEP_ExecWriteBlock_28F - FEP_ExecWriteBlock_28F
-                    EXX                    
+                    EXX
                     CALL ExecRoutineOnStack
                     POP  IX
-                    RET            
+                    RET
 .write_29F_block
                     PUSH IX
                     LD   IX, FEP_ExecWriteBlock_29F
@@ -209,9 +209,9 @@ DEFC VppBit = 1
                     EXX
                     CALL ExecRoutineOnStack
                     POP  IX
-                    RET            
+                    RET
 
-          
+
 ; ***************************************************************
 ; Program block of data on an INTEL I28Fxxxx Flash Memory.
 ; (this routine is copied on the stack and executed there)
@@ -221,7 +221,7 @@ DEFC VppBit = 1
                     PUSH IY
                     POP  BC                  ; install block size.
                     EXX
-                    
+
                     PUSH AF
                     PUSH BC
                     LD   BC,$04B0            ; Address of soft copy of COM register
@@ -260,7 +260,7 @@ DEFC VppBit = 1
                     LD   A,(HL)              ; read byte at (HL) just blown
                     CP   B                   ; equal to original byte?
                     JR   Z, exit_write_byte  ; byte blown successfully!
-.write_error        
+.write_error
                     LD   A, RC_BWR
                     SCF
 .exit_write_byte
@@ -337,8 +337,8 @@ DEFC VppBit = 1
                     LD   B,A                 ; preserve a copy of byte for later verification
                     LD   A,H
                     AND  @11000000
-                    EXX                      ; 
-                    LD   H,A                 ; 
+                    EXX                      ;
+                    LD   H,A                 ;
                     LD   D,A
                     OR   $05
                     LD   H,A
@@ -358,16 +358,16 @@ DEFC VppBit = 1
                     LD   A,(HL)              ; get first DQ6 programming status
                     LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
                     XOR  (HL)                ; get second DQ6 programming status
-                    BIT  6,A                 ; toggling? 
+                    BIT  6,A                 ; toggling?
                     JR   Z,toggling_done     ; no, programming completed successfully!
-                    BIT  5,C                 ; 
+                    BIT  5,C                 ;
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
-                    
+
                     LD   A,(HL)              ; DQ5 went high, we need to get two successive status
                     XOR  (HL)                ; toggling reads to determine if we're still toggling 
                     BIT  6,A                 ; which then indicates a programming error...
                     JR   NZ,program_err_29f  ; damn, byte NOT programmed successfully!
-.toggling_done                    
+.toggling_done
                     LD   A,(HL)              ; we're back in Read Array Mode
                     CP   B                   ; verify programmed byte (just in case!)
                     JR   Z,exit_write_byte_29F ; byte was successfully programmed!
@@ -377,7 +377,7 @@ DEFC VppBit = 1
                     SCF
 .exit_write_byte_29F
                     POP  BC
-                    JR   C, exit_write_block_29F
+                    RET  C
 
                     INC  DE                  ; buffer++
                     LD   A,B
