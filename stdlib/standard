@@ -69,6 +69,7 @@ bindbnk1
 bindbnk2
 mmdefbnk
 mmgetbnk
+mmgetslot
 mmabsptr
 ramfresp
 apltype
