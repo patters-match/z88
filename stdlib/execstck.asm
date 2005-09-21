@@ -4,7 +4,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -13,8 +13,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -39,27 +39,29 @@
 ;    ????????/???? ..bcdehl different
 ;
 .ExecRoutineOnStack
-                    EXX      
+                    EXX
                     PUSH AF
-                    LD   HL,0
-                    ADD  HL,SP
+                    LD   HL,2                
+                    ADD  HL,SP               ; point at RETurn address on stack..
                     LD   D,H
                     LD   E,L                 ; current SP in DE...
                     CP   A                   ; Fc = 0
                     SBC  HL,BC               ; BC' = length of routine, make room on stack (which moves downwards...)
+                    POP  AF
                     LD   SP,HL               ; new SP defined, space for buffer for routine ready...
                     EX   DE,HL               ; HL = old SP (top of buffer), DE = new SP (destination)
                     PUSH HL                  ; original SP will be restored after routine has completed
                     PUSH DE                  ; execute routine by using a RET instruction
 
                     PUSH IX
-                    POP  HL   
+                    POP  HL
+                    PUSH AF
                     LDIR                     ; copy routine to stack buffer...
+                    POP  AF
                     LD   HL,exit_routine
                     EX   (SP),HL             ; the RET at the end of the routine will jump to
                     PUSH HL                  ; .exit_routine, which will restore the original SP and get
-                    EXX                      ; back to the outside world 
-                    POP  AF
+                    EXX                      ; back to the outside world
                     RET                      ; (SP) = CALL routine on stack...
 .exit_routine
                     EXX
