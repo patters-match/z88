@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB SafeBHLSegment, MemDefBank, ExecRoutineOnStack
+     LIB SafeBHLSegment, MemDefBank, MemGetCurrentSlot, ExecRoutineOnStack
 
      INCLUDE "interrpt.def"
      INCLUDE "flashepr.def"
@@ -40,8 +40,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;         C = slot number (1, 2 or 3)
 ; Out:
 ;         Success:
-;              Fc = 0
-;              Fz = 1
+;              Fc = 0, Fz = 1
 ;              A = FE_28F or FE_29F, defining the Flash Memory chip generation
 ;              HL = Flash Memory ID
 ;                   H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD)
@@ -56,11 +55,11 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    ...CDE../IXIY ........ same
 ;    AFB...HL/.... afbcdehl different
 ;
-; ---------------------------------------------------------------
+; ---------------------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Jul-Sep 2004
+;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005
 ;    Thierry Peycru, Zlab, Dec 1997
-; ---------------------------------------------------------------
+; ---------------------------------------------------------------------------------------
 ;
 .FlashEprCardId
                     PUSH IY
@@ -69,6 +68,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
+                    LD   E,A                 ; preserve a copy of slot argument in E
                     RRCA
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
                     LD   B,A
@@ -114,6 +114,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 ; In:
 ;    HL = points into bound bank of potential Flash Memory
+;     E = API slot number
 ;
 ; Out:
 ;    Fc = 0 (FE was recognized in slot C)
@@ -131,6 +132,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH DE
                     PUSH IX
 
+                    LD   A,E                 ; slot number supplied to this library from outside caller...
+
                     CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
                     PUSH BC                  ; old bank binding in BC...
 
@@ -142,32 +145,29 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   E,(HL)              ; where the ID is fetched (through the FE command interface)
                     DEC  HL                  ; back at $00 0000
 
-                    LD   IX, Fetch_I28F0xxxx_ID
-                    EXX
-                    LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
-                    EXX
-                    CALL ExecRoutineOnStack
+                    CALL MemGetCurrentSlot        ; get specified slot number in C for this executing library routine
+                    CP   C                        ; and compare it with the slot number of this executing library
+                    CALL Z,Fetch_I28F0xxxx_ID_RAM ; this code runs on same Flash chip to be polled, run INTEL card ID routine in RAM...
+                    CALL NZ,Fetch_I28F0xxxx_ID    ; this code runs in another slot, just execute card ID poll normally...
 
-                    CP   A                     ; Assume that no INTEL Flash Memory ID is stored at that location!
                     PUSH HL
-                    SBC  HL,DE                 ; if the ID in HL is different from DE
-                    POP  HL
-                    JR   NZ, found_FetchCardID ; then an ID was fetched from an INTEL FlashFile Memory...
+                    CP   A                        ; Fc = 0
+                    SBC  HL,DE                    ; Assume that no INTEL Flash Memory ID is stored at that location!
+                    POP  HL                       ; if the ID in HL is different from DE
+                    JR   NZ, found_FetchCardID    ; then an ID was fetched from an INTEL FlashFile Memory...
 
-                    LD   IX, Fetch_AM29F0xxx_ID
-                    EXX
-                    LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID
-                    EXX
                     PUSH IY
-                    POP  HL                    ; pointer to Flash Memory segment
-                    CALL ExecRoutineOnStack
+                    POP  HL                       ; pointer to Flash Memory segment
+                    CP   C
+                    CALL Z,Fetch_AM29F0xxx_ID_RAM ; this code runs on same Flash chip to be polled, run AMD card ID routine in RAM...
+                    CALL NZ,Fetch_AM29F0xxx_ID    ; this code runs in another slot, just execute card ID poll normally...
 
-                    CP   A
                     PUSH HL
+                    CP   A                        ; Fc = 0
                     SBC  HL,DE
                     POP  HL
-                    JR   NZ, found_FetchCardID ; if the ID in HL is equal to DE
-                    SCF                        ; then no AMD Flash Memory responded to the ID request...
+                    JR   NZ, found_FetchCardID    ; if the ID in HL is equal to DE
+                    SCF                           ; then no AMD Flash Memory responded to the ID request...
                     JR   exit_FetchCardID
 .found_FetchCardID
                     CP   A
@@ -184,9 +184,18 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
 
 ; ***************************************************************
+; Execute Card ID polling for Intel Flash on system stack
+;
+.Fetch_I28F0xxxx_ID_RAM
+                    LD   IX, Fetch_I28F0xxxx_ID
+                    EXX
+                    LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
+                    EXX
+                    JP   ExecRoutineOnStack    ; run card ID routine in RAM...
+
+; ***************************************************************
 ;
 ; Polling code for I28F0xxxx (INTEL) FlashFile Memory Chip ID
-; (code will be executed on stack...)
 ;
 ; In:
 ;    HL points into bound bank of potential Flash Memory
@@ -221,9 +230,18 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
 
 ; ***************************************************************
+; Execute Card ID polling for AMD Flash on system stack
+;
+.Fetch_AM29F0xxx_ID_RAM
+                    LD   IX, Fetch_AM29F0xxx_ID
+                    EXX
+                    LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID
+                    EXX
+                    JP   ExecRoutineOnStack  ; run card ID routine in RAM...
+
+; ***************************************************************
 ;
 ; Polling code for AM29F0xxx (AMD) Flash Memory Chip ID
-; (code will be executed on stack...)
 ;
 ; In:
 ;    HL = points into bound bank of potential Flash Memory
@@ -300,7 +318,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 .CheckRam
                     PUSH BC
                     CALL MemDefBank          ; Get bottom Bank of slot C into segment 1
-                    PUSH BC                  ; old bank binding in BC...                    
+                    PUSH BC                  ; old bank binding in BC...
                     PUSH AF
 
                     LD   B,(HL)              ; preserve the original byte (needs to be restored)
