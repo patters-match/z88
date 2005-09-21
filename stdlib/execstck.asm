@@ -39,7 +39,8 @@
 ;    ????????/???? ..bcdehl different
 ;
 .ExecRoutineOnStack
-                    EXX                                             
+                    EXX      
+                    PUSH AF
                     LD   HL,0
                     ADD  HL,SP
                     LD   D,H
@@ -58,6 +59,7 @@
                     EX   (SP),HL             ; the RET at the end of the routine will jump to
                     PUSH HL                  ; .exit_routine, which will restore the original SP and get
                     EXX                      ; back to the outside world 
+                    POP  AF
                     RET                      ; (SP) = CALL routine on stack...
 .exit_routine
                     EXX
