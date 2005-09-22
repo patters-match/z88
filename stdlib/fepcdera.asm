@@ -111,7 +111,6 @@ DEFC VppBit = 1
 .erase_29F_card
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
-                    LD   C,A
                     RRCA
                     RRCA                     ; Converted to Slot mask $40, $80 or $C0
                     LD   B,A                 ; bottom bank of slot C
