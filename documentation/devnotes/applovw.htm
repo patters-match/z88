@@ -69,7 +69,7 @@ To make things easier a particular memory allocation can be associated
 with a particular segment, thus the address returned by the allocation
 routine can be used to access the memory directly once the appropriate
 bank has been bound to the appropriate segment.
-<p>Some readers may find it quite alarming that the maximum contiguous
+<p>Some readers may find it quite alarming that the maximum continuous
 memory allocation is restricted to 256 bytes. In practice this should not
 be a problem, although it requires a change of style in writing code from
 more conventional Z80 systems. It means that chunks of memory have to be
@@ -78,14 +78,14 @@ can be used if required - rather than using adjacency as an integral part
 of a data structure. All but one of the built in applications are written
 using the memory management system, and because of their adherence to the
 rule they are called 'good'. Some applications do have a genuine need for
-a large contiguous block of memory such as the BASIC supplied with the
+a large continuous block of memory such as the BASIC supplied with the
 machine. Because it is a version of BBC BASICZ80 which has been ported
-across to the Z88, it assumes that contiguous memory is available. To meet
+across to the Z88, it assumes that continuous memory is available. To meet
 the needs of this kind of application the operating system provides a facility
-to give applications between 8K and 40K of contiguous memory. Since much
+to give applications between 8K and 40K of continuous memory. Since much
 of this memory is unlikely to be used for much of the time, when the application
 is suspended memory can be given back to the system. In order to create
-the contiguous memory environment a great deal of swapping of memory chunks
+the continuous memory environment a great deal of swapping of memory chunks
 has to take place, and the system becomes generally clogged up which is
 why applications which use this environment are said to be 'bad' and should
 be avoided if possible. All this having been said there are cases where
@@ -243,7 +243,7 @@ for keeping the stack within bounds.</li>
 <ul>
 <li>
 avoid splitting strings and other resources across bank boundaries. This
-applies especially for bad applications that has large contiguous RAM memory.
+applies especially for bad applications that has large continuous RAM memory.
 Even though RAM is all yours, the system cannot cope with information that
 crosses bank boundaries, or crossing a segment (eg. start address of a
 string begins at $7F00 and end at $8050). Large BBC BASIC programs sometimes

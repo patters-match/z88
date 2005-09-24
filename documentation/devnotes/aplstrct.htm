@@ -47,22 +47,22 @@ to a popdown, can be returned to after application switching, so that the
 user can continue to use it as before.
 <p>Applications are further divided into good and bad types. Most applications
 are 'good': they only take RAM as they need it, using the memory management
-routines, and do not demand more than 256 bytes of contiguous RAM. 'Bad'
+routines, and do not demand more than 256 bytes of continuous RAM. 'Bad'
 applications, demanding larger blocks of memory, can use up to a 40K of
-contiguous RAM - this feature was included in order to be able to run standard
+continuous RAM - this feature was included in order to be able to run standard
 BBC BASICZ80 - a binary image designed for a normal Z80 system. There is
 also an 'ugly' application type, which is similar to 'bad' but refers only
 to popdowns ie. a bad popdown. None of the built in applications is of
 this type. Applications types are, therefore:
 <br>&nbsp;
-<pre>Good&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; An application application not requiring large contiguous
+<pre>Good&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; An application application not requiring large continuous
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; workspace.
 
-Bad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; An application application requiring large contiguous workspace.
+Bad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; An application application requiring large continuous workspace.
 
-Popdown&nbsp;&nbsp;&nbsp;&nbsp; A popdown application not requiring large contiguous workspace.
+Popdown&nbsp;&nbsp;&nbsp;&nbsp; A popdown application not requiring large continuous workspace.
 
-Ugly&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A popdown application requiring large contiguous workspace.
+Ugly&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A popdown application requiring large continuous workspace.
 
 
 </pre>
@@ -159,7 +159,7 @@ l byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maximum of ZZZZ is possible. However, a bug in v3.0 of
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the operating system doesn't allow for more than []ZZx.
 
-1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Contiguous RAM size required, in 256-byte pages (eg. 32
+1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; continuous RAM size required, in 256-byte pages (eg. 32
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for 8K). This is relevant only to bad applications and
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; must be between 8K and 40K, ie. this byte ranges from
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 32 (32*256=8K) and 160 (160*256=40K). See the section
@@ -204,7 +204,7 @@ l byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code for your application to segment 3 and probably set
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the other banks to zero. If the application is a bad
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; one, then certain segments will be bound to RAM on
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entry, depending on the size of contiguous RAM
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entry, depending on the size of continuous RAM
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; selected. The desired binding of such segments must be
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to zero to avoid conflict (RAM is paged in after
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; application is created therefore overriding explicit
@@ -606,17 +606,17 @@ Left, Up and Down.</li>
 <br>&nbsp;</ol>
 <b>Bad Applications</b>
 <p>An application can be made 'bad' (or a popdown 'ugly') if it requires
-a large area of contiguous memory since the Z88 cannot allocate more than
+a large area of continuous memory since the Z88 cannot allocate more than
 256 bytes to an application at any time. Although this appears to be very
 restrictive, most programs can be made to work under this regime. All the
 internal applications, bar BBC BASIC, are 'good', and BBC BASIC is only
 bad because it was not written for the Z88 but simply imported. If, however,
-you are simply unable to write an application without large contiguous
+you are simply unable to write an application without large continuous
 areas, you may have to make your application bad. Similarly if your application
 is intended to be the only one running on the Z88, there is no problem
 with it being bad.
 <p>Bad application memory is provided from address $2000 onwards. The amount
-given depends on the value of the 'Contiguous RAM size' byte in the application
+given depends on the value of the 'continuous RAM size' byte in the application
 DOR header. This byte should be set to the number of 256 byte pages required.
 If it is set to zero then the default value is used (40K in an expanded
 machine, 8K in an unexpanded machine). The value of the defualt can be
@@ -624,8 +624,8 @@ changed, via the PANEL, but bear in mind this is something which affects
 the whole system, and should not be undertaken lightly. When a bad application
 is first entered, the IX register points to an information block as follows:
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Number of information bytes
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Start page of contiguous memory, $20
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; End page of contiguous memory, this cannot
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Start page of continuous memory, $20
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; End page of continuous memory, this cannot
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; be used, for example $C0 for a 40K bad
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; application.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 byte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ususally zero. Reserved for future
@@ -634,7 +634,7 @@ Whenever BBC BASIC is exited an area of unused memory, between the program
 and the stack, is given back to the system. When BBC BASC is re-entered
 memory is found to fill this hole back up again. It is this mechanism that
 allows several 40K BBC BASIC's to co-exist on a 128K Z88 computer. All
-the BBC BASIC's have a 40K contiguous space while they are active and running,
+the BBC BASIC's have a 40K continuous space while they are active and running,
 but when inactive (pre-empted) they occupy considerably less memory. To
 give memory back to the system, the enquiry entry point is used. The enquiry
 entry point is three bytes above the application entry point and must be
@@ -661,7 +661,7 @@ areas of memory. A 40K bad application which gives no memory back to the
 system is unlikely to co-exist well with other applications, so it is strongly
 recommended that if you must write bad applications you give memory back
 to the system. It is almost always possible to design data structures so
-that a contiguous block can be kept empty. Programmer laziness is not an
+that a continuous block can be kept empty. Programmer laziness is not an
 excuse to use a 40K bad application by default!
 <br>&nbsp;
 <p><b>Mailboxes</b>
@@ -749,7 +749,7 @@ Even with all these demands it is unlikely that you will have much less
 than 1.5K to use for the stack, but clearly if you might need more space
 you will need to make your own arrangements, such as allocating memory
 and implementing you own stack procedures, or if really necessary using
-a bad application to provide contiguous memory for a stack.
+a bad application to provide continuous memory for a stack.
 <p>If you change the stack pointer within your application you must save
 the old stack pointer and restore it (below $2000 in segment 0) before
 making any system calls. This is because system calls swap memory banks
