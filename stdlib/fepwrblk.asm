@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank, FlashEprCardId, ExecRoutineOnStack
+     LIB MemDefBank, MemGetCurrentSlot, FlashEprCardId, ExecRoutineOnStack
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -106,7 +106,11 @@ DEFC VppBit = 1
                     RLCA
                     RLCA
                     LD   C,A                           ; poll slot C for Flash Memory
+                    PUSH BC
                     CALL FlashEprCardId                ; poll for card information in slot C
+                    EXX
+                    POP  BC                            ; remember slot (of BHL pointer) number in C'
+                    EXX
                     POP  HL
                     POP  BC                            ; we only need FE Programming type 28F or 29F...
                     JR   C, ret_errcode
@@ -163,6 +167,7 @@ DEFC VppBit = 1
 ;         DE = local pointer to start of block (located in available segment)
 ;         C = MS_Sx segment specifier
 ;         BHL = extended address to start of destination (pointer into card)
+;         C' = slot number of BHL pointer
 ;         IY = size of block to blow
 ; Out:
 ;    Fc = 0, block blown successfully to the Flash Card
@@ -183,16 +188,21 @@ DEFC VppBit = 1
                     JR   Z, write_29F_block
                     RET
 .write_28F_block
-                    LD   A,B
-                    AND  @11000000
-                    RLCA
-                    RLCA
+                    EXX
+                    LD   A,C
+                    EXX
                     CP   3                   ; when chip is FE_28F series, we need to be in slot 3
                     JR   Z,_write_28F_block  ; to write bytes successfully to card
                     LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
                     SCF
                     RET
 ._write_28F_block
+                    EXX
+                    CALL MemGetCurrentSlot             ; get specified slot number in C for this executing library routine
+                    CP   C
+                    EXX
+                    JR   NZ, FEP_ExecWriteBlock_28F    ; block to be programmed in another slot than this library
+
                     PUSH IX
                     LD   IX, FEP_ExecWriteBlock_28F
                     EXX
@@ -202,6 +212,13 @@ DEFC VppBit = 1
                     POP  IX
                     RET
 .write_29F_block
+                    EXX
+                    LD   A,C
+                    CALL MemGetCurrentSlot             ; get specified slot number in C for this executing library routine
+                    CP   C
+                    EXX
+                    JR   NZ, FEP_ExecWriteBlock_29F    ; block to be programmed in another slot than this library
+
                     PUSH IX
                     LD   IX, FEP_ExecWriteBlock_29F
                     EXX
@@ -364,7 +381,7 @@ DEFC VppBit = 1
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
 
                     LD   A,(HL)              ; DQ5 went high, we need to get two successive status
-                    XOR  (HL)                ; toggling reads to determine if we're still toggling 
+                    XOR  (HL)                ; toggling reads to determine if we're still toggling
                     BIT  6,A                 ; which then indicates a programming error...
                     JR   NZ,program_err_29f  ; damn, byte NOT programmed successfully!
 .toggling_done
