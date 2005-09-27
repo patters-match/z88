@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,14 +12,15 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
      LIB SafeBHLSegment, MemDefBank
      LIB EnableInt, DisableInt
      LIB FlashEprCardId, ExecRoutineOnStack
+     LIB MemGetCurrentSlot
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -42,33 +43,33 @@ DEFC VppBit = 1
 ; Write a byte (in A) to the Flash Memory Card in slot x, at address BHL.
 ; -----------------------------------------------------------------------
 ;
-; BHL points to a bank, offset (which is part of the slot that the Flash 
+; BHL points to a bank, offset (which is part of the slot that the Flash
 ; Memory Card have been inserted into).
 ;
-; The routine can OPTIONALLY be told which programming algorithm to use 
+; The routine can OPTIONALLY be told which programming algorithm to use
 ; (by specifying the FE_28F or FE_29F mnemonic in A'); these parameters
-; can be fetched when investigated which Flash Memory chip is available 
-; in the slot, using the FlashEprCardId routine that reports these constants 
+; can be fetched when investigated which Flash Memory chip is available
+; in the slot, using the FlashEprCardId routine that reports these constants
 ; back to the caller.
 ;
-; However, if neither of the constants are provided in A', the routine will 
-; internally ask the Flash Memory for identification and intelligently use 
+; However, if neither of the constants are provided in A', the routine will
+; internally ask the Flash Memory for identification and intelligently use
 ; the correct programming algorithm. The identified FE_28F or FE_29F constant
 ; is returned to the caller in A' for future reference (when the byte was
 ; successfully programmed to the card).
 ;
-; Important: 
-; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
-; to successfully blow the byte on the memory chip. If the Flash Eprom card 
-; is inserted in slot 1 or 2, this routine will report a programming failure. 
+; Important:
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
+; to successfully blow the byte on the memory chip. If the Flash Eprom card
+; is inserted in slot 1 or 2, this routine will report a programming failure.
 ;
-; It is the responsibility of the application (before using this call) to 
-; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; It is the responsibility of the application (before using this call) to
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the
 ; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
 ; this type of unnecessary error can be avoided.
 ;
 ; In:
-;         A = byte
+;         A = byte to blow at address
 ;         A' = FE_28F or FE_29F (optional)
 ;         BHL = pointer to Flash Memory address (B=00h-FFh, HL=0000h-3FFFh)
 ;               (bits 7,6 of B is the slot mask)
@@ -87,7 +88,7 @@ DEFC VppBit = 1
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997, Jan '98-Apr '98, Aug 2004
+;    Gunther Strube, InterLogic, Dec 1997, Jan-Apr 98, Aug 2004, Sep 2005
 ;    Thierry Peycru, Zlab, Dec 1997
 ; --------------------------------------------------------------------------
 ;
@@ -98,7 +99,7 @@ DEFC VppBit = 1
                     PUSH IX
 
                     CALL SafeBHLSegment      ; get a safe segment (not this executing segment!)
-                                             ; C = Safe MS_Sx segment, HL points into segment C                                             
+                                             ; C = Safe MS_Sx segment, HL points into segment C
                     LD   D,B                 ; copy of bank number
                     CALL MemDefBank          ; bind bank B into segment...
                     PUSH BC
@@ -123,9 +124,9 @@ DEFC VppBit = 1
 ;    D = bank of pointer
 ;    HL = pointer to memory location in Flash Memory
 ; Out:
-;    Fc = 0, 
+;    Fc = 0,
 ;        byte blown successfully to the Flash Memory
-;    Fc = 1, 
+;    Fc = 1,
 ;        A = RC_ error code, byte not blown
 ;
 ; Registers changed after return:
@@ -134,22 +135,25 @@ DEFC VppBit = 1
 ;
 .FEP_Blowbyte
                     PUSH IX
-                    EX   AF,AF'              ; check for pre-defined Flash Memory programming...
+                    PUSH AF
+                    LD   A,D                 ; no predefined programming was specified, let's find out...
+                    AND  @11000000
+                    RLCA
+                    RLCA
+                    LD   C,A                 ; Flash Memory is in slot C (derived from original bank B)
+                    POP  AF
+
+                    EX   AF,AF'              ; check for pre-defined Flash Memory programming (type in A')...
                     CP   FE_28F
                     JR   Z, use_28F_programming
                     CP   FE_29F
                     JR   Z, use_29F_programming
-                                             
-                    LD   A,D                 ; no predefined programming was specified, let's find out...
-                    AND  @11000000
-                    RLCA
-                    RLCA                     
-                    LD   C,A                 ; poll slot C for Flash Memory                     
+
                     EX   DE,HL               ; preserve HL (pointer to write byte)
                     CALL FlashEprCardId
-                    EX   DE,HL               
+                    EX   DE,HL
                     JR   C, exit_FEP_Blowbyte ; Fc = 1, A = RC error code (Flash Memory not found)
-                    
+
                     CP   FE_28F              ; now, we've got the chip series
                     JR   NZ, use_29F_programming ; and this one may be programmed in any slot...
                     LD   A,3
@@ -160,32 +164,50 @@ DEFC VppBit = 1
                     LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
 .exit_FEP_Blowbyte
                     POP  IX
-                    RET                      
-                                        
+                    RET
+
 .use_28F_programming
+                    LD   DE, RET_blowbyte
+                    PUSH DE                  ; generic RETurn adress after blow routine...
                     CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
+
                     EX   AF,AF'              ; byte to be blown...
+                    LD   B,A
+                    LD   A,C
+                    CALL MemGetCurrentSlot   ; get current slot (in C) of this executing library
+                    CP   C                   ; library executing in same slot as byte to be blown?
+                    LD   A,B                 ; A = byte to blow...
+                    JR   NZ, FEP_ExecBlowbyte_28F ; byte to be programmed in another slot than this library
+
                     LD   IX, FEP_ExecBlowbyte_28F
                     EXX
                     LD   BC, end_FEP_ExecBlowbyte_28F - FEP_ExecBlowbyte_28F
                     EXX
-                    CALL ExecRoutineOnStack
-                    CALL EnableInt           ; enable maskable interrupts
-                    POP  IX
-                    RET
+                    JP   ExecRoutineOnStack  ; execute the blow routine in System Stack RAM...
+
 .use_29F_programming
+                    LD   DE, RET_blowbyte
+                    PUSH DE                  ; generic RETurn adress after blow routine...
                     CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
+
                     EX   AF,AF'              ; byte to be blown...
-                    LD   IX, FEP_ExecBlowbyte_29F
+                    LD   B,A
+                    LD   A,C
+                    CALL MemGetCurrentSlot   ; get current slot (in C) of this executing library
+                    CP   C                   ; library executing in same slot as byte to be blown?
+                    LD   A,B                 ; A = byte to blow...
+                    JR   NZ, FEP_ExecBlowbyte_29F ; byte to be programmed in another slot than this library
+
+                    LD   IX, FEP_ExecBlowbyte_29F ; executing library in same slot as byte to be blown..
                     EXX
                     LD   BC, end_FEP_ExecBlowbyte_29F - FEP_ExecBlowbyte_29F
                     EXX
-                    CALL ExecRoutineOnStack
+                    JP   ExecRoutineOnStack  ; execute the blow routine in System Stack RAM...
+.RET_blowbyte
                     CALL EnableInt           ; enable maskable interrupts
                     POP  IX
                     RET
-                                        
-          
+
 ; ***************************************************************
 ; Program byte in A at (HL) on an INTEL I28Fxxxx Flash Memory
 ;
@@ -193,9 +215,9 @@ DEFC VppBit = 1
 ;    A = byte to blow
 ;    HL = pointer to memory location in Flash Memory
 ; Out:
-;    Fc = 0 & Fz = 0, 
+;    Fc = 0 & Fz = 0,
 ;        byte successfully blown to Flash Memory
-;    Fc = 1, 
+;    Fc = 1,
 ;        A = RC_BWR, byte not blown
 ;
 .FEP_ExecBlowbyte_28F
@@ -225,7 +247,7 @@ DEFC VppBit = 1
                     LD   A,(HL)              ; read byte at (HL) just blown
                     CP   B                   ; equal to original byte?
                     JR   Z, exit_write       ; byte blown successfully!
-.write_error        
+.write_error
                     LD   A, RC_BWR
                     SCF
 .exit_write
@@ -247,9 +269,9 @@ DEFC VppBit = 1
 ;    A = byte to blow
 ;    HL = pointer to memory location in Flash Memory
 ; Out:
-;    Fc = 0 & Fz = 0, 
+;    Fc = 0 & Fz = 0,
 ;        byte successfully blown to Flash Memory
-;    Fc = 1, 
+;    Fc = 1,
 ;        A = RC_BWR, byte not blown
 ;
 .FEP_ExecBlowbyte_29F
@@ -280,16 +302,16 @@ DEFC VppBit = 1
                     LD   A,(HL)              ; get first DQ6 programming status
                     LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
                     XOR  (HL)                ; get second DQ6 programming status
-                    BIT  6,A                 ; toggling? 
+                    BIT  6,A                 ; toggling?
                     JR   Z,toggling_done     ; no, programming completed successfully!
-                    BIT  5,C                 ; 
+                    BIT  5,C                 ;
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
-                    
+
                     LD   A,(HL)              ; DQ5 went high, we need to get two successive status
-                    XOR  (HL)                ; toggling reads to determine if we're still toggling 
+                    XOR  (HL)                ; toggling reads to determine if we're still toggling
                     BIT  6,A                 ; which then indicates a programming error...
                     JR   NZ,program_err_29f  ; damn, byte NOT programmed successfully!
-.toggling_done                    
+.toggling_done
                     LD   A,(HL)              ; we're back in Read Array Mode
                     CP   B                   ; verify programmed byte (just in case!)
                     RET  Z                   ; byte was successfully programmed!
