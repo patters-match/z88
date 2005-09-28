@@ -1,0 +1,114 @@
+------------------------------------------------------------------------------------------
+DDDDDDDDDDDDD            ZZZZZZZZZZZZZZZZ
+DDDDDDDDDDDDDDD        ZZZZZZZZZZZZZZZZ
+DDDD         DDDD               ZZZZZ
+DDDD         DDDD             ZZZZZ
+DDDD         DDDD           ZZZZZ             AAAAAA         SSSSSSSSSSS   MMMM       MMMM
+DDDD         DDDD         ZZZZZ              AAAAAAAA      SSSS            MMMMMM   MMMMMM
+DDDD         DDDD       ZZZZZ               AAAA  AAAA     SSSSSSSSSSS     MMMMMMMMMMMMMMM
+DDDD         DDDD     ZZZZZ                AAAAAAAAAAAA      SSSSSSSSSSS   MMMM MMMMM MMMM
+DDDDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ     AAAA      AAAA           SSSSS   MMMM       MMMM
+DDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ      AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
+
+Copyright (C) Gunther Strube, InterLogic 1996-99
+
+$Id$
+------------------------------------------------------------------------------------------
+
+                                                              Kopenhagen, 22nd August 1999
+
+DZasm was born out of the frustration of not having a fast tool to disassemble Z80 code
+more intelligently which could scan CALL, JP and JR references, understand all OZ system
+calls and related terminators, and automatically end the scanning process when the last
+calling or jump reference has been resolved. Traditional disassembly using a command line
+oriented tool was either performed using the Intuition debugger (as part of the Z88
+Assembler Workbench) or some other third party software. However, these tools do not have
+the ability to output the disassembly to a file without doing some extra "redirecting" or
+other methods. Most of them even don't display OZ system calls appropriately. DZasm covers
+all those basics with excellence.
+
+DZasm was not designed to reverse engineer somebody else's code for piracy purposes, but
+merely as a tool to understand algorithms and system behaviour in the Z88 128K ROM.
+DZasm's second aim was a "rescue" tool for a binary code where the developer would have
+lost the original source code and would need to get it back the hard way of re-inventing
+all labels and address mnemonic constants.
+
+Today, three years after my first humble implementation, DZasm has been extensively
+improved to be a valuable tool for reverse engineering of the OZ V4 ROM. The aim of this
+project is to be able to improve OZ and to put it on a 1MB Flash Eprom, so that everybody
+can obtain a free copy and enjoy the Z88 even better. After twelve years, the Z88 still
+has potential in both price and facilities. We hope to prolong the life of our favorite
+portable at least into a good many years beyond the millenium.
+
+Developing software for the Z88 is exciting for a nostalgic system developer, simply
+because the processor has a simple but beautiful instruction set and that the Z88 probably
+contains the most exciting and advanced hardware architecture ever designed for the 8 bit
+Z80 family of processors.
+
+
+- Concept
+
+DZasm is designed around the principle that a binary file is specified at the command
+line. The developer's task is then to specify the starting address of the code, "parse"
+the program areas, define label names, expressions, comments and constants. Further, all
+data structure areas like strings, address lookup tables, etc. will have to be defined
+too.
+
+DZasm is a semi-automatic tool in that it can parse code and resolve a vast amount of
+program areas for you including creating label references to both program locations and
+data areas - actually all OZ system mnemonics are recognised and appropriate include files
+are automatically added to the source file output.
+
+However, DZasm has no intelligence to understand the flow of Z80 code, building parameters
+for lookup tables and calling subroutines. The remaining work is at the hands of the
+developer who needs to interactively browse through the assemble code and fill in the
+missing gaps, identifying the hidden program areas and other data structures. In the end,
+DZasm will generate the "pretty print" of the source code and the main reverse engineering
+work has been done. What remains is the hard work of adding comments, meaningful names to
+label and data addresses.
+
+All information about the work produced will be stored in a collect file associated with
+the original binary file, and automatically loaded into memory the next time a DZasm
+session begins with loading the binary file. The more information you put into the collect
+file, the more detailed the generated source file will get.
+
+The collect file can at all times be edited by hand in an external editor and reloaded
+into DZasm during runtime, the source code can be generated to a file and loaded into an
+editor for evaluation as on line cross reference. In fact, doing so greatly enhances the
+overview of the code being analyzed while working with the same code inside DZasm. The
+contents of the collect file is built around simple syntactic elements that can easily be
+typed from the keyboard.
+
+Inside DZasm all facilities are handled using a simple command line (this is after all the
+preferred tool of a programmer). Commands are available to manually disassemble code at
+user defined addresses, viewing memory dumps to analyse program contents, and to search
+for opcode sequenses.
+
+A quick reference is available for all commands; just press 'h' or 'help' at main command
+level and a list appears with command names and parameters.
+
+The aim of DZasm is to "resolve" the complete binary file into reversed engineered areas
+of known types (program areas, strings, etc). Using the "aa" command displays all address
+area intervals and a percentage figure identifying how much of the complete binary that
+has been resolved. 100% means that every single byte of the binary file is now defined as
+known area types. Using the "ca" command will write the source code of all area types into
+an appropriate named file - and you'll be ready to re-assemble!
+
+Having achieved that it's once possible again to modify the source and recompile to get the
+changes into the new binary.
+
+
+- The startup phase of DZasm
+
+Having added the necessary PATH directory where DZasm resides to your OS startup shell,
+DZasm should be executed wherever you are on the filing system (e.g. for MSDOS the famous
+SET PATH ... or UNIX variations using EXPORT PATH ...).
+
+DZasm requires one single argment; the name of binary file. Having specified that, you
+will be prompted:
+
+	DZasm - Z80/Z88 Assembler Source Code Generator, V0.xx
+	Origin of code (hex):
+
+All addresses in DZasm is default hex notation. No special preceeding character is
+necessary.

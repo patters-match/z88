@@ -1,0 +1,137 @@
+/*
+    DDDDDDDDDDDDD            ZZZZZZZZZZZZZZZZ
+    DDDDDDDDDDDDDDD        ZZZZZZZZZZZZZZZZ  
+    DDDD         DDDD               ZZZZZ    
+    DDDD         DDDD             ZZZZZ      
+    DDDD         DDDD           ZZZZZ             AAAAAA         SSSSSSSSSSS   MMMM       MMMM
+    DDDD         DDDD         ZZZZZ              AAAAAAAA      SSSS            MMMMMM   MMMMMM
+    DDDD         DDDD       ZZZZZ               AAAA  AAAA     SSSSSSSSSSS     MMMMMMMMMMMMMMM
+    DDDD         DDDD     ZZZZZ                AAAAAAAAAAAA      SSSSSSSSSSS   MMMM MMMMM MMMM
+    DDDDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ     AAAA      AAAA           SSSSS   MMMM       MMMM
+    DDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ      AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
+
+Copyright (C) Gunther Strube, InterLogic 1996-99
+
+Development history:
+
+*/
+
+
+/*
+ * V0.34, 02.08.99
+ * defs (define storage) area implemented. Assembler output will generate a DEFS statement.
+ *
+ * V0.33, 01.08.99
+ * DEFM output improved:
+ *	Too long strings are automatically split when non-printable characters a encountered.
+ *	A new line is automatically induced when a null-terminator is encountered.
+ *	double quotes are issued as a [ & '"' & ] sequense.
+ * Bug fix: addrtable type areas wasn't generated into source file.
+ * Bug fix: parse.c: DC_ENT is a terminating program area instruction.
+ *
+ * V0.32, 31.07.99
+ * Bug fix in DEFB assembler output generation: 
+ * Line feed some times not added. DEFB size reduced to 8 bytes per row.
+ *
+ * V0.31.2, 23.07.99
+ * Bug fix in DecodeAddress() - segment no was not properly calculated due to type casting!
+ *
+ * V0.31.1, 22.07.99
+ * label and data reference format in collect now displayed as a two item column.
+ *
+ * V0.31, 08.07.99
+ * new dc (Define Global Constant) command implemented that enables automatical replacement of operand 
+ * constants with defined names. This saves a lot of de command typing for all operand addresses.
+ * (de command is still available and overides dc functionality if present).
+ * dz command remembers last pc address, so typing dz next time without address automatically resumes
+ * disassembly from previous dz session.
+ * defb & defw areas now have comment logic added when generating source code.
+ * (defm still needs to be implemented with comment logic).
+ *
+ * V0.30, 07.07.99
+ * lots of small bug fixes.
+ * dx command implemented with "xdef" - added syntax to "collect" file too.
+ * dm command implemented with "defb" type area.
+ * Bug in defw labels fixed: now displays proper 16 bit addresses.
+ * command line may now be empty (pressing ENTER just induces a line feed)
+ * Assembler output improved; all label addresses now implemented with name logic (in stead of just "L_xxxx" display)
+ * 
+ * V0.29, 06.07.99
+ * Internal dynamic data structures for label and data references optimized (merged) - major code change here.
+ * Flags implemented to control change of collect file related information - user
+ * now prompted if changes are necessary to get updated back to collect file.
+ *
+ * V0.28, 05.07.99
+ * New internal memory allocation scheme for pure 64K Z80 address space (due to stupid MSDOS allocation of max heap size).
+ * new command, di, to define explicit include files for source output
+ *
+ * V0.27, 30.06.99
+ * Tons of bug fixes, optimisations (including bug fix for label definitions on JR and DJNZ).
+ * DZasm now expects command line file name argument, which is used to read/create collect files 
+ * based on the input file name.
+ * "de" (define expression) command implemented to replace expressions for constant values 
+ * (new elements t collect file).
+ * Output assembler file based on specified file name - no longer "out.asm".
+ *
+ * V0.26, 26.06.99
+ * pp command functionality extended to allow for repeated parsing of code on same area.
+ * (new algorithm added to parsing system).
+ * Various memory leak fixes.
+ * Comments now fully implemented for "rem" command and embedded comments in output source
+ * code, collect file and online disassembly.
+ * Hex constants without '$' now default constant argument 
+ * (previous behaviour was base 10 decimal notation)
+ *
+ * V0.25, 21.06.99
+ * Bug fix release (many, many details optimized & fixed).
+ * Initial work on "rem" command begun.
+ *
+ * V0.24, 18.06.99
+ * Lots of internal changes. MSDOS port now compiles properly.
+ * Pointer init bug fixed for label/data reference creation (reported by Thierry Peycru).
+ * New dx command.
+ * disassembly on command line now displays hex opcodes combined with mnemonic instructions.
+ * L_ on label and address references outside program area address range only used
+ * if explicitely defined by dx command. This avoids unecessary ld hl,L_0000 or other
+ * 16 bit constants being defined as implicit external references.
+ *
+ * V0.23, 25.05.99
+ * New command line interface: type two letter commands with arguments.
+ * Online help by typing "help" command at main command level. 
+ * Names may now be defined in conjunction with label addresses. Specify either 
+ * with <dl> command or by simply adding the name after the address label 
+ * references of the collect file.
+ * Code now loaded into 64K memory space (preparation for Z80 kernel tracer!).
+ *
+ * V0.22, 28.02.96
+ * Source code generation 3 (better differentiation of constants, IX/IY	offset 
+ * written properly)
+ * Data	reference labels now written during Z80	mnemonic output	(if found at PC)
+ * DDCB	instruction parsing table implemented to trap unknown instructions
+ * Algorithms for inserting/adjusting areas
+
+ * V0.21, 27.02.96
+ * Define address (data) table area
+ * Define string area
+ * Define program area
+ * Include file	reference information added to 'collect' file.
+ * ';' replaced	by ',' in local, external areas.
+ * PC port adjustments.
+ * GetSym() optimized.
+ *
+ * V0.2, 26.02.96:
+ * Source code generation level	2 (Z88 OZ include files, undocumented instructions)
+ * trapping of non-defined instructions	during parsing using separate lookup tables
+ * Sample Disassembly for evaluation
+ * Sample memory View
+ * Search memory for opcodes (hex string)
+ * JP vector table code	parsing
+ * Address lookup (DEFW) code parsing
+ * Collect file	read/write implemented.
+ *
+ * V0.1: January '96:
+ * Parser stack	implemented for	recursive traversing of	code
+ * Parsing code	using Disassembly table	lookup
+ * Source code generation level	1 (Z80 mnemonics, CALL_OZ, void	areas as DEFB)
+ *
+ */
