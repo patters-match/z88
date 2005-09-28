@@ -12,7 +12,7 @@
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;
-; $Id: about.asm,v 1.17 2005/09/13 20:20:34 gbs Exp $
+; $Id$
 ;
 ; *************************************************************************************
 
