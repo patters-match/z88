@@ -18,6 +18,6 @@
 #
 # *************************************************************************************
 
-# compile EazyLink application from scratch
+# compile EazyLink application (debug version) from scratch
 rm -f *.obj *.bin *.map *.63 *.epr
-../../csrc/mpm/mpm -b -DDEBUGGING -I../oz/sysdef -l../stdlib/standard.lib @eazylink
+../../tools/mpm/mpm -b -DDEBUGGING -I../../oz/sysdef -l../../stdlib/standard.lib @eazylink
