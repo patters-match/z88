@@ -18,7 +18,7 @@
 #
 # *************************************************************************************
 
-rm -f *.obj *.bin *.map *.epr
+rm -f *.obj *.bin *.map flashstore.epr
 ../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @flashstore
 ../../tools/mpm/mpm -b romhdr
 
