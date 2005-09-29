@@ -21,12 +21,11 @@
 
      lib FlashEprBlockErase, FlashEprWriteBlock
      lib FlashEprCardId, FlashEprWriteByte
-     lib CheckBattLow
      lib CreateWindow, GreyApplWindow
      lib IntHex
 
      xdef FlashTest_DOR
-     
+
      include "stdio.def"
      include "fileio.def"
      include "flashepr.def"
@@ -34,8 +33,8 @@
      include "director.def"
      include "memory.def"
      include "error.def"
-	include "time.def"
-	include "syspar.def"
+     include "time.def"
+     include "syspar.def"
 
 
 
@@ -104,18 +103,18 @@ endif
 ; ******************************************************************************
 ;
 .FlashTest_AppEntry
-                    
+
                     CALL CheckFlashCard
                     JP   C, exit_application ; no Eprom in slot 3...
 
                     CALL EprTestWindow       ; Create Window with banner
 
-                    LD   HL, Release_msg                    
+                    LD   HL, Release_msg
                     CALL_OZ(Gn_Sop)
 
                     LD   HL, check_msg
                     CALL_OZ(Gn_Sop)          ; user must enter 'asdf' or press ESC to abort
-                    LD   HL,Buffer           
+                    LD   HL,Buffer
                     LD   (HL),0
                     EX   DE,HL
 
@@ -125,7 +124,7 @@ endif
                     CALL_OZ gn_sip           ; the actual keyboard input...
                     JP   C, exit_application
 
-                    LD   HL, Buffer          ; validate the input 
+                    LD   HL, Buffer          ; validate the input
                     LD   DE, inputvalidate   ; with the 'asdf' sequence
 .check_loop
                     LD   A,(DE)
@@ -136,7 +135,7 @@ endif
                     INC  DE
                     JR   Z, check_loop      ; match found, check next letter.
                     JP   exit_application
-                    
+
 .start_flashtest
                     CALL CreateLogFile       ; Create CLI "/eprlog"
 
@@ -171,9 +170,6 @@ endif
 .FlashCardTest
 
 ; Identify, if a Flash Eprom Card is inserted in slot 3
-                    CALL CheckBatteries
-                    RET  C
-
                     LD   HL, fe_found_msg
                     CALL_OZ(Gn_sop)                    ; display chip information
                     CALL FlashEprInfo
@@ -245,9 +241,6 @@ endif
 .ProgramCard        XOR  A
                     LD   (ErrorFlag),A
 
-                    CALL CheckBatteries
-                    RET  C                   ; batteries are low - abort...
-
                     LD   C,3
                     CALL FlashEprCardId
                     LD   C,B                 ; Total of banks on card
@@ -280,8 +273,6 @@ endif
                     LD   HL, 0               ; start of bank (of B)
 .prog_bank_loop
                     PUSH DE
-                    CALL CheckBatteries
-                    JR   C, exit_programming ; batteries low - abort...
 
                     PUSH BC
                     LD   C, MS_S2            ; blow the 1024 bytes block in segment 2
@@ -387,8 +378,6 @@ endif
 
                     CALL FlashEprInfo        ; B = returned number of sectors on card
 .format_loop
-                    CALL CheckBatteries      ; before a format, check battery status
-                    JR   C, exit_format
 
                     PUSH BC
                     PUSH HL
@@ -453,24 +442,6 @@ endif
                     POP  HL
                     POP  DE
                     POP  AF
-                    RET
-
-
-; ******************************************************************
-; Check Battery Status
-;
-.CheckBatteries
-                    CALL CheckBattLow
-                    RET  NC
-                    PUSH AF
-                    PUSH HL
-                    LD   A,1                      ; Battery Low.
-                    CALL Write_Err_msg
-                    POP  HL
-                    LD   A,$FF
-                    LD   (ErrorFlag),A
-                    POP  AF
-                    SCF
                     RET
 
 
@@ -852,11 +823,11 @@ endif
                     DEFW Error_msg_03
 
 .Error_msg_00       DEFM "Byte incorrectly blown in Flash Card at ", 0
-.Error_msg_01       DEFM "Battery Low - operation aborted", 0
+.Error_msg_01       DEFM 0
 .Error_msg_02       DEFM "Flash Card Sector couldn't be formatted.", 0
 .Error_msg_03       DEFM "Flash Card was not found in slot 3.", 0
 
-.Release_msg      
+.Release_msg
                     DEFM "Flash Card Testing Tool for Intel I28F00xS5 & Amd AM29F0x0B devices", 13, 10
                     DEFM "Release V1.1, (C) G. Strube, November 2004", 13, 10, 13, 10, 0
 
