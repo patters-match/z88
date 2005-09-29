@@ -23,7 +23,6 @@
      org $ba00
 
      lib FlashEprCardID, FlashEprCardErase, FlashEprBlockErase, FlashEprWriteBlock
-     lib CheckBattLow
 
      include "flashepr.def"
      include "memory.def"
@@ -37,10 +36,7 @@
      xor  a
      cp   c              ; is it a FLASH eprom?
      jr   z,blowflash    ; move on if so
-     call CheckBattLow
      ld   hl,$c000
-
-     ret  c              ; error if low battery
      ld   a,($4D3)
      push af
      ld   a,b
@@ -95,8 +91,6 @@
      pop  bc
      ld   hl,$c000
      ret  c              ; exit if not Flash card
-     call CheckBattLow   ; check for battery low condition
-     ret  c
      set  7,b
      set  6,b            ; bank points into slot 3
      ld   c,ms_s3        ; use segment 3 to blow in
@@ -157,8 +151,6 @@
      call FlashEprCardID ; check for Flash EPROM in slot 3
      ld   hl,$ffff
      jr   c,eraseerr     ; exit if not Flash device
-     call CheckBattLow
-     jr   c,eraseerr
      ld   a,e
      cp   $ff
      jr   z,eraseall     ; erase whole card
