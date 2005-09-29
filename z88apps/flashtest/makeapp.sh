@@ -18,7 +18,7 @@
 #
 # *************************************************************************************
 
-rm -f flashtest.epr appl.bin flashtest.epr
+rm -f flashtest.epr appl.bin
 ../../tools/mpm/mpm -t -I../../oz/sysdef -l../../stdlib/standard.lib -b fltest.asm
 ../../tools/mpm/mpm -b romhdr.asm
 java -jar ../../tools/makeapp/makeapp.jar flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
