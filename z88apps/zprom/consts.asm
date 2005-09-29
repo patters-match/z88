@@ -13,17 +13,17 @@
 ; **************************************************************************************************
 ; This file is part of Zprom.
 ;
-; Zprom is free software; you can redistribute it and/or modify it under 
+; Zprom is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; Zprom is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with the Zprom; 
+; You should have received a copy of the GNU General Public License along with the Zprom;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -228,7 +228,7 @@
 .Error_msg_18       DEFM "ROM Card not available in slot.", 0
 .Error_msg_19       DEFM "Slot 3 is reserved for empty EPROM.", 0
 .Error_msg_20       DEFM "Slot 3 contains Application Card.", 0
-.Error_msg_21       DEFM "Battery Low - operation aborted", 0
+.Error_msg_21       DEFM 0
 .Error_msg_22       DEFM "Flash Eprom Sector couldn't be formatted.", 0
 .Error_msg_23       DEFM "Flash Eprom was not available in slot.", 0
 

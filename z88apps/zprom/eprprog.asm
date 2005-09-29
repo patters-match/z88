@@ -13,17 +13,17 @@
 ; **************************************************************************************************
 ; This file is part of Zprom.
 ;
-; Zprom is free software; you can redistribute it and/or modify it under 
+; Zprom is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; Zprom is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with the Zprom; 
+; You should have received a copy of the GNU General Public License along with the Zprom;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -31,10 +31,10 @@
      MODULE Eprom_Programming
 
      LIB MemDefBank
-     
+
      XREF eprg_prompt, eprg_banner
      XREF DispErrWindow, ReportWindow, Disp_EprAddrError
-     XREF ProgramFlashEprom, CheckBatteries
+     XREF ProgramFlashEprom
 
      XDEF EPROG_command, Check_Eprom, Verify_Eprom, Bind_in_Bank
      XDEF BlowEprom
@@ -52,9 +52,6 @@
 .EPROG_command      LD   A,(EpromType)
                     CP   FlashEprom
                     JP   Z, ProgramFlashEprom          ; Eprom Type is Flash Card...
-
-                    CALL CheckBatteries
-                    RET  C                             ; Batteries are low...
 
                     CALL BlowEprom                     ; Blow 32, 128 or 256K conventional Eproms...
                     RET  C
@@ -92,7 +89,7 @@
                     CALL_OZ(Os_out)                     ; warning bleep
                     LD   A,13                           ; "Byte incorrectly blown in Eprom at "
                     CALL Disp_EprAddrError
-.err_BlowEprom                    
+.err_BlowEprom
                     SCF
                     RET
 

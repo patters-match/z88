@@ -13,17 +13,17 @@
 ; **************************************************************************************************
 ; This file is part of Zprom.
 ;
-; Zprom is free software; you can redistribute it and/or modify it under 
+; Zprom is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; Zprom is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with the Zprom; 
+; You should have received a copy of the GNU General Public License along with the Zprom;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -33,7 +33,6 @@
      LIB GreyApplWindow
      LIB FlashEprWriteBlock, MemDefBank
      LIB FlashEprBlockErase, FlashEprCardErase, FlashEprCardId
-     LIB CheckBattLow
      LIB CreateWindow
 
      XREF fprg_prompt, fprg_banner
@@ -86,9 +85,6 @@
 .BlowFlashEprom     CALL CheckFlashCard
                     RET  C                             ; Flash Eprom not inserted in slot 3
 
-                    CALL CheckBatteries
-                    RET  C                             ; BATT LOW - abort operation...
-
                     CALL DispProgMsg                   ; "Programming Flash Card..."
 
                     CALL Check_Eprom                   ; eprom already used at range?
@@ -125,20 +121,6 @@
                     CALL_OZ(Os_out)                    ; warning bleep
                     LD   A,13                          ; "Byte incorrectly blown in Eprom at "
                     CALL Disp_EprAddrError
-                    SCF
-                    RET
-
-
-
-; ************************************************************************************************
-;
-.CheckBatteries     CALL CheckBattLow
-                    RET  NC
-
-                    PUSH AF
-                    LD   A,21
-                    CALL Write_Err_msg
-                    POP  AF
                     SCF
                     RET
 
@@ -197,9 +179,7 @@
 ; ************************************************************************************************
 ; CC_flbe  -   Flash Eprom Block Erase
 ;
-.FLBE_command       CALL CheckBatteries
-                    RET  C
-
+.FLBE_command
                     CALL CheckFlashCard
                     RET  C                             ; Flash Eprom not inserted in slot 3
 
@@ -224,9 +204,6 @@
                     EX   DE,HL                         ; get block number
                     CALL Get_Constant                  ; Block Number in E
                     RET  C
-
-                    CALL CheckBatteries
-                    RET  C                             ; Batteries went low after input...
 
                     LD   HL, format0_banner
                     CALL DispFormatMsg
@@ -253,11 +230,9 @@
                     CALL Write_Err_msg
                     SCF
                     RET
-                    
+
 .format_all         LD   HL, format1_banner
                     CALL DispFormatMsg
-                    CALL CheckBatteries
-                    RET  C                             ; Batteries went low
                     LD   A,(EprBank)
                     AND  @11000000
                     RLCA
