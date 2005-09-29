@@ -20,4 +20,4 @@
 # *************************************************************************************
 
 rm -f *.obj *.bin *.map
-../../csrc/mpm/mpm -b -I../oz/sysdef -l../stdlib/standard.lib romcombiner.asm
+../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib romcombiner.asm
