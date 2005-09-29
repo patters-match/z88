@@ -19,7 +19,12 @@
 # *************************************************************************************
 
 rm -f *.obj *.bin *.map *.epr
-../../csrc/mpm/mpm -bv -I../oz/sysdef -l../stdlib/standard.lib @flashstore
-../../csrc/mpm/mpm -bv romhdr
-java -jar ../../makeapp.jar flashstore.epr fsapp.bin 3f0000 romhdr.bin 3f3fc0
-java -jar ../../z88.jar ram1 1024 epr2 128 27c crd3 1024 28f flashstore.epr
+../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @flashstore
+../../tools/mpm/mpm -b romhdr
+
+# Create a 16K Rom Card with FlashStore
+java -jar ../../tools/makeapp/makeapp.jar flashstore.epr fsapp.bin 3f0000 romhdr.bin 3f3fc0
+
+# Execute OZvm with preloaded FlashStore in slot 2 (on a 1Mb AMD Flash)
+# and a 512K Intel Flash Card in slot 3
+java -jar ../../tools/ozvm/z88.jar fcd3 512 28f crd2 1024 29f flashstore.epr
