@@ -22,6 +22,7 @@
 
      org $ba00
 
+     ; These libraries refer to V0.8 of stdlib:
      lib FlashEprCardID, FlashEprCardErase, FlashEprBlockErase, FlashEprWriteBlock
 
      include "flashepr.def"
