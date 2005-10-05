@@ -17,13 +17,17 @@
 ;
 ;***************************************************************************************************
 
-     LIB SafeBHLSegment, MemDefBank
-     LIB EnableInt, DisableInt
-     LIB FlashEprCardId, ExecRoutineOnStack
-     LIB MemGetCurrentSlot
+     LIB SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
+     LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
+     LIB MemGetCurrentSlot    ; Get current slot number of this executing library routine in C
+     LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
+     LIB DisableBlinkInt      ; No interrupts get out of Blink
+     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
+     LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
+     INCLUDE "error.def"
 
 
 ; ==========================================================================================
@@ -46,17 +50,16 @@ DEFC VppBit = 1
 ; BHL points to a bank, offset (which is part of the slot that the Flash
 ; Memory Card have been inserted into).
 ;
-; The routine can OPTIONALLY be told which programming algorithm to use
-; (by specifying the FE_28F or FE_29F mnemonic in A'); these parameters
-; can be fetched when investigated which Flash Memory chip is available
-; in the slot, using the FlashEprCardId routine that reports these constants
-; back to the caller.
+; The routine can be told which programming algorithm to use (by specifying
+; the FE_28F or FE_29F mnemonic in A'); these parameters can be fetched when
+; investigated which Flash Memory chip is available in the slot, using the
+; FlashEprCardId routine that reports these constants back to the caller.
 ;
-; However, if neither of the constants are provided in A', the routine will
-; internally ask the Flash Memory for identification and intelligently use
-; the correct programming algorithm. The identified FE_28F or FE_29F constant
-; is returned to the caller in A' for future reference (when the byte was
-; successfully programmed to the card).
+; However, if neither of the constants are provided in A', the routine can
+; be specified with A' = 0 which internally polls the Flash Memory for
+; identification and intelligently use the correct programming algorithm.
+; The identified FE_28F or FE_29F constant is returned to the caller in A'
+; for future reference (when the byte was successfully programmed to the card).
 ;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
@@ -70,7 +73,7 @@ DEFC VppBit = 1
 ;
 ; In:
 ;         A = byte to blow at address
-;         A' = FE_28F or FE_29F (optional)
+;         A' = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
 ;         BHL = pointer to Flash Memory address (B=00h-FFh, HL=0000h-3FFFh)
 ;               (bits 7,6 of B is the slot mask)
 ; Out:
@@ -81,6 +84,7 @@ DEFC VppBit = 1
 ;              Fc = 1
 ;              A = RC_BWR (programming of byte failed)
 ;              A = RC_NFE (not a recognized Flash Memory Chip)
+;              A = RC_UNK (chip type is unknown: use only FE_28F, FE_29F or 0)
 ;
 ; Registers changed on return:
 ;    ..BCDEHL/IXIY ........ same
@@ -120,7 +124,7 @@ DEFC VppBit = 1
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
-;    A = byte to blow
+;    A = byte to blow, A' = chip type
 ;    D = bank of pointer
 ;    HL = pointer to memory location in Flash Memory
 ; Out:
@@ -134,7 +138,6 @@ DEFC VppBit = 1
 ;    .F....../.... different
 ;
 .FEP_Blowbyte
-                    PUSH IX
                     PUSH AF
                     LD   A,D                 ; no predefined programming was specified, let's find out...
                     AND  @11000000
@@ -145,31 +148,36 @@ DEFC VppBit = 1
 
                     EX   AF,AF'              ; check for pre-defined Flash Memory programming (type in A')...
                     CP   FE_28F
-                    JR   Z, use_28F_programming
+                    JR   Z, check_slot3      ; Intel flash programming specified, are we in slot3?
                     CP   FE_29F
                     JR   Z, use_29F_programming
+                    OR   A
+                    JR   Z, poll_chip_programming ; chip type = 0 indicates to get chip type to program it...
+                    SCF
+                    LD   A, RC_Unk           ; unknown chip type specified!
+                    RET
 
+.poll_chip_programming
                     EX   DE,HL               ; preserve HL (pointer to write byte)
                     CALL FlashEprCardId
                     EX   DE,HL
-                    JR   C, exit_FEP_Blowbyte ; Fc = 1, A = RC error code (Flash Memory not found)
+                    RET  C                   ; Fc = 1, A = RC error code (Flash Memory not found)
 
                     CP   FE_28F              ; now, we've got the chip series
                     JR   NZ, use_29F_programming ; and this one may be programmed in any slot...
+.check_slot3
                     LD   A,3
                     CP   C                   ; when chip is FE_28F series, we need to be in slot 3
                     LD   A,FE_28F            ; restore fetched constant that is returned to the caller..
                     JR   Z,use_28F_programming ; to make a successful "write" of the byte...
                     SCF
                     LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
-.exit_FEP_Blowbyte
-                    POP  IX
                     RET
 
 .use_28F_programming
                     LD   DE, RET_blowbyte
                     PUSH DE                  ; generic RETurn adress after blow routine...
-                    CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
+                    CALL DisableBlinkInt     ; no interrupts get out of Blink (while blowing to flash chip)...
 
                     EX   AF,AF'              ; byte to be blown...
                     LD   B,A
@@ -188,7 +196,7 @@ DEFC VppBit = 1
 .use_29F_programming
                     LD   DE, RET_blowbyte
                     PUSH DE                  ; generic RETurn adress after blow routine...
-                    CALL DisableInt          ; disable maskable IM 1 interrupts (status preserved in IX)
+                    CALL DisableBlinkInt     ; no interrupts get out of Blink (while blowing to flash chip)...
 
                     EX   AF,AF'              ; byte to be blown...
                     LD   B,A
@@ -204,8 +212,7 @@ DEFC VppBit = 1
                     EXX
                     JP   ExecRoutineOnStack  ; execute the blow routine in System Stack RAM...
 .RET_blowbyte
-                    CALL EnableInt           ; enable maskable interrupts
-                    POP  IX
+                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
                     RET
 
 ; ***************************************************************
@@ -246,7 +253,7 @@ DEFC VppBit = 1
 
                     LD   A,(HL)              ; read byte at (HL) just blown
                     CP   B                   ; equal to original byte?
-                    JR   Z, exit_write       ; byte blown successfully!
+                    JR   Z, exit_write       ; Fc = 0, byte blown successfully!
 .write_error
                     LD   A, RC_BWR
                     SCF
