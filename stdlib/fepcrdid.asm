@@ -17,9 +17,13 @@
 ;
 ;***************************************************************************************************
 
-     LIB SafeBHLSegment, MemDefBank, MemGetCurrentSlot, ExecRoutineOnStack
+     LIB SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
+     LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
+     LIB MemGetCurrentSlot    ; Get current slot number of this executing library routine in C
+     LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
+     LIB DisableBlinkInt      ; No interrupts get out of Blink
+     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
 
-     INCLUDE "interrpt.def"
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
 
@@ -65,6 +69,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH IY
                     PUSH DE
                     PUSH BC
+                    CALL DisableBlinkInt     ; no interrupts get out of Blink...
 
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
@@ -87,6 +92,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
                     LD   C,E                 ; original C restored
 .end_FlashEprCardId
+                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
                     POP  DE                  ; original DE restored
                     POP  IY
                     RET                      ; Fc = 0, Fz = 1
@@ -210,20 +216,16 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 .Fetch_I28F0xxxx_ID
                     PUSH AF
-                    CALL OZ_DI               ; no IM 1 interrupts while we poll for Flash Memory stuff...
-                    PUSH AF                  ; preserve interupt status
-
                     PUSH DE
+
                     LD   (HL), FE_IID        ; FlashFile Memory Card ID command
                     LD   D,(HL)              ; D = Manufacturer Code (at $00 0000)
                     INC  HL
                     LD   E,(HL)              ; E = Device Code (at $00 0001)
                     LD   (HL), FE_RST        ; Reset Flash Memory Chip to read array mode
                     EX   DE,HL
-                    POP  DE
 
-                    POP  AF                  ; get old interupt status
-                    CALL OZ_EI               ; enable IM 1 interrupts again...
+                    POP  DE
                     POP  AF
                     RET
 .end_Fetch_I28F0xxxx_ID
@@ -256,9 +258,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 .Fetch_AM29F0xxx_ID
                     PUSH AF
-                    CALL OZ_DI               ; no IM 1 interrupts while we poll for Flash Memory stuff...
-                    PUSH AF                  ; preserve interupt status
-
                     PUSH BC
                     PUSH DE
 
@@ -290,9 +289,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                                              ; L = Device Code (at $00 XX01)
                     POP  DE
                     POP  BC
-
-                    POP  AF                  ; old interrupt status
-                    CALL OZ_EI               ; enable IM 1 interrupts again...
                     POP  AF
                     RET
 .end_Fetch_AM29F0xxx_ID
