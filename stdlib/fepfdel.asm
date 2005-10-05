@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -31,15 +31,15 @@
 ; BHL pointer, B=00h-FFh (bits 7,6 is the slot mask), HL=0000h-3FFFh is
 ; the bank offset.
 ;
-; Important: 
-; Third generation AMD Flash Memory chips may be programmed in all 
-; available slots (1-3). Only INTEL I28Fxxxx series Flash chips require 
-; the 12V VPP pin in slot 3 to successfully mark the File Entry as deleted 
-; on the memory chip. If the Flash Eprom card is inserted in slot 1 or 2, 
-; this routine will report a programming failure. 
+; Important:
+; Third generation AMD Flash Memory chips may be programmed in all
+; available slots (1-3). Only INTEL I28Fxxxx series Flash chips require
+; the 12V VPP pin in slot 3 to successfully mark the File Entry as deleted
+; on the memory chip. If the Flash Eprom card is inserted in slot 1 or 2,
+; this routine will report a programming failure.
 ;
-; It is the responsibility of the application (before using this call) to 
-; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the 
+; It is the responsibility of the application (before using this call) to
+; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the
 ; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
 ; this type of unnecessary error can be avoided.
 ;
@@ -77,6 +77,8 @@
                     CALL PointerNextByte          ; point at start of filename, "/"
 
                     XOR  A
+                    EX   AF,AF'                   ; A' = 0, blow byte to either INTEL or AMD chip
+                    XOR  A                        ; indicate file deleted (0)
                     CALL FlashEprWriteByte        ; mark file as deleted with 0 byte
                     JR   C, err_delfile
 
