@@ -81,7 +81,9 @@ mmwrbyte
 mmrdptr
 mmrdlong
 enblint
+enablnkint
 disblint
+disblnkint
 execstck
 fepblera
 fepcdera
