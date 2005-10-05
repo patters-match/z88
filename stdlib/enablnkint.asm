@@ -39,7 +39,7 @@
                     ld   hl,BLSC_INT
                     set  BB_INTGINT,(hl)          ; (update soft copy first)
                     ld   a,(hl)
-                    out  (BL_INT),a               ; interrupts allowed to get out of blink (GINT = 0)
+                    out  (BL_INT),a               ; interrupts allowed to get out of blink (GINT = 1)
                     pop  hl
                     pop  af
                     RET
