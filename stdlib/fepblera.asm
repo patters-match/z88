@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,16 +12,20 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId, SafeBHLSegment, MemDefBank, ExecRoutineOnStack
+     LIB SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
+     LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
+     LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
+     LIB DisableBlinkInt      ; No interrupts get out of Blink
+     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
+     LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
-     INCLUDE "interrpt.def"
 
 
 ; ==========================================================================================
@@ -38,23 +42,23 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Erase sector (Block) defined in B (00h-0Fh), on Flash 
-; Memory Card inserted in slot C. 
+; Erase sector (Block) defined in B (00h-0Fh), on Flash
+; Memory Card inserted in slot C.
 ;
-; The routine will internally ask the Flash Memory for identification 
-; and intelligently use the correct erasing algorithm. All known 
-; Flash Memory chips from Intel and Amd (see flashepr.def) uses 64K 
+; The routine will internally ask the Flash Memory for identification
+; and intelligently use the correct erasing algorithm. All known
+; Flash Memory chips from Intel and Amd (see flashepr.def) uses 64K
 ; sectors, except the AM29F010B 128K chip, which uses 16K sectors.
 ;
-; Important: 
-; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
-; to successfully erase a block/sector on the memory chip. If the 
-; Flash Eprom card is inserted in slot 1 or 2, this routine will 
+; Important:
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
+; to successfully erase a block/sector on the memory chip. If the
+; Flash Eprom card is inserted in slot 1 or 2, this routine will
 ; automatically report a sector erase failure error.
 ;
 ; It is the responsibility of the application (before using this call)
-; to evaluate the Flash Memory (using the FlashEprCardId routine) and 
-; warn the user that an INTEL Flash Memory Card requires the Z88 
+; to evaluate the Flash Memory (using the FlashEprCardId routine) and
+; warn the user that an INTEL Flash Memory Card requires the Z88
 ; slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; IN:
@@ -84,6 +88,7 @@ DEFC VppBit = 1
                     PUSH BC
                     PUSH DE
                     PUSH HL
+                    PUSH IX
 
                     LD   A,B
                     AND  @00001111           ; sector number range is only 0 - 15...
@@ -98,11 +103,11 @@ DEFC VppBit = 1
                     SBC  HL,DE               ; AM29F010B Flash Memory in slot C?
                     POP  DE
                     JR   Z, _16K_block_fe    ; yes, it's a 16K sector architecture (same as Z88 bank architecture!)
-                    LD   A,D                 ; no, it's a 64K sector architecture 
+                    LD   A,D                 ; no, it's a 64K sector architecture
                     ADD  A,A                 ; sector number * 4 (16K * 4 = 64K!)
                     ADD  A,A                 ; (convert to first bank no of sector)
                     LD   D,A
-._16K_block_fe                    
+._16K_block_fe
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
                     RRCA
@@ -110,7 +115,7 @@ DEFC VppBit = 1
                     OR   D                   ; the absolute bank which is the bottom of the sector
                     LD   D,A                 ; preserve a copy of bank number in D
 
-                    AND  @00111111           
+                    AND  @00111111
                     INC  A                   ; this is the X'th bank of the card..
                     LD   C,A
                     LD   A,B                 ; make sure that the Flash Memory Card (B = total 16K banks on Card)
@@ -118,24 +123,23 @@ DEFC VppBit = 1
                     JR   NC, sector_exists   ; (total_banks_on_card - sector_bank < 0) ...
                     LD   A,RC_BER            ; Fc = 1, sector not available (could not erase block/sector)
                     JR   exit_FlashEprBlockErase
-.sector_exists                                        
+.sector_exists
                     LD   B,D                 ; bind sector to segment x
                     LD   HL,0
                     CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
                     CALL MemDefBank
                     PUSH BC                  ; preserve old bank binding
 
-                    CALL OZ_DI               ; disable IM 1 interrupts
-                    EX   AF,AF'              ; FE Programming type in A, old interrupt status in AF'
+                    EX   AF,AF'              ; FE Programming type in A
+                    CALL DisableBlinkInt     ; no interrupts get out of Blink
                     CALL FEP_EraseBlock      ; erase sector in slot C
-                    EX   AF,AF'              ; get old interrupt status in AF
-                    CALL OZ_EI               ; enable IM 1 interrupts...
-                    EX   AF,AF'              ; return AF error status of sector erasing...
-
+                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
+                                             ; return AF error status of sector erasing...
                     POP  BC
                     CALL MemDefBank          ; Restore previous Bank bindings
-                    
+
 .exit_FlashEprBlockErase
+                    POP  IX
                     POP  HL
                     POP  DE
                     POP  BC
@@ -151,7 +155,7 @@ DEFC VppBit = 1
 ; In:
 ;    A = FE_28F or FE_29F (depending on Flash Memory type in slot)
 ;    E = slot number (1, 2 or 3) of Flash Memory Card
-;    HL = points into bound bank of Flash Memory 
+;    HL = points into bound bank of Flash Memory
 ;
 ; Out:
 ;    Success:
@@ -166,7 +170,6 @@ DEFC VppBit = 1
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock
-                    PUSH IX                    
                     CP   FE_28F
                     JR   Z, erase_28F_block
 .erase_29F_block
@@ -174,25 +177,21 @@ DEFC VppBit = 1
                     EXX
                     LD   BC, end_FEP_EraseBlock_29F - FEP_EraseBlock_29F
                     EXX
-                    CALL ExecRoutineOnStack
-                    POP  IX
-                    RET
+                    JP   ExecRoutineOnStack
 .erase_28F_block
                     LD   A,3
                     CP   E                   ; when chip is FE_28F series, we need to be in slot 3
                     JR   Z,_erase_28F_block  ; to make a successful sector erase
                     SCF
                     LD   A, RC_BER           ; Ups, not in slot 3, signal error!
-                    RET                      
+                    RET
 ._erase_28F_block
                     LD   IX, FEP_EraseBlock_28F
                     EXX
                     LD   BC, end_FEP_EraseBlock_28F - FEP_EraseBlock_28F
                     EXX
-                    CALL ExecRoutineOnStack
-                    POP  IX
-                    RET                    
-                    
+                    JP   ExecRoutineOnStack
+
 
 ; ***************************************************************
 ;
@@ -246,11 +245,11 @@ DEFC VppBit = 1
                     OUT  (C),A               ; Disable Vpp in slot 3
                     POP  AF
                     RET
-.vpp_error          
+.vpp_error
                     LD   A, RC_VPL
                     SCF
                     JR   exit_FEP_EraseBlock_28F
-.erase_error        
+.erase_error
                     LD   A, RC_BER
                     SCF
                     JR   exit_FEP_EraseBlock_28F
@@ -298,19 +297,19 @@ DEFC VppBit = 1
                     LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
                     EX   DE,HL
                     LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
-                                        
+
                     LD   (HL),$30            ; 30 -> (XXXXX), begin format of sector...
 .toggle_wait_loop
                     LD   A,(HL)              ; get first DQ6 programming status
                     LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
                     XOR  (HL)                ; get second DQ6 programming status
-                    BIT  6,A                 ; toggling? 
+                    BIT  6,A                 ; toggling?
                     RET  Z                   ; no, erasing the sector completed successfully (also back in Read Array Mode)!
-                    BIT  5,C                 ; 
+                    BIT  5,C                 ;
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
-                    
+
                     LD   A,(HL)              ; DQ5 went high, we need to get two successive status
-                    XOR  (HL)                ; toggling reads to determine if we're still toggling 
+                    XOR  (HL)                ; toggling reads to determine if we're still toggling
                     BIT  6,A                 ; which then indicates a sector erase error...
                     JR   NZ,erase_err_29f    ; damn, sector was NOT erased!
                     RET                      ; we're back in Read Array Mode, sector successfully erased!

@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,16 +12,21 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId, FlashEprBlockErase, SafeBHLSegment, MemDefBank, ExecRoutineOnStack
+     LIB SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
+     LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
+     LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
+     LIB DisableBlinkInt      ; No interrupts get out of Blink
+     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
+     LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
+     LIB FlashEprBlockErase   ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
-     INCLUDE "interrpt.def"
 
 
 ; ==========================================================================================
@@ -38,20 +43,20 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Erase Flash Memory Card inserted in slot C. 
+; Erase Flash Memory Card inserted in slot C.
 ;
-; The routine will internally ask the Flash Memory for identification 
-; and intelligently use the correct erasing algorithm. 
+; The routine will internally ask the Flash Memory for identification
+; and intelligently use the correct erasing algorithm.
 ;
-; Important: 
-; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 
-; to successfully erase the memory chip. If the Flash Memory card is 
+; Important:
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
+; to successfully erase the memory chip. If the Flash Memory card is
 ; inserted in slot 1 or 2, this routine will automatically report a
 ; sector erase failure error.
 ;
 ; It is the responsibility of the application (before using this call)
-; to evaluate the Flash Memory (using the FlashEprCardId routine) and 
-; warn the user that an INTEL Flash Memory Card requires the Z88 
+; to evaluate the Flash Memory (using the FlashEprCardId routine) and
+; warn the user that an INTEL Flash Memory Card requires the Z88
 ; slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; IN:
@@ -94,7 +99,7 @@ DEFC VppBit = 1
                     JR   Z,_erase_28F_card   ; to make a successful card erase
                     SCF
                     LD   A, RC_BER           ; Ups, not in slot 3, signal error!
-                    RET                      
+                    RET
 ._erase_28F_card                             ; The Intel 28Fxxxx chip can only erase individual sectors...
                     RRC  B                   ; so we need to erase the sectors, one at a time
                     RRC  B                   ; total of 16K banks on card -> total of 64K sectors on card.
@@ -107,7 +112,6 @@ DEFC VppBit = 1
                     CP   -1
                     JR   NZ, erase_28F_card_blocks
                     JR   exit_FlashEprCardErase
-
 .erase_29F_card
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
@@ -119,30 +123,25 @@ DEFC VppBit = 1
                     CALL MemDefBank
                     PUSH BC                  ; preserve old bank binding
 
-                    CALL OZ_DI               ; disable IM 1 interrupts
-                    EX   AF,AF'              ; old interrupt status in AF'
-
-                    PUSH IX                    
+                    CALL DisableBlinkInt     ; no interrupts get out of Blink
+                    PUSH IX
                     LD   IX, FEP_EraseCard_29F
                     EXX
                     LD   BC, end_FEP_EraseCard_29F - FEP_EraseCard_29F
                     EXX
                     CALL ExecRoutineOnStack
                     POP  IX
-
-                    EX   AF,AF'              ; get old interrupt status in AF
-                    CALL OZ_EI               ; enable IM 1 interrupts...
-                    EX   AF,AF'              ; return AF error status of sector erasing...
+                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
 
                     POP  BC
                     CALL MemDefBank          ; Restore previous Bank bindings
-                    
+
 .exit_FlashEprCardErase
                     POP  HL
                     POP  DE
                     POP  BC
                     RET
-                    
+
 
 ; ***************************************************************
 ;
@@ -150,7 +149,7 @@ DEFC VppBit = 1
 ; HL points into.
 ;
 ; In:
-;    HL = points into bound bank of Flash Memory 
+;    HL = points into bound bank of Flash Memory
 ; Out:
 ;    Success:
 ;        Fc = 0
@@ -191,13 +190,13 @@ DEFC VppBit = 1
                     LD   A,(HL)              ; get first DQ6 programming status
                     LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
                     XOR  (HL)                ; get second DQ6 programming status
-                    BIT  6,A                 ; toggling? 
+                    BIT  6,A                 ; toggling?
                     RET  Z                   ; no, we're back in Read Array Mode and card was successfully erased!
-                    BIT  5,C                 ; 
+                    BIT  5,C                 ;
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
-                    
+
                     LD   A,(HL)              ; DQ5 went high, we need to get two successive status
-                    XOR  (HL)                ; toggling reads to determine if we're still toggling 
+                    XOR  (HL)                ; toggling reads to determine if we're still toggling
                     BIT  6,A                 ; which then indicates a card erase error...
                     JR   NZ,erase_err_29f    ; damn, card was NOT erased!
                     RET                      ; card was successfully erased, and we're back in Read Array Mode!
