@@ -17,11 +17,16 @@
 ;
 ;***************************************************************************************************
 
-     LIB MemDefBank, MemGetCurrentSlot, FlashEprCardId, ExecRoutineOnStack
+     LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
+     LIB MemGetCurrentSlot    ; Get current slot number of this executing library routine in C
+     LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
+     LIB DisableBlinkInt      ; No interrupts get out of Blink
+     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
+     LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
-     INCLUDE "interrpt.def"
+     INCLUDE "error.def"
 
 
 ; ==========================================================================================
@@ -42,12 +47,20 @@ DEFC VppBit = 1
 ; automatically continued on the next adjacent bank of the card.
 ; On return, BHL points at the byte after the last written byte.
 ;
-; The routine will internally ask the Flash Memory for identification and
-; intelligently use the correct programming algorithm for the appropriate
-; chip.
-;
 ; The routine is used by the File Eprom Management libraries, but is well
 ; suited for other application purposes.
+; -------------------------------------------------------------------------
+;
+; The routine can be told which programming algorithm to use (by specifying
+; the FE_28F or FE_29F mnemonic in A); these parameters can be fetched when
+; investigating which Flash Memory chip is available in the slot, using the
+; FlashEprCardId routine that reports these constants.
+;
+; However, if neither of the constants are provided in A, the routine can
+; be specified with A = 0 which internally polls the Flash Memory for
+; identification and intelligently use the correct programming algorithm.
+; The identified FE_28F or FE_29F constant is returned to the caller in A
+; for future reference (when the block was successfully programmed to the card).
 ;
 ; Use segment specifier C (where BHL memory will be bound into the Z80
 ; address space) to blow the block of bytes (MS_S0 - MS_S3), which has to be
@@ -70,6 +83,7 @@ DEFC VppBit = 1
 ; this type of unnecessary error can be avoided.
 ;
 ; In :
+;         A = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
 ;         DE = local pointer to start of block (located in available segment)
 ;         C = MS_Sx segment specifier for BHL
 ;         BHL = extended address to start of destination (pointer into card)
@@ -78,73 +92,49 @@ DEFC VppBit = 1
 ; Out:
 ;         Success:
 ;              Fc = 0
+;              A = FE_28F or FE_29F (depending on found card)
 ;              BHL updated
 ;         Failure:
 ;              Fc = 1
 ;              A = RC_BWR (block not blown properly)
 ;              A = RC_NFE (not a recognized Flash Memory Chip)
+;              A = RC_UNK (chip type is unknown: use only FE_28F, FE_29F or 0)
 ;
 ; Registers changed on return:
-;    A..CDE../IXIY same
-;    .FB...HL/.... different
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997, Jan-Apr 1998, Aug 2004
+;    Gunther Strube, InterLogic, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005
 ;    Thierry Peycru, Zlab, Dec 1997
 ; --------------------------------------------------------------------------
 ;
 .FlashEprWriteBlock PUSH IX
                     PUSH DE                            ; preserve DE
                     PUSH BC                            ; preserve C
-                    PUSH AF                            ; preserve A, if no errors occur...
+                    EX   AF,AF'                        ; preserve FE Programming type in A'
 
-                    PUSH BC
-                    PUSH HL
                     LD   A,B
                     AND  @11000000
                     RLCA
                     RLCA
-                    LD   C,A                           ; poll slot C for Flash Memory
-                    PUSH BC
-                    CALL FlashEprCardId                ; poll for card information in slot C
+                    PUSH AF                            ; A = slot number of BHL
                     EXX
-                    POP  BC                            ; remember slot (of BHL pointer) number in C'
+                    POP  BC                            ; remember Flash Memory slot (of BHL pointer) number in B'
                     EXX
-                    POP  HL
-                    POP  BC                            ; we only need FE Programming type 28F or 29F...
-                    JR   C, ret_errcode
-                    EX   AF,AF'                        ; preserve FE Programming type in A'
-
-                    LD   A,C
-                    RRCA
-                    RRCA                               ; MS_Sx -> MM_Sx
-                    RES  7,H
-                    RES  6,H
-                    OR   H
-                    LD   H,A                           ; HL Bank Offset will be working in segment C
 
                     LD   A,B
                     CALL MemDefBank                    ; Bind slot x bank into segment C
                     PUSH BC                            ; preserve old bank segment C binding
                     LD   B,A                           ; but use current bank as reference...
 
-                    CALL OZ_DI                         ; disable IM 1 interrupts
-                    EX   AF,AF'                        ; FE Programming type in A, old interrupt status in AF'
                     CALL FEP_WriteBlock
-                    EX   AF,AF'                        ; get old interrupt status in AF
-                    CALL OZ_EI                         ; enable IM 1 interrupts...
-                    EX   AF,AF'                        ; return AF error status of sector erasing...
 
                     LD   D,B                           ; preserve current Bank number of pointer...
                     POP  BC
                     CALL MemDefBank                    ; restore old segment C bank binding
                     LD   B,D
-                    JR   C, ret_errcode
-
-                    POP  AF                            ; restore original A
-                    CP   A                             ; signal success (Fc = 0)
-.return
                     RES  7,H
                     RES  6,H                           ; return pure bank offset (0000h - 3fffh) only
 
@@ -153,8 +143,6 @@ DEFC VppBit = 1
                     POP  DE
                     POP  IX
                     RET
-.ret_errcode        POP  DE                            ; ignore old AF...
-                    JR   return                        ; (use current A = error code, Fc = 1)
 
 
 ; ***************************************************************
@@ -163,70 +151,108 @@ DEFC VppBit = 1
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
-;         A = FE_28F or FE_29F (depending on Flash Memory type in slot)
+;         A' = FE_28F, FE_29F or 0
 ;         DE = local pointer to start of block (located in available segment)
 ;         C = MS_Sx segment specifier
 ;         BHL = extended address to start of destination (pointer into card)
-;         C' = slot number of BHL pointer
+;         B' = slot number of BHL pointer
 ;         IY = size of block to blow
 ; Out:
 ;    Fc = 0, block blown successfully to the Flash Card
+;         A = FE_28F or FE_29F, depending on found chip type
 ;         BHL = points at next free byte on Flash Eprom
 ;         DE = points beyond last byte of buffer
 ;    Fc = 1,
 ;         A = RC_BWR  (block not blown properly)
-;         DE,BHL points at byte not blown properly
+;         A = RC_UNK (pre-specified chip type is unknown: use only FE_28F, FE_29F or 0)
+;         DE,BHL points at byte not blown properly (A = RC_BWR)
 ;
 ; Registers changed after return:
-;    A..C..../IXIY same
-;    .FB.DEHL/.... different
+;    ......../IXIY same
+;    AFBCDEHL/.... different
 ;
 .FEP_WriteBlock
+                    LD   A,C
+                    PUSH AF
+                    RRCA
+                    RRCA                               ; MS_Sx -> MM_Sx
+                    RES  7,H
+                    RES  6,H
+                    OR   H
+                    LD   H,A                           ; (B)HL Bank Offset will be working in segment C
+                    EXX
+                    LD   A,B
+                    EXX
+                    LD   C,A                           ; Flash chip type to be determined in slot C
+                    POP  AF
+                    EX   AF,AF'                        ; FE Programming type in A, A' = MS_Sx segment specifier
                     CP   FE_28F
-                    JR   Z, write_28F_block
+                    JR   Z, check_slot3                ; make sure that pre-selected INTEL flash is located in slot 3
                     CP   FE_29F
                     JR   Z, write_29F_block
+                    OR   A
+                    JR   Z, poll_chip_programming      ; chip type = 0 indicates to get chip type to program it...
+                    SCF
+                    LD   A, RC_Unk                     ; unknown chip type specified!
+                    RET
+.poll_chip_programming
+                    PUSH BC
+                    PUSH HL                            ; preserve BHL (pointer to free space)
+                    CALL FlashEprCardId
+                    POP  HL
+                    POP  BC
+                    RET  C                             ; Fc = 1, A = RC error code (Flash Memory not found)
+
+                    CP   FE_28F                        ; now, we've got the chip type
+                    JR   NZ, write_29F_block           ; and this one may be programmed in any slot...
+.check_slot3
+                    PUSH AF                            ; remember FE_28F chip type
+                    LD   A,3
+                    CP   C                             ; when chip is FE_28F series, we need to be in slot 3
+                    JR   Z,write_28F_block             ; to make a successful "write" of the byte...
+                    POP  AF
+                    SCF
+                    LD   A, RC_BWR                     ; Ups, not in slot 3, signal error!
                     RET
 .write_28F_block
-                    EXX
+                    CALL DisableBlinkInt               ; no interrupts get out of Blink (while blowing to flash chip)...
                     LD   A,C
-                    EXX
-                    CP   3                   ; when chip is FE_28F series, we need to be in slot 3
-                    JR   Z,_write_28F_block  ; to write bytes successfully to card
-                    LD   A, RC_BWR           ; Ups, not in slot 3, signal error!
-                    SCF
-                    RET
-._write_28F_block
-                    EXX
                     CALL MemGetCurrentSlot             ; get specified slot number in C for this executing library routine
                     CP   C
-                    EXX
-                    JR   NZ, FEP_ExecWriteBlock_28F    ; block to be programmed in another slot than this library
-
-                    PUSH IX
+                    JR   Z, FEP_ExecWriteBlock_28F_RAM ; block to be programmed in same slot as this library
+                    CALL FEP_ExecWriteBlock_28F
+                    JR   exit_blowblock
+.FEP_ExecWriteBlock_28F_RAM
                     LD   IX, FEP_ExecWriteBlock_28F
                     EXX
                     LD   BC, end_FEP_ExecWriteBlock_28F - FEP_ExecWriteBlock_28F
                     EXX
                     CALL ExecRoutineOnStack
-                    POP  IX
+.exit_blowblock
+                    CALL EnableBlinkInt                ; interrupts are again allowed to get out of Blink
+                    EX   AF,AF'
+                    POP  AF                            ; get chip type
+                    EX   AF,AF'
+                    RET  C                             ; ignore chip type and return error code
+                    EX   AF,AF'                        ; Block was successfully blown, return chip type in A
+                    OR   A                             ; Fc = 0 (signal successfull operation)
                     RET
 .write_29F_block
-                    EXX
+                    CALL DisableBlinkInt               ; no interrupts get out of Blink (while blowing to flash chip)...
+                    PUSH AF                            ; remember FE_29F chip type
                     LD   A,C
                     CALL MemGetCurrentSlot             ; get specified slot number in C for this executing library routine
                     CP   C
-                    EXX
-                    JR   NZ, FEP_ExecWriteBlock_29F    ; block to be programmed in another slot than this library
-
-                    PUSH IX
+                    JR   Z, FEP_ExecWriteBlock_29F_RAM ; block to be programmed in same slot as this executing library
+                    CALL FEP_ExecWriteBlock_29F
+                    JR   exit_blowblock
+.FEP_ExecWriteBlock_29F_RAM
                     LD   IX, FEP_ExecWriteBlock_29F
                     EXX
                     LD   BC, end_FEP_ExecWriteBlock_29F - FEP_ExecWriteBlock_29F
                     EXX
                     CALL ExecRoutineOnStack
-                    POP  IX
-                    RET
+                    JR   exit_blowblock
 
 
 ; ***************************************************************
@@ -234,12 +260,13 @@ DEFC VppBit = 1
 ; (this routine is copied on the stack and executed there)
 ;
 .FEP_ExecWriteBlock_28F
+                    EX   AF,AF'
+                    LD   C,A                 ; C = MS_Sx segment specifier
                     EXX
                     PUSH IY
                     POP  BC                  ; install block size.
                     EXX
 
-                    PUSH AF
                     PUSH BC
                     LD   BC,$04B0            ; Address of soft copy of COM register
                     LD   A,(BC)
@@ -247,7 +274,6 @@ DEFC VppBit = 1
                     LD   (BC),A
                     OUT  (C),A               ; Enable Vpp in slot 3
                     POP  BC
-                    POP  AF
 
 .WriteBlockLoop     EXX
                     LD   A,B
@@ -337,6 +363,8 @@ DEFC VppBit = 1
 ; (this routine is copied on the stack and executed there)
 ;
 .FEP_ExecWriteBlock_29F
+                    EX   AF,AF'
+                    LD   C,A                 ; C = MS_Sx segment specifier
                     EXX
                     PUSH IY
                     POP  BC                  ; install block size.
