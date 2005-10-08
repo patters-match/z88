@@ -93,6 +93,7 @@
                     ADD  IX,SP                    ; IX points at start of buffer
                     LD   SP,IX                    ; 64 byte buffer created...
                     PUSH HL                       ; preserve original SP
+                    PUSH AF                       ; preserve FE_xx flash chip type returned from FlashEprCardId
 
                     LD   E,B                      ; preserve E = total of banks on card
                     PUSH DE                       ; preserve D = bank to blow header
@@ -136,6 +137,7 @@
 .whole_card
                     LD   (IX + $3C),C             ; File Eprom area uses whole card
 .blow_header
+                    POP  AF                       ; use FE_xx chip type to program File Card header
                     PUSH IX
                     POP  DE                       ; start of File Eprom Header
                     LD   HL, $3FC0                ; blow at address B,$3FC0
