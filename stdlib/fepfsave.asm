@@ -235,7 +235,7 @@
                     POP  DE
                     CALL SaveFileEntry
                     RET  C                        ; saving of File Entry failed...
-.save_file_loop
+.save_file_loop                                   ; A = chip type to blow data
                     CALL LoadBuffer               ; Load block of bytes from file into external buffer
                     RET  Z                        ; EOF reached...
 
@@ -282,9 +282,10 @@
                     PUSH HL
                     CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes...
                     POP  HL                       ; (but don't touch the generic HL bank offset!)
+                    XOR  A                        ; flash chip type to be detected dynamically...
                     CALL FlashEprWriteBlock       ; blow File Entry to Flash Eprom
                     POP  IY
-                    RET  NC
+                    RET  NC                       ; Fc = 0, A = FE_xx chip type
 
                     ; File Entry was not blown properly, mark it as 'deleted'...
 
@@ -328,11 +329,12 @@
 ;         DE = pointer to start of external buffer
 ;
 ; Register changed after return:
-;    ..BC..HL/..IY same
-;    AF..DE../IX.. different
+;    A.BC..HL/..IY same
+;    .F..DE../IX.. different
 ;
 .LoadBuffer
                     PUSH BC
+                    PUSH AF
                     PUSH HL
 
                     LD   C,(IY + Fhandle)
@@ -360,5 +362,7 @@
                     POP  IX                       ; actual size of buffer
 .exit_loadbuffer
                     POP  HL
+                    POP  BC
+                    LD   A,B                      ; restore original A
                     POP  BC
                     RET
