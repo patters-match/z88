@@ -56,8 +56,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;              A = RC_NFE (not a recognized Flash Memory Chip)
 ;
 ; Registers changed on return:
-;    ...CDE../IXIY ........ same
-;    AFB...HL/.... afbcdehl different
+;    ...CDE../IXIY af...... same
+;    AFB...HL/.... ..bcdehl different
 ;
 ; ---------------------------------------------------------------------------------------
 ; Design & programming by
