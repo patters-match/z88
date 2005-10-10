@@ -140,16 +140,16 @@
 ;              Fz = 0, Header not found
 ;                   A undefined
 ;                   C undefined
-;                   D undefined
 ;              BHL = absolute pointer to "oz" header (or potential)
 ;         Fc = 1 (failure),
 ;              A = RC_ROOM (No room for File Eprom Area)
 ;
 ; Registers changed after return:
-;    .....EHL/IXIY same
-;    AFBCD.../.... different
+;    ....DEHL/IXIY same
+;    AFBC..../.... different
 ;
 .DefHeaderPosition
+                    PUSH DE
                     LD   A,E
                     SUB  B                   ; <Total banks> - <ROM banks> = lowest bank of ROM area
                     LD   D,A
@@ -160,13 +160,13 @@
                     JR   C, epr_filearea     ; there's no Flash Card, so check top bank below app area
                     CP   3                   ;
                     JR   Z, appcard_no_room  ; Application card uses banks
-                    RET  C                   ; in lowest 64K block of card...
+                    JR   C, exit_DefHdrPos   ; in lowest 64K block of card...
                     AND  @11111100           ; File area are only found in Flash Card sector boundaries
 .epr_filearea
                     DEC  A                   ; A = Top Bank of File Area
                     LD   B,A                 ; B = relative bank number of "oz" header (or potential), C = slot number
                     CALL CheckFileEprHeader
-                    RET  NC                  ; header found, at absolute bank B, C = File Area in banks
+                    JR   NC,exit_DefHdrPos   ; header found, at absolute bank B, C = File Area in banks
                     EX   AF,AF'
                     LD   A,C
                     LD   C,B
@@ -178,14 +178,16 @@
                     EX   AF,AF'
                     JR   C, new_filearea     ; "oz" File Eprom Header not found, but potential area...
                     CP   A                   ; B = absolute bank of "oz" Header, C = size of File Area in banks
+.exit_DefHdrPos
+                    POP  DE
                     RET                      ; return flag status = found!
 .new_filearea
                     OR   B                   ; Fc = 0, Fz = 0, indicate potential file area
-                    RET
+                    JR   exit_DefHdrPos
 .appcard_no_room
                     LD   A,RC_ROOM
                     SCF
-                    RET
+                    JR   exit_DefHdrPos
 
 
 ; ************************************************************************
