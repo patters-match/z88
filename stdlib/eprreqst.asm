@@ -140,7 +140,7 @@
 ;              Fz = 0, Header not found
 ;                   A undefined
 ;                   C undefined
-;              BHL = absolute pointer to "oz" header (or potential)
+;              B  = absolute bank of "oz" header (or potential)
 ;         Fc = 1 (failure),
 ;              A = RC_ROOM (No room for File Eprom Area)
 ;
@@ -150,19 +150,22 @@
 ;
 .DefHeaderPosition
                     PUSH DE
-                    LD   A,E
-                    SUB  B                   ; <Total banks> - <ROM banks> = lowest bank of ROM area
-                    LD   D,A
                     PUSH BC
+                    PUSH HL
                     CALL FlashEprCardId
+                    LD   A,B                 ; if flash card was found, then B contains physical size in 16K banks
+                    POP  HL                  ; (this overrules the card size supplied to this routine)
                     POP  BC
-                    LD   A,D
                     JR   C, epr_filearea     ; there's no Flash Card, so check top bank below app area
+                    SUB  B                   ; <Total banks> - <ROM banks> = lowest bank of ROM area
                     CP   3                   ;
                     JR   Z, appcard_no_room  ; Application card uses banks
                     JR   C, exit_DefHdrPos   ; in lowest 64K block of card...
-                    AND  @11111100           ; File area are only found in Flash Card sector boundaries
-.epr_filearea
+                    AND  @11111100           ; File area are only found in Flash Card sector (64K) boundaries
+                    JR   checkfhdr
+.epr_filearea       LD   A,E                 ; use supplied card size in E
+                    SUB  B                   ; <Total banks> - <ROM banks> = lowest bank of ROM area
+.checkfhdr
                     DEC  A                   ; A = Top Bank of File Area
                     LD   B,A                 ; B = relative bank number of "oz" header (or potential), C = slot number
                     CALL CheckFileEprHeader
