@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -37,7 +37,7 @@
 ;    Success:
 ;         Fc = 0,
 ;              A = Application Eprom type (with Rom Front Dor):
-;                   $80 = external EPROM, 
+;                   $80 = external EPROM,
 ;                   $81 = system/internal EPROM,
 ;                   $82 = external RAM
 ;              B = size of reserved Application space in 16K banks.
@@ -65,7 +65,7 @@
                     CALL MemAbsPtr           ; Convert to physical pointer...
 
                     LD   A,$FB
-                    CALL MemReadByte         
+                    CALL MemReadByte
                     LD   C,A                 ; get Application ROM type ($80 or $81)
                     LD   A,$FC               ; offset $FC
                     CALL MemReadByte
@@ -79,7 +79,7 @@
                     JR   NZ, no_applrom      ; invalid Application Type Code...
 
                     CALL CheckRamCard        ; If FRONT DOR is located in a RAM card, return type $82
-                    
+
                     POP  DE                  ; D = size of reserved Application space (16K bank entities)
                     LD   E,C                 ; E = Application ROM Type Code ($80 or $81)
                     LD   A,D
@@ -87,22 +87,20 @@
                     LD   C,A                 ; C = physical card size (16K bank entities)
                     LD   B,D                 ; B = size of reserved Application space (16K bank entities)
                     LD   A,E                 ; A = Application ROM Type Code ($80 or $81)
-
+.exit_ApplEprType
                     POP  HL                  ; original HL restored
                     POP  DE                  ; original DE restored
                     RET
-
-.no_applrom         POP  AF
+.no_applrom
+                    POP  AF
                     LD   A,RC_ONF
                     SCF
-                    POP HL
-                    POP DE
-                    RET
+                    JR   exit_ApplEprType
 
 
 ; ************************************************************************
 ;
-; Calculate physical size of Card by scanning for "OZ" header from 
+; Calculate physical size of Card by scanning for "OZ" header from
 ; bank $3E downwards in available 1MB slot.
 ;
 ; In:
@@ -136,7 +134,7 @@
 .oz_found           RES  7,B            ; slot size always max 64 * 16K banks...
                     RES  6,B
                     LD   A,D
-                    AND  @00111111      
+                    AND  @00111111
                     SUB  B              ; Card Size = TopBank - TopBank' (0-64)
                     POP  DE
                     RET  NZ
@@ -172,7 +170,7 @@
                     JR   Z, ramcard
                          LD   A,E            ; Eprom Card - return original type code
                          JR   exit_CheckRamCard
-.ramcard                 
+.ramcard
                          DEC  C
                          LD   A,$F8
                          CALL MemWriteByte        ; write back original card id
@@ -219,7 +217,7 @@
                     LD   HL,$4F5A
                     SBC  HL,DE               ; 'OZ' ?
                     POP  HL
-                    
+
                     POP  DE
                     LD   A,D                 ; original A restored
                     POP  DE
