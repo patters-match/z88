@@ -1,0 +1,18 @@
+[Desktop Entry]
+#Icon=/usr/share/gnomebaker/gnomebaker-48.png
+MultipleArgs=false
+Type=Application
+#Categories=Application;Utility;
+#StartupNotify=true
+Version=1.0
+#Type=Application
+Encoding=UTF-8
+Name=Z88Transfer
+GenericName=File transfer for Z88
+Comment=Exchange files between your PC and your Z88 portable computer
+TryExec=z88transfer.py
+Exec=z88transfer.py
+#Terminal=false
+Categories=Application;FileTransfer
+Icon=/usr/share/pixmaps/z88.png
+#MimeType=image/x-foo

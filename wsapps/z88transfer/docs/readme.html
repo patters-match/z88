@@ -1,0 +1,189 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Z88transfer: a transfer utility for Linux (and windows) and Z88 computers</title>
+</head>
+<body bgcolor="#CFFFFF">
+<p><div style="text-align: center"><h1>Z88transfer: a transfer utility for Linux (and windows) and Cambridge Computers Z88</h1></div></p>
+
+<p>Current version: 2.3</p>
+
+<p><h2>WHAT IS IT?</h2></p>
+
+<p>Z88transfer is a graphical utility to transfer files between a PC and a Z88, an old but great 8-bit portable computer from Clive Sinclair (but if you downloaded this program, you should already know it). Z88transfer has been written in Python and uses PyGTK. It was originally designed to work under Linux, but now it also works under Windows too. It should work fine under MacOS X with very little (if any) modifications.</p>
+
+<p>It's main advantage over other programs is that it can import and export transparently from Abiword to Pipedream, and vive-versa, during the transfer itself. This is: if you send an Abiword file from your PC, your Z88 will receive it converted to PipeDream format, and if you send a PipeDream file from your Z88, your PC will reveive it converted to Abiword format. This allows you to work directly with all your files, without worrying about having to convert it to and from PipeDream format.</p>
+
+<p>It can emulate foreign characters (like &aacute;, &ntilde; and so on) from an english keyboard too, and convert them into true characters when the file is exported to Abiword. This is called "Pseudotranslation".</p>
+
+<p><h2>DISCLAIMER</h2></p>
+
+<p>This software is distributed as is, under the <a href="gpl.html">GPL license</a> (v2 or later), and without warranty of any kind. Use it at your own risk. Press <a href="gpl.html">here</a> to read it.</p>
+
+
+<p><h2>INSTALLING Z88TRANSFER</h2></p>
+
+<p>There are three possibilities: System-wide linux installation, local linux installation, and windows installation</p>
+
+<p><h3>Linux installation</h3></p>
+
+<p>To be able to run Z88transfer, you must have installed in your computer:</p>
+<p><ul>
+<li>The Python interpreter</li>
+<li>The GTK and PyGTK libraries</li>
+<li>The libglade library</li>
+<li>The PySerial library</li>
+</ul></p>
+
+<p>All theses components are GPL, so it's very probable that you can find them in your Linux's installation CDs. Just be sure that all are installed, and go ahead, or simply try to run Z88transfer from a command line, and, if something isn't installed, you will receive an explanatory error.</p>
+
+<p>To install the program itself in the system, just enter as root and run the script file <b>install.hs</b>. This will create the directories and copy all the files in the right place. It should create even an entry in your Gnome/KDE/freedesktop-compatible-windowmanager menu.</p>
+
+<p>You can install Z88Transfer in your HOME folder too (this is useful when you want to use Z88Transfer in a computer without root access). To do this, just run the script file <b>install-local.sh</b>. This script will install Z88Transfer in your HOME directory, under the directory <b>~/.bin</b>, and will put all the documentation under the directory <b>~/.bin/doc</b>. To run the program, you must use the <b>local</b> parameter, like this:</p>
+<p align=center>~/.bin/z88transfer.py local</p>
+
+<p><h3>Windows installation</h3></p>
+<p>To be able to run z88transfer under windows, you must install some components in your system. This is the list, with the internet URL where you can download them. You must install them in this order.</p>
+<p><ul>
+<li>The Python interpreter <a href="http://www.python.org/download/">(http://www.python.org/download/)</a></li>
+<li>GTK for Windows <a href="http://gladewin32.sourceforge.net/">http://gladewin32.sourceforge.net/</a></li>
+<li>PyGTK for windows <a href="http://www.pcpm.ucl.ac.be/~gustin/win32_ports/pygtk.html">(http://www.pcpm.ucl.ac.be/~gustin/win32_ports/pygtk.html</a>, or search for "PyGTK windows" with google).</li>
+<li>PyWin32 component <a href="http://sourceforge.net/projects/pywin32/">(http://sourceforge.net/projects/pywin32/)</a>.</li>
+<li>PySerial for windows <a href="http://sourceforge.net/projects/pyserial/">http://sourceforge.net/projects/pyserial/</a>.</li>
+</ul></p>
+
+
+<p>After having intalled all these components, just run the BAT script file <b>install-windows.bat</b>, followed by the drive letter where you want to install Z88Transfer. Example: if you want to install it in the drive C, just run:</p>
+<p align=center>install-windows.bat C:</p>
+<p>You will find all the files at <b>&lt;drive-letter&gt;\z88transfer</b>. To run the program, you must use python and add the parameter <b>windows</b>. Example: if the python interpreter is in c:\python, and you installed Z88Transfer at c:, you have to run Z88Transfer with:</p>
+<p align=center>c:\python\python.exe c:\z88transfer\z88transfer.py windows</p>
+
+<p>You can create a launcher to avoid doing this each time you want to use Z88Transfer.</p>
+
+<p><h2>Description of the interface</h2></p>
+
+<p>When you launch Z88transfer, you will see a window like this:</p>
+<p><center><img src="main_window.png" /></center></p>
+<p>This window is divided in these parts:</p>
+<p><center><img src="main_window2.png" /></center></p>
+<p><b>1</b> and <b>2</b> are the file lists. In <b>1</b> we can see the files in the Z88, and in <b>2</b> the files in the PC. Directories ends with a slash ('/'). You can navigate through all the file tree just clicking in the directories to go down in the tree, and clicking in the <em>../</em> to go up.</p>
+<p><b>3</b> is the <em>reload</em> button. Clicking on it will re-read the files from the Z88 and the local disk. It's usefull when you launch Z88transfer before than the <b>PCLINK</b> or <b>EAZYLINK</b> utilities and <b>1</b> appears blank.</p>
+<p><b>4</b> are the transfer buttons. If you select a file in <b>1</b> and press the right arrow, the file will be transferred from the Z88 to the PC. The same, if you select a file in <b>2</b> and press the left arrow, that file will be transferred from the PC to the Z88. If there's a file with the same name at the destination directory, you will be asked if you want to overwrite it or abort the transfer (except if you are using the IMP-EXPORT protocol).</p>
+<p><b>5</b> is the status bar. It shows the current activity. If you are transferring a file, you will see there how many bytes has been sent.</p>
+<p><b>6</b> shows the current configuration (serial port, speed and protocol). You can change it by pressing the button <b>9</b>. Your new prefferences will be stored in your hard disk.</p>
+<p><b>7</b> allows you to set the Z88's clock. It will use your PC's clock as reference, so be sure that it's adjusted (you can use a NTP server to sinchronize your PC's clock with an official atomic clock). This option is available only if you select <b>EazyLink</b> protocol.</p>
+<p><b>8</b> shows the (aproximate) free memory available in your Z88. This option is available only if you select <b>EazyLink</b> protocol.</p>
+<p><b>10</b> allows you to create a new folder, rename a file or folder, or delete a file or folder in your Z88. This option is available only if you select <b>EazyLink</b> protocol.</p>
+
+<p><h2>Configuring</h2></p>
+
+<p>The first thing you must do is to configure Z88transfer. To do so, just run it and press the "Preferences" icon (button <b>9</b>). Doing so will show this window:</p>
+<p><center><img src="config_window.png" /></center></p>
+<p>There you can choose:</p>
+
+<p><h3>Communications</h3></p>
+<p>Here you have all about physical ports and protocols:</p>
+<ul>
+<li><b>The serial port</b>: default is "/dev/ttyS0" (COM1 in Windows), but you can put the one you want (/dev/ttyS1 for COM2 in Windows, or /dev/usb/ttyS0 for the first USB<->serial adapter).</li>
+<li><b>The interface speed</b>: you can choose 2400, 9600, 19200 or 38400.</li>
+<li><b>The transfer protocol</b>: you can choose between IMP-EXPORT (the Z88's original transfer protocol. But read the notes about it), PCLINK, the protocol for the PCLINK program, or EAZYLINK, if you have an EPROM with it.</li>
+</ul>
+
+<p>Remember that, currently, only IMP-EXPORT program allows to choose the speed. Both PCLINK and EAZYLINK works always at 9600 bps, so if you use that utilities, be sure to choose that speed or the program will not work. Remember too that there seems to be problems with speeds faster than 9600bps due to a bug in the Z88 ROM, so until there's a fix, or the communication program explicitly says that support them, connect only at 9600 or 2400bps.</p>
+
+<p><h3>Translation</h3></p>
+<p>Here you have the options for automagic import and export features.</p>
+<ul>
+<li><b>Automatic conversion from/to Abiword</b>: if you check this button, everytime you send from your PC a file with an .ABW extension, Z88transfer will export it from Abiword to Pipedream format, and rename it with .PDD extension in the Z88 (the file in the PC remains intact, of course). And everytime you send from your Z88 a file with an .PDD or .PPD extension, Z88transfer will export it from PipeDream to Abiword format and rename it with .ABW extension (and, of course, the original file in the Z88 remains intact).</li>
+<li><b>Automatic conversion from/to RTF</b>: if you check this button, everytime you send from your PC a file with an .RTF extension, Z88transfer will export it from RTF to Pipedream format, and rename it with .PDD extension in the Z88. The same when you send from the Z88 a file with a .PDD or .PPD extension. RTF is an open document format recognized by nearly all current text processors (like Abiword, Koffice, OpenOffice and Microsoft Word).</li>
+<li><b>Pseudotranslation</b>: this option allows to work with foreign characters in Z88s with english ROMs and keyboards. The trick consists in using the <b>'</b> character as a prefix to emulate them. By default, Z88transfer works whit this set:</li></ul>
+<table align="center">
+<tr><td>Z88</td><td></td><td>PC</td></tr>
+<tr><td>'a</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>á</td></tr>
+<tr><td>'e</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>é</td></tr>
+<tr><td>'i</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>í</td></tr>
+<tr><td>'o</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>ó</td></tr>
+<tr><td>'u</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>ú</td></tr>
+<tr><td>'n</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>ñ</td></tr>
+<tr><td>'?</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>¿</td></tr>
+<tr><td>'!</td><td>&nbsp;&lt;-&gt;&nbsp;</td><td>¡</td></tr>
+</table>
+<p>This set is fine for spanish characters. Of course, you can adapt this set for your personal needs, just creating a file with the new rules and choosing it with the <b>File with rules for Pseudotranslation</b> button.</p>
+<p>This file has a very simple format: each line contains two characters: the first is the ASCII character that, prefixed with a ', will be converted to the second UNICODE character. Let's see it with an example: the this is default file that gives us the above spanish translation scheme:</p>
+<p align=center>a&aacute;<br/>
+e&eacute;<br/>
+i&iacute;<br/>
+o&oacute;<br/>
+u&uacute;<br/>
+n&ntilde;<br/>
+?&iquest;<br/>
+!¡</p>
+<p>This file is stored by default at <i>/usr/share/z88transfer/pseudotranslation</i>, but you can change the location.</p>
+<p>With this mode active, to type a "'" character, just use it twice (this is, just press "''"). Really, prefixed characters not included in the table will be shown "as is", so if you write 'W at the Z88, you will get W at Abiword.</p>
+
+
+<p>If this option isn't selected, then Z88transfer will simply convert between Latin1 codes (used on Z88) and UTF-8 (used on Abiword).</p>
+
+<p>It's important to note that the pseudotranslation is done ONLY with AbiWord/RTF/PipeDream files, and ONLY if the automagic conversion is active.</p>
+
+<p><h3>Some details about the ABIWORD/RTF&lt;-&gt;PIPEDREAM conversion</h3></p>
+<p>The import and export functions are limited to theses capabilities:</p>
+<ul>
+<li>Bold, italic and underline fonts (you can combine them, using bold and italic, or bold and underline...)</li>
+<li>Page breaks</li>
+<li>Left, center and right alignment</li>
+</ul>
+
+<p>Another important detail is that, since PipeDream adds a Carriage Return after each line, the converter will asume that all lines with only one Carriage Return at its end forms a single paragraph, so to delimite a paragraph from the next one you must use two carriage return. The converter will ignore extra carriage returns, so is the same to put two, three or one hundred: it will asume there is TWO carriage returns and will delete the other 98. It will delete the spaces at the begining of each paragraph too.</p>
+
+<p><h3>Some details about the IMP-EXPORT transfer</h3></p>
+
+<p>IMP-EXPORT protocol is very simple, so the options for using it are very limited. When using IMP-EXPORT you won't be able to see in <b>1</b> the current files in your Z88. To transfer a file from the Z88 to the PC you must press first the right arrow, and then choose the option <b>Send file</b> in your Z88. You have 30 seconds before Z88transfer aborts. You will not be warned if there's a file in the PC with the same name, so be carefull.</p>
+<p>Sending files to the Z88 is the same: just choose first <b>receive file</b> in your Z88, when asked for the filename press <b>Return</b>, and then select the file in <b>2</b> and press the left arrow. The file will be transferred to the Z88 and, if there was another file with the same name, it will be overwritten.</p>
+<p>The files in this mode are stored in the default device (you can change it in the <b>panel</b>, in your Z88).</p>
+
+<p><h2>FAQ</h2></p>
+<p><b>The program doesn't work. What's happening?</b></p>
+<p>Be sure that you have all the modules needed: Python, PyGTK, GTK and GDK, libglade and PySerial. The same for windows.</p>
+<p>If the program runs, but you are unable to connect to your Z88, check that you have access to your serial ports. Normally, you will have to add your user to  the serial-port group (the exact group's name should be <b>dialout</b>, at least in Debian).</p>
+<p>Finally, be sure that you are launching Z88Transfer with the right parameters. You MUST put <b>local</b> after the command if you have installed Z88Transfer locally under Linux, or <b>windows</b> if you are using Z88Transfer under Microsoft Windows.</p>
+
+<p><h2>History of versions</h2></p>
+
+<p><b>Version 2.3</b></p>
+<ul>
+<li>Fully support for EazyLing protocol, allowing to create folders, rename and delete files, set the Z88's clock and check free memory.</li>
+<li>Allows to be installed under Windows, and locally under Linux.</li>
+</ul>
+
+<p><b>Version 2.2</b></p>
+<ul>
+<li>Now the EazyLink protocol works (allows faster transferences)</li>
+<li>Added RTF support to the converter</li>
+<li>Minor bugfixes in the converter</li>
+</ul>
+
+<p><b>Version 2.1</b></p>
+<ul>
+<li>Minor bugfixes in the Abiword to PipeDream converter</li>
+</ul>
+
+<p><b>Version 2.0</b></p>
+<ul>
+<li>Added the Abiword&lt;-&gt;PipeDream automagic converter and the Pseudotranslation converter</li>
+<li>Fixed a little bug with the IMP-EXPORT protocol</li>
+<li>PopUps are now true PopUps, so they will always be on top of all windows. This means you will never miss the confirmation message under other windows</li>
+<li>Now it don't refresh the Z88 window when the user changes the directory at the PC window, making the selection faster</li>
+<li>Better check of incorrect filenames for the Z88. Now only admits letters, numbers and the dot</li>
+<li>Better check of already existing files in the Z88. Now knows that Z88 is case-insensitive</li>
+<li>Added an icon and a menu entry for Freedesktop-compatible systems (like Gnome, KDE...)</li>
+<li>When Z88transfer is closed, PC Link (and EazyLink) is closed too</li>
+</ul>
+<p><b>Version 1.0</b></p>
+<p>First public version</p>
+<p><h2>Contacting the author</h2></p>
+<p>This program has been created by Sergio Costas (Raster Software Vigo).</p>
+<p>http://www.rastersoft.com</p>
+<p>e-mail: raster@rastersoft.com</p>
+</body>
+</html>
