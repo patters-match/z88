@@ -15,10 +15,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+# This code contains the TEXT FORMAT CONVERTERS, to import and export
+# PIPEDREAM files to/from Abiword or RTF files
+
 import binascii
 
 def read_translations(filename):
-		
+	"""Read the translation table and returs it as two dictionaries"""
+	
 	translatefrompipe={}
 	translatetopipe={}
 	
@@ -735,19 +739,20 @@ class abiword:
 class pddutilities:
 	"""This class contains the functions that converts between intermediate and PDD format"""
 
-	# leemos primero el texto y lo convertimos a un formato intermedio
-	# cada parrafo ira en un elemento de la lista TEXTO, y será una lista de tres elementos
-	# el primero indicará el tipo de párrafo:
-	#	bit 2=1: comenzara con un salto de pagina
-	#	bits 0,1=00: ira alineado a la izquierda
-	#	bits 0,1=01: ira centrado
-	#	bits 0,1=10: ira alineado a la derecha
-	# el siguiente contendra el texto
-	# el ultimo indicara el formato de cada letra
+	# First we read the text and convert it to an intermediate format
+	# TEXTO contains the text to be converted, or the converted text. It's a list.
+	# Each element of TEXTO is a list with three elemenst, containing one paragraph and its format
+	# First element is an integer, and contains the type:
+	#	bit 2=1: There's a page jump before this paragraph
+	#	bits 0,1=00: left alignment
+	#	bits 0,1=01: center alignment
+	#	bits 0,1=10: right alignment
+	# Second element is a string with the ASCII text
+	# Third element contains one byte for each ASCII character, representing its format
 	#	0 normal
-	#	1 si subrayado
-	#	2 si negrita
-	#	4 si cursiva
+	#	bit 1=1 if underline 
+	#	bit 2=1 if bold
+	#	bit 4=1 if italic
 
 	def latin2pseudo(this,text,translatetopipe):
 		
