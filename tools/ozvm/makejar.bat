@@ -36,7 +36,7 @@ javac -nowarn -g:none net/sourceforge/z88/*.java
 :: create a temporary dir for files to be included in the executable JAR file
 mkdir ..\ozvm-builddir >nul
 
-: copy the all the application files (without hidden files)
+:: copy the application files to included in JAR (without hidden files)
 echo building executable jar
 xcopy com ..\ozvm-builddir\com /S /Y /I /Q >nul
 xcopy net ..\ozvm-builddir\net /S /Y /I /Q >nul
