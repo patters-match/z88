@@ -46,6 +46,7 @@ cp -f ./Z88.rom ../ozvm-builddir
 
 # JAR file only needs (compiled) class files (*.java files redundant)
 find ../ozvm-builddir -name '*.java' | xargs rm
+find ../ozvm-builddir -name '.svn' | xargs rm -fR
 
 # finally, build the executable jar
 cd ../ozvm-builddir
