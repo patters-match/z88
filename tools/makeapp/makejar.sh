@@ -38,6 +38,7 @@ cp -fR net ../makeapp-builddir
 
 # JAR file only needs (compiled) class files (*.java files are redundant)
 find ../makeapp-builddir -name '*.java' | xargs rm
+find ../ozvm-builddir -name '.svn' | xargs rm -fR
 
 # finally, build the executable jar
 cd ../makeapp-builddir
