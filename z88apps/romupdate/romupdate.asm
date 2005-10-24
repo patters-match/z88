@@ -28,11 +28,13 @@
 
      XREF ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
      XREF ApplRomCopyDor
+     XREF CrcFile, CrcBuffer
 
      XDEF crctable
 
      ORG $C000
 
+     DEFC RAM_pages = 16384/256                   ; 16K bytes contigous memory from $2000...
 
 ; *************************************************************************************
 ;
@@ -48,16 +50,16 @@
                     DEFB InfoEnd0-InfoStart0      ; length of info section
 .InfoStart0         DEFW 0                        ; reserved...
                     DEFB 'U'                      ; application key letter
-                    DEFB 0                        ; I/O buffer / vars for RomUpdate
+                    DEFB RAM_pages                ; RAM pages (I/O buffer / vars for RomUpdate)
                     DEFW 0                        ;
                     DEFW 0                        ; Unsafe workspace
-                    DEFW 256                      ; Safe workspace
+                    DEFW 0                        ; Safe workspace
                     DEFW RomUpd_Entry             ; Entry point of code in seg. 3
                     DEFB 0                        ; bank binding to segment 0 (none)
                     DEFB 0                        ; bank binding to segment 1 (none)
                     DEFB 0                        ; bank binding to segment 2 (none)
                     DEFB $3F                      ; bank binding to segment 3
-                    DEFB AT_Popd                  ; Good Popdown
+                    DEFB AT_Ugly | AT_Popd        ; Ugly popdown
                     DEFB 0                        ; no caps lock on activation
 .InfoEnd0           DEFB 'H'                      ; Key to help section
                     DEFB 12                       ; total length of help
@@ -74,6 +76,45 @@
 .NameStart0         DEFM "RomUpdate",0
 .NameEnd0           DEFB $FF
 .DOREnd0
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; We are somewhere in segment 3...
+;
+; Entry point for ugly popdown...
+;
+.RomUpd_Entry
+                    JP   app_main
+                    SCF
+                    RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; RomUpdate Error Handler
+;
+.ErrHandler
+                    ret  z
+                    cp   rc_susp
+                    jr   z,dontworry
+                    cp   rc_esc
+                    jr   z,akn_esc
+                    cp   rc_quit
+                    jr   z,suicide
+                    cp   a
+                    ret
+.akn_esc
+                    ld   a,1                 ; acknowledge esc detection
+                    oz   os_esc
+.dontworry
+                    cp   a                   ; all other RC errors are returned to caller
+                    ret
+.suicide            xor  a
+                    oz   os_bye              ; perform suicide, focus to Index...
+.void               jr   void
 ; *************************************************************************************
 
 
@@ -151,10 +192,15 @@
 
 
 ; *************************************************************************************
-;
-.RomUpd_Entry
-                    ld   iy,2
-                    add  iy,sp               ; start of 256 byte safe workspace (two bytes above stack pointer)
+.app_main
+                    LD   A,(IX+$02)          ; IX points at information block
+                    CP   $20+RAM_pages       ; get end page+1 of contiguous RAM
+                    JR   NC, continue_pd     ; end page OK, RAM allocated...
+
+                    LD   A,$07               ; No Room for FlashStore, return to Index
+                    CALL_OZ(Os_Bye)          ; FlashStore suicide...
+.continue_pd
+                    ld   iy,$2000            ; start of 256 byte safe workspace (two bytes above stack pointer)
 
                     ld   a, sc_ena
                     call_oz(os_esc)          ; enable ESC detection
@@ -169,37 +215,24 @@
                     call ApplRomFindDOR
                     ret  c                   ; application DOR not found or no application ROM available.
 
-                    push iy
-                    pop  de
-                    call ApplRomCopyDor      ; copy DOR at (BHL) to (DE)
+                    ld   bc,80               ; local filename (pointer)..
+                    ld   hl,filename         ; filename to card image
+                    ld   de,$2100            ; output buffer for expanded filename (max 255 byte)...
+                    ld   a, op_in
+                    oz   GN_Opf
+                    ret  c                   ; couldn't open file (in use / not found?)...
 
-                    jr   suicide             ; leave popdown...
-; *************************************************************************************
+                    ld   de,$2000
+                    ld   bc,16384            ; 16K buffer
+                    call CrcFile             ; calculate CRC-32 of file
+                    oz   GN_Cl               ; close file again (we got the expanded filename)
 
+                    ld   hl,$2000
+                    ld   bc,16384            ; 16K buffer
+                    call CrcBuffer           ; calculate CRC-32 of buffer (should be the same as above)
 
-; *************************************************************************************
-;
-; RomUpdate Error Handler
-;
-.ErrHandler
-                    ret  z
-                    cp   rc_susp
-                    jr   z,dontworry
-                    cp   rc_esc
-                    jr   z,akn_esc
-                    cp   rc_quit
-                    jr   z,suicide
-                    cp   a
-                    ret
-.akn_esc
-                    ld   a,1                 ; acknowledge esc detection
-                    oz   os_esc
-.dontworry
-                    cp   a                   ; all other RC errors are returned to caller
-                    ret
-.suicide            xor  a
-                    oz   os_bye              ; perform suicide, focus to Index...
-.void               jr   void
+                    jp   suicide             ; leave popdown...
 ; *************************************************************************************
 
 .appName            defm "FlashStore", 0     ; application (DOR) name to search for in slot.
+.filename           defm ":RAM.0/flashstore.epr", 0     ; 16K card image
