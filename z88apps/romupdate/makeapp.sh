@@ -24,7 +24,3 @@ del *.obj *.bin *.map romupdate.epr
 
 # Create a 16K Rom Card with RomUpdate
 java -jar ../../tools/makeapp/makeapp.jar romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
-
-# Execute OZvm with preloaded RomUpdate in slot 2 (on a 16K Eprom)
-# and a 1MB Amd Flash Card in slot 3 preloaded with FlashStore
-java -jar ../../tools/ozvm/z88.jar crd2 16 27c romupdate.epr crd3 1024 29f ../flashstore/flashstore.epr
