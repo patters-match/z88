@@ -1,5 +1,5 @@
 ; *************************************************************************************
-; Cyclic Redundancy Checksum Management
+; 32bit Cyclic Redundancy Checksum Management
 ;
 ; CRC is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -26,7 +26,7 @@
 
 ; *************************************************************************************
 ;
-; Perform a CRC of file, already opened by caller, from current file pointer until EOF.
+; Perform a CRC-32 of file, already opened by caller, from current file pointer until EOF.
 ; If the complete file is to be CRC'ed then it is vital that the current file pointer
 ; is at the beginning of the file (use FA_PTR / OS_FWM to reset file pointer) before
 ; executing this routine.
