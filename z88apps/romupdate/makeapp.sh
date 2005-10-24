@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # *************************************************************************************
-# RomUpdate
+# RomUpdate - Popdown compile script
 # (C) Gunther Strube (gbs@users.sf.net) 2005
 #
 # RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
@@ -19,7 +19,7 @@
 # *************************************************************************************
 
 del *.obj *.bin *.map romupdate.epr
-../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @romupdate
+../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @romupdate.popdown.prj
 ../../tools/mpm/mpm -b romhdr
 
 # Create a 16K Rom Card with RomUpdate

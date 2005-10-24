@@ -1,5 +1,5 @@
 ; *************************************************************************************
-; RomUpdate
+; RomUpdate - popdown project file
 ; (C) Gunther Strube (gbs@users.sf.net) 2005
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
@@ -16,6 +16,7 @@
 ;
 ; *************************************************************************************
 
-romupdate
+popdown
+main
 dorscan
 crc32

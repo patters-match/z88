@@ -1,5 +1,5 @@
 :: *************************************************************************************
-:: RomUpdate - Popdown compile script
+:: RomUpdate - BBC BASIC compile script
 :: (C) Gunther Strube (gbs@users.sf.net) 2005
 ::
 :: RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
@@ -16,11 +16,8 @@
 ::
 :: *************************************************************************************
 
-del *.obj *.bin *.map romupdate.epr
-..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.popdown.prj
-..\..\tools\mpm\mpm -b romhdr
+del *.obj *.bin *.bas *.map
+..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.bbcbasic.prj
 
-ren popdown.bin romupdate.bin
-
-:: Create a 16K Rom Card with RomUpdate
-java -jar ..\..\tools\makeapp\makeapp.jar romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
+:: this is actually to be run as a BBC BASIC program on the Z88
+ren bbcbasic.bin romupdate.bas
