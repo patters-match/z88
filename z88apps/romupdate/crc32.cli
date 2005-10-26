@@ -1,0 +1,61 @@
+.; *************************************************************************************
+.; CRC32 Prototype algorithm in BBC BASIC for Z88.
+.; This is a proof of concept program to validate a fully functional CRC32 algorithm
+.; (c) Gunther Strube, October 2005
+.;
+.; This program is free software; you can redistribute it and/or modify it under the terms of the
+.; GNU General Public License as published by the Free Software Foundation;
+.; either version 2, or (at your option) any later version.
+.; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+.; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.; See the GNU General Public License for more details.
+.; You should have received a copy of the GNU General Public License along with this program;
+.; see the file COPYING. If not, write to the
+.; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+.;
+.; $Id$
+.;
+.; *************************************************************************************
+
+#B
+.J
+NEW
+020 DIM crctable 4*256
+030 DIM crc 4
+040 polynomial%=&EDB88320
+044 :
+045 REM ***************************************************************
+048 P. "Creating CRC32 Lookup table - please wait..."
+050 FOR i%=0 TO 255
+060 !crc=i%
+070 FOR j%=8 TO 1 STEP -1
+080 IF !crc AND 1 THEN PROC_rsh1Crc: !crc = !crc EOR polynomial% ELSE PROC_rsh1Crc
+090 NEXT j%
+100 !(crctable+(4*i%)) = !crc
+120 NEXT i%
+121 REM ***************************************************************
+126 :
+129 REM ***************************************************************
+130 REM CRC-32 the entire BBC BASIC program stored from PAGE to TOP
+135 P. "Calculating CRC32 - please wait..."
+140 !crc=&FFFFFFFF
+150 FOR ADDR%=PAGE TO TOP-1
+160 I%=?ADDR% EOR (!crc AND &FF)
+170 L%=!(crctable+(4*I%))
+190 ?crc=?(crc+1): ?(crc+1)=?(crc+2): ?(crc+2)=?(crc+3): ?(crc+3)=0: REM crc >> 8
+220 !crc = !crc EOR L%
+870 NEXT ADDR%
+873 !crc = NOT !crc
+875 P. "CRC32 of this program = ", ~!crc
+876 REM ***************************************************************
+880 :
+890 END
+899 REM ***************************************************************
+900 REM Shift 32bit <crc> 1 bit to the right (divide by two)
+910 DEF PROC_rsh1Crc
+920 ?crc = ?crc DIV 2
+930 FOR I%=1 TO 3
+940 IF ?(crc+I%) AND 1 THEN ?(crc+I%-1)=?(crc+I%-1) OR &80
+950 ?(crc+I%)= ?(crc+I%) DIV 2
+960 NEXT I%
+970 ENDPROC
