@@ -1,1 +1,1 @@
-mpm -b -nv -IC:\CVS\oz\sysdef @bank1.prj
+..\..\tools\mpm\mpm -b -nv -I..\sysdef @bank1.prj

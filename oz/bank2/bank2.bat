@@ -1,2 +1,2 @@
-mpm -b -nv -IC:\CVS\oz\sysdef rs232.asm
-mpm -bg -nv -DFINAL -IC:\CVS\oz\sysdef @bank2.prj
+..\..\tools\mpm\mpm -b -nv -I..\sysdef rs232.asm
+..\..\tools\mpm\mpm -bg -nv -DFINAL -I..\sysdef @bank2.prj

@@ -1,3 +1,3 @@
-mpm -b -nv -IC:\cvs\oz\sysdef @gn.prj
-mpm -b -nv -IC:\CVS\oz\sysdef printer.asm
-mpm -b -nv -DFINAL -IC:\cvs\oz\sysdef @bank3.prj
+..\..\tools\mpm\mpm -b -nv -I..\sysdef @gn.prj
+..\..\tools\mpm\mpm -b -nv -I..\sysdef printer.asm
+..\..\tools\mpm\mpm -b -nv -DFINAL -I..\sysdef @bank3.prj
