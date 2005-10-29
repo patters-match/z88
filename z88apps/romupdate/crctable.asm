@@ -21,7 +21,7 @@
 ; 32-Bit CRC Lookup Table
 ; This table starts on a 256-byte boundary for speed
 
-                    DEFS $0100 - $PC           ; adjust code to position tables at xx00 address
+                    DEFS $100-($PC%$100)            ; adjust code to position tables at xx00 address
 .crctable
                     defl $00000000, $77073096, $ee0e612c, $990951ba
                     defl $076dc419, $706af48f, $e963a535, $9e6495a3
