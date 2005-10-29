@@ -40,6 +40,7 @@ lstoff
 
 ; the control character definitions:
 include "ctrlchar.def"
+lstoff
 
 ; Menu exception codes:
      DEFC MU_ENT  = $E1, MU_TAB  = $E2, MU_SPC = $E0, MU_DEL = $E3
