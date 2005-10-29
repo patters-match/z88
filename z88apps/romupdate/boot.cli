@@ -1,0 +1,48 @@
+.; *************************************************************************************
+.; BBC BASIC CRC32 Checksum boot routine before executing RomUpdate application at $25C0
+.;
+.; This CLI file is executed in the Filer to "load" the program, which then is saved as
+.; 'boot.bas' and transferred to the RomUpdate compile project where it is incorporated
+.; as part of the complete 'romupdate.bas' BBC BASIC program (see 'bbcbasic.asm).
+.;
+.; (c) Gunther Strube, October-November 2005
+.;
+.; This program is free software; you can redistribute it and/or modify it under the terms of the
+.; GNU General Public License as published by the Free Software Foundation;
+.; either version 2, or (at your option) any later version.
+.; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+.; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.; See the GNU General Public License for more details.
+.; You should have received a copy of the GNU General Public License along with this program;
+.; see the file COPYING. If not, write to the
+.; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+.;
+.; $Id$
+.;
+.; *************************************************************************************
+#B
+.J
+NEW
+100 *NAME RomUpdate
+110 IF NOT EOF#-1 THEN PROC_End("RomUpdate only runs in expanded Z88.")
+120 LOMEM=&3F00
+130 DIM crc 4:crctable%=&2600
+140 fh%=OPENIN("romupdate.cfg")
+150 IF fh%<>0 THEN INPUT#fh%,line$:CLOSE#fh% ELSE PROC_End("""romupdate.cfg"" file was not found.")
+160 fh%=OPENIN("romupdate.bas"):progsize%=EXT#fh%:CLOSE#fh%
+170 prgcrc%=EVAL("&"+MID$(line$,14,8))
+180 P.CHR$1+"FChecking RomUpdate CRC..."+CHR$1+"F"
+190 !crc=&FFFFFFFF
+200 FOR ADDR%=PAGE TO PAGE+progsize%-1
+210 L%=!(crctable%+(4*(?ADDR% EOR (!crc AND &FF))))
+220 ?crc=?(crc+1):?(crc+1)=?(crc+2):?(crc+2)=?(crc+3):?(crc+3)=0
+230 !crc=!crc EOR L%
+240 NEXT ADDR%
+250 !crc=NOT !crc
+260 IF prgcrc%<>!crc THEN PROC_End("CRC check failed.")
+270 CALL &25C0
+280 END
+900 DEFPROC_End(ErrMsg$)
+910 P. CHR$12+ErrMsg$+CHR$10+CHR$13+"Program ended."
+920 END
+930 ENDDEF

@@ -18,43 +18,29 @@
 
 module RomUpdate
 
-     xdef crctable
-     xref app_main
+xdef crctable
+xref app_main
 
-     ORG $2300
+org $2300
 
-     include "stdio.def"
-     include "director.def"
+include "stdio.def"
+include "director.def"
 
 
 ; -----------------------------------------------------------------------------
-; Start of BBC BASIC program (PAGE)
-; The complete program is resident in segment 0 ($2000 - $3FFF).
-; 0000 *NAME FlashStore
-; 0000 LOMEM=&3F00            ; LOMEM just below start of segment 1...
-; 0000 CALL &2330
-
-; <length byte> <line number> <token> <line> <end line delimiter>
-.NameLine           DEFM NameLineEnd - $PC, 0, 0, $2A, "NAME RomUpdate", $0D
-.NameLineEnd
-.LoMemLine          DEFM LoMemLineEnd - $PC, 0, 0, $D2, "=&3F00", $0D
-.LoMemLineEnd
-.CallLine           DEFM CallLineEnd - $PC, 0, 0, $D6, " &2330", $0D
-.CallLineEnd
+; BBC BASIC program loaded at $2300 (PAGE) executes CRC check routine before calling machine code at $25C0
+binary "boot.bas"
 ; -----------------------------------------------------------------------------
 
-
-                    ; fill space until we reach the executable code...
-                    DEFS $30 - $PC
-
+defs $2C0 - $PC                              ; fill space until we reach the executable code at $25C0...
 
 ; *****************************************************************************
 ;
-; Code begins at $2330
+; Code begins at $25C0
 ;
 .app_start
                     LD   SP,($1ffe)          ; install safe application stack permanently
-                                             ; FlashStore will not return to BBC BASIC...
+                                             ; RomUpdate will not return to BBC BASIC...
                     call app_main
 
                     xor  a
