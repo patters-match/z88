@@ -26,6 +26,7 @@
      include "memory.def"
      include "fileio.def"
      include "dor.def"
+     include "romupdate.def"
 
      XREF ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
      XREF ApplRomCopyDor
@@ -75,17 +76,17 @@
 
                     ld   bc,80               ; local filename (pointer)..
                     ld   hl,filename         ; filename to card image
-                    ld   de,$2100            ; output buffer for expanded filename (max 255 byte)...
+                    ld   de,buffer           ; output buffer for expanded filename (max 255 byte)...
                     ld   a, op_in
                     oz   GN_Opf
                     ret  c                   ; couldn't open file (in use / not found?)...
 
-                    ld   de,$2000
+                    ld   de,buffer
                     ld   bc,16384            ; 16K buffer
                     call CrcFile             ; calculate CRC-32 of file
                     oz   GN_Cl               ; close file again (we got the expanded filename)
 
-                    ld   hl,$2000
+                    ld   hl,buffer
                     ld   bc,16384            ; 16K buffer
                     call CrcBuffer           ; calculate CRC-32 of buffer (should be the same as above)
 

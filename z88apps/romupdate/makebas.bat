@@ -17,7 +17,7 @@
 :: *************************************************************************************
 
 del *.obj *.bin romupdate.bas *.map
-..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.bbcbasic.prj
+..\..\tools\mpm\mpm -b -DBBCBASIC -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.bbcbasic.prj
 
 :: this is actually to be run as a BBC BASIC program on the Z88
 ren bbcbasic.bin romupdate.bas

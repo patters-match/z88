@@ -25,13 +25,13 @@
      include "memory.def"
      include "fileio.def"
      include "dor.def"
+     include "romupdate.def"
 
      XDEF crctable
      XREF app_main
 
-     ORG $C000
 
-     DEFC RAM_pages = 16384/256                   ; 16K bytes contigous memory from $2000...
+     ORG $C000
 
 ; *************************************************************************************
 ;

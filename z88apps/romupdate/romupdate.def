@@ -1,0 +1,33 @@
+; *************************************************************************************
+; RomUpdate variable definitions
+; (C) Gunther Strube (gbs@users.sf.net) 2005
+;
+; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; RomUpdate is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with RomUpdate;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+defc banksize = 16384
+
+if POPDOWN
+     defc RAM_pages = 17408/256         ; total RAM DOR pages, 17K bytes contigous memory from upper 8K segment 0 ($2000 onwards)
+     defc vararea = $2000
+endif
+
+if BBCBASIC
+     defc vararea = $4000               ; The BBC BASIC version uses the continous RAM from segment 1 upwards ($4000 onwards)
+endif
+
+DEFVARS vararea
+{
+     buffer    ds.b banksize            ; buffer to load a complete 16K bank from file
+}
