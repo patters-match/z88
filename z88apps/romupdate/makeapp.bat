@@ -17,10 +17,8 @@
 :: *************************************************************************************
 
 del *.obj *.bin *.map romupdate.epr
-..\..\tools\mpm\mpm -b -DPOPDOWN -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.popdown.prj
+..\..\tools\mpm\mpm -b -oromupdate.bin -DPOPDOWN -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.popdown.prj
 ..\..\tools\mpm\mpm -b romhdr
-
-ren popdown.bin romupdate.bin
 
 :: Create a 16K Rom Card with RomUpdate
 java -jar ..\..\tools\makeapp\makeapp.jar romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
