@@ -1,15 +1,11 @@
 ; -----------------------------------------------------------------------------
 ; Bank 0 @ S3           ROM offset $0000
-;
-; $Id$
 ; -----------------------------------------------------------------------------
 
         Module  Boot
 
         include "blink.def"
         include "sysvar.def"
-
-        org     $c000                           ; 123 bytes
 
 xdef    Halt
 
@@ -19,9 +15,12 @@ xref    Reset1
 xref    Bootstrap2
 xref    HW_NMI2
 
+
 ; reset code at $0000
+; fixed ORG
 
 .Reset0
+        org     $c000                           ;
         ld      sp, ROMstack&$3fff              ; read return PC from ROM - Reset1
         di
         ld      sp, ROMstack&$3fff              ; read return PC from ROM - Reset1
@@ -60,21 +59,16 @@ xref    HW_NMI2
         di
         ld      sp, ROMstack&$3fff              ; read return PC from ROM
         call    Delay300Kclocks                 ; ret to Reset1
-        defb    $FF,$FF,$FF,$FF,$FF
+        defs    $05
 
-;       0038
+
+; hardware IM1 INT at $0038
+; fixed ORG
 
 .HW_INT
-        ld      hl, 0                           ; if stack points to $0100-$03ff we call HW_INT in b60
-        add     hl, sp                          ; !! remove this test
-        inc     h
-        dec     h
-        jr      z, rint_1
-        ld      a, h
-        cp      4
-        jr      c, INT_b60                      ; stack on page 1-3
-
-.rint_1
+        org     $C038
+;        ld      hl, 0                          ; if stack points to $0100-$03ff we call HW_INT in b60
+;        add     hl, sp                         ; !! remove this test
         xor     a
         out     (BL_SR3), a                     ; MS3b00
         ld      a, i
@@ -82,36 +76,30 @@ xref    HW_NMI2
         scf
         jp      nmi_5
 
-.INT_b60
-        ld      a, $60                          ; !! remove these b60 jumpers as well
-        out     (BL_SR3), a                     ; MS3b60
-        jp      HW_INT                          ; into ROM code
-
-.NMI_b60
-        ld      a, $60
-        out     (BL_SR3), a                     ; MS3b60
-        jp      HW_NMI                          ; into ROM code
-
+; for the ret in ROM
         defw Reset1
 .ROMstack
         defw Bootstrap2
         defb $FF,$FF,$FF
-;       0066
+        defs $17                                 ; bytes saved!
+        defs 4
+
+; hardware non maskable interrupt at $0066
+; fixed ORG
 
 .HW_NMI
+        org     $C066
         xor     a                               ; reset command register
         out     (BL_COM), a
         ld      h, a                            ; if stack points to $00xx we go back to reset
-        ld      l, a                            ; if stack points to $0100-$03ff we call HW_NMI in b60
+        ld      l, a                            ;
         add     hl, sp
         inc     h
         dec     h
-        jr      z, Reset0                       ; SP=$00xx - reset
-
-        ld      a, h                            ; !! remove this test
-        cp      4
-        jr      c, NMI_b60                      ; SP=$01xx-$03xx - b60
-
+        jr      z, Reset0                       ; reset if SP=$00xx
         xor     a
         out     (BL_SR3), a                     ; MS3b00
         jp      HW_NMI2                         ; into ROM code
+
+        defs $5                                 ; bytes saved!
+
