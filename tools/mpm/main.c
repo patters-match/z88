@@ -65,7 +65,7 @@ int PAGENO, LINENO;
 
 char *srcfilename, *lstfilename, *objfilename, *errfilename, *libfilename;
 const char asmext[] = ".asm", lstext[] = ".lst", objext[] = ".obj", defext[] = ".def", binext[] = ".bin";
-const char mapext[] = ".map", errext[] = ".err", libext[] = ".lib";
+const char mapext[] = ".map", errext[] = ".err", libext[] = ".lib", segmbinext[] = ".bn0";
 char srcext[5];                 /* contains default source file extension */
 char binfilename[255];          /* -o explicit filename buffer */
 
@@ -334,13 +334,13 @@ main (int argc, char *argv[])
       /* scan filename backwards and truncate extension, if found, but before a pathname separator */
       for (b=strlen(argument)-1; b>=0; b--) {
           if (argument[b] == '\\' || argument[b] == '/') pathsepCount++; /* Ups, we've scanned past the short filename */
-          
+
           if (argument[b] == '.' && pathsepCount == 0) {
                argument[b] = '\0'; /* truncate file extension */
                break;
           }
       }
-      
+
       srcfilename = AddFileExtension((const char *) argument, srcext);
       if (srcfilename == NULL)
         {

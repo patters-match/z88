@@ -55,13 +55,13 @@ static void ReadNames (long nextname, long endnames);
 static void ModuleExpr (void);
 static void WriteMapSymbol (symbol_t * mapnode);
 static int LinkTracedModule (char *filename, long baseptr);
-
+static void WriteBinFile(char *filename, unsigned char *codebase, size_t length);
 
 /* externally defined variables */
 extern FILE *listfile, *mapfile, *srcasmfile, *errfile, *libfile;
 extern char line[], ident[];
 extern char *objfilename, *errfilename, *libfilename;
-extern const char objext[], binext[], mapext[], errext[], libext[], defext[];
+extern const char objext[], binext[], segmbinext[], mapext[], errext[], libext[], defext[];
 extern char binfilename[];
 extern enum symbols sym, GetSym (void);
 extern enum flag uselistingfile, symtable, autorelocate, codesegment;
@@ -537,45 +537,80 @@ ModuleExpr (void)
 }
 
 
-
 void
 CreateBinFile (void)
 {
   char *tmpstr;
-  FILE *binaryfile;
+  char binfilenumber = '0';
+  size_t codeblock, offset;
 
   if (expl_binflnm == ON)
     {
       /* use predefined filename from command line for generated binary */
-      tmpstr = binfilename;
+      tmpstr = AllocIdentifier (strlen(binfilename)+1);
+      strcpy (tmpstr, binfilename);
     }
   else
     {
       /* create output filename, based on project filename */
       tmpstr = AddFileExtension( (const char *) modulehdr->first->cfile->fname, binext);
     }
-
   if (tmpstr == NULL)
     {
       ReportError (NULL, 0, Err_Memory);   /* No more room */
       return;
     }
 
-  binaryfile = fopen (tmpstr, "wb");    /* binary output to xxxxx.bin */
-  if (binaryfile != NULL)
+  if (codesegment == ON)
     {
-      fwrite (codearea, sizeof (char), CODESIZE, binaryfile);   /* write code as one big chunk */
-      fclose (binaryfile);
-
-      if (verbose)
-        puts ("Code generation completed.");
+      if (CODESIZE > 16384)
+        {
+          /* executable binary larger than 16K, use different extension */
+          tmpstr = AddFileExtension( tmpstr, segmbinext);
+          offset = 0;
+          do
+            {
+              codeblock = (CODESIZE / 16384U) ? 16384U : CODESIZE % 16384U;
+              CODESIZE -= codeblock;
+              tmpstr[strlen (tmpstr) - 1] = binfilenumber++;     /* binary 16K block file number */
+              WriteBinFile(tmpstr, codearea+offset, codeblock);
+              offset += codeblock;
+            }
+          while (CODESIZE);
+        }
+      else
+        {
+           /* split binary option enabled, but code size isn't > 16K */
+           WriteBinFile(tmpstr, codearea, CODESIZE);
+        }
     }
   else
-    ReportIOError (tmpstr);
+    {
+      /* Dump executable binary as one continous block to file system */
+      WriteBinFile(tmpstr, codearea, CODESIZE);
+    }
+
+  if (verbose)
+    puts ("Code generation completed.");
 
   free (tmpstr);
 }
 
+
+static void
+WriteBinFile(char *filename, unsigned char *codebase, size_t length)
+{
+  FILE *binaryfile;
+
+  binaryfile = fopen (filename, "wb");    /* binary output to xxxxx.[bin|.bnX] */
+  if (binaryfile != NULL)
+    {
+      fwrite (codebase, sizeof (char), length, binaryfile);   /* write code as one big chunk */
+      fclose (binaryfile);
+    }
+  else
+    ReportIOError (filename);
+}
 
 
 static int

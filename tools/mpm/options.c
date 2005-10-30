@@ -257,6 +257,7 @@ prompt (void)
   puts ("\nFlag Options: -n = option OFF, eg. -nts = no listing file, no symbol table.");
   printf ("-v verbose assembly, -t listing file, -s symbol table, -m bin. address map file\n");
   puts ("-b static linking & relocation into executable binary of specified modules.");
+  puts ("-c split executable binary into 16K files using auto-appended .bnX extension.");
   puts ("-g Global Relocation Address DEF File, from modules as DEFC address defs.");
   puts ("-d date stamp control, assemble only if source file > object file.");
   puts ("-a = -bd (assemble only updated source files, then static link modules).");

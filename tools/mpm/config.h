@@ -32,14 +32,14 @@
 /* Z80 specific assembler definitions and constants                                          */
 #ifdef MPM_Z80
 
-#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.1 b4 (18/11/2004)"
+#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.1 b5 (30/10/2005)"
 
 #define MPMOBJECTHEADER  "MPMRMF-Z80-V01"
 #define SIZEOF_MPMOBJHDR 14
 #define MPMLIBRARYHEADER "MPMLMF-Z80-V01"
 #define SIZEOF_MPMLIBHDR 14
 
-#define DEFAULT_OPTIONS "Default flag options: -sm -nvdbtg"
+#define DEFAULT_OPTIONS "Default flag options: -sm -nvdbctg"
 
 #define ENVNAME_INCLUDEPATH "MPM_Z80_INCLUDEPATH"
 #define ENVNAME_LIBRARYPATH "MPM_Z80_LIBPATH"
