@@ -72,7 +72,7 @@ xref    HW_NMI2
         xor     a
         out     (BL_SR3), a                     ; MS3b00
         ld      a, i
-        jp      z, rint_0                       ; I=0? from reset
+        jr      z, rint_0                       ; I=0? from reset (save 1 byte with jr)
         scf
         jp      nmi_5
 
@@ -80,7 +80,7 @@ xref    HW_NMI2
         defw Reset1
 .ROMstack
         defw Bootstrap2
-        defs $1E                                 ; bytes saved!
+        defs $1F                                 ; bytes saved!
                                                  ; now let's see if Gunther is really reading the commit
                                                  ; I'd like a command to fill space to next ORG
                                                  ;
@@ -102,5 +102,5 @@ xref    HW_NMI2
         out     (BL_SR3), a                     ; MS3b00
         jp      HW_NMI2                         ; into ROM code
 
-        defs $5                                 ; bytes saved!
+        defs $05                                 ; bytes saved!
 
