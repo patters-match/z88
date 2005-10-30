@@ -9,3 +9,6 @@ copy *.png %1\z88transfer\
 copy pixmaps\* %1\z88transfer\
 copy docs\* %1\z88transfer\doc\
 copy pseudotranslation %1\z88transfer\
+echo %1\z88transfer\z88transfer.py windows > %1\z88transfer\z88transfer.bat
+echo
+echo Use Z88TRANSFER.BAT at %1\z88transfer to run it
