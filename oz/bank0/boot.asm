@@ -67,8 +67,6 @@ xref    HW_NMI2
 
 .HW_INT
         org     $C038
-;        ld      hl, 0                          ; if stack points to $0100-$03ff we call HW_INT in b60
-;        add     hl, sp                         ; !! remove this test
         xor     a
         out     (BL_SR3), a                     ; MS3b00
         ld      a, i
@@ -80,9 +78,10 @@ xref    HW_NMI2
         defw Reset1
 .ROMstack
         defw Bootstrap2
-        defb $FF,$FF,$FF
-        defs $17                                 ; bytes saved!
-        defs 4
+        defs $1E                                 ; bytes saved!
+                                                 ; now let's see if Gunther is really reading the commit
+                                                 ; I'd like a command to fill space to next ORG
+                                                 ;
 
 ; hardware non maskable interrupt at $0066
 ; fixed ORG
