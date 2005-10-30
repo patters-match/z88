@@ -9,4 +9,4 @@
 ..\tools\mpm\mpm -b -nv -DFINAL -I.\sysdef bank7\lowram.asm
 
 :: compile kernel with correct lowram code
-..\tools\mpm\mpm -b -nv -I.\sysdef @kernel.prj
+..\tools\mpm\mpm -bc -nv -I.\sysdef @kernel.prj
