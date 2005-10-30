@@ -546,8 +546,8 @@ CreateBinFile (void)
 
   if (expl_binflnm == ON)
     {
-      /* use predefined output filename from command line */
-      tmpstr = AddFileExtension( (const char *) binfilename, binext);
+      /* use predefined filename from command line for generated binary */
+      tmpstr = binfilename;
     }
   else
     {

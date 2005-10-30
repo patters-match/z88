@@ -136,7 +136,9 @@ SetAsmFlag (char *flagid)
   /* explicit output filename */
   if (*flagid == 'o')
     {
-      sscanf (flagid + 1, "%s", binfilename); /* store explicit filename for .bin file */
+      if (strlen(flagid+1) > 255) *(flagid+255) = '\0'; /* truncate if filename argument > 255 */
+
+      sscanf (flagid + 1, "%s", binfilename); /* store explicit filename for compiled binary */
       expl_binflnm = ON;
       return;
     }
