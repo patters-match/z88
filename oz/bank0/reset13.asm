@@ -12,10 +12,8 @@
 
         org     $c07b                           ; 134 bytes
 
-xdef    Bootstrap2
-xdef    ExpandMachine
-xdef    Reset1
 xdef    Reset3
+xdef    ExpandMachine
 
 ;       bank 0
 
@@ -33,28 +31,6 @@ xref    VerifySlotType
 xref    Reset2
 xref    RstRdPanelAttrs
 
-;       ----
-
-;       code in ROM, SP points to ROM too
-
-.Reset1
-        pop     de                              ; return to Bootstrap2
-        ld      de, 1<<8|$3f                    ; check slot 1, max size 63 banks
-        call    VerifySlotType                  ; !! 'jp' here, aliminates pop above
-
-.Bootstrap2
-        bit     1, d                            ; check for bootable ROM in slot 1
-        jr      z, rst1_2                       ; not application ROM? skip
-        ld      a, ($bffd)                      ; subtype
-        cp      'Z'
-        jp      z, $bff8                        ; enter ROM
-
-.rst1_2
-        ld      a, OZBANK_7
-        out     (BL_SR2), a                     ; MS2b07
-        jp      Reset2                          ; init internal RAM, blink and low-ram code and set SP
-
-;       ----
 
 .Reset3
         call    InitRAM
@@ -82,8 +58,6 @@ xref    RstRdPanelAttrs
         call    MS2BankK1                       ; bind in more code
         call    RstRdPanelAttrs
         jp      Reset4                          ; !! just MS2BankK1 again then jp Reset5
-
-;       ----
 
 .ExpandMachine
         call    Chk128KB
@@ -115,4 +89,7 @@ xref    RstRdPanelAttrs
         dec     d
         ld      bc, $80
         jp      MarkSwapRAM                     ; b22/b41, 0000-7fff - 32KB more for bad apps
+
+        defs    $1F                             ; bytes saved!
+
 

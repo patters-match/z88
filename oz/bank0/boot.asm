@@ -13,10 +13,9 @@ xdef    Halt
 
 xref    Delay300Kclocks
 xref    nmi_5
-xref    Reset1
-xref    Bootstrap2
 xref    HW_NMI2
-
+xref    VerifySlotType
+xref    Reset2
 
 ; reset code at $0000
 ; fixed ORG
@@ -61,35 +60,46 @@ xref    HW_NMI2
         di
         ld      sp, ROMstack&$3fff              ; read return PC from ROM
         call    Delay300Kclocks                 ; ret to Reset1
-        defs    $05
+
+; for the ret in ROM
+        defw Reset1
+.ROMstack
+        defw Bootstrap2
+        defb    $ff
 
 
 ; hardware IM1 INT at $0038
 ; fixed ORG
 
 .HW_INT
-        org     $C038
         xor     a
         out     (BL_SR3), a                     ; MS3b00
         ld      a, i
         jr      z, rint_0                       ; I=0? from reset (save 1 byte with jr)
         scf
         jp      nmi_5
+.Reset1
+        ld      de, 1<<8|$3f                    ; check slot 1, max size 63 banks
+        jp      VerifySlotType                  ; ret to Bootstrap2
 
-; for the ret in ROM
-        defw Reset1
-.ROMstack
-        defw Bootstrap2
-        defs $1F                                 ; bytes saved!
-                                                 ; now let's see if Gunther is really reading the commit
-                                                 ; I'd like a command to fill space to next ORG
-                                                 ;
+.Bootstrap2
+        bit     1, d                            ; check for bootable ROM in slot 1
+        jr      z, rst1_2                       ; not application ROM? skip
+        ld      a, ($bffd)                      ; subtype
+        cp      'Z'
+        jp      z, $bff8                        ; enter ROM
+
+.rst1_2
+        ld      a, OZBANK_7
+        out     (BL_SR2), a                     ; MS2b07
+        jp      Reset2                          ; init internal RAM, blink and low-ram code and set SP
+
+        defs    $0066 - $PC                     ; should be $0A
 
 ; hardware non maskable interrupt at $0066
 ; fixed ORG
 
 .HW_NMI
-        org     $C066
         xor     a                               ; reset command register
         out     (BL_COM), a
         ld      h, a                            ; if stack points to $00xx we go back to reset
@@ -102,5 +112,4 @@ xref    HW_NMI2
         out     (BL_SR3), a                     ; MS3b00
         jp      HW_NMI2                         ; into ROM code
 
-        defs $05                                 ; bytes saved!
 
