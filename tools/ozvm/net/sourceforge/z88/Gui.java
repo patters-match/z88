@@ -742,10 +742,11 @@ public class Gui extends JFrame {
 								setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 							}
 							
-							if (autorun == true | fullScreenMode == true)
+							if (autorun == true | fullScreenMode == true) {
 								// debugging is disabled while full screen mode is enabled
 								Blink.getInstance().runZ80Engine(-1, true);
-							else {
+								Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88								
+							} else {
 								OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
 								OZvm.getInstance().getCommandLine().initDebugCmdline();
 							}
@@ -762,7 +763,8 @@ public class Gui extends JFrame {
 					} else {
 						// User aborted Loading of snapshot..
 						if (resumeExecution == true) {							
-							Blink.getInstance().runZ80Engine(-1, true);							
+							Blink.getInstance().runZ80Engine(-1, true);		
+							Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
 						}
 					}
 					
@@ -836,9 +838,11 @@ public class Gui extends JFrame {
 					// redraw the slots panel and all is nice again...
 					getSlotsPanel().repaint();
 					
-					if (autorun == true)
+					if (autorun == true) {
 						// Z80 engine was temporary stopped, now continue to execute...
 						Blink.getInstance().runZ80Engine(-1, true);
+						Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
+					}
 				}
 			});
 		}

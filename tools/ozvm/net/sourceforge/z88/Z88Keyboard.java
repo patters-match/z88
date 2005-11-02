@@ -1116,11 +1116,14 @@ public class Z88Keyboard {
 	private void pressZ88key(KeyPress keyp) {
 		int keyMatrixRow, keyMask;
 
-		keyMatrixRow = (keyp.keyZ88Typed & 0xff00) >>> 8;
-		keyMask = keyp.keyZ88Typed & 0xff;
-		keyRows[keyMatrixRow] &= keyMask;
-		
-		Blink.getInstance().signalKeyPressed();
+		if (Blink.getInstance().getZ80engine() != null) {
+			// Only allow keypresses to be registered by Blink while Z80 engine is running...
+			keyMatrixRow = (keyp.keyZ88Typed & 0xff00) >>> 8;
+			keyMask = keyp.keyZ88Typed & 0xff;
+			keyRows[keyMatrixRow] &= keyMask;
+			
+			Blink.getInstance().signalKeyPressed();
+		}
 	}
 
 	
@@ -1131,8 +1134,11 @@ public class Z88Keyboard {
 	 * @param keyMask
 	 */
 	public void pressZ88key(int keyMatrixRow, int keyMask) {
-		keyRows[keyMatrixRow] &= keyMask;
-		Blink.getInstance().signalKeyPressed();
+		if (Blink.getInstance().getZ80engine() != null) {
+			// Only allow keypresses to be registered by Blink while Z80 engine is running...
+			keyRows[keyMatrixRow] &= keyMask;
+			Blink.getInstance().signalKeyPressed();
+		}
 	}
 
 	
@@ -1143,8 +1149,11 @@ public class Z88Keyboard {
 	 * @param keyMask
 	 */
 	public void releaseZ88key(int keyMatrixRow, int keyMask) {
-		keyRows[keyMatrixRow] |= (~keyMask & 0xff);
-		Blink.getInstance().signalKeyPressed();
+		if (Blink.getInstance().getZ80engine() != null) {
+			// Only allow key releases to be registered by Blink while Z80 engine is running...
+			keyRows[keyMatrixRow] |= (~keyMask & 0xff);
+			Blink.getInstance().signalKeyPressed();
+		}
 	}
 
 	
@@ -1152,7 +1161,10 @@ public class Z88Keyboard {
 	 * Release a Z88 key from the Z88 hardware keyboard matrix.
 	 */
 	private void releaseZ88key(KeyPress keyp) {
-		keyRows[((keyp.keyZ88Typed & 0xff00) >>> 8)] |= (~(keyp.keyZ88Typed & 0xff) & 0xff);
+		if (Blink.getInstance().getZ80engine() != null) {
+			// Only allow key releases to be registered by Blink while Z80 engine is running...
+			keyRows[((keyp.keyZ88Typed & 0xff00) >>> 8)] |= (~(keyp.keyZ88Typed & 0xff) & 0xff);
+		}
 	}
 
 

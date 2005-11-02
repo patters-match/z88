@@ -1663,7 +1663,7 @@ public final class Blink extends Z80 {
 	public boolean runZ80Engine(final int oneStopBreakpoint, final boolean activateInterrupts) {	
 		if (z80Engine != null && z80Engine.isAlive() ==	true) {
 			return false;
-		}		
+		}
 
 		OZvm.displayRtmMessage("Z88 virtual machine was started.");
 		
@@ -1679,7 +1679,6 @@ public final class Blink extends Z80 {
 				// restore (patch) breakpoints into code
 				breakPointManager.installBreakpoints();
 				if (activateInterrupts == true) startInterrupts(); // enable Z80/Z88 core interrupts
-				Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
 				execZ80();
 				// execute Z80 code at full speed until	breakpoint is encountered...
 				// (or F5 emergency break is used!)

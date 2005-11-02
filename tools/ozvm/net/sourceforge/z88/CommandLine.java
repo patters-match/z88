@@ -199,9 +199,10 @@ public class CommandLine implements KeyListener {
 				try {
 					boolean autorun = srVm.loadSnapShot(vmFileName);
 					displayCmdOutput("Snapshot successfully installed from " + vmFileName);
-					if (autorun == true)
+					if (autorun == true) {
 						z88.runZ80Engine(-1, true);
-					else
+						Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
+					} else
 						initDebugCmdline();
 				} catch (IOException e) {
 			    	// loading of snapshot failed - define a default Z88 system
