@@ -1091,7 +1091,7 @@ IncludeFile (void)
       if ((srcasmfile = OpenIncludeFile(ident)) == NULL)
         {                       /* Open include file */
           ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_FileIO);
-          srcasmfile = fopen (CURRENTFILE->fname, "rb");                /* re-open current source file */
+          srcasmfile = fopen (AdjustPlatformFilename(CURRENTFILE->fname), "rb");  /* re-open current source file */
           fseek (srcasmfile, CURRENTFILE->filepointer, SEEK_SET);       /* file position to beginning of line
                                                                          * following INCLUDE line */
           return;
@@ -1120,7 +1120,7 @@ IncludeFile (void)
 
           sourcefile_open = fclose (srcasmfile);
 
-          if ((srcasmfile = fopen (CURRENTFILE->fname, "rb")) == NULL)
+          if ((srcasmfile = fopen (AdjustPlatformFilename(CURRENTFILE->fname), "rb")) == NULL)
             {                   /* re-open current source file */
               ReportIOError(CURRENTFILE->fname);
             }
@@ -1203,7 +1203,7 @@ BINARY (void)
     {
       Fetchfilename (srcasmfile, ident);
 
-      if ((binfile = fopen (ident, "rb")) == NULL)
+      if ((binfile = fopen (AdjustPlatformFilename(ident), "rb")) == NULL)
         {
           ReportIOError (ident);
           return;

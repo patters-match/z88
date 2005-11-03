@@ -124,7 +124,7 @@ TestAsmFile (void)
         if (afile.st_mtime <= ofile.st_mtime)
           return GetModuleSize ();      /* source is older than object module, use object file... */
     }
-  if ((srcasmfile = fopen (srcfilename, "rb")) == NULL)
+  if ((srcasmfile = fopen (AdjustPlatformFilename(srcfilename), "rb")) == NULL)
     {                                           /* Open source file */
       ReportIOError (srcfilename);              /* Object module is not found or */
       return -1;                                /* source is has recently been updated */
@@ -142,7 +142,7 @@ GetModuleSize (void)
   long fptr_modcode, fptr_modname;
   size_t size;
 
-  if ((objfile = fopen (objfilename, "rb")) == NULL)
+  if ((objfile = fopen (AdjustPlatformFilename(objfilename), "rb")) == NULL)
     {
       ReportIOError (objfilename);
       return -1;
@@ -273,7 +273,7 @@ main (int argc, char *argv[])
       else
         {
           if ((*argv)[0] == '@')
-            if ((modsrcfile = fopen ((*argv + 1), "rb")) == NULL)
+            if ((modsrcfile = fopen (AdjustPlatformFilename( (*argv + 1) ), "rb")) == NULL)
               ReportIOError ((*argv + 1));
           break;
         }

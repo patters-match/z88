@@ -105,7 +105,7 @@ CreateLib (void)
       return;
     }
 
-  if ((errfile = fopen (errfilename, "w")) == NULL)
+  if ((errfile = fopen (AdjustPlatformFilename(errfilename), "w")) == NULL)
     {                           /* open error file */
       ReportIOError (errfilename);
       free (errfilename);
@@ -123,7 +123,7 @@ CreateLib (void)
           break;
         }
 
-      if ((objectfile = fopen (fname, "rb")) != NULL)
+      if ((objectfile = fopen (AdjustPlatformFilename(fname), "rb")) != NULL)
         {
           fseek(objectfile, 0L, SEEK_END);   /* file pointer to end of file */
           Codesize = ftell(objectfile);      /* - to get size... */
@@ -216,7 +216,7 @@ CreateLibfile (char *filename)
     }
 
   /* create library file... */
-  if ((libfile = fopen (libfilename, "w+b")) == NULL)
+  if ((libfile = fopen (AdjustPlatformFilename(libfilename), "w+b")) == NULL)
     {
       ReportError (libfilename, 0, Err_LibfileOpen);
       if (libfilename != NULL)

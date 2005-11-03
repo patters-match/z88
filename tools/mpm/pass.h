@@ -30,6 +30,7 @@
 
 /* global functions */
 FILE *OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename);
+char *AdjustPlatformFilename(char *filename);
 char *AddFileExtension(const char *oldfilename, const char *extension);
 int AssembleSourceFile (void);
 int GetChar(FILE *fptr);

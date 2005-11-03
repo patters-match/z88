@@ -252,10 +252,10 @@ AssembleSourceFile (void)
 {
   char objhdrprefix[] = "oooomodnexprnamelibnmodc";       /* template of pointers to sections of OBJ file */
 
-  srcasmfile = fopen (srcfilename, "rb");
+  srcasmfile = fopen (AdjustPlatformFilename(srcfilename), "rb");
   sourcefile_open = 1;
 
-  if ((errfile = fopen (errfilename, "w")) == NULL)
+  if ((errfile = fopen (AdjustPlatformFilename(errfilename), "w")) == NULL)
     {                           /* Create error file */
       ReportIOError (errfilename);
       return 0;
@@ -263,7 +263,7 @@ AssembleSourceFile (void)
 
   if (uselistingfile == ON)
     {
-      if ((listfile = fopen (lstfilename, "w+")) != NULL)
+      if ((listfile = fopen (AdjustPlatformFilename(lstfilename), "w+")) != NULL)
         {                       /* Create LIST or symbol file */
           PAGENO = 0;
           LINENO = 6;
@@ -276,7 +276,7 @@ AssembleSourceFile (void)
           return 0;
         }
     }
-  if ((objfile = fopen (objfilename, "w+b")) != NULL)           /* Create relocatable object file */
+  if ((objfile = fopen (AdjustPlatformFilename(objfilename), "w+b")) != NULL)           /* Create relocatable object file */
     {
       fwrite (MPMOBJECTHEADER, sizeof (char), strlen (MPMOBJECTHEADER), objfile);
       fwrite (objhdrprefix, sizeof (char), strlen (objhdrprefix), objfile);
@@ -1042,7 +1042,7 @@ OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename)
   char tempdirsep[] = {DIRSEP, 0};
   FILE *filehandle;
 
-  filehandle = fopen(filename, "rb");
+  filehandle = fopen (AdjustPlatformFilename(filename), "rb");
   if (filehandle != NULL) return filehandle;
 
   while (pathlist != NULL)
@@ -1051,7 +1051,7 @@ OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename)
       strcat(tempflnm, tempdirsep);
       strcat(tempflnm, filename);
 
-      filehandle = fopen(tempflnm, "rb");
+      filehandle = fopen (AdjustPlatformFilename(tempflnm), "rb");
       if (filehandle != NULL)
         {
           if (expandfilename == ON) strcpy(filename, tempflnm);
@@ -1098,6 +1098,36 @@ AddFileExtension(const char *oldfilename, const char *extension)
     }
 
   return newfilename;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+   char *AdjustPlatformFilename(char *filename)
+
+   Adjust filename to use the platform specific directory specifier, which is defined as
+   DIRSEP in config.h. Adjusting the filename at runtime enables the freedom to not worry
+   about paths in filenames when porting Z80 projects to Windows or Unix platforms.
+
+   Example: if a filename contains a '/' (Unix directory separator) it will be converted
+   to a '\' if mpm currently is compiling on Windows (or Dos).
+
+   Returns:
+   same pointer as argument (beginning of filename)
+   ------------------------------------------------------------------------------------------ */
+char *
+AdjustPlatformFilename(char *filename)
+{
+   char *flnmptr = filename;
+
+   while(*flnmptr != '\0')
+     {
+        if (*flnmptr == '/' || *flnmptr == '\\')
+          *flnmptr = DIRSEP;
+
+        flnmptr++;
+     }
+
+   return filename;
 }
 
 

@@ -312,7 +312,7 @@ LinkModules (void)
       return;
     }
 
-  if ((errfile = fopen (errfilename, "a")) == NULL)
+  if ((errfile = fopen (AdjustPlatformFilename(errfilename), "a")) == NULL)
     {                                   /* open error file */
       ReportIOError (errfilename);      /* couldn't open error file */
       free (errfilename);
@@ -348,7 +348,7 @@ LinkModules (void)
           break;
         }
 
-      if ((srcasmfile = fopen (objfilename, "rb")) != NULL)
+      if ((srcasmfile = fopen (AdjustPlatformFilename(objfilename), "rb")) != NULL)
         {                                                       /* open relocatable file for reading */
           fread (fheader, 1U, SIZEOF_MPMOBJHDR, srcasmfile);    /* read watermark from file into array */
           fheader[SIZEOF_MPMOBJHDR] = '\0';
@@ -602,7 +602,7 @@ WriteBinFile(char *filename, unsigned char *codebase, size_t length)
 {
   FILE *binaryfile;
 
-  binaryfile = fopen (filename, "wb");    /* binary output to xxxxx.[bin|.bnX] */
+  binaryfile = fopen (AdjustPlatformFilename(filename), "wb");    /* binary output to xxxxx.[bin|.bnX] */
   if (binaryfile != NULL)
     {
       fwrite (codebase, sizeof (char), length, binaryfile);   /* write code as one big chunk */
@@ -842,7 +842,7 @@ CreateDeffile (void)
     }
   else
     {
-      if ((deffile = fopen (globaldefname, "w")) != NULL)
+      if ((deffile = fopen (AdjustPlatformFilename(globaldefname), "w")) != NULL)
         {
             InOrder (globalroot, (void (*)()) WriteGlobal);
             fclose(deffile);
@@ -876,7 +876,7 @@ WriteMapFile (void)
       return;
     }
 
-  if ((mapfile = fopen (mapfilename, "w")) != NULL)
+  if ((mapfile = fopen (AdjustPlatformFilename(mapfilename), "w")) != NULL)
     {                           /* Create MAP file */
       if (verbose)
         puts ("Creating map...");
