@@ -33,6 +33,28 @@ import java.io.RandomAccessFile;
  * a single application card of 16K or larger.
  */
 public class MakeApp {
+	private static final char[] hexcodes =
+	{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+	
+	/**
+	 * Return Hex 16bit address string in XXXXh zero prefixed format.
+	 *
+	 * @param addr The 16bit address to be converted to hex string
+	 * @param hexTrailer append 'h' if true.
+	 * @return String
+	 */
+	public static final String addrToHex(final int addr, final boolean hexTrailer) {
+		int msb = addr >>> 8, lsb = addr & 0xFF;
+		StringBuffer hexString = new StringBuffer(5);
+
+		hexString.append(hexcodes[msb/16]).append(hexcodes[msb%16]);
+		hexString.append(hexcodes[lsb/16]).append(hexcodes[lsb%16]);
+		if (hexTrailer == true) hexString.append('h');
+
+		return hexString.toString();
+	}
+	
 	
 	public static void main(String[] args) {
 		int appCardBanks = 1;
@@ -46,13 +68,12 @@ public class MakeApp {
 				int arg = 0;
 				
 				if (args[0].compareToIgnoreCase("-sz") == 0 | args[0].compareToIgnoreCase("-szc") == 0) {
-					if (args[0].endsWith("c") == true) splitBanks = true;
+					if (args[0].indexOf("c") > 0) splitBanks = true;
 					
 					appCardSize = Integer.parseInt(args[1], 10);
 					appCardBanks = appCardSize / 16;
-					if (appCardSize % 16 != 0 & appCardBanks != 1 & appCardBanks != 2 & appCardBanks != 4 & 
-						appCardBanks != 8 & appCardBanks != 16 & appCardBanks != 32 & appCardBanks != 64) {
-						System.out.println("Card sizes allowed: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
+					if ((appCardSize != ( 2 << (Math.round(Math.log(appCardSize)/Math.log(2))-1))) | appCardSize>1024 ) {
+						System.err.println("Illegal card size. Use only: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
 						System.exit(0);							
 					}
 						
@@ -64,13 +85,34 @@ public class MakeApp {
 				String outputFilename = args[arg++];
 				
 				while (arg < args.length) {
-					RandomAccessFile binaryFile =  new RandomAccessFile(args[arg++], "r");
+					String filename = args[arg++];
+					RandomAccessFile binaryFile =  new RandomAccessFile(filename, "r");
+					int codeSize = (int) binaryFile.length();
+					byte codeBuffer[] = new byte[codeSize];
+					binaryFile.readFully(codeBuffer);
+					binaryFile.close();
+
 					int offset = Integer.parseInt(args[arg++], 16);
 					int bankNo = ((offset & 0x3f0000) >>> 16) & (appCardBanks-1);
 					offset &= 0x3fff;
 					
-					byte codeBuffer[] = new byte[(int) binaryFile.length()];
-					binaryFile.readFully(codeBuffer);
+					if (codeSize > Bank.BANKSIZE) {
+						System.err.println(filename + ": code size > 16K!");
+						return;
+					}
+					
+					if ((codeSize + offset) > Bank.BANKSIZE ) {
+						System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + " > crosses 16K bank boundary!");
+						return;						
+					}
+					
+					for (int b=0; b<codeSize; b++) {
+						if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
+							System.err.println(filename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
+							return;													
+						}
+					}					
+					
 					banks[bankNo].loadBytes(codeBuffer, offset);
 				}
 
@@ -88,8 +130,9 @@ public class MakeApp {
 						cardFile = new RandomAccessFile(outputFilename + "." + topBank--, "rw");
 						byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE); 
 						cardFile.write(bankDump);
+						cardFile.close();
 					}					
-				}
+				}				
 			} else {
 				System.out.println("Syntax: [-sz Size] memdump.file input1.file offset {inputX.file offset}");
 				System.out.println("or");
@@ -109,10 +152,10 @@ public class MakeApp {
 				System.out.println("-szc 32 bigappl.epr mth.bin 3e0000 code.bin 3fc000 romhdr.bin 3f3fc0");
 			}
 		} catch (FileNotFoundException e) {
-			System.out.println("Couldn't load file image:\n" + e.getMessage() + "\nprogram terminated.");
+			System.err.println("Couldn't load file image:\n" + e.getMessage() + "\nprogram terminated.");
 			return;
 		} catch (IOException e) {
-			System.out.println("Problem with bank image or I/O:\n" + e.getMessage() + "\nprogram terminated.");
+			System.err.println("Problem with bank image or I/O:\n" + e.getMessage() + "\nprogram terminated.");
 			return;
 		}		
 	}
