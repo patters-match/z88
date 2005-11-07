@@ -87,6 +87,7 @@ extern long listfileptr, TOTALLINES;
 extern modules_t *modulehdr;
 extern module_t *CURRENTMODULE;
 extern avltree_t *globalroot;
+extern const char wrnext[];
 
 /* globally defined variables */
 labels_t *addresses = NULL;
@@ -250,6 +251,7 @@ Fetchfilename (FILE *fptr, char *filename)
 int
 AssembleSourceFile (void)
 {
+  char *wrnfilename;
   char objhdrprefix[] = "oooomodnexprnamelibnmodc";       /* template of pointers to sections of OBJ file */
 
   srcasmfile = fopen (AdjustPlatformFilename(srcfilename), "rb");
@@ -337,6 +339,16 @@ AssembleSourceFile (void)
       errfile = NULL;
       if (ERRORS == 0 && WARNINGS == 0 && errfilename != NULL)
         remove (errfilename);   /* remove empty error file */
+
+      if (ERRORS == 0 && WARNINGS > 0 && errfilename != NULL) 
+        {
+          wrnfilename = AddFileExtension(errfilename, wrnext);
+          if (wrnfilename != NULL)
+            {
+              rename (errfilename, wrnfilename);   /* rename error file as a warning file */
+              free(wrnfilename);
+            }
+        }
     }
 
   return 1;
