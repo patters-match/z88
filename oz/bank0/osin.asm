@@ -28,11 +28,11 @@ xdef    sub_EFBB
 
 ;       bank 0
 
-xref    ApplyQualifiers
+xref    ExtQualifiers                            ; changed for new keyboard routine
 xref    AtoN_upper
 xref    BfGbt
 xref    DoAlarms
-xref    DoLocalized
+xref    ExtIsForeignKey                          ; changed for new keyboard routine
 xref    DrawOZwd
 xref    FindCmd
 xref    MayDrawOZwd
@@ -195,7 +195,7 @@ xref    Key2Chr_tbl
         push    de
         push    hl
         ld      b, -1
-        call    ApplyQualifiers
+        call    ExtQualifiers                   ; Apply qualifiers
         pop     hl
         pop     de
         call    CancelOZcmd
@@ -344,12 +344,12 @@ xref    Key2Chr_tbl
 ;       ----
 .Char2OZwdChar
         ld      b, a
-        call    DoLocalized
+        call    ExtIsForeignKey                 ; is foreign key ?
         ld      a, b
-        jr      c, c2oz_1                       ; not capsable
+        jr      c, c2oz_1                       ; is not foreign key
         push    hl
         ld      hl, Key2Chr_tbl
-        call    Chr2ScreenCode
+        call    Chr2ScreenCode                  ; change foreign key to ISO char
         ld      a, (hl)                         ; character code
         pop     hl
         ld      b, a

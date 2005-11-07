@@ -6,8 +6,6 @@
 
         Module CardMgr
 
-        org     $c9d6                           ; 79 bytes
-
         include "blink.def"
         include "sysvar.def"
 

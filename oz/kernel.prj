@@ -21,7 +21,8 @@ bank7\initdata.asm
 bank7\lowram0.asm
 bank7\scrdrv1.asm
 bank7\ossr.asm
-bank7\padb2af.asm
+bank7\key2chrt.asm
+bank7\keymap.asm
 bank7\appdors0.asm
 bank0\boot.asm
 bank0\reset13.asm

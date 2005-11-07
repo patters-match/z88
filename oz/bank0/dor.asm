@@ -6,8 +6,6 @@
 
         Module DOR
 
-        org     $ca25                           ; 840 bytes
-
         include "dor.def"
         include "error.def"
         include "sysvar.def"
@@ -740,9 +738,4 @@ xref    InitHandle
         ret     nz
         jr      $PC                             ; crash if bank is zero
 
-;       !! unused
 
-        ld      a, RC_Hand
-        scf
-        ret
-        

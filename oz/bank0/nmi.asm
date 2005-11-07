@@ -6,8 +6,6 @@
 
         Module NMI
 
-        org     $cdc3                           ; 666 bytes
-
         include "blink.def"
         include "error.def"
         include "bank7\lowram.def"

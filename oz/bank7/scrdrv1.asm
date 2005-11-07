@@ -17,7 +17,7 @@
 
 xdef    OSOutMain
 xdef    Chr2ScreenCode                          ; Char2OZwdChar
-xdef    Key2Chr_tbl                             ; Char2OZwdChar
+;xdef    Key2Chr_tbl                             ; Char2OZwdChar
 xdef    sub_AD82                                ; unused
 xdef    OSIsq                                   ; Printer driver
 xdef    OSWsq
@@ -67,6 +67,10 @@ xref    SetScrAttr
 xref    FindSDCmd
 xref    TogglePrFilter
 xref    ToggleScrDrvFlags
+
+xref    Key2Chr_tbl                             ; now extern
+xref    Chr2VDU_tbl
+xref    VDU2Chr_tbl
 
 ;       ----
 
@@ -211,9 +215,10 @@ xref    ToggleScrDrvFlags
 
 ;       ----
 
-.VDU2ChrCode    ld      hl, VDU2Chr_tbl
+.VDU2ChrCode
+        ld      hl, VDU2Chr_tbl
 
-.Chr2ScreenCode
+.Chr2ScreenCode                                 ; with hl=Key2Chr_tbl from Os_In
         push    de
         ld      d, a                            ; remember byte
 
@@ -222,7 +227,7 @@ xref    ToggleScrDrvFlags
         or      a
         scf
         jr      z, c2sc_2                       ; not found, Fc=1
-        inc     hl                              ; next entry
+        inc     hl                                      ; next entry
         inc     hl
         inc     hl
         inc     hl
@@ -237,11 +242,13 @@ xref    ToggleScrDrvFlags
         dec     hl
         ret
 
-.Key2Chr_tbl
+; to be deleted
+
+.__Key2Chr_tbl
         defb    $A3                             ; £ internal code
-.Chr2VDU_tbl
+.__Chr2VDU_tbl
         defb    $A3                             ; £ char code
-.VDU2Chr_tbl
+.__VDU2Chr_tbl
         defb    $1F,0                           ;   VDU low byte, high byte
         defb    0,0,0,0
 
@@ -348,7 +355,7 @@ xref    ToggleScrDrvFlags
 ;       !! this is changed by localization
 
 .IsBoldableASCII
-        cp      $1F
+        cp      $1B                             ; was $1F, and $1B in OZ FR!!!!
         ret     c
         cp      $7F
         ccf
@@ -990,7 +997,7 @@ xref    ToggleScrDrvFlags
 
 .ApplyScrAttr
         ld      b, a
-        ld      a, (ix+wdf_f6)			; wdf_f6 always zero?
+        ld      a, (ix+wdf_f6)                  ; wdf_f6 always zero?
         or      ~(WDFL_ULINE|WDFL_GREY|WDFL_FLASH|WDFL_REVERSE)
 
 .sda_1

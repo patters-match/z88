@@ -6,8 +6,6 @@
 
         Module Process3
 
-        org     $c6e4                           ; 754 bytes
-
         include "blink.def"
         include "director.def"
         include "error.def"
@@ -543,3 +541,4 @@ xref    OSSr_Fus
         ld      a, 1
         ld      (ubHlpActiveCmd), a
         ret
+

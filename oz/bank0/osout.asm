@@ -9,8 +9,6 @@
         include "director.def"
         include "sysvar.def"
 
-        org     $c449                           ; 22 bytes
-
 xdef    OSOut
 
 ;       bank 0
@@ -41,3 +39,5 @@ xref    OSOutMain
 
 .osout_2
         jp      osfpop_1
+
+

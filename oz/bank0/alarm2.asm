@@ -6,8 +6,6 @@
 
         Module Alarm2
 
-        org     $cd6d                           ; 56 bytes
-
         include "alarm.def"
         include "sysvar.def"
 

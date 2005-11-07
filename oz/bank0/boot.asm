@@ -94,7 +94,7 @@ xref    Reset2
         out     (BL_SR2), a                     ; MS2b07
         jp      Reset2                          ; init internal RAM, blink and low-ram code and set SP
 
-        defs    $0066 - $PC                     ; should be $0A
+        defs    ($0066-$PC)  ($ff)              ; should be $0A
 
 ; hardware non maskable interrupt at $0066
 ; fixed ORG

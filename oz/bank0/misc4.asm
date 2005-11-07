@@ -6,8 +6,6 @@
 
         Module Misc4
 
-        org     $d555                           ; 124 bytes
-
         include "blink.def"
         include "sysvar.def"
         include "bank7\lowram.def"
@@ -131,3 +129,5 @@ xref    MS12BankCB
         ex      af, af'
         or      a
         jp      OZCallReturn1
+
+defs    $18    ($FF)          

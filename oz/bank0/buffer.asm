@@ -6,8 +6,6 @@
 
         Module Buffer
 
-        org     $c45f                           ; 618 bytes
-
         include "director.def"
         include "error.def"
         include "sysvar.def"
@@ -574,3 +572,5 @@ xref    PutOSFrame_BC
         ld      c, <(SerRXBuffer+$80)
         ld      de, SerRXBuffer                 ; 0b80-0bff
         jp      BufInit0
+
+               

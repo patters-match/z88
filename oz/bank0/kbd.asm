@@ -1,807 +1,959 @@
-; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $1b0d
+; Bank 0 @ S3           ROM offset $1b0d-$1f21
+
+
+        Module Keyboard
+
+; Generic new routine from Jorma Oksanen adapted and modified by Thierry Peycru
 ;
-; $Id$
-; -----------------------------------------------------------------------------
+; Originally OZ2.5 keyboard routines fitted into OZ4 ROM, later mostly
+; rewritten from ApplyQualifiers() to the end.
+; Deadkeys is here, 9d6e-9dc2 free (85 bytes)
+;
+; Changes
+;
+;02     KbdMaskTable[] truncating
+;03     Tables at $b300
+;04     back to "jr caps_0" in CapsTable handling
+;05     undid 04, clear Fc in CapsTable - works!
+;06     deadkeys - works
+;07     DrawOZWindow() patch - nothing here
+;08     added call to DrawOZWindow(), changed OZwd-char to hires font
+;09     killed "or a" at RdKeymatrix() - Fc was 0 already
+;       added reset patch for RAM pointers (00d1)
+;10     uses RAM pointers
+;11     enter/tab/del/menu/index/help handling internal to save keymap table space
+;12     fixed scf->ccf in SpecInternal(), fixed keymap table order (ouch!)
+;13     fixed TranslateTable()
+;14     [] table modified to remove unnecessary code, cursor keys in SpecInternal(), <> [] logic
+;16     RAM binding! crsr_up still doesn't work
+;17     Workaround for crsr_up, needs real fix
+;18     ExtCall() added, shortened code by some bytes.  crsr_up bug was because of empty table, fixed
+;       RAM binding in KbMain() removed, done in ExtKbMain()
+;19     T.Peycru
+;       Complete rewrite of the ApplyQualifiers (shift/caps/CAPS sections)
+;       Remove of the CapsTable causing incompatibilities with complex keyboard (the frenchy off course)
+;       Removed ExtCapsable/DoCzpsable/DoLocalized routines
+;       Revert to OZ4 routine now called 'IsForeignKey' externally called by 'ExtIsForeignKey'
+;20     Fix Shift/CAPS/caps behaviour
+;       NB: IsForeignKey depends on the font mapping
+;21     Clean source and revert 
+;
+; Keymap structure
+;
+;km_matrix / km_shift always has addresses XX00 / XX40, these are taken care of in GetKbdPtr
+;
 
-        Module Kbd
+include "blink.def"
+include "stdio.def"
+include "sysvar.def"
 
-        org     $db0d                           ; 1045 bytes
+xdef    ExtKbMain                       ; was KbMain
+xdef    ExtQualifiers                   ; was ApplyQualifiers
+xdef    ExtIsForeignKey                 ; is key a special foreign char
+xdef    InitKbdPtrs
 
-        include "blink.def"
-        include "stdio.def"
-        include "sysvar.def"
-
-;       !! do not modify this code
-;       !! it's all rewritten already
-
-xdef    ApplyQualifiers
-xdef    DoLocalized
-xdef    KbdMain
-
-;       bank 0
-
-xref    BufWriteC
-xref    DrawOZwd
+xref    BufWrite
+xref    SwitchOff
 xref    MaySetEsc
 xref    MS2BankA
-xref    MS2BankK1
-xref    SwitchOff
 xref    UpdateRnd
+xref    DrawOZWd
 
-;       bank 7
 
-xref    KbdDeadKeys
-xref    Key2Code
+;       Stubs to bind keyboard data in/out S1
 
-;       ----
+.ExtKbMain                                      ; called from Int.asm $d96e (196e)
+        call    ExtCall
+        defw    KbMain
 
-.KbdMain
-        ld      a, (BLSC_SR2)
+.ExtQualifiers                                  ; called from OsCli.asm $99E9 and OSIn.asm $EF86 (1d9e9 & 2f86)
+        call    ExtCall
+        defw    ApplyQualifiers
+
+.ExtIsForeignKey                                ; called from OSIn.asm $f073 (3073)
+        call    ExtCall
+        defw    IsForeignKey
+
+.ExtCall
+        ex      (sp), hl                        ; push hl, get PC
+        push    bc
+        ld      c, a
+
+        ld      a, ($4d2)                       ; remember S2
         push    af
-        call    MS2BankK1
+        ld      a, (km_bank)                    ; bind in keymap data
+        call    MS2BankA
 
+        ld      a, (hl)                         ; get function in HL
+        inc     hl
+        ld      h, (hl)
+        ld      l, a
+
+        ld      a, c
+        call    jpHL                            ; and call it with AB intact
+
+        push    af
+        pop     bc
+
+        pop     af                              ; restore S2
+        call    MS2BankA
+
+        push    bc                              ; return with AF intact
+        pop     af
+        pop     bc
+        pop     hl
+        ret
+
+.jpHL   jp      (HL)
+
+
+; Main keyboard routine
+.KbMain
         exx
         push    bc
         push    de
         push    hl
         push    iy
+
+        push    hl                              ; working space for keyboard matrix
+        push    hl                              ; 8 rows + or'ed key mask
         push    hl
         push    hl
         push    hl
-        push    hl
-        push    hl
-        ld      iy, 0
+
+        ld      iy, 0                           ; iy points to kbd matrix in stack
         add     iy, sp
-        ld      ix, KbdData                     ; keyboard data
-        call    RdKbdMatrix
+        ld      ix, KbdData                     ; ix points to OZ kbd data
 
-        jp      c, loc_DC12
+        call    RdKeymatrix
+        jp      c, loc_0_DBE4                   ; no kbd collisions
 
-        bit     0, (ix+kbd_keyflags)            ; key active
-        jp      z, loc_DBB5
+        bit     KB_ACTIVE, (ix+kbd_keyflags)
+        jp      z, kb_prv
 
         ld      a, (ix+kbd_rawkey)
         call    KbdTestKey
+        jr      z, kb_rls                       ; has been released
 
-        jr      z, loc_DB9C                     ; has been released
+        bit     KB_HOLD, (ix+kbd_keyflags)
+        res     KB_RELEASE, (ix+kbd_keyflags)
+        jr      nz, kb_1
 
-        bit     1, (ix+kbd_keyflags)            ; hold
-        res     2, (ix+kbd_keyflags)            ; release
-        jr      nz, loc_DB53
-
-        set     1, (ix+kbd_keyflags)            ; hold
+        set     KB_HOLD, (ix+kbd_keyflags)      ; init hold
         call    UpdateRnd
+        ld      a, 60                           ; initial repeat delay
+        jr      kb_3                            ; init rpt counter
+; ---------------------------------------------------------------------------
 
-        ld      a, 60
-        jr      loc_DB89
-
-
-.loc_DB53                                       
-        ld      a, (ix+kbd_rawkey)
+.kb_1   ld      a, (ix+kbd_rawkey)
         call    FindOtherKey
-
-        jr      c, loc_DB75
-
-        bit     0, (ix+kbd_prevflags)           ; active
-        jr      nz, loc_DB75
+        jr      c, kb_2
+        bit     KB_ACTIVE, (ix+kbd_prevflags)
+        jr      nz, kb_2
 
         ld      b, (ix+kbd_rawkey)
-        ld      (ix+kbd_prevkey), b
-        ld      (ix+kbd_prevflags), 1
+        ld      (ix+kbd_prevkey),b
+        ld      (ix+kbd_prevflags),K_ACTIVE
+
         ld      (ix+kbd_rawkey), a
-        ld      (ix+kbd_keyflags), 1
-        jp      loc_DC11
+        ld      (ix+kbd_keyflags), K_ACTIVE
+        jp      loc_0_DBE3
+; ---------------------------------------------------------------------------
 
-
-.loc_DB75                                       
-        ld      a, (ubRepeat)                   ; repeat
+.kb_2   ld      a, (ubRepeat)
         or      a
-        jr      z, loc_DBE4
+        jr      z, loc_0_DBB6
 
-        bit     7, (ix+kbd_repeatcnt)
-        jr      nz, loc_DBE4
-
+        bit     7, (ix+kbd_repeatcnt)           ; repeat disabled?
+        jr      nz, loc_0_DBB6
         dec     (ix+kbd_repeatcnt)
-        jr      nz, loc_DBE4
+        jr      nz, loc_0_DBB6
+        ld      a, (ubRepeat)
 
-        ld      a, (ubRepeat)                   ; repeat
+.kb_3   ld      (ix+kbd_repeatcnt), a           ; restart counter
 
-.loc_DB89                                       
-        ld      (ix+kbd_repeatcnt), a
-        ld      a, (cKeyclick)                  ; keyclick
-        cp      'Y'
-        jr      nz, loc_DB97
+        ld      a, (cKeyclick)
+        cp      'Y'                             ; !! 'N'=4E, 'Y'=59 -> "rrca; jr nc, ..." would work
+        jr      nz, kb_4
+        set     KBF_B_BEEP, (ix+kbd_flags)      ; click pending
 
-        set     KBF_B_BEEP, (ix+kbd_flags)
+.kb_4   call    sub_0_DC30
+        jr      loc_0_DBB6
+; ---------------------------------------------------------------------------
 
-.loc_DB97                                       
-        call    loc_DC61
+.kb_rls bit     KB_RELEASE, (ix+kbd_keyflags)
+        jr      nz, kb_rl1
 
-        jr      loc_DBE4
+        ld      (ix+kbd_rlscnt), 3              ; initialize release
+        ld      (ix+kbd_keyflags), K_ACTIVE|K_RELEASE
+        jr      kb_prv
 
+;       finish key release
 
-.loc_DB9C                                       
-        bit     2, (ix+kbd_keyflags)
-        jr      nz, loc_DBAC
+.kb_rl1 dec     (ix+kbd_rlscnt)
+        jr      nz, kb_prv
+        ld      (ix+kbd_keyflags), 0            ; not active
 
-        ld      (ix+kbd_rlscnt), 3
-        ld      (ix+kbd_keyflags), 5
-        jr      loc_DBB5
+;       bring back previous key
 
+.kb_prv ld      a, (ix+kbd_prevkey)
+        bit     KB_ACTIVE, (ix+kbd_prevflags)
+        jr      nz, kb_pr1
+        ld      a, -1                           ; no key
 
-.loc_DBAC                                       
-        dec     (ix+kbd_rlscnt)
-        jr      nz, loc_DBB5
+.kb_pr1 call    FindOtherKey                    ; see if any other key pressed
+        jr      c, loc_0_DBB6
+        bit     KB_ACTIVE, (ix+kbd_prevflags)
+        jr      nz, loc_0_DBAF
 
-        ld      (ix+kbd_keyflags), 0
-
-.loc_DBB5                                       
-        ld      a, (ix+kbd_prevkey)
-        bit     0, (ix+kbd_prevflags)           ; active
-        jr      nz, loc_DBC0
-
-        ld      a, $0FF
-
-.loc_DBC0                                       
-        call    FindOtherKey
-
-        jr      c, loc_DBE4
-
-        bit     0, (ix+kbd_prevflags)
-        jr      nz, loc_DBDD
-
-        ld      b, (ix+kbd_rawkey)
+        ld      b, (ix+kbd_rawkey)              ; previous = current
         ld      (ix+kbd_prevkey), b
         ld      b, (ix+kbd_keyflags)
         ld      (ix+kbd_prevflags), b
         ld      b, (ix+kbd_rlscnt)
         ld      (ix+kbd_prevrlscnt), b
 
-.loc_DBDD                                       
+.loc_0_DBAF
         ld      (ix+kbd_rawkey), a
-        ld      (ix+kbd_keyflags), 1
+        ld      (ix+kbd_keyflags), K_ACTIVE
 
-.loc_DBE4                                       
-                                                
-        bit     0, (ix+kbd_prevflags)
-        jr      z, loc_DC11
-
+.loc_0_DBB6
+        bit     KB_ACTIVE, (ix+kbd_prevflags)
+        jr      z, loc_0_DBE3
         ld      a, (ix+kbd_prevkey)
         call    KbdTestKey
+        jr      nz, loc_0_DBDF
+        bit     KB_RELEASE, (ix+kbd_prevflags)
+        jr      nz, loc_0_DBD4
 
-        jr      nz, loc_DC0D
+        ld      (ix+kbd_prevrlscnt), 3          ; initialize release
+        ld      (ix+kbd_prevflags), K_ACTIVE|K_RELEASE
+        jr      loc_0_DBE3
 
-        bit     2, (ix+kbd_prevflags)
-        jr      nz, loc_DC02
-
-        ld      (ix+kbd_prevrlscnt), 3
-        ld      (ix+kbd_prevflags), 5
-        jr      loc_DC0B
-
-
-.loc_DC02                                       
+.loc_0_DBD4
         dec     (ix+kbd_prevrlscnt)
-        jr      nz, loc_DC0B
+        jr      nz, loc_0_DBE3
+        ld      (ix+kbd_prevflags), 0           ; not active
+        jr      loc_0_DBE3
+; ---------------------------------------------------------------------------
 
-        ld      (ix+kbd_prevflags), 0
-
-.loc_DC0B                                       
-        jr      loc_DC11
-
-
-.loc_DC0D                                       
-        res     2, (ix+kbd_prevflags)
-
-.loc_DC11                                       
+.loc_0_DBDF
+        res     KB_RELEASE, (ix+kbd_prevflags)
+.loc_0_DBE3
         or      a
-
-.loc_DC12                                       
-        ld      a, (iy+kbd_lastkey)
-        or      (ix+kbd_keyflags)
-        or      (ix+kbd_prevflags)
-        jr      nz, loc_DC52
+.loc_0_DBE4
+        ld      a, (iy+8)                       ; key mask
+        or      (ix+kbd_keyflags)               ; current active
+        or      (ix+kbd_prevflags)              ; prev active
+        jr      nz, loc_0_DC24
 
         ld      a, (ix+kbd_flags)
-        bit     KBF_B_KEY, a
-        jr      nz, loc_DC4A
-
-        and     $50
-        jr      z, loc_DC4A
-
-        xor     $50
-        jr      z, loc_DC4A
+        bit     KBF_B_KEY, a                    ; any key (not <> [])
+        jr      nz, loc_0_DC1C
+        and     KBF_DMND|KBF_SQR                ; <> & []
+        jr      z, loc_0_DC1C                   ; neither down
+        xor     KBF_DMND|KBF_SQR
+        jr      z, loc_0_DC1C                   ; both down
 
         bit     KBF_B_DMND, a
-        jr      nz, loc_DC36
+        jr      nz, loc_0_DC08
 
-        ld      a, IN_DIA
-        ld      b, $34
-        jr      loc_DC3E
-
-
-.loc_DC36                                       
+        ld      a, $C8
+        ld      b, $34                          ; <>
+        jr      loc_0_DC10
+.loc_0_DC08
         bit     KBF_B_SQR, a
-        jr      nz, loc_DC4A
+        jr      nz, loc_0_DC10
+        ld      a, $B8
+        ld      b, $3E                          ; []
 
-        ld      a, IN_SQU
-        ld      b, $3E
-
-.loc_DC3E                                       
+.loc_0_DC10
         ld      (ix+kbd_prevkey), b
-        ld      (ix+kbd_prevflags), 1
-        call    loc_DC73
+        ld      (ix+kbd_prevflags), K_ACTIVE
+        call    PutKey
+        jr      loc_0_DC24
+; ---------------------------------------------------------------------------
 
-        jr      loc_DC52
-
-
-.loc_DC4A                                       
-                                                
+.loc_0_DC1C
         ld      a, (ix+kbd_flags)
-        and     $8F
+        and     255-(KBF_DMND|KBF_KEY|KBF_SQR)  ; remove <> []
         ld      (ix+kbd_flags), a
 
-.loc_DC52                                       
+.loc_0_DC24
+        pop     hl                              ; purge stack
         pop     hl
         pop     hl
         pop     hl
         pop     hl
-        pop     hl
+
         pop     iy
         pop     hl
         pop     de
         pop     bc
         exx
-        pop     af
-        jp      MS2BankA
+        ret
+
+; --------------- S U B R O U T I N E ---------------------------------------
 
 
-.loc_DC61                                       
+.sub_0_DC30
         call    GetQual
-
-        ld      d, a
-        ld      c, (ix+kbd_rawkey)
+        ld      d, a                            ; qualifiers in d
+        ld      a, KMT_MATRIX
+        call    GetKbdPtr
         ld      b, 0
-        ld      hl, Key2Code
+        ld      c, (ix+kbd_rawkey)              ; current key
         add     hl, bc
-        ld      a, (hl)
-        call    loc_DC86
+        ld      a, (hl)                         ; internal keycode
+        call    ProcessKey
+        ret     c                               ; key canceled
 
-        ret     c
+.PutKey cp      ESC
+        call    z, MaySetEsc                    ; set ESC flag if enabled
 
-.loc_DC73                                       
-        cp      IN_ESC
-        call    z, MaySetEsc
+;       cp      $f0                             ; cursor key
+        call    DeadKeys
+        ret     c                               ; exit if key swallowed
 
-        call    KbdDeadKeys
-
-        ret     c
-        di
-        set     KBF_B_KEY, (ix+kbd_flags)
-        call    BufWriteC
-
+        di                                      ; put key into buffer
+        set     KBF_B_KEY,(ix+kbd_flags)
+        call    BufWrite
         ei
         ret
 
+; --------------- S U B R O U T I N E ---------------------------------------
 
-.loc_DC86                                       
-        cp      IN_LOCK
-        jr      nz, loc_DCA9
+.ProcessKey
 
-        set     7, (ix+kbd_repeatcnt)
+        cp      $E8                             ; caps lock !! $A8 in OZ2.2/2.5 - $A8 used
+        jr      nz, spec3                       ; in Norwegian OZ so needed changing
+
+;       if <> or [] down force CAPS/caps, otherwise toggle
+
+        set     7, (ix+kbd_repeatcnt)           ; disable repeat
         ld      a, (ix+kbd_flags)
-        bit     1, d                            ; <>
-        jr      z, loc_DC97
+        bit     QB_DIAMOND, d
+        jr      z, spec1
+        and     255-(KBF_CAPSE|KBF_CAPS)        ; force CAPS
 
-        and     $0FC                            ; force normal CAPS
+.spec1  bit     QB_SQUARE, d
+        jr      z, spec2
+        or      KBF_CAPS                        ; force caps
+        and     255-KBF_CAPSE
 
-.loc_DC97                                       
-        bit     2, d                            ; []
-        jr      z, loc_DC9F
-
-        or      KBF_CAPS                        ; force inverse caps
-        and     $0FE
-
-.loc_DC9F                                       
-        xor     KBF_CAPSE                       ; toggle CAPS enable
+.spec2  xor     KBF_CAPSE                       ; toggle enable
         ld      (ix+kbd_flags), a
-        call    DrawOZwd
+        call    DrawOZWd
+        jr      SetShift
 
-        jr      loc_DCCE
-
-
-.loc_DCA9                                       
-        cp      IN_ESC
+.spec3  cp      ESC
         jr      nz, ApplyQualifiers
 
-        set     7, (ix+kbd_repeatcnt)
-        ld      hl, ubIntStatus
+        set     7, (ix+kbd_repeatcnt)           ; disable repeat
+        ld      hl, ubIntStatus                 ; interrupt status
         ld      a, (ubCLIActiveCnt)
         ld      e, a
         ld      a, d
-        and     3
-        jr      z, loc_DCD7
-
+        and     3                               ; shift, <>
+        jr      z, loc_0_DCA3
         inc     e
         dec     e
-        jr      z, loc_DCCE
+        jr      z, SetShift                     ; CLI byte counter=0
 
-        srl     a
-        jr      nc, loc_DCC7
+;       by pure coincidence (?) low 2 bits match exactly
+ IF 1                                           ; !!
+        or      (hl)
+        ld      (hl), a
 
-        set     IST_B_CLISHIFT, (hl)
-
-.loc_DCC7                                       
-        jr      z, loc_DCCB
-
-        set     IST_B_CLIDMND, (hl)
-
-.loc_DCCB                                       
+ ELSE                                           ; original OZ code
+        srl     a                               ;0000 000d s
+        jr      nc, loc_0_DC93
+        set     0, (hl)                         ; shift
+.loc_0_DC93
+        jr      z, loc_0_DC97
+        set     1, (hl)                         ; <>
+.loc_0_DC97
+ ENDIF
         dec     hl
-        set     ITSK_B_OZWINDOW, (hl)
+        set     7, (hl)                         ; update OZ window
 
-.loc_DCCE                                       
+.SetShift
         push    hl
         ld      hl, KbdData+kbd_flags
-        set     KBF_B_KEY, (hl)
+        set     KBF_B_KEY, (hl)                 ; any (not <>/[]) key down
         pop     hl
         scf
         ret
 
+; ---------------------------------------------------------------------------
+;       In:     A = keymap table ID
+;       Out:    HL = keymap table
+;
+;       AF....HL/....
 
-.loc_DCD7                                       
-        ld      a, IN_ESC
+.GetKbdPtr
+        cp      KMT_DIAMOND                 ; =2
+        jr      c, gkp_1
 
-.ApplyQualifiers
-        call    ToUpper
+        ld      hl, KeymapTblPtrs
+        add     a, l
+        ld      l, a
+        ld      l, (hl)
+        jr      gkp_x
 
-        bit     1, d
-        jr      z, loc_DD00
+;       KMT_MATRIX (0) -> 00, KMT_SHIFT (1) -> 40
 
-        rla
-        and     $3F
-        rra
-        ret     nc
-        ld      a, c
-        cp      IN_LFT
-        jr      c, loc_DCEE
+.gkp_1  rrca
+        rrca
+        ld      l, a
 
-        sub     8
-        ld      c, a
+.gkp_x  ld      a, (km_page)
+        ld      h, a
         ret
 
+; ---------------------------------------------------------------------------
+;       Generic pair-matching routine, ascending order tables
+;       Faster than CPIR as we skip odd bytes and can exit prematurely
+;       without finding match
+;
+;       in:     A=keycode, L=table
+;       out:    Fc=0, A=newcode         translated
+;               Fc=1, A=in(A)           not translated
+;
+;       ...CDE.. IXIY
+;       AFB...HL ....
 
-.loc_DCEE                                       
-        ld      a, c
-        ld      hl, DmndTable
-        ld      bc, 34
-
-.loc_DCF5                                       
-        cpir
-        scf
-        ret     nz
-        bit     0, c
-        jr      z, loc_DCF5
-
-        ld      a, (hl)
-        or      a
-        ret
-
-
-.loc_DD00                                       
-        bit     0, d
-        jr      z, loc_DD39
-
-        jr      c, loc_DD19
+.TranslateTable                                 ; translate using table L
 
         push    af
-        xor     $20
-        ex      af, af'
+        ld      a, l
+        call    GetKbdPtr
         pop     af
 
-.loc_DD0B                                       
+.TranslateKey
+        ld      b, (hl)                         ; table length
+        inc     b                               ; take care of empty table
+        jr      tr_s
+.tr_l   inc     hl
+        cp      (hl)
+        ret     c                               ; entries sorted, shortcut false
+        inc     hl
+        jr      z, tr_ok
+.tr_s   djnz    tr_l
+        scf
+        ret
+.tr_ok  ld      a, (hl)                         ; get translated char, exit with Fc=0
+        ret
+
+; ---------------------------------------------------------------------------
+
+.loc_0_DCA3
+        ld      a, ESC
+
+;       Handle qualifier translations
+;
+;       Fc=0, A=outchar if no error
+;       Fc=1, ignore key
+
+
+.ApplyQualifiers
+        call    SpecInternal                    ; enter/tab/del/menu/index/help or cursor key
+        ret     nc                              ; done
+
+;       A=upper(A), Fc=0 : IsAlpha()
+
+        ld      c, a                            ; remember key
+        and     $df                             ; uppercase
+        cp      'Z'+1
+        jr      nc, not_alpha
+        cp      'A'
+        jr      nc, is_alpha
+
+.not_alpha
+        ld      a, c                            ; restore key
+        scf                                     ; not alpha
+.is_alpha
+        bit     QB_DIAMOND, d
+        jr      z, shift
+
+; do <> translation
+
+        ld      l, KMT_DIAMOND
+        jr      c, TranslateTable               ; non-alpha, use table
+        and     $1f                             ; otherwise A-Z = $01-$1A
+        ret
+
+.Shift  bit     QB_SHIFT, d
+        jr      z, square
+
+; do shift translation
+
+        jr      c, Shift_non_alpha
+
+; shift alpha
+
+        push    af
+        xor     $20                             ; swap case
+        ex      af, af'                         ; in a
+        pop     af
+
+.DoShiftCAPS
         inc     b
-        ret     z                               ; external call, dont do caps logic
-        bit     KBF_B_CAPS, (ix+kbd_flags)
-        ret     z
-        bit     KBF_B_CAPSE, (ix+kbd_flags)
-        ret     z
+        ret     z                               ; external call if b=-1
+
+        bit     KBF_B_CAPSE, (ix+kbd_flags)     ; is caps or CAPS ?
+        ret     z                               ;
+        bit     KBF_B_CAPS, (ix+kbd_flags)      ; is CAPS enabled ?
+        ret     NZ                              ; do nothing if caps
         ex      af, af'
         ret
 
+; shift non alpha
 
-.loc_DD19                                       
-        cp      IN_LFT
-        jr      c, loc_DD21
+.Shift_non_alpha
+        call    IsCapsable
+        ret     nc                              ; do nothing (it is capsable and caps is enabled with shift pressed)
 
-        sub     4
-        ld      c, a
-        ret
-
-
-.loc_DD21                                       
-        ld      hl, ShiftTable
-        ld      bc, 58
-        cpir
-        scf
-        jr      nz, loc_DD33
-
-        bit     0, c
-        jr      z, loc_DD33
-
-        ccf
-        ld      a, (hl)
-        ret
-
-
-.loc_DD33                                       
-        call    DoLocalized
-
-        jr      nc, loc_DD0B
-
-        ret
-
-
-.loc_DD39                                       
-        bit     2, d
-        jr      z, loc_DD61
-
-        rla
-        and     $3F
-        scf
-        rra
-        ret     nc
-        ld      a, c
-        cp      IN_LFT
-        jr      c, loc_DD4C
-
-        sub     $0C
-        ld      c, a
-        ret
-
-
-.loc_DD4C                                       
-        ld      hl, SqrTable
-        ld      bc, 32
-
-.loc_DD52                                       
-        cpir
-        scf
-        ret     nz
-        bit     0, c
-        jr      z, loc_DD52
-
-        ld      a, (hl)
-        cp      $20
-        ret     nc
-        or      $80
-        ret
-
-
-.loc_DD61                                       
-        inc     b
-        jr      z, loc_DD6E                     ; external call, don't do localized
-
-        call    DoLocalized
-
-        bit     KBF_B_CAPSE, (ix+kbd_flags)
-        scf
-        ccf
-        ret     nz
-
-.loc_DD6E                                       
-        ld      a, c
-        or      a
-        ret
-
-
-.ToUpper                                        
-        ld      c, a
-        and     $0DF
-        cp      '['                             ; Z+1
-        jr      nc, loc_DD7B
-
-        cp      'A'
+.DoCapsNonAlpha
+        ld      l, KMT_SHIFT
+        call    TranslateTable                  ; non-alpha, use table
         ret     nc
 
-.loc_DD7B                                       
-        ld      a, c
-        scf
-        ret
+.IsForeignKey
+; test if A is a foreign key
+;   Fc=1 if $00-$A0, $A4-$B8, $C0-$C8, $D0-$D8, $E0-$E8 (not a foreign key)
+;   Fc=0 if $A1-$A3, $B9-$BF, $C9-$CF, $D9-$DF, $E9-$FF (is a foreign key)
+;
+; Fix for OZ FI : now A1-AF is foreign, B0-B8 is system
+;
 
-
-.DoLocalized                                    
         push    af
         ex      af, af'
         pop     af
         cp      $0A1
         ret     c
-        cp      $0A4
+        cp      $B0                             ; cp $0A4 in previous version
         ccf
-        jr      nc, loc_DDAF
+        jr      nc, ifk_nc
 
         cp      $0B9
         ret     c
         cp      $0C0
         ccf
-        jr      nc, loc_DDAF
+        jr      nc, ifk_nc
 
         cp      $0C9
         ret     c
         cp      $0D0
         ccf
-        jr      nc, loc_DDAF
+        jr      nc, ifk_nc
 
         cp      $0D9
         ret     c
         cp      $0E0
-        jr      c, loc_DDA7
+        jr      c, ifk_nc
 
         cp      $0E9
         ret     c
         cp      $0F0
         ccf
         ret     c
-
-.loc_DDA7                                       
-        xor     $30
-        cp      $0E9
-        ret     nc
-        ex      af, af'
-        or      a
-        ret
-
-
-.loc_DDAF                                       
+.ifk_nc
         cp      a
         ret
 
+.square bit     QB_SQUARE, d
+        jr      z, NoQual                       ; No qualifier
 
-.KbdRdRowA                                      
-        push    iy
-        and     7
-        ld      c, a
-        ld      b, 0
-        add     iy, bc
-        ld      a, (iy+0)
-        pop     iy
+;       do [] translation
+
+        ld      l, KMT_SQUARE
+        jp      c, TranslateTable               ; non-alpha, use table
+        or      $80                             ; otherwise A-Z = $81-$9A
+        and     $9f
+        ret
+
+; in case of called from the keyboard
+; apply caps/CAPS even if there is no qualifiers
+
+.NoQual inc     b
+        jr      z, qend                         ; B was -1, external call
+
+        call    IsCapsable
+        jr      nc,DoCapsNonAlpha
+        bit     KBF_B_CAPS, (ix+kbd_flags)      ; is caps or CAPS ?
+        jr      nz, qend                        ; do nothing it is caps
+
+        call    IsForeignKey
+        or      a                               ; fc=0
+        bit     KBF_B_CAPSE, (ix+kbd_flags)     ; is CAPS enabled ?
+        ret     nz
+.qend
+        ld a,c                                  ; restore original key
         or      a
         ret
 
+.IsCapsable
+        bit     KBF_B_CAPSE, (ix+kbd_flags)
+        scf
+        ret     z
+        push    bc
+        push    af
+        ld      a,KMT_Shift                     ; is capsable
+        call    GetKbdPtr                       ; hl is now start of the shift table
+        pop     af
+        ld      b,0
+        ld      c,(hl)                          ; get length
+        inc     hl                              ; start of the table
+        cpir                                    ; search if entry is in the table
+        pop     bc
+        ret     nz
+        ccf
+        ret
 
-.KbdTestKey                                     
+;       Dead-key handling
+;
+;       in:     A=keycode
+;       out:    Fc=0, A=newcode         wasn't dead key or was translated
+;               Fc=1                    swallowed, ignore key
+;
+;       AF.CD.HL/....
+
+
+.DeadKeys
+;        ret
+        ld      c, a                            ; save key
+
+        ld      a, KMT_DEADKEY
+        call    GetKbdPtr
+
+        ld      a, (km_deadsub)                 ; deadkey active?
+        or      a
+        jr      z, d_not
+
+;       we were prefixed, try to find the key
+;       we check cancelation later, so we can handle things like ^^ here
+
+        push    hl                              ; remember dead key table
+        ld      l, a                            ; go to subtable
+        ld      a, c                            ; translate this key
+        call    TranslateKey
+        pop     hl
+        jr      nc, dead_tr                     ; return translated key
+
+;       check for cancelation with same key or del
+
+        cp      (ix+kbd_lastkey)
+        jr      z, d_cancel
+        cp      $e3
+        jr      z, d_cancel
+
+;       we were not prefixed or key wasn't found, check if this is dead key
+
+.d_not  ld      a, c
+        ld      (ix+kbd_lastkey), a
+        call    TranslateKey                    ; find key in deadkey table
+        jr      c, dead_not
+
+;       was deadkey, remember and swallow - but only if not in [] or <> sequence
+
+        ld      l, a
+
+        ld      a, ($258)                       ; if [] or <> then cancel it
+        and     $30
+        ld      a, $b8                          ; by sending keycode for []
+        jr      nz, dead_tr
+
+        ld      a, (hl)                         ; get char
+        ld      (km_deadchar), a                ; for OZ window
+        inc     hl
+        ld      a, l
+        jr      d_x                             ; store subtable ptr
+
+;       was translated
+
+.dead_tr
+        ld      c, a
+
+;       was not special, clear dead-key and return key
+
+.dead_not
+        call    d_cancel
+        ld      a, c
+        or      a
+        ret
+
+.d_cancel
+        xor     a                               ; cancel deadkey
+.d_x    ld      (km_deadsub), a
+
+        push    bc
+        call    DrawOZWd
+        pop     bc
+
+        scf
+        ret
+
+; ---------------------------------------------------------------------------
+;       Test key status
+;
+;       In:     A = rawkey
+;       Out:    Fz= 0 if key not pressed
+;               Fz= 1 if key pressed
+;
+;       AFBC..../....
+
+.KbdTestKey
         push    af
         rrca
         rrca
         rrca
-        call    KbdRdRowA
-
+        call    RdKeyRowA                       ; get row (A/8)
         ld      c, a
         pop     af
-        call    GetBitA                         ; 1<<(A&7)
 
-        and     c
-        ret
-
-
-.GetBitA                                        
         and     7
         ld      b, a
         inc     b
         ld      a, $80
+.tk1    rlca                                    ; rotate bit into correct position
+        djnz    tk1
 
-.loc_DDD5                                       
-        rlca
-        djnz    loc_DDD5
-
+        and     c                               ; test key
         ret
 
+; ---------------------------------------------------------------------------
+;
+;       Return keys on given row
+;
+;       In:     A=row number
+;       Out:    Fc=0, A=keyrow
+;
+;       AFBC..../....
 
-.GetQual                                        
-        ld      d, 0
+.RdKeyRowA
+        push    iy
+        and     7
+        ld      c, a
+        ld      b, 0
+        add     iy,bc
+        ld      a, (iy+0)
+        pop     iy
+        ret
+
+; ---------------------------------------------------------------------------
+;       Return qualifier status
+;
+;       Out: A=Qbits (0-shift, 1-diamond, 2-square)
+;
+;       AF..D.../....
+
+.GetQual
         ld      a, (iy+6)
-        bit     6, a
-        jr      z, loc_DDE4
-
-        set     0, d
-
-.loc_DDE4                                       
-        bit     4, a
-        jr      z, loc_DDEA
-
-        set     1, d
-
-.loc_DDEA                                       
+        and     $50                             ; .  sl .  <>  . . . .
+        rlca                                    ; sl .  <> .   . . . .
+        ld      d, a
         ld      a, (iy+7)
-        rlc     a
-        jp      p, loc_DDF4
+        and     $c0                             ; sr [] .  .   . . . .
+        or      d                               ; sh [] <> .   . . . .
 
-        set     2, d
+;       we want them in . . . . . [] <> sh
 
-.loc_DDF4                                       
-        jr      nc, loc_DDF8
-
-        set     0, d
-
-.loc_DDF8                                       
-        ld      a, d
+        rla                                     ; Fc=sh
+        adc     a, $1f                          ; sets bit 5 if carry was set
+        rlca
+        rlca
+        rlca                                    ; we don't care about extra bits, so skip "and 7"
         ret
 
+; ---------------------------------------------------------------------------
+;       Check key matrix for some other key, also update qualifier flags
+;
+;       In:     A=rawkey
+;       Out:    Fc=0, A=rawkey if other key found
+;               Fc=1 otherwise
 
-.FindOtherKey                                   
+.FindOtherKey
         push    ix
         ld      d, a
         ld      a, (iy+8)
         or      a
-        jr      z, loc_DE53
+        jr      z, fok8                         ; no keys, return with carry
 
-        ld      ix, byte_DE57+7
-        ld      l, $38
-        ld      e, 8
+        ld      ix, KbdMaskTable+3
+        ld      l, $38                          ; loops 38 to 0 step -8
+
         ld      bc, $800
+        ld      e, b
 
-.loc_DE0E                                       
-        push    bc
+.fok1   push    bc
         ld      a, b
-        dec     a
-        call    KbdRdRowA
+        cp      6
+        jr      c, fok12
+        dec     ix
 
+.fok12  dec     a
+        call    RdKeyRowA
         pop     bc
-        cp      (ix+8)
-        jr      z, loc_DE1B
-
-        inc     c
-
-.loc_DE1B                                       
         ld      h, a
-        and     (ix+8)
-        call    nz, loc_DCCE
+
+        cp      (ix+3)                          ; 0,sh-l,sh-r
+        jr      z, fok2
+        inc     c                               ; we have something else than just shift
+
+.fok2   and     (ix+3)                          ; is shift down
+        call    nz, SetShift                    ; set shift flag
 
         ld      a, h
-        and     (ix+$10)
-        jr      z, loc_DE31
+        and     (ix+6)                          ; is [] or <> down?
+        jr      z, fok3
 
-        ld      a, (KbdData+kbd_flags)
-        or      (ix+$10)
+        ld      a, (KbdData+kbd_flags)         ; set flag
+        or      (ix+6)
         ld      (KbdData+kbd_flags), a
 
-.loc_DE31                                       
-        ld      a, h
+.fok3   ld      a, h                            ; any non-qualifier key down?
         and     (ix+0)
-        jr      z, loc_DE48
+        jr      z, fok7                         ; no
 
-        ld      h, a
-        ld      a, l
+        ld      h, a                            ; key mask in shift register
+        ld      a, l                            ; raw keycode
+.fok4   srl     h
+        jr      c, fok6                         ; key found
+        jr      z, fok7                         ; no more keys
+.fok5   inc     a                               ; bump key
+        jr      fok4
+.fok6   cp      d
+        jr      z,fok5                          ; this was the current key
 
-.loc_DE39                                       
-        srl     h
-        jr      c, loc_DE42
+        or      a                               ; Fc=0
+        jr      fok9
 
-        jr      z, loc_DE48
-
-
-.loc_DE3F                                       
-        inc     a
-        jr      loc_DE39
-
-
-.loc_DE42                                       
-        cp      d
-        jr      z, loc_DE3F
-
-        or      a
-        jr      loc_DE54
-
-
-.loc_DE48                                       
-        sbc     hl, de
-        dec     ix
-        djnz    loc_DE0E
+.fok7   sbc     hl, de                          ; l=l-8
+        djnz    fok1
 
         inc     c
         dec     c
-        call    z, SwitchOff
+        call    z,  SwitchOff
 
+.fok8   scf
 
-.loc_DE53                                       
-        scf
-
-.loc_DE54                                       
-        pop     ix
+.fok9   pop     ix
         ret
 
-.byte_DE57
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$AF,$3F 
-        defb    $00,$00,$00,$00,$00,$00,$40,$80
-        defb    $00,$00,$00,$00,$00,$00,$10,$40
+.KbdMaskTable
+        defb    $FF,$AF,$3F
+        defb    $00,$40,$80
+        defb    $00,KBF_DMND,KBF_SQR
 
-.RdKbdMatrix                                    
+
+; ---------------------------------------------------------------------------
+.RdKeymatrix
         push    iy
         pop     hl
-        ld      b, $0FE
-        ld      c, $0B2
+
+        ld      bc, $FEB2                       ; column | port
         ld      d, 0
-
-.loc_DE78                                       
-        in      a, (c)
-        cpl
-        ld      (hl), a
+.rkm1   in      a, (c)
+        cpl                                     ; active high
+        ld      (hl), a                         ; store row
+        inc     hl
         or      d
-        ld      d, a
-        inc     hl
+        ld      d, a                            ; update column mask
         rlc     b
-        jr      c, loc_DE78
+        jr      c, rkm1                         ; loop 8 rows
+        ld      (hl), d                         ; store colum mask
 
-        ld      (hl), d
-        ld      a, d
         neg
         and     d
         xor     d
-        ret     z
+        ret     z                               ; only one column active - Fz=1 Fc=0
+
+;       outer loop: find row with multiple keys down
+
         push    iy
         pop     hl
-        ld      b, 8
+        ld      b, 7                            ; do 7 rows
 
-.loc_DE8F                                       
-        ld      e, l
-        ld      d, (hl)
-        ld      a, d
+.rkm2   ld      a, (hl)
+        inc     hl
+        ld      d, a
         neg
         and     d
         xor     d
-        jr      z, loc_DEB1
+        jr      z, rkm5                         ; no multiple keys
 
-        push    de
-        exx
-        pop     de
-        push    iy
-        pop     hl
-        ld      b, 8
+        ld      c, b                            ; remember count
+        push    hl
 
-.loc_DEA0                                       
-        ld      a, e
-        cp      l
-        jr      z, loc_DEAD
+;       inner loop: find another row with common multiple keys down
+;       changed to check only remaining B rows, that halves processing time
 
-        ld      a, (hl)
+.rkm3   ld      a, (hl)
+        inc     hl
         and     d
-        ld      c, a
+        ld      e, a                            ; common keys in two rows
         neg
-        and     c
-        xor     c
+        and     e
+        xor     e
+        jr      nz, rkm6                        ; multiple keys in both rows
+.rkm4   djnz    rkm3                            ; repeat inner loop
+
+        pop     hl
+        ld      b, c
+
+.rkm5   djnz    rkm2                            ; repeat outer loop
+
+        ret                                     ; Fc=0
+
+.rkm6   pop     hl                              ; Fc=1 multiple keys in multiple rows
         ccf
-        ret     nz
-
-.loc_DEAD                                       
-        inc     hl
-        djnz    loc_DEA0
-
-        exx
-
-.loc_DEB1                                       
-        inc     hl
-        djnz    loc_DE8F
-
-        or      a
         ret
 
-; End of function KbdMain
+; ---------------------------------------------------------------------------
+;       Handle enter/tab/del/menu/index/help and cursor keys internally
+;
+;       AF.C..../....
 
-.ShiftTable
-        defb    $31,$21,$32,$40,$33,$23,$34,$24 
-        defb    $35,$25,$36,$5E,$37,$26,$38,$2A
-        defb    $39,$28,$30,$29,$3B,$3A,$27,$22
-        defb    $2C,$3C,$2E,$3E,$2F,$3F,$2D,$5F
-        defb    $5B,$7B,$5C,$7C,$5D,$7D,$A3,$7E
-        defb    $3D,$2B,$E2,$D2,$1B,$D4,$E1,$D1
-        defb    $E3,$D3,$E5,$D5,$E6,$D6,$E7,$D7
-        defb    $20,$D0
-.DmndTable
-        defb $E2,$C2,$1B,$C4,$E1,$C1,$E3,$C3 
-        defb $E5,$C5,$E6,$C6,$E7,$C7,$20,$A0
-        defb $27,$60
-.SqrTable
-        defb $5F,$1F,$2D,$1F,$3D,0,$2B,0 
-        defb $5B,$1B,$5C,$1C,$5D,$1D,$A3,$1E
-        defb $E2,$B2,$1B,$B4,$E1,$B1,$E3,$B3
-        defb $E5,$B5,$E6,$B6,$E7,$B7,$20,$B0
+.SpecInternal
+
+        ld      c, 4
+        cp      $fc
+        jr      nc, si_1                        ; cursor key
+        ld      c, $10
+        cp      $e1                             ; this code relies on fact that
+        ret     c                               ; $e4 (internal ESC) is unused
+        cp      $e8
+        ccf
+        ret     c
+.si_1   bit     QB_DIAMOND, d
+        jr      nz, si_dm
+        bit     QB_SHIFT, d
+        jr      nz, si_sh
+        bit     QB_SQUARE, d
+        ret     z                               ;    e1-e7 fc-ff
+.si_sq  sub     c                               ; [] b1-b7 f0-f3
+.si_dm  sub     c                               ; <> c1-c7 f4-f7
+.si_sh  sub     c                               ; sh d1-d7 f8-fb
+        ret
+
+; ---------------------------------------------------------------------------
+; init ram vars of keyboard code
+;
+.InitKbdPtrs
+        ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
+                                                ; $page00 is matrix, $page40 is shift table
+
+        ld      de, KeymapTblPtrs+KMT_DIAMOND   ; +2=capstable
+        ld      l, $40                          ; ShiftTable start=length of shift table
+        ld      b, KMT_DEADKEY-1                ; 4-1=3 loops, (diamondtable, squaretable and deadtable)
+.ikp_1  ld      a, (hl)                         ; table size
+        sll     a                               ; *2+1
+        add     a, l                            ; skip table
+        ld      l, a
+        ld      (de), a                         ; and store pointer
+        inc     de
+        djnz    ikp_1
+        ret        
+    
+

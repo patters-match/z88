@@ -6,8 +6,6 @@
 
         Module FileSys2
 
-        org     $d143                           ; 888 bytes
-
         include "buffer.def"
         include "dor.def"
         include "error.def"

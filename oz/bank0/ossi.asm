@@ -6,8 +6,6 @@
 
         Module OSSi
 
-        org     $d526                           ; 47 bytes
-
         include "blink.def"
         include "sysvar.def"
         include "bank7\lowram.def"

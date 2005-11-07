@@ -6,9 +6,7 @@
 
         Module Esc
 
-        org     $d0cc                           ; 119 bytes
-
-        include "error.def"
+         include "error.def"
         include "stdio.def"
         include "sysvar.def"
         include "bank7\lowram.def"

@@ -1,7 +1,7 @@
 ;REM we leave *.def for other modules
 
 
-del /S kernel.bin kernel.map kernel.obj
+del /S kernel.bin kernel.map kernel.obj kernel.bn?
 
 cd bank0
 del *.obj *.bin *.map *.err

@@ -11,8 +11,6 @@
         include "memory.def"
         include "sysvar.def"
 
-        org     $c206                           ; 579 bytes
-
 ;       mostly bad application memory routines
 
 xdef    AllocBadRAM1
@@ -256,7 +254,7 @@ defc    FREE_THIS       =7
         ret     z
         ret     c
         call    BadSetup
- IF	OZ40001=0
+ IF OZ40001=0
         ld      c, a
         add     a, e
         sub     l
@@ -332,7 +330,7 @@ defc    FREE_THIS       =7
         dec     c
         jr      nz, abr2_5                      ; not zero? skip
 
- IF	OZ40001=0
+ IF OZ40001=0
         push    af
         ld      a, (ubAppContRAM)
         sub     b
@@ -540,4 +538,5 @@ defc    FREE_THIS       =7
         ret
 
 ;       ----
+
 

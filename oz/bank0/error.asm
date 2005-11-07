@@ -6,8 +6,6 @@
 
         Module Error
 
-        org     $d05d                           ; 111 bytes
-
         include "error.def"
         include "sysvar.def"
         include "bank7\lowram.def"

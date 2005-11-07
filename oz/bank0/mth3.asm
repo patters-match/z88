@@ -6,8 +6,6 @@
 
         Module MTH3
 
-        org     $f0df                           ; 205 bytes
-
         include "memory.def"
         include "sysvar.def"
 
@@ -189,10 +187,6 @@ xref    GetRealCmdPosition
         pop     af
         ld      d, b
         ret
-
-;       ----
-
-        xor     a                               ; !! unused
 
 ;       ----
 

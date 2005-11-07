@@ -6,17 +6,17 @@
 
         Module AppStatic
 
-	include	"director.def"
+        include "director.def"
 
         org $33ff   ; 3073 bytes
 
-xdef	PrinterEdTopics
-xdef	PrinterEdCommands
-xdef	PrinterEdHelp
+xdef    PrinterEdTopics
+xdef    PrinterEdCommands
+xdef    PrinterEdHelp
 
-xdef	PanelTopics
-xdef	PanelCommands
-xdef	PanelHelp
+xdef    PanelTopics
+xdef    PanelCommands
+xdef    PanelHelp
 
 
 ;       !! Use application DOR null-pointer for these.
@@ -29,9 +29,9 @@ xdef	PanelHelp
 .DiaryHelp
         defb    0
 .PrinterEdHelp
-	defb	0
+        defb    0
 .PanelHelp
-	defb	0
+        defb    0
 .FilerHelp
         defb    0
 .TerminalHelp
@@ -218,12 +218,12 @@ xdef	PanelHelp
         defb    1
         defb     7,$7F,$E3,0,$E0,0,7                            ; Rubout
         defb     8,7,$47,0,$96,$E9,0,8                          ; Delete Character
-        defb     6,7,$D3,0,4,6                                  ; 
+        defb     6,7,$D3,0,4,6                                  ;
         defb     8,$15,$55,0,$CB,$E9,0,8                        ; Insert Character
         defb     8,$14,$54,0,$96,$D3,0,8                        ; Delete Word
         defb    10,4,$44,0,$96,$BB,$DF,$A9,0,10                 ; Delete to End of Line
         defb    8,$3A,$59,0,$96,$A9,0,8                         ; Delete Line
-        defb    6,$3A,$C3,0,4,6                                 ; 
+        defb    6,$3A,$C3,0,4,6                                 ;
         defb    8,$3C,$4E,0,$CB,$A9,0,8                         ; Insert Line
         defb    7,$16,$56,0,$EA,1,7                             ; Insert/Overtype
         defb    7,$13,$53,0,$FF,0,7                             ; Swap Case
@@ -275,7 +275,7 @@ xdef	PanelHelp
         defb    8,$26,$4A,0,$97,$EC,0,8
         defb    7,$0D,$E1,0,$D2,0,7
         defb    7,$1B,$1B,0,$B1,0,7
-        defb    7,$FD,$FD,0,$A7,1,7     ; Cursor LRUD
+        defb    7,$FD,$FD,0,$A7,1,7                                     ; Cursor LRUD
         defb    7,$FC,$FC,0,$A8,0,7
         defb    7,$24,$FF,0,$DA,0,7
         defb    7,$25,$FE,0,$DB,0,7
@@ -338,7 +338,7 @@ xdef	PanelHelp
 
 .AlarmDOR
         defp    0,0                     ; parent
-        defp    FilerDor|$c000,7              ; brother
+        defp    FilerDor|$c000,7        ; brother
 .AlarmTCH
         defp    0,0                     ; son
         defb    $83,AlarmDORe-$PC       ; DOR type, sizeof
@@ -352,9 +352,9 @@ xdef	PanelHelp
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    AlarmTCH,7        ; topics
-        defp    AlarmTCH,7        ; commands
-        defp    AlarmTCH,7        ; help
+        defp    AlarmTCH,7              ; topics
+        defp    AlarmTCH,7              ; commands
+        defp    AlarmTCH,7              ; help
         defp    $8000,7                 ; token base
 
         defb    'N',AlarmDORe-$PC-1     ; name, length
@@ -377,9 +377,9 @@ xdef	PanelHelp
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    FilerTopics,7     ; topics
-        defp    FilerCommands,7   ; commands
-        defp    FilerHelp,7       ; help
+        defp    FilerTopics,7           ; topics
+        defp    FilerCommands,7         ; commands
+        defp    FilerHelp,7             ; help
         defp    $8000,7                 ; token base
 
         defb    'N',FilerDORe-$PC-1     ; name, length
@@ -402,9 +402,9 @@ xdef	PanelHelp
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    IndexTopics,7     ; topics
-        defp    IndexCommands,7   ; commands
-        defp    IndexHelp,7       ; help
+        defp    IndexTopics,7           ; topics
+        defp    IndexCommands,7         ; commands
+        defp    IndexHelp,7             ; help
         defp    $8000,7                 ; token base
 
         defb    'N',IndexDORe-$PC-1     ; name, length
@@ -414,7 +414,7 @@ xdef	PanelHelp
 
 .DiaryDOR
         defp    0,0                     ; parent
-        defp    PipeDreamDOR|$c000,7          ; brother
+        defp    PipeDreamDOR|$c000,7    ; brother
         defp    0,0                     ; son
         defb    $83,DiaryDORe-$PC       ; DOR type, sizeof
 
@@ -427,9 +427,9 @@ xdef	PanelHelp
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    DiaryTopics,7     ; topics
-        defp    DiaryCommands,7   ; commands
-        defp    DiaryHelp,7       ; help
+        defp    DiaryTopics,7           ; topics
+        defp    DiaryCommands,7         ; commands
+        defp    DiaryHelp,7             ; help
         defp    $8000,7                 ; token base
 
         defb    'N',DiaryDORe-$PC-1     ; name, length
@@ -439,7 +439,7 @@ xdef	PanelHelp
 
 .PipeDreamDOR
         defp    0,0                     ; parent
-        defp    BasicDOR|$c000,7              ; brother
+        defp    BasicDOR|$c000,7        ; brother
         defp    0,0                     ; son
         defb    $83,PipeDreamDORe-$PC   ; DOR type, sizeof
 
@@ -452,9 +452,9 @@ xdef	PanelHelp
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    PipeDreamTopics,7 ; topics
-        defp    PipeDreamCommands,7       ; commands
-        defp    PipeDreamHelp,7   ; help
+        defp    PipeDreamTopics,7       ; topics
+        defp    PipeDreamCommands,7     ; commands
+        defp    PipeDreamHelp,7         ; help
         defp    $8000,7                 ; token base
 
         defb    'N',PipeDreamDORe-$PC-1 ; name, length
@@ -464,7 +464,7 @@ xdef	PanelHelp
 
 .BasicDOR
         defp    0,0                     ; parent
-        defp    CalculatorDOR|$c000,7         ; brother
+        defp    CalculatorDOR|$c000,7   ; brother
 .BasicTCH
         defp    0,0                     ; son
         defb    $83,BasicDORe-$PC       ; DOR type, sizeof
@@ -478,9 +478,9 @@ xdef	PanelHelp
         defb    AT2_Cl                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    BasicTCH,7        ; topics
-        defp    BasicTCH,7        ; commands
-        defp    BasicTCH,7        ; help
+        defp    BasicTCH,7              ; topics
+        defp    BasicTCH,7              ; commands
+        defp    BasicTCH,7              ; help
         defp    0,0                     ; token base
 
         defb    'N',BasicDORe-$PC-1     ; name, length
@@ -504,12 +504,12 @@ xdef	PanelHelp
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    CalculatorTCH,7   ; topics
-        defp    CalculatorTCH,7   ; commands
-        defp    CalculatorTCH,7   ; help
+        defp    CalculatorTCH,7         ; topics
+        defp    CalculatorTCH,7         ; commands
+        defp    CalculatorTCH,7         ; help
         defp    $8000,7                 ; token base
 
-        defb    'N',CalculatorDORe-$PC-1        ; name, length
+        defb    'N',CalculatorDORe-$PC-1; name, length
         defm    "Calculator",0
 .CalculatorDORe
         defb    $FF                     ; terminate
@@ -529,9 +529,9 @@ xdef	PanelHelp
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    TerminalTopics,7  ; topics
-        defp    TerminalCommands,7        ; commands
-        defp    TerminalHelp,7    ; help
+        defp    TerminalTopics,7        ; topics
+        defp    TerminalCommands,7      ; commands
+        defp    TerminalHelp,7          ; help
         defp    $8000,7                 ; token base
 
         defb    'N',TerminalDORe-$PC-1  ; name, length
@@ -546,7 +546,7 @@ xdef	PanelHelp
 ;       $BFC0
         defp    0,0                     ; parent
         defp    0,0                     ; brother
-        defp    IndexDor|$c000,7              ; son
+        defp    IndexDor|$c000,7        ; son
         defb    $13,8                   ; DOR type, sizeof
 
         defb    $4e,$05                 ; name, length

@@ -22,7 +22,21 @@
 
 defc    OZVERSION               =4
 
+defc    KeymapTblPtrs           =$01f0
 
+DEFVARS KeymapTblPtrs
+{
+km_bank         ds.b    1       ; memory bank where tables are, bound in S2
+km_page         ds.b    1       ; high byte of address
+;km_capsable     ds.b    1       ; low byte of capsable table address
+km_diamond      ds.b    1       ; low byte of <> translation table address
+km_square       ds.b    1       ; low byte of [] translation table address
+km_deadkey      ds.b    1       ; low byte of deadkey table address
+
+km_deadsub      ds.b    1       ; offset to list for current deadkey
+km_deadchar     ds.b    1       ; char displayed in OZ window
+;km_altnum      ds.b    1       ; []+num number for DC_Alt patch
+}
 
 defc    ubRandomPtr             =$01fb
 defc    uwRandom1               =$01fc
@@ -712,7 +726,7 @@ defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
 defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
 defc    FPPCALLTBL              =$D800
-        
+
 
 ;       should get rid of these later - most likely when they are moved into main banks
 
@@ -747,6 +761,24 @@ defc    KBF_B_KEY       =5              ; 1-any (not <>/[]) key down
 defc    KBF_B_SQR       =6              ; 1-[] down
 defc    KBF_B_LOCKED    =7              ; 1-locked
 
+defc    KMT_MATRIX      =0
+defc    KMT_SHIFT       =1
+defc    KMT_DIAMOND     =2
+defc    KMT_SQUARE      =3
+defc    KMT_DEADKEY     =4
+
+defc    QB_SHIFT        =0              ; qualifier bits from GetQual()
+defc    QB_DIAMOND      =1
+defc    QB_SQUARE       =2
+
+defc    KB_ACTIVE       =0              ; kbd_keyflags / kbd_prevflags bits
+defc    KB_HOLD         =1
+defc    KB_RELEASE      =2
+
+defc    K_ACTIVE        =1
+defc    K_HOLD          =2
+defc    K_RELEASE       =4
+
 defc    KBF_CAPSE       =$01
 defc    KBF_CAPS        =$02
 defc    KBF_SCAN        =$04
@@ -780,8 +812,6 @@ defc    IN_MEN          =$E5
 defc    IN_IDX          =$E6
 defc    IN_HLP          =$E7
 defc    IN_LOCK         =$E8
-
-
 
 defc    AT_B_Boot               =7
 defc    AT_B_Draw               =5

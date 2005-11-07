@@ -1,4 +1,10 @@
-call kernel
+:: get OZ localisation locale compilation directive
+set ozlocale=%1
+
+:: if no locale is specified, use default UK
+if "%ozlocale%"=="" set ozlocale=UK
+
+call kernel %ozlocale%
 cd bank1
 call bank1
 cd ..\bank2

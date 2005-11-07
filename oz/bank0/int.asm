@@ -21,7 +21,7 @@ xdef    MaySetPendingAlmTask
 
 xref    ResetTimeout
 xref    BothShifts
-xref    KbdMain
+xref    ExtKbMain
 xref    IntUART
 xref    IntFlap
 xref    MS2BankA
@@ -127,7 +127,7 @@ xref    ReadRTC
         or      (ix+kbd_keyflags)               ; current
         or      (ix+kbd_prevflags)              ; prev
 .int_4
-        call    nz, KbdMain
+        call    nz, ExtKbMain
         di
         res     KBF_B_SCAN, (ix+kbd_flags)
 .int_5

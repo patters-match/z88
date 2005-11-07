@@ -103,11 +103,8 @@ xref    RAMDORtable
 xref    RAMxDOR
 xref    Reset5
 
-;       ----
+        defs    17 ($ff)                                 ; was Reset4
 
-.Reset4
-        call    MS2BankK1
-        jp      Reset5
 
 ;       ----
 
@@ -172,8 +169,8 @@ xref    Reset5
 ;       error   "OZBuffCallTable crosses page bundary"
 ; endif
 
- IF	OZ40001=0
- 	defs	5 ($ff)
+ IF     OZ40001=0
+        defs    5 ($ff)
  ELSE
         defs    26 ($ff)
  ENDIF
@@ -181,7 +178,7 @@ xref    Reset5
 ; if    $PC <> OZCALLTBL
 ;       error   "OZCALL table moved"
 ; endif
-        
+
 .OZCallTable
         jp      OzCallInvalid
         jp      OSFramePop

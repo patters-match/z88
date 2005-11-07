@@ -6,8 +6,6 @@
 
         Module ScrDrv2
 
-        org $f1bf                               ; 99 bytes
-
         include "error.def"
         include "sysvar.def"
 

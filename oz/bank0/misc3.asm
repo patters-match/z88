@@ -6,8 +6,6 @@
 
         Module Misc3
 
-        org     $cda5                           ; 30 bytes
-
         include "sysvar.def"
 
 xdef    MayDrawOZwd
@@ -50,3 +48,5 @@ xref    DrawOZwd
         add     hl, bc
         jr      c, dlay_1
         ret
+
+       

@@ -6,8 +6,6 @@
 
         Module Time
 
-        org     $d4bb                           ; 107 bytes
-
         include "blink.def"
         include "error.def"
         include "sysvar.def"
@@ -124,3 +122,4 @@ xref    PutOSFrame_HL
 .ntim0_1
         srl     a                               ; /2 to make it 0.01s clock
         ret
+

@@ -6,9 +6,6 @@
 
         Module SpNq0
 
-        org $f1ac                               ; 19 bytes
-
-
 xdef    NqSp_ret
 xdef    OSNq
 xdef    OSSp

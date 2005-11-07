@@ -13,8 +13,6 @@
         include "sysvar.def"
         include "bank7\lowram.def"
 
-        org     $c101                           ; 261 bytes
-
 xdef    CallDC
 xdef    CallGN
 xdef    CallOS2byte
@@ -116,7 +114,6 @@ xref    StorePrefixed
         ld      a, RC_OK
         scf
         jp      OZCallReturn2
-        ret                                     ; !! unused
 
 ;       ----
 

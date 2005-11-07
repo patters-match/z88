@@ -6,8 +6,6 @@
 
         Module FileSys3
 
-        org     $f222                           ; 1752 bytes
-
         include "blink.def"
         include "error.def"
         include "fileio.def"
@@ -60,6 +58,9 @@ xref    SaveScreen
 ;       bank 7
 
 xref    FreeMemHandle
+
+;		defs	3	($ff)						; just for alignement before removing all ORG
+
 
 ;       ----
 
@@ -118,17 +119,6 @@ xref    FreeMemHandle
 
 ;       ----
 
-;       !! unused
-
-        xor     a                               ; DE=next, clear next pointer
-        ld      e, (hl)
-        ld      (hl), a
-        inc     hl
-        ld      d, (hl)
-        ld      (hl), a
-
-;       ----
-
 .FreeMemData
         ld      a, e
         or      d
@@ -150,8 +140,6 @@ xref    FreeMemHandle
         jr      nz, fmd_1                       ; has next? free it
         or      a
         ret
-
-        ld      ix, pFsMemPool                  ; !! unused
 
 ;       ----
 
