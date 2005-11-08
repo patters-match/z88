@@ -11,8 +11,6 @@
         include "sysvar.def"
         include "bank7\lowram.def"
 
-        org     $f9a5                           ; 45 bytes
-
 xdef    PrFilterCall
 xdef    TogglePrFilter
 

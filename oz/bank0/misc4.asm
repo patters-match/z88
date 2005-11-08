@@ -129,5 +129,4 @@ xref    MS12BankCB
         ex      af, af'
         or      a
         jp      OZCallReturn1
-
-defs    $18    ($FF)          
+        

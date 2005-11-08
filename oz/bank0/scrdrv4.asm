@@ -6,8 +6,6 @@
 
         Module ScrDrv4
 
-        org $faea                               ; 899 bytes
-
         include "blink.def"
         include "misc.def"
         include "sysvar.def"

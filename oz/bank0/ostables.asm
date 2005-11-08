@@ -4,20 +4,15 @@
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module Misc6
+        Module OSTables
 
-        org     $fe97                           ; 361 bytes
-
-        include "sysvar.def"
-
-xdef    Chk128KB
-xdef    Chk128KBslot0
-xdef    FirstFreeRAM
-xdef    MountAllRAM
+        defs    $2b   ($ff)                     ; to be removed with makeapp
+        
+        org     $FF00                           ; fixed start @ $00FF00
+        
 xdef    OZBuffCallTable
 xdef    OZCallTable
-xdef    Reset4
-
+        
 ;       bank 0
 
 xref    BfGbt
@@ -30,8 +25,6 @@ xref    CallDC
 xref    CallGN
 xref    CallOS2byte
 xref    CopyMemBHL_DE
-xref    MS1BankA
-xref    MS2BankK1
 xref    OSAlm
 xref    OSAxp
 xref    OSBde
@@ -99,85 +92,6 @@ xref    OSPoll
 xref    OSRen
 xref    OSSci
 xref    OSWsq
-xref    RAMDORtable
-xref    RAMxDOR
-xref    Reset5
-
-        defs    17 ($ff)                                 ; was Reset4
-
-
-;       ----
-
-.MountAllRAM
-        call    MS2BankK1
-        ld      hl, RAMDORtable
-.maram_1
-        ld      a, (hl)                         ; 21 21 40 80 c0  bank
-        inc     hl
-        or      a
-        jr      z, maram_5
-        call    MS1BankA
-        ld      d, $40                          ; address high byte
-        ld      e, (hl)                         ; 80 40 40 40 40  address low byte
-        inc     hl
-        ld      c, (hl)                         ;  -  0  1  2  3  RAM number
-        inc     hl
-        ld      a, c
-        cp      '-'
-        jr      z, maram_2
-        ld      a, (de)                         ; skip if no RAM
-        or      a
-        jr      nz, maram_1
-.maram_2
-        push    hl
-        ld      a, c
-        cp      '-'                             ; !! combine with above check
-        jr      z, maram_3
-        ex      af, af'
-        ld      hl, $4000
-        ld      a, (ubResetType)                ; 0 = hard reset
-        and     (hl)
-        jr      nz, maram_4                     ; soft reset & already tagged, skip
-        ex      af, af'
-.maram_3
-        ld      hl, RAMxDOR                     ; !! could be smaller without table
-        ld      bc, 17
-        ldir
-        ld      (de), a
-        inc     de
-        ld      bc, 2                           ; just copy 00 FF
-        ldir
-        cp      '-'                             ; tag RAM if not RAM.-
-        jr      z, maram_4
-        ld      bc, $a55a
-        ld      ($4000), bc
-.maram_4
-        pop     hl
-        jr      maram_1
-.maram_5
-        ret
-
-.OZBuffCallTable
-        jp      BufWrite
-        jp      BufRead
-        jp      BfPbt
-        jp      BfGbt
-        jp      BfSta
-        jp      BfPur
-
-; if    >($PC^OZBuffCallTable) <> 0
-;       error   "OZBuffCallTable crosses page bundary"
-; endif
-
- IF     OZ40001=0
-        defs    5 ($ff)
- ELSE
-        defs    26 ($ff)
- ENDIF
-
-; if    $PC <> OZCALLTBL
-;       error   "OZCALL table moved"
-; endif
 
 .OZCallTable
         jp      OzCallInvalid
@@ -232,39 +146,21 @@ xref    Reset5
         jp      OzCallInvalid
         jp      OzCallInvalid
         jp      OzCallInvalid
-        jp      OzCallInvalid
+        jp      OzCallInvalid                   ; end at $003F9E
 
-;       ----
+.OZBuffCallTable                                ; relocated at $003F9F
+        jp      BufWrite
+        jp      BufRead
+        jp      BfPbt
+        jp      BfGbt
+        jp      BfSta
+        jp      BfPur                           ; end at $003FB0
 
-.Chk128KB
-        ld      a, (ubSlotRamSize+1)            ; RAM in slot1
-        cp      128/16
-        ret     nc
+; ***** FREE SPACE *****                        ; some code was here and removed for clarity
 
-;       ----
+        defs    $19 ($FF)                       ; $3FCA - $3FB1
 
-.Chk128KBslot0
-        ld      a, (ubSlotRamSize)              ; RAM in slot0
-        cp      128/16                          ; Fc=1 if less than 128KB
-        ret
-
-;       ----
-
-.FirstFreeRAM
-        call    Chk128KBslot0
-        ld      a, $21
-        jr      nc, ffr_1                       ; !! ret nc
-        ld      a, $40
-.ffr_1
-        ret
-
-        defs    21 ($ff)
-
-; if    $PC&255 <> OS_Wtb&255
-;       error   "OZCALL2 table moved"
-; endif
-
-; 2-byte calls, OSFrame set up already
+; 2-byte calls, OSFrame set up already          ; start at $003FCA
 
         defw    OSWtb
         defw    OSWrt
@@ -293,4 +189,3 @@ xref    Reset5
         defw    OSEnt
         defw    OSPoll
         defw    OSDom
-

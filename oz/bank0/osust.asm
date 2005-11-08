@@ -6,8 +6,6 @@
 
         Module OSUst
 
-        org     $fe6d                           ; 42 bytes
-
         include "error.def"
         include "sysvar.def"
 

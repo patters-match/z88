@@ -6,8 +6,6 @@
 
         Module OSIn
 
-        org     $ee89                           ; 598 bytes
-
         include "blink.def"
         include "director.def"
         include "error.def"

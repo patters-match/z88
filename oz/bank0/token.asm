@@ -6,8 +6,6 @@
 
         Module Token
 
-        org     $edbd                           ; 204 bytes
-
         include "error.def"
         include "stdio.def"
         include "sysvar.def"

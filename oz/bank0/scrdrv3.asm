@@ -6,8 +6,6 @@
 
         Module ScrDrv3
 
-        org $f90c                               ; 153 bytes
-
         include "sysvar.def"
 
 xdef    InitApplWd

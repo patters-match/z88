@@ -6,8 +6,6 @@
 
         Module Random
 
-        org     $dafd                           ; 16 bytes
-
         include "sysvar.def"
 
 xdef    UpdateRnd

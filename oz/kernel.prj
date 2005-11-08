@@ -63,4 +63,6 @@ bank0\pfilter0.asm
 bank0\ozwindow.asm
 bank0\scrdrv4.asm
 bank0\osust.asm
-bank0\misc6.asm
+bank0\resetx.asm
+bank0\ostables.asm
+

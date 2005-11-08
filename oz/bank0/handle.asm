@@ -6,8 +6,6 @@
 
         Module Handle
 
-        org     $d5d1                           ; 262 bytes
-
         include "error.def"
         include "sysvar.def"
 

@@ -6,8 +6,6 @@
 
         Module Misc5
 
-        org     $d6d7                           ; 505 bytes
-
         include "blink.def"
         include "error.def"
         include "stdio.def"

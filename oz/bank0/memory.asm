@@ -17,8 +17,6 @@
         include "sysvar.def"
         include "bank7\lowram.def"
 
-        org     $df2a                           ; 2143 bytes
-
 xdef    FollowPageN
 xdef    InitRAM
 xdef    InitSlotRAM

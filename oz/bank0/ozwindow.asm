@@ -8,8 +8,6 @@
 
         include "sysvar.def"
 
-        org     $f9d2                           ; 280 bytes
-
 xdef    OZwd_card
 xdef    OZwd_index
 xdef    OZwd__fail

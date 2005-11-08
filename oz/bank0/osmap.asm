@@ -6,8 +6,6 @@
 
         Module OSMap
 
-        org     $df22                           ; 8 bytes
-
 xdef    OSMap
 
 ;       bank 7

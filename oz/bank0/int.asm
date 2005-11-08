@@ -6,8 +6,6 @@
 
         Module Int
 
-        org     $d8d0                           ; 557 bytes
-
         include "blink.def"
         include "serintfc.def"
         include "sysvar.def"
