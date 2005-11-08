@@ -119,7 +119,7 @@ xref    PutOSFrame_BC
         ld      hl, (pMailbox)
         ld      bc, (ubMailboxSize)             ; B=ubMailboxBank
         ld      a, c
-        or      a				; !! 'dec a; cp 64; ld a,0; jr nc'
+        or      a                               ; !! 'dec a; cp 64; ld a,0; jr nc'
         jr      z, mb2s_1
         cp      MAILBOXMAXLEN+1
         ld      a, 0

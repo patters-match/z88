@@ -6,7 +6,7 @@
 
         Module  Table_E998
 
-xdef	PrEdTransTbl
+xdef    PrEdTransTbl
 
 ;       PrinterEd uses this
 

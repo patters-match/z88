@@ -8,11 +8,11 @@
 
         org     $9f4c                           ; 1933 bytes
 
-	include	"dor.def"
-	include	"error.def"
-	include	"stdio.def"
-	include	"saverst.def"
-	include	"syspar.def"
+        include "dor.def"
+        include "error.def"
+        include "stdio.def"
+        include "saverst.def"
+        include "syspar.def"
         include "sysvar.def"
 
 
@@ -1208,7 +1208,7 @@ xref    GetNextCmdAttr
         ret
 
 .CopyrightMsg
-	defm	"Th",$82,"C",$ED,"bri"
+        defm    "Th",$82,"C",$ED,"bri"
         defm    "dg",$82,$AB,"mput"
         defm    $EF,"Z88 P",$8F,"t"
         defm    "abl",$82,"V",$86,"si"

@@ -6,10 +6,10 @@
 
         module  Printer
 
-	include "fileio.def"
-	include "memory.def"
-	include "serintfc.def"
-	include "syspar.def"
+        include "fileio.def"
+        include "memory.def"
+        include "serintfc.def"
+        include "syspar.def"
 
         org     $afc0
 
@@ -53,7 +53,7 @@ defc    PRT_B_ENABLED   =1                      ; output enabled?
 defc    PRT_ALLOWLF     =1
 defc    PRT_ENABLED     =2
 
- IF	FINAL=0
+ IF     FINAL=0
 
 .PrntChar
         jp      PrntCharMain                    ; func $C0, A=char
@@ -702,5 +702,5 @@ defc    PRT_ENABLED     =2
         ret
 
  ELSE
-	binary "printer.bin"
+        binary "printer.bin"
  ENDIF

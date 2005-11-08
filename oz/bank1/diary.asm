@@ -8,18 +8,18 @@
 
         org $C000
 
-	include "blink.def"
-	include "char.def"
-	include "director.def"
-	include "error.def"
-	include "fileio.def"
-	include "integer.def"
-	include "memory.def"
-	include "misc.def"
-	include "saverst.def"
-	include "stdio.def"
-	include "syspar.def"
-	include "time.def
+        include "blink.def"
+        include "char.def"
+        include "director.def"
+        include "error.def"
+        include "fileio.def"
+        include "integer.def"
+        include "memory.def"
+        include "misc.def"
+        include "saverst.def"
+        include "stdio.def"
+        include "syspar.def"
+        include "time.def
         include "sysvar.def"
 
 defc    dix_eCurrentDatePrev    =$00
@@ -120,13 +120,13 @@ defc    lbuf_Buffer2            =$4F            ; !! should have pBuffer2 in saf
 defc    lbuf_Buffer3            =$9E            ; !! should have pBuffer3 in safe area
 
 defvars $1fde {
-eMem_LineBuffers        ds.p    1
-eMem_dix_254            ds.p    1
-eIOBuf_242              ds.p    1
-pMemHandle1             ds.w    1
-pMemHandleMulti         ds.w    1
-DiaryFileHandle         ds.w    1
-S1Binding               ds.b    1
+        eMem_LineBuffers        ds.p    1
+        eMem_dix_254            ds.p    1
+        eIOBuf_242              ds.p    1
+        pMemHandle1             ds.w    1
+        pMemHandleMulti         ds.w    1
+        DiaryFileHandle         ds.w    1
+        S1Binding               ds.b    1
 }
 
 
@@ -258,7 +258,7 @@ S1Binding               ds.b    1
 
         ret
 
-;	----
+;       ----
 
 .loc_C0E4
         call    Cpy6_CrntDate_SrchDate
@@ -405,7 +405,7 @@ S1Binding               ds.b    1
 .locret_C1AA
         ret
 
-;	----
+;       ----
 
 .sub_C1AB
         ld      (ix+dix_ubCommand), $26
@@ -465,7 +465,7 @@ S1Binding               ds.b    1
 .loc_C1FD
         jp      NextOption
 
-;	----
+;       ----
 
 .DoWrap
         ld      (ix+dix_ubCommand), $22
@@ -569,7 +569,7 @@ S1Binding               ds.b    1
         ld      (ix+dix_ubCrsrXPos), a
         jp      cdn_1
 
-;	----
+;       ----
 
 .loc_C29F
         cp      $16                             ; <>V,  insert/overwrite
@@ -689,7 +689,7 @@ S1Binding               ds.b    1
 .cup_2
         jp      loc_C11B
 
-;	----
+;       ----
 
 .loc_C372
         ld      (ix+dix_ubCrsrXPos), 0          ; !! move this  to caller (enter handling)
@@ -743,7 +743,7 @@ S1Binding               ds.b    1
 .cdn_3
         jp      loc_C11B
 
-;	----
+;       ----
 
 .ToggleInsert
         bit     DF5B_B_OVERWRITE, (ix+dix_ubFlags5B)
@@ -761,7 +761,7 @@ S1Binding               ds.b    1
 
         jp      NextOption
 
-;	----
+;       ----
 
 .DeleteLine
         call    ReallocCurrent
@@ -811,7 +811,7 @@ S1Binding               ds.b    1
 .dln_3
         jp      loc_D45C
 
-;	----
+;       ----
 
 .JoinLines
         call    ReallocCurrent
@@ -957,7 +957,7 @@ S1Binding               ds.b    1
 
         jp      loc_D46B
 
-;	----
+;       ----
 
 .InsertLine
         call    ReallocCurrent
@@ -981,7 +981,7 @@ S1Binding               ds.b    1
 
         jp      loc_D46B
 
-;	----
+;       ----
 
 .SplitLine
         ld      bc, (eMem_LineBuffers)
@@ -1020,7 +1020,7 @@ S1Binding               ds.b    1
 
         jp      loc_D46B
 
-;	----
+;       ----
 
 .MemoryFree
         push    ix
@@ -1050,7 +1050,7 @@ S1Binding               ds.b    1
 
         jp      NextOption
 
-;	----
+;       ----
 
 .Tab
         call    ReallocCurrent
@@ -1102,7 +1102,7 @@ S1Binding               ds.b    1
 
         jp      loc_D46B
 
-;	----
+;       ----
 
 .SavePosition
         call    ReallocCurrent
@@ -1140,7 +1140,7 @@ S1Binding               ds.b    1
 .svp_4
         jp      NextOption
 
-;	----
+;       ----
 
 .RestorePosition
         call    StoreCurrentLine
@@ -1241,7 +1241,7 @@ S1Binding               ds.b    1
 
         jp      loc_D45C
 
-;	----
+;       ----
 
 .LastLine
         call    ReallocCurrent
@@ -1295,7 +1295,7 @@ S1Binding               ds.b    1
 .lln_5
         jp      NextOption
 
-;	----
+;       ----
 
 .FirstLine
         call    ReallocCurrent
@@ -1325,7 +1325,7 @@ S1Binding               ds.b    1
 .fln_1
         jp      NextOption
 
-;	----
+;       ----
 
 .ScreenDown
         call    ReallocCurrent
@@ -1373,7 +1373,7 @@ S1Binding               ds.b    1
 
         jp      loc_D45C
 
-;	----
+;       ----
 
 .ScreenUp
         call    ReallocCurrent
@@ -1427,7 +1427,7 @@ S1Binding               ds.b    1
 
         jp      loc_D45C
 
-;	----
+;       ----
 
 .NextDay
         call    StoreCurrentLine
@@ -1484,7 +1484,7 @@ S1Binding               ds.b    1
 .loc_C7AC
         jp      loc_C0E4
 
-;	----
+;       ----
 
 .NextActiveDay
         call    StoreCurrentLine
@@ -1528,7 +1528,7 @@ S1Binding               ds.b    1
 
         jp      loc_C107
 
-;	----
+;       ----
 
 .Today
         call    StoreCurrentLine
@@ -1539,7 +1539,7 @@ S1Binding               ds.b    1
 
         jp      loc_C0E4
 
-;	----
+;       ----
 
 .LastActiveDay
         res     DF5D_B_0, (ix+dix_ubFlags5D)    ; local flag
@@ -1592,7 +1592,7 @@ S1Binding               ds.b    1
 
         jp      loc_C107
 
-;	----
+;       ----
 
 .MarkBlock
         call    ReallocCurrent
@@ -1664,7 +1664,7 @@ S1Binding               ds.b    1
 
         jp      loc_D465
 
-;	----
+;       ----
 
 .ClearMark
         call    StoreCurrentLine
@@ -1673,14 +1673,14 @@ S1Binding               ds.b    1
 
         jp      loc_D465
 
-;	----
+;       ----
 
 .InactivateBlk
         res     DF2F_B_ACTIVE, (ix+dix_BlkStartFlags2F)
         res     DF36_B_ACTIVE, (ix+dix_BlkEndFlags36)
         ret
 
-;	----
+;       ----
 
 .Copy
         set     DF5B_B_ALLOCNEW, (ix+dix_ubFlags5B)     ; local flag
@@ -1995,7 +1995,7 @@ S1Binding               ds.b    1
 .blk_x
         jp      NextOption
 
-;	----
+;       ----
 
 .Search
         call    ReallocCurrent
@@ -2066,7 +2066,7 @@ S1Binding               ds.b    1
 
         jp      sub_CBF1
 
-;	----
+;       ----
 
 .NextMatch
         res     DF5C_B_MATCHBACKW, (ix+dix_ubFlags5C)
@@ -2217,7 +2217,7 @@ S1Binding               ds.b    1
 .loc_CBC6
         jp      NextOption
 
-;	----
+;       ----
 
 .List
         call    ReallocCurrent
@@ -2242,7 +2242,7 @@ S1Binding               ds.b    1
         cp      '.'
         jr      z, loc_CBDF
 
-;	----
+;       ----
 
 .sub_CBF1
         call    ToggleCursor
@@ -2414,7 +2414,7 @@ S1Binding               ds.b    1
         bit     DF5E_B_PRINTSEARCHLIST, (ix+dix_ubFlags5E)
         call    nz, PrtFormFeed
 
-;	----
+;       ----
 
 .sub_CD00
         call    sub_E14A
@@ -2434,7 +2434,7 @@ S1Binding               ds.b    1
 
         jp      loc_D45C
 
-;	----
+;       ----
 
 .Replace
         call    ReallocCurrent
@@ -2854,7 +2854,7 @@ S1Binding               ds.b    1
 
         jp      loc_D45C
 
-;	----
+;       ----
 
 .ShowFoundCount
         push    hl
@@ -2884,7 +2884,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .AppendToCurrent
         push    de
@@ -2993,7 +2993,7 @@ S1Binding               ds.b    1
 .locret_D024
         ret
 
-;	----
+;       ----
 
 .Load
         call    ReallocCurrent
@@ -3382,7 +3382,7 @@ S1Binding               ds.b    1
 
         jp      loc_D3CC
 
-;	----
+;       ----
 
 .Save
         call    ReallocCurrent
@@ -3594,7 +3594,7 @@ S1Binding               ds.b    1
 
         jr      loc_D35E
 
-;	----
+;       ----
 
 .loc_D3CC
         bit     DF5E_B_LST_SV_BLOCK, (ix+dix_ubFlags5E)
@@ -3646,7 +3646,7 @@ S1Binding               ds.b    1
         pop     ix
         ret
 
-;	----
+;       ----
 
 ; IN:  DE=line
 
@@ -3703,7 +3703,7 @@ S1Binding               ds.b    1
         pop     ix
         ret
 
-;	----
+;       ----
 
 .loc_D45C
         call    GetCurrentLnPtrs
@@ -3792,14 +3792,14 @@ S1Binding               ds.b    1
 
         jr      loc_D538
 
-;	----
+;       ----
 
 .GetMatchPos
         ld      l, (ix+dix_68)
         ld      h, (ix+dix_68+1)
         ret
 
-;	----
+;       ----
 
 .SearchBack
         push    hl
@@ -3892,7 +3892,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .sub_D548
         push    bc
@@ -3923,7 +3923,7 @@ S1Binding               ds.b    1
 .locret_D561
         ret
 
-;	----
+;       ----
 
 .CmpChar
         ld      a, (de)
@@ -3950,7 +3950,7 @@ S1Binding               ds.b    1
         cp      b
         ret
 
-;	----
+;       ----
 
 .sub_D581
         push    hl
@@ -3972,7 +3972,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .AdvanceSearchPos
         call    GetSrchLnPtrs
@@ -4130,7 +4130,7 @@ S1Binding               ds.b    1
 .asp_x
         ret
 
-;	----
+;       ----
 
 .Cpy_InBuf_Buf2
         set     DF5C_B_7, (ix+dix_ubFlags5C)    ; local flag !! remove, use Fc
@@ -4163,7 +4163,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .sub_D681
         push    hl
@@ -4221,7 +4221,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .InsertEmptyLine
         call    AdvanceCurrentPtrs
@@ -4238,7 +4238,7 @@ S1Binding               ds.b    1
         ld      (iy+3), 0
         ret
 
-;	----
+;       ----
 
 .sub_D700
         call    sub_D72D
@@ -4295,7 +4295,7 @@ S1Binding               ds.b    1
 .locret_D72C
         ret
 
-;	----
+;       ----
 
 .sub_D72D
         call    GetSrchDatePtrs
@@ -4329,7 +4329,7 @@ S1Binding               ds.b    1
 .locret_D74F
         ret
 
-;	----
+;       ----
 
 .sub_D750
         call    GetSrchDatePtrs
@@ -4346,7 +4346,7 @@ S1Binding               ds.b    1
 .locret_D75E
         ret
 
-;	----
+;       ----
 
 .sub_D75F
         call    GetSrchDatePtrs
@@ -4362,7 +4362,7 @@ S1Binding               ds.b    1
 .locret_D76D
         ret
 
-;	----
+;       ----
 
 .sub_D76E
         call    Cpy6_CrntDate_SrchDate
@@ -4371,7 +4371,7 @@ S1Binding               ds.b    1
 
         jp      Cpy6_SrchDate_CrntDate
 
-;	----
+;       ----
 
 .MayRemoveDate
         call    InitSearchDate
@@ -4490,14 +4490,14 @@ S1Binding               ds.b    1
 .mrd_x
         ret
 
-;	----
+;       ----
 
 .CursorInBlock
         call    Cpy6_CrntLn_SrchLn
 
         call    CpyDate_Current_2
 
-;	----
+;       ----
 
 .Day2e15InsideBlock
         push    bc
@@ -4610,7 +4610,7 @@ S1Binding               ds.b    1
         pop     bc
         ret
 
-;	----
+;       ----
 
 .StoreCurrentLine
         call    Cpy_CurrentLine_eTmp
@@ -4630,7 +4630,7 @@ S1Binding               ds.b    1
 
         jr      loc_D8DB
 
-;	----
+;       ----
 
 .ReallocCurrent
         call    Cpy_CurrentLine_eTmp
@@ -4727,7 +4727,7 @@ S1Binding               ds.b    1
 .locret_D957
         ret
 
-;	----
+;       ----
 
 ; compare ePtr at HL with eTmp, if it matches replace it with eCurrent
 
@@ -4748,7 +4748,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .sub_D969
         ld      l, (ix+dix_eCurrentDate)
@@ -4773,7 +4773,7 @@ S1Binding               ds.b    1
 
         ld      (ix+dix_ubCrsrYPos), 0
         ld      de, 0
-;	----
+;       ----
 
 .Cpy_BHL_BufDE
         push    hl
@@ -4815,7 +4815,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .FreeCurrentLine
         call    TstCurrentLine
@@ -4846,7 +4846,7 @@ S1Binding               ds.b    1
 .locret_D9F8
         ret
 
-;	----
+;       ----
 
 .MayInactivateBlkSaved
         push    hl
@@ -4854,7 +4854,7 @@ S1Binding               ds.b    1
         push    bc
         jr      loc_DA03
 
-;	----
+;       ----
 
 .MayInactivateSaved
         push    hl
@@ -4927,7 +4927,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .MayInactivateState
         push    hl
@@ -4947,7 +4947,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .Cmp3_HL_eTmp
         push    hl
@@ -4965,7 +4965,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .InsertCurrentLine
         push    bc
@@ -5029,7 +5029,7 @@ S1Binding               ds.b    1
         pop     de
         ret
 
-;	----
+;       ----
 
 .sub_DAEE
         call    sub_D969
@@ -5065,7 +5065,7 @@ S1Binding               ds.b    1
 .locret_DB11
         ret
 
-;	----
+;       ----
 
 .FindLineOnScreen
         call    GetTopLnPtrs
@@ -5106,7 +5106,7 @@ S1Binding               ds.b    1
 .locret_DB3E
         ret
 
-;	----
+;       ----
 
 .GetCurrentDatePtrs
         ld      bc, dix_eCurrentDatePrev
@@ -5143,7 +5143,7 @@ S1Binding               ds.b    1
         pop     ix
         ret
 
-;	----
+;       ----
 
 .PutCurrentDatePtrs
         push    af
@@ -5190,7 +5190,7 @@ S1Binding               ds.b    1
         pop     af
         ret
 
-;	----
+;       ----
 
 .Cpy6_CrntDate_SrchDate
         push    af
@@ -5249,7 +5249,7 @@ S1Binding               ds.b    1
         pop     af
         ret
 
-;	----
+;       ----
 
 .CpyDate_Current_2
         push    af
@@ -5264,7 +5264,7 @@ S1Binding               ds.b    1
         pop     af
         ret
 
-;	----
+;       ----
 
 .CpyDate_2_Current
         push    af
@@ -5279,7 +5279,7 @@ S1Binding               ds.b    1
         pop     af
         ret
 
-;	----
+;       ----
 
 .Cpy2e_CurrentLn_TopLn
         push    hl
@@ -5294,7 +5294,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .CpyDate_Current_3
         ld      hl, dix_CurrentDate
@@ -5303,7 +5303,7 @@ S1Binding               ds.b    1
 
         ret
 
-;	----
+;       ----
 
 .Cpy_CurrentLine_eTmp
         push    hl
@@ -5316,7 +5316,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 ; IN: HL=src offset, DE=dst offset
 
@@ -5336,7 +5336,7 @@ S1Binding               ds.b    1
         pop     bc
         ret
 
-;	----
+;       ----
 
 .TstBHL
         ld      a, b
@@ -5344,7 +5344,7 @@ S1Binding               ds.b    1
         or      l
         ret
 
-;	----
+;       ----
 
 .TstCDE
         ld      a, c
@@ -5371,7 +5371,7 @@ S1Binding               ds.b    1
 .tstx_1
         ret
 
-;	----
+;       ----
 
 .TstPrevNode
         call    TstCDE
@@ -5392,7 +5392,7 @@ S1Binding               ds.b    1
 .tstx2_1
         ret
 
-;	----
+;       ----
 
 .TstCurrentLine
         ld      a, (ix+dix_eCurrentLine)
@@ -5400,7 +5400,7 @@ S1Binding               ds.b    1
         or      (ix+dix_eCurrentLine+2)
         ret
 
-;	----
+;       ----
 
 .CurrentHasNextLine
         push    hl
@@ -5415,7 +5415,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .CurrentHasPrevLine
         push    hl
@@ -5430,7 +5430,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .sub_DC8D
         ld      de, dix_18
@@ -5444,7 +5444,7 @@ S1Binding               ds.b    1
         ld      b, (ix+dix_18+2)
         jp      PutSearchDatePtrs
 
-;	----
+;       ----
 
 ; OUT:BHL,CDE=LnPtrs
 
@@ -5472,7 +5472,7 @@ S1Binding               ds.b    1
         ld      (ix+dix_Date2+2), a
         ret
 
-;	----
+;       ----
 
 .sub_DCD3
         call    InitSearchDate
@@ -5500,7 +5500,7 @@ S1Binding               ds.b    1
 .locret_DCEB
         ret
 
-;	----
+;       ----
 
 .sub_DCEC
         bit     DF2F_B_ACTIVE, (ix+dix_BlkStartFlags2F)
@@ -5524,7 +5524,7 @@ S1Binding               ds.b    1
 .locret_DD05
         ret
 
-;	----
+;       ----
 
 .sub_DD06
         ld      hl, dix_BlkStartLn
@@ -5551,7 +5551,7 @@ S1Binding               ds.b    1
 .locret_DD24
         ret
 
-;	----
+;       ----
 
 .GetPrev
         call    xnx2_1
@@ -5572,7 +5572,7 @@ S1Binding               ds.b    1
         OZ      GN_Xnx
         jp      PutCurrentLnPtrs
 
-;	----
+;       ----
 
 .RetreatCurrentPtrs
         call    GetCurrentLnPtrs
@@ -5581,7 +5581,7 @@ S1Binding               ds.b    1
 
         jp      PutCurrentLnPtrs
 
-;	----
+;       ----
 
 .Cmp3_HL_DE
         push    hl
@@ -5609,7 +5609,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 ; OUT: Fz
 
@@ -5639,7 +5639,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .RdMailDate
         res     DF5D_B_WRMAILDATE, (ix+dix_ubFlags5D)   ;       local flag
@@ -5694,7 +5694,7 @@ S1Binding               ds.b    1
         pop     de
         ret
 
-;	----
+;       ----
 
 .GetCurrentDate
         push    hl
@@ -5728,7 +5728,7 @@ S1Binding               ds.b    1
 .abm_1
         ret
 
-;	----
+;       ----
 
 .AllocMultiMem
         push    ix
@@ -5739,7 +5739,7 @@ S1Binding               ds.b    1
         pop     ix
         ret
 
-;	----
+;       ----
 
 .MayBindS1
         push    bc
@@ -5758,7 +5758,7 @@ S1Binding               ds.b    1
         pop     bc
         ret
 
-;	----
+;       ----
 
 .FreeMultiMem
         push    ix
@@ -5773,7 +5773,7 @@ S1Binding               ds.b    1
         pop     ix
         ret
 
-;	----
+;       ----
 
 .CheckMemory
         push    af
@@ -5933,7 +5933,7 @@ S1Binding               ds.b    1
 .chkm_11
         ret
 
-;	----
+;       ----
 
 .PrintCurrentLn
         call    GetCurrentLnPtrs
@@ -6009,7 +6009,7 @@ S1Binding               ds.b    1
 .locret_DF52
         ret
 
-;	----
+;       ----
 
 .ShowEndOfText
         push    hl
@@ -6044,7 +6044,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .PrintOneLine
         push    hl
@@ -6122,7 +6122,7 @@ S1Binding               ds.b    1
 .locret_DFEC
         ret
 
-;	----
+;       ----
 
 .ShowInsertMode
         ld      hl, IModePre_txt
@@ -6143,7 +6143,7 @@ S1Binding               ds.b    1
         OZ      GN_Sop                          ; write string  to std. output
         ret
 
-;	----
+;       ----
 
 .PrintDate
         ld      bc, (eMem_dix_254)
@@ -6212,7 +6212,7 @@ S1Binding               ds.b    1
         pop     af
         ret
 
-;	----
+;       ----
 
 .Redraw
         call    RedrawDiaryWd
@@ -6221,7 +6221,7 @@ S1Binding               ds.b    1
 
         ret
 
-;	----
+;       ----
 
 .Search3
         push    hl
@@ -6252,7 +6252,7 @@ S1Binding               ds.b    1
         ld      de, SearchUI_tbl
         jp      ExitList
 
-;	----
+;       ----
 
 .Replace3
         push    hl
@@ -6290,7 +6290,7 @@ S1Binding               ds.b    1
         ld      de, RplcUI_tbl
         jr      ExitList
 
-;	----
+;       ----
 
 .ListDiary
         push    hl
@@ -6314,7 +6314,7 @@ S1Binding               ds.b    1
         ld      de, ListUI_tbl
         jr      ExitList
 
-;	----
+;       ----
 
 .LoadDiary
         push    hl
@@ -6345,7 +6345,7 @@ S1Binding               ds.b    1
         ld      de, LoadUI_tbl
         jr      ExitList
 
-;	----
+;       ----
 
 .SaveDiary
         push    hl
@@ -6385,7 +6385,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .sub_E14A
         call    InitWd
@@ -6394,7 +6394,7 @@ S1Binding               ds.b    1
 
         jp      PrintDate
 
-;	----
+;       ----
 
 .Show5EFlags
         push    hl
@@ -6422,7 +6422,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .PntYesNo
         push    hl
@@ -6440,7 +6440,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .DoUI
         push    hl
@@ -6621,7 +6621,7 @@ S1Binding               ds.b    1
 .locret_E257
         ret
 
-;	----
+;       ----
 
 .InitWd
         ld      hl, InitWd_txt
@@ -6629,15 +6629,15 @@ S1Binding               ds.b    1
         res     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
         ret
 
-;	----
+;       ----
 
 .MoveTo_0_ypos
         ld      a, (ix+dix_ubCrsrYPos)
-;	----
+;       ----
 
 .MoveTo_0Ya
         ld      hl, MoveTo0_txt
-;	----
+;       ----
 
 .sub_E269
         OZ      GN_Sop                          ; write string  to std. output
@@ -6645,7 +6645,7 @@ S1Binding               ds.b    1
         OZ      OS_Out                          ; write a byte  to std. output
         ret
 
-;	----
+;       ----
 
 .ToggleCursor
         push    hl
@@ -6656,7 +6656,7 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .MayPageWait
         push    af
@@ -6696,7 +6696,7 @@ S1Binding               ds.b    1
         pop     af
         ret
 
-;	----
+;       ----
 
 .PrintList
         push    hl
@@ -6740,14 +6740,14 @@ S1Binding               ds.b    1
         pop     hl
         ret
 
-;	----
+;       ----
 
 .PrtFormFeed
         ld      a, 12
         OZ      OS_Prt                          ; Send  character directly to printer filter
         ret
 
-;	----
+;       ----
 
 .ErrHandler
         ret     z

@@ -8,12 +8,12 @@
 
         org $c891                               ; 737 bytes
 
-	include "alarm.def"
-	include	"error.def"
-	include "memory.def"
-	include "stdio.def"
-	include "syspar.def"
-	include "time.def"
+        include "alarm.def"
+        include "error.def"
+        include "memory.def"
+        include "stdio.def"
+        include "syspar.def"
+        include "time.def"
 
         include "sysvar.def"
 
@@ -450,18 +450,18 @@ xref    WriteOsfDE
 
 ;       ----
 
-;	miscellaeneous time operations, convert real time to time to elapse
+;       miscellaeneous time operations, convert real time to time to elapse
 ;
 ;IN:    A=0, convert source to time to elapse
-;	     BHL = source time days
-;	     CDE = source time centiseconds/ticks
+;            BHL = source time days
+;            CDE = source time centiseconds/ticks
 ;        
 ;       A=1, update base time (used over reset)
-;	     BHL = Additional offset in minutes.
-;	     C = offset in seconds
+;            BHL = Additional offset in minutes.
+;            C = offset in seconds
 ;
 ;OUT;   A(in)=0
-;	     BHL=minutes to elapse, C=seconds to elapse, A=centiseconds to elapse
+;            BHL=minutes to elapse, C=seconds to elapse, A=centiseconds to elapse
 ;       A(in)=1
 ;            -
 

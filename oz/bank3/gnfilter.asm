@@ -8,10 +8,10 @@
 
         org $cb95                               ; 939 bytes
 
-	include "director.def"
-	include "error.def"
-	include "memory.def"
-	include "sysvar.def"
+        include "director.def"
+        include "error.def"
+        include "memory.def"
+        include "sysvar.def"
         include "gndef.def"
 
 ;       ----

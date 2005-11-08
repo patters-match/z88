@@ -6,19 +6,19 @@
 
         Module  PanelPEd
 
-	include "blink.def"
-	include "char.def"
-	include "director.def"
-	include "error.def"
-	include "fileio.def"
-	include "fpp.def"
-	include "integer.def"
-	include "memory.def"
-	include "stdio.def"
-	include "syspar.def"
-	include "sysvar.def"
+        include "blink.def"
+        include "char.def"
+        include "director.def"
+        include "error.def"
+        include "fileio.def"
+        include "fpp.def"
+        include "integer.def"
+        include "memory.def"
+        include "stdio.def"
+        include "syspar.def"
+        include "sysvar.def"
 
-	include	"..\bank2\bank2.def"
+        include "..\bank2\bank2.def"
 
         org     $c000                           ; c000-d1ff, 5310 bytes
 
@@ -48,19 +48,20 @@ defc    ERR_BadValue            =6
 defc    ERR_BadName             =7
 
 
-DEFVARS         p_Vars
+defvars p_Vars
 {
-p_ubEntryID             ds.b    1
-p_ubPageID              ds.b    1
-p_pSettings             ds.w    1
-p_pSettingPool          ds.w    1
-p_pMemPool              ds.w    1
-p_pMem_Buffer_100       ds.w    1
-p_pPrFileName_33        ds.w    1
-p_pPrinterFileHandle    ds.w    1
-p_pPrinterName_20       ds.w    1
-p_ubFlags               ds.b    1
+        p_ubEntryID             ds.b    1
+        p_ubPageID              ds.b    1
+        p_pSettings             ds.w    1
+        p_pSettingPool          ds.w    1
+        p_pMemPool              ds.w    1
+        p_pMem_Buffer_100       ds.w    1
+        p_pPrFileName_33        ds.w    1
+        p_pPrinterFileHandle    ds.w    1
+        p_pPrinterName_20       ds.w    1
+        p_ubFlags               ds.b    1
 }
+
 
 .PrinterEd
         ld      iy, p_ubEntryID

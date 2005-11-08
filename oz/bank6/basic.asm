@@ -6,5 +6,5 @@
 
         org     $D200
 
-	binary	"basic.dat"
+        binary  "basic.dat"
 

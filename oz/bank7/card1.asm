@@ -196,7 +196,7 @@ xref    S2VerifySlotType
         ld      hl, $4000                       ; test for RAM
         ld      c, (hl)
         ld      a, c
-        xor     $FF				; !! cpl
+        xor     $FF                             ; !! cpl
         ld      (hl), a
         xor     (hl)                            ; Fz=1 if RAM
         ld      (hl), c

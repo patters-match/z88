@@ -6,18 +6,18 @@
 
         Module B2DORs
 
-	include	"director.def"
-	include	"..\bank7\appdors.def"
+        include "director.def"
+        include "..\bank7\appdors.def"
 
-	org	$ff6f
+        org     $ff6f
 
-	defs	33 ($ff)
+        defs    33 ($ff)
 
 .PrEdDOR
-	defp	0,0			; parent
-	defp	PanelDOR,2		; brother
-	defp	0,0			; son
-	defb	$83, PrEdDORe-$PC	; DOR type, sizeof
+        defp    0,0                     ; parent
+        defp    PanelDOR,2              ; brother
+        defp    0,0                     ; son
+        defb    $83, PrEdDORe-$PC       ; DOR type, sizeof
 
         defb    '@',18,0,0              ; info, info sizeof, 2xreserved
         defb    'E',0                   ; application key letter, bad app RAM
@@ -36,13 +36,13 @@
         defb    'N',PrEdDORe-$PC-1  ; name, length
         defm    "PrinterEd",0
 .PrEdDORe
-	defb	$ff
+        defb    $ff
 
 .PanelDOR
-	defp	0,0			; parent
-	defp	$ff1d,7			; brother !! absolute
-	defp	0,0			; son
-	defb	$83, PanelDORe-$PC	; DOR type, sizeof
+        defp    0,0                     ; parent
+        defp    $ff1d,7                 ; brother !! absolute
+        defp    0,0                     ; son
+        defb    $83, PanelDORe-$PC      ; DOR type, sizeof
 
         defb    '@',18,0,0              ; info, info sizeof, 2xreserved
         defb    'S',0                   ; application key letter, bad app RAM
@@ -53,13 +53,13 @@
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    PanelTopics&$3fff,7 	; topics
+        defp    PanelTopics&$3fff,7     ; topics
         defp    PanelCommands&$3fff,7   ; commands
-        defp    PanelHelp&$3fff,7    	; help
+        defp    PanelHelp&$3fff,7       ; help
         defp    $8000,7                 ; token base
 
         defb    'N',PanelDORe-$PC-1  ; name, length
         defm    "Panel",0
 .PanelDORe
-	defb	$ff
+        defb    $ff
 

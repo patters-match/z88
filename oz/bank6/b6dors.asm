@@ -6,21 +6,21 @@
 
         Module B6DORs
 
-	include	"director.def"
+        include "director.def"
 
-	org	$ff90
+        org     $ff90
 
 
-	defb	$ff
+        defb    $ff
 
 .CalendarDOR
-	defp	0,0			; parent
-	defp	ClockDOR,6		; brother
+        defp    0,0                     ; parent
+        defp    ClockDOR,6              ; brother
 .CalendarTopics
 .CalendarCommands
 .CalendarHelp
-	defp	0,0			; son
-	defb	$83, CalendarDORe-$PC	; DOR type, sizeof
+        defp    0,0                     ; son
+        defb    $83, CalendarDORe-$PC   ; DOR type, sizeof
 
         defb    '@',18,0,0              ; info, info sizeof, 2xreserved
         defb    'C',0                   ; application key letter, bad app RAM
@@ -39,16 +39,16 @@
         defb    'N',CalendarDORe-$PC-1  ; name, length
         defm    "Calendar",0
 .CalendarDORe
-	defb	$ff
+        defb    $ff
 
 .ClockDOR
-	defp	0,0			; parent
-	defp	$fd9a,7			; brother !! absolute
+        defp    0,0                     ; parent
+        defp    $fd9a,7                 ; brother !! absolute
 .ClockTopics
 .ClockCommands
 .ClockHelp
-	defp	0,0			; son
-	defb	$83, ClockDORe-$PC	; DOR type, sizeof
+        defp    0,0                     ; son
+        defb    $83, ClockDORe-$PC      ; DOR type, sizeof
 
         defb    '@',18,0,0              ; info, info sizeof, 2xreserved
         defb    'T',0                   ; application key letter, bad app RAM
@@ -59,13 +59,13 @@
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    ClockTopics,6 	; topics
+        defp    ClockTopics,6   ; topics
         defp    ClockCommands,6   ; commands
-        defp    ClockHelp,6    	; help
+        defp    ClockHelp,6     ; help
         defp    $8000,7                 ; token base
 
         defb    'N',ClockDORe-$PC-1  ; name, length
         defm    "Clock",0
 .ClockDORe
-	defb	$ff
+        defb    $ff
 

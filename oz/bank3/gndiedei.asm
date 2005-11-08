@@ -8,8 +8,8 @@
 
         org $e86b                               ; 1126 bytes
 
-	include "memory.def"
-	include "time.def"
+        include "memory.def"
+        include "time.def"
         include "sysvar.def"
 
 ;       ----
@@ -58,7 +58,7 @@ xref    Divu48
         push    bc
         push    af
         ld      hl, 0
-        exx                                     ;         alt
+        exx                                     ; alt
         pop     bc                              ; chl'=date
         pop     hl
         ld      c, b

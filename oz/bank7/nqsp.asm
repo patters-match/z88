@@ -730,7 +730,7 @@ xref    OSNqProcess
 
 
 .PrefTbl2
- IF	OZ40001=0
+ IF     OZ40001=0
         defb    defTr10 - PrefTbl2
         defb    Tr10out - PrefTbl2
  ELSE
@@ -792,7 +792,7 @@ xref    OSNqProcess
         defb    RstRdPanelAttrs - PrefTbl2
         defb    RstRdPanelAttrs - PrefTbl2
         defb    RstRdPanelAttrs - PrefTbl2
- IF	OZ40001=0
+ IF     OZ40001=0
 .defTr10        defb    $A3
 .Tr10out        defb    27,82,3,35, 27,82, 0
  ELSE

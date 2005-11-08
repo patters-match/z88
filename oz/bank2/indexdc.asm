@@ -6,21 +6,21 @@
 
         Module Filer
 
-	include	"blink.def"
-	include "char.def"
-	include "director.def"
-	include "error.def"
-	include "fileio.def"
-	include "integer.def"
-	include "memory.def"
-	include "misc.def"
-	include "serintfc.def"
-	include "stdio.def"
-	include "syspar.def"
-	include "time.def"
+        include "blink.def"
+        include "char.def"
+        include "director.def"
+        include "error.def"
+        include "fileio.def"
+        include "integer.def"
+        include "memory.def"
+        include "misc.def"
+        include "serintfc.def"
+        include "stdio.def"
+        include "syspar.def"
+        include "time.def"
         include "sysvar.def"
 
-	include	"..\bank7\lowram.def"
+        include "..\bank7\lowram.def"
 
 
 ; ubIdxFlags2
@@ -121,7 +121,7 @@ defc    CLIS_PRTTOPEN           =4
 defc    CLIS_OUTTOPEN           =2
 defc    CLIS_INTOPEN            =1
 
-defc	mem_1fd6		=$1fd6		; 3*12 bytes
+defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
         org     $c000                           ; c000-d7ff, 6144 bytes
 
@@ -3462,7 +3462,7 @@ defc	mem_1fd6		=$1fd6		; 3*12 bytes
         cp      $0E
         jr      nc, dcout_3
         cp      7
-        jr      nc, dcout_5			; 07-0D
+        jr      nc, dcout_5                     ; 07-0D
 
 .dcout_3
         ld      (iy+cli_outprefix), c
@@ -3844,7 +3844,7 @@ defc	mem_1fd6		=$1fd6		; 3*12 bytes
         jr      c, fc_16
         jr      z, fc_16
         ld      b, a
-        ld      de, 2				; return in BC
+        ld      de, 2                           ; return in BC
         OZ      GN_Gdn                          ; ASCII to integer conversion
         jr      c, fc_15
         OZ      OS_Dly                          ; delay a given period

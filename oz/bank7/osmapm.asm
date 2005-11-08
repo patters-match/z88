@@ -9,7 +9,7 @@
         org $9e03                               ; 288 bytes
 
         include "blink.def"
-	include	"error.def"
+        include "error.def"
         include "stdio.def"
         include "syspar.def"
         include "sysvar.def"
@@ -71,7 +71,7 @@ xref    RestoreActiveWd
         ld      e, 0
         add     hl, de
         ex      de, hl
-        pop     hl                      ; BC*=32
+        pop     hl                              ; BC*=32
         add     hl, hl
         add     hl, hl
         add     hl, hl

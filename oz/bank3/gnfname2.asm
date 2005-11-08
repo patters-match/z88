@@ -8,10 +8,10 @@
 
         org $ded3                               ; 1543 bytes
 
-	include "dor.def"
-	include "error.def"
-	include "fileio.def"
-	include "memory.def"
+        include "dor.def"
+        include "error.def"
+        include "fileio.def"
+        include "memory.def"
         include "sysvar.def"
 
         include "gndef.def"
@@ -23,17 +23,17 @@ xdef    GNEsa
 xdef    GNPfs
 xdef    GNPrs
 xdef    GNWsm
-xdef	AllocFsNode
-xdef	FindMatchingFsNode
-xdef	FreeDOR
-xdef	FreeTopFsNode
-xdef	GetFsNodeDOR
-xdef	IsSegSeparator
-xdef	LdFsnDOR_IX
-xdef	LdIX_FsnDOR
-xdef	LeaHL_FsnBuffer
-xdef	MatchFsNode
-xdef	NextFsNode
+xdef    AllocFsNode
+xdef    FindMatchingFsNode
+xdef    FreeDOR
+xdef    FreeTopFsNode
+xdef    GetFsNodeDOR
+xdef    IsSegSeparator
+xdef    LdFsnDOR_IX
+xdef    LdIX_FsnDOR
+xdef    LeaHL_FsnBuffer
+xdef    MatchFsNode
+xdef    NextFsNode
 
 ;       ----
 

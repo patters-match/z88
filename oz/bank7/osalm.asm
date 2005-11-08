@@ -143,7 +143,7 @@ xref    MaySetPendingAlmTask
 .osalm_10
         pop     ix
         ld      (iy+OSFrame_A), RC_Hand         ; !! use osalm_x
-        res     Z80F_B_Z, (iy+OSFrame_F)	; Fz=0
+        res     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=0
         ret
 
 .osalm_dg1
@@ -186,7 +186,7 @@ xref    MaySetPendingAlmTask
 
 .osalm_x
         ld      (iy+OSFrame_A), a
-        res     Z80F_B_Z, (iy+OSFrame_F)	; Fz=0
+        res     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=0
         ret
 
 ;       ----

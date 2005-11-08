@@ -117,7 +117,7 @@ defc    TDRH_B_STOP2            =2
 
 defc    TDRH_START              =1
 
- IF	FINAL=0
+ IF     FINAL=0
 
 ;       ----
 
@@ -692,5 +692,5 @@ defc    TDRH_START              =1
         ret
 
  ELSE
-	binary "rs232.bin"
+        binary "rs232.bin"
  ENDIF

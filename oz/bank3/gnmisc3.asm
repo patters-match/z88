@@ -9,10 +9,10 @@
         org $ecd1                               ; 707 bytes
 
 
-	include "fileio.def"
-	include "filter.def"
-	include "memory.def"
-	include "stdio.def"
+        include "fileio.def"
+        include "filter.def"
+        include "memory.def"
+        include "stdio.def"
 
         include "sysvar.def"
 

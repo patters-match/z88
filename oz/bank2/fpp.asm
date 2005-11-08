@@ -7,11 +7,11 @@
         Module FPP
 
 
-	include "blink.def"
-	include "error.def"
+        include "blink.def"
+        include "error.def"
         include "sysvar.def"
 
-	include	"..\bank7\lowram.def"
+        include "..\bank7\lowram.def"
 
         org     $d800                           ; $d800-$e4ff
 
@@ -25,7 +25,7 @@
         ex      af, af'
         jp      FPP_RET
 
-;	----
+;       ----
 
 .FPError
         cp      0
@@ -80,24 +80,24 @@
         jp      FPNeg
         jp      FPBas
 
-;	----
+;       ----
 
 .FPBas
         push    hl
         ld      l, a
         add     a, a
-        add     a, l				; A= 3*L
-        add     a, <FuncTbl			; !! 'ld hl, FuncTbl; add a,l; ld l,a'
+        add     a, l                            ; A= 3*L
+        add     a, <FuncTbl                     ; !! 'ld hl, FuncTbl; add a,l; ld l,a'
         ld      l, a
         ld      h, >FuncTbl
         ex      (sp), hl                        ; return to function
         ret
 
-;	----
+;       ----
 
 .FPAnd
-        ld      a, b				; !! put this code sequence
-        or      c				; !! into subroutine
+        ld      a, b                            ; !! put this code sequence
+        or      c                               ; !! into subroutine
         jr      z, and_1
         call    FltBoth
         call    FixBoth
@@ -119,7 +119,7 @@
         exx
         ret
 
-;	----
+;       ----
 
 .FPEor
         ld      a, b
@@ -145,7 +145,7 @@
         exx
         ret
 
-;	----
+;       ----
 
 .FPOr
         ld      a, b
@@ -171,7 +171,7 @@
         exx
         ret
 
-;	----
+;       ----
 
 ;       HLhlC=MOD(HLhlC,DEdeB)
 
@@ -206,9 +206,9 @@
         ld      c, 0
         ex      af, af'
         ret     z                               ; HLhl(in) was positive
-        jp      NegHLhl0			; else negate it
+        jp      NegHLhl0                        ; else negate it
 
-;	----
+;       ----
 
 ;               HLhlC=Fix(HLhlC/DEdeB)
 
@@ -227,17 +227,17 @@
         ret     p
         jp      NegHLhl0
 
-;	----
+;       ----
 
 .FPSub
         ld      a, b
         or      c
         jr      nz, sub_1
 
-        call    SubHLhl_DEde			; try integer substraction,
-        ret     po				; return if no overflow
+        call    SubHLhl_DEde                    ; try integer substraction,
+        ret     po                              ; return if no overflow
 
-        call    AddHLhl_DEde			; else restore HLhl
+        call    AddHLhl_DEde                    ; else restore HLhl
 
 .sub_1
         call    FltBoth
@@ -254,17 +254,17 @@
         ld      h, a
         jr      add_2
 
-;	----
+;       ----
 
 .FPAdd
         ld      a, b
         or      c
         jr      nz, add_1
 
-        call    AddHLhl_DEde			; try integer addition,
-        ret     po				; return if no overflow
+        call    AddHLhl_DEde                    ; try integer addition,
+        ret     po                              ; return if no overflow
 
-        call    SubHLhl_DEde			; else restore HLhl
+        call    SubHLhl_DEde                    ; else restore HLhl
 
 .add_1
         call    FltBoth
@@ -329,7 +329,7 @@
         set     7, h                            ; make it negative
         ret
 
-;	----
+;       ----
 
 .FPDiv
         call    FltBoth
@@ -436,7 +436,7 @@
         res     7, h
         ret
 
-;	----
+;       ----
 
 .FPMul
         ld      a, b
@@ -505,7 +505,7 @@
         set     7, h
         ret
 
-;	----
+;       ----
 
 .FPPwr
         ld      a, b
@@ -628,7 +628,7 @@
         call    mul_1
         jp      loc_0_DD84
 
-;	----
+;       ----
 
 .FPLt
         ld      a, b
@@ -646,7 +646,7 @@
         ret     nc
         jr      FPTru
 
-;	----
+;       ----
 
 .FPGt
         ld      a, b
@@ -665,7 +665,7 @@
         ret     c
         jr      FPTru
 
-;	----
+;       ----
 
 .FPGeq
         ld      a, b
@@ -683,7 +683,7 @@
         ret     c
         jr      FPTru
 
-;	----
+;       ----
 
 .FPLeq
         ld      a, b
@@ -702,7 +702,7 @@
         ret     nc
         jr      FPTru
 
-;	----
+;       ----
 
 .FPNeq
         ld      a, b
@@ -720,7 +720,7 @@
         ret     z
         jr      FPTru
 
-;	----
+;       ----
 
 .FPEq
         ld      a, b
@@ -737,7 +737,7 @@
 .Eq_2
         ret     nz
 
-;	----
+;       ----
 
 .FPTru
         ld      hl, $FFFF
@@ -748,7 +748,7 @@
         ld      c, a
         ret
 
-;	----
+;       ----
 
 .FPNeg
         dec     c
@@ -759,7 +759,7 @@
         ld      h, a
         ret
 
-;	----
+;       ----
 
 .FPAbs
         bit     7, h
@@ -770,7 +770,7 @@
         res     7, h
         ret
 
-;	----
+;       ----
 
 .FPNot
         call    FPFix
@@ -791,7 +791,7 @@
         xor     a
         ret
 
-;	----
+;       ----
 
 ;       return PI, 490FDAA2.81
 
@@ -803,19 +803,19 @@
         ld      c, $81
         xor     a
         ret
-;	----
+;       ----
 .FPDeg
         call    loc_0_DC15
         call    mul_1
         xor     a
         ret
-;	----
+;       ----
 .FPRad
         call    loc_0_DC15
         call    div_1
         xor     a
         ret
-;	----
+;       ----
 ;
 ;               180/PI
 
@@ -827,7 +827,7 @@
         exx
         ld      b, $85
         ret
-;	----
+;       ----
 .FPSgn
         call    TstHLhl
         or      c
@@ -836,7 +836,7 @@
         jp      nz, FPTru
         call    FPZer
         jp      IncHLhl
-;	----
+;       ----
 .FPVal
         push    hl
         pop     ix
@@ -863,7 +863,7 @@
         push    ix
         pop     de
         ret
-;	----
+;       ----
 .FPInt
         dec     c
         inc     c
@@ -880,7 +880,7 @@
         xor     a
         ld      c, a
         ret
-;	----
+;       ----
 .FPSqr
         call    FPFlt
 
@@ -937,7 +937,7 @@
         xor     a
         ret
 
-;	----
+;       ----
 
 .FPTan
         call    FPFlt
@@ -952,7 +952,7 @@
         xor     a
         ret
 
-;	----
+;       ----
 
 .FPCos
         call    FPFlt
@@ -963,7 +963,7 @@
         inc     e
         ld      a, e
         jr      loc_0_DCF5
-;	----
+;       ----
 .FPSin
         call    FPFlt
 
@@ -974,7 +974,7 @@
         rlca
         rlca
 
-;	----
+;       ----
 .sub_0_DCF1
         rlca
         and     4
@@ -1003,17 +1003,17 @@
         call    PopDEdeB
         call    mul_1
         jp      loc_0_DD56
-;	----
+;       ----
 .loc_0_DD34
         call    sub_0_E344
         call    sub_0_E37D
-;	----
+;       ----
         defb    $71,$D5,$78,$4C,$70             ; 2.8828843E-05          1/34687.482504451
         defb    $AF,$94,$03,$B6,$76             ;-0.0013395552          -1/746.51644671521
         defb    $C8,$9C,$AA,$2A,$7B             ;-0.048977532           -1/20.417525343048
         defb    $DD,$FF,$FF,$FF,$7E             ;-0.43359375            -1/2.3063063162138
         defb     0 , 0 , 0 , 0 ,$80             ; 1.000
-;	----
+;       ----
         call    PopDEdeB
 .loc_0_DD56
         pop     af
@@ -1025,7 +1025,7 @@
         set     7, h
         ret
 ; End of function sub_0_DCF1
-;	----
+;       ----
 
 ;       HLhlC=1.0
 
@@ -1037,7 +1037,7 @@
         ld      c, $80
         ret
 
-;	----
+;       ----
 .LdDEdeB_1
         ld      de, 0
         exx
@@ -1046,7 +1046,7 @@
         ld      b, $80
         ret
 ; End of function LdDEdeB_1
-;	----
+;       ----
 
 ;       .7853981629014 1/1.2732395455393
 
@@ -1058,7 +1058,7 @@
         exx
         ld      b, $7F
         ret
-;	----
+;       ----
 .FPExp
         call    FPFlt
 .loc_0_DD84
@@ -1076,7 +1076,7 @@
         jp      c, FPZer
         ld      a, RC_Exr                       ; Exponent function range
         jp      FPError
-;	----
+;       ----
 .loc_0_DD9F
         and     $80
         or      e
@@ -1108,7 +1108,7 @@
         jr      c, loc_0_DDED
         jp      p, FPZer
         jr      loc_0_DDF0
-;	----
+;       ----
 .loc_0_DDED
         jp      m, ErrTooBig
 .loc_0_DDF0
@@ -1117,7 +1117,7 @@
         ld      c, a
         xor     a
         ret
-;	----
+;       ----
 
 .sub_0_DDF8
         call    LdDEdeB_1
@@ -1125,7 +1125,7 @@
         call    ExHLhlC_DEdeB
         jp      div_1
 
-;	----
+;       ----
 
 .sub_0_DE01
         ld      de, $3172
@@ -1135,11 +1135,11 @@
         ld      b, $7F
         ret
 ; End of function sub_0_DE01
-;	----
+;       ----
 .FPLn
         call    FPFlt
 
-;	----
+;       ----
 .sub_0_DE0F
         ld      a, RC_Lgr                       ; Log range
         bit     7, h
@@ -1206,7 +1206,7 @@
         xor     a
         ret
 ; End of function sub_0_DE0F
-;	----
+;       ----
 .FPLog
         call    FPLn
         ld      de, $5E5B
@@ -1217,7 +1217,7 @@
         call    mul_1
         xor     a
         ret
-;	----
+;       ----
 .FPAsn
         call    FPFlt
         call    PushHLhlC
@@ -1235,7 +1235,7 @@
         pop     de
         call    loc_0_DDFB
         jr      loc_0_DEC6
-;	----
+;       ----
 .FPAtn
         call    FPFlt
 .loc_0_DEC6
@@ -1259,7 +1259,7 @@
         call    sub_0_DDF8
         ld      b, 2
         jp      loc_0_DEF6
-;	----
+;       ----
 .loc_0_DEF1
         call    sub_0_E35F
         ld      b, 1
@@ -1299,13 +1299,13 @@
         xor     a
         ret
 ; End of function FPAsn
-;	----
+;       ----
 .FPAcs
         call    FPAsn
         ld      a, 2
         push    af
         jr      loc_0_DF2D
-;	----
+;       ----
 .FPStr
         exx
         push    de
@@ -1349,7 +1349,7 @@
         pop     af
         sub     b
         jr      loc_0_DF6C
-;	----
+;       ----
 .loc_0_DF8C
         sub     $20
         call    sub_0_E3A4
@@ -1360,7 +1360,7 @@
         pop     af
         add     a, b
         jr      loc_0_DF6C
-;	----
+;       ----
 .loc_0_DF9B
         ld      a, 9
         call    sub_0_E3A4
@@ -1416,7 +1416,7 @@
         cp      c
         ld      a, 0
         jr      loc_0_E004
-;	----
+;       ----
 .loc_0_DFEF
         push    af
         ld      a, c
@@ -1516,7 +1516,7 @@
         dec     e
         jp      p, loc_0_E05A
         jr      loc_0_E05E
-;	----
+;       ----
 .loc_0_E082
         pop     af
         inc     c
@@ -1567,7 +1567,7 @@
         ex      de, hl
         pop     hl
         ret
-;	----
+;       ----
 .LdDEdeB_IX
         ld      b, (ix+4)
         exx
@@ -1577,11 +1577,11 @@
         ld      e, (ix+2)
         ld      d, (ix+3)
         ret
-;	----
+;       ----
 .ErrBadNum
         ld      a, RC_Bdn                       ; Bad number
         jp      FPError
-;	----
+;       ----
 
 .sub_0_E0DE
         call    FPZer
@@ -1620,7 +1620,7 @@
         call    mul_1
         xor     a
         ret
-;	----
+;       ----
 .loc_0_E11E
         cp      $DA
         jr      c, loc_0_E12C
@@ -1629,7 +1629,7 @@
         call    div_1
         xor     a
         ret
-;	----
+;       ----
 .loc_0_E12C
         push    af
         ld      a, $26
@@ -1639,7 +1639,7 @@
         add     a, $26
         jr      loc_0_E11E
 
-;	----
+;       ----
 
 .sub_0_E13A
         push    bc
@@ -1667,7 +1667,7 @@
         jp      p, loc_0_E144
         ld      b, $64
         jr      loc_0_E144
-;	----
+;       ----
 .loc_0_E160
         ex      af, af'
         cp      '-'
@@ -1677,11 +1677,11 @@
         neg
         ret
 ; End of function sub_0_E13A
-;	----
+;       ----
 .sub_0_E169
         inc     ix
 ; End of function sub_0_E169
-;	----
+;       ----
 .sub_0_E16B
         call    ReadNum
         ret     c
@@ -1709,7 +1709,7 @@
         call    ExHLhl_DEde
         jr      sub_0_E16B
 ; End of function sub_0_E16B
-;	----
+;       ----
 
 ;
 
@@ -1725,12 +1725,12 @@
         jp      nc, fix_1
         jp      ErrTooBig
 
-;	----
+;       ----
 .FixBoth
         call    ExHLhlC_DEdeB
         call    FPFix
         call    ExHLhlC_DEdeB
-;	----
+;       ----
 .FPFix
         dec     c
         inc     c
@@ -1746,7 +1746,7 @@
         ld      c, 0
         ret     z
 
-;	----
+;       ----
 
 .NegHLhl0
         or      a
@@ -1777,7 +1777,7 @@
         ld      c, l
         pop     hl
         jr      loc_0_E1BA
-;	----
+;       ----
 
 .sub_0_E1DA
         ld      a, $80+22
@@ -1790,7 +1790,7 @@
         ld      bc, $2169
         exx
 
-;	----
+;       ----
 .sub_0_E1EA
         set     7, d
         set     7, h
@@ -1857,7 +1857,7 @@
         pop     bc
         exx
 
-;	----
+;       ----
 
 .NormalizeHLhlC
         bit     7, h
@@ -1882,7 +1882,7 @@
         dec     c
         jp      nz, Normalize0HLhlC
         ret                                     ; zero
-;	----
+;       ----
 
 .FltBoth
         call    ExHLhlC_DEdeB
@@ -1906,7 +1906,7 @@
         ret     m
         res     7, h
         ret
-;	----
+;       ----
 .IncHLhl
         exx
         ld      bc, 1
@@ -1919,7 +1919,7 @@
         pop     bc
         ret
 
-;	----
+;       ----
 
 ;       clear carry, set HLhl lowest bit
 
@@ -1930,7 +1930,7 @@
         exx
         ret
 
-;	----
+;       ----
 .ExHLhlC_DEdeB
         ld      a, c
         ld      c, b
@@ -1942,7 +1942,7 @@
         ex      de, hl
         exx
         ret
-;	----
+;       ----
 .SrlHLhl
         call    SrlHLhl0
         exx
@@ -1952,7 +1952,7 @@
         or      b
         ex      af, af'
         exx
-;	----
+;       ----
 .IncC
         inc     c
         ret     nz
@@ -1960,7 +1960,7 @@
 .ErrTooBig
         ld      a, RC_Tbg                       ; Too big
         jp      FPError
-;	----
+;       ----
 ;       Test HLhlC for zero
 
 .FPTst
@@ -1971,7 +1971,7 @@
         and     $80                             ; get negative bit
         or      $40                             ; set positive bit
         ret
-;	----
+;       ----
 .TstHLhl
         ld      a, h
         or      l
@@ -1981,7 +1981,7 @@
         exx
         ret
 
-;	----
+;       ----
 .FPCmp
         ld      a, b
         or      c
@@ -1994,12 +1994,12 @@
         ld      a, $80
         rra
         ret
-;	----
+;       ----
 .loc_0_E2C6
         call    FltBoth
         call    SFcp
         jr      loc_0_E2BF
-;	----
+;       ----
 
 ;       signed integer compare, preload FALSE
 
@@ -2019,14 +2019,14 @@
         ld      c, a
         ret
 
-;	----
+;       ----
 
 ;       signed float compare, preload FALSE
 
 .SFcp_False
         call    SFcp
         jr      FPZer
-;	----
+;       ----
 
 ;       float compare
 
@@ -2047,7 +2047,7 @@
         exx
         ret
 
-;	----
+;       ----
 
 ;       signed float compare
 
@@ -2061,7 +2061,7 @@
         call    Fcp
         ccf
         ret
-;	----
+;       ----
 
 ;       signed integer compare
 
@@ -2072,18 +2072,18 @@
         ld      a, h
         rla                                     ; sign into Fc
         ret
-;	----
+;       ----
 .sub_0_E301
         dec     b
         inc     c
 ; End of function sub_0_E301
-;	----
+;       ----
 .sub_0_E303
         call    LdDEde_HLhl
         call    SrlHLhlC0
         call    SrlHLhlC0
         ex      af, af'
-;	----
+;       ----
 
 .AddHLhl_DEde
         exx
@@ -2140,12 +2140,12 @@
         exx
         ret
 
-;	----
+;       ----
 .sub_0_E344
         call    LdDEdeB_HLhlC
         call    mul_1
 
-;	----
+;       ----
 
 .PushHLhlC
         pop     ix                              ; return address
@@ -2168,7 +2168,7 @@
         ld      c, a
         jp      (ix)                            ; return
 
-;	----
+;       ----
 .sub_0_E35F
         call    PushHLhlC
         call    LdDEdeB_1
@@ -2181,7 +2181,7 @@
         call    PopDEdeB
         jp      div_1
 
-;	----
+;       ----
 .sub_0_E37D
         ld      ix, 2
         add     ix, sp                          ; IX=table
@@ -2201,7 +2201,7 @@
         call    LdDEdeB_IX
         ex      (sp), ix
         jr      loc_0_E388
-;	----
+;       ----
 .sub_0_E3A4
         inc     a
         ex      af, af'
@@ -2235,7 +2235,7 @@
         inc     c
         jp      m, loc_0_E3B1
         jp      ErrTooBig
-;	----
+;       ----
 .loc_0_E3D5
         call    ExHLhlC_DEdeB
         res     7, d
@@ -2246,7 +2246,7 @@
         ex      af, af'
         ret
 
-;	----
+;       ----
 
 ;       DEde/BCbc -> DEde=quotient, HLhl=remainder
 
@@ -2291,7 +2291,7 @@
         exx
         scf
         jp      loc_0_E3EF
-;	----
+;       ----
 .sub_0_E40E
         or      a
 .loc_0_E40F
@@ -2310,7 +2310,7 @@
         inc     a
         ret     p
 ; End of function sub_0_E40E
-;	----
+;       ----
 .sub_0_E422
         exx
         rr      h
@@ -2321,7 +2321,7 @@
         jp      loc_0_E40F
 ; End of function sub_0_E422
 
-;	----
+;       ----
 .loc_0_E42F
         sbc     hl, bc
         exx
@@ -2338,7 +2338,7 @@
 .loc_0_E43F
         inc     a
         ret     p
-;	----
+;       ----
 .sub_0_E441
         sla     c
         rl      b
@@ -2378,7 +2378,7 @@
         inc     c
         jp      loc_0_E43F
 
-;	----
+;       ----
 
 .sub_0_E47A
         add     hl, hl                          ; HLhl *= 2
@@ -2400,7 +2400,7 @@
         dec     c
         ret
 
-;	----
+;       ----
 ;       Read byte, return Fc=1 if it's not number
 
 
@@ -2430,7 +2430,7 @@
         push    ix
         pop     de
         bit     7, d                            ; if DE not in S3 then just read it
-        jr      z, rb_1				; !! 'ld a, (de); ... ; ret z'
+        jr      z, rb_1                         ; !! 'ld a, (de); ... ; ret z'
         bit     6, d
         jr      z, rb_1
         ex      af, af'
@@ -2457,7 +2457,7 @@
         ld      a, (de)
         ret
 
-;	----
+;       ----
 
 .WriteByteHL
         bit     7, h                            ; if HL not in S3 then just write it

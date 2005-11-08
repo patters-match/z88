@@ -9,7 +9,7 @@
         org     $9cdd                           ; 145 bytes
 
         include "dor.def"
-	include	"time.def"
+        include "time.def"
         include "sysvar.def"
 
 xdef    IsSpecialHandle

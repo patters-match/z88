@@ -59,10 +59,6 @@ xref    SaveScreen
 
 xref    FreeMemHandle
 
-;		defs	3	($ff)						; just for alignement before removing all ORG
-
-
-;       ----
 
 .SetMemHandlePos
         ld      ix, pFsMemPool

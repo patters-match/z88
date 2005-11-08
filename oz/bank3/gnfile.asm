@@ -8,11 +8,11 @@
 
         org $dd1a                               ; 441 bytes
 
-	include "director.def"
-	include "dor.def"
-	include "error.def"
-	include "fileio.def"
-	include "memory.def"
+        include "director.def"
+        include "dor.def"
+        include "error.def"
+        include "fileio.def"
+        include "memory.def"
         include "sysvar.def"
 
 ;       ----

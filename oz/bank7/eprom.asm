@@ -8,21 +8,21 @@
 
         org     $8f00                           ; 1493 bytes
 
-	include	"blink.def"
-	include	"char.def"
-	include	"error.def"
-	include	"fileio.def"
-	include	"memory.def"
-	include	"misc.def"
-	include	"saverst.def"
-	include	"time.def"
+        include "blink.def"
+        include "char.def"
+        include "error.def"
+        include "fileio.def"
+        include "memory.def"
+        include "misc.def"
+        include "saverst.def"
+        include "time.def"
         include "sysvar.def"
-	include	"bank7\lowram.def"
+        include "bank7\lowram.def"
 
 xdef    OSEprTable
 
-;	!! completely separate module, all system calls done thru OZ calls
-;	!! can be relocated if more kernel space needed
+;       !! completely separate module, all system calls done thru OZ calls
+;       !! can be relocated if more kernel space needed
 
 .OSEprTable
         jp      EprSave                         ; 00
@@ -175,7 +175,7 @@ xdef    OSEprTable
 ;chg:   AFBCDEHL/....
 
 .EprLoad
-        ld      b, 0				; bind source in
+        ld      b, 0                            ; bind source in
         OZ      OS_Bix
         push    de                              ; remember S1/S2
         ld      (pEpr_FileHandle), ix           ; and file handle
@@ -196,7 +196,7 @@ xdef    OSEprTable
         or      e
         jr      z, ld_4                         ; size is 0? we're done
 
-        push    bc				; bind BHL into S1
+        push    bc                              ; bind BHL into S1
         ld      c, 1
         OZ      OS_Mpb
         pop     bc
