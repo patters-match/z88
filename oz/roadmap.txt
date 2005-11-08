@@ -1,0 +1,15 @@
+$Id$
+
+Roadmap for 4.1 OZ release:
+
+1) make source (disassebmly) complete ORG independent. Add GPL headers to sources.
+2) You've implemented the new generic keyboard algorithm (actually a new feature)
+3) Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes)
+4) Internal reorganisation of code (realistically possible)
+
+TODO (with priorities):
+- At the end of int.asm move HWclocks buffers in b20. P1
+- Move serial interface code in kernel. P3
+- Move OSMap to bank7. P1
+- Chang OzWindow for Deadkey codes. P1
+- Clean misc6.asm, unfixed org, move 128K routines mixed into. P1 Done
