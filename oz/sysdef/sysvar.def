@@ -28,7 +28,6 @@ DEFVARS KeymapTblPtrs
 {
 km_bank         ds.b    1       ; memory bank where tables are, bound in S2
 km_page         ds.b    1       ; high byte of address
-;km_capsable     ds.b    1       ; low byte of capsable table address
 km_diamond      ds.b    1       ; low byte of <> translation table address
 km_square       ds.b    1       ; low byte of [] translation table address
 km_deadkey      ds.b    1       ; low byte of deadkey table address
@@ -137,6 +136,12 @@ defc    ubIntTaskToDo           =$03f6
 defc    ubIntStatus             =$03f7
 defc    ubSlotRamSize           =$03fc
 defc    ubSlotRAMoffset         =$03f8
+
+;       0400-04ff       hardware ports (see blink.def)
+
+defc    ubTimeBufferSelect      =$04A0          ; select time buffer A or B
+defc    ubTIM0_A                =$04A1          ; buffer A : TIM0-4 -> $04A1-$04A5
+defc    ubTIM0_B                =$04A6          ; buffer B : TIM0-4 -> $04A6_$04AA
 
 ;       0500-0aff       handles
 

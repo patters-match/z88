@@ -6,7 +6,7 @@
 
         Module OSTables
 
-        defs    $2b   ($ff)                     ; to be removed with makeapp
+        defs    $3b   ($ff)                     ; to be removed with makeapp
         
         org     $FF00                           ; fixed start @ $00FF00
         

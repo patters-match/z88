@@ -397,29 +397,17 @@ xref    ReadRTC
         res     ITSK_B_ALARM, (hl)
         ret
 
-;       ----
-
-;       !! move these buffers into b20
-
 .ReadHWClock
-        ld      a, (BLSC_SR2)                   ; remember S2 and bind in b21
-        push    af
-        ld      a, $21
-        call    MS2BankA
-        ld      hl, $80a1                       ; read hardware clock to either $80a1 or $80a6
-        ld      a, ($8000+$a0)                  ; bit 0 selects buffer
+        ld      hl, ubTimeBufferSelect          ; read hardware clock to either buffer A or B
+        ld      a, (ubTIM0_A)                   ; bit 0 selects buffer
         rrca
         jr      c, rhwc_1
-        ld      l, $a6                          ; 80a6
+        ld      l, ubTIM0_B&255                 ; 80a6
 
 .rhwc_1
         call    ReadRTC
-        ld      hl, $80a0                       ; 20a0
-        ld      a, (hl)                         ; switch memory to read
-        xor     1                               ; !! could just 'inc', other bits not used
-        ld      (hl), a
-        pop     af                              ; restore S2
-        call    MS2BankA
+        ld      hl, ubTimeBufferSelect
+        inc     (hl)                            ; switch memory to read
         ld      hl, ubIntStatus
         set     IST_B_ALMTIMEOK, (hl)
         bit     IST_B_ALARM, (hl)               ; return alarms status
