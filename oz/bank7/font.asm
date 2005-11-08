@@ -6,8 +6,9 @@
 
         Module Font
 
-        org     $8000                           ; 3840 bytes
+        org     $8000                           ; fixed ORG
 
+; include font according the localisation ($0F00 file length)
 
 if KBDK
         binary "bank7/font_dk.dat"

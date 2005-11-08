@@ -8,8 +8,14 @@ Roadmap for 4.1 OZ release:
 4) Internal reorganisation of code (realistically possible)
 
 TODO (with priorities):
-- At the end of int.asm move HWclocks buffers in b20. P1
+X At the end of int.asm move HWclocks buffers in b20. P1
+- Rewrite timeres.asm according HWClocks. P1
 - Move serial interface code in kernel. P3
 - Move OSMap to bank7. P1
 - Chang OzWindow for Deadkey codes. P1
-- Clean misc6.asm, unfixed org, move 128K routines mixed into. P1 Done
+- Remove Deadkeys.asm in b7. P1
+X Clean misc6.asm, unfixed org, move 128K routines mixed into. P1
+- Clean misc2.asm, lots of space and speed to gain. P2
+- Clean Lowram.asm, lots of space and speed to gain. P1
+- Remove PAD94D5.asm. P1
+
