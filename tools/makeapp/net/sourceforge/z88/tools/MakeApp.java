@@ -36,6 +36,9 @@ public class MakeApp {
 	private static final char[] hexcodes =
 	{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
+	String outputFilename;
+	String inputFilename;
+	
 	
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
@@ -56,7 +59,67 @@ public class MakeApp {
 	}
 	
 	
-	public static void main(String[] args) {
+	/**
+	 * Parse integer value from string (fetched from command line or laodmap file)
+	 * and interpret it as the card size. The value must be a valid card size and not
+	 * larger than 1Mb (max size of Z88 slot).
+	 * 
+	 * Card size is evaluated as size in K.
+	 *  
+	 * @param v
+	 * @return card sice in K, or -1 if the value was illegal or badly formed
+	 */
+	private int getCardSize(String v) {
+		int cardSize = 0;
+		
+		try {
+			cardSize = Integer.parseInt(v, 10);
+			if ((cardSize != ( 2 << (Math.round(Math.log(cardSize)/Math.log(2))-1))) | cardSize>1024 ) {
+				// illegal card size
+				cardSize = -1;							
+			}
+		}  catch (NumberFormatException e) {
+			cardSize = -1;
+		}
+
+		return cardSize;
+	}
+	
+	
+	/** 
+	 * Load contents of file into a byte array.
+	 * 
+	 * @param filename
+	 * @return contents of file as byte array, or null if I/O error
+	 */
+	private byte[] getFileBinary(String filename) {
+		RandomAccessFile binaryInputFile;
+		byte codeBuffer[] = null;
+		
+		try {
+			binaryInputFile = new RandomAccessFile(filename, "r");
+			int codeSize = (int) binaryInputFile.length();
+			codeBuffer = new byte[codeSize];
+			binaryInputFile.readFully(codeBuffer);
+			binaryInputFile.close();	
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			codeBuffer = null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			codeBuffer = null;
+		} 
+
+		return codeBuffer;
+	}
+	
+	
+	/**
+	 * Generate output binary, depending on command line arguments.
+	 * @param args
+	 */
+	private void parseArgs(String[] args) {
 		int appCardBanks = 1;
 		int appCardSize = 16; 
 		RomBank[] banks = new RomBank[appCardBanks]; 	// the default 16K card container
@@ -64,17 +127,20 @@ public class MakeApp {
 		boolean splitBanks = false;
 				
 		try {
-			if (args.length >= 1) {
+			if (args.length == 0) {
+				displayCmdLineSyntax();
+			} else {
 				int arg = 0;
 				
 				if (args[0].compareToIgnoreCase("-sz") == 0 | args[0].compareToIgnoreCase("-szc") == 0) {
 					if (args[0].indexOf("c") > 0) splitBanks = true;
 					
-					appCardSize = Integer.parseInt(args[1], 10);
-					appCardBanks = appCardSize / 16;
-					if ((appCardSize != ( 2 << (Math.round(Math.log(appCardSize)/Math.log(2))-1))) | appCardSize>1024 ) {
+					appCardSize = getCardSize(args[1]);
+					if (appCardSize != -1) {
+						appCardBanks = appCardSize / 16;
+					} else {
 						System.err.println("Illegal card size. Use only: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
-						System.exit(0);							
+						return;							
 					}
 						
 					banks = new RomBank[appCardBanks]; // the card container
@@ -82,38 +148,38 @@ public class MakeApp {
 					arg += 2;
 				}
 				
-				String outputFilename = args[arg++];
+				outputFilename = args[arg++];
 				
 				while (arg < args.length) {
-					String filename = args[arg++];
-					RandomAccessFile binaryFile =  new RandomAccessFile(filename, "r");
-					int codeSize = (int) binaryFile.length();
-					byte codeBuffer[] = new byte[codeSize];
-					binaryFile.readFully(codeBuffer);
-					binaryFile.close();
-
-					int offset = Integer.parseInt(args[arg++], 16);
-					int bankNo = ((offset & 0x3f0000) >>> 16) & (appCardBanks-1);
-					offset &= 0x3fff;
-					
-					if (codeSize > Bank.BANKSIZE) {
-						System.err.println(filename + ": code size > 16K!");
+					inputFilename = args[arg++];
+					byte codeBuffer[] = getFileBinary(inputFilename);
+					if (codeBuffer == null) {
+						System.err.println(inputFilename + ": couldn't open file!");
 						return;
-					}
-					
-					if ((codeSize + offset) > Bank.BANKSIZE ) {
-						System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + " > crosses 16K bank boundary!");
-						return;						
-					}
-					
-					for (int b=0; b<codeSize; b++) {
-						if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
-							System.err.println(filename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
-							return;													
+					} else {
+						int offset = Integer.parseInt(args[arg++], 16);
+						int bankNo = ((offset & 0x3f0000) >>> 16) & (appCardBanks-1);
+						offset &= 0x3fff;
+						
+						if (codeBuffer.length > Bank.BANKSIZE) {
+							System.err.println(inputFilename + ": code size > 16K!");
+							return;
 						}
-					}					
-					
-					banks[bankNo].loadBytes(codeBuffer, offset);
+						
+						if ((codeBuffer.length + offset) > Bank.BANKSIZE ) {
+							System.err.println(inputFilename + ": code block at offset " + addrToHex(offset,true) + " > crosses 16K bank boundary!");
+							return;						
+						}
+						
+						for (int b=0; b<codeBuffer.length; b++) {
+							if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
+								System.err.println(inputFilename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
+								return;													
+							}
+						}					
+						
+						banks[bankNo].loadBytes(codeBuffer, offset);
+					}
 				}
 
 				RandomAccessFile cardFile = new RandomAccessFile(outputFilename, "rw");
@@ -133,30 +199,53 @@ public class MakeApp {
 						cardFile.close();
 					}					
 				}				
-			} else {
-				System.out.println("Syntax: [-sz Size] memdump.file input1.file offset {inputX.file offset}");
-				System.out.println("or");
-				System.out.println("[-szc Size] memdump.file input1.file offset {inputX.file offset}\n");
-				System.out.println("Usage: Load binary files into one or several 16K memory bank, and save it");
-				System.out.println("all to a new file. Offsets are specified in hex (truncated to 16K offsets).\n");
-				System.out.println("Larger application cards is created by optionally specifying size in K, eg.");
-				System.out.println("32 ... up to 1024K. Offsets are then extended with relative bank number,");
-				System.out.println("for example 3fc000 for bank 3f (top), offset 0000 (start of top bank).\n");
-				System.out.println("If you need to split a large assembled card into 16 bank on the output,");
-				System.out.println("use the -szc switch, eg. -szc 64 will make both a 64K file and 4 files,");
-				System.out.println("added with .63 for the top bank of the card and downwards.\n");
-				System.out.println("Example, using default 16K application bank dump (java -jar makeapp.jar):");
-				System.out.println("appl.epr code.bin c000 romhdr.bin 3fc0");
-				System.out.println("(load 1st file at 0000, 2nd file at 3fc0, and save 16K bank to appl.epr)\n");
-				System.out.println("Example, using a 32K application bank dump (and separate 16K bank files):");
-				System.out.println("-szc 32 bigappl.epr mth.bin 3e0000 code.bin 3fc000 romhdr.bin 3f3fc0");
-			}
+			} 
 		} catch (FileNotFoundException e) {
 			System.err.println("Couldn't load file image:\n" + e.getMessage() + "\nprogram terminated.");
 			return;
 		} catch (IOException e) {
 			System.err.println("Problem with bank image or I/O:\n" + e.getMessage() + "\nprogram terminated.");
 			return;
-		}		
+		}			
+	}
+	
+	
+	private void displayCmdLineSyntax() {
+		System.out.println("Syntax:");
+		System.out.println("[-szc Size] memdump.file input1.file offset {inputX.file offset}");
+		System.out.println("or");
+		System.out.println("-f loadmap.file\n");
+		System.out.println("Usage: Load binary files into one or several 16K memory bank, and save it");
+		System.out.println("all to a new file. Offsets are specified in hex (truncated to 16K offsets).\n");
+		System.out.println("Larger application cards is created by optionally specifying size in K, eg.");
+		System.out.println("32 ... up to 1024K. Offsets are then extended with relative bank number,");
+		System.out.println("for example 3fc000 for bank 3f (top), offset 0000 (start of top bank).\n");
+		System.out.println("If you need to split a large assembled card into 16 bank on the output,");
+		System.out.println("use the -c switch, eg. -szc 64 will make both a 64K file and 4 files,");
+		System.out.println("added with .63 for the top bank of the card and downwards.\n");
+		System.out.println("Example, using default 16K application bank dump (java -jar makeapp.jar):");
+		System.out.println("appl.epr code.bin c000 romhdr.bin 3fc0");
+		System.out.println("(load 1st file at 0000, 2nd file at 3fc0, and save 16K bank to appl.epr)\n");
+		System.out.println("Example, using a 32K application bank dump (and separate 16K bank files):");
+		System.out.println("-szc 32 bigappl.epr mth.bin 3e0000 code.bin 3fc000 romhdr.bin 3f3fc0\n");
+		System.out.println("-----------------------------------------------------------------------");
+		System.out.println("Using the -f <loadmap.file> option, all load instructions are specified");
+		System.out.println("in the 'loadmap' text file, having one load directive per line.");
+		System.out.println("Comments are allowed (to document the loadmap) using ; (semicolon).");
+		System.out.println("Directives, and arguments in <>, are specified in the following order: ");
+		System.out.println("1) outputfile <filename>  ; filename of combined binary.");
+		System.out.println("2) size <size>            ; total file size K, from 16K-1024K");
+		System.out.println("3) save16k                ; save output as 16K bank files (optional)");
+		System.out.println("x) <input.file> <offset>  ; the binary file fragment to load at offset");
+	}
+	
+	
+	/**
+	 * Command Line Entry for MakeApp utility.
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		MakeApp ma = new MakeApp();
+		ma.parseArgs(args);
 	}
 }
