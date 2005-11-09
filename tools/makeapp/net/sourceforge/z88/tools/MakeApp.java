@@ -1,8 +1,8 @@
 /*
  * MakeApp.java
  * (C) Copyright Gunther Strube (gbs@users.sf.net), 2005
- * 
- * MakeApp is free software; you can redistribute it and/or modify it under the terms of the 
+ *
+ * MakeApp is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation;
  * either version 2, or (at your option) any later version.
  * MakeApp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -11,9 +11,9 @@
  * You should have received a copy of the GNU General Public License along with MakeApp;
  * see the file COPYING. If not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * 
+ *
  * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
- * $Id$  
+ * $Id$
  *
  */
 
@@ -30,23 +30,23 @@ import java.io.RandomAccessFile;
  * Simple command line tool that creates a 16K or larger card file where
  * small binary files are loaded into at various offsets.
  * Finally, the card is saved to a new file.
- * 
- * The tool is used to build the Z88 ROM or to combine various Z88 application 
+ *
+ * The tool is used to build the Z88 ROM or to combine various Z88 application
  * files into a single application card of 16K or larger.
  */
 public class MakeApp {
-	
+
 	private static final char[] hexcodes =
 	{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 	private int appCardBanks = 1; // default output is 16K bank
-	private int appCardSize = 16; 
+	private int appCardSize = 16;
 	private boolean splitBanks = false;
 
 	private RomBank[] banks;
 	private String outputFilename;
-	
-	
+
+
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
 	 *
@@ -64,26 +64,26 @@ public class MakeApp {
 
 		return hexString.toString();
 	}
-	
-	
+
+
 	/**
 	 * Parse integer value from string (fetched from command line or loadmap file)
 	 * and interpret it as the card size. The value must be a valid card size and not
 	 * larger than 1Mb (max size of Z88 slot).
-	 * 
+	 *
 	 * Card size is evaluated as size in K.
-	 *  
+	 *
 	 * @param v
 	 * @return card sice in K, or -1 if the value was illegal or badly formed
 	 */
 	private int getCardSize(String v) {
 		int cardSize = 0;
-		
+
 		try {
 			cardSize = Integer.parseInt(v, 10);
 			if ((cardSize != ( 2 << (Math.round(Math.log(cardSize)/Math.log(2))-1))) | cardSize>1024 ) {
 				// illegal card size
-				cardSize = -1;							
+				cardSize = -1;
 			}
 		} catch (NumberFormatException e) {
 			cardSize = -1;
@@ -91,24 +91,24 @@ public class MakeApp {
 
 		return cardSize;
 	}
-	
-	
-	/** 
+
+
+	/**
 	 * Load contents of file into a byte array.
-	 * 
+	 *
 	 * @param filename
 	 * @return contents of file as byte array, or null if I/O error occurred
 	 */
 	private byte[] getFileBinary(String filename) {
 		RandomAccessFile binaryInputFile;
 		byte codeBuffer[] = null;
-		
+
 		try {
 			binaryInputFile = new RandomAccessFile(filename, "r");
 			int codeSize = (int) binaryInputFile.length();
 			codeBuffer = new byte[codeSize];
 			binaryInputFile.readFully(codeBuffer);
-			binaryInputFile.close();	
+			binaryInputFile.close();
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -116,13 +116,13 @@ public class MakeApp {
 		} catch (IOException e) {
 			e.printStackTrace();
 			codeBuffer = null;
-		} 
+		}
 
 		return codeBuffer;
 	}
 
 
-	
+
 	/**
 	 * Parse the loadmap file for the following load directives:
 	 * <pre>
@@ -130,10 +130,10 @@ public class MakeApp {
 	 * size <size>            ; total file size K, from 16K-1024K
 	 * save16k                ; save output as 16K bank files
 	 * </pre>
-	 * 
+	 *
 	 * Remaining directive are to be interpreted as file(names) and offset
 	 * that identifies the binary fragments to be loaded into the code space.
-	 * 
+	 *
 	 * @param loadmapFilename
 	 * @return true, if file was parsed successfully.
 	 */
@@ -141,44 +141,46 @@ public class MakeApp {
         BufferedReader in = null;
         String str;
         int lineNo=0;
-        
+
 		try {
 	        in = new BufferedReader(new FileReader(loadmapFilename));
 	        while ((str = in.readLine()) != null) {
 	        	lineNo++;
+	        	str = str.replace((char) 9,' '); // get rid of all TAB's and replace with space
+
 	        	if (str.indexOf(";") > 0) {
-	        		str = str.substring(0,str.indexOf(";")-1); // strip comments from line
+	        		str = str.substring(0,str.indexOf(";")); // strip comments from line
 	        	} else if (str.indexOf(";") == 0) {
 	        		// comment at start of line - nothing to do, get another line...
 	        		continue;
 	        	}
-	        	
+
 	        	String directive[] = str.split(" "); // split string into directive tokens
 	        	if (directive != null) {
 	        		if (directive[0].compareToIgnoreCase("save16k") == 0) {
 	        			splitBanks = true;
 	        		} else if (directive[0].compareToIgnoreCase("outputfile") == 0) {
-	        			outputFilename = directive[1]; 
+	        			outputFilename = directive[1];
 	        		} else if (directive[0].compareToIgnoreCase("size") == 0) {
-	        			appCardSize = getCardSize(directive[1]); 
+	        			appCardSize = getCardSize(directive[1]);
 						if (appCardSize != -1) {
 							appCardBanks = appCardSize / 16;
 						} else {
 							System.err.println(
-									loadmapFilename + ", at line " + lineNo + ", " + 
+									loadmapFilename + ", at line " + lineNo + ", " +
 									"Illegal card size. Use only: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
-							return false;							
+							return false;
 						}
 
 						banks = new RomBank[appCardBanks]; // the card container
 						for (int b=0; b<appCardBanks; b++) banks[b] = new RomBank(); // container filled with memory...
-						
+
 	        		} else {
 	        			// all other directive are file names and offsets...
 	        			if (directive.length == 2 & directive[0].length() != 0) {
 							int offset = Integer.parseInt(directive[1], 16);
 							if ( loadCode(directive[0], (offset & 0x3f0000) >>> 16, offset & 0x3fff) == false ) {
-								System.err.println(loadmapFilename + ", at line " + lineNo + ", File binary couldn't be loaded."); 
+								System.err.println(loadmapFilename + ", at line " + lineNo + ", File binary couldn't be loaded.");
 								return false;
 							}
 	        			}
@@ -186,99 +188,99 @@ public class MakeApp {
 	        	}
 	        }
 	        in.close();
-	        
+
 	    } catch (IOException e) {
-	    	if (in != null) try { in.close(); } catch (IOException e1) {} 
+	    	if (in != null) try { in.close(); } catch (IOException e1) {}
 	    	return false;
 	    } catch (NumberFormatException e) {
 	    	if (in != null) try { in.close(); } catch (IOException e1) {}
 			System.err.println(loadmapFilename + ", at line " + lineNo + "Illegal bank offset.");
-			return false;							
-		}		
-	    
+			return false;
+		}
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Load the specified code into the final code space <b>banks</b> at bank, offset.
-	 * The function will check for bank boundary code loading overlap errors, and 
+	 * The function will check for bank boundary code loading overlap errors, and
 	 * report a message to stderr shell channel if an error occurs.
-	 * 
+	 *
 	 * @param filename name of file binary to load
 	 * @param bankNo bank of final code space to load the binary
 	 * @param offset offset within bank of final code space to load the binary
-	 * @return true, if code was succcessfully loaded into final code space. 
+	 * @return true, if code was succcessfully loaded into final code space.
 	 */
-	private boolean loadCode(String filename, int bankNo, int offset) {	
-		bankNo &= appCardBanks-1;  // code to be placed properly within the boundary of the allocated banks 
-		
+	private boolean loadCode(String filename, int bankNo, int offset) {
+		bankNo &= appCardBanks-1;  // code to be placed properly within the boundary of the allocated banks
+
 		byte codeBuffer[] = getFileBinary(filename);
 
 		if (codeBuffer == null) {
 			System.err.println(filename + ": couldn't open file!");
 			return false;
-		}		
+		}
 		if (codeBuffer.length > Bank.BANKSIZE) {
 			System.err.println(filename + ": code size > 16K!");
 			return false;
 		}
-		
+
 		if ((codeBuffer.length + offset) > Bank.BANKSIZE ) {
 			System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + " > crosses 16K bank boundary!");
-			return false;						
+			return false;
 		}
-		
+
 		for (int b=0; b<codeBuffer.length; b++) {
 			if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
 				System.err.println(filename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
-				return false;													
+				return false;
 			}
-		}					
-		
+		}
+
 		banks[bankNo].loadBytes(codeBuffer, offset);
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Generate output binary, depending on command line arguments.
 	 * @param args
 	 */
 	private void parseArgs(String[] args) {
-				
+
 		try {
 			if (args.length == 0) {
 				displayCmdLineSyntax();
 			} else {
 				int arg = 0;
-				
+
 				if (args[0].compareToIgnoreCase("-f") == 0) {
 					// parse contents of loadmap file...
-					if (parseLoadMapFile(args[1]) == false) { 
+					if (parseLoadMapFile(args[1]) == false) {
 						return;
 					}
 				} else {
 					// parse the command arguments...
 					if (args[0].compareToIgnoreCase("-sz") == 0 | args[0].compareToIgnoreCase("-szc") == 0) {
 						if (args[0].indexOf("c") > 0) splitBanks = true;
-						
+
 						appCardSize = getCardSize(args[1]);
 						if (appCardSize != -1) {
 							appCardBanks = appCardSize / 16;
 						} else {
 							System.err.println("Illegal card size. Use only: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
-							return;							
+							return;
 						}
-							
+
 						arg += 2;
 					}
 
 					banks = new RomBank[appCardBanks]; // the card container
-					for (int b=0; b<appCardBanks; b++) banks[b] = new RomBank(); // container filled with memory... 
-					
+					for (int b=0; b<appCardBanks; b++) banks[b] = new RomBank(); // container filled with memory...
+
 					outputFilename = args[arg++];
-					
+
 					// remaining arguments on command line are the file binaries to be loaded into the code space.
 					while (arg < args.length) {
 						String fileName = args[arg++];
@@ -286,37 +288,37 @@ public class MakeApp {
 						if ( loadCode(fileName, (offset & 0x3f0000) >>> 16, offset & 0x3fff) == false ) {
 							return;
 						}
-					}										
+					}
 				}
 
 				// all binary fragments loaded, now dump the final code space as complete output file...
 				RandomAccessFile cardFile = new RandomAccessFile(outputFilename, "rw");
 				for (int b=0; b<appCardBanks; b++) {
-					byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE); 
+					byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE);
 					cardFile.write(bankDump);
 				}
 				cardFile.close();
-				
+
 				if (splitBanks == true) {
 					// Also dump the final binary as 16K bank files...
 					int topBank = 0x3F;
 					for (int b=appCardBanks-1; b>=0; b--) {
 						cardFile = new RandomAccessFile(outputFilename + "." + topBank--, "rw");
-						byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE); 
+						byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE);
 						cardFile.write(bankDump);
 						cardFile.close();
-					}					
-				}				
-			} 
+					}
+				}
+			}
 		} catch (FileNotFoundException e) {
 			System.err.println("Couldn't load file image:\n" + e.getMessage() + "\nprogram terminated.");
 			return;
 		} catch (IOException e) {
 			System.err.println("Problem with bank image or I/O:\n" + e.getMessage() + "\nprogram terminated.");
 			return;
-		}			
+		}
 	}
-	
+
 	/**
 	 * When no command line arguments have been specified, write some explanations
 	 * to the shell.
@@ -349,8 +351,8 @@ public class MakeApp {
 		System.out.println("3) save16k                ; save output as 16K bank files (optional)");
 		System.out.println("x) <input.file> <offset>  ; the binary file fragment to load at offset");
 	}
-	
-	
+
+
 	/**
 	 * Command Line Entry for MakeApp utility.
 	 * @param args
