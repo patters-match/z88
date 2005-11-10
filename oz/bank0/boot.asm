@@ -9,7 +9,7 @@
         include "blink.def"
         include "sysvar.def"
 
-        org     $c000                           ;
+        org     $c000
 
 xdef    Halt
 
@@ -22,15 +22,15 @@ xref    Reset2
 ; reset code at $0000
 
 .Reset0
-        ld      sp, ROMstack&$3fff              ; read return PC from ROM - Reset1
+        ld      sp, ROMstack & $3fff            ; read return PC from ROM - Reset1
         di
-        ld      sp, ROMstack&$3fff              ; read return PC from ROM - Reset1
+        ld      sp, ROMstack & $3fff            ; read return PC from ROM - Reset1
         xor     a
         ld      i, a                            ; I=0, reset ID
         im      1
         in      a, (BL_STA)                     ; remember interrupt status
         ex      af, af'
-        ld      hl, $0301                       ;(BM_INTTIME|BM_INTGINT)<<8|BM_TMKTICK
+        ld      hl, [BM_INTTIME|BM_INTGINT]<<8 | BM_TMKTICK
 
 ; snooze on coma and wait for interrupt
 ;
@@ -58,7 +58,7 @@ xref    Reset2
 
 .rint_0
         di
-        ld      sp, ROMstack&$3fff              ; read return PC from ROM
+        ld      sp, ROMstack & $3fff            ; read return PC from ROM
         call    Delay300Kclocks                 ; ret to Reset1
 
 ; for the ret in ROM
@@ -78,7 +78,7 @@ xref    Reset2
         scf
         jp      nmi_5
 .Reset1
-        ld      de, 1<<8|$3f                    ; check slot 1, max size 63 banks
+        ld      de, 1<<8 | $3f                  ; check slot 1, max size 63 banks
         jp      VerifySlotType                  ; ret to Bootstrap2
 
 .Bootstrap2
