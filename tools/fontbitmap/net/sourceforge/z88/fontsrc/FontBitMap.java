@@ -126,6 +126,21 @@ public class FontBitMap {
 			rafFontBitMap.write(fontBitMap);
 			rafFontBitMap.close();
 
+			byte[] tokentable = new byte[fontBitMap.length/4];
+			index=0;
+			for (int b=0, n=fontBitMap.length; b<n; b+=4) {
+				int tbyte = 0;
+				for (int bits=b; bits<(b+4); bits++) {
+					tbyte = (tbyte << 2) | (((fontBitMap[bits] & 0xc0) >>> 6) & 0xff); 
+				}
+				tokentable[index++] = (byte) (tbyte & 0xff);
+			}
+
+			// Raw dump of the extracted embedded token table in the font bit map 
+			RandomAccessFile rafTokenTable = new RandomAccessFile(fontFile + ".tkt", "rw");
+			rafTokenTable.write(tokentable);
+			rafTokenTable.close();
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
