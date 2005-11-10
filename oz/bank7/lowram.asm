@@ -47,48 +47,57 @@ xdef    OZCallReturn3
         di
         xor     a
         out     (BL_COM), a                     ; bind b00 into low 2KB
-                                                ; code continues in ROM
-        defb    $ff,$ff,$ff,$ff
+        ; code continues to execute in bank 0 in ROM (see bank0/boot.asm)...
 
+
+
+        defs    $0008-$PC                       ; address align for RST 08H
 .rst08
         scf
         ret
 
-        defb    0,0,0,0,0,0
 
+
+        defs     $0010-$PC                      ; address align for RST 10H
 .rst10
         scf
         ret
 
-        defb    0,0,0,0,0,0
 
+
+        defs     $0018-$PC                      ; address align for RST 18H (OZ Floating Point Package)
 .rst18
         jp      FPPmain
 
-        defb    $ff,$ff
+        defb    0,0
 .FPP_RET
         jp      OZCallReturnFP                  ; 001d, called from FPP
 
+
+
+        defs     $0020-$PC                      ; address align for RST 20H (OZ System Call Interface)
 .rst20
         jp      CallOZMain                      ; 0020
 
-        defb    $ff,$ff
-
+        defb    0,0
         jp      CallOZret                       ; 0025
 
+
+
+        defs     $0028-$PC                      ; address align for RST 28H
 .rst28
         scf
         ret
 
-        defb    0,0,0,0,0,0
 
+
+        defs     $0030-$PC                      ; address align for RST 30H
 .rst30
-        jp      GhostMain                       ; 0030
+        jp      GhostMain
 
-        defb    $ff,$ff,$ff,$ff,$ff
 
-;       hardware INT entry point
 
+        defs     $0038-$PC                      ; address align for RST 38H, Blink INT entry point
 .OZINT
         push    af
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
@@ -115,12 +124,11 @@ xdef    OZCallReturn3
 .OZ_INT
         jp      OZSCFmain                       ; 0057
 
-        defs    4*3 ($ff)
 
-;       hardware NMI entry point
 
+        defs     $0066-$PC                      ; address align for RST 66H, Blink NMI entry point
 .OZNMI
-        push    af                              ; 0066
+        push    af
         ld      a, BM_COMRAMS                   ; bind bank $20 into lowest 8KB of segment 0
         out     (BL_COM), a
 
