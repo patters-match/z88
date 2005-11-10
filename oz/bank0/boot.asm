@@ -9,6 +9,8 @@
         include "blink.def"
         include "sysvar.def"
 
+        org     $c000                           ;
+
 xdef    Halt
 
 xref    Delay300Kclocks
@@ -18,10 +20,8 @@ xref    VerifySlotType
 xref    Reset2
 
 ; reset code at $0000
-; fixed ORG
 
 .Reset0
-        org     $c000                           ;
         ld      sp, ROMstack&$3fff              ; read return PC from ROM - Reset1
         di
         ld      sp, ROMstack&$3fff              ; read return PC from ROM - Reset1
@@ -62,14 +62,13 @@ xref    Reset2
         call    Delay300Kclocks                 ; ret to Reset1
 
 ; for the ret in ROM
-        defw Reset1
+        defw    Reset1
 .ROMstack
-        defw Bootstrap2
+        defw     Bootstrap2
         defb    $ff
 
 
 ; hardware IM1 INT at $0038
-; fixed ORG
 
 .HW_INT
         xor     a
@@ -94,10 +93,9 @@ xref    Reset2
         out     (BL_SR2), a                     ; MS2b07
         jp      Reset2                          ; init internal RAM, blink and low-ram code and set SP
 
-        defs    ($0066-$PC)  ($ff)              ; should be $0A
+        defs    ($0066-$PC) ($ff)               ; pad FFh's until 0066H (Z80 NMI vector)
 
 ; hardware non maskable interrupt at $0066
-; fixed ORG
 
 .HW_NMI
         xor     a                               ; reset command register
@@ -111,5 +109,3 @@ xref    Reset2
         xor     a
         out     (BL_SR3), a                     ; MS3b00
         jp      HW_NMI2                         ; into ROM code
-
-
