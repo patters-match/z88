@@ -82,6 +82,7 @@ public class FontBitMap {
 				int fbyte = fontBitMap[offset + b] & 0xFF;
 
 				for (int i = 0; i < 8; i++) {
+					if (offset < 0xc00) fbyte &= 0x3f; // don't display token table bits ...
 					int mask = (1 << (7 - i));
 					bwAsmFile.write(((fbyte & mask) != 0) ? "#" : " ");
 				}
@@ -122,23 +123,34 @@ public class FontBitMap {
 			bwAsmFile.close();
 
 			// dump font bit map as separate file..
-			rafFontBitMap = new RandomAccessFile(fontFile + ".dat", "rw");
+			File fontBitMapFile = new File(fontFile + ".dat");
+			fontBitMapFile.delete();
+			rafFontBitMap = new RandomAccessFile(fontBitMapFile, "rw");
 			rafFontBitMap.write(fontBitMap);
 			rafFontBitMap.close();
 
+			// extract the token table, embedded inside the font bitmap in
+			// bit 7,6 of each byte.
 			byte[] tokentable = new byte[fontBitMap.length/4];
 			index=0;
 			for (int b=0, n=fontBitMap.length; b<n; b+=4) {
 				int tbyte = 0;
 				for (int bits=b; bits<(b+4); bits++) {
-					tbyte = (tbyte << 2) | (((fontBitMap[bits] & 0xc0) >>> 6) & 0xff); 
+					tbyte = (tbyte << 2) | ((fontBitMap[bits] & 0xc0) >>> 6); 
 				}
-				tokentable[index++] = (byte) (tbyte & 0xff);
+				tokentable[index++] = (byte) tbyte;
 			}
-
-			// Raw dump of the extracted embedded token table in the font bit map 
-			RandomAccessFile rafTokenTable = new RandomAccessFile(fontFile + ".tkt", "rw");
-			rafTokenTable.write(tokentable);
+			
+			int tokenCount = tokentable[1] & 0xff;			
+			int endTokenPtrOffset = 2 + tokenCount*2;
+			int sizeOfTokenTable = (tokentable[endTokenPtrOffset+1] & 0xff) * 256 + (tokentable[endTokenPtrOffset] & 0xff);
+			// System.out.println(addrToHex(tokenCount,true) + "," + addrToHex(endTokenPtrOffset,true) + "," + addrToHex(sizeOfTokenTable,true));
+			
+			// Raw dump of the extracted embedded token table inside font bit map 
+			File tokenTableFile = new File(fontFile + ".tkt");
+			tokenTableFile.delete();
+			RandomAccessFile rafTokenTable = new RandomAccessFile(tokenTableFile, "rw");
+			rafTokenTable.write(tokentable, 0, sizeOfTokenTable);
 			rafTokenTable.close();
 			
 		} catch (FileNotFoundException e) {
