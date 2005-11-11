@@ -48,56 +48,41 @@ xdef    OZCallReturn3
         xor     a
         out     (BL_COM), a                     ; bind b00 into low 2KB
         ; code continues to execute in bank 0 in ROM (see bank0/boot.asm)...
+        defs    $0008-$PC   ($ff)               ; address align for RST 08H
 
-
-
-        defs    $0008-$PC                       ; address align for RST 08H
 .rst08
         scf
         ret
-
-
-
-        defs     $0010-$PC                      ; address align for RST 10H
+        defs     $0010-$PC  ($ff)               ; address align for RST 10H
+        
 .rst10
         scf
         ret
-
-
-
-        defs     $0018-$PC                      ; address align for RST 18H (OZ Floating Point Package)
+        defs     $0018-$PC  ($ff)               ; address align for RST 18H (OZ Floating Point Package)
+        
 .rst18
         jp      FPPmain
-
         defb    0,0
 .FPP_RET
         jp      OZCallReturnFP                  ; 001d, called from FPP
-
-
-
-        defs     $0020-$PC                      ; address align for RST 20H (OZ System Call Interface)
+        defs    $0020-$PC  ($ff)               ; address align for RST 20H (OZ System Call Interface)
+        
 .rst20
         jp      CallOZMain                      ; 0020
-
         defb    0,0
         jp      CallOZret                       ; 0025
+        defs    $0028-$PC  ($ff)               ; address align for RST 28H
 
-
-
-        defs     $0028-$PC                      ; address align for RST 28H
 .rst28
         scf
         ret
+        defs    $0030-$PC  ($ff)               ; address align for RST 30H
 
-
-
-        defs     $0030-$PC                      ; address align for RST 30H
 .rst30
-        jp      GhostMain
+        scf
+        ret
+        defs    $0038-$PC  ($ff)               ; address align for RST 38H, Blink INT entry point
 
-
-
-        defs     $0038-$PC                      ; address align for RST 38H, Blink INT entry point
 .OZINT
         push    af
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
@@ -108,7 +93,7 @@ xdef    OZCallReturn3
         in      a, (BL_STA)                     ; get interrupt status and execute inthandler
         jp      INTEntry                        ; !! 'in a' needs to be moved into ROM code
                                                 ; !! if code we use other banks
-
+                                                ; !! just for having enough space to insert ld a, bank (xor a)
 ;       OZ low level jump table
 
 .OZ_RET1
@@ -126,7 +111,7 @@ xdef    OZCallReturn3
 
 
 
-        defs     $0066-$PC                      ; address align for RST 66H, Blink NMI entry point
+        defs     $0066-$PC  ($ff)               ; address align for RST 66H, Blink NMI entry point
 .OZNMI
         push    af
         ld      a, BM_COMRAMS                   ; bind bank $20 into lowest 8KB of segment 0
@@ -162,26 +147,15 @@ xdef    OZCallReturn3
         ei
         ret
 
-.noEI
-        pop     af                              ; !! can use any 'pop af; ret' below
-        ret
-
-; 0095
-;
-;       called from misc2.asm
-
-.OZCallJump
+.OZCallJump                                     ; called from misc2.asm
         pop     af                              ; restore S3
         ld      (BLSC_SR3), a
         out     (BL_SR3), a
+.noEI
         pop     af                              ; restore AF
         ret
 
-; 009d
-;
-;       called from int.asm
-
-.INTReturn
+.INTReturn                                      ; called from int.asm
         pop     af                              ; restore S3
         ld      (BLSC_SR3), a
         out     (BL_SR3), a
@@ -189,43 +163,24 @@ xdef    OZCallReturn3
         ei
         ret
 
-; 00a6          ret with AFBCDEHL
-
-.OZCallReturn0
+.OZCallReturn0                                  ; ret with AFBCDEHL
         ex      af, af'
         pop     af
         or      a
         jr      OZCallReturnCommon
 
-; 00ab          ret with AFBCDEHL
+.OZCallReturn1                                  ; ret with AFBCDEHL
+        exx                                     ; called from buffer.asm, memory.asm, misc4.asm, ossi.asm
 
-.OZCallReturn1
-;
-;       called from buffer.asm, memory.asm, misc4.asm, ossi.asm
+.OZCallReturn2                                  ; ret with AFbcdehl
+        ex      af, af'                         ; called from buffer.asm, error.asm, esc.asm, memory.asm, misc2.asm, oscli0.asm
 
-        exx
+.OZCallReturn3                                  ; ret with afbcdehl
+        exx                                     ; called from buffer.asm
 
-; 00ac          ret with AFbcdehl
-;
-;       called from buffer.asm, error.asm, esc.asm, memory.asm, misc2.asm, oscli0.asm
-
-.OZCallReturn2
-        ex      af, af'
-
-; 00ad          ret with afbcdehl
-;
-;       called from buffer.asm
-
-.OZCallReturn3
-        exx
-
-; 00ae          ret with afBCDEHL
-
-.OZCallReturnFP
+.OZCallReturnFP                                 ; ret with afBCDEHL
         pop     af
         scf
-
-; 00b0
 
 .OZCallReturnCommon
         ld      (BLSC_SR3), a                   ; set S3
@@ -242,8 +197,6 @@ xdef    OZCallReturn3
         ex      af, af'
         ret
 
-; 00c3
-
 .error
         ret     nc
         push    af
@@ -253,45 +206,26 @@ xdef    OZCallReturn3
         call    CallErrorHandler
         pop     af                              ; restore S3
 
-; 00ce
-
 .MS3BankA
         ld      (BLSC_SR3), a
         out     (BL_SR3), a
         ret
 
-; 00d4
-;
-;       called from error.asm, process3.asm
-
-.JpAHL
+.JpAHL                                          ; called from error.asm, process3.asm
         call    MS3BankA
         ex      af, af'
         call    JpHL
         ex      af, af'
-; 00dc
 
 .MS3Bank00
         xor     a
         jr      MS3BankA
 
-; 00df
-;
-;       called from pfilter0.asm (could use elsewhere as well)
-
-.JpHL
-        jp      (hl)                            ; !! can use one in CallOZMain
-
-; 00e0
-;
-;       referenced from error.asm, process3.asm
-
-.DefErrHandler
+.DefErrHandler                                  ; referenced from error.asm, process3.asm
         ret     z
         cp      a
         ret
 
-;00e3
 .OZBUFmain
         ex      af, af'
         ld      a, (BLSC_SR3)                   ; remember S3
@@ -311,8 +245,6 @@ xdef    OZCallReturn3
         ex      af, af'
         ret
 
-; 00fc
-
 .CallOZMain
         ex      af, af'
         exx
@@ -330,9 +262,8 @@ xdef    OZCallReturn3
 
         ld      d, >OZCallTable                 ; function jumper in DE
         ex      de, hl
+.JpHL                                           ; called from pfilter0.asm (could use elsewhere as well)
         jp      (hl)                            ; $FFnn, nn=opByte
-
-; 0115
 
 .FPPmain
         ex      af, af'
@@ -362,75 +293,12 @@ xdef    OZCallReturn3
         exx
         ret
 
-; 0143
-
-;       !! remove this
-
-.GhostMain
-        ex      af, af'
-        exx
-        pop     hl                              ; caller PC
-        ld      e, (hl)                         ; get opByte - function low byte
-        inc     hl
-        push    hl
-        ld      a, (ix+2)                       ; handle? hnd_Type
-        cp      6
-        jr      nz, ghost_err
-
-        ld      a, (ix+4)                       ; tri_handle? segment
-        cp      4
-        jr      nc, ghost_err
-
-        add     a, BL_SR0
-        ld      l, a
-        ld      d, (ix+5)                       ; function page
-        ld      a, (ix+6)                       ; bank
-        ld      h, BLSC_PAGE
-        cp      (hl)
-        jp      z, ghost_1                      ; same?
-        ld      b, (hl)                         ; old bank
-        ld      c, l                            ; segment
-        push    bc                              ; remember segment/bank
-        ld      (hl), a                         ; bind A in
-        out     (c), a
-        ld      hl, GhostReturn                 ; return here
-        push    hl
-.ghost_1
-        push    de                              ; function address
-        exx
-        ex      af, af'
-        ret                                     ; call it
-
-; 0174
-
-.ghost_err
-        exx
-        ld      a, RC_HAND
-
-; 0177
-
 ;       called from int.asm thru OZ_INT to handle spurious interrupts
 
 .OZSCFmain
         scf
         ret
 
-; 0179
-
-.GhostReturn
-        ex      af, af'
-        exx
-        pop     bc                              ; restore Sx
-        ld      a, b
-        ld      b, BLSC_PAGE
-        ld      (bc), a
-        out     (c), a
-        exx
-        ex      af, af'
-        ret
-
-; 0185
-;
 ;       called thru $0025, maybe unused
 
 .CallOZret
@@ -445,8 +313,6 @@ xdef    OZCallReturn3
         pop     bc
         pop     af
         ret
-
-; 0193
 
 .OZDImain
         xor     a                               ; A=0, Fc=0
@@ -475,8 +341,6 @@ xdef    OZCallReturn3
         cp      1                               ; Fc=0 if we were interrupted
         ld      a, i                            ; reload A for NMI routine
         ret
-
-; 01a2
 
 .OZEImain
         ret     c                               ; ints were disabled? exit
