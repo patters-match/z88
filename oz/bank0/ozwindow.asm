@@ -64,15 +64,6 @@ xref    ScreenClose
 .ozoz_2
         jp      VDUputBCA
 
-;       ----
-
-.DeadkeyChars
-        defb    $bf                             ; bold ?
-        defb    $bf                             ; bold ?
-        defb    $de                             ; bold ^
-        defb    $9e                             ; c,
-
-
 .DrawOZwd
         call    ScreenOpen
 
@@ -84,24 +75,14 @@ xref    ScreenClose
         call    OZwd_cli
         call    OZwd_batlow
         call    OZwd_caps
-
-        ld      c, $a0                          ; default char
-
-        ld      a, (KbdData+kbd_lastkey)        ; dead key !! this is changed in new routines
+        ld      a, (km_deadchar)
         or      a
-        jr      z, droz_1
-
-        cp      $ac
-        jr      c, droz_1
-        cp      $b0
-        jr      nc, droz_1
-
-        add     a, <DeadkeyChars-$ac
-        ld      l, a
-        ld      h, >DeadkeyChars
-        ld      c, (hl)
-
+        jr      nz,droz_1
+        ld      a,$a0                           ; default char is a space in OZ font (8 bits width)
 .droz_1
+        ld      c,  a
+
+;.droz_1
         call    OZcmdActive
         jr      c, droz_2
 

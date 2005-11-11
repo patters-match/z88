@@ -122,7 +122,7 @@ xref    LowRAMcode_e
 
         call    ResetTimeout
         call    InitBufKBD_RX_TX
-
+        
         ld      a, (ubResetType)                ; print reset string
         or      a
         jr      nz, rst2_4

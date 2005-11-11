@@ -34,10 +34,8 @@ km_page         ds.b    1       ; high byte of address
 km_diamond      ds.b    1       ; low byte of <> translation table address
 km_square       ds.b    1       ; low byte of [] translation table address
 km_deadkey      ds.b    1       ; low byte of deadkey table address
-
-km_deadsub      ds.b    1       ; offset to list for current deadkey
 km_deadchar     ds.b    1       ; char displayed in OZ window
-;km_altnum      ds.b    1       ; []+num number for DC_Alt patch
+km_deadsub      ds.b    1       ; offset to list for current deadkey
 }
 
 defc    ubRandomPtr             =$01fb

@@ -659,13 +659,13 @@ xref    DrawOZWd
 
         ld      l, a
 
-        ld      a, ($258)                       ; if [] or <> then cancel it
-        and     $30
-        ld      a, $b8                          ; by sending keycode for []
+        ld      a, (ubSysFlags1)                ; if [] or <> then cancel it
+        and     SF1_OZDMND|SF1_OZSQUARE         ; $30
+        ld      a, IN_SQU                       ; ($b8) by sending keycode for []
         jr      nz, dead_tr
 
         ld      a, (hl)                         ; get char
-        ld      (km_deadchar), a                ; for OZ window
+        ld      (km_deadchar), a                ; for OZ window ($DE = ^)
         inc     hl
         ld      a, l
         jr      d_x                             ; store subtable ptr
@@ -685,6 +685,7 @@ xref    DrawOZWd
 
 .d_cancel
         xor     a                               ; cancel deadkey
+        ld      (km_deadchar),a                 ; will be a space char in OZ window
 .d_x    ld      (km_deadsub), a
 
         push    bc
@@ -944,7 +945,7 @@ xref    DrawOZWd
         ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
                                                 ; $page00 is matrix, $page40 is shift table
 
-        ld      de, KeymapTblPtrs+KMT_DIAMOND   ; +2=capstable
+        ld      de, KeymapTblPtrs+KMT_DIAMOND   ; +2
         ld      l, $40                          ; ShiftTable start=length of shift table
         ld      b, KMT_DEADKEY-1                ; 4-1=3 loops, (diamondtable, squaretable and deadtable)
 .ikp_1  ld      a, (hl)                         ; table size

@@ -56,9 +56,9 @@ xref    RstRdPanelAttrs
         call    MS2BankK1                       ; bind in more code
         call    RstRdPanelAttrs
         call    MS2BankK1
-
         ld      hl, $b307                       ; page | bank
         call    InitKbdPtrs
+
         jp      Reset5                          ; Reset5
 
 .ExpandMachine

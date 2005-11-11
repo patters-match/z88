@@ -112,7 +112,7 @@
 .DeadTable
     defb    (dk1 - DeadTable - 1)/2
     defb    $AE,dk1&255                            ; lowbyte offset of dk1
-.dk1    defb    $ee                                ; ^ in hires font
+.dk1    defb    $de                                ; ^ in hires font
     defb    5                                      ; 5 keys in ascending order
     defb    $61,$BA                            ; a â
     defb    $65,$BD                            ; e ê
