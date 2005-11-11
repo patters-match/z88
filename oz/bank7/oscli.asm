@@ -6,8 +6,6 @@
 
         Module OSCli
 
-        org $99cb                               ; 288 bytes
-
         include "error.def"
         include "sysvar.def"
 
@@ -21,6 +19,11 @@ xref    PutOSFrame_BC
 xref    PutOSFrame_DE
 xref    RdKbBuffer
 xref    SetPendingOZwd
+
+;       bank 7
+
+xref    CLI2KeyTable
+xref    Key2MetaTable
 
 ;       ----
 
@@ -43,7 +46,7 @@ xref    SetPendingOZwd
         bit     QUAL_B_SPECIAL, d
         call    nz, CLIchar2key                 ; special key? translate to keycode
         ld      b, -1                           ; external call identifier
-        call    ExtQualifiers                 ; translate A with qualifiers D
+        call    ExtQualifiers                   ; translate A with qualifiers D
 
 .climbc_1
         ld      d, 0                            ; clear qualifiers
@@ -123,8 +126,9 @@ xref    SetPendingOZwd
 
 .CLIchar2key
         call    AtoN_upper
-        ld      bc, 2*12
-        ld      hl, CLI2key_tab
+        ld      bc, (CLI2KeyTable)
+        ld      b,0
+        ld      hl, CLI2KeyTable+1
 .cc2k_2
         cpir
         ret     nz
@@ -133,27 +137,12 @@ xref    SetPendingOZwd
         jp      pe, cc2k_2                      ; loop if not end
         ret
 
-.CLI2key_tab
-        defb    'D',$FE                         ; D down
-        defb    'E',$E1                         ; E enter
-        defb    'H',$E7                         ; H help
-        defb    'I',$E6                         ; I index
-        defb    'L',$FC                         ; L left
-        defb    'M',$E5                         ; M menu
-        defb    'R',$FD                         ; R right
-        defb    'T',$E2                         ; T tab
-        defb    'U',$FF                         ; U up
-        defb    'X',$E3                         ; X del
-        defb    'C',$C8                         ; C ctrl
-        defb    'A',$B8                         ; A alt
-
-;       ----
 
 ;       translate keyboard code into meta char
 ;       A,D=translate(A)
 
 .Key2Meta
-        ld      hl, Key2Meta_tbl                ; !! ld hl,tbl-2; inc hl; inc hl
+        ld      hl, Key2MetaTable               ; !! ld hl,tbl-2; inc hl; inc hl
 .k2m_1
         cp      (hl)
         inc     hl
@@ -165,7 +154,7 @@ xref    SetPendingOZwd
         ld      d, (hl)                         ; qualifier
         inc     hl
         ld      l, (hl)                         ; address low byte
-        ld      h, >crsr                        ; address high byte
+        ld      h, >Key2MetaTable               ; address high byte (was crsr)
         inc     l
         dec     l
         ret     z                               ; return if no table
@@ -175,53 +164,4 @@ xref    SetPendingOZwd
         inc     hl                              ; skip mask byte
         ld      a, (hl)                         ; return meta char
         ret
-
-;       entries in descending order
-;       low limit, meta key, key table
-
-.Key2Meta_tbl
-        defb    $FC, QUAL_SPECIAL, <crsr
-        defb    $F8, QUAL_SPECIAL|QUAL_SHIFT, <crsr
-        defb    $F4, QUAL_SPECIAL|QUAL_CTRL, <crsr
-        defb    $F0, QUAL_SPECIAL|QUAL_ALT, <crsr
-        defb    $E9, 0, 0
-        defb    $E0, QUAL_SPECIAL, <spec
-        defb    $D9, 0, 0
-        defb    $D0, QUAL_SPECIAL|QUAL_SHIFT, <spec
-        defb    $C9, 0, 0
-        defb    $C8, QUAL_SPECIAL, <c
-        defb    $C0, QUAL_SPECIAL|QUAL_CTRL, <spec
-        defb    $B9, 0, 0
-        defb    $B8, QUAL_SPECIAL, <a
-        defb    $B0, QUAL_SPECIAL|QUAL_ALT, <spec
-        defb    $A0, 0, 0
-        defb    $80, QUAL_ALT, <ctrl
-        defb    $20, 0, 0
-        defb    $00, QUAL_CTRL, <ctrl
-
-;       length mask, character codes
-;       !! careful - can't cross page boundary
-
-;       if <$PC=0
-;       error   "translation table at $xx00"
-;       endif
-
-.crsr   defb    3                               ; cursor keys
-        defm    "LRDU"
-
-.spec   defb    7                               ; enter tab del (esc) menu index help
-        defm    " ETX?MIH"
-
-.ctrl   defb    $1F                             ; control chars
-        defm    "=ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        defb    $5B,$5C,$5D,$A3,$2D             ; [\]£-
-
-.c      defb    0                               ; ctrl
-        defm    "C"
-
-.a      defb    0                               ; alt
-        defm    "A"
-
-;       if >(crsr^$PC) <>0
-;       error   "translation table crosses page boundary"
-;       endif
+        

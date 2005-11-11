@@ -6,8 +6,6 @@
 
         Module OSTables
 
-        defs    ($3b+$15-7)   ($ff)                     ; to be removed with makeapp
-        
         org     $FF00                           ; fixed start @ $00FF00
         
 xdef    OZBuffCallTable

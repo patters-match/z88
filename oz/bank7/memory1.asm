@@ -6,8 +6,6 @@
 
         Module Memory1
 
-        org $9f23                               ; 41 bytes
-
         include "error.def"
         include "sysvar.def"
 

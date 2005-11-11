@@ -6,8 +6,6 @@
 
         Module Misc1
 
-        org $9670                               ; 422 bytes
-
         include "dor.def"
         include "error.def"
         include "sysvar.def"

@@ -6,8 +6,6 @@
 
         Module OSSr
 
-        org $b1a2                               ; 269 bytes
-
         include "error.def"
         include "memory.def"
         include "stdio.def"

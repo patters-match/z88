@@ -142,7 +142,15 @@ defc    ubSlotRAMoffset         =$03f8
 
 defc    ubTimeBufferSelect      =$04A0          ; select time buffer A or B
 defc    ubTIM0_A                =$04A1          ; buffer A : TIM0-4 -> $04A1-$04A5
+defc    ubTIM1_A                =$04A2
+defc    ubTIM2_A                =$04A3
+defc    ubTIM3_A                =$04A4
+defc    ubTIM4_A                =$04A5
 defc    ubTIM0_B                =$04A6          ; buffer B : TIM0-4 -> $04A6_$04AA
+defc    ubTIM1_B                =$04A7
+defc    ubTIM2_B                =$04A8
+defc    ubTIM3_B                =$04A9
+defc    ubTIM4_B                =$04AA
 
 ;       0500-0aff       handles
 

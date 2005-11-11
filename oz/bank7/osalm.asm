@@ -6,8 +6,6 @@
 
         Module OSAlm
 
-        org $983e                               ; 397 bytes
-
         include "error.def"
         include "misc.def"
         include "time.def"

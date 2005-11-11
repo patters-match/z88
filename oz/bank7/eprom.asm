@@ -6,8 +6,6 @@
 
         Module  EPROM
 
-        org     $8f00                           ; 1493 bytes
-
         include "blink.def"
         include "char.def"
         include "error.def"

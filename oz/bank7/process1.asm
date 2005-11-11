@@ -6,8 +6,6 @@
 
         Module Process1
 
-        org $9aeb                               ; 211 bytes
-
         include "error.def"
         include "sysvar.def"
 

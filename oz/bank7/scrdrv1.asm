@@ -6,8 +6,6 @@
 
         Module ScrDrv1
 
-        org $ac5b                               ; 1351 bytes
-
         include "screen.def"
         include "stdio.def"
         include "sysvar.def"

@@ -6,8 +6,6 @@
 
         Module Reset2
 
-        org $95a5                               ; 203 bytes
-
         include "blink.def"
         include "memory.def"
         include "screen.def"

@@ -6,8 +6,6 @@
 
         Module InitData
 
-        org $aaa9                               ; 13 bytes
-
         include "blink.def"
         include "sysvar.def"
 

@@ -6,8 +6,6 @@
 
         Module Card1
 
-        org     $9bbe                           ; 287 bytes
-
         include "director.def"
         include "sysvar.def"
 
@@ -196,7 +194,7 @@ xref    S2VerifySlotType
         ld      hl, $4000                       ; test for RAM
         ld      c, (hl)
         ld      a, c
-        xor     $FF                             ; !! cpl
+        cpl
         ld      (hl), a
         xor     (hl)                            ; Fz=1 if RAM
         ld      (hl), c

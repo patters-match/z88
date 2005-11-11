@@ -6,8 +6,6 @@
 
         Module NqSp
 
-        org $a6d9                            ; 976 bytes
-
         include "director.def"
         include "error.def"
         include "syspar.def"
@@ -368,23 +366,7 @@ xref    OSNqProcess
         cp      c
         ret     nz                              ; Fc=0 if data fits dest
         or      a
-        ret     z                               ; !! unconditional
-
-;       ----
-
-;       !! unused
-;       compare attribute
-
-.sub_A86F
-        call    PeekHLinc
-        ex      de, hl
-        xor     (hl)
-        ex      de, hl
-        inc     de
-        ret     nz
-        dec     c
-        jr      nz, sub_A86F
-        ret
+        ret     
 
 ;       ----
 
@@ -432,7 +414,7 @@ xref    OSNqProcess
 ;       IN: A=reason low byte
 
 .SpPanel
-        cp      0                               ; !! or a
+        or      a
         jp      z, OSSp_PAGfi
         push    ix
 

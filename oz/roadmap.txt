@@ -12,10 +12,22 @@ X At the end of int.asm move HWclocks buffers in b20. P1
 - Rewrite timeres.asm according HWClocks. P1
 - Move serial interface code in kernel. P3
 - Move OSMap to bank7. P1
-- Chang OzWindow for Deadkey codes. P1
-- Remove Deadkeys.asm in b7. P1
+X Change OzWindow for Deadkey codes. P1
+X Remove Deadkeys.asm in b7. P1
 X Clean misc6.asm, unfixed org, move 128K routines mixed into. P1
 - Clean misc2.asm, lots of space and speed to gain. P2
 - Clean Lowram.asm, lots of space and speed to gain. P1
 - Remove PAD94D5.asm. P1
+- PrinterEd menu 1/2 to correct. P2
+- Put OSCli.asm tables in fixed area. P1
+- Clean OSAlm. P2
+- Test A=0 in OSSci. P3
+- Transform OSSci to be page independant (OSSciTable). P2
+- Transform OSCli to be page independant (Key2Meta routine). P2
 
+
+FIXED KERNEL BINARIES FOR COMPILATION
+ostables.asm @ $3F00 in bank 0
+keymap.asm @ $3300 in bank 7
+osclitables @ same page (to be modified)
+osscitable @ same page (to be modified)

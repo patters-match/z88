@@ -6,8 +6,6 @@
 
         Module Reset5
 
-        org $9816                               ; 40 bytes
-
         include "director.def"
         include "serintfc.def"
         include "screen.def"

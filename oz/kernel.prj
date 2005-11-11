@@ -1,7 +1,8 @@
 kernel.asm
 bank7\font.asm
+bank7\osscitable.asm
+bank7\clitables.asm
 bank7\eprom.asm
-bank7\pad94d5.asm
 bank7\ossci.asm
 bank7\timeres.asm
 bank7\reset2.asm
@@ -12,7 +13,6 @@ bank7\oscli.asm
 bank7\process1.asm
 bank7\card1.asm
 bank7\filesys1.asm
-bank7\deadkey.asm
 bank7\osmapm.asm
 bank7\memory1.asm
 bank7\mth1.asm
@@ -22,6 +22,7 @@ bank7\lowram0.asm
 bank7\scrdrv1.asm
 bank7\ossr.asm
 bank7\key2chrt.asm
+bank7\morespace.asm
 bank7\keymap.asm
 bank7\appdors0.asm
 bank0\boot.asm
@@ -64,5 +65,6 @@ bank0\ozwindow.asm
 bank0\scrdrv4.asm
 bank0\osust.asm
 bank0\resetx.asm
+bank0\freespace.asm
 bank0\ostables.asm
 

@@ -6,8 +6,6 @@
 
         Module OsSci
 
-        org $9500                               ; 100 bytes
-
         include "blink.def"
         include "error.def"
         include "sysvar.def"
@@ -20,11 +18,9 @@ xref    InitSBF
 xref    ScreenClose
 xref    ScreenOpen
 
-;       ----
+;       bank 7
 
-.Table
-        defb 0, 3, 6, 7, 5, 5                   ; #low bits ignored
-
+xref    OSSciTable
 
 ; alter screen information
 ;
@@ -43,8 +39,8 @@ xref    ScreenOpen
 .OSSci
         cp      6                               ; !! should check for reason 0
         jr      nc, ossci_4                     ; bad reason
-        ld      d, >Table                       ; !! use 'ld de,Table; add a, e' for clarity
-        add     a, <Table
+        ld      d, >OSSciTable                  ; !! use 'ld de,Table; add a, e' for clarity
+        add     a, <OSSciTable
         ld      e, a
         add     a, BL_PB0-1
         ld      c, a                            ; BLINK register

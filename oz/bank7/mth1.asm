@@ -6,8 +6,6 @@
 
         Module MTH1
 
-        org     $9f4c                           ; 1933 bytes
-
         include "dor.def"
         include "error.def"
         include "stdio.def"
@@ -287,7 +285,7 @@ xref    GetNextCmdAttr
 
 .SetHlpActiveTpc
         ld      (ubHlpActiveTpc), a
-        jp      c, shat_1                       ; Fc=1? init help  !! jr
+        jr      c, shat_1                       ;
 
         ld      a, (ubHlpActiveHelp)
         cp      8

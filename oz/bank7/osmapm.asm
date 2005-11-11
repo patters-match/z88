@@ -5,9 +5,7 @@
 ; -----------------------------------------------------------------------------
 
         Module OSMapM
-
-        org $9e03                               ; 288 bytes
-
+       
         include "blink.def"
         include "error.def"
         include "stdio.def"

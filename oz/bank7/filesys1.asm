@@ -6,8 +6,6 @@
 
         Module Filesys1
 
-        org     $9cdd                           ; 145 bytes
-
         include "dor.def"
         include "time.def"
         include "sysvar.def"
