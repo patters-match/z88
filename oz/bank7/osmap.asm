@@ -1,10 +1,8 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1de03
-;
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module OSMapM
+        Module OSMap
        
         include "blink.def"
         include "error.def"
@@ -12,7 +10,7 @@
         include "syspar.def"
         include "sysvar.def"
 
-xdef    OSMapMain
+xdef    OSMap
 
 ;       bank 0
 
@@ -31,6 +29,14 @@ xref    GetCurrentWdInfo
 xref    RestoreActiveWd
 
 ;       ----
+
+; high resolution graphics manipulation
+
+.OSMap
+        push    ix
+        call    OSMapMain
+        pop     ix
+        ret
 
 .OSMapMain
         ld      b, c

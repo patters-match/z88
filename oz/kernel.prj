@@ -13,7 +13,7 @@ bank7\oscli.asm
 bank7\process1.asm
 bank7\card1.asm
 bank7\filesys1.asm
-bank7\osmapm.asm
+bank7\osmap.asm
 bank7\memory1.asm
 bank7\mth1.asm
 bank7\nqsp.asm
@@ -49,7 +49,6 @@ bank0\misc5.asm
 bank0\int.asm
 bank0\random.asm
 bank0\kbd.asm
-bank0\osmap.asm
 bank0\memory.asm
 bank0\mth2.asm
 bank0\token.asm
