@@ -604,11 +604,13 @@ xref    DrawOZWd
         pop     af
         ld      b,0
         ld      c,(hl)                          ; get length
+        sla     c                               ; and multiply by 2
         inc     hl                              ; start of the table
         cpir                                    ; search if entry is in the table
         pop     bc
-        ret     nz
-        ccf
+        scf
+        ret     nz                              ; ret with Fc=1, not found
+        or      a                               ; Fc=0 found
         ret
 
 ;       Dead-key handling

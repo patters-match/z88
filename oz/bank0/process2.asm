@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $0206
+; Bank 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -67,7 +67,6 @@ defc    FREE_THIS       =7
 
         ex      de, hl                          ; bind in BHL
         OZ      OS_Bix
-        push    de                              ; !! unnecessary
 
         push    ix
         push    hl                              ; IX=HL
@@ -78,7 +77,6 @@ defc    FREE_THIS       =7
         ld      (iy+OSFrame_C), a               ; code letter
         pop     ix
 
-        pop     de
         OZ      OS_Box                          ; Restore bindings after OS_Bix
         or      a
 .nqain_x

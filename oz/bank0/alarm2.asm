@@ -1,6 +1,4 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $0d6d
-;
 ; $Id$
 ; -----------------------------------------------------------------------------
 
@@ -13,7 +11,6 @@ xdef    DoAlarms
 
 xref    OSOff
 
-;       ----
 .DoAlarms
         ld      hl, ubIntTaskToDo
         bit     ITSK_B_SHUTDOWN, (hl)           ; process shutdown request
@@ -38,8 +35,9 @@ xref    OSOff
         push    de
         pop     ix
         or      a
-        call    z, DoGNAlp                      ; !! jr nz, no_alm is shorter+faster
-
+        jr      nz,no_alm
+        OZ      GN_Alp                          ; process an expired alarm
+.no_alm
         pop     ix
         exx
         pop     hl
@@ -50,7 +48,4 @@ xref    OSOff
         ex      af, af'
         pop     af
         ret
-
-.DoGNAlp
-        OZ      GN_Alp                          ; process an expired alarm
-        ret
+        

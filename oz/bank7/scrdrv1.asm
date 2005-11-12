@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1ec5b
+; Bank 7 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -15,8 +15,6 @@
 
 xdef    OSOutMain
 xdef    Chr2ScreenCode                          ; Char2OZwdChar
-;xdef    Key2Chr_tbl                             ; Char2OZwdChar
-xdef    sub_AD82                                ; unused
 xdef    OSIsq                                   ; Printer driver
 xdef    OSWsq
 xdef    StorePrefixed                           ; Printer driver
@@ -144,8 +142,7 @@ xref    VDU2Chr_tbl
         call    c, Char2VDU                     ; Fc=1, translate char  to VDU
         jr      nc, sdpc_1
         ld      a, $7F                          ; display box char, VDU $17F
-        ld      b, 0                            ; clear attributes !! ld bc,$0001
-        ld      c, 1                            ; and force ch8
+        ld      bc, $0001                       ; clear attributes and force ch8
 
 .sdpc_1
         ld      (hl), a                         ; output char
@@ -225,7 +222,7 @@ xref    VDU2Chr_tbl
         or      a
         scf
         jr      z, c2sc_2                       ; not found, Fc=1
-        inc     hl                                      ; next entry
+        inc     hl                              ; next entry
         inc     hl
         inc     hl
         inc     hl
@@ -240,25 +237,12 @@ xref    VDU2Chr_tbl
         dec     hl
         ret
 
-; to be deleted
-
-.__Key2Chr_tbl
-        defb    $A3                             ; £ internal code
-.__Chr2VDU_tbl
-        defb    $A3                             ; £ char code
-.__VDU2Chr_tbl
-        defb    $1F,0                           ;   VDU low byte, high byte
-        defb    0,0,0,0
-
 ;       this one handles tiny/bold too
 
 .Char2VDU
-        ld      b, $FE                          ; clear ch8 !! ld bc,$fe01
-        ld      c, 1                            ; and force it set
-
+        ld      bc, $FE01                       ; clear ch8 and force it set
         cp      $20
         ret     z                               ; space - always $120
-
         cp      $7F
         jr      c, somc_1
 
@@ -302,43 +286,6 @@ xref    VDU2Chr_tbl
         ret     nc
         xor     $80
         ret
-
-;       ----
-
-;       !! unused
-
-.sub_AD82
-        bit     0, b
-        jr      nz, loc_ADA1
-        cp      $1F
-        jr      nz, loc_AD8E
-        ld      a, $A3
-        jr      loc_ADA7
-
-.loc_AD8E
-        xor     $80
-        ld      d, $80
-        cp      $1F
-        jr      nz, loc_AD99
-        ld      a, $A3
-        ret
-
-.loc_AD99
-        call    IsBoldable
-        ret     nc
-        xor     $80
-        jr      loc_ADA7
-
-.loc_ADA1
-        ld      d, $40
-        call    IsBoldableASCII
-        ret     nc
-
-.loc_ADA7
-        ld      d, 0
-        ret
-
-;       ----
 
 ;       01-11 - linedraw chars, <> and [] are boldable but no tiny-able
 
@@ -543,19 +490,6 @@ xref    VDU2Chr_tbl
         ld      (hl), a
         res     WDFH_B_CURSORON, (ix+wdf_flagsHi)
         dec     hl
-        ret
-
-;       ----
-
-;       !! make this inline
-
-.ASCII2num
-        cp      '0'
-        ret     c
-        cp      ':'                             ; '9'+1
-        ccf
-        ret     c
-        sub     '0'
         ret
 
 ;       ----
@@ -799,12 +733,12 @@ xref    VDU2Chr_tbl
 .InitUserAreaGrey
         push    af
         ld      a, '+'
-        jr      iuag_1
+;        jr      iuag_1
 
-        push    af                              ; !! unused
-        ld      a, '-'
+;        push    af                              ; !! unused
+;        ld      a, '-'
 
-.iuag_1
+;.iuag_1
         push    bc
         push    de
         push    hl
@@ -839,13 +773,13 @@ xref    VDU2Chr_tbl
         push    ix
         pop     hl
         push    hl
-        ld      e, <Wd1Frame                    ; !! ld de,Wd1Frame; add a,d; ld d,a
-        add     a, >Wd1Frame
+        ld      de, Wd1Frame
+        add     a, d
         ld      d, a
 
-        cp      h                               ; compare DE=IX  !! result not used
-        ld      a, e
-        cp      l
+;        cp      h                               ; compare DE=IX  !! result not used
+;        ld      a, e
+;        cp      l
 
         push    de                              ; IX=DE
         pop     ix
@@ -905,9 +839,9 @@ xref    VDU2Chr_tbl
         call    GetWindowNum
         ret     c
         call    PutCrsrPos
-        add     a, >Wd1Frame                    ; !! ld de,Wd1Frame; add a,d; ld d,a
-        ld      d, a
-        ld      e, <Wd1Frame
+        ld      de, Wd1frame
+        add     a,d
+        ld      d,a
         ld      (sbf_ActiveWd), de
         push    de
         pop     ix
@@ -928,7 +862,12 @@ xref    VDU2Chr_tbl
 
 .GetWindowNum
         add     a, $20
-        call    ASCII2num
+        cp      '0'
+        ret     c
+        cp      '9'+1
+        ccf
+        ret     c
+        sub     '0'
         ret     c
         cp      1
         ret     c
@@ -959,8 +898,7 @@ xref    VDU2Chr_tbl
         set     WDFO_B_UNGREY, (ix+wdf_OpenFlags)
         call    ClearScr
         res     WDFO_B_UNGREY, (ix+wdf_OpenFlags)
-        jr      sdg_2                           ; !! cut&paste code :)
-
+        
 .sdg_2
         pop     hl
         ret

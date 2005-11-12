@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $1143
+; Bank 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -78,31 +78,22 @@ xref    OSOutMain
 
 ;       get byte from special handle
 ;
-;       !! this can be made a lot more efficient
 
 .GbtSpecial
         dec     e
-        ld      a, RC_Rp                        ; !! totally unnecessary
-        scf                                     ; !! as well
         jr      nz, gbts_1
 
-;       1 - read keyboard
-
-        push    ix
+        push    ix                              ; 1 - read keyboard
         call    RdKbBuffer
         pop     ix
         ret
 
 .gbts_1
         dec     e
-        ld      a, RC_Rp
-        scf
-        ret     z                               ; 2 - read screen - rd protected
+        jr      z, RcRp                         ; 2 - read screen - rd protected
 
         dec     e
-        ld      a, RC_Rp
-        scf
-        ret     z                               ; 3 - read printer direct - rd protected
+        jr      z, RcRp                         ; 3 - read printer direct - rd protected
 
         dec     e
         ld      a, RC_Eof
@@ -112,9 +103,7 @@ xref    OSOutMain
         dec     e
         jr      nz, gbts_2
 
-;       5 - read serial port
-
-        ld      l, SI_GBT
+        ld      l, SI_GBT                       ; 5 - read serial port
         OZ      OS_Si
         ret
 
@@ -122,31 +111,28 @@ xref    OSOutMain
         dec     e
         jr      nz, gbts_3
 
-;       6 - read stdin
-
-        OZ      OS_Tin                          ; read a byte from std. input, with timeout
-        ret
+        OZ      OS_Tin                          ; 6 - read stdin
+        ret                                     ; read a byte from std. input, with timeout
 
 .gbts_3
         dec     e
-        ld      a, RC_Rp
-        scf
-        ret     z                               ; 7 - read stdout - rd protected
+        jr      z, RcRp                         ; 7 - read stdout - rd protected
 
         dec     e
-        ld      a, RC_Rp
-        scf
-        ret     z                               ; 8 - read printer filter - rd protected
+        jr      z, RcRp                         ; 8 - read printer filter - rd protected
 
         ld      a, RC_Hand
         scf
         ret
 
+.RcRp
+        ld      a, Rc_Rp
+        scf
+        ret
+        
 ;       ----
 
 ;       put bute to special handle
-;
-;       !! this can be made a lot more efficient
 
 .PbtSpecial
         dec     e
@@ -556,7 +542,7 @@ xref    OSOutMain
         call    MvToFile                        ; write data from HL
         call    PutOSFrame_HL                   ; update mem position
         call    c, SetFileWriteErrF             ; set error flag
-        jr      osmv_4                          ; !! jp PutOSFrame_BC
+        jr      osmv_4                          ;
 
 .osmv_rdf
         ld      a, d
@@ -604,10 +590,8 @@ xref    OSOutMain
 
 .OSGbtMain
         call    IsSpecialHandle
-        jr      c, osbgt_1                      ; !! jp nc,OsGbtSpecial
-        jp      GbtSpecial
+        jp      nc, GbtSpecial
 
-.osbgt_1
         ld      a, HND_FILE
         call    VerifyHandle
         ret     c                               ; bad handle? exit
@@ -642,10 +626,8 @@ xref    OSOutMain
 
 .OSPbtMain
         call    IsSpecialHandle
-        jr      c, pbt_1                        ; jp nc,PbtSpecial
-        jp      PbtSpecial
+        jp      nc, PbtSpecial
 
-.pbt_1
         ld      a, HND_FILE
         call    VerifyHandle
         ret     c                               ; bad handle? exit
