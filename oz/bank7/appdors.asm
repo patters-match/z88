@@ -423,7 +423,7 @@ xdef    PanelHelp
         defw    $26C,0,$20              ; env. size, unsafe and safe workspace
         defw    $C000                   ; entry point
         defb    0,0,0,1                 ; bindings
-        defb    AT_Good|AT_Ones         ; appl type
+        defb    AT_Good                 ; appl type mutiple diaries (was AT_Good|AT_Ones)
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof

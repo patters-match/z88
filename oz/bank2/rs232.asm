@@ -32,8 +32,6 @@
         include "sysvar.def"
         include "..\bank7\lowram.def"
 
-defc    PARITYBUG = 1
-
 ;       ubSerParity             =$0ffc
 
 defc    PAR_B_PARITY    = 7                     ; has parity
@@ -334,11 +332,7 @@ defc    TDRH_START              =1
 
 ;       clear parity bit, check for XON/XOFF if needed
 
- IF     PARITYBUG=1
-        bit     PAR_B_STICKY, l
- ELSE
         bit     PAR_B_PARITY, l
- ENDIF
         jr      z, rx_1                         ; no parity? 8-bit data
         and     $7f                             ; else clear parity bit
 .rx_1
