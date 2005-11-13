@@ -11,10 +11,8 @@
 
 xdef    TimeReset                               ; Reset5
 
-;       bank 0
-
-xref    IntSecond
-xref    MS1BankA
+xref    IntSecond                               ; bank0/int.asm
+xref    MS1BankA                                ; bank0/misc5.asm
 
 ;       ----
 

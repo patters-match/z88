@@ -10,9 +10,6 @@
         include "stdio.def"
         include "sysvar.def"
 
-;       most of these xdefs/xrefs go away if all screen code is moved to bank 7
-;       second part of code is at $f90c-fdf4
-
 xdef    OSOutMain
 xdef    Chr2ScreenCode                          ; Char2OZwdChar
 xdef    OSIsq                                   ; Printer driver
@@ -29,44 +26,44 @@ xdef    ScrD_GetNewXY                           ; screen driver code reference
 xdef    GetWindowNum                            ; screen driver code reference
 xdef    ScrDrvAttrTable                         ; screen driver code reference
 
-;       bank 0
 
-xref    AtoN_upper
-xref    CallFuncDE
-xref    Chk128KB
-xref    ClearCarry
-xref    ClearEOL
-xref    ClearEOW
-xref    ClearScr
-xref    CopyMemDE_BHL
-xref    CursorDown
-xref    CursorLeft
-xref    CursorRight
-xref    CursorUp
-xref    InitWindowFrame
-xref    KPrint
-xref    MoveToXY
-xref    NewXValid
-xref    NewYValid
-xref    OSBlp
-xref    PutBoxChar
-xref    ResetScrAttr
-xref    ResetWdAttrs
-xref    ScrDrvGetAttrBits
-xref    ScreenBL
-xref    ScreenClose
-xref    ScreenCR
-xref    ScreenOpen
-xref    ScrollDown
-xref    ScrollUp
-xref    SetScrAttr
-xref    FindSDCmd
-xref    TogglePrFilter
-xref    ToggleScrDrvFlags
+xref    AtoN_upper                              ; bank0/misc5.asm
+xref    CopyMemDE_BHL                           ; bank0/misc5.asm
+xref    KPrint                                  ; bank0/misc5.asm
 
-xref    Key2Chr_tbl                             ; now extern
-xref    Chr2VDU_tbl
-xref    VDU2Chr_tbl
+xref    CallFuncDE                              ; bank0/scrdrv4.asm
+xref    ClearCarry                              ; bank0/scrdrv4.asm
+xref    ClearEOL                                ; bank0/scrdrv4.asm
+xref    ClearEOW                                ; bank0/scrdrv4.asm
+xref    ClearScr                                ; bank0/scrdrv4.asm
+xref    CursorDown                              ; bank0/scrdrv4.asm
+xref    CursorLeft                              ; bank0/scrdrv4.asm
+xref    CursorRight                             ; bank0/scrdrv4.asm
+xref    CursorUp                                ; bank0/scrdrv4.asm
+xref    MoveToXY                                ; bank0/scrdrv4.asm
+xref    NewXValid                               ; bank0/scrdrv4.asm
+xref    NewYValid                               ; bank0/scrdrv4.asm
+xref    OSBlp                                   ; bank0/scrdrv4.asm
+xref    PutBoxChar                              ; bank0/scrdrv4.asm
+xref    ResetScrAttr                            ; bank0/scrdrv4.asm
+xref    ScrDrvGetAttrBits                       ; bank0/scrdrv4.asm
+xref    ScreenBL                                ; bank0/scrdrv4.asm
+xref    ScreenClose                             ; bank0/scrdrv4.asm
+xref    ScreenCR                                ; bank0/scrdrv4.asm
+xref    ScreenOpen                              ; bank0/scrdrv4.asm
+xref    ScrollDown                              ; bank0/scrdrv4.asm
+xref    ScrollUp                                ; bank0/scrdrv4.asm
+xref    SetScrAttr                              ; bank0/scrdrv4.asm
+xref    FindSDCmd                               ; bank0/scrdrv4.asm
+xref    ToggleScrDrvFlags                       ; bank0/scrdrv4.asm
+
+xref    Chk128KB                                ; bank0/resetx.asm
+xref    InitWindowFrame                         ; bank0/scrdrv3.asm
+xref    ResetWdAttrs                            ; bank0/scrdrv3.asm
+xref    TogglePrFilter                          ; bank0/pfilter0.asm
+
+xref    Key2Chr_tbl, Chr2VDU_tbl, VDU2Chr_tbl   ; bank7/key2chrt_*.asm (country specific)
+
 
 ;       ----
 
@@ -473,7 +470,8 @@ xref    VDU2Chr_tbl
         jr      nz, crsron_1                    ; hires? just flash
         and     LCDA_CH8                        ; keep ch8
         or      LCDA_LORESCURSOR                ; lores cursor
-.crsron_1       or      LCDA_FLASH
+.crsron_1
+        or      LCDA_FLASH
         ld      (hl), a
         set     WDFH_B_CURSORON, (ix+wdf_flagsHi)
         ret
@@ -898,7 +896,7 @@ xref    VDU2Chr_tbl
         set     WDFO_B_UNGREY, (ix+wdf_OpenFlags)
         call    ClearScr
         res     WDFO_B_UNGREY, (ix+wdf_OpenFlags)
-        
+
 .sdg_2
         pop     hl
         ret

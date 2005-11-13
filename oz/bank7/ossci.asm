@@ -12,15 +12,11 @@
 
 xdef    OsSci
 
-;       bank 0
+xref    InitSBF                                 ; bank0/scrdrv3.asm
+xref    ScreenClose                             ; bank0/scrdrv4.asm
+xref    ScreenOpen                              ; bank0/scrdrv4.asm
 
-xref    InitSBF
-xref    ScreenClose
-xref    ScreenOpen
-
-;       bank 7
-
-xref    OSSciTable
+xref    OSSciTable                              ; bank7/osscitable.asm
 
 ; alter screen information
 ;

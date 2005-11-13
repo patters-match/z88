@@ -3,7 +3,7 @@
 ; -----------------------------------------------------------------------------
 
         Module OSMap
-       
+
         include "blink.def"
         include "error.def"
         include "stdio.def"
@@ -12,21 +12,18 @@
 
 xdef    OSMap
 
-;       bank 0
+xref    Chk128KB                                ; bank0/resetx.asm
+xref    GetWindowFrame                          ; bank0/scrdrv2.asm
+xref    KPrint                                  ; bank0/misc5.asm
+xref    PeekHLinc                               ; bank0/misc5.asm
+xref    PokeBHL                                 ; bank0/misc5.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    ScreenClose                             ; bank0/scrdrv4.asm
+xref    ScreenOpen                              ; bank0/scrdrv4.asm
 
-xref    Chk128KB
-xref    GetWindowFrame
-xref    KPrint
-xref    PeekHLinc
-xref    PokeBHL
-xref    PutOSFrame_BC
-xref    ScreenClose
-xref    ScreenOpen
+xref    GetCurrentWdInfo                        ; bank7/mth1.asm
+xref    RestoreActiveWd                         ; bank7/mth1.asm
 
-;       bank 7
-
-xref    GetCurrentWdInfo
-xref    RestoreActiveWd
 
 ;       ----
 

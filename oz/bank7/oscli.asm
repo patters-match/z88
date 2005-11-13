@@ -11,19 +11,15 @@
 
 xdef    OSCliMain
 
-;       bank 0
+xref    AtoN_upper                              ; bank0/misc5.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    PutOSFrame_DE                           ; bank0/misc5.asm
+xref    SetPendingOZwd                          ; bank0/misc3.asm
+xref    RdKbBuffer                              ; bank0/osin.asm
+xref    ExtQualifiers                           ; bank0/kbd.asm
 
-xref    ExtQualifiers
-xref    AtoN_upper
-xref    PutOSFrame_BC
-xref    PutOSFrame_DE
-xref    RdKbBuffer
-xref    SetPendingOZwd
-
-;       bank 7
-
-xref    CLI2KeyTable
-xref    Key2MetaTable
+xref    CLI2KeyTable                            ; bank7/clitables.asm
+xref    Key2MetaTable                           ; bank7/clitables.asm
 
 ;       ----
 
@@ -164,4 +160,3 @@ xref    Key2MetaTable
         inc     hl                              ; skip mask byte
         ld      a, (hl)                         ; return meta char
         ret
-        

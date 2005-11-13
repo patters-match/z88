@@ -15,39 +15,37 @@ xdef    OSSpMain
 xdef    OSNqMain
 xdef    RstRdPanelAttrs
 
-;       bank 0
 
-xref    ClearMemHL_A
-xref    CopyMemDE_HL
-xref    FreeMemData
-xref    GetOSFrame_DE
-xref    GetOSFrame_HL
-xref    GetWdStartXY
-xref    GetWindowFrame
-xref    InitFsMemHandle
-xref    NqRDS
-xref    NqSp_ret
-xref    OSNqMemory
-xref    OSSp_89
-xref    OSSp_PAGfi
-xref    PeekHLinc
-xref    PokeHLinc
-xref    PutOSFrame_BC
-xref    PutOSFrame_DE
-xref    PutOSFrame_HL
-xref    RdFileByte
-xref    ScreenClose
-xref    ScreenOpen
-xref    SetMemHandlePos
-xref    WrFileByte
+xref    ClearMemHL_A                            ; bank0/misc5.asm
+xref    CopyMemDE_HL                            ; bank0/misc5.asm
+xref    GetOSFrame_DE                           ; bank0/misc5.asm
+xref    GetOSFrame_HL                           ; bank0/misc5.asm
+xref    PeekHLinc                               ; bank0/misc5.asm
+xref    PokeHLinc                               ; bank0/misc5.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    PutOSFrame_DE                           ; bank0/misc5.asm
+xref    PutOSFrame_HL                           ; bank0/misc5.asm
 
-;       bank 7
+xref    FreeMemData                             ; bank0/filesys3.asm
+xref    InitFsMemHandle                         ; bank0/filesys3.asm
+xref    RdFileByte                              ; bank0/filesys3.asm
+xref    SetMemHandlePos                         ; bank0/filesys3.asm
+xref    WrFileByte                              ; bank0/filesys3.asm
+xref    GetWdStartXY                            ; bank0/scrdrv4.asm
+xref    ScreenClose                             ; bank0/scrdrv4.asm
+xref    ScreenOpen                              ; bank0/scrdrv4.asm
+xref    GetWindowFrame                          ; bank0/scrdrv2.asm
+xref    NqRDS                                   ; bank0/scrdrv2.asm
+xref    NqSp_ret                                ; bank0/spnq0.asm
+xref    OSNqMemory                              ; bank0/memory.asm
+xref    OSSp_89                                 ; bank0/memory.asm
+xref    OSSp_PAGfi                              ; bank0/pagfi.asm
 
-xref    ScrD_GetMargins
-xref    GetCrsrYX
-xref    OSNqProcess
+xref    ScrD_GetMargins                         ; bank7/scrdrv1.asm
+xref    GetCrsrYX                               ; bank7/scrdrv1.asm
+xref    OSNqProcess                             ; bank7/process1.asm
 
-;       ----
+
 
 .OSNqWindow
         cp      9                               ; range check
@@ -365,7 +363,7 @@ xref    OSNqProcess
         cp      c
         ret     nz                              ; Fc=0 if data fits dest
         or      a
-        ret     
+        ret
 
 ;       ----
 

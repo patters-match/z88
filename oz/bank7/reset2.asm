@@ -11,21 +11,17 @@
         include "screen.def"
         include "sysvar.def"
 
-xdef    Reset2                                  ; Reset1
+xdef    Reset2
 
-;       bank 0
+xref    InitBufKBD_RX_TX                        ; bank0/buffer.asm
+xref    KPrint                                  ; bank0/misc5.asm
+xref    Reset3                                  ; bank0/reset13.asm
+xref    ResetHandles                            ; bank0/handle.asm
+xref    ResetTimeout                            ; bank0/nmi.asm
 
-xref    InitBufKBD_RX_TX
-xref    KPrint
-xref    Reset3
-xref    ResetHandles
-xref    ResetTimeout
-
-;       bank 7
-
-xref    InitData
-xref    LowRAMcode
-xref    LowRAMcode_e
+xref    InitData                                ; bank7/initdata.asm
+xref    LowRAMcode                              ; bank7/lowram0.asm
+xref    LowRAMcode_e                            ; bank7/lowram0.asm
 
 ;       ----
 
@@ -120,7 +116,7 @@ xref    LowRAMcode_e
 
         call    ResetTimeout
         call    InitBufKBD_RX_TX
-        
+
         ld      a, (ubResetType)                ; print reset string
         or      a
         jr      nz, rst2_4

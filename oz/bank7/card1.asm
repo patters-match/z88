@@ -12,15 +12,13 @@
 xdef    StoreCardIDs
 xdef    ChkCardChange
 
-;       bank 0
-
-xref    AddRAMCard
-xref    DrawOZwd
-xref    MS1BankA
-xref    OZwd__fail
-xref    OZwd_card
-xref    OZwd_index
-xref    S2VerifySlotType
+xref    AddRAMCard                              ; bank0/cardmgr.asm
+xref    MS1BankA                                ; bank0/misc5.asm
+xref    S2VerifySlotType                        ; bank0/misc5.asm
+xref    DrawOZwd                                ; bank0/ozwindow.asm
+xref    OZwd__fail                              ; bank0/ozwindow.asm
+xref    OZwd_card                               ; bank0/ozwindow.asm
+xref    OZwd_index                              ; bank0/ozwindow.asm
 
 
 ;       ----

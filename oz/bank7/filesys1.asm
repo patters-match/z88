@@ -16,22 +16,19 @@ xdef    OSRen
 xdef    OSDel
 xdef    FileNameDate
 
-;       bank 0
+xref    CopyMemHL_DE                            ; bank0/misc5.asm
+xref    GetOSFrame_HL                           ; bank0/misc5.asm
+xref    DORHandleFree                           ; bank0/dor.asm
+xref    DORHandleFreeDirect                     ; bank0/dor.asm
+xref    DORHandleInUse                          ; bank0/dor.asm
+xref    InitMemHandle                           ; bank0/filesys3.asm
+xref    RewindFile                              ; bank0/filesys3.asm
+xref    MvToFile                                ; bank0/filesys3.asm
+xref    AllocHandle                             ; bank0/handle.asm
+xref    VerifyHandle                            ; bank0/handle.asm
 
-xref    AllocHandle
-xref    CopyMemHL_DE
-xref    DORHandleFree
-xref    DORHandleFreeDirect
-xref    DORHandleInUse
-xref    GetOSFrame_HL
-xref    InitMemHandle
-xref    RewindFile
-xref    MvToFile
-xref    VerifyHandle
+xref    FreeMemHandle                           ; bank7/ossr.asm
 
-;       bank 7
-
-xref    FreeMemHandle
 
 ;       ----
 

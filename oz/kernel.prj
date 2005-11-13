@@ -25,6 +25,7 @@ bank7\key2chrt.asm
 bank7\morespace.asm
 bank7\keymap.asm
 bank7\appdors0.asm
+
 bank0\boot.asm
 bank0\reset13.asm
 bank0\misc2.asm
@@ -66,4 +67,3 @@ bank0\osust.asm
 bank0\resetx.asm
 bank0\freespace.asm
 bank0\ostables.asm
-

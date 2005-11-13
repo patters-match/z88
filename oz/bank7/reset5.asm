@@ -11,16 +11,12 @@
         include "screen.def"
         include "sysvar.def"
 
-xdef    Reset5                                  ; Reset4
+xdef    Reset5
 
-;       bank 0
+xref    MountAllRAM                             ; bank0/resetx.asm
+xref    OSSp_PAGfi                              ; bank0/pagfi.asm
 
-xref    MountAllRAM
-xref    OSSp_PAGfi
-
-;       bank 7
-
-xref    TimeReset
+xref    TimeReset                               ; bank7/timeres.asm
 
 ;       ----
 

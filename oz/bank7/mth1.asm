@@ -27,50 +27,54 @@ xdef    DrawTopicWd
 xdef    InitTopicWd
 xdef    InitHelpWd
 
-xref    InitUserAreaGrey
 
-xref    aRom_Help
-xref    Beep_X
-xref    ChgHelpFile
-xref    CopyAppPointers
-xref    DORHandleFree
-xref    DrawCmdHelpWd
-xref    DrawTopicHelpWd
-xref    FilenameDOR
-xref    Get2ndTopicHelp
-xref    GetCmdAttrByNum
-xref    GetFirstCmdHelp
-xref    GetFirstNonInfoTopic
-xref    GetFirstTopicHelp
-xref    GetHlp_sub
-xref    GetHlpHelp
-xref    GetNextCmdHelp
-xref    GetNextNonInfoTopic
-xref    GetNextTopicHelp
-xref    GetNonInfoTopicByNum
-xref    GetTpcAttrByNum
-xref    InitHlpActiveCmd
-xref    InitHlpActiveHelp
-xref    InputEmpty
-xref    KPrint
-xref    DrawMenuWd
-xref    MayMTHPrint
-xref    MTH_ToggleLT
-xref    MTHPrintKeycode
-xref    MTHPrint
-xref    MTHPrintTokenized
-xref    NextAppDOR
-xref    PrevAppDOR
-xref    PrintTopic
-xref    PrntAppname
-xref    RdStdinNoTO
-xref    ReserveStkBuf
-xref    SetActiveAppDOR
-xref    SetHlpActiveHelp
-xref    SetHlpAppChgFile
-xref    sub_EF92
-xref    sub_EFBB
-xref    GetNextCmdAttr
+xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
+
+xref    aRom_Help                               ; bank0/mth2.asm
+xref    ChgHelpFile                             ; bank0/mth2.asm
+xref    CopyAppPointers                         ; bank0/mth2.asm
+xref    DrawCmdHelpWd                           ; bank0/mth2.asm
+xref    DrawTopicHelpWd                         ; bank0/mth2.asm
+xref    FilenameDOR                             ; bank0/mth2.asm
+xref    GetHlp_sub                              ; bank0/mth2.asm
+xref    GetHlpHelp                              ; bank0/mth2.asm
+xref    InputEmpty                              ; bank0/mth2.asm
+xref    DrawMenuWd                              ; bank0/mth2.asm
+xref    MayMTHPrint                             ; bank0/mth2.asm
+xref    MTHPrintKeycode                         ; bank0/mth2.asm
+xref    MTHPrint                                ; bank0/mth2.asm
+xref    MTHPrintTokenized                       ; bank0/mth2.asm
+xref    NextAppDOR                              ; bank0/mth2.asm
+xref    PrevAppDOR                              ; bank0/mth2.asm
+xref    PrintTopic                              ; bank0/mth2.asm
+xref    PrntAppname                             ; bank0/mth2.asm
+xref    SetActiveAppDOR                         ; bank0/mth2.asm
+xref    SetHlpAppChgFile                        ; bank0/mth2.asm
+
+xref    Get2ndTopicHelp                         ; bank0/mth3.asm
+xref    GetCmdAttrByNum                         ; bank0/mth3.asm
+xref    GetFirstCmdHelp                         ; bank0/mth3.asm
+xref    GetFirstNonInfoTopic                    ; bank0/mth3.asm
+xref    GetFirstTopicHelp                       ; bank0/mth3.asm
+xref    GetNextCmdHelp                          ; bank0/mth3.asm
+xref    GetNextNonInfoTopic                     ; bank0/mth3.asm
+xref    GetNextTopicHelp                        ; bank0/mth3.asm
+xref    GetNonInfoTopicByNum                    ; bank0/mth3.asm
+xref    GetTpcAttrByNum                         ; bank0/mth3.asm
+xref    GetNextCmdAttr                          ; bank0/mth3.asm
+
+xref    Beep_X                                  ; bank0/scrdrv4.asm
+xref    DORHandleFree                           ; bank0/dor.asm
+xref    InitHlpActiveCmd                        ; bank0/process3.asm
+xref    InitHlpActiveHelp                       ; bank0/process3.asm
+xref    SetHlpActiveHelp                        ; bank0/process3.asm
+xref    KPrint                                  ; bank0/misc5.asm
+xref    MTH_ToggleLT                            ; bank0/misc5.asm
+xref    ReserveStkBuf                           ; bank0/misc5.asm
+xref    RdStdinNoTO                             ; bank0/osin.asm
+xref    sub_EF92                                ; bank0/osin.asm
+xref    sub_EFBB                                ; bank0/osin.asm
+
 
 ;       ----
 

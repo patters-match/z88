@@ -16,12 +16,11 @@ xdef    ChkStkLimits
 xdef    Mailbox2Stack
 xdef    OSNqProcess
 
-;       bank 0
+xref    GetAppDOR                               ; bank0/mth2.asm
+xref    NQAin                                   ; bank0/process2.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    CopyMemBHL_DE                           ; bank0/misc5.asm
 
-xref    CopyMemBHL_DE
-xref    GetAppDOR
-xref    NQAin
-xref    PutOSFrame_BC
 
 ;       ----
 
@@ -51,7 +50,7 @@ xref    PutOSFrame_BC
 
 .ClearUnsafeArea
         ld      hl, $1FFE                       ; stack top
-        ld      de, (pAppUnSafeArea)               ; unsafe area start
+        ld      de, (pAppUnSafeArea)            ; unsafe area start
 
 ;       clear memory from DE (inclusive) to HL (exclusive)
 

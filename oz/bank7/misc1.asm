@@ -14,10 +14,8 @@ xdef    RAMDORtable                             ; MountAllRAM
 xdef    InitHandle                              ; OSDor, E9E8+D
 xdef    RAMxDOR                                 ; MountAllRAM
 
-;       bank 0
-
-xref    loc_CD42
-xref    S2VerifySlotType
+xref    loc_CD42                                ; bank0/dor.asm
+xref    S2VerifySlotType                        ; bank0/misc5.asm
 
 ;       ----
 

@@ -11,11 +11,9 @@
 
 xdef    MemCallAttrVerify
 
-;       bank 0
+xref    VerifyHandle                            ; bank0/handle.asm
 
-xref    VerifyHandle
 
-;       ----
 .MemCallAttrVerify
         ld      a, HND_MEM                      ; first verify handle type
         call    VerifyHandle

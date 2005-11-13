@@ -16,29 +16,29 @@ xdef    OSSr_Sus
 xdef    OSSr_Fus                                ; OS_Ent
 xdef    FreeMemHandle                           ; OpenMem, sub_F669
 
-;       bank 0
 
-xref    AllocHandle
-xref    CopyMemBHL_DE
-xref    CopyMemDE_BHL
-xref    FixPtr
-xref    FreeHandle
-xref    FreeMemData0
-xref    InitMemHandle
-xref    RewindFile
-xref    MTHPrint
-xref    PutOSFrame_BC
-xref    PutOSFrame_DE
-xref    RestoreScreen
-xref    SaveScreen
-xref    VerifyHandle
+xref    AllocHandle                             ; bank0/handle.asm
+xref    FreeHandle                              ; bank0/handle.asm
+xref    VerifyHandle                            ; bank0/handle.asm
 
-;       bank 7
+xref    FixPtr                                  ; bank0/misc5.asm
+xref    CopyMemBHL_DE                           ; bank0/misc5.asm
+xref    CopyMemDE_BHL                           ; bank0/misc5.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    PutOSFrame_DE                           ; bank0/misc5.asm
 
-xref    DrawTopicWd
-xref    GetCurrentWdInfo
-xref    InitTopicWd
-xref    RestoreActiveWd
+xref    FreeMemData0                            ; bank0/filesys3.asm
+xref    InitMemHandle                           ; bank0/filesys3.asm
+xref    RewindFile                              ; bank0/filesys3.asm
+xref    MTHPrint                                ; bank0/mth2.asm
+xref    RestoreScreen                           ; bank0/scrdrv4.asm
+xref    SaveScreen                              ; bank0/scrdrv4.asm
+
+xref    DrawTopicWd                             ; bank7/mth1.asm
+xref    GetCurrentWdInfo                        ; bank7/mth1.asm
+xref    InitTopicWd                             ; bank7/mth1.asm
+xref    RestoreActiveWd                         ; bank7/mth1.asm
+
 
 ;       ----
 
