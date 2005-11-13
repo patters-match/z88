@@ -13,8 +13,10 @@
 
 xdef    OSSp_PAGfi
 
-xref    PrFilterCall
-xref    RstRdPanelAttrs
+xref    PrFilterCall                            ; bank0/pfilter0.asm
+
+xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
+
 
 .OSSp_PAGfi
         push    ix

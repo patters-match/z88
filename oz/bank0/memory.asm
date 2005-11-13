@@ -15,7 +15,7 @@
         include "memory.def"
         include "stdio.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "bank7/lowram.def"
 
 xdef    FollowPageN
 xdef    InitRAM
@@ -41,26 +41,22 @@ xdef    OSSp_89
 xdef    PageNToPagePtr
 xdef    VerifySlotType
 
-;       bank 0
+xref    KPrint                                  ; bank0/misc5.asm
+xref    MS1BankA                                ; bank0/misc5.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    PutOSFrame_BHL                          ; bank0/misc5.asm
+xref    PutOSFrame_DE                           ; bank0/misc5.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    AllocHandle                             ; bank0/handle.asm
+xref    FreeHandle                              ; bank0/handle.asm
+xref    VerifyHandle                            ; bank0/handle.asm
+xref    AddAvailableFsBlock                     ; bank0/filesys3.asm
+xref    FilePtr2MemPtr                          ; bank0/filesys3.asm
+xref    MemPtr2FilePtr                          ; bank0/filesys3.asm
+xref    OZwd__fail                              ; bank0/ozwindow.asm
 
-xref    AddAvailableFsBlock
-xref    AllocHandle
-xref    FilePtr2MemPtr
-xref    FreeHandle
-xref    KPrint
-xref    MemPtr2FilePtr
-xref    MS1BankA
-xref    MS2BankA
-xref    OSFramePop
-xref    OSFramePush
-xref    OZwd__fail
-xref    PutOSFrame_BHL
-xref    PutOSFrame_DE
-xref    VerifyHandle
-
-;       bank 7
-
-xref    MemCallAttrVerify
+xref    MemCallAttrVerify                       ; bank7/memory1.asm
 
 
 
@@ -487,7 +483,7 @@ defc    DM_RAM                  =$81
 
         call    FreeChunk
         call    DefragmentPage                  ; join chunks if possible
-        
+
         push    af                              ; !! unnecessary
         call    ValidatePage
         jr      c, MemFail2
@@ -763,7 +759,7 @@ defc    DM_RAM                  =$81
         push    de
 
         ld      b, 0                            ; first page
-        call    MarkSystemRAM                   ; reserve first page and MAT for system 
+        call    MarkSystemRAM                   ; reserve first page and MAT for system
 
 .initsl_5
         pop     af                              ; AF(in)
@@ -772,7 +768,7 @@ defc    DM_RAM                  =$81
 ;       ----
 
 ;       Find RAM size in slot
-; 
+;
 ;IN:    A=first bank
 ;OUT:   A=number        of RAM banks
 
@@ -813,7 +809,7 @@ defc    DM_RAM                  =$81
 ;       ----
 
 ;       Fill RAM bank with zeroes
-; 
+;
 ;IN:    A=bank
 ;OUT:   Fc=0 if ok, Fc=1 if not RAM
 
@@ -837,7 +833,7 @@ defc    DM_RAM                  =$81
         scf
         jr      z, zram_0                       ; mirrored, not RAM
 
-        ld      bc, $3FFF                       ; clear bank by copying 0 from 
+        ld      bc, $3FFF                       ; clear bank by copying 0 from
         ld      de, $8001                       ; the first byte onward
         ldir
 
@@ -851,7 +847,7 @@ defc    DM_RAM                  =$81
 ;       ----
 
 ;       Check if bank is RAM
-; 
+;
 ;IN:  A=bank
 ;OUT: Fc=0 if RAM
 
@@ -933,10 +929,10 @@ defc    DM_RAM                  =$81
 ;       ----
 
 ; Prepare for out_of_memory flag read/set
-; 
+;
 ; IN:  D=slot&bank, E=alloc flags
 ; OUT:(HL)=outOfMemFlags, A=fixedFlag
-; 
+;
 ; !! Could change 'and $1f' into 'or $20' and 'cpl' into 'or $c0' to put flags in natural order
 
 .PrepareOutOfMem
@@ -1163,10 +1159,10 @@ defc    DM_RAM                  =$81
         rlca
 
 ;       bind in MAT for slot A
-; 
+;
 ; IN:  A=slot
 ; OUT: A=base bank, IY points to SlotRAMoffset for this slot
-; 
+;
 ; !! could exit before bankswitch if no RAM
 
 .MS2SlotMAT
@@ -1192,7 +1188,7 @@ defc    DM_RAM                  =$81
 ;       ----
 
 ; bind in MAT for bank D and point HL to the start of bank entries
-; 
+;
 
 .GetBankMAT0
 
@@ -1627,7 +1623,7 @@ defc    DM_RAM                  =$81
 ;       ----
 
 ; IN: HL=memory to free, C=size
-; 
+;
 ; !! should validate and degragment here, less overhead
 
 .FreeChunk
@@ -1695,7 +1691,7 @@ defc    DM_RAM                  =$81
 ;       ----
 
 ;       Validate page H00 !! fail here to save bytes elsewhere
-; 
+;
 ;OUT:   Fc=0 if page OK, Fc=1 if invalid
 
 .ValidatePage
@@ -2042,7 +2038,7 @@ defc    DM_RAM                  =$81
 ;IN:    -
 ;OUT:   'c incremented for each free page
 ;       Fc=0 if completely free bank found
- 
+
 
 .FindUnusedBankAnySlot
         xor     a                               ; !! not necessary, A=0 on entry
@@ -2073,7 +2069,7 @@ defc    DM_RAM                  =$81
 ;IN:    BC=number of pages
 ;       HL=MATptr of first page
 ;OUT:   c' incremented for each free page
-        
+
 
 .cup2_1
         inc     hl

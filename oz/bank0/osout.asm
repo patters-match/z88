@@ -11,14 +11,11 @@
 
 xdef    OSOut
 
-;       bank 0
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    osfpop_1                                ; bank0/misc4.asm
 
-xref    OSFramePush
-xref    osfpop_1
+xref    OSOutMain                               ; bank7/scrdrv1.asm
 
-;       bank 7
-
-xref    OSOutMain
 
 ;       ----
 
@@ -39,5 +36,3 @@ xref    OSOutMain
 
 .osout_2
         jp      osfpop_1
-
-

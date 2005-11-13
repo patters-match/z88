@@ -16,7 +16,7 @@
         include "stdio.def"
         include "syspar.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "bank7/lowram.def"
 
 xdef    _MS2BankA
 xdef    MS2HandleBank
@@ -30,49 +30,48 @@ xdef    OSOp
 xdef    OSPb
 xdef    OSPbt
 
-;       bank 0
+xref    AllocFirstBlock                         ; bank0/filesys3.asm
+xref    FreeMemData0                            ; bank0/filesys3.asm
+xref    GetFileEOF                              ; bank0/filesys3.asm
+xref    GetFilePos                              ; bank0/filesys3.asm
+xref    GetFileSize                             ; bank0/filesys3.asm
+xref    MvFromFile                              ; bank0/filesys3.asm
+xref    MvToFile                                ; bank0/filesys3.asm
+xref    RdFileByte                              ; bank0/filesys3.asm
+xref    RewindFile                              ; bank0/filesys3.asm
+xref    SeekFileMayExpand                       ; bank0/filesys3.asm
+xref    SetFileSize                             ; bank0/filesys3.asm
+xref    WrFileByte                              ; bank0/filesys3.asm
 
-xref    AllocFirstBlock
-xref    ChgHandleType
-xref    Chk128KB
-xref    CopyMemHL_DE
-xref    DORHandleFreeDirect
-xref    FindHandle
-xref    FreeMemData0
-xref    GetFileEOF
-xref    GetFilePos
-xref    GetFileSize
-xref    GetHandlePtr
-xref    GetOSFrame_DE
-xref    GetOSFrame_HL
-xref    MS2BankA
-xref    MS2BankK1
-xref    MvFromFile
-xref    MvToFile
-xref    OSFramePop
-xref    OSFramePush
-xref    OSPrtMain
-xref    PeekHLinc
-xref    PokeHLinc
-xref    PutOSFrame_BC
-xref    PutOSFrame_DE
-xref    PutOSFrame_HL
-xref    RdFileByte
-xref    RdKbBuffer
-xref    RewindFile
-xref    SeekFileMayExpand
-xref    SetFileSize
-xref    VerifyHandle
-xref    VerifyHandleBank
-xref    WrFileByte
+xref    ChgHandleType                           ; bank0/handle.asm
+xref    FindHandle                              ; bank0/handle.asm
+xref    VerifyHandle                            ; bank0/handle.asm
+xref    Chk128KB                                ; bank0/resetx.asm
+xref    DORHandleFreeDirect                     ; bank0/dor.asm
+xref    GetHandlePtr                            ; bank0/dor.asm
+xref    VerifyHandleBank                        ; bank0/dor.asm
+xref    OSPrtMain                               ; bank0/misc2.asm
+xref    RdKbBuffer                              ; bank0/osin.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
 
-;       bank 7
+xref    CopyMemHL_DE                            ; bank0/misc5.asm
+xref    GetOSFrame_DE                           ; bank0/misc5.asm
+xref    GetOSFrame_HL                           ; bank0/misc5.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
+xref    PeekHLinc                               ; bank0/misc5.asm
+xref    PokeHLinc                               ; bank0/misc5.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    PutOSFrame_DE                           ; bank0/misc5.asm
+xref    PutOSFrame_HL                           ; bank0/misc5.asm
 
-xref    FileNameDate
-xref    IsSpecialHandle
-xref    OpenMem
-xref    OSDel
-xref    OSOutMain
+xref    FileNameDate                            ; bank7/filesys1.asm
+xref    IsSpecialHandle                         ; bank7/filesys1.asm
+xref    OpenMem                                 ; bank7/filesys1.asm
+xref    OSDel                                   ; bank7/filesys1.asm
+xref    OSOutMain                               ; bank7/scrdrv1.asm
+
 
 ;       ----
 
@@ -129,7 +128,7 @@ xref    OSOutMain
         ld      a, Rc_Rp
         scf
         ret
-        
+
 ;       ----
 
 ;       put bute to special handle

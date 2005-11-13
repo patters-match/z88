@@ -12,24 +12,19 @@
 xdef    AddRAMCard
 xdef    IntFlap
 
-;       bank 0
+xref    Delay300Kclocks                         ; bank0/misc3.asm
+xref    ExpandMachine                           ; bank0/reset13.asm
+xref    InitSlotRAM                             ; bank0/memory.asm
+xref    MountAllRAM                             ; bank0/resetx.asm
+xref    MS12BankCB                              ; bank0/misc5.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
+xref    NMIMain                                 ; bank0/nmi.asm
 
-xref    Delay300Kclocks
-xref    ExpandMachine
-xref    InitSlotRAM
-xref    MountAllRAM
-xref    MS12BankCB
-xref    MS2BankK1
-xref    NMIMain
+xref    ChkCardChange                           ; bank7/card1.asm
+xref    StoreCardIDs                            ; bank7/card1.asm
 
-;       bank 7
 
-xref    ChkCardChange
-xref    StoreCardIDs
-
-;       ----
-
-.IntFlap                                        
+.IntFlap
         ld      bc, (BLSC_SR1)                  ; remember S1/S2
         push    bc
         exx
@@ -43,7 +38,7 @@ xref    StoreCardIDs
         or      BM_COMSRUN
         out     (BL_COM), a
 
-.intf_1                                         
+.intf_1
         push    af
         call    Delay300Kclocks
         ld      a, BM_INTFLAP                   ; ack flap
@@ -58,7 +53,7 @@ xref    StoreCardIDs
         ld      a, (BLSC_COM)                   ; beep
         or      BM_COMSRUN
         out     (BL_COM), a
-.intf_2                                         
+.intf_2
         call    ChkCardChange
         jr      c, intf_1                       ; go back
 
@@ -73,7 +68,7 @@ xref    StoreCardIDs
 
 ;       ----
 
-.AddRAMCard                                     
+.AddRAMCard
         call    InitSlotRAM
         cp      $40
         call    z, ExpandMachine                ; slot1? expand if 128KB or more

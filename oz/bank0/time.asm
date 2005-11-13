@@ -13,9 +13,11 @@
 xdef    OSHt
 xdef    ReadRTC
 
-xref    GetOSFrame_HL
-xref    PokeHLinc
-xref    PutOSFrame_HL
+xref    GetOSFrame_HL                           ; bank0/misc5.asm
+xref    PutOSFrame_HL                           ; bank0/misc5.asm
+xref    PokeHLinc                               ; bank0/misc5.asm
+
+
 
 .OSHt
         ld      b, a

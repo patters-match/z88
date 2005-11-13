@@ -20,7 +20,8 @@ xdef    FindHandle
 xdef    ChgHandleType
 xdef    VerifyHandle
 
-xref    PutOSFrame_HL
+xref    PutOSFrame_HL                           ; bank0/misc5.asm
+
 
 ;       allocate tri-handle
 ;IN:    A=subtype, B=func bank, H=func page, L=func segment

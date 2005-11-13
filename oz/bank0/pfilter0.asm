@@ -14,10 +14,11 @@
 xdef    PrFilterCall
 xdef    TogglePrFilter
 
-xref    MS2BankA
+xref    MS2BankA                                ; bank0/misc5.asm
+
 
 ; Call printer filter in bank 3
-; 
+;
 ; A=C0/C3/C6
 
 .PrFilterCall
@@ -44,7 +45,7 @@ xref    MS2BankA
 
 ; printer filter enable/disable
 
-.TogglePrFilter 
+.TogglePrFilter
         push    hl
         ld      a, (ubScreenBase)               ; screen base bank
         ld      b, a

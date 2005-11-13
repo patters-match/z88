@@ -42,26 +42,22 @@ xdef    ScrollUp
 xdef    SetScrAttr
 xdef    ToggleScrDrvFlags
 
-;       bank 0
+xref    AtoN_upper                              ; bank0/misc5.asm
+xref    MS1BankA                                ; bank0/misc5.asm
+xref    Delay300Kclocks                         ; bank0/misc3.asm
+xref    DrawOZwd                                ; bank0/ozwindow.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    RdHeaderedData                          ; bank0/filesys3.asm
+xref    WrHeaderedData                          ; bank0/filesys3.asm
 
-xref    AtoN_upper
-xref    Delay300Kclocks
-xref    DrawOZwd
-xref    MS1BankA
-xref    OSFramePop
-xref    OSFramePush
-xref    RdHeaderedData
-xref    WrHeaderedData
+xref    OSSR_main                               ; bank7/ossr.asm
+xref    ScrD_GetNewXY                           ; bank7/scrdrv1.asm
+xref    ScrD_PutChar                            ; bank7/scrdrv1.asm
+xref    ScrDrvAttrTable                         ; bank7/scrdrv1.asm
+xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
 
-;       bank 7
 
-xref    OSSR_main
-xref    ScrD_GetNewXY
-xref    ScrD_PutChar
-xref    ScrDrvAttrTable
-xref    Zero_ctrlprefix
-
-;       ----
 
 ; bind screen into S1, $7800-$7fff
 

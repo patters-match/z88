@@ -24,28 +24,25 @@ xdef    RdStdinNoTO
 xdef    sub_EF92
 xdef    sub_EFBB
 
-;       bank 0
+xref    ResetTimeout                            ; bank0/nmi.asm
+xref    ExtQualifiers                           ; bank0/kbd.asm
+xref    ExtIsForeignKey                         ; bank0/kbd.asm
+xref    MayDrawOZwd                             ; bank0/misc3.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    AtoN_upper                              ; bank0/misc5.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    BfGbt                                   ; bank0/buffer.asm
+xref    DoAlarms                                ; bank0/alarm2.asm
+xref    DrawOZwd                                ; bank0/ozwindow.asm
+xref    FindCmd                                 ; bank0/mth3.asm
+xref    MaySetEsc                               ; bank0/esc.asm
+xref    UpdateRnd                               ; bank0/random.asm
 
-xref    ExtQualifiers                            ; changed for new keyboard routine
-xref    AtoN_upper
-xref    BfGbt
-xref    DoAlarms
-xref    ExtIsForeignKey                          ; changed for new keyboard routine
-xref    DrawOZwd
-xref    FindCmd
-xref    MayDrawOZwd
-xref    MaySetEsc
-xref    OSFramePop
-xref    OSFramePush
-xref    PutOSFrame_BC
-xref    ResetTimeout
-xref    UpdateRnd
+xref    Chr2ScreenCode                          ; bank7/scrdrv1.asm
+xref    DoHelp                                  ; bank7/mth1.asm
+xref    Key2Chr_tbl                             ; bank7/key2chrt_*.asm (country dependant)
 
-;       bank 7
-
-xref    Chr2ScreenCode
-xref    DoHelp
-xref    Key2Chr_tbl
 
 ;       ----
 

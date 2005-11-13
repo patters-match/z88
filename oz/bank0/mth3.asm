@@ -23,14 +23,15 @@ xdef    GetTpcAttrByNum
 xdef    GetNextCmdAttr
 xdef    GetCmdAttrByNum
 
-xref    PutOZwdBuf
-xref    GetAppCommands
-xref    GetHlpTopics
-xref    SkipNTopics
-xref    GetAttr
-xref    GetHlpCommands
-xref    GetCmdTopicByNum
-xref    GetRealCmdPosition
+xref    PutOZwdBuf                              ; bank0/osin.asm
+xref    GetAppCommands                          ; bank0/mth2.asm
+xref    GetHlpTopics                            ; bank0/mth2.asm
+xref    SkipNTopics                             ; bank0/mth2.asm
+xref    GetAttr                                 ; bank0/mth2.asm
+xref    GetHlpCommands                          ; bank0/mth2.asm
+xref    GetCmdTopicByNum                        ; bank0/mth2.asm
+xref    GetRealCmdPosition                      ; bank0/mth2.asm
+
 
 ; ;OUT: Fc=1 - no command matches
 ; ;Fc=0, Fz=0, A=code - partial match, buffer not ready yet

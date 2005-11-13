@@ -7,10 +7,11 @@ xdef    Chk128KBslot0
 xdef    FirstFreeRAM
 xdef    MountAllRAM
 
-xref    RAMDORtable
-xref    RAMxDOR
-xref    MS1BankA
-xref    MS2BankK1
+xref    MS1BankA                                ; bank0/misc5.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
+
+xref    RAMDORtable                             ; bank7/misc1.asm
+xref    RAMxDOR                                 ; bank7/misc1.asm
 
 
 .MountAllRAM

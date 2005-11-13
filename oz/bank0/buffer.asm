@@ -11,24 +11,26 @@
         include "sysvar.def"
         include "bank7\lowram.def"
 
-xdef    BfGbt                   ;OsTin
+xdef    BfGbt                                   ; OsTin
 xdef    BfPbt
 xdef    BfPur
 xdef    BfSta
 xdef    BufRead
 xdef    BufWrite
-xdef    BufWriteC               ;KbdMain
-xdef    InitBufKBD_RX_TX        ;Reset2
+xdef    BufWriteC                               ; KbdMain
+xdef    InitBufKBD_RX_TX                        ; Reset2
 xdef    OsDly
 xdef    OSPur
 xdef    OSXin
 
-xref    CancelOZcmd
-xref    OSWaitMain
-xref    DoAlarms
-xref    MayDrawOZwd
-xref    TestEsc
-xref    PutOSFrame_BC
+
+xref    CancelOZcmd                             ; bank0/osin.asm
+xref    OSWaitMain                              ; bank0/nmi.asm
+xref    DoAlarms                                ; bank0/alarm2.asm
+xref    TestEsc                                 ; bank0/esc.asm
+xref    MayDrawOZwd                             ; bank0/misc3.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+
 
 ;       ----
 
@@ -573,4 +575,3 @@ xref    PutOSFrame_BC
         ld      de, SerRXBuffer                 ; 0b80-0bff
         jp      BufInit0
 
-               

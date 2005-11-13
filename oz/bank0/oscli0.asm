@@ -11,18 +11,15 @@
 
 xdef    OSCli
 
-;       bank 0
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
 
-xref    OSFramePop
-xref    OSFramePush
+xref    OSCliMain                               ; bank7/oscli.asm
 
-;       bank 7
-
-xref    OSCliMain
 
 ;       ----
 
-.OSCli                                          
+.OSCli
         ex      af, af'
         or      a
         jr      z, oscli_0                      ; !! undocumented reason 0
@@ -36,7 +33,7 @@ xref    OSCliMain
 
 ;       A=0 - return CLIActiveCnt and KbdData
 
-.oscli_0                                        
+.oscli_0
         ld      a, (ubCLIActiveCnt)
         ld      ix, KbdData
         jp      OZCallReturn2

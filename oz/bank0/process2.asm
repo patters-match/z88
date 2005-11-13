@@ -23,26 +23,22 @@ xdef    OSDom
 xdef    sub_C2F3
 xdef    sub_C39F
 
-;       bank 0
+xref    Chk128KB                                ; bank0/resetx.asm
+xref    Chk128KBslot0                           ; bank0/resetx.asm
+xref    FirstFreeRAM                            ; bank0/resetx.asm
+xref    FollowPageN                             ; bank0/memory.asm
+xref    MarkPageAsAllocated                     ; bank0/memory.asm
+xref    MATPtrToPagePtr                         ; bank0/memory.asm
+xref    PageNToPagePtr                          ; bank0/memory.asm
+xref    fsMS2BankB                              ; bank0/filesys3.asm
+xref    fsRestoreS2                             ; bank0/filesys3.asm
+xref    GetAppDOR                               ; bank0/mth2.asm
+xref    MS1BankA                                ; bank0/misc5.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    PutOSFrame_BHL                          ; bank0/misc5.asm
+xref    PutOSFrame_DE                           ; bank0/misc5.asm
 
-xref    Chk128KB
-xref    Chk128KBslot0
-xref    FirstFreeRAM
-xref    FollowPageN
-xref    fsMS2BankB
-xref    fsRestoreS2
-xref    GetAppDOR
-xref    MarkPageAsAllocated
-xref    MATPtrToPagePtr
-xref    MS1BankA
-xref    MS2BankA
-xref    PageNToPagePtr
-xref    PutOSFrame_BHL
-xref    PutOSFrame_DE
-
-;       bank 7
-
-xref    CopyMTHApp_Help
+xref    CopyMTHApp_Help                         ; bank7/mth1.asm
 
 defc    FREE_THIS       =7
 
@@ -55,7 +51,7 @@ defc    FREE_THIS       =7
         push    ix
         pop     bc
         ld      a, c                            ; <IX
-        call    GetAppDOR               
+        call    GetAppDOR
         ld      a, RC_Hand
         jr      c, nqain_x                      ; not found? exit
 

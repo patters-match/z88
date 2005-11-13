@@ -13,11 +13,13 @@
 
 xdef    Halt
 
-xref    Delay300Kclocks
-xref    nmi_5
-xref    HW_NMI2
-xref    VerifySlotType
-xref    Reset2
+xref    Delay300Kclocks                         ; bank0/misc3.asm
+xref    nmi_5                                   ; bank0/nmi.asm
+xref    HW_NMI2                                 ; bank0/nmi.asm
+xref    VerifySlotType                          ; bank0/memory.asm
+
+xref    Reset2                                  ; bank7/reset2.asm
+
 
 ; reset code at $0000
 

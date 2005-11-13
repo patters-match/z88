@@ -47,35 +47,32 @@ xdef    SetActiveAppDOR
 xdef    SetHlpAppChgFile
 xdef    SkipNTopics
 
-;       bank 0
 
-xref    AtoN_upper
-xref    fsMS2BankB
-xref    fsRestoreS2
-xref    Get2ndCmdHelp
-xref    Get2ndTopicHelp
-xref    GetFirstCmdHelp
-xref    GetHandlePtr
-xref    GetTpcAttrByNum
-xref    KPrint
-xref    MayWrt
-xref    MS2BankK1
-xref    MTH_ToggleLT
-xref    OSWrt
-xref    ResetToggles
-xref    ScrDrv_SOH_A
-xref    ZeroHandleIX
+xref    AtoN_upper                              ; bank0/misc5.asm
+xref    KPrint                                  ; bank0/misc5.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
+xref    MTH_ToggleLT                            ; bank0/misc5.asm
+xref    ResetToggles                            ; bank0/misc5.asm
+xref    ScrDrv_SOH_A                            ; bank0/misc5.asm
+xref    fsMS2BankB                              ; bank0/filesys3.asm
+xref    fsRestoreS2                             ; bank0/filesys3.asm
+xref    Get2ndCmdHelp                           ; bank0/mth3.asm
+xref    Get2ndTopicHelp                         ; bank0/mth3.asm
+xref    GetFirstCmdHelp                         ; bank0/mth3.asm
+xref    GetTpcAttrByNum                         ; bank0/mth3.asm
+xref    GetHandlePtr                            ; bank0/dor.asm
+xref    MayWrt                                  ; bank0/token.asm
+xref    OSWrt                                   ; bank0/token.asm
+xref    ZeroHandleIX                            ; bank0/handle.asm
 
-;       bank 7
+xref    DrawMenuWd2                             ; bank7/mth1.asm
+xref    Help2Wd_bottom                          ; bank7/mth1.asm
+xref    Help2Wd_Top                             ; bank7/mth1.asm
+xref    InitHelpWd                              ; bank7/mth1.asm
+xref    OpenAppHelpFile                         ; bank7/mth1.asm
+xref    InitHandle                              ; bank7/misc1.asm
 
-xref    DrawMenuWd2
-xref    Help2Wd_bottom
-xref    Help2Wd_Top
-xref    InitHandle
-xref    InitHelpWd
-xref    OpenAppHelpFile
 
-;       ----
 
 ;       BHL+=DE
 ;       adjusts B to keep HL<$4000

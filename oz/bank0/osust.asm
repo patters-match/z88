@@ -11,16 +11,17 @@
 
 xdef    OSUst
 
-xref    OSFramePush
-xref    PutOSFrame_BC
-xref    OSFramePop
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+
 
 ;       update small timer
-; 
+;
 ;       old timer(BC)=new timer(BC)
 ;       Fz according to old time, A=EC_Time if Fz=1
 
-.OSUst                                          
+.OSUst
         call    OSFramePush
         ld      hl, 0
         ld      de, (uwSmallTimer)              ; small  timer
@@ -37,5 +38,5 @@ xref    OSFramePop
         jr      nz, osust_1
         ld      (iy+OSFrame_A), RC_Time         ; Timeout
         set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1
-.osust_1                                        
+.osust_1
         jp      OSFramePop

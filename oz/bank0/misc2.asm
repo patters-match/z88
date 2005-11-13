@@ -22,27 +22,24 @@ xdef    OSPrt
 xdef    OSPrtMain
 xdef    OzCallInvalid
 
-;       bank 0
+xref    GetOSFrame_BC                           ; bank0/misc5.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    MS2BankB                                ; bank0/misc5.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
+xref    osfpop_1                                ; bank0/misc4.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    OSFramePushMain                         ; bank0/misc4.asm
+xref    PrFilterCall                            ; bank0/pfilter0.asm
+xref    ScreenClose                             ; bank0/scrdrv4.asm
+xref    ScreenOpen                              ; bank0/scrdrv4.asm
+xref    SetPendingOZwd                          ; bank0/misc3.asm
 
-xref    GetOSFrame_BC
-xref    MS2BankA
-xref    MS2BankB
-xref    MS2BankK1
-xref    osfpop_1
-xref    OSFramePop
-xref    OSFramePush
-xref    OSFramePushMain
-xref    PrFilterCall
-xref    ScreenClose
-xref    ScreenOpen
-xref    SetPendingOZwd
+xref    OSAlmMain                               ; bank7/osalm.asm
+xref    OSEprTable                              ; bank7/eprom.asm
+xref    OSIsq                                   ; bank7/eprom.asm
+xref    StorePrefixed                           ; bank7/scrdrv1.asm
 
-;       bank 7
-
-xref    OSAlmMain
-xref    OSEprTable
-xref    OSIsq
-xref    StorePrefixed
 
 ;       ----
 
@@ -242,7 +239,7 @@ xref    StorePrefixed
 .OSAlm
         call    OSFramePush
 
-        ld      c, b    
+        ld      c, b
         ld      b, a
 
         call    OZ_DI

@@ -51,14 +51,13 @@ xdef    ScrDrv_SOH_A
 xdef    MTH_ToggleLT
 xdef    FixPtr
 
-
-xref    FilePtr2MemPtr
-xref    VerifySlotType
-xref    OSFramePush
-xref    OSFramePop
-xref    AllocHandle
-xref    VerifyHandle
-xref    FreeHandle
+xref    FilePtr2MemPtr                          ; bank0/filesys3.asm
+xref    VerifySlotType                          ; bank0/memory.asm
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    AllocHandle                             ; bank0/handle.asm
+xref    VerifyHandle                            ; bank0/handle.asm
+xref    FreeHandle                              ; bank0/handle.asm
 
 
 .GetOSFrame_BC

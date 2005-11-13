@@ -15,7 +15,8 @@ xdef    OSEsc
 xdef    TestEsc
 xdef    MaySetEsc
 
-xref    ResetTimeout
+xref    ResetTimeout                            ; bank0/nmi.asm
+
 
 defc    AKBD_ESCENABLED         =$80
 defc    AKBD_B_ESCENABLED       =7

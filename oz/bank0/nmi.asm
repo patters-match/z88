@@ -23,11 +23,11 @@ xdef    nmi_5
 xdef    HW_NMI2
 xdef    NMIEntry
 
-xref    DrawOZwd
-xref    OSFramePush
-xref    osfpop_1
-xref    MayDrawOZwd
-xref    Halt
+xref    DrawOZwd                                ; bank0/ozwindow.asm
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    osfpop_1                                ; bank0/misc4.asm
+xref    MayDrawOZwd                             ; bank0/misc3.asm
+xref    Halt                                    ; bank0/boot.asm
 
 
 defc    NMI_HALT        =1
@@ -36,7 +36,7 @@ defc    NMI_B_HALT      =0
 ; out: Fc=0, A4=shift lock - if only both shifts (and maybe shift lock) down
 
 .BothShifts
-        ld      bc, $7f<<8|BL_KBD               ; row7, kbd port
+        ld      bc, $7f<<8 | BL_KBD             ; row7, kbd port
         in      a, (c)
         rlca                                    ; we rotate shifts to bit0 to use inc near the end
         ld      d, a                            ; SQR ESC IDX LCK  .   /   £  SHR
@@ -203,7 +203,7 @@ defc    NMI_B_HALT      =0
         in      a, (BL_KBD)
         inc     a
         jr      z, swoff_4                      ; no keys? check alarms
-        ld      hl, [BM_INTFLAP|BM_INTTIME|NMI_HALT]<<8|[BM_TACKSEC]
+        ld      hl, [BM_INTFLAP|BM_INTTIME|NMI_HALT]<<8 | BM_TACKSEC
         call    BothShifts
         jr      c, swoff_3
 
@@ -226,7 +226,7 @@ defc    NMI_B_HALT      =0
         ld      h, BM_INTA19|BM_INTTIME
         call    SnoozeTICK
         jr      z, swoff_8
-        ld      hl, [BM_INTFLAP|BM_INTTIME|NMI_HALT]<<8|[BM_TACKSEC]
+        ld      hl, [BM_INTFLAP|BM_INTTIME|NMI_HALT]<<8 | BM_TACKSEC
         call    BothShifts
         jr      nc, swoff_6                     ; both shifts? loop
         jr      z, swoff_7                      ; one shift? loop

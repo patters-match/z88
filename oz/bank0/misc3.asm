@@ -12,7 +12,8 @@ xdef    MayDrawOZwd
 xdef    SetPendingOZwd
 xdef    Delay300Kclocks
 
-xref    DrawOZwd
+xref    DrawOZwd                                ; bank0/ozwindow.asm
+
 
 
 ;       draw OZ window if needed
@@ -49,4 +50,3 @@ xref    DrawOZwd
         jr      c, dlay_1
         ret
 
-       

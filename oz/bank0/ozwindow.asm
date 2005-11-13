@@ -14,8 +14,9 @@ xdef    OZwd__fail
 xdef    OZwd_fail
 xdef    DrawOZwd
 
-xref    ScreenOpen
-xref    ScreenClose
+xref    ScreenOpen                              ; bank0/srcdrv4.asm
+xref    ScreenClose                             ; bank0/srcdrv4.asm
+
 
 
 .OZwd_card

@@ -8,12 +8,13 @@
 
         include "blink.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "bank7/lowram.def"
 
 xdef    OSSi
 xdef    IntUART
 
-xref    MS2BankA
+xref    MS2BankA                                ; bank0/misc5.asm
+
 
 
 ;IN:    L=reason code - see rs232.asm for arguments

@@ -36,7 +36,7 @@
 ;       Revert to OZ4 routine now called 'IsForeignKey' externally called by 'ExtIsForeignKey'
 ;20     Fix Shift/CAPS/caps behaviour
 ;       NB: IsForeignKey depends on the font mapping
-;21     Clean source and revert 
+;21     Clean source and revert
 ;
 ; Keymap structure
 ;
@@ -47,17 +47,17 @@ include "blink.def"
 include "stdio.def"
 include "sysvar.def"
 
-xdef    ExtKbMain                       ; was KbMain
-xdef    ExtQualifiers                   ; was ApplyQualifiers
-xdef    ExtIsForeignKey                 ; is key a special foreign char
+xdef    ExtKbMain                               ; was KbMain
+xdef    ExtQualifiers                           ; was ApplyQualifiers
+xdef    ExtIsForeignKey                         ; is key a special foreign char
 xdef    InitKbdPtrs
 
-xref    BufWrite
-xref    SwitchOff
-xref    MaySetEsc
-xref    MS2BankA
-xref    UpdateRnd
-xref    DrawOZWd
+xref    BufWrite                                ; bank0/buffer.asm
+xref    SwitchOff                               ; bank0/nmi.asm
+xref    MaySetEsc                               ; bank0/esc.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    UpdateRnd                               ; bank0/random.asm
+xref    DrawOZWd                                ; bank0/ozwindow.asm
 
 
 ;       Stubs to bind keyboard data in/out S1
@@ -957,6 +957,6 @@ xref    DrawOZWd
         ld      (de), a                         ; and store pointer
         inc     de
         djnz    ikp_1
-        ret        
-    
+        ret
+
 

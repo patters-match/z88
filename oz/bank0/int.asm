@@ -17,13 +17,14 @@ xdef    IncActiveAlm
 xdef    DecActiveAlm
 xdef    MaySetPendingAlmTask
 
-xref    ResetTimeout
-xref    BothShifts
-xref    ExtKbMain
-xref    IntUART
-xref    IntFlap
-xref    MS2BankA
-xref    ReadRTC
+xref    ResetTimeout                            ; bank0/nmi.asm
+xref    BothShifts                              ; bank0/nmi.asm
+xref    ExtKbMain                               ; bank0/kbd.asm
+xref    IntUART                                 ; bank0/ossi.asm
+xref    IntFlap                                 ; bank0/cardmgr.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    ReadRTC                                 ; bank0/time.asm
+
 
 ;IN:    A= interrupt status
 

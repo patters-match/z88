@@ -10,17 +10,13 @@ xdef    NqSp_ret
 xdef    OSNq
 xdef    OSSp
 
-;       bank 0
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
 
-xref    OSFramePop
-xref    OSFramePush
+xref    OSNqMain                                ; bank7/nqsp.asm
+xref    OSSpMain                                ; bank7/nqsp.asm
 
-;       bank 7
 
-xref    OSNqMain
-xref    OSSpMain
-
-;       ----
 
 ; set Panel and PrinterEd values
 

@@ -10,7 +10,7 @@
         include "error.def"
         include "sysvar.def"
 
-xdef    DORHandleFree                           ; get rid of these two stubs 
+xdef    DORHandleFree                           ; get rid of these two stubs
 xdef    DORHandleFreeDirect
 xdef    DORHandleInUse
 xdef    GetHandlePtr
@@ -18,35 +18,32 @@ xdef    loc_CD42                                ; move this to InitHandle (misc1
 xdef    OSDor
 xdef    VerifyHandleBank
 
-;       bank 0
 
-xref    _MS2BankA
-xref    AddAvailableFsBlock
-xref    AllocHandle
-xref    AllocHandleBlock
-xref    ClearMemHL_A
-xref    CopyMemDE_HL
-xref    CopyMemHL_DE
-xref    FindHandle
-xref    FreeHandle
-xref    FreeMemData
-xref    GetOSFrame_DE
-xref    MemPtr2FilePtr
-xref    MS2BankA
-xref    MS2BankB
-xref    MS2HandleBank
-xref    OSFramePop
-xref    OSFramePush
-xref    PeekHL
-xref    PeekHLinc
-xref    PutOSFrame_BC
-xref    VerifyHandle
+xref    _MS2BankA                               ; bank0/filesys2.asm
+xref    MS2HandleBank                           ; bank0/filesys2.asm
+xref    AddAvailableFsBlock                     ; bank0/filesys3.asm
+xref    AllocHandleBlock                        ; bank0/filesys3.asm
+xref    FreeMemData                             ; bank0/filesys3.asm
+xref    MemPtr2FilePtr                          ; bank0/filesys3.asm
+xref    AllocHandle                             ; bank0/handle.asm
+xref    FindHandle                              ; bank0/handle.asm
+xref    FreeHandle                              ; bank0/handle.asm
+xref    VerifyHandle                            ; bank0/handle.asm
+xref    ClearMemHL_A                            ; bank0/misc5.asm
+xref    CopyMemDE_HL                            ; bank0/misc5.asm
+xref    CopyMemHL_DE                            ; bank0/misc5.asm
+xref    GetOSFrame_DE                           ; bank0/misc5.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    MS2BankB                                ; bank0/misc5.asm
+xref    PeekHL                                  ; bank0/misc5.asm
+xref    PeekHLinc                               ; bank0/misc5.asm
+xref    PutOSFrame_BC                           ; bank0/misc5.asm
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
 
-;       bank 7
+xref    InitHandle                              ; bank7/misc1.asm
 
-xref    InitHandle
 
-;       ----
 
 .OSDor
         call    OSFramePush
@@ -616,7 +613,7 @@ xref    InitHandle
         inc     hl
         ld      c, (hl)                         ; record length
         inc     hl
-        cp      -1                              
+        cp      -1
         jr      z, fdr_2                        ; DOR terminator? exit Fc=1 Fz=1
 
         ex      af, af'

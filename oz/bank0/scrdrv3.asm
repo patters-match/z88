@@ -13,16 +13,12 @@ xdef    InitSBF
 xdef    InitWindowFrame
 xdef    ResetWdAttrs
 
-;       bank 0
+xref    DrawOZwd                                        ; bank0/ozwindow.asm
+xref    KPrint                                          ; bank0/misc5.asm
 
-xref    DrawOZwd
-xref    KPrint
+xref    Zero_ctrlprefix                                 ; bank7/scrdrv1.asm
 
-;       bank 7
 
-xref    Zero_ctrlprefix
-
-;       ----
 
 .InitOZwd
         call    KPrint

@@ -14,20 +14,18 @@ xdef    NqRDS
 
 ;       bank 0
 
-xref    CursorRight
-xref    GetOSFrame_DE
-xref    GetOSFrame_HL
-xref    PokeHLinc
-xref    ScreenClose
-xref    ScreenOpen
+xref    CursorRight                             ; bank0/scrdrv4.asm
+xref    ScreenClose                             ; bank0/scrdrv4.asm
+xref    ScreenOpen                              ; bank0/scrdrv4.asm
+xref    GetOSFrame_DE                           ; bank0/misc5.asm
+xref    GetOSFrame_HL                           ; bank0/misc5.asm
+xref    PokeHLinc                               ; bank0/misc5.asm
 
-;       bank 7
+xref    GetCrsrYX                               ; bank7/scrdrv1.asm
+xref    GetWindowNum                            ; bank7/scrdrv1.asm
+xref    VDU2ChrCode                             ; bank7/scrdrv1.asm
 
-xref    GetCrsrYX
-xref    GetWindowNum
-xref    VDU2ChrCode
 
-;       ----
 
 .GetWindowFrame
         or      a

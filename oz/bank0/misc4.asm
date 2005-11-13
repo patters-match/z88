@@ -17,8 +17,9 @@ xdef    osfpop_1
 xdef    OSBox
 xdef    OSBix
 
-xref    MS2BankA
-xref    MS12BankCB
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    MS12BankCB                              ; bank0/misc5.asm
+
 
 .OSFramePush
         pop     hl                              ; caller PC
@@ -129,4 +130,3 @@ xref    MS12BankCB
         ex      af, af'
         or      a
         jp      OZCallReturn1
-        

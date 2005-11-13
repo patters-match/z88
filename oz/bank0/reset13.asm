@@ -13,21 +13,17 @@
 xdef    Reset3
 xdef    ExpandMachine
 
-;       bank 0
+xref    Chk128KB                                ; bank0/resetx.asm
+xref    FirstFreeRAM                            ; bank0/resetx.asm
+xref    InitRAM                                 ; bank0/memory.asm
+xref    MarkSwapRAM                             ; bank0/memory.asm
+xref    MarkSystemRAM                           ; bank0/memory.asm
+xref    VerifySlotType                          ; bank0/memory.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
+xref    InitKbdPtrs                             ; bank0/kbd.asm
 
-xref    Chk128KB
-xref    FirstFreeRAM
-xref    InitRAM
-xref    MarkSwapRAM
-xref    MarkSystemRAM
-xref    MS2BankK1
-xref    Reset5
-xref    VerifySlotType
-xref    InitKbdPtrs
-
-;       bank 7
-
-xref    RstRdPanelAttrs
+xref    Reset5                                  ; bank7/reset5.asm
+xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
 
 
 .Reset3

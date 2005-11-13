@@ -43,21 +43,17 @@ xdef    SetMemHandlePos
 xdef    WrFileByte
 xdef    WrHeaderedData
 
-;       bank 0
+xref    AllocHandle                             ; bank0/handle.asm
+xref    FPtr2MemPtrBindS2                       ; bank0/misc5.asm
+xref    MS12BankCB                              ; bank0/misc5.asm
+xref    MS1BankA                                ; bank0/misc5.asm
+xref    MS2BankA                                ; bank0/misc5.asm
+xref    MS2BankB                                ; bank0/misc5.asm
+xref    OZwd__fail                              ; bank0/ozwindow.asm
+xref    RestoreScreen                           ; bank0/scrdrv4.asm
+xref    SaveScreen                              ; bank0/scrdrv4.asm
 
-xref    AllocHandle
-xref    FPtr2MemPtrBindS2
-xref    MS12BankCB
-xref    MS1BankA
-xref    MS2BankA
-xref    MS2BankB
-xref    OZwd__fail
-xref    RestoreScreen
-xref    SaveScreen
-
-;       bank 7
-
-xref    FreeMemHandle
+xref    FreeMemHandle                           ; bank7/ossr.asm
 
 
 .SetMemHandlePos

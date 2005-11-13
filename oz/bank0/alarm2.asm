@@ -9,7 +9,8 @@
 
 xdef    DoAlarms
 
-xref    OSOff
+xref    OSOff                                   ; bank0/nmi.asm
+
 
 .DoAlarms
         ld      hl, ubIntTaskToDo
@@ -48,4 +49,3 @@ xref    OSOff
         ex      af, af'
         pop     af
         ret
-        

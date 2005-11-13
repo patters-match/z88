@@ -14,12 +14,13 @@ xdef    OSWtb
 xdef    MayWrt
 xdef    OSWrt
 
-xref    PutOSFrame_BHL
-xref    FixPtr
-xref    GetHlpTokens
-xref    fsMS2BankB
-xref    fsRestoreS2
-xref    PrintChar
+xref    PutOSFrame_BHL                          ; bank0/misc5.asm
+xref    FixPtr                                  ; bank0/misc5.asm
+xref    GetHlpTokens                            ; bank0/mth2.asm
+xref    PrintChar                               ; bank0/mth2.asm
+xref    fsMS2BankB                              ; bank0/filesys3.asm
+xref    fsRestoreS2                             ; bank0/filesys3.asm
+
 
 
 .OSWtb

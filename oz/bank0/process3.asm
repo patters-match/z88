@@ -12,7 +12,7 @@
         include "fileio.def"
         include "syspar.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "bank7/lowram.def"
 
 xdef    ApplCaps
 xdef    InitHlpActiveCmd
@@ -24,44 +24,42 @@ xdef    OSExit
 xdef    OSStk
 xdef    OSUse
 
-;       bank 0
+xref    AllocBadRAM1                            ; bank0/process2.asm
+xref    BadAllocAndSwap                         ; bank0/process2.asm
+xref    BadSwapAndFree                          ; bank0/process2.asm
+xref    FreeBadRAM                              ; bank0/process2.asm
+xref    IsBadUgly                               ; bank0/process2.asm
+xref    sub_C2F3                                ; bank0/process2.asm
+xref    sub_C39F                                ; bank0/process2.asm
 
-xref    AllocBadRAM1
-xref    AllocMemFile_SizeHL
-xref    BadAllocAndSwap
-xref    BadSwapAndFree
-xref    CancelOZcmd
-xref    DORHandleFreeDirect
-xref    DrawOZwd
-xref    FreeBadRAM
-xref    GetFileSize
-xref    InitApplWd
-xref    IsBadUgly
-xref    loc_EECE
-xref    MS1BankB
-xref    MS2BankK1
-xref    OSFramePush
-xref    ostin_4
-xref    PutOSFrame_BHL
-xref    RestoreAllAppData
-xref    SaveAllAppData
-xref    ScreenClose
-xref    ScreenOpen
-xref    SetActiveAppDOR
-xref    sub_C2F3
-xref    sub_C39F
+xref    AllocMemFile_SizeHL                     ; bank0/filesys3.asm
+xref    GetFileSize                             ; bank0/filesys3.asm
+xref    RestoreAllAppData                       ; bank0/filesys3.asm
+xref    SaveAllAppData                          ; bank0/filesys3.asm
+xref    CancelOZcmd                             ; bank0/osin.asm
+xref    loc_EECE                                ; bank0/osin.asm
+xref    ostin_4                                 ; bank0/osin.asm
+xref    DORHandleFreeDirect                     ; bank0/dor.asm
+xref    DrawOZwd                                ; bank0/ozwindow.asm
+xref    InitApplWd                              ; bank0/scrdrv3.asm
+xref    ScreenClose                             ; bank0/scrdrv4.asm
+xref    ScreenOpen                              ; bank0/scrdrv4.asm
+xref    MS1BankB                                ; bank0/misc5.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
+xref    PutOSFrame_BHL                          ; bank0/misc5.asm
+xref    OSFramePush                             ; bank0/misc4.asm
+xref    SetActiveAppDOR                         ; bank0/mth2.asm
 
-;       bank 7
+xref    ChkStkLimits                            ; bank7/process1.asm
+xref    ClearMemDE_HL                           ; bank7/process1.asm
+xref    ClearUnsafeArea                         ; bank7/process1.asm
+xref    Mailbox2Stack                           ; bank7/process1.asm
+xref    CopyMTHHelp_App                         ; bank7/mth1.asm
+xref    DrawTopicWd                             ; bank7/mth1.asm
+xref    OpenAppHelpFile                         ; bank7/mth1.asm
+xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
+xref    OSSr_Fus                                ; bank7/ossr.asm
 
-xref    ChkStkLimits
-xref    ClearMemDE_HL
-xref    ClearUnsafeArea
-xref    CopyMTHHelp_App
-xref    DrawTopicWd
-xref    InitUserAreaGrey
-xref    Mailbox2Stack
-xref    OpenAppHelpFile
-xref    OSSr_Fus
 
 ;       ----
 
