@@ -72,8 +72,8 @@
 
 .DmndTable
         defb    (SqrTable - DmndTable - 1)/2
-        defb    $1b,$c4                                 ; ^E   c4
-        defb    $20,$a0                                 ; *S   a0
+        defb    $1b,$c4                                 ; ^E    c4
+        defb    $20,$a0                                 ; *S    a0
         defb    $27,$60                                 ; '     `
         defb    $2b,$00                                 ; +     00
         defb    $2c,$1b                                 ; ,     1b
@@ -81,7 +81,7 @@
         defb    $2e,$1d                                 ; .     1d
         defb    $2f,$1c                                 ; /     1c
         defb    $3d,$00                                 ; =     00
-        defb    $a3,$1e                                 ; £     1e
+        defb    $a3,$a4                                 ; £     €
 
 .SqrTable
         defb    (DeadTable - SqrTable - 1)/2

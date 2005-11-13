@@ -297,6 +297,9 @@ xref    Key2Chr_tbl, Chr2VDU_tbl, VDU2Chr_tbl   ; bank7/key2chrt_*.asm (country 
 ;       !! this is changed by localization
 
 .IsBoldableASCII
+        cp      $20                             ; now space is euro symbol, not boldable
+        scf
+        ret     z
         cp      $1B                             ; was $1F, and $1B in OZ FR!!!!
         ret     c
         cp      $7F

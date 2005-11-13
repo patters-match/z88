@@ -70,7 +70,7 @@
     defb    $20,$a0                 ; spc   a0
     defb    $21,$7D                 ; ! }
     defb    $22,$23                 ; " #
-    defb    $24,$1E                 ; $ 1e
+    defb    $24,$A4                 ; $ €
     defb    $26,$5C                 ; & \
     defb    $27,$7C                 ; ' |
     defb    $28,$7E                 ; ( ~
@@ -84,9 +84,7 @@
     defb    $5B,$1B                 ; [ 1b
     defb    $5C,$1C                 ; \ 1c
     defb    $5D,$1D                 ; ] 1d
-    defb    $5F,$1F                 ; _ 1f
     defb    $A1,$5E                 ; § ^
-    defb    $A3,$1E                 ; £ 1e
     defb    $B9,$5D                 ; à ]
     defb    $BB,$7B                 ; è {
     defb    $BC,$40                 ; é @
@@ -120,5 +118,5 @@
     defb    $6F,$C9                            ; o ô
     defb    $75,$CB                            ; u û
 
-    defs    $33 ($ff)
+    defs    $37 ($ff)
 

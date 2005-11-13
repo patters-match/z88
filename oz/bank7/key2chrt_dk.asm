@@ -17,6 +17,7 @@ xdef    VDU2Chr_tbl
         defb    $A3                             ; £ char code
 .VDU2Chr_tbl
         defb    $1F,0                           ; VDU low byte, high byte in the font
+        defb    $A4, $80, $20, $00              ; €
         defb    $ED, $D8, $19, $00              ; Ø
         defb    $EB, $C6, $1B, $00              ; Æ
         defb    $DB, $E6, $1A, $00              ; æ
@@ -25,4 +26,4 @@ xdef    VDU2Chr_tbl
         defb    $DA, $E5, $1C, $00              ; å
         defb    0,0,0,0                         ; table terminator
 
-        defs    $31 ($ff)
+        defs    $2D ($ff)

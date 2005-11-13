@@ -62,7 +62,7 @@
         defb    $2f,$1c         ; /     1c
         defb    $3d,$00         ; =     00
         defb    $5f,$1f         ; 5f    1f
-        defb    $a3,$1e         ; £     1e
+        defb    $a3,$a4         ; £     €
         defb    $a5,$7b         ; ö     {
         defb    $a6,$7d         ; ä     }
         defb    $a7,$5c         ; å     \
