@@ -143,18 +143,18 @@ xref    OSNqProcess
 
 .ossp_err
         ld      a, RC_Unk
-        scf                                     ; !!BUG: missing ret
+        scf
+.Sp_nop
+        ret
+
 
 .OSSpTable
         jp      SpPanel
         jp      Sp_nop
         jp      Sp_nop
         jp      OSSp_89
-        jp      OSSp_DC
-
-.Sp_nop         ret
-
-.OSSp_DC
+;        jp      OSSp_DC                        ; 3 bytes gained
+;.OSSp_DC
         push    iy
         pop     hl
         OZ      DC_Sp                           ; Handle Director/CLI settings
@@ -225,7 +225,7 @@ xref    OSNqProcess
         call    SetMemHandlePos
 
 .nqp_3
-        call    RdFileByte                          ; attribute ID
+        call    RdFileByte                      ; attribute ID
         jr      c, nqp_ret                      ; error? exit
         or      a
         jr      z, nqp_def                      ; end of data? use default value
@@ -236,7 +236,7 @@ xref    OSNqProcess
         jr      nqp_3
 
 .nqp_4
-        call    RdFileByte                          ; attribute length
+        call    RdFileByte                      ; attribute length
         jr      c, nqp_ret
         ld      c, a                            ; store
         call    NqGetDest                       ; get destination buffer
@@ -247,7 +247,7 @@ xref    OSNqProcess
 
         push    af                              ; remember return code
 .nqp_5
-        call    RdFileByte                          ; read byte and put it into buffer
+        call    RdFileByte                      ; read byte and put it into buffer
         call    PokeHLinc
         dec     c
         jr      nz, nqp_5                       ; loop until C bytes done
@@ -305,10 +305,9 @@ xref    OSNqProcess
 .NqRetSize
         ld      (iy+OSFrame_A), c
         cp      c
-        jr      nc, nqcs_1                      ; !! ret nc
+        ret     nc
         ld      c, a
         ld      a, RC_Eof
-.nqcs_1
         ret
 
 ;       ----

@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $1f2a
+; Bank 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -2129,16 +2129,9 @@ defc    DM_RAM                  =$81
         ccf
         ld      a, RC_Unk
         ret     c
-
-        ld      hl, JumpTable                   ; !! with just 2 functions jumptable is overkill
-        add     hl, bc                          ; !! ld a,c; or a; jr nz, NqSlt
-        jp      (hl)
-
-.JumpTable
-        jp      NqMfs
-        jp      NqSlt
-
-;       ----
+        ld      a, c
+        or      a
+        jr      nz, NqSlt
 
 ;       return amount of free RAM
 ;IX->ABC, DE=0
@@ -2156,8 +2149,6 @@ defc    DM_RAM                  =$81
         ld      d, a
         ld      e, a
         jp      PutOSFrame_DE
-
-;       ----
 
 ;       Return slot/bank type
 
