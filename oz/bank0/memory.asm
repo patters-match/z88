@@ -1821,25 +1821,11 @@ defc    DM_RAM                  =$81
         jr      z, mpb_1                        ; segment 3? handle separately
         jr      nc, mpb_err                     ; segment >3? error
 
-        add     a, BL_SR0                       ; convert slot into blink port
-        exx
-        ld      c, a                            ; c=port
-        ld      b, BLSC_PAGE
-        ld      a, (bc)                         ; remember old value
-        push    af
-        exx
-        ld      a, b                            ; get bank
-        exx
-        ld      (bc), a                         ; update softcopy
-        out     (c), a                          ; bind bank in
-        exx
-        pop     af
-        ld      b, a                            ; return old bank in B  !! jr mpb_2 without this
-        jr      mpb_3
+        rst     $30                             ; OZ V4.1: execute bank binding, B = bank number, C = segment specifier
+        jr      mpb_3                           ; return old bank binding in B
 .mpb_1
         pop     af                              ; pop S3 into A
         push    bc                              ; push new bank
-.mpb_2
         ld      b, a                            ; return old bank in B
 .mpb_3
         ex      af, af'
@@ -1863,7 +1849,7 @@ defc    DM_RAM                  =$81
         jr      nz, osfc_1                      ; reason not 1? exit
 
         exx                                     ; copy pointers from alternate registers
-        push    hl                              ; and trabslate slot number into blink port
+        push    hl                              ; and translate slot number into blink port
         push    de
         ld      a, c
         add     a, BL_SR0
