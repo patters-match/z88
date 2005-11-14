@@ -27,7 +27,7 @@ if "%ozlocale%"=="fi" set ozlocale=FI
 if "%ozlocale%"=="se" set ozlocale=FI
 if "%ozlocale%"=="SE" set ozlocale=FI
 
-:: compile known localisations 
+:: compile known localisations
 if "%ozlocale%"=="UK" goto COMPILE_OZ
 if "%ozlocale%"=="FR" goto COMPILE_OZ
 if "%ozlocale%"=="DK" goto COMPILE_OZ
@@ -50,6 +50,7 @@ call cleanup
 echo compiling kernel banks 0 and 7
 call kernel %ozlocale% 2>nul >nul
 dir bank0\*.err 2>nul >nul || goto COMPILE_BANK1
+dir bank7\*.err 2>nul >nul || goto COMPILE_BANK1
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
