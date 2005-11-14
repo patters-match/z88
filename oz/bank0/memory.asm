@@ -1778,11 +1778,28 @@ defc    DM_RAM                  =$81
         ex      af, af'
         jp      OSFramePop
 
-;       ----
-
-; get current bank binding in segment
 
 
+; ********************************************************************************************
+; Get current bank binding in segment
+;
+; IN:
+;      C = memory segment specifier (MS_S0, MS_S1, MS_S2 & MS_S3)
+;
+; OUT, if call successful:
+;      Fc = 0
+;      B = bank number currently bound to that segment
+;      C = C(in)
+;
+; OUT, if call failed:
+;      Fc = 1
+;      A = error code:
+;           RC_ERR ($0F), C was not valid
+;
+; Registers changed after return:
+;      ...CDEHL/IXIY same
+;      AFB...../.... different
+;
 .OSMgb
         exx
         ld      a, c                            ; segment
@@ -1790,8 +1807,8 @@ defc    DM_RAM                  =$81
         push    bc
         ld      c, a
         cp      3
-        jr      z, osmgb_1                      ; seg 3? we're done
-        jr      nc, osmgb_2                     ; seg >3? error
+        jr      z, ret_bank_binding             ; seg 3? we're done
+        jr      nc, illg_MS_Sx                  ; seg >3? error
 
         add     a, BL_SR0                       ; convert into blink port
         exx
@@ -1800,44 +1817,61 @@ defc    DM_RAM                  =$81
         ld      a, (bc)                         ; read softcopy
         exx
         ld      b, a
-.osmgb_1
-        ex      af, af'
-        or      a                               ; Fc=0
-        jp      OZCallReturn1
+        jr      ret_bank_binding                ; return current bank binding for MS_Sx
 
-.osmgb_2
-        ld      a, RC_Ms
-        scf                                     ; Fc=1
-        jp      OZCallReturn1
 
-;       ----
 
-; set new bank binding in segment
 
+; ********************************************************************************************
+; Set new bank binding in segment.
+;
+; Important:
+;       For OZ V4.1 and higher this call is redundant and available for application
+;       backward compatibility with older ROM versions.
+;       RST 30H with same B, C arguments are used internally by newer OZ versions for faster
+;       bank switching.
+;
+; IN:
+;      C = memory segment specifier (MS_S0, MS_S1, MS_S2 & MS_S3)
+;      B = bank number to bind into this segment ($00 - $FF)
+;
+; OUT, if call successful:
+;      Fc = 0
+;      B = bank number previously bound to that segment
+;
+; OUT, if call failed:
+;      Fc = 1
+;      A = error code:
+;           RC_Ms ($0F), C was not valid
+;
+; Registers changed after return:
+;      ...CDEHL/IXIY same
+;      AFB...../.... different
+;
 .OSMpb
         exx
         ld      a, c                            ; segment
         cp      3
         jr      z, mpb_1                        ; segment 3? handle separately
-        jr      nc, mpb_err                     ; segment >3? error
+        jr      nc, illg_MS_Sx                  ; segment >3? error
 
-        rst     $30                             ; OZ V4.1: execute bank binding, B = bank number, C = segment specifier
-        jr      mpb_3                           ; return old bank binding in B
+        rst     $30                             ; OZ V4.1: execute bank binding, B = bank number, C = MS_Sx
+        jr      ret_bank_binding                ; return old bank binding in B
 .mpb_1
         pop     af                              ; pop S3 into A
         push    bc                              ; push new bank
         ld      b, a                            ; return old bank in B
-.mpb_3
+.ret_bank_binding
         ex      af, af'
         or      a
         jp      OZCallReturn1
-.mpb_err
+.illg_MS_Sx
         ld      a, RC_Ms
         scf
         jp      OZCallReturn1
 
-;       ----
 
+;       ----
 ; select fast code (fast bank switching)
 
 .OSFc
