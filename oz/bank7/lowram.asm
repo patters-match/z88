@@ -21,7 +21,7 @@ defc    OZBuffCallTable         =$dead
 defc    OZCallTable             =$dead
 
  ELSE
-        include "kernel.def"
+        include "..\kernel.def"
  ENDIF
 
 
@@ -54,34 +54,33 @@ xdef    OZCallReturn3
         scf
         ret
         defs     $0010-$PC  ($ff)               ; address align for RST 10H
-        
+
 .rst10
         scf
         ret
         defs     $0018-$PC  ($ff)               ; address align for RST 18H (OZ Floating Point Package)
-        
+
 .rst18
         jp      FPPmain
         defb    0,0
 .FPP_RET
         jp      OZCallReturnFP                  ; 001d, called from FPP
-        defs    $0020-$PC  ($ff)               ; address align for RST 20H (OZ System Call Interface)
-        
+        defs    $0020-$PC  ($ff)                ; address align for RST 20H (OZ System Call Interface)
+
 .rst20
         jp      CallOZMain                      ; 0020
         defb    0,0
         jp      CallOZret                       ; 0025
-        defs    $0028-$PC  ($ff)               ; address align for RST 28H
+        defs    $0028-$PC  ($ff)                ; address align for RST 28H
 
 .rst28
         scf
         ret
-        defs    $0030-$PC  ($ff)               ; address align for RST 30H
+        defs    $0030-$PC  ($ff)                ; address align for RST 30H
 
 .rst30
-        scf
-        ret
-        defs    $0038-$PC  ($ff)               ; address align for RST 38H, Blink INT entry point
+        jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality as RST 30H)
+        defs    $0038-$PC  ($ff)                ; address align for RST 38H, Blink INT entry point
 
 .OZINT
         push    af
@@ -347,3 +346,4 @@ xdef    OZCallReturn3
         ei
         ret
 
+        include "mmdefbnk.asm"                  ; OZ V4.1: RST 30H, new fast bank switch interface
