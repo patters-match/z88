@@ -26,19 +26,19 @@ xdef    GNWfn
 
 ;       ----
 
-xref    AllocFsNode             
-xref    CompressFN              
-xref    FindMatchingFsNode      
-xref    FreeDOR                 
-xref    FreeTopFsNode           
-xref    GetOsf_BHL              
-xref    Ld_A_BHL                
-xref    LdFsnDOR_IX             
-xref    LdIX_FsnDOR             
-xref    LeaHL_FsnBuffer         
-xref    MatchFsNode             
-xref    NextFsNode              
-xref    PutOsf_Err              
+xref    AllocFsNode
+xref    CompressFN
+xref    FindMatchingFsNode
+xref    FreeDOR
+xref    FreeTopFsNode
+xref    GetOsf_BHL
+xref    Ld_A_BHL
+xref    LdFsnDOR_IX
+xref    LdIX_FsnDOR
+xref    LeaHL_FsnBuffer
+xref    MatchFsNode
+xref    NextFsNode
+xref    PutOsf_Err
 
 ;       ----
 
@@ -93,8 +93,8 @@ xref    PutOsf_Err
         jr      opw_err
 
 .opw_2
-        ld      c, 2                            ; wildcard data into S2
-        OZ      OS_Mpb
+        ld      c, MS_S2                        ; wildcard data into S2
+        rst     OZ_MPB
         exx
         pop     de                              ; de'=memory pool
         exx
@@ -141,7 +141,7 @@ xref    PutOsf_Err
         jr      nz, opw_4
         pop     iy                              ; OSFrame
         pop     bc                              ; restore S2
-        OZ      OS_Mpb
+        rst     OZ_MPB
         jr      opw_6
 
 .opw_err
@@ -176,11 +176,11 @@ xref    PutOsf_Err
         ld      a,TH_WMG
         OZ      OS_Fth                          ; free handle
 
-        ld      c, 2                            ; !! C already 2
-        OZ      OS_Mpb                          ; bind data in S2
+        ld      c, MS_S2                        ; !! C already 2
+        rst     OZ_MPB                          ; bind data in S2
         push    hl                              ; IX=data
         pop     ix
-        push    ix                              ; YI=node !! push hl
+        push    ix                              ; IY=node !! push hl
         pop     iy
 
 ;       free all DORs
@@ -202,9 +202,9 @@ xref    PutOsf_Err
 
         pop     iy
         pop     bc                              ; restore S1/S2
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     bc
-        OZ      OS_Mpb
+        rst     OZ_MPB
 
         OZ      OS_Mcl                          ; close mempool, free all memory
         jr      nc, wcl_4
@@ -216,7 +216,7 @@ xref    PutOsf_Err
 
 ;       ----
 
-;       fetch next wildcard match 
+;       fetch next wildcard match
 ;
 ;IN:    IX=wildcard handle, DE=buffer for explicit name, C=buffer size
 ;OUT:   DE=end of name, B=#segments in name, C=#chars in name,
@@ -234,8 +234,8 @@ xref    PutOsf_Err
         OZ      OS_Vth
         jp      c, wfn_21                       ; bad handle? exit
 
-        ld      c, 2                            ; bind data into S2
-        OZ      OS_Mpb
+        ld      c, MS_S2                        ; bind data into S2
+        rst     OZ_MPB
         push    bc
         push    iy
 
@@ -401,8 +401,8 @@ xref    PutOsf_Err
         pop     hl                              ; pop next segment into BHL
         pop     bc
         push    bc                              ; bind in S1
-        ld      c, 1
-        OZ      OS_Mpb
+        ld      c, MS_S1
+        rst     OZ_MPB
         pop     bc
 .wfn_17
         ld      a, (hl)                         ; copy segment name into buffer
@@ -423,12 +423,12 @@ xref    PutOsf_Err
 .wfn_20
         pop     bc
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
 .wfn_21
         pop     bc                              ; restore S2
         push    af
-        OZ      OS_Mpb                          ; Bind bank B in slot C
+        rst     OZ_MPB                          ; Bind bank B in slot C
         pop     af
         ld      b, 0
         ld      hl, GnFnameBuf
@@ -445,4 +445,3 @@ xref    PutOsf_Err
         ld      a, (hl)
         cp      $21
         ret
-

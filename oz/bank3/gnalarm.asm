@@ -94,8 +94,8 @@ xref    PutOsf_Err
 
 .GNLab
         push    ix
-        ld      c, 1                            ; bind alarm in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind alarm in S1
+        rst     OZ_MPB
         push    bc
         push    hl
         pop     ix
@@ -203,11 +203,11 @@ xref    PutOsf_Err
         ld      (uwNextAlarmID), de
 
         pop     bc                              ; restore S1
-        OZ      OS_Mpb
+        rst     OZ_MPB
         call    GetOsf_BHL
 
-        ld      c, 1                            ; bind new alarm in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind new alarm in S1
+        rst     OZ_MPB
         push    bc
 
         ld      b, (iy+OSFrame_B)
@@ -247,7 +247,7 @@ xref    PutOsf_Err
 .lab_13
         pop     bc                              ; restore S1
         push    af
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     af
 
         pop     ix                              ; previous alarm
@@ -261,8 +261,8 @@ xref    PutOsf_Err
         ld      (ix+alm_Next+2), b
 
         push    bc                              ; bind new alarm in
-        ld      c, 1
-        OZ      OS_Mpb
+        ld      c, MS_S1
+        rst     OZ_MPB
         pop     bc
 
         push    hl
@@ -280,7 +280,7 @@ xref    PutOsf_Err
 
         pop     bc                              ; restore S1
         push    af
-        OZ      OS_Mpb
+        rst     OZ_MPB
 
         pop     af
         pop     ix
@@ -303,9 +303,9 @@ xref    PutOsf_Err
 
         push    hl
         pop     ix
-        ld      c, 1                            ; bind alarm in S1
+        ld      c, MS_S1                        ; bind alarm in S1
         push    bc
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     bc
         or      a                               ; Fc=0 !! unnecessary
         ret
@@ -363,15 +363,15 @@ xref    PutOsf_Err
         ld      b, c
         push    de                              ; IX=current
         pop     ix
-        ld      c, 1                            ; bind it in
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind it in
+        rst     OZ_MPB
         pop     bc
         jr      uab_1
 
 .uab_4
         ld      b, c
-        ld      c, 2
-        OZ      OS_Mpb                          ; bind alarm in S2
+        ld      c, MS_S2
+        rst     OZ_MPB                          ; bind alarm in S2
         push    bc
 
         ld      a, d                            ; S2 fix
@@ -429,13 +429,13 @@ xref    PutOsf_Err
 .uab_7
         pop     ix
         pop     bc                              ; restore S2
-        OZ      OS_Mpb
+        rst     OZ_MPB
         ld      c, (ix+alm_Next+2)              ; !! unnecessary?
         ld      d, (ix+alm_Next+1)
         ld      e, (ix+alm_Next)
 .uab_x
         pop     bc                              ; restore S1
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     ix
         ret
 
@@ -670,6 +670,6 @@ xref    PutOsf_Err
         set     ALMF_B_SHOWBELL, (ix+alm_Flags)
 
         pop     bc                              ; restore S1
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     ix
         ret

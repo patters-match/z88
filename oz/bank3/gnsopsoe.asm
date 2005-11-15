@@ -56,13 +56,13 @@ xref    PrintStr
 ;CHG:   AF....HL/....
 
 .GNSoe
-        ld      c, 1                            ; bind  BHL into S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind  BHL into S1
+        rst     OZ_MPB
         push    bc
         ld      b, (iy+OSFrame_B)               ; bind  next bank in S2
         inc     b                               ; in case of bank cross
-        ld      c, 2
-        OZ      OS_Mpb
+        ld      c, MS_S2
+        rst     OZ_MPB
         push    bc
 
         ld      d, h                            ; DE=HL(in)
@@ -76,7 +76,7 @@ xref    PrintStr
         ld      (iy+OSFrame_L), e               ; !! no bank change
 
         pop     bc                              ; restore S2
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     bc                              ; restore S1
-        OZ      OS_Mpb
+        rst     OZ_MPB
         ret

@@ -76,8 +76,8 @@ xref    GnClsMain
         jr      lbdea_4
 
 .lbdea_3
-        ld      c, 1                            ; bind needed bank in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind needed bank in S1
+        rst     OZ_MPB
         ld      a, d                            ; S1 fix
         and     $3F
         or      $40
@@ -85,7 +85,7 @@ xref    GnClsMain
         pop     af
         push    af
         ld      (de), a                         ; store byte
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
 .lbdea_4
         pop     af
         pop     de
@@ -135,8 +135,8 @@ xref    GnClsMain
         jr      labhl_4
 
 .labhl_3
-        ld      c, 1                            ; bind memory in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind memory in S1
+        rst     OZ_MPB
         push    bc                              ; remember binding
         push    hl
         ld      a, h                            ; S1 fix
@@ -147,7 +147,7 @@ xref    GnClsMain
         pop     hl
         pop     bc                              ; restore S1
         push    af
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     af
 .labhl_4
         pop     bc

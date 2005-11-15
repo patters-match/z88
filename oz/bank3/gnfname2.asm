@@ -991,8 +991,8 @@ xref    WriteOsfDE
         push    de                              ; IY=de
         pop     iy
         ld      b, c                            ; bind old node in S1
-        ld      c, 1
-        OZ      OS_Mpb
+        ld      c, MS_S1
+        rst     OZ_MPB
         exx
         ld      d, (iy+fsn_pDOR+1)
         ld      e, (iy+fsn_pDOR)
@@ -1014,8 +1014,8 @@ xref    WriteOsfDE
 
 .afn_2
         push    bc                              ; put new node on the top of list
-        ld      c, 1                            ; bind new mem in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind new mem in S1
+        rst     OZ_MPB
         push    hl                              ; into IY
         pop     iy
         pop     bc
@@ -1106,8 +1106,8 @@ xref    WriteOsfDE
         jr      z, ftfsn_x                      ; !! ret z
 
         ld      e, b                            ; bind node in S1
-        ld      c, 1
-        OZ      OS_Mpb
+        ld      c, MS_S1
+        rst     OZ_MPB
 
         ld      b, e
         push    hl
@@ -1133,7 +1133,6 @@ xref    WriteOsfDE
 ;       ----
 
 .NextFsNode
-        push    de                              ; !! unnecessary push/pop
         ld      b, (iy+fsn_eLink+2)
         ld      h, (iy+fsn_eLink+1)
         ld      l, (iy+fsn_eLink)
@@ -1142,17 +1141,15 @@ xref    WriteOsfDE
         or      b
         scf
         ld      a, RC_Eof                       ; End Of File
-        jr      z, nxfn_1                       ; BHL=0? EOF !! ret z
+        ret     z                               ; BHL=0?
 
         push    bc
-        ld      c, 1                            ; bind memory into S1
-        OZ      OS_Mpb                          ; Bind bank B in slot C
+        ld      c, MS_S1                        ; bind memory into S1
+        rst     OZ_MPB                          ; Bind bank B in segment C
         pop     bc
         push    hl                              ; and return it in IY
         pop     iy
         or      a                               ; Fc=0
-.nxfn_1
-        pop     de
         ret
 
 ;       ----

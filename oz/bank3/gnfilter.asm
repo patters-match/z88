@@ -56,8 +56,8 @@ xref    Upper
         or      $80
         ld      h, a
         push    hl
-        ld      c, 2
-        OZ      OS_Mpb                          ; bind table in S2
+        ld      c, MS_S2
+        rst     OZ_MPB                          ; bind table in S2
         push    bc                              ; remember S2 binding and table
         push    hl
 
@@ -110,7 +110,7 @@ xref    Upper
         pop     bc                              ; restore S2
         pop     hl
         push    af
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     af
         jr      nc, flo_5                       ; no error? continue
 
@@ -166,8 +166,8 @@ xref    Upper
         jr      flo_x
 
 .flo_11
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind mem in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind mem in S1
         push    bc
         exx
         pop     bc                              ; bc' = old S1 binding
@@ -205,7 +205,7 @@ xref    Upper
         ld      (ix+fd_ubBufSize), e
         pop     bc                              ;
         pop     ix                              ; filter handle
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
 .flo_x
         ret
 
@@ -236,8 +236,8 @@ xref    Upper
         jr      c, flc_err                      ; bad handle
 
         push    ix
-        ld      c, 1                            ; bind data in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind data in S1
+        rst     OZ_MPB
         push    bc                              ; remember binding
 
         push    hl                              ; IX=data
@@ -259,7 +259,7 @@ xref    Upper
         OZ      OS_Mcl
 
         pop     bc                              ; restore S1 binding
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     ix
 
         ld      a, TH_FILT
@@ -286,8 +286,8 @@ xref    Upper
         jr      c, flw_4                        ; bad handle
 
         push    ix
-        ld      c, 1                            ; bind data in
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind data in
+        rst     OZ_MPB
         push    bc                              ; remember binding
 
         push    hl                              ; IX=data
@@ -322,7 +322,7 @@ xref    Upper
         cp      RC_Hand
         jr      z, flw_6                        ; bad handle, didn't change S1
 .flw_5
-        OZ      OS_Mpb                          ; Bind bank B in slot C
+        rst     OZ_MPB                          ; Bind bank B in slot C
 .flw_6
         pop     af                              ; !! why not set osf_A above?
         ld      (iy+OSFrame_A), a               ; return error code or char written
@@ -344,8 +344,8 @@ xref    Upper
         jp      c, flr_err                      ; bad handle
 
         push    ix                              ; remember handle
-        ld      c, 1                            ; bind data in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind data in S1
+        rst     OZ_MPB
         push    bc                              ; remember S1 binding
 
         push    hl                              ; IX=data
@@ -354,8 +354,8 @@ xref    Upper
         ld      l, (ix+fd_eTable)               ; bind table in S2
         ld      h, (ix+fd_eTable+1)
         ld      b, (ix+fd_eTable+2)
-        ld      c, 2
-        OZ      OS_Mpb
+        ld      c, MS_S2
+        rst     OZ_MPB
         push    bc                              ; remember S2 binding
 
         bit     FDF_B_PUSHBACK, (ix+fd_ubFlags) ; get pushback char if there's one
@@ -580,9 +580,9 @@ xref    Upper
 
 .flr_20
         pop     bc                              ; restore S2 & s1
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     bc
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     ix
 .flr_x
         ret
@@ -651,8 +651,8 @@ xref    Upper
         jr      c, flf_err                      ; bad handle
 
         push    ix
-        ld      c, 1                            ; bind data in S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; bind data in S1
+        rst     OZ_MPB
         push    bc
 
         ld      a, (ix+2)
@@ -704,7 +704,7 @@ xref    Upper
         pop     bc
         pop     ix
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
         jr      nc, flf_6
 .flf_err
@@ -729,8 +729,8 @@ xref    Upper
         jr      c, fpb_4                        ; bad handle
 
         push    ix
-        ld      c, 1                            ; data into S1
-        OZ      OS_Mpb
+        ld      c, MS_S1                        ; data into S1
+        rst     OZ_MPB
         push    bc
 
         push    hl
@@ -758,7 +758,7 @@ xref    Upper
         pop     bc
         pop     ix
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
         jr      nc, fpb_x
 .fpb_4
