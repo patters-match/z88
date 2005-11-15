@@ -1855,7 +1855,7 @@ defc    DM_RAM                  =$81
         jr      z, mpb_1                        ; segment 3? handle separately
         jr      nc, illg_MS_Sx                  ; segment >3? error
 
-        rst     $30                             ; OZ V4.1: execute bank binding, B = bank number, C = MS_Sx
+        rst     OZ_MPB                          ; OZ V4.1: execute bank binding, B = bank number, C = MS_Sx
         jr      ret_bank_binding                ; return old bank binding in B
 .mpb_1
         pop     af                              ; pop S3 into A
