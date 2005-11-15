@@ -195,8 +195,8 @@ xdef    OSEprTable
         jr      z, ld_4                         ; size is 0? we're done
 
         push    bc                              ; bind BHL into S1
-        ld      c, 1
-        OZ      OS_Mpb
+        ld      c, MS_S1
+        rst     OZ_MPB
         pop     bc
 
         ld      a, h                            ; point HL into S1
