@@ -2,29 +2,29 @@ $Id$
 
 Roadmap for 4.1 OZ release:
 
-1) make source (disassebmly) complete ORG independent. Add GPL headers to sources.
-2) You've implemented the new generic keyboard algorithm (actually a new feature)
-3) Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes)
-4) Internal reorganisation of code (realistically possible)
-
 TODO (with priorities):
-X At the end of int.asm move HWclocks buffers in b20. P1
-X Rewrite timeres.asm according HWClocks. P1
+- make source (disassembly) complete ORG independent. Add GPL headers to sources P2
 - Move serial interface code in kernel. P3
-X Move OSMap to bank7. P1
-X Change OzWindow for Deadkey codes. P1
-X Remove Deadkeys.asm in b7. P1
-X Clean misc6.asm, unfixed org, move 128K routines mixed into. P1
 - Clean misc2.asm, lots of space and speed to gain. P2
-X Clean Lowram.asm, lots of space and speed to gain. P1
-X Remove PAD94D5.asm. P1
 - PrinterEd menu 1/2 to correct. P2
-X Put OSCli.asm tables in fixed area. P1
 - Clean OSAlm. P2
 - Test A=0 in OSSci. P3
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2
+- Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes) P3
 
+DONE
+- Implement the new generic keyboard algorithm
+- At the end of int.asm move HWclocks buffers in b20. P1
+- Rewrite timeres.asm according HWClocks. P1
+- Move OSMap to bank7. P1
+- Change OzWindow for Deadkey codes. P1
+- Remove Deadkeys.asm in b7. P1
+- Clean misc6.asm, unfixed org, move 128K routines mixed into. P1
+- Clean Lowram.asm, lots of space and speed to gain. P1
+- Remove PAD94D5.asm. P1
+- Put OSCli.asm tables in fixed area. P1
+- Implement fast Bank switching in Lowram.asm RST 30H and replace all OZ OS_Mpb calls in available sources.
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0
