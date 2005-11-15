@@ -168,9 +168,8 @@ defvars $1fde {
         ld      a, b
         ld      (eIOBuf_242+2), a
 
-        ld      c, 2
-        OZ      OS_Mpb                          ; bind  it in S2
-        jp      c, loc_C0D9                     ; !! unnecessary
+        ld      c, MS_S2
+        rst     OZ_MPB                          ; bind  it in S2
 
         ld      a, $60                          ; S1, multiple  banks
         ld      bc, 0
@@ -183,9 +182,8 @@ defvars $1fde {
         ld      (S1Binding), a
 
         ld      b, a                            ; b00 into S1
-        ld      c, 1
-        OZ      OS_Mpb                          ; Bind  bank B in slot C
-        jp      c, loc_C0D9                     ; !! unnecessary
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; Bind  bank B in slot C
 
         ld      hl, (eMem_LineBuffers)
         ld      b, 237
@@ -5750,9 +5748,9 @@ defvars $1fde {
 
         ld      a, b
         ld      (S1Binding), a
-        ld      c, 1
-        OZ      OS_Mpb                          ; Bind  bank B in slot C
-
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; Bind bank B in segment C
+        or      a                               ; Fc = 0
 .mbs1_1
         pop     hl
         pop     bc

@@ -1560,8 +1560,8 @@ swYear                  ds.b    1
         jr      c, as_4                         ; error? exit
 
         push    bc
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind alarm in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind alarm in S1
 
         push    hl                              ; clear it
         pop     ix
@@ -1732,8 +1732,8 @@ swYear                  ds.b    1
         push    hl
         pop     ix                              ; return it in IX
         push    bc
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind it in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind it in S1
         pop     bc
 .gna_1
         pop     hl
@@ -3025,34 +3025,34 @@ swYear                  ds.b    1
 .MoveToXb
         push    hl
         ld      hl, MoveToX_txt
-        OZ      GN_Sop                          
+        OZ      GN_Sop
         ld      a, $20
         add     a, b
-        OZ      OS_Out                          
+        OZ      OS_Out
         pop     hl
         ret
 
 .MoveToXYbc
         push    hl
         ld      hl, MoveToXY_txt
-        OZ      GN_Sop                          
+        OZ      GN_Sop
         pop     hl
         ld      a, b
         add     a, $20
-        OZ      OS_Out                          
+        OZ      OS_Out
         ld      a, c
         add     a, $20
-        OZ      OS_Out                          
+        OZ      OS_Out
         ret
 
 .ApplyToggles
         push    af
         push    hl
         ld      hl, Apply_txt
-        OZ      GN_Sop                          
+        OZ      GN_Sop
         pop     hl
         pop     af
-        OZ      OS_Out                          
+        OZ      OS_Out
         ret
 
 .JustifyC
@@ -3093,7 +3093,7 @@ swYear                  ds.b    1
         ld      hl, ClrEOL_txt
 
 .PrntString
-        OZ      GN_Sop                          
+        OZ      GN_Sop
         pop     hl
         ret
 
@@ -3126,3 +3126,5 @@ swYear                  ds.b    1
         defm    1,"2JN", 0
 .Reverse_txt
         defm    1,"R", 0
+
+        defs 2 ($ff)                            ; padding - to be removed when using makeapp
