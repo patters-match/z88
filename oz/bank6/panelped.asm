@@ -102,8 +102,8 @@ defvars p_Vars
 
 .init_4
         ld      (p_pMem_Buffer_100), hl
-        ld      c, 2
-        OZ      OS_Mpb
+        ld      c, MS_S2
+        rst     OZ_MPB
 
         ld      bc, $33
         call    AllocMem
@@ -1889,7 +1889,7 @@ defvars p_Vars
         bit     0, (iy+p_ubFlags-p_Vars)
         ret     nz                              ; already bound in
         ld      c, MS_S1
-        OZ      OS_Mpb                          ; bind it in S1
+        rst     OZ_MPB                          ; bind it in S1
         set     0, (iy+p_ubFlags-p_Vars)
         or      a
         ret
