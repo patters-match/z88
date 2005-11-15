@@ -642,13 +642,13 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      a, (eIdxProcList+2)             ; last running process at top
         ld      iy, (eIdxProcList)
         ld      b, a
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind first proc to S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind first proc to S1
         push    bc
         call    GetLinkBHL                      ; get second process
         ld      d, b
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     iy
         ld      b, d
         ld      a, b
@@ -955,8 +955,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         push    hl
         pop     iy
         push    bc
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind node into S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind node into S1
         pop     bc
         ld      a, (iy+prc_flags)
         and     PRCF_ISINDEX
@@ -1483,8 +1483,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      iy, (eIdxProcList)
         ld      a, (eIdxProcList+2)
         ld      b, a
-        ld      c, 1
-        OZ      OS_Mpb                          ; remember S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; remember S1
         push    bc
         call    GetProcHandle
 
@@ -1522,7 +1522,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .dcalt_9
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         jr      dcalt_er3                       ; syntax error
 
 .dcalt_10
@@ -1543,7 +1543,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         and     AT_Ugly|AT_Popd
         pop     bc
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
         jr      z, dcalt_12
         ld      b, 0                            ; ugly application or popdown
@@ -1564,8 +1564,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      iy, (eIdxProcList)
         ld      a, (eIdxProcList+2)
         ld      b, a
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind proc in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind proc in S1
         pop     bc
         ld      (iy+prc_stkProcEnv+2),  b
         ld      (iy+prc_stkProcEnv+1),  h
@@ -2020,7 +2020,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
         pop     bc
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
 
         pop     af
         ld      (iy+prc_dynid), a
@@ -2034,8 +2034,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .AddProc
         push    bc
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind DOM in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind DOM in S1
 
         push    hl
         pop     iy
@@ -2099,7 +2099,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         push    af
         ld      b, d
         ld      c, e
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
         pop     bc
         ret
@@ -2266,7 +2266,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      (iy+OSFrame_L), l
 
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     ix
         ret
 
@@ -2335,15 +2335,15 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ret
 
 .ReturnCliHandle
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind process in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind process in S1
         add     hl, de
         ld      e, (hl)
         inc     hl
         ld      d, (hl)
         push    de
         pop     ix
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
 
 .dcnq_ret
         ret
@@ -2398,7 +2398,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .dsdev_2
         pop     bc                              ; restore S1
-        OZ      OS_Mpb
+        rst     OZ_MPB
 
         ld      hl, 18
         add     hl, sp
@@ -2481,8 +2481,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      (iy+prc_assocptr), l
         ld      (iy+prc_assoclen), e
 
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind associate block into S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind associate block into S1
         push    bc
 
         ld      b, e
@@ -2491,7 +2491,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         add     hl, sp
         call    CopyUntilSub21                  ; copy string
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
 
 .alass_4
         pop     ix
@@ -2568,7 +2568,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         call    CopyUntilSub21                  ; from stack buffer to process structure
 
         pop     bc                              ; restore S1
-        OZ      OS_Mpb
+        rst     OZ_MPB
 
         ld      hl, 17
         add     hl, sp
@@ -2616,15 +2616,15 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      a, (eIdxIndexProc+2)
         ld      b, a
         ld      e, a
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind Index in S1 and return it
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind Index in S1 and return it
         ld      b, e
         jr      gfil_3
 
 .gfil_2
         ld      e, b
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind process in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind process in S1
         ld      b, e
         push    hl
         push    bc
@@ -2678,8 +2678,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .frp_1
         push    bc
         push    hl
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind proc in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind proc in S1
 
         push    hl                              ; free associated block
         pop     iy
@@ -2705,7 +2705,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .frp_3
         pop     bc                              ; restore S1
         push    af
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     af
         pop     hl
         pop     bc
@@ -2747,15 +2747,15 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      b, c
         push    de
         pop     iy
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind node in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind node in S1
         pop     bc
         jr      rmv_1
 
 .rmv_3
         ld      b, c                            ; bind next into S2
-        ld      c, 2
-        OZ      OS_Mpb
+        ld      c, MS_S2
+        rst     OZ_MPB
         push    bc
         set     7, d                            ; S2 fix and copy link from next to current
         res     6, d
@@ -2768,7 +2768,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      a, (de)
         ld      (iy+2), a
         pop     bc
-        OZ      OS_Mpb                          ; restore S2
+        rst     OZ_MPB                          ; restore S2
 
         call    GetLinkCDE                      ; get link to next
 
@@ -2878,8 +2878,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         pop     ix                              ; restore MEM input
         jp      c, dcicl_5
 
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind mem in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind mem in S1
         push    bc
 
         push    hl                              ; clear allocated memory
@@ -2917,8 +2917,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 ; copy stream pointers from existing CLI
 
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind old CLI into S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind old CLI into S1
 
         ld      de, cli_outstream
         add     hl, de
@@ -2932,8 +2932,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         dec     c
         jr      nz, dcicl_2
 
-        ld      c, 1
-        OZ      OS_Mpb                          ; restore S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; restore S1
 
         push    iy
         pop     hl
@@ -2951,7 +2951,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .dcicl_4
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
 
         push    iy
         pop     hl
@@ -3062,7 +3062,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .dcrbd_8
         pop     bc
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
         pop     iy
         call    c, SetOsfError
@@ -3105,7 +3105,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         call    c, SetOsfError
 
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         ret
 
 ;       ----
@@ -3144,7 +3144,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .dcgen_2
         pop     iy
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         ret
 
 ;       ----
@@ -3191,7 +3191,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .dcpol_4
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         ret
 
 ;       ----
@@ -3341,7 +3341,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      (iy+OSFrame_E), e
 
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     ix
         ret
 
@@ -3378,7 +3378,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         pop     iy
         pop     bc
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
 
         pop     ix
@@ -3495,7 +3495,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .dcout_7
         pop     iy
         pop     bc
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     ix
         ret
 
@@ -3564,7 +3564,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         pop     iy
         pop     bc
         push    af
-        OZ      OS_Mpb                          ; restore S1
+        rst     OZ_MPB                          ; restore S1
         pop     af
         call    c, SetOsfError
         pop     ix
@@ -3638,8 +3638,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
         push    hl
         pop     iy
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind CLI in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind CLI in S1
 
         call    ldIX_00                         ; close all streams
         ld      a, CLIS_INOPEN
@@ -3927,8 +3927,8 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         jr      z, gcli_2
         push    hl
         pop     iy
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind CLI into S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind CLI into S1
 
 .gcli_2
         pop     bc
@@ -4288,3 +4288,5 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         defm    1,"2JN"
         defm    1,"T"
         defm    0
+
+        defs    38 ($ff)                        ; !! to be removed when using makeapp

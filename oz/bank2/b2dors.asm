@@ -11,7 +11,7 @@
 
         org     $ff6f
 
-        defs    33 ($ff)
+        defs    43 ($ff)                ; !! to be removed when using makeapp
 
 .PrEdDOR
         defp    0,0                     ; parent

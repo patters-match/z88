@@ -1580,8 +1580,8 @@ DEFVARS f_Vars
         jr      asn_4
 
 .asn_3
-        ld      c, 1
-        OZ      OS_Mpb                          ; Bind memory into S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; Bind memory into S1
 
         push    bc
         ex      de, hl
@@ -1606,7 +1606,7 @@ DEFVARS f_Vars
 
         pop     hl
         pop     bc
-        OZ      OS_Mpb                          ; restore S1 binding
+        rst     OZ_MPB                          ; restore S1 binding
 
         call    QueueSelected
 
@@ -1653,8 +1653,8 @@ DEFVARS f_Vars
         jr      loc_F460
 
 .loc_F43B
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind mem in S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind mem in S1
         push    bc
         ex      de, hl
         xor     a
@@ -1677,7 +1677,7 @@ DEFVARS f_Vars
         ld      (de), a                         ; allocation length
         pop     de
         pop     bc
-        OZ      OS_Mpb                          ; restore S1 binding
+        rst     OZ_MPB                          ; restore S1 binding
         ld      h, d
         ld      l, e
         call    QueueSelected
@@ -1699,10 +1699,10 @@ DEFVARS f_Vars
         push    bc
         call    GetLinkCDE
         ld      b, c
-        ld      c, 1
+        ld      c, MS_S1
         push    de
         pop     iy
-        OZ      OS_Mpb                          ; Bind bank B in slot C
+        rst     OZ_MPB                          ; Bind bank B in slot C
         pop     bc
         jr      loc_F469
 
@@ -1787,14 +1787,14 @@ DEFVARS f_Vars
         ld      b, c
         push    de
         pop     iy
-        ld      c, 1
-        OZ      OS_Mpb
+        ld      c, MS_S1
+        rst     OZ_MPB
         pop     bc
         jr      free_1
 
 .free_3
-        ld      c, 2                            ; found, bind it into S2
-        OZ      OS_Mpb                          ; for list removal
+        ld      c, MS_S2                        ; found, bind it into S2
+        rst     OZ_MPB                          ; for list removal
         push    bc
         ld      a, d                            ; fix high byte for S2
         and     $3F
@@ -1807,11 +1807,11 @@ DEFVARS f_Vars
         ldir
         pop     hl
         pop     bc
-        OZ      OS_Mpb                          ; restore S2
+        rst     OZ_MPB                          ; restore S2
 
-        ld      c, 1                            ; bind node into S1 to free memory
+        ld      c, MS_S1                        ; bind node into S1 to free memory
         ld      e, b
-        OZ      OS_Mpb
+        rst     OZ_MPB
         push    hl
         pop     iy
         ld      a, e
@@ -1924,8 +1924,8 @@ DEFVARS f_Vars
         push    de
         pop     iy                              ; next into IY
         ld      e, b
-        ld      c, 1
-        OZ      OS_Mpb                          ; bind entry into S1
+        ld      c, MS_S1
+        rst     OZ_MPB                          ; bind entry into S1
 
         ld      b, e                            ; ret wit Fc=0, B=bank, IY=new
         or      a
