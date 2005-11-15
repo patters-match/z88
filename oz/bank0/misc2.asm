@@ -204,13 +204,11 @@ xref    StorePrefixed                           ; bank7/scrdrv1.asm
 ;       ----
 
 ;       Eprom Interface
-
 ;       we have OSFrame so remembering S2 is unnecessary, as is remembering IY
 
 .OSEpr
-        ld      b, 7                            ; ld bc,7<<8|2
-        ld      c, 2
-        OZ      OS_Mpb                          ; MS2b07 and remember S3 !! use MS2BankK1
+        ld      bc, 7<<8 | MS_S2
+        rst     OZ_MPB                          ; MS2b07 and remember S3 !! use MS2BankK1
         push    bc                              ; !! ospop restores S2/IY
         push    iy
 
@@ -228,7 +226,7 @@ xref    StorePrefixed                           ; bank7/scrdrv1.asm
         pop     iy
         pop     bc                              ; restore S2
         push    af
-        OZ      OS_Mpb
+        rst     OZ_MPB
         pop     af
         ret                                     ; return thru ospop
 
