@@ -29,6 +29,8 @@ public class FontBitMap {
 
 	private static final char[] hexcodes = { '0', '1', '2', '3', '4', '5', '6',
 			'7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+	
+	private static final String tab8 = "        ";
 
 	private File romFile;
 	private File asmFile;
@@ -73,6 +75,23 @@ public class FontBitMap {
 		return binString.toString();
 	}
 
+	
+	/**
+	 * Return Hex 8bit string in XXh zero prefixed format.
+	 *
+	 * @param b The byte to be converted to hex string
+	 * @param hexTrailer append 'h' if true.
+	 * @return String
+	 */
+	public static final String byteToHex(final int b, final boolean hexTrailer) {
+		StringBuffer hexString = new StringBuffer(3);
+
+		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]);
+		if (hexTrailer == true) hexString.append('h');
+
+		return hexString.toString();
+	}
+	
 	
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
@@ -134,6 +153,74 @@ public class FontBitMap {
 		rafFontBitMap.write(fontBitMap);
 		rafFontBitMap.close();
 	}
+
+	
+	/** 
+	 * Dump the embedded Token Table in font bitmap as out-commented 
+	 * source code in the assembler output file.
+	 * 
+	 * @throws IOException 
+	 */
+	private void dumpTokenTableSource() throws IOException {
+		bwAsmFile.write("\n\n; Token table, integrated into bits 7,6 of the lores1 font bitmap:\n;\n");
+		bwAsmFile.write("; .token_base\n");
+		bwAsmFile.write("; " + tab8 + "defb $" + byteToHex(tokenTable[0] & 0xff, false) + " ; recursive token boundary\n"); 
+		bwAsmFile.write("; " + tab8 + "defb $" + byteToHex(tokenTable[1] & 0xff, false) + " ; number of tokens\n");
+		
+		// generate 16bit offset table to tokens string sequences
+		for (int tokenNo=0, n=tokenTable[1] & 0xff; tokenNo<n; tokenNo++) {
+			bwAsmFile.write("; " + tab8 + "defw token" + byteToHex(0x80+tokenNo, false) + "-token_base\n"); 
+		}
+		bwAsmFile.write("; " + tab8 + "defw end_tokens-token_base\n");
+
+		int tokenOffsetPtr = 2; // ready for first 16bit token offset
+		for (int tokenNo=0, n=tokenTable[1] & 0xff; tokenNo<n; tokenNo++) {
+			bwAsmFile.write("; .token" + byteToHex(0x80+tokenNo, false) + "\n; " + tab8 + "defm ");
+			
+			int tokenSequenceBase = (tokenTable[tokenOffsetPtr+1] & 0xff) * 256 + (tokenTable[tokenOffsetPtr] & 0xff);
+			int tokenSequenceLength = (tokenTable[tokenOffsetPtr+2+1] & 0xff) * 256 + (tokenTable[tokenOffsetPtr+2] & 0xff) - tokenSequenceBase;
+			boolean textString = false;
+			for (int i=0; i<tokenSequenceLength; i++) {
+				int tokenByte = tokenTable[tokenSequenceBase+i] & 0xff; 
+				if ( tokenByte < 32 | tokenByte > 126 ) {
+					if (textString == false)
+						bwAsmFile.write("$" + byteToHex(tokenByte, false));
+					else {
+						textString = false;
+						bwAsmFile.write("\", $" + byteToHex(tokenByte, false));
+					}
+				} else {
+					if (tokenByte == 0x22) {
+						// special case for "
+						if (textString == true) {
+							textString = false;
+							bwAsmFile.write("\", '\"'");
+						} else {
+							bwAsmFile.write("'\"'");
+						}							
+					} else {
+						if (textString == true)
+							bwAsmFile.write((char) tokenByte);
+						else {
+							textString = true;
+							bwAsmFile.write("\"" + (char) tokenByte);
+						}
+					}
+				}
+				
+				if (textString == false && i+1<tokenSequenceLength) 
+					bwAsmFile.write(", ");
+			}
+			
+			if (textString == true)
+				bwAsmFile.write("\"\n");
+			else
+				bwAsmFile.write("\n");
+			
+			tokenOffsetPtr += 2; // point at next 16bit token offset
+		}
+		bwAsmFile.write("; .end_tokens\n");
+	}
 	
 	
 	/** Dump the embedded Token Table in font bitmap as stand-alone binary file 
@@ -189,10 +276,16 @@ public class FontBitMap {
 			// dump the embedded Token Table in font bitmap as stand-alone file image (1K)
 			dumpTokenTable();
 
-			// create source code as text file...
+			// create source code of font bitmap and token table as text file...
 			asmFile.delete();
 			bwAsmFile = new BufferedWriter(new FileWriter(asmFile));
 
+			bwAsmFile.write("Module FontBitMap\n");
+			// first part of the source file contains the token table dumped
+			// as out-commented source code
+			dumpTokenTableSource();
+			
+			// then dump the font bitmaps...
 			for (int f = 0; f < fontBitMap.length; f += 8) {
 				dumpCharMatrix(f);
 			}
