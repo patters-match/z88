@@ -1,30 +1,42 @@
-$Id$
-
+---------------------------------------------------------------------------------------------------------------
 Roadmap for 4.1 OZ release:
 
+$Id$
+---------------------------------------------------------------------------------------------------------------
+
+Developer abbreviations:
+TP = Thierry Peycru (pek@users.sf.net)
+GBS = Gunther Strube (gbs@users.sf.net)
+
+
 TODO (with priorities):
-- make source (disassembly) complete ORG independent. Add GPL headers to sources P2
+- make source (disassembly) complete ORG independent. Add GPL headers to sources. P2
 - Move serial interface code in kernel. P3
 - Clean misc2.asm, lots of space and speed to gain. P2
 - PrinterEd menu 1/2 to correct. P2
+- Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3
 - Clean OSAlm. P2
 - Test A=0 in OSSci. P3
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2
-- Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes) P3
+- Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes). P3
+- Preset default RAM device in Panel to expanded RAM card when identified by OZ. P3
+- Remove auto-blowing of File Eprom Header during reset, when empty Eprom card found in slot 3. P3
+- Fast bank binding status in lowram.asm using RST 10H and replace all OZ OS_Mgb calls in available sources. (GBS)
 
 DONE
-- Implement the new generic keyboard algorithm
-- At the end of int.asm move HWclocks buffers in b20. P1
-- Rewrite timeres.asm according HWClocks. P1
-- Move OSMap to bank7. P1
-- Change OzWindow for Deadkey codes. P1
-- Remove Deadkeys.asm in b7. P1
-- Clean misc6.asm, unfixed org, move 128K routines mixed into. P1
-- Clean Lowram.asm, lots of space and speed to gain. P1
-- Remove PAD94D5.asm. P1
-- Put OSCli.asm tables in fixed area. P1
-- Implement fast Bank switching in Lowram.asm RST 30H and replace all OZ OS_Mpb calls in available sources.
+- Implement the new generic keyboard algorithm (TP)
+- At the end of int.asm move HWclocks buffers in b20. (TP)
+- Rewrite timeres.asm according HWClocks. (TP)
+- Move OSMap to bank7. (TP)
+- Change OzWindow for Deadkey codes. (TP)
+- Remove Deadkeys.asm in b7. (TP)
+- Clean misc6.asm, unfixed org, move 128K routines mixed into. (TP)
+- Clean Lowram.asm, lots of space and speed to gain. (TP)
+- Remove PAD94D5.asm. (TP)
+- Put OSCli.asm tables in fixed area. (TP)
+- Fast bank switching in lowram.asm using RST 30H and replace all OZ OS_Mpb calls in available sources. (GBS)
+- Source code of font bitmaps and hidden token table for UK, FR, SE/FI & DK localisations. (GBS)
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0
