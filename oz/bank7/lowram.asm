@@ -35,7 +35,7 @@ xdef    OZ_RET0
 xdef    OZ_BUF
 xdef    OZ_DI
 xdef    OZ_EI
-xdef    OZ_INT
+; xdef    OZ_MGB        for you Gunther...
 xdef    OZCallJump
 xdef    OZCallReturn1
 xdef    OZCallReturn2
@@ -104,8 +104,8 @@ xdef    OZCallReturn3
         jp      OZDImain                        ; 0051
 .OZ_EI
         jp      OZEImain                        ; 0054
-.OZ_INT
-        jp      OZSCFmain                       ; 0057
+;.OZ_MGB
+        jp      rst10                           ; 0057 this place is for Gunther....
 
 
 
@@ -289,12 +289,6 @@ xdef    OZCallReturn3
         out     (BL_SR3), a
         ex      af, af'
         exx
-        ret
-
-;       called from int.asm thru OZ_INT to handle spurious interrupts
-
-.OZSCFmain
-        scf
         ret
 
 ;       called thru $0025, maybe unused

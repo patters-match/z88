@@ -146,7 +146,7 @@ xref    ReadRTC                                 ; bank0/time.asm
 
 .int_RTCM
         bit     BB_TACKMIN, a
-        jr      z, int_RTCM3
+        jr      z, int_x
 
 ;       MIN calls IntMinute and does timeout
 
@@ -157,22 +157,19 @@ xref    ReadRTC                                 ; bank0/time.asm
 
         ld      hl, ubIntTaskToDo
         bit     ITSK_B_SHUTDOWN, (hl)
-        jr      nz, int_RTCM2                   ; already shutting down? exit
+        jr      nz, int_x                       ; already shutting down? exit
 
         ld      hl, ubTimeoutCnt
         dec     (hl)
         jp      m, int_RTCM1                    ; negative? restore - no timeout
-        jr      nz, int_RTCM2
+        jr      nz, int_x
 
         ld      hl, ubIntTaskToDo               ; request shutdown
         set     ITSK_B_SHUTDOWN, (hl)
-        jr      int_RTCM2                       ; !! jp directly
+        jr      int_x
 .int_RTCM1
         inc     (hl)
-.int_RTCM2
         jp      int_x
-.int_RTCM3
-        jp      int_11                          ; handle spurious int
 
 ;       no ints outside blink or RTC disabled
 
@@ -216,17 +213,10 @@ xref    ReadRTC                                 ; bank0/time.asm
 
 .int_10
         rra                                     ; A19
-        jr      nc, int_11
+        jr      nc, int_x
         ld      a, BM_ACKA19
         out     (BL_ACK), a                     ; (w) main int. mask
         jp      int_x
-
-;       handle spurious interrupts
-
-.int_11
-        call    OZ_INT                          ; 'scf; ret'
-        jr      c, int_x                        ; so always just exit
-        jr      nz, int_x
 
 ;       uart exits thru this
 
