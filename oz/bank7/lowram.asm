@@ -53,12 +53,11 @@ xdef    OZCallReturn3
 .rst08
         scf
         ret
-        defs     $0010-$PC  ($ff)               ; address align for RST 10H
+        defs    $0010-$PC  ($ff)                ; address align for RST 10H
 
 .rst10
-        scf
-        ret
-        defs     $0018-$PC  ($ff)               ; address align for RST 18H (OZ Floating Point Package)
+        jp      MemGetBank                      ; OZ V4.1: Fast Bank binding status (OS_MGB functionality with RST 10H)
+        defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
 
 .rst18
         jp      FPPmain
@@ -79,7 +78,7 @@ xdef    OZCallReturn3
         defs    $0030-$PC  ($ff)                ; address align for RST 30H
 
 .rst30
-        jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality as RST 30H)
+        jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality with RST 30H)
         defs    $0038-$PC  ($ff)                ; address align for RST 38H, Blink INT entry point
 
 .OZINT
@@ -346,4 +345,4 @@ xdef    OZCallReturn3
         ei
         ret
 
-        include "mmdefbnk.asm"                  ; OZ V4.1: RST 30H, new fast bank switch interface
+        include "mgpbnk.asm"                    ; OZ V4.1: RST 10H & RST 30H, new fast replacements for OS_MGB & OS_MPB

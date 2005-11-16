@@ -1810,13 +1810,7 @@ defc    DM_RAM                  =$81
         jr      z, ret_bank_binding             ; seg 3? we're done
         jr      nc, illg_MS_Sx                  ; seg >3? error
 
-        add     a, BL_SR0                       ; convert into blink port
-        exx
-        ld      c, a
-        ld      b, BLSC_PAGE
-        ld      a, (bc)                         ; read softcopy
-        exx
-        ld      b, a
+        rst     OZ_MGB                          ; OZ V4.1: get bank binding status in B for C = MS_Sx
         jr      ret_bank_binding                ; return current bank binding for MS_Sx
 
 

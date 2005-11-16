@@ -30,6 +30,7 @@ lstoff
      DEFC Os_Mpb = $5D             ; Set (Put) new binding
      DEFC Os_Bix = $60             ; Bind in extended address (internal)
      DEFC Os_Box = $63             ; Restore bindings after OS_BIX (internal)
+     DEFC OZ_MGB = $10             ; OZ V4.1: New fast bank binding status for RST 10H.
      DEFC OZ_MPB = $30             ; OZ V4.1: New fast bank switching implemented for RST 30H.
 
 ; Fast code interface for bank switching (A=1)
