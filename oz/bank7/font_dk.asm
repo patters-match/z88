@@ -1,3 +1,9 @@
+; -----------------------------------------------------------------------------
+; Bank 7 @ S2           ROM offset $1c000
+;
+; $Id$
+; -----------------------------------------------------------------------------
+
 ; DK LORES1 / HIRES1 font bitmap, with integrated system Token Table
 
 ; Token table, integrated into bits 7,6 of the lores1 font bitmap:
