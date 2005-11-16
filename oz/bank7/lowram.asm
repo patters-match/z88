@@ -35,7 +35,6 @@ xdef    OZ_RET0
 xdef    OZ_BUF
 xdef    OZ_DI
 xdef    OZ_EI
-; xdef    OZ_MGB        for you Gunther...
 xdef    OZCallJump
 xdef    OZCallReturn1
 xdef    OZCallReturn2
@@ -56,7 +55,8 @@ xdef    OZCallReturn3
         defs    $0010-$PC  ($ff)                ; address align for RST 10H
 
 .rst10
-        jp      MemGetBank                      ; OZ V4.1: Fast Bank binding status (OS_MGB functionality with RST 10H)
+        scf
+        ret
         defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
 
 .rst18
@@ -104,9 +104,8 @@ xdef    OZCallReturn3
         jp      OZDImain                        ; 0051
 .OZ_EI
         jp      OZEImain                        ; 0054
-;.OZ_MGB
-        jp      rst10                           ; 0057 this place is for Gunther....
-
+.OZ_MGB
+        jp      MemGetBank                      ; OZ V4.1: Fast Bank binding status (OS_MGB functionality)
 
 
         defs     $0066-$PC  ($ff)               ; address align for RST 66H, Blink NMI entry point

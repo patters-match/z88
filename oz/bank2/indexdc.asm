@@ -1993,7 +1993,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      sp, hl
 
         ld      c, MS_S1                        ; remember S1 binding
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
 
         push    iy                              ; get unique dynId in range 2-127
@@ -2056,7 +2056,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .GetProcByHandle
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB                          ; Get current binding
+        call    OZ_MGB                          ; Get current binding
         push    bc
 
         ld      iy, eIdxProcList
@@ -2204,7 +2204,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .dqdev
         push    ix
         ld      c, MS_S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc                              ; remember S1
 
         call    GetFilerProc
@@ -2219,7 +2219,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .dqdir
         push    ix
         ld      c, MS_S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc                              ; remember S1
 
         call    GetFilerProc
@@ -2249,7 +2249,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .dqfnm
         push    ix
         ld      c, MS_S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc                              ; remember S1
 
         call    GetFilerProc
@@ -2373,7 +2373,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         OZ      OS_Box                          ; Restore bindings after OS_Bix
 
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
 
         call    GetFilerProc
@@ -2555,7 +2555,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         OZ      OS_Box                          ; Restore bindings after OS_Bix
 
         ld      c, MS_S1                        ; store S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
 
         call    GetFilerProc
@@ -2657,7 +2657,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         push    bc
         push    hl
         ld      c, MS_S1
-        rst     OZ_MGB                          ; remember S1 binding
+        call    OZ_MGB                          ; remember S1 binding
         push    bc
 
         ld      a, (eIdxProcList+2)             ; active proc at top
@@ -3002,7 +3002,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .DCRbd
         push    iy
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
 
         ld      c, (iy+OSFrame_A)
@@ -3085,7 +3085,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .DCXin
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
 
         push    iy
@@ -3122,7 +3122,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
         push    af
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         pop     af
         push    bc
         push    iy
@@ -3158,7 +3158,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .DCPol
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
         push    iy
 
@@ -3205,7 +3205,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .DCIn
         push    ix
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
 
         push    iy
@@ -3412,7 +3412,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .DCOut
         push    ix
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
 
         push    iy
@@ -3520,7 +3520,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .DCPrt
         push    ix
         ld      c, MS_S1                        ; remember S1
-        rst     OZ_MGB
+        call    OZ_MGB
         push    bc
         push    iy
 
@@ -4294,4 +4294,4 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         defm    1,"T"
         defm    0
 
-        defs    47 ($ff)                        ; !! to be removed when using makeapp
+        defs    17 ($ff)                        ; !! to be removed when using makeapp
