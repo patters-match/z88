@@ -179,8 +179,8 @@ xref    PutOsf_Err
 
 .lab_8
         push    ix
-        ld      c, 1                            ; remember S1
-        OZ      OS_Mgb
+        ld      c, MS_S1                        ; remember S1
+        call    OZ_MGB
         push    bc
 
 ;       find free AlarmID
@@ -330,8 +330,8 @@ xref    PutOsf_Err
 
 .GNUab
         push    ix
-        ld      c, 1                            ; remember S1
-        OZ      OS_Mgb
+        ld      c, MS_S1                        ; remember S1
+        call    OZ_MGB
         push    bc
 
 ;       find alarm in list
@@ -447,8 +447,8 @@ xref    PutOsf_Err
 
 .GNAlp
         push    ix
-        ld      c, 1                            ; remember S1
-        OZ      OS_Mgb
+        ld      c, MS_S1                        ; remember S1
+        call    OZ_MGB
         push    bc
 
 ;       find alarm in list
@@ -532,8 +532,8 @@ xref    PutOsf_Err
 
         push    ix
         pop     hl
-        ld      c, 1
-        OZ      OS_Mgb                          ; remember S1
+        ld      c, MS_S1
+        call    OZ_MGB                          ; remember S1
         OZ      GN_Uab                          ; unlink alarm block
 
         set     ALMF_B_SHOWBELL, (ix+alm_Flags)
@@ -658,8 +658,8 @@ xref    PutOsf_Err
         jr      c, alp_15                       ; carry? date++
 
 .alp_17
-        ld      c, 1                            ; get alarm bank
-        OZ      OS_Mgb
+        ld      c, MS_S1                        ; get alarm bank
+        call    OZ_MGB
         push    ix
         pop     hl
         OZ      GN_Lab                          ; link alarm block

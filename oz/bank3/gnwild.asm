@@ -165,11 +165,11 @@ xref    PutOsf_Err
         OZ      OS_Vth
         jr      c, wcl_err                      ; bad handle?
 
-        ld      c, 1                            ; remember S1/S2 bindings
-        OZ      OS_Mgb
+        ld      c, MS_S1                        ; remember S1/S2 bindings
+        call    OZ_MGB
         push    bc
-        ld      c, 2                            ; !! inc c
-        OZ      OS_Mgb
+        inc     c                               ; MS_S2
+        call    OZ_MGB
         push    bc
 
         push    iy
@@ -227,8 +227,8 @@ xref    PutOsf_Err
 
 .GNWfn
         push    ix
-        ld      c, 1                            ; remember S1
-        OZ      OS_Mgb
+        ld      c, MS_S1                        ; remember S1
+        call    OZ_MGB
         push    bc
         ld      a, TH_WMG
         OZ      OS_Vth
@@ -247,7 +247,7 @@ xref    PutOsf_Err
         call    NextFsNode
         jr      nc, wfn_2                       ; has first node
 
-;       allocate forst node if not done already
+;       allocate first node if not done already
 
         bit     WCF_B_HASFILENODE, (ix+wc_Flags)
         jp      nz, wfn_x                       ; EOF

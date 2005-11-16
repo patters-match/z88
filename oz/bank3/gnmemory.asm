@@ -156,7 +156,7 @@ xref    GnClsMain
 ;       ----
 
 ;       compare null-terminated strings, one local, one extended
-;       comparison is case ignorant, "aaa" == "AAA"
+;       comparison is case independent, "aaa" == "AAA"
 ;
 ;IN:    BHL=string1, DE=string2
 ;OUT:   Fz=1 if string are same
@@ -173,8 +173,8 @@ xref    GnClsMain
 
         cp      $40                             ; check S1
         jr      nz, cme_1
-        ld      c, 1                            ; get S1 binding
-        OZ      OS_Mgb
+        ld      c, MS_S1                        ; get S1 binding
+        call    OZ_MGB
         jr      cme_3
 .cme_1
         cp      $c0                             ; check S3

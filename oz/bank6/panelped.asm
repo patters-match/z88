@@ -1911,8 +1911,8 @@ defvars p_Vars
 
 .FreeSetting
         push    bc
-        ld      c, 1
-        OZ      OS_Mgb
+        ld      c, MS_S1
+        call    OZ_MGB
         ld      a, b
         pop     bc
         ld      ix, (p_pSettingPool)

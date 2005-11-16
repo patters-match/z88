@@ -49,7 +49,7 @@ xref    Upper
         rlca
         rlca
         ld      c, a                            ; slot
-        OZ      OS_Mgb                          ; get table bank
+        call    OZ_MGB                          ; get table bank
 
         ld      a, h                            ; prepare HL for S2
         and     $3F

@@ -22,7 +22,6 @@ TODO (with priorities):
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes). P3
 - Preset default RAM device in Panel to expanded RAM card when identified by OZ. P3
 - Remove auto-blowing of File Eprom Header during reset, when empty Eprom card found in slot 3. P3
-- Fast bank binding status in lowram.asm using RST 10H and replace all OZ OS_Mgb calls in available sources. (GBS)
 
 DONE
 - Implement the new generic keyboard algorithm (TP)
@@ -36,6 +35,7 @@ DONE
 - Remove PAD94D5.asm. (TP)
 - Put OSCli.asm tables in fixed area. (TP)
 - Fast bank switching in lowram.asm using RST 30H and replace all OZ OS_Mpb calls in available sources. (GBS)
+- Fast bank binding status in lowram.asm using CALL OZ_MGB and replace all OZ OS_Mgb calls in available sources. (GBS)
 - Source code of font bitmaps and hidden token table for UK, FR, SE/FI & DK localisations. (GBS)
 
 FIXED KERNEL BINARIES FOR COMPILATION
