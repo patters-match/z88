@@ -3106,6 +3106,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
         pop     bc
         rst     OZ_MPB                          ; restore S1
+        or      a                               ; Fc = 0
         ret
 
 ;       ----
@@ -3145,6 +3146,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         pop     iy
         pop     bc
         rst     OZ_MPB                          ; restore S1
+        or      a                               ; Fc = 0
         ret
 
 ;       ----
@@ -3192,6 +3194,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 .dcpol_4
         pop     bc
         rst     OZ_MPB                          ; restore S1
+        or      a                               ; Fc = 0
         ret
 
 ;       ----
@@ -3342,6 +3345,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
         pop     bc
         rst     OZ_MPB                          ; restore S1
+        or      a                               ; Fc = 0
         pop     ix
         ret
 
@@ -3496,6 +3500,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         pop     iy
         pop     bc
         rst     OZ_MPB                          ; restore S1
+        or      a                               ; Fc = 0
         pop     ix
         ret
 
@@ -3929,7 +3934,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         pop     iy
         ld      c, MS_S1
         rst     OZ_MPB                          ; bind CLI into S1
-
+        or      a                               ; Fc = 0
 .gcli_2
         pop     bc
         ret
@@ -4289,4 +4294,4 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         defm    1,"T"
         defm    0
 
-        defs    53 ($ff)                        ; !! to be removed when using makeapp
+        defs    47 ($ff)                        ; !! to be removed when using makeapp
