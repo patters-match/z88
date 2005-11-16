@@ -430,7 +430,6 @@ xref    PutOsf_Err
         pop     ix
         pop     bc                              ; restore S2
         rst     OZ_MPB
-        ld      c, (ix+alm_Next+2)              ; !! unnecessary?
         ld      d, (ix+alm_Next+1)
         ld      e, (ix+alm_Next)
 .uab_x
@@ -671,5 +670,6 @@ xref    PutOsf_Err
 
         pop     bc                              ; restore S1
         rst     OZ_MPB
+        or      a                               ; Fc = 0
         pop     ix
         ret

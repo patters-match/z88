@@ -583,6 +583,7 @@ xref    Upper
         rst     OZ_MPB
         pop     bc
         rst     OZ_MPB
+        or      a                               ; Fc = 0
         pop     ix
 .flr_x
         ret
