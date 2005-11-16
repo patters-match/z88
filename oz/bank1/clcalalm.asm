@@ -1734,6 +1734,7 @@ swYear                  ds.b    1
         push    bc
         ld      c, MS_S1
         rst     OZ_MPB                          ; bind it in S1
+        or      a                               ; Fc = 0
         pop     bc
 .gna_1
         pop     hl
@@ -3127,4 +3128,4 @@ swYear                  ds.b    1
 .Reverse_txt
         defm    1,"R", 0
 
-        defs 2 ($ff)                            ; padding - to be removed when using makeapp
+        defs 1 ($ff)                            ; padding - to be removed when using makeapp
