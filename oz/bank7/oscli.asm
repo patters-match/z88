@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1d9cb
+; Bank 7 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -8,9 +8,13 @@
 
         include "error.def"
         include "sysvar.def"
-
+        include "bank7\lowram.def"
+        
+xdef    OSCli
 xdef    OSCliMain
 
+xref    OSFramePop                              ; bank0/misc4.asm
+xref    OSFramePush                             ; bank0/misc4.asm
 xref    AtoN_upper                              ; bank0/misc5.asm
 xref    PutOSFrame_BC                           ; bank0/misc5.asm
 xref    PutOSFrame_DE                           ; bank0/misc5.asm
@@ -21,7 +25,24 @@ xref    ExtQualifiers                           ; bank0/kbd.asm
 xref    CLI2KeyTable                            ; bank7/clitables.asm
 xref    Key2MetaTable                           ; bank7/clitables.asm
 
-;       ----
+.OSCli
+        ex      af, af'
+        or      a
+        jr      z, oscli_0                      ; !! undocumented reason 0
+        ex      af, af'
+        call    OSFramePush
+        ld      h, b                            ; exchange A and B
+        ld      b, a
+        ld      a, h
+        call    OSCliMain
+        jp      OSFramePop
+
+;       A=0 - return CLIActiveCnt and KbdData
+
+.oscli_0
+        ld      a, (ubCLIActiveCnt)
+        ld      ix, KbdData
+        jp      OZCallReturn2                   ; ret with AFbcdehl
 
 .OSCliMain
         ld      hl, ubCLIActiveCnt

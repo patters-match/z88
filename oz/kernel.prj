@@ -32,7 +32,6 @@ bank0\misc2.asm
 bank0\process2.asm
 bank0\osout.asm
 bank0\buffer.asm
-bank0\oscli0.asm
 bank0\process3.asm
 bank0\cardmgr.asm
 bank0\dor.asm

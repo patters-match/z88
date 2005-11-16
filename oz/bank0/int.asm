@@ -68,7 +68,6 @@ xref    ReadRTC                                 ; bank0/time.asm
 
         ld      a, BM_TACKTICK
         out     (BL_TACK), a                    ; ack TICK
-        ld      hl, ubIntTaskToDo               ; !! unnecessary
         bit     ITSK_B_PREEMPTION, (hl)
         call    z, IntBeeper
 
@@ -86,7 +85,6 @@ xref    ReadRTC                                 ; bank0/time.asm
         ld      a, d                            ; if timer=0 set pending SMT
         or      e
         jr      nz, int_2
-        ld      hl, ubIntTaskToDo               ; !! unnecessary
         set     ITSK_B_TIMER, (hl)
 
 .int_2

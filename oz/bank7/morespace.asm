@@ -1,3 +1,3 @@
 Module  MoreSpace
 
-defs    300 ($ff)
+defs    273 ($ff)
