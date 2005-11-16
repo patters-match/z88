@@ -87,9 +87,9 @@
         defb    (DeadTable - SqrTable - 1)/2
     defb    $1B,$B4
     defb    $20,$B0
-    defb    $2B,0
-    defb    $2D,$1F
-    defb    $3D,0
+    defb    $2B,$80                                     ; special []+ command
+    defb    $2D,$9F                                     ; special []- command
+    defb    $3D,$80                                     ; special []+ command
     defb    $5B,$1B
     defb    $5C,$1C
     defb    $5D,$1D
