@@ -8,17 +8,17 @@
 
         org     $8000                           ; fixed ORG
 
-; include font according the localisation ($0F00 file length)
+; include font according the localisation ($0F00 length)
 
 if KBDK
-        binary "bank7/font_dk.dat"
+        include "bank7/font_dk.asm"
 endif
 
 if KBFI
-        binary "bank7/font_fi.dat"
+        include "bank7/font_fi.asm"
 endif
 
+; if no country localisation is specified, use default UK/FR fonts
 if !KBFI & !KBDK
-; use default UK localisation
-        binary "bank7/font_ukfr.dat"
+        include "bank7/font_ukfr.asm"
 endif
