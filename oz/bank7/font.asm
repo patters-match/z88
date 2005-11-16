@@ -8,6 +8,8 @@
 
         org     $8000                           ; fixed ORG
 
+.lores1
+
 ; include font according the localisation ($0F00 length)
 
 if KBDK
