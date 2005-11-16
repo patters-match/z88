@@ -11,7 +11,6 @@
         include "bank7\lowram.def"
         
 xdef    OSCli
-xdef    OSCliMain
 
 xref    OSFramePop                              ; bank0/misc4.asm
 xref    OSFramePush                             ; bank0/misc4.asm
