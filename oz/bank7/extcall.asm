@@ -17,6 +17,8 @@ module extcall
 ;
 ;***************************************************************************************************
 
+        include "memory.def"
+
 
 ;***************************************************************************************************
 ; EXTCALL - 24bit Call Subroutine in external bank
@@ -40,8 +42,8 @@ module extcall
 ; ----------------------------------------------------------------------
 ;
 .ExtCall
-        ex      (sp),hl                         ; HL points at 24bit address argument (original HL on stack
-        call    PreserveBCDE                    ; preserve original BC, DE registers temporarily
+        ex      (sp),hl                         ; HL points at 24bit address argument (original HL on stack)
+        call    PreserveBCDE                    ; temporarily preserve original BC, DE registers
         ld      e,(hl)                          ; low byte of call address
         inc     hl
         ld      d,(hl)                          ; high byte of call address
@@ -51,11 +53,12 @@ module extcall
         ld      c,d
         push    af                              ; preserve flags...
         rlc     c
-        rlc     c                               ; segment specifier (in bits 0,1 - remaining bits are stripped by RST 30H)
+        rlc     c                               ; prepare segment specifier in bits 0,1 (remaining bits are stripped by RST 30H)
         pop     af
-        rst     OS_MPB                          ; bind in bank of 24bit address (returned B = old bank binding)
+        rst     OZ_MPB                          ; bind in bank of 24bit address (returned B = old bank binding)
 
         ex      (sp),hl                         ; new RETurn address points at instruction after 24bit call address
+        push    bc                              ; preserve bank bindings that are restored after subroutine completes.
         ld      bc,restore_bank_binding         ; (HL now restored with original caller value)
         push    bc                              ; call'ed subroutine RETurns to restore the old bank binding before
         push    de                              ; actually returning from ExtCall...
@@ -65,7 +68,7 @@ module extcall
 .restore_bank_binding                           ; when subroutine executes RET, it is returned here...
         call    PreserveBC
         pop     bc                              ; old bank binding...
-        rst     OS_MPB                          ; restore previous bank binding
+        rst     OZ_MPB                          ; restore previous bank binding
         call    RestoreBC
         ret
 
