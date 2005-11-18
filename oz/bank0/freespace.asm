@@ -1,3 +1,3 @@
 module FreeSpace0
 
-defs    177  ($ff)                     ; to be removed with makeapp
+defs    174  ($ff)                     ; to be removed with makeapp

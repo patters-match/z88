@@ -85,6 +85,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         ld      a, d                            ; if timer=0 set pending SMT
         or      e
         jr      nz, int_2
+        ld      hl, ubIntTaskToDo               ; reload hl (was corrupted by IntBeeper)
         set     ITSK_B_TIMER, (hl)
 
 .int_2
