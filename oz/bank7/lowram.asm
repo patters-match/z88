@@ -56,6 +56,9 @@ xdef    OZCallReturn3
 
 .rst10
         jp      ExtCall
+.regs
+        defw    0                               ; EXTCALL storage space for original BC register
+        defw    0                               ; EXTCALL storage space for original DE register
         defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
 
 .rst18

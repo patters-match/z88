@@ -79,6 +79,3 @@
 .RestoreBC
         ld      bc,(regs)
         ret
-.regs
-        defw    0                               ; storage space for original BC register in LOWRAM
-        defw    0                               ; storage space for original DE register in LOWRAM
