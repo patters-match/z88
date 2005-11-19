@@ -37,6 +37,7 @@ DONE
 - Fast bank switching in lowram.asm using RST 30H and replace all OZ OS_Mpb calls in available sources. (GBS)
 - Fast bank binding status in lowram.asm using CALL OZ_MGB and replace all OZ OS_Mgb calls in available sources. (GBS)
 - Source code of font bitmaps and hidden token table for UK, FR, SE/FI & DK localisations. (GBS)
+- EXTCALL - 24bit Call Subroutine in external bank, implemented using RST 10H vector using a total of 4 bytes per call.
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0
