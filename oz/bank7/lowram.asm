@@ -55,10 +55,10 @@ xdef    OZCallReturn3
         defs    $0010-$PC  ($ff)                ; address align for RST 10H
 
 .rst10
-        jp      ExtCall
+        jp      ExtCall                         ; OZ V4.1: EXTCALL interface
 .regs
-        defw    0                               ; EXTCALL storage space for original BC register
-        defw    0                               ; EXTCALL storage space for original DE register
+        defw    0                               ; EXTCALL temp storage space for original BC register
+        defw    0                               ; EXTCALL temp storage space for original DE register
         defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
 
 .rst18
@@ -341,5 +341,5 @@ xdef    OZCallReturn3
         ei
         ret
 
-        include "mgpbnk.asm"                    ; OZ V4.1: RST 10H & RST 30H, new fast replacements for OS_MGB & OS_MPB
-        include "extcall.asm"                   ;
+        include "mgpbnk.asm"                    ; OZ V4.1: new fast replacements for OS_MGB & OS_MPB
+        include "extcall.asm"                   ; OZ V4.1: EXTCALL feature (24bit call in remote bank)
