@@ -53,6 +53,7 @@ extern enum symbols GetSym (void);
 
 /* Z80 specific functions */
 static void CALLOZ (void);
+static void EXTCALL (void);
 static void CALLPKG (void);
 static void FPP (void);
 
@@ -63,7 +64,7 @@ extern unsigned char *codeptr;
 extern module_t *CURRENTMODULE;
 extern unsigned char *codeptr;
 extern unsigned long PC;
-
+extern enum symbols sym;
 
 /* Directive names, as defined for Zilog Z80 standard conventions, including a few 'additions' */
 identfunc_t directives[] = {
@@ -99,6 +100,7 @@ identfunc_t directives[] = {
  {"ENDIF", ENDIFstat},
  {"ENUM", DEFGROUP},
  {"ERROR", ERROR},
+ {"EXTCALL", EXTCALL},
  {"EXTERN", DeclExternIdent},
  {"FPP", FPP},
  {"GLOBAL", DeclGlobalIdent},
@@ -121,7 +123,7 @@ identfunc_t directives[] = {
  {"XREF", DeclExternIdent}
 };
 
-size_t totaldirectives = 52;
+size_t totaldirectives = 53;
 
 
 static void
@@ -166,6 +168,41 @@ CALLOZ (void)
         }
 
       RemovePfixlist (postfixexpr); /* remove linked list, because expr. was evaluated */
+    }
+}
+
+
+static void
+EXTCALL (void)
+{
+  long constant;
+  expression_t *postfixexpr;
+
+  if ((PC+4) > MAXCODESIZE)
+    {
+       ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_MaxCodeSize); /* No room for instruction */
+       return;
+    }
+
+  *codeptr++ = 0xD7;     /* RST 10H instruction */
+  ++PC;
+
+  GetSym ();
+  if (!ExprAddr16 (1))
+    return;                 /* syntax error - get next line from file... */
+  PC += 2;                  /* Address, update assembler PC */
+
+  if (sym != comma)
+    {
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
+      return;
+    }
+  else
+    {
+      GetSym ();
+      if (!ExprUnsigned8 (3))
+        return;                 /* syntax error - get next line from file... */
+      ++PC;                     /* Bank number allocated, update assembler PC */
     }
 }
 
