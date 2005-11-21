@@ -1,20 +1,34 @@
+        Module ExtCall
 
 ; **************************************************************************************************
-; This file is part of the Z88 operating system, OZ
+; EXTCALL - 24bit Call Subroutine in external bank, implemented for OZ V4.1.
+; (C) Gunther Strube (gbs@users.sf.net), 1997-2005
 ;
-; OZ is free software; you can redistribute it and/or modify it under
-; the terms of the GNU General Public License as published by the Free Software Foundation;
-; either version 2, or (at your option) any later version.
-; OZ is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with OZ;
-; see the file COPYING. If not, write to the
-; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
 ;
 ; $Id$
-;
 ;***************************************************************************************************
+
+     include "memory.def"                       ; definitions for memory management & system calls
+
+xdef ExtCall
+
+xref regs                                       ; storage space for original BC & DE registers
 
 
 ;***************************************************************************************************
@@ -22,21 +36,17 @@
 ;
 ; This routine is executed by the RST 10H vector. Both RST 10H and this routine is located
 ; in LOWRAM. The 24bit address is available in low byte - high byte order following the RST 10H
-; instruction.
+; instruction opcode.
 ;
 ; Example in Z80 assembler: RST 10H, $FEC000, execute code in bank $FE at address $C000.
 ; (the instruction opcode sequence in memory is $D7, $00, $C0, $FE)
 ;
-; The ExtCall does not destroy any registers call arguments or return values. ExtCall
+; The ExtCall does not destroy any register call arguments or return values. ExtCall
 ; is to be regarded as a normal CALL instruction, but for 24bit address range.
 ;
 ; RESTRICTION:
 ; This routine cannot be used in Blink NMI or INT service routines because it would corrupt
-; the static storage variables at (regs) while ExtCall is being executed by normal processor.
-;
-; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, 2005
-; ----------------------------------------------------------------------
+; the static storage variables at (regs) while ExtCall is being executed by the normal processor.
 ;
 .ExtCall
         ex      (sp),hl                         ; HL points at 24bit address argument (original HL on stack)
