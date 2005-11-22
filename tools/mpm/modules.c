@@ -297,6 +297,23 @@ LinkModules (void)
   if (verbose)
     puts ("Linking module(s)...\nPass1...");
 
+  CURRENTMODULE = modulehdr->first;     /* begin with first module */
+
+  errfilename = AddFileExtension((const char *) CURRENTFILE->fname, errext);
+  if (errfilename == NULL)
+    {
+      ReportError (NULL, 0, Err_Memory);   /* No more room */
+      return;
+    }
+
+  if ((errfile = fopen (AdjustPlatformFilename(errfilename), "a")) == NULL)
+    {                                   /* open error file */
+      ReportIOError (errfilename);      /* couldn't open error file */
+      free (errfilename);
+      errfilename = NULL;
+      return;
+    }
+
   if (uselibraries)
     {
       /* Index libraries for quick lookup, before linking starts */
@@ -342,21 +359,6 @@ LoadModules (void)
 
   CURRENTMODULE = modulehdr->first;     /* begin with first module */
   lastobjmodule = modulehdr->last;      /* remember this last module, further modules are libraries */
-
-  errfilename = AddFileExtension((const char *) CURRENTFILE->fname, errext);
-  if (errfilename == NULL)
-    {
-      ReportError (NULL, 0, Err_Memory);   /* No more room */
-      return;
-    }
-
-  if ((errfile = fopen (AdjustPlatformFilename(errfilename), "a")) == NULL)
-    {                                   /* open error file */
-      ReportIOError (errfilename);      /* couldn't open error file */
-      free (errfilename);
-      errfilename = NULL;
-      return;
-    }
 
   PC = 0;
   gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);    /* Create standard '$PC' identifier */
