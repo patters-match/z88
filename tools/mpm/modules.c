@@ -64,7 +64,7 @@ extern char *objfilename, *errfilename, *libfilename;
 extern const char objext[], binext[], segmbinext[], mapext[], errext[], libext[], defext[];
 extern char binfilename[];
 extern enum symbols sym, GetSym (void);
-extern enum flag uselistingfile, symtable, autorelocate, codesegment;
+extern enum flag uselistingfile, symtable, autorelocate, codesegment, mpmbin;
 extern enum flag verbose, deforigin, createglobaldeffile, EOL, uselibraries, asmerror, expl_binflnm;
 extern unsigned long PC;
 extern unsigned long EXPLICIT_ORIGIN;
@@ -291,16 +291,54 @@ WriteExprMsg (void)
 void
 LinkModules (void)
 {
-  char fheader[128];
-  module_t *lastobjmodule;
-  long constant;
-  int link_error;
-
   symtable = uselistingfile = OFF;
   linkhdr = NULL;
 
   if (verbose)
     puts ("Linking module(s)...\nPass1...");
+
+  if (uselibraries)
+    {
+      /* Index libraries for quick lookup, before linking starts */
+      IndexLibraries();
+    }
+
+  LoadModules ();               /* load object modules, preparing linking process */
+
+  if (verbose == ON)
+    printf ("Code size of linked modules is %d bytes\n", CODESIZE);
+
+  if (asmerror == OFF)
+    ModuleExpr ();              /*  Evaluate expressions in all modules */
+
+  ReleaseLinkInfo ();           /* Release module link information */
+  fclose (errfile);
+
+  if (TOTALERRORS == 0)
+    remove (errfilename);
+
+  free (errfilename);
+  errfilename = NULL;
+  errfile = NULL;
+}
+
+
+
+/* ------------------------------------------------------------------------------------------
+   void LoadModules (void)
+
+   Pass 1 of linking:
+   Load (concatanate) object file code and read symbols that is address relocated for updated
+   positions of final binary. All libraries (if library linking is enabled at command line)
+   are also appended after all project object modules.
+   ------------------------------------------------------------------------------------------ */
+void
+LoadModules (void)
+{
+  char fheader[128];
+  module_t *lastobjmodule;
+  long constant;
+  int link_error;
 
   CURRENTMODULE = modulehdr->first;     /* begin with first module */
   lastobjmodule = modulehdr->last;      /* remember this last module, further modules are libraries */
@@ -328,12 +366,6 @@ LinkModules (void)
       ReportError (NULL, 0, Err_Memory);
       free (errfilename);
       return;
-    }
-
-  if (uselibraries)
-    {
-      /* Index libraries for quick lookup, before linking starts */
-      IndexLibraries();
     }
 
   do
@@ -393,25 +425,6 @@ LinkModules (void)
       CURRENTMODULE = CURRENTMODULE->nextmodule;        /* get next module, if any */
     }
   while (CURRENTMODULE != lastobjmodule->nextmodule && link_error == 0);   /* parse only object modules, not added library modules */
-
-  if (verbose == ON)
-    printf ("Code size of linked modules is %d bytes\n", CODESIZE);
-
-  if (asmerror == OFF)
-    ModuleExpr ();              /*  Evaluate expressions in all modules */
-
-  if (createglobaldeffile == ON)
-    CreateDeffile ();
-
-  ReleaseLinkInfo ();           /* Release module link information */
-  fclose (errfile);
-
-  if (TOTALERRORS == 0)
-    remove (errfilename);
-
-  free (errfilename);
-  errfilename = NULL;
-  errfile = NULL;
 }
 
 
@@ -832,8 +845,10 @@ CreateDeffile (void)
 {
   char *globaldefname;
 
-  /* use first module filename to create global definition file */
+  if (mpmbin == OFF)
+    LoadModules ();     /* For Global Definitions file, collect all XDEFs in project object files */
 
+  /* use first module filename to create global definition file */
   globaldefname = AddFileExtension((const char *) modulehdr->first->cfile->fname, defext);
   if (globaldefname == NULL)
     {

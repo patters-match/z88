@@ -80,7 +80,7 @@ char *date;                             /* pointer to datestring calculated from
 /* externally defined variables */
 extern int ASSEMBLE_ERROR, ERRORS, TOTALERRORS, WARNINGS, TOTALWARNINGS;
 extern enum flag datestamp, verbose, useothersrcext;
-extern enum flag uselistingfile, createlibrary, asmerror, mpmbin, mapref;
+extern enum flag uselistingfile, createlibrary, asmerror, mpmbin, mapref, createglobaldeffile;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern libraries_t *libraryhdr;
 extern modules_t *modulehdr;
@@ -428,6 +428,9 @@ main (int argc, char *argv[])
 
   if ((asmerror == OFF) && mpmbin)
     LinkModules ();
+
+  if (asmerror == OFF && createglobaldeffile == ON)
+    CreateDeffile ();
 
   if ((TOTALERRORS == 0) && mpmbin)
     {
