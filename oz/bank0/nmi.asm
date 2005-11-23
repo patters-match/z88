@@ -8,8 +8,8 @@
 
         include "blink.def"
         include "error.def"
-        include "bank7\lowram.def"
         include "sysvar.def"
+        include "../bank7/lowram.def"
 
 
 xdef    BothShifts

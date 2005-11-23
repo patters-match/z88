@@ -8,7 +8,7 @@
 
         include "blink.def"
         include "sysvar.def"
-        include "bank7/lowram.def"
+        include "../bank7/lowram.def"
 
 xdef    OSSi
 xdef    IntUART

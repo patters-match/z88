@@ -11,6 +11,6 @@ xdef    LowRAMcode_e
 
 .LowRAMcode
 
-        binary  "bank7/lowram.bin"
+        binary  "lowram.bin"
 
 .LowRAMcode_e

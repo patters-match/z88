@@ -9,7 +9,7 @@
         include "director.def"
         include "error.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "../bank7/lowram.def"
 
 xdef    BfGbt                                   ; OsTin
 xdef    BfPbt

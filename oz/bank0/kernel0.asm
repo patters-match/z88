@@ -82,5 +82,5 @@ IF COMPILE_BINARY
         xdef    OSSci                           ; bank7/ossci.asm
         xdef    OSCli                           ; bank7/oscli.asm
 
-        include "..\kernel7.def"                ; get bank 7 references and map them into bank 0 project...
+        include "../bank7/kernel7.def"          ; get bank 7 references and map them into bank 0 project...
 ENDIF

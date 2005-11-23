@@ -30,7 +30,7 @@
         include "misc.def"
         include "syspar.def"
         include "sysvar.def"
-        include "..\bank7\lowram.def"
+        include "../bank7/lowram.def"
 
 ;       ubSerParity             =$0ffc
 
@@ -89,7 +89,7 @@ defc    PAR_B_0         = 0                     ; set but not used
         ex      af, af'                         ; faster than 'jp/jr'
 .altaf  ex      af, af'
 
-.senda  
+.senda
 
  ENDIF
 
@@ -451,7 +451,7 @@ defc    TDRH_START              =1
 
 .tx_3
         bit     PAR_B_PARITY, c                 ; no parity? we're done
-        jr      z, tx_send      
+        jr      z, tx_send
 
         and     $7F                             ; clear parity bit
         bit     PAR_B_STICKY, c
@@ -504,7 +504,7 @@ defc    TDRH_START              =1
 .DcdInt
         push    af                              ; !! 'ex af' for speed
 
-        ld      a, (BLSC_UMK)                   ; toggle TDRE 
+        ld      a, (BLSC_UMK)                   ; toggle TDRE
         xor     BB_UMKTDRE
         ld      (BLSC_UMK), a
         out     (BL_UMK), a

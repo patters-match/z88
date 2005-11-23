@@ -8,11 +8,11 @@
 
         include "error.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "../bank7/lowram.def"
 
 xdef    CallErrorHandler
 xdef    OSErc
-xdef    OSErh   
+xdef    OSErh
 
 ;       set error handler
 
@@ -69,7 +69,7 @@ xdef    OSErh
         ld      (ubAppLastError), a
         OZ      GN_Esp                          ; only for Fz
         scf                                     ; for AppErrorHandler
-        ex      af, af' 
+        ex      af, af'
 
         ld      hl, (pAppErrorHandler)
         pop     af                              ; bank

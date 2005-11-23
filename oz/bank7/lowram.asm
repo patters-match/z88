@@ -40,9 +40,9 @@
         include "sysvar.def"
 
 IF COMPILE_BINARY
-        include "..\kernel0.def"        ; get bank 0 kernel address references
+        include "../bank0/kernel0.def"          ; get bank 0 kernel address references
 ELSE
-        xref    INTEntry                ; pretend references to be external for pre-compile...
+        xref    INTEntry                        ; pretend references to be external for pre-compile...
         xref    NMIEntry
         xref    CallErrorHandler
         xref    OZBuffCallTable

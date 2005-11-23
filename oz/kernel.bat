@@ -32,20 +32,21 @@ goto COMPILE_ERROR
 :: create application DOR data (binary) and address references for bank 2 compile script
 :COMPILE_APPDORS
 ..\..\tools\mpm\mpm -bg -nv -I..\sysdef appdors.asm
-cd ..
 
 :: pre-compile kernel in bank 0 to resolve labels for lowram.asm
+cd ..\bank0
 echo compiling kernel
-..\tools\mpm\mpm -g -nv -I.\sysdef @kernel0.prj
+..\..\tools\mpm\mpm -g -nv -I..\sysdef @kernel0.prj
 
 :: create final lowram binary with correct addresses from bank 0 kernel
-cd bank7
+cd ..\bank7
 ..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I..\sysdef @lowram.prj
-cd ..
 
 :: compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
-..\tools\mpm\mpm -bg -nv -DCOMPILE_BINARY -DKB%1 -I.\sysdef @kernel7.prj
+..\..\tools\mpm\mpm -bg -nv -DCOMPILE_BINARY -DKB%1 -I..\sysdef @kernel7.prj
 
 :: compile final kernel binary for bank 0 using correct bank 7 references
-..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I.\sysdef @kernel0.prj
+cd ..\bank0
+..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I..\sysdef @kernel0.prj
+cd ..
 :COMPILE_ERROR

@@ -9,7 +9,7 @@
         include "blink.def"
         include "misc.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "../bank7/lowram.def"
 
 xdef    Beep_X
 xdef    CallFuncDE

@@ -178,5 +178,5 @@ IF COMPILE_BINARY
         xdef    SetScrAttr                      ; bank0/scrdrv4.asm
         xdef    ToggleScrDrvFlags               ; bank0/scrdrv4.asm
 
-        include "..\kernel0.def"                ; get bank 0 references and map them into bank 7 project...
+        include "../bank0/kernel0.def"          ; get bank 0 references and map them into bank 7 project...
 ENDIF

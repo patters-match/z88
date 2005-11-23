@@ -5,8 +5,5 @@
         Module Bank3
 
         org     $C000
+
         binary "gn.bin"
-
-
-; to assemble:
-;       mpm -bvg -IC:\cvs\oz\sysdef @bank3.prj

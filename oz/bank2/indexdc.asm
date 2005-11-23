@@ -20,7 +20,7 @@
         include "time.def"
         include "sysvar.def"
 
-        include "..\bank7\lowram.def"
+        include "../bank7/lowram.def"
 
 
 ; ubIdxFlags2

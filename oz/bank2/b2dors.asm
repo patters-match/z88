@@ -7,7 +7,7 @@
         Module B2DORs
 
         include "director.def"
-        include "..\bank7\appdors.def"
+        include "../bank7/appdors.def"
 
         org     $ff6f
 

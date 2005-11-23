@@ -62,5 +62,3 @@ xdef    CLI2KeyTable
         defb    'X',$E3                         ; X del
         defb    'C',$C8                         ; C ctrl
         defb    'A',$B8                         ; A alt
-
- 

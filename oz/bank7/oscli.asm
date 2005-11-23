@@ -8,8 +8,8 @@
 
         include "error.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
-        
+        include "lowram.def"
+
 xdef    OSCli
 
 xref    OSFramePop                              ; bank0/misc4.asm

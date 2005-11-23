@@ -6,10 +6,10 @@
 
         Module Esc
 
-         include "error.def"
+        include "error.def"
         include "stdio.def"
         include "sysvar.def"
-        include "bank7\lowram.def"
+        include "../bank7/lowram.def"
 
 xdef    OSEsc
 xdef    TestEsc

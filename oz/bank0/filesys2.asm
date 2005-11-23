@@ -16,7 +16,7 @@
         include "stdio.def"
         include "syspar.def"
         include "sysvar.def"
-        include "bank7/lowram.def"
+        include "../bank7/lowram.def"
 
 xdef    _MS2BankA
 xdef    MS2HandleBank

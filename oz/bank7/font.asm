@@ -13,14 +13,14 @@
 ; include font according the localisation ($0F00 length)
 
 if KBDK
-        include "bank7/font_dk.asm"
+        include "font_dk.asm"
 endif
 
 if KBFI
-        include "bank7/font_fi.asm"
+        include "font_fi.asm"
 endif
 
 ; if no country localisation is specified, use default UK/FR fonts
 if !KBFI & !KBDK
-        include "bank7/font_ukfr.asm"
+        include "font_ukfr.asm"
 endif

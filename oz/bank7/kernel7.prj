@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Mpm Assembly Project for Bank7, starting at $8000
+; Mpm Assembly Project for Bank 7, starting at $8000
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,29 +22,29 @@
 ;***************************************************************************************************
 
 kernel7.asm
-bank7\font.asm
-bank7\osscitable.asm
-bank7\clitables.asm
-bank7\eprom.asm
-bank7\ossci.asm
-bank7\timeres.asm
-bank7\reset2.asm
-bank7\misc1.asm
-bank7\reset5.asm
-bank7\osalm.asm
-bank7\oscli.asm
-bank7\process1.asm
-bank7\card1.asm
-bank7\filesys1.asm
-bank7\osmap.asm
-bank7\memory1.asm
-bank7\mth1.asm
-bank7\nqsp.asm
-bank7\initdata.asm
-bank7\lowram0.asm
-bank7\scrdrv1.asm
-bank7\ossr.asm
-bank7\key2chrt.asm
-bank7\morespace.asm
-bank7\keymap.asm
-bank7\appdors0.asm
+font.asm
+osscitable.asm
+clitables.asm
+eprom.asm
+ossci.asm
+timeres.asm
+reset2.asm
+misc1.asm
+reset5.asm
+osalm.asm
+oscli.asm
+process1.asm
+card1.asm
+filesys1.asm
+osmap.asm
+memory1.asm
+mth1.asm
+nqsp.asm
+initdata.asm
+lowram0.asm
+scrdrv1.asm
+ossr.asm
+key2chrt.asm
+morespace.asm
+keymap.asm
+appdors0.asm
