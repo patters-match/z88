@@ -1,7 +1,8 @@
 :: we leave *.def for other modules
 @echo off
 
-del /S /Q *.bin *.map *.obj *.bn? *.def 2>nul >nul
+del /S /Q *.bin *.map *.obj *.bn? 2>nul >nul
+del /Q *.def
 
 cd bank0
 del /S /Q *.obj *.lst *.bin *.map *.err *.wrn 2>nul >nul
