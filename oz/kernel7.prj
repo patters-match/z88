@@ -1,0 +1,50 @@
+; **************************************************************************************************
+; Mpm Assembly Project for Bank7, starting at $8000
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; $Id$
+;***************************************************************************************************
+
+kernel7.asm
+bank7\font.asm
+bank7\osscitable.asm
+bank7\clitables.asm
+bank7\eprom.asm
+bank7\ossci.asm
+bank7\timeres.asm
+bank7\reset2.asm
+bank7\misc1.asm
+bank7\reset5.asm
+bank7\osalm.asm
+bank7\oscli.asm
+bank7\process1.asm
+bank7\card1.asm
+bank7\filesys1.asm
+bank7\osmap.asm
+bank7\memory1.asm
+bank7\mth1.asm
+bank7\nqsp.asm
+bank7\initdata.asm
+bank7\lowram0.asm
+bank7\scrdrv1.asm
+bank7\ossr.asm
+bank7\key2chrt.asm
+bank7\morespace.asm
+bank7\keymap.asm
+bank7\appdors0.asm

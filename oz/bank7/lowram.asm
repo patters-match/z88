@@ -39,17 +39,15 @@
         include "error.def"
         include "sysvar.def"
 
- IF     FINAL=0
-
-defc    INTEntry                =$dead
-defc    NMIEntry                =$dead
-defc    CallErrorHandler        =$dead
-defc    OZBuffCallTable         =$dead
-defc    OZCallTable             =$dead
-
- ELSE
-        include "..\kernel.def"
- ENDIF
+IF COMPILE_BINARY
+        include "..\kernel0.def"        ; get bank 0 kernel address references
+ELSE
+        xref    INTEntry                ; pretend references to be external for pre-compile...
+        xref    NMIEntry
+        xref    CallErrorHandler
+        xref    OZBuffCallTable
+        xref    OZCallTable
+ENDIF
 
 
 xdef    DefErrHandler

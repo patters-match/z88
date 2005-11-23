@@ -21,27 +21,31 @@
 :: $Id$
 :: ***************************************************************************************************
 
-:: create binaries for lowram and application data
+
+:: create lowram.def (address pre-compilation) for kernel1.prj compilation
 cd bank7
-..\..\tools\mpm\mpm -bg -nv -I..\sysdef @lowram.prj
+..\..\tools\mpm\mpm -g -nv -I..\sysdef @lowram.prj
 dir *.err 2>nul >nul || goto COMPILE_APPDORS
 cd ..
 goto COMPILE_ERROR
 
+:: create application DOR data (binary) and address references for bank 2 compile script
 :COMPILE_APPDORS
 ..\..\tools\mpm\mpm -bg -nv -I..\sysdef appdors.asm
 cd ..
 
-:: compile kernel to resolve labels for lowram.asm
+:: pre-compile kernel in bank 0 to resolve labels for lowram.asm
 echo compiling kernel
-..\tools\mpm\mpm -bg -nv -DKB%1 -I.\sysdef @kernel.prj
+..\tools\mpm\mpm -g -nv -I.\sysdef @kernel0.prj
 
-:: create lowram.bin with correct addresses
+:: create final lowram binary with correct addresses from bank 0 kernel
 cd bank7
-..\..\tools\mpm\mpm -b -nv -DFINAL -I..\sysdef @lowram.prj
+..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I..\sysdef @lowram.prj
 cd ..
 
-:: compile kernel with correct lowram code
-..\tools\mpm\mpm -bc -nv -DKB%1 -I.\sysdef @kernel.prj
+:: compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
+..\tools\mpm\mpm -bg -nv -DCOMPILE_BINARY -DKB%1 -I.\sysdef @kernel7.prj
 
+:: compile final kernel binary for bank 0 using correct bank 7 references
+..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I.\sysdef @kernel0.prj
 :COMPILE_ERROR

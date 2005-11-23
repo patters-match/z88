@@ -101,7 +101,7 @@ goto COMPILE_ERROR
 :: ROM was compiled successfully, combine the compiled 16K banks 0-7 into a complete 128K binary
 :COMBINE_BANKS
 echo Compiled Z88 ROM to "oz.bin" file.
-copy /B /Y kernel.bn1+bank1\bank1.bin+bank2\bank2.bin+bank3\bank3.bin+banks45\pipedrm.dat+bank6\bank6.bin+kernel.bn0 oz.bin >nul
+copy /B /Y kernel0.bin+bank1\bank1.bin+bank2\bank2.bin+bank3\bank3.bin+banks45\pipedrm.dat+bank6\bank6.bin+kernel7.bin oz.bin >nul
 goto END
 
 :COMPILE_ERROR

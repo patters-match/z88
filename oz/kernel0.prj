@@ -1,0 +1,64 @@
+; **************************************************************************************************
+; Mpm Assembly Project for Bank0, starting at address $C000.
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; $Id$
+;***************************************************************************************************
+
+kernel0.asm
+bank0\boot.asm
+bank0\reset13.asm
+bank0\misc2.asm
+bank0\process2.asm
+bank0\osout.asm
+bank0\buffer.asm
+bank0\process3.asm
+bank0\cardmgr.asm
+bank0\dor.asm
+bank0\alarm2.asm
+bank0\misc3.asm
+bank0\nmi.asm
+bank0\error.asm
+bank0\esc.asm
+bank0\filesys2.asm
+bank0\time.asm
+bank0\ossi.asm
+bank0\misc4.asm
+bank0\handle.asm
+bank0\misc5.asm
+bank0\int.asm
+bank0\random.asm
+bank0\kbd.asm
+bank0\memory.asm
+bank0\mth2.asm
+bank0\token.asm
+bank0\osin.asm
+bank0\mth3.asm
+bank0\spnq0.asm
+bank0\scrdrv2.asm
+bank0\filesys3.asm
+bank0\pagfi.asm
+bank0\scrdrv3.asm
+bank0\pfilter0.asm
+bank0\ozwindow.asm
+bank0\scrdrv4.asm
+bank0\osust.asm
+bank0\resetx.asm
+bank0\freespace.asm
+bank0\ostables.asm
