@@ -7,10 +7,6 @@
 ; order in the lores1 font range : 000-1BF (NB: 1C0-1FF are the 64 UGD chars)
 ; this table must be in K1 (b07) and shouldn't cross $3300 (start of the keymap)
 
-xdef    Key2Chr_tbl
-xdef    Chr2VDU_tbl
-xdef    VDU2Chr_tbl
-
 .Key2Chr_tbl
         defb    $A3                             ; £ internal code
 .Chr2VDU_tbl

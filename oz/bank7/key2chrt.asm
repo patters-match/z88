@@ -1,5 +1,9 @@
 module Key2Char_Table
 
+xdef    Key2Chr_tbl
+xdef    Chr2VDU_tbl
+xdef    VDU2Chr_tbl
+
 if KBDK
         include "key2chrt_dk.asm"
 endif
