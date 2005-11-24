@@ -1,8 +1,34 @@
-; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $3e97
+; **************************************************************************************************
+; OS_XXX 1 & 2 byte system call tables, located at $FF00 in bank 0 (addressed for segment 3)
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2005
+; (C) Gunther Strube (gbs@users.sf.net), 2005
+;
+; Copyright of original (binary) implementation, V4.0:
+; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-; -----------------------------------------------------------------------------
+;***************************************************************************************************
 
         Module OSTables
 
@@ -11,83 +37,86 @@
 xdef    OZBuffCallTable
 xdef    OZCallTable
 
+IF COMPILE_BINARY
+        include "kernel0.def"                   ; get bank 0 kernel address references
+        include "../bank7/kernel7.def"          ; get bank 7 kernel address references
+ELSE
+        xref    BfGbt                           ; bank0/buffer.asm
+        xref    BfPbt                           ; bank0/buffer.asm
+        xref    BfPur                           ; bank0/buffer.asm
+        xref    BfSta                           ; bank0/buffer.asm
+        xref    BufRead                         ; bank0/buffer.asm
+        xref    BufWrite                        ; bank0/buffer.asm
+        xref    OSDly                           ; bank0/buffer.asm
+        xref    OSPur                           ; bank0/buffer.asm
+        xref    OSXin                           ; bank0/buffer.asm
+        xref    CallDC                          ; bank0/misc2.asm
+        xref    CallGN                          ; bank0/misc2.asm
+        xref    CallOS2byte                     ; bank0/misc2.asm
+        xref    OSAlm                           ; bank0/misc2.asm
+        xref    OSEpr                           ; bank0/misc2.asm
+        xref    OSPrt                           ; bank0/misc2.asm
+        xref    OzCallInvalid                   ; bank0/misc2.asm
+        xref    OSBix                           ; bank0/misc4.asm
+        xref    OSBox                           ; bank0/misc4.asm
+        xref    OSFramePop                      ; bank0/misc4.asm
+        xref    OSAxp                           ; bank0/memory.asm
+        xref    OSFc                            ; bank0/memory.asm
+        xref    OSMal                           ; bank0/memory.asm
+        xref    OsMcl                           ; bank0/memory.asm
+        xref    OSMfr                           ; bank0/memory.asm
+        xref    OSMgb                           ; bank0/memory.asm
+        xref    OSMop                           ; bank0/memory.asm
+        xref    OSMpb                           ; bank0/memory.asm
+        xref    CopyMemBHL_DE                   ; bank0/misc5.asm
+        xref    OSBde                           ; bank0/misc5.asm
+        xref    OSFn                            ; bank0/misc5.asm
+        xref    OSBlp                           ; bank0/scrdrv4.asm
+        xref    OSSr                            ; bank0/scrdrv4.asm
+        xref    OSDom                           ; bank0/process2.asm
+        xref    OSBye                           ; bank0/process3.asm
+        xref    OSEnt                           ; bank0/process3.asm
+        xref    OSExit                          ; bank0/process3.asm
+        xref    OSStk                           ; bank0/process3.asm
+        xref    OSUse                           ; bank0/process3.asm
+        xref    OSCl                            ; bank0/filesys2.asm
+        xref    OSFrm                           ; bank0/filesys2.asm
+        xref    OSFwm                           ; bank0/filesys2.asm
+        xref    OSGb                            ; bank0/filesys2.asm
+        xref    OSGbt                           ; bank0/filesys2.asm
+        xref    OSMv                            ; bank0/filesys2.asm
+        xref    OSOp                            ; bank0/filesys2.asm
+        xref    OSPb                            ; bank0/filesys2.asm
+        xref    OSPbt                           ; bank0/filesys2.asm
+        xref    OSCli                           ; bank0/oscli0.asm
+        xref    OSDor                           ; bank0/dor.asm
+        xref    OSErc                           ; bank0/error.asm
+        xref    OSErh                           ; bank0/error.asm
+        xref    OSEsc                           ; bank0/esc.asm
+        xref    OSFth                           ; bank0/handle.asm
+        xref    OSGth                           ; bank0/handle.asm
+        xref    OSVth                           ; bank0/handle.asm
+        xref    OSHt                            ; bank0/time.asm
+        xref    OSIn                            ; bank0/osin.asm
+        xref    OSTin                           ; bank0/osin.asm
+        xref    OSNq                            ; bank0/spnq0.asm
+        xref    OSSp                            ; bank0/spnq0.asm
+        xref    OSOff                           ; bank0/nmi.asm
+        xref    OSWait                          ; bank0/nmi.asm
+        xref    OSOut                           ; bank0/osout.asm
+        xref    OSSi                            ; bank0/ossi.asm
+        xref    OSUst                           ; bank0/osust.asm
+        xref    OSWrt                           ; bank0/token.asm
+        xref    OSWtb                           ; bank0/token.asm
 
-xref    BfGbt                                   ; bank0/buffer.asm
-xref    BfPbt                                   ; bank0/buffer.asm
-xref    BfPur                                   ; bank0/buffer.asm
-xref    BfSta                                   ; bank0/buffer.asm
-xref    BufRead                                 ; bank0/buffer.asm
-xref    BufWrite                                ; bank0/buffer.asm
-xref    OSDly                                   ; bank0/buffer.asm
-xref    OSPur                                   ; bank0/buffer.asm
-xref    OSXin                                   ; bank0/buffer.asm
-xref    CallDC                                  ; bank0/misc2.asm
-xref    CallGN                                  ; bank0/misc2.asm
-xref    CallOS2byte                             ; bank0/misc2.asm
-xref    OSAlm                                   ; bank0/misc2.asm
-xref    OSEpr                                   ; bank0/misc2.asm
-xref    OSPrt                                   ; bank0/misc2.asm
-xref    OzCallInvalid                           ; bank0/misc2.asm
-xref    OSBix                                   ; bank0/misc4.asm
-xref    OSBox                                   ; bank0/misc4.asm
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSAxp                                   ; bank0/memory.asm
-xref    OSFc                                    ; bank0/memory.asm
-xref    OSMal                                   ; bank0/memory.asm
-xref    OsMcl                                   ; bank0/memory.asm
-xref    OSMfr                                   ; bank0/memory.asm
-xref    OSMgb                                   ; bank0/memory.asm
-xref    OSMop                                   ; bank0/memory.asm
-xref    OSMpb                                   ; bank0/memory.asm
-xref    CopyMemBHL_DE                           ; bank0/misc5.asm
-xref    OSBde                                   ; bank0/misc5.asm
-xref    OSFn                                    ; bank0/misc5.asm
-xref    OSBlp                                   ; bank0/scrdrv4.asm
-xref    OSSr                                    ; bank0/scrdrv4.asm
-xref    OSDom                                   ; bank0/process2.asm
-xref    OSBye                                   ; bank0/process3.asm
-xref    OSEnt                                   ; bank0/process3.asm
-xref    OSExit                                  ; bank0/process3.asm
-xref    OSStk                                   ; bank0/process3.asm
-xref    OSUse                                   ; bank0/process3.asm
-xref    OSCl                                    ; bank0/filesys2.asm
-xref    OSFrm                                   ; bank0/filesys2.asm
-xref    OSFwm                                   ; bank0/filesys2.asm
-xref    OSGb                                    ; bank0/filesys2.asm
-xref    OSGbt                                   ; bank0/filesys2.asm
-xref    OSMv                                    ; bank0/filesys2.asm
-xref    OSOp                                    ; bank0/filesys2.asm
-xref    OSPb                                    ; bank0/filesys2.asm
-xref    OSPbt                                   ; bank0/filesys2.asm
-xref    OSCli                                   ; bank0/oscli0.asm
-xref    OSDor                                   ; bank0/dor.asm
-xref    OSErc                                   ; bank0/error.asm
-xref    OSErh                                   ; bank0/error.asm
-xref    OSEsc                                   ; bank0/esc.asm
-xref    OSFth                                   ; bank0/handle.asm
-xref    OSGth                                   ; bank0/handle.asm
-xref    OSVth                                   ; bank0/handle.asm
-xref    OSHt                                    ; bank0/time.asm
-xref    OSIn                                    ; bank0/osin.asm
-xref    OSTin                                   ; bank0/osin.asm
-xref    OSNq                                    ; bank0/spnq0.asm
-xref    OSSp                                    ; bank0/spnq0.asm
-xref    OSOff                                   ; bank0/nmi.asm
-xref    OSWait                                  ; bank0/nmi.asm
-xref    OSOut                                   ; bank0/osout.asm
-xref    OSSi                                    ; bank0/ossi.asm
-xref    OSUst                                   ; bank0/osust.asm
-xref    OSWrt                                   ; bank0/token.asm
-xref    OSWtb                                   ; bank0/token.asm
-
-xref    OSMap                                   ; bank7/osmap.asm
-xref    OSDel                                   ; bank7/filesys1.asm
-xref    OSRen                                   ; bank7/filesys1.asm
-xref    OSIsq                                   ; bank7/scrdrv1.asm
-xref    OSWsq                                   ; bank7/scrdrv1.asm
-xref    OSPoll                                  ; bank7/process1.asm
-xref    OSSci                                   ; bank7/ossci.asm
-
+        xref    OSMap                           ; bank7/osmap.asm
+        xref    OSDel                           ; bank7/filesys1.asm
+        xref    OSRen                           ; bank7/filesys1.asm
+        xref    OSIsq                           ; bank7/scrdrv1.asm
+        xref    OSWsq                           ; bank7/scrdrv1.asm
+        xref    OSPoll                          ; bank7/process1.asm
+        xref    OSSci                           ; bank7/ossci.asm
+ENDIF
 
 .OZCallTable
         jp      OzCallInvalid

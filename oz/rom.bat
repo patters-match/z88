@@ -100,8 +100,8 @@ goto COMPILE_ERROR
 :: -------------------------------------------------------------------------------------------------
 :: ROM was compiled successfully, combine the compiled 16K banks 0-7 into a complete 128K binary
 :COMBINE_BANKS
-echo Compiled Z88 ROM to "oz.bin" file.
-copy /B /Y bank0\kernel0.bin+bank1\bank1.bin+bank2\bank2.bin+bank3\bank3.bin+banks45\pipedrm.dat+bank6\bank6.bin+bank7\kernel7.bin oz.bin >nul
+echo Compiled Z88 ROM, and combined into "oz.bin" file.
+java -jar ..\tools\makeapp\makeapp.jar -f rom.loadmap
 goto END
 
 :COMPILE_ERROR

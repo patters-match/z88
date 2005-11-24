@@ -25,20 +25,40 @@ $Id$
 Compiling the Z88 ROM from the SVN repository
 ---------------------------------------------------------------------------------------------------
 
-To compile the Z88 ROM, make sure that you have first compiled the Mpm assembler
-that is located in the /tools/mpm directory. Use your favorite C compiler on your
-platform with the following supplied make files:
+Since you're reading this, it means that you successfully checked out a fresh copy of the SVN
+repository.
+
+To compile the Z88 ROM, you need two utilities - Mpm (assembler) and MakeApp (binary file loader) -
+that are necessary to compile the ROM sources into a complete 128K binary. Further, two complete
+directories must have been checked out from SVN:
+        /oz
+        /tools
+
+These contain all the necessary sources and tools to get your Z88 ROM compiled.
+
+Begin with compiling the Mpm assembler, which is located in the /tools/mpm directory. Use your
+favorite C compiler on your platform with the following supplied make files:
 
 cd /tools/mpm
 make -f makefile.z80.borlandccp55.win32  [using free Borland C++ V5.5 for Windows]
 or
 make -f makefile.z80.unix [using GCC on CygWin/Windows, GCC/Linux/*X]
 
-Important: The scripts only work with Mpm Assembler V1.1 b7 (22/11/2005) or later.
+Then, to compile & run the MakeApp utility you need to have a Java Development Kit 1.4.x or
+later installed. Download it from http://java.sun.com.
 
-Then, just simply execute the rom.bat script (or rom.sh for UNix developers)
-and you will have the latest OZ rom compiled from Subversion. Default rom
-is UK. You can specify the following country codes to get a localised Z88 ROM:
+cd /tools/makeapp
+makejar.bat (or makeapp.sh for Unix) script).
+
+The bat file contains Java-related instructions if you have problem getting the java compiler
+working. An executable JAR file will be produced (makeapp.jar) in the /tools/makeapp directory.
+
+                                     -  *  -
+
+You've now ready to compile the Z88 rom! Just execute the rom.bat script (or rom.sh for Unix
+developers) and you will have the latest OZ rom compiled from SVN. Default rom is UK.
+You can specify the following country codes to get a localised Z88 ROM:
+
         DK      Denmark
         FR      France
         SE      Swedish/Finish
@@ -48,11 +68,12 @@ Command line example:
         rom DK
         rom dk
 
-both variations will compile a danish Z88 rom, and stored as 'oz.bin' in the
-current directory of the rom compile scripts. You can install/run the rom in the
-Z88 emulator, OZvm (in /tools/ozvm), or using a conventional Eprom programmer
-and re-blow your 128K chip to be inserted into a real Z88.
+both variations will compile a danish Z88 rom, and stored as 'oz.bin' in the current directory
+of the rom compile scripts. You can install/run the rom binary in the Z88 emulator, OZvm
+(in /tools/ozvm), or using a conventional Eprom programmer and re-blow your 128K chip to be
+inserted into a real Z88.
 
+Important: The rom script only works with Mpm Assembler V1.1 b7 (22/11/2005) or later.
 
 
 ---------------------------------------------------------------------------------------------------
@@ -85,7 +106,6 @@ All register input/output parameters in functions or other semantic entity uses
 the style from the Developer's Notes.
 
 All variable names and language is plain english.
-
 
 
 Z88 Forever!

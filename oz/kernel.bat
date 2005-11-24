@@ -21,12 +21,19 @@
 :: $Id$
 :: ***************************************************************************************************
 
+echo compiling kernel
 
-:: create lowram.def (address pre-compilation) for kernel1.prj compilation
-cd bank7
+:: create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
+cd bank0
+..\..\tools\mpm\mpm -g -nv ostables.asm
+dir *.err 2>nul >nul || goto PRECOMPILE_LOWRAM
+goto COMPILE_ERROR
+
+:: create lowram.def (address pre-compilation) for kernel7.prj compilation
+:PRECOMPILE_LOWRAM
+cd ..\bank7
 ..\..\tools\mpm\mpm -g -nv -I..\sysdef @lowram.prj
 dir *.err 2>nul >nul || goto COMPILE_APPDORS
-cd ..
 goto COMPILE_ERROR
 
 :: create application DOR data (binary) and address references for bank 2 compile script
@@ -35,7 +42,6 @@ goto COMPILE_ERROR
 
 :: pre-compile kernel in bank 0 to resolve labels for lowram.asm
 cd ..\bank0
-echo compiling kernel
 ..\..\tools\mpm\mpm -g -nv -I..\sysdef @kernel0.prj
 
 :: create final lowram binary with correct addresses from bank 0 kernel
@@ -45,8 +51,10 @@ cd ..\bank7
 :: compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
 ..\..\tools\mpm\mpm -bg -nv -DCOMPILE_BINARY -DKB%1 -I..\sysdef @kernel7.prj
 
-:: compile final kernel binary for bank 0 using correct bank 7 references
+:: compile final kernel binary with OS tables for bank 0 using correct bank 7 references
 cd ..\bank0
 ..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I..\sysdef @kernel0.prj
-cd ..
+..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY ostables.asm
+
 :COMPILE_ERROR
+cd ..
