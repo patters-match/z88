@@ -77,10 +77,11 @@ IF COMPILE_BINARY
         xdef    OSDel                           ; bank7/filesys1.asm
         xdef    OSRen                           ; bank7/filesys1.asm
         xdef    MemCallAttrVerify               ; bank7/memory1.asm
-        xdef    Key2Chr_tbl                     ; bank7/key2chrt_*.asm (country dependant)
+        xdef    Key2Chr_tbl                     ; bank7/keymap.asm (country dependant)
         xdef    OSMap                           ; bank7/osmap.asm
         xdef    OSSci                           ; bank7/ossci.asm
         xdef    OSCli                           ; bank7/oscli.asm
 
         include "../bank7/kernel7.def"          ; get bank 7 references and map them into bank 0 project...
+        include "../bank7/keymap.def"           ; get bank 7 references for keymap and bind them into bank 0 project...
 ENDIF

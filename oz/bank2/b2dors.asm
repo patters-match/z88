@@ -29,8 +29,8 @@
 
         defb    'H',12                  ; help, sizeof
         defp    PrinterEdTopics&$3fff,7 ; topics
-        defp    PrinterEdCommands&$3fff,7        ; commands
-        defp    PrinterEdHelp&$3fff,7    ; help
+        defp    PrinterEdCommands&$3fff,7 ; commands
+        defp    PrEdDOR,7               ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',PrEdDORe-$PC-1  ; name, length
@@ -40,7 +40,7 @@
 
 .PanelDOR
         defp    0,0                     ; parent
-        defp    $ff1d,7                 ; brother !! absolute
+        defp    TerminalDOR,7           ; brother
         defp    0,0                     ; son
         defb    $83, PanelDORe-$PC      ; DOR type, sizeof
 
@@ -55,7 +55,7 @@
         defb    'H',12                  ; help, sizeof
         defp    PanelTopics&$3fff,7     ; topics
         defp    PanelCommands&$3fff,7   ; commands
-        defp    PanelHelp&$3fff,7       ; help
+        defp    PanelDOR,7              ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',PanelDORe-$PC-1  ; name, length

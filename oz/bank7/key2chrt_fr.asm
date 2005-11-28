@@ -31,6 +31,3 @@
         defb    $CA,$F9,$18,$00                 ; ù
         defb    $CB,$FB,$9A,$00                 ; û
         defb    0,0,0,0                         ; table terminator
-
-        defs    $11 ($ff)
-

@@ -7,6 +7,7 @@
         Module B6DORs
 
         include "director.def"
+        include "../bank7/appdors.def"
 
         org     $ff90
 
@@ -32,8 +33,8 @@
 
         defb    'H',12                  ; help, sizeof
         defp    CalendarTopics,6 ; topics
-        defp    CalendarCommands,6        ; commands
-        defp    CalendarHelp,6    ; help
+        defp    CalendarCommands,6      ; commands
+        defp    CalendarHelp,6          ; help
         defp    $8000,7                 ; token base
 
         defb    'N',CalendarDORe-$PC-1  ; name, length
@@ -43,7 +44,7 @@
 
 .ClockDOR
         defp    0,0                     ; parent
-        defp    $fd9a,7                 ; brother !! absolute
+        defp    AlarmDOR,7              ; brother
 .ClockTopics
 .ClockCommands
 .ClockHelp

@@ -85,6 +85,3 @@
 
 .DeadTable
         defb    0
-
-        defs    $57 ($ff)
-

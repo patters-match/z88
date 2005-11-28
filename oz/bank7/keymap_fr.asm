@@ -117,6 +117,3 @@
     defb    $69,$BE                            ; i î
     defb    $6F,$C9                            ; o ô
     defb    $75,$CB                            ; u û
-
-    defs    $37 ($ff)
-

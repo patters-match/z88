@@ -29,10 +29,11 @@ cd bank0
 dir *.err 2>nul >nul || goto PRECOMPILE_LOWRAM
 goto COMPILE_ERROR
 
-:: create lowram.def (address pre-compilation) for kernel7.prj compilation
+:: create lowram.def and keymap.def (address pre-compilation) for kernel0.prj and kernel7.prj compilation
 :PRECOMPILE_LOWRAM
 cd ..\bank7
 ..\..\tools\mpm\mpm -g -nv -I..\sysdef @lowram.prj
+..\..\tools\mpm\mpm -bg -nv -DKB%1 -I..\sysdef keymap.asm
 dir *.err 2>nul >nul || goto COMPILE_APPDORS
 goto COMPILE_ERROR
 

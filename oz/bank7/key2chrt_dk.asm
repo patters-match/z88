@@ -21,5 +21,3 @@
         defb    $EA, $C5, $1D, $00              ; Å
         defb    $DA, $E5, $1C, $00              ; å
         defb    0,0,0,0                         ; table terminator
-
-        defs    $2D ($ff)

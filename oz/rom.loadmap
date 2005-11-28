@@ -47,4 +47,5 @@ bank6\bank6.bin 060000
 
 ; kernel lower part (addressed from $8000 upwards)
 bank7\kernel7.bin 070000                        ; font bitmap & remaing core OS
-bank7\appdors.bin 0733ff                        ; main DOR's and MTHs (and 'OZ' header)
+bank7\keymap.bin 073300                         ; country specific keyboard tables
+bank7\appdors.bin 07340A                        ; main DOR's and MTHs (and 'OZ' header)

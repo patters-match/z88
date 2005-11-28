@@ -8,34 +8,14 @@
 
         include "director.def"
 
-        org $33ff   ; 3073 bytes
+        org $340A
 
 xdef    PrinterEdTopics
 xdef    PrinterEdCommands
-xdef    PrinterEdHelp
-
 xdef    PanelTopics
 xdef    PanelCommands
-xdef    PanelHelp
-
-
-;       !! Use application DOR null-pointer for these.
-;       !! It makes clear they are dummy entries.
-
-.IndexHelp
-        defb    0
-.PipeDreamHelp
-        defb    0
-.DiaryHelp
-        defb    0
-.PrinterEdHelp
-        defb    0
-.PanelHelp
-        defb    0
-.FilerHelp
-        defb    0
-.TerminalHelp
-        defb    0
+xdef    AlarmDOR
+xdef    TerminalDOR
 
 .IndexTopics
         defb    0
@@ -379,7 +359,7 @@ xdef    PanelHelp
         defb    'H',12                  ; help, sizeof
         defp    FilerTopics,7           ; topics
         defp    FilerCommands,7         ; commands
-        defp    FilerHelp,7             ; help
+        defp    FilerDOR,7              ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',FilerDORe-$PC-1     ; name, length
@@ -404,7 +384,7 @@ xdef    PanelHelp
         defb    'H',12                  ; help, sizeof
         defp    IndexTopics,7           ; topics
         defp    IndexCommands,7         ; commands
-        defp    IndexHelp,7             ; help
+        defp    IndexDOR,7              ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',IndexDORe-$PC-1     ; name, length
@@ -429,7 +409,7 @@ xdef    PanelHelp
         defb    'H',12                  ; help, sizeof
         defp    DiaryTopics,7           ; topics
         defp    DiaryCommands,7         ; commands
-        defp    DiaryHelp,7             ; help
+        defp    DiaryDOR,7              ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',DiaryDORe-$PC-1     ; name, length
@@ -454,7 +434,7 @@ xdef    PanelHelp
         defb    'H',12                  ; help, sizeof
         defp    PipeDreamTopics,7       ; topics
         defp    PipeDreamCommands,7     ; commands
-        defp    PipeDreamHelp,7         ; help
+        defp    PipeDreamDOR,7          ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',PipeDreamDORe-$PC-1 ; name, length
@@ -531,7 +511,7 @@ xdef    PanelHelp
         defb    'H',12                  ; help, sizeof
         defp    TerminalTopics,7        ; topics
         defp    TerminalCommands,7      ; commands
-        defp    TerminalHelp,7          ; help
+        defp    TerminalDOR,7           ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',TerminalDORe-$PC-1  ; name, length
@@ -540,8 +520,8 @@ xdef    PanelHelp
         defb    $FF                     ; terminate
 
         defb    0
-        defm    "{ Clive Dave Eric Felicity^2 Graham Jim John Mark"
-        defm    " Matthew^2 Paul Peter Richard^3 Tim Wings Zee&Kessna }",13,0
+        defm    "{Clive Dave Eric Felicity^2 Graham Jim John Mark"
+        defm    " Matthew^2 Paul Peter Richard^3 Tim Wings Zee&Kessna}"
 
 ;       $BFC0
         defp    0,0                     ; parent
