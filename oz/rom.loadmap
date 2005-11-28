@@ -45,5 +45,6 @@ banks45\pipedream.bn1 050000
 ; PrinterEd, Panel and BBC BASIC
 bank6\bank6.bin 060000
 
-; kernel lower part (addressed from $8000 upwards), remaing core OS, font bitmap, DOR's
-bank7\kernel7.bin 070000
+; kernel lower part (addressed from $8000 upwards)
+bank7\kernel7.bin 070000                        ; font bitmap & remaing core OS
+bank7\appdors.bin 0733ff                        ; main DOR's and MTHs (and 'OZ' header)
