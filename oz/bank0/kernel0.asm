@@ -78,6 +78,7 @@ IF COMPILE_BINARY
         xdef    OSRen                           ; bank7/filesys1.asm
         xdef    MemCallAttrVerify               ; bank7/memory1.asm
         xdef    Key2Chr_tbl                     ; bank7/keymap.asm (country dependant)
+        xdef    KeymapTable                     ; bank7/keymap.asm (country dependant)
         xdef    OSMap                           ; bank7/osmap.asm
         xdef    OSSci                           ; bank7/ossci.asm
         xdef    OSCli                           ; bank7/oscli.asm

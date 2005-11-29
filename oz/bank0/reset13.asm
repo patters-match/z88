@@ -24,7 +24,7 @@ xref    InitKbdPtrs                             ; bank0/kbd.asm
 
 xref    Reset5                                  ; bank7/reset5.asm
 xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
-
+xref    KeymapTable                             ; bank7/keymap.asm
 
 .Reset3
         call    InitRAM
@@ -52,7 +52,7 @@ xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
         call    MS2BankK1                       ; bind in more code
         call    RstRdPanelAttrs
         call    MS2BankK1
-        ld      hl, $b307                       ; page | bank
+        ld      hl, KeymapTable | $07           ; page | bank
         call    InitKbdPtrs
 
         jp      Reset5                          ; Reset5
