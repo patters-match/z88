@@ -21,41 +21,39 @@
 :: $Id$
 :: ***************************************************************************************************
 
-echo compiling kernel
-
 :: create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
 cd bank0
-..\..\tools\mpm\mpm -g -nv ostables.asm
+..\..\tools\mpm\mpm -g ostables.asm
 dir *.err 2>nul >nul || goto PRECOMPILE_LOWRAM
 goto COMPILE_ERROR
 
 :: create lowram.def and keymap.def (address pre-compilation) for kernel0.prj and kernel7.prj compilation
 :PRECOMPILE_LOWRAM
 cd ..\bank7
-..\..\tools\mpm\mpm -g -nv -I..\sysdef @lowram.prj
-..\..\tools\mpm\mpm -bg -nv -DKB%1 -I..\sysdef keymap.asm
+..\..\tools\mpm\mpm -g -I..\sysdef @lowram.prj
+..\..\tools\mpm\mpm -bg -DKB%1 -I..\sysdef keymap.asm
 dir *.err 2>nul >nul || goto COMPILE_APPDORS
 goto COMPILE_ERROR
 
 :: create application DOR data (binary) and address references for bank 2 compile script
 :COMPILE_APPDORS
-..\..\tools\mpm\mpm -bg -nv -I..\sysdef appdors.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef appdors.asm
 
 :: pre-compile kernel in bank 0 to resolve labels for lowram.asm
 cd ..\bank0
-..\..\tools\mpm\mpm -g -nv -I..\sysdef @kernel0.prj
+..\..\tools\mpm\mpm -g -I..\sysdef @kernel0.prj
 
 :: create final lowram binary with correct addresses from bank 0 kernel
 cd ..\bank7
-..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I..\sysdef @lowram.prj
+..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\sysdef @lowram.prj
 
 :: compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
-..\..\tools\mpm\mpm -bg -nv -DCOMPILE_BINARY -DKB%1 -I..\sysdef @kernel7.prj
+..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DKB%1 -I..\sysdef @kernel7.prj
 
 :: compile final kernel binary with OS tables for bank 0 using correct bank 7 references
 cd ..\bank0
-..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY -I..\sysdef @kernel0.prj
-..\..\tools\mpm\mpm -b -nv -DCOMPILE_BINARY ostables.asm
+..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\sysdef @kernel0.prj
+..\..\tools\mpm\mpm -b -DCOMPILE_BINARY ostables.asm
 
 :COMPILE_ERROR
 cd ..
