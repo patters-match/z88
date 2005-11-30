@@ -54,7 +54,9 @@ banks45\pipedream.bn0 040000
 banks45\pipedream.bn1 050000
 
 ; PrinterEd, Panel and BBC BASIC
-bank6\bank6.bin 060000
+bank6\panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
+bank6\basic.dat 061200                          ; $D200: BBC BASIC application
+bank6\b6dors.bin 063f90                         ; $FF90: Calendar & Clock DOR's
 
 ; kernel lower part (addressed from $8000 upwards)
 bank7\kernel7.bin 070000                        ; font bitmap & remaing kernel OS
