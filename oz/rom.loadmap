@@ -45,7 +45,9 @@ bank2\filer.bin 022ab1                          ; $EAB1: Filer Popdown
 bank2\b2dors.bin 023f90                         ; $FF90: PrinterEd & Panel DOR's
 
 ; GN system calls, Calculator, Printer filter management?
-bank3\bank3.bin 030000
+bank3\gn.bin 030000                             ; $C000: GN_ system calls
+bank3\printer.bin 032fc0                        ; $AFC0: Printer filter
+bank3\calc.bin 033300                           ; $F300: Calculator popdown
 
 ; PipeDream (32K app)
 banks45\pipedream.bn0 040000

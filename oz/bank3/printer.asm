@@ -53,7 +53,6 @@ defc    PRT_B_ENABLED   =1                      ; output enabled?
 defc    PRT_ALLOWLF     =1
 defc    PRT_ENABLED     =2
 
- IF     FINAL=0
 
 .PrntChar
         jp      PrntCharMain                    ; func $C0, A=char
@@ -700,7 +699,3 @@ defc    PRT_ENABLED     =2
         ld      a, 66
         ld      (PageLen), a
         ret
-
- ELSE
-        binary "printer.bin"
- ENDIF
