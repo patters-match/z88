@@ -3153,5 +3153,3 @@ swYear                  ds.b    1
         defm    1,"2JN", 0
 .Reverse_txt
         defm    1,"R", 0
-
-        defs 1 ($ff)                            ; padding - to be removed when using makeapp

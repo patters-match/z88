@@ -33,6 +33,7 @@ bank0\ostables.bin 003f00
 bank1\diary.bin 010000                          ; $C000: Diary application
 bank1\clcalalm.bin 0127ee                       ; $E7EE: Clock, Calendar & Alarm popdowns
 bank1\impexp.bin 013a93                         ; $FA93: Imp/export popdown
+bank1\impexpdor.bin 013fc5                      ; $FFC5: Imp/export DOR
 
 ; Bank2: Index, Filer, Terminal, Floating Point Package and serial port driver.
 bank2\indexdc.bin 020000                        ; $C000: Index popdown (and DC low level routines)

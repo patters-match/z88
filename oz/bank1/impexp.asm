@@ -44,20 +44,11 @@
         include "stdio.def"
         include "syspar.def"
 
-defc    SAFESIZE=112
-defc    SAFE=$1ffe-SAFESIZE
+        include "impexp.inc"
 
-defvars         SAFE
-{
-LocalName       ds.b    51
-RemoteName      ds.b    51
-InputBuf        ds.b    2
-FileHandle      ds.b    2
-SerHandle       ds.b    2
-WildHandle      ds.b    2
-unused_2        ds.b    2
-vars_e          ds.b    1
-}
+xdef    Imp_Export
+
+
 
 ; IF vars_e <> $1ffe
 ;       ERROR   "Error in defvars"
@@ -857,31 +848,3 @@ MSG_Eof, ERR_Esc, ERR_Name, MSG_AllSent
         ret     nc
         cp      'z'+1
         ret
-
-;       ----
-
-        defs    51 ($ff)
-
-.ImpExpDOR
-        defp    0,0
-        defp    0,0
-        defp    0,0
-        defb    DM_ROM, ImpExpDORe-$PC
-        defb    DT_INF, 18
-        defb    0,0
-        defb    'X'
-        defb    0
-        defw    0,0,SAFESIZE
-        defw    Imp_Export
-        defb    0,0,0,1
-        defb    AT_Good|AT_Popd,0
-        defb    DT_HLP,12
-        defp    ImpExpDOR,1
-        defp    ImpExpDOR,1
-        defp    ImpExpDOR,1
-        defp    $8000,7
-
-        defb    DT_NAM, ImpExpDORe-$PC-1
-        defm    "Imp-Export",0
-.ImpExpDORe
-        defb    $FF

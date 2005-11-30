@@ -24,4 +24,5 @@
 
 ..\..\tools\mpm\mpm -b -I..\sysdef diary.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef clcalalm.asm
-..\..\tools\mpm\mpm -b -I..\sysdef impexp.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef impexp.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef impexpdor.asm

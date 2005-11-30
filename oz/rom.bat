@@ -55,19 +55,19 @@ if "%ozlocale%"=="FI" ECHO Compiling Swedish/Finish Z88 ROM
 call cleanup
 
 :: -------------------------------------------------------------------------------------------------
-echo compiling kernel banks 0 and 7
-call kernel %ozlocale% 2>nul >nul
-dir bank0\*.err 2>nul >nul || goto COMPILE_BANK1
-dir bank7\*.err 2>nul >nul || goto COMPILE_BANK1
-goto COMPILE_ERROR
-
-:: -------------------------------------------------------------------------------------------------
-:COMPILE_BANK1
 echo compiling bank 1
 cd bank1
 call bank1 2>nul >nul
 cd ..
-dir bank1\*.err 2>nul >nul || goto COMPILE_BANK2
+dir bank1\*.err 2>nul >nul || goto COMPILE_KERNEL
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_KERNEL
+echo compiling kernel banks 0 and 7
+call kernel %ozlocale% 2>nul >nul
+dir bank0\*.err 2>nul >nul || goto COMPILE_BANK2
+dir bank7\*.err 2>nul >nul || goto COMPILE_BANK2
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
