@@ -29,11 +29,17 @@ size 128
 bank0\kernel0.bin 000000
 bank0\ostables.bin 003f00
 
-; Diary, Calendar & Imp/Export
+; Bank 1: Diary, Calendar & Imp/Export
 bank1\bank1.bin 010000
 
-; Index, Filer, Terminal, Floating Point Package and serial port driver.
-bank2\bank2.bin 020000
+; Bank2: Index, Filer, Terminal, Floating Point Package and serial port driver.
+bank2\indexdc.bin 020000                        ; $C000: Index popdown (and DC low level routines)
+bank2\fpp.bin 021800                            ; $D800: Floating point Package
+bank2\rs232.bin 022500                          ; $A500: Serial Port Driver
+bank2\terminal.bin 0227f0                       ; $E7F0: Terminal Application
+bank2\pedtrtbl.bin 022998                       ; $E998: PrinterEd Translation Table
+bank2\filer.bin 022ab1                          ; $EAB1: Filer Popdown
+bank2\b2dors.bin 023f90                         ; $FF90: PrinterEd & Panel DOR's
 
 ; GN system calls, Calculator, Printer filter management?
 bank3\bank3.bin 030000
@@ -46,6 +52,6 @@ banks45\pipedream.bn1 050000
 bank6\bank6.bin 060000
 
 ; kernel lower part (addressed from $8000 upwards)
-bank7\kernel7.bin 070000                        ; font bitmap & remaing core OS
-bank7\keymap.bin 073300                         ; country specific keyboard tables
-bank7\appdors.bin 07340A                        ; main DOR's and MTHs (and 'OZ' header)
+bank7\kernel7.bin 070000                        ; font bitmap & remaing kernel OS
+bank7\keymap.bin 073300                         ; country specific keyboard tables (always placed at page boundary)
+bank7\appdors.bin 07340A                        ; main DOR's and MTHs (including 'OZ' header)

@@ -1,8 +1,34 @@
-; -----------------------------------------------------------------------------
-; Bank 2 @ S2           ROM offset $A500-$A7EF
+; **************************************************************************************************
+; Serial port driver (addressed for segment 3).
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2005
+; (C) Gunther Strube (gbs@users.sf.net), 2005
+;
+; Copyright of original (binary) implementation, V4.0:
+; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-; -----------------------------------------------------------------------------
+; ***************************************************************************************************
 
 ; Low level serial port interface:
 ;
@@ -19,9 +45,9 @@
 ;               DEFC    SI_TMO  =       $18             ; Set timeout
 
 
-                Module RS232
+        Module RS232
 
-        org     $a500                           ; $a500-$a7ef
+        org     $a500
 
         include "blink.def"
         include "buffer.def"
@@ -43,6 +69,7 @@ defc    PAR_B_9BIT      = 2                     ; never set, checked during send
 defc    PAR_B_1         = 1                     ; set but not used
 defc    PAR_B_0         = 0                     ; set but not used
 
+IF 0
 ;       !! rearrange parity bits so that we can 'add a' to check next bit
 ;       !! to speedup TxInt (need to combine EVEN/SPACE vs ODD/MARK)
 
@@ -50,8 +77,6 @@ defc    PAR_B_0         = 0                     ; set but not used
 ;       PAR6    PARITY          0 - no parity , 1 - parity
 ;       PAR5    STICKY          0 - EVEN/ODD,   1 - SPACE/MARK
 ;       PAR4    ODD_MARK        0 - EVEN/SPACE, 1 - ODD/MARK
-
- IF 0
 
         ex      af,af'                          ; save char
         ld      a, (ubSerParity)
@@ -90,8 +115,8 @@ defc    PAR_B_0         = 0                     ; set but not used
 .altaf  ex      af, af'
 
 .senda
+ENDIF
 
- ENDIF
 
 ;       note that 9-bit mode isn't correctly implemented
 
@@ -115,7 +140,6 @@ defc    TDRH_B_STOP2            =2
 
 defc    TDRH_START              =1
 
- IF     FINAL=0
 
 ;       ----
 
@@ -684,7 +708,3 @@ defc    TDRH_START              =1
         ld      b, (ix+shnd_Timeout+1)          ; use this if BC(in) = -1
         ld      c, (ix+shnd_Timeout)
         ret
-
- ELSE
-        binary "rs232.bin"
- ENDIF

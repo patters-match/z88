@@ -18,7 +18,7 @@
         include "syspar.def"
         include "sysvar.def"
 
-        include "../bank2/bank2.def"
+        include "../bank2/pedtrtbl.def"
 
         org     $c000                           ; c000-d1ff, 5310 bytes
 
