@@ -21,7 +21,7 @@
 #                                  59 Temple Place-Suite 330,
 #                                  Boston, MA 02111-1307, USA.
 #
-# $Id: rom.bat 2019 2005-11-30 14:03:01Z gbs $
+# $Id$
 # ***************************************************************************************************
 
 # delete all compile output files in bank0 - bank7
