@@ -25,8 +25,16 @@
 # ***************************************************************************************************
 
 # delete all compile output files in bank0 - bank7
-find . -name '*.bin *.map *.err *.obj *.lst *.err *.wrn' | xargs rm -f
+find . -name "*.bin" | xargs rm -f
+find . -name "*.map" | xargs rm -f
+find . -name "*.err" | xargs rm -f
+find . -name "*.obj" | xargs rm -f
+find . -name "*.lst" | xargs rm -f
+find . -name "*.err" | xargs rm -f
+find . -name "*.wrn" | xargs rm -f
 
-# only delete *.def files for bank0 - bank7 (preserve /sysdef!)
-find . -name 'bank?/*.def' | xargs rm -f
- 
+# only delete *.def files for rom banks (preserve /sysdef!)
+find ./bank0 -name "*.def" | xargs rm -f
+find ./bank1 -name "*.def" | xargs rm -f
+find ./bank2 -name "*.def" | xargs rm -f
+find ./bank7 -name "*.def" | xargs rm -f

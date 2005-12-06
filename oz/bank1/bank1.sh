@@ -24,7 +24,27 @@
 # $Id: bank2.bat 2017 2005-11-30 08:02:18Z gbs $
 # ***************************************************************************************************
 
+COMPILE_ERROR=0
+
 ../../tools/mpm/mpm -b -I../sysdef diary.asm
-../../tools/mpm/mpm -b -I../sysdef clcalalm.asm
-../../tools/mpm/mpm -bg -I../sysdef impexp.asm
-../../tools/mpm/mpm -bg -I../sysdef impexpdor.asm
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef clcalalm.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -bg -I../sysdef impexp.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -bg -I../sysdef impexpdor.asm
+fi

@@ -21,14 +21,58 @@
 #                                  59 Temple Place-Suite 330,
 #                                  Boston, MA 02111-1307, USA.
 #
-# $Id: kernel.bat 2015 2005-11-29 07:43:14Z gbs $
+# $Id$
 # ***************************************************************************************************
 
+COMPILE_ERROR=0
+
 ../../tools/mpm/mpm -b -I../sysdef rs232.asm
-../../tools/mpm/mpm -b -I../sysdef indexdc.asm
-../../tools/mpm/mpm -b -I../sysdef fpp.asm
-../../tools/mpm/mpm -b -I../sysdef rs232.asm
-../../tools/mpm/mpm -b -I../sysdef terminal.asm
-../../tools/mpm/mpm -bg -I../sysdef pedtrtbl.asm
-../../tools/mpm/mpm -b -I../sysdef filer.asm
-../../tools/mpm/mpm -bg -I../sysdef b2dors.asm
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef indexdc.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef fpp.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef rs232.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef terminal.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -bg -I../sysdef pedtrtbl.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef filer.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -bg -I../sysdef b2dors.asm
+fi

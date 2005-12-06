@@ -24,6 +24,20 @@
 # $Id$
 # ***************************************************************************************************
 
+COMPILE_ERROR=0
+
 ../../tools/mpm/mpm -b -I../sysdef @gn.prj
-../../tools/mpm/mpm -b -I../sysdef printer.asm
-../../tools/mpm/mpm -b -I../sysdef calc.asm
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef printer.asm
+fi
+if test "`find . -name '*.err' | wc -l`" != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" = 0; then
+  ../../tools/mpm/mpm -b -I../sysdef calc.asm
+fi
