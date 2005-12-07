@@ -81,6 +81,7 @@ if test "$COMPILE_ERROR" = 0; then
   cd bank7
   ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -I../sysdef @kernel7.prj
   cd ..
+fi
 if test "`find . -name '*.err' | wc -l`" != 0; then
   COMPILE_ERROR=1
 fi
