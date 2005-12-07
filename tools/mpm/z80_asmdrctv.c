@@ -175,9 +175,6 @@ CALLOZ (void)
 static void
 EXTCALL (void)
 {
-  long constant;
-  expression_t *postfixexpr;
-
   if ((PC+4) > MAXCODESIZE)
     {
        ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_MaxCodeSize); /* No room for instruction */
