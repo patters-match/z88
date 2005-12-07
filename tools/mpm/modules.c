@@ -418,6 +418,7 @@ LoadModules (void)
             printf ("ORG address for code is %04lX\n", CURRENTMODULE->origin);
         }
       fclose (srcasmfile);
+      srcasmfile = NULL;
 
       link_error = LinkModule (objfilename, 0);
 
@@ -452,6 +453,8 @@ LinkModule (char *filename, long fptr_base)
       size = ReadLong (srcasmfile);                             /* get 32bit integer code size */
       if (CURRENTMODULE->startoffset + size > MAXCODESIZE)
         {
+          fclose (srcasmfile);
+          srcasmfile = NULL;
           ReportError (filename, 0, Err_MaxCodeSize);
           return Err_MaxCodeSize;
         }
@@ -473,6 +476,7 @@ LinkModule (char *filename, long fptr_base)
     }
 
   fclose (srcasmfile);
+  srcasmfile = NULL;
 
   if (fptr_libnmdecl != -1)
     {
