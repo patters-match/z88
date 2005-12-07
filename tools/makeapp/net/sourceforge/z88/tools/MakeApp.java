@@ -103,6 +103,12 @@ public class MakeApp {
 		RandomAccessFile binaryInputFile;
 		byte codeBuffer[] = null;
 
+		// make sure that path names in loadmap file follow the OS convention...
+		if ("/" != System.getProperty("file.separator")) 
+			filename = filename.replace('/', System.getProperty("file.separator").charAt(0));
+		if ("\\" != System.getProperty("file.separator")) 
+			filename = filename.replace('\\', System.getProperty("file.separator").charAt(0));
+
 		try {
 			binaryInputFile = new RandomAccessFile(filename, "r");
 			int codeSize = (int) binaryInputFile.length();
@@ -111,10 +117,8 @@ public class MakeApp {
 			binaryInputFile.close();
 
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 			codeBuffer = null;
 		} catch (IOException e) {
-			e.printStackTrace();
 			codeBuffer = null;
 		}
 
