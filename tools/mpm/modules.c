@@ -1060,6 +1060,26 @@ ReleaseLinkInfo (void)
 }
 
 
+static void
+ReleaseJrExprs(pcrelativelist_t *jrHdr)
+{
+  pcrelative_t *curJR, *prevJR;
+  
+  if (jrHdr != NULL) 
+    {
+      curJR = jrHdr->firstref;  /* point at first Jump Relative PC address */    
+      while(curJR != NULL)
+	{
+          prevJR = curJR;
+	  curJR = curJR->nextref; /* get next Jump Relative reference */
+	  free (prevJR);
+	}
+
+      free(jrHdr); /* finally, release header */
+    }
+}
+
+
 void
 ReleaseModules (void)
 {
@@ -1080,6 +1100,9 @@ ReleaseModules (void)
       if (curptr->mexpr != NULL)
         ReleaseExprns (curptr->mexpr);
 
+      if (curptr->JRaddr != NULL)
+        ReleaseJrExprs(curptr->JRaddr);	
+      
       if (curptr->mname != NULL)
         free (curptr->mname);
 
