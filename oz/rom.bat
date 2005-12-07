@@ -60,6 +60,7 @@ cd bank1
 call bank1 2>nul >nul
 cd ..
 dir bank1\*.err 2>nul >nul || goto COMPILE_KERNEL
+type bank1\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -68,6 +69,8 @@ echo compiling kernel banks 0 and 7
 call kernel %ozlocale% 2>nul >nul
 dir bank0\*.err 2>nul >nul || goto COMPILE_BANK2
 dir bank7\*.err 2>nul >nul || goto COMPILE_BANK2
+type bank0\*.err
+type bank7\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -77,6 +80,7 @@ cd bank2
 call bank2 2>nul >nul
 cd ..
 dir bank2\*.err 2>nul >nul || goto COMPILE_BANK3
+type bank2\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -86,6 +90,7 @@ cd bank3
 call bank3 2>nul >nul
 cd ..
 dir bank3\*.err 2>nul >nul || goto COMPILE_BANK6
+type bank3\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -95,6 +100,7 @@ cd bank6
 call bank6 2>nul >nul
 cd ..
 dir bank6\*.err 2>nul >nul || goto COMBINE_BANKS
+type bank6\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
