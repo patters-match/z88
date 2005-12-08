@@ -42,13 +42,13 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class SaveRestoreVM {
 
-    Blink blink;
-    Memory memory;
+    private Blink blink;
+    private Memory memory;
 
 	/** Constructor */
 	public SaveRestoreVM() {
-		blink = Blink.getInstance();
-		memory = Memory.getInstance();
+		blink = Z88.getInstance().getBlink();
+		memory = Z88.getInstance().getMemory();
 	}
 
 	/**
@@ -181,7 +181,7 @@ public class SaveRestoreVM {
 	 * @param properties
 	 */
 	private void loadBreakpoints(Properties properties) {
-		Breakpoints bp = Blink.getInstance().getBreakpoints(); 
+		Breakpoints bp = blink.getBreakpoints(); 
 
 		// remove current breakpoints before loading a new set 
 		// from the snapshot (the old breakpoints doesn't theoretically
@@ -234,7 +234,7 @@ public class SaveRestoreVM {
     	zipOut.setLevel(9); // compress contents as much as possible...
     	
         // save a copy of the current screen...
-        BufferedImage bi = Z88display.getInstance().getScreenFrame();
+        BufferedImage bi = Z88.getInstance().getDisplay().getScreenFrame();
 		File imgf = new File(snapshotPngFile);
 		ImageIO.write(bi, "PNG", imgf);
     	copyToZip(snapshotPngFile, "snapshot.png", zipOut);
@@ -267,7 +267,7 @@ public class SaveRestoreVM {
     	properties.setProperty("Z88StoppedAtTime", "" + blink.getZ88StoppedAtTime());
     	
     	// remember the current Z88 keyboard layout
-    	properties.setProperty("Z88KbLayout", "" + Z88Keyboard.getInstance().getKeyboardLayout());
+    	properties.setProperty("Z88KbLayout", "" + Z88.getInstance().getKeyboard().getKeyboardLayout());
 		
     	// remember the visual state of the Runtime Message Panel
     	properties.setProperty("RtmMessages", Boolean.toString(OZvm.getInstance().getGui().getRtmMessagesMenuItem().isSelected()));

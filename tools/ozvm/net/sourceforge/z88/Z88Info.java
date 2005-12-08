@@ -28,32 +28,32 @@ public class Z88Info {
 	 * Dump current Z80 Registers.
 	 */
 	public static String z80RegisterInfo() {
-		Blink z88 = Blink.getInstance();
+		Blink blink = Z88.getInstance().getBlink();
 		StringBuffer dzRegisters = new StringBuffer(1024);
 
-		dzRegisters.append(" ").append("BC=").append(Dz.addrToHex(z88.BC(),false)).append(" ");
-		dzRegisters.append(" ").append("DE=").append(Dz.addrToHex(z88.DE(),false)).append(" ");
-		dzRegisters.append(" ").append("HL=").append(Dz.addrToHex(z88.HL(),false)).append(" ");
-		dzRegisters.append(" ").append("IX=").append(Dz.addrToHex(z88.IX(),false)).append(" ");
-		dzRegisters.append(" ").append("IY=").append(Dz.addrToHex(z88.IY(),false)).append(" ");
+		dzRegisters.append(" ").append("BC=").append(Dz.addrToHex(blink.BC(),false)).append(" ");
+		dzRegisters.append(" ").append("DE=").append(Dz.addrToHex(blink.DE(),false)).append(" ");
+		dzRegisters.append(" ").append("HL=").append(Dz.addrToHex(blink.HL(),false)).append(" ");
+		dzRegisters.append(" ").append("IX=").append(Dz.addrToHex(blink.IX(),false)).append(" ");
+		dzRegisters.append(" ").append("IY=").append(Dz.addrToHex(blink.IY(),false)).append(" ");
 		dzRegisters.append(" ").append("\n");
-		z88.exx();
-		dzRegisters.append("'BC=").append(Dz.addrToHex(z88.BC(),false)).append(" ");
-		dzRegisters.append("'DE=").append(Dz.addrToHex(z88.DE(),false)).append(" ");
-		dzRegisters.append("'HL=").append(Dz.addrToHex(z88.HL(),false)).append(" ");
-		z88.exx();
-		dzRegisters.append(" ").append("SP=").append(Dz.addrToHex(z88.SP(),false)).append(" ");
-		dzRegisters.append(" ").append("PC=").append(Dz.addrToHex(z88.PC(),false)).append("\n");
-		dzRegisters.append(" ").append("AF=").append(Dz.addrToHex(z88.AF(),false)).append(" ");
-		dzRegisters.append(" ").append("A=").append(Dz.byteToHex(z88.A(),false)).append(" ");
+		blink.exx();
+		dzRegisters.append("'BC=").append(Dz.addrToHex(blink.BC(),false)).append(" ");
+		dzRegisters.append("'DE=").append(Dz.addrToHex(blink.DE(),false)).append(" ");
+		dzRegisters.append("'HL=").append(Dz.addrToHex(blink.HL(),false)).append(" ");
+		blink.exx();
+		dzRegisters.append(" ").append("SP=").append(Dz.addrToHex(blink.SP(),false)).append(" ");
+		dzRegisters.append(" ").append("PC=").append(Dz.addrToHex(blink.PC(),false)).append("\n");
+		dzRegisters.append(" ").append("AF=").append(Dz.addrToHex(blink.AF(),false)).append(" ");
+		dzRegisters.append(" ").append("A=").append(Dz.byteToHex(blink.A(),false)).append(" ");
 		dzRegisters.append(" ").append("F=").append(z80Flags()).append(" ");
-		dzRegisters.append(" ").append("I=").append(z88.I()).append("\n");
-		z88.ex_af_af();
-		dzRegisters.append("'AF=").append(Dz.addrToHex(z88.AF(),false)).append(" ");
-		dzRegisters.append("'A=").append(Dz.byteToHex(z88.A(),false)).append(" ");
+		dzRegisters.append(" ").append("I=").append(blink.I()).append("\n");
+		blink.ex_af_af();
+		dzRegisters.append("'AF=").append(Dz.addrToHex(blink.AF(),false)).append(" ");
+		dzRegisters.append("'A=").append(Dz.byteToHex(blink.A(),false)).append(" ");
 		dzRegisters.append("'F=").append(z80Flags()).append(" ");
-		dzRegisters.append(" ").append("R=").append(z88.R()).append("\n");
-		z88.ex_af_af();
+		dzRegisters.append(" ").append("R=").append(blink.R()).append("\n");
+		blink.ex_af_af();
 
 		return dzRegisters.toString();
 	}
@@ -71,7 +71,7 @@ public class Z88Info {
 
 		StringBuffer dzBuffer = new StringBuffer(128);
 		dzBuffer.append(Dz.addrToHex(pc,false)).append(" (").
-						append(Dz.extAddrToHex(Blink.getInstance().decodeLocalAddress(pc),false).toString()).
+						append(Dz.extAddrToHex(Z88.getInstance().getBlink().decodeLocalAddress(pc),false).toString()).
 						append(") ").append(dzLine);
 		for(int space=45 - dzBuffer.length(); space>0; space--) dzBuffer.append(" ");
 		dzBuffer.append(quickZ80Dump());
@@ -84,7 +84,7 @@ public class Z88Info {
 	 */
 	private static StringBuffer quickZ80Dump() {
 		StringBuffer dzRegisters = new StringBuffer(1024);
-		Blink blink = Blink.getInstance();
+		Blink blink = Z88.getInstance().getBlink();
 
 		dzRegisters.append(Dz.byteToHex(blink.A(),false)).append(" ");
 		dzRegisters.append(Dz.addrToHex(blink.BC(),false)).append(" ");
@@ -121,7 +121,7 @@ public class Z88Info {
     }
 
     public static String blinkTimersInfo() {
-    	Blink z88 = Blink.getInstance();
+    	Blink z88 = Z88.getInstance().getBlink();
     	
     	int blTim0Reg = z88.getBlinkTim0();
         int blTim1Reg = z88.getBlinkTim1();
@@ -145,7 +145,7 @@ public class Z88Info {
 
 	public static StringBuffer z80Flags() {
 		StringBuffer dzFlags = new StringBuffer(8);
-		Blink z88 = Blink.getInstance();
+		Blink z88 = Z88.getInstance().getBlink();
 		
 		dzFlags.append( z88.Sset() == true ? "S" : ".");
 		dzFlags.append( z88.Zset() == true ? "Z" : ".");
@@ -161,7 +161,7 @@ public class Z88Info {
 
 	public static String bankBindingInfo() {
 		StringBuffer blinkBanks = new StringBuffer(256);
-		Blink z88 = Blink.getInstance();
+		Blink z88 = Z88.getInstance().getBlink();
 		
 		blinkBanks.append("RAMS      (0000h-1FFFh): ");
 		if ((z88.getBlinkCom() & Blink.BM_COMRAMS) == Blink.BM_COMRAMS) {
@@ -194,7 +194,7 @@ public class Z88Info {
      */
 	public static String blinkComInfo() {
 		StringBuffer blinkComFlags = new StringBuffer(128);
-		Blink z88 = Blink.getInstance();
+		Blink z88 = Z88.getInstance().getBlink();
         int blComReg = z88.getBlinkCom() & 0xFF;
 
         blinkComFlags.append("COM (B0h) = " + Dz.byteToBin(blComReg, true) + " : ");
@@ -233,7 +233,7 @@ public class Z88Info {
      */
     public static String blinkIntInfo() {
 		StringBuffer blinkIntFlags = new StringBuffer(128);
-		int blIntReg = Blink.getInstance().getBlinkInt() & 0xFF;
+		int blIntReg = Z88.getInstance().getBlink().getBlinkInt() & 0xFF;
 		
 		blinkIntFlags.append("INT (B1h) = " + Dz.byteToBin(blIntReg,true) + " : ");
         if ( (blIntReg & Blink.BM_INTKWAIT) == Blink.BM_INTKWAIT ) 
@@ -262,7 +262,7 @@ public class Z88Info {
      */
     public static String blinkStaInfo() {
 		StringBuffer blinkStaFlags = new StringBuffer(128);
-        int blStaReg = Blink.getInstance().getBlinkSta() & 0xFF;
+        int blStaReg = Z88.getInstance().getBlink().getBlinkSta() & 0xFF;
 		
         blinkStaFlags.append("STA (B1h) = " + Dz.byteToBin(blStaReg, true) + " : ");
         if ( ((blStaReg & Blink.BM_STAFLAPOPEN) == Blink.BM_STAFLAPOPEN) )
@@ -287,7 +287,7 @@ public class Z88Info {
 	 * Bit status of Blink TSTA register.
 	 */
 	public static String blinkTstaInfo() {
-		int blTstaReg = Blink.getInstance().getBlinkTsta() & 0xFF;
+		int blTstaReg = Z88.getInstance().getBlink().getBlinkTsta() & 0xFF;
 		StringBuffer blinkTstaFlags = new StringBuffer(128);
 		
 		blinkTstaFlags.append("TSTA (B5h) = " + Dz.byteToBin(blTstaReg, true) + " : ");
@@ -305,7 +305,7 @@ public class Z88Info {
 	 * Bit status of Blink TMK register.
 	 */
 	public static String blinkTmkInfo() {
-		int blTmkReg = Blink.getInstance().getBlinkTmk() & 0xFF;
+		int blTmkReg = Z88.getInstance().getBlink().getBlinkTmk() & 0xFF;
 		StringBuffer blinkTmkFlags = new StringBuffer(128);
 		
 		blinkTmkFlags.append("TMK (B5h) = " + Dz.byteToBin(blTmkReg, true) + " : ");
@@ -323,7 +323,7 @@ public class Z88Info {
 	 * Screen registers (SBR, PB0-PB3)
 	 */
 	public static String blinkScreenInfo() {
-		Blink z88 = Blink.getInstance();		
+		Blink z88 = Z88.getInstance().getBlink();		
 		StringBuffer blinkScreenRegs = new StringBuffer(128);
 		
 		blinkScreenRegs.append("SBR (Screen file): ");
@@ -351,7 +351,7 @@ public class Z88Info {
 	 */
 	public static String blinkSegmentsInfo() {
 		StringBuffer blinkSegmentRegs = new StringBuffer(128);
-		Blink z88 = Blink.getInstance();
+		Blink z88 = Z88.getInstance().getBlink();
 		
 		blinkSegmentRegs.append("SR0: " + Dz.byteToHex(z88.getSegmentBank(0), true) + ", ");
 		blinkSegmentRegs.append("SR1: " + Dz.byteToHex(z88.getSegmentBank(1), true) + ", ");

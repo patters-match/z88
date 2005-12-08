@@ -44,7 +44,7 @@ public final class EpromBank extends Bank {
 	 */
 	public EpromBank(int ept) {		
 		super(-1);		
-		blink = Blink.getInstance();
+		blink = Z88.getInstance().getBlink();
 		eprType = ept;
 		
 		for (int i = 0; i < Bank.SIZE; i++) setByte(i, 0xFF); // empty Eprom contain FF's

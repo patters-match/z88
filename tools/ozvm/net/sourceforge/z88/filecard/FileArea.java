@@ -31,6 +31,7 @@ import net.sourceforge.z88.Bank;
 import net.sourceforge.z88.EpromBank;
 import net.sourceforge.z88.IntelFlashBank;
 import net.sourceforge.z88.Memory;
+import net.sourceforge.z88.Z88;
 import net.sourceforge.z88.datastructures.ApplicationCardHeader;
 import net.sourceforge.z88.datastructures.FileAreaHeader;
 import net.sourceforge.z88.datastructures.SlotInfo;
@@ -70,7 +71,7 @@ public class FileArea {
 	 * @throws throws FileAreaNotFoundException
 	 */
 	public FileArea(int slotNo) throws FileAreaNotFoundException {
-		memory = Memory.getInstance();
+		memory = Z88.getInstance().getMemory();
 		slotinfo = SlotInfo.getInstance();
 
 		slotNumber = slotNo;
@@ -583,7 +584,7 @@ public class FileArea {
 	 * @return true if a file area might be created on the card, otherwise return false
 	 */
 	public static boolean isCreateable(int slotNumber) {
-		Memory memory = Memory.getInstance();
+		Memory memory = Z88.getInstance().getMemory();
 		SlotInfo slotinfo = SlotInfo.getInstance();
 		
 		slotNumber &= 3; // only slot 0-3...
@@ -673,7 +674,7 @@ public class FileArea {
 	 *         <b>false </b>
 	 */
 	public static boolean create(int slotNumber, boolean formatArea) {
-		Memory memory = Memory.getInstance();
+		Memory memory = Z88.getInstance().getMemory();
 		SlotInfo slotinfo = SlotInfo.getInstance();
 		
 		slotNumber &= 3; // only slot 0-3...
@@ -831,7 +832,7 @@ public class FileArea {
 	 * @return <b>true </b> if file header was created, otherwise <b>false </b>
 	 */
 	public static boolean createFileHeader(final int bankNo) {
-		Memory memory = Memory.getInstance();
+		Memory memory = Z88.getInstance().getMemory();
 		Random generator = new Random();
 		int slotNo = (bankNo & 0xC0) >> 6;
 		
@@ -915,7 +916,7 @@ public class FileArea {
 	 *            the top bank of the file area including the header at $3FC0
 	 */
 	private static void formatFileArea(int bank, int topBank) {
-		Memory memory = Memory.getInstance();
+		Memory memory = Z88.getInstance().getMemory();
 
 		if (bank == topBank) {
 			// only a single 16K file area.

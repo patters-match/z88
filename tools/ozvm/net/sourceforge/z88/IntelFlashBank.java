@@ -31,6 +31,8 @@ package net.sourceforge.z88;
  * not emulated. 
  */
 public class IntelFlashBank extends Bank {
+	/** reference to Z88 memory model and API functionality */
+	private Memory memory;
 	
 	/** Device Code for 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks */
 	public static final int I28F004S5 = 0xA7;
@@ -85,9 +87,11 @@ public class IntelFlashBank extends Bank {
 	 */
 	public IntelFlashBank(int dc) {		
 		super(-1);		
-		blink = Blink.getInstance();
+		blink = Z88.getInstance().getBlink();
 		deviceCode = dc;
-		
+
+		memory = Z88.getInstance().getMemory();
+
 		eraseBank(); // Flash Memory Bank is empty by default...
 
 		// When a card is inserted into a slot, the Flash chip 
@@ -308,7 +312,7 @@ public class IntelFlashBank extends Bank {
 		}
 
 		for (int thisBank = bottomBankOfBlock; thisBank <= (bottomBankOfBlock+3); thisBank++) {
-			IntelFlashBank b = (IntelFlashBank) Memory.getInstance().getBank(thisBank);
+			IntelFlashBank b = (IntelFlashBank) memory.getBank(thisBank);
 			b.eraseBank();
 		} 
 		

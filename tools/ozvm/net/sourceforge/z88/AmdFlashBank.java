@@ -37,6 +37,9 @@ package net.sourceforge.z88;
  */
 public class AmdFlashBank extends Bank {
 	
+	/** reference to Z88 memory model and API functionality */
+	private Memory memory;
+	
 	/** Device Code for 128Kb memory, 8 x 16K erasable sectors, 8 x 16K banks */
 	public static final int AM29F010B = 0x20;
 
@@ -142,6 +145,8 @@ public class AmdFlashBank extends Bank {
 	public AmdFlashBank(int dc) {
 		super(-1);		
 		deviceCode = dc;
+		
+		memory = Z88.getInstance().getMemory();
 		
 		eraseBank(); // Flash Memory Bank is empty by default...
         
@@ -413,10 +418,10 @@ public class AmdFlashBank extends Bank {
 		int thisBottomSlotBank = (getBankNumber() & 0xC0); 
 		
 		// get the top bank number of the card (might not be the top of the slot!)
-		int cardTopBank = Memory.getInstance().getBank(thisBottomSlotBank | 0x3F).getBankNumber();
+		int cardTopBank = memory.getBank(thisBottomSlotBank | 0x3F).getBankNumber();
 		
 		for (int thisBank = thisBottomSlotBank; thisBank<=cardTopBank; thisBank++) {
-			AmdFlashBank b = (AmdFlashBank) Memory.getInstance().getBank(thisBank);
+			AmdFlashBank b = (AmdFlashBank) memory.getBank(thisBank);
 			b.eraseBank();
 		} 
 		
@@ -440,7 +445,7 @@ public class AmdFlashBank extends Bank {
 			int bottomBankOfSector = getBankNumber() & 0xFC;  // bottom bank of sector
 						
 			for (int thisBank = bottomBankOfSector; thisBank <= (bottomBankOfSector+3); thisBank++) {
-				AmdFlashBank b = (AmdFlashBank) Memory.getInstance().getBank(thisBank);
+				AmdFlashBank b = (AmdFlashBank) memory.getBank(thisBank);
 				b.eraseBank();
 			} 
 		} 

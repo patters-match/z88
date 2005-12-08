@@ -53,7 +53,8 @@ public class RubberKeyboard extends JPanel {
 	private Hashtable kbLanguageIconsFr = new Hashtable();
 
 	ThreadManager threadMgr = new ThreadManager(1);
-	private JLabel z88Display;
+	private JLabel display;
+	private Z88Keyboard keyboard;
 	
 	private JButton escKeyButton;
 	private JButton helpKeyButton;
@@ -135,7 +136,8 @@ public class RubberKeyboard extends JPanel {
 	public RubberKeyboard() {
 		super();
 
-		z88Display = Z88display.getInstance();
+		display = Z88.getInstance().getDisplay();
+		keyboard = Z88.getInstance().getKeyboard();
 		
 		setBackground(Color.BLACK);
 		setLayout(null);
@@ -236,11 +238,11 @@ public class RubberKeyboard extends JPanel {
 
 			escKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x07, 0xDF);
+					keyboard.pressZ88key(0x07, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x07, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -265,11 +267,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey1Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0xDF);
+					keyboard.pressZ88key(0x05, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -294,11 +296,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey2Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0xDF);
+					keyboard.pressZ88key(0x04, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -323,11 +325,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey3Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0xDF);
+					keyboard.pressZ88key(0x03, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -352,11 +354,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey4Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0xDF);
+					keyboard.pressZ88key(0x02, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -381,11 +383,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey5Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0xDF);
+					keyboard.pressZ88key(0x01, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -410,11 +412,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey6Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0xDF);
+					keyboard.pressZ88key(0x00, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -439,11 +441,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0xFD);
+					keyboard.pressZ88key(0x00, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -468,11 +470,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey8Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0xFE);
+					keyboard.pressZ88key(0x00, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -497,11 +499,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey9Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0xFE);
+					keyboard.pressZ88key(0x03, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -526,11 +528,11 @@ public class RubberKeyboard extends JPanel {
 
 			numKey0Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0xFE);
+					keyboard.pressZ88key(0x05, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -555,11 +557,11 @@ public class RubberKeyboard extends JPanel {
 
 			key037fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0x7F);
+					keyboard.pressZ88key(0x03, 0x7F);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0x7F);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0x7F);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -584,11 +586,11 @@ public class RubberKeyboard extends JPanel {
 
 			key027fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0x7F);
+					keyboard.pressZ88key(0x02, 0x7F);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0x7F);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0x7F);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -613,11 +615,11 @@ public class RubberKeyboard extends JPanel {
 
 			key017fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0x7F);
+					keyboard.pressZ88key(0x01, 0x7F);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0x7F);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0x7F);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -643,11 +645,11 @@ public class RubberKeyboard extends JPanel {
 			
 			delKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0x7F);
+					keyboard.pressZ88key(0x00, 0x7F);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0x7F);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0x7F);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -675,11 +677,11 @@ public class RubberKeyboard extends JPanel {
 
 			tabKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x06, 0xDF);
+					keyboard.pressZ88key(0x06, 0xDF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xDF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x06, 0xDF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -702,11 +704,11 @@ public class RubberKeyboard extends JPanel {
 			key05EfButton.setMargin(new Insets(2, 2, 2, 2));
 			key05EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0xEF);
+					keyboard.pressZ88key(0x05, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -730,11 +732,11 @@ public class RubberKeyboard extends JPanel {
 			key04EfButton.setMargin(new Insets(2, 2, 2, 2));
 			key04EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0xEF);
+					keyboard.pressZ88key(0x04, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -759,11 +761,11 @@ public class RubberKeyboard extends JPanel {
 
 			key03EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0xEF);
+					keyboard.pressZ88key(0x03, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -787,11 +789,11 @@ public class RubberKeyboard extends JPanel {
 			key02EfButton.setMargin(new Insets(2, 2, 2, 2));
 			key02EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0xEF);
+					keyboard.pressZ88key(0x02, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -815,11 +817,11 @@ public class RubberKeyboard extends JPanel {
 
 			key01EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0xEF);
+					keyboard.pressZ88key(0x01, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -843,11 +845,11 @@ public class RubberKeyboard extends JPanel {
 
 			key00EfButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0xEF);
+					keyboard.pressZ88key(0x00, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -873,11 +875,11 @@ public class RubberKeyboard extends JPanel {
 
 			key01FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0xFD);
+					keyboard.pressZ88key(0x01, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -902,11 +904,11 @@ public class RubberKeyboard extends JPanel {
 
 			key01FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0xFE);
+					keyboard.pressZ88key(0x01, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -932,11 +934,11 @@ public class RubberKeyboard extends JPanel {
 
 			key02FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0xFE);
+					keyboard.pressZ88key(0x02, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -961,11 +963,11 @@ public class RubberKeyboard extends JPanel {
 
 			key04FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0xFE);
+					keyboard.pressZ88key(0x04, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -990,11 +992,11 @@ public class RubberKeyboard extends JPanel {
 
 			key057fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0x7F);
+					keyboard.pressZ88key(0x05, 0x7F);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0x7F);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0x7F);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1019,11 +1021,11 @@ public class RubberKeyboard extends JPanel {
 
 			key047fButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0x7F);
+					keyboard.pressZ88key(0x04, 0x7F);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0x7F);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0x7F);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1046,11 +1048,11 @@ public class RubberKeyboard extends JPanel {
 
 			enterKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0xBF);
+					keyboard.pressZ88key(0x00, 0xBF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xBF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0xBF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1076,11 +1078,11 @@ public class RubberKeyboard extends JPanel {
 
 			diamondKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x06, 0xEF);
+					keyboard.pressZ88key(0x06, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x06, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1103,11 +1105,11 @@ public class RubberKeyboard extends JPanel {
 
 			key05F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0xF7);
+					keyboard.pressZ88key(0x05, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1131,11 +1133,11 @@ public class RubberKeyboard extends JPanel {
 
 			key04F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0xF7);
+					keyboard.pressZ88key(0x04, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1159,11 +1161,11 @@ public class RubberKeyboard extends JPanel {
 
 			key03F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0xF7);
+					keyboard.pressZ88key(0x03, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1187,11 +1189,11 @@ public class RubberKeyboard extends JPanel {
 
 			key02F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0xF7);
+					keyboard.pressZ88key(0x02, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1215,11 +1217,11 @@ public class RubberKeyboard extends JPanel {
 
 			key01F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0xF7);
+					keyboard.pressZ88key(0x01, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1243,11 +1245,11 @@ public class RubberKeyboard extends JPanel {
 
 			key00F7Button.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0xF7);
+					keyboard.pressZ88key(0x00, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1271,11 +1273,11 @@ public class RubberKeyboard extends JPanel {
 
 			key02FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0xFD);
+					keyboard.pressZ88key(0x02, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1299,11 +1301,11 @@ public class RubberKeyboard extends JPanel {
 
 			key03FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0xFD);
+					keyboard.pressZ88key(0x03, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1327,11 +1329,11 @@ public class RubberKeyboard extends JPanel {
 
 			key05FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0xFD);
+					keyboard.pressZ88key(0x05, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1355,11 +1357,11 @@ public class RubberKeyboard extends JPanel {
 
 			key06FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x06, 0xFD);
+					keyboard.pressZ88key(0x06, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x06, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1384,11 +1386,11 @@ public class RubberKeyboard extends JPanel {
 
 			key06FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x06, 0xFE);
+					keyboard.pressZ88key(0x06, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x06, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1411,11 +1413,11 @@ public class RubberKeyboard extends JPanel {
 
 			key07FeButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x07, 0xFE);
+					keyboard.pressZ88key(0x07, 0xFE);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xFE);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x07, 0xFE);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1442,11 +1444,11 @@ public class RubberKeyboard extends JPanel {
 			leftShiftKeyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (leftShiftKeyButton.isSelected() == true) {
-						Z88Keyboard.getInstance().pressZ88key(0x06, 0xBF);
+						keyboard.pressZ88key(0x06, 0xBF);
 					} else {
-						Z88Keyboard.getInstance().releaseZ88key(0x06, 0xBF);
+						keyboard.releaseZ88key(0x06, 0xBF);
 					}
-					z88Display.grabFocus();
+					display.grabFocus();
 				}
 			});
 		}
@@ -1465,11 +1467,11 @@ public class RubberKeyboard extends JPanel {
 
 			key05FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0xFB);
+					keyboard.pressZ88key(0x05, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1493,11 +1495,11 @@ public class RubberKeyboard extends JPanel {
 
 			key04FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0xFB);
+					keyboard.pressZ88key(0x04, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1520,11 +1522,11 @@ public class RubberKeyboard extends JPanel {
 
 			key03FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0xFB);
+					keyboard.pressZ88key(0x03, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1548,11 +1550,11 @@ public class RubberKeyboard extends JPanel {
 
 			key02FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0xFB);
+					keyboard.pressZ88key(0x02, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1575,11 +1577,11 @@ public class RubberKeyboard extends JPanel {
 
 			key01FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0xFB);
+					keyboard.pressZ88key(0x01, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1603,11 +1605,11 @@ public class RubberKeyboard extends JPanel {
 
 			key00FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x00, 0xFB);
+					keyboard.pressZ88key(0x00, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x00, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x00, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1631,11 +1633,11 @@ public class RubberKeyboard extends JPanel {
 
 			key04FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0xFD);
+					keyboard.pressZ88key(0x04, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1658,11 +1660,11 @@ public class RubberKeyboard extends JPanel {
 
 			key06FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x06, 0xFB);
+					keyboard.pressZ88key(0x06, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x06, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1685,11 +1687,11 @@ public class RubberKeyboard extends JPanel {
 
 			key07FbButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x07, 0xFB);
+					keyboard.pressZ88key(0x07, 0xFB);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xFB);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x07, 0xFB);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1713,11 +1715,11 @@ public class RubberKeyboard extends JPanel {
 
 			key07FdButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x07, 0xFD);
+					keyboard.pressZ88key(0x07, 0xFD);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xFD);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x07, 0xFD);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1744,11 +1746,11 @@ public class RubberKeyboard extends JPanel {
 			rightShiftKeyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (rightShiftKeyButton.isSelected() == true) {
-						Z88Keyboard.getInstance().pressZ88key(0x07, 0x7F);
+						keyboard.pressZ88key(0x07, 0x7F);
 					} else {
-						Z88Keyboard.getInstance().releaseZ88key(0x07, 0x7F);
+						keyboard.releaseZ88key(0x07, 0x7F);
 					}
-					z88Display.grabFocus();
+					display.grabFocus();
 				}
 			});
 		}
@@ -1768,11 +1770,11 @@ public class RubberKeyboard extends JPanel {
 
 			upArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x01, 0xBF);
+					keyboard.pressZ88key(0x01, 0xBF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x01, 0xBF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x01, 0xBF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1796,11 +1798,11 @@ public class RubberKeyboard extends JPanel {
 
 			indexKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x07, 0xEF);
+					keyboard.pressZ88key(0x07, 0xEF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xEF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x07, 0xEF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1825,11 +1827,11 @@ public class RubberKeyboard extends JPanel {
 
 			menuKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x06, 0xF7);
+					keyboard.pressZ88key(0x06, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x06, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x06, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1853,11 +1855,11 @@ public class RubberKeyboard extends JPanel {
 
 			helpKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x06, 0x7F);
+					keyboard.pressZ88key(0x06, 0x7F);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x06, 0x7F);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x06, 0x7F);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1881,11 +1883,11 @@ public class RubberKeyboard extends JPanel {
 
 			squareKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x07, 0xBF);
+					keyboard.pressZ88key(0x07, 0xBF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xBF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x07, 0xBF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1909,11 +1911,11 @@ public class RubberKeyboard extends JPanel {
 
 			spaceKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x05, 0xBF);
+					keyboard.pressZ88key(0x05, 0xBF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x05, 0xBF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x05, 0xBF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1938,11 +1940,11 @@ public class RubberKeyboard extends JPanel {
 
 			capslockKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x07, 0xF7);
+					keyboard.pressZ88key(0x07, 0xF7);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x07, 0xF7);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x07, 0xF7);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1967,11 +1969,11 @@ public class RubberKeyboard extends JPanel {
 
 			leftArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x04, 0xBF);
+					keyboard.pressZ88key(0x04, 0xBF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x04, 0xBF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x04, 0xBF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -1995,11 +1997,11 @@ public class RubberKeyboard extends JPanel {
 
 			rightArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x03, 0xBF);
+					keyboard.pressZ88key(0x03, 0xBF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x03, 0xBF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x03, 0xBF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2024,11 +2026,11 @@ public class RubberKeyboard extends JPanel {
 
 			downArrowKeyButton.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent arg0) {
-					Z88Keyboard.getInstance().pressZ88key(0x02, 0xBF);
+					keyboard.pressZ88key(0x02, 0xBF);
 				}
 				public void mouseReleased(MouseEvent arg0) {
-					Z88Keyboard.getInstance().releaseZ88key(0x02, 0xBF);
-					z88Display.grabFocus();
+					keyboard.releaseZ88key(0x02, 0xBF);
+					display.grabFocus();
 				}
 
 				public void mouseClicked(MouseEvent arg0) {}
@@ -2042,7 +2044,7 @@ public class RubberKeyboard extends JPanel {
 
 	private void cacheKeyStdIcons() {
 		String path = "/pixel/keys/std/";
-		Class c = Blink.getInstance().getClass();
+		Class c = Z88.getInstance().getClass();
 
 		kbStdIcons.put("del", new ImageIcon(c.getResource(path + "del.gif")));
 		kbStdIcons.put("esc", new ImageIcon(c.getResource(path + "esc.gif")));
@@ -2089,7 +2091,7 @@ public class RubberKeyboard extends JPanel {
 	
 	private void cacheKeyIcons(Hashtable ht, String kbLanguageCountryCode) {
 		String path = "/pixel/keys/" + kbLanguageCountryCode + "/";
-		Class c = Blink.getInstance().getClass();
+		Class c = Z88.getInstance().getClass();
 		
 		ht.put("numkey1", new ImageIcon(c.getResource(path + "numkey1.gif")));
 		ht.put("numkey2", new ImageIcon(c.getResource(path + "numkey2.gif")));

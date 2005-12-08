@@ -235,9 +235,9 @@ public class Breakpoints {
                 Breakpoint bp = (Breakpoint) e.getKey();
 
                 if ((bp.active == true) && (bp.stop == true)) {
-					Memory.getInstance().setByte(bp.getBpAddress(), 0x40);	// use "LD B,B" as stop breakpoint
+                	Z88.getInstance().getMemory().setByte(bp.getBpAddress(), 0x40);	// use "LD B,B" as stop breakpoint
                 } else {
-                	Memory.getInstance().setByte(bp.getBpAddress(), 0x49);	// use "LD C,C" as display breakpoint
+                	Z88.getInstance().getMemory().setByte(bp.getBpAddress(), 0x49);	// use "LD C,C" as display breakpoint
                 }
             }
         }
@@ -260,7 +260,7 @@ public class Breakpoints {
                 Breakpoint bp = (Breakpoint) e.getKey();
 
                 // restore the original opcode bit pattern...
-                Memory.getInstance().setByte(bp.getBpAddress(), bp.getCopyOfOpcode() & 0xFF);
+                Z88.getInstance().getMemory().setByte(bp.getBpAddress(), bp.getCopyOfOpcode() & 0xFF);
             }
         }
     }
@@ -300,7 +300,7 @@ public class Breakpoints {
 			addressKey = bpAddress;
 
 			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(Memory.getInstance().getByte(bpAddress));
+			setCopyOfOpcode(Z88.getInstance().getMemory().getByte(bpAddress));
 		}
 
 		Breakpoint(int bpAddress, boolean stopAtAddress) {
@@ -312,7 +312,7 @@ public class Breakpoints {
 			addressKey = bpAddress;
 
 			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(Memory.getInstance().getByte(bpAddress));
+			setCopyOfOpcode(Z88.getInstance().getMemory().getByte(bpAddress));
 		}
 
         private void setBpAddress(int bpAddress) {

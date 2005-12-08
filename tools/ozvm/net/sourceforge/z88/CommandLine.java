@@ -45,7 +45,7 @@ public class CommandLine implements KeyListener {
 	private static final String illegalArgumentMessage = "Illegal Argument";
 	
 	private	DebugGui debugGui;
-	private	Blink z88;	
+	private	Blink blink;	
 
 	/** The Z88 disassembly engine */
 	private	Dz dz;
@@ -66,11 +66,11 @@ public class CommandLine implements KeyListener {
 	public CommandLine() {
 		
 		debugGui = new DebugGui();
-		z88 = Blink.getInstance();
-		memory = Memory.getInstance();
+		blink = Z88.getInstance().getBlink();
+		memory = Z88.getInstance().getMemory();
 		
 		dz = Dz.getInstance();
-		breakPointManager = z88.getBreakpoints();
+		breakPointManager = blink.getBreakpoints();
 		
 		commandOutput =	debugGui.getCmdlineOutputArea();
 		initDebugMode();
@@ -174,7 +174,7 @@ public class CommandLine implements KeyListener {
 			}
 
 			try {
-				if (z88.getZ80engine() == null) {
+				if (blink.getZ80engine() == null) {
 					srVm.storeSnapShot(vmFileName, false);
 					displayCmdOutput("Snapshot successfully saved to " + vmFileName);
 				} else {
@@ -195,13 +195,13 @@ public class CommandLine implements KeyListener {
 					vmFileName += ".z88"; // '.z88' extension was missing.
 			}
 
-			if (z88.getZ80engine() == null) {
+			if (blink.getZ80engine() == null) {
 				try {
 					boolean autorun = srVm.loadSnapShot(vmFileName);
 					displayCmdOutput("Snapshot successfully installed from " + vmFileName);
 					if (autorun == true) {
-						z88.runZ80Engine(-1, true);
-						Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
+						blink.runZ80Engine(-1, true);
+						Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88
 					} else
 						initDebugCmdline();
 				} catch (IOException e) {
@@ -209,8 +209,8 @@ public class CommandLine implements KeyListener {
 			    	// as fall back plan.
 					displayCmdOutput("Installation of snapshot failed. Z88 preset to default system.");
 			    	memory.setDefaultSystem();
-			    	z88.reset();				
-			    	z88.resetBlinkRegisters();
+			    	blink.reset();				
+			    	blink.resetBlinkRegisters();
 				}
 			} else {
 				displayCmdOutput("Snapshot can only be installed when Z88 is not running.");
@@ -236,22 +236,22 @@ public class CommandLine implements KeyListener {
 		}
 		
 		if (cmdLineTokens[0].compareToIgnoreCase("run")	== 0) {
-			if (z88.runZ80Engine(-1, true) == false)
+			if (blink.runZ80Engine(-1, true) == false)
 				displayCmdOutput("Z88 is already running.");				
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("stop") == 0) {
-			z88.stopZ80Execution();
+			blink.stopZ80Execution();
 		}
 
 		if (cmdLineTokens[0].compareTo(".") == 0) {
-			if (z88.getZ80engine() != null) {
+			if (blink.getZ80engine() != null) {
 				displayCmdOutput("Z88 is already running.");
 				return;
 			}
 
-			z88.singleStepZ80();		// single stepping (no interrupts running)...
-			displayCmdOutput(Z88Info.dzPcStatus(z88.PC()));
+			blink.singleStepZ80();		// single stepping (no interrupts running)...
+			displayCmdOutput(Z88Info.dzPcStatus(blink.PC()));
 
 			debugGui.getCmdLineInputArea().setText(Dz.getNextStepCommand());
 			debugGui.getCmdLineInputArea().setCaretPosition(debugGui.getCmdLineInputArea().getDocument().getLength());
@@ -259,17 +259,17 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("z") == 0) {
-			if (z88.getZ80engine() != null) {
+			if (blink.getZ80engine() != null) {
 				displayCmdOutput("Z88 is already running.");
 				return;
 			} else {
-				int nextInstrAddress = z88.decodeLocalAddress(dz.getNextInstrAddress(z88.PC()));
+				int nextInstrAddress = blink.decodeLocalAddress(dz.getNextInstrAddress(blink.PC()));
 				if (breakPointManager.isCreated(nextInstrAddress) == true) {
 					// there's already a breakpoint	at that	location...
-					z88.runZ80Engine(-1, false);
+					blink.runZ80Engine(-1, false);
 				} else {
 					breakPointManager.toggleBreakpoint(nextInstrAddress);	// set a temporary breakpoint at next instruction
-					z88.runZ80Engine(nextInstrAddress, false);	// and automatically remove it when the	engine stops...
+					blink.runZ80Engine(nextInstrAddress, false);	// and automatically remove it when the	engine stops...
 				}
 			}
 		}
@@ -402,7 +402,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkCom(arg);
+					blink.setBlinkCom(arg);
 			}
 			displayCmdOutput(Z88Info.blinkComInfo());
 		}
@@ -415,7 +415,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkInt(arg);
+					blink.setBlinkInt(arg);
 			}
 			displayCmdOutput(Z88Info.blinkIntInfo());
 		}
@@ -428,7 +428,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkSta(arg);
+					blink.setBlinkSta(arg);
 			}
 			displayCmdOutput(Z88Info.blinkStaInfo());
 		}
@@ -441,9 +441,9 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					Z88Keyboard.getInstance().setKeyRow( arg >>> 8, arg & 0xFF);
+					Z88.getInstance().getKeyboard().setKeyRow( arg >>> 8, arg & 0xFF);
 			}			
-			displayCmdOutput(Z88Keyboard.getInstance().getKbdMatrix());
+			displayCmdOutput(Z88.getInstance().getKeyboard().getKbdMatrix());
 		}
 		
 		if (cmdLineTokens[0].compareToIgnoreCase("ack") == 0) {
@@ -454,7 +454,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkAck(arg);
+					blink.setBlinkAck(arg);
 			}
 			displayCmdOutput(Z88Info.blinkStaInfo());  // ACK affects STA
 		}
@@ -471,7 +471,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTsta(arg);
+					blink.setBlinkTsta(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTstaInfo());
 		}
@@ -484,7 +484,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTack(arg);
+					blink.setBlinkTack(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTstaInfo()); // TACK affects TSTA
 		}
@@ -497,7 +497,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTmk(arg);
+					blink.setBlinkTmk(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTmkInfo());
 		}
@@ -511,7 +511,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkPb0(arg);
+					blink.setBlinkPb0(arg);
 			}
 			displayCmdOutput(Z88Info.blinkScreenInfo());
 		}
@@ -523,7 +523,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkPb1(arg);
+					blink.setBlinkPb1(arg);
 			}
 			displayCmdOutput(Z88Info.blinkScreenInfo());
 		}
@@ -535,7 +535,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkPb2(arg);
+					blink.setBlinkPb2(arg);
 			}
 			displayCmdOutput(Z88Info.blinkScreenInfo());
 		}
@@ -547,7 +547,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkPb3(arg);
+					blink.setBlinkPb3(arg);
 			}
 			displayCmdOutput(Z88Info.blinkScreenInfo());
 		}
@@ -559,7 +559,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkSbr(arg);
+					blink.setBlinkSbr(arg);
 			}
 			displayCmdOutput(Z88Info.blinkScreenInfo());
 		}
@@ -572,7 +572,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setSegmentBank(0, arg);
+					blink.setSegmentBank(0, arg);
 			}
 			displayCmdOutput(Z88Info.blinkSegmentsInfo());
 		}
@@ -585,7 +585,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setSegmentBank(1, arg);
+					blink.setSegmentBank(1, arg);
 			}
 			displayCmdOutput(Z88Info.blinkSegmentsInfo());
 		}
@@ -597,7 +597,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setSegmentBank(2, arg);
+					blink.setSegmentBank(2, arg);
 			}
 			displayCmdOutput(Z88Info.blinkSegmentsInfo());
 		}
@@ -609,7 +609,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setSegmentBank(3, arg);
+					blink.setSegmentBank(3, arg);
 			}
 			displayCmdOutput(Z88Info.blinkSegmentsInfo());
 		}
@@ -622,7 +622,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTim0(arg);
+					blink.setBlinkTim0(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTimersInfo());
 		}
@@ -634,7 +634,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTim1(arg);
+					blink.setBlinkTim1(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTimersInfo());
 		}
@@ -646,7 +646,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTim2(arg);
+					blink.setBlinkTim2(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTimersInfo());
 		}
@@ -658,7 +658,7 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTim3(arg);
+					blink.setBlinkTim3(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTimersInfo());
 		}
@@ -670,14 +670,14 @@ public class CommandLine implements KeyListener {
 					return;
 				}
 				else
-					z88.setBlinkTim4(arg);
+					blink.setBlinkTim4(arg);
 			}
 			displayCmdOutput(Z88Info.blinkTimersInfo());
 		}
 		
 		if (cmdLineTokens[0].compareToIgnoreCase("f") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	F flag while Z88 is running!");
 					return;
 				}
@@ -686,117 +686,117 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.F(arg);
+					blink.F(arg);
 				}
 			}			
-			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z88.F(),true) + ")");
+			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(blink.F(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fz") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	Zero flag while	Z88 is running!");
 					return;
 				}
 				if (StringEval.toInteger(cmdLineTokens[1]) == 0)
-					z88.fZ = false;
+					blink.fZ = false;
 				else
-					z88.fZ = true;
+					blink.fZ = true;
 			} else {
 				// toggle/invert flag status
-				z88.fZ = !z88.fZ;
+				blink.fZ = !blink.fZ;
 			}
-			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z88.F(),true) + ")");
+			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(blink.F(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fc") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	Carry flag while Z88 is	running!");
 					return;
 				}
 				if (StringEval.toInteger(cmdLineTokens[1]) == 0)
-					z88.fC = false;
+					blink.fC = false;
 				else
-					z88.fC = true;
+					blink.fC = true;
 			} else {
 				// toggle/invert flag status
-				z88.fC = !z88.fC;
+				blink.fC = !blink.fC;
 			}
-			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z88.F(),true) + ")");
+			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(blink.F(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fs") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	Sign flag while	Z88 is running!");
 					return;
 				}
 				if (StringEval.toInteger(cmdLineTokens[1]) == 0)
-					z88.fS = false;
+					blink.fS = false;
 				else
-					z88.fS = true;
+					blink.fS = true;
 			} else {
 				// toggle/invert flag status
-				z88.fS = !z88.fS;
+				blink.fS = !blink.fS;
 			}
-			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z88.F(),true) + ")");
+			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(blink.F(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fh") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	Half Carry flag	while Z88 is running!");
 					return;
 				}
 				if (StringEval.toInteger(cmdLineTokens[1]) == 0)
-					z88.fH = false;
+					blink.fH = false;
 				else
-					z88.fH = true;
+					blink.fH = true;
 			} else {
 				// toggle/invert flag status
-				z88.fH = !z88.fH;
+				blink.fH = !blink.fH;
 			}
-			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z88.F(),true) + ")");
+			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(blink.F(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fn") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	Add./Sub. flag while Z88 is running!");
 					return;
 				}
 				if (StringEval.toInteger(cmdLineTokens[1]) == 0)
-					z88.fN = false;
+					blink.fN = false;
 				else
-					z88.fN = true;
+					blink.fN = true;
 			} else {
 				// toggle/invert flag status
-				z88.fN = !z88.fN;
+				blink.fN = !blink.fN;
 			}
-			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z88.F(),true) + ")");
+			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(blink.F(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fv") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	Parity flag while Z88 is running!");
 					return;
 				}
 				if (StringEval.toInteger(cmdLineTokens[1]) == 0)
-					z88.fPV	= false;
+					blink.fPV	= false;
 				else
-					z88.fPV	= true;
+					blink.fPV	= true;
 			} else {
 				// toggle/invert flag status
-				z88.fPV	= !z88.fPV;
+				blink.fPV	= !blink.fPV;
 			}
-			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z88.F(),true) + ")");
+			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(blink.F(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("a") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	A register while Z88 is	running!");
 					return;
 				}
@@ -805,15 +805,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.A(arg);
+					blink.A(arg);
 				}
 			}
-			displayCmdOutput("A=" +	Dz.byteToHex(z88.A(),true) + " (" + Dz.byteToBin(z88.A(),true) + ")");
+			displayCmdOutput("A=" +	Dz.byteToHex(blink.A(),true) + " (" + Dz.byteToBin(blink.A(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("a'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate A register while Z88 is running!");
 					return;
 				}
@@ -822,19 +822,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.ex_af_af();
-					z88.A(arg);
-					z88.ex_af_af();
+					blink.ex_af_af();
+					blink.A(arg);
+					blink.ex_af_af();
 				}
 			}
-			z88.ex_af_af();
-			displayCmdOutput("A'=" + Dz.byteToHex(z88.A(),true) + " (" + Dz.byteToBin(z88.A(),true) + ")");
-			z88.ex_af_af();
+			blink.ex_af_af();
+			displayCmdOutput("A'=" + Dz.byteToHex(blink.A(),true) + " (" + Dz.byteToBin(blink.A(),true) + ")");
+			blink.ex_af_af();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("b") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	B register while Z88 is	running!");
 					return;
 				}
@@ -843,15 +843,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.B(arg);
+					blink.B(arg);
 				}
 			}
-			displayCmdOutput("B=" +	Dz.byteToHex(z88.B(),true) + " (" + Dz.byteToBin(z88.B(),true) + ")");
+			displayCmdOutput("B=" +	Dz.byteToHex(blink.B(),true) + " (" + Dz.byteToBin(blink.B(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("c") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	C register while Z88 is	running!");
 					return;
 				}
@@ -860,15 +860,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.C(arg);					
+					blink.C(arg);					
 				}
 			}
-			displayCmdOutput("C=" +	Dz.byteToHex(z88.C(),true) + " (" + Dz.byteToBin(z88.C(),true) + ")");
+			displayCmdOutput("C=" +	Dz.byteToHex(blink.C(),true) + " (" + Dz.byteToBin(blink.C(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("b'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate B register while Z88 is running!");
 					return;
 				}
@@ -877,19 +877,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.exx();
-					z88.B(arg);
-					z88.exx();
+					blink.exx();
+					blink.B(arg);
+					blink.exx();
 				}
 			}
-			z88.exx();
-			displayCmdOutput("B'=" + Dz.byteToHex(z88.B(),true) + " (" + Dz.byteToBin(z88.B(),true) + ")");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("B'=" + Dz.byteToHex(blink.B(),true) + " (" + Dz.byteToBin(blink.B(),true) + ")");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("c'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate C register while Z88 is running!");
 					return;
 				}
@@ -898,19 +898,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.exx();
-					z88.C(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
-					z88.exx();
+					blink.exx();
+					blink.C(Integer.parseInt(cmdLineTokens[1], 16) & 0xFF);
+					blink.exx();
 				}
 			}
-			z88.exx();
-			displayCmdOutput("C'=" + Dz.byteToHex(z88.C(),true) + " (" + Dz.byteToBin(z88.C(),true) + ")");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("C'=" + Dz.byteToHex(blink.C(),true) + " (" + Dz.byteToBin(blink.C(),true) + ")");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("bc") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	BC register while Z88 is running!");
 					return;
 				}
@@ -919,15 +919,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.BC(arg);
+					blink.BC(arg);
 				}
 			}
-			displayCmdOutput("BC=" + Dz.addrToHex(z88.BC(),true) + " (" + z88.BC() + "d)");
+			displayCmdOutput("BC=" + Dz.addrToHex(blink.BC(),true) + " (" + blink.BC() + "d)");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("bc'")	== 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate BC register while Z88	is running!");
 					return;
 				}
@@ -936,19 +936,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.exx();
-					z88.BC(arg);
-					z88.exx();
+					blink.exx();
+					blink.BC(arg);
+					blink.exx();
 				}				
 			}
-			z88.exx();
-			displayCmdOutput("BC'="	+ Dz.addrToHex(z88.BC(),true) + " (" + z88.BC() + "d)");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("BC'="	+ Dz.addrToHex(blink.BC(),true) + " (" + blink.BC() + "d)");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("d") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	D register while Z88 is	running!");
 					return;
 				}
@@ -957,15 +957,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.D(arg);
+					blink.D(arg);
 				}
 			}
-			displayCmdOutput("D=" +	Dz.byteToHex(z88.D(),true) + " (" + Dz.byteToBin(z88.D(),true) + ")");
+			displayCmdOutput("D=" +	Dz.byteToHex(blink.D(),true) + " (" + Dz.byteToBin(blink.D(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("e") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	E register while Z88 is	running!");
 					return;
 				}
@@ -974,15 +974,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.E(arg);
+					blink.E(arg);
 				}
 			}
-			displayCmdOutput("E=" +	Dz.byteToHex(z88.E(),true) + " (" + Dz.byteToBin(z88.E(),true) + ")");
+			displayCmdOutput("E=" +	Dz.byteToHex(blink.E(),true) + " (" + Dz.byteToBin(blink.E(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("d'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate D register while Z88 is running!");
 					return;
 				}
@@ -991,19 +991,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.exx();
-					z88.D(arg);
-					z88.exx();
+					blink.exx();
+					blink.D(arg);
+					blink.exx();
 				}
 			}
-			z88.exx();
-			displayCmdOutput("D'=" + Dz.byteToHex(z88.D(),true) + " (" + Dz.byteToBin(z88.D(),true) + ")");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("D'=" + Dz.byteToHex(blink.D(),true) + " (" + Dz.byteToBin(blink.D(),true) + ")");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("e'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate E register while Z88 is running!");
 					return;
 				}
@@ -1012,19 +1012,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.exx();
-					z88.E(arg);
-					z88.exx();
+					blink.exx();
+					blink.E(arg);
+					blink.exx();
 				}
 			}
-			z88.exx();
-			displayCmdOutput("E'=" + Dz.byteToHex(z88.E(),true) + " (" + Dz.byteToBin(z88.E(),true) + ")");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("E'=" + Dz.byteToHex(blink.E(),true) + " (" + Dz.byteToBin(blink.E(),true) + ")");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("de") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	DE register while Z88 is running!");
 					return;
 				}
@@ -1033,15 +1033,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.DE(arg);
+					blink.DE(arg);
 				}				
 			}
-			displayCmdOutput("DE=" + Dz.addrToHex(z88.DE(),true) + " (" + z88.DE() + "d)");
+			displayCmdOutput("DE=" + Dz.addrToHex(blink.DE(),true) + " (" + blink.DE() + "d)");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("de'")	== 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate DE register while Z88	is running!");
 					return;
 				}
@@ -1050,19 +1050,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.exx();
-					z88.DE(arg);
-					z88.exx();
+					blink.exx();
+					blink.DE(arg);
+					blink.exx();
 				}				
 			}
-			z88.exx();
-			displayCmdOutput("DE'="	+ Dz.addrToHex(z88.DE(),true) + " (" + z88.DE() + "d)");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("DE'="	+ Dz.addrToHex(blink.DE(),true) + " (" + blink.DE() + "d)");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("h") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	H register while Z88 is	running!");
 					return;
 				}
@@ -1071,15 +1071,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.H(arg);
+					blink.H(arg);
 				}
 			}
-			displayCmdOutput("H=" +	Dz.byteToHex(z88.H(),true) + " (" + Dz.byteToBin(z88.H(),true) + ")");
+			displayCmdOutput("H=" +	Dz.byteToHex(blink.H(),true) + " (" + Dz.byteToBin(blink.H(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("l") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	L register while Z88 is	running!");
 					return;
 				}
@@ -1088,15 +1088,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.L(arg);
+					blink.L(arg);
 				}
 			}
-			displayCmdOutput("L=" +	Dz.byteToHex(z88.L(),true) + " (" + Dz.byteToBin(z88.L(),true) + ")");
+			displayCmdOutput("L=" +	Dz.byteToHex(blink.L(),true) + " (" + Dz.byteToBin(blink.L(),true) + ")");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("h'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate H register while Z88 is running!");
 					return;
 				}
@@ -1105,19 +1105,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.exx();
-					z88.H(arg);
-					z88.exx();
+					blink.exx();
+					blink.H(arg);
+					blink.exx();
 				}
 			}
-			z88.exx();
-			displayCmdOutput("H'=" + Dz.byteToHex(z88.H(),true) + " (" + Dz.byteToBin(z88.H(),true) + ")");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("H'=" + Dz.byteToHex(blink.H(),true) + " (" + Dz.byteToBin(blink.H(),true) + ")");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("l'") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate L register while Z88 is running!");
 					return;
 				}
@@ -1126,19 +1126,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z88.exx();
-					z88.L(arg);
-					z88.exx();
+					blink.exx();
+					blink.L(arg);
+					blink.exx();
 				}
 			}
-			z88.exx();
-			displayCmdOutput("L'=" + Dz.byteToHex(z88.L(),true) + " (" + Dz.byteToBin(z88.L(),true) + ")");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("L'=" + Dz.byteToHex(blink.L(),true) + " (" + Dz.byteToBin(blink.L(),true) + ")");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("hl") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	HL register while Z88 is running!");
 					return;
 				}
@@ -1147,15 +1147,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.HL(arg);
+					blink.HL(arg);
 				}				
 			}
-			displayCmdOutput("HL=" + Dz.addrToHex(z88.HL(),true) + " (" + z88.HL() + "d)");
+			displayCmdOutput("HL=" + Dz.addrToHex(blink.HL(),true) + " (" + blink.HL() + "d)");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("hl'")	== 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	alternate HL register while Z88	is running!");
 					return;
 				}
@@ -1164,19 +1164,19 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.exx();
-					z88.HL(arg);
-					z88.exx();
+					blink.exx();
+					blink.HL(arg);
+					blink.exx();
 				}				
 			}
-			z88.exx();
-			displayCmdOutput("HL'="	+ Dz.addrToHex(z88.HL(),true) + " (" + z88.HL() + "d)");
-			z88.exx();
+			blink.exx();
+			displayCmdOutput("HL'="	+ Dz.addrToHex(blink.HL(),true) + " (" + blink.HL() + "d)");
+			blink.exx();
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("ix") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	IX register while Z88 is running!");
 					return;
 				}
@@ -1185,15 +1185,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.IX(arg);
+					blink.IX(arg);
 				}				
 			}
-			displayCmdOutput("IX=" + Dz.addrToHex(z88.IX(),true) + " (" + z88.IX() + "d)");
+			displayCmdOutput("IX=" + Dz.addrToHex(blink.IX(),true) + " (" + blink.IX() + "d)");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("iy") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	IY register while Z88 is running!");
 					return;
 				}
@@ -1202,15 +1202,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.IY(arg);
+					blink.IY(arg);
 				}				
 			}
-			displayCmdOutput("IY=" + Dz.addrToHex(z88.IY(),true) + " (" + z88.IY() + "d)");
+			displayCmdOutput("IY=" + Dz.addrToHex(blink.IY(),true) + " (" + blink.IY() + "d)");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("sp") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	SP register while Z88 is running!");
 					return;
 				}
@@ -1219,15 +1219,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.SP(arg);
+					blink.SP(arg);
 				}				
 			}
-			displayCmdOutput("SP=" + Dz.addrToHex(z88.SP(),true) + " (" + z88.SP() + "d)");
+			displayCmdOutput("SP=" + Dz.addrToHex(blink.SP(),true) + " (" + blink.SP() + "d)");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("pc") == 0) {
 			if (cmdLineTokens.length == 2) {
-				if (z88.getZ80engine() != null) {
+				if (blink.getZ80engine() != null) {
 					displayCmdOutput("Cannot change	PC register while Z88 is running!");
 					return;
 				}
@@ -1236,10 +1236,10 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {				
-					z88.PC(arg);
+					blink.PC(arg);
 				}				
 			}
-			displayCmdOutput("PC=" + Dz.addrToHex(z88.PC(),true) + " (" + z88.PC() + "d)");
+			displayCmdOutput("PC=" + Dz.addrToHex(blink.PC(),true) + " (" + blink.PC() + "d)");
 		}
 	}
 
@@ -1248,7 +1248,7 @@ public class CommandLine implements KeyListener {
 	 * and preset a single stepping or subroutine debug command.
 	 */
 	public void initDebugCmdline() {
-		displayCmdOutput(Z88Info.dzPcStatus(z88.PC()));
+		displayCmdOutput(Z88Info.dzPcStatus(blink.PC()));
 		getDebugGui().getCmdLineInputArea().setText(Dz.getNextStepCommand());
 		getDebugGui().getCmdLineInputArea().setCaretPosition(getDebugGui().getCmdLineInputArea().getDocument().getLength());
 		getDebugGui().getCmdLineInputArea().selectAll();
@@ -1377,7 +1377,7 @@ public class CommandLine implements KeyListener {
 		int bpAddress;
 
 		if (cmdLineTokens.length == 2) {
-			if (z88.getZ80engine() != null) {
+			if (blink.getZ80engine() != null) {
 				displayCmdOutput("Breakpoints cannot be	edited while Z88 is running.");
 				return;
 			} else {
@@ -1390,7 +1390,7 @@ public class CommandLine implements KeyListener {
 						// bank	defined	as '00'
 						bpAddress &= 0x3FFF;	// strip segment mask
 					} else {
-						bpAddress = z88.decodeLocalAddress(bpAddress); // local	address	-> ext.address
+						bpAddress = blink.decodeLocalAddress(bpAddress); // local	address	-> ext.address
 					}
 				}
 			}
@@ -1409,7 +1409,7 @@ public class CommandLine implements KeyListener {
 		int bpAddress;
 
 		if (cmdLineTokens.length == 2) {
-			if (z88.getZ80engine() != null) {
+			if (blink.getZ80engine() != null) {
 				displayCmdOutput("Display Breakpoints cannot be	edited while Z88 is running.");
 				return;
 			} else {
@@ -1422,7 +1422,7 @@ public class CommandLine implements KeyListener {
 						// bank	defined	as '00'
 						bpAddress &= 0x3FFF;	// strip segment mask
 					} else {
-						bpAddress = z88.decodeLocalAddress(bpAddress); // local	address	-> ext.address
+						bpAddress = blink.decodeLocalAddress(bpAddress); // local	address	-> ext.address
 					}
 				}
 			}
@@ -1461,7 +1461,7 @@ public class CommandLine implements KeyListener {
 		} else {
 			if (cmdLineTokens.length == 1) {
 				// no arguments, use PC	in current bank	binding	(use local addressing)...
-				dzAddr = z88.PC();
+				dzAddr = blink.PC();
 				localAddressing	= true;
 			} else {
 				displayCmdOutput("Illegal argument.");
@@ -1473,7 +1473,7 @@ public class CommandLine implements KeyListener {
 			for (int dzLines = 0;  dzLines < 16; dzLines++)	{
 				int origAddr = dzAddr;
 				dzAddr = dz.getInstrAscii(dzLine, dzAddr, false, true);
-				displayCmdOutput(Dz.addrToHex(origAddr,false) +	" (" + Dz.extAddrToHex(z88.decodeLocalAddress(origAddr),false).toString() + ") " + dzLine.toString());
+				displayCmdOutput(Dz.addrToHex(origAddr,false) +	" (" + Dz.extAddrToHex(blink.decodeLocalAddress(origAddr),false).toString() + ") " + dzLine.toString());
 			}
 
 			debugGui.getCmdLineInputArea().setText("dz "	+ Dz.addrToHex(dzAddr,false));
@@ -1496,11 +1496,11 @@ public class CommandLine implements KeyListener {
 
 		memLine.delete(0,255);
 		for (memHex=memAddr; memHex < memAddr+16; memHex++) {
-			memLine.append(Dz.byteToHex(z88.readByte(memHex),false)).append(" ");
+			memLine.append(Dz.byteToHex(blink.readByte(memHex),false)).append(" ");
 		}
 
 		for (memAscii=memAddr; memAscii	< memAddr+16; memAscii++) {
-			int b =	z88.readByte(memAscii);
+			int b =	blink.readByte(memAscii);
 			memLine.append(	(b >= 32 && b <= 127) ?	Character.toString( (char) b) :	"." );
 		}
 
@@ -1577,7 +1577,7 @@ public class CommandLine implements KeyListener {
 		} else {
 			if (cmdLineTokens.length == 1) {
 				// no arguments, use PC	in current bank	binding	(use local addressing)...
-				memAddr	= z88.PC();
+				memAddr	= blink.PC();
 				localAddressing	= true;
 			} else {
 				displayCmdOutput("Illegal argument.");
@@ -1590,7 +1590,7 @@ public class CommandLine implements KeyListener {
 				int origAddr = memAddr;
 				memAddr	= getMemoryAscii(memLine, memAddr);
 				displayCmdOutput(Dz.addrToHex(origAddr,	false) + " (" +
-						Dz.extAddrToHex(z88.decodeLocalAddress(origAddr),false).toString() + ")	" +
+						Dz.extAddrToHex(blink.decodeLocalAddress(origAddr),false).toString() + ")	" +
 						memLine.toString());
 			}
 
@@ -1615,7 +1615,7 @@ public class CommandLine implements KeyListener {
 	public void keyPressed(KeyEvent	e) {
 		switch (e.getKeyCode())	{
 			case KeyEvent.VK_F12:
-				Z88display.getInstance().grabFocus();
+				Z88.getInstance().getDisplay().grabFocus();
 				break;
 
 			case KeyEvent.VK_UP:

@@ -19,6 +19,7 @@
 package net.sourceforge.z88.datastructures;
 
 import net.sourceforge.z88.Memory;
+import net.sourceforge.z88.Z88;
 
 /**
  * Get Application Front DOR Information of specified slot. The Front DOR
@@ -64,7 +65,7 @@ public class ApplicationFrontDor {
 		else
 			bank = (slotMask | 0x3F) ;	// top bank of slot 
 
-		memory = Memory.getInstance();
+		memory = Z88.getInstance().getMemory();
 		offset += 3; 				// Point at the potential Help Front DOR pointer
 
 		helpDor = ((memory.getByte(offset + 2, bank) | slotMask) << 16)

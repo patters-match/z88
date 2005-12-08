@@ -24,8 +24,6 @@ import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.HashMap;
 
-import net.sourceforge.z88.screen.Z88display;
-
 
 /**
  * Bind host operating system keyboard events to Z88 keyboard.
@@ -76,8 +74,6 @@ public class Z88Keyboard {
 	/** Turkish Keyboard layout Country Code */
 	public static final int COUNTRY_TR = 12;
 
-	private Z88display z88Display;
-
 	private RubberKeyboard rubberKb;
 	
 	/** Current Keyboard layout Country Code (default = COUNTRY_EN during boot of OZvm) */ 
@@ -108,14 +104,6 @@ public class Z88Keyboard {
 
 	private KeyPress searchKey;
 
-	private static final class singletonContainer {
-		static final Z88Keyboard singleton = new Z88Keyboard();  
-	}
-	
-	public static Z88Keyboard getInstance() {
-		return singletonContainer.singleton;
-	}
-	
 	/** The Host -> Z88 Key mapping */ 
 	private class KeyPress {
 		private int keyCode;		// The unique host 'key' for this entity, typically a SWT.xxx constant
@@ -149,10 +137,8 @@ public class Z88Keyboard {
     /**
      * Create the instance to bind the blink and Swing widget together.
      */
-	private Z88Keyboard() {
-		searchKey = new KeyPress(0,0); // create an search key instance 		
-		rubberKb = new RubberKeyboard(); // prepare the Gui keyboard
-		z88Display = Z88display.getInstance();
+	public Z88Keyboard() {
+		searchKey = new KeyPress(0,0); // create a search key instance 		
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix
 
@@ -168,8 +154,8 @@ public class Z88Keyboard {
 				Z88KeyboardListener z88Kbl = new Z88KeyboardListener(); 
 				
 				// map Host keyboard events to this z88 keyboard, so that the emulator responds to keypresses.
-				z88Display.setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas
-				z88Display.addKeyListener(z88Kbl); // keyboard events are processed in isolated Thread..				
+				Z88.getInstance().getDisplay().setFocusTraversalKeysEnabled(false);	// get TAB key events on canvas
+				Z88.getInstance().getDisplay().addKeyListener(z88Kbl); // keyboard events are processed in isolated Thread..				
 			}
 		};
 
@@ -1116,13 +1102,13 @@ public class Z88Keyboard {
 	private void pressZ88key(KeyPress keyp) {
 		int keyMatrixRow, keyMask;
 
-		if (Blink.getInstance().getZ80engine() != null) {
+		if (Z88.getInstance().getBlink().getZ80engine() != null) {
 			// Only allow keypresses to be registered by Blink while Z80 engine is running...
 			keyMatrixRow = (keyp.keyZ88Typed & 0xff00) >>> 8;
 			keyMask = keyp.keyZ88Typed & 0xff;
 			keyRows[keyMatrixRow] &= keyMask;
 			
-			Blink.getInstance().signalKeyPressed();
+			Z88.getInstance().getBlink().signalKeyPressed();
 		}
 	}
 
@@ -1134,10 +1120,10 @@ public class Z88Keyboard {
 	 * @param keyMask
 	 */
 	public void pressZ88key(int keyMatrixRow, int keyMask) {
-		if (Blink.getInstance().getZ80engine() != null) {
+		if (Z88.getInstance().getBlink().getZ80engine() != null) {
 			// Only allow keypresses to be registered by Blink while Z80 engine is running...
 			keyRows[keyMatrixRow] &= keyMask;
-			Blink.getInstance().signalKeyPressed();
+			Z88.getInstance().getBlink().signalKeyPressed();
 		}
 	}
 
@@ -1149,10 +1135,10 @@ public class Z88Keyboard {
 	 * @param keyMask
 	 */
 	public void releaseZ88key(int keyMatrixRow, int keyMask) {
-		if (Blink.getInstance().getZ80engine() != null) {
+		if (Z88.getInstance().getBlink().getZ80engine() != null) {
 			// Only allow key releases to be registered by Blink while Z80 engine is running...
 			keyRows[keyMatrixRow] |= (~keyMask & 0xff);
-			Blink.getInstance().signalKeyPressed();
+			Z88.getInstance().getBlink().signalKeyPressed();
 		}
 	}
 
@@ -1161,7 +1147,7 @@ public class Z88Keyboard {
 	 * Release a Z88 key from the Z88 hardware keyboard matrix.
 	 */
 	private void releaseZ88key(KeyPress keyp) {
-		if (Blink.getInstance().getZ80engine() != null) {
+		if (Z88.getInstance().getBlink().getZ80engine() != null) {
 			// Only allow key releases to be registered by Blink while Z80 engine is running...
 			keyRows[((keyp.keyZ88Typed & 0xff00) >>> 8)] |= (~(keyp.keyZ88Typed & 0xff) & 0xff);
 		}
@@ -1200,7 +1186,7 @@ public class Z88Keyboard {
 
 		currentKbLayoutCountryCode = kbl;
 		currentKbLayout = z88Keyboards[kbl];
-		rubberKb.setKeyboardCountrySpecificIcons(kbl);
+		getRubberKeyboard().setKeyboardCountrySpecificIcons(kbl);
 	}
 
 	/**
@@ -1213,6 +1199,8 @@ public class Z88Keyboard {
 	 * @return
 	 */
 	public RubberKeyboard getRubberKeyboard() {
+		if (rubberKb == null)
+			rubberKb = new RubberKeyboard(); // prepare the Gui keyboard
 		return rubberKb;
 	}
 	
@@ -1283,12 +1271,13 @@ public class Z88Keyboard {
 
 				case KeyEvent.VK_F5:
 					OZvm.getInstance().commandLine(true);
-					Blink.getInstance().stopZ80Execution();						
+					Z88.getInstance().getBlink().stopZ80Execution();						
 					break;
 
 				case KeyEvent.VK_F12:
-					if (Blink.getInstance().getDebugMode() == true) { 
-						OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();	// Use F12 to toggle between debugger command input and Z88 kb input 
+					if (Z88.getInstance().getBlink().getDebugMode() == true) { 
+						// Use F12 to toggle between debugger command input and Z88 kb input
+						OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();	 
 					}
 					break;
 
@@ -1302,7 +1291,7 @@ public class Z88Keyboard {
 					
 				case KeyEvent.VK_INSERT:
 					pressZ88key(z88DiamondKey);
-					pressZ88key(getZ88Key(KeyEvent.VK_V));				// INSERT executes Z88 DIAMOND V
+					pressZ88key(getZ88Key(KeyEvent.VK_V));	// INSERT executes Z88 DIAMOND V
 					break;
 
 				case KeyEvent.VK_DELETE:

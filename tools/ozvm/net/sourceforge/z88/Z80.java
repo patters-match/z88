@@ -1014,8 +1014,8 @@ public abstract class Z80 {
 					// Dump Z80 register info at breakpoint, then continue execution
 					breakPointAction();
 
-					Blink blink = Blink.getInstance();
-					Memory memory = Memory.getInstance();
+					Blink blink = Z88.getInstance().getBlink();
+					Memory memory = Z88.getInstance().getMemory(); 
 					
 					PC(_PC - 1); // reset Program Counter to Display Breakpoint Opcode 
 					int bpAddress = blink.decodeLocalAddress(PC());

@@ -40,6 +40,7 @@ import com.imagero.util.ThreadManager;
 import net.sourceforge.z88.Blink;
 import net.sourceforge.z88.Memory;
 import net.sourceforge.z88.OZvm;
+import net.sourceforge.z88.Z88;
 
 /**
  * The display renderer of the Z88 virtual machine, updating
@@ -60,14 +61,6 @@ public class Z88display extends JLabel implements MouseListener {
 	/** 100 fps (poll for screen changes every 10 milli-seconds) */
 	public static final int FPS100 = 3;
 	
-	private static final class singletonContainer {
-		static final Z88display singleton = new Z88display();
-	}
-
-	public static Z88display getInstance() {
-		return singletonContainer.singleton;
-	}
-
 	/** The Z88 display width in pixels */
 	public static final int Z88SCREENWIDTH = 640;
 
@@ -246,11 +239,11 @@ public class Z88display extends JLabel implements MouseListener {
 	private int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 
 	/** constructor */
-	private Z88display() {
+	public Z88display() {
 		super();
 		
-		blink = Blink.getInstance();
-		memory = Memory.getInstance();
+		blink = Z88.getInstance().getBlink();
+		memory = Z88.getInstance().getMemory();
 		
 		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
 		cpyDisplayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
@@ -262,7 +255,7 @@ public class Z88display extends JLabel implements MouseListener {
 		this.setFocusable(true);
 		this.addMouseListener(this);
 	}
-
+	
 	/**
 	 * Set the update frequency or frames per second (fps) of the Z88 screen. 
 	 * The following values are possible:

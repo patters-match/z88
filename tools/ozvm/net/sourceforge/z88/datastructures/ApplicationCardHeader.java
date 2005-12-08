@@ -19,6 +19,7 @@
 package net.sourceforge.z88.datastructures;
 
 import net.sourceforge.z88.Memory;
+import net.sourceforge.z88.Z88;
 
 /**
  * Get Application Card Header Information for specified slot. 
@@ -36,7 +37,7 @@ public class ApplicationCardHeader {
 	
 	public ApplicationCardHeader(int slotNo) {
 		
-		memory = Memory.getInstance();
+		memory = Z88.getInstance().getMemory();
 		slotinfo = SlotInfo.getInstance();
 		
 		if (slotinfo.isApplicationCard(slotNo) == true) {

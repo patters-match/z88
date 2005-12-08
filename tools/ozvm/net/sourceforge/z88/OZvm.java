@@ -64,7 +64,7 @@ public class OZvm {
 	
 	private String guiKbLayout;
 	
-	private	Blink z88 = null;
+	private	Blink blink = null;
 	private	Memory memory =	null;
 	private CommandLine cmdLine = null;	
 	private Gui gui = null;
@@ -79,9 +79,9 @@ public class OZvm {
         // default keyboard layout is UK (for english 4.0 ROM)
         guiKbLayout = "uk";
         
-		z88 = Blink.getInstance();
-		memory = Memory.getInstance();
-		Z88display.getInstance().start();
+		blink = Z88.getInstance().getBlink();
+		memory = Z88.getInstance().getMemory();
+		Z88.getInstance().getDisplay().start();
 	}
 
 	public boolean getAutorunStatus() {
@@ -173,8 +173,8 @@ public class OZvm {
 						// loading of snapshot failed (file not found, corrupt or not a snapshot file
 						// define a default Z88 system as fall back plan.
 				    	memory.setDefaultSystem();
-				    	z88.reset();				
-				    	z88.resetBlinkRegisters();
+				    	blink.reset();				
+				    	blink.resetBlinkRegisters();
 					}
 					arg++;
 				}
@@ -184,8 +184,8 @@ public class OZvm {
 					File romFile = new File(args[arg+1]);
 					memory.loadRomBinary(romFile);
 					gui.setWindowTitle("[" + (romFile.getName()) + "]");
-					Blink.getInstance().resetBlinkRegisters();
-					Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
+					blink.resetBlinkRegisters();
+					blink.setRAMS(memory.getBank(0));	// point at ROM bank 0
 					loadedRom = true;
 					arg+=2;						
 				}
@@ -357,9 +357,9 @@ public class OZvm {
 			
 			if (loadedSnapshot == false & loadedRom == false) {
 				displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
-				JarURLConnection jarConnection = (JarURLConnection) z88.getClass().getResource("/Z88.rom").openConnection();
+				JarURLConnection jarConnection = (JarURLConnection) blink.getClass().getResource("/Z88.rom").openConnection();
 				memory.loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
-				Blink.getInstance().setRAMS(memory.getBank(0));	// point at ROM bank 0
+				blink.setRAMS(memory.getBank(0));	// point at ROM bank 0
 			}
 
 			if (loadedSnapshot == false && ramSlot0 == false) {
@@ -414,14 +414,14 @@ public class OZvm {
 	
 	public void commandLine(boolean status) {				
 		if (status == true) {
-			if (Blink.getInstance().getDebugMode() == true) {
+			if (blink.getDebugMode() == true) {
 				cmdLine.getDebugGui().getCmdLineInputArea().grabFocus();
 			} else
 				cmdLine = new CommandLine();
 		} else
 			cmdLine = null;
 		
-		Blink.getInstance().setDebugMode(status);
+		blink.setDebugMode(status);
 	}
 	
 	public CommandLine getCommandLine() {
@@ -453,8 +453,9 @@ public class OZvm {
 
 		if (ozvm.getAutorunStatus() == true) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
-			Blink.getInstance().runZ80Engine(-1, true);
-			Z88display.getInstance().grabFocus();	// make sure that keyboard focus is available for Z88 
+			ozvm.blink.runZ80Engine(-1, true);
+			// make sure that keyboard focus is available for Z88 (screen)
+			Z88.getInstance().getDisplay().grabFocus();	 
 		} else {
 			ozvm.commandLine(true);
 			ozvm.getCommandLine().initDebugCmdline();

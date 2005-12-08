@@ -19,6 +19,7 @@
 package net.sourceforge.z88.datastructures;
 
 import net.sourceforge.z88.Memory;
+import net.sourceforge.z88.Z88;
 
 /**
  * Get Application DOR Information.
@@ -121,7 +122,7 @@ public class ApplicationDor {
 									 // pointers
 		int offset = extAddress & 0xFFFF;
 		
-		memory = Memory.getInstance();
+		memory = Z88.getInstance().getMemory();
 
 		offset += 3; // Next Application DOR pointer (absolute)
 		

@@ -27,6 +27,7 @@ import net.sourceforge.z88.Memory;
 import net.sourceforge.z88.RamBank;
 import net.sourceforge.z88.RomBank;
 import net.sourceforge.z88.VoidBank;
+import net.sourceforge.z88.Z88;
 
 /**
  * Information about what is available in a specified slot;
@@ -58,7 +59,7 @@ public class SlotInfo {
 	 * the Z88 memory model
 	 */
 	private SlotInfo() {
-		memory = Memory.getInstance();
+		memory = Z88.getInstance().getMemory();
 	}
 
 	/**

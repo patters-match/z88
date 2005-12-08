@@ -137,6 +137,7 @@ public class Slots extends JPanel {
 	private JCheckBox insertCardCopyCheckBox;
 	
 	private Memory memory;
+	private Blink blink;
 
 	private EpromFileFilter eprfileFilter;
 
@@ -159,7 +160,8 @@ public class Slots extends JPanel {
 	
 	public Slots() {
 		super();
-		memory = Memory.getInstance();
+		blink = Z88.getInstance().getBlink();
+		memory = Z88.getInstance().getMemory();
 		eprfileFilter = new EpromFileFilter();
 		currentEpromDir = new File(System.getProperty("user.dir"));
 		currentFilesDir = new File(System.getProperty("user.dir"));
@@ -330,7 +332,7 @@ public class Slots extends JPanel {
 			
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Blink.getInstance().signalFlapOpened();
+					blink.signalFlapOpened();
 
 					try {
 						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -355,23 +357,23 @@ public class Slots extends JPanel {
 								memory.loadRomBinary(romFile);
 								OZvm.getInstance().getGui().setWindowTitle("[" + (romFile.getName()) + "]");
 								// ROM installed, do a hard reset (flap is automatically closed)
-								Blink.getInstance().pressHardReset();
+								blink.pressHardReset();
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(Slots.this,
 										"Selected file couldn't be opened!");
-								Blink.getInstance().signalFlapClosed();
+								blink.signalFlapClosed();
 							} catch (IllegalArgumentException e2) {
 								JOptionPane.showMessageDialog(Slots.this,
 										"Selected file was not a Z88 ROM!");
-								Blink.getInstance().signalFlapClosed();
+								blink.signalFlapClosed();
 							}
 						} else {
 							// User aborted...
-							Blink.getInstance().signalFlapClosed();
+							blink.signalFlapClosed();
 						}
 					} else {
 						// User aborted...
-						Blink.getInstance().signalFlapClosed();
+						blink.signalFlapClosed();
 					}
 
 					try {
@@ -385,7 +387,7 @@ public class Slots extends JPanel {
 					Slots.this.repaint();
 					
 					refreshSlotInfo(0);
-					Z88display.getInstance().grabFocus();
+					Z88.getInstance().getDisplay().grabFocus();
 				}
 			});
 		}
@@ -406,7 +408,7 @@ public class Slots extends JPanel {
 
 			ram0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Blink.getInstance().signalFlapOpened();
+					blink.signalFlapOpened();
 
 					try {
 						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -429,10 +431,10 @@ public class Slots extends JPanel {
 								size.indexOf("K"))) * 1024, 0);
 						
 						// ROM installed, do a hard reset (flap is automatically closed)
-						Blink.getInstance().pressHardReset();
+						blink.pressHardReset();
 					} else {
 						// User aborted...
-						Blink.getInstance().signalFlapClosed();
+						blink.signalFlapClosed();
 					}
 
 					try {
@@ -446,7 +448,7 @@ public class Slots extends JPanel {
 					Slots.this.repaint();
 					
 					refreshSlotInfo(0);
-					Z88display.getInstance().grabFocus();
+					Z88.getInstance().getDisplay().grabFocus();
 				}
 			});
 		}
@@ -648,7 +650,7 @@ public class Slots extends JPanel {
 		else
 			getReInsertCardCopyCheckBox().setEnabled(false);
 
-		Blink.getInstance().signalFlapOpened();
+		blink.signalFlapOpened();
 		if (JOptionPane.showConfirmDialog(Slots.this, getNewCardPanel(),
 				"Create Card to insert into slot " + slotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			String size = (String) getCardSizeComboBox().getModel()
@@ -677,8 +679,8 @@ public class Slots extends JPanel {
 						JOptionPane.showMessageDialog(Slots.this,
 								eprFilename + ": " + e1.getMessage(),
 								"File I/O error", JOptionPane.ERROR_MESSAGE);
-						Blink.getInstance().signalFlapClosed();
-						Z88display.getInstance().grabFocus();
+						blink.signalFlapClosed();
+						Z88.getInstance().getDisplay().grabFocus();
 						return;
 					}
 				}
@@ -717,16 +719,16 @@ public class Slots extends JPanel {
 							} catch (IOException e2) {}
 							JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
 									"Insert Card Error", JOptionPane.ERROR_MESSAGE);
-							Blink.getInstance().signalFlapClosed();
-							Z88display.getInstance().grabFocus();
+							blink.signalFlapClosed();
+							Z88.getInstance().getDisplay().grabFocus();
 							return;
 						}
 					} else {
 						JOptionPane.showMessageDialog(Slots.this, 
 								"Selected EPR file image didn't contain a valid File or Application Card" ,
 								"Insert Card Error", JOptionPane.ERROR_MESSAGE);
-						Blink.getInstance().signalFlapClosed();
-						Z88display.getInstance().grabFocus();
+						blink.signalFlapClosed();
+						Z88.getInstance().getDisplay().grabFocus();
 						return;						
 					}
 				} else {
@@ -790,8 +792,8 @@ public class Slots extends JPanel {
 			refreshSlotInfo(slotNo);
 		}
 		
-		Blink.getInstance().signalFlapClosed();		
-		Z88display.getInstance().grabFocus();
+		blink.signalFlapClosed();		
+		Z88.getInstance().getDisplay().grabFocus();
 	}
 
 	/**
@@ -801,7 +803,7 @@ public class Slots extends JPanel {
 	 * @param slotNo
 	 */
 	private void removeCard(JButton slotButton, int slotNo) {
-		Blink.getInstance().signalFlapOpened();
+		blink.signalFlapOpened();
 		
 		if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.RamCard) {
 			if (JOptionPane.showConfirmDialog(Slots.this, 
@@ -810,7 +812,7 @@ public class Slots extends JPanel {
 				memory.removeCard(slotNo);
 				lastRemovedCard[slotNo] = null; // RAM card is not preserved when removed from slot...
 				
-				Blink.getInstance().signalFlapClosed();
+				blink.signalFlapClosed();
 			}				
 		} else {		
 			if (JOptionPane.showConfirmDialog(Slots.this, 
@@ -878,13 +880,13 @@ public class Slots extends JPanel {
 			}				
 		}
 				
-		Blink.getInstance().signalFlapClosed();
+		blink.signalFlapClosed();
 
 		if (memory.isSlotEmpty(slotNo) == true)
 			OZvm.displayRtmMessage(slotButton.getText() + " Card was removed from slot " + slotNo);
 		refreshSlotInfo(slotNo);
 		
-		Z88display.getInstance().grabFocus();		
+		Z88.getInstance().getDisplay().grabFocus();		
 	}
 
 	private JLabel getSaveAsBanksLabel() {
@@ -907,7 +909,6 @@ public class Slots extends JPanel {
 		return saveAsBanksPanel;
 	}
 	
-
 	private JPanel getNewCardPanel() {
 		if (newCardPanel == null) {
 			newCardPanel = new JPanel();

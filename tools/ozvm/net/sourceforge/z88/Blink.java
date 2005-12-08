@@ -31,14 +31,6 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public final class Blink extends Z80 {
 
-	private static final class singletonContainer {
-		static final Blink singleton = new Blink();
-	}
-
-	public static Blink getInstance() {
-		return singletonContainer.singleton;
-	}
-
 	private Breakpoints breakpoints = new Breakpoints();
 
 	/** Blink Snooze state */
@@ -163,12 +155,12 @@ public final class Blink extends Z80 {
 	/**
 	 * Blink class default constructor.
 	 */
-	private Blink() {
+	public Blink() {
 		super();
 
 		debugMode = false;	// define the default running status of the virtul Machine.
 
-		memory = Memory.getInstance();	// create the Z88 memory model (4Mb addressable memory)
+		memory = Z88.getInstance().getMemory();	// access to Z88 memory model (4Mb)
 		RAMS = memory.getBank(0); // point at ROM bank 0 (null at the moment)
 
 		// the segment register SR0 - SR3
@@ -831,7 +823,7 @@ public final class Blink extends Z80 {
 			}
 		}
 		
-		return Z88Keyboard.getInstance().scanKeyRow(row);
+		return Z88.getInstance().getKeyboard().scanKeyRow(row);
 	}
 
 	

@@ -80,8 +80,8 @@ public class Gui extends JFrame {
 		initialize(fullScreen);
 	}
 
-	ThreadManager treadMgr;  
-	
+	private ThreadManager treadMgr;  
+	private Blink blink; 
 	private boolean fullScreenMode;
 	
 	private ButtonGroup kbLayoutButtonGroup = new ButtonGroup();
@@ -147,7 +147,7 @@ public class Gui extends JFrame {
 	
 	private Z88display getZ88Display() {
 		if (z88Display == null) {
-			z88Display = Z88display.getInstance();
+			z88Display = Z88.getInstance().getDisplay();
 			z88Display.setLayout(null);
 			z88Display.setForeground(Color.WHITE);
 			z88Display.setText("This is the Z88 Screen");
@@ -250,7 +250,7 @@ public class Gui extends JFrame {
 			userManualMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
-						new HelpViewer(Blink.getInstance().getClass().getResource("/ozvm-manual.html"));
+						new HelpViewer(blink.getClass().getResource("/ozvm-manual.html"));
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -543,7 +543,7 @@ public class Gui extends JFrame {
 		
 	private RubberKeyboard getKeyboardPanel() {
 		if (keyboardPanel == null) {
-			keyboardPanel = Z88Keyboard.getInstance().getRubberKeyboard();
+			keyboardPanel = Z88.getInstance().getKeyboard().getRubberKeyboard();
 		}
 
 		return keyboardPanel;
@@ -575,7 +575,7 @@ public class Gui extends JFrame {
 			ukLayoutMenuItem.setText("US/UK Layout");
 			ukLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
+					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
 					getZ88Display().grabFocus();
 				}
 			});
@@ -591,7 +591,7 @@ public class Gui extends JFrame {
 			dkLayoutMenuItem.setText("Danish Layout");
 			dkLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
 					getZ88Display().grabFocus();
 				}
 			});
@@ -607,7 +607,7 @@ public class Gui extends JFrame {
 			frLayoutMenuItem.setText("French Layout");
 			frLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
 					getZ88Display().grabFocus();
 				}
 			});
@@ -691,7 +691,7 @@ public class Gui extends JFrame {
 			seLayoutMenuItem.setText("Swedish/Finish Layout");
 			seLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Z88Keyboard.getInstance().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
 					getZ88Display().grabFocus();
 				}
 			});
@@ -723,9 +723,9 @@ public class Gui extends JFrame {
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					chooser.setFileFilter(srVM.getSnapshotFilter());
 
-					if ((Blink.getInstance().getZ80engine() != null)) {
+					if ((blink.getZ80engine() != null)) {
 						resumeExecution = true;
-						Blink.getInstance().stopZ80Execution();
+						blink.stopZ80Execution();
 					} else {
 						resumeExecution = false;
 					}
@@ -744,16 +744,16 @@ public class Gui extends JFrame {
 							
 							if (autorun == true | fullScreenMode == true) {
 								// debugging is disabled while full screen mode is enabled
-								Blink.getInstance().runZ80Engine(-1, true);
-								Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88								
+								blink.runZ80Engine(-1, true);
+								Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88								
 							} else {
 								OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
 								OZvm.getInstance().getCommandLine().initDebugCmdline();
 							}
 						} catch (IOException e1) {							
-					    	Memory.getInstance().setDefaultSystem();
-					    	Blink.getInstance().reset();				
-					    	Blink.getInstance().resetBlinkRegisters();
+							Z88.getInstance().getMemory().setDefaultSystem();
+							blink.reset();				
+							blink.resetBlinkRegisters();
 					    	if (fullScreenMode == false) {
 					    		displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");					    		
 						    	OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
@@ -763,8 +763,8 @@ public class Gui extends JFrame {
 					} else {
 						// User aborted Loading of snapshot..
 						if (resumeExecution == true) {							
-							Blink.getInstance().runZ80Engine(-1, true);		
-							Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
+							blink.runZ80Engine(-1, true);		
+							Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
 						}
 					}
 					
@@ -809,9 +809,9 @@ public class Gui extends JFrame {
 					chooser.setFileFilter(srVM.getSnapshotFilter());
 					chooser.setSelectedFile(new File(OZvm.defaultVmFile));
 					
-					if ((Blink.getInstance().getZ80engine() != null)) {
+					if ((blink.getZ80engine() != null)) {
 						autorun = true;
-						Blink.getInstance().stopZ80Execution();
+						blink.stopZ80Execution();
 					} else {
 						autorun = false;
 					}
@@ -840,8 +840,8 @@ public class Gui extends JFrame {
 					
 					if (autorun == true) {
 						// Z80 engine was temporary stopped, now continue to execute...
-						Blink.getInstance().runZ80Engine(-1, true);
-						Z88display.getInstance().grabFocus(); // default keyboard input	focus to the Z88
+						blink.runZ80Engine(-1, true);
+						Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
 					}
 				}
 			});
@@ -868,10 +868,10 @@ public class Gui extends JFrame {
 			softResetMenuItem.setText("Soft Reset");
 			softResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (Blink.getInstance().getZ80engine() != null) {						
+					if (blink.getZ80engine() != null) {						
 						if (JOptionPane.showConfirmDialog(Gui.this, "Soft Reset Z88?") == JOptionPane.YES_OPTION) {
-							Blink.getInstance().signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
-							Blink.getInstance().pressResetButton();
+							blink.signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
+							blink.pressResetButton();
 						}
 					} else {
 						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
@@ -888,9 +888,9 @@ public class Gui extends JFrame {
 			hardResetMenuItem.setText("Hard Reset");
 			hardResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (Blink.getInstance().getZ80engine() != null) {						
+					if (blink.getZ80engine() != null) {						
 						if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
-							Blink.getInstance().pressHardReset();
+							blink.pressHardReset();
 						}
 					} else {
 						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
@@ -971,6 +971,8 @@ public class Gui extends JFrame {
 	private void initialize(boolean fullScreen) {
 		fullScreenMode = fullScreen;
 		
+		blink = Z88.getInstance().getBlink();
+		
 		// set window decoration, depending on full screen or not
 		setUndecorated(fullScreen); 
 		
@@ -1016,7 +1018,7 @@ public class Gui extends JFrame {
 		}
 
 		// pre-select the keyboard layout Menu Item
-		switch(Z88Keyboard.getInstance().getKeyboardLayout()) {
+		switch(Z88.getInstance().getKeyboard().getKeyboardLayout()) {
 			case Z88Keyboard.COUNTRY_EN:
 			case Z88Keyboard.COUNTRY_US:
 				getUkLayoutMenuItem().setSelected(true);

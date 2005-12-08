@@ -55,14 +55,6 @@ import net.sourceforge.z88.filecard.FileArea;
  */
 public final class Memory {
 		
-	private static final class singletonContainer {
-		static final Memory singleton = new Memory();  
-	}
-	
-	public static Memory getInstance() {
-		return singletonContainer.singleton;
-	}
-	
 	/**
 	 * The Z88 memory organisation.
 	 * Array for 256 x 16K banks = 4Mb memory
@@ -78,8 +70,9 @@ public final class Memory {
 	private VoidBank nullBank;
 	
 	/** Constructor */
-	private Memory() {
-		memory = new Bank[256]; // The Z88 memory addresses 256 banks = 4MB!		
+	public Memory() {
+		// The Z80 (using Blink) can address 256 banks = 4MB memory
+		memory = new Bank[256]; 		
 
 		nullBank = new VoidBank();
 		setVoidMemory();
@@ -368,7 +361,7 @@ public final class Memory {
 			return false;	// slot 0 always contains stuff (RAM/ROM) 
 		else {
 			int bankNo = ((slotNo & 3) << 6); // bottom bank of slot
-			return Memory.getInstance().getBank(bankNo) instanceof VoidBank;
+			return getBank(bankNo) instanceof VoidBank;
 		}
 	}
 
@@ -381,11 +374,11 @@ public final class Memory {
 		setVoidMemory(); // remove all current memory (set to void...)
 		
 		try {
-			jarConnection = (JarURLConnection) Blink.getInstance().getClass().getResource("/Z88.rom").openConnection();
+			jarConnection = (JarURLConnection) Z88.getInstance().getBlink().getClass().getResource("/Z88.rom").openConnection();
 			loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
-			Blink.getInstance().setRAMS(getBank(0));	// point at ROM bank 0
+			Z88.getInstance().getBlink().setRAMS(getBank(0));	// point at ROM bank 0
 			
-			insertRamCard(32 * 1024, 0); // set to default 32K RAM...			
+			insertRamCard(128 * 1024, 0); // set to default 128K RAM...			
 		} catch (IOException e) {
 		}
 	}
@@ -1124,7 +1117,7 @@ public final class Memory {
 	 * from the Blink (the Z80 is instructed to execute a RST 66H instruction).
 	 */
 	private void slotConnectorSenseLine() {
-		final Blink bl = Blink.getInstance();
+		final Blink bl = Z88.getInstance().getBlink();
 		
 		Thread thread = new Thread() {
 			public void run() {

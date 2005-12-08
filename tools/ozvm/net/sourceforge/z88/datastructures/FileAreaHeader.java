@@ -19,6 +19,7 @@
 package net.sourceforge.z88.datastructures;
 
 import net.sourceforge.z88.Memory;
+import net.sourceforge.z88.Z88;
 
 /**
  * Get File Area Header Information at absolute bank, offset $3FC0-$3FFF.
@@ -42,7 +43,7 @@ public class FileAreaHeader {
 	 * @param bankNo
 	 */
 	public FileAreaHeader(int bankNo) {
-		memory = Memory.getInstance();
+		memory = Z88.getInstance().getMemory();
 					
 		randomId = (memory.getByte(0x3FF8, bankNo) << 24) | 
 					memory.getByte(0x3FF9, bankNo) << 16 |

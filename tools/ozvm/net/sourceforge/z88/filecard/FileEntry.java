@@ -19,6 +19,7 @@
 package net.sourceforge.z88.filecard;
 
 import net.sourceforge.z88.Memory;
+import net.sourceforge.z88.Z88;
 
 /**
  * Information about File Entry in a File Area 
@@ -68,7 +69,7 @@ public class FileEntry {
 	 * @param extAddress
 	 */
 	public FileEntry(int extAddress) {
-		memory = Memory.getInstance();
+		memory = Z88.getInstance().getMemory();
 		
 		// remember the pointer to this File Entry 
 		fileEntryPtr = extAddress;

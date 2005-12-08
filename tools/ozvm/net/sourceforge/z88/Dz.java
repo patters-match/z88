@@ -4366,8 +4366,8 @@ public class Dz {
 	 */
 	public int getInstrOpcode(int offset, int bank) {
 		offset &= 0x3FFF;		
-		Breakpoints bp = Blink.getInstance().getBreakpoints();
-		Memory mem = Memory.getInstance();
+		Breakpoints bp = Z88.getInstance().getBlink().getBreakpoints();
+		Memory mem = Z88.getInstance().getMemory();
 		
 		int opcode3 = 	mem.getByte(offset+3,bank) << 24 |
 						mem.getByte(offset+2,bank) << 16 |
@@ -4397,7 +4397,7 @@ public class Dz {
 	 * @return 4 byte packed MSB instruction opcode 
 	 */
 	public int getInstrOpcode(final int pc) {
-		int extAddr = Blink.getInstance().decodeLocalAddress(pc);
+		int extAddr = Z88.getInstance().getBlink().decodeLocalAddress(pc);
 		
 		return getInstrOpcode(extAddr & 0x3FFF, extAddr >>> 16);
 	}
@@ -4426,7 +4426,7 @@ public class Dz {
 	 * @return step	command	suggestion
 	 */
 	public static String getNextStepCommand() {
-		Blink z88 = Blink.getInstance();
+		Blink z88 = Z88.getInstance().getBlink();
 		Breakpoints bp = z88.getBreakpoints();
 		
 		int instrOpcode	= z88.readByte(z88.PC());	// get current instruction opcode (to be executed)
