@@ -16,7 +16,7 @@
 #                       ZZZZZZZZZZZZZZ      888888888888        000000000
 # ------------------------------------------------------------------------------
 #
-# Makefile for the Mpm Assembler, Z80 edition, under Windows 32 bit console
+# Makefile for the Mpm Assembler, Z80 edition, under Windows 32 bit console for Borland C++Builder
 #
 # Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
 #
@@ -36,6 +36,8 @@
 # (Borland C++Builder 4.0) in combination with
 # Borland MAKE versions 5.1 and 5.2
 #
+# $Id$
+# ------------------------------------------------------------------------------
 
 # If "BINDIR=C:\...." has not been defined on the command line
 # assume that the binary files are in the same directory as the
