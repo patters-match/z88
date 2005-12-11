@@ -38,19 +38,31 @@ goto COMPILE_ERROR
 :: create application DOR data (binary) and address references for bank 2 compile script
 :COMPILE_APPDORS
 ..\..\tools\mpm\mpm -bg -I..\sysdef appdors.asm
+dir *.err 2>nul >nul || goto PRECOMPILE_BANK0
+goto COMPILE_ERROR
 
 :: pre-compile kernel in bank 0 to resolve labels for lowram.asm
+:PRECOMPILE_BANK0
 cd ..\bank0
 ..\..\tools\mpm\mpm -g -I..\sysdef @kernel0.prj
+dir *.err 2>nul >nul || goto COMPILE_LOWRAM
+goto COMPILE_ERROR
 
 :: create final lowram binary with correct addresses from bank 0 kernel
+:COMPILE_LOWRAM
 cd ..\bank7
 ..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\sysdef @lowram.prj
+dir *.err 2>nul >nul || goto COMPILE_KERNEL7
+goto COMPILE_ERROR
 
 :: compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
+:COMPILE_KERNEL7
 ..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DKB%1 -I..\sysdef @kernel7.prj
+dir *.err 2>nul >nul || goto COMPILE_KERNEL0
+goto COMPILE_ERROR
 
 :: compile final kernel binary with OS tables for bank 0 using correct bank 7 references
+:COMPILE_KERNEL0
 cd ..\bank0
 ..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\sysdef @kernel0.prj
 ..\..\tools\mpm\mpm -b -DCOMPILE_BINARY ostables.asm
