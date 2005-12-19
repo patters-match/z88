@@ -30,6 +30,13 @@ public class Z88 {
 	private Memory memory;
 	private Z88Keyboard keyboard;
 	private Z88display display;
+	private Z80Processor z80; 
+
+	/**
+	 * Reference to the current executing Z80 processor.
+	 */
+	private Thread z80Thread = null;
+	
 	
 	/**
 	 * Z88 class default constructor.
@@ -71,5 +78,82 @@ public class Z88 {
 			keyboard = new Z88Keyboard();
 		
 		return keyboard;
+	}
+	
+	/**
+	 * 'Press' the reset button on the left side of the Z88
+	 * (hidden in the small crack next to the power plug)
+	 */
+	public void pressResetButton() {
+		blink.coma = false; blink.snooze = false;	// reset button always awake from coma or snooze...  
+		
+		int comReg = blink.getBlinkCom();
+		comReg &= ~Blink.BM_COMRAMS;				// COM.RAMS = 0 (lower 8K = Bank 0)
+		blink.setBlinkCom(comReg);
+		
+		z80.PC(0x000);								// execute (soft/hard) reset in bank 0
+	}
+	
+	public void pressHardReset() {
+		Thread thread = new Thread() {
+			public void run() {
+				blink.signalFlapOpened();
+				try { Thread.sleep(100);
+				} catch (InterruptedException e1) {}
+				
+				// press reset button while flap is opened							
+				pressResetButton();
+				
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e1) {}
+				
+				// waited a little while, then close flap (hard reset begins...)
+				blink.signalFlapClosed(); 
+			}
+		};
+		
+		thread.start();
+	}
+	
+	public Z80Processor getProcessor() {
+		if (z80 == null) {
+			z80 = new Z80Processor(); 
+		}
+		
+		return z80;
+	}
+	
+	public Thread getProcessorThread() {
+		if (z80Thread != null && z80Thread.isAlive() ==	true) {
+			return z80Thread;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Execute a Z80 thread.
+	 * 
+	 * @param oneStopBreakpoint
+	 * @param activateInterrupts
+	 * 
+	 * @return true if thread was successfully started.
+	 */
+	public boolean runZ80Engine(final int oneStopBreakpoint, final boolean activateInterrupts) {	
+		if (z80Thread != null && z80Thread.isAlive() ==	true) {
+			return false;
+		}
+
+		z80.setInterrupts(activateInterrupts);
+		z80.setOneStopBreakpoint(oneStopBreakpoint);
+		
+		OZvm.displayRtmMessage("Z88 virtual machine was started.");
+		
+		z80Thread =	new Thread(z80);
+		z80Thread.setPriority(Thread.MIN_PRIORITY); // execute the Z80 engine in minimal thread priority...
+		z80Thread.start();
+
+		return true;
 	}
 }

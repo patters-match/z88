@@ -1102,7 +1102,7 @@ public class Z88Keyboard {
 	private void pressZ88key(KeyPress keyp) {
 		int keyMatrixRow, keyMask;
 
-		if (Z88.getInstance().getBlink().getZ80engine() != null) {
+		if (Z88.getInstance().getProcessorThread() != null) {
 			// Only allow keypresses to be registered by Blink while Z80 engine is running...
 			keyMatrixRow = (keyp.keyZ88Typed & 0xff00) >>> 8;
 			keyMask = keyp.keyZ88Typed & 0xff;
@@ -1120,7 +1120,7 @@ public class Z88Keyboard {
 	 * @param keyMask
 	 */
 	public void pressZ88key(int keyMatrixRow, int keyMask) {
-		if (Z88.getInstance().getBlink().getZ80engine() != null) {
+		if (Z88.getInstance().getProcessorThread() != null) {
 			// Only allow keypresses to be registered by Blink while Z80 engine is running...
 			keyRows[keyMatrixRow] &= keyMask;
 			Z88.getInstance().getBlink().signalKeyPressed();
@@ -1135,7 +1135,7 @@ public class Z88Keyboard {
 	 * @param keyMask
 	 */
 	public void releaseZ88key(int keyMatrixRow, int keyMask) {
-		if (Z88.getInstance().getBlink().getZ80engine() != null) {
+		if (Z88.getInstance().getProcessorThread() != null) {
 			// Only allow key releases to be registered by Blink while Z80 engine is running...
 			keyRows[keyMatrixRow] |= (~keyMask & 0xff);
 			Z88.getInstance().getBlink().signalKeyPressed();
@@ -1147,7 +1147,7 @@ public class Z88Keyboard {
 	 * Release a Z88 key from the Z88 hardware keyboard matrix.
 	 */
 	private void releaseZ88key(KeyPress keyp) {
-		if (Z88.getInstance().getBlink().getZ80engine() != null) {
+		if (Z88.getInstance().getProcessorThread() != null) {
 			// Only allow key releases to be registered by Blink while Z80 engine is running...
 			keyRows[((keyp.keyZ88Typed & 0xff00) >>> 8)] |= (~(keyp.keyZ88Typed & 0xff) & 0xff);
 		}
@@ -1271,11 +1271,11 @@ public class Z88Keyboard {
 
 				case KeyEvent.VK_F5:
 					OZvm.getInstance().commandLine(true);
-					Z88.getInstance().getBlink().stopZ80Execution();						
+					Z88.getInstance().getProcessor().stopZ80Execution();						
 					break;
 
 				case KeyEvent.VK_F12:
-					if (Z88.getInstance().getBlink().getDebugMode() == true) { 
+					if (OZvm.getInstance().getDebugMode() == true) { 
 						// Use F12 to toggle between debugger command input and Z88 kb input
 						OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();	 
 					}

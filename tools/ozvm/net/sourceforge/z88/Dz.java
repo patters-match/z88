@@ -4366,7 +4366,7 @@ public class Dz {
 	 */
 	public int getInstrOpcode(int offset, int bank) {
 		offset &= 0x3FFF;		
-		Breakpoints bp = Z88.getInstance().getBlink().getBreakpoints();
+		Breakpoints bp = Z88.getInstance().getProcessor().getBreakpoints();
 		Memory mem = Z88.getInstance().getMemory();
 		
 		int opcode3 = 	mem.getByte(offset+3,bank) << 24 |
@@ -4426,36 +4426,36 @@ public class Dz {
 	 * @return step	command	suggestion
 	 */
 	public static String getNextStepCommand() {
-		Blink z88 = Z88.getInstance().getBlink();
-		Breakpoints bp = z88.getBreakpoints();
+		Z80Processor z80 = Z88.getInstance().getProcessor();
+		Breakpoints bp = Z88.getInstance().getProcessor().getBreakpoints();
 		
-		int instrOpcode	= z88.readByte(z88.PC());	// get current instruction opcode (to be executed)
+		int instrOpcode	= z80.readByte(z80.PC());	// get current instruction opcode (to be executed)
 		if (instrOpcode == 64 | instrOpcode == 73) {
 			// The opcode at specifified address might be a runtime breakpoint:
 			// LD B,B or LD C,C
-			if (bp.getOrigZ80Opcode(z88.decodeLocalAddress(z88.PC())) != -1) {
+			if (bp.getOrigZ80Opcode(Z88.getInstance().getBlink().decodeLocalAddress(z80.PC())) != -1) {
 				// there was indeed a breakpoint, use original instruction opcode
-				instrOpcode = bp.getOrigZ80Opcode(z88.decodeLocalAddress(z88.PC()));
+				instrOpcode = bp.getOrigZ80Opcode(Z88.getInstance().getBlink().decodeLocalAddress(z80.PC()));
 			}
 		}
 
 		switch(instrOpcode) {
 			case 0xDC: // CALL C,addr
-				if (z88.fC == true) return "z";	else return ".";
+				if (z80.fC == true) return "z";	else return ".";
 			case 0xD4: // CALL NC,addr
-				if (z88.fC == false) return "z"; else return ".";
+				if (z80.fC == false) return "z"; else return ".";
 			case 0xCC: // CALL Z,addr
-				if (z88.fZ == true) return "z";	else return ".";
+				if (z80.fZ == true) return "z";	else return ".";
 			case 0xC4: // CALL NZ,addr
-				if (z88.fZ == false) return "z"; else return ".";
+				if (z80.fZ == false) return "z"; else return ".";
 			case 0xF4: // CALL P,addr
-				if (z88.fS == false) return "z"; else return ".";
+				if (z80.fS == false) return "z"; else return ".";
 			case 0xFC: // CALL M,addr
-				if (z88.fS == true) return "z";	else return ".";
+				if (z80.fS == true) return "z";	else return ".";
 			case 0xEC: // CALL PE,addr
-				if (z88.fPV == true) return "z"; else return ".";
+				if (z80.fPV == true) return "z"; else return ".";
 			case 0xE4: // CALL PO,addr
-				if (z88.fPV == false) return "z"; else return ".";
+				if (z80.fPV == false) return "z"; else return ".";
 			case 0xCD: // CALL addr
 			case 0xC7: // RST 00
 			case 0xCF: // RST 08

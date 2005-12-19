@@ -208,7 +208,7 @@ public class Z88display extends JLabel implements MouseListener {
 	/** Cyclic counter that identifies number of frames displayed per second */
 	private int frameCounter;
 
-	/** Access to Blink hardware (screen, keyboard, timers...) */
+	/** Access to Blink hardware (screen, keyboard, timer registers...) */
 	private Blink blink;
 
 	/**Access to Memory model */
@@ -805,7 +805,7 @@ public class Z88display extends JLabel implements MouseListener {
 			frameDelay += (1000 / fps[curRenderSpeedIndex]);
 			
 			// update cursor flash and ordinary flash counters
-			if (blink.isZ80running() == true)
+			if (Z88.getInstance().getProcessor().isZ80running() == true)
 				flashCounter();
 			renderDisplay(); // then render display...
 		}

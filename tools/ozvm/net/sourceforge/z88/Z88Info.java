@@ -28,32 +28,32 @@ public class Z88Info {
 	 * Dump current Z80 Registers.
 	 */
 	public static String z80RegisterInfo() {
-		Blink blink = Z88.getInstance().getBlink();
+		Z80Processor z80 = Z88.getInstance().getProcessor();
 		StringBuffer dzRegisters = new StringBuffer(1024);
 
-		dzRegisters.append(" ").append("BC=").append(Dz.addrToHex(blink.BC(),false)).append(" ");
-		dzRegisters.append(" ").append("DE=").append(Dz.addrToHex(blink.DE(),false)).append(" ");
-		dzRegisters.append(" ").append("HL=").append(Dz.addrToHex(blink.HL(),false)).append(" ");
-		dzRegisters.append(" ").append("IX=").append(Dz.addrToHex(blink.IX(),false)).append(" ");
-		dzRegisters.append(" ").append("IY=").append(Dz.addrToHex(blink.IY(),false)).append(" ");
+		dzRegisters.append(" ").append("BC=").append(Dz.addrToHex(z80.BC(),false)).append(" ");
+		dzRegisters.append(" ").append("DE=").append(Dz.addrToHex(z80.DE(),false)).append(" ");
+		dzRegisters.append(" ").append("HL=").append(Dz.addrToHex(z80.HL(),false)).append(" ");
+		dzRegisters.append(" ").append("IX=").append(Dz.addrToHex(z80.IX(),false)).append(" ");
+		dzRegisters.append(" ").append("IY=").append(Dz.addrToHex(z80.IY(),false)).append(" ");
 		dzRegisters.append(" ").append("\n");
-		blink.exx();
-		dzRegisters.append("'BC=").append(Dz.addrToHex(blink.BC(),false)).append(" ");
-		dzRegisters.append("'DE=").append(Dz.addrToHex(blink.DE(),false)).append(" ");
-		dzRegisters.append("'HL=").append(Dz.addrToHex(blink.HL(),false)).append(" ");
-		blink.exx();
-		dzRegisters.append(" ").append("SP=").append(Dz.addrToHex(blink.SP(),false)).append(" ");
-		dzRegisters.append(" ").append("PC=").append(Dz.addrToHex(blink.PC(),false)).append("\n");
-		dzRegisters.append(" ").append("AF=").append(Dz.addrToHex(blink.AF(),false)).append(" ");
-		dzRegisters.append(" ").append("A=").append(Dz.byteToHex(blink.A(),false)).append(" ");
+		z80.exx();
+		dzRegisters.append("'BC=").append(Dz.addrToHex(z80.BC(),false)).append(" ");
+		dzRegisters.append("'DE=").append(Dz.addrToHex(z80.DE(),false)).append(" ");
+		dzRegisters.append("'HL=").append(Dz.addrToHex(z80.HL(),false)).append(" ");
+		z80.exx();
+		dzRegisters.append(" ").append("SP=").append(Dz.addrToHex(z80.SP(),false)).append(" ");
+		dzRegisters.append(" ").append("PC=").append(Dz.addrToHex(z80.PC(),false)).append("\n");
+		dzRegisters.append(" ").append("AF=").append(Dz.addrToHex(z80.AF(),false)).append(" ");
+		dzRegisters.append(" ").append("A=").append(Dz.byteToHex(z80.A(),false)).append(" ");
 		dzRegisters.append(" ").append("F=").append(z80Flags()).append(" ");
-		dzRegisters.append(" ").append("I=").append(blink.I()).append("\n");
-		blink.ex_af_af();
-		dzRegisters.append("'AF=").append(Dz.addrToHex(blink.AF(),false)).append(" ");
-		dzRegisters.append("'A=").append(Dz.byteToHex(blink.A(),false)).append(" ");
+		dzRegisters.append(" ").append("I=").append(z80.I()).append("\n");
+		z80.ex_af_af();
+		dzRegisters.append("'AF=").append(Dz.addrToHex(z80.AF(),false)).append(" ");
+		dzRegisters.append("'A=").append(Dz.byteToHex(z80.A(),false)).append(" ");
 		dzRegisters.append("'F=").append(z80Flags()).append(" ");
-		dzRegisters.append(" ").append("R=").append(blink.R()).append("\n");
-		blink.ex_af_af();
+		dzRegisters.append(" ").append("R=").append(z80.R()).append("\n");
+		z80.ex_af_af();
 
 		return dzRegisters.toString();
 	}
@@ -84,19 +84,19 @@ public class Z88Info {
 	 */
 	private static StringBuffer quickZ80Dump() {
 		StringBuffer dzRegisters = new StringBuffer(1024);
-		Blink blink = Z88.getInstance().getBlink();
+		Z80Processor z80 = Z88.getInstance().getProcessor();		
 
-		dzRegisters.append(Dz.byteToHex(blink.A(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(blink.BC(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(blink.DE(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(blink.HL(),false)).append(" ");
-		dzRegisters.append("(").append(Dz.addrToHex(blink.SP(),false)).append(")=");
+		dzRegisters.append(Dz.byteToHex(z80.A(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(z80.BC(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(z80.DE(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(z80.HL(),false)).append(" ");
+		dzRegisters.append("(").append(Dz.addrToHex(z80.SP(),false)).append(")=");
 		
 		// display contents of current SP
-		dzRegisters.append(Dz.addrToHex(blink.readWord(blink.SP()),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(z80.readWord(z80.SP()),false)).append(" ");
 		
-		dzRegisters.append(Dz.addrToHex(blink.IX(),false)).append(" ");
-		dzRegisters.append(Dz.addrToHex(blink.IY(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(z80.IX(),false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(z80.IY(),false)).append(" ");
 		dzRegisters.append(z80Flags());
 
 		return dzRegisters;
@@ -145,16 +145,16 @@ public class Z88Info {
 
 	public static StringBuffer z80Flags() {
 		StringBuffer dzFlags = new StringBuffer(8);
-		Blink z88 = Z88.getInstance().getBlink();
+		Z80Processor z80 = Z88.getInstance().getProcessor();
 		
-		dzFlags.append( z88.Sset() == true ? "S" : ".");
-		dzFlags.append( z88.Zset() == true ? "Z" : ".");
-		dzFlags.append( z88.f5set() == true ? "5" : ".");
-		dzFlags.append( z88.Hset() == true ? "H" : ".");
-		dzFlags.append( z88.f3set() == true ? "3" : ".");
-		dzFlags.append( z88.PVset() == true ? "V" : ".");
-		dzFlags.append( z88.Nset() == true ? "N" : ".");
-		dzFlags.append( z88.Cset() == true ? "C" : ".");
+		dzFlags.append( z80.Sset() == true ? "S" : ".");
+		dzFlags.append( z80.Zset() == true ? "Z" : ".");
+		dzFlags.append( z80.f5set() == true ? "5" : ".");
+		dzFlags.append( z80.Hset() == true ? "H" : ".");
+		dzFlags.append( z80.f3set() == true ? "3" : ".");
+		dzFlags.append( z80.PVset() == true ? "V" : ".");
+		dzFlags.append( z80.Nset() == true ? "N" : ".");
+		dzFlags.append( z80.Cset() == true ? "C" : ".");
 
 		return dzFlags;
 	}

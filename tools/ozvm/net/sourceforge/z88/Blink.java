@@ -22,31 +22,18 @@ package net.sourceforge.z88;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.sourceforge.z88.screen.Z88display;
-
 
 /**
  * Blink chip, the "body" of the Z88, defining the surrounding hardware
  * of the Z80 "mind" processor.
  */
-public final class Blink extends Z80 {
-
-	private Breakpoints breakpoints = new Breakpoints();
+public final class Blink {
 
 	/** Blink Snooze state */
-	private boolean snooze = false;
+	public boolean snooze = false;
 	
 	/** Blink Coma state */
-	public boolean coma = false;
-	
-    private boolean singleStepping = true;
-    
-    /**
-     * Ask the Blink whether it's single stepping or not.
-     */
-	public boolean singleSteppingMode() {
-        return singleStepping;
-    }
+	public boolean coma = false;    
     
 	/**
 	 * The Z80 databus methods for getting/writing bytes
@@ -158,8 +145,6 @@ public final class Blink extends Z80 {
 	public Blink() {
 		super();
 
-		debugMode = false;	// define the default running status of the virtul Machine.
-
 		memory = Z88.getInstance().getMemory();	// access to Z88 memory model (4Mb)
 		RAMS = memory.getBank(0); // point at ROM bank 0 (null at the moment)
 
@@ -182,31 +167,6 @@ public final class Blink extends Z80 {
 		resetBlinkRegisters();
 	}
 
-	public boolean getDebugMode() {
-		return debugMode;
-	}
-
-	public void setDebugMode(boolean dbgMode) {
-		debugMode = dbgMode;
-	}
-	
-	/**
-	 * execute a single Z80 instruction and return
-	 */
-	public void singleStepZ80() {
-		singleStepping = true;
-		run(true);
-	}
-
-	/**
-	 * execute Z80 instructions until a breakpoint is reached,
-	 * stop command is entered or F5 was pressed in Z88 screen
-	 */
-    public void execZ80() {
-    	singleStepping = false;
-    	run(false);			// run until we drop dread!
-    }
-
 	/**
 	 * Access to the Z88 Memory Model
 	 */
@@ -222,46 +182,10 @@ public final class Blink extends Z80 {
 		return timerDaemon;
 	}
 
-	private boolean debugMode = false;
-
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
 	 */
 	private Rtc rtc;
-
-	/**
-	 * 'Press' the reset button on the left side of the Z88
-	 * (hidden in the small crack next to the power plug)
-	 *
-	 */
-	public void pressResetButton() {
-		coma = false; snooze = false;	// reset button always awake from coma or snooze...  
-		int comReg = getBlinkCom();
-		comReg &= ~Blink.BM_COMRAMS;	// COM.RAMS = 0 (lower 8K = Bank 0)
-		PC(0x000);						// execute (soft/hard) reset
-	}
-	
-	public void pressHardReset() {
-		Thread thread = new Thread() {
-			public void run() {
-				signalFlapOpened();
-				try { Thread.sleep(100);
-				} catch (InterruptedException e1) {}
-				
-				// press reset button while flap is opened							
-				pressResetButton();
-				
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e1) {}
-				
-				// waited a little while, then close flap (hard reset begins...)
-				signalFlapClosed(); 
-			}
-		};
-		
-		thread.start();
-	}
 	
 	/**
 	 * Reset Blink Registers to Power-On-State.
@@ -789,7 +713,7 @@ public final class Blink extends Z80 {
 				// But only if the interrupt is allowed to escape the Blink...
 				coma = false;
 				STA |= BM_STAKEY;
-				setInterruptSignal(false);
+				Z88.getInstance().getProcessor().setInterruptSignal(false);
 			}
 		}
 	}
@@ -803,22 +727,20 @@ public final class Blink extends Z80 {
 	 * @return int keycolumn status of row or merge of columns for specified rows.
 	 */
 	public int getBlinkKbd(int row) {
-		if (singleSteppingMode() == false) {
-			if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
-				snooze = true;
-								
-				while( snooze == true & stopZ88 == false) {
-					try {
-						// The processor is set into snooze mode when INT.KWAIT is enabled 
-						// and the hardware keyboard matrix is scanned.
-						// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
-						// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
-						if (System.currentTimeMillis() % 13 != 0)
-							Thread.sleep(0,100);
-						else
-							Thread.yield();					
-					} catch (InterruptedException e) {
-					}
+		if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
+			snooze = true;
+							
+			while( snooze == true & Z88.getInstance().getProcessor().isZ80running() == true) {
+				try {
+					// The processor is set into snooze mode when INT.KWAIT is enabled 
+					// and the hardware keyboard matrix is scanned.
+					// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
+					// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
+					if (System.currentTimeMillis() % 13 != 0)
+						Thread.sleep(0,100);
+					else
+						Thread.yield();					
+				} catch (InterruptedException e) {
 				}
 			}
 		}
@@ -999,187 +921,6 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * Implement Z88 input port BLINK hardware
-	 * (Registers STA, KBD, TSTA, TIM0-TIM4, RXD, RXE, UIT).
-	 *
-	 * @param addrA8 Port number (low byte address)
-	 * @param addrA15 high byte address
-	 */
-	public final int inByte(int addrA8, int addrA15) {
-		int res = 0;
-
-		switch (addrA8) {
-			case 0xB1:
-                res = getBlinkSta(); // STA, Main Blink Interrupt Status
-				break;
-
-			case 0xB2:
-				res = getBlinkKbd(addrA15);	// KBD, get Keyboard column for specified row.
-				break;
-
-			case 0xB5:
-                res = getBlinkTsta();	// TSTA, which RTC interrupt occurred...
-				break;
-
-            case 0xD0:
-            	Thread.yield();
-				res = getBlinkTim0();	// TIM0, 5ms period, counts to 199
-				break;
-
-			case 0xD1:
-				res = getBlinkTim1();	// TIM1, 1 second period, counts to 59
-				break;
-
-			case 0xD2:
-				res = getBlinkTim2();	// TIM2, 1 minute period, counts to 255
-				break;
-
-			case 0xD3:
-				res = getBlinkTim3();	// TIM3, 256 minutes period, counts to 255
-				break;
-
-			case 0xD4:
-				res = getBlinkTim4();	// TIM4, 64K minutes Period, counts to 31
-				break;
-
-			case 0xE0:					// RxD
-				res = 0;
-				break;
-
-			case 0xE1:					// RxE
-				res = 0;
-				break;
-
-			case 0xE5:					// UIT, UART Int status
-				res = 0;
-				break;
-
-			default :
-				if (debugMode == true) {
-					OZvm.displayRtmMessage("WARNING:\n" +
-									   Z88Info.dzPcStatus(getInstrPC()) + "\n" +
-									   "Blink Read Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
-				}
-				res = 0;
-		}
-
-		return res;
-	}
-
-	/**
-	 * Implement Z88 output port Blink hardware.
-	 * (RTC, Screen, Keyboard, Memory model, Serial port, CPU state).
-	 *
-	 * @param addrA8 LSB of port address
-	 * @param addrA15 MSB of port address
-	 * @param outByte the data to send to the hardware
-	 */
-	public final void outByte(final int addrA8, final int addrA15, final int outByte) {
-		switch (addrA8) {
-			case 0xD0 : // SR0, Segment register 0
-			case 0xD1 : // SR1, Segment register 1
-			case 0xD2 : // SR2, Segment register 2
-			case 0xD3 : // SR3, Segment register 3
-				setSegmentBank(addrA8, outByte);
-				break;
-
-			case 0xB0 : // COM, Set Command Register
-				setBlinkCom(outByte);
-				break;
-
-			case 0xB1 : // INT, Set Main Blink Interrupts
-				setBlinkInt(outByte);
-				break;
-
-			case 0xB3 : // EPR, Eprom programming (not yet implemented)
-//				if (OZvm.debugMode == true) {
-//					displayRtmMessage("WARNING:\n" +
-//									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()) + "\n" +
-//									   "Eprom programming emulation not yet implemented.", true);
-//				}
-				break;
-
-			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge
-				setBlinkTack(outByte);
-				break;
-
-			case 0xB5 : // TMK, Set Timer interrupt Mask
-				setBlinkTmk(outByte);
-				break;
-
-			case 0xB6 : // ACK, Acknowledge INT Interrupts
-				setBlinkAck(outByte);
-				break;
-
-			case 0x70 : // PB0, Pixel Base Register 0 (Screen)
-				setBlinkPb0((addrA15 << 8) | outByte);
-				break;
-
-			case 0x71 : // PB1, Pixel Base Register 1 (Screen)
-				setBlinkPb1((addrA15 << 8) | outByte);
-				break;
-
-			case 0x72 : // PB2, Pixel Base Register 2 (Screen)
-				setBlinkPb2((addrA15 << 8) | outByte);
-				break;
-
-			case 0x73 : // PB3, Pixel Base Register 3 (Screen)
-				setBlinkPb3((addrA15 << 8) | outByte);
-				break;
-
-			case 0x74 : // SBR, Screen Base Register
-				setBlinkSbr((addrA15 << 8) | outByte);
-				break;
-
-			case 0xE2 : // RXC, Receiver Control (not yet implemented)
-			case 0xE3 : // TXD, Transmit Data (not yet implemented)
-			case 0xE4 : // TXC, Transmit Control (not yet implemented)
-				if (debugMode == true) {
-					OZvm.displayRtmMessage("WARNING:\n" +
-										Z88Info.dzPcStatus(getInstrPC()) + "\n" +
-										"UART Serial Port emulation not yet implemented.");
-				}
-				break;
-			case 0xE5 : // UMK, UART int. mask (not yet implemented)
-			case 0xE6 : // UAK, UART acknowledge int. mask (not yet implemented)
-				break;
-
-			default:
-				if (debugMode == true) {
-					OZvm.displayRtmMessage("WARNING:\n" +
-										Z88Info.dzPcStatus(getInstrPC()) + "\n" +
-										"Blink Write Register " + Dz.byteToHex(addrA8, true) + " does not exist.");
-				}
-		}
-	}
-
-    /**
-     * Internal signal for stopping the Z80 execution engine
-     */
-    private boolean stopZ88 = false;
-
-	public void stopZ80Execution() {
-		stopZ88 = true;
-	}
-
-	private long z88StoppedAtTime;
-
-	/**
-	 * @return the system time when Z88 was stopped.
-	 */
-	public long getZ88StoppedAtTime() {
-		return z88StoppedAtTime;
-	}
-
-	/**
-	 * Restore system time when Z88 was stopped
-	 * (from snapshot).
-	 */
-	public void setZ88StoppedAtTime(long time) {
-		z88StoppedAtTime = time;
-	}
-
-	/**
 	 * Add the lost time to TIMx registers, which means
 	 * when a virtual machine was stopped (including RTC), time
 	 * continues to run on the host operating system.
@@ -1195,7 +936,7 @@ public final class Blink extends Z80 {
 		rtcElapsedTime += getBlinkTim2() * 60 * 1000;  // convert from min to ms.
 		rtcElapsedTime += getBlinkTim3() * 256 * 60 * 1000;  // convert from 256 min to ms.
 		rtcElapsedTime += getBlinkTim4() * 65536 * 60 * 1000;  // convert from 64K min to ms.
-		rtcElapsedTime += (System.currentTimeMillis() - getZ88StoppedAtTime()); // add host system elapsed time...
+		rtcElapsedTime += (System.currentTimeMillis() - Z88.getInstance().getProcessor().getZ88StoppedAtTime()); // add host system elapsed time...
 
 	    setBlinkTim4( ((int) (rtcElapsedTime / 65536 / 60 / 1000)) & 0xFF);
 
@@ -1209,46 +950,6 @@ public final class Blink extends Z80 {
 		setBlinkTim0( ((int) (((rtcElapsedTime - (getBlinkTim4() * 65536 * 60 * 1000)) -
 						(getBlinkTim3() * 256 * 60 * 1000) - (getBlinkTim2() * 60 * 1000) -
 						(getBlinkTim1() * 1000)) / 5)) & 0xFF);
-	}
-
-    /**
-     * Check if F5 key was pressed, or a stop was issued at command line.
-     */
-	public boolean isZ80Stopped() {
-        if (stopZ88 == true) {
-            stopZ88 = false;
-            z88StoppedAtTime = System.currentTimeMillis();
-            OZvm.displayRtmMessage("Z88 virtual machine was stopped at " + Dz.extAddrToHex(decodeLocalAddress(getInstrPC()), true));
-
-            return true;
-        } else {
-            return false;
-        }
-	}
-
-	/**
-	 * A HALT instruction was executed by the Z80 processor; Go into coma 
-	 * and wait for an interrupt. HALT is ignored is Blink is in single stepping
-	 * mode. 
-	 */
-	public void haltZ80() {		
-		if (singleSteppingMode() == false) { 
-			// HALT is only relevant while running the Z80 real time...
-			
-			coma = true;
-			//System.out.println(System.currentTimeMillis() + ": Coma state.");
-			
-			do {
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-				}
-			} // Only get out of coma if an interrupt occurred or if Z80 engine was stopped..
-			while(coma == true & stopZ88 == false);
-			
-			//System.out.println(System.currentTimeMillis() + ": Awakened from coma.");
-			// (back to main Z80 decode loop)
-		}
 	}
 
 
@@ -1297,13 +998,13 @@ public final class Blink extends Z80 {
 
 		if (rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
 			// Stop Real Time Clock (RESTIM = 1)
-			if (singleSteppingMode() == false) rtc.stop();
+			if (Z88.getInstance().getProcessor().singleSteppingMode() == false) rtc.stop();
 			rtc.reset();
 		}
 
 		if (rtc.isRunning() == false && ((bits & Blink.BM_COMRESTIM) == 0)) {
 			// Real Time Clock is not running, and is asked to start (RESTIM = 0)...
-			if (singleSteppingMode() == false) rtc.start();
+			if (Z88.getInstance().getProcessor().singleSteppingMode() == false) rtc.start();
 		}
 
 		if ((bits & Blink.BM_COMRAMS) == Blink.BM_COMRAMS) {
@@ -1434,7 +1135,7 @@ public final class Blink extends Z80 {
 						snooze = false;
 						coma = false;
 						STA |= BM_STATIME;
-						setInterruptSignal(false);
+						Z88.getInstance().getProcessor().setInterruptSignal(false);
 					}
 				}				
 			}
@@ -1544,31 +1245,6 @@ public final class Blink extends Z80 {
 
 	} /* Rtc class */
 
-	/**
-	 * Handle action on encountered breakpoint.<p>
-	 * (But ignore it, if the processor is just executing a LD B,B without a registered breakpoint
-	 * for that address (T-Touch on the Z88 does it)!
-	 *
-	 * @return true, if Z80 engine is to be stopped (a real breakpoint were found).
-	 */
-	public boolean breakPointAction() {
-		int bpAddress = decodeLocalAddress(getInstrPC());
-
-		if (breakpoints.getOrigZ80Opcode(bpAddress) != -1) {
-			// a breakpoint was defined for that address;
-			OZvm.displayRtmMessage(Z88Info.dzPcStatus(getInstrPC())); 	// dissassemble original instruction, with Z80 main reg dump
-
-			if (breakpoints.isActive(bpAddress) == true && breakpoints.isStoppable(bpAddress) == true) {
-				PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
-				OZvm.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");
-
-				OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-				return true; // signal to stop the Z80 processor...
-			}
-		}
-
-		return false; // don't stop; either no breakpoint were found, or it's just a display breakpoint..
-	}
 
 	/**
 	 * @return Returns the current RAMS bank binding (Bank 00/ROM or Bank 20h/RAM).
@@ -1585,21 +1261,6 @@ public final class Blink extends Z80 {
 	}
 
 	/**
-	 * @return Returns the breakpoints.
-	 */
-	public Breakpoints getBreakpoints() {
-		return breakpoints;
-	}
-
-	/**
-	 * @param breakpoints The breakpoints to set.
-	 */
-	public void setBreakpoints(Breakpoints breakpoints) {
-		this.breakpoints = breakpoints;
-	}
-
-
-	/**
 	 * The Blink only fires an IM 1 interrupt when the flap is opened 
 	 * and when INT.FLAP is enabled. Both STA.FLAPOPEN and STA.FLAP is
 	 * set at the time of the interrupt. As long as the flap is open,
@@ -1614,7 +1275,7 @@ public final class Blink extends Z80 {
 		if (((INT & BM_INTFLAP) == BM_INTFLAP) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 			STA = (STA | BM_STAFLAPOPEN | BM_STAFLAP) & ~BM_STATIME;
 			snooze = coma = false;
-			setInterruptSignal(false);
+			Z88.getInstance().getProcessor().setInterruptSignal(false);
 		}
 	}
 
@@ -1638,69 +1299,4 @@ public final class Blink extends Z80 {
 		
 		thread.start();		
 	}
-	
-	/**
-	 * Reference to the current executing Z80 processor.
-	 */
-	private Thread z80Engine = null;
-	
-	/**
-	 * Execute a Z80 thread.
-	 * 
-	 * @param oneStopBreakpoint
-	 * @param activateInterrupts
-	 * 
-	 * @return true if thread was successfully started.
-	 */
-	public boolean runZ80Engine(final int oneStopBreakpoint, final boolean activateInterrupts) {	
-		if (z80Engine != null && z80Engine.isAlive() ==	true) {
-			return false;
-		}
-
-		OZvm.displayRtmMessage("Z88 virtual machine was started.");
-		
-		z80Engine =	new Thread() {
-			public void run() {
-				Breakpoints breakPointManager = getBreakpoints();
-
-				if (breakPointManager.isStoppable(decodeLocalAddress(PC())) == true) {
-					// we need to use single stepping mode to
-					// step	past the break point at	current	instruction
-					singleStepZ80();
-				}
-				// restore (patch) breakpoints into code
-				breakPointManager.installBreakpoints();
-				if (activateInterrupts == true) startInterrupts(); // enable Z80/Z88 core interrupts
-				execZ80();
-				// execute Z80 code at full speed until	breakpoint is encountered...
-				// (or F5 emergency break is used!)
-				if (activateInterrupts == true) stopInterrupts();
-				breakPointManager.clearBreakpoints();
-
-				if (oneStopBreakpoint != -1)
-					breakPointManager.toggleBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
-				
-				z80Engine = null;
-
-				if (debugMode == true) {
-					OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-					OZvm.getInstance().getCommandLine().initDebugCmdline();
-				}
-			}
-		};
-
-		z80Engine.setPriority(Thread.MIN_PRIORITY); // execute the Z80 engine in minimal thread priority...
-		z80Engine.start();
-
-		return true;
-	}
-
-	/** 
-	 * Get a reference to the currently running Z80 engine.
-	 *  
-	 * @return
-	 */
-	public Thread getZ80engine() {
-		return z80Engine; 
-	}	
 }

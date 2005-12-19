@@ -42,12 +42,13 @@ import net.sourceforge.z88.screen.Z88display;
  */
 public class SaveRestoreVM {
 
-    private Blink blink;
+	private Blink blink;
+    private Z80Processor z80;
     private Memory memory;
 
 	/** Constructor */
 	public SaveRestoreVM() {
-		blink = Z88.getInstance().getBlink();
+		z80 = Z88.getInstance().getProcessor();
 		memory = Z88.getInstance().getMemory();
 	}
 
@@ -55,54 +56,54 @@ public class SaveRestoreVM {
 	 * Preserve state of the Z80 CPU registers.
 	 */
 	private void storeZ80Regs(Properties properties) {
-	    properties.setProperty("AF", Dz.addrToHex(blink.AF(),false));
-	    properties.setProperty("BC", Dz.addrToHex(blink.BC(),false));
-	    properties.setProperty("DE", Dz.addrToHex(blink.DE(),false));
-	    properties.setProperty("HL", Dz.addrToHex(blink.HL(),false));
-	    properties.setProperty("IX", Dz.addrToHex(blink.IX(),false));
-	    properties.setProperty("IY", Dz.addrToHex(blink.IY(),false));
-	    properties.setProperty("PC", Dz.addrToHex(blink.PC(),false));
-	    properties.setProperty("SP", Dz.addrToHex(blink.SP(),false));
-	    blink.ex_af_af();
-	    properties.setProperty("_AF", Dz.addrToHex(blink.AF(),false));
-	    blink.ex_af_af();
-	    blink.exx();
-	    properties.setProperty("_BC", Dz.addrToHex(blink.BC(),false));
-	    properties.setProperty("_DE", Dz.addrToHex(blink.DE(),false));
-	    properties.setProperty("_HL", Dz.addrToHex(blink.HL(),false));
-	    blink.exx();
-	    properties.setProperty("I", Dz.byteToHex(blink.I(),false));
-	    properties.setProperty("R", Dz.byteToHex(blink.R(),false));
-	    properties.setProperty("IM", Dz.byteToHex(blink.IM(), false));
-	    properties.setProperty("IFF1", Boolean.toString(blink.IFF1()));
-	    properties.setProperty("IFF2", Boolean.toString(blink.IFF2()));	    
+	    properties.setProperty("AF", Dz.addrToHex(z80.AF(),false));
+	    properties.setProperty("BC", Dz.addrToHex(z80.BC(),false));
+	    properties.setProperty("DE", Dz.addrToHex(z80.DE(),false));
+	    properties.setProperty("HL", Dz.addrToHex(z80.HL(),false));
+	    properties.setProperty("IX", Dz.addrToHex(z80.IX(),false));
+	    properties.setProperty("IY", Dz.addrToHex(z80.IY(),false));
+	    properties.setProperty("PC", Dz.addrToHex(z80.PC(),false));
+	    properties.setProperty("SP", Dz.addrToHex(z80.SP(),false));
+	    z80.ex_af_af();
+	    properties.setProperty("_AF", Dz.addrToHex(z80.AF(),false));
+	    z80.ex_af_af();
+	    z80.exx();
+	    properties.setProperty("_BC", Dz.addrToHex(z80.BC(),false));
+	    properties.setProperty("_DE", Dz.addrToHex(z80.DE(),false));
+	    properties.setProperty("_HL", Dz.addrToHex(z80.HL(),false));
+	    z80.exx();
+	    properties.setProperty("I", Dz.byteToHex(z80.I(),false));
+	    properties.setProperty("R", Dz.byteToHex(z80.R(),false));
+	    properties.setProperty("IM", Dz.byteToHex(z80.IM(), false));
+	    properties.setProperty("IFF1", Boolean.toString(z80.IFF1()));
+	    properties.setProperty("IFF2", Boolean.toString(z80.IFF2()));	    
 	}
 
 	/**
 	 * Restore register values into the Z80 engine.
 	 */
 	private void loadZ80Regs(Properties properties) {
-		blink.AF(Integer.parseInt(properties.getProperty("AF"), 16));
-		blink.BC(Integer.parseInt(properties.getProperty("BC"), 16));
-		blink.DE(Integer.parseInt(properties.getProperty("DE"), 16));		
-		blink.HL(Integer.parseInt(properties.getProperty("HL"), 16));
-		blink.IX(Integer.parseInt(properties.getProperty("IX"), 16));
-		blink.IY(Integer.parseInt(properties.getProperty("IY"), 16));
-		blink.PC(Integer.parseInt(properties.getProperty("PC"), 16));
-		blink.SP(Integer.parseInt(properties.getProperty("SP"), 16));		
-	    blink.ex_af_af();
-		blink.AF(Integer.parseInt(properties.getProperty("_AF"), 16));
-	    blink.ex_af_af();
-	    blink.exx();
-		blink.BC(Integer.parseInt(properties.getProperty("_BC"), 16));
-		blink.DE(Integer.parseInt(properties.getProperty("_DE"), 16));		
-		blink.HL(Integer.parseInt(properties.getProperty("_HL"), 16));
-	    blink.exx();
-		blink.I(Integer.parseInt(properties.getProperty("I"), 16));
-		blink.R(Integer.parseInt(properties.getProperty("R"), 16));
-		blink.IM(Integer.parseInt(properties.getProperty("IM"), 16));
-		blink.IFF1(Boolean.valueOf(properties.getProperty("IFF1")).booleanValue());
-		blink.IFF2(Boolean.valueOf(properties.getProperty("IFF2")).booleanValue());		
+		z80.AF(Integer.parseInt(properties.getProperty("AF"), 16));
+		z80.BC(Integer.parseInt(properties.getProperty("BC"), 16));
+		z80.DE(Integer.parseInt(properties.getProperty("DE"), 16));		
+		z80.HL(Integer.parseInt(properties.getProperty("HL"), 16));
+		z80.IX(Integer.parseInt(properties.getProperty("IX"), 16));
+		z80.IY(Integer.parseInt(properties.getProperty("IY"), 16));
+		z80.PC(Integer.parseInt(properties.getProperty("PC"), 16));
+		z80.SP(Integer.parseInt(properties.getProperty("SP"), 16));		
+	    z80.ex_af_af();
+		z80.AF(Integer.parseInt(properties.getProperty("_AF"), 16));
+	    z80.ex_af_af();
+	    z80.exx();
+		z80.BC(Integer.parseInt(properties.getProperty("_BC"), 16));
+		z80.DE(Integer.parseInt(properties.getProperty("_DE"), 16));		
+		z80.HL(Integer.parseInt(properties.getProperty("_HL"), 16));
+	    z80.exx();
+		z80.I(Integer.parseInt(properties.getProperty("I"), 16));
+		z80.R(Integer.parseInt(properties.getProperty("R"), 16));
+		z80.IM(Integer.parseInt(properties.getProperty("IM"), 16));
+		z80.IFF1(Boolean.valueOf(properties.getProperty("IFF1")).booleanValue());
+		z80.IFF2(Boolean.valueOf(properties.getProperty("IFF2")).booleanValue());		
 	}
 	
 	/**
@@ -181,7 +182,7 @@ public class SaveRestoreVM {
 	 * @param properties
 	 */
 	private void loadBreakpoints(Properties properties) {
-		Breakpoints bp = blink.getBreakpoints(); 
+		Breakpoints bp = z80.getBreakpoints(); 
 
 		// remove current breakpoints before loading a new set 
 		// from the snapshot (the old breakpoints doesn't theoretically
@@ -264,7 +265,7 @@ public class SaveRestoreVM {
 
     	// remember the Host computer system time 
     	// when a snapshot is installed and the Blink TIMx register are adjusted to "lost" time...
-    	properties.setProperty("Z88StoppedAtTime", "" + blink.getZ88StoppedAtTime());
+    	properties.setProperty("Z88StoppedAtTime", "" + z80.getZ88StoppedAtTime());
     	
     	// remember the current Z88 keyboard layout
     	properties.setProperty("Z88KbLayout", "" + Z88.getInstance().getKeyboard().getKeyboardLayout());
@@ -279,7 +280,7 @@ public class SaveRestoreVM {
     	properties.setProperty("Z88CardSlots", Boolean.toString(OZvm.getInstance().getGui().getZ88CardSlotsMenuItem().isSelected()));
     	
     	// remember the breakpoints
-    	properties.setProperty("Breakpoints", blink.getBreakpoints().breakpointList());
+    	properties.setProperty("Breakpoints", z80.getBreakpoints().breakpointList());
 		
     	// remember if virtual machine is to be auto-executed after restore,
     	// or just activate the debug command line..
@@ -373,9 +374,9 @@ public class SaveRestoreVM {
         loadBreakpoints(properties); // restore breakpoints from snapshot
         
         if (properties.getProperty("Z88StoppedAtTime") != null)
-        	blink.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("Z88StoppedAtTime")));
+        	z80.setZ88StoppedAtTime(Long.parseLong(properties.getProperty("Z88StoppedAtTime")));
         else
-        	blink.setZ88StoppedAtTime(System.currentTimeMillis());
+        	z80.setZ88StoppedAtTime(System.currentTimeMillis());
         
         if (properties.getProperty("Z88KbLayout") != null) {
         	int kbLayoutCountryCode = Integer.parseInt(properties.getProperty("Z88KbLayout"));

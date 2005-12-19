@@ -437,11 +437,17 @@ public abstract class Z80 {
 	public abstract void writeWord(final int addr, final int w);
 
 	/**
-	 * External implemenation of action to be taken when a display breakpoint is
+	 * External implemenation of action to be taken when a breakpoint is
 	 * encountered
 	 */
 	public abstract boolean breakPointAction();
 
+	/**
+	 * External implemenation of action to be taken when a display breakpoint is
+	 * encountered
+	 */
+	public abstract void breakPointInfo();
+	
 	/** IO ports */
 	public abstract void outByte(int addrA8, int addrA15, int bits);
 
@@ -569,7 +575,7 @@ public abstract class Z80 {
 	}
 
 	/** Z80 fetch/execute loop, engine full throttle ahead.. */
-	public void run(boolean debugMode) {
+	public void decode(boolean debugMode) {
 		z80Stopped = false;
 
 		do {
@@ -580,8 +586,7 @@ public abstract class Z80 {
 				return;
 			}
 
-			if ((debugMode == false) & IFF1() == true
-					&& interruptTriggered() == true) {
+			if ((debugMode == false) & IFF1() == true && interruptTriggered() == true) {
 				// a maskable interrupt want's to be executed...
 				execInterrupt();
 			}
@@ -998,6 +1003,7 @@ public abstract class Z80 {
 					tstatesCounter += 7;
 					break;
 				}
+				
 				case 71: /* LD B,A */{
 					B(A());
 					tstatesCounter += 4;
@@ -1012,19 +1018,9 @@ public abstract class Z80 {
 				}
 				case 73: /* LD C,C */{
 					// Dump Z80 register info at breakpoint, then continue execution
-					breakPointAction();
+					breakPointInfo();
+					tstatesCounter += 4;
 
-					Blink blink = Z88.getInstance().getBlink();
-					Memory memory = Z88.getInstance().getMemory(); 
-					
-					PC(_PC - 1); // reset Program Counter to Display Breakpoint Opcode 
-					int bpAddress = blink.decodeLocalAddress(PC());
-					int bpOpcode = memory.getByte(bpAddress);	// remember the breakpoint instruction opcode
-
-					int z80Opcode = blink.getBreakpoints().getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
-					memory.setByte(bpAddress, z80Opcode); // patch the original opcode back into memory (temporarily)
-					run(true); // execute the original instruction at display breakpoint
-					memory.setByte(bpAddress, bpOpcode);  // re-patch the breakpoint opcode, for future encounter					
 					break;
 				}
 				case 74: /* LD C,D */{
@@ -3213,7 +3209,7 @@ public abstract class Z80 {
 				case 251: /* EI */{
 					tstatesCounter += 4;
 					if (debugMode == false)
-						run(true); // execute a single instruction after EI...
+						decode(true); // execute a single instruction after EI...
 					IFF1(true); // open up for interrupts again...
 					IFF2(true);
 					break;

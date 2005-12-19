@@ -723,9 +723,9 @@ public class Gui extends JFrame {
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					chooser.setFileFilter(srVM.getSnapshotFilter());
 
-					if ((blink.getZ80engine() != null)) {
+					if ((Z88.getInstance().getProcessorThread() != null)) {
 						resumeExecution = true;
-						blink.stopZ80Execution();
+						Z88.getInstance().getProcessor().stopZ80Execution();
 					} else {
 						resumeExecution = false;
 					}
@@ -744,7 +744,7 @@ public class Gui extends JFrame {
 							
 							if (autorun == true | fullScreenMode == true) {
 								// debugging is disabled while full screen mode is enabled
-								blink.runZ80Engine(-1, true);
+								Z88.getInstance().runZ80Engine(-1, true);
 								Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88								
 							} else {
 								OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
@@ -752,7 +752,7 @@ public class Gui extends JFrame {
 							}
 						} catch (IOException e1) {							
 							Z88.getInstance().getMemory().setDefaultSystem();
-							blink.reset();				
+							Z88.getInstance().getProcessor().reset();				
 							blink.resetBlinkRegisters();
 					    	if (fullScreenMode == false) {
 					    		displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");					    		
@@ -763,7 +763,7 @@ public class Gui extends JFrame {
 					} else {
 						// User aborted Loading of snapshot..
 						if (resumeExecution == true) {							
-							blink.runZ80Engine(-1, true);		
+							Z88.getInstance().runZ80Engine(-1, true);		
 							Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
 						}
 					}
@@ -809,9 +809,9 @@ public class Gui extends JFrame {
 					chooser.setFileFilter(srVM.getSnapshotFilter());
 					chooser.setSelectedFile(new File(OZvm.defaultVmFile));
 					
-					if ((blink.getZ80engine() != null)) {
+					if ((Z88.getInstance().getProcessorThread() != null)) {
 						autorun = true;
-						blink.stopZ80Execution();
+						Z88.getInstance().getProcessor().stopZ80Execution();
 					} else {
 						autorun = false;
 					}
@@ -840,7 +840,7 @@ public class Gui extends JFrame {
 					
 					if (autorun == true) {
 						// Z80 engine was temporary stopped, now continue to execute...
-						blink.runZ80Engine(-1, true);
+						Z88.getInstance().runZ80Engine(-1, true);
 						Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
 					}
 				}
@@ -868,10 +868,10 @@ public class Gui extends JFrame {
 			softResetMenuItem.setText("Soft Reset");
 			softResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (blink.getZ80engine() != null) {						
+					if (Z88.getInstance().getProcessorThread() != null) {						
 						if (JOptionPane.showConfirmDialog(Gui.this, "Soft Reset Z88?") == JOptionPane.YES_OPTION) {
 							blink.signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
-							blink.pressResetButton();
+							Z88.getInstance().pressResetButton();
 						}
 					} else {
 						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
@@ -888,9 +888,9 @@ public class Gui extends JFrame {
 			hardResetMenuItem.setText("Hard Reset");
 			hardResetMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (blink.getZ80engine() != null) {						
+					if (Z88.getInstance().getProcessorThread() != null) {						
 						if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
-							blink.pressHardReset();
+							Z88.getInstance().pressHardReset();
 						}
 					} else {
 						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");

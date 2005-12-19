@@ -1116,19 +1116,17 @@ public final class Memory {
 	 * When a Card is inserted or removed, a NMI interrupt is signaled
 	 * from the Blink (the Z80 is instructed to execute a RST 66H instruction).
 	 */
-	private void slotConnectorSenseLine() {
-		final Blink bl = Z88.getInstance().getBlink();
-		
+	private void slotConnectorSenseLine() {		
 		Thread thread = new Thread() {
 			public void run() {
-				bl.setInterruptSignal(true);
+				Z88.getInstance().getProcessor().setInterruptSignal(true);
 				try { Thread.sleep(100); 
 				} catch (InterruptedException e1) {}
 				
 				// after a 0.1 sec, get out of coma...
 				// (the card manager goes automatically into coma
 				// when a card has been inserted or removed)
-				bl.coma = false; 
+				Z88.getInstance().getBlink().coma = false; 
 			}
 		};				
 		

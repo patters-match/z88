@@ -69,6 +69,8 @@ public class OZvm {
 	private CommandLine cmdLine = null;	
 	private Gui gui = null;
 
+	private boolean debugMode;
+
 	private OZvm() {
 		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         device = environment.getDefaultScreenDevice();
@@ -82,6 +84,8 @@ public class OZvm {
 		blink = Z88.getInstance().getBlink();
 		memory = Z88.getInstance().getMemory();
 		Z88.getInstance().getDisplay().start();
+		
+		debugMode = false;
 	}
 
 	public boolean getAutorunStatus() {
@@ -173,7 +177,7 @@ public class OZvm {
 						// loading of snapshot failed (file not found, corrupt or not a snapshot file
 						// define a default Z88 system as fall back plan.
 				    	memory.setDefaultSystem();
-				    	blink.reset();				
+				    	Z88.getInstance().getProcessor().reset();				
 				    	blink.resetBlinkRegisters();
 					}
 					arg++;
@@ -414,14 +418,22 @@ public class OZvm {
 	
 	public void commandLine(boolean status) {				
 		if (status == true) {
-			if (blink.getDebugMode() == true) {
+			if (getDebugMode() == true) {
 				cmdLine.getDebugGui().getCmdLineInputArea().grabFocus();
 			} else
 				cmdLine = new CommandLine();
 		} else
 			cmdLine = null;
 		
-		blink.setDebugMode(status);
+		setDebugMode(status);
+	}
+	
+	public boolean getDebugMode() {
+		return debugMode;
+	}
+
+	public void setDebugMode(boolean dbgMode) {
+		debugMode = dbgMode;
 	}
 	
 	public CommandLine getCommandLine() {
@@ -453,7 +465,7 @@ public class OZvm {
 
 		if (ozvm.getAutorunStatus() == true) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
-			ozvm.blink.runZ80Engine(-1, true);
+			Z88.getInstance().runZ80Engine(-1, true);
 			// make sure that keyboard focus is available for Z88 (screen)
 			Z88.getInstance().getDisplay().grabFocus();	 
 		} else {

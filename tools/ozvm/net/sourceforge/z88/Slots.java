@@ -357,7 +357,7 @@ public class Slots extends JPanel {
 								memory.loadRomBinary(romFile);
 								OZvm.getInstance().getGui().setWindowTitle("[" + (romFile.getName()) + "]");
 								// ROM installed, do a hard reset (flap is automatically closed)
-								blink.pressHardReset();
+								Z88.getInstance().pressHardReset();
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(Slots.this,
 										"Selected file couldn't be opened!");
@@ -431,7 +431,7 @@ public class Slots extends JPanel {
 								size.indexOf("K"))) * 1024, 0);
 						
 						// ROM installed, do a hard reset (flap is automatically closed)
-						blink.pressHardReset();
+						Z88.getInstance().pressHardReset();
 					} else {
 						// User aborted...
 						blink.signalFlapClosed();
