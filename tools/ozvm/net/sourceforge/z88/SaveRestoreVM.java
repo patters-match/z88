@@ -50,6 +50,7 @@ public class SaveRestoreVM {
 	public SaveRestoreVM() {
 		z80 = Z88.getInstance().getProcessor();
 		memory = Z88.getInstance().getMemory();
+		blink = Z88.getInstance().getBlink();
 	}
 
 	/**
