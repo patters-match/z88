@@ -36,9 +36,9 @@ DONE
 - Fast bank switching in lowram.asm using RST 30H and replace all OZ OS_Mpb calls in available sources. (GBS)
 - Fast bank binding status in lowram.asm using CALL OZ_MGB and replace all OZ OS_Mgb calls in available sources. (GBS)
 - Source code of font bitmaps and hidden token table for UK, FR, SE/FI & DK localisations. (GBS)
-- EXTCALL - 24bit Call Subroutine in external bank, implemented using RST 10H vector using a total of 4 bytes per call.
+- EXTCALL - 24bit Call Subroutine in external bank, implemented using RST 10H vector using a total of 4 bytes per call. (GBS)
   (implementation allows absolute bank or slot-relative bank referencing)
-- Removed auto-blowing of File Eprom Header during reset, when empty Eprom card found in slot 3. P3
+- Removed auto-blowing of File Eprom Header during reset, when empty Eprom card found in slot 3. (GBS)
   (Actually, OS_EPR, A=EprSave is now the only function that tries to blow header on card. All other OS_EPR just reads
    the slot for a File Eprom)
 
