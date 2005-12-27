@@ -40,18 +40,21 @@ Begin with compiling the Mpm assembler, which is located in the /tools/mpm direc
 favorite C compiler on your platform with the following supplied make files:
 
 cd /tools/mpm
-make -f makefile.z80.borlandccp55.win32  [using free Borland C++ V5.5 for Windows]
+make -f makefile.z80.borlandccp55.win32  [using free Borland C++ V5.5 on Windows]
 or
-make -f makefile.z80.unix [using GCC on CygWin/Windows, GCC/Linux/*X]
+make -f makefile.z80.gcc.win32 [using MinGW or Cygwin GCC on Windows]
+or
+make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OSX/Unix]
 
 Then, to compile & run the MakeApp utility you need to have a Java Development Kit 1.4.x or
-later installed. Download it from http://java.sun.com.
+later installed. Download it from http://java.sun.com for your operating system platform.
 
 cd /tools/makeapp
 makejar.bat (or makeapp.sh for Unix) script).
 
-The bat file contains Java-related instructions if you have problem getting the java compiler
-working. An executable JAR file will be produced (makeapp.jar) in the /tools/makeapp directory.
+The bat file (or shell script) contains Java-related instructions if you have problem getting the
+java compiler working. An executable JAR file will be produced (makeapp.jar) in the /tools/makeapp
+directory.
 
                                      -  *  -
 
