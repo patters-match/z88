@@ -274,7 +274,7 @@ public class Dz {
 		"CALL NC,{0}", /* D4 */
 		"PUSH DE", /* D5 */
 		"SUB  {0}", /* D6 */
-		"RST  10h", /* D7 */
+		"EXTCALL {0},{1}", /* D7 */
 
 		"RET  C", /* D8 */
 		"EXX", /* D9 */
@@ -310,7 +310,7 @@ public class Dz {
 		"CALL P,{0}", /* F4 */
 		"PUSH AF", /* F5 */
 		"OR   {0}", /* F6 */
-		"RST  30h", /* F7 */
+		"OZ   MPB", /* F7 */
 
 		"RET  M", /* F8 */
 		"LD   SP,HL", /* F9 */
@@ -564,7 +564,7 @@ public class Dz {
 		2, /* D4 "CALL NC,nn"   */
 		0, /* D5 "PUSH DE"      */
 		1, /* D6 "SUB  n"       */
-		0, /* D7 "RST  10H"     */
+		3, /* D7 "EXTCALL <addr>,<bank>" (RST  10H)     */
 
 		0, /* D8 "RET  C"       */
 		0, /* D9 "EXX"          */
@@ -4257,10 +4257,21 @@ public class Dz {
 		mnemonic.append(strMnem[i]);	// the instruction opcode string...
 		if (argsMnem != null) {
 			int replaceMacro = mnemonic.indexOf("{0}");
-
+			int addr;
+			
 			switch (argsMnem[i]) {
+				case 3 :
+					addr = opcode[instrOpcodeOffset];
+					addr += 256 * opcode[instrOpcodeOffset+1];
+	
+					int bank = opcode[instrOpcodeOffset+2];
+					mnemonic.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
+					int replaceBankMacro = mnemonic.indexOf("{1}");
+					mnemonic.replace(replaceBankMacro, replaceBankMacro+3, byteToHex(bank, true));
+					instrOpcodeOffset += 3; /* move past opcode */
+					break;
 				case 2 :
-					int addr = opcode[instrOpcodeOffset];
+					addr = opcode[instrOpcodeOffset];
 					addr += 256 * opcode[instrOpcodeOffset+1];
 
 					mnemonic.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
@@ -4525,6 +4536,8 @@ public class Dz {
 				}
 				break;
 
+			case 0xD7: /* RST 10h, ExtCall interface 1 byte opcode + 24bit address (OZ 4.1 or newer) */
+				return 4; 
 			case 223 : /* RST 18h, FPP interface */
 				return ++instrOpcodeOffset;
 
