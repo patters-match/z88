@@ -16,7 +16,7 @@
 #                       ZZZZZZZZZZZZZZ      888888888888        000000000
 # ------------------------------------------------------------------------------
 #
-# Generic GCC Unix/Linux makefile for the Mpm Assembler, Z80 edition.
+# MinGW/Windows or Cygwin GCC makefile for the Mpm Assembler, Z80 edition.
 #
 # Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
 #
@@ -35,7 +35,7 @@
 
 prefix = /usr
 CC = gcc
-CFLAGS = -DMPM_Z80=1 -DUNIX=1 -Wall -O2 -I.
+CFLAGS = -DMPM_Z80=1 -DMSDOS=1 -Wall -O2 -I.
 
 exec_prefix = ${prefix}
 bindir = ${exec_prefix}/bin
