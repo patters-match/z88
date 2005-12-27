@@ -276,10 +276,14 @@ xdef    OSEprTable
 
         ld      bc, 250
         OZ      OS_Ust                          ; timer underflow in 2.5 secs
-
+.check_fepr
         call    IsEPROM
-        jp      c, sv_11                        ; not EPROM, exit
+        jr      nc, found_fepr                  ; File EPROM identified
 
+        call    FormatCard                      ; no File header found, try to create file header in slot 3
+        jp      c, sv_11                        ; error? exit
+        jr      check_fepr
+.found_fepr
         ld      a, (ubEpr_Fstype)               ; check it's filing EPROM
         cp      1
         jr      z, sv_1
@@ -632,8 +636,6 @@ xdef    OSEprTable
         call    PeekBHL
         cp      d
         ld      a, e
-        scf                                     ; Fc=0 !! unnecessary
-        ccf
         jr      nz, ise_1                       ; not changed, ROM or EPROM
 
         call    PokeBHL_epr                     ; put original value back and exit
@@ -641,7 +643,7 @@ xdef    OSEprTable
 
 .ise_1
         cp      b
-        jr      z, ise_3                        ; unformatted? format
+        jr      z, ise_5                        ; unformatted?
 
         ld      d, a                            ; store subtype
         dec     hl
@@ -663,10 +665,6 @@ xdef    OSEprTable
         add     hl, de
         jr      ise_2
 
-.ise_3
-        call    FormatCard
-        jr      c, ise_6                        ; error? exit
-
 .ise_4
         or      a                               ; !! unnecessary
         ld      (ubEpr_SubType), a              ; store EPROM variables
@@ -680,8 +678,8 @@ xdef    OSEprTable
         or      a                               ; Fc=0
         jr      ise_6
 .ise_5
-        scf
         ld      a, RC_Fail
+        scf
 .ise_6
         pop     bc
         pop     de
