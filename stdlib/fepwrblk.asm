@@ -43,7 +43,7 @@ DEFC VppBit = 1
 ; ***************************************************************************
 ;
 ; Write a block of bytes to the Flash Eprom Card, from address
-; DE to BHL of block size IX. If a block will cross a bank boundary, it is
+; DE to BHL of block size IY. If a block will cross a bank boundary, it is
 ; automatically continued on the next adjacent bank of the card.
 ; On return, BHL points at the byte after the last written byte.
 ;
