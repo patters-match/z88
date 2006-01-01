@@ -19,12 +19,12 @@
 defc banksize = 16384
 
 if POPDOWN
-     defc RAM_pages = 17408/256         ; total RAM DOR pages, 17K bytes contigous memory from upper 8K segment 0 ($2000 onwards)
+     defc RAM_pages = 17408/256                  ; total RAM DOR pages, 17K bytes contigous memory from upper 8K segment 0 ($2000 onwards)
      defc vararea = $2000
 endif
 
 if BBCBASIC
-     defc vararea = $4000               ; The BBC BASIC version uses the continous RAM from segment 1 upwards ($4000 onwards)
+     defc vararea = $4000                        ; The BBC BASIC version uses the continous RAM from segment 1 upwards ($4000 onwards)
 endif
 
 DEFVARS vararea

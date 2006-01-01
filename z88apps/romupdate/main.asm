@@ -108,14 +108,17 @@
 
 ; *************************************************************************************
 ; Register the banks of the 64K sector that is not part of the DOR of the found
-; application in the [presvdbanks] array.
+; application in the [presvdbanks] array. Empty (containing FF's) banks are marked as 0.
+;
 ; The array will contain the numbers of the absolute banks that are going to be
-; preserved as :RAM.-/bank.<bankno> files. The array contains four items, where a
+; preserved as ":RAM.-/bank.<bankno>" files. The array contains four items, where a
 ; single item is 0, which is the bank of the application to be updated (hence
 ; not preserved as a bank file).
 ;
 ; IN:
 ;       BHL = pointer to application DOR to be updated
+; OUT:
+;       [presvdbanks] array updated with bank numbers.
 ;
 ; Registers changed after return:
 ;    ..B...HL/IXIY same
@@ -130,7 +133,7 @@
                     or   c
                     cp   b
                     call z,notpreserved                 ; don't register the bank which is to be updated
-                    call nz,preserve                    ; this bank is to be preserved (not part of DOR)
+                    call nz,preservebank                ; this bank is to be preserved (not part of DOR)
                     inc  c
                     dec  c
                     ret  z                              ; sector is scanned for banks to be preserved
@@ -140,6 +143,9 @@
 .notpreserved       ld   a,0                            ; indicate bank not to be preserved as 0
 .preserve           ld   (de),a
                     ret
+.preservebank       call IsBankUsed                     ; only preserve bank if it contains data...
+                    jr   nz, preserve
+                    jr   notpreserved                   ; bank contained only FF's, not necessary to preserve...
 ; *************************************************************************************
 
 
@@ -150,30 +156,55 @@
 ;
 ; IN:
 ;       DEHL = calculated CRC
-;
 ; OUT:
 ;       Fz = 1, CRC is valid
 ;       Fz = 0, CRC does not match the CRC from the Config file
 ;
 ; Registers changed after return:
-;    A.BCDEHL/IXIY same
-;    .F....../.... different
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
 ;
 .CheckBankFileCrc
                     push bc
-                    push de
-                    push hl
-                    cp   a
-                    ld   bc,(bankfilecrc)
-                    sbc  hl,bc
-                    jr   nz, exit_checkcrc
-                    ex   de,hl
-                    ld   bc,(bankfilecrc+2)
-                    sbc  hl,bc
+                    ld   bc,bankfilecrc
+                    call CheckCrc
 .exit_checkcrc
-                    pop  hl
-                    pop  de
                     pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Compare CRC in DEHL with (BC).
+;
+; IN:
+;       DEHL = calculated CRC
+;       BC = pointer to start of CRC in memory
+; OUT:
+;       Fz = 1, CRC is valid
+;       Fz = 0, CRC does not match the CRC from the Config file
+;       BC points at byte after CRC in memory
+;
+; Registers changed after return:
+;    ....DEHL/IXIY same
+;    AFBC..../.... different
+;
+.CheckCrc
+                    ld   a,(bc)
+                    inc  bc
+                    cp   l
+                    ret  nz
+                    ld   a,(bc)
+                    inc  bc
+                    cp   h
+                    ret  nz
+                    ld   a,(bc)
+                    inc  bc
+                    cp   e
+                    ret  nz
+                    ld   a,(bc)
+                    inc  bc
+                    cp   d
                     ret
 ; *************************************************************************************
 
@@ -183,6 +214,10 @@
 ; ":RAM.-/bank.<bankno>" files. Three out of the four banks in the 64K sector is
 ; preserved. The remaining bank is handled separately which contains the code to be
 ; updated.
+;
+; Before the bank is preserved to a RAM file, a CRC is made of the bank and
+; stored at [presvdbankcrcs]. The CRC is checked before the bank is later restored to
+; ensure that the RAM file is an exact match of the original bank contents on the card.
 ;
 ; IN:
 ;       None.
@@ -200,7 +235,7 @@
 .presrvbank_loop
                     ld   a,(de)
                     or   a
-                    call nz,preservebank                ; this bank is to be preserved as a file
+                    call nz,preservesectorbank          ; this bank is to be preserved as a file
                     ret  c                              ; an error occurred while preserving a bank...
 
                     inc  b
@@ -209,7 +244,7 @@
                     dec  b
                     dec  de
                     jr   presrvbank_loop
-.preservebank
+.preservesectorbank
                     push bc
                     push de
                     ld   b,a
@@ -229,6 +264,7 @@
                     ld   a,(de)                         ; get bank (number) to be preserved
                     ld   b,a
                     call MemDefBank                     ; bind bank into Z80 address space
+                    call CrcSectorBank                  ; make a CRC of bank to be preserved and store it at [presvdbankcrcs][bankNo]
                     push bc                             ; (preserve old bank binding)
                     ld   bc, 16384
                     ld   de,0
@@ -240,6 +276,38 @@
                     pop  de
                     pop  bc
                     ret
+.CrcSectorBank
+                    push bc
+                    push de
+                    push hl
+                    push af                             ; the (absolute) bank number
+
+                    ld   bc,16384                       ; CRC of complete bank...
+                    call CrcBuffer                      ; calculate CRC-32 of bank at (HL)
+                    pop  af
+                    push af
+                    and  @11111100                      ; bank no within sector
+                    add  a,a
+                    add  a,a                            ; index offset for CRC array
+                    ld   b,0
+                    ld   c,a
+                    ld   a,l
+                    ld   (bc),a
+                    inc  bc
+                    ld   a,h
+                    ld   (bc),a
+                    inc  bc
+                    ld   a,e
+                    ld   (bc),a
+                    inc  bc
+                    ld   a,d
+                    ld   (bc),a                         ; CRC registered for bank
+
+                    pop  af
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    ret
 ; *************************************************************************************
 
 
@@ -247,6 +315,8 @@
 ; Restore the banks into the 64K sector that was previously preserved in RAM filing
 ; system as ":RAM.-/bank.<bankno>" files. The banks to be restored are registered in
 ; the [presvdbanks] array.
+;
+; Restoring the banks has only meaning if the sector has been erased.
 ;
 ; IN:
 ;       None.
@@ -322,7 +392,7 @@ endif
 ; IN:
 ;       B = bank number
 ; OUT:
-;       (filename) = filename added with bank number extension
+;       (filename) = complete bank filename added with bank number extension
 ;       HL = points to start of filename
 ;
 ; Registers changed after return:
@@ -341,6 +411,53 @@ endif
                     ld   (de),a                         ; null terminate filename
                     pop  de
                     ld   hl, filename                   ; return pointer to start of filename
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Validate bank contents to be 'empty' or containing data; an empty bank only
+; contains FFh bytes.
+;
+; IN:
+;       A = Bank number (absolute)
+; OUT:
+;       Fz = 1, Bank was empty
+;       Fz = 0, Bank contains data / code
+;
+; Registers changed after return:
+;    A.BCDEHL/IXIY same
+;    .F....../.... different
+;
+.IsBankUsed
+                    push bc
+                    push af
+                    push hl
+
+                    ld   hl,0
+                    call SafeBHLSegment                 ; HL points at start of 'free' segment in Z80 address space
+
+                    ld   b,a
+                    call MemDefBank                     ; bind bank into Z80 address space
+                    push bc                             ; (preserve old bank binding)
+                    ld   bc, 16384
+.check_empty_bank
+                    ld   a,(hl)
+                    inc  hl
+                    cp   $ff
+                    jr   nz, bank_not_empty             ; a non-empty byte was found in the bank...
+                    dec  bc
+                    ld   a,b
+                    or   c                              ; return Fz = 1, if last byte of bank was checked
+                    jr   nz, check_empty_bank
+.bank_not_empty
+                    pop  bc
+                    call MemDefBank                     ; restore old bank binding
+
+                    pop  hl
+                    pop  bc
+                    ld   a,b                            ; original A restored
+                    pop  bc
                     ret
 ; *************************************************************************************
 
@@ -394,6 +511,11 @@ endif
 ; *************************************************************************************
 ; Copy base filename ":RAM.-/bank." to (filename), and return DE to point at first
 ; character after filename (so that en extension and null-terminator might be added).
+;
+; IN:
+;       None.
+; OUT:
+;       (filename) = contains ":RAM.-/bank."
 ;
 ; Registers changed after return:
 ;    A.BC..HL/IXIY same
