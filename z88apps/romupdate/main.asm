@@ -289,8 +289,14 @@
                     and  @11111100                      ; bank no within sector
                     add  a,a
                     add  a,a                            ; index offset for CRC array
+                    push hl
+                    ld   hl,presvdbankcrcs
                     ld   b,0
                     ld   c,a
+                    add  hl,bc
+                    push hl
+                    pop  bc
+                    pop  hl
                     ld   a,l
                     ld   (bc),a
                     inc  bc
@@ -356,14 +362,36 @@
                     jr   c, exit_restorebanks           ; couldn't open file ...
 
                     ld   bc, 16384
+                    push bc
                     ld   de,buffer
+                    push de
                     ld   hl,0
                     oz   OS_MV                          ; copy bank file contents into buffer...
+                    pop  hl
+                    pop  bc
                     jr   c, exit_restorebanks           ; I/O error!
+
+                    call CrcBuffer                      ; return CRC of buffer digest in DEHL
+
+                    pop  bc
+                    push bc
+                    ld   a,(bc)                         ; get bank (number) to be restored
+                    and  @11111100                      ; bank number within sector...
+                    ld   bc,presvdbankcrcs              ; base pointer to array of preserved bank CRC's
+                    add  a,a
+                    add  a,a                            ; sector bank no * 4 = pointer to array offset
+                    add  a,c
+                    ld   c,a
+                    ld   a,0
+                    adc  a,b
+                    ld   b,a                            ; pointer to stored CRC of preserved bank within array
+                    call CheckCrc                       ; is the CRC of buffer contents the same as CRC from original bank?
+                    jr   nz, exit_restorebanks          ; contents of preserved bank file is corrupted and cannot be restored!
 
                     pop  de
                     push de
                     ld   a,(de)                         ; get bank (number) to be restored
+
                     ld   b,a
                     ld   hl,0                           ; blow from start of bank...
                     ld   de,buffer                      ; blow contents of buffer to bank
