@@ -28,7 +28,7 @@
      include "dor.def"
      include "romupdate.def"
 
-     LIB MemDefBank, SafeBHLSegment, FlashEprWriteBlock
+     LIB MemDefBank, SafeBHLSegment, FlashEprWriteBlock, FlashEprCardId
 
      XREF ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
      XREF ApplRomCopyDor
@@ -76,9 +76,20 @@
 
                     ld   c,3                            ; check slot for an application card
                     ld   de, appName                    ; and return pointer DOR for application name (pointed to by DE)
+.findappslot_loop
                     call ApplRomFindDOR
-                    jp   c,suicide                      ; application DOR not found or no application ROM available.
-                    call RegisterPreservedSectorBanks   ; register the banks to be preserved in the sector of the found DOR
+                    jr   nc,check_write_support         ; DOR was found in slot, but can Flash Card be updated in slot?
+                    inc  c
+                    dec  c                              ; application DOR not found or no application ROM available,
+                    jr   z, suicide                     ; all slots scanned and no DOR was found
+                    dec  c
+                    jr   findappslot_loop               ; poll next slot for DOR...
+.check_write_support
+                    call FlashWriteSupport              ; is flash card updateable in slot?
+                    jp   c,suicide                      ; no write/erase support in slot!
+
+                    call RegisterPreservedSectorBanks   ; Flash Card may be updated,
+                                                        ; register the banks to be preserved in the sector of the found DOR
 
                     ld   bc,128                         ; local filename (pointer)..
                     ld   hl,bankfilename                ; filename to card image
@@ -377,8 +388,8 @@
 
                     pop  bc
                     push bc
-                    ld   a,(bc)                         ; get bank (number) to be restored
-                    and  @11111100                      ; bank number within sector...
+                    ld   a,(bc)
+                    and  @11111100                      ; get bank (number) within sector...
                     ld   bc,presvdbankcrcs              ; base pointer to array of preserved bank CRC's
                     add  a,a
                     add  a,a                            ; sector bank no * 4 = pointer to array offset
@@ -641,6 +652,63 @@ endif
                     ldir
                     pop  hl
                     pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Validate the Flash Card erase/write functionality in the specified slot.
+; If the Flash Card in the specified slot contains an Intel chip, the slot
+; must be 3 for erase and write functionality.
+; Report an error to the caller with Fc = 1, if an Intel Flash chip was recognized
+; in all slots except 3.
+;
+; IN:
+;    C = slot number
+;
+; OUT:
+;    Fz = 1, if a Flash Card is available in the current slot (Fz = 0, no Flash Card available!)
+;         B = size of card in 16K banks
+;    Fc = 1, if no erase/write support is available for current slot.
+;
+; Registers changed after return:
+;    A..CDEHL/IXIY same
+;    .FB...../.... different
+;
+.FlashWriteSupport
+                    push hl
+                    push de
+                    push bc
+                    push af
+                    call FlashEprCardId
+                    jr   nc, flashcard_found
+                    or   c                   ; Fz = 0, indicate no Flash Card available in slot
+                    scf                      ; Fc = 1, indicate no erase/write support either...
+                    jr   exit_chckflsupp
+.flashcard_found
+                    ld   a,c
+                    cp   3
+                    jr   z, end_chckflsupp   ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
+                    ld   a,$01
+                    cp   h                   ; Intel flash chip in slot 0,1 or 2?
+                    jr   z, end_chckflsupp   ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
+                    cp   a                   ; (Fz=1, indicate that Flash is available..)
+                    scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
+.end_chckflsupp
+                    pop  de
+                    ld   a,d                 ; A restored (f changed)
+                    pop  de
+                    ld   c,e                 ; C restored (B = total of 16K banks on card)
+                    pop  de                  ; DE restored
+                    pop  hl                  ; HL restored
+                    ret
+.exit_chckflsupp
+                    pop  de
+                    ld   a,d                 ; A restored (f changed)
+                    pop  bc
+                    pop  de
+                    pop  hl
                     ret
 ; *************************************************************************************
 
