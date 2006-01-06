@@ -181,8 +181,9 @@
 ;       DEHL = calculated CRC
 ;       BC = pointer to start of CRC in memory
 ; OUT:
+;       Fc = 0 (always)
 ;       Fz = 1, CRC is valid
-;       Fz = 0, CRC does not match the CRC from the Config file
+;       Fz = 0, CRC does not match the CRC supplied in DEHL
 ;       BC points at byte after CRC in memory
 ;
 ; Registers changed after return:
@@ -193,19 +194,22 @@
                     ld   a,(bc)
                     inc  bc
                     cp   l
-                    ret  nz
+                    jr   nz, return_crc_status
                     ld   a,(bc)
                     inc  bc
                     cp   h
-                    ret  nz
+                    jr   nz, return_crc_status
                     ld   a,(bc)
                     inc  bc
                     cp   e
-                    ret  nz
+                    jr   nz, return_crc_status
                     ld   a,(bc)
                     inc  bc
                     cp   d
-                    ret
+.return_crc_status
+                    scf
+                    ccf                                 ; return Fc = 0 always
+                    ret                                 ; Fz indicates CRC status
 ; *************************************************************************************
 
 
@@ -248,30 +252,28 @@
                     push bc
                     push de
                     ld   b,a
-                    call GetBankFilename                ; filename based on bank number in B
-                    ld   d,h
-                    ld   e,l
-                    ld   bc,128                         ; local filename
                     ld   a, OP_OUT
-                    oz   GN_Opf
+                    call GetBankFileHandle
                     jr   c, exit_preservebank           ; couldn't create file (in use?)...
 
                     ld   hl,0
                     call SafeBHLSegment                 ; HL points at start of 'free' segment in Z80 address space
-
+                                                        ; (C = Segment specifier of free segment)
                     pop  de
                     push de
                     ld   a,(de)                         ; get bank (number) to be preserved
                     ld   b,a
                     call MemDefBank                     ; bind bank into Z80 address space
-                    call CrcSectorBank                  ; make a CRC of bank to be preserved and store it at [presvdbankcrcs][bankNo]
                     push bc                             ; (preserve old bank binding)
+                    call CrcSectorBank                  ; make a CRC (of bank to be preserved) and store it at presvdbankcrcs[bankNo]
                     ld   bc, 16384
                     ld   de,0
                     oz   OS_MV                          ; copy bank contents to file...
                     pop  bc
                     call MemDefBank                     ; restore old bank binding
+                    push af
                     oz   GN_Cl                          ; close file (copy of bank)
+                    pop  af                             ; return OS_MV status (RC_ROOM error, or bank successfully copied to file)
 .exit_preservebank
                     pop  de
                     pop  bc
@@ -290,15 +292,15 @@
                     add  a,a
                     add  a,a                            ; index offset for CRC array
                     push hl
-                    ld   hl,presvdbankcrcs
+                    ld   hl,presvdbankcrcs              ; base pointer of array of bank CRC's
                     ld   b,0
                     ld   c,a
-                    add  hl,bc
+                    add  hl,bc                          ; offset pointer to this bank CRC
                     push hl
                     pop  bc
                     pop  hl
                     ld   a,l
-                    ld   (bc),a
+                    ld   (bc),a                         ; presvdbankcrcs[bankNo] = CRC
                     inc  bc
                     ld   a,h
                     ld   (bc),a
@@ -307,10 +309,86 @@
                     ld   (bc),a
                     inc  bc
                     ld   a,d
-                    ld   (bc),a                         ; CRC registered for bank
+                    ld   (bc),a                         ; CRC registered for bankNo
 
                     pop  af
                     pop  hl
+                    pop  de
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; CRC check the sector banks of the 64K sector that was preserved in RAM
+; filing system as ":RAM.-/bank.<bankno>" files.
+;
+; IN:
+;       None.
+; OUT:
+;       Fc = 1,
+;         File I/O error (A = RC_xx reason code)
+;       Fc = 0,
+;         Fz = 1, all (preserved file) banks were successfully CRC checked
+;         Fz = 0, a preserved bank didn't match original CRC from card
+;
+; Registers changed after return:
+;    ......../..IY same
+;    AFBCDEHL/IX.. different
+;
+.CheckPreservedSectorBanks
+                    ld   de,presvdbanks+3               ; point at end of array
+                    ld   b,3
+.checkcrc_loop
+                    ld   a,(de)
+                    or   a
+                    call nz,checkcrcbank                ; compare CRC of bank file with CRC from card
+                    ret  c                              ; an I/O error occurred before CRC checking the bank...
+                    ret  nz                             ; CRC error!
+
+                    inc  b
+                    dec  b
+                    ret  z                              ; all sector banks have been successfully CRC checked
+                    dec  b
+                    dec  de
+                    jr   checkcrc_loop
+.checkcrcbank
+                    push bc
+                    push de
+                    ld   b,a
+                    ld   a, OP_IN
+                    call GetBankFileHandle
+                    jr   c, exit_checkcrcbank           ; couldn't open file ...
+
+                    ld   bc, 16384
+                    push bc
+                    ld   de,buffer
+                    push de
+                    ld   hl,0
+                    oz   OS_MV                          ; copy bank file contents into buffer...
+                    pop  hl
+                    pop  bc
+                    push af
+                    oz   GN_Cl                          ; close file
+                    pop  af
+                    jr   c, exit_checkcrcbank           ; I/O error when filling buffer!
+                                                        ; HL = start of buffer, BC = length of buffer
+                    call CrcBuffer                      ; return CRC of buffer digest in DEHL
+
+                    pop  bc
+                    push bc
+                    ld   a,(bc)                         ; get bank (number) to be restored
+                    and  @11111100                      ; bank number within sector...
+                    ld   bc,presvdbankcrcs              ; base pointer to array of preserved bank CRC's
+                    add  a,a
+                    add  a,a                            ; sector bank no * 4 = pointer to array offset
+                    add  a,c
+                    ld   c,a
+                    ld   a,0
+                    adc  a,b
+                    ld   b,a                            ; pointer to stored CRC of preserved bank within array
+                    call CheckCrc                       ; is the CRC of buffer contents the same as CRC from original bank?
+.exit_checkcrcbank
                     pop  de
                     pop  bc
                     ret
@@ -353,12 +431,8 @@
                     push bc
                     push de
                     ld   b,a
-                    call GetBankFilename                ; filename based on bank number in B
-                    ld   d,h
-                    ld   e,l
-                    ld   bc,128                         ; local filename
                     ld   a, OP_IN
-                    oz   GN_Opf
+                    call GetBankFileHandle
                     jr   c, exit_restorebanks           ; couldn't open file ...
 
                     ld   bc, 16384
@@ -370,23 +444,6 @@
                     pop  hl
                     pop  bc
                     jr   c, exit_restorebanks           ; I/O error!
-
-                    call CrcBuffer                      ; return CRC of buffer digest in DEHL
-
-                    pop  bc
-                    push bc
-                    ld   a,(bc)                         ; get bank (number) to be restored
-                    and  @11111100                      ; bank number within sector...
-                    ld   bc,presvdbankcrcs              ; base pointer to array of preserved bank CRC's
-                    add  a,a
-                    add  a,a                            ; sector bank no * 4 = pointer to array offset
-                    add  a,c
-                    ld   c,a
-                    ld   a,0
-                    adc  a,b
-                    ld   b,a                            ; pointer to stored CRC of preserved bank within array
-                    call CheckCrc                       ; is the CRC of buffer contents the same as CRC from original bank?
-                    jr   nz, exit_restorebanks          ; contents of preserved bank file is corrupted and cannot be restored!
 
                     pop  de
                     push de
@@ -444,6 +501,32 @@ endif
 
 
 ; *************************************************************************************
+; Get file handle for temporary bank file ":RAM.-/bank.<bankno>".
+;
+; IN:
+;    A = OP_xx reason code for GN_Opf
+;    B = Bank number
+; OUT:
+;    Fc = 0
+;         IX = file handle
+;    Fc = 1
+;         file open error (A = reason code)
+;
+; Registers changed after return:
+;    ..BCDEHL/..IY same
+;    AF....../IX.. different
+;
+.GetBankFileHandle
+                    call GetBankFilename                ; filename based on bank number in B
+                    ld   d,h
+                    ld   e,l
+                    ld   bc,128                         ; local filename
+                    oz   GN_Opf                         ; return file handle in IX (if successfull)
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; Validate bank contents to be 'empty' or containing data; an empty bank only
 ; contains FFh bytes.
 ;
@@ -464,7 +547,7 @@ endif
 
                     ld   hl,0
                     call SafeBHLSegment                 ; HL points at start of 'free' segment in Z80 address space
-
+                                                        ; (C = Segment specifier of free segment)
                     ld   b,a
                     call MemDefBank                     ; bind bank into Z80 address space
                     push bc                             ; (preserve old bank binding)
