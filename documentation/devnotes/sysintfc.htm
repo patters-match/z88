@@ -1,26 +1,48 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-   <title>Interfacing with the system</title>
+
+   
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   
+  <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   
+  <title>Interfacing with the system</title>
 </head>
+
+
 <body>
 
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-<tr>
-<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
-</tr>
-<tr>
-<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="applovw.htm">Previous</a></td>
-<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><a href="index.htm">Contents</a></td>
-<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="aplstrct.htm">Next</a></td>
-</tr>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+  <tbody>
+    <tr>
+
+      <th colspan="3" align="center">Z88 Developers' Notes</th>
+
+    </tr>
+
+    <tr>
+
+      <td align="left" valign="bottom" width="10%"><a href="applovw.htm">Previous</a></td>
+
+      <td align="center" valign="bottom" width="80%"><a href="index.htm">Contents</a></td>
+
+      <td align="right" valign="bottom" width="10%"><a href="aplstrct.htm">Next</a></td>
+
+    </tr>
+
+  </tbody>
 </table>
-<hr WIDTH="100%">
+
+<hr width="100%">
 <p>
 
-<b><font size=+1>3. Interfacing with the system</font></b>
+<b><font size="+1">3. Interfacing with the system</font></b>
+</p>
 <p>The application program interfaces with the system in two ways. An application
 consists of both an application header and a main body. The header sets
 up various parameters for the application such as whether it is good or
@@ -32,15 +54,17 @@ interfaces with the system via calls. Most of the main system calls are
 entered using a RST $20 instruction, the floating point routines being
 the exception, followed by one or two bytes which define the required function.
 A full list is given in 'System Calls Reference'. For example the code
-to write a character to standard output (called <a href='osout.htm'>OS_Out</a>) would be called
+to write a character to standard output (called <a href="osout.htm">OS_Out</a>) would be called
 as follows:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RST&nbsp; $20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Z80 restart instruction
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFB <a href='osout.htm'>OS_Out</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; reason code</pre>
+</p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RST&nbsp; $20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Z80 restart instruction<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DEFB <a href="osout.htm">OS_Out</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; reason code</pre>
+
 In the text we will write something like this:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CALL_OZ(<a href='osout.htm'>OS_Out</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write a character</pre>
-as though a macro called 'CALL_OZ' exists to generate the calls. A macro
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CALL_OZ(<a href="osout.htm">OS_Out</a>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write a character<br>or<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OZ      <a href="osout.htm">OS_Out</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; write a character<br><br></pre>
+
+which is pre-defined pseudo instructions allowed by the assembler called 'CALL_OZ' and 'OZ' to generate the calls. A macro
 is to be recommended for automatic generation of the one and two byte codes.
-However it is written this code sends the character whose ASCII value is
+However it is written, this code sends the character whose ASCII value is
 in A to the screen. This format of operating system call has the merit
 of economy of space; one byte for the RST instruction, one byte for the
 appended function code. The system call can easily find the appended byte
@@ -54,23 +78,17 @@ is unambiguously the base the '$' is omitted. The '@' symbol is used in
 prefix fashion to indicate binary numbers. The mnemonic names for the calls
 are prefixed by either 'GN', 'OS', 'DC' or 'FP'. This represents a rather
 arbitrary division into:
-<pre>'GN_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; General utilities like arithmetic routines and data type
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; conversion.
+</p>
+<pre>'GN_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; General utilities like arithmetic routines and data type<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; conversion.<br><br>'OS_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Operating System calls like process management and error handling.<br><br>'DC_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Director/CLI calls are very low level, for which an alternative<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'OS' or 'GN' call usually provides a more convenient interface.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Director is a synonym for Index. CLI stands for Command Line<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interpreter.<br><br>'FP_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Floating point calls access the internal floating point package.</pre>
 
-'OS_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Operating System calls like process management and error handling.
-
-'DC_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Director/CLI calls are very low level, for which an alternative
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'OS' or 'GN' call usually provides a more convenient interface.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Director is a synonym for Index. CLI stands for Command Line
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interpreter.
-
-'FP_'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Floating point calls access the internal floating point package.</pre>
 When one wishes to find the system call to perform a particular action,
 turn to the 'System Calls Finder,' This lists various actions the user
 may want to perform, and refers to the appropriate system calls whose specification
 may be found in 'System Calls Reference'.
-<br>&nbsp;
+<br>
+&nbsp;
 <p><b>Notation</b>
+</p>
 <p>We now introduce the notation that will be adopted in presenting the
 interface specifications of the various calls. Uppercase register letters
 (A,HL etc.) represent the main register set; lower case letters (a,hl etc.)
@@ -80,8 +98,9 @@ and so almost every call is specified as corrupting all the alternate registers.
 For this reason the changes to the alternate set are not mentioned in most
 call specifications. Changes to registers are indicated as follows. Here
 F, HL, and IX may have been corrupted and the other registers remain intact:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A.BCDE../..IY same
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .F....HL/IX.. different</pre>
+</p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A.BCDE../..IY same<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .F....HL/IX.. different</pre>
+
 The IY register is never affected or used as a parameter by system calls.
 IX, however, is used as a handle reference for many I/O calls. IY may therefore
 be used as a base register of some sort, eg. pointing at the base address
@@ -93,8 +112,11 @@ Calls Reference.' Where the value of input parameters is referred to in
 explaining the value of output values the input parameter will be postfixed
 (in), eg. DE(in). One other notational point worth mentioning is that Fz
 represents the zero flag, Fc the carry flag, etc.
-<br>&nbsp;
+<br>
+&nbsp;
+</p>
 <p><b>Other terminology</b>
+</p>
 <p>As outlined above the 'physical address space' (by this we mean what
 is actually there ie. addressable RAM chips) is divided into 256 banks
 of 16K. The 64K 'logical address space' (by which we mean what the Z80
@@ -102,20 +124,13 @@ can actually see at any one time) is divided into 4 segments of 16K. Each
 segment can be 'bound' to any bank. Being bound means that when the Z80
 looks at that segment, the bank it is bound to is what it actually sees.
 The segments are numbered 0 to 3 as follows:
-<pre><i>Segment</i>&nbsp;&nbsp;&nbsp;&nbsp; <i>Logical address</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Used as
-</i>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $0000 - $1FFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RST 00H-38H, sys.vars, stack, appl. worksp.
-0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $2000 - $3FFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8K RAM (continuous RAM or application bank)
-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $4000 - $7FFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Application code or RAM allocation
-2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $8000 - $BFFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Application code or RAM allocation
-3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $C000 - $FFFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Application code (ROM/EPROM) or RAM</pre>
+</p>
+<pre><i>Segment</i>&nbsp;&nbsp;&nbsp;&nbsp; <i>Logical address</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Used as<br></i>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $0000 - $1FFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RST 00H-38H, sys.vars, stack, appl. worksp.<br>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $2000 - $3FFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8K RAM (continuous RAM or application bank)<br>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $4000 - $7FFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Application code or RAM allocation<br>2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $8000 - $BFFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Application code or RAM allocation<br>3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $C000 - $FFFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Application code (ROM/EPROM) or RAM</pre>
+
 The banks are mapped onto the following physical memory sources in the
 machine:
-<pre><i>Banks</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Wired to
-</i>$00 to $1F&nbsp; 128K ROM, wired to slot 0 (512K range)
-$20 to $3F&nbsp; :RAM.0 (32K), wired to slot 0 (512K range)
-$40 to $7F&nbsp; wired to slot 1 (1MB range)
-$80 to $BF&nbsp; wired to slot 2 (1MB range)
-$C0 to $FF&nbsp; wired to slot 3 (1MB range)</pre>
+<pre><i>Banks</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Wired to<br></i>$00 to $1F&nbsp; 128K ROM, wired to slot 0 (512K range)<br>$20 to $3F&nbsp; :RAM.0 (32K), wired to slot 0 (512K range)<br>$40 to $7F&nbsp; wired to slot 1 (1MB range)<br>$80 to $BF&nbsp; wired to slot 2 (1MB range)<br>$C0 to $FF&nbsp; wired to slot 3 (1MB range)</pre>
+
 Note that most cards and the internal memory, do not exploit the full lMB
 addressing range, but only decode the lower address lines. This means that
 memory will appear more than once within the lMB range. The memory of a
@@ -133,6 +148,7 @@ the missing address lines). The upper half is reserved for RAM. Currently
 32K is installed, but pins are allocated for a 128K RAM chip. The hardware
 can address 512K RAM, but address line has to be added explicitly (circuitry
 is only tracked for 128K RAM).
+</p>
 <p>System calls exist to allow you to bind any bank to any segment, and
 should always be used, rather than resorting to hardware, because the system
 has to keep track of your binding state. When system calls are made the
@@ -151,6 +167,7 @@ choosing a bank it is regarded as zero. The upshot of all this is that
 only even numbered banks can be bound into the upper 8K of segment zero,
 with the half of the bank being selected by looking at the lowest bit of
 what is nominally the bank number.
+</p>
 <p>The term 'extended address' is used throughout the text to refer to
 the combination of an offset in a bank and a bank number. An extended address
 is often passed in a register trio such as BHL or CDE. In these cases B
@@ -165,25 +182,42 @@ address in BHL with the top 2 bits of HL set to your intended segment number.
 The result of this is when the bank is bound in to the segment you said
 it would be, you can use HL to address it, as HL will reflect the logical
 address of the bound in memory.
+</p>
 <p>When system calls expect local pointers to information it is vital that
 this information is kept with the current bank boundary. System calls keep
 track of the source bank of the pointer but does not expect it to cross
-bank boundaries. The end result of this is random. <a href='gnsop.htm'>GN_Sop</a> (write string
+bank boundaries. The end result of this is random. <a href="gnsop.htm">GN_Sop</a> (write string
 to std. output) for example just displays rubbish from the point of the
 bank boundary onwards.
+</p>
 <p>
-<hr WIDTH="100%">
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
-<tr>
-<td ALIGN=LEFT VALIGN=TOP WIDTH="33%"><a href="applovw.htm">Previous</a></td>
-<td ALIGN=CENTER VALIGN=TOP WIDTH="34%"><a href="index.htm">Contents</a></td>
-<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><a href="aplstrct.htm">Next</a></td>
-</tr>
-<tr>
-<td ALIGN=LEFT VALIGN=TOP WIDTH="33%">Application Writing</td>
-<td ALIGN=CENTER VALIGN=TOP WIDTH="34%">Interfacing with the system</td>
-<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Application Static Structures</td>
-</tr>
+</p>
+<hr width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+  <tbody>
+    <tr>
+
+      <td align="left" valign="top" width="33%"><a href="applovw.htm">Previous</a></td>
+
+      <td align="center" valign="top" width="34%"><a href="index.htm">Contents</a></td>
+
+      <td align="right" valign="top" width="33%"><a href="aplstrct.htm">Next</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td align="left" valign="top" width="33%">Application Writing</td>
+
+      <td align="center" valign="top" width="34%">Interfacing with the system</td>
+
+      <td align="right" valign="top" width="33%">Application Static Structures</td>
+
+    </tr>
+
+  </tbody>
 </table>
+
 </body>
 </html>

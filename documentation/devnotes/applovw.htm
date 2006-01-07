@@ -1,28 +1,51 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-   <title>Application writing</title>
+
+   
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   
+  <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   
+  <title>Application writing</title>
 </head>
+
+
 <body>
 
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-<tr>
-<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
-</tr>
-<tr>
-<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="overview.htm">Previous</a></td>
-<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><a href="index.htm">Contents</a></td>
-<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysintfc.htm">Next</a></td>
-</tr>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+  <tbody>
+    <tr>
+
+      <th colspan="3" align="center">Z88 Developers' Notes</th>
+
+    </tr>
+
+    <tr>
+
+      <td align="left" valign="bottom" width="10%"><a href="overview.htm">Previous</a></td>
+
+      <td align="center" valign="bottom" width="80%"><a href="index.htm">Contents</a></td>
+
+      <td align="right" valign="bottom" width="10%"><a href="sysintfc.htm">Next</a></td>
+
+    </tr>
+
+  </tbody>
 </table>
 
-<hr WIDTH="100%">
+
+<hr width="100%">
 <p>
 
-<b><font size=+1>2. Application writing</font></b>
+<b><font size="+1">2. Application writing</font></b>
+</p>
 <p><b>The multi-application environment</b>
+</p>
 <p>One of the most important things to bear in mind when writing applications
 for the Z88 is that each application must share the system with other activities
 in the machine. It is vital that applications do not interfere with each
@@ -34,6 +57,7 @@ happen behind the systems back may have dire effects on other applications
 in the machine, possibly meaning resources are lost to the system, that
 some applications may not run, or in most cases that the system simply
 crashes.
+</p>
 <p>Whenever an application is waiting for a keypress it may be suspended.
 This may take the form of the machine being switched off and back on again,
 or in a more complex case the user may enter other applications, use them
@@ -52,6 +76,7 @@ the Index. This is a request for the application to free all claimed resources,
 ie. close files, filters, streams, and de-allocate memory, before gracefully
 shutting itself down. Applications are morally obliged to respond to this
 request.
+</p>
 <p>Perhaps what makes the Z88 environment most different from other Z80
 based environments is that applications can readily access as much memory
 as is available to the machine, possibly up to 3M. Of course the Z80 can
@@ -69,6 +94,7 @@ To make things easier a particular memory allocation can be associated
 with a particular segment, thus the address returned by the allocation
 routine can be used to access the memory directly once the appropriate
 bank has been bound to the appropriate segment.
+</p>
 <p>Some readers may find it quite alarming that the maximum continuous
 memory allocation is restricted to 256 bytes. In practice this should not
 be a problem, although it requires a change of style in writing code from
@@ -79,7 +105,7 @@ of a data structure. All but one of the built in applications are written
 using the memory management system, and because of their adherence to the
 rule they are called 'good'. Some applications do have a genuine need for
 a large continuous block of memory such as the BASIC supplied with the
-machine. Because it is a version of BBC BASICZ80 which has been ported
+machine. Because it is a version of BBC BASIC(Z80) which has been ported
 across to the Z88, it assumes that continuous memory is available. To meet
 the needs of this kind of application the operating system provides a facility
 to give applications between 8K and 40K of continuous memory. Since much
@@ -95,6 +121,7 @@ supplements the machine, then a bad application is a perfectly justifiable
 route. Note that if a bad application is started as the first application,
 and does not give memory back to the system, then ironically memory swapping
 is reduced and the application cohabits better with existing facilities.
+</p>
 <p>Note that when the memory resources of the machine begin to be used
 up, it may not be possible to enter an application because there is not
 enough memory to run it. This is especially true of bad applications which
@@ -104,11 +131,16 @@ will simply not be entered. However it is necessary for the application
 to cope with a situation where requests for memory fail. In such cases
 the user should be informed. The system provides a set of error messages
 which the application can use when resources are not available.
-<br>&nbsp;
+<br>
+&nbsp;
+</p>
 <p><b>Some components of an application</b>
-<br>&nbsp;
+<br>
+&nbsp;
+</p>
 <ol>
-<li>
+
+  <li>
 All applications available to the user are listed in the index on the left
 hand window. Associated with each application is a key letter which can
 be used to select it in conjunction with the square key. If two applications
@@ -122,11 +154,14 @@ of the window is a 15 character wide slot which the application can set.
 It is useful for distinguishing between different instantiations of the
 same application. Finally the user can kill off applications by placing
 the highlight bar over the appropriate application in the suspended applications
-window and entering &lt;>KILL. Note that on the Index menu the kill command
+window and entering &lt;&gt;KILL. Note that on the Index menu the kill command
 is a 'safe' one and so must be entered using its diamond sequence, and
-not via the menu.<p></li>
+not via the menu.
+    <p>
 
-<li>
+    </p>
+  </li>
+  <li>
 The Filer is a built in popdown for handling the RAM filing system. Each
 application is associated with a default device and directory. These are
 set when the application is started by looking at the default settings
@@ -143,9 +178,12 @@ mail types and if they are present can read the message. The internal applicatio
 PipeDream and the Diary can collect the filename the filer leaves in the
 mailbox, th us providing a very friendly way of finding documents and diaries.
 The Z88 currently only has two types of mail which are the name type, for
-filenames, and the date type, used by the Diary, Calendar and Alarm.<p></li>
+filenames, and the date type, used by the Diary, Calendar and Alarm.
+    <p>
 
-<li>
+    </p>
+  </li>
+  <li>
 The screen is accessed by the application by means of the screen driver.
 All the screen functions, apart from high resolution graphics, can be accessed
 by sending a series of codes to the screen device, which will normally
@@ -156,9 +194,12 @@ and any other parameters. From the programmer's point of view the screen
 driver allows very complex screen displays (including simple windows) to
 be built up mainly by sending string constants to the display. High resolution
 graphics are accessed by using system calls. The basic display is up to
-256 pixels (96 in an unexpanded machine) across and 64 pixels deep.<p></li>
+256 pixels (96 in an unexpanded machine) across and 64 pixels deep.
+    <p>
 
-<li>
+    </p>
+  </li>
+  <li>
 The menu, topic, help system provides the application with a friendly user
 interface for practically no programming cost at all. All the menu commands
 and help pages are defined by a static data structure. The special key
@@ -172,26 +213,36 @@ any special keys (eg. TAB) and simply pass a key code back to the application.
 Also note that menu commands can be hidden, ie. not displayed, and safe
 which means they are displayed, but are not accessible through the menu,
 only through the key sequence. Hidden commands are used to build aliases,
-where two or more key combinations perform the same function.<p></li>
+where two or more key combinations perform the same function.
+    <p>
 
-<li>
+    </p>
+  </li>
+  <li>
 Each application must take care to look after any errors which occur. One
 particular error code which every application must deal with is the RC_QUIT
-code which is produced when the user uses &lt;>KILL in the Index. In response
+code which is produced when the user uses &lt;&gt;KILL in the Index. In response
 to a KILL request the application must close all open channels and de-allocate
 all allocated memory before using a system call to close itself down.</li>
+
 </ol>
 
+
 <p><b>Guidelines for application writing</b>
+</p>
 <ul>
-<li>
+
+  <li>
 when making requests for resources, such as memory, make sure you get back
 what you asked for. You must not assume that resources will always be available,
 but always check for error returns, and be able to cope if they occur.</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 be careful to clean up after yourself. Whatever has been opened or allocated
 should be closed or de-allocated. If this is not done before an application
 closes down resources, eg. handles and memory, may be lost permanently
@@ -201,19 +252,25 @@ and since this should be a relatively rare event for the Z88 (unlike other
 systems because it is never off, it never needs to reboot), so this kind
 of loss of resources is very serious for the machine. Keep your system
 tidy.</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 direct access to hardware can be useful in dealing with the screen and
 serial port. However, it is important that any access does not interfere
 with other applications. It may, for example, be necessary to prevent pre-emption
 so that the operating system does not have the wrong picture about the
 true state of the machine.</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 note that not every Z88 system is the same. If 128K or more RAM exists
 in slot 1 (or slot 0 with V4 ROM) then the machine is said to be expanded
 and this effects bad applications, graphics and user defined characters.
@@ -225,10 +282,13 @@ with these means that there will be no compatibility problems. The machine
 version, the amount of memory and the expanded or not status can all be
 read by examining the file status of a dummy channel with a handle of FFFFh
 (65535d).</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 make sure you keep track of your own stack. The system stack is 2K in size,
 and the application inherits this stack. However, some of it may already
 be used by the operating system. Furthermore the static memory allowed
@@ -238,29 +298,38 @@ messages in this memory. What is left after all these other uses is the
 stack for the application. In practice it is usually around 1.5K. There
 is no checking for over running stacks so the application is responsible
 for keeping the stack within bounds.</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 avoid splitting strings and other resources across bank boundaries. This
 applies especially for bad applications that has large continuous RAM memory.
 Even though RAM is all yours, the system cannot cope with information that
 crosses bank boundaries, or crossing a segment (eg. start address of a
 string begins at $7F00 and end at $8050). Large BBC BASIC programs sometimes
 behave strangely because of this.</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 try to avoid cutting the user off. The user should be able to switch out
 of an application at most times. When heavy processing is going on it is
 a good idea for the user to be able to interrupt this, and at the very
 least be informed that it is taking place eg. by a flashing on screen message
 such as PipeDream uses when doing file transfer or calculating a spreadsheet.</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 if interrupts are to be disabled the calls provided must be used. This
 is due to a bug in the Z80 processor which means that the old interrupt
 status can sometimes be lost. The machine must not be allowed to enter
@@ -270,31 +339,51 @@ ensure that the other applications never get to see this and that you use
 system calls with great care. If interrupts are disabled remember that
 non-maskable interrupts still occur. These are caused by the machine timing
 out and power failure.</li>
+
 </ul>
 
+
 <ul>
-<li>
+
+  <li>
 software timing loops are not recommended because they are both unreliable,
 generally and due to interrupts, and because they mean the machine is in
 the awake state but doing nothing, and thus wasting power. The system provides
 a delay routine which sends the machine into snooze and then returns to
 the program after the delay period.</li>
+
 </ul>
 
+
 <p>
-<hr WIDTH="100%">
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
-<tr>
-<td ALIGN=LEFT VALIGN=TOP WIDTH="33%"><a href="overview.htm">Previous</a></td>
-<td ALIGN=CENTER VALIGN=TOP WIDTH="34%"><a href="index.htm">Contents</a></td>
-<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><a href="sysintfc.htm">Next</a></td>
-</tr>
-<tr>
-<td ALIGN=LEFT VALIGN=TOP WIDTH="33%">Z88 Overview</td>
-<td ALIGN=CENTER VALIGN=TOP WIDTH="34%">Application Writing</td>
-<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%">Interfacing with the system</td>
-</tr>
+</p>
+<hr width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+  <tbody>
+    <tr>
+
+      <td align="left" valign="top" width="33%"><a href="overview.htm">Previous</a></td>
+
+      <td align="center" valign="top" width="34%"><a href="index.htm">Contents</a></td>
+
+      <td align="right" valign="top" width="33%"><a href="sysintfc.htm">Next</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td align="left" valign="top" width="33%">Z88 Overview</td>
+
+      <td align="center" valign="top" width="34%">Application Writing</td>
+
+      <td align="right" valign="top" width="33%">Interfacing with the system</td>
+
+    </tr>
+
+  </tbody>
 </table>
+
 
 </body>
 </html>
