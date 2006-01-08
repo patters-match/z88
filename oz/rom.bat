@@ -57,7 +57,7 @@ call cleanup
 :: -------------------------------------------------------------------------------------------------
 echo compiling bank 1
 cd bank1
-call bank1 2>nul >nul
+call bank1 %ozlocale% 2>nul >nul
 cd ..
 dir bank1\*.err 2>nul >nul || goto COMPILE_KERNEL
 type bank1\*.err
@@ -89,7 +89,7 @@ goto COMPILE_ERROR
 :COMPILE_BANK3
 echo compiling bank 3
 cd bank3
-call bank3 2>nul >nul
+call bank3 %ozlocale% 2>nul >nul
 cd ..
 dir bank3\*.err 2>nul >nul || goto COMPILE_BANK6
 type bank3\*.err

@@ -1272,7 +1272,11 @@ swYear                  ds.b    1
 .CalendarHdr_txt
         defm    1,"T"
         defm    1,"U"
+if KBDK
+        defm    " MAN  TIR  ONS  TOR  FRE  L",$F8,"R  S",$F8,"N "
+ELSE
         defm    " MON  TUE  WED  THU  FRI  SAT  SUN "
+ENDIF
         defm    1,"T"
         defm    1,"U"
         defm    13, 10, 0
@@ -1285,6 +1289,20 @@ swYear                  ds.b    1
         defw    may_txt, jun_txt, jul_txt, aug_txt
         defw    sep_txt, oct_txt, nov_txt, dec_txt
 
+if KBDK
+.jan_txt        defm    "JANUAR",0
+.feb_txt        defm    "FEBRUAR",0
+.mar_txt        defm    "MARTS",0
+.apr_txt        defm    "APRIL",0
+.may_txt        defm    "MAJ",0
+.jun_txt        defm    "JUNI",0
+.jul_txt        defm    "JULI",0
+.aug_txt        defm    "AUGUST",0
+.sep_txt        defm    "SEPTEMBER",0
+.oct_txt        defm    "OKTOBER",0
+.nov_txt        defm    "NOVEMBER",0
+.dec_txt        defm    "DECEMBER",0
+ELSE
 .jan_txt        defm    "JANUARY",0
 .feb_txt        defm    "FEBRUARY",0
 .mar_txt        defm    "MARCH",0
@@ -1297,6 +1315,7 @@ swYear                  ds.b    1
 .oct_txt        defm    "OCTOBER",0
 .nov_txt        defm    "NOVEMBER",0
 .dec_txt        defm    "DECEMBER",0
+ENDIF
 
 .CalWindow_txt
         defm    1,"7#5",$20+10,$20+0,$20+35,$20+8,$83

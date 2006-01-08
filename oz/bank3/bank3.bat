@@ -22,6 +22,6 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\tools\mpm\mpm -b -I..\sysdef @gn.prj
+..\..\tools\mpm\mpm -b -I..\sysdef -DKB%1 @gn.prj
 ..\..\tools\mpm\mpm -b -I..\sysdef printer.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef calc.asm
