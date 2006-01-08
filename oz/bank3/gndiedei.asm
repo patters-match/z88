@@ -15,7 +15,6 @@
 ;       ----
 
 xdef    AddHwTime_GnDate
-xdef    DateFilter
 xdef    GetSysDateTime
 xdef    GetSysTime
 xdef    GNDeiMain
@@ -582,54 +581,6 @@ xref    Divu48
 
 .DaysInMonths           ; Mar, Apr, ..., Dec, Jan, Feb
         defb    31,30,31,30,31,31,30,31,30,31,31,28
-
-.DateFilter
-        defw    $149
-        defb    $20,$80
-        defm    7,"Monday",     2,$81
-        defm    4,"Mon",        2,$A1
-        defm    8,"Tuesday",    2,$82
-        defm    4,"Tue",        2,$A2
-        defm    10,"Wednesday", 2,$83
-        defm    4,"Wed",        2,$A3
-        defm    9,"Thursday",   2,$84
-        defm    4,"Thu",        2,$A4
-        defm    7,"Friday",     2,$85
-        defm    4,"Fri",        2,$A5
-        defm    9,"Saturday",   2,$86
-        defm    4,"Sat",        2,$A6
-        defm    7,"Sunday",     2,$87
-        defm    4,"Sun",        2,$A7
-        defm    3,"st",         2,$88
-        defm    3,"nd",         2,$89
-        defm    3,"rd",         2,$8A
-        defm    3,"th",         2,$8B
-        defm    3,"AD",         2,$8C
-        defm    3,"BC",         2,$8D
-        defm    8,"January",    2,$C1
-        defm    4,"Jan",        2,$E1
-        defm    9,"February",   2,$C2
-        defm    4,"Feb",        2,$E2
-        defm    6,"March",      2,$C3
-        defm    4,"Mar",        2,$E3
-        defm    6,"April",      2,$C4
-        defm    4,"Apr",        2,$E4
-        defm    4,"May",        2,$C5
-        defm    4,"May",        2,$E5
-        defm    5,"June",       2,$C6
-        defm    4,"Jun",        2,$E6
-        defm    5,"July",       2,$C7
-        defm    4,"Jul",        2,$E7
-        defm    7,"August",     2,$C8
-        defm    4,"Aug",        2,$E8
-        defm    10,"September", 2,$C9
-        defm    4,"Sep",        2,$E9
-        defm    8,"October",    2,$CA
-        defm    4,"Oct",        2,$EA
-        defm    9,"November",   2,$CB
-        defm    4,"Nov",        2,$EB
-        defm    9,"December",   2,$CC
-        defm    4,"Dec",        2,$EC
 
 ;       ----
 
