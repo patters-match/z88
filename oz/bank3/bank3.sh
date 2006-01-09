@@ -26,7 +26,7 @@
 
 COMPILE_ERROR=0
 
-../../tools/mpm/mpm -b -I../sysdef -DKB%1 @gn.prj
+../../tools/mpm/mpm -b -I../sysdef -DKB"$1" @gn.prj
 if test "`find . -name '*.err' | wc -l`" != 0; then
   COMPILE_ERROR=1
 fi

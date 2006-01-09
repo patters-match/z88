@@ -25,7 +25,7 @@
 # ***************************************************************************************************
 
 # get OZ localisation compilation directive (first command line argument)
-if test $# -eq 0; then 
+if test $# -eq 0; then
   echo no locale argument specified, use default UK
   ozlocale="UK"
 else
@@ -34,18 +34,18 @@ fi
 
 if test "$ozlocale" = "FR"; then
   echo Compiling French Z88 ROM
-elif test "$ozlocale" = "UK"; then 
+elif test "$ozlocale" = "UK"; then
   echo Compiling English Z88 ROM
-elif test "$ozlocale" = "DK"; then 
+elif test "$ozlocale" = "DK"; then
   echo Compiling Danish Z88 ROM
-elif test "$ozlocale" = "SE"; then 
+elif test "$ozlocale" = "SE"; then
   echo Compiling Swedish/Finish Z88 ROM
-elif test "$ozlocale" = "FI"; then 
+elif test "$ozlocale" = "FI"; then
   echo Compiling Swedish/Finish Z88 ROM
 else
   echo Unknown locale specified - using default UK
   ozlocale="UK"
-fi 
+fi
 
 
 # delete previous compiled files (incl error and warning files)...
@@ -54,7 +54,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling bank 1
 cd bank1
-. bank1.sh
+. bank1.sh $ozlocale
 cd ..
 if test "`find . -name '*.err' | wc -l`" != 0; then
   cat bank1/*.err
@@ -64,7 +64,7 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 echo compiling kernel banks 0 and 7
-. kernel.sh $ozlocale 
+. kernel.sh $ozlocale
 if test "`find . -name '*.err' | wc -l`" != 0; then
   cat bank0/*.err
   cat bank7/*.err
@@ -86,7 +86,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling bank 3
 cd bank3
-. bank3.sh
+. bank3.sh $ozlocale
 cd ..
 if test "`find . -name '*.err' | wc -l`" != 0; then
   cat bank3/*.err

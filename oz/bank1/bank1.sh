@@ -32,7 +32,7 @@ if test "`find . -name '*.err' | wc -l`" != 0; then
 fi
 
 if test "$COMPILE_ERROR" = 0; then
-  ../../tools/mpm/mpm -b -I../sysdef -DKB%1 clcalalm.asm
+  ../../tools/mpm/mpm -b -I../sysdef -DKB"$1" clcalalm.asm
 fi
 if test "`find . -name '*.err' | wc -l`" != 0; then
   COMPILE_ERROR=1
