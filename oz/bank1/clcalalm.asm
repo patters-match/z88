@@ -1274,7 +1274,12 @@ swYear                  ds.b    1
         defm    1,"U"
 if KBDK
         defm    " MAN  TIR  ONS  TOR  FRE  L",$F8,"R  S",$F8,"N "
-ELSE
+ENDIF
+if KBFR
+        defm    " LUN  MAR  MER  JEU  VEN  SAM  DIM "
+ENDIF
+if !KBFI & !KBFR & !KBDK
+; default UK
         defm    " MON  TUE  WED  THU  FRI  SAT  SUN "
 ENDIF
         defm    1,"T"
@@ -1302,7 +1307,25 @@ if KBDK
 .oct_txt        defm    "OKTOBER",0
 .nov_txt        defm    "NOVEMBER",0
 .dec_txt        defm    "DECEMBER",0
-ELSE
+ENDIF
+
+if KBFR
+.jan_txt        defm    "janvier",0
+.feb_txt        defm    "f",$e9,"vrier",0
+.mar_txt        defm    "mars",0
+.apr_txt        defm    "avril",0
+.may_txt        defm    "mai",0
+.jun_txt        defm    "juin",0
+.jul_txt        defm    "juillet",0
+.aug_txt        defm    "ao",$FB,"t",0
+.sep_txt        defm    "septembre",0
+.oct_txt        defm    "octobre",0
+.nov_txt        defm    "novembre",0
+.dec_txt        defm    "d",$e9,"cembre",0
+ENDIF
+
+if !KBFI & !KBFR & !KBDK
+; default UK
 .jan_txt        defm    "JANUARY",0
 .feb_txt        defm    "FEBRUARY",0
 .mar_txt        defm    "MARCH",0

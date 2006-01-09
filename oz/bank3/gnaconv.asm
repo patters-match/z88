@@ -1515,7 +1515,57 @@ if KBDK
         defm    4,"Nov",              2,$EB
         defm    9,"December",         2,$CC
         defm    4,"Dec",              2,$EC
-ELSE
+ENDIF
+if KBFR
+        defw    end_DateFilter-DateFilter
+        defb    128+32+16,$80                   ; Left side contains ISO chars, Alpha & punctuation
+        defm    6,"Lundi",            2,$81
+        defm    4,"Lun",              2,$A1
+        defm    6,"Mardi",            2,$82
+        defm    4,"Mar",              2,$A2
+        defm    9,"Mercredi",         2,$83
+        defm    4,"Mer",              2,$A3
+        defm    6,"Jeudi",            2,$84
+        defm    4,"Jeu",              2,$A4
+        defm    9,"Vendredi",         2,$85
+        defm    4,"Ven",              2,$A5
+        defm    7,"Samedi",           2,$86
+        defm    4,"Sam",              2,$A6
+        defm    9,"Dimanche",         2,$87
+        defm    4,"Dim",              2,$A7
+        defm    2,".",                2,$88     ; 'st'
+        defm    2,".",                2,$89     ; 'nd'
+        defm    2,".",                2,$8A     ; 'rd'
+        defm    2,".",                2,$8B     ; 'th'
+        defm    5,"avJC",             2,$8C     ; 'AD'
+        defm    5,"apJC",             2,$8D     ; 'BC'
+        defm    8,"Janvier",          2,$C1
+        defm    4,"Jan",              2,$E1
+        defm    8,"F",$e9,"vrier",    2,$C2
+        defm    4,"Fev",              2,$E2
+        defm    5,"Mars",             2,$C3
+        defm    4,"Mar",              2,$E3
+        defm    6,"Avril",            2,$C4
+        defm    4,"Avr",              2,$E4
+        defm    4,"Mai",              2,$C5
+        defm    4,"Mai",              2,$E5
+        defm    5,"Juin",             2,$C6
+        defm    4,"Jun",              2,$E6
+        defm    8,"Juillet",          2,$C7
+        defm    4,"Jul",              2,$E7
+        defm    5,"Ao",$FB,"t",       2,$C8
+        defm    5,"Ao",$FB,"t",       2,$E8
+        defm    10,"Septembre",       2,$C9
+        defm    4,"Sep",              2,$E9
+        defm    8,"Octobre",          2,$CA
+        defm    4,"Oct",              2,$EA
+        defm    9,"Novembre",         2,$CB
+        defm    4,"Nov",              2,$EB
+        defm    9,"D",$e9,"cembre",   2,$CC
+        defm    4,"Dec",              2,$EC
+ENDIF
+
+if !KBFI & !KBFR & !KBDK
         defw    end_DateFilter-DateFilter
         defb    $20,$80
         defm    7,"Monday",           2,$81
