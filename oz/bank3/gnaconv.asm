@@ -1489,8 +1489,8 @@ if KBDK
         defm    2,".",                2,$89     ; (danish don't use '2nd', but '.')
         defm    2,".",                2,$8A     ; (danish don't use '3rd', but '.')
         defm    2,".",                2,$8B     ; (danish don't use 'th', but '.')
-        defm    6,"e.Kr.",            2,$8C     ; (danish version of 'AD')
-        defm    6,"f.Kr.",            2,$8D     ; (danish version of 'BC')
+        defm    4,"eKr",              2,$8C     ; (danish version of 'AD')
+        defm    4,"fKr",              2,$8D     ; (danish version of 'BC')
         defm    7,"Januar",           2,$C1
         defm    4,"Jan",              2,$E1
         defm    8,"Februar",          2,$C2
@@ -1516,6 +1516,105 @@ if KBDK
         defm    9,"December",         2,$CC
         defm    4,"Dec",              2,$EC
 ENDIF
+
+if KBSE
+        defw    end_DateFilter-DateFilter
+        defb    128+32+16,$80                   ; Left side contains ISO chars, Alpha & punctuation
+        defm    7,"M",$E5,"ndag",     2,$81     ; Måndag
+        defm    4,"M",$E5,"n",        2,$A1     ; Mån
+        defm    7,"Tisdag",           2,$82
+        defm    4,"Tis",              2,$A2
+        defm    7,"Onsdag",           2,$83
+        defm    4,"Ons",              2,$A3
+        defm    8,"Torsdag",          2,$84
+        defm    4,"Tor",              2,$A4
+        defm    7,"Fredag",           2,$85
+        defm    4,"Fre",              2,$A5
+        defm    7,"L",$f6,"rdag",     2,$86     ; Lördag (Saturday)
+        defm    4,"L",$f6,"r",        2,$A6     ; Lör (Sat)
+        defm    7,"S",$f6,"ndag",     2,$87     ; Söndag (Sunday)
+        defm    4,"S",$f6,"n",        2,$A7     ; Sön (Sun)
+        defm    2,".",                2,$88     ; (swedish don't use 'first', but '.')
+        defm    2,".",                2,$89     ; (swedish don't use '2nd', but '.')
+        defm    2,".",                2,$8A     ; (swedish don't use '3rd', but '.')
+        defm    2,".",                2,$8B     ; (swedish don't use 'th', but '.')
+        defm    4,"eKr",              2,$8C     ; (swedish version of 'AD')
+        defm    4,"fKr",              2,$8D     ; (swedish version of 'BC')
+        defm    8,"Januari",          2,$C1
+        defm    4,"Jan",              2,$E1
+        defm    9,"Februari",         2,$C2
+        defm    4,"Feb",              2,$E2
+        defm    5,"Mars",             2,$C3
+        defm    4,"Mar",              2,$E3
+        defm    6,"April",            2,$C4
+        defm    4,"Apr",              2,$E4
+        defm    4,"Maj",              2,$C5
+        defm    4,"Maj",              2,$E5
+        defm    5,"Juni",             2,$C6
+        defm    4,"Jun",              2,$E6
+        defm    5,"Juli",             2,$C7
+        defm    4,"Jul",              2,$E7
+        defm    8,"Augusti",          2,$C8
+        defm    4,"Aug",              2,$E8
+        defm    10,"September",       2,$C9
+        defm    4,"Sep",              2,$E9
+        defm    8,"October",          2,$CA
+        defm    4,"Oct",              2,$EA
+        defm    9,"November",         2,$CB
+        defm    4,"Nov",              2,$EB
+        defm    9,"December",         2,$CC
+        defm    4,"Dec",              2,$EC
+ENDIF
+
+if KBFI
+        defw    end_DateFilter-DateFilter
+        defb    128+64+32+16,$80                 ; Left side contains ISO, Numeric, Alpha & punctuation
+        defm    10,"Maanantai",       2,$81
+        defm    3,"Ma",               2,$A1
+        defm    8,"Tiistai",          2,$82
+        defm    3,"Ti",               2,$A2
+        defm    12,"Keskiviikko",     2,$83
+        defm    3,"Ke",               2,$A3
+        defm    8,"Torstai",          2,$84
+        defm    3,"To",               2,$A4
+        defm    10,"Perjantai",       2,$85
+        defm    3,"Pe",               2,$A5
+        defm    9,"Lauantai",         2,$86
+        defm    3,"La",               2,$A6
+        defm    10,"Sunnuntai",       2,$87
+        defm    3,"Su",               2,$A7
+        defm    2,".",                2,$88     ; (finnish don't use 'first', but '.')
+        defm    2,".",                2,$89     ; (finnish don't use '2nd', but '.')
+        defm    2,".",                2,$8A     ; (finnish don't use '3rd', but '.')
+        defm    2,".",                2,$8B     ; (finnish don't use 'th', but '.')
+        defm    3,"AD",               2,$8C
+        defm    3,"BC",               2,$8D
+        defm    9,"Tammikuu",         2,$C1
+        defm    3,"1.",               2,$E1
+        defm    9,"Helmikuu",         2,$C2
+        defm    3,"2.",               2,$E2
+        defm    10,"Maaliskuu",       2,$C3
+        defm    3,"3.",               2,$E3
+        defm    9,"Huhtikuu",         2,$C4
+        defm    3,"4.",               2,$E4
+        defm    9,"Toukokuu",         2,$C5
+        defm    3,"5.",               2,$E5
+        defm    8,"Kes",$e4,"kuu",    2,$C6
+        defm    3,"6.",               2,$E6
+        defm    9,"Hein",$e4,"kuu",   2,$C7
+        defm    3,"7.",               2,$E7
+        defm    7,"Elokuu",           2,$C8
+        defm    3,"8.",               2,$E8
+        defm    8,"Syyskuu",          2,$C9
+        defm    3,"9.",               2,$E9
+        defm    8,"Lokakuu",          2,$CA
+        defm    4,"10.",              2,$EA
+        defm    10,"Marraskuu",       2,$CB
+        defm    4,"11.",              2,$EB
+        defm    9,"Joulukuu",         2,$CC
+        defm    4,"12.",              2,$EC
+ENDIF
+
 if KBFR
         defw    end_DateFilter-DateFilter
         defb    128+32+16,$80                   ; Left side contains ISO chars, Alpha & punctuation
@@ -1565,7 +1664,7 @@ if KBFR
         defm    4,"Dec",              2,$EC
 ENDIF
 
-if !KBFI & !KBFR & !KBDK
+if !KBFI & !KBSE & !KBFR & !KBDK
         defw    end_DateFilter-DateFilter
         defb    $20,$80
         defm    7,"Monday",           2,$81

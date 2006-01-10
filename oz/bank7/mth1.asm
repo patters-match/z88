@@ -1228,7 +1228,11 @@ if KBFI
         defm    "(FI)"
 endif
 
-if !KBDK & !KBFR & !KBFI
+if KBSE
+        defm    "(SE)"
+endif
+
+if !KBDK & !KBFR & !KBFI & !KBSE
         defm    "(UK)"
 endif
 

@@ -32,14 +32,14 @@ if "%ozlocale%"=="uk" set ozlocale=UK
 if "%ozlocale%"=="fr" set ozlocale=FR
 if "%ozlocale%"=="dk" set ozlocale=DK
 if "%ozlocale%"=="fi" set ozlocale=FI
-if "%ozlocale%"=="se" set ozlocale=FI
-if "%ozlocale%"=="SE" set ozlocale=FI
+if "%ozlocale%"=="se" set ozlocale=SE
 
 :: compile known localisations
 if "%ozlocale%"=="UK" goto COMPILE_OZ
 if "%ozlocale%"=="FR" goto COMPILE_OZ
 if "%ozlocale%"=="DK" goto COMPILE_OZ
 if "%ozlocale%"=="FI" goto COMPILE_OZ
+if "%ozlocale%"=="SE" goto COMPILE_OZ
 
 :: if no (or unknown) locale is specified, use default UK
 ECHO Unknown or no locale argument specified
@@ -49,7 +49,8 @@ set ozlocale=UK
 if "%ozlocale%"=="UK" ECHO Compiling English Z88 ROM
 if "%ozlocale%"=="DK" ECHO Compiling Danish Z88 ROM
 if "%ozlocale%"=="FR" ECHO Compiling French Z88 ROM
-if "%ozlocale%"=="FI" ECHO Compiling Swedish/Finish Z88 ROM
+if "%ozlocale%"=="SE" ECHO Compiling Swedish Z88 ROM
+if "%ozlocale%"=="FI" ECHO Compiling Finnish Z88 ROM
 
 :: delete previous compiled files...
 call cleanup

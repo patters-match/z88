@@ -33,7 +33,7 @@
 
         Module  ImpExp
 
-        org     $fa93                           ; 1389 bytes
+        org     $fab1
 
         include "director.def"
         include "dor.def"

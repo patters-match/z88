@@ -17,11 +17,12 @@ endif
 if KBFR
         include "keymap_fr.asm"
 endif
-if KBFI
+if KBFI | KBSE
+        ; Swedish/Finnish share the same keyboard layout
         include "keymap_fi.asm"
 endif
 
-if !KBFI & !KBFR & !KBDK
+if !KBFI & !KBSE & !KBFR & !KBDK
 ; use default UK localisation
         include "keymap_uk.asm"
 endif
@@ -33,11 +34,12 @@ endif
 if KBFR
         include "key2chrt_fr.asm"
 endif
-if KBFI
+if KBFI | KBSE
+        ; Swedish/Finnish share the same kbd/font data
         include "key2chrt_fi.asm"
 endif
 
-if !KBFI & !KBFR & !KBDK
-; use default UK localisation
+if !KBFI & !KBSE & !KBFR & !KBDK
+        ; use default UK localisation
         include "key2chrt_uk.asm"
 endif

@@ -16,11 +16,11 @@ if KBDK
         include "font_dk.asm"
 endif
 
-if KBFI
+if KBFI | KBSE
         include "font_fi.asm"
 endif
 
 ; if no country localisation is specified, use default UK/FR fonts
-if !KBFI & !KBDK
+if !KBFI & !KBSE & !KBDK
         include "font_ukfr.asm"
 endif

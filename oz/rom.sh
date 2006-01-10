@@ -39,9 +39,9 @@ elif test "$ozlocale" = "UK"; then
 elif test "$ozlocale" = "DK"; then
   echo Compiling Danish Z88 ROM
 elif test "$ozlocale" = "SE"; then
-  echo Compiling Swedish/Finish Z88 ROM
+  echo Compiling Swedish Z88 ROM
 elif test "$ozlocale" = "FI"; then
-  echo Compiling Swedish/Finish Z88 ROM
+  echo Compiling Finnish Z88 ROM
 else
   echo Unknown locale specified - using default UK
   ozlocale="UK"

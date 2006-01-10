@@ -1275,11 +1275,21 @@ swYear                  ds.b    1
 if KBDK
         defm    " MAN  TIR  ONS  TOR  FRE  L",$F8,"R  S",$F8,"N "
 ENDIF
+
+if KBFI
+        defm    "  MA   TI   KE   TO   PE   LA   SU "
+ENDIF
+
+if KBSE
+        defm    " M",$C5,"N  TIS  ONS  TOR  FRE  L",$D6,"R  S",$D6,"N "
+ENDIF
+
 if KBFR
         defm    " LUN  MAR  MER  JEU  VEN  SAM  DIM "
 ENDIF
-if !KBFI & !KBFR & !KBDK
-; default UK
+
+if !KBFI & !KBSE & !KBFR & !KBDK
+        ; default UK
         defm    " MON  TUE  WED  THU  FRI  SAT  SUN "
 ENDIF
         defm    1,"T"
@@ -1309,6 +1319,36 @@ if KBDK
 .dec_txt        defm    "DECEMBER",0
 ENDIF
 
+if KBSE
+.jan_txt        defm    "JANUARI",0
+.feb_txt        defm    "FEBRUARI",0
+.mar_txt        defm    "MARS",0
+.apr_txt        defm    "APRIL",0
+.may_txt        defm    "MAJ",0
+.jun_txt        defm    "JUNI",0
+.jul_txt        defm    "JULI",0
+.aug_txt        defm    "AUGUSTI",0
+.sep_txt        defm    "SEPTEMBER",0
+.oct_txt        defm    "OCTOBER",0
+.nov_txt        defm    "NOVEMBER",0
+.dec_txt        defm    "DECEMBER",0
+ENDIF
+
+if KBFI
+.jan_txt        defm    "TAMMIKUU",0
+.feb_txt        defm    "HELMIKUU",0
+.mar_txt        defm    "MAALISKUU",0
+.apr_txt        defm    "HUHTIKUU",0
+.may_txt        defm    "TOUKOKUU",0
+.jun_txt        defm    "KES",$C4,"KUU",0
+.jul_txt        defm    "HEIN",$C4,"KUU",0
+.aug_txt        defm    "ELOKUU",0
+.sep_txt        defm    "SYYSKUU",0
+.oct_txt        defm    "LOKAKUU",0
+.nov_txt        defm    "MARRASKUU",0
+.dec_txt        defm    "JOULUKUU",0
+ENDIF
+
 if KBFR
 .jan_txt        defm    "janvier",0
 .feb_txt        defm    "f",$e9,"vrier",0
@@ -1324,7 +1364,7 @@ if KBFR
 .dec_txt        defm    "d",$e9,"cembre",0
 ENDIF
 
-if !KBFI & !KBFR & !KBDK
+if !KBFI & !KBSE & !KBFR & !KBDK
 ; default UK
 .jan_txt        defm    "JANUARY",0
 .feb_txt        defm    "FEBRUARY",0
