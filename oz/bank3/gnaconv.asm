@@ -1639,29 +1639,29 @@ if KBFR
         defm    5,"avJC",             2,$8C     ; 'AD'
         defm    5,"apJC",             2,$8D     ; 'BC'
         defm    8,"Janvier",          2,$C1
-        defm    4,"Jan",              2,$E1
+        defm    5,"Janv",             2,$E1
         defm    8,"F",$e9,"vrier",    2,$C2
-        defm    4,"Fev",              2,$E2
+        defm    4,"F",$e9,"v",        2,$E2
         defm    5,"Mars",             2,$C3
-        defm    4,"Mar",              2,$E3
+        defm    5,"Mars",             2,$E3
         defm    6,"Avril",            2,$C4
         defm    4,"Avr",              2,$E4
         defm    4,"Mai",              2,$C5
         defm    4,"Mai",              2,$E5
         defm    5,"Juin",             2,$C6
-        defm    4,"Jun",              2,$E6
+        defm    5,"Juin",             2,$E6
         defm    8,"Juillet",          2,$C7
-        defm    4,"Jul",              2,$E7
+        defm    5,"Juil",             2,$E7
         defm    5,"Ao",$FB,"t",       2,$C8
         defm    5,"Ao",$FB,"t",       2,$E8
         defm    10,"Septembre",       2,$C9
-        defm    4,"Sep",              2,$E9
+        defm    5,"Sept",             2,$E9
         defm    8,"Octobre",          2,$CA
         defm    4,"Oct",              2,$EA
         defm    9,"Novembre",         2,$CB
         defm    4,"Nov",              2,$EB
         defm    9,"D",$e9,"cembre",   2,$CC
-        defm    4,"Dec",              2,$EC
+        defm    4,"D",$e9,"c",        2,$EC
 ENDIF
 
 if !KBFI & !KBSE & !KBFR & !KBDK
