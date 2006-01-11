@@ -1587,8 +1587,8 @@ if KBFI
         defm    2,".",                2,$89     ; (finnish don't use '2nd', but '.')
         defm    2,".",                2,$8A     ; (finnish don't use '3rd', but '.')
         defm    2,".",                2,$8B     ; (finnish don't use 'th', but '.')
-        defm    3,"AD",               2,$8C
-        defm    3,"BC",               2,$8D
+        defm    4,"eKr",              2,$8C
+        defm    4,"jKr",              2,$8D
         defm    9,"Tammikuu",         2,$C1
         defm    3,"1.",               2,$E1
         defm    9,"Helmikuu",         2,$C2
