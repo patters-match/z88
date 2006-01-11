@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2006
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -28,7 +28,8 @@
      include "dor.def"
      include "romupdate.def"
 
-     LIB MemDefBank, SafeBHLSegment, FlashEprWriteBlock, FlashEprCardId
+     LIB MemDefBank, SafeBHLSegment
+     LIB FlashEprBlockErase, FlashEprWriteBlock, FlashEprCardId
 
      XREF ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
      XREF ApplRomCopyDor
@@ -85,14 +86,22 @@
                     dec  c
                     jr   findappslot_loop               ; poll next slot for DOR...
 .check_write_support
+                    ld   a,b
+                    ld   (dorbank),a                    ; preserve the pointer to found DOR in slot C
+                    ld   (doroffset),hl
+
+                    push bc
                     call FlashWriteSupport              ; is flash card updateable in slot?
+                    pop  bc                             ; (restore bank no of pointer to DOR)
                     jp   c,suicide                      ; no write/erase support in slot!
 
                     call RegisterPreservedSectorBanks   ; Flash Card may be updated,
-                                                        ; register the banks to be preserved in the sector of the found DOR
+                                                        ; - register the banks to be preserved in the sector of the found DOR
 
-                    ld   bc,128                         ; local filename (pointer)..
-                    ld   hl,bankfilename                ; filename to card image
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; check CRC of bank file to be updated on card (replacing bank of found DOR)
+                    ld   bc,128
+                    ld   hl,bankfilename                ; (local) filename to card image
                     ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
                     ld   a, op_in
                     oz   GN_Opf
@@ -103,17 +112,34 @@
                     call CrcFile                        ; calculate CRC-32 of file, returned in DEHL
                     oz   GN_Cl                          ; close file again (we got the expanded filename)
                     call CheckBankFileCrc               ; check the CRC of the bank file with the CRC of the config file
-                    jp   nz,suicide                     ; CRC didn't match: the file is corrupt and cannot be updated
+                    jp   nz,suicide                     ; CRC didn't match: the file is corrupt and cannot be updated!
+                    ; --------------------------------------------------------------------------------------------------------
 
                     call PreserveSectorBanks            ; preserve the sector banks to RAM filing system that are not being updated
                     call c,DeletePreservedSectorBanks   ; no room in filing system, delete any bank files already preserved....
                     jp   c,suicide                      ; then leave popdown...
 
-                    ld   hl,buffer
-                    ld   bc,16384                       ; 16K buffer
-                    call CrcBuffer                      ; calculate CRC-32 of buffer (should be the same as above)
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; erase sector of bank (to be updated with new version of application)
+                    ld   a,(dorbank)
+                    ld   b,a
+                    rlca
+                    rlca
+                    and  @00000011
+                    ld   c,a                            ; slot of sector
+                    ld   a,b
+                    rrca
+                    rrca                                ; bankNo/4
+                    and  @00001111                      ; sector number containing bank
+                    ld   b,a
+                    call FlashEprBlockErase
+                    jp   c, suicide                     ; fatal error -  this only happens if there is a bad slot connection
+                    ; --------------------------------------------------------------------------------------------------------
+
+                    call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
 
                     jp   suicide                        ; leave popdown...
+                    ; --------------------------------------------------------------------------------------------------------
 ; *************************************************************************************
 
 

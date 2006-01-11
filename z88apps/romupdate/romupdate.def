@@ -31,9 +31,12 @@ DEFVARS vararea
 {
      buffer             ds.b banksize            ; buffer to load a complete 16K bank from file
      dorcpy             ds.b 64                  ; DOR buffer (used for patching to bank in for updated App card)
+     dorbank            ds.b 1                   ; the bank number of the found application in a card
+     doroffset          ds.w 1                   ; the offset within the bank of the found application in a card
      bankfilename       ds.b 128                 ; filename of bank file to be patched to card (fetched from romupdate.cfg)
      bankfilecrc        ds.l 1                   ; CRC of bank file (fetched from from romupdate.cfg)
      filename           ds.b 128                 ; generic filename buffer
      presvdbanks        ds.b 4                   ; 4 byte array of bank numbers that are preserved as :RAM.-/bank.<bank number>
      presvdbankcrcs     ds.l 4                   ; array of CRC's for preserved banks (index matches preserved bank array)
+
 }
