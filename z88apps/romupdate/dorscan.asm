@@ -24,11 +24,13 @@
 
      lib ApplEprType          ; Evaluate Standard Z88 Application ROM Format (Front Dor/ROM Header)
      lib MemReadByte          ; Read byte at pointer in BHL, offset A, returned in A
+     lib MemWritePointer      ; Set pointer in CDE, at record base pointer BHL, offset A.
      lib MemReadPointer       ; Read pointer at record defined as extended (base) address in BHL, offset A.
      lib SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment specfier returned in C
 
 
-     XDEF ApplRomFindDor, ApplRomFirstDor, ApplRomNextDor, ApplRomFrontDor, ApplRomReadDorPtr
+     XDEF ApplRomFindDor, ApplRomFirstDor, ApplRomFrontDor, ApplRomReadDorPtr
+     XDEF ApplRomNextDor, ApplRomSetNextDor
      XDEF ApplRomGetDorSize, ApplRomCopyDor
 
 ; *************************************************************************************
@@ -357,6 +359,49 @@
                     ret  c
                     ld   a, 3
                     call ApplRomReadDorPtr   ; return Link to brother (2. pointer of Front DOR) in slot C
+                    ret
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Set pointer (in CDE) to Next Application in DOR at BHL (second pointer from start of DOR).
+;
+; -------------------------------------------------------------------------------
+; Start of DOR:
+; 3 bytes     0 0 0         Link to parent
+; 3 bytes     x x x         Link to brother (0 0 0 if only application or last app in chain)
+; 3 bytes     0 0 0         Link to son
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;    CDE = pointer to next DOR (brother)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              brother link in DOR updated with CDE
+;              (C is masked as slot-relative bank number)
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplRomSetNextDor
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    push bc
+                    res  7,c
+                    res  6,c                 ; use only slot-relative bank numbers in DOR's...
+                    ld   a, 3
+                    call MemWritePointer     ; (BHL,A) = CDE
+                    pop  bc                  ; restore C
                     ret
 ; *************************************************************************************
 
