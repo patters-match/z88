@@ -78,8 +78,12 @@ safsgmsk
 safbhlsg
 mmrdbyte
 mmwrbyte
+mmrdword
+mmwrword
 mmrdptr
+mmwrptr
 mmrdlong
+mmwrlong
 enblint
 enablnkint
 disblint
