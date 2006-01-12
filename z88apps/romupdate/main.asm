@@ -32,7 +32,7 @@
      LIB FlashEprBlockErase, FlashEprWriteBlock, FlashEprCardId
 
      XREF ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
-     XREF ApplRomCopyDor
+     XREF ApplRomCopyDor, ApplRomSetNextDor
      XREF CrcFile, CrcBuffer
 
 
@@ -79,6 +79,7 @@
                     ld   de, appName                    ; and return pointer DOR for application name (pointed to by DE)
 .findappslot_loop
                     call ApplRomFindDOR
+                    call nc,StoreDorInfo                ; save found DOR information in memory variables
                     jr   nc,check_write_support         ; DOR was found in slot, but can Flash Card be updated in slot?
                     inc  c
                     dec  c                              ; application DOR not found or no application ROM available,
@@ -86,10 +87,6 @@
                     dec  c
                     jr   findappslot_loop               ; poll next slot for DOR...
 .check_write_support
-                    ld   a,b
-                    ld   (dorbank),a                    ; preserve the pointer to found DOR in slot C
-                    ld   (doroffset),hl
-
                     push bc
                     call FlashWriteSupport              ; is flash card updateable in slot?
                     pop  bc                             ; (restore bank no of pointer to DOR)
@@ -126,7 +123,7 @@
                     rlca
                     rlca
                     and  @00000011
-                    ld   c,a                            ; slot of sector
+                    ld   c,a                            ; slot derived from absolute bank number
                     ld   a,b
                     rrca
                     rrca                                ; bankNo/4
@@ -136,10 +133,53 @@
                     jp   c, suicide                     ; fatal error -  this only happens if there is a bad slot connection
                     ; --------------------------------------------------------------------------------------------------------
 
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; update bank file DOR with brother link of DOR from old application, then blow bank file to card
+                    ld   hl,buffer                      ; bank file is loaded in (buffer)
+                    ld   bc,(bankfiledor)
+                    add  hl,bc
+                    ld   b,0                            ; BHL = (local) pointer to base of bank file DOR
+                    ld   a,(nextdorbank)
+                    ld   c,a
+                    ld   de,(nextdoroffset)             ; CDE = brother link from original application DOR in card
+                    call ApplRomSetNextDor
+
+                    ld   a,(dorbank)
+                    ld   b,a
+                    call BlowBufferToBank               ; old application updated with new application!
+                    jp   c, suicide                     ; fatal error -  this only happens if there is a bad slot connection
+                    ; --------------------------------------------------------------------------------------------------------
+
                     call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
 
                     jp   suicide                        ; leave popdown...
                     ; --------------------------------------------------------------------------------------------------------
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Store the found DOR (in BHL) to variables (dorbank) & (doroffset), and the
+; brother link (next DOR in list) to (nextdorbank) & (nextdoroffset)
+;
+; Registers changed after return:
+;    AFBBCDEHL/IXIY same
+;    ......../.... different
+;
+.StoreDorInfo
+                    push af
+                    ld   a,b
+                    ld   (dorbank),a                    ; preserve the pointer to found DOR in slot C
+                    ld   (doroffset),hl
+                    push bc
+                    push hl
+                    call ApplRomNextDor                 ; get brother link to next application DOR in list
+                    ld   a,b
+                    ld   (nextdorbank),a                ; and preserve it to be patched into DOR in bank file to be updated
+                    ld   (nextdoroffset),hl
+                    pop  hl
+                    pop  bc
+                    pop  af
+                    ret
 ; *************************************************************************************
 
 
@@ -487,6 +527,37 @@
                     ld   a,(de)                         ; get bank (number) to be restored
 
                     ld   b,a
+                    call BlowBufferToBank
+                    push af
+                    oz   GN_Cl                          ; close file
+                    pop  af                             ; report back if a Flash programming error occurred
+.exit_restorebanks
+                    pop  de
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Blow contents of 16K buffer to bank B in Flash Card
+;
+; IN:
+;       B = Bank number (absolute)
+; OUT:
+;       Fc = 1, bank was not blown properly to Flash Card.
+;              A = RC_ error code
+;       Fc = 0, banks were successfully blown to Flash Card.
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.BlowBufferToBank
+                    push bc
+                    push de
+                    push hl
+                    push iy
+
                     ld   hl,0                           ; blow from start of bank...
                     ld   de,buffer                      ; blow contents of buffer to bank
                     ld   iy, 16384
@@ -497,10 +568,8 @@ else
 endif
                     xor  a                              ; Flash blowing algorithm is found dynamically
                     call FlashEprWriteBlock
-                    push af
-                    oz   GN_Cl                          ; close file
-                    pop  af                             ; report back if a Flash programming error occurred
-.exit_restorebanks
+                    pop  iy
+                    pop  hl
                     pop  de
                     pop  bc
                     ret
@@ -752,6 +821,8 @@ endif
                     ld   (bankfilecrc),hl
                     ld   hl,$bbbb
                     ld   (bankfilecrc+2),hl             ; define config bank file CRC
+                    ld   hl,0
+                    ld   (bankfiledor),hl               ; location of application DOR in bank file
                     ret
 ; *************************************************************************************
 
