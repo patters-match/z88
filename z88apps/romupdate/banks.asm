@@ -123,31 +123,29 @@
                     push de
                     ld   a,(de)                         ; get bank (number) to be preserved
                     ld   b,a
+                    push bc
                     call MemDefBank                     ; bind bank into Z80 address space
                     push bc                             ; (preserve old bank binding)
-                    call CrcSectorBank                  ; make a CRC (of bank to be preserved) and store it at presvdbankcrcs[bankNo]
+
+                    push hl
                     ld   bc, 16384
+                    push bc
                     ld   de,0
                     oz   OS_MV                          ; copy bank contents to file...
                     pop  bc
+                    pop  hl
+
+                    call CrcBuffer                      ; calculate CRC-32 of 16K bank at (HL), returned in DEHL
+                    pop  bc
                     call MemDefBank                     ; restore old bank binding
+
                     push af
                     oz   GN_Cl                          ; close file (copy of bank)
-                    pop  af                             ; return OS_MV status (RC_ROOM error, or bank successfully copied to file)
-.exit_preservebank
-                    pop  de
-                    pop  bc
-                    ret
-.CrcSectorBank
-                    push bc
-                    push de
-                    push hl
-                    push af                             ; the (absolute) bank number
-
-                    ld   bc,16384                       ; CRC of complete bank...
-                    call CrcBuffer                      ; calculate CRC-32 of bank at (HL)
                     pop  af
-                    push af
+                    pop  bc                             ; return OS_MV status (RC_ROOM error, or bank successfully copied to file)
+                    jr   c, exit_preservebank           ; I/O error...
+
+                    ld   a,b
                     and  @00000011                      ; bank no within sector
                     add  a,a
                     add  a,a                            ; index offset for CRC array
@@ -170,9 +168,7 @@
                     inc  bc
                     ld   a,d
                     ld   (bc),a                         ; CRC registered for bankNo
-
-                    pop  af
-                    pop  hl
+.exit_preservebank
                     pop  de
                     pop  bc
                     ret

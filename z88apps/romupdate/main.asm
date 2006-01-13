@@ -59,13 +59,17 @@
 .dontworry
                     cp   a                              ; all other RC errors are returned to caller
                     ret
-.suicide            xor  a
+.suicide
+                    call DeletePreservedSectorBanks     ; clean up any temp files before leaving...
+                    xor  a
                     oz   os_bye                         ; perform suicide, focus to Index...
 .void               jr   void
 ; *************************************************************************************
 
 
 ; *************************************************************************************
+; Main application entry
+;
 .app_main
                     ld   a, sc_ena
                     call_oz(os_esc)                     ; enable ESC detection
@@ -78,7 +82,7 @@
                     call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file
                     jp   c,suicide                      ; not available!
 
-                    ld   c,3                            ; check slot for an application card
+                    ld   c,3                            ; check external slots for an application card (from 3 downwards)
                     ld   de, appName                    ; and return pointer DOR for application name (pointed to by DE)
 .findappslot_loop
                     call ApplRomFindDOR
@@ -91,12 +95,12 @@
                     jr   findappslot_loop               ; poll next slot for DOR...
 .check_write_support
                     push bc
-                    call FlashWriteSupport              ; is flash card updateable in slot?
+                    call FlashWriteSupport              ; is flash card updateable in slot C?
                     pop  bc                             ; (restore bank no of pointer to DOR)
                     jp   c,suicide                      ; no write/erase support in slot!
 
-                    call RegisterPreservedSectorBanks   ; Flash Card may be updated,
-                                                        ; - register the banks to be preserved in the sector of the found DOR
+                    call RegisterPreservedSectorBanks   ; Flash Card may be updated - register the banks
+                                                        ; to be preserved in the sector of the found DOR
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; check CRC of bank file to be updated on card (replacing bank of found DOR)
@@ -111,13 +115,15 @@
                     ld   bc,16384                       ; 16K buffer
                     call CrcFile                        ; calculate CRC-32 of file, returned in DEHL
                     oz   GN_Cl                          ; close file again (we got the expanded filename)
+
                     call CheckBankFileCrc               ; check the CRC of the bank file with the CRC of the config file
                     jp   nz,suicide                     ; CRC didn't match: the file is corrupt and cannot be updated!
                     ; --------------------------------------------------------------------------------------------------------
 
                     call PreserveSectorBanks            ; preserve the sector banks to RAM filing system that are not being updated
-                    call c,DeletePreservedSectorBanks   ; no room in filing system, delete any bank files already preserved....
-                    jp   c,suicide                      ; then leave popdown...
+                    jp   c,suicide                      ; insufficient room for passive sector banks, leave popdown...
+                    call CheckPreservedSectorBanks      ; CRC validate the preserved passive bank files
+                    jp   nz,suicide                     ; CRC check failed for passive sector banks, leave popdown...
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; erase sector of bank (to be updated with new version of application)
@@ -154,9 +160,7 @@
                     ; --------------------------------------------------------------------------------------------------------
 
                     call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
-
                     jp   suicide                        ; leave popdown...
-                    ; --------------------------------------------------------------------------------------------------------
 ; *************************************************************************************
 
 
@@ -354,9 +358,9 @@ endif
                     ld   de,bankfilename
                     ldir                                ; define config bank filename
 
-                    ld   hl,$aaaa
+                    ld   hl,$e64b
                     ld   (bankfilecrc),hl
-                    ld   hl,$bbbb
+                    ld   hl,$b67d
                     ld   (bankfilecrc+2),hl             ; define config bank file CRC
                     ld   hl,0
                     ld   (bankfiledor),hl               ; location of application DOR in bank file
