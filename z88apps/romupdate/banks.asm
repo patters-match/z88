@@ -148,7 +148,7 @@
                     call CrcBuffer                      ; calculate CRC-32 of bank at (HL)
                     pop  af
                     push af
-                    and  @11111100                      ; bank no within sector
+                    and  @00000011                      ; bank no within sector
                     add  a,a
                     add  a,a                            ; index offset for CRC array
                     push hl
@@ -238,7 +238,7 @@
                     pop  bc
                     push bc
                     ld   a,(bc)
-                    and  @11111100                      ; get bank (number) within sector...
+                    and  @00000011                      ; get bank (number) within sector...
                     ld   bc,presvdbankcrcs              ; base pointer to array of preserved bank CRC's
                     add  a,a
                     add  a,a                            ; sector bank no * 4 = pointer to array offset
@@ -425,14 +425,15 @@
 ;       HL = points to start of filename
 ;
 ; Registers changed after return:
-;    ..BCDE../IXIY same
-;    AF....HL/.... different
+;    AFBCDE../IXIY same
+;    ......HL/.... different
 ;
 .GetBankFilename
+                    push af
                     push de
                     call CpyBaseBankFileName
                     ld   a,b
-                    and  @11111100                      ; preserve only bank number within sector
+                    and  @00000011                      ; preserve only bank number within sector
                     or   48                             ; make bank number an ascii number...
                     ld   (de),a                         ; and append it as the filename extension
                     inc  de
@@ -440,6 +441,7 @@
                     ld   (de),a                         ; null terminate filename
                     pop  de
                     ld   hl, filename                   ; return pointer to start of filename
+                    pop  af
                     ret
 ; *************************************************************************************
 
