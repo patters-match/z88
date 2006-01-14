@@ -106,18 +106,12 @@
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; check CRC of bank file to be updated on card (replacing bank of found DOR)
-                    ld   bc,128
-                    ld   hl,bankfilename                ; (local) filename to card image
-                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
-                    ld   a, op_in
-                    oz   GN_Opf
+                    call LoadBankFile
                     jp   c,suicide                      ; couldn't open file (in use / not found?)...
 
-                    ld   de,buffer
+                    ld   hl,buffer
                     ld   bc,16384                       ; 16K buffer
-                    call CrcFile                        ; calculate CRC-32 of file, returned in DEHL
-                    oz   GN_Cl                          ; close file again (we got the expanded filename)
-
+                    call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
                     call CheckBankFileCrc               ; check the CRC of the bank file with the CRC of the config file
                     jp   nz,suicide                     ; CRC didn't match: the file is corrupt and cannot be updated!
                     ; --------------------------------------------------------------------------------------------------------
@@ -147,6 +141,7 @@
                     ; --------------------------------------------------------------------------------------------------------
                     ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
                     ; with new bank number location in sector. Finally, blow bank with updated DOR back to card
+                    call LoadBankFile                   ; get bank to be updated into buffer...
                     ld   hl,buffer                      ; bank file is loaded in (buffer)
                     ld   bc,(bankfiledor)
                     add  hl,bc
@@ -198,6 +193,31 @@
 
                     call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
                     jp   suicide                        ; leave popdown...
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Load config specified bank file into 16K buffer
+;
+; Registers changed after return:
+;    ......../..IY same
+;    AFBCDEHL/IX.. different
+;
+.LoadBankFile
+                    ld   bc,128
+                    ld   hl,bankfilename                ; (local) filename to card image
+                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
+                    ld   a, op_in
+                    oz   GN_Opf
+                    ret  c
+                    ld   bc,16384
+                    ld   de,buffer
+                    ld   hl,0
+                    oz   OS_MV                          ; copy bank file contents into buffer...
+                    push af
+                    oz   GN_Cl                          ; close file
+                    pop  af
+                    ret
 ; *************************************************************************************
 
 
