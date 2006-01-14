@@ -26,12 +26,17 @@
      lib MemReadByte          ; Read byte at pointer in BHL, offset A, returned in A
      lib MemWritePointer      ; Set pointer in CDE, at record base pointer BHL, offset A.
      lib MemReadPointer       ; Read pointer at record defined as extended (base) address in BHL, offset A.
+     lib MemWriteByte         ; Set byte in C, at base record pointer in BHL, offset A.
      lib SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment specfier returned in C
 
 
      XDEF ApplRomFindDor, ApplRomFirstDor, ApplRomFrontDor, ApplRomReadDorPtr
      XDEF ApplRomNextDor, ApplRomSetNextDor
      XDEF ApplRomGetDorSize, ApplRomCopyDor
+     XDEF ApplSegmentBinding, ApplSetSegmentBinding
+     XDEF ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
+     XDEF ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
+
 
 ; *************************************************************************************
 ;
@@ -327,6 +332,82 @@
 
 ; *************************************************************************************
 ;
+; Return default bank binding of specified segment in application DOR
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;      C = segment binding specifier (0-3)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              A = default bank binding for segment C in DOR
+;
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplSegmentBinding
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,c
+                    and  @00000011           ; only 0-3 allowed
+                    add  a,25                ; the first segment binding specifier is at 25th byte in DOR
+                    jp   MemReadByte         ; return bank segment binding in A
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Set default bank binding of specified segment in application DOR
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;      C = segment binding specifier (0-3)
+;      A = bank number
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              A = new default bank binding for segment C in DOR
+;                  (A is automatcically masked slot relative)
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplSetSegmentBinding
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    and  @00111111           ; make sure that bank is slot relative
+                    push bc
+                    ex   af,af'
+                    push af                  ; preserve original alternate AF
+                    ld   a,c
+                    and  @00000011           ; only 0-3 allowed
+                    add  a,25                ; point at segment binding specifier for bank
+                    ex   af,af'
+                    ld   c,a                 ; C = bank
+                    ex   af,af'
+                    call MemWriteByte        ; return bank segment binding in A
+                    pop  af                  ; original alternate AF restored
+                    ex   af,af'
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
 ; Return pointer to Next Application DOR in BHL (second pointer from start of DOR).
 ;
 ; -------------------------------------------------------------------------------
@@ -366,6 +447,315 @@
 
 ; *************************************************************************************
 ;
+; Return MTH Application Topics pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     x x x         Extended pointer to topics
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              CDE = pointer to MTH Topics for application DOR
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    AFB...HL/IXIY same
+;    ...CDE../.... different
+;
+.ApplTopicsPtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,33                ; (point at first byte of Topics pointer)
+.GetMthPointer                               ; return MTH pointer in CDE
+                    push bc
+                    push hl
+                    call ApplRomReadDorPtr   ; return link to Topics section
+                    ex   de,hl
+                    pop  hl
+                    ld   a,b
+                    pop  bc
+                    ld   c,a
+                    ret
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Return MTH Application Commands pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     0 0 0         Extended pointer to topics
+; 3 bytes     x x x         Extended pointer to commands
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              CDE = pointer to MTH Commands for application DOR
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..B...HL/IXIY same
+;    AF.CDE../.... different
+;
+.ApplCommandsPtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,36                ; (point at first byte of Commands pointer)
+                    jr   GetMthPointer       ; return MTH pointer in CDE
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Return MTH Application Help pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     0 0 0         Extended pointer to topics
+; 3 bytes     0 0 0         Extended pointer to commands
+; 3 bytes     x x x         Extended pointer to application help
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              CDE = pointer to MTH Help for application DOR
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..B...HL/IXIY same
+;    AF.CDE../.... different
+;
+.ApplHelpPtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,39                ; (point at first byte of Help pointer)
+                    jr   GetMthPointer       ; return MTH pointer in CDE
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Return MTH Token base pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     0 0 0         Extended pointer to topics
+; 3 bytes     0 0 0         Extended pointer to commands
+; 3 bytes     0 0 0         Extended pointer to application help
+; 3 bytes     x x x         Extended pointer to token base
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              CDE = pointer to MTH Token base for application DOR
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..B...HL/IXIY same
+;    AF.CDE../.... different
+;
+.ApplTokenbasePtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,42                ; (point at first byte of Token base pointer)
+                    jr   GetMthPointer       ; return MTH pointer in CDE
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Set MTH Application Topics pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     x x x         Extended pointer to topics
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;    CDE = MTH Topics pointer
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              MTH Topics pointer in DOR updated with CDE
+;              (C is masked as slot-relative bank number)
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplSetTopicsPtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,33                ; (point at first byte of Topics pointer)
+                    jr   WriteSlotRelPtr     ; set MTH pointer in CDE at (BHL)
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Set MTH Application Commands pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     0 0 0         Extended pointer to topics
+; 3 bytes     x x x         Extended pointer to commands
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;    CDE = MTH Commands pointer
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              MTH Commands pointer in DOR updated with CDE
+;              (C is masked as slot-relative bank number)
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplSetCommandsPtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,36                ; (point at first byte of Commands pointer)
+                    jr   WriteSlotRelPtr     ; set MTH pointer in CDE at (BHL)
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Set MTH Application Help pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     0 0 0         Extended pointer to topics
+; 3 bytes     0 0 0         Extended pointer to commands
+; 3 bytes     x x x         Extended pointer to application help
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;    CDE = MTH Help pointer
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              MTH Help pointer in DOR updated with CDE
+;              (C is masked as slot-relative bank number)
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplSetHelpPtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,39                ; (point at first byte of Help pointer)
+                    jr   WriteSlotRelPtr     ; set MTH pointer in CDE at (BHL)
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
+; Set MTH Application Token base pointer in DOR
+;
+; -------------------------------------------------------------------------------
+; 'H'                       Key to help section
+; 1 byte      n             Length of help section
+; 3 bytes     0 0 0         Extended pointer to topics
+; 3 bytes     0 0 0         Extended pointer to commands
+; 3 bytes     0 0 0         Extended pointer to application help
+; 3 bytes     x x x         Extended pointer to token base
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;    CDE = MTH Token base pointer
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              MTH Token base pointer in DOR updated with CDE
+;              (C is masked as slot-relative bank number)
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplSetTokenbasePtr
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a,42                ; (point at first byte of Token base pointer)
+                    jr   WriteSlotRelPtr     ; set MTH pointer in CDE at (BHL)
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+;
 ; Set pointer (in CDE) to Next Application in DOR at BHL (second pointer from start of DOR).
 ;
 ; -------------------------------------------------------------------------------
@@ -396,10 +786,11 @@
 .ApplRomSetNextDor
                     call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
                     ret  c
+                    ld   a,3
+.WriteSlotRelPtr
                     push bc
                     res  7,c
                     res  6,c                 ; use only slot-relative bank numbers in DOR's...
-                    ld   a, 3
                     call MemWritePointer     ; (BHL,A) = CDE
                     pop  bc                  ; restore C
                     ret
