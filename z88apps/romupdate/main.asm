@@ -36,7 +36,9 @@
      xref CrcFile, CrcBuffer
      xref RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xref RestoreSectorBanks, DeletePreservedSectorBanks
-
+     xref ApplSegmentBinding, ApplSetSegmentBinding
+     xref ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
+     xref ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
 
 
 ; *************************************************************************************
@@ -143,7 +145,8 @@
                     ; --------------------------------------------------------------------------------------------------------
 
                     ; --------------------------------------------------------------------------------------------------------
-                    ; update bank file DOR with brother link of DOR from old application, then blow bank file to card
+                    ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
+                    ; with new bank number location in sector. Finally, blow bank with updated DOR back to card
                     ld   hl,buffer                      ; bank file is loaded in (buffer)
                     ld   bc,(bankfiledor)
                     add  hl,bc
@@ -153,7 +156,41 @@
                     ld   de,(nextdoroffset)             ; CDE = brother link from original application DOR in card
                     call ApplRomSetNextDor
 
+                    ld   c,3
+                    ld   b,0                            ; DOR is available in local address space...
+.updsegments_loop   call ApplSegmentBinding             ; get current segment C bank binding
+                    or   a
+                    jr   z, no_segm_binding             ; 0 indicates no default bank binding
                     ld   a,(dorbank)
+                    call ApplSetSegmentBinding          ; update default bank segment C binding for new location in sector
+.no_segm_binding    inc  c
+                    dec  c
+                    jr   z, update_mth                  ; all DOR bank segment bindings updated
+                    dec  c
+                    jr   updsegments_loop
+.update_mth
+                    call ApplTopicsPtr                  ; get pointer to MTH Topics in CDE
+                    ld   a,(dorbank)
+                    push af
+                    ld   c,a
+                    call ApplSetTopicsPtr               ; update MTH Topics pointer with new bank
+                    call ApplCommandsPtr
+                    pop  af
+                    push af
+                    ld   c,a
+                    call ApplSetCommandsPtr             ; update MTH Commands pointer with new bank
+                    call ApplHelpPtr
+                    pop  af
+                    push af
+                    ld   c,a
+                    call ApplSetHelpPtr                 ; update MTH Help pointer with new bank
+                    call ApplTokenbasePtr
+                    pop  af
+                    push af
+                    ld   c,a
+                    call ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
+
+                    pop  af
                     ld   b,a
                     call BlowBufferToBank               ; old application updated with new application!
                     jp   c, suicide                     ; fatal error -  this only happens if there is a bad slot connection
