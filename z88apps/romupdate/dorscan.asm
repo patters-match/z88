@@ -385,8 +385,14 @@
 ;    AF....../.... different
 ;
 .ApplSetSegmentBinding
+                    push af
                     call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
-                    ret  c
+                    jr   nc, setsegmb
+                    inc  sp
+                    inc  sp
+                    ret                      ; pop bank number and return error code
+.setsegmb
+                    pop  af                  ; restore bank number
                     and  @00111111           ; make sure that bank is slot relative
                     push bc
                     ex   af,af'
