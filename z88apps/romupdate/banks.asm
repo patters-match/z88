@@ -135,7 +135,9 @@
                     pop  bc
                     pop  hl
 
+                    push af
                     call CrcBuffer                      ; calculate CRC-32 of 16K bank at (HL), returned in DEHL
+                    pop  af                             ; restored OS_MV status
                     pop  bc
                     call MemDefBank                     ; restore old bank binding
 
