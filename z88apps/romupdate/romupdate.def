@@ -35,10 +35,12 @@ DEFVARS vararea
      dorbank            ds.b 1                   ; the bank number of the found application in a card
      nextdoroffset      ds.w 1                   ; the offset of the next DOR (the brother link of found application DOR)
      nextdorbank        ds.b 1                   ; the bank number of the next DOR (the brother link of found application DOR)
+     appname            ds.w 1                   ; local pointer to null-terminated application/popdown DOR name of bank file to be updated
      bankfilename       ds.b 128                 ; filename of bank file to be patched to card (fetched from romupdate.cfg)
      bankfilecrc        ds.l 1                   ; CRC of bank file (fetched from from romupdate.cfg)
      bankfiledor        ds.w 1                   ; offset pointer to DOR in bank file
      filename           ds.b 128                 ; generic filename buffer
      presvdbanks        ds.b 4                   ; 4 byte array of bank numbers that are preserved as :RAM.-/bank.<bank number>
      presvdbankcrcs     ds.l 4                   ; array of CRC's for preserved banks (index matches preserved bank array)
+     retry              ds.b 1                   ; a simple retry counter for Flash Card Erase & BlockWrite commands
 }

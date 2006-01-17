@@ -27,8 +27,10 @@
 
      lib MemDefBank, SafeBHLSegment
      lib FlashEprBlockErase, FlashEprWriteBlock, FlashEprCardId
+     lib CreateWindow
 
      xdef app_main
+     xdef suicide
      xdef CheckCrc, BlowBufferToBank
 
      xref ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
@@ -39,6 +41,10 @@
      xref ApplSegmentBinding, ApplSetSegmentBinding
      xref ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
      xref ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
+     xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
+     xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank
+     xref MsgFoundAppDor, MsgCompleted, MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector
+     xref MsgUpdateBankFile, MsgRestorePassvBanks
 
 
 ; *************************************************************************************
@@ -62,7 +68,7 @@
                     cp   a                              ; all other RC errors are returned to caller
                     ret
 .suicide
-                    call DeletePreservedSectorBanks     ; clean up any temp files before leaving...
+                    call DeletePreservedSectorBanks     ; clean up any temp bank files before leaving...
                     xor  a
                     oz   os_bye                         ; perform suicide, focus to Index...
 .void               jr   void
@@ -70,7 +76,7 @@
 
 
 ; *************************************************************************************
-; Main application entry
+; Main program entry
 ;
 .app_main
                     ld   a, sc_ena
@@ -80,14 +86,24 @@
                     ld   b,a
                     ld   hl,Errhandler
                     oz   os_erh                         ; then install Error Handler...
-
+if POPDOWN
+                    ld   a,'1' | 128
+                    ld   bc,$0004
+                    ld   de,$0854
+                    ld   hl, progversion_banner
+                    call CreateWindow                   ; the popdown needs to create it's own window (BBC BASIC has a window established)
+else
+                    ld   hl, bbcbas_progversion
+                    oz   GN_Sop                         ; just display the program version in BBC BASIC
+                    oz   GN_Nln
+endif
                     call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file
                     jp   c,suicide                      ; not available!
 
                     ld   c,3                            ; check external slots for an application card (from 3 downwards)
-                    ld   de, appName                    ; and return pointer DOR for application name (pointed to by DE)
+                    ld   de,(appname)                   ; search for appname in DOR's...
 .findappslot_loop
-                    call ApplRomFindDOR
+                    call ApplRomFindDOR                 ; return pointer to found application DOR
                     call nc,StoreDorInfo                ; save found DOR information in memory variables
                     jr   nc,check_write_support         ; DOR was found in slot, but can Flash Card be updated in slot?
                     inc  c
@@ -96,33 +112,43 @@
                     dec  c
                     jr   findappslot_loop               ; poll next slot for DOR...
 .check_write_support
+                    call MsgFoundAppDor                 ; Display progress info, "Found <appname> in slot X"
                     push bc
                     call FlashWriteSupport              ; is flash card updateable in slot C?
                     pop  bc                             ; (restore bank no of pointer to DOR)
-                    jp   c,suicide                      ; no write/erase support in slot!
+                    jp   nz,ErrMsgNoFlash               ; Display error to user that app. can only be updated on Flash Card (not Eprom)
+                    jp   c,ErrMsgIntelFlash             ; no write/erase support for Intel Flash Card other than in slot 3
 
                     call RegisterPreservedSectorBanks   ; Flash Card may be updated - register the banks
                                                         ; to be preserved in the sector of the found DOR
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; check CRC of bank file to be updated on card (replacing bank of found DOR)
+                    call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
                     call LoadBankFile
-                    jp   c,suicide                      ; couldn't open file (in use / not found?)...
+                    jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
 
                     ld   hl,buffer
                     ld   bc,16384                       ; 16K buffer
                     call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
-                    call CheckBankFileCrc               ; check the CRC of the bank file with the CRC of the config file
-                    jp   nz,suicide                     ; CRC didn't match: the file is corrupt and cannot be updated!
+                    call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
+                    jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and cannot be updated!
                     ; --------------------------------------------------------------------------------------------------------
 
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; preserve passive banks to RAM filing system, including CRC check to ensure safe restore later...
+                    call MsgPreserveSectorBanks         ; display progress message for preserving sector data
                     call PreserveSectorBanks            ; preserve the sector banks to RAM filing system that are not being updated
-                    jp   c,suicide                      ; insufficient room for passive sector banks, leave popdown...
+                    jp   c,ErrMsgPresvBanks             ; insufficient room for passive sector banks or other I/O error, leave popdown...
                     call CheckPreservedSectorBanks      ; CRC validate the preserved passive bank files
-                    jp   nz,suicide                     ; CRC check failed for passive sector banks, leave popdown...
+                    jp   nz,ErrMsgCrcCheckPresvBanks    ; CRC check failed for passive sector banks, leave popdown...
+                    ; --------------------------------------------------------------------------------------------------------
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; erase sector of bank (to be updated with new version of application)
+                    call MsgEraseSector                 ; display progress message for erasing sector
+                    ld   a,5
+                    ld   (retry),a                      ; retry max 5 times to erase a block when the Flash Card Hardware reports error..
                     ld   a,(dorbank)
                     ld   b,a
                     rlca
@@ -134,11 +160,17 @@
                     rrca                                ; bankNo/4
                     and  @00001111                      ; sector number containing bank
                     ld   b,a
+.retry_erase_sector
                     call FlashEprBlockErase
-                    jp   c, suicide                     ; fatal error -  this only happens if there is a bad slot connection
+                    jr   nc, sector_erased
+                    ld   hl,retry                       ; sector was not erased properly, try 5 more times...
+                    dec  (hl)
+                    jr   nz,retry_erase_sector
+                    jp   ErrMsgSectorErase              ; fatal error - sector was not erased after 5 retries (battery low or bad slot connection)
                     ; --------------------------------------------------------------------------------------------------------
-
+.sector_erased
                     ; --------------------------------------------------------------------------------------------------------
+                    call MsgUpdateBankFile              ; display progress message for updating the new version of the application bank
                     ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
                     ; with new bank number location in sector. Finally, blow bank with updated DOR back to card
                     call LoadBankFile                   ; get bank to be updated into buffer...
@@ -188,11 +220,15 @@
                     pop  af
                     ld   b,a
                     call BlowBufferToBank               ; old application updated with new application!
-                    jp   c, suicide                     ; fatal error -  this only happens if there is a bad slot connection
+                    ld   hl, bankfilename               ; name of application bank file (specified in config file)
+                    jp   c,ErrMsgBlowBank               ; fatal error -  this only happens if there is a bad slot connection
                     ; --------------------------------------------------------------------------------------------------------
 
+                    call MsgRestorePassvBanks
                     call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
-                    jp   suicide                        ; leave popdown...
+                    ld   hl,filename                    ; name of current passive filename being restored
+                    jp   c, ErrMsgBlowBank
+                    jp   MsgCompleted                   ; display completed messagem then leave by KILL request...
 ; *************************************************************************************
 
 
@@ -421,8 +457,13 @@ endif
                     ld   (bankfilecrc+2),hl             ; define config bank file CRC
                     ld   hl,0
                     ld   (bankfiledor),hl               ; location of application DOR in bank file
+                    ld   hl, searchAppName
+                    ld   (appname),hl
                     ret
 ; *************************************************************************************
 
-.appName            defm "FlashStore", 0                ; application (DOR) name to search for in slot.
+.bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
+.progversion_banner defm 1, "BRomUpdate V0.5", 1,"B", 0
+
+.searchAppName      defm "FlashStore", 0                ; application (DOR) name to search for in slot.
 .flnm               defm "flashstore.epr", 0            ; 16K card image
