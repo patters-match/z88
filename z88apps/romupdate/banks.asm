@@ -21,13 +21,18 @@
      include "error.def"
      include "memory.def"
      include "fileio.def"
+
+     ; RomUpdate runtime variables
      include "romupdate.def"
 
      lib MemDefBank, SafeBHLSegment
+     lib RamDevFreeSpace
+
      xref CrcBuffer, CheckCrc, BlowBufferToBank
 
      xdef RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xdef RestoreSectorBanks, DeletePreservedSectorBanks
+     xdef CheckBankFreeSpace
 
 
 ; *************************************************************************************
@@ -408,6 +413,68 @@
                     pop  de
                     pop  bc
                     pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Check if there is enough free RAM available to store the temporary passive bank
+; files (registered to be preserved for the sector). Each bank file occupies approx.
+; 67 pages (each page is 256 bytes) in the RAM filing system.
+;
+; IN:
+;       None.
+; OUT:
+;       Fc = 1, insufficient free RAM space to preserve passive banks.
+;       Fc = 0, all banks may be preserved in RAM filing system
+;       DE = total pages needed to preserve banks to RAM
+;       HL = total pages of free RAM in Z88.
+;
+; Registers changed after return:
+;    ..BC..../IXIY same
+;    AF..DEHL/.... different
+;
+.CheckBankFreeSpace
+                    push bc
+                    ld   de,presvdbanks+3               ; point at end of array
+                    ld   b,3
+                    ld   c,0                            ; accumulated amount of needed bank pages
+.calc_bankspace
+                    ld   a,(de)
+                    or   a
+                    jr   z, check_next_bank             ; this bank is not registered to be preserved (= 0)...
+                    ld   a,67
+                    add  a,c
+                    ld   c,a                            ; another 68 RAM pages is needed for registered bank
+.check_next_bank
+                    inc  b
+                    dec  b
+                    jr   z, comp_free_ram               ; sector scanned for registered banks, compare with free ram
+                    dec  b
+                    dec  de
+                    jr   calc_bankspace
+.comp_free_ram
+                    push bc                             ; preserve amount of necessary pages for preserved banks
+                    ld   hl,0
+                    ld   b,3
+.scan_ram_loop
+                    ld   a,b
+                    call RamDevFreeSpace
+                    jr   c, poll_next_ram
+                    add  hl,de                          ; total of free ram pages...
+.poll_next_ram
+                    dec  b
+                    ld   a,b
+                    cp   -1
+                    jr   nz, scan_ram_loop
+.allram_slots
+                    pop  de                             ; necessary space for preserved banks
+                    push hl
+                    sbc  hl,de                          ; Return Fc = 1, if there isn't enough free space for banks...
+                    pop  hl                             ; return HL & DE page numbers...
+
+                    pop  bc
                     ret
 ; *************************************************************************************
 

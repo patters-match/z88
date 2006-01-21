@@ -42,9 +42,10 @@
      xref ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
      xref ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
-     xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank
+     xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom
      xref MsgFoundAppDor, MsgCompleted, MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector
      xref MsgUpdateBankFile, MsgRestorePassvBanks
+     xref CheckBankFreeSpace
 
 
 ; *************************************************************************************
@@ -119,8 +120,9 @@ endif
                     jp   nz,ErrMsgNoFlash               ; Display error to user that app. can only be updated on Flash Card (not Eprom)
                     jp   c,ErrMsgIntelFlash             ; no write/erase support for Intel Flash Card other than in slot 3
 
-                    call RegisterPreservedSectorBanks   ; Flash Card may be updated - register the banks
-                                                        ; to be preserved in the sector of the found DOR
+                    call RegisterPreservedSectorBanks   ; Flash Card may be updated - register banks in the sector to be preserved
+                    call CheckBankFreeSpace             ; enough space in RAM filing system for preserved banks?
+                    jp   c,ErrMsgNoRoom
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; check CRC of bank file to be updated on card (replacing bank of found DOR)
@@ -451,9 +453,9 @@ endif
                     ld   de,bankfilename
                     ldir                                ; define config bank filename
 
-                    ld   hl,$e64b
+                    ld   hl,$d41f
                     ld   (bankfilecrc),hl
-                    ld   hl,$b67d
+                    ld   hl,$27ac
                     ld   (bankfilecrc+2),hl             ; define config bank file CRC
                     ld   hl,0
                     ld   (bankfiledor),hl               ; location of application DOR in bank file

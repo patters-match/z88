@@ -34,7 +34,7 @@
      xdef ReportStdError, DispErrMsg
      xdef ErrMsgNoFlash, ErrMsgIntelFlash
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
-     xdef ErrMsgSectorErase, ErrMsgBlowBank
+     xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom
      xdef MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector, MsgUpdateBankFile
      xdef MsgRestorePassvBanks
 
@@ -146,6 +146,51 @@
                     ld   hl,erasesector_msg
                     oz   GN_Sop
                     jp   DispSectorNo
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Display an error message to the user that there wasn't room enough for preserving
+; the passive banks in the RAM filing system. The user is informed how much RAM
+; is needed before RomUpdate can preserve the banks.
+;
+; IN:
+;    DE = total pages needed to preserve banks to RAM
+;    HL = total pages of free RAM in Z88.
+;
+.ErrMsgNoRoom
+                    oz   GN_nln
+                    push hl
+                    ld   hl,ram_noroom1_msg
+                    oz   GN_Sop
+                    push de
+                    pop  hl
+                    call DispK                          ; total K needed to preserve banks
+                    ld   hl,ram_noroom2_msg
+                    oz   GN_Sop
+                    pop  hl
+                    push hl
+                    call DispK                          ; total K needed to preserve banks
+                    ld   hl,ram_noroom3_msg
+                    oz   GN_Sop
+                    pop  hl
+                    ex   de,hl
+                    sbc  hl,de                          ; <Pages needed> - <free space> = more room
+                    call DispK                          ; RAM space (in K) to be freed to give more room
+                    ld   hl,ram_noroom4_msg
+                    call Sopnln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
+.DispK
+                    srl  h
+                    rr   l
+                    srl  h
+                    rr   l                              ; pages/4 = K
+                    ld   a,l
+                    or   a
+                    jr   nz,dspnm
+                    inc  a                              ; round up to minimum 1K, if num was < 1K..
+.dspnm              jp   DispNumber
 ; *************************************************************************************
 
 
@@ -322,7 +367,11 @@
                     rlca
                     rlca
                     and  @00000011
-                    jr   DispNumber
+                    call DispNumber
+                    ld   a,'.'
+                    oz   OS_Out
+                    oz   GN_nln
+                    ret
 ; *************************************************************************************
 
 
@@ -334,6 +383,11 @@
                     rrca
                     rrca                                ; bankNo/4
                     and  @00001111                      ; sector number containing bank
+                    call DispNumber
+                    ld   a,'.'
+                    oz   OS_Out
+                    oz   GN_nln
+                    ret
 ; *************************************************************************************
 
 
@@ -342,6 +396,10 @@
 ;
 ; IN:
 ;    A = number to be displayed at current window position
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
 ;
 .DispNumber
                     push bc
@@ -360,10 +418,6 @@
                     ld   l,2                            ; integer in BC to be converted to Ascii
                     ld   a,1                            ; no leading spaces
                     oz   GN_Pdn                         ; output result to current window...
-
-                    ld   a,'.'
-                    oz   OS_Out
-                    oz   GN_nln
 
                     pop  ix
                     pop  hl
@@ -477,8 +531,7 @@
 .notfound_msg       defm " bank file (to be updated on card) was not found.",0
 .io_error_msg       defm " bank file was not properly loaded (possibly corrupted).",0
 .notcreated_msg     defm " (temporary) file could not be created (already in use or I/O error).",0
-.file_noroom_msg    defm " (temporary) file creation was rejected. File system space exhausted.", $0D, $0A
-                    defm "RomUpdate needs approx. 48K of free space to update Application Card.",0
+.file_noroom_msg    defm " (temporary) file creation was rejected. File system space exhausted.", 0
 .crcbankfile1_msg   defm "CRC Checking ",0
 .crcbankfile2_msg   defm " bank file.",0
 .crcerr_bfile1      defm "CRC check failed for ", 0
@@ -496,3 +549,8 @@
 .rest_bnkfiles_msg  defm "Restore remaining banks (from RAM files) to sector no. ", 0
 .updbnk1_err_msg    defm "Bank (", 0
 .updbnk2_err_msg    defm ") failed to be written to sector no. ", 0
+.ram_noroom1_msg    defm "RomUpdate uses approx. ", 0
+.ram_noroom2_msg    defm "K of RAM file space to update Application Card.", $0D, $0A
+                    defm "Free RAM = ", 0
+.ram_noroom3_msg    defm "K. You need to release ",0
+.ram_noroom4_msg    defm "K file space to perform the update.",0
