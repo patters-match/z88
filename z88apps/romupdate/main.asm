@@ -33,6 +33,7 @@
      xdef suicide
      xdef CheckCrc, BlowBufferToBank
 
+     xref ReadConfigFile
      xref ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
      xref ApplRomCopyDor, ApplRomSetNextDor
      xref CrcFile, CrcBuffer
@@ -444,28 +445,7 @@ endif
 ; *************************************************************************************
 
 
-; *************************************************************************************
-; TODO: Load parameters from 'romupdate.cfg' file.
-;
-.ReadConfigFile
-                    ld   bc,15
-                    ld   hl,flnm
-                    ld   de,bankfilename
-                    ldir                                ; define config bank filename
-
-                    ld   hl,$d41f
-                    ld   (bankfilecrc),hl
-                    ld   hl,$27ac
-                    ld   (bankfilecrc+2),hl             ; define config bank file CRC
-                    ld   hl,0
-                    ld   (bankfiledor),hl               ; location of application DOR in bank file
-                    ld   hl, searchAppName
-                    ld   (appname),hl
-                    ret
-; *************************************************************************************
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
 .progversion_banner defm 1, "BRomUpdate V0.5", 1,"B", 0
 
-.searchAppName      defm "FlashStore", 0                ; application (DOR) name to search for in slot.
-.flnm               defm "flashstore.epr", 0            ; 16K card image

@@ -27,8 +27,13 @@ if BBCBASIC
      defc vararea = $4000                        ; The BBC BASIC version uses the continous RAM from segment 1 upwards ($4000 onwards)
 endif
 
+defc MAX_IDLENGTH = 64                           ; max. 64 bytes identifier length (config file)
+defc SIZEOF_LINEBUFFER = banksize                ; load config file into bank buffer to speed up parsing
+
+
 DEFVARS vararea
 {
+     linebuffer                                  ; the line parsing buffer for config file 'romupdate.cfg' (same as bank buffer)
      buffer             ds.b banksize            ; buffer to load a complete 16K bank from file
      dorcpy             ds.b 64                  ; DOR buffer (used for patching to bank in for updated App card)
      doroffset          ds.w 1                   ; the offset within the bank of the found application in a card
@@ -43,4 +48,21 @@ DEFVARS vararea
      presvdbanks        ds.b 4                   ; 4 byte array of bank numbers that are preserved as :RAM.-/bank.<bank number>
      presvdbankcrcs     ds.l 4                   ; array of CRC's for preserved banks (index matches preserved bank array)
      retry              ds.b 1                   ; a simple retry counter for Flash Card Erase & BlockWrite commands
+     ident              ds.b 66                  ; buffer for current collected ident. (config file)
+     lineptr            ds.w 1                   ; pointer to current byte in linebuffer (config file)
+     nextline           ds.w 1                   ; pointer to beginning of next source line in buffer (config file)
+     bufferend          ds.w 1                   ; pointer to end of buffer information, L-end (config file)
+     sym                ds.b 1                   ; current symbol identifier of ident. (config file)
+     longint            ds.l 1                   ; long integer variable (config file usage)
+}
+
+;  Mnemonics used to symbolize various identifiers in config file:
+DEFGROUP {
+     ; this first section matches the .separators string in configfile.asm
+	sym_null,	sym_dquote, sym_squote, sym_semicolon, sym_comma,	sym_fullstop
+	sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus, sym_multiply, sym_divi
+	sym_mod, sym_power,	sym_assign, sym_strconq,	sym_and, sym_or, sym_xor, sym_not
+	sym_less,	sym_greater, sym_constexpr, sym_newline, sym_lf
+
+	sym_name,	sym_number, sym_decmconst, sym_hexconst, sym_binconst,	sym_charconst, sym_negated, sym_nil
 }

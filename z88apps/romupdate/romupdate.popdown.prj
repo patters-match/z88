@@ -21,4 +21,5 @@ main
 banks
 dorscan
 crc32
+configfile
 messages
