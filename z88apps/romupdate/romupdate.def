@@ -19,12 +19,12 @@
 defc banksize = 16384
 
 if POPDOWN
-     defc RAM_pages = 17408/256                  ; total RAM DOR pages, 17K bytes contigous memory from upper 8K segment 0 ($2000 onwards)
+     defc RAM_pages = 17408/256                  ; total RAM DOR pages, 17K bytes continuous memory from upper 8K segment 0 ($2000 onwards)
      defc vararea = $2000
 endif
 
 if BBCBASIC
-     defc vararea = $4000                        ; The BBC BASIC version uses the continous RAM from segment 1 upwards ($4000 onwards)
+     defc vararea = $4000                        ; The BBC BASIC version uses the continuous RAM from segment 1 upwards ($4000 onwards)
 endif
 
 defc MAX_IDLENGTH = 64                           ; max. 64 bytes identifier length (config file)
@@ -58,11 +58,11 @@ DEFVARS vararea
 
 ;  Mnemonics used to symbolize various identifiers in config file:
 DEFGROUP {
-     ; this first section matches the .separators string in configfile.asm
-	sym_null,	sym_dquote, sym_squote, sym_semicolon, sym_comma,	sym_fullstop
-	sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus, sym_multiply, sym_divi
-	sym_mod, sym_power,	sym_assign, sym_strconq,	sym_and, sym_or, sym_xor, sym_not
-	sym_less,	sym_greater, sym_constexpr, sym_newline, sym_lf
+    ; this first section matches the .separators string in configfile.asm
+    sym_null, sym_dquote, sym_squote, sym_semicolon, sym_comma, sym_fullstop
+    sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus, sym_multiply, sym_divi
+    sym_mod, sym_power, sym_assign, sym_strconq, sym_and, sym_or, sym_xor, sym_not
+    sym_less, sym_greater, sym_constexpr, sym_newline, sym_lf
 
-	sym_name,	sym_number, sym_decmconst, sym_hexconst, sym_binconst,	sym_charconst, sym_negated, sym_nil
+    sym_name, sym_number, sym_decmconst, sym_hexconst, sym_binconst, sym_charconst, sym_negated, sym_nil
 }
