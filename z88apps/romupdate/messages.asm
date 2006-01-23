@@ -102,6 +102,8 @@
 
 
 ; *************************************************************************************
+; Display message about the bank (file) that contains the updated application code.
+;
 .MsgUpdateBankFile
                     push hl
                     ld   hl,updbnkfile1_msg
@@ -142,6 +144,9 @@
 
 
 ; *************************************************************************************
+; Display a message just before erasing the sector which will be updated with
+; new bank contents.
+;
 .MsgEraseSector
                     ld   hl,erasesector_msg
                     oz   GN_Sop
@@ -298,8 +303,8 @@
 
 
 ; *************************************************************************************
-; Display an error message when the blowing of updated application bank
-; (or passive banks) fails on Flash Card.
+; Display an error message when updated application bank chip programming
+; (of passive banks) fails on Flash Card.
 ;
 ; IN:
 ;    HL = pointer to filename
@@ -348,7 +353,7 @@
 
 ; *************************************************************************************
 ; Display DOR application name in bold typeface.
-; pointer to application is found in (appname) runtime variable.
+; Pointer to application is found in (appname) runtime variable.
 ;
 .DispAppName
                     call VduToggleBoldTypeface
