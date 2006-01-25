@@ -34,7 +34,7 @@
      xdef ReportStdError, DispErrMsg
      xdef ErrMsgNoFlash, ErrMsgIntelFlash
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
-     xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom
+     xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
      xdef MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector, MsgUpdateBankFile
      xdef MsgRestorePassvBanks
 
@@ -155,6 +155,30 @@
 
 
 ; *************************************************************************************
+; The RomUpdate config file was not found, display an error message and exit.
+;
+.ErrMsgNoCfgfile
+                    ld   hl,nocfgfile_msg
+                    jp   DispErrMsg
+; *************************************************************************************
+
+
+; *************************************************************************************
+; A syntax error was encountered in the configuration file
+;
+.ErrMsgCfgSyntax
+                    ld   hl,cfgsyntax1_msg
+                    oz   GN_Sop
+                    ld   bc,(cfgfilelineno)
+                    call DispNumber
+                    ld   hl,cfgsyntax1_msg
+                    call Sopnln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; Display an error message to the user that there wasn't room enough for preserving
 ; the passive banks in the RAM filing system. The user is informed how much RAM
 ; is needed before RomUpdate can preserve the banks.
@@ -195,6 +219,8 @@
                     or   a
                     jr   nz,dspnm
                     inc  a                              ; round up to minimum 1K, if num was < 1K..
+                    ld   b,0
+                    ld   c,a
 .dspnm              jp   DispNumber
 ; *************************************************************************************
 
@@ -372,6 +398,8 @@
                     rlca
                     rlca
                     and  @00000011
+                    ld   b,0
+                    ld   c,a
                     call DispNumber
                     ld   a,'.'
                     oz   OS_Out
@@ -388,6 +416,8 @@
                     rrca
                     rrca                                ; bankNo/4
                     and  @00001111                      ; sector number containing bank
+                    ld   b,0
+                    ld   c,a
                     call DispNumber
                     ld   a,'.'
                     oz   OS_Out
@@ -400,7 +430,7 @@
 ; Display Integer as Ascii
 ;
 ; IN:
-;    A = number to be displayed at current window position
+;    BC = number to be displayed at current window position
 ;
 ; Registers changed after return:
 ;    ..BCDEHL/IXIY same
@@ -412,14 +442,15 @@
                     push hl
                     push ix
 
+                    push bc
                     ld   bc, NQ_Shn
                     oz   OS_Nq                          ; get screen handle in IX
+                    pop  bc
 
-                    ld   b,0
-                    ld   c,a
-                    ld   d,b
-                    ld   e,b                            ; result to stream IX (screen)
-                    ld   h,b
+                    xor  a
+                    ld   d,a
+                    ld   e,a                            ; result to stream IX (screen)
+                    ld   h,a
                     ld   l,2                            ; integer in BC to be converted to Ascii
                     ld   a,1                            ; no leading spaces
                     oz   GN_Pdn                         ; output result to current window...
@@ -530,6 +561,9 @@
 .slot_msg           defm " in slot ",0
 .completed_msg      defm " was successfully updated",0
 .notupd_msg         defm " could not be updated.",0
+.nocfgfile_msg      defm "'romupdate.cfg' file was not found.",0
+.cfgsyntax1_msg     defm "Syntax error at line ",0
+.cfgsyntax2_msg     defm "in 'romupdate.cfg' file.",0
 .noflashcard_msg    defm "No Flash Card found.",0
 .wrongslot_msg      defm "Intel Flash Card can only be updated in slot 3.", $0D, $0A
                     defm "Insert Application Card in slot 3, and run RomUpdate again.", 0

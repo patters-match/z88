@@ -21,6 +21,7 @@
      lib IsSpace, IsAlpha, IsAlNum, IsDigit, StrChr, ToUpper
 
      xdef ReadConfigFile
+     xref ErrMsgNoCfgfile, ErrMsgCfgSyntax
 
      include "stdio.def"
      include "fileio.def"
@@ -31,9 +32,44 @@
 
 
 ; *************************************************************************************
-; TODO: Load parameters from 'romupdate.cfg' file.
+; Load parameters from 'romupdate.cfg' file.
 ;
 .ReadConfigFile
+                    ld   bc,128
+                    ld   hl,cfgfilename                 ; (local) filename to card image
+                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
+                    ld   a, OP_IN
+                    oz   GN_Opf
+                    jp   c,ErrMsgNoCfgfile              ; couldn't open config file!
+
+                    ld   hl,0
+                    ld   (cfgfilelineno),hl             ; lineno = 0 (we haven't yet loaded a line...)
+                    call LoadBuffer                     ; load config file into memory
+                    ld   (nextline),hl                  ; init pointer to beginning of first line
+                    call FetchLine                      ; read the 'RomUpdateCrc=XXXXXXXX' line (not parsed)
+                    oz   GN_Cl                          ; config file loaded, just close handle...
+
+                    call FetchLine                      ; get next line, containing the 'CFG.Vx' identification
+                    jp   z,ErrMsgCfgSyntax              ; premature EOF!
+                    call GetSym
+                    cp   sym_name
+                    jp   nz,ErrMsgCfgSyntax             ; 'CFG' was not identified...
+                    call GetSym
+                    cp   sym_fullstop
+                    jp   nz,ErrMsgCfgSyntax             ; '.' was not identified...
+                    call GetSym
+                    cp   sym_name
+                    jp   nz,ErrMsgCfgSyntax             ; 'Vx' was not identified...
+                                                        ; For now, V1 is default
+.fetch_appfile_spec
+                    call FetchLine                      ; fetch line containing the file image specification
+                    jp   z,ErrMsgCfgSyntax              ; premature EOF!
+                    call GetSym
+                    cp   sym_dquote
+                    jr   nz,fetch_appfile_spec
+
+                    ; parse application file image specification...
+
                     ld   bc,15
                     ld   hl,flnm
                     ld   de,bankfilename
@@ -365,7 +401,9 @@
 
 ; *************************************************************************************
 ;
-;    Fetch a new source line from the current source file
+; Fetch a line from the config file
+;
+; return Fz = 1, if EOF file reached.
 ;
 .FetchLine          push bc
                     push de
@@ -378,9 +416,9 @@
                     jr   nz, get_next_line
                     ld   a,l
                     cp   e
-                    jr   nz, get_next_line        ; if ( lineptr == bufferend )
-                         jr   exit_fetchline           ; return
-.get_next_line      ld   (lineptr),hl
+                    jr   z,exit_fetchline         ; EOF reached, return Fz = 1...
+.get_next_line
+                    ld   (lineptr),hl
                     ex   de,hl
                     cp   a
                     sbc  hl,de                    ; {bufferend - lineptr}
@@ -390,6 +428,10 @@
                     call forward_newline
 
 .new_lineptr        ld   (nextline),hl            ; HL points at beginning of new line
+                    ld   hl,(cfgfilelineno)
+                    inc  hl
+                    ld   (cfgfilelineno),hl       ; lineno++
+                    or   a                        ; Fz = 0, EOF not reached yet...
 
 .exit_fetchline     pop  hl
                     pop  de
@@ -446,5 +488,6 @@
 .start_separators   defm 0, '"', "'", ";,.({})+-*/%^=&~|:!<>#", 13, 10
 .end_separators
 
+.cfgfilename        defm "romupdate.cfg",0
 .searchAppName      defm "FlashStore", 0          ; application (DOR) name to search for in slot.
 .flnm               defm "flashstore.epr", 0      ; 16K card image

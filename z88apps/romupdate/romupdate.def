@@ -54,6 +54,7 @@ DEFVARS vararea
      bufferend          ds.w 1                   ; pointer to end of buffer information, L-end (config file)
      sym                ds.b 1                   ; current symbol identifier of ident. (config file)
      longint            ds.l 1                   ; long integer variable (config file usage)
+     cfgfilelineno      ds.w 1                   ; line number reference for syntax errors during file parsing
 }
 
 ;  Mnemonics used to symbolize various identifiers in config file:
@@ -64,5 +65,5 @@ DEFGROUP {
     sym_mod, sym_power, sym_assign, sym_strconq, sym_and, sym_or, sym_xor, sym_not
     sym_less, sym_greater, sym_constexpr, sym_newline, sym_lf
 
-    sym_name, sym_number, sym_decmconst, sym_hexconst, sym_binconst, sym_charconst, sym_negated, sym_nil
+    sym_name, sym_decmconst, sym_hexconst, sym_binconst, sym_charconst, sym_negated, sym_nil
 }
