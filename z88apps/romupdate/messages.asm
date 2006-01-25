@@ -157,7 +157,7 @@
 ; *************************************************************************************
 ; The RomUpdate config file was not found, display an error message and exit.
 ;
-.ErrMsgNoCfgfile
+.ErrMsgNoCfgFile
                     ld   hl,nocfgfile_msg
                     jp   DispErrMsg
 ; *************************************************************************************
@@ -171,7 +171,7 @@
                     oz   GN_Sop
                     ld   bc,(cfgfilelineno)
                     call DispNumber
-                    ld   hl,cfgsyntax1_msg
+                    ld   hl,cfgsyntax2_msg              ; "Syntax error at line X in 'romupdate.cfg' file."
                     call Sopnln
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
                     jp   suicide                        ; perform suicide with application KILL request
@@ -563,7 +563,7 @@
 .notupd_msg         defm " could not be updated.",0
 .nocfgfile_msg      defm "'romupdate.cfg' file was not found.",0
 .cfgsyntax1_msg     defm "Syntax error at line ",0
-.cfgsyntax2_msg     defm "in 'romupdate.cfg' file.",0
+.cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
 .noflashcard_msg    defm "No Flash Card found.",0
 .wrongslot_msg      defm "Intel Flash Card can only be updated in slot 3.", $0D, $0A
                     defm "Insert Application Card in slot 3, and run RomUpdate again.", 0
