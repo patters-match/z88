@@ -32,7 +32,7 @@
 
      XDEF ApplRomFindDor, ApplRomFirstDor, ApplRomFrontDor, ApplRomReadDorPtr
      XDEF ApplRomNextDor, ApplRomSetNextDor
-     XDEF ApplRomGetDorSize, ApplRomCopyDor
+     XDEF ApplRomGetDorSize, ApplRomCopyDor, ApplRomDorName
      XDEF ApplSegmentBinding, ApplSetSegmentBinding
      XDEF ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
      XDEF ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr

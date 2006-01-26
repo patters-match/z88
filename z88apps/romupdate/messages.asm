@@ -219,9 +219,10 @@
                     or   a
                     jr   nz,dspnm
                     inc  a                              ; round up to minimum 1K, if num was < 1K..
+.dspnm
                     ld   b,0
                     ld   c,a
-.dspnm              jp   DispNumber
+                    jp   DispNumber
 ; *************************************************************************************
 
 
@@ -394,6 +395,7 @@
 ; Display slot number, derived from [dorbank] runtime variable.
 ;
 .DispSlotNo
+                    push bc
                     ld   a,(dorbank)
                     rlca
                     rlca
@@ -404,6 +406,7 @@
                     ld   a,'.'
                     oz   OS_Out
                     oz   GN_nln
+                    pop  bc
                     ret
 ; *************************************************************************************
 
@@ -474,7 +477,9 @@
 ;
 .DispErrMsg
                     oz   GN_Nln
+                    push hl
                     call VduEnableCentreJustify
+                    pop  hl
                     call SopNln
                     call VduEnableNormalJustify
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
@@ -561,7 +566,7 @@
 .slot_msg           defm " in slot ",0
 .completed_msg      defm " was successfully updated",0
 .notupd_msg         defm " could not be updated.",0
-.nocfgfile_msg      defm "'romupdate.cfg' file was not found.",0
+.nocfgfile_msg      defm '"',"romupdate.cfg", '"', " file was not found.",0
 .cfgsyntax1_msg     defm "Syntax error at line ",0
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
 .noflashcard_msg    defm "No Flash Card found.",0

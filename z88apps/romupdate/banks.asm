@@ -310,8 +310,7 @@
 
                     pop  de
                     push de
-                    ld   a,(de)                         ; get bank (number) to be restored
-
+                    ld   a,(de)                         ; get (number) in sector to be restored
                     ld   b,a
                     call BlowBufferToBank
                     push af

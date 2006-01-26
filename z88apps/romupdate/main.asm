@@ -35,7 +35,7 @@
 
      xref ReadConfigFile
      xref ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
-     xref ApplRomCopyDor, ApplRomSetNextDor
+     xref ApplRomCopyDor, ApplRomDorName, ApplRomSetNextDor
      xref CrcFile, CrcBuffer
      xref RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xref RestoreSectorBanks, DeletePreservedSectorBanks
@@ -99,8 +99,31 @@ else
                     oz   GN_Sop                         ; just display the program version in BBC BASIC
                     oz   GN_Nln
 endif
-                    call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file
-                    jp   c,suicide                      ; not available!
+                    call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file (exit app if failure...)
+
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; check CRC of bank file to be updated on card (replacing bank of found DOR)
+                    call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
+                    call LoadBankFile
+                    jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
+
+                    ld   hl,buffer
+                    ld   bc,16384                       ; 16K buffer
+                    call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
+                    call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
+                    jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and cannot be updated!
+                    ; --------------------------------------------------------------------------------------------------------
+
+                    ld   hl,buffer
+                    ld   bc,(bankfiledor)
+                    add  hl,bc                          ; the pointer to the DOR inside bank image file
+                    ld   b,0                            ; (local pointer)
+                    ld   de,dorcpy
+                    call ApplRomCopyDor                 ; make a copy of DOR from bank image file
+                    call ApplRomDorName
+                    ex   de,hl
+                    add  hl,bc                          ; HL points at first char of app name in DOR copy...
+                    ld   (appname),hl                   ; Application DOR name search key established...
 
                     ld   c,3                            ; check external slots for an application card (from 3 downwards)
                     ld   de,(appname)                   ; search for appname in DOR's...
@@ -124,19 +147,6 @@ endif
                     call RegisterPreservedSectorBanks   ; Flash Card may be updated - register banks in the sector to be preserved
                     call CheckBankFreeSpace             ; enough space in RAM filing system for preserved banks?
                     jp   c,ErrMsgNoRoom
-
-                    ; --------------------------------------------------------------------------------------------------------
-                    ; check CRC of bank file to be updated on card (replacing bank of found DOR)
-                    call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
-                    call LoadBankFile
-                    jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
-
-                    ld   hl,buffer
-                    ld   bc,16384                       ; 16K buffer
-                    call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
-                    call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
-                    jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and cannot be updated!
-                    ; --------------------------------------------------------------------------------------------------------
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; preserve passive banks to RAM filing system, including CRC check to ensure safe restore later...
@@ -447,5 +457,5 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.5", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.6", 1,"B", 0
 

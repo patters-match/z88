@@ -35,7 +35,7 @@ DEFVARS vararea
 {
      linebuffer                                  ; the line parsing buffer for config file 'romupdate.cfg' (same as bank buffer)
      buffer             ds.b banksize            ; buffer to load a complete 16K bank from file
-     dorcpy             ds.b 64                  ; DOR buffer (used for patching to bank in for updated App card)
+     dorcpy             ds.b 64                  ; a copy of bank file image DOR
      doroffset          ds.w 1                   ; the offset within the bank of the found application in a card
      dorbank            ds.b 1                   ; the bank number of the found application in a card
      nextdoroffset      ds.w 1                   ; the offset of the next DOR (the brother link of found application DOR)

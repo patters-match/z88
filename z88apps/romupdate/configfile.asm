@@ -95,10 +95,12 @@
                     cp   sym_comma                      ; skip comma...
                     jp   nz,ErrMsgCfgSyntax
 
-                    ld   hl,0
-                    ld   (bankfiledor),hl               ; location of application DOR in bank file
-                    ld   hl, searchAppName
-                    ld   (appname),hl
+                    call GetSym                         ; get location of application DOR in bank file
+                    call GetConstant
+                    jp   nz,ErrMsgCfgSyntax             ; specified DOR value was illegal...
+                    exx
+                    ld   (bankfiledor),bc               ; location of application DOR in bank file
+                    exx
                     ret
 ; *************************************************************************************
 
@@ -381,7 +383,7 @@
 .illegal_constant   scf                           ; Fc = 1, syntax error
                     ret
 .ConvHexNibble
-                    cp   'a'
+                    cp   'A'
                     jr   nc,hex_alpha             ; digit >= "A"
                     cp   '0'
                     ret  c                        ; digit < "0"
@@ -390,7 +392,7 @@
                     ret  c                        ; digit > "9"
                     sub  48                       ; digit = ["0"; "9"]
                     ret
-.hex_alpha          cp   'g'
+.hex_alpha          cp   'G'
                     ccf
                     ret  c                        ; digit > "F"
                     sub  55                       ; digit = ["A"; "F"]
@@ -527,4 +529,3 @@
 .end_separators
 
 .cfgfilename        defm "romupdate.cfg",0
-.searchAppName      defm "FlashStore", 0          ; application (DOR) name to search for in slot.
