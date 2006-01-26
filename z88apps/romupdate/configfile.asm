@@ -60,7 +60,15 @@
                     call GetSym
                     cp   sym_name
                     jp   nz,ErrMsgCfgSyntax             ; 'Vx' was not identified...
-                                                        ; For now, V1 is default
+                    ld   hl,Ident+1                     ; For now, V1 is default
+                    ld   a,'V'
+                    cp   (hl)
+                    inc  hl
+                    jp   nz,ErrMsgCfgSyntax             ; 'V' was not identified...
+                    ld   a,'1'
+                    cp   (hl)
+                    jp   nz,ErrMsgCfgSyntax             ; V1 is mandatory!
+
 .fetch_appfile_spec
                     call FetchLine                      ; fetch line containing the file image specification
                     jp   z,ErrMsgCfgSyntax              ; premature EOF!
@@ -69,20 +77,55 @@
                     jr   nz,fetch_appfile_spec
 
                     ; parse application file image specification...
+                    call GetBankFilename                ; read "filename" ...
 
-                    ld   bc,15
-                    ld   hl,flnm
-                    ld   de,bankfilename
-                    ldir                                ; define config bank filename
+                    call GetSym
+                    cp   sym_comma                      ; skip comma...
+                    jp   nz,ErrMsgCfgSyntax
 
-                    ld   hl,$d41f
-                    ld   (bankfilecrc),hl
-                    ld   hl,$27ac
-                    ld   (bankfilecrc+2),hl             ; define config bank file CRC
+                    call GetSym                         ; get bank file image CRC
+                    call GetConstant
+                    jp   nz,ErrMsgCfgSyntax             ; specified CRC value was illegal...
+                    exx
+                    ld   (bankfilecrc),bc
+                    ld   (bankfilecrc+2),de             ; 32bit CRC value in 'debc
+                    exx
+
+                    call GetSym
+                    cp   sym_comma                      ; skip comma...
+                    jp   nz,ErrMsgCfgSyntax
+
                     ld   hl,0
                     ld   (bankfiledor),hl               ; location of application DOR in bank file
                     ld   hl, searchAppName
                     ld   (appname),hl
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Read bank filename from current position in config file into (bankfilename) var.
+; Max. 127 chars is read. Filename is null-terminated in variable.
+;
+.GetBankFilename
+                    ld   hl,(lineptr)                   ; point at first char of bank image filename
+                    ld   de,bankfilename
+                    ld   b,127
+.bnkflnm_loop
+                    dec  b
+                    jr   z, fetched_flnm                ; read max 127 chars of filename...
+                    ld   a,(hl)
+                    cp   '"'
+                    jr   z, fetched_flnm
+                    ld   (de),a
+                    inc  hl
+                    inc  de
+                    jr   bnkflnm_loop
+.fetched_flnm
+                    inc  hl                             ; move beyond " terminator...
+                    ld   (lineptr),hl                   ; (to get ready to read next symbol)
+                    xor  a
+                    ld   (de),a                         ; null-terminate filename string
                     ret
 ; *************************************************************************************
 
@@ -96,11 +139,6 @@
 ;         (sym) contains symbol identifier
 ;         (Ident) contains symbol (beginning with a length byte)
 ;         (lineptr) is updated to point at the next character in the line
-;         HL = current lineptr
-;
-;         If a name or a constant has been fetched:
-;         DE = points to start of Ident
-;         BC = points at last char+1 of Ident
 ;
 ; Registers changed after return:
 ;
@@ -490,4 +528,3 @@
 
 .cfgfilename        defm "romupdate.cfg",0
 .searchAppName      defm "FlashStore", 0          ; application (DOR) name to search for in slot.
-.flnm               defm "flashstore.epr", 0      ; 16K card image
