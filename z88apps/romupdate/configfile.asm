@@ -60,15 +60,10 @@
                     call GetSym
                     cp   sym_name
                     jp   nz,ErrMsgCfgSyntax             ; 'Vx' was not identified...
-                    ld   hl,Ident+1                     ; For now, V1 is default
-                    ld   a,'V'
-                    cp   (hl)
-                    inc  hl
-                    jp   nz,ErrMsgCfgSyntax             ; 'V' was not identified...
-                    ld   a,'1'
-                    cp   (hl)
-                    jp   nz,ErrMsgCfgSyntax             ; V1 is mandatory!
-
+                    ld   hl,(Ident+1)
+                    ld   de, '1'<<8 | 'V'
+                    sbc  hl,de
+                    jp   nz,ErrMsgCfgSyntax             ; For now, "V1" is default config file format
 .fetch_appfile_spec
                     call FetchLine                      ; fetch line containing the file image specification
                     jp   z,ErrMsgCfgSyntax              ; premature EOF!
