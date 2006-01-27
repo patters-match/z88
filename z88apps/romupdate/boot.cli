@@ -25,7 +25,7 @@
 NEW
 100 *NAME RomUpdate
 110 IF NOT EOF#-1 THEN PROC_End("RomUpdate only runs in expanded Z88.")
-120 LOMEM=&3F00
+120 LOMEM=&3FFF
 130 DIM crc 4:crctable%=&2600
 140 fh%=OPENIN("romupdate.cfg")
 150 IF fh%<>0 THEN INPUT#fh%,line$:CLOSE#fh% ELSE PROC_End("""romupdate.cfg"" file was not found.")
