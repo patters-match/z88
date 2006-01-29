@@ -1,5 +1,6 @@
 ; *************************************************************************************
 ; 32bit Cyclic Redundancy Checksum Management
+; CRC algorithm from UnZip, by Garry Lancaster, Copyright 1999, released as GPL.
 ;
 ; CRC is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -83,7 +84,6 @@
 
 
 ; *************************************************************************************
-; CRC algorithm from UnZip, by Garry Lancaster, Copyright 1999, released as GPL.
 ;
 ; Perform complete CRC of specified buffer contents.
 ; CRC value is initialized to FFFFFFFF before buffer scan and result is complemented

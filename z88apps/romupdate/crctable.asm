@@ -20,7 +20,9 @@
 ; *************************************************************************************
 ; 32-Bit CRC Lookup Table
 ; This table starts on a 256-byte boundary for speed
-
+;
+; CRC table from UnZip, by Garry Lancaster, Copyright 1999, released as GPL.
+;
                     DEFS $100-($PC%$100)            ; adjust code to position tables at xx00 address
 .crctable
                     defl $00000000, $77073096, $ee0e612c, $990951ba
