@@ -43,7 +43,8 @@
      xref ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
      xref ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
-     xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom
+     xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
+     xref ErrMsgActiveApps
      xref MsgFoundAppDor, MsgCompleted, MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector
      xref MsgUpdateBankFile, MsgRestorePassvBanks
      xref CheckBankFreeSpace
@@ -99,6 +100,16 @@ else
                     oz   GN_Sop                         ; just display the program version in BBC BASIC
                     oz   GN_Nln
 endif
+                    ld   a,3                            ; make sure that no active application exists before running RomUpdate
+.poll_slot_apps
+                    or   a
+                    jr   z, read_cfgfile                ; all external slots scanned with no active applications
+                    oz   DC_Pol
+                    jp   nz, ErrMsgActiveApps           ; active applications were found in external slot, RomUpdate will exit...
+                    dec  a
+                    jr   poll_slot_apps
+
+.read_cfgfile
                     call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file (exit app if failure...)
 
                     ; --------------------------------------------------------------------------------------------------------
@@ -133,7 +144,7 @@ endif
                     jr   nc,check_write_support         ; DOR was found in slot, but can Flash Card be updated in slot?
                     inc  c
                     dec  c                              ; application DOR not found or no application ROM available,
-                    jr   z, suicide                     ; all slots scanned and no DOR was found
+                    jp   z, ErrMsgAppDorNotFound        ; all slots scanned and no DOR was found, write error message and exit.
                     dec  c
                     jr   findappslot_loop               ; poll next slot for DOR...
 .check_write_support

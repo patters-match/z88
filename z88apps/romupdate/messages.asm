@@ -32,7 +32,7 @@
      xdef MsgFoundAppDor
      xdef MsgCompleted
      xdef ReportStdError, DispErrMsg
-     xdef ErrMsgNoFlash, ErrMsgIntelFlash
+     xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
      xdef MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector, MsgUpdateBankFile
@@ -164,6 +164,26 @@
 
 
 ; *************************************************************************************
+.ErrMsgActiveApps
+                    ld   hl,actvapps_msg
+                    jp   DispErrMsg
+; *************************************************************************************
+
+
+; *************************************************************************************
+; '<AppName> was not found in any slot.'
+;
+; IN:
+;    (appname) = local pointer to null-terminated application name (from DOR)
+;
+.ErrMsgAppDorNotFound
+                    call DispAppName
+                    ld   hl,noapp_found_msg             ; "<appname> was not found in any slot."
+                    jp   disp_error_msg
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; A syntax error was encountered in the configuration file
 ;
 .ErrMsgCfgSyntax
@@ -230,8 +250,10 @@
 ; This error message is being displayed when the found application was
 ; available on an Intel Flash, but not in slot 3 (cannot be updated).
 ;
+; The user presses a key (after having moved Intel card to slot 3)
+; and the slots will be scanned again...
+;
 .ErrMsgIntelFlash
-                    oz   GN_nln
                     ld   hl,wrongslot_msg               ; "Intel Flash Card can only be updated in slot 3"
                     jp   DispErrMsg
 ; *************************************************************************************
@@ -570,6 +592,8 @@
 .cfgsyntax1_msg     defm "Syntax error at line ",0
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
 .noflashcard_msg    defm "No Flash Card found.",0
+.noapp_found_msg    defm " was not found in any slot.",0
+.actvapps_msg       defm 1,"+KILL running applications in external slots before running RomUpdate.",0
 .wrongslot_msg      defm "Intel Flash Card can only be updated in slot 3.", $0D, $0A
                     defm "Insert Application Card in slot 3, and run RomUpdate again.", 0
 .notfound_msg       defm " bank file (to be updated on card) was not found.",0
