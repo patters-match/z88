@@ -207,11 +207,10 @@ endif
                     ld   de,(nextdoroffset)             ; CDE = brother link from original application DOR in card
                     call ApplRomSetNextDor
 
-                    ld   c,3
-                    ld   b,0                            ; DOR is available in local address space...
+                    ld   bc,3                           ; Start to get DOR segment 3 bank binding (DOR is available in local address space, B=0)...
 .updsegments_loop   call ApplSegmentBinding             ; get current segment C bank binding
                     or   a
-                    jr   z, no_segm_binding             ; 0 indicates no default bank binding
+                    jr   z, no_segm_binding             ; 0 indicates no bank binding
                     ld   a,(dorbank)
                     call ApplSetSegmentBinding          ; update default bank segment C binding for new location in sector
 .no_segm_binding    inc  c
@@ -241,6 +240,23 @@ endif
                     ld   c,a
                     call ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
 
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; if bank file to be updated is located at top of card, then use the application header from card!
+                    ld   a,(dorbank)
+                    ld   b,a
+                    and  @00111111
+                    cp   $3f                            ; is top bank of card being updated?
+                    jr   nz, blow_upd_bank
+                    ld   c,64
+                    push bc                             ; update 64 bytes header from top of bank of card to bank in buffer
+                    ld   bc,$3fc0
+                    add  hl,bc
+                    ex   de,hl                          ; DE points to header in bank buffer
+                    push bc
+                    pop  hl
+                    pop  bc
+                    oz   OS_Bhl                         ; copy top 64 bytes at (BHL) to top of bank buffer at (DE)
+.blow_upd_bank
                     pop  af
                     ld   b,a
                     call BlowBufferToBank               ; old application updated with new application!
