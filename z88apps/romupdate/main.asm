@@ -45,7 +45,7 @@
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
      xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
      xref ErrMsgActiveApps
-     xref MsgFoundAppDor, MsgCompleted, MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector
+     xref MsgCompleted, MsgCrcCheckBankFile, MsgPreserveSectorBanks
      xref MsgUpdateBankFile, MsgRestorePassvBanks
      xref CheckBankFreeSpace
 
@@ -148,7 +148,6 @@ endif
                     dec  c
                     jr   findappslot_loop               ; poll next slot for DOR...
 .check_write_support
-                    call MsgFoundAppDor                 ; Display progress info, "Found <appname> in slot X"
                     push bc
                     call FlashWriteSupport              ; is flash card updateable in slot C?
                     pop  bc                             ; (restore bank no of pointer to DOR)
@@ -234,7 +233,6 @@ endif
 .erase_sector
                     ; --------------------------------------------------------------------------------------------------------
                     ; erase sector of bank (to be updated with new version of application)
-                    call MsgEraseSector                 ; display progress message for erasing sector
                     ld   a,5
                     ld   (retry),a                      ; retry max 5 times to erase a block when the Flash Card Hardware reports error..
                     ld   a,(dorbank)

@@ -29,13 +29,12 @@
      ; RomUpdate runtime variables
      include "romupdate.def"
 
-     xdef MsgFoundAppDor
      xdef MsgCompleted
      xdef ReportStdError, DispErrMsg
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
-     xdef MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgEraseSector, MsgUpdateBankFile
+     xdef MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgUpdateBankFile
      xdef MsgRestorePassvBanks
 
      xref suicide
@@ -55,31 +54,6 @@
                     call DispSlotNo
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
                     jp   suicide                        ; perform suicide with application KILL request
-; *************************************************************************************
-
-
-; *************************************************************************************
-; 'Found <AppName> in slot X'
-;
-; IN:
-;    (appname) = local pointer to null-terminated application name (from DOR)
-;
-; Registers changed after return:
-;    AFBCDEHL/IXIY same
-;    ......../.... different
-;
-.MsgFoundAppDor
-                    push af
-                    push hl
-                    ld   hl,found_msg
-                    oz   GN_Sop
-                    call DispAppName
-                    ld   hl,slot_msg                    ; "Found <appname> in slot X"
-                    oz   GN_Sop
-                    call DispSlotNo                     ; derived from (dorbank rtm var)
-                    pop  hl
-                    pop  af
-                    ret
 ; *************************************************************************************
 
 
@@ -138,17 +112,6 @@
 ;
 .MsgPreserveSectorBanks
                     ld   hl,prsvsectbanks_msg
-                    oz   GN_Sop
-                    jp   DispSectorNo
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Display a message just before erasing the sector which will be updated with
-; new bank contents.
-;
-.MsgEraseSector
-                    ld   hl,erasesector_msg
                     oz   GN_Sop
                     jp   DispSectorNo
 ; *************************************************************************************
@@ -584,7 +547,6 @@
 .vdubold            defm 1,"B",0
 
 .ResKey_msg         defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO EXIT ROMUPDATE",1,"4-FTC",1,"2JN",0
-.found_msg          defm "Found ", 0
 .slot_msg           defm " in slot ",0
 .completed_msg      defm " was successfully updated",0
 .notupd_msg         defm " could not be updated.",0
@@ -607,7 +569,6 @@
 .crcerr_bfile3      defm "because of corrupted RAM Filing System!",0
 .crcerr_psvbnk_msg  defm "(temporary) passive bank files, possibly ", $0D, $0A, 0
 .prsvsectbanks_msg  defm "Preserving passive banks of sector no. ",0
-.erasesector_msg    defm "Erasing 64K sector no. ",0
 .fatal_err_msg      defm "Fatal Error: ",0
 .erasect_err_msg    defm "Sector could not be formatted", $0D, $0A, 0
 .flash_err_msg      defm "(Battery low condition or slot connector card problem).", 0
