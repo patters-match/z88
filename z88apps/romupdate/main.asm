@@ -169,31 +169,6 @@ endif
                     ; --------------------------------------------------------------------------------------------------------
 
                     ; --------------------------------------------------------------------------------------------------------
-                    ; erase sector of bank (to be updated with new version of application)
-                    call MsgEraseSector                 ; display progress message for erasing sector
-                    ld   a,5
-                    ld   (retry),a                      ; retry max 5 times to erase a block when the Flash Card Hardware reports error..
-                    ld   a,(dorbank)
-                    ld   b,a
-                    rlca
-                    rlca
-                    and  @00000011
-                    ld   c,a                            ; slot derived from absolute bank number
-                    ld   a,b
-                    rrca
-                    rrca                                ; bankNo/4
-                    and  @00001111                      ; sector number containing bank
-                    ld   b,a
-.retry_erase_sector
-                    call FlashEprBlockErase
-                    jr   nc, sector_erased
-                    ld   hl,retry                       ; sector was not erased properly, try 5 more times...
-                    dec  (hl)
-                    jr   nz,retry_erase_sector
-                    jp   ErrMsgSectorErase              ; fatal error - sector was not erased after 5 retries (battery low or bad slot connection)
-                    ; --------------------------------------------------------------------------------------------------------
-.sector_erased
-                    ; --------------------------------------------------------------------------------------------------------
                     call MsgUpdateBankFile              ; display progress message for updating the new version of the application bank
                     ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
                     ; with new bank number location in sector. Finally, blow bank with updated DOR back to card
@@ -236,7 +211,6 @@ endif
                     call ApplSetHelpPtr                 ; update MTH Help pointer with new bank
                     call ApplTokenbasePtr
                     pop  af
-                    push af
                     ld   c,a
                     call ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
 
@@ -246,7 +220,7 @@ endif
                     ld   b,a
                     and  @00111111
                     cp   $3f                            ; is top bank of card being updated?
-                    jr   nz, blow_upd_bank
+                    jr   nz, erase_sector
                     ld   c,64
                     push bc                             ; update 64 bytes header from top of bank of card to bank in buffer
                     ld   bc,$3fc0
@@ -256,8 +230,34 @@ endif
                     pop  hl
                     pop  bc
                     oz   OS_Bhl                         ; copy top 64 bytes at (BHL) to top of bank buffer at (DE)
-.blow_upd_bank
-                    pop  af
+                    ; --------------------------------------------------------------------------------------------------------
+.erase_sector
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; erase sector of bank (to be updated with new version of application)
+                    call MsgEraseSector                 ; display progress message for erasing sector
+                    ld   a,5
+                    ld   (retry),a                      ; retry max 5 times to erase a block when the Flash Card Hardware reports error..
+                    ld   a,(dorbank)
+                    ld   b,a
+                    rlca
+                    rlca
+                    and  @00000011
+                    ld   c,a                            ; slot derived from absolute bank number
+                    ld   a,b
+                    rrca
+                    rrca                                ; bankNo/4
+                    and  @00001111                      ; sector number containing bank
+                    ld   b,a
+.retry_erase_sector
+                    call FlashEprBlockErase
+                    jr   nc, sector_erased
+                    ld   hl,retry                       ; sector was not erased properly, try 5 more times...
+                    dec  (hl)
+                    jr   nz,retry_erase_sector
+                    jp   ErrMsgSectorErase              ; fatal error - sector was not erased after 5 retries (battery low or bad slot connection)
+                    ; --------------------------------------------------------------------------------------------------------
+.sector_erased
+                    ld   a,(dorbank)
                     ld   b,a
                     call BlowBufferToBank               ; old application updated with new application!
                     ld   hl, bankfilename               ; name of application bank file (specified in config file)
@@ -484,5 +484,5 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.6", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.6.1", 1,"B", 0
 
