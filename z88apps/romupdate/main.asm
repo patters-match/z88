@@ -45,8 +45,8 @@
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
      xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
      xref ErrMsgActiveApps
-     xref MsgCompleted, MsgCrcCheckBankFile, MsgPreserveSectorBanks
-     xref MsgUpdateBankFile, MsgRestorePassvBanks
+     xref MsgCompleted, MsgCrcCheckBankFile
+     xref MsgUpdateBankFile
      xref CheckBankFreeSpace
 
 
@@ -154,21 +154,22 @@ endif
                     jp   nz,ErrMsgNoFlash               ; Display error to user that app. can only be updated on Flash Card (not Eprom)
                     jp   c,ErrMsgIntelFlash             ; no write/erase support for Intel Flash Card other than in slot 3
 
+                    call MsgUpdateBankFile              ; display progress message for updating the new version of the application bank
                     call RegisterPreservedSectorBanks   ; Flash Card may be updated - register banks in the sector to be preserved
                     call CheckBankFreeSpace             ; enough space in RAM filing system for preserved banks?
-                    jp   c,ErrMsgNoRoom
+                    jp   c,ErrMsgNoRoom                 ; No, report to user how much file space needs to be reclaimed..
+
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; preserve passive banks to RAM filing system, including CRC check to ensure safe restore later...
-                    call MsgPreserveSectorBanks         ; display progress message for preserving sector data
                     call PreserveSectorBanks            ; preserve the sector banks to RAM filing system that are not being updated
                     jp   c,ErrMsgPresvBanks             ; insufficient room for passive sector banks or other I/O error, leave popdown...
                     call CheckPreservedSectorBanks      ; CRC validate the preserved passive bank files
                     jp   nz,ErrMsgCrcCheckPresvBanks    ; CRC check failed for passive sector banks, leave popdown...
                     ; --------------------------------------------------------------------------------------------------------
 
+
                     ; --------------------------------------------------------------------------------------------------------
-                    call MsgUpdateBankFile              ; display progress message for updating the new version of the application bank
                     ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
                     ; with new bank number location in sector. Finally, blow bank with updated DOR back to card
                     call LoadBankFile                   ; get bank to be updated into buffer...
@@ -212,6 +213,8 @@ endif
                     pop  af
                     ld   c,a
                     call ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
+                    ; --------------------------------------------------------------------------------------------------------
+
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; if bank file to be updated is located at top of card, then use the application header from card!
@@ -230,6 +233,7 @@ endif
                     pop  bc
                     oz   OS_Bhl                         ; copy top 64 bytes at (BHL) to top of bank buffer at (DE)
                     ; --------------------------------------------------------------------------------------------------------
+
 .erase_sector
                     ; --------------------------------------------------------------------------------------------------------
                     ; erase sector of bank (to be updated with new version of application)
@@ -254,19 +258,21 @@ endif
                     jr   nz,retry_erase_sector
                     jp   ErrMsgSectorErase              ; fatal error - sector was not erased after 5 retries (battery low or bad slot connection)
                     ; --------------------------------------------------------------------------------------------------------
+
 .sector_erased
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; finally, updated bank (file) with adjusted DOR bank numbers back to card (replacing old copy of application bank
                     ld   a,(dorbank)
                     ld   b,a
                     call BlowBufferToBank               ; old application updated with new application!
                     ld   hl, bankfilename               ; name of application bank file (specified in config file)
                     jp   c,ErrMsgBlowBank               ; fatal error -  this only happens if there is a bad slot connection
-                    ; --------------------------------------------------------------------------------------------------------
 
-                    call MsgRestorePassvBanks
                     call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
                     ld   hl,filename                    ; name of current passive filename being restored
                     jp   c, ErrMsgBlowBank
                     jp   MsgCompleted                   ; display completed messagem then leave by KILL request...
+                    ; --------------------------------------------------------------------------------------------------------
 ; *************************************************************************************
 
 
@@ -482,5 +488,5 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.6.1", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.6.2", 1,"B", 0
 

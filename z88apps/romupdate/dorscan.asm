@@ -232,7 +232,7 @@
 
 ; *************************************************************************************
 ; Validate Application DOR
-; - make sure that Info, Help, Name section and End Marker is regonized.
+; - make sure that Info, Help, Name section and End Marker is recognized.
 ;
 ; In:
 ;    BHL = pointer to base of DOR (if B=0 then HL is local pointer)

@@ -34,8 +34,7 @@
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
-     xdef MsgCrcCheckBankFile, MsgPreserveSectorBanks, MsgUpdateBankFile
-     xdef MsgRestorePassvBanks
+     xdef MsgCrcCheckBankFile, MsgUpdateBankFile
 
      xref suicide
 
@@ -46,12 +45,17 @@
 ; prompt for key press, then exit program by KILL request.
 ;
 .MsgCompleted
+                    ld   a,12
+                    oz   OS_Out                         ; clear window...
+                    oz   GN_Nln
+                    call VduEnableCentreJustify
                     call DispAppName
                     ld   hl,completed_msg               ; " was successfully completed"
                     oz   GN_Sop
                     ld   hl,slot_msg                    ; " in slot "
                     oz   GN_Sop
                     call DispSlotNo
+                    call VduEnableNormalJustify
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
                     jp   suicide                        ; perform suicide with application KILL request
 ; *************************************************************************************
@@ -79,6 +83,7 @@
 ; Display message about the bank (file) that contains the updated application code.
 ;
 .MsgUpdateBankFile
+                    push bc
                     push hl
                     ld   hl,updbnkfile1_msg
                     oz   GN_Sop
@@ -91,29 +96,16 @@
                     call VduToggleBoldTypeface
                     ld   hl,updbnkfile3_msg
                     oz   GN_Sop
-                    call DispSectorNo
+                    ld   hl,slot_msg
+                    oz   GN_Sop
+                    call DispSlotNo
+                    ld   hl,flash_off
+                    oz   GN_Sop
                     pop  hl
+                    pop  bc
                     ret
+.flash_off          defm 1,"2-F",0
 
-; *************************************************************************************
-
-
-; *************************************************************************************
-.MsgRestorePassvBanks
-                    ld   hl,rest_bnkfiles_msg
-                    oz   GN_Sop
-                    call DispSectorNo
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Display progress message while preserving passive bank in sector (to be erased later)
-;
-.MsgPreserveSectorBanks
-                    ld   hl,prsvsectbanks_msg
-                    oz   GN_Sop
-                    jp   DispSectorNo
 ; *************************************************************************************
 
 
@@ -263,6 +255,8 @@
 ;    A = RC_xxx error code
 ;
 .ErrMsgPresvBanks
+                    ld   a,12
+                    oz   OS_Out                         ; clear window...
                     call VduToggleBoldTypeface
                     ld   hl,filename
                     oz   GN_Sop
@@ -350,16 +344,6 @@
                     ld   hl,slot_msg                    ; "in slot "
                     oz   GN_Sop
                     call DispSlotNo                     ; then display 'not updated' message
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Display "<AppName> could not be updated", prompt for key press then exit application
-;
-.ErrMsgNotUpdated
-                    call DispAppName                    ; "<AppName> could not be updated"
-                    ld   hl,notupd_msg
-                    jp   disp_error_msg
 ; *************************************************************************************
 
 
@@ -549,7 +533,6 @@
 .ResKey_msg         defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO EXIT ROMUPDATE",1,"4-FTC",1,"2JN",0
 .slot_msg           defm " in slot ",0
 .completed_msg      defm " was successfully updated",0
-.notupd_msg         defm " could not be updated.",0
 .nocfgfile_msg      defm '"',"romupdate.cfg", '"', " file was not found.",0
 .cfgsyntax1_msg     defm "Syntax error at line ",0
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
@@ -564,21 +547,19 @@
 .file_noroom_msg    defm " (temporary) file creation was rejected. File system space exhausted.", 0
 .crcbankfile1_msg   defm "CRC Checking ",0
 .crcbankfile2_msg   defm " bank file.",0
-.crcerr_bfile1      defm "CRC check failed for ", 0
+.crcerr_bfile1      defm 12,"CRC check failed for ", 0
 .crcerr_bfile2      defm "Bank file was possibly damaged by serial port transfer or", $0D, $0A
 .crcerr_bfile3      defm "because of corrupted RAM Filing System!",0
 .crcerr_psvbnk_msg  defm "(temporary) passive bank files, possibly ", $0D, $0A, 0
-.prsvsectbanks_msg  defm "Preserving passive banks of sector no. ",0
-.fatal_err_msg      defm "Fatal Error: ",0
+.fatal_err_msg      defm 12,"Fatal Error: ",0
 .erasect_err_msg    defm "Sector could not be formatted", $0D, $0A, 0
 .flash_err_msg      defm "(Battery low condition or slot connector card problem).", 0
-.updbnkfile1_msg    defm "Updating new version of ", 0
+.updbnkfile1_msg    defm 1,"FUpdating new version of ", 0
 .updbnkfile2_msg    defm " (from ", 0
-.updbnkfile3_msg    defm " file) to sector no. ", 0
-.rest_bnkfiles_msg  defm "Restore remaining banks (from RAM files) to sector no. ", 0
+.updbnkfile3_msg    defm " file)", 0
 .updbnk1_err_msg    defm "Bank (", 0
 .updbnk2_err_msg    defm ") failed to be written to sector no. ", 0
-.ram_noroom1_msg    defm "RomUpdate uses approx. ", 0
+.ram_noroom1_msg    defm 12,"RomUpdate uses approx. ", 0
 .ram_noroom2_msg    defm "K of RAM file space to update Application Card.", $0D, $0A
                     defm "Free RAM = ", 0
 .ram_noroom3_msg    defm "K. You need to release ",0
