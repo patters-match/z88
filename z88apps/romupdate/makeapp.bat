@@ -15,10 +15,23 @@
 :: $Id$
 ::
 :: *************************************************************************************
+@echo off
 
 del *.obj *.bin *.map romupdate.epr
 ..\..\tools\mpm\mpm -b -oromupdate.bin -DPOPDOWN -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.popdown.prj
-..\..\tools\mpm\mpm -b romhdr
+dir *.err 2>nul >nul || goto COMPILE_ROMHDR
+goto LIST_ERRORS
 
+:COMPILE_ROMHDR
+..\..\tools\mpm\mpm -b romhdr
+dir *.err 2>nul >nul || goto CREATE_JAR
+goto LIST_ERRORS
+
+:CREATE_JAR
 :: Create a 16K Rom Card with RomUpdate
 java -jar ..\..\tools\makeapp\makeapp.jar romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
+goto END
+
+:LIST_ERRORS
+type *.err
+:END

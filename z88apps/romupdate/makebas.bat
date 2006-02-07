@@ -15,7 +15,12 @@
 :: $Id$
 ::
 :: *************************************************************************************
+@echo off
 
 :: this is actually to be run as a BBC BASIC program on the Z88
 del *.obj *.bin romupdate.bas *.map
 ..\..\tools\mpm\mpm -b -oromupdate.bas -DBBCBASIC -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.bbcbasic.prj
+
+dir *.err 2>nul >nul || goto END
+type *.err
+:END
