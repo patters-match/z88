@@ -20,11 +20,15 @@ defc banksize = 16384
 
 if POPDOWN
      defc RAM_pages = 17408/256                  ; total RAM DOR pages, 17K bytes continuous memory from upper 8K segment 0 ($2000 onwards)
-     defc vararea = $2000
+     defc buffer = $2000                         ; use segment 0 onwards as 16K buffer to load a complete 16K bank from file
+     defc linebuffer = buffer                    ; the line parsing buffer for config file 'romupdate.cfg' (use bank buffer)
+     defc vararea = buffer+banksize              ; runtime variables just after 16K buffer
 endif
 
 if BBCBASIC
-     defc vararea = $4000                        ; The BBC BASIC version uses the continuous RAM from segment 1 upwards ($4000 onwards)
+     defc vararea = $7E00                        ; The BBC BASIC version has runtime variables located just below segment 2
+     defc buffer = $8000                         ; Use segment 2 as 16K buffer to load a complete 16K bank from file
+     defc linebuffer = buffer                    ; The line parsing buffer uses bank buffer for config file, 'romupdate.cfg'
 endif
 
 defc MAX_IDLENGTH = 64                           ; max. 64 bytes identifier length (config file)
@@ -33,8 +37,6 @@ defc SIZEOF_LINEBUFFER = banksize                ; load config file into bank bu
 
 DEFVARS vararea
 {
-     linebuffer                                  ; the line parsing buffer for config file 'romupdate.cfg' (same as bank buffer)
-     buffer             ds.b banksize            ; buffer to load a complete 16K bank from file
      dorcpy             ds.b 64                  ; a copy of bank file image DOR
      doroffset          ds.w 1                   ; the offset within the bank of the found application in a card
      dorbank            ds.b 1                   ; the bank number of the found application in a card
