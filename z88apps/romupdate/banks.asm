@@ -32,22 +32,29 @@
 
      xdef RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xdef RestoreSectorBanks, DeletePreservedSectorBanks
-     xdef CheckBankFreeSpace
+     xdef CheckBankFreeSpace, IsBankUsed
 
 
 ; *************************************************************************************
 ; Register the banks of the 64K sector that is not part of the DOR of the found
 ; application in the [presvdbanks] array. Empty (containing FF's) banks are marked as 0.
 ;
+; This routine might also be used in a generic way to register all complementary banks
+; of specified bank no. in B register, within the sector that must be preserved.
+;
 ; The array will contain the numbers of the absolute banks that are going to be
 ; preserved as ":RAM.-/bank.<bankno>" files. The array contains four items, where a
 ; single item is 0, which is the bank of the application to be updated (hence
 ; not preserved as a bank file).
 ;
+; If a bank that logically should be preserved (it is not the bank to be updated) and
+; the contents of that bank is empty (ie. all FF's), then it will not be registered
+; to be preserved (marked as 0) (which saves space in RAM filing system, and 'update' time).
+;
 ; IN:
-;       BHL = pointer to application DOR to be updated
+;       B = number of bank containing code to be updated (ie. not to be preserved)
 ; OUT:
-;       [presvdbanks] array updated with bank numbers.
+;       [presvdbanks] array updated with bank numbers to be preserved in sector
 ;
 ; Registers changed after return:
 ;    ..B...HL/IXIY same
