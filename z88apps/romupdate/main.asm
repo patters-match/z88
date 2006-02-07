@@ -27,7 +27,7 @@
 
      lib MemDefBank, SafeBHLSegment
      lib FlashEprBlockErase, FlashEprWriteBlock, FlashEprCardId
-     lib CreateWindow
+     lib CreateWindow, FileEprRequest, ApplEprType
 
      xdef app_main
      xdef suicide
@@ -35,8 +35,8 @@
 
      xref ReadConfigFile
      xref ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
-     xref ApplRomCopyDor, ApplRomDorName, ApplRomSetNextDor
-     xref CrcFile, CrcBuffer
+     xref ApplRomCopyDor, ApplRomDorName, ApplRomSetNextDor, ApplRomCopyCardHdr
+     xref CrcFile, CrcBuffer, IsBankUsed
      xref RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xref RestoreSectorBanks, DeletePreservedSectorBanks
      xref ApplSegmentBinding, ApplSetSegmentBinding
@@ -44,7 +44,7 @@
      xref ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
      xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
-     xref ErrMsgActiveApps
+     xref ErrMsgActiveApps, ErrMsgNoFlashSupport
      xref MsgCompleted, MsgCrcCheckBankFile
      xref MsgUpdateBankFile
      xref CheckBankFreeSpace
@@ -140,20 +140,57 @@ endif
                     ld   de,(appname)                   ; search for appname in DOR's...
 .findappslot_loop
                     call ApplRomFindDOR                 ; return pointer to found application DOR
-                    call nc,StoreDorInfo                ; save found DOR information in memory variables
-                    jr   nc,check_write_support         ; DOR was found in slot, but can Flash Card be updated in slot?
+                    jr   nc, try_upd_app                ; DOR was found in slot C, but can (possible) Flash Card be updated in slot?
                     inc  c
                     dec  c                              ; application DOR not found or no application ROM available,
-                    jp   z, ErrMsgAppDorNotFound        ; all slots scanned and no DOR was found, write error message and exit.
+                    jr   z, try_add_app                 ; all slots scanned and no DOR was found, try to add application to card...
                     dec  c
                     jr   findappslot_loop               ; poll next slot for DOR...
-.check_write_support
-                    push bc
-                    call FlashWriteSupport              ; is flash card updateable in slot C?
-                    pop  bc                             ; (restore bank no of pointer to DOR)
-                    jp   nz,ErrMsgNoFlash               ; Display error to user that app. can only be updated on Flash Card (not Eprom)
-                    jp   c,ErrMsgIntelFlash             ; no write/erase support for Intel Flash Card other than in slot 3
+.try_add_app
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; Application was not found in any of the external slots, try to add it to an available Flash Card
+                    call ErrMsgAppDorNotFound
+                    ld   c,3                            ; check external slots for a Flash Card (from 3 downwards)
+.findflash_loop
+                    call FlashWriteSupport
+                    jr   nz, check_next_flash           ; no Flash Card recognized in slot C
+                    jr   c, check_next_flash            ; Flash Card cannot be updated in slot C (Intel Flash not in slot 3)!
 
+                    ; current slot has Flash Card write support, try to add application...
+                    push bc
+                    call FileEprRequest                 ; check if File Area (and application area) is available in slot C
+                    pop  bc                             ; (preserve slot no. in C)
+                    jr   z, check_filearea              ; file area exists, check if it can be shrinked to make room for new application
+                    jr   c, check_freeappbank           ; either flash card is empty or there is no room for file area below apps area
+
+                    ld   a,b                            ; BHL points at sector for a new (to be) file area, which means there's
+                    and  @11000000                      ; room below current application area for new application...
+                    ld   d,a                            ; (preserve slot mask)
+                    call ApplEprType                    ; get exact size of application area in B
+                    ld   a,$3f
+                    sub  b
+                    or   d
+                    ld   (dorbank),a                    ; absolute (empty) bank no. for new application, just below application area
+                    call IsBankUsed
+                    ;jp   nz, ErrMsgNewBankNotEmpty
+
+.check_freeappbank
+
+.check_filearea
+                    jp   suicide                        ; (REMOVE THIS WHEN IMPLEMENTED)
+.check_next_flash
+                    inc  c                              ; this slot didn't contain a Flash Card,
+                    dec  c                              ; all slots done?
+                    jp   z, ErrMsgNoFlashSupport        ; all slots scanned and no Flash Card was found (add not possible)...
+                    dec  c
+                    jr   findflash_loop                 ; poll next slot for Flash Card...
+                    ; --------------------------------------------------------------------------------------------------------
+
+.try_upd_app
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; Application was found in slot C, try to update it..
+                    call StoreDorInfo                   ; save found DOR information in memory variables
+                    call CheckFlashWriteSupport         ; update application only if flash card in slot C has write/erase support
                     call MsgUpdateBankFile              ; display progress message for updating the new version of the application bank
                     call RegisterPreservedSectorBanks   ; Flash Card may be updated - register banks in the sector to be preserved
                     call CheckBankFreeSpace             ; enough space in RAM filing system for preserved banks?
@@ -219,19 +256,18 @@ endif
                     ; --------------------------------------------------------------------------------------------------------
                     ; if bank file to be updated is located at top of card, then use the application header from card!
                     ld   a,(dorbank)
-                    ld   b,a
+                    ld   c,a
                     and  @00111111
-                    cp   $3f                            ; is top bank of card being updated?
+                    cp   $3f                            ; is bank to be updated located at top of card?
                     jr   nz, erase_sector
-                    ld   c,64
-                    push bc                             ; update 64 bytes header from top of bank of card to bank in buffer
+                    ld   a,c                            ; yes, overwrite header in bank buffer with a copy from top of card
+                    rlca
+                    rlca
                     ld   bc,$3fc0
                     add  hl,bc
                     ex   de,hl                          ; DE points to header in bank buffer
-                    push bc
-                    pop  hl
-                    pop  bc
-                    oz   OS_Bhl                         ; copy top 64 bytes at (BHL) to top of bank buffer at (DE)
+                    ld   c,a                            ; copy card header from slot C (derived from DOR bank no)
+                    call ApplRomCopyCardHdr
                     ; --------------------------------------------------------------------------------------------------------
 
 .erase_sector
@@ -430,6 +466,31 @@ endif
 
 
 ; *************************************************************************************
+; Check if current slot supports Flash Write/erase operations.
+; Return only if write/erase support is available for slot. In error situation,
+; display error message and exit RomUpdate program.
+;
+; IN:
+;    C = slot Number
+;
+; OUT:
+;    Only returns with Fz = 1, Fc = 0 (Flash Card available in slot, write/erase support)
+;
+; Registers changed after return:
+;    A.BCDEHL/IXIY same
+;    .F....../.... different
+;
+.CheckFlashWriteSupport
+                    push bc
+                    call FlashWriteSupport              ; is flash card updateable in slot C?
+                    pop  bc                             ; (restore bank no of pointer to DOR)
+                    jp   nz,ErrMsgNoFlash               ; Display error to user that app. can only be updated on Flash Card (not Eprom)
+                    jp   c,ErrMsgIntelFlash             ; no write/erase support for Intel Flash Card other than in slot 3
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
 ;
 ; Validate the Flash Card erase/write functionality in the specified slot.
 ; If the Flash Card in the specified slot contains an Intel chip, the slot
@@ -484,7 +545,6 @@ endif
                     pop  hl
                     ret
 ; *************************************************************************************
-
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)

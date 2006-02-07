@@ -34,6 +34,7 @@
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
+     xdef ErrMsgNoFlashSupport
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
 
      xref suicide
@@ -132,9 +133,12 @@
 ;    (appname) = local pointer to null-terminated application name (from DOR)
 ;
 .ErrMsgAppDorNotFound
+                    push af
                     call DispAppName
                     ld   hl,noapp_found_msg             ; "<appname> was not found in any slot."
-                    jp   disp_error_msg
+                    call SopNln
+                    pop  af
+                    ret
 ; *************************************************************************************
 
 
@@ -330,7 +334,6 @@
                     call DispSectorNo
                     ld   hl,flash_err_msg
                     jr   disp_error_msg
-                    ret
 ; *************************************************************************************
 
 
@@ -343,7 +346,26 @@
                     oz   GN_Sop
                     ld   hl,slot_msg                    ; "in slot "
                     oz   GN_Sop
-                    call DispSlotNo                     ; then display 'not updated' message
+                    call DispSlotNo
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
+; *************************************************************************************
+
+
+; *************************************************************************************
+; This error message is being displayed when the found application in a slot was
+; available on an UV Eprom.
+;
+.ErrMsgNoFlashSupport
+                    ld   hl,noflashcard_msg             ; "No Flash Card found"
+                    oz   GN_Sop
+                    ld   hl,noflsupp_msg                ; ", or card not updateable in found slots."
+                    call SopNln
+                    call DispAppName
+                    ld   hl, noadd_msg                  ; "<AppName> cannot be added to card."
+                    call SopNln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
 ; *************************************************************************************
 
 
@@ -536,7 +558,9 @@
 .nocfgfile_msg      defm '"',"romupdate.cfg", '"', " file was not found.",0
 .cfgsyntax1_msg     defm "Syntax error at line ",0
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
-.noflashcard_msg    defm "No Flash Card found.",0
+.noflashcard_msg    defm "No Flash Card found",0
+.noflsupp_msg       defm  ", or card not updateable in found slots.", 0
+.noadd_msg          defm " cannot be added to card.",0
 .noapp_found_msg    defm " was not found in any slot.",0
 .actvapps_msg       defm 1,"+KILL running applications in external slots before running RomUpdate.",0
 .wrongslot_msg      defm "Intel Flash Card can only be updated in slot 3.", $0D, $0A

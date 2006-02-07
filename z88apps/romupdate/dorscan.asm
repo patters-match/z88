@@ -30,13 +30,13 @@
      lib SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment specfier returned in C
 
 
-     XDEF ApplRomFindDor, ApplRomFirstDor, ApplRomFrontDor, ApplRomReadDorPtr
-     XDEF ApplRomNextDor, ApplRomSetNextDor
+     XDEF ApplRomFindDor, ApplRomFrontDor, ApplRomReadDorPtr
+     XDEF ApplRomFirstDor, ApplRomNextDor, ApplRomLastDor, ApplRomSetNextDor
      XDEF ApplRomGetDorSize, ApplRomCopyDor, ApplRomDorName
      XDEF ApplSegmentBinding, ApplSetSegmentBinding
      XDEF ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
      XDEF ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
-
+     XDEF ApplRomCopyCardHdr
 
 ; *************************************************************************************
 ;
@@ -299,37 +299,6 @@
 ; *************************************************************************************
 
 
-
-; *************************************************************************************
-;
-; Return pointer to First (Top) Application DOR in BHL of slot C
-;
-; In:
-;    C = slot number (0, 1, 2 or 3)
-;
-; Out:
-;    Success:
-;         Fc = 0,
-;              BHL = pointer to first (top) application DOR in slot C
-;
-;    Failure:
-;         Fc = 1,
-;              A = RC_ONF, no Application DOR found in slot C
-;
-; Registers changed after return:
-;    ...CDE../IXIY same
-;    AFB...HL/.... different
-;
-.ApplRomFirstDor
-                    call ApplRomFrontDor
-                    ret  c                   ; no application card...
-                    ld   a, 3+3
-                    call ApplRomReadDorPtr   ; return Link to son (3. pointer of Front DOR) in slot C
-                    ret
-; *************************************************************************************
-
-
-
 ; *************************************************************************************
 ;
 ; Return default bank binding of specified segment in application DOR
@@ -359,7 +328,6 @@
                     add  a,25                ; the first segment binding specifier is at 25th byte in DOR
                     jp   MemReadByte         ; return bank segment binding in A
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************
@@ -411,6 +379,34 @@
 ; *************************************************************************************
 
 
+; *************************************************************************************
+;
+; Return pointer to First (Top) Application DOR of slot C in BHL
+;
+; In:
+;    C = slot number (0, 1, 2 or 3)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              BHL = pointer to first (top) application DOR in slot C
+;
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found in slot C
+;
+; Registers changed after return:
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
+;
+.ApplRomFirstDor
+                    call ApplRomFrontDor
+                    ret  c                   ; no application card...
+                    ld   a, 3+3
+                    call ApplRomReadDorPtr   ; return Link to son (3. pointer of Front DOR) in slot C
+                    ret
+; *************************************************************************************
+
 
 ; *************************************************************************************
 ;
@@ -449,6 +445,58 @@
                     ret
 ; *************************************************************************************
 
+
+; *************************************************************************************
+;
+; Return pointer to Last Application DOR of slot C in BHL (second pointer from start of DOR),
+; scanning the brother link of each DOR.
+;
+; -------------------------------------------------------------------------------
+; Start of DOR:
+; 3 bytes     0 0 0         Link to parent
+; 3 bytes     x x x         Link to brother (0 0 0 if only application or last app in chain)
+; 3 bytes     0 0 0         Link to son
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    C = slot number (0, 1, 2 or 3)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              BHL = pointer to last application DOR in list of of slot C
+;
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found in slot C
+;
+; Registers changed after return:
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
+;
+.ApplRomLastDor
+                    call ApplRomFirstDor     ; get the first (top) DOR of slot
+                    ret  c
+                    push de
+.next_dor_loop
+                    push bc
+                    push hl
+                    call ApplRomNextDor      ; get Next DOR in application list
+                    xor  a
+                    or   b
+                    or   h
+                    or   l
+                    jr   z, last_dor_reached ; if BHL = 0 then we've reached beyond end of list...
+                    pop  de
+                    pop  de                  ; forget old DOR pointer...
+                    jr   next_dor_loop       ; and use this DOR pointer to get the next
+.last_dor_reached
+                    pop  hl
+                    pop  bc                  ; return BHL = last DOR in slot
+                    pop  de
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -856,6 +904,56 @@
                     ret
 ; *************************************************************************************
 
+
+; *************************************************************************************
+; Get a copy of the application card header (64 bytes) to buffer in local
+; address space memory, using DE register as pointer.
+;
+; In:
+;    C = slot number (0, 1, 2 or 3)
+;    DE = local pointer in address space to copy Card header
+;
+; Out:
+;    Fc = 0,
+;         (DE) contains card header
+;    Fc = 1 (Failure),
+;         A = RC_ONF, Application Eprom not found
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.ApplRomCopyCardHdr
+                    push bc
+                    push de
+                    push hl
+
+                    push bc
+                    call ApplEprType
+                    pop  bc
+                    jr   c, exit_ApplRomCopyCardHdr     ; no Application found ion slot C!
+                    ld   a,c
+                    and  @00000011                      ; only slots 0, 1, 2 or 3 possible
+                    rrca
+                    rrca                                ; converted to slot mask $40, $80 or $c0
+                    or   $3f                            ; top bank in slot...
+                    ld   b,a
+                    ld   c,64
+                    ld   hl,$3fc0
+.copy_hdr_loop
+                    xor  a
+                    call MemReadByte
+                    ld   (de),a
+                    inc  de
+                    inc  hl
+                    dec  c
+                    jr   nz, copy_hdr_loop
+.exit_ApplRomCopyCardHdr
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    ret
+; *************************************************************************************
 
 
 ; *************************************************************************************
