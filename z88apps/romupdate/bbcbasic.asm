@@ -19,7 +19,7 @@
 module RomUpdate
 
 xdef crctable
-xref app_main
+xref app_main, CrcBuffer
 
 org $2300
 
@@ -39,11 +39,30 @@ defs $2C0 - $PC                              ; fill space until we reach the exe
 ; Code begins at $25C0
 ;
 .app_start
-                    LD   SP,($1ffe)          ; install safe application stack permanently
+                    ld   sp,($1ffe)          ; install safe application stack permanently
                                              ; RomUpdate will not return to BBC BASIC...
                     call app_main
+                    jr   app_start           ; paranoia... (this shouldn't get executed anyway...)
 
-                    xor  a
-                    oz   os_bye              ; perform suicide, focus to Index...
+
+; *****************************************************************************
+; CRC check of complete BBC BASIC RomUpdate program.
+; Register parameters are supplied by USR routine from BBC BASIC
+;
+; IN:
+;    BC = size of code to CRC check
+;    HL = start of code to CRC check
+;
+; OUT:
+;    HL H'L' = CRC of RomUpdate code (HL is most significant word)
+;
+.CrcCheckRomUpdate
+                    call CrcBuffer
+                    ex   de,hl
+                    push de
+                    exx
+                    pop  hl
+                    exx
+                    ret                      ; return CRC value in HL H'L' (which is assigned to int variable in BBC BASIC from USR() function)
 
 include "crctable.asm"

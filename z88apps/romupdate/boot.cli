@@ -23,17 +23,14 @@
 #B
 .J
 NEW
-100 LOMEM=&7FFF:ctbl%=&2600:n$="RomUpdate":f$=n$+".cfg"
+100 LOMEM=&7FFF:ctbl%=&2600:n$="RomUpdate":f$=n$+".cfg":cerr$="CRC check failed.":DIM c 4
 110 IF NOT EOF#-1 THEN PROC_End(n$+" requires expanded Z88.")
-120 DIM c 4:REM PRCH
-130 F=OPENIN(f$):IF F<>0 THEN INPUT#F,line$:CLOSE#F ELSE PROC_End("""+f$+""" file not found.")
-140 GOSUB 230:pgz%=EXT#F:CLOSE#F:pcrc%=EVAL("&"+MID$(line$,14,8))
-150 P.CHR$1+"FChecking "+n$+" CRC..."+CHR$1+"F":!c=&FFFFFFFF
-160 FOR A%=PAGE TO PAGE+pgz%-1
-170 IF A%MOD256=0 THEN P. STR$INT((A%-PAGE)/pgz%*100)+"%"+CHR$13;
-180 L%=!(ctbl%+(4*(?A% EOR (!c AND &FF)))):?c=?(c+1):?(c+1)=?(c+2):?(c+2)=?(c+3):?(c+3)=0:!c=!c EOR L%
-190 NEXT A%
-200 !c=NOT !c:IF pcrc%<>!c THEN PROC_End("CRC check failed.")
-210 GOSUB 230:PTR#F=&6E:BPUT#F,&D6:BPUT#F,&26:BPUT#F,&32:BPUT#F,&35:BPUT#F,&43:BPUT#F,&30:CLOSE#F:CALL &25C0
-220 DEFPROC_End(E$):P.CHR$12+E$:P."Program ended.":END:ENDDEF
-230 F=OPENUP(n$+".bas"):RETURN
+120 F=OPENIN(f$):IF F<>0 THEN INPUT#F,line$:CLOSE#F ELSE PROC_End("""+f$+""" file not found.")
+130 F=OPENIN(n$+".bas"):pgz%=EXT#F:CLOSE#F:pcrc%=EVAL("&"+MID$(line$,14,8))
+140 P.CHR$1+"FChecking "+n$+" CRC..."+CHR$1+"F"
+150 !c=&FFFFFFFF
+160 FOR A%=&2600 TO &2A72:L%=!(ctbl%+(4*(?A% EOR (!c AND &FF)))):?c=?(c+1):?(c+1)=?(c+2):?(c+2)=?(c+3):?(c+3)=0:!c=!c EOR L%:NEXT A%:!c=NOT !c
+170 IF !c<>&3514BB80 THEN PROC_End(cerr$)
+180 B%=pgz% DIV 256:C%=pgz% MOD 256:H%=&23:L%=0:crc=USR(&25C9)
+190 IF crc<>pcrc% THEN PROC_End(cerr$) ELSE CALL &25C0
+200 DEFPROC_End(E$):P.CHR$12+E$:P."Program ended.":END:ENDDEF

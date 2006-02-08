@@ -17,9 +17,9 @@
 ; *************************************************************************************
 
 bbcbasic
+crc32
 main
 banks
 dorscan
-crc32
 configfile
 messages
