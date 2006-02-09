@@ -29,8 +29,8 @@ NEW
 130 F=OPENIN(n$+".bas"):pgz%=EXT#F:CLOSE#F:pcrc%=EVAL("&"+line$)
 140 P.CHR$1+"FChecking "+n$+" CRC..."+CHR$1+"F"
 150 !c=&FFFFFFFF
-160 FOR A%=&2600 TO &2A72:L%=!(ctbl%+(4*(?A% EOR (!c AND &FF)))):?c=?(c+1):?(c+1)=?(c+2):?(c+2)=?(c+3):?(c+3)=0:!c=!c EOR L%:NEXT A%:!c=NOT !c
-170 IF !c<>&3514BB80 THEN PROC_End(cerr$)
-180 B%=pgz% DIV 256:C%=pgz% MOD 256:H%=&23:L%=0:crc=USR(&25C9)
+160 FOR A%=&2A2F TO &2A7C:L%=!(ctbl%+(4*(?A% EOR (!c AND &FF)))):?c=?(c+1):?(c+1)=?(c+2):?(c+2)=?(c+3):?(c+3)=0:!c=!c EOR L%:NEXT A%:!c=NOT !c
+170 IF !c<>&C3BD544C THEN PROC_End(cerr$)
+180 B%=pgz% DIV 256:C%=pgz% MOD 256:H%=&23:L%=0:crc=USR(&2A2F)
 190 IF crc<>pcrc% THEN PROC_End(cerr$) ELSE CALL &25C0
 200 DEFPROC_End(E$):P.CHR$12+E$:P."Program ended.":END:ENDDEF

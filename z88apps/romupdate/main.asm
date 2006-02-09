@@ -548,5 +548,5 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.6.2", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.6.3", 1,"B", 0
 

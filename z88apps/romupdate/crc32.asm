@@ -84,6 +84,28 @@
 
 
 ; *************************************************************************************
+; CRC check of complete BBC BASIC RomUpdate program.
+; Register parameters are supplied by USR routine from BBC BASIC
+;
+; IN:
+;    BC = size of code to CRC check
+;    HL = start of code to CRC check
+;
+; OUT:
+;    HL H'L' = CRC of RomUpdate code (HL is most significant word)
+;
+.CrcCheckRomUpdate
+                    call CrcBuffer
+                    ex   de,hl
+                    push de
+                    exx
+                    pop  hl
+                    exx                      ; return CRC value in HL H'L'
+                    ret                      ; (which is assigned to int variable in BBC BASIC from USR() function)
+; *************************************************************************************
+
+
+; *************************************************************************************
 ;
 ; Perform complete CRC of specified buffer contents.
 ; CRC value is initialized to FFFFFFFF before buffer scan and result is complemented
