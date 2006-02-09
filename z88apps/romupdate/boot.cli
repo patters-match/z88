@@ -25,8 +25,8 @@
 NEW
 100 LOMEM=&7FFF:ctbl%=&2600:n$="RomUpdate":f$=n$+".cfg":cerr$="CRC check failed.":DIM c 4
 110 IF NOT EOF#-1 THEN PROC_End(n$+" requires expanded Z88.")
-120 F=OPENIN(f$):IF F<>0 THEN INPUT#F,line$:CLOSE#F ELSE PROC_End("""+f$+""" file not found.")
-130 F=OPENIN(n$+".bas"):pgz%=EXT#F:CLOSE#F:pcrc%=EVAL("&"+MID$(line$,14,8))
+120 F=OPENIN(n$+".crc"):IF F<>0 THEN INPUT#F,line$:CLOSE#F ELSE PROC_End("""+f$+""" file not found.")
+130 F=OPENIN(n$+".bas"):pgz%=EXT#F:CLOSE#F:pcrc%=EVAL("&"+line$)
 140 P.CHR$1+"FChecking "+n$+" CRC..."+CHR$1+"F"
 150 !c=&FFFFFFFF
 160 FOR A%=&2600 TO &2A72:L%=!(ctbl%+(4*(?A% EOR (!c AND &FF)))):?c=?(c+1):?(c+1)=?(c+2):?(c+2)=?(c+3):?(c+3)=0:!c=!c EOR L%:NEXT A%:!c=NOT !c

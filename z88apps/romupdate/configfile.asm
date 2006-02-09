@@ -46,10 +46,9 @@
                     ld   (cfgfilelineno),hl             ; lineno = 0 (we haven't yet loaded a line...)
                     call LoadBuffer                     ; load config file into memory
                     ld   (nextline),hl                  ; init pointer to beginning of first line
-                    call FetchLine                      ; read the 'RomUpdateCrc=XXXXXXXX' line (not parsed)
                     oz   GN_Cl                          ; config file loaded, just close handle...
 
-                    call FetchLine                      ; get next line, containing the 'CFG.Vx' identification
+                    call FetchLine                      ; get first line, containing the 'CFG.Vx' identification
                     jp   z,ErrMsgCfgSyntax              ; premature EOF!
                     call GetSym
                     cp   sym_name
