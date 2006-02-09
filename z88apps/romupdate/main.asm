@@ -214,44 +214,7 @@ endif
                     ld   bc,(bankfiledor)
                     add  hl,bc
                     ld   b,0                            ; BHL = (local) pointer to base of bank file DOR
-                    ld   a,(nextdorbank)
-                    ld   c,a
-                    ld   de,(nextdoroffset)             ; CDE = brother link from original application DOR in card
-                    call ApplRomSetNextDor
-
-                    ld   bc,3                           ; Start to get DOR segment 3 bank binding (DOR is available in local address space, B=0)...
-.updsegments_loop   call ApplSegmentBinding             ; get current segment C bank binding
-                    or   a
-                    jr   z, no_segm_binding             ; 0 indicates no bank binding
-                    ld   a,(dorbank)
-                    call ApplSetSegmentBinding          ; update default bank segment C binding for new location in sector
-.no_segm_binding    inc  c
-                    dec  c
-                    jr   z, update_mth                  ; all DOR bank segment bindings updated
-                    dec  c
-                    jr   updsegments_loop
-.update_mth
-                    call ApplTopicsPtr                  ; get pointer to MTH Topics in CDE
-                    ld   a,(dorbank)
-                    push af
-                    ld   c,a
-                    call ApplSetTopicsPtr               ; update MTH Topics pointer with new bank
-                    call ApplCommandsPtr
-                    pop  af
-                    push af
-                    ld   c,a
-                    call ApplSetCommandsPtr             ; update MTH Commands pointer with new bank
-                    call ApplHelpPtr
-                    pop  af
-                    push af
-                    ld   c,a
-                    call ApplSetHelpPtr                 ; update MTH Help pointer with new bank
-                    call ApplTokenbasePtr
-                    pop  af
-                    ld   c,a
-                    call ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
-                    ; --------------------------------------------------------------------------------------------------------
-
+                    call AdjustDorBank
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; if bank file to be updated is located at top of card, then use the application header from card!
@@ -263,13 +226,13 @@ endif
                     ld   a,c                            ; yes, overwrite header in bank buffer with a copy from top of card
                     rlca
                     rlca
+                    ld   hl,buffer                      ; start of bank (file)
                     ld   bc,$3fc0
                     add  hl,bc
                     ex   de,hl                          ; DE points to header in bank buffer
                     ld   c,a                            ; copy card header from slot C (derived from DOR bank no)
                     call ApplRomCopyCardHdr
                     ; --------------------------------------------------------------------------------------------------------
-
 .erase_sector
                     ; --------------------------------------------------------------------------------------------------------
                     ; erase sector of bank (to be updated with new version of application)
@@ -384,6 +347,69 @@ endif
                     call CheckCrc
 .exit_checkcrc
                     pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Update the specified DOR with correct bank reference for the location, where
+; the bank file is going to be updated in the slot.
+;
+; (dorbank) contains the bank number to be updated in pointer references of the DOR.
+; The DOR originally contains the bank references that point to the same location as the
+; bank file.
+;
+; The following pointers are updated in the DOR:
+;   Brother DOR (next app in list)
+;   The application segment bindings (0-3)
+;   Topic, Command, Help & Token base pointers.
+;
+; IN:
+;       BHL = pointer to base of DOR record (B typically 0 for local addr space buffer)
+; OUT:
+;       DOR pointers adjusted to use relative bank reference in slot.
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+.AdjustDorBank
+                    ld   a,(nextdorbank)
+                    ld   c,a
+                    ld   de,(nextdoroffset)             ; CDE = brother link from original application DOR in card
+                    call ApplRomSetNextDor
+
+                    ld   bc,3                           ; Start to get DOR segment 3 bank binding (DOR is available in local address space, B=0)...
+.updsegments_loop   call ApplSegmentBinding             ; get current segment C bank binding
+                    or   a
+                    jr   z, no_segm_binding             ; 0 indicates no bank binding
+                    ld   a,(dorbank)
+                    call ApplSetSegmentBinding          ; update default bank segment C binding for new location in sector
+.no_segm_binding    inc  c
+                    dec  c
+                    jr   z, update_mth                  ; all DOR bank segment bindings updated
+                    dec  c
+                    jr   updsegments_loop
+.update_mth
+                    call ApplTopicsPtr                  ; get pointer to MTH Topics in CDE
+                    ld   a,(dorbank)
+                    push af
+                    ld   c,a
+                    call ApplSetTopicsPtr               ; update MTH Topics pointer with new bank
+                    call ApplCommandsPtr
+                    pop  af
+                    push af
+                    ld   c,a
+                    call ApplSetCommandsPtr             ; update MTH Commands pointer with new bank
+                    call ApplHelpPtr
+                    pop  af
+                    push af
+                    ld   c,a
+                    call ApplSetHelpPtr                 ; update MTH Help pointer with new bank
+                    call ApplTokenbasePtr
+                    pop  af
+                    ld   c,a
+                    call ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
                     ret
 ; *************************************************************************************
 
