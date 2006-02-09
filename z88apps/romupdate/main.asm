@@ -245,9 +245,7 @@ endif
                     and  @00000011
                     ld   c,a                            ; slot derived from absolute bank number
                     ld   a,b
-                    rrca
-                    rrca                                ; bankNo/4
-                    and  @00001111                      ; sector number containing bank
+                    call GetSectorNo                    ; sector derived from absolute bank number
                     ld   b,a
 .retry_erase_sector
                     call FlashEprBlockErase
@@ -512,6 +510,27 @@ endif
                     pop  bc                             ; (restore bank no of pointer to DOR)
                     jp   nz,ErrMsgNoFlash               ; Display error to user that app. can only be updated on Flash Card (not Eprom)
                     jp   c,ErrMsgIntelFlash             ; no write/erase support for Intel Flash Card other than in slot 3
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Get sector number for specfied bank (slot independent).
+;
+; IN:
+;    A = bank number
+;
+; OUT:
+;    A = sector number (that bank is part of)
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.GetSectorNo
+                    rrca
+                    rrca                                ; bankNo/4
+                    and  @00001111                      ; sector number containing bank
                     ret
 ; *************************************************************************************
 
