@@ -8,15 +8,16 @@
 .; The function of the checksum boot routine is to validate the binary integrity of the
 .; complete RomUpdate.bas BBC BASIC program, using the CRC32 algorithm. To enable maximum
 .; speed of the integrity check, the BBC BASIC part contains a (slow) CRC32 implementation
-.; who's only purose is to validate the integrity of the fast CRC32 Z80 assembler version,
-.; embedded into the BBC BASIC program (a total of 78 bytes). Once the core CRC32 routine
-.; has been successfully validated, the completely loaded BBC BASIC program and embedded
-.; machine code application is CRC32 checked using the fast CRC32. The overall integrity
-.; check will last approx. 3 seconds. The correct CRC32 value for 'romupdate.bas' is
-.; read from the 'romupdate.crc' file (a single line containing a 32bit hexadecimal value).
+.; who's only purpose is to validate the integrity of the fast CRC32 routine written
+.; in Z80 assembler, embedded into the BBC BASIC program (a total of 78 bytes, at $2A2F).
+.; Once the core CRC32 routine has been successfully validated, the completely loaded
+.; BBC BASIC program and embedded machine code application is CRC32 checked using the fast
+.; CRC32 routine. The overall integrity check will last approx. 3 seconds. The correct CRC32
+.; value for 'romupdate.bas' is read from the 'romupdate.crc' file (a single line
+.; containing a 32bit hexadecimal value).
 .;
 .; If complete intrigrity check was successful, the real RomUpdate application (the
-.; embedded machine code located at $25C0 onwards) begins to execute and perform the
+.; embedded machine code located at $25C0 onwards) begins to execute and performs the
 .; functionality that is defined in the 'romupdate.cfg' file.
 .;
 .; (c) Gunther Strube, October-November 2005, February 2006
