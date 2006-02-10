@@ -83,6 +83,9 @@
 ; *************************************************************************************
 
 
+; the BBC BASIC boot loader performs a CRC32 check from .CrcCheckRomUpdate to .end_CrcBuffer
+; the address range is $2A2F TO $2A7C
+
 ; *************************************************************************************
 ; CRC check of complete BBC BASIC RomUpdate program.
 ; Register parameters are supplied by USR routine from BBC BASIC
@@ -180,3 +183,8 @@
                     cpl
                     ld   l,a                 ; complement low byte
                     ret                      ; exit with DEHL=CRC
+
+.end_CrcBuffer
+
+; the BBC BASIC boot loader performs a CRC32 check from .CrcCheckRomUpdate to .end_CrcBuffer
+; the address range is $2A2F TO $2A7C
