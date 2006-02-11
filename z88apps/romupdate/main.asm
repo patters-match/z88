@@ -45,7 +45,7 @@
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
      xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
      xref ErrMsgActiveApps, ErrMsgNoFlashSupport
-     xref MsgCompleted, MsgCrcCheckBankFile
+     xref MsgUpdateCompleted, MsgAddCompleted, MsgCrcCheckBankFile
      xref MsgUpdateBankFile
      xref CheckBankFreeSpace
 
@@ -175,7 +175,8 @@ endif
                     ;jp   nz, ErrMsgNewBankNotEmpty
 
 .check_freeappbank
-
+                    cp   RC_ONF
+                    jr   z, newapp_empty_card           ; slot contains an 'empty' card, ie. with no Card header, nor File Area header
 .check_filearea
                     jp   suicide                        ; (REMOVE THIS WHEN IMPLEMENTED)
 .check_next_flash
@@ -184,6 +185,24 @@ endif
                     jp   z, ErrMsgNoFlashSupport        ; all slots scanned and no Flash Card was found (add not possible)...
                     dec  c
                     jr   findflash_loop                 ; poll next slot for Flash Card...
+                    ; --------------------------------------------------------------------------------------------------------
+
+.newapp_empty_card
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; blow 16K bank image to top of slot C (the bank is already in buffer). The 16K bank is already configured
+                    ; to be a stand-alone application, using $3F bank references...
+                    ld   b,15                           ; top sector of 1MB Flash card
+                    call EraseSector                    ; erase top sector in slot C
+                    ld   a,c
+                    rrca
+                    rrca
+                    or   $3f
+                    ld   (dorbank),a									  ; register the bank to be added...
+                    ld   b,a                            ; blow bank file in buffer to top of slot C
+                    call BlowBufferToBank               ; old application updated with new application!
+                    ld   hl, bankfilename               ; name of application bank file (specified in config file)
+                    jp   c, ErrMsgBlowBank              ; fatal error -  this only happens if there is a bad slot connection
+                    jp   MsgAddCompleted                ; display completed message, then leave by soft reset (to refresh Index app list)...
                     ; --------------------------------------------------------------------------------------------------------
 
 .try_upd_app
@@ -196,15 +215,13 @@ endif
                     call CheckBankFreeSpace             ; enough space in RAM filing system for preserved banks?
                     jp   c,ErrMsgNoRoom                 ; No, report to user how much file space needs to be reclaimed..
 
-
                     ; --------------------------------------------------------------------------------------------------------
-                    ; preserve passive banks to RAM filing system, including CRC check to ensure safe restore later...
+                    ; preserve passive banks to RAM filing system, including CRC check to ensure a safe restore later...
                     call PreserveSectorBanks            ; preserve the sector banks to RAM filing system that are not being updated
                     jp   c,ErrMsgPresvBanks             ; insufficient room for passive sector banks or other I/O error, leave popdown...
                     call CheckPreservedSectorBanks      ; CRC validate the preserved passive bank files
                     jp   nz,ErrMsgCrcCheckPresvBanks    ; CRC check failed for passive sector banks, leave popdown...
                     ; --------------------------------------------------------------------------------------------------------
-
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
@@ -235,28 +252,17 @@ endif
                     ; --------------------------------------------------------------------------------------------------------
 .erase_sector
                     ; --------------------------------------------------------------------------------------------------------
-                    ; erase sector of bank (to be updated with new version of application)
-                    ld   a,5
-                    ld   (retry),a                      ; retry max 5 times to erase a block when the Flash Card Hardware reports error..
+                    ; erase sector of bank to be updated with new version of application
                     ld   a,(dorbank)
                     ld   b,a
-                    rlca
-                    rlca
-                    and  @00000011
-                    ld   c,a                            ; slot derived from absolute bank number
+                    call GetSlotNo
+                    ld   c,a                            ; slot number from absolute bank number
                     ld   a,b
-                    call GetSectorNo                    ; sector derived from absolute bank number
+                    call GetSectorNo                    ; sector number derived from absolute bank number
                     ld   b,a
-.retry_erase_sector
-                    call FlashEprBlockErase
-                    jr   nc, sector_erased
-                    ld   hl,retry                       ; sector was not erased properly, try 5 more times...
-                    dec  (hl)
-                    jr   nz,retry_erase_sector
-                    jp   ErrMsgSectorErase              ; fatal error - sector was not erased after 5 retries (battery low or bad slot connection)
+                    call EraseSector                    ; erase sector B in slot C (and abort RomUpdate after 5 failed retries)
                     ; --------------------------------------------------------------------------------------------------------
 
-.sector_erased
                     ; --------------------------------------------------------------------------------------------------------
                     ; finally, updated bank (file) with adjusted DOR bank numbers back to card (replacing old copy of application bank
                     ld   a,(dorbank)
@@ -268,7 +274,7 @@ endif
                     call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
                     ld   hl,filename                    ; name of current passive filename being restored
                     jp   c, ErrMsgBlowBank
-                    jp   MsgCompleted                   ; display completed messagem then leave by KILL request...
+                    jp   MsgUpdateCompleted             ; display completed messagem then leave by KILL request...
                     ; --------------------------------------------------------------------------------------------------------
 ; *************************************************************************************
 
@@ -515,6 +521,38 @@ endif
 
 
 ; *************************************************************************************
+; Erase sector B of flash card in slot C.
+; Abort RomUpdate if erase has been retried 5 times unsuccessfully
+;
+; IN:
+;    B = sector number
+;    C = slot Number
+;
+; OUT:
+;    Only returns with Fc = 0 (sector erased in Flash Card)
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.EraseSector
+                    push hl
+                    ld   hl,retry                       ; sector was not erased properly, try 5 more times...
+                    ld   a,5
+                    ld   (hl),a                         ; retry max 5 times to erase a block when the Flash Card Hardware reports error..
+.retry_erase_sector
+                    call FlashEprBlockErase
+                    jr   nc, sector_erased
+                    dec  (hl)
+                    jr   nz,retry_erase_sector
+                    jp   ErrMsgSectorErase              ; fatal error - sector was not erased after 5 retries - abort RomUpdate
+.sector_erased                                          ; (battery low or bad slot connection)
+                    pop  hl
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; Get sector number for specfied bank (slot independent).
 ;
 ; IN:
@@ -531,6 +569,27 @@ endif
                     rrca
                     rrca                                ; bankNo/4
                     and  @00001111                      ; sector number containing bank
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Get slot number from absolute bank number (rotate slot mask in bits 1,0)
+;
+; IN:
+;    A = (absolute) bank number
+;
+; OUT:
+;    A = slot number (that bank number is part of)
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.GetSlotNo
+                    rlca
+                    rlca
+                    and  @00000011
                     ret
 ; *************************************************************************************
 
@@ -593,5 +652,5 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.6.3", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.6.4", 1,"B", 0
 

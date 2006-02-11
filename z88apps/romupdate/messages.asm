@@ -29,7 +29,7 @@
      ; RomUpdate runtime variables
      include "romupdate.def"
 
-     xdef MsgCompleted
+     xdef MsgUpdateCompleted, MsgAddCompleted
      xdef ReportStdError, DispErrMsg
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
@@ -45,13 +45,9 @@
 ; Display "<AppName> was successfully updated in slot X",
 ; prompt for key press, then exit program by KILL request.
 ;
-.MsgCompleted
-                    ld   a,12
-                    oz   OS_Out                         ; clear window...
-                    oz   GN_Nln
-                    call VduEnableCentreJustify
-                    call DispAppName
-                    ld   hl,completed_msg               ; " was successfully completed"
+.MsgUpdateCompleted
+                    call compl_init
+                    ld   hl,updated_msg                 ; "updated"
                     oz   GN_Sop
                     ld   hl,slot_msg                    ; " in slot "
                     oz   GN_Sop
@@ -59,6 +55,34 @@
                     call VduEnableNormalJustify
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
                     jp   suicide                        ; perform suicide with application KILL request
+.compl_init
+                    ld   a,12
+                    oz   OS_Out                         ; clear window...
+                    oz   GN_Nln
+                    call VduEnableCentreJustify
+                    call DispAppName
+                    ld   hl,completed_msg               ; " was successfully "
+                    oz   GN_Sop
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Display "<AppName> was successfully updated in slot X",
+; prompt for key press, then exit program by KILL request.
+;
+.MsgAddCompleted
+                    call compl_init
+                    ld   hl,added_msg                   ; "added"
+                    oz   GN_Sop
+                    ld   hl,slot_msg                    ; " in slot "
+                    oz   GN_Sop
+                    call DispSlotNo
+                    call VduEnableNormalJustify
+                    ld   hl,install_msg
+                    oz   GN_Sop
+                    call rdch
+                    jp   0                              ; perform soft reset
 ; *************************************************************************************
 
 
@@ -553,8 +577,11 @@
 .vdubold            defm 1,"B",0
 
 .ResKey_msg         defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO EXIT ROMUPDATE",1,"4-FTC",1,"2JN",0
+.install_msg        defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO INSTALL APPLICATION (EXECUTING A SOFT RESET)",1,"4-FTC",1,"2JN",0
 .slot_msg           defm " in slot ",0
-.completed_msg      defm " was successfully updated",0
+.completed_msg      defm " was successfully ",0
+.updated_msg        defm "updated", 0
+.added_msg          defm "added", 0
 .nocfgfile_msg      defm '"',"romupdate.cfg", '"', " file was not found.",0
 .cfgsyntax1_msg     defm "Syntax error at line ",0
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
