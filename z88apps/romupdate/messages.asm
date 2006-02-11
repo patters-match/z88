@@ -552,6 +552,7 @@
 ; Wait for a key press
 ;
 .rdch
+                    oz   OS_Pur
                     oz   OS_In
                     jr   nc,rd2
                     cp   RC_ESC
