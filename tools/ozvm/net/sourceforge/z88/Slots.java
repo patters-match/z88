@@ -1481,7 +1481,7 @@ public class Slots extends JPanel {
 										for(int i = 0; i < list.getModel().getSize(); i++) {
 											String selectedFilename = (String) list.getModel().getElementAt(i);
 											FileEntry fe = cardFileArea.getFileEntry(selectedFilename);
-											exportFileEntry(fe, exportDirectory);
+											cardFileArea.exportFileEntry(fe, exportDirectory);
 										 }										
 									} else {
 										// export only selected files...
@@ -1492,7 +1492,7 @@ public class Slots extends JPanel {
 											list.setSelectedIndex(selectedItems[f]);
 											String selectedFilename = (String) list.getSelectedValue();
 											FileEntry fe = cardFileArea.getFileEntry(selectedFilename);
-											exportFileEntry(fe, exportDirectory);
+											cardFileArea.exportFileEntry(fe, exportDirectory);
 										}
 									}
 									
@@ -1742,18 +1742,7 @@ public class Slots extends JPanel {
 			return markFileDeletedMenuItem;
 		}
 
-		private void exportFileEntry(FileEntry fe, String hostExpDir) throws IOException {
-			// strip the "oz" path of the filename
-			String hostFileName = fe.getFileName();
-			hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
-			// and build a complete file name for the host file system
-			hostFileName = hostExpDir + File.separator + hostFileName;
 
-			// create a new file in specified host directory
-			RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
-			expFile.write(fe.getFileImage()); // export file image to host file system
-			expFile.close();			
-		}
 				
 		/**
 		 * If the card contains a file area,

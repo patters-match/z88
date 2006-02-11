@@ -478,6 +478,30 @@ public class FileArea {
 	}
 
 	/**
+	 * Export a file entry on the file area to the host filing system. The
+	 * path of file entry is truncated, and only the core filename is appended
+	 * to the specified host filing system path.
+	 * 
+	 * @param fe the File Entry 
+	 * @param hostExpDir The host filing system specific export directory 
+	 * @throws IOException
+	 */
+	public void exportFileEntry(FileEntry fe, String hostExpDir) throws IOException {
+		// strip the "oz" path of the filename
+		String hostFileName = fe.getFileName();
+		hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
+		// and build a complete file name for the host file system
+		hostFileName = hostExpDir + File.separator + hostFileName;
+
+		// create a new file in specified host directory (overwrite if it already exists)
+		new File(hostFileName).delete(); 
+		RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
+		expFile.write(fe.getFileImage()); // export file image to host file system
+		expFile.close();			
+	}
+	
+	
+	/**
 	 * Import all files from the Host directory into the Z88 File Area.
 	 * The filenames of the host file system will be converted into the
 	 * filenaming format of the Z88 File Card. Due to limits of the Z88
