@@ -34,7 +34,7 @@
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
-     xdef ErrMsgNoFlashSupport
+     xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
 
      xref suicide, GetSlotNo, GetSectorNo
@@ -258,6 +258,24 @@
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
                     jp   suicide                        ; perform suicide with application KILL request
 ; *************************************************************************************
+
+
+; *************************************************************************************
+; Display error message when specific bank memory in flash card seems to be used
+; (should just contain FF's). This situation might occur when trying to add new
+; application bank below current application area and a 'dirty' file area has been
+; stored using RomCombiner.
+;
+.ErrMsgNewBankNotEmpty
+                    call DispAppName
+                    ld   hl,banknotempty1_msg           ; "<AppName> cannot be added to applications"
+                    ld   hl,slot_msg
+                    oz   GN_Sop
+                    call DispSlotNo
+                    ld   hl,banknotempty2_msg           ; "Bank below application area is not empty."
+                    jp   disp_error_msg
+; *************************************************************************************
+
 
 
 ; *************************************************************************************
@@ -606,8 +624,10 @@
 .updbnkfile3_msg    defm " file)", 0
 .updbnk1_err_msg    defm "Bank (", 0
 .updbnk2_err_msg    defm ") failed to be written to sector no. ", 0
+.banknotempty1_msg  defm " cannot be added to applications", 0
+.banknotempty2_msg  defm "Bank below application area is not empty.", 0
 .ram_noroom1_msg    defm 12,"RomUpdate uses approx. ", 0
-.ram_noroom2_msg    defm "K of RAM file space to update Application Card.", $0D, $0A
+.ram_noroom2_msg    defm "K of RAM file space to add/update Application Card.", $0D, $0A
                     defm "Free RAM = ", 0
 .ram_noroom3_msg    defm "K. You need to release ",0
-.ram_noroom4_msg    defm "K file space to perform the update.",0
+.ram_noroom4_msg    defm "K file space to perform the add/update.",0

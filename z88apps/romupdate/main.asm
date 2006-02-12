@@ -25,15 +25,15 @@
      include "fileio.def"
      include "romupdate.def"
 
-     lib MemDefBank, SafeBHLSegment
-     lib FlashEprBlockErase, FlashEprWriteBlock, FlashEprCardId
+     lib MemDefBank, SafeBHLSegment, RamDevFreeSpace
+     lib FlashEprBlockErase, FlashEprCardId
      lib CreateWindow, FileEprRequest, ApplEprType
 
      xdef app_main, GetSlotNo, GetSectorNo
-     xdef suicide
-     xdef CheckCrc, BlowBufferToBank
+     xdef suicide, GetTotalFreeRam
+     xdef CheckCrc
 
-     xref ReadConfigFile
+     xref ReadConfigFile, BlowBufferToBank, CopyBank
      xref ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
      xref ApplRomCopyDor, ApplRomDorName, ApplRomSetNextDor, ApplRomCopyCardHdr
      xref CrcFile, CrcBuffer, IsBankUsed
@@ -44,9 +44,9 @@
      xref ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
      xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
-     xref ErrMsgActiveApps, ErrMsgNoFlashSupport
+     xref ErrMsgActiveApps, ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty
      xref MsgUpdateCompleted, MsgAddCompleted, MsgCrcCheckBankFile
-     xref MsgUpdateBankFile
+     xref MsgUpdateBankFile, ApplRomLastDor
      xref CheckBankFreeSpace
 
 
@@ -119,7 +119,7 @@ endif
                     jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
 
                     ld   hl,buffer
-                    ld   bc,16384                       ; 16K buffer
+                    ld   bc,banksize                    ; 16K buffer
                     call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
                     call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
                     jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and cannot be updated!
@@ -140,7 +140,7 @@ endif
                     ld   de,(appname)                   ; search for appname in DOR's...
 .findappslot_loop
                     call ApplRomFindDOR                 ; return pointer to found application DOR
-                    jr   nc, try_upd_app                ; DOR was found in slot C, but can (possible) Flash Card be updated in slot?
+                    jp   nc, try_upd_app                ; DOR was found in slot C, but can (possible) Flash Card be updated in slot?
                     inc  c
                     dec  c                              ; application DOR not found or no application ROM available,
                     jr   z, try_add_app                 ; all slots scanned and no DOR was found, try to add application to card...
@@ -184,10 +184,43 @@ endif
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; append bank to bottom of application area
-                    call GetFreeAppBankNo               ; get absolute free bank no. below application area
-                    call IsBankUsed                     ; is it really empty?
-                    ;jp   nz, ErrMsgNewBankNotEmpty
+                    call GetTotalFreeRam
+                    ld   de,67*3
+                    sbc  hl,de                          ; make sure that Z88 has 3 * 16K bank file space for temp files in RAM
+                    jp   c,ErrMsgNoRoom                 ; No, report to user how much file space needs to be reclaimed..
 
+                    call GetFreeAppBankNo               ; get absolute free bank no. below application area
+                    call IsBankUsed                     ; is bank really empty on card?
+                    jp   nz, ErrMsgNewBankNotEmpty
+
+                    ld   b,0                            ; (local pointer)
+                    ld   hl,(bankfiledor)               ; get base pointer to DOR in Bank file
+                    ld   c,b
+                    ld   d,b
+                    ld   e,b                            ; CDE = 0 (this is going to be last DOR in application list...)
+                    call AdjustDorBank                  ; adjust DOR pointers in bank file to new location in card
+                    ld   a,(dorbank)
+                    ld   b,a                            ; blow bank file in buffer to slot C
+                    call BlowBufferToBank               ; add new application to card
+                    ld   hl, bankfilename               ; name of application bank file (specified in config file)
+                    jp   c, ErrMsgBlowBank              ; fatal error -  this only happens if there is a bad slot connection
+                    ld   a,b
+                    call GetSlotNo                      ; bank no -> slot no in C
+                    call ApplRomLastDor                 ; point to last DOR in BHL of slot C (that's going to point to new app)
+                    call CopyBank                       ; copy contents of bank B containing DOR into buffer
+                    push bc
+                    ld   bc,buffer
+                    add  hl,bc
+                    ld   b,0                            ; BHL pointer to last DOR now within buffer (in RAM)
+                    ld   a,(dorbank)
+                    ld   c,a
+                    ld   de,(bankfiledor)               ; CDE = pointer to new (added) application code & DOR in slot C
+                    call ApplRomSetNextDor              ; set link to added application DOR (now the last DOR in the list)
+                    pop  bc
+                    call RegisterPreservedSectorBanks
+
+                    ; preserve passive banks, erase sector and update bank with update DOR link
+                    ; adjust application card DOR header with total banks + 1 (sector bank preserve, erase & bank update)
                     ; --------------------------------------------------------------------------------------------------------
 .try_next_slot
                     ld   c,e
@@ -245,6 +278,9 @@ endif
                     ld   bc,(bankfiledor)
                     add  hl,bc
                     ld   b,0                            ; BHL = (local) pointer to base of bank file DOR
+                    ld   a,(nextdorbank)
+                    ld   c,a
+                    ld   de,(nextdoroffset)             ; CDE = brother link from original application DOR in card
                     call AdjustDorBank
 
                     ; --------------------------------------------------------------------------------------------------------
@@ -310,7 +346,7 @@ endif
                     ld   a,$3f                          ; top of card (relative)
                     sub  b                              ; size of application area
                     or   e                              ; mask with slot to get absolute bank number
-                    ld   (dorbank),a                    ; (empty) bank for new application banmk file, below application area
+                    ld   (dorbank),a                    ; (empty) bank for new application bank file, below application area
                     ret
 ; *************************************************************************************
 
@@ -329,7 +365,7 @@ endif
                     ld   a, op_in
                     oz   GN_Opf
                     ret  c
-                    ld   bc,16384
+                    ld   bc,banksize
                     ld   de,buffer
                     ld   hl,0
                     oz   OS_MV                          ; copy bank file contents into buffer...
@@ -406,6 +442,7 @@ endif
 ;
 ; IN:
 ;       BHL = pointer to base of DOR record (B typically 0 for local addr space buffer)
+;       CDE = pointer to next DOR (that this DOR will point to...)
 ; OUT:
 ;       DOR pointers adjusted to use relative bank reference in slot.
 ;
@@ -414,9 +451,6 @@ endif
 ;    AFBCDEHL/.... different
 ;
 .AdjustDorBank
-                    ld   a,(nextdorbank)
-                    ld   c,a
-                    ld   de,(nextdoroffset)             ; CDE = brother link from original application DOR in card
                     call ApplRomSetNextDor
 
                     ld   bc,3                           ; Start to get DOR segment 3 bank binding (DOR is available in local address space, B=0)...
@@ -490,44 +524,6 @@ endif
                     scf
                     ccf                                 ; return Fc = 0 always
                     ret                                 ; Fz indicates CRC status
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Blow contents of 16K buffer to bank B in Flash Card
-;
-; IN:
-;       B = Bank number (absolute)
-; OUT:
-;       Fc = 1, bank was not blown properly to Flash Card.
-;              A = RC_ error code
-;       Fc = 0, bank were successfully blown to Flash Card.
-;
-; Registers changed after return:
-;    ..BCDEHL/IXIY same
-;    AF....../.... different
-;
-.BlowBufferToBank
-                    push bc
-                    push de
-                    push hl
-                    push iy
-
-                    ld   hl,0                           ; blow from start of bank...
-                    ld   de,buffer                      ; blow contents of buffer to bank
-                    ld   iy, 16384
-if POPDOWN
-                    ld   c, MS_S2                       ; use segment 2 to blow bank
-else
-                    ld   c, MS_S3                       ; BBC BASIC: use segment 3 to blow bank
-endif
-                    xor  a                              ; Flash blowing algorithm is found dynamically
-                    call FlashEprWriteBlock
-                    pop  iy
-                    pop  hl
-                    pop  de
-                    pop  bc
-                    ret
 ; *************************************************************************************
 
 
@@ -689,6 +685,36 @@ endif
 ; *************************************************************************************
 
 
+; *************************************************************************************
+; Return total amount of free RAM pages in Z88 systen
+;
+; IN:
+;    None.
+; OUT:
+;    HL = accumulated free RAM pages in Z88
+;
+.GetTotalFreeRam
+                    push bc                             ; preserve amount of necessary pages for preserved banks
+                    push de
+
+                    ld   hl,0
+                    ld   b,3
+.scan_ram_loop
+                    ld   a,b
+                    call RamDevFreeSpace                ; ask slot for available free RAM (pages)
+                    jr   c, poll_next_ram               ; not a RAM card...
+                    add  hl,de                          ; total of free ram pages in Z88...
+.poll_next_ram
+                    dec  b
+                    ld   a,b
+                    cp   -1
+                    jr   nz, scan_ram_loop
+
+                    pop  de
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
 .progversion_banner defm 1, "BRomUpdate V0.6.4", 1,"B", 0
-

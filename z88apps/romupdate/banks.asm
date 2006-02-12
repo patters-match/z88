@@ -26,13 +26,13 @@
      include "romupdate.def"
 
      lib MemDefBank, SafeBHLSegment
-     lib RamDevFreeSpace
+     lib RamDevFreeSpace, MemReadByte, FlashEprWriteBlock
 
-     xref CrcBuffer, CheckCrc, BlowBufferToBank
+     xref CrcBuffer, CheckCrc, GetTotalFreeRam
 
      xdef RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xdef RestoreSectorBanks, DeletePreservedSectorBanks
-     xdef CheckBankFreeSpace, IsBankUsed
+     xdef BlowBufferToBank, CheckBankFreeSpace, IsBankUsed, CopyBank, CopyMemory
 
 
 ; *************************************************************************************
@@ -57,10 +57,11 @@
 ;       [presvdbanks] array updated with bank numbers to be preserved in sector
 ;
 ; Registers changed after return:
-;    ..B...HL/IXIY same
-;    AF.CDE../.... different
+;    ..B.DEHL/IXIY same
+;    AF.C..../.... different
 ;
 .RegisterPreservedSectorBanks
+                    push de
                     ld   de,presvdbanks+3               ; point at end of array
                     ld   c,3
 .preserve_loop
@@ -72,7 +73,7 @@
                     call nz,preservebank                ; this bank is to be preserved (not part of DOR)
                     inc  c
                     dec  c
-                    ret  z                              ; sector is scanned for banks to be preserved
+                    jr   z, exit_regpresvbanks          ; sector is scanned for banks to be preserved
                     dec  c
                     dec  de
                     jr   preserve_loop
@@ -82,6 +83,9 @@
 .preservebank       call IsBankUsed                     ; only preserve bank if it contains data...
                     jr   nz, preserve
                     jr   notpreserved                   ; bank contained only FF's, not necessary to preserve...
+.exit_regpresvbanks
+                    pop  de
+                    ret
 ; *************************************************************************************
 
 
@@ -140,7 +144,7 @@
                     push bc                             ; (preserve old bank binding)
 
                     push hl
-                    ld   bc, 16384
+                    ld   bc, banksize
                     push bc
                     ld   de,0
                     oz   OS_MV                          ; copy bank contents to file...
@@ -230,7 +234,7 @@
                     call GetBankFileHandle
                     jr   c, exit_checkcrcbank           ; couldn't open file ...
 
-                    ld   bc, 16384
+                    ld   bc, banksize
                     push bc
                     ld   de,buffer
                     push de
@@ -305,7 +309,7 @@
                     call GetBankFileHandle
                     jr   c, exit_restorebanks           ; couldn't open file ...
 
-                    ld   bc, 16384
+                    ld   bc, banksize
                     push bc
                     ld   de,buffer
                     push de
@@ -313,6 +317,9 @@
                     oz   OS_MV                          ; copy bank file contents into buffer...
                     pop  hl
                     pop  bc
+                    push af
+                    oz   GN_Cl                          ; close file
+                    pop  af
                     jr   c, exit_restorebanks           ; I/O error!
 
                     pop  de
@@ -320,10 +327,7 @@
                     ld   a,(de)                         ; get (number) in sector to be restored
                     ld   b,a
                     call BlowBufferToBank
-                    push af
-                    oz   GN_Cl                          ; close file
-                    pop  af                             ; report back if a Flash programming error occurred
-.exit_restorebanks
+.exit_restorebanks                                      ; report back if a Flash programming error occurred
                     pop  de
                     pop  bc
                     ret
@@ -355,7 +359,7 @@
                     ld   b,a
                     call MemDefBank                     ; bind bank into Z80 address space
                     push bc                             ; (preserve old bank binding)
-                    ld   bc, 16384
+                    ld   bc, banksize
 .check_empty_bank
                     ld   a,(hl)
                     inc  hl
@@ -461,28 +465,18 @@
                     dec  de
                     jr   calc_bankspace
 .comp_free_ram
-                    push bc                             ; preserve amount of necessary pages for preserved banks
-                    ld   hl,0
-                    ld   b,3
-.scan_ram_loop
-                    ld   a,b
-                    call RamDevFreeSpace
-                    jr   c, poll_next_ram
-                    add  hl,de                          ; total of free ram pages...
-.poll_next_ram
-                    dec  b
-                    ld   a,b
-                    cp   -1
-                    jr   nz, scan_ram_loop
-.allram_slots
-                    pop  de                             ; necessary space for preserved banks
-                    push hl
+                    push bc
+                    call GetTotalFreeRam
+                    pop  de
+                    push hl                             ; necessary space for preserved banks in BC
                     sbc  hl,de                          ; Return Fc = 1, if there isn't enough free space for banks...
                     pop  hl                             ; return HL & DE page numbers...
 
                     pop  bc
                     ret
 ; *************************************************************************************
+
+
 
 
 ; *************************************************************************************
@@ -539,6 +533,106 @@
                     ld   e,l
                     ld   bc,128                         ; local filename
                     oz   GN_Opf                         ; return file handle in IX (if successfull)
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Copy 16K Bank to buffer
+;
+; IN:
+;    B = Bank no. (absolute)
+; OUT:
+;    Fc = 0
+;    (buffer) = bank
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY    same
+;    AF....../.... bc different
+;
+.CopyBank
+                    push de
+                    push hl
+
+                    ld   hl,0                           ; BHL points to start of bank
+                    ld   de,buffer
+                    exx
+                    ld   bc,banksize
+                    exx
+                    call CopyMemory                     ; (BHL) -> (DE)
+
+                    pop  hl
+                    pop  de
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Copy memory contents from (BHL) to (DE).
+; NB: pointers and lengths in combination must stay with bank boundaries.
+;
+; In:
+;    BHL = pointer to source (if B=0 then HL is also a local address space)
+;    DE = local address space destination pointer
+;    bc' = total no bytes to copy
+;
+; Out:
+;
+; Registers changed after return:
+;    ..BC..../IXIY    same
+;    AF..DEHL/.... bc different
+;
+.CopyMemory
+                    xor  a
+                    call MemReadByte
+                    ld   (de),a              ; (BHL++) -> (DE++)
+                    inc  de
+                    inc  hl
+
+                    exx
+                    dec  bc
+                    ld   a,b
+                    or   c
+                    exx
+                    ret  z
+                    jr   CopyMemory
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Blow contents of 16K buffer to bank B in Flash Card
+;
+; IN:
+;       B = Bank number (absolute)
+; OUT:
+;       Fc = 1, bank was not blown properly to Flash Card.
+;              A = RC_ error code
+;       Fc = 0, bank were successfully blown to Flash Card.
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.BlowBufferToBank
+                    push bc
+                    push de
+                    push hl
+                    push iy
+
+                    ld   hl,0                           ; blow from start of bank...
+                    ld   de,buffer                      ; blow contents of buffer to bank
+                    ld   iy, banksize
+if POPDOWN
+                    ld   c, MS_S2                       ; use segment 2 to blow bank
+else
+                    ld   c, MS_S3                       ; BBC BASIC: use segment 3 to blow bank
+endif
+                    xor  a                              ; Flash blowing algorithm is found dynamically
+                    call FlashEprWriteBlock
+                    pop  iy
+                    pop  hl
+                    pop  de
+                    pop  bc
                     ret
 ; *************************************************************************************
 

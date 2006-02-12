@@ -30,13 +30,16 @@
      lib SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment specfier returned in C
 
 
-     XDEF ApplRomFindDor, ApplRomFrontDor, ApplRomReadDorPtr
-     XDEF ApplRomFirstDor, ApplRomNextDor, ApplRomLastDor, ApplRomSetNextDor
-     XDEF ApplRomGetDorSize, ApplRomCopyDor, ApplRomDorName
-     XDEF ApplSegmentBinding, ApplSetSegmentBinding
-     XDEF ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
-     XDEF ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
-     XDEF ApplRomCopyCardHdr
+     xdef ApplRomFindDor, ApplRomFrontDor, ApplRomReadDorPtr
+     xdef ApplRomFirstDor, ApplRomNextDor, ApplRomLastDor, ApplRomSetNextDor
+     xdef ApplRomGetDorSize, ApplRomCopyDor, ApplRomDorName
+     xdef ApplSegmentBinding, ApplSetSegmentBinding
+     xdef ApplTopicsPtr, ApplCommandsPtr, ApplHelpPtr, ApplTokenbasePtr
+     xdef ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
+     xdef ApplRomCopyCardHdr
+
+     xref CopyMemory
+
 
 ; *************************************************************************************
 ;
@@ -122,8 +125,8 @@
 ;              A = RC_ONF, Invalid Application DOR found at BHL
 ;
 ; Registers changed after return:
-;    ..BCDEHL/IXIY same
-;    AF....../.... different
+;    ..BCDEHL/IXIY    same
+;    AF....../.... bc different
 ;
 .ApplRomCopyDor
                     push hl
@@ -134,27 +137,17 @@
                     jr   c, exit_ApplRomFindDor
 
                     call ApplRomGetDorSize
-                    ex   af,af'              ; preserve DOR size in A'
-                    ld   c,0                 ; offset = 0
-.copy_dor_loop
-                    ld   a,c
-                    call MemReadByte
-                    ld   (de),a              ; (BHL,C++) -> (DE++)
-                    inc  c
-                    inc  de
-
-                    ex   af,af'
-                    dec  a
-                    jr   z,exit_ApplRomCopyDor
-                    ex   af,af'
-                    jr   copy_dor_loop
+                    exx
+                    ld   b,0
+                    ld   c,a
+                    exx
+                    call CopyMemory          ; copy DOR at (BHL) to (DE)
 .exit_ApplRomCopyDor
                     pop  bc
                     pop  de
                     pop  hl
                     ret
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************
@@ -448,8 +441,8 @@
 
 ; *************************************************************************************
 ;
-; Return pointer to Last Application DOR of slot C in BHL (second pointer from start of DOR),
-; scanning the brother link of each DOR.
+; Return pointer to Last Application DOR of slot C in BHL (second pointer from start
+; of DOR), scanning the brother link of each DOR.
 ;
 ; -------------------------------------------------------------------------------
 ; Start of DOR:
@@ -465,11 +458,10 @@
 ; Out:
 ;    Success:
 ;         Fc = 0,
-;              BHL = pointer to last application DOR in list of of slot C
-;
+;              BHL = pointer to last application DOR in list of slot C
 ;    Failure:
 ;         Fc = 1,
-;              A = RC_ONF, no Application DOR found in slot C
+;              A = RC_ONF, no Application DORs found in slot C
 ;
 ; Registers changed after return:
 ;    ...CDE../IXIY same
@@ -844,12 +836,13 @@
 .WriteSlotRelPtr
                     push bc
                     res  7,c
-                    res  6,c                 ; use only slot-relative bank numbers in DOR's...
+                    res  6,c                 ; use only slot-relative bank numbers in DOR pointers...
+                    res  7,h
+                    res  6,h                 ; use only bank-relative offsets in DOR pointers...
                     call MemWritePointer     ; (BHL,A) = CDE
                     pop  bc                  ; restore C
                     ret
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************
