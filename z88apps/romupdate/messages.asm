@@ -37,7 +37,7 @@
      xdef ErrMsgNoFlashSupport
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
 
-     xref suicide
+     xref suicide, GetSlotNo, GetSectorNo
 
 
 
@@ -411,12 +411,9 @@
 ;
 .DispSlotNo
                     push bc
-                    ld   a,(dorbank)
-                    rlca
-                    rlca
-                    and  @00000011
                     ld   b,0
-                    ld   c,a
+                    ld   a,(dorbank)
+                    call GetSlotNo
                     call DispNumber
                     ld   a,'.'
                     oz   OS_Out
@@ -431,10 +428,8 @@
 ;
 .DispSectorNo
                     ld   a,(dorbank)
-                    rrca
-                    rrca                                ; bankNo/4
-                    and  @00001111                      ; sector number containing bank
                     ld   b,0
+                    call GetSectorNo                    ; derive sector number from bank no. in A
                     ld   c,a
                     call DispNumber
                     ld   a,'.'
@@ -578,7 +573,7 @@
 .vdubold            defm 1,"B",0
 
 .ResKey_msg         defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO EXIT ROMUPDATE",1,"4-FTC",1,"2JN",0
-.install_msg        defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO INSTALL APPLICATION (EXECUTING A SOFT RESET)",1,"4-FTC",1,"2JN",0
+.install_msg        defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO INSTALL APPLICATION WITH SOFT RESET",1,"4-FTC",1,"2JN",0
 .slot_msg           defm " in slot ",0
 .completed_msg      defm " was successfully ",0
 .updated_msg        defm "updated", 0

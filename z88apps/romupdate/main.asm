@@ -29,7 +29,7 @@
      lib FlashEprBlockErase, FlashEprWriteBlock, FlashEprCardId
      lib CreateWindow, FileEprRequest, ApplEprType
 
-     xdef app_main
+     xdef app_main, GetSlotNo, GetSectorNo
      xdef suicide
      xdef CheckCrc, BlowBufferToBank
 
@@ -157,34 +157,48 @@ endif
                     jr   c, check_next_flash            ; Flash Card cannot be updated in slot C (Intel Flash not in slot 3)!
 
                     ; current slot has Flash Card write support, try to add application...
+                    ld   a,c
+                    rrca
+                    rrca
+                    and  @11000000
+                    ld   e,a                            ; slot mask in E for absolute bank no. calculation
                     push bc
                     call FileEprRequest                 ; check if File Area (and application area) is available in slot C
                     pop  bc                             ; (preserve slot no. in C)
                     jr   z, check_filearea              ; file area exists, check if it can be shrinked to make room for new application
                     jr   c, check_freeappbank           ; either flash card is empty or there is no room for file area below apps area
-
-                    ld   a,b                            ; BHL points at sector for a new (to be) file area, which means there's
-                    and  @11000000                      ; room below current application area for new application...
-                    ld   d,a                            ; (preserve slot mask)
-                    call ApplEprType                    ; get exact size of application area in B
-                    ld   a,$3f
-                    sub  b
-                    or   d
-                    ld   (dorbank),a                    ; absolute (empty) bank no. for new application, just below application area
-                    call IsBankUsed
-                    ;jp   nz, ErrMsgNewBankNotEmpty
+                    jr   add_new_app                    ; if there's room for a new file area, then we can add an app bank too..
+.check_filearea
+                    ld   b,1
+                    ;call FlashEprShrinkFileArea         ; try to shrink file area by one sector (64K) to make room for new app bank
+                    jp   suicide                        ; (REMOVE THIS WHEN IMPLEMENTED)
 
 .check_freeappbank
                     cp   RC_ONF
                     jr   z, newapp_empty_card           ; slot contains an 'empty' card, ie. with no Card header, nor File Area header
-.check_filearea
-                    jp   suicide                        ; (REMOVE THIS WHEN IMPLEMENTED)
+.add_new_app                                            ; (RC_ROOM was returned...)
+                    call ApplEprType                    ; get exact size of application area in B, card size in C
+                    ld   a,c                            ; there was no room for a file area, maybe there's
+                    sub  b                              ; room for an application bank appended to application area?
+                    jr   z, try_next_slot               ; no, complete card is filled with applications, try next slot...
+
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; append bank to bottom of application area
+                    call GetFreeAppBankNo               ; get absolute free bank no. below application area
+                    call IsBankUsed                     ; is it really empty?
+                    ;jp   nz, ErrMsgNewBankNotEmpty
+
+                    ; --------------------------------------------------------------------------------------------------------
+.try_next_slot
+                    ld   c,e
+                    rlc  c
+                    rlc  c                              ; convert slot mask back to a slot number...
 .check_next_flash
                     inc  c                              ; this slot didn't contain a Flash Card,
                     dec  c                              ; all slots done?
                     jp   z, ErrMsgNoFlashSupport        ; all slots scanned and no Flash Card was found (add not possible)...
                     dec  c
-                    jr   findflash_loop                 ; poll next slot for Flash Card...
+                    jp   findflash_loop                 ; poll next slot for Flash Card...
                     ; --------------------------------------------------------------------------------------------------------
 
 .newapp_empty_card
@@ -197,7 +211,7 @@ endif
                     rrca
                     rrca
                     or   $3f
-                    ld   (dorbank),a									  ; register the bank to be added...
+                    ld   (dorbank),a                    ; register the bank to be added...
                     ld   b,a                            ; blow bank file in buffer to top of slot C
                     call BlowBufferToBank               ; old application updated with new application!
                     ld   hl, bankfilename               ; name of application bank file (specified in config file)
@@ -255,8 +269,7 @@ endif
                     ; erase sector of bank to be updated with new version of application
                     ld   a,(dorbank)
                     ld   b,a
-                    call GetSlotNo
-                    ld   c,a                            ; slot number from absolute bank number
+                    call GetSlotNo                      ; C = slot number from absolute bank number
                     ld   a,b
                     call GetSectorNo                    ; sector number derived from absolute bank number
                     ld   b,a
@@ -276,6 +289,29 @@ endif
                     jp   c, ErrMsgBlowBank
                     jp   MsgUpdateCompleted             ; display completed messagem then leave by KILL request...
                     ; --------------------------------------------------------------------------------------------------------
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Return free application (absolute) bank no. below application area in current slot.
+;
+; IN:
+;    B = size of application area in 16K banks
+;    E = slot mask ($40 for slot 1, $80 for slot 2, $C0 for slot 3)
+;
+; OUT:
+;    (dorbank),A = absolute bank no. of position in card to blow bank file
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.GetFreeAppBankNo
+                    ld   a,$3f                          ; top of card (relative)
+                    sub  b                              ; size of application area
+                    or   e                              ; mask with slot to get absolute bank number
+                    ld   (dorbank),a                    ; (empty) bank for new application banmk file, below application area
+                    ret
 ; *************************************************************************************
 
 
@@ -581,6 +617,7 @@ endif
 ;
 ; OUT:
 ;    A = slot number (that bank number is part of)
+;    C = slot number
 ;
 ; Registers changed after return:
 ;    ..BCDEHL/IXIY same
@@ -590,6 +627,7 @@ endif
                     rlca
                     rlca
                     and  @00000011
+                    ld   c,a
                     ret
 ; *************************************************************************************
 
