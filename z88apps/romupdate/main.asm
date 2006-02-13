@@ -153,8 +153,8 @@ endif
                     ld   c,3                            ; check external slots for a Flash Card (from 3 downwards)
 .findflash_loop
                     call FlashWriteSupport
-                    jr   nz, check_next_flash           ; no Flash Card recognized in slot C
-                    jr   c, check_next_flash            ; Flash Card cannot be updated in slot C (Intel Flash not in slot 3)!
+                    jp   nz, check_next_flash           ; no Flash Card recognized in slot C
+                    jp   c, check_next_flash            ; Flash Card cannot be updated in slot C (Intel Flash not in slot 3)!
 
                     ; current slot has Flash Card write support, try to add application...
                     ld   a,c
@@ -175,7 +175,7 @@ endif
 
 .check_freeappbank
                     cp   RC_ONF
-                    jr   z, newapp_empty_card           ; slot contains an 'empty' card, ie. with no Card header, nor File Area header
+                    jp   z, newapp_empty_card           ; slot contains an 'empty' card, ie. with no Card header, nor File Area header
 .add_new_app                                            ; (RC_ROOM was returned...)
                     call ApplEprType                    ; get exact size of application area in B, card size in C
                     ld   a,c                            ; there was no room for a file area, maybe there's
@@ -217,10 +217,22 @@ endif
                     ld   de,(bankfiledor)               ; CDE = pointer to new (added) application code & DOR in slot C
                     call ApplRomSetNextDor              ; set link to added application DOR (now the last DOR in the list)
                     pop  bc
-                    call RegisterPreservedSectorBanks
-
-                    ; preserve passive banks, erase sector and update bank with update DOR link
-                    ; adjust application card DOR header with total banks + 1 (sector bank preserve, erase & bank update)
+                    push bc
+                    ld   a,b
+                    ld   (dorbank),a                    ; register DOR bank to be updated...
+                    ld   hl, upddorlist_msg             ; sub message if update fails...
+                    call UpdateSector
+                    pop  bc
+                    ld   a,b
+                    or   $3f
+                    ld   (dorbank),a                    ; register top bank to be updated (containing card header)
+                    ld   b,a
+                    call CopyBank                       ; copy bank containing card header
+                    ld   hl,buffer+$3ffc
+                    inc  (hl)                           ; total of banks in application area adjusted for new application bank
+                    ld   hl,cardheader_msg              ; sub message for card header failure...
+                    call UpdateSector                   ; update top bank of card with updated application card header
+                    jp   MsgAddCompleted                ; App added! Display completed message, then by soft reset to refresh Index apps...
                     ; --------------------------------------------------------------------------------------------------------
 .try_next_slot
                     ld   c,e
@@ -233,7 +245,6 @@ endif
                     dec  c
                     jp   findflash_loop                 ; poll next slot for Flash Card...
                     ; --------------------------------------------------------------------------------------------------------
-
 .newapp_empty_card
                     ; --------------------------------------------------------------------------------------------------------
                     ; blow 16K bank image to top of slot C (the bank is already in buffer). The 16K bank is already configured
@@ -251,24 +262,12 @@ endif
                     jp   c, ErrMsgBlowBank              ; fatal error -  this only happens if there is a bad slot connection
                     jp   MsgAddCompleted                ; display completed message, then leave by soft reset (to refresh Index app list)...
                     ; --------------------------------------------------------------------------------------------------------
-
 .try_upd_app
                     ; --------------------------------------------------------------------------------------------------------
                     ; Application was found in slot C, try to update it..
                     call StoreDorInfo                   ; save found DOR information in memory variables
                     call CheckFlashWriteSupport         ; update application only if flash card in slot C has write/erase support
                     call MsgUpdateBankFile              ; display progress message for updating the new version of the application bank
-                    call RegisterPreservedSectorBanks   ; Flash Card may be updated - register banks in the sector to be preserved
-                    call CheckBankFreeSpace             ; enough space in RAM filing system for preserved banks?
-                    jp   c,ErrMsgNoRoom                 ; No, report to user how much file space needs to be reclaimed..
-
-                    ; --------------------------------------------------------------------------------------------------------
-                    ; preserve passive banks to RAM filing system, including CRC check to ensure a safe restore later...
-                    call PreserveSectorBanks            ; preserve the sector banks to RAM filing system that are not being updated
-                    jp   c,ErrMsgPresvBanks             ; insufficient room for passive sector banks or other I/O error, leave popdown...
-                    call CheckPreservedSectorBanks      ; CRC validate the preserved passive bank files
-                    jp   nz,ErrMsgCrcCheckPresvBanks    ; CRC check failed for passive sector banks, leave popdown...
-                    ; --------------------------------------------------------------------------------------------------------
 
                     ; --------------------------------------------------------------------------------------------------------
                     ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
@@ -289,7 +288,7 @@ endif
                     ld   c,a
                     and  @00111111
                     cp   $3f                            ; is bank to be updated located at top of card?
-                    jr   nz, erase_sector
+                    jr   nz, update_bankfile
                     ld   a,c                            ; yes, overwrite header in bank buffer with a copy from top of card
                     rlca
                     rlca
@@ -300,31 +299,12 @@ endif
                     ld   c,a                            ; copy card header from slot C (derived from DOR bank no)
                     call ApplRomCopyCardHdr
                     ; --------------------------------------------------------------------------------------------------------
-.erase_sector
-                    ; --------------------------------------------------------------------------------------------------------
-                    ; erase sector of bank to be updated with new version of application
+.update_bankfile
                     ld   a,(dorbank)
                     ld   b,a
-                    call GetSlotNo                      ; C = slot number from absolute bank number
-                    ld   a,b
-                    call GetSectorNo                    ; sector number derived from absolute bank number
-                    ld   b,a
-                    call EraseSector                    ; erase sector B in slot C (and abort RomUpdate after 5 failed retries)
-                    ; --------------------------------------------------------------------------------------------------------
-
-                    ; --------------------------------------------------------------------------------------------------------
-                    ; finally, updated bank (file) with adjusted DOR bank numbers back to card (replacing old copy of application bank
-                    ld   a,(dorbank)
-                    ld   b,a
-                    call BlowBufferToBank               ; old application updated with new application!
-                    ld   hl, bankfilename               ; name of application bank file (specified in config file)
-                    jp   c,ErrMsgBlowBank               ; fatal error -  this only happens if there is a bad slot connection
-
-                    call RestoreSectorBanks             ; blow the three 'passive' banks back to the sector
-                    ld   hl,filename                    ; name of current passive filename being restored
-                    jp   c, ErrMsgBlowBank
-                    jp   MsgUpdateCompleted             ; display completed messagem then leave by KILL request...
-                    ; --------------------------------------------------------------------------------------------------------
+                    ld   hl,bankfilename
+                    call UpdateSector
+                    jp   MsgUpdateCompleted             ; display completed message then leave by KILL request...
 ; *************************************************************************************
 
 
@@ -629,6 +609,62 @@ endif
 
 
 ; *************************************************************************************
+; Update bank, currently stored in 16 buffer, to bank B on card
+; (preserve passive banks, erase sector, update bank from buffer, restore passive banks).
+; If update fails, an error message is displayed and RomUpdate exits...
+; This routine only returns if update was successful.
+;
+; IN:
+;   B = bank no (absolute) to update with 16K buffer
+;   HL = sub error message string if update fails for bank (string will be part of ErrMsgBlowBank)
+; OUT:
+;   Fc = 0
+;       Update succeeded.
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+.UpdateSector
+                    push hl
+                    push bc
+                    call RegisterPreservedSectorBanks   ; register bank B to be updated (rest of sector to be preserved)...
+                    call CheckBankFreeSpace             ; enough space in RAM filing system for preserved banks?
+                    jp   c,ErrMsgNoRoom                 ; No, report to user how much file space needs to be reclaimed..
+
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; preserve passive banks to RAM filing system, including CRC check to ensure a safe restore later...
+                    call PreserveSectorBanks            ; preserve the sector banks to RAM filing system
+                    jp   c,ErrMsgPresvBanks             ; insufficient room for passive sector banks or other I/O error, leave popdown...
+                    call CheckPreservedSectorBanks      ; CRC validate the preserved passive bank files
+                    jp   nz,ErrMsgCrcCheckPresvBanks    ; CRC check failed for passive sector banks, leave popdown...
+                    ; --------------------------------------------------------------------------------------------------------
+
+                    ; --------------------------------------------------------------------------------------------------------
+                    pop  bc
+                    push bc
+                    ld   a,b
+                    call GetSlotNo                      ; C = slot number from absolute bank number
+                    ld   a,b
+                    call GetSectorNo
+                    ld   b,a                            ; B = sector number derived from absolute bank number
+                    call EraseSector                    ; erase sector B in slot C (abort RomUpdate after 5 failed retries)
+                    ; --------------------------------------------------------------------------------------------------------
+
+                    pop  bc
+                    ld   b,a
+                    call BlowBufferToBank               ; blow updated bank back to card.
+                    pop  hl                             ; display sub-message (explaining what went wrong)
+                    jp   c,ErrMsgBlowBank               ; fatal error!
+
+                    call RestoreSectorBanks             ; blow the three (or less) 'passive' banks back to the sector
+                    ld   hl,filename                    ; name of current passive filename being restored
+                    jp   c, ErrMsgBlowBank
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
 ;
 ; Validate the Flash Card erase/write functionality in the specified slot.
 ; If the Flash Card in the specified slot contains an Intel chip, the slot
@@ -718,3 +754,5 @@ endif
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
 .progversion_banner defm 1, "BRomUpdate V0.6.4", 1,"B", 0
+.upddorlist_msg     defm "with updated DOR List", 0
+.cardheader_msg     defm "with card header", 0

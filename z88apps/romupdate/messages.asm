@@ -369,7 +369,7 @@
                     oz   GN_Sop
                     call VduToggleBoldTypeface
                     pop  hl
-                    oz   GN_Sop                         ; display filename
+                    oz   GN_Sop                         ; display filename (or other bank type)
                     call VduToggleBoldTypeface
                     ld   hl,updbnk2_err_msg
                     oz   GN_Sop
