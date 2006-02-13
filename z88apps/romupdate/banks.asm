@@ -28,7 +28,7 @@
      lib MemDefBank, SafeBHLSegment
      lib RamDevFreeSpace, MemReadByte, FlashEprWriteBlock
 
-     xref CrcBuffer, CheckCrc, GetTotalFreeRam
+     xref CrcBuffer, CrcFile, CheckCrc, GetTotalFreeRam
 
      xdef RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xdef RestoreSectorBanks, DeletePreservedSectorBanks
@@ -230,10 +230,8 @@
                     push bc
                     push de
                     ld   b,a
-                    call LoadTempBankFile               ; get passive bank B into buffer
-                    jr   c, exit_checkcrcbank           ; I/O error when filling buffer!
-                                                        ; HL = start of buffer, BC = length of buffer
-                    call CrcBuffer                      ; return CRC of buffer digest in DEHL
+                    call CrcTempBankFile                ; Calculate CRC of passive bank B file in DEHL
+                    jr   c, exit_checkcrcbank           ; open error when CRC checking buffer!
 
                     pop  bc
                     push bc
@@ -508,6 +506,45 @@
                     ld   e,l
                     ld   bc,128                         ; local filename
                     oz   GN_Opf                         ; return file handle in IX (if successfull)
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; CRC calculate the (passive) bank in temporary RAM file, defined by bank B
+;
+; IN:
+;    B = (absolute) bank number of passive bank file
+;
+; OUT:
+;    Fc = 0,
+;         DEHL = CRC value of passive bank file
+;    Fc = 1,
+;         file open, I/O error (A = reason code)
+;
+; Registers changed after return:
+;    ......../..IY same
+;    AFBCDEHL/IX.. different
+;
+.CrcTempBankFile
+                    ld   a, OP_IN
+                    call GetBankFileHandle
+                    ret  c                              ; couldn't open file ...
+
+                    push iy
+                    ld   bc,1024
+                    ld   hl,0
+                    add  hl,sp
+                    push hl
+                    pop  iy                             ; remember old SP
+                    sbc  hl,bc
+                    ld   sp,hl                          ; make a 1K CRC buffer on stack
+                    ex   de,hl                          ; DE points at start of buffer, BC = length of buffer
+                    call CrcFile
+
+                    oz   GN_Cl                          ; close file
+                    ld   sp,iy                          ; restore original SP
+                    pop  iy
                     ret
 ; *************************************************************************************
 
