@@ -183,7 +183,7 @@ endif
                     jr   z, try_next_slot               ; no, complete card is filled with applications, try next slot...
 
                     ; --------------------------------------------------------------------------------------------------------
-                    ; append bank to bottom of application area
+                    ; append bank to bottom of application area (file area not available)
                     call GetTotalFreeRam
                     ld   de,67*3
                     sbc  hl,de                          ; make sure that Z88 has 3 * 16K bank file space for temp files in RAM
@@ -609,10 +609,11 @@ endif
 
 
 ; *************************************************************************************
-; Update bank, currently stored in 16 buffer, to bank B on card
-; (preserve passive banks, erase sector, update bank from buffer, restore passive banks).
+; Update bank, currently stored in 16K buffer, to bank B on card.
+; (preserve passive banks, erase sector, update bank from buffer, restore passive banks)
+;
 ; If update fails, an error message is displayed and RomUpdate exits...
-; This routine only returns if update was successful.
+; This routine only returns if sector was updated successfully.
 ;
 ; IN:
 ;   B = bank no (absolute) to update with 16K buffer

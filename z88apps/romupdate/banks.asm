@@ -230,21 +230,7 @@
                     push bc
                     push de
                     ld   b,a
-                    ld   a, OP_IN
-                    call GetBankFileHandle
-                    jr   c, exit_checkcrcbank           ; couldn't open file ...
-
-                    ld   bc, banksize
-                    push bc
-                    ld   de,buffer
-                    push de
-                    ld   hl,0
-                    oz   OS_MV                          ; copy bank file contents into buffer...
-                    pop  hl
-                    pop  bc
-                    push af
-                    oz   GN_Cl                          ; close file
-                    pop  af
+                    call LoadTempBankFile               ; get passive bank B into buffer
                     jr   c, exit_checkcrcbank           ; I/O error when filling buffer!
                                                         ; HL = start of buffer, BC = length of buffer
                     call CrcBuffer                      ; return CRC of buffer digest in DEHL
@@ -275,6 +261,8 @@
 ; the [presvdbanks] array.
 ;
 ; Restoring the banks has only meaning if the sector has been erased.
+; When the passive banks have been restored, the temporary file in :RAM.- are
+; automatically deleted.
 ;
 ; IN:
 ;       None.
@@ -297,29 +285,18 @@
 
                     inc  b
                     dec  b
-                    ret  z                              ; sector banks have been restored
+                    jr   z, deltmpfiles                 ; sector banks have been restored, clean up temp files...
                     dec  b
                     dec  de
                     jr   restorebank_loop
+.deltmpfiles
+                    call DeletePreservedSectorBanks     ; get rid of temporary ":RAM.-/bank.x" files...
+                    ret
 .restorebank
                     push bc
                     push de
                     ld   b,a
-                    ld   a, OP_IN
-                    call GetBankFileHandle
-                    jr   c, exit_restorebanks           ; couldn't open file ...
-
-                    ld   bc, banksize
-                    push bc
-                    ld   de,buffer
-                    push de
-                    ld   hl,0
-                    oz   OS_MV                          ; copy bank file contents into buffer...
-                    pop  hl
-                    pop  bc
-                    push af
-                    oz   GN_Cl                          ; close file
-                    pop  af
+                    call LoadTempBankFile               ; get passive bank B into buffer
                     jr   c, exit_restorebanks           ; I/O error!
 
                     pop  de
@@ -477,8 +454,6 @@
 ; *************************************************************************************
 
 
-
-
 ; *************************************************************************************
 ; Generate preserved bank filename ":RAM.-/bank.<bankno>" and return HL to start
 ; of filename (built in filename buffer). Bank numbers are truncated to 0-3 range.
@@ -533,6 +508,44 @@
                     ld   e,l
                     ld   bc,128                         ; local filename
                     oz   GN_Opf                         ; return file handle in IX (if successfull)
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Load (passive) bank into buffer from temporary RAM file, defined by bank B
+;
+; IN:
+;    B = (absolute) bank number of passive bank file
+;
+; OUT:
+;    Fc = 0,
+;         (buffer contains temp. bank file)
+;         HL = start of buffer
+;         BC = length of buffer
+;    Fc = 1,
+;         file open, I/O error (A = reason code)
+;
+; Registers changed after return:
+;    ......../..IY same
+;    AFBCDEHL/IX.. different
+;
+.LoadTempBankFile
+                    ld   a, OP_IN
+                    call GetBankFileHandle
+                    ret  c                              ; couldn't open file ...
+
+                    ld   bc, banksize
+                    push bc
+                    ld   de,buffer
+                    push de
+                    ld   hl,0
+                    oz   OS_MV                          ; copy bank file contents into buffer...
+                    pop  hl
+                    pop  bc
+                    push af
+                    oz   GN_Cl                          ; close file
+                    pop  af                             ; return I/O error, if any...
                     ret
 ; *************************************************************************************
 
