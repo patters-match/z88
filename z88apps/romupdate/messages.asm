@@ -29,7 +29,7 @@
      ; RomUpdate runtime variables
      include "romupdate.def"
 
-     xdef MsgUpdateCompleted, MsgAddCompleted
+     xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile
      xdef ReportStdError, DispErrMsg
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
@@ -49,7 +49,7 @@
                     call compl_init
                     ld   hl,updated_msg                 ; "updated"
                     oz   GN_Sop
-                    ld   hl,slot_msg                    ; " in slot "
+                    ld   hl,inslot_msg                  ; " in slot "
                     oz   GN_Sop
                     call DispSlotNo
                     call VduEnableNormalJustify
@@ -75,7 +75,7 @@
                     call compl_init
                     ld   hl,added_msg                   ; "added"
                     oz   GN_Sop
-                    ld   hl,slot_msg                    ; " in slot "
+                    ld   hl,toslot_msg                  ; " to slot "
                     oz   GN_Sop
                     call DispSlotNo
                     call VduEnableNormalJustify
@@ -121,7 +121,7 @@
                     call VduToggleBoldTypeface
                     ld   hl,updbnkfile3_msg
                     oz   GN_Sop
-                    ld   hl,slot_msg
+                    ld   hl,inslot_msg
                     oz   GN_Sop
                     call DispSlotNo
                     ld   hl,flash_off
@@ -130,7 +130,36 @@
                     pop  bc
                     ret
 .flash_off          defm 1,"2-F",0
+; *************************************************************************************
 
+
+; *************************************************************************************
+; Display message about the bank (file) that will be added to a particular slot.
+;
+.MsgAddBankFile
+                    push bc
+                    push de
+                    push hl
+                    ld   hl,addbnkfile1_msg
+                    oz   GN_Sop
+                    call DispAppName
+                    ld   hl,updbnkfile2_msg
+                    oz   GN_Sop
+                    call VduToggleBoldTypeface
+                    ld   hl,bankfilename
+                    oz   GN_Sop
+                    call VduToggleBoldTypeface
+                    ld   hl,updbnkfile3_msg
+                    oz   GN_Sop
+                    ld   hl,toslot_msg
+                    oz   GN_Sop
+                    call DispSlotNo
+                    ld   hl,flash_off
+                    oz   GN_Sop
+                    pop  hl
+                    pop  de
+                    pop  bc
+                    ret
 ; *************************************************************************************
 
 
@@ -269,7 +298,7 @@
 .ErrMsgNewBankNotEmpty
                     call DispAppName
                     ld   hl,banknotempty1_msg           ; "<AppName> cannot be added to applications"
-                    ld   hl,slot_msg
+                    ld   hl,inslot_msg
                     oz   GN_Sop
                     call DispSlotNo
                     ld   hl,banknotempty2_msg           ; "Bank below application area is not empty."
@@ -386,7 +415,7 @@
 .ErrMsgNoFlash
                     ld   hl,noflashcard_msg             ; "No Flash Card found"
                     oz   GN_Sop
-                    ld   hl,slot_msg                    ; "in slot "
+                    ld   hl,inslot_msg                  ; "in slot "
                     oz   GN_Sop
                     call DispSlotNo
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
@@ -592,7 +621,8 @@
 
 .ResKey_msg         defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO EXIT ROMUPDATE",1,"4-FTC",1,"2JN",0
 .install_msg        defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO INSTALL APPLICATION WITH SOFT RESET",1,"4-FTC",1,"2JN",0
-.slot_msg           defm " in slot ",0
+.inslot_msg         defm " in slot ",0
+.toslot_msg         defm " to slot ",0
 .completed_msg      defm " was successfully ",0
 .updated_msg        defm "updated", 0
 .added_msg          defm "added", 0
@@ -619,6 +649,7 @@
 .fatal_err_msg      defm 12,"Fatal Error: ",0
 .erasect_err_msg    defm "Sector could not be formatted", $0D, $0A, 0
 .flash_err_msg      defm "(Battery low condition or slot connector card problem).", 0
+.addbnkfile1_msg    defm 1,"FAdding ",0
 .updbnkfile1_msg    defm 1,"FUpdating new version of ", 0
 .updbnkfile2_msg    defm " (from ", 0
 .updbnkfile3_msg    defm " file)", 0

@@ -837,8 +837,6 @@
                     push bc
                     res  7,c
                     res  6,c                 ; use only slot-relative bank numbers in DOR pointers...
-                    res  7,h
-                    res  6,h                 ; use only bank-relative offsets in DOR pointers...
                     call MemWritePointer     ; (BHL,A) = CDE
                     pop  bc                  ; restore C
                     ret

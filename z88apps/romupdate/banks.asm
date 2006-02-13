@@ -573,13 +573,9 @@
                     ret  c                              ; couldn't open file ...
 
                     ld   bc, banksize
-                    push bc
                     ld   de,buffer
-                    push de
                     ld   hl,0
                     oz   OS_MV                          ; copy bank file contents into buffer...
-                    pop  hl
-                    pop  bc
                     push af
                     oz   GN_Cl                          ; close file
                     pop  af                             ; return I/O error, if any...

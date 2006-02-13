@@ -46,7 +46,7 @@
      xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
      xref ErrMsgActiveApps, ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty
      xref MsgUpdateCompleted, MsgAddCompleted, MsgCrcCheckBankFile
-     xref MsgUpdateBankFile, ApplRomLastDor
+     xref MsgUpdateBankFile, MsgAddBankFile, ApplRomLastDor
      xref CheckBankFreeSpace
 
 
@@ -185,16 +185,23 @@ endif
                     ; --------------------------------------------------------------------------------------------------------
                     ; append bank to bottom of application area (file area not available)
                     call GetTotalFreeRam
+                    push de                             ; preserve slot mask (in E)
                     ld   de,67*3
                     sbc  hl,de                          ; make sure that Z88 has 3 * 16K bank file space for temp files in RAM
+                    pop  de
                     jp   c,ErrMsgNoRoom                 ; No, report to user how much file space needs to be reclaimed..
 
                     call GetFreeAppBankNo               ; get absolute free bank no. below application area
                     call IsBankUsed                     ; is bank really empty on card?
                     jp   nz, ErrMsgNewBankNotEmpty
 
+                    ld   (dorbank),a
+                    call MsgAddBankFile                 ; "Adding <Appnam> (from file <filename>) to slot x"
+
                     ld   b,0                            ; (local pointer)
-                    ld   hl,(bankfiledor)               ; get base pointer to DOR in Bank file
+                    ld   hl,(bankfiledor)
+                    ld   de,buffer
+                    add  hl,de                          ; BHL = base pointer to DOR in Bank file (currently loaded in buffer)
                     ld   c,b
                     ld   d,b
                     ld   e,b                            ; CDE = 0 (this is going to be last DOR in application list...)
@@ -210,6 +217,8 @@ endif
                     call CopyBank                       ; copy contents of bank B containing DOR into buffer
                     push bc
                     ld   bc,buffer
+                    res  7,h
+                    res  6,h                            ; pointer to DOR is offset within bank...
                     add  hl,bc
                     ld   b,0                            ; BHL pointer to last DOR now within buffer (in RAM)
                     ld   a,(dorbank)
@@ -753,6 +762,6 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.6.4", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.6.5", 1,"B", 0
 .upddorlist_msg     defm "with updated DOR List", 0
 .cardheader_msg     defm "with card header", 0
