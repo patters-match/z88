@@ -652,7 +652,6 @@ endif
                     ; --------------------------------------------------------------------------------------------------------
 
                     pop  bc
-                    ld   b,a
                     call BlowBufferToBank               ; blow updated bank back to card.
                     pop  hl                             ; display sub-message (explaining what went wrong)
                     jp   c,ErrMsgBlowBank               ; fatal error!
