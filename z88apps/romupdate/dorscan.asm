@@ -837,6 +837,8 @@
                     push bc
                     res  7,c
                     res  6,c                 ; use only slot-relative bank numbers in DOR pointers...
+                    res  7,d
+                    res  6,d                 ; bank offset is always 16K range
                     call MemWritePointer     ; (BHL,A) = CDE
                     pop  bc                  ; restore C
                     ret
@@ -897,7 +899,7 @@
 
 
 ; *************************************************************************************
-; Get a copy of the application card header (64 bytes) to buffer in local
+; Get a copy of the application card header (64 bytes) in slot C to buffer in local
 ; address space memory, using DE register as pointer.
 ;
 ; In:
@@ -907,38 +909,27 @@
 ; Out:
 ;    Fc = 0,
 ;         (DE) contains card header
-;    Fc = 1 (Failure),
-;         A = RC_ONF, Application Eprom not found
 ;
 ; Registers changed after return:
-;    ..BCDEHL/IXIY same
-;    AF....../.... different
+;    ..BCDEHL/IXIY    same
+;    AF....../.... bc different
 ;
 .ApplRomCopyCardHdr
                     push bc
                     push de
                     push hl
 
-                    push bc
-                    call ApplEprType
-                    pop  bc
-                    jr   c, exit_ApplRomCopyCardHdr     ; no Application found ion slot C!
                     ld   a,c
                     and  @00000011                      ; only slots 0, 1, 2 or 3 possible
                     rrca
                     rrca                                ; converted to slot mask $40, $80 or $c0
                     or   $3f                            ; top bank in slot...
                     ld   b,a
-                    ld   c,64
                     ld   hl,$3fc0
-.copy_hdr_loop
-                    xor  a
-                    call MemReadByte
-                    ld   (de),a
-                    inc  de
-                    inc  hl
-                    dec  c
-                    jr   nz, copy_hdr_loop
+                    exx
+                    ld   bc,64
+                    exx
+                    call CopyMemory                     ; copy 64 bytes from BHL to DE...
 .exit_ApplRomCopyCardHdr
                     pop  hl
                     pop  de

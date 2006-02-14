@@ -301,11 +301,8 @@ endif
                     ld   a,c                            ; yes, overwrite header in bank buffer with a copy from top of card
                     rlca
                     rlca
-                    ld   hl,buffer                      ; start of bank (file)
-                    ld   bc,$3fc0
-                    add  hl,bc
-                    ex   de,hl                          ; DE points to header in bank buffer
                     ld   c,a                            ; copy card header from slot C (derived from DOR bank no)
+                    ld   de,buffer+$3fc0                ; destination pointer to card header in buffer (of bank file)
                     call ApplRomCopyCardHdr
                     ; --------------------------------------------------------------------------------------------------------
 .update_bankfile
