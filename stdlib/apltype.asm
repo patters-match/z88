@@ -18,7 +18,7 @@
 ;***************************************************************************************************
 
      LIB MemAbsPtr
-     LIB MemReadByte, MemWriteByte
+     LIB MemReadByte, MemReadWord, MemWriteByte
 
      include "error.def"
      include "memory.def"
@@ -206,15 +206,10 @@
                     PUSH AF
 
                     LD   A,$FE
-                    CALL MemReadByte
-                    LD   D,A                 ; 'O'
-                    LD   A,$FF
-                    CALL MemReadByte
-                    LD   E,A                 ; 'Z'
+                    CALL MemReadWord
 
-                    CP   A
                     PUSH HL
-                    LD   HL,$4F5A
+                    LD   HL,$5A4F
                     SBC  HL,DE               ; 'OZ' ?
                     POP  HL
 
