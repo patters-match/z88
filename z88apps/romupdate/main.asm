@@ -26,8 +26,8 @@
      include "romupdate.def"
 
      lib MemDefBank, SafeBHLSegment, RamDevFreeSpace
-     lib FlashEprBlockErase, FlashEprCardId
-     lib CreateWindow, FileEprRequest, ApplEprType
+     lib FlashEprBlockErase, FlashEprCardId, FlashEprReduceFileArea
+     lib CreateWindow, FileEprRequest, FileEprFreeSpace, ApplEprType
 
      xdef app_main, GetSlotNo, GetSectorNo
      xdef suicide, GetTotalFreeRam
@@ -44,7 +44,7 @@
      xref ApplSetTopicsPtr, ApplSetCommandsPtr, ApplSetHelpPtr, ApplSetTokenbasePtr
      xref ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks
      xref ErrMsgCrcCheckPresvBanks, ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgAppDorNotFound
-     xref ErrMsgActiveApps, ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty
+     xref ErrMsgActiveApps, ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea
      xref MsgUpdateCompleted, MsgAddCompleted, MsgCrcCheckBankFile
      xref MsgUpdateBankFile, MsgAddBankFile, ApplRomLastDor
      xref CheckBankFreeSpace
@@ -100,14 +100,14 @@ else
                     oz   GN_Sop                         ; just display the program version in BBC BASIC
                     oz   GN_Nln
 endif
-                    ld   a,3                            ; make sure that no active application exists before running RomUpdate
-.poll_slot_apps
-                    or   a
-                    jr   z, read_cfgfile                ; all external slots scanned with no active applications
-                    oz   DC_Pol
-                    jp   nz, ErrMsgActiveApps           ; active applications were found in external slot, RomUpdate will exit...
-                    dec  a
-                    jr   poll_slot_apps
+;                    ld   a,3                            ; make sure that no active application exists before running RomUpdate
+;.poll_slot_apps
+;                    or   a
+;                    jr   z, read_cfgfile                ; all external slots scanned with no active applications
+;                    oz   DC_Pol
+;                    jp   nz, ErrMsgActiveApps           ; active applications were found in external slot, RomUpdate will exit...
+;                    dec  a
+;                    jr   poll_slot_apps
 
 .read_cfgfile
                     call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file (exit app if failure...)
@@ -169,16 +169,33 @@ endif
                     jr   c, check_freeappbank           ; either flash card is empty or there is no room for file area below apps area
                     jr   add_new_app                    ; if there's room for a new file area, then we can add an app bank too..
 .check_filearea
+                    ld   a,b
+                    ld   (dorbank),a                    ; register bank for found file header (used for ErrMsgReduceFileArea)...
+                    push bc
+                    call FileEprFreeSpace               ; return free space of file area in DEBC (DE = most significant word..)
+                    pop  bc
+                    ld   hl,1                           ; the file area must have more than 64K (65536 bytes free), to be shrinked
+                    sbc  hl,de                          ; (64K = $10000)
+                    jr   c, shrink_fa                   ; free space > 64K in file area, it's shrinkable..
+                    jp   nz, try_next_slot              ; free space < 64K, poll next slot...
+.shrink_fa
                     ld   b,1
-                    ;call FlashEprShrinkFileArea         ; try to shrink file area by one sector (64K) to make room for new app bank
-                    jp   suicide                        ; (REMOVE THIS WHEN IMPLEMENTED)
+                    ld   d,c                            ; (preserve slot no)
+                    call FlashEprReduceFileArea         ; try shrink file area by one sector (64K) to make room for new app bank
+                    jp   c,ErrMsgReduceFileArea
+                    ld   c,d                            ; (C = slot no)
+                    call ApplEprType                    ; get exact size of application area in B, card size in C
+                    jr   c, file_card                   ; there was no "OZ" application card header, it was a file card only...
+                    jr   check_newbankroom              ; file area reduced, insert application bank (file) between file & app area in slot C
+.file_card          ld   c,d                            ; (restore slot no in C)
+                    jp   newapp_empty_card              ; add application at top of card (in top sector, just above shrinked file area)
 
 .check_freeappbank
                     cp   RC_ONF
                     jp   z, newapp_empty_card           ; slot contains an 'empty' card, ie. with no Card header, nor File Area header
 .add_new_app                                            ; (RC_ROOM was returned...)
                     call ApplEprType                    ; get exact size of application area in B, card size in C
-                    ld   a,c                            ; there was no room for a file area, maybe there's
+.check_newbankroom  ld   a,c                            ; there was no room for a file area, maybe there's
                     sub  b                              ; room for an application bank appended to application area?
                     jr   z, try_next_slot               ; no, complete card is filled with applications, try next slot...
 

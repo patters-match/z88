@@ -34,7 +34,7 @@
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
-     xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty
+     xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
 
      xref suicide, GetSlotNo, GetSectorNo
@@ -409,6 +409,26 @@
 
 
 ; *************************************************************************************
+; Display error message when a fatal error occurred during shrinking of file area.
+;
+.ErrMsgReduceFileArea
+                    ld   hl,fatal_err_msg
+                    oz   GN_Sop
+                    ld   hl,reduce_fa1_msg
+                    oz   GN_Sop
+                    ld   hl, inslot_msg
+                    oz   GN_Sop
+                    ld   a,(dorbank)
+                    call GetSlotNo
+                    call DispNumber
+                    ld   hl,reduce_fa2_msg
+                    oz   GN_Sop
+                    ld   hl,flash_err_msg
+                    jr   disp_error_msg
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; This error message is being displayed when the found application in a slot was
 ; available on an UV Eprom.
 ;
@@ -657,6 +677,8 @@
 .updbnk2_err_msg    defm ") failed to be written to sector no. ", 0
 .banknotempty1_msg  defm " cannot be added to applications", 0
 .banknotempty2_msg  defm "Bank below application area is not empty.", 0
+.reduce_fa1_msg     defm "Couldn't shrink file area ", 0
+.reduce_fa2_msg     defm " to make room for new application.", $0D, $0A, 0
 .ram_noroom1_msg    defm 12,"RomUpdate uses approx. ", 0
 .ram_noroom2_msg    defm "K of RAM file space to add/update Application Card.", $0D, $0A
                     defm "Free RAM = ", 0
