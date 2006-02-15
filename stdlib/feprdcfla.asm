@@ -82,7 +82,7 @@
 
                     LD   E,B                      ; (preserve sector number)
                     CALL FlashEprCardId           ; Flash Card available in slot C?
-                    JR   C, reduce_fa_error
+                    JR   C, reduce_fa_error       ; apparently not...
 
                     LD   H,0
                     LD   L,E                      ; total no. of sectors to reduce file area..
@@ -104,21 +104,21 @@
                     RRCA
                     RRCA                          ; bankNo/4
                     AND  @00001111
-                    LD   B,A                      ; (bank no. -> sector no)
+                    LD   B,A                      ; (bank no. -> sector no.)
                     CALL FlashEprBlockErase       ; erase sector B in slot C (containg the file area header)
-                    POP  BC                       ; (restore bank no. of old header, and slot no in C)
-                    POP  HL                       ; total no of sectors to shrink in H
+                    POP  BC                       ; (restore bank no. of old header, and slot no. in C)
+                    POP  HL                       ; total no. of sectors to shrink in H
                     JR   C, reduce_fa_error       ; Ouch, problems with erasing sector!
 
                     SLA  H
                     SLA  H                        ; total sectors to shrink -> banks
                     LD   A,B
-                    SUB  H
+                    SUB  H                        ; (old bank of file header) - (reduced file area in banks) = new bank of header
                     LD   B,A                      ; Absolute bank of new file area header
                     CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
                     JR   C, reduce_fa_error
 
-                    LD   HL,$3FC0                 ; BHL = absolute pointer to "oz" header in slot
+                    LD   HL,$3FC0                 ; return BHL = absolute pointer to new "oz" header in slot C
                     CP   A                        ; Fc = 0, C = Number of 16K banks of File Area
                     POP  DE                       ; ignore old HL
                     POP  DE                       ; ignore old BC
@@ -126,7 +126,7 @@
                     RET
 .reduce_no_room
                     SCF
-                    LD   A, RC_ROOM               ; Files are occupying the the sector(s) that would reduce the file area
+                    LD   A, RC_ROOM               ; Files are occupying the sector(s) that could have reduced the file area
 .reduce_fa_error
                     POP  HL
                     POP  BC
