@@ -61,7 +61,7 @@
 ;    Failure:
 ;         Fc = 1
 ;             A = RC_ONF (File Eprom Card / Area not available; possibly no card in slot)
-;             A = RC_ROOM (File area cannot be )
+;             A = RC_ROOM (File area cannot be reduced - files are located inside reducing sector)
 ;             A = RC_NFE (not a recognized Flash Memory Chip)
 ;             A = RC_BER (error occurred when erasing block/sector)
 ;             A = RC_BWR (couldn't write header to Flash Memory)
