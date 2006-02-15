@@ -93,7 +93,7 @@
                     JR   C, reduce_fa_error       ; unable to get file area info...
                     SBC  HL,DE                    ; the file area must have more than L * 64K (65536 bytes free), to be reduced
                     JR   C, reduce_fa             ; free space > 64K in file area, it's shrinkable..
-                    JP   NZ, reduce_no_room       ; free space < 64K,
+                    JR   NZ, reduce_no_room       ; free space < 64K...
 .reduce_fa
                     PUSH BC                       ; preserve B (no. of sectors to reduce file area)
                     LD   E,C
