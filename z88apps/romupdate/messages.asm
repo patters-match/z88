@@ -420,6 +420,7 @@
                     oz   GN_Sop
                     ld   a,(dorbank)
                     call GetSlotNo
+                    ld   b,0                            ; bc = slot number
                     call DispNumber
                     ld   hl,reduce_fa2_msg
                     oz   GN_Sop
@@ -677,7 +678,7 @@
 .updbnk2_err_msg    defm ") failed to be written to sector no. ", 0
 .banknotempty1_msg  defm " cannot be added to applications", 0
 .banknotempty2_msg  defm "Bank below application area is not empty.", 0
-.reduce_fa1_msg     defm "Couldn't shrink file area ", 0
+.reduce_fa1_msg     defm "Couldn't shrink file area", 0
 .reduce_fa2_msg     defm " to make room for new application.", $0D, $0A, 0
 .ram_noroom1_msg    defm 12,"RomUpdate uses approx. ", 0
 .ram_noroom2_msg    defm "K of RAM file space to add/update Application Card.", $0D, $0A

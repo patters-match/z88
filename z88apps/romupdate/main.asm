@@ -100,14 +100,6 @@ else
                     oz   GN_Sop                         ; just display the program version in BBC BASIC
                     oz   GN_Nln
 endif
-;                    ld   a,3                            ; make sure that no active application exists before running RomUpdate
-;.poll_slot_apps
-;                    or   a
-;                    jr   z, read_cfgfile                ; all external slots scanned with no active applications
-;                    oz   DC_Pol
-;                    jp   nz, ErrMsgActiveApps           ; active applications were found in external slot, RomUpdate will exit...
-;                    dec  a
-;                    jr   poll_slot_apps
 
 .read_cfgfile
                     call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file (exit app if failure...)
@@ -156,6 +148,10 @@ endif
                     jp   nz, check_next_flash           ; no Flash Card recognized in slot C
                     jp   c, check_next_flash            ; Flash Card cannot be updated in slot C (Intel Flash not in slot 3)!
 
+                    ld   a,c
+                    oz   DC_Pol                         ; check that no applications are running on the flash card, before updating it
+                    jp   nz, ErrMsgActiveApps           ; active apps were found - RomUpdate will exit...
+
                     ; current slot has Flash Card write support, try to add application...
                     ld   a,c
                     rrca
@@ -171,11 +167,13 @@ endif
 .check_filearea
                     ld   a,b
                     ld   (dorbank),a                    ; register bank for found file header (used for ErrMsgReduceFileArea)...
+                    push de                             ; (preserve slot mask)
                     push bc
                     call FileEprFreeSpace               ; return free space of file area in DEBC (DE = most significant word..)
                     pop  bc
                     ld   hl,1                           ; the file area must have more than 64K (65536 bytes free), to be shrinked
                     sbc  hl,de                          ; (64K = $10000)
+                    pop  de                             ; (slot mask restored)
                     jr   c, shrink_fa                   ; free space > 64K in file area, it's shrinkable..
                     jp   nz, try_next_slot              ; free space < 64K, poll next slot...
 .shrink_fa
@@ -208,7 +206,7 @@ endif
                     pop  de
                     jp   c,ErrMsgNoRoom                 ; No, report to user how much file space needs to be reclaimed..
 
-                    call GetFreeAppBankNo               ; get absolute free bank no. below application area
+                    call GetFreeAppBankNo               ; get free bank no. below app area (using slot mask in E, and app area size in B)
                     call IsBankUsed                     ; is bank really empty on card?
                     jp   nz, ErrMsgNewBankNotEmpty
 
@@ -292,7 +290,13 @@ endif
                     ; --------------------------------------------------------------------------------------------------------
                     ; Application was found in slot C, try to update it..
                     call StoreDorInfo                   ; save found DOR information in memory variables
+
                     call CheckFlashWriteSupport         ; update application only if flash card in slot C has write/erase support
+
+                    ld   a,c
+                    oz   DC_Pol                         ; check that no applications are running on the flash card, before updating it
+                    jp   nz, ErrMsgActiveApps           ; active apps were found - RomUpdate will exit...
+
                     call MsgUpdateBankFile              ; display progress message for updating the new version of the application bank
 
                     ; --------------------------------------------------------------------------------------------------------
