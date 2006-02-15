@@ -593,10 +593,11 @@
 ;    (buffer) = bank
 ;
 ; Registers changed after return:
-;    ..BCDEHL/IXIY    same
-;    AF....../.... bc different
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
 ;
 .CopyBank
+                    push bc
                     push de
                     push hl
 
@@ -609,6 +610,7 @@
 
                     pop  hl
                     pop  de
+                    pop  bc
                     ret
 ; *************************************************************************************
 
@@ -625,23 +627,34 @@
 ; Out:
 ;
 ; Registers changed after return:
-;    ..BC..../IXIY    same
-;    AF..DEHL/.... bc different
+;    ......../IXIY same
+;    AFBCDEHL/.... different
 ;
 .CopyMemory
-                    xor  a
-                    call MemReadByte
-                    ld   (de),a              ; (BHL++) -> (DE++)
-                    inc  de
-                    inc  hl
-
+                    inc  b
+                    dec  b
+                    jr   z, copymem          ; copy local address space memory...
+if POPDOWN
+                    set  7,h
+                    res  6,h                 ; for RomUpdate popdown version, force bank offset to use segment 2
+                    ld   c,MS_S2             ; (RomUpdate popdown code is running in segment 3)
+else
+                    set  7,h
+                    set  6,h                 ; for RomUpdate BBC BASIC version, force bank offset to use segment 3
+                    ld   c,MS_S3             ; (RomUpdate BBC BASIC code is running in segment 0 & 1)
+endif
+                    call MemDefBank          ; get bank into address space
+                    push bc
+                    call copymem
+                    pop  bc
+                    jp   MemDefBank
+.copymem
                     exx
-                    dec  bc
-                    ld   a,b
-                    or   c
+                    push bc
                     exx
-                    ret  z
-                    jr   CopyMemory
+                    pop  bc
+                    ldir                     ; (BHL++) -> (DE++)
+                    ret
 ; *************************************************************************************
 
 
