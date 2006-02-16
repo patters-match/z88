@@ -71,13 +71,13 @@ Module AboutFlashStore
 
 .catalog_banner
 .flashstore_banner
-                    DEFM "FLASHSTORE V1.8.1", 0
+                    DEFM "FLASHSTORE V1.8.2", 0
 
 .copyrightmsg
                     DEFM 1, "2JC"
                     DEFM "Development: G.Strube (gbs@users.sf.net) & T.Peycru (pek@users.sf.net)", 13, 10
                     DEFM "User Interface & testing: V.Gerhardi (vic@rakewell.com)", 13, 10
-                    DEFM "(C) Copyright T.Peycru, & G.Strube, 1997-2005. All rights reserved"
+                    DEFM "(C) Copyright T.Peycru, & G.Strube, 1997-2006. All rights reserved"
                     DEFM 1, "2JN"
                     DEFM 1,"3@",32+9,32+4, "This software is released as Open Source (GPL licence)."
                     DEFM 1,"3@",32+9,32+5, "Get latest news, updates for FlashStore and other Z88"
