@@ -265,7 +265,7 @@ Module FileAreaFormat
                     jr   z, end_chckflsupp   ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
                     ld   a,$01
                     cp   h                   ; Intel flash chip in slot 0,1 or 2?
-                    jr   z, end_chckflsupp   ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
+                    jr   z, end_chckflsupp   ; No, we found an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
                     cp   a                   ; (Fz=1, indicate that Flash is available..)
                     scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
 .end_chckflsupp

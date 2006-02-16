@@ -210,11 +210,18 @@ Module SelectCard
 .flashcard_detected
                     ld   a,b
                     ld   (free),a                 ; size of Flash Card in 16K banks
-                    ld   a,0
+                    ld   a,8                      ; display flash label
                     jr   nc, flash_writeable
-                    set  2,a
+                    set  2,a                      ; Intel flash in slot 1 or 2 (display padlock)
 .flash_writeable
+                    ld   de, amdlogo
+                    ld   hl, flashid+1
+                    ld   h,(hl)
+                    dec  h
                     ld   hl, flashdev
+                    jr   z, dispc                 ; flash card ID was Amd
+                    ld   de, intellogo            ; flash card ID was Intel
+.dispc
                     call DisplayCard
                     dec  c
                     inc  b
@@ -284,6 +291,7 @@ Module SelectCard
 ; IN
 ;    A = box draw args (padlock etc)
 ;    HL = label ("FLASH", "EPROM", "RAM")
+;    DE = pointer to Flash Card label (if A.3 is set)
 ;    (free) = size of card in 16K banks
 ; OUT
 ;    BC = (Y,X) of start of displayed label
@@ -480,8 +488,8 @@ Module SelectCard
 
 
 ; *************************************************************************************
-.SelectDefaultSlot                              ; select the first available Card File Area
-                    ld   hl, availslots+3		; beginning from slot 3, towards slot 1...
+.SelectDefaultSlot                           ; select the first available Card File Area
+                    ld   hl, availslots+3    ; beginning from slot 3, towards slot 1...
                     ld   b,3
                     xor  a
 .sel_slot_loop
@@ -504,7 +512,9 @@ Module SelectCard
 ;     A = BIT 0: draw card box in grey colour
 ;     A = BIT 1: draw only outline (not the card label line)
 ;     A = BIT 2: draw Padlock on left bottom edge.
-;    BC = (Y,X)
+;     A = BIT 3: draw 'AMD' or 'INTEL' label on left top edge.
+;     BC = (Y,X)
+;     DE = pointer to Flash Card label ('AMD' or 'INTEL')
 ;
 .DrawCardBox
                     PUSH BC
@@ -522,6 +532,19 @@ Module SelectCard
                     CALL VduCursor      ; set VDU Cursor at (Y,X)
                     LD   HL,cardtop     ; draw top edge of card box
                     CALL_OZ GN_Sop
+
+                    POP  AF
+                    PUSH AF
+                    BIT  3,A            ; display Flash card label?
+                    JR   Z, draw_sides
+                    INC  C
+                    INC  C
+                    CALL VduCursor      ; set VDU Cursor at (Y,X+1)
+                    EX   DE,HL
+                    CALL_OZ GN_Sop
+                    DEC  C
+                    DEC  C
+.draw_sides
                     INC  B              ; Y++
                     CALL DrawCardSides
                     INC  B              ; Y++
@@ -656,6 +679,78 @@ Module SelectCard
                     defm 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*E", 1, "2*L" ; Bottom right corner
                     defb 0
 .cardside           DEFM 1, "2*J", 0
+
+.amdlogo            DEFB 1, 138, '=', 'R'
+                    DEFB @10000000
+                    DEFB @10011111
+                    DEFB @10011001
+                    DEFB @10010110
+                    DEFB @10010000
+                    DEFB @10010110
+                    DEFB @10011111
+                    DEFB @10000000
+                    DEFM 1, "2?R"
+                    DEFB 1, 138, '=', 'S'
+                    DEFB @10000000
+                    DEFB @10111111
+                    DEFB @10100001
+                    DEFB @10101101
+                    DEFB @10101101
+                    DEFB @10101101
+                    DEFB @10111111
+                    DEFB @10000000
+                    DEFM 1, "2?S"
+                    DEFB 1, 138, '=', 'T'
+                    DEFB @10000000
+                    DEFB @10111110
+                    DEFB @10000110
+                    DEFB @10011010
+                    DEFB @10011010
+                    DEFB @10000110
+                    DEFB @10111110
+                    DEFB @10000000
+                    DEFM 1, "2?T", 0
+
+.intellogo          DEFB 1, 138, '=', 'U'
+                    DEFB @10000000
+                    DEFB @10011111
+                    DEFB @10010001
+                    DEFB @10011011
+                    DEFB @10011011
+                    DEFB @10010001
+                    DEFB @10011111
+                    DEFB @10000000
+                    DEFM 1, "2?U"
+                    DEFB 1, 138, '=', 'V'
+                    DEFB @10000000
+                    DEFB @10111111
+                    DEFB @10011010
+                    DEFB @10001011
+                    DEFB @10010011
+                    DEFB @10011011
+                    DEFB @10111111
+                    DEFB @10000000
+                    DEFM 1, "2?V"
+                    DEFB 1, 138, '=', 'W'
+                    DEFB @10000000
+                    DEFB @10111111
+                    DEFB @10001000
+                    DEFB @10011011
+                    DEFB @10011011
+                    DEFB @10011000
+                    DEFB @10111111
+                    DEFB @10000000
+                    DEFM 1, "2?W"
+                    DEFB 1, 138, '=', 'X'
+                    DEFB @10000000
+                    DEFB @10111110
+                    DEFB @10101110
+                    DEFB @10101110
+                    DEFB @10101110
+                    DEFB @10100010
+                    DEFB @10111110
+                    DEFB @10000000
+                    DEFM 1, "2?X", 0
 
 .padlock            DEFM 1, 138, '=', 'Z'
                     DEFM @10001100
