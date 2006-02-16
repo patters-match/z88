@@ -340,7 +340,7 @@ Module SelectCard
 ; *************************************************************************************
 ;
 .UserMenu
-.menu_loop     CALL DisplMenuBar
+.menu_loop     CALL ShowMenuBar
                CALL rdch
                CALL RemoveMenuBar
                LD   HL, curslot
@@ -388,6 +388,7 @@ Module SelectCard
 
 
 ; *************************************************************************************
+; HL = MenuBar ON/OFF VDU
 ;
 .DisplMenuBar  PUSH AF
                PUSH BC
@@ -402,9 +403,8 @@ Module SelectCard
                ADD  A,6                           ; display menu bar at bottom line of card box
                LD   B,A
                CALL VduCursor
-               LD   HL,MenuBarOn                  ; now display menu bar at cursor
+               POP  HL                            ; now display menu bar at cursor
                CALL_OZ(Gn_Sop)
-               POP  HL
                POP  BC
                POP  AF
                RET
@@ -413,22 +413,20 @@ Module SelectCard
 
 ; *************************************************************************************
 ;
-.RemoveMenuBar PUSH AF
-               PUSH HL
-               LD   HL,SelectMenuWindow
-               CALL_OZ(Gn_Sop)
-               CALL SlotCardBoxCoord
-               LD   A,C
-               ADD  A,9
-               LD   C,A                           ; display menu bar at (Y,6) of card box
-               LD   A,B
-               ADD  A,6                           ; display menu bar at bottom line of card box
-               LD   B,A
-               CALL VduCursor
-               LD   HL,MenuBarOff                 ; now display menu bar at cursor
-               CALL_OZ(Gn_Sop)
+.ShowMenuBar   PUSH HL
+               LD   HL,MenuBarOn
+               CALL DisplMenuBar
                POP  HL
-               POP  AF
+               RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+.RemoveMenuBar PUSH HL
+               LD   HL,MenuBarOff
+               CALL DisplMenuBar
+               POP  HL
                RET
 ; *************************************************************************************
 
