@@ -693,23 +693,33 @@ Module SelectCard
                     DEFB 1, 138, '=', 'S'
                     DEFB @10000000
                     DEFB @10111111
-                    DEFB @10100001
-                    DEFB @10101101
-                    DEFB @10101101
-                    DEFB @10101101
+                    DEFB @10100100
+                    DEFB @10101010
+                    DEFB @10101110
+                    DEFB @10101110
                     DEFB @10111111
                     DEFB @10000000
                     DEFM 1, "2?S"
                     DEFB 1, 138, '=', 'T'
                     DEFB @10000000
-                    DEFB @10111110
-                    DEFB @10000110
-                    DEFB @10011010
-                    DEFB @10011010
-                    DEFB @10000110
-                    DEFB @10111110
+                    DEFB @10111111
+                    DEFB @10100011
+                    DEFB @10101101
+                    DEFB @10101101
+                    DEFB @10100011
+                    DEFB @10111111
                     DEFB @10000000
-                    DEFM 1, "2?T", 0
+                    DEFM 1, "2?T"
+                    DEFB 1, 138, '=', 'U'
+                    DEFB @10000000
+                    DEFB @10000000
+                    DEFB @10000000
+                    DEFB @10011111
+                    DEFB @10000000
+                    DEFB @10000000
+                    DEFB @10000000
+                    DEFB @10000000
+                    DEFM 1, "2?U", 0
 
 .intellogo          DEFB 1, 138, '=', 'U'
                     DEFB @10000000
