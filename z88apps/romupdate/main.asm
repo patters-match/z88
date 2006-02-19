@@ -160,13 +160,28 @@ endif
                     ld   e,a                            ; slot mask in E for absolute bank no. calculation
                     push bc
                     call FileEprRequest                 ; check if File Area (and application area) is available in slot C
-                    pop  bc                             ; (preserve slot no. in C)
-                    jr   z, check_filearea              ; file area exists, check if it can be shrinked to make room for new application
+                    jr   z, check_filearea              ; file area exists, check if it is is necessary to be shrinked to make room for new app
                     jr   c, check_freeappbank           ; either flash card is empty or there is no room for file area below apps area
+                    pop  bc
                     jr   add_new_app                    ; if there's room for a new file area, then we can add an app bank too..
 .check_filearea
                     ld   a,b
+                    pop  bc                             ; (slot no. restored in C)
                     ld   (dorbank),a                    ; register bank for found file header (used for ErrMsgReduceFileArea)...
+                    ld   d,a                            ; are there free banks between app area and the file ara?
+                    ld   l,c
+                    call ApplEprType
+                    jr   c, check_fa_free_space         ; file card only, try to shrink...
+                    ld   c,l                            ; restore slot no. in C
+                    ld   a,$3f
+                    sub  b                              ; a = new relative (possible) empty bank
+                    res  7,d
+                    res  6,d                            ; relative bank of top of file area
+                    cp   d
+                    jr   nz, exec_add_appbank           ; empty bank above file area... application bank can be added...
+.check_fa_free_space
+                    ; --------------------------------------------------------------------------------------------------------
+                    ; no empty banks between app area and file area (or file card only). Shrink file area (if possible), then add app...
                     push de                             ; (preserve slot mask)
                     push bc
                     call FileEprFreeSpace               ; return free space of file area in DEBC (DE = most significant word..)
@@ -189,6 +204,7 @@ endif
                     jp   newapp_empty_card              ; add application at top of card (in top sector, just above shrinked file area)
 
 .check_freeappbank
+                    pop  bc                             ; (restore slot no. in C)
                     cp   RC_ONF
                     jp   z, newapp_empty_card           ; slot contains an 'empty' card, ie. with no Card header, nor File Area header
 .add_new_app                                            ; (RC_ROOM was returned...)
@@ -196,9 +212,9 @@ endif
 .check_newbankroom  ld   a,c                            ; there was no room for a file area, maybe there's
                     sub  b                              ; room for an application bank appended to application area?
                     jr   z, try_next_slot               ; no, complete card is filled with applications, try next slot...
-
+.exec_add_appbank
                     ; --------------------------------------------------------------------------------------------------------
-                    ; append bank to bottom of application area (file area not available)
+                    ; append bank to bottom of application area (file area not available, or free banks between app & file area)
                     call GetTotalFreeRam
                     push de                             ; preserve slot mask (in E)
                     ld   de,67*3
@@ -333,6 +349,7 @@ endif
                     call UpdateSector
                     jp   MsgUpdateCompleted             ; display completed message then leave by KILL request...
 ; *************************************************************************************
+
 
 
 ; *************************************************************************************
