@@ -29,13 +29,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -50,6 +53,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
@@ -158,6 +162,8 @@ public class Slots extends JPanel {
 
 	private MouseAdapter externSlotPopupMenuListener[];
 	
+	private ImageIcon emptySlotIcon;
+	
 	public Slots() {
 		super();
 		blink = Z88.getInstance().getBlink();
@@ -174,6 +180,7 @@ public class Slots extends JPanel {
 		externSlotPopupMenuListener = new MouseAdapter[4];
 		
 		setBackground(Color.BLACK);
+		emptySlotIcon = getEmptySlotIcon();
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(getSlot0Panel());
@@ -182,6 +189,21 @@ public class Slots extends JPanel {
 		add(getSlot3Panel());
 	}
 
+	/**
+	 * Create an Icon (black space) for empty slots 
+	 * @return
+	 */
+	private ImageIcon getEmptySlotIcon() {
+		int[] matrix = new int[135 * 16]; // default black 
+		for (int p=0; p<matrix.length; p++) matrix[p] = 0xff000000;
+		
+		BufferedImage image = new BufferedImage(135, 16, BufferedImage.TYPE_4BYTE_ABGR);
+		image.setRGB(0, 0, 135, 16, matrix, 0, 135);
+		
+		// make the new screen frame visible in the GUI.
+		return new ImageIcon(image);
+	}
+	
 	/**
 	 * Update the button caption text, reflecting the contents of all slots (0 -
 	 * 3).
@@ -201,15 +223,10 @@ public class Slots extends JPanel {
 	 */
 	public void refreshSlotInfo(int slotNo) {
 		String slotText = null;
-		Color foregroundColor = Color.BLACK; // default empty slot colours
-		Color backgroundColor = Color.LIGHT_GRAY;
 		slotNo &= 3;
 
 		int slotType = SlotInfo.getInstance().getCardType(slotNo);
 		switch (slotType) {
-		case SlotInfo.EmptySlot:
-			slotText = "Empty";
-			break;
 		case SlotInfo.AmdFlashCard:
 			slotText = "AMD FLASH";
 			break;
@@ -229,31 +246,49 @@ public class Slots extends JPanel {
 
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
-				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
+				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;	
 			}
 		}
 
 		switch (slotNo) {
 		case 0:
 			getRom0Button().setText(
-					(memory.getInternalRomSize() * 16) + "K ROM ");
+					(" " + memory.getInternalRomSize() * 16) + "K ROM ");
 			getRam0Button().setText(
-					(memory.getInternalRamSize() * 16) + "K RAM");
+					(" " + memory.getInternalRamSize() * 16) + "K RAM");
 			break;
 		case 1:
-			getSlot1Button().setText(slotText);
-			getSlot1Button().setForeground(foregroundColor);
-			getSlot1Button().setBackground(backgroundColor);
+			if (slotType == SlotInfo.EmptySlot) {
+				getSlot1Button().setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+				getSlot1Button().setIcon(emptySlotIcon);
+				getSlot1Button().setText(null);
+			} else {
+				getSlot1Button().setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+				getSlot1Button().setIcon(null);
+				getSlot1Button().setText(" " + slotText);
+			}
 			break;
 		case 2:
-			getSlot2Button().setText(slotText);
-			getSlot2Button().setForeground(foregroundColor);
-			getSlot2Button().setBackground(backgroundColor);
+			if (slotType == SlotInfo.EmptySlot) {
+				getSlot2Button().setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+				getSlot2Button().setIcon(emptySlotIcon);
+				getSlot2Button().setText(null);
+			} else {
+				getSlot2Button().setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+				getSlot2Button().setIcon(null);
+				getSlot2Button().setText(" " + slotText);
+			}
 			break;
 		case 3:
-			getSlot3Button().setText(slotText);
-			getSlot3Button().setForeground(foregroundColor);
-			getSlot3Button().setBackground(backgroundColor);
+			if (slotType == SlotInfo.EmptySlot) {
+				getSlot3Button().setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+				getSlot3Button().setIcon(emptySlotIcon);
+				getSlot3Button().setText(null);
+			} else {
+				getSlot3Button().setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
+				getSlot3Button().setIcon(null);
+				getSlot3Button().setText(" " + slotText);
+			}
 			break;
 		}
 	}
@@ -320,13 +355,13 @@ public class Slots extends JPanel {
 	private JButton getRom0Button() {
 		if (rom0Button == null) {
 			rom0Button = new JButton();
-			rom0Button.setPreferredSize(new Dimension(87, 20));
+			rom0Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			rom0Button.setMaximumSize(new Dimension(87, 20));
 			rom0Button.setHorizontalAlignment(SwingConstants.LEFT);
 			rom0Button.setFont(buttonFont);
 			rom0Button.setForeground(Color.BLACK);
 			rom0Button.setBackground(Color.LIGHT_GRAY);
-			rom0Button.setMargin(new Insets(2, 4, 2, 4));
+			rom0Button.setMargin(new Insets(2, 2, 2, 2));
 			
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -380,13 +415,13 @@ public class Slots extends JPanel {
 	private JButton getRam0Button() {
 		if (ram0Button == null) {
 			ram0Button = new JButton();
-			ram0Button.setPreferredSize(new Dimension(87, 20));
+			ram0Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			ram0Button.setMaximumSize(new Dimension(87, 20));
 			ram0Button.setHorizontalAlignment(SwingConstants.LEFT);
 			ram0Button.setFont(buttonFont);
 			ram0Button.setForeground(Color.BLACK);
 			ram0Button.setBackground(Color.LIGHT_GRAY);
-			ram0Button.setMargin(new Insets(2, 4, 2, 4));
+			ram0Button.setMargin(new Insets(2, 2, 2, 2));
 
 			ram0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -422,14 +457,17 @@ public class Slots extends JPanel {
 		return ram0Button;
 	}
 
+	
 	private JButton getSlot1Button() {
 		if (slot1Button == null) {
 			slot1Button = new JButton();
 			slot1Button.setHorizontalAlignment(SwingConstants.LEFT);
-			slot1Button.setPreferredSize(new Dimension(139, 20));
+			slot1Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			slot1Button.setMaximumSize(new Dimension(139, 20));
 			slot1Button.setFont(buttonFont);
-			slot1Button.setMargin(new Insets(2, 4, 2, 4));
+			slot1Button.setMargin(new Insets(2, 2, 2, 2));
+			slot1Button.setForeground(Color.BLACK);
+			slot1Button.setBackground(Color.LIGHT_GRAY);
 			
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[1] = addPopup(slot1Button, new CardPopupMenu(1));
@@ -457,10 +495,12 @@ public class Slots extends JPanel {
 		if (slot2Button == null) {
 			slot2Button = new JButton();
 			slot2Button.setHorizontalAlignment(SwingConstants.LEFT);
-			slot2Button.setPreferredSize(new Dimension(139, 20));
+			slot2Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			slot2Button.setMaximumSize(new Dimension(139, 20));
 			slot2Button.setFont(buttonFont);
-			slot2Button.setMargin(new Insets(2, 4, 2, 4));
+			slot2Button.setMargin(new Insets(2, 2, 2, 2));
+			slot2Button.setForeground(Color.BLACK);
+			slot2Button.setBackground(Color.LIGHT_GRAY);
 
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[2] = addPopup(slot2Button, new CardPopupMenu(2));
@@ -487,10 +527,12 @@ public class Slots extends JPanel {
 		if (slot3Button == null) {
 			slot3Button = new JButton();
 			slot3Button.setHorizontalAlignment(SwingConstants.LEFT);
-			slot3Button.setPreferredSize(new Dimension(139, 20));
+			slot3Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));			
 			slot3Button.setMaximumSize(new Dimension(139, 20));
 			slot3Button.setFont(buttonFont);
-			slot3Button.setMargin(new Insets(2, 4, 2, 4));
+			slot3Button.setMargin(new Insets(2, 2, 2, 2));
+			slot3Button.setForeground(Color.BLACK);
+			slot3Button.setBackground(Color.LIGHT_GRAY);
 
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[3] = addPopup(slot3Button, new CardPopupMenu(3));
