@@ -709,13 +709,7 @@ public class Gui extends JFrame {
 			loadSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					boolean resumeExecution;
-					
-					try {
-						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch(Exception e1) {
-						  System.out.println("Error setting native LAF: " + e1);
-					}
-					
+										
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
 					chooser.setDialogTitle("Load/resume Z88 state");
@@ -767,13 +761,7 @@ public class Gui extends JFrame {
 							Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
 						}
 					}
-					
-					try {
-						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					} catch(Exception e2) {
-						  System.out.println("Error setting cross platform LAF: " + e2);
-					}					
-					
+										
 					// the LAF changes sometimes affect the gui, 
 					// redraw the slots panel and all is nice again...
 					getSlotsPanel().repaint();
@@ -794,12 +782,6 @@ public class Gui extends JFrame {
 			createSnapshotMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					boolean autorun;
-
-					try {
-						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch(Exception e1) {
-						  System.out.println("Error setting native LAF: " + e1);
-					}
 					
 					SaveRestoreVM srVM = new SaveRestoreVM();  
 					JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
@@ -826,12 +808,6 @@ public class Gui extends JFrame {
 						} catch (IOException e1) {
 							displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
 						}						
-					}					
-
-					try {
-						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					} catch(Exception e2) {
-						  System.out.println("Error setting cross platform LAF: " + e2);
 					}					
 					
 					// the LAF changes sometimes affect the gui, 

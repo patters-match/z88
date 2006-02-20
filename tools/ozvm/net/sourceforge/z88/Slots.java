@@ -201,8 +201,8 @@ public class Slots extends JPanel {
 	 */
 	public void refreshSlotInfo(int slotNo) {
 		String slotText = null;
-		Color foregroundColor = Color.WHITE; // default empty slot colours
-		Color backgroundColor = Color.BLACK;
+		Color foregroundColor = Color.BLACK; // default empty slot colours
+		Color backgroundColor = Color.LIGHT_GRAY;
 		slotNo &= 3;
 
 		int slotType = SlotInfo.getInstance().getCardType(slotNo);
@@ -230,8 +230,6 @@ public class Slots extends JPanel {
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
 				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
-				foregroundColor = Color.BLACK;
-				backgroundColor = Color.LIGHT_GRAY;
 			}
 		}
 
@@ -333,12 +331,6 @@ public class Slots extends JPanel {
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					blink.signalFlapOpened();
-
-					try {
-						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch(Exception e1) {
-						  System.out.println(e1.getMessage());
-					}
 					
 					if (JOptionPane
 							.showConfirmDialog(Slots.this, installRomMsg, "Replace OZ operating system ROM", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -375,16 +367,6 @@ public class Slots extends JPanel {
 						// User aborted...
 						blink.signalFlapClosed();
 					}
-
-					try {
-						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					} catch(Exception e2) {
-						  System.out.println(e2.getMessage());
-					}					
-
-					// the LAF changes sometimes affect the gui, 
-					// redraw the slots panel and all is nice again...
-					Slots.this.repaint();
 					
 					refreshSlotInfo(0);
 					Z88.getInstance().getDisplay().grabFocus();
@@ -409,12 +391,6 @@ public class Slots extends JPanel {
 			ram0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					blink.signalFlapOpened();
-
-					try {
-						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch(Exception e1) {
-						  System.out.println(e1.getMessage());
-					}
 					
 					if (JOptionPane							
 							.showConfirmDialog(Slots.this, installRamMsg, "Replace internal RAM memory", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -436,17 +412,7 @@ public class Slots extends JPanel {
 						// User aborted...
 						blink.signalFlapClosed();
 					}
-
-					try {
-						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					} catch(Exception e2) {
-						  System.out.println(e2.getMessage());
-					}					
-					
-					// the LAF changes sometimes affect the gui, 
-					// redraw the slots panel and all is nice again...
-					Slots.this.repaint();
-					
+										
 					refreshSlotInfo(0);
 					Z88.getInstance().getDisplay().grabFocus();
 				}
@@ -470,11 +436,6 @@ public class Slots extends JPanel {
 			
 			slot1Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
-						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch(Exception e1) {
-						  System.out.println(e1.getMessage());
-					}
 					
 					if (SlotInfo.getInstance().getCardType(1) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
@@ -484,17 +445,7 @@ public class Slots extends JPanel {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 1);
-					}	
-					
-					try {
-						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					} catch(Exception e2) {
-						  System.out.println(e2.getMessage());
-					}					
-
-					// the LAF changes sometimes affect the gui, 
-					// redraw the slots panel and all is nice again...
-					Slots.this.repaint(); 					
+					}						
 				}
 			});
 		}
@@ -516,12 +467,6 @@ public class Slots extends JPanel {
 			
 			slot2Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
-						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch(Exception e1) {
-						  System.out.println(e1.getMessage());
-					}
-					
 					if (SlotInfo.getInstance().getCardType(2) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
@@ -530,17 +475,7 @@ public class Slots extends JPanel {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 2);
-					}
-					
-					try {
-						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					} catch(Exception e2) {
-						  System.out.println(e2.getMessage());
-					}
-
-					// the LAF changes sometimes affect the gui, 
-					// redraw the slots panel and all is nice again...
-					Slots.this.repaint(); 					
+					}					
 				}
 			});
 		}
@@ -562,11 +497,6 @@ public class Slots extends JPanel {
 
 			slot3Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
-						  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch(Exception e1) {
-						  System.out.println(e1.getMessage());
-					}
 					
 					if (SlotInfo.getInstance().getCardType(3) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
@@ -577,16 +507,6 @@ public class Slots extends JPanel {
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 3);
 					}
-					
-					try {
-						  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					} catch(Exception e2) {
-						  System.out.println(e2.getMessage());
-					}					
-					
-					// the LAF changes sometimes affect the gui, 
-					// redraw the slots panel and all is nice again...
-					Slots.this.repaint(); 
 				}
 			});
 		}
@@ -1448,11 +1368,6 @@ public class Slots extends JPanel {
 				exportFilesMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						try {
-							try {
-								  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-							} catch(Exception e1) {
-								  System.out.println(e1.getMessage());
-							}
 							
 							// get a list of filenames and display it in a JList widget
 							// which the user can select from...
@@ -1509,16 +1424,7 @@ public class Slots extends JPanel {
 									expFilesMsg + " in slot " + cardSlotNo + 
 									" to filing system", JOptionPane.ERROR_MESSAGE);
 						}
-
-						try {
-							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-						} catch(Exception e2) {
-							  System.out.println(e2.getMessage());
-						}					
 						
-						// the LAF changes sometimes affect the gui, 
-						// redraw the slots panel and all is nice again...
-						Slots.this.repaint(); 						
 					}
 				});					
 			}
@@ -1534,12 +1440,6 @@ public class Slots extends JPanel {
 				importFilesMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						File selectedFiles[] = null;
-
-						try {
-							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-						} catch(Exception e1) {
-							  System.out.println(e1.getMessage());
-						}
 						
 						try {							
 							JFileChooser chooser = new JFileChooser(currentFilesDir);
@@ -1574,16 +1474,6 @@ public class Slots extends JPanel {
 							impFilesMsg + " in slot " + cardSlotNo, 
 							JOptionPane.ERROR_MESSAGE);
 						}
-						
-						try {
-							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-						} catch(Exception e2) {
-							  System.out.println(e2.getMessage());
-						}					
-						
-						// the LAF changes sometimes affect the gui, 
-						// redraw the slots panel and all is nice again...
-						Slots.this.repaint(); 						
 					}
 				});									
 			}
@@ -1597,11 +1487,6 @@ public class Slots extends JPanel {
 				formatFileAreaMenuItem.setText(formatFileAreaMsg);
 				formatFileAreaMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {						
-						try {
-							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-						} catch(Exception e1) {
-							  System.out.println(e1.getMessage());
-						}
 
 						if (JOptionPane.showConfirmDialog(Slots.this, "Format file area?\nWarning: All files will be lost.",
 								formatFileAreaMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -1616,16 +1501,6 @@ public class Slots extends JPanel {
 										formatFileAreaMsg + " in slot " + cardSlotNo, 
 										JOptionPane.ERROR_MESSAGE);
 						}
-					
-						try {
-							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-						} catch(Exception e2) {
-							  System.out.println(e2.getMessage());
-						}					
-						
-						// the LAF changes sometimes affect the gui, 
-						// redraw the slots panel and all is nice again...
-						Slots.this.repaint(); 											
 					}
 				});
 			}
@@ -1639,11 +1514,6 @@ public class Slots extends JPanel {
 				reclaimDelSpaceMenuItem.setText(reclaimDelSpaceMsg);
 				reclaimDelSpaceMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {					
-						try {
-							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-						} catch(Exception e1) {
-							  System.out.println(e1.getMessage());
-						}
 
 						if (JOptionPane.showConfirmDialog(Slots.this, "Reclaim deleted file space?",
 								reclaimDelSpaceMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -1658,17 +1528,7 @@ public class Slots extends JPanel {
 							} catch (FileAreaNotFoundException e1) {
 								// this exception is never called..
 							}
-						}
-					
-						try {
-							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-						} catch(Exception e2) {
-							  System.out.println(e2.getMessage());
-						}					
-						
-						// the LAF changes sometimes affect the gui, 
-						// redraw the slots panel and all is nice again...
-						Slots.this.repaint(); 											
+						}						
 					}
 				});
 			}
@@ -1682,11 +1542,6 @@ public class Slots extends JPanel {
 				markFileDeletedMenuItem.setText(markFileDeletedMsg);
 				markFileDeletedMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {					
-						try {
-							  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-						} catch(Exception e1) {
-							  System.out.println(e1.getMessage());
-						}
 
 						try {
 							// get a list of filenames and display it in a JList widget
@@ -1724,17 +1579,7 @@ public class Slots extends JPanel {
 							
 						} catch (FileAreaNotFoundException e1) {
 							// this exception is never called..
-						}						
-					
-						try {
-							  UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-						} catch(Exception e2) {
-							System.out.println(e2.getMessage());
-						}					
-						
-						// the LAF changes sometimes affect the gui, 
-						// redraw the slots panel and all is nice again...
-						Slots.this.repaint(); 											
+						}																	
 					}
 				});
 			}
@@ -1743,7 +1588,6 @@ public class Slots extends JPanel {
 		}
 
 
-				
 		/**
 		 * If the card contains a file area,
 		 * a popup menu is displayed at the position x,y in 

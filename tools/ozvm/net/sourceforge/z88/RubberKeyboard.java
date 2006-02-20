@@ -1907,6 +1907,7 @@ public class RubberKeyboard extends JPanel {
 			spaceKeyButton.setBackground(Color.BLACK);
 			spaceKeyButton.setBounds(168, 174, 303, 32);
 			spaceKeyButton.setMargin(new Insets(2, 22, 2, 10));
+			spaceKeyButton.setIcon((ImageIcon) kbStdIcons.get("space"));
 			spaceKeyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 			spaceKeyButton.addMouseListener(new MouseListener() {
@@ -2061,6 +2062,7 @@ public class RubberKeyboard extends JPanel {
 		kbStdIcons.put("arrowdwn", new ImageIcon(c.getResource(path + "arrowdwn.gif")));
 		kbStdIcons.put("arrowrgt", new ImageIcon(c.getResource(path + "arrowrgt.gif")));
 		kbStdIcons.put("arrowlft", new ImageIcon(c.getResource(path + "arrowlft.gif")));
+		kbStdIcons.put("space", new ImageIcon(c.getResource(path + "space.gif")));
 		kbStdIcons.put("q", new ImageIcon(c.getResource(path + "q.gif")));
 		kbStdIcons.put("w", new ImageIcon(c.getResource(path + "w.gif")));
 		kbStdIcons.put("e", new ImageIcon(c.getResource(path + "e.gif")));
