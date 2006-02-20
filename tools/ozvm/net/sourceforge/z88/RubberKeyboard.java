@@ -1445,8 +1445,10 @@ public class RubberKeyboard extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					if (leftShiftKeyButton.isSelected() == true) {
 						keyboard.pressZ88key(0x06, 0xBF);
+						leftShiftKeyButton.setIcon((ImageIcon) kbStdIcons.get("shift_pressed"));
 					} else {
 						keyboard.releaseZ88key(0x06, 0xBF);
+						leftShiftKeyButton.setIcon((ImageIcon) kbStdIcons.get("shift"));
 					}
 					display.grabFocus();
 				}
@@ -1747,8 +1749,10 @@ public class RubberKeyboard extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					if (rightShiftKeyButton.isSelected() == true) {
 						keyboard.pressZ88key(0x07, 0x7F);
+						rightShiftKeyButton.setIcon((ImageIcon) kbStdIcons.get("shift_pressed"));
 					} else {
 						keyboard.releaseZ88key(0x07, 0x7F);
+						rightShiftKeyButton.setIcon((ImageIcon) kbStdIcons.get("shift"));
 					}
 					display.grabFocus();
 				}
@@ -2053,6 +2057,7 @@ public class RubberKeyboard extends JPanel {
 		kbStdIcons.put("enter", new ImageIcon(c.getResource(path + "enter.gif")));
 		kbStdIcons.put("diamond", new ImageIcon(c.getResource(path + "diamond.gif")));
 		kbStdIcons.put("shift", new ImageIcon(c.getResource(path + "shift.gif")));
+		kbStdIcons.put("shift_pressed", new ImageIcon(c.getResource(path + "shift_pressed.gif")));
 		kbStdIcons.put("index", new ImageIcon(c.getResource(path + "index.gif")));
 		kbStdIcons.put("menu", new ImageIcon(c.getResource(path + "menu.gif")));
 		kbStdIcons.put("help", new ImageIcon(c.getResource(path + "help.gif")));
