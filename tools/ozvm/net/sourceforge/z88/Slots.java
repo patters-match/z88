@@ -591,11 +591,20 @@ public class Slots extends JPanel {
 			getAppAreaLabel().setEnabled(false);
 			getBrowseFilesButton().setEnabled(false);
 			getBrowseAppsButton().setEnabled(false);			
-		} else {
-			// for all other slots, default select a (Flash) Eprom
+		}
+		if (slotNo == 2) {
+			// default select an 1Mb Amd Flash Card 
 			getCardSizeComboBox().setModel(amdFlashSizes);
 			getCardTypeComboBox().setSelectedIndex(3); // default AMD Flash card
 			getCardSizeComboBox().setSelectedIndex(2); // default 1024K size			
+
+			insertCardDialogAccessibility(true);
+		}
+		if (slotNo == 3) {
+			// default select an Intel 1mb Flash Card 
+			getCardSizeComboBox().setModel(intelFlashSizes);
+			getCardTypeComboBox().setSelectedIndex(2); // default Intel Flash card
+			getCardSizeComboBox().setSelectedIndex(1); // default 1024K size			
 
 			insertCardDialogAccessibility(true);
 		}
