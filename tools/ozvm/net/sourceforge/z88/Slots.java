@@ -881,73 +881,71 @@ public class Slots extends JPanel {
 	}
 	
 	private JPanel getNewCardPanel() {
-		if (newCardPanel == null) {
-			newCardPanel = new JPanel();
-			newCardPanel.setLayout(new GridBagLayout());
-			newCardPanel.setBorder(new TitledBorder(new EtchedBorder(
-					EtchedBorder.LOWERED), "Create Card",
-					TitledBorder.DEFAULT_JUSTIFICATION,
-					TitledBorder.DEFAULT_POSITION, null, null));
+		newCardPanel = new JPanel();
+		newCardPanel.setLayout(new GridBagLayout());
+		newCardPanel.setBorder(new TitledBorder(new EtchedBorder(
+				EtchedBorder.LOWERED), "Create Card",
+				TitledBorder.DEFAULT_JUSTIFICATION,
+				TitledBorder.DEFAULT_POSITION, null, null));
 
-			final GridBagConstraints gridBagConstraints = new GridBagConstraints();
-			gridBagConstraints.insets = new Insets(0, 0, 0, 20);
-			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints.gridy = 0;
-			gridBagConstraints.gridx = 0;
-			newCardPanel.add(getCardTypeLabel(), gridBagConstraints);
+		final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+		gridBagConstraints.insets = new Insets(0, 0, 0, 20);
+		gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints.gridy = 0;
+		gridBagConstraints.gridx = 0;
+		newCardPanel.add(getCardTypeLabel(), gridBagConstraints);
 
-			final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
-			gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_1.gridy = 0;
-			gridBagConstraints_1.gridx = 1;
-			newCardPanel.add(getCardTypeComboBox(), gridBagConstraints_1);
+		final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
+		gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_1.gridy = 0;
+		gridBagConstraints_1.gridx = 1;
+		newCardPanel.add(getCardTypeComboBox(), gridBagConstraints_1);
 
-			final GridBagConstraints gridBagConstraints_2 = new GridBagConstraints();
-			gridBagConstraints_2.insets = new Insets(0, 10, 0, 20);
-			gridBagConstraints_2.gridy = 0;
-			gridBagConstraints_2.gridx = 2;
-			newCardPanel.add(getCardSizeLabel(), gridBagConstraints_2);
+		final GridBagConstraints gridBagConstraints_2 = new GridBagConstraints();
+		gridBagConstraints_2.insets = new Insets(0, 10, 0, 20);
+		gridBagConstraints_2.gridy = 0;
+		gridBagConstraints_2.gridx = 2;
+		newCardPanel.add(getCardSizeLabel(), gridBagConstraints_2);
 
-			final GridBagConstraints gridBagConstraints_3 = new GridBagConstraints();
-			gridBagConstraints_3.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_3.gridy = 0;
-			gridBagConstraints_3.gridx = 3;
-			newCardPanel.add(getCardSizeComboBox(), gridBagConstraints_3);
+		final GridBagConstraints gridBagConstraints_3 = new GridBagConstraints();
+		gridBagConstraints_3.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_3.gridy = 0;
+		gridBagConstraints_3.gridx = 3;
+		newCardPanel.add(getCardSizeComboBox(), gridBagConstraints_3);
 
-			final GridBagConstraints gridBagConstraints_6 = new GridBagConstraints();
-			gridBagConstraints_6.gridwidth = 3;
-			gridBagConstraints_6.insets = new Insets(0, 0, 0, 20);
-			gridBagConstraints_6.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_6.gridy = 1;
-			gridBagConstraints_6.gridx = 0;
-			newCardPanel.add(getAppAreaLabel(), gridBagConstraints_6);
+		final GridBagConstraints gridBagConstraints_6 = new GridBagConstraints();
+		gridBagConstraints_6.gridwidth = 3;
+		gridBagConstraints_6.insets = new Insets(0, 0, 0, 20);
+		gridBagConstraints_6.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_6.gridy = 1;
+		gridBagConstraints_6.gridx = 0;
+		newCardPanel.add(getAppAreaLabel(), gridBagConstraints_6);
 
-			final GridBagConstraints gridBagConstraints_7 = new GridBagConstraints();
-			gridBagConstraints_7.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_7.gridy = 1;
-			gridBagConstraints_7.gridx = 3;
-			newCardPanel.add(getBrowseAppsButton(), gridBagConstraints_7);
+		final GridBagConstraints gridBagConstraints_7 = new GridBagConstraints();
+		gridBagConstraints_7.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_7.gridy = 1;
+		gridBagConstraints_7.gridx = 3;
+		newCardPanel.add(getBrowseAppsButton(), gridBagConstraints_7);
 
-			final GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
-			gridBagConstraints_4.gridwidth = 3;
-			gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_4.gridy = 2;
-			gridBagConstraints_4.gridx = 0;
-			newCardPanel.add(getFileAreaCheckBox(), gridBagConstraints_4);
+		final GridBagConstraints gridBagConstraints_4 = new GridBagConstraints();
+		gridBagConstraints_4.gridwidth = 3;
+		gridBagConstraints_4.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_4.gridy = 2;
+		gridBagConstraints_4.gridx = 0;
+		newCardPanel.add(getFileAreaCheckBox(), gridBagConstraints_4);
 
-			final GridBagConstraints gridBagConstraints_5 = new GridBagConstraints();
-			gridBagConstraints_5.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_5.gridy = 2;
-			gridBagConstraints_5.gridx = 3;
-			newCardPanel.add(getBrowseFilesButton(), gridBagConstraints_5);
+		final GridBagConstraints gridBagConstraints_5 = new GridBagConstraints();
+		gridBagConstraints_5.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_5.gridy = 2;
+		gridBagConstraints_5.gridx = 3;
+		newCardPanel.add(getBrowseFilesButton(), gridBagConstraints_5);
 
-			final GridBagConstraints gridBagConstraints_8 = new GridBagConstraints();
-			gridBagConstraints_8.gridwidth = 4;
-			gridBagConstraints_8.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints_8.gridy = 4;
-			gridBagConstraints_8.gridx = 0;
-			newCardPanel.add(getReInsertCardCopyCheckBox(), gridBagConstraints_8);						
-		}
+		final GridBagConstraints gridBagConstraints_8 = new GridBagConstraints();
+		gridBagConstraints_8.gridwidth = 4;
+		gridBagConstraints_8.fill = GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_8.gridy = 4;
+		gridBagConstraints_8.gridx = 0;
+		newCardPanel.add(getReInsertCardCopyCheckBox(), gridBagConstraints_8);						
 
 		return newCardPanel;
 	}
