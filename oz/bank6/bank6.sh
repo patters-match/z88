@@ -27,10 +27,10 @@
 COMPILE_ERROR=0
 
 ../../tools/mpm/mpm -b -I../sysdef panelped.asm
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -I../sysdef b6dors.asm
 fi

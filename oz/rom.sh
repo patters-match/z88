@@ -56,7 +56,7 @@ echo compiling bank 1
 cd bank1
 . bank1.sh $ozlocale
 cd ..
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   cat bank1/*.err
   echo Script aborted.
   exit 1
@@ -65,7 +65,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling kernel banks 0 and 7
 . kernel.sh $ozlocale
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   cat bank0/*.err
   cat bank7/*.err
   echo Script aborted.
@@ -77,7 +77,7 @@ echo compiling bank 2
 cd bank2
 . bank2.sh
 cd ..
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   cat bank2/*.err
   echo Script aborted.
   exit 1
@@ -88,7 +88,7 @@ echo compiling bank 3
 cd bank3
 . bank3.sh $ozlocale
 cd ..
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   cat bank3/*.err
   echo Script aborted.
   exit 1
@@ -99,7 +99,7 @@ echo compiling bank 6
 cd bank6
 . bank6.sh
 cd ..
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   cat bank6/*.err
   echo Script aborted.
   exit 1

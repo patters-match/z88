@@ -27,52 +27,52 @@
 COMPILE_ERROR=0
 
 ../../tools/mpm/mpm -b -I../sysdef rs232.asm
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -I../sysdef indexdc.asm
 fi
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -I../sysdef fpp.asm
 fi
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -I../sysdef rs232.asm
 fi
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -I../sysdef terminal.asm
 fi
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -bg -I../sysdef pedtrtbl.asm
 fi
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -I../sysdef filer.asm
 fi
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-if test "$COMPILE_ERROR" = 0; then
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -bg -I../sysdef b2dors.asm
 fi
