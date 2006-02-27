@@ -21,6 +21,6 @@
 # this is actually to be run as a BBC BASIC program on the Z88
 rm -f *.obj *.bin romupdate.bas *.map
 ../../tools/mpm/mpm -b -oromupdate.bas -DBBCBASIC -I../../oz/sysdef -l../../stdlib/standard.lib @romupdate.bbcbasic.prj
-if test "`find . -name '*.err' | wc -l`" != 0; then
+if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
 fi
