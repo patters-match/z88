@@ -103,7 +103,7 @@ Module SelectCard
 
                     push hl
                     ld   a, 64 | '3'
-                    ld   bc, $004E
+                    ld   bc, $004C
                     ld   de, $080F
                     call CreateWindow
                     ld   hl, selectdevhelp
@@ -680,7 +680,7 @@ Module SelectCard
                     defb 0
 .cardside           DEFM 1, "2*J", 0
 
-.amdlogo            DEFB 1, 138, '=', 'R'
+.amdlogo            DEFB 1, 138, '=', 'J'
                     DEFB @10000000
                     DEFB @10011111
                     DEFB @10011001
@@ -689,8 +689,8 @@ Module SelectCard
                     DEFB @10010110
                     DEFB @10011111
                     DEFB @10000000
-                    DEFM 1, "2?R"
-                    DEFB 1, 138, '=', 'S'
+                    DEFM 1, "2?J"
+                    DEFB 1, 138, '=', 'K'
                     DEFB @10000000
                     DEFB @10111111
                     DEFB @10100100
@@ -699,8 +699,8 @@ Module SelectCard
                     DEFB @10101110
                     DEFB @10111111
                     DEFB @10000000
-                    DEFM 1, "2?S"
-                    DEFB 1, 138, '=', 'T'
+                    DEFM 1, "2?K"
+                    DEFB 1, 138, '=', 'L'
                     DEFB @10000000
                     DEFB @10111111
                     DEFB @10100011
@@ -709,8 +709,8 @@ Module SelectCard
                     DEFB @10100011
                     DEFB @10111111
                     DEFB @10000000
-                    DEFM 1, "2?T"
-                    DEFB 1, 138, '=', 'U'
+                    DEFM 1, "2?L"
+                    DEFB 1, 138, '=', 'M'
                     DEFB @10000000
                     DEFB @10000000
                     DEFB @10000000
@@ -719,9 +719,9 @@ Module SelectCard
                     DEFB @10000000
                     DEFB @10000000
                     DEFB @10000000
-                    DEFM 1, "2?U", 0
+                    DEFM 1, "2?M", 0
 
-.intellogo          DEFB 1, 138, '=', 'U'
+.intellogo          DEFB 1, 138, '=', 'N'
                     DEFB @10000000
                     DEFB @10011111
                     DEFB @10010001
@@ -730,8 +730,8 @@ Module SelectCard
                     DEFB @10010001
                     DEFB @10011111
                     DEFB @10000000
-                    DEFM 1, "2?U"
-                    DEFB 1, 138, '=', 'V'
+                    DEFM 1, "2?N"
+                    DEFB 1, 138, '=', 'O'
                     DEFB @10000000
                     DEFB @10111111
                     DEFB @10011010
@@ -740,8 +740,8 @@ Module SelectCard
                     DEFB @10011011
                     DEFB @10111111
                     DEFB @10000000
-                    DEFM 1, "2?V"
-                    DEFB 1, 138, '=', 'W'
+                    DEFM 1, "2?O"
+                    DEFB 1, 138, '=', 'P'
                     DEFB @10000000
                     DEFB @10111111
                     DEFB @10001000
@@ -750,8 +750,8 @@ Module SelectCard
                     DEFB @10011000
                     DEFB @10111111
                     DEFB @10000000
-                    DEFM 1, "2?W"
-                    DEFB 1, 138, '=', 'X'
+                    DEFM 1, "2?P"
+                    DEFB 1, 138, '=', 'Q'
                     DEFB @10000000
                     DEFB @10111110
                     DEFB @10101110
@@ -760,7 +760,7 @@ Module SelectCard
                     DEFB @10100010
                     DEFB @10111110
                     DEFB @10000000
-                    DEFM 1, "2?X", 0
+                    DEFM 1, "2?Q", 0
 
 .padlock            DEFM 1, 138, '=', 'Z'
                     DEFM @10001100
