@@ -27,11 +27,11 @@
 
 # compile the java classes of the project
 echo compiling java classes
-javac -nowarn -g:none com/imagero/util/*.java
-javac -nowarn -g:none net/sourceforge/z88/datastructures/*.java
-javac -nowarn -g:none net/sourceforge/z88/filecard/*.java
-javac -nowarn -g:none net/sourceforge/z88/screen/*.java
-javac -nowarn -g:none net/sourceforge/z88/*.java
+javac -nowarn -g:none -source 1.4 -target 1.4 com/imagero/util/*.java
+javac -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/datastructures/*.java
+javac -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/filecard/*.java
+javac -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/screen/*.java
+javac -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/*.java
 
 # create a temporary dir for files to be included in the executable JAR file
 mkdir ../ozvm-builddir
