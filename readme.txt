@@ -237,5 +237,41 @@ your operating system platform. For example, to compile FlashStore:
 
 
 ----------------------------------------------------------------------
+Compiling Z88 Emulator, OZvm
+----------------------------------------------------------------------
+
+You can use the Z88 emulated machine, OZvm, to run the Z88 applications
+available in /z88apps, and even work at processor single step level to
+debug the Z88 applications and OZ rom (located in /oz).
+
+OZvm is a Java application and needs the Java environment installed.
+Please refer to above sections for getting java installed and especially
+the java compiler, javac.
+
+To get OZvm compiled into an executable program on your operating system,
+execute the makejar script:
+
+    cd <z88 project>/tools/ozvm
+    makejar.bat (or ./makejar.sh)
+
+This will create the z88.jar executable Java file. Run OZvm with
+
+    java -jar z88.jar
+
+There's an extra feature for Windows users which enables you to create
+an EXE program (a Java JAR file wrapper). You need to install Launch4J
+(http://launch4j.sourceforge.net/), and edit your PATH environment
+variable to include the <launch4j install directory>. Once you have
+compiled the OZvm and produced a z88.jar file, change directory to
+
+    cd <z88 project>\tools\ozvm\launch4j
+    exewrapper.bat
+
+this will create an z88.exe file in the parent directory where the
+z88.jar file is located.
+
+
+
+----------------------------------------------------------------------
 Last edited: $Id$
 ----------------------------------------------------------------------
