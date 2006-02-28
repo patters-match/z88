@@ -19,10 +19,10 @@ Basic requirements
 ----------------------------------------------------------------------
 
 The cross platform tools, scripts and other Z88 software to be compiled
-into executable form supports Linux/Mac OSX/Unix and the Windows
+into executable form supports Linux/Mac OS X/Unix and the Windows
 operating systems.
 
-The first requirement is to to checkout the Subversion trunk (main
+The first requirement is to checkout the Subversion trunk (main
 development or HEAD in CVS terms) you need to have a Subversion client
 installed on your preferred operating system. Please refer to the
 documentation on Sourceforge (http://sourceforge.net/svn/?group_id=69038),
@@ -52,7 +52,7 @@ Java V1.4 (or newer) is bundled by default on Mac OS X.
 
 There's an extra feature for Windows users which enables you to create
 an EXE program out of an executable Jar (it is a Java JAR file wrapper).
-OZvm, the emulator, gives you the option to also make an EXE program.
+OZvm - the Z88 emulator, gives you the option to also make an EXE program.
 If you want to do the EXE thing, then install the Launch4J software
 which you can get from http://launch4j.sourceforge.net.
 
@@ -87,17 +87,17 @@ will get the following directory structure with lots of files in it:
      /userguide     Z88 User Guide (4th edition, in progress)
 
 /oz                 Z88 ROM, OZ V4.1 (in development)
-     /sysdef        OZ system manifests, used by Z88 asm sources
-     /bankX         the 128K ROM organisation
+     /sysdef        OZ system manifests, used by Z88 assembler sources
+     /bankX         The 128K ROM organisation
 
 /stdlib             Standard library routines for Z88 applications
 
 /tools              Developer tools for asm development, Z88 emulator
-     /dzasm         Reverse engineer Z80 binaries into asm source
+     /dzasm         Reverse engineer Z80 binaries into assembler source
      /fontbitmap    Generate asm source for ROM fonts & token table
      /makeapp       Binary loader to make Z88 ROM & Application Cards
      /mpm           Z80/Z88 Cross Module Assembler & Linker
-     /ozvm          Z88 Emulator & Debugger
+     /ozvm          Z88 Virtual Machine & Debugger
 
 /wsapps             Generic workstation Z88 related applications
      z88transfer    EazyLink Client by Sergio Costas (requires Python)
@@ -131,7 +131,7 @@ and Mac OS X. For every program seen in the above directory structure one
 or several scripts have been provided. All scripts for Windows are named
 with a .bat filename extension. All scripts for Unix platforms uses the
 .sh filename extension; Bash scripting has been chosen as the common
-standard and should be working on most Unixes today. They general rule
+standard and should be working on most Unixes today. The general rule
 for all scripts is to change to the current directory of the script and
 then execute it from there, ie. in Windows, type
 
@@ -144,7 +144,7 @@ or in a Unix operating system, type
     ./makelib.sh
 
 All base filenames of the scripts are the same, only the extension
-differs, depending on which platform it is determined to be executed in.
+differs, depending on which platform it is determined to be executed on.
 
 
 
@@ -243,14 +243,14 @@ your operating system platform. For example, to compile FlashStore:
 
 
 ----------------------------------------------------------------------
-Compiling Z88 Emulator, OZvm
+Compiling Z88 Virtual Machine, OZvm
 ----------------------------------------------------------------------
 
 You can use the Z88 emulated machine, OZvm, to run the Z88 applications
 available in /z88apps, and even work at processor single step level to
 debug the Z88 applications and OZ rom (located in /oz).
 
-OZvm is a Java application and needs the Java environment installed.
+OZvm is a Java application and needs the Java Runtime Environment to run.
 Please refer to above sections for getting java installed and especially
 the java compiler, javac.
 
