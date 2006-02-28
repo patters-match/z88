@@ -50,6 +50,12 @@ operating systems. Alternatively, get a free JDK for Linux from
 Blackdown: http://www.blackdown.org/
 Java V1.4 (or newer) is bundled by default on Mac OS X.
 
+There's an extra feature for Windows users which enables you to create
+an EXE program out of an executable Jar (it is a Java JAR file wrapper).
+OZvm, the emulator, gives you the option to also make an EXE program.
+If you want to do the EXE thing, then install the Launch4J software
+which you can get from http://launch4j.sourceforge.net.
+
 
 
 ----------------------------------------------------------------------
@@ -258,8 +264,8 @@ This will create the z88.jar executable Java file. Run OZvm with
 
     java -jar z88.jar
 
-There's an extra feature for Windows users which enables you to create
-an EXE program (a Java JAR file wrapper). You need to install Launch4J
+Windows users may create an EXE program out of the z88.jar file (a Java
+JAR file wrapper). You need to install Launch4J
 (http://launch4j.sourceforge.net/), and edit your PATH environment
 variable to include the <launch4j install directory>. Once you have
 compiled the OZvm and produced a z88.jar file, change directory to
