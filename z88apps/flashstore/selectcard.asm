@@ -75,9 +75,6 @@ Module SelectCard
                     call SelectFileArea           ; user selects a File Eprom Area in one of the external slots
                     pop  bc
                     jp   c, user_aborted
-                    push af
-                    call z, PollFileCardWatermark ; get watermark from selected slot
-                    pop  af
                     jr   nz, user_aborted
 
                     call FilesAvailable
@@ -270,7 +267,8 @@ Module SelectCard
                     cp   (hl)
                     jr   z, check_empty_flcard    ; user selected apparently void or illegal slot
                     call InitFirstFileBar         ; initialize File Bar cursor for new slot..
-                    cp   a                        ; slot selected successfully
+                    call PollFileCardWatermark    ; auto-poll watermark in file header for selected slot
+                    cp   a                        ; indicate slot was successfully selected
                     ret
 
 .check_empty_flcard

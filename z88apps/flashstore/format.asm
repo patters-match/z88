@@ -115,7 +115,7 @@ Module FileAreaFormat
                     ld   hl,disp_filefmt_ask_msg
                     ld   de,no_msg
                     call yesno
-                    ret  nz
+                    jr   nz, exit_ffa
 
                     call cls
 
@@ -141,6 +141,7 @@ Module FileAreaFormat
                     CALL sopnln
 
                     CALL ResSpace
+.exit_ffa
                     CP   A                        ; Signal success (Fc = 0, Fz = 1)
                     RET
 .formaterr                                        ; current block was not formatted properly...
