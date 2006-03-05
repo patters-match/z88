@@ -115,7 +115,7 @@ Module FileAreaFormat
                     ld   hl,disp_filefmt_ask_msg
                     ld   de,no_msg
                     call yesno
-                    jr   nz, exit_ffa
+                    ret  nz                       ; signal No to caller...
 
                     call cls
 
