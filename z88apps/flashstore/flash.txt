@@ -1,8 +1,8 @@
 *********************************************************************
-              FlashStore Application Version 1.8
+              FlashStore Application Version 1.8.2
 *********************************************************************
 
-User Manual, 3rd. edition, updated 13th September 2005.
+User Manual, 3rd. edition, updated 6th March 2006.
 (revised from 1st edition, Paris, 29 September 1997)
 
 
@@ -487,15 +487,15 @@ Select Card
 
 Selects which file card to use when you have more than one.
 
-This allows multiple Flash cards and EPROMs
-to be read using the same FlashStore application. Highlight the Slot
-number (1, 2 or 3) with the cursor that you wish to use. You may also
-press digits '1', '2' or '3' to select the actual slot. The selected
-device will be displayed at the top of the right-hand window with the
-file information with current information of file data and space left
-on the card.
+This allows multiple Flash cards and EPROMs to be read using the same
+FlashStore application. Highlight the Slot number (1, 2 or 3) with the
+cursor that you wish to use. You may also press digits '1', '2' or '3'
+to select the actual slot. The selected device will be displayed at the
+top of the right-hand window with the file information with current
+information of file data and space left on the card.
 
-The padlock indicates a read-only device.
+The padlock indicates a read-only device. 'AMD' or 'INTEL' labels are
+displayed on top line of each visual card for identified flash chip.
 
 Save to Card
 ------------
