@@ -50,7 +50,7 @@ xdef    PanelDOR
         defb    'H',12                  ; help, sizeof
         defp    PrinterEdTopics,7       ; topics
         defp    PrinterEdCommands,7     ; commands
-        defp    PrEdDOR,7               ; help (no help, point at 0)
+        defp    PrEdDOR,2               ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',PrEdDORe-$PC-1      ; name, length
@@ -75,7 +75,7 @@ xdef    PanelDOR
         defb    'H',12                  ; help, sizeof
         defp    PanelTopics,7           ; topics
         defp    PanelCommands,7         ; commands
-        defp    PanelDOR,7              ; help (no help, point at 0)
+        defp    PanelDOR,2              ; help (no help, point at 0)
         defp    $8000,7                 ; token base
 
         defb    'N',PanelDORe-$PC-1     ; name, length
