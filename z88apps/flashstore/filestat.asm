@@ -98,13 +98,21 @@ Module FileAreaStatistics
                     pop  af
                     ret
 .dispstats
-                    ld   bc,5
+                    ld   bc,9
                     ld   hl, slot_bnr
                     ld   de, buf1
                     ldir
                     ld   a,(curslot)
                     add  a,48
                     ld   (de),a
+                    ld   hl,buf1+3
+                    cp   '1'
+                    jr   nz, check_slot3
+                    ld   (hl),'N'                 ; display "slot 1" left aligned..
+.check_slot3        cp   '3'
+                    jr   nz, slot2_selected
+                    ld   (hl),'R'                 ; display "slot 3" right aligned..
+.slot2_selected                                   ; display "slot 2" center aligned..
                     inc  de
                     xor  a
                     ld   (de),a                   ; null-terminate banner
@@ -569,7 +577,7 @@ Module FileAreaStatistics
 
 .ksize_txt          DEFM "K ",0
 .fepr               DEFM "FILE AREA",1,"2-T",0
-.slot_bnr           DEFM "SLOT ", 0
+.slot_bnr           DEFM 1,"2JC", "SLOT ", 0
 .bfre_msg           DEFM "FREE",0
 .bused_msg          DEFM "USED",0
 .fisa_msg           DEFM " FILES SAVED",0

@@ -100,8 +100,8 @@ Module SelectCard
 
                     push hl
                     ld   a, 64 | '3'
-                    ld   bc, $004C
-                    ld   de, $080F
+                    ld   bc,$004B
+                    ld   de,$0812
                     call CreateWindow
                     ld   hl, selectdevhelp
                     call_oz GN_Sop           ; Display small help text in right side window
@@ -772,11 +772,10 @@ Module SelectCard
                     DEFM " ", 1, "2?Z", " ", 0
 
 .selectdevhelp      DEFM 1,"2JC", 1,"3-SC"
-                    DEFM "Select card", 13, 10
-                    DEFM "with either", 13, 10
-                    DEFM 1,"B1", 1 ,"B ", 1, "B2", 1,"B or ", 1,"B3", 1, "B", 13, 10
-                    DEFM "or", 13, 10
-                    DEFM "move cursor", 13, 10
+                    DEFM "Select card with", 13, 10
+                    DEFM "either ", 1,"B1", 1 ,"B ", 1, "B2", 1,"B or ", 1,"B3", 1, "B", 13, 10
+                    DEFM 13, 10
+                    DEFM "or move cursor", 13, 10
                     DEFM "over the card", 13, 10
                     DEFM 13, 10
                     DEFM 1, SD_ENT, " selects it", 0
