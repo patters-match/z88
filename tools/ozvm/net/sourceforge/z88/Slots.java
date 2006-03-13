@@ -1164,8 +1164,8 @@ public class Slots extends JPanel {
 	}
 
 	/**
-	 *.EPR filter when browsing the filing system for Application or
-	 * File Cards.
+	 *.epr and .0 - .63 extension filter when browsing the filing system  
+	 * for Application or File Cards.
 	 */
 	private class EpromFileFilter extends FileFilter {
 
@@ -1181,8 +1181,17 @@ public class Slots extends JPanel {
 					// the Eprom file was polled successfully.
 					return true;
 				} else {
-					// ignore files that doesn't use the 'epr' extension.
-					return false;
+					try {
+						int bankNo = Integer.parseInt(extension); 
+						if (bankNo >= 0 & bankNo <= 63) 
+							return true;
+						else
+							return false;
+					} catch (Exception n) {
+						// the extension couldn't be evaluated as a number...
+						// (it is not a .0 - .63 extension...)
+						return false;
+					}					
 				}
 			}
 
@@ -1192,7 +1201,7 @@ public class Slots extends JPanel {
 
 		/** The description of this filter */
 		public String getDescription() {
-			return "Z88 Card image files (*.epr)";
+			return "Z88 Card image files";
 		}
 
 		/** Get the extension of a file */
