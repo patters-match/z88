@@ -1,7 +1,7 @@
 :: *************************************************************************************
 :: Launch4J compile script to make a Windows EXE-cutable of the z88.jar (OZvm) file.
 ::
-:: (C) Gunther Strube (gbs@users.sf.net) 2005
+:: (C) Gunther Strube (gbs@users.sf.net) 2005-2006
 ::
 :: OZvm is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -28,6 +28,9 @@
 ::
 :: *************************************************************************************
 
+:: first compile the executable JAR file.
+CALL makejar.bat
+
 :: --------------------------------------------------------------------------
 :: some trickery to get current directory into a variable
 @SET cd=
@@ -42,6 +45,6 @@ FOR %%c IN (CALL DEL) DO %%c %temp%.\setdir.bat
 :: --------------------------------------------------------------------------
 
 :: --------------------------------------------------------------------------
-:: create the EXE wrapper in parent directory (the ozvm directory)
+:: then create the EXE program (wrapping the JAR file)
 launch4jc.exe %cd%\launch4j\launch4j-ozvm.xml
 :: --------------------------------------------------------------------------
