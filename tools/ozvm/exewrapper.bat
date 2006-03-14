@@ -43,5 +43,5 @@ FOR %%c IN (CALL DEL) DO %%c %temp%.\setdir.bat
 
 :: --------------------------------------------------------------------------
 :: create the EXE wrapper in parent directory (the ozvm directory)
-launch4jc.exe %cd%\launch4j-ozvm.xml
+launch4jc.exe %cd%\launch4j\launch4j-ozvm.xml
 :: --------------------------------------------------------------------------
