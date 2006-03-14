@@ -729,21 +729,25 @@ public final class Blink {
 	public int getBlinkKbd(int row) {
 		if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
 			snooze = true;
-							
+			boolean threadSleep = true;
+			
 			while( snooze == true & Z88.getInstance().getProcessor().isZ80running() == true) {
 				try {
 					// The processor is set into snooze mode when INT.KWAIT is enabled 
 					// and the hardware keyboard matrix is scanned.
 					// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
 					// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
-					if (System.currentTimeMillis() % 13 != 0)
-						Thread.sleep(0,100);
-					else
-						Thread.yield();					
+					if (threadSleep == true) {
+						Thread.sleep(0,1);
+						threadSleep = false;
+					} else {
+						Thread.yield();
+						threadSleep = true;
+					}	
 				} catch (InterruptedException e) {
 				}
 			}
-		}
+		}		
 		
 		return Z88.getInstance().getKeyboard().scanKeyRow(row);
 	}
