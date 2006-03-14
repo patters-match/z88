@@ -17,8 +17,7 @@
 ::
 :: ------------------------------------------------------------------------------------
 :: This BAT file automatically creates the EXE wrapper of the z88.jar file,
-:: located in the parent directory. Call this BAT file in the \launch4j directory
-:: (same as the launch4j-ozvm.xml configuration file).
+:: also compiled by this script.
 ::
 :: Before calling this script, add install directory of Launch4Jc.exe to
 :: your PATH environment variable. The "launch4j-ozvm.xml" must be used
@@ -28,7 +27,7 @@
 ::
 :: *************************************************************************************
 
-:: first compile the executable JAR file.
+:: first compile the executable JAR file (can be executed with java -jar z88.jar).
 CALL makejar.bat
 
 :: --------------------------------------------------------------------------
