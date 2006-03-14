@@ -264,17 +264,13 @@ This will create the z88.jar executable Java file. Run OZvm with
 
     java -jar z88.jar
 
-Windows users may create an EXE program out of the z88.jar file (a Java
-JAR file wrapper). You need to install Launch4J
-(http://launch4j.sourceforge.net/), and edit your PATH environment
-variable to include the <launch4j install directory>. Once you have
-compiled the OZvm and produced a z88.jar file, change directory to
+Windows users may create an EXE program (a Java JAR file wrapper).
+You need to install Launch4J (http://launch4j.sourceforge.net/), and
+edit your PATH environment variable to include the <launch4j install
+directory>. The following script both compiles the Jar file and makes a
+z88.exe program:
 
-    cd <z88 project>\tools\ozvm\launch4j
-    exewrapper.bat
-
-this will create an z88.exe file in the parent directory where the
-z88.jar file is located.
+    makeexe.bat
 
 
 
