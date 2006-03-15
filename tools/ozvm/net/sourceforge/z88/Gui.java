@@ -36,7 +36,6 @@ import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.JButton;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
 import java.awt.BorderLayout;
@@ -50,7 +49,6 @@ import java.io.IOException;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ButtonGroup;
 
-import com.imagero.util.ThreadManager;
 import net.sourceforge.z88.screen.Z88display;
 
 /**
@@ -67,20 +65,6 @@ public class Gui extends JFrame {
 		"<tt>http://z88.sf.net</tt>" +
 		"</center></html>";
 
-	/** Default Window mode Gui constructor */
-	public Gui() {
-		super();
-		treadMgr = new ThreadManager();
-		initialize(false);
-	}
-	
-	public Gui(boolean fullScreen) {
-		super();
-		treadMgr = new ThreadManager();
-		initialize(fullScreen);
-	}
-
-	private ThreadManager treadMgr;  
 	private Blink blink; 
 	private boolean fullScreenMode;
 	
@@ -133,6 +117,17 @@ public class Gui extends JFrame {
 	private JCheckBoxMenuItem scr25FpsMenuItem;
 	private JCheckBoxMenuItem scr50FpsMenuItem;
 	private JCheckBoxMenuItem scr100FpsMenuItem;
+
+	/** Default Window mode Gui constructor */
+	public Gui() {
+		super();
+		initialize(false);
+	}
+	
+	public Gui(boolean fullScreen) {
+		super();
+		initialize(fullScreen);
+	}
 	
 	private JPanel getZ88ScreenPanel() {
 		if (z88ScreenPanel == null) {

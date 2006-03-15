@@ -35,7 +35,7 @@ import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
 import net.sourceforge.z88.filecard.FileAreaNotFoundException;
 import net.sourceforge.z88.filecard.FileEntry;
-import net.sourceforge.z88.screen.Z88display;
+
 
 /**
  * The OZvm debug command line.
