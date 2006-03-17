@@ -544,7 +544,7 @@ public class Z88Keyboard {
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_SEMICOLON, 0x06FB);		
 		addKey(keyboardLayout, KeyEvent.VK_M, 0x06FD);		
-		addKey(keyboardLayout, (0x10000 | 'ù'), 0x06FE);		
+		addKey(keyboardLayout, (0x10000 | 0xF9), 0x06FE);	// 'ù'		
 		addKey(keyboardLayout, (0x10000 | '%'), 0x06FE);	// SHIFT 'ù' = '%'
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -723,11 +723,11 @@ public class Z88Keyboard {
 		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Æ       Ø
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_COMMA, 0x06FB);
-		addKey(keyboardLayout, (0x10000 | 'æ'), 0x06FD);
-		addKey(keyboardLayout, (0x10000 | 'Æ'), 0x06FD);
+		addKey(keyboardLayout, (0x10000 | 0xE6), 0x06FD); // 'æ'
+		addKey(keyboardLayout, (0x10000 | 0xC6), 0x06FD); // 'Æ'
 		addKey(keyboardLayout, (0x10000 | 134), 0x06FD); // CTRL æ
-		addKey(keyboardLayout, (0x10000 | 'ø'), 0x06FE);
-		addKey(keyboardLayout, (0x10000 | 'Ø'), 0x06FE);
+		addKey(keyboardLayout, (0x10000 | 0xF8), 0x06FE); // 'ø'
+		addKey(keyboardLayout, (0x10000 | 0xD8), 0x06FE); // 'Ø'
 		addKey(keyboardLayout, (0x10000 | 152), 0x06FE); // CTRL ø
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -737,8 +737,8 @@ public class Z88Keyboard {
 		// -------------------------------------------------------------------------
 		// A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
 		// Single key:
-		addKey(keyboardLayout, (0x10000 | 'å'), 0x057F);
-		addKey(keyboardLayout, (0x10000 | 'Å'), 0x057F);
+		addKey(keyboardLayout, (0x10000 | 0xE5), 0x057F); // 'å'
+		addKey(keyboardLayout, (0x10000 | 0xC5), 0x057F); // 'Å'
 		addKey(keyboardLayout, (0x10000 | 133), 0x057F); // CTRL å
 		
 		addKey(keyboardLayout, KeyEvent.VK_1, 0x05DF);
@@ -911,11 +911,11 @@ public class Z88Keyboard {
 		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Æ       Ø
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_COMMA, 0x06FB);
-		addKey(keyboardLayout, (0x10000 | 'ö'), 0x06FD);
-		addKey(keyboardLayout, (0x10000 | 'Ö'), 0x06FD);
+		addKey(keyboardLayout, (0x10000 | 0xF6), 0x06FD); // 'ö'
+		addKey(keyboardLayout, (0x10000 | 0xD6), 0x06FD); // 'Ö'
 		addKey(keyboardLayout, (0x10000 | 150), 0x06FD); // CTRL ö
-		addKey(keyboardLayout, (0x10000 | 'ä'), 0x06FE);
-		addKey(keyboardLayout, (0x10000 | 'Ä'), 0x06FE);
+		addKey(keyboardLayout, (0x10000 | 0xE4), 0x06FE); // 'ä'
+		addKey(keyboardLayout, (0x10000 | 0xC4), 0x06FE); // 'Ä'
 		addKey(keyboardLayout, (0x10000 | 132), 0x06FE); // CTRL ä
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -925,8 +925,8 @@ public class Z88Keyboard {
 		// -------------------------------------------------------------------------
 		// A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
 		// Single key:
-		addKey(keyboardLayout, (0x10000 | 'å'), 0x057F);
-		addKey(keyboardLayout, (0x10000 | 'Å'), 0x057F);
+		addKey(keyboardLayout, (0x10000 | 0xE5), 0x057F); // 'å'
+		addKey(keyboardLayout, (0x10000 | 0xC5), 0x057F); // 'Å'
 		addKey(keyboardLayout, (0x10000 | 133), 0x057F); // CTRL å
 
 		addKey(keyboardLayout, KeyEvent.VK_1, 0x05DF);
