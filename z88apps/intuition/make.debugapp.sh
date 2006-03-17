@@ -32,5 +32,3 @@ java -jar ../../tools/makeapp/makeapp.jar intuition.63 debugger.bin 0000 romhdr.
 # produce a complete 32K card image for OZvm
 java -jar ../../tools/makeapp/makeapp.jar -sz 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
 
-# execute OZvm and install card, ready to be used after initial hard reset of the virtual Z88
-java -jar ../../tools/ozvm/z88.jar ram0 512 s2 intuition.epr fcd3 128 27C
