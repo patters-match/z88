@@ -27,7 +27,7 @@
 
 # compile the java classes of the project
 echo compiling java classes
-javac -nowarn -g:none net/sourceforge/z88/tools/*.java
+javac -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/tools/*.java
 
 # create a temporary dir for files to be included in the executable JAR file
 mkdir ../makeapp-builddir
