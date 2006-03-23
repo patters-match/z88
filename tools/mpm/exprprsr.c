@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -709,17 +709,17 @@ PopItem (pfixstack_t **stackpointer)
 }
 
 
-static void 
-AddStringToInfixExpr(expression_t *pfixexpr, char *ident) 
+static void
+AddStringToInfixExpr(expression_t *pfixexpr, char *ident)
 {
   strcpy (pfixexpr->infixptr, ident);       /* add identifier to infix expr */
   pfixexpr->infixptr += strlen (ident);     /* point at null terminator */
-  *pfixexpr->infixptr = 0;                  
+  *pfixexpr->infixptr = 0;
 }
 
 
-static void 
-AddCharToInfixExpr(expression_t *pfixexpr, char c) 
+static void
+AddCharToInfixExpr(expression_t *pfixexpr, char c)
 {
  *pfixexpr->infixptr++ = c;                /* add operator, single char to infix expression */
  *pfixexpr->infixptr = 0;                  /* null terminate */
@@ -760,7 +760,7 @@ Factor (expression_t *pfixexpr)
           NewPfixSymbol (pfixexpr, 0, number, ident, SYM_NOTDEFINED);   /* symbol not found */
         }
       AddStringToInfixExpr(pfixexpr, ident);
-      
+
       GetSym ();
       break;
 

@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -174,12 +174,12 @@ SkipLine (FILE *fptr)
 
    return found filename in <filename> array (truncated to 255 chars)
    ---------------------------------------------------------------- */
-void 
+void
 FetchModuleFilename(FILE *projectfile, char *filename)
 {
   int c;
   filename[0] = '\0'; /* preset with null-terminate, in case no filename was found */
-  
+
   for (;;)
     {
       if (feof (projectfile))
@@ -189,7 +189,7 @@ FetchModuleFilename(FILE *projectfile, char *filename)
       else
         {
           c = GetChar (projectfile);
-          switch(c) 
+          switch(c)
           {
                case '\n':
                case '\x1A': /* end of line, get first char on next line */
@@ -199,11 +199,11 @@ FetchModuleFilename(FILE *projectfile, char *filename)
               EOL = OFF; /* always force a line skip in project file */
               SkipLine(projectfile);
               break;
-            
+
             default:
-              if (!isspace (c)) 
+              if (!isspace (c))
                 { /* found a real char as first of a filename... */
-                  ungetc (c, projectfile); /* let Fetchfilename() do the work... */ 
+                  ungetc (c, projectfile); /* let Fetchfilename() do the work... */
                   Fetchfilename (projectfile, filename); /* read file name, then skip to EOL */
                   return;
                 }
@@ -340,7 +340,7 @@ AssembleSourceFile (void)
       if (ERRORS == 0 && WARNINGS == 0 && errfilename != NULL)
         remove (errfilename);   /* remove empty error file */
 
-      if (ERRORS == 0 && WARNINGS > 0 && errfilename != NULL) 
+      if (ERRORS == 0 && WARNINGS > 0 && errfilename != NULL)
         {
           wrnfilename = AddFileExtension(errfilename, wrnext);
           if (wrnfilename != NULL)
@@ -981,7 +981,7 @@ static void
 WriteSymbolTable (char *msg, avltree_t * root)
 {
   fseek (listfile, 0, SEEK_END); /* get to the end of the listing file */
-  
+
   LINENO = PAGELEN+1;
   LineCounter();                   /* top of new page */
 
@@ -1093,16 +1093,16 @@ AddFileExtension(const char *oldfilename, const char *extension)
   if ((newfilename = AllocIdentifier (strlen (oldfilename) + strlen(extension) + 1)) != NULL)
     {
       strcpy (newfilename, oldfilename);
- 
+
       /* scan filename backwards and find extension, but before a pathname separator */
       for (b=strlen(newfilename)-1; b>=0; b--) {
           if (newfilename[b] == '\\' || newfilename[b] == '/') pathsepCount++; /* Ups, we've scanned past the short filename */
-          
+
           if (newfilename[b] == '.' && pathsepCount == 0) {
                break; /* we found an extension before a path separator! */
           }
       }
- 
+
       if (b > 0)
         strcpy ( (newfilename+b), extension); /* replace old extension with new */
       else

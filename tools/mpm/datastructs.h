@@ -8,7 +8,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -45,7 +45,7 @@ enum symbols        { space, bin_and, dquote, squote, semicolon, comma, fullstop
                       plus, minus, multiply, divi, mod, bin_xor, assign, bin_or, bin_nor, colon = bin_nor, bin_not, less,
                       mod256 = less, greater, div256 = greater, log_not, hash, constexpr, newline, power, lshift, rshift,
                       lessequal, greatequal, notequal, name, number, decmconst, hexconst, binconst, charconst, registerid,
-                      strconq = fullstop, negated, nil, ifstatm, elsestatm, endifstatm
+                      strconq = fullstop, negated, nil, ifstatm, elsestatm, endifstatm, label
                     };
 
 typedef

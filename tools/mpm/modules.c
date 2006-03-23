@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -1064,10 +1064,10 @@ static void
 ReleaseJrExprs(pcrelativelist_t *jrHdr)
 {
   pcrelative_t *curJR, *prevJR;
-  
-  if (jrHdr != NULL) 
+
+  if (jrHdr != NULL)
     {
-      curJR = jrHdr->firstref;  /* point at first Jump Relative PC address */    
+      curJR = jrHdr->firstref;  /* point at first Jump Relative PC address */
       while(curJR != NULL)
 	{
           prevJR = curJR;
@@ -1101,8 +1101,8 @@ ReleaseModules (void)
         ReleaseExprns (curptr->mexpr);
 
       if (curptr->JRaddr != NULL)
-        ReleaseJrExprs(curptr->JRaddr);	
-      
+        ReleaseJrExprs(curptr->JRaddr);
+
       if (curptr->mname != NULL)
         free (curptr->mname);
 

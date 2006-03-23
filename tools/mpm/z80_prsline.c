@@ -17,7 +17,7 @@
                         ZZZZZZZZZZZZZZ      888888888888        000000000
 
 
-  Copyright (C) 1991-2003, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -33,7 +33,6 @@
   $Id$
 
  -------------------------------------------------------------------------------------------------*/
-
 
 
 #include <stdio.h>
@@ -57,6 +56,8 @@ int CheckCondition (void);
 int CheckRegister8 (void);
 int CheckRegister16 (void);
 
+/* local functions */
+static int CheckBaseType(int chcount);
 
 /* externally defined variables */
 extern unsigned long PC;
@@ -96,11 +97,11 @@ ParseLine (enum flag interpret)
 
       EOL = OFF;        /* reset END OF LINE flag */
       GetSym ();
-      if (sym == fullstop)
+      if (sym == fullstop || sym == label)
         {
           if (interpret == ON)
             {           /* Generate only possible label declaration if line parsing is allowed */
-              if (GetSym () == name)
+              if (sym == label || GetSym () == name)
                 {
                   labeladdr = DefineSymbol (ident, PC, SYMADDR | SYMTOUCHED);
                   if (labeladdr != NULL) AddAddress (labeladdr, &addresses);
@@ -192,7 +193,8 @@ GetSym (void)
            if (c == '*')
              sym = power;       /* '**' */
            else
-             ungetc (c, srcasmfile);    /* '*' was found, puch this character back into stream for next read */
+             /* '*' was found, push this character back into stream for next read */
+             ungetc (c, srcasmfile);
            break;
 
          case less:         /* '<' */
@@ -212,7 +214,8 @@ GetSym (void)
                  break;
 
                default:
-                 ungetc (c, srcasmfile);    /* '<' was found, puch this character back into stream for next read */
+                 /* '<' was found, push this character back into stream for next read */
+                 ungetc (c, srcasmfile);
                  break;
              }
            break;
@@ -230,13 +233,14 @@ GetSym (void)
                  break;
 
                default:
-                 ungetc (c, srcasmfile);    /* '>' was found, puch this character back into stream for next read */
+                 /* '>' was found, push this character back into stream for next read */
+                 ungetc (c, srcasmfile);
                  break;
              }
            break;
 
          default:
-           break;   /* just to keep the C compiler happy... */
+           break;
        }
 
        return sym;
@@ -313,7 +317,14 @@ GetSym (void)
                 }
               else
                 {
-                  ungetc (c, srcasmfile);   /* puch character back into stream for next read */
+                  if ( c != ':' )
+                    {
+                      ungetc (c, srcasmfile);   /* puch character back into stream for next read */
+                    }
+                  else
+                    {
+                      sym = label;
+                    }
                   break;
                 }
             }
@@ -338,7 +349,7 @@ GetSym (void)
                 {
                   ungetc (c, srcasmfile);   /* puch character back into stream for next read */
 
-                  ident[chcount] = '\0';
+                  ident[chcount] = '\0';    /* $PC */
                   if ((strcmp(ident,ASSEMBLERPC) == 0) && (sym == hexconst))
                     {   /* the internal Assembler Program Counter */
                       sym = name;
@@ -350,8 +361,93 @@ GetSym (void)
         }
     }
 
+  /* validate if ident might be a number constant with a trailing h, d or b */
+  chcount = CheckBaseType(chcount);
+
   ident[chcount] = '\0';
   return sym;
+}
+
+
+/* ----------------------------------------------------------------
+   Identify Hex-, binary and decimal constants in [ident] of
+        0x or xxxxH (hex format)
+        xxxxB       (binary format)
+        xxxxD       (decimal format)
+   ---------------------------------------------------------------- */
+int
+CheckBaseType(int chcount)
+{
+  int   i;
+
+  /* If it's not a hex digit straight off then reject it */
+  if ( !isxdigit(ident[0]) || chcount < 2 )
+    return chcount;
+
+  /* C style hex number */
+  if ( chcount > 2 && strncmp(ident,"0x",2) == 0 )
+    {
+       /* 0x hex constants are evaluated by GetConstant() */
+       sym = hexconst;
+       return chcount;
+    }
+
+  /* Check for this to be a hex constant here */
+  for ( i=0; i < chcount; i++ )
+    {
+      if ( !isxdigit(ident[i])  )
+        break;
+    }
+
+  if ( i == (chcount-1) )
+    {
+      /* Convert xxxxH hex constants to $xxxxx */
+      if ( toupper(ident[i]) == 'H' )
+        {
+          for ( i = (chcount-1); i >= 0 ; i-- )
+            ident[i+1] = ident[i];
+          ident[0] = '$';
+          sym = hexconst;
+          return chcount;
+        }
+      else
+        {
+          /* If we reached end of hex digits and the last one wasn't a 'h', then something is wrong */
+          return chcount;
+        }
+    }
+
+  /* Check for binary constant (ends in b) */
+  for ( i = 0; i <  chcount ; i++ )
+    {
+      if ( ident[i] != '0' && ident[i] != '1'  )
+        break;
+    }
+
+  if ( i == (chcount-1) && toupper(ident[i]) == 'B' )
+    {
+      /* Convert xxxxB binary constants to @xxxx constants */
+      for ( i = (chcount-1); i >= 0 ; i-- )
+        ident[i+1] = ident[i];
+      ident[0] = '@';
+      sym = binconst;
+      return chcount;
+    }
+
+  /* Check for decimal (we default to it in anycase.. but */
+  for ( i = 0; i <  chcount ; i++ )
+    {
+      if ( !isdigit(ident[i]) )
+        break;
+    }
+  if ( i == (chcount-1) && toupper(ident[i]) == 'D' )
+    {
+      sym = decmconst;
+      return chcount-1; /* chop off the 'D' trailing specifier for decimals */
+    }
+
+  /* No hex, binary or decimal base types were recognized, return without change */
+  return chcount;
 }
 
 
@@ -364,61 +460,62 @@ CheckCondition (void)
 {
   switch (*ident)
     {
-    case 'Z':           /* is it zero flag ? */
-      if (*(ident + 1) == '\0')
-    return (1);
-      else
-    return -1;
+      case 'Z':           /* is it zero flag ? */
+        if (*(ident + 1) == '\0')
+          return (1);
+        else
+          return -1;
 
-    case 'N':           /* is it NZ, NC ? */
-      if (*(ident + 2) == '\0')
-    switch (*(ident + 1))
-      {
-      case 'Z':
-        return (0);
-      case 'C':
-        return (2);
+      case 'N':           /* is it NZ, NC ? */
+        if (*(ident + 2) == '\0')
+          switch (*(ident + 1))
+            {
+              case 'Z':
+                return (0);
+              case 'C':
+                return (2);
+              default:
+                return (-1);
+            }
+          else
+            return -1;
+
+      case 'C':           /* is it carry flag ? */
+        if (*(ident + 1) == '\0')
+          return (3);
+        else
+          return -1;
+
+      case 'P':
+        switch (*(ident + 1))
+          {
+            case '\0':
+              return (6);       /* P */
+
+            case 'O':
+              if (*(ident + 2) == '\0')
+                return (4);     /* PO */
+              else
+                return -1;
+
+            case 'E':
+              if (*(ident + 2) == '\0')
+                return (5);     /* PE */
+              else
+                return (-1);
+
+            default:
+              return (-1);
+          }
+
+      case 'M':           /* is it minus flag ? */
+        if (*(ident + 1) == '\0')
+          return (7);
+        else
+          return -1;
+
       default:
-        return (-1);
-      }
-      else
-    return -1;
-
-    case 'C':           /* is it carry flag ? */
-      if (*(ident + 1) == '\0')
-    return (3);
-      else
-    return -1;
-
-    case 'P':
-      switch (*(ident + 1))
-    {
-    case '\0':
-      return (6);       /* P */
-
-    case 'O':
-      if (*(ident + 2) == '\0')
-        return (4);     /* PO */
-      else
         return -1;
-
-    case 'E':
-      if (*(ident + 2) == '\0')
-        return (5);     /* PE */
-      else
-        return (-1);
-    default:
-      return (-1);
-    }
-
-    case 'M':           /* is it minus flag ? */
-      if (*(ident + 1) == '\0')
-    return (7);
-      else
-    return -1;
-
-    default:
-      return -1;
     }
 }
 
@@ -544,26 +641,26 @@ IndirectRegisters (void)
   reg16 = CheckRegister16 ();
   switch (reg16)
     {
-    case 0:         /* 0 to 2 = BC, DE, HL */
+    case 0:			/* 0 to 2 = BC, DE, HL */
     case 1:
     case 2:
       if (GetSym () == rparen)
-    {           /* (BC) | (DE) | (HL) | ? */
-      GetSym ();
-      return (reg16);   /* indicate (BC), (DE), (HL) */
-    }
+	{			/* (BC) | (DE) | (HL) | ? */
+	  GetSym ();
+	  return (reg16);	/* indicate (BC), (DE), (HL) */
+	}
       else
-    {
-      ReportError (CURRENTFILE->fname, CURRENTFILE->line, 1);   /* Right bracket missing! */
-      return -1;
-    }
+	{
+	  ReportError (CURRENTFILE->fname, CURRENTFILE->line, 1);	/* Right bracket missing! */
+	  return -1;
+	}
 
-    case 5:         /* 5, 6 = IX, IY */
+    case 5:			/* 5, 6 = IX, IY */
     case 6:
-      GetSym ();        /* prepare expression evaluation */
+      GetSym ();		/* prepare expression evaluation */
       return (reg16);
 
-    case -1:            /* sym could be a '+', '-' or a symbol... */
+    case -1:			/* sym could be a '+', '-' or a symbol... */
       return 7;
 
     default:
@@ -573,6 +670,20 @@ IndirectRegisters (void)
 }
 
 
+/* ---------------------------------------------------------------------------
+   Evaluate the current [ident] buffer for integer constant. The following
+   type specifiers are recognized:
+
+        0xhhh , $hhhh   hex constant
+        @bbbb           binary constant
+
+        constant is evaluated by default as decimal, if no type specifier is used.
+
+   The evaluated constant is returned as a long integer.
+
+   *evalerr byref argument is set to 0 when constant was successfully evaluated,
+   otherwise 1.
+   --------------------------------------------------------------------------- */
 long
 GetConstant (char *evalerr)
 {
@@ -581,7 +692,7 @@ GetConstant (char *evalerr)
   unsigned long bitvalue = 1;
 
   lv = 0;
-  *evalerr = 0;         /* preset to no errors */
+  *evalerr = 0;         /* preset evaluation return code to no errors */
 
   if ((sym != hexconst) && (sym != binconst) && (sym != decmconst))
     {
@@ -590,7 +701,7 @@ GetConstant (char *evalerr)
     }
   size = strlen (ident);
 
-  /* hex constant specified as 0x... */
+  /* fetch hex constant specified as 0x... */
   if ( ident[0] == '0' && toupper(ident[1]) == 'X')
     {
       for (l = 2; l < size; l++)
@@ -607,7 +718,7 @@ GetConstant (char *evalerr)
     }
 
   if (sym != decmconst)
-    if ((--size) == 0)
+    if ((--size) == 0) /* adjust size of non decimal constants without leading type specifier */
       {
         *evalerr = 1;
         return lv;     /* syntax error - no constant specified */
@@ -615,46 +726,47 @@ GetConstant (char *evalerr)
 
   switch (ident[0])
     {
-    case '@':
-      if (size > 32)
-        {
-           *evalerr = 1;
-           return lv;       /* max 32 bit */
-        }
-      for (l = 1; l <= size; l++)
-        if (strchr ("01", ident[l]) == NULL)
+      /* Binary integer are identified with leading @ */
+      case '@':
+        if (size > 32)
           {
-            *evalerr = 1;
-            return lv;
+             *evalerr = 1;
+             return lv;       /* max 32 bit */
           }
-      /* convert ASCII binary to integer */
-      for (l = size; l >= 1; l--)
-        {
-          if (ident[l] == '1')
-            lv += bitvalue;
-          bitvalue <<= 1;       /* logical shift left & 32 bit 'adder' */
-        }
-
-      /* convert ASCII binary to 32bit integer */
-      return lv;
-
-    case '$':
-      for (l = 1; l <= size; l++)
-        if (isxdigit (ident[l]) == 0)
+        for (l = 1; l <= size; l++)
+          if (strchr ("01", ident[l]) == NULL)
+            {
+              *evalerr = 1;
+              return lv;
+            }
+        /* convert ASCII binary to integer */
+        for (l = size; l >= 1; l--)
           {
-            *evalerr = 1;
-            return lv;
+            if (ident[l] == '1')
+              lv += bitvalue;
+            bitvalue <<= 1;       /* logical shift left and 32 bit 'adder' */
           }
-        sscanf ((char *) (ident + 1), "%lx", &lv);
-      return lv;
+        return lv;
 
-    default:
-      for (l = 0; l <= (size - 1); l++)
-        if (isdigit (ident[l]) == 0)
-          {
-            *evalerr = 1;
-            return lv;
-          }
-      return atol (ident);
+      /* Hexadecimal integers may be specified with leading $ */
+      case '$':
+        for (l = 1; l <= size; l++)
+          if (isxdigit (ident[l]) == 0)
+            {
+              *evalerr = 1;
+              return lv;
+            }
+          sscanf ((char *) (ident + 1), "%lx", &lv);
+        return lv;
+
+      /* Parse default decimal integers */
+      default:
+        for (l = 0; l <= (size - 1); l++)
+          if (isdigit (ident[l]) == 0)
+            {
+              *evalerr = 1;
+              return lv;
+            }
+        return atol (ident);
     }
 }
