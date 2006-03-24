@@ -23,6 +23,7 @@
      LIB FlashEprWriteBlock
      LIB FileEprRequest
      LIB SafeSegmentMask
+     LIB FlashEprPollSectorSize
 
      include "flashepr.def"
 
@@ -175,11 +176,7 @@
                     RLCA
                     LD   C,A                 ; Flash Memory card is in slot C
 
-                    PUSH DE
-                    LD   DE,FE_AM29F010B
-                    CP   A
-                    SBC  HL,DE               ; AM29F010B Flash Memory in slot C?
-                    POP  DE
+                    CALL FlashEprPollSectorSize ; AM29F010B/ST29F010B Flash Memory in slot C?
                     JR   NZ, _64K_block_fe   ; no, it's a 64K sector architecture Flash Memory
                                              ; yes, identified the 16K sector architecture Flash Memory
                     LD   B,E                 ; E = total of 16K sectors to be erased

@@ -329,15 +329,22 @@ Module FileAreaStatistics
                     CALL CheckFlashCardID
                     RET  C
 
-                    LD   A,L                      ; get Device Code in A.
+                    LD   A,L                      ; get Device Code
+                    LD   C,H                      ; get Manufacturer Code
                     PUSH DE
                     LD   HL, FlashEprTypes
-                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
                     LD   B,(HL)                   ; no. of Flash Eprom Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
                     JR   NZ, get_next
                          INC  HL                  ; points at manufacturer code
+                         LD   E,A
+                         LD   A,(HL)
+                         CP   C
+                         LD   A,E
+                         DEC  HL
+                         JR   NZ,get_next
+                         INC  HL
                          INC  HL
                          LD   B,(HL)              ; B = total of block on Flash Eprom
                          INC  HL
@@ -348,7 +355,9 @@ Module FileAreaStatistics
                          EX   DE,HL               ; HL = pointer to mnemonic string
                          POP  DE
                          RET                      ; Fc = 0, Flash Eprom data returned...
-.get_next           ADD  HL,DE
+.get_next
+                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
+                    ADD  HL,DE
                     DJNZ find_loop                ; point at next entry...
                     SCF
                     POP  DE                       ; Flash Eprom Device Code not recognised
@@ -592,13 +601,16 @@ Module FileAreaStatistics
                     DEFM 1, "2?I", 1, "2?H", 1, "2?G", 1, "2?F", 1, "2?E", 1, "2?D", 1, "2?C", 1, "2?B"
                     DEFM 1, "2?A", 1, "2?@", 0
 .FlashEprTypes
-                    DEFB 6
+                    DEFB 9
                     DEFW FE_I28F004S5, 8, mnem_i004
                     DEFW FE_I28F008SA, 16, mnem_i008
                     DEFW FE_I28F008S5, 16, mnem_i8s5
                     DEFW FE_AM29F010B, 8, mnem_am010b
                     DEFW FE_AM29F040B, 8, mnem_am040b
                     DEFW FE_AM29F080B, 16, mnem_am080b
+                    DEFW FE_ST29F010B, 8, mnem_st010b
+                    DEFW FE_ST29F040B, 8, mnem_st040b
+                    DEFW FE_ST29F080D, 16, mnem_st080d
 
 .mnem_i004          DEFM "I28F004S5 (512K)", 0
 .mnem_i008          DEFM "I28F008SA (1024K)", 0
@@ -606,3 +618,6 @@ Module FileAreaStatistics
 .mnem_am010b        DEFM "AM29F010B (128K)", 0
 .mnem_am040b        DEFM "AM29F040B (512K)", 0
 .mnem_am080b        DEFM "AM29F080B (1024K)", 0
+.mnem_st010b        DEFM "ST29F010B (128K)", 0
+.mnem_st040b        DEFM "ST29F040B (512K)", 0
+.mnem_st080d        DEFM "ST29F080D (1024K)", 0

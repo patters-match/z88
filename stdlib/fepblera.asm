@@ -23,6 +23,7 @@
      LIB DisableBlinkInt      ; No interrupts get out of Blink
      LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
      LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
+     LIB FlashEprPollSectorSize ; Poll for Flash chip sector size.
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -97,11 +98,7 @@ DEFC VppBit = 1
                     CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
                     JR   C, exit_FlashEprBlockErase
                     EX   AF,AF'              ; preserve FE Programming type in A'
-                    PUSH DE
-                    LD   DE,FE_AM29F010B
-                    CP   A                   ; Fc = 0...
-                    SBC  HL,DE               ; AM29F010B Flash Memory in slot C?
-                    POP  DE
+                    CALL FlashEprPollSectorSize
                     JR   Z, _16K_block_fe    ; yes, it's a 16K sector architecture (same as Z88 bank architecture!)
                     LD   A,D                 ; no, it's a 64K sector architecture
                     ADD  A,A                 ; sector number * 4 (16K * 4 = 64K!)
@@ -258,8 +255,8 @@ DEFC VppBit = 1
 
 ; ***************************************************************
 ;
-; Erase block on an AMD 29Fxxxx Flash Memory, which is bound
-; into segment x that HL points into.
+; Erase block on an AMD 29Fxxxx (or compatible) Flash Memory,
+; which is bound into segment x that HL points into.
 ;
 ; In:
 ;    HL = points into bound Flash Memory sector

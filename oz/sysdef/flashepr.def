@@ -2,7 +2,7 @@ lstoff
 
 ; Flash Eprom System Constant Definitions
 ; (C) Zlab (Thierry Peycru) 1995-97, 2004
-; - edited by Gunther Strube, Aug 2004
+; - edited by Gunther Strube, Aug 2004, Mar 2006
 
 
 DEFC FE_28F = $02           ; second generation Flash chips (available Z88 Flash Cards are using the Intel I28Fxxx chip)
@@ -23,15 +23,19 @@ DEFC FE_I28F016S5 = $89AA   ; 2Mb memory, but for z88 only 16 x 64K erasable sec
 
 
 ; ==========================================================================================
-; AMD Flash Memory constants:
+; AMD/STMicroelectronics Flash Memory constants:
 
-DEFC FE_AMD_MFCD = $01    ; AMD Manufacturer code
+DEFC FE_AMD_MFCD = $01      ; AMD Manufacturer code
+DEFC FE_STM_MFCD = $20      ; STMicroelectronics Manufacturer code
 
 ; Unique Flash Memory ID, 29Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 3rd generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
 DEFC FE_AM29F010B = $0120   ; 128Kb memory, 8 x 16K erasable sectors, 8 x 16K banks (z88 memory model)
+DEFC FE_ST29F010B = $2020   ; 128Kb memory, 8 x 16K erasable sectors, 8 x 16K banks (z88 memory model)
 DEFC FE_AM29F040B = $01A4   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_ST29F040B = $20E2   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
 DEFC FE_AM29F080B = $01D5   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_ST29F080D = $20F1   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
 ; ==========================================================================================
 
 
@@ -45,6 +49,5 @@ DEFC RC_BES = $73           ; block erasure suspended
 DEFC RC_NFE = $80           ; not a flash eprom
 DEFC RC_NOZ = $81           ; not an oz formatted eprom
 ; ==========================================================================================
-
 
 lston

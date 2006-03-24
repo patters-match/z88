@@ -47,6 +47,7 @@ Module FileAreaFormat
      include "stdio.def"
      include "memory.def"
      include "error.def"
+     include "flashepr.def"
 
      ; FlashStore popdown variables
      include "fsapp.def"
@@ -264,9 +265,12 @@ Module FileAreaFormat
                     ld   a,c
                     cp   3
                     jr   z, end_chckflsupp   ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
-                    ld   a,$01
-                    cp   h                   ; Intel flash chip in slot 0,1 or 2?
-                    jr   z, end_chckflsupp   ; No, we found an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
+                    ld   a,FE_INTEL_MFCD
+                    cp   h
+                    jr   z, err_chckflsupp   ; Intel flash chip found in slot 0,1 or 2.
+                    cp   a                   ; No, we found an AMD/compatible Flash chip (Fc=0, Fz=1)
+                    jr   end_chckflsupp
+.err_chckflsupp
                     cp   a                   ; (Fz=1, indicate that Flash is available..)
                     scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
 .end_chckflsupp

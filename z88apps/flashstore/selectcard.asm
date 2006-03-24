@@ -49,7 +49,7 @@ Module SelectCard
      include "stdio.def"
      include "integer.def"
      include "fsapp.def"
-
+     include "flashepr.def"
 
 
 ; *************************************************************************************
@@ -211,14 +211,16 @@ Module SelectCard
                     jr   nc, flash_writeable
                     set  2,a                      ; Intel flash in slot 1 or 2 (display padlock)
 .flash_writeable
+                    ex   af,af'
                     ld   de, amdlogo
-                    ld   hl, flashid+1
-                    ld   h,(hl)
-                    dec  h
+                    ld   hl, flashid+1            ; get manufacturer ID of current flash card
+                    ld   a,(hl)
+                    cp   FE_INTEL_MFCD
                     ld   hl, flashdev
-                    jr   z, dispc                 ; flash card ID was Amd
+                    jr   nz, dispc                ; flash card ID was Amd
                     ld   de, intellogo            ; flash card ID was Intel
 .dispc
+                    ex   af,af'
                     call DisplayCard
                     dec  c
                     inc  b

@@ -75,7 +75,7 @@ IF !DEBUG
                     DEFB 0                        ; bank binding to segment 1 (none)
                     DEFB 0                        ; bank binding to segment 2 (none)
                     DEFB $3F                      ; bank binding to segment 3
-                    DEFB @00000001                ; Good application
+                    DEFB AT_Popd                  ; Good application
                     DEFB 0                        ; no caps lock on activation
 .InfoEnd0           DEFB 'H'                      ; Key to help section
                     DEFB 12                       ; total length of help
@@ -95,9 +95,9 @@ IF !DEBUG
 
 .FlashTest_Help     DEFM $7F
                     DEFM "Flash Card Testing Tool for",$7F
-                    DEFM "Intel I28F00xS5 and Amd AM29F0x0B devices", $7F
+                    DEFM "Intel I28F00xS5, Amd AM29F0x0B & STM 29F0x0B/D devices", $7F
                     DEFM $7F
-                    DEFM "Release V1.1, (C) G. Strube, November 2004", 0
+                    DEFM "Release V1.2, (C) G. Strube, March 2006", 0
 endif
 
 ; ******************************************************************************
@@ -152,11 +152,22 @@ endif
                     LD   HL,fltst_logmsg
                     CALL Display_string
 
-                    LD   HL,presskey_msg
+                    LD   HL,pressQkey_msg
                     CALL Display_string      ; And the additional 'Press any key to continue' message
+.wait_q_key
+                    CALL_OZ os_in
+                    JR   NC,check_q
+                    CALL Erh
+                    JR   wait_q_key
+.check_q
+                    CP   'q'
+                    JP   Z, exit_application
+                    CP   'Q'
+                    JP   Z, exit_application
+                    JR   wait_q_key
 
-                    CALL_OZ(OS_In)
-                    JP   exit_application
+
+; *************************************************************************************
 
 .inputvalidate      DEFM "asdf", 0
 .check_msg          DEFM "This will erase your flash chip in slot 3.", 13, 10
@@ -461,15 +472,22 @@ endif
                     CALL FlashEprCardId
                     RET  C
 
-                    LD   A,L                      ; get Device Code in A.
+                    LD   A,L                      ; get Device Code
+                    LD   C,H                      ; get Manufacturer Code
                     PUSH DE
                     LD   HL, FlashEprTypes
-                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
                     LD   B,(HL)                   ; no. of Flash Eprom Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
                     JR   NZ, get_next
                          INC  HL                  ; points at manufacturer code
+                         LD   E,A
+                         LD   A,(HL)
+                         CP   C
+                         LD   A,E
+                         DEC  HL
+                         JR   NZ,get_next
+                         INC  HL
                          INC  HL
                          LD   B,(HL)              ; B = total of block on Flash Eprom
                          INC  HL
@@ -480,7 +498,9 @@ endif
                          EX   DE,HL               ; HL = pointer to mnemonic string
                          POP  DE
                          RET                      ; Fc = 0, Flash Eprom data returned...
-.get_next           ADD  HL,DE
+.get_next
+                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
+                    ADD  HL,DE
                     DJNZ find_loop                ; point at next entry...
                     SCF
                     POP  DE                       ; Flash Eprom Device Code not recognised
@@ -785,7 +805,7 @@ endif
 .fltst_logmsg       DEFM "A copy of the messages are available in ", '"', "/eprlog", '"', " file.", 13, 10, 0
 .Error_banner       DEFM "Error:", 0
 .fe_found_msg       DEFM "The following Flash chip was found in slot 3:", 13, 10, 0
-.presskey_msg       DEFM 1, "F", "Press any key to continue", 1, "F", 13, 10, 0
+.pressQkey_msg      DEFM 1, "F", "Press Q to quit FlashTest", 1, "F", 13, 10, 0
 
 .Donemsg            defm "OK", 13, 10, 0
 .Dotsmsg            defm "... ", 0
@@ -802,13 +822,16 @@ endif
                     DEFM 1, "2JN", 0
 
 .FlashEprTypes
-                    DEFB 6
+                    DEFB 9
                     DEFW FE_I28F004S5, 8, mnem_i004
                     DEFW FE_I28F008SA, 16, mnem_i008
                     DEFW FE_I28F008S5, 16, mnem_i8s5
                     DEFW FE_AM29F010B, 8, mnem_am010b
                     DEFW FE_AM29F040B, 8, mnem_am040b
                     DEFW FE_AM29F080B, 16, mnem_am080b
+                    DEFW FE_ST29F010B, 8, mnem_st010b
+                    DEFW FE_ST29F040B, 8, mnem_st040b
+                    DEFW FE_ST29F080D, 16, mnem_st080d
 
 .mnem_i004          DEFM "INTEL 28F004S5 (512Kb, 8 x 64Kb sectors)", 0
 .mnem_i008          DEFM "INTEL 28F008SA (1024Kb, 16 x 64Kb sectors)", 0
@@ -816,6 +839,9 @@ endif
 .mnem_am010b        DEFM "AMD AM29F010B (128Kb, 8 x 16K sectors)", 0
 .mnem_am040b        DEFM "AMD AM29F040B (512Kb, 8 x 64K sectors)", 0
 .mnem_am080b        DEFM "AMD AM29F080B (1024Kb, 16 x 64K sectors)", 0
+.mnem_st010b        DEFM "STM ST29F010B (128Kb, 8 x 16K sectors)", 0
+.mnem_st040b        DEFM "STM ST29F040B (512Kb, 8 x 64K sectors)", 0
+.mnem_st080d        DEFM "STM ST29F080D (1024Kb, 16 x 64K sectors)", 0
 
 .Errmsg_lookup      DEFW Error_msg_00
                     DEFW Error_msg_01
@@ -828,7 +854,8 @@ endif
 .Error_msg_03       DEFM "Flash Card was not found in slot 3.", 0
 
 .Release_msg
-                    DEFM "Flash Card Testing Tool for Intel I28F00xS5 & Amd AM29F0x0B devices", 13, 10
-                    DEFM "Release V1.1, (C) G. Strube, November 2004", 13, 10, 13, 10, 0
+                    DEFM "Flash Card Testing Tool for", 13, 10
+                    DEFM "Intel I28F00xS5, Amd AM29F0x0B and STM 29F0x0B/D devices", 13, 10
+                    DEFM "Release V1.2, (C) G. Strube, March 2006", 13, 10, 13, 10, 0
 
 .testblock          DS 1024
