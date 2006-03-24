@@ -29,6 +29,8 @@ import java.io.RandomAccessFile;
 import java.net.JarURLConnection;
 
 import javax.swing.UIManager;
+
+import net.sourceforge.z88.datastructures.SlotInfo;
 import net.sourceforge.z88.filecard.FileArea;
 import net.sourceforge.z88.filecard.FileAreaExhaustedException;
 import net.sourceforge.z88.filecard.FileAreaNotFoundException;
@@ -207,7 +209,7 @@ public class OZvm {
 							return false;
 						}
 					}
-					memory.insertRamCard(ramSizeArg	* 1024,	ramSlotNumber);	// RAM Card specified for slot x...
+					memory.insertRamCard(ramSizeArg, ramSlotNumber);	// RAM Card specified for slot x...
 					if (ramSlotNumber == 0)	ramSlot0 = true;
 					displayRtmMessage("Inserted	" + ramSizeArg + "K RAM	Card in	slot " + ramSlotNumber);
 					installedCard = true;
@@ -219,11 +221,21 @@ public class OZvm {
 				if (arg<args.length && (args[arg].startsWith("epr") == true)) {
 					int eprSlotNumber = args[arg].charAt(3)	- 48;
 					eprSizeArg = Integer.parseInt(args[arg+1], 10);
-					if (memory.insertEprCard(eprSlotNumber,	eprSizeArg, args[arg+2]) == true) {
-						String insertEprMsg = "Inserted	" + eprSlotNumber + " set to " + eprSizeArg + "K.";
-						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV Eprom Card in slot " +	eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
+					String insertEprMsg = "";
+					int eprType = 0;
+					if (args[arg+2].compareToIgnoreCase("27C") == 0) {
+						insertEprMsg =	"Inserted " + eprSizeArg + "K UV Eprom Card in slot " +	eprSlotNumber;
+						eprType = SlotInfo.EpromCard;
+					}
+					if (args[arg+2].compareToIgnoreCase("28F") == 0) {
+						insertEprMsg =	"Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
+						eprType = SlotInfo.IntelFlashCard;
+					}
+					if (args[arg+2].compareToIgnoreCase("29F") == 0) {
+						insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
+						eprType = SlotInfo.AmdFlashCard;
+					}
+					if (memory.insertEprCard(eprSlotNumber,	eprSizeArg, eprType) == true) {
 						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 					} else
@@ -235,11 +247,21 @@ public class OZvm {
 				if (arg<args.length && (args[arg].startsWith("fcd") == true)) {
 					int eprSlotNumber = args[arg].charAt(3)	- 48;
 					eprSizeArg = Integer.parseInt(args[arg+1], 10);
-					if (memory.insertFileEprCard(eprSlotNumber, eprSizeArg,	args[arg+2]) ==	true) {
-						String insertEprMsg = "Inserted	" + eprSlotNumber + " set to " + eprSizeArg + "K.";
-						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K UV File Eprom Card in slot " + eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Intel File Flash Card in slot " +	eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Inserted " + eprSizeArg + "K Amd File Flash Card in slot " + eprSlotNumber;
+					String insertEprMsg = "";
+					int eprType = 0;
+					if (args[arg+2].compareToIgnoreCase("27C") == 0) {
+						insertEprMsg =	"Inserted " + eprSizeArg + "K UV Eprom Card in slot " +	eprSlotNumber;
+						eprType = SlotInfo.EpromCard;
+					}
+					if (args[arg+2].compareToIgnoreCase("28F") == 0) {
+						insertEprMsg =	"Inserted " + eprSizeArg + "K Intel Flash Card in slot " + eprSlotNumber;
+						eprType = SlotInfo.IntelFlashCard;
+					}
+					if (args[arg+2].compareToIgnoreCase("29F") == 0) {
+						insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
+						eprType = SlotInfo.AmdFlashCard;
+					}
+					if (memory.insertFileEprCard(eprSlotNumber, eprSizeArg,	eprType) ==	true) {
 						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 					} else
@@ -262,17 +284,28 @@ public class OZvm {
 				if (arg<args.length && (args[arg].startsWith("crd") == true)) {
 					int eprSlotNumber = args[arg].charAt(3)	- 48;
 					eprSizeArg = Integer.parseInt(args[arg+1], 10);
+					String insertEprMsg = "";
+					int eprType = 0;
+					if (args[arg+2].compareToIgnoreCase("27C") == 0) {
+						insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
+						eprType = SlotInfo.EpromCard;
+					}
+					if (args[arg+2].compareToIgnoreCase("28F") == 0) {
+						insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
+						eprType = SlotInfo.IntelFlashCard;
+					}
+					if (args[arg+2].compareToIgnoreCase("29F") == 0) {
+						insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
+						eprType = SlotInfo.AmdFlashCard;
+					}
+					
 					if (args[arg+3].compareToIgnoreCase("-b") == 0) {
-						memory.loadBankFilesOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], args[arg+4]);
+						memory.loadBankFilesOnEprCard(eprSlotNumber, eprSizeArg, eprType, args[arg+4]);
 						installedCard = true;
 						arg+=5;
 					} else {
 						file = new RandomAccessFile(args[arg+3], "r");
-						memory.loadImageOnEprCard(eprSlotNumber, eprSizeArg, args[arg+2], file);
-						String insertEprMsg = "";
-						if (args[arg+2].compareToIgnoreCase("27C") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	UV Eprom Card in slot "	+ eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("28F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Intel Flash Card in slot " + eprSlotNumber;
-						if (args[arg+2].compareToIgnoreCase("29F") == 0) insertEprMsg =	"Loaded	file image '" +	args[arg+3] + "' on " +	eprSizeArg + "K	Amd Flash Card in slot " + eprSlotNumber;
+						memory.loadImageOnEprCard(eprSlotNumber, eprSizeArg, eprType, file);
 						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 						arg+=4;
@@ -367,7 +400,7 @@ public class OZvm {
 
 			if (loadedSnapshot == false && ramSlot0 == false) {
 				displayRtmMessage("RAM0 set	to default 128K.");
-				memory.insertRamCard(128 * 1024, 0);	// no RAM specified for	slot 0,	set to default 128K RAM...
+				memory.insertRamCard(128, 0);	// no RAM specified for	slot 0,	set to default 128K RAM...
 			}
 		} catch	(FileNotFoundException e) {
 			System.out.println("Couldn't load ROM/EPROM image:\n" +	e.getMessage());

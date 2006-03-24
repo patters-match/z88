@@ -77,7 +77,7 @@ public class Slots extends JPanel {
 	private static final String installRamMsg = "Install new RAM into slot 0?\nWARNING: Installing RAM will automatically perform a hard reset!";
 
 	private static final DefaultComboBoxModel newCardTypes = new DefaultComboBoxModel(
-			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH" });
+			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH", "STM FLASH"});
 
 	private static final DefaultComboBoxModel ram0Sizes = new DefaultComboBoxModel(
 			new String[] { "32K", "128K", "256K", "512K" });
@@ -225,6 +225,10 @@ public class Slots extends JPanel {
 
 		int slotType = SlotInfo.getInstance().getCardType(slotNo);
 		switch (slotType) {
+		case SlotInfo.StmFlashCard:
+			slotText = "STM FLASH";
+			break;
+			
 		case SlotInfo.AmdFlashCard:
 			slotText = "AMD FLASH";
 			break;
@@ -437,7 +441,7 @@ public class Slots extends JPanel {
 								.getElementAt(getCardSizeComboBox()
 										.getSelectedIndex());
 						memory.insertRamCard(Integer.parseInt(size.substring(0,
-								size.indexOf("K"))) * 1024, 0);
+								size.indexOf("K"))), 0);
 						
 						// ROM installed, do a hard reset (flap is automatically closed)
 						Z88.getInstance().pressHardReset();
@@ -574,7 +578,7 @@ public class Slots extends JPanel {
 		FileArea fa = null; 
 		File eprFile = null;
 		String eprFilename = null;
-		String internalCardType = null;
+		int internalCardType = 0;
 		
 		// re-initialize standard checkbox text
 		getFileAreaCheckBox().setText("Create File Area:");
@@ -657,20 +661,24 @@ public class Slots extends JPanel {
 				switch (getCardTypeComboBox().getSelectedIndex()) {
 					case 0:
 						// insert selected RAM Card
-						memory.insertRamCard(cardSizeK * 1024, slotNo);
+						memory.insertRamCard(cardSizeK, slotNo);
 						OZvm.displayRtmMessage(cardSizeK + "K RAM Card was inserted in slot " + slotNo);
 						break;
 					case 1:
 						// insert an (UV) EPROM Card 
-						internalCardType = "27C";
+						internalCardType = SlotInfo.EpromCard;
 						break;
 					case 2:
 						// insert an Intel Flash Card 
-						internalCardType = "28F";
+						internalCardType = SlotInfo.IntelFlashCard;
 						break;
 					case 3:
 						// insert an Amd Flash Card 
-						internalCardType = "29F";
+						internalCardType = SlotInfo.AmdFlashCard;
+						break;
+					case 4:
+						// insert an Stm Flash Card 
+						internalCardType = SlotInfo.StmFlashCard;
 						break;
 				}
 	
@@ -702,8 +710,8 @@ public class Slots extends JPanel {
 					}
 				} else {
 					// Insert a selected Eprom type (which is not to be loaded with a file image...
-					if (internalCardType != null)
-						memory.insertEprCard(slotNo, cardSizeK, internalCardType);
+					if (internalCardType != 0)
+						memory.insertEprCard(slotNo, cardSizeK, internalCardType);					
 				}
 				
 				if (eprFileImage != null) {
@@ -979,7 +987,8 @@ public class Slots extends JPanel {
 							getCardSizeComboBox().setModel(intelFlashSizes);
 							break;
 						case 3:
-							// define available Amd Flash Card sizes
+						case 4:
+							// define available Amd/Stm Flash Card sizes
 							getCardSizeComboBox().setModel(amdFlashSizes);
 							break;
 					}

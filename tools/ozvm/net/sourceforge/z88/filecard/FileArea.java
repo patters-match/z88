@@ -27,6 +27,7 @@ import java.util.ListIterator;
 import java.util.Random;
 
 import net.sourceforge.z88.AmdFlashBank;
+import net.sourceforge.z88.GenericAmdFlashBank;
 import net.sourceforge.z88.Bank;
 import net.sourceforge.z88.EpromBank;
 import net.sourceforge.z88.IntelFlashBank;
@@ -620,7 +621,7 @@ public class FileArea {
 		// get bottom bank of slot to determine card type...
 		Bank bank = memory.getBank(bottomBankNo);
 		if ((bank instanceof EpromBank == false)
-				& (bank instanceof AmdFlashBank == false)
+				& (bank instanceof GenericAmdFlashBank == false)
 				& (bank instanceof IntelFlashBank == false)) {
 			// A file area can't be created on a Ram card or in an empty slot...
 			return false;
@@ -647,8 +648,8 @@ public class FileArea {
 						int freeBanks = memory.getExternalCardSize(slotNumber)- appCrdHdr.getAppAreaSize();
 						
 						// validate free space for Flash Cards...
-						if (bank instanceof AmdFlashBank == true) {
-							AmdFlashBank amdFlashBank = (AmdFlashBank) bank;
+						if (bank instanceof GenericAmdFlashBank == true) {
+							GenericAmdFlashBank amdFlashBank = (GenericAmdFlashBank) bank;
 							if (amdFlashBank.getDeviceCode() == AmdFlashBank.AM29F010B) {
 								// 128K AMD Flash uses 16K sectors,
 								// minimum 16K must be available to create a file area...
@@ -710,7 +711,7 @@ public class FileArea {
 		// get bottom bank of slot to determine card type...
 		Bank bank = memory.getBank(bottomBankNo);
 		if ((bank instanceof EpromBank == false)
-				& (bank instanceof AmdFlashBank == false)
+				& (bank instanceof GenericAmdFlashBank == false)
 				& (bank instanceof IntelFlashBank == false)) {
 			// A file area can't be created on a Ram card or in an empty slot...
 			return false;
@@ -743,8 +744,8 @@ public class FileArea {
 								- appCrdHdr.getAppAreaSize();
 						
 						// validate free space for Flash Cards...
-						if (bank instanceof AmdFlashBank == true) {
-							AmdFlashBank amdFlashBank = (AmdFlashBank) bank;
+						if (bank instanceof GenericAmdFlashBank == true) {
+							GenericAmdFlashBank amdFlashBank = (GenericAmdFlashBank) bank;
 							if (amdFlashBank.getDeviceCode() == AmdFlashBank.AM29F010B) {
 								// 128K AMD Flash uses 16K sectors,
 								// minimum 16K must be available to create a file area...
@@ -865,7 +866,7 @@ public class FileArea {
 
 		Bank bank = memory.getBank(bankNo);
 		if ((bank instanceof EpromBank == true)
-				| (bank instanceof AmdFlashBank == true)
+				| (bank instanceof GenericAmdFlashBank == true)
 				| (bank instanceof IntelFlashBank == true)) {
 
 			for (int offset = 0x3FC0; offset < 0x3FF7; offset++)
