@@ -313,25 +313,6 @@ public class OZvm {
 					continue;
 				}
 
-				if (arg<args.length && ( args[arg].compareTo("s1") == 0	| args[arg].compareTo("s2") == 0 | args[arg].compareTo("s3") ==	0)) {
-					int slotNumber = Integer.parseInt(args[arg].substring(1));
-					String crdType = "27C";
-					if (args[arg+1].compareToIgnoreCase("-t") == 0)	{
-						// Optional type argument
-						crdType	= args[arg+2];
-						arg += 3;
-					} else {
-						arg++;
-					}
-					file = new RandomAccessFile(args[arg], "r");
-					displayRtmMessage("Loading '" + args[arg] +	"' into	slot " + slotNumber + ".");
-					memory.loadEprCardBinary(slotNumber, crdType, file);
-					file.close();
-					installedCard = true;
-					arg++;
-					continue;
-				}
-
 				if (arg<args.length && (args[arg].compareTo("debug") ==	0)) {
 					autoRun = false;
 					commandLine(true);

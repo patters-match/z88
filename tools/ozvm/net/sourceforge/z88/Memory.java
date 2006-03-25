@@ -63,9 +63,9 @@ public final class Memory {
 
 	/**
 	 * Null bank. This is used in for unassigned banks,
-	 * ie. when a card slot is empty in the Z88
-	 * The contents of this bank contains 0xFF and is
-	 * write-protected (just as an empty bank in an Eprom).
+	 * ie. when a card slot is empty in the Z88.
+	 * The contents of this bank contains random data and is
+	 * write-protected.
 	 */
 	private VoidBank nullBank;
 
@@ -244,6 +244,18 @@ public final class Memory {
 		if (slot > 0)
 			// the external slot connector has sensed that a card was inserted...
 			slotConnectorSenseLine();
+
+		// Check for Z88 Application Card Watermark
+		if (card[card.length-1].getByte(0x3FFE) == 'O' &
+			card[card.length-1].getByte(0x3FFF) == 'Z') {
+			OZvm.displayRtmMessage("Application Card was inserted into slot " + slot);
+		} else {
+			// Check for Z88 File Card Watermark
+			if (card[card.length-1].getByte(0x3FFE) == 'o' &
+				card[card.length-1].getByte(0x3FFF) == 'z') {
+				OZvm.displayRtmMessage("File Card was inserted into slot " + slot);
+			}
+		}
 	}
 
 
@@ -548,102 +560,6 @@ public final class Memory {
 		insertCard(ramBanks, slot); // insert the physical card into Z88 memory
 	}
 
-
-	/**
-	 * Load Eprom Card Image (from opened file ressource) into Z88 memory system,
-	 * at defined slot. The file size of the Card image will determine the
-	 * hardware Eprom Card emulation:
-	 * <pre>
-	 *   16/32K: UV Eprom (27C)
-	 *     128K: AM29F010B Flash Card (29F)
-	 *     256K: UV Eprom (27C)
-	 *     512K: I28F004S5 Flash Card
-	 *    1024K: AM29F080B Flash Card
-	 * </pre>
-	 *
-	 * @param slot where to insert card image
-	 * @param cardType "27C" (UV Eprom), "28F" (Intel FlashFile) or "29F" (Amd Flash Memory)
-	 * @param card contains the binary file image
-	 * @throws IOException
-	 */
-	public void loadEprCardBinary(int slot, String cardType, RandomAccessFile card) throws IOException {
-
-		if (card.length() > (1024 * 1024)) {
-			throw new IOException("Max 1024K Card!");
-		}
-		if (card.length() % Bank.SIZE > 0) {
-			throw new IOException("Card must be in 16K sizes!");
-		}
-
-		Bank cardBanks[] = new Bank[(int) card.length() / Bank.SIZE];
-		// allocate EPROM container
-		byte bankBuffer[] = new byte[Bank.SIZE];
-		// allocate intermediate load buffer
-
-		for (int curBank = 0; curBank < cardBanks.length; curBank++) {
-			switch(cardBanks.length) {
-
-			case 1:
-			case 2:
-				// 32K size exists only as Eprom
-				cardBanks[curBank] = new EpromBank(EpromBank.VPP32KB);
-				break;
-			case 8:
-				// 128K size exists as Eprom or Amd Flash Card
-				if (cardType.compareToIgnoreCase("29F") == 0)
-					cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B);
-				else
-					cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
-				break;
-			case 16:
-				// 256K size exists only as Eprom
-				cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
-				break;
-			case 32:
-				// 512K size exists as Intel or Amd Flash Card
-				if (cardType.compareToIgnoreCase("29F") == 0)
-					cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F040B);
-				else
-					cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F004S5);
-				break;
-			case 64:
-				// 1024K size exists as Intel or Amd Flash Card
-				if (cardType.compareToIgnoreCase("29F") == 0)
-					cardBanks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F080B);
-				else
-					cardBanks[curBank] = new IntelFlashBank(IntelFlashBank.I28F008S5);
-				break;
-			default:
-				// all other sizes will be interpreted as UV EPROM's
-				// that can be programmed using 128K type specs.
-				cardBanks[curBank] = new EpromBank(EpromBank.VPP128KB);
-				break;
-			}
-
-			card.readFully(bankBuffer); // load 16K from file, sequentially
-			cardBanks[curBank].loadBytes(bankBuffer, 0);
-			// and load fully into bank
-		}
-
-		// Check for Z88 Application Card Watermark
-		if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'O' &
-			cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'Z') {
-			OZvm.displayRtmMessage("Application Card was inserted into slot " + slot);
-		} else {
-			// Check for Z88 File Card Watermark
-			if (cardBanks[cardBanks.length-1].getByte(0x3FFE) == 'o' &
-				cardBanks[cardBanks.length-1].getByte(0x3FFF) == 'z') {
-				OZvm.displayRtmMessage("File Card was inserted into slot " + slot);
-			} else {
-				throw new IOException("This is not a Z88 Application Card nor a File Card.");
-			}
-		}
-
-		// complete Card image now loaded into container
-		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
-		insertCard(cardBanks, slot);
-	}
-
 	/**
 	 * Load File Image (from opened file ressource) on specific (flash) Eprom Card Hardware.
 	 * The image will be loaded to the top of the card and downwards, eg. a 32K image will be loaded
@@ -680,18 +596,6 @@ public final class Memory {
 		for (int curBank = totalEprBanks - ((int) fileImage.length()/Bank.SIZE); curBank < totalEprBanks; curBank++) {
 			fileImage.readFully(bankBuffer); // load 16K from file, sequentially
 			banks[curBank].loadBytes(bankBuffer, 0); // and load fully into bank
-		}
-
-		// Check for Z88 Application Card Watermark
-		if (banks[banks.length-1].getByte(0x3FFE) == 'O' &
-			banks[banks.length-1].getByte(0x3FFF) == 'Z') {
-			OZvm.displayRtmMessage("Application Card was inserted into slot " + slot);
-		} else {
-			// Check for Z88 File Card Watermark
-			if (banks[banks.length-1].getByte(0x3FFE) == 'o' &
-				banks[banks.length-1].getByte(0x3FFF) == 'z') {
-				OZvm.displayRtmMessage("File Card was inserted into slot " + slot);
-			}
 		}
 
 		// complete Card image now loaded into container
@@ -761,18 +665,6 @@ public final class Memory {
 					// System.out.println("Loading " + bankFileNames[n] + " + into card bank " + cardBankNo);
 					banks[cardBankNo].loadBytes(fileImage, 0); // and load fully into bank
 				}
-			}
-		}
-
-		// Check for Z88 Application Card Watermark
-		if (banks[banks.length-1].getByte(0x3FFE) == 'O' &
-			banks[banks.length-1].getByte(0x3FFF) == 'Z') {
-			OZvm.displayRtmMessage("Application Card was inserted into slot " + slot);
-		} else {
-			// Check for Z88 File Card Watermark
-			if (banks[banks.length-1].getByte(0x3FFE) == 'o' &
-				banks[banks.length-1].getByte(0x3FFF) == 'z') {
-				OZvm.displayRtmMessage("File Card was inserted into slot " + slot);
 			}
 		}
 
