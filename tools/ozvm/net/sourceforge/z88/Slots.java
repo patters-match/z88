@@ -574,7 +574,6 @@ public class Slots extends JPanel {
 	 * @param slotNo
 	 */
 	private void insertCard(JButton slotButton, int slotNo) {
-		RandomAccessFile eprFileImage = null;
 		FileArea fa = null; 
 		File eprFile = null;
 		String eprFilename = null;
@@ -637,25 +636,13 @@ public class Slots extends JPanel {
 				OZvm.displayRtmMessage("Re-inserted previously removed Card back to slot " + slotNo);
 			} else {
 				if (epromFileChooser != null) {
-					try {
-						// load an EPR image on the card: start with opening the file
-						eprFilename = epromFileChooser.getSelectedFile().getAbsolutePath();						
-						if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
-							// append ".epr" extension if not specified by user... 
-							eprFilename += ".epr";
-						}
-						eprFile = new File(eprFilename);
-						eprFileImage = new RandomAccessFile(eprFilename, "r");
-						
-					} catch (FileNotFoundException e1) {
-						// file couldn't be opened, display an error message
-						JOptionPane.showMessageDialog(Slots.this,
-								eprFilename + ": " + e1.getMessage(),
-								"File I/O error", JOptionPane.ERROR_MESSAGE);
-						blink.signalFlapClosed();
-						Z88.getInstance().getDisplay().grabFocus();
-						return;
+					// load an EPR image on the card: start with opening the file
+					eprFilename = epromFileChooser.getSelectedFile().getAbsolutePath();						
+					if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
+						// append ".epr" extension if not specified by user... 
+						eprFilename += ".epr";
 					}
+					eprFile = new File(eprFilename);						
 				}
 	
 				switch (getCardTypeComboBox().getSelectedIndex()) {
@@ -682,18 +669,14 @@ public class Slots extends JPanel {
 						break;
 				}
 	
-				if (eprFileImage != null) {
+				if (eprFile != null) {
 					// A selected Eprom was also marked to load an (app) image.. 
 					if (FileArea.checkFileAreaImage(eprFile) == true |
 						ApplicationInfo.checkAppImage(eprFile) == true) {
 						
 						try {
-							memory.loadImageOnEprCard(slotNo, cardSizeK, internalCardType, eprFileImage);
+							memory.loadFileImageOnCard(slotNo, cardSizeK, internalCardType, eprFile);
 						} catch (IOException e1) {
-							// an error occurred when inserting the card..
-							try {
-								eprFileImage.close();
-							} catch (IOException e2) {}
 							JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
 									"Insert Card Error", JOptionPane.ERROR_MESSAGE);
 							blink.signalFlapClosed();
@@ -713,14 +696,7 @@ public class Slots extends JPanel {
 					if (internalCardType != 0)
 						memory.insertEprCard(slotNo, cardSizeK, internalCardType);					
 				}
-				
-				if (eprFileImage != null) {
-					// EPR file image was processed, now close it...
-					try {
-						eprFileImage.close();
-					} catch (IOException e2) {}
-				}
-				
+								
 				// User has also chosen to create a file area on card...
 				if (getFileAreaCheckBox().isSelected() == true) {
 					// user has chosen to create/format a file area on the card

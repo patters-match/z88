@@ -334,9 +334,12 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("ldc")	== 0) {
 			try {
-				RandomAccessFile file =	new RandomAccessFile(cmdLineTokens[1], "r");
-				memory.loadBankBinary(Integer.parseInt(cmdLineTokens[2], 16), file);
-				file.close();
+				int extAddress = Integer.parseInt(cmdLineTokens[2], 16);
+				int bank = (extAddress >>> 16) & 0xFF;
+				int offset = extAddress & 0x3FFF;
+				Bank b = memory.getBank(bank);
+				
+				memory.loadBankBinary(b, offset, new File(cmdLineTokens[1]));
 				displayCmdOutput("File image '"	+ cmdLineTokens[1] + "'	loaded at " + cmdLineTokens[2] + ".");
 			} catch	(IOException e)	{
 				displayCmdOutput("Couldn't load	file image at ext.address: '" +	e.getMessage() + "'");

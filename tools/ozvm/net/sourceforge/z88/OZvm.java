@@ -159,10 +159,7 @@ public class OZvm {
 					 args[arg].compareTo("epr1") !=	0 & args[arg].compareTo("epr2")	!= 0 & args[arg].compareTo("epr3") != 0	&
 					 args[arg].compareTo("fcd1") !=	0 & args[arg].compareTo("fcd2")	!= 0 & args[arg].compareTo("fcd3") != 0	&
 					 args[arg].compareTo("crd1") !=	0 & args[arg].compareTo("crd2")	!= 0 & args[arg].compareTo("crd3") != 0	&
-					 args[arg].compareTo("s1") != 0	& args[arg].compareTo("s2") != 0 & args[arg].compareTo("s3") !=	0 &
-					 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug")	!= 0 &
-					 args[arg].compareTo("initdebug") != 0)	{
-
+					 args[arg].compareTo("kbl") != 0 & args[arg].compareTo("debug")	!= 0 & args[arg].compareTo("initdebug") != 0) {
 					// try to install specified snapshot file
 					SaveRestoreVM srVm = new SaveRestoreVM();
 					String vmFileName = args[arg];
@@ -300,12 +297,11 @@ public class OZvm {
 					}
 					
 					if (args[arg+3].compareToIgnoreCase("-b") == 0) {
-						memory.loadBankFilesOnEprCard(eprSlotNumber, eprSizeArg, eprType, args[arg+4]);
+						memory.loadBankFilesOnCard(eprSlotNumber, eprSizeArg, eprType, args[arg+4]);
 						installedCard = true;
 						arg+=5;
 					} else {
-						file = new RandomAccessFile(args[arg+3], "r");
-						memory.loadImageOnEprCard(eprSlotNumber, eprSizeArg, eprType, file);
+						memory.loadFileImageOnCard(eprSlotNumber, eprSizeArg, eprType, new File(args[arg+3]));
 						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 						arg+=4;
