@@ -258,7 +258,7 @@ public class OZvm {
 						insertEprMsg =	"Inserted " + eprSizeArg + "K Amd Flash	Card in	slot " + eprSlotNumber;
 						eprType = SlotInfo.AmdFlashCard;
 					}
-					if (memory.insertFileEprCard(eprSlotNumber, eprSizeArg,	eprType) ==	true) {
+					if (memory.insertFileCard(eprSlotNumber, eprSizeArg,	eprType) ==	true) {
 						displayRtmMessage(insertEprMsg);
 						installedCard = true;
 					} else

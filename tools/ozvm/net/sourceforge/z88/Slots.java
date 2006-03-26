@@ -33,7 +33,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -143,7 +142,7 @@ public class Slots extends JPanel {
 
 	private EpromFileFilter eprfileFilter;
 
-	private JFileChooser epromFileChooser;
+	private JFileChooser cardImageFileChooser;
 
 	private JFileChooser fileAreaChooser;
 
@@ -575,8 +574,7 @@ public class Slots extends JPanel {
 	 */
 	private void insertCard(JButton slotButton, int slotNo) {
 		FileArea fa = null; 
-		File eprFile = null;
-		String eprFilename = null;
+		File cardImageFiles[] = null;
 		int internalCardType = 0;
 		
 		// re-initialize standard checkbox text
@@ -614,7 +612,7 @@ public class Slots extends JPanel {
 		
 		getFileAreaCheckBox().setSelected(false); // default no file area on card...
 		getAppAreaLabel().setText(defaultAppLoadText);
-		epromFileChooser = fileAreaChooser = null;
+		cardImageFileChooser = fileAreaChooser = null;
 
 		if (lastRemovedCard[slotNo] != null)
 			// The user may choose to re-insert a previously removed card
@@ -635,14 +633,9 @@ public class Slots extends JPanel {
 				lastRemovedCard[slotNo] = null;
 				OZvm.displayRtmMessage("Re-inserted previously removed Card back to slot " + slotNo);
 			} else {
-				if (epromFileChooser != null) {
+				if (cardImageFileChooser != null) {
 					// load an EPR image on the card: start with opening the file
-					eprFilename = epromFileChooser.getSelectedFile().getAbsolutePath();						
-					if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
-						// append ".epr" extension if not specified by user... 
-						eprFilename += ".epr";
-					}
-					eprFile = new File(eprFilename);						
+					cardImageFiles = cardImageFileChooser.getSelectedFiles();						
 				}
 	
 				switch (getCardTypeComboBox().getSelectedIndex()) {
@@ -669,27 +662,16 @@ public class Slots extends JPanel {
 						break;
 				}
 	
-				if (eprFile != null) {
-					// A selected Eprom was also marked to load an (app) image.. 
-					if (FileArea.checkFileAreaImage(eprFile) == true |
-						ApplicationInfo.checkAppImage(eprFile) == true) {
-						
-						try {
-							memory.loadFileImageOnCard(slotNo, cardSizeK, internalCardType, eprFile);
-						} catch (IOException e1) {
-							JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
-									"Insert Card Error", JOptionPane.ERROR_MESSAGE);
-							blink.signalFlapClosed();
-							Z88.getInstance().getDisplay().grabFocus();
-							return;
-						}
-					} else {
-						JOptionPane.showMessageDialog(Slots.this, 
-								"Selected EPR file image didn't contain a valid File or Application Card" ,
+				if (cardImageFiles != null) {
+					// A selected Card was also marked to load an (app) image.. 						
+					try {
+						memory.loadFileImagesOnCard(slotNo, cardSizeK, internalCardType, cardImageFiles);
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(Slots.this, e1.getMessage(),
 								"Insert Card Error", JOptionPane.ERROR_MESSAGE);
 						blink.signalFlapClosed();
 						Z88.getInstance().getDisplay().grabFocus();
-						return;						
+						return;
 					}
 				} else {
 					// Insert a selected Eprom type (which is not to be loaded with a file image...
@@ -1111,31 +1093,35 @@ public class Slots extends JPanel {
 		if (browseAppsButton == null) {
 			browseAppsButton = new JButton();
 			browseAppsButton.setFont(buttonFont);
-			browseAppsButton.setText("Load Image..");
+			browseAppsButton.setText("Load Images..");
 
 			browseAppsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					epromFileChooser = new JFileChooser(currentEpromDir);
-					epromFileChooser
-							.setDialogTitle("Load EPR image file into card");
-					epromFileChooser.setMultiSelectionEnabled(false);
-					epromFileChooser
+					cardImageFileChooser = new JFileChooser(currentEpromDir);
+					cardImageFileChooser
+							.setDialogTitle("Load eprom and/or 16K bank file images into card");
+					cardImageFileChooser.setMultiSelectionEnabled(true);
+					cardImageFileChooser
 							.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					epromFileChooser.setFileFilter(eprfileFilter);
+					cardImageFileChooser.setFileFilter(eprfileFilter);
 
-					int returnVal = epromFileChooser.showOpenDialog(Slots.this.getParent());
+					int returnVal = cardImageFileChooser.showOpenDialog(Slots.this.getParent());
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						// remember current directory for next time..
-						currentEpromDir = epromFileChooser.getCurrentDirectory();
-						String eprFilename = epromFileChooser.getSelectedFile().getAbsolutePath();
-						if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
-							// append ".epr" extension if not specified by user... 
-							eprFilename += ".epr";
+						currentEpromDir = cardImageFileChooser.getCurrentDirectory();
+						if (cardImageFileChooser.getSelectedFiles().length == 1) {
+							String eprFilename = cardImageFileChooser.getSelectedFile().getAbsolutePath();
+							if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
+								// append ".epr" extension if not specified by user... 
+								eprFilename += ".epr";
+							}
+							File eprFile = new File(eprFilename);
+	
+							getAppAreaLabel().setText(eprFile.getName());
+						} else {
+							getAppAreaLabel().setText("Multiple file images");
 						}
-						File eprFile = new File(eprFilename);
-
-						getAppAreaLabel().setText(eprFile.getName());
 					} else {
 						getAppAreaLabel().setText(defaultAppLoadText);
 					}					

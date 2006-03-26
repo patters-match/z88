@@ -530,7 +530,7 @@ public final class Memory {
 	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
-	public boolean insertFileEprCard(int slot, int sizeK, int eprType) {
+	public boolean insertFileCard(int slot, int sizeK, int eprType) {
 		if (insertEprCard(slot, sizeK, eprType) == true) {
 			return FileArea.create(slot, true); // format file area...
 		} else {
@@ -597,6 +597,62 @@ public final class Memory {
 	}
 
 	/**
+	 * Load a list of card images or bank images on specific Card Hardware.
+	 * A (file) image more than 16K size will be loaded to the top of the card and downwards, 
+	 * eg. a 32K image will be loaded into the top two banks of the Eprom card ($3E and $3F). 
+	 * Bank images will be loaded into the bank number as specified by the filename extension.
+	 *
+	 * @param slot to insert card with loaded binary image
+	 * @param sizeK of Card in Kb
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
+	 * @param selectedFiles a collection of selected filenames
+	 * @throws IOException
+	 */
+	public void loadFileImagesOnCard(int slot, int sizeK, int eprType, File selectedFiles[]) throws IOException {
+		int bankNo, cardBankNo;
+		sizeK -= (sizeK % (Bank.SIZE/1024));
+		Bank banks[] = createCard(sizeK, eprType);
+		if (banks == null) {
+			throw new IOException("Illegal card type or size!");
+		}
+
+		for (int f=0; f<selectedFiles.length; f++) {
+			if (selectedFiles[f].isFile() == true) {								
+				RandomAccessFile fimg = new RandomAccessFile(selectedFiles[f], "r");
+				int fileLength = (int) fimg.length();
+				fimg.close();
+				if (fileLength > Bank.SIZE) {
+					loadBinaryImageIntoContainer(banks, fileLength, new FileInputStream(selectedFiles[f]));
+				} else {
+					try {
+						String filename = selectedFiles[f].getName();
+						bankNo = Integer.parseInt(filename.substring(filename.lastIndexOf(".")+1));
+					} catch (NumberFormatException e) {
+						// this file is apparently as bank file, but without the .63 extension
+						// define the bank file number as default 63
+						bankNo = 63;
+					}
+	
+					if (bankNo < 0 | bankNo > 63) {
+						throw new IOException("Illegal bank file number (must be 0-63)!");
+					}
+	
+					// load only a bank file identified with bank number,
+					// that is within the card size range
+					cardBankNo = (banks.length-1) - (63-bankNo);
+					if (cardBankNo >= 0 ) {
+						loadBankBinary(banks[cardBankNo], 0, selectedFiles[f]);
+					}
+				} 
+			}
+		}
+
+		// complete Card image now loaded into container
+		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
+		insertCard(banks, slot & 3);
+	}
+	
+	/**
 	 * Load 16K bank files into specific Card Hardware.
 	 * The 16K images will be loaded relative to the top of the card. The remaining banks of the
 	 * card will be left untouched (initialized as being empty).
@@ -635,12 +691,12 @@ public final class Memory {
 					continue;
 				}
 
-				if (bankNo > 63) {
-					throw new IOException("Bank file number > 63!");
+				if (bankNo < 0 | bankNo > 63) {
+					throw new IOException("Illegal bank file number (must be 0-63)!");
 				}
 
 				// load only a bank file identified with bank number,
-				// that is withing the card size range
+				// that is within the card size range
 				int cardBankNo = (banks.length-1) - (63-bankNo);
 				if (cardBankNo >= 0 ) {
 					loadBankBinary(banks[cardBankNo], 0, 
