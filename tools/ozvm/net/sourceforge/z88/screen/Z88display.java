@@ -40,6 +40,7 @@ import com.imagero.util.ThreadManager;
 import net.sourceforge.z88.Blink;
 import net.sourceforge.z88.Memory;
 import net.sourceforge.z88.OZvm;
+import net.sourceforge.z88.Z80Processor;
 import net.sourceforge.z88.Z88;
 
 /**
@@ -238,12 +239,15 @@ public class Z88display extends JLabel implements MouseListener {
 	/** bank references to the font pixels in OZ */
 	private int bankLores0, bankLores1, bankHires0, bankHires1, bankSbr;
 
+	private Z80Processor z80Proc; 
+	
 	/** constructor */
 	public Z88display() {
 		super();
 		
 		blink = Z88.getInstance().getBlink();
 		memory = Z88.getInstance().getMemory();
+		z80Proc = Z88.getInstance().getProcessor();
 		
 		curRenderSpeedIndex = FPS25;
 		movieHelper = new ThreadManager(1);
@@ -810,7 +814,7 @@ public class Z88display extends JLabel implements MouseListener {
 			frameDelay += (1000 / fps[curRenderSpeedIndex]);
 			
 			// update cursor flash and ordinary flash counters
-			if (Z88.getInstance().getProcessor().isZ80running() == true)
+			if (z80Proc.isZ80running() == true)
 				flashCounter();
 			renderDisplay(); // then render display...
 		}
