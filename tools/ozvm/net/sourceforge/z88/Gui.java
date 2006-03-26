@@ -68,11 +68,11 @@ public class Gui extends JFrame {
 	private Blink blink; 
 	private boolean fullScreenMode;
 	
-	private ButtonGroup kbLayoutButtonGroup = new ButtonGroup();
-	private ButtonGroup scrRefreshRateButtonGroup = new ButtonGroup();
+	private ButtonGroup kbLayoutButtonGroup;
+	private ButtonGroup scrRefreshRateButtonGroup;
 	
-	private JScrollPane jRtmOutputScrollPane = null;
-	private JTextArea jRtmOutputArea = null;
+	private JScrollPane jRtmOutputScrollPane;
+	private JTextArea jRtmOutputArea;
 
 	private JToolBar toolBar;
 	private JButton toolBarButton1;
@@ -943,6 +943,9 @@ public class Gui extends JFrame {
 		fullScreenMode = fullScreen;
 		
 		blink = Z88.getInstance().getBlink();
+		
+		kbLayoutButtonGroup = new ButtonGroup();
+		scrRefreshRateButtonGroup = new ButtonGroup();
 		
 		// set window decoration, depending on full screen or not
 		setUndecorated(fullScreen); 

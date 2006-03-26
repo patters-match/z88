@@ -28,8 +28,8 @@ import java.util.Iterator;
  * Manage breakpoint addresses in Z88 virtual machine.
  */
 public class Breakpoints {
-    private Map breakPoints = null;
-	private Breakpoint bpSearchKey = null;
+    private Map breakPoints;
+	private Breakpoint bpSearchKey;
 	
     /**
      * Just instantiate this Breakpoint Manager

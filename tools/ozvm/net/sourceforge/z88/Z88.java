@@ -35,7 +35,7 @@ public class Z88 {
 	/**
 	 * Reference to the current executing Z80 processor.
 	 */
-	private Thread z80Thread = null;
+	private Thread z80Thread;
 	
 	
 	/**

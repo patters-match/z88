@@ -31,12 +31,12 @@ import javax.swing.JFrame;
  */
 public class DebugGui extends JFrame {
 	
-	private javax.swing.JMenuBar jJMenuBar = null;
-	private javax.swing.JMenu jFileMenu = null;  
+	private javax.swing.JMenuBar jJMenuBar;
+	private javax.swing.JMenu jFileMenu;  
 	
-	private javax.swing.JTextArea jCmdOutput = null;  
-	private javax.swing.JTextField jCmdlineInput = null;  
-	private javax.swing.JScrollPane jCmdLineScrollPane = null;
+	private javax.swing.JTextArea jCmdOutput;  
+	private javax.swing.JTextField jCmdlineInput;  
+	private javax.swing.JScrollPane jCmdLineScrollPane;
 
 	/**
 	 * This is the default constructor

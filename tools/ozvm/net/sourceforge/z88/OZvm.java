@@ -55,7 +55,7 @@ public class OZvm {
 	public static final String VERSION = "0.5.dev.7";
 
 	/** (default) boot the virtual machine, once it has been loaded */
-	private boolean autoRun = true;
+	private boolean autoRun;
 	
 	/** Graphics device used for full screen mode */
 	private GraphicsDevice device;
@@ -65,10 +65,10 @@ public class OZvm {
 	
 	private String guiKbLayout;
 	
-	private	Blink blink = null;
-	private	Memory memory =	null;
-	private CommandLine cmdLine = null;	
-	private Gui gui = null;
+	private	Blink blink;
+	private	Memory memory;
+	private CommandLine cmdLine;	
+	private Gui gui;
 
 	private boolean debugMode;
 
@@ -79,6 +79,8 @@ public class OZvm {
         // get a display mode for 640x480, 16bit colour depth, used for full screen display
         displayModeFullScreen = new DisplayMode(640, 480, 16, DisplayMode.REFRESH_RATE_UNKNOWN);
     
+        autoRun = true; // default autorun...
+        
         // default keyboard layout is UK (for english 4.0 ROM)
         guiKbLayout = "uk";
         

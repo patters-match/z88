@@ -69,16 +69,7 @@ public class Z88display extends JLabel implements MouseListener {
 
 	/** Size of Z88 Screen Base File (in bytes) */
 	private static final int SBRSIZE = 2048;
-	
-	/** The internal screen frame renderer */
-	private RenderPerMs renderPerMs;
-	
-	/** is the screen being updated at the moment, or not... */	
-	private boolean renderRunning;
 		
-	/** points at the current framerate group, default 25 fps */
-	private int curRenderSpeedIndex = FPS25;
-	
 	/** Runtime selection of Z88 screen frames per second */
 	private static final int fps[] = new int[] {10, 25, 50, 100};
 
@@ -117,27 +108,6 @@ public class Z88display extends JLabel implements MouseListener {
 
 	/** Lores cursor (6x8 pixel inverse flashing) */
 	private static final int attrCursor = attrHrs | attrRev | attrFls;
-
-	/** separate Thread to manage movie recording of screen activity */
-	private ThreadManager movieHelper = new ThreadManager(1);  
-
-	/** output stream to animated Gif movie */
-	private OutputStream movieOutputStream;
-
-	/** current filename of animated Gif file used during screen recording */
-	private String movieFilename;
-
-	/** The image (based on pixel data array) to be rendered onto Swing Component */
-	private BufferedImage image;
-
-	/** Screen dump counter */
-	private int scrdumpCounter;
-
-	/** Animated Gif Movie Counter */
-	private int movieCounter;
-
-	/** The currently recording screen movie */
-	private Gif89Encoder gifEncoder; 
 
 	/**
 	 * Internal helper class that represent each frame to be saved
@@ -196,6 +166,36 @@ public class Z88display extends JLabel implements MouseListener {
 		}
 	}
 		
+	/** The internal screen frame renderer */
+	private RenderPerMs renderPerMs;
+	
+	/** is the screen being updated at the moment, or not... */	
+	private boolean renderRunning;
+		
+	/** points at the current framerate group, default 25 fps */
+	private int curRenderSpeedIndex;
+	
+	/** separate Thread to manage movie recording of screen activity */
+	private ThreadManager movieHelper;  
+
+	/** output stream to animated Gif movie */
+	private OutputStream movieOutputStream;
+
+	/** current filename of animated Gif file used during screen recording */
+	private String movieFilename;
+
+	/** The image (based on pixel data array) to be rendered onto Swing Component */
+	private BufferedImage image;
+
+	/** Screen dump counter */
+	private int scrdumpCounter;
+
+	/** Animated Gif Movie Counter */
+	private int movieCounter;
+
+	/** The currently recording screen movie */
+	private Gif89Encoder gifEncoder; 
+
 	/** 
 	 * Accumulated time in ms since last displayed frame,
 	 * produced by renderDisplay().
@@ -203,7 +203,7 @@ public class Z88display extends JLabel implements MouseListener {
 	private int frameDelay;
 	
 	/** queue of frames to be encoded as animated Gif's */
-	private LinkedList screenFrameQueue = new LinkedList();	
+	private LinkedList screenFrameQueue;	
 	
 	/** Cyclic counter that identifies number of frames displayed per second */
 	private int frameCounter;
@@ -218,7 +218,7 @@ public class Z88display extends JLabel implements MouseListener {
 	private boolean recordingMovie;
 
 	/** Start cursor flash as dark */
-	private boolean cursorInverse = true;
+	private boolean cursorInverse;
 
 	/** Start text flash as dark, ie. text looks normal for 1 sec */
 	private boolean flashTextEmpty;
@@ -244,6 +244,11 @@ public class Z88display extends JLabel implements MouseListener {
 		
 		blink = Z88.getInstance().getBlink();
 		memory = Z88.getInstance().getMemory();
+		
+		curRenderSpeedIndex = FPS25;
+		movieHelper = new ThreadManager(1);
+		screenFrameQueue = new LinkedList();		
+		cursorInverse = true;
 		
 		displayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];
 		cpyDisplayMatrix = new int[Z88SCREENWIDTH * Z88SCREENHEIGHT];

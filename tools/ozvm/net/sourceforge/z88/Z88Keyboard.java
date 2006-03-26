@@ -77,12 +77,12 @@ public class Z88Keyboard {
 	private RubberKeyboard rubberKb;
 	
 	/** Current Keyboard layout Country Code (default = COUNTRY_EN during boot of OZvm) */ 
-    private int currentKbLayoutCountryCode = COUNTRY_EN;
+    private int currentKbLayoutCountryCode;
 
     private Map currentKbLayout;
     private Map[] z88Keyboards;			// country specific keyboard layouts
     
-	private int keyRows[] = new int[8];	// Z88 Hardware Keyboard (8x8) Matrix
+	private int keyRows[];				// Z88 Hardware Keyboard (8x8) Matrix
 	private KeyPress z88RshKey;			// Right Shift Key
 	private KeyPress z88LshKey;			// Left Shift Key
 
@@ -138,6 +138,9 @@ public class Z88Keyboard {
      * Create the instance to bind the blink and Swing widget together.
      */
 	public Z88Keyboard() {
+		currentKbLayoutCountryCode = COUNTRY_EN;
+		keyRows = new int[8];	// Z88 Hardware Keyboard (8x8) Matrix
+		
 		searchKey = new KeyPress(0,0); // create a search key instance 		
 
 		for(int r=0; r<8;r++) keyRows[r] = 0xFF;	// Initialize to no keys pressed in z88 key matrix

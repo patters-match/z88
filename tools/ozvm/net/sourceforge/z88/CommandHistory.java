@@ -26,14 +26,15 @@ import java.util.LinkedList;
  * browse the command history at command input using <UP> or <DOWN> arrows. 
  */
 public class CommandHistory {
-	private LinkedList commands = null;
-	private int currentCommandIndex = -1;
+	private LinkedList commands;
+	private int currentCommandIndex;
 	
 	/**
 	 * 
 	 */
 	public CommandHistory() {
 		commands = new LinkedList();
+		currentCommandIndex = -1;
 	}
 
 	/**

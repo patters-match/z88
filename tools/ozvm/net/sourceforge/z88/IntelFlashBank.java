@@ -50,13 +50,13 @@ public class IntelFlashBank extends Bank {
 	 * Read Array Mode state applies for the complete slot which this bank
 	 * is part of.
 	 */
-	private boolean readArrayMode = true;
+	private boolean readArrayMode;
 			
 	/**
 	 * The command code of the executing command.
 	 * Is set to 0, when no command is executing (isCommandExecuting = false). 
 	 */
-	private int executingCommandCode = 0;
+	private int executingCommandCode;
 
 	/**
 	 * The Command Mode Status Register.
@@ -65,7 +65,7 @@ public class IntelFlashBank extends Bank {
 	 *  
 	 * Is set to 0, when no command is executing (isCommandExecuting = false). 
 	 */
-	private int statusRegister = 0;
+	private int statusRegister;
 	
 	/** 
 	 * Access to the Z88 hardware & memory model (needed when the Erase command

@@ -27,10 +27,12 @@ import java.util.Random;
  * random data. Writing a byte to an empty slot has no effect.
  */
 public final class VoidBank extends Bank {
-	private Random generator = new Random();
+	private Random generator;
 
 	public VoidBank() {
 		super();		
+		
+		generator = new Random();
 	}
 
 	/**

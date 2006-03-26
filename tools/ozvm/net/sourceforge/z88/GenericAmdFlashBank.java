@@ -49,13 +49,13 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * Read Array Mode state applies for the complete slot which this bank
 	 * is part of.
 	 */
-	private boolean readArrayMode = true;
+	private boolean readArrayMode;
 
 	/**
 	 * Set to True, if a command reports failure, which continues
 	 * to display the error toggle through the read status cycle.
 	 */
-	private boolean signalCommandFailure = false;
+	private boolean signalCommandFailure;
 
 	/**
 	 * A command sequence consists of two unlock cycles, followed by a
@@ -87,7 +87,7 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * being validated against the incoming command cycles (the
 	 * processor write byte cycles)
 	 */
-	private SequenceStack commandUnlockCycleStack = null;
+	private SequenceStack commandUnlockCycleStack;
 
 	/**
 	 * Whenever a Flash memory command has executed it's functionality,
@@ -96,7 +96,7 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * contain read status sequences for commands reporting success
 	 * or failure.
 	 */
-	private SequenceStack readStatusStack = null;
+	private SequenceStack readStatusStack;
 
 	/**
 	 * Status of ongoing accumulation of Flash Memory command, [<b>true</b>]
@@ -105,19 +105,19 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * cycles followed by the command code (The Erase commands consists of two
 	 * sections of three cycle command sequences).
 	 */
-	private boolean isCommandAccumulating = false;
+	private boolean isCommandAccumulating;
 
 	/**
 	 * Indicate if a command is being executed [<b>true</b>]
 	 * (Blow Byte, Erase Sector/Chip or Auto-Select Mode command).
 	 */
-	private boolean isCommandExecuting = false;
+	private boolean isCommandExecuting;
 
 	/**
 	 * The command code of the executing command.
 	 * Is set to 0, when no command is executing (isCommandExecuting = false).
 	 */
-	private int executingCommandCode = 0;
+	private int executingCommandCode;
 
 
 	/**

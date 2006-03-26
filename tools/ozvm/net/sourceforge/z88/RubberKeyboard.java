@@ -44,13 +44,13 @@ import com.imagero.util.ThreadManager;
  */
 public class RubberKeyboard extends JPanel {
 		
-	private Hashtable kbStdIcons = new Hashtable();
-	private Hashtable kbLanguageIconsUk = new Hashtable(); 
-	private Hashtable kbLanguageIconsSe = new Hashtable();
-	private Hashtable kbLanguageIconsDk = new Hashtable();
-	private Hashtable kbLanguageIconsFr = new Hashtable();
+	private Hashtable kbStdIcons;
+	private Hashtable kbLanguageIconsUk; 
+	private Hashtable kbLanguageIconsSe;
+	private Hashtable kbLanguageIconsDk;
+	private Hashtable kbLanguageIconsFr;
 
-	ThreadManager threadMgr = new ThreadManager(1);
+	private ThreadManager threadMgr;
 	private JLabel display;
 	private Z88Keyboard keyboard;
 	
@@ -133,6 +133,13 @@ public class RubberKeyboard extends JPanel {
 
 	public RubberKeyboard() {
 		super();
+		kbStdIcons = new Hashtable();
+		kbLanguageIconsUk = new Hashtable(); 
+		kbLanguageIconsSe = new Hashtable();
+		kbLanguageIconsDk = new Hashtable();
+		kbLanguageIconsFr = new Hashtable();
+
+		threadMgr = new ThreadManager(1);
 
 		display = Z88.getInstance().getDisplay();
 		keyboard = Z88.getInstance().getKeyboard();
