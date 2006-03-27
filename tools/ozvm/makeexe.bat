@@ -45,5 +45,5 @@ FOR %%c IN (CALL DEL) DO %%c %temp%.\setdir.bat
 
 :: --------------------------------------------------------------------------
 :: then create the EXE program (wrapping the JAR file)
-launch4jc.exe %cd%\launch4j\launch4j-ozvm.xml
+launch4jc.exe "%cd%\launch4j\launch4j-ozvm.xml"
 :: --------------------------------------------------------------------------
