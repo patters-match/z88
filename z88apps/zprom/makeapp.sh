@@ -28,6 +28,3 @@ rm -f *.obj *.bin *.map zprom.epr
 
 # Create a 32K Rom Card with Zprom ($3E contains MTH, $3F contains application code)
 java -jar ../../tools/makeapp/makeapp.jar -sz 32 zprom.epr tokens.bin 3e0000 mthzprom.bin 3e1200 zprom.bin 3fc000 romhdr.bin 3f3fc0
-
-# Execute OZvm with preloaded 128K RAM in slot 1 and Zprom in slot 3 on a 32K Eprom
-java -jar ../../tools/ozvm/z88.jar ram1 128 crd3 32 27C zprom.epr
