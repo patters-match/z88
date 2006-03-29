@@ -13,17 +13,17 @@
 ; **************************************************************************************************
 ; This file is part of Zprom.
 ;
-; Zprom is free software; you can redistribute it and/or modify it under 
+; Zprom is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; Zprom is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with the Zprom; 
+; You should have received a copy of the GNU General Public License along with the Zprom;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -705,7 +705,7 @@
 ; *******************************************************************************************************************
 ;
 .Zprom_help         DEFB $7F
-                    DEFM $AF , $81 , " V1.4.1 - " , $90 , " " , $C8 , " " , $8F , " " , $B4 , "m" , $FE , $81 , $7F
+                    DEFM $AF , $81 , " V1.4.2 - " , $90 , " " , $C8 , " " , $8F , " " , $B4 , "m" , $FE , $81 , $7F
                     DEFM $B6 , $7F
                     DEFM $B7 , $7F
                     DEFM $7F , $80 , $AF , " may " , $F2 , $F1 , "us" , $DA , $DE , " produce illegal copies" , $FF , $90 , $7F

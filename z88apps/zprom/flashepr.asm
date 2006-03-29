@@ -283,15 +283,22 @@
                     CALL FlashEprCardId
                     RET  C
 
-                    LD   A,L                      ; get Device Code in A.
+                    LD   A,L                      ; get Device Code
+                    LD   C,H                      ; get Manufacturer Code
                     PUSH DE
                     LD   HL, FlashEprTypes
-                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
                     LD   B,(HL)                   ; no. of Flash Eprom Types in table
                     INC  HL
 .find_loop          CP   (HL)                     ; device code found?
                     JR   NZ, get_next
                          INC  HL                  ; points at manufacturer code
+                         LD   E,A
+                         LD   A,(HL)
+                         CP   C
+                         LD   A,E
+                         DEC  HL
+                         JR   NZ,get_next
+                         INC  HL
                          INC  HL
                          LD   B,(HL)              ; B = total of block on Flash Eprom
                          INC  HL
@@ -302,7 +309,9 @@
                          EX   DE,HL               ; HL = pointer to mnemonic string
                          POP  DE
                          RET                      ; Fc = 0, Flash Eprom data returned...
-.get_next           ADD  HL,DE
+.get_next
+                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
+                    ADD  HL,DE
                     DJNZ find_loop                ; point at next entry...
                     SCF
                     POP  DE                       ; Flash Eprom Device Code not recognised
