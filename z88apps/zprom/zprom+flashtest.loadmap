@@ -1,0 +1,29 @@
+; **************************************************************************************************
+; Zprom / FlashTest loadmap for MakeApp.
+;
+; Zprom & FlashTest is free software; you can redistribute it and/or modify it under
+; the terms of theGNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; Zprom & FlashTest is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with Zprom & FlashTest;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+; **************************************************************************************************
+
+; generate a 32K Eprom image
+outputfile zprom.epr
+size 32
+
+tokens.bin 3e0000                  ; Token table for Zprom MTH
+mthzprom.bin 3e0400                ; MTH for Zprom application
+
+zprom.bin 3fc000                   ; load Zprom Application code
+patch 3f0003 00 eb 3f              ; patch Zprom DOR to point at FlashTest DOR
+
+..\flashtest\fltest.bin 3feb00     ; FlashTest DOR & Application
+
+romhdr.bin 3f3fc0                  ; ROM Application header at top of card
