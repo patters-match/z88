@@ -41,10 +41,12 @@ public class MakeApp {
 
 	private int appCardBanks = 1; // default output is 16K bank
 	private int appCardSize = 16;
-	private boolean splitBanks = false;
+	private boolean splitBanks;
+    private int lineNo;
 
 	private RomBank[] banks;
 	private String outputFilename;
+	private String loadmapFilename;
 
 
 	/**
@@ -65,7 +67,32 @@ public class MakeApp {
 		return hexString.toString();
 	}
 
+	/**
+	 * Parse integer value from string (fetched from command line or loadmap file)
+	 * and interpret it as the card size. The value must be a valid card size and not
+	 * larger than 1Mb (max size of Z88 slot).
+	 *
+	 * Card size is evaluated as size in K.
+	 *
+	 * @param v
+	 * @return card sice in K, or -1 if the value was illegal or badly formed
+	 */
+	private int getHexValue(String v) {
+		int hexValue;
 
+		try {
+			hexValue = Integer.parseInt(v, 16);
+		} catch (NumberFormatException e) {
+			System.err.println(
+					loadmapFilename + ", at line " + lineNo + ", " +
+					"Illegal hexadecimal value. Use only digits 0-9, A-F.");
+			hexValue = -1;
+		}
+
+		return hexValue;
+	}
+
+	
 	/**
 	 * Parse integer value from string (fetched from command line or loadmap file)
 	 * and interpret it as the card size. The value must be a valid card size and not
@@ -86,6 +113,9 @@ public class MakeApp {
 				cardSize = -1;
 			}
 		} catch (NumberFormatException e) {
+			System.err.println(
+					loadmapFilename + ", at line " + lineNo + ", " +
+					"Illegal card size. Use only: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
 			cardSize = -1;
 		}
 
@@ -133,6 +163,8 @@ public class MakeApp {
 	 * outputfile <filename>  ; filename of combined binary
 	 * size <size>            ; total file size K, from 16K-1024K
 	 * save16k                ; save output as 16K bank files
+	 * patch <addr> {<byte>}  ; patch memory buffer at address with byte(s)
+	 *                        ; (hex bytes are separated with spaces)  
 	 * </pre>
 	 *
 	 * Remaining directive are to be interpreted as file(names) and offset
@@ -141,10 +173,9 @@ public class MakeApp {
 	 * @param loadmapFilename
 	 * @return true, if file was parsed successfully.
 	 */
-	private boolean parseLoadMapFile(String loadmapFilename) {
+	private boolean parseLoadMapFile() {
         BufferedReader in = null;
         String str;
-        int lineNo=0;
 
 		try {
 	        in = new BufferedReader(new FileReader(loadmapFilename));
@@ -170,23 +201,27 @@ public class MakeApp {
 						if (appCardSize != -1) {
 							appCardBanks = appCardSize / 16;
 						} else {
-							System.err.println(
-									loadmapFilename + ", at line " + lineNo + ", " +
-									"Illegal card size. Use only: 16K, 32K, 64K, 128K, 256K, 512K or 1024K.");
 							return false;
 						}
 
 						banks = new RomBank[appCardBanks]; // the card container
 						for (int b=0; b<appCardBanks; b++) banks[b] = new RomBank(); // container filled with memory...
 
+	        		} else if (directive[0].compareToIgnoreCase("patch") == 0) {
+	        			if (patchBuffer(directive) == false)
+	        				return false;
 	        		} else {
 	        			// all other directive are file names and offsets...
 	        			if (directive.length == 2 & directive[0].length() != 0) {
-							int offset = Integer.parseInt(directive[1], 16);
-							if ( loadCode(directive[0], (offset & 0x3f0000) >>> 16, offset & 0x3fff) == false ) {
-								System.err.println(loadmapFilename + ", at line " + lineNo + ", File binary couldn't be loaded.");
-								return false;
-							}
+							int offset = getHexValue(directive[1]);
+							if (offset != -1) { 
+								if ( loadCode(directive[0], (offset & 0x3f0000) >>> 16, offset & 0x3fff) == false ) {
+									System.err.println(loadmapFilename + ", at line " + lineNo + ", File binary couldn't be loaded.");
+									return false;
+								}
+		        			} else {
+		        				return false;
+		        			}
 	        			}
 	        		}
 	        	}
@@ -198,7 +233,7 @@ public class MakeApp {
 	    	return false;
 	    } catch (NumberFormatException e) {
 	    	if (in != null) try { in.close(); } catch (IOException e1) {}
-			System.err.println(loadmapFilename + ", at line " + lineNo + "Illegal bank offset.");
+			System.err.println(loadmapFilename + ", at line " + lineNo + ", Illegal bank offset.");
 			return false;
 		}
 
@@ -206,6 +241,42 @@ public class MakeApp {
 	}
 
 
+	/**
+	 * Parse the directive and patch bytes at specified buffer locations.
+	 * patchargument[1] contains the patch address, followed by byte arguments.
+	 * 
+	 * @param patchargument
+	 * @return false if no buffer has yet been loaded or illegal numbers were parsed
+	 */
+	private boolean patchBuffer(String patchargument[]) {
+		
+		if (patchargument.length < 3) {
+			System.err.println(loadmapFilename + ", at line " + lineNo + ", insufficient patch address arguments.");
+			return false;
+		}
+		if (banks == null) {
+			System.err.println(loadmapFilename + ", at line " + lineNo + ", Buffer hasn't been created yet!");
+			return false;			
+		}
+		
+		int patchAddr = getHexValue(patchargument[1]);
+		for(int i=2; i<patchargument.length; i++) {
+			int bankNo = ((patchAddr & 0x3f0000) >>> 16) & (appCardBanks-1);
+			int offset = patchAddr & 0x3fff;
+			int patchByte = getHexValue(patchargument[i]);
+			
+			if (patchAddr == -1 | patchByte == -1) {
+				System.err.println(loadmapFilename + ", at line " + lineNo + ", illegal patch address arguments.");
+				return false;				
+			}
+
+			banks[bankNo].setByte(offset, patchByte);
+			patchAddr++;
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * Load the specified code into the final code space <b>banks</b> at bank, offset.
 	 * The function will check for bank boundary code loading overlap errors, and
@@ -261,7 +332,8 @@ public class MakeApp {
 
 				if (args[0].compareToIgnoreCase("-f") == 0) {
 					// parse contents of loadmap file...
-					if (parseLoadMapFile(args[1]) == false) {
+					loadmapFilename = args[1];
+					if (parseLoadMapFile() == false) {
 						return;
 					}
 				} else {
@@ -353,6 +425,7 @@ public class MakeApp {
 		System.out.println("1) outputfile <filename>  ; filename of combined binary.");
 		System.out.println("2) size <size>            ; total file size K, from 16K-1024K");
 		System.out.println("3) save16k                ; save output as 16K bank files (optional)");
+		System.out.println("4) patch <addr> {<byte>}  ; patch memory buffer at address with byte(s)");
 		System.out.println("x) <input.file> <offset>  ; the binary file fragment to load at offset");
 	}
 
