@@ -15,8 +15,20 @@
 :: $Id$
 ::
 :: *************************************************************************************
+@echo off
 
-del flashtest.epr appl.bin flashtest.epr
-..\..\tools\mpm\mpm -t -I..\..\oz\sysdef -l..\..\stdlib\standard.lib -b fltest.asm
+del *.obj *.map flashtest.epr fltest.bin romhdr.bin
+..\..\tools\mpm\mpm -I..\..\oz\sysdef -l..\..\stdlib\standard.lib -b fltest.asm
 ..\..\tools\mpm\mpm -b romhdr.asm
+dir *.err 2>nul >nul || goto CREATE_EPR
+goto LIST_ERRORS
+
+:CREATE_EPR
+:: Create a 16K Rom Card with FlashTest
 java -jar ..\..\tools\makeapp\makeapp.jar flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
+goto END
+
+:LIST_ERRORS
+del *.obj *.map flashtest.epr fltest.bin romhdr.bin
+type *.err
+:END

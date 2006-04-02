@@ -18,7 +18,13 @@
 #
 # *************************************************************************************
 
-rm -f flashtest.epr appl.bin
-../../tools/mpm/mpm -t -I../../oz/sysdef -l../../stdlib/standard.lib -b fltest.asm
+rm -f *.obj *.map flashtest.epr fltest.bin romhdr.bin
+../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib fltest.asm
 ../../tools/mpm/mpm -b romhdr.asm
-java -jar ../../tools/makeapp/makeapp.jar flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
+if test `find . -name '*.err' | wc -l` != 0; then
+    rm -f *.obj *.map flashtest.epr fltest.bin romhdr.bin
+    cat *.err
+else
+    # Create a 16K Rom Card with FlashTest
+     java -jar ../../tools/makeapp/makeapp.jar flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
+fi
