@@ -257,6 +257,7 @@ endif
                     LD   D,8                 ; loop count, D0-D7
                     CALL VerifyByte          ; Make sure that memory at (BHL) is $FF before we begin..
                     JR   Z, byte_empty
+.EmptyErrorMsg
                     PUSH HL
                     LD   A, B
                     AND  @00111111
@@ -279,6 +280,7 @@ endif
 .databus_loop
                     CALL VerifyByte
                     JR   Z, blow_datapin
+.VerifyErrorMsg
                     PUSH HL
                     LD   A, B
                     LD   (ExtAddr),A
@@ -348,9 +350,24 @@ endif
                     SET  6,B
                     SET  7,B                 ; B = top of slot 3
 .test_nextbank_loop
+                    LD   HL, testaddrline_msg
+                    CALL_OZ(Gn_Sop)
+
+                    LD   A,B
+                    AND  @00111111           ; display relative bank number
+                    CALL DispHex8Number
+                    CALL_OZ(GN_nln)
                     LD   HL,1                ; begin with address pin 0 for each bank
 .test_nextoffset_loop
-                    CALL WriteByte           ; test-blow a byte at (BHL), report error in routine...
+                    LD   C,$FF
+                    CALL VerifyByte          ; Make sure that memory at (BHL) is $FF before we begin..
+                    CALL C,EmptyErrorMsg
+
+                    LD   C,@10101010
+                    LD   A,C
+                    CALL FlashEprWriteByte
+                    CALL VerifyByte
+                    CALL C,VerifyErrorMsg
                     ADD  HL,HL               ; next address pin
                     BIT  6,H                 ; A0-A14 tested?
                     JR   Z, test_nextoffset_loop
@@ -360,7 +377,7 @@ endif
                     CP   B                   ; tested bottom bank of slot 3?
                     JR   NZ,test_nextbank_loop
                     RET                      ; return Fc = 0...
-
+.testaddrline_msg   DEFM "Test address lines in Bank ",0
 
 ; ******************************************************************
 ;
