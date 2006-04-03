@@ -364,8 +364,27 @@ endif
 
 ; ******************************************************************
 ;
-.ProgramCard        XOR  A
+.ProgramCard
+                    LD   HL,0
+                    ADD  HL,SP
+                    LD   IX,-512
+                    ADD  IX,SP               ; IX points at start of buffer
+                    LD   SP,IX               ; 512 byte buffer created...
+                    PUSH HL                  ; preserve original SP
+
+                    XOR  A
                     LD   (ErrorFlag),A
+
+                    LD   BC,512
+                    PUSH IX
+                    POP  HL
+.null_buffer
+                    LD   (HL),0
+                    INC  HL
+                    DEC  BC
+                    LD   A,B
+                    OR   C
+                    JR   NZ, null_buffer     ; (buffer) = 0
 
                     LD   C,3
                     CALL FlashEprCardId
@@ -387,15 +406,16 @@ endif
                     POP  HL
                     POP  BC
 
-                    LD   E, 16               ; blow 10 * 1024 = 16K...
+                    LD   E, 32               ; blow 32 * 512 = 16K...
                     LD   HL, 0               ; start of bank (of B)
 .prog_bank_loop
                     PUSH DE
-
                     PUSH BC
+
                     LD   C, MS_S2            ; blow the 1024 bytes block in segment 2
-                    LD   DE, testblock       ; blow source block to Flash Card Bank
-                    LD   IY, 1024
+                    PUSH IX
+                    POP  DE                  ; blow source block to Flash Card Bank
+                    LD   IY, 512
                     CALL FlashEprWriteBlock
                     POP  BC
                     CALL C, SetErrorFlag
@@ -416,6 +436,8 @@ endif
                     DEC  C                   ; one bank less to program...
                     JR   NZ, prog_card_loop
 .exit_programming                            ; all banks manipulated
+                    POP  HL
+                    LD   SP,HL               ; restore original Stack Pointer
                     RET
 
 
@@ -1014,4 +1036,3 @@ endif
                     DEFM "Flash Card Testing Tool for", 13, 10
                     DEFM "Intel I28F00xS5, Amd AM29F0x0B and STM 29F0x0B/D devices", 13, 10, 0
 
-.testblock          DS 1024
