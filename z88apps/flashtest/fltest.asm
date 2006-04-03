@@ -20,7 +20,7 @@
      ORG $C000
 
      lib FlashEprBlockErase, FlashEprWriteBlock
-     lib FlashEprCardId, FlashEprWriteByte
+     lib FlashEprCardId, FlashEprWriteByte, MemReadByte
      lib CreateWindow, GreyApplWindow
      lib IntHex
 
@@ -97,8 +97,9 @@ IF !DEBUG
                     DEFM "Flash Card Testing Tool for",$7F
                     DEFM "Intel I28F00xS5, Amd AM29F0x0B & STM 29F0x0B/D devices", $7F
                     DEFM $7F
-                    DEFM "Release V1.2, (C) G. Strube, March 2006", 0
 endif
+.progversion_msg
+                    DEFM "Release V1.3, (C) G. Strube, April 2006", 0
 
 ; ******************************************************************************
 ;
@@ -111,6 +112,10 @@ endif
 
                     LD   HL, Release_msg
                     CALL_OZ(Gn_Sop)
+                    LD   HL, progversion_msg
+                    CALL_OZ(Gn_Sop)
+                    CALL_OZ(Gn_Nln)
+                    CALL_OZ(Gn_Nln)
 
                     LD   HL, check_msg
                     CALL_OZ(Gn_Sop)          ; user must enter 'asdf' or press ESC to abort
@@ -192,10 +197,15 @@ endif
 ; Flash Eprom Card available in slot 3,
 ; now format all 16 blocks on the card...
                     CALL FormatCard
-                    JR   C, format_err
+                    RET  C
 
 ; all blocks formatted, now program all blocks with 0's
 ; (all bits reset)
+                    CALL TestDataBus                   ; test bit D0-D7 of databus
+                    RET  C
+                    CALL TestAddressLines              ; test address lines A0-A19
+                    RET  C
+
                     CALL ProgramCard
                     LD   A,(ErrorFlag)
                     OR   A
@@ -203,7 +213,7 @@ endif
 
 ; finally, reset the card again...
                     CALL FormatCard
-                    JR   C, format_err
+                    RET  C
 
 ; the test have been performed successfully
 ; Display "Completed Message" and exit.
@@ -221,23 +231,6 @@ endif
                     RET
 
 
-
-; ******************************************************************
-; The sector (identified in B register) couldn't be formatted
-.format_err
-                    LD   HL, Errormsg
-                    CALL_OZ Gn_Sop
-                    LD   HL, formaterrmsg
-                    CALL_OZ Gn_Sop
-                    LD   C,B
-                    LD   B,0
-                    CALL IntAscii
-                    LD   HL, buffer
-                    CALL_OZ Gn_Sop
-                    CALL_OZ Gn_Nln
-                    RET
-
-
 ; ******************************************************************
 ; The Flash Eprom Card was not identified in slot 3
 .FlashEpr_not_found
@@ -245,6 +238,128 @@ endif
                     LD   HL, CardNotFound
                     CALL_OZ Gn_Sop
                     RET
+
+
+; ******************************************************************
+; Test that databus pins work (D0-D7).
+; We're using C00000 (bottom of slot 3) as test address.
+;
+.TestDataBus
+                    LD   B,$C0               ; B = bottom of slot 3
+                    LD   HL,0
+
+; ******************************************************************
+; Byte Write test at (BHL).
+; Return Fc = 1 if failure.
+;
+.WriteByte
+                    LD   C,$FF
+                    LD   D,8                 ; loop count, D0-D7
+                    CALL VerifyByte          ; Make sure that memory at (BHL) is $FF before we begin..
+                    JR   Z, byte_empty
+                    PUSH HL
+                    LD   A, B
+                    AND  @00111111
+                    LD   (ExtAddr),A
+                    RES  7,H
+                    RES  6,H
+                    LD   (ExtAddr+1),HL      ; save ext. address...
+                    LD   HL, ByteNotEmptyErrMsg
+                    CALL_OZ(Gn_Sop)
+
+                    CALL DispExtAddr
+                    CALL_OZ(Gn_Nln)
+                    POP  HL
+                    SCF
+                    RET
+.byte_empty
+                    EX   AF,AF'
+                    XOR  A                   ; auto-poll flash card programming algorithm...
+                    EX   AF,AF'
+.databus_loop
+                    CALL VerifyByte
+                    JR   Z, blow_datapin
+                    PUSH HL
+                    LD   A, B
+                    LD   (ExtAddr),A
+                    RES  7,H
+                    RES  6,H
+                    LD   (ExtAddr+1),HL
+                    LD   HL, VerifyErrMsg
+                    CALL_OZ(Gn_Sop)
+
+                    CALL DispExtAddr
+                    LD   HL, Verify2ErrMsg
+                    CALL_OZ(Gn_Sop)
+                    POP  HL
+                    PUSH HL
+                    CALL MemReadByte
+                    CALL DispHex8Number
+                    LD   HL, Verify3ErrMsg
+                    CALL_OZ(Gn_Sop)
+                    LD   A,C
+                    CALL DispHex8Number
+                    CALL_OZ(Gn_Nln)
+                    POP  HL
+                    SCF
+                    RET
+.blow_datapin
+                    SLA  C                   ; write bit pattern D0-D7, from bit 0 towards bit 7
+                    LD   A,C
+                    CALL FlashEprWriteByte
+                    JR   NC, next_datapin
+                    CALL AddrProgErrorMsg    ; byte wasn't blow properly!
+                    RET
+.next_datapin
+                    DEC  D                   ; all 8 bits written?
+                    JR   NZ,databus_loop
+                    RET
+
+
+; ******************************************************************
+; Verify that BHL address contains empty byte
+;
+; IN:
+;    BHL = address of Flash Card
+;    C = verify bit pattern
+; OUT:
+;    Fz = 1, byte at (BHL) is equal to C
+;    Fz = 0, byte contains data.
+;
+.VerifyByte
+                    XOR  A                   ; read byte at (BHL) (no offset)
+                    CALL MemReadByte
+                    CP   C
+                    RET
+
+
+; ******************************************************************
+; Test that that all address lines may be selected by blowing
+; a byte (all bits) to each boundary (A0-A19) address line.
+;
+; Write Error message when failure...
+;
+.TestAddressLines
+                    LD   C,3
+                    CALL FlashEprCardId
+                    RET  C                   ; no Flash Card in slot 3...
+
+                    DEC  B
+                    SET  6,B
+                    SET  7,B                 ; B = top of slot 3
+.test_nextbank_loop
+                    LD   HL,1                ; begin with address pin 0 for each bank
+.test_nextoffset_loop
+                    CALL WriteByte           ; test-blow a byte at (BHL), report error in routine...
+                    ADD  HL,HL               ; next address pin
+                    BIT  6,H                 ; A0-A14 tested?
+                    JR   Z, test_nextoffset_loop
+
+                    DEC  B                   ; A15-A19 tested?
+                    LD   A,$BF
+                    CP   B                   ; tested bottom bank of slot 3?
+                    JR   NZ,test_nextbank_loop
+                    RET                      ; return Fc = 0...
 
 
 ; ******************************************************************
@@ -266,15 +381,7 @@ endif
                     CALL_OZ Gn_Sop
                     LD   A,B
                     AND  @00111111           ; display relative bank numbers...
-                    LD   (ExtAddr),A
-                    LD   C,1                 ; 8bit integer...
-                    LD   B,0                 ; (local ptr)
-                    LD   HL, ExtAddr
-                    LD   DE, Buffer          ; ptr to Ascii result...
-                    CALL IntHex
-                    LD   HL, Buffer
-                    CALL_OZ Gn_Sop
-
+                    CALL DispHex8Number
                     LD   HL, Dotsmsg
                     CALL_OZ Gn_Sop
                     POP  HL
@@ -292,7 +399,7 @@ endif
                     CALL FlashEprWriteBlock
                     POP  BC
                     CALL C, SetErrorFlag
-                    CALL C, AddrProgError    ; display address of programming error
+                    CALL C, AddrProgErrorMsg ; display address of programming error
                     LD   DE, 1024
                     ADD  HL,DE               ; ready for next block address on bank
 
@@ -324,9 +431,9 @@ endif
 
 ; ******************************************************************
 ;
-; Display error message and ext. address of programming error
+; Display error message and ext. address (in BHL) of programming error
 ;
-.AddrProgError
+.AddrProgErrorMsg
                     PUSH AF
                     PUSH BC
                     PUSH DE
@@ -341,13 +448,46 @@ endif
                     LD   HL, Progaddrerrmsg
                     CALL_OZ(Gn_Sop)
 
-                    LD   BC,1
-                    LD   HL,ExtAddr
-                    LD   DE, Buffer
-                    CALL IntHex
+                    CALL DispExtAddr
+                    CALL_OZ(Gn_Nln)
 
+                    POP  HL
+                    POP  DE
+                    POP  BC
+                    POP  AF
+                    RET
+
+
+; ******************************************************************
+;
+.DispHex8Number
+                    PUSH BC
+                    PUSH DE
+                    PUSH HL
+                    LD   (ExtAddr),A
+                    LD   BC,1                ; 8bit integer...
+                    LD   HL, ExtAddr
+                    LD   DE, Buffer          ; ptr to Ascii result...
+                    CALL IntHex
                     EX   DE,HL
-                    CALL_OZ(Gn_Sop)          ; Display Bank no in hex
+                    CALL_OZ Gn_Sop
+                    POP  HL
+                    POP  DE
+                    POP  BC
+                    RET
+
+
+; ******************************************************************
+;
+.DispExtAddr
+                    PUSH AF
+                    PUSH BC
+                    PUSH DE
+                    PUSH HL
+
+                    LD   A,(ExtAddr)
+                    AND  @00111111
+                    CALL DispHex8Number
 
                     LD   BC,2
                     LD   HL,ExtAddr+1
@@ -356,7 +496,6 @@ endif
 
                     EX   DE,HL
                     CALL_OZ(Gn_Sop)          ; Display offset address in hex
-                    CALL_OZ(Gn_Nln)
 
                     POP  HL
                     POP  DE
@@ -408,7 +547,22 @@ endif
                     LD   C,3                 ; slot 3
                     DEC  B                   ; actual block to erase
                     CALL FlashEprBlockErase  ; slot 3...
-                    JR   C, exit_format
+                    JR   NC, format_ok
+.format_err
+                    PUSH AF
+                    LD   HL, Errormsg        ; The sector (identified in B register) couldn't be formatted
+                    CALL_OZ Gn_Sop
+                    LD   HL, formaterrmsg
+                    CALL_OZ Gn_Sop
+                    LD   C,B
+                    LD   B,0
+                    CALL IntAscii
+                    LD   HL, buffer
+                    CALL_OZ Gn_Sop
+                    CALL_OZ Gn_Nln
+                    POP  AF
+                    JR   exit_format
+.format_ok
                     INC  B                   ; number of blocks left to erase...
 
                     PUSH HL
@@ -464,7 +618,7 @@ endif
 ;
 ; OUT:
 ;    Fc = 0, Flash Eprom Recognized in slot 3
-;         B = total of Blocks on Flash Eprom
+;         B = total of banks on Flash Eprom
 ;         HL = pointer to Mnemonic description of Flash Eprom
 ;    Fc = 1, Flash Eprom not found in slot 3, or Device code not found
 ;
@@ -793,9 +947,12 @@ endif
 .CLI_file           DEFM "/eprlog", 0            ; standard CLI logfile 1, 5 bytes long
 .CLI_command        DEFM ".S", 0
 
-.Progaddrerrmsg     defm "Programming error at ", 0
+.ByteNotEmptyErrMsg defm "Byte not empty at address ",0
+.VerifyErrMsg       defm "Byte program verify error: (", 0
+.Verify2ErrMsg      defm ")=", 0
+.Verify3ErrMsg      defm ", but should have been ", 0
+.Progaddrerrmsg     defm "Programming of byte failed at ", 0
 .Progerrmsg         defm "Programming of card failed.", 13, 10, 0
-.Battlowmsg         defm "Batteries are low. ", 13, 10, 0
 .Completedmsg       defm 1, "BTest of Flash Card completed successfully with no errors.", 1, "B", 13, 10, 0
 .CardNotFound       defm 1, "BFlash Card was not found in slot 3.", 1, "B", 13, 10, 0
 .formatmsg          defm "Formatting sector ", 0
@@ -855,7 +1012,6 @@ endif
 
 .Release_msg
                     DEFM "Flash Card Testing Tool for", 13, 10
-                    DEFM "Intel I28F00xS5, Amd AM29F0x0B and STM 29F0x0B/D devices", 13, 10
-                    DEFM "Release V1.2, (C) G. Strube, March 2006", 13, 10, 13, 10, 0
+                    DEFM "Intel I28F00xS5, Amd AM29F0x0B and STM 29F0x0B/D devices", 13, 10, 0
 
 .testblock          DS 1024
