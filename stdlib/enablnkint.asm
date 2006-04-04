@@ -35,11 +35,12 @@
 ;    ......../.... different
 ;
 .EnableBlinkInt     push af
-                    push hl
-                    ld   hl,BLSC_INT
-                    set  BB_INTGINT,(hl)          ; (update soft copy first)
-                    ld   a,(hl)
-                    out  (BL_INT),a               ; interrupts allowed to get out of blink (GINT = 1)
-                    pop  hl
+                    push bc
+                    ld   bc,BLSC_INT
+                    ld   a,(bc)
+                    set  BB_INTGINT,a
+                    ld   (bc),a                   ; (update soft copy first)
+                    out  (c),a                    ; interrupts allowed to get out of blink (GINT = 1)
+                    pop  bc
                     pop  af
-                    RET
+                    ret
