@@ -481,4 +481,19 @@ public abstract class GenericAmdFlashBank extends Bank {
 			}
 		}
 	}
+
+	/**
+	 * Validate if Flash card bank contents is not altered, 
+	 * ie. only containing FF bytes.
+	 *  
+	 * @return true if all bytes in bank are FF
+	 */
+	public boolean isEmpty() {
+		for (int b = 0; b < Bank.SIZE; b++) { 
+			if (getByte(b) != 0xFF)
+				return false;
+		}
+		
+		return true;
+	}	
 }

@@ -318,5 +318,20 @@ public class IntelFlashBank extends Bank {
 		
 		// indicate success when application polls for read status cycles... 
 		statusRegister = 0x80; // SR.7 = Ready, SR.5 = 0 (Block Erase OK), SR.4 = 0 (Program OK), SR.3 = 0 (VPP OK)
+	}
+	
+	/**
+	 * Validate if Flash card bank contents is not altered, 
+	 * ie. only containing FF bytes.
+	 *  
+	 * @return true if all bytes in bank are FF
+	 */
+	public boolean isEmpty() {
+		for (int b = 0; b < Bank.SIZE; b++) { 
+			if (getByte(b) != 0xFF)
+				return false;
+		}
+		
+		return true;
 	}	
 }

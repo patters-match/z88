@@ -331,7 +331,12 @@ public final class Memory {
 					topBankNo = (((slotNumber & 3) << 6) | 0x3F);
 					bottomBankNo = topBankNo - (getExternalCardSize(slotNumber)-1);
 					for (int bankNo=topBankNo; bankNo >= bottomBankNo; bankNo--) {
-						dumpBanksToFile(bankNo, bankNo, dirName, fileName + "." + (bankNo & 0x3F));
+						if (SlotInfo.getInstance().getCardType(slotNumber) == SlotInfo.RamCard)
+							dumpBanksToFile(bankNo, bankNo, dirName, fileName + "." + (bankNo & 0x3F));
+						else {
+							if (getBank(bankNo).isEmpty() == false)
+								dumpBanksToFile(bankNo, bankNo, dirName, fileName + "." + (bankNo & 0x3F));
+						}
 					}
 				}
 			}

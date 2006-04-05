@@ -48,4 +48,19 @@ public final class RamBank extends Bank {
 	public final void writeByte(final int addr, final int b) {
 		setByte(addr, b);
 	}
+
+	/**
+	 * Validate if Ram card bank contents is not altered, 
+	 * ie. only containing 00 bytes.
+	 *  
+	 * @return true if all bytes in bank are 00
+	 */
+	public boolean isEmpty() {
+		for (int b = 0; b < Bank.SIZE; b++) { 
+			if (getByte(b) != 0)
+				return false;
+		}
+		
+		return true;
+	}	
 }

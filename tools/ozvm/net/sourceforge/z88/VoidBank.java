@@ -72,4 +72,11 @@ public final class VoidBank extends Bank {
 	public void setByte(final int addr, final int b) {
 		// no effect
 	}
+
+	/**
+	 * A void bank is per definition not empty (it contains random data from databus)
+	 */
+	public boolean isEmpty() {
+		return false;
+	}
 }

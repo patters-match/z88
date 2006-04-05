@@ -68,6 +68,15 @@ public abstract class Bank {
 	public abstract void writeByte(final int addr, final int b);
 
 	/**
+	 * Validate if card bank contents is not altered, 
+	 * ie. only containing FF bytes for Eprom/Rom/Flash cards or
+	 * 00 bytes for RAM cards.
+	 *  
+	 * @return true if all bytes in bank are 'empty'
+	 */
+	public abstract boolean isEmpty();
+	
+	/**
 	 * Get byte from bank, always. 
 	 * 
 	 * NB: Internal method.
