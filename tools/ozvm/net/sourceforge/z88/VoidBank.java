@@ -74,9 +74,9 @@ public final class VoidBank extends Bank {
 	}
 
 	/**
-	 * A void bank is per definition not empty (it contains random data from databus)
+	 * A void bank is per definition empty (it contains random data from databus)
 	 */
 	public boolean isEmpty() {
-		return false;
+		return true;
 	}
 }
