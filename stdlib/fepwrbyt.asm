@@ -163,6 +163,10 @@ DEFC VppBit = 1
                     EX   DE,HL
                     RET  C                   ; Fc = 1, A = RC error code (Flash Memory not found)
 
+                    LD   DE, EnableBlinkInt
+                    PUSH DE                  ; enable Blink Int's after blowing byte to 28F or 29F Flash and RETurn
+                    CALL DisableBlinkInt     ; no interrupts get out of Blink (while blowing to flash chip)...
+
                     CP   FE_28F              ; now, we've got the chip series
                     JR   NZ, use_29F_programming ; and this one may be programmed in any slot...
 .check_slot3
@@ -175,10 +179,6 @@ DEFC VppBit = 1
                     RET
 
 .use_28F_programming
-                    LD   DE, RET_blowbyte
-                    PUSH DE                  ; generic RETurn adress after blow routine...
-                    CALL DisableBlinkInt     ; no interrupts get out of Blink (while blowing to flash chip)...
-
                     EX   AF,AF'              ; byte to be blown...
                     LD   B,A
                     LD   A,C
@@ -194,10 +194,6 @@ DEFC VppBit = 1
                     JP   ExecRoutineOnStack  ; execute the blow routine in System Stack RAM...
 
 .use_29F_programming
-                    LD   DE, RET_blowbyte
-                    PUSH DE                  ; generic RETurn adress after blow routine...
-                    CALL DisableBlinkInt     ; no interrupts get out of Blink (while blowing to flash chip)...
-
                     EX   AF,AF'              ; byte to be blown...
                     LD   B,A
                     LD   A,C
@@ -211,9 +207,6 @@ DEFC VppBit = 1
                     LD   BC, end_FEP_ExecBlowbyte_29F - FEP_ExecBlowbyte_29F
                     EXX
                     JP   ExecRoutineOnStack  ; execute the blow routine in System Stack RAM...
-.RET_blowbyte
-                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
-                    RET
 
 ; ***************************************************************
 ; Program byte in A at (HL) on an INTEL I28Fxxxx Flash Memory
