@@ -92,8 +92,8 @@
      pop  bc
      ld   hl,$c000
      ret  c              ; exit if not Flash card
-     set  7,b
-     set  6,b            ; bank points into slot 3
+     set  7,b            ; A = Flash Card type (returned from FlashEprCardID)
+     set  6,b            ; bank no. in B points into slot 3
      ld   c,ms_s3        ; use segment 3 to blow in
      ld   hl,0           ; destination start address of bank
      ld   iy,$4000       ; whole page
