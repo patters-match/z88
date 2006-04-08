@@ -433,6 +433,7 @@ endif
                     PUSH IX
                     POP  DE                  ; blow source block to Flash Card Bank
                     LD   IY, 512
+                    XOR  A                   ; Poll for Flash Card programming algorithm...
                     CALL FlashEprWriteBlock
                     POP  BC
                     CALL C, SetErrorFlag
