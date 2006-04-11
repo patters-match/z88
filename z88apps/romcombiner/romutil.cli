@@ -23,7 +23,7 @@ NEW
    30 DIM bank% 16383
    40 DIM fname 255
    50 DIM inbuffer 255
-   70 blowbank=&BA00:readbank=&BA94:eraseflash=&BAA8:checkbank=&BA72
+   70 blowbank=&BA00:readbank=&BA8C:eraseflash=&BAA0:checkbank=&BA6A
   140 WaitLS%=W%:ShowApps%=S%
   150 $inbuffer=""
   160 r1$=CHR$(1)+"2+R":r0$=CHR$(1)+"2-R"
