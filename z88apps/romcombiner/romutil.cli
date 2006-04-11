@@ -241,3 +241,4 @@ NEW
  5140 IF I%>=100 THEN PROCErrMsg("Incomplete!") ELSE PROCErrMsg("Completed!")
  5150 CLOSE#X%
  5160 ENDPROC
+SA."RomUtil.bas"
