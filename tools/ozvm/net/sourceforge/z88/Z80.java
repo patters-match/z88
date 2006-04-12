@@ -1,8 +1,8 @@
 /*
  * Z80.java
  * This file is part of OZvm.
- * 
- * OZvm is free software; you can redistribute it and/or modify it under the terms of the 
+ *
+ * OZvm is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation;
  * either version 2, or (at your option) any later version.
  * OZvm is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -11,9 +11,9 @@
  * You should have received a copy of the GNU General Public License along with OZvm;
  * see the file COPYING. If not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * 
+ *
  * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
- * $Id$  
+ * $Id$
  *
  */
 
@@ -22,14 +22,14 @@ package net.sourceforge.z88;
 /**
  * The Z80 class emulates the Zilog Z80 microprocessor. Optimized and added with
  * new features for Z88 virtual machine.
- * 
+ *
  * -------------------------------------------------------------------------------------
  * Original implementation of Z80 emulation by Adam Davidson & Andrew Pollard.
- * 
+ *
  * @version 1.1 27 Apr 1997
  * @author <A HREF="http://www.spectrum.lovely.net/">Adam Davidson & Andrew
  *         Pollard </A>
- * 
+ *
  * @see Jasper
  * @see Spectrum
  *      -------------------------------------------------------------------------------------
@@ -69,27 +69,27 @@ public abstract class Z80 {
 
 	private boolean z80Stopped = false;
 
-	private final int IM0 = 0;
+	private static final int IM0 = 0;
 
-	private final int IM1 = 1;
+	private static final int IM1 = 1;
 
-	private final int IM2 = 2;
+	private static final int IM2 = 2;
 
-	private final int F_C = 0x01;
+	private static final int F_C = 0x01;
 
-	private final int F_N = 0x02;
+	private static final int F_N = 0x02;
 
-	private final int F_PV = 0x04;
+	private static final int F_PV = 0x04;
 
-	private final int F_3 = 0x08;
+	private static final int F_3 = 0x08;
 
-	private final int F_H = 0x10;
+	private static final int F_H = 0x10;
 
-	private final int F_5 = 0x20;
+	private static final int F_5 = 0x20;
 
-	private final int F_Z = 0x40;
+	private static final int F_Z = 0x40;
 
-	private final int F_S = 0x80;
+	private static final int F_S = 0x80;
 
 	private final boolean parity[];
 
@@ -447,7 +447,7 @@ public abstract class Z80 {
 	 * encountered
 	 */
 	public abstract void breakPointInfo();
-	
+
 	/** IO ports */
 	public abstract void outByte(int addrA8, int addrA15, int bits);
 
@@ -605,7 +605,7 @@ public abstract class Z80 {
 				}
 				case 16: /* DJNZ dis */{
 					int b;
-	
+
 					B(b = qdec8(B()));
 					if (b != 0) {
 						byte d = (byte) readByte(_PC++);
@@ -668,7 +668,7 @@ public abstract class Z80 {
 					}
 					break;
 				}
-	
+
 				/* LD rr,nn / ADD HL,rr */
 				case 1: /* LD BC(),nn */{
 					BC(nxtpcw());
@@ -711,7 +711,7 @@ public abstract class Z80 {
 					tstatesCounter += 11;
 					break;
 				}
-	
+
 				/* LD (**),A/A,(**) */
 				case 2: /* LD (BC),A */{
 					writeByte(BC(), A());
@@ -753,7 +753,7 @@ public abstract class Z80 {
 					tstatesCounter += 13;
 					break;
 				}
-	
+
 				/* INC/DEC * */
 				case 3: /* INC BC */{
 					BC(inc16(BC()));
@@ -795,7 +795,7 @@ public abstract class Z80 {
 					tstatesCounter += 6;
 					break;
 				}
-	
+
 				/* INC * */
 				case 4: /* INC B */{
 					B(inc8(B()));
@@ -838,7 +838,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* DEC * */
 				case 5: /* DEC B */{
 					B(dec8(B()));
@@ -881,7 +881,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* LD *,N */
 				case 6: /* LD B,n */{
 					B(readByte(_PC++));
@@ -923,7 +923,7 @@ public abstract class Z80 {
 					tstatesCounter += 7;
 					break;
 				}
-	
+
 				/* R**A */
 				case 7: /* RLCA */{
 					rlc_a();
@@ -965,7 +965,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* LD B,? */
 				case 64: /* LD B,B */{
 					// Stop at encountered breakpoint, if found...
@@ -1003,13 +1003,13 @@ public abstract class Z80 {
 					tstatesCounter += 7;
 					break;
 				}
-				
+
 				case 71: /* LD B,A */{
 					B(A());
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* LD C,* */
 				case 72: /* LD C,B */{
 					C(B());
@@ -1053,7 +1053,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* LD D,* */
 				case 80: /* LD D,B */{
 					D(B());
@@ -1094,7 +1094,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* LD E,* */
 				case 88: /* LD E,B */{
 					E(B());
@@ -1135,7 +1135,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* LD H,* */
 				case 96: /* LD H,B */{
 					H(B());
@@ -1176,7 +1176,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* LD L,* */
 				case 104: /* LD L,B */{
 					L(B());
@@ -1253,7 +1253,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				case 119: /* LD (HL),A */{
 					writeByte(HL(), A());
 					tstatesCounter += 7;
@@ -1299,7 +1299,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* ADD A,* */
 				case 128: /* ADD A,B */{
 					add_a(B());
@@ -1341,7 +1341,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* ADC A,* */
 				case 136: /* ADC A,B */{
 					adc_a(B());
@@ -1383,7 +1383,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* SUB * */
 				case 144: /* SUB B */{
 					sub_a(B());
@@ -1425,7 +1425,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* SBC A,* */
 				case 152: /* SBC A,B */{
 					sbc_a(B());
@@ -1467,7 +1467,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* AND * */
 				case 160: /* AND B */{
 					and_a(B());
@@ -1509,7 +1509,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* XOR * */
 				case 168: /* XOR B */{
 					xor_a(B());
@@ -1551,7 +1551,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* OR * */
 				case 176: /* OR B */{
 					or_a(B());
@@ -1593,7 +1593,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* CP * */
 				case 184: /* CP B */{
 					cp_a(B());
@@ -1635,7 +1635,7 @@ public abstract class Z80 {
 					tstatesCounter += 4;
 					break;
 				}
-	
+
 				/* RET cc */
 				case 192: /* RET NZ */{
 					if (!Zset()) {
@@ -1709,7 +1709,7 @@ public abstract class Z80 {
 					}
 					break;
 				}
-	
+
 				/* POP,Various */
 				case 193: /* POP BC */{
 					BC(popw());
@@ -1751,7 +1751,7 @@ public abstract class Z80 {
 					tstatesCounter += 6;
 					break;
 				}
-	
+
 				/* JP cc,nn */
 				case 194: /* JP NZ,nn */{
 					if (!Zset()) {
@@ -1825,7 +1825,7 @@ public abstract class Z80 {
 					tstatesCounter += 10;
 					break;
 				}
-	
+
 				/* Various */
 				case 195: /* JP nn */{
 					PC(nxtpcw());
@@ -1834,8 +1834,8 @@ public abstract class Z80 {
 				}
 				case 203: /* prefix CB */{
 					REFRESH(1);
-	
-					switch (readByte(_PC++)) {	
+
+					switch (readByte(_PC++)) {
 						case 0: /* RLC B */{
 							B(rlc(B()));
 							tstatesCounter += 8;
@@ -1877,7 +1877,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 8: /* RRC B */{
 							B(rrc(B()));
 							tstatesCounter += 8;
@@ -1919,7 +1919,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 16: /* RL B */{
 							B(rl(B()));
 							tstatesCounter += 8;
@@ -1961,7 +1961,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 24: /* RR B */{
 							B(rr(B()));
 							tstatesCounter += 8;
@@ -2003,7 +2003,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 32: /* SLA B */{
 							B(sla(B()));
 							tstatesCounter += 8;
@@ -2045,7 +2045,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 40: /* SRA B */{
 							B(sra(B()));
 							tstatesCounter += 8;
@@ -2087,7 +2087,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 48: /* SLS B */{
 							B(sls(B()));
 							tstatesCounter += 8;
@@ -2129,7 +2129,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 56: /* SRL B */{
 							B(srl(B()));
 							tstatesCounter += 8;
@@ -2171,7 +2171,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 64: /* BIT 0,B */{
 							bit(0x01, B());
 							tstatesCounter += 8;
@@ -2212,7 +2212,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 72: /* BIT 1,B */{
 							bit(0x02, B());
 							tstatesCounter += 8;
@@ -2253,7 +2253,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 80: /* BIT 2,B */{
 							bit(0x04, B());
 							tstatesCounter += 8;
@@ -2294,7 +2294,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 88: /* BIT 3,B */{
 							bit(0x08, B());
 							tstatesCounter += 8;
@@ -2335,7 +2335,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 96: /* BIT 4,B */{
 							bit(0x10, B());
 							tstatesCounter += 8;
@@ -2376,7 +2376,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 104: /* BIT 5,B */{
 							bit(0x20, B());
 							tstatesCounter += 8;
@@ -2417,7 +2417,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 112: /* BIT 6,B */{
 							bit(0x40, B());
 							tstatesCounter += 8;
@@ -2458,7 +2458,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 120: /* BIT 7,B */{
 							bit(0x80, B());
 							tstatesCounter += 8;
@@ -2499,7 +2499,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 128: /* RES 0,B */{
 							B(res(0x01, B()));
 							tstatesCounter += 8;
@@ -2541,7 +2541,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 136: /* RES 1,B */{
 							B(res(0x02, B()));
 							tstatesCounter += 8;
@@ -2583,7 +2583,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 144: /* RES 2,B */{
 							B(res(0x04, B()));
 							tstatesCounter += 8;
@@ -2625,7 +2625,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 152: /* RES 3,B */{
 							B(res(0x08, B()));
 							tstatesCounter += 8;
@@ -2667,7 +2667,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 160: /* RES 4,B */{
 							B(res(0x10, B()));
 							tstatesCounter += 8;
@@ -2709,7 +2709,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 168: /* RES 5,B */{
 							B(res(0x20, B()));
 							tstatesCounter += 8;
@@ -2751,7 +2751,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 176: /* RES 6,B */{
 							B(res(0x40, B()));
 							tstatesCounter += 8;
@@ -2793,7 +2793,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 184: /* RES 7,B */{
 							B(res(0x80, B()));
 							tstatesCounter += 8;
@@ -2835,7 +2835,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 192: /* SET 0,B */{
 							B(set(0x01, B()));
 							tstatesCounter += 8;
@@ -2877,7 +2877,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 200: /* SET 1,B */{
 							B(set(0x02, B()));
 							tstatesCounter += 8;
@@ -2919,7 +2919,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 208: /* SET 2,B */{
 							B(set(0x04, B()));
 							tstatesCounter += 8;
@@ -2961,7 +2961,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 216: /* SET 3,B */{
 							B(set(0x08, B()));
 							tstatesCounter += 8;
@@ -3003,7 +3003,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 224: /* SET 4,B */{
 							B(set(0x10, B()));
 							tstatesCounter += 8;
@@ -3045,7 +3045,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 232: /* SET 5,B */{
 							B(set(0x20, B()));
 							tstatesCounter += 8;
@@ -3087,7 +3087,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 240: /* SET 6,B */{
 							B(set(0x40, B()));
 							tstatesCounter += 8;
@@ -3129,7 +3129,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 248: /* SET 7,B */{
 							B(set(0x80, B()));
 							tstatesCounter += 8;
@@ -3170,11 +3170,11 @@ public abstract class Z80 {
 							A(set(0x80, A()));
 							tstatesCounter += 8;
 							break;
-						}	
+						}
 					} // CB opcode group instructions
 					break;
 				}
-	
+
 				case 211: /* OUT (n),A */{
 					outByte(readByte(_PC++), A(), A());
 					tstatesCounter += 11;
@@ -3214,7 +3214,7 @@ public abstract class Z80 {
 					IFF2(true);
 					break;
 				}
-	
+
 				/* CALL cc,nn */
 				case 196: /* CALL NZ,nn */{
 					if (!Zset()) {
@@ -3312,7 +3312,7 @@ public abstract class Z80 {
 					}
 					break;
 				}
-	
+
 				/* PUSH,Various */
 				case 197: /* PUSH BC */{
 					pushw(BC());
@@ -3342,11 +3342,11 @@ public abstract class Z80 {
 					tstatesCounter += 11;
 					break;
 				}
-	
+
 				case 237: /* prefix ED */{
 					REFRESH(1);
-	
-					switch (readByte(_PC++)) {		
+
+					switch (readByte(_PC++)) {
 						case 0: /* NOP */
 						case 1:
 						case 2:
@@ -3412,7 +3412,7 @@ public abstract class Z80 {
 						case 62:
 						case 63:
 						case 127:
-		
+
 						case 129:
 						case 130:
 						case 131:
@@ -3444,17 +3444,17 @@ public abstract class Z80 {
 						case 157:
 						case 158:
 						case 159:
-		
+
 						case 164:
 						case 165:
 						case 166:
 						case 167:
-		
+
 						case 172:
 						case 173:
 						case 174:
 						case 175:
-		
+
 						case 180:
 						case 181:
 						case 182:
@@ -3462,12 +3462,12 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						case 128: {
 							tstatesCounter += 4;
 							break;
 						}
-		
+
 						/* IN r,(c) */
 						case 64: /* IN B,(c) */{
 							B(in_bc());
@@ -3509,7 +3509,7 @@ public abstract class Z80 {
 							tstatesCounter += 12;
 							break;
 						}
-		
+
 						/* OUT (c),r */
 						case 65: /* OUT (c),B */{
 							outByte(C(), B(), B());
@@ -3551,7 +3551,7 @@ public abstract class Z80 {
 							tstatesCounter += 12;
 							break;
 						}
-		
+
 						/* SBC/ADC HL,ss */
 						case 66: /* SBC HL,BC */{
 							HL(sbc16(HL(), BC()));
@@ -3595,7 +3595,7 @@ public abstract class Z80 {
 							tstatesCounter += (15);
 							break;
 						}
-		
+
 						/* LD (nn),ss, LD ss,(nn) */
 						case 67: /* LD (nn),BC */{
 							writeWord(nxtpcw(), BC());
@@ -3637,7 +3637,7 @@ public abstract class Z80 {
 							tstatesCounter += (20);
 							break;
 						}
-		
+
 						/* NEG */
 						case 68: /* NEG */
 						case 76: /* NEG */
@@ -3651,7 +3651,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						/* RETn */
 						case 69: /* RETN */
 						case 85: /* RETN */
@@ -3670,7 +3670,7 @@ public abstract class Z80 {
 							tstatesCounter += (14);
 							break;
 						}
-		
+
 						/* IM x */
 						case 70: /* IM 0 */
 						case 78: /* IM 0 */
@@ -3692,7 +3692,7 @@ public abstract class Z80 {
 							tstatesCounter += 8;
 							break;
 						}
-		
+
 						/* LD A,s / LD s,A / RxD */
 						case 71: /* LD I,A */{
 							I(A());
@@ -3724,31 +3724,31 @@ public abstract class Z80 {
 							tstatesCounter += (18);
 							break;
 						}
-		
+
 						/* xxI */
 						case 160: /* LDI */{
 							writeByte(DE(), readByte(HL()));
 							DE(inc16(DE()));
 							HL(inc16(HL()));
 							BC(dec16(BC()));
-		
+
 							setPV(BC() != 0);
 							setH(false);
 							setN(false);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
 						case 161: /* CPI */{
 							boolean c = Cset();
-		
+
 							cp_a(readByte(HL()));
 							HL(inc16(HL()));
 							BC(dec16(BC()));
-		
+
 							setPV(BC() != 0);
 							setC(c);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
@@ -3757,10 +3757,10 @@ public abstract class Z80 {
 							writeByte(HL(), inByte(C(), B()));
 							B(b = qdec8(B()));
 							HL(inc16(HL()));
-		
+
 							setZ(b == 0);
 							setN(true);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
@@ -3769,38 +3769,38 @@ public abstract class Z80 {
 							B(b = qdec8(B()));
 							outByte(C(), B(), readByte(HL()));
 							HL(inc16(HL()));
-		
+
 							setZ(b == 0);
 							setN(true);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
-		
+
 						/* xxD */
 						case 168: /* LDD */{
 							writeByte(DE(), readByte(HL()));
 							DE(dec16(DE()));
 							HL(dec16(HL()));
 							BC(dec16(BC()));
-		
+
 							setPV(BC() != 0);
 							setH(false);
 							setN(false);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
 						case 169: /* CPD */{
 							boolean c = Cset();
-		
+
 							cp_a(readByte(HL()));
 							HL(dec16(HL()));
 							BC(dec16(BC()));
-		
+
 							setPV(BC() != 0);
 							setC(c);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
@@ -3809,10 +3809,10 @@ public abstract class Z80 {
 							writeByte(HL(), inByte(C(), B()));
 							B(b = qdec8(B()));
 							HL(dec16(HL()));
-		
+
 							setZ(b == 0);
 							setN(true);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
@@ -3821,18 +3821,18 @@ public abstract class Z80 {
 							B(b = qdec8(B()));
 							outByte(C(), B(), readByte(HL()));
 							HL(dec16(HL()));
-		
+
 							setZ(b == 0);
 							setN(true);
-		
+
 							tstatesCounter += 16;
 							break;
 						}
-		
+
 						/* xxIR */
 						case 176: /* LDIR */{
 							int count, dest, from;
-		
+
 							count = BC();
 							dest = DE();
 							from = HL();
@@ -3842,7 +3842,7 @@ public abstract class Z80 {
 								from = inc16(from);
 								dest = inc16(dest);
 								count = dec16(count);
-		
+
 								tstatesCounter += 21;
 								REFRESH(2);
 							} while (count != 0);
@@ -3864,13 +3864,13 @@ public abstract class Z80 {
 						}
 						case 177: /* CPIR */{
 							boolean c = Cset();
-		
+
 							cp_a(readByte(HL()));
 							HL(inc16(HL()));
 							BC(dec16(BC()));
-		
+
 							boolean pv = (BC() != 0);
-		
+
 							setPV(pv);
 							setC(c);
 							if (pv && !Zset()) {
@@ -3880,13 +3880,13 @@ public abstract class Z80 {
 							tstatesCounter += 16;
 							break;
 						}
-		
+
 						case 178: /* INIR */{
 							int b;
 							writeByte(HL(), inByte(C(), B()));
 							B(b = qdec8(B()));
 							HL(inc16(HL()));
-		
+
 							setZ(true);
 							setN(true);
 							if (b != 0) {
@@ -3896,13 +3896,13 @@ public abstract class Z80 {
 							tstatesCounter += 16;
 							break;
 						}
-		
+
 						case 179: /* OTIR */{
 							int b;
 							B(b = qdec8(B()));
 							outByte(C(), B(), readByte(HL()));
 							HL(inc16(HL()));
-		
+
 							setZ(true);
 							setN(true);
 							if (b != 0) {
@@ -3912,11 +3912,11 @@ public abstract class Z80 {
 							tstatesCounter += 16;
 							break;
 						}
-		
+
 						/* xxDR */
 						case 184: /* LDDR */{
 							int count, dest, from;
-		
+
 							count = BC();
 							dest = DE();
 							from = HL();
@@ -3926,7 +3926,7 @@ public abstract class Z80 {
 								from = dec16(from);
 								dest = dec16(dest);
 								count = dec16(count);
-		
+
 								tstatesCounter += 21;
 								REFRESH(2);
 							} while (count != 0);
@@ -3944,19 +3944,19 @@ public abstract class Z80 {
 							DE(dest);
 							HL(from);
 							BC(count);
-		
+
 							break;
 						}
-		
+
 						case 185: /* CPDR */{
 							boolean c = Cset();
-		
+
 							cp_a(readByte(HL()));
 							HL(dec16(HL()));
 							BC(dec16(BC()));
-		
+
 							boolean pv = (BC() != 0);
-		
+
 							setPV(pv);
 							setC(c);
 							if (pv && !Zset()) {
@@ -3971,7 +3971,7 @@ public abstract class Z80 {
 							writeByte(HL(), inByte(C(), B()));
 							B(b = qdec8(B()));
 							HL(dec16(HL()));
-		
+
 							setZ(true);
 							setN(true);
 							if (b != 0) {
@@ -3986,7 +3986,7 @@ public abstract class Z80 {
 							B(b = qdec8(B()));
 							outByte(C(), B(), readByte(HL()));
 							HL(dec16(HL()));
-		
+
 							setZ(true);
 							setN(true);
 							if (b != 0) {
@@ -3996,11 +3996,11 @@ public abstract class Z80 {
 							tstatesCounter += 16;
 							break;
 						}
-	
+
 					} // ED instruction group
 					break;
 				}
-				
+
 				case 245: /* PUSH AF */{
 					pushw(AF());
 					tstatesCounter += 11;
@@ -4012,7 +4012,7 @@ public abstract class Z80 {
 					IY(ID());
 					break;
 				}
-	
+
 				/* op A,N */
 				case 198: /* ADD A,N */{
 					add_a(readByte(_PC++));
@@ -4054,7 +4054,7 @@ public abstract class Z80 {
 					tstatesCounter += 7;
 					break;
 				}
-	
+
 				/* RST n */
 				case 199: /* RST 00h */{
 					pushw(_PC);
@@ -4108,7 +4108,7 @@ public abstract class Z80 {
 		} while (debugMode == false & z80Stopped == false);
 	}
 
-	
+
 	private final void execute_id() {
 		REFRESH(1);
 
@@ -4122,7 +4122,7 @@ public abstract class Z80 {
 			case 6:
 			case 7:
 			case 8:
-	
+
 			case 10:
 			case 11:
 			case 12:
@@ -4138,7 +4138,7 @@ public abstract class Z80 {
 			case 22:
 			case 23:
 			case 24:
-	
+
 			case 26:
 			case 27:
 			case 28:
@@ -4146,19 +4146,19 @@ public abstract class Z80 {
 			case 30:
 			case 31:
 			case 32:
-	
+
 			case 39:
 			case 40:
-	
+
 			case 47:
 			case 48:
 			case 49:
 			case 50:
 			case 51:
-	
+
 			case 55:
 			case 56:
-	
+
 			case 58:
 			case 59:
 			case 60:
@@ -4169,80 +4169,80 @@ public abstract class Z80 {
 			case 65:
 			case 66:
 			case 67:
-	
+
 			case 71:
 			case 72:
 			case 73:
 			case 74:
 			case 75:
-	
+
 			case 79:
 			case 80:
 			case 81:
 			case 82:
 			case 83:
-	
+
 			case 87:
 			case 88:
 			case 89:
 			case 90:
 			case 91:
-	
+
 			case 95:
-	
+
 			case 120:
 			case 121:
 			case 122:
 			case 123:
-	
+
 			case 127:
 			case 128:
 			case 129:
 			case 130:
 			case 131:
-	
+
 			case 135:
 			case 136:
 			case 137:
 			case 138:
 			case 139:
-	
+
 			case 143:
 			case 144:
 			case 145:
 			case 146:
 			case 147:
-	
+
 			case 151:
 			case 152:
 			case 153:
 			case 154:
 			case 155:
-	
+
 			case 159:
 			case 160:
 			case 161:
 			case 162:
 			case 163:
-	
+
 			case 167:
 			case 168:
 			case 169:
 			case 170:
 			case 171:
-	
+
 			case 175:
 			case 176:
 			case 177:
 			case 178:
 			case 179:
-	
+
 			case 183:
 			case 184:
 			case 185:
 			case 186:
 			case 187:
-	
+
 			case 191:
 			case 192:
 			case 193:
@@ -4255,7 +4255,7 @@ public abstract class Z80 {
 			case 200:
 			case 201:
 			case 202:
-	
+
 			case 204:
 			case 205:
 			case 206:
@@ -4277,15 +4277,15 @@ public abstract class Z80 {
 			case 222:
 			case 223:
 			case 224:
-	
+
 			case 226:
-	
+
 			case 228:
-	
+
 			case 230:
 			case 231:
 			case 232:
-	
+
 			case 234:
 			case 235:
 			case 236:
@@ -4306,7 +4306,7 @@ public abstract class Z80 {
 				tstatesCounter += 4;
 				break;
 			}
-	
+
 			case 9: /* ADD ID,BC */{
 				ID(add16(ID(), BC()));
 				tstatesCounter += 15;
@@ -4328,7 +4328,7 @@ public abstract class Z80 {
 				tstatesCounter += 15;
 				break;
 			}
-	
+
 			case 33: /* LD ID,nn */{
 				ID(nxtpcw());
 				tstatesCounter += (14);
@@ -4386,7 +4386,7 @@ public abstract class Z80 {
 				tstatesCounter += 23;
 				break;
 			}
-	
+
 			case 38: /* LD IDH,n */{
 				IDH(readByte(_PC++));
 				tstatesCounter += 11;
@@ -4403,7 +4403,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 68: /* LD B,IDH */{
 				B(IDH());
 				tstatesCounter += 8;
@@ -4419,7 +4419,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 76: /* LD C,IDH */{
 				C(IDH());
 				tstatesCounter += 8;
@@ -4435,7 +4435,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 84: /* LD D,IDH */{
 				D(IDH());
 				tstatesCounter += 8;
@@ -4451,7 +4451,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 92: /* LD E,IDH */{
 				E(IDH());
 				tstatesCounter += 8;
@@ -4467,7 +4467,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 96: /* LD IDH,B */{
 				IDH(B());
 				tstatesCounter += 8;
@@ -4507,7 +4507,7 @@ public abstract class Z80 {
 				tstatesCounter += 8;
 				break;
 			}
-	
+
 			case 104: /* LD IDL,B */{
 				IDL(B());
 				tstatesCounter += 8;
@@ -4547,7 +4547,7 @@ public abstract class Z80 {
 				tstatesCounter += 8;
 				break;
 			}
-	
+
 			case 112: /* LD (ID+d),B */{
 				writeByte(ID_d(), B());
 				tstatesCounter += 19;
@@ -4583,7 +4583,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 124: /* LD A,IDH */{
 				A(IDH());
 				tstatesCounter += 8;
@@ -4599,7 +4599,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 132: /* ADD A,IDH */{
 				add_a(IDH());
 				tstatesCounter += 8;
@@ -4615,7 +4615,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 140: /* ADC A,IDH */{
 				adc_a(IDH());
 				tstatesCounter += 8;
@@ -4631,7 +4631,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 148: /* SUB IDH */{
 				sub_a(IDH());
 				tstatesCounter += 8;
@@ -4647,7 +4647,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 156: /* SBC A,IDH */{
 				sbc_a(IDH());
 				tstatesCounter += 8;
@@ -4663,7 +4663,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 164: /* AND IDH */{
 				and_a(IDH());
 				tstatesCounter += 8;
@@ -4679,7 +4679,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 172: /* XOR IDH */{
 				xor_a(IDH());
 				tstatesCounter += 8;
@@ -4695,7 +4695,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 180: /* OR IDH */{
 				or_a(IDH());
 				tstatesCounter += 8;
@@ -4711,7 +4711,7 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 188: /* CP IDH */{
 				cp_a(IDH());
 				tstatesCounter += 8;
@@ -4727,32 +4727,32 @@ public abstract class Z80 {
 				tstatesCounter += 19;
 				break;
 			}
-	
+
 			case 225: /* POP ID */{
 				ID(popw());
 				tstatesCounter += 14;
 				break;
 			}
-	
+
 			case 233: /* JP (ID) */{
 				PC(ID());
 				tstatesCounter += 8;
 				break;
 			}
-	
+
 			case 249: /* LD SP,ID */{
 				SP(ID());
 				tstatesCounter += 10;
 				break;
 			}
-	
+
 			case 203: /* prefix CB */{
 				// Get index address (offset byte is first)
 				int z = ID_d();
 				// Opcode comes after offset byte
 				int op = readByte(_PC++);
-	
-				switch (op) {	
+
+				switch (op) {
 					case 0: /* RLC B */{
 						B(op = rlc(readByte(z)));
 						writeByte(z, op);
@@ -4792,7 +4792,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 8: /* RRC B */{
 						B(op = rrc(readByte(z)));
 						writeByte(z, op);
@@ -4832,7 +4832,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 16: /* RL B */{
 						B(op = rl(readByte(z)));
 						writeByte(z, op);
@@ -4872,7 +4872,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 24: /* RR B */{
 						B(op = rr(readByte(z)));
 						writeByte(z, op);
@@ -4912,7 +4912,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 32: /* SLA B */{
 						B(op = sla(readByte(z)));
 						writeByte(z, op);
@@ -4952,7 +4952,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 40: /* SRA B */{
 						B(op = sra(readByte(z)));
 						writeByte(z, op);
@@ -4992,7 +4992,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 48: /* SLS B */{
 						B(op = sls(readByte(z)));
 						writeByte(z, op);
@@ -5032,7 +5032,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 56: /* SRL B */{
 						B(op = srl(readByte(z)));
 						writeByte(z, op);
@@ -5072,7 +5072,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 64: /* BIT 0,B */
 					case 65: /* BIT 0,B */
 					case 66: /* BIT 0,B */
@@ -5084,7 +5084,7 @@ public abstract class Z80 {
 						bit(0x01, readByte(z));
 						break;
 					}
-		
+
 					case 72: /* BIT 1,B */
 					case 73: /* BIT 1,B */
 					case 74: /* BIT 1,B */
@@ -5096,7 +5096,7 @@ public abstract class Z80 {
 						bit(0x02, readByte(z));
 						break;
 					}
-		
+
 					case 80: /* BIT 2,B */
 					case 81: /* BIT 2,B */
 					case 82: /* BIT 2,B */
@@ -5108,7 +5108,7 @@ public abstract class Z80 {
 						bit(0x04, readByte(z));
 						break;
 					}
-		
+
 					case 88: /* BIT 3,B */
 					case 89: /* BIT 3,B */
 					case 90: /* BIT 3,B */
@@ -5120,7 +5120,7 @@ public abstract class Z80 {
 						bit(0x08, readByte(z));
 						break;
 					}
-		
+
 					case 96: /* BIT 4,B */
 					case 97: /* BIT 4,B */
 					case 98: /* BIT 4,B */
@@ -5132,7 +5132,7 @@ public abstract class Z80 {
 						bit(0x10, readByte(z));
 						break;
 					}
-		
+
 					case 104: /* BIT 5,B */
 					case 105: /* BIT 5,B */
 					case 106: /* BIT 5,B */
@@ -5144,7 +5144,7 @@ public abstract class Z80 {
 						bit(0x20, readByte(z));
 						break;
 					}
-		
+
 					case 112: /* BIT 6,B */
 					case 113: /* BIT 6,B */
 					case 114: /* BIT 6,B */
@@ -5156,7 +5156,7 @@ public abstract class Z80 {
 						bit(0x40, readByte(z));
 						break;
 					}
-		
+
 					case 120: /* BIT 7,B */
 					case 121: /* BIT 7,B */
 					case 122: /* BIT 7,B */
@@ -5168,7 +5168,7 @@ public abstract class Z80 {
 						bit(0x80, readByte(z));
 						break;
 					}
-		
+
 					case 128: /* RES 0,B */{
 						B(op = res(0x01, readByte(z)));
 						writeByte(z, op);
@@ -5208,7 +5208,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 136: /* RES 1,B */{
 						B(op = res(0x02, readByte(z)));
 						writeByte(z, op);
@@ -5248,7 +5248,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 144: /* RES 2,B */{
 						B(op = res(0x04, readByte(z)));
 						writeByte(z, op);
@@ -5288,7 +5288,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 152: /* RES 3,B */{
 						B(op = res(0x08, readByte(z)));
 						writeByte(z, op);
@@ -5328,7 +5328,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 160: /* RES 4,B */{
 						B(op = res(0x10, readByte(z)));
 						writeByte(z, op);
@@ -5368,7 +5368,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 168: /* RES 5,B */{
 						B(op = res(0x20, readByte(z)));
 						writeByte(z, op);
@@ -5408,7 +5408,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 176: /* RES 6,B */{
 						B(op = res(0x40, readByte(z)));
 						writeByte(z, op);
@@ -5448,7 +5448,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 184: /* RES 7,B */{
 						B(op = res(0x80, readByte(z)));
 						writeByte(z, op);
@@ -5488,7 +5488,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 192: /* SET 0,B */{
 						B(op = set(0x01, readByte(z)));
 						writeByte(z, op);
@@ -5528,7 +5528,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 200: /* SET 1,B */{
 						B(op = set(0x02, readByte(z)));
 						writeByte(z, op);
@@ -5568,7 +5568,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 208: /* SET 2,B */{
 						B(op = set(0x04, readByte(z)));
 						writeByte(z, op);
@@ -5608,7 +5608,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 216: /* SET 3,B */{
 						B(op = set(0x08, readByte(z)));
 						writeByte(z, op);
@@ -5648,7 +5648,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 224: /* SET 4,B */{
 						B(op = set(0x10, readByte(z)));
 						writeByte(z, op);
@@ -5688,7 +5688,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 232: /* SET 5,B */{
 						B(op = set(0x20, readByte(z)));
 						writeByte(z, op);
@@ -5728,7 +5728,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 240: /* SET 6,B */{
 						B(op = set(0x40, readByte(z)));
 						writeByte(z, op);
@@ -5768,7 +5768,7 @@ public abstract class Z80 {
 						writeByte(z, op);
 						break;
 					}
-		
+
 					case 248: /* SET 7,B */{
 						B(op = set(0x80, readByte(z)));
 						writeByte(z, op);
@@ -5809,12 +5809,12 @@ public abstract class Z80 {
 						break;
 					}
 				}
-	
+
 				// Bit instructions take 20 T states, rest 23
 				tstatesCounter += (((op & 0xc0) == 0x40) ? 20 : 23);
 				break;
 			}
-	
+
 			case 227: /* EX (SP),ID */{
 				int t = ID();
 				int sp = SP();
@@ -5823,7 +5823,7 @@ public abstract class Z80 {
 				tstatesCounter += 23;
 				break;
 			}
-	
+
 			case 229: /* PUSH ID */{
 				pushw(ID());
 				tstatesCounter += 15;

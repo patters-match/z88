@@ -25,23 +25,23 @@ public class Z80Processor extends Z80 implements Runnable {
 
 	private Blink blink;
 	private Breakpoints breakpoints;
-    private boolean singleStepping;	
+    private boolean singleStepping;
 	private long z88StoppedAtTime;
 	private boolean interrupts;
 	private int oneStopBreakpoint;
-	
+
     /**
      * Internal signal for stopping the Z80 execution engine
      */
     private boolean stopZ88;
-	
+
 	public Z80Processor() {
-		blink = Z88.getInstance().getBlink();		
+		blink = Z88.getInstance().getBlink();
 		breakpoints = new Breakpoints();
 		singleStepping = true;
 		stopZ88 = false;
 	}
-	
+
 	/**
 	 * execute a single Z80 instruction and return
 	 */
@@ -49,7 +49,7 @@ public class Z80Processor extends Z80 implements Runnable {
 		singleStepping = true;
 		decode(true);
 	}
-	
+
 	/**
 	 * execute Z80 instructions until a breakpoint is reached,
 	 * stop command is entered or F5 was pressed in Z88 screen
@@ -65,19 +65,19 @@ public class Z80Processor extends Z80 implements Runnable {
 	public boolean singleSteppingMode() {
         return singleStepping;
     }
-    
+
 	/**
-	 * A HALT instruction was executed by the Z80 processor; Go into coma 
+	 * A HALT instruction was executed by the Z80 processor; Go into coma
 	 * and wait for an interrupt. HALT is ignored if Blink is in single stepping
-	 * mode. 
+	 * mode.
 	 */
-	public void haltZ80() {		
-		if (singleSteppingMode() == false) { 
+	public void haltZ80() {
+		if (singleSteppingMode() == false) {
 			// HALT is only relevant while running the Z80 real time...
-			
+
 			blink.coma = true;
 			//System.out.println(System.currentTimeMillis() + ": Coma state.");
-			
+
 			do {
 				try {
 					Thread.sleep(1);
@@ -85,7 +85,7 @@ public class Z80Processor extends Z80 implements Runnable {
 				}
 			} // Only get out of coma if an interrupt occurred or if Z80 engine was stopped..
 			while(blink.coma == true & stopZ88 == false);
-			
+
 			//System.out.println(System.currentTimeMillis() + ": Awakened from coma.");
 			// (back to main Z80 decode loop)
 		}
@@ -109,7 +109,7 @@ public class Z80Processor extends Z80 implements Runnable {
 	public void setZ88StoppedAtTime(long time) {
 		z88StoppedAtTime = time;
 	}
-	
+
     /**
      * Check if F5 key was pressed, or a stop was issued at command line.
      */
@@ -230,21 +230,20 @@ public class Z80Processor extends Z80 implements Runnable {
 	 * @return true, if Z80 engine is to be stopped (a real breakpoint were found).
 	 */
 	public void breakPointInfo() {
-		breakPointAction(); 
-		
-		Blink blink = Z88.getInstance().getBlink();
-		Memory memory = Z88.getInstance().getMemory(); 
-		
-		PC(PC() - 1); // reset Program Counter to Display Breakpoint Opcode 
+		breakPointAction();
+
+		Memory memory = Z88.getInstance().getMemory();
+
+		PC(PC() - 1); // reset Program Counter to Display Breakpoint Opcode
 		int bpAddress = blink.decodeLocalAddress(PC());
 		int bpOpcode = memory.getByte(bpAddress);	// remember the breakpoint instruction opcode
 
 		int z80Opcode = getBreakpoints().getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
 		memory.setByte(bpAddress, z80Opcode); // patch the original opcode back into memory (temporarily)
 		decode(true); // execute the original instruction at display breakpoint
-		memory.setByte(bpAddress, bpOpcode);  // re-patch the breakpoint opcode, for future encounter					
+		memory.setByte(bpAddress, bpOpcode);  // re-patch the breakpoint opcode, for future encounter
 	}
-	
+
 	/**
 	 * @return Returns the breakpoints.
 	 */
@@ -258,7 +257,7 @@ public class Z80Processor extends Z80 implements Runnable {
 	public void setBreakpoints(Breakpoints breakpoints) {
 		this.breakpoints = breakpoints;
 	}
-	
+
 	/**
 	 * Implement Z88 output port Blink hardware.
 	 * (RTC, Screen, Keyboard, Memory model, Serial port, CPU state).
@@ -417,7 +416,7 @@ public class Z80Processor extends Z80 implements Runnable {
 	}
 
 	/**
-	 * Thread start; execute the Z80 processor 
+	 * Thread start; execute the Z80 processor
 	 */
 	public void run() {
 		Breakpoints breakPointManager = getBreakpoints();
@@ -438,7 +437,7 @@ public class Z80Processor extends Z80 implements Runnable {
 
 		if (oneStopBreakpoint != -1)
 			breakPointManager.toggleBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
-		
+
 		if (OZvm.getInstance().getDebugMode() == true) {
 			OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
 			OZvm.getInstance().getCommandLine().initDebugCmdline();
