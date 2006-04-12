@@ -11,14 +11,17 @@ no live BBC BASIC applications are listed in the INDEX
 
 3) Activate the Filer and execute the 'romcombiner.cli' file
 with <>EX command (mark the file with TAB, then <>EX). The
-file gets typed into the a new BBC BASIC application.
-When completed, save the file as 'romcombiner.bas'. Go to INDEX
-and <>KILL the BBC BASIC application.
+file gets typed into the a new BBC BASIC application and is
+automatically saved as an executable (binary) BBC BASIC
+program as 'romcombiner.bas'.
+Go to INDEX and <>KILL the BBC BASIC application.
 
-4) Activate the Filer and execute the 'romutil.cli' file
+4) Activate the Filer and execute the 'romutil.cli' and file
 with <>EX command (mark the file with TAB, then <>EX). The
-file gets typed into the a new BBC BASIC application.
-When completed, save the file as 'romutil.bas'.
+file gets typed into the a new BBC BASIC application and is
+automatically saved as an executable (binary) BBC BASIC
+program as 'romutil.bas'.
+Go to INDEX and <>KILL the BBC BASIC application.
 
 5) Compile the machine code on your PC with the 'makebin.bat'
 file. It will generate the 'romcombiner.bin' file, which
@@ -26,9 +29,6 @@ contains the functionality to erase/program flash cards and
 program traditional 32K, 128K or 256K Eproms. Upload the
 'romcombiner.bin' file to your Z88 in the same directory as
 the two BBC BASIC programs.
-To compile the assembler file you need the 'mpm' assembler
-and related standard Z88 library. All can be fetched from
-the CVS source repository at http://sourceforge.net/projects/z88.
 
 6) Start a new BBC BASIC application with #B and RUN "romcombiner.bas"
 Please refer to 'doc/romcombiner.txt' for instructions to use
