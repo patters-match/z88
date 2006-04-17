@@ -1,6 +1,15 @@
 
 Zprom compilation notes
 
+There are two versions of Zprom, one containing just Zprom on its own and the other one contains Zprom and Flashtest, the two applications built in the same space of 32K.
+
+Running
+
+makeapps.zprom+flashtest.bat - gives you both applications whilst 
+makeapp.bat                  - gives you just Zprom
+
+*** BEFORE RUNNING THESE MAKE SURE YOU HAVE UPDATED THE STANDARD LIBRARY FILES (stdlib)
+
 To compile the Zprom application, execute the following:
 
 1) Select the directory holding the Zprom files as the current directory.
