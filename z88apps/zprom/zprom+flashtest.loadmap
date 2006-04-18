@@ -16,6 +16,7 @@
 
 ; generate a 32K Eprom image
 outputfile zprom.epr
+save16k
 size 32
 
 tokens.bin 3e0000                  ; Token table for Zprom MTH
