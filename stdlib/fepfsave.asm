@@ -261,6 +261,7 @@
 ;
 ; OUT:
 ;    Fc = 0, File Entry successfully saved to File Eprom
+;         A = FE_xx chip type
 ;         BHL = pointer beyond last byte of file entry
 ;    Fc = 1, save failed...
 ;         BHL = pointer to File Entry marked as deleted.
