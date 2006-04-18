@@ -46,10 +46,11 @@ DEFVARS $1800
      MenuPrompt          ds.w 1
      MenuBanner          ds.w 1
      MenuWindow          ds.w 1
-     LogFileHandle       ds.w 1              ; preserve the handle of the log file
-     ErrorFlag           ds.b 1              ; Global Error Condition Flag
+     LogFileHandle       ds.w 1                   ; preserve the handle of the log file
+     ErrorFlag           ds.b 1                   ; Global Error Condition Flag
      ExtAddr             ds.p 1
      testtime            ds.b 4
+     flashtype           ds.b 1
      Buffer              ds.b 32
 }
 
@@ -365,6 +366,9 @@ endif
 
                     LD   C,@10101010
                     LD   A,C
+                    EX   AF,AF'
+                    LD   A,(flashtype)       ; use the correct flash card programming
+                    EX   AF,AF'
                     CALL FlashEprWriteByte
                     CALL VerifyByte
                     CALL C,VerifyErrorMsg
@@ -433,7 +437,7 @@ endif
                     PUSH IX
                     POP  DE                  ; blow source block to Flash Card Bank
                     LD   IY, 512
-                    XOR  A                   ; Poll for Flash Card programming algorithm...
+                    LD   A,(flashtype)       ; use the correct Flash Card type...
                     CALL FlashEprWriteBlock
                     POP  BC
                     CALL C, SetErrorFlag
@@ -665,6 +669,7 @@ endif
 .FlashEprInfo       LD   C,3
                     CALL FlashEprCardId
                     RET  C
+                    LD   (flashtype),A            ; remember Flash Card type...
 
                     LD   A,L                      ; get Device Code
                     LD   C,H                      ; get Manufacturer Code
