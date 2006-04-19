@@ -204,8 +204,11 @@ endif
 ; (all bits reset)
                     CALL TestDataBus                   ; test bit D0-D7 of databus
                     RET  C
+
                     CALL TestAddressLines              ; test address lines A0-A19
-                    RET  C
+                    LD   A,(ErrorFlag)
+                    OR   A
+                    RET  NZ
 
                     CALL ProgramCard
                     LD   A,(ErrorFlag)
@@ -257,7 +260,7 @@ endif
                     LD   C,$FF
                     LD   D,8                 ; loop count, D0-D7
                     CALL VerifyByte          ; Make sure that memory at (BHL) is $FF before we begin..
-                    JR   Z, byte_empty
+                    JR   Z, blow_datapin
 .EmptyErrorMsg
                     PUSH HL
                     LD   A, B
@@ -274,10 +277,6 @@ endif
                     POP  HL
                     SCF
                     RET
-.byte_empty
-                    EX   AF,AF'
-                    XOR  A                   ; auto-poll flash card programming algorithm...
-                    EX   AF,AF'
 .databus_loop
                     CALL VerifyByte
                     JR   Z, blow_datapin
@@ -309,6 +308,9 @@ endif
 .blow_datapin
                     SLA  C                   ; write bit pattern D0-D7, from bit 0 towards bit 7
                     LD   A,C
+                    EX   AF,AF'
+                    LD   A,(flashtype)       ; use current flash card programming algorithm...
+                    EX   AF,AF'
                     CALL FlashEprWriteByte
                     JR   NC, next_datapin
                     CALL AddrProgErrorMsg    ; byte wasn't blow properly!
@@ -370,7 +372,9 @@ endif
                     LD   A,(flashtype)       ; use the correct flash card programming
                     EX   AF,AF'
                     CALL FlashEprWriteByte
+                    CALL C,SetErrorFlag      ; indicate global error condition
                     CALL VerifyByte
+                    CALL C,SetErrorFlag      ; indicate global error condition
                     CALL C,VerifyErrorMsg
                     ADD  HL,HL               ; next address pin
                     BIT  6,H                 ; A0-A14 tested?
@@ -382,6 +386,7 @@ endif
                     JR   NZ,test_nextbank_loop
                     RET                      ; return Fc = 0...
 .testaddrline_msg   DEFM "Test address lines in Bank ",0
+
 
 ; ******************************************************************
 ;
