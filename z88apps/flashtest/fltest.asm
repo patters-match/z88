@@ -185,6 +185,8 @@ endif
 ; Perform the test of the inserted Flash Card...
 ;
 .FlashCardTest
+                    XOR  A
+                    LD   (ErrorFlag),A                 ; initialize to no errors.
 
 ; Identify, if a Flash Eprom Card is inserted in slot 3
                     LD   HL, fe_found_msg
@@ -397,9 +399,6 @@ endif
                     ADD  IX,SP               ; IX points at start of buffer
                     LD   SP,IX               ; 512 byte buffer created...
                     PUSH HL                  ; preserve original SP
-
-                    XOR  A
-                    LD   (ErrorFlag),A
 
                     LD   BC,512
                     PUSH IX
