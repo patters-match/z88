@@ -42,7 +42,7 @@ public class MakeApp {
 	private int appCardBanks = 1; // default output is 16K bank
 	private int appCardSize = 16;
 	private boolean splitBanks;
-    private int lineNo;
+	private int lineNo;
 
 	private RomBank[] banks;
 	private String outputFilename;
@@ -92,6 +92,16 @@ public class MakeApp {
 		return hexValue;
 	}
 
+	/**
+	* Return output filename with bank number, using current specified output filename
+	*/
+	private String outputBankFilename(int bankNo) {
+		String flnmSections[] = outputFilename.split("\\"+"p{.}");
+		System.out.println(outputFilename + "," + flnmSections.length);
+		String newFilename = flnmSections[0] + "." + Integer.toString(bankNo);
+		
+		return newFilename;
+	}
 	
 	/**
 	 * Parse integer value from string (fetched from command line or loadmap file)
@@ -379,7 +389,7 @@ public class MakeApp {
 					// Also dump the final binary as 16K bank files...
 					int topBank = 0x3F;
 					for (int b=appCardBanks-1; b>=0; b--) {
-						cardFile = new RandomAccessFile(outputFilename + "." + topBank--, "rw");
+						cardFile = new RandomAccessFile(outputBankFilename(topBank--), "rw");
 						byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE);
 						cardFile.write(bankDump);
 						cardFile.close();
