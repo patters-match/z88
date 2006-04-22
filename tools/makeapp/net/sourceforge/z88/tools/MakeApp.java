@@ -93,23 +93,29 @@ public class MakeApp {
 	}
 
 	/**
-	* Return output filename with bank number, using current specified output filename
-	*/
+	 * Return output filename with bank number, using current specified output
+	 * filename
+	 */
 	private String outputBankFilename(int bankNo) {
-		String flnmSections[] = outputFilename.split("\\"+"p{.}");
-		System.out.println(outputFilename + "," + flnmSections.length);
-		String newFilename = flnmSections[0] + "." + Integer.toString(bankNo);
+		String newFilename;
 		
+		if (outputFilename.indexOf(".") > 0) {
+			newFilename = outputFilename.substring(0, outputFilename.indexOf("."));
+			newFilename = newFilename + "." + Integer.toString(bankNo);
+		} else {
+			newFilename = outputFilename + "." + Integer.toString(bankNo);
+		}
+
 		return newFilename;
 	}
-	
+
 	/**
-	 * Parse integer value from string (fetched from command line or loadmap file)
-	 * and interpret it as the card size. The value must be a valid card size and not
-	 * larger than 1Mb (max size of Z88 slot).
-	 *
+	 * Parse integer value from string (fetched from command line or loadmap
+	 * file) and interpret it as the card size. The value must be a valid card
+	 * size and not larger than 1Mb (max size of Z88 slot).
+	 * 
 	 * Card size is evaluated as size in K.
-	 *
+	 * 
 	 * @param v
 	 * @return card sice in K, or -1 if the value was illegal or badly formed
 	 */
@@ -144,9 +150,9 @@ public class MakeApp {
 		byte codeBuffer[] = null;
 
 		// make sure that path names in loadmap file follow the OS convention...
-		if ("/" != System.getProperty("file.separator")) 
+		if ("/" != System.getProperty("file.separator"))
 			filename = filename.replace('/', System.getProperty("file.separator").charAt(0));
-		if ("\\" != System.getProperty("file.separator")) 
+		if ("\\" != System.getProperty("file.separator"))
 			filename = filename.replace('\\', System.getProperty("file.separator").charAt(0));
 
 		try {
@@ -174,7 +180,7 @@ public class MakeApp {
 	 * size <size>            ; total file size K, from 16K-1024K
 	 * save16k                ; save output as 16K bank files
 	 * patch <addr> {<byte>}  ; patch memory buffer at address with byte(s)
-	 *                        ; (hex bytes are separated with spaces)  
+	 *                        ; (hex bytes are separated with spaces)
 	 * </pre>
 	 *
 	 * Remaining directive are to be interpreted as file(names) and offset
@@ -224,7 +230,7 @@ public class MakeApp {
 	        			// all other directive are file names and offsets...
 	        			if (directive.length == 2 & directive[0].length() != 0) {
 							int offset = getHexValue(directive[1]);
-							if (offset != -1) { 
+							if (offset != -1) {
 								if ( loadCode(directive[0], (offset & 0x3f0000) >>> 16, offset & 0x3fff) == false ) {
 									System.err.println(loadmapFilename + ", at line " + lineNo + ", File binary couldn't be loaded.");
 									return false;
@@ -254,39 +260,39 @@ public class MakeApp {
 	/**
 	 * Parse the directive and patch bytes at specified buffer locations.
 	 * patchargument[1] contains the patch address, followed by byte arguments.
-	 * 
+	 *
 	 * @param patchargument
 	 * @return false if no buffer has yet been loaded or illegal numbers were parsed
 	 */
 	private boolean patchBuffer(String patchargument[]) {
-		
+
 		if (patchargument.length < 3) {
 			System.err.println(loadmapFilename + ", at line " + lineNo + ", insufficient patch address arguments.");
 			return false;
 		}
 		if (banks == null) {
 			System.err.println(loadmapFilename + ", at line " + lineNo + ", Buffer hasn't been created yet!");
-			return false;			
+			return false;
 		}
-		
+
 		int patchAddr = getHexValue(patchargument[1]);
 		for(int i=2; i<patchargument.length; i++) {
 			int bankNo = ((patchAddr & 0x3f0000) >>> 16) & (appCardBanks-1);
 			int offset = patchAddr & 0x3fff;
 			int patchByte = getHexValue(patchargument[i]);
-			
+
 			if (patchAddr == -1 | patchByte == -1) {
 				System.err.println(loadmapFilename + ", at line " + lineNo + ", illegal patch address arguments.");
-				return false;				
+				return false;
 			}
 
 			banks[bankNo].setByte(offset, patchByte);
 			patchAddr++;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Load the specified code into the final code space <b>banks</b> at bank, offset.
 	 * The function will check for bank boundary code loading overlap errors, and
