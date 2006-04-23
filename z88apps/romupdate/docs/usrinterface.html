@@ -1,0 +1,291 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=windows-1252">
+  <title>ROMupdate User interface design document</title>
+
+
+  <meta name="AUTHOR" content="Vic Gerhardi">
+
+  <meta name="CREATED" content="20060423;17220000">
+
+  <meta name="CHANGEDBY" content="Vic Gerhardi">
+
+  <meta name="CHANGED" content="20060423;19380000">
+
+  <style>
+<!--
+@page { size: 21.59cm 27.94cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+P { margin-bottom: 0.21cm; direction: ltr; color: #000000; widows: 2; orphans: 2 }
+P.western { font-family: "Times New Roman", serif; font-size: 12pt; so-language: en-GB }
+P.cjk { font-family: "Times New Roman", serif; font-size: 12pt }
+P.ctl { font-family: "Times New Roman", serif; font-size: 12pt; so-language: ar-SA }
+H1 { margin-bottom: 0.11cm; direction: ltr; color: #000000; widows: 2; orphans: 2 }
+H1.western { font-family: "Arial", sans-serif; font-size: 16pt; so-language: en-GB }
+H1.cjk { font-family: "Times New Roman", serif; font-size: 16pt }
+H1.ctl { font-family: "Arial", sans-serif; font-size: 16pt; so-language: ar-SA }
+H2 { margin-bottom: 0.11cm; direction: ltr; color: #000000; widows: 2; orphans: 2 }
+H2.western { font-family: "Arial", sans-serif; font-size: 14pt; so-language: en-GB; font-style: italic }
+H2.cjk { font-family: "Times New Roman", serif; font-size: 14pt; font-style: italic }
+H2.ctl { font-family: "Arial", sans-serif; font-size: 14pt; so-language: ar-SA; font-style: italic }
+-->
+  </style>
+</head>
+
+
+<body style="direction: ltr; color: rgb(0, 0, 0);" lang="en-US">
+
+<h1 class="western" lang="en-GB">ROMupdate User
+interface design
+document</h1>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<h2 class="western" lang="en-GB">CARD Selection
+Window</h2>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">Same
+as Flashstore with the exception of un-writeable items will be grey. </font></font>
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">E.g.
+RAM cards and Intel Flashcards in slot 2.</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">Select
+which Flashcard to use 1, 2 or 3.</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang=""><img src="usrinterface1.gif"></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">The
+Initialisation routine does the following</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<ul>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">Looks at the Flash Card and
+lists the Applications (that are there) in the left-hand screen in the
+style of the Application list in the INDEX. If it is a blank card it
+displays NONE.</font></p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">Looks and checks the CRC of
+any files in the Default RAM device that can be used with ROMupdate.
+These include both types of files .epr and .63 files. </font> </p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">Checks the Flashcard to see
+if there is any available space for additional applications, even
+taking an educated guess if reclaiming is used in the file area.</font></p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">These files are then
+displayed (without extensions) in the next window (Window 2). If the
+filename is greyed out it means that you could use it, but not at the
+moment. Perhaps there is no more room to put the application on this
+ROM.</font></p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">The third window
+(what&rsquo;s left) is used for user interface.</font></p>
+
+  </li>
+
+</ul>
+
+<h2 class="western" style="page-break-before: always;" lang="en-GB">Select
+Window</h2>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">Use
+the left and right arrows to select the window.</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang=""><img style="width: 579px; height: 292px;" alt="User Interface 2" src="usrinterface2.gif"></p>
+
+<h2 class="western" style="page-break-before: always;" lang="en-GB">First
+Window Design and Operation</h2>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">This
+window is used to show the initial and final layout of the order of
+applications. It is drawn in the style of the Application list in the
+index.</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">The
+cursor can be moved up and down that list. There are 3 commands</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<ul>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">If the ENTER key is pressed
+then a dialogue box says<br>
+
+&ldquo;Insert Application <b>B</b>efore or <b>A</b>fter
+the cursor?&rdquo;<br>
+
+Pressing B makes a blank space in the application list. If the
+&lsquo;B&rsquo; key is pressed a blank space appears in the
+application list. This space will be filled when the application is
+selected in Window 2.</font></p>
+
+    <p style="margin-bottom: 0cm;" lang="en-GB"></p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">If the
+&lsquo;B&rsquo; key is pressed then a blank space appears in
+the application list before the cursor.</font></p>
+
+    <p style="margin-bottom: 0cm;" lang="en-GB"></p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">If the
+&lsquo;A&rsquo; key is pressed then a blank space appears in
+the application list after the cursor.</font></p>
+
+  </li>
+
+</ul>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">This
+space will be filled when the application is selected from window 2.</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">For
+the purpose of writing CLI files it is proposed that we use numbers
+to position where in the list you want the application to go. E.g.
+&lt;&gt;I23 (that is letter I in the 21st position from the
+top).</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<h2 class="western" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">If
+possible a delete function should be considered. This doesn&rsquo;t
+delete the application; it just changes the pointers to miss it out
+in the list. (Would that mean it would be then lost for ever?). The
+existing Flashstore DEL command could be used for this.</font></font></h2>
+
+<h2 class="western" style="page-break-before: always;" lang="en-GB">Second
+Window Design and Operation</h2>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">This
+window is only 12 characters wide.</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">General</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">If
+you do not select the position in Window 1 the following defaults
+will take place. If a position is selected then the application is
+added to that position.</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial, sans-serif"><font style="font-size: 16pt;" size="4">To</font></font></p>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+<ul>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">UPDATE AN EXISTING
+APPLICATION - move the cursor over the filename in Window 2 and press
+ENTER</font></p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" lang="en-GB"><font face="Arial Black, sans-serif">ADD A NEW APPLICATION - move
+the cursor over the filename in Window 2 and press ENTER &ndash;
+this adds the new application to the end of the list. If there is no
+room </font> </p>
+
+  </li>
+
+</ul>
+
+<p class="western" style="margin-bottom: 0cm;" lang="en-GB"><br>
+
+</p>
+
+</body>
+</html>
