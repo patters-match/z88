@@ -1,0 +1,16 @@
+Ideas for future FlashStore features:
+
+
+V1.9 (16K Popdown)
+   Renamed to 'FileStore' (any better ideas?)
+   Improve current features / bug fixes (eg. better display of long filenames).
+   Direct Copy/Move files between file areas (interactive single select or all)
+   Implement save file / mark as deleted on UV Eprom's (Copy / Move included). Features requires new stdlib Eprom functionality
+
+
+V2.0 (32K PopDown)
+Architectural internal data-structure changes that allows:
+
+   Wild card search in file area, possibly wildcard specification for file operations, eg, *.doc to fetch all PipeDream docs to Ram.
+   Multiple-select file operations; eg. select 4 files with TAB and do a file-related operation (fetch to Ram, copy, move, delete)
+   Reclaim deleted file space on Flash Cards.
