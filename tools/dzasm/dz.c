@@ -2081,205 +2081,205 @@ struct opcode ed[] = {
 };
 
 struct opcode dc[] = {
-	"CALL_OZ(DC_INI)",	0, director,	/* 060C	*/
-	"CALL_OZ(DC_BYE)",	0, director,	/* 080C	*/
-	"CALL_OZ(DC_ENT)",	0, director,	/* 0A0C	*/
-	"CALL_OZ(DC_NAM)",	0, director,	/* 0C0C	*/
-	"CALL_OZ(DC_IN)",	0, director,	/* 0E0C	*/
-	"CALL_OZ(DC_OUT)",	0, director,	/* 100C	*/
-	"CALL_OZ(DC_PRT)",	0, director,	/* 120C	*/
-	"CALL_OZ(DC_ICL)",	0, director,	/* 140C	*/
-	"CALL_OZ(DC_NQ)",	0, director,	/* 160C	*/
-	"CALL_OZ(DC_SP)",	0, director,	/* 180C	*/
-	"CALL_OZ(DC_ALT)",	0, director,	/* 1A0C	*/
-	"CALL_OZ(DC_RBD)",	0, director,	/* 1C0C	*/
-	"CALL_OZ(DC_XIN)",	0, director,	/* 1E0C	*/
-	"CALL_OZ(DC_GEN)",	0, director,	/* 200C	*/
-	"CALL_OZ(DC_POL)",	0, director,	/* 220C	*/
-	"CALL_OZ(DC_SCN)",	0, director,	/* 240C	*/
-	"CALL_OZ(UNKNOWN)",	0, none
+	"OZ     DC_INI",	0, director,	/* 060C	*/
+	"OZ     DC_BYE",	0, director,	/* 080C	*/
+	"OZ     DC_ENT",	0, director,	/* 0A0C	*/
+	"OZ     DC_NAM",	0, director,	/* 0C0C	*/
+	"OZ     DC_IN",	0, director,	/* 0E0C	*/
+	"OZ     DC_OUT",	0, director,	/* 100C	*/
+	"OZ     DC_PRT",	0, director,	/* 120C	*/
+	"OZ     DC_ICL",	0, director,	/* 140C	*/
+	"OZ     DC_NQ",	0, director,	/* 160C	*/
+	"OZ     DC_SP",	0, director,	/* 180C	*/
+	"OZ     DC_ALT",	0, director,	/* 1A0C	*/
+	"OZ     DC_RBD",	0, director,	/* 1C0C	*/
+	"OZ     DC_XIN",	0, director,	/* 1E0C	*/
+	"OZ     DC_GEN",	0, director,	/* 200C	*/
+	"OZ     DC_POL",	0, director,	/* 220C	*/
+	"OZ     DC_SCN",	0, director,	/* 240C	*/
+	"OZ     UNKNOWN",	0, none
 };
 
 struct opcode os1[] = {
-	"CALL_OZ(OS_BYE)",	0, director,	/* 21 */
-	"CALL_OZ(OS_PRT)",	0, misc,	/* 24 */
-	"CALL_OZ(OS_OUT)",	0, stdio,	/* 27 */
-	"CALL_OZ(OS_IN)",	0, stdio,	/* 2A */
-	"CALL_OZ(OS_TIN)",	0, stdio,	/* 2D */
-	"CALL_OZ(OS_XIN)",	0, stdio,	/* 30 */
-	"CALL_OZ(OS_PUR)",	0, stdio,	/* 33 */
-	"CALL_OZ(OS_UGB)",	0, fileio,	/* 36 */
-	"CALL_OZ(OS_GB)",	0, fileio,	/* 39 */
-	"CALL_OZ(OS_PB)",	0, fileio,	/* 3C */
-	"CALL_OZ(OS_GBT)",	0, fileio,	/* 3F */
-	"CALL_OZ(OS_PBT)",	0, fileio,	/* 42 */
-	"CALL_OZ(OS_MV)",	0, fileio,	/* 45 */
-	"CALL_OZ(OS_FRM)",	0, fileio,	/* 48 */
-	"CALL_OZ(OS_FWM)",	0, fileio,	/* 4B */
-	"CALL_OZ(OS_MOP)",	0, memory,	/* 4E */
-	"CALL_OZ(OS_MCL)",	0, memory,	/* 51 */
-	"CALL_OZ(OS_MAL)",	0, memory,	/* 54 */
-	"CALL_OZ(OS_MFR)",	0, memory,	/* 57 */
-	"CALL_OZ(OS_MGB)",	0, memory,	/* 5A */
-	"CALL_OZ(OS_MPB)",	0, memory,	/* 5D */
-	"CALL_OZ(OS_BIX)",	0, memory,	/* 60 */
-	"CALL_OZ(OS_BOX)",	0, memory,	/* 63 */
-	"CALL_OZ(OS_NQ)",	0, syspar,	/* 66 */
-	"CALL_OZ(OS_SP)",	0, syspar,	/* 69 */
-	"CALL_OZ(OS_SR)",	0, saverestore,	/* 6C */
-	"CALL_OZ(OS_ESC)",	0, error,	/* 6F */
-	"CALL_OZ(OS_ERC)",	0, error,	/* 72 */
-	"CALL_OZ(OS_ERH)",	0, error,	/* 75 */
-	"CALL_OZ(OS_UST)",	0, timedate,	/* 78 */
-	"CALL_OZ(OS_FN)",	0, misc,	/* 7B */
-	"CALL_OZ(OS_WAIT)",	0, director,	/* 7E */
-	"CALL_OZ(OS_ALM)",	0, alarm,	/* 81 */
-	"CALL_OZ(OS_CLI)",	0, director,	/* 84 */
-	"CALL_OZ(OS_DOR)",	0, dor,		/* 87 */
-	"CALL_OZ(OS_FC)",	0, memory,	/* 8A */
-	"CALL_OZ(OS_SI)",	0, serinterface,/* 8D */
-	"CALL_OZ(UNKNOWN)",	0, none
+	"OZ     OS_BYE",	0, director,	/* 21 */
+	"OZ     OS_PRT",	0, misc,	/* 24 */
+	"OZ     OS_OUT",	0, stdio,	/* 27 */
+	"OZ     OS_IN",	0, stdio,	/* 2A */
+	"OZ     OS_TIN",	0, stdio,	/* 2D */
+	"OZ     OS_XIN",	0, stdio,	/* 30 */
+	"OZ     OS_PUR",	0, stdio,	/* 33 */
+	"OZ     OS_UGB",	0, fileio,	/* 36 */
+	"OZ     OS_GB",	0, fileio,	/* 39 */
+	"OZ     OS_PB",	0, fileio,	/* 3C */
+	"OZ     OS_GBT",	0, fileio,	/* 3F */
+	"OZ     OS_PBT",	0, fileio,	/* 42 */
+	"OZ     OS_MV",	0, fileio,	/* 45 */
+	"OZ     OS_FRM",	0, fileio,	/* 48 */
+	"OZ     OS_FWM",	0, fileio,	/* 4B */
+	"OZ     OS_MOP",	0, memory,	/* 4E */
+	"OZ     OS_MCL",	0, memory,	/* 51 */
+	"OZ     OS_MAL",	0, memory,	/* 54 */
+	"OZ     OS_MFR",	0, memory,	/* 57 */
+	"OZ     OS_MGB",	0, memory,	/* 5A */
+	"OZ     OS_MPB",	0, memory,	/* 5D */
+	"OZ     OS_BIX",	0, memory,	/* 60 */
+	"OZ     OS_BOX",	0, memory,	/* 63 */
+	"OZ     OS_NQ",	0, syspar,	/* 66 */
+	"OZ     OS_SP",	0, syspar,	/* 69 */
+	"OZ     OS_SR",	0, saverestore,	/* 6C */
+	"OZ     OS_ESC",	0, error,	/* 6F */
+	"OZ     OS_ERC",	0, error,	/* 72 */
+	"OZ     OS_ERH",	0, error,	/* 75 */
+	"OZ     OS_UST",	0, timedate,	/* 78 */
+	"OZ     OS_FN",	0, misc,	/* 7B */
+	"OZ     OS_WAIT",	0, director,	/* 7E */
+	"OZ     OS_ALM",	0, alarm,	/* 81 */
+	"OZ     OS_CLI",	0, director,	/* 84 */
+	"OZ     OS_DOR",	0, dor,		/* 87 */
+	"OZ     OS_FC",	0, memory,	/* 8A */
+	"OZ     OS_SI",	0, serinterface,/* 8D */
+	"OZ     UNKNOWN)",	0, none
 };
 
 struct opcode os2[] = {
-	"CALL_OZ(OS_WTB)",	0, tokens,	/* CA06	*/
-	"CALL_OZ(OS_WRT)",	0, tokens,	/* CC06	*/
-	"CALL_OZ(OS_WSQ)",	0, misc,	/* CE06	*/
-	"CALL_OZ(OS_ISQ)",	0, misc,	/* D006	*/
-	"CALL_OZ(OS_AXP)",	0, memory,	/* D206	*/
-	"CALL_OZ(OS_SCI)",	0, screen,	/* D406	*/
-	"CALL_OZ(OS_DLY)",	0, timedate,	/* D606	*/
-	"CALL_OZ(OS_BLP)",	0, misc,	/* D806	*/
-	"CALL_OZ(OS_BDE)",	0, memory,	/* DA06	*/
-	"CALL_OZ(OS_BHL)",	0, memory,	/* DC06	*/
-	"CALL_OZ(OS_FTH)",	0, director,	/* DE06	*/
-	"CALL_OZ(OS_VTH)",	0, director,	/* E006	*/
-	"CALL_OZ(OS_GTH)",	0, director,	/* E206	*/
-	"CALL_OZ(OS_REN)",	0, fileio,	/* E406	*/
-	"CALL_OZ(OS_DEL)",	0, fileio,	/* E606	*/
-	"CALL_OZ(OS_CL)",	0, fileio,	/* E806	*/
-	"CALL_OZ(OS_OP)",	0, fileio,	/* EA06	*/
-	"CALL_OZ(OS_OFF)",	0, screen,	/* EC06	*/
-	"CALL_OZ(OS_USE)",	0, director,	/* EE06	*/
-	"CALL_OZ(OS_EPR)",	0, fileio,	/* F006	*/
-	"CALL_OZ(OS_HT)",	0, timedate,	/* F206	*/
-	"CALL_OZ(OS_MAP)",	0, map,		/* F406	*/
-	"CALL_OZ(OS_EXIT)",	0, director,	/* F606	*/
-	"CALL_OZ(OS_STK)",	0, director,	/* F806	*/
-	"CALL_OZ(OS_ENT)",	0, director,	/* FA06	*/
-	"CALL_OZ(OS_POLL)",	0, director,	/* FC06	*/
-	"CALL_OZ(OS_DOM)",	0, director,	/* FE06	*/
-	"CALL_OZ(UNKNOWN)",	0, none
+	"OZ     OS_WTB",	0, tokens,	/* CA06	*/
+	"OZ     OS_WRT",	0, tokens,	/* CC06	*/
+	"OZ     OS_WSQ",	0, misc,	/* CE06	*/
+	"OZ     OS_ISQ",	0, misc,	/* D006	*/
+	"OZ     OS_AXP",	0, memory,	/* D206	*/
+	"OZ     OS_SCI",	0, screen,	/* D406	*/
+	"OZ     OS_DLY",	0, timedate,	/* D606	*/
+	"OZ     OS_BLP",	0, misc,	/* D806	*/
+	"OZ     OS_BDE",	0, memory,	/* DA06	*/
+	"OZ     OS_BHL",	0, memory,	/* DC06	*/
+	"OZ     OS_FTH",	0, director,	/* DE06	*/
+	"OZ     OS_VTH",	0, director,	/* E006	*/
+	"OZ     OS_GTH",	0, director,	/* E206	*/
+	"OZ     OS_REN",	0, fileio,	/* E406	*/
+	"OZ     OS_DEL",	0, fileio,	/* E606	*/
+	"OZ     OS_CL",	0, fileio,	/* E806	*/
+	"OZ     OS_OP",	0, fileio,	/* EA06	*/
+	"OZ     OS_OFF",	0, screen,	/* EC06	*/
+	"OZ     OS_USE",	0, director,	/* EE06	*/
+	"OZ     OS_EPR",	0, fileio,	/* F006	*/
+	"OZ     OS_HT",	0, timedate,	/* F206	*/
+	"OZ     OS_MAP",	0, map,		/* F406	*/
+	"OZ     OS_EXIT",	0, director,	/* F606	*/
+	"OZ     OS_STK",	0, director,	/* F806	*/
+	"OZ     OS_ENT",	0, director,	/* FA06	*/
+	"OZ     OS_POLL",	0, director,	/* FC06	*/
+	"OZ     OS_DOM",	0, director,	/* FE06	*/
+	"OZ     UNKNOWN",	0, none
 };
 
 struct opcode gn[] = {
-	"CALL_OZ(GN_GDT)",	0, timedate,	/* 0609	*/
-	"CALL_OZ(GN_PDT)",	0, timedate,	/* 0809	*/
-	"CALL_OZ(GN_GTM)",	0, timedate,	/* 0A09	*/
-	"CALL_OZ(GN_PTM)",	0, timedate,	/* 0C09	*/
-	"CALL_OZ(GN_SDO)",	0, timedate,	/* 0E09	*/
-	"CALL_OZ(GN_GDN)",	0, integer,	/* 1009	*/
-	"CALL_OZ(GN_PDN)",	0, integer,	/* 1209	*/
-	"CALL_OZ(GN_DIE)",	0, timedate,	/* 1409	*/
-	"CALL_OZ(GN_DEI)",	0, timedate,	/* 1609	*/
-	"CALL_OZ(GN_GMD)",	0, timedate,	/* 1809	*/
-	"CALL_OZ(GN_GMT)",	0, timedate,	/* 1A09	*/
-	"CALL_OZ(GN_PMD)",	0, timedate,	/* 1C09	*/
-	"CALL_OZ(GN_PMT)",	0, timedate,	/* 1E09	*/
-	"CALL_OZ(GN_MSC)",	0, timedate,	/* 2009	*/
-	"CALL_OZ(GN_FLO)",	0, filter,	/* 2209	*/
-	"CALL_OZ(GN_FLC)",	0, filter,	/* 2409	*/
-	"CALL_OZ(GN_FLW)",	0, filter,	/* 2609	*/
-	"CALL_OZ(GN_FLR)",	0, filter,	/* 2809	*/
-	"CALL_OZ(GN_FLF)",	0, filter,	/* 2A09	*/
-	"CALL_OZ(GN_FPB)",	0, filter,	/* 2C09	*/
-	"CALL_OZ(GN_NLN)",	0, stdio,	/* 2E09	*/
-	"CALL_OZ(GN_CLS)",	0, chars,	/* 3009	*/
-	"CALL_OZ(GN_SKC)",	0, chars,	/* 3209	*/
-	"CALL_OZ(GN_SKD)",	0, chars,	/* 3409	*/
-	"CALL_OZ(GN_SKT)",	0, chars,	/* 3609	*/
-	"CALL_OZ(GN_SIP)",	0, stdio,	/* 3809	*/
-	"CALL_OZ(GN_SOP)",	0, stdio,	/* 3A09	*/
-	"CALL_OZ(GN_SOE)",	0, stdio,	/* 3C09	*/
-	"CALL_OZ(GN_RBE)",	0, memory,	/* 3E09	*/
-	"CALL_OZ(GN_WBE)",	0, memory,	/* 4009	*/
-	"CALL_OZ(GN_CME)",	0, memory,	/* 4209	*/
-	"CALL_OZ(GN_XNX)",	0, memory,	/* 4409	*/
-	"CALL_OZ(GN_XIN)",	0, memory,	/* 4609	*/
-	"CALL_OZ(GN_XDL)",	0, memory,	/* 4809	*/
-	"CALL_OZ(GN_ERR)",	0, error,	/* 4A09	*/
-	"CALL_OZ(GN_ESP)",	0, error,	/* 4C09	*/
-	"CALL_OZ(GN_FCM)",	0, fileio,	/* 4E09	*/
-	"CALL_OZ(GN_FEX)",	0, fileio,	/* 5009	*/
-	"CALL_OZ(GN_OPW)",	0, fileio,	/* 5209	*/
-	"CALL_OZ(GN_WCL)",	0, fileio,	/* 5409	*/
-	"CALL_OZ(GN_WFN)",	0, fileio,	/* 5609	*/
-	"CALL_OZ(GN_PRS)",	0, fileio,	/* 5809	*/
-	"CALL_OZ(GN_PFS)",	0, fileio,	/* 5A09	*/
-	"CALL_OZ(GN_WSM)",	0, fileio,	/* 5C09	*/
-	"CALL_OZ(GN_ESA)",	0, fileio,	/* 5E09	*/
-	"CALL_OZ(GN_OPF)",	0, fileio,	/* 6009	*/
-	"CALL_OZ(GN_CL)",	0, fileio,	/* 6209	*/
-	"CALL_OZ(GN_DEL)",	0, fileio,	/* 6409	*/
-	"CALL_OZ(GN_REN)",	0, fileio,	/* 6609	*/
-	"CALL_OZ(GN_AAB)",	0, alarm,	/* 6809	*/
-	"CALL_OZ(GN_FAB)",	0, alarm,	/* 6A09	*/
-	"CALL_OZ(GN_LAB)",	0, alarm,	/* 6C09	*/
-	"CALL_OZ(GN_UAB)",	0, alarm,	/* 6E09	*/
-	"CALL_OZ(GN_ALP)",	0, alarm,	/* 7009	*/
-	"CALL_OZ(GN_M16)",	0, integer,	/* 7209	*/
-	"CALL_OZ(GN_D16)",	0, integer,	/* 7409	*/
-	"CALL_OZ(GN_M24)",	0, integer,	/* 7609	*/
-	"CALL_OZ(GN_D24)",	0, integer,	/* 7809	*/
-	"CALL_OZ(UNKNOWN)",	0, none
+	"OZ     GN_GDT",	0, timedate,	/* 0609	*/
+	"OZ     GN_PDT",	0, timedate,	/* 0809	*/
+	"OZ     GN_GTM",	0, timedate,	/* 0A09	*/
+	"OZ     GN_PTM",	0, timedate,	/* 0C09	*/
+	"OZ     GN_SDO",	0, timedate,	/* 0E09	*/
+	"OZ     GN_GDN",	0, integer,	/* 1009	*/
+	"OZ     GN_PDN",	0, integer,	/* 1209	*/
+	"OZ     GN_DIE",	0, timedate,	/* 1409	*/
+	"OZ     GN_DEI",	0, timedate,	/* 1609	*/
+	"OZ     GN_GMD",	0, timedate,	/* 1809	*/
+	"OZ     GN_GMT",	0, timedate,	/* 1A09	*/
+	"OZ     GN_PMD",	0, timedate,	/* 1C09	*/
+	"OZ     GN_PMT",	0, timedate,	/* 1E09	*/
+	"OZ     GN_MSC",	0, timedate,	/* 2009	*/
+	"OZ     GN_FLO",	0, filter,	/* 2209	*/
+	"OZ     GN_FLC",	0, filter,	/* 2409	*/
+	"OZ     GN_FLW",	0, filter,	/* 2609	*/
+	"OZ     GN_FLR",	0, filter,	/* 2809	*/
+	"OZ     GN_FLF",	0, filter,	/* 2A09	*/
+	"OZ     GN_FPB",	0, filter,	/* 2C09	*/
+	"OZ     GN_NLN",	0, stdio,	/* 2E09	*/
+	"OZ     GN_CLS",	0, chars,	/* 3009	*/
+	"OZ     GN_SKC",	0, chars,	/* 3209	*/
+	"OZ     GN_SKD",	0, chars,	/* 3409	*/
+	"OZ     GN_SKT",	0, chars,	/* 3609	*/
+	"OZ     GN_SIP",	0, stdio,	/* 3809	*/
+	"OZ     GN_SOP",	0, stdio,	/* 3A09	*/
+	"OZ     GN_SOE",	0, stdio,	/* 3C09	*/
+	"OZ     GN_RBE",	0, memory,	/* 3E09	*/
+	"OZ     GN_WBE",	0, memory,	/* 4009	*/
+	"OZ     GN_CME",	0, memory,	/* 4209	*/
+	"OZ     GN_XNX",	0, memory,	/* 4409	*/
+	"OZ     GN_XIN",	0, memory,	/* 4609	*/
+	"OZ     GN_XDL",	0, memory,	/* 4809	*/
+	"OZ     GN_ERR",	0, error,	/* 4A09	*/
+	"OZ     GN_ESP",	0, error,	/* 4C09	*/
+	"OZ     GN_FCM",	0, fileio,	/* 4E09	*/
+	"OZ     GN_FEX",	0, fileio,	/* 5009	*/
+	"OZ     GN_OPW",	0, fileio,	/* 5209	*/
+	"OZ     GN_WCL",	0, fileio,	/* 5409	*/
+	"OZ     GN_WFN",	0, fileio,	/* 5609	*/
+	"OZ     GN_PRS",	0, fileio,	/* 5809	*/
+	"OZ     GN_PFS",	0, fileio,	/* 5A09	*/
+	"OZ     GN_WSM",	0, fileio,	/* 5C09	*/
+	"OZ     GN_ESA",	0, fileio,	/* 5E09	*/
+	"OZ     GN_OPF",	0, fileio,	/* 6009	*/
+	"OZ     GN_CL",	0, fileio,	/* 6209	*/
+	"OZ     GN_DEL",	0, fileio,	/* 6409	*/
+	"OZ     GN_REN",	0, fileio,	/* 6609	*/
+	"OZ     GN_AAB",	0, alarm,	/* 6809	*/
+	"OZ     GN_FAB",	0, alarm,	/* 6A09	*/
+	"OZ     GN_LAB",	0, alarm,	/* 6C09	*/
+	"OZ     GN_UAB",	0, alarm,	/* 6E09	*/
+	"OZ     GN_ALP",	0, alarm,	/* 7009	*/
+	"OZ     GN_M16",	0, integer,	/* 7209	*/
+	"OZ     GN_D16",	0, integer,	/* 7409	*/
+	"OZ     GN_M24",	0, integer,	/* 7609	*/
+	"OZ     GN_D24",	0, integer,	/* 7809	*/
+	"OZ     UNKNOWN",	0, none
 };
 
 struct opcode fpp[] = {
-	"FPP(FP_AND)",		0, floatp,	   /* 21 */
-	"FPP(FP_IDV)",		0, floatp,	   /* 24 */
-	"FPP(FP_EOR)",		0, floatp,	   /* 27 */
-	"FPP(FP_MOD)",		0, floatp,	   /* 2A */
-	"FPP(FP_OR)",		0, floatp,	   /* 2D */
-	"FPP(FP_LEQ)",		0, floatp,	   /* 30 */
-	"FPP(FP_NEQ)",		0, floatp,	   /* 33 */
-	"FPP(FP_GEQ)",		0, floatp,	   /* 36 */
-	"FPP(FP_LT)",		0, floatp,	   /* 39 */
-	"FPP(FP_EQ)",		0, floatp,	   /* 3C */
-	"FPP(FP_MUL)",		0, floatp,	   /* 3F */
-	"FPP(FP_ADD)",		0, floatp,	   /* 42 */
-	"FPP(FP_GT)",		0, floatp,	   /* 45 */
-	"FPP(FP_SUB)",		0, floatp,	   /* 48 */
-	"FPP(FP_PWR)",		0, floatp,	   /* 4B */
-	"FPP(FP_DIV)",		0, floatp,	   /* 4E */
-	"FPP(FP_ABS)",		0, floatp,	   /* 51 */
-	"FPP(FP_ACS)",		0, floatp,	   /* 54 */
-	"FPP(FP_ASN)",		0, floatp,	   /* 57 */
-	"FPP(FP_ATN)",		0, floatp,	   /* 5A */
-	"FPP(FP_COS)",		0, floatp,	   /* 5D */
-	"FPP(FP_DEG)",		0, floatp,	   /* 60 */
-	"FPP(FP_EXP)",		0, floatp,	   /* 63 */
-	"FPP(FP_INT)",		0, floatp,	   /* 66 */
-	"FPP(FP_LN)",		0, floatp,	   /* 69 */
-	"FPP(FP_LOG)",		0, floatp,	   /* 6C */
-	"FPP(FP_NOT)",		0, floatp,	   /* 6F */
-	"FPP(FP_RAD)",		0, floatp,	   /* 72 */
-	"FPP(FP_SGN)",		0, floatp,	   /* 75 */
-	"FPP(FP_SIN)",		0, floatp,	   /* 78 */
-	"FPP(FP_SQR)",		0, floatp,	   /* 7B */
-	"FPP(FP_TAN)",		0, floatp,	   /* 7E */
-	"FPP(FP_ZER)",		0, floatp,	   /* 81 */
-	"FPP(FP_ONE)",		0, floatp,	   /* 84 */
-	"FPP(FP_TRU)",		0, floatp,	   /* 87 */
-	"FPP(FP_PI)",		0, floatp,	   /* 8A */
-	"FPP(FP_VAL)",		0, floatp,	   /* 8D */
-	"FPP(FP_STR)",		0, floatp,	   /* 90 */
-	"FPP(FP_FIX)",		0, floatp,	   /* 93 */
-	"FPP(FP_FLT)",		0, floatp,	   /* 96 */
-	"FPP(FP_TST)",		0, floatp,	   /* 99 */
-	"FPP(FP_CMP)",		0, floatp,	   /* 9C */
-	"FPP(FP_NEG)",		0, floatp,	   /* 9F */
-	"FPP(FP_BAS)",		0, floatp,	   /* A2 */
-	"FPP(UNKNOWN)",		0, none
+	"FPP    FP_AND",		0, floatp,	   /* 21 */
+	"FPP    FP_IDV",		0, floatp,	   /* 24 */
+	"FPP    FP_EOR",		0, floatp,	   /* 27 */
+	"FPP    FP_MOD",		0, floatp,	   /* 2A */
+	"FPP    FP_OR",		0, floatp,	   /* 2D */
+	"FPP    FP_LEQ",		0, floatp,	   /* 30 */
+	"FPP    FP_NEQ",		0, floatp,	   /* 33 */
+	"FPP    FP_GEQ",		0, floatp,	   /* 36 */
+	"FPP    FP_LT",		0, floatp,	   /* 39 */
+	"FPP    FP_EQ",		0, floatp,	   /* 3C */
+	"FPP    FP_MUL",		0, floatp,	   /* 3F */
+	"FPP    FP_ADD",		0, floatp,	   /* 42 */
+	"FPP    FP_GT",		0, floatp,	   /* 45 */
+	"FPP    FP_SUB",		0, floatp,	   /* 48 */
+	"FPP    FP_PWR",		0, floatp,	   /* 4B */
+	"FPP    FP_DIV",		0, floatp,	   /* 4E */
+	"FPP    FP_ABS",		0, floatp,	   /* 51 */
+	"FPP    FP_ACS",		0, floatp,	   /* 54 */
+	"FPP    FP_ASN",		0, floatp,	   /* 57 */
+	"FPP    FP_ATN",		0, floatp,	   /* 5A */
+	"FPP    FP_COS",		0, floatp,	   /* 5D */
+	"FPP    FP_DEG",		0, floatp,	   /* 60 */
+	"FPP    FP_EXP",		0, floatp,	   /* 63 */
+	"FPP    FP_INT",		0, floatp,	   /* 66 */
+	"FPP    FP_LN",		0, floatp,	   /* 69 */
+	"FPP    FP_LOG",		0, floatp,	   /* 6C */
+	"FPP    FP_NOT",		0, floatp,	   /* 6F */
+	"FPP    FP_RAD",		0, floatp,	   /* 72 */
+	"FPP    FP_SGN",		0, floatp,	   /* 75 */
+	"FPP    FP_SIN",		0, floatp,	   /* 78 */
+	"FPP    FP_SQR",		0, floatp,	   /* 7B */
+	"FPP    FP_TAN",		0, floatp,	   /* 7E */
+	"FPP    FP_ZER",		0, floatp,	   /* 81 */
+	"FPP    FP_ONE",		0, floatp,	   /* 84 */
+	"FPP    FP_TRU",		0, floatp,	   /* 87 */
+	"FPP    FP_PI",		0, floatp,	   /* 8A */
+	"FPP    FP_VAL",		0, floatp,	   /* 8D */
+	"FPP    FP_STR",		0, floatp,	   /* 90 */
+	"FPP    FP_FIX",		0, floatp,	   /* 93 */
+	"FPP    FP_FLT",		0, floatp,	   /* 96 */
+	"FPP    FP_TST",		0, floatp,	   /* 99 */
+	"FPP    FP_CMP",		0, floatp,	   /* 9C */
+	"FPP    FP_NEG",		0, floatp,	   /* 9F */
+	"FPP    FP_BAS",		0, floatp,	   /* A2 */
+	"FPP    UNKNOWN",		0, none
 };
 
 

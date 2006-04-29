@@ -91,7 +91,7 @@ void	DZpass2(void)
 
 	for (ifile = stdio; ifile <= intrrupt;	ifile++) {
 		if (gIncludeList[ifile]	== true)
-			fprintf(asmfile, "\tINCLUDE \"#%s.def\"\n", gIncludeFiles[ifile]);
+			fprintf(asmfile, "\tINCLUDE \"%s.def\"\n", gIncludeFiles[ifile]);
 	}
 
 	curIncludeFile = gIncludeFilenames;
