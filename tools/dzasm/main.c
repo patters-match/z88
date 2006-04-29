@@ -112,7 +112,7 @@ void	GetCmdline(void)
  */
 void	InitDZ(void)
 {
-	FILE	*infile = NULL;
+	FILE	*infile;
 
 	AllocZ80Space();
 

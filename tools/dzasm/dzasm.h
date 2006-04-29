@@ -25,7 +25,7 @@ enum atype              {
                         	/* NB: remember to update mnemonic table in 'areas.c' */
 enum files              {
 				none, stdio, fileio, director, memory, dor, syspar, saverestore,
-              	floatp, integer, serinterface, screen, time, chars,
+              	floatp, integer, serinterface, screen, timedate, chars,
                 error, map, alarm, filter, tokens, misc, intrrupt
             };
 

@@ -2130,7 +2130,7 @@ struct opcode os1[] = {
 	"CALL_OZ(OS_ESC)",	0, error,	/* 6F */
 	"CALL_OZ(OS_ERC)",	0, error,	/* 72 */
 	"CALL_OZ(OS_ERH)",	0, error,	/* 75 */
-	"CALL_OZ(OS_UST)",	0, time,	/* 78 */
+	"CALL_OZ(OS_UST)",	0, timedate,	/* 78 */
 	"CALL_OZ(OS_FN)",	0, misc,	/* 7B */
 	"CALL_OZ(OS_WAIT)",	0, director,	/* 7E */
 	"CALL_OZ(OS_ALM)",	0, alarm,	/* 81 */
@@ -2148,7 +2148,7 @@ struct opcode os2[] = {
 	"CALL_OZ(OS_ISQ)",	0, misc,	/* D006	*/
 	"CALL_OZ(OS_AXP)",	0, memory,	/* D206	*/
 	"CALL_OZ(OS_SCI)",	0, screen,	/* D406	*/
-	"CALL_OZ(OS_DLY)",	0, time,	/* D606	*/
+	"CALL_OZ(OS_DLY)",	0, timedate,	/* D606	*/
 	"CALL_OZ(OS_BLP)",	0, misc,	/* D806	*/
 	"CALL_OZ(OS_BDE)",	0, memory,	/* DA06	*/
 	"CALL_OZ(OS_BHL)",	0, memory,	/* DC06	*/
@@ -2162,7 +2162,7 @@ struct opcode os2[] = {
 	"CALL_OZ(OS_OFF)",	0, screen,	/* EC06	*/
 	"CALL_OZ(OS_USE)",	0, director,	/* EE06	*/
 	"CALL_OZ(OS_EPR)",	0, fileio,	/* F006	*/
-	"CALL_OZ(OS_HT)",	0, time,	/* F206	*/
+	"CALL_OZ(OS_HT)",	0, timedate,	/* F206	*/
 	"CALL_OZ(OS_MAP)",	0, map,		/* F406	*/
 	"CALL_OZ(OS_EXIT)",	0, director,	/* F606	*/
 	"CALL_OZ(OS_STK)",	0, director,	/* F806	*/
@@ -2173,20 +2173,20 @@ struct opcode os2[] = {
 };
 
 struct opcode gn[] = {
-	"CALL_OZ(GN_GDT)",	0, time,	/* 0609	*/
-	"CALL_OZ(GN_PDT)",	0, time,	/* 0809	*/
-	"CALL_OZ(GN_GTM)",	0, time,	/* 0A09	*/
-	"CALL_OZ(GN_PTM)",	0, time,	/* 0C09	*/
-	"CALL_OZ(GN_SDO)",	0, time,	/* 0E09	*/
+	"CALL_OZ(GN_GDT)",	0, timedate,	/* 0609	*/
+	"CALL_OZ(GN_PDT)",	0, timedate,	/* 0809	*/
+	"CALL_OZ(GN_GTM)",	0, timedate,	/* 0A09	*/
+	"CALL_OZ(GN_PTM)",	0, timedate,	/* 0C09	*/
+	"CALL_OZ(GN_SDO)",	0, timedate,	/* 0E09	*/
 	"CALL_OZ(GN_GDN)",	0, integer,	/* 1009	*/
 	"CALL_OZ(GN_PDN)",	0, integer,	/* 1209	*/
-	"CALL_OZ(GN_DIE)",	0, time,	/* 1409	*/
-	"CALL_OZ(GN_DEI)",	0, time,	/* 1609	*/
-	"CALL_OZ(GN_GMD)",	0, time,	/* 1809	*/
-	"CALL_OZ(GN_GMT)",	0, time,	/* 1A09	*/
-	"CALL_OZ(GN_PMD)",	0, time,	/* 1C09	*/
-	"CALL_OZ(GN_PMT)",	0, time,	/* 1E09	*/
-	"CALL_OZ(GN_MSC)",	0, time,	/* 2009	*/
+	"CALL_OZ(GN_DIE)",	0, timedate,	/* 1409	*/
+	"CALL_OZ(GN_DEI)",	0, timedate,	/* 1609	*/
+	"CALL_OZ(GN_GMD)",	0, timedate,	/* 1809	*/
+	"CALL_OZ(GN_GMT)",	0, timedate,	/* 1A09	*/
+	"CALL_OZ(GN_PMD)",	0, timedate,	/* 1C09	*/
+	"CALL_OZ(GN_PMT)",	0, timedate,	/* 1E09	*/
+	"CALL_OZ(GN_MSC)",	0, timedate,	/* 2009	*/
 	"CALL_OZ(GN_FLO)",	0, filter,	/* 2209	*/
 	"CALL_OZ(GN_FLC)",	0, filter,	/* 2409	*/
 	"CALL_OZ(GN_FLW)",	0, filter,	/* 2609	*/
