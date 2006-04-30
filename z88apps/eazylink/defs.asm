@@ -51,6 +51,7 @@ DEFVARS $2000                      ; work space buffer for popdown...
     tra_flag             ds.b 1    ; Translate-bytes-flag, $FF when active.
     tra_flag_copy        ds.b 1
     CRLF_flag            ds.b 1    ; $FF, when active
+    HWSER_flag           ds.b 1    ; enable fast serial port I/O, $FF when active
     buffer               ds.w 1    ; Address of next free byte in buffer
     buflen               ds.b 1    ; Current length of buffer
     serport_Inp_handle   ds.w 1    ; Handle to serial port input

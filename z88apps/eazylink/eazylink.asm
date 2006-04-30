@@ -155,6 +155,7 @@
      XREF Use_StdTranslations
      XREF Dump_serport_in_byte, serdmpfile_in, serdmpfile_out
      XREF SafeSegmentMask
+     XREF UseOZSerPort, UseHWSerPort
 
      XREF EazyLinkTopics
      XREF EazyLinkCommands
@@ -252,6 +253,7 @@ ENDIF
                CALL_OZ(Os_Esc)
 
                XOR  A
+               LD   (HWSER_flag),A                ; use OZ serial port I/O by default
                LD   (MenuBarPosn),A               ; Display Menu Bar at top line the first time...
                LD   (UserToggles),A               ; Linefeed conversion OFF, Translations OFF
 

@@ -75,9 +75,9 @@
 ;
 .EazyLinkHelp
                     DEFB 12
-                    DEFM "EazyLink V5.0.4 - flexible file transfer", $7F
+                    DEFM "EazyLink V5.0.5 - flexible file transfer", $7F
                     DEFB $7F
-                    DEFM "Copyright (C) by G.Strube (gbs@users.sf.net) 1990-2005", $7F
+                    DEFM "Copyright (C) by G.Strube (gbs@users.sf.net) 1991-2006", $7F
                     DEFB $7F
                     DEFM "This software is released as Open Source (GPL licence).", $7F
                     DEFM "Get latest news, updates for EazyLink and other Z88", $7F

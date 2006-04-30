@@ -28,11 +28,13 @@
     XDEF GetByte, GetByte_ackn, PutByte, PutByte_ackn, TranslateByte
     XDEF Getbyte_raw_ackn
     XDEF Dump_serport_in_byte
+    XDEF UseHWSerPort, UseOZSerPort
 
     INCLUDE "defs.asm"
     INCLUDE "fileio.def"
     INCLUDE "screen.def"
     INCLUDE "error.def"
+    INCLUDE "blink.def"
 
 
 ; ***********************************************************************
@@ -67,157 +69,301 @@
 
 
 ; ***********************************************************************
-.Getbyte          PUSH BC
-                  LD   BC,3000                       ; 30 sek. timeout
-                  LD   IX,(serport_Inp_handle)
-                  CALL_OZ (Os_Gbt)                   ; get a byte from serial port
-                  CALL C,Check_timeout
-                  JR   C,Getbyte_error
-                  JR   Z,Getbyte_error
+.Getbyte
+                  CALL RxByte                        ; receive a byte from serial port (OZ or hardware interface)
+                  RET  C
+                  RET  Z
                   CALL Dump_serport_in_byte          ; dump to debugging serport input file (if enabled)
                   PUSH HL
                   LD   HL,TraTableOut
-                  CALL TranslateByte                 ; byte in A
-                  LD   B,A
-                  SET  0,A                           ; reset Z flag, indicate no timeout
-                  OR   A
-                  LD   A,B                           ; A = byte received & translated
+                  CALL TranslateByte                 ; A = byte received & translated
                   POP  HL
-.Getbyte_error    POP  BC
-                  RET
-
-
+.Getbyte_error    RET
 
 
 ; ***********************************************************************
-; Get byte and acknowledge...
+; Get byte from serial port and acknowledge
 ;
-.Getbyte_ackn     PUSH BC
-                  LD   BC,3000                       ; 30 sek. timeout
-                  LD   IX,(serport_Inp_handle)
-                  CALL_OZ (Os_Gbt)                   ; get a byte from serial port
-                  CALL C,Check_timeout               ; byte in A
-                  JR   C,end_GetbyteAckn
-                  JR   Z,end_GetbyteAckn
+.Getbyte_ackn
+                  CALL RxByte                        ; receive a byte from serial port (OZ or hardware interface)
+                  RET  C
+                  RET  Z
                   CALL Dump_serport_in_byte          ; dump to debugging serport input file (if enabled)
                   PUSH DE
                   LD   D,A
-                  LD   A,0                           ; acknowledge byte...
+                  XOR  A                             ; acknowledge byte...
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
-                  LD   BC,1000
-                  LD   IX,(serport_Out_handle)
-                  CALL_OZ (Os_Pbt)
+                  CALL SxByte
                   LD   A,D
                   POP  DE
-                  CALL C,Check_timeout
-                  JR   C,end_GetbyteAckn             ; system error, e.g. ESC pressed...
-                  JR   Z,end_GetbyteAckn
+                  RET  C
+                  RET  Z                             ; system error, e.g. ESC pressed...
                   PUSH HL
                   LD   HL,TraTableOut
                   CALL TranslateByte
-                  LD   B,A
-                  SET  0,A                           ; reset Z flag, indicate no timeout
-                  OR   A
-                  LD   A,B                           ; A = byte received & translated
                   POP  HL
-.end_GetbyteAckn  POP  BC
                   RET
+
 
 ; ***********************************************************************
 ; Get byte and acknowledge (no translation)...
 ;
-.Getbyte_raw_ackn PUSH BC
-                  LD   BC,3000                       ; 30 sek. timeout
-                  LD   IX,(serport_Inp_handle)
-                  CALL_OZ (Os_Gbt)                   ; get a byte from serial port
-                  CALL C,Check_timeout               ; byte in A
-                  JR   C,end_Getbyte_raw_ackn
-                  JR   Z,end_Getbyte_raw_ackn
+.Getbyte_raw_ackn
+                  CALL RxByte                        ; receive a byte from serial port (OZ or hardware interface)
+                  RET  C
+                  RET  Z
                   CALL Dump_serport_in_byte          ; dump to debugging serport input file (if enabled)
                   PUSH DE
                   LD   D,A
-                  LD   A,0                           ; acknowledge byte...
+                  XOR  A                             ; acknowledge byte...
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
-                  LD   BC,1000
-                  LD   IX,(serport_Out_handle)
-                  CALL_OZ (Os_Pbt)
+                  CALL SxByte
                   LD   A,D
                   POP  DE
-                  CALL C,Check_timeout
-.end_Getbyte_raw_ackn
-                  POP  BC
                   RET
 
 
 ; ***********************************************************************
-.Putbyte          PUSH HL                            ; save counter
+.Putbyte          PUSH HL
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
                   LD   HL,TraTableIn
                   CALL TranslateByte                 ; A contains translated byte
-                  LD   IX,(serport_Out_handle)
-                  CALL_OZ (Os_Pb)                    ; send byte to serial port
-                  CALL C,Check_timeout               ; byte in A.
-                  JR   C,Putbyte_error
-                  JR   Z,Putbyte_error
-                  SET  0,A
-                  OR   A
-.Putbyte_error    POP  HL
+                  POP  HL
+                  CALL SxByte
                   RET
 
 
 ; ***********************************************************************
-.Putbyte_ackn     PUSH BC
+.Putbyte_ackn
                   PUSH HL                            ; save counter
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
                   LD   HL,TraTableIn
                   CALL TranslateByte                 ; A contains translated byte
-                  LD   BC,1000                       ; 10 sek. timeout
-                  LD   IX, (Serport_Out_handle)
-                  CALL_OZ (Os_Pbt)                   ; send byte to serial port
-                  CALL C,Check_timeout
-                  JR   C,error_Putbyte_ackn          ; byte in A.
-                  JR   Z,error_Putbyte_ackn
-                  LD   BC,3000                       ; 30 sek. timeout.
-                  LD   IX,(serport_Inp_handle)
-                  CALL_OZ (Os_Gbt)
-                  CALL C,Check_timeout
-                  JR   C,error_Putbyte_ackn
-                  JR   Z,error_Putbyte_ackn
-                  CALL Dump_serport_in_byte          ; dump to debugging serport input file (if enabled)
-                  SET  0,A                           ; reset Z flag, indicate no timeout
-                  OR   A
-.error_Putbyte_ackn
                   POP  HL
-                  POP  BC
+                  CALL SxByte
+                  RET  C
+                  RET  Z
+                  CALL RxByte                        ; receive acknowledge byte from serial port (OZ or hardware interface)
+                  RET  C
+                  RET  Z
+                  CALL Dump_serport_in_byte          ; dump to debugging serport input file (if enabled)
                   RET
 
 
 ; ***********************************************************************
-; send byte without translation
+; Send byte to serial port without translation
 .Putbyte_raw_ackn
-                  PUSH BC
-                  PUSH HL                            ; save counter
                   CALL Dump_serport_out_byte         ; dump to debugging serport output file (if enabled)
-                  LD   BC,1000                       ; 10 sek. timeout
-                  LD   IX, (Serport_Out_handle)
-                  CALL_OZ (Os_Pbt)                   ; send byte to serial port
-                  CALL C,Check_timeout
-                  JR   C,error_Putbyte_raw_ackn      ; byte in A.
-                  JR   Z,error_Putbyte_raw_ackn
-                  LD   BC,3000                       ; 30 sek. timeout.
-                  LD   IX,(serport_Inp_handle)
-                  CALL_OZ (Os_Gbt)
-                  CALL C,Check_timeout
-                  JR   C,error_Putbyte_raw_ackn
-                  JR   Z,error_Putbyte_raw_ackn
+                  CALL SxByte
+                  RET  C
+                  RET  Z
+                  CALL RxByte                        ; receive a byte from serial port (OZ or hardware interface)
+                  RET  C
+                  RET  Z
                   CALL Dump_serport_in_byte          ; dump to debugging serport input file (if enabled)
-                  SET  0,A                           ; reset Z flag, indicate no timeout
+                  RET
+
+; ***********************************************************************
+.RxByte           PUSH BC
+                  LD   A,(HWSER_flag)                ; use fast serial port I/O?
                   OR   A
-.error_Putbyte_raw_ackn
-                  POP  HL
+                  JR   Z, use_oz_gbt
+                  LD   A,30                          ; 30 sek. timeout
+                  CALL hw_rxbt                       ; get a byte from serial port, using direct hardware
+                  JR   io_check
+.use_oz_gbt       LD   BC,3000
+                  LD   IX,(serport_Inp_handle)
+                  OZ   Os_Gbt                        ; get a byte from serial port, using OZ standard interface
+.io_check         CALL C,Check_timeout
                   POP  BC
                   RET
 
+; ***********************************************************************
+.SxByte           PUSH BC
+                  PUSH AF
+                  LD   A,(HWSER_flag)                ; use fast serial port I/O?
+                  OR   A
+                  JR   Z, use_oz_pbt
+                  POP  AF
+                  CALL hw_txbt                       ; send byte to serial port, using direct hardware
+                  JR   io_check
+.use_oz_pbt       POP  AF
+                  LD   BC,3000
+                  LD   IX,(serport_Out_handle)
+                  OZ   Os_Pbt                        ; send byte to serial port, using OZ interface
+                  JR   io_check
+
+
+; ***********************************************************************
+; Transmit byte using Serial Port Hardware using 30 second timeout.
+; (Based on original routine kindly provided by Dennis Gröning)
+;
+; IN:
+;       A = byte to send
+; OUT:
+;         Success:
+;              Fc = 0, Fz = 0
+;         Failure:
+;              Fc = 1, couldn't transmit byte within timeout
+;              A = RC_Time
+;
+; Registers changed on return:
+;    A.BCDEHL/IXIY ........ same
+;    .F....../.... afbc.... different
+;
+.hw_txbt            exx
+                    ex   af,af'                        ; preserve byte to send in A'
+                    ld   b,30
+                    call get_timeout_sec               ; return B to be 31 seconds ahead of current BL_TIM1
+.hw_pollsend
+                    in   a,(bl_uit)                    ; check TDRE
+                    bit  bb_uittdre,a
+                    jr   nz,tx                         ; hardware ready to transmit a new byte..
+.tx_check_timeout
+                    call get_sec                       ; get current second counter from Blink hardware
+                    cp   b                             ; reached timeout?
+                    jr   z,signal_fail                 ; couldn't transmit byte within timeout
+
+                    ld   a,@01111111                   ; Read row A15 (containing ESC key)
+                    in   a,(bl_kbd)
+                    cp   @11011111                     ; ESC pressed?
+                    jr   z, esc_pressed
+                    jr   hw_pollsend                   ; still time left to poll for transmit ready state...
+.tx
+                    ex   af,af'                        ; send byte in A to serial port
+                    ld   bc, [6<<8] | bl_txd
+                    out  (c),a
+                    ld   b,a
+                    or   $ff                           ; signal success, Fc = 0, Fz = 0
+                    ld   a,b
+                    exx
+                    ret
+.signal_fail
+                    exx
+                    ld   a, RC_Time                    ; report time out error code
+                    scf
+                    ret
+.esc_pressed
+                    exx
+                    ld   a, RC_Esc                     ; report ESC error code
+                    scf
+                    ret
+
+
+; ***********************************************************************
+; Receive byte using Serial Port Hardware, wait until available.
+; (Based on original routine kindly provided by Dennis Gröning)
+;
+; IN:
+;       -
+; OUT:
+;      Success:
+;      Fc = 0
+;
+; Registers changed on return:
+;    ..BCDEHL/IXIY ........ same
+;    AF....../.... afbc.... different
+;
+;
+.hw_rxb             exx
+.hw_rxwait          in   a,(bl_uit)
+                    bit  bb_uitrdrf,a
+                    jr   z,hw_rxwait                    ; wait until byte is available.
+                    jr   rx
+
+; **********************************************************************
+; Receive byte with timeout using Serial Port Hardware
+; (Based on original routine kindly provided by Dennis Gröning)
+;
+; IN:
+;       A = timeout in seconds (<=59)
+; OUT:
+;         Success:
+;              Fc = 0, A = received byte
+;         Failure:
+;              Fc = 1, couldn't receive a byte within timeout
+;              A = RC_Time
+;
+; Registers changed on return:
+;    ..BCDEHL/IXIY ........ same
+;    AF....../.... afbc.... different
+;
+.hw_rxbt
+                    exx
+                    ld   b,a                           ; timeout in seconds
+                    call get_timeout_sec               ; return B to be 31 seconds ahead of current BL_TIM1
+.hw_pollreceive
+                    in   a,(bl_uit)
+                    bit  bb_uitrdrf,a                  ; byte ready in serial port hw register?
+                    jr   nz,rx                         ; yes, go fetch it...
+.rx_check_timeout
+                    call get_sec                       ; get current second counter from Blink hardware
+                    cp   b                             ; reached timeout?
+                    jr   z,signal_fail                 ; couldn't receive byte within timeout
+
+                    ld   a,@01111111                   ; Read row A15 (containing ESC)
+                    in   a,(bl_kbd)
+                    cp   @11011111                     ; ESC pressed?
+                    jr   z, esc_pressed
+                    jr   hw_pollreceive
+.rx
+                    in   a,(bl_rxd)                    ; get byte from serial port hardware
+                    ld   b,a
+                    or   $ff                           ; signal success, Fc = 0, Fz = 0
+                    ld   a,b
+                    exx
+                    ret
+
+; ***********************************************************************
+.get_timeout_sec    call get_sec
+                    add  a,b
+                    cp   60
+                    jr   nc,sec_too_big
+                    ld   b,a
+                    ret
+.sec_too_big        sub  60
+                    ld   b,a
+                    ret
+.get_sec            in   a,(bl_tim1)
+.get_sec_again      ld   c,a
+                    in   a,(bl_tim1)
+                    cp   c
+                    ret  z
+                    jr   get_sec_again
+
+; ***********************************************************************
+.UseHWSerPort
+                    push af
+                    push bc
+                    ld   a,$ff
+                    ld   (HWSER_flag),a
+
+                    ld   bc, [4<<8] | BL_INT
+                    ld   a,(bc)
+                    res  BB_INTUART,a             ; disable UART interrupts
+                    res  BB_INTTIME,a             ; disable RTC interrupts
+                    ld   (bc),a
+                    out  (c),a
+                    pop  bc
+                    pop  af
+                    ret
+
+; ***********************************************************************
+.UseOZSerPort
+                    push af
+                    push bc
+                    xor  a
+                    ld   (HWSER_flag),a
+
+                    ld   bc, [4<<8] | BL_INT
+                    ld   a,(bc)
+                    set  BB_INTUART,a             ; enable UART interrupts
+                    set  BB_INTTIME,a             ; enable RTC interrupts
+                    ld   (bc),a
+                    out  (c),a
+                    pop  bc
+                    pop  af
+                    ret
 
 ; ***********************************************************************
 ; If Serial port input stream copy is enabled, then dump recently
@@ -300,8 +446,10 @@
 .tra_byte         EX   AF,AF'
                   LD   B,0
                   LD   C,A
-                  ADD  HL,BC                         ; Offset calculated
-                  LD   A,(HL)                        ; Translated byte...
+                  ADD  HL,BC                         ; Offset calculated to translated byte...
+                  SET  0,A
+                  OR   A                             ; reset C/Z flag, indicate no error, timeout
+                  LD   A,(HL)                        ; get translated byte...
                   POP  BC
                   RET
 

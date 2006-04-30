@@ -34,6 +34,7 @@
     XREF Message17, Message18
     XREF Set_Traflag, Restore_Traflag, Def_RamDev_wildc, SearchFileSystem, Get_directories
     XREF Open_Serialport, Calc_hexnibble
+    XREF UseHWSerPort, UseOZSerPort
 
     XDEF ESC_A_cmd2, ESC_H_cmd2, ESC_D_cmd2, ESC_N_cmd2, ESC_Q_cmd2
     XDEF ImpExp_Send, ImpExp_Receive, ImpExp_Backup
@@ -165,7 +166,8 @@
 
 
 ; ***********************************************************************
-.ImpExp_Receive   LD   HL,message14                  ; send files to Z88, using ImpExp protocol.
+.ImpExp_Receive
+                  LD   HL,message14                  ; send files to Z88, using ImpExp protocol.
                   CALL Write_message                 ; 'ImpExp Receive files...'
                   CALL Batch_Receive
                   RET  C                             ; error (or ESC pressed)
