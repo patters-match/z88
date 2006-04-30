@@ -9,8 +9,7 @@
 
 <div style="text-align: center;"><b><big><big>EazyLink<br>
 <br>
-</big></big></b><b><big>Easy file transfer between Z88 and other computers</big></b><big>
-<b>Documentation<br>
+</big></big></b><b><big>Easy file transfer between Z88 and other computers</big></b><big><b><br>
 <small>(C) Copyright G.Strube, InterLogic 1991-2006</small></b></big><br>
 </div>
 
@@ -59,11 +58,11 @@ various requests).<br>
 <br>
 
  As with all applications, they can be activated from the INDEX menu or by
-typing the hotkeys for EazyLink. EazyLink may be activated by the #L hotkey.<br>
+typing the hotkeys for EazyLink. EazyLink may be activated by the []L hotkey.<br>
 
 <br>
 
- The #L hotkey initializes EazyLink with the default setup of the original
+ The []L hotkey initializes EazyLink with the default setup of the original
 PC-LINK II (no translation, no Carriage Return - Line Feed conversion).<br>
 
 <br>
@@ -109,7 +108,7 @@ serial port driver. As you probably have seen, the Panel allows you to select
 19200 and 38400 Baud. We've tried them but the software just gets confused
 receiving erronenous bytes. The hardware are able to support higher transfer
 rates - some terminal software actually drives 19200 Baud, but the programmers
-had to program their own drivers. We hope to implement 19200 Baud transfer
+had to program their own drivers. We hope to implement 38400 Baud transfer
 rates too, but this has to wait for a future version of the EazyLink Server
 (and Client).<br>
 
@@ -137,7 +136,7 @@ memory, since PipeDream automatically strips the LF too.<br>
 
 <br>
 
- Activating #L, you will have the CR&lt;-&gt;CRLF conversion disabled. Activate the
+ Activating []L, you will have the CR&lt;-&gt;CRLF conversion disabled. Activate the
 "Toggle Linefeed Mode" command until the message "Auto CRLF Conversion ON"
 message is displayed. The old PCLINK II client makes it necessary to use this
 command since the PCLINK II client just transfer the files without doing
@@ -194,7 +193,7 @@ MacIntosh, QL or others using different character sets than the Z88 ISO LATIN
 
 <br>
 
- The Microsoft Windows 3.xx or Windows 95/NT operating system uses the same
+ The Microsoft Windows 3.xx or Windows 95/98/NT/2000/XP operating system uses the same
 character set as Z88! They just call it the ANSI character set. Using the
 EazyLink Client for Windows, it needs a null-translation table installed, since
 EazyLink otherwise would use the inbuilt ISO/Codepage 865 translation; this
@@ -650,7 +649,7 @@ another match is found in the Z88 filing system than expected.<br>
 <br>
 
  Please note that the current translation status reflects the data sent to Z88.
-Activating the #L popdown, the default translation is NONE with no line feed
+Activating the []L popdown, the default translation is NONE with no line feed
 conversion, ie. every byte sent the Z88 is unaffected. This is the original
 state of the PC-LINK II Server popdown.<br>
 
@@ -739,7 +738,7 @@ command session.<br>
 <br>
 
  Please note that the current translation status reflects the data sent to Z88.
-Activating the #L popdown, the default translation is NONE with no line feed
+Activating the []L popdown, the default translation is NONE with no line feed
 conversion, ie. every byte sent the Z88 is unaffected. This is the original
 state of the PC-LINK II Server popdown.<br>
 
@@ -983,7 +982,7 @@ command session.<br>
 <br>
 
  Please note, that the current translation status reflects the data sent to
-Z88. If you chose to activate the #L popdown, the default translation is NONE
+Z88. If you chose to activate the []L popdown, the default translation is NONE
 with no line feed conversion, ie. every byte sent the Z88 is unaffected. This
 is the original state of the PC-LINK II Server popdown.<br>
 
@@ -1021,7 +1020,7 @@ command session. Wildcards should be used to specify several files.<br>
 <br>
 
  Please note, that the current translation status reflects the data sent to
-Z88. If you chose to activate the #L popdown, the default translation is NONE
+Z88. If you chose to activate the []L popdown, the default translation is NONE
 with no line feed conversion, ie. every byte sent the Z88 is unaffected. This
 is the original state of the PC-LINK II Server popdown.<br>
 
@@ -1086,7 +1085,7 @@ out to make sure that the CLI may be transferred to the Client as well.<br>
 <br>
 
  Please note, that the current translation status reflects the data sent to
-Z88. If you chose to activate the #L popdown, the default translation is NONE
+Z88. If you chose to activate the []L popdown, the default translation is NONE
 with no line feed conversion, ie. every byte sent the Z88 is unaffected. This
 is the original state of the PC-LINK II Server popdown.<br>
 
@@ -1316,7 +1315,7 @@ file error), an ESC "Z" is returned, indicating failure.<br>
 <br>
 
  This request command will send the current default Device and Directory as
-defined in the Panel (#S) to the Client.<br>
+defined in the Panel ([]S) to the Client.<br>
 
 <pre>------------------------------------------------------------------------------<br>Client                    Server                Action<br>------------------------------------------------------------------------------<br>&lt;ESC "g"&gt;                                       Request for RAM defaults<br><br>waiting               &lt;-  &lt;ESC "N"&gt;<br>                          &lt;Default Device       Panel Default Device<br>                          &lt;ESC "N"&gt;<br>                          &lt;Default Directory&gt;   Panel Default Directory<br>                          &lt;ESC "Z"&gt;<br>------------------------------------------------------------------------------<br></pre>
 
