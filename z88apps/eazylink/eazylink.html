@@ -1,0 +1,1391 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<br>
+<b>EazyLink - easy file transfer between Z88 and other computers</b>
+<b>Documentation, (C) Copyright G.Strube, InterLogic 1991-2006</b><br>
+<br>
+<br>
+ The concept of EazyLink is based on the original idea of PC-LINK II, using a
+&quot;file server&quot; on the Z88 and a &quot;client&quot; on the other computer that requests
+file handling. Further, EazyLink supports the file transfer protocol of PC-LINK
+II for compatibility. This enables you also to use the original PC-LINK DOS
+application for transferring of files between DOS and the Z88.<br>
+<br>
+ Using the Client/Server concept, the end user may control all file requests/
+transfers on a single program (computer). The original V1 of PC-LINK required
+the user to both control the Imp/Export popdown and the application on the PC.<br>
+<br>
+ EazyLink also offers a twice as fast transfer rate on a new protocol with many
+other facilities, like remote date stamp, file size requests, backup of only
+updated files, automatical Z88 path creation when receiving a file, automatical
+MSDOS/Z88 line feed conversion during transfer, automatical ASCII character
+conversion during transfer, and several other important commands for file
+transfer manipulation.<br>
+<br>
+ This document describes the functionality and facilities of the EazyLink File
+Server. If you have purchased the EazyLink for Windows product, please refer to
+the Windows help documentation of the EazyLink Client for usage of the complete
+program functionality - after all, everything is requested and displayed from
+the Client application (the server just sits at the other end and handles the
+various requests).<br>
+<br>
+<br>
+<br>
+<b>Activating the EazyLink popdown</b><br>
+<br>
+ As with all applications, they can be activated from the INDEX menu or by
+typing the hotkeys for EazyLink. EazyLink may be activated by the #L hotkey.<br>
+<br>
+ The #L hotkey initializes EazyLink with the default setup of the original
+PC-LINK II (no translation, no Carriage Return - Line Feed conversion).<br>
+<br>
+ During the execution of the popdown you may configure EazyLink with default
+CR&lt;-&gt;CRLF and automatical ASCII character translation. This may be adequate
+if you need to transfer documents between the Z88 and PC, where (PipeDream) files
+need to be loaded into another word processor, retaining the proper line feed
+convention and correct ASCII values for Z88 ISO characters (ASCII values
+between 128 and 255).<br>
+<br>
+ The EazyLink Server is a Popdown - this means that it is not a resident
+application that can be pre-empted (switching to another application) and later
+re-activated.<br>
+<br>
+ When you want to abort the EazyLink Server, just press <b>&lt;ESC&gt;</b>, and the most
+recent resident application will be re-activated.<br>
+<br>
+ Please note that the EazyLink Client cannot work without the Server. You will
+just experience error messages on the Client application and returned to some
+sort of command mode. Only with the EazyLink Server running you will be able to
+communicate with the Z88.<br>
+<br>
+<br>
+<b>The EazyLink transfer speed and serial port control</b><br>
+<br>
+ When the EazyLink Server is started, it automatically installs 9600 Baud on
+Receive and Transmit directions with No parity and No Xon/Xoff on the Z88
+serial port. This is the same settings as the original PC-LINK II software.
+This is unfortunately the max. speed the Z88 can perform due to bugs in the
+serial port driver. As you probably have seen, the Panel allows you to select
+19200 and 38400 Baud. We've tried them but the software just gets confused
+receiving erronenous bytes. The hardware are able to support higher transfer
+rates - some terminal software actually drives 19200 Baud, but the programmers
+had to program their own drivers. We hope to implement 19200 Baud transfer
+rates too, but this has to wait for a future version of the EazyLink Server
+(and Client).<br>
+<br>
+ The original Panel settings are preserved while EazyLink is running. When
+EazyLink is aborted, the original Panel settings are restored.<br>
+<br>
+<br>
+<br>
+<b>The default line feed conversion</b><br>
+<br>
+ For users transferring between Z88 and PC, it is normally required that files
+transferred from Z88 need to have their line feed converted from CR to CRLF.
+Text processors like WordPerfect and Word need this. Transferring a file from
+PC will strip the LF character. However, PipeDream reads CRLF without creating
+a double line spacing. You should save those PipeDream files back to the Z88
+memory, since PipeDream automatically strips the LF too.<br>
+<br>
+ Activating #L, you will have the CR&lt;-&gt;CRLF conversion disabled. Activate the
+&quot;Toggle Linefeed Mode&quot; command until the message &quot;Auto CRLF Conversion ON&quot;
+message is displayed. The old PCLINK II client makes it necessary to use this
+command since the PCLINK II client just transfer the files without doing
+anything with them. The facilities of the EazyLink Server provides the line
+feed conversion and translation while transferring, if you enable them!<br>
+<br>
+<br>
+<br>
+<b>The default ASCII translation of EazyLink</b><br>
+<br>
+ The automatical ASCII translation during transfer of EazyLink files uses the
+inbuilt translation tables which converts between the Z88 ISO LATIN 1 character
+set and the IBM codepage 865 (Scandinavian). This implicit translation also
+supports the remaining european characters (accented characters for french,
+german and spanish).<br>
+<br>
+ The translation table is always temporarily enabled during Client file name
+requests. This feature is important for Z88 ROM versions that allow filenames
+with ISO LATIN 1 characters (danish version and a few others). Viewing Z88
+filenames on the PC will then display the correct characters in stead of
+rubbish.<br>
+<br>
+ The defined state of translation only affects file transfers (both
+directions), ie. you will only get files converted if translation is enabled.<br>
+<br>
+<br>
+<br>
+<b>Specifying an external translation table</b><br>
+<br>
+ EazyLink supports the common translation of ISO LATIN 1 between Z88 and MSDOS
+codepage 865. This is important if you run the the original PC-LINK II Client.<br>
+<br>
+ However, you may want to use EazyLink with another computer like the Apple
+MacIntosh, QL or others using different character sets than the Z88 ISO LATIN
+1.<br>
+<br>
+ The Microsoft Windows 3.xx or Windows 95/NT operating system uses the same
+character set as Z88! They just call it the ANSI character set. Using the
+EazyLink Client for Windows, it needs a null-translation table installed, since
+EazyLink otherwise would use the inbuilt ISO/Codepage 865 translation; this
+would create rubbish characters in displayed file names on the EazyLink Client
+using ISO characters on the Z88.<br>
+<br>
+ A command has been supplied in the EazyLink Client to upload a
+null-translation file and then re-install that on the server automatically.<br>
+<br>
+ When the EazyLink Server popdown is activated, it automatically searches for a
+file named &quot;translate.dat&quot; anywhere in the Z88 filing system (a &quot;:RAM.//*&quot;
+search).<br>
+<br>
+ When it finds it, it automatically loads the translations from the file into
+two translation tables in a memory area of its own.<br>
+<br>
+ When the translation file has been loaded, the message &quot;Using translations
+from file.&quot; is displayed in the EazyLink log window.<br>
+<br>
+ If the file is not found, you will be prompted with the &quot;Using ISO/IBM
+translations&quot; message.<br>
+<br>
+ The organisation of the translation file is simple; every translation item is
+a pair of two bytes, the first byte is the incoming byte (the foreign
+character), the second byte the translated byte (the Z88 ISO character). Each
+pair is stored sequentially in the &quot;translate.dat&quot; file. The following BBC
+BASIC program illustrates the file structure, that generates a null-translation
+table:<br><br>
+<pre>
+  100 REM Sample program to generate a null-translation table
+  110 REM
+  120 O% = OPENOUT(&quot;/translate.dat&quot;): REM create file in root of cur. device
+  130 FOR T%=0 TO 255
+  140   BPUT#O%,T%: BPUT#O%,T%
+  150 NEXT T%
+  160 CLOSE#O%<br>
+</pre>
+ The following file dump displays the contents of the file. As you can see the
+input and output code is the same resulting in no translation. This file is a
+complete translation table ranging from byte code 0 to 255.<br><br>
+<pre>
+0000h  00 00 01 01 02 02 03 03 04 04 05 05 06 06 07 07  ................
+0010h  08 08 09 09 0A 0A 0B 0B 0C 0C 0D 0D 0E 0E 0F 0F  ................
+0020h  10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17  ................
+0030h  18 18 19 19 1A 1A 1B 1B 1C 1C 1D 1D 1E 1E 1F 1F  ................
+0040h  20 20 21 21 22 22 23 23 24 24 25 25 26 26 27 27    !!&quot;&quot;##$$%%&amp;&amp;''
+0050h  28 28 29 29 2A 2A 2B 2B 2C 2C 2D 2D 2E 2E 2F 2F  (())**++,,--..//
+0060h  30 30 31 31 32 32 33 33 34 34 35 35 36 36 37 37  0011223344556677
+0070h  38 38 39 39 3A 3A 3B 3B 3C 3C 3D 3D 3E 3E 3F 3F  8899::;;&lt;&lt;==&gt;&gt;??
+0080h  40 40 41 41 42 42 43 43 44 44 45 45 46 46 47 47  @AABBCCDDEEFFGG
+0090h  48 48 49 49 4A 4A 4B 4B 4C 4C 4D 4D 4E 4E 4F 4F  HHIIJJKKLLMMNNOO
+00A0h  50 50 51 51 52 52 53 53 54 54 55 55 56 56 57 57  PPQQRRSSTTUUVVWW
+00B0h  58 58 59 59 5A 5A 5B 5B 5C 5C 5D 5D 5E 5E 5F 5F  XXYYZZ[[\\]]^^__
+00C0h  60 60 61 61 62 62 63 63 64 64 65 65 66 66 67 67  ``aabbccddeeffgg
+00D0h  68 68 69 69 6A 6A 6B 6B 6C 6C 6D 6D 6E 6E 6F 6F  hhiijjkkllmmnnoo
+00E0h  70 70 71 71 72 72 73 73 74 74 75 75 76 76 77 77  ppqqrrssttuuvvww
+00F0h  78 78 79 79 7A 7A 7B 7B 7C 7C 7D 7D 7E 7E 7F 7F  xxyyzz{{||}}~~..
+0100h  80 80 81 81 82 82 83 83 84 84 85 85 86 86 87 87  ................
+0110h  88 88 89 89 8A 8A 8B 8B 8C 8C 8D 8D 8E 8E 8F 8F  ................
+0120h  90 90 91 91 92 92 93 93 94 94 95 95 96 96 97 97  ................
+0130h  98 98 99 99 9A 9A 9B 9B 9C 9C 9D 9D 9E 9E 9F 9F  ................
+0140h  A0 A0 A1 A1 A2 A2 A3 A3 A4 A4 A5 A5 A6 A6 A7 A7  ................
+0150h  A8 A8 A9 A9 AA AA AB AB AC AC AD AD AE AE AF AF  ................
+0160h  B0 B0 B1 B1 B2 B2 B3 B3 B4 B4 B5 B5 B6 B6 B7 B7  ................
+0170h  B8 B8 B9 B9 BA BA BB BB BC BC BD BD BE BE BF BF  ................
+0180h  C0 C0 C1 C1 C2 C2 C3 C3 C4 C4 C5 C5 C6 C6 C7 C7  ................
+0190h  C8 C8 C9 C9 CA CA CB CB CC CC CD CD CE CE CF CF  ................
+01A0h  D0 D0 D1 D1 D2 D2 D3 D3 D4 D4 D5 D5 D6 D6 D7 D7  ................
+01B0h  D8 D8 D9 D9 DA DA DB DB DC DC DD DD DE DE DF DF  ................
+01C0h  E0 E0 E1 E1 E2 E2 E3 E3 E4 E4 E5 E5 E6 E6 E7 E7  ................
+01D0h  E8 E8 E9 E9 EA EA EB EB EC EC ED ED EE EE EF EF  ................
+01E0h  F0 F0 F1 F1 F2 F2 F3 F3 F4 F4 F5 F5 F6 F6 F7 F7  ................
+01F0h  F8 F8 F9 F9 FA FA FB FB FC FC FD FD FE FE FF FF  ................
+</pre>
+
+ Your translation file doesn't need to contain all the codes. This isn't
+necessary, since you don't need to convert the standard ASCII values ranging
+from 32 to 127 - these are the same in all the ASCII tables. The difference
+occurs from byte code 128 to 255. Many computers have aquired their own
+standards, e.g. the different Codepage scheme on the MS-DOS environment, the
+ISO LATIN 1 standard on the Z88, and various other standards found on other
+computers.<br>
+<br>
+ As a dane, a german, a norwegian Z88 user or other users requiring accented
+characters, it is only needed to create a translation table of 8 - 10
+translation items for the various special characters used in their language.
+Before loading a &quot;translate.dat&quot; file, a null-translation table is first setup
+in memory, then the codes is loaded into the table from the file.<br>
+<br>
+<br>
+<b>The EazyLink Command Menu</b><br>
+<br>
+ The popdown presents you with the a few commands to toggle the various
+translation and conversion facilities of EazyLink. They all have meaning only
+for the original PC LINK II DOS Client. This application only supports raw file
+transfers. Any conversion would then have to be performed afterwards.<br>
+<br>
+ Using the commands of the EazyLink Server you may perform automatical
+conversion during transfer using the old PC LINK II DOS application.<br>
+<br>
+ The EazyLink for Windows Client handles the translation and conversion status
+automatically by providing commands to toggle the conversion status. The
+EazyLink Client then pre-sets the EazyLink Server with the current conversion
+status before any file transfer if started.<br>
+<br>
+&quot;Toggle Translation Mode&quot;<br>
+<br>
+ Pressing &lt;ENTER&gt; on this command toggles between &quot;Auto Translation ON&quot; or
+&quot;OFF&quot;. Having toggled the command to &quot;ON&quot; will perform automatical translation
+of characters in the currently loaded (or default) translation table while file
+transfer is processed.<br>
+<br>
+&quot;Toggle Linefeed Mode&quot;<br>
+<br>
+ Pressing &lt;ENTER&gt; on this command toggles between &quot;Auto CRLF Conversion ON&quot; or
+&quot;OFF&quot;. Having toggled the command to &quot;ON&quot; will perform automatical
+linefeed conversion while file transfer is processed. Transferring the file
+from Z88 to remote computer performs CR -&gt; CRLF linefeed conversion, and CRLF
+-&gt; CR when transferring from remote computer to Z88.<br>
+<br>
+&quot;Use ISO/IBM Translations&quot;<br>
+<br>
+ Pressing &lt;ENTER&gt; on this command will install the default ISO LATIN I / IBM
+Codepage 865 translation table. Use this when you need to transfer files to
+the PC when using MS DOS word processors or editors. This translation table has
+only relevance for Z88 text containing accented characters.<br>
+<br>
+&quot;Load Translations&quot;<br>
+<br>
+ Pressing &lt;ENTER&gt; on this command will try to load an external translation
+table from a file and install it as the default translation table.
+ The file searched must be named as &quot;translate.dat&quot; and may be placed anywhere
+in the Z88 filing system (a &quot;:RAM.//*&quot; search is performed by EazyLink).<br>
+<br>
+ When the translation file has been loaded, the message &quot;Using translations
+from file.&quot; is displayed in the EazyLink log window. If the file was not found,
+the default ISO LATIN I / IBM Codepage 865 table is installed instead.<br>
+<br>
+&quot;Quit EazyLink&quot;<br>
+<br>
+ Pressing &lt;ENTER&gt; on this command will close the serial port and re-install the
+previous Panel settings. Finally, EazyLink will terminate it self and return to
+Index (or another activated resident application).<br>
+<br>
+ Pressing &lt;ESC&gt; in EazyLink will also perform the termination of the popdown.<br>
+<br>
+<br>
+<br>
+<b>The EazyLink File Transfer Protocol</b><br>
+<br>
+ You might have another computer you want to interface with EazyLink. This
+documentation provides you with enough information to develop your Client
+application to interface with the EazyLink Server.<br>
+<br>
+ The current version of the EazyLink server is 5.0.4.<br>
+<br>
+For each command description you will see the version number it was developed
+in. The highest version number always contains all features below of the
+current version number.<br>
+<br>
+<br>
+- The initialisation<br>
+<br>
+ When the EazyLink Server is activated it automatically resets the serial port
+to 9600 baud for both Receive and Transmit Rates, with No Parity and No
+Xon/Xoff on the Z88 serial port. Then, a translation table is loaded; either
+from the external file &quot;translate.dat&quot; or using the internal ISO/IBM standard.<br>
+<br>
+- The main loop<br>
+<br>
+ EazyLink now just listens to the serial port for commands to perform (or
+awaits a command from the keyboard). You may press &lt;ESC&gt; to abort EazyLink
+(KILL'ing the popdown) or any other protocol command that currently is being
+processed.<br>
+<br>
+<br>
+The main loop waits for two different protocol headers:<br>
+<br>
+1. The PC-LINK II protocol header identifier
+2. The EazyLink protocol header identifier<br>
+<br>
+ The protocol header determines how the serial port byte stream is parsed. All
+request commands are initialized with a protocol header.<br>
+<br>
+<br>
+<br>
+<b>PC-LINK II Protocol Header</b><br>
+<br>
+ The Client application sends a byte sequense of ASCII value &lt;5&gt; ended with
+byte value &lt;6&gt;. The Client may use any number of &lt;5&gt;'s but only one ending &lt;6&gt;.
+As soon as EazyLink receives the first &lt;5&gt;, it begins to listen for the ending
+&lt;6&gt;. When &lt;6&gt; has been received, EazyLink Server immediately answers with
+&lt;5&gt;&lt;5&gt;&lt;6&gt; to acknowledge to the Client that it has received the protocol
+header. The following figure illustrates the request/response action:<br>
+<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;5&gt;&lt;5&gt;&lt;6&gt;             -&gt;  waiting               PC-LINK II Protocol header
+waiting               &lt;-  &lt;5&gt;&lt;5&gt;&lt;6&gt;             Acknowledge protocol header
+                                                Awaiting PC-LINK II command
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>EazyLink Protocol Header</b><br>
+<br>
+ The second protocol header for the improved byte stream protocol is similar to
+the PC-LINK II header, but uses byte values &lt;1&gt; and &lt;2&gt; instead:<br>
+<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;1&gt;&lt;1&gt;&lt;2&gt;             -&gt;  waiting               EazyLink Protocol header
+waiting               &lt;-  &lt;1&gt;&lt;1&gt;&lt;2&gt;             Acknowledge protocol header
+                                                Awaiting EazyLink command...
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>PC-LINK II byte stream protocol</b><br>
+<br>
+ When the protocol header has been acknowledged by the Client, the byte stream
+transmission can begin. For each byte sent from the Client, the byte received
+by the server is acknowledged with a null &lt;0&gt; indicating a successful reception
+of the byte. When the Client has received the &lt;0&gt;, it is ready to transmit the
+next byte.<br>
+<br>
+ If the server somehow cannot cope with receiving the byte (e.g. if the byte is
+part of a file transmission and no room is left in the Z88), the server will
+acknowledge with &lt;1&gt; indicating an error status.<br>
+<br>
+ It is the responsibility of the Client to stop with further transmission of
+the command process and abort, possibly returning an appropriate error to the
+user. The following action table illustrates the PC-LINK II byte stream
+protocol:<br>
+<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;byte&gt;                -&gt;  waiting               send byte to server
+waiting               &lt;-  &lt;0&gt;                   byte received successfully
+                                                or
+waiting               &lt;-  &lt;1&gt;                   error condition
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+ The opposite byte stream flow is of the same principle; when the EazyLink
+Server sends a byte to the Client, it has to answer with a &lt;0&gt; or &lt;1&gt; if an
+error condition is active:<br>
+<br>
+<pre>
+------------------------------------------------------------------------------
+Server                    Client                Action
+------------------------------------------------------------------------------
+&lt;byte&gt;                -&gt;  waiting               send byte to client
+waiting               &lt;-  &lt;0&gt;                   byte received successfully
+                                                or
+waiting               &lt;-  &lt;1&gt;                   error condition
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>EazyLink byte stream protocol</b><br>
+<br>
+ When the protocol header has been acknowledged by the Client, the byte stream
+transmission can begin. This protocol is controlled by the underlying hardware
+byte flow - in other words, the request commands and their implicit logical
+construction are the byte stream protocol.<br>
+<br>
+ The PC-LINK II protocol (see above) uses the two-way check byte for each byte
+sent; this is a way to implement a system of sending bytes between two
+computers that do not have a hardware handshake. However, the total information
+sent between both computers are doubled with the penalty of an even slower
+transmission. The EazyLink avoids this by using the hardware handshaking of
+today's high speed serial ports and the Z88.<br>
+<br>
+ With the Eazy'er protocol, information is transmitted as fast as the RS-232
+9600 Baud rate can perform between the two computers.<br>
+<br>
+<br>
+<b>Timeout - waiting for information</b><br>
+<br>
+ The EazyLink Server uses an implicit timeout of 30 seconds in all serial port
+communications. If you aborted the Client (Killed the application) while it was
+receiving a file from the Z88, the EazyLink Server suddenly couldn't transfer
+since the serial port buffer was filled. Then, it automatically waites 30
+seconds to continue sending data to the serial port. If timeout occurs, the
+current command request is automatically aborted, and EazyLink returns to the
+main loop awaiting a new command request.<br>
+<br>
+ The same principle applies when the information flow is aborted during
+receiving data from the Client.<br>
+<br>
+<br>
+<br>
+<br>
+<b>The EazyLink Request Commands, with PC-LINK II compatibility</b><br>
+<br>
+ The described list below of various commands that may be sent to the EazyLink
+Server uses the diagram prototype as seen above for easy understanding for the
+flow of byte stream between the EazyLink Client (remote computer) and Server
+(Z88).<br>
+<br>
+ The list below contains both the PC-LINK II compatible requests and extended
+commands. A version number is also supplied which identifies the implementation
+of the EazyLink server containg the particular command.<br>
+<br>
+ Please remember that all request commands are pre-ambled with the appropriate
+protocol header as described previously. The following symbols are used:<br>
+<br>
+<pre>&lt;&gt;                    Describes a syntactic entity, e.g. a request command
+
+ESC                   Identifies the ASCII value 27, the request command
+                      header.
+
+&quot;A&quot;                   Identifies the ASCII character &quot;A&quot; (byte value 65).
+</pre>
+<br>
+
+<b>Hello Z88 (PC-LINK II), V4.4</b><br>
+<br>
+ This is a simple command that answers the Client on the request 'hello, Z88
+are your there?'. This command is used by the original PC-LINK II MS-DOS Client
+to &quot;log on&quot; to the Z88 PC-LINK II Server. If the Z88 isn't connected to the PC
+or the Z88 is shut down, the Client reports that &quot;No connection is available&quot;.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;A&quot;&gt;             -&gt;  waiting               Hello, are you there?
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             Yes!
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<br>
+<b>Get Device Names (PC-LINK II), V4.4</b><br>
+<br>
+Request for Z88 RAM device names (both internal and external).<br>
+<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;H&quot;&gt;             -&gt;  waiting
+                                                Request for Devices
+waiting               &lt;-  &lt;ESC &quot;N&quot;&gt;&lt;DeviceName&gt; First RAM device, eg. &quot;:RAM.0&quot;
+first device
+                      &lt;-  ...                   Send remaining devices
+devices...
+                      &lt;-  &lt;ESC &quot;Z&quot;&gt;             &lt;End Of Names&gt;
+all received
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get Directory Names (PC-LINK II), V4.4</b><br>
+<br>
+ Request for Z88 Directory Names in the current specified valid path, ended
+with the path separator &quot;/&quot;. The specified path will be added with the &quot;*&quot; (all
+names) wildcard symbol by the EazyLink server, which is standard according to
+the PC-LINK II specification.<br>
+<br>
+ The EazyLink Server always returns the &quot;.&quot; name which identifies the current
+directory. Then, if the specified path in the request command defines one
+sub-directory or more, a &quot;..&quot; parent directory name is sent as well. Both
+identifiers as sent before any local directory names.<br>
+<br>
+ As shown below, each name is sent with a leading ESC &quot;N&quot;; the indicator that a
+name follows. When the last name has been transmitted ESC &quot;Z&quot; is sent.
+Directory names are sent without path specification.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;D&quot;&gt; &lt;Path&gt;                                Request for directories in
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  waiting               &lt;Path&gt;
+waiting                                         Request received. &quot;*&quot; added
+                                                to &lt;Path&gt;
+
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;&quot;.&quot;&gt;       Send current path symbol
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;&quot;..&quot;&gt;      Send parent path symbol
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;DirName&gt;   Send local directory name
+                      &lt;-  ...
+receiving             &lt;-  &lt;ESC &quot;Z&quot;&gt;             End of Names
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get File Names (PC-LINK II), V4.4</b><br>
+<br>
+ Request for Z88 File Names in the current specified valid path, ended with the
+path separator &quot;/&quot;. The specified path will be added with the &quot;*&quot; (all names)
+wildcard symbol by the EazyLink server, which is standard according to the
+PC-LINK II specification.<br>
+<br>
+ As shown below, each name is sent with a leading ESC &quot;N&quot;; the indicator that a
+name follows. When the last name has been transmitted ESC &quot;Z&quot; is sent. File
+names are sent without path specification.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;N&quot;&gt;                                       Request for file names in
+&lt;Path&gt;                                          &lt;Path&gt;
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  waiting
+                                                Request received. &quot;*&quot; added
+                                                to &lt;Path&gt;
+waiting
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;FileName&gt;  Send local file name
+                      &lt;-  ...
+receiving             &lt;-  &lt;ESC &quot;Z&quot;&gt;             End of Names
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Receive File from Z88 (PC-LINK II), V4.4</b><br>
+<br>
+ Request for Z88 File as specified in the command header. Please note that
+wildcards is allowed, but not recommended since you might get the wrong file if
+another match is found in the Z88 filing system than expected.<br>
+<br>
+ Please note that the current translation status reflects the data sent to Z88.
+Activating the #L popdown, the default translation is NONE with no line feed
+conversion, ie. every byte sent the Z88 is unaffected. This is the original
+state of the PC-LINK II Server popdown.<br>
+<br>
+ If you chose to activate one of the translation/conversion commands, every
+byte sent the Z88 is translated using either the internal ISO/IBM Codepage 865
+or an external &quot;translate.dat&quot; translation table.<br>
+<br>
+ The translation and line feed conversion status may also have been enabled or
+disabled using the appropriate request commands (see later). However, this may
+only be possible using the EazyLink extended protocol (the original PC-LINK II
+client doesn't support translation nor line feed conversion during transfer
+using the EazyLink interface). Translation must be performed after the PC-LINK
+II transfer.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;G&quot;&gt;                                       Request for file to be sent
+&lt;FileName&gt;                                      from Z88
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  receiving filename
+
+receiving             &lt;-  &lt;File&gt;                Send file contents...
+receiving             &lt;-  &lt;ESC &quot;Z&quot;&gt;             End of File
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Sending an Escape (or binary) character (PC-LINK II), V4.4</b><br>
+<br>
+ During file transfer from the Z88 or the Client an Escape character sequense
+is sent when a true ESC byte needs to be transmitted, and not a request
+command.<br>
+<br>
+The Escape sequense is as follows:<br>
+<pre>                      ESC &quot;B&quot; &lt;H1&gt;&lt;H2&gt;</pre>
+where H1 and H2 are the corresponding hexadecimal high and low nibbles of the
+byte representation.<br>
+<br>
+The actual sequense sent is &lt;ESC &quot;B&quot; &quot;1B&quot;&gt; for the single ESC byte, or<br>
+<pre>                      27,&quot;B&quot;,&quot;1&quot;,&quot;B&quot;</pre>
+in a simple flow of bytes representing the single ESC byte to be sent. The
+Escape sequense principle is a copy from the protocol used by the Imp/Export
+popdown which was used to transfer byte values larger than 127.<br>
+<br>
+ The Client or Server need only to use the Escape sequense when transfering
+binary files (text files like PipeDream files don't contain the ESC character).<br>
+<br>
+ The actual PC-LINK II Client application also uses the ESC &quot;B&quot; to transmit
+'binary' characters that have ASCII values above 127. This system is redundant,
+however, PC-LINK II regard it as necessary. All 'binary' ASCII characters,
+except ESC, are sent normally from the EazyLink Server to the PC-LINK II which
+receives them perfectly. This scheme seems to be more of a symbolic design than
+an efficient implementation.<br>
+<br>
+<br>
+<br>
+<b>Send Files to Z88 from Client (PC-LINK II), V4.4</b><br>
+<br>
+ Request for sending Files to Z88 from Client as specified in the command
+header. Please note that wildcards may not be used, only exact filenames.<br>
+<br>
+ Any path specified in the filename is automatically created by the EazyLink
+Server when the file is being created on the Z88 (successfully receiving the
+filename).<br>
+<br>
+ The request command allows for several files to be sent during the same
+command session.<br>
+<br>
+ Please note that the current translation status reflects the data sent to Z88.
+Activating the #L popdown, the default translation is NONE with no line feed
+conversion, ie. every byte sent the Z88 is unaffected. This is the original
+state of the PC-LINK II Server popdown.<br>
+<br>
+ If you chose to activate one of the translation/conversion commands, every
+byte sent the Z88 is translated using either the internal ISO/IBM Codepage 865
+or an external &quot;translate.dat&quot; translation table.<br>
+<br>
+ The translation and line feed conversion status may also have been enabled or
+disabled using the appropriate request commands (see later). However, this may
+only be possible using the EazyLink extended protocol (the original PC-LINK II
+client doesn't support translation nor line feed conversion during transfer
+using the EazyLink interface).<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;S&quot;&gt;             -&gt;  waiting...            Send files to Z88
+                                                ready for first file...
+&lt;ESC &quot;N&quot;&gt; &lt;FileName1&gt; -&gt;  first file(name)
+                                                file &lt;FileName1&gt; created,
+&lt;ESC &quot;F&quot;&gt; &lt;File&gt;      -&gt;  receiving file...
+&lt;ESC &quot;E&quot;&gt;             -&gt;  End of File.          file closed.
+&lt;ESC &quot;N&quot;&gt; &lt;FileName2&gt;
+                                                file &lt;FileName2&gt; created.
+&lt;ESC &quot;F&quot;&gt; &lt;File&gt;      -&gt;  receiving file...
+&lt;ESC &quot;E&quot;&gt;             -&gt;  End of File.          file closed.
+
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  End of Files.         Last file sent. Command
+                                                completed.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Remote aborting of the EazyLink Server (PC-LINK II), V4.4</b><br>
+<br>
+ This request command sends an &quot;abort&quot; command to the EazyLink Server. The
+original PC-LINK II Client sends this command when the user quits the
+application.<br>
+<br>
+ The abort command automatically terminates the EazyLink Server Popdown and
+re-activates the previous running resident application in the Z88 operating
+system.<br>
+<br>
+ Before the request command terminates the EazyLink Server, an Escape command
+is sent to the EazyLink Client to verify that the command has been
+acknowledged.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;Q&quot;&gt;             -&gt;  waiting...            Quit EazyLink Server
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             Acknowledge termination
+                                                Abort EazyLink popdown...
+Abort Client...
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Hello Z88 (EazyLink), V4.4</b><br>
+<br>
+ This is a simple command that answers the Client on the request 'hello, Z88
+are your there?'. This command is only implemented as a pendant of the PC-LINK
+II Server command. When the Client receives the &quot;Yes&quot; request you will be
+prompted with a &quot;Z88 responded 'hello'&quot;.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;a&quot;&gt;             -&gt;  waiting               Hello, are you there?
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             Yes!
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get Device Names (EazyLink), V4.4</b><br>
+<br>
+Request for Z88 RAM device names (both internal and external).<br>
+<br>
+<pre>------------------------------------------------------------------------------
+        Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;h&quot;&gt;             -&gt;  waiting
+                                                Request for Devices
+
+waiting               &lt;-  &lt;ESC &quot;N&quot;&gt;&lt;DeviceName&gt; First RAM device, eg. &quot;:RAM.0&quot;
+first device
+                      &lt;-  ...                   Send remaining devices
+devices...
+                      &lt;-  &lt;ESC &quot;Z&quot;&gt;             &lt;End Of Names&gt;
+all received
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get Directory Names (EazyLink), V4.4</b><br>
+<br>
+ Request for Z88 Directory Names in the current specified valid path. The
+Client application is responsible for supplying the complete path and necessary
+wildcard symbols, e.g. &quot;*&quot; (all files in current directory) or &quot;//*&quot; (all files
+in all sub-directories). If the path doesn't contain any wildcard specifier,
+the EazyLink server will not be able to return names back to the Client and
+just acknowledge with ESC &quot;Z&quot; (End of Names).<br>
+<br>
+ The EazyLink Server always returns the &quot;.&quot; name which identifies the current
+directory. Then, if the specified path in the request command defines one
+sub-directory or more, a &quot;..&quot; parent directory name is sent as well. Both
+identifiers as sent before any directory names.<br>
+<br>
+ As shown below, each name is sent with a leading ESC &quot;N&quot;; the indicator that a
+name follows. When the last name has been transmitted ESC &quot;Z&quot; is sent.<br>
+<br>
+Directory names are sent with FULL path specification.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;d&quot;&gt; &lt;Path&gt;                                Request for directories in
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  waiting               &lt;Path&gt;
+
+                                                Process &lt;Path&gt; for names...
+
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;&quot;.&quot;&gt;       Send current path symbol
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;&quot;..&quot;&gt;      Send parent path symbol
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;DirName&gt;   Send full directory name
+                      &lt;-  ...
+receiving             &lt;-  &lt;ESC &quot;Z&quot;&gt;             End of Names
+------------------------------------------------------------------------------
+</pre>
+<br>
+<b>Get File Names (EazyLink), V4.4</b><br>
+<br>
+ Request for Z88 File Names in the current specified valid path. The Client
+application is responsible for supplying the complete path and necessary
+wildcard symbols, e.g. &quot;*&quot; (all files in current directory) or &quot;//*&quot; (all files
+in all sub-directories). If the path doesn't contain any wildcard specifier,
+the EazyLink server will not be able to return names back to the Client and
+just acknowledge with ESC &quot;Z&quot; (End of Names).<br>
+<br>
+ As shown below, each name is sent with a leading ESC &quot;N&quot;; the indicator that a
+name follows. When the last name has been transmitted ESC &quot;Z&quot; is sent.<br>
+<br>
+File names are sent with FULL path specification.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;n&quot;&gt;                                       Request for file names in
+&lt;Path&gt;                                          &lt;Path&gt;
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  waiting
+
+waiting                                         Processing &lt;Path&gt; for files
+
+receiving             &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;FileName&gt;  Send file names (full path)
+                      &lt;-  ...
+receiving             &lt;-  &lt;ESC &quot;Z&quot;&gt;             End of Names
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Remote activation of translation (EazyLink), V4.4</b><br>
+<br>
+ This request command enables translation of bytes while transmitting (both
+ways). Translation is enabled as long as the EazyLink Popdown is active or the
+facility is being disabled explicitly (see below).<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;t&quot;&gt;             -&gt;  waiting               Activate translation
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Remote de-activation of translation (EazyLink), V4.4</b><br>
+<br>
+ This request command disables translation of bytes (both ways). Translation is
+disabled as long as the EazyLink Popdown is active or the facility is being
+re-enabled explicitly (see above).<br>
+
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;T&quot;&gt;             -&gt;  waiting               Disable translation
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<br>
+<b>Remote activation of Line feed conversion (EazyLink), V4.4</b><br>
+<br>
+ This request command enables line feed conversion while transmitting (both
+ways). Line feed conversion is enabled as long as the EazyLink Popdown is
+active or the facility is being disabled explicitly (see below).<br>
+<br>
+Line feed conversion:<br>
+<pre>
+------------------------------------------------------------------------------
+Z88                       PC                    Action
+------------------------------------------------------------------------------
+CR                    -&gt;  CRLF                  Convert to MS-DOS line feed
+CR                    &lt;-  CRLF                  Convert to Z88 line feed
+------------------------------------------------------------------------------
+</pre>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;c&quot;&gt;             -&gt;  waiting               Activate line feed conversion
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Remote de-activation of Line Feed conversion (EazyLink), V4.4</b><br>
+<br>
+ This request command disables Line feed conversion (both ways). Conversion is
+disabled as long as the EazyLink Popdown is active or the facility is being
+re-enabled explicitly (see above).<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;C&quot;&gt;             -&gt;  waiting               Disable line feed conversion
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Sending an Escape character (EazyLink), V4.4</b><br>
+<br>
+ During file transfer from the Z88 or the Client an Escape character sequense
+is sent when a true ESC byte needs to be transmitted, and not a request
+command. The Escape sequense is as follows:<br>
+<pre>                      ESC, ESC                  or 27, 27</pre>
+Please note the difference between this ESC sequense for the EazyLink protocol
+and the ESC sequense for the PC-LINK II protocol (ESC &quot;B&quot; &lt;HH&gt;).<br>
+<br>
+The ESC &quot;B&quot; sequense is not recognized in the EazyLink protocol and would
+result in a protocol transmission error.<br>
+<br>
+<br>
+<br>
+<b>Send files to Z88 (EazyLink), V4.4</b><br>
+<br>
+ Request for sending Files to Z88 from the Client as specified in the command
+header. Please note that wildcards may not be used, only exact filenames.<br>
+<br>
+ Any path specified in the filename is automatically created by the EazyLink
+Server when the file is being created on the Z88 (successfully receiving the
+filename).<br>
+<br>
+ The request command allows for several files to be sent during the same
+command session.<br>
+<br>
+ Please note, that the current translation status reflects the data sent to
+Z88. If you chose to activate the #L popdown, the default translation is NONE
+with no line feed conversion, ie. every byte sent the Z88 is unaffected. This
+is the original state of the PC-LINK II Server popdown.<br>
+<br>
+ The translation and line feed conversion status may also have been enabled or
+disabled using the appropriate request commands. However, this may only be
+possible using the EazyLink extended protocol.<br>
+<br>
+ The EazyLink Client performs a remote activation/de-activation of both the
+translation and line-feed conversion to the server before requesting to
+transmit or receive files from the server. Translations and line-feed
+conversion are determined in the user interface.<br>
+<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;b&quot;&gt;             -&gt;  waiting...            Send files to Z88
+
+                                                ready for first file...
+
+&lt;ESC &quot;N&quot;&gt; &lt;FileName1&gt; -&gt;  first file(name)
+                                                file &lt;FileName1&gt; created,
+&lt;ESC &quot;F&quot;&gt; &lt;File&gt;      -&gt;  receiving file...
+&lt;ESC &quot;E&quot;&gt;             -&gt;  End of File.          file closed.
+
+&lt;ESC &quot;N&quot;&gt; &lt;FileName2&gt;...                        file &lt;FileName2&gt; created.
+&lt;ESC &quot;F&quot;&gt; &lt;File&gt; -&gt;       receiving file...
+&lt;ESC &quot;E&quot;&gt;             -&gt;  End of File.          file closed.
+
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  End of Files.         Last file sent. Command
+                                                completed.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Send files to Client (EazyLink), V4.4</b><br>
+<br>
+ Request for sending Files from Z88 to the Client as specified in the command
+header.<br>
+<br>
+ The request command allows for several files to be sent during the same
+command session. Wildcards should be used to specify several files.<br>
+<br>
+ Please note, that the current translation status reflects the data sent to
+Z88. If you chose to activate the #L popdown, the default translation is NONE
+with no line feed conversion, ie. every byte sent the Z88 is unaffected. This
+is the original state of the PC-LINK II Server popdown.<br>
+<br>
+ The translation and line feed conversion status may also have been enabled or
+disabled using the appropriate request commands. However, this may only be
+possible using the EazyLink extended protocol.<br>
+<br>
+ The EazyLink Client performs a remote activation/de-activation of both the
+translation and line-feed conversion to the server before requesting to
+transmit or receive files from the server. Translations and line-feed
+conversion are determined in the user interface.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;s&quot;&gt;             -&gt;  waiting...            Send files to Client
+&lt;FileRequest&gt;                                   receiving wildcard
+&lt;ESC &quot;Z&quot;&gt;                                       or single filename...
+
+waiting                                         Find matching files...
+
+receiving file1...    &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;Filename&gt;  Send First file...
+                      &lt;-  &lt;ESC &quot;F&quot;&gt; &lt;File&gt;
+                      &lt;-  &lt;ESC &quot;E&quot;&gt;             First file sent
+
+receiving file x...   &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;Filename&gt;  Send file x...
+                      &lt;-  &lt;ESC &quot;F&quot;&gt; &lt;File&gt;
+                      &lt;-  &lt;ESC &quot;E&quot;&gt;             file sent
+
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             All files sent
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Backup files to Client (EazyLink), V4.4</b><br>
+<br>
+ Request for sending Files from Z88 to the Client as specified in the command
+header, but only files which has equal Create and Update Date Stamp (always
+set when storing files in Pipedream and other applications). Each file found
+with matching date stamps will be sent to the Client, and marked as backup'ed
+with setting the file's Update Date Stamp with the current time of the backup.<br>
+<br>
+ The request command allows for several files to be sent during the same
+command session. Wildcards should be used to specify several files.<br>
+<br>
+ When all appropriate files have been backup'ed, the complete filing system of
+the specified backup path is scanned for directories. All found directories are
+stored as part of a CLI file that will create the directory structure of the
+backup path. The CLI file simulates the commands of the Filer.<br>
+<br>
+ When the CLI file has been completed by the EazyLink Server it is sent to the
+Client as &quot;:RAM.-/Directories.cli&quot;. The CLI file has become redundant since all
+files sent to the Z88 automatically gets their implicit directory path created
+by the EazyLink Server. However, it is still a nice feature if you want to get
+your directory structure created at once in another restore situation. Simply
+transfer the &quot;Directories.cli&quot; file and execute it in the Filer with the &lt;&gt;EX
+command.<br>
+<br>
+ Depending on the size of the Z88 filing system to be parsed, a fair amount
+of time would span between the last file was backup'ed and transmission of the
+CLI file. Therefore the Client should wait more than 30 seconds before timing
+out to make sure that the CLI may be transferred to the Client as well.<br>
+<br>
+ Please note, that the current translation status reflects the data sent to
+Z88. If you chose to activate the #L popdown, the default translation is NONE
+with no line feed conversion, ie. every byte sent the Z88 is unaffected. This
+is the original state of the PC-LINK II Server popdown.<br>
+<br>
+ The translation and line feed conversion status may also have been enabled or
+disabled using the appropriate request commands. However, this may only be
+possible using the EazyLink extended protocol.<br>
+<br>
+ The EazyLink Client performs a remote activation/de-activation of both the
+translation and line-feed conversion to the server before requesting to
+transmit or receive files from the server. Translations and line-feed
+conversion are determined in the user interface.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;k&quot;&gt;             -&gt;  waiting...            Backup files to Client
+&lt;FileRequest&gt;                                   receiving wildcard
+&lt;ESC &quot;Z&quot;&gt;                                       or single filename...
+
+waiting                                         Find matching files...
+
+receiving file1...    &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;Filename&gt;  Send First file...
+                      &lt;-  &lt;ESC &quot;F&quot;&gt; &lt;File&gt;
+                      &lt;-  &lt;ESC &quot;E&quot;&gt;             First file sent
+
+receiving file x...   &lt;-  &lt;ESC &quot;N&quot;&gt; &lt;Filename&gt;  Send file x...
+                      &lt;-  &lt;ESC &quot;F&quot;&gt; &lt;File&gt;
+                      &lt;-  &lt;ESC &quot;E&quot;&gt;             file sent
+
+receiving CLI file    &lt;-  &lt;ESC &quot;N&quot;&gt;
+                      &lt;-  &lt;&quot;:RAM.-/Directories.cli&quot;&gt;
+                      &lt;-  &lt;ESC &quot;F&quot;&gt; &lt;File&gt;
+                      &lt;-  &lt;ESC &quot;E&quot;&gt;             CLI file sent
+
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             All files sent
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Remote aborting of the EazyLink Server (EazyLink), V4.4</b><br>
+<br>
+ This request command sends an &quot;abort&quot; command to the EazyLink Server.<br>
+<br>
+ The abort command automatically terminates the EazyLink Server Popdown and
+re-activates the previous running resident application in the Z88 operating
+system.<br>
+<br>
+ Before the request command terminates the EazyLink Server, an Escape command
+is sent to the EazyLink Client to verify that the command has been
+acknowledged.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;q&quot;&gt;             -&gt;  waiting...            Quit EazyLink Server
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             Acknowledge termination
+                                                Abort EazyLink popdown...
+Abort Client...
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get current Server Version (EazyLink), V4.5</b><br>
+<br>
+ This request command returns the current version of the EazyLink Server
+Popdown and the file protocol level. The ASCII string contains two parts
+separated by '-'. The first part identifies the Server version number, the
+second part is the file protocol level.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;v&quot;&gt;             -&gt;  waiting               Request for Server Version
+
+waiting                   &lt;ESC &quot;N&quot;&gt;
+                          &lt;Version&gt;             Ascii string, &quot;4.5-01&quot;
+                      &lt;-  &lt;ESC &quot;Z&quot;&gt;
+------------------------------------------------------------------------------
+</pre>
+<br>
+The version string for V4.5 of EazyLink was &quot;4.5-01&quot;.<br>
+31th May 1998: The current version for V5.0.3 of EazyLink is &quot;5.0-05&quot;.<br>
+<br>
+<br>
+<br>
+<b>Get size of file (EazyLink), V4.5</b><br>
+<br>
+ This request command returns the size of the specified Z88 file. The
+information returned is a string containing an ASCII representation of the
+integer value. The Client is responsible for converting it to a true integer, if necessary.<br>
+<br>
+ If the specified file cannot be found in the Z88 filing system, only ESC &quot;Z&quot;
+is returned.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;x&quot;&gt;                                       Request for File Size
+&lt;FileName&gt;&lt;ESC &quot;Z&quot;&gt;   -&gt;  waiting
+                                                fetching file...
+                          &lt;ESC &quot;N&quot;&gt;
+                          &lt;Size&gt;                ASCII string, eg. &quot;8192&quot;
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File found.
+
+                                                or
+
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File not found.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get Create and Update Date Stamps of file (EazyLink), V4.5</b><br>
+<br>
+ This request command returns the date stamps of the specified Z88 file.
+The information returned is a string containing an ASCII representation of the
+date stamps, &quot;dd/mm/yyyy hh:nn:ss&quot;.<br>
+<br>
+ The Client is responsible for converting it to a true date (in local format
+convention), if necessary.<br>
+<br>
+ If the specified file cannot be found in the Z88 filing system, only ESC &quot;Z&quot;
+is returned.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;u&quot;&gt;                                       Request for File Update Date
+&lt;File&gt;&lt;ESC &quot;Z&quot;&gt;             -&gt;  waiting
+                                                fetching file date stamps...
+                          &lt;ESC &quot;N&quot;&gt;
+                          &lt;Create Date Stamp&gt;   eg. &quot;31/12/1996 15:45:49&quot;
+                          &lt;ESC &quot;N&quot;&gt;
+                          &lt;Update Date Stamp&gt;
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File found.
+                                                or
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File not found.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Set date stamp of file (EazyLink), V4.5</b><br>
+<br>
+ This request command sets both the Create and Update date stamp of the
+specified Z88 file. The Date Stamp must be specified in the format &quot;dd/mm/yyyy hh:mm:ss&quot;.<br>
+<br>
+ If the specified date stamp of the file has been be stored, ESC &quot;Y&quot; is
+returned, otherwise ESC &quot;Z&quot; indicating failure.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;U&quot;&gt;                                       Set File Date Stamp
+&lt;File&gt;
+&lt;ESC &quot;N&quot;&gt;
+&lt;Create Date Stamp&gt;
+&lt;ESC &quot;N&quot;&gt;
+&lt;Update Date Stamp&gt;&lt;ESC &quot;Z&quot;&gt;
+                      -&gt;  waiting
+                                                fetching file, store date stamp
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             Date Stamp Stored.
+                                                or
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File not found / in use.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Check for file existense (EazyLink), V4.5</b><br>
+<br>
+ This request command performs a file check of the specified file name in the
+Z88 filing system.<br>
+<br>
+ If the specified file exists, an ESC &quot;Y&quot; is returned, otherwise ESC &quot;Z&quot;
+indicating failure.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;f&quot;&gt;                                       Does file exist?
+&lt;File&gt;&lt;ESC &quot;Z&quot;&gt;       -&gt;  waiting
+                                                finding file...
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             File found.
+                                                or
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File not found.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Delete file or directory (EazyLink), V4.6</b><br>
+<br>
+ This request command performs a file (or directory) delete of the specified
+file name in the Z88 filing system.<br>
+<br>
+ If the specified file exists, and is deleted successfully, an ESC &quot;Y&quot; is
+returned, otherwise ESC &quot;Z&quot; indicating failure (file/directory in use or
+doesn't exist).<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;r&quot;&gt;                                       Delete file
+&lt;File&gt;&lt;ESC &quot;Z&quot;&gt;       -&gt;  waiting
+                                                finding file and deleting...
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             File found.
+                                                or
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File in use or not found.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Remote updating of the translation table (EazyLink), V4.6</b><br>
+<br>
+ This request command issues a re-loading of the translation file stored on the
+Z88 filing system (&quot;:RAM.*//translate.dat&quot;).
+ The EazyLink Client for Windows uses this command. First it uploads a
+null-translation table file, then send ESC &quot;Z&quot; to the Server.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  waiting               Re-load translation table
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Create Directory (EazyLink), V4.7</b><br>
+<br>
+ This request command will create a directory path of the specified name in the
+Z88 filing system. The path must be explicit and contain several name segments.
+Parent directory segments does not need to be created beforehand - the full
+path will automatically be created by EazyLink.<br>
+<br>
+ An ESC &quot;Y&quot; is returned to the Client if the Directory Path was created in the
+Z88 filing system. If an error occurred an ESC &quot;Z&quot; is returned, indicating
+failure (directory in use or invalid filename format).<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;y&quot;&gt;                                       Create Directory
+&lt;Directory Path&gt;&lt;ESC &quot;Z&quot;&gt;
+                      -&gt;  waiting
+                                                creating directory path...
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             Directory Path created.
+                                                or
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             Directory Path in use or not
+                                                valid (illegal filename format)
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Rename file (EazyLink), V4.7</b><br>
+<br>
+ This request command will rename a file in the Z88 filing system, specified
+with the complete source filename including path and RAM device, followed by
+the new local filename (renaming is only allowed in the specified path - not
+performing an indirect move of the file reference).<br>
+<br>
+ An ESC &quot;Y&quot; is returned to the Client if the file existed and was renamed in
+the Z88 filing system. If the file didn't exist or was in use (or any other OZ
+file error), an ESC &quot;Z&quot; is returned, indicating failure.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;w&quot;&gt;                                       Rename file
+&lt;Original Filename&gt;
+&lt;ESC &quot;N&quot;&gt;
+&lt;New filename&gt;&lt;ESC &quot;Z&quot;&gt;
+                      -&gt;  waiting
+                                                rename file(name)...
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             File was renamed successfully.
+
+                                                or
+
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             File was in use or not found.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get RAM defaults (EazyLink), V4.7</b><br>
+<br>
+ This request command will send the current default Device and Directory as
+defined in the Panel (#S) to the Client.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;g&quot;&gt;                                       Request for RAM defaults
+
+waiting               &lt;-  &lt;ESC &quot;N&quot;&gt;
+                          &lt;Default Device       Panel Default Device
+                          &lt;ESC &quot;N&quot;&gt;
+                          &lt;Default Directory&gt;   Panel Default Directory
+                          &lt;ESC &quot;Z&quot;&gt;
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get estimated free memory (EazyLink), V4.8</b><br>
+<br>
+ This request command will send the current estimated free memory of the Z88
+(in bytes) to the Client. The figure is based on all available RAM devices in
+the machine.<br>
+<br>
+The actual (long integer) number is sent as an Ascii string.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;m&quot;&gt;                                       Request for est. free memory
+
+waiting               &lt;-  &lt;ESC &quot;N&quot;&gt;
+                          &lt;Free Memory&gt;         Free memory in bytes
+                          &lt;ESC &quot;Z&quot;&gt;
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Set Z88 System Clock (EazyLink), V4.8</b><br>
+<br>
+ This request command will set the Z88 system clock to the specified date and
+time. The Z88 system call that performs this call takes 1-2 seconds to complete
+the task, so it is necessary to specifiy the date/time parameters a few seconds
+ahead if the remote computer is going to be precisely synchronized with the
+Z88.<br>
+<br>
+ An ESC &quot;Y&quot; is returned to the Client when the Z88 was successfully initialized
+with a new time. If the date/time parameters was defined in the correct format,
+an ESC &quot;Z&quot; is returned, indicating failure of setting the Z88 system clock.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;p&quot;&gt;                                       Set Z88 System Clock
+&lt;System Date&gt;                                   &quot;dd/mm/yyyy&quot;
+&lt;ESC &quot;N&quot;&gt;&lt;System Time&gt;                          &quot;hh:mm:ss&quot;
+&lt;ESC &quot;Z&quot;&gt;             -&gt;  waiting
+
+waiting               &lt;-  &lt;ESC &quot;Y&quot;&gt;             Clock was set
+                                                or
+waiting               &lt;-  &lt;ESC &quot;Z&quot;&gt;             Illegal date/time parameters.
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get Z88 System Clock (EazyLink), V4.8</b><br>
+<br>
+ This request command will fetch the current Z88 system clock and send it to
+the Client.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;e&quot;&gt;                                       Get Z88 System Clock
+
+waiting               &lt;-  &lt;ESC &quot;N&quot;&gt;
+                          &lt;System Date&gt;         &quot;dd/mm/yyyy&quot;
+                          &lt;ESC &quot;N&quot;&gt;
+                          &lt;System Time&gt;         &quot;hh:mm:ss&quot;
+                          &lt;ESC &quot;Z&quot;&gt;
+------------------------------------------------------------------------------
+</pre>
+<br>
+<br>
+<b>Get explicit free memory (EazyLink), V5.0</b><br>
+<br>
+ This request command will return the current free memory of the specified RAM
+card on the Z88 (in bytes) to the Client. The figure returned will be
+accurate to 256 bytes. The argument is &quot;0&quot; for :RAM.0, &quot;1&quot; for :RAM.1, etc.
+Specifying a &quot;-&quot; means :RAM.- (all RAM cards).<br>
+<br>
+The actual (long integer) number is sent as an Ascii string, eg. &quot;234496&quot; for
+229K free memory.<br>
+<pre>
+------------------------------------------------------------------------------
+Client                    Server                Action
+------------------------------------------------------------------------------
+&lt;ESC &quot;M&quot;&gt;                                       Request for free space in
+&lt;DeviceNumber&gt;                                  RAM Card
+&lt;ESC &quot;Z&quot;&gt;
+waiting               &lt;-  &lt;ESC &quot;N&quot;&gt;
+                          &lt;Free Memory&gt;         Free memory in bytes
+                          &lt;ESC &quot;Z&quot;&gt;
+                                                or
+                          &lt;ESC &quot;Z&quot;&gt;             RAM Card not available.
+------------------------------------------------------------------------------
+</pre>
+</body>
+</html>
