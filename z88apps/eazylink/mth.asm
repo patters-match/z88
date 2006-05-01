@@ -75,7 +75,7 @@
 ;
 .EazyLinkHelp
                     DEFB 12
-                    DEFM "EazyLink V5.0.5 - flexible file transfer", $7F
+                    DEFM "EazyLink V5.0.5.DEV - flexible file transfer", $7F
                     DEFB $7F
                     DEFM "Copyright (C) by G.Strube (gbs@users.sf.net) 1991-2006", $7F
                     DEFB $7F
