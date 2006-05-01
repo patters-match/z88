@@ -82,7 +82,8 @@
                   JR   Z, esc_h2_aborted
                   XOR  A                             ; signal continue in main loop
                   RET                                ; (Z = 1)
-.esc_h2_aborted   CALL Msg_Command_aborted
+.esc_h2_aborted
+                  CALL Msg_Command_aborted
                   XOR  A
                   RET
 
@@ -114,7 +115,7 @@
                   CALL SendString
                   JR   C, esc_d2_aborted
                   JR   Z, esc_d2_aborted
-                  .no_parent_dir
+.no_parent_dir
                   LD   A,dn_dir
                   LD   (file_type),A                 ; find directories
                   LD   A, 1                          ; wildcard search specifier
@@ -127,7 +128,7 @@
                   JR   C, esc_d2_aborted
                   JR   Z, esc_d2_aborted
                   JR   end_esc_d2
-                  .esc_d2_aborted
+.esc_d2_aborted
                   CALL Msg_Command_aborted           ; write message and set Fz
                   .end_esc_d2
                   CALL Restore_Traflag
@@ -302,8 +303,12 @@
                   JR   C, batch_send_end             ; no more files found in wildcard
                   CP   dn_fil
                   JR   NZ,find_files_loop            ; not a file - get next
+
+                  CALL UseHWSerPort
                   LD   HL, filename_buffer
                   CALL Transfer_file
+                  CALL UseOZSerPort
+
                   JR   C, batch_send_aborted         ; Ups - transmission error
                   JR   Z, batch_send_aborted
                   JR   find_files_loop
