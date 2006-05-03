@@ -163,7 +163,7 @@
 
 
      XDEF ErrHandler
-     XDEF Write_message
+     XDEF Write_message, Debug_message
      XDEF Msg_File_Open_error, Msg_Protocol_error, Msg_file_aborted, Msg_No_Room
      XDEF Msg_Command_aborted
      XDEF Set_Traflag, Restore_Traflag
@@ -297,6 +297,11 @@ ENDIF
                CALL ESC_C_cmd2                    ; No CR conversion
                CALL Init_PanelSettings            ; set Transmit & Receive baud rates and store original values temporarily.
                CALL Open_serialport
+
+               LD   HL,message1                   ; 'Running'
+               CALL Write_message
+               CALL DisplMenuBar                  ; Display initial menubar
+
                CALL Fetch_synch                   ; 111112 & 555556 synch and ESC cmds
                RET
 
@@ -387,9 +392,8 @@ ENDIF
 ; *************************************************************************************
 ;
 .Poll
-.main_loop     CALL DisplMenuBar
+.main_loop
                CALL ReadKeyboard
-               CALL RemoveMenuBar
                LD   HL, MenuBarPosn
                CP   IN_ENT                        ; no shortcut cmd, ENTER ?
                JR   Z, get_command
@@ -403,26 +407,34 @@ ENDIF
                CALL Z,DisableSerportLogging         ; <>Z, Disable Serial port logging
                JR   main_loop                     ; ignore keypress, get another...
 
-.MVbar_down    LD   A,(HL)                        ; get Y position of menu bar
+.MVbar_down
+               CALL RemoveMenuBar
+               LD   A,(HL)                        ; get Y position of menu bar
                CP   4                             ; has m.bar already reached bottom?
                JR   Z,Mbar_topwrap
                INC  A
                LD   (HL),A                        ; update new m.bar position
+               CALL DisplMenuBar
                JR   main_loop                     ; display new m.bar position
 
-.Mbar_topwrap  LD   A,0
-               LD   (HL),A
+.Mbar_topwrap
+               LD   (HL),0
+               CALL DisplMenuBar
                JR   main_loop
 
-.MVbar_up      LD   A,(HL)                        ; get Y position of menu bar
+.MVbar_up
+               CALL RemoveMenuBar
+               LD   A,(HL)                        ; get Y position of menu bar
                CP   0                             ; has m.bar already reached top?
                JR   Z,Mbar_botwrap
                DEC  A
                LD   (HL),A                        ; update new m.bar position
+               CALL DisplMenuBar
                JR   main_loop
 
 .Mbar_botwrap  LD   A,4
                LD   (HL),A
+               CALL DisplMenuBar
                JR   main_loop
 
 .get_command   PUSH HL
@@ -609,8 +621,6 @@ ENDIF
 
 ; ***********************************************************************
 .Fetch_synch
-               LD   HL,message1                   ; 'Running'
-               CALL Write_message
 .fetch_synch_loop
                CALL Poll                          ; get byte from serial port (and manage menu)
                CP   $01                           ; extended command protocol synch?
@@ -699,7 +709,7 @@ ENDIF
                XOR  A
                RET
 
-.found_command CALL RemoveMenuBar                 ; remove menu bar while serial port activity...
+.found_command
                LD   B,0                           ; communication commences...
                SLA  C                             ; offset * 2 (find word boundary)
                LD   HL,subroutines
@@ -747,7 +757,7 @@ ENDIF
                PUSH AF
                PUSH BC
                PUSH HL
-    LD  (CurrentSerportMode),A         ; remember new setting
+               LD  (CurrentSerportMode),A         ; remember new setting
 
                LD   HL, Message36
                Call Write_Message                 ; "Switching to Hardware serial port handshake"
@@ -826,7 +836,10 @@ ENDIF
 ; Server:      ESC "N" <Version> ESC "Z"
 ;
 .ESC_V_cmd     LD   HL,message21
-               CALL Write_message
+               CALL Debug_message
+
+               CALL UseHWSerPort
+
                LD   HL,ESC_N
                CALL SendString
                JR   C, esc_v_aborted
@@ -839,10 +852,11 @@ ENDIF
                CALL SendString
                JR   C, esc_v_aborted
                JR   Z, esc_v_aborted
-               XOR  A
-               RET
+               JR   end_ESC_V_cmd
 
 .esc_v_aborted CALL Msg_Command_aborted
+.end_ESC_V_cmd
+               CALL UseOZSerPort
                XOR A
                RET
 
@@ -861,9 +875,9 @@ ENDIF
                JR   C,esc_x_aborted
                JR   Z,esc_x_aborted               ; timeout - communication stopped
                LD   HL, Message22
-               CALL Write_message                 ; "Get size of file."
+               CALL Debug_message                 ; "Get size of file."
                LD   HL,filename_buffer
-               CALL Write_message                 ; write filename to screen
+               CALL Debug_message                 ; write filename to screen
 
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
@@ -886,6 +900,8 @@ ENDIF
                XOR  A
                LD   (DE),A                        ; null-terminate string
 
+               CALL UseHWSerPort
+
                LD   HL,ESC_N
                CALL SendString
                JR   C, esc_x_aborted
@@ -900,10 +916,11 @@ ENDIF
                CALL SendString
                JR   C, esc_x_aborted
                JR   Z, esc_x_aborted
-               XOR  A
-               RET
+               JR   end_ESC_X_cmd
 
 .esc_x_aborted CALL Msg_Command_aborted
+.end_ESC_X_cmd
+               CALL UseOZSerPort
                XOR A
                RET
 
@@ -925,9 +942,9 @@ ENDIF
                JP   C,esc_u_aborted
                JP   Z,esc_u_aborted               ; timeout - communication stopped
                LD   HL, Message23
-               CALL Write_message                 ; "Get date stamps"
+               CALL Debug_message                 ; "Get date stamps"
                LD   HL,filename_buffer
-               CALL Write_message                 ; write filename to screen
+               CALL Debug_message                 ; write filename to screen
 
                LD   DE,creation_date
                LD   H,dr_rd
@@ -946,6 +963,8 @@ ENDIF
                CALL_OZ(Gn_Ptm)                    ; convert internal time to ASCII...
                XOR  A
                LD   (DE),A                        ; null-terminate string
+
+               CALL UseHWSerPort
 
                LD   HL,ESC_N
                CALL SendString
@@ -989,10 +1008,11 @@ ENDIF
                CALL SendString
                JR   C, esc_u_aborted
                JR   Z, esc_u_aborted
-               XOR  A
-               RET
-
-.esc_u_aborted CALL Msg_Command_aborted
+               JR   end_ESC_U_cmd
+.esc_u_aborted
+               CALL Msg_Command_aborted
+.end_ESC_U_cmd
+               CALL UseOZSerPort
                XOR A
                RET
 
@@ -1016,7 +1036,7 @@ ENDIF
                JR   C,esc_u_aborted
                JR   Z,esc_u_aborted               ; timeout - communication stopped
                LD   HL, Message25
-               CALL Write_message                 ; "Set Date Stamp."
+               CALL Debug_message                 ; "Set Date Stamp."
 
                LD   HL,file_buffer                ; get create date stamp
 .date1_loop    CALL Getbyte
@@ -1094,8 +1114,10 @@ ENDIF
                LD   L, 'U'                        ; Set Update Date Stamp
                CALL rw_date                       ; name of file in <filename_buffer>
 
+               CALL UseHWSerPort
                LD   HL,ESC_Y                      ; Signal "Date Stamp executed"
                CALL SendString
+               CALL UseOZSerPort
                JP   C, esc_u_aborted
                JP   Z, esc_u_aborted
                XOR  A
@@ -1115,7 +1137,7 @@ ENDIF
 ;              ESC "Z"                            (Illegal parameters)
 ;
 .ESC_p_cmd     LD   HL, Message32
-               CALL Write_message                 ; "Set System Clock."
+               CALL Debug_message                 ; "Set System Clock."
 
                CALL Fetch_pathname                ; Get Ascii Date
                JR   C,esc_p_aborted
@@ -1147,7 +1169,6 @@ ENDIF
                RET
 
 .illegal_datetime_format
-
                LD   HL,ESC_Z                      ; Signal "Date/Time parameter illegal"
                CALL SendString
                JR   C, esc_p_aborted
@@ -1193,7 +1214,7 @@ ENDIF
 ;              ESC "Z"
 ;
 .ESC_E_cmd     LD   HL, Message33
-               CALL Write_message                 ; "Get System Clock"
+               CALL Debug_message                 ; "Get System Clock"
 
                LD   DE, creation_date
                CALL_OZ(Gn_Gmd)                    ; store machine date at (DE)
@@ -1206,6 +1227,8 @@ ENDIF
                CALL_OZ(Gn_Pdt)
                XOR  A
                LD   (DE),A                        ; null-terminate ASCII
+
+               CALL UseHWSerPort
 
                LD   HL,ESC_N
                CALL SendString
@@ -1241,10 +1264,11 @@ ENDIF
                CALL SendString
                JR   C, esc_e_aborted
                JR   Z, esc_e_aborted
-               XOR  A
-               RET
-
-.esc_e_aborted CALL Msg_Command_aborted
+               JR   end_ESC_E_cmd
+.esc_e_aborted
+               CALL Msg_Command_aborted
+.end_ESC_E_cmd
+               CALL UseOZSerPort
                XOR A
                RET
 
@@ -1259,7 +1283,7 @@ ENDIF
 ;              ESC "Z"                  (File not found)
 ;
 .ESC_F_cmd     LD   HL, Message24
-               CALL Write_message                 ; "File exist?"
+               CALL Debug_message                 ; "File exist?"
                CALL Set_TraFlag
                CALL Fetch_pathname                ; load filename into filename_buffer
                CALL Restore_TraFlag
@@ -1267,7 +1291,7 @@ ENDIF
                JR   Z,esc_f_aborted               ; timeout - communication stopped
 
                LD   HL,filename_buffer
-               CALL Write_message                 ; write filename to screen
+               CALL Debug_message                 ; write filename to screen
 
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
@@ -1277,15 +1301,19 @@ ENDIF
                LD   (file_handle),IX
                CALL Close_file                    ; close file
 
+               CALL UseHWSerPort
                LD   HL,ESC_Y                      ; Signal "File exist!"
                CALL SendString
+               CALL UseOZSerPort
                JR   C, esc_f_aborted
                JR   Z, esc_f_aborted
                XOR  A
                RET
 .file_not_exist
+               CALL UseHWSerPort
                LD   HL,ESC_Z                      ; Signal "File does not exist!"
                CALL SendString
+               CALL UseOZSerPort
                JR   C, esc_f_aborted
                JR   Z, esc_f_aborted
                XOR  A
@@ -1374,7 +1402,7 @@ ENDIF
 ;              ESC "Z"                  (Directory path invalid or in use)
 ;
 .ESC_Y_cmd     LD   HL, Message28
-               CALL Write_Message                 ; "Delete file/dir "
+               CALL Debug_message                 ; "Delete file/dir "
 
                CALL Set_TraFlag
                CALL Fetch_pathname                ; load filename into filename_buffer
@@ -1417,7 +1445,7 @@ ENDIF
 ;              ESC "Z"                  (File not found)
 ;
 .ESC_R_cmd     LD   HL, Message27
-               CALL Write_Message                 ; "Delete file/dir "
+               CALL Write_message                 ; "Delete file/dir "
 
                CALL Set_TraFlag
                CALL Fetch_pathname                ; load filename into filename_buffer
@@ -1460,7 +1488,7 @@ ENDIF
 ;              ESC "Z"
 ;
 .ESC_G_cmd2    LD   HL, Message30
-               Call Write_Message                 ; "Get Default Dev/Dir"
+               Call Debug_message                 ; "Get Default Dev/Dir"
 
                LD    A, 255
                LD   BC, PA_Dev                    ; Read default device
@@ -1471,6 +1499,8 @@ ENDIF
                EX   DE,HL
                ADD  HL,BC
                LD   (HL),0                        ; null-terminate device name
+
+               CALL UseHWSerPort
 
                LD   HL,ESC_N
                CALL SendString
@@ -1497,7 +1527,7 @@ ENDIF
                JR   C, esc_g2_aborted
                JR   Z, esc_g2_aborted
 
-               LD   HL,file_buffer                ; Send default device to Client
+               LD   HL,file_buffer                ; Send default directory to Client
                CALL SendString
                JR   C, esc_g2_aborted
                JR   Z, esc_g2_aborted
@@ -1506,11 +1536,11 @@ ENDIF
                CALL SendString                    ; Default strings transmitted
                JR   C, esc_g2_aborted
                JR   Z, esc_g2_aborted
-               XOR  A
-               RET
-
+               JR   end_ESC_G_cmd2
 .esc_g2_aborted
                CALL Msg_Command_aborted
+.end_ESC_G_cmd2
+               CALL UseOZSerPort
                XOR A
                RET
 
@@ -1524,7 +1554,7 @@ ENDIF
 ;              ESC "Z"
 ;
 .ESC_M_cmd     LD   HL, Message31
-               Call Write_Message                 ; "Get Estimated Free RAM"
+               Call Debug_message                 ; "Get Estimated Free RAM"
 .global_free_space
                CALL TotalFreeSpace                ; return DE = free pages in system
 .send_free_bytes
@@ -1542,6 +1572,8 @@ ENDIF
                XOR  A
                LD   (DE),A                        ; null-terminate string
 
+               CALL UseHWSerPort
+
                LD   HL,ESC_N
                CALL SendString                    ; String transmitted
                JR   C, esc_m_aborted
@@ -1556,10 +1588,11 @@ ENDIF
                CALL SendString                    ; String transmitted
                JR   C, esc_m_aborted
                JR   Z, esc_m_aborted
-               XOR  A
-               RET
+               JR   end_ESC_M_cmd
 .esc_m_aborted
                CALL Msg_Command_aborted
+.end_ESC_M_cmd
+               CALL UseOZSerPort
                XOR A
                RET
 
@@ -1577,9 +1610,9 @@ ENDIF
 ;              ESC "Z"                       (RAM device not found)
 ;
 .ESC_M_cmd2    LD   HL, Message34
-               Call Write_Message            ; "Get Explicit Free RAM"
+               Call Debug_message            ; "Get Explicit Free RAM"
 
-               CALL Fetch_pathname           ; load filename into filename_buffer
+               CALL Fetch_pathname           ; fetch RAM device number
                JR   C,esc_m_aborted
                JR   Z,esc_m_aborted          ; timeout - communication stopped
 
@@ -1662,7 +1695,7 @@ ENDIF
 .ESC_T_cmd1    LD   HL,message10
                CALL Write_message
 
-               LD   A, $FF                   ; Remote activation of auto translation
+               LD   A, $FF                          ; Remote activation of auto translation
                LD   (tra_flag), A
                LD   (tra_flag_copy), A
                XOR  A
@@ -1673,7 +1706,7 @@ ENDIF
 .ESC_T_cmd2    LD   HL,message11
                CALL Write_message
 
-               LD   A, 0                     ; Remote de-activation of auto translation
+               LD   A, 0                            ; Remote de-activation of auto translation
                LD   (tra_flag), A
                LD   (tra_flag_copy), A
                XOR  A
@@ -1981,6 +2014,20 @@ ENDIF
                POP  AF
                RET
 
+
+; ***********************************************************************
+; Write only message to EazyLink window if serial port dump is enabled
+; HL = local pointer to message string
+;
+.Debug_message PUSH AF
+               PUSH HL
+               LD   HL,(serfile_in_handle)
+               LD   A,H
+               OR   L
+               POP  HL
+               CALL NZ,Write_message
+               POP  AF
+               RET
 
 ; ***********************************************************************
 .Write_message PUSH AF

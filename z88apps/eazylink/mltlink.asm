@@ -28,7 +28,7 @@
     XREF Get_wcard_handle, Find_Next_Match, Close_wcard_handler
     XREF Abort_file, Get_file_handle, Reset_buffer_ptrs, Flush_buffer, Close_file
     XREF Write_buffer, Load_Buffer
-    XREF Write_Message, Msg_Command_aborted, Msg_Protocol_error, Msg_File_aborted
+    XREF Debug_message, Write_Message, Msg_Command_aborted, Msg_Protocol_error, Msg_File_aborted
     XREF Msg_No_Room, Msg_file_open_error, System_Error
     XREF Message3, Message4, Message5, Message6, Message7, Message14, Message15, Message16
     XREF Message17, Message18
@@ -51,6 +51,8 @@
 
 
 ; ***********************************************************************
+; Hello
+;
 .ESC_A_cmd2       LD   HL,ESC_Y
                   CALL SendString
                   JR   C, esc_a2_aborted
@@ -68,11 +70,14 @@
 ; Send Z88 Devices, extended protocol
 ;
 .ESC_H_cmd2       LD   HL,message5                   ; 'Devices'
-                  CALL Write_message
+                  CALL Debug_message
                   LD   A, Dm_Dev
                   LD   (file_type),A
                   LD   A, 0                          ; wildcard search specifier...
                   CALL Def_RamDev_wildc
+
+                  CALL UseHWSerPort
+
                   CALL Send_found_names              ; internal & external RAM cards...
                   JR   C, esc_h2_aborted
                   JR   Z, esc_h2_aborted
@@ -80,12 +85,13 @@
                   CALL SendString
                   JR   C, esc_h2_aborted
                   JR   Z, esc_h2_aborted
-                  XOR  A                             ; signal continue in main loop
-                  RET                                ; (Z = 1)
+                  JR   end_ESC_H_cmd2
 .esc_h2_aborted
                   CALL Msg_Command_aborted
-                  XOR  A
-                  RET
+.end_ESC_H_cmd2
+                  CALL UseOZSerPort
+                  XOR  A                             ; signal continue in main loop
+                  RET                                ; (Z = 1)
 
 
 
@@ -93,13 +99,16 @@
 ; send directory names, extended protocol
 ;
 .ESC_D_cmd2       LD   HL,message6
-                  CALL Write_message                 ; 'Directories'
+                  CALL Debug_message                 ; 'Directories'
                   CALL Set_Traflag                   ; translation ON temporarily
                   CALL Fetch_pathname
                   JR   C, esc_d2_aborted
                   JR   Z, esc_d2_aborted
+
+                  CALL UseHWSerPort
+
                   LD   HL,filename_buffer            ; display pathname
-                  CALL Write_message
+                  CALL Debug_message
                   PUSH HL
                   LD   HL, Current_dir               ; Send "."
                   CALL SendString
@@ -130,7 +139,8 @@
                   JR   end_esc_d2
 .esc_d2_aborted
                   CALL Msg_Command_aborted           ; write message and set Fz
-                  .end_esc_d2
+.end_esc_d2
+                  CALL UseOZSerPort
                   CALL Restore_Traflag
                   XOR  A
                   RET
@@ -140,12 +150,15 @@
 .ESC_N_cmd2                                          ; send file names
                   CALL Set_Traflag
                   LD   HL,message7
-                  CALL Write_message                 ; 'File names'
+                  CALL Debug_message                 ; 'File names'
                   CALL Fetch_pathname                ; load pathname into filename_buffer
                   JR   C, esc_n2_aborted
                   JR   Z, esc_n2_aborted             ; timeout - communication stopped
                   LD   HL,filename_buffer
-                  CALL Write_message
+                  CALL Debug_message
+
+                  CALL UseHWSerPort
+
                   LD   A,dn_fil
                   LD   (file_type),A                 ; signal filenames to be found
                   LD   A, 1                          ; wildcard search specifier
@@ -158,9 +171,10 @@
                   JR   C, esc_n2_aborted
                   JR   Z, esc_n2_aborted             ; timeout - communication stopped
                   JR   end_esc_n2
-                  .esc_n2_aborted
+.esc_n2_aborted
                   CALL Msg_Command_aborted           ; write message and set Fz
-                  .end_esc_n2
+.end_esc_n2
+                  CALL UseOZSerPort
                   CALL Restore_Traflag
                   XOR  A
                   RET
@@ -191,7 +205,7 @@
                   JR   C, esc_q2_aborted
                   JR   Z, esc_q2_aborted
                   LD   HL,message4                   ; 'Quit...'
-                  CALL Write_message
+                  CALL Debug_message
                   SET  0,A                           ; Zero = 0, signal 'Quit'...
                   OR   A
                   RET
@@ -294,9 +308,10 @@
                   CALL Restore_Traflag
                   JR   C, err_batch_send
                   JR   Z, err_batch_send
-                  LD   A, 0                          ; wildcard search specifier - files before directories
                   LD   HL,filename_buffer
-                  CALL Write_message                 ; display pathname on screen...
+                  CALL Write_message                 ; display pathname / wildcard on screen...
+
+                  XOR  A                             ; wildcard search specifier - files before directories
                   CALL Get_wcard_handle              ; get handle in IX for pathname in (HL)
                   JR   C, wcard_system_error
 .find_files_loop  CALL Find_next_match
@@ -452,7 +467,8 @@
                   JR   Z, end_Fetch_names
                   EX   DE,HL
                   JR   read_names_loop
-.end_fetch_names  CALL Close_Wcard_handler
+.end_fetch_names
+                  CALL Close_Wcard_handler
                   SET  0,A                           ; no errors: Fc=0, Fz=0
                   OR   A
                   SCF
