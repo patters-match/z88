@@ -25,6 +25,7 @@
      include "integer.def"
      include "syspar.def"
      include "error.def"
+     include "time.def"
 
      ; RomUpdate runtime variables
      include "romupdate.def"
@@ -79,10 +80,25 @@
                     oz   GN_Sop
                     call DispSlotNo
                     call VduEnableNormalJustify
-                    ld   hl,install_msg
-                    oz   GN_Sop
-                    call rdch
-                    jp   0                              ; perform soft reset
+                    ld   hl, disp_reset_msg
+                    ld   de, yes_msg
+                    call YesNo
+                    jp   z, 0                           ; User selected to perform a soft reset
+                    ld   hl, reset2_msg
+                    call SopNln
+                    ld   bc, 500                        ; wait 5 seconds
+                    call_oz OS_Dly                      ; then
+                    jp   suicide                        ; exit RomUpdate and let user re-insert card to install..
+; *************************************************************************************
+
+
+; *************************************************************************************
+.disp_reset_msg
+                    PUSH HL
+                    LD   HL, resetprompt_msg
+                    CALL SopNln
+                    POP  HL
+                    RET
 ; *************************************************************************************
 
 
@@ -634,6 +650,49 @@
 
 
 ; *************************************************************************************
+; Yes/No selection
+; IN:
+;       HL = pointer to message string display routine
+;       DE = pointer to default selection: yes_msg or no_msg
+; OUT;
+;       Fc = 0, Fz = 1, Yes selected
+;       Fc = 0, Fz = 0, No selected
+;
+.yesno
+                    LD   BC, yesno_loop
+                    PUSH BC
+                    JP   (HL)                ; call display message
+.yesno_loop         LD   H,D
+                    LD   L,E
+                    CALL_OZ gn_sop
+                    CALL_OZ(OS_Pur)          ; make sure no keys in sys. inp. buffer...
+                    CALL rdch
+                    JR   C,yesno_loop        ; ignore pre-emption...
+                    CP   IN_ESC
+                    JR   Z, abort_yesno
+                    CP   13
+                    JR   NZ,yn1
+                    LD   HL,yes_msg
+                    SBC  HL,DE               ; Yes, Fc = 0, Fz = 1
+                    RET  Z
+                    OR   A                   ; No, Fc = 0, Fz = 0
+                    RET
+.abort_yesno
+                    OR   A                   ; ESC pressed
+                    RET                      ; return Fc = 0, Fz = 0
+.yn1
+                    OR   32
+                    CP   'y'
+                    JR   NZ,yn2
+                    LD   DE,yes_msg
+                    JR   yesno_loop
+.yn2                                          ; all other keypressed means 'No'...
+                    LD   DE,no_msg
+                    JR   yesno_loop
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; constants
 
 .centerjustify      defm 1, "2JC", 0
@@ -641,7 +700,6 @@
 .vdubold            defm 1,"B",0
 
 .ResKey_msg         defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO EXIT ROMUPDATE",1,"4-FTC",1,"2JN",0
-.install_msg        defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO INSTALL APPLICATION WITH SOFT RESET",1,"4-FTC",1,"2JN",0
 .inslot_msg         defm " in slot ",0
 .toslot_msg         defm " to slot ",0
 .completed_msg      defm " was successfully ",0
@@ -685,3 +743,7 @@
                     defm "Free RAM = ", 0
 .ram_noroom3_msg    defm "K. You need to release ",0
 .ram_noroom4_msg    defm "K file space to perform the add/update.",0
+.resetprompt_msg    defm "Do you want to soft reset to auto-activate application?", 0
+.reset2_msg         defm "Go to Index, remove card, close flap and re-insert card to activate application", $0D, $0A, 0
+.yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
+.no_msg             DEFM 13,1,"2+C No ",8,8,8,0
