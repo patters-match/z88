@@ -1,0 +1,185 @@
+lstoff
+
+; ********************************************************************************************************************
+;
+;     ZZZZZZZZZZZZZZZZZZZZ    8888888888888       00000000000
+;   ZZZZZZZZZZZZZZZZZZZZ    88888888888888888    0000000000000
+;                ZZZZZ      888           888  0000         0000
+;              ZZZZZ        88888888888888888  0000         0000
+;            ZZZZZ            8888888888888    0000         0000       AAAAAA         SSSSSSSSSSS   MMMM       MMMM
+;          ZZZZZ            88888888888888888  0000         0000      AAAAAAAA      SSSS            MMMMMM   MMMMMM
+;        ZZZZZ              8888         8888  0000         0000     AAAA  AAAA     SSSSSSSSSSS     MMMMMMMMMMMMMMM
+;      ZZZZZ                8888         8888  0000         0000    AAAAAAAAAAAA      SSSSSSSSSSS   MMMM MMMMM MMMM
+;    ZZZZZZZZZZZZZZZZZZZZZ  88888888888888888    0000000000000     AAAA      AAAA           SSSSS   MMMM       MMMM
+;  ZZZZZZZZZZZZZZZZZZZZZ      8888888888888       00000000000     AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
+;
+; Copyright (C) Gunther Strube, 1995-2006
+;
+; Z80asm is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; Z80asm is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with Z80asm;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; ********************************************************************************************************************
+
+
+; Various constants:
+     DEFC MAX_IDLENGTH = 64             ; max. 64 bytes identifier length
+     DEFC SIZEOF_LINEBUFFER = 512       ; 8K source file buffer to speed up parsing
+     DEFC MAX_POOLS = 32                ; max. 512K of allocated RAM...
+     DEFC z80asm_vars = $1B00           ; base of Z80 assembler variables
+
+; During runtime the Z80 address space is used by z80asm as followes:
+;    Application stack:       $1800 - $1AFF (used by Intuition, OZ)
+;    Assembler workspace      $1B00 - $1FFD global variables, file buffers, etc
+;    Intuition debugger       $2000 - $3FFF (two 8K segments swapped in upper segm. 0
+;    Assembler memory alloc.  $4000 - $7FFF dynamic datastructures
+;    Assembler memory manip.  $8000 - $BFFF machine code program area
+;    Assembler application    $C000 - $FFFF machine code program area
+
+     DEFC RtmFlags       = 0                      ; (Offset from base of variables)
+     DEFC      deforigin = 0                      ; @00000001
+     DEFC      library   = 1                      ; @00000010
+     DEFC      symtable  = 2                      ; @00000100
+     DEFC      z80bin    = 3                      ; @00001000
+     DEFC      createlib = 4                      ; @00010000
+     DEFC      mapref    = 5                      ; @00100000
+     DEFC      globaldef = 6                      ; @01000000
+     DEFC      datestamp = 7                      ; @10000000
+
+     DEFC Rtmflags2      = 1                      ; (Offset from base of variables)
+     DEFC   autorelocate = 0                      ; @00000001
+     DEFC    codesegment = 1                      ; @00000010
+
+     DEFC RtmFlags3      = 2                      ; (Offset from base of variables)
+     DEFC       ASMERROR = 0                      ; @00000001
+     DEFC            EOF = 1                      ; @00000010
+     DEFC   srcfile_open = 2                      ; @00000100
+     DEFC       applname = 3                      ; @00001000
+     DEFC          abort = 4                      ; @00010000
+
+     DEFVARS z80asm_vars      ; z80asm variable area:
+     {
+          RuntimeFlags1       ds.b 1         ; first runtime flags group
+          RuntimeFlags2       ds.b 1         ; second runtime flags group
+          RuntimeFlags3       ds.b 1         ; third runtime flags group
+          explicitORIG        ds.w 1         ; command line ORIGIN (-r option)
+          asmtime             ds.b 3         ; time when compilation began
+          datestamp_src       ds.b 6         ; date stamp of source file (3 byte date, 3 byte time)
+          datestamp_obj       ds.b 6         ; date stamp of source file (3 byte date, 3 byte time)
+          ASSEMBLE_ERROR      ds.b 1         ; global error code (used to recover from recursive procedures)
+          TOTALERRORS         ds.b 1         ; total number of errors in assembly of modules
+
+          fptr_modname        ds.l 1         ; file pointer to module name in objfile
+          fptr_exprdecl       ds.l 1         ; file pointer to module expressions in objfile
+          fptr_namedecl       ds.l 1         ; file pointer to beginning of name declarations in objfile
+          fptr_libnames       ds.l 1         ; file pointer to library references in objfile
+          fptr_modcode        ds.l 1         ; file pointer to module code in objfile
+          longint             ds.l 1         ; temporary work variable for various routines
+
+          linebuffer          ds.b 512
+          cdebuffer           ds.b 255       ; Z80 machine code buffer
+          stringconst         ds.b 128       ; string constant (used by DEFM)
+          ident               ds.b 66        ; buffer for current collected ident.
+          lineptr             ds.w 1         ; pointer to current byte in linebuffer
+          nextline            ds.w 1         ; pointer to beginning of next source line in buffer
+          buffer_end          ds.w 1         ; pointer to end of buffer information, L-end
+          sym                 ds.b 1         ; current symbol identifier of ident.
+
+          modulehdr           ds.p 1         ; pointer to header of list of modules
+          libraryhdr          ds.p 1         ; pointer to header of list of specified libraries
+          linkhdr             ds.p 1         ; pointer to header of list of linked modules
+          CURLIBRARY          ds.p 1         ; pointer to currently used library
+          CURMODULE           ds.p 1         ; pointer to current module
+          LASTMODULE          ds.p 1         ; pointer to last module to be pass2 evaluated during linking
+          globalroot          ds.p 1         ; pointer to root of global symbols (avltree)
+          staticroot          ds.p 1         ; pointer to pointer to root of static symbols
+          pass2expr_ptr       ds.p 1         ; pointer to current pass2 expression header
+          curJR_ptr           ds.p 1         ; pointer to current JR address node in list
+
+          file_area
+          objfilename         ds.p 1         ; pointer to object filename
+          symfilename         ds.p 1         ; pointer to symbols filename
+          deffilename         ds.p 1         ; pointer to global definitions filename
+          mapfilename         ds.p 1         ; pointer to address map filename
+          libfilename         ds.p 1         ; pointer to created library filename
+          errfilename         ds.p 1         ; pointer to error filename
+          binfilename         ds.p 1         ; pointer to binary filename
+          tmpfilename         ds.p 1         ; pointer to temporary file name
+          srcfilehandle       ds.w 1         ; handle for source file
+          objfilehandle       ds.w 1         ; handle for object file
+          symfilehandle       ds.w 1         ; handle for symbol file
+          deffilehandle       ds.w 1         ; handle for global definitions file
+          mapfilehandle       ds.w 1         ; handle for address map file
+          libfilehandle       ds.w 1         ; handle for created library file
+          errfilehandle       ds.w 1         ; handle for error file
+          cdefilehandle       ds.w 1         ; handle of temporary machine code file
+          tmpfilehandle       ds.w 1         ; handle of temporary file
+          relocfilehandle     ds.w 1         ; handle of relocation table file
+          end_file_area
+
+          asm_pc              ds.w 1         ; assembler machine code generation counter
+          asm_pc_ptr          ds.p 1         ; pointer to symbol in global variable area
+          codeptr             ds.w 1         ; current f.pointer in file of generated machine code
+          codesize            ds.w 1         ; total size of all current modules
+          totallines          ds.w 1         ; total of source lines parsed/compiled.
+
+          cdebufsize          ds.b 1         ; current size of buffer (max. 255)
+          cdebufferptr        ds.w 1         ; current pointer in codebuffer
+
+          totaladdr           ds.w 1         ; total addresses in relocation table (0 for none)
+          curroffset          ds.w 1         ; absolute address pointer to current relocation patch address
+          size_reloctable     ds.w 1         ; total size of relocation
+
+          allocated_mem       ds.l 1         ; current amount of allocated OZ memory
+          pool_index          ds.b 1         ; current pool index (used by malloc library).
+          pool_handles        ds.b 128       ; room for 32 pool entities (used by malloc library).
+                                             ; each pool entity consist of 4 bytes:
+                                             ;    [<flag_byte><pool handle><bank_number>]
+                                             ;       (1 byte)   (2 bytes)    (1 byte)
+          END_VARS
+     }
+
+     DEFC TotalWorkspace = END_VARS - z80asm_vars
+
+; Z80 Assembler Error Code Mnemonics:
+
+     DEFC ERR_file_open       = $80
+     DEFC ERR_syntax          = $81
+     DEFC ERR_not_defined     = $82
+     DEFC ERR_no_room         = $83
+     DEFC ERR_int_range       = $84
+     DEFC ERR_expr_syntax     = $85
+     DEFC ERR_rightbracket    = $86
+     DEFC ERR_range           = $87
+     DEFC ERR_srcfile_missing = $88
+     DEFC ERR_ill_option      = $89
+     DEFC ERR_unkn_ident      = $8A
+     DEFC ERR_ill_ident       = $8B
+     DEFC ERR_max_codesize    = $8C
+     DEFC ERR_totalerrors     = $8D
+     DEFC ERR_sym_defined     = $8E
+     DEFC ERR_modname_defined = $8F
+     DEFC ERR_modname_notdef  = $90
+     DEFC ERR_sym_decl_local  = $91
+     DEFC ERR_sym_decl_global = $92
+     DEFC ERR_sym_decl_extern = $93
+     DEFC ERR_no_cmdline_arg  = $94
+     DEFC ERR_ill_srcfilename = $95
+     DEFC ERR_sym_glob_module = $96
+     DEFC ERR_redecl_not_allw = $97
+     DEFC ERR_org_defined     = $98
+     DEFC ERR_reljmp_local    = $99
+     DEFC ERR_not_relfile     = $9A
+     DEFC ERR_reserved_name   = $9B
+     DEFC ERR_not_libfile     = $9C
+     DEFC ERR_keyboard_abort  = $9D
+
+lston

@@ -1,0 +1,228 @@
+lstoff
+
+; ********************************************************************************************************************
+;
+;     ZZZZZZZZZZZZZZZZZZZZ    8888888888888       00000000000
+;   ZZZZZZZZZZZZZZZZZZZZ    88888888888888888    0000000000000
+;                ZZZZZ      888           888  0000         0000
+;              ZZZZZ        88888888888888888  0000         0000
+;            ZZZZZ            8888888888888    0000         0000       AAAAAA         SSSSSSSSSSS   MMMM       MMMM
+;          ZZZZZ            88888888888888888  0000         0000      AAAAAAAA      SSSS            MMMMMM   MMMMMM
+;        ZZZZZ              8888         8888  0000         0000     AAAA  AAAA     SSSSSSSSSSS     MMMMMMMMMMMMMMM
+;      ZZZZZ                8888         8888  0000         0000    AAAAAAAAAAAA      SSSSSSSSSSS   MMMM MMMMM MMMM
+;    ZZZZZZZZZZZZZZZZZZZZZ  88888888888888888    0000000000000     AAAA      AAAA           SSSSS   MMMM       MMMM
+;  ZZZZZZZZZZZZZZZZZZZZZ      8888888888888       00000000000     AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
+;
+; Copyright (C) Gunther Strube, 1995-2006
+;
+; Z80asm is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; Z80asm is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with Z80asm;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; ********************************************************************************************************************
+
+; Structured data types for modules, source files, symbol tables & expression evaluation
+
+     DEFC SIZEOF_pointer = 3
+
+;  Mnemonics used to symbolize various identifiers:
+     DEFGROUP {
+               sym_null, sym_dquote, sym_squote, sym_semicolon, sym_comma, sym_fullstop
+               sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus, sym_multiply, sym_divi
+               sym_mod, sym_power, sym_assign, sym_strconq, sym_and, sym_or, sym_xor, sym_not
+               sym_less, sym_greater, sym_constexpr, sym_newline, sym_lf
+
+               sym_name, sym_number, sym_decmconst, sym_hexconst, sym_binconst, sym_charconst
+               sym_lessequal, sym_greatequal, sym_notequal
+               sym_negated, sym_nil
+               sym_ifstatm, sym_elsestatm, sym_endifstatm
+              }
+
+; Assembler directive flags:
+     DEFC flag_ON = -1, flag_OFF = 0
+
+     DEFVARS 0
+     ; 'PfixStack' structure (stack structure used to evaluate postfix expressions):
+     {
+          pfixstack_const     ds.l 1    ; The stack item value
+          pfixstack_previtem  ds.p 1    ; Pointer to previous element on stack
+          SIZEOF_pfixstack
+     }
+
+     DEFVARS 0
+     ; 'Pfixlist' structure (the postfix expression list):
+     {
+          pfixlist_nextopr    ds.p 1    ; Pointer to next element in postfix expression
+          pfixlist_oprconst   ds.l 1    ; The operand constant (long integer)
+          pfixlist_oprtype    ds.b 1    ; Type of operator (symbol identifier)
+          pfixlist_ident      ds.p 1    ; Pointer to identifier name
+          pfixlist_symtype    ds.b 1    ; Type of identifier (local, global, address, constant or long)
+          SIZEOF_pfixlist
+     }
+
+     DEFVARS 0
+     ; 'Expr' structure (expressions that could not be evaluated at the moment, and are re-evaluated in Pass2):
+     {
+          expr_nextexpr       ds.p 1    ; Pointer to next expression
+          expr_pfixlist_first ds.p 1    ; Pointer to first element in postfix expression
+          expr_pfixlist_curr  ds.p 1    ; Pointer to current element in postfix expression
+          expr_infixexpr      ds.p 1    ; Pointer to ASCII infix expression
+          expr_infixptr       ds.p 1    ; Offset pointer to current char in infix expression
+          expr_srcfile        ds.p 1    ; Pointer to name of current source file of expression
+          expr_rangetype      ds.b 1    ; Range type of evaluated expression
+          expr_stored         ds.b 1    ; Flag to indicate whether has been stored or not
+          expr_codepos        ds.l 1    ; Rel. file position in module code to patch (in pass 2)
+          expr_curline        ds.w 1    ; Line number of expression in current file
+          SIZEOF_expr
+     }
+     DEFC SIZEOF_infixexpr = 128
+
+     DEFVARS 0
+     ; 'Expression' structure (header of all un-evaluable expressions):
+     {
+          expression_first    ds.p 1    ; Pointer to first un-evaluated expression in list
+          expression_curr     ds.p 1    ; Pointer to current un-evaluated expression
+          SIZEOF_expression
+     }
+
+     DEFVARS 0
+     ; 'Usedfile' structure (list of files already parsed/used, and which files they own):
+     {
+          usedfile_nextfile    ds.p 1   ; Pointer to next used source file
+          usedfile_ownedfile   ds.p 1   ; Pointer to file which is owned by this file
+          SIZEOF_usedfile
+     }
+
+     DEFVARS 0
+     ; 'Srcfile' structure (list of hierarchical source files parsed - the owner relations):
+     {
+          srcfile_prevsource  ds.p 1    ; Pointer to owner of this source file
+          srcfile_newsource   ds.p 1    ; Pointer to new source file to be parsed
+          srcfile_usedsrcfile ds.p 1    ; Pointer to list of pointers to used files owned by this file
+          srcfile_fname       ds.p 1    ; Pointer to file name of current source file
+          srcfile_filepointer ds.l 1    ; File pointer of current source file
+          srcfile_line        ds.w 1    ; Current line number of current source file
+          SIZEOF_srcfile
+     }
+
+     DEFVARS 0
+     ; 'JRPCexpr' structure (header of list of JR relative address expressions):
+     {
+          jrpcexpr_first      ds.p 1    ; Pointer to first JR address reference in list
+          jrpcexpr_last       ds.p 1    ; Pointer to last JR address reference in list
+          SIZEOF_jrpcexpr
+     }
+
+     DEFVARS 0
+     ; 'JRPC' structure (un-evaluable JR relative address expression):
+     {
+          jrpc_next           ds.p 1    ; Pointer to next JR address reference
+          jrpc_PCaddr         ds.w 1    ; Absolute of PC address of JR instruction
+          SIZEOF_jrpc
+     }
+
+     DEFVARS 0
+     ; 'symtree' structure (symbol table - used for defining local, global or forward referenced symbols):
+     {
+          symtree_type        ds.b 1    ; Type of symbol
+          symtree_symvalue    ds.l 1    ; Value of symbol
+          symtree_symname     ds.p 1    ; Pointer to symbol identifier
+          symtree_modowner    ds.p 1    ; Pointer to module which ownes symbol */
+          SIZEOF_symboltree
+     }
+
+     DEFVARS 0
+     ; 'Modules' structure (header of list of all object modules):
+     {
+          modules_first       ds.p 1    ; Pointer to first module
+          modules_last        ds.p 1    ; Pointer to current/last module
+          SIZEOF_modules
+     }
+
+     DEFVARS 0
+     ; 'Module' structure (the current object module):
+     {
+          module_next         ds.p 1   ; Pointer to next module
+          module_mname        ds.p 1   ; Pointer to string of module name
+          module_startoffset  ds.l 1   ; This module's start offset from start of code buffer (relative file pointer)
+          module_origin       ds.w 1   ; Address Origin of current machine code module during linking
+          module_cfile        ds.p 1   ; Pointer to current file record
+          module_localroot    ds.p 1   ; Pointer to root of local symbols
+          module_mexpr        ds.p 1   ; Pointer to expressions in this module
+          module_jraddr       ds.p 1   ; Pointer to header of list of JR PC addresses
+          SIZEOF_module
+     }
+
+     DEFVARS 0
+     ; 'Libraries' structure (header of list of all library files):
+     {
+          liblist_first       ds.p 1    ; Pointer to first module
+          liblist_current     ds.p 1    ; Pointer to current/last module
+          SIZEOF_libraries
+     }
+
+     DEFVARS 0
+     ; 'library' structure (the current library):
+     {
+          libfile_next        ds.p 1   ; Pointer to next library file
+          libfile_filename    ds.p 1   ; Pointer to string of library filename
+          libfile_nextobjfile ds.l 1   ; File pointer to next object file in library
+          SIZEOF_libfile
+     }
+
+     DEFVARS 0
+     ; 'linkedmodules' header structure
+     {
+          linklist_firstmod   ds.p 1   ; pointer to first linked module
+          linklist_lastmod    ds.p 1   ; pointer to last linked module
+          SIZEOF_linklist
+     }
+
+     DEFVARS 0
+     ; 'linkedmodules' structure
+     {
+          linkedmod_nextlink  ds.p 1   ; pointer next linked module
+          linkedmod_objfname  ds.p 1   ; pointer to filename of linked module
+          linkedmod_modstart  ds.l 1   ; file base pointer of beginning of object module
+          linkedmod_module    ds.p 1   ; pointer main module information
+          SIZEOF_linkedmod
+     }
+
+
+; Bitmask mnemonics for symtree_type:
+     DEFC SYMDEFINED     = 0  ; @00000001
+     DEFC SYMTOUCHED     = 1  ; @00000010
+     DEFC SYMDEF         = 2  ; @00000100
+     DEFC SYMADDR        = 3  ; @00001000
+     DEFC SYMLOCAL       = 4  ; @00010000
+     DEFC SYMXDEF        = 5  ; @00100000
+     DEFC SYMXREF        = 6  ; @01000000
+
+     DEFC SYMTYPE        = @01111000
+     DEFC SYM_NOTDEFINED = @00000000
+
+; Bitmask mnemonics for expression evaluation in expr_rangetype:
+     DEFC RANGE          = @00000111         ; AND Bitmask
+     DEFC RANGE_JROFFSET = @00000000         ; relative address jump  [-128; 127]
+     DEFC RANGE_8UNSIGN  = @00000001         ; unsigned byte          [0; 255]
+     DEFC RANGE_16CONST  = @00000010         ; unsigned word          [0; 65535]
+     DEFC RANGE_RELADDR  = @00000011         ; unsigned word          [0; 65535]
+     DEFC RANGE_8SIGN    = @00000100         ; signed byte            [-128; 127]
+     DEFC RANGE_32SIGN   = @00000101         ; signed long            [-2147483648; 2147483647]
+
+     DEFC EXPRADDR       = @00001000         ; Expression contains reloc. address label
+     DEFC EXPRLOCAL      = @00010000         ; Expression contains local symbol
+     DEFC EXPRGLOBAL     = @00100000         ; Expression contains global symbol
+     DEFC EXPREXTERN     = @01000000         ; Expression contains external symbol
+     DEFC NOTEVALUABLE   = @10000000         ; Expression is not evaluable
+     DEFC EVALUATED      = @01111111         ; AND Bitmask
+
+lston
