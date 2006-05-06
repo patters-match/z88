@@ -424,10 +424,10 @@
 
                     ex   de,hl
                     dec  hl                       ; HL points at end of block
-                    ld   (bufferend),hl           ; end of buffer is byte after last newline
                     ld   (hl),CR                  ; append a new line if last line of file is missing it...
                     inc  hl
                     ld   (hl),0                   ; null-terminate end of loaded information
+                    ld   (bufferend),hl           ; end of buffer is byte after last newline
 
                     ld   de, (bufferend)          ; DE: return L-end
                     ld   hl, linebuffer           ; HL: return L-start
