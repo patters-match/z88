@@ -797,6 +797,6 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.6.7", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.6.8", 1,"B", 0
 .upddorlist_msg     defm "with updated DOR List", 0
 .cardheader_msg     defm "with card header", 0
