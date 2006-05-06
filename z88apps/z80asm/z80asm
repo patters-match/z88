@@ -67,7 +67,7 @@ module
 srcfile
 crtflnm
 datestmp
-Chckfhdr
+chckfhdr
 fileio
 bytesio
 comptime
