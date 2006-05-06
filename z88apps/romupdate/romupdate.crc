@@ -1,1 +1,3 @@
 62B1A25A
+; The file contains the CRC value which is fetched by the BBC BASIC romupdate.bas
+; program that validates the integrity of it self before executing Flash Card management.
