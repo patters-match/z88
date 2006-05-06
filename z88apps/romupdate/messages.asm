@@ -745,6 +745,6 @@
 .ram_noroom3_msg    defm "K. You need to release ",0
 .ram_noroom4_msg    defm "K file space to perform the add/update.",0
 .resetprompt_msg    defm $0D, $0A, " Do you want RomUpdate to ", 1, "TSOFT RESET", 1, "T the Z88 to install added application?", 0
-.reset2_msg         defm $0D, $0A, $0D, $0A, "Go to Index, remove card, close flap and re-insert card to activate application", 0
+.reset2_msg         defm $0D, $0A, $0D, $0A, "Go to Index, remove card, close flap and re-insert card to install application", 0
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
