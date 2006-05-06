@@ -84,6 +84,7 @@
                     ld   de, yes_msg
                     call YesNo
                     jp   z, 0                           ; User selected to perform a soft reset
+                    call VduEnableCentreJustify
                     ld   hl, reset2_msg
                     call SopNln
                     ld   bc, 500                        ; wait 5 seconds
@@ -743,7 +744,7 @@
                     defm "Free RAM = ", 0
 .ram_noroom3_msg    defm "K. You need to release ",0
 .ram_noroom4_msg    defm "K file space to perform the add/update.",0
-.resetprompt_msg    defm "Do you want to soft reset to auto-activate application?", 0
-.reset2_msg         defm "Go to Index, remove card, close flap and re-insert card to activate application", $0D, $0A, 0
+.resetprompt_msg    defm $0D, $0A, " Do you want RomUpdate to ", 1, "TSOFT RESET", 1, "T the Z88 to install added application?", 0
+.reset2_msg         defm $0D, $0A, $0D, $0A, "Go to Index, remove card, close flap and re-insert card to activate application", 0
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
