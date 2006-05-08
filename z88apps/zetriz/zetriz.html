@@ -1,0 +1,381 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <title>ZetriZ User Manual</title>
+</head>
+
+<body>
+
+<br>
+
+<b>--==-   Z e t r i Z   -==--</b><br>
+
+<br>
+
+<br>
+This is the first game on the Z88 that uses the graphics area. Since no
+documentation were available in the Developers' Notes, we had to figure
+it out our selves. All the graphics routines (plotting, line drawing
+and sprite movement) have been included in the standard library,
+available as part of the Z88 development kit on http://z88.sf.net. You
+will then have all the possibilities to exploit graphics for your own
+application purposes.<br>
+
+<br>
+
+The game is based on the popular russian version which in our 
+implementation also uses a larger playing area (configurable), and also 
+uses an 'extended' set of blocks. The standard blocks are build of 4 
+brick entities. Our extended blocks are build of 5 brick entities.<br>
+
+<br>
+
+Three game types are available: standard game (as the original russian 
+version), extended game (using standard and extended blocks) and 
+advanced game (using only extended blocks).<br>
+
+<br>
+
+You may configure the movement keys, the size of the playing area, the 
+block rotation direction, the default speed movement and toggle the 
+"next block display" feature.<br>
+
+<br>
+
+Finally a high score list is implemented for each game type.<br>
+
+<br>
+
+<br>
+
+<b><i>Installing the ZetriZ game application card</i></b><br>
+
+<br>
+
+Activate the INDEX popdown (pressing #I or the &lt;INDEX&gt; key), open the 
+flap and insert the card in one of the available slots. When completed, 
+close the flap, and you will see that the INDEX updates its windows. 
+Using the &lt;UP&gt; or &lt;DOWN&gt; cursor keys in the "Applications" window will 
+reveal a new application named "ZetriZ" that uses the []Y hotkey.<br>
+
+<br>
+
+<br>
+
+<b><i>Activating the ZetriZ application</i></b><br>
+
+<br>
+
+ZetriZ has been programmed as a "good" application. It uses only 336 
+bytes workspace and appropriate dynamic memory for the high score 
+tables. Several instantiations of ZetriZ may be created. Since ZetriZ 
+uses a map area of 256 pixels it is only possible to play the game on 
+extended Z88 computers (128K RAM or more in slot 1). The ZetriZ 
+application is automatically aborted if activated on a standard 32K Z88 
+computer. Anyhow, who is using a 32K version these days???<br>
+
+<br>
+
+The application is activated by pressing an initial []Y hotkey or 
+pressing &lt;ENTER&gt; on the "ZetriZ" name in the Applications window in the 
+INDEX. If several ZetriZ games are created you will cycle through them 
+when using the []Y hotkey.<br>
+
+<br>
+
+<br>
+
+<b><i>The High Score Table file</i></b><br>
+
+<br>
+
+The high scores and game configuration information are preserved in the 
+":RAM.0/ZetriZ.dat" file. When the ZetriZ application is created, 
+ZetriZ will automatically load the high score and configuration 
+information from the file. If the file is not available, no high scores 
+will be present (ZetriZ has been activated the very first time), and a 
+default game configuation will be used. A high score table is available 
+for each of the three game types (standard, extended and advanced).<br>
+
+<br>
+
+The high score tables and game configuration are only saved to the 
+":RAM.0/ZetriZ.dat" file when ZetriZ is KILL'ed from the INDEX. If you 
+soft reset the Z88 using the PURGE command from INDEX or pressing the 
+soft reset button, the high score information in the game will be 
+released back to available Z88 memory - and not stored into the high 
+score file. When the current high scores are updated to the 
+":RAM.0/ZetriZ.dat" file, they are actually merged with the file 
+contents. This assures that you always get the all-time-best scores, 
+even though you have several ZetriZ applications running which sooner 
+or later is KILL'ed from the INDEX.<br>
+
+<br>
+
+If you want to preserve your score and configuration information, make 
+a backup on a file EPROM or transfer it to another computer using the 
+EasyLink software. Should a hard reset occur, you will otherwise 
+have lost your high scores.<br>
+
+<br>
+
+<br>
+
+<b><i>The High Score Tables in the game</i></b><br>
+
+<br>
+
+There are three high score tables available, one for each game type 
+(standard, extended, advanced). The current high score table displayed 
+will reflect the last game played, ie. having played an extended game 
+will display the high scores of the extended game played when ZetriZ is 
+running the main game menu. Each high score table has 6 entries; the 
+top entry is the best score - the bottom score is the lowest. Each 
+score contains a name (max. 12 characters), the total number of lines 
+removed, the total number of blocks played and the date of the score. 
+The following is an example of a high score table:<br>
+
+<br>
+
+___________________________________________________________ 
+               <b><br>
+High Scores, Standard Game</b>
+<pre><i>NAME</i>        <i>POINTS</i>      <i>LINES</i>       <i>BLOCKS</i>      <i>DATE</i>
+TheBest     24290       157         439         5.2.95
+gbs         5490        28          79          27.3.95
+fred        4780        29          108         27.3.95
+gbs         3640        23          94          13.2.95
+erling      1210        4           41          4.2.95
+hugo        890         6           29          27.3.95
+</pre>
+___________________________________________________________<br>
+
+<br>
+
+You may only have individual scores - no identical scores is allowed. 
+Scores are always inserted into the table, ie. inserting 5200 into 
+the above table will put it into a 3rd place - the scores below will 
+automatically be adjusted downwards. The previous bottom score "falls" 
+out and is automatically removed from the list. There are always 6 
+scores or less in a score table.<br>
+
+<br>
+
+<br>
+
+<b><i>The Main Menu</i></b><br>
+
+<br>
+
+When a Zetriz application is created the main menu is displayed 
+together with the game window (the map area). When a game has finished 
+you will also move back to the main menu. The current high score table 
+and the game window are toggle-displayed each 15 seconds if no keys 
+are pressed. Pressing a key automatically toggle-displays the 
+appropriate windows. ZetriZ may be suspended any time (by activating 
+another application. The current ZetriZ window contents is always 
+re-drawn when you enter ZetriZ.<br>
+
+<br>
+
+The main menu consists of three items:<br>
+
+<pre>&lt;1&gt;         Start ZetriZ game<br>&lt;2&gt;         Change ZetriZ keys<br>&lt;3&gt;         Change Game Parameters<br><br></pre>
+You select an item by pressing the appropriate number enclosed by the 
+&lt;&gt; symbols.<br>
+
+<br>
+
+<br>
+
+<b><i>Playing a game</i></b><br>
+
+<br>
+
+Choose item &lt;1&gt; in the main menu. A sub-menu is displayed:<br>
+
+<pre>&lt;1&gt;         Standard ZetriZ<br>&lt;2&gt;         Extended ZetriZ<br>&lt;3&gt;         Advanced ZetriZ<br><br></pre>
+Choosing &lt;1&gt; will play a standard ZetriZ game using 4 brick entity 
+blocks. Choosing &lt;2&gt; will play a game containing both the standard and 
+extended blocks. Choosing &lt;3&gt; will play a game containing only the 
+extended blocks, which is pretty tuff for the brain!<br>
+
+<br>
+
+When you have chosen the menu item the game begins. The game window is 
+reset, and a text is displayed in the menu window which informs the 
+player which keys to use for block movement.<br>
+
+<br>
+
+When ZetriZ is started for the first time, the following keys are 
+defined:<br>
+
+<br>
+
+<pre>Q           Move block leftward<br>Z           Move block rightward<br>S           Rotate block in current rotation direction<br>A           Move block downwards<br>&lt;TAB&gt;       Drop block<br>&lt;ESC&gt;       Pause game. Any subsequent keypress resumes game. If you<br>            press &lt;ESC&gt; while in pause mode, the game will be aborted.<br><br><br></pre>
+<b><i>How to play</i></b><br>
+
+<br>
+
+The aim of the game is to assemble the falling blocks into horisontal 
+lines. When a line is filled, ie. a straight horisontal line of bricks, 
+it will be removed, followed by a scroll of the pile of the above 
+blocks into the place of the removed line. You have to continously 
+remove the blocks by assembling lines (to remove them) otherwise the 
+blocks will gradually pile up and block the entrance of a new block. If 
+an entrance of a new block fails due to a collision, then game is over. 
+If the accumulated score is among the six best then you are asked to 
+enter your name for the new score, which will be inserted into the 
+score list.<br>
+
+<br>
+
+<b><i>Suspending the game</i></b><br>
+
+<br>
+
+If you want to suspend/pause the game, press &lt;ESC&gt;. Pressing &lt;ESC&gt; 
+again will abort the game. If your score made it to the high score 
+table you will be asked to enter your name.<br>
+
+<br>
+
+ZetriZ have been properly interfaced with OZ to allow task switching 
+both during the main menu and during playing of the game. If you press 
+&lt;INDEX&gt; or another application hotkey, ZetriZ will be suspended and the 
+appropriate task will be entered. When you re-enter ZetriZ, the windows 
+will be re-drawn and the game continues. If you want to avoid a 
+confusing re-entry since the game just continues, pause the game with 
+&lt;ESC&gt; before leaving ZetriZ. When you re-enter at a later time, ZetriZ 
+will still be in pause mode.<br>
+
+<br>
+
+<br>
+
+<b><i>Configuring the block movement keys</i></b><br>
+
+<br>
+
+To configure the block movement keys, menu item &lt;2&gt; in the main menu 
+must be selected. Then requests are displayed to press a key for each 
+corresponding movement. If no key is pressed, the current setting for 
+that key will be used (nothing is altered). The current block movement 
+keys are displayed in the text window during playing of the game. When 
+the game begins, press &lt;ESC&gt; to pause the game. Place your fingers at 
+the keys according to the movement and then press any key to continue. 
+The key definitions are also saved in the ":RAM.0/ZetriZ.dat" file.<br>
+
+<br>
+
+<br>
+
+<b><i>Defining the auto repeat response</i></b><br>
+
+<br>
+
+You may use the autorepeat feature to quickly move a block in the 
+specified direction. The timeout value to activate auto repetition is 
+defined in the Panel at the "Auto Repeat Rate" option. If you set this 
+option to 0, there will be no auto repeat in the game.<br>
+
+<br>
+
+<br>
+
+<b><i>Changing the block rotation direction</i></b><br>
+
+<br>
+
+The initial direction for rotating the block is anti-clockwise, ie. 
+leftward rotation. You can toggle the rotation clockwise/anti-clockwise 
+by issuing item &lt;3&gt;, "Change game parameters", in the main games menu, 
+followed by item &lt;1&gt;, "Change Block Rotation Direction" in the 
+sub-menu. This parameter is also stored in the ":RAM.0/ZetriZ.dat" 
+file.<br>
+
+<br>
+
+<br>
+
+<b><i>Changing the ZetriZ map size</i></b><br>
+
+<br>
+
+The ZetriZ map is initially set to 23 lines deep. You may change this 
+by adding bricks from the bottom and upwards, reducing the total space 
+available for moving a falling block. This is useful if you want to 
+train movement on a smaller playing area. Select item &lt;3&gt;, "Change game 
+parameters", in the main games menu, and item &lt;2&gt;, "Change ZetriZ map 
+size". To add a brick line press &lt;P&gt;, to remove a brick line press &lt;O&gt;.<br>
+
+<br>
+
+You can add maximum 15 lines. When you have inserted the number of 
+lines, press &lt;ENTER&gt; to finish. This parameter is also stored in the 
+":RAM.0/ZetriZ.dat" file.<br>
+
+<br>
+
+<b><i>Changing the initial block movement speed</i></b><br>
+
+<br>
+
+The initial block movement speed is 0, which is the slowest speed. You 
+can alter this value to begin the game with another speed. Speed 7 is 
+the fastest movement. Block movement speed is in the range of 0 to 7. 
+Select item &lt;3&gt;, "Change game parameters", in the main games menu, and 
+item &lt;3&gt;, "Change Initial Block Movement Speed".<br>
+
+<br>
+
+During the game the speed is automatically increased each modulus 10000 
+points. If you already have speed 7 and reach another 10000 points, the 
+speed will automatically wrap back to 0. Altering the initial speed is 
+good when you want to practice playing at high speeds.<br>
+
+<br>
+
+The initial block movement speed parameter is saved in the 
+":RAM.0/ZetriZ.dat" file.<br>
+
+<br>
+
+<br>
+
+<b><i>Toggling the Next Block feature</i></b><br>
+
+<br>
+
+During the game you may see the next block to be inserted into the 
+game. This is a benefit, since you can plan ahead to place the blocks 
+strategically. You may toggle this feature off - which makes the game a 
+bit more difficult. Select item &lt;3&gt;, "Change game parameters", in the 
+main games menu, and item &lt;4&gt;, "Toggle Next Block Feature". The Next 
+Block feature parameter is also saved in the ":RAM.0/ZetriZ.dat" file.<br>
+
+<br>
+
+<br>
+
+<b><i>ZetriZ Game Points</i></b><br>
+
+<br>
+
+During the game you are given 10 points for each new block inserted 
+into the game. Additionally, the following table lists the points 
+for removing lines:<br>
+
+<pre>            1 line      100 points<br>            2 lines     300 points<br>            3 lines     700 points<br>            4 lines     1500 points<br>            5 lines     3300 points<br></pre>
+Removing several lines means that you actually inserted a block that 
+filled several lines simultaneously.<br>
+
+<br>
+
+That's all. Have fun.<br>
+
+<br>
+</body>
+</html>

@@ -1,0 +1,88 @@
+; *************************************************************************************
+; ZetriZ
+; (C) Gunther Strube (gbs@users.sf.net) 1995-2006
+;
+; ZetriZ is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; ZetriZ is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with ZetriZ;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; variables
+;
+; flag mnemonics for <blockflags> variable:
+
+defgroup {
+     blockplaced         ; bit 0: block has been stored into map
+     viewnextblock       ; bit 1: view next block
+     gameaborted         ; bit 2: game is aborted by ESC
+     disphiscore         ; bit 3: display hiscore table (during menu)
+}
+
+DEFC  Application_workspace = 336
+DEFC  zetrizmap_height = 23, zetrizmap_width = 10
+
+defvars $1FFE - Application_workspace
+;
+{
+     zetrizmap           ds.b 240       ; zetriz map array (10,24)
+     menutextptr         ds.w 1         ; pointer to current menu text that may be redrawn
+     blockflags          ds.b 1         ; various flag settings for current block
+     linefill            ds.b 1         ; number of lines to fill before game.
+     removedlines        ds.b 1         ; total number of removed lines from a single drop of a block
+     blockrange_start    ds.b 1         ; start range of zetriz blocks to use (standard or extended)
+     blockrange          ds.b 1         ; interval of zetriz blocks to use (standard or extended)
+     rotation            ds.w 1         ; rotation offset pointer
+     mapxy               ds.w 1         ; (x,y) in map coordinates (19,9)
+     blockxy             ds.w 1         ; (x,y) in graphical coordinates (120,63)
+     timeout             ds.w 1         ; timeout of block movement in 1/100 sec.
+     nextblock           ds.w 1         ; next block to be put into zetriz map (pointer)
+     sourcedate          ds.b 3         ; current date (in days)
+     sourcetime          ds.b 3         ; current time + timeout (in 1/100 seconds)
+     keymap              ds.b 5         ; user defined key map.
+     gamepoints          ds.l 1         ; score for current game.
+     pointsascii         ds.b 7         ; ascii string representation of score (internal usage)
+     totallines          ds.w 1         ; number of lines removed during game
+     totalblocks         ds.w 1         ; number of blocks inserted into the game
+     speed               ds.b 1         ; initial user defined speed of block (0 to 7). 0 is slowes
+     gamespeed           ds.b 1         ; calculated speed parameter displayed in zetriz graphics window
+     gamerotation        ds.w 1         ; pointer to rotation symbol
+     hiscoretable        ds.w 1         ; local pointer to current pointer of hiscore table
+     hiscoreheader       ds.w 1         ; pointer to header text of hiscore display
+     hiscore0            ds.p 1         ; pointer variable to hiscore merge buffer tree (of two trees)
+     std_hiscore         ds.p 1         ; pointer variable to standard game hiscore binary tree
+     ext_hiscore         ds.p 1         ; pointer variable to extended game hiscore binary tree
+     adv_hiscore         ds.p 1         ; pointer variable to advanced game hiscore binary tree
+     totalscores         ds.b 1         ; total of scores in current score table (max. 5)
+     seed                ds.w 1         ; seed for randomize numbers
+     coords              ds.w 1         ; default graphics coordinates (used be DrawBox).
+     base_graphics       ds.w 1         ; pointer to base of hires0
+     allocated_mem       ds.l 1         ; *** malloc library variable
+     pool_index          ds.b 1         ; *** malloc library variable
+     pool_handles        ds.w 2         ; *** malloc library variable
+}
+
+
+; data structure defining a players ZetriZ game score
+defvars 0
+{
+     sc_name        ds.p 1              ; pointer to name of player (max. 12 characters)
+     sc_date        ds.b 3              ; date of score
+     sc_score       ds.l 1              ; long integer of point score
+     sc_lines       ds.w 1              ; total og lines removed
+     sc_blocks      ds.w 1              ; total of blocks played
+     SIZEOF_sc
+}
+
+defc MAX_POOLS = 1
