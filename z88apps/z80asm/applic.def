@@ -29,9 +29,11 @@
 
 ; Overview of bank usage for 48K Application:
 ;
-; Bank $3D (59):    Token base, z80asm MTH.
-; Bank $3E (57):    z80asm application bank 0 ($8000)
-; Bank $3F (58):    z80asm application bank 1 ($C000)
+; Bank $3D (61):    Token base, z80asm MTH.
+; Bank $3E (62):    z80asm application bank 0 (addressed for $8000 onwards)
+; Bank $3F (63):    z80asm application bank 1 (addressed for $C000 onwards)
+; Bank $3F (63):    ROM Header ($3FC0)
+
 
 DEFGROUP  {
                z80asm_MTH_bank = $3D,
