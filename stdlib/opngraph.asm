@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -29,7 +29,7 @@
 ;    Open graphics window, static size of <Width> x 64 pixels, and bind graphics
 ;    memory into specified address space segment.
 ;
-;    The Width specifier defines the map width in modulus 8 pixels, 
+;    The Width specifier defines the map width in modulus 8 pixels,
 ;    ie. 8, 16, 24, 32, 40, 48, 56, 64 ...
 ;
 ;    This routine must be called before using any library graphics routines,
@@ -40,7 +40,7 @@
 ;    map width must be defines as 256.
 ;
 ;    in:  A = window ID ('1' to '6')
-;         L = width of map (modulus 8)
+;         HL = width of map (modulus 8)
 ;         B = MM_Sx mask (for segment 0, 1, 2 or 3)
 ;
 ;    out: (base_graphics) contains pointer to base of graphics area.
@@ -63,11 +63,10 @@
                     push bc
                     ld   bc, mp_gra
                     push af
-                    ld   h,0
                     ld   a,l
-                    and  @11111000      ; width always in 8 bit size...
-                    dec  a              ; always one less than actual width...
-                    ld   l,a            ; HL now the map width...
+                    and  @11111000           ; width always in 8 bit size...
+                    ld   l,a                 ; HL now the map width...
+                    dec  hl                  ; always one less than actual width...
                     pop  af
                     call_oz(os_map)          ; create map width of 256 pixels
                     ld   b,0
