@@ -115,9 +115,11 @@ will get the following directory structure with lots of files in it:
      /romcombiner   BBC BASIC utility to combine applications to card.
      /romupdate     BBC BASIC utility to update/add apps to Flash Cards
      /wavplay       Play polyphonic sounds on Z88 Loudspeaker
+     /z80asm        Z80 Module Assembler application
      /zdis          Z80 disassembler
+     /zetriz        Tetris game in map area.
      /zmonitor      View Z88 memory (RAM/ROM)
-     /Zprom         Blow code to UV Eprom / Flash Cards
+     /zprom         Blow code to UV Eprom / Flash Cards
 
 
 
@@ -230,9 +232,6 @@ The Z80 assembler tool chain has to be compiled before you can make
 Z88 binaries. Further, most Z88 applications projects link static
 functionality from the Z88 standard library, located in /stdlib.
 
-Build the standard.lib file using makelib.bat (or makelib.sh) script
-before executing make scripts inside the Z88 application directories.
-
 For each Z88 application (or popdown), change to the current directory
 of that project, then execute the makeapp (or similar script name) for
 your operating system platform. For example, to compile FlashStore:
@@ -240,6 +239,9 @@ your operating system platform. For example, to compile FlashStore:
     cd <z88 project>/z88apps/flashstore
     makeapp.bat (or ./makeapp.sh)
 
+Each application script automatically builds the latest standard.lib file
+before compiling the Z88 application that also statically links with
+the standard library.
 
 
 ----------------------------------------------------------------------
