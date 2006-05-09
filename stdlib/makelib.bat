@@ -25,4 +25,4 @@ del standard.lib
 :: The Z80 assembler is located in /tools/mpm
 :: The OZ Manifests are located in /oz/sysdef
 
-..\tools\mpm\mpm -I..\oz\sysdef -xstandard.lib @standard
+..\tools\mpm\mpm -I..\oz\sysdef -d -xstandard.lib @standard
