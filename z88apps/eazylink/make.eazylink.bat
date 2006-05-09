@@ -16,6 +16,11 @@
 ::
 :: *************************************************************************************
 
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\eazylink
+
 :: compile EazyLink application from scratch
 :: (this compile script is located in /z88apps/eazylink)
 del *.obj *.bin *.map *.63 *.epr

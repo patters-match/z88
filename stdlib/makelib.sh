@@ -27,4 +27,5 @@ rm -f standard.lib
 # The Z80 assembler is located in /tools/mpm
 # The OZ Manifests are located in /oz/sysdef
 
-../tools/mpm/mpm -I../oz/sysdef -xstandard.lib @standard
+# compile only updated source files and build the standard.lib file
+../tools/mpm/mpm -I../oz/sysdef -d -xstandard.lib @standard

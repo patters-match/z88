@@ -1,7 +1,7 @@
 :: ******************************************************************************************************************
 ::
-::     ZZZZZZZZZZZZZZZZZZZZ    8888888888888       00000000000
-::   ZZZZZZZZZZZZZZZZZZZZ    88888888888888888    0000000000000
+::    ZZZZZZZZZZZZZZZZZZZZ    8888888888888       00000000000
+::  ZZZZZZZZZZZZZZZZZZZZ    88888888888888888    0000000000000
 ::               ZZZZZ      888           888  0000         0000
 ::             ZZZZZ        88888888888888888  0000         0000
 ::           ZZZZZ            8888888888888    0000         0000       AAAAAA         SSSSSSSSSSS   MMMM       MMMM
@@ -27,6 +27,11 @@
 :: $Id$
 ::
 :: ******************************************************************************************************************
+
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\z80asm
 
 :: delete previously compiled files
 del *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?

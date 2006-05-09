@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # *************************************************************************************
 # RomCombiner
 # (c) Garry Lancaster, 2000 (yahoogroups@zxplus3e.plus.com)
@@ -18,6 +17,9 @@
 # $Id$
 #
 # *************************************************************************************
+
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/romcombiner
 
 rm -f *.obj *.bin *.map
 ../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib romcombiner.asm

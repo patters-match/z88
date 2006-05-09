@@ -18,6 +18,9 @@
 #
 # *************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/flashtest
+
 rm -f *.obj *.map flashtest.epr fltest.bin romhdr.bin
 ../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib fltest.asm
 ../../tools/mpm/mpm -b romhdr.asm

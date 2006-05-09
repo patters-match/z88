@@ -18,6 +18,9 @@
 #
 # *************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/intuition
+
 # compile Intuition code from scratch
 # Intuition uses segment 3 for bank switching (Intuition is located at $2000 - upper 8K of segment 0)
 rm -f *.def *.obj *.bin *.map

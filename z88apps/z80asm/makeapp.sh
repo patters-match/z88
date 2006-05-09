@@ -2,8 +2,8 @@
 
 # ******************************************************************************************************************
 #
-#     ZZZZZZZZZZZZZZZZZZZZ    8888888888888       00000000000
-#   ZZZZZZZZZZZZZZZZZZZZ    88888888888888888    0000000000000
+#    ZZZZZZZZZZZZZZZZZZZZ    8888888888888       00000000000
+#  ZZZZZZZZZZZZZZZZZZZZ    88888888888888888    0000000000000
 #               ZZZZZ      888           888  0000         0000
 #             ZZZZZ        88888888888888888  0000         0000
 #           ZZZZZ            8888888888888    0000         0000       AAAAAA         SSSSSSSSSSS   MMMM       MMMM
@@ -30,6 +30,9 @@
 #
 # ******************************************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/z80asm
+
 # delete previously compiled files
 rm -f *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?
 
@@ -39,7 +42,7 @@ rm -f *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?
 ../../tools/mpm/mpm -bc -I../../oz/sysdef -l../../stdlib/standard.lib @z80asm
 ../../tools/mpm/mpm -b -I../../oz/sysdef romhdr
 
-# Create a 48K image with Z80asm application
+# Create an image with Z80asm application
 java -jar ../../tools/makeapp/makeapp.jar -f z80asm.loadmap
 
 # bottom 16K of 64K image is not used. A new z80asm.epr image will be generated.

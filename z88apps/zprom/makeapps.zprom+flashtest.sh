@@ -17,9 +17,11 @@
 # $Id$
 # *************************************************************************************
 
-rm -f *.obj *.bin *.map zprom.epr
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/zprom
 
 # Compile the MTH and the application code
+rm -f *.obj *.bin *.map zprom.epr
 ../../tools/mpm/mpm -b -I../../oz/sysdef tokens
 ../../tools/mpm/mpm -bg -I../../oz/sysdef mthzprom
 ../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @zprom

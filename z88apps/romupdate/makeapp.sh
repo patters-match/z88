@@ -18,6 +18,9 @@
 #
 # *************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/romupdate
+
 rm -f *.obj *.bin *.map romupdate.epr
 ../../tools/mpm/mpm -b -oromupdate.bin -DPOPDOWN -I../../oz/sysdef -l../../stdlib/standard.lib @romupdate.popdown.prj
 ../../tools/mpm/mpm -b romhdr

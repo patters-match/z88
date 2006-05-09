@@ -16,6 +16,11 @@
 ::
 :: *************************************************************************************
 
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\flashstore
+
 del *.obj *.bin *.map flashstore.epr
 ..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @flashstore
 ..\..\tools\mpm\mpm -b romhdr

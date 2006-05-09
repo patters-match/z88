@@ -18,9 +18,11 @@
 #
 # *************************************************************************************
 
-rm -f *.obj *.bin *.map zetriz.epr
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/zetriz
 
 # Compile the MTH and the application code
+rm -f *.obj *.bin *.map zetriz.epr
 ../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @zetriz
 ../../tools/mpm/mpm -b -I../../oz/sysdef romhdr
 

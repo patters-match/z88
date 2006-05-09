@@ -17,6 +17,11 @@
 :: *************************************************************************************
 @echo off
 
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\flashtest
+
 del *.obj *.map flashtest.epr fltest.bin romhdr.bin
 ..\..\tools\mpm\mpm -I..\..\oz\sysdef -l..\..\stdlib\standard.lib -b fltest.asm
 ..\..\tools\mpm\mpm -b romhdr.asm

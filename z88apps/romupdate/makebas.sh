@@ -18,6 +18,9 @@
 #
 # *************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/romupdate
+
 # this is actually to be run as a BBC BASIC program on the Z88
 rm -f *.obj *.bin romupdate.bas *.map
 ../../tools/mpm/mpm -b -oromupdate.bas -DBBCBASIC -I../../oz/sysdef -l../../stdlib/standard.lib @romupdate.bbcbasic.prj

@@ -18,6 +18,9 @@
 #
 # *************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/intuition
+
 # compile Intuition application from scratch
 # Intuition application uses segment 2 for bank switching (Intuition application is located in segment 3)
 rm -f *.def *.obj *.bin *.map *.epr

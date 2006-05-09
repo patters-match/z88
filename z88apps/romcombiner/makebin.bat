@@ -16,5 +16,10 @@
 ::
 :: *************************************************************************************
 
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\romcombiner
+
 del *.obj *.bin *.map
 ..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib romcombiner.asm

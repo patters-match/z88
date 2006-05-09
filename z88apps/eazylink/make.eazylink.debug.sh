@@ -18,6 +18,9 @@
 #
 # *************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/eazylink
+
 # compile EazyLink application (debug version) from scratch
 rm -f *.obj *.bin *.map *.63 *.epr
 ../../tools/mpm/mpm -b -DDEBUGGING -I../../oz/sysdef -l../../stdlib/standard.lib @eazylink

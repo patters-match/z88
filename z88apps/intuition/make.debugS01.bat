@@ -16,6 +16,11 @@
 ::
 :: *************************************************************************************
 
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\intuition
+
 :: compile Intuition code from scratch
 :: Intuition uses segment 3 for bank switching (Intuition is located at $4000 - segment 1)
 del *.def *.obj *.bin *.map

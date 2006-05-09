@@ -18,6 +18,11 @@
 
 del *.obj *.bin *.map zetriz.epr
 
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\zetriz
+
 :: Compile the MTH and the application code
 ..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @zetriz
 ..\..\tools\mpm\mpm -b -I..\..\oz\sysdef romhdr
