@@ -34,17 +34,17 @@ lstoff
      DEFC SIZEOF_pointer = 3
 
 ;  Mnemonics used to symbolize various identifiers:
-     DEFGROUP {
-               sym_null, sym_dquote, sym_squote, sym_semicolon, sym_comma, sym_fullstop
-               sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus, sym_multiply, sym_divi
-               sym_mod, sym_power, sym_assign, sym_strconq, sym_and, sym_or, sym_xor, sym_not
-               sym_less, sym_greater, sym_constexpr, sym_newline, sym_lf
+     DEFGROUP
+          sym_null, sym_dquote, sym_squote, sym_semicolon, sym_comma, sym_fullstop
+          sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus, sym_multiply, sym_divi
+          sym_mod, sym_power, sym_assign, sym_strconq, sym_and, sym_or, sym_xor, sym_not
+          sym_less, sym_greater, sym_constexpr, sym_newline, sym_lf
 
-               sym_name, sym_number, sym_decmconst, sym_hexconst, sym_binconst, sym_charconst
-               sym_lessequal, sym_greatequal, sym_notequal
-               sym_negated, sym_nil
-               sym_ifstatm, sym_elsestatm, sym_endifstatm
-              }
+          sym_name, sym_number, sym_decmconst, sym_hexconst, sym_binconst, sym_charconst
+          sym_lessequal, sym_greatequal, sym_notequal
+          sym_negated, sym_nil
+          sym_ifstatm, sym_elsestatm, sym_endifstatm
+     ENDDEF
 
 ; Assembler directive flags:
      DEFC flag_ON = -1, flag_OFF = 0

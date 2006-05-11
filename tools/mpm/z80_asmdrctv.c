@@ -97,6 +97,7 @@ identfunc_t directives[] = {
  {"DV", DEFVARS},
  {"DW", DEFW},
  {"ELSE", ELSEstat},
+ {"ENDDEF", ENDDEFstat},
  {"ENDIF", ENDIFstat},
  {"ENUM", DEFGROUP},
  {"ERROR", ERROR},
@@ -123,7 +124,7 @@ identfunc_t directives[] = {
  {"XREF", DeclExternIdent}
 };
 
-size_t totaldirectives = 53;
+size_t totaldirectives = 54;
 
 
 static void

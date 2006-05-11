@@ -204,6 +204,12 @@ ENDIFstat (void)
   writeline = OFF;              /* but don't write this line in listing file */
 }
 
+void
+ENDDEFstat (void)
+{
+  sym = enddefstatm;            /* and ENDDEF statement was reached */
+}
+
 
 /* multilevel conditional assembly logic */
 static void
@@ -541,7 +547,10 @@ DEFVARS (void)
   else
     return;                     /* syntax error - get next line from file... */
 
-  while (!feof (srcasmfile) && sym != lcurly)
+  GetSym (); /* read first symbol of new line */
+
+  /* skip anything until we meet a name */
+  while (!feof (srcasmfile) && sym != name )
     {
       SkipLine (srcasmfile);
 
@@ -550,18 +559,19 @@ DEFVARS (void)
       GetSym ();
     }
 
-  if (sym == lcurly)
+  /* parse variable area definition until } or ENDDEF */
+  while (!feof (srcasmfile) && (sym != rcurly &&
+         SearchFunction (directives, totaldirectives) != ENDDEFstat) )
     {
-      while (!feof (srcasmfile) && GetSym () != rcurly)
+      if (EOL == ON)
         {
-          if (EOL == ON)
-            {
-              ++CURRENTFILE->line;
-              EOL = OFF;
-            }
-          else
-            offset += Parsedefvarsize (offset);
+          ++CURRENTFILE->line;
+          EOL = OFF;
         }
+      else
+        offset += Parsedefvarsize (offset);
+
+      GetSym();
     }
 }
 
@@ -575,68 +585,73 @@ DEFGROUP (void)
 
   writeline = OFF;              /* DEFGROUP definitions are not output'ed to listing file */
 
-  while (!feof (srcasmfile) && GetSym () != lcurly)
+  /* skip anything until we meet a name */
+  while (!feof (srcasmfile) && GetSym () != name )
     {
       SkipLine (srcasmfile);
-      EOL = OFF;
+
       ++CURRENTFILE->line;
+      EOL = OFF;
     }
 
-  if (sym == lcurly)
+  while (!feof (srcasmfile) && (sym != rcurly &&
+         SearchFunction (directives, totaldirectives) != ENDDEFstat) )
     {
-      while (!feof (srcasmfile) && sym != rcurly)
+      if (EOL == ON)
         {
-          if (EOL == ON)
-            {
-              ++CURRENTFILE->line;
-              EOL = OFF;
-            }
-          else
-            {
-              do
-                {
-                  GetSym ();
-                  switch (sym)
-                    {
-                    case rcurly:
-                    case semicolon:
-                    case newline:
-                      break;
-
-                    case name:
-                      strcpy (stringconst, ident);      /* remember name */
-                      if (GetSym () == assign)
-                        {
-                          GetSym ();
-
-                          if ((postfixexpr = ParseNumExpr ()) != NULL)
-                            {
-                              if (postfixexpr->rangetype & NOTEVALUABLE)
-                                ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_SymNotDefined);
-                              else
-                                {
-                                  enumconst = EvalPfixExpr (postfixexpr);
-                                  DefineSymbol (stringconst, enumconst++, 0);
-                                }
-                              RemovePfixlist (postfixexpr);
-                            }
-                          GetSym ();    /* prepare for next identifier */
-                        }
-                      else {
-                        DefineSymbol (stringconst, enumconst++, 0);
-                      }
-                      break;
-
-                    default:
-                      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
-                      break;
-                    }
-                }
-              while (sym == comma);     /* get enum definitions separated by comma in current line */
-
-              SkipLine (srcasmfile);    /* ignore rest of line */
-            }
+          ++CURRENTFILE->line;
+          EOL = OFF;
         }
+      else
+        {
+          do
+            {
+              if (sym == comma)
+                  GetSym ();    /* prepare for next identifier */
+
+              switch (sym)
+                {
+                case rcurly:
+                case semicolon:
+                case newline:
+                  break;
+
+                case name:
+                  strcpy (stringconst, ident);      /* remember name */
+
+                  if (GetSym () == assign)
+                    {
+                      GetSym ();
+
+                      if ((postfixexpr = ParseNumExpr ()) != NULL)
+                        {
+                          if (postfixexpr->rangetype & NOTEVALUABLE)
+                            ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_SymNotDefined);
+                          else
+                            {
+                              enumconst = EvalPfixExpr (postfixexpr);
+                              DefineSymbol (stringconst, enumconst++, 0);
+                            }
+                          RemovePfixlist (postfixexpr);
+                        }
+                      GetSym ();    /* prepare for next identifier */
+                    }
+                  else {
+                    DefineSymbol (stringconst, enumconst++, 0);
+                  }
+
+                  break;
+
+                default:
+                  ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
+                  break;
+                }
+            }
+          while (sym == comma);     /* get enum definitions separated by comma in current line */
+
+          SkipLine (srcasmfile);    /* ignore rest of line */
+        }
+        GetSym ();
     }
 }
 

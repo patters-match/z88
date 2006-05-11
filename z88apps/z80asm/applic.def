@@ -35,12 +35,12 @@
 ; Bank $3F (63):    ROM Header ($3FC0)
 
 
-DEFGROUP  {
-               z80asm_MTH_bank = $3D,
-               tokens_bank = z80asm_MTH_bank,
-               Z80asm_bank1,
-               z80asm_bank2
-          }
+DEFGROUP
+     z80asm_MTH_bank = $3D,
+     tokens_bank = z80asm_MTH_bank,
+     Z80asm_bank1,
+     z80asm_bank2
+ENDDEF
 
 DEFC Token_base = 0
 DEFC MTH_Z80asm_ORG = $400

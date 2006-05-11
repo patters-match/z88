@@ -38,6 +38,7 @@ void DeclExternIdent (void), DeclGlobalIdent (void), DeclLibIdent (void), DeclGl
 void DeclModule (void);
 void DefSym (void);
 void IFstat (void), ELSEstat (void), ENDIFstat (void);
+void ENDDEFstat (void);
 void IncludeFile (void);
 void ListingOn (void), ListingOff (void);
 void ORG (void);

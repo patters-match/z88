@@ -66,7 +66,6 @@ lstoff
      DEFC          abort = 4                      ; @00010000
 
      DEFVARS z80asm_vars      ; z80asm variable area:
-     {
           RuntimeFlags1       ds.b 1         ; first runtime flags group
           RuntimeFlags2       ds.b 1         ; second runtime flags group
           RuntimeFlags3       ds.b 1         ; third runtime flags group
@@ -145,7 +144,7 @@ lstoff
                                              ;    [<flag_byte><pool handle><bank_number>]
                                              ;       (1 byte)   (2 bytes)    (1 byte)
           END_VARS
-     }
+     ENDDEF
 
      DEFC TotalWorkspace = END_VARS - z80asm_vars
 
