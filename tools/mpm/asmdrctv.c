@@ -131,12 +131,19 @@ SearchFunction (identfunc_t asmident[], size_t totalid)
 {
   identfunc_t *foundsym;
 
-  foundsym = (identfunc_t *) bsearch (ident, asmident, totalid, sizeof (identfunc_t), (fptr) idcmp);
-
-  if (foundsym == NULL)
-    return NULL;
+  if (sym == name)
+    {
+      foundsym = (identfunc_t *) bsearch (ident, asmident, totalid, sizeof (identfunc_t), (fptr) idcmp);
+      if (foundsym == NULL)
+        return NULL;
+      else
+        return foundsym->asm_func;
+   }
   else
-    return foundsym->asm_func;
+    {
+      /* all directives are names, therefore nothing would be found anyway... */
+      return NULL;
+    }
 }
 
 
