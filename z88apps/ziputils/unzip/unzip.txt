@@ -1,0 +1,140 @@
+Unzip v1.11
+===========
+
+(c) Garry Lancaster, 1999
+
+
+Introduction
+------------
+Unzip for the Z88 allows you to extract files contained within ZIP 
+files created by PKWare's PKZIP and other compatible programs (such as 
+InfoZIP's Zip).
+
+Unzip interfaces properly with the Z88 operating system, so at 
+any point when the application is waiting for input or a keypress, you 
+may access the menu options, the help system or other applications. In 
+particular, you can use the Filer to select a file to be unzipped.
+
+The program requires an expanded Z88, using the same memory arrangement
+as BASIC.
+
+
+Using the application
+---------------------
+To unzip a file, select it in the Filer and then start Unzip. 
+Alternatively, you can start Unzip and then type in a filename 
+(wildcards are allowed). If you don't specify an extension, then the 
+default of .zip will be used. It is also possible to select a file 
+using Filer from within Unzip, in the same way that PipeDream allows 
+you to select a file to load.
+
+Once you have selected a file, the three options (shown on the window 
+to the right of the screen) govern the behaviour of the program.
+
+Each of these options can be cycled through their possible settings 
+using the standard menu system (or the shortcut keys shown on the 
+menu).
+
+
+Extract
+-------
+If you set this option off, then no files will be extracted, and a list 
+of all the files contained in the ZIP file will be shown.
+The compressed size of the file is shown in brackets, together with the 
+size the file will be when extracted.
+
+If you set this option on, then each file will be automatically 
+extracted.
+
+If you set this option to ask (the default), you will be prompted 
+whether you wish to extract each file: press Y (yes), N (no), R (rename 
+the file and extract) or A (extract all files without asking again).
+
+
+Overwrite
+---------
+If you set this option off, then if a file is encountered which already 
+exists on the Z88, it will be skipped.
+
+If you set this option on, then any existing file will be overwritten 
+by the file being extracted.
+
+If you set this option to ask (the default), you will be prompted 
+whether you still wish to extract a file if another with the same name 
+already exists: press Y (yes), N (no), R (rename the file and extract) 
+or A (overwrite all files without asking again).
+
+
+Paths
+-----
+If you set this option on (the default), then any pathnames stored in 
+the ZIP file will be used when extracting files. During extraction, any 
+directories not present on the Z88 will be automatically created.
+
+If you set this option off, pathnames stored in the ZIP file will be 
+ignored, and only the filename will be used or displayed.
+
+
+The extraction process
+----------------------
+A file is extracted from the ZIP file in two stages. In the first 
+stage, the file is inflated (or simply extracted if it was not 
+compressed). After this a check is carried out (known as CRC 
+validation) to ensure that the file was correctly extracted.
+
+If a file fails the CRC check, it probably means that the ZIP file was 
+faulty; however, the damaged file will still be available for you to 
+examine.
+
+During each stage, the progress meter at the bottom right of the screen 
+indicates how much of the file has been processed so far. You can abort 
+at any time by pressing ESC.
+
+
+Limitations
+-----------
+Unzip can only extract files compressed using the deflate or store 
+methods. These are the only methods that have been used in ZIP files 
+since version 2 of PKZIP was released. If files are encountered which 
+have been compressed using an obsolete method, they will be skipped 
+with the message "unknown method".
+
+There is also no support at present for encrypted files, which will 
+also be skipped with the message "unknown method".
+
+Filenames produced on another computer system may be unsuitable for the 
+Z88's filing system. All filenames are shortened to a maximum of 12 
+characters, followed by an optional extension of up to 3 characters. If 
+any characters not acceptable to the Z88 are encountered, these are 
+replaced with hyphens (-). All these changes are made before displaying 
+the filename.
+
+If a filename is encountered which is more than 255 characters long, it 
+is replaced with the name "badfilename".
+
+
+History
+-------
+v1.11	Default ".zip" extension now used if none given.
+v1.10	Fifth release. Split of full/lite versions. Bugfix for CRC 
+	checking of zero-length files.
+v1.09	Fourth release. Bugfix for inflation of very small files.
+v1.08	Third release. Bugfixes.
+v1.07	Second release. CRC & extraction method optimizations.
+v1.06	Main loop optimizations. 
+v1.05	4K input buffer implemented.
+v1.04	Progress meter optimizations. 
+v1.03	Optimization: Shell-Metzner sort instead of bubblesort.
+v1.02	32K sliding output buffer implemented.
+v1.01	Bugfix: error in literal/length table fixed. Options
+	renamed.
+v1.00	First release.
+
+
+Comments
+--------
+If you encounter any problems using the software, or you have any 
+comments or suggestions, please contact me via the Z88 Forever! 
+website.
+
+Garry Lancaster, 4th September 1999

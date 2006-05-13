@@ -1,0 +1,41 @@
+; *************************************************************************************
+;
+; ZipUp - File archiving and compression utility to ZIP files, (c) Garry Lancaster, 1999-2006
+; This file is part of ZipUp.
+;
+; ZipUp is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; ZipUp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with ZipUp;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+; ZipUp messages
+
+                xdef    msg_cdname
+
+.msg_whichfile  defm    "File to create: ", 0
+.msg_addfiles   defm    "  File(s) to add (leave blank to finish): ", 0
+.msg_indent     defm    "   ", 0
+.msg_calc_crc   defm    " - calculating CRC...", 0
+.msg_examining  defm    " - examining file... ", 0
+.msg_askdelete  defm    "    - delete (y/n/a)?", 0
+.msg_deleting   defm    "    - deleting...    ", 0
+.msg_deleted    defm    "    - deleted        ", 13, 10, 0
+.msg_notdeld    defm    "    - unable to delete", 13, 10, 0
+.msg_retained   defm    "    - kept           ", 13, 0
+.msg_doingcd    defm    "  Writing central directory...", 0
+.msg_donecd     defm    "done", 13, 10, 13, 10, 0
+.msg_yna        defm    "yna", 0
+.msg_null       defb    0
+.msg_enter      defm    13, 0
+.msg_cdname     defm    ":RAM.-/91cd36401247.tmp", 0
+.msg_defext     defm    ".zip", 0
+

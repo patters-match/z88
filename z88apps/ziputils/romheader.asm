@@ -1,0 +1,44 @@
+; *************************************************************************************
+;
+; UnZip - File extraction utility for ZIP files, (c) Garry Lancaster, 1999-2006
+; This file is part of UnZip.
+;
+; UnZip is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; UnZip is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with UnZip;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+        module  romheader
+
+        org     $3fc0
+
+.front_dor
+        defb    0,0,0           ; link to parent
+        defb    0,0,0           ; no help DOR
+        defw    $c400           ; first application DOR
+        defb    $3f             ; in top bank of eprom
+        defb    $13             ; ROM front DOR
+        defb    8               ; length
+        defb    'N'
+        defb    5
+        defm    "APPL", 0
+        defb    $ff
+
+        defs    37
+
+.eprom_header
+        defw    $0052           ; card ID
+        defb    @00000011       ; UK country code
+        defb    $80             ; external application
+        defb    $01             ; size of EPROM (16K)
+        defb    0
+        defm    "OZ"

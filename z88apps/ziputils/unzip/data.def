@@ -1,0 +1,59 @@
+; *************************************************************************************
+;
+; UnZip - File extraction utility for ZIP files, (c) Garry Lancaster, 1999-2006
+; This file is part of UnZip.
+;
+; UnZip is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; UnZip is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with UnZip;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+; Data definitions
+
+defc	crctb=$c000		; CRC table origin
+defc	appl_org=$c400		; application origin
+defc	inbuffer=$3000		; input buffer
+defc	inbuflen=$1000		; and length
+defc	outbuffer=$4000		; output buffer
+defc	outbuflen=$8000		; and length
+defc	worksp=$2000		; workspace
+defc	in_bank=$3f		; application bank
+defc	brother_add=$d800	; brother DOR address (ZipUp)
+defc	brother_bank=$3f	; brother DOR bank
+
+defc	commands=4
+defc	stacksig=$f731
+
+defvars	worksp
+{
+        dbg_buffer	ds.b 8  ; First value for debugging purposes only
+        lastclv	        ds.b 2
+        seqptr	        ds.l 1
+        inhandle	ds.w 1
+        outhandle	ds.w 1
+        oihandle	ds.w 1
+        lastseg	        ds.w 1
+        onepercent	ds.b 3
+        header	        ds.b 30
+        openfiles	ds.b 1
+        options	        ds.b 1
+        lastmsg	        ds.w 1
+        redrawflag	ds.b 1
+        curpos	        ds.b 2
+        workarea	ds.b 1770
+        listptr	        ds.w 2
+        progpercent	ds.b 1
+        cursizeK	ds.b 3
+        bigfile	        ds.b 1
+        flushsize	ds.w 1
+        progmessage	ds.b 16
+}

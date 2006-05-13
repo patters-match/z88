@@ -1,0 +1,132 @@
+ZipUp v1.01
+===========
+
+(c) Garry Lancaster, 1999
+
+
+Introduction
+------------
+ZipUp allows you to compress and archive data files and programs on
+your Z88 using the common ZIP format. Files created by this program can 
+be expanded using its companion application, Unzip. They can also be 
+handled by compatible programs on other computers, such as PKWare's 
+PKUNZIP or InfoZIP's Unzip.
+
+There are many possible uses for the compressed archives that ZipUp 
+produces. A single ZIP file is much easier to handle than multiple 
+files, especially if you are trying to backup your Z88 to another 
+computer using the Imp-Export popdown or similar software. Compression 
+means that you can archive infrequently-used files, saving valuable 
+RAM. Finally, the error-checking routines built in to ZIP files mean 
+you can have confidence that any files transferred from your Z88 will 
+arrive at their destination intact.
+
+ZipUp interfaces properly with the Z88 operating system, so at 
+any point when the application is waiting for input or a keypress, you 
+may access the menu options, the help system or other applications. In 
+particular, you can use the Filer to select a file to be zipped up.
+
+The program requires an expanded Z88, using the same memory arrangement
+as BASIC.
+
+
+Using the application
+---------------------
+To create a ZIP archive, type its name at the prompt. If you don't 
+specify an extension, the default of .zip will be used.
+
+Next, you are presented with another prompt. Type in a filename to add 
+to the archive, or select a file from the Filer. You may also use 
+wildcards to add multiple files at once (eg use :ram.*//* to add every 
+file in RAM to the archive).
+
+The selected files will now be added to the archive, according to the 
+options that have been chosen (see following section for details).
+
+After adding the selected files to the archive, the prompt will 
+re-appear, allowing you to add further files if you wish. When you have 
+finished adding files, simply press ENTER at the prompt to finish 
+creating the archive file.
+
+Note that if for any reason you press ESC before the archive has been 
+properly completed (or if any other error occurs), then an important 
+part of the file (known as the central directory) will not be appended. 
+This is vital for most unzip programs, although Z88 Unzip will usually 
+be able to extract files even if it is missing.
+
+
+Options
+-------
+During creation of an archive, the three options (shown on the window 
+to the right of the screen) govern the behaviour of the program.
+
+Each of these options can be cycled through their possible settings 
+using the standard menu system (or the shortcut keys shown on the 
+menu).
+
+
+Delete
+------
+If you set this option off (the default), then files will be added to 
+the archive and left in their original locations.
+
+If you set this option on, then each file will be automatically 
+deleted after adding it to the archive.
+
+If you set this option to ask, you will be prompted whether you wish
+to delete each file: press Y (yes), N (no) or A (delete all files 
+without asking again).
+
+
+Compress
+--------
+If you set this option off, then files are added to the archive without 
+any attempt to compress them. This can increase the speed of operation 
+considerably if you are archiving several incompressible files (such as 
+other ZIP files, for example).
+
+If you set this option on (the default), then files will be compressed 
+before adding to the archive. Occasionally, files cannot be compressed 
+- in this case they will simply be stored in the archive.
+
+
+Paths
+-----
+If you set this option off (the default), then only the names of files 
+are included in the archive, with no information as to their original 
+location.
+
+If you set this option on, then the full path (excluding device name) 
+of each file will be stored in the archive. This means that a full 
+directory structure can be easily backed up with ZipUp, and later 
+restored with Unzip.
+
+
+The compression process
+-----------------------
+A file is added to the ZIP archive in two stages. In the first 
+stage, the CRC checksum of the file is calculated. Then the program 
+attempts to deflate the file - if this is not successful (resulting 
+in a larger size than the original), then it is simply stored in the 
+archive without compression.
+
+During each stage, the progress meter at the bottom right of the screen 
+indicates how much of the file has been processed so far. You can abort 
+at any time by pressing ESC.
+
+
+History
+-------
+v1.01	Bugfix: ZIP file could be added to itself with some 
+	wildcards.
+	Default extension of ".zip" now used if none given.
+v1.00	Initial release.
+
+
+Comments
+--------
+If you encounter any problems using the software, or you have any 
+comments or suggestions, please contact me via the Z88 Forever! 
+Website.
+
+Garry Lancaster, 4th September 1999
