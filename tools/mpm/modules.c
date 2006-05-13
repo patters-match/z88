@@ -890,7 +890,13 @@ WriteMapFile (void)
 
   cmodule = modulehdr->first;   /* begin with first module */
 
-  mapfilename = AddFileExtension((const char *) cmodule->cfile->fname, mapext);
+  if (expl_binflnm == OFF)
+    /* create map filename based on first ORG (project) filename */
+    mapfilename = AddFileExtension((const char *) cmodule->cfile->fname, mapext);
+  else
+    /* -o option defines explicit binary output filename, use that as basis for map filename */
+    mapfilename = AddFileExtension((const char *) binfilename, mapext);
+
   if (mapfilename == NULL)
     {
       ReportError (NULL, 0, Err_Memory);   /* No more room */

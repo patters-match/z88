@@ -1186,7 +1186,7 @@ void
 ERROR (void)
 {
   char errmsg[256];
-  long constant = 0, bytepos = 0;
+  long constant, bytepos = 0;
 
   if (GetSym () == dquote)
     {
