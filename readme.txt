@@ -118,8 +118,9 @@ will get the following directory structure with lots of files in it:
      /z80asm        Z80 Module Assembler application
      /zdis          Z80 disassembler
      /zetriz        Tetris game in map area.
+     /ziputils      UnZip & ZipUp applications for ZIP file management
      /zmonitor      View Z88 memory (RAM/ROM)
-     /zprom         Blow code to UV Eprom / Flash Cards
+     /zprom         Blow code/data to UV Eprom / Flash Cards
 
 
 
