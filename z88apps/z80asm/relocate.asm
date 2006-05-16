@@ -61,7 +61,7 @@
                     exx                           ; preserve BC, DE, HL
                     push iy
                     pop  hl
-                    ld   bc, ?end_relocator-relocator
+                    ld   bc, #end_relocator-relocator
 
                     add  hl,bc                    ; absolute address of relocation table
 

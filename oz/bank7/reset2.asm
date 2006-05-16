@@ -79,7 +79,7 @@ xref    LowRAMcode_e                            ; bank7/lowram0.asm
 ;       copy low RAM code
 
 .rst2_3
-        ld      bc, ?LowRAMcode_e-LowRAMcode
+        ld      bc, #LowRAMcode_e-LowRAMcode
         ld      de, $4000                       ; destination b20 in S1
         ldir
         ld      a, 1

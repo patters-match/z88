@@ -76,9 +76,9 @@ extern labels_t *addresses;
 enum symbols sym, ssym[] =
 {space, bin_and, dquote, squote, semicolon, comma, fullstop,
  lparen, lcurly, lexpr, rexpr, rcurly, rparen, plus, minus, multiply, divi, mod, bin_xor,
- assign, bin_or, bin_nor, bin_not,less, greater, log_not, hash, constexpr};
+ assign, bin_or, bin_nor, bin_not,less, greater, log_not, constexpr};
 
-char separators[] = " &\"\';,.({[]})+-*/%^=|:~<>!#?";
+char separators[] = " &\"\';,.({[]})+-*/%^=|:~<>!#";
 char ident[255];
 
 
@@ -180,7 +180,7 @@ GetSym (void)
   if (instr != NULL)
     {
       sym = ssym[instr - separators];   /* index of found char in separators[] */
-      if (sym == semicolon || sym == hash)
+      if (sym == semicolon)
         {
           SkipLine (srcasmfile);    /* ';' or '#', ignore comment line, prepare for next line */
           sym = newline;

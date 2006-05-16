@@ -871,7 +871,7 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
         ld      hl, NoMatch_txt
         ld      d, a
         ld      e, a
-        ld      bc, ?NoMatch_end-NoMatch_txt
+        ld      bc, #NoMatch_end-NoMatch_txt
         OZ      OS_Mv
         ret
 
