@@ -117,6 +117,7 @@ identfunc_t directives[] = {
  {"OZ", CALLOZ},
  {"SPACE", DEFS},
  {"STRING", DEFS},
+ {"UNDEFINE", UnDefineSym},
  {"VARAREA", DEFVARS},
  {"WORD", DEFW},
  {"XDEF", DeclGlobalIdent},
@@ -124,7 +125,7 @@ identfunc_t directives[] = {
  {"XREF", DeclExternIdent}
 };
 
-size_t totaldirectives = 54;
+size_t totaldirectives = 55;
 
 
 static void

@@ -36,7 +36,7 @@ void DEFGROUP (void), DEFVARS (void), DEFS (void);
 void ERROR(void);
 void DeclExternIdent (void), DeclGlobalIdent (void), DeclLibIdent (void), DeclGlobalLibIdent (void);
 void DeclModule (void);
-void DefSym (void);
+void DefSym (void), UnDefineSym(void);
 void IFstat (void), ELSEstat (void), ENDIFstat (void);
 void ENDDEFstat (void);
 void IncludeFile (void);

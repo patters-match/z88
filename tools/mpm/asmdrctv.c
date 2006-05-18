@@ -743,6 +743,29 @@ DefSym (void)
 
 
 void
+UnDefineSym(void)
+{
+  symbol_t *foundsym;
+
+  do
+    {
+      if (GetSym () == name)
+        {
+          foundsym = FindSymbol(ident,CURRENTMODULE->localroot);
+          if ( foundsym != NULL )
+              DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)()) cmpidstr, (void (*)()) FreeSym);
+        }
+      else
+        {
+          ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
+          break;
+        }
+    }
+  while (GetSym () == comma);
+}
+
+
+void
 DEFC (void)
 {
   expression_t *postfixexpr;
