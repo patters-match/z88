@@ -120,6 +120,7 @@ ParseLine (enum flag interpret)
               sym = newline;    /* ignore label and rest of line */
             }
         }
+
       switch (sym)
         {
           case name:
@@ -130,7 +131,8 @@ ParseLine (enum flag interpret)
             break;        /* empty line, get next... */
 
           default:
-            ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
+            if ( interpret == ON ) /* only report error if line parsing is enabled */
+              ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
         }
 
       if (uselistingfile == ON && writeline == ON)
