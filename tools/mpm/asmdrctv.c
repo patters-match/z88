@@ -69,12 +69,11 @@ extern unsigned char *codeptr, *codearea;
 extern char ident[], line[];
 extern unsigned long PC, oldPC;
 extern enum symbols sym;
-extern enum flag verbose, writeline, EOL;
+extern enum flag verbose, addressalign, writeline, uselistingfile, EOL;
 extern modules_t *modulehdr;
 extern module_t *CURRENTMODULE;
 extern int ASSEMBLE_ERROR;
 extern int sourcefile_open;
-extern enum flag uselistingfile;
 extern labels_t *addresses;
 extern pathlist_t *gIncludePath;
 extern size_t totalmpmid;
@@ -877,10 +876,11 @@ DEFW (void)
 {
   long bytepos = 0;
 
-#if ALIGN_ADRESSES == 1
-  AlignAddress(2);              /* make sure that 16bit words are address aligned before actually creating them */
-  bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
-#endif
+  if (addressalign == ON)
+    {
+      AlignAddress(2);              /* make sure that 16bit words are address aligned before actually creating them */
+      bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
+    }
 
   do
     {
@@ -951,10 +951,11 @@ DEFL (void)
 {
   long bytepos = 0;
 
-#if ALIGN_ADRESSES == 1
-  AlignAddress(4);              /* make sure that 32bit words are address aligned before actually creating them */
-  bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
-#endif
+  if (addressalign == ON)
+    {
+      AlignAddress(4);              /* make sure that 32bit words are address aligned before actually creating them */
+      bytepos += (PC-oldPC);        /* adjust for automatic address alignment */
+    }
 
   do
     {

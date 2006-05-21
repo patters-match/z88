@@ -39,15 +39,13 @@
 #define MPMLIBRARYHEADER "MPMLMF-Z80-V01"
 #define SIZEOF_MPMLIBHDR 14
 
-#define DEFAULT_OPTIONS "Default flag options: -sm -nvdbctg"
+#define DEFAULT_OPTIONS "Default flag options: -sm -nvdbctgA"
 
 #define ENVNAME_INCLUDEPATH "MPM_Z80_INCLUDEPATH"
 #define ENVNAME_LIBRARYPATH "MPM_Z80_LIBPATH"
 #define ENVNAME_STDLIBRARY "MPM_Z80_STDLIBRARY"
 
 #define MAXCODESIZE 65536
-
-#define ALIGN_ADRESSES 0
 #endif
 /* ----------------------------------------------------------------------------------------- */
 
