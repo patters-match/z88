@@ -56,7 +56,7 @@ static void CALLOZ (void);
 static void EXTCALL (void);
 static void CALLPKG (void);
 static void FPP (void);
-
+static void INVOKE (void); /* ported from z80asm for Ti83/Ti83Plus target */
 
 /* externally defined variables */
 extern char ident[], line[];
@@ -65,8 +65,11 @@ extern module_t *CURRENTMODULE;
 extern unsigned char *codeptr;
 extern unsigned long PC;
 extern enum symbols sym;
+extern enum flag ti83plus;
 
-/* Directive names, as defined for Zilog Z80 standard conventions, including a few 'additions' */
+/* Directive names, as defined for Zilog Z80 standard conventions, including a few 'additions'
+ * A lot of these are going to be carved out once macros have been implemented!
+ */
 identfunc_t directives[] = {
  {"ALIGN", ALIGN},
  {"ASCII", DEFM},
@@ -107,6 +110,7 @@ identfunc_t directives[] = {
  {"GLOBAL", DeclGlobalIdent},
  {"IF", IFstat},
  {"INCLUDE", IncludeFile},
+ {"INVOKE", INVOKE},
  {"LIB", DeclLibIdent},
  {"LIBRARY", DeclLibIdent},
  {"LONG", DEFL},
@@ -125,7 +129,7 @@ identfunc_t directives[] = {
  {"XREF", DeclExternIdent}
 };
 
-size_t totaldirectives = 55;
+size_t totaldirectives = 56;
 
 
 static void
@@ -174,6 +178,7 @@ CALLOZ (void)
 }
 
 
+/* New Z88 operating system 24bit CALL instruction */
 static void
 EXTCALL (void)
 {
@@ -205,7 +210,7 @@ EXTCALL (void)
     }
 }
 
-
+/* Z88 Operating system vector call for package management, implemented by Garry Lancaster */
 static void
 CALLPKG (void)
 {
@@ -284,5 +289,42 @@ FPP (void)
         }
 
       RemovePfixlist (postfixexpr); /* remove linked list, because expr. was evaluated */
+    }
+}
+
+
+void
+INVOKE (void)
+{
+  long constant;
+  expression_t *postfixexpr;
+
+  if (ti83plus == ON)
+    *codeptr++ = 0xEF;          /* Ti83Plus: RST 28H instruction */
+  else
+    *codeptr++ = 0xCD;          /* Ti83: CALL */
+
+  ++PC;
+
+  if (GetSym () == lparen)
+    GetSym ();                  /* Optional parenthesis around expression */
+
+  if ((postfixexpr = ParseNumExpr ()) != NULL)
+    {
+      if (postfixexpr->rangetype & NOTEVALUABLE)
+        ReportError (CURRENTFILE->fname, CURRENTFILE->line, 2);         /* INVOKE expression must be evaluable */
+      else
+        {
+          constant = EvalPfixExpr (postfixexpr);
+          if ((constant >= 0) && (constant <= 65535))
+            {
+              *codeptr++ = constant % 256;      /* 2 byte parameter always */
+              *codeptr++ = constant / 256;
+              PC += 2;
+            }
+          else
+            ReportError (CURRENTFILE->fname, CURRENTFILE->line, 4);
+        }
+      RemovePfixlist (postfixexpr);     /* remove linked list, because expr. was evaluated */
     }
 }

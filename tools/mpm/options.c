@@ -52,6 +52,7 @@ enum flag pass1, uselistingfile, symtable, mpmbin, writeline, mapref;
 enum flag createglobaldeffile, datestamp, addressalign;
 enum flag deforigin, verbose, asmerror, EOL, uselibraries, createlibrary, autorelocate;
 enum flag useothersrcext, codesegment, expl_binflnm;
+enum flag ti83plus;
 enum flag BIGENDIAN, USEBIGENDIAN;
 unsigned long EXPLICIT_ORIGIN;          /* origin defined from command line */
 
@@ -77,7 +78,7 @@ DefaultOptions (void)
 
   symtable = writeline = mapref = ON;
   verbose = useothersrcext = uselistingfile = mpmbin = datestamp = asmerror = codesegment = addressalign = OFF;
-  deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = OFF;
+  deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = OFF;
 }
 
 
@@ -86,6 +87,13 @@ void
 SetAsmFlag (char *flagid)
 {
   enum flag Option;
+
+  /* check wether to use an RST or CALL when Invoke for TI83x is used */
+  if (strcmp(flagid, "plus") == 0) 
+    {
+      ti83plus = ON;
+      return;
+    }
 
   /* use ".xxx" as source file in stead of ".asm" */
   if (*flagid == 'e')
