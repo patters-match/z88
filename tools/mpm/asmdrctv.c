@@ -662,7 +662,7 @@ DEFGROUP (void)
 }
 
 
-/* DEFS <size> [(<byte>)] */
+/* DEFS <size> [,(<byte>)] */
 void
 DEFS ()
 {
