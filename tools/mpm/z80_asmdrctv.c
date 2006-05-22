@@ -312,7 +312,7 @@ INVOKE (void)
   if ((postfixexpr = ParseNumExpr ()) != NULL)
     {
       if (postfixexpr->rangetype & NOTEVALUABLE)
-        ReportError (CURRENTFILE->fname, CURRENTFILE->line, 2);         /* INVOKE expression must be evaluable */
+        ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_SymNotDefined);         /* INVOKE expression must be evaluable */
       else
         {
           constant = EvalPfixExpr (postfixexpr);
@@ -323,7 +323,7 @@ INVOKE (void)
               PC += 2;
             }
           else
-            ReportError (CURRENTFILE->fname, CURRENTFILE->line, 4);
+            ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IntegerRange);
         }
       RemovePfixlist (postfixexpr);     /* remove linked list, because expr. was evaluated */
     }
