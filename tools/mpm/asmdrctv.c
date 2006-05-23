@@ -90,7 +90,7 @@ ParseDirectives (enum flag interpret)
 {
   ptrfunc function;
 
-  if ((function = SearchFunction (directives, totaldirectives)) == NULL)
+  if (interpret == ON && (function = SearchFunction (directives, totaldirectives)) == NULL)
     {
       ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_UnknownIdent);
       SkipLine (srcasmfile);
@@ -117,6 +117,23 @@ ParseDirectives (enum flag interpret)
 }
 
 
+void
+ParseMpmIdent (enum flag interpret)
+{
+  ptrfunc function;
+
+  if ((function = SearchFunction (mpmident, totalmpmid)) == NULL)
+    {
+       /* Mnemonic was not found, try to execute a directive... */
+       ParseDirectives (interpret);
+    }
+  else
+    {
+      if (interpret == ON) (function)();
+      SkipLine (srcasmfile);      /* skip current line until EOL */
+    }
+}
+
 
 static int
 idcmp (const char *idptr, const identfunc_t *symptr)
@@ -142,24 +159,6 @@ SearchFunction (identfunc_t asmident[], size_t totalid)
     {
       /* all directives are names, therefore nothing would be found anyway... */
       return NULL;
-    }
-}
-
-
-void
-ParseMpmIdent (enum flag interpret)
-{
-  ptrfunc function;
-
-  if ((function = SearchFunction (mpmident, totalmpmid)) == NULL)
-    {
-       /* Mnemonic was not found, try to execute a directive... */
-       ParseDirectives (interpret);
-    }
-  else
-    {
-      if (interpret == ON) (function)();
-      SkipLine (srcasmfile);      /* skip current line until EOL */
     }
 }
 
