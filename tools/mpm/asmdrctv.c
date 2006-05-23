@@ -88,7 +88,7 @@ static char stringconst[255];
 void
 ParseDirectives (enum flag interpret)
 {
-  ptrfunc function;
+  ptrfunc function = NULL;
 
   if (interpret == ON && (function = SearchFunction (directives, totaldirectives)) == NULL)
     {
