@@ -52,7 +52,7 @@ enum flag pass1, uselistingfile, symtable, mpmbin, writeline, mapref;
 enum flag createglobaldeffile, datestamp, addressalign;
 enum flag deforigin, verbose, asmerror, EOL, uselibraries, createlibrary, autorelocate;
 enum flag useothersrcext, codesegment, expl_binflnm;
-enum flag ti83plus;
+enum flag ti83plus, swapIXIY;
 enum flag BIGENDIAN, USEBIGENDIAN;
 unsigned long EXPLICIT_ORIGIN;          /* origin defined from command line */
 
@@ -78,7 +78,7 @@ DefaultOptions (void)
 
   symtable = writeline = mapref = ON;
   verbose = useothersrcext = uselistingfile = mpmbin = datestamp = asmerror = codesegment = addressalign = OFF;
-  deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = OFF;
+  deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = swapIXIY = OFF;
 }
 
 
@@ -92,6 +92,13 @@ SetAsmFlag (char *flagid)
   if (strcmp(flagid, "plus") == 0) 
     {
       ti83plus = ON;
+      return;
+    }
+
+  /* IX and IY swap option */
+  if (strcmp (flagid, "IXIY") == 0)
+    {
+      swapIXIY = ON;
       return;
     }
 

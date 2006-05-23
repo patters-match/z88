@@ -65,7 +65,7 @@ extern FILE *srcasmfile;
 extern char ident[];
 extern short currentline;
 extern module_t *CURRENTMODULE;
-extern enum flag EOL, uselistingfile, writeline;
+extern enum flag EOL, swapIXIY, uselistingfile, writeline;
 extern avltree_t *globalroot;
 extern symbol_t *gAsmpcPtr;     /* pointer to Assembler PC symbol (defined in global symbol variables) */
 extern long TOTALLINES;
@@ -560,13 +560,33 @@ CheckRegister8 (void)
       else
         {
           if (strcmp (ident, "IXL") == 0)
-            return (8 + 5);
+            {
+              if (swapIXIY == ON)
+                return (16 + 5);
+              else
+                return (8 + 5);
+            }
           else if (strcmp (ident, "IXH") == 0)
-            return (8 + 4);
+            {
+              if (swapIXIY == ON)
+                return (16 + 4);
+              else
+                return (8 + 4);
+            }
           else if (strcmp (ident, "IYL") == 0)
-            return (16 + 5);
+            {
+              if (swapIXIY == ON)
+                return (8 + 5);
+              else
+                return (16 + 5);
+            }
           else if (strcmp (ident, "IYH") == 0)
-            return (16 + 4);
+            {
+              if (swapIXIY == ON)
+                return (8 + 4);
+              else
+                return (16 + 4);
+            }
         }
     }
 
@@ -613,12 +633,23 @@ CheckRegister16 (void)
     case 'I':
       switch (*(ident + 1))
         {
-        case 'X':
-          return (5);
-        case 'Y':
-          return (6);
+          case 'X':
+            {
+              if (swapIXIY == ON)
+                return (6);
+              else
+                return (5);
+            }
+          case 'Y':
+            {
+              if (swapIXIY == ON)
+                return (5);
+              else
+                return (6);
+            }
         }
     }
+
   return -1;
 }
 
