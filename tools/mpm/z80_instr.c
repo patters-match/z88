@@ -73,7 +73,6 @@ static void ArithLog8_instr (int opcode);
 static void ExtAccumulator (int opcode);
 static void JP_instr (int opc0, int opc);
 static void Subroutine_addr (int opc0, int opc);
-static void Parse_Acc (int opcode);
 static void JP_instr (int opc0, int opc);
 static void PushPop_instr (int opcode);
 static void RotShift_instr (int opcode);
@@ -1200,8 +1199,7 @@ DAA (void)
 
 
 /*
- * Allow specification of "<instr> [A,]xxx"
- * in SUB, AND, OR, XOR, CP instructions
+ * Allow specification of "<instr> [A,]xxx" for ADD, ADC, SBC, SUB, AND, OR, XOR, CP instructions
  */
 void
 ExtAccumulator (int opcode)
@@ -1738,12 +1736,16 @@ void
 ADD (void)
 {
   int acc16, reg16;
+  long fptr;
+
+  fptr = ftell (srcasmfile);
 
   GetSym ();
   switch (acc16 = CheckRegister16 ())
     {
       case -1:
-        Parse_Acc (0);        /* 16 bit register wasn't found - try to evaluate the 8bit version */
+        fseek (srcasmfile, fptr, SEEK_SET);
+        ExtAccumulator(0);                   /* 16 bit register wasn't found - try to evaluate the 8 bit version */
         break;
 
       case 2:
@@ -1814,12 +1816,16 @@ void
 SBC (void)
 {
   int reg16;
+  long fptr;
+
+  fptr = ftell (srcasmfile);
 
   GetSym ();
   switch (CheckRegister16 ())
     {
       case -1:
-        Parse_Acc (3);        /* 16 bit register wasn't found - try to evaluate the 8bit version */
+        fseek (srcasmfile, fptr, SEEK_SET);
+        ExtAccumulator(3);                   /* 16 bit register wasn't found - try to evaluate the 8 bit version */
         break;
 
       case 2:
@@ -1851,12 +1857,16 @@ void
 ADC (void)
 {
   int reg16;
+  long fptr;
+
+  fptr = ftell (srcasmfile);
 
   GetSym ();
   switch (CheckRegister16 ())
     {
       case -1:
-        Parse_Acc (1);        /* 16 bit register wasn't found - try to evaluate the 8bit version */
+        fseek (srcasmfile, fptr, SEEK_SET);
+        ExtAccumulator(1);                   /* 16 bit register wasn't found - try to evaluate the 8 bit version */
         break;
 
       case 2:
@@ -1882,23 +1892,6 @@ ADC (void)
         break;
     }
 }
-
-
-void
-Parse_Acc (int opcode)
-{
-  if (sym == name)
-    if (CheckRegister8 () == 7)
-      if (GetSym () == comma)
-        ArithLog8_instr (opcode);
-      else
-        ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
-    else
-      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IllegalIdent);
-  else
-    ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
-}
-
 
 
 void
