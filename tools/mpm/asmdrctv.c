@@ -88,11 +88,11 @@ static char stringconst[255];
 void
 ParseDirectives (enum flag interpret)
 {
-  ptrfunc function = NULL;
+  ptrfunc function;
 
-  if (interpret == ON && (function = SearchFunction (directives, totaldirectives)) == NULL)
+  if ((function = SearchFunction (directives, totaldirectives)) == NULL)
     {
-      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_UnknownIdent);
+      if (interpret == ON) ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_UnknownIdent);
       SkipLine (srcasmfile);
     }
   else
