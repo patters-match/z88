@@ -58,9 +58,9 @@ unsigned long EXPLICIT_ORIGIN;          /* origin defined from command line */
 
 
 /* externally defined variables */
-extern const char asmext[], lstext[], objext[], defext[], binext[];
+extern const char asmext[], lstext[], defext[], binext[];
 extern const char mapext[], errext[], libext[];
-extern char srcext[];
+extern char srcext[], objext[];
 extern char separators[];
 extern char binfilename[];
 extern avltree_t *staticroot;
@@ -79,6 +79,8 @@ DefaultOptions (void)
   symtable = writeline = mapref = ON;
   verbose = useothersrcext = uselistingfile = mpmbin = datestamp = asmerror = codesegment = addressalign = OFF;
   deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = swapIXIY = OFF;
+
+  strcpy(objext, ".obj"); /* default object filename extension */
 }
 
 
@@ -108,7 +110,16 @@ SetAsmFlag (char *flagid)
       useothersrcext = ON;
       srcext[0] = '.';
       strncpy ((srcext + 1), (flagid + 1), 3);  /* Copy argument string */
-      srcext[4] = '\0';         /* max. 3 letters extension */
+      srcext[4] = '\0';                         /* max. 3 letters extension */
+      return;
+    }
+
+  /* djm: mod to get .o files produced instead of .obj */
+  /* gbs: extended to use argument as definition, e.g. -Mo, which defines .o extension */
+  if (*flagid == 'M')
+    {
+      strncpy ((objext + 1), (flagid + 1), 3);   /* copy argument string (append after '.') */
+      objext[4] = '\0';                          /* max. 3 letters extension */
       return;
     }
 

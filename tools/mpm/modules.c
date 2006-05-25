@@ -61,8 +61,8 @@ static void WriteBinFile(char *filename, unsigned char *codebase, size_t length)
 extern FILE *listfile, *mapfile, *srcasmfile, *errfile, *libfile;
 extern char line[], ident[];
 extern char *objfilename, *errfilename, *libfilename;
-extern const char objext[], binext[], segmbinext[], mapext[], errext[], libext[], defext[];
-extern char binfilename[];
+extern const char binext[], segmbinext[], mapext[], errext[], libext[], defext[];
+extern char binfilename[], objext[];
 extern enum symbols sym, GetSym (void);
 extern enum flag uselistingfile, symtable, autorelocate, codesegment, mpmbin;
 extern enum flag verbose, deforigin, createglobaldeffile, EOL, uselibraries, asmerror, expl_binflnm;

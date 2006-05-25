@@ -64,9 +64,10 @@ char PAGELEN;
 int PAGENO, LINENO;
 
 char *srcfilename, *lstfilename, *objfilename, *errfilename, *libfilename;
-const char asmext[] = ".asm", lstext[] = ".lst", objext[] = ".obj", defext[] = ".def", binext[] = ".bin";
+const char asmext[] = ".asm", lstext[] = ".lst", defext[] = ".def", binext[] = ".bin";
 const char mapext[] = ".map", wrnext[] = ".wrn", errext[] = ".err", libext[] = ".lib", segmbinext[] = ".bn0";
 char srcext[5];                 /* contains default source file extension */
+char objext[5];                 /* contains default object file extension */
 char binfilename[255];          /* -o explicit filename buffer */
 
 long listfileptr;
