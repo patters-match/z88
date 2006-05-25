@@ -52,7 +52,7 @@ enum flag pass1, uselistingfile, symtable, mpmbin, writeline, mapref;
 enum flag createglobaldeffile, datestamp, addressalign;
 enum flag deforigin, verbose, asmerror, EOL, uselibraries, createlibrary, autorelocate;
 enum flag useothersrcext, codesegment, expl_binflnm;
-enum flag ti83plus, swapIXIY;
+enum flag ti83plus, swapIXIY, clinemode;
 enum flag BIGENDIAN, USEBIGENDIAN;
 unsigned long EXPLICIT_ORIGIN;          /* origin defined from command line */
 
@@ -78,7 +78,7 @@ DefaultOptions (void)
 
   symtable = writeline = mapref = ON;
   verbose = useothersrcext = uselistingfile = mpmbin = datestamp = asmerror = codesegment = addressalign = OFF;
-  deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = swapIXIY = OFF;
+  deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = swapIXIY = clinemode = OFF;
 
   strcpy(objext, ".obj"); /* default object filename extension */
 }
@@ -190,6 +190,7 @@ SetAsmFlag (char *flagid)
       switch(*flagid)
         {
           case 'c': codesegment = Option; break;
+          case 'C': clinemode = Option; break;
           case 't': uselistingfile = Option; break;
           case 'a': mpmbin = Option; datestamp = Option; break;
           case 's': symtable = Option; break;

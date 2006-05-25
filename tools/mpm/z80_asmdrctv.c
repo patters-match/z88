@@ -113,6 +113,7 @@ identfunc_t directives[] = {
  {"INVOKE", INVOKE},
  {"LIB", DeclLibIdent},
  {"LIBRARY", DeclLibIdent},
+ {"LINE", LINE},
  {"LONG", DEFL},
  {"LSTOFF", ListingOff},
  {"LSTON", ListingOn},
@@ -129,7 +130,7 @@ identfunc_t directives[] = {
  {"XREF", DeclExternIdent}
 };
 
-size_t totaldirectives = 56;
+size_t totaldirectives = 57;
 
 
 static void

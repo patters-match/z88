@@ -37,9 +37,10 @@
 
 
 /* externally defined variables */
-extern enum flag asmerror;
+extern enum flag asmerror, clinemode;
 extern module_t *CURRENTMODULE;
 extern FILE *errfile;
+extern long clineno;
 
 
 /* global variables */
@@ -180,6 +181,9 @@ ReportError (char *filename, short lineno, int errnum)
   errmodstr[0] = '\0';
   errlinestr[0] = '\0';
   errstr[0] = '\0';
+
+  if (clinemode == ON && clineno)
+    lineno=clineno;  /* use last known external line number reference for error report */
 
   if (filename != NULL)
     sprintf (errflnmstr,"File '%s', ", filename);

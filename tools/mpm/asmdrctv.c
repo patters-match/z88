@@ -44,7 +44,7 @@
 /* external functions, assembler specific, <processor>_prsline.c */
 extern void ParseLine (enum flag interpret);
 extern enum symbols GetSym (void);
-
+extern long GetConstant (char *evalerr);
 
 /* local functions */
 static int idcmp (const char *idptr, const identfunc_t *symptr);
@@ -69,7 +69,7 @@ extern unsigned char *codeptr, *codearea;
 extern char ident[], line[];
 extern unsigned long PC, oldPC;
 extern enum symbols sym;
-extern enum flag verbose, addressalign, writeline, uselistingfile, EOL;
+extern enum flag verbose, addressalign, writeline, uselistingfile, clinemode, EOL;
 extern modules_t *modulehdr;
 extern module_t *CURRENTMODULE;
 extern int ASSEMBLE_ERROR;
@@ -79,6 +79,8 @@ extern pathlist_t *gIncludePath;
 extern size_t totalmpmid;
 extern identfunc_t mpmident[];
 
+/* global variables */
+long clineno = 0;
 
 /* local variables */
 static char stringconst[255];
@@ -185,6 +187,27 @@ ListingOff (void)
   line[0] = '\0';
 }
 
+
+/*
+ * Directive to define an external line number reference,
+ * for example a line number in a C source file.
+ * This feature is currently used by the z88dk C compiler.
+ */
+void LINE(void)
+{
+  char err;
+
+  GetSym();
+  clineno = GetConstant(&err);
+
+  if (err != 0)
+    {
+      clinemode = OFF;  /* line number argument was not a constant, show the error with original line number */
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);
+    }
+
+  line[0]='\0';
+}
 
 
 /* dummy function - not used but needed for C compiler & program logic... */
