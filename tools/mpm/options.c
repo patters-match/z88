@@ -200,6 +200,7 @@ SetAsmFlag (char *flagid)
           case 'm': mapref = Option; break;
           case 'g': createglobaldeffile = Option; break;
           case 'A': addressalign = Option; break;
+          case 'R': autorelocate = Option; break;
         }
 
       flagid++;
@@ -265,6 +266,10 @@ display_options (void)
     puts ("Link library modules with code.");
   if (mpmbin == ON && mapref == ON)
     puts ("Create address map file.");
+  if (autorelocate == ON)
+    puts ("Create relocatable code.");
+  if (codesegment == ON && autorelocate == OFF)
+    puts ("Split code into 16K banks.");
   putchar ('\n');
 }
 
@@ -287,6 +292,7 @@ prompt (void)
   puts ("-b static linking & relocation into executable binary of specified modules.");
   puts ("-c split executable binary into 16K files using auto-appended .bnX extension.");
   puts ("-g Global Relocation Address DEF File, XDEF from modules as DEFC address defs.");
+  puts ("-R Generate relocatable program (code must run in RAM due to address patching)");
   puts ("-A Address align DEFW & DEFL constants");
   puts ("-d date stamp control, assemble only if source file > object file.");
   puts ("-a = -bd (assemble only updated source files, then static link modules).");

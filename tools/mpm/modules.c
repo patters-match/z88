@@ -32,11 +32,13 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "config.h"
 #include "datastructs.h"
 #include "symtables.h"
 #include "exprprsr.h"
 #include "libraries.h"
+#include "z80_relocate.h"
 #include "modules.h"
 #include "pass.h"
 #include "errors.h"
@@ -55,7 +57,6 @@ static void ReadNames (long nextname, long endnames);
 static void ModuleExpr (void);
 static void WriteMapSymbol (symbol_t * mapnode);
 static int LinkTracedModule (char *filename, long baseptr);
-static void WriteBinFile(char *filename, unsigned char *codebase, size_t length);
 
 /* externally defined variables */
 extern FILE *listfile, *mapfile, *srcasmfile, *errfile, *libfile;
@@ -66,6 +67,7 @@ extern char binfilename[], objext[];
 extern enum symbols sym, GetSym (void);
 extern enum flag uselistingfile, symtable, autorelocate, codesegment, mpmbin;
 extern enum flag verbose, deforigin, createglobaldeffile, EOL, uselibraries, asmerror, expl_binflnm;
+extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern unsigned long PC;
 extern unsigned long EXPLICIT_ORIGIN;
 extern size_t CODESIZE;
@@ -75,7 +77,6 @@ extern module_t *CURRENTMODULE;
 extern int PAGENO, TOTALERRORS;
 extern avltree_t *globalroot;
 extern symbol_t *gAsmpcPtr;     /* pointer to Assembler PC symbol (defined in global symbol variables) */
-extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern pathlist_t *gLibraryPath;
 
 
@@ -87,6 +88,7 @@ module_t *CURRENTMODULE;
 /* local variables */
 static tracedmodules_t *linkhdr;
 static FILE *deffile;
+
 
 
 static void
@@ -233,13 +235,15 @@ ReadExpr (long nextexpr, long endexpr)
 
                 case 'C':
                   if ((constant >= -32768) && (constant <= 65535))
-                      StoreWord ((unsigned short) constant, patchptr);
+                    StoreWord ((unsigned short) constant, patchptr);
                   else
                     {
                       ReportError (CURRENTFILE->fname, 0, Err_ExprOutOfRange);
                       WriteExprMsg ();
                     }
 
+                  if (autorelocate == ON && (postfixexpr->rangetype & SYMADDR))
+                    RegisterRelocEntry(PC);
                   break;
 
                 case 'O':
@@ -296,6 +300,12 @@ LinkModules (void)
 
   if (verbose)
     puts ("Linking module(s)...\nPass1...");
+
+  if (autorelocate == ON)
+    {
+      if (InitRelocTable() == NULL)
+        return;                         /* No more room */
+    }
 
   CURRENTMODULE = modulehdr->first;     /* begin with first module */
 
@@ -405,13 +415,18 @@ LoadModules (void)
 
       if (modulehdr->first == CURRENTMODULE)
         {                       /* origin of first module */
-          if (deforigin)
-            CURRENTMODULE->origin = EXPLICIT_ORIGIN;        /* use origin from command line */
+          if (autorelocate)
+            CURRENTMODULE->origin = 0;  /* ORG 0 on auto relocation */
           else
             {
-              CURRENTMODULE->origin = constant;
-              if (CURRENTMODULE->origin == 0xFFFFFFFF)
-                DefineOrigin ();    /* Define origin of first module from the keyboard */
+              if (deforigin)
+                CURRENTMODULE->origin = EXPLICIT_ORIGIN;        /* use origin from command line */
+              else
+                {
+                  CURRENTMODULE->origin = constant;
+                  if (CURRENTMODULE->origin == 0xFFFFFFFF)
+                    DefineOrigin ();    /* Define origin of first module from the keyboard */
+                }
             }
 
           if (verbose == ON)
@@ -592,7 +607,7 @@ CreateBinFile (void)
               codeblock = (CODESIZE / 16384U) ? 16384U : CODESIZE % 16384U;
               CODESIZE -= codeblock;
               tmpstr[strlen (tmpstr) - 1] = binfilenumber++;     /* binary 16K block file number */
-              WriteBinFile(tmpstr, codearea+offset, codeblock);
+              WriteBinFile(tmpstr, "wb", codearea+offset, codeblock);
               offset += codeblock;
             }
           while (CODESIZE);
@@ -600,13 +615,21 @@ CreateBinFile (void)
       else
         {
            /* split binary option enabled, but code size isn't > 16K */
-           WriteBinFile(tmpstr, codearea, CODESIZE);
+           WriteBinFile(tmpstr, "wb", codearea, CODESIZE);
         }
     }
   else
     {
-      /* Dump executable binary as one continous block to file system */
-      WriteBinFile(tmpstr, codearea, CODESIZE);
+      if (autorelocate == ON)
+        {
+           /* First create new binary with relocation code and address patch table */
+           WriteRelocHeader(tmpstr);
+           /* The append executable binary as one continous block */
+           WriteBinFile(tmpstr, "ab", codearea, CODESIZE);
+        }
+      else
+        /* Dump executable binary as one continous block to file system */
+        WriteBinFile(tmpstr, "wb", codearea, CODESIZE);
     }
 
   if (verbose)
@@ -616,12 +639,12 @@ CreateBinFile (void)
 }
 
 
-static void
-WriteBinFile(char *filename, unsigned char *codebase, size_t length)
+void
+WriteBinFile(char *filename, char *mode, unsigned char *codebase, size_t length)
 {
   FILE *binaryfile;
 
-  binaryfile = fopen (AdjustPlatformFilename(filename), "wb");    /* binary output to xxxxx.[bin|.bnX] */
+  binaryfile = fopen (AdjustPlatformFilename(filename), mode);    /* binary output to xxxxx.[bin|.bnX] */
   if (binaryfile != NULL)
     {
       fwrite (codebase, sizeof (char), length, binaryfile);   /* write code as one big chunk */

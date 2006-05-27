@@ -31,7 +31,7 @@
 /* global functions */
 char *ReadName (void);
 int LinkModule (char *filename, long fptr_base);
-long ReadLong (FILE * fileid);
+long ReadLong (FILE *fileid);
 module_t *NewModule (void);
 unsigned long LoadLong (unsigned char *mptr);
 void CreateBinFile (void);
@@ -45,5 +45,6 @@ void StoreLong (long lw, unsigned char *mptr);
 void StoreWord (unsigned short w, unsigned char *mptr);
 void WriteGlobal (symbol_t * node);
 void WriteLong (long fptr, FILE * fileid);
+void WriteBinFile (char *filename, char *mode, unsigned char *codebase, size_t length);
 void WriteMapFile (void);
 void CreateDeffile (void);

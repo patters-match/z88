@@ -34,10 +34,12 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <ctype.h>
+
 #include "config.h"             /* compilation constant definitions */
 #include "datastructs.h"        /* data structure definitions */
 #include "symtables.h"          /* functions to access local/global/extern symbol table data */
 #include "libraries.h"          /* functions to manage libraries */
+#include "z80_relocate.h"       /* functions to manage Z80 code auto-relocation */
 #include "modules.h"            /* functions to manage compiled modules */
 #include "errors.h"             /* functions for error reporting and error message definitions */
 #include "pass.h"               /* functions for source file management and Pass 1 & 2 */
@@ -80,14 +82,15 @@ char *date;                             /* pointer to datestring calculated from
 
 /* externally defined variables */
 extern int ASSEMBLE_ERROR, ERRORS, TOTALERRORS, WARNINGS, TOTALWARNINGS;
-extern enum flag datestamp, verbose, useothersrcext;
+extern enum flag datestamp, verbose, useothersrcext, autorelocate;
 extern enum flag uselistingfile, createlibrary, asmerror, mpmbin, mapref, createglobaldeffile;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern libraries_t *libraryhdr;
 extern modules_t *modulehdr;
 extern module_t *CURRENTMODULE;
 extern avltree_t *globalroot, *staticroot;
-extern symbol_t *gAsmpcPtr;     /* pointer to Assembler PC symbol (defined in global symbol variables) */
+extern symbol_t *gAsmpcPtr;             /* pointer to Assembler PC symbol (defined in global symbol variables) */
+extern unsigned char *reloctable;
 
 
 static void
@@ -451,6 +454,9 @@ main (int argc, char *argv[])
   if (libraryhdr != NULL)
     ReleaseLibraries ();        /* Release library information */
   free (codearea);              /* Release area for machine code */
+
+  if (autorelocate == ON)
+    FreeRelocTable();
 
   ReleasePathInfo();            /* release collected path info (as defined from env. and cmd.line) */
 
