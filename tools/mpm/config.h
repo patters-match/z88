@@ -32,7 +32,7 @@
 /* Z80 specific assembler definitions and constants                                          */
 #ifdef MPM_Z80
 
-#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2 dev.build 2"
+#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2 dev.build 3"
 
 #define MPMOBJECTHEADER  "MPMRMF-Z80-V01"
 #define SIZEOF_MPMOBJHDR 14
