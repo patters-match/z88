@@ -284,18 +284,21 @@ GetLibfile (char *filename)
     {         /* compare header of file */
       ReportError (f, 0, Err_Libfile);
       free(f); /* discard previously allocated library filename */
+      return;
     }
   else
     uselibraries = ON;
 
   /* Library file has been recognised, insert it into linked list of libraries */
-  if ((newlib = NewLibrary ()) == NULL)
+  if ((newlib = NewLibrary ()) != NULL)
+    {
+      newlib->libfilename = f;
+    }
+  else
     {
       ReportError (NULL, 0, Err_Memory);
       free(f); /* discard previously allocated library filename */
-      return;
     }
-  newlib->libfilename = f;
 }
 
 
