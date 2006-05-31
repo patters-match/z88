@@ -110,7 +110,7 @@ ParseNumExpr (void)
 
   if (sym == constexpr)
     {
-      GetSym ();                /* leading '?' : ignore relocatable address expression */
+      GetSym ();                /* leading '#' : ignore relocatable address expression */
       constant_expression = constexpr;  /* convert to constant expression */
       AddCharToInfixExpr(pfixhdr, separators[constexpr]);
     }
@@ -892,6 +892,7 @@ Factor (expression_t *pfixexpr)
 static int
 Pterm (expression_t *pfixexpr)
 {
+
   if (!Factor (pfixexpr))
     return (0);
 
@@ -940,6 +941,7 @@ Expression (expression_t *pfixexpr)
 {
   enum symbols addsym;
 
+
   if ((sym == plus) || (sym == minus))
     {
       if (sym == minus)
@@ -951,7 +953,9 @@ Expression (expression_t *pfixexpr)
       if (Term (pfixexpr))
         {
           if (addsym == minus)
-            NewPfixSymbol (pfixexpr, 0, negated, NULL, 0);      /* operand is signed, plus is redundant... */
+            {
+              NewPfixSymbol (pfixexpr, 0, negated, NULL, 0);      /* operand is signed, plus is redundant... */
+            }
         }
       else
         return (0);
@@ -963,6 +967,7 @@ Expression (expression_t *pfixexpr)
          (sym == bin_and) || (sym == bin_or) || (sym == bin_nor) || (sym == bin_xor) ||
          (sym == lshift) || (sym == rshift))
     {
+
       if (sym == lshift) {
         AddStringToInfixExpr(pfixexpr, "<<");
       } else if (sym == rshift) {
@@ -972,11 +977,23 @@ Expression (expression_t *pfixexpr)
 
       addsym = sym;
       GetSym ();
-
-      if (Term (pfixexpr))
-        NewPfixSymbol (pfixexpr, 0, addsym, NULL, 0);
-      else
-        return (0);
+      if (sym == minus)
+        {
+          AddCharToInfixExpr(pfixexpr, separators[sym]);
+          GetSym ();
+          if (Term (pfixexpr))
+            {
+              NewPfixSymbol (pfixexpr, 0, negated, NULL, 0);      /* operand is signed, negate it... */
+              NewPfixSymbol (pfixexpr, 0, addsym, NULL, 0);       /* then push original operator to stack */
+            }
+        }
+      else 
+        if (Term (pfixexpr))
+          {
+              NewPfixSymbol (pfixexpr, 0, addsym, NULL, 0);
+          }
+        else
+          return (0);
     }
 
   return (1);
