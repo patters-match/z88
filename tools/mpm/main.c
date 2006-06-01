@@ -89,7 +89,7 @@ extern libraries_t *libraryhdr;
 extern modules_t *modulehdr;
 extern module_t *CURRENTMODULE;
 extern avltree_t *globalroot, *staticroot;
-extern symbol_t *gAsmpcPtr;             /* pointer to Assembler PC symbol (defined in global symbol variables) */
+extern symbol_t *gAsmpcPtr, *__gAsmpcPtr; /* pointer to Assembler PC symbol (defined in global symbol variables) */
 extern unsigned char *reloctable;
 
 
@@ -390,8 +390,9 @@ main (int argc, char *argv[])
           PC = oldPC = 0;
           Copy (staticroot, &CURRENTMODULE->localroot, (int (*)()) cmpidstr, (void *(*)()) CreateSymNode);
 
-          gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);    /* Create standard '$PC' identifier */
-          if (gAsmpcPtr == NULL)
+          gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);      /* Create standard '$PC' identifier */
+          __gAsmpcPtr = DefineDefSym (__ASSEMBLERPC, PC, &globalroot);  /* 'ASMPC' identifier for compatibility with z80asm */
+          if (gAsmpcPtr == NULL || __gAsmpcPtr == NULL)
             {
               ReportError (NULL, 0, Err_Memory);
               return 0;

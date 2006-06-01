@@ -182,6 +182,8 @@ struct linkmodlist  { tracedmodule_t    *firstlink;         /* pointer to first 
 
 #define CURRENTFILE     CURRENTMODULE->cfile
 #define ASSEMBLERPC     "$PC"
+#define __ASSEMBLERPC   "ASMPC"                             /* backward compatibility with old Z80asm */
+
 
 /* Bitmasks for symtype */
 #define SYMDEFINED      0x01000000                          /* bitmask 00000001 00000000 00000000 00000000 */

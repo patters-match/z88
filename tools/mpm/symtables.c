@@ -56,7 +56,8 @@ extern module_t *CURRENTMODULE;    /* pointer to current module */
 
 /* global variables */
 avltree_t *globalroot = NULL, *staticroot = NULL;
-symbol_t *gAsmpcPtr;        /* pointer to Assembler PC symbol (defined in global symbol_t variables) */
+symbol_t *gAsmpcPtr;        /* pointer to Assembler PC symbol, '$PC' */
+symbol_t *__gAsmpcPtr;      /* pointer to Z80asm Assembler PC symbol, 'ASMPC' */
 
 
 symbol_t *

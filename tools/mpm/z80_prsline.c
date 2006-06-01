@@ -67,7 +67,8 @@ extern short currentline;
 extern module_t *CURRENTMODULE;
 extern enum flag EOL, swapIXIY, uselistingfile, writeline;
 extern avltree_t *globalroot;
-extern symbol_t *gAsmpcPtr;     /* pointer to Assembler PC symbol (defined in global symbol variables) */
+extern symbol_t *gAsmpcPtr;     /* pointer to Assembler PC symbol, '$PC' */
+extern symbol_t *__gAsmpcPtr;   /* pointer to Z80asm Assembler PC symbol, 'ASMPC' */
 extern long TOTALLINES;
 extern labels_t *addresses;
 
@@ -87,7 +88,8 @@ ParseLine (enum flag interpret)
 {
   symbol_t *labeladdr;
 
-  gAsmpcPtr->symvalue = PC;   /* update assembler program counter */
+  gAsmpcPtr->symvalue = PC;   /* update assembler program counter for '$PC' */
+  __gAsmpcPtr->symvalue = PC;   /* update assembler program counter for 'ASMPC' */
 
   if (PC <= MAXCODESIZE)   /* room for machine code? */
     {

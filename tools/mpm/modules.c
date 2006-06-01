@@ -76,7 +76,7 @@ extern int ASSEMBLE_ERROR, listfileptr;
 extern module_t *CURRENTMODULE;
 extern int PAGENO, TOTALERRORS;
 extern avltree_t *globalroot;
-extern symbol_t *gAsmpcPtr;     /* pointer to Assembler PC symbol (defined in global symbol variables) */
+extern symbol_t *gAsmpcPtr, *__gAsmpcPtr;   /* pointer to Assembler PC symbol (defined in global symbol variables) */
 extern pathlist_t *gLibraryPath;
 
 
@@ -194,7 +194,8 @@ ReadExpr (long nextexpr, long endexpr)
       /* assembler PC as absolute address */
       PC = modulehdr->first->origin + CURRENTMODULE->startoffset + offsetptr;
 
-      gAsmpcPtr->symvalue = PC;                 /* update assembler program counter */
+      gAsmpcPtr->symvalue = PC;                 /* update assembler program counter, '$PC' */
+      __gAsmpcPtr->symvalue = PC;               /* update (compatibility) assembler program counter, 'ASMPC' */
 
       i = fgetc (srcasmfile);                   /* get length of infix expression */
       fptr = ftell (srcasmfile);                /* file pointer is at start of expression */
@@ -371,9 +372,9 @@ LoadModules (void)
   lastobjmodule = modulehdr->last;      /* remember this last module, further modules are libraries */
 
   PC = 0;
-  gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);    /* Create standard '$PC' identifier */
-
-  if (gAsmpcPtr == NULL)
+  gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);      /* Create standard '$PC' identifier */
+  __gAsmpcPtr = DefineDefSym (__ASSEMBLERPC, PC, &globalroot);  /* Create 'ASMPC' identifier for compatibility with z80asm */
+  if (gAsmpcPtr == NULL || __gAsmpcPtr == NULL)
     {
       ReportError (NULL, 0, Err_Memory);
       free (errfilename);
