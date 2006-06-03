@@ -41,12 +41,7 @@
 #include "symtables.h"
 #include "modules.h"
 #include "pass.h"
-
-
-/* external functions, assembler specific, <processor>_prsline.c */
-extern void ParseLine (enum flag interpret);
-extern enum symbols GetSym (void);
-extern long GetConstant (char *evalerr);
+#include "z80_prsline.h"
 
 
 /* local functions */
@@ -987,7 +982,7 @@ Expression (expression_t *pfixexpr)
               NewPfixSymbol (pfixexpr, 0, addsym, NULL, 0);       /* then push original operator to stack */
             }
         }
-      else 
+      else
         if (Term (pfixexpr))
           {
               NewPfixSymbol (pfixexpr, 0, addsym, NULL, 0);

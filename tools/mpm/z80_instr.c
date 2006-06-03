@@ -35,8 +35,6 @@
  -------------------------------------------------------------------------------------------------*/
 
 
-
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -47,14 +45,7 @@
 #include "pass.h"
 #include "asmdrctv.h"
 #include "errors.h"
-
-
-/* external functions, assembler specific, <processor>_prsline.c */
-extern enum symbols GetSym (void);
-extern int IndirectRegisters (void);
-extern int CheckCondition (void);
-extern int CheckRegister8 (void);
-extern int CheckRegister16 (void);
+#include "z80_prsline.h"
 
 
 /* externally defined variables */

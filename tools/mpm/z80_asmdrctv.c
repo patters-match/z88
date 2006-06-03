@@ -45,10 +45,7 @@
 #include "exprprsr.h"
 #include "asmdrctv.h"
 #include "errors.h"
-
-
-/* external functions, assembler specific, <processor>_prsline.c */
-extern enum symbols GetSym (void);
+#include "z80_prsline.h"
 
 
 /* Z80 specific functions */

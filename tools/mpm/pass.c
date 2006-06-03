@@ -40,11 +40,7 @@
 #include "modules.h"
 #include "pass.h"
 #include "errors.h"
-
-
-/* external functions, assembler specific, <processor>_prsline.c */
-extern void ParseLine (enum flag interpret);
-extern enum symbols GetSym (void);
+#include "z80_prsline.h"
 
 
 /* local functions */

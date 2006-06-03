@@ -39,12 +39,8 @@
 #include "symtables.h"
 #include "exprprsr.h"
 #include "pass.h"
+#include "z80_prsline.h"
 
-
-/* external functions, assembler specific, <processor>_prsline.c */
-extern void ParseLine (enum flag interpret);
-extern enum symbols GetSym (void);
-extern long GetConstant (char *evalerr);
 
 /* local functions */
 static int idcmp (const char *idptr, const identfunc_t *symptr);

@@ -46,10 +46,6 @@
 #include "options.h"            /* functions to cmd line arguments and display of help */
 
 
-/* external functions, assembler specific, <processor>_prsline.c */
-extern enum symbols GetSym (void);
-
-
 /* local functions */
 static void ReleaseFilenames (void);
 static void CloseFiles (void);

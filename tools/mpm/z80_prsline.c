@@ -45,16 +45,8 @@
 #include "pass.h"
 #include "asmdrctv.h"
 #include "errors.h"
+#include "z80_prsline.h"
 
-
-/* globally available functions, Z80 specific line parsing */
-void ParseLine (enum flag interpret);
-long GetConstant (char *evalerr);
-enum symbols GetSym (void);
-int IndirectRegisters (void);
-int CheckCondition (void);
-int CheckRegister8 (void);
-int CheckRegister16 (void);
 
 /* local functions */
 static int CheckBaseType(int chcount);
