@@ -740,7 +740,7 @@ GetConstant (char *evalerr)
             }
         }
 
-      sscanf ((char *) (ident + 2), "%lx", &lv);
+      sscanf ((char *) (ident + 2), "%lx", (unsigned long *) &lv);
       return lv;
     }
 
@@ -783,7 +783,7 @@ GetConstant (char *evalerr)
               *evalerr = 1;
               return lv;
             }
-          sscanf ((char *) (ident + 1), "%lx", &lv);
+          sscanf ((char *) (ident + 1), "%lx",(unsigned long *) &lv);
         return lv;
 
       /* Parse default decimal integers */
