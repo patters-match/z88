@@ -28,12 +28,21 @@
 </configuration>
 <configuration artifactName="mpm" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.1421304762" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
 <toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1199830594" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
-<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.894719481" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.894719481" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
+<option id="gnu.c.compiler.option.preprocessor.def.symbols.1820810538" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="MPM_Z80"/>
+<listOptionValue builtIn="false" value="UNIX"/>
+</option>
+</tool>
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1095440353" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release"/>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.525176575" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1642303223" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release"/>
 <tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.616258509" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
 </toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.1421304762.1213921287" name="relocate.asm" rcbsApplicability="disable" resourcePath="/mpm/relocate.asm" toolsToInvoke="cdt.managedbuild.tool.gnu.assembler.exe.release.616258509./mpm/relocate.asm">
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.616258509./mpm/relocate.asm" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release.616258509"/>
+</resourceConfiguration>
 </configuration>
 <macros/>
 </project>
