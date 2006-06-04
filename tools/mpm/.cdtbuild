@@ -10,6 +10,7 @@
 <listOptionValue builtIn="false" value="MPM_Z80"/>
 <listOptionValue builtIn="false" value="UNIX"/>
 </option>
+<option id="gnu.c.compiler.option.warnings.pedantic.255983428" superClass="gnu.c.compiler.option.warnings.pedantic" value="true" valueType="boolean"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1211650319" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug"/>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.782738763" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
