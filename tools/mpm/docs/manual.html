@@ -1,93 +1,180 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
+
+
+
+
+  
+  
+  
+  
   <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-  <title>Mpm Reference Manual</title>
+
+
+
+
+  
+  
+  
+  
+  <title>Mpm User Manual</title>
 </head>
+
+
 <body>
 
-[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition, V1.1 2005<br>
+
+
+<div style="text-align: center;"><big>
+
+[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2, 2006<br>
+
+
+
+User Manual (draft)<br>
+
+
+
+</big></div>
+
+
+
+
 <br>
--------------------------------------------------------------------------------<br>
+
+
+
+<hr style="width: 100%; height: 2px;">Copyright (C) 1991-2006, Gunther Strube, gbs@users.sf.net <br>
+
+
+
+
 <br>
-Copyright (C) 1991-2005, Gunther Strube, gbs@users.sf.net <br>
-<br>
-This file is part of Mpm. Mpm is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2, or (at
-your option) any later version. Mpm is distributed in the hope that it
-will be useful, but WITHOUT ANY WARRANTY; without even the implied
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
-the GNU General Public License for more details. You should have
-received a copy of the GNU General Public License along with Mpm; see
-the file COPYING. If not, write to the Free Software Foundation, Inc.,
-59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
--------------------------------------------------------------------------------<br>
-<br>
-Thank you for obtaining a copy of this cross assembler. We have made an
-effort to program an easy user interface and efficient assembler source
-file compiling. The object file and library format is an invention of
-our own and has also been included in this documentation. We hope that
-you will enjoy your Z80 machine code programming with our assembler. <br>
-<br>
-We have made an effort to produce a fairly easy-to-understand
-documentation. If you have any comments or corrections, please don't
-hesitate to contact us: <br>
-<br>
-gbs@users.sf.net<br>
-<br>
-<br>
-<br>
+
+
+
+
+This file is part of Mpm. Mpm is free software; you can redistribute it and/or modify 
+it under the terms of the GNU General Public License as published by the Free Software 
+Foundation; either version 2, or (at your option) any later version. Mpm is distributed 
+in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+Public License for more details. You should have received a copy of the GNU General 
+Public License along with Mpm; see the file COPYING. If not, write to the Free Software 
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
+
+
+
+<hr style="width: 100%; height: 2px;"><br>
+
+
+
+Thank you for obtaining a copy of this cross assembler. We have made an effort to 
+develop an easy command line interface and efficient assembler source file compiling 
+for stand-alone application development or as a back-end for a high-level programming 
+language compiler. We hope that you will enjoy your Z80 machine code development with 
+our assembler. 
+<p>We have made an effort to produce a fairly easy-to-understand documentation, 
+describing the Mpm assembler functionality thoroughly with many examples. As a 
+complement we have also provided a compact quick reference when the developer just 
+needs a quick glance to use a particular command line option or directive.</p>
+
+
+
+
+
+
+
+
+<p>Writing good documentation is an art form. This text has been
+written with the best intentions. However, there's always room for
+improvement. Many different eyes help to spot spelling errors and
+explain things better. Feed-back is more than welcome by writing an
+email to gbs@users.sf.net.<br>
+</p>
+
+
+
+
+
+
 1.0 Running the assembler<br>
-<br>
-Since assemblers are developed for programmers the user interface have
-been implemented according to the standard command line environment
-(CLI) used in most operating systems. The MPM Assembler command line
-interface may change if other programmers wish to implement a different
-interface to the assembler. You have the opportunity! <br>
-<br>
-o The help page<br>
-When executing the assembler from the command line without parameters,
-i.e. mpm&lt;ENTER&gt;, a help page is automatically displayed where
-after control is returned to the operating system command line. The
-page shortly explains the syntax of parameter specification and which
-parameters are available. <br>
-<br>
-o The command line<br>
-The syntax of the assembler parameters is a straightforward design.
-Filenames or a project file are always specified. The options may be
-left out: <br>
- mpm [options] &lt;filename {filename}&gt; | &lt;@modulesfile&gt;<br>
-<br>
-As seen above &lt;options&gt; must be specified first. Then you enter
-the names of all files to be assembled. You either choose to specify
-all file names or a @&lt;projectfile&gt; containing all file names.
-File name may be specified with or without the 'asm extension. The
-correct filename parsing is handled automatically by the assembler. As
-seen on the syntax at least on source file must be specified and may be
-repeated with several file names. Only one project file may be
-specified if no source file names are given. <br>
-<br>
-Many of the parameters are preset with default values which gives an
-easy user interface when specifying the assembly parameters. Only
-advanced parameters need to be specified explicitly. The help page
-displays the default parameter values at the bottom of the page. <br>
-<br>
-o The assembler options<br>
-Options are used to control the assembly process and output. They are
+
+
+
+
+Mpm is used through the operating system standard command line
+environment (CLI).
+<p>When executing the assembler from the command line without
+parameters, i.e.
+mpm&lt;ENTER&gt;, a help page is automatically displayed where
+after control is returned to
+the operating system command line. The page shortly explains the syntax
+of parameter
+specification and which parameters are available.</p>
+
+
+
+
+<p>The syntax of the assembler parameters is a straightforward
+design. Filenames or a project
+file are always specified. The options may be left out (surrounded with
+[]):&nbsp;</p>
+
+
+<span style="font-family: monospace;">
+
+mpm [-options]&nbsp;{filename} |
+&lt;@modulesfile&gt;</span>
+<p>As seen above &lt;options&gt; must be specified first,
+followed by the names of
+assembler source files. You either choose to specify all file names or
+a
+@&lt;projectfile&gt; containing all file names. Filenames may
+be specified with or without
+the .asm filename extension. At least on source file must be specified
+and may be repeated
+with several file names. Only one project file may be specified if no
+source file names are
+given. </p>
+
+
+
+
+<p>All options and parameters are preset with default values
+designed for the most frequently
+used usage pattern. Options are used to control the assembly process
+and output. They are
 recognized by the assembler when you specify a leading minus before the
-option identifier ('-'). Options are always specified before file names
-or project files. <br>
+option identifier
+('-').&nbsp;When the assembler is
+executed options are all preset with default values and are either
+switched ON or OFF (active
+or not). All options have a single letter identification. </p>
+
+
+
+
+<p>Upper and lower case letters are distinguished, which means
+that 'a' might be different
+command than 'A'. If an option is to be turned off, a 'n' is specified
+before the
+identification, e.g. -nl.</p>
+
+
+
+
 <br>
-When the assembler is executed options are all preset with default
-values and are either switched ON or OFF (active or not). All options
-have a single letter identification. Upper and lower case letters are
-distinguished, which means that 'a' might be different command than
-'A'. If an option is to be turned off, you simply specify a 'n' before
-the identification, e.g. -nl which selects listing files not to be
-created by the assembler. <br>
-<br>
+
+
+
+
 - Information during assembly, -v<br>
+
+
+
+
 The assembler writes a certain amount of information to its program
 window (or on the command line screen) to let the user know what is
 happening. For each source file both the current assembler pass and
@@ -103,29 +190,81 @@ hard disk. If you own a powerful 32bit computer equipped with a fast
 hard disk, assembly information is displayed at high speed (and almost
 impossible to read); it may then be useful to turn this information off
 specifying a -nv option at the command line.<br>
+
+
+
+
 <br>
+
+
+
+
 - Use alternative source file extension, -e&lt;ext&gt;<br>
+
+
+
+
 The default assembler source file extension is ".asm". Using this
 option, you force the assembler to use another default extension, like
 ".opt" or "as the source file. The extension is specified without the
 ".". Only three letters are accepted - the rest is discarded. <br>
+
+
+
+
 <br>
+
+
+
+
 - Create listing file output, -l<br>
+
+
+
+
 The information in listing files is a combination of the original
 source file and additional information of the generated machine code.
 Further, the listing file is page formatted with a header specifying
 the date and time of the compilation, the file name of the listing and
 a page number. <br>
+
+
+
+
 For each line of the source file the following information is written:<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;source file line number&gt;&lt;assembler address&gt;&lt;machine code hex dump&gt;&lt;source line&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 The machine code and assembler address output are written in
 hexadecimal notation. If the machine code uses more the 4 bytes, the
 source file line is written on the following line. This usually happens
 when you have defined a string constant or a relatively large amount of
 constant definitions. <br>
+
+
+
+
 <br>
+
+
+
+
 The assembler address is always beginning at zero, i.e. the beginning
 of the current modules' machine code. In a relocated context of the
 machine code, where all code is positioned at fixed addresses, you will
@@ -133,60 +272,152 @@ have the opportunity to view the addresses of your code relative to the
 start of individual modules using the assembler output addresses.
 Further, the last assembler address can be interpreted as the size of
 the modules' generated machine code.<br>
+
+
+
+
 <br>
+
+
+
+
 Listing files also serves the purpose of a hard copy on paper of your
 programs, and are useful in a debugging phase (identifying opcodes
 versus the mnemonic representation of instructions).<br>
+
+
+
+
 <br>
+
+
+
+
 The creation of listing files imposes much more processing work of the
 assembler. If you want to compile your code as quickly as possible then
 don't create listing files. Listing files obtain their file name from
 the base of the source file name, and is added with the 'lst'
 extension. <br>
+
+
+
+
 <br>
+
+
+
+
 - Create symbol table, -s<br>
+
+
+
+
 Symbol tables contains the integer form of symbolical names and
 constants that has been parsed and generated during a compilation of a
 source file. The structure of the symbol table is divided into two
 columns. The first contains the parsed symbol names, converted to upper
 case. The second column contains the generated value of the symbol name.<br>
+
+
+
+
 <br>
+
+
+
+
 All symbol values are displayed in signed 64 bit hexadecimal notation.<br>
+
+
+
+
 <br>
+
+
+
+
 The two columns are separated by tabulators which represents a default
 value of 8 spaces per tabulator. The width of the symbol name column is
 defined as the tabulator distance multiplied by 4. The default with of
 the name column is 4 * 8 = 32 spaces. <br>
+
+
+
+
 <br>
+
+
+
+
 The symbol table will be written to the end of the appropriate listing
 file, if listing file and symbol table output is enabled. If no listing
 file output is enabled, the symbol table will be written to a separate
 file, identified with the base name of the source file module and given
 the 'sym' extension. <br>
+
+
+
+
 <br>
+
+
+
+
 - Assemble only updated files, -d<br>
+
+
+
+
 Assemblers usually force compiles all specified files. This is also
 possible (as default) for the MPM Module Assembler. In large
 application project with 15 modules or more it can be quite frustrating
 to compile all every time. The solution is to only assemble updated
 files and leave the rest (since they have been compiled to the
 programmers knowledge). <br>
+
+
+
+
 But in a long term view it is better to just compile a project without
 thinking of which files need to be compiled or not. That can be done
 with the MPM Module Assembler. By simply specifying the -d parameter at
 the command line, only updated source files are assembled into object
 files - the rest are ignored. <br>
+
+
+
+
 Using the -d option in combination with a project file gives the best
 project setup for a large compilation; compile your projects without
 worrying about which module is updated or not. <br>
+
+
+
+
 <br>
+
+
+
+
 - Link/relocate object files, -b<br>
+
+
+
+
 The -b option must be used if you want to create an executable Z80
 machine code output file of your previously created object files. You
 may also use the -a option which is identical in functionality but also
 includes the -d option. In other words assemble only updated source
 modules and perform linking/relocation of the code afterwards. <br>
+
+
+
+
 <br>
+
+
+
+
 Pass 1: When the linking process begins with the first object module,
 it is examined for an ORG address to perform the absolute address
 relocation of all the object module machine code. The ORG (loading
@@ -200,20 +431,60 @@ object module, in the order of the specified modules. Pass 1 is
 completed with loading all local and global symbol definitions of the
 object modules. All relocatable address symbols are assigned the
 correct absolute memory location (based on ORG).<br>
+
+
+
+
 <br>
+
+
+
+
 Pass 2: The address patching process. All expressions are now read and
 evaluated, then patched into the appropriate positions of the linked
 machine code. <br>
+
+
+
+
 <br>
+
+
+
+
 When all expressions have been evaluated the machine code is completed
 and saved to a file named as the first source file module, and assigned
 the 'bin' extension. <br>
+
+
+
+
 <br>
+
+
+
+
 -o&lt;binary filename&gt;<br>
+
+
+
+
 Define another filename for the compiled binary output than the default
 source filename of the project, appended with the .bin extension. <br>
+
+
+
+
 <br>
+
+
+
+
 - Create address map information file, -m<br>
+
+
+
+
 When the linking process has been completed and the machine code saved
 to a file, the address map file is produced. This file contains the
 information of all relocated address symbols with their assigned
@@ -221,7 +492,15 @@ absolute addresses. Further, an id is written that displays the scope
 of the symbols; local ('L') or global ('G'). The last item of each
 address map line, identified after the colon, is the name of the module
 which the symbol name belongs to.<br>
+
+
+
+
 <br>
+
+
+
+
 The address map file is divided into two sections; the first produces
 the symbol list in alphabetical order (fast lookup of symbol names),
 the second in order of their address counterparts. The section is more
@@ -229,20 +508,60 @@ used during a debugging session when an address in a disassembly needs
 to be identified with a name. The second list also gives a
 chronological view (composition) of the linked modules. The following
 is an example of an address map file:<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 - Re-define the ORG relocation address, -r<br>
+
+
+
+
 During the linking phase of the assembler the ORG address that defines
 the position in memory where the code is to be loaded and executed, is
 fetched from the first object module file. You can override this by
 specifying an explicit address origin by entering the -r option
 followed by an address in hexadecimal notation at the command line,
 e.g.:<br>
+
+
+
+
 <br>
+
+
+
+
  -r80000000<br>
+
+
+
+
 <br>
+
+
+
+
 which specifies that your code is to be relocated for address 80000000h onwards. <br>
+
+
+
+
 <br>
+
+
+
+
 Using the -r option supersedes a defined ORG in an object file. You
 could for example have defined the ORG to 8000h (32768d) in your first
 source file, then compiled the project. Since the object files are
@@ -250,9 +569,25 @@ generated it is easy to link them again with another ORG address by
 just using the -r option. The linking process does not alter the
 information in object files - they are only read. The same project
 could then easily be re-linked to another address, e.g. -r20000000.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 - Create global address definition file, -g<br>
+
+
+
+
 With this option it is possible to generate a DEFC directive definition
 file of all globally declared identifiers in a file project (declared
 with the XDEF directive). These global definitions are calculated from
@@ -262,57 +597,189 @@ separate compilation. If the two code compilation were placed in
 different memory locations, it would be possible to know the correct
 address of a routine just by using the DEFC address definition
 previously compiled.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 -  Define a static symbol (logically true), -D<br>
+
+
+
+
 This option is useful if you want to produce conditional compilations.
 The symbol defined here will be active throughout the compilation. We
 use this feature to compile machine code on different computer
 platforms (MSDOS, LINUX, or other UNIX's). Specify the symbol
 immediately after the option identifier, i.e. -Dsymbol.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 - Using a project file, @<br>
+
+
+
+
 Project files defines all file names of a project. The file name
 standard stored in a project file obeys the operating system notation.<br>
+
+
+
+
 <br>
+
+
+
+
 In stead of specifying every module file name at the command line, a
 simple reference of a project file can be made in stead. According to
 the rules of the specification of parameters you specify either your
 source file modules or use a project file. The project file
 specification is of course much faster. An example:<br>
+
+
+
+
 <br>
+
+
+
+
  mpm -a main pass1 pass2 link asmdrctv instr<br>
+
+
+
+
 <br>
+
+
+
+
 This command line will compile all specified module file names into a
 single executable file called 'main.bin'. However if a project file
 'assembler' were created already containing the same file names, the
 command line would have been:<br>
+
+
+
+
 <br>
+
+
+
+
  mpm -a @assembler<br>
+
+
+
+
 <br>
+
+
+
+
 - much easier!<br>
+
+
+
+
 <br>
+
+
+
+
 A project file only contains file names. Each file name is separated by
 a new line character \n. The new line character may be different on
 various computer platforms - but the assembler interprets it correctly.
 The contents of a project file may look like this:<br>
+
+
+
+
 <br>
+
+
+
+
 mainasm\n<br>
+
+
+
+
 pass1\n<br>
+
+
+
+
 pass2\n<br>
+
+
+
+
 modlink\n<br>
+
+
+
+
 <br>
+
+
+
+
 The \n identifies a new line in the file (&lt;CR&gt;&lt;LF&gt; in MSDOS or &lt;LF&gt; in UNIX).<br>
+
+
+
+
 <br>
+
+
+
+
 Project files are easily created using a simple text editor. Always
 define project files on the platform you are going to use for the
 assembly process - this assures that you use the correct new line
 character; e.g. MSDOS uses &lt;CR&gt;&lt;LF&gt; for new line, and QDOS
 uses only &lt;LF&gt; for new line.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 - Include library modules during linking/relocation, -i<br>
+
+
+
+
 This option allows compilation time linking of external machine code,
 better known as library routines. Much, much programming time can be
 saved by producing a set of standard routines compiled into library
@@ -327,9 +794,25 @@ This default filename is defined by creating the environment variable
 "MPM_STDLIB=..." ("..." refers to your filename). Please refer to your
 operating system documentation on how to create environment variables.
 Library files are recognized by the ".LIB" extension.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 - Create a library, -x<br>
+
+
+
+
 A library file is composed of object files surrounded by a few file
 structures. The library file format (and object file format) may be
 found at the end of this documentation. A library is simply a set of
@@ -342,54 +825,162 @@ you may omit the filename to use the default filename identified by the
 using a simple XLIB directive with an identical address name label
 definition. Please refer to further information later in this
 documentation.<br>
+
+
+
+
 <br>
+
+
+
+
 One very important aspect of libraries is the time that the assembler
 spends searching through them. To optimize the search you should place
 your routines in a "topological" order, i.e. routines that access other
 library routines should be placed first. In most situations you avoid
 redundant sequential searching through the library.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 - Define tabulator distance (for text output files), -t<br>
+
+
+
+
 To save storage space the MPM cross assembler output files (listing,
 map, symbol and XDEF definition files) uses a tabulator control
 character in stead of spaces. The benefit is about 30% compressed files.<br>
+
+
+
+
 <br>
+
+
+
+
 The tabulator distance defines the distance of space between each
 tabulator it represents. The default value is 8 spaces per tabulator.<br>
+
+
+
+
 <br>
+
+
+
+
 The tabulators are used to separate two columns of information. The
 first column contains a name of some sort. Since names have variable
 length, a size of the column is defined. The Assembler defines the size
 of the column by multiplying the current tabulator distance with 4,
 i.e. giving a default size of 4*8 = 32 'spaces'. This is usually more
 than enough for most name definitions parsed from source files.<br>
+
+
+
+
 <br>
+
+
+
+
 You may redefine the tabulator distance by using the -t option
 immediately followed by a decimal number, e.g. -t4 for defining a
 tabulator distance of 4. The with of the first column will then be 4*4
 = 16 'spaces'.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 2.0 An overview of assembler features and related files<br>
+
+
+
+
 <br>
+
+
+
+
 o File based compilation<br>
+
+
+
+
 This assembler is completely file based, i.e. all parsing and code
 generation is manipulated via files on storage medias such as hard
 disks or floppy discs (or file based RAM-discs).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Modular source file design<br>
+
+
+
+
 A compilation may be split into individual source files that either can
 be linked together during assembly as a single module or assembled as
 separate source file modules. Separate source file modules saves
 compilation time and memory. Further, this design is much more
 straightforward and much more logically clear in a design phase of a
 large compilation project than one huge kludge of a source file.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Scope of symbols in source modules<br>
+
+
+
+
 All source modules may refer to each others symbols by using XREF
 directives. This means that you refer to external information outside
 the current source module. The opposite of an external module reference
@@ -398,27 +989,75 @@ making symbols available to other source modules. Finally it is
 possible to have local symbols that is not known to other source
 modules than the current. A label or constant that has not been
 declared with XREF, XDEF or XLIB is local to the module.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Using arithmetic and relational expressions<br>
+
+
+
+
 All directives that require a numerical parameter or Z80 mnemonics that
 use an integer argument may use expressions. Expressions may be formed
 by all standard arithmetic operators and relational operators. Even
 binary operators are implemented. All expressions may contain external
 identifiers and is automatically resolved during the linking phase.
 Only certain directives require compilation time evaluable expressions.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Source file manipulation<br>
+
+
+
+
 To allow the Assembler to execute in multitasking environments such as
 LINUX and SMSQ, all source input files are opened as shared I/O. This
 allows other programs to access the source files while the assembler is
 working. All output files (both text and binary files) are
 opened/created for exclusive use; other programs will have no access to
 those files until they have been closed.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Free format of assembler source files<br>
+
+
+
+
 The source files may be written in a free format. No fixed position
 columns as needed as in the COBOL programming language. All text may be
 typed in mixed case (the assembler converts all text input to upper
@@ -430,23 +1069,67 @@ individual lines. Text files using different OS dependent line feed
 standard are parsed properly; line feed types CR, LF or CRLF are
 automatically recognized. So you can easily compile your sources from
 Linux/UNIX on an MSDOS platform.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Specification of filenames<br>
+
+
+
+
 Specification of filenames in source files are always enclosed in
 double quotes. The assembler just collects the filename string and uses
 this to open a file. This way all filename standards may be used as
 defined on different operating system platforms.<br>
+
+
+
+
 <br>
+
+
+
+
 o Including other source files into the current source file<br>
+
+
+
+
 The need for header file information such as operating system constants
 or data structures is often indispensable for source file modules. In
 stead of copying the contents of those files into each module, it is
 possible to include them at run time (during parsing). Infinite include
 file levels are permitted, i.e. included files calling other files.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Conditional assembly in source file modules<br>
+
+
+
+
 Large compilation projects often need to compile the application in
 several variations. This can be achieved with enclosing parts of the
 source with conditional directives for the different variations of the
@@ -454,41 +1137,121 @@ application. This may also be useful if the assembler source is ported
 to several platforms, where inclusion of other source files (such as
 header files) are using different filename standards. The conditional
 directives IF, ELSE, and ENDIF may be nested into infinite levels.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Object file generation<br>
+
+
+
+
 The MPM Module Assembler generates object files that contains the
 compressed version of an assembled source module. The information
 herein contains declared symbols (local, global and external),
 expressions, address origin, module name and machine code. The object
 file modules are much smaller than their source file counterparts
 (often smaller than 2K).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Transfer of object files across platforms<br>
+
+
+
+
 The MPM Module Assembler is already implemented on several different
 computer platforms. You may freely transfer the object files and use
 them as a part of another cross-compilation. There is no
 system-dependent information in the object files.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Date stamp controlled assembly<br>
+
+
+
+
 To avoid unnecessary compilation of source file modules, it is possible
 to let the assembler compile only recently updated source file modules
 by comparing the date stamp of the source and the object file modules.
 Source file modules that are older than object file modules are
 ignored. This facility is indispensable in large compilation projects.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Listing files<br>
+
+
+
+
 The assembler may generate listing files that contain a copy of the
 source file with additional code generation information of Z80
 mnemonics dumped in hexadecimal format. The listing files are formatted
 with page headers containing time of assembly and the filename. Line
 numbers are included which corresponds to the source file lines.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Symbol information<br>
+
+
+
+
 All symbol generated values used in source modules may be dumped to the
 end of the listing file or as a separate symbol file. If the symbol
 table is dumped into the listing file, each symbol will be written with
@@ -497,18 +1260,50 @@ page references of all occurrences in the listing file. Address symbols
 constants are written as defined in the source. The symbol table are
 written in alphabetical order with corresponding values in hexadecimal
 format.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Linking &amp; relocation of object modules into executable Z80 machine code<br>
+
+
+
+
 To obtain an executable Z80 machine code file it is necessary to link
 all assembled object modules and relocate them at a defined address,
 where the code is to be executed at in the computers' memory. The
 linking &amp; relocation is performed automatically after completed
 assembly of all specified source file modules. The ORG relocation
 address is specified in the first object module.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Address map files<br>
+
+
+
+
 The address map is an invaluable information during a debugging session
 of your compiled program. This file contains all symbolical address
 labels with their generated address constants after a completed
@@ -517,9 +1312,25 @@ file is ordered in two groups; the first list contains all symbol names
 ordered alphabetically with corresponding address constants, the second
 list contains all symbols ordered by their address value (in
 chronological order).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Symbol address definition files<br>
+
+
+
+
 As with address map files this contains information of globally
 declared symbolical address labels, relocated to their absolute
 position as for the compiled machine code file. However, the format is
@@ -527,16 +1338,48 @@ completely different; all symbols are created as constant definitions
 to be included as a header file into another source file and assembled.
 This is useful if you want to call subroutines compiled separately in
 another project (originated in a different memory setup).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Error files<br>
+
+
+
+
 Error files are created by the assembler during processing. If any
 errors should occur, they will be written to this file containing
 information of where the error occurred in the source module. If no
 errors were found, the error file is automatically closed and deleted.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Creating and using object file libraries for standard routines<br>
+
+
+
+
 Machine programmers often re-use their standard routines. We have
 implemented a file format for generating libraries using the existing
 object file modules. Using a simple set of rules makes it very easy to
@@ -545,21 +1388,85 @@ of the library file format is included in this documentation. At
 command line infinite number of libraries may be specified. All will be
 searched during linking of your object modules for referenced library
 routines.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 3.0 Executing the cross assembler and environment variables<br>
+
+
+
+
 <br>
+
+
+
+
 The following text describes how to execute the assembler and defining the environment variables used by the assembler.<br>
+
+
+
+
 <br>
+
+
+
+
 o The environment variables<br>
+
+
+
+
 The assembler uses two environment variables:<br>
+
+
+
+
 <br>
+
+
+
+
 "MPM_STDLIB" define the default filename of the standard library filename.<br>
+
+
+
+
 "MPM_DEFFILES" define the default path of header/include definition files.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Running in the LINUX/UNIX operating system environment<br>
+
+
+
+
 This program can be executed on the LINUX operating system and any
 other UNIX. The sources are strictly ANSI C and uses only library calls
 that are described in Brian W. Kernigham and Dennis M. Ritchie's C
@@ -571,103 +1478,315 @@ integers in big endian order. Please set this definition according to
 your system's processor architecture. Most people uses the Intel
 processor when running Linux - this is a little endian architecture (so
 you don't need the ENDIAN define...).<br>
+
+
+
+
 <br>
+
+
+
+
 You can compile MPM using GNU C compiler simply by entering the following on your command line: <br>
+
+
+
+
 <br>
-	gcc -o mpm -O2 *.c<br>
+
+
+
+
+
 <br>
+
+
+
+
 The environment variables needed by z80asm are easily added in your
 accounts login script, ".profile" or ".bash_profile" in your home
 directory. <br>
+
+
+
+
 <br>
+
+
+
+
 o Running in the MS-DOS operating system environment<br>
+
+
+
+
 This program can be executed on all MSDOS operating systems using the
 INTEL 8086 processor up to high speed 80386/80486/Pentium processors on
 IBM &amp; compatible computers. Add the source files to your favorite C
 compiler system in MSDOS or Windows (here you need to specify
 compilation options o a console application).<br>
+
+
+
+
 <br>
+
+
+
+
 The environment variables are easily put into your AUTOEXEC.BAT file. Simply specify: <br>
+
+
+
+
 <br>
+
+
+
+
 SET MPM_DEFFILES=C:\MPM\DEF\ SET MPM_STDLIB=C:\MPM\STANDARD.LIB<br>
+
+
+
+
 <br>
+
+
+
+
 Choose your own settings if you like.<br>
+
+
+
+
 <br>
+
+
+
+
 If you want the assembler to be accessible in any path, add the path location of the assembler in the PATH search line: ;C:\MPM<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 4.0 MPM module assembler file types<br>
+
+
+
+
 <br>
+
+
+
+
 o The assembler file types and their extension names<br>
+
+
+
+
 The MPM Module Assembler uses several different file name extensions to
 distinguish the type of files processed. The base name of the source
 file is used to create the various assembler output file types. The
 following list explains the available files:<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o The file name extension identifier<br>
+
+
+
+
 The file name extension identifier may be different from platform to
 platform. UNIX has no defined standard. MSDOS and TOS uses '.'. QDOS
 uses the '_' identifier. SMSQ also allows the '.' extension identifier.<br>
+
+
+
+
 <br>
+
+
+
+
 The Assembler implemented on the supplied platforms are defined with
 the correct extension identifier. You can see this on the Assembler
 help page (executing the program with no parameters).<br>
+
+
+
+
 <br>
+
+
+
+
 - The source file extension<br>
+
+
+
+
 The extension for assembler mnemonic source files are 'asm'. Source
 files are specified by the user with or without the extension -
 whatever chosen, the assembler will investigate automatically what is
 needed to read the source files.<br>
+
+
+
+
 <br>
+
+
+
+
 - The object file extension<br>
+
+
+
+
 The extension for object files are 'obj'. The base file name is taken
 from the corresponding source file name. This file is generated by the
 assembler from parsing the source file and contains intermediate
 generated machine code, an address origin of the machine code, symbol
 information and expressions.<br>
+
+
+
+
 <br>
+
+
+
+
 - The error file extension<br>
+
+
+
+
 The extension for error files are 'err'. Before beginning processing
 the source files, an error file is created. If any errors should occur,
 they will be written to this file containing information of where the
 error occurred. If no error were found, the error file is automatically
 closed and deleted. Error files are simple text files that can be
 loaded by any text editor for evaluation.<br>
+
+
+
+
 <br>
+
+
+
+
 - The listing file extension<br>
+
+
+
+
 The extension for listing files are 'lst'. The base file name is taken
 from the corresponding source file name. This file is generated by the
 assembler and contains a hexadecimal output of the generated machine
 code that corresponds to the Z80 mnemonic instruction or directive,
 followed by a copy of the original source line. If selected, the symbol
 table is dumped at the end of the listing file.<br>
+
+
+
+
 <br>
+
+
+
+
 - The symbol file extension<br>
+
+
+
+
 The extension for symbol table files are 'sym'. The base file name is
 taken from the corresponding source file name. The symbol table file
 contains information about the defined and used symbols of the source
 file and their generated values (labels and constants). The symbol file
 is only created if listing file output is disabled.<br>
+
+
+
+
 <br>
+
+
+
+
 - The executable file extension<br>
+
+
+
+
 The extension for executable Z80 machine code files are 'bin'. The base
 file name is taken from the first specified source file name at the
 command line (or project file). This is the linked and relocated output
 of object files and may be executed by the Z80 processor. You may
 override this default behavior by using the -o option and specify your
 own output filename (and extension).<br>
+
+
+
+
 <br>
+
+
+
+
 - The address map file extension<br>
+
+
+
+
 The extension for address map files are 'map'. The base file name is
 taken from the first specified source file name at the command line (or
 project file). This file is generated by the assembler and contains a
 list of all defined address labels from all linked/relocated modules
 with their calculated (absolute) address in memory. Used for debugging
 reference.<br>
+
+
+
+
 <br>
+
+
+
+
 - The definition file extension<br>
+
+
+
+
 The extension for global address label definition files are 'def'. The
 base file name is taken from the first specified source file name at
 the command line (or project file). This file is generated by the
@@ -676,21 +1795,65 @@ with their calculated (absolute) origin address, fetched only during
 assembly of source file modules. The format of the list contains
 constant definitions (addresses) and may be parsed e.g. as include
 files for other projects.<br>
+
+
+
+
 <br>
+
+
+
+
 - The library file extension<br>
+
+
+
+
 Library files are identified with the 'lib' extension. Library files
 may be created using the -x option. Library may be included into
 application code during linking of object modules. <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 5.0 Compiling files<br>
+
+
+
+
 o The assembler compiling process<br>
+
+
+
+
 The MPM Module Assembler uses a two stage compilation process; stage 1
 parses source files and generates object files. Stage 2 reads the
 object files and links the object file code, completes with address
 patching and finishes with storing the executable code. <br>
+
+
+
+
 Stage 1, parsing &amp; code generation of all source files, object file generation:<br>
+
+
+
+
 <br>
+
+
+
+
 A source file is being parsed for Z80 mnemonics and directives. An
 object file is created to hold information of module name, local,
 global and external symbol identifiers, expressions and the
@@ -710,8 +1873,20 @@ and generated code is stored to the object file. Various file pointers
 to sub-sections of the object file is resolved. The completion of stage
 1 is to produce the symbol table output (either appended to listing
 file if selected or as a separate file). <br>
+
+
+
+
 This process is performed for all specified source modules in a project.<br>
+
+
+
+
 <br>
+
+
+
+
 Stage 2, linking object files and library modules, producing executable
 code: Pass 1 of the linking loads information from each object file in
 the project; the ORG address is fetched, identifiers (resolving scope,
@@ -725,16 +1900,52 @@ the linked machine code. When all expressions have been evaluated
 successfully the executable code is stored. If selected, the address
 map file is produces from the current symbol table resided in the data
 structures of the assembler's memory is stored to a text file.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o File names<br>
+
+
+
+
 Specification of file names follow the convention used on the various
 platforms that the assembler is ported to. Please read your operating
 systems manual for more information. <br>
+
+
+
+
 <br>
+
+
+
+
 o Portability of assembler file names<br>
+
+
+
+
 If you are going to port your MPM Module Assembler files across several platforms a few hints may be worth considering: <br>
+
+
+
+
 <br>
+
+
+
+
 Avoid special symbols in file names like '_', '#' and '.' . They may
 have special meaning on some operating system platforms. Use only 7 bit
 standard ASCII letters in file names ('A' to 'z'). Non english language
@@ -743,80 +1954,232 @@ correctly when ported to another platform. Avoid too long file names.
 Some operating systems have boundaries for length of file names in a
 directory path. For example MS-DOS only allows 8 characters in a file
 name (followed by an extension). Others may have no boundaries.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o The standard platform identifier<br>
+
+
+
+
 When the MPM Assembler is running a standard platform identifier is
 made available. The identifier reflects the name of the platform:<br>
+
+
+
+
 <br>
+
+
+
+
 "QDOS" - the assembler is running on the QDOS/SMSQ platform (QL &amp; compatibles)<br>
+
+
+
+
 "MSDOS" - the assembler is running on the IBM MS-DOS platform of computers<br>
+
+
+
+
 "UNIX" - the assembler is running on the LINUX/UNIX platform.<br>
+
+
+
+
 <br>
+
+
+
+
 The identifier might be very handy when you need to port your source
 files to different computer platforms. We use them in for loading
 header files. Have a look on the INCLUDE directive example in the
 Directive Reference section. <br>
+
+
+
+
 <br>
+
+
+
+
 o Source file structure<br>
+
+
+
+
 The composition of a source file module is completely free to the
 programmer. How he chooses to place the source code on a text line has
 no effect of the parsing process of the assembler. The linefeed
 interpretation is also handled by MPM - it understands the following
 formats:<br>
+
+
+
+
 <br>
-	&lt;LF&gt; (used by QDOS/SMSQ/UNIX/AMIGA/MAC OSX), &lt;CR&gt;&lt;LF&gt; (used by MSDOS),<br>
-	&lt;CR&gt; (used by Mac OS Release 8/9).<br>
+
+
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Using local, global and external symbols<br>
+
+
+
+
 In larger application projects it is unavoidable to use a modular
 programming design, i.e. splitting the source into several individual
 files. This approaches the popular top - down design where you can
 isolate the problem solving into single modules. The outside world just
 needs to know where the routine is to be called by linking the modules
 with a few directives.<br>
+
+
+
+
 <br>
+
+
+
+
 In the MPM Module Assembler you only need two directives to accomplish just that: the XREF and XDEF directives.<br>
+
+
+
+
 <br>
+
+
+
+
 XREF declares a symbol to be external to the current source file
 module. This tells the assembler that all expressions using that symbol
 is not to be evaluated until the compiled object modules are to linked
 and relocated together. Expressions that contains this symbol is simply
 stored into the object file.<br>
+
+
+
+
 <br>
+
+
+
+
 XDEF declares a symbol to be created in this module and made globally
 available to other modules during the linking/relocation phase. All
 expressions that contain a globally declared symbol is automatically
 stored into the object file.<br>
+
+
+
+
 <br>
+
+
+
+
 When a symbol is created and is neither declared external or global, it
 is implicitly defined as local to the current source module. The symbol
 is then only available to the current module during linking/relocation.<br>
+
+
+
+
 <br>
+
+
+
+
 If you want to access (external) library modules from a library, use
 the LIB directive followed by the name of the routine. Several routine
 names may be specified separated by a comma.<br>
+
+
+
+
 <br>
+
+
+
+
 During the linking process all external and corresponding global
 symbols are resolved. If two identical global identifier are loaded by
 the linking process, the most recently loaded identifier is used by the
 linker.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Defining symbol names<br>
+
+
+
+
 Good programming involves a structured approach to mnemonic
 identification of names in subroutines, variables, data structures and
 other constants. The MPM Module Assembler gives you several
 possibilities. The easiest and frequently used one is DEFC (Define
 Constant).<br>
+
+
+
+
 <br>
+
+
+
+
 Each DEFC directive is followed by a an identifier name, followed by a
 = symbol and then an evaluable constant expression (usually just a
 constant). Constant definitions are usually operating system manifest
 or other frequently used items. They are put into separate source files
 and later inserted into main source files using the INCLUDE directive.<br>
+
+
+
+
 <br>
+
+
+
+
 Though DEFC resolves most needs, it may be necessary to define variable
 areas or templates containing names with an appropriate size tag (byte,
 word or long word). This is possible using the DEFVARS directive. Here
@@ -828,7 +2191,15 @@ have to keep track of the previous and next name in the group in
 addition to count the size of all names. All this is managed by DEFVARS
 automatically. Have a look at the syntax in the Directive Reference
 section.<br>
+
+
+
+
 <br>
+
+
+
+
 With advanced Z80 programming you cannot avoid dynamic data structures
 like linked lists or binary trees. The fundamentals for this are known
 as records in PASCAL or structures in C. DEFVARS is well suited for
@@ -836,7 +2207,15 @@ this purpose. Defining each DEFVARS group with 0 automatically
 generates offset variables. The last name then automatically defines
 the size of the data structure. Again, refer to the directive reference
 for a good example.<br>
+
+
+
+
 <br>
+
+
+
+
 A third possibility for an easy definition of symbols is to use the
 DEFGROUP directive. Here you're able to define a set of symbols equal
 to an enumeration. It follows the same principles as for C's ENUM
@@ -846,9 +2225,25 @@ enumeration sequence. Again, this directive have been made to implement
 an easy way of defining symbols and providing a simple method to alter
 the identifier group. Please refer to the directive reference for an
 example.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Comments in source files<br>
+
+
+
+
 As always, good programming requires good documentation. Without
 comments your programs loose overview and logic. Machine code is
 especially hard to follow - have you trid to look at a piece of code 2
@@ -856,7 +2251,15 @@ years after implementation AND without any comments? HORRIBLE! There is
 never too many comments in machine code - we especially like to use
 high level language as comments - it avoids un-necessary text and logic
 is much more clear.<br>
+
+
+
+
 <br>
+
+
+
+
 Comments in Z80 source files are possible using a semicolon. When the
 assembler meets a semicolon the rest of the current source line is
 ignored until the linefeed. Parsing will then commence from the
@@ -866,74 +2269,278 @@ will be ignored. The Z80 parser will in many places accept comments
 without a semicolon has been set - but don't rely on it. Better use a
 semicolon. The context is much more clear. The following is an example
 on how to use comments in Z80 source files:<br>
+
+
+
+
 <br>
+
+
+
+
 ; **********************<br>
+
+
+
+
 ; main menu<br>
+
+
+
+
 ;<br>
+
+
+
+
 mainmenu:   jal  dispmenu ; display menu<br>
+
+
+
+
             nop<br>
+
+
+
+
             jal  getinput ; get input from user<br>
+
+
+
+
             nop<br>
+
+
+
+
             jr   ra<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Defining symbolic address labels<br>
+
+
+
+
 The main reason for using an assembler is to be able to determine
 symbolical addresses and use them as reference in the code. These are
 defined by a name preceded with a full stop. It is allowed to place a
 mnemonic or directive after an address label. An address label may be
 left as a single statement on a line - you may of course use comment
 after the label. The following is a label definition:<br>
+
+
+
+
 <br>
+
+
+
+
 ; *****************<br>
+
+
+
+
 ; routine definition<br>
+
+
+
+
 mainmenu: jal  xxx   ; mainmenu is the label trailed with ':'<br>
+
+
+
+
 <br>
+
+
+
+
 It is not allowed to position two labels on the same line. However, you
 may place as many label after each other - even though no code is
 between them. They just receive the same assembler address. It is not
 allowed to specify two identical address labels in the same source file.<br>
+
+
+
+
 <br>
+
+
+
+
 If you want to declare an address globally accessible to other modules,
 then use XDEF for the address label definition, otherwise the label
 definition will be interpreted as a local address label.<br>
+
+
+
+
 <br>
+
+
+
+
 XDEF mainmenu<br>
+
+
+
+
 ...<br>
+
+
+
+
 .mainmenu ; this label is accessible from other modules with XREF<br>
+
+
+
+
 <br>
+
+
+
+
 You may use before or after the label - MPM automatically handles the
 scope resolution as long as you use XDEF to define it as globally
 accessible.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Writing Z80 mnemonic instructions<br>
+
+
+
+
 All Z80 instructions may be written in mixed case, lower or upper case
 - you decide! How you separate opcode words, register names and
 operands is your choice. Only a few rules must be obeyed:<br>
+
+
+
+
 <br>
+
+
+
+
 1) each instruction mnemonic must be completed on a single line. <br>
+
+
+
+
 2) the instruction identifier must be a word, i.e. don't use space between CALL <br>
+
+
+
+
 3) register identifiers must be a word, ie. r31 not r 31<br>
+
+
+
+
 <br>
+
+
+
+
 A few examples which all are legal syntax:<br>
+
+
+
+
 <br>
+
+
+
+
 Ori  A0, t0, 0<br>
+
+
+
+
 ori  ao, t0, 0xfFFF<br>
+
+
+
+
 jaL  ttttt<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Referencing library routines<br>
+
+
+
+
 When you need to use a library routine in your application code, you
 need to do two things; include a library file at the assembler command
 line with the -i option and refer to the library routine in your source
 file using the LIB directive followed by the name of the library
 routine, e.g.<br>
+
+
+
+
 <br>
+
+
+
+
 .XLIB malloc, mfree<br>
+
+
+
+
 <br>
+
+
+
+
 which will declare the two names "malloc" and "mfree" as external
 identifiers to the current source file module. Please note that you can
 declare the names before or after they actually are referred in your
@@ -942,49 +2549,145 @@ as local symbols to that source file module. When the parser meets the
 instruction that uses one of the above names in a parameter, the
 parameter "expression" is automatically saved to the object file for
 later processing.<br>
+
+
+
+
 <br>
+
+
+
+
 During the linking phase of all the object files the specified library
 file is automatically scanned for "malloc" and "free" and included into
 the application code when found.<br>
+
+
+
+
 <br>
+
+
+
+
 Much application programming can be saved in "re-inventing the wheel"
 if you store frequently used standard routines in libraries.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Creating/updating libraries<br>
+
+
+
+
 Creating libraries is an inbuilt feature of the assembler. The following steps are necessary to create a library:<br>
+
+
+
+
 <br>
+
+
+
+
 1) define a project file containing all filenames (without extensions)
 in your directory that contains all library routines (the easiest
 method since you later can move all files to another directory).
 Remember to arrange the filename in a topological order, i.e. library
 routines that access other routines must pe placed first. This
 optimizes the searching through a library during the linking process.<br>
+
+
+
+
 <br>
+
+
+
+
 2) Each library source module uses the XLIB directive to define the
 name of the routine. The same name must be used for the address label
 definition. If your library uses other library routines then declare
 them with the LIB directive. Please note that a library routine creates
 the module name itself (performed by XLIB automatically). The module
 name is used to search for routines in a library.<br>
+
+
+
+
 <br>
+
+
+
+
 3) The command line contains the -x option immediately followed by your
 filename. If you don't specify a filename, the default standard
 filename is used (defined by the MPM_STDLIB environment variable). Then
 you need to specify your project filename preceeded by @, for example:<br>
+
+
+
+
 <br>
+
+
+
+
 mpm -xiofunctions @iofunctions<br>
+
+
+
+
 <br>
+
+
+
+
 will create a library "iofunctions.lib" in the current directory (also
 containing all library source files). The project file is "iofunctions"
 also in the current directory.<br>
+
+
+
+
 <br>
+
+
+
+
 Please note that no binary file is created (a library is NOT an
 executable file), but a collection of object files sequentially
 organized in a file.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Referencing routines in other compiled projects<br>
+
+
+
+
 It may be necessary in some situations to get access to routines
 previously compiled in another project. This implies however a
 knowledge of their absolute addresses during linking. This information
@@ -998,17 +2701,41 @@ updated source files) and no files were updated then the -g file would
 be empty. If you would like a complete list of all global routines then
 it is needed to compile the whole project (using the -b command line
 option).<br>
+
+
+
+
 <br>
+
+
+
+
 When the file is generated, it can easily be INCLUDE'd in another
 project where your routines may access the external routines. You might
 do this in two ways:<br>
+
+
+
+
 <br>
+
+
+
+
 1) including the file in every source module that needs to access
 external routines. This may be the easiest solution if you're only
 going to need external access in one or two source modules. With many
 external calls in different module of the current project it requires
 much altering of files.<br>
+
+
+
+
 <br>
+
+
+
+
 2) creating a new source file that is part of your project. This file
 could easily be the first file in your project but could just as well
 be placed anywhere in your project. Declare each external name that is
@@ -1020,7 +2747,15 @@ ignored and not stored to the object file (they are not referred in the
 source module). All your other modules just needs to specify the
 external names as XREF. During linking they all get resolved and your
 code has access to external routines from a previously compiled project.<br>
+
+
+
+
 <br>
+
+
+
+
 Whenever the previous project has been re-compiled (and issued with -g
 option) there is a possibility that routine addresses has changed. You
 therefore need to recompile the extra source module in your project to
@@ -1029,11 +2764,35 @@ unaffected (due to the XREF directives). Only the linking process gets
 the new proper addresses. In example 1) you had to recompile all source
 files that would have used an INCLUDE of the DEFC list file. In example
 2) only one file had to be recompiled.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 6.0 Using expressions<br>
+
+
+
+
 <br>
+
+
+
+
 Expressions is almost unavoidable in source files. They define and
 explain things much clearer than just using a constant. The MPM Module
 Assembler allows expressions wherever a parameter is needed. This
@@ -1044,57 +2803,249 @@ integers. However, the parameter type defines the true range of the
 expression. E.g. you cannot store a 32 bit signed integer at an 8 bit
 LD instruction like LD A, &lt;n&gt; . If a parameter is outside an
 allowed integer range an assemble error is reported.<br>
+
+
+
+
 <br>
+
+
+
+
 Expressions may be formed as arithmetic and relational expressions.
 Several components are supported: symbol names (identifiers),
 constants, ASCII characters and various arithmetic operators.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Constant identifiers<br>
+
+
+
+
 Apart from specifying decimal integer numbers, you are allowed to use
 hexadecimal constants, binary constants and ASCII characters. The
 following symbols are put in front of the constant to identify the type:<br>
+
+
+
+
 <br>
+
+
+
+
 0x    hexadecimal constant, e.g. 0x4000 (16384).<br>
+
+
+
+
 @    binary constant, e.g. @11000000 (192).<br>
+
+
+
+
 ' '  ASCII character, e.g. 'a'.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Arithmetic operators<br>
+
+
+
+
 All basic arithmetic operators are supported:<br>
+
+
+
+
 addition, subtraction, power, multiplication, division and modulus.<br>
+
+
+
+
 Binary logical operators are implemented: AND, OR, NOR, XOR and NOT (1. complement).<br>
+
+
+
+
 Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT extended).<br>
+
+
+
+
 <br>
+
+
+
+
 +  addition, e.g. 12+13<br>
+
+
+
+
 -  unary minus, subtraction. E.g. -10, 12-45.<br>
+
+
+
+
 *  multiplication, e.g. 45*2 (90).<br>
+
+
+
+
 /  division, e.g. 256/8 (32).<br>
+
+
+
+
 %  modulus, e.g. 256%8 (0).<br>
+
+
+
+
 ** power, e.g. 2**7 (128).<br>
+
+
+
+
 &amp;  Binary AND, e.g. 255 &amp; 7 (7).<br>
+
+
+
+
 |  Binary OR, e.g. 128 | 64 (192).<br>
+
+
+
+
 :  Binary NOR, e.g. 128 : 128 (0).<br>
+
+
+
+
 ^  Binary XOR, e.g. 128 ^ 128 (0).<br>
+
+
+
+
 ~  Binary NOT, e.g. ~128 (127)<br>
+
+
+
+
 &lt;&lt; Binary left shift, e.g. 2 &lt;&lt; 4 (32).<br>
+
+
+
+
 &gt;&gt; Binary right shift, e.g. 128 &gt;&gt; 4 (8).<br>
+
+
+
+
 <br>
+
+
+
+
 ? Truncate expression as constant (remove relocatable address flag)<br>
+
+
+
+
 <br>
+
+
+
+
 Arithmetic operators use the standard operator precedence, shown from highest to lowest: <br>
+
+
+
+
 <br>
+
+
+
+
 0x @' (constant identifiers)<br>
+
+
+
+
 ()<br>
+
+
+
+
 ~<br>
+
+
+
+
 **<br>
+
+
+
+
 */%<br>
+
+
+
+
 +-|^&amp;:&lt;&lt; &gt;&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 If you want to override the default operator precedence rules, use brackets ().<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o The ? operator<br>
+
+
+
+
 This is not a real operator, though. It is only used as the first
 symbol in an expression to identify that this expression evaluates to a
 constant, i.e. containing no relocatable information. This feature may
@@ -1103,19 +3054,55 @@ labels without letting the assembler think it is a relocatable address.
 The assembler thinks that expressions containing address labels are
 relocatable items. In 99% of any expression used this is perfectly
 adequate.<br>
+
+
+
+
 <br>
+
+
+
+
 During the linking phase such an expression may have unwanted side
 effects. The relocator identifies the expression as an relocatable item
 and will add a constant to the evaluated value of the expression. This
 is a perfectly correct handling in normal address references for
 relocatable code. However, since the assembler cannot see this as a
 constant expression, you have to force it as one.<br>
+
+
+
+
 <br>
+
+
+
+
 ****!!!!<br>
+
+
+
+
 LD BC, end_relocator-relocator ; the relocator will add an ORG constant<br>
+
+
+
+
 LD BC, ?end_relocator-relocator ; the relocator sees a constant expression<br>
+
+
+
+
 ****!!!!<br>
+
+
+
+
 <br>
+
+
+
+
 Normal executable code, compiled for a an absolute address, won't
 conflict with the above problem, since no constants are added to
 expressions. All address information is calculated during loading of
@@ -1123,59 +3110,211 @@ the address labels in pass 1 of the linking process. Pass 2 of the
 linking process just evaluates expressions (thereby using the proper
 values of labels and other constants) and patches them into the
 corresponding locations of the code.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Relational operators<br>
+
+
+
+
 With relational operators you may form logical expressions resulting in
 true or false conditions. The resulting value of a true expression is
 1. The resulting value of a false expression is 0. These operators are
 quite handy when you need to perform complex logic for conditional
 assembly in IF-ELSE-ENDIF statements. The following relational
 operators are available:<br>
+
+
+
+
 <br>
+
+
+
+
 =   equal to<br>
+
+
+
+
 &lt;&gt;  not equal to<br>
+
+
+
+
 &lt;   less than<br>
+
+
+
+
 &gt;   larger than<br>
+
+
+
+
 &lt;=  less than or equal to<br>
+
+
+
+
 &gt;=  larger than or equal to<br>
+
+
+
+
 !   not<br>
+
+
+
+
 <br>
+
+
+
+
 You may link several relational expressions with the binary operators
 AND, OR, XOR and NOT. You have all the possibilities available!<br>
+
+
+
+
 <br>
+
+
+
+
 It is perfectly legal to use relational expressions in parameters requiring an arithmetic value. For example: <br>
+
+
+
+
 <br>
+
+
+
+
 ****!!!!<br>
+
+
+
+
 LD A, (USING_IBM = 1) | RTMFLAGS<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o The assembler program counter standard function<br>
+
+
+
+
 In occasional circumstances it may be necessary to use the current
 location of the assembler program counter in an expression e.g.
 calculating a relative distance. This may be done with the help of the
 $PC identifier. An example: <br>
+
+
+
+
 <br>
+
+
+
+
 errmsg0: .ascii errmsg1 - $PC - 1 &amp; "File open error"<br>
+
+
+
+
 errmsg1: .ascii errmsg2 - $pc - 1 &amp; "Syntax error"<br>
+
+
+
+
 errmsg2:<br>
+
+
+
+
 <br>
+
+
+
+
 Here, a length byte of the following string (excluding the length byte) is calculated by using the current $PC address value. <br>
+
+
+
+
 <br>
+
+
+
+
 o The . operator<br>
+
+
+
+
 You may use expressions in string definitions when using the DEFM
 directive. String constants are enclosed in double quotes, e.g.
 "abcdefgh". Several strings and byte expressions may be concatenated
 using the &amp; operator. The resulting type of an expression in
 strings are an unsigned byte of the range of 0 to 255, e.g.:<br>
-	"string_a" . "string_b" . 'X' . CR . LF . 0<br>
+
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Symbol identifiers in expressions<br>
+
+
+
+
 Apart from using integer constants in your expressions, names are
 allowed as well. This is frequently used for symbolical address label
 references (both external and local).<br>
+
+
+
+
 <br>
+
+
+
+
 Forward referencing of symbols is not really something that is
 important in evaluating expressions. The logic is built into the
 assembler parser. If an expression cannot be resolved in pass 1 of
@@ -1183,15 +3322,43 @@ source file parsing, it will try to re-evaluate the failed expression
 in pass 2 of the parsing. If it still fails a symbol has not been found
 unless it has been declared as an external or library symbol (which are
 handled during the linking phase).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 7.0 Directive reference<br>
+
+
+
+
 <br>
+
+
+
+
 The MPM Module Assembler directives are used to manipulate the Z80
 assembler mnemonics and to generate data structures, variables and
 constants. You are even permitted to include binary files while code
 generation is performed.<br>
+
+
+
+
 <br>
+
+
+
+
 As the name imply they direct the assembler to perform other tasks than
 just parsing and compiling Z80 instruction mnemonics. All directives
 are treated as mnemonics by the assembler, i.e. it is necessary that
@@ -1200,61 +3367,233 @@ necessarily the first character). Only one directive is allowed at a
 single source line. Even though they are written as CAPITALS in this
 documentation they may be written in mixed case letters in your source
 files.<br>
+
+
+
+
 <br>
+
+
+
+
 Since the directives cover very different topics of assembler
 processing, each directive will be explained in detail, identified with
 a header description for each text section. The following syntax is
 used:<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;&gt; defines an entity, i.e. a number, character or string.<br>
+
+
+
+
 {} defines a an optional repetition of an entity.<br>
+
+
+
+
 [] defines an option that may be left out.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .binary "filename"<br>
+
+
+
+
 <br>
+
+
+
+
 Loads a binary file at the assembler PC. This could for example be a
 static data structure or an executable machine code routine. The loaded
 binary file information is included into the object file code section.
 The assembler PC is updated to the end of the loaded binary code.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .byte &lt;8bit expr&gt;,{&lt;8bit expr&gt;} (-128; 255)<br>
+
+
+
+
 .half &lt;16bit expr&gt;,{&lt;16bit expr&gt;} (-32768; 65535)<br>
+
+
+
+
 .word &lt;32bit expr&gt;,{&lt;32bit expr&gt;} (-2147483647; 4294967295)<br>
+
+
+
+
 .long &lt;64bit expr&gt;,{&lt;64bit expr&gt;} (-9223372036854775808; 9223372036854775807)<br>
+
+
+
+
 <br>
+
+
+
+
 Stores a byte (8 bit), half word (16 bit), word (32 bit) or long word
 (64 bit) at the current assembler PC. Expressions may be used to
 calculate the constant.<br>
+
+
+
+
 <br>
+
+
+
+
 ****!!!!<br>
+
+
+
+
 All constant are stored in low byte - high byte order (little endian).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .defc name=&lt;32bit expression&gt;{, name=&lt;32bit expression&gt;}<br>
+
+
+
+
 <br>
+
+
+
+
 Define a symbol constant. The allowed range is a signed 64bit integer
 value. The expression must be evaluable, i.e. no forward referencing
 identifiers.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .ascii &lt;string expression&gt;<br>
+
+
+
+
 .asciiz &lt;string expression&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 Stores a string constant at the current assembler PC. Strings are
 enclosed in double quotes. Strings may be concatenated with byte
 constants using the '.' operator. This is useful if control characters
 need to be a part of the string and cannot be typed from the keyboard.<br>
+
+
+
+
 <br>
+
+
+
+
 Using ".asciiz" will automatically append a zero (null-terminator) after the string expression.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .defgroup<br>
+
+
+
+
 '{'<br>
+
+
+
+
      name {',' name ['=' &lt;8bit expression&gt;]}<br>
+
+
+
+
 '}'<br>
+
+
+
+
 <br>
+
+
+
+
 Defines a group of identifier symbols with implicit values. This is
 similar to the enumeration principles used in C and PASCAL. The initial
 symbol value is 0, increased by 1 for each new symbol in the list. You
@@ -1262,46 +3601,198 @@ may include a &lt;name = expression&gt; which breaks the linear
 enumeration from that constant. The DEFGROUP directive may be spanned
 across several lines and MUST be enclosed with { and }. DEFGROUP is
 just a more easy way than: DEFC name0 = 0, name1 = name0, ...<br>
+
+
+
+
 <br>
+
+
+
+
 The following example illustrates a useful example of defining symbol values:<br>
+
+
+
+
 <br>
+
+
+
+
 .defgroup<br>
+
+
+
+
 {<br>
+
+
+
+
 sym_null, sym_dquote, sym_squote, sym_semicolon, sym_comma, sym_fullstop,<br>
+
+
+
+
 sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus,<br>
+
+
+
+
 sym_multiply, sym_divi, sym_mod, sym_power, sym_assign, sym_strconq, sym_and,<br>
+
+
+
+
 sym_or, sym_xor, sym_not sym_less, sym_greater, sym_constexpr, sym_newline,<br>
+
+
+
+
 sym_lf,<br>
+
+
+
+
 <br>
+
+
+
+
 sym_name, sym_number, sym_decmconst, sym_hexconst, sym_binconst,  sym_charconst,<br>
+
+
+
+
 sym_lessequal, sym_greatequal, sym_notequal sym_negated, sym_nil, sym_ifstatm,<br>
+
+
+
+
 sym_elsestatm, sym_endifstatm<br>
+
+
+
+
 }<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .define name,{name}<br>
+
+
+
+
 <br>
+
+
+
+
 Defines a symbol identifier as logically true (integer &lt;&gt; 0). The
 symbol will be created as a local variable and disappears when assembly
 is finished on the current source file module. Nice feature for
 conditional assembly.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .space &lt;16bit expression&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 Allocates storage. The size of the area will be filled with zero bytes. The expression must be [1; 65535].<br>
+
+
+
+
 <br>
+
+
+
+
 ****!!!!<br>
+
+
+
+
 .defvars &lt;16bit expression&gt;<br>
+
+
+
+
 '{'<br>
+
+
+
+
     [&lt;name&gt;] [&lt;storage_size&gt; &lt;size_multiplier&gt;]<br>
+
+
+
+
   { [&lt;name&gt;] [&lt;storage_size&gt; &lt;size_multiplier&gt;] }<br>
+
+
+
+
 <br>
+
+
+
+
 '}'<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;name&gt; ::= 'a' .. 'z'<br>
+
+
+
+
 &lt;storage_size&gt; ::= 'ds.b' | 'ds.w' | 'ds.p' | 'ds.l'<br>
+
+
+
+
 <br>
+
+
+
+
 Defines variable address area or offsets. First you define the origin
 of a variable area. This may be defined using an evaluable 16bit
 expression (positive). Each variable name is followed by a size
@@ -1309,65 +3800,285 @@ specifier which can be a byte, word, pointer (3 bytes) or long word
 size. This is particularly useful for defining dynamic data structures
 in linked lists and binary search trees. Defining variable areas are
 only template definitions not allocations. An example:<br>
+
+
+
+
 <br>
+
+
+
+
 .defvars asm_vars<br>
+
+
+
+
 {<br>
+
+
+
+
    RuntimeFlags1 ds.b 1         ; space for next variable is 1 byte<br>
+
+
+
+
    RuntimeFlags2 ds.b 1<br>
+
+
+
+
    RuntimeFlags3 ds.b 1<br>
+
+
+
+
                  ds.w 1         ; space not defined<br>
+
+
+
+
    explicitORIG  ds.w 1         ; 2 bytes space<br>
+
+
+
+
    asmtime       ds.b 3         ; 3 bytes space<br>
+
+
+
+
    datestamp_src ds.b 6         ; 6 bytes space<br>
+
+
+
+
    datestamp_obj ds.b 6<br>
+
+
+
+
    TOTALERRORS   ds.l 1         ; 4 bytes space<br>
+
+
+
+
 }<br>
+
+
+
+
 <br>
+
+
+
+
 the following is useful for defining dynamic data structures:<br>
+
+
+
+
 <br>
+
+
+
+
 .defvars 0<br>
+
+
+
+
 ; 'PfixStack' structure (used for postfix expressions):<br>
+
+
+
+
 {<br>
+
+
+
+
    pfixstack_const     ds.l 1    ; The stack item value<br>
+
+
+
+
    pfixstack_previtem  ds.p 1    ; Pointer to previous element on stack<br>
+
+
+
+
    SIZEOF_pfixstack              ; total size of data structure<br>
+
+
+
+
 }<br>
+
+
+
+
 <br>
+
+
+
+
 This type of variable declaration makes it very easy for modifications, e.g. deleting or inserting variable definitions.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 IF &lt;logical expression&gt;<br>
+
+
+
+
 [ELSE]<br>
+
+
+
+
 ENDIF<br>
+
+
+
+
 <br>
+
+
+
+
 Multi-line-directive. This allows to assemble particular source lines
 between the IF, ELSE and ENDIF directives. The logical truth of the IF
 condition depends on which source lines will be assembled inside the
 directive construction. ELSE is optional. Infinite nesting of IF
 directives are allowed. Each directive must be specified on separate
 lines. An example:<br>
+
+
+
+
 <br>
+
+
+
+
 if QDOS<br>
+
+
+
+
     include "defs_h"<br>
+
+
+
+
     include "symbol_def"<br>
+
+
+
+
     include "stdio_def"<br>
+
+
+
+
     include "fileio_def"<br>
+
+
+
+
     include "memory_def"<br>
+
+
+
+
 else<br>
+
+
+
+
     include "defs.h"<br>
+
+
+
+
     include "symbol.def"<br>
+
+
+
+
     if MSDOS | UNIX<br>
+
+
+
+
          include "stdio.def"<br>
+
+
+
+
          include "fileio.def"<br>
+
+
+
+
          include "memory.def"<br>
+
+
+
+
     endif<br>
+
+
+
+
 endif<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .include "filename"<br>
+
+
+
+
 <br>
+
+
+
+
 Another component that is frequently used is to 'link' an additional
 source file together with the current source file. Usually this
 contains variable definitions that is commonly used by several modules
@@ -1376,21 +4087,53 @@ same information into several files - it simply uses redundant space of
 your storage media. The external source file will be included at the
 position of the INCLUDE directive. You specify an include file as with
 the following example:<br>
+
+
+
+
 <br>
+
+
+
+
      include "stdio.def"<br>
+
+
+
+
 <br>
+
+
+
+
 The format of the filename depends on the operating system platform. As
 with the current source file, you may also insert files in include
 files. There is no limit of how many levels (of files) you specify of
 include files. Recursive or mutual recursive INCLUDE files (an INCLUDE
 file calling it self) is not possible - the assembler program will
 immediately return an error message back to you!<br>
+
+
+
+
 <br>
+
+
+
+
 Include files are usually put at the start of the source file module
 but may be placed anywhere in the source text. The current source file
 will be continued after the INCLUDE directive when the included file
 has been parsed to the end of file.<br>
+
+
+
+
 <br>
+
+
+
+
 If you specify a leading '#' in the filename (as shown above) the
 assembler automatically precedes a default directory path, defined from
 the MPM_DEFFILES environment variable. Most of the time INCLUDE is used
@@ -1398,28 +4141,96 @@ for including operating system manifests - which enables you to place
 them in a particular place on your system. Using the '#' also enables
 you to have these definition files placed anywhere on any computer
 platform. The '#' resolves this for you.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .xlib name {,name}<br>
+
+
+
+
 <br>
+
+
+
+
 Declares symbol as external to the current module. The symbol name will
 be defined as the name of a library routine which will be automatically
 linked into the application code from a library during the
 linking/relocation phase of the compilation process (if a library has
 been specified at the command line with the -i option).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .lstoff<br>
+
+
+
+
 Switches listing output to file off temporarily. The listing file is not closed. <br>
+
+
+
+
 <br>
+
+
+
+
 .lston<br>
+
+
+
+
 Enables listing output (usually from a previous LSTOFF). Both
 directives may be useful when information from INCLUDE files is
 redundant in the listing file, e.g. operating system definitions.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .module name<br>
+
+
+
+
 <br>
+
+
+
+
 Defines the name of the current module. This may be defined only once
 for a module. All source file modules contain a module name. This name
 is used by the assembler when creating address map files and for
@@ -1429,10 +4240,30 @@ the module name is of no importance; it may be placed at the end or the
 start of the source file. However, it has more sense to put it at the
 top. The syntax is simple - specify a legal identifier name after the
 MODULE directive, e.g. MODULE main_module<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .org &lt;32bit expression&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 Define address origin of compiled machine code - the position in memory
 where the machine is to be loaded and executed. The expression must be
 evaluable (containing no forward or external references). All address
@@ -1441,205 +4272,749 @@ address will be placed in the current module that is being compiled.
 However, during linking only the first object module is being read for
 an ORG address. The ORG is ignored during linking if you have specified
 an -r option on the command line.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .global name {, name}<br>
+
+
+
+
 <br>
+
+
+
+
 Declares symbol globally available to other specified source file modules during the linking phase of the compilation process.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .lib name<br>
+
+
+
+
 <br>
+
+
+
+
 When you need to create a library routine, it is necessary to declare
 the routine with LIB. In functionality it declares the name globally
 available to all other modules in project, but also serves as a search
 able item in libraries. A library routine does not contain a MODULE
 directive, since the LIB name is also identified as the module name
 (you only specify one library routine per module).<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 .extern name {, name}<br>
+
+
+
+
 <br>
+
+
+
+
 Declares symbol as external to the current module. The name must have
 been defined as XDEF in another module to let this module reach the
 value of the symbol during the linking phase.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 8.0 Run time error messages<br>
+
+
+
+
 <br>
+
+
+
+
 The following error messages will be written in corresponding error
 files (related to a source file). Each error message will contain the
 name of the source file and a line number where the error occurred in
 the file.<br>
+
+
+
+
 <br>
+
+
+
+
 0, "File open/read error"<br>
+
+
+
+
 You have tried to access a file that either was not found, already
 opened by other resources, or the assembler wasn't able to create
 output files (object file, listing-, symbol-, map- or executable binary
 file).<br>
+
+
+
+
 <br>
+
+
+
+
 1, "Syntax error"<br>
+
+
+
+
 This is a message used by many routines - hence the general but
 descriptive message. You have tried to use illegal registers in Z80
 mnemonic instructions, specified an illegal parameter type (string
 instead of integer), omitted a parameter (DEFB without constant).<br>
+
+
+
+
 <br>
+
+
+
+
 2, "Symbol not defined"<br>
+
+
+
+
 This error is given if you are referring to an identifier (usually in
 an address reference) that was not declared. Either a label definition
 is missing in the current module or you have forgotten to declare an
 identifier as external using the XREF directive.<br>
+
+
+
+
 <br>
+
+
+
+
 3, "Not enough memory"<br>
+
+
+
+
 Well, well. It seems that there wasn't enough room to hold the internal data structures during parsing or linking your code.<br>
+
+
+
+
 <br>
+
+
+
+
 4, "Integer out of range"<br>
+
+
+
+
 You have an expression which evaluates into a constant that are beyond
 the legal integer range (e.g. trying to store a 16bit value into an
 8bit parameter).<br>
+
+
+
+
 <br>
+
+
+
+
 5, "Syntax error in expression"<br>
+
+
+
+
 Quite clearly you have made an illegal expression, e.g. specifying two
 following operands without an operator to separate them, used an
 illegal constant specifier or using illegal characters that aren't a
 legal identifier.<br>
+
+
+
+
 <br>
+
+
+
+
 6, "Right bracket missing"<br>
+
+
+
+
 Your expression is using brackets and is not properly balanced, i.e. too many beginning brackets or to few ending brackets...<br>
+
+
+
+
 <br>
+
+
+
+
 7, "Out of range"<br>
+
+
+
+
 Same as 4.<br>
+
+
+
+
 <br>
+
+
+
+
 8, "Source filename missing"<br>
+
+
+
+
 There has not been specified any source file modules or project file to start a compilation.<br>
+
+
+
+
 <br>
+
+
+
+
 9, "Illegal option"<br>
+
+
+
+
 The command line parser couldn't recognize the -option. Remember to
 specify your option in EXACT case size. You have probably used a space
 between an option and a filename parameter.<br>
+
+
+
+
 <br>
+
+
+
+
 10, "Unknown identifier"<br>
+
+
+
+
 The parser expected a legal identifier, i.e. a directive or Z80
 mnemonic. You have probably omitted the '.' in front of a label
 definition, misspelled a name or used a comment without a leading ';'.<br>
+
+
+
+
 <br>
+
+
+
+
 11, "Illegal identifier"<br>
+
+
+
+
 You have been trying to use a name that is either not known to the
 parser or an illegal identifier. This might happen if you try to use a
 register that is not allowed in a LD instruction, e.g. LD A,F .<br>
+
+
+
+
 <br>
+
+
+
+
 12, "Max. code size reached"<br>
+
+
+
+
 Is that really possible? Very interesting code of yours! Z80 machine
 code program tend to be in the 2Mb range (at least on the Sony Play
 Station)...<br>
+
+
+
+
 <br>
+
+
+
+
 13, "errors occurred during assembly"<br>
+
+
+
+
 Status error message displayed on the screen when the assembler has
 completed its parsing on all modules. You have one or more errors to
 correct in your source files before the assembler continues with
 linking the next time.<br>
+
+
+
+
 <br>
+
+
+
+
 14, "Symbol already defined"<br>
+
+
+
+
 In the current source file, you have tried to create two identical
 address label definitions, or other name identifier creators (using
 DEFC, DEFVARS, DEFGROUP).<br>
+
+
+
+
 <br>
+
+
+
+
 15, "Module name already defined"<br>
+
+
+
+
 You have used the MODULE directive more than once in your source file,
 or used both a MODULE and XLIB directive (library modules only need an
 XLIB).<br>
+
+
+
+
 <br>
+
+
+
+
 16, "Module name not defined"<br>
+
+
+
+
 A MODULE directive is missing in your source file (or XLIB directive in a library source file routine).<br>
+
+
+
+
 <br>
+
+
+
+
 17, "Symbol already declared local"<br>
+
+
+
+
 You have tried to declare a symbol as XREF, but it was already defined local, eg. using a ".lbaddr" in your source.<br>
+
+
+
+
 <br>
+
+
+
+
 18, "Symbol already declared global"<br>
+
+
+
+
 You have two identical XDEF symbol declarations in your source file module.<br>
+
+
+
+
 <br>
+
+
+
+
 19, "Symbol already declared external"<br>
+
+
+
+
 You have two identical XREF symbol declarations in your source file module.<br>
+
+
+
+
 <br>
+
+
+
+
 20, "No command line arguments"<br>
+
+
+
+
 Ups - display MPM Module Assembler help text.<br>
+
+
+
+
 <br>
+
+
+
+
 21, "Illegal source filename"<br>
+
+
+
+
 You have tried to specify an option after having begun to specify
 filenames. Options must always be specified before filenames or project
 files.<br>
+
+
+
+
 <br>
+
+
+
+
 22, "Symbol declared global in another module"<br>
+
+
+
+
 You have two identical XDEF definitions in separate modules. One of them should probably be an XREF instead.<br>
+
+
+
+
 <br>
+
+
+
+
 23, "Re-declaration not allowed"<br>
+
+
+
+
 You are trying to specify an XDEF for a name that has already been XREF'ed in the same module (or the other way around).<br>
+
+
+
+
 <br>
+
+
+
+
 24, "ORG already defined"<br>
+
+
+
+
 Not used.<br>
+
+
+
+
 <br>
+
+
+
+
 25, "Relative jump address must be local"<br>
+
+
+
+
 You have tried to JR to a label address that is declared as external
 (with XREF or LIB). JR must be performed in the current source file
 module.<br>
+
+
+
+
 <br>
+
+
+
+
 26, "Not a relocatable file" / "Not an object file"<br>
+
+
+
+
 The assembler opened a supposed object file (with the proper ".obj"
 extension) but realized it wasn't conforming to the Z80 assembler
 standard object file format.<br>
+
+
+
+
 <br>
+
+
+
+
 27, "Reserved name"<br>
+
+
+
+
 You have tried to create a label or other name as "ASMPC".<br>
+
+
+
+
 <br>
+
+
+
+
 28, "Couldn't open library file"<br>
+
+
+
+
 The library file was found but couldn't be opened (probably already opened by another application resource)<br>
+
+
+
+
 <br>
+
+
+
+
 29, "Not a library file"<br>
+
+
+
+
 Your library file is not a library file (at least is not of the correct
 file format used by this assembler). Have you maybe used another
 "library" file? The MPM library file could also be corrupted (at least
 in the header)...<br>
+
+
+
+
 <br>
+
+
+
+
 30, "Environment variable not defined"<br>
+
+
+
+
 The assembler reports that either the "MPM_DEFFILES" or "MPM_STDLIB" environment variables wasn't found in the operating system.<br>
+
+
+
+
 <br>
+
+
+
+
 31, "Cannot include file recursively"<br>
+
+
+
+
 An file was tried to be included which was already included at a
 previous include level. INCLUDE "a.h" cannot contain an INCLUDE "a.h"...<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 9.0 Compiling the MPM Module Assembler ANSI C source files<br>
+
+
+
+
 <br>
+
+
+
+
 If it is needed to re-compile the assembler for the current platform or
 compiling it for a new platform, two files must be stored together with
 the source files present in the same source directory:<br>
+
+
+
+
 <br>
+
+
+
+
 1) The 'config.h' file<br>
+
+
+
+
 This file contains three components:<br>
+
+
+
+
 a) A constant string (name) to identify the name of the platform the
 assembler is running in. The name may be used in assembly source texts
 as an identifier e.g. for conditional assembly of your compilation
 project. <br>
+
+
+
+
 <br>
+
+
+
+
 b) A C compiler identifier to control #ifdef conditional compilation of
 the assembler source files. If new platforms are added to the source
 files the compiler identifier is added to the 'config.h' file. Please
 choose a well defined name of the operating system.<br>
+
+
+
+
 <br>
+
+
+
+
 c) If your processor architecture uses Big Endian integer storage (high
 byte - low byte order), then it is necessary to use the "ENDIAN"
 directive (e.g. for MC68000). The 'config.h' file must be in the same
 directory as the C source files.<br>
+
+
+
+
 <br>
+
+
+
+
 2) The 'symbol.h' file<br>
+
+
+
+
 This file contains all data structures (linked lists for expressions,
 AVL binary trees for symbol tables, source module specifications, etc.)
 used by the assembler C source files. Almost all C source files include
 this file. The 'symbol.h' file must be in the same directory as the C
 source files. <br>
+
+
+
+
 <br>
+
+
+
+
 o The assember program supplied as ANSI C source files<br>
+
+
+
+
 The MPM Assembler is already established on several computer platforms.
 However, other programmers wishing to use the assembler on a another
 platform must port the source files and compile them on a local ANSI C
@@ -1647,76 +5022,264 @@ compiler. We chose the ANSI C language because it is a widely known
 language, standardized and well suited for text processing and compiler
 oriented applications. Further, a ANSI C compiler is almost always
 available on various computer platforms.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o The format of the source files<br>
+
+
+
+
 The source files contain no binary information, such as internal data
 structures for specific word processors or editors. All source files
 are stored as 7 bit ASCII characters using only new line (\n) and
 tabulators (\t) as control characters. The syntax layout of the sources
 use the GNU programming style.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Defining the current platform<br>
+
+
+
+
 As seen on the supplied 'config.h' file only one platform
 identification can be active at one time. All other platform
 identifications are commented out (not active). Setting more than one
 platform active may result in the C compiler failing with unknown
 identifier errors or generating fatal code.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o The C source files<br>
+
+
+
+
 The MPM Module Assembler is composed of the following ANSI C source files:<br>
+
+
+
+
 <br>
+
+
+
+
 main.c<br>
+
+
+
+
 This file contains the main entry of the assembler. Command line
 parsing, assembler file control, calling of pass1, pass2, linking,
 relocating, code generation. Various assembler output files are created
 from this source module.<br>
+
+
+
+
 <br>
+
+
+
+
 pass.c<br>
+
+
+
+
 Control of pass1: source file parsing, inclusion of files, conditional
 assembly and code generation to object files. Listing file generation.
 Control of pass2: expression evaluation, patching and completion of
 object files. Patching in listing files and symbol table generation (to
 separate file or at end of listing file).<br>
+
+
+
+
 <br>
+
+
+
+
 modlink.c<br>
+
+
+
+
 Control of linking and relocating of object module machine code. Also
 automatic library inclusion and relocating of code modules. Creation of
 object module libraries and executable Z80 machine code files. Creation
 of map files (sorting of symbols and writing to file).<br>
+
+
+
+
 <br>
+
+
+
+
 symbols.c<br>
+
+
+
+
 Symbol table management og local, global and external assembler source module symbols. <br>
+
+
+
+
 exprprsr.c<br>
+
+
+
+
 Expression parsing and evaluation. Storing of expressions in infix notation to object files.<br>
+
+
+
+
 <br>
+
+
+
+
 prsline.c<br>
+
+
+
+
 Source line parsing functions. These recognize identifiers and constants.<br>
+
+
+
+
 <br>
+
+
+
+
 prsmpm.c<br>
+
+
+
+
 Here, all Z80 standard mnemonics are found and executed to begin
 parsing, generate machine code and store information into the object
 file. <br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 asmdrctv.c<br>
+
+
+
+
 All function logic routines (DEFB, INCLUDE, ORG, DEFVARS, etc.) that parse and code generate Z80 assembler directives.<br>
+
+
+
+
 <br>
+
+
+
+
 o Using a Make utility or a compiler front end<br>
+
+
+
+
 Most C compilers accept the following command line:<br>
+
+
+
+
 <br>
-	cc -o mpm *.c<br>
+
+
+
+
+
 <br>
+
+
+
+
 which will identify the execute filename as "mpm". All c files will
 automatically be compiled, and the main() function is automatically
 resolved in the appropriate "main" source during compilation. You may
 however be forced to use a make utility.<br>
+
+
+
+
 <br>
+
+
+
+
 o Future platform implementations<br>
+
+
+
+
 If you have ported this assembler to a new platform, please send a mail to gbs@users.sf.net with sources and details.<br>
+
+
+
+
 <br>
+
+
+
+
 The MPM Assembler may have been further developed in parallel with your
 port. It is of extreme importance that we know of all your changes to
 be able to put them into a new release. Write a file with your
@@ -1727,11 +5290,35 @@ distributing software that was compiled with their C compilers. We take
 NO responsibility for illegally distributed programs! The MPM Assembler
 is an Open Sourced program and should be kept that way to the benefit
 of all developers...<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 10.0 File formats<br>
+
+
+
+
 <br>
+
+
+
+
 o Object file format documentation<br>
+
+
+
+
 The structure of the object file format is designed exclusively for the
 MPM Module Assembler. However, it may be useful for other programmers
 if they wish to use the file format for other purposes. We have
@@ -1739,107 +5326,487 @@ included the documentation of the object file structure in this
 document. Improvement suggestions are welcome. We hope to have designed
 a simple and straightforward file format. The documentation may be
 necessary if you want to use the object file format in other systems.<br>
+
+
+
+
 <br>
+
+
+
+
 I have created the design structure of the object file format to be
 suitable for future expansion. The primary aim of the design has been
 to maintain structure simplicity and load efficiency during link
 processing.<br>
+
+
+
+
 <br>
+
+
+
+
 The format of the object file is as follows:<br>
+
+
+
+
 <br>
+
+
+
+
 0 [ 'MPMRMF01' &lt;ORG Address&gt; ]<br>
+
+
+
+
   [ &lt;F.ptr to Module Name&gt; ]<br>
+
+
+
+
   [ &lt;F.ptr to Expression Declarations&gt; ]<br>
+
+
+
+
   [ &lt;F.ptr to Name Declarations&gt; ]<br>
+
+
+
+
   [ &lt;F.ptr to Library Name Declarations&gt; ]<br>
+
+
+
+
   [ &lt;F.ptr to Machine Code Block&gt; ]<br>
+
+
+
+
 <br>
+
+
+
+
   [ &lt;Expression Declaration&gt; ]<br>
+
+
+
+
   [ ... ]<br>
+
+
+
+
 <br>
+
+
+
+
   [ &lt;Name Declaration&gt; ]<br>
+
+
+
+
   [ ... ]<br>
+
+
+
+
 <br>
+
+
+
+
   [ &lt;Library Name Declaration&gt; ]<br>
+
+
+
+
   [ ... ]<br>
+
+
+
+
 <br>
+
+
+
+
   [ &lt;Module Name&gt; ]<br>
+
+
+
+
   [ &lt;Machine Code&gt; ]<br>
+
+
+
+
 n<br>
+
+
+
+
 <br>
+
+
+
+
 The 0 (null) - &lt;n&gt; defines start to &lt;n&gt; total of bytes file
 length. The above figure has deliberately been split into sections to
 clarify the file structure, although there is no actual physical
 separation between the sections in the file; each section is
 immediately followed by the next.<br>
+
+
+
+
 <br>
+
+
+
+
 ****!!!!<br>
+
+
+
+
 The file pointers are 32bit integers stored in low byte - high byte order (Little endian format - Intel notation).<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;ORG Address&gt;<br>
+
+
+
+
 Contains the 32bit ORG address for the linked machine code or FFFFFFFFh for no ORG address defined.<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Expression Declaration&gt;<br>
+
+
+
+
 Contains the following:<br>
+
+
+
+
 &lt;type&gt;&lt;patchptr&gt;&lt;length&gt;&lt;expression_string&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;type&gt; defines the resulting evaluation type range:<br>
+
+
+
+
 'U': 8bit integer (0 to 255)<br>
+
+
+
+
 'S': 8bit signed integer (-128 to 127)<br>
+
+
+
+
 'C': 16bit integer (-32768 to 65535)<br>
+
+
+
+
 'L': 32bit signed integer<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;patchptr&gt; defines the 32bit relative module code patch pointer to store result.<br>
+
+
+
+
 &lt;length&gt; defines byte length of expression string.<br>
+
+
+
+
 &lt;expression_string&gt; contains the infix expression parsed from the source file.<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Name Declaration&gt;<br>
+
+
+
+
 Contains the following:<br>
+
+
+
+
 &lt;Scope&gt;&lt;Type&gt;&lt;Value&gt;&lt;Length&gt;&lt;Name&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Scope&gt; defines the scope of the name:<br>
+
+
+
+
 'L' is local,<br>
+
+
+
+
 'G' is global,<br>
+
+
+
+
 'X' global library<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Type&gt; defines whether it is a:<br>
+
+
+
+
 'A' relocatable address,<br>
+
+
+
+
 'C' a constant'<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Length&gt; defines length byte of the following &lt;Name&gt; string.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Library Name Declaration&gt;<br>
+
+
+
+
 Contains the following which defines library reference names:<br>
+
+
+
+
 &lt;Length&gt;&lt;Name&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Length&gt; defines length byte of the following &lt;Name&gt; string.<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Module Name&gt;<br>
+
+
+
+
 Contains a preceding byte identifying the length of the following string<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Machine Code&gt;<br>
+
+
+
+
 Contains a preceding 32bit integer identifying the total length of the following machine code block.<br>
+
+
+
+
 <br>
+
+
+
+
 <br>
+
+
+
+
 o Library file format documentation<br>
+
+
+
+
 The library file format is a sequence of object files with additional structures.<br>
+
+
+
+
 <br>
+
+
+
+
 0 [ 'MPMLMF01' ]<br>
+
+
+
+
   [ &lt;Object File Block&gt; ]<br>
+
+
+
+
   [ ... ]<br>
+
+
+
+
 n<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Object File Block&gt;<br>
+
+
+
+
 Contains the following:<br>
+
+
+
+
 &lt;Next Object File&gt;&lt;Object File Length&gt;&lt;'MPMRMF01' Object File&gt;<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Next Object File&gt; is a 32bit integer file pointer to the next<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Object File Block&gt;<br>
+
+
+
+
 If this file pointer is -1 (FFFFFFFFh) then the current &lt;Object File Block&gt; is the last in the library file.<br>
+
+
+
+
 <br>
+
+
+
+
 &lt;Object File Length&gt; is 32bit length integer of &lt;'MPMRMF01' Object File&gt;<br>
+
+
+
+
 If this integer is 0 then it is indicated that the current &lt;Object
 File Block&gt; has been marked "deleted" and will not be used.
 </body>
