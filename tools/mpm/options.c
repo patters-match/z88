@@ -91,7 +91,7 @@ SetAsmFlag (char *flagid)
   enum flag Option;
 
   /* check wether to use an RST or CALL when Invoke for TI83x is used */
-  if (strcmp(flagid, "plus") == 0) 
+  if (strcmp(flagid, "plus") == 0)
     {
       ti83plus = ON;
       return;
@@ -293,6 +293,7 @@ prompt (void)
   puts ("-c split executable binary into 16K files using auto-appended .bnX extension.");
   puts ("-g Global Relocation Address DEF File, XDEF from modules as DEFC address defs.");
   puts ("-R Generate relocatable program (code must run in RAM due to address patching)");
+  puts ("-C Override compile error line numbers using LINE directive line number");
   puts ("-A Address align DEFW & DEFL constants");
   puts ("-d date stamp control, assemble only if source file > object file.");
   puts ("-a = -bd (assemble only updated source files, then static link modules).");
