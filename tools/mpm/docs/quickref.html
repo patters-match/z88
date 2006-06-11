@@ -4,11 +4,15 @@
 
 
 
+
+  
   
   
   <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
 
 
+
+  
   
   
   <title>Mpm Quick Reference Guide</title>
@@ -19,8 +23,10 @@
 
 
 
+
 <div style="text-align: center; font-weight: bold;"><big>[M]ultiple
 [P]rocessor [M]odule Assembler - Z80 Edition V1.2, 2006<br>
+
 
 
 
@@ -28,11 +34,14 @@ Quick Reference Guide (draft)</big><br>
 
 
 
+
 </div>
 
 
 
+
 <br>
+
 
 
 
@@ -41,7 +50,9 @@ Quick Reference Guide (draft)</big><br>
 
 
 
+
 <br>
+
 
 
 
@@ -63,10 +74,13 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
 <hr style="width: 100%; height: 2px;"><br>
 
 
+
 <div style="text-align: center;"><big><span style="font-weight: bold;">Contents</span><br>
+
 
 
 </big>
@@ -74,76 +88,107 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 <ol>
 
 
+
   <li><a href="#cmdline">Instructing the assembler on the command line</a></li>
 
 
+
+  
   
   
   <ul>
+
 
 
     <li><a href="#options_nopar">Options
 without parameters</a></li>
 
 
+
     <li><a href="#options_par">Options
 with parameters</a></li>
 
 
+
+  
   
   
   </ul>
+
 
 
   <li><a href="#envvar">Environment variables</a></li>
 
 
+
   <li><a href="#filetypes">MPM module assembler file types</a></li>
+
 
 
   <li><a href="#platformid">The standard platform identifier</a></li>
 
 
+
   <li><a href="#sourcefile">Source file structure and layout</a></li>
+
 
 
   <li><a href="#comments">Comments in source files</a></li>
 
 
+
   <li><a href="#labels">Defining symbolic address labels</a></li>
+
 
   <li><a href="#expressions">Using expressions</a></li>
 
+
+  
   
   <ul>
+
     <li><a href="#numconsts">Numeric constants</a></li>
+
     <li><a href="#arithop">Arithmetic operators</a></li>
+
     <li><a href="#hashop">The # operator</a></li>
+
     <li><a href="#relop">Relational operators</a></li>
+
     <li><a href="#asmpc">The assembler program counter</a></li>
+
+  
   </ul>
+
 
 
 </ol>
 
 
+
 </div>
 
 
+
 </div>
+
 
 
 <br>
+
 
 
 <hr style="width: 100%; height: 2px;"><br>
 
 
+
 <br>
 
 
 
+
 <big><a name="cmdline"></a><span style="font-weight: bold;">Instructing the assembler on the command line</span></big><br>
+
 
 
 
@@ -160,11 +205,13 @@ specification and which options are available.</p>
 
 
 
+
 <p>The syntax of the assembler options is a straightforward
 design. Filenames or a project
 file are always specified. The options may be left out (surrounded here
 with
 []):&nbsp;</p>
+
 
 
 
@@ -186,6 +233,7 @@ semicolon.&nbsp; </p>
 
 
 
+
 <p>Options are used to control the assembly process
 and output. They are
 recognized by the assembler when you specify a leading minus before the
@@ -194,6 +242,7 @@ option identifier
 executed options are all preset with default values and are either
 switched ON or OFF (active
 or not).&nbsp; </p>
+
 
 
 
@@ -207,7 +256,9 @@ Default options are: <span style="font-weight: bold; font-family: monospace;">-s
 
 
 
+
 </span></p>
+
 
 
 
@@ -215,11 +266,14 @@ Default options are: <span style="font-weight: bold; font-family: monospace;">-s
 
 
 
+
   <tbody>
 
 
 
+
     <tr align="center">
+
 
 
 
@@ -228,11 +282,14 @@ without parameters</span></span></td>
 
 
 
+
     </tr>
 
 
 
+
     <tr>
+
 
 
 
@@ -240,7 +297,9 @@ without parameters</span></span></td>
 
 
 
+
       <td>Verbose output during assembly. Not enabled by default.</td>
+
 
 
 
@@ -248,11 +307,14 @@ without parameters</span></span></td>
 
 
 
+
     <tr>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-t</span></td>
+
 
 
 
@@ -262,11 +324,14 @@ optionally a symbol table. Not enabled by default.</td>
 
 
 
+
     </tr>
 
 
 
+
     <tr>
+
 
 
 
@@ -274,7 +339,9 @@ optionally a symbol table. Not enabled by default.</td>
 
 
 
+
       <td>Create symbol table in listing file. Enabled by default.</td>
+
 
 
 
@@ -282,11 +349,14 @@ optionally a symbol table. Not enabled by default.</td>
 
 
 
+
     <tr>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-m</span></td>
+
 
 
 
@@ -296,7 +366,9 @@ default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -304,7 +376,9 @@ default.</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-d</td>
+
 
 
 
@@ -314,7 +388,9 @@ compile even if object file exists).</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -322,7 +398,9 @@ compile even if object file exists).</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-b</td>
+
 
 
 
@@ -331,7 +409,9 @@ by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -339,7 +419,9 @@ by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-a</span></td>
+
 
 
 
@@ -349,7 +431,9 @@ executable binary.&nbsp;Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -357,7 +441,9 @@ executable binary.&nbsp;Not enabled by default.</td>
 
 
 
+
       <td><span style="font-family: monospace;">-c</span></td>
+
 
 
 
@@ -366,7 +452,9 @@ executable binary.&nbsp;Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -374,7 +462,9 @@ executable binary.&nbsp;Not enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-g</td>
+
 
 
 
@@ -383,7 +473,9 @@ default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -391,7 +483,9 @@ default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-A</span></td>
+
 
 
 
@@ -400,7 +494,9 @@ enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -408,7 +504,9 @@ enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-C</span></td>
+
 
 
 
@@ -420,7 +518,9 @@ by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -428,7 +528,9 @@ by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-R</span></td>
+
 
 
 
@@ -437,7 +539,9 @@ run in RAM). Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -445,7 +549,9 @@ run in RAM). Not enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-plus</span></td>
+
 
 
 
@@ -454,7 +560,9 @@ opcode (otherwise CALL instruction). Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -462,7 +570,9 @@ opcode (otherwise CALL instruction). Not enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-IXIY</span></td>
+
 
 
 
@@ -471,10 +581,13 @@ instruction opcodes and vice versa. Not enabled by default.</td>
 
 
 
+
     </tr>
 
 
 
+
+  
   
   
   </tbody>
@@ -482,11 +595,14 @@ instruction opcodes and vice versa. Not enabled by default.</td>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -494,11 +610,14 @@ instruction opcodes and vice versa. Not enabled by default.</td>
 
 
 
+
   <tbody>
 
 
 
+
     <tr align="center">
+
 
 
 
@@ -507,7 +626,9 @@ with parameters</span></span></td>
 
 
 
+
     </tr>
+
 
 
 
@@ -515,7 +636,9 @@ with parameters</span></span></td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-D&lt;symbol&nbsp;name&gt;</span></td>
+
 
 
 
@@ -524,7 +647,9 @@ current compilation session.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -532,11 +657,14 @@ current compilation session.<br>
 
 
 
+
     <tr>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-r&lt;address&gt;</span></td>
+
 
 
 
@@ -545,7 +673,9 @@ current compilation session.<br>
 
 
 
+
     </tr>
+
 
 
 
@@ -553,7 +683,9 @@ current compilation session.<br>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-e&lt;ext&gt;</td>
+
 
 
 
@@ -562,7 +694,9 @@ with&nbsp;&lt;ext&gt;. Max 3 letters (specified without ".")</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -570,7 +704,9 @@ with&nbsp;&lt;ext&gt;. Max 3 letters (specified without ".")</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-M&lt;ext&gt;</span></td>
+
 
 
 
@@ -580,7 +716,9 @@ without ".")</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -588,7 +726,9 @@ without ".")</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-o&lt;filename&gt;</span></td>
+
 
 
 
@@ -600,7 +740,9 @@ executable binary).<br>
 
 
 
+
       </td>
+
 
 
 
@@ -608,7 +750,9 @@ executable binary).<br>
 
 
 
+
     <tr>
+
 
 
 
@@ -616,11 +760,14 @@ executable binary).<br>
 
 
 
+
       <td>add INCLUDE directive search path&nbsp;(relative
 paths names are allowed). Several paths may be concanated by using
 operating system path separator (';' in Windows, ':' in Unix). Avoid space between the path and the separator. <br>
+
 -I
 option may be specified multiply times at command line.<br>
+
 
 
 
@@ -628,11 +775,14 @@ option may be specified multiply times at command line.<br>
 
 
 
+
     </tr>
 
 
 
+
     <tr>
+
 
 
 
@@ -640,11 +790,14 @@ option may be specified multiply times at command line.<br>
 
 
 
+
       <td>add LIB library file search path&nbsp;(relative
 paths are allowed).&nbsp;Several paths may be concanated by using
 operating system path separator (';' in Windows, ':' in Unix). Avoid space between the path and the separator. <br>
+
 -L
 option may be specified multiply times at command line. </td>
+
 
 
 
@@ -652,11 +805,14 @@ option may be specified multiply times at command line. </td>
 
 
 
+
     <tr>
 
 
 
+
       <td><span style="font-family: monospace;">-x&lt;filename&gt;</span></td>
+
 
 
 
@@ -666,7 +822,9 @@ option is meaningless.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -674,11 +832,14 @@ option is meaningless.<br>
 
 
 
+
     <tr>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-l&lt;filename&gt;</td>
+
 
 
 
@@ -689,7 +850,9 @@ the -L option (to search for library at search paths).<br>
 
 
 
+
       </td>
+
 
 
 
@@ -697,6 +860,8 @@ the -L option (to search for library at search paths).<br>
 
 
 
+
+  
   
   
   </tbody>
@@ -704,15 +869,19 @@ the -L option (to search for library at search paths).<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 <big><a name="envvar"></a><span style="font-weight: bold;">Environment variables</span></big><br>
+
 
 
 
@@ -721,7 +890,9 @@ three&nbsp;variables:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -729,7 +900,9 @@ three&nbsp;variables:<br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -737,7 +910,9 @@ three&nbsp;variables:<br>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">MPM_Z80_INCLUDEPATH</td>
+
 
 
 
@@ -747,7 +922,9 @@ separator (see options above). Equivalent to the -I option</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -755,7 +932,9 @@ separator (see options above). Equivalent to the -I option</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">MPM_Z80_LIBPATH</td>
+
 
 
 
@@ -766,7 +945,9 @@ Equivalent to the -L option.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -774,7 +955,9 @@ Equivalent to the -L option.</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">MPM_Z80_STDLIBRARY</td>
+
 
 
 
@@ -783,10 +966,13 @@ be scanned by LIB directives.</td>
 
 
 
+
     </tr>
 
 
 
+
+  
   
   
   </tbody>
@@ -794,15 +980,19 @@ be scanned by LIB directives.</td>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 <big><a name="filetypes"></a><span style="font-weight: bold;">MPM module assembler file types</span></big><br>
+
 
 
 
@@ -814,7 +1004,9 @@ extension (keeping remaining input filename intact).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -822,11 +1014,14 @@ extension (keeping remaining input filename intact).<br>
 
 
 
+
   <tbody>
 
 
 
+
     <tr>
+
 
 
 
@@ -834,7 +1029,9 @@ extension (keeping remaining input filename intact).<br>
 
 
 
+
       <td>The source file (input) extension. May be overridden using the -e option.</td>
+
 
 
 
@@ -842,11 +1039,14 @@ extension (keeping remaining input filename intact).<br>
 
 
 
+
     <tr>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">obj</td>
+
 
 
 
@@ -857,7 +1057,9 @@ and expressions.&nbsp;May be overridden using the -M option.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -865,7 +1067,9 @@ and expressions.&nbsp;May be overridden using the -M option.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">err</span></td>
+
 
 
 
@@ -875,7 +1079,9 @@ error occurred in the corresponding source file.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -883,7 +1089,9 @@ error occurred in the corresponding source file.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">lst</span></td>
+
 
 
 
@@ -894,7 +1102,9 @@ table is dumped at the end of the listing file.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -902,7 +1112,9 @@ table is dumped at the end of the listing file.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">bin</span></td>
+
 
 
 
@@ -912,7 +1124,9 @@ extension) may be overridden using the -o option.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -920,7 +1134,9 @@ extension) may be overridden using the -o option.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">map</span></td>
+
 
 
 
@@ -934,13 +1150,17 @@ sections; first by&nbsp;name, then by address, both in ascending order.
 
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">def</span></td>
+
 
 
       <td>This file contains a DEFC directive list of all globally declared address labels
@@ -948,13 +1168,17 @@ with their calculated (absolute) origin address, fetched only during
 assembly of source file modules. The file may be useful for cross referencing in separate compile projects.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">lib</span></td>
+
 
 
       <td>Library file, which
@@ -962,10 +1186,13 @@ may be created using the -x option. Library modules may be included into
 application code during linking of object modules using the -l option. </td>
 
 
+
     </tr>
 
 
 
+
+  
   
   
   </tbody>
@@ -973,15 +1200,19 @@ application code during linking of object modules using the -l option. </td>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 <big><a name="platformid"></a><span style="font-weight: bold;">The standard platform identifier</span><br>
+
 
 
 
@@ -990,7 +1221,9 @@ made available when  typically using in IF directives or other expressions. The 
 
 
 
+
 <br>
+
 
 
 
@@ -1000,11 +1233,14 @@ computers<br>
 
 
 
+
 "UNIX" - the assembler is running on the LINUX/UNIX/MAC OSX platform.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1013,15 +1249,19 @@ files to different computer platforms. <br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 <big><a name="sourcefile"></a><span style="font-weight: bold;">Source file structure and layout</span></big><br>
+
 
 
 
@@ -1032,21 +1272,27 @@ interpretation is also handled by MPM - it understands all known line ending for
 
 
 
+
 <br>
+
 
 
 
 <span style="font-family: monospace;">&lt;LF&gt;</span> (used by&nbsp;UNIX/AMIGA/MAC OS X)<br>
 
 
+
 <span style="font-family: monospace;">&lt;CR&gt;&lt;LF&gt;</span> (used by MSDOS, WINDOWS)<br>
+
 
 
 <span style="font-family: monospace;">
 &lt;CR&gt;</span> (used by Z88, Mac OS&nbsp;8/9)<br>
 
 
+
 <br>
+
 
 
 Each source file begins with a MODULE definition, then optionally an
@@ -1060,15 +1306,19 @@ or data.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 <big><a name="comments"></a><span style="font-weight: bold;">Comments in source files</span></big><br>
+
 
 
 
@@ -1080,23 +1330,29 @@ on how to use comments in Z80 source files:<br>
 
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">
 ; **********************</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">
 ; main menu</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">
 ;</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">
 mainmenu: xor a</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">
@@ -1104,15 +1360,19 @@ mainmenu: xor a</span><br style="font-family: monospace;">
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 <big><a name="labels"></a><span style="font-weight: bold;">Defining symbolic address labels</span><br>
+
 
 
 
@@ -1125,11 +1385,14 @@ after the label:<br>
 
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">
 mainmenu: &nbsp; xor a</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">
@@ -1137,7 +1400,9 @@ mainmenu: &nbsp; xor a</span><br style="font-family: monospace;">
 
 
 
+
 <br>
+
 
 It is not allowed to position two label definitions on the same line.
 However, you
@@ -1150,15 +1415,19 @@ insensitive.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 <big><a name="expressions"></a><span style="font-weight: bold;">Using expressions</span></big><br>
+
 
 
 
@@ -1174,7 +1443,9 @@ LD instruction like LD A,&nbsp;n.&nbsp;<br>
 
 
 
+
 <br>
+
 If a parameter is outside
 an
 allowed integer range an assemble error is reported.
@@ -1186,13 +1457,17 @@ constants, ASCII characters and all the usual suspects of arithmetic operators.<
 
 
 
+
 <br>
+
 
 
 
 <big><br>
 
+
 <a name="numconsts"></a><span style="font-weight: bold;">Numeric constants</span><br>
+
 
 
 
@@ -1202,9 +1477,89 @@ following definitions are available:<br>
 
 
 
+
 <br>
 
+
 Digits without leading or trailing specifiers are interpreted as decimal constants.<br>
+
+
+<br>
+
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+
+
+    <tr>
+
+
+      <td>Decimal</td>
+
+
+      <td>456567,&nbsp;456d</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>Hexadecimal</td>
+
+
+      <td> 0xC000 (49152), or 4000h</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>Binary</td>
+
+
+      <td> @11000000 (192d) or 1011b (11d)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>Ascii</td>
+
+
+      <td>'A' (65d)</td>
+
+
+    </tr>
+
+
+  
+  
+  </tbody>
+</table>
+
+
+<span style="font-family: monospace;"><br>
+
+
+</span><br>
+
+
+
+
+<big><a name="arithop"></a><span style="font-weight: bold;">Arithmetic operators</span></big><br>
+
+All basic arithmetic operators are supported. The following table shows
+them all. Result of example is shown in brackets for clarity of
+operator.<br>
 
 <br>
 
@@ -1214,33 +1569,164 @@ Digits without leading or trailing specifiers are interpreted as decimal constan
 
     <tr>
 
-      <td>Decimal</td>
+      <td><span style="font-style: italic; font-weight: bold;">Operator symbol</span></td>
 
-      <td>456567,&nbsp;456d</td>
+      <td style="font-style: italic;"><span style="font-weight: bold;">Function</span></td>
 
-    </tr>
-
-    <tr>
-
-      <td>Hexadecimal</td>
-
-      <td> 0xC000 (49152), or 4000h</td>
+      <td><span style="font-style: italic; font-weight: bold;">Example</span></td>
 
     </tr>
 
     <tr>
 
-      <td>Binary</td>
+      <td>+</td>
 
-      <td> @11000000 (192d) or 1011b (11d)</td>
+      <td>Addition</td>
+
+      <td>12+13</td>
 
     </tr>
 
     <tr>
 
-      <td>Ascii</td>
+      <td>-</td>
 
-      <td>'A' (65d)</td>
+      <td>Unary minus, subtraction &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </td>
+
+      <td>-10, 12 - 45 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+    </tr>
+
+    <tr>
+
+      <td>*</td>
+
+      <td>Multiplication</td>
+
+      <td>45 * 2 (90)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>/</td>
+
+      <td>Division</td>
+
+      <td>256 / 8 (32)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>&gt;</td>
+
+      <td>Unary division by 256</td>
+
+      <td>&gt;1024 (4)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>%</td>
+
+      <td>Modulus</td>
+
+      <td> 256%8 (0)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>&lt;</td>
+
+      <td>Unary modulus by 256</td>
+
+      <td>&lt;65000 (232)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>**</td>
+
+      <td>Power</td>
+
+      <td>2 ** 7 (128)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>&amp;</td>
+
+      <td>Binary AND</td>
+
+      <td>255 &amp; 7 (7)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>|</td>
+
+      <td>Binary OR</td>
+
+      <td>128 | 64 (192)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>:</td>
+
+      <td>Binary NOR</td>
+
+      <td>128 : 128 (0)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>^</td>
+
+      <td>Binary XOR</td>
+
+      <td>12 ^ 3 (15)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>~</td>
+
+      <td>Unary Binary NOT</td>
+
+      <td>~128 (127)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+
+
+&lt;&lt;</td>
+
+      <td>Binary left shift</td>
+
+      <td>2 &lt;&lt; 4 (32)</td>
+
+    </tr>
+
+    <tr>
+
+      <td>&gt;&gt;</td>
+
+      <td>Binary right shift</td>
+
+      <td>128 &gt;&gt; 4 (8)</td>
 
     </tr>
 
@@ -1248,131 +1734,41 @@ Digits without leading or trailing specifiers are interpreted as decimal constan
   </tbody>
 </table>
 
-<span style="font-family: monospace;"><br>
-
-</span><br>
-
-
-
-<big><a name="arithop"></a><span style="font-weight: bold;">Arithmetic operators</span></big><br>
-All basic arithmetic operators are supported. The following table shows
-them all. Result of example is shown in brackets for clarity of
-operator.<br>
 <br>
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-  <tbody>
-    <tr>
-      <td><span style="font-style: italic; font-weight: bold;">Operator symbol</span></td>
-      <td style="font-style: italic;"><span style="font-weight: bold;">Function</span></td>
-      <td><span style="font-style: italic; font-weight: bold;">Example</span></td>
-    </tr>
-    <tr>
-      <td>+</td>
-      <td>Addition</td>
-      <td>12+13</td>
-    </tr>
-    <tr>
-      <td>-</td>
-      <td>Unary minus, subtraction &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </td>
-      <td>-10, 12 - 45 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</td>
-    </tr>
-    <tr>
-      <td>*</td>
-      <td>Multiplication</td>
-      <td>45 * 2 (90)</td>
-    </tr>
-    <tr>
-      <td>/</td>
-      <td>Division</td>
-      <td>256 / 8 (32)</td>
-    </tr>
-    <tr>
-      <td>&gt;</td>
-      <td>Unary division by 256</td>
-      <td>&gt;1024 (4)</td>
-    </tr>
-    <tr>
-      <td>%</td>
-      <td>Modulus</td>
-      <td> 256%8 (0)</td>
-    </tr>
-    <tr>
-      <td>&lt;</td>
-      <td>Unary modulus by 256</td>
-      <td>&lt;65000 (232)</td>
-    </tr>
-    <tr>
-      <td>**</td>
-      <td>Power</td>
-      <td>2 ** 7 (128)</td>
-    </tr>
-    <tr>
-      <td>&amp;</td>
-      <td>Binary AND</td>
-      <td>255 &amp; 7 (7)</td>
-    </tr>
-    <tr>
-      <td>|</td>
-      <td>Binary OR</td>
-      <td>128 | 64 (192)</td>
-    </tr>
-    <tr>
-      <td>:</td>
-      <td>Binary NOR</td>
-      <td>128 : 128 (0)</td>
-    </tr>
-    <tr>
-      <td>^</td>
-      <td>Binary XOR</td>
-      <td>12 ^ 3 (15)</td>
-    </tr>
-    <tr>
-      <td>~</td>
-      <td>Unary Binary NOT</td>
-      <td>~128 (127)</td>
-    </tr>
-    <tr>
-      <td>
 
-
-&lt;&lt;</td>
-      <td>Binary left shift</td>
-      <td>2 &lt;&lt; 4 (32)</td>
-    </tr>
-    <tr>
-      <td>&gt;&gt;</td>
-      <td>Binary right shift</td>
-      <td>128 &gt;&gt; 4 (8)</td>
-    </tr>
-  </tbody>
-</table>
-<br>
 Arithmetic operators use the standard operator precedence, shown from
 highest to lowest: <br>
 
 
 
+
 <br>
+
 <span style="font-family: monospace;">
 
 
 0x @ '</span> (constant identifiers)<br>
+
 <span style="font-family: monospace;">
 
 
 () []</span><br style="font-family: monospace;">
+
 <span style="font-family: monospace;">
 
 
 ~ &gt; &lt;</span><br style="font-family: monospace;">
+
 <span style="font-family: monospace;">
 
 
 **</span><br style="font-family: monospace;">
+
 <span style="font-family: monospace;">
 
 
 * / %</span><br style="font-family: monospace;">
+
 <span style="font-family: monospace;">
 
 
@@ -1380,7 +1776,9 @@ highest to lowest: <br>
 
 
 
+
 <br>
+
 If you want to override the default operator precedence rules, use
 brackets () or []. The square bracket have been implemented as an
 alternative to avoid ambiguity with Z80 instruction mnemonics where
@@ -1388,15 +1786,19 @@ indirect addressing uses the () as part of their syntax.<br>
 
 
 
-<br>
-
-
 
 <br>
 
 
 
-<big><a name="hashop"></a>The # operator</big><br>
+
+<br>
+
+
+
+
+<big><a name="hashop"></a><span style="font-weight: bold;">The # operator</span></big><br>
+
 
 
 
@@ -1412,22 +1814,29 @@ constant expression, you have to force it as one.<br>
 
 
 
+
 <br>
+
 <span style="font-family: monospace;">LD BC, end_relocator-relocator</span> ;&nbsp; Mpm adds an ORG constant during linking<br>
+
 <span style="font-family: monospace;">
 
 
 LD BC, #end_relocator-relocator</span> ; Mpm&nbsp;sees a constant
 expression<br>
-<br>
-
-
 
 <br>
 
 
 
-<big><a name="relop"></a>Relational operators</big><br>
+
+<br>
+
+
+
+
+<big><a name="relop"></a><span style="font-weight: bold;">Relational operators</span></big><br>
+
 
 
 
@@ -1440,7 +1849,9 @@ operators are available:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1448,7 +1859,9 @@ operators are available:<br>
 
 
 
+
 &lt;&gt; not equal to<br>
+
 
 
 
@@ -1456,7 +1869,9 @@ operators are available:<br>
 
 
 
+
 &gt; larger than<br>
+
 
 
 
@@ -1464,7 +1879,9 @@ operators are available:<br>
 
 
 
+
 &gt;= larger than or equal to<br>
+
 
 
 
@@ -1472,7 +1889,9 @@ operators are available:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1481,12 +1900,15 @@ AND, OR, XOR and NOT. <br>
 
 
 
+
 It is perfectly legal to use relational expressions in parameters
 requiring an arithmetic value. For example: <br>
 
 
 
+
 <br>
+
 <span style="font-family: monospace;">
 
 
@@ -1494,15 +1916,19 @@ LD A, [USING_IBM = 1] | RTMFLAGS&nbsp;&nbsp;&nbsp; </span>; use [] to ensure LD 
 
 
 
-<br>
-
-
 
 <br>
 
 
 
-<big><a name="asmpc"></a>The assembler program counter&nbsp;</big><br>
+
+<br>
+
+
+
+
+<big><a name="asmpc"></a><span style="font-weight: bold;">The assembler program counter</span>&nbsp;</big><br>
+
 
 
 
@@ -1513,15 +1939,19 @@ $PC identifier. An example: <br>
 
 
 
+
 <br>
+
 <span style="font-family: monospace;">
 
 
 errmsg0: DEFM errmsg1 - $pc - 1, "File open error"</span><br style="font-family: monospace;">
+
 <span style="font-family: monospace;">
 
 
 errmsg1: DEFM errmsg2 - $pc - 1, "Syntax error"</span><br style="font-family: monospace;">
+
 <span style="font-family: monospace;">
 
 
@@ -1529,7 +1959,9 @@ errmsg2:</span><br>
 
 
 
+
 <br>
+
 
 
 
@@ -1538,7 +1970,9 @@ is calculated by using the current $PC address value. <br>
 
 
 
+
 <big></big><br>
+
 
 
 
@@ -1546,7 +1980,9 @@ is calculated by using the current $PC address value. <br>
 <big><big><br>
 
 
+
 Directive reference</big></big><br>
+
 
 
 
@@ -1557,7 +1993,9 @@ generation is performed.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1572,7 +2010,9 @@ files.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1583,7 +2023,9 @@ used:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1591,7 +2033,9 @@ used:<br>
 
 
 
+
 {} defines a an optional repetition of an entity.<br>
+
 
 
 
@@ -1599,11 +2043,14 @@ used:<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -1611,7 +2058,9 @@ used:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1622,15 +2071,19 @@ The assembler PC is updated to the end of the loaded binary code.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 .byte &lt;8bit expr&gt;,{&lt;8bit expr&gt;} (-128; 255)<br>
+
 
 
 
@@ -1639,8 +2092,10 @@ The assembler PC is updated to the end of the loaded binary code.<br>
 
 
 
+
 .word &lt;32bit expr&gt;,{&lt;32bit expr&gt;}
 (-2147483647; 4294967295)<br>
+
 
 
 
@@ -1649,7 +2104,9 @@ The assembler PC is updated to the end of the loaded binary code.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1659,7 +2116,9 @@ calculate the constant.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1667,15 +2126,19 @@ calculate the constant.<br>
 
 
 
+
 All constant are stored in low byte - high byte order (little endian).<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -1684,7 +2147,9 @@ expression&gt;}<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1694,11 +2159,14 @@ identifiers.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -1706,11 +2174,14 @@ identifiers.<br>
 
 
 
+
 .asciiz &lt;string expression&gt;<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1721,7 +2192,9 @@ need to be a part of the string and cannot be typed from the keyboard.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1730,11 +2203,14 @@ after the string expression.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -1742,7 +2218,9 @@ after the string expression.<br>
 
 
 
+
 '{'<br>
+
 
 
 
@@ -1750,11 +2228,14 @@ name {',' name ['=' &lt;8bit expression&gt;]}<br>
 
 
 
+
 '}'<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1768,7 +2249,9 @@ just a more easy way than: DEFC name0 = 0, name1 = name0, ...<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1777,7 +2260,9 @@ values:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1785,7 +2270,9 @@ values:<br>
 
 
 
+
 {<br>
+
 
 
 
@@ -1794,7 +2281,9 @@ sym_fullstop,<br>
 
 
 
+
 sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus,<br>
+
 
 
 
@@ -1803,8 +2292,10 @@ sym_and,<br>
 
 
 
+
 sym_or, sym_xor, sym_not sym_less, sym_greater, sym_constexpr,
 sym_newline,<br>
+
 
 
 
@@ -1812,7 +2303,9 @@ sym_lf,<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1821,8 +2314,10 @@ sym_charconst,<br>
 
 
 
+
 sym_lessequal, sym_greatequal, sym_notequal sym_negated, sym_nil,
 sym_ifstatm,<br>
+
 
 
 
@@ -1830,15 +2325,19 @@ sym_elsestatm, sym_endifstatm<br>
 
 
 
+
 }<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -1846,7 +2345,9 @@ sym_elsestatm, sym_endifstatm<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1858,11 +2359,14 @@ conditional assembly.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -1870,7 +2374,9 @@ conditional assembly.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1879,7 +2385,9 @@ The expression must be [1; 65535].<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1887,11 +2395,14 @@ The expression must be [1; 65535].<br>
 
 
 
+
 .defvars &lt;16bit expression&gt;<br>
 
 
 
+
 '{'<br>
+
 
 
 
@@ -1900,12 +2411,15 @@ The expression must be [1; 65535].<br>
 
 
 
+
 { [&lt;name&gt;] [&lt;storage_size&gt;
 &lt;size_multiplier&gt;] }<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1913,7 +2427,9 @@ The expression must be [1; 65535].<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1921,11 +2437,14 @@ The expression must be [1; 65535].<br>
 
 
 
+
 &lt;storage_size&gt; ::= 'ds.b' | 'ds.w' | 'ds.p' | 'ds.l'<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1939,7 +2458,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1947,7 +2468,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
 {<br>
+
 
 
 
@@ -1955,7 +2478,9 @@ RuntimeFlags1 ds.b 1 ; space for next variable is 1 byte<br>
 
 
 
+
 RuntimeFlags2 ds.b 1<br>
+
 
 
 
@@ -1963,7 +2488,9 @@ RuntimeFlags3 ds.b 1<br>
 
 
 
+
 ds.w 1 ; space not defined<br>
+
 
 
 
@@ -1971,7 +2498,9 @@ explicitORIG ds.w 1 ; 2 bytes space<br>
 
 
 
+
 asmtime ds.b 3 ; 3 bytes space<br>
+
 
 
 
@@ -1979,7 +2508,9 @@ datestamp_src ds.b 6 ; 6 bytes space<br>
 
 
 
+
 datestamp_obj ds.b 6<br>
+
 
 
 
@@ -1987,11 +2518,14 @@ TOTALERRORS ds.l 1 ; 4 bytes space<br>
 
 
 
+
 }<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1999,7 +2533,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2007,7 +2543,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
 ; 'PfixStack' structure (used for postfix expressions):<br>
+
 
 
 
@@ -2015,7 +2553,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
 pfixstack_const ds.l 1 ; The stack item value<br>
+
 
 
 
@@ -2023,7 +2563,9 @@ pfixstack_previtem ds.p 1 ; Pointer to previous element on stack<br>
 
 
 
+
 SIZEOF_pfixstack ; total size of data structure<br>
+
 
 
 
@@ -2031,7 +2573,9 @@ SIZEOF_pfixstack ; total size of data structure<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2040,15 +2584,19 @@ e.g. deleting or inserting variable definitions.<br>
 
 
 
-<br>
-
-
 
 <br>
 
 
 
+
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2056,7 +2604,9 @@ IF &lt;logical expression&gt;<br>
 
 
 
+
 [ELSE]<br>
+
 
 
 
@@ -2064,7 +2614,9 @@ ENDIF<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2077,7 +2629,9 @@ lines. An example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2085,7 +2639,9 @@ if QDOS<br>
 
 
 
+
 include "defs_h"<br>
+
 
 
 
@@ -2093,7 +2649,9 @@ include "symbol_def"<br>
 
 
 
+
 include "stdio_def"<br>
+
 
 
 
@@ -2101,7 +2659,9 @@ include "fileio_def"<br>
 
 
 
+
 include "memory_def"<br>
+
 
 
 
@@ -2109,7 +2669,9 @@ else<br>
 
 
 
+
 include "defs.h"<br>
+
 
 
 
@@ -2117,7 +2679,9 @@ include "symbol.def"<br>
 
 
 
+
 if MSDOS | UNIX<br>
+
 
 
 
@@ -2125,7 +2689,9 @@ include "stdio.def"<br>
 
 
 
+
 include "fileio.def"<br>
+
 
 
 
@@ -2133,23 +2699,29 @@ include "memory.def"<br>
 
 
 
-endif<br>
-
-
 
 endif<br>
 
 
 
-<br>
 
+endif<br>
 
-
-<br>
 
 
 
 <br>
+
+
+
+
+<br>
+
+
+
+
+<br>
+
 
 
 
@@ -2157,7 +2729,9 @@ endif<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2172,7 +2746,9 @@ the following example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2180,7 +2756,9 @@ include "stdio.def"<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2193,7 +2771,9 @@ immediately return an error message back to you!<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2204,7 +2784,9 @@ has been parsed to the end of file.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2218,11 +2800,14 @@ platform. The '#' resolves this for you.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2230,7 +2815,9 @@ platform. The '#' resolves this for you.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2242,15 +2829,19 @@ been specified at the command line with the -i option).<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
 .lstoff<br>
+
 
 
 
@@ -2259,11 +2850,14 @@ not closed. <br>
 
 
 
+
 <br>
 
 
 
+
 .lston<br>
+
 
 
 
@@ -2273,11 +2867,14 @@ redundant in the listing file, e.g. operating system definitions.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2285,7 +2882,9 @@ redundant in the listing file, e.g. operating system definitions.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2301,11 +2900,14 @@ MODULE directive, e.g. MODULE main_module<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2313,7 +2915,9 @@ MODULE directive, e.g. MODULE main_module<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2328,11 +2932,14 @@ an -r option on the command line.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2340,7 +2947,9 @@ an -r option on the command line.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2349,11 +2958,14 @@ modules during the linking phase of the compilation process.<br>
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2361,7 +2973,9 @@ modules during the linking phase of the compilation process.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2374,11 +2988,14 @@ directive, since the LIB name is also identified as the module name
 
 
 
-<br>
-
-
 
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2386,7 +3003,9 @@ directive, since the LIB name is also identified as the module name
 
 
 
+
 <br>
+
 
 
 
@@ -2396,15 +3015,19 @@ value of the symbol during the linking phase.<br>
 
 
 
-<br>
-
-
 
 <br>
 
 
 
+
 <br>
+
+
+
+
+<br>
+
 
 
 
@@ -2412,7 +3035,9 @@ value of the symbol during the linking phase.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2423,11 +3048,14 @@ the file.<br>
 
 
 
+
 <br>
 
 
 
+
 0, "File open/read error"<br>
+
 
 
 
@@ -2438,11 +3066,14 @@ file).<br>
 
 
 
+
 <br>
 
 
 
+
 1, "Syntax error"<br>
+
 
 
 
@@ -2453,11 +3084,14 @@ instead of integer), omitted a parameter (DEFB without constant).<br>
 
 
 
+
 <br>
 
 
 
+
 2, "Symbol not defined"<br>
+
 
 
 
@@ -2468,11 +3102,14 @@ identifier as external using the XREF directive.<br>
 
 
 
+
 <br>
 
 
 
+
 3, "Not enough memory"<br>
+
 
 
 
@@ -2481,11 +3118,14 @@ data structures during parsing or linking your code.<br>
 
 
 
+
 <br>
 
 
 
+
 4, "Integer out of range"<br>
+
 
 
 
@@ -2495,11 +3135,14 @@ the legal integer range (e.g. trying to store a 16bit value into an
 
 
 
+
 <br>
 
 
 
+
 5, "Syntax error in expression"<br>
+
 
 
 
@@ -2510,11 +3153,14 @@ legal identifier.<br>
 
 
 
+
 <br>
 
 
 
+
 6, "Right bracket missing"<br>
+
 
 
 
@@ -2523,7 +3169,9 @@ too many beginning brackets or to few ending brackets...<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2531,7 +3179,9 @@ too many beginning brackets or to few ending brackets...<br>
 
 
 
+
 Same as 4.<br>
+
 
 
 
@@ -2539,7 +3189,9 @@ Same as 4.<br>
 
 
 
+
 8, "Source filename missing"<br>
+
 
 
 
@@ -2548,11 +3200,14 @@ start a compilation.<br>
 
 
 
+
 <br>
 
 
 
+
 9, "Illegal option"<br>
+
 
 
 
@@ -2562,11 +3217,14 @@ between an option and a filename parameter.<br>
 
 
 
+
 <br>
 
 
 
+
 10, "Unknown identifier"<br>
+
 
 
 
@@ -2576,11 +3234,14 @@ definition, misspelled a name or used a comment without a leading ';'.<br>
 
 
 
+
 <br>
 
 
 
+
 11, "Illegal identifier"<br>
+
 
 
 
@@ -2590,11 +3251,14 @@ register that is not allowed in a LD instruction, e.g. LD A,F .<br>
 
 
 
+
 <br>
 
 
 
+
 12, "Max. code size reached"<br>
+
 
 
 
@@ -2604,11 +3268,14 @@ Station)...<br>
 
 
 
+
 <br>
 
 
 
+
 13, "errors occurred during assembly"<br>
+
 
 
 
@@ -2619,11 +3286,14 @@ linking the next time.<br>
 
 
 
+
 <br>
 
 
 
+
 14, "Symbol already defined"<br>
+
 
 
 
@@ -2633,11 +3303,14 @@ DEFC, DEFVARS, DEFGROUP).<br>
 
 
 
+
 <br>
 
 
 
+
 15, "Module name already defined"<br>
+
 
 
 
@@ -2647,11 +3320,14 @@ XLIB).<br>
 
 
 
+
 <br>
 
 
 
+
 16, "Module name not defined"<br>
+
 
 
 
@@ -2660,11 +3336,14 @@ a library source file routine).<br>
 
 
 
+
 <br>
 
 
 
+
 17, "Symbol already declared local"<br>
+
 
 
 
@@ -2673,11 +3352,14 @@ local, eg. using a ".lbaddr" in your source.<br>
 
 
 
+
 <br>
 
 
 
+
 18, "Symbol already declared global"<br>
+
 
 
 
@@ -2686,11 +3368,14 @@ module.<br>
 
 
 
+
 <br>
 
 
 
+
 19, "Symbol already declared external"<br>
+
 
 
 
@@ -2699,7 +3384,9 @@ module.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2707,7 +3394,9 @@ module.<br>
 
 
 
+
 Ups - display MPM Module Assembler help text.<br>
+
 
 
 
@@ -2715,7 +3404,9 @@ Ups - display MPM Module Assembler help text.<br>
 
 
 
+
 21, "Illegal source filename"<br>
+
 
 
 
@@ -2725,11 +3416,14 @@ files.<br>
 
 
 
+
 <br>
 
 
 
+
 22, "Symbol declared global in another module"<br>
+
 
 
 
@@ -2738,11 +3432,14 @@ them should probably be an XREF instead.<br>
 
 
 
+
 <br>
 
 
 
+
 23, "Re-declaration not allowed"<br>
+
 
 
 
@@ -2751,7 +3448,9 @@ XREF'ed in the same module (or the other way around).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2759,7 +3458,9 @@ XREF'ed in the same module (or the other way around).<br>
 
 
 
+
 Not used.<br>
+
 
 
 
@@ -2767,7 +3468,9 @@ Not used.<br>
 
 
 
+
 25, "Relative jump address must be local"<br>
+
 
 
 
@@ -2777,11 +3480,14 @@ module.<br>
 
 
 
+
 <br>
 
 
 
+
 26, "Not a relocatable file" / "Not an object file"<br>
+
 
 
 
@@ -2791,7 +3497,9 @@ standard object file format.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2799,7 +3507,9 @@ standard object file format.<br>
 
 
 
+
 You have tried to create a label or other name as "ASMPC".<br>
+
 
 
 
@@ -2807,7 +3517,9 @@ You have tried to create a label or other name as "ASMPC".<br>
 
 
 
+
 28, "Couldn't open library file"<br>
+
 
 
 
@@ -2816,11 +3528,14 @@ opened by another application resource)<br>
 
 
 
+
 <br>
 
 
 
+
 29, "Not a library file"<br>
+
 
 
 
@@ -2831,11 +3546,14 @@ in the header)...<br>
 
 
 
+
 <br>
 
 
 
+
 30, "Environment variable not defined"<br>
+
 
 
 
@@ -2844,7 +3562,9 @@ environment variables wasn't found in the operating system.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2852,8 +3572,10 @@ environment variables wasn't found in the operating system.<br>
 
 
 
+
 An file was tried to be included which was already included at a
 previous include level. INCLUDE "a.h" cannot contain an INCLUDE "a.h"...<br>
+
 
 
 
