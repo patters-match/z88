@@ -5,6 +5,8 @@
 
 
 
+
+  
   
   
   
@@ -14,6 +16,8 @@
 
 
 
+
+  
   
   
   
@@ -26,13 +30,16 @@
 
 
 
+
 <div style="text-align: center;"><big>
 
 [M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2, 2006<br>
 
 
 
+
 User Manual (draft)<br>
+
 
 
 
@@ -41,7 +48,9 @@ User Manual (draft)<br>
 
 
 
+
 <br>
+
 
 
 
@@ -50,7 +59,9 @@ User Manual (draft)<br>
 
 
 
+
 <br>
+
 
 
 
@@ -66,7 +77,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
 <hr style="width: 100%; height: 2px;"><br>
+<div style="text-align: center;"><span style="font-weight: bold;">Attention!<br>
+This document is under a re-write, and currently contains a lot of outdated information. <br>
+Please refer to quickref.html for an up-to-date feature and functionality description of Mpm.<br>
+(G. Strube, June 2006)<br>
+</span><span style="font-weight: bold;"></span></div>
+<span style="font-weight: bold;"><br>
+</span>
+<hr style="width: 100%; height: 2px;"><span style="font-weight: bold;"><br>
+<br>
+</span>
 
 
 
@@ -87,11 +109,13 @@ needs a quick glance to use a particular command line option or directive.</p>
 
 
 
+
 <p>Writing good documentation is an art form. This text has been
 written with the best intentions. However, there's always room for
 improvement. Many different eyes help to spot spelling errors and
 explain things better. Feed-back is more than welcome by writing an
 email to gbs@users.sf.net.<br>
+
 </p>
 
 
@@ -99,7 +123,9 @@ email to gbs@users.sf.net.<br>
 
 
 
+
 1.0 Running the assembler<br>
+
 
 
 
@@ -117,10 +143,12 @@ specification and which parameters are available.</p>
 
 
 
+
 <p>The syntax of the assembler parameters is a straightforward
 design. Filenames or a project
 file are always specified. The options may be left out (surrounded with
 []):&nbsp;</p>
+
 
 
 <span style="font-family: monospace;">
@@ -142,6 +170,7 @@ given. </p>
 
 
 
+
 <p>All options and parameters are preset with default values
 designed for the most frequently
 used usage pattern. Options are used to control the assembly process
@@ -156,6 +185,7 @@ or not). All options have a single letter identification. </p>
 
 
 
+
 <p>Upper and lower case letters are distinguished, which means
 that 'a' might be different
 command than 'A'. If an option is to be turned off, a 'n' is specified
@@ -165,12 +195,15 @@ identification, e.g. -nl.</p>
 
 
 
+
 <br>
 
 
 
 
+
 - Information during assembly, -v<br>
+
 
 
 
@@ -194,12 +227,15 @@ specifying a -nv option at the command line.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - Use alternative source file extension, -e&lt;ext&gt;<br>
+
 
 
 
@@ -212,12 +248,15 @@ option, you force the assembler to use another default extension, like
 
 
 
+
 <br>
 
 
 
 
+
 - Create listing file output, -l<br>
+
 
 
 
@@ -231,12 +270,15 @@ a page number. <br>
 
 
 
+
 For each line of the source file the following information is written:<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -246,7 +288,9 @@ For each line of the source file the following information is written:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -260,7 +304,9 @@ constant definitions. <br>
 
 
 
+
 <br>
+
 
 
 
@@ -276,7 +322,9 @@ the modules' generated machine code.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -288,7 +336,9 @@ versus the mnemonic representation of instructions).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -302,12 +352,15 @@ extension. <br>
 
 
 
+
 <br>
 
 
 
 
+
 - Create symbol table, -s<br>
+
 
 
 
@@ -321,7 +374,9 @@ case. The second column contains the generated value of the symbol name.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -331,7 +386,9 @@ All symbol values are displayed in signed 64 bit hexadecimal notation.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -344,7 +401,9 @@ the name column is 4 * 8 = 32 spaces. <br>
 
 
 
+
 <br>
+
 
 
 
@@ -358,12 +417,15 @@ the 'sym' extension. <br>
 
 
 
+
 <br>
 
 
 
 
+
 - Assemble only updated files, -d<br>
+
 
 
 
@@ -378,11 +440,13 @@ programmers knowledge). <br>
 
 
 
+
 But in a long term view it is better to just compile a project without
 thinking of which files need to be compiled or not. That can be done
 with the MPM Module Assembler. By simply specifying the -d parameter at
 the command line, only updated source files are assembled into object
 files - the rest are ignored. <br>
+
 
 
 
@@ -394,12 +458,15 @@ worrying about which module is updated or not. <br>
 
 
 
+
 <br>
 
 
 
 
+
 - Link/relocate object files, -b<br>
+
 
 
 
@@ -413,7 +480,9 @@ modules and perform linking/relocation of the code afterwards. <br>
 
 
 
+
 <br>
+
 
 
 
@@ -435,7 +504,9 @@ correct absolute memory location (based on ORG).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -447,7 +518,9 @@ machine code. <br>
 
 
 
+
 <br>
+
 
 
 
@@ -459,12 +532,15 @@ the 'bin' extension. <br>
 
 
 
+
 <br>
 
 
 
 
+
 -o&lt;binary filename&gt;<br>
+
 
 
 
@@ -475,12 +551,15 @@ source filename of the project, appended with the .bin extension. <br>
 
 
 
+
 <br>
 
 
 
 
+
 - Create address map information file, -m<br>
+
 
 
 
@@ -496,7 +575,9 @@ which the symbol name belongs to.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -512,17 +593,21 @@ is an example of an address map file:<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 - Re-define the ORG relocation address, -r<br>
+
 
 
 
@@ -537,7 +622,9 @@ e.g.:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -547,7 +634,9 @@ e.g.:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -557,7 +646,9 @@ which specifies that your code is to be relocated for address 80000000h onwards.
 
 
 
+
 <br>
+
 
 
 
@@ -573,17 +664,21 @@ could then easily be re-linked to another address, e.g. -r20000000.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 - Create global address definition file, -g<br>
+
 
 
 
@@ -601,17 +696,21 @@ previously compiled.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 -  Define a static symbol (logically true), -D<br>
+
 
 
 
@@ -625,17 +724,21 @@ immediately after the option identifier, i.e. -Dsymbol.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 - Using a project file, @<br>
+
 
 
 
@@ -646,7 +749,9 @@ standard stored in a project file obeys the operating system notation.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -660,7 +765,9 @@ specification is of course much faster. An example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -670,7 +777,9 @@ specification is of course much faster. An example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -683,7 +792,9 @@ command line would have been:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -693,7 +804,9 @@ command line would have been:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -703,7 +816,9 @@ command line would have been:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -716,7 +831,9 @@ The contents of a project file may look like this:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -726,7 +843,9 @@ mainasm\n<br>
 
 
 
+
 pass1\n<br>
+
 
 
 
@@ -736,12 +855,15 @@ pass2\n<br>
 
 
 
+
 modlink\n<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -751,7 +873,9 @@ The \n identifies a new line in the file (&lt;CR&gt;&lt;LF&gt; in MSDOS or &lt;L
 
 
 
+
 <br>
+
 
 
 
@@ -765,17 +889,21 @@ uses only &lt;LF&gt; for new line.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 - Include library modules during linking/relocation, -i<br>
+
 
 
 
@@ -798,17 +926,21 @@ Library files are recognized by the ".LIB" extension.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 - Create a library, -x<br>
+
 
 
 
@@ -829,7 +961,9 @@ documentation.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -843,17 +977,21 @@ redundant sequential searching through the library.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 - Define tabulator distance (for text output files), -t<br>
+
 
 
 
@@ -865,7 +1003,9 @@ character in stead of spaces. The benefit is about 30% compressed files.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -876,7 +1016,9 @@ tabulator it represents. The default value is 8 spaces per tabulator.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -891,7 +1033,9 @@ than enough for most name definitions parsed from source files.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -904,17 +1048,21 @@ tabulator distance of 4. The with of the first column will then be 4*4
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -924,12 +1072,15 @@ tabulator distance of 4. The with of the first column will then be 4*4
 
 
 
+
 <br>
 
 
 
 
+
 o File based compilation<br>
+
 
 
 
@@ -941,17 +1092,21 @@ disks or floppy discs (or file based RAM-discs).<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Modular source file design<br>
+
 
 
 
@@ -966,17 +1121,21 @@ large compilation project than one huge kludge of a source file.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Scope of symbols in source modules<br>
+
 
 
 
@@ -993,17 +1152,21 @@ declared with XREF, XDEF or XLIB is local to the module.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Using arithmetic and relational expressions<br>
+
 
 
 
@@ -1018,17 +1181,21 @@ Only certain directives require compilation time evaluable expressions.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Source file manipulation<br>
+
 
 
 
@@ -1043,17 +1210,21 @@ those files until they have been closed.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Free format of assembler source files<br>
+
 
 
 
@@ -1073,17 +1244,21 @@ Linux/UNIX on an MSDOS platform.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Specification of filenames<br>
+
 
 
 
@@ -1096,12 +1271,15 @@ defined on different operating system platforms.<br>
 
 
 
+
 <br>
 
 
 
 
+
 o Including other source files into the current source file<br>
+
 
 
 
@@ -1115,17 +1293,21 @@ file levels are permitted, i.e. included files calling other files.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Conditional assembly in source file modules<br>
+
 
 
 
@@ -1141,17 +1323,21 @@ directives IF, ELSE, and ENDIF may be nested into infinite levels.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Object file generation<br>
+
 
 
 
@@ -1166,17 +1352,21 @@ file modules are much smaller than their source file counterparts
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Transfer of object files across platforms<br>
+
 
 
 
@@ -1189,17 +1379,21 @@ system-dependent information in the object files.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Date stamp controlled assembly<br>
+
 
 
 
@@ -1213,17 +1407,21 @@ ignored. This facility is indispensable in large compilation projects.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Listing files<br>
+
 
 
 
@@ -1237,17 +1435,21 @@ numbers are included which corresponds to the source file lines.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Symbol information<br>
+
 
 
 
@@ -1264,17 +1466,21 @@ format.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Linking &amp; relocation of object modules into executable Z80 machine code<br>
+
 
 
 
@@ -1289,17 +1495,21 @@ address is specified in the first object module.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Address map files<br>
+
 
 
 
@@ -1316,17 +1526,21 @@ chronological order).<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Symbol address definition files<br>
+
 
 
 
@@ -1342,17 +1556,21 @@ another project (originated in a different memory setup).<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Error files<br>
+
 
 
 
@@ -1365,17 +1583,21 @@ errors were found, the error file is automatically closed and deleted.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Creating and using object file libraries for standard routines<br>
+
 
 
 
@@ -1392,17 +1614,21 @@ routines.<br>
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -1412,7 +1638,9 @@ routines.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1422,7 +1650,9 @@ The following text describes how to execute the assembler and defining the envir
 
 
 
+
 <br>
+
 
 
 
@@ -1432,12 +1662,15 @@ o The environment variables<br>
 
 
 
+
 The assembler uses two environment variables:<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -1447,22 +1680,27 @@ The assembler uses two environment variables:<br>
 
 
 
+
 "MPM_DEFFILES" define the default path of header/include definition files.<br>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Running in the LINUX/UNIX operating system environment<br>
+
 
 
 
@@ -1482,7 +1720,9 @@ you don't need the ENDIAN define...).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1492,13 +1732,16 @@ You can compile MPM using GNU C compiler simply by entering the following on you
 
 
 
-<br>
-
-
-
-
 
 <br>
+
+
+
+
+
+
+<br>
+
 
 
 
@@ -1510,12 +1753,15 @@ directory. <br>
 
 
 
+
 <br>
 
 
 
 
+
 o Running in the MS-DOS operating system environment<br>
+
 
 
 
@@ -1529,7 +1775,9 @@ compilation options o a console application).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1539,7 +1787,9 @@ The environment variables are easily put into your AUTOEXEC.BAT file. Simply spe
 
 
 
+
 <br>
+
 
 
 
@@ -1549,7 +1799,9 @@ SET MPM_DEFFILES=C:\MPM\DEF\ SET MPM_STDLIB=C:\MPM\STANDARD.LIB<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1559,7 +1811,9 @@ Choose your own settings if you like.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1569,17 +1823,21 @@ If you want the assembler to be accessible in any path, add the path location of
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -1589,12 +1847,15 @@ If you want the assembler to be accessible in any path, add the path location of
 
 
 
+
 <br>
 
 
 
 
+
 o The assembler file types and their extension names<br>
+
 
 
 
@@ -1607,17 +1868,21 @@ following list explains the available files:<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o The file name extension identifier<br>
+
 
 
 
@@ -1629,7 +1894,9 @@ uses the '_' identifier. SMSQ also allows the '.' extension identifier.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1641,12 +1908,15 @@ help page (executing the program with no parameters).<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The source file extension<br>
+
 
 
 
@@ -1659,12 +1929,15 @@ needed to read the source files.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The object file extension<br>
+
 
 
 
@@ -1678,12 +1951,15 @@ information and expressions.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The error file extension<br>
+
 
 
 
@@ -1698,12 +1974,15 @@ loaded by any text editor for evaluation.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The listing file extension<br>
+
 
 
 
@@ -1718,12 +1997,15 @@ table is dumped at the end of the listing file.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The symbol file extension<br>
+
 
 
 
@@ -1737,12 +2019,15 @@ is only created if listing file output is disabled.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The executable file extension<br>
+
 
 
 
@@ -1757,12 +2042,15 @@ own output filename (and extension).<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The address map file extension<br>
+
 
 
 
@@ -1777,12 +2065,15 @@ reference.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The definition file extension<br>
+
 
 
 
@@ -1799,12 +2090,15 @@ files for other projects.<br>
 
 
 
+
 <br>
 
 
 
 
+
 - The library file extension<br>
+
 
 
 
@@ -1816,12 +2110,15 @@ application code during linking of object modules. <br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -1831,7 +2128,9 @@ application code during linking of object modules. <br>
 
 
 
+
 o The assembler compiling process<br>
+
 
 
 
@@ -1844,12 +2143,15 @@ patching and finishes with storing the executable code. <br>
 
 
 
+
 Stage 1, parsing &amp; code generation of all source files, object file generation:<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -1877,12 +2179,15 @@ file if selected or as a separate file). <br>
 
 
 
+
 This process is performed for all specified source modules in a project.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -1904,17 +2209,21 @@ structures of the assembler's memory is stored to a text file.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o File names<br>
+
 
 
 
@@ -1926,7 +2235,9 @@ systems manual for more information. <br>
 
 
 
+
 <br>
+
 
 
 
@@ -1936,12 +2247,15 @@ o Portability of assembler file names<br>
 
 
 
+
 If you are going to port your MPM Module Assembler files across several platforms a few hints may be worth considering: <br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -1958,17 +2272,21 @@ name (followed by an extension). Others may have no boundaries.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o The standard platform identifier<br>
+
 
 
 
@@ -1979,7 +2297,9 @@ made available. The identifier reflects the name of the platform:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1989,7 +2309,9 @@ made available. The identifier reflects the name of the platform:<br>
 
 
 
+
 "MSDOS" - the assembler is running on the IBM MS-DOS platform of computers<br>
+
 
 
 
@@ -1999,7 +2321,9 @@ made available. The identifier reflects the name of the platform:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2012,12 +2336,15 @@ Directive Reference section. <br>
 
 
 
+
 <br>
 
 
 
 
+
 o Source file structure<br>
+
 
 
 
@@ -2031,24 +2358,29 @@ formats:<br>
 
 
 
-<br>
-
-
-
-
-
 
 <br>
 
 
 
 
+
+
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Using local, global and external symbols<br>
+
 
 
 
@@ -2063,7 +2395,9 @@ with a few directives.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2073,7 +2407,9 @@ In the MPM Module Assembler you only need two directives to accomplish just that
 
 
 
+
 <br>
+
 
 
 
@@ -2087,7 +2423,9 @@ stored into the object file.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2100,7 +2438,9 @@ stored into the object file.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2112,7 +2452,9 @@ is then only available to the current module during linking/relocation.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2124,7 +2466,9 @@ names may be specified separated by a comma.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2137,17 +2481,21 @@ linker.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Defining symbol names<br>
+
 
 
 
@@ -2161,7 +2509,9 @@ Constant).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2175,7 +2525,9 @@ and later inserted into main source files using the INCLUDE directive.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2195,7 +2547,9 @@ section.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2211,7 +2565,9 @@ for a good example.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2229,17 +2585,21 @@ example.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Comments in source files<br>
+
 
 
 
@@ -2255,7 +2615,9 @@ is much more clear.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2273,7 +2635,9 @@ on how to use comments in Z80 source files:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2283,7 +2647,9 @@ on how to use comments in Z80 source files:<br>
 
 
 
+
 ; main menu<br>
+
 
 
 
@@ -2293,12 +2659,15 @@ on how to use comments in Z80 source files:<br>
 
 
 
+
 mainmenu:   jal  dispmenu ; display menu<br>
 
 
 
 
+
             nop<br>
+
 
 
 
@@ -2308,7 +2677,9 @@ mainmenu:   jal  dispmenu ; display menu<br>
 
 
 
+
             nop<br>
+
 
 
 
@@ -2318,17 +2689,21 @@ mainmenu:   jal  dispmenu ; display menu<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Defining symbolic address labels<br>
+
 
 
 
@@ -2343,7 +2718,9 @@ after the label. The following is a label definition:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2353,7 +2730,9 @@ after the label. The following is a label definition:<br>
 
 
 
+
 ; routine definition<br>
+
 
 
 
@@ -2363,7 +2742,9 @@ mainmenu: jal  xxx   ; mainmenu is the label trailed with ':'<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2376,7 +2757,9 @@ allowed to specify two identical address labels in the same source file.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2388,7 +2771,9 @@ definition will be interpreted as a local address label.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2398,7 +2783,9 @@ XDEF mainmenu<br>
 
 
 
+
 ...<br>
+
 
 
 
@@ -2408,7 +2795,9 @@ XDEF mainmenu<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2420,17 +2809,21 @@ accessible.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Writing Z80 mnemonic instructions<br>
+
 
 
 
@@ -2442,7 +2835,9 @@ operands is your choice. Only a few rules must be obeyed:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2452,7 +2847,9 @@ operands is your choice. Only a few rules must be obeyed:<br>
 
 
 
+
 2) the instruction identifier must be a word, i.e. don't use space between CALL <br>
+
 
 
 
@@ -2462,7 +2859,9 @@ operands is your choice. Only a few rules must be obeyed:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2472,7 +2871,9 @@ A few examples which all are legal syntax:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2482,7 +2883,9 @@ Ori  A0, t0, 0<br>
 
 
 
+
 ori  ao, t0, 0xfFFF<br>
+
 
 
 
@@ -2492,27 +2895,33 @@ jaL  ttttt<br>
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
+<br>
+
+
+
+
+
 <br>
 
 
 
 
+
 <br>
+
 
 
 
 
 o Referencing library routines<br>
+
 
 
 
@@ -2526,7 +2935,9 @@ routine, e.g.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2536,7 +2947,9 @@ routine, e.g.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2553,7 +2966,9 @@ later processing.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2565,7 +2980,9 @@ the application code when found.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2576,12 +2993,15 @@ if you store frequently used standard routines in libraries.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -2591,12 +3011,15 @@ o Creating/updating libraries<br>
 
 
 
+
 Creating libraries is an inbuilt feature of the assembler. The following steps are necessary to create a library:<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -2611,7 +3034,9 @@ optimizes the searching through a library during the linking process.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2626,7 +3051,9 @@ name is used to search for routines in a library.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2639,7 +3066,9 @@ you need to specify your project filename preceeded by @, for example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2649,7 +3078,9 @@ mpm -xiofunctions @iofunctions<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2661,7 +3092,9 @@ also in the current directory.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2673,17 +3106,21 @@ organized in a file.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Referencing routines in other compiled projects<br>
+
 
 
 
@@ -2705,7 +3142,9 @@ option).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2717,7 +3156,9 @@ do this in two ways:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2731,7 +3172,9 @@ much altering of files.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2751,7 +3194,9 @@ code has access to external routines from a previously compiled project.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2768,17 +3213,21 @@ files that would have used an INCLUDE of the DEFC list file. In example
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -2788,7 +3237,9 @@ files that would have used an INCLUDE of the DEFC list file. In example
 
 
 
+
 <br>
+
 
 
 
@@ -2807,7 +3258,9 @@ allowed integer range an assemble error is reported.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2819,17 +3272,21 @@ constants, ASCII characters and various arithmetic operators.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Constant identifiers<br>
+
 
 
 
@@ -2841,7 +3298,9 @@ following symbols are put in front of the constant to identify the type:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2851,7 +3310,9 @@ following symbols are put in front of the constant to identify the type:<br>
 
 
 
+
 @    binary constant, e.g. @11000000 (192).<br>
+
 
 
 
@@ -2861,12 +3322,15 @@ following symbols are put in front of the constant to identify the type:<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -2876,7 +3340,9 @@ o Arithmetic operators<br>
 
 
 
+
 All basic arithmetic operators are supported:<br>
+
 
 
 
@@ -2886,7 +3352,9 @@ addition, subtraction, power, multiplication, division and modulus.<br>
 
 
 
+
 Binary logical operators are implemented: AND, OR, NOR, XOR and NOT (1. complement).<br>
+
 
 
 
@@ -2896,7 +3364,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 <br>
+
 
 
 
@@ -2906,7 +3376,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 -  unary minus, subtraction. E.g. -10, 12-45.<br>
+
 
 
 
@@ -2916,7 +3388,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 /  division, e.g. 256/8 (32).<br>
+
 
 
 
@@ -2926,7 +3400,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 ** power, e.g. 2**7 (128).<br>
+
 
 
 
@@ -2936,7 +3412,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 |  Binary OR, e.g. 128 | 64 (192).<br>
+
 
 
 
@@ -2946,7 +3424,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 ^  Binary XOR, e.g. 128 ^ 128 (0).<br>
+
 
 
 
@@ -2956,7 +3436,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 &lt;&lt; Binary left shift, e.g. 2 &lt;&lt; 4 (32).<br>
+
 
 
 
@@ -2966,7 +3448,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 <br>
+
 
 
 
@@ -2976,7 +3460,9 @@ Finally, bit shift operators are available too: &lt;&lt; and &gt;&gt; (sign NOT 
 
 
 
+
 <br>
+
 
 
 
@@ -2986,7 +3472,9 @@ Arithmetic operators use the standard operator precedence, shown from highest to
 
 
 
+
 <br>
+
 
 
 
@@ -2996,7 +3484,9 @@ Arithmetic operators use the standard operator precedence, shown from highest to
 
 
 
+
 ()<br>
+
 
 
 
@@ -3006,7 +3496,9 @@ Arithmetic operators use the standard operator precedence, shown from highest to
 
 
 
+
 **<br>
+
 
 
 
@@ -3016,12 +3508,15 @@ Arithmetic operators use the standard operator precedence, shown from highest to
 
 
 
+
 +-|^&amp;:&lt;&lt; &gt;&gt;<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -3031,17 +3526,21 @@ If you want to override the default operator precedence rules, use brackets ().<
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o The ? operator<br>
+
 
 
 
@@ -3058,7 +3557,9 @@ adequate.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3073,12 +3574,15 @@ constant expression, you have to force it as one.<br>
 
 
 
+
 <br>
 
 
 
 
+
 ****!!!!<br>
+
 
 
 
@@ -3088,7 +3592,9 @@ LD BC, end_relocator-relocator ; the relocator will add an ORG constant<br>
 
 
 
+
 LD BC, ?end_relocator-relocator ; the relocator sees a constant expression<br>
+
 
 
 
@@ -3098,7 +3604,9 @@ LD BC, ?end_relocator-relocator ; the relocator sees a constant expression<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3114,17 +3622,21 @@ corresponding locations of the code.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Relational operators<br>
+
 
 
 
@@ -3139,7 +3651,9 @@ operators are available:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3149,7 +3663,9 @@ operators are available:<br>
 
 
 
+
 &lt;&gt;  not equal to<br>
+
 
 
 
@@ -3159,7 +3675,9 @@ operators are available:<br>
 
 
 
+
 &gt;   larger than<br>
+
 
 
 
@@ -3169,7 +3687,9 @@ operators are available:<br>
 
 
 
+
 &gt;=  larger than or equal to<br>
+
 
 
 
@@ -3179,7 +3699,9 @@ operators are available:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3190,7 +3712,9 @@ AND, OR, XOR and NOT. You have all the possibilities available!<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3200,7 +3724,9 @@ It is perfectly legal to use relational expressions in parameters requiring an a
 
 
 
+
 <br>
+
 
 
 
@@ -3210,22 +3736,27 @@ It is perfectly legal to use relational expressions in parameters requiring an a
 
 
 
+
 LD A, (USING_IBM = 1) | RTMFLAGS<br>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o The assembler program counter standard function<br>
+
 
 
 
@@ -3238,7 +3769,9 @@ $PC identifier. An example: <br>
 
 
 
+
 <br>
+
 
 
 
@@ -3248,7 +3781,9 @@ errmsg0: .ascii errmsg1 - $PC - 1 &amp; "File open error"<br>
 
 
 
+
 errmsg1: .ascii errmsg2 - $pc - 1 &amp; "Syntax error"<br>
+
 
 
 
@@ -3258,7 +3793,9 @@ errmsg2:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3268,12 +3805,15 @@ Here, a length byte of the following string (excluding the length byte) is calcu
 
 
 
+
 <br>
 
 
 
 
+
 o The . operator<br>
+
 
 
 
@@ -3288,17 +3828,21 @@ strings are an unsigned byte of the range of 0 to 255, e.g.:<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Symbol identifiers in expressions<br>
+
 
 
 
@@ -3310,7 +3854,9 @@ references (both external and local).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3326,12 +3872,15 @@ handled during the linking phase).<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3341,7 +3890,9 @@ handled during the linking phase).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3354,7 +3905,9 @@ generation is performed.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3371,7 +3924,9 @@ files.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3384,7 +3939,9 @@ used:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3394,7 +3951,9 @@ used:<br>
 
 
 
+
 {} defines a an optional repetition of an entity.<br>
+
 
 
 
@@ -3404,12 +3963,15 @@ used:<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3419,7 +3981,9 @@ used:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3432,12 +3996,15 @@ The assembler PC is updated to the end of the loaded binary code.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3447,7 +4014,9 @@ The assembler PC is updated to the end of the loaded binary code.<br>
 
 
 
+
 .half &lt;16bit expr&gt;,{&lt;16bit expr&gt;} (-32768; 65535)<br>
+
 
 
 
@@ -3457,12 +4026,15 @@ The assembler PC is updated to the end of the loaded binary code.<br>
 
 
 
+
 .long &lt;64bit expr&gt;,{&lt;64bit expr&gt;} (-9223372036854775808; 9223372036854775807)<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -3474,7 +4046,9 @@ calculate the constant.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3484,17 +4058,21 @@ calculate the constant.<br>
 
 
 
+
 All constant are stored in low byte - high byte order (little endian).<br>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3504,7 +4082,9 @@ All constant are stored in low byte - high byte order (little endian).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3516,12 +4096,15 @@ identifiers.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3531,12 +4114,15 @@ identifiers.<br>
 
 
 
+
 .asciiz &lt;string expression&gt;<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -3549,7 +4135,9 @@ need to be a part of the string and cannot be typed from the keyboard.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3559,12 +4147,15 @@ Using ".asciiz" will automatically append a zero (null-terminator) after the str
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3574,7 +4165,9 @@ Using ".asciiz" will automatically append a zero (null-terminator) after the str
 
 
 
+
 '{'<br>
+
 
 
 
@@ -3584,12 +4177,15 @@ Using ".asciiz" will automatically append a zero (null-terminator) after the str
 
 
 
+
 '}'<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -3605,7 +4201,9 @@ just a more easy way than: DEFC name0 = 0, name1 = name0, ...<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3615,7 +4213,9 @@ The following example illustrates a useful example of defining symbol values:<br
 
 
 
+
 <br>
+
 
 
 
@@ -3625,7 +4225,9 @@ The following example illustrates a useful example of defining symbol values:<br
 
 
 
+
 {<br>
+
 
 
 
@@ -3635,7 +4237,9 @@ sym_null, sym_dquote, sym_squote, sym_semicolon, sym_comma, sym_fullstop,<br>
 
 
 
+
 sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus,<br>
+
 
 
 
@@ -3645,7 +4249,9 @@ sym_multiply, sym_divi, sym_mod, sym_power, sym_assign, sym_strconq, sym_and,<br
 
 
 
+
 sym_or, sym_xor, sym_not sym_less, sym_greater, sym_constexpr, sym_newline,<br>
+
 
 
 
@@ -3655,7 +4261,9 @@ sym_lf,<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3665,7 +4273,9 @@ sym_name, sym_number, sym_decmconst, sym_hexconst, sym_binconst,  sym_charconst,
 
 
 
+
 sym_lessequal, sym_greatequal, sym_notequal sym_negated, sym_nil, sym_ifstatm,<br>
+
 
 
 
@@ -3675,17 +4285,21 @@ sym_elsestatm, sym_endifstatm<br>
 
 
 
+
 }<br>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3695,7 +4309,9 @@ sym_elsestatm, sym_endifstatm<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3708,12 +4324,15 @@ conditional assembly.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3723,7 +4342,9 @@ conditional assembly.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3733,7 +4354,9 @@ Allocates storage. The size of the area will be filled with zero bytes. The expr
 
 
 
+
 <br>
+
 
 
 
@@ -3743,7 +4366,9 @@ Allocates storage. The size of the area will be filled with zero bytes. The expr
 
 
 
+
 .defvars &lt;16bit expression&gt;<br>
+
 
 
 
@@ -3753,7 +4378,9 @@ Allocates storage. The size of the area will be filled with zero bytes. The expr
 
 
 
+
     [&lt;name&gt;] [&lt;storage_size&gt; &lt;size_multiplier&gt;]<br>
+
 
 
 
@@ -3763,7 +4390,9 @@ Allocates storage. The size of the area will be filled with zero bytes. The expr
 
 
 
+
 <br>
+
 
 
 
@@ -3773,7 +4402,9 @@ Allocates storage. The size of the area will be filled with zero bytes. The expr
 
 
 
+
 <br>
+
 
 
 
@@ -3783,12 +4414,15 @@ Allocates storage. The size of the area will be filled with zero bytes. The expr
 
 
 
+
 &lt;storage_size&gt; ::= 'ds.b' | 'ds.w' | 'ds.p' | 'ds.l'<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -3804,7 +4438,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3814,7 +4450,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
 {<br>
+
 
 
 
@@ -3824,7 +4462,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
    RuntimeFlags2 ds.b 1<br>
+
 
 
 
@@ -3834,7 +4474,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
                  ds.w 1         ; space not defined<br>
+
 
 
 
@@ -3844,7 +4486,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
    asmtime       ds.b 3         ; 3 bytes space<br>
+
 
 
 
@@ -3854,7 +4498,9 @@ only template definitions not allocations. An example:<br>
 
 
 
+
    datestamp_obj ds.b 6<br>
+
 
 
 
@@ -3864,12 +4510,15 @@ only template definitions not allocations. An example:<br>
 
 
 
+
 }<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -3879,7 +4528,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3889,7 +4540,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
 ; 'PfixStack' structure (used for postfix expressions):<br>
+
 
 
 
@@ -3899,7 +4552,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
    pfixstack_const     ds.l 1    ; The stack item value<br>
+
 
 
 
@@ -3909,7 +4564,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
    SIZEOF_pfixstack              ; total size of data structure<br>
+
 
 
 
@@ -3919,7 +4576,9 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3929,17 +4588,21 @@ This type of variable declaration makes it very easy for modifications, e.g. del
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3949,7 +4612,9 @@ IF &lt;logical expression&gt;<br>
 
 
 
+
 [ELSE]<br>
+
 
 
 
@@ -3959,7 +4624,9 @@ ENDIF<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3974,7 +4641,9 @@ lines. An example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -3984,7 +4653,9 @@ if QDOS<br>
 
 
 
+
     include "defs_h"<br>
+
 
 
 
@@ -3994,7 +4665,9 @@ if QDOS<br>
 
 
 
+
     include "stdio_def"<br>
+
 
 
 
@@ -4004,7 +4677,9 @@ if QDOS<br>
 
 
 
+
     include "memory_def"<br>
+
 
 
 
@@ -4014,7 +4689,9 @@ else<br>
 
 
 
+
     include "defs.h"<br>
+
 
 
 
@@ -4024,7 +4701,9 @@ else<br>
 
 
 
+
     if MSDOS | UNIX<br>
+
 
 
 
@@ -4034,7 +4713,9 @@ else<br>
 
 
 
+
          include "fileio.def"<br>
+
 
 
 
@@ -4044,7 +4725,9 @@ else<br>
 
 
 
+
     endif<br>
+
 
 
 
@@ -4054,17 +4737,21 @@ endif<br>
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4074,7 +4761,9 @@ endif<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4091,7 +4780,9 @@ the following example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4101,7 +4792,9 @@ the following example:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4116,7 +4809,9 @@ immediately return an error message back to you!<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4129,7 +4824,9 @@ has been parsed to the end of file.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4145,12 +4842,15 @@ platform. The '#' resolves this for you.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4160,7 +4860,9 @@ platform. The '#' resolves this for you.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4174,12 +4876,15 @@ been specified at the command line with the -i option).<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4189,7 +4894,9 @@ been specified at the command line with the -i option).<br>
 
 
 
+
 Switches listing output to file off temporarily. The listing file is not closed. <br>
+
 
 
 
@@ -4199,7 +4906,9 @@ Switches listing output to file off temporarily. The listing file is not closed.
 
 
 
+
 .lston<br>
+
 
 
 
@@ -4211,12 +4920,15 @@ redundant in the listing file, e.g. operating system definitions.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4226,7 +4938,9 @@ redundant in the listing file, e.g. operating system definitions.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4244,12 +4958,15 @@ MODULE directive, e.g. MODULE main_module<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4259,7 +4976,9 @@ MODULE directive, e.g. MODULE main_module<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4276,12 +4995,15 @@ an -r option on the command line.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4291,7 +5013,9 @@ an -r option on the command line.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4301,12 +5025,15 @@ Declares symbol globally available to other specified source file modules during
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4316,7 +5043,9 @@ Declares symbol globally available to other specified source file modules during
 
 
 
+
 <br>
+
 
 
 
@@ -4331,12 +5060,15 @@ directive, since the LIB name is also identified as the module name
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4346,7 +5078,9 @@ directive, since the LIB name is also identified as the module name
 
 
 
+
 <br>
+
 
 
 
@@ -4358,17 +5092,21 @@ value of the symbol during the linking phase.<br>
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4378,7 +5116,9 @@ value of the symbol during the linking phase.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4391,12 +5131,15 @@ the file.<br>
 
 
 
+
 <br>
 
 
 
 
+
 0, "File open/read error"<br>
+
 
 
 
@@ -4409,12 +5152,15 @@ file).<br>
 
 
 
+
 <br>
 
 
 
 
+
 1, "Syntax error"<br>
+
 
 
 
@@ -4427,12 +5173,15 @@ instead of integer), omitted a parameter (DEFB without constant).<br>
 
 
 
+
 <br>
 
 
 
 
+
 2, "Symbol not defined"<br>
+
 
 
 
@@ -4445,7 +5194,9 @@ identifier as external using the XREF directive.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4455,7 +5206,9 @@ identifier as external using the XREF directive.<br>
 
 
 
+
 Well, well. It seems that there wasn't enough room to hold the internal data structures during parsing or linking your code.<br>
+
 
 
 
@@ -4465,7 +5218,9 @@ Well, well. It seems that there wasn't enough room to hold the internal data str
 
 
 
+
 4, "Integer out of range"<br>
+
 
 
 
@@ -4477,12 +5232,15 @@ the legal integer range (e.g. trying to store a 16bit value into an
 
 
 
+
 <br>
 
 
 
 
+
 5, "Syntax error in expression"<br>
+
 
 
 
@@ -4495,7 +5253,9 @@ legal identifier.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4505,12 +5265,15 @@ legal identifier.<br>
 
 
 
+
 Your expression is using brackets and is not properly balanced, i.e. too many beginning brackets or to few ending brackets...<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4520,12 +5283,15 @@ Your expression is using brackets and is not properly balanced, i.e. too many be
 
 
 
+
 Same as 4.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4535,7 +5301,9 @@ Same as 4.<br>
 
 
 
+
 There has not been specified any source file modules or project file to start a compilation.<br>
+
 
 
 
@@ -4545,7 +5313,9 @@ There has not been specified any source file modules or project file to start a 
 
 
 
+
 9, "Illegal option"<br>
+
 
 
 
@@ -4557,12 +5327,15 @@ between an option and a filename parameter.<br>
 
 
 
+
 <br>
 
 
 
 
+
 10, "Unknown identifier"<br>
+
 
 
 
@@ -4574,12 +5347,15 @@ definition, misspelled a name or used a comment without a leading ';'.<br>
 
 
 
+
 <br>
 
 
 
 
+
 11, "Illegal identifier"<br>
+
 
 
 
@@ -4591,12 +5367,15 @@ register that is not allowed in a LD instruction, e.g. LD A,F .<br>
 
 
 
+
 <br>
 
 
 
 
+
 12, "Max. code size reached"<br>
+
 
 
 
@@ -4608,12 +5387,15 @@ Station)...<br>
 
 
 
+
 <br>
 
 
 
 
+
 13, "errors occurred during assembly"<br>
+
 
 
 
@@ -4626,12 +5408,15 @@ linking the next time.<br>
 
 
 
+
 <br>
 
 
 
 
+
 14, "Symbol already defined"<br>
+
 
 
 
@@ -4643,12 +5428,15 @@ DEFC, DEFVARS, DEFGROUP).<br>
 
 
 
+
 <br>
 
 
 
 
+
 15, "Module name already defined"<br>
+
 
 
 
@@ -4660,7 +5448,9 @@ XLIB).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4670,12 +5460,15 @@ XLIB).<br>
 
 
 
+
 A MODULE directive is missing in your source file (or XLIB directive in a library source file routine).<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4685,12 +5478,15 @@ A MODULE directive is missing in your source file (or XLIB directive in a librar
 
 
 
+
 You have tried to declare a symbol as XREF, but it was already defined local, eg. using a ".lbaddr" in your source.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4700,12 +5496,15 @@ You have tried to declare a symbol as XREF, but it was already defined local, eg
 
 
 
+
 You have two identical XDEF symbol declarations in your source file module.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4715,12 +5514,15 @@ You have two identical XDEF symbol declarations in your source file module.<br>
 
 
 
+
 You have two identical XREF symbol declarations in your source file module.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4730,7 +5532,9 @@ You have two identical XREF symbol declarations in your source file module.<br>
 
 
 
+
 Ups - display MPM Module Assembler help text.<br>
+
 
 
 
@@ -4740,7 +5544,9 @@ Ups - display MPM Module Assembler help text.<br>
 
 
 
+
 21, "Illegal source filename"<br>
+
 
 
 
@@ -4752,7 +5558,9 @@ files.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4762,12 +5570,15 @@ files.<br>
 
 
 
+
 You have two identical XDEF definitions in separate modules. One of them should probably be an XREF instead.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4777,12 +5588,15 @@ You have two identical XDEF definitions in separate modules. One of them should 
 
 
 
+
 You are trying to specify an XDEF for a name that has already been XREF'ed in the same module (or the other way around).<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4792,7 +5606,9 @@ You are trying to specify an XDEF for a name that has already been XREF'ed in th
 
 
 
+
 Not used.<br>
+
 
 
 
@@ -4802,7 +5618,9 @@ Not used.<br>
 
 
 
+
 25, "Relative jump address must be local"<br>
+
 
 
 
@@ -4814,12 +5632,15 @@ module.<br>
 
 
 
+
 <br>
 
 
 
 
+
 26, "Not a relocatable file" / "Not an object file"<br>
+
 
 
 
@@ -4831,7 +5652,9 @@ standard object file format.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4841,12 +5664,15 @@ standard object file format.<br>
 
 
 
+
 You have tried to create a label or other name as "ASMPC".<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -4856,7 +5682,9 @@ You have tried to create a label or other name as "ASMPC".<br>
 
 
 
+
 The library file was found but couldn't be opened (probably already opened by another application resource)<br>
+
 
 
 
@@ -4866,7 +5694,9 @@ The library file was found but couldn't be opened (probably already opened by an
 
 
 
+
 29, "Not a library file"<br>
+
 
 
 
@@ -4879,7 +5709,9 @@ in the header)...<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4889,7 +5721,9 @@ in the header)...<br>
 
 
 
+
 The assembler reports that either the "MPM_DEFFILES" or "MPM_STDLIB" environment variables wasn't found in the operating system.<br>
+
 
 
 
@@ -4899,7 +5733,9 @@ The assembler reports that either the "MPM_DEFFILES" or "MPM_STDLIB" environment
 
 
 
+
 31, "Cannot include file recursively"<br>
+
 
 
 
@@ -4910,12 +5746,15 @@ previous include level. INCLUDE "a.h" cannot contain an INCLUDE "a.h"...<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4925,7 +5764,9 @@ previous include level. INCLUDE "a.h" cannot contain an INCLUDE "a.h"...<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4937,7 +5778,9 @@ the source files present in the same source directory:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4947,7 +5790,9 @@ the source files present in the same source directory:<br>
 
 
 
+
 This file contains three components:<br>
+
 
 
 
@@ -4960,7 +5805,9 @@ project. <br>
 
 
 
+
 <br>
+
 
 
 
@@ -4973,7 +5820,9 @@ choose a well defined name of the operating system.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4986,12 +5835,15 @@ directory as the C source files.<br>
 
 
 
+
 <br>
 
 
 
 
+
 2) The 'symbol.h' file<br>
+
 
 
 
@@ -5005,12 +5857,15 @@ source files. <br>
 
 
 
+
 <br>
 
 
 
 
+
 o The assember program supplied as ANSI C source files<br>
+
 
 
 
@@ -5026,17 +5881,21 @@ available on various computer platforms.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o The format of the source files<br>
+
 
 
 
@@ -5050,17 +5909,21 @@ use the GNU programming style.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 o Defining the current platform<br>
+
 
 
 
@@ -5074,12 +5937,15 @@ identifier errors or generating fatal code.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -5089,7 +5955,9 @@ o The C source files<br>
 
 
 
+
 The MPM Module Assembler is composed of the following ANSI C source files:<br>
+
 
 
 
@@ -5099,7 +5967,9 @@ The MPM Module Assembler is composed of the following ANSI C source files:<br>
 
 
 
+
 main.c<br>
+
 
 
 
@@ -5112,12 +5982,15 @@ from this source module.<br>
 
 
 
+
 <br>
 
 
 
 
+
 pass.c<br>
+
 
 
 
@@ -5131,12 +6004,15 @@ separate file or at end of listing file).<br>
 
 
 
+
 <br>
 
 
 
 
+
 modlink.c<br>
+
 
 
 
@@ -5149,7 +6025,9 @@ of map files (sorting of symbols and writing to file).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5159,7 +6037,9 @@ symbols.c<br>
 
 
 
+
 Symbol table management og local, global and external assembler source module symbols. <br>
+
 
 
 
@@ -5169,12 +6049,15 @@ exprprsr.c<br>
 
 
 
+
 Expression parsing and evaluation. Storing of expressions in infix notation to object files.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5184,7 +6067,9 @@ prsline.c<br>
 
 
 
+
 Source line parsing functions. These recognize identifiers and constants.<br>
+
 
 
 
@@ -5194,7 +6079,9 @@ Source line parsing functions. These recognize identifiers and constants.<br>
 
 
 
+
 prsmpm.c<br>
+
 
 
 
@@ -5206,12 +6093,15 @@ file. <br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -5221,12 +6111,15 @@ asmdrctv.c<br>
 
 
 
+
 All function logic routines (DEFB, INCLUDE, ORG, DEFVARS, etc.) that parse and code generate Z80 assembler directives.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5236,18 +6129,22 @@ o Using a Make utility or a compiler front end<br>
 
 
 
+
 Most C compilers accept the following command line:<br>
 
 
 
 
-<br>
-
-
-
-
 
 <br>
+
+
+
+
+
+
+<br>
+
 
 
 
@@ -5260,7 +6157,9 @@ however be forced to use a make utility.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5270,12 +6169,15 @@ o Future platform implementations<br>
 
 
 
+
 If you have ported this assembler to a new platform, please send a mail to gbs@users.sf.net with sources and details.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5294,12 +6196,15 @@ of all developers...<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -5309,12 +6214,15 @@ of all developers...<br>
 
 
 
+
 <br>
 
 
 
 
+
 o Object file format documentation<br>
+
 
 
 
@@ -5330,7 +6238,9 @@ necessary if you want to use the object file format in other systems.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5343,7 +6253,9 @@ processing.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5353,7 +6265,9 @@ The format of the object file is as follows:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5363,7 +6277,9 @@ The format of the object file is as follows:<br>
 
 
 
+
   [ &lt;F.ptr to Module Name&gt; ]<br>
+
 
 
 
@@ -5373,7 +6289,9 @@ The format of the object file is as follows:<br>
 
 
 
+
   [ &lt;F.ptr to Name Declarations&gt; ]<br>
+
 
 
 
@@ -5383,12 +6301,15 @@ The format of the object file is as follows:<br>
 
 
 
+
   [ &lt;F.ptr to Machine Code Block&gt; ]<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5398,12 +6319,15 @@ The format of the object file is as follows:<br>
 
 
 
+
   [ ... ]<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5413,12 +6337,15 @@ The format of the object file is as follows:<br>
 
 
 
+
   [ ... ]<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5428,12 +6355,15 @@ The format of the object file is as follows:<br>
 
 
 
+
   [ ... ]<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5443,7 +6373,9 @@ The format of the object file is as follows:<br>
 
 
 
+
   [ &lt;Machine Code&gt; ]<br>
+
 
 
 
@@ -5453,7 +6385,9 @@ n<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5467,7 +6401,9 @@ immediately followed by the next.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5477,12 +6413,15 @@ immediately followed by the next.<br>
 
 
 
+
 The file pointers are 32bit integers stored in low byte - high byte order (Little endian format - Intel notation).<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5492,12 +6431,15 @@ The file pointers are 32bit integers stored in low byte - high byte order (Littl
 
 
 
+
 Contains the 32bit ORG address for the linked machine code or FFFFFFFFh for no ORG address defined.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5507,7 +6449,9 @@ Contains the 32bit ORG address for the linked machine code or FFFFFFFFh for no O
 
 
 
+
 Contains the following:<br>
+
 
 
 
@@ -5517,7 +6461,9 @@ Contains the following:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5527,7 +6473,9 @@ Contains the following:<br>
 
 
 
+
 'U': 8bit integer (0 to 255)<br>
+
 
 
 
@@ -5537,7 +6485,9 @@ Contains the following:<br>
 
 
 
+
 'C': 16bit integer (-32768 to 65535)<br>
+
 
 
 
@@ -5547,7 +6497,9 @@ Contains the following:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5557,7 +6509,9 @@ Contains the following:<br>
 
 
 
+
 &lt;length&gt; defines byte length of expression string.<br>
+
 
 
 
@@ -5567,7 +6521,9 @@ Contains the following:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5577,7 +6533,9 @@ Contains the following:<br>
 
 
 
+
 Contains the following:<br>
+
 
 
 
@@ -5587,7 +6545,9 @@ Contains the following:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5597,7 +6557,9 @@ Contains the following:<br>
 
 
 
+
 'L' is local,<br>
+
 
 
 
@@ -5607,12 +6569,15 @@ Contains the following:<br>
 
 
 
+
 'X' global library<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5622,7 +6587,9 @@ Contains the following:<br>
 
 
 
+
 'A' relocatable address,<br>
+
 
 
 
@@ -5632,7 +6599,9 @@ Contains the following:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5642,12 +6611,15 @@ Contains the following:<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -5657,7 +6629,9 @@ Contains the following:<br>
 
 
 
+
 Contains the following which defines library reference names:<br>
+
 
 
 
@@ -5667,7 +6641,9 @@ Contains the following which defines library reference names:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5677,7 +6653,9 @@ Contains the following which defines library reference names:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5687,12 +6665,15 @@ Contains the following which defines library reference names:<br>
 
 
 
+
 Contains a preceding byte identifying the length of the following string<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5702,17 +6683,21 @@ Contains a preceding byte identifying the length of the following string<br>
 
 
 
+
 Contains a preceding 32bit integer identifying the total length of the following machine code block.<br>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -5722,12 +6707,15 @@ o Library file format documentation<br>
 
 
 
+
 The library file format is a sequence of object files with additional structures.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5737,7 +6725,9 @@ The library file format is a sequence of object files with additional structures
 
 
 
+
   [ &lt;Object File Block&gt; ]<br>
+
 
 
 
@@ -5747,7 +6737,9 @@ The library file format is a sequence of object files with additional structures
 
 
 
+
 n<br>
+
 
 
 
@@ -5757,7 +6749,9 @@ n<br>
 
 
 
+
 &lt;Object File Block&gt;<br>
+
 
 
 
@@ -5767,12 +6761,15 @@ Contains the following:<br>
 
 
 
+
 &lt;Next Object File&gt;&lt;Object File Length&gt;&lt;'MPMRMF01' Object File&gt;<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5782,7 +6779,9 @@ Contains the following:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5792,7 +6791,9 @@ Contains the following:<br>
 
 
 
+
 If this file pointer is -1 (FFFFFFFFh) then the current &lt;Object File Block&gt; is the last in the library file.<br>
+
 
 
 
@@ -5802,7 +6803,9 @@ If this file pointer is -1 (FFFFFFFFh) then the current &lt;Object File Block&gt
 
 
 
+
 &lt;Object File Length&gt; is 32bit length integer of &lt;'MPMRMF01' Object File&gt;<br>
+
 
 
 
