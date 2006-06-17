@@ -51,8 +51,8 @@ MPM = main.o pass.o avltree.o exprprsr.o errors.o \
       modules.o libraries.o options.o symtables.o asmdrctv.o \
       z80_prsline.o z80_asmdrctv.o z80_instr.o z80_relocate.o
 
-debug: $(MPM)
-	$(CC) -g -o mpm $(MPM)
+default: $(MPM)
+	$(CC) -o mpm $(MPM)
 
 all: mpm
 
