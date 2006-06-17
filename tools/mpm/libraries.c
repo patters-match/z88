@@ -297,7 +297,7 @@ GetLibfile (char *filename)
    (it points at the first byte of 'next object module file pointer').
 
    If the library file couldn't be opened or is not recognized,
-   a NULL file handle and NULL watermark is returned. 
+   a NULL file handle and NULL watermark is returned.
    The routine also reports errors to the global error system for file I/O and
    unrecognized library file.
    ------------------------------------------------------------------------------------------ */
@@ -307,7 +307,7 @@ OpenLibraryFile(char *filename, pathlist_t *pathlist, const char **libversion)
   FILE *libf;
   char watermark[64];
 
-  if ((libf = OpenFile (filename, gLibraryPath, OFF)) == NULL)
+  if ((libf = OpenFile (filename, pathlist, OFF)) == NULL)
     {
       ReportIOError (filename);
       *libversion = NULL;
