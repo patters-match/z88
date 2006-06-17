@@ -154,6 +154,7 @@ struct pathlist     { struct pathlist   *nextdir;           /* pointer to next d
 typedef
 struct libfile      { struct libfile    *nextlib;           /* pointer to next library file in list */
                       char              *libfilename;       /* filename of library (incl. extension) */
+                      const char        *libwatermark;      /* pointer to watermark identifier identified at start of library file */
                     } libfile_t;
 
 typedef

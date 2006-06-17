@@ -138,33 +138,23 @@ TestAsmFile (void)
 static int
 GetModuleSize (void)
 {
-  char fheader[128], modulename[128];
+  char modulename[256];
+  const char *objwatermark;
   long fptr_modcode, fptr_modname;
   size_t size;
 
-  if ((objfile = fopen (AdjustPlatformFilename(objfilename), "rb")) == NULL)
+  if ((objfile = OpenObjectFile(objfilename, &objwatermark)) == NULL)
     {
-      ReportIOError (objfilename);
       return -1;
     }
   else
     {
-      fread (fheader, 1U, SIZEOF_MPMOBJHDR, objfile);       /* read watermark header from object file */
-      fheader[SIZEOF_MPMOBJHDR] = '\0';
-
-      if (strcmp (fheader, MPMOBJECTHEADER) != 0)
-        {                                                   /* compare header of file */
-          ReportError (objfilename, 0, Err_Objectfile);     /* not an object file */
-          fclose (objfile);
-          objfile = NULL;
-          return -1;
-        }
-      fseek (objfile, SIZEOF_MPMOBJHDR + 4, SEEK_SET);      /* point at module name file pointer (just after ORG address) */
+      fseek (objfile, strlen(objwatermark) + 4, SEEK_SET);  /* point at module name file pointer (just after ORG address) */
       fptr_modname = ReadLong (objfile);                    /* get file pointer to module name */
       fseek (objfile, fptr_modname, SEEK_SET);              /* set file pointer to module name */
 
       size = fgetc (objfile);
-      fread (modulename, sizeof (char), size, objfile);       /* read module name */
+      fread (modulename, sizeof (char), size, objfile);     /* read module name */
       modulename[size] = '\0';
       if ((CURRENTMODULE->mname = AllocIdentifier (size + 1)) == NULL)
         {
@@ -174,8 +164,8 @@ GetModuleSize (void)
       else
         strcpy (CURRENTMODULE->mname, modulename);
 
-      fseek (objfile, SIZEOF_MPMOBJHDR + 4+4+4+4+4, SEEK_SET);  /* set file pointer to point at module code pointer file pointer */
-      fptr_modcode = ReadLong (objfile);                        /* get file pointer to module code */
+      fseek (objfile, strlen(objwatermark) + 4+4+4+4+4, SEEK_SET);  /* set file pointer to point at module code pointer file pointer */
+      fptr_modcode = ReadLong (objfile);                /* get file pointer to module code */
       if (fptr_modcode != -1)
         {
           fseek (objfile, fptr_modcode, SEEK_SET);      /* set file pointer to module code */

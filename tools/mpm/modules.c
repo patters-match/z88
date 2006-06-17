@@ -363,7 +363,7 @@ LinkModules (void)
 void
 LoadModules (void)
 {
-  char fheader[128];
+  const char *objwatermark;
   module_t *lastobjmodule;
   long constant;
   int link_error;
@@ -393,22 +393,8 @@ LoadModules (void)
           break;
         }
 
-      if ((srcasmfile = fopen (AdjustPlatformFilename(objfilename), "rb")) != NULL)
-        {                                                       /* open relocatable file for reading */
-          fread (fheader, 1U, SIZEOF_MPMOBJHDR, srcasmfile);    /* read watermark from file into array */
-          fheader[SIZEOF_MPMOBJHDR] = '\0';
-        }
-      else
+      if ((srcasmfile = OpenObjectFile(objfilename, &objwatermark)) == NULL)
         {
-          ReportIOError (objfilename);  /* couldn't open relocatable file */
-          break;
-        }
-
-      if (strcmp (fheader, MPMOBJECTHEADER) != 0)
-        {                       /* compare header of file */
-          ReportError (objfilename, 0, Err_Objectfile);
-          fclose (srcasmfile);
-          srcasmfile = NULL;
           break;
         }
 
@@ -436,7 +422,7 @@ LoadModules (void)
       fclose (srcasmfile);
       srcasmfile = NULL;
 
-      link_error = LinkModule (objfilename, 0);
+      link_error = LinkModule (objfilename, 0, objwatermark);
 
       free (objfilename);               /* release allocated file name */
       objfilename = NULL;
@@ -448,14 +434,14 @@ LoadModules (void)
 
 
 int
-LinkModule (char *filename, long fptr_base)
+LinkModule (char *filename, long fptr_base, const char *objwatermark)
 {
   long fptr_namedecl, fptr_modname, fptr_modcode, fptr_libnmdecl;
   size_t size;
   int linklib_error;
 
   srcasmfile = OpenFile (filename, gLibraryPath, OFF);  /* open object file for reading */
-  fseek (srcasmfile, fptr_base + SIZEOF_MPMOBJHDR + 4U, SEEK_SET);  /* get ready to read module name file pointer */
+  fseek (srcasmfile, fptr_base + strlen(objwatermark) + 4U, SEEK_SET);  /* get ready to read module name file pointer */
 
   fptr_modname = ReadLong (srcasmfile);         /* get file pointer to module name */
   ReadLong (srcasmfile);                        /* read past file pointer to expression declarations */

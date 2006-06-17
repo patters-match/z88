@@ -30,7 +30,7 @@
 
 /* global functions */
 char *ReadName (void);
-int LinkModule (char *filename, long fptr_base);
+int LinkModule (char *filename, long fptr_base, const char *objwatermark);
 long ReadLong (FILE *fileid);
 module_t *NewModule (void);
 unsigned long LoadLong (unsigned char *mptr);

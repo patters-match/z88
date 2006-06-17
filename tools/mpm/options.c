@@ -279,7 +279,7 @@ void
 prompt (void)
 {
   puts(copyrightmsg);
-  puts ("mpm [options] [ @<modulefile> | {<filename>} ]");
+  puts ("mpm [options] {<filename>} | @<modulefile>}");
   printf ("To assemble 'program%s' use 'program' or 'program%s'.\n", asmext, asmext);
   puts ("@<modulefile> contains file names of all modules to be linked; File names");
   puts ("are put on separate lines ended with \\n. File types recognized by or");

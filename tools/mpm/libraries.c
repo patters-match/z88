@@ -73,7 +73,6 @@ libraries_t *libraryhdr = NULL;
 
 
 /* local variables */
-static char MPMlibhdr[] = MPMLIBRARYHEADER;
 static avltree_t *libraryindex = NULL;
 
 
@@ -228,7 +227,7 @@ CreateLibfile (char *filename)
   else
     {
       createlibrary = ON;
-      fwrite (MPMlibhdr, sizeof (char), SIZEOF_MPMLIBHDR, libfile);   /* write library header */
+      fwrite (MPMLIBRARYHEADER, sizeof (char), SIZEOF_MPMLIBHDR, libfile);   /* write Mpm library header */
     }
 }
 
@@ -236,11 +235,10 @@ CreateLibfile (char *filename)
 void
 GetLibfile (char *filename)
 {
+  const char *libwatermark;
   libfile_t *newlib;
-  char *f = NULL, fheader[128];
+  char *f = NULL;
   int l;
-
-  for(l=0; l<128; l++) fheader[l] = 0;   /* clear buffer for library file watermark */
 
   l = strlen (filename);
   if (l>0)
@@ -266,23 +264,9 @@ GetLibfile (char *filename)
         }
     }
 
-  if ((srcasmfile = OpenFile (f, gLibraryPath, OFF)) == NULL)
-    {                           /* Does file exist? */
-      ReportError (NULL, 0, Err_LibfileOpen);
-      free(f); /* discard previously allocated library filename */
-      return;
-    }
-  else
+  /* Does library file exist, and is it recognized? */
+  if ((srcasmfile = OpenLibraryFile(f, gLibraryPath, &libwatermark)) == NULL)
     {
-      fread (fheader, 1U, SIZEOF_MPMLIBHDR, srcasmfile);      /* read potential library watermark from file into array */
-      fheader[SIZEOF_MPMLIBHDR] = '\0';
-    }
-  fclose (srcasmfile);
-  srcasmfile = NULL;
-
-  if (strcmp (fheader, MPMlibhdr) != 0)
-    {         /* compare header of file */
-      ReportError (f, 0, Err_Libfile);
       free(f); /* discard previously allocated library filename */
       return;
     }
@@ -293,12 +277,67 @@ GetLibfile (char *filename)
   if ((newlib = NewLibrary ()) != NULL)
     {
       newlib->libfilename = f;
+      newlib->libwatermark = libwatermark;
     }
   else
     {
       ReportError (NULL, 0, Err_Memory);
       free(f); /* discard previously allocated library filename */
     }
+}
+
+
+/* ------------------------------------------------------------------------------------------
+   FILE *OpenLibraryFile(char *filename, pathlist_t *pathlist, char **objversion)
+
+   Open the specified file and evaluate that it is an Z80asm or Mpm generated
+   library file. If successfully validated, the opened file handle is returned to the
+   caller, and a pointer to the library file watermark type string is returned.
+   The file pointer has been positioned at the first byte after the watermark
+   (it points at the first byte of 'next object module file pointer').
+
+   If the library file couldn't be opened or is not recognized,
+   a NULL file handle and NULL watermark is returned. 
+   The routine also reports errors to the global error system for file I/O and
+   unrecognized library file.
+   ------------------------------------------------------------------------------------------ */
+FILE *
+OpenLibraryFile(char *filename, pathlist_t *pathlist, const char **libversion)
+{
+  FILE *libf;
+  char watermark[64];
+
+  if ((libf = OpenFile (filename, gLibraryPath, OFF)) == NULL)
+    {
+      ReportIOError (filename);
+      *libversion = NULL;
+      return NULL;
+    }
+  else
+    {
+      fread (watermark, 1U, SIZEOF_MPMLIBHDR, libf);     /* try to read Mpm library file watermark */
+      watermark[SIZEOF_MPMLIBHDR] = '\0';
+
+      if (strcmp (watermark, MPMLIBRARYHEADER) == 0)
+        {
+          *libversion = MPMLIBRARYHEADER;                /* found Mpm library file */
+          return libf;
+        }
+
+      fseek (libf, 0, SEEK_SET);
+      fread (watermark, 1U, SIZEOF_Z80ASMLIBHDR, libf);  /* try to read Z80asm library file watermark */
+      watermark[SIZEOF_Z80ASMLIBHDR] = '\0';
+      if (strcmp (watermark, Z80ASMLIBHDR) == 0)
+        {
+          *libversion = Z80ASMLIBHDR;                    /* found Z80asm V1 library file */
+          return libf;
+        }
+    }
+
+  ReportError (filename, 0, Err_Libfile);     /* library file was not recognized */
+  fclose (libf);
+  *libversion = NULL;
+  return NULL;
 }
 
 
@@ -453,7 +492,7 @@ LinkLibModule (libfile_t *library, long module_basefptr, char *modname)
           if (verbose)
             printf ("Linking library module <%s>\n", modname);
 
-          link_error = LinkModule (library->libfilename, module_basefptr);  /* link module & read names */
+          link_error = LinkModule (library->libfilename, module_basefptr, library->libwatermark);  /* link module & read names */
         }
       else
         {
@@ -535,13 +574,13 @@ LoadLibraryIndex(libfile_t *curlib)
   srcasmfile = OpenFile (curlib->libfilename, gLibraryPath, OFF);
   if (srcasmfile != NULL)
     {
-      currentlibmodule = SIZEOF_MPMLIBHDR;                       /* first available module in library */
+      currentlibmodule = strlen(curlib->libwatermark);           /* offset pointer into first available module in library */
 
       do
         { /* parse all available active modules in library file */
           do
             {
-              fseek (srcasmfile, currentlibmodule, SEEK_SET);    /* point at beginning of a object file module */
+              fseek (srcasmfile, currentlibmodule, SEEK_SET);    /* point at beginning of a object file module block */
               nextlibmodule = ReadLong (srcasmfile);             /* get file pointer to next module in library */
               modulesize = ReadLong (srcasmfile);                /* get size of current module */
             }
@@ -553,7 +592,7 @@ LoadLibraryIndex(libfile_t *curlib)
                * (past <Next Object File> & <Object File Length> & <Object file Watermark> & <ORG address>)
                */
               objfile_base = currentlibmodule + 4 + 4;
-              fseek (srcasmfile, objfile_base + SIZEOF_MPMOBJHDR + 4, SEEK_SET);
+              fseek (srcasmfile, objfile_base + strlen(curlib->libwatermark) + 4, SEEK_SET);
 
               fptr_mname = ReadLong (srcasmfile);                       /* get module name file pointer */
               fseek (srcasmfile, objfile_base + fptr_mname, SEEK_SET);  /* point at module name */
@@ -626,6 +665,7 @@ NewLibrary (void)
     {
       newl->nextlib = NULL;
       newl->libfilename = NULL;
+      newl->libwatermark = NULL;
     }
 
   if (libraryhdr->firstlib == NULL)

@@ -31,6 +31,7 @@
 int LinkLibModules (char *objfilename, long fptr_base, long startnames, long endnames);
 int SearchLibfile (libfile_t *curlib, char *modname);
 void CreateLib (void);
+FILE *OpenLibraryFile(char *filename, pathlist_t *pathlist, const char **libversion);
 void CreateLibfile (char *filename);
 void GetLibfile (char *filename);
 void IndexLibraries(void);

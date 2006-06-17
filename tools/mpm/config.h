@@ -32,12 +32,20 @@
 /* Z80 specific assembler definitions and constants                                          */
 #ifdef MPM_Z80
 
-#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2 dev.build 3"
+#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2 dev.build 4"
 
+/* Z80asm object & library file watermark V1 series must both have always same length */
+#define Z80ASMOBJHDR  "Z80RMF01"
+#define SIZEOF_Z80ASMOBJHDR 8
+#define Z80ASMLIBHDR "Z80LMF01"
+#define SIZEOF_Z80ASMLIBHDR 8
+
+/* MPM object & library file watermark must both have always same length */
 #define MPMOBJECTHEADER  "MPMRMF-Z80-V01"
 #define SIZEOF_MPMOBJHDR 14
 #define MPMLIBRARYHEADER "MPMLMF-Z80-V01"
 #define SIZEOF_MPMLIBHDR 14
+
 
 #define DEFAULT_OPTIONS "Default flag options: -sm -nvadbctgAC"
 
@@ -45,7 +53,6 @@
 #define ENVNAME_LIBRARYPATH "MPM_Z80_LIBPATH"
 #define ENVNAME_STDLIBRARY "MPM_Z80_STDLIBRARY"
 
-#define MAXCODESIZE 65536
 #endif
 /* ----------------------------------------------------------------------------------------- */
 
@@ -54,10 +61,12 @@
 #define OS_ID "MSDOS"
 #define DIRSEP 0x5C         /* "\" */
 #define ENVPATHSEP 0x3B     /* ";" */
+#define MAXCODESIZE 65532	/* MSDOS 64K heap boundary */
 #endif
 
 #if UNIX
 #define OS_ID "UNIX"
 #define DIRSEP 0x2F         /* "/" */
 #define ENVPATHSEP 0x3A     /* ":" */
+#define MAXCODESIZE 65536
 #endif

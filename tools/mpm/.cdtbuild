@@ -21,11 +21,11 @@
 <resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.774603562.903445909" name="relocate.asm" rcbsApplicability="disable" resourcePath="/mpm/relocate.asm" toolsToInvoke="cdt.managedbuild.tool.gnu.assembler.exe.debug.139088941./mpm/relocate.asm">
 <tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.139088941./mpm/relocate.asm" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.139088941"/>
 </resourceConfiguration>
-<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.774603562.1035084625" name="mpm.html" rcbsApplicability="disable" resourcePath="/mpm/docs/mpm.html" toolsToInvoke=""/>
 <resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.774603562.641130187" name="relocate.asm" rcbsApplicability="disable" resourcePath="/Mpm/relocate.asm" toolsToInvoke="cdt.managedbuild.tool.gnu.assembler.exe.debug.139088941./Mpm/relocate.asm">
 <tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.139088941./Mpm/relocate.asm" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.139088941"/>
 </resourceConfiguration>
 <resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.774603562.976263793" name="mpm.html" rcbsApplicability="disable" resourcePath="/Mpm/docs/mpm.html" toolsToInvoke=""/>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.774603562.1035084625" name="mpm.html" rcbsApplicability="disable" resourcePath="/mpm/docs/manual.html" toolsToInvoke=""/>
 </configuration>
 <configuration artifactName="mpm" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.1421304762" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
 <toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1199830594" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">

@@ -1030,6 +1030,61 @@ WriteSymbol (symbol_t *n)
 }
 
 
+
+/* ------------------------------------------------------------------------------------------
+   FILE *OpenObjectFile(char *filename, char **objversion)
+
+   Open the specified file and evaluate that it is an Z80asm or Mpm generated 
+   object file. If successfully validated, the opened file handle is returned to the
+   caller, and a pointer to the object file watermark type string is returned.
+   The file pointer has been positioned at the first byte after the watermark
+   (it points at the object module ORIGIN).
+
+   If the object file couldn't be opened or is not recognized,
+   a NULL file handle and NULL watermark is returned. 
+   The routine also reports errors to the global error system for file I/O and
+   unrecognized object file.
+   ------------------------------------------------------------------------------------------ */
+FILE *
+OpenObjectFile(char *filename, const char **objversion)
+{
+  FILE *objf;
+  char watermark[64];
+
+  if ((objf = fopen (AdjustPlatformFilename(filename), "rb")) == NULL)
+    {
+      ReportIOError (filename);
+      *objversion = NULL;
+      return NULL;
+    }
+  else
+    {
+      fread (watermark, 1U, SIZEOF_MPMOBJHDR, objf);     /* try to read Mpm object file watermark */
+      watermark[SIZEOF_MPMOBJHDR] = '\0';
+
+      if (strcmp (watermark, MPMOBJECTHEADER) == 0)
+        {
+          *objversion = MPMOBJECTHEADER;                 /* found Mpm object file */
+          return objf;
+        }
+
+      fseek (objf, 0, SEEK_SET);
+      fread (watermark, 1U, SIZEOF_Z80ASMOBJHDR, objf);  /* try to read Z80asm object file watermark */
+      watermark[SIZEOF_Z80ASMOBJHDR] = '\0';
+      if (strcmp (watermark, Z80ASMOBJHDR) == 0)
+        {
+          *objversion = Z80ASMOBJHDR;                    /* found Z80asm V1 object file */
+          return objf;
+        }
+    }
+
+  ReportError (filename, 0, Err_Objectfile);     /* object file was not recognized */
+  fclose (objf);
+  *objversion = NULL;
+  return NULL;
+}
+
+
 /* ------------------------------------------------------------------------------------------
    FILE *OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename)
 

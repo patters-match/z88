@@ -29,6 +29,7 @@
 
 
 /* global functions */
+FILE *OpenObjectFile(char *filename, const char **objversion);
 FILE *OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename);
 char *AdjustPlatformFilename(char *filename);
 char *AddFileExtension(const char *oldfilename, const char *extension);
