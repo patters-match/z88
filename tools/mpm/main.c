@@ -164,21 +164,25 @@ GetModuleSize (void)
       else
         strcpy (CURRENTMODULE->mname, modulename);
 
-      fseek (objfile, strlen(objwatermark) + 4+4+4+4+4, SEEK_SET);  /* set file pointer to point at module code pointer file pointer */
-      fptr_modcode = ReadLong (objfile);                /* get file pointer to module code */
-      if (fptr_modcode != -1)
+      /* pre-calculate size of linked binary, before actually linking it (needed when adding lib modules) */
+      if (mpmbin == ON)
         {
-          fseek (objfile, fptr_modcode, SEEK_SET);      /* set file pointer to module code */
-          size = ReadLong (objfile);                    /* read 32 bit integer length of module code */
-          if (CURRENTMODULE->startoffset + size > MAXCODESIZE)
-            ReportError (objfilename, 0, Err_MaxCodeSize);
-          else
-            CODESIZE += size;
+          fseek (objfile, strlen(objwatermark) + 4+4+4+4+4, SEEK_SET);  /* set file pointer to point at module code pointer file pointer */
+          fptr_modcode = ReadLong (objfile);                /* get file pointer to module code */
+          if (fptr_modcode != -1)
+            {
+              fseek (objfile, fptr_modcode, SEEK_SET);      /* set file pointer to module code */
+              size = ReadLong (objfile);                    /* read 32 bit integer length of module code */
+              if (CURRENTMODULE->startoffset + size > MAXCODESIZE)
+                ReportError (objfilename, 0, Err_MaxCodeSize);
+              else
+                CODESIZE += size;
+            }
         }
-      fclose (objfile);
-
-      return 0;
     }
+
+  fclose (objfile);
+  return 0;  /* indicate that file is not to be compiled */
 }
 
 
