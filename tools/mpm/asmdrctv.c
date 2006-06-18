@@ -573,8 +573,9 @@ DEFVARS (void)
 
   GetSym (); /* read first symbol of new line */
 
-  /* skip anything until we meet a name */
-  while (!feof (srcasmfile) && sym != name )
+  /* skip anything until we meet a name - but also allow for an empty DEFVARS */
+  while (!feof (srcasmfile) && sym != name && (sym != rcurly &&
+         SearchFunction (directives, totaldirectives) != ENDDEFstat))
     {
       SkipLine (srcasmfile);
 
@@ -583,7 +584,7 @@ DEFVARS (void)
       GetSym ();
     }
 
-  /* parse variable area definition until } or ENDDEF */
+  /* found a name definition - parse variable area definition until } or ENDDEF */
   while (!feof (srcasmfile) && (sym != rcurly &&
          SearchFunction (directives, totaldirectives) != ENDDEFstat) )
     {
