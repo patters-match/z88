@@ -73,6 +73,7 @@ void
 DefaultOptions (void)
 {
   /* define the default paths for INCLUDE files and for libraries */
+  AddPathNode (getenv("Z80_OZFILES"), &gIncludePath);        /* be compatible with good old Z80asm */
   AddPathNode (getenv(ENVNAME_INCLUDEPATH), &gIncludePath);
   AddPathNode (getenv(ENVNAME_LIBRARYPATH), &gLibraryPath);
 
