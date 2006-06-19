@@ -771,7 +771,7 @@ UnDefineSym(void)
         {
           foundsym = FindSymbol(ident,CURRENTMODULE->localroot);
           if ( foundsym != NULL )
-              DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)(void *,void *)) cmpidstr, (void (*)((void *)) FreeSym);
+              DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)(void *,void *)) cmpidstr, (void (*)(void *)) FreeSym);
         }
       else
         {
@@ -848,7 +848,7 @@ ORG (void)
       else
         {
           orgaddr = EvalPfixExpr (postfixexpr);        /* ORG expression must not contain undefined symbols */
-          if (orgaddr >= 0 && orgaddr <= 65535)
+          if ( orgaddr <= 65535 )
             CURRENTMODULE->origin = orgaddr;
           else
             ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IntegerRange);
