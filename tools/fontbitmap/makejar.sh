@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Unix compile script for FontBitMap - Z88 Font Bitmap Source Code Generator
-# (C) Gunther Strube (gbs@users.sf.net) 2003-2005
+# (C) Gunther Strube (gbs@users.sf.net) 2003-2006
 #
 # FontBitMap is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -25,20 +25,12 @@
 #
 # *************************************************************************************
 
-# compile the java classes of the project
-echo compiling java classes
-javac -nowarn -g:none net/sourceforge/z88/fontsrc/*.java
-
 # create a temporary dir for files to be included in the executable JAR file
 mkdir ../fontbitmap-builddir
 
-# copy the all the application files (without hidden files)
-echo building executable jar
-cp -fR net ../fontbitmap-builddir
-
-# JAR file only needs (compiled) class files (*.java files redundant)
-find ../fontbitmap-builddir -name '*.java' | xargs rm
-find ../fontbitmap-builddir -name '.svn' | xargs rm -fR
+# compile the java classes of the project
+echo compiling java classes
+java -jar ../jdk/ecj.jar -d ../fontbitmap-builddir -nowarn -g:none -source 1.4 -target 1.4 net
 
 # finally, build the executable jar
 cd ../fontbitmap-builddir

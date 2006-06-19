@@ -25,28 +25,18 @@
 #
 # *************************************************************************************
 
-# compile the java classes of the project
-echo compiling java classes
-javac -cp . -nowarn -g:none -source 1.4 -target 1.4 com/imagero/util/*.java
-javac -cp . -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/datastructures/*.java
-javac -cp . -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/filecard/*.java
-javac -cp . -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/screen/*.java
-javac -cp . -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/*.java
-
 # create a temporary dir for files to be included in the executable JAR file
 mkdir ../ozvm-builddir
 
-# copy the all the application files (without hidden files)
+# compile the java classes of the project
+echo compiling java classes
+java -jar ../jdk/ecj.jar -d ../ozvm-builddir -nowarn -g:none -source 1.4 -target 1.4 com net
+
+# copy the remaining application files 
 echo building executable jar
-cp -fR com ../ozvm-builddir
-cp -fR net ../ozvm-builddir
 cp -fR pixel ../ozvm-builddir
 cp -f ./ozvm-manual.html ../ozvm-builddir
 cp -f ./Z88.rom ../ozvm-builddir
-
-# JAR file only needs (compiled) class files (*.java files redundant)
-find ../ozvm-builddir -name '*.java' | xargs rm
-find ../ozvm-builddir -name '.svn' | xargs rm -fR
 
 # finally, build the executable jar
 cd ../ozvm-builddir

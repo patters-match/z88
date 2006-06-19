@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Windows compile script for MakeApp - the Z88 Application Card Generator.
-:: (C) Gunther Strube (gbs@users.sf.net) 2005
+:: (C) Gunther Strube (gbs@users.sf.net) 2006
 ::
 :: MakeApp is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -25,19 +25,12 @@
 :: *************************************************************************************
 @echo off
 
-:: compile the java classes of the project
-echo compiling java classes
-javac -nowarn -g:none -source 1.4 -target 1.4 net/sourceforge/z88/tools/*.java
-
 :: create a temporary dir for files to be included in the executable JAR file
 mkdir ..\makeapp-builddir >nul
 
-:: copy the all the application files (without hidden files)
-echo building executable jar
-xcopy net ..\makeapp-builddir\net /S /Y /I /Q >nul
-
-:: JAR file only needs (compiled) class files
-del /S /Q ..\makeapp-builddir\*.java >nul
+:: compile the java classes of the project
+echo compiling java classes
+java -jar ..\jdk\ecj.jar -d ..\makeapp-builddir -nowarn -g:none -source 1.4 -target 1.4 net
 
 :: finally, build the executable jar
 cd ..\makeapp-builddir >nul
