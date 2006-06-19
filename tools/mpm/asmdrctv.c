@@ -76,7 +76,7 @@ extern size_t totalmpmid;
 extern identfunc_t mpmident[];
 
 /* global variables */
-long clineno = 0;
+short clineno = 0;
 
 /* local variables */
 static char stringconst[255];
@@ -194,7 +194,7 @@ void LINE(void)
   char err;
 
   GetSym();
-  clineno = GetConstant(&err);
+  clineno = (short) GetConstant(&err);
 
   if (err != 0)
     {
@@ -732,7 +732,7 @@ DEFS ()
                         }
                     }
 
-                  while (constant--) *codeptr++ = byte;
+                  while (constant--) *codeptr++ = (unsigned char) byte;
                 }
             }
         }
@@ -771,7 +771,7 @@ UnDefineSym(void)
         {
           foundsym = FindSymbol(ident,CURRENTMODULE->localroot);
           if ( foundsym != NULL )
-              DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)()) cmpidstr, (void (*)()) FreeSym);
+              DeleteNode (&CURRENTMODULE->localroot, foundsym, cmpidstr, FreeSym);
         }
       else
         {
