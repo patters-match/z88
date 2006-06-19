@@ -158,13 +158,13 @@ CALLOZ (void)
           constant = EvalPfixExpr (postfixexpr);
           if ((constant > 0) && (constant <= 255))
             {
-              *codeptr++ = constant;    /* 1 byte OZ parameter */
+              *codeptr++ = (unsigned char) constant;    /* 1 byte OZ parameter */
               ++PC;
             }
           else if ((constant > 255) && (constant <= 65535))
             {
               *codeptr++ = constant & 255;  /* 2 byte OZ parameter */
-              *codeptr++ = constant >> 8;
+              *codeptr++ = (unsigned char) (constant >> 8);
               PC += 2;
             }
           else
@@ -279,7 +279,7 @@ FPP (void)
           constant = EvalPfixExpr (postfixexpr);
           if ((constant > 0) && (constant < 255))
             {
-              *codeptr++ = constant;    /* 1 byte OZ parameter */
+              *codeptr++ = (unsigned char) constant;    /* 1 byte OZ parameter */
               ++PC;
             }
           else

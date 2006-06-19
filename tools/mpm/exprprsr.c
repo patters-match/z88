@@ -857,7 +857,7 @@ Factor (expression_t *pfixexpr)
             }
           else
             {
-              AddCharToInfixExpr(pfixexpr, c); /* store char in infix expr */
+              AddCharToInfixExpr(pfixexpr, (char) c); /* store char in infix expr */
               if (GetSym () == squote)
                 {
                   AddCharToInfixExpr(pfixexpr, separators[squote]);

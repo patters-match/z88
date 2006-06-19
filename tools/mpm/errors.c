@@ -40,7 +40,7 @@
 extern enum flag asmerror, clinemode;
 extern module_t *CURRENTMODULE;
 extern FILE *errfile;
-extern long clineno;
+extern short clineno;
 
 
 /* global variables */

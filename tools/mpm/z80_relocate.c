@@ -85,7 +85,7 @@ InitRelocTable( void )
 
 
 void
-RegisterRelocEntry( unsigned long PC )
+RegisterRelocEntry( unsigned short PC )
 {
    long constant;
 

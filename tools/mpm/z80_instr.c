@@ -1550,7 +1550,7 @@ RST (void)
           constant = EvalPfixExpr (postfixexpr);
           if ((constant >= 0 && constant <= 56) && (constant % 8 == 0))
             {
-              *codeptr++ = 199 + constant;  /* RST  00H, ... 38H */
+              *codeptr++ = (unsigned char) (199 + constant);  /* RST  00H, ... 38H */
               ++PC;
             }
           else
@@ -1681,7 +1681,7 @@ JR (void)
           constant -= PC;
           RemovePfixlist (postfixexpr);     /* remove linked list - expression evaluated. */
           if ((constant >= -128) && (constant <= 127))
-            *codeptr++ = constant;  /* opcode is stored, now store relative jump */
+            *codeptr++ = (unsigned char) constant;  /* opcode is stored, now store relative jump */
           else
             ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_ExprOutOfRange);
         }
@@ -1715,7 +1715,7 @@ DJNZ (void)
           constant -= PC;
           RemovePfixlist (postfixexpr);     /* remove linked list - expression evaluated. */
           if ((constant >= -128) && (constant <= 127))
-            *codeptr++ = constant;  /* opcode is stored, now store relative jump */
+            *codeptr++ = (unsigned char) constant;  /* opcode is stored, now store relative jump */
           else
             ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_ExprOutOfRange);
         }
@@ -1946,7 +1946,7 @@ ArithLog8_instr (int opcode)
               }
             reg &= 7;
 
-            *codeptr++ = 128 + opcode * 8 + reg;  /* xxx  A,r */
+            *codeptr++ = (unsigned char) (128 + opcode * 8 + reg);  /* xxx  A,r */
             ++PC;
             break;
         }
@@ -2154,7 +2154,7 @@ BitTest_instr (int opcode)
 
                           default:
                             *codeptr++ = 203;
-                            *codeptr++ = opcode + bitnumber * 8 + reg;
+                            *codeptr++ = (unsigned char) (opcode + bitnumber * 8 + reg);
                             PC += 2;
                         }
                     }
@@ -2181,7 +2181,7 @@ RotShift_instr (int opcode)
         {
           case 2:
             *codeptr++ = 203;
-            *codeptr++ = opcode * 8 + 6;
+            *codeptr++ = (unsigned char) (opcode * 8 + 6);
             PC += 2;
             break;
 
@@ -2193,7 +2193,7 @@ RotShift_instr (int opcode)
               *codeptr++ = 253;
             *codeptr++ = 203;
             ExprSigned8 (2);
-            *codeptr++ = opcode * 8 + 6;
+            *codeptr++ = (unsigned char) (opcode * 8 + 6);
             PC += 4;
             break;
 
@@ -2216,7 +2216,7 @@ RotShift_instr (int opcode)
 
           default:
             *codeptr++ = 203;
-            *codeptr++ = opcode * 8 + reg;
+            *codeptr++ = (unsigned char) (opcode * 8 + reg);
             PC += 2;
         }
     }

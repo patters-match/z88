@@ -244,7 +244,7 @@ ReadExpr (long nextexpr, long endexpr)
                     }
 
                   if (autorelocate == ON && (postfixexpr->rangetype & SYMADDR))
-                    RegisterRelocEntry(PC);
+                    RegisterRelocEntry((unsigned short) PC);
                   break;
 
                 case 'O':

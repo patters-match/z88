@@ -59,7 +59,8 @@ FILE *srcasmfile, *listfile, *errfile, *objfile, *mapfile, *modsrcfile, *libfile
 
 long TOTALLINES;
 char PAGELEN;
-int PAGENO, LINENO;
+short PAGENO; 
+int LINENO;
 
 char *srcfilename, *lstfilename, *objfilename, *errfilename, *libfilename;
 const char asmext[] = ".asm", lstext[] = ".lst", defext[] = ".def", binext[] = ".bin";

@@ -36,6 +36,6 @@
 
 
 unsigned char *InitRelocTable( void );
-void RegisterRelocEntry ( unsigned long PC );
+void RegisterRelocEntry ( unsigned short PC );
 void WriteRelocHeader ( char *filename );
 void FreeRelocTable ( void );
