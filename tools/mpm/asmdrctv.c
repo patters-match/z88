@@ -771,7 +771,7 @@ UnDefineSym(void)
         {
           foundsym = FindSymbol(ident,CURRENTMODULE->localroot);
           if ( foundsym != NULL )
-              DeleteNode (&CURRENTMODULE->localroot, foundsym, cmpidstr, FreeSym);
+              DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)(void *,void *)) cmpidstr, (void (*)((void *)) FreeSym);
         }
       else
         {
