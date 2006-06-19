@@ -95,6 +95,9 @@ will get the following directory structure with lots of files in it:
 /tools              Developer tools for asm development, Z88 emulator
      /dzasm         Reverse engineer Z80 binaries into assembler source
      /fontbitmap    Generate asm source for ROM fonts & token table
+     /jdk           Eclipse Java Compiler and the MakeJar utility
+                    (these tools are used to compile executable Jar's
+                    for OZvm, MakeApp and FontBitMap applications)
      /makeapp       Binary loader to make Z88 ROM & Application Cards
      /mpm           Z80/Z88 Cross Module Assembler & Linker
      /ozvm          Z88 Virtual Machine & Debugger
