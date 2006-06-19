@@ -173,7 +173,7 @@ DefLocalSymbol (char *identifier,
       if (foundsymbol == NULL)
         return NULL;
       else
-        Insert (&CURRENTMODULE->localroot, foundsymbol, (int (*)()) cmpidstr);
+        Insert (&CURRENTMODULE->localroot, foundsymbol, (int (*)(void *,void *)) cmpidstr);
 
       if ((pass1 == ON) && (symtable == ON) && (listfile != NULL))
          MovePageRefs (identifier, foundsymbol);     /* Move page references from forward referenced symbol */
@@ -225,7 +225,7 @@ GetSymPtr (char *identifier)
                   symval = 0;
                   symbolptr = CreateSymbol (identifier, symval, SYM_NOTDEFINED, CURRENTMODULE);
                   if (symbolptr != NULL)
-                    Insert (&CURRENTMODULE->notdeclroot, symbolptr, (int (*)()) cmpidstr);
+                    Insert (&CURRENTMODULE->notdeclroot, symbolptr, (int (*)(void *,void *)) cmpidstr);
                 }
               else
                 {
@@ -274,7 +274,7 @@ FindSymbol (char *identifier,   /* pointer to current identifier */
     return NULL;
   else
     {
-      found = Find (treeptr, identifier, (int (*)()) compidentifier);
+      found = Find (treeptr, identifier, (int (*)(void *,void *)) compidentifier);
       if (found == NULL)
         return NULL;
       else
@@ -300,7 +300,7 @@ DeclSymGlobal (char *identifier, unsigned long libtype)
           symval = 0;
           foundsym = CreateSymbol (identifier, symval, SYM_NOTDEFINED | SYMXDEF | libtype, CURRENTMODULE);
           if (foundsym != NULL)
-            Insert (&globalroot, foundsym, (int (*)()) cmpidstr);   /* declare symbol as global */
+            Insert (&globalroot, foundsym, (int (*)(void *,void *)) cmpidstr);   /* declare symbol as global */
         }
       else
         {
@@ -329,10 +329,10 @@ DeclSymGlobal (char *identifier, unsigned long libtype)
           clonedsym = CreateSymbol (foundsym->symname, foundsym->symvalue, foundsym->type, CURRENTMODULE);
           if (clonedsym != NULL)
             {
-              Insert (&globalroot, clonedsym, (int (*)()) cmpidstr);
+              Insert (&globalroot, clonedsym, (int (*)(void *,void *)) cmpidstr);
 
               /* original local symbol cloned as global symbol, now delete old local ... */
-              DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)()) cmpidstr, (void (*)()) FreeSym);
+              DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)(void *,void *)) cmpidstr, (void (*)(void *)) FreeSym);
             }
         }
       else
@@ -355,7 +355,7 @@ DeclSymExtern (char *identifier, unsigned long libtype)
           symval = 0;
           foundsym = CreateSymbol (identifier, symval, SYM_NOTDEFINED | SYMXREF | libtype, CURRENTMODULE);
           if (foundsym != NULL)
-            Insert (&globalroot, foundsym, (int (*)()) cmpidstr);   /* declare symbol as extern */
+            Insert (&globalroot, foundsym, (int (*)(void *,void *)) cmpidstr);   /* declare symbol as extern */
         }
       else if (foundsym->owner == CURRENTMODULE)
         ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_SymRedeclaration);    /* Re-declaration not allowed */
@@ -374,10 +374,10 @@ DeclSymExtern (char *identifier, unsigned long libtype)
               extsym = CreateSymbol (identifier, symval, foundsym->type, CURRENTMODULE);
               if (extsym != NULL)
                 {
-                  Insert (&globalroot, extsym, (int (*)()) cmpidstr);
+                  Insert (&globalroot, extsym, (int (*)(void *,void *)) cmpidstr);
 
                   /* original local symbol cloned as external symbol, now delete old local ... */
-                  DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)()) cmpidstr, (void (*)()) FreeSym);
+                  DeleteNode (&CURRENTMODULE->localroot, foundsym, (int (*)(void *,void *)) cmpidstr, (void (*)(void *)) FreeSym);
                 }
             }
           else
@@ -535,7 +535,7 @@ MovePageRefs (char *identifier, symbol_t * definedsym)
       free (forwardrefs);    /* remove pointer information to forward page reference list */
       forwardsym->references = NULL;
       /* symbol is not needed anymore, remove from symbol table of forward references */
-      DeleteNode (&CURRENTMODULE->notdeclroot, forwardsym, (int (*)()) cmpidstr, (void (*)()) FreeSym);
+      DeleteNode (&CURRENTMODULE->notdeclroot, forwardsym, (int (*)(void *,void *)) cmpidstr, (void (*)(void *)) FreeSym);
     }
 }
 
@@ -552,7 +552,7 @@ DefineDefSym (char *identifier, long value, avltree_t ** root)
       staticsym = CreateSymbol (identifier, symval, SYMDEF | SYMDEFINED, NULL);
       if (staticsym != NULL)
         {
-          Insert (root, staticsym, (int (*)()) cmpidstr);
+          Insert (root, staticsym, (int (*)(void *,void *)) cmpidstr);
           return staticsym;
         }
       else

@@ -379,7 +379,7 @@ main (int argc, char *argv[])
         {
 
           PC = oldPC = 0;
-          Copy (staticroot, &CURRENTMODULE->localroot, (int (*)()) cmpidstr, (void *(*)()) CreateSymNode);
+          Copy (staticroot, &CURRENTMODULE->localroot, (int (*)(void *,void *)) cmpidstr, (void *(*)(void *)) CreateSymNode);
 
           gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);      /* Create standard '$PC' identifier */
           __gAsmpcPtr = DefineDefSym (__ASSEMBLERPC, PC, &globalroot);  /* 'ASMPC' identifier for compatibility with z80asm */
@@ -391,9 +391,9 @@ main (int argc, char *argv[])
 
           AssembleSourceFile ();        /* begin assembly... */
 
-          DeleteAll (&CURRENTMODULE->localroot, (void (*)()) FreeSym);
-          DeleteAll (&CURRENTMODULE->notdeclroot, (void (*)()) FreeSym);
-          DeleteAll (&globalroot, (void (*)()) FreeSym);
+          DeleteAll (&CURRENTMODULE->localroot, (void (*)(void *)) FreeSym);
+          DeleteAll (&CURRENTMODULE->notdeclroot, (void (*)(void *)) FreeSym);
+          DeleteAll (&globalroot, (void (*)(void *)) FreeSym);
 
           if (verbose)
             putchar ('\n');     /* separate module texts */
@@ -437,8 +437,8 @@ main (int argc, char *argv[])
   ReleaseFilenames ();
   CloseFiles ();
 
-  DeleteAll (&globalroot, (void (*)()) FreeSym);
-  DeleteAll (&staticroot, (void (*)()) FreeSym);
+  DeleteAll (&globalroot, (void (*)(void *)) FreeSym);
+  DeleteAll (&staticroot, (void (*)(void *)) FreeSym);
 
   if (modulehdr != NULL)
     ReleaseModules ();          /* Release module information (symbols, etc.) */

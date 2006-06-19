@@ -129,7 +129,7 @@ ReadNames (long nextname, long endnames)
             {
               foundsymbol = CreateSymbol (line, symval, symtype | SYMLOCAL, CURRENTMODULE);
               if (foundsymbol != NULL)
-                Insert (&CURRENTMODULE->localroot, foundsymbol, (int (*)()) cmpidstr);
+                Insert (&CURRENTMODULE->localroot, foundsymbol, (int (*)(void *,void *)) cmpidstr);
             }
           else
             {
@@ -145,7 +145,7 @@ ReadNames (long nextname, long endnames)
             {
               foundsymbol = CreateSymbol (line, symval, symtype | SYMXDEF, CURRENTMODULE);
               if (foundsymbol != NULL)
-                Insert (&globalroot, foundsymbol, (int (*)()) cmpidstr);
+                Insert (&globalroot, foundsymbol, (int (*)(void *,void *)) cmpidstr);
             }
           else
             {
@@ -161,7 +161,7 @@ ReadNames (long nextname, long endnames)
             {
               foundsymbol = CreateSymbol (line, symval, symtype | SYMXDEF | SYMDEF, CURRENTMODULE);
               if (foundsymbol != NULL)
-                Insert (&globalroot, foundsymbol, (int (*)()) cmpidstr);
+                Insert (&globalroot, foundsymbol, (int (*)(void *,void *)) cmpidstr);
             }
           else
             {
@@ -875,7 +875,7 @@ CreateDeffile (void)
     {
       if ((deffile = fopen (AdjustPlatformFilename(globaldefname), "w")) != NULL)
         {
-            InOrder (globalroot, (void (*)()) WriteGlobal);
+            InOrder (globalroot, (void (*)(void *)) WriteGlobal);
             fclose(deffile);
             deffile = NULL;
         }
@@ -920,23 +920,23 @@ WriteMapFile (void)
 
       do
         {
-          Move (&cmodule->localroot, &maproot, (int (*)()) cmpidstr);   /* Move all local address symbols alphabetically */
+          Move (&cmodule->localroot, &maproot, (int (*)(void *,void *)) cmpidstr);   /* Move all local address symbols alphabetically */
           cmodule = cmodule->nextmodule;        /* alphabetically */
         }
       while (cmodule != NULL);
 
-      Move (&globalroot, &maproot, (int (*)()) cmpidstr);       /* Move all global address symbols alphabetically */
+      Move (&globalroot, &maproot, (int (*)(void *,void *)) cmpidstr);  /* Move all global address symbols alphabetically */
 
       if (maproot == NULL)
         fputs ("None.\n", mapfile);
       else
         {
-          InOrder (maproot, (void (*)()) WriteMapSymbol);       /* Write map symbols alphabetically */
-          Move (&maproot, &newmaproot, (int (*)()) cmpidval);   /* then re-order symbols numerically */
+          InOrder (maproot, (void (*)(void *)) WriteMapSymbol);       /* Write map symbols alphabetically */
+          Move (&maproot, &newmaproot, (int (*)(void *,void *)) cmpidval);   /* then re-order symbols numerically */
           fputs ("\n\n", mapfile);
 
-          InOrder (newmaproot, (void (*)()) WriteMapSymbol);    /* Write map symbols numerically */
-          DeleteAll (&newmaproot, (void (*)()) FreeSym);        /* then release all map symbols */
+          InOrder (newmaproot, (void (*)(void *)) WriteMapSymbol);    /* Write map symbols numerically */
+          DeleteAll (&newmaproot, (void (*)(void *)) FreeSym);        /* then release all map symbols */
         }
 
       fclose (mapfile);
@@ -1110,8 +1110,8 @@ ReleaseModules (void)
       if (curptr->cfile != NULL)
         ReleaseFile (curptr->cfile);
 
-      DeleteAll (&curptr->localroot, (void (*)()) FreeSym);
-      DeleteAll (&curptr->notdeclroot, (void (*)()) FreeSym);
+      DeleteAll (&curptr->localroot, (void (*)(void *)) FreeSym);
+      DeleteAll (&curptr->notdeclroot, (void (*)(void *)) FreeSym);
 
       if (curptr->mexpr != NULL)
         ReleaseExprns (curptr->mexpr);

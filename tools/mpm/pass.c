@@ -506,14 +506,14 @@ SourceFilePass2 (void)
   fptr_namedecl = ftell (objfile);
 
   /* Store Local Name declarations to relocatable file */
-  InOrder (CURRENTMODULE->localroot, (void (*)()) StoreLocalName);
+  InOrder (CURRENTMODULE->localroot, (void (*)(void *)) StoreLocalName);
 
   /* Store Global name declarations to relocatable file */
-  InOrder (globalroot, (void (*)()) StoreGlobalName);
+  InOrder (globalroot, (void (*)(void *)) StoreGlobalName);
 
   /* Store library reference name declarations to relocatable file */
   fptr_libnmdecl = ftell (objfile);
-  InOrder (globalroot, (void (*)()) StoreLibReference);
+  InOrder (globalroot, (void (*)(void *)) StoreLibReference);
 
   fptr_modname = ftell (objfile);
   constant = strlen (CURRENTMODULE->mname);
@@ -987,7 +987,7 @@ WriteSymbolTable (char *msg, avltree_t * root)
   fputc ('\n', listfile);
   LINENO += 4;
 
-  InOrder (root, (void (*)()) WriteSymbol);     /* write symbol table */
+  InOrder (root, (void (*)(void *)) WriteSymbol);     /* write symbol table */
 }
 
 static void
