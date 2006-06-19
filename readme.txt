@@ -175,7 +175,7 @@ files:
 
 cd <z88 project>/tools/mpm
 
-make -f makefile.z80.borlandccp55.win32  [Borland C++ V5.5 on Windows]
+make -f makefile.z80.bcc.win32 [Borland C++ V5.5 on Windows]
 or
 make -f makefile.z80.gcc.win32 [using MinGW or Cygwin GCC on Windows]
 or
