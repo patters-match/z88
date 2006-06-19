@@ -520,7 +520,7 @@ FindLibModule (char *modname)    /* pointer to module name in object file */
   if (libraryindex == NULL)
     return NULL;
   else
-    return Find (libraryindex, modname, (int (*)(char *, libobject_t *)) cmpmodname);
+    return Find (libraryindex, modname, (int (*)(void *,void *)) cmpmodname);
 }
 
 
@@ -556,7 +556,7 @@ AddLibIndexObj(libfile_t *curlib, char *modname, long objfile_baseptr)
           newlibobj->library = curlib;                /* reference to library file containing library module */
           newlibobj->modulestart = objfile_baseptr;   /* file pointer to base of linkable object in library file */
 
-          Insert (&libraryindex, newlibobj, (int (*)(libobject_t *,libobject_t *)) cmplibnames); /* Insert new library index object into LibraryIndex AVL tree */
+          Insert (&libraryindex, newlibobj, (int (*)(void *,void *)) cmplibnames); /* Insert new library index object into LibraryIndex AVL tree */
           return newlibobj;
         }
     }
@@ -639,7 +639,7 @@ ReleaseIndexObj(libobject_t *libidxobj)
 static void
 ReleaseLibrariesIndex (void)
 {
-  DeleteAll (&libraryindex, (void (*)(libobject_t *)) ReleaseIndexObj);
+  DeleteAll (&libraryindex, (void (*)(void *)) ReleaseIndexObj);
   libraryindex = NULL;
 }
 
