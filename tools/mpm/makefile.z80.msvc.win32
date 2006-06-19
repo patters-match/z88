@@ -1,0 +1,628 @@
+# Microsoft Developer Studio Generated NMAKE File, Based on mpm.dsp
+!IF "$(CFG)" == ""
+CFG=mpm - Win32 Release
+!MESSAGE No configuration specified. Defaulting to mpm - Win32 Release.
+!ENDIF 
+
+!IF "$(CFG)" != "mpm - Win32 Release" && "$(CFG)" != "mpm - Win32 Debug"
+!MESSAGE Invalid configuration "$(CFG)" specified.
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "makefile.z80.msvc.win32" CFG="mpm - Win32 Release"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "mpm - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "mpm - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE 
+!ERROR An invalid configuration is specified.
+!ENDIF 
+
+!IF "$(OS)" == "Windows_NT"
+NULL=
+!ELSE 
+NULL=nul
+!ENDIF 
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+OUTDIR=.
+INTDIR=.
+# Begin Custom Macros
+OutDir=.
+# End Custom Macros
+
+ALL : "$(OUTDIR)\mpm.exe"
+
+
+CLEAN :
+	-@erase "$(INTDIR)\asmdrctv.obj"
+	-@erase "$(INTDIR)\avltree.obj"
+	-@erase "$(INTDIR)\errors.obj"
+	-@erase "$(INTDIR)\exprprsr.obj"
+	-@erase "$(INTDIR)\libraries.obj"
+	-@erase "$(INTDIR)\main.obj"
+	-@erase "$(INTDIR)\modules.obj"
+	-@erase "$(INTDIR)\options.obj"
+	-@erase "$(INTDIR)\pass.obj"
+	-@erase "$(INTDIR)\symtables.obj"
+	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\z80_asmdrctv.obj"
+	-@erase "$(INTDIR)\z80_instr.obj"
+	-@erase "$(INTDIR)\z80_prsline.obj"
+	-@erase "$(INTDIR)\z80_relocate.obj"
+	-@erase "$(OUTDIR)\mpm.exe"
+
+"$(INTDIR)" :
+    if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
+
+CPP=cl.exe
+CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "MPM_Z80" /D "MSDOS" /Fp"$(INTDIR)\mpm.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+RSC=rc.exe
+BSC32=bscmake.exe
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\mpm.bsc" 
+BSC32_SBRS= \
+	
+LINK32=link.exe
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\mpm.pdb" /machine:I386 /out:"$(OUTDIR)\mpm.exe" 
+LINK32_OBJS= \
+	"$(INTDIR)\asmdrctv.obj" \
+	"$(INTDIR)\avltree.obj" \
+	"$(INTDIR)\errors.obj" \
+	"$(INTDIR)\exprprsr.obj" \
+	"$(INTDIR)\libraries.obj" \
+	"$(INTDIR)\main.obj" \
+	"$(INTDIR)\modules.obj" \
+	"$(INTDIR)\options.obj" \
+	"$(INTDIR)\pass.obj" \
+	"$(INTDIR)\symtables.obj" \
+	"$(INTDIR)\z80_asmdrctv.obj" \
+	"$(INTDIR)\z80_instr.obj" \
+	"$(INTDIR)\z80_prsline.obj" \
+	"$(INTDIR)\z80_relocate.obj"
+
+"$(OUTDIR)\mpm.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+OUTDIR=.\Debug
+INTDIR=.\Debug
+# Begin Custom Macros
+OutDir=.\Debug
+# End Custom Macros
+
+ALL : "$(OUTDIR)\mpm.exe" "$(OUTDIR)\mpm.bsc"
+
+
+CLEAN :
+	-@erase "$(INTDIR)\asmdrctv.obj"
+	-@erase "$(INTDIR)\asmdrctv.sbr"
+	-@erase "$(INTDIR)\avltree.obj"
+	-@erase "$(INTDIR)\avltree.sbr"
+	-@erase "$(INTDIR)\errors.obj"
+	-@erase "$(INTDIR)\errors.sbr"
+	-@erase "$(INTDIR)\exprprsr.obj"
+	-@erase "$(INTDIR)\exprprsr.sbr"
+	-@erase "$(INTDIR)\libraries.obj"
+	-@erase "$(INTDIR)\libraries.sbr"
+	-@erase "$(INTDIR)\main.obj"
+	-@erase "$(INTDIR)\main.sbr"
+	-@erase "$(INTDIR)\modules.obj"
+	-@erase "$(INTDIR)\modules.sbr"
+	-@erase "$(INTDIR)\options.obj"
+	-@erase "$(INTDIR)\options.sbr"
+	-@erase "$(INTDIR)\pass.obj"
+	-@erase "$(INTDIR)\pass.sbr"
+	-@erase "$(INTDIR)\symtables.obj"
+	-@erase "$(INTDIR)\symtables.sbr"
+	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\z80_asmdrctv.obj"
+	-@erase "$(INTDIR)\z80_asmdrctv.sbr"
+	-@erase "$(INTDIR)\z80_instr.obj"
+	-@erase "$(INTDIR)\z80_instr.sbr"
+	-@erase "$(INTDIR)\z80_prsline.obj"
+	-@erase "$(INTDIR)\z80_prsline.sbr"
+	-@erase "$(INTDIR)\z80_relocate.obj"
+	-@erase "$(INTDIR)\z80_relocate.sbr"
+	-@erase "$(OUTDIR)\mpm.bsc"
+	-@erase "$(OUTDIR)\mpm.exe"
+	-@erase "$(OUTDIR)\mpm.ilk"
+	-@erase "$(OUTDIR)\mpm.pdb"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+CPP_PROJ=/nologo /MLd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "MPM_Z80" /D "MSDOS" /FR"$(INTDIR)\\" /Fp"$(INTDIR)\mpm.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+RSC=rc.exe
+BSC32=bscmake.exe
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\mpm.bsc" 
+BSC32_SBRS= \
+	"$(INTDIR)\asmdrctv.sbr" \
+	"$(INTDIR)\avltree.sbr" \
+	"$(INTDIR)\errors.sbr" \
+	"$(INTDIR)\exprprsr.sbr" \
+	"$(INTDIR)\libraries.sbr" \
+	"$(INTDIR)\main.sbr" \
+	"$(INTDIR)\modules.sbr" \
+	"$(INTDIR)\options.sbr" \
+	"$(INTDIR)\pass.sbr" \
+	"$(INTDIR)\symtables.sbr" \
+	"$(INTDIR)\z80_asmdrctv.sbr" \
+	"$(INTDIR)\z80_instr.sbr" \
+	"$(INTDIR)\z80_prsline.sbr" \
+	"$(INTDIR)\z80_relocate.sbr"
+
+"$(OUTDIR)\mpm.bsc" : "$(OUTDIR)" $(BSC32_SBRS)
+    $(BSC32) @<<
+  $(BSC32_FLAGS) $(BSC32_SBRS)
+<<
+
+LINK32=link.exe
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\mpm.pdb" /debug /machine:I386 /out:"$(OUTDIR)\mpm.exe" /pdbtype:sept 
+LINK32_OBJS= \
+	"$(INTDIR)\asmdrctv.obj" \
+	"$(INTDIR)\avltree.obj" \
+	"$(INTDIR)\errors.obj" \
+	"$(INTDIR)\exprprsr.obj" \
+	"$(INTDIR)\libraries.obj" \
+	"$(INTDIR)\main.obj" \
+	"$(INTDIR)\modules.obj" \
+	"$(INTDIR)\options.obj" \
+	"$(INTDIR)\pass.obj" \
+	"$(INTDIR)\symtables.obj" \
+	"$(INTDIR)\z80_asmdrctv.obj" \
+	"$(INTDIR)\z80_instr.obj" \
+	"$(INTDIR)\z80_prsline.obj" \
+	"$(INTDIR)\z80_relocate.obj"
+
+"$(OUTDIR)\mpm.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
+!ENDIF 
+
+
+# Microsoft Developer Studio Generated Dependency File, included by mpm.mak
+
+.\asmdrctv.c : \
+	".\asmdrctv.h"\
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\exprprsr.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	".\z80_prsline.h"\
+	
+
+.\avltree.c : \
+	".\avltree.h"\
+	
+
+.\errors.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	
+
+.\exprprsr.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\exprprsr.h"\
+	".\modules.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	".\z80_prsline.h"\
+	
+
+.\libraries.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\libraries.h"\
+	".\modules.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	
+
+.\main.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\libraries.h"\
+	".\modules.h"\
+	".\options.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	".\z80_relocate.h"\
+	
+
+.\modules.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\exprprsr.h"\
+	".\libraries.h"\
+	".\modules.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	".\z80_relocate.h"\
+	
+
+.\options.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\libraries.h"\
+	".\options.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	
+
+.\pass.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\exprprsr.h"\
+	".\modules.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	".\z80_prsline.h"\
+	
+
+.\symtables.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\symtables.h"\
+	
+
+.\z80_asmdrctv.c : \
+	".\asmdrctv.h"\
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\exprprsr.h"\
+	".\z80_prsline.h"\
+	
+
+.\z80_instr.c : \
+	".\asmdrctv.h"\
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\exprprsr.h"\
+	".\modules.h"\
+	".\pass.h"\
+	".\z80_prsline.h"\
+	
+
+.\z80_prsline.c : \
+	".\asmdrctv.h"\
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\pass.h"\
+	".\symtables.h"\
+	".\z80_prsline.h"\
+	
+
+.\z80_relocate.c : \
+	".\avltree.h"\
+	".\config.h"\
+	".\datastructs.h"\
+	".\errors.h"\
+	".\modules.h"\
+	".\z80_relocate.h"\
+	
+
+!IF "$(CFG)" == "mpm - Win32 Release" || "$(CFG)" == "mpm - Win32 Debug"
+SOURCE=.\asmdrctv.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\asmdrctv.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\asmdrctv.obj"	"$(INTDIR)\asmdrctv.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\avltree.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\avltree.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\avltree.obj"	"$(INTDIR)\avltree.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\errors.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\errors.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\errors.obj"	"$(INTDIR)\errors.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\exprprsr.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\exprprsr.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\exprprsr.obj"	"$(INTDIR)\exprprsr.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\libraries.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\libraries.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\libraries.obj"	"$(INTDIR)\libraries.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\main.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\main.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\main.obj"	"$(INTDIR)\main.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\modules.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\modules.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\modules.obj"	"$(INTDIR)\modules.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\options.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\options.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\options.obj"	"$(INTDIR)\options.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\pass.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\pass.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\pass.obj"	"$(INTDIR)\pass.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\symtables.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\symtables.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\symtables.obj"	"$(INTDIR)\symtables.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\z80_asmdrctv.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\z80_asmdrctv.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\z80_asmdrctv.obj"	"$(INTDIR)\z80_asmdrctv.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\z80_instr.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\z80_instr.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\z80_instr.obj"	"$(INTDIR)\z80_instr.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\z80_prsline.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\z80_prsline.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\z80_prsline.obj"	"$(INTDIR)\z80_prsline.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+SOURCE=.\z80_relocate.c
+
+!IF  "$(CFG)" == "mpm - Win32 Release"
+
+
+"$(INTDIR)\z80_relocate.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "mpm - Win32 Debug"
+
+
+"$(INTDIR)\z80_relocate.obj"	"$(INTDIR)\z80_relocate.sbr" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+
+!ENDIF 
+
