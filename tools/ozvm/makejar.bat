@@ -15,12 +15,12 @@
 :: $Id$
 ::
 :: ------------------------------------------------------------------------------------
-:: Before executing this script, a Java Development Kit 1.4 or later must have been
-:: installed and the PATH environment variable set to the <jdk install>\bin folder.
-:: (Control Panel -> "System" -> Advanced -> System Variables -> Click on "Path", then Edit)
+:: Before executing this script, a Java 1.4 Runtime Environment or later must have been
+:: installed in Windows.
 ::
-:: To test the availablity of command line java compiler, just type "javac -version".
-:: This will display the version and the compile options to your console window.
+:: To test the availablity of command line java interpreter, just type "java -version".
+:: This will display the version and the runtime options to your console window.
+:: ------------------------------------------------------------------------------------
 ::
 :: *************************************************************************************
 @echo off
@@ -38,9 +38,12 @@ xcopy pixel ..\ozvm-builddir\pixel /S /Y /I /Q >nul
 xcopy .\ozvm-manual.html ..\ozvm-builddir /Q >nul
 xcopy .\Z88.rom ..\ozvm-builddir /Q >nul
 
+:: JAR file only needs (compiled) class files and other embedded resources
+del /S /Q ..\ozvm-builddir\.svn >nul
+
 :: finally, build the executable jar
 cd ..\ozvm-builddir >nul
-jar cfm ../ozvm/z88.jar ../ozvm/META-INF/MANIFEST.MF . >nul
+java -jar ..\jdk\makejar.jar -cm ..\ozvm\z88.jar ..\ozvm\META-INF\MANIFEST.MF .  >nul
 
 :: clean up the temp build stuff
 cd ..\ozvm

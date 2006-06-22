@@ -15,12 +15,11 @@
 :: $Id$
 ::
 :: ------------------------------------------------------------------------------------
-:: Before executing this script, a Java Development Kit 1.4 or later must have been
-:: installed and the PATH environment variable set to the <jdk install>\bin folder.
-:: (Control Panel -> "System" -> Advanced -> System Variables -> Click on "Path", then Edit)
+:: Before executing this script, a Java 1.4 Runtime Environment or later must have been
+:: installed in Windows.
 ::
-:: To test the availablity of command line java compiler, just type "javac -version".
-:: This will display the version and the compile options to your console window.
+:: To test the availablity of command line java interpreter, just type "java -version".
+:: This will display the version and the runtime options to your console window.
 ::
 :: *************************************************************************************
 @echo off
@@ -34,7 +33,7 @@ java -jar ..\jdk\ecj.jar -d ..\makeapp-builddir -nowarn -g:none -source 1.4 -tar
 
 :: finally, build the executable jar
 cd ..\makeapp-builddir >nul
-jar cfm ../makeapp/makeapp.jar ../makeapp/META-INF/MANIFEST.MF . >nul
+java -jar ..\jdk\makejar.jar -cm ..\makeapp\makeapp.jar ..\makeapp\META-INF\MANIFEST.MF . >nul
 
 :: clean up the temp build stuff
 cd ..\makeapp

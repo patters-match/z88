@@ -32,7 +32,7 @@ import java.io.*;
  * to let it serve as a pure helper class in generating Jar files
  * without the need to use a Gui. This class is now an internal
  * part of the makejar utility that mimics the command line parameters
- * for creating a jar file.
+ * for creating a jar file. Use the file list unmodified. 
  *
  * Modifications made by G.Strube (gbs@users.sf.net), June 2006.
  * 
@@ -52,27 +52,11 @@ public class JarWriter {
 	private File manifestFile;
 	private boolean includeManifest = true;
 	private boolean loadManifest = false;
-	private boolean aborted = false;
 	private int writtenBytes;
 	private int totalFileSize;
 	
 	private final int BUFFERSIZE = 32768;
 		
-	
-	// ---------- Begin Method Section ----------
-	
-	
-
-
-	/**
-	 * set the aborted variable
-	 *
-	 * @param true if the creation process should be stopped
-	 */
-	public void setAborted(boolean b) {
-		aborted = b;
-	}
-	
 	
 	/** 
 	 * set the manifest include option
@@ -209,7 +193,7 @@ public class JarWriter {
 			if (!manifest.equals("")) {
 				bout.write("Manifest-Version: 1.0");
 				bout.newLine();
-				bout.write("Created-By: JarBuilder 0.8.0");
+				bout.write("Created-By: MakeJar");
 				bout.newLine();
 				bout.write(manifest);
 				bout.newLine();
@@ -298,15 +282,9 @@ public class JarWriter {
 	 *
 	 * @param file to write
 	 * @param current JarOutputStream
-	 * @param depth of the directory structure
 	 * @return true if the file was successfully written, false if there was an error during the writing
 	 */
-	private boolean writeEntry(File f, JarOutputStream out, int depth) {
-		String en = "";
-		File[] dContent;
-		int i;
-		String fPath;
-		
+	private boolean writeEntry(File f, JarOutputStream out) {
 		// buffer
 		byte[] buffer = new byte[BUFFERSIZE];
 			
@@ -314,52 +292,31 @@ public class JarWriter {
 		int bytes_read;
 		
 		try {
+			
 			if (f.isDirectory() == false) {	
+				out.putNextEntry(new ZipEntry(f.getPath()));
 				BufferedInputStream in = new BufferedInputStream(new FileInputStream(f), BUFFERSIZE);
-				
-				i = f.getPath().length();
-				fPath = f.getPath();
-				for (int a = 0; a <= depth; a++) {
-					i = fPath.lastIndexOf(System.getProperty("file.separator"), i) - 1;
-				}
-				
-				
-				en = fPath.substring(i + 2, fPath.length());
-				out.putNextEntry(new ZipEntry(en));
 				
 				while ((bytes_read = in.read(buffer)) != -1) {
 					// do the work
 					out.write(buffer, 0, bytes_read);
-					
-					// check if the user has aborted the creation process
-					if (aborted) {
-						in.close();
-						out.closeEntry();
-						return false;
-					}
-					
+										
 					// update progress bar
 					writtenBytes += bytes_read;
 				}
 
 				in.close();
-				out.closeEntry();
-				return true;
+			} else {
+				// just write the directory entry..
+				out.putNextEntry(new ZipEntry(f.getPath() + System.getProperty("file.separator")));
 			}
-			else {
-				dContent = f.listFiles();
-				for (int a = 0; a < dContent.length; a++) {
-					writeEntry(dContent[a], out, depth + 1);
-					// check if the user has aborted the creation process
-					if (aborted) {
-						return false;
-					}
-				}
-			}	
+
+			out.closeEntry();
 		} catch (Exception e) {
 			System.out.println("[writeEntry(), JarWriter] ERROR\n" + e);
 			return false;
 		}
+
 		return true;
 	}
 
@@ -385,15 +342,12 @@ public class JarWriter {
 			
 			// preparations
 			totalFileSize = getTotalFileSize();
-			aborted = false;
 			writtenBytes = 0;
-
-			
 			
 			// add files
 			for (int i = 0; i < files.length; i++) {
 				f = new File(files[i]);
-				written = writeEntry(f, out, 0);
+				written = writeEntry(f, out);
 				if (!written) {
 					out.close();
 					fj.delete();

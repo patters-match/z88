@@ -41,14 +41,14 @@ http://www.mingw.org/ which generates native Win32 shell programs.
 Alternatively, you can use Borlands CPP V5.5 (requires free registration)
 from http://www.borland.com/downloads/download_cbuilder.html .
 
-The third requirement on your operating system is Sun's Java Development
-Kit (and runtime) V1.4 or newer. Several command line tools (which is
+The third requirement on your operating system is Sun's Java Runtime 
+Environment V1.4 or newer. Several command line tools (which is
 part of the tool chain to develop Z88 applications) and the Z88 emulator
 (virtual Z88 hardware and debugging environment) are implemented in
-Java. Get your JDK from http://java.sun.com for Windows or Linux
-operating systems. Alternatively, get a free JDK for Linux from
+Java. Get your JRE from http://java.sun.com for Windows or Linux
+operating systems. Alternatively, get a free JRE for Linux from
 Blackdown: http://www.blackdown.org/
-Java V1.4 (or newer) is bundled by default on Mac OS X.
+Java V1.4 JRE (or newer) is bundled by default on Mac OS X.
 
 There's an extra feature for Windows users which enables you to create
 an EXE program out of an executable Jar (it is a Java JAR file wrapper).
@@ -188,31 +188,38 @@ make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OS X/Unix]
 -- Compiling MakeApp --
 
 MakeApp, a binary file combiner, is a java program which needs a Sun
-Java 1.4 Development Kit (or newer) installed to get compiled. MakeApp
+Java 1.4 Runtime Environment (or newer) installed to get compiled. MakeApp
 is found together with Mpm in most Z88 application compile scripts.
 The resulting binary is a makeapp.jar file, which is executed with the
-java -jar makeapp.jar command. To compile MakeApp the JDK 1.4 Java
-compiler tool, javac, must be available to the command shell.
+java -jar makeapp.jar command. The MakeApp program is compiled using the
+the ECJ compiler and the MakeJar utility (integrated inside the /tools/jdk 
+directory).
+
+If the java command is unknown or not found when executing it on the command
+line, you need to add the location of the java executable to the PATH
+environment variable.
 
 For all operating system platforms, the PATH environment variable
-must be set to the <jdk install>/bin folder. In Windows you define the
+must be set to the <jre install>/bin folder. In Windows you define the
 PATH environment variable as follows:
 
     Control Panel -> "System" -> Advanced -> System Variables
     Click on "Path", then append <jdk install>\bin to line.
 
-Generally for Unixes, you add the <jdk install>\bin path to your shell
+Generally for Unixes, you add the <jre install>\bin path to your shell
 environment init scripts, for example in the .bash_profile file for
-BASH. To test the availablity of the java compiler, just type
+BASH. To test the availablity of the java interpreter, just type
 
-    javac -version
+    java -version
 
-This will display the version and the compile options to the console.
+This will display the version and the runtime options to the console.
+So, if the command isn't recognised, you need to go through the above 
+steps to make it visible to the command shell.
+
 You're now ready compile MakeApp:
 
     cd <z88 project>/tools/makeapp
     makejar.bat (Windows) or ./makejar.sh (Unix)
-
 
 
 ----------------------------------------------------------------------
@@ -277,7 +284,6 @@ directory>. The following script both compiles the Jar file and makes a
 z88.exe program:
 
     makeexe.bat
-
 
 
 ----------------------------------------------------------------------

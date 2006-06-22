@@ -17,11 +17,12 @@
 # $Id$
 #
 # ------------------------------------------------------------------------------------
-# Before executing this script, a Java Development Kit 1.4 or later must have been
-# installed and the PATH environment variable set to the <jdk install>/bin folder.
+# Before executing this script, a Java 1.4 Runtime Environment or later must have been
+# installed.
 #
-# To test the availablity of command line java compiler, just type "javac -version".
-# This will display the version and the compile options to your console window.
+# To test the availablity of command line java interpreter, just type "java -version".
+# This will display the version and the runtime options to your console window.
+# ------------------------------------------------------------------------------------
 #
 # *************************************************************************************
 
@@ -38,9 +39,12 @@ cp -fR pixel ../ozvm-builddir
 cp -f ./ozvm-manual.html ../ozvm-builddir
 cp -f ./Z88.rom ../ozvm-builddir
 
+# JAR file only needs (compiled) class files and other embedded resources
+find ../ozvm-builddir -name '.svn' | xargs rm -fR
+
 # finally, build the executable jar
 cd ../ozvm-builddir
-jar cfm ../ozvm/z88.jar ../ozvm/META-INF/MANIFEST.MF .
+java -jar ../jdk/makejar.jar -cm ../ozvm/z88.jar ../ozvm/META-INF/MANIFEST.MF .
 
 # clean up the temp build stuff
 cd ../ozvm

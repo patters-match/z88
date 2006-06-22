@@ -20,9 +20,7 @@
 package net.sourceforge.z88.tools.jdk.makejar;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -51,11 +49,26 @@ public class MakeJar {
 		fdList = new ArrayList();
 	}
 
+	
 	/**
 	 * Process all files and directories under dir.
 	 */ 
     private void visitAllDirsAndFiles(File dir) {
-		fdList.add(dir.getPath());
+    	String name = dir.getPath();
+
+    	// remove preceeding ".", ".." and
+    	if (name.startsWith("..") == true)
+    		name = name.substring(2);
+    	
+    	if (name.startsWith(".") == true)
+    		name = name.substring(1);
+
+    	if (name.startsWith(System.getProperty("file.separator")) == true)
+    		name = name.substring(1);
+
+    	// anything left from the above manouvres is a nice path
+    	if (name.length() > 0)
+    		fdList.add(name);
     
         if (dir.isDirectory()) {
             String[] children = dir.list();
@@ -64,8 +77,32 @@ public class MakeJar {
             }
         }
     }
-    	
+
+    
 	/**
+	 * Create the final Jar archive, based on the specified command line options.
+	 */ 
+    private void createJar() {
+    	JarWriter jw;
+		String files[] = new String[fdList.size()];
+		
+		for (int l=0; l<fdList.size(); l++) {
+			files[l] = fdList.get(l).toString();
+			// System.out.println(files[l]);
+		}    	
+		
+		jw = new JarWriter(files);
+		if (includeManifestFile == true) {
+			jw.setManifestFile(new File(manifestFilename));
+			jw.setIncludeManifest(true);
+			jw.setLoadManifest(true);
+		}
+		
+		jw.createJar(new File(archiveFilename), compressLevel);
+    }
+    
+
+    /**
 	 * List table of contents of specified Jar file to System out.
 	 * (-t option was used from command line)
 	 */
@@ -85,6 +122,7 @@ public class MakeJar {
 	    	System.err.println("Couldn't open Jar file '" + archiveFilename +"'");
 	    }						
 	}
+	
 	
 	/**
 	 * Parse command line arguments and execute accordingly.
@@ -153,11 +191,8 @@ public class MakeJar {
 				for (; arg<args.length; arg++) {		
 					visitAllDirsAndFiles(new File(args[arg]));
 				}
-								
-				// still testing, just write out all the found dirs and files...
-				for (int l=0; l<fdList.size(); l++)
-					System.out.println(fdList.get(l).toString());
-				
+
+				createJar();
 			} else {
 				// -t specified, just list table of contents of specified jar file to stdout...
 				tocJarFile();
@@ -174,7 +209,7 @@ public class MakeJar {
 		System.out.println("Name:");
 		System.out.println("makejar.jar - Archive tool for Java archives.\n");
 		System.out.println("Syntax:");
-		System.out.println("java -jar makejar.jar -cthV [OPTIONS] jar-file [manifest-file] [-C] files...\n");
+		System.out.println("java -jar makejar.jar -cthV [OPTIONS] jar-file [manifest-file] files...\n");
 		System.out.println("-c      Create new archive");
 		System.out.println("-t      List table of contents from archive");
 		System.out.println("-h      Display this help page");		
@@ -184,11 +219,9 @@ public class MakeJar {
 		System.out.println("        Include manifest information from specified manifest file.\n");
 		System.out.println("-{0-9}  Specify ZIP compression (0=no compression, 9=highest).");
 		System.out.println("        (Default compression is 9).\n");
-		System.out.println("-C directory");
-		System.out.println("        Change to the directory and include the following files.");
-		System.out.println("        (Not yet implemented)\n");
 	}
 
+	
 	/**
 	 * Command Line Entry for MakeApp utility.
 	 * @param args

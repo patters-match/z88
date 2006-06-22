@@ -17,11 +17,12 @@
 # $Id$
 #
 # ------------------------------------------------------------------------------------
-# Before executing this script, a Java Development Kit 1.4 or later must have been
-# installed and the PATH environment variable set to the <jdk install>/bin folder.
+# Before executing this script, a Java 1.4 Runtime Environment or later must have been
+# installed.
 #
-# To test the availablity of command line java compiler, just type "javac -version".
-# This will display the version and the compile options to your console window.
+# To test the availablity of command line java interpreter, just type "java -version".
+# This will display the version and the runtime options to your console window.
+# ------------------------------------------------------------------------------------
 #
 # *************************************************************************************
 
@@ -34,7 +35,7 @@ java -jar ../jdk/ecj.jar -d ../fontbitmap-builddir -nowarn -g:none -source 1.4 -
 
 # finally, build the executable jar
 cd ../fontbitmap-builddir
-jar cfm ../fontbitmap/fontbitmap.jar ../fontbitmap/META-INF/MANIFEST.MF .
+java -jar ../jdk/makejar.jar -cm ../fontbitmap/fontbitmap.jar ../fontbitmap/META-INF/MANIFEST.MF .
 
 # clean up the temp build stuff
 cd ../fontbitmap
