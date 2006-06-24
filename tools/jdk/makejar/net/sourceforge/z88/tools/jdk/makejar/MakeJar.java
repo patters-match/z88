@@ -74,15 +74,13 @@ public class MakeJar {
 	 * options.
 	 */
 	private void createJar() {
-		JarWriter jw;
 		String files[] = new String[fdList.size()];
 
 		for (int l = 0; l < fdList.size(); l++) {
 			files[l] = fdList.get(l).toString();
-			// System.out.println(files[l]);
 		}
 
-		jw = new JarWriter(files);
+		JarWriter jw = new JarWriter(files);
 		if (includeManifestFile == true) {
 			jw.setManifestFile(new File(manifestFilename));
 			jw.setIncludeManifest(true);
