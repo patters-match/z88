@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: net.sourceforge.z88.tools.jdk.makejar.MakeJar
+
