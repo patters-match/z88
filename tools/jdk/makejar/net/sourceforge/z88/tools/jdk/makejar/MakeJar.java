@@ -33,7 +33,7 @@ import java.util.zip.ZipFile;
  */
 public class MakeJar {
 
-	private static final String appVersion = "MakeJar V0.9";
+	public static final String appVersion = "MakeJar V0.9";
 	
 	private boolean createArchive;
 	private boolean listContents;
@@ -54,21 +54,7 @@ public class MakeJar {
 	 * Process all files and directories under dir.
 	 */ 
     private void visitAllDirsAndFiles(File dir) {
-    	String name = dir.getPath();
-
-    	// remove preceeding ".", ".." and
-    	if (name.startsWith("..") == true)
-    		name = name.substring(2);
-    	
-    	if (name.startsWith(".") == true)
-    		name = name.substring(1);
-
-    	if (name.startsWith(System.getProperty("file.separator")) == true)
-    		name = name.substring(1);
-
-    	// anything left from the above manouvres is a nice path
-    	if (name.length() > 0)
-    		fdList.add(name);
+   		fdList.add(dir.getPath());    		
     
         if (dir.isDirectory()) {
             String[] children = dir.list();

@@ -193,7 +193,7 @@ public class JarWriter {
 			if (!manifest.equals("")) {
 				bout.write("Manifest-Version: 1.0");
 				bout.newLine();
-				bout.write("Created-By: MakeJar");
+				bout.write("Created-By: " + MakeJar.appVersion);
 				bout.newLine();
 				bout.write(manifest);
 				bout.newLine();
@@ -287,6 +287,24 @@ public class JarWriter {
 	private boolean writeEntry(File f, JarOutputStream out) {
 		// buffer
 		byte[] buffer = new byte[BUFFERSIZE];
+		String entryName = f.getPath();
+
+    	// remove preceeding ".", ".." and
+    	if (entryName.startsWith("..") == true)
+    		entryName = entryName.substring(2);
+    	
+    	if (entryName.startsWith(".") == true)
+    		entryName = entryName.substring(1);
+
+    	if (entryName.startsWith(System.getProperty("file.separator")) == true)
+    		entryName = entryName.substring(1);
+    	
+    	// Path separators in Zip entries are using '/', NOT '\'!
+		entryName = entryName.replaceAll("\\\\","/");
+		
+		if (entryName.length() == 0)
+			// ignore empty names
+			return true;
 			
 		// read bytes
 		int bytes_read;
@@ -294,7 +312,7 @@ public class JarWriter {
 		try {
 			
 			if (f.isDirectory() == false) {	
-				out.putNextEntry(new ZipEntry(f.getPath()));
+				out.putNextEntry(new ZipEntry(entryName));
 				BufferedInputStream in = new BufferedInputStream(new FileInputStream(f), BUFFERSIZE);
 				
 				while ((bytes_read = in.read(buffer)) != -1) {
@@ -308,7 +326,7 @@ public class JarWriter {
 				in.close();
 			} else {
 				// just write the directory entry..
-				out.putNextEntry(new ZipEntry(f.getPath() + System.getProperty("file.separator")));
+				out.putNextEntry(new ZipEntry(entryName + "/"));
 			}
 
 			out.closeEntry();
@@ -335,7 +353,7 @@ public class JarWriter {
 		try {
 			// target
 			JarOutputStream out = new JarOutputStream(new FileOutputStream(fj));
-			out.setComment("This file was created by MakeJar");
+			out.setComment("This file was created by " + MakeJar.appVersion);
 			
 			// set the compression rate
 			out.setLevel(compress);
@@ -354,7 +372,6 @@ public class JarWriter {
 					return false;
 				}
 			}
-			
 			
 			// add manifest
 			if (includeManifest) {
