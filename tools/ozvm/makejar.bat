@@ -39,7 +39,7 @@ xcopy .\ozvm-manual.html ..\ozvm-builddir /Q >nul
 xcopy .\Z88.rom ..\ozvm-builddir /Q >nul
 
 :: JAR file only needs (compiled) class files and other embedded resources
-del /S /Q ..\ozvm-builddir\.svn >nul
+del /S /Q ..\ozvm-builddir\.svn 2>nul >nul
 
 :: finally, build the executable jar
 cd ..\ozvm-builddir >nul
