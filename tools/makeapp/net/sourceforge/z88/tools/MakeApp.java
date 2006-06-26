@@ -318,7 +318,7 @@ public class MakeApp {
 		}
 
 		if ((codeBuffer.length + offset) > Bank.BANKSIZE ) {
-			System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + " > crosses 16K bank boundary!");
+			System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + " > crosses 16K bank boundary by " + ((codeBuffer.length + offset) - Bank.BANKSIZE) + " bytes !");
 			return false;
 		}
 
