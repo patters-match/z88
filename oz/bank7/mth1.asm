@@ -1209,41 +1209,4 @@ xref    sub_EFBB                                ; bank0/osin.asm
         defm    $7F,"C", 0                              ; center
         ret
 
-.CopyrightMsg
-        defm    "Th",$82,"C",$ED,"bri"
-        defm    "dg",$82,$AB,"mput"
-        defm    $EF,"Z88 P",$8F,"t"
-        defm    "abl",$82,"V",$86,"si"
-        defm    $BC," 4.1.0 "
-
-if KBDK
-        defm    "(DK)"
-endif
-
-if KBFR
-        defm    "(FR)"
-endif
-
-if KBFI
-        defm    "(FI)"
-endif
-
-if KBSE
-        defm    "(SE)"
-endif
-
-if !KBDK & !KBFR & !KBFI & !KBSE
-        defm    "(UK)"
-endif
-
-        defm    $7F,$7F,$DE,"r"
-        defm    $CC,$84,"(C) Tr"
-        defm    $85,$FC,$D6,$AB,"n",$C9,"pt"
-        defm    $94,"Pro",$AF,$B4,"ni"
-        defm    "c ",$AB,"mput",$86
-        defm    $94,$BF,$86,$91,$C0,"Sys"
-        defm    $AF,"m",$94,$C4,$B2,"198"
-        defm    "7,88",$7F,"Pip"
-        defm    "eD",$8D,$ED,$B7,"a t"
-        defm    $E2,$E4,"m",$8C,"k ",$89,$C4
-        defm    "d",0
+        include "copyright.inc"
