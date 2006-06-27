@@ -1,8 +1,27 @@
 lstoff
 
-; -----------------------------------------------------------------------------
+; **************************************************************************************************
+; OZ System definitions
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
 ; $Id$
-; -----------------------------------------------------------------------------
+;***************************************************************************************************
 
 
 ;       variable prefix:
@@ -27,16 +46,15 @@ defc    OZVERSION               =4
 
 defc    KeymapTblPtrs           =$01f0
 
-DEFVARS KeymapTblPtrs
-{
-km_bank         ds.b    1       ; memory bank where tables are, bound in S2
-km_page         ds.b    1       ; high byte of address
-km_diamond      ds.b    1       ; low byte of <> translation table address
-km_square       ds.b    1       ; low byte of [] translation table address
-km_deadkey      ds.b    1       ; low byte of deadkey table address
-km_deadchar     ds.b    1       ; char displayed in OZ window
-km_deadsub      ds.b    1       ; offset to list for current deadkey
-}
+defvars KeymapTblPtrs
+        km_bank         ds.b    1       ; memory bank where tables are, bound in S2
+        km_page         ds.b    1       ; high byte of address
+        km_diamond      ds.b    1       ; low byte of <> translation table address
+        km_square       ds.b    1       ; low byte of [] translation table address
+        km_deadkey      ds.b    1       ; low byte of deadkey table address
+        km_deadchar     ds.b    1       ; char displayed in OZ window
+        km_deadsub      ds.b    1       ; offset to list for current deadkey
+enddef
 
 defc    ubRandomPtr             =$01fb
 defc    uwRandom1               =$01fc
@@ -326,7 +344,7 @@ defc    SF1_OZDMND              =$10
 defc    SF1_OZSQUARE            =$20
 
 
-;       printer filter 
+;       printer filter
 
 defc    PrtSeqPrefix            =$7ee9
 defc    PrtSequence             =$7eea
@@ -354,37 +372,36 @@ defc    Wd1Frame                =SBF_ADDRESS+$e6
 defc    sbf_ActiveWd            =SBF_ADDRESS+$7e7
 
 defvars SBF_ADDRESS+$7e9
-{
-sbf_CtrlPrefix                  ds.b    1
-sbf_PrefixSeq                   ds.b    1
-sbf_PrefixLen                   ds.b    1
-sbf_VDUbuffer                   ds.b    1
-sbf_VDU1                        ds.b    1
-sbf_VDU2                        ds.b    1
-sbf_VDU3                        ds.b    1
-sbf_VDU4                        ds.b    1
-sbf_VDU5                        ds.b    1
-sbf_VDU6                        ds.b    1
-}
+        sbf_CtrlPrefix                  ds.b    1
+        sbf_PrefixSeq                   ds.b    1
+        sbf_PrefixLen                   ds.b    1
+        sbf_VDUbuffer                   ds.b    1
+        sbf_VDU1                        ds.b    1
+        sbf_VDU2                        ds.b    1
+        sbf_VDU3                        ds.b    1
+        sbf_VDU4                        ds.b    1
+        sbf_VDU5                        ds.b    1
+        sbf_VDU6                        ds.b    1
+enddef
 
 ;       window - negative offsets
 
-defvars -14 {
-wdf_f2                          ds.b    1
-wdf_flagsHi                     ds.b    1
-wdf_OpenFlags                   ds.b    1
-wdf_flagsLo                     ds.b    1
-wdf_f6                          ds.b    1       ; !! unused, always zero
-wdf_crsrattr                    ds.b    1
-wdf_crsrx                       ds.b    1
-wdf_crsry                       ds.b    1
-wdf_rmargin                     ds.b    1
-wdf_lmargin                     ds.b    1
-wdf_endx                        ds.b    1
-wdf_endy                        ds.b    1
-wdf_startx                      ds.b    1
-wdf_starty                      ds.b    1
-}
+defvars -14
+        wdf_f2                          ds.b    1
+        wdf_flagsHi                     ds.b    1
+        wdf_OpenFlags                   ds.b    1
+        wdf_flagsLo                     ds.b    1
+        wdf_f6                          ds.b    1       ; !! unused, always zero
+        wdf_crsrattr                    ds.b    1
+        wdf_crsrx                       ds.b    1
+        wdf_crsry                       ds.b    1
+        wdf_rmargin                     ds.b    1
+        wdf_lmargin                     ds.b    1
+        wdf_endx                        ds.b    1
+        wdf_endy                        ds.b    1
+        wdf_startx                      ds.b    1
+        wdf_starty                      ds.b    1
+enddef
 
 ;       flags lo
 defc    WDFL_B_ULINE            =1
@@ -454,34 +471,34 @@ defc    LCDA_LORESCURSOR        =$38
 
 ;       (application) DOR offsets
 
-defvars 0 {
-DOR_PARENT                      ds.p    1       ; $00
-DOR_BROTHER                     ds.p    1       ; $03
-DOR_SON                         ds.p    1       ; $06
-DOR_TYPE                        ds.b    1       ; $09
-DOR_LENGTH                      ds.b    1       ; $0a
-ADOR_INFOTYPE                   ds.b    1       ; $0b
-ADOR_INFOLENGTH                 ds.b    1       ; $0c
-ADOR_RESERVED                   ds.b    2       ; $0d
-ADOR_APPKEY                     ds.b    1       ; $0f
-ADOR_BADSIZE                    ds.b    1       ; $10
-ADOR_ENVSIZE                    ds.w    1       ; $11
-ADOR_UNSAFE                     ds.w    1       ; $13
-ADOR_SAFE                       ds.w    1       ; $15
-ADOR_ENTRY                      ds.w    1       ; $17
-ADOR_BINDINGS                   ds.b    4       ; $19
-ADOR_FLAGS                      ds.b    1       ; $1d
-ADOR_FLAGS2                     ds.b    1       ; $1e
-ADOR_HELPTYPE                   ds.b    1       ; $1f
-ADOR_HELPLENGTH                 ds.b    1       ; $20
-ADOR_TOPICS                     ds.p    1       ; $21
-ADOR_COMMANDS                   ds.p    1       ; $24
-ADOR_HELP                       ds.p    1       ; $27
-ADOR_TOKENS                     ds.p    1       ; $2a
-ADOR_NAMETYPE                   ds.b    1       ; $2d
-ADOR_NAMELENGTH                 ds.b    1       ; $2e
-ADOR_NAME                       ds.b    1       ; $2f
-}
+defvars 0
+        DOR_PARENT                      ds.p    1       ; $00
+        DOR_BROTHER                     ds.p    1       ; $03
+        DOR_SON                         ds.p    1       ; $06
+        DOR_TYPE                        ds.b    1       ; $09
+        DOR_LENGTH                      ds.b    1       ; $0a
+        ADOR_INFOTYPE                   ds.b    1       ; $0b
+        ADOR_INFOLENGTH                 ds.b    1       ; $0c
+        ADOR_RESERVED                   ds.b    2       ; $0d
+        ADOR_APPKEY                     ds.b    1       ; $0f
+        ADOR_BADSIZE                    ds.b    1       ; $10
+        ADOR_ENVSIZE                    ds.w    1       ; $11
+        ADOR_UNSAFE                     ds.w    1       ; $13
+        ADOR_SAFE                       ds.w    1       ; $15
+        ADOR_ENTRY                      ds.w    1       ; $17
+        ADOR_BINDINGS                   ds.b    4       ; $19
+        ADOR_FLAGS                      ds.b    1       ; $1d
+        ADOR_FLAGS2                     ds.b    1       ; $1e
+        ADOR_HELPTYPE                   ds.b    1       ; $1f
+        ADOR_HELPLENGTH                 ds.b    1       ; $20
+        ADOR_TOPICS                     ds.p    1       ; $21
+        ADOR_COMMANDS                   ds.p    1       ; $24
+        ADOR_HELP                       ds.p    1       ; $27
+        ADOR_TOKENS                     ds.p    1       ; $2a
+        ADOR_NAMETYPE                   ds.b    1       ; $2d
+        ADOR_NAMELENGTH                 ds.b    1       ; $2e
+        ADOR_NAME                       ds.b    1       ; $2f
+enddef
 
 defc    CMDF_B_COLUMN           =0
 defc    TPCF_B_AN               =0                      ; unused? if so, there's error in docs
@@ -492,22 +509,22 @@ defc    CMDF_B_HELP             =4
 
 defc    CMDF_HELP               =$10
 
-defvars 0 {
-OSFrame_IY                      ds.w    1       ; $00
-OSFrame_S2                      ds.b    1       ; $02
-OSFrame_S3                      ds.b    1       ; $03
-OSFrame_OZCall                  ds.w    1       ; $04
-OSFrame_F                       ds.b    1       ; $06
-OSFrame_A                       ds.b    1       ; $07
-OSFrame_C                       ds.b    1       ; $08
-OSFrame_B                       ds.b    1       ; $09
-OSFrame_E                       ds.b    1       ; $0A
-OSFrame_D                       ds.b    1       ; $0B
-OSFrame_L                       ds.b    1       ; $0C
-OSFrame_H                       ds.b    1       ; $0D
-OSFrame__S2                     ds.b    1       ; $0E
-OSFrame__S3                     ds.b    1       ; $0F
-}
+defvars 0
+        OSFrame_IY                      ds.w    1       ; $00
+        OSFrame_S2                      ds.b    1       ; $02
+        OSFrame_S3                      ds.b    1       ; $03
+        OSFrame_OZCall                  ds.w    1       ; $04
+        OSFrame_F                       ds.b    1       ; $06
+        OSFrame_A                       ds.b    1       ; $07
+        OSFrame_C                       ds.b    1       ; $08
+        OSFrame_B                       ds.b    1       ; $09
+        OSFrame_E                       ds.b    1       ; $0A
+        OSFrame_D                       ds.b    1       ; $0B
+        OSFrame_L                       ds.b    1       ; $0C
+        OSFrame_H                       ds.b    1       ; $0D
+        OSFrame__S2                     ds.b    1       ; $0E
+        OSFrame__S3                     ds.b    1       ; $0F
+enddef
 
 ; Z80 flags SZ-H-PNC
 
@@ -531,17 +548,18 @@ defc    Z80F_S                  =$80
 
 ;       buffer  !! remove unused bytes, size drops to 5 bytes
 
-defvars -10 {
-buf_f6                          ds.b    1       ; $F6
-buf_func                        ds.b    1       ; $F7
-buf_funcH                       ds.w    1       ; $F8
-buf_end                         ds.b    1       ; $FA
-buf_start                       ds.b    1       ; $FB
-buf_bufpage                     ds.b    1       ; $FC
-buf_fd                          ds.b    1       ; $FD unused
-buf_wrpos                       ds.b    1       ; $FE
-buf_rdpos                       ds.b    1       ; $FF
-}
+defvars -10
+        buf_f6                          ds.b    1       ; $F6
+        buf_func                        ds.b    1       ; $F7
+        buf_funcH                       ds.w    1       ; $F8
+        buf_end                         ds.b    1       ; $FA
+        buf_start                       ds.b    1       ; $FB
+        buf_bufpage                     ds.b    1       ; $FC
+        buf_fd                          ds.b    1       ; $FD unused
+        buf_wrpos                       ds.b    1       ; $FE
+        buf_rdpos                       ds.b    1       ; $FF
+enddef
+
 
 ;       handle types
 
@@ -639,20 +657,20 @@ defc    thnd_SubType    =$07
 
 ;       ----
 
-defvars 0 {
-alm_Next                ds.p    1       ; $00
-alm_Time                ds.b    3       ; $03
-alm_Date                ds.b    3       ; $06
-alm_Reason              ds.b    24      ; $09
-alm_RepeatDays          ds.b    3       ; $21
-alm_RepeatTime          ds.b    3       ; $24
-alm_RepeatNum           ds.w    1       ; $27
-alm_RepeatFlags         ds.b    1       ; $29
-alm_Flags               ds.b    1       ; $2a
-alm_Handle              ds.w    1       ; $2b
-alm_ID                  ds.w    1       ; $2d
-alm_SIZEOF              ds.b    1       ; $2f
-}
+defvars 0
+        alm_Next                ds.p    1       ; $00
+        alm_Time                ds.b    3       ; $03
+        alm_Date                ds.b    3       ; $06
+        alm_Reason              ds.b    24      ; $09
+        alm_RepeatDays          ds.b    3       ; $21
+        alm_RepeatTime          ds.b    3       ; $24
+        alm_RepeatNum           ds.w    1       ; $27
+        alm_RepeatFlags         ds.b    1       ; $29
+        alm_Flags               ds.b    1       ; $2a
+        alm_Handle              ds.w    1       ; $2b
+        alm_ID                  ds.w    1       ; $2d
+        alm_SIZEOF              ds.b    1       ; $2f
+enddef
 
 ;       !! WARNING !!   ALMF already used for alarm handle
 ;                       need to rename one or other
@@ -753,18 +771,18 @@ defc    RS232code               =$a500
 
 
 ;       keyboard
-defvars 0 {
-kbd_rawkey              ds.b    1       ; current key, internal code
-kbd_rlscnt              ds.b    1       ; release counter
-kbd_keyflags            ds.b    1       ; state bits: KB_xxx
-kbd_prevkey             ds.b    1       ; as above for previous key
-kbd_prevrlscnt          ds.b    1
-kbd_prevflags           ds.b    1
-kbd_repeatcnt           ds.b    1       ; repeat counter
-kbd_flags               ds.b    1
-kbd_lastkey             ds.b    1       ; used in dead-key handling
-kbd_SIZEOF              ds.b    1
-}
+defvars 0
+        kbd_rawkey              ds.b    1       ; current key, internal code
+        kbd_rlscnt              ds.b    1       ; release counter
+        kbd_keyflags            ds.b    1       ; state bits: KB_xxx
+        kbd_prevkey             ds.b    1       ; as above for previous key
+        kbd_prevrlscnt          ds.b    1
+        kbd_prevflags           ds.b    1
+        kbd_repeatcnt           ds.b    1       ; repeat counter
+        kbd_flags               ds.b    1
+        kbd_lastkey             ds.b    1       ; used in dead-key handling
+        kbd_SIZEOF              ds.b    1
+enddef
 
 defc    KBF_B_CAPSE     =0              ; 1-CAPS enable
 defc    KBF_B_CAPS      =1              ; 1-caps 0-CAPS

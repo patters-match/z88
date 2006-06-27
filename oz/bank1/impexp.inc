@@ -25,7 +25,6 @@ defc    SAFESIZE=112
 defc    SAFE=$1ffe-SAFESIZE
 
 defvars SAFE
-{
         LocalName       ds.b    51
         RemoteName      ds.b    51
         InputBuf        ds.b    2
@@ -34,4 +33,4 @@ defvars SAFE
         WildHandle      ds.b    2
         unused_2        ds.b    2
         vars_e          ds.b    1
-}
+enddef
