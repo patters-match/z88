@@ -32,12 +32,6 @@ goto COMPILE_ERROR
 cd ..\bank7
 ..\..\tools\mpm\mpm -g -I..\sysdef @lowram.prj
 ..\..\tools\mpm\mpm -bg -DKB%1 -I..\sysdef keymap.asm
-dir *.err 2>nul >nul || goto COMPILE_APPDORS
-goto COMPILE_ERROR
-
-:: create application DOR data (binary) and address references for bank 2 compile script
-:COMPILE_APPDORS
-..\..\tools\mpm\mpm -bg -I..\sysdef appdors.asm
 dir *.err 2>nul >nul || goto PRECOMPILE_BANK0
 goto COMPILE_ERROR
 

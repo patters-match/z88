@@ -1,6 +1,5 @@
 :: **************************************************************************************************
-:: Bank 2 compilation script for Windows/DOS.
-:: (Index, Filer, Terminal, Floating Point Package, PrinterEd tables & serial port driver)
+:: MTH compilation script for Windows/DOS.
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,10 +21,17 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\tools\mpm\mpm -b -I..\sysdef rs232.asm
-..\..\tools\mpm\mpm -b -I..\sysdef indexdc.asm
-..\..\tools\mpm\mpm -b -I..\sysdef fpp.asm
-..\..\tools\mpm\mpm -b -I..\sysdef rs232.asm
-..\..\tools\mpm\mpm -b -I..\sysdef terminal.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef pedtrtbl.asm
-..\..\tools\mpm\mpm -b -I..\sysdef filer.asm
+@echo off
+
+..\..\tools\mpm\mpm -bg -I..\sysdef appdors.asm
+dir *.err 2>nul >nul || goto COMPILE_ROMHDR
+goto COMPILE_ERROR
+
+:COMPILE_ROMHDR
+..\..\tools\mpm\mpm -b -I..\sysdef romhdr.asm
+dir *.err 2>nul >nul || goto END
+
+:COMPILE_ERROR
+echo Compilation error occurred! Script aborted.
+:END
+

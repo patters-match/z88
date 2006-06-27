@@ -73,6 +73,17 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
+echo compiling MTH structures
+cd mth
+. mth.sh $ozlocale%
+cd ..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat mth/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
 echo compiling bank 2
 cd bank2
 . bank2.sh
@@ -106,6 +117,6 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
-# ROM was compiled successfully, combine the compiled 16K banks 0-7 into a complete 128K binary
+# ROM was compiled successfully, combine the compiled 16K banks into a complete 256K binary
 echo Compiled Z88 ROM, and combined into "oz.bin" file.
 java -jar ../tools/makeapp/makeapp.jar -f rom.loadmap

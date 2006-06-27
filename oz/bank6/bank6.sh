@@ -30,7 +30,3 @@ COMPILE_ERROR=0
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef b6dors.asm
-fi

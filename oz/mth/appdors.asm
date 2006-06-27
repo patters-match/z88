@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Application/Popdown DOR & MTH definitions (top of Bank 7, addressed for segment 3).
+; Application/Popdown DOR & MTH definitions (top bank of ROM, addressed for segment 3).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -21,8 +21,8 @@
 ; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
 ; Additional development improvements, comments, definitions and new implementations by
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
-; (C) Thierry Peycru (pek@users.sf.net), 2005
-; (C) Gunther Strube (gbs@users.sf.net), 2005
+; (C) Thierry Peycru (pek@users.sf.net), 2005,2006
+; (C) Gunther Strube (gbs@users.sf.net), 2005,2006
 ;
 ; Copyright of original (binary) implementation, V4.0:
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
@@ -33,9 +33,13 @@
         Module AppStatic
 
         include "director.def"
-        include "../bank1/impexpdor.def"
+        include "dor.def"
+        
+        include "../banks.def"
+        include "../bank1/impexp.inc"
+        include "../bank1/impexp.def"
 
-        org $340A
+        org $32F0
 
 xdef    PrinterEdTopics
 xdef    PrinterEdCommands
@@ -43,6 +47,7 @@ xdef    PanelTopics
 xdef    PanelCommands
 xdef    AlarmDOR
 xdef    TerminalDOR
+xdef    IndexDOR
 
 .IndexTopics
         defb    0
@@ -344,228 +349,213 @@ xdef    TerminalDOR
         defs    $43 ($ff)
 
 .AlarmDOR
-        defp    0,0                     ; parent
-        defp    FilerDor|$c000,7        ; brother
-.AlarmTCH
-        defp    0,0                     ; son
-        defb    $83,AlarmDORe-$PC       ; DOR type, sizeof
+        defp    0,0                             ; parent
+        defp    FilerDor,mthbank                ; brother
+        defp    0,0                             ; son
+        defb    $83,AlarmDORe-$PC               ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'A',0                           ; application key letter, bad app RAM
+        defw    0,0,0                           ; env. size, unsafe and safe workspace
+        defw    $E7F4                           ; entry point
+        defb    0,0,0,1                         ; bindings
+        defb    AT_Good|AT_Popd                 ; appl type
+        defb    AT2_Ie                          ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    AlarmDOR,mthbank                ; topics
+        defp    AlarmDOR,mthbank                ; commands
+        defp    AlarmDOR,mthbank                ; help
+        defp    $8000,tokenbank                 ; token base
+                                                
+        defb    'N',AlarmDORe-$PC-1             ; name, length
+        defm    "Alarm",0                       
+.AlarmDORe                                      
+        defb    $FF                             ; terminate
+                                                
+.FilerDOR                                       
+        defp    0,0                             ; parent
+        defp    PrEdDOR,mthbank                 ; brother         
+        defp    0,0                             ; son
+        defb    $83,FilerDORe-$PC               ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'F',0                           ; application key letter, bad app RAM
+        defw    0,$230,0                        ; env. size, unsafe and safe workspace
+        defw    $EAB1                           ; entry point
+        defb    0,0,0,2                         ; bindings
+        defb    AT_Good|AT_Popd|AT_Film         ; appl type
+        defb    0                               ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    FilerTopics,mthbank             ; topics
+        defp    FilerCommands,mthbank           ; commands
+        defp    FilerDOR,mthbank                ; help (no help, point at 0)
+        defp    $8000,tokenbank                 ; token base
+                                                
+        defb    'N',FilerDORe-$PC-1             ; name, length
+        defm    "Filer",0                       
+.FilerDORe                                      
+        defb    $FF                             ; terminate
 
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'A',0                   ; application key letter, bad app RAM
-        defw    0,0,0                   ; env. size, unsafe and safe workspace
-        defw    $E7F4                   ; entry point
-        defb    0,0,0,1                 ; bindings
-        defb    AT_Good|AT_Popd         ; appl type
-        defb    AT2_Ie                  ; appl type 2
-
-        defb    'H',12                  ; help, sizeof
-        defp    AlarmTCH,7              ; topics
-        defp    AlarmTCH,7              ; commands
-        defp    AlarmTCH,7              ; help
-        defp    $8000,7                 ; token base
-
-        defb    'N',AlarmDORe-$PC-1     ; name, length
-        defm    "Alarm",0
-.AlarmDORe
-        defb    $FF                     ; terminate
-
-.FilerDOR
-        defp    0,0                     ; parent
-        defp    $ff90,2                 ; brother
-        defp    0,0                     ; son
-        defb    $83,FilerDORe-$PC       ; DOR type, sizeof
-
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'F',0                   ; application key letter, bad app RAM
-        defw    0,$230,0                ; env. size, unsafe and safe workspace
-        defw    $EAB1                   ; entry point
-        defb    0,0,0,2                 ; bindings
-        defb    AT_Good|AT_Popd|AT_Film ; appl type
-        defb    0                       ; appl type 2
-
-        defb    'H',12                  ; help, sizeof
-        defp    FilerTopics,7           ; topics
-        defp    FilerCommands,7         ; commands
-        defp    FilerDOR,7              ; help (no help, point at 0)
-        defp    $8000,7                 ; token base
-
-        defb    'N',FilerDORe-$PC-1     ; name, length
-        defm    "Filer",0
-.FilerDORe
-        defb    $FF                     ; terminate
-
-.IndexDOR
-        defp    0,0                     ; parent
-        defp    DiaryDOR|$c000,7              ; brother
-        defp    0,0                     ; son
-        defb    $83,IndexDORe-$PC       ; DOR type, sizeof
-
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'I',0                   ; application key letter, bad app RAM
-        defw    0,$28,0                 ; env. size, unsafe and safe workspace
-        defw    $C000                   ; entry point
-        defb    0,0,0,2                 ; bindings
-        defb    AT_Good|AT_Popd|AT_Ones ; appl type
-        defb    0                       ; appl type 2
-
-        defb    'H',12                  ; help, sizeof
-        defp    IndexTopics,7           ; topics
-        defp    IndexCommands,7         ; commands
-        defp    IndexDOR,7              ; help (no help, point at 0)
-        defp    $8000,7                 ; token base
-
-        defb    'N',IndexDORe-$PC-1     ; name, length
-        defm    "Index",0
-.IndexDORe
-        defb    $FF                     ; terminate
-
-.DiaryDOR
-        defp    0,0                     ; parent
-        defp    PipeDreamDOR|$c000,7    ; brother
-        defp    0,0                     ; son
-        defb    $83,DiaryDORe-$PC       ; DOR type, sizeof
-
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'D',0                   ; application key letter, bad app RAM
-        defw    $26C,0,$20              ; env. size, unsafe and safe workspace
-        defw    $C000                   ; entry point
-        defb    0,0,0,1                 ; bindings
-        defb    AT_Good                 ; appl type mutiple diaries (was AT_Good|AT_Ones)
-        defb    0                       ; appl type 2
-
-        defb    'H',12                  ; help, sizeof
-        defp    DiaryTopics,7           ; topics
-        defp    DiaryCommands,7         ; commands
-        defp    DiaryDOR,7              ; help (no help, point at 0)
-        defp    $8000,7                 ; token base
-
-        defb    'N',DiaryDORe-$PC-1     ; name, length
-        defm    "Diary",0
-.DiaryDORe
-        defb    $FF                     ; terminate
-
-.PipeDreamDOR
-        defp    0,0                     ; parent
-        defp    BasicDOR|$c000,7        ; brother
-        defp    0,0                     ; son
-        defb    $83,PipeDreamDORe-$PC   ; DOR type, sizeof
-
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'P',0                   ; application key letter, bad app RAM
-        defw    $4D8,$268,$60           ; env. size, unsafe and safe workspace
-        defw    $8000                   ; entry point
-        defb    0,0,4,5                 ; bindings
-        defb    AT_Good                 ; appl type
-        defb    0                       ; appl type 2
-
-        defb    'H',12                  ; help, sizeof
-        defp    PipeDreamTopics,7       ; topics
-        defp    PipeDreamCommands,7     ; commands
-        defp    PipeDreamDOR,7          ; help (no help, point at 0)
-        defp    $8000,7                 ; token base
-
-        defb    'N',PipeDreamDORe-$PC-1 ; name, length
+include "b2dors.asm"
+                                                
+.IndexDOR                                       
+        defp    0,0                             ; parent
+        defp    DiaryDOR,mthbank                ; brother
+        defp    0,0                             ; son
+        defb    $83,IndexDORe-$PC               ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'I',0                           ; application key letter, bad app RAM
+        defw    0,$28,0                         ; env. size, unsafe and safe workspace
+        defw    $C000                           ; entry point
+        defb    0,0,0,2                         ; bindings
+        defb    AT_Good|AT_Popd|AT_Ones         ; appl type
+        defb    0                               ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    IndexTopics,mthbank             ; topics
+        defp    IndexCommands,mthbank           ; commands
+        defp    IndexDOR,mthbank                ; help (no help, point at 0)
+        defp    $8000,tokenbank                 ; token base
+                                                
+        defb    'N',IndexDORe-$PC-1             ; name, length
+        defm    "Index",0                       
+.IndexDORe                                      
+        defb    $FF                             ; terminate
+                                                
+.DiaryDOR                                       
+        defp    0,0                             ; parent
+        defp    PipeDreamDOR,mthbank            ; brother
+        defp    0,0                             ; son
+        defb    $83,DiaryDORe-$PC               ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'D',0                           ; application key letter, bad app RAM
+        defw    $26C,0,$20                      ; env. size, unsafe and safe workspace
+        defw    $C000                           ; entry point
+        defb    0,0,0,1                         ; bindings
+        defb    AT_Good                         ; appl type mutiple diaries (was AT_Good|AT_Ones)
+        defb    0                               ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    DiaryTopics,mthbank             ; topics
+        defp    DiaryCommands,mthbank           ; commands
+        defp    DiaryDOR,mthbank                ; help (no help, point at 0)
+        defp    $8000,tokenbank                 ; token base
+                                                
+        defb    'N',DiaryDORe-$PC-1             ; name, length
+        defm    "Diary",0                       
+.DiaryDORe                                      
+        defb    $FF                             ; terminate
+                                                
+.PipeDreamDOR                                   
+        defp    0,0                             ; parent
+        defp    BasicDOR,mthbank                ; brother
+        defp    0,0                             ; son
+        defb    $83,PipeDreamDORe-$PC           ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'P',0                           ; application key letter, bad app RAM
+        defw    $4D8,$268,$60                   ; env. size, unsafe and safe workspace
+        defw    $8000                           ; entry point
+        defb    0,0,4,5                         ; bindings
+        defb    AT_Good                         ; appl type
+        defb    0                               ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    PipeDreamTopics,mthbank         ; topics
+        defp    PipeDreamCommands,mthbank       ; commands
+        defp    PipeDreamDOR,mthbank            ; help (no help, point at 0)
+        defp    $8000,tokenbank                 ; token base
+                                                
+        defb    'N',PipeDreamDORe-$PC-1         ; name, length
         defm    "PipeDream",0
 .PipeDreamDORe
-        defb    $FF                     ; terminate
+        defb    $FF                             ; terminate
 
 .BasicDOR
-        defp    0,0                     ; parent
-        defp    CalculatorDOR|$c000,7   ; brother
-.BasicTCH
-        defp    0,0                     ; son
-        defb    $83,BasicDORe-$PC       ; DOR type, sizeof
+        defp    0,0                             ; parent
+        defp    CalculatorDOR,mthbank           ; brother
+        defp    0,0                             ; son
+        defb    $83,BasicDORe-$PC               ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'B',0                           ; application key letter, bad app RAM
+        defw    $9B0,$3E,$52                    ; env. size, unsafe and safe workspace
+        defw    $D200                           ; entry point
+        defb    0,0,0,6                         ; bindings
+        defb    AT_Bad|AT_Draw                  ; appl type
+        defb    AT2_Cl                          ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    BasicDOR,mthbank                ; no topics
+        defp    BasicDOR,mthbank                ; no commands
+        defp    BasicDOR,mthbank                ; no help
+        defp    0,0                             ; no token base
+                                                
+        defb    'N',BasicDORe-$PC-1             ; name, length
+        defm    "BASIC",0                       
+.BasicDORe                                      
+        defb    $FF                             ; terminate
+                                                
+.CalculatorDOR                                  
+        defp    0,0                             ; parent
+        defp    CalendarDOR,mthbank             ; brother
+        defp    0,0                             ; son
+        defb    $83,CalculatorDORe-$PC          ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'R',0                           ; application key letter, bad app RAM
+        defw    0,$12,$40                       ; env. size, unsafe and safe workspace
+        defw    $F300                           ; entry point
+        defb    0,0,0,3                         ; bindings
+        defb    AT_Good|AT_Popd                 ; appl type
+        defb    0                               ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    CalculatorDOR,mthbank           ; no topics
+        defp    CalculatorDOR,mthbank           ; no commands
+        defp    CalculatorDOR,mthbank           ; no help
+        defp    $8000,tokenbank                 ; token base
+                                                
+        defb    'N',CalculatorDORe-$PC-1        ; name, length
+        defm    "Calculator",0                  
+.CalculatorDORe                                 
+        defb    $FF                             ; terminate
 
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'B',0                   ; application key letter, bad app RAM
-        defw    $9B0,$3E,$52            ; env. size, unsafe and safe workspace
-        defw    $D200                   ; entry point
-        defb    0,0,0,6                 ; bindings
-        defb    AT_Bad|AT_Draw          ; appl type
-        defb    AT2_Cl                  ; appl type 2
+include "b6dors.asm"
+                                                
+.TerminalDOR                                    
+        defp    0,0                             ; parent
+        defp    ImpExpDOR,mthbank               ; brother
+        defp    0,0                             ; son
+        defb    $83,TerminalDORe-$PC            ; DOR type, sizeof
+                                                
+        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
+        defb    'V',0                           ; application key letter, bad app RAM
+        defw    $744,0,$A                       ; env. size, unsafe and safe workspace
+        defw    $E7F0                           ; entry point
+        defb    0,0,0,2                         ; bindings
+        defb    AT_Good|AT_Ones|AT_Draw         ; appl type
+        defb    AT2_Ie                          ; appl type 2
+                                                
+        defb    'H',12                          ; help, sizeof
+        defp    TerminalTopics,mthbank          ; topics
+        defp    TerminalCommands,mthbank        ; commands
+        defp    TerminalDOR,mthbank             ; help (no help, point at 0)
+        defp    $8000,tokenbank                 ; token base
+                                                
+        defb    'N',TerminalDORe-$PC-1          ; name, length
+        defm    "Terminal",0                    
+.TerminalDORe                                   
+        defb    $FF                             ; terminate
 
-        defb    'H',12                  ; help, sizeof
-        defp    BasicTCH,7              ; topics
-        defp    BasicTCH,7              ; commands
-        defp    BasicTCH,7              ; help
-        defp    0,0                     ; token base
-
-        defb    'N',BasicDORe-$PC-1     ; name, length
-        defm    "BASIC",0
-.BasicDORe
-        defb    $FF                     ; terminate
-
-.CalculatorDOR
-        defp    0,0                     ; parent
-        defp    $ff91,6                 ; brother
-.CalculatorTCH
-        defp    0,0                     ; son
-        defb    $83,CalculatorDORe-$PC  ; DOR type, sizeof
-
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'R',0                   ; application key letter, bad app RAM
-        defw    0,$12,$40               ; env. size, unsafe and safe workspace
-        defw    $F300                   ; entry point
-        defb    0,0,0,3                 ; bindings
-        defb    AT_Good|AT_Popd         ; appl type
-        defb    0                       ; appl type 2
-
-        defb    'H',12                  ; help, sizeof
-        defp    CalculatorTCH,7         ; topics
-        defp    CalculatorTCH,7         ; commands
-        defp    CalculatorTCH,7         ; help
-        defp    $8000,7                 ; token base
-
-        defb    'N',CalculatorDORe-$PC-1; name, length
-        defm    "Calculator",0
-.CalculatorDORe
-        defb    $FF                     ; terminate
-
-.TerminalDOR
-        defp    0,0                     ; parent
-        defp    ImpExpDOR,1             ; brother
-        defp    0,0                     ; son
-        defb    $83,TerminalDORe-$PC    ; DOR type, sizeof
-
-        defb    '@',18,0,0              ; info, info sizeof, 2xreserved
-        defb    'V',0                   ; application key letter, bad app RAM
-        defw    $744,0,$A               ; env. size, unsafe and safe workspace
-        defw    $E7F0                   ; entry point
-        defb    0,0,0,2                 ; bindings
-        defb    AT_Good|AT_Ones|AT_Draw ; appl type
-        defb    AT2_Ie                  ; appl type 2
-
-        defb    'H',12                  ; help, sizeof
-        defp    TerminalTopics,7        ; topics
-        defp    TerminalCommands,7      ; commands
-        defp    TerminalDOR,7           ; help (no help, point at 0)
-        defp    $8000,7                 ; token base
-
-        defb    'N',TerminalDORe-$PC-1  ; name, length
-        defm    "Terminal",0
-.TerminalDORe
-        defb    $FF                     ; terminate
+include "impexpdor.asm"
 
         defb    0
         defm    "{Clive Dave Eric Felicity^2 Graham Jim John Mark"
         defm    " Matthew^2 Paul Peter Richard^3 Tim Wings Zee&Kessna}"
 
-;       $BFC0
-        defp    0,0                     ; parent
-        defp    0,0                     ; brother
-        defp    IndexDor|$c000,7        ; son
-        defb    $13,8                   ; DOR type, sizeof
-
-        defb    $4e,$05                 ; name, length
-        defm    "APPL",0
-        defb    $ff                     ; terminate
-
-        defs    37
-
-;       $BFF8
-        defb    $54,$43                 ; card ID       !! "TCL"
-        defb    $4C                     ; country ID
-        defb    $81                     ; external app would be $80
-        defb    8                       ; size in banks
-        defb    0                       ; subtype
-        defm    "OZ"
+        

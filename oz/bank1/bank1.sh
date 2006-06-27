@@ -44,7 +44,3 @@ fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -bg -I../sysdef impexpdor.asm
-fi

@@ -72,8 +72,19 @@ dir bank0\*.err 2>nul >nul || goto CHECK_KERNEL7_ERRORS
 type bank0\*.err
 goto COMPILE_ERROR
 :CHECK_KERNEL7_ERRORS
-dir bank7\*.err 2>nul >nul || goto COMPILE_BANK2
+dir bank7\*.err 2>nul >nul || goto COMPILE_MTH
 type bank7\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:: create application DOR data (binary) 
+:COMPILE_MTH
+echo compiling MTH structures
+cd mth
+call mth %ozlocale% 2>nul >nul
+cd ..
+dir mth\*.err 2>nul >nul || goto COMPILE_BANK2
+type mth\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -107,7 +118,7 @@ type bank6\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
-:: ROM was compiled successfully, combine the compiled 16K banks 0-7 into a complete 128K binary
+:: ROM was compiled successfully, combine the compiled 16K banks into a complete 256K binary
 :COMBINE_BANKS
 echo Compiled Z88 ROM, and combined into "oz.bin" file.
 java -jar ..\tools\makeapp\makeapp.jar -f rom.loadmap

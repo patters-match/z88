@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Bank 2 compilation script for Unix.
-# (Index, Filer, Terminal, Floating Point Package, PrinterEd tables & serial port driver)
+# MTH compilation script for Unix.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -24,51 +23,17 @@
 # $Id$
 # ***************************************************************************************************
 
-COMPILE_ERROR=0
-
-../../tools/mpm/mpm -b -I../sysdef rs232.asm
+../../tools/mpm/mpm -bg -I../sysdef appdors.asm
 if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef indexdc.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
+  cat *.err
+  echo Script aborted.
+  exit 1
 fi
 
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef fpp.asm
-fi
+../../tools/mpm/mpm -b -I../sysdef romhdr.asm
 if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
+  cat *.err
+  echo Script aborted.
+  exit 1
 fi
 
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef rs232.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef terminal.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -bg -I../sysdef pedtrtbl.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef filer.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi

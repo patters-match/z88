@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Z88 128K ROM loadmap for MakeApp.
+; Z88 256K ROM loadmap for MakeApp.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -21,44 +21,45 @@
 ; $Id$
 ;***************************************************************************************************
 
-; generate a 128K Eprom image
+; generate a 256K ROM image
 outputfile oz.bin
-size 128
+size 256
 
 ; kernel upper part (addressed from $C000 upwards) OS system calls
-bank0\kernel0.bin 000000
-bank0\ostables.bin 003f00
+bank0/kernel0.bin 000000
+bank0/ostables.bin 003f00
 
 ; Bank 1: Diary app, Calendar, Clock, Alarm & Imp/Export popdowns
-bank1\diary.bin 010000                          ; $C000: Diary application
-bank1\clcalalm.bin 0127ee                       ; $E7EE: Clock, Calendar & Alarm popdowns
-bank1\impexp.bin 013ab1                         ; $FAB1: Imp/export popdown
-bank1\impexpdor.bin 013fc5                      ; $FFC5: Imp/export DOR
+bank1/diary.bin 010000                          ; $C000: Diary application
+bank1/clcalalm.bin 0127ee                       ; $E7EE: Clock, Calendar & Alarm popdowns
+bank1/impexp.bin 013ab1                         ; $FAB1: Imp/export popdown
 
 ; Bank2: Index, Filer, Terminal, Floating Point Package and serial port driver.
-bank2\indexdc.bin 020000                        ; $C000: Index popdown (and DC low level routines)
-bank2\fpp.bin 021800                            ; $D800: Floating point Package
-bank2\rs232.bin 022500                          ; $A500: Serial Port Driver
-bank2\terminal.bin 0227f0                       ; $E7F0: Terminal Application
-bank2\pedtrtbl.bin 022998                       ; $E998: PrinterEd Translation Table
-bank2\filer.bin 022ab1                          ; $EAB1: Filer Popdown
-bank2\b2dors.bin 023f90                         ; $FF90: PrinterEd & Panel DOR's
+bank2/indexdc.bin 020000                        ; $C000: Index popdown (and DC low level routines)
+bank2/fpp.bin 021800                            ; $D800: Floating point Package
+bank2/rs232.bin 022500                          ; $A500: Serial Port Driver
+bank2/terminal.bin 0227f0                       ; $E7F0: Terminal Application
+bank2/pedtrtbl.bin 022998                       ; $E998: PrinterEd Translation Table
+bank2/filer.bin 022ab1                          ; $EAB1: Filer Popdown
 
 ; GN system calls, Calculator, Printer filter management?
-bank3\gn.bin 030000                             ; $C000: GN_ system calls
-bank3\printer.bin 032fc0                        ; $AFC0: Printer filter
-bank3\calc.bin 033300                           ; $F300: Calculator popdown
+bank3/gn.bin 030000                             ; $C000: GN_ system calls
+bank3/printer.bin 032fc0                        ; $AFC0: Printer filter
+bank3/calc.bin 033300                           ; $F300: Calculator popdown
 
 ; PipeDream (32K app)
-banks45\pipedream.bn0 040000
-banks45\pipedream.bn1 050000
+banks45/pipedream.bn0 040000
+banks45/pipedream.bn1 050000
 
 ; PrinterEd, Panel and BBC BASIC
-bank6\panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
-bank6\basic.dat 061200                          ; $D200: BBC BASIC application
-bank6\b6dors.bin 063f90                         ; $FF90: Calendar & Clock DOR's
+bank6/panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
+bank6/basic.dat 061200                          ; $D200: BBC BASIC application
 
 ; kernel lower part (addressed from $8000 upwards)
-bank7\kernel7.bin 070000                        ; font bitmap & remaing kernel OS
-bank7\keymap.bin 073300                         ; country specific keyboard tables (always placed at page boundary)
-bank7\appdors.bin 07340A                        ; main DOR's and MTHs (including 'OZ' header)
+bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel OS
+bank7/keymap.bin 073300                         ; country specific keyboard tables (always placed at page boundary)
+mth/romhdr.bin 073fc0                           ; copy of Rom Front DOR at $3FC0, because OZ expects it there...
+patch 073ffc 08                                 ; patch fake ROM header with size to 8 banks (if any other code needs it)...
+
+mth/appdors.bin 0f32f0                          ; DORs & MTHs
+mth/romhdr.bin 0f3fc0                           ; Front DOR and 'OZ' header at top of ROM code

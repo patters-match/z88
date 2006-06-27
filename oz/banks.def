@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Imp/export DOR (top of Bank 1, addressed for segment 3).
+; Bank number layout for OZ ROM
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -18,52 +18,12 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
-; Additional development improvements, comments, definitions and new implementations by
-; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
-; (C) Thierry Peycru (pek@users.sf.net), 2005
-; (C) Gunther Strube (gbs@users.sf.net), 2005
-;
-; Copyright of original (binary) implementation, V4.0:
-; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
-;
 ; $Id$
 ; ***************************************************************************************************
 
+defc romsize = 16                       ; size of ROM in 16K banks
 
-        Module  ImpExpDOR
-
-        org     $ffc5
-
-        include "director.def"
-        include "dor.def"
-
-        include "impexp.inc"
-        include "impexp.def"
-
-xdef    ImpExpDOR
-
-
-.ImpExpDOR
-        defp    0,0
-        defp    0,0
-        defp    0,0
-        defb    DM_ROM, ImpExpDORe-$PC
-        defb    DT_INF, 18
-        defb    0,0
-        defb    'X'
-        defb    0
-        defw    0,0,SAFESIZE
-        defw    Imp_Export
-        defb    0,0,0,1
-        defb    AT_Good|AT_Popd,0
-        defb    DT_HLP,12
-        defp    ImpExpDOR,1
-        defp    ImpExpDOR,1
-        defp    ImpExpDOR,1
-        defp    $8000,7
-
-        defb    DT_NAM, ImpExpDORe-$PC-1
-        defm    "Imp-Export",0
-.ImpExpDORe
-        defb    $FF
+defgroup
+        tokenbank = $07,
+        mthbank = $0f                   ; top bank of ROM
+enddef

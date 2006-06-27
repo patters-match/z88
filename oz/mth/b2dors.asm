@@ -1,6 +1,5 @@
 ; **************************************************************************************************
-; DOR's for PrinterEd and Panel, linked to/from bank 7 DOR's.
-; (located at top of bank 2)
+; PrinterEd and Panel DORs,
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,20 +21,15 @@
 ; $Id$
 ;***************************************************************************************************
 
-        Module B2DORs
 
-        include "director.def"
-        include "../bank7/appdors.def"
 
 xdef    PrEdDOR
 xdef    PanelDOR
 
 
-        org     $ff90
-
 .PrEdDOR
         defp    0,0                     ; parent
-        defp    PanelDOR,2              ; brother
+        defp    PanelDOR,mthbank        ; brother
         defp    0,0                     ; son
         defb    $83, PrEdDORe-$PC       ; DOR type, sizeof
 
@@ -48,10 +42,10 @@ xdef    PanelDOR
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    PrinterEdTopics,7       ; topics
-        defp    PrinterEdCommands,7     ; commands
-        defp    PrEdDOR,2               ; help (no help, point at 0)
-        defp    $8000,7                 ; token base
+        defp    PrinterEdTopics,mthbank ; topics
+        defp    PrinterEdCommands,mthbank ; commands
+        defp    PrEdDOR,mthbank         ; no help
+        defp    $8000,tokenbank         ; token base
 
         defb    'N',PrEdDORe-$PC-1      ; name, length
         defm    "PrinterEd",0
@@ -60,7 +54,7 @@ xdef    PanelDOR
 
 .PanelDOR
         defp    0,0                     ; parent
-        defp    TerminalDOR,7           ; brother
+        defp    TerminalDOR,mthbank     ; brother
         defp    0,0                     ; son
         defb    $83, PanelDORe-$PC      ; DOR type, sizeof
 
@@ -73,10 +67,10 @@ xdef    PanelDOR
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    PanelTopics,7           ; topics
-        defp    PanelCommands,7         ; commands
-        defp    PanelDOR,2              ; help (no help, point at 0)
-        defp    $8000,7                 ; token base
+        defp    PanelTopics,mthbank     ; topics
+        defp    PanelCommands,mthbank   ; commands
+        defp    PanelDOR,mthbank        ; no help
+        defp    $8000,tokenbank         ; token base
 
         defb    'N',PanelDORe-$PC-1     ; name, length
         defm    "Panel",0

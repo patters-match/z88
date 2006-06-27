@@ -46,16 +46,6 @@ if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-# create application DOR data (binary) and address references for bank 2 compile script
-if test "$COMPILE_ERROR" -eq 0; then
-  cd bank7
-  ../../tools/mpm/mpm -bg -I../sysdef appdors.asm
-  cd ..
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
 # pre-compile kernel in bank 0 to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
   cd bank0

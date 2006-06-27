@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Calendar & Clock DOR's (Bank 6, addressed for segment 3).
+; Calendar & Clock DORs. 
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -30,37 +30,25 @@
 ; $Id$
 ; ***************************************************************************************************
 
-        Module B6DORs
-
-        include "director.def"
-        include "../bank7/appdors.def"
-
-        org     $ff90
-
-        defb    $ff
-
 .CalendarDOR
         defp    0,0                     ; parent
-        defp    ClockDOR,6              ; brother
-.CalendarTopics
-.CalendarCommands
-.CalendarHelp
+        defp    ClockDOR,mthbank        ; brother
         defp    0,0                     ; son
         defb    $83, CalendarDORe-$PC   ; DOR type, sizeof
 
         defb    '@',18,0,0              ; info, info sizeof, 2xreserved
         defb    'C',0                   ; application key letter, bad app RAM
         defw    0,40,0                  ; env. size, unsafe and safe workspace
-        defw    $e7f1                   ; entry point !! absolute
+        defw    $e7f1                   ; entry point
         defb    0,0,0,1                 ; bindings
         defb    AT_Good|AT_Popd         ; appl type
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    CalendarTopics,6 ; topics
-        defp    CalendarCommands,6      ; commands
-        defp    CalendarHelp,6          ; help
-        defp    $8000,7                 ; token base
+        defp    CalendarDOR,mthbank     ; no topics
+        defp    CalendarDOR,mthbank     ; no commands
+        defp    CalendarDOR,mthbank     ; no help
+        defp    0,0                     ; no token base
 
         defb    'N',CalendarDORe-$PC-1  ; name, length
         defm    "Calendar",0
@@ -69,10 +57,7 @@
 
 .ClockDOR
         defp    0,0                     ; parent
-        defp    AlarmDOR,7              ; brother
-.ClockTopics
-.ClockCommands
-.ClockHelp
+        defp    AlarmDOR,mthbank        ; brother
         defp    0,0                     ; son
         defb    $83, ClockDORe-$PC      ; DOR type, sizeof
 
@@ -85,13 +70,12 @@
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    ClockTopics,6   ; topics
-        defp    ClockCommands,6   ; commands
-        defp    ClockHelp,6     ; help
-        defp    $8000,7                 ; token base
+        defp    ClockDOR,mthbank        ; no topics
+        defp    ClockDOR,mthbank        ; no commands
+        defp    ClockDOR,mthbank        ; no help
+        defp    0,0                     ; no token base
 
         defb    'N',ClockDORe-$PC-1  ; name, length
         defm    "Clock",0
 .ClockDORe
         defb    $ff
-
