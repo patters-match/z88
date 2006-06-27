@@ -46,8 +46,8 @@ make -f makefile.z80.gcc.win32 [using MinGW or Cygwin GCC on Windows]
 or
 make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OSX/Unix]
 
-Then, to compile & run the MakeApp utility you need to have a Java Development Kit 1.4.x or
-later installed. Download it from http://java.sun.com for your operating system platform.
+Then, to compile & run the MakeApp utility you need to have a Java Runtime Environment (JRE) 1.4.x or
+later installed. Download & install it from http://java.sun.com for your operating system platform.
 
 cd /tools/makeapp
 makejar.bat (or makeapp.sh for Unix) script).
