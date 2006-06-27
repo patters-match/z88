@@ -44,13 +44,15 @@ make -f makefile.z80.borlandccp55.win32  [using free Borland C++ V5.5 on Windows
 or
 make -f makefile.z80.gcc.win32 [using MinGW or Cygwin GCC on Windows]
 or
+nmake /f makefile.z80.msvc.win32 [using Microsoft Visual C V6.0 or later ]
+or
 make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OSX/Unix]
 
 Then, to compile & run the MakeApp utility you need to have a Java Runtime Environment (JRE) 1.4.x or
 later installed. Download & install it from http://java.sun.com for your operating system platform.
 
 cd /tools/makeapp
-makejar.bat (or makeapp.sh for Unix) script).
+makejar.bat (or ./makeapp.sh for Unix) script).
 
 The bat file (or shell script) contains Java-related instructions if you have problem getting the
 java compiler working. An executable JAR file will be produced (makeapp.jar) in the /tools/makeapp
@@ -68,15 +70,18 @@ You can specify the following country codes to get a localised Z88 ROM:
         FI      Swedish/Finish
 
 Command line example:
-        rom DK
-        rom dk
+        rom DK       (Windows/DOS)
+        rom dk       (Windows/DOS)
+        ./rom.sh dk  (Unix)
 
-both variations will compile a danish Z88 rom, and stored as 'oz.bin' in the current directory
+all variations will compile a danish Z88 rom, and stored as 'oz.bin' in the current directory
 of the rom compile scripts. You can install/run the rom binary in the Z88 emulator, OZvm
-(in /tools/ozvm), or using a conventional Eprom programmer and re-blow your 128K chip to be
-inserted into a real Z88.
+(in /tools/ozvm), or using a conventional Eprom programmer and re-blow your 128K or larger chip
+to be inserted into a real Z88.
 
-Important: The rom script only works with Mpm Assembler V1.1 b7 (22/11/2005) or later.
+Important:
+The rom script only works with Mpm Assembler V1.1 b7 (22/11/2005) or later.
+(You will have a fully working version, if you are using the latest from the SVN checkout)
 
 
 ---------------------------------------------------------------------------------------------------
