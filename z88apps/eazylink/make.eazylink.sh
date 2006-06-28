@@ -27,10 +27,7 @@ rm -f *.obj *.bin *.map *.63 *.epr
 ../../tools/mpm/mpm -b romhdr
 
 # produce bank to be blown by RomCombiner or Zprom on real cards
-java -jar ../../tools/makeapp/makeapp.jar eazylink.63 eazylink.bin 0000 romhdr.bin 3fc0
+../../tools/makeapp/makeapp.sh eazylink.63 eazylink.bin 0000 romhdr.bin 3fc0
 
 # produce a complete 16K card image for OZvm
-java -jar ../../tools/makeapp/makeapp.jar eazylink.epr eazylink.bin 0000 romhdr.bin 3fc0
-
-# execute OZvm and install card, ready to be used after initial hard reset of the virtual Z88
-# java -jar ../../tools/ozvm/z88.jar ram0 512 s2 eazylink.epr
+../../tools/makeapp/makeapp.sh eazylink.epr eazylink.bin 0000 romhdr.bin 3fc0

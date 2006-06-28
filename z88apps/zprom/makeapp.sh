@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Zprom
-# (C) Gunther Strube (gbs@users.sf.net) 1993-2005
+# (C) Gunther Strube (gbs@users.sf.net) 1993-2006
 #
 # Zprom is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -29,4 +29,4 @@ rm -f *.obj *.bin *.map zprom.epr
 ../../tools/mpm/mpm -b -I../../oz/sysdef romhdr
 
 # Create a 32K Rom Card with Zprom ($3E contains MTH, $3F contains application code)
-java -jar ../../tools/makeapp/makeapp.jar -sz 32 zprom.epr tokens.bin 3e0000 mthzprom.bin 3e1200 zprom.bin 3fc000 romhdr.bin 3f3fc0
+../../tools/makeapp/makeapp.sh -sz 32 zprom.epr tokens.bin 3e0000 mthzprom.bin 3e1200 zprom.bin 3fc000 romhdr.bin 3f3fc0

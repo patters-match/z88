@@ -26,4 +26,4 @@ rm -f *.obj *.bin *.map flashstore.epr
 ../../tools/mpm/mpm -b romhdr
 
 # Create a 16K Rom Card with FlashStore
-java -jar ../../tools/makeapp/makeapp.jar flashstore.epr fsapp.bin 3f0000 romhdr.bin 3f3fc0
+../../tools/makeapp/makeapp.sh flashstore.epr fsapp.bin 3f0000 romhdr.bin 3f3fc0

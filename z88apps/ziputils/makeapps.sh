@@ -26,4 +26,4 @@ rm -f *.obj *.bin *.map
 ../../tools/mpm/mpm -b -I../../oz/sysdef romheader.asm
 
 # Create a 16K Rom Card with ZipUp & Unzip
-java -jar ../../tools/makeapp/makeapp.jar -f ziputils.loadmap
+../../tools/makeapp/makeapp.sh -f ziputils.loadmap

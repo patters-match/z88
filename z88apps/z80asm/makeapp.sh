@@ -43,7 +43,7 @@ rm -f *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?
 ../../tools/mpm/mpm -b -I../../oz/sysdef romhdr
 
 # Create an image with Z80asm application
-java -jar ../../tools/makeapp/makeapp.jar -f z80asm.loadmap
+../../tools/makeapp/makeapp.sh -f z80asm.loadmap
 
 # bottom 16K of 64K image is not used. A new z80asm.epr image will be generated.
 rm -f z80asm.epr z80asm.60

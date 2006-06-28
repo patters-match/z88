@@ -118,5 +118,5 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 # ROM was compiled successfully, combine the compiled 16K banks into a complete 256K binary
-echo Compiled Z88 ROM, and combined into "oz.bin" file.
-java -jar ../tools/makeapp/makeapp.jar -f rom.loadmap
+echo Compiled Z88 ROM, now being combined into "oz.bin" file.
+../tools/makeapp/makeapp.sh -f rom.loadmap

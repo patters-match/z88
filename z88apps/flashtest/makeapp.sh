@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # FlashTest
-# (C) Gunther Strube (gbs@users.sf.net) 1997-2005
+# (C) Gunther Strube (gbs@users.sf.net) 1997-2006
 #
 # FlashTest is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -29,5 +29,5 @@ if test `find . -name '*.err' | wc -l` != 0; then
     cat *.err
 else
     # Create a 16K Rom Card with FlashTest
-     java -jar ../../tools/makeapp/makeapp.jar flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
+    ../../tools/makeapp/makeapp.sh flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
 fi

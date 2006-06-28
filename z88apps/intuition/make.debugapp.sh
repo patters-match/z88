@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Intuition Z88 application make script for UNIX/LINUX operating systems
-# (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2005
+# (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2006
 #
 # Intuition is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -29,9 +29,9 @@ rm -f *.def *.obj *.bin *.map *.epr
 ../../tools/mpm/mpm -b -DSEGMENT2 romhdr
 
 # produce individual banks to be blown by RomCombiner or Zprom on real cards
-java -jar ../../tools/makeapp/makeapp.jar intuition.62 mthdbg.bin 0000
-java -jar ../../tools/makeapp/makeapp.jar intuition.63 debugger.bin 0000 romhdr.bin 3fc0
+../../tools/makeapp/makeapp.sh intuition.62 mthdbg.bin 0000
+../../tools/makeapp/makeapp.sh intuition.63 debugger.bin 0000 romhdr.bin 3fc0
 
 # produce a complete 32K card image for OZvm
-java -jar ../../tools/makeapp/makeapp.jar -sz 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
+../../tools/makeapp/makeapp.sh -sz 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
 
