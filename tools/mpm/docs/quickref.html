@@ -3,10 +3,14 @@
 <head>
 
 
+
+  
   
   <meta content="text/html; charset=us-ascii" http-equiv="content-type">
 
 
+
+  
   
   <title>Mpm Quick Reference Guide</title>
 </head>
@@ -15,24 +19,31 @@
 <body>
 
 
+
 <div style="text-align: center; font-weight: bold;">
 <big>[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition
 V1.2, 2006<br>
 
 
+
 Quick Reference Guide (draft)</big><br>
+
 
 </div>
 
 
+
 <br>
+
 
 
 <hr style="width: 100%; height: 2px;">
 Copyright (C) 1991-2006, Gunther Strube, gbs@users.sf.net<br>
 
 
+
 <br>
+
 
 
 This file is part of Mpm. Mpm is free software; you can
@@ -49,163 +60,221 @@ Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.<br>
 
 
+
 <hr style="width: 100%; height: 2px;">
 <br>
 
 
+
 <div style="text-align: center;"><big><span style="font-weight: bold;">Contents</span><br>
 
+
 </big></div>
+
 
 
 <div style="text-align: left;">
 <ol>
 
 
+
   <li><a href="#cmdline">Instructing the assembler on the command
 line</a>
     
+    
     <ul>
+
 
 
       <li><a href="#options_nopar">Options without parameters</a></li>
 
 
+
       <li><a href="#options_par">Options with parameters</a></li>
 
 
+
+    
     
     </ul>
+
 
 
   </li>
 
 
+
   <li><a href="#envvar">Environment variables</a></li>
 
 
+
   <li><a href="#filetypes">MPM module assembler file types</a></li>
+
 
 
   <li><a href="#platformid">The standard platform
 identifier</a></li>
 
 
+
   <li><a href="#sourcefile">Source file structure and
 layout</a></li>
+
 
 
   <li><a href="#comments">Comments in source files</a></li>
 
 
+
   <li><a href="#labels">Defining symbolic address labels</a></li>
+
 
 
   <li><a href="#expressions">Using expressions</a>
     
+    
     <ul>
+
 
 
       <li><a href="#numconsts">Numeric constants</a></li>
 
 
+
       <li><a href="#arithop">Arithmetic operators</a></li>
+
 
 
       <li><a href="#hashop">The # operator</a></li>
 
 
+
       <li><a href="#relop">Relational operators</a></li>
+
 
 
       <li><a href="#asmpc">The assembler program counter</a></li>
 
 
+
+    
     
     </ul>
+
 
 
   </li>
 
 
+
   <li><a href="#directiveref">Directive reference</a></li>
 
 
+
+  
   
   <ul>
 
 
+
     <li><a href="#align">ALIGN</a></li>
+
 
 
     <li><a href="#defm">ASCII, ASCIIZ, DM, DMZ,&nbsp;DEFM,
 DEFMZ</a></li>
 
 
+
     <li><a href="#byte">BYTE, DB, DEFB</a></li>
+
 
 
     <li><a href="#calloz">CALL_OZ, OZ</a></li>
 
 
+
     <li><a href="#call_pkg">CALL_PKG</a></li>
+
 
 
     <li><a href="#defc">DC, DEFC</a></li>
 
 
+
     <li><a href="#defgroup">DEFGROUP, ENUM</a></li>
+
 
 
     <li><a href="#define">DEFINE, DEFSYM, UNDEFINE</a></li>
 
 
+
     <li><a href="#defl">DEFL, LONG</a></li>
+
 
 
     <li><a href="#defp">DEFP, DP</a></li>
 
 
+
     <li><a href="#defs">DEFS, DS, SPACE</a></li>
+
 
 
     <li><a href="#defvars">DEFVARS, DV</a></li>
 
 
+
     <li><a href="#error">ERROR</a></li>
+
 
     <li><a href="#extcall">EXTCALL</a></li>
 
+
     <li><a href="#extern">EXTERN, XREF</a></li>
 
+
     <li><a href="#fpp">FPP</a></li>
+
     <li><a href="#global">GLOBAL, XDEF</a></li>
+
     <li><a href="#if">IF, ELSE, ENDIF</a></li>
+
     <li><a href="#include">INCLUDE</a></li>
 
 
 
+
+  
   
   </ul>
 
+
 </ol>
+
 
 
 </div>
 
 
+
 <br>
+
 
 
 <hr style="width: 100%; height: 2px;">
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="cmdline" id="cmdline"></a><span style="font-weight: bold;">Instructing the assembler on the command
 line</span></big><br>
+
 
 
 Mpm is executed using the operating system standard command line
@@ -218,9 +287,11 @@ syntax of option specification and which options are
 available.</p>
 
 
+
 <p>The syntax of the assembler options is a straightforward
 design. Filenames or a project file are always specified. The
 options may be left out (surrounded here with []):&nbsp;</p>
+
 
 
 <span style="font-family: monospace;">mpm [<span style="font-weight: bold;">-</span>options]&nbsp;{filenames}
@@ -236,11 +307,13 @@ You may use comment lines inside projects files using
 semicolon.&nbsp;</p>
 
 
+
 <p>Options are used to control the assembly process and output.
 They are recognized by the assembler when you specify a leading
 minus before the option identifier ('-'). When the assembler is
 executed options are all preset with default values and are
 either switched ON or OFF (active or not).&nbsp;</p>
+
 
 
 <p>Upper and lower case letters are distinguished, which means
@@ -251,41 +324,54 @@ options without parameters can be concatanated in a single option
 block. Default options are: <span style="font-weight: bold; font-family: monospace;">-sm
 -nvadbctgA<br>
 
+
 </span></p>
+
 
 
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr align="center">
+
 
 
       <td colspan="2"><span style="font-style: italic;"><a name="options_nopar" id="options_nopar"></a><span style="font-weight: bold;">Options without
 parameters</span></span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td style="vertical-align: top;"><span style="font-family: monospace;">-v</span></td>
 
 
+
       <td>Verbose output during assembly. Not enabled by default.</td>
+
 
 
     </tr>
 
 
+
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-t</span></td>
+
 
 
       <td>Create listing file output. Listing file contains generated
@@ -293,64 +379,84 @@ machine code output combined with source code lines and
 optionally a symbol table. Not enabled by default.</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td style="vertical-align: top; font-family: monospace;">-s</td>
 
 
+
       <td>Create symbol table in listing file. Enabled by default.</td>
+
 
 
     </tr>
 
 
+
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-m</span></td>
+
 
 
       <td>Create address map information file (only when performing
 linking of object files&nbsp;).&nbsp;Enabled by default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-d</td>
+
 
 
       <td>Assemble only updated source files.&nbsp;Not enabled by
 default (always compile even if object file exists).</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-b</td>
+
 
 
       <td>Link object files into executable binary. Not enabled by
 default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-a</span></td>
+
 
 
       <td>Assemble only updated source files and automatically link
@@ -358,52 +464,68 @@ object files into executable binary.&nbsp;Not enabled by
 default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td><span style="font-family: monospace;">-c</span></td>
+
 
 
       <td>Split linked executable&nbsp;into 16K binary files (using
 .bnX extension). Not enabled by default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-g</td>
+
 
 
       <td>Create global address definition file (dump all referenced
 XREF names). Not enabled by default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-A</span></td>
+
 
 
       <td>Address align DEFW &amp; DEFL constants. Not enabled by
 default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-C</span></td>
+
 
 
       <td>Override compile error/warnings line numbers using external
@@ -413,120 +535,158 @@ when Mpm functions as back end for z88dk C compiler. Not enabled
 by default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-R</span></td>
+
 
 
       <td>Generate address independent executable binary (code needs to
 run in RAM). Not enabled by default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-plus</span></td>
+
 
 
       <td>INVOKE directive generates&nbsp;RST 28H instruction opcode
 (otherwise CALL instruction). Not enabled by default.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-IXIY</span></td>
+
 
 
       <td>All IY related instructions are generated with IX instruction
 opcodes and vice versa. Not enabled by default.</td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr align="center">
 
 
+
       <td colspan="2"><span style="font-style: italic;"><a name="options_par" id="options_par"></a><span style="font-weight: bold;">Options with parameters</span></span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td style="vertical-align: top;"><span style="font-family: monospace;">-D&lt;symbol&nbsp;name&gt;</span></td>
 
 
+
       <td>Define symbol name as logically TRUE and available for
 current compilation session.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-r&lt;address&gt;</span></td>
+
 
 
       <td>Re-define the ORG linking executable start address (override
 ORG directive in first&nbsp; source code file).</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td style="vertical-align: top; font-family: monospace;">
 -e&lt;ext&gt;</td>
 
 
+
       <td>Replace default "asm" input source file name extension
 with&nbsp;&lt;ext&gt;. Max 3 letters (specified without ".")</td>
+
 
 
     </tr>
 
 
+
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-M&lt;ext&gt;</span></td>
+
 
 
       <td>Replace default "obj" filename extension for output object
@@ -534,13 +694,17 @@ module files with &lt;ext&gt;. Max 3 letters (specified without
 ".")</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-o&lt;filename&gt;</span></td>
+
 
 
       <td>Override generated executable binary&nbsp;default filename
@@ -549,17 +713,22 @@ the first specified source filename or derived from the project
 filename. Also requires -b or -a option (to create a linked
 executable binary).<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td style="vertical-align: top; font-family: monospace;"><a name="include_searchpath"></a>
 -I&lt;path&gt;</td>
+
 
 
       <td>add <span style="font-family: monospace;">INCLUDE</span> directive search path&nbsp;(relative paths names
@@ -568,19 +737,25 @@ system path separator (';' in Windows, ':' in Unix). Avoid space
 between the path and the separator.<br>
 
 
+
 -I option may be specified multiply times at command
 line.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-L&lt;path&gt;</span></td>
+
 
 
       <td>add <span style="font-family: monospace;">LIB</span> library file search path&nbsp;(relative paths are
@@ -589,33 +764,43 @@ system path separator (';' in Windows, ':' in Unix). Avoid space
 between the path and the separator.<br>
 
 
+
 -L option may be specified multiply times at command line.</td>
+
 
 
     </tr>
 
 
+
     <tr>
 
 
+
       <td><span style="font-family: monospace;">-x&lt;filename&gt;</span></td>
+
 
 
       <td>Create library file from specified modules. Use with a
 @projectfile specification for convenience. Using -b or -a with
 this option is meaningless.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td style="vertical-align: top; font-family: monospace;">
 -l&lt;filename&gt;</td>
+
 
 
       <td>Statically link found library modules in specified library
@@ -624,24 +809,32 @@ directive. Paths in filename is optional.&nbsp;May be combined
 with the -L option (to search for library at search
 paths).<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="envvar" id="envvar"></a><span style="font-weight: bold;">Environment variables</span></big><br>
+
 
 
 The assembler looks into the operating system environment for
@@ -650,20 +843,26 @@ the environment variables are instantiated for use while the
 shell is open:<br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top; font-family: monospace;">
 MPM_Z80_INCLUDEPATH</td>
+
 
 
       <td>Defines the default path of header/include definition files.
@@ -671,14 +870,18 @@ Multiple paths may specifed using operating system specific path
 separator (see options above). Equivalent to the -I option</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top; font-family: monospace;">
 MPM_Z80_LIBPATH</td>
+
 
 
       <td>Defines the default seach path for Mpm library files.
@@ -687,36 +890,47 @@ using operating system specific path separator (see options
 above). Equivalent to the -L option.</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td style="vertical-align: top; font-family: monospace;">
 MPM_Z80_STDLIBRARY</td>
 
 
+
       <td>Defines the default filename of the standard library to be
 scanned by LIB directives.</td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="filetypes" id="filetypes"></a><span style="font-weight: bold;">MPM module assembler file
 types</span></big><br>
+
 
 
 The MPM Module Assembler uses several different file name
@@ -727,32 +941,42 @@ appropriate default output extension (keeping remaining input
 filename intact).<br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="font-family: monospace;">asm</td>
+
 
 
       <td>The source file (input) extension. May be overridden using
 the -e option.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top; font-family: monospace;">obj</td>
+
 
 
       <td>The generated object module extension. The file contains
@@ -761,13 +985,17 @@ symbols and expressions.&nbsp;May be overridden using the -M
 option.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">err</span></td>
+
 
 
       <td>Error reporting files. If any errors should occur, they will
@@ -775,13 +1003,17 @@ be written to this file containing information of where the error
 occurred in the corresponding source file.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">lst</span></td>
+
 
 
       <td>Listing file. This file contains a hexadecimal output column
@@ -791,13 +1023,17 @@ original source code, line by line. A symbol table is dumped at
 the end of the listing file.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">bin</span></td>
+
 
 
       <td>The final output file containing the executable linked and
@@ -805,13 +1041,17 @@ address relocated object modules. The complete filename
 (including extension) may be overridden using the -o option.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">map</span></td>
+
 
 
       <td>This file contains a list of all defined address labels from
@@ -822,13 +1062,17 @@ sections; first by&nbsp;name, then by address, both in ascending
 order.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">def</span></td>
+
 
 
       <td>This file contains a DEFC directive list of all globally
@@ -838,13 +1082,17 @@ file may be useful for cross referencing in separate compile
 projects.</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">lib</span></td>
+
 
 
       <td>Library file, which may be created using the -x option.
@@ -852,22 +1100,29 @@ Library modules may be included into application code during
 linking of object modules using the -l option.</td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="platformid" id="platformid"></a><span style="font-weight: bold;">The standard platform
 identifier</span><br>
+
 
 </big> When the MPM Assembler is running, a
 standard platform identifier (with value 1) is made available
@@ -875,32 +1130,41 @@ when typically using IF directives or other expressions. The
 identifier reflects the name of the platform:<br>
 
 
+
 <br>
+
 
 
 "MSDOS" - the assembler is running on the MS-DOS or
 Windows&nbsp;platform of computers<br>
 
 
+
 "UNIX" - the assembler is running on the LINUX/UNIX/MAC OSX
 platform.<br>
 
 
+
 <br>
+
 
 
 The identifier might be very handy when you need to port your
 source files to different computer platforms.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="sourcefile" id="sourcefile"></a><span style="font-weight: bold;">Source file structure and
 layout</span></big><br>
+
 
 
 The composition of a source file module is completely free to the
@@ -910,22 +1174,28 @@ linefeed interpretation is also handled by MPM - it understands
 all known line ending formats:<br>
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">&lt;LF&gt;</span> (used
 by&nbsp;UNIX/AMIGA/MAC OS X)<br>
 
 
+
 <span style="font-family: monospace;">&lt;CR&gt;&lt;LF&gt;</span>
 (used by MSDOS, WINDOWS)<br>
+
 
 
 <span style="font-family: monospace;">&lt;CR&gt;</span> (used by
 Z88, Mac OS&nbsp;8/9)<br>
 
 
+
 <br>
+
 
 
 Each source file begins with a MODULE definition, then optionally
@@ -938,13 +1208,17 @@ identifier is created (where it is XDEF'ined). The rest of the
 file contains the actual code or data.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="comments" id="comments"></a><span style="font-weight: bold;">Comments in source files</span></big><br>
+
 
 
 Comments in Z80 source files are added using a semicolon,
@@ -955,22 +1229,28 @@ line. The following is an example on how to use comments in Z80
 source files:<br>
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">;
 **********************</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">; main
 menu</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">;</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">mainmenu: xor
 a</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">&nbsp; &nbsp; &nbsp; &nbsp;
@@ -978,14 +1258,18 @@ a</span><br style="font-family: monospace;">
 routine...</span><br style="font-family: monospace;">
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="labels" id="labels"></a><span style="font-weight: bold;">Defining symbolic address
 labels</span><br>
+
 
 </big> The main reason for using an assembler is
 to be able to determine symbolical addresses and use them as
@@ -997,18 +1281,23 @@ label may be left as a single statement on a line - you may of
 course use comment after the label:<br>
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">mainmenu: &nbsp; xor
 a</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">.mainmenu2 &nbsp;; another
 comment</span><br style="font-family: monospace;">
 
 
+
 <br>
+
 
 
 It is not allowed to position two label definitions on the same
@@ -1020,13 +1309,17 @@ same source file. All labels and constant names are case
 insensitive.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="expressions" id="expressions"></a><span style="font-weight: bold;">Using expressions</span></big><br>
+
 
 
 Expressions is a necessary tool in source files. They define and
@@ -1041,7 +1334,9 @@ the expression. For example, you cannot store a 32 bit signed
 integer in an 8 bit LD instruction like LD A,&nbsp;n.&nbsp;<br>
 
 
+
 <br>
+
 
 
 If a parameter is outside an allowed integer range an assemble
@@ -1051,13 +1346,17 @@ names (identifiers), constants, ASCII characters and all the
 usual suspects of arithmetic operators.<br>
 
 
+
 <br>
+
 
 
 <big><br>
 
 
+
 <a name="numconsts" id="numconsts"></a><span style="font-weight: bold;">Numeric constants</span><br>
+
 
 </big> Apart
 from specifying decimal integer numbers, you are allowed to use
@@ -1065,81 +1364,108 @@ hexadecimal constants, binary constants and ASCII characters. The
 following definitions are available:<br>
 
 
+
 <br>
+
 
 
 Digits without leading or trailing specifiers are interpreted as
 decimal constants.<br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr>
+
 
 
       <td>Decimal</td>
 
 
+
       <td>456567,&nbsp;456d</td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Hexadecimal</td>
 
 
+
       <td>0xC000 (49152), or 4000h</td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Binary</td>
 
 
+
       <td>@11000000 (192d) or 1011b (11d)</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td>Ascii</td>
+
 
 
       <td>'A' (65d)</td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <span style="font-family: monospace;"><br>
+
 
 </span><br>
 
 
+
 <big><a name="arithop" id="arithop"></a><span style="font-weight: bold;">Arithmetic operators</span></big><br>
+
 
 
 All basic arithmetic operators are supported. The following table
@@ -1147,295 +1473,391 @@ shows them all. Result of example is shown in brackets for
 clarity of operator.<br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr>
+
 
 
       <td><span style="font-style: italic; font-weight: bold;">Operator
 symbol</span></td>
 
 
+
       <td style="font-style: italic;"><span style="font-weight: bold;">Function</span></td>
+
 
 
       <td><span style="font-style: italic; font-weight: bold;">Example</span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>+</td>
 
 
+
       <td>Addition</td>
+
 
 
       <td>12+13</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td>-</td>
+
 
 
       <td>Unary minus, subtraction &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</td>
 
 
+
       <td>-10, 12 - 45 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>*</td>
 
 
+
       <td>Multiplication</td>
+
 
 
       <td>45 * 2 (90)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>/</td>
 
 
+
       <td>Division</td>
+
 
 
       <td>256 / 8 (32)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>&gt;</td>
 
 
+
       <td>Unary division by 256</td>
+
 
 
       <td>&gt;1024 (4)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>%</td>
 
 
+
       <td>Modulus</td>
+
 
 
       <td>256%8 (0)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>&lt;</td>
 
 
+
       <td>Unary modulus by 256</td>
+
 
 
       <td>&lt;65000 (232)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>**</td>
 
 
+
       <td>Power</td>
+
 
 
       <td>2 ** 7 (128)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>&amp;</td>
 
 
+
       <td>Binary AND</td>
+
 
 
       <td>255 &amp; 7 (7)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>|</td>
 
 
+
       <td>Binary OR</td>
+
 
 
       <td>128 | 64 (192)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>:</td>
 
 
+
       <td>Binary NOR</td>
+
 
 
       <td>128 : 128 (0)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>^</td>
 
 
+
       <td>Binary XOR</td>
+
 
 
       <td>12 ^ 3 (15)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>~</td>
 
 
+
       <td>Unary Binary NOT</td>
+
 
 
       <td>~128 (127)</td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>&lt;&lt;</td>
 
 
+
       <td>Binary left shift</td>
+
 
 
       <td>2 &lt;&lt; 4 (32)</td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td>&gt;&gt;</td>
+
 
 
       <td>Binary right shift</td>
 
 
+
       <td>128 &gt;&gt; 4 (8)</td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
+
 
 
 Arithmetic operators use the standard operator precedence, shown
 from highest to lowest:<br>
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">0x @ '</span> (constant
 identifiers)<br>
 
 
+
 <span style="font-family: monospace;">() []</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">~ &gt;
 &lt;</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">**</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">* / %</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">+- | ^ &amp; : &lt;&lt;
 &gt;&gt;</span><br>
 
 
+
 <br>
+
 
 
 If you want to override the default operator precedence rules,
@@ -1445,13 +1867,17 @@ mnemonics where indirect addressing uses the () as part of their
 syntax.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="hashop" id="hashop"></a><span style="font-weight: bold;">The # operator</span></big><br>
+
 
 
 This is not a real operator, though. It is only used as the first
@@ -1467,7 +1893,9 @@ assembler cannot see this as a constant expression, you have to
 force it as one.<br>
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">LD BC,
@@ -1475,18 +1903,23 @@ end_relocator-relocator</span> ;&nbsp; Mpm adds an ORG constant
 during linking<br>
 
 
+
 <span style="font-family: monospace;">LD BC,
 #end_relocator-relocator</span> ; Mpm&nbsp;sees a constant
 expression<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="relop" id="relop"></a><span style="font-weight: bold;">Relational operators</span></big><br>
+
 
 
 With relational operators you may form logical expressions
@@ -1498,42 +1931,55 @@ conditional assembly. The following relational operators are
 available:<br>
 
 
+
 <br>
+
 
 
 = equal to<br>
 
 
+
 &lt;&gt; not equal to<br>
+
 
 
 &lt; less than<br>
 
 
+
 &gt; larger than<br>
+
 
 
 &lt;= less than or equal to<br>
 
 
+
 &gt;= larger than or equal to<br>
+
 
 
 ! not<br>
 
 
+
 <br>
+
 
 
 You may link several relational expressions with the binary
 operators AND, OR, XOR and NOT.<br>
 
 
+
 It is perfectly legal to use relational expressions in parameters
 requiring an arithmetic value. For example:<br>
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">LD A, [USING_IBM = 1] |
@@ -1541,14 +1987,18 @@ RTMFLAGS&nbsp;&nbsp;&nbsp;</span> ; use [] to ensure LD A,n
 instruction opcode<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><a name="asmpc" id="asmpc"></a><span style="font-weight: bold;">The assembler program
 counter</span>&nbsp;</big><br>
+
 
 
 In occasional circumstances it may be necessary to use the
@@ -1557,35 +2007,45 @@ expression e.g. calculating a relative distance. This may be done
 with the help of the $PC identifier. An example:<br>
 
 
+
 <br>
+
 
 
 <span style="font-family: monospace;">errmsg0: DEFM errmsg1 - $pc
 - 1, "File open error"</span><br style="font-family: monospace;">
 
 
+
 <span style="font-family: monospace;">errmsg1: DEFM errmsg2 - $pc
 - 1, "Syntax error"</span><br style="font-family: monospace;">
+
 
 
 <span style="font-family: monospace;">errmsg2:</span><br>
 
 
+
 <br>
+
 
 
 Here, a length byte of the following string (excluding the length
 byte) is calculated by using the current $PC address value.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <big><big><b><a name="directiveref" id="directiveref">Directive
 reference</a></b></big></big><br>
+
 
 
 The MPM Module Assembler directives are used to manipulate the
@@ -1594,7 +2054,9 @@ constants - even including binary files while code generation is
 performed.<br>
 
 
+
 <br>
+
 
 
 As the name imply they direct the assembler to perform other
@@ -1606,51 +2068,67 @@ directive is allowed per single source line. As with Z80
 mnemonics, directives are case insensitive.<br>
 
 
+
 <br>
+
 
 
 The following syntax is used to describe the directives:<br>
 
 
+
 <br>
+
 
 
 &lt;&gt; defines a syntactic entity, i.e. a number, character or
 string.<br>
 
 
+
 {} defines a repetition of a syntactic entity.<br>
+
 
 
 [] defines an option that may be left out.<br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr>
+
 
 
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="align" id="align"></a>ALIGN &lt;no of bytes&gt;</span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Align (or zero-pad) a specified number of bytes relative to
 the current PC. Argument value range = 1-16.<br>
 
 
+
       <br>
+
 
 
 For example use ALIGN 4 to ensure that the new PC is located at a
@@ -1663,34 +2141,45 @@ modules to even adresses, use an ALIGN at the end of each
 module.</td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="defm" id="defm"></a>ASCII &lt;string expression&gt;<br>
+
 
 
 ASCIIZ</span> <span style="font-weight: bold; font-family: monospace;">&lt;string
 expression&gt;</span><br>
+
 
 
       <span style="font-weight: bold; font-family: monospace;">DM</span>
@@ -1698,9 +2187,11 @@ expression&gt;</span><br>
 expression&gt;</span><br>
 
 
+
       <span style="font-weight: bold; font-family: monospace;">DMZ</span>
       <span style="font-weight: bold; font-family: monospace;">&lt;string
 expression&gt;</span><br>
+
 
 
       <span style="font-weight: bold; font-family: monospace;">DEFM</span>
@@ -1708,26 +2199,33 @@ expression&gt;</span><br>
 expression&gt;</span><br>
 
 
+
       <span style="font-weight: bold; font-family: monospace;">DEFMZ</span>
       <span style="font-weight: bold; font-family: monospace;">&lt;string
 expression&gt;</span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>All these directives is&nbsp;the same thing; to store a
 string at current PC.&nbsp;<br>
 
 
+
       <br>
+
 
 
 Strings are enclosed in double quotes. Strings may be
 concatenated with byte constants using&nbsp;'.' or ','.<br>
+
 
 
 This is useful if control characters (or even arithmetic
@@ -1735,7 +2233,9 @@ expressions resulting into an 8bit value) need to be a part of
 the string and cannot be typed from the keyboard.<br>
 
 
+
       <br>
+
 
 
 All directive names ending with a Z indicates that the
@@ -1743,51 +2243,68 @@ end&nbsp;of the string is automatically null-terminated (appended
 with a 0 byte).<br>
 
 
+
       <br>
+
 
 
 Example:<br>
 
 
+
+      
       
       <pre>ASCIIZ <span style="color: rgb(221, 0, 0);">"This is a title"</span>, 13, 10<br>
 DEFM <span style="color: rgb(221, 0, 0);">"(c) Zsoft 1995-2006"</span>, 13, 10, 'A', 0<br>
 DMZ 1 . <span style="color: rgb(221, 0, 0);">"7#1"</span> . 32 . 32 . 32<span style="color: rgb(0, 128, 0);">+</span>94 . 32<span style="color: rgb(0, 128, 0);">+</span>8 . 128<br></pre>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr>
+
 
 
       <td style="background-color: rgb(239, 239, 239);"><a name="binary" id="binary"></a><span style="font-family: monospace; font-weight: bold;">BINARY
 "&lt;filename&gt;"</span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Loads a binary file at the assembler PC. This could for
@@ -1797,31 +2314,41 @@ object file code section. The assembler PC is updated to the end
 of the loaded binary code.</td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-family: monospace; font-weight: bold;"><a name="byte" id="byte"></a>BYTE &lt;8bit expr&gt;,{&lt;8bit
 expr&gt;}&nbsp;</span><br>
+
 
 
       <span style="font-weight: bold; font-family: monospace;">DB</span>
@@ -1829,67 +2356,89 @@ expr&gt;}&nbsp;</span><br>
 expr&gt;,{&lt;8bit expr&gt;}&nbsp;</span><br>
 
 
+
       <span style="font-weight: bold; font-family: monospace;">DEFB</span>
       <span style="font-family: monospace; font-weight: bold;">&lt;8bit
 expr&gt;,{&lt;8bit expr&gt;} (-128; 255)</span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Stores one or several bytes (8 bits) at the current assembler
 PC. Expressions may be used to calculate the constant.<br>
 
 
+
       <br>
+
 
 
 Example:<br>
 
 
+
+      
       
       <pre>DEFB (topic_info_help <span style="color: rgb(0, 128, 0);">-</span> z80asm_help) / 256<span style="color: rgb(128, 128, 128);"><span style="font-family: mon;"><span style="font-style: italic;">, </span></span></span>(topic_info_help <span style="color: rgb(0, 128, 0);">-</span> z80asm_help) % 256, @00010010<br></pre>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="calloz" id="calloz"></a>CALL_OZ [(]&lt;numerical expr&gt;[)]<br>
+
 
 
 OZ&nbsp;</span><span style="font-weight: bold; font-family: monospace;">[(]&lt;numerical
 expr&gt;[)]</span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>The Z88 operating system call interface, which is a
@@ -1898,109 +2447,144 @@ or two byte manifest opcodes. Use this call with the standard Z88
 operating system definition files. This pseudo directive will be implemented as a macro definition in a future version of Mpm.<br>
 
 
+
       <br>
+
 
 
 Example:<br>
 
 
+
       <br>
+
 
 
       <span style="font-family: monospace;">LD &nbsp; HL,
 msg</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">CALL_OZ
 GN_Sop</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">RET</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">.msg DMZ "Hello
 world!"</span><br style="font-family: monospace;">
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr>
+
 
 
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="call_pkg" id="call_pkg"></a>CALL_PKG</span> <span style="font-weight: bold; font-family: monospace;">[(]&lt;numerical
 expr&gt;[)]</span></td>
 
 
+
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Similar to <span style="font-family: monospace;">CALL_OZ</span>, this is a Z88 calling
 interface (a RST 10H wrapper) to Garry Lancasters Package
 management tool chain.<br>
 
+
 This pseudo directive will be implemented as a macro definition in a future version of Mpm.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr style="font-family: monospace; font-weight: bold;">
+
 
 
       <td style="background-color: rgb(239, 239, 239);"><a name="defc" id="defc"></a>DEFC name=&lt;numerical expr&gt;{,
 name=&lt;numerical expr&gt;}<br>
 
 
+
 DC name=&lt;numerical expr&gt;{, name=&lt;numerical
 expr&gt;}</td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Define a symbol constant, based on a numerical expression.
@@ -2011,63 +2595,84 @@ definition in external files that you can <span style="font-family: monospace;">
 files.<br>
 
 
+
       <br>
+
 
 
 Example:<br>
 
 
+
       <br>
+
 
 
       <span style="font-family: monospace;">DEFC ERR_file_open = $80,
 ERR_syntax&nbsp;= $81</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">DC TotalWorkspace =
 END_VARS - z80asm_vars</span><br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr style="font-family: monospace; font-weight: bold;">
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><a name="defgroup" id="defgroup"></a>DEFGROUP | ENUM<br>
+
 
 
 name {',' name ['=' &lt;numerical expr&gt;]}<br>
 
 
+
 ENDDEF<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Defines a group of identifier symbols with implicit values.
@@ -2078,26 +2683,33 @@ expression&gt; which breaks the linear enumeration from that
 constant.<br>
 
 
+
 The <span style="font-family: monospace;">DEFGROUP</span>
 directive may be spanned across several lines and MUST be
 enclosed with ended with en <span style="font-family: monospace;">ENDDEF</span> statement. <span style="font-family: monospace;"><br>
+
 
 
 DEFGROUP</span> is just a more easy way than: <span style="font-family: monospace;">DEFC name0 = 0, name1 = name0,</span>
 ...<br>
 
 
+
       <br>
+
 
 
 The following example illustrates a useful example of defining
 symbol values:<br>
 
 
+
       <br>
 
 
+
       <span style="font-family: monospace;">DEFGROUP</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">sym_null, sym_dquote,
@@ -2108,47 +2720,63 @@ sym_strconq, sym_and, sym_or, sym_xor, sym_not, sym_less,
 sym_greater, sym_constexpr, sym_newline</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">ENDDEF</span><br style="font-family: monospace;">
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr style="font-family: monospace; font-weight: bold;">
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><a name="define" id="define"></a>DEFINE name {, name}<br>
+
 
 
 DEFSYM name {, name}<br>
 
 
+
 UNDEFINE name {, name}</td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Defines a symbol identifier as logically true (integer = 1).
@@ -2158,30 +2786,40 @@ the current source file module. Nice feature for conditional
 assembly using the IF, ELSE, ENDIF directives. Equally, you can
 remove a previously created local symbol .<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr style="font-family: monospace;">
+
 
 
       <td style="background-color: rgb(239, 239, 239);"><a name="defl" id="defl"></a><span style="font-weight: bold;">DEFL &lt;32bit
@@ -2189,14 +2827,18 @@ numerical expr&gt; {,&lt;32bit numerical
 expr&gt;}</span><br style="font-weight: bold;">
 
 
+
       <span style="font-weight: bold;">LONG &lt;32bit numerical
 expr&gt; {,&lt;32bit numerical expr&gt;}</span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Stores one or several long integers (32 bits) at the current
@@ -2204,30 +2846,40 @@ assembler PC in low byte, high byte order (little endian).
 Integer range is (-2147483647; 4294967295). Expressions may be
 used to calculate the constant.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr style="font-family: monospace;">
+
 
 
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold;"><a name="defp" id="defp"></a>DEFP &lt;24bit
@@ -2236,14 +2888,18 @@ pointer&gt; {,24bit pointer} &nbsp;&nbsp; ( 24bit pointer =
 expr&gt;)</span><br style="font-weight: bold;">
 
 
+
       <span style="font-weight: bold;">DP&nbsp;</span><span style="font-weight: bold;">&lt;24bit pointer&gt; {,24bit
 pointer}</span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Stores a 24bit pointer (16bit bank offset, then bank
@@ -2252,13 +2908,17 @@ order (little endian). This directive is primarily used for Z88
 memory data structures.<br>
 
 
+
       <br>
+
 
 
 Example:<br>
 
 
+
       <br>
+
 
 
       <code><span style="font-family: monospace;">.InfoEnd0<br>
@@ -2267,14 +2927,17 @@ Example:<br>
 &nbsp; &nbsp;; Key to help section</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFB
 12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp; &nbsp;; total length of help</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFP
 z80asm_topics,</span><span style="font-family: monospace;">&nbsp;z80asm_MTH_bank &nbsp; &nbsp;;
 point to topics (info)</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFP
@@ -2283,9 +2946,11 @@ z80asm_MTH_bank&nbsp;&nbsp;; point to commands
 (info)</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFP
 z80asm_help,</span> <span style="font-family: monospace;">z80asm_MTH_bank&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
 point to help</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFP
@@ -2293,44 +2958,58 @@ token_base,</span> <span style="font-family: monospace;">tokens_bank&nbsp;&nbsp;
 ; point to token base</span></code></td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="defs" id="defs"></a>DEFS &lt;size numerical expr&gt; [,(&lt;byte&gt;)]<br>
+
 
 
 DS</span> <span style="font-weight: bold; font-family: monospace;">&lt;size numerical
 expr&gt; [,(&lt;byte&gt;)]<br>
 
 
+
 SPACE</span> <span style="font-weight: bold; font-family: monospace;">&lt;size numerical
 expr&gt; [,(&lt;byte&gt;)]</span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Allocates (fill) storage space at current PC. The size of the
@@ -2339,76 +3018,100 @@ area will be filled with zero bytes, or optionally with the
 expressions.<br>
 
 
+
       <br>
+
 
 
 Example:<br>
 
 
+
       <br>
+
 
 
       <span style="font-family: monospace;">DEFS 256 &nbsp; &nbsp; ;
 fill 256 zero bytes in memory</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">DS 16,($FF) &nbsp;; fill 16
 bytes with $FF</span><br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-family: monospace; font-weight: bold;"><a name="defvars" id="defvars"></a>DEFVARS | DV | VARAREA &lt;numerical
 expression&gt;<br>
 
+
       </span> <span style="font-family: monospace; font-weight: bold;">{ [&lt;name&gt;]
 [&lt;storage_size&gt; &lt;size_multiplier&gt;] }</span><br style="font-family: monospace; font-weight: bold;">
+
 
 
       <span style="font-family: monospace; font-weight: bold;">ENDDEF</span><br style="font-family: monospace; font-weight: bold;">
 
 
 
+
       <br style="font-family: monospace; font-weight: bold;">
+
 
 
       <span style="font-family: monospace; font-weight: bold;">&lt;name&gt; ::= 'a'
 .. 'z', '_', '0' .. '9'</span><br style="font-family: monospace; font-weight: bold;">
 
 
+
       <span style="font-family: monospace; font-weight: bold;">&lt;storage_size&gt;
 ::= 'ds.b' | 'ds.w' | 'ds.p' | 'ds.l'</span><br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Defines variable address area or offsets. First you define
@@ -2423,66 +3126,84 @@ definitions in a group of names that are joined together. a <span style="font-fa
 example:<br>
 
 
+
       <br>
+
 
 
       <span style="font-family: monospace;">DEFVARS
 asm_vars</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp; RuntimeFlags1 ds.b 1
 ; space for next variable is 1 byte</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">&nbsp; RuntimeFlags2 ds.b
 1</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp; RuntimeFlags3 ds.b
 1</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;"></span><span style="font-family: monospace;">&nbsp; explicitORIG
 &nbsp;ds.w 1 ; 2 bytes space</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp; asmtime &nbsp;
 &nbsp; &nbsp; ds.b 3 ; 3 bytes space</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">&nbsp; datestamp_src ds.b 6
 ; 6 bytes space</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp; datestamp_obj ds.b
 6</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">&nbsp; TOTALERRORS &nbsp;
 ds.l 1 ; 4 bytes space</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">ENDDEF</span><br>
 
 
+
       <br>
+
 
 
 the following is useful for defining dynamic data structures:<br>
 
 
+
       <br>
 
 
+
       <span style="font-family: monospace;">DV 0</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">&nbsp; ; 'PfixStack'
 structure (used for postfix expressions):</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp; pfixstack_const
 &nbsp; &nbsp; ds.l 1 ; The stack item value</span><br style="font-family: monospace;">
+
 
 
       <span style="font-family: monospace;">&nbsp; pfixstack_previtem
@@ -2490,15 +3211,19 @@ structure (used for postfix expressions):</span><br style="font-family: monospac
 stack</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp; SIZEOF_pfixstack
 &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;; total size of data
 structure</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">ENDDEF</span><br style="font-family: monospace;">
 
 
+
       <br>
+
 
 
 This type of variable declaration makes it very easy for
@@ -2506,38 +3231,51 @@ modifications, e.g. deleting or inserting variable
 definitions.</td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="error" id="error"></a>ERROR "&lt;error message&gt;"<br>
 
+
       </span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Report a user defined error and&nbsp;exit compilation of
@@ -2549,60 +3287,80 @@ message will be written to the current error message file
 associated with the source file being compiled.<br>
 
 
+
       <br>
+
 
 
 Example:<br>
 
 
+
       <br>
+
 
 
       <span style="font-family: monospace;">IF $PC &gt;
 16384</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">&nbsp; ERROR "Code size
 exceeds 16K bank size."</span><br style="font-family: monospace;">
 
 
+
       <span style="font-family: monospace;">ENDIF</span><br style="font-family: monospace;">
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="extcall"></a>EXTCALL &lt;16bit expr&gt;,&lt;8bit expr&gt;<br>
 
+
       </span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Pseudo directive for 24bit CALL addressing in OZ V4.2
@@ -2613,229 +3371,321 @@ This directive will be implemented as a macro definition in a future
 version of Mpm.</td>
 
 
+
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="extern"></a>EXTERN name {, name}<br>
 
+
 XREF </span><span style="font-weight: bold; font-family: monospace;"> name {, name}</span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Declares symbol as external to the current source module. The name must
 have been defined as <span style="font-family: monospace;">XDEF</span> (or <span style="font-family: monospace;">GLOBAL</span>) in another source module to let this module
 reach the value of the symbol during the linking phase.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="fpp"></a>FPP ['('] &lt;8bit expr&gt; [)]<br>
 
+
       </span></td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Pseudo directive which is used as the interface to the Z88
 operating system floating point library. This is easier than writing: <span style="font-family: monospace;">RST 18H</span> followed by a new line with <span style="font-family: monospace;">DEFB</span> directive<br>
 
+
       <br>
+
 
 This is an advanced <span style="font-family: monospace;">RST 18H</span>&nbsp;
 instruction which automatically allocates space for the specified
-parameter. All Z88 floating point call mnemonics are defined in<br>
+parameter. All Z88 floating point call mnemonics are defined in the
+"fpp.def" Z88 operating system definitions file. Here's an example:<br>
 
-the "fpp.def" Z88 operating system definitions file. Here's an example:<br>
 
       <br>
 
+
       <span style="font-family: monospace;">CALL PopItem&nbsp;&nbsp; ; const = PopItem(stackptr)</span><br style="font-family: monospace;">
+
 
       <span style="font-family: monospace;">FPP&nbsp; (FP_NEG)&nbsp; ; const = - const</span><br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
-<br>
 
 <br>
+
+
+<br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="global"></a>GLOBAL </span><span style="font-weight: bold; font-family: monospace;">name {, name} </span><br>
+
       <span style="font-weight: bold; font-family: monospace;">XDEF name {, name} <br>
 
+
       </span></td>
+
 
 
     </tr>
 
 
+
     <tr>
 
 
+
       <td>Declares symbol globally available to other specified source file modules during the linking phase of the compilation process. <br>
+
       <br>
+
 All source modules may refer to each others symbols by using XREF
 directives. This means that you refer to external information outside
 the current source module. The opposite of an external module reference
 is to declare symbols globally available using a XDEF directive, i.e.
 making symbols available to other source modules.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
 
-<br>
 
 <br>
+
+
+<br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
 
 
+
     <tr>
+
 
 
       <td style="background-color: rgb(239, 239, 239);"><span style="font-family: monospace; font-weight: bold;"><a name="if"></a>IF &lt;logical expression&gt;</span><br style="font-family: monospace; font-weight: bold;">
+
       <span style="font-family: monospace; font-weight: bold;">[ELSE]</span><br style="font-family: monospace; font-weight: bold;">
+
       <span style="font-family: monospace; font-weight: bold;">ENDIF</span><br>
+
       </td>
 
 
+
     </tr>
+
 
 
     <tr>
 
 
+
       <td>Multi-line-directive. This allows to assemble particular source lines between the <span style="font-family: monospace;">IF</span>, <span style="font-family: monospace;">ELSE</span> and <span style="font-family: monospace;">ENDIF</span> directives. The logical truth of the <span style="font-family: monospace;">IF</span> condition depends on which source lines will be assembled inside the directive construction. <span style="font-family: monospace;">ELSE</span> is optional. Infinite nesting of <span style="font-family: monospace;">IF</span> directives are allowed.&nbsp; Each directive must be specified on separate lines. An example:<br>
+
       <br>
+
       <span style="font-family: monospace;">if QDOS</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INCLUDE "defs_h"</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INCLUDE "stdio_def"</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">else</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INCLUDE "defs.h"</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if MSDOS | UNIX</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INCLUDE "stdio.def"</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endif</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if Z88</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 INCLUDE ":*//stdio.def"</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endif</span><br style="font-family: monospace;">
+
       <span style="font-family: monospace;">endif</span><br style="font-family: monospace;">
+
       <br>
+
 You can specify compile time symbols with the <a href="#options_par"><span style="font-family: monospace;">-D</span> option</a> at the Mpm command line to control which part of the source code is compiled. Please refer to all the <a href="#relop">relational expression operators</a> and <a href="#arithop">logical/arithmetical operators</a> to know how to combine your <span style="font-family: monospace;">IF - ELSE - ENDIF</span> logic.<br>
 
+
       </td>
+
 
 
     </tr>
 
 
+
+  
   
   </tbody>
 </table>
 
-<br>
 
 <br>
+
+
+<br>
+
 
 
 <table style="text-align: left; background-color: rgb(255, 255, 255); width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
 
+
   <tbody>
+
 
 
     <tr style="font-family: monospace; font-weight: bold;">
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><a name="include"></a>INCLUDE "filename"</td>
+
 
 
     </tr>
 
 
+
     <tr>
+
 
 
       <td>Another component that is frequently used is to 'link' an
@@ -2849,13 +3699,17 @@ directive. You specify an include file as with the following
 example:<br>
 
 
+
+      <br style="font-family: monospace;">
+      <span style="font-family: monospace;">
+
+
+include "stdio.def"</span><br>
+
+
+
       <br>
 
-
-include "stdio.def"<br>
-
-
-      <br>
 
 
 The format of the filename depends on the operating system
@@ -2866,26 +3720,38 @@ recursive <span style="font-family: monospace;">INCLUDE</span> files (an <span s
 possible.<br>
 
 
+
       <br>
+
 You can define an absolute path name inside the string argument, but it
 is not recommended, especially if you want to make your sources
 platform independent. Use the <a href="#include_searchpath">-I search path</a>
 Mpm command line option to add all the directories that will be scanned
 for the specified file(name), or predefine that search path using the <a href="#envvar"><span style="font-family: monospace;">MPM_Z80_INCLUDEPATH</span></a> environment variable.<br>
 
+
       </td>
+
     </tr>
+
+  
   </tbody>
 </table>
+
 <br>
+
 <br>
+
 <br>
+
 
 
 .xlib name {,name}<br>
 
 
+
 <br>
+
 
 
 Declares symbol as external to the current module. The symbol
@@ -2896,23 +3762,30 @@ during the linking/relocation phase of the compilation process
 option).<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 .lstoff<br>
+
 
 
 Switches listing output to file off temporarily. The listing file
 is not closed.<br>
 
 
+
 <br>
 
 
+
 .lston<br>
+
 
 
 Enables listing output (usually from a previous LSTOFF). Both
@@ -2921,16 +3794,21 @@ redundant in the listing file, e.g. operating system
 definitions.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 .module name<br>
 
 
+
 <br>
+
 
 
 Defines the name of the current module. This may be defined only
@@ -2945,16 +3823,21 @@ simple - specify a legal identifier name after the MODULE
 directive, e.g. MODULE main_module<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 .org &lt;32bit expression&gt;<br>
 
 
+
 <br>
+
 
 
 Define address origin of compiled machine code - the position in
@@ -2968,32 +3851,42 @@ ignored during linking if you have specified an -r option on the
 command line.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 .global name {, name}<br>
 
 
+
 <br>
+
 
 
 Declares symbol globally available to other specified source file
 modules during the linking phase of the compilation process.<br>
 
 
+
 <br>
 
 
+
 <br>
+
 
 
 .lib name<br>
 
 
+
 <br>
+
 
 
 When you need to create a library routine, it is necessary to
@@ -3005,24 +3898,32 @@ identified as the module name (you only specify one library
 routine per module).<br>
 
 
+
+<br>
+
+
+
 <br>
 
 
 <br>
 
-<br>
 
 
 <br>
 
 
+
 <br>
+
 
 
 <big>Run time error messages</big><br>
 
 
+
 <br>
+
 
 
 The following error messages will be written in corresponding
@@ -3031,10 +3932,13 @@ contain the name of the source file and a line number where the
 error occurred in the file.<br>
 
 
+
 <br>
 
 
+
 0, "File open/read error"<br>
+
 
 
 You have tried to access a file that either was not found,
@@ -3043,10 +3947,13 @@ to create output files (object file, listing-, symbol-, map- or
 executable binary file).<br>
 
 
+
 <br>
 
 
+
 1, "Syntax error"<br>
+
 
 
 This is a message used by many routines - hence the general but
@@ -3056,10 +3963,13 @@ Z80 mnemonic instructions, specified an illegal parameter type
 constant).<br>
 
 
+
 <br>
 
 
+
 2, "Symbol not defined"<br>
+
 
 
 This error is given if you are referring to an identifier
@@ -3069,20 +3979,26 @@ forgotten to declare an identifier as external using the XREF
 directive.<br>
 
 
+
 <br>
 
 
+
 3, "Not enough memory"<br>
+
 
 
 Well, well. It seems that there wasn't enough room to hold the
 internal data structures during parsing or linking your code.<br>
 
 
+
 <br>
 
 
+
 4, "Integer out of range"<br>
+
 
 
 You have an expression which evaluates into a constant that are
@@ -3090,10 +4006,13 @@ beyond the legal integer range (e.g. trying to store a 16bit
 value into an 8bit parameter).<br>
 
 
+
 <br>
 
 
+
 5, "Syntax error in expression"<br>
+
 
 
 Quite clearly you have made an illegal expression, e.g.
@@ -3102,39 +4021,51 @@ them, used an illegal constant specifier or using illegal
 characters that aren't a legal identifier.<br>
 
 
+
 <br>
 
 
+
 6, "Right bracket missing"<br>
+
 
 
 Your expression is using brackets and is not properly balanced,
 i.e. too many beginning brackets or to few ending brackets...<br>
 
 
+
 <br>
+
 
 
 7, "Out of range"<br>
 
 
+
 Same as 4.<br>
+
 
 
 <br>
 
 
+
 8, "Source filename missing"<br>
+
 
 
 There has not been specified any source file modules or project
 file to start a compilation.<br>
 
 
+
 <br>
 
 
+
 9, "Illegal option"<br>
+
 
 
 The command line parser couldn't recognize the -option. Remember
@@ -3142,10 +4073,13 @@ to specify your option in EXACT case size. You have probably used
 a space between an option and a filename parameter.<br>
 
 
+
 <br>
 
 
+
 10, "Unknown identifier"<br>
+
 
 
 The parser expected a legal identifier, i.e. a directive or Z80
@@ -3154,10 +4088,13 @@ definition, misspelled a name or used a comment without a leading
 ';'.<br>
 
 
+
 <br>
 
 
+
 11, "Illegal identifier"<br>
+
 
 
 You have been trying to use a name that is either not known to
@@ -3166,10 +4103,13 @@ to use a register that is not allowed in a LD instruction, e.g.
 LD A,F .<br>
 
 
+
 <br>
 
 
+
 12, "Max. code size reached"<br>
+
 
 
 Is that really possible? Very interesting code of yours! Z80
@@ -3177,10 +4117,13 @@ machine code program tend to be in the 2Mb range (at least on the
 Sony Play Station)...<br>
 
 
+
 <br>
 
 
+
 13, "errors occurred during assembly"<br>
+
 
 
 Status error message displayed on the screen when the assembler
@@ -3189,10 +4132,13 @@ errors to correct in your source files before the assembler
 continues with linking the next time.<br>
 
 
+
 <br>
 
 
+
 14, "Symbol already defined"<br>
+
 
 
 In the current source file, you have tried to create two
@@ -3200,10 +4146,13 @@ identical address label definitions, or other name identifier
 creators (using DEFC, DEFVARS, DEFGROUP).<br>
 
 
+
 <br>
 
 
+
 15, "Module name already defined"<br>
+
 
 
 You have used the MODULE directive more than once in your source
@@ -3211,59 +4160,77 @@ file, or used both a MODULE and XLIB directive (library modules
 only need an XLIB).<br>
 
 
+
 <br>
 
 
+
 16, "Module name not defined"<br>
+
 
 
 A MODULE directive is missing in your source file (or XLIB
 directive in a library source file routine).<br>
 
 
+
 <br>
 
 
+
 17, "Symbol already declared local"<br>
+
 
 
 You have tried to declare a symbol as XREF, but it was already
 defined local, eg. using a ".lbaddr" in your source.<br>
 
 
+
 <br>
 
 
+
 18, "Symbol already declared global"<br>
+
 
 
 You have two identical XDEF symbol declarations in your source
 file module.<br>
 
 
+
 <br>
 
 
+
 19, "Symbol already declared external"<br>
+
 
 
 You have two identical XREF symbol declarations in your source
 file module.<br>
 
 
+
 <br>
+
 
 
 20, "No command line arguments"<br>
 
 
+
 Ups - display MPM Module Assembler help text.<br>
+
 
 
 <br>
 
 
+
 21, "Illegal source filename"<br>
+
 
 
 You have tried to specify an option after having begun to specify
@@ -3271,39 +4238,51 @@ filenames. Options must always be specified before filenames or
 project files.<br>
 
 
+
 <br>
 
 
+
 22, "Symbol declared global in another module"<br>
+
 
 
 You have two identical XDEF definitions in separate modules. One
 of them should probably be an XREF instead.<br>
 
 
+
 <br>
 
 
+
 23, "Re-declaration not allowed"<br>
+
 
 
 You are trying to specify an XDEF for a name that has already
 been XREF'ed in the same module (or the other way around).<br>
 
 
+
 <br>
+
 
 
 24, "ORG already defined"<br>
 
 
+
 Not used.<br>
+
 
 
 <br>
 
 
+
 25, "Relative jump address must be local"<br>
+
 
 
 You have tried to JR to a label address that is declared as
@@ -3311,10 +4290,13 @@ external (with XREF or LIB). JR must be performed in the current
 source file module.<br>
 
 
+
 <br>
 
 
+
 26, "Not a relocatable file" / "Not an object file"<br>
+
 
 
 The assembler opened a supposed object file (with the proper
@@ -3322,29 +4304,38 @@ The assembler opened a supposed object file (with the proper
 assembler standard object file format.<br>
 
 
+
 <br>
+
 
 
 27, "Reserved name"<br>
 
 
+
 You have tried to create a label or other name as "ASMPC".<br>
+
 
 
 <br>
 
 
+
 28, "Couldn't open library file"<br>
+
 
 
 The library file was found but couldn't be opened (probably
 already opened by another application resource)<br>
 
 
+
 <br>
 
 
+
 29, "Not a library file"<br>
+
 
 
 Your library file is not a library file (at least is not of the
@@ -3353,10 +4344,13 @@ another "library" file? The MPM library file could also be
 corrupted (at least in the header)...<br>
 
 
+
 <br>
 
 
+
 30, "Environment variable not defined"<br>
+
 
 
 The assembler reports that either the "MPM_DEFFILES" or
@@ -3364,15 +4358,19 @@ The assembler reports that either the "MPM_DEFFILES" or
 system.<br>
 
 
+
 <br>
+
 
 
 31, "Cannot include file recursively"<br>
 
 
+
 An file was tried to be included which was already included at a
 previous include level. INCLUDE "a.h" cannot contain an INCLUDE
 "a.h"...<br>
+
 
 
 </body>
