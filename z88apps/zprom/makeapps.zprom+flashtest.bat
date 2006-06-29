@@ -32,4 +32,4 @@ del *.obj *.bin *.map zprom.epr
 ..\..\tools\mpm\mpm -rEB00 -I..\..\oz\sysdef -l..\..\stdlib\standard.lib -b ..\flashtest\fltest.asm
 
 :: Create a 32K Rom Card with Zprom and FlashTest ($3E contains MTH, $3F contains application code for Zprom and FlashTest)
-java -jar ..\..\tools\makeapp\makeapp.jar -f zprom+flashtest.loadmap
+..\..\tools\makeapp\makeapp.bat -f zprom+flashtest.loadmap

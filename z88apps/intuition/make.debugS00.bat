@@ -30,7 +30,7 @@ del *.def *.obj *.bin *.map
 :: combine the two images as a single 16K executable, to be executed at $2000 in upper 8K segment 0
 :: 'debug0a.bin' is the bootstrap and the core instruction debugger
 :: 'debug0b.bin' contains the debugger command line
-java -jar ..\..\tools\makeapp\makeapp.jar debugS00.bin debug0a.bin 0000 debug0b.bin 2000
+..\..\tools\makeapp\makeapp.bat debugS00.bin debug0a.bin 0000 debug0b.bin 2000
 
 :: delete the redundant output binaries
 del debug0a.bin debug0b.bin

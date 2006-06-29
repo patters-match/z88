@@ -28,4 +28,4 @@ cd ..\z88apps\zetriz
 ..\..\tools\mpm\mpm -b -I..\..\oz\sysdef romhdr
 
 :: Create a 16K Rom Card with ZetriZ
-java -jar ..\..\tools\makeapp\makeapp.jar -sz 16 zetriz.epr zetriz.bin 3fc000 romhdr.bin 3f3fc0
+..\..\tools\makeapp\makeapp.bat -sz 16 zetriz.epr zetriz.bin 3fc000 romhdr.bin 3f3fc0

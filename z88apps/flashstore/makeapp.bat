@@ -26,4 +26,4 @@ del *.obj *.bin *.map flashstore.epr
 ..\..\tools\mpm\mpm -b romhdr
 
 :: Create a 16K Rom Card with FlashStore
-java -jar ..\..\tools\makeapp\makeapp.jar -f flashstore.loadmap
+..\..\tools\makeapp\makeapp.bat -f flashstore.loadmap
