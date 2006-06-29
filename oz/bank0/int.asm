@@ -388,16 +388,16 @@ xref    ReadRTC                                 ; bank0/time.asm
         ret
 
 .ReadHWClock
-        ld      hl, ubTimeBufferSelect          ; read hardware clock to either buffer A or B
-        ld      a, (ubTIM0_A)                   ; bit 0 selects buffer
+        ld      hl, ubTIM0_A                    ; read hardware clock to either buffer A or B
+        ld      a, (ubTimeBufferSelect)         ; bit 0 selects buffer
         rrca
         jr      c, rhwc_1
-        ld      l, ubTIM0_B&255                 ; 80a6
+        ld      hl, ubTIM0_B                    ;(&255)  ; buffer B
 
 .rhwc_1
         call    ReadRTC
         ld      hl, ubTimeBufferSelect
-        inc     (hl)                            ; switch memory to read
+        inc     (hl)                            ;alternate timer set changing bit 0
         ld      hl, ubIntStatus
         set     IST_B_ALMTIMEOK, (hl)
         bit     IST_B_ALARM, (hl)               ; return alarms status

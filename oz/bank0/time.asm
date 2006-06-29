@@ -71,11 +71,12 @@ xref    PokeHLinc                               ; bank0/misc5.asm
         djnz    osht_x
 
 ;       HT_MDT, read month/date/time address in S2
-;OUT:   BHL=$2180AB
+;       OUT:   BHL points to MDT (11 bytes)
+;       NB : it is always $2001EB (and was$2180AB in OZ4)
 
-        or      a                               ; 21:80AB
-        ld      (iy+OSFrame_B), $21
-        ld      hl, $80AB
+        or      a                               ; at $2001EB (was $2180AB)
+        ld      (iy+OSFrame_B), $20             ; to define correctly (OSRAM_BANK) ?
+        ld      hl, uwSysDateLow                ; was $80AB
         jp      PutOSFrame_HL
 
 .osht_x

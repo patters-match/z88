@@ -40,25 +40,34 @@ lstoff
 ;       ub      unsigned byte (8 bits)
 ;
 
-;Constants are all uppercase
+; Constants are all uppercase
 
 defc    OZVERSION               =4
 
-defc    KeymapTblPtrs           =$01f0
+;       01E0-01FF           Preserved system area (32 bytes preserved over a soft reset)
 
-defvars KeymapTblPtrs
-        km_bank         ds.b    1       ; memory bank where tables are, bound in S2
-        km_page         ds.b    1       ; high byte of address
-        km_diamond      ds.b    1       ; low byte of <> translation table address
-        km_square       ds.b    1       ; low byte of [] translation table address
-        km_deadkey      ds.b    1       ; low byte of deadkey table address
-        km_deadchar     ds.b    1       ; char displayed in OZ window
-        km_deadsub      ds.b    1       ; offset to list for current deadkey
-enddef
+defc    PreservedArea           =$01E0
 
-defc    ubRandomPtr             =$01fb
-defc    uwRandom1               =$01fc
-defc    uwRandom2               =$01fe
+defvars PreservedArea
+        ubCountry               ds.b    1               ; for future use
+        ubTimeBufferSelect      ds.b    1               ; select time buffer A or B (was $2100A0)
+        ubTIM0_A                ds.b    1               ; buffer A : TIM0-4 (was $00A1-$00A5)
+        ubTIM1_A                ds.b    1
+        ubTIM2_A                ds.b    1
+        ubTIM3_A                ds.b    1
+        ubTIM4_A                ds.b    1
+        ubTIM0_B                ds.b    1               ; buffer B : TIM0-4 (was $00A6-$00AA)
+        ubTIM1_B                ds.b    1
+        ubTIM2_B                ds.b    1
+        ubTIM3_B                ds.b    1
+        ubTIM4_B                ds.b    1
+        uwSysDateLow            ds.w    1               ; 11 bytes buffer for system time
+        uwSysDateMid            ds.w    1
+        uwSysDateHigh           ds.w    1
+        SysTimeBuffer           ds.b    5
+enddef                                                  ; 10 bytes are left in this area
+
+;       0200-03FF           System variable area
 
 defc    ubResetType             =$0200
 defc    ubTimeout               =$0201
@@ -105,6 +114,22 @@ defc    ubSoundActive           =$026a
 defc    pFirstAlarm             =$0272
 defc    pNextAlmHandle          =$0274
 
+defc    ubRandomPtr             =$0277                  ; was $01fb
+defc    uwRandom1               =$0278                  ; was $01fc
+defc    uwRandom2               =$027A                  ; was $01fe
+defc    KeymapTblPtrs           =$027C                  ; was $01f0
+
+defvars KeymapTblPtrs
+        km_bank                 ds.b    1               ; memory bank where tables are, bound in S2
+        km_page                 ds.b    1               ; high byte of address
+        km_diamond              ds.b    1               ; low byte of <> translation table address
+        km_square               ds.b    1               ; low byte of [] translation table address
+        km_deadkey              ds.b    1               ; low byte of deadkey table address
+        km_deadchar             ds.b    1               ; char displayed in OZ window
+        km_deadsub              ds.b    1               ; offset to list for current deadkey
+enddef
+
+
 defc    ubHlpActiveCmd          =$0287
 defc    ubHlpActiveTpc          =$0288
 defc    ubHlpActiveHelp         =$0289
@@ -114,7 +139,7 @@ defc    eHlpTopics              =$028f
 defc    eHlpCommands            =$0292
 defc    eHlpHelp                =$0295
 defc    eHlpTokens              =$0298
-defc    ActiveAppHandle         =$029b          ; actual handle structure
+defc    ActiveAppHandle         =$029b                  ; actual handle structure
 defc    uwOSTinTimeout          =$02ab
 defc    pOSEntHandle            =$02ad
 
@@ -157,18 +182,6 @@ defc    ubSlotRamSize           =$03fc
 defc    ubSlotRAMoffset         =$03f8
 
 ;       0400-04ff       hardware ports (see blink.def)
-
-defc    ubTimeBufferSelect      =$04A0          ; select time buffer A or B
-defc    ubTIM0_A                =$04A1          ; buffer A : TIM0-4 -> $04A1-$04A5
-defc    ubTIM1_A                =$04A2
-defc    ubTIM2_A                =$04A3
-defc    ubTIM3_A                =$04A4
-defc    ubTIM4_A                =$04A5
-defc    ubTIM0_B                =$04A6          ; buffer B : TIM0-4 -> $04A6_$04AA
-defc    ubTIM1_B                =$04A7
-defc    ubTIM2_B                =$04A8
-defc    ubTIM3_B                =$04A9
-defc    ubTIM4_B                =$04AA
 
 ;       0500-0aff       handles
 

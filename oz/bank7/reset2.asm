@@ -26,39 +26,44 @@ xref    LowRAMcode_e                            ; bank7/lowram0.asm
 ;       ----
 
 .Reset2
-        xor     a
+	xor     a
         ex      af, af'                         ; interrupt status
         bit     BB_STAFLAPOPEN, a
         ld      a, $21
-        jr      nz, rst2_1                      ; flap? hard reset
+        jr      nz, b20_hard_reset              ; flap? hard reset
 
         out     (BL_SR1), a                     ; b21 into S1
         ld      hl, ($4000)
-        ld      bc, $A55A
+        ld      bc, $A55A        	            ; RAM tag
         or      a
         sbc     hl, bc
-        jr      nz, rst2_1                      ; not tagged? hard reset
+        jr      nz, b20_hard_reset              ; not tagged? hard reset
 
         ex      af, af'                         ; soft reset - a' = $FF, fc'=1
         cpl
         scf
         ex      af, af'
-        dec     a                               ; only clear b20
 
-.rst2_1
-        out     (BL_SR1), a                     ; bind A into S1
+        dec     a                               ; only clear b20
+        ld      bc, $3DFF			            ; from 0200-3FFF
+        ld      de, $4201			            ; 0000-01DF is overwritten by lowram.bin
+        ld      hl, $4200			            ; 01E0-01FF is preserved area
+        jr      b20_reset
+.b20_hard_reset
         ld      bc, $3FFF                       ; fill bank with 00
         ld      de, $4001
         ld      hl, $4000
+.b20_reset
+        out     (BL_SR1), a                     ; bind A into S1
         ld      (hl), 0
         ldir
         dec     a
         cp      $20
-        jr      z, rst2_1                       ; loop if hard reset
+        jr      z, b20_hard_reset               ; loop if hard reset
 
         ex      af, af'
         ld      ($4000+ubResetType), a
-
+        
 ;       init BLINK
 
         ld      hl, InitData
