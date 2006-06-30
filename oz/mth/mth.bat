@@ -23,6 +23,11 @@
 
 @echo off
 
+..\..\tools\mpm\mpm -bg -I..\sysdef systoken.asm
+dir *.err 2>nul >nul || goto COMPILE_APPDORS
+goto COMPILE_ERROR
+
+:COMPILE_APPDORS
 ..\..\tools\mpm\mpm -bg -I..\sysdef appdors.asm
 dir *.err 2>nul >nul || goto COMPILE_ROMHDR
 goto COMPILE_ERROR
@@ -30,6 +35,7 @@ goto COMPILE_ERROR
 :COMPILE_ROMHDR
 ..\..\tools\mpm\mpm -b -I..\sysdef romhdr.asm
 dir *.err 2>nul >nul || goto END
+goto COMPILE_ERROR
 
 :COMPILE_ERROR
 echo Compilation error occurred! Script aborted.

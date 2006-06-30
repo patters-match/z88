@@ -154,7 +154,7 @@ xref    fsRestoreS2                             ; bank0/filesys3.asm
         call    nc, PrintChar                   ; not recursive, print - Fc=0 on return
         push    bc
         push    de
-        call    c, OSWrt                        ; recursice call
+        call    c, OSWrt                        ; recursive call
         pop     de
         pop     bc
         dec     e                               ; loop until length done
@@ -176,24 +176,9 @@ xref    fsRestoreS2                             ; bank0/filesys3.asm
         ld      d, (hl)
         ld      a, (bc)
         cp      $80
-        jr      c, gtc_2                        ; not using standard tokens
-
-        sbc     hl, bc                          ; HL=token offset
-        add     hl, hl
-        add     hl, hl                          ; *4, we only have 2 bits/char
-        add     hl, bc                          ; into pointer
-        push    bc
-        ld      b, 4
-.gtc_1
-        ld      a, (hl)
-        inc     hl
-        rla
-        rl      d
-        rla
-        rl      d
-        djnz    gtc_1
-        pop     bc
-.gtc_2
+;        jr      c, gtc_2                        ; not using standard tokens
+;        ld      d, (hl)
+;.gtc_2
         pop     hl
         inc     hl
         ld      a, d

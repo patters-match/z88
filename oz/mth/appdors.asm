@@ -34,8 +34,8 @@
 
         include "director.def"
         include "dor.def"
-        
-        include "../banks.def"
+        include "sysvar.def"
+        include "../mth/systoken.def"
         include "../bank1/impexp.inc"
         include "../bank1/impexp.def"
 
@@ -350,7 +350,7 @@ xdef    IndexDOR
 
 .AlarmDOR
         defp    0,0                             ; parent
-        defp    FilerDor,mthbank                ; brother
+        defp    FilerDor,BANK_MTH                ; brother
         defp    0,0                             ; son
         defb    $83,AlarmDORe-$PC               ; DOR type, sizeof
                                                 
@@ -363,10 +363,10 @@ xdef    IndexDOR
         defb    AT2_Ie                          ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    AlarmDOR,mthbank                ; topics
-        defp    AlarmDOR,mthbank                ; commands
-        defp    AlarmDOR,mthbank                ; help
-        defp    $8000,tokenbank                 ; token base
+        defp    AlarmDOR,BANK_MTH               ; topics
+        defp    AlarmDOR,BANK_MTH               ; commands
+        defp    AlarmDOR,BANK_MTH               ; help
+        defp    SysTokenBase,BANK_MTH           ; token base
                                                 
         defb    'N',AlarmDORe-$PC-1             ; name, length
         defm    "Alarm",0                       
@@ -375,7 +375,7 @@ xdef    IndexDOR
                                                 
 .FilerDOR                                       
         defp    0,0                             ; parent
-        defp    PrEdDOR,mthbank                 ; brother         
+        defp    PrEdDOR,BANK_MTH                ; brother         
         defp    0,0                             ; son
         defb    $83,FilerDORe-$PC               ; DOR type, sizeof
                                                 
@@ -388,10 +388,10 @@ xdef    IndexDOR
         defb    0                               ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    FilerTopics,mthbank             ; topics
-        defp    FilerCommands,mthbank           ; commands
-        defp    FilerDOR,mthbank                ; help (no help, point at 0)
-        defp    $8000,tokenbank                 ; token base
+        defp    FilerTopics,BANK_MTH            ; topics
+        defp    FilerCommands,BANK_MTH          ; commands
+        defp    FilerDOR,BANK_MTH               ; help (no help, point at 0)
+        defp    SysTokenBase,BANK_MTH           ; token base
                                                 
         defb    'N',FilerDORe-$PC-1             ; name, length
         defm    "Filer",0                       
@@ -402,7 +402,7 @@ include "b2dors.asm"
                                                 
 .IndexDOR                                       
         defp    0,0                             ; parent
-        defp    DiaryDOR,mthbank                ; brother
+        defp    DiaryDOR,BANK_MTH               ; brother
         defp    0,0                             ; son
         defb    $83,IndexDORe-$PC               ; DOR type, sizeof
                                                 
@@ -415,10 +415,10 @@ include "b2dors.asm"
         defb    0                               ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    IndexTopics,mthbank             ; topics
-        defp    IndexCommands,mthbank           ; commands
-        defp    IndexDOR,mthbank                ; help (no help, point at 0)
-        defp    $8000,tokenbank                 ; token base
+        defp    IndexTopics,BANK_MTH            ; topics
+        defp    IndexCommands,BANK_MTH          ; commands
+        defp    IndexDOR,BANK_MTH               ; help (no help, point at 0)
+        defp    SysTokenBase,BANK_MTH           ; token base
                                                 
         defb    'N',IndexDORe-$PC-1             ; name, length
         defm    "Index",0                       
@@ -427,7 +427,7 @@ include "b2dors.asm"
                                                 
 .DiaryDOR                                       
         defp    0,0                             ; parent
-        defp    PipeDreamDOR,mthbank            ; brother
+        defp    PipeDreamDOR,BANK_MTH           ; brother
         defp    0,0                             ; son
         defb    $83,DiaryDORe-$PC               ; DOR type, sizeof
                                                 
@@ -440,10 +440,10 @@ include "b2dors.asm"
         defb    0                               ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    DiaryTopics,mthbank             ; topics
-        defp    DiaryCommands,mthbank           ; commands
-        defp    DiaryDOR,mthbank                ; help (no help, point at 0)
-        defp    $8000,tokenbank                 ; token base
+        defp    DiaryTopics,BANK_MTH            ; topics
+        defp    DiaryCommands,BANK_MTH          ; commands
+        defp    DiaryDOR,BANK_MTH               ; help (no help, point at 0)
+        defp    SysTokenBase,BANK_MTH           ; token base
                                                 
         defb    'N',DiaryDORe-$PC-1             ; name, length
         defm    "Diary",0                       
@@ -452,7 +452,7 @@ include "b2dors.asm"
                                                 
 .PipeDreamDOR                                   
         defp    0,0                             ; parent
-        defp    BasicDOR,mthbank                ; brother
+        defp    BasicDOR,BANK_MTH               ; brother
         defp    0,0                             ; son
         defb    $83,PipeDreamDORe-$PC           ; DOR type, sizeof
                                                 
@@ -465,10 +465,10 @@ include "b2dors.asm"
         defb    0                               ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    PipeDreamTopics,mthbank         ; topics
-        defp    PipeDreamCommands,mthbank       ; commands
-        defp    PipeDreamDOR,mthbank            ; help (no help, point at 0)
-        defp    $8000,tokenbank                 ; token base
+        defp    PipeDreamTopics,BANK_MTH        ; topics
+        defp    PipeDreamCommands,BANK_MTH      ; commands
+        defp    PipeDreamDOR,BANK_MTH           ; help (no help, point at 0)
+        defp    SysTokenBase,BANK_MTH           ; token base
                                                 
         defb    'N',PipeDreamDORe-$PC-1         ; name, length
         defm    "PipeDream",0
@@ -477,7 +477,7 @@ include "b2dors.asm"
 
 .BasicDOR
         defp    0,0                             ; parent
-        defp    CalculatorDOR,mthbank           ; brother
+        defp    CalculatorDOR,BANK_MTH          ; brother
         defp    0,0                             ; son
         defb    $83,BasicDORe-$PC               ; DOR type, sizeof
                                                 
@@ -490,9 +490,9 @@ include "b2dors.asm"
         defb    AT2_Cl                          ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    BasicDOR,mthbank                ; no topics
-        defp    BasicDOR,mthbank                ; no commands
-        defp    BasicDOR,mthbank                ; no help
+        defp    BasicDOR,BANK_MTH               ; no topics
+        defp    BasicDOR,BANK_MTH               ; no commands
+        defp    BasicDOR,BANK_MTH               ; no help
         defp    0,0                             ; no token base
                                                 
         defb    'N',BasicDORe-$PC-1             ; name, length
@@ -502,7 +502,7 @@ include "b2dors.asm"
                                                 
 .CalculatorDOR                                  
         defp    0,0                             ; parent
-        defp    CalendarDOR,mthbank             ; brother
+        defp    CalendarDOR,BANK_MTH            ; brother
         defp    0,0                             ; son
         defb    $83,CalculatorDORe-$PC          ; DOR type, sizeof
                                                 
@@ -515,10 +515,10 @@ include "b2dors.asm"
         defb    0                               ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    CalculatorDOR,mthbank           ; no topics
-        defp    CalculatorDOR,mthbank           ; no commands
-        defp    CalculatorDOR,mthbank           ; no help
-        defp    $8000,tokenbank                 ; token base
+        defp    CalculatorDOR,BANK_MTH          ; no topics
+        defp    CalculatorDOR,BANK_MTH          ; no commands
+        defp    CalculatorDOR,BANK_MTH          ; no help
+        defp    SysTokenBase,BANK_MTH           ; token base
                                                 
         defb    'N',CalculatorDORe-$PC-1        ; name, length
         defm    "Calculator",0                  
@@ -529,7 +529,7 @@ include "b6dors.asm"
                                                 
 .TerminalDOR                                    
         defp    0,0                             ; parent
-        defp    ImpExpDOR,mthbank               ; brother
+        defp    ImpExpDOR,BANK_MTH              ; brother
         defp    0,0                             ; son
         defb    $83,TerminalDORe-$PC            ; DOR type, sizeof
                                                 
@@ -542,10 +542,10 @@ include "b6dors.asm"
         defb    AT2_Ie                          ; appl type 2
                                                 
         defb    'H',12                          ; help, sizeof
-        defp    TerminalTopics,mthbank          ; topics
-        defp    TerminalCommands,mthbank        ; commands
-        defp    TerminalDOR,mthbank             ; help (no help, point at 0)
-        defp    $8000,tokenbank                 ; token base
+        defp    TerminalTopics,BANK_MTH         ; topics
+        defp    TerminalCommands,BANK_MTH       ; commands
+        defp    TerminalDOR,BANK_MTH            ; help (no help, point at 0)
+        defp    SysTokenBase,BANK_MTH           ; token base
                                                 
         defb    'N',TerminalDORe-$PC-1          ; name, length
         defm    "Terminal",0                    

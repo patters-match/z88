@@ -1,0 +1,397 @@
+module SystemToken
+
+xdef    SysTokenBase
+
+org $0000
+  
+.SysTokenBase
+          defb $80                              ;recursive token boundary
+          defb $80                              ;number of tokens
+          defw token80-SysTokenBase
+          defw token81-SysTokenBase
+          defw token82-SysTokenBase
+          defw token83-SysTokenBase
+          defw token84-SysTokenBase
+          defw token85-SysTokenBase
+          defw token86-SysTokenBase
+          defw token87-SysTokenBase
+          defw token88-SysTokenBase
+          defw token89-SysTokenBase
+          defw token8A-SysTokenBase
+          defw token8B-SysTokenBase
+          defw token8C-SysTokenBase
+          defw token8D-SysTokenBase
+          defw token8E-SysTokenBase
+          defw token8F-SysTokenBase
+          defw token90-SysTokenBase
+          defw token91-SysTokenBase
+          defw token92-SysTokenBase
+          defw token93-SysTokenBase
+          defw token94-SysTokenBase
+          defw token95-SysTokenBase
+          defw token96-SysTokenBase
+          defw token97-SysTokenBase
+          defw token98-SysTokenBase
+          defw token99-SysTokenBase
+          defw token9A-SysTokenBase
+          defw token9B-SysTokenBase
+          defw token9C-SysTokenBase
+          defw token9D-SysTokenBase
+          defw token9E-SysTokenBase
+          defw token9F-SysTokenBase
+          defw tokenA0-SysTokenBase
+          defw tokenA1-SysTokenBase
+          defw tokenA2-SysTokenBase
+          defw tokenA3-SysTokenBase
+          defw tokenA4-SysTokenBase
+          defw tokenA5-SysTokenBase
+          defw tokenA6-SysTokenBase
+          defw tokenA7-SysTokenBase
+          defw tokenA8-SysTokenBase
+          defw tokenA9-SysTokenBase
+          defw tokenAA-SysTokenBase
+          defw tokenAB-SysTokenBase
+          defw tokenAC-SysTokenBase
+          defw tokenAD-SysTokenBase
+          defw tokenAE-SysTokenBase
+          defw tokenAF-SysTokenBase
+          defw tokenB0-SysTokenBase
+          defw tokenB1-SysTokenBase
+          defw tokenB2-SysTokenBase
+          defw tokenB3-SysTokenBase
+          defw tokenB4-SysTokenBase
+          defw tokenB5-SysTokenBase
+          defw tokenB6-SysTokenBase
+          defw tokenB7-SysTokenBase
+          defw tokenB8-SysTokenBase
+          defw tokenB9-SysTokenBase
+          defw tokenBA-SysTokenBase
+          defw tokenBB-SysTokenBase
+          defw tokenBC-SysTokenBase
+          defw tokenBD-SysTokenBase
+          defw tokenBE-SysTokenBase
+          defw tokenBF-SysTokenBase
+          defw tokenC0-SysTokenBase
+          defw tokenC1-SysTokenBase
+          defw tokenC2-SysTokenBase
+          defw tokenC3-SysTokenBase
+          defw tokenC4-SysTokenBase
+          defw tokenC5-SysTokenBase
+          defw tokenC6-SysTokenBase
+          defw tokenC7-SysTokenBase
+          defw tokenC8-SysTokenBase
+          defw tokenC9-SysTokenBase
+          defw tokenCA-SysTokenBase
+          defw tokenCB-SysTokenBase
+          defw tokenCC-SysTokenBase
+          defw tokenCD-SysTokenBase
+          defw tokenCE-SysTokenBase
+          defw tokenCF-SysTokenBase
+          defw tokenD0-SysTokenBase
+          defw tokenD1-SysTokenBase
+          defw tokenD2-SysTokenBase
+          defw tokenD3-SysTokenBase
+          defw tokenD4-SysTokenBase
+          defw tokenD5-SysTokenBase
+          defw tokenD6-SysTokenBase
+          defw tokenD7-SysTokenBase
+          defw tokenD8-SysTokenBase
+          defw tokenD9-SysTokenBase
+          defw tokenDA-SysTokenBase
+          defw tokenDB-SysTokenBase
+          defw tokenDC-SysTokenBase
+          defw tokenDD-SysTokenBase
+          defw tokenDE-SysTokenBase
+          defw tokenDF-SysTokenBase
+          defw tokenE0-SysTokenBase
+          defw tokenE1-SysTokenBase
+          defw tokenE2-SysTokenBase
+          defw tokenE3-SysTokenBase
+          defw tokenE4-SysTokenBase
+          defw tokenE5-SysTokenBase
+          defw tokenE6-SysTokenBase
+          defw tokenE7-SysTokenBase
+          defw tokenE8-SysTokenBase
+          defw tokenE9-SysTokenBase
+          defw tokenEA-SysTokenBase
+          defw tokenEB-SysTokenBase
+          defw tokenEC-SysTokenBase
+          defw tokenED-SysTokenBase
+          defw tokenEE-SysTokenBase
+          defw tokenEF-SysTokenBase
+          defw tokenF0-SysTokenBase
+          defw tokenF1-SysTokenBase
+          defw tokenF2-SysTokenBase
+          defw tokenF3-SysTokenBase
+          defw tokenF4-SysTokenBase
+          defw tokenF5-SysTokenBase
+          defw tokenF6-SysTokenBase
+          defw tokenF7-SysTokenBase
+          defw tokenF8-SysTokenBase
+          defw tokenF9-SysTokenBase
+          defw tokenFA-SysTokenBase
+          defw tokenFB-SysTokenBase
+          defw tokenFC-SysTokenBase
+          defw tokenFD-SysTokenBase
+          defw tokenFE-SysTokenBase
+          defw tokenFF-SysTokenBase
+          defw end_tokens-SysTokenBase
+  .token80
+          defm $01, "T"
+  .token81
+          defm "Cursor "
+  .token82
+          defm "e "
+  .token83
+          defm " returns "
+  .token84
+          defm "t "
+  .token85
+          defm "in"
+  .token86
+          defm "er"
+  .token87
+          defm "tion"
+  .token88
+          defm "th"
+  .token89
+          defm "of "
+  .token8A
+          defm "olumn"
+  .token8B
+          defm "le"
+  .token8C
+          defm "ar"
+  .token8D
+          defm "re"
+  .token8E
+          defm "s "
+  .token8F
+          defm "or"
+  .token90
+          defm "ig"
+  .token91
+          defm "at"
+  .token92
+          defm $88, $82
+  .token93
+          defm "an"
+  .token94
+          defm $8E, "Limited 1987,88", $7F, "Copyr", $90, "h", $84, "(C) "
+  .token95
+          defm "al"
+  .token96
+          defm "De", $8B, "t", $82
+  .token97
+          defm "Nex", $84
+  .token98
+          defm "P", $8D, "viou", $8E
+  .token99
+          defm "h", $8C, "act", $86
+  .token9A
+          defm ".", $7F
+  .token9B
+          defm "Ins", $86
+  .token9C
+          defm "Func", $87
+  .token9D
+          defm "ow"
+  .token9E
+          defm "to"
+  .token9F
+          defm "radi", $93, "s"
+  .tokenA0
+          defm "list"
+  .tokenA1
+          defm "numb", $86, " "
+  .tokenA2
+          defm "en"
+  .tokenA3
+          defm $85, " "
+  .tokenA4
+          defm ", "
+  .tokenA5
+          defm "lo"
+  .tokenA6
+          defm "Fi"
+  .tokenA7
+          defm $81, "R", $90, "ht"
+  .tokenA8
+          defm $81, "Left"
+  .tokenA9
+          defm "L", $85, "e"
+  .tokenAA
+          defm ": "
+  .tokenAB
+          defm "Co"
+  .tokenAC
+          defm "D", $9D, "n"
+  .tokenAD
+          defm "Activ", $82, "Day"
+  .tokenAE
+          defm ")", $83, $92
+  .tokenAF
+          defm "te"
+  .tokenB0
+          defm '"', $9A
+  .tokenB1
+          defm "ESCAPE"
+  .tokenB2
+          defm "d "
+  .tokenB3
+          defm "v", $95, "u"
+  .tokenB4
+          defm "ch"
+  .tokenB5
+          defm "C", $8A
+  .tokenB6
+          defm "Di", $8D, "ct", $8F, "y"
+  .tokenB7
+          defm " i", $8E
+  .tokenB8
+          defm "Logic", $95, " "
+  .tokenB9
+          defm "Up"
+  .tokenBA
+          defm $A6, $8B
+  .tokenBB
+          defm $9E, " "
+  .tokenBC
+          defm "on"
+  .tokenBD
+          defm "Sav"
+  .tokenBE
+          defm $82, "Posi", $87
+  .tokenBF
+          defm "Op"
+  .tokenC0
+          defm $85, "g "
+  .tokenC1
+          defm "(n"
+  .tokenC2
+          defm $89, '"', "n"
+  .tokenC3
+          defm $91, "e"
+  .tokenC4
+          defm $AB, "l", $9E, "n Softw", $8C, $82, "Limi", $AF
+  .tokenC5
+          defm "B", $A5, "ck"
+  .tokenC6
+          defm "ur"
+  .tokenC7
+          defm "e", $8B
+  .tokenC8
+          defm "Re"
+  .tokenC9
+          defm "ce"
+  .tokenCA
+          defm "s", $84
+  .tokenCB
+          defm $9B, $84
+  .tokenCC
+          defm $90, "h"
+  .tokenCD
+          defm "cos", $85, "e", $A4, "s", $85, $82, $8F, " t", $93, "g", $A2, $84
+  .tokenCE
+          defm ". "
+  .tokenCF
+          defm "s", $A5, "t", $8E, $A3, '"', $A0, $B0
+  .tokenD0
+          defm " ", $A1, $A3, "whi", $B4, " i", $84, "i", $8E, "e", $B3, $C3, "d"
+  .tokenD1
+          defm "Al", $90, "n"
+  .tokenD2
+          defm "ENTER"
+  .tokenD3
+          defm "W", $8F, "d"
+  .tokenD4
+          defm "Sc", $8D, $A2, " "
+  .tokenD5
+          defm "qu", $95, " ", $9E
+  .tokenD6
+          defm "y "
+  .tokenD7
+          defm "m "
+  .tokenD8
+          defm $AB, "mm", $93, "ds"
+  .tokenD9
+          defm "pl"
+  .tokenDA
+          defm $81, $B9
+  .tokenDB
+          defm $81, $AC
+  .tokenDC
+          defm "C", $C6, "s", $8F
+  .tokenDD
+          defm "M", $8C
+  .tokenDE
+          defm $AB, "py"
+  .tokenDF
+          defm "En", $B2, $89
+  .tokenE0
+          defm "Rubout"
+  .tokenE1
+          defm "Load"
+  .tokenE2
+          defm "ra"
+  .tokenE3
+          defm "S", $C7, "c", $84
+  .tokenE4
+          defm "de"
+  .tokenE5
+          defm "(", $A0, ")"
+  .tokenE6
+          defm $B3, $82
+  .tokenE7
+          defm "r", $93, "ge"
+  .tokenE8
+          defm "Ex"
+  .tokenE9
+          defm "C", $99
+  .tokenEA
+          defm $9B, "t/Ov", $86, "type"
+  .tokenEB
+          defm "se"
+  .tokenEC
+          defm $BF, $87
+  .tokenED
+          defm "am"
+  .tokenEE
+          defm "EPROM"
+  .tokenEF
+          defm $86, " "
+  .tokenF0
+          defm $7F, $8D, "t", $C6, "n"
+  .tokenF1
+          defm $E4, "g", $8D, "es"
+  .tokenF2
+          defm '"', " c", $BC, "v", $86, $AF, $B2, $85, $BB
+  .tokenF3
+          defm $E5, $B7, "i", $AF, $D7, "wi", $88, " m"
+  .tokenF4
+          defm $A3, '"'
+  .tokenF5
+          defm "d", $C3
+  .tokenF6
+          defm $BF, $86, $91, $8F, "s"
+  .tokenF7
+          defm "M", $91, $B4
+  .tokenF8
+          defm $A6, "r", $CA
+  .tokenF9
+          defm "(", $9F, ")"
+  .tokenFA
+          defm "S", $A5, "t"
+  .tokenFB
+          defm "ay"
+  .tokenFC
+          defm "it"
+  .tokenFD
+          defm $BA, "s"
+  .tokenFE
+          defm "Pr", $85, "t"
+  .tokenFF
+          defm "Swap Ca", $EB
+  .end_tokens
+
+

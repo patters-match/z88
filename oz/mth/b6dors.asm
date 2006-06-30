@@ -32,7 +32,7 @@
 
 .CalendarDOR
         defp    0,0                     ; parent
-        defp    ClockDOR,mthbank        ; brother
+        defp    ClockDOR,BANK_MTH        ; brother
         defp    0,0                     ; son
         defb    $83, CalendarDORe-$PC   ; DOR type, sizeof
 
@@ -45,9 +45,9 @@
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    CalendarDOR,mthbank     ; no topics
-        defp    CalendarDOR,mthbank     ; no commands
-        defp    CalendarDOR,mthbank     ; no help
+        defp    CalendarDOR,BANK_MTH     ; no topics
+        defp    CalendarDOR,BANK_MTH     ; no commands
+        defp    CalendarDOR,BANK_MTH     ; no help
         defp    0,0                     ; no token base
 
         defb    'N',CalendarDORe-$PC-1  ; name, length
@@ -57,7 +57,7 @@
 
 .ClockDOR
         defp    0,0                     ; parent
-        defp    AlarmDOR,mthbank        ; brother
+        defp    AlarmDOR,BANK_MTH        ; brother
         defp    0,0                     ; son
         defb    $83, ClockDORe-$PC      ; DOR type, sizeof
 
@@ -70,9 +70,9 @@
         defb    AT2_Ie                  ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    ClockDOR,mthbank        ; no topics
-        defp    ClockDOR,mthbank        ; no commands
-        defp    ClockDOR,mthbank        ; no help
+        defp    ClockDOR,BANK_MTH        ; no topics
+        defp    ClockDOR,BANK_MTH        ; no commands
+        defp    ClockDOR,BANK_MTH        ; no help
         defp    0,0                     ; no token base
 
         defb    'N',ClockDORe-$PC-1  ; name, length

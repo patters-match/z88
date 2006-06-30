@@ -6,14 +6,14 @@
 
         Module MTH2
 
-        org     $e789                           ; 1588 bytes
-
         include "dor.def"
         include "error.def"
         include "fileio.def"
         include "memory.def"
         include "stdio.def"
         include "sysvar.def"
+        include "../mth/systoken.def"
+        
 
 xdef    aRom_Help
 xdef    AddBHL_DE
@@ -72,6 +72,7 @@ xref    InitHelpWd                              ; bank7/mth1.asm
 xref    OpenAppHelpFile                         ; bank7/mth1.asm
 xref    InitHandle                              ; bank7/misc1.asm
 
+;xref    SysTokenBase                            ;MTH/systoken.asm
 
 
 ;       BHL+=DE
@@ -544,7 +545,7 @@ xref    InitHandle                              ; bank7/misc1.asm
 ; OUT: BHL=DOR
 
 .GetAppDOR
-        ld      b, OZBANK_7                     ; bind in other part of kernel
+        ld      b, OZBANK_7                     ; bind in other part of kernel, ERROR HERE but $0F hangs...
         call    fsMS2BankB                      ; remembers S2
         push    de
         push    ix
@@ -642,8 +643,8 @@ xref    InitHandle                              ; bank7/misc1.asm
 .GetHlpTokens
         ld      hl, ubSysFlags1
         bit     SF1_B_NOTOKENS, (hl)            ; no tokens?
-        ld      b, OZBANK_7                     ; bank 7, offset 0
-        ld      hl, 0
+        ld      b, BANK_MTH                     ;
+        ld      hl, SysTokenBase
         ret     nz
         ld      l, <(eHlpTokens+2)
         jr      GetHlp_sub

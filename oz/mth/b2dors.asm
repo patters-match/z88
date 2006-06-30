@@ -21,15 +21,13 @@
 ; $Id$
 ;***************************************************************************************************
 
-
-
 xdef    PrEdDOR
 xdef    PanelDOR
 
 
 .PrEdDOR
         defp    0,0                     ; parent
-        defp    PanelDOR,mthbank        ; brother
+        defp    PanelDOR,BANK_MTH        ; brother
         defp    0,0                     ; son
         defb    $83, PrEdDORe-$PC       ; DOR type, sizeof
 
@@ -42,10 +40,10 @@ xdef    PanelDOR
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    PrinterEdTopics,mthbank ; topics
-        defp    PrinterEdCommands,mthbank ; commands
-        defp    PrEdDOR,mthbank         ; no help
-        defp    $8000,tokenbank         ; token base
+        defp    PrinterEdTopics,BANK_MTH ; topics
+        defp    PrinterEdCommands,BANK_MTH ; commands
+        defp    PrEdDOR,BANK_MTH         ; no help
+        defp    SysTokenBase,BANK_MTH         ; token base
 
         defb    'N',PrEdDORe-$PC-1      ; name, length
         defm    "PrinterEd",0
@@ -54,7 +52,7 @@ xdef    PanelDOR
 
 .PanelDOR
         defp    0,0                     ; parent
-        defp    TerminalDOR,mthbank     ; brother
+        defp    TerminalDOR,BANK_MTH     ; brother
         defp    0,0                     ; son
         defb    $83, PanelDORe-$PC      ; DOR type, sizeof
 
@@ -67,12 +65,12 @@ xdef    PanelDOR
         defb    0                       ; appl type 2
 
         defb    'H',12                  ; help, sizeof
-        defp    PanelTopics,mthbank     ; topics
-        defp    PanelCommands,mthbank   ; commands
-        defp    PanelDOR,mthbank        ; no help
-        defp    $8000,tokenbank         ; token base
+        defp    PanelTopics,BANK_MTH     ; topics
+        defp    PanelCommands,BANK_MTH   ; commands
+        defp    PanelDOR,BANK_MTH               ; no help
+        defp    SysTokenBase,BANK_MTH           ; token base
 
-        defb    'N',PanelDORe-$PC-1     ; name, length
+        defb    'N',PanelDORe-$PC-1             ; name, length
         defm    "Panel",0
 .PanelDORe
         defb    $ff

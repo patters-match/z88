@@ -29,7 +29,7 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
-
+     
 .ImpExpDOR
         defp    0,0
         defp    0,0
@@ -44,9 +44,9 @@
         defb    0,0,0,1
         defb    AT_Good|AT_Popd,0
         defb    DT_HLP,12
-        defp    ImpExpDOR,mthbank
-        defp    ImpExpDOR,mthbank
-        defp    ImpExpDOR,mthbank
+        defp    ImpExpDOR,BANK_MTH
+        defp    ImpExpDOR,BANK_MTH
+        defp    ImpExpDOR,BANK_MTH
         defp    0,0
 
         defb    DT_NAM, ImpExpDORe-$PC-1

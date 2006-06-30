@@ -28,12 +28,12 @@
 ; Application front DOR, in top bank of ROM, starting at $3FC0
      
      include "appdors.def"
-     include "../banks.def"
+     include "sysvar.def"
 
 .appl_front_dor                                 ; $3FC0
         defp 0, 0                               ; no link to parent ...
         defp 0, 0                               ; no help DOR
-        defp IndexDor,mthbank                   ; link to first application DOR
+        defp IndexDor,BANK_MTH                  ; link to first application DOR
         defb $13                                ; DOR type - ROM front DOR
         defb 8                                  ; length of DOR
         defb 'N'                                

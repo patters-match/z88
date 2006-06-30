@@ -60,8 +60,19 @@ echo compiling bank 1
 cd bank1
 call bank1 %ozlocale% 2>nul >nul
 cd ..
-dir bank1\*.err 2>nul >nul || goto COMPILE_KERNEL
+dir bank1\*.err 2>nul >nul || goto COMPILE_MTH
 type bank1\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:: create application DOR data (binary) 
+:COMPILE_MTH
+echo compiling MTH structures
+cd mth
+call mth %ozlocale% 2>nul >nul
+cd ..
+dir mth\*.err 2>nul >nul || goto COMPILE_KERNEL
+type mth\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -72,19 +83,8 @@ dir bank0\*.err 2>nul >nul || goto CHECK_KERNEL7_ERRORS
 type bank0\*.err
 goto COMPILE_ERROR
 :CHECK_KERNEL7_ERRORS
-dir bank7\*.err 2>nul >nul || goto COMPILE_MTH
+dir bank7\*.err 2>nul >nul || goto COMPILE_BANK2
 type bank7\*.err
-goto COMPILE_ERROR
-
-:: -------------------------------------------------------------------------------------------------
-:: create application DOR data (binary) 
-:COMPILE_MTH
-echo compiling MTH structures
-cd mth
-call mth %ozlocale% 2>nul >nul
-cd ..
-dir mth\*.err 2>nul >nul || goto COMPILE_BANK2
-type mth\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
