@@ -113,23 +113,6 @@ defc    pPrefs2                 =$0278
 defc    ulSlot1ID               =$027b
 defc    ulSlot2ID               =$027f
 defc    ulSlot3ID               =$0283
-
-defc    ubRandomPtr             =$0277                  ; was $01fb
-defc    uwRandom1               =$0278                  ; was $01fc
-defc    uwRandom2               =$027A                  ; was $01fe
-defc    KeymapTblPtrs           =$027C                  ; was $01f0
-
-defvars KeymapTblPtrs
-        km_bank                 ds.b    1               ; memory bank where tables are, bound in S2
-        km_page                 ds.b    1               ; high byte of address
-        km_diamond              ds.b    1               ; low byte of <> translation table address
-        km_square               ds.b    1               ; low byte of [] translation table address
-        km_deadkey              ds.b    1               ; low byte of deadkey table address
-        km_deadchar             ds.b    1               ; char displayed in OZ window
-        km_deadsub              ds.b    1               ; offset to list for current deadkey
-enddef
-
-
 defc    ubHlpActiveCmd          =$0287
 defc    ubHlpActiveTpc          =$0288
 defc    ubHlpActiveHelp         =$0289
@@ -142,6 +125,24 @@ defc    eHlpTokens              =$0298
 defc    ActiveAppHandle         =$029b                  ; actual handle structure
 defc    uwOSTinTimeout          =$02ab
 defc    pOSEntHandle            =$02ad
+
+defc    RandomPointers          =$02af
+defvars RandomPointers
+        ubRandomPtr             ds.b    1
+        uwRandom1               ds.w    1
+        uwRandom2               ds.w    1
+enddef
+
+defc    KeymapTblPtrs           =$02b4
+defvars KeymapTblPtrs
+        km_bank                 ds.b    1               ; memory bank where tables are, bound in S2
+        km_page                 ds.b    1               ; high byte of address
+        km_diamond              ds.b    1               ; low byte of <> translation table address
+        km_square               ds.b    1               ; low byte of [] translation table address
+        km_deadkey              ds.b    1               ; low byte of deadkey table address
+        km_deadchar             ds.b    1               ; char displayed in OZ window
+        km_deadsub              ds.b    1               ; offset to list for current deadkey
+enddef
 
 ;       uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
 
