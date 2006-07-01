@@ -86,6 +86,7 @@ extern module_t *CURRENTMODULE;
 extern avltree_t *globalroot, *staticroot;
 extern symbol_t *gAsmpcPtr, *__gAsmpcPtr; /* pointer to Assembler PC symbol (defined in global symbol variables) */
 extern unsigned char *reloctable;
+extern char copyrightmsg[];
 
 
 static void
@@ -233,9 +234,11 @@ main (int argc, char *argv[])
   /* Get command line arguments, if any... */
   if (argc == 1)
     {
-      prompt ();
+      puts(copyrightmsg);
+      puts("Try -h for more information.");
       exit (1);
     }
+    
   time (&asmtime);
   date = asctime (localtime (&asmtime));        /* get current system time for date in list file */
 

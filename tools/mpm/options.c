@@ -58,7 +58,7 @@ unsigned long EXPLICIT_ORIGIN;          /* origin defined from command line */
 
 
 /* externally defined variables */
-extern const char asmext[], lstext[], defext[], binext[];
+extern const char asmext[], symext[], lstext[], defext[], binext[];
 extern const char mapext[], errext[], libext[];
 extern char srcext[], objext[];
 extern char separators[];
@@ -190,6 +190,7 @@ SetAsmFlag (char *flagid)
     {
       switch(*flagid)
         {
+          case 'h': prompt(); break;
           case 'c': codesegment = Option; break;
           case 'C': clinemode = Option; break;
           case 't': createlistingfile = uselistingfile = Option; break;
@@ -288,8 +289,9 @@ prompt (void)
   puts ("are put on separate lines ended with \\n. File types recognized by or");
   puts ("created by mpm (defined by the following extensions):");
   printf ("%s = source file (default), or alternative -e<ext> (3 chars)\n", asmext);
-  printf ("%s = object file, %s = listing file, %s = static linked executable binary\n", objext, lstext, binext);
-  printf ("%s = map file, %s = const def file, %s = error file, %s = library file\n", mapext, defext, errext, libext);
+  printf ("%s = object file, %s = listing file, %s = symbol table file\n", objext, lstext, symext);
+  printf ("%s = static linked executable binary, %s = address map file\n", binext, mapext);
+  printf ("%s = constant definition file, %s = error file, %s = library file\n", defext, errext, libext);
   puts ("\nFlag Options: -n = option OFF, eg. -nts = no listing file, no symbol table.");
   printf ("-v verbose assembly, -t listing file, -s symbol table, -m bin. address map file\n");
   puts ("-b static linking & relocation into executable binary of specified modules.");
