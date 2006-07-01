@@ -151,7 +151,7 @@ defc    CLIS_INTOPEN            =1
 
 defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
-
+.IndexEntry
         jp      Index
         jp      DCRet
 

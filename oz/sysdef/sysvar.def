@@ -49,23 +49,23 @@ defc    OZVERSION               =4
 defc    PreservedArea           =$01E0
 
 defvars PreservedArea
-        ubCountry               ds.b    1               ; for future use
-        ubTimeBufferSelect      ds.b    1               ; select time buffer A or B (was $2100A0)
-        ubTIM0_A                ds.b    1               ; buffer A : TIM0-4 (was $00A1-$00A5)
+        ubCountry               ds.b    1       ; for future use
+        ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
+        ubTIM0_A                ds.b    1       ; buffer A : TIM0-4 (was $00A1-$00A5)
         ubTIM1_A                ds.b    1
         ubTIM2_A                ds.b    1
         ubTIM3_A                ds.b    1
         ubTIM4_A                ds.b    1
-        ubTIM0_B                ds.b    1               ; buffer B : TIM0-4 (was $00A6-$00AA)
+        ubTIM0_B                ds.b    1       ; buffer B : TIM0-4 (was $00A6-$00AA)
         ubTIM1_B                ds.b    1
         ubTIM2_B                ds.b    1
         ubTIM3_B                ds.b    1
         ubTIM4_B                ds.b    1
-        uwSysDateLow            ds.w    1               ; 11 bytes buffer for system time
+        uwSysDateLow            ds.w    1       ; 11 bytes buffer for system time
         uwSysDateMid            ds.w    1
         uwSysDateHigh           ds.w    1
         SysTimeBuffer           ds.b    5
-enddef                                                  ; 10 bytes are left in this area
+enddef                                          ; 10 bytes are left in this area
 
 ;       0200-03FF           System variable area
 
@@ -76,18 +76,18 @@ defc    cKeyclick               =$0203
 defc    cSound                  =$0204
 defc    ubBadSize               =$0205
 defc    ubScreenBase            =$020b
-defc    KbdData                 =$0216                  ; data on both negative and positive side
-defc    SerTXHandle             =$0229                  ; on negative side!
-defc    SerRXHandle             =$0233                  ; on negative side!
+defc    KbdData                 =$0216          ; data on both negative and positive side
+defc    SerTXHandle             =$0229          ; on negative side!
+defc    SerRXHandle             =$0233          ; on negative side!
 defc    ubFsTemp                =$0237
 defc    uwSmallTimer            =$0238
-defc    uwSlotAvailFsBlocks     =$023a                  ; ds.b 4*2
+defc    uwSlotAvailFsBlocks     =$023a          ; ds.b 4*2
 defc    pFsMemPool              =$0244
 defc    uwFsAvailBlock          =$0246
-defc    word_024A               =$024a
+defc    word_024A               =$024a          ; used in nqsp.asm
 defc    pMTHScreenSave          =$024e
 defc    pMTHHelpHandle          =$0250
-defc    word_0252               =$0252
+defc    word_0252               =$0252          ; used in nqsp.asm
 defc    uwPanelFilePtr          =$0256
 defc    ubSysFlags1             =$0258
 defc    cExtendedChar           =$0259
@@ -122,27 +122,10 @@ defc    eHlpTopics              =$028f
 defc    eHlpCommands            =$0292
 defc    eHlpHelp                =$0295
 defc    eHlpTokens              =$0298
-defc    ActiveAppHandle         =$029b                  ; actual handle structure
+defc    ActiveAppHandle         =$029b          ; actual handle structure
 defc    uwOSTinTimeout          =$02ab
 defc    pOSEntHandle            =$02ad
-
-defc    RandomPointers          =$02af
-defvars RandomPointers
-        ubRandomPtr             ds.b    1
-        uwRandom1               ds.w    1
-        uwRandom2               ds.w    1
-enddef
-
-defc    KeymapTblPtrs           =$02b4
-defvars KeymapTblPtrs
-        km_bank                 ds.b    1               ; memory bank where tables are, bound in S2
-        km_page                 ds.b    1               ; high byte of address
-        km_diamond              ds.b    1               ; low byte of <> translation table address
-        km_square               ds.b    1               ; low byte of [] translation table address
-        km_deadkey              ds.b    1               ; low byte of deadkey table address
-        km_deadchar             ds.b    1               ; char displayed in OZ window
-        km_deadsub              ds.b    1               ; offset to list for current deadkey
-enddef
+                                                ; $02af-$03af is a system page
 
 ;       uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
 
@@ -184,6 +167,26 @@ defc    ubSlotRAMoffset         =$03f8
 
 ;       0400-04ff       hardware ports (see blink.def)
 
+; *** TEMPORARY HACK *** WE NEED SPACE ***
+
+defc    RandomPointers          =$0400
+defvars RandomPointers
+        ubRandomPtr             ds.b    1
+        uwRandom1               ds.w    1
+        uwRandom2               ds.w    1
+enddef
+
+defc    KeymapTblPtrs           =$0405
+defvars KeymapTblPtrs
+        km_bank                 ds.b    1       ; memory bank where tables are, bound in S2
+        km_page                 ds.b    1       ; high byte of address
+        km_diamond              ds.b    1       ; low byte of <> translation table address
+        km_square               ds.b    1       ; low byte of [] translation table address
+        km_deadkey              ds.b    1       ; low byte of deadkey table address
+        km_deadchar             ds.b    1       ; char displayed in OZ window
+        km_deadsub              ds.b    1       ; offset to list for current deadkey
+enddef
+
 ;       0500-0aff       handles
 
 defc    HANDLES                 =$0500
@@ -205,8 +208,8 @@ defc    NMIStackTop             =$0c33
 ;       0db8-0dc2       EPROM
 
 defc    ubEpr_SubType           =$0db8
-                                                        ; $0db9 unused
-defc    ubEpr_FirstBank         =$0dba                  ; relative to end
+                                                ; $0db9 unused
+defc    ubEpr_FirstBank         =$0dba          ; relative to end
 defc    ubEpr_NameLen           =$0dbb
 defc    ubEpr_Fstype            =$0dbc
 defc    pEpr_PrgTable           =$0dbd
@@ -218,7 +221,7 @@ defc    pEpr_FileHandle         =$0dc1
 
 ;       0e10-0ec9       Index
 
-defc    ubIdxPubFlags           =$0e10                  ; was Flags1
+defc    ubIdxPubFlags           =$0e10          ; was Flags1
 defc    ubIdxFlags2             =$0e11
 defc    ubIdxTopProcess         =$0e12
 defc    ubIdxNProcDisplayed     =$0e13
@@ -226,15 +229,15 @@ defc    ubIdxTopApplication     =$0e14
 defc    ubIdxNApplDisplayed     =$0e15
 defc    ubIdxSelectorPos        =$0e16
 defc    ubIdxActiveWindow       =$0e17
-defc    Byte_0E18               =$0e18                  ; !! unused
+defc    Byte_0E18               =$0e18          ; !! unused
 defc    ubIdxErrorCode          =$0e19
 defc    ubIdxProcRmCount        =$0e1a
 defc    ubIdxDynamicID          =$0e1b
 defc    ubIdxOldProcRmCount     =$0e1c
-defc    byte_0E1D               =$0e1d                  ; !! written to once but unused in Index/DC
+defc    byte_0E1D               =$0e1d          ; !! written to once but unused in Index/DC
 defc    pIdxMemHandle           =$0e1e
 defc    pIdxCurrentProcHandle   =$0e20
-defc    pIdxMyProcHandle        =$0e22                  ; static handle of Index
+defc    pIdxMyProcHandle        =$0e22          ; static handle of Index
 defc    pIdxRunProcIX           =$0e24
 defc    pIdxAutoRunAppl         =$0e26
 defc    eIdxCliList             =$0e28
@@ -251,10 +254,10 @@ defc    IdxZZKeyTable           =$0e98
 defc    uwGnDateLow             =$0ece
 defc    uwGnDateMid             =$0ed0
 defc    uwGnDateHigh            =$0ed2
-defc    GnHwTimeBuf             =$0ed4                  ; 5 bytes
-defc    GnFnameBuf              =$0ed9                  ; 206 bytes
+defc    GnHwTimeBuf             =$0ed4          ; 5 bytes
+defc    GnFnameBuf              =$0ed9          ; 206 bytes
 defc    pAlarmList              =$0fa7
-                                                        ; $0faa-$0fab unused?
+                                                ; $0faa-$0fab unused?
 defc    uwNextAlarmID           =$0fac
 
 ;$0fae-$0fb4    Alarm app data - shouldn't be here
@@ -272,9 +275,9 @@ defc    ubSerParity             =$0ffc
 defc    ubSerFlowControl        =$0ffd
 defc    cSerXonXoffChar         =$0ffe
 
-defc    MailBoxName             =$1800                  ; max 17 bytes
+defc    MailBoxName             =$1800          ; max 17 bytes
 defc    ubMailboxLength         =$1811
-defc    MailboxData             =$1812                  ; max 64 bytes
+defc    MailboxData             =$1812          ; max 64 bytes
 defc    ubMailBoxID             =$1852
 
 defc    MBOXNAMEMAXLEN          =17
@@ -291,8 +294,8 @@ defc    unk_1864                =$1864
 
 ;       ubIdxPubFlags
 
-defc    IDXF1_B_INSIDEOZ        =0                      ; inside OS_In
-defc    IDXF1_B_INIT            =1                      ; need init
+defc    IDXF1_B_INSIDEOZ        =0              ; inside OS_In
+defc    IDXF1_B_INIT            =1              ; need init
 
 defc    IDXF1_INSIDEOS          =$01
 defc    IDXF1_INIT              =$02
@@ -386,35 +389,35 @@ defc    Wd1Frame                =SBF_ADDRESS+$e6
 defc    sbf_ActiveWd            =SBF_ADDRESS+$7e7
 
 defvars SBF_ADDRESS+$7e9
-        sbf_CtrlPrefix                  ds.b    1
-        sbf_PrefixSeq                   ds.b    1
-        sbf_PrefixLen                   ds.b    1
-        sbf_VDUbuffer                   ds.b    1
-        sbf_VDU1                        ds.b    1
-        sbf_VDU2                        ds.b    1
-        sbf_VDU3                        ds.b    1
-        sbf_VDU4                        ds.b    1
-        sbf_VDU5                        ds.b    1
-        sbf_VDU6                        ds.b    1
+        sbf_CtrlPrefix          ds.b    1
+        sbf_PrefixSeq           ds.b    1
+        sbf_PrefixLen           ds.b    1
+        sbf_VDUbuffer           ds.b    1
+        sbf_VDU1                ds.b    1
+        sbf_VDU2                ds.b    1
+        sbf_VDU3                ds.b    1
+        sbf_VDU4                ds.b    1
+        sbf_VDU5                ds.b    1
+        sbf_VDU6                ds.b    1
 enddef
 
 ;       window - negative offsets
 
 defvars -14
-        wdf_f2                          ds.b    1
-        wdf_flagsHi                     ds.b    1
-        wdf_OpenFlags                   ds.b    1
-        wdf_flagsLo                     ds.b    1
-        wdf_f6                          ds.b    1       ; !! unused, always zero
-        wdf_crsrattr                    ds.b    1
-        wdf_crsrx                       ds.b    1
-        wdf_crsry                       ds.b    1
-        wdf_rmargin                     ds.b    1
-        wdf_lmargin                     ds.b    1
-        wdf_endx                        ds.b    1
-        wdf_endy                        ds.b    1
-        wdf_startx                      ds.b    1
-        wdf_starty                      ds.b    1
+        wdf_f2                  ds.b    1
+        wdf_flagsHi             ds.b    1
+        wdf_OpenFlags           ds.b    1
+        wdf_flagsLo             ds.b    1
+        wdf_f6                  ds.b    1       ; !! unused, always zero
+        wdf_crsrattr            ds.b    1
+        wdf_crsrx               ds.b    1
+        wdf_crsry               ds.b    1
+        wdf_rmargin             ds.b    1
+        wdf_lmargin             ds.b    1
+        wdf_endx                ds.b    1
+        wdf_endy                ds.b    1
+        wdf_startx              ds.b    1
+        wdf_starty              ds.b    1
 enddef
 
 ;       flags lo
@@ -486,36 +489,36 @@ defc    LCDA_LORESCURSOR        =$38
 ;       (application) DOR offsets
 
 defvars 0
-        DOR_PARENT                      ds.p    1       ; $00
-        DOR_BROTHER                     ds.p    1       ; $03
-        DOR_SON                         ds.p    1       ; $06
-        DOR_TYPE                        ds.b    1       ; $09
-        DOR_LENGTH                      ds.b    1       ; $0a
-        ADOR_INFOTYPE                   ds.b    1       ; $0b
-        ADOR_INFOLENGTH                 ds.b    1       ; $0c
-        ADOR_RESERVED                   ds.b    2       ; $0d
-        ADOR_APPKEY                     ds.b    1       ; $0f
-        ADOR_BADSIZE                    ds.b    1       ; $10
-        ADOR_ENVSIZE                    ds.w    1       ; $11
-        ADOR_UNSAFE                     ds.w    1       ; $13
-        ADOR_SAFE                       ds.w    1       ; $15
-        ADOR_ENTRY                      ds.w    1       ; $17
-        ADOR_BINDINGS                   ds.b    4       ; $19
-        ADOR_FLAGS                      ds.b    1       ; $1d
-        ADOR_FLAGS2                     ds.b    1       ; $1e
-        ADOR_HELPTYPE                   ds.b    1       ; $1f
-        ADOR_HELPLENGTH                 ds.b    1       ; $20
-        ADOR_TOPICS                     ds.p    1       ; $21
-        ADOR_COMMANDS                   ds.p    1       ; $24
-        ADOR_HELP                       ds.p    1       ; $27
-        ADOR_TOKENS                     ds.p    1       ; $2a
-        ADOR_NAMETYPE                   ds.b    1       ; $2d
-        ADOR_NAMELENGTH                 ds.b    1       ; $2e
-        ADOR_NAME                       ds.b    1       ; $2f
+        DOR_PARENT              ds.p    1       ; $00
+        DOR_BROTHER             ds.p    1       ; $03
+        DOR_SON                 ds.p    1       ; $06
+        DOR_TYPE                ds.b    1       ; $09
+        DOR_LENGTH              ds.b    1       ; $0a
+        ADOR_INFOTYPE           ds.b    1       ; $0b
+        ADOR_INFOLENGTH         ds.b    1       ; $0c
+        ADOR_RESERVED           ds.b    2       ; $0d
+        ADOR_APPKEY             ds.b    1       ; $0f
+        ADOR_BADSIZE            ds.b    1       ; $10
+        ADOR_ENVSIZE            ds.w    1       ; $11
+        ADOR_UNSAFE             ds.w    1       ; $13
+        ADOR_SAFE               ds.w    1       ; $15
+        ADOR_ENTRY              ds.w    1       ; $17
+        ADOR_BINDINGS           ds.b    4       ; $19
+        ADOR_FLAGS              ds.b    1       ; $1d
+        ADOR_FLAGS2             ds.b    1       ; $1e
+        ADOR_HELPTYPE           ds.b    1       ; $1f
+        ADOR_HELPLENGTH         ds.b    1       ; $20
+        ADOR_TOPICS             ds.p    1       ; $21
+        ADOR_COMMANDS           ds.p    1       ; $24
+        ADOR_HELP               ds.p    1       ; $27
+        ADOR_TOKENS             ds.p    1       ; $2a
+        ADOR_NAMETYPE           ds.b    1       ; $2d
+        ADOR_NAMELENGTH         ds.b    1       ; $2e
+        ADOR_NAME               ds.b    1       ; $2f
 enddef
 
 defc    CMDF_B_COLUMN           =0
-defc    TPCF_B_AN               =0                      ; unused? if so, there's error in docs
+defc    TPCF_B_AN               =0              ; unused? if so, there's error in docs
 defc    TPCF_B_INFO             =1
 defc    CMDF_B_HIDDEN           =2
 defc    CMDF_B_SAFE             =3
@@ -524,20 +527,20 @@ defc    CMDF_B_HELP             =4
 defc    CMDF_HELP               =$10
 
 defvars 0
-        OSFrame_IY                      ds.w    1       ; $00
-        OSFrame_S2                      ds.b    1       ; $02
-        OSFrame_S3                      ds.b    1       ; $03
-        OSFrame_OZCall                  ds.w    1       ; $04
-        OSFrame_F                       ds.b    1       ; $06
-        OSFrame_A                       ds.b    1       ; $07
-        OSFrame_C                       ds.b    1       ; $08
-        OSFrame_B                       ds.b    1       ; $09
-        OSFrame_E                       ds.b    1       ; $0A
-        OSFrame_D                       ds.b    1       ; $0B
-        OSFrame_L                       ds.b    1       ; $0C
-        OSFrame_H                       ds.b    1       ; $0D
-        OSFrame__S2                     ds.b    1       ; $0E
-        OSFrame__S3                     ds.b    1       ; $0F
+        OSFrame_IY              ds.w    1       ; $00
+        OSFrame_S2              ds.b    1       ; $02
+        OSFrame_S3              ds.b    1       ; $03
+        OSFrame_OZCall          ds.w    1       ; $04
+        OSFrame_F               ds.b    1       ; $06
+        OSFrame_A               ds.b    1       ; $07
+        OSFrame_C               ds.b    1       ; $08
+        OSFrame_B               ds.b    1       ; $09
+        OSFrame_E               ds.b    1       ; $0A
+        OSFrame_D               ds.b    1       ; $0B
+        OSFrame_L               ds.b    1       ; $0C
+        OSFrame_H               ds.b    1       ; $0D
+        OSFrame__S2             ds.b    1       ; $0E
+        OSFrame__S3             ds.b    1       ; $0F
 enddef
 
 ; Z80 flags SZ-H-PNC
@@ -563,15 +566,15 @@ defc    Z80F_S                  =$80
 ;       buffer  !! remove unused bytes, size drops to 5 bytes
 
 defvars -10
-        buf_f6                          ds.b    1       ; $F6
-        buf_func                        ds.b    1       ; $F7
-        buf_funcH                       ds.w    1       ; $F8
-        buf_end                         ds.b    1       ; $FA
-        buf_start                       ds.b    1       ; $FB
-        buf_bufpage                     ds.b    1       ; $FC
-        buf_fd                          ds.b    1       ; $FD unused
-        buf_wrpos                       ds.b    1       ; $FE
-        buf_rdpos                       ds.b    1       ; $FF
+        buf_f6                  ds.b    1       ; $F6
+        buf_func                ds.b    1       ; $F7
+        buf_funcH               ds.w    1       ; $F8
+        buf_end                 ds.b    1       ; $FA
+        buf_start               ds.b    1       ; $FB
+        buf_bufpage             ds.b    1       ; $FC
+        buf_fd                  ds.b    1       ; $FD unused
+        buf_wrpos               ds.b    1       ; $FE
+        buf_rdpos               ds.b    1       ; $FF
 enddef
 
 
@@ -664,10 +667,10 @@ defc    shnd_Timeout            =$0c
 
 ;       TriHandle
 
-defc    thnd_Segment    =$04
-defc    thnd_AddrH      =$05
-defc    thnd_Bank       =$06
-defc    thnd_SubType    =$07
+defc    thnd_Segment            =$04
+defc    thnd_AddrH              =$05
+defc    thnd_Bank               =$06
+defc    thnd_SubType            =$07
 
 ;       ----
 
@@ -801,66 +804,66 @@ defvars 0
         kbd_SIZEOF              ds.b    1
 enddef
 
-defc    KBF_B_CAPSE     =0              ; 1-CAPS enable
-defc    KBF_B_CAPS      =1              ; 1-caps 0-CAPS
-defc    KBF_B_SCAN      =2              ; 1-keybard scan active
-defc    KBF_B_BEEP      =3              ; 1-do keyclick
-defc    KBF_B_DMND      =4              ; 1-<> down
-defc    KBF_B_KEY       =5              ; 1-any (not <>/[]) key down
-defc    KBF_B_SQR       =6              ; 1-[] down
-defc    KBF_B_LOCKED    =7              ; 1-locked
+defc    KBF_B_CAPSE             =0              ; 1-CAPS enable
+defc    KBF_B_CAPS              =1              ; 1-caps 0-CAPS
+defc    KBF_B_SCAN              =2              ; 1-keybard scan active
+defc    KBF_B_BEEP              =3              ; 1-do keyclick
+defc    KBF_B_DMND              =4              ; 1-<> down
+defc    KBF_B_KEY               =5              ; 1-any (not <>/[]) key down
+defc    KBF_B_SQR               =6              ; 1-[] down
+defc    KBF_B_LOCKED            =7              ; 1-locked
 
-defc    KMT_MATRIX      =0
-defc    KMT_SHIFT       =1
-defc    KMT_DIAMOND     =2
-defc    KMT_SQUARE      =3
-defc    KMT_DEADKEY     =4
+defc    KMT_MATRIX              =0
+defc    KMT_SHIFT               =1
+defc    KMT_DIAMOND             =2
+defc    KMT_SQUARE              =3
+defc    KMT_DEADKEY             =4
 
-defc    QB_SHIFT        =0              ; qualifier bits from GetQual()
-defc    QB_DIAMOND      =1
-defc    QB_SQUARE       =2
+defc    QB_SHIFT                =0              ; qualifier bits from GetQual()
+defc    QB_DIAMOND              =1
+defc    QB_SQUARE               =2
 
-defc    KB_ACTIVE       =0              ; kbd_keyflags / kbd_prevflags bits
-defc    KB_HOLD         =1
-defc    KB_RELEASE      =2
+defc    KB_ACTIVE               =0              ; kbd_keyflags / kbd_prevflags bits
+defc    KB_HOLD                 =1
+defc    KB_RELEASE              =2
 
-defc    K_ACTIVE        =1
-defc    K_HOLD          =2
-defc    K_RELEASE       =4
+defc    K_ACTIVE                =1
+defc    K_HOLD                  =2
+defc    K_RELEASE               =4
 
-defc    KBF_CAPSE       =$01
-defc    KBF_CAPS        =$02
-defc    KBF_SCAN        =$04
-defc    KBF_BEEP        =$08
-defc    KBF_DMND        =$10
-defc    KBF_KEY         =$20
-defc    KBF_SQR         =$40
-defc    KBF_LOCKED      =$80
+defc    KBF_CAPSE               =$01
+defc    KBF_CAPS                =$02
+defc    KBF_SCAN                =$04
+defc    KBF_BEEP                =$08
+defc    KBF_DMND                =$10
+defc    KBF_KEY                 =$20
+defc    KBF_SQR                 =$40
+defc    KBF_LOCKED              =$80
 
-defc    IN_ASPC         =$B0
-defc    IN_AESC         =$B4
-defc    IN_AMEN         =$B5
-defc    IN_AIDX         =$B6
-defc    IN_AHEL         =$B7
-defc    IN_SQU          =$B8
-defc    IN_DSPC         =$C0
-defc    IN_DESC         =$C4
-defc    IN_DMEN         =$C5
-defc    IN_DIDX         =$C6
-defc    IN_DHEL         =$C7
-defc    IN_DIA          =$C8
-defc    IN_SESC         =$D4
-defc    IN_SMEN         =$D5
-defc    IN_SIDX         =$D6
-defc    IN_SHEL         =$D7
-defc    IN_SHI          =$D8
-defc    IN_ENTER        =$E1
-defc    IN_TAB0         =$E2
-defc    IN_DELX         =$E3
-defc    IN_MEN          =$E5
-defc    IN_IDX          =$E6
-defc    IN_HLP          =$E7
-defc    IN_LOCK         =$E8
+defc    IN_ASPC                 =$B0
+defc    IN_AESC                 =$B4
+defc    IN_AMEN                 =$B5
+defc    IN_AIDX                 =$B6
+defc    IN_AHEL                 =$B7
+defc    IN_SQU                  =$B8
+defc    IN_DSPC                 =$C0
+defc    IN_DESC                 =$C4
+defc    IN_DMEN                 =$C5
+defc    IN_DIDX                 =$C6
+defc    IN_DHEL                 =$C7
+defc    IN_DIA                  =$C8
+defc    IN_SESC                 =$D4
+defc    IN_SMEN                 =$D5
+defc    IN_SIDX                 =$D6
+defc    IN_SHEL                 =$D7
+defc    IN_SHI                  =$D8
+defc    IN_ENTER                =$E1
+defc    IN_TAB0                 =$E2
+defc    IN_DELX                 =$E3
+defc    IN_MEN                  =$E5
+defc    IN_IDX                  =$E6
+defc    IN_HLP                  =$E7
+defc    IN_LOCK                 =$E8
 
 defc    AT_B_Boot               =7
 defc    AT_B_Draw               =5

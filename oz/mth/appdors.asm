@@ -131,7 +131,7 @@ xdef    PanelDOR
         defb    7,$38,$56,0,$EA,1,7
         defb    7,$35,$53,0,$FF,0,7
         defb    8,$37,$4A,0,$97,$EC,0,8
-        defb    17,$34,$58,0,$45,$64,$69,$84,$E8,$70,$8D,$73,$73,$69,$BC,0,$83  ; !! last byte invalid - Edit Expression
+        defb    17,$34,$58,0,$45,$64,$69,$84,$E8,$70,$8D,$73,$73,$69,$BC,0,17       ; was $83  (invalid)
         defb    12,$2C,$4B,0,$CB,$C8,$66,$86,$A2,$C9,0,12
         defb    19,$39,$45,$4E,$54,0,$4E,$75,$6D,$62,$86,$3C,$3E,$54,$65,$78,$74,0,19
         defb    18,$33,$52,0,$46,$8F,$6D,$61,$84,$50,$8C,$61,$67,$E2,$70,$68,0,18
@@ -244,11 +244,11 @@ xdef    PanelDOR
         defb    7,$13,$53,0,$FF,0,7                             ; Swap Case
         defb    8,$3F,$4A,0,$97,$EC,0,8                         ; Next Option
         defb    16,$3E,$45,$4D,$46,0,$4D,$65,$6D,$8F,$D6,$46,$8D,$65,0,16       ; Memory Free
-        defb    13,$3D,$45,$53,$4C,0,$53,$D9,$69,$84,$A9,1,13   ; Split Line
-        defb    13,$3B,$45,$4A,$4C,0,$4A,$6F,$A3,$A9,$73,0,13   ; Join Lines
+        defb    13,$3D,$45,$53,$4C,0,$53,$D9,$69,$84,$A9,1,13           ; Split Line
+        defb    13,$3B,$45,$4A,$4C,0,$4A,$6F,$A3,$A9,$73,0,13           ; Join Lines
         defb    1
-        defb    8,$40,$46,$4C,0,$E1,0,8                         ; Load
-        defb    9,$41,$46,$53,0,$BD,$65,0,9                     ; Save
+        defb    8,$40,$46,$4C,0,$E1,0,8                                 ; Load
+        defb    9,$41,$46,$53,0,$BD,$65,0,9                             ; Save
         defb    0
 
 .PrinterEdTopics
@@ -265,8 +265,8 @@ xdef    PanelDOR
         defm    7,$FC,$FC,0,$A8,0,7
         defm    7,$24,$FF,0,$DA,0,7
         defm    7,$25,$FE,0,$DB,0,7
-        defm    14,$27,$FB,0,"Page 1/2",1,14       ; Page 1/2
-        defm    14,$28,$FA,0,"Page 1/2",0,14       ; Page 1/2  !! should be 2/2?
+        defm    14,$27,$FB,0,"Page 1/2",1,14                            ; Page 1/2
+        defm    14,$28,$FA,0,"Page 2/2",0,14                            ; Page 2/2
         defm    24,$2E,$49,$53,$4F,0,"ISO Translations",0,24            ; ISO Translations
         defm    1
         defm    8,$29,$46,$4C,0,$E1,0,8
@@ -353,29 +353,29 @@ xdef    PanelDOR
 
 
 .IndexDOR
-        defp    0,0                             ; parent
-        defp    DiaryDOR,BANK_MTH               ; brother
-        defp    0,0                             ; son
-        defb    $83,IndexDORe-$PC               ; DOR type, sizeof
+        defp    0,0                                             ; parent
+        defp    DiaryDOR,BANK_MTH                               ; brother
+        defp    0,0                                             ; son
+        defb    DM_ROM,IndexDORe-$PC                            ; DOR type, sizeof
 
-        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
-        defb    'I',0                           ; application key letter, bad app RAM
-        defw    0,$28,0                         ; env. size, unsafe and safe workspace
-        defw    $C000                           ; entry point
-        defb    0,0,0,2                         ; bindings
-        defb    AT_Good|AT_Popd|AT_Ones         ; appl type
-        defb    0                               ; appl type 2
+        defb    '@',18,0,0                                      ; info, info sizeof, 2xreserved
+        defb    'I',0                                           ; application key letter, bad app RAM
+        defw    0,$28,0                                         ; env. size, unsafe and safe workspace
+        defw    $C000                                           ; entry point
+        defb    0,0,0,2                                         ; bindings
+        defb    AT_Good|AT_Popd|AT_Ones                         ; appl type
+        defb    0                                               ; appl type 2
 
-        defb    'H',12                          ; help, sizeof
-        defp    IndexTopics,BANK_MTH            ; topics
-        defp    IndexCommands,BANK_MTH          ; commands
-        defp    IndexDOR,BANK_MTH               ; help (no help, point at 0)
-        defp    SysTokenBase,BANK_MTH           ; token base
+        defb    'H',12                                          ; help, sizeof
+        defp    IndexTopics,BANK_MTH                            ; topics
+        defp    IndexCommands,BANK_MTH                          ; commands
+        defp    IndexDOR,BANK_MTH                               ; help (no help, point at 0)
+        defp    SysTokenBase,BANK_MTH                           ; token base
 
-        defb    'N',IndexDORe-$PC-1             ; name, length
+        defb    'N',IndexDORe-$PC-1                             ; name, length
         defm    "Index",0
 .IndexDORe
-        defb    $FF                             ; terminate
+        defb    $FF                                             ; terminate
 
 .DiaryDOR
         defp    0,0                             ; parent
@@ -585,7 +585,7 @@ xdef    PanelDOR
         defp    0,0                             ; parent
         defp    PanelDOR,BANK_MTH               ; brother
         defp    0,0                             ; son
-        defb    $83, PrEdDORe-$PC               ; DOR type, sizeof
+        defb    DM_ROM, PrEdDORe-$PC               ; DOR type, sizeof
 
         defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
         defb    'E',0                           ; application key letter, bad app RAM
