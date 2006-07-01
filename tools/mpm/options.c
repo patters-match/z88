@@ -48,7 +48,7 @@ static void GetCmdLineDefSym(char *flagid);
 /* globally defined variables */
 char copyrightmsg[] = MPM_COPYRIGHTMSG;
 
-enum flag pass1, uselistingfile, symtable, mpmbin, writeline, mapref;
+enum flag pass1, uselistingfile, createlistingfile, symtable, mpmbin, writeline, mapref;
 enum flag createglobaldeffile, datestamp, addressalign;
 enum flag deforigin, verbose, asmerror, EOL, uselibraries, createlibrary, autorelocate;
 enum flag useothersrcext, codesegment, expl_binflnm;
@@ -78,7 +78,7 @@ DefaultOptions (void)
   AddPathNode (getenv(ENVNAME_LIBRARYPATH), &gLibraryPath);
 
   symtable = writeline = mapref = ON;
-  verbose = useothersrcext = uselistingfile = mpmbin = datestamp = asmerror = codesegment = addressalign = OFF;
+  verbose = useothersrcext = createlistingfile = mpmbin = datestamp = asmerror = codesegment = addressalign = OFF;
   deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = swapIXIY = clinemode = OFF;
 
   strcpy(objext, ".obj"); /* default object filename extension */
@@ -192,7 +192,7 @@ SetAsmFlag (char *flagid)
         {
           case 'c': codesegment = Option; break;
           case 'C': clinemode = Option; break;
-          case 't': uselistingfile = Option; break;
+          case 't': createlistingfile = uselistingfile = Option; break;
           case 'a': mpmbin = Option; datestamp = Option; break;
           case 's': symtable = Option; break;
           case 'b': mpmbin = Option; break;
@@ -253,10 +253,12 @@ display_options (void)
     puts ("Assemble only updated files.");
   else
     puts ("Assemble all files");
-  if (uselistingfile == ON)
+  if (createlistingfile == ON)
     puts ("Create listing file.");
-  if (symtable == ON && uselistingfile == ON)
+  if (symtable == ON && createlistingfile == ON)
     puts ("Create symbol table.");
+  if (symtable == ON && createlistingfile == OFF)
+    puts ("Create symbol table file.");
   if (createglobaldeffile == ON)
     puts ("Create global definition file.");
   if (createlibrary == ON)

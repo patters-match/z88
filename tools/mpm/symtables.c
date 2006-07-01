@@ -49,7 +49,7 @@ static symbol_t *AllocSymbol (void);
 
 /* external variables */
 extern short PAGENO;
-extern enum flag symtable, uselistingfile, pass1;
+extern enum flag symtable, pass1;
 extern FILE *listfile;
 extern module_t *CURRENTMODULE;    /* pointer to current module */
 

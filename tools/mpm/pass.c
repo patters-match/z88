@@ -70,15 +70,15 @@ extern char copyrightmsg[];
 extern char *date, ident[], separators[];
 extern char *srcfilename, *lstfilename, *objfilename, *errfilename;
 extern enum symbols sym;
-extern enum flag uselistingfile, verbose, writeline;
+extern enum flag createlistingfile, uselistingfile, verbose, writeline;
 extern enum flag pass1, symtable, deforigin, EOL;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern unsigned long PC, oldPC;
 extern unsigned long EXPLICIT_ORIGIN;
-extern unsigned char *codearea, *codeptr, PAGELEN;
+extern unsigned char *codearea, *codeptr;
 extern size_t CODESIZE;
 extern int ASSEMBLE_ERROR, ERRORS, WARNINGS;
-extern int PAGENO, LINENO, TOTALERRORS;
+extern int PAGENO, LINENO, PAGELEN, TOTALERRORS;
 extern long listfileptr, TOTALLINES;
 extern modules_t *modulehdr;
 extern module_t *CURRENTMODULE;
@@ -259,13 +259,13 @@ AssembleSourceFile (void)
       return 0;
     }
 
-  if (uselistingfile == ON)
+  if (createlistingfile == ON)
     {
       if ((listfile = fopen (AdjustPlatformFilename(lstfilename), "w+")) != NULL)
-        {                       /* Create LIST or symbol file */
+        {                       /* Create Listing or symbol file */
           PAGENO = 0;
           LINENO = 6;
-          WriteHeader ();                       /* Begin list file with a header */
+          WriteHeader ();                       /* Begin list/symbol file with a header */
           listfileptr = ftell (listfile);       /* Get file pos. of next line in list file */
         }
       else
@@ -274,6 +274,7 @@ AssembleSourceFile (void)
           return 0;
         }
     }
+
   if ((objfile = fopen (AdjustPlatformFilename(objfilename), "w+b")) != NULL)           /* Create relocatable object file */
     {
       fwrite (MPMOBJECTHEADER, sizeof (char), strlen (MPMOBJECTHEADER), objfile);
@@ -498,11 +499,30 @@ SourceFilePass2 (void)
       CURRENTMODULE->mexpr = NULL;
       CURRENTMODULE->JRaddr = NULL;
     }
-  if ((TOTALERRORS == 0) && (symtable == ON) && (listfile != NULL))
+
+  if ((TOTALERRORS == 0) && (symtable == ON))
     {
-      WriteSymbolTable ("Local Module Symbols:", CURRENTMODULE->localroot);
-      WriteSymbolTable ("Global Module Symbols:", globalroot);
+      if (createlistingfile == OFF)
+        {
+          /* create a dedicated *.SYM file for the symbol table, if listing file is not enabled */
+          if ((listfile = fopen (AdjustPlatformFilename(lstfilename), "w+")) != NULL)
+            {
+               PAGENO = 0;
+               LINENO = 6;
+            }
+          else
+            {
+               ReportIOError (lstfilename);
+            }
+        }
+
+      if (listfile != NULL)
+        {
+           WriteSymbolTable ("Local Module Symbols:", CURRENTMODULE->localroot);
+           WriteSymbolTable ("Global Module Symbols:", globalroot);
+        }
     }
+
   fptr_namedecl = ftell (objfile);
 
   /* Store Local Name declarations to relocatable file */
@@ -669,6 +689,7 @@ ReleaseFile (sourcefile_t *srcfile)
   free (srcfile->fname);        /* Release allocated area for filename */
   free (srcfile);               /* Release file information record for this file */
 }
+
 
 
 /*
@@ -965,7 +986,7 @@ LineCounter (void)
 
 
 static void
-WriteHeader (void)
+WriteHeader ()
 {
   fprintf (listfile, "%s", copyrightmsg);
   fprintf (listfile, "%*.*s", (int) 122 - strlen (copyrightmsg), (int) strlen (date), date);
@@ -1000,7 +1021,7 @@ WriteSymbol (symbol_t *n)
     {                           /* Write only symbols related to current module */
       if ((n->type & SYMLOCAL) || (n->type & SYMXDEF))
         {
-          if ((n->type & SYMTOUCHED))
+          if (n->type & SYMTOUCHED)
             {
               fprintf (listfile, "%s%*s", n->symname, 32-strlen(n->symname),"");
               fprintf (listfile, "= %08lX", n->symvalue);
@@ -1034,14 +1055,14 @@ WriteSymbol (symbol_t *n)
 /* ------------------------------------------------------------------------------------------
    FILE *OpenObjectFile(char *filename, char **objversion)
 
-   Open the specified file and evaluate that it is an Z80asm or Mpm generated 
+   Open the specified file and evaluate that it is an Z80asm or Mpm generated
    object file. If successfully validated, the opened file handle is returned to the
    caller, and a pointer to the object file watermark type string is returned.
    The file pointer has been positioned at the first byte after the watermark
    (it points at the object module ORIGIN).
 
    If the object file couldn't be opened or is not recognized,
-   a NULL file handle and NULL watermark is returned. 
+   a NULL file handle and NULL watermark is returned.
    The routine also reports errors to the global error system for file I/O and
    unrecognized object file.
    ------------------------------------------------------------------------------------------ */

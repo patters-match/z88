@@ -58,12 +58,10 @@ static int GetModuleSize (void);
 FILE *srcasmfile, *listfile, *errfile, *objfile, *mapfile, *modsrcfile, *libfile;
 
 long TOTALLINES;
-char PAGELEN;
-short PAGENO; 
-int LINENO;
+int PAGELEN, PAGENO, LINENO;
 
 char *srcfilename, *lstfilename, *objfilename, *errfilename, *libfilename;
-const char asmext[] = ".asm", lstext[] = ".lst", defext[] = ".def", binext[] = ".bin";
+const char asmext[] = ".asm", lstext[] = ".lst", symext[] = ".sym", defext[] = ".def", binext[] = ".bin";
 const char mapext[] = ".map", wrnext[] = ".wrn", errext[] = ".err", libext[] = ".lib", segmbinext[] = ".bn0";
 char srcext[5];                 /* contains default source file extension */
 char objext[5];                 /* contains default object file extension */
@@ -79,8 +77,8 @@ char *date;                             /* pointer to datestring calculated from
 
 /* externally defined variables */
 extern int ASSEMBLE_ERROR, ERRORS, TOTALERRORS, WARNINGS, TOTALWARNINGS;
-extern enum flag datestamp, verbose, useothersrcext, autorelocate;
-extern enum flag uselistingfile, createlibrary, asmerror, mpmbin, mapref, createglobaldeffile;
+extern enum flag datestamp, verbose, useothersrcext, symtable, autorelocate;
+extern enum flag createlistingfile, createlibrary, asmerror, mpmbin, mapref, createglobaldeffile;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern libraries_t *libraryhdr;
 extern modules_t *modulehdr;
@@ -291,6 +289,7 @@ main (int argc, char *argv[])
   for (;;)
     {                           /* Module loop */
       srcasmfile = listfile = objfile = errfile = NULL;
+      srcfilename = lstfilename = objfilename = errfilename = NULL;
 
       codeptr = codearea;       /* Pointer (PC) to store instruction opcode */
       ERRORS = 0;
@@ -350,9 +349,20 @@ main (int argc, char *argv[])
           break;
         }
 
-      if (uselistingfile == ON)
+      if (createlistingfile == ON)
         {
           lstfilename = AddFileExtension((const char *) srcfilename, lstext);
+          if (lstfilename == NULL)
+            {
+              ReportError (NULL, 0, Err_Memory);   /* No more room */
+              break;
+            }
+        }
+
+      if (createlistingfile == OFF && symtable == ON)
+        {
+          /* Create symbol table in separate file (listing file not enabled) */
+          lstfilename = AddFileExtension((const char *) srcfilename, symext);
           if (lstfilename == NULL)
             {
               ReportError (NULL, 0, Err_Memory);   /* No more room */

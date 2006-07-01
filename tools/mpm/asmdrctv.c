@@ -551,7 +551,7 @@ DEFVARS (void)
   expression_t *postfixexpr;
   long offset;
 
-  writeline = OFF;              /* DEFVARS definitions are not output'ed to uselistingfile file */
+  writeline = OFF;              /* DEFVARS definitions are not output'ed to listing file */
   GetSym ();
 
   if ((postfixexpr = ParseNumExpr ()) != NULL)

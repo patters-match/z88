@@ -59,7 +59,7 @@ static void WriteMapSymbol (symbol_t * mapnode);
 static int LinkTracedModule (char *filename, long baseptr);
 
 /* externally defined variables */
-extern FILE *listfile, *mapfile, *srcasmfile, *errfile, *libfile;
+extern FILE *mapfile, *srcasmfile, *errfile, *libfile;
 extern char line[], ident[];
 extern char *objfilename, *errfilename, *libfilename;
 extern const char binext[], segmbinext[], mapext[], errext[], libext[], defext[];
@@ -71,10 +71,10 @@ extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern unsigned long PC;
 extern unsigned long EXPLICIT_ORIGIN;
 extern size_t CODESIZE;
-extern unsigned char *codearea, PAGELEN;
+extern unsigned char *codearea;
 extern int ASSEMBLE_ERROR, listfileptr;
 extern module_t *CURRENTMODULE;
-extern int PAGENO, TOTALERRORS;
+extern int PAGENO, PAGELEN, TOTALERRORS;
 extern avltree_t *globalroot;
 extern symbol_t *gAsmpcPtr, *__gAsmpcPtr;   /* pointer to Assembler PC symbol (defined in global symbol variables) */
 extern pathlist_t *gLibraryPath;
