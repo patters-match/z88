@@ -291,7 +291,7 @@ prompt (void)
   printf ("%s = source file (default), or alternative -e<ext> (3 chars)\n", asmext);
   printf ("%s = object file, %s = listing file, %s = symbol table file\n", objext, lstext, symext);
   printf ("%s = static linked executable binary, %s = address map file\n", binext, mapext);
-  printf ("%s = constant definition file, %s = error file, %s = library file\n", defext, errext, libext);
+  printf ("%s = global constant definition file, %s = error file, %s = library file\n", defext, errext, libext);
   puts ("\nFlag Options: -n = option OFF, eg. -nts = no listing file, no symbol table.");
   printf ("-v verbose assembly, -t listing file, -s symbol table, -m bin. address map file\n");
   puts ("-b static linking & relocation into executable binary of specified modules.");
