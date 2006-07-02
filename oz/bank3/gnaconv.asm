@@ -1632,10 +1632,10 @@ if KBFR
         defm    4,"Sam",              2,$A6
         defm    9,"Dimanche",         2,$87
         defm    4,"Dim",              2,$A7
-        defm    2,".",                2,$88     ; 'st'
-        defm    2,".",                2,$89     ; 'nd'
-        defm    2,".",                2,$8A     ; 'rd'
-        defm    2,".",                2,$8B     ; 'th'
+        defm    3,"er",               2,$88     ; first
+        defm    2,$A0,                2,$89     ; should be empty but crashes when set date in clock (when using 1,"",2,$89)
+        defm    2,$A0,                2,$8A     ; should be empty but crashes when set date in clock
+        defm    2,$A0,                2,$8B     ; should be empty but crashes when set date in clock
         defm    5,"avJC",             2,$8C     ; 'AD'
         defm    5,"apJC",             2,$8D     ; 'BC'
         defm    8,"Janvier",          2,$C1
