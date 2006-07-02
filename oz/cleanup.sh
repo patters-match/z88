@@ -31,7 +31,7 @@ find . -name "*.err" | xargs rm -f
 find . -name "*.obj" | xargs rm -f
 find . -name "*.lst" | xargs rm -f
 find . -name "*.err" | xargs rm -f
-find . -name "*.wrn" | xargs rm -f
+find . -name "*.sym" | xargs rm -f
 
 # only delete *.def files for rom banks (preserve /sysdef!)
 find ./bank0 -name "*.def" | xargs rm -f

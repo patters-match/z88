@@ -25,7 +25,7 @@
 @echo off
 
 :: delete all compile output files in bank0 - bank7 
-del /S /Q *.bin *.map *.obj *.lst *.err *.wrn 2>nul >nul
+del /S /Q *.bin *.map *.obj *.lst *.err *.wrn *.sym 2>nul >nul
 
 :: only delete *.def files for bank0 - bank7 (preserve \sysdef!)
 del /Q bank0\*.def bank2\*.def bank7\*.def 2>nul >nul
