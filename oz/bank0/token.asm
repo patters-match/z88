@@ -174,13 +174,8 @@ xref    fsRestoreS2                             ; bank0/filesys3.asm
         push    hl
         add     hl, bc
         ld      d, (hl)
-        ld      a, (bc)
-        cp      $80
-;        jr      c, gtc_2                        ; not using standard tokens
-;        ld      d, (hl)
-;.gtc_2
+        ld      a, d
         pop     hl
         inc     hl
-        ld      a, d
         ret
 
