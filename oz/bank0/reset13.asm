@@ -71,14 +71,14 @@ xref    KeymapTable                             ; bank7/keymap.asm
         pop     bc                              ; B=bank, use C to keep bank through Os_Sci
         ld      c,b
 
-        ld      h, 8
+        ld      h, LORES0_PAGE_EXP              ; 8
         ld      a, SC_LR0
-        OZ      OS_Sci                          ; LORES0
+        OZ      OS_Sci                          ; LORES0 at $xx 0800
 
         ld      b,c
-        ld      h, 0
+        ld      h, HIRES0_PAGE_EXP              ; 0
         ld      a, SC_HR0
-        OZ      OS_Sci                          ; HIRES0
+        OZ      OS_Sci                          ; HIRES0 at $xx 0000
 
         ld      d,c
         dec     d

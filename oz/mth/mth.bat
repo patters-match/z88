@@ -23,6 +23,11 @@
 
 @echo off
 
+..\..\tools\mpm\mpm -bg -I..\sysdef font.asm
+dir *.err 2>nul >nul || goto COMPILE_SYSTOKEN
+goto COMPILE_ERROR
+
+:COMPILE_SYSTOKEN
 ..\..\tools\mpm\mpm -bg -I..\sysdef systoken.asm
 dir *.err 2>nul >nul || goto COMPILE_APPDORS
 goto COMPILE_ERROR

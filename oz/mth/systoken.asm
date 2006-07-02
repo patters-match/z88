@@ -27,7 +27,7 @@ module SystemToken
 
 xdef    SysTokenBase
 
-org $0000
+org $1000
 
 .SysTokenBase
         defb $80                                ; recursive token boundary

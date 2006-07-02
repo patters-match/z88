@@ -370,7 +370,23 @@ defc    PrtSeqBuf               =$7eec
 
 ;       screen/window related
 
-defc    SBF_BANK                =$21
+defc    LORES0_BANK_UNEXP       =$21
+defc    LORES0_PAGE_UNEXP       =$22
+;       LORES0_BANK_EXP         =$24 or $43     ; calculated by the routine
+defc    LORES0_PAGE_EXP         =$08
+
+defc    LORES1_BANK             =$1F            ; last ROM bank
+defc    LORES1_PAGE             =$00
+
+defc    HIRES0_BANK_UNEXP       =$21
+defc    HIRES0_PAGE_UNEXP       =$20
+;       HIRES0_BANK_EXP         =$24 or $43     ; calculated by the routine
+defc    HIRES0_PAGE_EXP         =$00
+
+defc    HIRES1_BANK             =$1F            ; last ROM bank
+defc    HIRES1_PAGE             =$08
+
+defc    SBF_BANK                =$20
 defc    SBF_PAGE                =$78
 
 defc    SBF_ADDRESS             =SBF_PAGE<<8

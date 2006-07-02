@@ -98,23 +98,23 @@ xref    LowRAMcode_e                            ; bank7/lowram0.asm
 
 ;       init screen file for unexpanded machine
 
-        ld      b, $21
-        ld      h, $22
-        ld      a, 1
+        ld      b, LORES0_BANK_UNEXP
+        ld      h, LORES0_PAGE_UNEXP
+        ld      a, SC_LR0
         OZ      OS_Sci                          ; LORES0 at 21:2200-22FF
-        ld      b, 7
-        ld      h, 0
+        ld      b, LORES1_BANK
+        ld      h, LORES1_PAGE
         inc     a
         OZ      OS_Sci                          ; LORES1 at 07:0000-07FF
-        ld      b, $21
-        ld      h, $20
+        ld      b, HIRES0_BANK_UNEXP
+        ld      h, HIRES0_PAGE_UNEXP
         inc     a
         OZ      OS_Sci                          ; HIRES0 at 21:2200-23FF
-        ld      b, 7
-        ld      h, 8
+        ld      b, HIRES1_BANK
+        ld      h, HIRES1_PAGE
         inc     a
         OZ      OS_Sci                          ; HIRES1 at 07:0800-0FFF
-        ld      b, $20
+        ld      b, SBF_BANK
         ld      h, SBF_PAGE
         inc     a
         OZ      OS_Sci                          ; SBF at 20:7800-7FFF - this inits memory
