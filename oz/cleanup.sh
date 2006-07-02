@@ -38,3 +38,5 @@ find ./bank0 -name "*.def" | xargs rm -f
 find ./bank1 -name "*.def" | xargs rm -f
 find ./bank2 -name "*.def" | xargs rm -f
 find ./bank7 -name "*.def" | xargs rm -f
+find ./mth -name "*.def" | xargs rm -f
+
