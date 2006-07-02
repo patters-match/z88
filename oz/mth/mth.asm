@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OZ Rom Header, placed at top bank of Rom, offset $3fc0 - $3fff.
+; Main file for OZ System Token Table, application MTH static structures and DORs.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -21,33 +21,16 @@
 ; $Id$
 ; ***************************************************************************************************
 
-    MODULE RomHeader
+        module Mth
 
-    ORG $3FC0
+        org $1000                               ; MTH static structures start at offset $1000 in top ROM bank.
 
-; Application front DOR, in top bank of ROM, starting at $3FC0
+; ---------------------------------------------------------------------------------------------------
+; This module serves only for naming the 'mth.bin' file which is loaded into top bank of ROM.
 
-     include "mth.def"
-     include "sysvar.def"
-
-.appl_front_dor                                 ; $3FC0
-        defp 0, 0                               ; no link to parent ...
-        defp 0, 0                               ; no help DOR
-        defp IndexDor,BANK_MTH                  ; link to first application DOR
-        defb $13                                ; DOR type - ROM front DOR
-        defb 8                                  ; length of DOR
-        defb 'N'
-        defb 5                                  ; length of name and terminator
-        defm "APPL", 0
-        defb $FF                                ; end of application front DOR
-
-        defs 37                                 ; blanks to fill-out space.
-
-.eprom_header
-        defb $54,$43,$4C                        ; $3FF8, card ID "TCL"
-        defb $81                                ; $3FFB, external app would be $80
-        defb ROMSIZE                            ; $3FFC, size of ROM in banks
-        defb 0                                  ; $3FFD, subtype
-.oz_watermark
-        defm "OZ"                               ; $3FFE card is an application EPROM
-.RomTop
+; The data layout of the binary is:
+;
+; <Token table>
+; <MTH static structures>
+; <Application DORS>
+; ---------------------------------------------------------------------------------------------------

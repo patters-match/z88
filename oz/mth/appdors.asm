@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Application/Popdown DOR & MTH definitions (top bank of ROM, addressed for segment 3).
+; Application/Popdown DOR & MTH definitions (top bank of ROM).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -35,11 +35,11 @@
         include "director.def"
         include "dor.def"
         include "sysvar.def"
-        include "../mth/systoken.def"
+
         include "../bank1/impexp.inc"
         include "../bank1/impexp.def"
 
-        org $3100
+xref    SysTokenBase
 
 xdef    PrinterEdTopics
 xdef    PrinterEdCommands

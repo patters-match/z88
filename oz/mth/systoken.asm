@@ -1,5 +1,6 @@
 ; **************************************************************************************************
-; OZ System token table, used by MTH static structures.
+; OZ System token table, used by MTH static structures in most standard OZ applications and popdowns.
+;
 ; This table was extracted out of Font bitmap from original V4.0 ROM,
 ; using FontBitMap tool that auto-generated the token table sources.
 ;
@@ -27,7 +28,6 @@ module SystemToken
 
 xdef    SysTokenBase
 
-org $1000
 
 .SysTokenBase
         defb $80                                ; recursive token boundary

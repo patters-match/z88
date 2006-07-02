@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OZ Rom Header, placed at top bank of Rom, offset $3fc0 - $3fff.
+; Compile project for System Token Table, Application/Popdown DOR & MTH definitions (top bank of ROM).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -18,36 +18,13 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
+; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2005,2006
+; (C) Gunther Strube (gbs@users.sf.net), 2005,2006
+;
 ; $Id$
 ; ***************************************************************************************************
 
-    MODULE RomHeader
-
-    ORG $3FC0
-
-; Application front DOR, in top bank of ROM, starting at $3FC0
-
-     include "mth.def"
-     include "sysvar.def"
-
-.appl_front_dor                                 ; $3FC0
-        defp 0, 0                               ; no link to parent ...
-        defp 0, 0                               ; no help DOR
-        defp IndexDor,BANK_MTH                  ; link to first application DOR
-        defb $13                                ; DOR type - ROM front DOR
-        defb 8                                  ; length of DOR
-        defb 'N'
-        defb 5                                  ; length of name and terminator
-        defm "APPL", 0
-        defb $FF                                ; end of application front DOR
-
-        defs 37                                 ; blanks to fill-out space.
-
-.eprom_header
-        defb $54,$43,$4C                        ; $3FF8, card ID "TCL"
-        defb $81                                ; $3FFB, external app would be $80
-        defb ROMSIZE                            ; $3FFC, size of ROM in banks
-        defb 0                                  ; $3FFD, subtype
-.oz_watermark
-        defm "OZ"                               ; $3FFE card is an application EPROM
-.RomTop
+mth
+systoken
+appdors

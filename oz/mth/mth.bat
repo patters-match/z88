@@ -24,16 +24,11 @@
 @echo off
 
 ..\..\tools\mpm\mpm -bg -I..\sysdef font.asm
-dir *.err 2>nul >nul || goto COMPILE_SYSTOKEN
+dir *.err 2>nul >nul || goto COMPILE_MTH
 goto COMPILE_ERROR
 
-:COMPILE_SYSTOKEN
-..\..\tools\mpm\mpm -bg -I..\sysdef systoken.asm
-dir *.err 2>nul >nul || goto COMPILE_APPDORS
-goto COMPILE_ERROR
-
-:COMPILE_APPDORS
-..\..\tools\mpm\mpm -bg -I..\sysdef appdors.asm
+:COMPILE_MTH
+..\..\tools\mpm\mpm -bg -I..\sysdef @mth.prj
 dir *.err 2>nul >nul || goto COMPILE_ROMHDR
 goto COMPILE_ERROR
 

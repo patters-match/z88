@@ -30,14 +30,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -I../sysdef systoken.asm
-if test `find . -name '*.err' | wc -l` != 0; then
-  cat *.err
-  echo Script aborted.
-  exit 1
-fi
-
-../../tools/mpm/mpm -bg -I../sysdef appdors.asm
+../../tools/mpm/mpm -bg -I../sysdef @mth.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.

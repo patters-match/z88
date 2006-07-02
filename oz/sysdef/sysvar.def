@@ -1,7 +1,7 @@
 lstoff
 
 ; **************************************************************************************************
-; OZ System definitions
+; OZ System Definitions.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -781,13 +781,13 @@ defc    ST_B_APPLROM            =1
 
 defc    ROMSIZE                 =16             ; now OZ fits in a 256K ROM
 
-defc    OZBANK_0        =0
-defc    OZBANK_DC       =2
-defc    OZBANK_RS232    =2
-defc    OZBANK_FPP      =2
-defc    OZBANK_GN       =3
-defc    OZBANK_PRFILTER =3
-defc    OZBANK_7        =7
+defc    OZBANK_0                =$00
+defc    OZBANK_DC               =$02
+defc    OZBANK_RS232            =$02
+defc    OZBANK_FPP              =$02
+defc    OZBANK_GN               =$03
+defc    OZBANK_PRFILTER         =$03
+defc    OZBANK_7                =$07
 defc    BANK_MTH                =$0F            ; OZ static structures
 
 defc    OZCALLTBL               =$ff00

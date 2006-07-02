@@ -60,7 +60,6 @@ bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel O
 bank7/keymap.bin 073300                         ; country specific keyboard tables (always placed at page boundary)
 
 ; MTH and other static structures in last ROM bank
-mth/font.bin 0f0000
-mth/systoken.bin 0f1000                         ; the system token table
-mth/appdors.bin 0f3100                          ; DORs & MTHs
+mth/font.bin 0f0000                             ; the Font bitmap (Normal, Bold, Tiny)
+mth/mth.bin 0f1000                              ; the System Token Table, MTH static structures and application DORs
 mth/romhdr.bin 0f3fc0                           ; Front DOR and 'OZ' header at top of ROM code
