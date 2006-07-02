@@ -672,13 +672,13 @@ xdef    PanelDOR
         defw    Imp_Export                      ; entry point
         defb    0,0,0,1                         ; bindings
         defb    AT_Good|AT_Popd,0               ; appl type
-        defb    DT_HLP,12                       ; appl type 2
-        defp    ImpExpDOR,BANK_MTH
-        defp    ImpExpDOR,BANK_MTH              ; help, sizeof
+        defb    DT_HLP,12                       ; help, sizeof
         defp    ImpExpDOR,BANK_MTH              ; topics
-        defp    0,0                             ; commands
-                                                ; help (no help, point at 0)
-        defb    DT_NAM, ImpExpDORe-$PC-1        ; token base
+        defp    ImpExpDOR,BANK_MTH              ; commands
+        defp    ImpExpDOR,BANK_MTH              ; help (no help, point at 0)
+        defp    0,0                             ; no token base
+
+        defb    DT_NAM, ImpExpDORe-$PC-1
         defm    "Imp-Export",0                  ; name, length
 .ImpExpDORe
         defb    $FF                             ; terminate
