@@ -58,7 +58,7 @@ public class FontBitMap {
 
 	/**
 	 * Return Binary 8bit string in 01010101b zero prefixed format.
-	 * 
+	 *
 	 * @param b
 	 *            The byte to be converted to binary string
 	 * @param binTrailer
@@ -82,7 +82,7 @@ public class FontBitMap {
 
 	/**
 	 * Return Hex 8bit string in XXh zero prefixed format.
-	 * 
+	 *
 	 * @param b
 	 *            The byte to be converted to hex string
 	 * @param hexTrailer
@@ -101,7 +101,7 @@ public class FontBitMap {
 
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
-	 * 
+	 *
 	 * @param addr
 	 *            The 16bit address to be converted to hex string
 	 * @param hexTrailer
@@ -166,7 +166,7 @@ public class FontBitMap {
 	/**
 	 * Dump the embedded Token Table in font bitmap as out-commented source code
 	 * in the assembler output file.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void dumpTokenTableSource() throws IOException {
@@ -243,7 +243,7 @@ public class FontBitMap {
 
 	/**
 	 * Dump the embedded Token Table in font bitmap as stand-alone binary file
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void dumpTokenTable() throws IOException {
@@ -256,8 +256,9 @@ public class FontBitMap {
 			int tbyte = 0;
 			for (int bits = b; bits < (b + 4); bits++) {
 				tbyte = (tbyte << 2) | ((fontBitMap[bits] & 0xc0) >>> 6);
-				if (preserveTokenBits == false)
-					fontBitMap[bits] &= 0x3f;					
+				if (preserveTokenBits == false & (b < 0xc00))
+				        // only strip bits 7,6 in LORES font...
+					fontBitMap[bits] &= 0x3f;
 			}
 			tokenTable[index++] = (byte) tbyte;
 		}
@@ -296,7 +297,7 @@ public class FontBitMap {
 			// dump the embedded Token Table in font bitmap as stand-alone file image (1K)
 			// (strip bits 7,6 of font map while exporting token table binary (if enabled)
 			dumpTokenTable();
-			
+
 			// dump the Font Bitmap as stand-alone file image (4K)
 			dumpFontBitMap();
 
@@ -326,7 +327,7 @@ public class FontBitMap {
 	/**
 	 * Open specified Z88 ROM, scan Z88 font bitmap and generate source code for
 	 * fonts and token table.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
