@@ -39,7 +39,7 @@
         include "../bank1/impexp.inc"
         include "../bank1/impexp.def"
 
-        org $32F0
+        org $3100
 
 xdef    PrinterEdTopics
 xdef    PrinterEdCommands
@@ -68,6 +68,12 @@ xdef    PanelDOR
         defb    23,7,$4B,$49,$4C,$4C,0,$80,$4B,$49,$4C,$4C,$20,$41,$43,$54,$49,$56,$49,$54,$59,9,23
         defb    23,9,$50,$55,$52,$47,$45,0,$80,$50,$55,$52,$47,$45,$20,$53,$59,$53,$54,$45,$4D,8,23
         defb    0
+.IndexHelp
+        defm    $7F, "All insertion and removal of cards must be done from", $7F
+        defm    "the INDEX. Do not remove any RAM card, or a ROM card", $7F
+        defm    "which is in use. A continuous tone asks for a ROM", $7F
+        defm    "card to be reinserted into its original slot.", $7F
+        defm    "A ", 1,"TFAIL", 1, "T message requires the machine to be reset."
 
 .PipeDreamTopics
         defb    0
@@ -349,8 +355,6 @@ xdef    PanelDOR
         defb    9,$0B,$FB,0,$9C,$20,$33,0,9                     ; Function 3
         defb    0
 
-        defs    $43 ($ff)
-
 
 .IndexDOR
         defp    0,0                                             ; parent
@@ -369,7 +373,7 @@ xdef    PanelDOR
         defb    'H',12                                          ; help, sizeof
         defp    IndexTopics,BANK_MTH                            ; topics
         defp    IndexCommands,BANK_MTH                          ; commands
-        defp    IndexDOR,BANK_MTH                               ; help (no help, point at 0)
+        defp    IndexHelp,BANK_MTH                              ; help (no help, point at 0)
         defp    SysTokenBase,BANK_MTH                           ; token base
 
         defb    'N',IndexDORe-$PC-1                             ; name, length
