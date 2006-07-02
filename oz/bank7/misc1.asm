@@ -232,9 +232,9 @@ xref    S2VerifySlotType                        ; bank0/misc5.asm
         defb    $FF
 
 .Rom0_dor
-        defb    0,0,0, 0,0,0, $C0,$BF,$07
-        defb    DM_ROM, 9
-        defb    DT_NAM, 6
+        defb    0,0,0, 0,0,0, $C0,$BF,$1F       ; Use last bank of slot 0 ($1F)
+        defb    DM_ROM, 9                       ; this allow to use larger ROM than 128K
+        defb    DT_NAM, 6                       ; up to 512K is allowed
         defm    "ROM.0",0
         defb    $FF
 

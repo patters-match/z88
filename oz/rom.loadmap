@@ -58,9 +58,8 @@ bank6/basic.dat 061200                          ; $D200: BBC BASIC application
 ; kernel lower part (addressed from $8000 upwards)
 bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel OS
 bank7/keymap.bin 073300                         ; country specific keyboard tables (always placed at page boundary)
-mth/romhdr.bin 073fc0                           ; copy of Rom Front DOR at $3FC0, because OZ expects it there...
-patch 073ffc 08                                 ; patch fake ROM header with size to 8 banks (if any other code needs it)...
 
+; MTH and other static structures in last ROM bank
 mth/systoken.bin 0f0000                         ; the system token table
 mth/appdors.bin 0f32f0                          ; DORs & MTHs
 mth/romhdr.bin 0f3fc0                           ; Front DOR and 'OZ' header at top of ROM code
