@@ -51,10 +51,9 @@ xref    KeymapTable                             ; bank7/keymap.asm
 
         call    MS2BankK1                       ; bind in more code
         call    RstRdPanelAttrs
-        call    MS2BankK1
-        ld      hl, KeymapTable | $07           ; page | bank
+        ld      hl, KeymapTable | KEYMAP_BANK   ; page | bank
         call    InitKbdPtrs
-
+        call    MS2BankK1
         jp      Reset5                          ; Reset5
 
 .ExpandMachine

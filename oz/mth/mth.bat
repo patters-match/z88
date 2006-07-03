@@ -23,7 +23,12 @@
 
 @echo off
 
-..\..\tools\mpm\mpm -bg -I..\sysdef font.asm
+..\..\tools\mpm\mpm -bg -DKB%1 -I..\sysdef font.asm
+dir *.err 2>nul >nul || goto COMPILE_KEYMAP
+goto COMPILE_ERROR
+
+:COMPILE_KEYMAP
+..\..\tools\mpm\mpm -bg -DKB%1 -I..\sysdef keymap.asm
 dir *.err 2>nul >nul || goto COMPILE_MTH
 goto COMPILE_ERROR
 

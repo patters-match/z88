@@ -176,6 +176,8 @@ defvars RandomPointers
         uwRandom2               ds.w    1
 enddef
 
+defc    KEYMAP_BANK             =$1F            ; at KeymapTable
+
 defc    KeymapTblPtrs           =$0405
 defvars KeymapTblPtrs
         km_bank                 ds.b    1       ; memory bank where tables are, bound in S2

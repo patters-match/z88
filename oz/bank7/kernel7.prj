@@ -43,3 +43,4 @@ initdata.asm
 lowram0.asm
 scrdrv1.asm
 ossr.asm
+key2chrt.asm

@@ -59,22 +59,21 @@ xref    MS2BankA                                ; bank0/misc5.asm
 xref    UpdateRnd                               ; bank0/random.asm
 xref    DrawOZWd                                ; bank0/ozwindow.asm
 
-
 ;       Stubs to bind keyboard data in/out S1
 
 .ExtKbMain                                      ; called from Int.asm $d96e (196e)
-        call    ExtCall
+        call    ExtCallForKbd
         defw    KbMain
 
 .ExtQualifiers                                  ; called from OsCli.asm $99E9 and OSIn.asm $EF86 (1d9e9 & 2f86)
-        call    ExtCall
+        call    ExtCallForKbd
         defw    ApplyQualifiers
 
 .ExtIsForeignKey                                ; called from OSIn.asm $f073 (3073)
-        call    ExtCall
+        call    ExtCallForKbd
         defw    IsForeignKey
 
-.ExtCall
+.ExtCallForKbd
         ex      (sp), hl                        ; push hl, get PC
         push    bc
         ld      c, a
@@ -944,6 +943,8 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 ; init ram vars of keyboard code
 ;
 .InitKbdPtrs
+        ld      a,l
+        call    MS2BankA                        ; bind 
         ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
                                                 ; $page00 is matrix, $page40 is shift table
 

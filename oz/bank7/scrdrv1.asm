@@ -10,7 +10,7 @@
         include "stdio.def"
         include "sysvar.def"
 
-        include "keymap.def"                    ; Key2Chr_tbl, Chr2VDU_tbl, VDU2Chr_tbl in bank7/keymap.asm (country specific)
+;        include "key2chrt.def"                    ; Key2Chr_tbl, Chr2VDU_tbl, VDU2Chr_tbl in bank7/keymap.asm (country specific)
 
 xdef    OSOutMain
 xdef    Chr2ScreenCode                          ; Char2OZwdChar
@@ -64,6 +64,8 @@ xref    InitWindowFrame                         ; bank0/scrdrv3.asm
 xref    ResetWdAttrs                            ; bank0/scrdrv3.asm
 xref    TogglePrFilter                          ; bank0/pfilter0.asm
 
+xref    VDU2Chr_tbl                             ;bank7/key2chrt.asm
+xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
 
 
 ;       ----
