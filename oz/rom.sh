@@ -66,7 +66,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling MTH structures
 cd mth
-. mth.sh $ozlocale%
+. mth.sh $ozlocale
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat mth/*.err

@@ -23,7 +23,14 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -bg -I../sysdef font.asm
+../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef font.asm
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat *.err
+  echo Script aborted.
+  exit 1
+fi
+
+../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.

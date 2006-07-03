@@ -23,7 +23,7 @@
 
         module Mth
 
-        org $1800                               ; MTH static structures start at offset $1000 in top ROM bank.
+        org $1800                               ; MTH static structures start at offset $1800 in top ROM bank.
 
 ; ---------------------------------------------------------------------------------------------------
 ; This module serves only for naming the 'mth.bin' file which is loaded into top bank of ROM.

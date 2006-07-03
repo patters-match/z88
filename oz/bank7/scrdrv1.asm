@@ -10,8 +10,6 @@
         include "stdio.def"
         include "sysvar.def"
 
-;        include "key2chrt.def"                    ; Key2Chr_tbl, Chr2VDU_tbl, VDU2Chr_tbl in bank7/keymap.asm (country specific)
-
 xdef    OSOutMain
 xdef    Chr2ScreenCode                          ; Char2OZwdChar
 xdef    OSIsq                                   ; Printer driver

@@ -39,7 +39,6 @@ fi
 if test "$COMPILE_ERROR" -eq 0; then
   cd bank7
   ../../tools/mpm/mpm -g -I../sysdef @lowram.prj
-  ../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap.asm
   cd ..
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
