@@ -238,7 +238,13 @@ main (int argc, char *argv[])
       puts("Try -h for more information.");
       exit (1);
     }
-    
+  else
+    if ((argc == 2 && strcmp(argv[1],"-h") == 0))
+      {
+        prompt();
+        exit(1);
+      }
+
   time (&asmtime);
   date = asctime (localtime (&asmtime));        /* get current system time for date in list file */
 

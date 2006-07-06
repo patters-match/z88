@@ -190,7 +190,6 @@ SetAsmFlag (char *flagid)
     {
       switch(*flagid)
         {
-          case 'h': prompt(); break;
           case 'c': codesegment = Option; break;
           case 'C': clinemode = Option; break;
           case 't': createlistingfile = uselistingfile = Option; break;
