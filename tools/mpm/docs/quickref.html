@@ -3,11 +3,11 @@
 <head>
 
 
-  
+
   <meta content="text/html; charset=us-ascii" http-equiv="content-type">
 
 
-  
+
   <title>Mpm Quick Reference Guide</title>
 </head>
 
@@ -55,7 +55,7 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
   <li><a href="#cmdline">Instructing the assembler on the command line</a>
-    
+
     <ul>
 
 
@@ -65,7 +65,7 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
       <li><a href="#options_par">Options with parameters</a></li>
 
 
-    
+
     </ul>
 
 
@@ -91,7 +91,7 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
   <li><a href="#expressions">Using expressions</a>
-    
+
     <ul>
 
 
@@ -110,7 +110,7 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
       <li><a href="#asmpc">The assembler program counter</a></li>
 
 
-    
+
     </ul>
 
 
@@ -118,7 +118,7 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
   <li><a href="#directiveref">Directive reference</a>
-    
+
     <ul>
 
 
@@ -179,7 +179,7 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
       <li><a href="#include">INCLUDE</a></li>
 
 
-    
+
     </ul>
 
 
@@ -443,7 +443,7 @@ vice versa. Not enabled by default.</td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -613,7 +613,7 @@ search paths).<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -684,7 +684,7 @@ directives.</td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -774,7 +774,7 @@ symbol table is dumped at the end of the listing file.</td>
 
       <td style="vertical-align: top;"><span style="font-family: monospace;">sym</span></td>
 
-      <td>Symbol Table file. This file contains a symbol name and hexadecimal value 
+      <td>Symbol Table file. This file contains a symbol name and hexadecimal value
 output columns of the
 found and used symbol definitions in the sources. The symbol table file
 is automatically generated if no listing file was enabled. This file is
@@ -841,7 +841,7 @@ option.</td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1094,7 +1094,7 @@ constants.<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1361,7 +1361,7 @@ symbol</span></td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1616,7 +1616,7 @@ even adresses, use an ALIGN at the end of each module.</td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1698,7 +1698,7 @@ is automatically null-terminated (appended with a 0 byte).<br>
 Example:<br>
 
 
-      
+
       <pre>ASCIIZ <span style="color: rgb(221, 0, 0);">"This is a title"</span>, 13, 10<br>
 DEFM <span style="color: rgb(221, 0, 0);">"(c) Zsoft 1995-2006"</span>, 13, 10, 'A', 0<br>
 DMZ 1 . <span style="color: rgb(221, 0, 0);">"7#1"</span> . 32 . 32 . 32<span style="color: rgb(0, 128, 0);">+</span>94 . 32<span style="color: rgb(0, 128, 0);">+</span>8 . 128<br></pre>
@@ -1709,7 +1709,7 @@ DMZ 1 . <span style="color: rgb(221, 0, 0);">"7#1"</span> . 32 . 32 . 32<span st
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1748,7 +1748,7 @@ updated to the end of the loaded binary code.</td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1797,7 +1797,7 @@ Expressions may be used to calculate the constant.<br>
 Example:<br>
 
 
-      
+
       <pre>DEFB (topic_info_help <span style="color: rgb(0, 128, 0);">-</span> z80asm_help) / 256<span style="color: rgb(128, 128, 128);"><span style="font-family: mon;"><span style="font-style: italic;">, </span></span></span>(topic_info_help <span style="color: rgb(0, 128, 0);">-</span> z80asm_help) % 256, @00010010<br></pre>
 
       </td>
@@ -1806,7 +1806,7 @@ Example:<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1872,7 +1872,7 @@ Example:<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1916,7 +1916,7 @@ version of Mpm.<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -1976,7 +1976,7 @@ z80asm_vars</span><br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2055,7 +2055,7 @@ sym_greater, sym_constexpr, sym_newline</span><br style="font-family: monospace;
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2102,7 +2102,7 @@ you can remove a previously created local symbol .<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2146,7 +2146,7 @@ in low byte, high byte order (little endian). Integer range is (-2147483647;
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2228,7 +2228,7 @@ token_base,</span> <span style="font-family: monospace;">tokens_bank&nbsp;&nbsp;
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2293,7 +2293,7 @@ $FF</span><br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2434,7 +2434,7 @@ deleting or inserting variable definitions.</td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2495,7 +2495,7 @@ size."</span><br style="font-family: monospace;">
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2534,7 +2534,7 @@ definition in a future version of Mpm.</td>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2579,7 +2579,7 @@ phase.<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2639,7 +2639,7 @@ const</span><br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2691,7 +2691,7 @@ other source modules.<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2802,7 +2802,7 @@ logic.<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
@@ -2831,7 +2831,7 @@ logic.<br>
     <tr>
 
 
-      <td>A&nbsp;frequently usage pattern is to 'link' an additional source
+      <td>A&nbsp;frequent usage pattern is to 'link' an additional source
 file together with the current source file. Usually this contains variable
 definitions that is commonly used by several modules in a project. This makes
 sense since there is no idea in copying the same information into several files
@@ -2872,7 +2872,7 @@ environment variable.<br>
     </tr>
 
 
-  
+
   </tbody>
 </table>
 
