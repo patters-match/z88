@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # EazyLink application make script for DOS/Windows
-# (C) Gunther Strube (gbs@users.sourceforge.net) 2005
+# (C) Gunther Strube (gbs@users.sourceforge.net) 2005-2006
 #
 # EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -26,8 +26,5 @@ rm -f *.obj *.bin *.map *.63 *.epr
 ../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @eazylink
 ../../tools/mpm/mpm -b romhdr
 
-# produce bank to be blown by RomCombiner or Zprom on real cards
-../../tools/makeapp/makeapp.sh eazylink.63 eazylink.bin 0000 romhdr.bin 3fc0
-
-# produce a complete 16K card image for OZvm
-../../tools/makeapp/makeapp.sh eazylink.epr eazylink.bin 0000 romhdr.bin 3fc0
+# produce bank to be blown by RomCombiner, Zprom or RomUpdate on real cards
+../../tools/makeapp/makeapp.sh -f eazylink.loadmap
