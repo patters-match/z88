@@ -23,7 +23,7 @@ size 16
 romupdate app
 
 ; load the popdown program at top bank $3F. DOR is located at $0000 offset
-eazylink.bin 3f0000 romhdr.bin 3fc0
+eazylink.bin 3f0000
 
 ; At top of card is the 'OZ' header (64 bytes) that points to first DOR at $0000
 romhdr.bin 3f3fc0
