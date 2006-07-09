@@ -22,9 +22,9 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/zetriz
 
 # Compile the MTH and the application code
-rm -f *.obj *.bin *.map zetriz.epr
+rm -f *.obj *.sym *.bin *.map zetriz.epr
 ../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @zetriz
 ../../tools/mpm/mpm -b -I../../oz/sysdef romhdr
 
-# Create a 16K Rom Card with ZetriZ
-java -jar ../../tools/makeapp/makeapp.jar -sz 16 zetriz.epr zetriz.bin 3fc000 romhdr.bin 3f3fc0
+# Create a 16K Rom Card with ZetriZ to be blown by RomCombiner, Zprom or RomUpdate on real cards
+../../tools/makeapp/makeapp.sh -f zetriz.loadmap

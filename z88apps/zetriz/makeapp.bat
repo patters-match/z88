@@ -16,7 +16,7 @@
 ::
 :: *************************************************************************************
 
-del *.obj *.bin *.map zetriz.epr
+del *.obj *.sym *.bin *.map zetriz.epr
 
 :: ensure that we have an up-to-date standard library
 cd ..\..\stdlib
@@ -27,5 +27,5 @@ cd ..\z88apps\zetriz
 ..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @zetriz
 ..\..\tools\mpm\mpm -b -I..\..\oz\sysdef romhdr
 
-:: Create a 16K Rom Card with ZetriZ
-..\..\tools\makeapp\makeapp.bat -sz 16 zetriz.epr zetriz.bin 3fc000 romhdr.bin 3f3fc0
+:: Create a 16K Rom Card with ZetriZ to be blown by RomCombiner, Zprom or RomUpdate on real cards
+..\..\tools\makeapp\makeapp.bat -f zetriz.loadmap
