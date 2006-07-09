@@ -19,6 +19,8 @@
 
 package net.sourceforge.z88.tools;
 
+import java.util.zip.CRC32;
+
 /** 
  * This class represents the 16Kb Bank architecture. The characteristics of a bank can be 
  * that it's part of a Ram Card (external Card or internal RAM chip on motherboard), 
@@ -32,12 +34,12 @@ package net.sourceforge.z88.tools;
  * Please refer to hardware section of the Developer's Notes for a more detailed 
  * description.  
  */
-public class Bank {
+public abstract class Bank {
 	/** A bank contains 16384 bytes */
-	public static final int BANKSIZE = 16384; 
+	public static final int SIZE = 16384; 
 
 	private int bankNo;
-	private int bankMem[];
+	private byte bankMem[];
 	
 	public Bank() {
 		this.bankNo = -1; // This bank is not assigned to the 4Mb memory model
@@ -50,7 +52,7 @@ public class Bank {
 	 */	
 	public Bank(int bankNo) {
 		this.bankNo = bankNo;
-		this.bankMem = new int[Bank.BANKSIZE];  // contents are default 0
+		this.bankMem = new byte[Bank.SIZE];  // contents are default 0
 	}
 	
 	/**
@@ -63,7 +65,7 @@ public class Bank {
 	 * @param addr is a 16bit word that points into the 16K address space of the bank.
 	 */
 	public int getByte(final int addr) {
-		return bankMem[addr & (Bank.BANKSIZE-1)] & 0xFF;
+		return bankMem[addr & (Bank.SIZE-1)] & 0xFF;
 	}
 	
 	/**
@@ -78,7 +80,7 @@ public class Bank {
 	 * 
 	 */
 	public void setByte(final int addr, final int b) {
-		bankMem[addr & (Bank.BANKSIZE-1)] = b & 0xFF;
+		bankMem[addr & (Bank.SIZE-1)] = (byte) (b & 0xFF);
 	}
 	
 	/**
@@ -86,15 +88,15 @@ public class Bank {
 	 * Naturally, loading is only allowed inside 16Kb boundary.
 	 */
 	public final void loadBytes(byte[] block, int offset) {
-		offset %= Bank.BANKSIZE; // stay within boundary..
+		offset %= Bank.SIZE; // stay within boundary..
 		int length =
-			(offset + block.length) > Bank.BANKSIZE
-				? Bank.BANKSIZE - offset
+			(offset + block.length) > Bank.SIZE
+				? Bank.SIZE - offset
 				: block.length;
 
 		int bufidx = 0;
 		while (length-- > 0)
-			bankMem[offset++] = block[bufidx++] & 0xFF;
+			bankMem[offset++] = (byte) (block[bufidx++] & 0xFF);
 	}
 
 	/**
@@ -106,10 +108,31 @@ public class Bank {
 		int bufidx = 0;
 		
 		while (length-- > 0)
-			dump[bufidx++] = (byte) (bankMem[offset++] & 0xFF);
+			dump[bufidx++] = bankMem[offset++];
 		
 		return dump;
 	}
+	
+	/**
+	 * Calculate a CRC32 of the bank contents.
+	 * 
+	 * @return
+	 */
+	public long getCRC32() {
+		CRC32 crc = new CRC32();  		
+		crc.update(bankMem);
+		
+		return crc.getValue();
+	}
+	
+	/**
+	 * Validate if card bank contents is not altered, 
+	 * ie. only containing FF bytes for Eprom/Rom/Flash cards or
+	 * 00 bytes for RAM cards.
+	 *  
+	 * @return true if all bytes in bank are 'empty'
+	 */
+	public abstract boolean isEmpty();
 	
 	/**
 	 * @return the absolute bank number (0-255) where this bank is located in the 4Mb memory model
@@ -123,5 +146,13 @@ public class Bank {
 	 */
 	public final void setBankNumber(int bankNo) {
 		this.bankNo = bankNo & 0xFF;
+	}
+
+	public int getBankNo() {
+		return bankNo;
+	}
+
+	public void setBankNo(int bankNo) {
+		this.bankNo = bankNo;
 	}
 } /* Bank */

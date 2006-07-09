@@ -25,9 +25,100 @@ package net.sourceforge.z88.tools;
  */
 public class RomBank extends Bank {
 	
+	private String bankFileName;
+	
 	public RomBank() {		
 		super(-1);		
 
-		for (int i = 0; i < Bank.BANKSIZE; i++) setByte(i, 0xFF); // empty Rom contain FF's
+		initBank();
 	}
+
+	public RomBank(int BankNo) {		
+		super(BankNo);		
+
+		initBank();
+	}
+
+	/**
+	 * Initialize empty bank with FF's
+	 *
+	 */
+	private void initBank() {
+		for (int b = 0; b < Bank.SIZE; b++) 
+			setByte(b, 0xFF);
+	}
+	
+	/**
+	 * Validate if bank contents is not altered, 
+	 * ie. only containing FF bytes.
+	 *  
+	 * @return true if all bytes in bank are FF
+	 */
+	public boolean isEmpty() {
+		for (int b = 0; b < Bank.SIZE; b++) { 
+			if (getByte(b) != 0xFF)
+				return false;
+		}
+		
+		return true;
+	}
+
+	public String getBankFileName() {
+		return bankFileName;
+	}
+
+	/**
+	 * Name the filename of the bank according to RomCombiner and
+	 * Z88 Card architecture rules (top bank of card is identified as 63, 
+	 * which is assigned to filename extension).
+	 *  
+	 * @param fileName
+	 * @param bankNo
+	 */
+	public void setBankFileName(String fileName) {		
+		if (fileName.indexOf(".") > 0) {
+			bankFileName = fileName.substring(0, fileName.indexOf("."));
+			bankFileName = bankFileName + "." + Integer.toString(getBankNo());
+		} else {
+			bankFileName = fileName + "." + Integer.toString(getBankNo());
+		}
+	}	
+	
+	/**
+	 * Check if this bank contains an OZ ROM header.
+	 * 
+	 * @return 
+	 */
+	public boolean containsOzRomHeader() {		
+		if ( getByte(0x3FFB) == 0x81 & getByte(0x3FFE) == 'O' & getByte(0x3FFF) == 'Z')
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * Check if this bank contains an Application card header.
+	 * 
+	 * @return 
+	 */
+	public boolean containsAppHeader() {		
+		if ( getByte(0x3FFB) == 0x80 & getByte(0x3FFE) == 'O' & getByte(0x3FFF) == 'Z')
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * Return offset to first DOR in 16K application bank
+	 * 
+	 * @return -1, if no Application card header was recognized
+	 */
+	public int getAppDorOffset() {		
+		if ( containsAppHeader() == false ) 
+			return -1;
+		else {
+			// return bank offset to DOR
+			return ( ((getByte(0x3fc7) << 8) & 0x3f) | getByte(0x3fc6)); 
+		}
+	}	
 }

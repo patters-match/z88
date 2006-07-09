@@ -36,19 +36,40 @@ import java.io.RandomAccessFile;
  */
 public class MakeApp {
 
+	private static final String progVersion = "AppMake V0.9";
+	
 	private static final char[] hexcodes =
 	{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+	private static final String romUpdateConfigFilename = "romupdate.cfg";
 
 	private int appCardBanks = 1; // default output is 16K bank
 	private int appCardSize = 16;
 	private boolean splitBanks;
 	private int lineNo;
+	private int romUpdateConfigFileType;
 
 	private RomBank[] banks;
 	private String outputFilename;
 	private String loadmapFilename;
 
 
+	/**
+	 * Return Hex 8bit string in XXh zero prefixed format.
+	 *
+	 * @param b The 8bit integer to be converted to hex string
+	 * @param hexTrailer append 'h' if true.
+	 * @return String
+	 */
+	public static final String byteToHex(final int b, final boolean hexTrailer) {
+		StringBuffer hexString = new StringBuffer(5);
+
+		hexString.append(hexcodes[b/16]).append(hexcodes[b%16]);
+		if (hexTrailer == true) hexString.append('h');
+
+		return hexString.toString();
+	}
+	
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
 	 *
@@ -66,7 +87,7 @@ public class MakeApp {
 
 		return hexString.toString();
 	}
-
+	
 	/**
 	 * Parse integer value from string (fetched from command line or loadmap file)
 	 * and interpret it as the card size. The value must be a valid card size and not
@@ -90,23 +111,6 @@ public class MakeApp {
 		}
 
 		return hexValue;
-	}
-
-	/**
-	 * Return output filename with bank number, using current specified output
-	 * filename
-	 */
-	private String outputBankFilename(int bankNo) {
-		String newFilename;
-		
-		if (outputFilename.indexOf(".") > 0) {
-			newFilename = outputFilename.substring(0, outputFilename.indexOf("."));
-			newFilename = newFilename + "." + Integer.toString(bankNo);
-		} else {
-			newFilename = outputFilename + "." + Integer.toString(bankNo);
-		}
-
-		return newFilename;
 	}
 
 	/**
@@ -137,7 +141,6 @@ public class MakeApp {
 
 		return cardSize;
 	}
-
 
 	/**
 	 * Load contents of file into a byte array.
@@ -170,9 +173,102 @@ public class MakeApp {
 
 		return codeBuffer;
 	}
+	
+	/**
+	 * Create "romupdate.cfg" file for Application card.
+	 */
+	private void createRomUpdCfgFile_AppCard() {		
+		if (appCardBanks > 1) {
+			System.err.println("RomUpdate currently only supports 16K application cards. 'romupdate.cfg' not created.");
+			return;
+		}			
+		
+		if (banks[0].containsAppHeader() == false)
+			System.err.println("Application card not recognized. 'romupdate.cfg' not created.");
+		else {			
+			try {
+				RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
+				cardFile.writeBytes("CFG.V1\n");
+				cardFile.writeBytes("; filename of a single 16K bank image, CRC (32bit), pointer to application DOR in 16K file image.\n");
+				cardFile.writeBytes("\"" + banks[0].getBankFileName() + "\",");
+				cardFile.writeBytes("$" + Long.toHexString(banks[0].getCRC32()) + ",");
+				cardFile.writeBytes("$" + addrToHex(banks[0].getAppDorOffset(), false) + "\n");
+				cardFile.close();
 
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}					
+	}
 
+	/**
+	 * Create "romupdate.cfg" file for OZ ROM in slot 0.
+	 */
+	private void createRomUpdCfgFile_OzSlot0() {
+		int totalBanks = 0;
+		
+		if (banks[appCardBanks-1].containsOzRomHeader() == false)
+			System.err.println("OZ ROM not recognized. 'romupdate.cfg' not created.");
+		else {
+			for (int b=0; b<appCardBanks; b++) {
+				if (banks[b].isEmpty() == false) 
+					totalBanks++; // count total number of banks to be blown to slot 0
+			}
+			
+			try {
+				RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
+				cardFile.writeBytes("CFG.V2\n");
+				cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
+				cardFile.writeBytes("OZ," + totalBanks + "\n");
+				cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot 0).\n");
 
+				for (int b=0; b<appCardBanks; b++) {
+					if (banks[b].isEmpty() == false) { 
+						cardFile.writeBytes("\"" + banks[b].getBankFileName() + "\",");
+						cardFile.writeBytes("$" + Long.toHexString(banks[b].getCRC32()) + ",");
+						cardFile.writeBytes("$" + byteToHex(b, false) + "\n");
+					}
+				}				
+				cardFile.close();
+
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}			
+	}
+	
+	/**
+	 * Create RomUpdate.cfg file, based on loadmap directive.
+	 * <pre>
+	 * "romupdate oz.{0|1}"  Create romupdate.cfg using OZ ROM template
+	 * "romupdate app"       Create romupdate.cfg using APP template
+	 * </pre>
+	 */
+	private void createRomUpdCfgFile() {
+		switch (romUpdateConfigFileType) {
+		case 1:
+			// application card
+			createRomUpdCfgFile_AppCard();
+			break;
+		case 2:
+			// OZ ROM for slot 0
+			createRomUpdCfgFile_OzSlot0();
+			break;
+		case 3:
+			// OZ ROM for slot 1 (not yet implemented)
+			System.err.println("RomUpdate.cfg file not yet implemented for OZ ROM in slot 1.");
+			break;
+		}
+	}
+	
 	/**
 	 * Parse the loadmap file for the following load directives:
 	 * <pre>
@@ -207,8 +303,16 @@ public class MakeApp {
 	        	}
 
 	        	String directive[] = str.split(" "); // split string into directive tokens
-	        	if (directive != null) {
-	        		if (directive[0].compareToIgnoreCase("save16k") == 0) {
+    			// System.out.println("["+  directive.length  + "," + str + "]");
+
+	        	if (directive[0].length() > 0 ) {
+	        		if (directive[0].compareToIgnoreCase("romupdate") == 0) {
+	        			splitBanks = true;
+	        			if (directive[1].compareToIgnoreCase("oz.0") == 0)
+	        				romUpdateConfigFileType = 2;
+	        			if (directive[1].compareToIgnoreCase("app") == 0)
+	        				romUpdateConfigFileType = 1;	        			
+	        		} else if (directive[0].compareToIgnoreCase("save16k") == 0) {
 	        			splitBanks = true;
 	        		} else if (directive[0].compareToIgnoreCase("outputfile") == 0) {
 	        			outputFilename = directive[1];
@@ -219,14 +323,15 @@ public class MakeApp {
 						} else {
 							return false;
 						}
-
-						banks = new RomBank[appCardBanks]; // the card container
-						for (int b=0; b<appCardBanks; b++) banks[b] = new RomBank(); // container filled with memory...
-
 	        		} else if (directive[0].compareToIgnoreCase("patch") == 0) {
 	        			if (patchBuffer(directive) == false)
 	        				return false;
 	        		} else {
+	        			// now, create the card container based on previous loadmap directives
+	        			if (banks == null) 
+							if (createCard() == false)	// create the card container
+								return false;
+
 	        			// all other directive are file names and offsets...
 	        			if (directive.length == 2 & directive[0].length() != 0) {
 							int offset = getHexValue(directive[1]);
@@ -256,17 +361,16 @@ public class MakeApp {
 		return true;
 	}
 
-
 	/**
 	 * Parse the directive and patch bytes at specified buffer locations.
 	 * patchargument[1] contains the patch address, followed by byte arguments.
 	 *
-	 * @param patchargument
+	 * @param patchArgument
 	 * @return false if no buffer has yet been loaded or illegal numbers were parsed
 	 */
-	private boolean patchBuffer(String patchargument[]) {
+	private boolean patchBuffer(String patchArgument[]) {
 
-		if (patchargument.length < 3) {
+		if (patchArgument.length < 3) {
 			System.err.println(loadmapFilename + ", at line " + lineNo + ", insufficient patch address arguments.");
 			return false;
 		}
@@ -275,11 +379,11 @@ public class MakeApp {
 			return false;
 		}
 
-		int patchAddr = getHexValue(patchargument[1]);
-		for(int i=2; i<patchargument.length; i++) {
+		int patchAddr = getHexValue(patchArgument[1]);
+		for(int i=2; i<patchArgument.length; i++) {
 			int bankNo = ((patchAddr & 0x3f0000) >>> 16) & (appCardBanks-1);
 			int offset = patchAddr & 0x3fff;
-			int patchByte = getHexValue(patchargument[i]);
+			int patchByte = getHexValue(patchArgument[i]);
 
 			if (patchAddr == -1 | patchByte == -1) {
 				System.err.println(loadmapFilename + ", at line " + lineNo + ", illegal patch address arguments.");
@@ -312,16 +416,22 @@ public class MakeApp {
 			System.err.println(filename + ": couldn't open file!");
 			return false;
 		}
-		if (codeBuffer.length > Bank.BANKSIZE) {
+		if (codeBuffer.length > Bank.SIZE) {
 			System.err.println(filename + ": code size > 16K!");
 			return false;
 		}
 
-		if ((codeBuffer.length + offset) > Bank.BANKSIZE ) {
-			System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + " > crosses 16K bank boundary by " + ((codeBuffer.length + offset) - Bank.BANKSIZE) + " bytes !");
+		if ((codeBuffer.length + offset) > Bank.SIZE ) {
+			System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + 
+					" > crosses 16K bank boundary by " + ((codeBuffer.length + offset) - Bank.SIZE) + " bytes !");
 			return false;
 		}
 
+		if (banks == null) {
+			System.err.println(loadmapFilename + ", at line " + lineNo + ", Buffer hasn't been created yet!");
+			return false;
+		}
+		
 		for (int b=0; b<codeBuffer.length; b++) {
 			if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
 				System.err.println(filename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
@@ -333,6 +443,26 @@ public class MakeApp {
 		return true;
 	}
 
+	/**
+	 * Create a card container (buffer), based on previously defined class properties
+	 * <appCardBanks>, <outputFilename>.
+	 */
+	private boolean createCard() {
+		int topBank = 0x3F;
+		
+		if (outputFilename == null) {
+			System.err.println("Couldn't create buffer, Output filename hasn't been defined yet!");
+			return false;
+		}
+		
+		banks = new RomBank[appCardBanks]; // the card container
+		for (int b=appCardBanks-1; b>=0; b--) {
+			banks[b] = new RomBank(topBank--); 		// container filled with memory...
+			banks[b].setBankFileName(outputFilename);
+		}
+		
+		return true;
+	}
 
 	/**
 	 * Generate output binary, depending on command line arguments.
@@ -368,11 +498,12 @@ public class MakeApp {
 						arg += 2;
 					}
 
-					banks = new RomBank[appCardBanks]; // the card container
-					for (int b=0; b<appCardBanks; b++) banks[b] = new RomBank(); // container filled with memory...
-
 					outputFilename = args[arg++];
-
+					
+					if (banks == null)
+						if (createCard() == false) // create card container based on command line directives.
+							return;
+					
 					// remaining arguments on command line are the file binaries to be loaded into the code space.
 					while (arg < args.length) {
 						String fileName = args[arg++];
@@ -386,20 +517,24 @@ public class MakeApp {
 				// all binary fragments loaded, now dump the final code space as complete output file...
 				RandomAccessFile cardFile = new RandomAccessFile(outputFilename, "rw");
 				for (int b=0; b<appCardBanks; b++) {
-					byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE);
+					byte bankDump[] = banks[b].dumpBytes(0, Bank.SIZE);
 					cardFile.write(bankDump);
 				}
 				cardFile.close();
 
 				if (splitBanks == true) {
-					// Also dump the final binary as 16K bank files...
-					int topBank = 0x3F;
+					// Also dump the final binary as 16K bank files (only the non-empty)...
 					for (int b=appCardBanks-1; b>=0; b--) {
-						cardFile = new RandomAccessFile(outputBankFilename(topBank--), "rw");
-						byte bankDump[] = banks[b].dumpBytes(0, Bank.BANKSIZE);
-						cardFile.write(bankDump);
-						cardFile.close();
+						if (banks[b].isEmpty() == false) {
+							cardFile = new RandomAccessFile(banks[b].getBankFileName(), "rw");
+							byte bankDump[] = banks[b].dumpBytes(0, Bank.SIZE);
+							cardFile.write(bankDump);
+							cardFile.close();
+						}
 					}
+					
+					// create a 'romupdate.cfg' file, if it has been directed in loadmap file.
+					createRomUpdCfgFile();					
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -416,6 +551,7 @@ public class MakeApp {
 	 * to the shell.
 	 */
 	private void displayCmdLineSyntax() {
+		System.out.println(progVersion + "\n");
 		System.out.println("Syntax:");
 		System.out.println("[-szc Size] memdump.file input1.file offset {inputX.file offset}");
 		System.out.println("or");
@@ -441,10 +577,11 @@ public class MakeApp {
 		System.out.println("1) outputfile <filename>  ; filename of combined binary.");
 		System.out.println("2) size <size>            ; total file size K, from 16K-1024K");
 		System.out.println("3) save16k                ; save output as 16K bank files (optional)");
-		System.out.println("4) patch <addr> {<byte>}  ; patch memory buffer at address with byte(s)");
-		System.out.println("x) <input.file> <offset>  ; the binary file fragment to load at offset");
+		System.out.println("4) romupdate <oz.{0|1}>   ; Create romupdate.cfg using OZ ROM template");
+		System.out.println("5) romupdate <app>        ; Create romupdate.cfg using APP template");
+		System.out.println("6) patch <addr> {<byte>}  ; patch memory buffer at address with byte(s)");
+		System.out.println("x) <input.file> <addr>    ; the binary file fragment to load at address");
 	}
-
 
 	/**
 	 * Command Line Entry for MakeApp utility.
