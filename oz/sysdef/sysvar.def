@@ -790,7 +790,7 @@ defc    OZBANK_FPP              =$02
 defc    OZBANK_GN               =$03
 defc    OZBANK_PRFILTER         =$03
 defc    OZBANK_7                =$07
-defc    BANK_MTH                =$0F            ; OZ static structures
+defc    BANK_MTH                =$1F            ; OZ static structures
 
 defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,

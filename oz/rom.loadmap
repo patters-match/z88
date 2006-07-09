@@ -21,9 +21,9 @@
 ; $Id$
 ;***************************************************************************************************
 
-; generate a 256K ROM image, also as 16K bank files
+; generate a 512K ROM image, also as 16K bank files
 outputfile oz.bin
-size 256
+size 512
 romupdate oz.0
 
 ; kernel upper part (addressed from $C000 upwards) OS system calls
@@ -60,7 +60,7 @@ bank6/basic.dat 061200                          ; $D200: BBC BASIC application
 bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel OS
 
 ; MTH and other static structures in last ROM bank
-mth/font.bin 0f0000                             ; the Font bitmap (Normal, Bold, Tiny)
-mth/keymap.bin 0f1000                           ; keyboard maps
-mth/mth.bin 0f1800                              ; the System Token Table, MTH static structures and application DORs
-mth/romhdr.bin 0f3fc0                           ; Front DOR and 'OZ' header at top of ROM code
+mth/font.bin 1f0000                             ; the Font bitmap (Normal, Bold, Tiny)
+mth/keymap.bin 1f1000                           ; keyboard maps
+mth/mth.bin 1f1800                              ; the System Token Table, MTH static structures and application DORs
+mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ' header at top of ROM code
