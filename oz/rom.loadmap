@@ -24,7 +24,7 @@
 ; generate a 256K ROM image, also as 16K bank files
 outputfile oz.bin
 size 256
-save16k
+romupdate oz.0
 
 ; kernel upper part (addressed from $C000 upwards) OS system calls
 bank0/kernel0.bin 000000
