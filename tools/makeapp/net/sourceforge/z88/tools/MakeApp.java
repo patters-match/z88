@@ -36,7 +36,7 @@ import java.io.RandomAccessFile;
  */
 public class MakeApp {
 
-	private static final String progVersion = "AppMake V0.9";
+	private static final String progVersion = "MakeApp V0.9";
 	
 	private static final char[] hexcodes =
 	{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
