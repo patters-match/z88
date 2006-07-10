@@ -26,8 +26,9 @@ if POPDOWN
 endif
 
 if BBCBASIC
-     defc vararea = $7E00                        ; The BBC BASIC version has runtime variables located just below segment 2
      defc buffer = $8000                         ; Use segment 2 as 16K buffer to load a complete 16K bank from file
+     defc sizeof_vars = $200                     ; 512 bytes for runtime variables
+     defc vararea = buffer-sizeof_vars           ; The BBC BASIC version has runtime variables located just below segment 2
      defc linebuffer = buffer                    ; The line parsing buffer uses bank buffer for config file, 'romupdate.cfg'
 endif
 
@@ -36,31 +37,44 @@ defc SIZEOF_LINEBUFFER = banksize                ; load config file into bank bu
 
 
 DEFVARS vararea
-{
-     dorcpy             ds.b 64                  ; a copy of bank file image DOR
-     doroffset          ds.w 1                   ; the offset within the bank of the found application in a card
-     dorbank            ds.b 1                   ; the bank number of the found application in a card
-     nextdoroffset      ds.w 1                   ; the offset of the next DOR (the brother link of found application DOR)
-     nextdorbank        ds.b 1                   ; the bank number of the next DOR (the brother link of found application DOR)
-     appname            ds.w 1                   ; local pointer to null-terminated application/popdown DOR name of bank file to be updated
-     bankfilename       ds.b 128                 ; filename of bank file to be patched to card (fetched from romupdate.cfg)
-     bankfilecrc        ds.l 1                   ; CRC of bank file (fetched from from romupdate.cfg)
-     bankfiledor        ds.w 1                   ; offset pointer to DOR in bank file
-     filename           ds.b 128                 ; generic filename buffer
-     presvdbanks        ds.b 4                   ; 4 byte array of bank numbers that are preserved as :RAM.-/bank.<bank number>
-     presvdbankcrcs     ds.l 4                   ; array of CRC's for preserved banks (index matches preserved bank array)
-     retry              ds.b 1                   ; a simple retry counter for Flash Card Erase & BlockWrite commands
-     ident              ds.b 66                  ; buffer for current collected ident. (config file)
-     lineptr            ds.w 1                   ; pointer to current byte in linebuffer (config file)
-     nextline           ds.w 1                   ; pointer to beginning of next source line in buffer (config file)
-     bufferend          ds.w 1                   ; pointer to end of buffer information, L-end (config file)
-     sym                ds.b 1                   ; current symbol identifier of ident. (config file)
-     longint            ds.l 1                   ; long integer variable (config file usage)
-     cfgfilelineno      ds.w 1                   ; line number reference for syntax errors during file parsing
-}
+     dorcpy             ds.b 64                 ; a copy of bank file image DOR
+     doroffset          ds.w 1                  ; the offset within the bank of the found application in a card
+     dorbank            ds.b 1                  ; the bank number of the found application in a card
+     nextdoroffset      ds.w 1                  ; the offset of the next DOR (the brother link of found application DOR)
+     nextdorbank        ds.b 1                  ; the bank number of the next DOR (the brother link of found application DOR)
+     appname            ds.w 1                  ; local pointer to null-terminated application/popdown DOR name of bank file to be updated
+     bankfilename       ds.b 128                ; filename of bank file to be patched to card (fetched from romupdate.cfg)
+     bankfilecrc        ds.l 1                  ; CRC of bank file (fetched from from romupdate.cfg)
+     bankfiledor        ds.w 1                  ; offset pointer to DOR in bank file
+     filename           ds.b 128                ; generic filename buffer
+     presvdbanks        ds.b 4                  ; 4 byte array of bank numbers that are preserved as :RAM.-/bank.<bank number>
+     presvdbankcrcs     ds.l 4                  ; array of CRC's for preserved banks (index matches preserved bank array)
+     retry              ds.b 1                  ; a simple retry counter for Flash Card Erase & BlockWrite commands
+     ident              ds.b 66                 ; buffer for current collected ident. (config file)
+     lineptr            ds.w 1                  ; pointer to current byte in linebuffer (config file)
+     nextline           ds.w 1                  ; pointer to beginning of next source line in buffer (config file)
+     bufferend          ds.w 1                  ; pointer to end of buffer information, L-end (config file)
+     sym                ds.b 1                  ; current symbol identifier of ident. (config file)
+     longint            ds.l 1                  ; long integer variable (config file usage)
+     update_task        ds.b 1                  ; identifies which kind of update that is going to be performed.
+     cfgfilelineno      ds.w 1                  ; line number reference for syntax errors during file parsing
+
+     fptr_sect          ds.b 1                  ; The current 64 byte sector number of Low Level File pointer to RAM file
+     fptr_bank          ds.b 1                  ; The bank number of current 64 byte sector of Low Level File pointer to RAM file
+     fptr_sect_offset   ds.b 1                  ; The offset within current 64 byte sector of Low Level File pointer to RAM file
+
+     total_ozbanks      ds.b 1                  ; no. of OZ ROM banks to update to slot
+     ozbanks            ds.b 16*3               ; reserve space for max. 16 OZ ROM banks. Each entry has the following format:
+                                                ; [first 64 byte sector of file] [bank of first sector] [destination bank in slot]
+     end_vararea
+ENDDEF
+
+IF BBCBASIC & buffer-end_vararea < 0
+    error "Runtime variables are crossing segment 2!"
+ENDIF
 
 ;  Mnemonics used to symbolize various identifiers in config file:
-DEFGROUP {
+DEFGROUP
     ; this first section matches the .separators string in configfile.asm
     sym_null, sym_dquote, sym_squote, sym_semicolon, sym_comma, sym_fullstop
     sym_lparen, sym_lcurly, sym_rcurly, sym_rparen, sym_plus, sym_minus, sym_multiply, sym_divi
@@ -68,4 +82,9 @@ DEFGROUP {
     sym_less, sym_greater, sym_constexpr, sym_newline, sym_lf
 
     sym_name, sym_decmconst, sym_hexconst, sym_binconst, sym_charconst, sym_negated, sym_nil
-}
+ENDDEF
+
+; Config file configuration types
+DEFGROUP
+    upd_16kapp, upd_ozrom
+ENDDEF

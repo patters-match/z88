@@ -21,7 +21,7 @@
      lib IsSpace, IsAlpha, IsAlNum, IsDigit, StrChr, ToUpper
 
      xdef ReadConfigFile
-     xref ErrMsgNoCfgfile, ErrMsgCfgSyntax
+     xref ErrMsgNoCfgfile, ErrMsgCfgSyntax, ValidateBankFile
 
      include "stdio.def"
      include "fileio.def"
@@ -35,18 +35,11 @@
 ; Load parameters from 'romupdate.cfg' file.
 ;
 .ReadConfigFile
-                    ld   bc,128
-                    ld   hl,cfgfilename                 ; (local) filename to card image
-                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
-                    ld   a, OP_IN
-                    oz   GN_Opf
-                    jp   c,ErrMsgNoCfgfile              ; couldn't open config file!
+                    call LoadConfigFile
 
+                    ld   (nextline),hl                  ; init pointer to beginning of first line
                     ld   hl,0
                     ld   (cfgfilelineno),hl             ; lineno = 0 (we haven't yet loaded a line...)
-                    call LoadBuffer                     ; load config file into memory
-                    ld   (nextline),hl                  ; init pointer to beginning of first line
-                    oz   GN_Cl                          ; config file loaded, just close handle...
 
                     call FetchLine                      ; get first line, containing the 'CFG.Vx' identification
                     jp   z,ErrMsgCfgSyntax              ; premature EOF!
@@ -60,16 +53,35 @@
                     cp   sym_name
                     jp   nz,ErrMsgCfgSyntax             ; 'Vx' was not identified...
                     ld   hl,(Ident+1)
+                    push hl
                     ld   de, '1'<<8 | 'V'
                     sbc  hl,de
-                    jp   nz,ErrMsgCfgSyntax             ; For now, "V1" is default config file format
-.fetch_appfile_spec
-                    call FetchLine                      ; fetch line containing the file image specification
+                    pop  hl
+                    jr   z,parse_cfgfile_lines          ; Allow "V1" config file format
+                    ld   d,'2'
+                    sbc  hl,de
+                    jp   nz,ErrMsgCfgSyntax             ; Allow "V2" config file format
+.parse_cfgfile_lines
+                    call FetchLine                      ; fetch line containing command specification
                     jp   z,ErrMsgCfgSyntax              ; premature EOF!
                     call GetSym
                     cp   sym_dquote
-                    jr   nz,fetch_appfile_spec
+                    jr   z,update_16k_app
+                    cp   sym_name
+                    jr   nz,parse_cfgfile_lines         ; nothing recognized in this line, fetch a new one..
 
+                    ld   de,'Z'<<8 | 'O'
+                    ld   hl,(ident+1)
+                    sbc  hl,de                          ; 'OZ' identifier?
+                    jr   z,update_ozrom
+                    jp   ErrMsgCfgSyntax                ; 'OZ' configuration task no found
+
+
+; *************************************************************************************
+; parse 16K application update information
+; "<filename>",<crc>,<dor offset>
+;
+.update_16k_app
                     ; parse application file image specification...
                     call GetBankFilename                ; read "filename" ...
 
@@ -92,10 +104,38 @@
                     call GetSym                         ; get location of application DOR in bank file
                     call GetConstant
                     jp   nz,ErrMsgCfgSyntax             ; specified DOR value was illegal...
+
                     exx
                     ld   (bankfiledor),bc               ; location of application DOR in bank file
                     exx
+                    call ValidateBankFile               ; check CRC of bank file to be updated on card (replacing bank of found DOR)
+
+                    ld   a,UPD_16KAPP                   ; Update 16K application: "<filename>",<crc>,<offset>
+.define_update_task
+                    ld   (update_task),a                ; identify update task
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Update OZ ROM image to slot 0 or 1. The entries in the configuration file:
+; 'OZ',<total banks>
+; "<bank file>",<crc>,<destination bank>
+; ...
+;
+.update_ozrom
+                    call GetSym
+                    cp   sym_comma                      ; skip comma...
+                    jp   nz,ErrMsgCfgSyntax
+                    call GetSym
+                    call GetConstant                    ; get total no of ROM banks to update ..
+                    jp   nz,ErrMsgCfgSyntax             ; specified destination bank value was illegal...
+                    exx
+                    ld   a,c
+                    ld  (total_ozbanks),a               ;
+
+                    ld   a,UPD_OZROM
+                    jr   define_update_task
 ; *************************************************************************************
 
 
@@ -390,6 +430,30 @@
                     ccf
                     ret  c                        ; digit > "F"
                     sub  55                       ; digit = ["A"; "F"]
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Load 'romupdate.cfg' file into 16K buffer
+;
+; Returns to caller with the following registers set, if config file was successfully
+; loaded into buffer:
+;       HL = pointer to start of buffer information.
+;       DE = pointer to end of buffer information
+;
+; If config file couldn't be opened, a failure message is displayed and a KILL
+; request is issued (getting back to INDEX)
+;
+.LoadConfigFile
+                    ld   bc,128
+                    ld   hl,cfgfilename                 ; (local) filename to card image
+                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
+                    ld   a, OP_IN
+                    oz   GN_Opf
+                    jp   c,ErrMsgNoCfgfile              ; couldn't open config file!
+                    call LoadBuffer                     ; load config file into memory
+                    oz   GN_Cl                          ; config file loaded, just close handle...
                     ret
 ; *************************************************************************************
 

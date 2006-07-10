@@ -31,7 +31,7 @@
 
      xdef app_main, GetSlotNo, GetSectorNo
      xdef suicide, GetTotalFreeRam
-     xdef CheckCrc
+     xdef CheckCrc, ValidateBankFile
 
      xref ReadConfigFile, BlowBufferToBank, CopyBank
      xref ApplRomFindDOR, ApplRomFirstDOR, ApplRomNextDOR, ApplRomReadDorPtr
@@ -103,20 +103,24 @@ endif
 
 .read_cfgfile
                     call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file (exit app if failure...)
+                    ld   a,(update_task)
+                    cp   UPD_16KAPP
+                    jr   z,Update_16k_application
+
 
                     ; --------------------------------------------------------------------------------------------------------
-                    ; check CRC of bank file to be updated on card (replacing bank of found DOR)
-                    call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
-                    call LoadBankFile
-                    jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
+                    ; Update OZ ROM in slot 0
+.Update_OzRom
+                    ld   c,0                            ; make sure that we have an AMD/STM 512K flash chip in slot 0
+                    call FlashEprCardId
 
-                    ld   hl,buffer
-                    ld   bc,banksize                    ; 16K buffer
-                    call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
-                    call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
-                    jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and cannot be updated!
+                    jp   suicide                        ; OZ ROM issues a hard reset when done (for now we just exit RomUpdate back to INDEX)
+
+
+
+.Update_16k_application
                     ; --------------------------------------------------------------------------------------------------------
-
+                    ; Update 16K application bank on a found card in slots 1-3
                     ld   hl,buffer
                     ld   bc,(bankfiledor)
                     add  hl,bc                          ; the pointer to the DOR inside bank image file
@@ -348,6 +352,28 @@ endif
                     ld   hl,bankfilename
                     call UpdateSector
                     jp   MsgUpdateCompleted             ; display completed message then leave by KILL request...
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+; CRC check bank file, defined by filename in [bankfilename], by loading file into
+; a buffer and issue a CRC32 calculation, then compare the CRC fetched from the
+; configuration file in [bankfilecrc].
+;
+; Return to caller if the CRC matched, otherwise jump to error routine and exit program
+;
+.ValidateBankFile
+                    call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
+                    call LoadBankFile
+                    jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
+
+                    ld   hl,buffer
+                    ld   bc,banksize                    ; 16K buffer
+                    call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
+                    call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
+                    jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and cannot be updated!
+                    ret
 ; *************************************************************************************
 
 
@@ -797,6 +823,6 @@ endif
 
 
 .bbcbas_progversion defm 12                             ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.6.8", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.7.dev", 1,"B", 0
 .upddorlist_msg     defm "with updated DOR List", 0
 .cardheader_msg     defm "with card header", 0
