@@ -35,6 +35,7 @@ long ReadLong (FILE *fileid);
 module_t *NewModule (void);
 unsigned long LoadLong (unsigned char *mptr);
 void CreateBinFile (void);
+void CreateCrc32File(void);
 void CreateDeffile (void);
 void DefineOrigin (void);
 void LoadModules (void);

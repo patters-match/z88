@@ -51,7 +51,7 @@ char copyrightmsg[] = MPM_COPYRIGHTMSG;
 enum flag pass1, uselistingfile, createlistingfile, symtable, mpmbin, writeline, mapref;
 enum flag createglobaldeffile, datestamp, addressalign;
 enum flag deforigin, verbose, asmerror, EOL, uselibraries, createlibrary, autorelocate;
-enum flag useothersrcext, codesegment, expl_binflnm;
+enum flag useothersrcext, codesegment, expl_binflnm, crc32file;
 enum flag ti83plus, swapIXIY, clinemode;
 enum flag BIGENDIAN, USEBIGENDIAN;
 unsigned long EXPLICIT_ORIGIN;          /* origin defined from command line */
@@ -80,6 +80,7 @@ DefaultOptions (void)
   symtable = writeline = mapref = ON;
   verbose = useothersrcext = createlistingfile = mpmbin = datestamp = asmerror = codesegment = addressalign = OFF;
   deforigin = createglobaldeffile = uselibraries = createlibrary = autorelocate = ti83plus = swapIXIY = clinemode = OFF;
+  crc32file = OFF;
 
   strcpy(objext, ".obj"); /* default object filename extension */
 }
@@ -102,6 +103,13 @@ SetAsmFlag (char *flagid)
   if (strcmp (flagid, "IXIY") == 0)
     {
       swapIXIY = ON;
+      return;
+    }
+
+  /* create CRC32 *.crc file of compiled binary */
+  if (strcmp(flagid, "crc32") == 0)
+    {
+      crc32file = ON;
       return;
     }
 

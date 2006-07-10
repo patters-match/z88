@@ -63,6 +63,8 @@ int PAGELEN, PAGENO, LINENO;
 char *srcfilename, *lstfilename, *objfilename, *errfilename, *libfilename;
 const char asmext[] = ".asm", lstext[] = ".lst", symext[] = ".sym", defext[] = ".def", binext[] = ".bin";
 const char mapext[] = ".map", wrnext[] = ".wrn", errext[] = ".err", libext[] = ".lib", segmbinext[] = ".bn0";
+const char crcext[] = ".crc";
+
 char srcext[5];                 /* contains default source file extension */
 char objext[5];                 /* contains default object file extension */
 char binfilename[255];          /* -o explicit filename buffer */
@@ -77,7 +79,7 @@ char *date;                             /* pointer to datestring calculated from
 
 /* externally defined variables */
 extern int ASSEMBLE_ERROR, ERRORS, TOTALERRORS, WARNINGS, TOTALWARNINGS;
-extern enum flag datestamp, verbose, useothersrcext, symtable, autorelocate;
+extern enum flag datestamp, verbose, useothersrcext, symtable, autorelocate, crc32file;
 extern enum flag createlistingfile, createlibrary, asmerror, mpmbin, mapref, createglobaldeffile;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern libraries_t *libraryhdr;
@@ -451,6 +453,7 @@ main (int argc, char *argv[])
     {
       if (mapref == ON && mpmbin == ON) WriteMapFile ();
       CreateBinFile ();
+      if (crc32file == ON) CreateCrc32File();
     }
 
   ReleaseFilenames ();

@@ -42,6 +42,7 @@
 #include "modules.h"
 #include "pass.h"
 #include "errors.h"
+#include "crc32.h"
 
 
 /* local functions */
@@ -62,10 +63,10 @@ static int LinkTracedModule (char *filename, long baseptr);
 extern FILE *mapfile, *srcasmfile, *errfile, *libfile;
 extern char line[], ident[];
 extern char *objfilename, *errfilename, *libfilename;
-extern const char binext[], segmbinext[], mapext[], errext[], libext[], defext[];
+extern const char binext[], segmbinext[], mapext[], errext[], libext[], defext[], crcext[];
 extern char binfilename[], objext[];
 extern enum symbols sym, GetSym (void);
-extern enum flag uselistingfile, symtable, autorelocate, codesegment, mpmbin;
+extern enum flag uselistingfile, symtable, autorelocate, codesegment, mpmbin, crc32file;
 extern enum flag verbose, deforigin, createglobaldeffile, EOL, uselibraries, asmerror, expl_binflnm;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
 extern unsigned long PC;
@@ -623,6 +624,44 @@ CreateBinFile (void)
     puts ("Code generation completed.");
 
   free (tmpstr);
+}
+
+
+void
+CreateCrc32File(void)
+{
+  FILE *crc32file;
+  unsigned long crc32val;
+  char *tmpstr;
+
+  if (expl_binflnm == ON)
+    {
+       /* create CRC output filename, based on predefined filename from command line */
+       tmpstr = AddFileExtension( (const char *) binfilename, crcext);
+    }
+  else
+    {
+      /* create CRC output filename, based on project filename */
+      tmpstr = AddFileExtension( (const char *) modulehdr->first->cfile->fname, crcext);
+    }
+
+  if (tmpstr == NULL)
+    {
+      ReportError (NULL, 0, Err_Memory);   /* No more room */
+      return;
+    }
+
+  crc32file = fopen (AdjustPlatformFilename(tmpstr), "wb");    /* output to xxxxx.crc */
+  if (crc32file != NULL)
+    {
+      crc32val = crc32(codearea, CODESIZE);
+      fprintf(crc32file,"%lX\r\n", crc32val);
+      fclose (crc32file);
+    }
+  else
+    ReportIOError (tmpstr);
+
+  free(tmpstr);
 }
 
 

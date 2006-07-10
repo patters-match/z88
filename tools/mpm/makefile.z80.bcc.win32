@@ -78,7 +78,7 @@ OBJ=obj
   $(CC) $(CCFLAGS) $*.c
 
 
-MPMOBJS = main.$(OBJ) pass.$(OBJ) avltree.$(OBJ) exprprsr.$(OBJ) errors.$(OBJ) \
+MPMOBJS = main.$(OBJ) pass.$(OBJ) avltree.$(OBJ) exprprsr.$(OBJ) errors.$(OBJ) crc32.$(OBJ) \
           modules.$(OBJ) libraries.$(OBJ) options.$(OBJ) symtables.$(OBJ) asmdrctv.$(OBJ) \
           z80_prsline.$(OBJ) z80_asmdrctv.$(OBJ) z80_instr.$(OBJ) z80_relocate.$(OBJ)
 
@@ -105,6 +105,7 @@ modules.$(OBJ): modules.c config.h datastructs.h exprprsr.h symtables.h librarie
 libraries.$(OBJ): libraries.c config.h libraries.h datastructs.h modules.h pass.h errors.h
 symtables.$(OBJ): symtables.c config.h datastructs.h errors.h
 asmdrctv.$(OBJ): asmdrctv.c config.h asmdrctv.h datastructs.h symtables.h exprprsr.h pass.h errors.h z80_prsline.h
+crc32.$(OBJ): crc32.c crc32.h
 errors.$(OBJ): errors.c config.h datastructs.h
 z80_prsline.$(OBJ): z80_prsline.c config.h datastructs.h symtables.h z80_prsline.h pass.h asmdrctv.h errors.h
 z80_asmdrctv.$(OBJ): z80_asmdrctv.c config.h datastructs.h exprprsr.h asmdrctv.h errors.h z80_prsline.h
