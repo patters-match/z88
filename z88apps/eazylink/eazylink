@@ -21,7 +21,7 @@ eazylink
 pclink
 mltlink
 srchfsys
-byteIO
-fileIO
+byteio
+fileio
 consts
 mth
