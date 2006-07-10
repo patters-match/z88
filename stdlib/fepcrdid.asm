@@ -41,7 +41,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; Identify Flash Memory Chip in slot C.
 ;
 ; In:
-;         C = slot number (1, 2 or 3)
+;         C = slot number (0, 1, 2 or 3)
 ; Out:
 ;         Success:
 ;              Fc = 0, Fz = 1
