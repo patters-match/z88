@@ -1,3 +1,10 @@
+INTRODUCTION
+
+RomUpdate is a utility to update or add a Z88 application on a Rakewell 1Mb Flash Card.
+RomUpdate is a BBC BASIC program (with some embedded machine code magic) that can be executed
+on an expanded Z88 with at least 64K free RAM space to work.
+
+
 Four files are required to run this program
 
 romupdate.bas   - available here
