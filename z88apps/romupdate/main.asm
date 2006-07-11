@@ -93,10 +93,7 @@ else
                     oz   GN_Sop                         ; just display the program version in BBC BASIC
                     oz   GN_Nln
 endif
-
-.read_cfgfile
                     call ReadConfigFile                 ; load parameters from 'romupdate.cfg' file (exit app if failure...)
-                    ld   a,(update_task)
                     cp   upd_16kapp
                     jp   z,Update_16k_application       ; configuration file defines an Application Update task
                     cp   upd_ozrom

@@ -19,21 +19,21 @@
 defc banksize = 16384
 
 if POPDOWN
-     defc RAM_pages = 17408/256                  ; total RAM DOR pages, 17K bytes continuous memory from upper 8K segment 0 ($2000 onwards)
-     defc buffer = $2000                         ; use segment 0 onwards as 16K buffer to load a complete 16K bank from file
-     defc linebuffer = buffer                    ; the line parsing buffer for config file 'romupdate.cfg' (use bank buffer)
-     defc vararea = buffer+banksize              ; runtime variables just after 16K buffer
+     defc RAM_pages = 17408/256                 ; total RAM DOR pages, 17K bytes continuous memory from upper 8K segment 0 ($2000 onwards)
+     defc buffer = $2000                        ; use segment 0 onwards as 16K buffer to load a complete 16K bank from file
+     defc linebuffer = buffer                   ; the line parsing buffer for config file 'romupdate.cfg' (use bank buffer)
+     defc vararea = buffer+banksize             ; runtime variables just after 16K buffer
 endif
 
 if BBCBASIC
-     defc buffer = $8000                         ; Use segment 2 as 16K buffer to load a complete 16K bank from file
-     defc sizeof_vars = $200                     ; 512 bytes for runtime variables
-     defc vararea = buffer-sizeof_vars           ; The BBC BASIC version has runtime variables located just below segment 2
-     defc linebuffer = buffer                    ; The line parsing buffer uses bank buffer for config file, 'romupdate.cfg'
+     defc buffer = $8000                        ; Use segment 2 as 16K buffer to load a complete 16K bank from file
+     defc sizeof_vars = $200                    ; 512 bytes for runtime variables
+     defc vararea = buffer-sizeof_vars          ; The BBC BASIC version has runtime variables located just below segment 2
+     defc linebuffer = buffer                   ; The line parsing buffer uses bank buffer for config file, 'romupdate.cfg'
 endif
 
-defc MAX_IDLENGTH = 64                           ; max. 64 bytes identifier length (config file)
-defc SIZEOF_LINEBUFFER = banksize                ; load config file into bank buffer to speed up parsing
+defc MAX_IDLENGTH = 64                          ; max. 64 bytes identifier length (config file)
+defc SIZEOF_LINEBUFFER = banksize               ; load config file into bank buffer to speed up parsing
 
 
 DEFVARS vararea
@@ -48,7 +48,7 @@ DEFVARS vararea
      bankfiledor        ds.w 1                  ; offset pointer to DOR in bank file
      filename           ds.b 128                ; generic filename buffer
      presvdbanks        ds.b 4                  ; 4 byte array of bank numbers that are preserved as :RAM.-/bank.<bank number>
-     presvdbankcrcs     ds.l 4                  ; array of CRC's for preserved banks (index matches preserved bank array)
+     presvdbankcrcs     ds.l 4                  ; array of CRCs for preserved banks (index matches preserved bank array)
      retry              ds.b 1                  ; a simple retry counter for Flash Card Erase & BlockWrite commands
      ident              ds.b 66                 ; buffer for current collected ident. (config file)
      lineptr            ds.w 1                  ; pointer to current byte in linebuffer (config file)
@@ -56,7 +56,6 @@ DEFVARS vararea
      bufferend          ds.w 1                  ; pointer to end of buffer information, L-end (config file)
      sym                ds.b 1                  ; current symbol identifier of ident. (config file)
      longint            ds.l 1                  ; long integer variable (config file usage)
-     update_task        ds.b 1                  ; identifies which kind of update that is going to be performed.
      cfgfilelineno      ds.w 1                  ; line number reference for syntax errors during file parsing
 
      fptr_sect          ds.b 1                  ; The current 64 byte sector number of Low Level File pointer to RAM file
@@ -64,6 +63,7 @@ DEFVARS vararea
      fptr_sect_offset   ds.b 1                  ; The offset within current 64 byte sector of Low Level File pointer to RAM file
 
      total_ozbanks      ds.b 1                  ; no. of OZ ROM banks to update to slot
+     parsed_ozbanks     ds.b 1                  ; no of oz bank entries parsed from config file
      ozbanks            ds.b 16*3               ; reserve space for max. 16 OZ ROM banks. Each entry has the following format:
                                                 ; [first 64 byte sector of file] [bank of first sector] [destination bank in slot]
      end_vararea

@@ -35,7 +35,7 @@
      xdef RestoreSectorBanks, DeletePreservedSectorBanks
      xdef ValidateBankFile
      xdef BlowBufferToBank, CheckBankFreeSpace, IsBankUsed, CopyBank, CopyMemory
-     xdef LoadBankFile
+     xdef OpenBankFile, LoadBankFile
 
 
 ; *************************************************************************************
@@ -132,7 +132,7 @@
                     push de
                     ld   b,a
                     ld   a, OP_OUT
-                    call GetBankFileHandle
+                    call GetPassiveBankFileHandle
                     jr   c, exit_preservebank           ; couldn't create file (in use?)...
 
                     ld   hl,0
@@ -390,7 +390,7 @@
                     push bc
                     push de
                     ld   b,a
-                    call GetBankFilename                ; filename based on bank number in B,
+                    call GetPassiveBankFilename         ; filename based on bank number in B,
                     ld   b,0                            ; HL points at filename...
                     oz   GN_Del                         ; delete temporary preserved bank file
                     pop  de
@@ -469,7 +469,7 @@
 ;    AFBCDE../IXIY same
 ;    ......HL/.... different
 ;
-.GetBankFilename
+.GetPassiveBankFilename
                     push af
                     push de
                     call CpyBaseBankFileName
@@ -503,8 +503,8 @@
 ;    ..BCDEHL/..IY same
 ;    AF....../IX.. different
 ;
-.GetBankFileHandle
-                    call GetBankFilename                ; filename based on bank number in B
+.GetPassiveBankFileHandle
+                    call GetPassiveBankFilename         ; filename based on bank number in B
                     ld   d,h
                     ld   e,l
                     ld   bc,128                         ; local filename
@@ -531,7 +531,7 @@
 ;
 .CrcTempBankFile
                     ld   a, OP_IN
-                    call GetBankFileHandle
+                    call GetPassiveBankFileHandle
                     ret  c                              ; couldn't open file ...
 
                     push iy
@@ -620,7 +620,7 @@
 ;
 .LoadTempBankFile
                     ld   a, OP_IN
-                    call GetBankFileHandle
+                    call GetPassiveBankFileHandle
                     ret  c                              ; couldn't open file ...
 
                     ld   bc, banksize
@@ -635,18 +635,14 @@
 
 
 ; *************************************************************************************
-; Load config specified bank file into 16K buffer
+; Load specified bank file(name) into 16K buffer.
 ;
 ; Registers changed after return:
 ;    ......../..IY same
 ;    AFBCDEHL/IX.. different
 ;
 .LoadBankFile
-                    ld   bc,128
-                    ld   hl,bankfilename                ; (local) filename to card image
-                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
-                    ld   a, op_in
-                    oz   GN_Opf
+                    call OpenBankFile
                     ret  c
                     ld   bc,banksize
                     ld   de,buffer
@@ -655,6 +651,20 @@
                     push af
                     oz   GN_Cl                          ; close file
                     pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Open bank file (for reading only), which is specified in [bankfilename] variable.
+; Returns the usual GN_Opf file parameters.
+;
+.OpenBankFile
+                    ld   bc,128
+                    ld   hl,bankfilename                ; (local) filename to card image
+                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
+                    ld   a, op_in
+                    oz   GN_Opf
                     ret
 ; *************************************************************************************
 

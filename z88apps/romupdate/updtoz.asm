@@ -38,6 +38,9 @@
                     ld   c,0                            ; make sure that we have an AMD/STM 512K flash chip in slot 0
                     call FlashWriteSupport
 
+                    ld   iy,ozbanks                     ; get ready for first oz bank entry of [total_ozbanks]
+
+
                     jp   suicide                        ; OZ ROM issues a hard reset when done (for now we just exit RomUpdate back to INDEX)
 
 

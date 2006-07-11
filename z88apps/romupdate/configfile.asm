@@ -21,8 +21,10 @@
      lib IsSpace, IsAlpha, IsAlNum, IsDigit, StrChr, ToUpper
 
      xdef ReadConfigFile
-     xref ErrMsgNoCfgfile, ErrMsgCfgSyntax, ValidateBankFile
+     xref ErrMsgNoCfgfile, ErrMsgCfgSyntax
+     xref ValidateBankFile, OpenBankFile
 
+     include "sysvar.def"
      include "stdio.def"
      include "fileio.def"
      include "fpp.def"
@@ -66,23 +68,92 @@
                     jp   z,ErrMsgCfgSyntax              ; premature EOF!
                     call GetSym
                     cp   sym_dquote
-                    jr   z,update_16k_app
+                    jr   z,parse_16k_app_info
                     cp   sym_name
                     jr   nz,parse_cfgfile_lines         ; nothing recognized in this line, fetch a new one..
 
                     ld   de,'Z'<<8 | 'O'
                     ld   hl,(ident+1)
                     sbc  hl,de                          ; 'OZ' identifier?
-                    jr   z,update_ozrom
-                    jp   ErrMsgCfgSyntax                ; 'OZ' configuration task no found
+                    jr   z,parse_ozrom_info
+                    jp   ErrMsgCfgSyntax                ; 'OZ' configuration task not found...
 
 
 ; *************************************************************************************
 ; parse 16K application update information
 ; "<filename>",<crc>,<dor offset>
 ;
-.update_16k_app
-                    ; parse application file image specification...
+.parse_16k_app_info
+                    call ParseBankFileData              ; parse "<filename>",<crc>,<dor offset> from line...
+                    call ValidateBankFile               ; check CRC of bank file to be updated on card (replacing bank of found DOR)
+                    ld   a,upd_16kapp                   ; signal to execute Update 16K application: "<filename>",<crc>,<offset>
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Update OZ ROM image to slot 0 or 1. Parse entries in the configuration file:
+; 'OZ',<total banks>
+; "<bank file>",<crc>,<destination bank>
+; ...
+;
+.parse_ozrom_info
+                    call GetSym
+                    cp   sym_comma                      ; skip comma...
+                    jp   nz,ErrMsgCfgSyntax
+                    call GetSym
+                    call GetConstant                    ; get total no of ROM banks to update ..
+                    jp   nz,ErrMsgCfgSyntax             ; specified destination bank value was illegal...
+
+                    exx
+                    ld   a,c
+                    ld   (total_ozbanks),a
+                    xor  a
+                    ld   (parsed_ozbanks),a
+                    ld   iy,ozbanks                     ; get ready for first oz bank entry of [total_ozbanks]
+.parse_oz_banks
+                    call FetchLine                      ; fetch line containing oz bank specification
+                    jp   z,ErrMsgCfgSyntax              ; premature EOF!
+                    call GetSym
+                    cp   sym_dquote
+                    jr   nz,parse_oz_banks              ; skip comments and empty lines...
+
+                    call ParseBankFileData              ; found a line with an oz bank entry, collect oz bank data into variables...
+                    call ValidateBankFile               ; check CRC of oz bank file data just collected...
+
+                    call OpenBankFile                   ; open file again, just to get low level file data
+                    ld   l,(ix+fhnd_firstblk)           ; get first 64 byte sector number of file
+                    ld   h,(ix+fhnd_firstblk_h)         ; get bank number of first sector of file
+                    oz   GN_cl
+
+                    ld   a,(bankfiledor)                ; destination bank number in slot 0 to blow oz bank
+                    ld   (iy+0),l
+                    ld   (iy+1),h
+                    ld   (iy+2),a                       ; register oz bank data
+                    inc  iy
+                    inc  iy
+                    inc  iy                             ; prepare for next oz data entry
+
+                    ld   hl,total_ozbanks
+                    ld   a,(hl)                         ; total of oz banks to register
+                    inc  hl
+                    inc  (hl)                           ; just registered another oz bank
+                    cp   (hl)                           ; all registered?
+                    jr   z,end_parse_ozrom_info         ; yes, all successfully registered and CRC checked
+
+                    call LoadConfigFile                 ; reload configuration file (into buffer), and parse another oz bank from config file...
+                    jr   parse_oz_banks
+.end_parse_ozrom_info
+                    ld   a,upd_ozrom                    ; signal to execute "Update OZ ROM" task...
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; parse parse "<filename>",<crc>,<dor offset> from line...
+; parsed data are stored in [bankfilename], [bankfilecrc] and [bankfiledor] variables.
+;
+.ParseBankFileData
                     call GetBankFilename                ; read "filename" ...
 
                     call GetSym
@@ -108,34 +179,7 @@
                     exx
                     ld   (bankfiledor),bc               ; location of application DOR in bank file
                     exx
-                    call ValidateBankFile               ; check CRC of bank file to be updated on card (replacing bank of found DOR)
-
-                    ld   a,UPD_16KAPP                   ; Update 16K application: "<filename>",<crc>,<offset>
-.define_update_task
-                    ld   (update_task),a                ; identify update task
                     ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-; Update OZ ROM image to slot 0 or 1. The entries in the configuration file:
-; 'OZ',<total banks>
-; "<bank file>",<crc>,<destination bank>
-; ...
-;
-.update_ozrom
-                    call GetSym
-                    cp   sym_comma                      ; skip comma...
-                    jp   nz,ErrMsgCfgSyntax
-                    call GetSym
-                    call GetConstant                    ; get total no of ROM banks to update ..
-                    jp   nz,ErrMsgCfgSyntax             ; specified destination bank value was illegal...
-                    exx
-                    ld   a,c
-                    ld  (total_ozbanks),a               ;
-
-                    ld   a,UPD_OZROM
-                    jr   define_update_task
 ; *************************************************************************************
 
 
