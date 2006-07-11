@@ -16,7 +16,7 @@
 ;
 ; *************************************************************************************
 
-     MODULE OZrom
+     MODULE UpdateOZrom
 
      ; OZ system defintions
      include "error.def"
@@ -27,10 +27,19 @@
      ; RomUpdate runtime variables
      include "romupdate.def"
 
-     lib MemDefBank, SafeBHLSegment
-     lib MemReadByte, FlashEprWriteBlock
+     xdef Update_OzRom
+     xref suicide, FlashWriteSupport
 
-     xref CrcBuffer, CrcFile, CheckCrc, GetTotalFreeRam
+
+; *************************************************************************************
+; Update OZ ROM to slot 0
+;
+.Update_OzRom
+                    ld   c,0                            ; make sure that we have an AMD/STM 512K flash chip in slot 0
+                    call FlashWriteSupport
+
+                    jp   suicide                        ; OZ ROM issues a hard reset when done (for now we just exit RomUpdate back to INDEX)
+
 
 
 ; *************************************************************************************

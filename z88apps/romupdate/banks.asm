@@ -29,10 +29,13 @@
      lib RamDevFreeSpace, MemReadByte, FlashEprWriteBlock
 
      xref CrcBuffer, CrcFile, CheckCrc, GetTotalFreeRam
+     xref MsgCrcCheckBankFile, ErrMsgBankFile, ErrMsgCrcFailBankFile
 
      xdef RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xdef RestoreSectorBanks, DeletePreservedSectorBanks
+     xdef ValidateBankFile
      xdef BlowBufferToBank, CheckBankFreeSpace, IsBankUsed, CopyBank, CopyMemory
+     xdef LoadBankFile
 
 
 ; *************************************************************************************
@@ -549,6 +552,54 @@
 ; *************************************************************************************
 
 
+
+; *************************************************************************************
+; CRC check bank file, defined by filename in [bankfilename], by loading file into
+; a buffer and issue a CRC32 calculation, then compare the CRC fetched from the
+; configuration file in [bankfilecrc].
+;
+; Return to caller if the CRC matched, otherwise jump to error routine and exit program
+;
+.ValidateBankFile
+                    call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
+                    call LoadBankFile
+                    jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
+
+                    ld   hl,buffer
+                    ld   bc,banksize                    ; 16K buffer
+                    call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
+                    call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
+                    jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and will not be updated to card!
+                    ret
+; *************************************************************************************
+
+
+
+; *************************************************************************************
+; Check the calculated CRC in DEHL with the CRC of the config file to validate that
+; the binary bank file is not corrupted during transfer (or was corrupted in the
+; RAM filing system).
+;
+; IN:
+;       DEHL = calculated CRC
+; OUT:
+;       Fz = 1, CRC is valid
+;       Fz = 0, CRC does not match the CRC from the Config file
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.CheckBankFileCrc
+                    push bc
+                    ld   bc,bankfilecrc
+                    call CheckCrc
+.exit_checkcrc
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
 ; *************************************************************************************
 ; Load (passive) bank into buffer from temporary RAM file, defined by bank B
 ;
@@ -579,6 +630,31 @@
                     push af
                     oz   GN_Cl                          ; close file
                     pop  af                             ; return I/O error, if any...
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Load config specified bank file into 16K buffer
+;
+; Registers changed after return:
+;    ......../..IY same
+;    AFBCDEHL/IX.. different
+;
+.LoadBankFile
+                    ld   bc,128
+                    ld   hl,bankfilename                ; (local) filename to card image
+                    ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
+                    ld   a, op_in
+                    oz   GN_Opf
+                    ret  c
+                    ld   bc,banksize
+                    ld   de,buffer
+                    ld   hl,0
+                    oz   OS_MV                          ; copy bank file contents into buffer...
+                    push af
+                    oz   GN_Cl                          ; close file
+                    pop  af
                     ret
 ; *************************************************************************************
 

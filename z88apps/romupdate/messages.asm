@@ -30,6 +30,7 @@
      ; RomUpdate runtime variables
      include "romupdate.def"
 
+     xdef bbcbas_progversion, progversion_banner
      xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile
      xdef ReportStdError, DispErrMsg
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
@@ -323,7 +324,6 @@
 ; *************************************************************************************
 
 
-
 ; *************************************************************************************
 ; Display error message when CRC check failed for passive Bank files and exit application.
 ;
@@ -597,6 +597,7 @@
                     ret
 ; *************************************************************************************
 
+
 ; *************************************************************************************
 .VduToggleBoldTypeface
                     ld   hl, vdubold
@@ -695,6 +696,8 @@
 
 ; *************************************************************************************
 ; constants
+.bbcbas_progversion defm 12                   ; clear window before displaying program version (BBC BASIC only)
+.progversion_banner defm 1, "BRomUpdate V0.7.dev", 1,"B", 0
 
 .centerjustify      defm 1, "2JC", 0
 .leftjustify        defm 1, "2JN", 0
