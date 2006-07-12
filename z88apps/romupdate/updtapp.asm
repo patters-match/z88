@@ -177,6 +177,7 @@
                     call AdjustDorBank                  ; adjust DOR pointers in bank file to new location in card
                     ld   a,(dorbank)
                     ld   b,a                            ; blow bank file in buffer to slot C
+                    xor  a                              ; poll for flash programming algorithm...
                     call BlowBufferToBank               ; add new application to card
                     ld   hl, bankfilename               ; name of application bank file (specified in config file)
                     jp   c, ErrMsgBlowBank              ; fatal error -  this only happens if there is a bad slot connection
@@ -235,6 +236,7 @@
                     or   $3f
                     ld   (dorbank),a                    ; register the bank to be added...
                     ld   b,a                            ; blow bank file in buffer to top of slot C
+                    xor  a                              ; poll for flash programming algorithm...
                     call BlowBufferToBank               ; old application updated with new application!
                     ld   hl, bankfilename               ; name of application bank file (specified in config file)
                     jp   c, ErrMsgBlowBank              ; fatal error -  this only happens if there is a bad slot connection
@@ -480,6 +482,7 @@
                     ; --------------------------------------------------------------------------------------------------------
 
                     pop  bc
+                    xor  a                              ; poll for flash programming algorithm...
                     call BlowBufferToBank               ; blow updated bank back to card.
                     pop  hl                             ; display sub-message (explaining what went wrong)
                     jp   c,ErrMsgBlowBank               ; fatal error!

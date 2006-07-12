@@ -1,6 +1,6 @@
 ; *************************************************************************************
-; RomUpdate variable definitions
-; (C) Gunther Strube (gbs@users.sf.net) 2005
+; RomUpdate runtime variable definitions
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2006
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -57,10 +57,6 @@ DEFVARS vararea
      sym                ds.b 1                  ; current symbol identifier of ident. (config file)
      longint            ds.l 1                  ; long integer variable (config file usage)
      cfgfilelineno      ds.w 1                  ; line number reference for syntax errors during file parsing
-
-     fptr_sect          ds.b 1                  ; The current 64 byte sector number of Low Level File pointer to RAM file
-     fptr_bank          ds.b 1                  ; The bank number of current 64 byte sector of Low Level File pointer to RAM file
-     fptr_sect_offset   ds.b 1                  ; The offset within current 64 byte sector of Low Level File pointer to RAM file
 
      total_ozbanks      ds.b 1                  ; no. of OZ ROM banks to update to slot
      parsed_ozbanks     ds.b 1                  ; no of oz bank entries parsed from config file

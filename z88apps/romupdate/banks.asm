@@ -304,6 +304,7 @@
                     push de
                     ld   a,(de)                         ; get (number) in sector to be restored
                     ld   b,a
+                    xor  a                              ; poll for flash programming algorithm...
                     call BlowBufferToBank
 .exit_restorebanks                                      ; report back if a Flash programming error occurred
                     pop  de
@@ -748,6 +749,7 @@ endif
 ; Blow contents of 16K buffer to bank B in Flash Card
 ;
 ; IN:
+;       A = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
 ;       B = Bank number (absolute)
 ; OUT:
 ;       Fc = 1, bank was not blown properly to Flash Card.
@@ -772,7 +774,6 @@ if POPDOWN
 else
                     ld   c, MS_S3                       ; BBC BASIC: use segment 3 to blow bank
 endif
-                    xor  a                              ; Flash blowing algorithm is found dynamically
                     call FlashEprWriteBlock
                     pop  iy
                     pop  hl

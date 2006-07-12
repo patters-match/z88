@@ -36,7 +36,7 @@
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
-     xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea
+     xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea, ErrMsgOzRom
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
 
      xref suicide, GetSlotNo, GetSectorNo
@@ -187,6 +187,21 @@
 .ErrMsgNoCfgFile
                     ld   hl,nocfgfile_msg
                     jp   DispErrMsg
+; *************************************************************************************
+
+
+; *************************************************************************************
+; 'OZ ROM could not be installed. No Flash chip was recognised in slot X'
+; slot number is supplied in BC register.
+;
+.ErrMsgOzRom
+                    ld   hl,noflashforoz_msg
+                    oz   GN_Sop
+                    ld   hl,inslot_msg                  ; "in slot "
+                    oz   GN_Sop
+                    call DispSlotNo
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
 ; *************************************************************************************
 
 
@@ -713,6 +728,7 @@
 .cfgsyntax1_msg     defm "Syntax error at line ",0
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
 .noflashcard_msg    defm "No Flash Card found",0
+.noflashforoz_msg   defm "OZ ROM cannot be updated. 512K Flash was not found",0
 .noflsupp_msg       defm  ", or card not updateable in found slots.", 0
 .noadd_msg          defm " cannot be added to card.",0
 .noapp_found_msg    defm " was not found in any slot.",0
@@ -747,6 +763,7 @@
                     defm "Free RAM = ", 0
 .ram_noroom3_msg    defm "K. You need to release ",0
 .ram_noroom4_msg    defm "K file space to perform the add/update.",0
+.no_ozflashrom_msg  defm "OZ ROM could not be installed. No Flash chip was recognised in slot ", 0
 .resetprompt_msg    defm $0D, $0A, " Do you want RomUpdate to ", 1, "TSOFT RESET", 1, "T the Z88 to install added application?", 0
 .reset2_msg         defm $0D, $0A, $0D, $0A, "Go to Index, remove card, close flap and re-insert card to install application", 0
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0

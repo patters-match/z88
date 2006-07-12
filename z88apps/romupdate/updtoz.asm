@@ -19,16 +19,22 @@
      MODULE UpdateOZrom
 
      ; OZ system defintions
-     include "error.def"
+     include "stdio.def"
+     include "flashepr.def"
      include "memory.def"
-     include "fileio.def"
-     include "sysvar.def"
+     include "blink.def"
 
      ; RomUpdate runtime variables
      include "romupdate.def"
 
+     lib DisableBlinkInt                                ; No interrupts get out of Blink
+     lib EnableBlinkInt                                 ; Allow interrupts to get out of Blink again
+     lib FlashEprCardErase                              ; erase complete Flash chip to FFs
+     lib MemDefBank                                     ; Bind bank, defined in B, into segment C. Return old bank binding in B
+
      xdef Update_OzRom
-     xref suicide, FlashWriteSupport
+     xref suicide, FlashWriteSupport, ErrMsgOzRom
+     xref BlowBufferToBank
 
 
 ; *************************************************************************************
@@ -37,36 +43,160 @@
 .Update_OzRom
                     ld   c,0                            ; make sure that we have an AMD/STM 512K flash chip in slot 0
                     call FlashWriteSupport
+                    jr   nc, flash_found
+                    xor  a
+                    ld   (dorbank),a
+                    jp   ErrMsgOzRom                    ; "OZ ROM cannot be updated. 512K Flash was not found in slot 0"
+
+.flash_found
+                    ld   hl, updoz_msg                  ; "Updating OZ ROM - please wait..." (flashing)
+                    oz   GN_Sop                         ; "Z88 will automatically hard reset when updating has completed."
+                    ; ----------------------------------------------------------------------------------------------------------------------
+                    ; before erasing slot 0 (wiping out the current OZ ROM code) and programming the bank files to slot 0, patch the
+                    ; RST 38H and RST 66H interrupt vectors in lower 8K RAM to return immediately (executing no functionality).
+                    ; This prevents any accidental interrupt being executed into a non-existing OZ ROM - or even worse - Flash memory
+                    ; that is not in Read Array Mode!
+                    ; ----------------------------------------------------------------------------------------------------------------------
+                    call DisableBlinkInt                ; don't let any interrupts out of Blink while we patch...
+                    ld   hl, 0038H
+                    ld   (hl),$C9                       ; patch RST 38H maskable interrupt vector with an immediate RET instruction
+                    ld   hl, 0066H
+                    ld   (hl),$C9                       ; patch RST 66H non-maskable interrupt vector with an immediate RET instruction
+                    call EnableBlinkInt                 ; the low ram interrupt vector code from OZ is automatically restored during reset...
+
+                    ld   c,0
+                    call FlashEprCardErase              ; bye, bye OZ!
 
                     ld   iy,ozbanks                     ; get ready for first oz bank entry of [total_ozbanks]
+                    ld   b,(iy-1)                       ; total of banks to update to slot 0...
+.update_ozrom_loop
+                    push bc
 
+                    call CopyRamFile2Buffer             ; copy RAM bank file contents (IY points to bank file entry) to 16K RomUpdate buffer...
+                    ld   b,(iy+2)                       ; destination bank number to slot 0
+                    ld   a,FE_29F                       ; use AMD/STM programming algorithm to blow bank to slot 0
+                    call BlowBufferToBank               ; action! NB: error trapping makes no sense, because the OZ ROM has been wiped out!
 
-                    jp   suicide                        ; OZ ROM issues a hard reset when done (for now we just exit RomUpdate back to INDEX)
+                    inc  iy
+                    inc  iy
+                    inc  iy                             ; point at next bank data entry
+                    pop  bc
+                    djnz update_ozrom_loop              ; blow bank to slot 0...
 
+                    ; ----------------------------------------------------------------------------------------------------------------------
+                    ; OZ ROM banks have been programmed successfully to slot 0.
+                    ; Finally, it's time to issue a hard reset to start up a clean machine with the updated OZ ROM.
+                    ; ----------------------------------------------------------------------------------------------------------------------
+                    ld   a, $21                         ; RAM bank $21 (:RAM.0 filing system)
+                    out  (BL_SR2), a                    ; b21 into Segment 2 (which has no executing code by RomUpdate popdown nor BBC BASIC)
+                    ld   hl,0
+                    ld   ($8000),hl                     ; remove RAM filing system tag $A55A in start of bank $21 that forces OZ to HARD RESET
+                    jp   (hl)                           ; execute the hard reset..
+                    ; ----------------------------------------------------------------------------------------------------------------------
+; *************************************************************************************
 
 
 ; *************************************************************************************
-; Convert [File Block Number, Bank] to extended memory pointer.
-; Bank number = 0 evaluation (the last block in the file) is not handled.
+; Copy the RAM bank file contents to RomUpdate 16K buffer.
+;
+; IY points a three byte data block that contains pointers to start of the file:
+; -----------------------------------------------------------------------------------
+; byte 0:                        byte 1:                byte 2:
+; [first 64 byte sector of file] [bank of first sector] [destination bank in slot]
+; -----------------------------------------------------------------------------------
+;
+.CopyRamFile2Buffer
+                    ld   hl,buffer
+                    ld   (bufferend),hl                 ; set the current pointer to copied buffer contents to start of buffer
+                    ld   e,(iy+0)                       ; get first sector number
+                    ld   d,(iy+1)                       ; get bank number of first sector
+.copysector_loop
+                    ld   b,d                            ; bank (of sector) to bind into segment...
+if POPDOWN
+                    ld   c,MS_S2                        ; Use segment 2 to bind in bank of sector (RomUpdate popdown is running in segment 3)
+                                                        ; (16K buffer is in segment 0 & 1)
+else
+                    ld   c,MS_S3                        ; Use segment 3 to bind in bank of sector (RomUpdate BBC BASIC is running in segment 0 & 1)
+                                                        ; (16K buffer is in segment 2)
+endif
+                    call MemDefBank                     ; current sector bound into segment...
+                    call Sector2MemPtr                  ; BHL points to start of current sector
+if POPDOWN
+                    set  7,h                            ; Use segment 2 to bind in bank of sector (RomUpdate popdown is running in segment 3)
+                    res  6,h                            ; (16K buffer is in segment 0 & 1)
+else
+                    set  7,h                            ; Use segment 3 to bind in bank of sector (RomUpdate BBC BASIC is running in segment 0 & 1)
+                    set  6,h                            ; (16K buffer is in segment 2)
+endif
+                    ld   c,(hl)                         ; get next file sector number
+                    inc  hl
+                    ld   a,(hl)                         ; get bank of next file sector number
+                    inc  hl                             ; point at start of current file sector contents
+                    or   a
+                    push bc
+                    jr   z, copysector                  ; bank number = 0: then this is the last sector (c = length of sector)
+                    ld   c,62                           ; if bank number <> 0, then (complete) sector contents is 62 bytes...
+.copysector
+                    call CopySector2Buffer              ; (BHL) -> (buffer)
+                    pop  bc
+                    ret  z                              ; 16K bank file successfully copied to buffer
+
+                    ld   e,c                            ; next sector number
+                    ld   d,a                            ; bank of next sector number
+                    jr   copysector_loop
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Copy 62 bytes (or less) buffer contents from BHL to current RomUpdate 16K buffer pointer.
 ;
 ; IN:
-;    C = MS_Sx        segment specifier (C=0, no segment specifier)
-;    D = Bank number  (of block)
-;    E = Block number (64 byte file sector)
+;       C = no of bytes to copy
+;       HL = pointer to start of current RAM file sector
+;       (bufferend) = pointer to destination (current pointer in 16K bank buffer)
+;
+.CopySector2Buffer
+                    push af
+                    push bc
+                    push de
+
+                    ld   b,0                            ; only C number of bytes to copy
+                    ld   de,(bufferend)                 ; start of destination
+                    ldir                                ; (HL) -> (DE)
+                    ld   (bufferend),de                 ; pointer ready for next sector copy...
+
+                    pop  de
+                    pop  bc
+                    pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Convert [File Sector Number, Bank] to extended memory pointer.
+; Bank number = 0 evaluation (the last sector in the file) is not handled.
+;
+; IN:
+;    D = Bank number  (of sector)
+;    E = Sector number (64 byte file sector)
 ;
 ; OUT:
-;    BHL = pointer to start of 64 byte sector (for specified segment)
+;    BHL = pointer to start of 64 byte sector (HL = without segment specifier)
 ;
 ; Registers changed after return:
 ;    A..CDE../IXIY same
 ;    .FB...HL/.... different
 ;
 .Sector2MemPtr
-        ld      b, d                            ; bank
-        ld      h, e
-        ld      l, c
-        srl     h
-        rr      l
-        rr      h                               ; SSeeeeee
-        rr      l                               ; ee000000
-        ret
+                    ld   b, d                            ; bank
+                    ld   h, e
+                    ld   l, 0
+                    srl  h
+                    rr   l
+                    rr   h                               ; 00eeeeee
+                    rr   l                               ; ee000000
+                    ret
+; *************************************************************************************
+
+.updoz_msg          defm 1, "FUpdating OZ ROM - please wait...", 1, "F", 13, 10
+                    defm "Z88 will automatically HARD RESET when updating has been completed", 0
