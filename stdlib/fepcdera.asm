@@ -60,7 +60,7 @@ DEFC VppBit = 1
 ; slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; IN:
-;         C = slot number (1, 2 or 3) of Flash Memory Card
+;         C = slot number (0, 1, 2 or 3) of Flash Memory
 ; OUT:
 ;         Success:
 ;              Fc = 0
