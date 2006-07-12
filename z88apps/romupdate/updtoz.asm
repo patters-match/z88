@@ -22,6 +22,7 @@
      include "stdio.def"
      include "flashepr.def"
      include "memory.def"
+     include "screen.def"
      include "blink.def"
 
      ; RomUpdate runtime variables
@@ -63,7 +64,28 @@
                     ld   hl, 0066H
                     ld   (hl),$C9                       ; patch RST 66H non-maskable interrupt vector with an immediate RET instruction
                     call EnableBlinkInt                 ; the low ram interrupt vector code from OZ is automatically restored during reset...
-
+if BBCBASIC
+                    ; ----------------------------------------------------------------------------------------------------------------------
+                    ; just before we wipe out the OZ rom, copy the LORES1 font bitmap to RAM and let the screen hardware use the new location
+                    ld   sp,ozstack                     ; move system stack just below segment 2 (moved from $1FFE area)
+                    ld   a,SC_LR1
+                    ld   b,0
+                    oz   Os_Sci                         ; get BHL address of LORES1 font bitmap
+                    ld   c,MS_S3
+                    call MemDefBank
+                    set  7,h                            ; Use segment 3 to bind in bank of LORES1
+                    set  6,h
+                    ld   bc,$1000
+                    push bc
+                    push bc
+                    pop  de
+                    ldir                                ; copy 4K LORES1 font bitmap to $20 1000 ($20 already bound in as LOWRAM)
+                    ld   a,SC_LR1
+                    ld   b,$20
+                    pop  hl
+                    oz   Os_Sci                         ; set new BHL address of LORES1 font bitmap that is now available at $20 1000
+                    ; ----------------------------------------------------------------------------------------------------------------------
+endif
                     ld   c,0
                     call FlashEprCardErase              ; bye, bye OZ!
 

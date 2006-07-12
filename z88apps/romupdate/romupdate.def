@@ -19,17 +19,19 @@
 defc banksize = 16384
 
 if POPDOWN
-     defc RAM_pages = 17408/256                 ; total RAM DOR pages, 17K bytes continuous memory from upper 8K segment 0 ($2000 onwards)
-     defc buffer = $2000                        ; use segment 0 onwards as 16K buffer to load a complete 16K bank from file
-     defc linebuffer = buffer                   ; the line parsing buffer for config file 'romupdate.cfg' (use bank buffer)
-     defc vararea = buffer+banksize             ; runtime variables just after 16K buffer
+ defc RAM_pages = 17408/256                     ; total RAM DOR pages, 17K bytes continuous memory from upper 8K segment 0 ($2000 onwards)
+ defc buffer = $2000                            ; use segment 0 onwards as 16K buffer to load a complete 16K bank from file
+ defc linebuffer = buffer                       ; the line parsing buffer for config file 'romupdate.cfg' (use bank buffer)
+ defc vararea = buffer+banksize                 ; runtime variables just after 16K buffer
 endif
 
 if BBCBASIC
-     defc buffer = $8000                        ; Use segment 2 as 16K buffer to load a complete 16K bank from file
-     defc sizeof_vars = $200                    ; 512 bytes for runtime variables
-     defc vararea = buffer-sizeof_vars          ; The BBC BASIC version has runtime variables located just below segment 2
-     defc linebuffer = buffer                   ; The line parsing buffer uses bank buffer for config file, 'romupdate.cfg'
+ defc buffer = $8000                            ; Use segment 2 as 16K buffer to load a complete 16K bank from file
+ defc sizeof_vars = $200                        ; 512 bytes for runtime variables
+ defc sizeof_ozstack = $200                     ; 512 byte temporary system stack, just below segment 2 (while OZ ROM is being updated)
+ defc ozstack = buffer-2                        ; top of OZ System Stack address for OZ ROM update...
+ defc vararea = buffer-sizeof_ozstack-sizeof_vars ; The BBC BASIC version has runtime variables located just below segment 2
+ defc linebuffer = buffer                       ; The line parsing buffer uses bank buffer for config file, 'romupdate.cfg'
 endif
 
 defc MAX_IDLENGTH = 64                          ; max. 64 bytes identifier length (config file)
