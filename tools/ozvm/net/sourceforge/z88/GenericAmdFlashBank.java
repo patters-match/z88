@@ -396,11 +396,17 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * Erase complete Flash Memory (never fails in this emulation!).
 	 */
 	private void eraseChipCommand() {
+		int cardTopBank;
+
 		// through this bank number we find the bottom Bank number of the slot
 		int thisBottomSlotBank = (getBankNumber() & 0xC0);
 
-		// get the top bank number of the card (might not be the top of the slot!)
-		int cardTopBank = memory.getBank(thisBottomSlotBank | 0x3F).getBankNumber();
+		if (thisBottomSlotBank == 0)
+			// the top bank number of ROM in slot 0
+			cardTopBank = memory.getBank(0x1F).getBankNumber();
+		else
+			// get the top bank number of the card (might not be the top of the slot!)
+			cardTopBank = memory.getBank(thisBottomSlotBank | 0x3F).getBankNumber();
 
 		for (int thisBank = thisBottomSlotBank; thisBank<=cardTopBank; thisBank++) {
 			GenericAmdFlashBank b = (GenericAmdFlashBank) memory.getBank(thisBank);
@@ -483,17 +489,17 @@ public abstract class GenericAmdFlashBank extends Bank {
 	}
 
 	/**
-	 * Validate if Flash card bank contents is not altered, 
+	 * Validate if Flash card bank contents is not altered,
 	 * ie. only containing FF bytes.
-	 *  
+	 *
 	 * @return true if all bytes in bank are FF
 	 */
 	public boolean isEmpty() {
-		for (int b = 0; b < Bank.SIZE; b++) { 
+		for (int b = 0; b < Bank.SIZE; b++) {
 			if (getByte(b) != 0xFF)
 				return false;
 		}
-		
+
 		return true;
-	}	
+	}
 }
