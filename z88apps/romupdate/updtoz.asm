@@ -64,28 +64,35 @@
                     ld   hl, 0066H
                     ld   (hl),$C9                       ; patch RST 66H non-maskable interrupt vector with an immediate RET instruction
                     call EnableBlinkInt                 ; the low ram interrupt vector code from OZ is automatically restored during reset...
-if BBCBASIC
+IF BBCBASIC
                     ; ----------------------------------------------------------------------------------------------------------------------
-                    ; just before we wipe out the OZ rom, copy the LORES1 font bitmap to RAM and let the screen hardware use the new location
+                    ; just before we wipe out the OZ rom, copy the LORES1/HIRES1 font bitmaps to RAM to use the new location
                     ld   sp,ozstack                     ; move system stack just below segment 2 (moved from $1FFE area)
                     ld   a,SC_LR1
                     ld   b,0
-                    oz   Os_Sci                         ; get BHL address of LORES1 font bitmap
-                    ld   c,MS_S3
+                    oz   Os_Sci                         ; get BHL address of LORES1/HIRES1 font bitmaps
+                    ld   c,MS_S3                        ; Use segment 3 to bind in bank of LORES1/HIRES1 (RomUpdate BBC BASIC is running in segment 0 & 1)
                     call MemDefBank
-                    set  7,h                            ; Use segment 3 to bind in bank of LORES1
-                    set  6,h
-                    ld   bc,$1000
+                    set  7,h                            ; Use segment 3 to bind in bank of sector (RomUpdate BBC BASIC is running in segment 0 & 1)
+                    set  6,h                            ; (16K buffer is in segment 2)
+                    ld   bc,$1000                       ; copy 4K of LORES1/HIRES1 bitmaps...
                     push bc
                     push bc
                     pop  de
-                    ldir                                ; copy 4K LORES1 font bitmap to $20 1000 ($20 already bound in as LOWRAM)
+                    ldir                                ; copy LORES1/HIRES font bitmap to $20 1000 ($20 already bound in as LOWRAM)
                     ld   a,SC_LR1
                     ld   b,$20
                     pop  hl
                     oz   Os_Sci                         ; set new BHL address of LORES1 font bitmap that is now available at $20 1000
+                    ld   a,SC_HR1
+                    ld   b,0
+                    oz   Os_Sci                         ; get HIRES1 font bitmap address in BHL inside current OZ ROM
+                    ld   b,$20
+                    ld   de,$1000
+                    add  hl,de
+                    oz   Os_Sci                         ; and re-assign HIRES1 base address within the 4K font bitmap at $20 1xxx
                     ; ----------------------------------------------------------------------------------------------------------------------
-endif
+ENDIF
                     ld   c,0
                     call FlashEprCardErase              ; bye, bye OZ!
 
