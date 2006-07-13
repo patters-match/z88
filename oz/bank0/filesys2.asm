@@ -671,8 +671,8 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         push    de
         pop     ix
         ld      bc, -1                          ; don't match anything
-        call    FindHandle                      ; count free handles
-        ld      hl, OZVERSION
+        call    FindHandle                      ; count free handles (high word)
+        ld      hl, OZVERSION                   ; the current OZ release version (low word)
         jr      osfrm_x
 
 .frm_ext
