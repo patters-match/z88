@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------------------
-Roadmap for 4.1 OZ release:
+Roadmap for 4.2 OZ release:
 
 $Id$
 ---------------------------------------------------------------------------------------------------------------
@@ -21,6 +21,10 @@ TODO (with priorities):
 - Transform OSCli to be page independant (Key2Meta routine). P2
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes). P3
 - Preset default RAM device in Panel to expanded RAM card when identified by OZ. P3
+- New font bitmaps for ISO LATIN chars. P1
+- New OS_NQ, OS_SP parameters to handle localisation of keymaps and date/month names. P1
+- New end-user selection of localisation in Panel. P1
+- Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ.
 
 DONE
 - Implement the new generic keyboard algorithm (TP)
@@ -41,6 +45,9 @@ DONE
 - Removed auto-blowing of File Eprom Header during reset, when empty Eprom card found in slot 3. (GBS)
   (Actually, OS_EPR, A=EprSave is now the only function that tries to blow header on card. All other OS_EPR just reads
    the slot for a File Eprom)
+- Moved MTH, Font, Keymap & 'OZ' ROM header out of bank 7 and relocated to new bank (GBS / TP)
+- Token table now a separate entity - no longer embedded in bits 7,6 of LORES1 FONT bitmap (GBS / TP).
+- 64 byte protected variable area during soft reset (TP).
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0

@@ -42,7 +42,7 @@ lstoff
 
 ; Constants are all uppercase
 
-defc    OZVERSION               = 42            ; 4.2
+defc    OZVERSION               = $42           ; 4.2
 
 ;       01E0-01FF           Preserved system area (32 bytes preserved over a soft reset)
 

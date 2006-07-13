@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; The main help page which is the copyright text displayed when pressing HELP, 
+; The main help page which is the copyright text displayed when pressing HELP,
 ; then using the Left Cursor
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
@@ -27,7 +27,7 @@
         defm    "dg",$82,$AB,"mput"
         defm    $EF,"Z88 P",$8F,"t"
         defm    "abl",$82,"V",$86,"si"
-        defm    $BC," 4.2.dev "
+        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48, ".dev "
 
 if KBDK
         defm    "(DK)"
