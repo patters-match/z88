@@ -80,8 +80,8 @@ of the rom compile scripts. You can install/run the rom binary in the Z88 emulat
 to be inserted into a real Z88.
 
 Important:
-The rom script only works with Mpm Assembler V1.1 b7 (22/11/2005) or later.
-(You will have a fully working version, if you are using the latest from the SVN checkout)
+The rom script only works with Mpm Assembler V1.2 build 7 or later.
+(You will have a fully working version, if you are using the latest sources from the SVN checkout)
 
 
 ---------------------------------------------------------------------------------------------------
