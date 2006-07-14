@@ -46,9 +46,12 @@ xref    MS1BankA                                ; bank0/misc5.asm
         ld      bc, $month<<8 | $day
         OZ      GN_Dei                          ; convert to internal format
         ld      hl, 2                           ; date in ABC
-        OZ      GN_Pmd                          ; set machine date
-        xor     a
-        ld      b, a
-        ld      c, a
-        OZ      GN_Pmt                          ; set clock to midnight
+        OZ      GN_Pmd                          ; set machine date according to current date of compilation
+
+        defc elapsedtime_centisecs = $hour*60*60*100 + $minute*60*100 + $second*100
+
+        ld      a, elapsedtime_centisecs/65536
+        ld      b, [elapsedtime_centisecs - ((elapsedtime_centisecs/65536) * 65536)] / 256
+        ld      c, [elapsedtime_centisecs - ((elapsedtime_centisecs/65536) * 65536)] % 256
+        OZ      GN_Pmt                          ; set clock according to current time of compilation
         jr      tr_2
