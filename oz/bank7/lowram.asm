@@ -122,11 +122,11 @@ xref    MemGetBank
         xor     a
         ld      (BLSC_SR3), a
         out     (BL_SR3), a
-        in      a, (BL_STA)                     ; get interrupt status and execute inthandler
-        jp      INTEntry                        ; !! 'in a' needs to be moved into ROM code
+        jp      INTEntry
                                                 ; !! if code we use other banks
                                                 ; !! just for having enough space to insert ld a, bank (xor a)
 ;       OZ low level jump table
+        defs    $0048-$PC  ($ff)                ; address align
 
 .OZ_RET1
         jp      OZCallReturn1                   ; 0048
