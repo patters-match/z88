@@ -41,7 +41,7 @@ http://www.mingw.org/ which generates native Win32 shell programs.
 Alternatively, you can use Borlands CPP V5.5 (requires free registration)
 from http://www.borland.com/downloads/download_cbuilder.html .
 
-The third requirement on your operating system is Sun's Java Runtime 
+The third requirement on your operating system is Sun's Java Runtime
 Environment V1.4 or newer. Several command line tools (which is
 part of the tool chain to develop Z88 applications) and the Z88 emulator
 (virtual Z88 hardware and debugging environment) are implemented in
@@ -86,7 +86,7 @@ will get the following directory structure with lots of files in it:
      /servman       Z88 Service Manual, html files
      /userguide     Z88 User Guide (4th edition, in progress)
 
-/oz                 Z88 ROM, OZ V4.1 (in development)
+/oz                 Z88 ROM, OZ V4.2 (in development)
      /sysdef        OZ system manifests, used by Z88 assembler sources
      /bankX         The 128K ROM organisation
 
@@ -182,6 +182,8 @@ make -f makefile.z80.bcc.win32 [Borland C++ V5.5 on Windows]
 or
 make -f makefile.z80.gcc.win32 [using MinGW or Cygwin GCC on Windows]
 or
+nmake /f makefile.z80.msvc.win32 [using MS Visual Studio on Windows]
+or
 make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OS X/Unix]
 
 
@@ -192,7 +194,7 @@ Java 1.4 Runtime Environment (or newer) installed to get compiled. MakeApp
 is found together with Mpm in most Z88 application compile scripts.
 The resulting binary is a makeapp.jar file, which is executed with the
 java -jar makeapp.jar command. The MakeApp program is compiled using the
-the ECJ compiler and the MakeJar utility (integrated inside the /tools/jdk 
+the ECJ compiler and the MakeJar utility (integrated inside the /tools/jdk
 directory).
 
 If the java command is unknown or not found when executing it on the command
@@ -213,7 +215,7 @@ BASH. To test the availablity of the java interpreter, just type
     java -version
 
 This will display the version and the runtime options to the console.
-So, if the command isn't recognised, you need to go through the above 
+So, if the command isn't recognised, you need to go through the above
 steps to make it visible to the command shell.
 
 You're now ready compile MakeApp:
@@ -263,9 +265,8 @@ You can use the Z88 emulated machine, OZvm, to run the Z88 applications
 available in /z88apps, and even work at processor single step level to
 debug the Z88 applications and OZ rom (located in /oz).
 
-OZvm is a Java application and needs the Java Runtime Environment to run.
-Please refer to above sections for getting java installed and especially
-the java compiler, javac.
+OZvm is a Java application and needs the Java Runtime V1.4 Environment
+to run. Please refer to above sections for getting java installed.
 
 To get OZvm compiled into an executable program on your operating system,
 execute the makejar script:
