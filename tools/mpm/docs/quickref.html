@@ -8,6 +8,8 @@
 
 
 
+
+  
   <meta content="text/html; charset=us-ascii" http-equiv="content-type">
 
 
@@ -16,11 +18,14 @@
 
 
 
+
+  
   <title>Mpm Quick Reference Guide</title>
 </head>
 
 
 <body>
+
 
 
 
@@ -31,12 +36,15 @@
 
 
 
+
 Quick Reference Guide (draft)</big></div>
 
 
 
 
+
 <br>
+
 
 
 
@@ -47,7 +55,9 @@ Copyright (C) 1991-2006, Gunther Strube, gbs@users.sf.net<br>
 
 
 
+
 <br>
+
 
 
 
@@ -65,13 +75,16 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
 <hr style="width: 100%; height: 2px;">
 <br>
 
 
 
 
+
 <div style="text-align: center;"><big><span style="font-weight: bold;">Contents</span></big></div>
+
 
 
 
@@ -82,16 +95,20 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
   <li><a href="#cmdline">Instructing the assembler on the command line</a>
 
 
 
+    
     <ul>
 
 
 
 
+
       <li><a href="#options_nopar">Options without parameters</a></li>
+
 
 
 
@@ -104,7 +121,10 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
+    
     </ul>
+
 
 
 
@@ -114,7 +134,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
   <li><a href="#envvar">Environment variables</a></li>
+
 
 
 
@@ -124,7 +146,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
   <li><a href="#platformid">The standard platform identifier</a></li>
+
 
 
 
@@ -134,7 +158,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
   <li><a href="#comments">Comments in source files</a></li>
+
 
 
 
@@ -144,11 +170,14 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
   <li><a href="#expressions">Using expressions</a>
 
 
 
+    
     <ul>
+
 
 
 
@@ -158,7 +187,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#arithop">Arithmetic operators</a></li>
+
 
 
 
@@ -168,7 +199,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#relop">Relational operators</a></li>
+
 
 
 
@@ -181,7 +214,10 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
+    
     </ul>
+
 
 
 
@@ -191,11 +227,14 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
   <li><a href="#directiveref">Directive reference</a>
 
 
 
+    
     <ul>
+
 
 
 
@@ -205,7 +244,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#defm">ASCII, ASCIIZ, DM, DMZ,&nbsp;DEFM, DEFMZ</a></li>
+
 
 
 
@@ -215,7 +256,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#calloz">CALL_OZ, OZ</a></li>
+
 
 
 
@@ -225,7 +268,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#defc">DC, DEFC</a></li>
+
 
 
 
@@ -235,7 +280,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#define">DEFINE, DEFSYM, UNDEFINE</a></li>
+
 
 
 
@@ -245,7 +292,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#defp">DEFP, DP</a></li>
+
 
 
 
@@ -255,7 +304,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#defvars">DEFVARS, DV</a></li>
+
 
 
 
@@ -265,7 +316,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#extcall">EXTCALL</a></li>
+
 
 
 
@@ -275,7 +328,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#fpp">FPP</a></li>
+
 
 
 
@@ -285,7 +340,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
       <li><a href="#if">IF, ELSE, ENDIF</a></li>
+
 
 
 
@@ -298,7 +355,10 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
+    
     </ul>
+
 
 
 
@@ -308,7 +368,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
 </ol>
+
 
 
 
@@ -318,7 +380,9 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -329,13 +393,16 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.<br>
 
 
 
+
 <br>
+
 
 
 
 
 <big><a name="cmdline" id="cmdline"></a><span style="font-weight: bold;">Instructing the assembler on the command
 line</span></big><br>
+
 
 
 
@@ -351,9 +418,11 @@ which options are available.</p>
 
 
 
+
 <p>The syntax of the assembler options is a straightforward design. Filenames
 or a project file are always specified. The options may be left out (surrounded
 here with []):&nbsp;</p>
+
 
 
 
@@ -372,10 +441,12 @@ semicolon.&nbsp;</p>
 
 
 
+
 <p>Options are used to control the assembly process and output. They are
 recognized by the assembler when you specify a leading minus before the option
 identifier ('-'). When the assembler is executed options are all preset with
 default values and are either switched ON or OFF (active or not).&nbsp;</p>
+
 
 
 
@@ -388,7 +459,9 @@ can be concatanated in a single option block. Default options are: <span style="
 
 
 
+
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
 
 
 
@@ -398,7 +471,9 @@ can be concatanated in a single option block. Default options are: <span style="
 
 
 
+
     <tr align="center">
+
 
 
 
@@ -409,12 +484,15 @@ parameters</span></span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -424,7 +502,9 @@ parameters</span></span></td>
 
 
 
+
       <td>Verbose output during assembly. Not enabled by default.</td>
+
 
 
 
@@ -434,12 +514,15 @@ parameters</span></span></td>
 
 
 
+
     <tr>
 
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-t</span></td>
+
 
 
 
@@ -451,7 +534,9 @@ enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -461,7 +546,9 @@ enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-s</td>
+
 
 
 
@@ -473,7 +560,9 @@ default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -483,7 +572,9 @@ default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-m</span></td>
+
 
 
 
@@ -494,7 +585,9 @@ files&nbsp;).&nbsp;Enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -504,7 +597,9 @@ files&nbsp;).&nbsp;Enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-d</td>
+
 
 
 
@@ -515,12 +610,15 @@ compile even if object file exists).</td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -530,7 +628,9 @@ compile even if object file exists).</td>
 
 
 
+
       <td>Link object files into executable binary. Not enabled by default.</td>
+
 
 
 
@@ -540,12 +640,15 @@ compile even if object file exists).</td>
 
 
 
+
     <tr>
 
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-a</span></td>
+
 
 
 
@@ -556,7 +659,9 @@ executable binary.&nbsp;Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -566,7 +671,9 @@ executable binary.&nbsp;Not enabled by default.</td>
 
 
 
+
       <td><span style="font-family: monospace;">-c</span></td>
+
 
 
 
@@ -577,7 +684,9 @@ Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -587,7 +696,9 @@ Not enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-g</td>
+
 
 
 
@@ -598,12 +709,15 @@ enabled by default.</td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -613,7 +727,9 @@ enabled by default.</td>
 
 
 
+
       <td>Address align DEFW &amp; DEFL constants. Not enabled by default.</td>
+
 
 
 
@@ -623,12 +739,15 @@ enabled by default.</td>
 
 
 
+
     <tr>
 
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-C</span></td>
+
 
 
 
@@ -641,7 +760,9 @@ z88dk C compiler. Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -651,7 +772,9 @@ z88dk C compiler. Not enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-R</span></td>
+
 
 
 
@@ -662,7 +785,9 @@ Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -672,7 +797,9 @@ Not enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-plus</span></td>
+
 
 
 
@@ -683,7 +810,9 @@ instruction). Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -693,7 +822,9 @@ instruction). Not enabled by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-IXIY</span></td>
+
 
 
 
@@ -704,13 +835,18 @@ vice versa. Not enabled by default.</td>
 
 
 
+
     </tr>
+
 
     <tr>
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-crc32</span></td>
 
+
       <td>Creates a *.crc file that contains the CRC32 (32bit) hexadecimal value of the compiled binary. Not enabled by default.</td>
+
 
     </tr>
 
@@ -720,18 +856,23 @@ vice versa. Not enabled by default.</td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -741,12 +882,15 @@ vice versa. Not enabled by default.</td>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr align="center">
+
 
 
 
@@ -757,12 +901,15 @@ parameters</span></span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -772,12 +919,15 @@ parameters</span></span></td>
 
 
 
+
       <td>Define symbol name as logically TRUE and available for current compilation
 session.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -787,12 +937,15 @@ session.<br>
 
 
 
+
     <tr>
 
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-r&lt;address&gt;</span></td>
+
 
 
 
@@ -803,7 +956,9 @@ in first&nbsp; source code file).</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -813,7 +968,9 @@ in first&nbsp; source code file).</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">-e&lt;ext&gt;</td>
+
 
 
 
@@ -824,7 +981,9 @@ with&nbsp;&lt;ext&gt;. Max 3 letters (specified without ".")</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -834,7 +993,9 @@ with&nbsp;&lt;ext&gt;. Max 3 letters (specified without ".")</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-M&lt;ext&gt;</span></td>
+
 
 
 
@@ -845,7 +1006,9 @@ with &lt;ext&gt;. Max 3 letters (specified without ".")</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -855,7 +1018,9 @@ with &lt;ext&gt;. Max 3 letters (specified without ".")</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-o&lt;filename&gt;</span></td>
+
 
 
 
@@ -867,7 +1032,9 @@ specified source filename or derived from the project filename. Also requires
 
 
 
+
       </td>
+
 
 
 
@@ -877,12 +1044,15 @@ specified source filename or derived from the project filename. Also requires
 
 
 
+
     <tr>
 
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;"><a name="include_searchpath" id="include_searchpath"></a> -I&lt;path&gt;</td>
+
 
 
 
@@ -895,11 +1065,14 @@ space between the path and the separator.<br>
 
 
 
+
 -I option may be specified multiply times at command line.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -909,12 +1082,15 @@ space between the path and the separator.<br>
 
 
 
+
     <tr>
 
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">-L&lt;path&gt;</span></td>
+
 
 
 
@@ -927,7 +1103,9 @@ space between the path and the separator.<br>
 
 
 
+
 -L option may be specified multiply times at command line.</td>
+
 
 
 
@@ -937,12 +1115,15 @@ space between the path and the separator.<br>
 
 
 
+
     <tr>
 
 
 
 
+
       <td><span style="font-family: monospace;">-x&lt;filename&gt;</span></td>
+
 
 
 
@@ -953,7 +1134,9 @@ meaningless.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -963,13 +1146,16 @@ meaningless.<br>
 
 
 
+
     <tr>
+
 
 
 
 
       <td style="vertical-align: top; font-family: monospace;">
 -l&lt;filename&gt;</td>
+
 
 
 
@@ -981,7 +1167,9 @@ search paths).<br>
 
 
 
+
       </td>
+
 
 
 
@@ -994,23 +1182,29 @@ search paths).<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="envvar" id="envvar"></a><span style="font-weight: bold;">Environment variables</span></big><br>
+
 
 
 
@@ -1022,7 +1216,9 @@ variables are instantiated for use while the shell is open:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1032,7 +1228,9 @@ variables are instantiated for use while the shell is open:<br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -1042,8 +1240,10 @@ variables are instantiated for use while the shell is open:<br>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">
 MPM_Z80_INCLUDEPATH</td>
+
 
 
 
@@ -1055,7 +1255,9 @@ above). Equivalent to the -I option</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1065,7 +1267,9 @@ above). Equivalent to the -I option</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">MPM_Z80_LIBPATH</td>
+
 
 
 
@@ -1077,12 +1281,15 @@ separator (see options above). Equivalent to the -L option.</td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1093,8 +1300,10 @@ MPM_Z80_STDLIBRARY</td>
 
 
 
+
       <td>Defines the default filename of the standard library to be scanned by LIB
 directives.</td>
+
 
 
 
@@ -1107,23 +1316,29 @@ directives.</td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="filetypes" id="filetypes"></a><span style="font-weight: bold;">MPM module assembler file types</span></big><br>
+
 
 
 
@@ -1137,7 +1352,9 @@ intact).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1147,7 +1364,9 @@ intact).<br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -1157,7 +1376,9 @@ intact).<br>
 
 
 
+
       <td style="font-family: monospace;">asm</td>
+
 
 
 
@@ -1168,7 +1389,9 @@ option.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1178,7 +1401,9 @@ option.</td>
 
 
 
+
       <td style="vertical-align: top; font-family: monospace;">obj</td>
+
 
 
 
@@ -1190,7 +1415,9 @@ expressions.&nbsp;May be overridden using the -M option.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1200,7 +1427,9 @@ expressions.&nbsp;May be overridden using the -M option.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">err</span></td>
+
 
 
 
@@ -1212,7 +1441,9 @@ corresponding source file.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1222,7 +1453,9 @@ corresponding source file.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">lst</span></td>
+
 
 
 
@@ -1235,7 +1468,9 @@ symbol table is dumped at the end of the listing file.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1244,7 +1479,9 @@ symbol table is dumped at the end of the listing file.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">sym</span></td>
+
 
 
 
@@ -1256,7 +1493,9 @@ generated by default.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1265,7 +1504,9 @@ generated by default.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">bin</span></td>
+
 
 
 
@@ -1277,7 +1518,9 @@ overridden using the -o option.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1287,7 +1530,9 @@ overridden using the -o option.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">map</span></td>
+
 
 
 
@@ -1301,26 +1546,34 @@ address, both in ascending order.</td>
 
 
 
+
     </tr>
+
 
 
 
 
     <tr>
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">crc</span></td>
+
 
       <td>This file contains a calculated CRC32 hexadecimal value of
 the final executable output file. It is only generated if you use the <span style="font-family: monospace;">-crc32</span> command line option.</td>
 
+
     </tr>
 
+
     <tr>
+
 
 
 
 
       <td style="vertical-align: top;"><span style="font-family: monospace;">def</span></td>
+
 
 
 
@@ -1333,7 +1586,9 @@ in separate compile projects.</td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1343,7 +1598,9 @@ in separate compile projects.</td>
 
 
 
+
       <td style="vertical-align: top;"><span style="font-family: monospace;">lib</span></td>
+
 
 
 
@@ -1355,6 +1612,7 @@ option.</td>
 
 
 
+
     </tr>
 
 
@@ -1363,23 +1621,29 @@ option.</td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
-<big><a name="platformid" id="platformid"></a><span style="font-weight: bold;">The standard platform identifier</span></big> When the MPM
+
+<br>
+
+
+
+
+
+<big><a name="platformid" id="platformid"></a><span style="font-weight: bold;">The standard platform identifier</span></big> <br>
+When the MPM
 Assembler is running, a standard platform identifier (with value 1) is made
 available when typically using IF directives or other expressions. The
 identifier reflects the name of the platform:<br>
@@ -1387,7 +1651,9 @@ identifier reflects the name of the platform:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1398,12 +1664,15 @@ computers<br>
 
 
 
+
 "UNIX" - the assembler is running on the LINUX/UNIX/MAC OSX platform.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -1414,17 +1683,21 @@ different computer platforms.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="sourcefile" id="sourcefile"></a><span style="font-weight: bold;">Source file structure and layout</span></big><br>
+
 
 
 
@@ -1437,7 +1710,9 @@ by MPM - it understands all known line ending formats:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1448,8 +1723,10 @@ by&nbsp;UNIX/AMIGA/MAC OS X)<br>
 
 
 
+
 <span style="font-family: monospace;">&lt;CR&gt;&lt;LF&gt;</span> (used by
 MSDOS, WINDOWS)<br>
+
 
 
 
@@ -1460,7 +1737,9 @@ OS&nbsp;8/9)<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1476,17 +1755,21 @@ contains the actual code or data.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="comments" id="comments"></a><span style="font-weight: bold;">Comments in source files</span></big><br>
+
 
 
 
@@ -1500,7 +1783,9 @@ source files:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1510,7 +1795,9 @@ source files:<br>
 
 
 
+
 <span style="font-family: monospace;">; main menu</span><br style="font-family: monospace;">
+
 
 
 
@@ -1520,7 +1807,9 @@ source files:<br>
 
 
 
+
 <span style="font-family: monospace;">mainmenu: xor a</span><br style="font-family: monospace;">
+
 
 
 
@@ -1531,18 +1820,22 @@ source files:<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="labels" id="labels"></a><span style="font-weight: bold;">Defining
-symbolic address labels</span></big> The main reason for using an assembler is
+symbolic address labels</span></big><br>
+The main reason for using an assembler is
 to be able to determine symbolical addresses and use them as reference in the
 code, instead of absolute addresses. These are defined by a name preceded with
 a full stop or ending with a colon. It is allowed to place an instruction
@@ -1553,12 +1846,15 @@ after the label:<br>
 
 
 
+
 <br>
 
 
 
 
+
 <span style="font-family: monospace;">mainmenu: &nbsp; xor a</span><br style="font-family: monospace;">
+
 
 
 
@@ -1569,7 +1865,9 @@ comment</span><br style="font-family: monospace;">
 
 
 
+
 <br>
+
 
 
 
@@ -1584,17 +1882,21 @@ insensitive.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="expressions" id="expressions"></a><span style="font-weight: bold;">Using expressions</span></big><br>
+
 
 
 
@@ -1612,7 +1914,9 @@ A,&nbsp;n.&nbsp;<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1625,7 +1929,9 @@ characters and all the usual suspects of arithmetic operators.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1635,15 +1941,19 @@ characters and all the usual suspects of arithmetic operators.<br>
 
 
 
+
 <a name="numconsts" id="numconsts"></a><span style="font-weight: bold;">Numeric
-constants</span></big> Apart from specifying decimal integer numbers, you are
+constants</span></big><br>
+Apart from specifying decimal integer numbers, you are
 allowed to use hexadecimal constants, binary constants and ASCII characters.
 The following definitions are available:<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -1654,7 +1964,9 @@ constants.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1664,12 +1976,15 @@ constants.<br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1679,7 +1994,9 @@ constants.<br>
 
 
 
+
       <td>456567,&nbsp;456d</td>
+
 
 
 
@@ -1689,7 +2006,9 @@ constants.<br>
 
 
 
+
     <tr>
+
 
 
 
@@ -1699,7 +2018,9 @@ constants.<br>
 
 
 
-      <td>0xC000 (49152), or 4000h</td>
+
+      <td>$8000, 0xC000 (49152), or 4000h</td>
+
 
 
 
@@ -1709,7 +2030,9 @@ constants.<br>
 
 
 
+
     <tr>
+
 
 
 
@@ -1719,12 +2042,15 @@ constants.<br>
 
 
 
+
       <td>@11000000 (192d) or 1011b (11d)</td>
 
 
 
 
+
     </tr>
+
 
 
 
@@ -1734,12 +2060,15 @@ constants.<br>
 
 
 
+
       <td>Ascii</td>
 
 
 
 
+
       <td>'A' (65d)</td>
+
 
 
 
@@ -1752,8 +2081,11 @@ constants.<br>
 
 
 
+
+  
   </tbody>
 </table>
+
 
 
 
@@ -1763,7 +2095,9 @@ constants.<br>
 
 
 
+
 <big><a name="arithop" id="arithop"></a><span style="font-weight: bold;">Arithmetic operators</span></big><br>
+
 
 
 
@@ -1774,7 +2108,9 @@ all. Result of example is shown in brackets for clarity of operator.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -1784,12 +2120,15 @@ all. Result of example is shown in brackets for clarity of operator.<br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1800,7 +2139,9 @@ symbol</span></td>
 
 
 
+
       <td style="font-style: italic;"><span style="font-weight: bold;">Function</span></td>
+
 
 
 
@@ -1810,12 +2151,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1825,7 +2169,9 @@ symbol</span></td>
 
 
 
+
       <td>Addition</td>
+
 
 
 
@@ -1835,7 +2181,9 @@ symbol</span></td>
 
 
 
+
     </tr>
+
 
 
 
@@ -1845,7 +2193,9 @@ symbol</span></td>
 
 
 
+
       <td>-</td>
+
 
 
 
@@ -1856,8 +2206,10 @@ symbol</span></td>
 
 
 
+
       <td>-10, 12 - 45 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</td>
+
 
 
 
@@ -1867,7 +2219,9 @@ symbol</span></td>
 
 
 
+
     <tr>
+
 
 
 
@@ -1877,7 +2231,9 @@ symbol</span></td>
 
 
 
+
       <td>Multiplication</td>
+
 
 
 
@@ -1887,12 +2243,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1902,7 +2261,9 @@ symbol</span></td>
 
 
 
+
       <td>Division</td>
+
 
 
 
@@ -1912,12 +2273,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1927,7 +2291,9 @@ symbol</span></td>
 
 
 
+
       <td>Unary division by 256</td>
+
 
 
 
@@ -1937,12 +2303,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1952,7 +2321,9 @@ symbol</span></td>
 
 
 
+
       <td>Modulus</td>
+
 
 
 
@@ -1962,12 +2333,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -1977,7 +2351,9 @@ symbol</span></td>
 
 
 
+
       <td>Unary modulus by 256</td>
+
 
 
 
@@ -1987,12 +2363,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2002,7 +2381,9 @@ symbol</span></td>
 
 
 
+
       <td>Power</td>
+
 
 
 
@@ -2012,12 +2393,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2027,7 +2411,9 @@ symbol</span></td>
 
 
 
+
       <td>Binary AND</td>
+
 
 
 
@@ -2037,12 +2423,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2052,7 +2441,9 @@ symbol</span></td>
 
 
 
+
       <td>Binary OR</td>
+
 
 
 
@@ -2062,12 +2453,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2077,7 +2471,9 @@ symbol</span></td>
 
 
 
+
       <td>Binary NOR</td>
+
 
 
 
@@ -2087,12 +2483,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2102,7 +2501,9 @@ symbol</span></td>
 
 
 
+
       <td>Binary XOR</td>
+
 
 
 
@@ -2112,12 +2513,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2127,7 +2531,9 @@ symbol</span></td>
 
 
 
+
       <td>Unary Binary NOT</td>
+
 
 
 
@@ -2137,12 +2543,15 @@ symbol</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2152,7 +2561,9 @@ symbol</span></td>
 
 
 
+
       <td>Binary left shift</td>
+
 
 
 
@@ -2162,7 +2573,9 @@ symbol</span></td>
 
 
 
+
     </tr>
+
 
 
 
@@ -2172,7 +2585,9 @@ symbol</span></td>
 
 
 
+
       <td>&gt;&gt;</td>
+
 
 
 
@@ -2182,7 +2597,9 @@ symbol</span></td>
 
 
 
+
       <td>128 &gt;&gt; 4 (8)</td>
+
 
 
 
@@ -2195,13 +2612,17 @@ symbol</span></td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
+
 <br>
+
 
 
 
@@ -2212,12 +2633,15 @@ to lowest:<br>
 
 
 
+
 <br>
 
 
 
 
-<span style="font-family: monospace;">0x @ '</span> (constant identifiers)<br>
+
+<span style="font-family: monospace;">0x $ @ '</span> (constant identifiers)<br>
+
 
 
 
@@ -2227,7 +2651,9 @@ to lowest:<br>
 
 
 
+
 <span style="font-family: monospace;">~ &gt; &lt;</span><br style="font-family: monospace;">
+
 
 
 
@@ -2237,7 +2663,9 @@ to lowest:<br>
 
 
 
+
 <span style="font-family: monospace;">* / %</span><br style="font-family: monospace;">
+
 
 
 
@@ -2248,7 +2676,9 @@ to lowest:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2261,18 +2691,22 @@ as part of their syntax.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="hashop" id="hashop"></a><span style="font-weight: bold;">The #
 operator</span></big><br>
+
 
 
 
@@ -2290,7 +2724,9 @@ one.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2301,24 +2737,29 @@ one.<br>
 
 
 
+
 <span style="font-family: monospace;">LD BC, #end_relocator-relocator</span> ;
 Mpm&nbsp;sees a constant expression<br>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="relop" id="relop"></a><span style="font-weight: bold;">Relational
 operators</span></big><br>
+
 
 
 
@@ -2332,7 +2773,9 @@ assembly. The following relational operators are available:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2342,7 +2785,9 @@ assembly. The following relational operators are available:<br>
 
 
 
+
 <span style="font-family: monospace;">&lt;&gt;</span> not equal to<br>
+
 
 
 
@@ -2352,12 +2797,15 @@ assembly. The following relational operators are available:<br>
 
 
 
+
 <span style="font-family: monospace;">&gt;</span> larger than<br>
 
 
 
 
+
 <span style="font-family: monospace;">&lt;=</span> less than or equal to<br>
+
 
 
 
@@ -2368,12 +2816,15 @@ than or equal to<br>
 
 
 
+
 ! not<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -2384,13 +2835,16 @@ XOR and NOT.<br>
 
 
 
+
 It is perfectly legal to use relational expressions in parameters requiring an
 arithmetic value. For example:<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -2402,19 +2856,25 @@ opcode<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><a name="asmpc" id="asmpc"></a><span style="font-weight: bold;">Predefined assembler variables</span>&nbsp;</big><br>
+
 Apart from declaring your own constants, Mpm has a few pre-declared constants that might become useful in your programs.<br>
+
 <br>
+
 On occasional circumstances it may be necessary to use the current location of
 the assembler program counter in an expression e.g. calculating a relative
 distance. This may be done with the help of the <span style="font-family: monospace;">$PC</span> identifier. An example:<br>
@@ -2422,7 +2882,9 @@ distance. This may be done with the help of the <span style="font-family: monosp
 
 
 
+
 <br>
+
 
 
 
@@ -2433,8 +2895,10 @@ open error"</span><br style="font-family: monospace;">
 
 
 
+
 <span style="font-family: monospace;">errmsg1: DEFM errmsg2 - $pc - 1, "Syntax
 error"</span><br style="font-family: monospace;">
+
 
 
 
@@ -2444,61 +2908,99 @@ error"</span><br style="font-family: monospace;">
 
 
 
+
 <br>
+
 
 
 
 
 Here, a length byte of the following string (excluding the length byte) is
 calculated by using the current $PC address value.<br>
+
 <br>
+
 When Mpm is starting a compile session, the system clock is fetched once and made available as integer variables:<br>
+
 <br>
+
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
   <tbody>
+
     <tr>
+
       <td><span style="font-family: monospace;">$YEAR</span></td>
+
       <td>4-digit year value,&nbsp; eg. 2006</td>
+
     </tr>
+
     <tr>
+
       <td><span style="font-family: monospace;">$MONTH</span></td>
+
       <td>Month of the year, range is 1 to 12.</td>
+
     </tr>
+
     <tr>
+
       <td><span style="font-family: monospace;">$DAY</span></td>
+
       <td>The day of the month, range is 1-31.</td>
+
     </tr>
+
     <tr>
+
       <td><span style="font-family: monospace;">$HOUR</span></td>
+
       <td>Range is 0-23.</td>
+
     </tr>
+
     <tr>
+
       <td><span style="font-family: monospace;">$MINUTE</span></td>
+
       <td>Range is 0-59.</td>
+
     </tr>
+
     <tr>
+
       <td><span style="font-family: monospace;">$SECOND</span></td>
+
       <td>Range is 0-59.</td>
+
     </tr>
+
+  
   </tbody>
 </table>
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 <big><big><b><a name="directiveref" id="directiveref">Directive
 reference</a></b></big></big><br>
+
 
 
 
@@ -2510,7 +3012,9 @@ binary files while code generation is performed.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2525,7 +3029,9 @@ directives are case insensitive.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2535,7 +3041,9 @@ The following syntax is used to describe the directives:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2545,7 +3053,9 @@ The following syntax is used to describe the directives:<br>
 
 
 
+
 {} defines a repetition of a syntactic entity.<br>
+
 
 
 
@@ -2555,7 +3065,9 @@ The following syntax is used to describe the directives:<br>
 
 
 
+
 <br>
+
 
 
 
@@ -2565,12 +3077,15 @@ The following syntax is used to describe the directives:<br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2580,12 +3095,15 @@ The following syntax is used to describe the directives:<br>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2596,7 +3114,9 @@ Argument value range = 1-16.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -2611,6 +3131,7 @@ even adresses, use an ALIGN at the end of each module.</td>
 
 
 
+
     </tr>
 
 
@@ -2619,18 +3140,23 @@ even adresses, use an ALIGN at the end of each module.</td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -2640,12 +3166,15 @@ even adresses, use an ALIGN at the end of each module.</td>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2656,14 +3185,17 @@ even adresses, use an ALIGN at the end of each module.</td>
 
 
 
+
 ASCIIZ</span> <span style="font-weight: bold; font-family: monospace;">&lt;string
 expression&gt;</span><br>
 
 
 
 
+
       <span style="font-weight: bold; font-family: monospace;">DM</span> <span style="font-weight: bold; font-family: monospace;">&lt;string
 expression&gt;</span><br>
+
 
 
 
@@ -2675,9 +3207,11 @@ expression&gt;</span><br>
 
 
 
+
       <span style="font-weight: bold; font-family: monospace;">DEFM</span>
       <span style="font-weight: bold; font-family: monospace;">&lt;string
 expression&gt;</span><br>
+
 
 
 
@@ -2689,12 +3223,15 @@ expression&gt;</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2705,13 +3242,16 @@ PC.&nbsp;<br>
 
 
 
+
       <br>
+
 
 
 
 
 Strings are enclosed in double quotes. Strings may be concatenated with byte
 constants using&nbsp;'.' or ','.<br>
+
 
 
 
@@ -2723,7 +3263,9 @@ the keyboard.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -2734,7 +3276,9 @@ is automatically null-terminated (appended with a 0 byte).<br>
 
 
 
+
       <br>
+
 
 
 
@@ -2747,13 +3291,17 @@ Example:<br>
 
 
 
+
+      
       <pre>ASCIIZ <span style="color: rgb(221, 0, 0);">"This is a title"</span>, 13, 10<br>
 DEFM <span style="color: rgb(221, 0, 0);">"(c) Zsoft 1995-2006"</span>, 13, 10, 'A', 0<br>
 DMZ 1 . <span style="color: rgb(221, 0, 0);">"7#1"</span> . 32 . 32 . 32<span style="color: rgb(0, 128, 0);">+</span>94 . 32<span style="color: rgb(0, 128, 0);">+</span>8 . 128<br></pre>
 
 
 
+
       </td>
+
 
 
 
@@ -2766,18 +3314,23 @@ DMZ 1 . <span style="color: rgb(221, 0, 0);">"7#1"</span> . 32 . 32 . 32<span st
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -2787,12 +3340,15 @@ DMZ 1 . <span style="color: rgb(221, 0, 0);">"7#1"</span> . 32 . 32 . 32<span st
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2803,12 +3359,15 @@ DMZ 1 . <span style="color: rgb(221, 0, 0);">"7#1"</span> . 32 . 32 . 32<span st
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2821,6 +3380,7 @@ updated to the end of the loaded binary code.</td>
 
 
 
+
     </tr>
 
 
@@ -2829,18 +3389,23 @@ updated to the end of the loaded binary code.</td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -2850,12 +3415,15 @@ updated to the end of the loaded binary code.</td>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2866,8 +3434,10 @@ updated to the end of the loaded binary code.</td>
 
 
 
+
       <span style="font-weight: bold; font-family: monospace;">DB</span> <span style="font-family: monospace; font-weight: bold;">&lt;8bit expr&gt;,{&lt;8bit
 expr&gt;}&nbsp;</span><br>
+
 
 
 
@@ -2879,12 +3449,15 @@ expr&gt;,{&lt;8bit expr&gt;} (-128; 255)</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2895,7 +3468,9 @@ Expressions may be used to calculate the constant.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -2908,11 +3483,15 @@ Example:<br>
 
 
 
+
+      
       <pre>DEFB (topic_info_help <span style="color: rgb(0, 128, 0);">-</span> z80asm_help) / 256<span style="color: rgb(128, 128, 128);"><span style="font-family: mon;"><span style="font-style: italic;">, </span></span></span>(topic_info_help <span style="color: rgb(0, 128, 0);">-</span> z80asm_help) % 256, @00010010<br></pre>
 
 
 
+
       </td>
+
 
 
 
@@ -2925,18 +3504,23 @@ Example:<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -2946,7 +3530,9 @@ Example:<br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -2956,7 +3542,9 @@ Example:<br>
 
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="calloz" id="calloz"></a>CALL_OZ [(]&lt;numerical expr&gt;[)]<br>
+
 
 
 
@@ -2967,12 +3555,15 @@ expr&gt;[)]</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -2986,7 +3577,9 @@ of Mpm.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -2996,7 +3589,9 @@ Example:<br>
 
 
 
+
       <br>
+
 
 
 
@@ -3006,7 +3601,9 @@ Example:<br>
 
 
 
+
       <span style="font-family: monospace;">CALL_OZ GN_Sop</span><br style="font-family: monospace;">
+
 
 
 
@@ -3016,11 +3613,14 @@ Example:<br>
 
 
 
+
       <span style="font-family: monospace;">.msg DMZ "Hello world!"</span><br style="font-family: monospace;">
 
 
 
+
       </td>
+
 
 
 
@@ -3033,18 +3633,23 @@ Example:<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3054,12 +3659,15 @@ Example:<br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3070,12 +3678,15 @@ expr&gt;[)]</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3087,12 +3698,15 @@ management tool chain.<br>
 
 
 
+
 This pseudo directive will be implemented as a macro definition in a future
 version of Mpm.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -3105,18 +3719,23 @@ version of Mpm.<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3126,7 +3745,9 @@ version of Mpm.<br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -3136,7 +3757,9 @@ version of Mpm.<br>
 
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><a name="defc" id="defc"></a>DEFC name=&lt;numerical expr&gt;{, name=&lt;numerical expr&gt;}<br>
+
 
 
 
@@ -3146,12 +3769,15 @@ DC name=&lt;numerical expr&gt;{, name=&lt;numerical expr&gt;}</td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3164,7 +3790,9 @@ is to put constant definition in external files that you can <span style="font-f
 
 
 
+
       <br>
+
 
 
 
@@ -3174,7 +3802,9 @@ Example:<br>
 
 
 
+
       <br>
+
 
 
 
@@ -3185,12 +3815,15 @@ ERR_syntax&nbsp;= $81</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">DC TotalWorkspace = END_VARS -
 z80asm_vars</span><br>
 
 
 
+
       </td>
+
 
 
 
@@ -3203,18 +3836,23 @@ z80asm_vars</span><br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3224,7 +3862,9 @@ z80asm_vars</span><br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -3234,7 +3874,9 @@ z80asm_vars</span><br>
 
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><a name="defgroup" id="defgroup"></a>DEFGROUP | ENUM<br>
+
 
 
 
@@ -3244,11 +3886,14 @@ name {',' name ['=' &lt;numerical expr&gt;]}<br>
 
 
 
+
 ENDDEF<br>
 
 
 
+
       </td>
+
 
 
 
@@ -3258,7 +3903,9 @@ ENDDEF<br>
 
 
 
+
     <tr>
+
 
 
 
@@ -3271,9 +3918,11 @@ expression&gt; which breaks the linear enumeration from that constant.<br>
 
 
 
+
 The <span style="font-family: monospace;">DEFGROUP</span> directive may be
 spanned across several lines and MUST be enclosed with ended with en
       <span style="font-family: monospace;">ENDDEF</span> statement. <span style="font-family: monospace;"><br>
+
 
 
 
@@ -3283,7 +3932,9 @@ DEFGROUP</span> is just a more easy way than: <span style="font-family: monospac
 
 
 
+
       <br>
+
 
 
 
@@ -3294,12 +3945,15 @@ values:<br>
 
 
 
+
       <br>
 
 
 
 
+
       <span style="font-family: monospace;">DEFGROUP</span><br style="font-family: monospace;">
+
 
 
 
@@ -3313,11 +3967,14 @@ sym_greater, sym_constexpr, sym_newline</span><br style="font-family: monospace;
 
 
 
+
       <span style="font-family: monospace;">ENDDEF</span><br style="font-family: monospace;">
 
 
 
+
       </td>
+
 
 
 
@@ -3330,18 +3987,23 @@ sym_greater, sym_constexpr, sym_newline</span><br style="font-family: monospace;
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3351,7 +4013,9 @@ sym_greater, sym_constexpr, sym_newline</span><br style="font-family: monospace;
 
 
 
+
   <tbody>
+
 
 
 
@@ -3361,7 +4025,9 @@ sym_greater, sym_constexpr, sym_newline</span><br style="font-family: monospace;
 
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><a name="define" id="define"></a>DEFINE name {, name}<br>
+
 
 
 
@@ -3371,7 +4037,9 @@ DEFSYM name {, name}<br>
 
 
 
+
 UNDEFINE name {, name}</td>
+
 
 
 
@@ -3381,7 +4049,9 @@ UNDEFINE name {, name}</td>
 
 
 
+
     <tr>
+
 
 
 
@@ -3394,7 +4064,9 @@ you can remove a previously created local symbol .<br>
 
 
 
+
       </td>
+
 
 
 
@@ -3407,18 +4079,23 @@ you can remove a previously created local symbol .<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3428,12 +4105,15 @@ you can remove a previously created local symbol .<br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr style="font-family: monospace;">
+
 
 
 
@@ -3444,8 +4124,10 @@ you can remove a previously created local symbol .<br>
 
 
 
+
       <span style="font-weight: bold;">LONG &lt;32bit numerical expr&gt; {,&lt;32bit
 numerical expr&gt;}</span></td>
+
 
 
 
@@ -3455,7 +4137,9 @@ numerical expr&gt;}</span></td>
 
 
 
+
     <tr>
+
 
 
 
@@ -3466,7 +4150,9 @@ in low byte, high byte order (little endian). Integer range is (-2147483647;
 
 
 
+
       </td>
+
 
 
 
@@ -3479,18 +4165,23 @@ in low byte, high byte order (little endian). Integer range is (-2147483647;
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3500,12 +4191,15 @@ in low byte, high byte order (little endian). Integer range is (-2147483647;
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr style="font-family: monospace;">
+
 
 
 
@@ -3517,7 +4211,9 @@ expr&gt;,&lt;8bit numerical expr&gt;)</span><br style="font-weight: bold;">
 
 
 
+
       <span style="font-weight: bold;">DP&nbsp;</span><span style="font-weight: bold;">&lt;24bit pointer&gt; {,24bit pointer}</span></td>
+
 
 
 
@@ -3527,7 +4223,9 @@ expr&gt;,&lt;8bit numerical expr&gt;)</span><br style="font-weight: bold;">
 
 
 
+
     <tr>
+
 
 
 
@@ -3539,7 +4237,9 @@ directive is primarily used for Z88 memory data structures.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -3549,7 +4249,9 @@ Example:<br>
 
 
 
+
       <br>
+
 
 
 
@@ -3562,9 +4264,11 @@ Example:<br>
 
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFB
 12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp; &nbsp;; total length of help</span><br style="font-family: monospace;">
+
 
 
 
@@ -3576,9 +4280,11 @@ z80asm_topics,</span><span style="font-family: monospace;">&nbsp;z80asm_MTH_bank
 
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFP
 z80asm_commands</span><span style="font-family: monospace;">,
 z80asm_MTH_bank&nbsp;&nbsp;; point to commands (info)</span><br style="font-family: monospace;">
+
 
 
 
@@ -3590,9 +4296,11 @@ point to help</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFP
 token_base,</span> <span style="font-family: monospace;">tokens_bank&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ; point to token base</span></code></td>
+
 
 
 
@@ -3605,18 +4313,23 @@ token_base,</span> <span style="font-family: monospace;">tokens_bank&nbsp;&nbsp;
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3626,12 +4339,15 @@ token_base,</span> <span style="font-family: monospace;">tokens_bank&nbsp;&nbsp;
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3642,8 +4358,10 @@ token_base,</span> <span style="font-family: monospace;">tokens_bank&nbsp;&nbsp;
 
 
 
+
 DS</span> <span style="font-weight: bold; font-family: monospace;">&lt;size
 numerical expr&gt; [,(&lt;byte&gt;)]<br>
+
 
 
 
@@ -3654,12 +4372,15 @@ numerical expr&gt; [,(&lt;byte&gt;)]</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3671,7 +4392,9 @@ arguments may be defined as expressions.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -3681,7 +4404,9 @@ Example:<br>
 
 
 
+
       <br>
+
 
 
 
@@ -3692,12 +4417,15 @@ bytes in memory</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">DS 16,($FF) &nbsp;; fill 16 bytes with
 $FF</span><br>
 
 
 
+
       </td>
+
 
 
 
@@ -3710,18 +4438,23 @@ $FF</span><br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3731,12 +4464,15 @@ $FF</span><br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3748,7 +4484,9 @@ $FF</span><br>
 
 
 
+
       <span style="font-family: monospace; font-weight: bold;">ENDDEF</span><br style="font-family: monospace; font-weight: bold;">
+
 
 
 
@@ -3759,8 +4497,10 @@ $FF</span><br>
 
 
 
+
       <span style="font-family: monospace; font-weight: bold;">&lt;name&gt; ::= 'a'
 .. 'z', '_', '0' .. '9'</span><br style="font-family: monospace; font-weight: bold;">
+
 
 
 
@@ -3770,7 +4510,9 @@ $FF</span><br>
 
 
 
+
       </td>
+
 
 
 
@@ -3780,7 +4522,9 @@ $FF</span><br>
 
 
 
+
     <tr>
+
 
 
 
@@ -3797,12 +4541,15 @@ group of names that are joined together. a <span style="font-family: monospace;"
 
 
 
+
       <br>
 
 
 
 
+
       <span style="font-family: monospace;">DEFVARS asm_vars</span><br style="font-family: monospace;">
+
 
 
 
@@ -3813,8 +4560,10 @@ next variable is 1 byte</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp; RuntimeFlags2 ds.b
 1</span><br style="font-family: monospace;">
+
 
 
 
@@ -3825,8 +4574,10 @@ next variable is 1 byte</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp; explicitORIG &nbsp;ds.w 1 ; 2
 bytes space</span><br style="font-family: monospace;">
+
 
 
 
@@ -3837,8 +4588,10 @@ bytes space</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp; datestamp_src ds.b 6 ; 6 bytes
 space</span><br style="font-family: monospace;">
+
 
 
 
@@ -3849,8 +4602,10 @@ space</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp; TOTALERRORS &nbsp; ds.l 1 ; 4
 bytes space</span><br style="font-family: monospace;">
+
 
 
 
@@ -3860,7 +4615,9 @@ bytes space</span><br style="font-family: monospace;">
 
 
 
+
       <br>
+
 
 
 
@@ -3870,12 +4627,15 @@ the following is useful for defining dynamic data structures:<br>
 
 
 
+
       <br>
 
 
 
 
+
       <span style="font-family: monospace;">DV 0</span><br style="font-family: monospace;">
+
 
 
 
@@ -3886,14 +4646,17 @@ postfix expressions):</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp; pfixstack_const &nbsp; &nbsp; ds.l
 1 ; The stack item value</span><br style="font-family: monospace;">
 
 
 
 
+
       <span style="font-family: monospace;">&nbsp; pfixstack_previtem &nbsp;ds.p 1 ;
 Pointer to previous element on stack</span><br style="font-family: monospace;">
+
 
 
 
@@ -3905,12 +4668,15 @@ structure</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">ENDDEF</span><br style="font-family: monospace;">
 
 
 
 
+
       <br>
+
 
 
 
@@ -3921,6 +4687,7 @@ deleting or inserting variable definitions.</td>
 
 
 
+
     </tr>
 
 
@@ -3929,18 +4696,23 @@ deleting or inserting variable definitions.</td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -3950,12 +4722,15 @@ deleting or inserting variable definitions.</td>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3965,12 +4740,15 @@ deleting or inserting variable definitions.</td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -3985,7 +4763,9 @@ file being compiled.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -3995,12 +4775,15 @@ Example:<br>
 
 
 
+
       <br>
 
 
 
 
+
       <span style="font-family: monospace;">IF $PC &gt; 16384</span><br style="font-family: monospace;">
+
 
 
 
@@ -4011,11 +4794,14 @@ size."</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">ENDIF</span><br style="font-family: monospace;">
 
 
 
+
       </td>
+
 
 
 
@@ -4028,18 +4814,23 @@ size."</span><br style="font-family: monospace;">
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4049,12 +4840,15 @@ size."</span><br style="font-family: monospace;">
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -4064,12 +4858,15 @@ size."</span><br style="font-family: monospace;">
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -4083,6 +4880,7 @@ definition in a future version of Mpm.</td>
 
 
 
+
     </tr>
 
 
@@ -4091,18 +4889,23 @@ definition in a future version of Mpm.</td>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4112,7 +4915,9 @@ definition in a future version of Mpm.</td>
 
 
 
+
   <tbody>
+
 
 
 
@@ -4122,7 +4927,9 @@ definition in a future version of Mpm.</td>
 
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="extern" id="extern"></a>EXTERN name {, name}<br>
+
 
 
 
@@ -4133,12 +4940,15 @@ name}</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -4151,7 +4961,9 @@ phase.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -4164,18 +4976,23 @@ phase.<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4185,12 +5002,15 @@ phase.<br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -4201,12 +5021,15 @@ phase.<br>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -4218,7 +5041,9 @@ floating point library. This is easier than writing: <span style="font-family: m
 
 
 
+
       <br>
+
 
 
 
@@ -4231,7 +5056,9 @@ operating system definitions file. Here's an example:<br>
 
 
 
+
       <br>
+
 
 
 
@@ -4242,12 +5069,15 @@ PopItem(stackptr)</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">FPP&nbsp; (FP_NEG)&nbsp; ; const = -
 const</span><br>
 
 
 
+
       </td>
+
 
 
 
@@ -4260,18 +5090,23 @@ const</span><br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4281,7 +5116,9 @@ const</span><br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -4291,7 +5128,9 @@ const</span><br>
 
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><span style="font-weight: bold; font-family: monospace;"><a name="global" id="global"></a>GLOBAL</span> <span style="font-weight: bold; font-family: monospace;">name {, name}</span><br>
+
 
 
 
@@ -4302,12 +5141,15 @@ name}</span></td>
 
 
 
+
     </tr>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -4318,7 +5160,9 @@ during the linking phase of the compilation process.<br>
 
 
 
+
       <br>
+
 
 
 
@@ -4331,7 +5175,9 @@ other source modules.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -4344,18 +5190,23 @@ other source modules.<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4365,12 +5216,15 @@ other source modules.<br>
 
 
 
+
   <tbody>
 
 
 
 
+
     <tr>
+
 
 
 
@@ -4381,7 +5235,9 @@ other source modules.<br>
 
 
 
+
       <span style="font-family: monospace; font-weight: bold;">[ELSE]</span><br style="font-family: monospace; font-weight: bold;">
+
 
 
 
@@ -4391,7 +5247,9 @@ other source modules.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -4401,7 +5259,9 @@ other source modules.<br>
 
 
 
+
     <tr>
+
 
 
 
@@ -4416,12 +5276,15 @@ Each directive must be specified on separate lines. An example:<br>
 
 
 
+
       <br>
 
 
 
 
+
       <span style="font-family: monospace;">if QDOS</span><br style="font-family: monospace;">
+
 
 
 
@@ -4432,13 +5295,16 @@ INCLUDE "defs_h"</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 INCLUDE "stdio_def"</span><br style="font-family: monospace;">
 
 
 
 
+
       <span style="font-family: monospace;">else</span><br style="font-family: monospace;">
+
 
 
 
@@ -4449,8 +5315,10 @@ INCLUDE "defs.h"</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
 MSDOS | UNIX</span><br style="font-family: monospace;">
+
 
 
 
@@ -4461,8 +5329,10 @@ INCLUDE "stdio.def"</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 endif</span><br style="font-family: monospace;">
+
 
 
 
@@ -4473,8 +5343,10 @@ Z88</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 INCLUDE ":*//stdio.def"</span><br style="font-family: monospace;">
+
 
 
 
@@ -4485,12 +5357,15 @@ endif</span><br style="font-family: monospace;">
 
 
 
+
       <span style="font-family: monospace;">endif</span><br style="font-family: monospace;">
 
 
 
 
+
       <br>
+
 
 
 
@@ -4504,7 +5379,9 @@ logic.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -4517,18 +5394,23 @@ logic.<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4538,7 +5420,9 @@ logic.<br>
 
 
 
+
   <tbody>
+
 
 
 
@@ -4548,7 +5432,9 @@ logic.<br>
 
 
 
+
       <td style="background-color: rgb(239, 239, 239);"><a name="include" id="include"></a>INCLUDE "filename"</td>
+
 
 
 
@@ -4558,7 +5444,9 @@ logic.<br>
 
 
 
+
     <tr>
+
 
 
 
@@ -4574,7 +5462,9 @@ as with the following example:<br>
 
 
 
+
       <br style="font-family: monospace;">
+
 
 
 
@@ -4584,7 +5474,9 @@ as with the following example:<br>
 
 
 
+
       <br>
+
 
 
 
@@ -4598,7 +5490,9 @@ or mutual recursive <span style="font-family: monospace;">INCLUDE</span> files
 
 
 
+
       <br>
+
 
 
 
@@ -4612,7 +5506,9 @@ environment variable.<br>
 
 
 
+
       </td>
+
 
 
 
@@ -4625,23 +5521,29 @@ environment variable.<br>
 
 
 
+
+  
   </tbody>
 </table>
 
 
 
 
-<br>
-
-
-
 
 <br>
 
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4651,7 +5553,9 @@ environment variable.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4665,17 +5569,21 @@ with the -i option).<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
 
 .lstoff<br>
+
 
 
 
@@ -4686,12 +5594,15 @@ closed.<br>
 
 
 
+
 <br>
 
 
 
 
+
 .lston<br>
+
 
 
 
@@ -4703,12 +5614,15 @@ e.g. operating system definitions.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4718,7 +5632,9 @@ e.g. operating system definitions.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4735,12 +5651,15 @@ name after the MODULE directive, e.g. MODULE main_module<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4750,7 +5669,9 @@ name after the MODULE directive, e.g. MODULE main_module<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4766,12 +5687,15 @@ linking if you have specified an -r option on the command line.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4781,7 +5705,9 @@ linking if you have specified an -r option on the command line.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4792,12 +5718,15 @@ during the linking phase of the compilation process.<br>
 
 
 
-<br>
-
-
-
 
 <br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4807,7 +5736,9 @@ during the linking phase of the compilation process.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4822,17 +5753,9 @@ routine per module).<br>
 
 
 
-<br>
-
-
-
 
 <br>
 
-
-
-
-<br>
 
 
 
@@ -4842,7 +5765,21 @@ routine per module).<br>
 
 
 
+
 <br>
+
+
+
+
+
+<br>
+
+
+
+
+
+<br>
+
 
 
 
@@ -4852,7 +5789,9 @@ routine per module).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4864,12 +5803,15 @@ source file and a line number where the error occurred in the file.<br>
 
 
 
+
 <br>
 
 
 
 
+
 0, "File open/read error"<br>
+
 
 
 
@@ -4881,12 +5823,15 @@ file, listing-, symbol-, map- or executable binary file).<br>
 
 
 
+
 <br>
 
 
 
 
+
 1, "Syntax error"<br>
+
 
 
 
@@ -4899,12 +5844,15 @@ parameter (DEFB without constant).<br>
 
 
 
+
 <br>
 
 
 
 
+
 2, "Symbol not defined"<br>
+
 
 
 
@@ -4917,12 +5865,15 @@ external using the XREF directive.<br>
 
 
 
+
 <br>
 
 
 
 
+
 3, "Not enough memory"<br>
+
 
 
 
@@ -4933,12 +5884,15 @@ structures during parsing or linking your code.<br>
 
 
 
+
 <br>
 
 
 
 
+
 4, "Integer out of range"<br>
+
 
 
 
@@ -4950,12 +5904,15 @@ parameter).<br>
 
 
 
+
 <br>
 
 
 
 
+
 5, "Syntax error in expression"<br>
+
 
 
 
@@ -4968,12 +5925,15 @@ identifier.<br>
 
 
 
+
 <br>
 
 
 
 
+
 6, "Right bracket missing"<br>
+
 
 
 
@@ -4984,7 +5944,9 @@ beginning brackets or to few ending brackets...<br>
 
 
 
+
 <br>
+
 
 
 
@@ -4994,7 +5956,9 @@ beginning brackets or to few ending brackets...<br>
 
 
 
+
 Same as 4.<br>
+
 
 
 
@@ -5004,7 +5968,9 @@ Same as 4.<br>
 
 
 
+
 8, "Source filename missing"<br>
+
 
 
 
@@ -5015,12 +5981,15 @@ compilation.<br>
 
 
 
+
 <br>
 
 
 
 
+
 9, "Illegal option"<br>
+
 
 
 
@@ -5032,12 +6001,15 @@ option and a filename parameter.<br>
 
 
 
+
 <br>
 
 
 
 
+
 10, "Unknown identifier"<br>
+
 
 
 
@@ -5049,12 +6021,15 @@ or used a comment without a leading ';'.<br>
 
 
 
+
 <br>
 
 
 
 
+
 11, "Illegal identifier"<br>
+
 
 
 
@@ -5066,12 +6041,15 @@ allowed in a LD instruction, e.g. LD A,F .<br>
 
 
 
+
 <br>
 
 
 
 
+
 12, "Max. code size reached"<br>
+
 
 
 
@@ -5082,12 +6060,15 @@ program tend to be in the 2Mb range (at least on the Sony Play Station)...<br>
 
 
 
+
 <br>
 
 
 
 
+
 13, "errors occurred during assembly"<br>
+
 
 
 
@@ -5099,12 +6080,15 @@ source files before the assembler continues with linking the next time.<br>
 
 
 
+
 <br>
 
 
 
 
+
 14, "Symbol already defined"<br>
+
 
 
 
@@ -5116,12 +6100,15 @@ DEFGROUP).<br>
 
 
 
+
 <br>
 
 
 
 
+
 15, "Module name already defined"<br>
+
 
 
 
@@ -5132,12 +6119,15 @@ both a MODULE and XLIB directive (library modules only need an XLIB).<br>
 
 
 
+
 <br>
 
 
 
 
+
 16, "Module name not defined"<br>
+
 
 
 
@@ -5148,12 +6138,15 @@ library source file routine).<br>
 
 
 
+
 <br>
 
 
 
 
+
 17, "Symbol already declared local"<br>
+
 
 
 
@@ -5164,7 +6157,9 @@ eg. using a ".lbaddr" in your source.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5174,12 +6169,15 @@ eg. using a ".lbaddr" in your source.<br>
 
 
 
+
 You have two identical XDEF symbol declarations in your source file module.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5189,12 +6187,15 @@ You have two identical XDEF symbol declarations in your source file module.<br>
 
 
 
+
 You have two identical XREF symbol declarations in your source file module.<br>
 
 
 
 
+
 <br>
+
 
 
 
@@ -5204,7 +6205,9 @@ You have two identical XREF symbol declarations in your source file module.<br>
 
 
 
+
 Ups - display MPM Module Assembler help text.<br>
+
 
 
 
@@ -5214,7 +6217,9 @@ Ups - display MPM Module Assembler help text.<br>
 
 
 
+
 21, "Illegal source filename"<br>
+
 
 
 
@@ -5225,12 +6230,15 @@ Options must always be specified before filenames or project files.<br>
 
 
 
+
 <br>
 
 
 
 
+
 22, "Symbol declared global in another module"<br>
+
 
 
 
@@ -5241,12 +6249,15 @@ probably be an XREF instead.<br>
 
 
 
+
 <br>
 
 
 
 
+
 23, "Re-declaration not allowed"<br>
+
 
 
 
@@ -5257,7 +6268,9 @@ the same module (or the other way around).<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5267,7 +6280,9 @@ the same module (or the other way around).<br>
 
 
 
+
 Not used.<br>
+
 
 
 
@@ -5277,7 +6292,9 @@ Not used.<br>
 
 
 
+
 25, "Relative jump address must be local"<br>
+
 
 
 
@@ -5288,12 +6305,15 @@ or LIB). JR must be performed in the current source file module.<br>
 
 
 
+
 <br>
 
 
 
 
+
 26, "Not a relocatable file" / "Not an object file"<br>
+
 
 
 
@@ -5305,7 +6325,9 @@ format.<br>
 
 
 
+
 <br>
+
 
 
 
@@ -5315,7 +6337,9 @@ format.<br>
 
 
 
+
 You have tried to create a label or other name as "ASMPC".<br>
+
 
 
 
@@ -5325,7 +6349,9 @@ You have tried to create a label or other name as "ASMPC".<br>
 
 
 
+
 28, "Couldn't open library file"<br>
+
 
 
 
@@ -5336,12 +6362,15 @@ another application resource)<br>
 
 
 
+
 <br>
 
 
 
 
+
 29, "Not a library file"<br>
+
 
 
 
@@ -5353,12 +6382,15 @@ MPM library file could also be corrupted (at least in the header)...<br>
 
 
 
+
 <br>
 
 
 
 
+
 30, "Environment variable not defined"<br>
+
 
 
 
@@ -5369,12 +6401,15 @@ environment variables wasn't found in the operating system.<br>
 
 
 
+
 <br>
 
 
 
 
+
 31, "Cannot include file recursively"<br>
+
 
 
 
