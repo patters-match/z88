@@ -42,8 +42,8 @@ xref    MS1BankA                                ; bank0/misc5.asm
 
 
 .SetInitialTime
-        ld      de, 2005
-        ld      bc, 11<<8|10                    ; November, 10th (my anniversary!)
+        ld      de, $year
+        ld      bc, $month<<8 | $day
         OZ      GN_Dei                          ; convert to internal format
         ld      hl, 2                           ; date in ABC
         OZ      GN_Pmd                          ; set machine date

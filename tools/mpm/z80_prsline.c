@@ -75,6 +75,19 @@ char separators[] = " &\"\';,.({[]})+-*/%^=|:~<>!#";
 char ident[255];
 
 
+/* pre-defined assembler variables, defined here for quick validation with SearchFunction () */
+identfunc_t asmvariables[] = {
+  {"$DAY", DEFC},
+  {"$HOUR", DEFC},
+  {"$MINUTE", DEFC},
+  {"$MONTH", DEFC},
+  {"$PC", DEFC},
+  {"$SECOND", DEFC},
+  {"$YEAR", DEFC}
+};
+
+static size_t total_asmvar = 7;
+
 void
 ParseLine (enum flag interpret)
 {
@@ -345,12 +358,16 @@ GetSym (void)
                 {
                   ungetc (c, srcasmfile);   /* puch character back into stream for next read */
 
-                  ident[chcount] = '\0';    /* $PC */
-                  if ((strcmp(ident,ASSEMBLERPC) == 0) && (sym == hexconst))
-                    {   /* the internal Assembler Program Counter */
-                      sym = name;
+                  ident[chcount] = '\0';
+                  if (sym == hexconst)
+                    {
+                      sym = name; /* temporarily assume that we have found an assembler variable */
+                      if (SearchFunction (asmvariables, total_asmvar) == NULL)
+                        {
+                          /* we didn't find a reserved Mpm $name variable - most likely it's a hex constant */
+                          sym = hexconst;
+                        }
                     }
-
                   break;
                 }
             }

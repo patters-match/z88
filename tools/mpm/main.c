@@ -73,9 +73,10 @@ long listfileptr;
 unsigned char *codearea, *codeptr;
 size_t CODESIZE;
 unsigned long PC, oldPC;                /* Program Counter */
+unsigned long tm_year, tm_month, tm_day, tm_hour, tm_min, tm_sec;
 time_t asmtime;                         /* time of assembly in seconds */
 char *date;                             /* pointer to datestring calculated from asmtime */
-
+struct tm *localtm;
 
 /* externally defined variables */
 extern int ASSEMBLE_ERROR, ERRORS, TOTALERRORS, WARNINGS, TOTALWARNINGS;
@@ -248,6 +249,13 @@ main (int argc, char *argv[])
       }
 
   time (&asmtime);
+  localtm = localtime(&asmtime);
+  tm_year = (unsigned long) (localtm->tm_year+1900);
+  tm_month = (unsigned long) (localtm->tm_mon+1);
+  tm_day = (unsigned long) (localtm->tm_mday);
+  tm_hour = (unsigned long) (localtm->tm_hour);
+  tm_min = (unsigned long) (localtm->tm_min);
+  tm_sec = (unsigned long) (localtm->tm_sec);
   date = asctime (localtime (&asmtime));        /* get current system time for date in list file */
 
   codearea = (unsigned char *) calloc (MAXCODESIZE, sizeof (char));     /* Allocate memory for machine code */
@@ -398,9 +406,15 @@ main (int argc, char *argv[])
 
       if ((asmflag = TestAsmFile ()) == 1)
         {
-
           PC = oldPC = 0;
           Copy (staticroot, &CURRENTMODULE->localroot, (int (*)(void *,void *)) cmpidstr, (void *(*)(void *)) CreateSymNode);
+
+          DefineDefSym ("$YEAR", tm_year, &globalroot);       /* Create standard '$YEAR' identifier */
+          DefineDefSym ("$MONTH", tm_month, &globalroot);     /* Create standard '$MONTH' identifier */
+          DefineDefSym ("$DAY", tm_day, &globalroot);         /* Create standard '$DAY' identifier */
+          DefineDefSym ("$HOUR", tm_hour, &globalroot);       /* Create standard '$HOUR' identifier */
+          DefineDefSym ("$MINUTE", tm_min, &globalroot);      /* Create standard '$MINUTE' identifier */
+          DefineDefSym ("$SECOND", tm_sec, &globalroot);      /* Create standard '$SECOND' identifier */
 
           gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);      /* Create standard '$PC' identifier */
           __gAsmpcPtr = DefineDefSym (__ASSEMBLERPC, PC, &globalroot);  /* 'ASMPC' identifier for compatibility with z80asm */
