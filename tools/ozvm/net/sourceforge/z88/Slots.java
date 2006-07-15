@@ -253,8 +253,13 @@ public class Slots extends JPanel {
 
 		switch (slotNo) {
 		case 0:
-			getRom0Button().setText(
-					(" " + memory.getInternalRomSize() * 16) + "K ROM ");
+			if (SlotInfo.getInstance().getCardType(slotNo) != SlotInfo.RomCard)
+				getRom0Button().setText(
+					(" " + memory.getInternalRomSize() * 16) + "K FLASH ");
+			else
+				getRom0Button().setText(
+						(" " + memory.getInternalRomSize() * 16) + "K ROM ");
+			
 			getRam0Button().setText(
 					(" " + memory.getInternalRamSize() * 16) + "K RAM");
 			break;
