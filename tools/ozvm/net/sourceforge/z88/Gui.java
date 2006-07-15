@@ -46,8 +46,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
+import java.sql.Timestamp;
+
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ButtonGroup;
+
+import com.imagero.util.ThreadManager;
 
 import net.sourceforge.z88.screen.Z88display;
 
@@ -64,6 +69,9 @@ public class Gui extends JFrame {
 		"<tt>gbs@users.sourceforge.net</tt><br><br>" +
 		"<tt>http://z88.sf.net</tt>" +
 		"</center></html>";
+
+	private ThreadManager rtmMsgHelper;
+	private Timestamp rtmMsgTime;
 
 	private Blink blink; 
 	private boolean fullScreenMode;
@@ -177,8 +185,15 @@ public class Gui extends JFrame {
 	}
 
 	public void displayRtmMessage(final String msg) {
-		getRtmOutputArea().append("\n" + msg);
-		getRtmOutputArea().setCaretPosition(getRtmOutputArea().getDocument().getLength());
+		rtmMsgHelper.addTask( new Runnable() {
+			public void run() {
+				rtmMsgTime.setTime(System.currentTimeMillis());
+				String dtstmp = rtmMsgTime.toString();
+				if (dtstmp.length() < 23) dtstmp += "0"; 
+				getRtmOutputArea().append("\n" + dtstmp + ": " + msg);
+				getRtmOutputArea().setCaretPosition(getRtmOutputArea().getDocument().getLength());
+			}
+		});							
 	}
 
 	private void addRtmMessagesPanel() {
@@ -942,6 +957,9 @@ public class Gui extends JFrame {
 	private void initialize(boolean fullScreen) {
 		fullScreenMode = fullScreen;
 		
+		rtmMsgHelper = new ThreadManager(1);
+		rtmMsgTime = new Timestamp(0);
+	
 		blink = Z88.getInstance().getBlink();
 		
 		kbLayoutButtonGroup = new ButtonGroup();
