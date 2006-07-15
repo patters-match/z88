@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Interrupt handler.
+; IM 1 Interrupt handler, called from 0038H.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -21,7 +21,7 @@
 ; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
 ; Additional development improvements, comments, definitions and new implementations by
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
-; (C) Thierry Peycru (pek@users.sf.net), 2005
+; (C) Thierry Peycru (pek@users.sf.net), 2006
 ; (C) Gunther Strube (gbs@users.sf.net), 2006
 ;
 ; Copyright of original (binary) implementation, V4.0:
@@ -53,7 +53,7 @@ xref    MS2BankA                                ; bank0/misc5.asm
 xref    ReadRTC                                 ; bank0/time.asm
 
 
-.INTEntry
+.INTEntry                                       ; Entry of IM 1 Interrupt Handler (called from 0038H in LOWRAM)
         push    bc
         push    de
         push    hl
@@ -156,7 +156,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         di
         res     KBF_B_SCAN, (ix+kbd_flags)
 .int_5
-        jp      int_x
+        jr      int_x
 
 
 .int_RTCS
@@ -168,14 +168,13 @@ xref    ReadRTC                                 ; bank0/time.asm
         ld      a, BM_TACKSEC                   ; ack SEC
         out     (BL_TACK), a
         call    IntSecond
-        jp      int_x
+        jr      int_x
 
 .int_RTCM
         bit     BB_TACKMIN, a
         jr      z, int_x
 
 ;       MIN calls IntMinute and does timeout
-
 
         ld      a, BM_TACKMIN                   ; ack MIN
         out     (BL_TACK), a
@@ -195,7 +194,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         jr      int_x
 .int_RTCM1
         inc     (hl)
-        jp      int_x
+        jr      int_x
 
 ;       no ints outside blink or RTC disabled
 
@@ -205,7 +204,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         jr      nc, int_7
         ld      a, BM_ACKKEY
         out     (BL_ACK), a                     ; ack keyboard and exit
-        jp      int_x
+        jr      int_x
 
 .int_7
         rra                                     ; bat low
@@ -220,7 +219,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         set     IST_B_BATLOW, (hl)
         dec     hl                              ; request OZ window update
         set     ITSK_B_OZWINDOW, (hl)
-        jp      int_x
+        jr      int_x
 
 .int_8
         rra                                     ; always handle UART ints
@@ -229,20 +228,20 @@ xref    ReadRTC                                 ; bank0/time.asm
 .int_uart
         ld      l, SI_INT
         call    IntUART
-        jp      int_12
+        jr      int_12
 
 .int_9
         rra                                     ; flap
         jr      nc, int_10
         call    IntFlap
-        jp      int_x
+        jr      int_x
 
 .int_10
         rra                                     ; A19
         jr      nc, int_x
         ld      a, BM_ACKA19
         out     (BL_ACK), a                     ; (w) main int. mask
-        jp      int_x
+        jr      int_x
 
 ;       uart exits thru this
 
@@ -260,7 +259,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         pop     hl
         pop     de
         pop     bc
-        jp      INTReturn
+        jp      INTReturn                       ; get out of IM 1 Interrupt handler - restore bindings in LOWRAM.
 
 ;       ----
 
