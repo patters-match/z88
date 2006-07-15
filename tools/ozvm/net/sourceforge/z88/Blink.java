@@ -499,7 +499,9 @@ public final class Blink {
 	 * </PRE>
 	 */
 	public void setBlinkTack(int bits) {
-		rtc.TSTA &= ~(bits & 0xff);		// acknowledge occurred TSTA interrupts
+		if ((rtc.TSTA & (bits & 0xff)) != 0) {
+			rtc.TSTA &= ~(bits & 0xff);		// reset TSTA interrupt only if it is enabled
+		}
 	}
 
 	/**
@@ -1154,8 +1156,8 @@ public final class Blink {
 					// 1/100 second has passed (two 5ms ticks..)
 					tick = 0;
 					if ((TMK & BM_TMKTICK) == BM_TMKTICK) {
-						// TMK.TICK interrupts are enabled, signal that a tick occurred
-						TSTA |= BM_TSTATICK; // TSTA.BM_TSTATICK = 1
+						// TMK.TICK interrupts are enabled, signal that a tick occurred only if it not already signaled
+						TSTA = BM_TSTATICK; 
 						
 						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
@@ -1168,9 +1170,9 @@ public final class Blink {
 					// 1 second has passed... (200 * 5 ms ticks = 1 sec)
 					TIM0 = 0;
 
-					if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKSEC) == BM_TMKSEC)) {
+					if ((TMK & BM_TMKSEC) == BM_TMKSEC) {
 						// TMK.SEC interrupts are enabled, signal that a second occurred
-						TSTA |= BM_TSTASEC; // TSTA.BM_TSTASEC = 1
+						TSTA = BM_TSTASEC; 
 
 						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
@@ -1182,10 +1184,10 @@ public final class Blink {
 						// 1 minute has passed
 						TIM1 = 0;
 						
-						if (((INT & BM_INTTIME) == BM_INTTIME) && ((TMK & BM_TMKMIN) == BM_TMKMIN)) {
+						if ((TMK & BM_TMKMIN) == BM_TMKMIN) {
 							// TMK.MIN interrupts are enabled, signal that a minute occurred
-							TSTA |= BM_TSTAMIN; // TSTA.BM_TSTAMIN = 1
-
+							TSTA = BM_TSTAMIN; 
+							
 							if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 								// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
 								signalTimeInterrupt = true;
