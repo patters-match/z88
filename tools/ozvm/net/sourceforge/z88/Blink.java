@@ -499,9 +499,7 @@ public final class Blink {
 	 * </PRE>
 	 */
 	public void setBlinkTack(int bits) {
-		if ((rtc.TSTA & (bits & 0xff)) != 0) {
-			rtc.TSTA &= ~(bits & 0xff);		// reset TSTA interrupt only if it is enabled
-		}
+		rtc.TSTA &= ~(bits & 0xff);		// reset TSTA interrupt 
 	}
 
 	/**
