@@ -56,6 +56,8 @@ public class OZvm {
 
 	/** (default) boot the virtual machine, once it has been loaded */
 	private boolean autoRun;
+
+	private RtmMessageGui rtmMsgGui;
 	
 	/** Graphics device used for full screen mode */
 	private GraphicsDevice device;
@@ -404,8 +406,8 @@ public class OZvm {
 	}
 
 	private void displayDefaultGui() {
-		// default display; show runtime messages window, Z88 Keyboard and Card Slots..
-		gui.displayRunTimeMessagesPane(true);
+		// default display; show Z88 Keyboard and Card Slots. Invisible runtime message window.
+		gui.displayRunTimeMessagesPane(false);
 		gui.displayZ88Keyboard(true);
 		gui.displayZ88CardSlots(true);			
 
@@ -452,7 +454,7 @@ public class OZvm {
 	}
 
 	public static void displayRtmMessage(final String msg) {
-		if (OZvm.getInstance().getGui() != null) OZvm.getInstance().getGui().displayRtmMessage(msg);
+		OZvm.getInstance().getRtmMsgGui().displayRtmMessage(msg);
 	}
 	
 	/**
@@ -483,5 +485,12 @@ public class OZvm {
 			ozvm.commandLine(true);
 			ozvm.getCommandLine().initDebugCmdline();
 		}
+	}
+
+	public RtmMessageGui getRtmMsgGui() {
+		if (rtmMsgGui == null)
+			rtmMsgGui = new RtmMessageGui();
+		
+		return rtmMsgGui;
 	}
 }

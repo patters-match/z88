@@ -70,8 +70,6 @@ public class Gui extends JFrame {
 		"<tt>http://z88.sf.net</tt>" +
 		"</center></html>";
 
-	private ThreadManager rtmMsgHelper;
-	private Timestamp rtmMsgTime;
 
 	private Blink blink; 
 	private boolean fullScreenMode;
@@ -79,9 +77,6 @@ public class Gui extends JFrame {
 	private ButtonGroup kbLayoutButtonGroup;
 	private ButtonGroup scrRefreshRateButtonGroup;
 	
-	private JScrollPane jRtmOutputScrollPane;
-	private JTextArea jRtmOutputArea;
-
 	private JToolBar toolBar;
 	private JButton toolBarButton1;
 	private JButton toolBarButton2;
@@ -109,7 +104,6 @@ public class Gui extends JFrame {
 	private JMenuItem userManualMenuItem;
 	private JMenuItem gifMovieMenuItem;
 	private JMenuItem screenSnapshotMenuItem;
-	private JMenuItem clearRtmWindowMenuItem;	
 	private JMenuItem fullScreenModeMenuItem;
 
 	private JCheckBoxMenuItem z88keyboardMenuItem;
@@ -184,53 +178,7 @@ public class Gui extends JFrame {
 		return toolBarButton2;
 	}
 
-	public void displayRtmMessage(final String msg) {
-		rtmMsgHelper.addTask( new Runnable() {
-			public void run() {
-				rtmMsgTime.setTime(System.currentTimeMillis());
-				String dtstmp = rtmMsgTime.toString();
-				if (dtstmp.length() < 23) dtstmp += "0"; 
-				getRtmOutputArea().append("\n" + dtstmp + ": " + msg);
-				getRtmOutputArea().setCaretPosition(getRtmOutputArea().getDocument().getLength());
-			}
-		});							
-	}
 
-	private void addRtmMessagesPanel() {
-		GridBagConstraints gridBagConstraints = new GridBagConstraints();
-		gridBagConstraints.fill = GridBagConstraints.BOTH;
-		gridBagConstraints.gridy = 3;
-		gridBagConstraints.gridx = 0;
-		getContentPane().add(getRtmOutputScrollPane(), gridBagConstraints);
-	}
-
-	/**
-	 * This method initializes jScrollPane1
-	 *
-	 * @return javax.swing.JScrollPane
-	 */
-	private javax.swing.JScrollPane getRtmOutputScrollPane() {
-		if(jRtmOutputScrollPane == null) {
-			jRtmOutputScrollPane = new JScrollPane();
-			jRtmOutputScrollPane.setViewportView(getRtmOutputArea());
-		}
-		return jRtmOutputScrollPane;
-	}
-
-	/**
-	 * This method initializes jTextArea
-	 *
-	 * @return javax.swing.JTextArea
-	 */
-	private javax.swing.JTextArea getRtmOutputArea() {
-		if(jRtmOutputArea == null) {
-			jRtmOutputArea = new javax.swing.JTextArea(6,80);
-			jRtmOutputArea.setTabSize(1);
-			jRtmOutputArea.setFont(new Font("Monospaced",Font.PLAIN, 11));
-			jRtmOutputArea.setEditable(false);
-		}
-		return jRtmOutputArea;
-	}
 
 	/**
 	 * This method initializes main Help Menu dropdown
@@ -366,8 +314,6 @@ public class Gui extends JFrame {
 			viewMenu.add(getRtmMessagesMenuItem());
 			viewMenu.add(getZ88keyboardMenuItem());
 			viewMenu.add(getZ88CardSlotsMenuItem());
-			viewMenu.addSeparator();
-			viewMenu.add(getClearRtmWindowMenuItem());
 			
 			if (OZvm.getInstance().isFullScreenSupported() == true) {			
 				viewMenu.add(getFullScreenModeMenuItem());
@@ -388,14 +334,7 @@ public class Gui extends JFrame {
 			// runtimes messages are not available in full screen mode
 			// (a snapshot might try to activate it, but will be ignored)
 			
-			if (display == true) {
-				getContentPane().remove(getRtmOutputScrollPane());
-				addRtmMessagesPanel();
-				getRtmMessagesMenuItem().setSelected(true);
-			} else {
-				getContentPane().remove(getRtmOutputScrollPane());
-				getRtmMessagesMenuItem().setSelected(false);
-			}
+			OZvm.getInstance().getRtmMsgGui().setVisible(display);
 		}
 		
 		getZ88Display().grabFocus();
@@ -431,20 +370,6 @@ public class Gui extends JFrame {
 		getZ88Display().grabFocus();
 	}
 	
-	public JMenuItem getClearRtmWindowMenuItem() {
-		if (clearRtmWindowMenuItem == null) {
-			clearRtmWindowMenuItem = new JMenuItem();
-			clearRtmWindowMenuItem.setSelected(false);
-			clearRtmWindowMenuItem.setText("Clear Runtime Messages");
-			clearRtmWindowMenuItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					getRtmOutputArea().setText("");
-				}
-			});
-		}
-
-		return clearRtmWindowMenuItem;		
-	}
 	
 	public JMenuItem getFullScreenModeMenuItem() {
 		if (fullScreenModeMenuItem == null) {
@@ -742,7 +667,7 @@ public class Gui extends JFrame {
 							boolean autorun = srVM.loadSnapShot(fileName);
 							getSlotsPanel().refreshSlotInfo();
 							if (fullScreenMode == false) {
-								displayRtmMessage("Snapshot successfully installed from " + fileName);
+								OZvm.getInstance().getRtmMsgGui().displayRtmMessage("Snapshot successfully installed from " + fileName);
 								setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 							}
 							
@@ -759,7 +684,7 @@ public class Gui extends JFrame {
 							Z88.getInstance().getProcessor().reset();				
 							blink.resetBlinkRegisters();
 					    	if (fullScreenMode == false) {
-					    		displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");					    		
+					    		OZvm.getInstance().getRtmMsgGui().displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");					    		
 						    	OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
 								OZvm.getInstance().getCommandLine().initDebugCmdline();
 					    	}
@@ -768,7 +693,7 @@ public class Gui extends JFrame {
 						// User aborted Loading of snapshot..
 						if (resumeExecution == true) {							
 							Z88.getInstance().runZ80Engine(-1, true);		
-							Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
+							Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88
 						}
 					}
 										
@@ -813,10 +738,10 @@ public class Gui extends JFrame {
 						String fileName = chooser.getSelectedFile().getAbsolutePath();
 						try {
 							srVM.storeSnapShot(fileName, autorun);
-							displayRtmMessage("Snapshot successfully created in " + fileName);
+							OZvm.getInstance().displayRtmMessage("Snapshot successfully created in " + fileName);
 							setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 						} catch (IOException e1) {
-							displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
+							OZvm.getInstance().displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
 						}						
 					}					
 					
@@ -956,10 +881,7 @@ public class Gui extends JFrame {
 	 */
 	private void initialize(boolean fullScreen) {
 		fullScreenMode = fullScreen;
-		
-		rtmMsgHelper = new ThreadManager(1);
-		rtmMsgTime = new Timestamp(0);
-	
+			
 		blink = Z88.getInstance().getBlink();
 		
 		kbLayoutButtonGroup = new ButtonGroup();
