@@ -94,15 +94,7 @@ public class Z88 {
 		z80.PC(0x000);								// execute (soft/hard) reset in bank 0
 	}
 	
-	public void pressHardReset() {
-/*
-		Thread thread = new Thread() {
-			public void run() {
-			}
-		};
-		thread.start();
-*/
-		
+	public void pressHardReset() {	
 		blink.signalFlapOpened();
 
 		memory.setByte(0x210000, 0);	// remove RAM filing system tag 5A A5
