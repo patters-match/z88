@@ -1,5 +1,5 @@
 /*
- * DebugGui.java
+ * RtmMessageGui.java
  * This file is part of OZvm.
  * 
  * OZvm is free software; you can redistribute it and/or modify it under the terms of the 
@@ -35,7 +35,7 @@ import com.imagero.util.ThreadManager;
 
 
 /**
- * Gui framework OZvm debugging mode.
+ * Gui Runtime message window.
  */
 public class RtmMessageGui extends JFrame {
 	

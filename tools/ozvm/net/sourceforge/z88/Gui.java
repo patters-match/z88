@@ -667,7 +667,7 @@ public class Gui extends JFrame {
 							boolean autorun = srVM.loadSnapShot(fileName);
 							getSlotsPanel().refreshSlotInfo();
 							if (fullScreenMode == false) {
-								OZvm.getInstance().getRtmMsgGui().displayRtmMessage("Snapshot successfully installed from " + fileName);
+								OZvm.displayRtmMessage("Snapshot successfully installed from " + fileName);
 								setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 							}
 							
@@ -684,7 +684,7 @@ public class Gui extends JFrame {
 							Z88.getInstance().getProcessor().reset();				
 							blink.resetBlinkRegisters();
 					    	if (fullScreenMode == false) {
-					    		OZvm.getInstance().getRtmMsgGui().displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");					    		
+					    		OZvm.displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");					    		
 						    	OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
 								OZvm.getInstance().getCommandLine().initDebugCmdline();
 					    	}
@@ -738,10 +738,10 @@ public class Gui extends JFrame {
 						String fileName = chooser.getSelectedFile().getAbsolutePath();
 						try {
 							srVM.storeSnapShot(fileName, autorun);
-							OZvm.getInstance().displayRtmMessage("Snapshot successfully created in " + fileName);
+							OZvm.displayRtmMessage("Snapshot successfully created in " + fileName);
 							setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 						} catch (IOException e1) {
-							OZvm.getInstance().displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
+							OZvm.displayRtmMessage("Creating snapshot '" + fileName + "' failed.");
 						}						
 					}					
 					
