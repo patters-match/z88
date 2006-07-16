@@ -107,7 +107,7 @@ public class DebugGui extends JFrame {
 	 */
 	public javax.swing.JTextArea getCmdlineOutputArea() {
 		if(jCmdOutput == null) {
-			jCmdOutput = new javax.swing.JTextArea(20,96);
+			jCmdOutput = new javax.swing.JTextArea(20,100);
 			jCmdOutput.setFont(new java.awt.Font("Monospaced",java.awt.Font.PLAIN, 11));
 			jCmdOutput.setBackground(Color.BLACK);
 			jCmdOutput.setForeground(Color.GREEN);
