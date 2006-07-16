@@ -95,25 +95,29 @@ public class Z88 {
 	}
 	
 	public void pressHardReset() {
+/*
 		Thread thread = new Thread() {
 			public void run() {
-				blink.signalFlapOpened();
-				try { Thread.sleep(100);
-				} catch (InterruptedException e1) {}
-				
-				// press reset button while flap is opened							
-				pressResetButton();
-				
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e1) {}
-				
-				// waited a little while, then close flap (hard reset begins...)
-				blink.signalFlapClosed(); 
 			}
 		};
-		
 		thread.start();
+*/
+		
+		blink.signalFlapOpened();
+
+		memory.setByte(0x210000, 0);	// remove RAM filing system tag 5A A5
+		memory.setByte(0x210001, 0);								
+
+		// press reset button while flap is opened							
+		pressResetButton();
+		
+		blink.signalFlapClosed(); 
+
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e1) {}
+		
+		pressResetButton();		
 	}
 	
 	public Z80Processor getProcessor() {

@@ -499,7 +499,8 @@ public final class Blink {
 	 * </PRE>
 	 */
 	public void setBlinkTack(int bits) {
-		rtc.TSTA &= ~(bits & 0xff);		// reset TSTA interrupt 
+		if ((rtc.TSTA & (bits & 0xff)) != 0 )
+			rtc.TSTA &= ~(bits & 0xff);		// reset TSTA interrupt 
 	}
 
 	/**
@@ -1153,7 +1154,7 @@ public final class Blink {
 				if (++tick > 1) {
 					// 1/100 second has passed (two 5ms ticks..)
 					tick = 0;
-					if ((TMK & BM_TMKTICK) == BM_TMKTICK) {
+					if ((TMK & BM_TMKTICK) == BM_TMKTICK & ((TSTA & BM_TSTATICK) == 0)) {
 						// TMK.TICK interrupts are enabled, signal that a tick occurred only if it not already signaled
 						TSTA = BM_TSTATICK; 
 						
@@ -1168,9 +1169,9 @@ public final class Blink {
 					// 1 second has passed... (200 * 5 ms ticks = 1 sec)
 					TIM0 = 0;
 
-					if ((TMK & BM_TMKSEC) == BM_TMKSEC) {
-						// TMK.SEC interrupts are enabled, signal that a second occurred
-						TSTA = BM_TSTASEC; 
+					if ((TMK & BM_TMKSEC) == BM_TMKSEC & ((TSTA & BM_TSTASEC) == 0)) {
+						// TMK.SEC interrupts are enabled, signal that a second occurred only if it not already signaled
+						TSTA = BM_TSTASEC; // only signal one TSTA interrupt at a time, SEC > TICK...
 
 						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
@@ -1182,9 +1183,9 @@ public final class Blink {
 						// 1 minute has passed
 						TIM1 = 0;
 						
-						if ((TMK & BM_TMKMIN) == BM_TMKMIN) {
-							// TMK.MIN interrupts are enabled, signal that a minute occurred
-							TSTA = BM_TSTAMIN; 
+						if ((TMK & BM_TMKMIN) == BM_TMKMIN & ((TSTA & BM_TSTAMIN) == 0)) {
+							// TMK.MIN interrupts are enabled, signal that a minute occurred only if it not already signaled
+							TSTA = BM_TSTAMIN;  // only signal one TSTA interrupt at a time, MIN > SEC > TICK...
 							
 							if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 								// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
