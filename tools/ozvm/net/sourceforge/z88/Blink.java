@@ -1155,7 +1155,7 @@ public final class Blink {
 				if (++tick > 1) {
 					// 1/100 second has passed (two 5ms ticks..)
 					tick = 0;
-					if ((TMK & BM_TMKTICK) == BM_TMKTICK & ((TSTA & BM_TSTATICK) == 0)) {
+					if ((TMK & BM_TMKTICK) == BM_TMKTICK ) {
 						// TMK.TICK interrupts are enabled, signal that a tick occurred only if it not already signaled
 						TSTA = BM_TSTATICK; 
 						
