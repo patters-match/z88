@@ -420,7 +420,8 @@ public final class Blink {
 	 * @param bits
 	 */
 	public void setBlinkAck(int bits) {
-		STA &= ~(bits & 0xff);	// Acknowledge (and clear) occurred STA interrupts (NAND)
+		if ((STA & (bits & 0xFF)) == 0) 
+			STA &= ~(bits & 0xff);	// Acknowledge (and clear) occurred STA interrupts (NAND)
 	}
 
 	/**
@@ -763,7 +764,7 @@ public final class Blink {
 		// processor snooze always awakes on a key press (even if INT.GINT = 0)
 		snooze = false; 
 		
-		if ( (INT & Blink.BM_INTKEY) == Blink.BM_INTKEY ) {
+		if ( (INT & Blink.BM_INTKEY) == Blink.BM_INTKEY & ((STA & BM_STAKEY) == 0)) {
 			// If keyboard interrupts are enabled, then signal that a key was pressed.
 
 			if ((INT & BM_INTGINT) == BM_INTGINT) {
