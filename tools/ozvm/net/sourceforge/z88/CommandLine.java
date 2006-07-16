@@ -236,6 +236,30 @@ public class CommandLine implements KeyListener {
 				}
 			}
 		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("app") == 0) {
+			ApplicationInfo appInfo = new ApplicationInfo();
+			for (int slot=0; slot<4; slot++) {
+				ListIterator appList = appInfo.getApplications(slot);
+				if (appList != null) {
+					while (appList.hasNext()) {
+						ApplicationDor appDor = (ApplicationDor) appList.next();
+						if (appDor.getAppName().compareTo(cmdLineTokens[1]) == 0) {
+							displayCmdOutput("DOR information, " + appDor.getAppName() + " ( []" + appDor.getKeyLetter() + " ) :");
+							displayCmdOutput("Execution Entry: " + Dz.extAddrToHex(appDor.getEntryPoint(), true) + ", bindings: " +
+												"S0=" + Dz.byteToHex(appDor.getSegment0BankBinding(), true) + ", " +
+												"S1=" + Dz.byteToHex(appDor.getSegment1BankBinding(), true) + ", " +
+												"S2=" + Dz.byteToHex(appDor.getSegment2BankBinding(), true) + ", " +
+												"S3=" + Dz.byteToHex(appDor.getSegment3BankBinding(), true) );
+							displayCmdOutput("Mth: Topics=" + Dz.extAddrToHex(appDor.getTopics(), true) + ", " +
+												"Commands=" + Dz.extAddrToHex(appDor.getCommands(), true) + ", " +
+												"Help=" + Dz.extAddrToHex(appDor.getHelp(), true) + ", " +
+												"Tokens=" + Dz.extAddrToHex(appDor.getTokens(), true));
+						}
+					}
+				}
+			}
+		}
 		
 		if (cmdLineTokens[0].compareToIgnoreCase("run")	== 0) {
 			if (Z88.getInstance().runZ80Engine(-1, true) == false)
