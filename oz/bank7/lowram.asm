@@ -120,14 +120,11 @@ xref    MemGetBank
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
         push    af
         ld      a, OZBANK_0
-        ld      (BLSC_SR3), a
-        out     (BL_SR3), a
+        call    MS3BankA
         jp      INTEntry
-                                                ; !! if code we use other banks
-                                                ; !! just for having enough space to insert ld a, bank (xor a)
+
 ;       OZ low level jump table
         defs    $0048-$PC  ($ff)                ; address align
-
 .OZ_RET1
         jp      OZCallReturn1                   ; 0048
 .OZ_RET0
@@ -163,15 +160,11 @@ xref    MemGetBank
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
         push    af
         ld      a, OZBANK_0
-        ld      (BLSC_SR3), a
-        out     (BL_SR3), a
-
-        call    NMIEntry                        ; call NMI handler
+        call    MS3BankA
+        call    NMIEntry                        ; call NMI handler in kernel bank 0
 
         pop     af                              ; restore S3
-        ld      (BLSC_SR3), a
-        out     (BL_SR3), a
-
+        call    MS3BankA
         pop     af                              ; !! can't use 'retn' because of 'di' above
         jp      po, noEI                        ; ints were disabled
         pop     af
@@ -180,16 +173,14 @@ xref    MemGetBank
 
 .OZCallJump                                     ; called from misc2.asm
         pop     af                              ; restore S3
-        ld      (BLSC_SR3), a
-        out     (BL_SR3), a
+        call    MS3BankA
 .noEI
         pop     af                              ; restore AF
         ret
 
 .INTReturn                                      ; called from int.asm
         pop     af                              ; restore S3
-        ld      (BLSC_SR3), a
-        out     (BL_SR3), a
+        call    MS3BankA
         pop     af                              ; restore AF
         ei
         ret
@@ -214,8 +205,7 @@ xref    MemGetBank
         scf
 
 .OZCallReturnCommon
-        ld      (BLSC_SR3), a                   ; set S3
-        out     (BL_SR3), a
+        call    MS3BankA                        ; set S3
         push    hl                              ; decrement call level
         ld      hl, ubAppCallLevel
         dec     (hl)
@@ -288,8 +278,7 @@ xref    MemGetBank
         ld      bc, (BLSC_SR2)                  ; remember S2/S3
         push    bc
         ld      a, OZBANK_0                     ; bind b00 into S3
-        ld      (BLSC_SR3), a
-        out     (BL_SR3), a
+        call    MS3BankA
 
         ld      d, >OZCallTable                 ; function jumper in DE
         ex      de, hl
@@ -318,8 +307,7 @@ xref    MemGetBank
         push    bc                              ; call function at $d8nn, nn=opByte
 
         ld      a, OZBANK_FPP                   ; bind b02 into S3
-        ld      (BLSC_SR3), a
-        out     (BL_SR3), a
+        call    MS3BankA
         ex      af, af'
         exx
         ret
