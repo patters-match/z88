@@ -1,15 +1,37 @@
+; **************************************************************************************************
+; The 6 bits width bitmap font
+;
+; This table was extracted out of Font bitmaps from original V3.x and V4.0 ROMs using FontBitMap tool.
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; $Id$
+; ***************************************************************************************************
+
 Module Lores1
 
-; LORES1.ASM
-;
-; the 6 bits width bitmap font
-;
+; --------------------------------------------------------------------------------------------------
 ; IMPORTANT NOTE:
-; ---------------
+; --------------------------------------------------------------------------------------------------
 ; up to 512 lores characters can be displayed by the blink
 ; 448 ($1C0) from the lores1 bitmap font defined in ROM
 ;  64 ($40)  from the lores0 bitmap font defined in RAM (only 16 are used on an unexpanded Z88)
-; 
+;
 ; organised in 4 parts
 ;       128 normal lores (32 foreign + 96 ascii)
 ;       128 bold   lores (same order as normal)
@@ -19,6 +41,8 @@ Module Lores1
 ; 10 lores are free
 ; symbols lores $19E and $19F
 ; foreign lores $118 to $11F
+; --------------------------------------------------------------------------------------------------
+
 
 ; *******************
 ; *** NORMAL FONT ***
@@ -570,14 +594,14 @@ defb @00010110
 defb @00000000
 
 ; $01E
-;      #  
-;       # 
-;     ##  
-;      #  
-;      #  
-;      #  
-;     ### 
-;         
+;      #
+;       #
+;     ##
+;      #
+;      #
+;      #
+;     ###
+;
 defb @00000100
 defb @00000010
 defb @00001100
@@ -589,14 +613,14 @@ defb @00000000
 
 
 ; $01F
-;      #  
-;       # 
-;     ##  
-;    #  # 
-;    #  # 
-;    #  # 
-;     ##  
-;         
+;      #
+;       #
+;     ##
+;    #  #
+;    #  #
+;    #  #
+;     ##
+;
 defb @00000100
 defb @00000010
 defb @00001100
@@ -2704,14 +2728,14 @@ defb @00001110
 defb @00000000
 
 ; $08F
-;      ## 
-;     #  # 
-;     ### 
-;      ## 
-;      ## 
-;      ## 
+;      ##
+;     #  #
+;     ###
+;      ##
+;      ##
+;      ##
 ;     ####
-;         
+;
 defb @00000110
 defb @00001001
 defb @00001110
@@ -2722,14 +2746,14 @@ defb @00001111
 defb @00000000
 
 ; $090
-;     # #  
-;        
-;     ### 
-;      ## 
-;      ## 
-;      ## 
+;     # #
+;
+;     ###
+;      ##
+;      ##
+;      ##
 ;     ####
-;         
+;
 defb @00001010
 defb @00000000
 defb @00001110
@@ -2794,14 +2818,14 @@ defb @00011100
 defb @00100000
 
 ; $094
-;      #  
-;       # 
-;         
+;      #
+;       #
+;
 ;    ## ##
 ;    ## ##
 ;    ## ##
 ;     ####
-;         
+;
 defb @00000100
 defb @00000010
 defb @00000000
@@ -2813,14 +2837,14 @@ defb @00000000
 
 
 ; $095
-;      ##  
-;     #  # 
-;         
+;      ##
+;     #  #
+;
 ;    ## ##
 ;    ## ##
 ;    ## ##
 ;     ####
-;         
+;
 defb @00000110
 defb @00001001
 defb @00000000
@@ -2831,14 +2855,14 @@ defb @00001111
 defb @00000000
 
 ; $096
-;     # # 
-; 
-;    ## ##    
+;     # #
+;
+;    ## ##
 ;    ## ##
 ;    ## ##
 ;    ## ##
 ;     ####
-;         
+;
 defb @00001010
 defb @00000000
 defb @00011011
@@ -2867,14 +2891,14 @@ defb @00011111
 defb @00000000
 
 ; $098
-;     #   
-;    #    
-;     ##  
-;       # 
-;     ### 
-;    #  # 
-;     ### 
-;         
+;     #
+;    #
+;     ##
+;       #
+;     ###
+;    #  #
+;     ###
+;
 defb @00001000
 defb @00010000
 defb @00001100
@@ -2885,14 +2909,14 @@ defb @00001110
 defb @00000000
 
 ; $099
-;     #   
-;    #    
-;     ##  
-;      #  
-;      #  
-;      #  
-;     ### 
-;         
+;     #
+;    #
+;     ##
+;      #
+;      #
+;      #
+;     ###
+;
 defb @00001000
 defb @00010000
 defb @00001100
@@ -2904,14 +2928,14 @@ defb @00000000
 
 
 ; $09A
-;     #   
-;    #    
-;     ##  
-;    #  # 
-;    #  # 
-;    #  # 
-;     ##  
-;         
+;     #
+;    #
+;     ##
+;    #  #
+;    #  #
+;    #  #
+;     ##
+;
 defb @00001000
 defb @00010000
 defb @00001100
@@ -2923,14 +2947,14 @@ defb @00000000
 
 
 ; $09B
-;     #   
-;    #    
-;         
-;    #  # 
-;    #  # 
-;    #  # 
-;     ### 
-;         
+;     #
+;    #
+;
+;    #  #
+;    #  #
+;    #  #
+;     ###
+;
 defb @00001000
 defb @00010000
 defb @00000000
@@ -2941,14 +2965,14 @@ defb @00001110
 defb @00000000
 
 ; $09C
-;     # # 
-;    # #  
-;         
-;    ###  
-;    #  # 
-;    #  # 
-;    #  # 
-;         
+;     # #
+;    # #
+;
+;    ###
+;    #  #
+;    #  #
+;    #  #
+;
 defb @00001010
 defb @00010100
 defb @00000000
@@ -2961,13 +2985,13 @@ defb @00000000
 
 ; $09D
 ;      # #
-;     # # 
+;     # #
 ;    #   #
 ;    ##  #
 ;    # # #
 ;    #  ##
 ;    #   #
-;         
+;
 defb @00000101
 defb @00001010
 defb @00010001
@@ -2978,14 +3002,14 @@ defb @00010001
 defb @00000000
 
 ; $09E
-;      #  
-;         
-;         
-;      #  
-;      #  
-;      #  
-;      #  
-;         
+;      #
+;
+;
+;      #
+;      #
+;      #
+;      #
+;
 defb @00000100
 defb @00000000
 defb @00000000
@@ -2996,14 +3020,14 @@ defb @00000100
 defb @00000000
 
 ; $09F
-;      #  
-;         
-;      #  
-;      #  
-;     #   
+;      #
+;
+;      #
+;      #
+;     #
 ;    #   #
-;     ### 
-;         
+;     ###
+;
 defb @00000100
 defb @00000000
 defb @00000100
@@ -5112,14 +5136,14 @@ defb @00000000
 defb @00000000
 
 ; $10F
-;       
-;     # # 
 ;
-;      #  
-;      #  
-;      #  
-;         
-;         
+;     # #
+;
+;      #
+;      #
+;      #
+;
+;
 defb @00001100
 defb @00010010
 defb @00000000
@@ -5130,14 +5154,14 @@ defb @00000000
 defb @00000000
 
 ; $110
-;     ##  
-;    #  # 
+;     ##
+;    #  #
 ;
-;      #  
-;      #  
-;      #  
-;         
-;         
+;      #
+;      #
+;      #
+;
+;
 defb @00001100
 defb @00010010
 defb @00000000
@@ -5148,14 +5172,14 @@ defb @00000000
 defb @00000000
 
 ; $111
-;     ##  
-;    #  # 
-;     ##  
-;    #  # 
-;    #  # 
-;     ##  
-;         
-;         
+;     ##
+;    #  #
+;     ##
+;    #  #
+;    #  #
+;     ##
+;
+;
 defb @00001100
 defb @00010010
 defb @00001100
@@ -5166,14 +5190,14 @@ defb @00000000
 defb @00000000
 
 ; $112
-;    #  # 
+;    #  #
 ;
-;     ##  
-;    #  # 
-;    #  # 
-;     ##  
-;         
-;         
+;     ##
+;    #  #
+;    #  #
+;     ##
+;
+;
 defb @00010010
 defb @00000000
 defb @00001100
@@ -5202,14 +5226,14 @@ defb @00100000
 defb @00000000
 
 ; $114
-;      #  
-;       # 
-;         
-;    #  # 
-;    #  # 
-;     ### 
-;         
-;         
+;      #
+;       #
+;
+;    #  #
+;    #  #
+;     ###
+;
+;
 defb @00000100
 defb @00000010
 defb @00000000
@@ -5220,14 +5244,14 @@ defb @00000000
 defb @00000000
 
 ; $115
-;     ##  
-;    #  # 
-;         
-;    #  # 
-;    #  # 
-;     ### 
-;         
-;         
+;     ##
+;    #  #
+;
+;    #  #
+;    #  #
+;     ###
+;
+;
 defb @00001100
 defb @00010010
 defb @00000000
@@ -5239,13 +5263,13 @@ defb @00000000
 
 ; $116
 ;
-;    #  # 
-;         
-;    #  # 
-;    #  # 
-;     ### 
-;         
-;         
+;    #  #
+;
+;    #  #
+;    #  #
+;     ###
+;
+;
 defb @00000000
 defb @00010010
 defb @00000000

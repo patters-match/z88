@@ -1,12 +1,35 @@
+; **************************************************************************************************
+; The 8 bits width bitmap font
+;
+; This table was extracted out of Font bitmap from original V4.0 ROM using FontBitMap tool.
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; $Id$
+; ***************************************************************************************************
+
 Module Hires1
 
-; HIRES1.ASM
-;
-; the 8 bits width bitmap font
-;
+
+; --------------------------------------------------------------------------------------------------
 ; IMPORTANT NOTE:
-; ---------------
-; up to 1024 hires characters can be displayed by the blink
+; --------------------------------------------------------------------------------------------------
+; Up to 1024 hires characters can be displayed by the blink
 ; 768 ($300) from the hires0 bitmap font defined in RAM
 ; 256 ($100) from the hires1 bitmap font defined in ROM
 ; only 96 are used in hires1, beginning at 128 ($80), ending at 224($DF)
@@ -14,7 +37,7 @@ Module Hires1
 ;
 ; chars $98-$9D are free (they were used for some lores1 chars mixed in original OZ)
 ;
-;
+; --------------------------------------------------------------------------------------------------
 
 XDEF    hires1                                  ; used in bank7/reset2.asm
 
