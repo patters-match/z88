@@ -66,31 +66,58 @@
                     call EnableBlinkInt                 ; the low ram interrupt vector code from OZ is automatically restored during reset...
 IF BBCBASIC
                     ; ----------------------------------------------------------------------------------------------------------------------
-                    ; just before we wipe out the OZ rom, copy the LORES1/HIRES1 font bitmaps to RAM to use the new location
+                    ; just before we wipe out the OZ rom, move the font bitmaps to RAM
+                    ; copy the LORES1 font bitmaps to RAM to use the new location
                     ld   sp,ozstack                     ; move system stack just below segment 2 (moved from $1FFE area)
                     ld   a,SC_LR1
                     ld   b,0
-                    oz   Os_Sci                         ; get BHL address of LORES1/HIRES1 font bitmaps
-                    ld   c,MS_S3                        ; Use segment 3 to bind in bank of LORES1/HIRES1 (RomUpdate BBC BASIC is running in segment 0 & 1)
+                    oz   Os_Sci                         ; get BHL address of LORES1 font bitmaps
+                    ld   c,MS_S3                        ; Use segment 3 to bind in bank of LORES1 (RomUpdate BBC BASIC is running in segment 0 & 1)
                     call MemDefBank
                     set  7,h                            ; Use segment 3 to bind in bank of sector (RomUpdate BBC BASIC is running in segment 0 & 1)
                     set  6,h                            ; (16K buffer is in segment 2)
-                    ld   bc,$1000                       ; copy 4K of LORES1/HIRES1 bitmaps...
+                    ld   bc,$1000                       ; copy 4K of LORES1 bitmaps...
                     push bc
                     push bc
                     pop  de
-                    ldir                                ; copy LORES1/HIRES font bitmap to $20 1000 ($20 already bound in as LOWRAM)
+                    ldir                                ; copy LORES1 font bitmap to $20 1000 ($20 already bound in as LOWRAM)
                     ld   a,SC_LR1
                     ld   b,$20
                     pop  hl
                     oz   Os_Sci                         ; set new BHL address of LORES1 font bitmap that is now available at $20 1000
+
+                    ; ----------------------------------------------------------------------------------------------------------------------
+                    ; copy the HIRES1 font bitmap to RAM (in HIRES0) and re-assign to use as new HIRES1 font
+                    ; (HIRES0 is not used at this point, and we need to re-locate the HIRES1 to a 2K RAM buffer - HIRES0 is 2K...)
                     ld   a,SC_HR1
                     ld   b,0
                     oz   Os_Sci                         ; get HIRES1 font bitmap address in BHL inside current OZ ROM
-                    ld   b,$20
-                    ld   de,$1000
-                    add  hl,de
-                    oz   Os_Sci                         ; and re-assign HIRES1 base address within the 4K font bitmap at $20 1xxx
+                    ld   c,MS_S3                        ; Use segment 3 to bind in bank of HIRES1 (RomUpdate BBC BASIC is running in segment 0 & 1)
+                    call MemDefBank
+                    set  7,h
+                    set  6,h
+                    ld   de,$8000                       ; (16K buffer is in segment 2)
+                    push de
+                    ld   bc,1024*2
+                    ldir                                ; copy HIRES1 to buffer
+                    ld   a,SC_HR0
+                    ld   b,0
+                    oz   Os_Sci                         ; get address of HIRES0 graphics (UDG)
+                    pop  de
+                    push bc
+                    push hl
+                    ld   c,MS_S3                        ; Use segment 3 to bind in bank of HIRES0
+                    call MemDefBank
+                    set  7,h
+                    set  6,h
+                    ex   de,hl
+                    ld   bc,1024*2
+                    ldir                                ; copy 2K HIRES1 font (from buffer) to HIRES0 in RAM
+
+                    ld   a,SC_HR1
+                    pop  hl
+                    pop  bc
+                    oz   Os_Sci                         ; re-assign HIRES1 base address to point in RAM
                     ; ----------------------------------------------------------------------------------------------------------------------
 ENDIF
                     ld   c,0
