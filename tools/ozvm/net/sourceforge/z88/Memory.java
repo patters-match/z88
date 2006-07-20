@@ -884,11 +884,18 @@ public final class Memory {
 		loadBinaryImageIntoContainer(romBanks, size, iStream);
 
 		// Finally, check for Z88 ROM Watermark
-		if (romBanks[romBanks.length-1].getByte(0x3FFB) != 0x81 &
-		    romBanks[romBanks.length-1].getByte(0x3FFE) != 'O' &
-		    romBanks[romBanks.length-1].getByte(0x3FFF) != 'Z') {
-				throw new IllegalArgumentException("This is not a Z88 ROM");
-	    }
+		boolean foundWatermark = false;
+		for (int b=romBanks.length-1; b>=0; b--) {
+        		if (romBanks[b].getByte(0x3FFB) == 0x81 &
+        		    romBanks[b].getByte(0x3FFE) == 'O' &
+        		    romBanks[b].getByte(0x3FFF) == 'Z') {
+        		    foundWatermark = true;
+        		    break;
+        		}
+       	}
+
+        if (foundWatermark == false)
+        	throw new IllegalArgumentException("This is not a Z88 ROM");		
 
 		// validated ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
