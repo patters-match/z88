@@ -781,7 +781,7 @@ defc    ST_B_APPLROM            =1
 
 ;       kernel module banks
 
-defc    ROMSIZE                 =16             ; now OZ fits in a 256K ROM
+defc    ROMSIZE                 =32             ; now OZ fits in a 512K ROM
 
 defc    OZBANK_0                =$00
 defc    OZBANK_DC               =$02
