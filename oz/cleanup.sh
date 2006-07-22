@@ -24,6 +24,9 @@
 # $Id$
 # ***************************************************************************************************
 
+# get rid of previous generated ROM bank files
+rm -f oz.?? romupdate.cfg
+
 # delete all compile output files in bank0 - bank7
 find . -name "*.bin" | xargs rm -f
 find . -name "*.map" | xargs rm -f
