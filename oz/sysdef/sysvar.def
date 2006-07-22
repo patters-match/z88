@@ -176,7 +176,7 @@ defvars RandomPointers
         uwRandom2               ds.w    1
 enddef
 
-defc    KEYMAP_BANK             =$1F            ; at KeymapTable
+defc    KEYMAP_BANK             =$08            ; at KeymapTable
 
 defc    KeymapTblPtrs           =$0405
 defvars KeymapTblPtrs
@@ -377,7 +377,7 @@ defc    LORES0_PAGE_UNEXP       =$22
 ;       LORES0_BANK_EXP         =$24 or $43     ; calculated by the routine
 defc    LORES0_PAGE_EXP         =$08
 
-defc    LORES1_BANK             =$1F            ; last ROM bank
+defc    LORES1_BANK             =$08
 defc    LORES1_PAGE             =$00
 
 defc    HIRES0_BANK_UNEXP       =$21
@@ -385,7 +385,7 @@ defc    HIRES0_PAGE_UNEXP       =$20
 ;       HIRES0_BANK_EXP         =$24 or $43     ; calculated by the routine
 defc    HIRES0_PAGE_EXP         =$00
 
-defc    HIRES1_BANK             =$1F            ; last ROM bank
+defc    HIRES1_BANK             =$08
 defc    HIRES1_PAGE             =$08
 
 defc    SBF_BANK                =$20
@@ -781,7 +781,8 @@ defc    ST_B_APPLROM            =1
 
 ;       kernel module banks
 
-defc    ROMSIZE                 =32             ; now OZ fits in a 512K ROM
+defc    ROMSIZE                 =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
+defc    FILEAREASIZE            =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
 
 defc    OZBANK_0                =$00
 defc    OZBANK_DC               =$02
@@ -790,7 +791,7 @@ defc    OZBANK_FPP              =$02
 defc    OZBANK_GN               =$03
 defc    OZBANK_PRFILTER         =$03
 defc    OZBANK_7                =$07
-defc    BANK_MTH                =$1F            ; OZ static structures
+defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap, keymaps)
 
 defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,

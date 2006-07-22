@@ -59,8 +59,9 @@ bank6/basic.dat 061200                          ; $D200: BBC BASIC application
 ; kernel lower part (addressed from $8000 upwards)
 bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel OS
 
-; MTH and other static structures in last ROM bank
-mth/font.bin 1f0000                             ; the Font bitmap (Normal, Bold, Tiny)
-mth/keymap.bin 1f1000                           ; keyboard maps
-mth/mth.bin 1f1800                              ; the System Token Table, MTH static structures and application DORs
-mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ' header at top of ROM code
+; MTH and other static structures
+mth/font.bin 080000                             ; the Font bitmap (Normal, Bold, Tiny)
+mth/keymap.bin 081000                           ; keyboard maps
+mth/mth.bin 081800                              ; the System Token Table, MTH static structures and application DORs
+
+mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code

@@ -33,16 +33,19 @@
 .appl_front_dor                                 ; $3FC0
         defp 0, 0                               ; no link to parent ...
         defp 0, 0                               ; no help DOR
-        defp IndexDor,BANK_MTH                  ; link to first application DOR
+        defp IndexDor,OZBANK_MTH                ; link to first application DOR
         defb $13                                ; DOR type - ROM front DOR
         defb 8                                  ; length of DOR
         defb 'N'
         defb 5                                  ; length of name and terminator
         defm "APPL", 0
         defb $FF                                ; end of application front DOR
+        defs 25                                 ; blanks to fill-out space.
 
-        defs 37                                 ; blanks to fill-out space.
+        defb $00, FILEAREASIZE                  ; $3FEC, reclaim sector (0=not used), file area size in 16K banks,
+        defm "oz"                               ; $3FEE, 'oz' file area watermark.
 
+        defs 8                                  ; blanks to fill-out space.
 .eprom_header
         defb $54,$43,$4C                        ; $3FF8, card ID "TCL"
         defb $81                                ; $3FFB, external app would be $80

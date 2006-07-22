@@ -13,7 +13,7 @@
         include "stdio.def"
         include "sysvar.def"
         include "../mth/mth.def"
-        
+
 
 xdef    aRom_Help
 xdef    AddBHL_DE
@@ -643,7 +643,7 @@ xref    InitHandle                              ; bank7/misc1.asm
 .GetHlpTokens
         ld      hl, ubSysFlags1
         bit     SF1_B_NOTOKENS, (hl)            ; no tokens?
-        ld      b, BANK_MTH                     ;
+        ld      b, OZBANK_MTH
         ld      hl, SysTokenBase
         ret     nz
         ld      l, <(eHlpTokens+2)
