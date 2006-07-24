@@ -42,7 +42,7 @@
         defb $FF                                ; end of application front DOR
         defs 25                                 ; blanks to fill-out space.
 
-        defb $00, FILEAREASIZE                  ; $3FEC, reclaim sector (0=not used), file area size in 16K banks,
+        defb FILEAREASIZE, $00                  ; $3FEC, file area size in 16K banks, reclaim sector (0=not used)
         defm "oz"                               ; $3FEE, 'oz' file area watermark.
 
         defs 8                                  ; blanks to fill-out space.
