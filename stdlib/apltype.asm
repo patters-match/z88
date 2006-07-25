@@ -61,7 +61,7 @@
 
                     LD   A,C                 ; slot C
                     LD   B,$3F
-                    LD   HL,$3F00            ; top 256 byte page of top bank in slot
+                    LD   HL,$3F00            ; top 256 byte page of top bank in slot C
                     CALL MemAbsPtr           ; Convert to physical pointer...
 
                     LD   A,$FB
