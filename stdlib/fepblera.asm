@@ -65,7 +65,7 @@ DEFC VppBit = 1
 ; IN:
 ;         B = block/sector number on chip to be erased (00h - 0Fh)
 ;             (available sector size and count depend on chip type)
-;         C = slot number (1, 2 or 3) of Flash Memory Card
+;         C = slot number (0, 1, 2 or 3) of Flash Memory Card
 ; OUT:
 ;         Success:
 ;              Fc = 0
