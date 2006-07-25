@@ -38,7 +38,7 @@
 ;         Fc = 0,
 ;              A = Application Eprom type (with Rom Front Dor):
 ;                   $80 = external EPROM,
-;                   $81 = system/internal EPROM,
+;                   $81 = system/internal OZ ROM,
 ;                   $82 = external RAM
 ;              B = size of reserved Application space in 16K banks.
 ;              C = size of physical Application Card in 16K banks.
