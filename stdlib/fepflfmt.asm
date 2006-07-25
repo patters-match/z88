@@ -25,19 +25,28 @@
      LIB SafeSegmentMask
      LIB FlashEprPollSectorSize
 
+     include "memory.def"
      include "flashepr.def"
 
-; ************************************************************************
+;***************************************************************************************************
 ;
 ; Flash Eprom File Area Formatting.
 ;
 ; Create/reformat an "oz" File Area below application Rom Area, or on empty
-; Flash Eprom to create a normal "oz" File Eprom.
+; Flash Cards to create a normal "oz" File Eprom that is also recognized by
+; Filer popdown in slot 3.
+; Reformat file areas that are embedded as part of application cards, located
+; at top of card above the application area (automatically preserving 'OZ'
+; header during reformat of file area).
+;
+; An 'oz' file card header or 'OZ' application card header with embedded 'oz'
+; file area watermark is 64 bytes large, and is located at the top (last bank)
+; of the file area at offset $3FC0.
 ;
 ; Defining 8 banks in the ROM Front DOR for applications will leave 58
-; banks for file storage. This scheme is however always performed with
-; only formatting the Flash Eprom in free modulus 64K blocks, ie. having
-; defined 5 banks for ROM would "waste" three banks for applications.
+; banks for file storage in a 1Mb Flash Card. This scheme is however always
+; performed with only formatting the Flash Eprom in free modulus 64K blocks,
+; ie. having defined 5 banks for ROM would "waste" three banks for applications.
 ;
 ; Hence, ROM Front DOR definitions should always define bank reserved for
 ; applications in modulus 64K, eg. 4 banks, 8, 12, etc...
@@ -90,9 +99,9 @@
 ;    ....DE../IXIY same
 ;    AFBC..HL/.... different
 ;
-; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Apr 1998, Aug 2004, July 2005
-; ----------------------------------------------------------------------
+; --------------------------------------------------------------------------------------------------
+; Design & programming by Gunther Strube, Dec 1997-Apr 1998, Aug 2004, July 2005, July 2006
+; --------------------------------------------------------------------------------------------------
 ;
 .FlashEprFileFormat
                     PUSH DE
@@ -100,19 +109,16 @@
                     PUSH HL
                     CALL FlashEprCardId
                     JR   C, format_error
-                    LD   E,B                      ; preserve no of 16K banks on FC
+                    LD   E,B                      ; preserve no. of 16K banks on FC
                     PUSH HL
                     CALL FileEprRequest           ; get pointer to File Eprom Header (or potential) in slot C
                     CALL C, no_filearea           ; no file area found, setup parameters to format complete card
                     POP  HL                       ; Flash Card ID
-                    CALL ErasePtBlocks            ; erase all sectors of file area
+                    CALL EraseBlocks              ; erase all sectors of file area, then (re)create file area header
                     JR   C,format_error
                     CALL SaveNullFile             ; blow a NULL file (6 bytes long) on Intel Flash Cards
                     JR   C,format_error           ; NULL file wasn't created!
-.just_fehdr                                       ; empty banks are assumed below header (containing FF's)...
-                    CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
-                    JR   C,format_error
-
+.exit_feformat
                     LD   HL,$3FC0                 ; BHL = absolute pointer to "oz" header in slot
                     CP   A                        ; Fc = 0, C = Number of 16K banks of File Area
                     POP  DE                       ; ignore old HL
@@ -126,15 +132,24 @@
                     RET
 ; when no file area was found, we format the complete card as a file area
 .no_filearea
-                    LD   B,E                      ; no of 16K banks on Flash Card
+                    PUSH AF
+                    LD   B,E                      ; no. of 16K banks on Flash Card
                     DEC  B                        ; no. of banks on Flash Card --> relative top bank of card
                     LD   A,C                      ; slot number
+                    OR   A
+                    JR   Z, preserve_oz_rom       ; slot 0!
                     RRCA
                     RRCA
                     OR   B
                     LD   B,A                      ; B = top Bank of slot to erased
                     LD   C,E                      ; C = total banks to be erased on card.
+                    POP  AF
                     RET
+.preserve_oz_rom
+                    POP  AF                       ; (get rid of REturn address)
+                    LD   A,RC_NOZ                 ; it is not permitted to erase complete OZ ROM
+                    SCF                           ; to create a file area!
+                    JR   format_error
 
 
 ; ************************************************************************
@@ -150,11 +165,12 @@
 ;    B = Top bank of File Eprom (absolute bank with embedded slot mask) (if Fc = 0)
 ;    C = Number of 16K banks in File Eprom Area
 ;    HL = Card ID
+;    Fc/Fz status flags, identifying whether a file area header exists or not...
 ;
 ; OUT:
 ;    Fc = 0,
-;         Partition on Flash Eprom erased successfully.
-;         (contains $FF bytes)
+;         File area on Flash card erased successfully (contains FF's).
+;         Header has also been created (or restored).
 ;    Fc = 1,
 ;         A = RC_NFE (not a recognized Flash Memory Chip)
 ;         A = RC_BER (error occurred when erasing block/sector)
@@ -164,40 +180,77 @@
 ;    ..BCDEHL/IXIY same
 ;    AF....../.... different
 ;
-.ErasePtBlocks
+.EraseBlocks
+                    PUSH IX
                     PUSH BC
                     PUSH DE
                     PUSH HL
 
-                    LD   E,C                 ; preserve bank count of FE area
+                    LD   IX,0                     ; default to no file header copy...
+                    JR   C, init_eraseblocks      ; (create a complete file card)
+                    JR   NZ, init_eraseblocks     ; (app card, create file area below)
+                    EXX
+                    LD   HL,0
+                    ADD  HL,SP
+                    LD   IX,-66
+                    ADD  IX,SP                    ; IX points at start of buffer for copy of file header
+                    LD   SP,IX                    ; 64 byte buffer created...
+                    PUSH HL                       ; preserve original SP
+                    EXX
+                    PUSH BC
+                    PUSH HL
+                    LD   HL,$3FC0                 ; header at B $3FC0
+                    PUSH IX
+                    POP  DE
+                    LD   C,64
+                    OZ   OS_Bhl                   ; copy original header of file area, to be
+                    POP  HL                       ; restored after file area formatting...
+                    POP  BC
+.init_eraseblocks
+                    PUSH BC                       ; use Top Bank & total banks as quick fetch stack fetch
+
+                    LD   E,C                      ; preserve bank count of FE area
                     LD   A,B
+                    RES  7,B
+                    RES  6,B                      ; strip slot mask before calculating sector number
                     AND  @11000000
                     RLCA
                     RLCA
-                    LD   C,A                 ; Flash Memory card is in slot C
-
-                    CALL FlashEprPollSectorSize ; AM29F010B/ST29F010B Flash Memory in slot C?
-                    JR   NZ, _64K_block_fe   ; no, it's a 64K sector architecture Flash Memory
-                                             ; yes, identified the 16K sector architecture Flash Memory
-                    LD   B,E                 ; E = total of 16K sectors to be erased
-                    DEC  B                   ; B = top sector to be erased (total-1)
-                    JR   erase_PT_loop
-._64K_block_fe
+                    LD   C,A                      ; Flash Memory card is in slot C
+                    CALL FlashEprPollSectorSize   ; AM29F010B/ST29F010B Flash Memory in slot C?
+                    JR   Z, erase_sector_loop     ; yes, it's a 16K sector architecture Flash Memory
+                                                  ; E = total of 16K sectors to be erased
+._64K_block_fe                                    ; B = top sector (bank of header) to be erased
                     SRL  E
-                    SRL  E                   ; E = total of 64K sectors (banks/4) to be erased...
-                    LD   B,E
-                    DEC  B                   ; B = top sector to be erased (total-1)
-.erase_PT_loop
-                    CALL FlashEprBlockErase  ; format sector B of partition in slot C
-                    JR   C, exit_ErasePtBlocks ; get out if an error occurred...
-                    DEC  B                   ; next (lower) block to erase
+                    SRL  E                        ; E = total of 64K sectors (banks/4) to be erased...
+                    SRL  B
+                    SRL  B                        ; begin to erase top sector (bank of header/4), then downwards..
+.erase_sector_loop
+                    CALL FlashEprBlockErase       ; format sector B of partition in slot C
+                    JR   C, exit_ErasePtBlocks    ; get out if an error occurred...
+                    DEC  B                        ; next (lower) sector to erase
                     DEC  E
-                    JR   NZ, erase_PT_loop   ; erase all blocks specified...
-                    CP   A                   ; Fc = 0, all blocks successfully erased
+                    JR   NZ, erase_sector_loop    ; erase total of E sectors...
 .exit_ErasePtBlocks
+                    POP  BC                       ; top bank for header in formatted file area...
+                    PUSH IX
+                    POP  HL                       ; create a new file header, or use header at (HL)
+                    JR   C, restore_regs0         ; error occurred during erase, skip create header...
+                    CALL FlashEprStdFileHeader    ; Create "oz" File Area Header in absolute bank B
+.restore_regs0
+                    EX   AF,AF'                   ; preserve return status
+                    LD   A,H
+                    OR   L
+                    JR   Z,restore_regs1          ; no stack buffer allocated for original header..
+                    POP  HL
+                    LD   SP,HL                    ; restore original stack (remove allocated stack buffer)
+.restore_regs1
+                    EX   AF,AF'
                     POP  HL
                     POP  DE
                     POP  BC
+
+                    POP  IX
                     RET
 
 

@@ -17,33 +17,95 @@
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId, ApplEprType, MemReadByte, MemWriteByte
+     LIB FlashEprCardId, ApplEprType
+     LIB MemReadByte, MemWriteByte, MemReadWord, MemWriteWord
+     LIB MemAbsPtr
 
      include "error.def"
      include "memory.def"
 
 
-; ************************************************************************
+;***************************************************************************************************
 ;
 ; Check for "oz" File Eprom (on a conventional Eprom or on a Flash Memory)
 ;
-;    1) Check for a standard "oz" File Eprom, if that fails -
-;    2) Check if that slot contains an Application ROM, then check for the
-;       Header Identifier below the application bank area. For Flash Cards,
-;       the File Header might be on first top bank of a free 64K sector.
-;       For Eproms, the File Header might be on the first top bank below
-;       the application bank area.
-;    3) If a Rom Front Dor is located in a RAM Card, then this slot
-;       is regarded as a non-valid card as a File Eprom, ie. not present.
+; 1) Check for a standard "oz" File Eprom, if that fails -
+; 2) Check if that slot contains an Application ROM, then check for the  Header Identifier below
+;    the application bank area. For Flash Cards, the File Header might be on first top bank of a
+;    free 64K sector. For Eproms, the File Header might be on the first top bank below the
+;    application bank area.
+; 3) If a Rom Front Dor is located in a RAM Card, then this slot is regarded as a non-valid card as
+;    a File Eprom, ie. not present.
+; 4) Check for embedded 'oz' watermark inside an 'OZ' application header. If found, then this
+;    indicates that a file area is located at the top of a card above an application area or at the
+;    top of an OZ ROM.
 ;
-;    On partial success, if a Header is not found, the returned pointer
-;    indicates that the card might hold a file area, beginning at this location.
+; A) A standard 'oz' header is recognized by the top two watermark bytes in the top bank of the
+;    file area (either typically at the top of the card, in modulus 64K sectors in Flash Cards or
+;    modulus 16K banks on traditional EPROM's. The complete header has the following format:
+;    ------------------------------------------------------------------------------
+;    $3FC0       $00's until
+;    $3FF7       $01
+;    $3FF8       4 byte random id
+;    $3FFC       size of card in banks (2=32K, 8=128K, 16=256K, 64=1Mb)
+;    $3FFD       sub-type, $7E for 32K cards, and $7C for 128K (or larger) cards
+;    $3FFE       'o'
+;    $3FFF       'z' (file eprom identifier, lower case 'oz')
+;    ------------------------------------------------------------------------------
+;    in hex dump (example):
+;    00003fc0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
+;    00003fd0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
+;    00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
+;    00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s—K<.~oz
+;    ------------------------------------------------------------------------------
 ;
-;    If the routine returns HL = $3FC0, it's an "oz" File Eprom Header
-;    (pointing to 64 byte header)
+; B) A sub-standard 'oz' header is recognized at offset $3FEE inside an application 'OZ' header that
+;    always placed at the top of the card, with the following format:
+;    ------------------------------------------------------------------------------
+;    Application Front DOR:
+;    $3FC0         0 0 0           Link to parent
+;    $3FC3         0 0 0           Link to brother - this may point to the HELP front DOR
+;    $3FC6         x x x           Link to son - this points to the first application DOR
+;    $3FC9         $13             DOR type, ROM Front DOR
+;    $3FCA         8               DOR length
+;    $3FCB         'N'             Key for name field (DT_NAM)
+;    $3FCC         5               Length of name and terminator
+;    $3FCD         'APPL', 0       NULL-terminated name
+;    $3FD2         $FF             DOR terminator
+;
+;    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;    Optional file area at top card, above application area:
+;    $3FEC         x               Size of file areain banks, eg. $02 for a 32K size
+;    $3FED         $00             64K Reclaim Sector (0=not used)
+;    $3FEE         'oz'            Application/ROM Card holds file area
+;    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;
+;    $3FF8         @0xxxxxxx       Low byte of card ID
+;    $3FF9         @0xxxxxxx       High byte of card ID
+;    $3FFA         @0000xxxx       4 bit country code
+;    $3FFB         $80             Marks external application
+;    $3FFC         x               Size of card in banks, eg. $02 for a 32K card
+;    $3FFD         $00             Subtype of card - future expansion
+;    $3FFE         'OZ'            Card holds applications
+;    ------------------------------------------------------------------------------
+;    in hex dump (example):
+;    00003fc0h: 00 00 00 00 00 00 48 25 08 13 08 4E 05 41 50 50 ; ......H%...N.APP
+;    00003fd0h: 4C 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 ; L.ˇ.............
+;    00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 14 00 6F 7A ; ..............oz
+;    00003ff0h: 00 00 00 00 00 00 00 00 54 43 4C 81 20 00 4F 5A ; ........TCLÅ .OZ
+;    ------------------------------------------------------------------------------
+;
+; On partial success, if a Header is not found, Fz = 0 and the returned BHL pointer indicates
+; that the card might hold a file area, beginning at this location.
+;
+; If the routine returns Fz = 1, it's an identified File Area Header (pointing to 64 byte header
+; in the top of bank B).
+;
+;
+; Register parameters:
 ;
 ; In:
-;         C = slot number (1, 2 or 3)
+;         C = slot number (0, 1, 2 or 3)
 ;
 ; Out:
 ;    Success, File Area (or potential) available:
@@ -67,9 +129,9 @@
 ;    .....E../IXIY same
 ;    AFBCD.HL/.... different
 ;
-; ---------------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, July-Sept 2004
-;----------------------------------------------------------------------------
+; --------------------------------------------------------------------------------------------------
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, July-Sept 2004, July 2006
+; --------------------------------------------------------------------------------------------------
 ;
 .FileEprRequest
                     PUSH DE
@@ -152,7 +214,7 @@
                     PUSH DE
                     PUSH BC
                     PUSH HL
-                    CALL FlashEprCardId
+                    CALL FlashEprCardId      ; poll for known flash card types
                     LD   A,B                 ; if flash card was found, then B contains physical size in 16K banks
                     POP  HL                  ; (this overrules the card size supplied to this routine)
                     POP  BC
@@ -195,11 +257,15 @@
 
 ; ************************************************************************
 ;
-; Return File Eprom Area status in slot x (1, 2 or 3),
+; Return File Eprom Area status in slot x (0, 1, 2 or 3),
 ; with top of area at bank B (00h - 3Fh).
 ;
+; The routine automatically adjusts for slot 0 bank range; $00 - $1F, and
+; also recognizes the new sub-file area watermark in an application 'OZ'
+; header when located at top of card (or top of ROM at bank $1F in slot 0).
+;
 ; In:
-;         C = slot number (1, 2 or 3)
+;         C = slot number (0, 1, 2 or 3)
 ;         B = bank of "oz" header (slot relative, 00 - $3F)
 ;
 ; Out:
@@ -213,7 +279,7 @@
 ;    Failure:
 ;         Fc = 1,
 ;         A = RC_ONF ("oz" File Eprom not found)
-;         C = slot number (1, 2 or 3)
+;         C = slot number (0, 1, 2 or 3)
 ;         B = bank of "oz" header (slot relative, 00 - $3F)
 ;
 ; Registers changed after return:
@@ -226,72 +292,62 @@
                     PUSH HL
 
                     LD   A,C
-                    AND  @00000011           ; slots (0), 1, 2 or 3 possible
-                    RRCA
-                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    OR   B
-                    LD   B,A                 ; bank B of slot C...
-                    LD   HL, $3F00
+                    LD   HL, $3FFC           ; look for official 'oz' file area header in top of bank BHL
+                    CALL MemAbsPtr           ; BHL points to slot C
 
-                    LD   A,$FC
-                    CALL MemReadByte
-                    PUSH AF                  ; get size of File Eprom in Banks, $3FFC
-                    LD   A,$FD
-                    CALL MemReadByte
-                    LD   C,A                 ; get sub type of File Eprom
-                    LD   A,$FE
-                    CALL MemReadByte
-                    LD   D,A                 ; D <-- 'o'?
-                    LD   A,$FF
-                    CALL MemReadByte
-                    LD   E,A                 ; E <-- 'z'?
-
-                    PUSH BC
-                    PUSH DE
-                    LD   C,0
-                    LD   A,$FE
-                    CALL MemWriteByte        ; 0 --> ($3FFE)
-                    INC  A
-                    CALL MemWriteByte        ; 0 --> ($3FFF)
-                    CALL MemReadByte
-                    LD   E,A                 ; E <-- ($3FFF)
-                    LD   A,$FE
-                    CALL MemReadByte
-                    LD   D,A                 ; D <-- ($3FFE)
-
-                    CP   A
-                    PUSH HL                  ; preserve bank offset to 'oz' header...
-                    LD   HL,$6F7A
-                    SBC  HL,DE               ; $(3FFE) = 'oz' ?
-                    POP  HL
-                    JR   Z, fileeprom_found  ; 0 was written at $(3FFE) and 'oz' was still returned!
-
-                    POP  DE                  ; we might have written to a RAM card...
-                    LD   C,D                 ; get original values from $3FFE
-                    LD   A,$FE               ; and write them back...
-                    CALL MemWriteByte        ; D --> ($3FFE)
-                    LD   C,E
-                    LD   A,$FF
-                    CALL MemWriteByte        ; E --> ($3FFE)
-                    POP  BC
-                    JR   no_fileeprom
+                    CALL ValidateOzWaterMark
+                    JR   z, fileeprom_found
+                    LD   A,B
+                    AND  @00011111
+                    CP   $1F                 ; are we at top of ROM/FLASH in current slot?
+                    JR   NZ, no_fileeprom    ; no, then certainly, no File Header was recognized
+                    LD   L,$EC               ; $3FEC
+                    CALL ValidateOzWaterMark ; check for embedded 'oz' watermark in App/Rom header in top of slot
+                    JR   NZ, no_fileeprom    ; (this sub-watermark indicates a file area above an application area)
 .fileeprom_found
-                    POP  DE
-                    POP  BC
-                    LD   A,C                 ; A = sub type of File Eprom
+                    LD   A,C                 ; A = sub type of File Eprom, B = absolute bank no of hdr,
                     CP   A                   ; return Fc = 0
-                    POP  DE                  ; B = absolute bank no of hdr,
                     LD   C,D                 ; C = size of File Area in banks
 
                     POP  HL                  ; original HL restored
                     POP  DE                  ; ignore old BC -> new values are returned...
                     POP  DE                  ; original DE restored
                     RET
-
-.no_fileeprom       POP  AF                  ; ignore "size" (just random junk)
+.no_fileeprom
                     LD   A,RC_ONF
                     SCF
                     POP HL
                     POP BC
                     POP DE                   ; original BC, DE & HL restored
+                    RET
+.ValidateOzWaterMark
+                    XOR  A
+                    CALL MemReadByte
+                    PUSH AF                  ; $3FxC, get size of File Eprom in Banks
+                    LD   A,$01
+                    CALL MemReadByte         ; $3FxD, get sub type of File Eprom
+                    LD   C,A
+                    LD   A,$02
+                    CALL MemReadWord         ; $3FxE, D <-- 'z', E <-- 'o'
+
+                    PUSH BC
+                    PUSH DE
+                    LD   DE,0
+                    LD   A,$02               ; 0 --> ($3FxE)
+                    CALL MemWriteWord        ; 0 --> ($3FxF)
+                    CALL MemReadWord         ; D <-- 'z', E <-- 'o'
+
+                    CP   A
+                    PUSH HL                  ; preserve bank offset to 'oz' header...
+                    LD   HL,$7A6F
+                    SBC  HL,DE               ; $(3FxE) = 'oz' ?
+                    POP  HL
+                    POP  DE
+                    POP  BC
+                    JR   Z,exit_valozwtmrk   ; 0 was written at $(3FFE) and 'oz' was still returned!
+
+                    LD   A,$FE               ; we might have written to a RAM card,
+                    CALL MemWriteWord        ; restore original values to ($3FxE)
+.exit_valozwtmrk
+                    POP  DE                  ; return D = size of area (if file area found)
                     RET

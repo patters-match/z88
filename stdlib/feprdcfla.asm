@@ -72,7 +72,7 @@
 ;    AFBC..HL/.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Feb 2006
+; Design & programming by Gunther Strube, Feb 2006, July 2006
 ; ----------------------------------------------------------------------
 ;
 .FlashEprReduceFileArea
@@ -115,6 +115,7 @@
                     LD   A,B
                     SUB  H                        ; (old bank of file header) - (reduced file area in banks) = new bank of header
                     LD   B,A                      ; Absolute bank of new file area header
+                    LD   HL,0                     ; signal to create a new file header...
                     CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
                     JR   C, reduce_fa_error
 

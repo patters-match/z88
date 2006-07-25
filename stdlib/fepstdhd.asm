@@ -23,33 +23,55 @@
      INCLUDE "memory.def"
 
 
-; ************************************************************************
+;***************************************************************************************************
 ;
 ; Standard Z88 File Eprom Format (using Flash Eprom Card).
 ;
-; Blow File Eprom "oz" header on Flash Eprom, in specified bank (which
-; is part of the slot that the Flash Memory Card have been inserted into).
+; Blow File Eprom "oz" header on Flash Eprom, in specified bank (which is part of the slot that
+; the Flash Memory Card have been inserted into).
 ;
-; Traditional File Eprom's use the whole card with header in top bank $3F.
+; Traditional File Eprom's use the whole card with file area header in top bank $3F.
 ;
-; Pseudo File Eproms might be part of Application cards below the
-; reserved application area (as specified by the ROM Front DOR).
+; Pseudo File Cards might be part of Application cards below the reserved application area (as
+; specified by the ROM Front DOR), or above the reserved application area.
+;
+; This routine might be supplied with a pre-fabricated 64-byte header, or be instructed to
+; auto-generate and blow it to the specified bank. If a pre-fabricated header is supplied, then
+; it will be temporarily copied to the system stack (somewhere in lower 8K RAM) and blown from
+; there. Applications need not to worry about 16K segmentation issues.
+;
+; The format of a standard 'oz' file header is as follows:
+; ------------------------------------------------------------------------------
+; $3FC0       $00's until
+; $3FF7       $01
+; $3FF8       4 byte random id
+; $3FFC       size of card in banks (2=32K, 8=128K, 16=256K, 64=1Mb)
+; $3FFD       sub-type, $7E for 32K cards, and $7C for 128K (or larger) cards
+; $3FFE       'o'
+; $3FFF       'z' (file eprom identifier, lower case 'oz')
+; ------------------------------------------------------------------------------
+; in hex dump (example):
+; 00003fc0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
+; 00003fd0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
+; 00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
+; 00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s—K<.~oz
+; ------------------------------------------------------------------------------
 ;
 ; Important:
-; Third generation AMD Flash Memory chips may be programmed in all
-; available slots (1-3). Only INTEL I28Fxxxx series Flash chips require
-; the 12V VPP pin in slot 3 to successfully blow the File Eprom header on
-; the memory chip. If the Flash Eprom card is inserted in slot 1 or 2,
+; Third generation AMD Flash Memory chips may be programmed in all available slots (1-3).
+; Only INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 to successfully blow
+; the File Eprom header on the memory chip. If the Flash Eprom card is inserted in slot 1 or 2,
 ; this routine will report a programming failure.
 ;
-; It is the responsibility of the application (before using this call) to
-; evaluate the Flash Memory (using the FlashEprCardId routine) and warn the
-; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
-; this type of unnecessary error can be avoided.
+; It is the responsibility of the application (before using this call) to evaluate the Flash
+; Memory (using the FlashEprCardId routine) and warn the user that an INTEL Flash Memory Card
+; requires the Z88 slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; In:
 ;    B = Absolute Bank (00h - FFh) where to blow header (at offset $3FC0)
 ;        (bits 7,6 is the slot mask)
+;    HL <> 0, use 64 byte header, located current address space at (HL)
+;    HL = 0, create a new 'oz' header (auto-generated random no, etc)
 ;
 ; Out:
 ;    Success:
@@ -62,12 +84,12 @@
 ;         A = RC_NFE (not a recognized Flash Memory Chip)
 ;
 ; Registers changed after return:
-;    A.B.DEHL/IXIY same
-;    .F.C..../.... different
+;    A.B.DEHL/IXIY ........ same
+;    .F.C..../.... afbcdehl different
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997 - Aug 1998
+;    Gunther Strube, InterLogic, Dec 1997 - Aug 1998, July 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ------------------------------------------------------------------------
 ;
@@ -78,13 +100,17 @@
                     PUSH HL
                     PUSH IX
 
-                    LD   D,B
+                    LD   D,B                      ; preserve D = bank to blow header
                     LD   A,B
                     AND  @11000000
                     RLCA
                     RLCA
                     LD   C,A                      ; get size of card in B of slot C
+                    PUSH HL                       ; preserve local pointer to file area header
                     CALL FlashEprCardId
+                    EXX
+                    POP  HL
+                    EXX
                     JR   C, err_FlashEprStdFileHeader  ; Fc = 1, A = RC error code (Flash Memory not found)
 
                     LD   HL,0
@@ -95,6 +121,20 @@
                     PUSH HL                       ; preserve original SP
                     PUSH AF                       ; preserve FE_xx flash chip type returned from FlashEprCardId
 
+                    EXX
+                    LD   A,H
+                    OR   L
+                    EXX
+                    JR   Z,create_new_header      ; HL function argument = 0, create a new File Area Header...
+                    EXX
+                    LD   BC,64
+                    PUSH IX
+                    POP  DE
+                    LDIR                          ; copy prepared 64 byte file area header into stack buffer
+                    EXX
+                    LD   B,D                      ; blow header at bank B in Flash Card...
+                    JR   blow_header
+.create_new_header
                     LD   E,B                      ; preserve E = total of banks on card
                     PUSH DE                       ; preserve D = bank to blow header
 
