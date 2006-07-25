@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -28,25 +28,29 @@
 ;
 ; IN:
 ;    A = slot number (0 to 3)
-;    BHL = relative pointer 
+;    BHL = relative pointer
 ;
 ; OUT:
-;    BHL pointer, absolute addressed for physical slot C, and specific segment.
+;    BHL pointer, absolute addressed for physical slot C, and free segment.
 ;
 ; Registers changed after return:
 ;    ...CDE../IXIY same
 ;    AFB...HL/.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, April 1998
+; Design & programming by Gunther Strube, April 1998, July 2006
 ; ----------------------------------------------------------------------
 ;
 .MemAbsPtr
-                    AND  @00000011                ; only 0 - 3 allowed...
-                    RRCA                          ;
-                    RRCA                          ; Slot number A converted to slot mask
                     RES  7,B
                     RES  6,B                      ; clear before masking to assure proper effect...
+                    AND  @00000011                ; only slot 0 - 3 allowed...
+                    RRCA                          ;
+                    RRCA                          ; Slot number A converted to slot mask
+                    OR   A
+                    JR   NZ, MemAbsPtr_slotx
+                    RES  5,B                      ; slot 0 rom bank range is $00 - $1F
+.MemAbsPtr_slotx
                     OR   B
                     LD   B,A                      ; B = converted to physical bank of slot A
                     CALL SafeSegmentMask          ; Get a safe segment address mask
