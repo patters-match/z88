@@ -32,7 +32,7 @@
         defb    $6f,$6a,$76,$66,$72,$34,$fe,$2b         ; o  j  v  f  r  4  *D +
         defb    $39,$6b,$63,$64,$65,$33,$fd,$3d         ; 9  k  c  d  e  3  *R =
         defb    $70,$6d,$78,$73,$77,$32,$fc,$27         ; p  m  x  s  w  2  *L '
-        defb    $30,$6c,$7a,$61,$71,$31,$20,$a7         ; 0  l  z  a  q  1  *S å
+        defb    $30,$6c,$7a,$61,$71,$31,$20,$da         ; 0  l  z  a  q  1  *S å
         defb    $a6,$a5,$2c,$e5,$c8,$e2,$aa,$e7         ; ä  ö  ,  #M !D ^T !L #H
         defb    $a3,$2d,$2e,$e8,$e6,$1b,$b8,$a9         ; £  -  .  !C #I ^E !S !R
 
@@ -48,7 +48,7 @@
         defb    $3d,$3c, $a3,$7e                        ; = <   £ ~
         defb    $a5,$ab         ; ö Ö
         defb    $a6,$ac         ; ä Ä
-        defb    $a7,$ad         ; å Å
+        defb    $da,$dd         ; å Å
 
 .DmndTable
         defb    (SqrTable - DmndTable - 1)/2
@@ -65,7 +65,7 @@
         defb    $a3,$a4         ; £     €
         defb    $a5,$7b         ; ö     {
         defb    $a6,$7d         ; ä     }
-        defb    $a7,$5c         ; å     \
+        defb    $da,$5c         ; å     \
 
 .SqrTable
         defb    (DeadTable - SqrTable - 1)/2
@@ -81,7 +81,7 @@
         defb    $A3,$9E         ; £     9e
         defb    $A5,$5B         ; ö     [
         defb    $A6,$5D         ; ä     ]
-        defb    $A7,$7C         ; å     |
+        defb    $DA,$7C         ; å     |
 
 .DeadTable
         defb    0

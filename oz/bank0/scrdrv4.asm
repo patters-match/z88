@@ -224,9 +224,11 @@ xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
 
 ; Box Characters
 .PutBoxChar
-        and     $0f
-        ld      bc, $fe00                      ; VDU $000-$00F
+        and     @00001111                       ; $01-0F
+        or      @10000000                       ; $81-8F
+        ld      bc, $fe01                      ;  LORES $181-$18F
         jp      ScrD_PutChar
+
 .ScreenCR
         ld      l, (ix+wdf_startx)
         ret
@@ -611,30 +613,30 @@ xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
         ld      a, (ix+wdf_endy)
         sub     (ix+wdf_starty)
         inc     a
-        ld      b, a            ; height
+        ld      b, a                            ; height
         push    bc
 
 ;       draw left border
 
-        call    GetWdStartXY    ; !! stupidity, ld l,wdf_startx here
-        dec     l               ; left one char
+        call    GetWdStartXY                    ; !! stupidity, ld l,wdf_startx here
+        dec     l                               ; left one char
         dec     l
         ld      h, (ix+wdf_endy) ; last line
 
 .bd_1
-        ld      (hl), $0A       ; VDU $00A, vertical bar
+        ld      (hl), $8A                       ; VDU $18A, vertical bar
         inc     l
-        ld      (hl), 0
+        ld      (hl), 1
         dec     l
-        dec     h               ; previous line
+        dec     h                               ; previous line
         djnz    bd_1
 
         bit     WDFO_B_BRACKETS, c
-        jr      z, bd_2 ; no brackets
-        inc     h               ; 1st line
-        ld      (hl), $7F       ; VDU $07f
+        jr      z, bd_2                         ; no brackets
+        inc     h                               ; 1st line
+        ld      (hl), $BE                       ; VDU $1BE, window left bracket
         inc     l
-        ld      (hl), 0
+        ld      (hl), 1
 
 .bd_2
         pop     bc
@@ -646,9 +648,9 @@ xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
         inc     l
 
 .bd_3
-        ld      (hl), $0A                       ; VDU $00A, vertical bar
+        ld      (hl), $8A                       ; VDU $18A, vertical bar
         inc     l
-        ld      (hl), 0
+        ld      (hl), 1
         dec     l
         dec     h                               ; previous line
         djnz    bd_3
@@ -656,9 +658,9 @@ xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
         bit     WDFO_B_BRACKETS, c
         ret     z                               ; no brackets
         inc     h                               ; last line
-        ld      (hl), $FF                       ; VDU $0FF
+        ld      (hl), $BF                       ; VDU $1BF, window right bracket
         inc     l
-        ld      (hl), 0
+        ld      (hl), 1
         ret
 
 ;       ----
@@ -741,9 +743,7 @@ xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
         ld      bc, $14
 
 .bl_1
-        push    hl                              ; !! unnecessary
         CALL_OZ OS_Blp                          ; Bleep
-        pop     hl
         pop     bc
         pop     af
         ret

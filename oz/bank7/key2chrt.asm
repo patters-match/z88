@@ -1,20 +1,53 @@
+;        Module Key2Char_FR
+
+
 module Key2Char_Table
+
+; INTERNATIONAL version
+;
+; this table is used by ScrDrv1.asm for keyboard / screen conversion
+; it is the bridge between key / char code / lores font.
+;
+; structure : internal key code / iso latin 1 code / lores1 bitmap low byte, high byte
+;
+; order in the lores1 font bitmap range : 000-1BF (NB: 1C0-1FF are the 64 UGD chars)
+;
 
 xdef    Key2Chr_tbl
 xdef    Chr2VDU_tbl
 xdef    VDU2Chr_tbl
 
-if KBDK
-        include "key2chrt_dk.asm"
-endif
-if KBFR
-        include "key2chrt_fr.asm"
-endif
-if KBFI
-        include "key2chrt_fi.asm"
-endif
-
-if !KBFI & !KBFR & !KBDK
-; use default UK localisation
-        include "key2chrt_uk.asm"
-endif
+.Key2Chr_tbl
+        defb    $A3                             ; £ internal code
+.Chr2VDU_tbl
+        defb        $A3                         ; £ char code
+.VDU2Chr_tbl
+        defb            $1F,$00                 ; Lores low byte, high byte in the font
+        defb    $A1,$A7,$01,$00                 ; §
+        defb    $A2,$B0,$02,$00                 ; °
+        defb    $A4,$80,$7F,$00                 ; € 
+        defb    $A5,$F6,$1A,$00                 ; ö
+        defb    $A6,$E4,$0F,$00                 ; ä
+        defb    $A7,$EB,$16,$00                 ; ë
+;        defb    $A8,$FC,$1E,$00                 ; ü
+        defb    $AB,$D6,$0B,$00                 ; Ö
+        defb    $AC,$C4,$08,$00                 ; Ä
+        defb    $B9,$E0,$0D,$00                 ; à
+        defb    $BA,$E2,$0E,$00                 ; â
+        defb    $BB,$E8,$13,$00                 ; è
+        defb    $BC,$E9,$14,$00                 ; é
+        defb    $BD,$EA,$15,$00                 ; ê
+        defb    $BE,$EE,$17,$00                 ; î
+        defb    $BF,$EF,$18,$00                 ; ï
+        defb    $C9,$F4,$19,$00                 ; ô
+        defb    $CA,$F9,$1C,$00                 ; ù
+        defb    $CB,$FB,$1D,$00                 ; û
+        defb    $DA,$E5,$10,$00                 ; å
+        defb    $DB,$E6,$11,$00                 ; æ
+        defb    $DD,$F8,$1B,$00                 ; ø
+        defb    $DF,$E7,$12,$00                 ; ç
+        defb    $ED,$D8,$0C,$00                 ; Ø
+        defb    $EB,$C6,$0A,$00                 ; Æ
+        defb    $EA,$C5,$09,$00                 ; Å
+        defb    $00,$00,$00,$00                 ; table terminator
+        

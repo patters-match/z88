@@ -139,7 +139,7 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         pop     af
         call    c, Char2VDU                     ; Fc=1, translate char  to VDU
         jr      nc, sdpc_1
-        ld      a, $7F                          ; display box char, VDU $17F
+        ld      a, $7F                          ; unknown, display black square, VDU $17F
         ld      bc, $0001                       ; clear attributes and force ch8
 
 .sdpc_1
@@ -236,19 +236,23 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         ret
 
 ;       this one handles tiny/bold too
+; IN :  A = ISO to display ($00-$FF)
+;       D = attributes (SW1=Tiny, SW2=Bold)
+; OUT:  A = LORES CHAR, B the OR-mask, C the AND-mask of attribute byte
+;       Fc = 1 ISO is not implemented...
 
 .Char2VDU
         ld      bc, $FE01                       ; clear ch8 and force it set
         cp      $20
-        ret     z                               ; space - always $120
-        cp      $7F
+        ret     z                               ; SPACE - always $120
+        cp      $80
         jr      c, somc_1
 
 ;       $7f-$ff
 
         dec     c
         cp      $A0
-        ret     z                               ; nbsp - always $0a0
+        ret     z                               ; EXACT SPACE - always $0a0
         inc     c
         push    hl
         ld      hl, Chr2VDU_tbl
@@ -262,48 +266,31 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         pop     hl
         ret     c                               ; not found, exit
         jr      z, somc_1                       ; ch8=0
-
-        res     0, b                            ; force ch8 set !! ld bc,$fe01
-        set     0, c
+        ld      bc, $FE01                       ; force ch8 set
         ret
 
 .somc_1
-        bit     6, d
-        jr      z, somc_2                       ; 00-3F
+        bit     6, d                            ; is TINY attribute set ? (SW2)
+        jr      z, somc_2                       ; TINY is not active
 
-        call    IsBoldableASCII                 ; 40-7F, C0-FF
-        ret     nc
+        call    IsBoldAndTinyAble               ; is it Tinyable ?
+        ret     nc                              ; OK
 
 .somc_2
-        or      a
-        dec     c
-        bit     7, d
-        ret     z
-        call    IsBoldable
+        or      a                               ; clear Fz, Fc
+        dec     c                               ; CH8=0
+        bit     7, d                            ; is BOLD attribute set ? (SW1)
+        ret     z                               ; it is normal, use 000-07F 
+        call    IsBoldAndTinyAble               ; is it Boldable ?
         ccf
-        ret     nc
-        xor     $80
+        ret     nc                              ; ret, it is not boldable, use the same
+        or      $80                             ; CH7=1 use BOLD font (!!! OR instruction ???)
         ret
 
-;       01-11 - linedraw chars, <> and [] are boldable but no tiny-able
-
-.IsBoldable
-        cp      1
+.IsBoldAndTinyAble
+        cp      $08                             ; $08-$7F is boldable 
         ret     c
-        cp      $12
-        ccf
-        ret     nc
-
-;       1F-7E - ascii are boldable and tiny-able
-;       !! this is changed by localization
-
-.IsBoldableASCII
-        cp      $20                             ; now space is euro symbol, not boldable
-        scf
-        ret     z
-        cp      $1B                             ; was $1F, and $1B in OZ FR!!!!
-        ret     c
-        cp      $7F
+        cp      $80
         ccf
         ret
 
@@ -1044,32 +1031,35 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         defw    ResetWdAttrs
 
 ;       special chars
+;
+;       ASCII, LORES, control byte (bit 0 : 0 use lores 00-FF, 1 use 100-1FF / bit 1 : 2 lores, bit 2: 3 lores)
+;
 
         defb    $27,$60,0                       ; grave accent
-        defb    $7C,$0A,0                       ; vertical bar
-        defb    $20,$A0,0                       ; exact
-        defb    $2D,$98,5                       ; shift         3*VDU $198
-        defb    $2B,$10,0                       ; diamond
-        defb    $2A,$11,0                       ; square
-        defb    $F9,$01,0                       ; pointer right
-        defb    $FA,$02,0                       ; pointer down
-        defb    $F8,$04,0                       ; pointer left
-        defb    $FB,$08,0                       ; pointer up
-        defb    $F5,$13,0                       ; bullet right
-        defb    $F6,$92,0                       ; bullet down
-        defb    $F4,$12,0                       ; bullet left
-        defb    $F7,$93,0                       ; bullet up
-        defb    $E0,$00,5                       ; space         3*VDU $100
-        defb    $E1,$03,5                       ; enter         3*VDU $103
-        defb    $E2,$06,5                       ; tab           3*VDU $106
-        defb    $E3,$09,5                       ; del           3*VDU $109
-        defb    $E4,$0C,5                       ; esc           3*VDU $10c
-        defb    $E6,$0F,5                       ; index         3*VDU $10f
-        defb    $E5,$12,5                       ; menu          3*VDU $112
-        defb    $E7,$15,5                       ; help          3*VDU $115
-        defb    $21,$9B,5                       ; bell          3*VDU $19b
-        defb    $F1,$16,2                       ; outline right 2*VDU $016
-        defb    $F2,$94,2                       ; outline down  2*VDU $094
-        defb    $F0,$14,2                       ; outline left  2*VDU $014
-        defb    $F3,$96,2                       ; outline up    2*VDU $096
+        defb    $7C,$8A,1                       ; vertical bar
+        defb    $20,$A0,1                       ; exact
+        defb    $2D,$B8,5                       ; shift         3*VDU $198
+        defb    $2B,$90,1                       ; diamond
+        defb    $2A,$91,1                       ; square
+        defb    $F9,$81,1                       ; pointer right
+        defb    $FA,$82,1                       ; pointer down
+        defb    $F8,$84,1                       ; pointer left
+        defb    $FB,$88,1                       ; pointer up
+        defb    $F5,$93,1                       ; bullet right
+        defb    $F6,$94,1                       ; bullet down
+        defb    $F4,$92,1                       ; bullet left
+        defb    $F7,$95,1                       ; bullet up
+        defb    $E0,$A0,5                       ; space         3*VDU $100
+        defb    $E1,$A3,5                       ; enter         3*VDU $103
+        defb    $E2,$A6,5                       ; tab           3*VDU $106
+        defb    $E3,$A9,5                       ; del           3*VDU $109
+        defb    $E4,$AC,5                       ; esc           3*VDU $10c
+        defb    $E6,$AF,5                       ; index         3*VDU $10f
+        defb    $E5,$B2,5                       ; menu          3*VDU $112
+        defb    $E7,$B5,5                       ; help          3*VDU $115
+        defb    $21,$BB,5                       ; bell          3*VDU $19b
+        defb    $F1,$98,3                       ; outline right 2*VDU $016
+        defb    $F2,$9A,3                       ; outline down  2*VDU $094
+        defb    $F0,$96,3                       ; outline left  2*VDU $014
+        defb    $F3,$9C,3                       ; outline up    2*VDU $096
         defb    0

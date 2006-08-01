@@ -105,7 +105,7 @@ xref    LowRAMcode_e                            ; bank7/lowram0.asm
         ld      b, LORES1_BANK
         ld      h, LORES1_PAGE
         inc     a
-        OZ      OS_Sci                          ; LORES1 at 07:0000-07FF
+        OZ      OS_Sci                          ; LORES1 at 1F:0000-0DFF
         ld      b, HIRES0_BANK_UNEXP
         ld      h, HIRES0_PAGE_UNEXP
         inc     a
@@ -113,7 +113,7 @@ xref    LowRAMcode_e                            ; bank7/lowram0.asm
         ld      b, HIRES1_BANK
         ld      h, HIRES1_PAGE
         inc     a
-        OZ      OS_Sci                          ; HIRES1 at 07:0800-0FFF
+        OZ      OS_Sci                          ; HIRES1
         ld      b, SBF_BANK
         ld      h, SBF_PAGE
         inc     a

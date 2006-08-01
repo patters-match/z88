@@ -41,7 +41,7 @@ xref    UpdateRnd                               ; bank0/random.asm
 
 xref    Chr2ScreenCode                          ; bank7/scrdrv1.asm
 xref    DoHelp                                  ; bank7/mth1.asm
-xref    Key2Chr_tbl                             ; bank7/key2chrt_*.asm (country dependant)
+xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
 
 
 ;       ----
@@ -352,7 +352,7 @@ xref    Key2Chr_tbl                             ; bank7/key2chrt_*.asm (country 
         ret
 .c2oz_1
         ld      b, a                            ; !! unnecessary
-        cp      IN_ESC
+        cp      IN_ESC                          ; $1B
         jr      nc, c2oz_2
         inc     a
         dec     a

@@ -1,6 +1,6 @@
 module  keymap
 
-org $9000
+org $8000
 
 xdef    KeymapTable
 

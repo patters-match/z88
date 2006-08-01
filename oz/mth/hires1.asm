@@ -25,25 +25,23 @@
 
 Module Hires1
 
+org $0800                                       ; really starts at $0C00, declared $0800 because first 128 hires doesnt exist
 
 ; --------------------------------------------------------------------------------------------------
 ; IMPORTANT NOTE:
 ; --------------------------------------------------------------------------------------------------
 ; Up to 1024 hires characters can be displayed by the blink
-; 768 ($300) from the hires0 bitmap font defined in RAM
-; 256 ($100) from the hires1 bitmap font defined in ROM
+; 768 ($300) from the hires0 bitmap font defined in RAM (granularity 8K)
+; 256 ($100) from the hires1 bitmap font defined in ROM (granularity 2K)
 ; only 96 are used in hires1, beginning at 128 ($80), ending at 224($DF)
-; that is why hires1 offset is defined is set 1K before ($80*8)
+; that is why hires1 offset is defined 1K before ($80*8)
 ;
 ; chars $98-$9D are free (they were used for some lores1 chars mixed in original OZ)
 ;
 ; --------------------------------------------------------------------------------------------------
 
-XDEF    hires1                                  ; used in bank7/reset2.asm
+defs    $400
 
-DEFC hires1 = hires1_real - $400                ; pointing somewhere in the lores1
-
-.hires1_real
 ; $80
 ;   #####
 ;  #######
