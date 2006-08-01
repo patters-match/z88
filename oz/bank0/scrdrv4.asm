@@ -53,7 +53,7 @@ xref    WrHeaderedData                          ; bank0/filesys3.asm
 
 xref    OSSR_main                               ; bank7/ossr.asm
 xref    ScrD_GetNewXY                           ; bank7/scrdrv1.asm
-xref    ScrD_PutChar                            ; bank7/scrdrv1.asm
+xref    ScrD_PutByte                            ; bank7/scrdrv1.asm
 xref    ScrDrvAttrTable                         ; bank7/scrdrv1.asm
 xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
 
@@ -227,7 +227,7 @@ xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
         and     @00001111                       ; $01-0F
         or      @10000000                       ; $81-8F
         ld      bc, $fe01                      ;  LORES $181-$18F
-        jp      ScrD_PutChar
+        jp      ScrD_PutByte
 
 .ScreenCR
         ld      l, (ix+wdf_startx)
