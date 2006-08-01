@@ -21,6 +21,7 @@ xdef    ScrD_GetMargins                         ; NqSp
 xdef    VDU2ChrCode                             ; NqRDS    all these are screen related code in b00
 xdef    GetCrsrYX                               ; NqRDS
 xdef    ScrD_PutChar                            ; screen driver code reference
+xdef    ScrD_PutByte                            ; screen driver code reference
 xdef    Zero_ctrlprefix                         ; screen driver code reference
 xdef    ScrD_GetNewXY                           ; screen driver code reference
 xdef    GetWindowNum                            ; screen driver code reference

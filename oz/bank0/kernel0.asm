@@ -50,7 +50,8 @@ IF COMPILE_BINARY
         xdef    Zero_ctrlprefix                 ; bank7/scrdrv1.asm
         xdef    ScrD_GetNewXY                   ; bank7/scrdrv1.asm
         xdef    ScrD_PutChar                    ; bank7/scrdrv1.asm
-
+        xdef    ScrD_PutByte                    ; bank7/scrdrv1.asm
+        
         xdef    CopyMTHApp_Help                 ; bank7/mth1.asm
         xdef    CopyMTHHelp_App                 ; bank7/mth1.asm
         xdef    DrawTopicWd                     ; bank7/mth1.asm
@@ -78,11 +79,11 @@ IF COMPILE_BINARY
         xdef    OSRen                           ; bank7/filesys1.asm
         xdef    MemCallAttrVerify               ; bank7/memory1.asm
         xdef    Key2Chr_tbl                     ; bank7/keymap.asm (country dependant)
-        xdef    KeymapTable                     ; bank7/keymap.asm (country dependant)
+;        xdef    KeymapTable                     ; bank7/keymap.asm (country dependant)
         xdef    OSMap                           ; bank7/osmap.asm
         xdef    OSSci                           ; bank7/ossci.asm
         xdef    OSCli                           ; bank7/oscli.asm
 
         include "../bank7/kernel7.def"          ; get kernel references from bank 7 and map them into bank 0 project...
-        include "../mth/keymap.def"             ; get references for keymaps in MTH bank and bind them into bank 0 project...
+;        include "../mth/keymap.def"             ; get references for keymaps in MTH bank and bind them into bank 0 project...
 ENDIF
