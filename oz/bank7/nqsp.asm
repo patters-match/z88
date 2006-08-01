@@ -785,11 +785,11 @@ xref    OSNqProcess                             ; bank7/process1.asm
 .RstRdPanelAttrs
         push    bc
         ld      bc, PA_Bad
-        ld      d, 2
+        ld      d, 2                            ; store at $02xx (cf. sysvar.def)
 
 .rrpa_1
-        ld      a, 1
-        ld      e, c
+        ld      a, 1                            ; length is 1 byte for each value
+        ld      e, c                            ; start with PA_Bad ($05) then downward
         OZ      OS_Nq                           ; enquire (fetch) parameter
         dec     c
         jr      nz, rrpa_1

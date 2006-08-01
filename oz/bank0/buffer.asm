@@ -356,11 +356,9 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         call    TestEsc
         jr      c, osxin_1                      ; ESC pending? exit
 
-        push    ix
-        ld      ix, KbdData
-        ld      a, (ix+buf_wrpos)
-        cp      (ix+buf_rdpos)
-        pop     ix
+        ld      a, (KbdData + buf_wrpos)
+        ld      hl, KbdData + buf_rdpos         ; hl is already destroyed by DoAlarms
+        cp      (hl)
         jr      nz, osxin_1                     ; keyboard buffer not empty? exit
 
         ld      a, (ubCLIActiveCnt)
@@ -380,6 +378,10 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         exx
         OZ      DC_Xin                          ; Examine CLI input
         jp      OZCallReturn1                   ; return AF
+
+;.GetKbddata
+;        ld      ix, KbdData                     ; !! only used above
+;        ret
 
 ;       ----
 
