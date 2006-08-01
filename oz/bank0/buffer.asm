@@ -357,7 +357,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         jr      c, osxin_1                      ; ESC pending? exit
 
         push    ix
-        call    GetKbddata                      ; !! should be inline, or use absolute addressing
+        ld      ix, KbdData
         ld      a, (ix+buf_wrpos)
         cp      (ix+buf_rdpos)
         pop     ix
@@ -380,10 +380,6 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         exx
         OZ      DC_Xin                          ; Examine CLI input
         jp      OZCallReturn1                   ; return AF
-
-.GetKbddata
-        ld      ix, KbdData                     ; !! only used above
-        ret
 
 ;       ----
 
