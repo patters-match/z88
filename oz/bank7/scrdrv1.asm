@@ -140,7 +140,7 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         pop     af
         call    c, Char2VDU                     ; Fc=1, translate char  to VDU
         jr      nc, sdpc_1
-        ld      a, $7F                          ; unknown, display black square, VDU $17F
+        ld      a, $80                          ; unknown, display black square, VDU $17F
         ld      bc, $0001                       ; clear attributes and force ch8
 
 .sdpc_1
