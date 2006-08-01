@@ -48,7 +48,7 @@ DEFVARS $2000
      flentry        ds.p 1              ; pointer to existing file entry
      status         ds.b 1              ; general purpose status flag
      wcard_handle   ds.w 1              ; Wildcard handle from GN_OPW
-     availslots     ds.b 4              ; array of inserted File Eprom's in external slots
+     availslots     ds.b 5              ; array of available File Areas in all slots. [0] = total areas, [1]-[4] = file area size
      curslot        ds.b 1              ; the current selected slot (possibly containing File Area)
      flashid        ds.w 1              ; the manufacturer and device code of the flash card in current slot
      watermark      ds.b 5              ; the current File Area watermark (File Header Ramdom ID & size of banks)

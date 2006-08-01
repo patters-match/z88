@@ -155,12 +155,12 @@ Module FileAreaFormat
 
 
 ; *************************************************************************************
-; Return no of formatable file areas, available in inserted Flash Cards in slots 1-3.
+; Return no of formatable file areas, available in Flash Cards in slots 0-3.
 ;
 ; IN:
 ;     None.
 ; OUT:
-;     A = formatable file areas (on for each slot, 1 - 3).
+;     A = formatable file areas (one for each slot, 0 - 3).
 ;     C = slot number for a default formatable File Area (if A>0)
 ;
 .PollFileFormatSlots
@@ -168,9 +168,9 @@ Module FileAreaFormat
                     push bc
                     push hl
 
-                    ld   hl, availslots+1    ; point to counter of available slots
+                    ld   hl, availslots+1    ; point to slot 0
                     push hl
-                    ld   c,1                 ; begin with external slot 1
+                    ld   c,0                 ; begin with slot 0
                     ld   e,0                 ; counter of available file eproms
 .poll_format_loop
                     push bc                  ; preserve slot number...
@@ -209,7 +209,7 @@ Module FileAreaFormat
                     or   a
                     jr   z, end_pollformat   ; no formatable file areas found...
 
-                    ld   hl,availslots+3
+                    ld   hl,availslots+4
                     dec  c                   ; get default formatable slot in c, starting at 3...
 .check_default_loop
                     ld   b,(hl)

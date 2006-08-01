@@ -229,7 +229,7 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM "Release V1.8.2, April 2006",$7F, $7F
+                    DEFM "Release V1.8.3, July 2006",$7F, $7F
                     DEFM "Backup/restore files between Rakewell Flash Cards and RAM.", 0
 
 .cmd_sc_help

@@ -91,7 +91,7 @@ Module SelectCard
 
 
 ; *************************************************************************************
-; Display the contents of slots 1-3 in an easy understandable symbolically form.
+; Display the contents of slots 0-3 in an easy understandable symbolically form.
 ;
 ; IN: HL = Window Banner Title
 ;
@@ -107,8 +107,8 @@ Module SelectCard
                     call_oz GN_Sop           ; Display small help text in right side window
 
                     ld   a, 128 | '2'
-                    ld   bc, $0016
-                    ld   de, $082A
+                    ld   bc, $000C
+                    ld   de, $0838
                     pop  hl
                     call CreateWindow        ; Device selection window.
 
@@ -124,7 +124,7 @@ Module SelectCard
                     jr   c, poll_for_rom_card
                          LD   (free),A       ; A = size of RAM card in 16K banks, DE = free 256 byte pages
                          LD   HL,ramdev
-                         XOR  A
+                         LD   A,1            ; display RAM card box outline in grey (to identify it as non-selectable)
                          CALL DisplayCard
                          dec  c
                          inc  b
@@ -141,7 +141,7 @@ Module SelectCard
                          CALL_OZ(Gn_sop)
                          jp   nextline
 .poll_for_rom_card
-                    ld   h,c                      ; preserve a copy of slot nubmer...
+                    ld   h,c                      ; preserve a copy of slot number...
                     call ApplEprType
                     jr   c, poll_for_eprom_card
                          ld   hl, epromdev
@@ -254,6 +254,7 @@ Module SelectCard
 .nextline
                     ld   a,(curslot)
                     dec  a
+                    cp   $ff
                     jp   nz, disp_slot_loop
 
                     ; Now, user selects card (if possible) ...
@@ -261,7 +262,7 @@ Module SelectCard
 .select_slot_loop
                     call UserMenu
                     ret  c                        ; user aborted selection
-                    ld   hl, availslots
+                    ld   hl, availslots+1
                     ld   b,0
                     call GetCurrentSlot           ; C = (curslot)
                     add  hl,bc
@@ -360,11 +361,11 @@ Module SelectCard
                JR   Z, MVbar_right
                CP   IN_LFT                        ; Cursor Left ?
                JR   Z, MVbar_left
-               CP   '1'
-               JR   C,menu_loop                   ; smaller than '1'
+               CP   '0'
+               JR   C,menu_loop                   ; smaller than '0'
                CP   '4'
                JR   NC,menu_loop                  ; >= '4'
-               SUB  A,48                          ; ['1'; '3'] keys selected
+               SUB  A,48                          ; ['0'; '3'] keys selected
                LD   (HL),A
                CP   A
                RET
@@ -378,12 +379,12 @@ Module SelectCard
                LD   (HL),A                        ; update new m.bar position
                JR   menu_loop                     ; display new m.bar position
 
-.Mbar_rightwrap LD   A,1
+.Mbar_rightwrap LD   A,0
                LD   (HL),A
                JR   menu_loop
 
 .MVbar_left    LD   A,(HL)
-               CP   1                             ; has m.bar already reached left edge?
+               CP   0                             ; has m.bar already reached left edge?
                JR   Z,Mbar_leftwrap
                DEC  A
                LD   (HL),A                        ; update new m.bar position
@@ -440,7 +441,7 @@ Module SelectCard
 
 
 ; *************************************************************************************
-; Poll all external slots for file areas and return A = count of found file areas,
+; Poll all slots (0 - 3) for file areas and return A = count of found file areas,
 ; or 0 if none were found.
 ;
 .PollSlots
@@ -448,19 +449,20 @@ Module SelectCard
                     push de
                     push hl
 
-                    ld   hl, availslots+1    ; point to counter of available slots
+                    ld   hl, availslots+1    ; point to slot 0
                     push hl
-                    ld   c,1                 ; begin with external slot 1
+                    ld   c,0                 ; begin with internal slot 0, then external 1-3
                     ld   e,0                 ; counter of available file eproms
 .poll_loop
                     push bc                  ; preserve slot number...
                     call FileEprRequest      ; File Eprom Card or area available in slot C?
+                    ld   a,c
                     pop  bc
                     jr   c, no_fileepr
                     jr   nz, no_fileepr      ; no header was found, but a card was available of some sort
                          inc  e              ; File Eprom found
                          pop  hl
-                         ld   (hl),c         ; size of file eprom in 16K banks
+                         ld   (hl),a         ; size of file eprom in 16K banks
                          inc  hl
                          push hl
                          jr   next_slot
@@ -489,16 +491,18 @@ Module SelectCard
 
 ; *************************************************************************************
 .SelectDefaultSlot                           ; select the first available Card File Area
-                    ld   hl, availslots+3    ; beginning from slot 3, towards slot 1...
-                    ld   b,3
+                    ld   hl, availslots+4    ; beginning from slot 3, towards slot 0...
+                    ld   bc,$0403
                     xor  a
 .sel_slot_loop
                     cp   (hl)
                     jr   nz, found_slot
                     dec  hl
+                    dec  c
                     djnz sel_slot_loop
+                    inc  c                   ; slot 0...
 .found_slot
-                    ld   a,b
+                    ld   a,c
                     ld   (curslot),a         ; current slot selected...
                     cp   a
                     ret
@@ -639,7 +643,7 @@ Module SelectCard
 
 
 ; *************************************************************************************
-; Return VDU Card Box (0,X) coordinate for slot X (1-3) fetched in (curslot)
+; Return VDU Card Box (0,X) coordinate for slot X (0-3) fetched in (curslot)
 ;
 ; OUT:
 ;    BC = (Y,X)
@@ -648,8 +652,8 @@ Module SelectCard
                     PUSH AF
                     PUSH HL
                     LD   A,(curslot)
-                    DEC  A              ; first card box displayed at (0,0)
                     LD   B,A            ; X coord multiply counter
+                    OR   A              ; first card box displayed at (0,0)
                     JR   Z, cardbox_x_coord
 .get_x_coord        ADD  A,13
                     DJNZ get_x_coord
@@ -775,7 +779,7 @@ Module SelectCard
 
 .selectdevhelp      DEFM 1,"2JC", 1,"3-SC"
                     DEFM "Select card with", 13, 10
-                    DEFM "either ", 1,"B1", 1 ,"B ", 1, "B2", 1,"B or ", 1,"B3", 1, "B", 13, 10
+                    DEFM "either ", 1,"B0 1 2", 1,"B or ", 1,"B3", 1, "B", 13, 10
                     DEFM 13, 10
                     DEFM "or move cursor", 13, 10
                     DEFM "over the card", 13, 10

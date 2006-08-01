@@ -1,7 +1,10 @@
 Ideas for future FlashStore features:
 
+V1.8.3
+   Implemented slot 0 file area management, when an AMD 512K Flash is recognized (using improved stdlib for file area management).
+
 v1.8.x
-   Improve current features / bug fixes
+   Improve current features / bug fixes.
 
 V1.9 (16K Popdown)
    Renamed to 'FileStore' (any better ideas?)
