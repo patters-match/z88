@@ -13,7 +13,6 @@
         include "sysvar.def"
 
 xdef    CancelOZcmd
-xdef    loc_EECE                                ; !! get rid of this
 xdef    OSIn
 xdef    OSTin
 xdef    ostin_4
@@ -88,8 +87,7 @@ xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
         call    OSTinMain
 .in_sub
         ld      (iy+OSFrame_A), a
-.loc_EECE
-        jp      OSFramePop                      ; !! get rid of this label
+        jp      OSFramePop
 ;       ----
 .OSTinMain
         ld      (uwOSTinTimeout), bc

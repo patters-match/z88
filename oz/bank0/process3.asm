@@ -37,7 +37,6 @@ xref    GetFileSize                             ; bank0/filesys3.asm
 xref    RestoreAllAppData                       ; bank0/filesys3.asm
 xref    SaveAllAppData                          ; bank0/filesys3.asm
 xref    CancelOZcmd                             ; bank0/osin.asm
-xref    loc_EECE                                ; bank0/osin.asm
 xref    ostin_4                                 ; bank0/osin.asm
 xref    DORHandleFreeDirect                     ; bank0/dor.asm
 xref    DrawOZwd                                ; bank0/ozwindow.asm
@@ -48,6 +47,7 @@ xref    MS1BankB                                ; bank0/misc5.asm
 xref    MS2BankK1                               ; bank0/misc5.asm
 xref    PutOSFrame_BHL                          ; bank0/misc5.asm
 xref    OSFramePush                             ; bank0/misc4.asm
+xref    OSFramePop                              ; bank0/misc4.asm
 xref    SetActiveAppDOR                         ; bank0/mth2.asm
 
 xref    ChkStkLimits                            ; bank7/process1.asm
@@ -331,7 +331,7 @@ xref    OSSr_Fus                                ; bank7/ossr.asm
         ld      de, unk_1864
         exx
         call    OSFramePush
-        ld      ix, loc_EECE                    ; jp OSFramePop  !! point to to OSFramePop directly
+        ld      ix, OSFramePop                  ; for the return
         push    ix
         ld      hl, word_1853
         push    hl
