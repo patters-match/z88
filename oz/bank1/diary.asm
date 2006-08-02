@@ -145,7 +145,7 @@ defc    lbuf_InputBuffer        =0              ; !! should avoid using this
 defc    lbuf_Buffer2            =$4F            ; !! should have pBuffer2 in safe area
 defc    lbuf_Buffer3            =$9E            ; !! should have pBuffer3 in safe area
 
-defvars $1fde {
+defvars $1fde
         eMem_LineBuffers        ds.p    1
         eMem_dix_254            ds.p    1
         eIOBuf_242              ds.p    1
@@ -153,7 +153,7 @@ defvars $1fde {
         pMemHandleMulti         ds.w    1
         DiaryFileHandle         ds.w    1
         S1Binding               ds.b    1
-}
+enddef
 
 
 .loc_C000

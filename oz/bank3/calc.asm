@@ -41,7 +41,6 @@
         org     $f300
 
 defvars 0
-{
         calc_ActiveCol          ds.b    1
         calc_ActiveRow          ds.b    1
         calc_PrevActCol         ds.b    1
@@ -58,15 +57,14 @@ defvars 0
         calc_PrevCvtActCol      ds.b    1
         calc_PrevCvtActRow      ds.b    1
         calc_StrBuffer          ds.b    1
-}
+enddef
 
 defvars $0fbf                                   ; !! should use named mem later
-{
         Float1                  ds.b    5
         Float2                  ds.b    5
         Memories                ds.b    10*5
         varFix                  ds.b    1
-}
+enddef
 
 ;       Flags
 defc    CF_B_Convert            = 1

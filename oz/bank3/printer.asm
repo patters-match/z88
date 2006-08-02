@@ -13,8 +13,7 @@
 
         org     $afc0
 
-DEFVARS $0dd0
-{
+defvars $0dd0
         StackBufPtr     ds.w    1
         CtrlBuf         ds.w    1
         CtrlLen         ds.b    1
@@ -33,7 +32,7 @@ DEFVARS $0dd0
         AttrSuperscript ds.b    1
         AttrAltfont     ds.b    1
         AttrUserdef     ds.b    1
-}
+enddef
 
 ;       PrinterAttrs
 defc    PRA_B_ON                =0              ; state

@@ -46,22 +46,22 @@
         include "sysvar.def"
 
 
-defvars $1fd6 {
-CurrentDay              ds.b    3
-OrigDiaryEntry          ds.b    3
-MonthStart              ds.b    3
-NextMonthStart          ds.b    3
-DrawnMonthStart         ds.b    3
-NextDiaryDay            ds.b    3
-SearchDay               ds.b    3
-DiaryEntry              ds.b    3
-NextDiaryEntry          ds.b    3
-ubDay                   ds.b    1
-ubMonth                 ds.b    1
-ubNMonthDays            ds.b    1
-ubWeekday               ds.b    1
-swYear                  ds.b    1
-}
+defvars $1fd6
+        CurrentDay              ds.b    3
+        OrigDiaryEntry          ds.b    3
+        MonthStart              ds.b    3
+        NextMonthStart          ds.b    3
+        DrawnMonthStart         ds.b    3
+        NextDiaryDay            ds.b    3
+        SearchDay               ds.b    3
+        DiaryEntry              ds.b    3
+        NextDiaryEntry          ds.b    3
+        ubDay                   ds.b    1
+        ubMonth                 ds.b    1
+        ubNMonthDays            ds.b    1
+        ubWeekday               ds.b    1
+        swYear                  ds.b    1
+enddef
 
 ;       ----
 

@@ -49,15 +49,10 @@
 xdef    Imp_Export
 
 
-
-; IF vars_e <> $1ffe
-;       ERROR   "Error in defvars"
-; ENDIF
-
-defgroup {
-ERR_System, ERR_Response, ERR_Data, MSG_Eob,
-MSG_Eof, ERR_Esc, ERR_Name, MSG_AllSent
-}
+defgroup
+        ERR_System, ERR_Response, ERR_Data, MSG_Eob,
+        MSG_Eof, ERR_Esc, ERR_Name, MSG_AllSent
+enddef
 
 .Imp_Export
         ld      iy, SAFE

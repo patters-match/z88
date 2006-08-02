@@ -51,8 +51,7 @@
 defc    f_Vars          = $1dce
 defc    NBUFSIZE        = 240
 
-DEFVARS f_Vars
-{
+defvars f_Vars
      f_Confirm               ds.b    1
      f_Flags1                ds.b    1
      f_OutLnCnt              ds.b    1       ; $1dd0
@@ -82,7 +81,7 @@ DEFVARS f_Vars
      f_MatchString           ds.b    17
      f_SourceName            ds.b    NBUFSIZE
      f_DestName              ds.b    NBUFSIZE
-}
+enddef
 
 
 .Filer

@@ -74,7 +74,6 @@ defc    ERR_BadName             =7
 
 
 defvars p_Vars
-{
         p_ubEntryID             ds.b    1
         p_ubPageID              ds.b    1
         p_pSettings             ds.w    1
@@ -85,8 +84,7 @@ defvars p_Vars
         p_pPrinterFileHandle    ds.w    1
         p_pPrinterName_20       ds.w    1
         p_ubFlags               ds.b    1
-}
-
+enddef
 
 .PrinterEd
         ld      iy, p_ubEntryID

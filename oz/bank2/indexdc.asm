@@ -69,8 +69,7 @@ defc    IDXF2_ALTMINUS          =4
 defc    IDXF2_ZCOUNT            =3
 
 
-DEFVARS 0               ; Process
-{
+defvars 0               ; Process
      prc_link                ds.p    1
      prc_flags               ds.b    1
      prc_assoclen            ds.b    1
@@ -85,7 +84,7 @@ DEFVARS 0               ; Process
      prc_dir                 ds.b    16
      prc_Name                ds.b    17
      prc_SIZEOF              ds.b    1
-}
+enddef
 
 ;prc_flags
 
@@ -93,8 +92,7 @@ defc    PRCF_B_ISINDEX          =3                      ; is Index
 defc    PRCF_ISINDEX            =8
 defc    CLI_LINEBUFSIZE         = $CF
 
-DEFVARS 0               ; CLI
-{
+defvars 0               ; CLI
      cli_link                ds.p    1
      cli_Flags               ds.b    1
      cli_StreamFlags         ds.b    1
@@ -111,7 +109,7 @@ DEFVARS 0               ; CLI
      cli_PrefixBuffer        ds.b    22
      cli_LineBuffer          ds.b    CLI_LINEBUFSIZE
      cli_SIZEOF              ds.b    1
-}
+enddef
 
 ; cli_Flags
 
