@@ -21,8 +21,8 @@ xref    OSSpMain                                ; bank7/nqsp.asm
 ; set Panel and PrinterEd values
 
 .OSSp
-        call    OSFramePush
-        call    OSSpMain
+        call    OSFramePush                     ; Framepush and bind K1
+        call    OSSpMain                        ; jump in K1
         jp      OSFramePop
 
 .NqSp_ret
@@ -31,6 +31,6 @@ xref    OSSpMain                                ; bank7/nqsp.asm
 ; read Panel and PrinterEd values
 
 .OSNq
-        call    OSFramePush
+        call    OSFramePush                     ; idem
         call    OSNqMain
         jp      OSFramePop

@@ -17,6 +17,7 @@ xdef    osfpop_1
 xdef    OSBox
 xdef    OSBix
 
+xref    MS2BankK1                               ; bank0/misc5.asm
 xref    MS2BankA                                ; bank0/misc5.asm
 xref    MS12BankCB                              ; bank0/misc5.asm
 
@@ -24,8 +25,7 @@ xref    MS12BankCB                              ; bank0/misc5.asm
 .OSFramePush
         pop     hl                              ; caller PC
         pop     bc                              ; S2/S3
-        ld      a, OZBANK_7                     ; bind in more kernel code !! use MS2BankK1
-        call    MS2BankA
+        call    MS2BankK1                       ; bind in more kernel code
 
 .OSFramePushMain
         push    bc                              ; 0E - S2S3
