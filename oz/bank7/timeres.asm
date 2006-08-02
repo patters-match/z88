@@ -9,7 +9,7 @@
         include "time.def"
         include "sysvar.def"
 
-xdef    TimeReset                               ; Reset5
+xdef    TimeReset                               ; bank7/reset.asm
 
 xref    IntSecond                               ; bank0/int.asm
 xref    MS1BankA                                ; bank0/misc5.asm

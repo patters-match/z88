@@ -31,29 +31,44 @@
 ; $Id$
 ;***************************************************************************************************
 
-
-        Module Reset2
+        Module Reset
 
         include "blink.def"
         include "memory.def"
         include "screen.def"
         include "sysvar.def"
+        include "director.def"
+        include "serintfc.def"
 
-xdef    Reset2
+xdef    Reset                                   ; bank0/boot.asm
+xdef    ExpandMachine                           ; bank0/cardmgr.asm
+xdef    Chk128KB                                ; bank0/filesys2.asm, process2.asm, bank7/osmap.asm, scrdrv1.asm
+xdef    Chk128KBslot0                           ; bank0/process2.asm
+xdef    FirstFreeRAM                            ; bank0/process2.asm
+xdef    MountAllRAM                             ; bank0/cardmgr.asm, bank7/misc1.asm
 
 xref    InitBufKBD_RX_TX                        ; bank0/buffer.asm
+xref    MS1BankA                                ; bank0/misc5.asm
 xref    KPrint                                  ; bank0/misc5.asm
-xref    Reset3                                  ; bank0/reset13.asm
 xref    ResetHandles                            ; bank0/handle.asm
 xref    ResetTimeout                            ; bank0/nmi.asm
+xref    InitRAM                                 ; bank0/memory.asm
+xref    MarkSwapRAM                             ; bank0/memory.asm
+xref    MarkSystemRAM                           ; bank0/memory.asm
+xref    InitKbdPtrs                             ; bank0/kbd.asm
+xref    OSSp_PAGfi                              ; bank0/pagfi.asm
 
+xref    RAMxDOR                                 ; bank7/misc1.asm
+xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
+xref    KeymapTable                             ; bank7/keymap.asm
 xref    InitData                                ; bank7/initdata.asm
 xref    LowRAMcode                              ; bank7/lowram0.asm
 xref    LowRAMcode_e                            ; bank7/lowram0.asm
+xref    TimeReset                               ; bank7/timeres.asm
 
 ;       ----
 
-.Reset2
+.Reset                                          ; called by boot.asm
         xor     a
         ex      af, af'                         ; interrupt status
         bit     BB_STAFLAPOPEN, a
@@ -175,4 +190,162 @@ xref    LowRAMcode_e                            ; bank7/lowram0.asm
         jr      c, rst2_6                       ; crash if no memory
 
         ld      (pFsMemPool), ix                ; filesystem pool
-        jp      Reset3
+        call    InitRAM
+        ld      d, $20
+        ld      bc, $10
+        call    MarkSystemRAM                   ; b20, 0000-0fff - system variables
+        ld      d, $20
+        ld      bc, $1008
+        call    MarkSwapRAM                     ; b20, 1000-17ff - swap RAM
+        ld      d, $20
+        ld      bc, $1808
+        call    MarkSystemRAM                   ; b20, 1800-1fff - stack
+        ld      d, $20
+        ld      bc, $2020
+        call    MarkSwapRAM                     ; b20, 2000-3fff - 8KB for bad apps
+        ld      d, $21
+        ld      bc, $3808
+        call    MarkSystemRAM                   ; b21, 3800-3fff - SBF
+        ld      d, $21
+        ld      bc, $2003
+        call    MarkSystemRAM                   ; b21, 2000-22ff - Hires0+Lores0
+
+        call    ExpandMachine                   ; move Lores0/Hires0 and mark more swap RAM if expanded
+
+        call    RstRdPanelAttrs                 ; until PA_Bad
+        ld      hl, KeymapTable | KEYMAP_BANK   ; page | bank
+        call    InitKbdPtrs                     ; initialise keymap pointers in Ram
+
+        call    TimeReset
+        call    MountAllRAM
+
+        ld      b, $21
+        ld      h, SBF_PAGE
+        ld      a, SC_SBR
+        OZ      OS_Sci                          ; SBF at 21:7800-7FFF
+
+        ld      bc, SerRXHandle
+        ld      de, SerTXHandle
+        ld      l, SI_HRD
+        OZ      OS_Si                           ; hard reset serial interface
+
+        call    OSSp_PAGfi
+        ei
+
+.infinity
+        ld      b, 0                            ; time to enter new Index process!
+        ld      ix, 1                           ; first handle
+        OZ      OS_Ent                          ; enter an application
+        jr      infinity
+
+; *** Reset subroutines ***
+        
+.ExpandMachine
+        call    Chk128KB
+        ret     c                               ; not expanded? exit
+
+        call    FirstFreeRAM                    ; b21/b40 for un-/expanded machine
+        add     a, 3                            ; b24/b43
+        ld      d,a
+        push    de
+        ld      bc, $0A
+        call    MarkSystemRAM                   ; b24/b43, 0000-09ff - Hires0+Lores0
+
+        pop     bc                              ; B=bank, use C to keep bank through Os_Sci
+        ld      c,b
+
+        ld      h, LORES0_PAGE_EXP              ; 8
+        ld      a, SC_LR0
+        OZ      OS_Sci                          ; LORES0 at $xx 0800
+
+        ld      b,c
+        ld      h, HIRES0_PAGE_EXP              ; 0
+        ld      a, SC_HR0
+        OZ      OS_Sci                          ; HIRES0 at $xx 0000
+
+        ld      d,c
+        dec     d
+        dec     d
+        ld      bc, $80
+        jp      MarkSwapRAM                     ; b22/b41, 0000-7fff - 32KB more for bad apps
+
+        
+.MountAllRAM
+        ld      hl, RAMDORtable
+.maram_1
+        ld      a, (hl)                         ; 21 21 40 80 c0  bank
+        inc     hl
+        or      a
+        jr      z, maram_5
+        call    MS1BankA
+        ld      d, $40                          ; address high byte
+        ld      e, (hl)                         ; 80 40 40 40 40  address low byte
+        inc     hl
+        ld      c, (hl)                         ;  -  0  1  2  3  RAM number
+        inc     hl
+        ld      a, c
+        cp      '-'
+        jr      z, maram_2
+        ld      a, (de)                         ; skip if no RAM
+        or      a
+        jr      nz, maram_1
+.maram_2
+        push    hl
+        ld      a, c
+        cp      '-'                             ; !! combine with above check
+        jr      z, maram_3
+        ex      af, af'
+        ld      hl, $4000
+        ld      a, (ubResetType)                ; 0 = hard reset
+        and     (hl)
+        jr      nz, maram_4                     ; soft reset & already tagged, skip
+        ex      af, af'
+.maram_3
+        ld      hl, RAMxDOR                     ; !! could be smaller without table
+        ld      bc, 17
+        ldir
+        ld      (de), a
+        inc     de
+        ld      bc, 2                           ; just copy 00 FF
+        ldir
+        cp      '-'                             ; tag RAM if not RAM.-
+        jr      z, maram_4
+        ld      bc, $a55a
+        ld      ($4000), bc
+.maram_4
+        pop     hl
+        jr      maram_1
+.maram_5
+        ret
+
+;       ----
+
+;               bank, DOR address low byte, char
+
+.RAMDORtable
+        defb    $21,$80,'-'
+        defb    $21,$40,'0'
+        defb    $40,$40,'1'
+        defb    $80,$40,'2'
+        defb    $C0,$40,'3'
+        defb    0
+
+;       ----
+
+.Chk128KB
+        ld      a, (ubSlotRamSize+1)            ; RAM in slot1
+        cp      128/16
+        ret     nc
+
+.Chk128KBslot0
+        ld      a, (ubSlotRamSize)              ; RAM in slot0
+        cp      128/16                          ; Fc=1 if less than 128KB
+        ret
+
+.FirstFreeRAM
+        call    Chk128KBslot0
+        ld      a, $21
+        ret     nc
+        ld      a, $40
+.ffr_1
+        ret

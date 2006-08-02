@@ -44,7 +44,7 @@ xdef    BfSta
 xdef    BufRead
 xdef    BufWrite
 xdef    BufWriteC                               ; KbdMain
-xdef    InitBufKBD_RX_TX                        ; Reset2
+xdef    InitBufKBD_RX_TX                        ; bank7/reset.asm
 xdef    OsDly
 xdef    OSPur
 xdef    OSXin

@@ -23,7 +23,6 @@
 
 kernel0.asm
 boot.asm
-reset13.asm
 misc2.asm
 process2.asm
 osout.asm
@@ -59,4 +58,3 @@ pfilter0.asm
 ozwindow.asm
 scrdrv4.asm
 osust.asm
-resetx.asm

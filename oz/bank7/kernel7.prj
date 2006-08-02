@@ -27,9 +27,8 @@ clitables.asm
 eprom.asm
 ossci.asm
 timeres.asm
-reset2.asm
+reset.asm
 misc1.asm
-reset5.asm
 osalm.asm
 oscli.asm
 process1.asm

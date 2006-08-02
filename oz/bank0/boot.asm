@@ -18,7 +18,7 @@ xref    nmi_5                                   ; bank0/nmi.asm
 xref    HW_NMI2                                 ; bank0/nmi.asm
 xref    VerifySlotType                          ; bank0/memory.asm
 
-xref    Reset2                                  ; bank7/reset2.asm
+xref    Reset                                   ; bank7/reset.asm
 
 
 ; reset code at $0000
@@ -93,7 +93,7 @@ xref    Reset2                                  ; bank7/reset2.asm
 .rst1_2
         ld      a, OZBANK_7
         out     (BL_SR2), a                     ; MS2b07
-        jp      Reset2                          ; init internal RAM, blink and low-ram code and set SP
+        jp      Reset                           ; init internal RAM, blink and low-ram code and set SP
 
         defs    ($0066-$PC) ($ff)               ; pad FFh's until 0066H (Z80 NMI vector)
 

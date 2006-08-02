@@ -27,13 +27,19 @@
 
 IF COMPILE_BINARY
         xdef    ExtQualifiers                   ; bank0/kbd.asm
+
         xdef    ResetTimeout                    ; bank0/nmi.asm
+        
         xdef    InitBufKBD_RX_TX                ; bank0/buffer.asm
-        xdef    Reset3                          ; bank0/reset13.asm
+
         xdef    NQAin                           ; bank0/process2.asm
+        
         xdef    AddRAMCard                      ; bank0/cardmgr.asm
+
         xdef    NqSp_ret                        ; bank0/spnq0.asm
+        
         xdef    TogglePrFilter                  ; bank0/pfilter0.asm
+
         xdef    OSSp_PAGfi                      ; bank0/pagfi.asm
 
         xdef    IntSecond                       ; bank0/int.asm
@@ -72,12 +78,16 @@ IF COMPILE_BINARY
         xdef    VerifyHandle                    ; bank0/handle.asm
         xdef    ResetHandles                    ; bank0/handle.asm
 
-        xdef    MountAllRAM                     ; bank0/resetx.asm
-        xdef    Chk128KB                        ; bank0/resetx.asm
-
         xdef    OSNqMemory                      ; bank0/memory.asm
         xdef    OSSp_89                         ; bank0/memory.asm
+        xdef    InitRAM                         ; bank0/memory.asm
+        xdef    MarkSwapRAM                     ; bank0/memory.asm
+        xdef    MarkSystemRAM                   ; bank0/memory.asm
 
+        xdef    InitKbdPtrs                     ; bank0/kbd.asm
+
+        xdef    KeymapTable                     ; mth/keymap.asm
+        
         xdef    loc_CD42                        ; bank0/dor.asm
         xdef    DORHandleFreeDirect             ; bank0/dor.asm
         xdef    DORHandleFree                   ; bank0/dor.asm
@@ -179,4 +189,5 @@ IF COMPILE_BINARY
         xdef    ToggleScrDrvFlags               ; bank0/scrdrv4.asm
 
         include "../bank0/kernel0.def"          ; get bank 0 references and map them into bank 7 project...
+        include "../mth/keymap.def"             ; get references for keymaps in MTH bank and bind them into bank 7 project...
 ENDIF

@@ -31,15 +31,23 @@
         org $C000
 
 IF COMPILE_BINARY
-        xdef    Reset2                          ; bank7/reset2.asm
-        xdef    Reset5                          ; bank7/reset5.asm
+        xdef    Reset                           ; bank7/reset.asm
+        xdef    ExpandMachine                   ; bank7/reset.asm
+        xdef    Chk128KB                        ; bank7/reset.asm
+        xdef    Chk128KBSlot0                   ; bank7/reset.asm
+        xdef    FirstFreeRAM                    ; bank7/reset.asm
+        xdef    MountAllRAM                     ; bank7/reset.asm
+        
         xdef    OSAlmMain                       ; bank7/osalm.asm
+        
         xdef    RstRdPanelAttrs                 ; bank7/nqsp.asm
         xdef    OSNqMain                        ; bank7/nqsp.asm
         xdef    OSSpMain                        ; bank7/nqsp.asm
+        
         xdef    OSSr_Fus                        ; bank7/ossr.asm
         xdef    FreeMemHandle                   ; bank7/ossr.asm
         xdef    OSSR_main                       ; bank7/ossr.asm
+        
         xdef    OSEprTable                      ; bank7/eprom.asm
 
         xdef    OSIsq                           ; bank7/scrdrv1.asm
@@ -72,20 +80,29 @@ IF COMPILE_BINARY
         xdef    ClearUnsafeArea                 ; bank7/process1.asm
         xdef    Mailbox2Stack                   ; bank7/process1.asm
         xdef    OSPoll                          ; bank7/process1.asm
+        
         xdef    ChkCardChange                   ; bank7/card1.asm
         xdef    StoreCardIDs                    ; bank7/card1.asm
+        
         xdef    InitHandle                      ; bank7/misc1.asm
         xdef    RAMxDOR                         ; bank7/misc1.asm
+        
         xdef    FileNameDate                    ; bank7/filesys1.asm
         xdef    IsSpecialHandle                 ; bank7/filesys1.asm
         xdef    OpenMem                         ; bank7/filesys1.asm
         xdef    OSDel                           ; bank7/filesys1.asm
         xdef    OSRen                           ; bank7/filesys1.asm
+        
         xdef    MemCallAttrVerify               ; bank7/memory1.asm
+        
         xdef    Key2Chr_tbl                     ; bank7/key2chrt.asm
+        
         xdef    KeymapTable                     ; mth/keymap.asm
+        
         xdef    OSMap                           ; bank7/osmap.asm
+        
         xdef    OSSci                           ; bank7/ossci.asm
+        
         xdef    OSCli                           ; bank7/oscli.asm
 
         include "../bank7/kernel7.def"          ; get kernel references from bank 7 and map them into bank 0 project...
