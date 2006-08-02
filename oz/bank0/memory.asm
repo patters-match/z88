@@ -626,14 +626,17 @@ defc    DM_RAM                  =$81
 ;       init all RAM, called from Reset3
 
 .InitRAM
-
+        ld      c, 2
+        call    OZ_MGB                          ; save S2
+        push    bc
         ld      a, $21                          ; start with first RAM bank (skip system bank)
-
 .ir_1
         call    InitSlotRAM                     ; init one slot
         and     $c0
         add     a, $40                          ; advance to next
         jr      nz, ir_1                        ; and init if not done yet
+        pop     bc
+        rst     OZ_MPB                          ;restore S2
         ret
 
 ;       ----
@@ -1228,7 +1231,6 @@ defc    DM_RAM                  =$81
 ;       mark RAM reserved for bad apps
 
 .MarkSwapRAM
-
         ld      hl, MAT_SWAP<<8
         jr      msr_1
 
@@ -1238,6 +1240,14 @@ defc    DM_RAM                  =$81
         ld      hl, MAT_SYSTEM
 
 .msr_1
+        push    bc
+        ld      c, 2                            ; preserve S2, it will be destroyed
+        call    OZ_MGB                          ; get binding
+        push    bc                              ; ex bc,af
+        pop     af
+        pop     bc                              ; restore bc on entry
+        push    af                              ; save S2 binding
+
         push    bc
         push    hl
         call    GetBankMAT0                     ; bind in bank D
@@ -1271,6 +1281,10 @@ defc    DM_RAM                  =$81
 
         or      a                               ; Fc=0
 .msr_6
+        pop     bc                              ; restore S2 binding
+        push    af                              ; preserve Fc
+        rst     OZ_MPB
+        pop     af
         ret
 
 ;       ----
