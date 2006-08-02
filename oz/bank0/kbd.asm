@@ -46,6 +46,7 @@
 include "blink.def"
 include "stdio.def"
 include "sysvar.def"
+include "memory.def"
 
 xdef    ExtKbMain                               ; was KbMain
 xdef    ExtQualifiers                           ; was ApplyQualifiers
@@ -940,11 +941,20 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         ret
 
 ; ---------------------------------------------------------------------------
-; init ram vars of keyboard code
+; Init ram vars of keyboard code
+; IN :  H keymap page (always $xx00)
+;       L keymap bank (the mth bank)
+; OUT:  AFHL changed, BCDEIXIY preserved
 ;
 .InitKbdPtrs
-        ld      a,l
-        call    MS2BankA                        ; bind 
+        push    bc
+        push    de
+        ld      b, l                            ; l is mth bank
+        ld      c, 2                            ; in s2
+        rst     OZ_MPB
+        push    bc                              ; preserve previous binding
+        res     6, h                            ; assume page mask is in s2
+        set     7, h
         ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
                                                 ; $page00 is matrix, $page40 is shift table
 
@@ -958,6 +968,10 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         ld      (de), a                         ; and store pointer
         inc     de
         djnz    ikp_1
+        pop     bc                              ; previous s2 binding
+        rst     OZ_MPB
+        pop     de
+        pop     bc
         ret
 
 
