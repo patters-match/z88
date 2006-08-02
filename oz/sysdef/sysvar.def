@@ -20,6 +20,13 @@ lstoff
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
+; Original implementation by
+; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+;
+; Additional improvements, comments, definitions and new implementations by
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
+;
 ; $Id$
 ;***************************************************************************************************
 

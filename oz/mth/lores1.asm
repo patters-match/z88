@@ -1,7 +1,8 @@
 ; **************************************************************************************************
-; The 6 bits width bitmap font
+; The 6 bit width bitmap font (LORES1).
 ;
-; This table was extracted out of Font bitmaps from original V3.x and V4.0 ROMs using FontBitMap tool.
+; This table was extracted out of Font bitmaps from original V3.x and V4.0 ROMs using FontBitMap tool,
+; and combined/re-arranged into the new international font bitmap by Thierry Peycru.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -19,6 +20,10 @@
 ;                                  Free Software Foundation, Inc.
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
+;
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
 ;
 ; $Id$
 ; ***************************************************************************************************

@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Main file for OZ System Token Table, application MTH static structures and DORs.
+; Main file for OZ System Token Table, application MTH static structures and application/popdown DORs.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,7 +23,7 @@
 
         module Mth
 
-        org $2000                               ; MTH static structures start at offset $1800 in top ROM bank.
+        org $2000                               ; MTH static structures start offset in top ROM bank.
 
 ; ---------------------------------------------------------------------------------------------------
 ; This module serves only for naming the 'mth.bin' file which is loaded into top bank of ROM.

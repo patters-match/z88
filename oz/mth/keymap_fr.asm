@@ -1,23 +1,55 @@
-; Bank 7 @ S2       ROM offset $1d300
+; **************************************************************************************************
+; French Key Mapping Table, used by kernel keyboard functionality.
+; The table is located in bank with MTH static structures.
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
+;
+; Copyright of original (binary) implementation, V4.0:
+; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
+;
+; $Id$
+;***************************************************************************************************
 
 ; all keymap tables in one page
 
 ; structure of shift, square, and diamond tables:
 
-;   dc.b n            number of character pairs in table
-;   dc.b inchar,outchar   translates inchar into outchar
-;   dc.b inchar,outchar,...   entries are ordered in ascending inchar order
+;       dc.b n                    number of character pairs in table
+;       dc.b inchar,outchar       translates inchar into outchar
+;       dc.b inchar,outchar,...   entries are ordered in ascending inchar order
 
 ; structure of deadkey table:
 
-;   dc.b n            number of deadkeys in table
-;   dc.b keycode,offset   keycode of deadkey, offset into subtable for that key
-;   dc.b keycode,offset,...   offset is table address low byte
-;                 entries are ordered in ascending keycode order
+;       dc.b n                    number of deadkeys in table
+;       dc.b keycode,offset       keycode of deadkey, offset into subtable for that key
+;       dc.b keycode,offset,...   offset is table address low byte
+;                                 entries are ordered in ascending keycode order
 ;
-;   dc.b char         deadkey subtables start with extra byte - 8x8 char code for OZ window
-;   dc.b n            after that they follow standard table format of num + n*(in,out)
-;   dc.b inchar, outchar,...
+;       dc.b char                 deadkey subtables start with extra byte - 8x8 char code for OZ window
+;       dc.b n                    after that they follow standard table format of num + n*(in,out)
+;       dc.b inchar, outchar,...
+
 
 
 ;*UDRL  cursor keys     ff fe fd fc
@@ -72,7 +104,7 @@
     defb    $22,$23                 ; " #
     defb    $24,$A4                 ; $ €
     defb    $26,$5C                 ; & \
-  
+
     defb    $27,$7C                 ; ' |
     defb    $28,$7E                 ; ( ~
     defb    $29,$60                 ; ) `

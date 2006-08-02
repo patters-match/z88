@@ -1,7 +1,7 @@
 ; **************************************************************************************************
-; The 8 bits width bitmap font
+; The 8 bit width bitmap font (HIRES1).
 ;
-; This table was extracted out of Font bitmap from original V4.0 ROM using FontBitMap tool.
+; The original table was extracted out of Font bitmap from original V4.0 ROM using FontBitMap tool.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -20,6 +20,10 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
+;
 ; $Id$
 ; ***************************************************************************************************
 
@@ -36,7 +40,7 @@ org $0800                                       ; really starts at $0C00, declar
 ; only 96 are used in hires1, beginning at 128 ($80), ending at 224($DF)
 ; that is why hires1 offset is defined 1K before ($80*8)
 ;
-; chars $98-$9D are free (they were used for some lores1 chars mixed in original OZ)
+; chars $98-$9D are free (they were used for some lores1 chars mixed in original OZ ROM)
 ;
 ; --------------------------------------------------------------------------------------------------
 
