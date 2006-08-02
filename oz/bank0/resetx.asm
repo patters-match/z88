@@ -10,7 +10,6 @@ xdef    MountAllRAM
 xref    MS1BankA                                ; bank0/misc5.asm
 xref    MS2BankK1                               ; bank0/misc5.asm
 
-xref    RAMDORtable                             ; bank7/misc1.asm
 xref    RAMxDOR                                 ; bank7/misc1.asm
 
 
@@ -62,6 +61,20 @@ xref    RAMxDOR                                 ; bank7/misc1.asm
         jr      maram_1
 .maram_5
         ret
+
+;       ----
+
+;               bank, DOR address low byte, char
+
+.RAMDORtable
+        defb    $21,$80,'-'
+        defb    $21,$40,'0'
+        defb    $40,$40,'1'
+        defb    $80,$40,'2'
+        defb    $C0,$40,'3'
+        defb    0
+
+;       ----
 
 .Chk128KB
         ld      a, (ubSlotRamSize+1)            ; RAM in slot1

@@ -18,7 +18,6 @@ xref    FirstFreeRAM                            ; bank0/resetx.asm
 xref    InitRAM                                 ; bank0/memory.asm
 xref    MarkSwapRAM                             ; bank0/memory.asm
 xref    MarkSystemRAM                           ; bank0/memory.asm
-xref    VerifySlotType                          ; bank0/memory.asm
 xref    MS2BankK1                               ; bank0/misc5.asm
 xref    InitKbdPtrs                             ; bank0/kbd.asm
 

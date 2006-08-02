@@ -75,7 +75,6 @@ IF COMPILE_BINARY
         xdef    ChkCardChange                   ; bank7/card1.asm
         xdef    StoreCardIDs                    ; bank7/card1.asm
         xdef    InitHandle                      ; bank7/misc1.asm
-        xdef    RAMDORtable                     ; bank7/misc1.asm
         xdef    RAMxDOR                         ; bank7/misc1.asm
         xdef    FileNameDate                    ; bank7/filesys1.asm
         xdef    IsSpecialHandle                 ; bank7/filesys1.asm

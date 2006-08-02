@@ -10,24 +10,13 @@
         include "error.def"
         include "sysvar.def"
 
-xdef    RAMDORtable                             ; MountAllRAM
 xdef    InitHandle                              ; OSDor, E9E8+D
 xdef    RAMxDOR                                 ; MountAllRAM
 
 xref    loc_CD42                                ; bank0/dor.asm
 xref    S2VerifySlotType                        ; bank0/misc5.asm
 
-;       ----
 
-;               bank, DOR address low byte, char
-
-.RAMDORtable
-        defb    $21,$80,'-'
-        defb    $21,$40,'0'
-        defb    $40,$40,'1'
-        defb    $80,$40,'2'
-        defb    $C0,$40,'3'
-        defb    0
 
 ;       ----
 
