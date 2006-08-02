@@ -23,7 +23,7 @@
 ;
 ; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
 ; Additional development improvements, comments, definitions and new implementations by
-; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005
 ; (C) Gunther Strube (gbs@users.sf.net), 2005
 ;

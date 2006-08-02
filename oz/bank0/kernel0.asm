@@ -19,7 +19,7 @@
 ;                                  Boston, MA 02111-1307, USA.
 ;
 ; Implementation, comments, and definitions
-; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
 ; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
 ;
