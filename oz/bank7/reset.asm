@@ -59,11 +59,16 @@ xref    OSSp_PAGfi                              ; bank0/pagfi.asm
 
 xref    RAMxDOR                                 ; bank7/misc1.asm
 xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
-xref    KeymapTable                             ; bank7/keymap.asm
 xref    InitData                                ; bank7/initdata.asm
 xref    LowRAMcode                              ; bank7/lowram0.asm
 xref    LowRAMcode_e                            ; bank7/lowram0.asm
 xref    TimeReset                               ; bank7/timeres.asm
+
+xref    Keymap_UK
+xref    Keymap_FR
+xref    Keymap_DE
+xref    Keymap_DK
+xref    Keymap_FI
 
 ;       ----
 
@@ -215,7 +220,7 @@ xref    TimeReset                               ; bank7/timeres.asm
         or      a
         call    nz, PreserveSystemPanel         ; restore preserved system panel values
         call    RstRdPanelAttrs                 ; PA_Gfi (or use default values)
-        ld      hl, KeymapTable | KEYMAP_BANK   ; page | bank
+        
         call    InitKbdPtrs                     ; initialise keymap pointers in Ram
 
         call    TimeReset
@@ -292,9 +297,14 @@ xref    TimeReset                               ; bank7/timeres.asm
 ; OUT:  AFHL changed, BCDEIXIY preserved
 ;
 .InitKbdPtrs
-        push    bc
-        push    de
-        ld      b, l                            ; bind l, l is mth bank
+        ld      a,(ubCountry)
+        ld      b, 0
+        ld      c, a
+        ld      hl, KeymapTable
+        add     hl, bc
+        ld      h, (hl)                         ; keymap page
+        ld      b, KEYMAP_BANK                  ; bind keymap bank
+        ld      l, b                            ; for storing below
         ld      c, 1                            ; in s1
         rst     OZ_MPB
         push    bc                              ; preserve previous binding
@@ -317,8 +327,22 @@ xref    TimeReset                               ; bank7/timeres.asm
         djnz    ikp_1
         pop     bc                              ; previous s2 binding
         rst     OZ_MPB
-        pop     de
-        pop     bc
         ret
 
-
+.KeymapTable
+        defb    >Keymap_UK                      ; US
+        defb    >Keymap_FR                      ; FR
+        defb    >Keymap_DE                      ; DE
+        defb    >Keymap_UK                      ; UK
+        defb    >Keymap_DK                      ; DK
+        defb    >Keymap_FI                      ; SE
+        defb    >Keymap_UK                      ; IT Not implemented
+        defb    >Keymap_UK                      ; SP Not implemented
+        defb    >Keymap_UK                      ; JP Not implementable
+        defb    >Keymap_UK                      ; IS Not implemented
+        defb    >Keymap_DK                      ; NO
+        defb    >Keymap_FR                      ; CH Not implemented
+        defb    >Keymap_UK                      ; TR Not implementable
+        defb    >Keymap_FI                      ; FI
+        defb    >Keymap_UK                      ; Reserved
+        defb    >Keymap_UK                      ; Reserved

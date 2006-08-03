@@ -60,7 +60,11 @@ bank6/basic.dat 061200                          ; $D200: BBC BASIC application
 bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel OS
 
 ; MTH and other static structures in last ROM bank
-mth/keymap.bin 080000                           ; keyboard maps
+mth/keymap_UK.bin 080000                        ; keyboard maps
+mth/keymap_FR.bin 080100
+mth/keymap_DE.bin 080200
+mth/keymap_DK.bin 080300
+mth/keymap_FI.bin 080400
 mth/hires1.bin 080800                           ; the HIRES1 font bitmap (OZ window symbols) 0E00-0FFF is free due to granularity
 mth/lores1.bin 081000                           ; the LORES1 font bitmap (Normal, Bold, Tiny, Symbol)
 mth/mth.bin 082000                              ; the System Token Table, MTH static structures and application DORs

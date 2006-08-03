@@ -31,7 +31,11 @@ goto COMPILE_ERROR
 :PRECOMPILE_LOWRAM
 cd ..\bank7
 ..\..\tools\mpm\mpm -g -I..\sysdef @lowram.prj
-..\..\tools\mpm\mpm -bg -DKB%1 -I..\sysdef keymap.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_UK.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_FR.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_DE.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_DK.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_FI.asm
 dir *.err 2>nul >nul || goto PRECOMPILE_BANK0
 goto COMPILE_ERROR
 

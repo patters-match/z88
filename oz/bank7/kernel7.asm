@@ -88,8 +88,6 @@ IF COMPILE_BINARY
         xdef    FirstFreeRAM                    ; bank0/memory.asm
         xdef    MountAllRAM                     ; bank0/memory.asm
         
-        xdef    KeymapTable                     ; mth/keymap.asm
-        
         xdef    GetDORType                      ; bank0/dor.asm
         xdef    DORHandleFreeDirect             ; bank0/dor.asm
         xdef    DORHandleFree                   ; bank0/dor.asm
@@ -190,6 +188,16 @@ IF COMPILE_BINARY
         xdef    SetScrAttr                      ; bank0/scrdrv4.asm
         xdef    ToggleScrDrvFlags               ; bank0/scrdrv4.asm
 
+        xdef    Keymap_UK
+        xdef    Keymap_FR
+        xdef    Keymap_DE
+        xdef    Keymap_DK
+        xdef    Keymap_FI
+        
         include "../bank0/kernel0.def"          ; get bank 0 references and map them into bank 7 project...
-        include "../mth/keymap.def"             ; get references for keymaps in MTH bank and bind them into bank 7 project...
+        include "../mth/keymap_UK.def"          ; get references for keymaps in MTH bank and bind them into bank 7 project...
+        include "../mth/keymap_FR.def"
+        include "../mth/keymap_DE.def"
+        include "../mth/keymap_DK.def"
+        include "../mth/keymap_FI.def"
 ENDIF

@@ -23,17 +23,22 @@
 
 @echo off
 
+:COMPILE_KEYMAPS
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_uk.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_fr.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_dk.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_fi.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymap_de.asm
+dir *.err 2>nul >nul || goto COMPILE_LORES1
+goto COMPILE_ERROR
+
+:COMPILE_LORES1
 ..\..\tools\mpm\mpm -bg -I..\sysdef lores1.asm
 dir *.err 2>nul >nul || goto COMPILE_HIRES1
 goto COMPILE_ERROR
 
 :COMPILE_HIRES1
 ..\..\tools\mpm\mpm -bg -I..\sysdef hires1.asm
-dir *.err 2>nul >nul || goto COMPILE_KEYMAP
-goto COMPILE_ERROR
-
-:COMPILE_KEYMAP
-..\..\tools\mpm\mpm -bg -DKB%1 -I..\sysdef keymap.asm
 dir *.err 2>nul >nul || goto COMPILE_MTH
 goto COMPILE_ERROR
 
