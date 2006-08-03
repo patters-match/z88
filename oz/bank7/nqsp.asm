@@ -607,8 +607,8 @@ xref    OSNqProcess                             ; bank7/process1.asm
         defb    defKcl - PrefTbl1               ; click
         defb    defSnd - PrefTbl1               ; sound
         defb    defBad - PrefTbl1               ; bad process size
-        defb    defIov - PrefTbl1               ; 06-0F unused
-        defb    defIov - PrefTbl1
+        defb    defLoc - PrefTbl1               ; country
+        defb    defIov - PrefTbl1               ; 07-0F unused
         defb    defIov - PrefTbl1
         defb    defIov - PrefTbl1
         defb    defIov - PrefTbl1
@@ -698,6 +698,7 @@ xref    OSNqProcess                             ; bank7/process1.asm
 .defKcl         defb    'N'
 .defSnd         defb    'Y'
 .defBad         defb    40
+.defLoc         defb    LOC_UK                  ; default keyboad is UK
 .defIov         defb    'I'
 .defDat         defb    'E'
 .defMap         defb    'Y'
@@ -810,12 +811,12 @@ xref    OSNqProcess                             ; bank7/process1.asm
 ;
 .RstRdPanelAttrs
         push    bc
-        ld      bc, PA_Bad
+        ld      bc, PA_Loc
         ld      d, 2                            ; store at $02xx (cf. sysvar.def)
 
 .rrpa_1
         ld      a, 1                            ; length is 1 byte for each value
-        ld      e, c                            ; start with PA_Bad ($05) then downward
+        ld      e, c                            ; start with PA_Loc ($06) then downward
         OZ      OS_Nq                           ; enquire (fetch) parameter
         dec     c
         jr      nz, rrpa_1
