@@ -22,7 +22,7 @@ xref    OSSpMain                                ; bank7/nqsp.asm
 
 .OSSp
         call    OSFramePush                     ; Framepush and bind K1
-        call    OSSpMain                        ; jump in K1
+        call    OSSpMain                        ; in K1
         jp      OSFramePop
 
 .NqSp_ret

@@ -40,8 +40,13 @@ xdef    OSNqMemory
 xdef    OSSp_89
 xdef    PageNToPagePtr
 xdef    VerifySlotType
+xdef    Chk128KB                                ; bank0/filesys2.asm, process2.asm, bank7/osmap.asm, scrdrv1.asm
+xdef    Chk128KBslot0                           ; bank0/process2.asm
+xdef    FirstFreeRAM                            ; bank0/process2.asm
+xdef    MountAllRAM                             ; bank0/cardmgr.asm, bank7/misc1.asm
 
 xref    KPrint                                  ; bank0/misc5.asm
+xref    MS2BankK1                               ; bank0/misc5.asm
 xref    MS1BankA                                ; bank0/misc5.asm
 xref    MS2BankA                                ; bank0/misc5.asm
 xref    PutOSFrame_BHL                          ; bank0/misc5.asm
@@ -57,7 +62,7 @@ xref    MemPtr2FilePtr                          ; bank0/filesys3.asm
 xref    OZwd__fail                              ; bank0/ozwindow.asm
 
 xref    MemCallAttrVerify                       ; bank7/memory1.asm
-
+xref    RAMxDOR                                 ; bank7/misc1.asm
 
 
 defc    DM_RAM                  =$81
@@ -2252,4 +2257,86 @@ defc    DM_RAM                  =$81
 
 .vst_2
         ld      d, ST_NOROM
+        ret
+
+        
+.MountAllRAM
+        call    MS2BankK1
+        ld      hl, RAMDORtable
+.maram_1
+        ld      a, (hl)                         ; 21 21 40 80 c0  bank
+        inc     hl
+        or      a
+        jr      z, maram_5
+        call    MS1BankA
+        ld      d, $40                          ; address high byte
+        ld      e, (hl)                         ; 80 40 40 40 40  address low byte
+        inc     hl
+        ld      c, (hl)                         ;  -  0  1  2  3  RAM number
+        inc     hl
+        ld      a, c
+        cp      '-'
+        jr      z, maram_2
+        ld      a, (de)                         ; skip if no RAM
+        or      a
+        jr      nz, maram_1
+.maram_2
+        push    hl
+        ld      a, c
+        cp      '-'                             ; !! combine with above check
+        jr      z, maram_3
+        ex      af, af'
+        ld      hl, $4000
+        ld      a, (ubResetType)                ; 0 = hard reset
+        and     (hl)
+        jr      nz, maram_4                     ; soft reset & already tagged, skip
+        ex      af, af'
+.maram_3
+        ld      hl, RAMxDOR                     ; !! could be smaller without table
+        ld      bc, 17
+        ldir
+        ld      (de), a
+        inc     de
+        ld      bc, 2                           ; just copy 00 FF
+        ldir
+        cp      '-'                             ; tag RAM if not RAM.-
+        jr      z, maram_4
+        ld      bc, $a55a
+        ld      ($4000), bc
+.maram_4
+        pop     hl
+        jr      maram_1
+.maram_5
+        ret
+
+;       ----
+
+;               bank, DOR address low byte, char
+
+.RAMDORtable
+        defb    $21,$80,'-'
+        defb    $21,$40,'0'
+        defb    $40,$40,'1'
+        defb    $80,$40,'2'
+        defb    $C0,$40,'3'
+        defb    0
+
+;       ----
+
+.Chk128KB
+        ld      a, (ubSlotRamSize+1)            ; RAM in slot1
+        cp      128/16
+        ret     nc
+
+.Chk128KBslot0
+        ld      a, (ubSlotRamSize)              ; RAM in slot0
+        cp      128/16                          ; Fc=1 if less than 128KB
+        ret
+
+.FirstFreeRAM
+        call    Chk128KBslot0
+        ld      a, $21
+        ret     nc
+        ld      a, $40
+.ffr_1
         ret

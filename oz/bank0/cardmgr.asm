@@ -70,6 +70,9 @@ xref    StoreCardIDs                            ; bank7/card1.asm
 
 .AddRAMCard
         call    InitSlotRAM
+        push    af
+        call    MS2BankK1
+        pop     af
         cp      $40
         call    z, ExpandMachine                ; slot1? expand if 128KB or more
         call    MountAllRAM

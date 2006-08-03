@@ -33,11 +33,7 @@
 IF COMPILE_BINARY
         xdef    Reset                           ; bank7/reset.asm
         xdef    ExpandMachine                   ; bank7/reset.asm
-        xdef    Chk128KB                        ; bank7/reset.asm
-        xdef    Chk128KBSlot0                   ; bank7/reset.asm
-        xdef    FirstFreeRAM                    ; bank7/reset.asm
-        xdef    MountAllRAM                     ; bank7/reset.asm
-        
+
         xdef    OSAlmMain                       ; bank7/osalm.asm
         
         xdef    RstRdPanelAttrs                 ; bank7/nqsp.asm

@@ -83,7 +83,11 @@ IF COMPILE_BINARY
         xdef    InitRAM                         ; bank0/memory.asm
         xdef    MarkSwapRAM                     ; bank0/memory.asm
         xdef    MarkSystemRAM                   ; bank0/memory.asm
-
+        xdef    Chk128KB                        ; bank0/memory.asm
+        xdef    Chk128KBslot0                   ; bank0/memory.asm
+        xdef    FirstFreeRAM                    ; bank0/memory.asm
+        xdef    MountAllRAM                     ; bank0/memory.asm
+        
         xdef    InitKbdPtrs                     ; bank0/kbd.asm
 
         xdef    KeymapTable                     ; mth/keymap.asm
