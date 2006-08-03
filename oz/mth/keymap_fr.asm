@@ -23,11 +23,11 @@ xdef    Keymap_FR
 ;   dc.b inchar, outchar,...
 
 
-;*UDRL  cursor keys     ff fe fd fc
-;*S space           20
+;*UDRL  cursor keys         ff fe fd fc
+;*S     space               20
 ;^MTDE  enter tab del esc   e1 e2 e3 e4
 ;#MIH   menu index help     e5 e6 e7
-;!DSLRC <> [] ls rs cl      c8 b8 aa a9 a8
+;!DSLRC <> [] ls rs cl      c8 b8 aa a9 e8
 
 
 .Keymap_FR
@@ -38,7 +38,7 @@ xdef    Keymap_FR
     defb    $70,$2C,$78,$73,$7A,$BC,$FC,$3D     ; p  ,  x  s  z  é  *L =
     defb    $B9,$6C,$77,$71,$61,$26,$20,$2A     ; à  l  w  q  a  &  *S *
     defb    $CA,$6D,$3B,$E5,$C8,$E2,$aa,$E7     ; ù  m  ;  #M !D ^T !L #H
-    defb    $AE,$24,$3A,$E8,$E6,$1B,$B8,$a9     ; ^  $  :  e8 #I ^E !S !R
+    defb    $AE,$24,$3A,$E8,$E6,$1B,$B8,$a9     ; ^  $  :  !C #I ^E !S !R
 
 
 .ShiftTable

@@ -33,7 +33,7 @@ xdef    Keymap_DE
 ;*S     space                   20
 ;^MTDE  enter tab del esc       e1 e2 e3 e4
 ;#MIH   menu index help         e5 e6 e7
-;!DSLRC <> [] ls rs cl          c8 b8 aa a9 a8
+;!DSLRC <> [] ls rs cl          c8 b8 aa a9 e8
 
 .Keymap_DE
         defb    $38,$37,$6e,$68,$7a,$36,$e1,$e3         ; 8  7  n  h  z  6  ^M ^D

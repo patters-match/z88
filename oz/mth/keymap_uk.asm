@@ -33,7 +33,7 @@ xdef    Keymap_UK
 ;*S     space                   20
 ;^MTDE  enter tab del esc       e1 e2 e3 e4
 ;#MIH   menu index help         e5 e6 e7
-;!DSLRC <> [] ls rs cl          c8 b8 aa a9 a8
+;!DSLRC <> [] ls rs cl          c8 b8 aa a9 e8
 
 ; UK keyboard
 
