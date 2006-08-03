@@ -41,24 +41,24 @@ xdef    Keymap_DE
         defb    $6f,$6a,$76,$66,$72,$34,$fe,$27         ; o  j  v  f  r  4  *D '
         defb    $39,$6b,$63,$64,$65,$33,$fd,$cc         ; 9  k  c  d  e  3  *R ss
         defb    $70,$6d,$78,$73,$77,$32,$fc,$2b         ; p  m  x  s  w  2  *L +
-        defb    $30,$6c,$79,$61,$71,$31,$20,$dd         ; 0  l  y  a  q  1  *S ü
-        defb    $d9,$dc,$2c,$e5,$c8,$e2,$00,$e7         ; ä  ö  ,  #M !D ^T !L #H
+        defb    $30,$6c,$79,$61,$71,$31,$20,$dc         ; 0  l  y  a  q  1  *S ü
+        defb    $a6,$a5,$2c,$e5,$c8,$e2,$00,$e7         ; ä  ö  ,  #M !D ^T !L #H
         defb    $23,$2d,$2e,$e8,$e6,$1b,$b8,$00         ; #  -  .  !C #I ^E !S !R
 
 .ShiftTable
-        defb    (CapsTable - ShiftTable - 1)/2
+        defb    (DmndTable - ShiftTable - 1)/2
         defb    $1b,$d4                                 ; esc   d4
         defb    $20,$d0                                 ; space d0
         defb    $23,$5e, $27,$60, $2b,$2a, $2c,$3b      ; # ^   ' `   + *   , ;
         defb    $2d,$5f, $2e,$3a, $30,$3d, $31,$21      ; - _   . :   0 =   1 !
         defb    $32,$22, $33,$a1, $34,$24, $35,$25      ; 2 "   3 §   4 $   5 %
         defb    $36,$26, $37,$2f, $38,$28, $39,$29      ; 6 &   7 /   8 (   9 )
-        defb    $3c,$3e, $cc,$3f                        ; < >   ss?
-
-.CapsTable
-        defb    (DmndTable - CapsTable - 1)/2
-        defb    $a3,$a3, $dc,$ec, $df,$ef               ; £ £
-
+        defb    $3c,$3e                                 ; < >
+        defb    $a5,$ab                                 ; ö Ö
+        defb     $a6,$ac                                 ; ä Ä
+        defb    $cc,$3f                                 ; ss ?
+        defb    $dc,$ec                                 ; ü Ü
+        
 .DmndTable
         defb    (SqrTable - DmndTable - 1)/2
         defb    $1b,$c4         ; esc   c4
@@ -85,7 +85,8 @@ xdef    Keymap_DE
         defb    $5d,$1d         ; ]     1d
         defb    $5f,$1f         ; _     1f
         defb    $a3,$1e         ; £     1e      is this needed?
-
+        defb    $cc,$a4         ; ss    €
+        
 .SqrTable       ; 22 keys
         defb    (DeadTable - SqrTable - 1)/2
         defb    $1b,$b4         ; esc   b4
