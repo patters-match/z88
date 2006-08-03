@@ -87,9 +87,9 @@ xref    TimeReset                               ; bank7/timeres.asm
         ex      af, af'
 
         dec     a                               ; only clear b20
-        ld      bc, $3DFF                       ; from 0200-3FFF
-        ld      de, $4201                       ; 0000-01DF is overwritten by lowram.bin
-        ld      hl, $4200                       ; 01E0-01FF is preserved area
+        ld      bc, $3DF4                       ; from 020B-3FFF
+        ld      de, $420C                       ; 0000-01DF is overwritten by lowram.bin
+        ld      hl, $420B                       ; 01E0-020A is preserved area
         jr      b20_reset
 .b20_hard_reset
         ld      bc, $3FFF                       ; fill bank with 00

@@ -54,9 +54,7 @@ defc    OZVERSION               = $42           ; 4.2
 ;       01E0-01FF           Preserved system area (32 bytes preserved over a soft reset)
 
 defc    PreservedArea           =$01E0
-
 defvars PreservedArea
-        ubCountry               ds.b    1       ; for future use
         ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
         ubTIM0_A                ds.b    1       ; buffer A : TIM0-4 (was $00A1-$00A5)
         ubTIM1_A                ds.b    1
@@ -74,14 +72,19 @@ defvars PreservedArea
         SysTimeBuffer           ds.b    5
 enddef                                          ; 10 bytes are left in this area
 
-;       0200-03FF           System variable area
+defc    PanelSystemParameters   =$0200
+defvars PanelSystemParameters
+        ubResetType             ds.b    1       ; $00 hard / $FF soft
+        ubTimeout               ds.b    1       ; panel system parameters
+        ubRepeat                ds.b    1       ; "
+        cKeyclick               ds.b    1       ; "
+        cSound                  ds.b    1       ; "
+        ubBadSize               ds.b    1       ; "
+        ubCountry               ds.b    1       ; country code
+enddef                                          ; 4 more bytes are left here
+        
+;       020B-03FF           System variable area
 
-defc    ubResetType             =$0200
-defc    ubTimeout               =$0201
-defc    ubRepeat                =$0202
-defc    cKeyclick               =$0203
-defc    cSound                  =$0204
-defc    ubBadSize               =$0205
 defc    ubScreenBase            =$020b
 defc    KbdData                 =$0216          ; data on both negative and positive side
 defc    SerTXHandle             =$0229          ; on negative side!
