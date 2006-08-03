@@ -92,7 +92,7 @@ IF COMPILE_BINARY
 
         xdef    KeymapTable                     ; mth/keymap.asm
         
-        xdef    loc_CD42                        ; bank0/dor.asm
+        xdef    GetDORType                      ; bank0/dor.asm
         xdef    DORHandleFreeDirect             ; bank0/dor.asm
         xdef    DORHandleFree                   ; bank0/dor.asm
         xdef    DORHandleInUse                  ; bank0/dor.asm

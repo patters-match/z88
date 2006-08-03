@@ -14,7 +14,7 @@ xdef    DORHandleFree                           ; get rid of these two stubs
 xdef    DORHandleFreeDirect
 xdef    DORHandleInUse
 xdef    GetHandlePtr
-xdef    loc_CD42                                ; move this to InitHandle (misc1.asm)
+xdef    GetDORType
 xdef    OSDor
 xdef    VerifyHandleBank
 
@@ -707,7 +707,7 @@ xref    InitHandle                              ; bank7/misc1.asm
 ;OUT:   A=DOR type, Fz=1 if A=0
 ;chg:   AFBC..HL/....
 
-.loc_CD42
+.GetDORType
         call    MS2BankB
         ld      bc, DOR_TYPE
         add     hl, bc

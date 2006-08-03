@@ -13,7 +13,7 @@
 xdef    InitHandle                              ; OSDor, E9E8+D
 xdef    RAMxDOR                                 ; MountAllRAM
 
-xref    loc_CD42                                ; bank0/dor.asm
+xref    GetDORType                              ; bank0/dor.asm
 xref    S2VerifySlotType                        ; bank0/misc5.asm
 
 
@@ -53,7 +53,7 @@ xref    S2VerifySlotType                        ; bank0/misc5.asm
         and     $F8                             ; mask out low bits
         or      c                               ; low bits: RAM=01, others=11
         ld      (ix+dhnd_flags), a
-        jp      loc_CD42
+        jp      GetDORType
 
 ;       ----
 
