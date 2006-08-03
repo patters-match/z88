@@ -54,6 +54,7 @@ lstoff
      DEFC PA_Kcl   = $8003    ; Keyclick 'Y' or 'N'
      DEFC PA_Snd   = $8004    ; Sound 'Y' or 'N'
      DEFC PA_Bad   = $8005    ; Default bad process size in K
+     DEFC PA_Loc   = $8006    ; Country code (00-15)
      DEFC PA_Iov   = $8010    ; Insert/Overtype 'I' or 'O'
      DEFC PA_Dat   = $8011    ; Date format 'E' or 'A'
      DEFC PA_Map   = $8012    ; PipeDream map 'Y' or 'N'
@@ -142,4 +143,23 @@ lstoff
           DEFC SP_Dir    = $8C03   ; Set current directory
           DEFC SP_Fnm    = $8C06   ; Set current name match
 
+    ; Country code:
+          
+          DEFC LO_US     = $00     ; USA
+          DEFC LO_FR     = $01     ; France
+          DEFC LO_DE     = $02     ; Germany
+          DEFC LO_UK     = $03     ; England
+          DEFC LO_DK     = $04     ; Denmark
+          DEFC LO_SE     = $05     ; Sweden
+          DEFC LO_IT     = $06     ; Italy
+          DEFC LO_SP     = $07     ; Spain
+          DEFC LO_JP     = $08     ; Japan
+          DEFC LO_IS     = $09     ; Iceland
+          DEFC LO_NO     = $0A     ; Norway
+          DEFC LO_CH     = $0B     ; Switzerland
+          DEFC LO_TR     = $0C     ; Turkey
+          DEFC LO_FI     = $0D     ; Finland
+          DEFC LO_14     = $0E     ; Reserved
+          DEFC LO_15     = $0F     ; Reserved
+          
 lston

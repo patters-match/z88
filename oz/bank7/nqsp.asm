@@ -228,9 +228,9 @@ xref    OSNqProcess                             ; bank7/process1.asm
 
 .NqPanel
         push    ix
-        ld      a, (iy+OSFrame_A)               ; clear buffer
+        ld      a, (iy+OSFrame_A)               ; A is data length
         ex      de, hl
-        call    ClearMemHL_A
+        call    ClearMemHL_A                    ; clear A bytes at HL (buffer)
 
         ld      a, c                            ; reason low byte $00-59 or $80-b7
         cp      $B8
