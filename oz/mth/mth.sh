@@ -23,7 +23,11 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -bg -I../sysdef lores1.asm
+../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_UK.asm
+../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_FR.asm
+../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_DE.asm
+../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_DK.asm
+../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_FI.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
@@ -37,7 +41,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap.asm
+../../tools/mpm/mpm -bg -I../sysdef lores1.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.

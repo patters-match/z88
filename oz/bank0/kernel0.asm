@@ -93,8 +93,6 @@ IF COMPILE_BINARY
         
         xdef    Key2Chr_tbl                     ; bank7/key2chrt.asm
         
-;        xdef    KeymapTable                     ; mth/keymap.asm
-        
         xdef    OSMap                           ; bank7/osmap.asm
         
         xdef    OSSci                           ; bank7/ossci.asm
@@ -102,5 +100,5 @@ IF COMPILE_BINARY
         xdef    OSCli                           ; bank7/oscli.asm
 
         include "../bank7/kernel7.def"          ; get kernel references from bank 7 and map them into bank 0 project...
-;        include "../mth/keymap.def"             ; get references for keymaps in MTH bank and bind them into bank 0 project...
+
 ENDIF

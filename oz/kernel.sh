@@ -40,6 +40,12 @@ if test "$COMPILE_ERROR" -eq 0; then
   cd bank7
   ../../tools/mpm/mpm -g -I../sysdef @lowram.prj
   cd ..
+  cd mth
+  ../../tools/mpm/mpm -bg -I../sysdef keymap_UK.asm
+  ../../tools/mpm/mpm -bg -I../sysdef keymap_FR.asm
+  ../../tools/mpm/mpm -bg -I../sysdef keymap_DE.asm
+  ../../tools/mpm/mpm -bg -I../sysdef keymap_DK.asm
+  ../../tools/mpm/mpm -bg -I../sysdef keymap_FI.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
