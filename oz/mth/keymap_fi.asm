@@ -51,7 +51,7 @@ xdef    Keymap_FI
         defb    $3d,$3c, $a3,$7e                        ; = <   £ ~
         defb    $a5,$ab         ; ö Ö
         defb    $a6,$ac         ; ä Ä
-        defb    $da,$dd         ; å Å
+        defb    $da,$ea         ; å Å
 
 .DmndTable
         defb    (SqrTable - DmndTable - 1)/2

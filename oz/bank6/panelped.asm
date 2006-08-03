@@ -2652,17 +2652,18 @@ enddef
         ret
 
 .PanelTbl
-        defb    $42,$20,2,$80|0,<PA_Rep
-        defb    $42,$21,3,$40|0,<PA_Kcl
-        defb    $42,$22,8,$40|2,<PA_Iov
+        defb    $42,$20,14,$40|10,<PA_Loc
+        defb    $42,$21,2,$80|0,<PA_Rep
+        defb    $42,$22,3,$40|0,<PA_Kcl
+        defb    $42,$23,8,$40|2,<PA_Iov
+        defb    $42,$24,2,$80|0,<PA_Mct
         defb    $42,$26,57,$10|0,<PA_Dev
         defb    $42,$27,57,$10|0,<PA_Dir
 
-        defb    $5C,$20,2,$80|0,<PA_Mct
-        defb    $5C,$21,3,$40|0,<PA_Snd
-        defb    $5C,$22,3,$40|0,<PA_Map
-        defb    $5C,$23,3,$80|0,<PA_Msz
-        defb    $5C,$24,8,$40|4,<PA_Dat
+        defb    $5C,$20,3,$40|0,<PA_Snd
+        defb    $5C,$21,3,$40|0,<PA_Map
+        defb    $5C,$22,3,$80|0,<PA_Msz
+        defb    $5C,$23,8,$40|4,<PA_Dat
 
         defb    $76,$20,5,$80|8,<PA_Txb
         defb    $76,$21,5,$80|8,<PA_Rxb
@@ -2673,19 +2674,20 @@ enddef
 .ShowPanel
         call    KPrint
         defm    $A0+0,$20+4,1,"T",1,"R"," CONTROL ",1,"T",1,"R"
-        defm    $A0+0,$20+17,"Auto repeat rate"
-        defm    $A0+0,$20+45,"Timeout (mins)"
+        defm    $A0+0,$20+25,"Keyboard"
+        defm    $A0+0,$20+54,"Sound"
         defm    $A0+0,$20+67,"Transmit baud rate"
         defm    $A0+1,$20+5,1,"T",1,"R"," PANEL ",1,"T",1,"R"
-        defm    $A0+1,$20+25,"Keyclick"
-        defm    $A0+1,$20+54,"Sound"
+        defm    $A0+1,$20+17,"Auto repeat rate"
+        defm    $A0+1,$20+56,"Map"
         defm    $A0+1,$20+68,"Receive baud rate"
-        defm    $A0+2,$20+18,"Insert/Overtype"
-        defm    $A0+2,$20+56,"Map"
+        defm    $A0+2,$20+25,"Keyclick"
+        defm    $A0+2,$20+51,"Map size"
         defm    $A0+2,$20+79,"Parity"
-        defm    $A0+3,$20+51,"Map size"
+        defm    $A0+3,$20+18,"Insert/Overtype"
+        defm    $A0+3,$20+48,"Date format"
         defm    $A0+3,$20+77,"Xon/Xoff"
-        defm    $A0+4,$20+48,"Date format"
+        defm    $A0+4,$20+19,"Timeout (mins)"
         defm    $A0+6,$20+19,"Default device"
         defm    $A0+7,$20+16,"Default directory"
         defm    $A0+7,$20+1,1,"R",1,"T","ENTER to update",1,"R",1,"T"
@@ -2698,6 +2700,7 @@ enddef
         defw    FormatTxt_tbl
         defw    ParityTxt_tbl
         defw    BaudTxt_tbl
+        defw    Keymap_tbl
 
 .YesNoTxt_tbl
         defm    "Yes",0
@@ -2731,4 +2734,12 @@ enddef
         defm    "600",0
         defm    "1200",0
         defm    "2400",0
+        defm    -1
+
+.Keymap_tbl
+        defm    "UK/US",0
+        defm    "France",0
+        defm    "Denmark/Norway",0
+        defm    "Sweden/Finland",0
+        defm    "Germany",0
         defm    -1

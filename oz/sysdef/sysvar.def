@@ -49,7 +49,7 @@ lstoff
 
 ; Constants are all uppercase
 
-defc    OZVERSION               = $42           ; 4.2
+defc    OZVERSION               = $43           ; 4.3 is international dev
 
 ;       01E0-01FF           Preserved system area (32 bytes preserved over a soft reset)
 
@@ -72,7 +72,7 @@ defvars PreservedArea
         SysTimeBuffer           ds.b    5
 enddef                                          ; 10 bytes are left in this area
 
-defc    PanelSystemParameters   =$0200
+defc    PanelSystemParameters   =$0200          ; never change this!
 defvars PanelSystemParameters
         ubResetType             ds.b    1       ; $00 hard / $FF soft
         ubTimeout               ds.b    1       ; panel system parameters

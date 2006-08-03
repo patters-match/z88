@@ -59,16 +59,11 @@ xref    OSSp_PAGfi                              ; bank0/pagfi.asm
 
 xref    RAMxDOR                                 ; bank7/misc1.asm
 xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
+xref    InitKbdPtrs                             ; bank7/nqsp.asm
 xref    InitData                                ; bank7/initdata.asm
 xref    LowRAMcode                              ; bank7/lowram0.asm
 xref    LowRAMcode_e                            ; bank7/lowram0.asm
 xref    TimeReset                               ; bank7/timeres.asm
-
-xref    Keymap_UK
-xref    Keymap_FR
-xref    Keymap_DE
-xref    Keymap_DK
-xref    Keymap_FI
 
 ;       ----
 
@@ -219,10 +214,6 @@ xref    Keymap_FI
         ld      a,(ubResetType)
         or      a
         call    nz, PreserveSystemPanel         ; restore preserved system panel values
-        call    RstRdPanelAttrs                 ; PA_Gfi (or use default values)
-        
-        call    InitKbdPtrs                     ; initialise keymap pointers in Ram
-
         call    TimeReset
         call    MountAllRAM
 
@@ -236,7 +227,7 @@ xref    Keymap_FI
         ld      l, SI_HRD
         OZ      OS_Si                           ; hard reset serial interface
 
-        call    OSSp_PAGfi
+        call    OSSp_PAGfi                      ; initialize panel values and keymap then serial port
         ei
 
 .infinity
@@ -290,59 +281,3 @@ xref    Keymap_FI
         pop     bc
         ret
 
-; ---------------------------------------------------------------------------
-; Init ram vars of keyboard code
-; IN :  H keymap page (always $xx00)
-;       L keymap bank (the mth bank)
-; OUT:  AFHL changed, BCDEIXIY preserved
-;
-.InitKbdPtrs
-        ld      a,(ubCountry)
-        ld      b, 0
-        ld      c, a
-        ld      hl, KeymapTable
-        add     hl, bc
-        ld      h, (hl)                         ; keymap page
-        ld      b, KEYMAP_BANK                  ; bind keymap bank
-        ld      l, b                            ; for storing below
-        ld      c, 1                            ; in s1
-        rst     OZ_MPB
-        push    bc                              ; preserve previous binding
-        res     6, h                            ; assume page mask is in s2
-        set     7, h
-        ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
-                                                ; $page00 is matrix, $page40 is shift table
-
-        ld      de, KeymapTblPtrs+KMT_DIAMOND   ; +2
-        set     6, h                            ; assume page mask is in s1
-        res     7, h
-        ld      l, $40                          ; ShiftTable start=length of shift table
-        ld      b, KMT_DEADKEY-1                ; 4-1=3 loops, (diamondtable, squaretable and deadtable)
-.ikp_1  ld      a, (hl)                         ; table size
-        sll     a                               ; *2+1
-        add     a, l                            ; skip table
-        ld      l, a
-        ld      (de), a                         ; and store pointer
-        inc     de
-        djnz    ikp_1
-        pop     bc                              ; previous s2 binding
-        rst     OZ_MPB
-        ret
-
-.KeymapTable
-        defb    >Keymap_UK                      ; US
-        defb    >Keymap_FR                      ; FR
-        defb    >Keymap_DE                      ; DE
-        defb    >Keymap_UK                      ; UK
-        defb    >Keymap_DK                      ; DK
-        defb    >Keymap_FI                      ; SE
-        defb    >Keymap_UK                      ; IT Not implemented
-        defb    >Keymap_UK                      ; SP Not implemented
-        defb    >Keymap_UK                      ; JP Not implementable
-        defb    >Keymap_UK                      ; IS Not implemented
-        defb    >Keymap_DK                      ; NO
-        defb    >Keymap_FR                      ; CH Not implemented
-        defb    >Keymap_UK                      ; TR Not implementable
-        defb    >Keymap_FI                      ; FI
-        defb    >Keymap_UK                      ; Reserved
-        defb    >Keymap_UK                      ; Reserved

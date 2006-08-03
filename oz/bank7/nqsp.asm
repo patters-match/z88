@@ -36,11 +36,12 @@
         include "error.def"
         include "syspar.def"
         include "sysvar.def"
+        include "memory.def"
 
 xdef    OSSpMain
 xdef    OSNqMain
 xdef    RstRdPanelAttrs
-
+xdef    InitKbdPtrs
 
 xref    ClearMemHL_A                            ; bank0/misc5.asm
 xref    CopyMemDE_HL                            ; bank0/misc5.asm
@@ -71,6 +72,11 @@ xref    ScrD_GetMargins                         ; bank7/scrdrv1.asm
 xref    GetCrsrYX                               ; bank7/scrdrv1.asm
 xref    OSNqProcess                             ; bank7/process1.asm
 
+xref    Keymap_UK
+xref    Keymap_FR
+xref    Keymap_DE
+xref    Keymap_DK
+xref    Keymap_FI
 
 
 .OSNqWindow
@@ -698,7 +704,7 @@ xref    OSNqProcess                             ; bank7/process1.asm
 .defKcl         defb    'N'
 .defSnd         defb    'Y'
 .defBad         defb    40
-.defLoc         defb    LOC_UK                  ; default keyboad is UK
+.defLoc         defb    'U'                     ; default keyboad is UK
 .defIov         defb    'I'
 .defDat         defb    'E'
 .defMap         defb    'Y'
@@ -810,9 +816,8 @@ xref    OSNqProcess                             ; bank7/process1.asm
 ;
 ;
 .RstRdPanelAttrs
-        push    bc
         ld      bc, PA_Loc
-        ld      d, 2                            ; store at $02xx (cf. sysvar.def)
+        ld      d, >PanelSystemParameters       ; store at $02xx (cf. sysvar.def)
 
 .rrpa_1
         ld      a, 1                            ; length is 1 byte for each value
@@ -820,5 +825,51 @@ xref    OSNqProcess                             ; bank7/process1.asm
         OZ      OS_Nq                           ; enquire (fetch) parameter
         dec     c
         jr      nz, rrpa_1
-        pop     bc
+
+        ld      a, (ubCountry)                  ; get PA_Loc quickly
+        ld      hl, KeymapTable
+        ld      b, (hl)                         ; number of entries
+        inc     hl
+.SearchKeymap
+        cp      (hl)
+        jr      z, KeymapFound
+        inc     hl
+        inc     hl
+        djnz    SearchKeymap
+        ld      hl, KeymapTable+1                 ; use default (first) if not found
+.KeymapFound
+        inc     hl
+        ld      h, (hl)                         ; keymap page
+        ld      b, KEYMAP_BANK                  ; bind keymap bank
+        ld      l, b                            ; for storing below
+        ld      c, 1                            ; in s1
+        rst     OZ_MPB
+        push    bc                              ; preserve previous binding
+        res     6, h                            ; assume page mask is in s2
+        set     7, h
+        ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
+                                                ; $page00 is matrix, $page40 is shift table
+
+        ld      de, KeymapTblPtrs+KMT_DIAMOND   ; +2
+        set     6, h                            ; assume page mask is in s1
+        res     7, h
+        ld      l, $40                          ; ShiftTable start=length of shift table
+        ld      b, KMT_DEADKEY-1                ; 4-1=3 loops, (diamondtable, squaretable and deadtable)
+.ikp_1  ld      a, (hl)                         ; table size
+        sll     a                               ; *2+1
+        add     a, l                            ; skip table
+        ld      l, a
+        ld      (de), a                         ; and store pointer
+        inc     de
+        djnz    ikp_1
+        pop     bc                              ; previous s2 binding
+        rst     OZ_MPB
         ret
+
+.KeymapTable
+        defb    5                               ; number of keymaps
+        defb    'U',>Keymap_UK                  ; UK/US (default)
+        defb    'F',>Keymap_FR                  ; FR
+        defb    'D',>Keymap_DK                  ; DK/NO
+        defb    'S',>Keymap_FI                  ; SE/FI
+        defb    'G',>Keymap_DE                  ; DK

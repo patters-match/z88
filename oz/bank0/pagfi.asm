@@ -20,7 +20,7 @@ xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
 
 .OSSp_PAGfi
         push    ix
-        call    RstRdPanelAttrs
+        call    RstRdPanelAttrs                 ; store panel and init keymap
 
         ld      l, SI_SFT
         OZ      OS_Si
