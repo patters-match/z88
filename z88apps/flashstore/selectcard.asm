@@ -39,8 +39,8 @@ Module SelectCard
      XREF FlashWriteSupport             ; format.asm
      XREF execute_format, noformat_msg  ; format.asm
      XREF CheckFlashCardID              ; format.asm
-     XREF FileEpromStatistics,DispKSize ; filestat.asm
-     XREF m16, ksize_txt                ; filestat.asm
+     XREF FileEpromStatistics           ; filestat.asm
+     XREF m16, ksize_txt, intAscii      ; filestat.asm
      XREF PollFileCardWatermark         ; browse.asm
      XREF FilesAvailable,DispFilesWindow ; browse.asm
      XREF InitFirstFileBar              ; browse.asm
@@ -116,6 +116,9 @@ Module SelectCard
 .disp_slot_loop
                     ld   (curslot),a
 
+                    ld   hl,buffer
+                    ld   (vdubufptr),hl      ; use 16K buffer for temporary VDU sequence caching
+
                     ld   c,a
                     call FlashWriteSupport
                     jp   z, flashcard_detected
@@ -129,16 +132,16 @@ Module SelectCard
                          dec  c
                          inc  b
                          inc  b
-                         CALL VduCursor
+                         CALL CacheVduCursor
                          EX   DE,HL          ; HL = free 256 bytes pages on RAM Card
                          LD   DE,4           ; HL / 4 = free space in K
                          CALL_OZ(GN_D16)
                          EX   DE,HL
                          LD   HL, freetxt
-                         CALL_OZ(Gn_Sop)
-                         CALL DispKSize      ; display free space in DE
+                         CALL CacheVduString
+                         CALL CachedDispKSize     ; display free space in DE
                          LD   HL, ksize_txt
-                         CALL_OZ(Gn_sop)
+                         CALL CacheVduString
                          jp   nextline
 .poll_for_rom_card
                     ld   h,c                      ; preserve a copy of slot number...
@@ -151,11 +154,11 @@ Module SelectCard
                          dec  c
                          inc  b
                          inc  b
-                         CALL VduCursor
+                         CALL CacheVduCursor
                          ld   hl, appstxt
-                         call_oz(Gn_Sop)
+                         CALL CacheVduString
                          inc  b
-                         CALL VduCursor
+                         CALL CacheVduCursor
                          push bc
                          call GetCurrentSlot      ; C = (curslot)
                          call FileEprRequest
@@ -164,12 +167,12 @@ Module SelectCard
                          jr   c, eprom_nofiles    ; the Eprom Application Card had no file area...
                          jr   nz, eprom_nofiles
                          ld   hl, freetxt
-                         call_oz(Gn_Sop)          ; display size of sub file area in K on Eprom
+                         CALL CacheVduString      ; display size of sub file area in K on Eprom
                          call DispFreeSpace
                          jp   nextline
 .eprom_nofiles
                          ld   hl, nofilestxt
-                         call_oz(Gn_Sop)
+                         CALL CacheVduString
                          jp   nextline
 .poll_for_eprom_card
                     ld   c,h                      ; poll slot C...
@@ -184,9 +187,9 @@ Module SelectCard
                          dec  c
                          inc  b
                          inc  b
-                         CALL VduCursor
+                         CALL CacheVduCursor
                          ld   hl, freetxt        ; display "Files xxxxK"
-                         call_oz(Gn_Sop)
+                         CALL CacheVduString
                          ld   a,(free)
                          call DispFreeSpace
                          jp   nextline
@@ -200,9 +203,9 @@ Module SelectCard
                     LD   A,B
                     ADD  A,3
                     LD   B,A
-                    CALL VduCursor
+                    CALL CacheVduCursor
                     ld   hl, emptytxt             ; and write "empty slot" in the middle of the grey box
-                    call_oz(Gn_Sop)
+                    CALL CacheVduString
                     jr   nextline
 .flashcard_detected
                     ld   a,b
@@ -231,12 +234,12 @@ Module SelectCard
                     ld   a,c
                     pop  bc
                     jr   c, flash_noapps
-                         CALL VduCursor
+                         CALL CacheVduCursor
                          ld   hl, appstxt
-                         call_oz(Gn_Sop)
-                         inc  b                    ; prepare for "files " text
+                         CALL CacheVduString
+                         inc  b                   ; prepare for "files " text
 .flash_noapps
-                    CALL VduCursor
+                    CALL CacheVduCursor
                     push bc
                     call GetCurrentSlot           ; C = (curslot)
                     call FileEprRequest
@@ -245,13 +248,16 @@ Module SelectCard
                     jr   c, flash_nofiles
                     jr   nz, flash_nofiles
                          ld   hl, freetxt
-                         call_oz(Gn_Sop)
+                         CALL CacheVduString
                          call DispFreeSpace
                          jr   nextline
 .flash_nofiles
                          ld   hl, nofilestxt
-                         call_oz(Gn_Sop)
+                         CALL CacheVduString
 .nextline
+                    ld   hl, buffer
+                    call_oz(Gn_Sop)              ; display cached VDU sequences (the current card box)
+
                     ld   a,(curslot)
                     dec  a
                     cp   $ff
@@ -299,13 +305,13 @@ Module SelectCard
 .DisplayCard
                     CALL SlotCardBoxCoord
                     CALL DrawCardBox
-                    INC  B              ; Y++
+                    INC  B                      ; Y++
                     INC  C
                     INC  C
-                    CALL VduCursor
-                    CALL_OZ Gn_Sop      ; display device name (in HL)...
+                    CALL CacheVduCursor
+                    CALL CacheVduString         ; display device name (in HL)...
                     LD   A,(free)
-                    call DispSlotSize   ; C = size of slot in 16K banks
+                    call DispSlotSize           ; C = size of slot in 16K banks
                     RET
 .DispSlotSize
                     push bc
@@ -315,10 +321,10 @@ Module SelectCard
                     LD   H,0
                     LD   L,A
                     CALL m16
-                    EX   DE,HL          ; size in DE...
-                    CALL DispKSize
+                    EX   DE,HL                  ; size in DE...
+                    CALL CachedDispKSize
                     ld   a,'K'
-                    call_oz(OS_Out)
+                    CALL CacheVduChar
 
                     pop  hl
                     pop  de
@@ -327,19 +333,19 @@ Module SelectCard
 .DispFreeSpace
                     push bc
                     push hl
-                    call GetCurrentSlot ; C = (curslot)
+                    call GetCurrentSlot         ; C = (curslot)
                     call FileEprFreeSpace
                     push bc
                     pop  hl
-                    ld   b,e            ; DEBC -> BHL
+                    ld   b,e                    ; DEBC -> BHL
                     ld   c,0
-                    ld   de,1024        ; BHL / 1024
+                    ld   de,1024                ; BHL / 1024
                     CALL_OZ(Gn_D24)
                     ex   de,hl
                     inc  de
-                    call DispKSize      ; no. of K free
+                    call CachedDispKSize        ; no. of K free
                     ld   a, 'K'
-                    call_oz OS_Out
+                    CALL CacheVduChar
                     pop  hl
                     pop  bc
                     ret
@@ -527,32 +533,32 @@ Module SelectCard
 
                     BIT  0,A
                     JR   Z, use_nocursor
-                    LD   HL, greyfont   ; draw the card box in grey colour.
-                    CALL_OZ GN_Sop
+                    LD   HL, greyfont           ; draw the card box in grey colour.
+                    CALL CacheVduString
 .use_nocursor
                     LD   HL, nocursor
-                    CALL_OZ GN_Sop
+                    CALL CacheVduString
 
-                    CALL VduCursor      ; set VDU Cursor at (Y,X)
-                    LD   HL,cardtop     ; draw top edge of card box
-                    CALL_OZ GN_Sop
+                    CALL CacheVduCursor        ; set VDU Cursor at (Y,X)
+                    LD   HL,cardtop             ; draw top edge of card box
+                    CALL CacheVduString
 
                     POP  AF
                     PUSH AF
-                    BIT  3,A            ; display Flash card label?
+                    BIT  3,A                    ; display Flash card label?
                     JR   Z, draw_sides
                     INC  C
                     INC  C
-                    CALL VduCursor      ; set VDU Cursor at (Y,X+1)
+                    CALL CacheVduCursor        ; set VDU Cursor at (Y,X+1)
                     EX   DE,HL
-                    CALL_OZ GN_Sop
+                    CALL CacheVduString
                     DEC  C
                     DEC  C
 .draw_sides
-                    INC  B              ; Y++
+                    INC  B                      ; Y++
                     CALL DrawCardSides
-                    INC  B              ; Y++
-                    CALL VduCursor      ; set VDU Cursor at (Y,X)
+                    INC  B                      ; Y++
+                    CALL CacheVduCursor        ; set VDU Cursor at (Y,X)
                     POP  AF
                     PUSH AF
                     BIT  1,A
@@ -560,47 +566,48 @@ Module SelectCard
                     CALL DrawCardSides
                     JR   next_cardside
 .draw_middleline
-                    LD   HL,cardmiddle  ; draw middle line of card box
-                    CALL_OZ GN_Sop
+                    LD   HL,cardmiddle          ; draw middle line of card box
+                    CALL CacheVduString
 .next_cardside
-                    INC  B              ; Y++
+                    INC  B                      ; Y++
                     CALL DrawCardSides
-                    INC  B              ; Y++
+                    INC  B                      ; Y++
                     CALL DrawCardSides
-                    INC  B              ; Y++
+                    INC  B                      ; Y++
                     CALL DrawCardSides
-                    INC  B              ; Y++
-                    CALL VduCursor      ; set VDU Cursor at (Y,X)
-                    LD   HL,cardbottom  ; draw bottom edge of card box
-                    CALL_OZ GN_Sop
+                    INC  B                      ; Y++
+                    CALL CacheVduCursor        ; set VDU Cursor at (Y,X)
+                    LD   HL,cardbottom          ; draw bottom edge of card box
+                    CALL CacheVduString
 
                     LD   HL, nogreyfont
-                    CALL_OZ GN_Sop
+                    CALL CacheVduString
                     LD   HL, notinyfont
-                    CALL_OZ GN_Sop
+                    CALL CacheVduString
 
                     LD   A,C
-                    ADD  A,9            ; (Y,X+9)
+                    ADD  A,9                    ; (Y,X+9)
                     LD   C,A
-                    CALL VduCursor      ; set VDU cursor for slot number (bottom right edge)
+                    CALL CacheVduCursor        ; set VDU cursor for slot number (bottom right edge)
                     LD   A,32
-                    CALL_OZ OS_Out
+                    CALL CacheVduChar
                     LD   A,(curslot)
-                    ADD  A,48           ; -> Ascii slot number
-                    CALL_OZ OS_Out
+                    ADD  A,48                   ; -> Ascii slot number
+                    CALL CacheVduChar
                     LD   A,32
-                    CALL_OZ OS_Out
+                    CALL CacheVduChar
 
                     POP  AF
                     PUSH AF
                     BIT  2,A
                     JR   Z, exit_DrawCardBox
+
                     LD   A,C
-                    SUB  A,7            ; (Y,X+7)
+                    SUB  A,7                    ; (Y,X+7)
                     LD   C,A
-                    CALL VduCursor
+                    CALL CacheVduCursor
                     LD   HL, padlock
-                    CALL_OZ GN_Sop
+                    CALL CacheVduString
 .exit_DrawCardBox
                     POP  AF
                     POP  HL
@@ -608,16 +615,16 @@ Module SelectCard
                     RET
 ; BC = Y,X
 .DrawCardSides      PUSH BC
-                    CALL VduCursor      ; set VDU Cursor at (Y,X)
+                    CALL CacheVduCursor        ; set VDU Cursor at (Y,X)
                     LD   HL, cardside
                     PUSH HL
-                    CALL_OZ GN_Sop      ; draw left side
+                    CALL CacheVduString         ; draw left side
                     LD   A,C
                     ADD  A,13
                     LD   C,A
-                    CALL VduCursor      ; set VDU Cursor at (Y,X+13)
+                    CALL CacheVduCursor        ; set VDU Cursor at (Y,X+13)
                     POP  HL
-                    CALL_OZ GN_Sop      ; draw right side
+                    CALL CacheVduString         ; draw right side
                     POP  BC
                     RET
 ; *************************************************************************************
@@ -628,17 +635,99 @@ Module SelectCard
 ; B = Y window coordinate, C = X window Coordinate
 .VduCursor          PUSH AF
                     PUSH HL
-                    LD   HL, xypos
-                    CALL_OZ GN_Sop
-                    LD   A,C            ; X
-                    ADD  A,32
-                    CALL_OZ OS_Out
-                    LD   A,B            ; Y
-                    ADD  A,32
-                    CALL_OZ OS_Out
+
+                    LD   HL,$1800       ; temp buffer at bottom of system stack
+                    LD   (vdubufptr),HL
+                    CALL CacheVduCursor
+                    CALL_OZ GN_Sop      ; execute VDU
+
                     POP  HL
                     POP  AF
                     RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Place window cursor at (Y,X)
+; B = Y window coordinate, C = X window Coordinate
+.CacheVduCursor     PUSH AF
+                    PUSH HL
+
+                    LD   HL, xypos
+                    CALL CacheVduString
+                    LD   A,C            ; X
+                    ADD  A,32
+                    CALL CacheVduChar
+                    LD   A,B            ; Y
+                    ADD  A,32
+                    CALL CacheVduChar
+
+                    POP  HL
+                    POP  AF
+                    RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+.CachedDispKSize    LD   B,D
+                    LD   C,E
+                    LD   HL,2
+                    CALL IntAscii
+                    CALL CacheVduString
+                    RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Cache VDU sequence in buffer pointed to by (vdubufptr)
+;
+; IN:
+;       HL = local pointer to null-terminated VDU sequence
+; OUT:
+;       HL points at null-terminator of string
+;
+.CacheVduString
+                   PUSH AF
+                   PUSH DE
+
+                   LD   DE,(vdubufptr)
+.cache_loop
+                   LD   A,(HL)
+                   LD   (DE),A
+                   OR   A
+                   JR   Z, exit_CacheVdu
+                   INC  DE
+                   INC  HL
+                   JR   cache_loop
+.exit_CacheVdu
+                   LD   (vdubufptr),DE  ; updated VDU Cache pointer
+                   POP  DE
+                   POP  AF
+                   RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Cache VDU character in buffer pointed to by (vdubufptr)
+;
+; IN:
+;       A = char
+; OUT:
+;
+.CacheVduChar
+                   PUSH AF
+                   PUSH DE
+
+                   LD   DE,(vdubufptr)
+                   LD   (DE),A
+                   INC  DE
+                   XOR  A
+                   LD   (DE),A          ; null-terminate by default
+                   LD   (vdubufptr),DE  ; updated VDU Cache pointer
+
+                   POP  DE
+                   POP  AF
+                   RET
 ; *************************************************************************************
 
 

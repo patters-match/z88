@@ -53,6 +53,7 @@ DEFVARS $2000
      flashid        ds.w 1              ; the manufacturer and device code of the flash card in current slot
      watermark      ds.b 5              ; the current File Area watermark (File Header Ramdom ID & size of banks)
      ramdevno       ds.b 1              ; the default Ascii RAM Device slot number ('0' - '3').
+     vdubufptr      ds.w 1              ; VDU buffer pointer for accumulated VDU sequenses (buid up VDU codes, ending with GN_Sop)
 }
 
 ; Status flags
