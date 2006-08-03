@@ -51,7 +51,6 @@ include "memory.def"
 xdef    ExtKbMain                               ; was KbMain
 xdef    ExtQualifiers                           ; was ApplyQualifiers
 xdef    ExtIsForeignKey                         ; is key a special foreign char
-xdef    InitKbdPtrs
 
 xref    BufWrite                                ; bank0/buffer.asm
 xref    SwitchOff                               ; bank0/nmi.asm
@@ -939,39 +938,4 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 .si_dm  sub     c                               ; <> c1-c7 f4-f7
 .si_sh  sub     c                               ; sh d1-d7 f8-fb
         ret
-
-; ---------------------------------------------------------------------------
-; Init ram vars of keyboard code
-; IN :  H keymap page (always $xx00)
-;       L keymap bank (the mth bank)
-; OUT:  AFHL changed, BCDEIXIY preserved
-;
-.InitKbdPtrs
-        push    bc
-        push    de
-        ld      b, l                            ; l is mth bank
-        ld      c, 2                            ; in s2
-        rst     OZ_MPB
-        push    bc                              ; preserve previous binding
-        res     6, h                            ; assume page mask is in s2
-        set     7, h
-        ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
-                                                ; $page00 is matrix, $page40 is shift table
-
-        ld      de, KeymapTblPtrs+KMT_DIAMOND   ; +2
-        ld      l, $40                          ; ShiftTable start=length of shift table
-        ld      b, KMT_DEADKEY-1                ; 4-1=3 loops, (diamondtable, squaretable and deadtable)
-.ikp_1  ld      a, (hl)                         ; table size
-        sll     a                               ; *2+1
-        add     a, l                            ; skip table
-        ld      l, a
-        ld      (de), a                         ; and store pointer
-        inc     de
-        djnz    ikp_1
-        pop     bc                              ; previous s2 binding
-        rst     OZ_MPB
-        pop     de
-        pop     bc
-        ret
-
 

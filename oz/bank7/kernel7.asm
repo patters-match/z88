@@ -88,8 +88,6 @@ IF COMPILE_BINARY
         xdef    FirstFreeRAM                    ; bank0/memory.asm
         xdef    MountAllRAM                     ; bank0/memory.asm
         
-        xdef    InitKbdPtrs                     ; bank0/kbd.asm
-
         xdef    KeymapTable                     ; mth/keymap.asm
         
         xdef    GetDORType                      ; bank0/dor.asm
