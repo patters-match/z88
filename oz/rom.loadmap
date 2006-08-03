@@ -52,9 +52,9 @@ bank3/calc.bin 033300                           ; $F300: Calculator popdown
 banks45/pipedream.bn0 040000
 banks45/pipedream.bn1 050000
 
-; PrinterEd, Panel and BBC BASIC
+; PrinterEd, Panel
 bank6/panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
-bank6/basic.dat 061200                          ; $D200: BBC BASIC application
+
 
 ; kernel lower part (addressed from $8000 upwards)
 bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel OS
@@ -69,3 +69,6 @@ mth/hires1.bin 080800                           ; the HIRES1 font bitmap (OZ win
 mth/lores1.bin 081000                           ; the LORES1 font bitmap (Normal, Bold, Tiny, Symbol)
 mth/mth.bin 082000                              ; the System Token Table, MTH static structures and application DORs
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
+
+; BBC Basic application
+basic/basic.dat 091200                          ; $D200: BBC BASIC application
