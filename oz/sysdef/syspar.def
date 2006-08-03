@@ -145,21 +145,21 @@ lstoff
 
     ; Country code:
           
-          DEFC LO_US     = $00     ; USA
-          DEFC LO_FR     = $01     ; France
-          DEFC LO_DE     = $02     ; Germany
-          DEFC LO_UK     = $03     ; England
-          DEFC LO_DK     = $04     ; Denmark
-          DEFC LO_SE     = $05     ; Sweden
-          DEFC LO_IT     = $06     ; Italy
-          DEFC LO_SP     = $07     ; Spain
-          DEFC LO_JP     = $08     ; Japan
-          DEFC LO_IS     = $09     ; Iceland
-          DEFC LO_NO     = $0A     ; Norway
-          DEFC LO_CH     = $0B     ; Switzerland
-          DEFC LO_TR     = $0C     ; Turkey
-          DEFC LO_FI     = $0D     ; Finland
-          DEFC LO_14     = $0E     ; Reserved
-          DEFC LO_15     = $0F     ; Reserved
+          DEFC LOC_US     = $00     ; USA
+          DEFC LOC_FR     = $01     ; France
+          DEFC LOC_DE     = $02     ; Germany
+          DEFC LOC_UK     = $03     ; England
+          DEFC LOC_DK     = $04     ; Denmark
+          DEFC LOC_SE     = $05     ; Sweden
+          DEFC LOC_IT     = $06     ; Italy
+          DEFC LOC_SP     = $07     ; Spain
+          DEFC LOC_JP     = $08     ; Japan
+          DEFC LOC_IS     = $09     ; Iceland
+          DEFC LOC_NO     = $0A     ; Norway
+          DEFC LOC_CH     = $0B     ; Switzerland
+          DEFC LOC_TR     = $0C     ; Turkey
+          DEFC LOC_FI     = $0D     ; Finland
+          DEFC LOC_14     = $0E     ; Reserved
+          DEFC LOC_15     = $0F     ; Reserved
           
 lston
