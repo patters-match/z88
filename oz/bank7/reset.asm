@@ -39,6 +39,7 @@
         include "sysvar.def"
         include "director.def"
         include "serintfc.def"
+        include "syspar.def"
 
 xdef    Reset                                   ; bank0/boot.asm
 xdef    ExpandMachine                           ; bank0/cardmgr.asm
@@ -211,7 +212,10 @@ xref    TimeReset                               ; bank7/timeres.asm
 
         call    ExpandMachine                   ; move Lores0/Hires0 and mark more swap RAM if expanded
 
-        call    RstRdPanelAttrs                 ; until PA_Bad
+        ld      a,(ubResetType)
+        or      a
+        call    nz, PreserveSystemPanel         ; restore preserved system panel values
+        call    RstRdPanelAttrs                 ; PA_Gfi (or use default values)
         ld      hl, KeymapTable | KEYMAP_BANK   ; page | bank
         call    InitKbdPtrs                     ; initialise keymap pointers in Ram
 
@@ -268,4 +272,16 @@ xref    TimeReset                               ; bank7/timeres.asm
         ld      bc, $80
         jp      MarkSwapRAM                     ; b22/b41, 0000-7fff - 32KB more for bad apps
 
-        
+.PreserveSystemPanel
+        push    bc
+        ld      bc, PA_Loc
+        ld      h, 2                            ; preserved parameters are at $0201-$0206
+
+.psp_1
+        ld      a, 1                            ; length is 1 byte for each value
+        ld      l, c                            ; start with PA_Loc ($06) then downward
+        OZ      OS_Sp                           ; specify parameter
+        dec     c
+        jr      nz, psp_1
+        pop     bc
+        ret
