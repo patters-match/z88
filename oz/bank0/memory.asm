@@ -2253,7 +2253,7 @@ defc    DM_RAM                  =$81
         rrca
         or      $3f
         ld      (BLSC_SR2), a                   ; and bind into S2
-        out     (BL_SR2), a
+        out     (BL_SR2), a                     ; *** WE CANT USE MS2BankA (no stack when called from boot) ***
         ld      hl, ($bffe)                     ; last word
 
         ld      d, ST_EPROM
@@ -2275,10 +2275,10 @@ defc    DM_RAM                  =$81
         jr      nz, vst_2
 
         ld      a, ($bffc)                      ; card size
-        cpl
-        and     $3f
+        dec     a
+        and     $3F
         cp      e
-        ret     c                               ; size ok? ret
+        ret     nc                               ; size ok? ret
 
 .vst_2
         ld      d, ST_NOROM

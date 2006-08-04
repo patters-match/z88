@@ -4121,7 +4121,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      d, 3                            ; slot #
         ld      iy, mem_1fd6+3*12
 
-.crd_1
+.crd_1                                          ; slot loop
         ld      bc, -12
         add     iy, bc
         ld      e, 0                            ; bank
@@ -4130,7 +4130,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      bc, NQ_Slt
         OZ      OS_Nq                           ; read slot type information
         jr      c, crd_7                        ; no card?
-        and     ~$40
+        and     ~$40                            ; bit 5 unused by NQ_Slt
         jr      z, crd_6
 
         bit     7, a                            ; available RAM
@@ -4158,7 +4158,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 
 .crd_6
         inc     e
-        bit     6, e                            ; $40
+        bit     6, e                            ; $40, last bank reached ?
         jr      z, crd_2                        ; loop thru all banks
 
 .crd_7
@@ -4168,7 +4168,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      a, 2                            ; card display
         ld      (ubIdxActiveWindow),    a
         xor     a
-        ld      (byte_0E1D), a                  ; !! not used
+;        ld      (byte_0E1D), a                  ; !! not used
         ld      (ubIdxSelectorPos), a
         jp      loc_C0D6
 
