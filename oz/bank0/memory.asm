@@ -2260,13 +2260,13 @@ defc    DM_RAM                  =$81
         out     (BL_SR2), a                     ; WE CANT USE MS2BankA (no stack when called from boot)
         ld      hl, ($bffe)                     ; last word
 
-        ld      d, ST_EPROM
+        ld      d, BU_EPR                       ; 
         ld      bc, 'z'<<8|'o'
         sbc     hl, bc
         add     hl, bc
         jr      z, vst_1                        ; "oz" found
 
-        inc     d                               ; ST_APPLROM
+        inc     d                               ; BU_ROM
         ld      bc, 'Z'<<8|'O'
         or      a
         sbc     hl, bc
@@ -2287,7 +2287,7 @@ defc    DM_RAM                  =$81
         ret     c                               ; size ok? ret
 
 .vst_2
-        ld      d, ST_NOROM
+        ld      d, BU_NOT                       ; nothing inthe bank
         ret
         
 .MountAllRAM

@@ -74,8 +74,9 @@ lstoff
 
 ; Low level OZ memory organisation definitions:
 ; (these manifests represents bit identifiers in a configuration byte that
-; is (returned by OS_NQ, NQ_SLT):
+; is returned by OS_NQ, NQ_SLT):
 
+     DEFC BU_NOT = 0               ; bank is empty
      DEFC BU_EPR = 1               ; bank is EPROM
      DEFC BU_ROM = 2               ; bank is ROM
      DEFC BU_WRK = 4               ; work memory
@@ -84,4 +85,12 @@ lstoff
      DEFC BU_APL = 32              ; bank is application RAM
      DEFC BU_FRE = 128             ; bank is available RAM
 
+     DEFC BU_B_EPR = 0             ;
+     DEFC BU_B_ROM = 1             ;
+     DEFC BU_B_WRK = 2             ;
+     DEFC BU_B_FIX = 3             ;
+     DEFC BU_B_RES = 4             ;
+     DEFC BU_B_APL = 5             ;
+     DEFC BU_B_FRE = 7             ;
+     
 lston

@@ -8,6 +8,7 @@
 
         include "dor.def"
         include "error.def"
+        include "memory.def"
         include "sysvar.def"
 
 xdef    InitHandle                              ; OSDor, E9E8+D
@@ -151,10 +152,10 @@ xref    S2VerifySlotType                        ; bank0/misc5.asm
         cp      $84
         jr      nc, fhd_3                       ; not ROM0123? C=3
         exx
-        ld      d, a
-        ld      e, $3F
+        ld      d, a                            ; slot
+        ld      e, $3F                          ; test last bank
         call    S2VerifySlotType
-        bit     ST_B_APPLROM, d
+        bit     BU_B_ROM, d                     ; is application rom ?
         exx
         jr      z, fhd_1
 

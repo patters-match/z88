@@ -8,6 +8,7 @@
 
         include "blink.def"
         include "sysvar.def"
+        include "memory.def"
 
         org     $c000
 
@@ -84,7 +85,7 @@ xref    Reset                                   ; bank7/reset.asm
         jp      VerifySlotType                  ; ret to Bootstrap2
 
 .Bootstrap2
-        bit     1, d                            ; check for bootable ROM in slot 1
+        bit     BU_B_ROM, d                     ; check for bootable ROM in slot 1
         jr      z, rst1_2                       ; not application ROM? skip
         ld      a, ($bffd)                      ; subtype
         cp      'Z'

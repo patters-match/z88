@@ -775,16 +775,6 @@ defc    MM_B_FIX                =1
 defc    MM_B_SLT                =2
 defc    MM_B_MUL                =5
 
-;       slot type from VerifySlotType
-
-defc    ST_NOROM                =0
-defc    ST_EPROM                =1
-defc    ST_APPLROM              =2
-
-defc    ST_B_EPROM              =0
-defc    ST_B_APPLROM            =1
-
-
 ;       kernel module banks
 
 defc    ROMSIZE                 =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0

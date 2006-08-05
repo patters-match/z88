@@ -7,6 +7,7 @@
         Module Card1
 
         include "director.def"
+        include "memory.def"
         include "sysvar.def"
 
 xdef    StoreCardIDs
@@ -43,7 +44,7 @@ xref    OZwd_index                              ; bank0/ozwindow.asm
         ld      e, a
         exx
         call    S2VerifySlotType
-        bit     1, d
+        bit     BU_B_ROM, d                     ; application rom flag
         exx
         jr      z, scid_2                       ; not application rom? skip
 
@@ -92,7 +93,7 @@ xref    OZwd_index                              ; bank0/ozwindow.asm
         push    hl
         exx
         call    S2VerifySlotType
-        bit     ST_B_APPLROM, d
+        bit     BU_B_ROM, d
         jr      z, ccc_8                        ; not appl card? skip
 
         exx                                     ; compare IDs
