@@ -27,5 +27,4 @@
 ..\..\tools\mpm\mpm -b -I..\sysdef fpp.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef rs232.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef terminal.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef pedtrtbl.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef filer.asm

@@ -40,7 +40,7 @@ bank2/indexdc.bin 020000                        ; $C000: Index popdown (and DC l
 bank2/fpp.bin 021800                            ; $D800: Floating point Package
 bank2/rs232.bin 022500                          ; $A500: Serial Port Driver
 bank2/terminal.bin 0227f0                       ; $E7F0: Terminal Application
-bank2/pedtrtbl.bin 022998                       ; $E998: PrinterEd Translation Table
+;bank2/pedtrtbl.bin 022998                       ; $E998: PrinterEd Translation Table
 bank2/filer.bin 022ab1                          ; $EAB1: Filer Popdown
 
 ; GN system calls, Calculator, Printer filter management?
