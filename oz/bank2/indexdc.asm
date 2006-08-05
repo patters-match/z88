@@ -4168,7 +4168,6 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      a, 2                            ; card display
         ld      (ubIdxActiveWindow),    a
         xor     a
-;        ld      (byte_0E1D), a                  ; !! not used
         ld      (ubIdxSelectorPos), a
         jp      loc_C0D6
 

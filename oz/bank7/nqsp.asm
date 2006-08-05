@@ -817,7 +817,7 @@ xref    Keymap_FI
 ;
 .RstRdPanelAttrs
         ld      bc, PA_Loc
-        ld      d, >PanelSystemParameters       ; store at $02xx (cf. sysvar.def)
+        ld      d, >ubResetType                 ; store at $02xx (cf. sysvar.def)
 
 .rrpa_1
         ld      a, 1                            ; length is 1 byte for each value

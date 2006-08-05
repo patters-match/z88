@@ -29,8 +29,8 @@ lstoff
 ;
 ; $Id$
 ;***************************************************************************************************
-
-
+;
+;
 ;       variable prefix:
 ;
 ;       a       ASCII string
@@ -46,15 +46,13 @@ lstoff
 ;       sb      signed byte (8 bits)
 ;       ub      unsigned byte (8 bits)
 ;
-
+;
 ; Constants are all uppercase
 
-defc    OZVERSION               = $43           ; 4.3 is international dev
+defc    OZVERSION               = $42
 
-;       01E0-01FF           Preserved system area (32 bytes preserved over a soft reset)
-
-defc    PreservedArea           =$01E0
-defvars PreservedArea
+;       01E0-01FF       Preserved system area (32 bytes preserved over a soft reset)
+defvars $01E0
         ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
         ubTIM0_A                ds.b    1       ; buffer A : TIM0-4 (was $00A1-$00A5)
         ubTIM1_A                ds.b    1
@@ -72,8 +70,8 @@ defvars PreservedArea
         SysTimeBuffer           ds.b    5
 enddef                                          ; 10 bytes are left in this area
 
-defc    PanelSystemParameters   =$0200          ; never change this!
-defvars PanelSystemParameters
+;       0200-020A       Preserved panel system area (11 bytes preserved over a soft reset)
+defvars $0200
         ubResetType             ds.b    1       ; $00 hard / $FF soft
         ubTimeout               ds.b    1       ; panel system parameters
         ubRepeat                ds.b    1       ; "
@@ -231,35 +229,33 @@ defc    pEpr_FileHandle         =$0dc1
 ;       0dd0-0e07       Printer
 
 
-;       0e10-0ec9       Index
-
-defc    ubIdxPubFlags           =$0e10          ; was Flags1
-defc    ubIdxFlags2             =$0e11
-defc    ubIdxTopProcess         =$0e12
-defc    ubIdxNProcDisplayed     =$0e13
-defc    ubIdxTopApplication     =$0e14
-defc    ubIdxNApplDisplayed     =$0e15
-defc    ubIdxSelectorPos        =$0e16
-defc    ubIdxActiveWindow       =$0e17
-defc    Byte_0E18               =$0e18          ; !! unused
-defc    ubIdxErrorCode          =$0e19
-defc    ubIdxProcRmCount        =$0e1a
-defc    ubIdxDynamicID          =$0e1b
-defc    ubIdxOldProcRmCount     =$0e1c
-defc    byte_0E1D               =$0e1d          ; !! written to once but unused in Index/DC
-defc    pIdxMemHandle           =$0e1e
-defc    pIdxCurrentProcHandle   =$0e20
-defc    pIdxMyProcHandle        =$0e22          ; static handle of Index
-defc    pIdxRunProcIX           =$0e24
-defc    pIdxAutoRunAppl         =$0e26
-defc    eIdxCliList             =$0e28
-defc    eIdxProcList            =$0e2b
-defc    eIdxIndexProc           =$0e2e
-defc    eIdxRunProc             =$0e31
-defc    IdxKeyTable             =$0e34
-defc    IdxZKeyTable            =$0e66
-defc    IdxZZKeyTable           =$0e98
-                                ;$0eca
+;       0E10-0EC5       Index
+defvars $0E10
+        ubIdxPubFlags           ds.b    1
+        ubIdxFlags2             ds.b    1
+        ubIdxTopProcess         ds.b    1
+        ubIdxNProcDisplayed     ds.b    1
+        ubIdxTopApplication     ds.b    1
+        ubIdxNApplDisplayed     ds.b    1
+        ubIdxSelectorPos        ds.b    1
+        ubIdxActiveWindow       ds.b    1
+        ubIdxErrorCode          ds.b    1
+        ubIdxProcRmCount        ds.b    1
+        ubIdxDynamicID          ds.b    1
+        ubIdxOldProcRmCount     ds.b    1
+        pIdxMemHandle           ds.b    2
+        pIdxCurrentProcHandle   ds.b    2
+        pIdxMyProcHandle        ds.b    2       ; static handle of Index
+        pIdxRunProcIX           ds.b    2
+        pIdxAutoRunAppl         ds.b    2
+        eIdxCliList             ds.b    3
+        eIdxProcList            ds.b    3
+        eIdxIndexProc           ds.b    3
+        eIdxRunProc             ds.b    3
+        IdxKeyTable             ds.b    50
+        IdxZKeyTable            ds.b    50
+        IdxZZKeyTable           ds.b    50
+enddef                                          ; free at $0ec6, 8 bytes free here
 
 ;$0ece-0fa6     GN calls
 
