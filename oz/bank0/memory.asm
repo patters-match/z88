@@ -2243,9 +2243,13 @@ defc    DM_RAM                  =$81
 ;       Verify ROM/EPROMcard
 ;
 ;IN:    D=slot in low bits
-;       E=max bank size
+;       E=bank to test
 ;OUT:   D=card type
-
+;
+; *** IMPORTANT NOTE ***
+; This call must not use any stack related instruction
+; It is called on boot when there is still no stack set
+;
 
 .VerifySlotType
         ld      a, d                            ; get last bank in slot
@@ -2253,7 +2257,7 @@ defc    DM_RAM                  =$81
         rrca
         or      $3f
         ld      (BLSC_SR2), a                   ; and bind into S2
-        out     (BL_SR2), a                     ; *** WE CANT USE MS2BankA (no stack when called from boot) ***
+        out     (BL_SR2), a                     ; WE CANT USE MS2BankA (no stack when called from boot)
         ld      hl, ($bffe)                     ; last word
 
         ld      d, ST_EPROM
@@ -2275,16 +2279,17 @@ defc    DM_RAM                  =$81
         jr      nz, vst_2
 
         ld      a, ($bffc)                      ; card size
-        dec     a
-        and     $3F
-        cp      e
-        ret     nc                               ; size ok? ret
+        cp     $40                              ; handle this case (else is zero)
+        ret     z
+        cpl
+        and     $3F                             ; a is last unused bank in slot
+        cp      e                               ; bank to test
+        ret     c                               ; size ok? ret
 
 .vst_2
         ld      d, ST_NOROM
         ret
-
-
+        
 .MountAllRAM
         call    MS2BankK1
         ld      hl, RAMDORtable
