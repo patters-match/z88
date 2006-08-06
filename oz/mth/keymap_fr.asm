@@ -187,8 +187,8 @@ xdef    Keymap_FR
         defb    9
         defb    $41,$AC                         ; A Ä
         defb    $45,$E9                         ; E Ë
-        defb    $4F,$A5                         ; O Ö
-        defb    $45,$EC                         ; U Ü
+        defb    $4F,$AB                         ; O Ö
+        defb    $55,$EC                         ; U Ü
         defb    $61,$A6                         ; a ä
         defb    $65,$D9                         ; e ë
         defb    $69,$BF                         ; i ï
