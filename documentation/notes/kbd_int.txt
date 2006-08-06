@@ -1,0 +1,3 @@
+It isn't explicitly said in int.asm comments - keyboard ints are not used
+for keyboard scanning.  Scanning is done in TICK interrupt handling,
+keyboard interrupts are used only to wake Z88 up.

@@ -1,0 +1,47 @@
+Memory tables are located in the first bank of each slot, except for
+internal memory tables which are in bank 21.
+
+Out-of-memory flags - one for each bank
+
+If all memory in a bank is used, OZ sets flags in the first bank, except
+for seg0 addressed allocations. These flags go backward, $00ff is the
+first bank of slot, $00c0 is the last ($00e0 is the last for internal
+RAM).  Only two bits are used:
+
+OOM_B_NORMAL	=0
+OOM_B_FIXED	=1
+
+These flags are used to speed up memory allocation by skippping full
+banks.  Flags are cleared when full page is freed.
+
+
+Memory Allocation Tables, MATs - one for each page
+
+MATs start at $0100.  There is one word for each page in slot, ie. 64
+entries per bank, max. 4096 entries for 1MB card.  Entries are sorted
+in natural order.
+
+bits 0-11	offset of next MAT entry in chain
+bit  12		this page is last in chain, bits 0-11 are MemHandle>>4
+bit  13		page fully used, can't be split
+bit  14		page is allocated as fixed memory
+bit  15
+
+00xx-0Fxx tagged as 0001 - system variables and such
+10xx-17xx tagged as 8000 - swap area for bad apps
+1800-1fff tagged as 0001 - stack
+
+
+Page allocation scheme for <256 byte allocations (bit 13 not set in MAT)
+
+XX00: yy	offset to the first free chunk, 00 if no free chunks in page
+		if y=255 then page is invalid -> fail
+
+XXyy: sz nx	sz=chunk size, 02-FF bytes
+		if yy+sz>nx then page is invalid -> fail
+		nx=offset to the next free chunk, 00 if no more chunks in page
+		if nx<=yy then page is invalid -> fail
+
+Page with 255 bytes free:
+
+XX00: 01 FF 00 ...

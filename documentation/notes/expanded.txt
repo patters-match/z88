@@ -1,0 +1,16 @@
+Expanded
+		Unexp		Exp
+UGD		16		64
+UGD mem	128 B		512 B
+
+SCR bank		$21		$24 or $43
+SCR offset	$2000		$0000
+SCR end		$22FF		$09FF
+SCR pages	3		10
+
+MAP width	80		256
+MAP bytes/line	10		32
+MAP mem	640 B		2048 B
+
+UGD + MAP	768 B ($0300)	2560 B ($0A00)
+GRA pages	3		10	
