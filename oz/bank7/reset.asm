@@ -1,6 +1,4 @@
 ; **************************************************************************************************
-; Reset functionality; Displays 'soft/hard reset', copies restart vectors into LOWRAM.
-; The routines are located in Bank 7.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ

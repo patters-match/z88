@@ -190,6 +190,7 @@ defc    KeymapTblPtrs           =$0405
 defvars KeymapTblPtrs
         km_bank                 ds.b    1       ; memory bank where tables are, bound in S2
         km_page                 ds.b    1       ; high byte of address
+        km_caps                 ds.b    1       ; low byte of CAPS translation table address
         km_diamond              ds.b    1       ; low byte of <> translation table address
         km_square               ds.b    1       ; low byte of [] translation table address
         km_deadkey              ds.b    1       ; low byte of deadkey table address
@@ -813,7 +814,7 @@ defvars 0
         kbd_prevkey             ds.b    1       ; as above for previous key
         kbd_prevrlscnt          ds.b    1
         kbd_prevflags           ds.b    1
-        kbd_repeatcnt           ds.b    1       ; repeat counter
+        kbd_repeatcnt           ds.b    1       ; repeat counter (bit 7: 0 enabled, 1 disabled)
         kbd_flags               ds.b    1
         kbd_lastkey             ds.b    1       ; used in dead-key handling
         kbd_SIZEOF              ds.b    1
@@ -830,9 +831,10 @@ defc    KBF_B_LOCKED            =7              ; 1-locked
 
 defc    KMT_MATRIX              =0
 defc    KMT_SHIFT               =1
-defc    KMT_DIAMOND             =2
-defc    KMT_SQUARE              =3
-defc    KMT_DEADKEY             =4
+defc    KMT_CAPS                =2
+defc    KMT_DIAMOND             =3
+defc    KMT_SQUARE              =4
+defc    KMT_DEADKEY             =5
 
 defc    QB_SHIFT                =0              ; qualifier bits from GetQual()
 defc    QB_DIAMOND              =1
@@ -878,7 +880,7 @@ defc    IN_DELX                 =$E3
 defc    IN_MEN                  =$E5
 defc    IN_IDX                  =$E6
 defc    IN_HLP                  =$E7
-defc    IN_LOCK                 =$E8
+defc    IN_CAPS                 =$E8
 
 defc    AT_B_Boot               =7
 defc    AT_B_Draw               =5

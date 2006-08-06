@@ -850,7 +850,7 @@ xref    Keymap_FI
         ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
                                                 ; $page00 is matrix, $page40 is shift table
 
-        ld      de, KeymapTblPtrs+KMT_DIAMOND   ; +2
+        ld      de, KeymapTblPtrs+KMT_CAPS      ; +2
         set     6, h                            ; assume page mask is in s1
         res     7, h
         ld      l, $40                          ; ShiftTable start=length of shift table

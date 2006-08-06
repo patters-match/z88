@@ -52,7 +52,7 @@ xdef    sub_EFBB
 
 xref    ResetTimeout                            ; bank0/nmi.asm
 xref    ExtQualifiers                           ; bank0/kbd.asm
-xref    ExtIsForeignKey                         ; bank0/kbd.asm
+xref    IsForeignKey                            ; bank0/kbd.asm
 xref    MayDrawOZwd                             ; bank0/misc3.asm
 xref    OSFramePop                              ; bank0/misc4.asm
 xref    OSFramePush                             ; bank0/misc4.asm
@@ -364,9 +364,9 @@ xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
 ;       ----
 .Char2OZwdChar
         ld      b, a
-        call    ExtIsForeignKey                 ; is foreign key ?
-        ld      a, b
-        jr      c, c2oz_1                       ; is not foreign key
+        call    IsForeignKey
+        ld      a, b                            ; restore original char
+        jr      c, c2oz_1                       ; it is a system key, do not translate
         push    hl
         ld      hl, Key2Chr_tbl
         call    Chr2ScreenCode                  ; change foreign key to ISO char
@@ -376,7 +376,6 @@ xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
         or      a
         ret
 .c2oz_1
-        ld      b, a                            ; !! unnecessary
         cp      IN_ESC                          ; $1B
         jr      nc, c2oz_2
         inc     a
