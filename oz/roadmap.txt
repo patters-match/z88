@@ -10,23 +10,35 @@ GBS = Gunther Strube (gbs@users.sf.net)
 
 
 TODO (with priorities):
-- make source (disassembly) complete ORG independent. Add GPL headers to sources. P2
-- Move serial interface code in kernel. P3
+- Move a maximum of code from K0 to K1 for the serial interface code. P1
+- Localize day/month lists. P1
+- Choose day/month localization in the panel. P1
+- Rewrite EPROM interface with Flash handling. P1
+- Add Flash EPROM Format command in Filer. P1
+- Add Select EPROM device command in Filer. P1
+
+- Move printer interface code in kernel. P2
 - Clean misc2.asm, lots of space and speed to gain. P2
-- PrinterEd menu 1/2 to correct. P2
-- Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3
 - Clean OSAlm. P2
-- Test A=0 in OSSci. P3
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2
+
+- Move serial interface code in kernel. P3
+- Move lowram image in mth bank and modifiy reset routine. P3
+- Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3
+- Test A=0 in OSSci. P3
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes). P3
 - Preset default RAM device in Panel to expanded RAM card when identified by OZ. P3
-- New font bitmaps for ISO LATIN chars. P1
-- New OS_NQ, OS_SP parameters to handle localisation of keymaps and date/month names. P1
-- New end-user selection of localisation in Panel. P1
 - Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ.
 
+
 DONE
+- Fix CAPS behaviour. P1
+- New OS_NQ, OS_SP parameters to handle localisation of keymaps and date/month names. P1
+- New end-user selection of localisation in Panel. P1
+- New font bitmaps for ISO LATIN chars. P1
+- PrinterEd menu 1/2 to correct. P2
+- make source (disassembly) complete ORG independent. Add GPL headers to sources. P2
 - Implement the new generic keyboard algorithm (TP)
 - At the end of int.asm move HWclocks buffers in b20. (TP)
 - Rewrite timeres.asm according HWClocks. (TP)
@@ -51,6 +63,5 @@ DONE
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0
-keymap.asm @ $3300 in bank 7
 osclitables @ same page (to be modified)
 osscitable @ same page (to be modified)
