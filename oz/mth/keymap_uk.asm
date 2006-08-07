@@ -120,7 +120,7 @@ xdef    Keymap_UK
         defb    $3d,$00                                 ; =     00
         defb    $a3,$a4                                 ; £     €
 
-.SqrTable       ; 22 keys
+.SqrTable
         defb    (DeadTable - SqrTable - 1)/2
         defb    $1B,$B4
         defb    $20,$B0

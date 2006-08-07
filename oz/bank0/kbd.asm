@@ -323,28 +323,28 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 .spec2  xor     KBF_CAPSE                       ; toggle enable
         ld      (ix+kbd_flags), a
         call    DrawOZWd
-        jr      SetShift
+        jr      SetKeyDown
 
-.spec3  cp      ESC                             ; process SHIFT+CLI, <>CLI
+.spec3  cp      ESC                             ; ESC signal, is it SHIFT(CLI) or <>(CLI) ?
         jr      nz, ApplyQualifiers             ; all other key go there
 
         set     7, (ix+kbd_repeatcnt)           ; disable repeat
         ld      hl, ubIntStatus                 ; interrupt status
         ld      a, (ubCLIActiveCnt)
-        ld      e, a
+        ld      e, a                            ; CLI count
         ld      a, d                            ; qualifiers
         and     QB_SHIFT|QB_DIAMOND
-        jr      z, loc_0_DCA3
+        jr      z, ApplyQualifiersToESC
         inc     e                               ; is CLI active
         dec     e
-        jr      z, SetShift                     ; CLI byte counter=0
+        jr      z, SetKeyDown                   ; CLI byte counter=0
 
-        or      (hl)                            ; low 2 bits match exactly
+        or      (hl)                            ; low 2 bits match exactly (qualifiers/intstatus)
         ld      (hl), a                         ; set/res bit 0 (CLISHIFT) and 1 (CLIDMND)
         dec     hl                              ; hl = ubIntTaskToDo
         set     ITSK_B_OZWINDOW, (hl)           ; update OZ window
 
-.SetShift
+.SetKeyDown
         push    hl
         ld      hl, KbdData+kbd_flags
         set     KBF_B_KEY, (hl)                 ; any (not <>/[]) key down
@@ -389,16 +389,19 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 ;       out:    Fc=0, A=newcode         translated
 ;               Fc=1, A=in(A)           not translated
 ;
-;       ...CDE.. IXIY
-;       AFB...HL ....
+;       ..BCDE.. IXIY
+;       AF....HL ....
 ; ---------------------------------------------------------------------------
 .TranslateTable                                 ; translate using table L
-
+        push    bc
         push    af
         ld      a, l
         call    GetKbdPtr
         pop     af
-
+        call    TranslateKey
+        pop     bc
+        ret
+        
 .TranslateKey
         ld      b, (hl)                         ; table length
         inc     b                               ; take care of empty table
@@ -416,7 +419,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 
 ; ---------------------------------------------------------------------------
 ; ---------------------------------------------------------------------------
-.loc_0_DCA3
+.ApplyQualifiersToESC
         ld      a, ESC
 
 ; ---------------------------------------------------------------------------
@@ -487,7 +490,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         call    DoCapsable
         jr      nc, DoShiftCAPS                 ; is capsable
         ld      l, KMT_SHIFT
-        call    TranslateTable                  ; not capsable, use shift table
+        jr      TranslateTable                  ; not capsable, use shift table (no need to process CAPS here)
 
 .TestSquare
         bit     QB_SQUARE, d
@@ -537,6 +540,9 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         call    GetKbdPtr                       ; fetch CAPS translation table
         pop     af
         ld      b, (hl)                         ; # entries
+        inc     b
+        dec     b
+        jr      z, caps_xc                      ; handle empty table
 .caps_4
         inc     hl
         cp      (hl)
@@ -545,6 +551,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         cp      (hl)
         jr      z, c_up                         ; uppercase match
         djnz    caps_4
+.caps_xc                                        ; exit with Fc=1
         scf
         jr      caps_x
 .c_up
@@ -751,7 +758,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         inc     c                               ; we have something else than just shift
 
 .fok2   and     (ix+3)                          ; is shift down
-        call    nz, SetShift                    ; set shift flag
+        call    nz, SetKeyDown                  ; set shift flag
 
         ld      a, h
         and     (ix+6)                          ; is [] or <> down?
