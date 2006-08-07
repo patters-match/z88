@@ -16,7 +16,7 @@
 xdef    GND16
 xdef    GNM16
 xdef    GNM24
-xdef	GND24
+xdef    GND24
 
 ;       ----
 

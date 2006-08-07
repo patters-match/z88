@@ -33,33 +33,33 @@
 ;
 ; structure of shift, square, and diamond tables:
 ;
-;	dc.b n			  number of character pairs in table
-;	dc.b inchar,outchar	  translates inchar into outchar
-;	dc.b inchar,outchar,...   entries are ordered in ascending inchar order
+;       dc.b n                    number of character pairs in table
+;       dc.b inchar,outchar       translates inchar into outchar
+;       dc.b inchar,outchar,...   entries are ordered in ascending inchar order
 ;
 ; capsable table:
 ;
-;	dc.b n			  number of character pairs in table
-;	dc.b lcase,ucase	  translates lcase into ucase and vice versa
-;	dc.b lcase,ucase,...	  entries can be unsorted, but why not sort them?
+;       dc.b n                    number of character pairs in table
+;       dc.b lcase,ucase          translates lcase into ucase and vice versa
+;       dc.b lcase,ucase,...      entries can be unsorted, but why not sort them?
 ;
 ; structure of deadkey table:
 ;
-;	dc.b n			  number of deadkeys in table
-;	dc.b keycode,offset	  keycode of deadkey, offset into subtable for that key
-;	dc.b keycode,offset,...   offset is table address low byte
-;				  entries are ordered in ascending keycode order
+;       dc.b n                    number of deadkeys in table
+;       dc.b keycode,offset       keycode of deadkey, offset into subtable for that key
+;       dc.b keycode,offset,...   offset is table address low byte
+;                                 entries are ordered in ascending keycode order
 ;
-;	dc.b char		  deadkey subtables start with extra byte - 8x8 char code for OZ window
-;	dc.b n			  after that they follow standard table format of num + n*(in,out)
-;	dc.b inchar, outchar,...
+;       dc.b char                 deadkey subtables start with extra byte - 8x8 char code for OZ window
+;       dc.b n                    after that they follow standard table format of num + n*(in,out)
+;       dc.b inchar, outchar,...
 ;
 ;
-;*UDRL	cursor keys		ff fe fd fc
-;*S	space			20
-;^MTDE	enter tab del esc	e1 e2 e3 e4
-;#MIH	menu index help 	e5 e6 e7
-;!DSLRC <> [] ls rs cl		c8 b8 aa a9 a8
+;*UDRL  cursor keys             ff fe fd fc
+;*S     space                   20
+;^MTDE  enter tab del esc       e1 e2 e3 e4
+;#MIH   menu index help         e5 e6 e7
+;!DSLRC <> [] ls rs cl          c8 b8 aa a9 a8
 ;
 MODULE  Keymap_FR
 
@@ -78,7 +78,7 @@ xdef    Keymap_FR
 
 
 .ShiftTable
-	defb	(CapsTable - ShiftTable - 1)/2
+        defb    (CapsTable - ShiftTable - 1)/2
         defb    $1b,$d4                         ;^E d4
         defb    $20,$d0                         ;*S d0
         defb    $21,$38                         ;! 8
@@ -104,31 +104,31 @@ xdef    Keymap_FR
         defb    $DF,$39                         ;ç 9
 
 .CapsTable
-	defb	(DmndTable - CapsTable - 1)/2
-	defb	$21,$38                         ;! 8
+        defb    (DmndTable - CapsTable - 1)/2
+        defb    $21,$38                         ;! 8
         defb    $22,$33                         ;" 3
-        defb    $24,$A3                         ;$ £        
-        defb    $26,$31	                        ;& 1
-	defb	$27,$34                         ;' 4
+        defb    $24,$A3                         ;$ £
+        defb    $26,$31                         ;& 1
+        defb    $27,$34                         ;' 4
         defb    $28,$35                         ;( 5
         defb    $29,$A2                         ;) º
-        defb    $2A,$BF	                        ;* ï
-	defb	$2C,$3F                         ;, ?
+        defb    $2A,$BF                         ;* ï
+        defb    $2C,$3F                         ;, ?
         defb    $2D,$5F                         ;- _
         defb    $3A,$2F                         ;: /
-        defb    $3B,$2E	                        ;; .
-	defb	$3C,$3E                         ;< >
+        defb    $3B,$2E                         ;; .
+        defb    $3C,$3E                         ;< >
         defb    $3D,$2B                         ;= +
         defb    $A1,$36                         ;§ 6
         defb    $AE,$AF                         ;^ ¨ deadkeys
-        defb    $B9,$30	                        ;à 0
-	defb	$BB,$37                         ;è 7
+        defb    $B9,$30                         ;à 0
+        defb    $BB,$37                         ;è 7
         defb    $BC,$32                         ;é 2
         defb    $CA,$25                         ;ù %
-        defb    $DF,$39	                        ;ç 9
+        defb    $DF,$39                         ;ç 9
 
 .DmndTable
-	defb	(SqrTable - DmndTable - 1)/2
+        defb    (SqrTable - DmndTable - 1)/2
         defb    $1b,$c4                         ; esc   c4
         defb    $20,$a0                         ; spc   a0
         defb    $21,$7D                         ; ! }
@@ -153,8 +153,8 @@ xdef    Keymap_FR
         defb    $BC,$40                         ; é @
         defb    $DF,$5B                         ; ç [
 
-.SqrTable	; 22 keys
-	defb	(DeadTable - SqrTable - 1)/2
+.SqrTable       ; 22 keys
+        defb    (DeadTable - SqrTable - 1)/2
         defb    $1B,$B4                         ; esc   b4
         defb    $20,$B0                         ; spc   b0
         defb    $24,$9E                         ; $ 9e
@@ -175,13 +175,13 @@ xdef    Keymap_FR
         defb    $AE,dk1&255
         defb    $AF,dk2&255
 .dk1
-        defb    $de		                ; ^ (hires)
+        defb    $de                             ; ^ (hires)
         defb    5
-        defb    $61,$BA 	                ; a â
-        defb    $65,$BD 	                ; e ê
-        defb    $69,$BE 	                ; i î
-        defb    $6F,$C9 	                ; o ô
-        defb    $75,$CB 	                ; u û
+        defb    $61,$BA                         ; a â
+        defb    $65,$BD                         ; e ê
+        defb    $69,$BE                         ; i î
+        defb    $6F,$C9                         ; o ô
+        defb    $75,$CB                         ; u û
 .dk2
         defb    $A2                             ; ¨ (hires)
         defb    9
@@ -194,4 +194,3 @@ xdef    Keymap_FR
         defb    $69,$BF                         ; i ï
         defb    $6F,$A5                         ; o ö
         defb    $75,$DC                         ; u ü
-        

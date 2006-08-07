@@ -33,33 +33,33 @@
 ;
 ; structure of shift, square, and diamond tables:
 ;
-;	dc.b n			  number of character pairs in table
-;	dc.b inchar,outchar	  translates inchar into outchar
-;	dc.b inchar,outchar,...   entries are ordered in ascending inchar order
+;       dc.b n                    number of character pairs in table
+;       dc.b inchar,outchar       translates inchar into outchar
+;       dc.b inchar,outchar,...   entries are ordered in ascending inchar order
 ;
 ; capsable table:
 ;
-;	dc.b n			  number of character pairs in table
-;	dc.b lcase,ucase	  translates lcase into ucase and vice versa
-;	dc.b lcase,ucase,...	  entries can be unsorted, but why not sort them?
+;       dc.b n                    number of character pairs in table
+;       dc.b lcase,ucase          translates lcase into ucase and vice versa
+;       dc.b lcase,ucase,...      entries can be unsorted, but why not sort them?
 ;
 ; structure of deadkey table:
 ;
-;	dc.b n			  number of deadkeys in table
-;	dc.b keycode,offset	  keycode of deadkey, offset into subtable for that key
-;	dc.b keycode,offset,...   offset is table address low byte
-;				  entries are ordered in ascending keycode order
+;       dc.b n                    number of deadkeys in table
+;       dc.b keycode,offset       keycode of deadkey, offset into subtable for that key
+;       dc.b keycode,offset,...   offset is table address low byte
+;                                 entries are ordered in ascending keycode order
 ;
-;	dc.b char		  deadkey subtables start with extra byte - 8x8 char code for OZ window
-;	dc.b n			  after that they follow standard table format of num + n*(in,out)
-;	dc.b inchar, outchar,...
+;       dc.b char                 deadkey subtables start with extra byte - 8x8 char code for OZ window
+;       dc.b n                    after that they follow standard table format of num + n*(in,out)
+;       dc.b inchar, outchar,...
 ;
 ;
-;*UDRL	cursor keys		ff fe fd fc
-;*S	space			20
-;^MTDE	enter tab del esc	e1 e2 e3 e4
-;#MIH	menu index help 	e5 e6 e7
-;!DSLRC <> [] ls rs cl		c8 b8 aa a9 a8
+;*UDRL  cursor keys             ff fe fd fc
+;*S     space                   20
+;^MTDE  enter tab del esc       e1 e2 e3 e4
+;#MIH   menu index help         e5 e6 e7
+;!DSLRC <> [] ls rs cl          c8 b8 aa a9 a8
 ;
 MODULE  Keymap_DK
 
@@ -77,7 +77,7 @@ xdef    Keymap_DK
         defb    $a3,$2d,$2e,$e8,$e6,$1b,$b8,$a9         ; £  -  .  !C #I ^E !S !R
 
 .ShiftTable
-	defb	(CapsTable - ShiftTable - 1)/2
+        defb    (CapsTable - ShiftTable - 1)/2
         defb    $1b,$d4                                 ; esc   d4
         defb    $20,$d0                                 ; space d0
         defb    $27,$22, $2b,$3e, $2c,$3b, $2d,$5f      ; ' "   + >   , ;   - _
@@ -90,13 +90,13 @@ xdef    Keymap_DK
         defb    $DD,$ED                                 ; ø Ø
 
 .CapsTable
-	defb	(DmndTable - CapsTable - 1)/2
+        defb    (DmndTable - CapsTable - 1)/2
         defb    $DA,$EA                                 ; å Å
         defb    $DB,$EB                                 ; æ Æ
         defb    $DD,$ED                                 ; ø Ø
 
 .DmndTable
-	defb	(SqrTable - DmndTable - 1)/2
+        defb    (SqrTable - DmndTable - 1)/2
         defb    $1b,$c4         ; esc   c4
         defb    $20,$a0         ; spc   a0
         defb    $27,$60         ; '     `
@@ -112,8 +112,8 @@ xdef    Keymap_DK
         defb    $db,$7b         ; æ     {
         defb    $dd,$7c         ; ø     |
 
-.SqrTable	; 22 keys
-	defb	(DeadTable - SqrTable - 1)/2
+.SqrTable       ; 22 keys
+        defb    (DeadTable - SqrTable - 1)/2
         defb    $1B,$B4         ; esc   b4
         defb    $20,$B0         ; spc   b0
         defb    $2B,$80         ; +     80

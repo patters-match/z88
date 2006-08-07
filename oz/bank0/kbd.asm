@@ -28,7 +28,7 @@
 ;
 ; $Id$
 ;***************************************************************************************************
-        
+
         Module Keyboard
 
 include "blink.def"
@@ -291,7 +291,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         call    ProcessKey
         ret     c                               ; key canceled
 
-.PutKey 
+.PutKey
         cp      ESC
         call    z, MaySetEsc                    ; set ESC flag if enabled
         call    DeadKeys
@@ -304,7 +304,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 
 .ProcessKey                                     ; a=key, d=qualifiers
 
-        cp      IN_CAPS                         ; process caps lock 
+        cp      IN_CAPS                         ; process caps lock
         jr      nz, spec3
 
 ;       if <> or [] down force CAPS/caps, otherwise toggle
@@ -529,37 +529,37 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 ;       AF....../....
 ; ---------------------------------------------------------------------------
 .DoCapsable
-	push	bc
-	or	a				; Fc=0
-	push	af
-	ex	af, af'
-	ld	a, KMT_CAPS
-	call	GetKbdPtr                       ; fetch CAPS translation table
-	pop	af
-	ld	b, (hl) 			; # entries
+        push    bc
+        or      a                               ; Fc=0
+        push    af
+        ex      af, af'
+        ld      a, KMT_CAPS
+        call    GetKbdPtr                       ; fetch CAPS translation table
+        pop     af
+        ld      b, (hl)                         ; # entries
 .caps_4
-        inc	hl
-	cp	(hl)
-	inc	hl
-	jr	z, c_low			; lowercase match
-	cp	(hl)
-	jr	z, c_up 			; uppercase match
-	djnz	caps_4
-	scf
-	jr	caps_x
+        inc     hl
+        cp      (hl)
+        inc     hl
+        jr      z, c_low                        ; lowercase match
+        cp      (hl)
+        jr      z, c_up                         ; uppercase match
+        djnz    caps_4
+        scf
+        jr      caps_x
 .c_up
-        dec	hl
-	ld	a, (hl)
-	ex	af, af' 			; lowercase in a'
-	inc	hl				; waste one cycle to gain one byte compared to jr caps_0
+        dec     hl
+        ld      a, (hl)
+        ex      af, af'                         ; lowercase in a'
+        inc     hl                              ; waste one cycle to gain one byte compared to jr caps_0
 .c_low
-        ld	a, (hl) 			; uppercase in A
+        ld      a, (hl)                         ; uppercase in A
 .caps_0
-        or	a
+        or      a
 
 .caps_x
-	pop	bc
-	ret
+        pop     bc
+        ret
 
 ; ---------------------------------------------------------------------------
 ;       Dead-key handling
@@ -889,7 +889,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 ; ---------------------------------------------------------------------------
 ; test if A is a foreign or a system key
 ;
-; 
+;
 ;   Fc=1 if $00-$A0, $A4-$B8, $C0-$C8, $D0-$D8, $E0-$E8 (not a foreign key)
 ;   Fc=0 if $A1-$A3, $B9-$BF, $C9-$CF, $D9-$DF, $E9-$FF (is a foreign key)
 ;
