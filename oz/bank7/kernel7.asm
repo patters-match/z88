@@ -195,9 +195,9 @@ IF COMPILE_BINARY
         xdef    Keymap_FI
         
         include "../bank0/kernel0.def"          ; get bank 0 references and map them into bank 7 project...
-        include "../mth/keymap_UK.def"          ; get references for keymaps in MTH bank and bind them into bank 7 project...
-        include "../mth/keymap_FR.def"
-        include "../mth/keymap_DE.def"
-        include "../mth/keymap_DK.def"
-        include "../mth/keymap_FI.def"
+        include "../mth/keymap_uk.def"          ; get references for keymaps in MTH bank and bind them into bank 7 project...
+        include "../mth/keymap_fr.def"
+        include "../mth/keymap_de.def"
+        include "../mth/keymap_dk.def"
+        include "../mth/keymap_fi.def"
 ENDIF
