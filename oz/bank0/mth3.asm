@@ -9,19 +9,19 @@
         include "memory.def"
         include "sysvar.def"
 
-xdef    FindCmd
-xdef    Get2ndCmdHelp
-xdef    GetNextCmdHelp
-xdef    GetFirstCmdHelp
-xdef    Get2ndTopicHelp
-xdef    GetNextTopicHelp
-xdef    GetFirstTopicHelp
-xdef    GetNextNonInfoTopic
-xdef    GetFirstNonInfoTopic
-xdef    GetNonInfoTopicByNum
-xdef    GetTpcAttrByNum
-xdef    GetNextCmdAttr
-xdef    GetCmdAttrByNum
+xdef    FindCmd                                 ; osin
+xdef    Get2ndCmdHelp                           ; mth2
+xdef    GetNextCmdHelp                          ; mth1
+xdef    GetFirstCmdHelp                         ; mth1, mth2
+xdef    Get2ndTopicHelp                         ; mth1, mth2
+xdef    GetNextTopicHelp                        ; mth1
+xdef    GetFirstTopicHelp                       ; mth1
+xdef    GetNextNonInfoTopic                     ; mth1
+xdef    GetFirstNonInfoTopic                    ; mth1
+xdef    GetNonInfoTopicByNum                    ; mth1
+xdef    GetTpcAttrByNum                         ; mth1, mth2
+xdef    GetNextCmdAttr                          ; mth1
+xdef    GetCmdAttrByNum                         ; mth1
 
 xref    PutOZwdBuf                              ; bank0/osin.asm
 xref    GetAppCommands                          ; bank0/mth2.asm
