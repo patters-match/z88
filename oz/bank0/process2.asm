@@ -60,6 +60,8 @@ xref    PageNToPagePtr                          ; bank0/memory.asm
 xref    fsMS2BankB                              ; bank0/filesys3.asm
 xref    fsRestoreS2                             ; bank0/filesys3.asm
 xref    GetAppDOR                               ; bank0/mth2.asm
+xref    OSBixS1                                 ; bank0/misc4.asm
+xref    OSBoxS1                                 ; bank0/misc4.asm
 xref    MS1BankA                                ; bank0/misc5.asm
 xref    MS2BankA                                ; bank0/misc5.asm
 xref    PutOSFrame_BHL                          ; bank0/misc5.asm
@@ -89,7 +91,7 @@ defc    FREE_THIS       =7
         call    PutOSFrame_BHL                  ; application name
 
         ex      de, hl                          ; bind in BHL
-        OZ      OS_Bix
+        call    OSBixS1
 
         push    ix
         push    hl                              ; IX=HL
@@ -100,7 +102,7 @@ defc    FREE_THIS       =7
         ld      (iy+OSFrame_C), a               ; code letter
         pop     ix
 
-        OZ      OS_Box                          ; Restore bindings after OS_Bix
+        call    OSBoxS1
         or      a
 .nqain_x
         jp      CopyMTHApp_Help                 ; copy app pointers over help pointers

@@ -9,14 +9,12 @@
         include "dor.def"
         include "error.def"
         include "fileio.def"
-        include "memory.def"
         include "stdio.def"
         include "sysvar.def"
         include "../mth/mth.def"
 
 
 xdef    aRom_Help
-xdef    AddBHL_DE
 xdef    ChgHelpFile
 xdef    CopyAppPointers
 xdef    DrawCmdHelpWd
@@ -47,7 +45,8 @@ xdef    SetActiveAppDOR
 xdef    SetHlpAppChgFile
 xdef    SkipNTopics
 
-
+xref    OSBixS1                                 ; bank0/misc4.asm
+xref    OSBoxS1                                 ; bank0/misc4.asm
 xref    AtoN_upper                              ; bank0/misc5.asm
 xref    KPrint                                  ; bank0/misc5.asm
 xref    MS2BankK1                               ; bank0/misc5.asm
@@ -72,23 +71,6 @@ xref    InitHelpWd                              ; bank7/mth1.asm
 xref    OpenAppHelpFile                         ; bank7/mth1.asm
 xref    InitHandle                              ; bank7/misc1.asm
 
-;xref    SysTokenBase                            ;MTH/systoken.asm
-
-
-;       BHL+=DE
-;       adjusts B to keep HL<$4000
-
-.AddBHL_DE
-        add     hl, de
-        ld      a, h                            ; handle bank change
-        rlca
-        rlca
-        and     3
-        add     a, b
-        ld      b, a
-        jp      MaskHLintoS0                    ; !! inline this
-
-;       ----
 
 ;       print MTH string, expand $7f-codes
 
@@ -210,17 +192,16 @@ xref    InitHandle                              ; bank7/misc1.asm
         defm    "The ", $7f,"A", " ", $7f,"T", " topic",10,0
 
         call    GetHlpTopics
-        OZ      OS_Bix
+        call    OSBixS1
         push    de
 
         ld      a, (ubHlpActiveTpc)
         call    SkipNTopics
         call    GetHelpOffs
-        push    de                              ; BC=help  !! ld b,d; ld c,e
-        pop     bc
-
+        ld      b, d
+        ld      c, e
         pop     de
-        OZ      OS_Box
+        call    OSBoxS1
 
         call    PrintTopicHelp
         ret     c
@@ -273,7 +254,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         defm    "'",0
 
         call    GetHlpCommands
-        OZ      OS_Bix
+        call    OSBixS1
         push    de
         ld      a, (ubHlpActiveTpc)
         call    GetCmdTopicByNum
@@ -281,10 +262,10 @@ xref    InitHandle                              ; bank7/misc1.asm
         call    GetRealCmdPosition
         call    PrintCmdSequence
         call    GetHelpOffs
-        push    de                              ; !! ld b,d; ld c,e
-        pop     bc
+        ld      b, d
+        ld      c, e
         pop     de
-        OZ      OS_Box
+        call    OSBoxS1
 
         call    PrintTopicHelp
         ret     c
@@ -318,7 +299,7 @@ xref    InitHandle                              ; bank7/misc1.asm
 .PrntAppname
         ld      a, (ubHlpActiveApp)
         call    GetAppDOR
-        OZ      OS_Bix
+        call    OSBixS1
         ld      bc, ADOR_NAME                   ; skip to DOR name
         add     hl, bc
 
@@ -329,7 +310,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         or      a
         jr      nz, pan_1
 
-        OZ      OS_Box
+        call    OSBoxS1
         ret
 
 ;       ----
@@ -341,13 +322,12 @@ xref    InitHandle                              ; bank7/misc1.asm
         push    af
         push    af
         call    GetHlpTopics
-        OZ      OS_Bix
+        call    OSBixS1
         pop     af
         push    de
 
         call    SkipNTopics
-        ld      bc, 1                           ; skip length byte  !! inc hl
-        add     hl, bc
+        inc     hl                              ; skip length byte
         call    MTH_ToggleLT
 
 .ptpc_1
@@ -358,7 +338,7 @@ xref    InitHandle                              ; bank7/misc1.asm
 
         call    MTH_ToggleLT
         pop     de
-        OZ      OS_Box
+        call    OSBoxS1
         pop     af
         ret
 
@@ -368,7 +348,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         ld      a, (ubHlpActiveCmd)             ; !! get this after OS_Bix to avoid push/pop
         push    af
         call    GetHlpCommands
-        OZ      OS_Bix
+        call    OSBixS1
         pop     af
         push    de
 
@@ -378,8 +358,8 @@ xref    InitHandle                              ; bank7/misc1.asm
         pop     af
 
         call    GetRealCmdPosition
-        ld      bc, 2                           ; skip length/command code  !! inc hl; inc hl
-        add     hl, bc
+        inc     hl                              ; skip length/command code
+        inc     hl
 
 .prc_1
         ld      a, (hl)                         ; skip kbd sequence
@@ -394,7 +374,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         jr      nc, prc_2
 
         pop     de
-        OZ      OS_Box
+        call    OSBoxS1
         ret
 
 ;       ----
@@ -409,14 +389,22 @@ xref    InitHandle                              ; bank7/misc1.asm
         ld      d, b                            ; help offset into DE
         ld      e, c
         call    GetHlpHelp                      ; get help base
-        call    AddBHL_DE                       ; go to help text start
+        add     hl, de                          ; go to help text start
+        ld      a, h                            ; handle bank change
+        rlca
+        rlca
+        and     3
+        add     a, b
+        ld      b, a
+        res     7, h                            ; S0 fix
+        res     6, h
 
 ;       ----
 
 .MTHPrintTokenized
         call    InputEmpty
         ret     c
-        OZ      OS_Bix
+        call    OSBixS1
         push    de
         call    JustifyC
 .mpt_1
@@ -428,7 +416,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         jr      nc, mpt_1                       ; no error/end? print more
 .mpt_2
         pop     de
-        OZ      OS_Box
+        call    OSBoxS1
                                                 ; drop thru
 
 ;       ----
@@ -689,8 +677,6 @@ xref    InitHandle                              ; bank7/misc1.asm
         dec     hl
         ld      l, (hl)
         ld      h, c
-
-.MaskHLintoS0
         res     7, h                            ; S0 fix
         res     6, h
         ret
@@ -708,7 +694,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         pop     bc                              ; count into B
         ld      a, 0
         ret     c                               ; only one command/topic? exit Fc=1
-        ld      c, 0                            ; !! ld c,a
+        ld      c, a                            ; c = 0
 .gcn_1
         inc     c
         djnz    gcn_2
@@ -760,7 +746,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         scf
         ret     z                               ; start of topic? Fc=1
         ld      de, 1<<8|0                      ; column=1, row=0
-        ld      c, 0                            ; !! ld c, e
+        ld      c, e                            ; c = 0
 .grcp_2
         inc     c                               ; bump actual position
         djnz    grcp_3                          ; not done yet? go forward
@@ -869,8 +855,8 @@ xref    InitHandle                              ; bank7/misc1.asm
         call    GetAttr_Help
         and     CMDF_HELP                       ; help
         ret     nz                              ; Fc=0, DE=help
-        ld      de, 0                           ; !! ld d,a; ld e,a
-        scf                                     ; !! unnecessary, Fc is not actually checked
+        ld      d, a                            ; ld de, 0
+        ld      e, a
         ret                                     ; Fc=1, DE=0
 
 ;       ----
@@ -921,7 +907,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         pop     af
         or      a
         ret     z
-        OZ      OS_Bix                          ; Bind in extended address
+        call    OSBixS1                          ; Bind in extended address
         push    de
         ld      bc, ADOR_NAME
         add     hl, bc
@@ -929,7 +915,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         call    OpenAppHelpFile
         ld      (pMTHHelpHandle), ix
         pop     de
-        OZ      OS_Box                          ; Restore bindings after OS_Bix
+        call    OSBoxS1
         ret
 
 ;       ----
@@ -941,7 +927,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         defm    0
 
         call    GetHlpCommands
-        OZ      OS_Bix
+        call    OSBixS1
         push    de
 
         push    hl
@@ -951,7 +937,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         jr      nc, dmwd_1                      ; has topics? skip
 
         pop     de
-        OZ      OS_Box                          ; Restore bindings after OS_Bix
+        call    OSBoxS1
 
         call    InitMenuColumnDE
         call    MayMTHPrint
@@ -969,7 +955,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         cp      2
         jr      nc, dmwd_3                      ; not eol/eot? skip
         pop     de
-        OZ      OS_Box                          ; Restore bindings after OS_Bix
+        call    OSBoxS1
 
         call    MayMTHPrint
         defm    10,10,10
@@ -1038,7 +1024,7 @@ xref    InitHandle                              ; bank7/misc1.asm
 .dmwd_10
         pop     de
         push    af
-        OZ      OS_Box                          ; Restore bindings after OS_Bix
+        call    OSBoxS1
         pop     af
         call    nc, DrawMenuWd2
         ret
