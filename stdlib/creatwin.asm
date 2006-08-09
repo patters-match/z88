@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -178,13 +178,13 @@
                     CALL_OZ(Os_Out)
                     LD   HL,bot_left_corner
                     CALL_OZ (Gn_Sop)                    ; first display bottom left corner
-                    LD   HL,draw_line
-                    CALL_OZ(Gn_Sop)
-                    LD   A,E                            ; width of bottom line
-                    ADD  A,32
-                    CALL_OZ(Os_Out)
-                    LD   A,5
-                    CALL_OZ(Os_Out)                     ; draw bottom line with VDU 5...
+                    LD   A,E
+.draw_bot_line
+                    LD   HL,bot_line
+                    CALL_OZ(Gn_Sop)                     ; draw bottom line
+                    DEC  A                              ; of width E
+                    JR   NZ,draw_bot_line
+
                     LD   HL,bot_right_corner
                     CALL_OZ (Gn_Sop)                    ; finish with bottom rigth corner
 
@@ -313,8 +313,7 @@
                     DEFM 1,"2A",0                 ; apply attributes for banner width
 
 .xypos              DEFM 1,"3@",0                 ; VDU cursor position (x and y sent later)
-.bot_left_corner    DEFM 1,"2*",73,0              ; VDU bottom left corner
-.draw_line          DEFM 1,"3N",0                 ; VDU repeat char sequense (for bottom line)
-.bot_right_corner   DEFM 1,"2*",76,0              ; VDU bottom right corner
+.bot_left_corner    DEFM 1,"2*",'I',0             ; VDU bottom left corner
+.bot_line           DEFM 1,"2*",'E',0             ; VDU bottom line
+.bot_right_corner   DEFM 1,"2*",'L',0             ; VDU bottom right corner
 ;
-                    
