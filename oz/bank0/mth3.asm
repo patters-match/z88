@@ -23,6 +23,8 @@ xdef    GetTpcAttrByNum                         ; mth1, mth2
 xdef    GetNextCmdAttr                          ; mth1
 xdef    GetCmdAttrByNum                         ; mth1
 
+xref    OSBixS1                                 ; bank0/misc4.asm
+xref    OSBoxS1                                 ; bank0/misc4.asm
 xref    PutOZwdBuf                              ; bank0/osin.asm
 xref    GetAppCommands                          ; bank0/mth2.asm
 xref    GetHlpTopics                            ; bank0/mth2.asm
@@ -42,7 +44,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         ret     c
 
         call    GetAppCommands
-        OZ      OS_Bix
+        call    OSBixS1
         push    de
 
         inc     hl                              ; skip start mark
@@ -70,7 +72,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
 .fcmd_4
         pop     de
         push    af
-        OZ      OS_Box
+        call    OSBoxS1
         pop     af
         ret
 
@@ -175,7 +177,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         push    af
         call    GetHlpTopics
         pop     af
-        OZ      OS_Bix                          ; bind in BHL
+        call    OSBixS1                          ; bind in BHL
         push    de
         call    SkipNTopics
         push    af
@@ -184,7 +186,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         pop     af
         pop     de
         push    af
-        OZ      OS_Box                          ; restore S2/S3
+        call    OSBoxS1
         pop     af
         ld      d, b
         ret
@@ -198,7 +200,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         push    af
         call    GetHlpCommands
         pop     af
-        OZ      OS_Bix                          ; Bind in extended address
+        call    OSBixS1                         ; Bind in extended address
         push    de
         ld      c, a                            ; c=count
         ld      a, (ubHlpActiveTpc)
@@ -208,13 +210,9 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         ld      a, c                            ; a=count
         call    GetRealCmdPosition
         push    af
-        push    hl                              ; !! inc hl; ld c,(hl); dec hl
-        ld      bc, 1
-        add     hl, bc
+        inc     hl
         ld      c, (hl)                         ; command code
-        pop     hl
-        pop     af                              ; !! unnecessary pop/push
-        push    af
+        dec     hl
         call    GetAttr
         ld      b, a                            ; attributes
         pop     af
@@ -223,7 +221,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
 .gcabn_1
         pop     de
         push    af
-        OZ      OS_Box                          ; Restore bindings after OS_Bix
+        call    OSBoxS1                         ; Restore bindings
         pop     af
         push    ix                              ; DE=IX
         pop     de

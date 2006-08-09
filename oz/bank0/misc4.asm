@@ -16,10 +16,13 @@ xdef    OSFramePop
 xdef    osfpop_1
 xdef    OSBox
 xdef    OSBix
+xdef    OSBixS1
+xdef    OSBoxS1
 
 xref    MS2BankK1                               ; bank0/misc5.asm
 xref    MS2BankA                                ; bank0/misc5.asm
 xref    MS12BankCB                              ; bank0/misc5.asm
+xref    MS1BankA                                ; bank0/misc5.asm
 
 
 .OSFramePush
@@ -130,3 +133,41 @@ xref    MS12BankCB                              ; bank0/misc5.asm
         ex      af, af'
         or      a
         jp      OZCallReturn1
+
+; -----------------------------------------------------------------------------
+;
+;       OSBixS1 Replacement of OSBix for the kernel
+;               can be called from S2 and faster
+;       IN : BHL
+;       OUT: D previous S1 binding, H is fixed to S1
+;
+;       ....D.H./....  different
+; -----------------------------------------------------------------------------
+.OSBixS1
+        res     7, h                            ; S1 fix
+        set     6, h                            ; could handle b=0 local by inc b, dec b, ret z
+        ex      af, af'
+        ld      a, (BLSC_SR1)
+        ld      d, a                            ; previous S1 binding in D
+        ld      a, b
+        call    MS1BankA
+        ex      af, af'
+        ret
+        
+; -----------------------------------------------------------------------------
+;
+;       OSBoxS1 Replacement of OSBox for the kernel
+;               can be called from S2 and faster
+;       IN : D previous binding retruned by OSBixS1
+;       OUT: -
+;
+;       ......../....  different
+; -----------------------------------------------------------------------------
+.OSBoxS1
+        ex      af,af'
+        ld      a, d
+        ld      (BLSC_SR1), a                   ; restore previous binding
+        call    MS1BankA
+        ex      af, af'
+        ret
+        
