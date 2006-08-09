@@ -6,7 +6,6 @@
 
         Module MTH3
 
-        include "memory.def"
         include "sysvar.def"
 
 xdef    FindCmd                                 ; osin
@@ -71,9 +70,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         ld      a, c                            ; get command code
 .fcmd_4
         pop     de
-        push    af
         call    OSBoxS1
-        pop     af
         ret
 
 ;       ----
@@ -185,9 +182,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         ld      b, a
         pop     af
         pop     de
-        push    af
         call    OSBoxS1
-        pop     af
         ld      d, b
         ret
 
@@ -220,9 +215,7 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
         pop     ix
 .gcabn_1
         pop     de
-        push    af
         call    OSBoxS1                         ; Restore bindings
-        pop     af
         push    ix                              ; DE=IX
         pop     de
         ret

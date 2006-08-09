@@ -1023,9 +1023,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         or      a
 .dmwd_10
         pop     de
-        push    af
         call    OSBoxS1
-        pop     af
         call    nc, DrawMenuWd2
         ret
 .dmwd_11
