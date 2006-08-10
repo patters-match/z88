@@ -56,10 +56,6 @@ xref    ResetToggles                            ; bank0/misc5.asm
 xref    ScrDrv_SOH_A                            ; bank0/misc5.asm
 xref    fsMS2BankB                              ; bank0/filesys3.asm
 xref    fsRestoreS2                             ; bank0/filesys3.asm
-xref    Get2ndCmdHelp                           ; bank0/mth1.asm
-xref    Get2ndTopicHelp                         ; bank0/mth1.asm
-xref    GetFirstCmdHelp                         ; bank0/mth1.asm
-xref    GetTpcAttrByNum                         ; bank0/mth1.asm
 xref    GetHandlePtr                            ; bank0/dor.asm
 xref    MayWrt                                  ; bank0/token.asm
 xref    OSWrt                                   ; bank0/token.asm
@@ -70,6 +66,11 @@ xref    Help2Wd_bottom                          ; bank7/mth1.asm
 xref    Help2Wd_Top                             ; bank7/mth1.asm
 xref    InitHelpWd                              ; bank7/mth1.asm
 xref    OpenAppHelpFile                         ; bank7/mth1.asm
+xref    Get2ndCmdHelp                           ; bank7/mth1.asm
+xref    Get2ndTopicHelp                         ; bank7/mth1.asm
+xref    GetFirstCmdHelp                         ; bank7/mth1.asm
+xref    GetTpcAttrByNum                         ; bank7/mth1.asm
+
 xref    InitHandle                              ; bank7/misc1.asm
 
 xref    PutOZwdBuf                              ; bank0/osin.asm
@@ -1179,8 +1180,8 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
         pop     hl
         pop     de
         ret
-        
-        
+
+
 ; -----------------------------------------------------------------------------
 ; Called from OS_In to find the command
 ; OUT: Fc=1 - no command matches
