@@ -231,7 +231,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Slot " + slot + ":");
 					while (appList.hasNext()) {
 						ApplicationDor appDor = (ApplicationDor) appList.next();
-						displayCmdOutput(appDor.getAppName() + ": Entry = " + Dz.extAddrToHex(appDor.getEntryPoint(), true));
+						displayCmdOutput(appDor.getAppName() + ": DOR = " + Dz.extAddrToHex(appDor.getThisApp(), true) + ", Entry = " + Dz.extAddrToHex(appDor.getEntryPoint(), true));
 					}					
 				}
 			}
@@ -246,6 +246,7 @@ public class CommandLine implements KeyListener {
 						ApplicationDor appDor = (ApplicationDor) appList.next();
 						if (appDor.getAppName().compareTo(cmdLineTokens[1]) == 0) {
 							displayCmdOutput("DOR information, " + appDor.getAppName() + " ( []" + appDor.getKeyLetter() + " ) :");
+							displayCmdOutput("DOR pointer: "+ Dz.extAddrToHex(appDor.getThisApp(), true));
 							displayCmdOutput("Execution Entry: " + Dz.extAddrToHex(appDor.getEntryPoint(), true) + ", bindings: " +
 												"S0=" + Dz.byteToHex(appDor.getSegment0BankBinding(), true) + ", " +
 												"S1=" + Dz.byteToHex(appDor.getSegment1BankBinding(), true) + ", " +

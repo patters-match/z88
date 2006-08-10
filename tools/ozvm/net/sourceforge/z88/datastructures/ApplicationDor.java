@@ -28,7 +28,12 @@ public class ApplicationDor {
 
 	/** reference to available memory hardware and functionality */
 	private Memory memory;
-
+	
+	/**
+	 * extended address pointer to this Application DOR
+	 */
+	private int thisApp;
+	
 	/**
 	 * extended address pointer to next Application DOR
 	 */
@@ -117,6 +122,8 @@ public class ApplicationDor {
 	private String appName;
 
 	public ApplicationDor(int extAddress) {
+		thisApp = extAddress;
+		
 		int bank = extAddress >> 16; // the absolute bank number of this DOR
 		int slotMask = bank & 0xC0;  // the slot mask to be used for relative DOR
 									 // pointers
@@ -333,5 +340,12 @@ public class ApplicationDor {
 	 */
 	public int getUnsafeWorkspace() {
 		return unsafeWorkspace;
+	}
+
+	/**
+	 * @return Returns the size the pointer to this DOR entry
+	 */
+	public int getThisApp() {
+		return thisApp;
 	}
 }
