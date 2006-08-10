@@ -211,37 +211,33 @@ public class MakeApp {
 	private void createRomUpdCfgFile_OzSlot0() {
 		int totalBanks = 0;
 		
-		if (banks[appCardBanks-1].containsOzRomHeader() == false)
-			System.err.println("OZ ROM not recognized. 'romupdate.cfg' not created.");
-		else {
+		for (int b=0; b<appCardBanks; b++) {
+			if (banks[b].isEmpty() == false) 
+				totalBanks++; // count total number of banks to be blown to slot 0
+		}
+		
+		try {
+			RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
+			cardFile.writeBytes("CFG.V2\n");
+			cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
+			cardFile.writeBytes("OZ," + totalBanks + "\n");
+			cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot 0).\n");
+
 			for (int b=0; b<appCardBanks; b++) {
-				if (banks[b].isEmpty() == false) 
-					totalBanks++; // count total number of banks to be blown to slot 0
-			}
-			
-			try {
-				RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
-				cardFile.writeBytes("CFG.V2\n");
-				cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
-				cardFile.writeBytes("OZ," + totalBanks + "\n");
-				cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot 0).\n");
+				if (banks[b].isEmpty() == false) { 
+					cardFile.writeBytes("\"" + banks[b].getBankFileName() + "\",");
+					cardFile.writeBytes("$" + Long.toHexString(banks[b].getCRC32()) + ",");
+					cardFile.writeBytes("$" + byteToHex(b, false) + "\n");
+				}
+			}				
+			cardFile.close();
 
-				for (int b=0; b<appCardBanks; b++) {
-					if (banks[b].isEmpty() == false) { 
-						cardFile.writeBytes("\"" + banks[b].getBankFileName() + "\",");
-						cardFile.writeBytes("$" + Long.toHexString(banks[b].getCRC32()) + ",");
-						cardFile.writeBytes("$" + byteToHex(b, false) + "\n");
-					}
-				}				
-				cardFile.close();
-
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}			
 	}
 	
@@ -398,6 +394,39 @@ public class MakeApp {
 	}
 
 	/**
+	 * Load file (binary) image into card container. The image will be loaded from the  
+	 * specified bank and upwards in the card container. 
+	 * The remaining banks of the card will be left untouched 
+	 * (initialized as being empty). If the container has the same size as the file image, the
+	 * complete container is automatically filled in natural order. 
+	 * 
+	 * @param bankNo start to load image from specified bank and upwards
+	 * @param codeBuffer the binary file
+	 * @throws IOException
+	 */
+	private void loadLargeBinary(int bankNo, byte codeBuffer[]) {
+		
+		if (codeBuffer.length > (banks.length * Bank.SIZE)) {
+			throw new IllegalArgumentException("Binary image larger than specified loadmap buffer!");
+		}
+		if (codeBuffer.length % Bank.SIZE > 0) {
+			throw new IllegalArgumentException("Binary image must be in 16K sizes!");
+		}
+		if ((codeBuffer.length % Bank.SIZE) > banks.length) {
+			throw new IllegalArgumentException("Binary image larger than specified loadmap buffer!");
+		}
+		
+		int copyOffset = 0;
+		byte bankBuffer[] = new byte[Bank.SIZE]; // allocate intermediate load buffer
+		while (copyOffset < codeBuffer.length) {
+			System.arraycopy(codeBuffer, copyOffset, bankBuffer, 0, Bank.SIZE);
+			banks[bankNo++].loadBytes(bankBuffer, 0);
+			
+			copyOffset += Bank.SIZE;
+		}
+	}
+	
+	/**
 	 * Load the specified code into the final code space <b>banks</b> at bank, offset.
 	 * The function will check for bank boundary code loading overlap errors, and
 	 * report a message to stderr shell channel if an error occurs.
@@ -416,30 +445,31 @@ public class MakeApp {
 			System.err.println(filename + ": couldn't open file!");
 			return false;
 		}
+
 		if (codeBuffer.length > Bank.SIZE) {
-			System.err.println(filename + ": code size > 16K!");
-			return false;
-		}
-
-		if ((codeBuffer.length + offset) > Bank.SIZE ) {
-			System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + 
-					" > crosses 16K bank boundary by " + ((codeBuffer.length + offset) - Bank.SIZE) + " bytes !");
-			return false;
-		}
-
-		if (banks == null) {
-			System.err.println(loadmapFilename + ", at line " + lineNo + ", Buffer hasn't been created yet!");
-			return false;
-		}
-		
-		for (int b=0; b<codeBuffer.length; b++) {
-			if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
-				System.err.println(filename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
+			loadLargeBinary(bankNo, codeBuffer);
+		} else {		
+			if ((codeBuffer.length + offset) > Bank.SIZE ) {
+				System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + 
+						" > crosses 16K bank boundary by " + ((codeBuffer.length + offset) - Bank.SIZE) + " bytes !");
 				return false;
 			}
+	
+			if (banks == null) {
+				System.err.println(loadmapFilename + ", at line " + lineNo + ", Buffer hasn't been created yet!");
+				return false;
+			}
+			
+			for (int b=0; b<codeBuffer.length; b++) {
+				if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
+					System.err.println(filename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
+					return false;
+				}
+			}
+	
+			banks[bankNo].loadBytes(codeBuffer, offset);
 		}
 
-		banks[bankNo].loadBytes(codeBuffer, offset);
 		return true;
 	}
 
