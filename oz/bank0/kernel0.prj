@@ -48,7 +48,6 @@ memory.asm
 mth2.asm
 token.asm
 osin.asm
-mth3.asm
 spnq0.asm
 scrdrv2.asm
 filesys3.asm

@@ -21,6 +21,7 @@ xdef    DrawCmdHelpWd
 xdef    DrawMenuWd
 xdef    DrawTopicHelpWd
 xdef    FilenameDOR
+xdef    FindCmd
 xdef    GetAppCommands
 xdef    GetAppDOR
 xdef    GetAttr
@@ -55,10 +56,10 @@ xref    ResetToggles                            ; bank0/misc5.asm
 xref    ScrDrv_SOH_A                            ; bank0/misc5.asm
 xref    fsMS2BankB                              ; bank0/filesys3.asm
 xref    fsRestoreS2                             ; bank0/filesys3.asm
-xref    Get2ndCmdHelp                           ; bank0/mth3.asm
-xref    Get2ndTopicHelp                         ; bank0/mth3.asm
-xref    GetFirstCmdHelp                         ; bank0/mth3.asm
-xref    GetTpcAttrByNum                         ; bank0/mth3.asm
+xref    Get2ndCmdHelp                           ; bank0/mth1.asm
+xref    Get2ndTopicHelp                         ; bank0/mth1.asm
+xref    GetFirstCmdHelp                         ; bank0/mth1.asm
+xref    GetTpcAttrByNum                         ; bank0/mth1.asm
 xref    GetHandlePtr                            ; bank0/dor.asm
 xref    MayWrt                                  ; bank0/token.asm
 xref    OSWrt                                   ; bank0/token.asm
@@ -71,6 +72,7 @@ xref    InitHelpWd                              ; bank7/mth1.asm
 xref    OpenAppHelpFile                         ; bank7/mth1.asm
 xref    InitHandle                              ; bank7/misc1.asm
 
+xref    PutOZwdBuf                              ; bank0/osin.asm
 
 ;       print MTH string, expand $7f-codes
 
@@ -1174,6 +1176,83 @@ xref    InitHandle                              ; bank7/misc1.asm
         call    KPrint
         defm    " ",13,10,0
 
+        pop     hl
+        pop     de
+        ret
+        
+        
+; -----------------------------------------------------------------------------
+; Called from OS_In to find the command
+; OUT: Fc=1 - no command matches
+; Fc=0, Fz=0, A=code - partial match, buffer not ready yet
+; Fc=0, Fz=1, A=code - perfect match
+; -----------------------------------------------------------------------------
+.FindCmd
+        call    PutOZwdBuf
+        ret     c
+
+        call    GetAppCommands
+        call    OSBixS1
+        push    de
+
+        inc     hl                              ; skip start mark
+.fcmd_1
+        ld      a, (hl)
+        cp      1
+        jr      c, fcmd_4                       ; end of list
+        jr      z, fcmd_2                       ; end of topic? skip it
+        push    hl
+        inc     hl
+        ld      c, (hl)                         ; command code
+        inc     hl
+        ld      de, OZcmdBuf
+        call    CompareCmd
+        pop     hl
+        jr      nc, fcmd_3                      ; match? return C
+
+.fcmd_2
+        ld      e, (hl)                         ; get length
+        ld      d, 0
+        add     hl, de                          ; skip command
+        jr      fcmd_1                          ; compare next command
+.fcmd_3
+        ld      a, c                            ; get command code
+.fcmd_4
+        pop     de
+        call    OSBoxS1
+        ret
+
+.CompareCmd
+        ld      a, (hl)
+        or      a
+        scf
+        ret     z                               ; cmd end? Fc=1
+        ld      a, (de)
+        or      a
+        jr      nz, cc_1                        ; buffer not end yet? skip
+        ld      a, (hl)                         ; cmd char
+        cp      '@'
+        ret     z                               ; '@'? Fc=0, Fz=1
+        scf
+        ret                                     ; otherwise Fc=1
+.cc_1
+        push    de
+        push    hl
+.cc_2
+        ld      a, (de)
+        or      (hl)
+        jr      z, cc_4                         ; end? return Fc=0, Fz=1
+        ld      a, (de)
+        or      a
+        jr      z, cc_3                         ; buf end? Fc=0, A=1
+        cp      (hl)
+        inc     de
+        inc     hl
+        jr      z, cc_2                         ; same? continue compare
+        scf                                     ; different? Fc=1
+.cc_3
+        inc     a
+.cc_4
         pop     hl
         pop     de
         ret
