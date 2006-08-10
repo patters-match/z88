@@ -26,9 +26,8 @@ xdef    RestoreActiveWd
 xdef    DrawTopicWd
 xdef    InitTopicWd
 xdef    InitHelpWd
-
-
-xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
+xdef    Get2ndCmdHelp
+xdef    GetFirstCmdHelp
 
 xref    aRom_Help                               ; bank0/mth2.asm
 xref    ChgHelpFile                             ; bank0/mth2.asm
@@ -50,31 +49,33 @@ xref    PrintTopic                              ; bank0/mth2.asm
 xref    PrntAppname                             ; bank0/mth2.asm
 xref    SetActiveAppDOR                         ; bank0/mth2.asm
 xref    SetHlpAppChgFile                        ; bank0/mth2.asm
+xref    GetAttr                                 ; bank0/mth2.asm
+xref    GetHlpCommands                          ; bank0/mth2.asm
+xref    GetCmdTopicByNum                        ; bank0/mth2.asm
+xref    GetRealCmdPosition                      ; bank0/mth2.asm
 
 xref    Get2ndTopicHelp                         ; bank0/mth3.asm
-xref    GetCmdAttrByNum                         ; bank0/mth3.asm
-xref    GetFirstCmdHelp                         ; bank0/mth3.asm
 xref    GetFirstNonInfoTopic                    ; bank0/mth3.asm
 xref    GetFirstTopicHelp                       ; bank0/mth3.asm
-xref    GetNextCmdHelp                          ; bank0/mth3.asm
 xref    GetNextNonInfoTopic                     ; bank0/mth3.asm
 xref    GetNextTopicHelp                        ; bank0/mth3.asm
 xref    GetNonInfoTopicByNum                    ; bank0/mth3.asm
 xref    GetTpcAttrByNum                         ; bank0/mth3.asm
-xref    GetNextCmdAttr                          ; bank0/mth3.asm
 
+xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
 xref    Beep_X                                  ; bank0/scrdrv4.asm
 xref    DORHandleFree                           ; bank0/dor.asm
 xref    InitHlpActiveCmd                        ; bank0/process3.asm
 xref    InitHlpActiveHelp                       ; bank0/process3.asm
 xref    SetHlpActiveHelp                        ; bank0/process3.asm
+xref    OSBixS1                                 ; bank0/misc4.asm
+xref    OSBoxS1                                 ; bank0/misc4.asm
 xref    KPrint                                  ; bank0/misc5.asm
 xref    MTH_ToggleLT                            ; bank0/misc5.asm
 xref    ReserveStkBuf                           ; bank0/misc5.asm
 xref    RdStdinNoTO                             ; bank0/osin.asm
 xref    sub_EF92                                ; bank0/osin.asm
 xref    sub_EFBB                                ; bank0/osin.asm
-
 
 ;       ----
 
@@ -1226,3 +1227,54 @@ xref    sub_EFBB                                ; bank0/osin.asm
         defm    "eD",$8D,$ED,$B7,"a t"
         defm    $E2,$E4,"m",$8C,"k ",$89,$C4
         defm    "d",0
+
+; -----------------------------------------------------------------------------
+; moved from K0
+; -----------------------------------------------------------------------------
+.Get2ndCmdHelp
+        call    GetFirstCmdHelp
+.GetNextCmdHelp
+        inc     a
+        jr      gch_1
+.GetFirstCmdHelp
+        ld      a, 1
+.gch_1
+        call    GetCmdAttrByNum
+        ret     c
+        bit     CMDF_B_HELP, b
+        ret     nz
+        inc     a
+        jr      gch_1
+
+.GetNextCmdAttr
+        inc     a
+
+.GetCmdAttrByNum
+        push    af
+        call    GetHlpCommands
+        pop     af
+        call    OSBixS1                         ; Bind in extended address
+        push    de
+        ld      c, a                            ; c=count
+        ld      a, (ubHlpActiveTpc)
+        call    GetCmdTopicByNum
+        ld      a, 0
+        jr      c, gcabn_1                      ; error? Fc=1, A=0
+        ld      a, c                            ; a=count
+        call    GetRealCmdPosition
+        push    af
+        inc     hl
+        ld      c, (hl)                         ; command code
+        dec     hl
+        call    GetAttr
+        ld      b, a                            ; attributes
+        pop     af
+        push    de                              ; IX=DE
+        pop     ix
+.gcabn_1
+        pop     de
+        call    OSBoxS1                         ; Restore bindings
+        push    ix                              ; DE=IX
+        pop     de
+        ret
+

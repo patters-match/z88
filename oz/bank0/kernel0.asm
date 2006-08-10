@@ -70,6 +70,8 @@ IF COMPILE_BINARY
         xdef    Help2Wd_Top                     ; bank7/mth1.asm
         xdef    InitHelpWd                      ; bank7/mth1.asm
         xdef    OpenAppHelpFile                 ; bank7/mth1.asm
+        xdef    GetFirstCmdHelp                 ; bank7/mth1.asm
+        xdef    Get2ndCmdHelp                   ; bank7/mth1.asm
 
         xdef    ChkStkLimits                    ; bank7/process1.asm
         xdef    ClearMemDE_HL                   ; bank7/process1.asm

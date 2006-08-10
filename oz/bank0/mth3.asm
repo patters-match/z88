@@ -9,9 +9,7 @@
         include "sysvar.def"
 
 xdef    FindCmd                                 ; osin
-xdef    Get2ndCmdHelp                           ; mth2
-xdef    GetNextCmdHelp                          ; mth1
-xdef    GetFirstCmdHelp                         ; mth1, mth2
+
 xdef    Get2ndTopicHelp                         ; mth1, mth2
 xdef    GetNextTopicHelp                        ; mth1
 xdef    GetFirstTopicHelp                       ; mth1
@@ -19,8 +17,6 @@ xdef    GetNextNonInfoTopic                     ; mth1
 xdef    GetFirstNonInfoTopic                    ; mth1
 xdef    GetNonInfoTopicByNum                    ; mth1
 xdef    GetTpcAttrByNum                         ; mth1, mth2
-xdef    GetNextCmdAttr                          ; mth1
-xdef    GetCmdAttrByNum                         ; mth1
 
 xref    OSBixS1                                 ; bank0/misc4.asm
 xref    OSBoxS1                                 ; bank0/misc4.asm
@@ -29,10 +25,6 @@ xref    GetAppCommands                          ; bank0/mth2.asm
 xref    GetHlpTopics                            ; bank0/mth2.asm
 xref    SkipNTopics                             ; bank0/mth2.asm
 xref    GetAttr                                 ; bank0/mth2.asm
-xref    GetHlpCommands                          ; bank0/mth2.asm
-xref    GetCmdTopicByNum                        ; bank0/mth2.asm
-xref    GetRealCmdPosition                      ; bank0/mth2.asm
-
 
 ; ;OUT: Fc=1 - no command matches
 ; ;Fc=0, Fz=0, A=code - partial match, buffer not ready yet
@@ -112,20 +104,6 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
 
 ;       ----
 
-.Get2ndCmdHelp
-        call    GetFirstCmdHelp
-.GetNextCmdHelp
-        inc     a
-        jr      gch_1
-.GetFirstCmdHelp
-        ld      a, 1
-.gch_1
-        call    GetCmdAttrByNum
-        ret     c
-        bit     CMDF_B_HELP, b
-        ret     nz
-        inc     a
-        jr      gch_1
 
 ;       ----
 
@@ -188,34 +166,4 @@ xref    GetRealCmdPosition                      ; bank0/mth2.asm
 
 ;       ----
 
-.GetNextCmdAttr
-        inc     a
 
-.GetCmdAttrByNum
-        push    af
-        call    GetHlpCommands
-        pop     af
-        call    OSBixS1                         ; Bind in extended address
-        push    de
-        ld      c, a                            ; c=count
-        ld      a, (ubHlpActiveTpc)
-        call    GetCmdTopicByNum
-        ld      a, 0
-        jr      c, gcabn_1                      ; error? Fc=1, A=0
-        ld      a, c                            ; a=count
-        call    GetRealCmdPosition
-        push    af
-        inc     hl
-        ld      c, (hl)                         ; command code
-        dec     hl
-        call    GetAttr
-        ld      b, a                            ; attributes
-        pop     af
-        push    de                              ; IX=DE
-        pop     ix
-.gcabn_1
-        pop     de
-        call    OSBoxS1                         ; Restore bindings
-        push    ix                              ; DE=IX
-        pop     de
-        ret

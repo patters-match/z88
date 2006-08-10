@@ -51,6 +51,8 @@ IF COMPILE_BINARY
 
         xdef    OSFramePop                      ; bank0/misc4.asm
         xdef    OSFramePush                     ; bank0/misc4.asm
+        xdef    OSBixS1                         ; bank0/misc4.asm
+        xdef    OSBoxS1                         ; bank0/misc4.asm
 
         xdef    AtoN_upper                      ; bank0/misc5.asm
         xdef    ClearMemHL_A                    ; bank0/misc5.asm
@@ -119,14 +121,14 @@ IF COMPILE_BINARY
         xdef    SetActiveAppDOR                 ; bank0/mth2.asm
         xdef    SetHlpAppChgFile                ; bank0/mth2.asm
         xdef    aRom_Help                       ; bank0/mth2.asm
+        xdef    GetAttr                         ; bank0/mth2.asm
+        xdef    GetHlpCommands                  ; bank0/mth2.asm
+        xdef    GetCmdTopicByNum                ; bank0/mth2.asm
+        xdef    GetRealCmdPosition              ; bank0/mth2.asm
 
         xdef    Get2ndTopicHelp                 ; bank0/mth3.asm
-        xdef    GetCmdAttrByNum                 ; bank0/mth3.asm
-        xdef    GetFirstCmdHelp                 ; bank0/mth3.asm
         xdef    GetFirstNonInfoTopic            ; bank0/mth3.asm
         xdef    GetFirstTopicHelp               ; bank0/mth3.asm
-        xdef    GetNextCmdAttr                  ; bank0/mth3.asm
-        xdef    GetNextCmdHelp                  ; bank0/mth3.asm
         xdef    GetNextNonInfoTopic             ; bank0/mth3.asm
         xdef    GetNextTopicHelp                ; bank0/mth3.asm
         xdef    GetNonInfoTopicByNum            ; bank0/mth3.asm

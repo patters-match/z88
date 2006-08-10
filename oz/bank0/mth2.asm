@@ -533,7 +533,7 @@ xref    InitHandle                              ; bank7/misc1.asm
 ; OUT: BHL=DOR
 
 .GetAppDOR
-        ld      b, OZBANK_7                     ; bind in other part of kernel, ERROR HERE but $0F hangs...
+        ld      b, OZBANK_7                     ; bind in other part of kernel
         call    fsMS2BankB                      ; remembers S2
         push    de
         push    ix
