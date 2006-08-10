@@ -72,7 +72,9 @@ IF COMPILE_BINARY
         xdef    OpenAppHelpFile                 ; bank7/mth1.asm
         xdef    GetFirstCmdHelp                 ; bank7/mth1.asm
         xdef    Get2ndCmdHelp                   ; bank7/mth1.asm
-
+        xdef    Get2ndTopicHelp                 ; bank7/mth1.asm
+        xdef    GetTpcAttrByNum                 ; bank7/mth1.asm
+        
         xdef    ChkStkLimits                    ; bank7/process1.asm
         xdef    ClearMemDE_HL                   ; bank7/process1.asm
         xdef    ClearUnsafeArea                 ; bank7/process1.asm

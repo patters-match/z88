@@ -28,6 +28,8 @@ xdef    InitTopicWd
 xdef    InitHelpWd
 xdef    Get2ndCmdHelp
 xdef    GetFirstCmdHelp
+xdef    Get2ndTopicHelp
+xdef    GetTpcAttrByNum
 
 xref    aRom_Help                               ; bank0/mth2.asm
 xref    ChgHelpFile                             ; bank0/mth2.asm
@@ -35,8 +37,13 @@ xref    CopyAppPointers                         ; bank0/mth2.asm
 xref    DrawCmdHelpWd                           ; bank0/mth2.asm
 xref    DrawTopicHelpWd                         ; bank0/mth2.asm
 xref    FilenameDOR                             ; bank0/mth2.asm
+xref    GetAttr                                 ; bank0/mth2.asm
+xref    GetCmdTopicByNum                        ; bank0/mth2.asm
 xref    GetHlp_sub                              ; bank0/mth2.asm
 xref    GetHlpHelp                              ; bank0/mth2.asm
+xref    GetHlpCommands                          ; bank0/mth2.asm
+xref    GetHlpTopics                            ; bank0/mth2.asm
+xref    GetRealCmdPosition                      ; bank0/mth2.asm
 xref    InputEmpty                              ; bank0/mth2.asm
 xref    DrawMenuWd                              ; bank0/mth2.asm
 xref    MayMTHPrint                             ; bank0/mth2.asm
@@ -49,18 +56,7 @@ xref    PrintTopic                              ; bank0/mth2.asm
 xref    PrntAppname                             ; bank0/mth2.asm
 xref    SetActiveAppDOR                         ; bank0/mth2.asm
 xref    SetHlpAppChgFile                        ; bank0/mth2.asm
-xref    GetAttr                                 ; bank0/mth2.asm
-xref    GetHlpCommands                          ; bank0/mth2.asm
-xref    GetCmdTopicByNum                        ; bank0/mth2.asm
-xref    GetRealCmdPosition                      ; bank0/mth2.asm
-
-xref    Get2ndTopicHelp                         ; bank0/mth3.asm
-xref    GetFirstNonInfoTopic                    ; bank0/mth3.asm
-xref    GetFirstTopicHelp                       ; bank0/mth3.asm
-xref    GetNextNonInfoTopic                     ; bank0/mth3.asm
-xref    GetNextTopicHelp                        ; bank0/mth3.asm
-xref    GetNonInfoTopicByNum                    ; bank0/mth3.asm
-xref    GetTpcAttrByNum                         ; bank0/mth3.asm
+xref    SkipNTopics                             ; bank0/mth2.asm
 
 xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
 xref    Beep_X                                  ; bank0/scrdrv4.asm
@@ -1278,3 +1274,46 @@ xref    sub_EFBB                                ; bank0/osin.asm
         pop     de
         ret
 
+.Get2ndTopicHelp
+        call    GetFirstTopicHelp
+.GetNextTopicHelp
+        inc     a
+        jr      gth_1
+.GetFirstTopicHelp
+        ld      a, 1
+.gth_1
+        call    GetTpcAttrByNum
+        ret     c
+        bit     CMDF_B_HELP, d
+        ret     nz
+        inc     a
+        jr      gth_1
+
+.GetFirstNonInfoTopic
+        ld      a, 1
+.GetNonInfoTopicByNum
+        call    GetTpcAttrByNum
+        ret     c
+        bit     TPCF_B_INFO, d
+        ret     z                               ; not info, ret
+.GetNextNonInfoTopic
+        inc     a                               ; inc count and loop
+        jr      GetNonInfoTopicByNum
+
+; IN: A=command/topic index
+; OUT: Fc=0, D=attribute byte
+.GetTpcAttrByNum
+        push    af
+        call    GetHlpTopics
+        pop     af
+        call    OSBixS1                          ; bind in BHL
+        push    de
+        call    SkipNTopics
+        push    af
+        call    GetAttr
+        ld      b, a
+        pop     af
+        pop     de
+        call    OSBoxS1
+        ld      d, b
+        ret

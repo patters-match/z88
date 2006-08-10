@@ -10,21 +10,10 @@
 
 xdef    FindCmd                                 ; osin
 
-xdef    Get2ndTopicHelp                         ; mth1, mth2
-xdef    GetNextTopicHelp                        ; mth1
-xdef    GetFirstTopicHelp                       ; mth1
-xdef    GetNextNonInfoTopic                     ; mth1
-xdef    GetFirstNonInfoTopic                    ; mth1
-xdef    GetNonInfoTopicByNum                    ; mth1
-xdef    GetTpcAttrByNum                         ; mth1, mth2
-
 xref    OSBixS1                                 ; bank0/misc4.asm
 xref    OSBoxS1                                 ; bank0/misc4.asm
 xref    PutOZwdBuf                              ; bank0/osin.asm
 xref    GetAppCommands                          ; bank0/mth2.asm
-xref    GetHlpTopics                            ; bank0/mth2.asm
-xref    SkipNTopics                             ; bank0/mth2.asm
-xref    GetAttr                                 ; bank0/mth2.asm
 
 ; ;OUT: Fc=1 - no command matches
 ; ;Fc=0, Fz=0, A=code - partial match, buffer not ready yet
@@ -101,69 +90,3 @@ xref    GetAttr                                 ; bank0/mth2.asm
         pop     hl
         pop     de
         ret
-
-;       ----
-
-
-;       ----
-
-.Get2ndTopicHelp
-        call    GetFirstTopicHelp
-.GetNextTopicHelp
-        inc     a
-        jr      gth_1
-.GetFirstTopicHelp
-        ld      a, 1
-.gth_1
-        call    GetTpcAttrByNum
-        ret     c
-        bit     CMDF_B_HELP, d
-        ret     nz
-        inc     a
-        jr      gth_1
-
-;       ----
-; !!
-;
-; xor a
-; inc a
-;
-; avoids jr and allows loop into 'inc a'
-.GetNextNonInfoTopic
-        inc     a
-        jr      GetNonInfoTopicByNum
-.GetFirstNonInfoTopic
-        ld      a, 1
-.GetNonInfoTopicByNum
-        call    GetTpcAttrByNum
-        ret     c
-        bit     TPCF_B_INFO, d
-        ret     z                               ; not info, ret
-        inc     a                               ; inc count and loop
-        jr      GetNonInfoTopicByNum
-
-;       ----
-
-; IN: A=command/topic index
-; OUT: Fc=0, D=attribute byte
-;
-;
-.GetTpcAttrByNum
-        push    af
-        call    GetHlpTopics
-        pop     af
-        call    OSBixS1                          ; bind in BHL
-        push    de
-        call    SkipNTopics
-        push    af
-        call    GetAttr
-        ld      b, a
-        pop     af
-        pop     de
-        call    OSBoxS1
-        ld      d, b
-        ret
-
-;       ----
-
-

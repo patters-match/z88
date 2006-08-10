@@ -125,14 +125,8 @@ IF COMPILE_BINARY
         xdef    GetHlpCommands                  ; bank0/mth2.asm
         xdef    GetCmdTopicByNum                ; bank0/mth2.asm
         xdef    GetRealCmdPosition              ; bank0/mth2.asm
-
-        xdef    Get2ndTopicHelp                 ; bank0/mth3.asm
-        xdef    GetFirstNonInfoTopic            ; bank0/mth3.asm
-        xdef    GetFirstTopicHelp               ; bank0/mth3.asm
-        xdef    GetNextNonInfoTopic             ; bank0/mth3.asm
-        xdef    GetNextTopicHelp                ; bank0/mth3.asm
-        xdef    GetNonInfoTopicByNum            ; bank0/mth3.asm
-        xdef    GetTpcAttrByNum                 ; bank0/mth3.asm
+        xdef    GetHlpTopics                    ; bank0/mth2.asm
+        xdef    SkipNtopics                     ; bank0/mth2.asm
 
         xdef    InitHlpActiveCmd                ; bank0/process3.asm
         xdef    InitHlpActiveHelp               ; bank0/process3.asm
