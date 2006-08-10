@@ -275,6 +275,7 @@ xref    MemGetBank
         ld      e, (hl)                         ; get opByte
         inc     hl
         push    hl
+        ld      l,(hl)                          ; get it in case of 2 bytes call
         ld      bc, (BLSC_SR2)                  ; remember S2/S3
         push    bc
         ld      a, OZBANK_0                     ; bind b00 into S3

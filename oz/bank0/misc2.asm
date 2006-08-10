@@ -47,43 +47,25 @@ xref    StorePrefixed                           ; bank7/scrdrv1.asm
 
 .CallDC
         ld      a, OZBANK_DC                    ; Bank 2, $80xx
-        jr      ozc_2                           ; !! defb OP_LDBCnn to skip over 'ld a'
+        ld      d, >DCCALLTBL
+        jr      ozc
 .CallGN
         ld      a, OZBANK_GN                    ; Bank 3, $80xx
-.ozc_2
         ld      d, >GNCALLTBL
-        jr      ozc_3
+        jr      ozc
 
 .CallOS2byte
         ld      a, OZBANK_0                     ; Bank 0, $FFxx
         ld      d, >OZCALLTBL
 
-;       !! could read second byte in CallOZMain, increase HL once and do
-;       !! the second inc here - it's just 'ld l,(hl) there to get into E here
-
-.ozc_3
+.ozc                                            ; e contains 2nd opcode
         pop     bc                              ; S2/S3
         pop     hl                              ; caller PC
-        ld      e, (hl)                         ; get op byte
-        bit     7, h                            ; if op byte in S3, bind bank
-        jr      z, ozc_4                        ; in S2 and read op byte from there
-        bit     6, h
-        jr      z, ozc_4
-        push    hl                              ; !! res/set 6,h instead of push/pop
-        push    af
-        call    MS2BankB
-        pop     af
-        set     7, h                            ; S2 !! set unnecessary
-        res     6, h
-        ld      e, (hl)                         ; get op byte
-        pop     hl
-
-.ozc_4
         inc     hl
         push    hl                              ; caller PC
-
         ld      hl, ozc_ret                     ; return here
-        jp      OSFramePushMain
+        jp      OSFramePushMain                 ; OSPUSH and jump to routine
+
 .ozc_ret
         cp      a                               ; Fz=1, Fc=0
         ex      af, af'                         ; alt register
