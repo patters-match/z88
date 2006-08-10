@@ -40,7 +40,6 @@ bank2/indexdc.bin 020000                        ; $C000: Index popdown (and DC l
 bank2/fpp.bin 021800                            ; $D800: Floating point Package
 bank2/rs232.bin 022500                          ; $A500: Serial Port Driver
 bank2/terminal.bin 0227f0                       ; $E7F0: Terminal Application
-;bank2/pedtrtbl.bin 022998                       ; $E998: PrinterEd Translation Table
 bank2/filer.bin 022ab1                          ; $EAB1: Filer Popdown
 
 ; GN system calls, Calculator, Printer filter management?
@@ -55,9 +54,8 @@ banks45/pipedream.bn1 050000
 ; PrinterEd, Panel
 bank6/panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
 
-
 ; kernel lower part (addressed from $8000 upwards)
-bank7/kernel7.bin 070000                        ; font bitmap & remaing kernel OS
+bank7/kernel7.bin 070000                        ; remaing kernel OS
 
 ; MTH and other static structures in last ROM bank
 mth/keymap_uk.bin 080000                        ; keyboard maps
@@ -71,4 +69,4 @@ mth/mth.bin 082000                              ; the System Token Table, MTH st
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
 
 ; BBC Basic application
-basic/basic.dat 091200                          ; $D200: BBC BASIC application
+bbcbasic/basic.dat 091200                          ; $D200: BBC BASIC application
