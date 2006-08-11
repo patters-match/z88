@@ -17,11 +17,6 @@
 ;
 ;***************************************************************************************************
 
-     LIB SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
-     LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
-     LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
-     LIB DisableBlinkInt      ; No interrupts get out of Blink
-     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
      LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
      LIB FlashEprBlockErase   ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
 
@@ -76,7 +71,7 @@ DEFC VppBit = 1
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by:
-;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Aug 2004
+;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Aug 2004, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------
 ;
@@ -88,121 +83,19 @@ DEFC VppBit = 1
                     CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
                     JR   C, exit_FlashEprCardErase
 
-                    CP   FE_28F
-                    JR   Z, erase_28F_card
-                    CP   FE_29F
-                    JR   Z, erase_29F_card
-                    RET
-.erase_28F_card
-                    LD   A,3
-                    CP   C                   ; when chip is FE_28F series, we need to be in slot 3
-                    JR   Z,_erase_28F_card   ; to make a successful card erase
-                    SCF
-                    LD   A, RC_BER           ; Ups, not in slot 3, signal error!
-                    RET
-._erase_28F_card                             ; The Intel 28Fxxxx chip can only erase individual sectors...
-                    RRC  B                   ; so we need to erase the sectors, one at a time
+                    RRC  B                   ; Erase the individual sectors, one at a time
                     RRC  B                   ; total of 16K banks on card -> total of 64K sectors on card.
                     DEC  B                   ; sectors, from (total sectors-1) downwards and including 0
-.erase_28F_card_blocks
+.erase_2xF_card_blocks
                     CALL FlashEprBlockErase  ; erase top sector of card, and downwards...
                     JR   C, exit_FlashEprCardErase
                     DEC  B
                     LD   A,B
                     CP   -1
-                    JR   NZ, erase_28F_card_blocks
-                    JR   exit_FlashEprCardErase
-.erase_29F_card
-                    LD   A,C
-                    AND  @00000011           ; only slots 0, 1, 2 or 3 possible
-                    RRCA
-                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    LD   B,A                 ; bottom bank of slot C
-                    LD   HL,0
-                    CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
-                    CALL MemDefBank
-                    PUSH BC                  ; preserve old bank binding
-
-                    CALL DisableBlinkInt     ; no interrupts get out of Blink
-                    PUSH IX
-                    LD   IX, FEP_EraseCard_29F
-                    EXX
-                    LD   BC, end_FEP_EraseCard_29F - FEP_EraseCard_29F
-                    EXX
-                    CALL ExecRoutineOnStack
-                    POP  IX
-                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
-
-                    POP  BC
-                    CALL MemDefBank          ; Restore previous Bank bindings
+                    JR   NZ, erase_2xF_card_blocks
 
 .exit_FlashEprCardErase
                     POP  HL
                     POP  DE
                     POP  BC
                     RET
-
-
-; ***************************************************************
-;
-; Erase an AMD 29Fxxxx Flash Memory Card, using segment x, which
-; HL points into.
-;
-; In:
-;    HL = points into bound bank of Flash Memory
-; Out:
-;    Success:
-;        Fc = 0
-;        A = undefined
-;    Failure:
-;        Fc = 1
-;        A = RC_BER (block/sector was not erased)
-;
-; Registers changed after return:
-;    ......../IXIY same
-;    AFBCDEHL/.... different
-;
-.FEP_EraseCard_29F
-                    LD   A,H
-                    AND  @11000000
-                    LD   H,A
-                    LD   D,A
-                    OR   $05
-                    LD   H,A
-                    LD   L,$55               ; HL = $x555
-                    LD   A,D
-                    OR   $02
-                    LD   D,A
-                    LD   E,$AA               ; DE = $x2AA
-
-                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$80            ; 80 -> (XX555), Erase Mode
-                                             ; sub command...
-                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$10            ; 10 -> (XX555), Begin erasing card...
-.toggle_wait_loop
-                    LD   A,(HL)              ; get first DQ6 programming status
-                    LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
-                    XOR  (HL)                ; get second DQ6 programming status
-                    BIT  6,A                 ; toggling?
-                    RET  Z                   ; no, we're back in Read Array Mode and card was successfully erased!
-                    BIT  5,C                 ;
-                    JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
-
-                    LD   A,(HL)              ; DQ5 went high, we need to get two successive status
-                    XOR  (HL)                ; toggling reads to determine if we're still toggling
-                    BIT  6,A                 ; which then indicates a card erase error...
-                    JR   NZ,erase_err_29f    ; damn, card was NOT erased!
-                    RET                      ; card was successfully erased, and we're back in Read Array Mode!
-.erase_err_29f
-                    LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
-                    SCF
-                    LD   A, RC_BER           ; signal sector erase error to application
-                    RET
-.end_FEP_EraseCard_29F
