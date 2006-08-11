@@ -43,6 +43,8 @@ public class MakeApp {
 
 	private static final String svnRevisionMacroSearchKey = "$Revision: ";
 	
+	private static final String svnRevisionWorkspaceFile = ".svn" + System.getProperty("file.separator") + "dir-wcprops";
+	
 	private static final String romUpdateConfigFilename = "romupdate.cfg";
 
 	private int appCardBanks = 1; // default output is 16K bank
@@ -267,13 +269,38 @@ public class MakeApp {
 		}
 	}
 	
+	
 	/**
+	 * Fetch current Subversion revision number from current working directory
+	 * by looking into the ".svn/dir-wcprops" file and finding the line
+	 * that contains the "!svn/ver/xxxx/" pattern where 'xxxx' is the 
+	 * latest revision number.
 	 * 
+	 * If the file wasn't found, return an empty string.
 	 * @return
 	 */
 	private String getSvnRevisionFromWorkspace() {
-		return "";
+		String revisionNo = "";
+		
+		try {
+	        BufferedReader in = new BufferedReader(new FileReader(svnRevisionWorkspaceFile));
+	        String str;
+	        while ((str = in.readLine()) != null) {
+	        	int foundRevision = str.indexOf("!svn/ver/");
+	            if (foundRevision >= 0) {
+	            	revisionNo = str.substring(foundRevision+9);
+	            	revisionNo = revisionNo.substring(0,revisionNo.indexOf("/"));
+	            	break;
+	            }
+	        }
+	        in.close();
+	    } catch (IOException e) {
+	    	// System.err.println("Couldn't open or read '" + svnRevisionWorkspaceFile + "'");
+	    }
+	    
+	    return revisionNo;
 	}
+	
 	
 	/**
 	 * Search after the SVN "$Revision:" text pattern and replace it with "build XXXX" 
@@ -296,16 +323,36 @@ public class MakeApp {
 		if (offsetStart != -1) {
 			// found SVN $Revision macro!
 			StringBuffer revisionNo = new StringBuffer(32);
-			
+			int offsetEnd = 0;
 			int charByte = 0;
-			int offsetEnd = offsetStart+svnRevisionMacroSearchKey.length();
-			while (charByte != 32) {
-				// collect revision string number, until trailing space...
-				charByte = banks[bankNo].getByte(offsetEnd++);
-				if (charByte != 32)
-					revisionNo.append( (char) charByte);
-				else {
-					break;
+	
+			String revFromSvnWs = getSvnRevisionFromWorkspace();
+			if (revFromSvnWs.length() > 0) {
+				// use latest Subversion revision number from .svn control dir...
+				revisionNo.append(revFromSvnWs);
+			    // System.out.println("Fetched current revision from SVN workspace: '" + revFromSvnWs + "'");
+				
+				// find end of Revision macro
+				offsetEnd = offsetStart+svnRevisionMacroSearchKey.length();
+				while (charByte != 36) {
+					// find ending $...
+					charByte = banks[bankNo].getByte(offsetEnd);
+					if (charByte == 36) 
+						break;
+					else 
+						offsetEnd++;
+				}
+			} else {
+				// just get the current revision number from the SVN $Revision macro..
+				offsetEnd = offsetStart+svnRevisionMacroSearchKey.length();
+				while (charByte != 32) {
+					// collect revision string number, until trailing space...
+					charByte = banks[bankNo].getByte(offsetEnd++);
+					if (charByte != 32)
+						revisionNo.append( (char) charByte);
+					else {
+						break;
+					}
 				}
 			}
 			
