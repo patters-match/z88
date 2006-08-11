@@ -74,6 +74,7 @@ IF COMPILE_BINARY
         xdef    PutOSFrame_HL                   ; bank0/misc5.asm
         xdef    ReserveStkBuf                   ; bank0/misc5.asm
         xdef    S2VerifySlotType                ; bank0/misc5.asm
+        xdef    ScrDrv_SOH_A 
 
         xdef    AllocHandle                     ; bank0/handle.asm
         xdef    FreeHandle                      ; bank0/handle.asm
@@ -183,6 +184,11 @@ IF COMPILE_BINARY
         xdef    ScrollUp                        ; bank0/scrdrv4.asm
         xdef    SetScrAttr                      ; bank0/scrdrv4.asm
         xdef    ToggleScrDrvFlags               ; bank0/scrdrv4.asm
+
+        xdef    Ld_IX_RxBuf                     ; bank0/ossi0.asm
+        xdef    Ld_IX_TxBuf                     ; bank0/ossi0.asm
+        xdef    WrRxc                           ; bank0/ossi0.asm
+        xdef    EI_TDRE                         ; bank0/ossi0.asm
 
         xdef    Keymap_UK
         xdef    Keymap_FR

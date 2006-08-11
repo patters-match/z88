@@ -37,7 +37,7 @@ error.asm
 esc.asm
 filesys2.asm
 time.asm
-ossi.asm
+ossi0.asm
 misc4.asm
 handle.asm
 misc5.asm

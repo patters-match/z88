@@ -74,6 +74,7 @@ IF COMPILE_BINARY
         xdef    Get2ndCmdHelp                   ; bank7/mth1.asm
         xdef    Get2ndTopicHelp                 ; bank7/mth1.asm
         xdef    GetTpcAttrByNum                 ; bank7/mth1.asm
+        xdef    MTHPrintKeycode
         
         xdef    ChkStkLimits                    ; bank7/process1.asm
         xdef    ClearMemDE_HL                   ; bank7/process1.asm
@@ -103,6 +104,13 @@ IF COMPILE_BINARY
         
         xdef    OSCli                           ; bank7/oscli.asm
 
+        xdef    OSSiHrd1                        ; bank7/ossi1.asm
+        xdef    OSSiSft1                        ; bank7/ossi1.asm
+        xdef    OSSiEnq1                        ; bank7/ossi1.asm
+        xdef    OSSiFtx1                        ; bank7/ossi1.asm
+        xdef    OSSiFrx1                        ; bank7/ossi1.asm
+        xdef    OSSiTmo1                        ; bank7/ossi1.asm
+        
         include "../bank7/kernel7.def"          ; get kernel references from bank 7 and map them into bank 0 project...
 
 ENDIF

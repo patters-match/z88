@@ -47,7 +47,7 @@ xdef    MaySetPendingAlmTask
 xref    ResetTimeout                            ; bank0/nmi.asm
 xref    BothShifts                              ; bank0/nmi.asm
 xref    ExtKbMain                               ; bank0/kbd.asm
-xref    IntUART                                 ; bank0/ossi.asm
+xref    OSSiInt                                 ; bank0/ossi0.asm
 xref    IntFlap                                 ; bank0/cardmgr.asm
 xref    MS2BankA                                ; bank0/misc5.asm
 xref    ReadRTC                                 ; bank0/time.asm
@@ -226,8 +226,8 @@ xref    ReadRTC                                 ; bank0/time.asm
         jr      nc, int_9
 
 .int_uart
-        ld      l, SI_INT
-        call    IntUART
+;        ld      l, SI_INT
+        call    OSSiInt
         jr      int_12
 
 .int_9

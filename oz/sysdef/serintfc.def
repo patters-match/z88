@@ -7,16 +7,27 @@ lstoff
 
 ; Low level serial port interface:
 
-     DEFC Os_Si   = $8D            ; serial interface (low level)
+        DEFC Os_Si   = $8D                      ; serial interface (low level)
 
-          DEFC SI_HRD  = $00       ; Hard reset the serial port
-          DEFC SI_SFT  = $03       ; Soft reset the serial port
-          DEFC SI_INT  = $06       ; Interrupt entry point
-          DEFC SI_GBT  = $09       ; Get byte from serial port
-          DEFC SI_PBT  = $0C       ; Put byte to serial port
-          DEFC SI_ENQ  = $0F       ; Status enquiry
-          DEFC SI_FTX  = $12       ; Flush Tx (transmit) buffer
-          DEFC SI_FRX  = $15       ; Flush Rx (receive) buffer
-          DEFC SI_TMO  = $18       ; Set timeout
+        DEFC SI_HRD  = $00                      ; Hard reset the serial port
+        DEFC SI_SFT  = $03                      ; Soft reset the serial port
+        DEFC SI_INT  = $06                      ; Interrupt entry point
+        DEFC SI_GBT  = $09                      ; Get byte from serial port
+        DEFC SI_PBT  = $0C                      ; Put byte to serial port
+        DEFC SI_ENQ  = $0F                      ; Status enquiry
+        DEFC SI_FTX  = $12                      ; Flush Tx (transmit) buffer
+        DEFC SI_FRX  = $15                      ; Flush Rx (receive) buffer
+        DEFC SI_TMO  = $18                      ; Set timeout
 
+; Parity byte (will be modified with Jorma optimisation)
+        
+        defc    PAR_B_PARITY    = 7             ; has parity
+        defc    PAR_B_STICKY    = 6             ; space or mark
+        defc    PAR_B_ODD       = 5             ; odd parity
+        defc    PAR_B_MARK      = 4             ; mark parity
+        defc    PAR_B_3         = 3             ; not used
+        defc    PAR_B_9BIT      = 2             ; never set, checked during send
+        defc    PAR_B_1         = 1             ; set but not used
+        defc    PAR_B_0         = 0             ; set but not used
+        
 lston

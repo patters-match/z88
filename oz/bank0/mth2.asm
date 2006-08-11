@@ -35,7 +35,6 @@ xdef    GetRealCmdPosition
 xdef    InputEmpty
 xdef    MayMTHPrint
 xdef    MTHPrint
-xdef    MTHPrintKeycode
 xdef    MTHPrintTokenized
 xdef    NextAppDOR
 xdef    PrevAppDOR
@@ -61,6 +60,7 @@ xref    MayWrt                                  ; bank0/token.asm
 xref    OSWrt                                   ; bank0/token.asm
 xref    ZeroHandleIX                            ; bank0/handle.asm
 
+xref    MTHPrintKeycode                         ; bank7/mth1.asm
 xref    DrawMenuWd2                             ; bank7/mth1.asm
 xref    Help2Wd_bottom                          ; bank7/mth1.asm
 xref    Help2Wd_Top                             ; bank7/mth1.asm
@@ -1084,66 +1084,7 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
 
 ;       ----
 
-.MTHPrintKeycode
-        push    de
-        push    hl
-        ld      c, a
-        ld      hl, CmdKeycodeTbl-1
-.pkc_1
-        inc     hl                              ; !! use sorted table here as well
-        ld      a, (hl)
-        or      a
-        jr      z, pkc_2
-        cp      c
-        inc     hl
-        ld      b, (hl)
-        inc     hl
-        jr      nz, pkc_1
-        ld      a, b
-        or      a
-        call    nz, ScrDrv_SOH_A
-        ld      a, (hl)
-        call    ScrDrv_SOH_A
-.pkc_2
-        pop     hl
-        pop     de
-        ret
 
-;       inbyte, SOHm, SOHn
-
-.CmdKeycodeTbl
-        defb    IN_ESC,  0,       SD_ESC
-        defb    IN_TAB0, 0,       SD_TAB
-        defb    IN_STAB, SD_SHFT, SD_TAB
-        defb    IN_DTAB, SD_DIAM, SD_TAB
-        defb    IN_ATAB, SD_SQUA, SD_TAB
-        defb    IN_ENTER,0,       SD_ENT
-        defb    IN_SENT, SD_SHFT, SD_ENT
-        defb    IN_DENT, SD_DIAM, SD_ENT
-        defb    IN_AENT, SD_SQUA, SD_ENT
-        defb    IN_DELX, 0,       SD_DEL
-        defb    IN_SDEL, SD_SHFT, SD_DEL
-        defb    IN_DDEL, SD_DIAM, SD_DEL
-        defb    IN_ADEL, SD_SQUA, SD_DEL
-        defb    IN_LFT,  0,       SD_OLFT
-        defb    IN_SLFT, SD_SHFT, SD_OLFT
-        defb    IN_DLFT, SD_DIAM, SD_OLFT
-        defb    IN_ALFT, SD_SQUA, SD_OLFT
-        defb    IN_RGT,  0,       SD_ORGT
-        defb    IN_SRGT, SD_SHFT, SD_ORGT
-        defb    IN_DRGT, SD_DIAM, SD_ORGT
-        defb    IN_ARGT, SD_SQUA, SD_ORGT
-        defb    IN_UP,   0,       SD_OUP
-        defb    IN_SUP,  SD_SHFT, SD_OUP
-        defb    IN_DUP,  SD_DIAM, SD_OUP
-        defb    IN_AUP,  SD_SQUA, SD_OUP
-        defb    IN_DWN,  0,       SD_ODWN
-        defb    IN_SDWN, SD_SHFT, SD_ODWN
-        defb    IN_DDWN, SD_DIAM, SD_ODWN
-        defb    IN_ADWN, SD_SQUA, SD_ODWN
-        defb    IN_MEN,  0,       SD_MNU
-        defb    IN_HLP,  0,       SD_HLP
-        defb    0
 
 ;       ----
 

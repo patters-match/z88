@@ -22,9 +22,7 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\tools\mpm\mpm -b -I..\sysdef rs232.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef indexdc.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef fpp.asm
-..\..\tools\mpm\mpm -b -I..\sysdef rs232.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef terminal.asm
 ..\..\tools\mpm\mpm -b -I..\sysdef filer.asm

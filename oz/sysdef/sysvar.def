@@ -886,4 +886,23 @@ defc    AT_B_Boot               =7
 defc    AT_B_Draw               =5
 defc    AT_B_Popd               =3
 
+;       ubSerFlowControl        =$0ffd
+
+defc    FLOW_B_XONXOFF          =0
+defc    FLOW_B_TXSTOP           =1
+
+defc    FLOW_XONXOFF            =1
+defc    FLOW_TXSTOP             =2
+
+
+;       cSerXonXoffChar         =$0ffe
+
+;       NUL, XON or XOFF
+
+defc    TDRH_B_START            =0
+defc    TDRH_B_STOP             =1
+defc    TDRH_B_STOP2            =2
+
+defc    TDRH_START              =1
+
 lston
