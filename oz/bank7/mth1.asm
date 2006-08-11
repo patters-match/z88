@@ -1212,7 +1212,7 @@ xref    sub_EFBB                                ; bank0/osin.asm
         defm    "dg",$82,$AB,"mput"
         defm    $EF,"Z88 P",$8F,"t"
         defm    "abl",$82,"V",$86,"si"
-        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48,"$rev$"
+        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48," $Revision$"
         defm    $7F,$7F,$DE,"r"
         defm    $CC,$84,"(C) Tr"
         defm    $85,$FC,$D6,$AB,"n",$C9,"pt"
