@@ -1,0 +1,25 @@
+Here is from an email of 16 october 1999.
+
+Have you noticed the fast baudrate option on bit 7 UTEST of the transmit
+control register? I tried it for repeatedly transmitting the same
+character and observing the output on an oscilloscope. I measured the
+baudrate to about 214000 bps! I think regardless of Panel setting.
+Because I don't have another Z88 (or possibly PC serial card supporting
+230400 bps) for receiving I don't know how useful it might be. Probably
+it is difficult to use the available speed effectively because one
+character have to be processed in only about 150 T-states for full
+speed.
+
+Could perhaps be used for quickly copying RAM or ROM banks from one Z88 to
+reserved RAM on another but I don't see any real use. Protocol would have to
+be very simple like transmit 256 bytes while adding up an 8-bit checksum,
+transmit checksum transmit next block etc. No ack for every block, just
+accept correctly received data or quit receiving.
+
+Best Regards
+Dennis
+
+Gunther and I think that this was just to test serial port raw speed without any synchronisation like a burst mode. Let's see if it will be usable...
+
+
+

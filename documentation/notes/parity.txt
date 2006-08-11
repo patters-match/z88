@@ -1,0 +1,45 @@
+;       !! rearrange parity bits so that we can 'add a' to check next bit
+;       !! to speedup TxInt (need to combine EVEN/SPACE vs ODD/MARK)
+
+;       PAR7    9BIT            0 - 8 bit data, 1 - 9 bit data
+;       PAR6    PARITY          0 - no parity , 1 - parity
+;       PAR5    STICKY          0 - EVEN/ODD,   1 - SPACE/MARK
+;       PAR4    ODD_MARK        0 - EVEN/SPACE, 1 - ODD/MARK
+
+        ex      af,af'                          ; save char
+        ld      a, (ubSerParity)
+
+        add     a, a                            ; take care of 9bit mode !! kludge
+        jr      nc, no9bit
+        res     0, b
+
+.no9bit add     a, a                            ; skip if no parity
+        jr      nc, senda
+
+        add     a, a
+        jr      nc, .cpar                       ; even/odd
+
+        and     $80                             ; space/mark bit
+        ld      c, a
+        ex      af, af'                         ; merge with 7bit char
+        and     $7f
+        or      c
+        jr      senda
+
+.cpar   add     a,a                             ; skip if odd parity
+        jr      c, odd
+
+        ex      af, af'
+        and     a
+        jp      pe, senda                       ; even already
+        jr      xor80
+
+.odd    ex      af, af'
+        and     a
+        jp      po, senda
+
+.xor80  xor     $80
+        ex      af, af'                         ; faster than 'jp/jr'
+.altaf  ex      af, af'
+
+.senda
