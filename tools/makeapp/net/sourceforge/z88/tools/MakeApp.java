@@ -41,6 +41,8 @@ public class MakeApp {
 	private static final char[] hexcodes =
 	{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
+	private static final String svnRevisionMacroSearchKey = "$Revision: ";
+	
 	private static final String romUpdateConfigFilename = "romupdate.cfg";
 
 	private int appCardBanks = 1; // default output is 16K bank
@@ -264,6 +266,60 @@ public class MakeApp {
 			break;
 		}
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private String getSvnRevisionFromWorkspace() {
+		return "";
+	}
+	
+	/**
+	 * Search after the SVN "$Revision:" text pattern and replace it with "build XXXX" 
+	 * where "XXXX" represents the SVN revision number. Look into the current of the caller
+	 * of MakeApp, and find the ".svn/dir-wcprops" file. Inside this file, the current
+	 * SVN revision number can be fetched, thereby auto-updating the Revision string
+	 * automatically in the resulting binary. 
+	 */
+	private void adjustRevisionKeywordMacro() {
+		int offsetStart = -1;
+		int bankNo=0;
+		
+		while (bankNo<banks.length) {
+			if ( (offsetStart = banks[bankNo].findString(svnRevisionMacroSearchKey)) != -1)
+				break;				
+			
+			bankNo++;
+		}
+		
+		if (offsetStart != -1) {
+			// found SVN $Revision macro!
+			StringBuffer revisionNo = new StringBuffer(32);
+			
+			int charByte = 0;
+			int offsetEnd = offsetStart+svnRevisionMacroSearchKey.length();
+			while (charByte != 32) {
+				// collect revision string number, until trailing space...
+				charByte = banks[bankNo].getByte(offsetEnd++);
+				if (charByte != 32)
+					revisionNo.append( (char) charByte);
+				else {
+					break;
+				}
+			}
+			
+			// patch "$Revision:" with "build "
+			banks[bankNo].loadBytes("build ".getBytes(), offsetStart);
+			// followed by actual revision number
+			banks[bankNo].loadBytes(revisionNo.toString().getBytes(), offsetStart+6);
+			// finally, pad with trailing spaces up until ending '$'
+			for (int b=offsetStart+6+revisionNo.length(); b<=offsetEnd; b++) {
+				banks[bankNo].setByte(b,32);
+			}
+		}
+	}
+	
 	
 	/**
 	 * Parse the loadmap file for the following load directives:
@@ -543,6 +599,9 @@ public class MakeApp {
 						}
 					}
 				}
+				
+				// replace "$Revision$" inside binary with "build xxxxx" 
+				adjustRevisionKeywordMacro();
 
 				// all binary fragments loaded, now dump the final code space as complete output file...
 				RandomAccessFile cardFile = new RandomAccessFile(outputFilename, "rw");

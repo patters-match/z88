@@ -126,6 +126,37 @@ public abstract class Bank {
 	}
 	
 	/**
+	 * Search for string pattern in bank.
+	 * If found, return offset to start of found string, otherwise -1.
+	 * 
+	 * @param str
+	 * @return offset of found string
+	 */
+	public int findString(String str) {
+		byte strPattern[] = str.getBytes();
+		boolean strFound = false; 
+		
+		for (int b=0; b<bankMem.length; b++) {
+			if (bankMem[b] == strPattern[0] & (b+strPattern.length < bankMem.length )) {
+				strFound = true;
+				
+				for (int i=1; i<strPattern.length; i++) {
+					if (bankMem[b+i] != strPattern[i]) {
+						strFound = false;
+						break;
+					}
+				}
+			}
+			
+			if (strFound == true)
+				return b;
+		}
+		
+		return -1;
+	}
+	
+	
+	/**
 	 * Validate if card bank contents is not altered, 
 	 * ie. only containing FF bytes for Eprom/Rom/Flash cards or
 	 * 00 bytes for RAM cards.
