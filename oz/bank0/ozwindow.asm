@@ -1,8 +1,44 @@
-; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $39d2
+; **************************************************************************************************
+; The OZ window display routines
+;
+; This table was extracted out of Font bitmaps from original V3.x and V4.0 ROMs using FontBitMap tool,
+; and combined/re-arranged into the new international font bitmap by Thierry Peycru.
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
 ;
 ; $Id$
-; -----------------------------------------------------------------------------
+; **************************************************************************************************
+;
+; OZ window layout
+; ROW MESSAGE
+; 1     OZ
+; 2     localisation '2 letters)
+; 3     CLI
+; 4     alarm bell
+; 5     command
+; 6     bat  / command
+; 7     low  / command
+; 8     caps / command
+;
 
         module  OZWindow
 
@@ -190,7 +226,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
 ;       ----
 
 .OZwd_bell
-        ld      hl, LCD_ozrow2
+        ld      hl, LCD_ozrow4
         ld      bc, $a0a0                       ; blank
         ld      a, (ubAlmDisplayCnt)
         or      a
@@ -215,3 +251,27 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
 .ozcli_1
         jr      ozcaps_1
 
+;.OZwd_loc
+;        ld      hl, loc_hires_table
+;        ld      a, (ubCountry)
+;        or      $xx letter to number
+;        add     a, l
+;        ld      l, a
+;        ld      b, (hl)
+;        inc     hl
+;        ld      c, (hl)
+;        ld      hl, LCD_ozrow2
+;        ld      a, LCDA_HIRES|LCDA_GREY|LCDA_UNDERLINE|LCDA_CH8
+;        jr      VDUputBCA
+
+;.loc_hires_table
+;        defb $80+'U',$80+'K'    ; 0
+;        defb $80+'F',$80+'R'    ; 1
+;        defb $80+'D',$80+'E'    ; 2
+;        defb $80+'D',$80+'K'    ; 3
+;        defb $80+'S',$80+'E'    ; 4
+;        defb $80+'N',$80+'O'    ; 5
+;        defb $80+'F',$80+'I'    ; 6
+;        defb $80+'C',$80+'H'    ; 7
+;        defb $80+'S',$80+'P'    ; 8
+;        defb $80+'I',$80+'T'    ; 9
