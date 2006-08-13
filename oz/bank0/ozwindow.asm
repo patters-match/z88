@@ -249,7 +249,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
         ld      bc, $8889                       ; "cli"
 
 .ozcli_1
-        jr      ozcaps_1
+        jr      ozbell_1
 
 ;.OZwd_loc
 ;        ld      hl, loc_hires_table
