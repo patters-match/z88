@@ -38,7 +38,7 @@ import java.io.RandomAccessFile;
 public class MakeApp {
 
 	private static final String progVersion = "MakeApp V0.9";
-	
+
 	private static final char[] hexcodes = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 	private static final String svnRevisionMacroSearchKey = "$Revision: ";
 	private static final String romUpdateConfigFilename = "romupdate.cfg";
@@ -69,7 +69,7 @@ public class MakeApp {
 
 		return hexString.toString();
 	}
-	
+
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
 	 *
@@ -87,7 +87,7 @@ public class MakeApp {
 
 		return hexString.toString();
 	}
-	
+
 	/**
 	 * Parse integer value from string (fetched from command line or loadmap file)
 	 * and interpret it as the card size. The value must be a valid card size and not
@@ -117,9 +117,9 @@ public class MakeApp {
 	 * Parse integer value from string (fetched from command line or loadmap
 	 * file) and interpret it as the card size. The value must be a valid card
 	 * size and not larger than 1Mb (max size of Z88 slot).
-	 * 
+	 *
 	 * Card size is evaluated as size in K.
-	 * 
+	 *
 	 * @param v
 	 * @return card sice in K, or -1 if the value was illegal or badly formed
 	 */
@@ -173,19 +173,19 @@ public class MakeApp {
 
 		return codeBuffer;
 	}
-	
+
 	/**
 	 * Create "romupdate.cfg" file for Application card.
 	 */
-	private void createRomUpdCfgFile_AppCard() {		
+	private void createRomUpdCfgFile_AppCard() {
 		if (appCardBanks > 1) {
 			System.err.println("RomUpdate currently only supports 16K application cards. 'romupdate.cfg' not created.");
 			return;
-		}			
-		
+		}
+
 		if (banks[0].containsAppHeader() == false)
 			System.err.println("Application card not recognized. 'romupdate.cfg' not created.");
-		else {			
+		else {
 			try {
 				RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
 				cardFile.writeBytes("CFG.V1\n");
@@ -201,8 +201,8 @@ public class MakeApp {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}			
-		}					
+			}
+		}
 	}
 
 	/**
@@ -210,12 +210,12 @@ public class MakeApp {
 	 */
 	private void createRomUpdCfgFile_OzSlot0() {
 		int totalBanks = 0;
-		
+
 		for (int b=0; b<appCardBanks; b++) {
-			if (banks[b].isEmpty() == false) 
+			if (banks[b].isEmpty() == false)
 				totalBanks++; // count total number of banks to be blown to slot 0
 		}
-		
+
 		try {
 			RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
 			cardFile.writeBytes("CFG.V2\n");
@@ -224,12 +224,12 @@ public class MakeApp {
 			cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot 0).\n");
 
 			for (int b=0; b<appCardBanks; b++) {
-				if (banks[b].isEmpty() == false) { 
+				if (banks[b].isEmpty() == false) {
 					cardFile.writeBytes("\"" + banks[b].getBankFileName() + "\",");
 					cardFile.writeBytes("$" + Long.toHexString(banks[b].getCRC32()) + ",");
 					cardFile.writeBytes("$" + byteToHex(b, false) + "\n");
 				}
-			}				
+			}
 			cardFile.close();
 
 		} catch (FileNotFoundException e) {
@@ -238,9 +238,9 @@ public class MakeApp {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}			
+		}
 	}
-	
+
 	/**
 	 * Create RomUpdate.cfg file, based on loadmap directive.
 	 * <pre>
@@ -264,46 +264,45 @@ public class MakeApp {
 			break;
 		}
 	}
-	
+
 
 	/**
-	 * Search after the SVN "$Revision:" text pattern and replace it with "build XXXX" 
-	 * where "XXXX" represents the SVN revision number. Look into the current of the caller
-	 * of MakeApp, and find the ".svn/dir-wcprops" file. Inside this file, the current
-	 * SVN revision number can be fetched, thereby auto-updating the Revision string
-	 * automatically in the resulting binary. 
+	 * Search after the SVN "$Revision:" text pattern and replace it with "build XXXX"
+	 * where "XXXX" represents the SVN revision number, which is fetched by scanning
+	 * .svn workspace directories getting the higest SVN revision numer,
+	 * thereby auto-updating the Revision string automatically in the resulting binary.
 	 */
 	private void adjustRevisionKeywordMacro() {
 		int offsetStart = -1;
 		int bankNo=0;
-		
+
 		while (bankNo<banks.length) {
 			if ( (offsetStart = banks[bankNo].findString(svnRevisionMacroSearchKey)) != -1)
-				break;				
-			
+				break;
+
 			bankNo++;
 		}
-		
+
 		if (offsetStart != -1) {
 			// found SVN $Revision macro!
 			StringBuffer revisionNo = new StringBuffer(32);
 			int offsetEnd = 0;
 			int charByte = 0;
-	
+
 			String revFromSvnWs = new Svn(new File(System.getProperty("user.dir"))).getLatestRevision();
 			if (revFromSvnWs.compareTo("0") != 0) {
 				// use latest Subversion revision number from .svn control dir...
 				revisionNo.append(revFromSvnWs);
 			    // System.out.println("Fetched current revision from SVN workspace: '" + revFromSvnWs + "'");
-				
+
 				// find end of Revision macro
 				offsetEnd = offsetStart+svnRevisionMacroSearchKey.length();
 				while (charByte != 36) {
 					// find ending $...
 					charByte = banks[bankNo].getByte(offsetEnd);
-					if (charByte == 36) 
+					if (charByte == 36)
 						break;
-					else 
+					else
 						offsetEnd++;
 				}
 			} else {
@@ -319,7 +318,7 @@ public class MakeApp {
 					}
 				}
 			}
-			
+
 			// patch "$Revision:" with "build "
 			banks[bankNo].loadBytes("build ".getBytes(), offsetStart);
 			// followed by actual revision number
@@ -330,8 +329,8 @@ public class MakeApp {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Parse the loadmap file for the following load directives:
 	 * <pre>
@@ -374,7 +373,7 @@ public class MakeApp {
 	        			if (directive[1].compareToIgnoreCase("oz.0") == 0)
 	        				romUpdateConfigFileType = 2;
 	        			if (directive[1].compareToIgnoreCase("app") == 0)
-	        				romUpdateConfigFileType = 1;	        			
+	        				romUpdateConfigFileType = 1;
 	        		} else if (directive[0].compareToIgnoreCase("save16k") == 0) {
 	        			splitBanks = true;
 	        		} else if (directive[0].compareToIgnoreCase("outputfile") == 0) {
@@ -391,7 +390,7 @@ public class MakeApp {
 	        				return false;
 	        		} else {
 	        			// now, create the card container based on previous loadmap directives
-	        			if (banks == null) 
+	        			if (banks == null)
 							if (createCard() == false)	// create the card container
 								return false;
 
@@ -461,18 +460,18 @@ public class MakeApp {
 	}
 
 	/**
-	 * Load file (binary) image into card container. The image will be loaded from the  
-	 * specified bank and upwards in the card container. 
-	 * The remaining banks of the card will be left untouched 
+	 * Load file (binary) image into card container. The image will be loaded from the
+	 * specified bank and upwards in the card container.
+	 * The remaining banks of the card will be left untouched
 	 * (initialized as being empty). If the container has the same size as the file image, the
-	 * complete container is automatically filled in natural order. 
-	 * 
+	 * complete container is automatically filled in natural order.
+	 *
 	 * @param bankNo start to load image from specified bank and upwards
 	 * @param codeBuffer the binary file
 	 * @throws IOException
 	 */
 	private void loadLargeBinary(int bankNo, byte codeBuffer[]) {
-		
+
 		if (codeBuffer.length > (banks.length * Bank.SIZE)) {
 			throw new IllegalArgumentException("Binary image larger than specified loadmap buffer!");
 		}
@@ -482,17 +481,17 @@ public class MakeApp {
 		if ((codeBuffer.length % Bank.SIZE) > banks.length) {
 			throw new IllegalArgumentException("Binary image larger than specified loadmap buffer!");
 		}
-		
+
 		int copyOffset = 0;
 		byte bankBuffer[] = new byte[Bank.SIZE]; // allocate intermediate load buffer
 		while (copyOffset < codeBuffer.length) {
 			System.arraycopy(codeBuffer, copyOffset, bankBuffer, 0, Bank.SIZE);
 			banks[bankNo++].loadBytes(bankBuffer, 0);
-			
+
 			copyOffset += Bank.SIZE;
 		}
 	}
-	
+
 	/**
 	 * Load the specified code into the final code space <b>banks</b> at bank, offset.
 	 * The function will check for bank boundary code loading overlap errors, and
@@ -515,25 +514,25 @@ public class MakeApp {
 
 		if (codeBuffer.length > Bank.SIZE) {
 			loadLargeBinary(bankNo, codeBuffer);
-		} else {		
+		} else {
 			if ((codeBuffer.length + offset) > Bank.SIZE ) {
-				System.err.println(filename + ": code block at offset " + addrToHex(offset,true) + 
+				System.err.println(filename + ": code block at offset " + addrToHex(offset,true) +
 						" > crosses 16K bank boundary by " + ((codeBuffer.length + offset) - Bank.SIZE) + " bytes !");
 				return false;
 			}
-	
+
 			if (banks == null) {
 				System.err.println(loadmapFilename + ", at line " + lineNo + ", Buffer hasn't been created yet!");
 				return false;
 			}
-			
+
 			for (int b=0; b<codeBuffer.length; b++) {
 				if ( (banks[bankNo].getByte(offset+b) & 0xff) != 0xFF ) {
 					System.err.println(filename + ": code overlap was found at " + addrToHex(offset+b,true) + "!");
 					return false;
 				}
 			}
-	
+
 			banks[bankNo].loadBytes(codeBuffer, offset);
 		}
 
@@ -546,18 +545,18 @@ public class MakeApp {
 	 */
 	private boolean createCard() {
 		int topBank = 0x3F;
-		
+
 		if (outputFilename == null) {
 			System.err.println("Couldn't create buffer, Output filename hasn't been defined yet!");
 			return false;
 		}
-		
+
 		banks = new RomBank[appCardBanks]; // the card container
 		for (int b=appCardBanks-1; b>=0; b--) {
 			banks[b] = new RomBank(topBank--); 		// container filled with memory...
 			banks[b].setBankFileName(outputFilename);
 		}
-		
+
 		return true;
 	}
 
@@ -596,11 +595,11 @@ public class MakeApp {
 					}
 
 					outputFilename = args[arg++];
-					
+
 					if (banks == null)
 						if (createCard() == false) // create card container based on command line directives.
 							return;
-					
+
 					// remaining arguments on command line are the file binaries to be loaded into the code space.
 					while (arg < args.length) {
 						String fileName = args[arg++];
@@ -610,8 +609,8 @@ public class MakeApp {
 						}
 					}
 				}
-				
-				// replace "$Revision$" inside binary with "build xxxxx" 
+
+				// replace "$Revision$" inside binary with "build xxxxx"
 				adjustRevisionKeywordMacro();
 
 				// all binary fragments loaded, now dump the final code space as complete output file...
@@ -632,9 +631,9 @@ public class MakeApp {
 							cardFile.close();
 						}
 					}
-					
+
 					// create a 'romupdate.cfg' file, if it has been directed in loadmap file.
-					createRomUpdCfgFile();					
+					createRomUpdCfgFile();
 				}
 			}
 		} catch (FileNotFoundException e) {
