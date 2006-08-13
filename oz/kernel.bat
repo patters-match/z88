@@ -30,12 +30,7 @@ goto COMPILE_ERROR
 :: create lowram.def and keymap.def (address pre-compilation) for kernel0.prj and kernel7.prj compilation
 :PRECOMPILE_LOWRAM
 cd ..\bank7
-..\..\tools\mpm\mpm -g -I..\sysdef @lowram.prj
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_UK.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_FR.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_DE.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_DK.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_FI.asm
+..\..\tools\mpm\mpm -g -I..\sysdef lowram.asm
 dir *.err 2>nul >nul || goto PRECOMPILE_BANK0
 goto COMPILE_ERROR
 
@@ -49,7 +44,7 @@ goto COMPILE_ERROR
 :: create final lowram binary with correct addresses from bank 0 kernel
 :COMPILE_LOWRAM
 cd ..\bank7
-..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\sysdef @lowram.prj
+..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\sysdef lowram.asm
 dir *.err 2>nul >nul || goto COMPILE_KERNEL7
 goto COMPILE_ERROR
 

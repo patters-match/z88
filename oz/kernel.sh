@@ -38,7 +38,7 @@ fi
 # (argument $1 contains the country localisation)
 if test "$COMPILE_ERROR" -eq 0; then
   cd bank7
-  ../../tools/mpm/mpm -g -I../sysdef @lowram.prj
+  ../../tools/mpm/mpm -g -I../sysdef lowram.asm
   cd ..
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
@@ -58,7 +58,7 @@ fi
 # create final lowram binary with correct addresses from bank 0 kernel
 if test "$COMPILE_ERROR" -eq 0; then
   cd bank7
-  ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../sysdef @lowram.prj
+  ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../sysdef lowram.asm
   cd ..
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
