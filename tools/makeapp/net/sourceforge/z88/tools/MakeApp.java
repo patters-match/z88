@@ -20,6 +20,7 @@
 package net.sourceforge.z88.tools;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,13 +39,8 @@ public class MakeApp {
 
 	private static final String progVersion = "MakeApp V0.9";
 	
-	private static final char[] hexcodes =
-	{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-
+	private static final char[] hexcodes = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 	private static final String svnRevisionMacroSearchKey = "$Revision: ";
-	
-	private static final String svnRevisionWorkspaceFile = ".svn" + System.getProperty("file.separator") + "dir-wcprops";
-	
 	private static final String romUpdateConfigFilename = "romupdate.cfg";
 
 	private int appCardBanks = 1; // default output is 16K bank
@@ -269,39 +265,7 @@ public class MakeApp {
 		}
 	}
 	
-	
-	/**
-	 * Fetch current Subversion revision number from current working directory
-	 * by looking into the ".svn/dir-wcprops" file and finding the line
-	 * that contains the "!svn/ver/xxxx/" pattern where 'xxxx' is the 
-	 * latest revision number.
-	 * 
-	 * If the file wasn't found, return an empty string.
-	 * @return
-	 */
-	private String getSvnRevisionFromWorkspace() {
-		String revisionNo = "";
-		
-		try {
-	        BufferedReader in = new BufferedReader(new FileReader(svnRevisionWorkspaceFile));
-	        String str;
-	        while ((str = in.readLine()) != null) {
-	        	int foundRevision = str.indexOf("!svn/ver/");
-	            if (foundRevision >= 0) {
-	            	revisionNo = str.substring(foundRevision+9);
-	            	revisionNo = revisionNo.substring(0,revisionNo.indexOf("/"));
-	            	break;
-	            }
-	        }
-	        in.close();
-	    } catch (IOException e) {
-	    	// System.err.println("Couldn't open or read '" + svnRevisionWorkspaceFile + "'");
-	    }
-	    
-	    return revisionNo;
-	}
-	
-	
+
 	/**
 	 * Search after the SVN "$Revision:" text pattern and replace it with "build XXXX" 
 	 * where "XXXX" represents the SVN revision number. Look into the current of the caller
@@ -326,8 +290,8 @@ public class MakeApp {
 			int offsetEnd = 0;
 			int charByte = 0;
 	
-			String revFromSvnWs = getSvnRevisionFromWorkspace();
-			if (revFromSvnWs.length() > 0) {
+			String revFromSvnWs = new Svn(new File(System.getProperty("user.dir"))).getLatestRevision();
+			if (revFromSvnWs.compareTo("0") != 0) {
 				// use latest Subversion revision number from .svn control dir...
 				revisionNo.append(revFromSvnWs);
 			    // System.out.println("Fetched current revision from SVN workspace: '" + revFromSvnWs + "'");
