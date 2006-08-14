@@ -43,7 +43,6 @@ bank2/filer.bin 022ab1                          ; $EAB1: Filer Popdown
 
 ; GN system calls, Calculator, Printer filter management?
 bank3/gn.bin 030000                             ; $C000: GN_ system calls
-bank3/printer.bin 032fc0                        ; $AFC0: Printer filter
 bank3/calc.bin 033300                           ; $F300: Calculator popdown
 
 ; PipeDream (32K app)

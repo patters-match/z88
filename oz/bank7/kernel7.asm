@@ -38,8 +38,6 @@ IF COMPILE_BINARY
 
         xdef    NqSp_ret                        ; bank0/spnq0.asm
         
-        xdef    TogglePrFilter                  ; bank0/pfilter0.asm
-
         xdef    OSSp_PAGfi                      ; bank0/pagfi.asm
 
         xdef    IntSecond                       ; bank0/int.asm

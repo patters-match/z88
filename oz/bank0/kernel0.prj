@@ -53,7 +53,6 @@ scrdrv2.asm
 filesys3.asm
 pagfi.asm
 scrdrv3.asm
-pfilter0.asm
 ozwindow.asm
 scrdrv4.asm
 osust.asm

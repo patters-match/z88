@@ -6,7 +6,6 @@
 
         Module  Misc2
 
-        include "ctrlchar.def"
         include "error.def"
         include "director.def"
         include "memory.def"
@@ -19,7 +18,6 @@ xdef    CallOS2byte
 xdef    OsAlm
 xdef    OSEpr
 xdef    OSPrt
-xdef    OSPrtMain
 xdef    OzCallInvalid
 
 xref    GetOSFrame_BC                           ; bank0/misc5.asm
@@ -30,18 +28,12 @@ xref    osfpop_1                                ; bank0/misc4.asm
 xref    OSFramePop                              ; bank0/misc4.asm
 xref    OSFramePush                             ; bank0/misc4.asm
 xref    OSFramePushMain                         ; bank0/misc4.asm
-xref    PrFilterCall                            ; bank0/pfilter0.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
 xref    SetPendingOZwd                          ; bank0/misc3.asm
 
+xref    OSPrtPrint                              ; bank7/printer.asm
 xref    OSAlmMain                               ; bank7/osalm.asm
 xref    OSEprTable                              ; bank7/eprom.asm
-xref    OSIsq                                   ; bank7/eprom.asm
-xref    StorePrefixed                           ; bank7/scrdrv1.asm
 
-
-;       ----
 
 ;       all 2-byte calls use OSframe
 
@@ -100,11 +92,10 @@ xref    StorePrefixed                           ; bank7/scrdrv1.asm
 
 .OSPrt
         call    OSFramePush
-        ex      af, af'                         ; we need screen because prt sequence buffer is in SBF
-        call    ScreenOpen                      ; !! this is also done in OSPrtMain, unnecessary here?
-        ex      af, af'
+;        ex      af, af'                         ; we need screen because prt sequence buffer is in SBF
+;        call    ScreenOpen                      ; !! this is also done in OSPrtMain, unnecessary here?
+;        ex      af, af'
 
-.prt_1
         ld      hl, (ubCLIActiveCnt)            ; !! just L
         inc     l
         dec     l
@@ -113,75 +104,18 @@ xref    StorePrefixed                           ; bank7/scrdrv1.asm
         OZ      DC_Prt                          ; otherwise use DC
         jr      nc, prt_x                       ; no error? exit
         cp      RC_Time
-        jr      z, prt_1                        ; timeout? retry forever
+        jr      z, OSPrt                        ; timeout? retry forever
         scf
         jr      prt_x
 
 .prt_2
-        call    OSPrtMain
+        extcall OSPrtPrint, OZBANK_7
 
 .prt_x
-        ex      af, af'
-        call    ScreenClose
-        ex      af, af'
+;        ex      af, af'
+;        call    ScreenClose
+;        ex      af, af'
         jp      OSFramePop
-
-;       ----
-
-.OSPrtMain
-        push    bc
-        ex      af, af'
-        call    ScreenOpen
-        ex      af, af'
-
-        ld      hl, (PrtSeqPrefix)              ; ld l,(PrtSeqPrefix)
-        inc     l
-        dec     l
-        jr      nz, prtm_2                      ; have ctrl sequence? add to it
-        cp      $20
-        jr      nc, prtm_3                      ; not ctrl char? print
-        cp      ESC
-        jr      z, prtm_3                       ; ESC? print
-        cp      7                               ; 00-06, 0E-1F: ctrl sequence
-        jr      c, prtm_1                       ; otherwise print
-        cp      $0E
-        jr      c, prtm_3
-
-.prtm_1
-        ld      (PrtSeqPrefix), a               ; store prefix char
-        ld      hl, PrtSequence                 ; init sequence
-        call    OSIsq
-        or      a                               ; Fc=0
-        jr      prtm_x
-
-.prtm_2
-        ld      hl, PrtSequence                 ; put into buffer
-        call    StorePrefixed
-        ccf
-        jr      nc, prtm_x                      ; not done yet? exit, Fc=0
-
-        ld      a, (PrtSeqPrefix)               ; ctrl char
-        ld      bc, (PrtSequence)               ; c,(PrtSequence) - length
-        ld      b, 0
-        ld      de, PrtSeqBuf                   ; buffer
-
-        ld      l, <PrntCtrlSeq
-        jr      prtm_4
-.prtm_3
-        ld      l, <PrntChar
-.prtm_4
-        call    PrFilterCall
-        ex      af, af'
-        xor     a                               ; reset prefix
-        ld      (PrtSeqPrefix), a
-        ex      af, af'
-
-.prtm_x
-        ex      af, af'
-        call    ScreenClose
-        ex      af, af'
-        pop     bc
-        ret
 
 ;       ----
 

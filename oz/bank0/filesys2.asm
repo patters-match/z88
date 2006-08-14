@@ -50,7 +50,6 @@ xref    Chk128KB                                ; bank0/resetx.asm
 xref    DORHandleFreeDirect                     ; bank0/dor.asm
 xref    GetHandlePtr                            ; bank0/dor.asm
 xref    VerifyHandleBank                        ; bank0/dor.asm
-xref    OSPrtMain                               ; bank0/misc2.asm
 xref    RdKbBuffer                              ; bank0/osin.asm
 xref    OSFramePop                              ; bank0/misc4.asm
 xref    OSFramePush                             ; bank0/misc4.asm
@@ -66,6 +65,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 xref    PutOSFrame_DE                           ; bank0/misc5.asm
 xref    PutOSFrame_HL                           ; bank0/misc5.asm
 
+xref    OSPrtPrint                              ; bank7/printer.asm
 xref    FileNameDate                            ; bank7/filesys1.asm
 xref    IsSpecialHandle                         ; bank7/filesys1.asm
 xref    OpenMem                                 ; bank7/filesys1.asm
@@ -197,7 +197,8 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
 
 ;       8 - printer filter
         ld      a, (iy+OSFrame_A)
-        jp      OSPrtMain
+        extcall OSPrtPrint, OZBANK_7            ; write byte to printer filter
+        ret
 
 .pbts_5
         ld      a, RC_Hand

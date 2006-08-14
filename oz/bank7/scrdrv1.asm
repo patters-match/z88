@@ -34,6 +34,7 @@
 
         include "screen.def"
         include "stdio.def"
+        include "director.def"
         include "sysvar.def"
 
 xdef    OSOutMain
@@ -87,7 +88,7 @@ xref    ToggleScrDrvFlags                       ; bank0/scrdrv4.asm
 xref    Chk128KB                                ; bank0/resetx.asm
 xref    InitWindowFrame                         ; bank0/scrdrv3.asm
 xref    ResetWdAttrs                            ; bank0/scrdrv3.asm
-xref    TogglePrFilter                          ; bank0/pfilter0.asm
+;xref    TogglePrFilter                          ; bank0/pfilter0.asm
 
 xref    VDU2Chr_tbl                             ;bank7/key2chrt.asm
 xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
@@ -974,6 +975,20 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
 
 ;       ----
 
+.TogglePrFilter
+        push    hl
+        ld      a, (ubScreenBase)               ; screen base bank
+        ld      b, a
+        ld      hl, sbf_VDU1&$3fff
+        ld      a, (sbf_PrefixSeq)
+        dec     a                               ; -1 for '.'
+        ld      c, a                            ; length
+        OZ      DC_Gen
+        pop     hl
+        ret
+        
+;       ----
+        
 .ScrDrvCmdTable
         defb    '@',0
         defw    MoveToXY

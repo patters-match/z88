@@ -226,7 +226,26 @@ defc    pEpr_Parsedname         =$0dbf
 defc    pEpr_FileHandle         =$0dc1
 
 ;       0dd0-0e07       Printer
-
+defvars $0dd0
+        StackBufPtr     ds.w    1
+        CtrlBuf         ds.w    1
+        CtrlLen         ds.b    1
+        prtInChar       ds.b    1
+        Translations    ds.b    37
+        PlaceHolderChar ds.b    1
+        PendingSpaces   ds.b    1
+        Rows            ds.b    1
+        PageLen         ds.b    1
+        Flags           ds.b    1
+        AttrUnderline   ds.b    1
+        AttrBold        ds.b    1
+        AttrExtended    ds.b    1
+        AttrItalics     ds.b    1
+        AttrSubscript   ds.b    1
+        AttrSuperscript ds.b    1
+        AttrAltfont     ds.b    1
+        AttrUserdef     ds.b    1
+enddef
 
 ;       0E10-0EC5       Index
 defvars $0E10
@@ -476,23 +495,6 @@ defc    SF1_B_NOTOKENS          =7
 
 defc    SF1_OZDMND              =$10
 defc    SF1_OZSQUARE            =$20
-
-
-
-; **************************************************************************************************
-;       PRINTER FILTER
-; **************************************************************************************************
-
-defc    PrtSeqPrefix            =$7ee9
-defc    PrtSequence             =$7eea
-defc    PrtSeqBuf               =$7eec
-
-;       should get rid of these later - most likely when they are moved into main banks
-
-defc    PrntChar                =$afc0
-defc    PrntCtrlSeq             =$afc3
-defc    PrntInit                =$afc6
-
 
 
 ; **************************************************************************************************
@@ -986,5 +988,39 @@ defc    TDRH_B_STOP             =1
 defc    TDRH_B_STOP2            =2
 
 defc    TDRH_START              =1
+
+
+
+; **************************************************************************************************
+;       PRINTER FILTER
+; **************************************************************************************************
+
+;       Sequences (in SBF)
+
+defc    PrtSeqPrefix            =$7ee9
+defc    PrtSequence             =$7eea
+defc    PrtSeqBuf               =$7eec
+
+;       PrinterAttrs
+
+defc    PRA_B_ON                =0              ; state
+defc    PRA_B_PENDING           =1              ; changed but not yet printed
+defc    PRA_B_PLACEHOLDER       =2              ;
+defc    PRA_B_RESETCR           =7              ; reset at CR?
+
+defc    PRA_ON                  =1
+defc    PRA_PENDING             =2
+defc    PRA_PLACEHOLDER         =4
+defc    PRA_RESETCR             =128
+
+;       PrtFlags
+
+defc    PRT_B_ALLOWLF   =0                      ; LF after CR?
+defc    PRT_B_ENABLED   =1                      ; output enabled?
+
+defc    PRT_ALLOWLF     =1
+defc    PRT_ENABLED     =2
+
+
 
 lston

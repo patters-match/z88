@@ -111,6 +111,9 @@ IF COMPILE_BINARY
         xdef    OSSiFrx1                        ; bank7/ossi1.asm
         xdef    OSSiTmo1                        ; bank7/ossi1.asm
         
+        xdef    OSPrtInit                       ; bank7/printer.asm
+        xdef    OSPrtPrint                      ; bank7/printer.asm
+        
         include "../bank7/kernel7.def"          ; get kernel references from bank 7 and map them into bank 0 project...
 
 ENDIF
