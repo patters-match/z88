@@ -201,8 +201,6 @@ enddef
 ;       0500-0aff       handles
 
 defc    HANDLES                 =$0500
-defc    NUMHANDLES              =6*16
-
 
 ;       0b00-0bff       buffers
 
@@ -278,9 +276,10 @@ defc    ubNumVisibleAlarms      =$0fb3
 defc    ubTopVisibleAlarm       =$0fb4
 
 ;$0fbf-$0ffb    Calculator app data - shouldn't be here
+;               Note that calculator memories are persistant (because of static permanent sysvars)
 
 
-defc    ubSerParity             =$0ffc
+defc    ubSerParity             =$0ffc          ; move with the others one SI above
 defc    ubSerFlowControl        =$0ffd
 defc    cSerXonXoffChar         =$0ffe
 
@@ -289,17 +288,38 @@ defc    ubMailboxLength         =$1811
 defc    MailboxData             =$1812          ; max 64 bytes
 defc    ubMailBoxID             =$1852
 
+defc    word_1853               =$1853          ; ???
+defc    uwStkEntUsedStkSize     =$1859
+defc    pStkTempStkTop          =$185b
+defc    stkBottom               =$185d
+defc    pStkEntUsedStkBottom    =$1857
+defc    unk_1864                =$1864          ; ???
+
+; **************************************************************************************************
+;
+;       *** END OF SYSTEM RAM VARIABLES ***
+;
+;       all definitions below should be moved to their own def file, all of them are :
+;
+;       *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+;
+; **************************************************************************************************
+
+
+
+; **************************************************************************************************
+;       MAILBOX
+; **************************************************************************************************
+
 defc    MBOXNAMEMAXLEN          =17
 defc    MAILBOXMAXLEN           =64
 defc    MAILBOXID               =$aa
 
 
-defc    word_1853               =$1853
-defc    uwStkEntUsedStkSize     =$1859
-defc    pStkTempStkTop          =$185b
-defc    stkBottom               =$185d
-defc    pStkEntUsedStkBottom    =$1857
-defc    unk_1864                =$1864
+
+; **************************************************************************************************
+;       INDEX / DC
+; **************************************************************************************************
 
 ;       ubIdxPubFlags
 
@@ -308,6 +328,12 @@ defc    IDXF1_B_INIT            =1              ; need init
 
 defc    IDXF1_INSIDEOS          =$01
 defc    IDXF1_INIT              =$02
+
+
+
+; **************************************************************************************************
+;       KEYBOARD
+; **************************************************************************************************
 
 ;       qualifiers
 
@@ -320,6 +346,88 @@ defc    QUAL_SHIFT              =$01
 defc    QUAL_CTRL               =$02
 defc    QUAL_ALT                =$04
 defc    QUAL_SPECIAL            =$08
+
+;       keyboard
+defvars 0
+        kbd_rawkey              ds.b    1       ; current key, internal code
+        kbd_rlscnt              ds.b    1       ; release counter
+        kbd_keyflags            ds.b    1       ; state bits: KB_xxx
+        kbd_prevkey             ds.b    1       ; as above for previous key
+        kbd_prevrlscnt          ds.b    1
+        kbd_prevflags           ds.b    1
+        kbd_repeatcnt           ds.b    1       ; repeat counter (bit 7: 0 enabled, 1 disabled)
+        kbd_flags               ds.b    1
+        kbd_lastkey             ds.b    1       ; used in dead-key handling
+        kbd_SIZEOF              ds.b    1
+enddef
+
+defc    KBF_B_CAPSE             =0              ; 1-CAPS enable
+defc    KBF_B_CAPS              =1              ; 1-caps 0-CAPS
+defc    KBF_B_SCAN              =2              ; 1-keybard scan active
+defc    KBF_B_BEEP              =3              ; 1-do keyclick
+defc    KBF_B_DMND              =4              ; 1-<> down
+defc    KBF_B_KEY               =5              ; 1-any (not <>/[]) key down
+defc    KBF_B_SQR               =6              ; 1-[] down
+defc    KBF_B_LOCKED            =7              ; 1-locked
+
+defc    KMT_MATRIX              =0
+defc    KMT_SHIFT               =1
+defc    KMT_CAPS                =2
+defc    KMT_DIAMOND             =3
+defc    KMT_SQUARE              =4
+defc    KMT_DEADKEY             =5
+
+defc    QB_SHIFT                =0              ; qualifier bits from GetQual()
+defc    QB_DIAMOND              =1
+defc    QB_SQUARE               =2
+
+defc    KB_ACTIVE               =0              ; kbd_keyflags / kbd_prevflags bits
+defc    KB_HOLD                 =1
+defc    KB_RELEASE              =2
+
+defc    K_ACTIVE                =1
+defc    K_HOLD                  =2
+defc    K_RELEASE               =4
+
+defc    KBF_CAPSE               =$01
+defc    KBF_CAPS                =$02
+defc    KBF_SCAN                =$04
+defc    KBF_BEEP                =$08
+defc    KBF_DMND                =$10
+defc    KBF_KEY                 =$20
+defc    KBF_SQR                 =$40
+defc    KBF_LOCKED              =$80
+
+defc    IN_ASPC                 =$B0            ; redundant...
+defc    IN_AESC                 =$B4            ; to be erased...
+defc    IN_AMEN                 =$B5            ; but some of them are different
+defc    IN_AIDX                 =$B6            ; and have to be renamed
+defc    IN_AHEL                 =$B7
+defc    IN_SQU                  =$B8
+defc    IN_DSPC                 =$C0
+defc    IN_DESC                 =$C4
+defc    IN_DMEN                 =$C5
+defc    IN_DIDX                 =$C6
+defc    IN_DHEL                 =$C7
+defc    IN_DIA                  =$C8
+defc    IN_SESC                 =$D4
+defc    IN_SMEN                 =$D5
+defc    IN_SIDX                 =$D6
+defc    IN_SHEL                 =$D7
+defc    IN_SHI                  =$D8
+defc    IN_ENTER                =$E1            ; !!
+defc    IN_TAB0                 =$E2
+defc    IN_DELX                 =$E3
+defc    IN_MEN                  =$E5
+defc    IN_IDX                  =$E6
+defc    IN_HLP                  =$E7
+defc    IN_CAPS                 =$E8
+
+
+
+; **************************************************************************************************
+;       INT / NMI
+; **************************************************************************************************
 
 ;       ubIntStatus
 
@@ -370,14 +478,28 @@ defc    SF1_OZDMND              =$10
 defc    SF1_OZSQUARE            =$20
 
 
-;       printer filter
+
+; **************************************************************************************************
+;       PRINTER FILTER
+; **************************************************************************************************
 
 defc    PrtSeqPrefix            =$7ee9
 defc    PrtSequence             =$7eea
 defc    PrtSeqBuf               =$7eec
 
+;       should get rid of these later - most likely when they are moved into main banks
 
-;       screen/window related
+defc    PrntChar                =$afc0
+defc    PrntCtrlSeq             =$afc3
+defc    PrntInit                =$afc6
+
+
+
+; **************************************************************************************************
+;       SCREEN / WINDOW
+; **************************************************************************************************
+
+;       reset definitions
 
 defc    LORES0_BANK_UNEXP       =$21
 defc    LORES0_PAGE_UNEXP       =$22
@@ -395,8 +517,10 @@ defc    HIRES0_PAGE_EXP         =$00
 defc    HIRES1_BANK             =$08
 defc    HIRES1_PAGE             =$08            ; cross LORES1 because first $400 is empty
                                                 ; starts really at $1400 (first hires char is number $80)
-defc    SBF_BANK                =$20
+defc    SBF_BANK                =$20            ; to be renamed ($21 in reality)
 defc    SBF_PAGE                =$78
+
+;       screen
 
 defc    SBF_ADDRESS             =SBF_PAGE<<8
 
@@ -511,7 +635,12 @@ defc    LCDA_NULLCHAR           =$34
 defc    LCDA_LORESCURSOR        =$38
 
 
-;       (application) DOR offsets
+
+; **************************************************************************************************
+;       DOR
+; **************************************************************************************************
+
+;       application DOR offsets
 
 defvars 0
         DOR_PARENT              ds.p    1       ; $00
@@ -542,6 +671,14 @@ defvars 0
         ADOR_NAME               ds.b    1       ; $2f
 enddef
 
+;       application type
+
+defc    AT_B_Boot               =7
+defc    AT_B_Draw               =5
+defc    AT_B_Popd               =3
+
+;       mth
+
 defc    CMDF_B_COLUMN           =0
 defc    TPCF_B_AN               =0              ; unused? if so, there's error in docs
 defc    TPCF_B_INFO             =1
@@ -550,6 +687,13 @@ defc    CMDF_B_SAFE             =3
 defc    CMDF_B_HELP             =4
 
 defc    CMDF_HELP               =$10
+
+
+; **************************************************************************************************
+;       PUSHFRAME / CPU
+; **************************************************************************************************
+
+;       OS pushframe
 
 defvars 0
         OSFrame_IY              ds.w    1       ; $00
@@ -588,6 +732,10 @@ defc    Z80F_S                  =$80
 
 
 
+; **************************************************************************************************
+;       BUFFER
+; **************************************************************************************************
+
 ;       buffer  !! remove unused bytes, size drops to 5 bytes
 
 defvars -10
@@ -602,6 +750,15 @@ defvars -10
         buf_rdpos               ds.b    1       ; $FF
 enddef
 
+
+
+; **************************************************************************************************
+;       HANDLE
+; **************************************************************************************************
+
+;       number of handles
+
+defc    NUMHANDLES              =6*16
 
 ;       handle types
 
@@ -697,7 +854,13 @@ defc    thnd_AddrH              =$05
 defc    thnd_Bank               =$06
 defc    thnd_SubType            =$07
 
-;       ----
+
+
+; **************************************************************************************************
+;       ALARM
+; **************************************************************************************************
+
+;       alarm frame structure
 
 defvars 0
         alm_Next                ds.p    1       ; $00
@@ -745,9 +908,11 @@ defc    ALRF_MONTH              =$20
 defc    ALRF_YEAR               =$40
 defc    ALRF_NEVER              =$80
 
-;       ----
 
-;       memory related
+
+; **************************************************************************************************
+;       MEMORY
+; **************************************************************************************************
 
 ;       out-of-memory flags
 
@@ -776,18 +941,21 @@ defc    MM_B_FIX                =1
 defc    MM_B_SLT                =2
 defc    MM_B_MUL                =5
 
-;       kernel module banks
+
+
+; **************************************************************************************************
+;       KERNEL
+; **************************************************************************************************
 
 defc    ROMSIZE                 =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
 defc    FILEAREASIZE            =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
 
-defc    OZBANK_0                =$00
+defc    OZBANK_0                =$00            ; should become KNL0
 defc    OZBANK_DC               =$02
-defc    OZBANK_RS232            =$02
 defc    OZBANK_FPP              =$02
 defc    OZBANK_GN               =$03
-defc    OZBANK_PRFILTER         =$03
-defc    OZBANK_7                =$07
+defc    OZBANK_PRFILTER         =$03            ; should disappear soon
+defc    OZBANK_7                =$07            ; should become KNL1
 defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap, keymaps)
 
 defc    OZCALLTBL               =$ff00
@@ -796,95 +964,10 @@ defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if change
 defc    FPPCALLTBL              =$D800
 
 
-;       should get rid of these later - most likely when they are moved into main banks
 
-defc    PrntChar                =$afc0
-defc    PrntCtrlSeq             =$afc3
-defc    PrntInit                =$afc6
-
-defc    RS232code               =$a500
-
-
-
-;       keyboard
-defvars 0
-        kbd_rawkey              ds.b    1       ; current key, internal code
-        kbd_rlscnt              ds.b    1       ; release counter
-        kbd_keyflags            ds.b    1       ; state bits: KB_xxx
-        kbd_prevkey             ds.b    1       ; as above for previous key
-        kbd_prevrlscnt          ds.b    1
-        kbd_prevflags           ds.b    1
-        kbd_repeatcnt           ds.b    1       ; repeat counter (bit 7: 0 enabled, 1 disabled)
-        kbd_flags               ds.b    1
-        kbd_lastkey             ds.b    1       ; used in dead-key handling
-        kbd_SIZEOF              ds.b    1
-enddef
-
-defc    KBF_B_CAPSE             =0              ; 1-CAPS enable
-defc    KBF_B_CAPS              =1              ; 1-caps 0-CAPS
-defc    KBF_B_SCAN              =2              ; 1-keybard scan active
-defc    KBF_B_BEEP              =3              ; 1-do keyclick
-defc    KBF_B_DMND              =4              ; 1-<> down
-defc    KBF_B_KEY               =5              ; 1-any (not <>/[]) key down
-defc    KBF_B_SQR               =6              ; 1-[] down
-defc    KBF_B_LOCKED            =7              ; 1-locked
-
-defc    KMT_MATRIX              =0
-defc    KMT_SHIFT               =1
-defc    KMT_CAPS                =2
-defc    KMT_DIAMOND             =3
-defc    KMT_SQUARE              =4
-defc    KMT_DEADKEY             =5
-
-defc    QB_SHIFT                =0              ; qualifier bits from GetQual()
-defc    QB_DIAMOND              =1
-defc    QB_SQUARE               =2
-
-defc    KB_ACTIVE               =0              ; kbd_keyflags / kbd_prevflags bits
-defc    KB_HOLD                 =1
-defc    KB_RELEASE              =2
-
-defc    K_ACTIVE                =1
-defc    K_HOLD                  =2
-defc    K_RELEASE               =4
-
-defc    KBF_CAPSE               =$01
-defc    KBF_CAPS                =$02
-defc    KBF_SCAN                =$04
-defc    KBF_BEEP                =$08
-defc    KBF_DMND                =$10
-defc    KBF_KEY                 =$20
-defc    KBF_SQR                 =$40
-defc    KBF_LOCKED              =$80
-
-defc    IN_ASPC                 =$B0
-defc    IN_AESC                 =$B4
-defc    IN_AMEN                 =$B5
-defc    IN_AIDX                 =$B6
-defc    IN_AHEL                 =$B7
-defc    IN_SQU                  =$B8
-defc    IN_DSPC                 =$C0
-defc    IN_DESC                 =$C4
-defc    IN_DMEN                 =$C5
-defc    IN_DIDX                 =$C6
-defc    IN_DHEL                 =$C7
-defc    IN_DIA                  =$C8
-defc    IN_SESC                 =$D4
-defc    IN_SMEN                 =$D5
-defc    IN_SIDX                 =$D6
-defc    IN_SHEL                 =$D7
-defc    IN_SHI                  =$D8
-defc    IN_ENTER                =$E1
-defc    IN_TAB0                 =$E2
-defc    IN_DELX                 =$E3
-defc    IN_MEN                  =$E5
-defc    IN_IDX                  =$E6
-defc    IN_HLP                  =$E7
-defc    IN_CAPS                 =$E8
-
-defc    AT_B_Boot               =7
-defc    AT_B_Draw               =5
-defc    AT_B_Popd               =3
+; **************************************************************************************************
+;       SERIAL INTERFACE
+; **************************************************************************************************
 
 ;       ubSerFlowControl        =$0ffd
 
@@ -893,7 +976,6 @@ defc    FLOW_B_TXSTOP           =1
 
 defc    FLOW_XONXOFF            =1
 defc    FLOW_TXSTOP             =2
-
 
 ;       cSerXonXoffChar         =$0ffe
 
