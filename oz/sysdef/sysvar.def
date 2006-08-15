@@ -956,7 +956,6 @@ defc    OZBANK_0                =$00            ; should become KNL0
 defc    OZBANK_DC               =$02
 defc    OZBANK_FPP              =$02
 defc    OZBANK_GN               =$03
-defc    OZBANK_PRFILTER         =$03            ; should disappear soon
 defc    OZBANK_7                =$07            ; should become KNL1
 defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap, keymaps)
 
