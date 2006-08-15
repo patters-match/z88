@@ -27,7 +27,7 @@ size 512
 romupdate oz.0
 
 ; kernel upper part (addressed from $C000 upwards) OS system calls
-bank0/kernel0.bin 000000
+bank0/kernel0.bin 000000                        ; first part of kernel OS
 bank0/ostables.bin 003f00
 
 ; Bank 1: Diary app, Calendar, Clock, Alarm & Imp/Export popdowns
@@ -36,12 +36,12 @@ bank1/clcalalm.bin 0127ee                       ; $E7EE: Clock, Calendar & Alarm
 bank1/impexp.bin 013ab1                         ; $FAB1: Imp/export popdown
 
 ; Bank2: Index, Filer, Terminal, Floating Point Package and serial port driver.
-bank2/indexdc.bin 020000                        ; $C000: Index popdown (and DC low level routines)
+bank2/indexdc.bin 020000                        ; $C000: Index popdown (and DC_ system calls)
 bank2/fpp.bin 021800                            ; $D800: Floating point Package
 bank2/terminal.bin 0227f0                       ; $E7F0: Terminal Application
 bank2/filer.bin 022ab1                          ; $EAB1: Filer Popdown
 
-; GN system calls, Calculator, Printer filter management?
+; GN system calls, Calculator popdown
 bank3/gn.bin 030000                             ; $C000: GN_ system calls
 bank3/calc.bin 033300                           ; $F300: Calculator popdown
 
@@ -53,7 +53,7 @@ banks45/pipedream.bn1 050000
 bank6/panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
 
 ; kernel lower part (addressed from $8000 upwards)
-bank7/kernel7.bin 070000                        ; remaing kernel OS
+bank7/kernel7.bin 070000                        ; second part of kernel OS
 
 ; MTH and other static structures in last ROM bank
 mth/keymap_uk.bin 080000                        ; keyboard maps
@@ -67,4 +67,4 @@ mth/mth.bin 082000                              ; the System Token Table, MTH st
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
 
 ; BBC Basic application
-bbcbasic/basic.dat 091200                          ; $D200: BBC BASIC application
+bbcbasic/basic.dat 091200                       ; $D200: BBC BASIC application
