@@ -26,7 +26,6 @@ osscitable.asm
 clitables.asm
 eprom.asm
 ossci.asm
-timeres.asm
 reset.asm
 misc1.asm
 osalm1.asm

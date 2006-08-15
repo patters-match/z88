@@ -1,4 +1,5 @@
 ; **************************************************************************************************
+; Reset routines, prepare OZ launching after boot.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -38,6 +39,7 @@
         include "director.def"
         include "serintfc.def"
         include "syspar.def"
+        include "time.def"
 
 xdef    Reset                                   ; bank0/boot.asm
 xdef    ExpandMachine                           ; bank0/cardmgr.asm
@@ -54,6 +56,7 @@ xref    MountAllRAM                             ; bank0/memory.asm
 xref    Chk128KB                                ; bank0/memory.asm
 xref    FirstFreeRAM                            ; bank0/memory.asm
 xref    OSSp_PAGfi                              ; bank0/pagfi.asm
+xref    IntSecond                               ; bank0/int.asm
 
 xref    RAMxDOR                                 ; bank7/misc1.asm
 xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
@@ -265,6 +268,8 @@ xref    TimeReset                               ; bank7/timeres.asm
         ld      bc, $80
         jp      MarkSwapRAM                     ; b22/b41, 0000-7fff - 32KB more for bad apps
 
+;       ----
+
 .PreserveSystemPanel
         push    bc
         ld      bc, PA_Loc
@@ -279,3 +284,44 @@ xref    TimeReset                               ; bank7/timeres.asm
         pop     bc
         ret
 
+;       ----
+
+.TimeReset
+        ld      a, (ubResetType)
+        or      a
+        jr      z, SetInitialTime               ; hard reset, init system clock
+        ld      hl, ubTIM1_A                    ; use timer @ A2 or A7
+        ld      a, (ubTimeBufferSelect)         ; depending of bit 0 od A0
+        rrca
+        jr      nc, tr_1
+        ld      l, <ubTIM1_B                    ; $A7
+.tr_1
+        ld      c, (hl)                         ; ld bhlc, (hl)
+        inc     hl
+        ld      e, (hl)
+        inc     hl
+        ld      d, (hl)
+        inc     hl
+        ld      b, (hl)
+        ex      de, hl
+
+        ld      a, 1                            ; update base time
+        OZ      GN_Msc
+.tr_2
+        jp      IntSecond
+
+
+.SetInitialTime
+        ld      de, $year
+        ld      bc, $month<<8 | $day
+        OZ      GN_Dei                          ; convert to internal format
+        ld      hl, 2                           ; date in ABC
+        OZ      GN_Pmd                          ; set machine date according to current date of compilation
+
+        defc elapsedtime_centisecs = $hour*60*60*100 + $minute*60*100 + $second*100
+
+        ld      a, elapsedtime_centisecs/65536
+        ld      b, [elapsedtime_centisecs - ((elapsedtime_centisecs/65536) * 65536)] / 256
+        ld      c, [elapsedtime_centisecs - ((elapsedtime_centisecs/65536) * 65536)] % 256
+        OZ      GN_Pmt                          ; set clock according to current time of compilation
+        jr      tr_2
