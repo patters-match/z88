@@ -2,7 +2,7 @@
 
 # **************************************************************************************************
 # Bank 3 compilation script for Unix.
-# (GN_ system calls, printer filter & Calculator popdown)
+# (GN_ system calls & Calculator popdown)
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
