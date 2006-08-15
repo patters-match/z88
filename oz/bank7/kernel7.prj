@@ -29,7 +29,7 @@ ossci.asm
 timeres.asm
 reset.asm
 misc1.asm
-osalm.asm
+osalm1.asm
 oscli.asm
 process1.asm
 card1.asm

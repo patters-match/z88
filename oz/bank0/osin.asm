@@ -59,7 +59,7 @@ xref    OSFramePush                             ; bank0/misc4.asm
 xref    AtoN_upper                              ; bank0/misc5.asm
 xref    PutOSFrame_BC                           ; bank0/misc5.asm
 xref    BfGbt                                   ; bank0/buffer.asm
-xref    DoAlarms                                ; bank0/alarm2.asm
+xref    DoAlarms                                ; bank0/osalm0.asm
 xref    DrawOZwd                                ; bank0/ozwindow.asm
 xref    FindCmd                                 ; bank0/mth2.asm
 xref    MaySetEsc                               ; bank0/esc.asm

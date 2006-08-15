@@ -43,9 +43,9 @@ IF COMPILE_BINARY
         xdef    OSSr_Fus                        ; bank7/ossr.asm
         xdef    FreeMemHandle                   ; bank7/ossr.asm
         xdef    OSSR_main                       ; bank7/ossr.asm
-        
-        xdef    OSEprTable                      ; bank7/eprom.asm
 
+        xdef    OSEpr                           ; bank7/eprom.asm
+        
         xdef    OSIsq                           ; bank7/scrdrv1.asm
         xdef    OSWsq                           ; bank7/scrdrv1.asm
         xdef    OSOutMain                       ; bank7/scrdrv1.asm

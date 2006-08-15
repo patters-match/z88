@@ -52,7 +52,7 @@ xdef    OSXin
 
 xref    CancelOZcmd                             ; bank0/osin.asm
 xref    OSWaitMain                              ; bank0/nmi.asm
-xref    DoAlarms                                ; bank0/alarm2.asm
+xref    DoAlarms                                ; bank0/osalm0.asm
 xref    TestEsc                                 ; bank0/esc.asm
 xref    MayDrawOZwd                             ; bank0/misc3.asm
 xref    PutOSFrame_BC                           ; bank0/misc5.asm

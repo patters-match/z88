@@ -54,8 +54,7 @@ ELSE
         xref    CallGN                          ; bank0/misc2.asm
         xref    CallOS2byte                     ; bank0/misc2.asm
         xref    OSAlm                           ; bank0/misc2.asm
-        xref    OSEpr                           ; bank0/misc2.asm
-        xref    OSPrt                           ; bank0/misc2.asm
+        xref    OSPrt                           ; bank0/osprt.asm
         xref    OzCallInvalid                   ; bank0/misc2.asm
         xref    OSBix                           ; bank0/misc4.asm
         xref    OSBox                           ; bank0/misc4.asm
@@ -109,6 +108,7 @@ ELSE
         xref    OSWrt                           ; bank0/token.asm
         xref    OSWtb                           ; bank0/token.asm
 
+        xref    OSEpr                           ; bank7/eprom.asm
         xref    OSMap                           ; bank7/osmap.asm
         xref    OSDel                           ; bank7/filesys1.asm
         xref    OSRen                           ; bank7/filesys1.asm

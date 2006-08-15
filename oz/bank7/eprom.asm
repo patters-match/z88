@@ -43,10 +43,20 @@
         include "sysvar.def"
         include "lowram.def"
 
-xdef    OSEprTable
+xdef    OSEpr
 
 ;       !! completely separate module, all system calls done thru OZ calls
 ;       !! can be relocated if more kernel space needed
+;       Eprom Interface
+;       we have OSFrame so remembering S2 is unnecessary, as is remembering IY
+
+.OSEpr
+        push    hl
+        ld      hl, OSEprTable
+        add     a, l                            ; add reason
+        ld      l, a
+        ex      (sp), hl                        ; restore hl and push address
+        ret                                     ; goto reason
 
 .OSEprTable
         jp      EprSave                         ; 00

@@ -49,6 +49,8 @@ xdef    OZwd_index
 xdef    OZwd__fail
 xdef    OZwd_fail
 xdef    DrawOZwd
+xdef    MayDrawOZwd
+xdef    SetPendingOZwd
 
 xref    ScreenOpen                              ; bank0/srcdrv4.asm
 xref    ScreenClose                             ; bank0/srcdrv4.asm
@@ -275,3 +277,26 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
 ;        defb $80+'C',$80+'H'    ; 7
 ;        defb $80+'S',$80+'P'    ; 8
 ;        defb $80+'I',$80+'T'    ; 9
+
+;       ----
+
+;       draw OZ window if needed
+
+.MayDrawOZwd
+        push    bc
+        push    de
+        ld      hl, ubIntTaskToDo
+        bit     ITSK_B_OZWINDOW, (hl)
+        call    nz, DrawOZwd
+        pop     de
+        pop     bc
+        ret
+
+;       ----
+
+;       request OZ window redraw
+
+.SetPendingOZwd
+        ld      hl, ubIntTaskToDo
+        set     ITSK_B_OZWINDOW, (hl)
+        ret

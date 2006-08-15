@@ -23,15 +23,15 @@
 
 kernel0.asm
 boot.asm
-misc2.asm
+oz2call.asm
+osprt.asm
 process2.asm
 osout.asm
 buffer.asm
 process3.asm
 cardmgr.asm
 dor.asm
-alarm2.asm
-misc3.asm
+osalm0.asm
 nmi.asm
 error.asm
 esc.asm
@@ -55,4 +55,3 @@ pagfi.asm
 scrdrv3.asm
 ozwindow.asm
 scrdrv4.asm
-osust.asm
