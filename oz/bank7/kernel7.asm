@@ -29,15 +29,15 @@ IF COMPILE_BINARY
         xdef    ExtQualifiers                   ; bank0/kbd.asm
 
         xdef    ResetTimeout                    ; bank0/nmi.asm
-        
+
         xdef    InitBufKBD_RX_TX                ; bank0/buffer.asm
 
         xdef    NQAin                           ; bank0/process2.asm
-        
+
         xdef    AddRAMCard                      ; bank0/cardmgr.asm
 
         xdef    NqSp_ret                        ; bank0/spnq0.asm
-        
+
         xdef    OSSp_PAGfi                      ; bank0/pagfi.asm
 
         xdef    IntSecond                       ; bank0/int.asm
@@ -72,7 +72,7 @@ IF COMPILE_BINARY
         xdef    PutOSFrame_HL                   ; bank0/misc5.asm
         xdef    ReserveStkBuf                   ; bank0/misc5.asm
         xdef    S2VerifySlotType                ; bank0/misc5.asm
-        xdef    ScrDrv_SOH_A 
+        xdef    ScrDrv_SOH_A
 
         xdef    AllocHandle                     ; bank0/handle.asm
         xdef    FreeHandle                      ; bank0/handle.asm
@@ -88,7 +88,7 @@ IF COMPILE_BINARY
         xdef    Chk128KBslot0                   ; bank0/memory.asm
         xdef    FirstFreeRAM                    ; bank0/memory.asm
         xdef    MountAllRAM                     ; bank0/memory.asm
-        
+
         xdef    GetDORType                      ; bank0/dor.asm
         xdef    DORHandleFreeDirect             ; bank0/dor.asm
         xdef    DORHandleFree                   ; bank0/dor.asm
@@ -193,11 +193,7 @@ IF COMPILE_BINARY
         xdef    Keymap_DE
         xdef    Keymap_DK
         xdef    Keymap_FI
-        
+
         include "../bank0/kernel0.def"          ; get bank 0 references and map them into bank 7 project...
-        include "../mth/keymap_uk.def"          ; get references for keymaps in MTH bank and bind them into bank 7 project...
-        include "../mth/keymap_fr.def"
-        include "../mth/keymap_de.def"
-        include "../mth/keymap_dk.def"
-        include "../mth/keymap_fi.def"
+        include "../mth/keymaps.def"            ; get references for keymaps in MTH bank and bind them into bank 7 project...
 ENDIF

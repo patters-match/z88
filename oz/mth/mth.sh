@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# MTH compilation script for Unix.
+# UNIX compilation script for MTH, keymaps, font bitmaps and OZ ROM header.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,11 +23,7 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_uk.asm
-../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_fr.asm
-../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_de.asm
-../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_dk.asm
-../../tools/mpm/mpm -bg -DKB"$1" -I../sysdef keymap_fi.asm
+../../tools/mpm/mpm -bg -I../sysdef keymaps.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.

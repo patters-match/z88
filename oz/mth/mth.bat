@@ -1,5 +1,5 @@
 :: **************************************************************************************************
-:: MTH compilation script for Windows/DOS.
+:: Windows/DOS compilation script for MTH, keymaps, font bitmaps and OZ ROM header.
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -24,11 +24,7 @@
 @echo off
 
 :COMPILE_KEYMAPS
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_uk.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_fr.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_dk.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_fi.asm
-..\..\tools\mpm\mpm -bg -I..\sysdef keymap_de.asm
+..\..\tools\mpm\mpm -bg -I..\sysdef keymaps.asm
 dir *.err 2>nul >nul || goto COMPILE_LORES1
 goto COMPILE_ERROR
 
