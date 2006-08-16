@@ -77,7 +77,6 @@ DEFC VppBit = 1
 ;
 .FlashEprCardErase
                     PUSH BC
-                    PUSH DE
                     PUSH HL
 
                     CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
@@ -96,6 +95,5 @@ DEFC VppBit = 1
 
 .exit_FlashEprCardErase
                     POP  HL
-                    POP  DE
                     POP  BC
                     RET
