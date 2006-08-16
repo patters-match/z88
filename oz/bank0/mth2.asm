@@ -536,7 +536,7 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
 ; OUT: BHL=DOR
 
 .GetAppDOR
-        ld      b, OZBANK_7                     ; bind in other part of kernel
+        ld      b, OZBANK_KNL1                  ; bind in other part of kernel
         call    fsMS2BankB                      ; remembers S2
         push    de
         push    ix

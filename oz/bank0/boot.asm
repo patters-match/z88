@@ -120,8 +120,8 @@ xref    Reset                                   ; bank7/reset.asm
         jp      z, $bff8                        ; enter ROM
 
 .rst1_2
-        ld      a, OZBANK_7
-        out     (BL_SR2), a                     ; MS2b07
+        ld      a, OZBANK_KNL1
+        out     (BL_SR2), a                     ; get kernel 1 into segment 2
         jp      Reset                           ; init internal RAM, blink and low-ram code and set SP
 
         defs    ($0066-$PC) ($ff)               ; pad FFh's until 0066H (Z80 NMI vector)

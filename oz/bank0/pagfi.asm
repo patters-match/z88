@@ -22,7 +22,7 @@ xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
         call    RstRdPanelAttrs                 ; store panel and init keymap
         ld      l, SI_SFT
         OZ      OS_Si                           ; reset serial port and apply settings
-        extcall OSPrtInit, OZBANK_7             ; init printer filter
+        extcall OSPrtInit, OZBANK_KNL1          ; init printer filter
         pop     ix
         or      a
         ret

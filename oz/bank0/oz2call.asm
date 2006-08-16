@@ -62,7 +62,7 @@ xref    OSPrtPrint                              ; bank7/printer.asm
         jr      ozc
 
 .CallOS2byte
-        ld      a, OZBANK_0                     ; Bank 0, $FFxx
+        ld      a, OZBANK_KNL0                  ; Kernel0 bank, $FFxx
         ld      d, >OZCALLTBL
 
 .ozc                                            ; e contains 2nd opcode

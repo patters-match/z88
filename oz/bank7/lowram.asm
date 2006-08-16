@@ -118,7 +118,7 @@ xdef    MemDefBank, MemGetBank
         push    af
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
         push    af
-        ld      a, OZBANK_0
+        ld      a, OZBANK_KNL0
         call    MS3BankA
         jp      INTEntry
 
@@ -158,7 +158,7 @@ xdef    MemDefBank, MemGetBank
         di                                      ; nested NMIs won't enable interrupts
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
         push    af
-        ld      a, OZBANK_0
+        ld      a, OZBANK_KNL0
         call    MS3BankA
         call    NMIEntry                        ; call NMI handler in kernel bank 0
 
@@ -238,7 +238,7 @@ xdef    MemDefBank, MemGetBank
         ex      af, af'
 
 .MS3Bank00
-        ld      a, OZBANK_0
+        ld      a, OZBANK_KNL0
         jr      MS3BankA
 
 .DefErrHandler                                  ; referenced from error.asm, process3.asm
@@ -277,7 +277,7 @@ xdef    MemDefBank, MemGetBank
         ld      l,(hl)                          ; get it in case of 2 bytes call
         ld      bc, (BLSC_SR2)                  ; remember S2/S3
         push    bc
-        ld      a, OZBANK_0                     ; bind b00 into S3
+        ld      a, OZBANK_KNL0                  ; bind kernel0 bank into S3
         call    MS3BankA
 
         ld      d, >OZCallTable                 ; function jumper in DE

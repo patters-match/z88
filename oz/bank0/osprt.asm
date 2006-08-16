@@ -31,7 +31,7 @@
 ;***************************************************************************************************
 
         module OSPrt
-        
+
         include "sysvar.def"
         include "director.def"
         include "error.def"
@@ -63,7 +63,7 @@ xref    OSPrtPrint                              ; bank7/printer.asm
         jr      prt_x
 
 .prt_2
-        extcall OSPrtPrint, OZBANK_7
+        extcall OSPrtPrint, OZBANK_KNL1
 
 .prt_x
 ;        ex      af, af'

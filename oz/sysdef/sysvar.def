@@ -80,7 +80,7 @@ defvars $0200
         ubBadSize               ds.b    1       ; "
         ubCountry               ds.b    1       ; country code
 enddef                                          ; 4 more bytes are left here
-        
+
 ;       020B-03FF           System variable area
 
 defc    ubScreenBase            =$020b
@@ -952,11 +952,11 @@ defc    MM_B_MUL                =5
 defc    ROMSIZE                 =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
 defc    FILEAREASIZE            =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
 
-defc    OZBANK_0                =$00            ; should become KNL0
+defc    OZBANK_KNL0             =$00            ; kernel bank 0
 defc    OZBANK_DC               =$02
 defc    OZBANK_FPP              =$02
 defc    OZBANK_GN               =$03
-defc    OZBANK_7                =$07            ; should become KNL1
+defc    OZBANK_KNL1             =$07            ; kernel bank 1
 defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap, keymaps)
 
 defc    OZCALLTBL               =$ff00

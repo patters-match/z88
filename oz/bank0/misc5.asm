@@ -144,7 +144,7 @@ xref    FreeHandle                              ; bank0/handle.asm
 ;       bind in other half of kernel
 
 .MS2BankK1
-        ld      a, OZBANK_7
+        ld      a, OZBANK_KNL1
 
 .MS2BankA
         ld      (BLSC_SR2), a

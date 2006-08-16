@@ -12,7 +12,7 @@
 xdef    InitData
 
 .InitData
-        defb    BL_SR2, OZBANK_7                ; SR2=b07
+        defb    BL_SR2, OZBANK_KNL1                ; SR2 = kernel bank 1
         defb    BL_TMK, BM_TACKTICK|BM_TACKSEC|BM_TACKMIN
         defb    BL_INT, BM_INTFLAP|BM_INTBTL|BM_INTTIME|BM_INTGINT
         defb    BL_TACK, BM_TMKTICK|BM_TMKSEC|BM_TMKMIN

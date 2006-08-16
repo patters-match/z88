@@ -197,7 +197,7 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
 
 ;       8 - printer filter
         ld      a, (iy+OSFrame_A)
-        extcall OSPrtPrint, OZBANK_7            ; write byte to printer filter
+        extcall OSPrtPrint, OZBANK_KNL1         ; write byte to printer filter
         ret
 
 .pbts_5

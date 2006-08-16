@@ -80,7 +80,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .OSSiRet
         pop     ix
         jp      OZCallReturn1
-        
+
 .OSSITBL
         jp      OSSiHrd
         jp      OSSiSft
@@ -93,27 +93,27 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         jp      OSSiTmo
 
 .OSSiHrd
-        extcall OSSiHrd1, OZBANK_7
+        extcall OSSiHrd1, OZBANK_KNL1
         ret
-        
+
 .OSSiSft
-        extcall OSSiSft1, OZBANK_7
+        extcall OSSiSft1, OZBANK_KNL1
         ret
         
 .OSSiEnq
-        extcall OSSiEnq1, OZBANK_7
+        extcall OSSiEnq1, OZBANK_KNL1
         ret
-        
+
 .OSSiFtx
-        extcall OSSiFtx1, OZBANK_7
+        extcall OSSiFtx1, OZBANK_KNL1
         ret
-        
+
 .OSSiFrx
-        extcall OSSiFrx1, OZBANK_7
+        extcall OSSiFrx1, OZBANK_KNL1
         ret
 
 .OSSiTmo
-        extcall OSSiTmo1, OZBANK_7
+        extcall OSSiTmo1, OZBANK_KNL1
         ret
 
 ;       ----
