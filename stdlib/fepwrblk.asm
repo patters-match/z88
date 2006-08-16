@@ -380,7 +380,6 @@ DEFC FE_WRI = $40           ; byte write command
                     EXX
                     LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
-                    SET  BB_COMVPPON,A       ; VPP On
                     RES  BB_COMLCDON,A       ; Screen LCD Off
                     LD   (BC),A
                     OUT  (C),A               ; signal to HW
@@ -482,7 +481,6 @@ DEFC FE_WRI = $40           ; byte write command
                     EXX
                     LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
-                    RES  BB_COMVPPON,A       ; VPP Off
                     SET  BB_COMLCDON,A       ; Screen LCD On
                     LD   (BC),A
                     OUT  (C),A               ; Signal to HW
