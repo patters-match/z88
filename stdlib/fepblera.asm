@@ -26,10 +26,11 @@
      LIB FlashEprPollSectorSize ; Poll for Flash chip sector size.
 
      INCLUDE "flashepr.def"
+     INCLUDE "blink.def"
      INCLUDE "memory.def"
 
 
-; ==========================================================================================
+; =================================================================================================
 ; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
 
 DEFC FE_RST = $FF           ; reset chip in read array mode
@@ -37,19 +38,29 @@ DEFC FE_RSR = $70           ; read status register
 DEFC FE_CSR = $50           ; clear status register
 DEFC FE_ERA = $20           ; erase sector (64Kb) command
 DEFC FE_CON = $D0           ; confirm erasure
-DEFC VppBit = 1
-; ==========================================================================================
+; =================================================================================================
 
 
-; ***************************************************************
+;***************************************************************************************************
 ;
-; Erase sector (Block) defined in B (00h-0Fh), on Flash
+; Erase sector (block) defined in B (00h-0Fh), on Flash
 ; Memory Card inserted in slot C.
 ;
 ; The routine will internally ask the Flash Memory for identification
 ; and intelligently use the correct erasing algorithm. All known
 ; Flash Memory chips from Intel and Amd (see flashepr.def) uses 64K
 ; sectors, except the AM29F010B 128K chip, which uses 16K sectors.
+;
+; -------------------------------------------------------------------------
+; The screen is turned off while block is being erased for three reasons:
+; 1) While a sector is erased, no interference should happen from Blink:
+;    When sector is part of OZ ROM, the font bitmaps are suddenly unavailable
+;    which creates violent screen flickering during chip command mode.
+;    Further, and most importantly, avoid Blink doing read-cycles while
+;    chip is in command mode.
+; 2) Preserve battery power. The screen is the no. 1 consumer of power!
+; 3) End-user familiarity; the screen goes off while doing 'Eprom' files.
+; -------------------------------------------------------------------------
 ;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
@@ -81,7 +92,7 @@ DEFC VppBit = 1
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by:
-;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Aug 2004
+;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Aug 2004, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------
 ;
@@ -211,11 +222,12 @@ DEFC VppBit = 1
 ;    AFBC..HL/.... different
 ;
 .FEP_EraseBlock_28F
-                    LD   BC,$04B0            ; Address of soft copy of COM register
+                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
-                    SET  VppBit,A            ; Vpp On
+                    SET  BB_COMVPPON,A       ; Vpp On
+                    RES  BB_COMLCDON,A       ; Screen Off
                     LD   (BC),A
-                    OUT  (C),A               ; Enable Vpp in slot 3
+                    OUT  (C),A               ; signal to HW
 
                     LD   (HL), FE_ERA
                     LD   (HL), FE_CON
@@ -234,13 +246,13 @@ DEFC VppBit = 1
                     LD   (HL), FE_CSR        ; Clear Status Register
                     LD   (HL), FE_RST        ; Reset Flash Memory to Read Array Mode
 .exit_FEP_EraseBlock_28F
-                    PUSH AF
-                    LD   BC,$04B0            ; Address of soft copy of COM register
+                    EX   AF,AF'
                     LD   A,(BC)
-                    RES  VppBit,A            ; Vpp Off
+                    RES  BB_COMVPPON,A       ; Vpp Off
+                    SET  BB_COMLCDON,A       ; Screen On
                     LD   (BC),A
-                    OUT  (C),A               ; Disable Vpp in slot 3
-                    POP  AF
+                    OUT  (C),A               ; Signal to hw
+                    EX   AF,AF'
                     RET
 .vpp_error
                     LD   A, RC_VPL
@@ -273,27 +285,33 @@ DEFC VppBit = 1
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock_29F
+                    LD   BC,BLSC_COM         ; Address of soft copy & COM register
+                    PUSH BC
+                    LD   A,(BC)
+                    RES  BB_COMLCDON,A       ; Screen Off
+                    LD   (BC),A
+                    OUT  (C),A               ; signal to hw
+
+                    LD   BC,$AA55            ; B = Unlock cycle #1, C = Unlock cycle #2
                     LD   A,H
                     AND  @11000000
                     LD   H,A
                     LD   D,A
                     OR   $05
                     LD   H,A
-                    LD   L,$55               ; HL = $x555
+                    LD   L,C                 ; HL = address $x555
                     LD   A,D
                     OR   $02
                     LD   D,A
-                    LD   E,$AA               ; DE = $x2AA
+                    LD   E,B                 ; DE = address $x2AA
 
-                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
-                    EX   DE,HL
+                    LD   A,C
+                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
+                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
                     LD   (HL),$80            ; 80 -> (XX555), Erase Mode
                                              ; sub command...
-                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
+                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
+                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
 
                     LD   (HL),$30            ; 30 -> (XXXXX), begin format of sector...
 .toggle_wait_loop
@@ -301,18 +319,25 @@ DEFC VppBit = 1
                     LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
                     XOR  (HL)                ; get second DQ6 programming status
                     BIT  6,A                 ; toggling?
-                    RET  Z                   ; no, erasing the sector completed successfully (also back in Read Array Mode)!
+                    JR   Z,exit_era_29f      ; no, erasing the sector completed successfully (also back in Read Array Mode)!
                     BIT  5,C                 ;
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
 
                     LD   A,(HL)              ; DQ5 went high, we need to get two successive status
                     XOR  (HL)                ; toggling reads to determine if we're still toggling
                     BIT  6,A                 ; which then indicates a sector erase error...
-                    JR   NZ,erase_err_29f    ; damn, sector was NOT erased!
-                    RET                      ; we're back in Read Array Mode, sector successfully erased!
-.erase_err_29f
+                    JR   Z,exit_era_29f      ; we're back in Read Array Mode, sector successfully erased!
+.erase_err_29f                               ; damn, sector was NOT erased!
                     LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
                     SCF
                     LD   A, RC_BER           ; signal sector erase error to application
+.exit_era_29f
+                    POP  BC
+                    EX   AF,AF'
+                    LD   A,(BC)
+                    SET  BB_COMLCDON,A       ; Screen On
+                    LD   (BC),A
+                    OUT  (C),A               ; Signal to HW
+                    EX   AF,AF'
                     RET
 .end_FEP_EraseBlock_29F

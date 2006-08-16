@@ -27,6 +27,7 @@
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
+     INCLUDE "blink.def"
      INCLUDE "error.def"
 
 
@@ -37,7 +38,6 @@ DEFC FE_RST = $FF           ; reset chip in read array mode
 DEFC FE_RSR = $70           ; read status register
 DEFC FE_CSR = $50           ; clear status register
 DEFC FE_WRI = $40           ; byte write command
-DEFC VppBit = 1
 ; ==========================================================================================
 
 
@@ -60,6 +60,17 @@ DEFC VppBit = 1
 ; identification and intelligently use the correct programming algorithm.
 ; The identified FE_28F or FE_29F constant is returned to the caller in A'
 ; for future reference (when the byte was successfully programmed to the card).
+;
+; -------------------------------------------------------------------------
+; The screen is turned off while byte is being written for three reasons:
+; 1) No interference should happen from Blink:
+;    When written byte is part of OZ ROM chip, the font bitmaps are suddenly
+;    unavailable which creates violent screen flickering during chip command mode.
+;    Further, and most importantly, avoid Blink doing read-cycles while
+;    chip is in command mode.
+; 2) Preserve battery power. The screen is the no. 1 consumer of power!
+; 3) End-user familiarity; the screen goes off while doing 'Eprom' files.
+; -------------------------------------------------------------------------
 ;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
@@ -92,7 +103,7 @@ DEFC VppBit = 1
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997, Jan-Apr 98, Aug 2004, Sep 2005
+;    Gunther Strube, Dec 1997, Jan-Apr 98, Aug 2004, Sep 2005, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; --------------------------------------------------------------------------
 ;
@@ -222,12 +233,14 @@ DEFC VppBit = 1
 ;
 .FEP_ExecBlowbyte_28F
                     PUSH AF
-                    LD   BC,$04B0            ; Address of soft copy of COM register
+                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
-                    SET  VppBit,A            ; Vpp On
+                    SET  BB_COMVPPON,A       ; VPP On
+                    RES  BB_COMLCDON,A       ; Screen LCD Off
                     LD   (BC),A
-                    OUT  (C),A               ; Enable Vpp in slot 3
+                    OUT  (C),A               ; signal to HW
                     POP  AF
+                    PUSH BC                  ; preserve COM Blink register soft copy address
 
                     LD   B,A                 ; preserve to blown in B...
                     LD   (HL),FE_WRI
@@ -251,12 +264,13 @@ DEFC VppBit = 1
                     LD   A, RC_BWR
                     SCF
 .exit_write
+                    POP  BC                  ; get address of soft copy of COM register
                     PUSH AF
-                    LD   BC,$04B0            ; Address of soft copy of COM register
                     LD   A,(BC)
-                    RES  VppBit,A            ; Vpp Off
+                    RES  BB_COMVPPON,A       ; VPP Off
+                    SET  BB_COMLCDON,A       ; Screen LCD On
                     LD   (BC),A
-                    OUT  (C),A               ; Disable Vpp in slot 3
+                    OUT  (C),A               ; Signal to HW
                     POP  AF
                     RET
 .end_FEP_ExecBlowbyte_28F
@@ -277,22 +291,32 @@ DEFC VppBit = 1
 .FEP_ExecBlowbyte_29F
                     PUSH AF
                     PUSH HL                  ; preserve byte program address
+
+                    EXX
+                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
+                    LD   A,(BC)
+                    SET  BB_COMVPPON,A       ; VPP On
+                    RES  BB_COMLCDON,A       ; Screen LCD Off
+                    LD   (BC),A
+                    OUT  (C),A               ; signal to HW
+                    EXX
+
+                    LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
                     LD   A,H
                     AND  @11000000
                     LD   H,A
                     LD   D,A
                     OR   $05
                     LD   H,A
-                    LD   L,$55               ; HL = $x555
+                    LD   L,C                 ; HL = address $x555
                     LD   A,D
                     OR   $02
                     LD   D,A
-                    LD   E,$AA               ; DE = $x2AA
+                    LD   E,B                 ; DE = address $x2AA
 
-                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
-                    EX   DE,HL
+                    LD   A,C
+                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
+                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
                     LD   (HL),$A0            ; A0 -> (XX555), Byte Program Mode
                     POP  HL
                     POP  AF
@@ -314,10 +338,20 @@ DEFC VppBit = 1
 .toggling_done
                     LD   A,(HL)              ; we're back in Read Array Mode
                     CP   B                   ; verify programmed byte (just in case!)
-                    RET  Z                   ; byte was successfully programmed!
+                    JR   Z, exit_wrbyte_29f  ; byte was successfully programmed!
 .program_err_29f
                     LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
                     SCF
                     LD   A, RC_BWR           ; signal byte write error to application
+.exit_wrbyte_29f
+                    PUSH AF
+                    EXX
+                    LD   A,(BC)
+                    RES  BB_COMVPPON,A       ; VPP Off
+                    SET  BB_COMLCDON,A       ; Screen LCD On
+                    LD   (BC),A
+                    OUT  (C),A               ; Signal to HW
+                    EXX
+                    POP  AF
                     RET
 .end_FEP_ExecBlowbyte_29F

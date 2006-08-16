@@ -32,7 +32,6 @@ DEFC FE_RSR = $70           ; read status register
 DEFC FE_CSR = $50           ; clear status register
 DEFC FE_ERA = $20           ; erase sector (64Kb) command
 DEFC FE_CON = $D0           ; confirm erasure
-DEFC VppBit = 1
 ; ==========================================================================================
 
 

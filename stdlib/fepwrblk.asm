@@ -26,6 +26,7 @@
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
+     INCLUDE "blink.def"
      INCLUDE "error.def"
 
 
@@ -36,7 +37,6 @@ DEFC FE_RST = $FF           ; reset chip in read array mode
 DEFC FE_RSR = $70           ; read status register
 DEFC FE_CSR = $50           ; clear status register
 DEFC FE_WRI = $40           ; byte write command
-DEFC VppBit = 1
 ; ==========================================================================================
 
 
@@ -72,6 +72,17 @@ DEFC VppBit = 1
 ; Further, the local buffer must be available in local address space and not
 ; part of the segment used for blowing bytes.
 ;
+; -------------------------------------------------------------------------
+; The screen is turned off while block is being written for three reasons:
+; 1) No interference should happen from Blink:
+;    When written block is part of OZ ROM chip, the font bitmaps are suddenly
+;    unavailable which creates violent screen flickering during chip command mode.
+;    Further, and most importantly, avoid Blink doing read-cycles while
+;    chip is in command mode.
+; 2) Preserve battery power. The screen is the no. 1 consumer of power!
+; 3) End-user familiarity; the screen goes off while doing 'Eprom' files.
+; -------------------------------------------------------------------------
+;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
 ; to successfully blow data to the memory chip. If the Flash Eprom card
@@ -106,11 +117,12 @@ DEFC VppBit = 1
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005
+;    Gunther Strube, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; --------------------------------------------------------------------------
 ;
-.FlashEprWriteBlock PUSH IX
+.FlashEprWriteBlock
+                    PUSH IX
                     PUSH DE                            ; preserve DE
                     PUSH BC                            ; preserve C
                     EX   AF,AF'                        ; preserve FE Programming type in A'
@@ -262,23 +274,23 @@ DEFC VppBit = 1
 .FEP_ExecWriteBlock_28F
                     EX   AF,AF'
                     LD   C,A                 ; C = MS_Sx segment specifier
-                    EXX
-                    PUSH IY
-                    POP  BC                  ; install block size.
-                    EXX
 
-                    PUSH BC
-                    LD   BC,$04B0            ; Address of soft copy of COM register
+                    EXX
+                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
-                    SET  VppBit,A            ; Vpp On
+                    SET  BB_COMVPPON,A       ; VPP On
+                    RES  BB_COMLCDON,A       ; Screen LCD Off
                     LD   (BC),A
-                    OUT  (C),A               ; Enable Vpp in slot 3
-                    POP  BC
+                    OUT  (C),A               ; signal to HW
+
+                    PUSH IY
+                    POP  HL                  ; use HL as 16bit decrement counter
+                    EXX
 
 .WriteBlockLoop     EXX
-                    LD   A,B
-                    OR   C
-                    DEC  BC
+                    LD   A,H
+                    OR   L
+                    DEC  HL
                     EXX
                     JR   Z, exit_write_block ; block written successfully (Fc = 0)
 
@@ -346,13 +358,13 @@ DEFC VppBit = 1
                     JR   WriteBlockLoop
 .exit_write_block
                     PUSH AF
-                    PUSH BC
-                    LD   BC,$04B0            ; Address of soft copy of COM register
+                    EXX
                     LD   A,(BC)
-                    RES  VppBit,A            ; Vpp Off
+                    RES  BB_COMVPPON,A       ; VPP Off
+                    SET  BB_COMLCDON,A       ; Screen LCD On
                     LD   (BC),A
-                    OUT  (C),A               ; Disable Vpp in slot 3
-                    POP  BC
+                    OUT  (C),A               ; Signal to HW
+                    EXX
                     POP  AF
                     RET
 .end_FEP_ExecWriteBlock_28F
@@ -366,6 +378,13 @@ DEFC VppBit = 1
                     EX   AF,AF'
                     LD   C,A                 ; C = MS_Sx segment specifier
                     EXX
+                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
+                    LD   A,(BC)
+                    SET  BB_COMVPPON,A       ; VPP On
+                    RES  BB_COMLCDON,A       ; Screen LCD Off
+                    LD   (BC),A
+                    OUT  (C),A               ; signal to HW
+
                     PUSH IY
                     POP  BC                  ; install block size.
                     EXX
@@ -374,7 +393,7 @@ DEFC VppBit = 1
                     OR   C
                     DEC  BC
                     EXX
-                    RET  Z                   ; block written successfully (Fc = 0)
+                    JR   Z,exit_WrBlk_29F    ; block written successfully (Fc = 0)
 
                     LD   A,(DE)
                     PUSH BC                  ; preserve bank and MS_Sx while programming byte to card
@@ -382,8 +401,8 @@ DEFC VppBit = 1
                     LD   B,A                 ; preserve a copy of byte for later verification
                     LD   A,H
                     AND  @11000000
-                    EXX                      ;
-                    LD   H,A                 ;
+                    EXX
+                    LD   H,A
                     LD   D,A
                     OR   $05
                     LD   H,A
@@ -422,7 +441,7 @@ DEFC VppBit = 1
                     SCF
 .exit_write_byte_29F
                     POP  BC
-                    RET  C
+                    JR   C,exit_WrBlk_29F
 
                     INC  DE                  ; buffer++
                     LD   A,B
@@ -458,4 +477,16 @@ DEFC VppBit = 1
                     POP  HL
                     POP  BC
                     JR   WriteBlockLoop_29F
+.exit_WrBlk_29F
+                    PUSH AF
+                    EXX
+                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
+                    LD   A,(BC)
+                    RES  BB_COMVPPON,A       ; VPP Off
+                    SET  BB_COMLCDON,A       ; Screen LCD On
+                    LD   (BC),A
+                    OUT  (C),A               ; Signal to HW
+                    EXX
+                    POP  AF
+                    RET
 .end_FEP_ExecWriteBlock_29F
