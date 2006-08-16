@@ -52,6 +52,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ; sectors, except the AM29F010B 128K chip, which uses 16K sectors.
 ;
 ; -------------------------------------------------------------------------
+; AMD/STM flash memory:
 ; The screen is turned off while block is being erased for three reasons:
 ; 1) While a sector is erased, no interference should happen from Blink:
 ;    When sector is part of OZ ROM, the font bitmaps are suddenly unavailable
@@ -92,7 +93,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by:
-;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Aug 2004, Aug 2006
+;    Gunther Strube, Dec 1997-Apr 1998, Aug 2004, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------
 ;
@@ -225,7 +226,6 @@ DEFC FE_CON = $D0           ; confirm erasure
                     LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
                     SET  BB_COMVPPON,A       ; Vpp On
-                    RES  BB_COMLCDON,A       ; Screen Off
                     LD   (BC),A
                     OUT  (C),A               ; signal to HW
 
@@ -249,7 +249,6 @@ DEFC FE_CON = $D0           ; confirm erasure
                     EX   AF,AF'
                     LD   A,(BC)
                     RES  BB_COMVPPON,A       ; Vpp Off
-                    SET  BB_COMLCDON,A       ; Screen On
                     LD   (BC),A
                     OUT  (C),A               ; Signal to hw
                     EX   AF,AF'
