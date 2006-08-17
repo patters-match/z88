@@ -107,7 +107,7 @@ Module SelectCard
                     call_oz GN_Sop           ; Display small help text in right side window
 
                     ld   a, 128 | '2'
-                    ld   bc, $000C
+                    ld   bc, $0010
                     ld   de, $0838
                     pop  hl
                     call CreateWindow        ; Device selection window.
