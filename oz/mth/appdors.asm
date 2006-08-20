@@ -192,6 +192,50 @@ xdef    PanelDOR
         defb    19,$5E,$50,$48,$52,0,$C8,$6D,$6F,$76,$82,$48,$CC,$6C,$CC,$74,$73,0,19
         defb    14,$5F,$50,$48,$42,0,$48,$CC,$6C,$CC,$84,$C5,0,14
         defb    0
+.PipeDreamHelp
+        defm    $7F
+        defm    "PipeDream is a combined Word-processor, Spreadsheet", $7F
+        defm    "and Database application. Use the HELP key and browse the", $7F
+        defm    "INFO topics to view PipeDreams mathematical functions.", 0
+
+.BasicHelp
+        defm    $7F
+        defm    "Develop your own BBC BASIC programs, store them in the RAM", $7F
+        defm    "filing system as files and RUN them inside one or several", $7F
+        defm    "BBC BASIC applications. A built-in Z80 assembler enables", $7F
+        defm    "you to compile and embed machine code inside your programs", $7F
+        defm    "that may access advanced features of the operating system.",0
+
+.CalculatorHelp
+        defm    $7F
+        defm    "A simple pocket calculator with some useful", $7F
+        defm    "Imperial to Metric conversion functions.", 0
+
+.CalendarHelp
+        defm    $7F
+        defm    "This 'Julian proleptic' calendar starts from 4712 BC and is", $7F
+        defm    "year 2000 compliant. To manually jump to a date, press the", $7F
+        defm    "ENTER key and edit the 'Look for' date. Use the cursor keys", $7F
+        defm    "together with the shift and diamond keys to navigate through", $7F
+        defm    "days months and years. A mark on a day indicates an entry is", $7F
+        defm    "made on that date in the Diary.", 0
+
+.ImpExpHelp
+        defm    $7F
+        defm    "This file transfer program allows files to be shared with", $7F
+        defm    "other computers. Serial port speed is set in the Panel.", 0
+
+.AlarmHelp
+        defm    $7F
+        defm    "Set either single or repeating alarm events", $7F
+        defm    "to sound the bell or execute commands to launch", $7F
+        defm    "system applications or resources.", 0
+
+.ClockHelp
+        defm    $7F
+        defm    "Displays the current Day, Date and Time.", $7F
+        defm    "Set the current Date and Time here to ensure that alarm", $7F
+        defm    "events execute on time and applications use correct data.", 0
 
 .DiaryTopics
         defb    0
@@ -256,6 +300,12 @@ xdef    PanelDOR
         defb    8,$40,$46,$4C,0,$E1,0,8                                 ; Load
         defb    9,$41,$46,$53,0,$BD,$65,0,9                             ; Save
         defb    0
+.DiaryHelp
+        defm    $7F
+        defm    "This is a 'Page a Day' diary. Multiple diary", $7F
+        defm    "applications may be used for example for work and home.", $7F
+        defm    "The Calendar popdown when selected from the Diary", $7F
+        defm    "can be used to view active days and navigate around."
 
 .PrinterEdTopics
         defb    0
@@ -281,16 +331,19 @@ xdef    PanelDOR
         defm    12,$2C,$46,"NEW",0,"New",0,12
         defm    16,$2D,$46,$55,0,$B9,$64,$91,$82,$44,$72,$69,$76,$86,0,16
         defb    0
-
-;       BBAA
+.PrinterEdHelp
+        defm    $7F
+        defm    "The Printer Editor allows different printer commands to", $7F
+        defm    "be defined, saved, loaded and used. The default printer", $7F
+        defm    "commands are the Epson FX80 or FX (ESC/P) or ESC/P2.", $7F
+        defm    "Remember to use the File Update command to update the", $7F
+        defm    "settings after loading or changing the definitions."
 
 .PanelTopics
         defb    0
         defb    4,$DC,0,4
         defb    4,$FD,0,4
         defb    0
-
-;       BBB4
 .PanelCommands
         defb    0
         defb    8,$26,$4A,0,$97,$EC,0,8
@@ -305,6 +358,12 @@ xdef    PanelDOR
         defb    9,$2A,$46,$53,0,$BD,$65,0,9
         defb    12,$2C,$46,$4E,$45,$57,0,$4E,$65,$77,0,12
         defb    0
+.PanelHelp
+        defm    $7F
+        defm    "Use the Panel for start up settings that Applications use.", $7F
+        defm    "Keyboard settings & country layout selection, Serial Port", $7F
+        defm    "speed for printing and file transfer, User preferences,", $7F
+        defm    "Default Devices and Directories settings are here."
 
 .FilerTopics
         defb    0
@@ -335,6 +394,14 @@ xdef    PanelDOR
         defb    11,$2C,$54,$43,0,$54,$8D,$82,$DE,0,11                   ; Tree Copy
         defb    11,$2D,$4E,$4D,0,$4E,$ED,$82,$F7,0,11                   ; Name Match
         defb    0
+.FilerHelp
+        defm    $7F
+        defm    "The Filer is used to manage stored files generated from", $7F
+        defm    "Applications in RAM, EPROM or FLASH cards.", $7F
+        defm    "When the Filer is selected from inside an application", $7F
+        defm    "File Load command, a file can be marked with the ENTER key", $7F
+        defm    "followed by the ESC key to save typing in the file name", $7F
+        defm    "to be loaded in the application."
 
 .TerminalTopics
         defb    0
@@ -354,7 +421,10 @@ xdef    PanelDOR
         defb    9,$0A,$FA,0,$9C,$20,$32,0,9                     ; Function 2
         defb    9,$0B,$FB,0,$9C,$20,$33,0,9                     ; Function 3
         defb    0
-
+.TerminalHelp
+        defm    $7F
+        defm    "The Terminal allows simple VT-52 communication", $7F
+        defm    "to another computer using the Serial Port."
 
 .IndexDOR
         defp    0,0                                             ; parent
@@ -373,7 +443,7 @@ xdef    PanelDOR
         defb    'H',12                                          ; help, sizeof
         defp    IndexTopics,OZBANK_MTH                          ; topics
         defp    IndexCommands,OZBANK_MTH                        ; commands
-        defp    IndexHelp,OZBANK_MTH                            ; help (no help, point at 0)
+        defp    IndexHelp,OZBANK_MTH                            ; introductory help page
         defp    SysTokenBase,OZBANK_MTH                         ; token base
 
         defb    'N',IndexDORe-$PC-1                             ; name, length
@@ -398,7 +468,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    DiaryTopics,OZBANK_MTH          ; topics
         defp    DiaryCommands,OZBANK_MTH        ; commands
-        defp    DiaryDOR,OZBANK_MTH             ; help (no help, point at 0)
+        defp    DiaryHelp,OZBANK_MTH            ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
 
         defb    'N',DiaryDORe-$PC-1             ; name, length
@@ -423,7 +493,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    PipeDreamTopics,OZBANK_MTH      ; topics
         defp    PipeDreamCommands,OZBANK_MTH    ; commands
-        defp    PipeDreamDOR,OZBANK_MTH         ; help (no help, point at 0)
+        defp    PipeDreamHelp,OZBANK_MTH        ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
 
         defb    'N',PipeDreamDORe-$PC-1         ; name, length
@@ -448,7 +518,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    BasicDOR,OZBANK_MTH             ; no topics
         defp    BasicDOR,OZBANK_MTH             ; no commands
-        defp    BasicDOR,OZBANK_MTH             ; no help
+        defp    BasicHelp,OZBANK_MTH            ; introductory help page
         defp    0,0                             ; no token base
 
         defb    'N',BasicDORe-$PC-1             ; name, length
@@ -473,7 +543,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    CalculatorDOR,OZBANK_MTH        ; no topics
         defp    CalculatorDOR,OZBANK_MTH        ; no commands
-        defp    CalculatorDOR,OZBANK_MTH        ; no help
+        defp    CalculatorHelp,OZBANK_MTH       ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
 
         defb    'N',CalculatorDORe-$PC-1        ; name, length
@@ -499,7 +569,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    CalendarDOR,OZBANK_MTH          ; no topics
         defp    CalendarDOR,OZBANK_MTH          ; no commands
-        defp    CalendarDOR,OZBANK_MTH          ; no help
+        defp    CalendarHelp,OZBANK_MTH         ; introductory help page
         defp    0,0                             ; no token base
 
         defb    'N',CalendarDORe-$PC-1          ; name, length
@@ -524,7 +594,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    ClockDOR,OZBANK_MTH             ; no topics
         defp    ClockDOR,OZBANK_MTH             ; no commands
-        defp    ClockDOR,OZBANK_MTH             ; no help
+        defp    ClockHelp,OZBANK_MTH            ; introductory help page
         defp    0,0                             ; no token base
 
         defb    'N',ClockDORe-$PC-1             ; name, length
@@ -550,7 +620,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    AlarmDOR,OZBANK_MTH             ; topics
         defp    AlarmDOR,OZBANK_MTH             ; commands
-        defp    AlarmDOR,OZBANK_MTH             ; help
+        defp    AlarmHelp,OZBANK_MTH            ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
 
         defb    'N',AlarmDORe-$PC-1             ; name, length
@@ -576,9 +646,8 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    FilerTopics,OZBANK_MTH          ; topics
         defp    FilerCommands,OZBANK_MTH        ; commands
-        defp    FilerDOR,OZBANK_MTH             ; help (no help, point at 0)
+        defp    FilerHelp,OZBANK_MTH            ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
-
         defb    'N',FilerDORe-$PC-1             ; name, length
         defm    "Filer",0
 .FilerDORe
@@ -602,7 +671,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    PrinterEdTopics,OZBANK_MTH      ; topics
         defp    PrinterEdCommands,OZBANK_MTH    ; commands
-        defp    PrEdDOR,OZBANK_MTH              ; no help
+        defp    PrinterEdHelp,OZBANK_MTH        ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
 
         defb    'N',PrEdDORe-$PC-1              ; name, length
@@ -628,7 +697,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    PanelTopics,OZBANK_MTH          ; topics
         defp    PanelCommands,OZBANK_MTH        ; commands
-        defp    PanelDOR,OZBANK_MTH             ; no help
+        defp    PanelHelp,OZBANK_MTH            ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
 
         defb    'N',PanelDORe-$PC-1             ; name, length
@@ -654,7 +723,7 @@ xdef    PanelDOR
         defb    'H',12                          ; help, sizeof
         defp    TerminalTopics,OZBANK_MTH       ; topics
         defp    TerminalCommands,OZBANK_MTH     ; commands
-        defp    TerminalDOR,OZBANK_MTH          ; help (no help, point at 0)
+        defp    TerminalHelp,OZBANK_MTH         ; introductory help page
         defp    SysTokenBase,OZBANK_MTH         ; token base
 
         defb    'N',TerminalDORe-$PC-1          ; name, length
@@ -679,7 +748,7 @@ xdef    PanelDOR
         defb    DT_HLP,12                       ; help, sizeof
         defp    ImpExpDOR,OZBANK_MTH            ; topics
         defp    ImpExpDOR,OZBANK_MTH            ; commands
-        defp    ImpExpDOR,OZBANK_MTH            ; help (no help, point at 0)
+        defp    ImpExpHelp,OZBANK_MTH           ; introductory help page
         defp    0,0                             ; no token base
 
         defb    DT_NAM, ImpExpDORe-$PC-1
