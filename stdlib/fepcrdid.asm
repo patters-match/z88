@@ -262,22 +262,19 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH DE
 
                     PUSH HL
+                    LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
                     LD   A,H
                     AND  @11000000
-                    LD   H,A
                     LD   D,A
                     OR   $05
                     LD   H,A
-                    LD   L,$55               ; HL = $x555
-                    LD   A,D
-                    OR   $02
-                    LD   D,A
-                    LD   E,$AA               ; DE = $x2AA
+                    LD   L,C                 ; HL = address $x555
+                    SET  1,D
+                    LD   E,B                 ; DE = address $x2AA
 
-                    LD   (HL),$AA            ; AA -> (XX555), first unlock cycle
-                    EX   DE,HL
-                    LD   (HL),$55            ; 55 -> (XX2AA), second unlock cycle
-                    EX   DE,HL
+                    LD   A,C
+                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
+                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
                     LD   (HL),$90            ; 90 -> (XX555), autoselect mode
                     POP  HL
 
