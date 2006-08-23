@@ -61,7 +61,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 ; ---------------------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005
+;    Gunther Strube, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------------------------------
 ;
