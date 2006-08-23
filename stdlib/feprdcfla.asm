@@ -29,7 +29,7 @@
 ;
 ; Flash Eprom File Area Shrinking.
 ;
-; Reduce an exisitng "oz" File Area below application Rom Area, or on sole
+; Reduce an existing "oz" File Area below application Rom Area, or on sole
 ; Flash Card by one or several 64K sectors.
 ;
 ; Important:
