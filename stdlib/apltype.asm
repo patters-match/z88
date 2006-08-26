@@ -52,7 +52,7 @@
 ;    AFBC..../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Apr - Aug 1998
+; Design & programming by Gunther Strube, Apr - Aug 1998, Aug 2006
 ; ------------------------------------------------------------------------
 ;
 .ApplEprType
