@@ -53,9 +53,9 @@
 .lcdon              SET  BB_COMLCDON,A       ; Screen LCD On
                     RET
 
-.SetBlinkScreenOn
+.SetBlinkScreenOn                            ; Public routine to enable LCD without specifying parameters.
                     PUSH AF
                     CP   A
-                    CALL SetBlinkScreen      ; always turn on screen (Fz = 1) after FlashEprWriteByte
-                    POP  AF                  ; (turning screen on, with screen already on has no effect...)
+                    CALL SetBlinkScreen
+                    POP  AF
                     RET
