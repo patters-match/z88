@@ -21,6 +21,7 @@
      LIB FlashEprBlockErase
      LIB FlashEprStdFileHeader
      LIB FileEprFreeSpace, FileEprRequest
+     LIB OZSlotPoll
 
      include "flashepr.def"
      include "error.def"
@@ -31,6 +32,11 @@
 ;
 ; Reduce an existing "oz" File Area below application Rom Area, or on sole
 ; Flash Card by one or several 64K sectors.
+;
+; -------------------------------------------------------------------------
+; This routine will signal failure ("file area not found") if an
+; application wants to reduce a file area that is part of the OZ ROM
+; -------------------------------------------------------------------------
 ;
 ; Important:
 ; Third generation AMD Flash Memory chips may be erased/programmed in all
@@ -72,7 +78,7 @@
 ;    AFBC..HL/.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Feb 2006, July 2006
+; Design & programming by Gunther Strube, Feb 2006, July-Aug 2006
 ; ----------------------------------------------------------------------
 ;
 .FlashEprReduceFileArea
@@ -80,9 +86,15 @@
                     PUSH BC
                     PUSH HL
 
+                    CALL OZSlotPoll               ; is OZ running in slot C?
+                    JR   Z, no_oz
+                    LD   A,RC_ONF
+                    JR   reduce_fa_error          ; Yes, file area cannot be shrinked in OZ ROM...
+.no_oz
                     LD   E,B                      ; (preserve sector number)
                     CALL FlashEprCardId           ; Flash Card available in slot C?
                     JR   C, reduce_fa_error       ; apparently not...
+                    PUSH BC                       ; preserve total size of card (in B)
 
                     LD   H,0
                     LD   L,E                      ; total no. of sectors to reduce file area..
@@ -115,9 +127,12 @@
                     LD   A,B
                     SUB  H                        ; (old bank of file header) - (reduced file area in banks) = new bank of header
                     LD   B,A                      ; Absolute bank of new file area header
+                    POP  AF
+                    LD   C,A                      ; C = total size of flash card in 16K banks.
+                    XOR  A                        ; poll for programming algorithm..
                     LD   HL,0                     ; signal to create a new file header...
                     CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
-                    JR   C, reduce_fa_error
+                    JR   C, exit_ReduceFileArea
 
                     LD   HL,$3FC0                 ; return BHL = absolute pointer to new "oz" header in slot C
                     CP   A                        ; Fc = 0, C = Number of 16K banks of File Area
@@ -126,9 +141,11 @@
                     POP  DE                       ; original DE restored
                     RET
 .reduce_no_room
-                    SCF
                     LD   A, RC_ROOM               ; Files are occupying the sector(s) that could have reduced the file area
 .reduce_fa_error
+                    SCF
+                    POP  BC
+.exit_ReduceFileArea
                     POP  HL
                     POP  BC
                     POP  DE
