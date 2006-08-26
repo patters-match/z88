@@ -20,6 +20,10 @@
      LIB FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
      LIB FileEprAllocFilePtr, FileEprFreeSpace
      LIB SafeBHLSegment
+     LIB OZSlotPoll, SetBlinkScreen
+
+     XREF SetBlinkScreenOn
+
 
      include "error.def"
      include "fileio.def"
@@ -29,23 +33,21 @@
      DEFC SizeOfWorkSpace = 256         ; size of Workspace on stack, IY points at base...
 
      ; Relative offset definitions for allocated work buffer on stack
-     ;
      DEFVARS 0
-     {
           IObuffer  ds.w 1              ; Pointer to I/O buffer
           IObufSize ds.w 1              ; Size of I/O buffer
           Fhandle   ds.w 1              ; Handle of openend file
           FileEntry ds.p 1              ; pointer to File Entry
           CardSlot  ds.b 1              ; slot number of File Eprom Card
           Heap                          ; Internal Workspace
-     }
+     ENDDEF
 
 
 ; **************************************************************************
 ;
 ; Standard Z88 File Eprom Format (using Flash Eprom Card).
 ;
-; Save single file to Flash Eprom in slot A.
+; Save single file to Flash Eprom file area in slot A.
 ;
 ; The routine does NOT handle automatical "deletion" of existing files
 ; that matches the filename (excl. device). This must be used by a call
@@ -53,6 +55,19 @@
 ;
 ; Should the actual process of blowing the file image fail, the new
 ; File Entry will be marked as deleted, if possible.
+;
+; -------------------------------------------------------------------------
+; The screen is turned off while saving a file to flash file area that is in
+; the same slot as the OZ ROM. During saving, no interference should happen
+; from Blink, because the Blink reads the font bitmaps each 1/100 second:
+;    When saving a file is part of OZ ROM chip, the font bitmaps are suddenly
+;    unavailable which creates violent screen flickering during chip command mode.
+;    Further, and most importantly, avoid Blink doing read-cycles while
+;    chip is in command mode.
+; By switching off the screen, the Blink doesn't read the font bit maps in
+; OZ ROM, and the Flash chip can be in command mode without being disturbed
+; by the Blink.
+; -------------------------------------------------------------------------
 ;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
@@ -94,7 +109,7 @@
 ;    AFB...HL/.... different
 ;
 ; -------------------------------------------------------------------------
-; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sep 2004
+; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sep 2004, Aug 2006
 ; -------------------------------------------------------------------------
 ;
 .FlashEprFileSave
@@ -181,6 +196,10 @@
                     SBC  HL,DE
                     JR   C, no_room               ; file size (incl. File Entry Header) > free space...
 
+                    LD   C,(IY + CardSlot)
+                    CALL OZSlotPoll               ; is OZ running in slot C?
+                    CALL NZ,SetBlinkScreen        ; yes, saving file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
+
                     PUSH IX
                     POP  BC
                     LD   (IY + Fhandle),C
@@ -188,6 +207,8 @@
 
                     POP  HL                       ; ptr. to File Entry
                     CALL SaveToFlashEpr           ; Now, blow file to Flash Eprom...
+
+                    CALL SetBlinkScreenOn         ; always turn on screen after save file operation
 
                     PUSH AF                       ; preserve error status...
                     LD   C,(IY + Fhandle)

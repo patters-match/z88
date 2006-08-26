@@ -61,18 +61,6 @@ DEFC FE_WRI = $40           ; byte write command
 ; The identified FE_28F or FE_29F constant is returned to the caller in A'
 ; for future reference (when the byte was successfully programmed to the card).
 ;
-; -------------------------------------------------------------------------
-; AMD/STM flash memory:
-; The screen is turned off while byte is being written for three reasons:
-; 1) No interference should happen from Blink:
-;    When written byte is part of OZ ROM chip, the font bitmaps are suddenly
-;    unavailable which creates violent screen flickering during chip command mode.
-;    Further, and most importantly, avoid Blink doing read-cycles while
-;    chip is in command mode.
-; 2) Preserve battery power. The screen is the no. 1 consumer of power!
-; 3) End-user familiarity; the screen goes off while doing 'Eprom' files.
-; -------------------------------------------------------------------------
-;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
 ; to successfully blow the byte on the memory chip. If the Flash Eprom card
@@ -237,6 +225,7 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
                     SET  BB_COMVPPON,A       ; VPP On
+                    SET  BB_COMLCDON,A       ; Force Screen enabled...
                     LD   (BC),A
                     OUT  (C),A               ; signal to HW
                     POP  AF
@@ -291,25 +280,14 @@ DEFC FE_WRI = $40           ; byte write command
                     PUSH AF
                     PUSH HL                  ; preserve byte program address
 
-                    EXX
-                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
-                    LD   A,(BC)
-                    RES  BB_COMLCDON,A       ; Screen LCD Off
-                    LD   (BC),A
-                    OUT  (C),A               ; signal to HW
-                    EXX
-
                     LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
                     LD   A,H
                     AND  @11000000
-                    LD   H,A
                     LD   D,A
                     OR   $05
                     LD   H,A
                     LD   L,C                 ; HL = address $x555
-                    LD   A,D
-                    OR   $02
-                    LD   D,A
+                    SET  1,D
                     LD   E,B                 ; DE = address $x2AA
 
                     LD   A,C
@@ -336,19 +314,10 @@ DEFC FE_WRI = $40           ; byte write command
 .toggling_done
                     LD   A,(HL)              ; we're back in Read Array Mode
                     CP   B                   ; verify programmed byte (just in case!)
-                    JR   Z, exit_wrbyte_29f  ; byte was successfully programmed!
+                    RET  Z                   ; byte was successfully programmed!
 .program_err_29f
                     LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
                     SCF
                     LD   A, RC_BWR           ; signal byte write error to application
-.exit_wrbyte_29f
-                    PUSH AF
-                    EXX
-                    LD   A,(BC)
-                    SET  BB_COMLCDON,A       ; Screen LCD On
-                    LD   (BC),A
-                    OUT  (C),A               ; Signal to HW
-                    EXX
-                    POP  AF
                     RET
 .end_FEP_ExecBlowbyte_29F

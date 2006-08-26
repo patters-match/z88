@@ -18,10 +18,13 @@
 ;***************************************************************************************************
 
      LIB FlashEprCardId
+     LIB ApplEprType
      LIB FlashEprWriteByte
      LIB FileEprFileEntryInfo
      LIB PointerNextByte
+     LIB OZSlotPoll, SetBlinkScreen
 
+     XREF SetBlinkScreenOn
 
 ; **************************************************************************
 ;
@@ -30,6 +33,19 @@
 ; Mark File Entry as deleted on File Eprom Card, identified by
 ; BHL pointer, B=00h-FFh (bits 7,6 is the slot mask), HL=0000h-3FFFh is
 ; the bank offset.
+;
+; -------------------------------------------------------------------------
+; The screen is turned off while byte is being written when we're in the
+; same slot as the OZ ROM. During writing, no interference should happen
+; from Blink, because the Blink reads the font bitmaps each 1/100 second:
+;    When written byte is part of OZ ROM chip, the font bitmaps are suddenly
+;    unavailable which creates violent screen flickering during chip command mode.
+;    Further, and most importantly, avoid Blink doing read-cycles while
+;    chip is in command mode.
+; By switching off the screen, the Blink doesn't read the font bit maps in
+; OZ ROM, and the Flash chip can be in command mode without being disturbed
+; by the Blink.
+; -------------------------------------------------------------------------
 ;
 ; Important:
 ; Third generation AMD Flash Memory chips may be programmed in all
@@ -76,6 +92,13 @@
                     JR   C, err_delfile           ; File Entry was not found...
                     CALL PointerNextByte          ; point at start of filename, "/"
 
+                    LD   A,B
+                    RLCA
+                    RLCA
+                    LD   C,A                      ; BHL pointer is in slot C
+                    CALL OZSlotPoll               ; is OZ running in slot of BHL?
+                    CALL NZ,SetBlinkScreen        ; yes, blowing byte in OZ ROM (slot 0 or 1) requires LCD turned off
+.blow_zero_byte
                     XOR  A
                     EX   AF,AF'                   ; A' = 0, blow byte to either INTEL or AMD chip
                     XOR  A                        ; indicate file deleted (0)
@@ -85,7 +108,8 @@
                     POP  AF
                     CP   A                        ; Fc = 0, Fz = 1
 .exit_delfile
-                    POP  BC
+                    CALL SetBlinkScreenOn         ; always turn on screen after FlashEprWriteByte
+                    POP  BC                       ; (turning screen on, with screen already on has no effect...)
                     POP  DE
                     POP  HL
                     RET

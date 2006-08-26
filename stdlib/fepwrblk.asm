@@ -72,18 +72,6 @@ DEFC FE_WRI = $40           ; byte write command
 ; Further, the local buffer must be available in local address space and not
 ; part of the segment used for blowing bytes.
 ;
-; -------------------------------------------------------------------------
-; AMD/STM flash memory:
-; The screen is turned off while block is being written for three reasons:
-; 1) No interference should happen from Blink:
-;    When written block is part of OZ ROM chip, the font bitmaps are suddenly
-;    unavailable which creates violent screen flickering during chip command mode.
-;    Further, and most importantly, avoid Blink doing read-cycles while
-;    chip is in command mode.
-; 2) Preserve battery power. The screen is the no. 1 consumer of power!
-; 3) End-user familiarity; the screen goes off while doing 'Eprom' files.
-; -------------------------------------------------------------------------
-;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
 ; to successfully blow data to the memory chip. If the Flash Eprom card
@@ -280,6 +268,7 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
                     SET  BB_COMVPPON,A       ; VPP On
+                    SET  BB_COMLCDON,A       ; Force Screen enabled...
                     LD   (BC),A
                     OUT  (C),A               ; signal to HW
 
@@ -377,44 +366,38 @@ DEFC FE_WRI = $40           ; byte write command
                     EX   AF,AF'
                     LD   C,A                 ; C = MS_Sx segment specifier
                     EXX
-                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
-                    LD   A,(BC)
-                    RES  BB_COMLCDON,A       ; Screen LCD Off
-                    LD   (BC),A
-                    OUT  (C),A               ; signal to HW
-
                     PUSH IY
                     POP  BC                  ; install block size.
                     EXX
+
 .WriteBlockLoop_29F EXX
                     LD   A,B
                     OR   C
                     DEC  BC
                     EXX
-                    JR   Z,exit_WrBlk_29F    ; block written successfully (Fc = 0)
-
-                    LD   A,(DE)
+                    RET  Z                   ; block written successfully (Fc = 0)
                     PUSH BC                  ; preserve bank and MS_Sx while programming byte to card
 
-                    LD   B,A                 ; preserve a copy of byte for later verification
                     LD   A,H
                     AND  @11000000
                     EXX
-                    LD   H,A
+                    PUSH BC                  ; preserve block size of data to blow
+                    LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
                     LD   D,A
                     OR   $05
                     LD   H,A
-                    LD   L,$55               ; HL = $x555
-                    LD   A,D
-                    OR   $02
-                    LD   D,A
-                    LD   E,$AA               ; DE = $x2AA
-                    LD   (HL),$AA            ; AA -> (XX555), First Unlock Cycle
-                    EX   DE,HL
-                    LD   (HL),$55            ; 55 -> (XX2AA), Second Unlock Cycle
-                    EX   DE,HL
+                    LD   L,C                 ; HL = address $x555
+                    SET  1,D
+                    LD   E,B                 ; DE = address $x2AA
+
+                    LD   A,C
+                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
+                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
                     LD   (HL),$A0            ; A0 -> (XX555), Byte Program Mode
+                    POP  BC
                     EXX
+                    LD   A,(DE)
+                    LD   B,A                 ; preserve a copy of byte for later verification
                     LD   (HL),B              ; program byte to Flash Memory Address
 .toggle_wait_loop
                     LD   A,(HL)              ; get first DQ6 programming status
@@ -438,8 +421,8 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   A, RC_BWR
                     SCF
 .exit_write_byte_29F
-                    POP  BC
-                    JR   C,exit_WrBlk_29F
+                    POP  BC                  ; get current bank and segment for block data
+                    RET  C
 
                     INC  DE                  ; buffer++
                     LD   A,B
@@ -475,15 +458,4 @@ DEFC FE_WRI = $40           ; byte write command
                     POP  HL
                     POP  BC
                     JR   WriteBlockLoop_29F
-.exit_WrBlk_29F
-                    PUSH AF
-                    EXX
-                    LD   BC,BLSC_COM         ; Address of soft copy of COM register
-                    LD   A,(BC)
-                    SET  BB_COMLCDON,A       ; Screen LCD On
-                    LD   (BC),A
-                    OUT  (C),A               ; Signal to HW
-                    EXX
-                    POP  AF
-                    RET
 .end_FEP_ExecWriteBlock_29F

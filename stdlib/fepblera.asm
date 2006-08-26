@@ -25,6 +25,7 @@
      LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
      LIB FlashEprPollSectorSize ; Poll for Flash chip sector size.
 
+
      INCLUDE "flashepr.def"
      INCLUDE "blink.def"
      INCLUDE "memory.def"
@@ -43,36 +44,20 @@ DEFC FE_CON = $D0           ; confirm erasure
 
 ;***************************************************************************************************
 ;
-; Erase sector (block) defined in B (00h-0Fh), on Flash
-; Memory Card inserted in slot C.
+; Erase sector (block) defined in B (00h-0Fh), on Flash Memory Card inserted in slot C.
 ;
-; The routine will internally ask the Flash Memory for identification
-; and intelligently use the correct erasing algorithm. All known
-; Flash Memory chips from Intel and Amd (see flashepr.def) uses 64K
-; sectors, except the AM29F010B 128K chip, which uses 16K sectors.
-;
-; -------------------------------------------------------------------------
-; AMD/STM flash memory:
-; The screen is turned off while block is being erased for three reasons:
-; 1) While a sector is erased, no interference should happen from Blink:
-;    When sector is part of OZ ROM, the font bitmaps are suddenly unavailable
-;    which creates violent screen flickering during chip command mode.
-;    Further, and most importantly, avoid Blink doing read-cycles while
-;    chip is in command mode.
-; 2) Preserve battery power. The screen is the no. 1 consumer of power!
-; 3) End-user familiarity; the screen goes off while doing 'Eprom' files.
-; -------------------------------------------------------------------------
+; The routine will internally ask the Flash Memory for identification and intelligently
+; use the correct erasing algorithm. All known Flash Memory chips from Intel and Amd
+; (see flashepr.def) uses 64K sectors, except the AM29F010B 128K chip, which uses 16K sectors.
 ;
 ; Important:
-; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
-; to successfully erase a block/sector on the memory chip. If the
-; Flash Eprom card is inserted in slot 1 or 2, this routine will
-; automatically report a sector erase failure error.
+; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3 to successfully erase
+; a block/sector on the memory chip. If the Flash Eprom card is inserted in slot 1 or 2, this
+; routine will automatically report a sector erase failure error.
 ;
-; It is the responsibility of the application (before using this call)
-; to evaluate the Flash Memory (using the FlashEprCardId routine) and
-; warn the user that an INTEL Flash Memory Card requires the Z88
-; slot 3 hardware, so this type of unnecessary error can be avoided.
+; It is the responsibility of the application (before using this call) to evaluate the Flash
+; Memory (using the FlashEprCardId routine) and warn the user that an INTEL Flash Memory Card
+; requires the Z88 slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; IN:
 ;         B = block/sector number on chip to be erased (00h - 0Fh)
@@ -226,6 +211,7 @@ DEFC FE_CON = $D0           ; confirm erasure
                     LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
                     SET  BB_COMVPPON,A       ; Vpp On
+                    SET  BB_COMLCDON,A       ; Force Screen enabled (don't push 21V to Intel flash!)...
                     LD   (BC),A
                     OUT  (C),A               ; signal to HW
 
@@ -284,24 +270,14 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock_29F
-                    LD   BC,BLSC_COM         ; Address of soft copy & COM register
-                    PUSH BC
-                    LD   A,(BC)
-                    RES  BB_COMLCDON,A       ; Screen Off
-                    LD   (BC),A
-                    OUT  (C),A               ; signal to hw
-
                     LD   BC,$AA55            ; B = Unlock cycle #1, C = Unlock cycle #2
                     LD   A,H
                     AND  @11000000
-                    LD   H,A
                     LD   D,A
                     OR   $05
                     LD   H,A
                     LD   L,C                 ; HL = address $x555
-                    LD   A,D
-                    OR   $02
-                    LD   D,A
+                    SET  1,D
                     LD   E,B                 ; DE = address $x2AA
 
                     LD   A,C
@@ -311,32 +287,23 @@ DEFC FE_CON = $D0           ; confirm erasure
                                              ; sub command...
                     LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
                     LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
-
                     LD   (HL),$30            ; 30 -> (XXXXX), begin format of sector...
 .toggle_wait_loop
                     LD   A,(HL)              ; get first DQ6 programming status
                     LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
                     XOR  (HL)                ; get second DQ6 programming status
                     BIT  6,A                 ; toggling?
-                    JR   Z,exit_era_29f      ; no, erasing the sector completed successfully (also back in Read Array Mode)!
+                    RET  Z                   ; no, erasing the sector completed successfully (also back in Read Array Mode)!
                     BIT  5,C                 ;
                     JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
 
                     LD   A,(HL)              ; DQ5 went high, we need to get two successive status
                     XOR  (HL)                ; toggling reads to determine if we're still toggling
                     BIT  6,A                 ; which then indicates a sector erase error...
-                    JR   Z,exit_era_29f      ; we're back in Read Array Mode, sector successfully erased!
+                    RET  Z                   ; we're back in Read Array Mode, sector successfully erased!
 .erase_err_29f                               ; damn, sector was NOT erased!
                     LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
                     SCF
                     LD   A, RC_BER           ; signal sector erase error to application
-.exit_era_29f
-                    POP  BC
-                    EX   AF,AF'
-                    LD   A,(BC)
-                    SET  BB_COMLCDON,A       ; Screen On
-                    LD   (BC),A
-                    OUT  (C),A               ; Signal to HW
-                    EX   AF,AF'
                     RET
 .end_FEP_EraseBlock_29F
