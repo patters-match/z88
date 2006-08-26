@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB SafeBHLSegment, FlashEprCardId, FlashEprWriteBlock, Divu8
+     LIB SafeBHLSegment, FlashEprWriteBlock, Divu8
 
      INCLUDE "saverst.def"
      INCLUDE "memory.def"
@@ -67,11 +67,18 @@
 ; Memory (using the FlashEprCardId routine) and warn the user that an INTEL Flash Memory Card
 ; requires the Z88 slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
+; This is an internal, shared routine used by FlashEprFileFormat and FlashEprReduceFileArea;
+; End-user applications might use this routine, but must then consider the semantics used by
+; FlashEprFileFormat and FlashEprReduceFileArea.
+;
 ; In:
+;    A = FE_28F, FE_29F programming algorithm (or 0 to poll for programming)
 ;    B = Absolute Bank (00h - FFh) where to blow header (at offset $3FC0)
 ;        (bits 7,6 is the slot mask)
 ;    HL <> 0, use 64 byte header, located current address space at (HL)
+;
 ;    HL = 0, create a new 'oz' header (auto-generated random no, etc)
+;    C = total 16K banks on card
 ;
 ; Out:
 ;    Success:
@@ -89,7 +96,7 @@
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, InterLogic, Dec 1997 - Aug 1998, July 2006
+;    Gunther Strube, Dec 1997 - Aug 1998, July 2006, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ------------------------------------------------------------------------
 ;
@@ -100,18 +107,10 @@
                     PUSH HL
                     PUSH IX
 
-                    LD   D,B                      ; preserve D = bank to blow header
-                    LD   A,B
-                    AND  @11000000
-                    RLCA
-                    RLCA
-                    LD   C,A                      ; get size of card in B of slot C
                     PUSH HL                       ; preserve local pointer to file area header
-                    CALL FlashEprCardId
                     EXX
                     POP  HL
                     EXX
-                    JR   C, err_FlashEprStdFileHeader  ; Fc = 1, A = RC error code (Flash Memory not found)
 
                     LD   HL,0
                     ADD  HL,SP
@@ -119,7 +118,7 @@
                     ADD  IX,SP                    ; IX points at start of buffer
                     LD   SP,IX                    ; 64 byte buffer created...
                     PUSH HL                       ; preserve original SP
-                    PUSH AF                       ; preserve FE_xx flash chip type returned from FlashEprCardId
+                    PUSH AF                       ; preserve FE_xx flash chip programming algorithm
 
                     EXX
                     LD   A,H
@@ -132,11 +131,9 @@
                     POP  DE
                     LDIR                          ; copy prepared 64 byte file area header into stack buffer
                     EXX
-                    LD   B,D                      ; blow header at bank B in Flash Card...
                     JR   blow_header
 .create_new_header
-                    LD   E,B                      ; preserve E = total of banks on card
-                    PUSH DE                       ; preserve D = bank to blow header
+                    PUSH BC                       ; preserve B = bank to blow header, C = total banks on card
 
                     PUSH IX
                     POP  HL
