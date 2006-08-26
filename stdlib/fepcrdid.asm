@@ -129,11 +129,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    Fc = 1 (FE was NOT recognized in slot C)
 ;
 ; Registers changed on return:
-;    A.BCDE../IX.. af...... same
-;    .F....HL/..IY ..bcdehl different
+;    A...DE../IX.. af...... same
+;    .FBC..HL/..IY ..bcdehl different
 ;
 .FetchCardID
-                    PUSH BC
                     PUSH AF
                     PUSH DE
                     PUSH IX
@@ -185,7 +184,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  DE
                     POP  BC                    ; get preserved AF
                     LD   A,B                   ; restore original A
-                    POP  BC
                     RET
 
 
@@ -215,7 +213,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    ......HL/.... different
 ;
 .Fetch_I28F0xxxx_ID
-                    PUSH AF
                     PUSH DE
 
                     LD   (HL), FE_IID        ; FlashFile Memory Card ID command
@@ -226,7 +223,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     EX   DE,HL
 
                     POP  DE
-                    POP  AF
                     RET
 .end_Fetch_I28F0xxxx_ID
 
@@ -253,15 +249,13 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    L = device code (at $00 0001 on chip)
 ;
 ; Registers changed on return:
-;    AFBCDE../IXIY same
-;    ......HL/.... different
+;    AF..DE../IXIY same
+;    ..BC..HL/.... different
 ;
 .Fetch_AM29F0xxx_ID
                     PUSH AF
-                    PUSH BC
                     PUSH DE
 
-                    PUSH HL
                     LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
                     LD   A,H
                     AND  @11000000
@@ -273,19 +267,18 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   E,B                 ; DE = address $x2AA
 
                     LD   A,C
-                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
-                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
-                    LD   (HL),$90            ; 90 -> (XX555), autoselect mode
-                    POP  HL
+                    LD   (HL),B              ; AA -> (X555), First Unlock Cycle
+                    LD   (DE),A              ; 55 -> (X2AA), Second Unlock Cycle
+                    LD   (HL),$90            ; 90 -> (X555), autoselect mode
 
-                    LD   D,(HL)
+                    LD   L,0
+                    LD   D,(HL)              ; Manufacturer Code (at XX00)
                     INC  HL
-                    LD   E,(HL)
+                    LD   E,(HL)              ; Device Code (at XX01)
                     LD   (HL),$F0            ; F0 -> (XXXXX), set Flash Memory to Read Array Mode
-                    EX   DE,HL               ; H = Manufacturer Code (at $00 XX00)
-                                             ; L = Device Code (at $00 XX01)
+                    EX   DE,HL               ; H = Manufacturer Code, L = Device Code
+
                     POP  DE
-                    POP  BC
                     POP  AF
                     RET
 .end_Fetch_AM29F0xxx_ID
@@ -305,7 +298,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    Fc = 1, RAM card found in slot C
 ;
 ; Registers changed on return:
-;   ..BCDEHL/IXIY same
+;   A.BCDEHL/IXIY same
 ;   .F....../.... different
 ;
 .CheckRam
@@ -351,13 +344,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;      ID was not found (not verified)
 ;
 ; Registers changed on return:
-;   ...CDEHL/IXIY same
-;   AFB...../.... different
+;   ...C..HL/IXIY same
+;   AFB.DE../.... different
 ;
 .VerifyCardID       PUSH HL
-                    PUSH DE
-                    PUSH BC
-                    PUSH AF
 
                     EX   DE,HL
                     LD   HL, DeviceCodeTable
@@ -380,18 +370,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     INC  HL                       ; point at next entry...
                     DJNZ find_loop                ; and check for new Device Code
 
-                    POP  AF                       ; Ups, Manufacturer and Device Code wasn't verified
-                    SCF                           ; indicate error
-                    POP  BC                       ; restore original BC on error
-                    POP  DE
-                    POP  HL
-                    RET
-.verified_id
-                    POP  DE                       ; ignore old AF, return FE_28F or FE29F in A
-                    POP  DE
-                    LD   C,E                      ; restore original C (B hold total banks of card
-                    POP  DE
-                    POP  HL
+                    SCF                           ; Manufacturer and Device Code wasn't verified, indicate error
+.verified_id        POP  HL                       ; return FE_28F or FE29F in A (if device was successfully verified)
                     RET
 .DeviceCodeTable
                     DEFB 10
