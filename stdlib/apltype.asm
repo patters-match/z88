@@ -74,9 +74,8 @@
                     JR   NZ,no_applrom       ; "OZ" watermark not found...
 
                     LD   A,C                 ; Application Rom found
-                    AND  @11111110
-                    XOR  $80
-                    JR   NZ, no_applrom      ; invalid Application Type Code...
+                    AND  @10000001
+                    JR   Z, no_applrom       ; invalid Application Type Code...
 
                     CALL CheckRamCard        ; If FRONT DOR is located in a RAM card, return type $82
 
@@ -136,6 +135,7 @@
                     LD   A,D
                     AND  @00111111
                     SUB  B              ; Card Size = TopBank - TopBank' (0-64)
+                    OR   A              ; Fc = 0...
                     POP  DE
                     RET  NZ
                     LD   A,64           ; Card was 1MB...
@@ -176,6 +176,7 @@
                          CALL MemWriteByte        ; write back original card id
                          LD   A,$82               ; return $82 for RAM based application card
 .exit_CheckRamCard
+                    OR   A
                     POP  DE
                     POP  BC
                     RET
