@@ -73,6 +73,7 @@ mmgetslot
 mmabsptr
 ramfresp
 apltype
+ozpoll
 aplsgmsk
 safsgmsk
 safbhlsg
@@ -88,6 +89,8 @@ enblint
 enablnkint
 disblint
 disblnkint
+setblscr
+getblscr
 execstck
 fepblera
 fepplsize

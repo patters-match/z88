@@ -17,22 +17,12 @@
 ;
 ;***************************************************************************************************
 
-     LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
-     LIB FlashEprBlockErase   ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
+     LIB FlashEprCardId         ; Identify Flash Memory Chip in slot C
+     LIB FlashEprBlockErase     ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
+     LIB OZSlotPoll             ; Poll for OZ ROM availabílity in slot C
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
-
-
-; ==========================================================================================
-; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
-
-DEFC FE_RST = $FF           ; reset chip in read array mode
-DEFC FE_RSR = $70           ; read status register
-DEFC FE_CSR = $50           ; clear status register
-DEFC FE_ERA = $20           ; erase sector (64Kb) command
-DEFC FE_CON = $D0           ; confirm erasure
-; ==========================================================================================
 
 
 ; ***************************************************************
@@ -41,6 +31,11 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;
 ; The routine will internally ask the Flash Memory for identification
 ; and intelligently use the correct erasing algorithm.
+;
+; -------------------------------------------------------------------------
+; This routine will signal failure ("flash card not found") if an
+; application wants to erase a card that contains the OZ ROM.
+; -------------------------------------------------------------------------
 ;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
@@ -70,7 +65,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;
 ; ---------------------------------------------------------------
 ; Design & programming by:
-;    Gunther Strube, InterLogic, Dec 1997-Apr 1998, Aug 2004, Aug 2006
+;    Gunther Strube, Dec 1997-Apr 1998, Aug 2004, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------
 ;
@@ -78,14 +73,20 @@ DEFC FE_CON = $D0           ; confirm erasure
                     PUSH BC
                     PUSH HL
 
-                    CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
+                    CALL OZSlotPoll                     ; is OZ running in slot C?
+                    JR   Z, no_oz
+                    LD   A, RC_NFE
+                    SCF
+                    JR   exit_FlashEprCardErase         ; Yes, don't erase chip running OZ ROM!
+.no_oz
+                    CALL FlashEprCardId                 ; poll for card information in slot C (returns B = total banks of card)
                     JR   C, exit_FlashEprCardErase
 
-                    RRC  B                   ; Erase the individual sectors, one at a time
-                    RRC  B                   ; total of 16K banks on card -> total of 64K sectors on card.
-                    DEC  B                   ; sectors, from (total sectors-1) downwards and including 0
+                    RRC  B                              ; Erase the individual sectors, one at a time
+                    RRC  B                              ; total of 16K banks on card -> total of 64K sectors on card.
+                    DEC  B                              ; sectors, from (total sectors-1) downwards and including 0
 .erase_2xF_card_blocks
-                    CALL FlashEprBlockErase  ; erase top sector of card, and downwards...
+                    CALL FlashEprBlockErase             ; erase top sector of card, and downwards...
                     JR   C, exit_FlashEprCardErase
                     DEC  B
                     LD   A,B
