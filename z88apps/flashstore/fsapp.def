@@ -70,5 +70,4 @@ DEFC FlashStore_CC_fe = $85             ; File Erase
 DEFC FlashStore_CC_bf = $86             ; Backup Files
 DEFC FlashStore_CC_rf = $87             ; Restore Files
 DEFC FlashStore_CC_ffa = $88            ; Format File Area
-DEFC FlashStore_CC_about = $89          ; About FlashStore
-DEFC FlashStore_CC_tfv = $8a            ; Change File View
+DEFC FlashStore_CC_tfv = $89            ; Change File View

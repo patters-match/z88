@@ -188,7 +188,7 @@
                     DEFB (cmd_tfv_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_tfv_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
                     DEFB @00010001                                              ; command has help page
-                    DEFB cmd_about_end - cmd_about                              ; length of command definition
+                    DEFB cmd_tfv_end - cmd_tfv                                  ; length of command definition
 .cmd_tfv_end
 
 ; ENTER Fetch file at cursor
@@ -212,25 +212,17 @@
                     DEFB @00010000                                              ; command has help page
                     DEFB cmd_delete_end - cmd_delete                            ; length of command definition
 .cmd_delete_end
-
-; <>ABOUT About FlashStore
-.cmd_about          DEFB cmd_about_end - cmd_about                              ; length of command definition
-                    DEFB FlashStore_CC_about                                    ; command code
-                    DEFM "ABOUT", 0                                             ; keyboard sequence
-                    DEFM "About FlashStore", 0
-                    DEFB (cmd_about_help - FlashStoreHelp) / 256                ; high byte of rel. pointer
-                    DEFB (cmd_about_help - FlashStoreHelp) % 256                ; low byte of rel. pointer
-                    DEFB @00010000                                              ; command has help page
-                    DEFB cmd_about_end - cmd_about                              ; length of command definition
-.cmd_about_end
-
                     DEFB 0                                                      ; end of commands
 
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM "Release V1.8.3, July 2006",$7F, $7F
-                    DEFM "Backup/restore files between Rakewell Flash Cards and RAM.", 0
+                    DEFM $7F
+                    DEFM "Backup/restore files between Rakewell Flash Cards and RAM.", $7F
+                    DEFM 1, "BRelease V1.8.3, August 2006", 1, "B", $7F, $7F
+                    DEFM "Developed by T.Peycru & G.Strube, (C) 1997-2006, GPL licence", $7F
+                    DEFM "User Interface design & testing: V.Gerhardi", $7F
+                    DEFM "Get updates from http://z88.sf.net or http://www.rakewell.com", 0
 
 .cmd_sc_help
                     DEFM $7F
@@ -275,9 +267,4 @@
                     DEFM $7F
                     DEFM "Changes between browsing only saved files or", $7F
                     DEFM "browsing all files (both saved and marked as deleted)."
-                    DEFB 0
-
-.cmd_about_help
-                    DEFM $7F
-                    DEFM "Displays latest release information about FlashStore."
                     DEFB 0

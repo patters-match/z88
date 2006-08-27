@@ -79,7 +79,6 @@
      xref RestoreFilesCommand      ; restorefiles.asm
      xref DeleteFileCommand        ; deletefile.asm
      xref QuickDeleteFile          ; deletefile.asm
-     xref AboutCommand             ; about.asm
 
      xref FlashStoreTopics         ; mth.asm
      xref FlashStoreCommands       ; mth.asm
@@ -276,8 +275,6 @@
                     JP   Z, DeleteFileCommand
                     CP   FlashStore_CC_sv
                     JP   Z, DefaultRamCommand
-                    CP   FlashStore_CC_about
-                    JP   Z, AboutCommand
                     CP   FlashStore_CC_tfv
                     JP   Z, ToggleFileViewMode
                     CP   IN_DEL
