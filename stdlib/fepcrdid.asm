@@ -21,6 +21,7 @@
      LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
      LIB MemGetCurrentSlot    ; Get current slot number of this executing library routine in C
      LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
+     LIB FlashEprCardData     ; get data about Flash type & size
      LIB DisableBlinkInt      ; No interrupts get out of Blink
      LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
 
@@ -86,7 +87,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     CALL FetchCardID         ; get info of Flash Memory chip in HL (if avail in slot C)...
                     JR   C, unknown_flashmem ; no ID's were polled from a (potential FE card)
 
-                    CALL VerifyCardID        ; verify Flash Memory ID with known Manufacturer & Device Codes
+                    CALL FlashEprCardData    ; verify Flash Memory ID with known Manufacturer & Device Codes
                     JR   C, unknown_flashmem
                                              ; H = Manufacturer Code, L = Device Code
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
@@ -327,81 +328,3 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 .not_written
                     CP   A                   ; Fc = 0, this is not a RAM card
                     JR   exit_CheckRam
-
-
-; ***************************************************************
-;
-; IN:
-;    HL = Polled from potential Flash Memory Chip:
-;         Manufacturer & Device Code
-;
-; OUT:
-;    Fc = 0
-;       ID was found (verified):
-;       A = chip generation (FE_28F or FE_29F)
-;       B = total of 16K banks on Flash Memory
-;    Fc = 1
-;      ID was not found (not verified)
-;
-; Registers changed on return:
-;   ...C..HL/IXIY same
-;   AFB.DE../.... different
-;
-.VerifyCardID       PUSH HL
-
-                    EX   DE,HL
-                    LD   HL, DeviceCodeTable
-                    LD   B,(HL)                   ; no. of Flash Memory ID's in table
-                    INC  HL
-                    LD   A,E
-.find_loop          CP   (HL)                     ; Device Code found?
-                    INC  HL                       ; points at Manufacturer Code
-                    JR   NZ, get_next0
-                         LD   A,D
-                         CP   (HL)                     ; Manufacturer Code found?
-                         INC  HL                       ; points at no of banks of Flash Memory
-                         JR   NZ, get_next1
-                         LD   B,(HL)                   ; B = total of 16K banks on Flash Eprom
-                         INC  HL
-                         LD   A,(HL)                   ; A = chip generation
-                         JR   verified_id              ; Fc = 0, Flash Eprom data returned...
-.get_next0          INC  HL                       ; points at no of banks
-.get_next1          INC  HL                       ; points at chip generation
-                    INC  HL                       ; point at next entry...
-                    DJNZ find_loop                ; and check for new Device Code
-
-                    SCF                           ; Manufacturer and Device Code wasn't verified, indicate error
-.verified_id        POP  HL                       ; return FE_28F or FE29F in A (if device was successfully verified)
-                    RET
-.DeviceCodeTable
-                    DEFB 10
-
-                    DEFW FE_I28F004S5
-                    DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-
-                    DEFW FE_I28F008SA
-                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-
-                    DEFW FE_I28F008S5
-                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-
-                    DEFW FE_I28F016S5
-                    DEFB 64, FE_28F               ; 32 x 64K sectors / 128 x 16K banks (2048Kb) (appears like FE_I28F008S5)
-
-                    DEFW FE_AM29F010B             ; AMD
-                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
-
-                    DEFW FE_ST29F010B             ; STMicroelectronics (AMD compatible)
-                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
-
-                    DEFW FE_AM29F040B             ; AMD
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-
-                    DEFW FE_ST29F040B             ; STMicroelectronics (AMD compatible)
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-
-                    DEFW FE_AM29F080B             ; AMD
-                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-
-                    DEFW FE_ST29F080D             ; STMicroelectronics (AMD compatible)
-                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
