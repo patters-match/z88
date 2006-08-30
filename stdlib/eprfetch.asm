@@ -39,7 +39,7 @@
 ; RAM file system, and then finally close the new RAM file.
 ;
 ; IN:
-;    IX = handle of file stream (opened previosuly as OP_OUT)
+;    IX = handle of file stream (opened previously with GN_Opf, A=OP_OUT)
 ;    BHL = pointer to Eprom File Entry (bits 7,6 of B is the slot mask)
 ;
 ; OUT:
