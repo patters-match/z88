@@ -20,6 +20,8 @@
      LIB MemAbsPtr
      LIB MemReadByte, MemReadWord, MemWriteByte
 
+     XDEF CheckRomId
+
      include "error.def"
      include "memory.def"
 

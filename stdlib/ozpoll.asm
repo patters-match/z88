@@ -18,10 +18,13 @@
 ; ***************************************************************************************************
 
         LIB ApplEprType
+        XREF CheckRomId
 
 ; ***************************************************************************************************
 ;
-; Poll for presence of OZ executing in specified slot.
+; Poll for presence of OZ executing in specified slot (top of card should contain 'OZ' + $81 subtype).
+; When slot 0 is polled for OZ ROM, also check bank 7; this might contain an original 128K ROM.
+;
 ;
 ; In:
 ;         C = slot number (0, 1, 2 or 3)
@@ -42,13 +45,26 @@
                     PUSH BC
                     PUSH AF
 
+                    PUSH BC
                     CALL ApplEprType              ; does OZ run in this slot?
+                    POP  BC                       ; C is still slot number even if Fc = 1
                     JR   C, no_oz
                     CP   $80
                     JR   exit_OZSlotPoll          ; $80: Fz = 1 (app card), $81: Fz = 0 (Fc = 0), OZ found
-.no_oz              CP   A                        ; no application card nor OZ...
+.no_oz              LD   A,C
+                    OR   A
+                    JR   NZ, no_oz_in_slot13
+                    PUSH HL                       ; slot 0: check also for 128K ROM image 'OZ' header in bank 7
+                    LD   B,7
+                    LD   HL,$3F00
+                    CALL CheckRomId
+                    POP  HL
+                    JR   Z,oz_found
+.no_oz_in_slot13    CP   A                        ; no application card nor OZ...
 .exit_OZSlotPoll
                     POP  BC
                     LD   A,B                      ; restore original A
                     POP  BC
                     RET
+.oz_found           OR   B                        ; Fc = 0, Fz = 0, old OZ ROM image (128K) was recognized in slot 0
+                    JR   exit_OZSlotPoll
