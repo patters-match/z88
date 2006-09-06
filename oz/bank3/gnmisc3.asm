@@ -15,6 +15,7 @@
         include "stdio.def"
 
         include "sysvar.def"
+        include "../bank7/kernel7.def"
 
 ;       ----
 
@@ -527,21 +528,47 @@ xref    Ld_DE_A
 .up_1
         ret
 
-;       ----
 
+; ----------------------------------------------------------------------------------------------------------------
+; GN_Cls, classify character
+;
+; IN:
+;      A = character to classify
+;
+; OUT:
+;      F = flags indicate classification, as follows:
+;           Fc = 0, Fz = 0: Neither alphabetic or numeric
+;           Fc = 0, Fz = 1: Numeric ('0' ... '9')
+;           Fc = 1, Fz = 0: Upper case letter ('A' ... 'Z')
+;           Fc = 1, Fz = 1: Lower case letter ('a' ... 'z')
+;
+; Registers changed after return:
+;      A.BCDEHL/IXIY same
+;      .F....../.... different
+;
 .GnClsMain
         cp      '0'
-        jr      c, cls_1
+        jr      c, cls_1                        ; symbols:  ' ' to '/'
         cp      ':'
-        jr      c, cls_num
+        jr      c, cls_num                      ; numeric:  '0' to '9'
         cp      'A'
-        jr      c, cls_1
+        jr      c, cls_1                        ; symbols:  ':' to '@'
         cp      '['
-        jr      c, cls_upper
+        jr      c, cls_upper                    ; alpha:    'A' to 'Z'
         cp      'a'
-        jr      c, cls_1
+        jr      c, cls_1                        ; symbols:  '[' to '`'
         cp      '{'
-        jr      c, cls_lower
+        jr      c, cls_lower                    ; alpha:    'a' to 'z'
+        cp      $C0
+        jr      c, cls_1                        ; symbols:  '{' to '¿'
+
+        call    ValidateIsoChar                 ; Validate defined ISO alpha chars in C0 - FF range
+        jr      nz, cls_1                       ; ISO character not recognised, identify as neither alphabetic nor numeric...
+
+        cp      $DF
+        jr      c, cls_upper                    ; upper case alpha:    'À' to 'Þ'
+        cp      $FF
+        jr      c, cls_lower                    ; lower case alpha:    'à' to 'þ'
 .cls_1
         or      a                               ; Fc=0
         push    af
@@ -561,7 +588,45 @@ xref    Ld_DE_A
 .cls_upper
         ret
 
+; --------------------------------------------------------------------------------------------------------
+; Verify ISO character in $C0 - $FF range against table of displayable ISO characters in screen driver
+; conversion table.
+; Return Fz = 1, if character in A was found in table.
+; --------------------------------------------------------------------------------------------------------
+.ValidateIsoChar
+        push    bc
+        push    de
+        push    hl
+
+        ld      bc, [OZBANK_KNL1 << 8] | MS_S1
+        ld      hl, $4000 | (Chr2VDU_tbl&$3fff) ; scan table in Kernel bank 1 for printable ISO characters
+        rst     OZ_MPB                          ; by binding it into local address space in segment 1
+
+.check_iso
+        cp      (hl)
+        jr      z, exit_vIsoChar                ; ISO char is defined as printable character!
+
+        ld      d,a
+        xor     a
+        or      (hl)                            ; end of table?
+        ld      a,d
+        jr      nz, next_iso
+        or      a                               ; Fz = 0, ISO was not found in table...
+.exit_vIsoChar
+        rst     OZ_MPB                          ; restore S1 bank bindings
+        pop     hl
+        pop     de
+        pop     bc
+        ret
+.next_iso
+        ld      de, 4                           ; each ISO is located on the 4th entry
+        add     hl,de                           ; point at next defined screen character
+        jr      check_iso
+
+
 ;       ----
+
+
 
 ;       BHL*CDE -> BHL=product
 
