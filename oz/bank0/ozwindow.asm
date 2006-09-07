@@ -30,8 +30,8 @@
 ;
 ; OZ window layout
 ; ROW MESSAGE
-; 1     OZ
-; 2     localisation '2 letters)
+; 1     OZ / INDEX / FAIL / LOCKOUT
+; 2     localisation (2 letters)
 ; 3     CLI
 ; 4     alarm bell
 ; 5     command

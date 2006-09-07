@@ -226,7 +226,6 @@ xref    ReadRTC                                 ; bank0/time.asm
         jr      nc, int_9
 
 .int_uart
-;        ld      l, SI_INT
         call    OSSiInt
         jr      int_12
 

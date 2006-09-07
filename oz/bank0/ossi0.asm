@@ -48,6 +48,11 @@ xdef    Ld_IX_RxBuf
 xdef    WrRxC
 xdef    EI_TDRE
 
+xref    BufWrite                                ; bank0/buffer.asm
+xref    BufRead                                 ; bank0/buffer.asm
+xref    BfPbt                                   ; bank0/buffer.asm
+xref    BfGbt                                   ; bank0/buffer.asm
+
 xref    OSSiHrd1                                ; bank7/ossi1.asm
 xref    OSSiSft1                                ; bank7/ossi1.asm
 xref    OSSiEnq1                                ; bank7/ossi1.asm
@@ -178,8 +183,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .rx_3
         push    ix                              ; write byte to buffer
         call    Ld_IX_RxBuf
-        ld      l, BF_PB
-        call    OZ_BUFF
+        call    BufWrite
         pop     ix
 
         ld      a, h                            ; #chars in buffer
@@ -240,8 +244,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
         push    ix                              ; read byte from TxBuf
         call    Ld_IX_TxBuf
-        ld      l, BF_GB
-        call    OZ_BUFF
+        call    BufRead
         pop     ix
         jr      nc, tx_2                        ; buffer not empty? send byte
 
@@ -343,8 +346,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         call    MayGetTimeout                   ; get default timeout if BC = -1
         call    Ld_IX_TxBuf
         pop     af
-        ld      l, BF_PBT                       ; put byte with timeout
-        call    OZ_BUFF
+        call    BfPbt                           ; put byte with timeout
         call    nc, EI_TDRE                     ; enable TDRE if succesful
         ret
 
@@ -354,8 +356,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         call    OZ_DI
         push    af                              ; get byte with timeout
         call    Ld_IX_RxBuf
-        ld      l, BF_GBT
-        call    OZ_BUFF
+        call    BfGbt
         jr      c, gb_2                         ; error? exit
         ld      e, a
 
