@@ -15,27 +15,21 @@
 ;
 ; $Id$
 ;
-;***************************************************************************************************
+; ***************************************************************************************************
 
      LIB FlashEprCardId         ; Identify Flash Memory Chip in slot C
      LIB FlashEprBlockErase     ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
-     LIB OZSlotPoll             ; Poll for OZ ROM availabílity in slot C
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
 
 
-; ***************************************************************
+; ***************************************************************************************************
 ;
 ; Erase Flash Memory Card inserted in slot C.
 ;
 ; The routine will internally ask the Flash Memory for identification
 ; and intelligently use the correct erasing algorithm.
-;
-; -------------------------------------------------------------------------
-; This routine will signal failure ("flash card not found") if an
-; application wants to erase a card that contains the OZ ROM.
-; -------------------------------------------------------------------------
 ;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
@@ -47,6 +41,10 @@
 ; to evaluate the Flash Memory (using the FlashEprCardId routine) and
 ; warn the user that an INTEL Flash Memory Card requires the Z88
 ; slot 3 hardware, so this type of unnecessary error can be avoided.
+;
+; Prior to this call, it is also the responsibility of the application
+; to avoid erasing a slot which contains the operating system.
+; Use the OZSlotPoll library to validate the specified slot.
 ;
 ; IN:
 ;         C = slot number (0, 1, 2 or 3) of Flash Memory
@@ -73,12 +71,6 @@
                     PUSH BC
                     PUSH HL
 
-                    CALL OZSlotPoll                     ; is OZ running in slot C?
-                    JR   Z, no_oz
-                    LD   A, RC_NFE
-                    SCF
-                    JR   exit_FlashEprCardErase         ; Yes, don't erase chip running OZ ROM!
-.no_oz
                     CALL FlashEprCardId                 ; poll for card information in slot C (returns B = total banks of card)
                     JR   C, exit_FlashEprCardErase
 
