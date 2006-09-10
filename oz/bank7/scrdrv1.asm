@@ -234,27 +234,41 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         pop     hl
         ret
 
-;       ----
 
+; ------------------------------------------------------------------------------------
+; Point to ISO Latin 1 Ascii byte at (HL), searching internal VDU in A.
+;
+; IN:
+;       A = low byte of LORES1 screen offset
+; OUT:
+;       Fc = 0, Fz = 1, VDU code recognized:
+;           HL = pointer to Ascii byte representation
+;       Fc = 1, Fz = 1
+;           HL = points to end of table.
+;
+; Registers changed after return:
+;    A.BCDE../IXIY same
+;    .F....HL/.... different
+;
 .VDU2ChrCode
         ld      hl, VDU2Chr_tbl
 
 .Chr2ScreenCode                                 ; with hl=Key2Chr_tbl from Os_In
         push    de
         ld      d, a                            ; remember byte
-
 .c2sc_1
-        ld      a, (hl)
-        or      a
+        ld      e, (hl)
+        ld      a,e
+        inc     hl
+        or      (hl)                            ; if lores1 bitmap offset = 0, then end of table reached
         scf
         jr      z, c2sc_2                       ; not found, Fc=1
         inc     hl                              ; next entry
         inc     hl
         inc     hl
-        inc     hl
+        ld      a,e
         cp      d
         jr      nz, c2sc_1                      ; compare next
-
 .c2sc_2
         ld      a, d                            ; restore byte
         pop     de
@@ -263,6 +277,8 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         dec     hl
         ret
 
+
+; ------------------------------------------------------------------------------------
 ;       this one handles tiny/bold too
 ; IN :  A = ISO to display ($00-$FF)
 ;       D = attributes (SW1=Tiny, SW2=Bold)
@@ -986,9 +1002,9 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         OZ      DC_Gen
         pop     hl
         ret
-        
+
 ;       ----
-        
+
 .ScrDrvCmdTable
         defb    '@',0
         defw    MoveToXY
