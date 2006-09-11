@@ -38,12 +38,9 @@ defc    AKBD_B_ESCENABLED       =7
         jr      z, OSEsc_x
         res     ITSK_B_ESC, (hl)
         push    af
-        push    ix
         exx
-        ld      ix, KbdData
         OZ      OS_Pur                          ; purge keyboard buffer
         exx
-        pop     ix
         pop     af
         jr      OSEsc_x
 

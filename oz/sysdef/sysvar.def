@@ -1,7 +1,7 @@
 lstoff
 
 ; **************************************************************************************************
-; OZ System Definitions.
+; OZ ram variables area definitions.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -731,27 +731,6 @@ defc    Z80F_P                  =$04
 defc    Z80F_H                  =$10
 defc    Z80F_Z                  =$40
 defc    Z80F_S                  =$80
-
-
-
-; **************************************************************************************************
-;       BUFFER
-; **************************************************************************************************
-
-;       buffer  !! remove unused bytes, size drops to 5 bytes
-
-defvars -10
-        buf_f6                  ds.b    1       ; $F6
-        buf_func                ds.b    1       ; $F7
-        buf_funcH               ds.w    1       ; $F8
-        buf_end                 ds.b    1       ; $FA
-        buf_start               ds.b    1       ; $FB
-        buf_bufpage             ds.b    1       ; $FC
-        buf_fd                  ds.b    1       ; $FD unused
-        buf_wrpos               ds.b    1       ; $FE
-        buf_rdpos               ds.b    1       ; $FF
-enddef
-
 
 
 ; **************************************************************************************************

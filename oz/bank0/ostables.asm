@@ -34,7 +34,6 @@
 
         org     $FF00                           ; fixed start @ $00FF00
 
-xdef    OZBuffCallTable
 xdef    OZCallTable
 
 IF COMPILE_BINARY
@@ -173,17 +172,9 @@ ENDIF
         jp      OzCallInvalid
         jp      OzCallInvalid                   ; end at $003F9E
 
-.OZBuffCallTable                                ; relocated at $003F9F
-        jp      BufWrite
-        jp      BufRead
-        jp      BfPbt
-        jp      BfGbt
-        jp      BfSta
-        jp      BfPur                           ; end at $003FB0
-
 ; ***** FREE SPACE *****                        ; some code was here and removed for clarity
 
-        defs    $19 ($FF)                       ; $3FCA - $3FB1
+        defs    $2B ($FF)                       ; $3FCA - $3FB1
 
 ; 2-byte calls, OSFrame set up already          ; start at $003FCA
 

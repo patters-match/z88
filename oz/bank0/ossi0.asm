@@ -258,10 +258,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ;       send char in A !! rearrange parity bits and use af' for speed
 
 .tx_2
-        push    af                              ; parity into C
-        ld      a, (ubSerParity)                ; !! 'ld bc, (ubSerParity)'
-        ld      c, a
-        pop     af
+        ld      bc, (ubSerParity)               ; parity inC
         ld      b, ~TDRH_START
 
         bit     PAR_B_9BIT, c                   ; nine bit data? clear 1st stop bit (bit8)

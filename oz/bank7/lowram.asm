@@ -58,7 +58,6 @@ xdef    JpAHL
 xdef    JpHL
 xdef    OZ_RET1
 xdef    OZ_RET0
-xdef    OZ_BUF
 xdef    OZ_DI
 xdef    OZ_EI
 xdef    OZCallJump
@@ -128,8 +127,10 @@ xdef    MemDefBank, MemGetBank
         jp      OZCallReturn1                   ; 0048
 .OZ_RET0
         jp      OZCallReturn0                   ; 004B
-.OZ_BUF
-        jp      OZBUFmain                       ; 004E
+;OZ_BUF removed
+        scf                             
+        ret
+        nop
 .OZ_DI
         jp      OZDImain                        ; 0051
 .OZ_EI
@@ -244,25 +245,6 @@ xdef    MemDefBank, MemGetBank
 .DefErrHandler                                  ; referenced from error.asm, process3.asm
         ret     z
         cp      a
-        ret
-
-.OZBUFmain
-        ex      af, af'
-        ld      a, (BLSC_SR3)                   ; remember S3
-        push    af
-        call    MS3Bank00
-
-        ld      a, l                            ; !! ld a, l; ld hl,OZBuffCallTable; add a,l; ld l,a
-        add     a, <OZBuffCallTable
-        ld      l, a
-        ex      af, af'
-        ld      h, >OZBuffCallTable
-        call    JpHL
-
-        ex      af, af'
-        pop     af                              ; restore S3
-        call    MS3BankA
-        ex      af, af'
         ret
 
 .CallOZMain

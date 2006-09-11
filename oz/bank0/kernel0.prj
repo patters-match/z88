@@ -36,8 +36,8 @@ nmi.asm
 error.asm
 esc.asm
 filesys2.asm
-time.asm
 ossi0.asm
+time.asm
 misc4.asm
 handle.asm
 misc5.asm

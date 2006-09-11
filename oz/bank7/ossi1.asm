@@ -48,6 +48,8 @@ xdef    OSSiFtx1
 xdef    OSSiFrx1
 xdef    OSSiTmo1
 
+xref    BfSta                                   ; bank0/buffer.asm
+xref    BfPur                                   ; bank0/buffer.asm
 xref    Ld_IX_RxBuf                             ; bank0/ossi0.asm
 xref    Ld_IX_TxBuf                             ; bank0/ossi0.asm
 xref    WrRxc                                   ; bank0/ossi0.asm
@@ -230,15 +232,13 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
         push    af                              ; !! eliminate one 'push/pop' pair
         push    ix
         call    Ld_IX_TxBuf                     ; get TxBuf status
-        ld      l, BF_STA
-        call    OZ_BUFF
+        call    BfSta
         pop     ix
         push    hl
 
         push    ix
         call    Ld_IX_RxBuf                     ; get RxBuf status
-        ld      l, BF_STA
-        call    OZ_BUFF
+        call    BfSta
         pop     ix
 
         ex      de, hl                          ; DE=RxStatus
@@ -270,7 +270,6 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
         call    Ld_IX_RxBuf
 
 .FlushBuf
-        ld      l, BF_PUR
-        call    OZ_BUFF
+        call    BfPur
         pop     ix
         ret

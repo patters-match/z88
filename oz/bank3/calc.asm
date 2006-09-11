@@ -1848,7 +1848,8 @@ defc    CC_FIX                  = 3
 ;       ----
 
 .ReadKey
-        call    PurgeKbdBuf
+        OZ      OS_Pur
+        scf
 
 .rdk_1
         OZ      OS_In
@@ -1888,14 +1889,6 @@ defc    CC_FIX                  = 3
 .erh_1
         cp      a
         ret
-;       ----
-
-.PurgeKbdBuf
-        ld      ix, 1
-        OZ      OS_Pur
-        scf
-        ret
-
 ;       ----
 
 .ToUpper

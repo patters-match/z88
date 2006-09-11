@@ -46,11 +46,16 @@ xref    WrFileByte                              ; bank0/filesys3.asm
 xref    ChgHandleType                           ; bank0/handle.asm
 xref    FindHandle                              ; bank0/handle.asm
 xref    VerifyHandle                            ; bank0/handle.asm
-xref    Chk128KB                                ; bank0/resetx.asm
+
+xref    Chk128KB                                ; bank0/memory.asm
+
 xref    DORHandleFreeDirect                     ; bank0/dor.asm
 xref    GetHandlePtr                            ; bank0/dor.asm
 xref    VerifyHandleBank                        ; bank0/dor.asm
+
 xref    RdKbBuffer                              ; bank0/osin.asm
+xref    BfSta                                   ; bank0/buffer.asm
+
 xref    OSFramePop                              ; bank0/misc4.asm
 xref    OSFramePush                             ; bank0/misc4.asm
 
@@ -728,13 +733,11 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         ret     nz                              ; not serial? exit
 
         ld      ix, SerTXHandle
-        ld      l, BF_STA                       ; get buffer status
-        call    OZ_BUF
+        call    BfSta                           ; get buffer status
         ex      de, hl
         call    PutOSFrame_DE                   ; TX status in DE
         ld      ix, SerRXHandle
-        ld      l, BF_STA                       ; get buffer status
-        call    OZ_BUF
+        call    BfSta                           ; get buffer status
         or      a
         jp      PutOSFrame_HL                   ; RX status in HL
 

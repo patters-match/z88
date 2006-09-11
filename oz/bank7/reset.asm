@@ -136,7 +136,6 @@ xref    TimeReset                               ; bank7/timeres.asm
         ld      ($4000+BLSC_COM), a
         out     (BL_COM), a
         ld      sp, $2000                       ; init stack
-        ld      b, NUMHANDLES                   ; !! move this ld into ResetHandles
         call    ResetHandles
 
 ;       init screen file for unexpanded machine

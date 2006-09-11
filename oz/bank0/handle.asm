@@ -81,6 +81,7 @@ xref    PutOSFrame_HL                           ; bank0/misc5.asm
 
 .ResetHandles
         ld      ix, HANDLES                     ; handles in $0500-$0bff
+        ld      b, NUMHANDLES                   ; 96 handles (6 pages of 16 handles)
 .rsthn_1
         ld      de, (pFirstHandle)              ; get previous handle  !! use registers insde loop
         ld      (ix+hnd_Next), e                ; link this to prev
@@ -89,7 +90,6 @@ xref    PutOSFrame_HL                           ; bank0/misc5.asm
         ld      (ix+hnd_Type), a                ; mark as free
         ld      (ix+hnd_DynID), a
         ld      (pFirstHandle), ix              ; make this previous
-
         ld      de, hnd_SIZEOF                  ; advance to next and loop if handles left
         add     ix, de
         djnz    rsthn_1

@@ -1,24 +1,51 @@
 lstoff
-
+; **************************************************************************************************
+; Low level buffer i/o definitions.
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
+; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
+;
+; $Id$
+;***************************************************************************************************
 ; BUFFER.DEF
-; v1.0 - 30 june 1999
-; Z88 Operating System manifests
-; by Thierry Peycru
 
-;buffer type
-     defc BT_KBD    =    $0216               ;keyboard buffer frame
-     defc BT_RX     =    $0233               ;serial recieve
-     defc BT_TX     =    $0229               ;serial transmit
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
-;buffer routine
-     defc OZ_BUFF   =    $004E               ;it is a simple call
+; buffer lenght
+     defc KB_BUF_LEN    = $20
+     defc RX_BUF_LEN    = $80
+     defc TX_BUF_LEN    = $60
 
-;routine reasons (in L, IX is buffer type)
-     defc BF_PB     =    $00                 ;write to buffer
-     defc BF_GB     =    $03                 ;read from buffer
-     defc BF_PBT    =    $06                 ;PB with timeout
-     defc BF_GBT    =    $09                 ;GB with timeout
-     defc BF_STA    =    $0C                 ;Get buffer status
-     defc BF_PUR    =    $0F                 ;purge buffer
+; buffer data structure
+; on negative side of the handle number (see sysvar.def)
+defvars -10
+        buf_f6                  ds.b    1       ; $F6
+        buf_func                ds.b    1       ; $F7
+        buf_funcH               ds.w    1       ; $F8
+        buf_end                 ds.b    1       ; $FA
+        buf_start               ds.b    1       ; $FB
+        buf_bufpage             ds.b    1       ; $FC
+        buf_fd                  ds.b    1       ; $FD unused
+        buf_wrpos               ds.b    1       ; $FE
+        buf_rdpos               ds.b    1       ; $FF
+enddef
 
 lston

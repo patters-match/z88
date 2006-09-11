@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Low level keyboard buffer functionality and OS_Dly entry. The routines are located in Bank 0.
+; Low level buffer i/o used by keyboard, serial interface and interruptions.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -32,18 +32,18 @@
 
         Module Buffer
 
+        include "buffer.def"
         include "director.def"
         include "error.def"
         include "sysvar.def"
         include "../bank7/lowram.def"
 
-xdef    BfGbt                                   ; OsTin
-xdef    BfPbt
-xdef    BfPur
-xdef    BfSta
-xdef    BufRead
-xdef    BufWrite
-xdef    BufWriteC                               ; KbdMain
+xdef    BfGbt                                   ; bank0/osin.asm
+xdef    BfPbt                                   ;
+xdef    BfPur                                   ; bank0/ossi1
+xdef    BfSta                                   ; bank0/ossi1
+xdef    BufRead                                 ;
+xdef    BufWrite                                ; kbd.asm
 xdef    InitBufKBD_RX_TX                        ; bank7/reset.asm
 xdef    OsDly
 xdef    OSPur
@@ -185,7 +185,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         call    Bf_Check
         jr      nc, bfgbt_get                   ; if there's data we can exit right away
 
-        ld      hl, ubIntTaskToDo                 ; !! unnecessary
+        ld      hl, ubIntTaskToDo               ; !! unnecessary
         bit     ITSK_B_PREEMPTION, (hl)
         jr      nz, bfgbt_susp0                 ; pre-empted? exit
         bit     ITSK_B_ESC, (hl)
@@ -566,9 +566,6 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 .bufi_2
         djnz    bufi_1
         pop     ix
-
-.bufi_3
-        ld      (ix+buf_f6), 0                  ; unused?  callable thru KbdData function
         ret
 
 ;       ----
@@ -584,18 +581,18 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 .InitBufKBD_RX_TX
         ld      ix, KbdData                     ; KBD buffer
         ld      b, kbd_SIZEOF                   ; clear kbd data
-        ld      c, <SerTXBuffer
-        ld      de, KbdBuffer                   ; 0b00-0b1f
-        ld      hl, bufi_3                      ; unused ??
-        call    BufInit                         ; KBD buffer
+        ld      c, <(KbdBuffer+KB_BUF_LEN)
+        ld      de, KbdBuffer
+        ld      hl, 0                           ; unused
+        call    BufInit                         ;
 
         ld      ix, SerTXHandle                 ; TX buffer
-        ld      c, <(SerTXBuffer+$60)
-        ld      de, SerTXBuffer                 ; 0b20-0b7f
+        ld      c, <(SerTXBuffer+TX_BUF_LEN)
+        ld      de, SerTXBuffer
         call    BufInit0
 
         ld      ix, SerRXHandle                 ; RX buffer
-        ld      c, <(SerRXBuffer+$80)
-        ld      de, SerRXBuffer                 ; 0b80-0bff
+        ld      c, <(SerRXBuffer+RX_BUF_LEN)
+        ld      de, SerRXBuffer
         jp      BufInit0
 
