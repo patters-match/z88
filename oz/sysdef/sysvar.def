@@ -173,18 +173,12 @@ defc    ubIntStatus             =$03f7
 defc    ubSlotRamSize           =$03fc
 defc    ubSlotRAMoffset         =$03f8
 
-;       0400-04ff       hardware ports (see blink.def)
-
-; *** TEMPORARY HACK *** WE NEED SPACE ***
-
 defc    RandomPointers          =$0400
 defvars RandomPointers
         ubRandomPtr             ds.b    1
         uwRandom1               ds.w    1
         uwRandom2               ds.w    1
 enddef
-
-defc    KEYMAP_BANK             =$08            ; at KeymapTable
 
 defc    KeymapTblPtrs           =$0405
 defvars KeymapTblPtrs
@@ -198,14 +192,17 @@ defvars KeymapTblPtrs
         km_deadsub              ds.b    1       ; offset to list for current deadkey
 enddef
 
+defc    KbdBuffer               =$0440          ; ends at $045F
+
+;       0460-04ff       hardware ports (see blink.def)
+
 ;       0500-0aff       handles
 
 defc    HANDLES                 =$0500
 
-;       0b00-0bff       buffers
+;       0b00-0bff       Serial interface buffers
 
-defc    KbdBuffer               =$0b00
-defc    SerTXBuffer             =$0b20
+defc    SerTXBuffer             =$0b00
 defc    SerRXBuffer             =$0b80
 
 ;       0c00            NMI/wait
@@ -353,6 +350,8 @@ defc    IDXF1_INIT              =$02
 ; **************************************************************************************************
 ;       KEYBOARD
 ; **************************************************************************************************
+
+defc    KEYMAP_BANK             =$08            ; at KeymapTable
 
 ;       qualifiers
 

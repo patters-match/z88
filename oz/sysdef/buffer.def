@@ -32,7 +32,7 @@ lstoff
 ; buffer lenght
      defc KB_BUF_LEN    = $20
      defc RX_BUF_LEN    = $80
-     defc TX_BUF_LEN    = $60
+     defc TX_BUF_LEN    = $80
 
 ; buffer data structure
 ; on negative side of the handle number (see sysvar.def)

@@ -444,7 +444,6 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 
 .BufWrite
         ld      c, a
-.BufWriteC                                      ; external call from original keybard routines
         call    OZ_DI
         ex      af, af'
 
