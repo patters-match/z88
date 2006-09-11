@@ -2291,41 +2291,37 @@ enddef
         ld      hl, 0
         push    iy
         pop     de                              ; start of buffer
+
+        push    hl
         push    de
         push    bc
         OZ      OS_Mv                           ; copy block of bytes from handle IX to buffer
-        jr      c,copy_err                      ; an error occurred (possibly EOF), examine...
-.buf2file
-        pop     bc                              ; number of bytes to copy from buffer to destination
-        pop     hl                              ; (start of buffer)
-        ld      de, 0
-        ld      ix, (f_DestHandle)
-        OZ      OS_Mv                           ; write block (in buffer) to handle IX
-        jr      nc, copy_loop                   ; done successfully, get another block from source...
-        jr      exit_dstcopy_err
+        jr      nc,buf2file
 .copy_err
         pop     hl
         cp      RC_Eof
-        jr      nz, exit_srccopy_err            ; an unexpected error occurred when copying from source...
+        jr      nz, exit_err_copy               ; an unexpected error occurred when copying from source...
         sbc     hl,bc                           ; End Of File, loaded bytes < buffer size
-        ld      a,h
-        or      l
-        jr      z,eof_file                      ; nothing was copied into buffer!
-        push    hl                              ; copy remaining buffer to destination
-        jr      buf2file
-.eof_file
-        pop     bc
-        ld      a, RC_Eof                       ; Return Fz = 1, A = RC_EOF to indicate file is copied successfully...
-        jr      exit_copy
-.exit_srccopy_err
-        pop     bc
-.exit_dstcopy_err
-        scf
+        push    hl
+        jr      z, exit_copy                    ; nothing was copied into buffer, return Fz = 1, A = RC_EOF, file copied successfully
+.buf2file
+        pop     bc                              ; number of bytes to copy from buffer to destination
+        pop     hl                              ; (start of buffer)
+        pop     de                              ; DE = 0
+        ld      ix, (f_DestHandle)
+        OZ      OS_Mv                           ; write block (in buffer) to handle IX
+        jr      nc, copy_loop                   ; done successfully, get another block from source...
+.exit_err_copy
+        scf                                     ; abnormal error occurred, Fc = 1, A = RC_xxx
 .exit_copy
+        dec     iy
+        dec     iy
+        ld      sp,iy                           ; point at old SP address
         pop     hl
         ld      sp,hl                           ; restored original Stack
+
         pop     iy
-        ret                                     ; abnormal error occurred, Fc = 1, A = RC_xxx
+        ret
 
 
 ;----
