@@ -484,7 +484,7 @@ enddef
         call    TstIX
         jr      nz, loc_ED87
         ld      hl, f_DestName
-        ld      a, 2                            ; write
+        ld      a, OP_OUT                       ; write
         call    OpenFile
         ld      (f_DestHandle), ix
         jp      c, loc_ED92
@@ -2262,23 +2262,72 @@ enddef
         defb    $2C
         defw    CatalogueEPROM
         defm    "Catalogue EPROM",0
-;----
-.Copy
 
+
+; --------------------------------------------------------------------------------------------------------------
+; Copy file resource specified in (f_SourceHandle) handle, to destination resource specified in (f_DestHandle).
+; Use a 1K buffer on the system stack to block copy the file using OS_Mv (fast copy).
+;
+; In: None:
+; Out: Fc = 0, Fz = 1, A = RC_EOF: File copied successfully.
+;      Fc = 1, A = RC_xxx, unexpected error occurred.
+;
+; Registers changed after return:
+;    ......../..IY same
+;    AFBCDEHL/IX.. different
+;
+.Copy
+        push    iy
+
+        ld      hl,0
+        add     hl,sp                           ; get current stack pointer
+        ld      iy,-1024
+        add     iy,sp                           ; IY points at start of buffer
+        ld      sp,iy                           ; 1K byte buffer created...
+        push    hl                              ; preserve original SP
+.copy_loop
         ld      ix, (f_SourceHandle)
-        OZ      OS_Gb                           ; get byte from file or device
-        jr      c, copy_err
+        ld      bc, 1024
+        ld      hl, 0
+        push    iy
+        pop     de                              ; start of buffer
+        push    de
+        push    bc
+        OZ      OS_Mv                           ; copy block of bytes from handle IX to buffer
+        jr      c,copy_err                      ; an error occurred (possibly EOF), examine...
+.buf2file
+        pop     bc                              ; number of bytes to copy from buffer to destination
+        pop     hl                              ; (start of buffer)
+        ld      de, 0
         ld      ix, (f_DestHandle)
-        OZ      OS_Pb                           ; write byte A to handle IX
-        jr      nc, Copy
-        jr      copy_x
+        OZ      OS_Mv                           ; write block (in buffer) to handle IX
+        jr      nc, copy_loop                   ; done successfully, get another block from source...
+        jr      exit_dstcopy_err
 .copy_err
-        cp      RC_Eof                          ; End Of File
-        jr      z, copy_x
+        pop     hl
+        cp      RC_Eof
+        jr      nz, exit_srccopy_err            ; an unexpected error occurred when copying from source...
+        sbc     hl,bc                           ; End Of File, loaded bytes < buffer size
+        ld      a,h
+        or      l
+        jr      z,eof_file                      ; nothing was copied into buffer!
+        push    hl                              ; copy remaining buffer to destination
+        jr      buf2file
+.eof_file
+        pop     bc
+        ld      a, RC_Eof                       ; Return Fz = 1, A = RC_EOF to indicate file is copied successfully...
+        jr      exit_copy
+.exit_srccopy_err
+        pop     bc
+.exit_dstcopy_err
         scf
-.copy_x
-        ret
-; End of function Copy
+.exit_copy
+        pop     hl
+        ld      sp,hl                           ; restored original Stack
+        pop     iy
+        ret                                     ; abnormal error occurred, Fc = 1, A = RC_xxx
+
+
 ;----
 .SelectDevice
         ld      hl, AskName_txt
@@ -2428,7 +2477,7 @@ enddef
         ld      de, f_SourceName
         call    ExpandFname
         jr      c, fetch_x
-        ld      a, 2
+        ld      a, OP_OUT
         ld      hl, f_DestName
         call    OpenFile                        ; write
         ld      (f_DestHandle), ix
@@ -2605,7 +2654,7 @@ enddef
         pop     af
         cp      Dn_Dir                          ; dir?
         jr      nz, tcopy_7
-        ld      a, 5                            ; create directory
+        ld      a, OP_DIR                       ; create directory
         ld      hl, f_DestName
         call    OpenFile
         jr      c, tcopy_6
@@ -2627,18 +2676,18 @@ enddef
         ld      hl, f_DestName
         OZ      GN_Sop                          ; write string to std. output
         ld      hl, f_SourceName
-        ld      a, 1                            ; read
+        ld      a, OP_IN                        ; read
         call    OpenFile
         ld      (f_SourceHandle), ix
         jr      c, tcopy_9
         ld      hl, f_DestName
-        ld      a, 2                            ; write
+        ld      a, OP_OUT                       ; write
         call    OpenFile
         ld      (f_DestHandle), ix
         jr      nc, tcopy_8
         push    af
         ld      ix, (f_SourceHandle)
-        OZ      GN_Cls                          ; !! BUG: shouldn't this be GN_Cl?
+        OZ      GN_Cl
         ld      (f_SourceHandle), ix
         pop     af
         jr      tcopy_9
