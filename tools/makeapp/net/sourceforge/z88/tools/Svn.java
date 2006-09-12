@@ -113,6 +113,17 @@ public class Svn {
 					int newRevision = Integer.parseInt(revisionNo);
 					if (latestRevisionNo < newRevision)
 						latestRevisionNo = newRevision;
+				} else {
+					// Try to evaluate SVN 1.4 file format, where revision numbers'
+					// are stored as numbers on separate lines.
+					try {
+						int newRevision = Integer.parseInt(str);
+						if (latestRevisionNo < newRevision)
+							latestRevisionNo = newRevision;
+					} catch (NumberFormatException e) {
+						// This line did not contain a valid SVN revision number!
+						continue;
+					}
 				}
 			}
 			in.close();
