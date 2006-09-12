@@ -128,7 +128,7 @@ xdef    MemDefBank, MemGetBank
 .OZ_RET0
         jp      OZCallReturn0                   ; 004B
 ;OZ_BUF removed
-        scf                             
+        scf
         ret
         nop
 .OZ_DI
@@ -438,7 +438,9 @@ xdef    MemDefBank, MemGetBank
 ;
 .ExtCall
         ex      (sp),hl                         ; HL points at 24bit address argument (original HL on stack)
-        call    PreserveBCDE                    ; temporarily preserve original BC, DE registers
+        ld      (regs+2),de
+        ld      (regs),bc                       ; temporarily preserve original BC, DE registers
+
         ld      e,(hl)                          ; get low byte of call address
         inc     hl
         ld      d,(hl)                          ; get high byte of call address
@@ -461,7 +463,8 @@ xdef    MemDefBank, MemGetBank
         ld      bc,restore_bank_binding         ; (HL now restored with original caller value)
         push    bc                              ; call'ed subroutine RETurns to restore the old bank binding before
         push    de                              ; actually returning from ExtCall...
-        call    RestoreBCDE
+        ld      de,(regs+2)
+        ld      bc,(regs)                       ; restore original BC, DE registers from caller for EXTCALL destination
         ret                                     ; CALL address to subroutine in bound bank
 .get_slotrelative_bank
         ld      a,h                             ; bits 15,14 of executing code define the segment mask
@@ -476,20 +479,9 @@ xdef    MemDefBank, MemGetBank
         ret
 
 .restore_bank_binding                           ; when subroutine executes RET, it is returned here...
-        call    PreserveBC
+        ld      (regs),bc
         pop     bc                              ; old bank binding...
         rst     OZ_MPB                          ; restore previous bank binding
-        call    RestoreBC
-        ret
-
-.PreserveBCDE
-        ld      (regs+2),de
-.PreserveBC
-        ld      (regs),bc
-        ret
-.RestoreBCDE
-        ld      de,(regs+2)
-.RestoreBC
-        ld      bc,(regs)
+        ld      bc,(regs)                       ; restore original returned BC registers from EXTCALL routine.
         ret
 ;***************************************************************************************************
