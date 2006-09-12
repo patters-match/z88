@@ -251,7 +251,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 
 ;       ----
 
-; Check is buffer has room for one more byte
+; Check if buffer has room for one more byte
 ;
 ;IN:    IX = buffer
 ;OUT:   Fc=0, A=free space if room
@@ -317,8 +317,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 .bfpbt_put
         pop     af                              ; write data into buffer
         push    af
-        ld      c, a                            ; !! use BufWrite
-        call    BufWriteC
+        call    BufWrite
         jr      c, bfpbt_9                      ; error? wait more
 
 .bfpbt_x
