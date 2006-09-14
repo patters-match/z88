@@ -43,6 +43,8 @@ xref    SeekFileMayExpand                       ; bank0/filesys3.asm
 xref    SetFileSize                             ; bank0/filesys3.asm
 xref    WrFileByte                              ; bank0/filesys3.asm
 
+xref    OSSiPbt, OSSiGbt                        ; bank0/ossi0.asm
+
 xref    ChgHandleType                           ; bank0/handle.asm
 xref    FindHandle                              ; bank0/handle.asm
 xref    VerifyHandle                            ; bank0/handle.asm

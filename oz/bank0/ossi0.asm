@@ -47,6 +47,7 @@ xdef    Ld_IX_TxBuf
 xdef    Ld_IX_RxBuf
 xdef    WrRxC
 xdef    EI_TDRE
+xdef    OSSiGbt, OSSiPbt
 
 xref    BufWrite                                ; bank0/buffer.asm
 xref    BufRead                                 ; bank0/buffer.asm
@@ -104,7 +105,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .OSSiSft
         extcall OSSiSft1, OZBANK_KNL1
         ret
-        
+
 .OSSiEnq
         extcall OSSiEnq1, OZBANK_KNL1
         ret
