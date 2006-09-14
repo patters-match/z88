@@ -107,8 +107,10 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         dec     e
         jr      nz, gbts_2
 
-        ld      l, SI_GBT                       ; 5 - read serial port
-        OZ      OS_Si
+        push    ix                              ; 5 - read serial port
+        ld      ix, (SerRXHandle)
+        call    OSSiGbt
+        pop     ix
         ret
 
 .gbts_2
@@ -174,11 +176,11 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         dec     e
         jr      nz, pbts_3
 
-;       5 - serial
-
         ld      a, (iy+OSFrame_A)
-        ld      l, SI_PBT
-        OZ      OS_Si
+        push    ix                              ; 5 - read serial port
+        ld      ix, (SerRXHandle)
+        call    OSSiPbt
+        pop     ix
         ret
 
 .pbts_3
