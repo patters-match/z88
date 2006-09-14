@@ -99,8 +99,6 @@ xdef    MemDefBank, MemGetBank
 
 .rst20
         jp      CallOZMain                      ; 0020
-        defb    0,0
-        jp      CallOZret                       ; 0025
         defs    $0028-$PC  ($ff)                ; address align for RST 28H
 
 .rst28
@@ -292,21 +290,6 @@ xdef    MemDefBank, MemGetBank
         call    MS3BankA
         ex      af, af'
         exx
-        ret
-
-;       called thru $0025, maybe unused
-
-.CallOZret
-        pop     bc                              ; restore bank B into segment C
-        ld      a, c
-        add     a, BL_SR0
-        ld      c, a
-        ld      a, b
-        ld      b, BLSC_PAGE
-        ld      (bc), a
-        out     (c), a
-        pop     bc
-        pop     af
         ret
 
 .OZDImain
