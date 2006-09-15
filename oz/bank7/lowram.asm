@@ -342,7 +342,7 @@ xdef    MemDefBank, MemGetBank
         ld   a,c                                ; get segment specifier ($00, $01, $02 and $03)
         and  @00000011
         or   $d0
-        ld   h,$04
+        ld   h, BLSC_PAGE
         ld   l,a                                ; BC points at Blink soft copy of current binding in segment C
 
         ld   a,(hl)                             ; get bound bank number in current segment
