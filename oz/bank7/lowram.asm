@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Lowram routines that resides in RAM at lower segment 0 of the Z80 address space ($0000 - $01F0).
+; Lowram routines that resides in RAM at lower segment 0 of the Z80 address space ($0000 - $01DF).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -68,74 +68,82 @@ xdef    ExtCall
 xdef    MemDefBank, MemGetBank
 
 
-; this code is copied to 0000 - 01A4
-
-.rst00
+;       ----
+;       RESTARTS
+.rst00                                          ; RESET
         di
         xor     a
         out     (BL_COM), a                     ; bind b00 into low 2KB
         ; code continues to execute in bank 0 in ROM (see bank0/boot.asm)...
         defs    $0008-$PC   ($ff)               ; address align for RST 08H
 
-.rst08
+.rst08                                          ; FREE
         scf
         ret
         defs    $0010-$PC  ($ff)                ; address align for RST 10H
 
-.rst10
+.rst10                                          ; EXTCALL
         jp      ExtCall                         ; OZ V4.1: EXTCALL interface
 .regs
         defw    0                               ; EXTCALL temp storage space for original BC register
         defw    0                               ; EXTCALL temp storage space for original DE register
         defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
 
-.rst18
+.rst18                                          ; FPP
         jp      FPPmain
         defb    0,0
 .FPP_RET
         jp      OZCallReturnFP                  ; 001d, called from FPP
         defs    $0020-$PC  ($ff)                ; address align for RST 20H (OZ System Call Interface)
 
-.rst20
+.rst20                                          ; OZ call
         jp      CallOZMain                      ; 0020
         defs    $0028-$PC  ($ff)                ; address align for RST 28H
 
-.rst28
+.rst28                                          ; FREE
         scf
         ret
         defs    $0030-$PC  ($ff)                ; address align for RST 30H
 
-.rst30
+.rst30                                          ; OZ_MPB
 .OZ_MPB
         jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality with RST 30H)
         defs    $0038-$PC  ($ff)                ; address align for RST 38H, Blink INT entry point
 
-.OZINT
+.OZ_INT                                          ; OZ_INT
         push    af
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
         push    af
-        ld      a, OZBANK_KNL0
-        call    MS3BankA
+        call    MS3Kernel0
         jp      INTEntry
-
-;       OZ low level jump table
         defs    $0048-$PC  ($ff)                ; address align
+
+;       ----
+;       OZ low level jump table
 .OZ_RET1
         jp      OZCallReturn1                   ; 0048
 .OZ_RET0
         jp      OZCallReturn0                   ; 004B
-        scf                                     ; OZ_BUF removed
-        ret
-        nop
+;FREE
+        defs     3 ($ff)                        ; 004E
 .OZ_DI
         jp      OZDImain                        ; 0051
 .OZ_EI
         jp      OZEImain                        ; 0054
 .OZ_MGB
-        jp      MemGetBank                      ; OZ V4.1: Fast Bank binding status (OS_MGB functionality)
-
-
+        jp      MemGetBank                      ; 0057 (V4.1) Fast Bank binding status (OS_MGB functionality)
+;FREE
+        defs    3 ($ff)                         ; 005A
+.INTReturn
+        pop     af                              ; 005D return after OZ_INT
+        call    MS3BankA                        ; restore S3
+        pop     af                              ; restore AF
+        ei
+        ret
         defs     $0066-$PC  ($ff)               ; address align for RST 66H, Blink NMI entry point
+
+;       ----
+;       Non Maskable interrupt entry
 .OZNMI
         push    af
         ld      a, BM_COMRAMS                   ; bind bank $20 into lowest 8KB of segment 0
@@ -155,8 +163,7 @@ xdef    MemDefBank, MemGetBank
         di                                      ; nested NMIs won't enable interrupts
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
         push    af
-        ld      a, OZBANK_KNL0
-        call    MS3BankA
+        call    MS3Kernel0
         call    NMIEntry                        ; call NMI handler in kernel bank 0
 
         pop     af                              ; restore S3
@@ -172,13 +179,6 @@ xdef    MemDefBank, MemGetBank
         call    MS3BankA
 .noEI
         pop     af                              ; restore AF
-        ret
-
-.INTReturn                                      ; called from int.asm
-        pop     af                              ; restore S3
-        call    MS3BankA
-        pop     af                              ; restore AF
-        ei
         ret
 
 .OZCallReturn0                                  ; ret with AFBCDEHL
@@ -217,7 +217,7 @@ xdef    MemDefBank, MemGetBank
 .error
         ret     nc
         push    af
-        call    MS3Bank00
+        call    MS3Kernel0
         pop     af
         push    af
         call    CallErrorHandler
@@ -234,7 +234,7 @@ xdef    MemDefBank, MemGetBank
         call    JpHL
         ex      af, af'
 
-.MS3Bank00
+.MS3Kernel0
         ld      a, OZBANK_KNL0
         jr      MS3BankA
 
@@ -281,7 +281,6 @@ xdef    MemDefBank, MemGetBank
         ld      bc, FPPCALLTBL                  ; FPP return $d800
         push    bc
         ld      c, a
-        ld      b, >FPPCALLTBL                  ; !! unnecessary
         push    bc                              ; call function at $d8nn, nn=opByte
 
         ld      a, OZBANK_FPP                   ; bind b02 into S3
