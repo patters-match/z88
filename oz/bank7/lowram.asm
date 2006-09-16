@@ -328,7 +328,7 @@ xdef    MemDefBank, MemGetBank
 
 ; ***************************************************************************************************
 ;
-; Bind bank, defined in B, into segment C. Return old bank binding in B.
+; Bind bank, defined in B, into segment C (MS_Sx). Return old bank binding in B.
 ; This is the functional equivalent of original OS_MPB, but much faster.
 ;
 ;    Register affected on return:
@@ -336,29 +336,29 @@ xdef    MemDefBank, MemGetBank
 ;         ..B...../.... different
 ;
 .MemDefBank
-        push hl
-        push af
+        push    hl
+        push    af
 
-        ld   a,c                                ; get segment specifier ($00, $01, $02 and $03)
-        and  @00000011
-        or   $d0
-        ld   h, BLSC_PAGE
-        ld   l,a                                ; BC points at Blink soft copy of current binding in segment C
+        ld      hl,BLSC_SR0                     ; base of SR0 - SR3 soft copies
+        ld      a,c                             ; get segment specifier (MS_Sx)
+        and     @00000011                       ; preserve only segment specifier range...
+        or      l
+        ld      l,a                             ; HL points at Blink soft copy of current binding in segment C
 
-        ld   a,(hl)                             ; get bound bank number in current segment
-        cp   b
-        jr   z, already_bound                   ; bank B already bound into segment
+        ld      a,(hl)                          ; get bound bank number in current segment
+        cp      b
+        jr      z, already_bound                ; bank B already bound into segment
 
-        push bc
-        ld   (hl),b                             ; A contains "old" bank number
-        ld   c,l
-        out  (c),b                              ; bind...
+        ld      (hl),b                          ; A contains "old" bank number
+        ld      h,c                             ; preserve original MS_Sx
+        ld      c,l
+        out     (c),b                           ; bind...
 
-        pop  bc
-        ld   b,a                                ; return previous bank binding
+        ld      b,a                             ; return previous bank binding
+        ld      c,h                             ; of segment MS_Sx
 .already_bound
-        pop  af
-        pop  hl
+        pop     af
+        pop     hl
         ret
 ; ***************************************************************************************************
 
@@ -373,18 +373,18 @@ xdef    MemDefBank, MemGetBank
 ;         ..B...../.... different
 ;
 .MemGetBank
-        push af
-        push hl
+        push    af
+        push    hl
 
-        ld   a,c                                ; get segment specifier ($00, $01, $02 and $03)
-        and  $03                                ; preserve only segment specifier...
-        or   $d0                                ; Bank bindings from address $04D0
-        ld   h,$04
-        ld   l,a                                ; HL points at Blink soft copy of current binding in segment C
-        ld   b,(hl)                             ; get current bank binding
+        ld      hl,BLSC_SR0                     ; base of SR0 - SR3 soft copies
+        ld      a,c                             ; get segment specifier (MS_Sx)
+        and     @00000011                       ; preserve only segment specifier...
+        or      l
+        ld      l,a                             ; HL points at Blink soft copy of current binding in segment C
+        ld      b,(hl)                          ; get current bank binding
 
-        pop  hl
-        pop  af
+        pop     hl
+        pop     af
         ret
 ; ***************************************************************************************************
 
