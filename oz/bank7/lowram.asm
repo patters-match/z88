@@ -1,6 +1,5 @@
 ; **************************************************************************************************
 ; Lowram routines that resides in RAM at lower segment 0 of the Z80 address space ($0000 - $01F0).
-; The routines are located in Bank 7, and compiled for segment 2.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -125,8 +124,7 @@ xdef    MemDefBank, MemGetBank
         jp      OZCallReturn1                   ; 0048
 .OZ_RET0
         jp      OZCallReturn0                   ; 004B
-;OZ_BUF removed
-        scf
+        scf                                     ; OZ_BUF removed
         ret
         nop
 .OZ_DI
