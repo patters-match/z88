@@ -63,7 +63,6 @@ xdef    OZCallJump
 xdef    OZCallReturn1
 xdef    OZCallReturn2
 xdef    OZCallReturn3
-xdef    regs
 xdef    ExtCall
 xdef    MemDefBank, MemGetBank
 
@@ -84,11 +83,8 @@ xdef    MemDefBank, MemGetBank
 
 .rst10                                          ; EXTCALL
         jp      ExtCall                         ; OZ V4.1: EXTCALL interface
-.regs
-        defw    0                               ; EXTCALL temp storage space for original BC register
-        defw    0                               ; EXTCALL temp storage space for original DE register
-        defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
 
+        defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
 .rst18                                          ; FPP
         jp      FPPmain
         defb    0,0
@@ -387,7 +383,7 @@ xdef    MemDefBank, MemGetBank
 
 
 
-;***************************************************************************************************
+; ***************************************************************************************************
 ; EXTCALL - 24bit Call Subroutine in external bank
 ;
 ; This routine is executed by the RST 10H vector. Both RST 10H and this routine is located
@@ -397,8 +393,8 @@ xdef    MemDefBank, MemGetBank
 ; address may be specified as absolute or as slot relative ($00 - $3F).
 ;
 ; -----------------------------------------------------------------------------------------------
-; The ExtCall does not destroy any register call arguments or return values. ExtCall is to be
-; regarded as a normal CALL instruction, but for 24bit address range.
+; The ExtCall does not destroy any register call arguments or return values.
+; ExtCall is to be regarded as a normal CALL instruction, but for 24bit address range.
 ; -----------------------------------------------------------------------------------------------
 ;
 ; Example in Z80 assembler, Mpm notation: EXTCALL $C000,$FE (a RST 10H followed by 24bit address)
@@ -412,56 +408,66 @@ xdef    MemDefBank, MemGetBank
 ; dynamic data structure management) would use the 24bit slot relative call to execute subroutines
 ; in banks that are not bound in the Z80 address by default as defined by the Application DOR).
 ;
-; RESTRICTION:
-; This routine cannot be used in Blink NMI or INT service routines because it would corrupt
-; the static storage variables at (regs) while ExtCall is being executed by the normal processor.
-;
 .ExtCall
-        ex      (sp),hl                         ; HL points at 24bit address argument (original HL on stack)
-        ld      (regs+2),de
-        ld      (regs),bc                       ; temporarily preserve original BC, DE registers
+        push    af                              ; this space will be updated with current bank bindings
+        push    af                              ; this space will be updated with [restore_bank_binding] routine address
+        push    hl
+        push    iy
+        push    de
+        push    bc
+        push    af
+        ld      iy,0
+        add     iy,sp                           ; IY points at base of register push frame
+
+        ld      l,(iy+14)
+        ld      h,(iy+15)                       ; HL points at low byte of 24bit address argument of EXTCALL
 
         ld      e,(hl)                          ; get low byte of call address
         inc     hl
         ld      d,(hl)                          ; get high byte of call address
         inc     hl                              ; point to bank number of 24bit address
-        push    af                              ; preserve Accumulator and flags of subroutine that executed EXTCALL ...
         ld      a,(hl)                          ; get bank number of call address
         and     @11000000
         call    z,get_slotrelative_bank         ; if bank number is slot relative, then get slot mask of executing code
         or      (hl)                            ; and merge with relative bank number
-        inc     hl                              ; correct RETurn address (first instruction opcode after 24 bit address)
-        ld      b,a                             ; the final bank number to bind into segment of CALL address
-        ld      c,d                             ; bits 15,14 of Z80 CALL address in DE contains segment mask...
+        inc     hl
+        ld      (iy+14),l
+        ld      (iy+15),h                       ; updated RETurn address on stack (first instruction opcode after EXTCALL 24 bit address argument)
+        ex      de,hl                           ; HL = address of sub-routine to execute in bank...
+        ld      b,a                             ; the bank number to bind into segment of CALL address
+        ld      c,h                             ; bits 15,14 of Z80 CALL address in HL contains segment mask...
         rlc     c
         rlc     c                               ; prepare segment specifier in bits 0,1 (remaining bits are stripped by RST 30H)
-        pop     af
-        rst     OZ_MPB                          ; bind in bank of 24bit address (returned B = old bank binding)
+        call    MemDefBank                      ; bind in bank of 24bit address (returned B = old bank binding)
+        ld      (iy+10),restore_bnk_binding%256
+        ld      (iy+11),restore_bnk_binding/256 ; call'ed subroutine RETurns to restore the old bank binding before
+        ld      (iy+12),C                       ; returning to instruction after EXTCALL instruction
+        ld      (iy+13),B                       ; preserve old bank binding of destination CALL segment
 
-        ex      (sp),hl                         ; updated RETurn address on stack (first instruction opcode after 24 bit address argument)
-        push    bc                              ; preserve bank bindings that are restored after subroutine completes.
-        ld      bc,restore_bank_binding         ; (HL now restored with original caller value)
-        push    bc                              ; call'ed subroutine RETurns to restore the old bank binding before
-        push    de                              ; actually returning from ExtCall...
-        ld      de,(regs+2)
-        ld      bc,(regs)                       ; restore original BC, DE registers from caller for EXTCALL destination
-        ret                                     ; CALL address to subroutine in bound bank
+        pop     af
+        pop     bc
+        pop     de
+        pop     iy
+        ex      (sp),hl                         ; restored original AF, BC, DE, HL & IY registers
+        ret                                     ; execute subroutine in bound bank
+.restore_bnk_binding                            ; when subroutine executes it's RET instruction, it is returned here...
+        ex      (sp),hl
+        push    bc
+        ld      b,h
+        ld      c,l                             ; old bank binding...
+        call    MemDefBank                      ; restore previous bank binding
+        pop     bc
+        pop     hl                              ; restored original returned BC, HL registers from EXTCALL'ed sub-routine.
+        ret                                     ; execute instruction that follows the EXTCALL instruction
 .get_slotrelative_bank
+        ld      bc,BLSC_SR0                     ; base of SR0 - SR3 soft copies
         ld      a,h                             ; bits 15,14 of executing code define the segment mask
         and     @11000000
         rlca
         rlca                                    ; convert to segment specifier (0-3), then
-        or      $d0                             ; get Blink soft copy bank bindings from address $04D0 - $04D3
-        ld      b,$04
+        or      c                               ; get Blink soft copy bank bindings from address $04D0 - $04D3
         ld      c,a                             ; BC points at Blink soft copy of current binding in segment C
         ld      a,(bc)                          ; get current bank binding of executing code
         and     @11000000                       ; and return only the slot mask
-        ret
-
-.restore_bank_binding                           ; when subroutine executes RET, it is returned here...
-        ld      (regs),bc
-        pop     bc                              ; old bank binding...
-        rst     OZ_MPB                          ; restore previous bank binding
-        ld      bc,(regs)                       ; restore original returned BC registers from EXTCALL routine.
         ret
 ;***************************************************************************************************
