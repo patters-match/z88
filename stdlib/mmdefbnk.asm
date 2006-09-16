@@ -34,23 +34,23 @@
 .MemDefBank         PUSH HL
                     PUSH AF
 
-                    LD   A,C                 ; get segment specifier ($00, $01, $02 and $03)
-                    AND  @00000011
-                    OR   $D0
-                    LD   H,$04
-                    LD   L,A                 ; BC points at soft copy of cur. binding in segment C
+                    LD   HL,BLSC_SR0         ; base of SR0 - SR3 soft copies
+                    LD   A,C                 ; get segment specifier (MS_Sx)
+                    AND  @00000011           ; preserve only segment specifier...
+                    OR   L
+                    LD   L,A                 ; HL points at Blink soft copy of current binding in segment C
 
                     LD   A,(HL)              ; get no. of current bank in segment
                     CP   B
                     JR   Z, already_bound    ; bank B already bound into segment
 
-                    PUSH BC
                     LD   (HL),B              ; A contains "old" bank number
+                    LD   H,C                 ; preserve original segment specifier
                     LD   C,L
                     OUT  (C),B               ; bind...
 
-                    POP  BC
                     LD   B,A                 ; return previous bank binding
+                    LD   C,H                 ; of segment MS_Sx
 .already_bound
                     POP  AF
                     POP  HL

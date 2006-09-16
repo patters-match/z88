@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -34,11 +34,11 @@
 .MemGetBank         PUSH AF
                     PUSH HL
 
-                    LD   A,C                 ; get segment specifier ($00, $01, $02 and $03)
-                    AND  $03                 ; preserve only segment specifier...
-                    OR   $D0                 ; Bank bindings from address $04D0
-                    LD   H,$04
-                    LD   L,A                 ; HL points at soft copy of cur. binding in segment C
+                    LD   HL,BLSC_SR0         ; base of SR0 - SR3 soft copies
+                    LD   A,C                 ; get segment specifier (MS_Sx)
+                    AND  @00000011           ; preserve only segment specifier...
+                    OR   L
+                    LD   L,A                 ; HL points at Blink soft copy of current binding in segment C
                     LD   B,(HL)              ; get current bank binding
 
                     POP  HL
