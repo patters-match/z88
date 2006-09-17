@@ -467,7 +467,18 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         call    IsSpecialHandle                 ; examine if handle in IX < 9, returns E = low byte of IX handle
         jr      c, validate_rd_handle           ; handle was not special. Examine file handle, then process byte through file handle
 
-        dec     e                               ; get byte from special handle 1 - 8...
+        ld      a,5                             ; get byte from special handle 1 - 8...
+        cp      e
+        jr      nz, check_rd_kb
+
+        push    ix                              ; 5 - read byte from serial port
+        ld      ix, (SerRXHandle)
+        call    OSSiGbt
+        pop     ix
+        ret
+
+.check_rd_kb
+        dec     e
         jr      nz, gbts_1
         push    ix                              ; 1 - read keyboard
         call    RdKbBuffer
@@ -486,15 +497,6 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         ret     z                               ; 4 - read NUL. Signal error: EOF
 
         dec     e
-        jr      nz, gbts_2
-
-        push    ix                              ; 5 - read serial port
-        ld      ix, (SerRXHandle)
-        call    OSSiGbt
-        pop     ix
-        ret
-
-.gbts_2
         dec     e
         jr      nz, gbts_3
         OZ      OS_Tin                          ; 6 - read stdin, read a byte from std. input, with timeout
@@ -553,6 +555,18 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         call    IsSpecialHandle
         jr      c, validate_wr_handle
 
+        ld      a,5
+        cp      e
+        jr      nz, check_wr_kb
+
+        ld      a, (iy+OSFrame_A)
+        push    ix                              ; 5 - write byte to serial port
+        ld      ix, (SerRXHandle)
+        call    OSSiPbt
+        pop     ix
+        ret
+
+.check_wr_kb
         dec     e
         ld      a, RC_Wp
         scf
@@ -580,16 +594,6 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         ret     z                               ; 4 - NUL (write to the void)
 
         dec     e
-        jr      nz, pbts_3
-
-        ld      a, (iy+OSFrame_A)
-        push    ix                              ; 5 - write byte to serial port
-        ld      ix, (SerRXHandle)
-        call    OSSiPbt
-        pop     ix
-        ret
-
-.pbts_3
         dec     e
         ld      a, RC_Wp
         scf

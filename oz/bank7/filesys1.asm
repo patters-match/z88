@@ -39,9 +39,9 @@ xref    FreeMemHandle                           ; bank7/ossr.asm
         pop     hl
         ld      de, -9
         add     hl, de
-        ret     c                               ; Fc=1 if IX>8
-        push    ix
-        pop     de
+        ret     c                               ; Fc = 1, if Handle > 8
+        sbc     hl, de
+        ex      de, hl                          ; Fc = 0, indicate special handle, DE = IX
         ret
 
 
