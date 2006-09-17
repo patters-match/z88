@@ -106,12 +106,17 @@ xdef    MemDefBank, MemGetBank
         jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality with RST 30H)
         defs    $0038-$PC  ($ff)                ; address align for RST 38H, Blink INT entry point
 
-.OZ_INT                                          ; OZ_INT
+.OZ_INT                                         ; OZ_INT
         push    af
         ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
         push    af
         call    MS3Kernel0
         jp      INTEntry
+                                                ; IMPORTANT NOTE :
+                                                ; a DI is not necessary at the start of OZ_INT
+                                                ; since IFF1 and IFF2 are automaticly cleared
+                                                ; when accepting an INT
+                                                
         defs    $0048-$PC  ($ff)                ; address align
 
 ;       ----
@@ -135,7 +140,9 @@ xdef    MemDefBank, MemGetBank
         call    MS3BankA                        ; restore S3
         pop     af                              ; restore AF
         ei
-        ret
+        ret                                     ; RETI is not necessary since there is no Z80 PIO
+                                                ; RET is faster (10T vs 14T)
+                                                
         defs     $0066-$PC  ($ff)               ; address align for RST 66H, Blink NMI entry point
 
 ;       ----

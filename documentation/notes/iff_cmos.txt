@@ -1,0 +1,40 @@
+Notes from spectrum disk routines, the spectrum have a NMOS Z80 processor. All Z88 have a CMOS version without that IFF bug.
+
+THE 'STORE INTERRUPT STATE' SUBROUTINE
+This subroutine stores the Interrupt Flip Flop of the Z80 and returns with interrupts
+disabled. Whenever the +D needs the interrupts to be disabled with disk operations the
+status of the IFF (DI or EI) is stored. When the disk operation is finished the IFF is
+restored to the state it was in before the interrupts were disabled.
+NOTE: As a result of a bug in the Z80 itself the stored state of the IFF can be wrong if
+interrupts are enabled. The problem occurs when an interrupt is accepted (implying: interrupts
+enabled) during the execution of the 'LD A,R' or 'LD A,I' instruction. A solution to this
+problem is a second test if the IFF indicates interrupts disabled. With a Spectrum it is
+unlikely that two interrupts follow each other within a very short time, so a second test should
+cure the problem. A better method can be found in the 'Zilog Z80 Family Data Book'. The best
+method is replacing the Z80 with a CMOS version, the bug has been fixed in that Z80 type.
+
+0553 STORE_IFF  PUSH AF
+0554            LD   A,I                 Set the P/V flag according to the state
+0556            PUSH AF                  of the IFF2.
+0557            DI
+0558            EX   (SP),HL             Get the Flag register in L while saving
+                                         HL.
+0559            LD   (#3E50),HL          Store it. (IFF)
+055C            POP  HL                  Restore HL and AF.
+055D            POP  AF
+055E            RET                      Finished.
+
+THE 'RESTORE INTERRUPT STATE' SUBROUTINE
+This subroutine restores the interrupt state to the original state (DI or EI) (see NOTE
+above).
+
+055F REST_IFF   PUSH AF                  Save the contents of the needed
+0560            PUSH HL                  registers.
+0561            LD   HL,(#3E50)          Fetch the previous IFF state.
+0564            EX   (SP),HL             Restore HL and store IFF state.
+0565            POP  AF                  The IFF state is now contained in the
+                                         P/V flag.
+0566            JP   PO,#056A,REST_IFF1  Jump if interrupts were disabled.
+0569            EI                       Otherwise enable interrupts.
+056A REST_IFF1  POP  AF
+056B            RET                      Finished.

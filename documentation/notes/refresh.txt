@@ -1,0 +1,1 @@
+While R is an 8 bit register, it wraps around at 128 instead of 256. If the programmer stores a value in the register, its high bit will be preserved regardless of what the CPU does to the remaining 7 bits. Incorrect implementation of this behaviour is a common source of problems when running games on emulated Z80-machines
