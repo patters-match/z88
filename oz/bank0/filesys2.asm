@@ -80,142 +80,9 @@ xref    OSDel                                   ; bank7/filesys1.asm
 xref    OSOutMain                               ; bank7/scrdrv1.asm
 
 
-;       ----
 
-;       get byte from special handle
-;
-
-.GbtSpecial
-        dec     e
-        jr      nz, gbts_1
-
-        push    ix                              ; 1 - read keyboard
-        call    RdKbBuffer
-        pop     ix
-        ret
-
-.gbts_1
-        dec     e
-        jr      z, RcRp                         ; 2 - read screen - rd protected
-
-        dec     e
-        jr      z, RcRp                         ; 3 - read printer direct - rd protected
-
-        dec     e
-        ld      a, RC_Eof
-        scf
-        ret     z                               ; 4 - read NUL - EOF
-
-        dec     e
-        jr      nz, gbts_2
-
-        push    ix                              ; 5 - read serial port
-        ld      ix, (SerRXHandle)
-        call    OSSiGbt
-        pop     ix
-        ret
-
-.gbts_2
-        dec     e
-        jr      nz, gbts_3
-
-        OZ      OS_Tin                          ; 6 - read stdin
-        ret                                     ; read a byte from std. input, with timeout
-
-.gbts_3
-        dec     e
-        jr      z, RcRp                         ; 7 - read stdout - rd protected
-
-        dec     e
-        jr      z, RcRp                         ; 8 - read printer filter - rd protected
-
-        ld      a, RC_Hand
-        scf
-        ret
-
-.RcRp
-        ld      a, Rc_Rp
-        scf
-        ret
 
 ;       ----
-
-;       put bute to special handle
-
-.PbtSpecial
-        dec     e
-        ld      a, RC_Wp
-        scf
-        ret     z                               ; 1 - keyboard - wr protected
-        dec     e
-        jr      nz, pbts_1
-
-;       2 - screen
-
-        ld      a, (iy+OSFrame_A)
-        push    bc
-        call    OSOutMain
-        pop     bc
-        ret
-
-.pbts_1
-        dec     e
-        jr      nz, pbts_2
-
-;       3 - printer direct
-
-        ld      a, (iy+OSFrame_A)
-        OZ      OS_Prt                          ; Send character directly to printer filter
-        ret
-
-.pbts_2
-
-        dec     e
-        scf
-        ccf
-        ret     z                               ; 4 - NUL
-
-        dec     e
-        jr      nz, pbts_3
-
-        ld      a, (iy+OSFrame_A)
-        push    ix                              ; 5 - read serial port
-        ld      ix, (SerRXHandle)
-        call    OSSiPbt
-        pop     ix
-        ret
-
-.pbts_3
-        dec     e
-        ld      a, RC_Wp
-        scf
-        ret     z                               ; 6 - stdin - wr protected
-
-        dec     e
-        jr      nz, pbts_4
-
-;       7 - stdout
-
-        ld      a, (iy+OSFrame_A)
-        OZ      OS_Out                          ; write a byte to std. output
-        ret
-
-.pbts_4
-        dec     e
-        jr      nz, pbts_5
-
-;       8 - printer filter
-        ld      a, (iy+OSFrame_A)
-        extcall OSPrtPrint, OZBANK_KNL1         ; write byte to printer filter
-        ret
-
-.pbts_5
-        ld      a, RC_Hand
-        scf
-        ret
-
-;       ----
-
 ;       IN: IX=handle, BC=length, DE=destination memory, HL=source memory
 ;
 ;       if DE=0 write from HL to handle, if HL=0 read from handle to DE
@@ -574,8 +441,8 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
 .osmv_4
         jp      PutOSFrame_BC
 
-;       ----
 
+;       ----
 ;       get byte from file (or device)
 ;IN:    IX=handle
 ;OUT:   Fc=0, A=byte
@@ -588,7 +455,6 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         jr      OSGbt_x
 
 ;       get byte from file (or device) with timeout
-
 .OSGbt
         call    OSFramePush
         call    OSGbtMain
@@ -598,9 +464,59 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         jp      OSFramePop
 
 .OSGbtMain
-        call    IsSpecialHandle
-        jp      nc, GbtSpecial
+        call    IsSpecialHandle                 ; examine if handle in IX < 9, returns E = low byte of IX handle
+        jr      c, validate_rd_handle           ; handle was not special. Examine file handle, then process byte through file handle
 
+        dec     e                               ; get byte from special handle 1 - 8...
+        jr      nz, gbts_1
+        push    ix                              ; 1 - read keyboard
+        call    RdKbBuffer
+        pop     ix
+        ret
+
+.gbts_1
+        dec     e
+        jr      z, RcRp                         ; 2 - read screen. Signal error: Read protected.
+        dec     e
+        jr      z, RcRp                         ; 3 - read printer direct. Signal error: Read protected.
+
+        dec     e
+        ld      a, RC_Eof
+        scf
+        ret     z                               ; 4 - read NUL. Signal error: EOF
+
+        dec     e
+        jr      nz, gbts_2
+
+        push    ix                              ; 5 - read serial port
+        ld      ix, (SerRXHandle)
+        call    OSSiGbt
+        pop     ix
+        ret
+
+.gbts_2
+        dec     e
+        jr      nz, gbts_3
+        OZ      OS_Tin                          ; 6 - read stdin, read a byte from std. input, with timeout
+        ret
+
+.gbts_3
+        dec     e
+        jr      z, RcRp                         ; 7 - read stdout. Signal error: Read protected.
+
+        dec     e
+        jr      z, RcRp                         ; 8 - read printer filter. Signal error: Read protected.
+
+        ld      a, RC_Hand                      ; Signal error: Bad Handle
+        scf
+        ret
+.RcRp                                           ; Signal error: Read protected.
+        ld      a, Rc_Rp
+        scf
+        ret
+
+; IX handle > 8, validate it to be a real file handle, then read byte from file
+.validate_rd_handle
         ld      a, HND_FILE
         call    VerifyHandle
         ret     c                               ; bad handle? exit
@@ -611,8 +527,8 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         ret     z                               ; not readable? rd protected
         jp      RdFileByte
 
-;       ----
 
+;       ----
 ;       write byte to file/device
 ;IN:    IX=handle, A=byte
 ;OUT:   Fc=0 if ok
@@ -635,8 +551,71 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
 
 .OSPbtMain
         call    IsSpecialHandle
-        jp      nc, PbtSpecial
+        jr      c, validate_wr_handle
 
+        dec     e
+        ld      a, RC_Wp
+        scf
+        ret     z                               ; 1 - keyboard - write protected
+        dec     e
+        jr      nz, pbts_1
+
+        ld      a, (iy+OSFrame_A)               ; 2 - write byte to screen
+        push    bc
+        call    OSOutMain
+        pop     bc
+        ret
+
+.pbts_1
+        dec     e
+        jr      nz, pbts_2
+        ld      a, (iy+OSFrame_A)
+        OZ      OS_Prt                          ; 3 - Send character directly to printer filter
+        ret
+
+.pbts_2
+        dec     e
+        scf
+        ccf
+        ret     z                               ; 4 - NUL (write to the void)
+
+        dec     e
+        jr      nz, pbts_3
+
+        ld      a, (iy+OSFrame_A)
+        push    ix                              ; 5 - write byte to serial port
+        ld      ix, (SerRXHandle)
+        call    OSSiPbt
+        pop     ix
+        ret
+
+.pbts_3
+        dec     e
+        ld      a, RC_Wp
+        scf
+        ret     z                               ; 6 - stdin - write protected
+
+        dec     e
+        jr      nz, pbts_4
+        ld      a, (iy+OSFrame_A)               ; 7 - write byte to standard output
+        OZ      OS_Out
+        ret
+
+.pbts_4
+        dec     e
+        jr      nz, pbts_5
+
+        ld      a, (iy+OSFrame_A)               ; 8 - write byte to printer filter
+        extcall OSPrtPrint, OZBANK_KNL1
+        ret
+
+.pbts_5
+        ld      a, RC_Hand                      ; Signal error: Bad handle
+        scf
+        ret
+
+; IX handle > 8, validate it to be a real file handle, then write byte to file
+.validate_wr_handle
         ld      a, HND_FILE
         call    VerifyHandle
         ret     c                               ; bad handle? exit
@@ -644,10 +623,10 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         bit     FATR_B_WRITABLE, (ix+fhnd_attr)
         ld      a, RC_Wp
         scf
-        ret     z                               ; not writable? wr protected
+        ret     z                               ; not writable? signal write protected
 
         ld      a, (iy+OSFrame_A)
-        call    WrFileByte
+        call    WrFileByte                      ; write byte to file...
         jp      SetFileWriteErrF                ; may set error flag
 
 ;       ----
