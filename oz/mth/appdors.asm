@@ -38,6 +38,7 @@
 
         include "../bank1/impexp.inc"
         include "../bank1/impexp.def"
+        include "../apps/eazylink/defs.asm"
 
 xref    SysTokenBase
 
@@ -734,7 +735,7 @@ xdef    PanelDOR
 
 .ImpExpDOR
         defp    0,0                             ; parent
-        defp    0,0                             ; brother
+        defp    EasyLinkDOR,OZBANK_MTH          ; brother, EazyLink
         defp    0,0                             ; son
         defb    DM_ROM, ImpExpDORe-$PC          ; DOR type, sizeof
         defb    DT_INF, 18
@@ -746,8 +747,8 @@ xdef    PanelDOR
         defb    0,0,0,1                         ; bindings
         defb    AT_Good|AT_Popd,0               ; appl type
         defb    DT_HLP,12                       ; help, sizeof
-        defp    ImpExpDOR,OZBANK_MTH            ; topics
-        defp    ImpExpDOR,OZBANK_MTH            ; commands
+        defp    ImpExpDOR,OZBANK_MTH            ; no topics
+        defp    ImpExpDOR,OZBANK_MTH            ; no commands
         defp    ImpExpHelp,OZBANK_MTH           ; introductory help page
         defp    0,0                             ; no token base
 
@@ -756,6 +757,41 @@ xdef    PanelDOR
 .ImpExpDORe
         defb    $FF                             ; terminate
 
-        defb    0
-        defm    "{Clive Dave Eric Felicity^2 Graham Jim John Mark "
-        defm    "Matthew^2 Paul Peter Richard^3 Tim Wings Zee&Kessna}"
+
+.EasyLinkDOR
+        defp    0, 0                            ; parent
+        defp    0, 0                            ; brother (this is last application)
+        defp    0, 0                            ; son
+        defb    DM_ROM                          ; DOR type - application ROM
+        defb    EasyLinkDORe-$PC                ; total length of DOR
+        defb    DT_INF, 18                      ; Key, length to info section
+        defw    0                               ; reserved...
+        defb    'L'                             ; application key letter
+        defb    EasyLinkRamPages                ; contiguous RAM for EazyLink
+        defw    0                               ;
+        defw    0                               ; Unsafe workspace
+        defw    0                               ; Safe workspace
+        defw    EasyLinkEntry                   ; Entry point of code in start of segment 2
+        defb    0                               ; no bank binding to segment 0
+        defb    0                               ; no bank binding to segment 1
+        defb    $0A                             ; EazyLink code bound to segment 2
+        defb    0                               ; no bank binding to segment 3
+        defb    AT_Ugly | AT_Popd               ; Ugly popdown
+        defb    0                               ; no caps lock
+        defb    DT_HLP,12                       ; Help section, length
+        defp    EasyLinkDOR,OZBANK_MTH          ; no topics
+        defp    EasyLinkDOR,OZBANK_MTH          ; no commands
+        defp    EazyLinkHelp,OZBANK_MTH         ; introductory help page
+        defp    0, 0                            ; no token base
+        defb    DT_NAM, EasyLinkDORe-$PC-1      ; Name section, length
+        defm    "EazyLink", 0
+        defb    $FF
+.EasyLinkDORe
+
+.EazyLinkHelp
+        DEFB    12
+        DEFM    "EazyLink V5.0.5", $7F
+        DEFB    $7F
+        DEFM    "Fast Client/Server Remote File Management,", $7F
+        DEFM    "including support for PC-LINK II clients."
+        DEFB    0

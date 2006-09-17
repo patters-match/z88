@@ -65,7 +65,7 @@ type bank1\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
-:: create application DOR data (binary) 
+:: create application DOR data (binary)
 :COMPILE_MTH
 echo compiling MTH structures
 cd mth
@@ -113,8 +113,18 @@ echo compiling bank 6
 cd bank6
 call bank6 2>nul >nul
 cd ..
-dir bank6\*.err 2>nul >nul || goto COMBINE_BANKS
+dir bank6\*.err 2>nul >nul || goto COMPILE_EAZYLINK
 type bank6\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_EAZYLINK
+echo compiling EazyLink
+cd apps\eazylink
+call make.eazylink.bat
+cd ..\..
+dir apps\eazylink\*.err 2>nul >nul || goto COMBINE_BANKS
+type apps\eazylink\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

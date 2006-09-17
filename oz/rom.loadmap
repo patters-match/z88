@@ -64,3 +64,6 @@ mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header
 
 ; BBC Basic application
 apps/bbcbasic/basic.dat 091200                  ; $D200: BBC BASIC application
+
+; EazyLink
+apps/eazylink/eazylink.bin 0a0000               ; $8000: EazyLink popdown
