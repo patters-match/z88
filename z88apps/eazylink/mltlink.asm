@@ -43,7 +43,7 @@
     XDEF Fetch_pathname
 
 
-    INCLUDE "defs.asm"
+    INCLUDE "rtmvars.def"
     INCLUDE "error.def"
     INCLUDE "fileio.def"
     INCLUDE "dor.def"

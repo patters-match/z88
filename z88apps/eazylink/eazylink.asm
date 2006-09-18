@@ -118,7 +118,7 @@
 
     ; Various constant & operating system definitions...
 
-     INCLUDE "defs.asm"
+     INCLUDE "rtmvars.def"
      INCLUDE "stdio.def"
      INCLUDE "error.def"
      INCLUDE "integer.def"

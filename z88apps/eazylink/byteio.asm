@@ -30,7 +30,7 @@
     XDEF Dump_serport_in_byte
     XDEF UseHWSerPort, UseOZSerPort
 
-    INCLUDE "defs.asm"
+    INCLUDE "rtmvars.def"
     INCLUDE "fileio.def"
     INCLUDE "screen.def"
     INCLUDE "error.def"
