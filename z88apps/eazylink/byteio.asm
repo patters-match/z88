@@ -162,20 +162,16 @@
                   CALL Dump_serport_in_byte          ; dump to debugging serport input file (if enabled)
                   RET
 
+
 ; ***********************************************************************
 .RxByte           PUSH BC
-                  LD   A,(HWSER_flag)                ; use fast serial port I/O?
-                  OR   A
-                  JR   Z, use_oz_gbt
-                  LD   A,30                          ; 30 sek. timeout
-                  CALL hw_rxbt                       ; get a byte from serial port, using direct hardware
-                  JR   io_check
-.use_oz_gbt       LD   BC,3000
+                  LD   BC,3000
                   LD   IX,(serport_handle)
                   OZ   Os_Gbt                        ; get a byte from serial port, using OZ standard interface
 .io_check         CALL C,Check_timeout
                   POP  BC
                   RET
+
 
 ; ***********************************************************************
 .SxByte           PUSH BC
@@ -248,71 +244,6 @@
                     scf
                     ret
 
-
-; ***********************************************************************
-; Receive byte using Serial Port Hardware, wait until available.
-; (Based on original routine kindly provided by Dennis Gröning)
-;
-; IN:
-;       -
-; OUT:
-;      Success:
-;      Fc = 0
-;
-; Registers changed on return:
-;    ..BCDEHL/IXIY ........ same
-;    AF....../.... afbc.... different
-;
-;
-.hw_rxb             exx
-.hw_rxwait          in   a,(bl_uit)
-                    bit  bb_uitrdrf,a
-                    jr   z,hw_rxwait                    ; wait until byte is available.
-                    jr   rx
-
-; **********************************************************************
-; Receive byte with timeout using Serial Port Hardware
-; (Based on original routine kindly provided by Dennis Gröning)
-;
-; IN:
-;       A = timeout in seconds (<=59)
-; OUT:
-;         Success:
-;              Fc = 0, A = received byte
-;         Failure:
-;              Fc = 1, couldn't receive a byte within timeout
-;              A = RC_Time
-;
-; Registers changed on return:
-;    ..BCDEHL/IXIY ........ same
-;    AF....../.... afbc.... different
-;
-.hw_rxbt
-                    exx
-                    ld   b,a                           ; timeout in seconds
-                    call get_timeout_sec               ; return B to be 31 seconds ahead of current BL_TIM1
-.hw_pollreceive
-                    in   a,(bl_uit)
-                    bit  bb_uitrdrf,a                  ; byte ready in serial port hw register?
-                    jr   nz,rx                         ; yes, go fetch it...
-.rx_check_timeout
-                    call get_sec                       ; get current second counter from Blink hardware
-                    cp   b                             ; reached timeout?
-                    jr   z,signal_fail                 ; couldn't receive byte within timeout
-
-                    ld   a,@01111111                   ; Read row A15 (containing ESC)
-                    in   a,(bl_kbd)
-                    cp   @11011111                     ; ESC pressed?
-                    jr   z, esc_pressed
-                    jr   hw_pollreceive
-.rx
-                    in   a,(bl_rxd)                    ; get byte from serial port hardware
-                    ld   b,a
-                    or   $ff                           ; signal success, Fc = 0, Fz = 0
-                    ld   a,b
-                    exx
-                    ret
-
 ; ***********************************************************************
 .get_timeout_sec    call get_sec
                     add  a,b
@@ -363,6 +294,7 @@
                     pop  bc
                     pop  af
                     ret
+
 
 ; ***********************************************************************
 ; If Serial port input stream copy is enabled, then dump recently
