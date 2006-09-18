@@ -1,7 +1,6 @@
 ; *************************************************************************************
-; EazyLink - Fast Client/Server Remote File Management with PCLINK II protocol
-;
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2005
+; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
+; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2006
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -200,7 +199,7 @@ ELSE
                DEFB InfoEnd6-InfoStart6              ; length of info section
 .InfoStart6    DEFW 0                                ; reserved...
                DEFB 'L'                              ; application key letter
-               DEFB RAM_pages                        ; contiguous RAM
+               DEFB EasyLinkRamPages                 ; contiguous RAM
                DEFW 0                                ;
                DEFW 0                                ; Unsafe workspace
                DEFW 0                                ; Safe workspace
@@ -243,7 +242,7 @@ ENDIF
 
 .app_main
                LD   A,(IX+$02)                    ; IX points at information block
-               CP   $20+RAM_pages                 ; get end page+1 of contiguous RAM
+               CP   $20+EasyLinkRamPages          ; get end page+1 of contiguous RAM
                JR   Z, continue_ez                ; end page OK, RAM allocated...
 
                LD   A,$07                         ; No Room for EazyLink, return to Index

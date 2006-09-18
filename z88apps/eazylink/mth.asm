@@ -1,7 +1,6 @@
 ; *************************************************************************************
-; EazyLink - Fast Client/Server Remote File Management with PCLINK II protocol
-;
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2005
+; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
+; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2006
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -24,7 +23,7 @@
      XDEF EazyLinkCommands
      XDEF EazyLinkHelp
 
-     include "defs.asm"
+     include "rtmvars.def"
 
 
 ; ********************************************************************************************************************

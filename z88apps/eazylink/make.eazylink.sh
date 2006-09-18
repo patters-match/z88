@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # *************************************************************************************
-# EazyLink application make script for DOS/Windows
+# EazyLink application make script for Unix/Linux/MAC OS X
 # (C) Gunther Strube (gbs@users.sourceforge.net) 2005-2006
 #
 # EazyLink is free software; you can redistribute it and/or modify it under the terms of the
