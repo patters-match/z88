@@ -29,10 +29,8 @@
 
     XDEF TraFilename
     XDEF serial_port, ramdev_wildcard
-    XDEF serdmpfile_in, serdmpfile_out
     XDEF pclink_synch, extended_synch
     XDEF menu_banner
-    XDEF msg_serdmpfile_enable, msg_serdmpfile_disable
     XDEF Message1, Message2, Message3, Message4, Message5, Message6, Message7, Message8
     XDEF Message9, Message10, Message11, Message12, Message13, Message14, Message15
     XDEF Message16, Message17, Message18, Message19, Message20, Message21, Message22
@@ -60,10 +58,6 @@
 .TraFilename        DEFM ":*//Translate.dat", 0
 .serial_port        DEFM ":COM.0", 0
 .ramdev_wildcard    DEFM ":RAM.*", 0
-.serdmpfile_in      DEFM "/serdump.in", 0                        ; create files in default RAM device
-.serdmpfile_out     DEFM "/serdump.out", 0
-.msg_serdmpfile_enable DEFM "Serial port logging enabled"  , 0
-.msg_serdmpfile_disable DEFM "Serial port logging disabled", 0
 .pclink_synch       DEFB 5, 6
 .extended_synch     DEFB 1, 2
 
