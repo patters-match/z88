@@ -171,7 +171,7 @@
                   CALL hw_rxbt                       ; get a byte from serial port, using direct hardware
                   JR   io_check
 .use_oz_gbt       LD   BC,3000
-                  LD   IX,(serport_Inp_handle)
+                  LD   IX,(serport_handle)
                   OZ   Os_Gbt                        ; get a byte from serial port, using OZ standard interface
 .io_check         CALL C,Check_timeout
                   POP  BC
@@ -188,7 +188,7 @@
                   JR   io_check
 .use_oz_pbt       POP  AF
                   LD   BC,3000
-                  LD   IX,(serport_Out_handle)
+                  LD   IX,(serport_handle)
                   OZ   Os_Pbt                        ; send byte to serial port, using OZ interface
                   JR   io_check
 

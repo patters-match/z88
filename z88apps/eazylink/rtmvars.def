@@ -52,8 +52,7 @@ DEFVARS $2000                      ; work space buffer for popdown...
     HWSER_flag           ds.b 1    ; enable fast serial port I/O, $FF when active
     buffer               ds.w 1    ; Address of next free byte in buffer
     buflen               ds.b 1    ; Current length of buffer
-    serport_Inp_handle   ds.w 1    ; Handle to serial port input
-    serport_Out_handle   ds.w 1    ; Handle to serial port output.
+    serport_handle       ds.w 1    ; Handle to serial port input/output
     serfile_in_handle    ds.w 1    ; Handle to dump file of serial port input
     serfile_out_handle   ds.w 1    ; Handle to dump file of serial port output
     file_handle          ds.w 1    ; Handle of opened file (read/write)
