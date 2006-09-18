@@ -390,7 +390,7 @@
                LD   (PopDownTimeout),HL           ; reset timeout to approx 10 minutes
 .ReadKeyboard_loop
                LD   BC,10                         ; keyboard polled, now check for serial port in 1/10 sec...
-               LD   IX,(serport_Inp_handle)
+               LD   IX,(serport_handle)
                CALL_OZ (Os_Gbt)                   ; get a byte from serial port
                CALL C, CheckHandshakeMode         ; probably timeout from serial port, check for handshake signal
                CALL C, Errhandler                 ; no byte available (or ESC pressed)...
@@ -1626,18 +1626,16 @@
 
 ; ***********************************************************************
 .Open_serialport
-               LD   A,op_in
+               LD   A,op_up
                LD   HL,serial_port
                LD   DE,filename_buffer
                PUSH DE
                PUSH HL
                CALL Get_file_handle               ; get INPUT handle for ":COM.0" device
-               LD   (serport_Inp_handle), IX
+               LD   (serport_handle), IX
                LD   A,op_out
                POP  HL
                POP  DE
-               CALL Get_file_handle               ; get OUTPUT handle for ":COM.0" device
-               LD   (serport_Out_handle), IX
                RET
 
 
@@ -1645,9 +1643,7 @@
 .Close_serialport
                PUSH AF
                PUSH IX
-               LD   IX,(serport_Inp_handle)
-               CALL_OZ(Gn_Cl)
-               LD   IX,(serport_Out_handle)
+               LD   IX,(serport_handle)
                CALL_OZ(Gn_Cl)
                POP  IX
                POP  AF
@@ -1773,7 +1769,7 @@
                LD   HL, Cpy_PA_Par
                CALL_OZ (Os_Sp)
                XOR  A
-               LD   BC, PA_Gfi                     ; install original parameters
+               LD   BC, PA_Gfi                     ; install original parameters to Panel & reset serial port
                CALL_OZ (Os_Sp)
                RET
 
@@ -1795,8 +1791,7 @@
 ;
 .InitHandles   PUSH HL
                LD   HL,0
-               LD   (serport_Inp_handle),HL
-               LD   (serport_Out_handle),HL
+               LD   (serport_handle),HL
                LD   (file_handle),HL
                LD   (wildcard_handle),HL
                POP  HL

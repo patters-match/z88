@@ -48,8 +48,7 @@ DEFVARS $2000                      ; work space buffer for popdown...
     CRLF_flag            ds.b 1    ; $FF, when active
     buffer               ds.w 1    ; Address of next free byte in buffer
     buflen               ds.b 1    ; Current length of buffer
-    serport_Inp_handle   ds.w 1    ; Handle to serial port input
-    serport_Out_handle   ds.w 1    ; Handle to serial port output.
+    serport_handle       ds.w 1    ; Handle to serial port input/output
     file_handle          ds.w 1    ; Handle of opened file (read/write)
     wildcard_handle      ds.w 1    ; Handle of current wildcard search
     Filename_buffer      ds.b 128  ; Buffer for filenames
