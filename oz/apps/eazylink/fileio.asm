@@ -29,7 +29,7 @@
     XDEF Abort_file, Write_Buffer, Flush_buffer, Load_buffer, Reset_buffer_ptrs
     XDEF Get_file_handle, Close_file, TranslateByte
 
-    INCLUDE "defs.asm"
+    INCLUDE "rtmvars.def"
     INCLUDE "fileio.def"
 
 

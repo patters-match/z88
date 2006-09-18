@@ -42,7 +42,7 @@
     XDEF FetchBytes_ackn
     XDEF Def_Ramdev_wildc
 
-    INCLUDE "defs.asm"
+    INCLUDE "rtmvars.def"
     INCLUDE "fileio.def"
     INCLUDE "dor.def"
     INCLUDE "ctrlchar.def"

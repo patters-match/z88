@@ -49,7 +49,7 @@
     XDEF EasyLinkVersion
     XDEF Command_banner
 
-    INCLUDE "defs.asm"
+    INCLUDE "rtmvars.def"
     INCLUDE "stdio.def"
 
 ; *********************************************************************************************************

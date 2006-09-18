@@ -27,7 +27,7 @@
     XDEF rw_date
     XDEF cli_filename
 
-    INCLUDE "defs.asm"
+    INCLUDE "rtmvars.def"
     INCLUDE "dor.def"
     INCLUDE "fileio.def"
 

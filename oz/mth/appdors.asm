@@ -38,7 +38,7 @@
 
         include "../bank1/impexp.inc"
         include "../bank1/impexp.def"
-        include "../apps/eazylink/defs.asm"
+        include "../apps/eazylink/rtmvars.def"
 
 xref    SysTokenBase
 
