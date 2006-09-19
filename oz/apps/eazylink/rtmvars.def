@@ -16,22 +16,19 @@
 ;
 ; *************************************************************************************
 
-; Application Safe workspace
-
-; Variabel Address definitions...
-; All variables are put into the Safe workspace (defined for both 'PClink' and 'MultiLink' to 1072 bytes)
+; Variable Address definitions...
 
 ; EazyLink commands identifiers in lookup tables
 DEFC TotalOfCmds = 33
 
-DEFC EasyLinkRamPages = 6          ; allocate 6 * 256 bytes contigous memory from $2000...
+DEFC EasyLinkRamPages = 9          ; allocate 9 * 256 (2K) bytes contigous memory from $2000...
 DEFC EasyLinkEntry = $8000
-
+DEFC EazyLinkWorkspace = 384
 DEFC SerportXonXoffMode = 1        ; Parity No, Xon/Xoff Yes (serial port software handshake)
 DEFC SerportHardwareMode = 2       ; Parity No, Xon/Xoff No (serial port hardware handshake)
 
-
-DEFVARS $2000                      ; work space buffer for popdown...
+; Safe workspace in LOWRAM for various runtime variables
+DEFVARS $1FFD - EazyLinkWorkspace + 1
     CurrentSerportMode   ds.b 1    ; Software (1) or hardware handshake (2) mode
     SignalSerportMode    ds.b 1    ; a command signals a handshake mode (1 or 2)
     PollHandshakeCounter ds.b 1    ; Change handshake if signaled after 1 complete second timeout (10 X serial port timeouts)
@@ -47,17 +44,21 @@ DEFVARS $2000                      ; work space buffer for popdown...
     tra_flag_copy        ds.b 1
     CRLF_flag            ds.b 1    ; $FF, when active
     buffer               ds.w 1    ; Address of next free byte in buffer
-    buflen               ds.b 1    ; Current length of buffer
+    buflen               ds.w 1    ; Current length of buffer
     serport_handle       ds.w 1    ; Handle to serial port input/output
     file_handle          ds.w 1    ; Handle of opened file (read/write)
     wildcard_handle      ds.w 1    ; Handle of current wildcard search
-    Filename_buffer      ds.b 128  ; Buffer for filenames
-    File_buffer          ds.b 255  ; Buffer for remote saving & loading of files
-    TraTableIn           ds.b 256  ; ASCII translation lookup table, Z88
-    TraTableOut          ds.b 256  ; ASCII translation lookup table, External computer
     Creation_date        ds.b 6    ; Temp store of a file's creation date
     Update_date          ds.b 6    ; Temp store of a file's update date
     file_ptr             ds.l 1
     directory_ptr        ds.w 1
+    Filename_buffer      ds.b 256  ; Buffer for filenames
+ENDDEF
+
+DEFVARS $2000                      ; big work space buffers
+    File_buffer          ds.b 1280 ; Receive/transmit Buffer for serial port communication
     DirName_stack        ds.b 128
+    File_buffer_end                ; 1.2K file buffer for sending/receiving files (File_buffer <-> File_buffer_end)
+    TraTableIn           ds.b 256  ; ASCII translation lookup table, Z88
+    TraTableOut          ds.b 256  ; ASCII translation lookup table, External computer
 ENDDEF

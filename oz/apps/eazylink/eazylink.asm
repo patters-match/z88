@@ -1633,7 +1633,6 @@
                PUSH HL
                CALL Get_file_handle               ; get INPUT handle for ":COM.0" device
                LD   (serport_handle), IX
-               LD   A,op_out
                POP  HL
                POP  DE
                RET
