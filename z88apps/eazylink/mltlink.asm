@@ -252,8 +252,6 @@
                   CALL Restore_TraFlag
                   JR   C,abort_batch_receive
                   JR   Z,abort_batch_receive             ; timeout - communication stopped
-                  LD   HL,(buffer)                       ; get pointer to end of pathname
-                  LD   (HL),0                            ; remove '*' wildcard...
                   LD   B,0
                   LD   HL,filename_buffer
                   CALL Write_message                     ; write filename to screen
@@ -307,6 +305,7 @@
                   CALL Restore_Traflag
                   JR   C, err_batch_send
                   JR   Z, err_batch_send
+                  LD   B,0
                   LD   HL,filename_buffer
                   CALL Write_message                 ; display pathname / wildcard on screen...
 
@@ -370,8 +369,7 @@
                   LD   (file_handle), IX             ; save file handle
 .trnsf_file_loop  CALL Load_buffer                   ; load new block into buffer...
                   JR   Z, End_transfer_file          ; EOF reached...
-                  LD   A,(buflen)
-                  LD   B,A
+                  LD   BC,(buflen)
                   LD   HL,file_buffer                ; start of buffer
 .send_file_buffer LD   A,(HL)                        ; fetch byte from buffer
                   CP   ESC                           ; ESC byte?
@@ -397,7 +395,10 @@
                   JR   C, error_trnsf_file
                   JR   Z, error_trnsf_file
 .continue_sending INC  HL
-                  DJNZ,send_file_buffer
+                  DEC  BC
+                  LD   A,B
+                  OR   C
+                  JR   NZ,send_file_buffer
                   JR   trnsf_file_loop
 .end_transfer_file
                   CALL Close_file
@@ -427,11 +428,9 @@
                   CALL SearchFilesystem              ; backup files...
                   RET  C
                   RET  Z
-                  CALL_OZ(gn_cl)                     ; close channel to serial port temporarily
                   LD   HL, message18
                   CALL Write_message                 ; "Searching file system..."
                   CALL Get_Directories               ; for directories in all RAM devices
-                  CALL Open_serialport               ; re-open
                   LD   HL, cli_filename
                   CALL Transfer_file                 ; send file with found directories
                   LD   HL, ESC_Z                     ; end of files...

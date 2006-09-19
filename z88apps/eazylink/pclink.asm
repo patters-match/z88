@@ -205,8 +205,7 @@
                   LD   (file_handle),IX
 .transfer2_loop   CALL Load_buffer                   ; load new block into buffer...
                   JR   Z,end_transfer2_loop          ; EOF reached...
-                  LD   A,(buflen)
-                  LD   B,A
+                  LD   BC,(buflen)
                   LD   HL,file_buffer                ; start of buffer
 .send_buffer      LD   A,(HL)                        ; fetch byte from buffer
 .check_CR         CP   CR                            ; is byte a CR?
@@ -235,7 +234,10 @@
                   JR   Z,ESC_G_aborted
 .continue_send_buffer
                   INC  HL
-                  DJNZ,send_buffer
+                  DEC  BC
+                  LD   A,B
+                  OR   C
+                  JR   NZ,send_buffer
                   JR   transfer2_loop
 .end_transfer2_loop
                   CALL Close_file

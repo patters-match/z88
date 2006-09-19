@@ -202,7 +202,7 @@ ELSE
                DEFB EasyLinkRamPages                 ; contiguous RAM
                DEFW 0                                ;
                DEFW 0                                ; Unsafe workspace
-               DEFW 0                                ; Safe workspace
+               DEFW EazyLinkWorkspace                ; Safe workspace
                DEFW EasyLink_entry                   ; Entry point of code in seg. 3
                DEFB 0                                ; bank binding to segment 0
                DEFB 0                                ; bank binding to segment 1
@@ -1721,7 +1721,6 @@ ENDIF
                PUSH HL
                CALL Get_file_handle               ; get INPUT handle for ":COM.0" device
                LD   (serport_handle), IX
-               LD   A,op_out
                POP  HL
                POP  DE
                RET

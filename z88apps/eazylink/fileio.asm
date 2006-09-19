@@ -135,7 +135,7 @@
                   PUSH IX
                   LD   IX,(wildcard_handle)          ; exit loop when last name have been
                   LD   DE, filename_buffer           ; processed.
-                  LD   C,128                         ; maximum length of found filename.
+                  LD   C,255                         ; maximum length of found filename.
                   CALL_OZ (Gn_Wfn)                   ; fetch next file name ...
                   POP  IX
                   POP  DE
@@ -172,18 +172,18 @@
                   LD   (HL),A                        ; put byte into buffer
                   INC  HL
                   LD   (buffer),HL                   ; save adr of next entry into buffer
-                  LD   A,(buflen)                    ; current size of buffer
-                  INC  A                             ; updated with new byte
-                  LD   (buflen), A                   ; save back new buffer length
-                  CP   $FF                           ; is buffer full?
+                  LD   HL,(buflen)                   ; current size of buffer
+                  INC  HL                            ; updated with new byte
+                  LD   (buflen),HL                   ; save back new buffer length
+                  LD   BC,file_buffer_end - file_buffer
+                  CP   A
+                  SBC  HL,BC                         ; is buffer full?
                   JR   Z,Flush_buffer                ; Yes, write to file...
-                  XOR  A                             ; Clear Carry if set by CP &FF
+                  XOR  A                             ; Clear Carry if set...
                   RET                                ; return, fetch next byte...
 .Flush_buffer     LD   IX,(file_handle)              ; Also called directly if EOF before
-                  LD   A,(buflen)
-                  LD   B,0
-                  LD   C,A                           ; BC = length of buffer
-                  LD   DE,0                          ; (max 255 bytes)
+                  LD   BC,(buflen)
+                  LD   DE,0
                   LD   HL,file_buffer
                   CALL_OZ (Os_Mv)                    ; write buffer to file.
                   CALL Reset_buffer_ptrs
@@ -195,26 +195,26 @@
                   LD   A,fa_eof
                   CALL_OZ (Os_Frm)
                   RET  Z                             ; EOF
-                  LD   BC,255
+                  LD   BC,file_buffer_end - file_buffer
                   LD   HL,0
                   LD   DE,file_buffer
+                  PUSH BC
                   CALL_OZ (Os_Mv)
-                  LD   A,255
-                  SUB  C                             ; C = possible bytes read past EOF
-                  LD   (buflen),A                    ; actual length of buffer
+                  POP  HL
+                  CP   A
+                  SBC  HL,BC
+                  LD   (buflen),HL                    ; actual length of buffer
                   RET
 
 
 ; ***********************************************************************
 .Reset_buffer_ptrs
-                  EX   AF,AF'
                   EXX
                   LD   HL,file_buffer
                   LD   (buffer),HL
-                  XOR  A
-                  LD   (buflen),A
+                  LD   HL,0
+                  LD   (buflen),HL
                   EXX
-                  EX   AF,AF'
                   RET
 
 
