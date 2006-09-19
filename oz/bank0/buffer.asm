@@ -153,7 +153,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         call    BfCheck
         jr      nc, bfgbt_get                   ; if there's data we can exit right away
 
-        ld      hl, ubIntTaskToDo               ; !! unnecessary
         bit     ITSK_B_PREEMPTION, (hl)
         jr      nz, bfgbt_susp0                 ; pre-empted? exit
         bit     ITSK_B_ESC, (hl)
@@ -172,12 +171,10 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 .bfgbt_get
         call    BufRead
         jr      c, bfgbt_9                      ; error, wait for more
-        ld      a, c                            ; !! unnecessary
 
 .bfgbt_x
         push    hl                              ; !! unnecessary, HL already lost
         ld      hl, ubIntTaskToDo
-
         res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
         pop     hl
         pop     de
@@ -224,7 +221,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ;IN:    IX = buffer
 ;OUT:   Fc=0, A=free space if room
 ;       Fc=1, A=0 if buffer full
-;chg:   AF....../....
+;chg:   AF....HL/....
 
 .BufHasRoom
         call    OZ_DI
