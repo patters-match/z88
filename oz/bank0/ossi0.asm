@@ -122,8 +122,14 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         extcall OSSiTmo1, OZBANK_KNL1
         ret
 
-;       ----
 
+; -----------------------------------------------------------------------------------------
+; Main Serial Interface Interrupt handler that manages bytes received and sent through
+; the serial port hardware and updating of the serial receive and transmit buffers.
+;
+; This routine is executed from the IM 1 interrupt handler (INTEntry, int.asm), when an
+; UART interrupt was recognized from the BLINK.
+;
 .OSSiInt
         push    ix                              ; allows to be call directly from int
         ld      ix, (SerRXHandle)
@@ -143,6 +149,9 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         pop     ix
         ret
 
+; ----------------------------------------------------------------------------------
+; BLINK has received a byte from the serial port hardware; grab it and put
+; it in the serial port receive buffer.
 .RxInt
         push    af
 
