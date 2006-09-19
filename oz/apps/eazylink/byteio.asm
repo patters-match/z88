@@ -163,8 +163,6 @@
 
 ; ***********************************************************************
 .SxByte           PUSH BC
-                  PUSH AF
-                  POP  AF
                   LD   BC,3000
                   LD   IX,(serport_handle)
                   OZ   Os_Pbt                        ; send byte to serial port, using OZ interface
