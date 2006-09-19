@@ -1,4 +1,5 @@
 ; **************************************************************************************************
+; OZ Low level serial port interface, called by INT handler and high level OS_Gbt/OS_Pbt.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -61,6 +62,7 @@ xref    OSSiFtx1                                ; bank7/ossi1.asm
 xref    OSSiFrx1                                ; bank7/ossi1.asm
 xref    OSSiTmo1                                ; bank7/ossi1.asm
 
+
 ; -----------------------------------------------------------------------------
 ;
 ;       OS_SI   low level serial interface
@@ -76,10 +78,12 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         ld      hl, OSSiRet
         push    hl                              ; stack the ret
         exx                                     ; restore main registers
-        ld      a, l                            ; reason
-        ld      hl, OSSITBL                     ; h is unused and always destroyed by OSSi
-        add     a, l                            ; shouldnt cross a page
+        ld      a, l                            ; OS_SI reason code
+        add     a, OSSITBL%256
         ld      l, a
+        ld      a, OSSITBL/256
+        adc     a, 0                            ; take care of page address crossing...
+        ld      h, a                            ; h is unused and always destroyed by OSSi
         ex      af, af'                         ; restore af (used in OSSiPbt)
         jp      (hl)                            ; jump to routine
 

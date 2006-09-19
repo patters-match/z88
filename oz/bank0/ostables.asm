@@ -40,9 +40,9 @@ IF COMPILE_BINARY
         include "kernel0.def"                   ; get bank 0 kernel address references
         include "../bank7/kernel7.def"          ; get bank 7 kernel address references
 ELSE
-        xref    OSDly                           ; bank0/buffer.asm
-        xref    OSPur                           ; bank0/buffer.asm
-        xref    OSXin                           ; bank0/buffer.asm
+        xref    OSDly                           ; bank0/osin.asm
+        xref    OSPur                           ; bank0/osin.asm
+        xref    OSXin                           ; bank0/osin.asm
         xref    CallDC                          ; bank0/misc2.asm
         xref    CallGN                          ; bank0/misc2.asm
         xref    CallOS2byte                     ; bank0/misc2.asm

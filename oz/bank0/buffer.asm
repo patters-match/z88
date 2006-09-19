@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Low level buffer i/o used by keyboard, serial interface and interruptions.
+; Low level buffer I/O used by keyboard, serial interface and interrupts.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -38,51 +38,19 @@
         include "sysvar.def"
         include "../bank7/lowram.def"
 
-xdef    BfGbt                                   ; bank0/osin.asm
-xdef    BfPbt                                   ;
-xdef    BfPur                                   ; bank0/ossi1
-xdef    BfSta                                   ; bank0/ossi1
-xdef    BufRead                                 ;
-xdef    BufWrite                                ; kbd.asm
-xdef    InitBufKBD_RX_TX                        ; bank7/reset.asm
-xdef    OsDly
-xdef    OSPur
-xdef    OSXin
+xdef    BfGbt
+xdef    BfPbt
+xdef    BfPur
+xdef    BfSta
+xdef    BufRead
+xdef    BufWrite
+xdef    InitBufKBD_RX_TX
 
-
-xref    CancelOZcmd                             ; bank0/osin.asm
 xref    OSWaitMain                              ; bank0/nmi.asm
-xref    DoAlarms                                ; bank0/osalm0.asm
-xref    TestEsc                                 ; bank0/esc.asm
-xref    MayDrawOZwd                             ; bank0/misc3.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
 
 
-;       ----
-
-; delay a given period
-;
-;IN:    BC = delay in centiseconds
-;OUT:   Fc=1, BC remaining time, A=error
-;       RC_ESC ($01), escape was pressed
-;       RC_SUSP ($69), process suspended
-;       RC_TIME ($02), timeout
-;
-;chg:   (BfGbt)-IX
-
-.OSDly
-        push    ix
-        ld      ix, fakehnd+2
-        call    BfGbt
-        call    PutOSFrame_BC
-        pop     ix
-        ret
-.fakehnd
-        defb 0, 0
-
-;       ----
-
-; get buffer status
+; ---------------------------------------------------------------------------------------------
+; Get buffer status
 ;
 ;IN:    IX = buffer
 ;OUT:   H = number of databytes in buffer
@@ -116,9 +84,9 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         pop     af
         ret
 
-;       ----
 
-; purge buffer
+; ---------------------------------------------------------------------------------------------
+; Purge buffer
 ;
 ;IN:    IX = buffer
 ;OUT:   Fc=0
@@ -134,9 +102,9 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         or      a
         ret
 
-;       ----
 
-; check if there's data in buffer
+; ---------------------------------------------------------------------------------------------
+; Check if there's data in buffer
 ;
 ;IN:    IX = buffer
 ;       HL = ubIntTaskToDo
@@ -145,7 +113,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 ;
 ;chg:   AF
 
-.Bf_Check
+.BfCheck
         call    OZ_DI
         ex      af, af'
         bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
@@ -160,9 +128,9 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         ex      af, af'
         ret
 
-;       ----
 
-; get byte with timeout
+; ---------------------------------------------------------------------------------------------
+; Get byte with timeout
 ;
 ;IN:    BC = timeout, $FFFF for default
 ;       IX = buffer
@@ -182,7 +150,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         res     ITSK_B_TIMER, (hl)
         ld      (uwSmallTimer), bc
 
-        call    Bf_Check
+        call    BfCheck
         jr      nc, bfgbt_get                   ; if there's data we can exit right away
 
         ld      hl, ubIntTaskToDo               ; !! unnecessary
@@ -233,7 +201,7 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
 
 .bfgbt_8
         res     ITSK_B_BUFFER, (hl)             ; if there's data in buffer go and get it
-        call    Bf_Check
+        call    BfCheck
         jr      nc, bfgbt_get
 
 .bfgbt_9
@@ -249,8 +217,8 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         jr      nz, bfgbt_to                    ; timeout? exit
         jr      bfgbt_susp                      ; otherwise exit with pre-emption
 
-;       ----
 
+; ---------------------------------------------------------------------------------------------
 ; Check if buffer has room for one more byte
 ;
 ;IN:    IX = buffer
@@ -269,9 +237,9 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         cp      1                               ; Fc=1 if buffer full
         ret
 
-;       ----
 
-; put byte with timeout
+; ---------------------------------------------------------------------------------------------
+; Put byte with timeout
 ;
 ;IN:    IX = buffer
 ;       A  = data
@@ -353,86 +321,8 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         jr      nz, bfpbt_to                    ; timeout? exit
         jr      bfpbt_susp                      ; otherwise exit with pre-emption
 
-;       ----
 
-; examine input
-;
-;IN: IX = stream handle
-;OUT:   Fc = 0, OS_In will return immediately - possibly with error!
-;       Fc = 1, A=RC_EOF ($09), OS_In   will wait
-;chf:   AF....HL/.... +DC_Xin?
-
-.OSXin
-        ex      af, af'
-        or      a                               ; Fc=0
-        ex      af, af'
-
-        call    DoAlarms                        ; check for alarms
-        call    MayDrawOZwd                     ; and draw OZwd if necessary
-
-        ld      a, (ubSysFlags1)
-        bit     SF1_B_XTNDCHAR, a
-        jr      nz, osxin_1                     ; have extended char? exit
-
-        ld      a, (ubIntTaskToDo)
-        bit     ITSK_B_PREEMPTION, a
-        jr      nz, osxin_1                     ; pre-empted? exit
-
-        call    TestEsc
-        jr      c, osxin_1                      ; ESC pending? exit
-
-        ld      a, (KbdData + buf_wrpos)
-        ld      hl, KbdData + buf_rdpos         ; hl is already destroyed by DoAlarms
-        cp      (hl)
-        jr      nz, osxin_1                     ; keyboard buffer not empty? exit
-
-        ld      a, (ubCLIActiveCnt)
-        or      a
-        jr      nz, osxin_2                     ; CLI active? check it's input
-
-        ex      af, af'                         ; Fc=1, no input available
-        ld      a, RC_Eof
-        scf
-        ex      af, af'
-
-.osxin_1
-        jp      OZCallReturn3                   ; return af'
-
-.osxin_2
-        ex      af, af'
-        exx
-        OZ      DC_Xin                          ; Examine CLI input
-        jp      OZCallReturn1                   ; return AF
-
-;.GetKbddata
-;        ld      ix, KbdData                     ; !! only used above
-;        ret
-
-;       ----
-
-; purge keyboard buffer
-;
-;IN:    -
-;OUT:   Fc=0
-;chg:   F
-
-.OSPur
-        push    af
-        push    ix
-        ex      af, af'
-        exx
-        call    CancelOZcmd                     ; cancel any [] or <> command
-        exx
-        ex      af, af'
-        ld      ix, KbdData
-        call    BfPur
-        pop     ix
-        pop     af
-        or      a                               ; Fc=0
-        jp      OZCallReturn2                   ; return AF and undo exx
-
-;       ----
-
+; ---------------------------------------------------------------------------------------------
 ; write byte into buffer
 ;
 ;IN:    IX = buffer
@@ -483,15 +373,15 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         ex      af, af'
         ret
 
-;       ----
 
+; ---------------------------------------------------------------------------------------------
 ; read byte from buffer
 ;
 ;IN:    IX = buffer
 ;OUT:   Fc=0, A=C=data , H=#data bytes in buffer, L=#free bytes in buffer
 ;       Fc=1, A=error if fail
 ;chg:   AF.C..HL/....
-
+;
 .BufRead
         call    OZ_DI
         ex      af, af'
@@ -527,16 +417,14 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         ld      a, c                            ; otherwise byte from buffer
         ret
 
-;       ----
 
+; ---------------------------------------------------------------------------------------------
 ; init buffer with no function or data area
 
 .BufInit0
         ld      b, 0
         ld      h, b
         ld      l, b
-
-;       ----
 
 ; init buffer
 ;
@@ -566,16 +454,10 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         pop     ix
         ret
 
-;       ----
 
-        ld      l, (ix+buf_func)                ; buffer function caller, unused
-        ld      h, (ix+buf_funcH)
-        jp      (hl)
-
-;       ----
-
+; ---------------------------------------------------------------------------------------------
 ; init OZ buffers at reset
-
+;
 .InitBufKBD_RX_TX
         ld      ix, KbdData                     ; KBD buffer
         ld      b, kbd_SIZEOF                   ; clear kbd data
@@ -593,4 +475,3 @@ xref    PutOSFrame_BC                           ; bank0/misc5.asm
         ld      c, <(SerRXBuffer+RX_BUF_LEN)
         ld      de, SerRXBuffer
         jp      BufInit0
-

@@ -33,15 +33,21 @@
 
         Module OSIn
 
+        include "buffer.def"
         include "blink.def"
         include "director.def"
         include "error.def"
         include "stdio.def"
         include "sysvar.def"
+        include "../bank7/lowram.def"
 
-xdef    CancelOZcmd
 xdef    OSIn
 xdef    OSTin
+xdef    OSPur
+xdef    OSXin
+xdef    OSDly
+xdef    CancelOZcmd
+
 xdef    ostin_4
 xdef    PutOZwdBuf
 xdef    RdKbBuffer
@@ -59,15 +65,112 @@ xref    OSFramePush                             ; bank0/misc4.asm
 xref    AtoN_upper                              ; bank0/misc5.asm
 xref    PutOSFrame_BC                           ; bank0/misc5.asm
 xref    BfGbt                                   ; bank0/buffer.asm
+xref    BfPur                                   ; bank0/buffer.asm
 xref    DoAlarms                                ; bank0/osalm0.asm
 xref    DrawOZwd                                ; bank0/ozwindow.asm
 xref    FindCmd                                 ; bank0/mth2.asm
 xref    MaySetEsc                               ; bank0/esc.asm
+xref    TestEsc                                 ; bank0/esc.asm
 xref    UpdateRnd                               ; bank0/random.asm
 
 xref    Chr2ScreenCode                          ; bank7/scrdrv1.asm
 xref    DoHelp                                  ; bank7/mth1.asm
 xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
+
+
+
+; ---------------------------------------------------------------------------------------------
+; Delay a given period
+;
+;IN:    BC = delay in centiseconds
+;OUT:   Fc=1, BC remaining time, A=error
+;       RC_ESC ($01), escape was pressed
+;       RC_SUSP ($69), process suspended
+;       RC_TIME ($02), timeout
+;
+;chg:   (BfGbt)-IX
+
+.OSDly
+        push    ix
+        ld      ix, fakehnd+2
+        call    BfGbt
+        call    PutOSFrame_BC
+        pop     ix
+        ret
+.fakehnd
+        defb 0, 0
+
+
+; ---------------------------------------------------------------------------------------------
+; Purge keyboard buffer
+;
+;IN:    -
+;OUT:   Fc=0
+;chg:   F
+
+.OSPur
+        push    af
+        push    ix
+        ex      af, af'
+        exx
+        call    CancelOZcmd                     ; cancel any [] or <> command
+        exx
+        ex      af, af'
+        ld      ix, KbdData
+        call    BfPur
+        pop     ix
+        pop     af
+        or      a                               ; Fc=0
+        jp      OZCallReturn2                   ; return AF and undo exx
+
+
+; ---------------------------------------------------------------------------------------------
+; Examine input
+;
+;IN: IX = stream handle
+;OUT:   Fc = 0, OS_In will return immediately - possibly with error!
+;       Fc = 1, A=RC_EOF ($09), OS_In   will wait
+;chf:   AF....HL/.... +DC_Xin?
+
+.OSXin
+        ex      af, af'
+        or      a                               ; Fc=0
+        ex      af, af'
+
+        call    DoAlarms                        ; check for alarms
+        call    MayDrawOZwd                     ; and draw OZwd if necessary
+
+        ld      a, (ubSysFlags1)
+        bit     SF1_B_XTNDCHAR, a
+        jr      nz, osxin_1                     ; have extended char? exit
+
+        ld      a, (ubIntTaskToDo)
+        bit     ITSK_B_PREEMPTION, a
+        jr      nz, osxin_1                     ; pre-empted? exit
+
+        call    TestEsc
+        jr      c, osxin_1                      ; ESC pending? exit
+
+        ld      a, (KbdData + buf_wrpos)
+        ld      hl, KbdData + buf_rdpos         ; hl is already destroyed by DoAlarms
+        cp      (hl)
+        jr      nz, osxin_1                     ; keyboard buffer not empty? exit
+
+        ld      a, (ubCLIActiveCnt)
+        or      a
+        jr      nz, osxin_2                     ; CLI active? check it's input
+
+        ex      af, af'                         ; Fc=1, no input available
+        ld      a, RC_Eof
+        scf
+        ex      af, af'
+.osxin_1
+        jp      OZCallReturn3                   ; return af'
+.osxin_2
+        ex      af, af'
+        exx
+        OZ      DC_Xin                          ; Examine CLI input
+        jp      OZCallReturn1                   ; return AF
 
 
 ;       ----
@@ -446,4 +549,5 @@ xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
         pop     af
         or      a
         ret
+
 
