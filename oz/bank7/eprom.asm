@@ -531,8 +531,7 @@ xdef    OSEpr
         ex      af, af'
         push    af
         ld      ix, (pEpr_FileHandle)           ; close infile
-        xor     a
-        OZ      GN_Cl
+        OZ      OS_Cl
         pop     af
 
 .sv_11

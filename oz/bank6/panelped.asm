@@ -934,7 +934,7 @@ enddef
         jr      z, save_6
         push    de
         pop     ix
-        OZ      GN_Cl
+        OZ      OS_Cl
         jr      nc, save_8                      ; no error? skip
 
 .save_6

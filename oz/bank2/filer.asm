@@ -608,8 +608,7 @@ enddef
         jr      clsrc_2
 
 .clsrc_1
-        xor     a
-        OZ      GN_Cl                           ; close file/stream
+        OZ      OS_Cl                           ; close file/stream
 
 .clsrc_2
         ld      (f_SourceHandle), ix
@@ -620,8 +619,7 @@ enddef
         ld      ix, (f_DestHandle)
         call    TstIX
         ret     z
-        xor     a
-        OZ      GN_Cl                           ; close file/stream
+        OZ      OS_Cl                           ; close file/stream
         ld      (f_DestHandle), ix
         xor     a
         inc     a                               ;Fz=0
@@ -2683,7 +2681,7 @@ enddef
         jr      nc, tcopy_8
         push    af
         ld      ix, (f_SourceHandle)
-        OZ      GN_Cl
+        OZ      OS_Cl
         ld      (f_SourceHandle), ix
         pop     af
         jr      tcopy_9
