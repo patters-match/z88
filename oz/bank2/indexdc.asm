@@ -218,39 +218,39 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         ld      (ubIdxFlags2), a                ; first run done
         call    InitKeys
 
-;       read boot.cli and execute it
+;       read boot.cli from File Eprom in slot or from Ram and execute it
 
         ld      a, OP_OUT                       ; write
+        ld      hl, EpromBootCLI
         call    OpenBootCli
-        jr      c, loc_C0C6
+        jr      c, loc_C0C6                     ; couldn't create ":RAM.-/Boot.cli", ignore to copy from slot 3 File Eprom
         ld      a, EP_LOAD
-        OZ      OS_Epr                          ; read from EPROM
+        OZ      OS_Epr                          ; try to load "/Boot.cli" from File Eprom in slot 3
         push    af
-        xor     a                               ; !! why?
-        OZ      GN_Cl                           ; close file/stream
+        OZ      OS_Cl                           ; no matter if /Boot.cli was copied into ":RAM.-/Boot.cli", then close it...
         pop     af
-        jr      nc, loc_C093
-        OZ      GN_Del                          ; delete file
-        jr      loc_C0C6
+        jr      nc, schedule_boot_cli
+        OZ      GN_Del                          ; Delete ":RAM.-/Boot.cli" file, no /Boot.cli was found in slot 3!
+        ld      hl, RamBootCLI                  ; Now, try to execute ":Ram.*//Boot.cli" instead...
 
-.loc_C093
-        ld      a, OP_IN                        ; read
+.schedule_boot_cli
+        ld      a, OP_IN                        ; schedule a "/Boot.cli" to be executed by CLI...
         call    OpenBootCli
-        jr      c, loc_C0C6
+        jr      c, loc_C0C6                     ; Ups, not possible (file not found)...
         ld      b, 0
         ld      h, b
         ld      l, b
-        OZ      DC_Icl                          ; Invoke new CLI
+        OZ      DC_Icl                          ; Invoke new CLI and use file as input...
         jr      nc, loc_C0C6
-        xor     a                               ; !! why?
-        OZ      GN_Cl                           ; close file/stream
-        jr      loc_C0C6
+        OZ      OS_Cl                           ; CLI could not be scheduled, close file handle
+        jr      loc_C0C6                        ; and continue Index initialisation
 
-.BootCLI_txt
-        defm    ":Ram.-/Boot.cli",0
+.EpromBootCLI
+        defm    ":Ram.-/Boot.cli",0             ; The /Boot.cli copied from File Eprom in slot 3
+.RamBootCLI
+        defm    ":Ram.*//Boot.cli",0            ; The global RAM /Boot.cli filename (anywhere in any RAM)
 
 .OpenBootCli
-        ld      hl, BootCLI_txt
         ld      de, 3                           ; NUL, ignore name
         ld      bc, $FF
         OZ      GN_Opf                          ; open - BHL=name, A=mode, DE=exp. name buffer, C=buflen
