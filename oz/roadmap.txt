@@ -35,7 +35,6 @@ TODO (with priorities):
 DONE
 - Fix CAPS behaviour. P1
 - New OS_NQ, OS_SP parameters to handle localisation of keymaps and date/month names. P1
-- New end-user selection of localisation in Panel. P1
 - New font bitmaps for ISO LATIN chars. P1
 - PrinterEd menu 1/2 to correct. P2
 - make source (disassembly) complete ORG independent. Add GPL headers to sources. P2
@@ -60,6 +59,14 @@ DONE
 - Moved MTH, Font, Keymap & 'OZ' ROM header out of bank 7 and relocated to new bank (GBS / TP)
 - Token table now a separate entity - no longer embedded in bits 7,6 of LORES1 FONT bitmap (GBS / TP).
 - 64 byte protected variable area during soft reset (TP).
+- International Keyboard layout selection in Panel, and most ISO font bitmaps implemented (TP).
+- Panel parameters Timeout, Repeat, Keyclick, Sound, Bad process size and Country parameters are preserved over soft reset (TP).
+- Improved speed of serial interface I/O, (re-arranged code in kernel banks & increased low level buffers) (TP).
+- Added Main help pages for all applications and popdowns (GBS).
+- 'CLI' symbol in right hand side now flashes while CLI is active (TP).
+- Implemented 1K File I/O buffer for file copy functionality in Filer, drastically speeding up file copying (16K in 2 secs!) (GBS).
+- EazyLink is new standard popdown for easy remote file management (GBS).
+- After reset, try to execute global RAM "Boot.cli" (anywhere in any RAM), if /Boot.cli was not found in slot 3 File Eprom. (GBS)
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0
