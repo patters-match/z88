@@ -23,7 +23,7 @@ NEW
    30 DIM bank% 16383
    40 DIM fname 255
    50 DIM inbuffer 255
-   70 blowbank=&BA00:readbank=&BA8C:eraseflash=&BAA0:checkbank=&BA6A
+   70 blowbank=&BA00:checkbank=&BA03:readbank=&BA06:eraseflash=&BA09
   140 WaitLS%=W%:ShowApps%=S%
   150 $inbuffer=""
   160 r1$=CHR$(1)+"2+R":r0$=CHR$(1)+"2-R"
@@ -38,7 +38,7 @@ NEW
 
  1100 DEF PROCDispTitle
  1110 CLS
- 1120 PRINT r1$;"  RomCombiner v2.02 (c) Garry Lancaster, 2000-2005  ";r0$;
+ 1120 PRINT r1$;"  RomCombiner v2.03 (c) Garry Lancaster, 2000-2006  ";r0$;
  1130 PRINT "  Pause mode ";
  1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
  1150 PRINT "  Display mode ";
@@ -134,13 +134,15 @@ NEW
  4220 PROCDispTitle
  4230 PRINT
  4240 F=0:FLASH=0
- 4250 INPUT "What EPROM type is in slot 3 (32, 128, 256 or FLASH)";EP%
- 4260 IF EP%<>32 AND EP%<>128 AND EP%<>256 AND EP%<>0 THEN PROCErrMsg("Invalid EPROM type!"):ENDPROC
+ 4250 PRINT "What EPROM type is in slot 3: [1]28K, [2]56K, [3]2K or [F]LASH?"
+ 4252 REPEAT: K$=GET$: UNTIL K$="F" OR K$="f" OR K$="1" OR K$="2" OR K$="3"
+ 4254 IF K$="F" OR K$="f" THEN EP%=0
+ 4255 IF K$="1" THEN EP%=128
+ 4256 IF K$="2" THEN EP%=256
+ 4257 IF K$="3" THEN EP%=32
  4270 INPUT "Card name";N$
  4280 PRINT b1$;"F";b0$;"ull ROM or ";b1$;"R";b0$;"ange of banks?"
- 4290 REPEAT
- 4300   K$=GET$
- 4310 UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
+ 4290 REPEAT: K$=GET$: UNTIL K$="F" OR K$="f" OR K$="R" OR K$="r"
  4320 IF K$="F" OR K$="f" THEN 4440
  4330 INPUT "First bank (0-63)";BK%
  4340 IF BK%<0 OR BK%>63 THEN PROCErrMsg("Invalid bank!"):ENDPROC

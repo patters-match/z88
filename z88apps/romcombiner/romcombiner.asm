@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomCombiner
-; (c) Garry Lancaster, 2000-2005 (yahoogroups@zxplus3e.plus.com)
+; (c) Garry Lancaster, 2000-2006 (yahoogroups@zxplus3e.plus.com)
 ;
 ; RomCombiner is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -27,6 +27,13 @@
 
      include "flashepr.def"
      include "memory.def"
+
+; Jump sub routine table (to define nice, static CALL addresses in BBC BASIC)
+     jp   blowbank      ; $BA00
+     jp   checkbank     ; $BA03
+     jp   readbank      ; $BA06
+     jp   eraseflash    ; $BA09
+
 
 ; The BLOWBANK routine blows page B (00-3f) to standard EPROM type C,
 ; with data stored at DE. On exit, HL=0 if successful, or address
@@ -90,17 +97,14 @@
      ld   c,3            ; use slot 3 as default for all Flash Cards
      call FlashEprCardID
      pop  bc
-     ld   hl,$c000
+     ld   hl,$c000       ; destination start address of bank (use segment 3 to blow data)
      ret  c              ; exit if not Flash card
      set  7,b            ; A = Flash Card type (returned from FlashEprCardID)
      set  6,b            ; bank no. in B points into slot 3
-     ld   c,ms_s3        ; use segment 3 to blow in
-     ld   hl,0           ; destination start address of bank
-     ld   iy,$4000       ; whole page
+     ld   iy,$4000       ; whole bank
      call FlashEprWriteBlock
-     ret  nc             ; exit if no error
-     ld   de,$c000
-     add  hl,de          ; else give address in seg 3
+     ret  c
+     ld   hl,0           ; indicate success to BBC BASIC
      ret
 
 ; Subroutine to check blocks of an EPROM are properly erased
@@ -163,7 +167,7 @@
      call FlashEprCardErase
 .checkerror
      jr   c,eraseerr
-     ld   hl,0
+     ld   hl,0           ; indicate success to BBC BASIC
      ret
 .eraseerr
      ld   hl,$ffff
