@@ -720,17 +720,17 @@
 .CopyMemory
                     inc  b
                     dec  b
-                    jr   z, copymem          ; copy local address space memory...
+                    jr   z, copymem                     ; copy local address space memory...
 if POPDOWN
                     set  7,h
-                    res  6,h                 ; for RomUpdate popdown version, force bank offset to use segment 2
-                    ld   c,MS_S2             ; (RomUpdate popdown code is running in segment 3)
+                    res  6,h                            ; for RomUpdate popdown version, force bank offset to use segment 2
+                    ld   c,MS_S2                        ; (RomUpdate popdown code is running in segment 3)
 else
                     set  7,h
-                    set  6,h                 ; for RomUpdate BBC BASIC version, force bank offset to use segment 3
-                    ld   c,MS_S3             ; (RomUpdate BBC BASIC code is running in segment 0 & 1)
+                    set  6,h                            ; for RomUpdate BBC BASIC version, force bank offset to use segment 3
+                    ld   c,MS_S3                        ; (RomUpdate BBC BASIC code is running in segment 0 & 1)
 endif
-                    call MemDefBank          ; get bank into address space
+                    call MemDefBank                     ; get bank into address space
                     push bc
                     call copymem
                     pop  bc
@@ -740,7 +740,7 @@ endif
                     push bc
                     exx
                     pop  bc
-                    ldir                     ; (BHL++) -> (DE++)
+                    ldir                                ; (BHL++) -> (DE++)
                     ret
 ; *************************************************************************************
 
@@ -766,13 +766,12 @@ endif
                     push hl
                     push iy
 
-                    ld   hl,0                           ; blow from start of bank...
                     ld   de,buffer                      ; blow contents of buffer to bank
                     ld   iy, banksize
 if POPDOWN
-                    ld   c, MS_S2                       ; use segment 2 to blow bank
+                    ld   hl,$8000                       ; blow from start of bank (in segment 2)...
 else
-                    ld   c, MS_S3                       ; BBC BASIC: use segment 3 to blow bank
+                    ld   hl,$c000                       ; BBC BASIC: blow from start of bank (in segment 3)...
 endif
                     call FlashEprWriteBlock
                     pop  iy
