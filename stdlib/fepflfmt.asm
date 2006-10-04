@@ -22,7 +22,7 @@
      LIB FlashEprStdFileHeader
      LIB FlashEprWriteBlock
      LIB FileEprRequest
-     LIB SafeSegmentMask
+     LIB SafeBHLSegment
      LIB FlashEprPollSectorSize
      LIB OZSlotPoll, SetBlinkScreen
 
@@ -117,7 +117,7 @@
 ;
 ; --------------------------------------------------------------------------------------------------
 ; Design & programming by Gunther Strube,
-;       Dec 1997-Apr 1998, Aug 2004, July 2005, July 2006, Aug 2006
+;       Dec 1997-Apr 1998, Aug 2004, July 2005, July 2006, Aug-Oct 2006
 ; --------------------------------------------------------------------------------------------------
 ;
 .FlashEprFileFormat
@@ -140,7 +140,7 @@
                     POP  DE
                     CALL EraseBlocks              ; erase all sectors of file area, then (re)create file area header
                     JR   C,format_error
-                    CALL SaveNullFile             ; blow a NULL file (6 bytes long) on Intel Flash Cards
+                    CALL SaveNullFile             ; blow a NULL file (6 bytes long), but only on Intel Flash Cards...
                     JR   C,format_error           ; NULL file wasn't created!
 .exit_feformat
                     CALL SetBlinkScreenOn         ; always turn on screen after format operation
@@ -307,12 +307,9 @@
                     LD   B,$C0               ; file area was just formatted successfully, so the Intel
                     LD   HL,0                ; chip is located in slot 3 - blow null file at bottom of card
                     LD   DE, nullfile
-                    CALL SafeSegmentMask
-                    RLCA
-                    RLCA                     ; MS_Sx segment specifier
-                    LD   C,A                 ; use a safe segment outside this bank to blow the bytes...
+                    CALL SafeBHLSegment      ; use a safe segment outside this bank to blow the bytes...
                     LD   IY,6                ; Initial File Entry is 6 bytes long...
-                    XOR  A                   ; flash chip type fetched dynamically...
+                    LD   A,FE_28F            ; use Intel flash chip type...
                     CALL FlashEprWriteBlock
 
                     POP  IY

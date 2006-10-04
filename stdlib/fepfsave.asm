@@ -260,9 +260,6 @@
                     CALL LoadBuffer               ; Load block of bytes from file into external buffer
                     RET  Z                        ; EOF reached...
 
-                    PUSH HL
-                    CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes...
-                    POP  HL                       ; (but don't touch the generic HL bank offset!)
                     PUSH IY
                     PUSH IX
                     POP  IY
@@ -301,9 +298,7 @@
                     PUSH BC                       ; DE = ptr. to File Entry
                     POP  IY                       ; length of File Entry in IY
                     POP  BC                       ; BHL = pointer to free space on Eprom
-                    PUSH HL
-                    CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes...
-                    POP  HL                       ; (but don't touch the generic HL bank offset!)
+                    CALL SafeBHLSegment           ; get a safe segment (not this executing segment!) to blow bytes...
                     XOR  A                        ; flash chip type to be detected dynamically...
                     CALL FlashEprWriteBlock       ; blow File Entry to Flash Eprom
                     POP  IY

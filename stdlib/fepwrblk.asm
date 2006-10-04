@@ -62,8 +62,8 @@ DEFC FE_WRI = $40           ; byte write command
 ; The identified FE_28F or FE_29F constant is returned to the caller in A
 ; for future reference (when the block was successfully programmed to the card).
 ;
-; Use segment specifier C (where BHL memory will be bound into the Z80
-; address space) to blow the block of bytes (MS_S0 - MS_S3), which has to be
+; Uses the segment mask of HL(where BHL memory will be bound into the Z80
+; address space to blow the block of bytes (MM_S0 - MM_S3), which has to be
 ; in a different segment than DE is referring.
 ;
 ; BHL points to an absolute bank (which is part of the slot that the Flash
@@ -84,10 +84,10 @@ DEFC FE_WRI = $40           ; byte write command
 ;
 ; In :
 ;         A = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
-;         DE = local pointer to start of block (located in available segment)
-;         C = MS_Sx segment specifier for BHL
+;         DE = local pointer to start of block (located in current address space)
 ;         BHL = extended address to start of destination (pointer into card)
 ;              (bits 7,6 of B is the slot mask)
+;              (bits 7,6 of H = MM_Sx segment mask for BHL)
 ;         IY = size of block (at DE) to blow
 ; Out:
 ;         Success:
@@ -101,12 +101,12 @@ DEFC FE_WRI = $40           ; byte write command
 ;              A = RC_UNK (chip type is unknown: use only FE_28F, FE_29F or 0)
 ;
 ; Registers changed on return:
-;    ...CDE../IXIY same
-;    AFB...HL/.... different
+;    ...CDE../IXIY ........ same
+;    AFB...HL/.... afbcdehl different
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005, Aug 2006
+;    Gunther Strube, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005, Aug-Oct 2006
 ;    Thierry Peycru, Zlab, Dec 1997
 ; --------------------------------------------------------------------------
 ;
@@ -117,17 +117,21 @@ DEFC FE_WRI = $40           ; byte write command
                     EX   AF,AF'                        ; preserve FE Programming type in A'
 
                     LD   A,B
+                    EXX
                     AND  @11000000
                     RLCA
-                    RLCA
-                    PUSH AF                            ; A = slot number of BHL
-                    EXX
-                    POP  BC                            ; remember Flash Memory slot (of BHL pointer) number in B'
+                    RLCA                               ; A = slot number of BHL
+                    LD   C,A                           ; remember Flash Memory slot (of BHL pointer) number in C'
                     EXX
 
+                    LD   A,H
+                    RLCA
+                    RLCA
+                    AND  @00000011
+                    LD   C,A                           ; C = MS_Sx
                     LD   A,B
                     CALL MemDefBank                    ; Bind slot x bank into segment C
-                    PUSH BC                            ; preserve old bank segment C binding
+                    PUSH BC                            ; preserve old bank binding of segment C
                     LD   B,A                           ; but use current bank as reference...
 
                     CALL FEP_WriteBlock
@@ -136,8 +140,6 @@ DEFC FE_WRI = $40           ; byte write command
                     POP  BC
                     CALL MemDefBank                    ; restore old segment C bank binding
                     LD   B,D
-                    RES  7,H
-                    RES  6,H                           ; return pure bank offset (0000h - 3fffh) only
 
                     POP  DE
                     LD   C,E                           ; original C register restored...
@@ -148,15 +150,15 @@ DEFC FE_WRI = $40           ; byte write command
 
 ; ***************************************************************
 ;
-; Write Block to BHL (to be bound into segment C), in slot x, of IY length.
+; Write Block to BHL already bound, in slot x, of IY length.
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
 ;         A' = FE_28F, FE_29F or 0
-;         DE = local pointer to start of block (located in available segment)
-;         C = MS_Sx segment specifier
+;         C' = slot number of BHL pointer
+;         C  = MS_Sx segment specifier
+;         DE = local pointer to start of block (available in current address space)
 ;         BHL = extended address to start of destination (pointer into card)
-;         B' = slot number of BHL pointer
 ;         IY = size of block to blow
 ; Out:
 ;    Fc = 0, block blown successfully to the Flash Card
@@ -173,20 +175,7 @@ DEFC FE_WRI = $40           ; byte write command
 ;    AFBCDEHL/.... different
 ;
 .FEP_WriteBlock
-                    LD   A,C
-                    PUSH AF
-                    RRCA
-                    RRCA                               ; MS_Sx -> MM_Sx
-                    RES  7,H
-                    RES  6,H
-                    OR   H
-                    LD   H,A                           ; (B)HL Bank Offset will be working in segment C
-                    EXX
-                    LD   A,B
-                    EXX
-                    LD   C,A                           ; Flash chip type to be determined in slot C
-                    POP  AF
-                    EX   AF,AF'                        ; FE Programming type in A, A' = MS_Sx segment specifier
+                    EX   AF,AF'                        ; FE Programming type in A
                     CP   FE_28F
                     JR   Z, check_slot3                ; make sure that pre-selected INTEL flash is located in slot 3
                     CP   FE_29F
@@ -198,9 +187,13 @@ DEFC FE_WRI = $40           ; byte write command
                     RET
 .poll_chip_programming
                     PUSH BC
-                    PUSH HL                            ; preserve BHL (pointer to free space)
-                    CALL FlashEprCardId
+                    PUSH DE
+                    PUSH HL
+                    EXX
+                    CALL FlashEprCardId                ; Flash in slot C?
+                    EXX
                     POP  HL
+                    POP  DE
                     POP  BC
                     RET  C                             ; Fc = 1, A = RC error code (Flash Memory not found)
 
@@ -209,17 +202,19 @@ DEFC FE_WRI = $40           ; byte write command
 .check_slot3
                     PUSH AF                            ; remember FE_28F chip type
                     LD   A,3
+                    EXX
                     CP   C                             ; when chip is FE_28F series, we need to be in slot 3
                     JR   Z,write_28F_block             ; to make a successful "write" of the byte...
+                    EXX
                     POP  AF
                     SCF
                     LD   A, RC_BWR                     ; Ups, not in slot 3, signal error!
                     RET
 .write_28F_block
                     CALL DisableBlinkInt               ; no interrupts get out of Blink (while blowing to flash chip)...
-                    LD   A,C
                     CALL MemGetCurrentSlot             ; get specified slot number in C for this executing library routine
                     CP   C
+                    EXX
                     JR   Z, FEP_ExecWriteBlock_28F_RAM ; block to be programmed in same slot as this library
                     CALL FEP_ExecWriteBlock_28F
                     JR   exit_blowblock
@@ -241,9 +236,11 @@ DEFC FE_WRI = $40           ; byte write command
 .write_29F_block
                     CALL DisableBlinkInt               ; no interrupts get out of Blink (while blowing to flash chip)...
                     PUSH AF                            ; remember FE_29F chip type
+                    EXX
                     LD   A,C
                     CALL MemGetCurrentSlot             ; get specified slot number in C for this executing library routine
                     CP   C
+                    EXX
                     JR   Z, FEP_ExecWriteBlock_29F_RAM ; block to be programmed in same slot as this executing library
                     CALL FEP_ExecWriteBlock_29F
                     JR   exit_blowblock
@@ -260,10 +257,13 @@ DEFC FE_WRI = $40           ; byte write command
 ; Program block of data on an INTEL I28Fxxxx Flash Memory.
 ; (this routine is copied on the stack and executed there)
 ;
+; IN:
+;       BHL = pointer to blow data
+;       C = MS_Sx segment specifier
+;       DE = pointer to source data
+;       IY = size of data
+;
 .FEP_ExecWriteBlock_28F
-                    EX   AF,AF'
-                    LD   C,A                 ; C = MS_Sx segment specifier
-
                     EXX
                     LD   BC,BLSC_COM         ; Address of soft copy of COM register
                     LD   A,(BC)
@@ -282,10 +282,9 @@ DEFC FE_WRI = $40           ; byte write command
                     DEC  HL
                     EXX
                     JR   Z, exit_write_block ; block written successfully (Fc = 0)
-
-                    LD   A,(DE)
                     PUSH BC
 
+                    LD   A,(DE)
                     LD   B,A                 ; preserve to blown in B...
                     LD   (HL),FE_WRI
                     LD   (HL),A              ; blow the byte...
@@ -339,9 +338,9 @@ DEFC FE_WRI = $40           ; byte write command
                     OR   $D0
                     LD   H,$04
                     LD   L,A                 ; BC points at soft copy of cur. binding in segment C
-                    LD   (HL),B              ; A contains "old" bank number
-                    LD   C,L
-                    OUT  (C),B               ; bind...
+                    LD   C,A
+                    LD   (HL),B              ; update soft copy
+                    OUT  (C),B               ; bind new bank...
                     POP  HL
                     POP  BC
                     JR   WriteBlockLoop
@@ -359,12 +358,16 @@ DEFC FE_WRI = $40           ; byte write command
 
 
 ; ***************************************************************
-; Program block of data on an AMD AM29Fxxxx Flash Memory
-; (this routine is copied on the stack and executed there)
+; Program block of data on an AMD/STM Flash Memory
+; (this routine is optionally copied on the stack and executed there)
+;
+; IN:
+;       BHL = pointer to blow data
+;       C = MS_Sx segment specifier
+;       DE = pointer to source data
+;       IY = size of data
 ;
 .FEP_ExecWriteBlock_29F
-                    EX   AF,AF'
-                    LD   C,A                 ; C = MS_Sx segment specifier
                     EXX
                     PUSH IY
                     POP  BC                  ; install block size.
@@ -377,6 +380,9 @@ DEFC FE_WRI = $40           ; byte write command
                     EXX
                     RET  Z                   ; block written successfully (Fc = 0)
                     PUSH BC                  ; preserve bank and MS_Sx while programming byte to card
+
+                    LD   A,(DE)              ; get byte to blow from source block
+                    LD   B,A                 ; preserve a copy of byte for later verification
 
                     LD   A,H
                     AND  @11000000
@@ -396,8 +402,6 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   (HL),$A0            ; A0 -> (XX555), Byte Program Mode
                     POP  BC
                     EXX
-                    LD   A,(DE)
-                    LD   B,A                 ; preserve a copy of byte for later verification
                     LD   (HL),B              ; program byte to Flash Memory Address
 .toggle_wait_loop
                     LD   A,(HL)              ; get first DQ6 programming status
@@ -452,9 +456,9 @@ DEFC FE_WRI = $40           ; byte write command
                     OR   $D0
                     LD   H,$04
                     LD   L,A                 ; BC points at soft copy of cur. binding in segment C
-                    LD   (HL),B              ; A contains "old" bank number
-                    LD   C,L
-                    OUT  (C),B               ; bind...
+                    LD   C,A
+                    LD   (HL),B              ; first update soft copy..
+                    OUT  (C),B               ; bind new bank...
                     POP  HL
                     POP  BC
                     JR   WriteBlockLoop_29F
