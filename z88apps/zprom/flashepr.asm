@@ -92,7 +92,6 @@
 
                     LD   A,(EprBank)                   ; get current EPROM bank to be blown...
                     LD   B,A                           ; into
-                    LD   C, MS_S2                      ; segment 2
                     PUSH IY
                     PUSH BC
                     CALL Get_AbsRange                  ; get start ranges in HL, DE, length in BC
@@ -100,6 +99,9 @@
                     POP  IY                            ; IY = size of block
                     POP  BC                            ; B = Bank of Eprom
                     EX   DE,HL                         ; DE = Source pointer, HL = dest. pointer
+                    SET  7,H
+                    RES  6,H                           ; use segment 2 to blow data...
+                    XOR  A                             ; use blow algorithm according to flash chip hardware.
                     CALL FlashEprWriteBlock            ; blow to Flash Eprom
                     POP  IY
 
