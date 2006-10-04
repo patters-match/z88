@@ -432,12 +432,11 @@ endif
                     POP  BC
 
                     LD   E, 32               ; blow 32 * 512 = 16K...
-                    LD   HL, 0               ; start of bank (of B)
+                    LD   HL, $8000           ; start of bank (of B) in segment 2
 .prog_bank_loop
                     PUSH DE
                     PUSH BC
 
-                    LD   C, MS_S2            ; blow the 1024 bytes block in segment 2
                     PUSH IX
                     POP  DE                  ; blow source block to Flash Card Bank
                     LD   IY, 512
