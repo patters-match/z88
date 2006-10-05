@@ -28,7 +28,7 @@ Module SaveFiles
      xdef CountFileSaved
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
-     lib FlashEprFileSave          ; Save RAM file to Flash Eprom
+     lib FlashEprSaveRamFile       ; Save RAM file to Flash Eprom
      lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
@@ -318,7 +318,7 @@ Module SaveFiles
                     ld   bc, BufferSize
                     ld   de, buffer                    ; use 1K RAM buffer to blow file hdr + image
                     ld   hl,buf2                       ; the partial expanded RAM filename at buf2 (< 255 char length)...
-                    call FlashEprFileSave
+                    call FlashEprSaveRamFile
                     jr   c, filesave_err               ; write error or no room for file...
 
                     CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...

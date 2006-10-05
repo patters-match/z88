@@ -1,4 +1,4 @@
-     XLIB FlashEprFileSave
+     XLIB FlashEprSaveRamFile
 
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
@@ -47,7 +47,7 @@
 ;
 ; Standard Z88 File Eprom Format (using Flash Eprom Card).
 ;
-; Save single file to Flash Eprom file area in slot A.
+; Save single RAM file to Flash Eprom file area in slot A.
 ;
 ; The routine does NOT handle automatical "deletion" of existing files
 ; that matches the filename (excl. device). This must be used by a call
@@ -112,7 +112,7 @@
 ; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sep 2004, Aug 2006
 ; -------------------------------------------------------------------------
 ;
-.FlashEprFileSave
+.FlashEprSaveRamFile
                     PUSH IX                       ; preserve IX
                     PUSH DE
                     PUSH BC                       ; preserve CDE
