@@ -92,7 +92,7 @@
 ;
 ;         Fc = 1,
 ;              File (Flash) Eprom not available in slot A:
-;                   A = RC_Onf (Object not found)
+;                   A = RC_NFE (not a recognized Flash Memory Chip)
 ;              Not sufficient space to store file (and File Entry Header):
 ;                   A = RC_Room
 ;              Flash Eprom Write Errors:
