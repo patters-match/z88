@@ -17,11 +17,10 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprRequest, FileEprFileImage, FileEprFileSize
+     LIB FileEprRequest, FileEprFileImage, FileEprFileSize, FileEprTransferBlockSize
      LIB SafeBHLSegment, MemDefBank
 
      INCLUDE "fileio.def"
-     INCLUDE "integer.def"
      INCLUDE "error.def"
 
 
@@ -55,7 +54,8 @@
 ;    AF....../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004
+; Design & programming:
+;       Gunther Strube, Dec 1997-Aug 1998, Sep 2004, Oct 2006
 ; ------------------------------------------------------------------------
 ;
 .FileEprFetchFile   PUSH BC
@@ -85,7 +85,7 @@
                     EXX
                     JR   Z, exit_fetch            ; Yes, completed Eprom Image transfer to RAM file!
 
-.get_block          CALL GetBlockSize             ; get size of block to transfer in HL'
+.get_block          CALL FileEprTransferBlockSize ; get size of block to transfer in HL'
                     CALL TransferFileBlock        ; then transfer block at BHL to RAM file...
                     JR   C,exit_fetch             ; File I/O error occurred, abort...
                     JR   write_loop
@@ -101,83 +101,11 @@
 
 ; ************************************************************************
 ;
-; Define a block size to transfer to RAM file, which is from the current
-; bank offset and to the 16K bank boundary.
-;
-; IN:
-;    HL = offset pointer in bank
-;
-; OUT:
-;    hl = size of block in File Eprom to transfer to RAM file
-;
-; Registers changed after return:
-;    ..BC..HL/IXIY same
-;    AF..DE../.... different
-;
-;
-.GetBlockSize       PUSH BC
-                    PUSH HL                       ; preserve BHL pointer...
-
-                    EX   DE,HL
-                    LD   HL,$4000                 ; 16K bank boundary...
-                    CP   A                        ; Fc = 0
-                    SBC  HL,DE                    ; HL = <BankSpace>
-
-                    EXX
-                    PUSH DE
-                    PUSH BC                       ; get a copy of current file size (CDE)
-                    PUSH DE
-                    PUSH BC                       ; and preserve a copy...
-                    EXX
-                    POP  BC
-                    POP  DE                       ; divisor in CDE (current size of file)
-                    LD   B,0                      ; dividend in BHL (remaining bytes of bank)
-                    CALL_OZ(Gn_D24)               ; <blocksize> = <FileSize> MOD <BankSpace>
-                    EXX
-                    POP  BC
-                    POP  DE                       ; (restore current file size)
-                    EXX
-
-                    LD   A,D
-                    OR   E                        ; <blocksize> = 0 ?
-                    CALL NZ, fsize_larger         ; no, FileSize > BankSpace
-                    CALL Z, fsize_smaller         ; Yes, FileSize <= BankSpace
-
-                    POP  HL
-                    POP  BC
-                    RET
-
-.fsize_smaller      EXX                           ; remaining file image to be copied is
-                    EX   DE,HL                    ; smaller than <BankSpace>, therefore
-                    LD   DE,0                     ; the last image block is resident in the
-                    EXX                           ; current bank...
-                    RET                           ; HL' = FileSize (max. 16K)
-
-.fsize_larger       PUSH AF                       ; size of remaining file image crosses current
-                    PUSH DE                       ; bank boundary...
-                    EXX                           ; define block size only of <BankSpace> size.
-                    POP  HL
-                    PUSH HL
-                    EX   DE,HL
-                    SBC  HL,DE
-                    LD   D,H
-                    LD   E,L
-                    LD   A,C
-                    SBC  A,0
-                    LD   C,A                      ; FileSize = FileSize - BankSpace
-                    POP  HL                       ; HL' = BankSpace ...
-                    EXX
-                    POP  AF
-                    RET
-
-
-; ************************************************************************
-;
 ; Transfer File Block, at (BHL), size hl to file (IX)
 ;
 ; IN:
 ;    BHL = pointer to file block
-;    hl = size of block to transfer
+;    hl' = size of block to transfer
 ;
 ; OUT:
 ;    Fc = ?, file I/O status

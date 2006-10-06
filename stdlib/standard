@@ -98,10 +98,12 @@ feprdcfla
 fepcdera
 fepwrbyt
 fepwrblk
+fepcpyblk
 fepcrdid
 fepcrddata
 fepstdhd
 fepfsave
+fepfcopy
 fepfdel
 fepflfmt
 eprptadr
@@ -127,6 +129,7 @@ eprfresp
 eprdelsp
 eprcntfl
 eprfetch
+eprtrblksz
 eprrdbyt
 eprreqst
 rand
