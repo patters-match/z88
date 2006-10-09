@@ -63,11 +63,21 @@
                     POP  DE                       ; (restore current file size)
                     EXX
 
+                    LD   A,H
+                    OR   L
+                    JR   Z, last_block
+                    EXX
+                    PUSH DE
+                    EXX
+                    POP  DE
+                    CALL fsize_larger             ; copy remaining bank space from file inside current bank
+                    JR   exit_TransferBlockSize
+.last_block
                     LD   A,D
                     OR   E                        ; <blocksize> = 0 ?
                     CALL NZ, fsize_larger         ; no, FileSize > BankSpace
                     CALL Z, fsize_smaller         ; Yes, FileSize <= BankSpace
-
+.exit_TransferBlockSize
                     POP  HL
                     POP  DE
                     POP  BC
