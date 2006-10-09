@@ -47,6 +47,7 @@ DEFC FE_WRI = $40           ; byte write command
 ; automatically continued on the next adjacent bank of the card.
 ; On return, BHL points at the byte after the last written byte.
 ;
+; -------------------------------------------------------------------------
 ; The routine is used by the File Eprom Management libraries, but is well
 ; suited for other application purposes.
 ; -------------------------------------------------------------------------
