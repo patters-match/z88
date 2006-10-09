@@ -73,7 +73,7 @@
 ;         Success:
 ;              Fc = 0
 ;              A = FE_28F or FE_29F (if A(in)=0, depending on found card)
-;              CDE updated (segment mask stripped from DE offset)
+;              BHL, CDE updated to reflect block copy (segment masks stripped from HL, DE offset)
 ;         Failure:
 ;              Fc = 1
 ;              A = RC_BWR (block not blown properly)
@@ -81,8 +81,8 @@
 ;              A = RC_UNK (chip type is unknown: use only FE_28F, FE_29F or 0)
 ;
 ; Registers changed on return:
-;    ..B...HL/IXIY ........ same
-;    AF.CDE../.... afbcdehl different
+;    ......../IXIY ........ same
+;    AFBCDEHL/.... afbcdehl different
 ;
 ; ---------------------------------------------------------------------------------------------
 ; Design & programming by
@@ -90,7 +90,7 @@
 ; ---------------------------------------------------------------------------------------------
 ;
 .FlashEprCopyBlock
-                    push hl
+                    push iy
                     push bc
 
                     ex   af,af'                        ; preserve FE Programming type in A'
@@ -119,22 +119,36 @@
                     call MemDefBank                    ; Bind bank of source data into segment C
                     push bc                            ; preserve old bank binding of segment C
                     exx
-
+                    
                     ex   de,hl
                     ld   b,c                           ; BHL <- CDE
                     ex   af,af'                        ; FE Programming type
                     call FlashEprWriteBlock            ; DE now source block in current address space, BHL destination pointer
-                    ex   de,hl
-                    ld   c,b                           ; return updated CDE pointer to caller
-                    res  7,d
-                    res  6,d                           ; return destination pointer with pure bank offset (0000h - 3fffh)
+                    ex   af,af'                        ; preserve error status ...
 
                     exx
                     pop  bc
                     call MemDefBank                    ; restore old segment C bank binding of BHL source data block
                     exx
 
-                    pop  hl
-                    ld   b,h                           ; restored original B
-                    pop  hl                            ; restored original HL
+                    res  7,d
+                    res  6,d                           
+                    add  iy,de                         ; block size + offset = updated block pointer (installed in HL below)
+                    push iy                            
+                    
+                    ex   de,hl
+                    ld   c,b                           
+                    res  7,d
+                    res  6,d                           ; return updated CDE destination pointer to caller
+
+                    pop  hl                            ; HL = updated byte beyond source block offset
+                    pop  af                            
+                    ld   b,a                           ; original B restored
+                    bit  6,h                           ; source pointer crossed bank boundary?
+                    jr   z,exit_FlashEprCopyBlock      ; nope (withing 16k offset)
+                    inc  b
+                    res  6,h                           ; source block copy reached boundary of bank...
+.exit_FlashEprCopyBlock                    
+                    pop  iy                            ; restored original IY
+                    ex   af,af'
                     ret                                ; return A = FE Programming type, or error condition in AF
