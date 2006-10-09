@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -52,12 +52,12 @@
 .FileEprAllocFilePtr
                     PUSH BC
                     PUSH DE
-                    
+
                     LD   E,C                           ; preserve slot number
                     CALL FileEprRequest                ; check for presence of "oz" File Eprom in slot
                     JR   C,err_FileEprAllocFilePtr
                     JR   NZ,err_FileEprAllocFilePtr    ; File Eprom not available in slot...
-                    
+
                     LD   A,E
                     AND  @00000011                     ; slots (0), 1, 2 or 3 possible
                     RRCA
@@ -70,6 +70,7 @@
 .scan_eprom
                     CALL FileEprFileEntryInfo          ; scan all file entries, to point at first free byte
                     JR   NC, scan_eprom
+                    CP   A                             ; reached pointer to new file entry, don't return Fc = 1
                     JR   exit_FileEprAllocFilePtr
 .err_FileEprAllocFilePtr
                     SCF
