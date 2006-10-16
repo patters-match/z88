@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2005
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -26,6 +26,8 @@ Module SaveFiles
      xdef CompressRamFileName
      xdef DispFilesSaved
      xdef CountFileSaved
+     xdef FindFile
+     xdef DeleteOldFile
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FlashEprSaveRamFile       ; Save RAM file to Flash Eprom
@@ -45,6 +47,7 @@ Module SaveFiles
      xref SelectRamDevice          ; defaultram.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref selctram_msg             ; defaultram.asm
+     xref selectdev_msg            ; defaultram.asm
      xref DispMainWindow, ResSpace ; fsapp.asm
      xref cls, wbar, sopnln        ; fsapp.asm
      xref VduEnableCentreJustify   ; fsapp.asm
@@ -89,7 +92,9 @@ Module SaveFiles
                     LD   HL, selctram_msg
                     CALL_OZ(GN_Sop)
 
-                    LD   BC,$0301
+                    ld   hl, selectdev_msg
+                    call sopnln
+
                     CALL SelectRamDevice          ; user selected RAM device at (buf1)
                     RET  C                        ; user aborted with ESC
 
@@ -292,8 +297,11 @@ Module SaveFiles
                     RET  C                             ; couldn't open file (in use / not found?)...
                     call_oz GN_Cl                      ; close file again (we got the expanded filename)
 
+                    PUSH BC
+                    CALL GetCurrentSlot                ; C = (curslot)
                     LD   DE,buf3+6                     ; point at filename (excl. device name), null-terminated
                     CALL FindFile                      ; find a matching File Entry, and remember it to be deleted later...
+                    POP  BC
 
                     push af                            ; preserve search status...
                     ld   hl,buf3                       ; C = size of explicit filename in (buf3) returned from GN_Opf
@@ -407,6 +415,7 @@ Module SaveFiles
 ; and preserve pointer in (flentry).
 ;
 ; IN:
+;          C = slot number of file area to scan
 ;         DE = pointer to search string (filename)
 ; OUT:
 ;         Fc = 1, No File Card
@@ -423,7 +432,6 @@ Module SaveFiles
                     LD   (flentry),HL
                     LD   (flentry+2),A                 ; preset found File Entry to <None>...
 
-                    CALL GetCurrentSlot                ; C = (curslot)
                     CALL FileEprFindFile               ; search for filename on File Eprom...
                     JR   C, exit_FindFile              ; File Eprom or File Entry was not available
                     JR   NZ, exit_FindFile             ; File Entry was not found...
@@ -447,14 +455,20 @@ Module SaveFiles
 ;         BHL = (flentry)
 ;
 .DeleteOldFile
+                    PUSH BC
+                    PUSH HL
+
                     LD   A,(flentry+2)
                     LD   B,A
                     LD   HL,(flentry)
                     OR   H
                     OR   L                        ; Valid pointer to File Entry?
-                    RET  Z                        ; no, no file entry to be marked as deleted
+                    JR   Z, exit_DeleteOldFile    ; no, no file entry to be marked as deleted
 
                     CALL FlashEprFileDelete       ; Mark old File Entry as deleted
+.exit_DeleteOldFile
+                    POP  HL
+                    POP  BC
                     RET
 ; *************************************************************************************
 

@@ -1,0 +1,341 @@
+; *************************************************************************************
+; FlashStore
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
+;
+; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; FlashStore is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+Module CopyFiles
+
+; This module contains the command to copy files directly between File Cards
+
+     xdef CopyFileAreaCommand
+
+     lib FileEprFirstFile          ; Get first file entry in file area in slot C
+     lib FileEprNextFile           ; Get next file entry, based on current entry in BHL
+     lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
+     lib FlashEprCopyFileEntry     ; copy BHL file entry to slot C
+     lib FileEprRequest            ; check file area status in slot C
+
+     xref FilesAvailable           ; browse.asm
+     xref CompressedFileEntryName  ; browse.asm
+     xref DispFilesSaved           ; savefiles.asm
+     xref CountFileSaved           ; savefiles.asm
+     xref DeleteOldFile            ; savefiles.asm
+     xref FindFile                 ; savefiles.asm
+     xref disp_no_filearea_msg     ; errmsg.asm
+     xref no_files, DispErrMsg     ; errmsg.asm
+     xref DispErrMsgNoWait         ; errmsg.asm
+     xref DispMainWindow           ; fsapp.asm
+     xref YesNo, no_msg, yes_msg   ; fsapp.asm
+     xref ResSpace, failed_msg     ; fsapp.asm
+     xref GetCurrentSlot, rdch     ; fsapp.asm
+     xref sopnln                   ; fsapp.asm
+     xref PromptOverWrite          ; restorefiles.asm
+     xref VduCursor                ; selectcard.asm
+     xref PollSlots                ; selectcard.asm
+     xref SelectDefaultSlot        ; selectcard.asm
+     xref selectdev_msg            ; defaultram.asm
+     xref disp_exis_msg
+
+     ; system definitions
+     include "stdio.def"
+     include "error.def"
+     include "syspar.def"
+
+     ; FlashStore popdown variables
+     include "fsapp.def"
+
+
+; *************************************************************************************
+;
+; Copy ALL active files from current file card to another user defined file card.
+;
+.CopyFileAreaCommand
+                    ld   hl,copy_banner
+                    call DispMainWindow
+
+                    ld   hl,0
+                    ld   (savedfiles),hl          ; reset counter to No files saved...
+
+                    call FilesAvailable
+                    jp   c, disp_no_filearea_msg  ; no file area avaible in current slot
+                    jr   nz, prompt_ovwrmode
+
+.no_active_files    ld   hl, no_copy_files        ; Fz = 1, no files available...
+                    jp   DispErrMsg
+.disp_faovwrite
+                    ld   hl, disp_faovwrite_msg
+                    call_oz GN_Sop
+                    ret
+.prompt_ovwrmode
+                    call PollSlots
+                    cp   1
+                    jp   z, single_filearea       ; copying has no meaning for only one file area...
+
+                    ld   hl, selctfcard_msg
+                    call_oz GN_Sop                ; "Select slot number of valid File Card"
+
+                    ld   hl, selectdev_msg
+                    call sopnln
+
+                    call SelectFileCard
+                    ret  c                        ; user aborted or error occurred
+
+                    ld   hl, disp_faovwrite
+                    ld   de, no_msg               ; default 'No' to overwrite file
+                    call PromptOverwrite          ; prompt for existing files in destination file area to be overwritten
+                    cp   IN_ESC
+                    ret  z                        ; user aborted with ESC
+                    call_oz GN_nln
+                    call_oz GN_nln
+
+                    call GetCurrentSlot           ; C = (curslot)
+                    call FileEprFirstFile         ; get BHL pointer to first file on Eprom
+.copy_loop
+                    jr   c, copy_completed        ; all file entries copied...
+                    jr   z, fetch_next            ; File Entry marked as deleted, get next...
+
+                    ld   de,buf3
+                    call FileEprFilename          ; copy filename from current file entry at (DE)
+
+                    push bc
+                    push hl                       ; preserve file entry pointer temporarily...
+
+                    ld   de, buf2
+                    call CompressedFileEntryName  ; get a displayable file entry filename at (buf2)
+                    ex   de,hl
+                    call_oz gn_sop                ; display file entry filename (optionally compressed, if too long)...
+
+                    ld   bc,2
+                    call_oz OS_Tin
+                    cp   RC_ESC                   ; has user tried to abort file copy to file card?
+                    jr   nz, continue_copy
+
+                    pop  hl
+                    pop  bc
+                    jr   copy_completed           ; ESC pressed - abort restore...
+.continue_copy
+                    ld   a,(dstslot)
+                    ld   c,a
+                    ld   de,buf3
+                    call FindFile
+                    jr   nz, copy_file            ; file does not exist on destination
+
+                    bit  overwrfiles,(IY+0)
+                    jr   nz, copy_file            ; default - overwrite files...
+                    ld   hl, buf2
+                    push de                       ; preserve pointer to file area filename
+                    ld   de, disp_exis_msg
+                    call PromptOverWrFileEntry    ; Does File entry exist at destination slot?...
+                    pop  de
+                    jr   c, check_copy_abort      ; does not exist...
+                    jr   z, display_copy          ; file exists, user acknowledged Yes...
+                    jr   copy_ignored             ; file exists, user acknowledged No...
+.check_copy_abort
+                    cp   RC_ESC
+                    jr   nz, copy_file            ; file doesn't exist (or in use)
+                         pop  hl
+                         pop  bc
+                         cp   a                   ; copy command aborted with ESC.
+                         ret
+.copy_ignored
+                    call_oz Gn_Nln
+                    pop  hl
+                    pop  bc
+                    jr   fetch_next               ; user acknowledged No, get next file..
+.display_copy
+                    ld   hl, copying_msg
+                    call_oz Gn_Sop
+.copy_file
+                    pop  hl
+                    pop  bc                       ; restore pointer to current File Entry
+
+                    ld   a,(dstslot)
+                    ld   c,a                      ; copy to slot X
+                    call FlashEprCopyFileEntry    ; copy file at BHL to slot C
+                    jr   c, filecreerr            ; not possible to copy, exit copy file area...
+                    call DeleteOldFile            ; mark old file entry at destination as deleted, if new copy was made...
+
+                    call CountFileSaved
+                    call_oz GN_Nln
+.fetch_next                                       ; BHL = current File Entry
+                    call FileEprNextFile          ; get pointer to next File Entry...
+                    jr   nc, copy_loop
+.copy_completed
+                    jp   DispFilesSaved
+.filecreerr
+                    call_oz Gn_Err                ; report fatal error and exit to main menu...
+                    ld   hl, failed_msg
+                    jp   DispErrMsg
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Prompt user to overwrite File entry defined if it exist, (flentry) <> 0.
+;
+; IN:
+;    HL = (local) ptr to filename (null-terminated)
+;    DE = pointer to prompt file overwrite message routine
+;
+; OUT:
+;    Fc = 0, file exists
+;         Fz = 1, Yes, user acknowledged overwrite file
+;         Fz = 0, No - acknowledged preserve file
+;
+;    Fc = 1,
+;         file doesn't exists or
+;         or user aborted with ESC (during Yes/No) prompt.
+;
+; Registers changed after return:
+;    ..BC..HL/IXIY same
+;    AF..DE../.. different
+;
+.PromptOverWrFileEntry
+                    push bc
+                    push hl
+                    push de
+
+                    ld   a,(flentry+2)
+                    ld   b,a
+                    ld   hl,(flentry)
+                    or   h
+                    or   l                        ; Valid pointer to File Entry?
+                    jr   z, exit_overwrflentry    ; no file entry exists to overwritten
+
+                    call_oz GN_nln
+                    pop  hl                       ; pointer to prompt display routine
+                    ld   de, yes_msg
+                    call yesno                    ; file exists, prompt "Overwrite file?"
+                    jr   z,exit_overwrflentry
+.check_ESC
+                    cp   IN_ESC
+                    jr   z, abort_file
+                         or   a
+                         jr   exit_overwrflentry
+.abort_file
+                    ld   a,RC_ESC
+                    or   a                        ; Fz = 0, Fc = 1
+                    scf
+.exit_overwrflentry
+                    pop  hl
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; User selects File Card by using keys 0-3 or using <>J to toggle between available
+; file cards. Current slot is automatically discarded during selection...
+;
+; IN:
+;         -
+; OUT:
+;    Fc = 0,
+;         Slot Number (0 - 3) of selected File Card, stored in (dstslot).
+;    Fc = 1,
+;         User aborted or error occurred
+;
+.SelectFileCard
+                    call GetCurrentSlot
+                    call SelectDefaultSlot        ; select a default destination slot (not current slot!)
+                    jr   c, single_filearea
+                    ld   (dstslot),a
+
+                    ld   hl,slot_txt
+                    call_oz GN_Sop
+                    xor  a
+                    ld   bc, NQ_WCUR
+                    call_oz OS_Nq                 ; get current VDU cursor for current window
+.inp_dev_loop
+                    call VduCursor                ; put VDU cursor at (X,Y) = (C,B)
+                    ld   a,(dstslot)
+                    or   48
+                    call_oz OS_Out                ; display the pre-selected destination file card.
+                    ld   a,8
+                    call_oz OS_Out                ; put blinking cursor over slot number of device
+
+                    call rdch                     ; get another device slot number from user
+                    cp   IN_ESC
+                    jr   z, dev_aborted           ; user aborted selection
+                    cp   IN_ENT
+                    ret  z                        ; user has selected a file card.
+                    cp   LF
+                    jr   z, toggle_device         ; <>J
+                    cp   48
+                    jr   c,inp_dev_loop
+                    cp   52
+                    jr   nc,inp_dev_loop          ; only "0" to "3" allowed
+
+                    sub  48
+                    call CheckCurSlot
+                    jr   z, inp_dev_loop          ; destination and source slot cannot be the same...
+                    call CheckFileCard
+                    jr   nz, inp_dev_loop         ; there's no File Area in selected slot, find a valid device
+                    ld   a,e
+                    ld   (dstslot),a
+                    jr   inp_dev_loop             ; and let it be displayed.
+.CheckCurSlot
+                    ld   e,a                      ; preserve slot number
+                    ld   a,(curslot)
+                    cp   e
+                    ld   a,e
+                    ret
+.toggle_device
+                    ld   a,(dstslot)
+.toggle_device_loop
+                    inc  a
+                    cp   4
+                    jr   z, wrap_slot0            ; only scan slots 0 - 3
+                    call CheckCurSlot
+                    jr   z, toggle_device_loop
+                    call CheckFileCard            ; File Card in slot A?
+                    ld   a,e
+                    ld   (dstslot),a
+                    jr   z, inp_dev_loop          ; Yes, toggled to a new slot ...
+                    jr   toggle_device_loop       ; No, didn't find a file area...
+.wrap_slot0
+                    ld   a,-1
+                    jr   toggle_device_loop
+.dev_aborted
+                    scf                           ; indicate abort command
+                    ret
+.CheckFileCard
+                    push bc                       ; preserve VDU X,Y cursor...
+                    ld   c,a
+                    call FileEprRequest           ; check if there's a File Card in selected slot
+                    pop  bc
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+.single_filearea
+                    ld   hl, singlefilearea_msg
+                    call DispErrMsgNoWait
+                    jp   ResSpace                 ; "Press SPACE to resume" ...
+; *************************************************************************************
+
+
+; *************************************************************************************
+; constants
+
+.copy_banner        defm "COPY ALL FILES TO ANOTHER FILE CARD", 0
+.disp_faovwrite_msg defm 13, 10, " Overwrite files in destination File Card?",13, 10, 0
+.selctfcard_msg     defm 13, 10, " Select slot number of valid File Card.", 13, 10, 0
+.copying_msg        defm "Copying...", 13, 10, 0
+.no_copy_files      defm "No files available in File Area to copy.", 0
+.singlefilearea_msg defm "Only current file card is available.", 0
+.slot_txt           defm " Slot ", 0

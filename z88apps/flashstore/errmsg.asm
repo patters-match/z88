@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2005
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -24,7 +24,7 @@ Module ErrorMessages
      XDEF ReportStdError, DispSlotErrorMsg, DispErrMsg
      XDEF NoAppFileAreaMsg, disp_empty_flcard_msg
      XDEF disp_no_filearea_msg, DispIntelSlotErr
-     XDEF no_files
+     XDEF DispErrMsgNoWait, no_files
 
      XREF DispCmdWindow                 ; fsapp.asm
      XREF VduEnableCentreJustify        ; fsapp.asm
@@ -102,7 +102,6 @@ Module ErrorMessages
 ; *************************************************************************************
 
 
-
 ; *************************************************************************************
 .disp_no_filearea_msg
                     PUSH HL
@@ -152,9 +151,10 @@ Module ErrorMessages
                     ret
 ; *************************************************************************************
 
+
 ; *************************************************************************************
 ;
-; Write Error message, and wait for SPACE key to be pressed.
+; Write Error message centre justified.
 ;
 ; Registers changed after return:
 ;    AFBCDEHL/IXIY same

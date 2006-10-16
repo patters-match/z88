@@ -252,9 +252,7 @@ Module BrowseFiles
                     Call VduCursor
                     pop  hl
                     pop  bc
-
-                    call DisplayFile
-                    ret
+                    jp   DisplayFile
 ; *************************************************************************************
 
 
@@ -500,9 +498,9 @@ Module BrowseFiles
                     ld   a,0
                     ld   h,a
                     ld   l,a
-                    ld  (watermark),hl
-                    ld  (watermark+2),hl
-                    ld  (watermark+4),a
+                    ld   (watermark),hl
+                    ld   (watermark+2),hl
+                    ld   (watermark+4),a
                     ret
 ; *************************************************************************************
 

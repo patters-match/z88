@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2005
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -19,11 +19,12 @@
 Module DefaultRamDevice
 
      XDEF DefaultRamCommand, SelectRamDevice, GetDefaultRamDevice, GetDefaultPanelRamDev
-     XDEF selctram_msg
+     XDEF selctram_msg, selectdev_msg
 
      lib RamDevFreeSpace                     ; Get free space on RAM device.
 
      XREF cls, rdch, pwait, DispMainWindow   ; fsapp.asm
+     XREF sopnln                             ; fsapp.asm
      XREF VduCursor                          ; selectcard.asm
 
      ; system definitions
@@ -39,15 +40,17 @@ Module DefaultRamDevice
 ; Select Default RAM Device.
 ;
 .DefaultRamCommand
-                    LD   HL,defram_banner
+                    ld   hl,defram_banner
                     call DispMainWindow
 
-                    LD   HL, selctram_msg
-                    CALL_OZ(GN_Sop)
+                    ld   hl, selctram_msg
+                    call_oz GN_Sop
 
-                    LD   BC,$0301
-                    CALL SelectRamDevice
-                    LD   (ramdevno),A             ; remember selected RAM Device slot no ('0' - '3').
+                    ld   hl, selectdev_msg
+                    call sopnln
+
+                    call SelectRamDevice
+                    ld   (ramdevno),a             ; remember selected RAM Device slot no ('0' - '3').
                     RET
 ; *************************************************************************************
 
@@ -57,13 +60,18 @@ Module DefaultRamDevice
 ; devices.
 ;
 ; IN:
-;    BC = VDU cursor (X,Y) to display current default RAM device.
+;    -
 ; OUT:
 ;    A = Ascii Slot Number ('0' - '3', '-') of selected RAM Device
 ;
 .SelectRamDevice
                     LD   DE,buf1
                     CALL GetDefaultRamDevice      ; the default RAM device at (buf1)
+                    LD   A,32
+                    CALL_OZ OS_Out
+                    xor  a
+                    ld   bc, NQ_WCUR
+                    call_oz OS_Nq                 ; get current VDU cursor for current window
 .inp_dev_loop
                     CALL VduCursor                ; put VDU cursor at (X,Y) = (C,B)
                     LD   HL, buf1
@@ -180,5 +188,5 @@ Module DefaultRamDevice
 
 .defram_banner      DEFM "SELECT DEFAULT RAM DEVICE", 0
 .ramdevname         DEFM ":RAM.", 0
-.selctram_msg       DEFM 13,10, " Select slot number of valid RAM device.", 13, 10
-                    DEFM " Use keys 0,1,2,3,- or ",1, "+J to toggle. ", 1, SD_ENT, " selects it.", 0
+.selctram_msg       DEFM 13,10, " Select slot number of valid RAM device.", 13, 10, 0
+.selectdev_msg      DEFM " Use keys 0,1,2,3 or ",1, "+J to toggle. ", 1, SD_ENT, " selects it.", 0

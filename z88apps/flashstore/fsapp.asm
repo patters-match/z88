@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2005
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -50,6 +50,7 @@
      xref MoveToFirstFile          ; browse.asm
      xref MoveToLastFile           ; browse.asm
      xref DispFilesWindow          ; browse.asm
+     xref CopyFileAreaCommand      ; copyfiles.asm
      xref GetDefaultPanelRamDev    ; defaultram.asm
      xref DefaultRamCommand        ; defaultram.asm
      xref SelectFileArea           ; selectcard.asm
@@ -267,16 +268,18 @@
                     JP   Z, BackupRamCommand
                     CP   FlashStore_CC_rf              ; Restore Files
                     JP   Z, RestoreFilesCommand
-                    CP   FlashStore_CC_ffa
+                    CP   FlashStore_CC_ffa             ; Format File Area
                     JP   Z, InitFormatCommand
-                    CP   FlashStore_CC_sc
+                    CP   FlashStore_CC_sc              ; Select Card
                     JP   Z, SelectCardCommand
-                    CP   FlashStore_CC_fe
+                    CP   FlashStore_CC_fe              ; File Erase
                     JP   Z, DeleteFileCommand
-                    CP   FlashStore_CC_sv
+                    CP   FlashStore_CC_sv              ; Select RAM Device
                     JP   Z, DefaultRamCommand
-                    CP   FlashStore_CC_tfv
+                    CP   FlashStore_CC_tfv             ; Change File View
                     JP   Z, ToggleFileViewMode
+                    CP   FlashStore_CC_fac             ; File Area Copy
+                    JP   Z, CopyFileAreaCommand
                     CP   IN_DEL
                     JP   Z, delfile_command
                     CP   IN_ENT                        ; no shortcut cmd, ENTER ?
@@ -514,8 +517,14 @@
                     JP   Z, FormatCommand       ; no file areas found, investigate slots 1-3 for Flash Cards that can be formatted
 .select_slot
                     cp   1
-                    jp   z, SelectDefaultSlot
-
+                    jr   nz, select_area
+                    ld   c,-1
+                    call SelectDefaultSlot
+                    ld   (curslot),a
+                    push af
+                    pop  af
+                    ret
+.select_area
                     ld   hl, selslot_banner
                     call SelectFileArea          ; User selects a slot from a list...
                     ret
@@ -708,7 +717,7 @@
 ; *************************************************************************************
 ; User is prompted with "Press SPACE to Resume". The keyboard is then scanned
 ; for the SPACE or as alternative the ESC key. The routine returns when the user
-; has pressed SPACE or ESC.
+; has pressed SPACE, ENTER or ESC.
 ;
 ; Registers changed after return:
 ;    AF changed, IN_ESC or IN_SPACE keys returned.
@@ -721,6 +730,8 @@
                     CALL rdch
                     JR   C,escin
                     CP   IN_ESC
+                    JR   Z, exit_resSpace
+                    CP   IN_ENT
                     JR   Z, exit_resSpace
                     CP   32
                     JR   NZ,escin
@@ -789,7 +800,7 @@
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
 
-.ResSpace_msg       DEFM 1,"2H2", 1,"2JC",1,"3+FTPRESS ",1,SD_SPC," TO RESUME",1,"4-FTC",1,"2JN",$0D,$0A,0
+.ResSpace_msg       DEFM 1,"2H2", 1,"2JC",1,"3+FTPRESS ",1,SD_SPC," OR ", 1,SD_ENT," TO RESUME",1,"4-FTC",1,"2JN",$0D,$0A,0
 
 .nocursor           defm 1,"3-SC",0         ; no vertical scrolling & no blinking cursor in window
 .greyfont           defm 1, "2+G", 0

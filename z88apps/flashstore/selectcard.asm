@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2005
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -264,7 +264,9 @@ Module SelectCard
                     jp   nz, disp_slot_loop
 
                     ; Now, user selects card (if possible) ...
+                    ld   c,-1
                     CALL SelectDefaultSlot        ; preset menu bar at first available card file area
+                    ld   (curslot),a
 .select_slot_loop
                     call UserMenu
                     ret  c                        ; user aborted selection
@@ -496,21 +498,38 @@ Module SelectCard
 
 
 ; *************************************************************************************
-.SelectDefaultSlot                           ; select the first available Card File Area
-                    ld   hl, availslots+4    ; beginning from slot 3, towards slot 0...
-                    ld   bc,$0403
-                    xor  a
+; IN:
+;    C = -1 (FFh) select first found slot containing a file area
+;    C = X (0-3) select first found slot containing a file area that is not X.
+;
+; OUT:
+;    Fc = 0, A = found slot number
+;    Fc = 1, no slot was pre-selected
+;
+.SelectDefaultSlot                              ; select the first available Card File Area
+                    push de
+                    ld   e,3
+                    ld   hl, availslots+4       ; beginning from slot 3, towards slot 1...
+                    ld   b,4
 .sel_slot_loop
+                    xor  a
                     cp   (hl)
                     jr   nz, found_slot
+.get_next_defslot
                     dec  hl
-                    dec  c
+                    dec  e
                     djnz sel_slot_loop
-                    inc  c                   ; slot 0...
+                    scf
+                    pop  de
+                    ret
 .found_slot
                     ld   a,c
-                    ld   (curslot),a         ; current slot selected...
+                    cp   e
+                    jr   z, get_next_defslot    ; the found slot is to be avoided...
+.set_defaultslot
+                    ld   a,e                    ; return this slot as default...
                     cp   a
+                    pop  de
                     ret
 ; *************************************************************************************
 

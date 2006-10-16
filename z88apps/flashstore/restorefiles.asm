@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2005
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -225,7 +225,7 @@ Module RestoreFiles
 
 ; *************************************************************************************
 ;
-; Prompt user to to overwrite all existing files when processing files.
+; Prompt user to overwrite all existing files when processing files.
 ;
 ; IN:
 ;    HL = pointer to display prompt message routine
@@ -257,7 +257,7 @@ Module RestoreFiles
 
 ; *************************************************************************************
 ;
-; Prompt user to to overwrite file, if it exist.
+; Prompt user to overwrite RAM file, if it exist.
 ;
 ; IN:
 ;    HL = (local) ptr to filename (null-terminated)
@@ -332,4 +332,4 @@ Module RestoreFiles
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
 .no_restore_files   DEFM "No files available in File Area to restore.", 0
-.exis_msg           DEFM 13," RAM file already exists. Overwrite?", 13, 10, 0
+.exis_msg           DEFM 13," file already exists. Overwrite?", 13, 10, 0
