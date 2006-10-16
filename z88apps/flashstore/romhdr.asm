@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; FlashStore
-; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2005
+; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@ ORG $3FC0
 
 .appl_front_dor     DEFB 0, 0, 0                ; link to parent...
                     DEFB 0, 0, 0                ; no help DOR
-                    DEFW $C000                  ; pointer to Application DOR (bottom of bank) 
+                    DEFW $C000                  ; pointer to Application DOR (bottom of bank)
                     DEFB $3F                    ; in bank
                     DEFB $13                    ; DOR type - ROM front DOR
                     DEFB 8                      ; length of DOR
