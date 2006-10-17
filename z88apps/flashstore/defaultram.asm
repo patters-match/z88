@@ -188,5 +188,5 @@ Module DefaultRamDevice
 
 .defram_banner      DEFM "SELECT DEFAULT RAM DEVICE", 0
 .ramdevname         DEFM ":RAM.", 0
-.selctram_msg       DEFM 13,10, " Select slot number of valid RAM device.", 13, 10, 0
-.selectdev_msg      DEFM " Use keys 0,1,2,3 or ",1, "+J to toggle. ", 1, SD_ENT, " selects it.", 0
+.selctram_msg       DEFM 13,10, " Select RAM device.", 13, 10, 0
+.selectdev_msg      DEFM " Use keys 0-3 or ",1, "+J to toggle. ", 1, SD_ENT, " to select.", 0

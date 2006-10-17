@@ -228,7 +228,7 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM 12, "FlashStore V1.8.3 (Oct 2006)", $7F, $7F
+                    DEFM 12, "FlashStore V1.9 RC1 (Oct 2006)", $7F, $7F
                     DEFM "Backup/restore files between Rakewell Flash Cards and RAM.", $7F, $7F
                     DEFM "Developed by T.Peycru & G.Strube, (C) 1997-2006, GPL licence", $7F
                     DEFM "User Interface design & testing: V.Gerhardi", $7F

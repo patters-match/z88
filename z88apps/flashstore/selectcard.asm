@@ -887,12 +887,12 @@ Module SelectCard
 
 .selectdevhelp      DEFM 1,"2JC", 1,"3-SC"
                     DEFM "Select card with", 13, 10
-                    DEFM "either ", 1,"B0 1 2", 1,"B or ", 1,"B3", 1, "B", 13, 10
+                    DEFM 1,"B0 - 3", 1,"B", 13, 10
                     DEFM 13, 10
                     DEFM "or move cursor", 13, 10
-                    DEFM "over the card", 13, 10
+                    DEFM "over card", 13, 10
                     DEFM 13, 10
-                    DEFM 1, SD_ENT, " selects it", 0
+                    DEFM 1, SD_ENT, " to select", 0
 
 .epromdev           DEFM 1,"2+T", "EPROM ", 0
 .flashdev           DEFM 1,"2+T", "FLASH ", 0

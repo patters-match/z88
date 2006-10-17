@@ -28,6 +28,7 @@ Module SaveFiles
      xdef CountFileSaved
      xdef FindFile
      xdef DeleteOldFile
+     xdef disp_flcovwrite_msg
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FlashEprSaveRamFile       ; Save RAM file to Flash Eprom
@@ -479,9 +480,9 @@ Module SaveFiles
 .bckp_wildcard      DEFM "//*",0
 .filewindow         DEFM 1,"2H2",0
 .fsv1_bnr           DEFM "SAVE FILES TO FILE CARD AREA",0
-.wcrd_msg           DEFM 13, 10, " (Wildcards are allowed).",0
+.wcrd_msg           DEFM 13, 10, " (Wildcards allowed).",0
 .fnam_msg           DEFM 1,"2+C Filename: ",0
-.disp_flcovwrite_msg DEFM 13, 10, " Overwrite files in File Card Area? ",13, 10, 0
+.disp_flcovwrite_msg DEFM 13, 10, " Overwrite all files?",13, 10, 0
 .curdir             DEFM ".",0
 .fsv2_bnr           DEFM "SAVING TO FILE CARD AREA ...",0
 .ends0_msg          DEFM " file",0

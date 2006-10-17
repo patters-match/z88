@@ -25,6 +25,7 @@ Module ErrorMessages
      XDEF NoAppFileAreaMsg, disp_empty_flcard_msg
      XDEF disp_no_filearea_msg, DispIntelSlotErr
      XDEF DispErrMsgNoWait, no_files
+     XDEF noeprfiles_msg
 
      XREF DispCmdWindow                 ; fsapp.asm
      XREF VduEnableCentreJustify        ; fsapp.asm
@@ -121,7 +122,7 @@ Module ErrorMessages
                     ld   hl,(file)           ; total active files
                     ld   de,(fdel)           ; total deleted files
                     adc  hl,de
-                    ld   hl, noeprfilesmsg
+                    ld   hl, noeprfiles_msg
                     jr   z, disp_no_files
                     ld   hl, nofileviewsmsg
 .disp_no_files
@@ -234,5 +235,5 @@ Module ErrorMessages
 .nofilearea1_msg    DEFM 13, 10, 1,"BFile Area not detected in slot ",0
 .nofilearea2_msg    DEFM ".", 13, 10, 0
 
-.noeprfilesmsg      DEFM 1, "2+TNO FILES AVAILABLE IN FILE AREA", 1, "2-T",$0D,$0A,0
+.noeprfiles_msg     DEFM 1, "2+TNO FILES AVAILABLE IN FILE AREA", 1, "2-T",$0D,$0A,0
 .nofileviewsmsg     DEFM 1, "2+TNO FILES AVAILABLE IN CURRENT FILE VIEW", 1, "2-T",$0D,$0A,0

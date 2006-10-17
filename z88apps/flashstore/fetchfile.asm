@@ -24,7 +24,7 @@ Module FetchFile
      xdef FetchFileCommand, QuickFetchFile
      xdef exct_msg, done_msg, fetf_msg
      xdef InputFileName
-     xdef DispInt
+     xdef DispInt, disp16bitInt
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot

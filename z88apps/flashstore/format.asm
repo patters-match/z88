@@ -33,7 +33,6 @@ Module FileAreaFormat
      xref ResetWatermark           ; browse.asm
      xref FileEpromStatistics      ; filestat.asm
      xref SelectFileArea           ; selectcard.asm
-     xref done_msg                 ; fetchfile.asm
      xref DispMainWindow,ResSpace  ; fsapp.asm
      xref sopnln, ungreyscr, cls   ; fsapp.asm
      xref yesno,no_msg             ; fsapp.asm
@@ -129,17 +128,11 @@ Module FileAreaFormat
                     push af
                     call PollFileArea             ; reset file area information
                     pop  af
-
-                    JR   C, formaterr             ; or at top of free area.
+                    jr   c, formaterr             ; or at top of free area.
 
                     call cls
                     ld   hl,ffm3_msg
-                    CALL_OZ GN_Sop
-
-                    LD   HL, wroz_msg
-                    CALL_OZ GN_Sop
-                    LD   HL,done_msg
-                    CALL sopnln
+                    call sopnln
 
                     CALL ResSpace
 .exit_ffa
@@ -342,7 +335,6 @@ Module FileAreaFormat
 .ffm1_bnr           DEFM "FORMAT FILE AREA ON FLASH CARD",0
 .ffm2_msg           DEFM 13, 10, 1, "F Formatting File Area ... ", 1, "F", 0
 .ffm3_msg           DEFM 13, 10, " File Area formatted.", 13, 10, 0
-.wroz_msg           DEFM " Writing File Area Header... ",0
 
 .reformat_msgs      DEFW reformat1_msg
                     DEFW reformat2_msg

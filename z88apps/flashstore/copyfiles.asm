@@ -34,9 +34,12 @@ Module CopyFiles
      xref CountFileSaved           ; savefiles.asm
      xref DeleteOldFile            ; savefiles.asm
      xref FindFile                 ; savefiles.asm
+     xref disp_flcovwrite_msg      ; savefiles.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files, DispErrMsg     ; errmsg.asm
+     xref noeprfiles_msg           ; errmsg.asm
      xref DispErrMsgNoWait         ; errmsg.asm
+     xref DispIntelSlotErr         ; errmsg.asm
      xref DispMainWindow           ; fsapp.asm
      xref YesNo, no_msg, yes_msg   ; fsapp.asm
      xref ResSpace, failed_msg     ; fsapp.asm
@@ -47,6 +50,8 @@ Module CopyFiles
      xref PollSlots                ; selectcard.asm
      xref SelectDefaultSlot        ; selectcard.asm
      xref selectdev_msg            ; defaultram.asm
+     xref disp16bitInt             ; fetchfile.asm
+     xref FlashWriteSupport        ; format.asm
      xref disp_exis_msg
 
      ; system definitions
@@ -73,16 +78,23 @@ Module CopyFiles
                     jp   c, disp_no_filearea_msg  ; no file area avaible in current slot
                     jr   nz, prompt_ovwrmode
 
-.no_active_files    ld   hl, no_copy_files        ; Fz = 1, no files available...
+.no_active_files    ld   hl, noeprfiles_msg       ; Fz = 1, no files available...
                     jp   DispErrMsg
 .disp_faovwrite
-                    ld   hl, disp_faovwrite_msg
+                    ld   hl, disp_flcovwrite_msg
                     call_oz GN_Sop
                     ret
 .prompt_ovwrmode
+                    call GetCurrentSlot
+                    call SelectDefaultSlot        ; select a default destination slot (not current slot!)
+                    jp   c, single_filearea
+                    ld   (dstslot),a
+
                     call PollSlots
                     cp   1
                     jp   z, single_filearea       ; copying has no meaning for only one file area...
+                    cp   2
+                    jr   z, single_destination
 
                     ld   hl, selctfcard_msg
                     call_oz GN_Sop                ; "Select slot number of valid File Card"
@@ -92,7 +104,24 @@ Module CopyFiles
 
                     call SelectFileCard
                     ret  c                        ; user aborted or error occurred
+.single_destination
+                    call_oz GN_nln
+                    call DispCopyStatus
 
+                    ld   a,(dstslot)
+                    ld   c,a
+                    call FlashWriteSupport
+                    jr   nc, do_copy
+                    call GetCurrentSlot
+                    push bc
+                    ld   a,(dstslot)
+                    ld   (curslot),a
+                    call DispIntelSlotErr
+                    pop  bc
+                    ld   a,c
+                    ld   (curslot),a
+                    ret
+.do_copy
                     ld   hl, disp_faovwrite
                     ld   de, no_msg               ; default 'No' to overwrite file
                     call PromptOverwrite          ; prompt for existing files in destination file area to be overwritten
@@ -156,8 +185,8 @@ Module CopyFiles
                     pop  bc
                     jr   fetch_next               ; user acknowledged No, get next file..
 .display_copy
-                    ld   hl, copying_msg
-                    call_oz Gn_Sop
+                    ld   hl, copying_txt
+                    call sopnln
 .copy_file
                     pop  hl
                     pop  bc                       ; restore pointer to current File Entry
@@ -249,11 +278,6 @@ Module CopyFiles
 ;         User aborted or error occurred
 ;
 .SelectFileCard
-                    call GetCurrentSlot
-                    call SelectDefaultSlot        ; select a default destination slot (not current slot!)
-                    jr   c, single_filearea
-                    ld   (dstslot),a
-
                     ld   hl,slot_txt
                     call_oz GN_Sop
                     xor  a
@@ -330,12 +354,40 @@ Module CopyFiles
 
 
 ; *************************************************************************************
+.DispCopyStatus
+                    ld   hl,copying_txt
+                    call_oz GN_Sop
+                    ld   hl,files_txt
+                    call_oz GN_Sop
+                    ld   hl,from_txt
+                    call_oz GN_Sop
+                    ld   hl,slot_txt
+                    call_oz GN_Sop
+                    ld   a,(curslot)
+                    ld   h,0
+                    ld   l,a
+                    call disp16bitInt             ; Copying files from slot X
+                    ld   hl,to_txt
+                    call_oz GN_Sop
+                    ld   hl,slot_txt
+                    call_oz GN_Sop
+                    ld   a,(dstslot)
+                    ld   h,0
+                    ld   l,a
+                    call disp16bitInt             ; to slot Y
+                    call_oz GN_nln
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; constants
 
 .copy_banner        defm "COPY ALL FILES TO ANOTHER FILE CARD", 0
-.disp_faovwrite_msg defm 13, 10, " Overwrite files in destination File Card?",13, 10, 0
-.selctfcard_msg     defm 13, 10, " Select slot number of valid File Card.", 13, 10, 0
-.copying_msg        defm "Copying...", 13, 10, 0
-.no_copy_files      defm "No files available in File Area to copy.", 0
+.selctfcard_msg     defm 13, 10, " Select File Card.", 13, 10, 0
+.copying_txt        defm " Copying ", 0
 .singlefilearea_msg defm "Only current file card is available.", 0
 .slot_txt           defm " Slot ", 0
+.files_txt          defm "files ", 0
+.from_txt           defm "from", 0
+.to_txt             defm " to", 0

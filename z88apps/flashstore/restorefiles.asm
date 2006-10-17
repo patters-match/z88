@@ -38,8 +38,10 @@ Module RestoreFiles
      xref CompressRamFileName      ; savefiles.asm
      xref DispFilesSaved           ; savefiles.asm
      xref CountFileSaved           ; savefiles.asm
+     xref disp_flcovwrite_msg      ; savefiles.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files, DispErrMsg     ; errmsg.asm
+     xref noeprfiles_msg           ; errmsg.asm
      xref DispMainWindow, sopnln   ; fsapp.asm
      xref YesNo, no_msg, yes_msg   ; fsapp.asm
      xref ResSpace, failed_msg     ; fsapp.asm
@@ -87,7 +89,7 @@ Module RestoreFiles
                     jr   nc, process_path
                     RET                           ; user aborted command...
 
-.no_active_files    ld   hl, no_restore_files
+.no_active_files    ld   hl, noeprfiles_msg
                     call DispErrMsg
                     ret
 .process_path
@@ -248,7 +250,7 @@ Module RestoreFiles
                     POP  DE
                     RET
 .ram_promptovwrite_msg
-                    LD   HL, disp_ramovwrite_msg
+                    LD   HL, disp_flcovwrite_msg
                     CALL_OZ gn_sop
                     RET
 ; *************************************************************************************
@@ -325,11 +327,10 @@ Module RestoreFiles
 ; constants
 
 .rest_banner        DEFM "RESTORE ALL FILES TO RAM",0
-.disp_ramovwrite_msg DEFM 13, 10, " Overwrite RAM files? ",13, 10, 0
 .defdst_msg         DEFM 13, 10, " Enter Device/path.",0
 .dest_msg           DEFM 1,"2+C Device: ",0
 .saving_msg         DEFM "Saving...", 13, 10, 0
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
-.no_restore_files   DEFM "No files available in File Area to restore.", 0
+.no_files_msg       DEFM "No files available in File Area.", 0
 .exis_msg           DEFM 13," file already exists. Overwrite?", 13, 10, 0
