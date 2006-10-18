@@ -52,6 +52,8 @@ DEFVARS $1FFD - EazyLinkWorkspace + 1
     buffer               ds.w 1    ; Address of next free byte in buffer
     buflen               ds.w 1    ; Current length of buffer
     serport_handle       ds.w 1    ; Handle to serial port input/output
+    serfile_in_handle    ds.w 1    ; Handle to dump file of serial port input
+    serfile_out_handle   ds.w 1    ; Handle to dump file of serial port output
     file_handle          ds.w 1    ; Handle of opened file (read/write)
     wildcard_handle      ds.w 1    ; Handle of current wildcard search
     Creation_date        ds.b 6    ; Temp store of a file's creation date
