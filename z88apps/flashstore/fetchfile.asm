@@ -25,6 +25,8 @@ Module FetchFile
      xdef exct_msg, done_msg, fetf_msg
      xdef InputFileName
      xdef DispInt, disp16bitInt
+     xdef DisplayFileSize
+     xdef DispCompletedMsg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
@@ -77,8 +79,7 @@ Module FetchFile
                     call GetCurrentSlot           ; C = (curslot)
                     call FileEprRequest
                     jr   z, check_fetchable_files ; File Area found.
-                    call disp_no_filearea_msg
-                    ret
+                    jp   disp_no_filearea_msg
 .check_fetchable_files
                     call FilesAvailable
                     jp   z, no_files              ; Fz = 1, no files available...
@@ -100,8 +101,7 @@ Module FetchFile
 
                     ld   a,b
                     ld   (linecnt),a              ; B = size of filename that was entered
-                    call FindFileToFetch
-                    RET
+                    jp   FindFileToFetch
 ; *************************************************************************************
 
 
@@ -228,7 +228,7 @@ Module FetchFile
                     CALL_OZ(Gn_Cl)           ; then, close file.
                     POP  AF
                     JR   C,report_error
-
+.DispCompletedMsg
                     LD   HL, done_msg
                     CALL DispErrMsg
                     CP   A                   ; Fc = 0, File successfully fetched into RAM...
@@ -242,12 +242,10 @@ Module FetchFile
 
                     CALL_OZ(Gn_Err)          ; report error and exit to main menu...
                     LD   HL, failed_msg
-                    CALL DispErrMsg
-                    RET
+                    JP   DispErrMsg
 
 .not_found_err      LD   HL, file_not_found_msg
-                    CALL DispErrMsg
-                    RET
+                    JP   DispErrMsg
 ; *************************************************************************************
 
 

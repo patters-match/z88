@@ -169,6 +169,18 @@
                     DEFB cmd_rf_end - cmd_rf                                    ; length of command definition
 .cmd_rf_end
 
+
+; <>FC File Area Copy
+.cmd_fc             DEFB cmd_fc_end - cmd_fc                                    ; length of command definition
+                    DEFB FlashStore_CC_fc                                       ; command code
+                    DEFM "FC", 0                                                ; keyboard sequence
+                    DEFM "File Area Copy", 0
+                    DEFB (cmd_fc_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
+                    DEFB (cmd_fc_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
+                    DEFB @00000000                                              ; command has help page
+                    DEFB cmd_fc_end - cmd_fc                                    ; length of command definition
+.cmd_fc_end
+
 ; <>FFA Format File Area
 .cmd_ffa            DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
                     DEFB FlashStore_CC_ffa                                      ; command code
@@ -176,20 +188,9 @@
                     DEFM "Format File Area", 0
                     DEFB (cmd_ffa_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_ffa_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
-                    DEFB @00000000                                              ; command has help page
+                    DEFB @00010000                                              ; command has help page, new column, safe
                     DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
 .cmd_ffa_end
-
-; <>FAC File Area Copy
-.cmd_fac            DEFB cmd_fac_end - cmd_fac                                  ; length of command definition
-                    DEFB FlashStore_CC_fac                                      ; command code
-                    DEFM "FAC", 0                                               ; keyboard sequence
-                    DEFM "File Area Copy", 0
-                    DEFB (cmd_fac_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
-                    DEFB (cmd_fac_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
-                    DEFB @00010000                                              ; command has help page, new column, safe
-                    DEFB cmd_fac_end - cmd_fac                                  ; length of command definition
-.cmd_fac_end
 
 ; <>TFV Change File View
 .cmd_tfv            DEFB cmd_tfv_end - cmd_tfv                                  ; length of command definition
@@ -228,7 +229,7 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM 12, "FlashStore V1.9 RC1 (Oct 2006)", $7F, $7F
+                    DEFM 12, "FlashStore V1.9 RC2 (Oct 2006)", $7F, $7F
                     DEFM "Backup/restore files between Rakewell Flash Cards and RAM.", $7F, $7F
                     DEFM "Developed by T.Peycru & G.Strube, (C) 1997-2006, GPL licence", $7F
                     DEFM "User Interface design & testing: V.Gerhardi", $7F
@@ -277,7 +278,7 @@
                     DEFM "Changes between browsing only saved files or", $7F
                     DEFM "browsing all files (both saved and marked as deleted)."
                     DEFB 0
-.cmd_fac_help
+.cmd_fc_help
                     DEFM $7F
                     DEFM "Copy saved files in current file card area to", $7F
                     DEFM "another file card area in a different slot."

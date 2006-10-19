@@ -156,7 +156,7 @@ Module SaveFiles
                     pop  de                            ; point at start of input buffer (the device name)
                     LD   C,7                           ; C = set cursor to char after path...
                     CALL InputFileName
-                    jp   nc,save_mailbox
+                    jr   nc,save_mailbox
                     RET                                ; user aborted...
 .save_mailbox
                     call cls
@@ -209,8 +209,7 @@ Module SaveFiles
                     LD   IX,(wcard_handle)
                     CALL_OZ(GN_Wcl)                    ; All files parsed, close Wild Card Handler
 .end_save
-                    CALL DispFilesSaved
-                    RET
+                    JP   DispFilesSaved
 .UpdateFileAreaStats
                     PUSH AF
                     PUSH HL
@@ -228,8 +227,7 @@ Module SaveFiles
 
                     call FileEprRequest
                     ret  z                             ; File Area header was found..
-                    call disp_no_filearea_msg
-                    ret
+                    jp   disp_no_filearea_msg
 
 .DispFilesSaved     PUSH AF
                     PUSH HL
@@ -346,9 +344,8 @@ Module SaveFiles
 
 .file_wrerr         LD   HL, blowerrmsg
                     CALL DispErrMsg                    ; user may abort with ESC after error message.
-                    CALL cls
                     SCF
-                    RET
+                    JP   cls
 ; *************************************************************************************
 
 

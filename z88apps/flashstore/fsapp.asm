@@ -28,8 +28,9 @@
      xdef rightjustify, leftjustify
      xdef sopnln, ResSpace, cls, wbar
      xdef VduEnableCentreJustify, VduEnableNormalJustify
-     xdef done_msg, yes_msg, no_msg, failed_msg
+     xdef yes_msg, no_msg, failed_msg
      xdef fetf_msg
+     xdef CheckBarMode
 
      ; Library references
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
@@ -51,6 +52,7 @@
      xref MoveToLastFile           ; browse.asm
      xref DispFilesWindow          ; browse.asm
      xref CopyFileAreaCommand      ; copyfiles.asm
+     xref QuickCopyFileCommand     ; copyfiles.asm
      xref GetDefaultPanelRamDev    ; defaultram.asm
      xref DefaultRamCommand        ; defaultram.asm
      xref SelectFileArea           ; selectcard.asm
@@ -224,7 +226,7 @@
                     LD   (MenuBarPosn),A     ; Display menu bar initially at top line of command window
 
                     CALL mainmenu
-                    JP   suicide             ; main menu aborted, leave popdown...
+                    JR   suicide             ; main menu aborted, leave popdown...
 ; *************************************************************************************
 
 
@@ -278,14 +280,14 @@
                     JP   Z, DefaultRamCommand
                     CP   FlashStore_CC_tfv             ; Change File View
                     JP   Z, ToggleFileViewMode
-                    CP   FlashStore_CC_fac             ; File Area Copy
+                    CP   FlashStore_CC_fc              ; File Area Copy
                     JP   Z, CopyFileAreaCommand
                     CP   IN_DEL
                     JP   Z, delfile_command
                     CP   IN_ENT                        ; no shortcut cmd, ENTER ?
                     JP   Z, execute_command
                     CP   IN_DWN                        ; Cursor Down ?
-                    JR   Z, MVbar_down
+                    JP   Z, MVbar_down
                     CP   IN_UP                         ; Cursor Up ?
                     JP   Z, MVbar_up
                     CP   IN_DUP                        ; <> Cursor Up ?
@@ -303,13 +305,14 @@
                     CALL ToLower
                     CP   'd'                           ; press 'D' (alternative to DEL) to mark file as deleted
                     JP   Z, delfile_command
+                    CP   'c'                           ; press 'C' to copy file entry to another file area
+                    JP   Z, copyfile_command
                     CP   'f'                           ; press 'F' (alternative to ENTER) to fetch a file
                     JP   Z, execute_command
                     JP   inp_main                      ; ignore keypress, get another...
 .MVbar_left
 .MVbar_right
-                    LD   A,(barMode)
-                    OR   A
+                    CALL CheckBarMode
                     JR   Z, selectFiles
                     XOR  A
                     LD   (barMode),A                   ; indicate that cursor has moved to menu window
@@ -323,33 +326,28 @@
                     LD  (barMode),A                    ; indicate that cursor has moved to file window
                     JP   inp_main
 .MVFirstFile
-                    LD   A,(barMode)
-                    OR   A
+                    CALL CheckBarMode
                     JP   Z,inp_main                    ; <>Up no effect in main menu
                     CALL MoveToFirstFile
                     JP   inp_main
 .MVLastFile
-                    LD   A,(barMode)
-                    OR   A
+                    CALL CheckBarMode
                     JP   Z,inp_main                    ; <>DWN no effect in main menu
                     CALL MoveToLastFile
                     JP   inp_main
 .MVPrev7Files
-                    LD   A,(barMode)
-                    OR   A
+                    CALL CheckBarMode
                     JP   Z,inp_main                    ; SHIFT UP no effect in main menu
                     CALL MoveFileBarPageUp
                     JP   inp_main
 .MVNext7Files
-                    LD   A,(barMode)
-                    OR   A
+                    CALL CheckBarMode
                     JP   Z,inp_main                    ; SHIFT DWN no effect in main menu
                     CALL MoveFileBarPageDown
                     JP   inp_main
 
 .MVbar_down
-                    LD   A,(barMode)
-                    OR   A
+                    CALL CheckBarMode
                     JR   NZ,MVbar_file_down
                     LD   A,(MenuBarPosn)               ; get Y position of menu bar
                     CP   7                             ; has m.bar already reached bottom?
@@ -364,8 +362,7 @@
 .MVbar_file_down    CALL MoveFileBarDown
                     JP   inp_main
 
-.MVbar_up           LD   A,(barMode)
-                    OR   A
+.MVbar_up           CALL CheckBarMode
                     JR   NZ,MVbar_file_up
                     LD   A,(MenuBarPosn)               ; get Y position of menu bar
                     CP   1                             ; has m.bar already reached top?
@@ -380,8 +377,13 @@
 .MVbar_file_up      CALL MoveFileBarUp
                     JP   inp_main
 
-.delfile_command    LD   A,(barMode)                   ; DEL key pressed - mark file as deleted
-                    OR   A
+.copyfile_command   CALL CheckBarMode                  ; 'C' key pressed - copy file to another file area
+                    JP   Z,inp_main                    ; command only works when cursor is in file area
+                    CALL QuickCopyFileCommand
+                    CALL DispFilesWindow               ; Refresh file area contents.
+                    JP   inp_main
+
+.delfile_command    CALL CheckBarMode                  ; DEL key pressed - mark file as deleted
                     JP   Z,inp_main                    ; delete file command only works when
                     CALL QuickDeleteFile               ; cursor is in file area
                     PUSH AF
@@ -390,8 +392,7 @@
                     CALL NZ,FileEpromStatistics        ; refresh file area statistics, if file were marked as deleted...
                     JP   inp_main
 
-.execute_command    LD   A,(barMode)
-                    OR   A
+.execute_command    CALL CheckBarMode                  ; cursor browsing files or at left side menu?
                     JR   NZ, selectFile
 
                     LD   A,(MenuBarPosn)               ; use menu bar position as index to command
@@ -421,6 +422,11 @@
                     CALL DispFilesWindow               ; refresh file area contents at current file entry
                     JP   inp_main
 
+.CheckBarMode
+                    LD   A,(barMode)
+                    OR   A
+                    RET
+
 .selectFile                                            ; a file was selected in file area window
                     CALL QuickFetchFile
                     CALL DispFilesWindow               ; refresh file area contents.
@@ -434,8 +440,7 @@
                     JP   inp_main
 .DisplBar
                     PUSH AF
-                    LD   A,(barMode)
-                    OR   A
+                    CALL CheckBarMode
                     JR   NZ, DisplFileBar
 .DisplMenuBar
                     LD   HL,SelectMenuWindow
@@ -526,8 +531,7 @@
                     ret
 .select_area
                     ld   hl, selslot_banner
-                    call SelectFileArea          ; User selects a slot from a list...
-                    ret
+                    jp   SelectFileArea          ; User selects a slot from a list...
 ; *************************************************************************************
 
 
@@ -673,7 +677,7 @@
 .pw2
                     CP   0
                     RET  NZ
-                    CALL_OZ os_in
+                    CALL_OZ OS_In
                     RET
 ; *************************************************************************************
 

@@ -123,8 +123,7 @@ Module CatalogFiles
                     call_oz gn_nln
                     ld   hl,catend_msg
                     call sopnln
-                    call ResSpace
-                    ret
+                    jp   ResSpace
 
 .CatalogueFile
                     call nz,norm_aff

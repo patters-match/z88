@@ -46,7 +46,6 @@ Module RestoreFiles
      xref YesNo, no_msg, yes_msg   ; fsapp.asm
      xref ResSpace, failed_msg     ; fsapp.asm
      xref GetCurrentSlot           ; fsapp.asm
-     xref done_msg                 ; fetchfile.asm
      xref fetf_msg                 ; fetchfile.asm
      xref InputFilename            ; fetchfile.asm
 
@@ -90,8 +89,7 @@ Module RestoreFiles
                     RET                           ; user aborted command...
 
 .no_active_files    ld   hl, noeprfiles_msg
-                    call DispErrMsg
-                    ret
+                    jp   DispErrMsg
 .process_path
                     ld   bc,$80
                     ld   hl,buf1
@@ -207,8 +205,7 @@ Module RestoreFiles
                     CALL FileEprPrevFile     ; get pointer to previous File Entry...
                     JR   NC, restore_loop
 .restore_completed
-                    CALL DispFilesSaved
-                    RET
+                    JP   DispFilesSaved
 .no_room
                     POP  HL
                     POP  BC
@@ -220,8 +217,7 @@ Module RestoreFiles
                     POP  AF
                     CALL_OZ(Gn_Err)          ; report fatal error and exit to main menu...
                     LD   HL, failed_msg
-                    CALL DispErrMsg
-                    RET
+                    JP   DispErrMsg
 ; *************************************************************************************
 
 
@@ -254,7 +250,6 @@ Module RestoreFiles
                     CALL_OZ gn_sop
                     RET
 ; *************************************************************************************
-
 
 
 ; *************************************************************************************
@@ -332,5 +327,4 @@ Module RestoreFiles
 .saving_msg         DEFM "Saving...", 13, 10, 0
 .illgwc_msg         DEFM $0D,$0A,"Wildcards not allowed.",0
 .invpath_msg        DEFM $0D,$0A,"Invalid Path",0
-.no_files_msg       DEFM "No files available in File Area.", 0
 .exis_msg           DEFM 13," file already exists. Overwrite?", 13, 10, 0

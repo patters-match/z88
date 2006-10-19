@@ -142,8 +142,7 @@ Module FileAreaFormat
                     call cls
                     LD   HL, fferr_msg
                     CALL DispErrMsg
-                    CALL ResetWatermark
-                    RET
+                    JP   ResetWatermark
 ; *************************************************************************************
 
 
@@ -329,7 +328,7 @@ Module FileAreaFormat
 ; *************************************************************************************
 ; constants
 
-.noformat_msg       DEFM 1,"BNo Flash Card was available to be formatted", 13, 10, "or no File Area found in slots 1-3.",1,"B", 13, 10, 0
+.noformat_msg       DEFM 1,"BNo Flash Card was available to be formatted", 13, 10, "or no File Area found in slots 0-3.",1,"B", 13, 10, 0
 
 .fferr_msg          DEFM "File Area not formatted properly!",$0D,$0A,0
 .ffm1_bnr           DEFM "FORMAT FILE AREA ON FLASH CARD",0
@@ -343,5 +342,5 @@ Module FileAreaFormat
 
 .filefmt_msgs       DEFW filefmt_ask1_msg
                     DEFW filefmt_ask2_msg
-.filefmt_ask1_msg   DEFM 1,"2+C",13,"Format (or create new) file area in slot ",0
+.filefmt_ask1_msg   DEFM 1,"2+C",13,"Format (create new) file area in slot ",0
 .filefmt_ask2_msg   DEFM "? ",0

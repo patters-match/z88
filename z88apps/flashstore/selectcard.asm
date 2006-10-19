@@ -492,7 +492,7 @@ Module SelectCard
                     pop  hl
                     pop  de
                     pop  bc
-                    cp   a                   ; Fc = 0
+                    cp   a                   ; Fc = 0, A = no. of found file cards...
                     ret
 ; *************************************************************************************
 

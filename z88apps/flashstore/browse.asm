@@ -56,7 +56,6 @@ Module BrowseFiles
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
      xref IntAscii                 ; filestat.asm
-     xref done_msg                 ; fetchfile.asm
      xref VduCursor                ; selectcard.asm
 
      ; system definitions
@@ -722,8 +721,7 @@ Module BrowseFiles
                     call GetWindowFilePtr       ; reached end of list,
                     call GetPrevFilePtr         ; try to get a previous active file entry
                     jr   nc,updwptr             ; and update to that...
-                    call ResetFilePtrs          ; no active files available...
-                    ret                         ; return Fc = 1
+                    jp   ResetFilePtrs          ; no active files available, return Fc = 1
 ; *************************************************************************************
 
 

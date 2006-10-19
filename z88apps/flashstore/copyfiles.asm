@@ -20,7 +20,7 @@ Module CopyFiles
 
 ; This module contains the command to copy files directly between File Cards
 
-     xdef CopyFileAreaCommand
+     xdef CopyFileAreaCommand, QuickCopyFileCommand
 
      lib FileEprFirstFile          ; Get first file entry in file area in slot C
      lib FileEprNextFile           ; Get next file entry, based on current entry in BHL
@@ -30,11 +30,13 @@ Module CopyFiles
 
      xref FilesAvailable           ; browse.asm
      xref CompressedFileEntryName  ; browse.asm
+     xref GetCursorFilePtr         ; browse.asm
      xref DispFilesSaved           ; savefiles.asm
      xref CountFileSaved           ; savefiles.asm
      xref DeleteOldFile            ; savefiles.asm
      xref FindFile                 ; savefiles.asm
      xref disp_flcovwrite_msg      ; savefiles.asm
+     xref DispBoldFilename         ; deletefile.asm
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files, DispErrMsg     ; errmsg.asm
      xref noeprfiles_msg           ; errmsg.asm
@@ -44,13 +46,15 @@ Module CopyFiles
      xref YesNo, no_msg, yes_msg   ; fsapp.asm
      xref ResSpace, failed_msg     ; fsapp.asm
      xref GetCurrentSlot, rdch     ; fsapp.asm
-     xref sopnln                   ; fsapp.asm
+     xref CheckBarMode, sopnln     ; fsapp.asm
      xref PromptOverWrite          ; restorefiles.asm
      xref VduCursor                ; selectcard.asm
      xref PollSlots                ; selectcard.asm
      xref SelectDefaultSlot        ; selectcard.asm
      xref selectdev_msg            ; defaultram.asm
      xref disp16bitInt             ; fetchfile.asm
+     xref DisplayFileSize          ; fetchfile.asm
+     xref DispCompletedMsg         ; fetchfile.asm
      xref FlashWriteSupport        ; format.asm
      xref disp_exis_msg
 
@@ -85,43 +89,15 @@ Module CopyFiles
                     call_oz GN_Sop
                     ret
 .prompt_ovwrmode
-                    call GetCurrentSlot
-                    call SelectDefaultSlot        ; select a default destination slot (not current slot!)
-                    jp   c, single_filearea
-                    ld   (dstslot),a
-
-                    call PollSlots
-                    cp   1
-                    jp   z, single_filearea       ; copying has no meaning for only one file area...
-                    cp   2
-                    jr   z, single_destination
-
-                    ld   hl, selctfcard_msg
-                    call_oz GN_Sop                ; "Select slot number of valid File Card"
-
-                    ld   hl, selectdev_msg
-                    call sopnln
-
-                    call SelectFileCard
-                    ret  c                        ; user aborted or error occurred
+                    call SelectDestinationSlot
+                    ret  c                        ; User aborted or there were only a single file card...
 .single_destination
                     call_oz GN_nln
                     call DispCopyStatus
+                    call_oz GN_nln
+                    call CheckDestSlotWriteSupport
+                    ret  c                        ; destination slot is not writeable!
 
-                    ld   a,(dstslot)
-                    ld   c,a
-                    call FlashWriteSupport
-                    jr   nc, do_copy
-                    call GetCurrentSlot
-                    push bc
-                    ld   a,(dstslot)
-                    ld   (curslot),a
-                    call DispIntelSlotErr
-                    pop  bc
-                    ld   a,c
-                    ld   (curslot),a
-                    ret
-.do_copy
                     ld   hl, disp_faovwrite
                     ld   de, no_msg               ; default 'No' to overwrite file
                     call PromptOverwrite          ; prompt for existing files in destination file area to be overwritten
@@ -136,26 +112,108 @@ Module CopyFiles
                     jr   c, copy_completed        ; all file entries copied...
                     jr   z, fetch_next            ; File Entry marked as deleted, get next...
 
+                    push bc
+                    ld   bc,2
+                    call_oz OS_Tin
+                    cp   RC_ESC                   ; has user tried to abort file copy to file card?
+                    pop  bc
+                    jr   z, copy_completed
+
+                    call CopyFileEntry            ; BHL to slot (dstslot)
+                    jr   c, filecreerr            ; not possible to copy, exit copy file area...
+
+                    call CountFileSaved
+                    call_oz GN_Nln
+.fetch_next                                       ; BHL = current File Entry
+                    call FileEprNextFile          ; get pointer to next File Entry...
+                    jr   nc, copy_loop
+.copy_completed
+                    jp   DispFilesSaved
+.filecreerr
+                    cp   rc_esc
+                    jr   z, copy_completed        ; user aborted with ESC
+
+                    call_oz Gn_Err                ; report fatal error and exit to main menu...
+                    ld   hl, failed_msg
+                    jp   DispErrMsg
+; *************************************************************************************
+
+
+; *************************************************************************************
+.CheckDestSlotWriteSupport
+                    ld   a,(dstslot)
+                    ld   c,a
+                    call FlashWriteSupport
+                    ret  nc
+                    call GetCurrentSlot
+                    push bc
+                    ld   a,(dstslot)
+                    ld   (curslot),a
+                    call DispIntelSlotErr
+                    pop  bc
+                    ld   a,c
+                    ld   (curslot),a
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Copy selected file in browsing window to another user selected file card.
+;
+.QuickCopyFileCommand                             ; 'C' key pressed - copy single file entry to another slot
+                    ld   hl,copy_single_banner
+                    call DispMainWindow
+
+                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
+                    call DisplayFileSize
+                    ld   de,buffer
+                    call DispBoldFilename
+
+                    call SelectDestinationSlot
+                    ret  c                        ; User aborted or there was only a single file card...
+
+                    res  overwrfiles,(IY+0)       ; preset to not overwrite existing files by default
+                    cp   2
+                    jr   nz, start_single_copy    ; user has selected destination manually, so start copying...
+
+                    ld   hl, copy_txt
+                    call_oz GN_Sop
+                    ld   hl,CopyToSlotPrompt
+                    ld   de, yes_msg
+                    call yesno                    ; copy file to default destination?
+                    jr   z,start_single_copy
+                    ret
+.start_single_copy
+                    call_oz GN_nln
+                    call CheckDestSlotWriteSupport
+                    ret  c                        ; destination slot is not writeable!
+                    call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
+                    call CopyFileEntry            ; finally, copy BHL entry to slot (dstslot)
+                    jr   c, filecreerr
+                    jp   DispCompletedMsg
+.CopyToSlotPrompt
+                    call DispToSlotStatus
+                    ld   a,'?'
+                    call_oz OS_Out
+                    call_oz GN_nln
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Copy file entry BHL to slot defined in (dstslot)
+;
+.CopyFileEntry
                     ld   de,buf3
                     call FileEprFilename          ; copy filename from current file entry at (DE)
 
                     push bc
                     push hl                       ; preserve file entry pointer temporarily...
-
                     ld   de, buf2
                     call CompressedFileEntryName  ; get a displayable file entry filename at (buf2)
                     ex   de,hl
                     call_oz gn_sop                ; display file entry filename (optionally compressed, if too long)...
 
-                    ld   bc,2
-                    call_oz OS_Tin
-                    cp   RC_ESC                   ; has user tried to abort file copy to file card?
-                    jr   nz, continue_copy
-
-                    pop  hl
-                    pop  bc
-                    jr   copy_completed           ; ESC pressed - abort restore...
-.continue_copy
                     ld   a,(dstslot)
                     ld   c,a
                     ld   de,buf3
@@ -177,13 +235,14 @@ Module CopyFiles
                     jr   nz, copy_file            ; file doesn't exist (or in use)
                          pop  hl
                          pop  bc
-                         cp   a                   ; copy command aborted with ESC.
+                         scf                      ; copy command aborted with ESC.
                          ret
 .copy_ignored
                     call_oz Gn_Nln
                     pop  hl
                     pop  bc
-                    jr   fetch_next               ; user acknowledged No, get next file..
+                    cp   a
+                    ret                           ; user acknowledged No to overwrite...
 .display_copy
                     ld   hl, copying_txt
                     call sopnln
@@ -194,20 +253,8 @@ Module CopyFiles
                     ld   a,(dstslot)
                     ld   c,a                      ; copy to slot X
                     call FlashEprCopyFileEntry    ; copy file at BHL to slot C
-                    jr   c, filecreerr            ; not possible to copy, exit copy file area...
-                    call DeleteOldFile            ; mark old file entry at destination as deleted, if new copy was made...
-
-                    call CountFileSaved
-                    call_oz GN_Nln
-.fetch_next                                       ; BHL = current File Entry
-                    call FileEprNextFile          ; get pointer to next File Entry...
-                    jr   nc, copy_loop
-.copy_completed
-                    jp   DispFilesSaved
-.filecreerr
-                    call_oz Gn_Err                ; report fatal error and exit to main menu...
-                    ld   hl, failed_msg
-                    jp   DispErrMsg
+                    ret  c
+                    jp   DeleteOldFile            ; mark old file entry at destination as deleted, if new copy was made...
 ; *************************************************************************************
 
 
@@ -266,6 +313,41 @@ Module CopyFiles
 
 
 ; *************************************************************************************
+; Select the destination file card slot, either automatically by choosing the
+; opposite of the current slot (if two file cards are found), or let the user choose
+; if three or more file card areas exist in the system.
+;
+; IN:
+;    -
+; OUT:
+;    Fc = 0,
+;         A = total of available file cards, (dstslot) selected destination slot number
+;    Fc = 1,
+;         A = Error code
+;
+; All registers changed on return.
+;
+.SelectDestinationSlot
+                    call GetCurrentSlot
+                    call SelectDefaultSlot        ; select a default destination slot (not current slot!)
+                    jp   c, single_filearea
+                    ld   (dstslot),a
+
+                    call PollSlots
+                    cp   1
+                    jp   z, single_filearea       ; copying has no meaning for only one file area (return Fc = 1)...
+                    cp   2
+                    ret  z                        ; return default single destination...
+
+                    ld   hl, selctfcard_msg
+                    call_oz GN_Sop                ; "Select File Card"
+
+                    ld   hl, selectdev_msg
+                    call sopnln                   ; (then execute file card selection)
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; User selects File Card by using keys 0-3 or using <>J to toggle between available
 ; file cards. Current slot is automatically discarded during selection...
 ;
@@ -273,9 +355,10 @@ Module CopyFiles
 ;         -
 ; OUT:
 ;    Fc = 0,
+;         A = no. of available file cards in slots 0-3
 ;         Slot Number (0 - 3) of selected File Card, stored in (dstslot).
 ;    Fc = 1,
-;         User aborted or error occurred
+;         User aborted or error occurred.
 ;
 .SelectFileCard
                     ld   hl,slot_txt
@@ -295,7 +378,7 @@ Module CopyFiles
                     cp   IN_ESC
                     jr   z, dev_aborted           ; user aborted selection
                     cp   IN_ENT
-                    ret  z                        ; user has selected a file card.
+                    jp   z,PollSlots              ; user has selected a file card, return no. of file cards...
                     cp   LF
                     jr   z, toggle_device         ; <>J
                     cp   48
@@ -349,7 +432,9 @@ Module CopyFiles
 .single_filearea
                     ld   hl, singlefilearea_msg
                     call DispErrMsgNoWait
-                    jp   ResSpace                 ; "Press SPACE to resume" ...
+                    call ResSpace                 ; "Press SPACE to resume" ...
+                    scf
+                    ret
 ; *************************************************************************************
 
 
@@ -367,6 +452,7 @@ Module CopyFiles
                     ld   h,0
                     ld   l,a
                     call disp16bitInt             ; Copying files from slot X
+.DispToSlotStatus
                     ld   hl,to_txt
                     call_oz GN_Sop
                     ld   hl,slot_txt
@@ -375,7 +461,6 @@ Module CopyFiles
                     ld   h,0
                     ld   l,a
                     call disp16bitInt             ; to slot Y
-                    call_oz GN_nln
                     ret
 ; *************************************************************************************
 
@@ -384,8 +469,11 @@ Module CopyFiles
 ; constants
 
 .copy_banner        defm "COPY ALL FILES TO ANOTHER FILE CARD", 0
+.copy_single_banner defm "COPY SELECTED FILE TO ANOTHER FILE CARD", 0
+
 .selctfcard_msg     defm 13, 10, " Select File Card.", 13, 10, 0
 .copying_txt        defm " Copying ", 0
+.copy_txt           defm " Copy", 0
 .singlefilearea_msg defm "Only current file card is available.", 0
 .slot_txt           defm " Slot ", 0
 .files_txt          defm "files ", 0

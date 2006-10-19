@@ -72,4 +72,4 @@ DEFC FlashStore_CC_bf = $86             ; Backup Files
 DEFC FlashStore_CC_rf = $87             ; Restore Files
 DEFC FlashStore_CC_ffa = $88            ; Format File Area
 DEFC FlashStore_CC_tfv = $89            ; Change File View
-DEFC FlashStore_CC_fac = $8A            ; Copy File Area
+DEFC FlashStore_CC_fc = $8A             ; Copy File Area

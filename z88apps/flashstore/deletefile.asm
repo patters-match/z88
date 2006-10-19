@@ -26,6 +26,7 @@ Module DeleteFile
 
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
      xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
+     xdef DispBoldFilename
 
      xref StoreCursorFilePtr, GetCursorFilePtr    ; browse.asm
      xref CompressedFileEntryName, FilesAvailable ; browse.asm
@@ -78,8 +79,7 @@ Module DeleteFile
                     call FileEprRequest
                     pop  bc
                     jr   z, check_deletable_files
-                    call disp_no_filearea_msg
-                    ret
+                    jp   disp_no_filearea_msg
 .check_deletable_files
                     call FilesAvailable
                     jp   z, no_files              ; Fz = 1, no files available...
@@ -101,8 +101,7 @@ Module DeleteFile
                     RET  C
 
                     CALL_OZ gn_nln
-                    CALL FindToMarkDeleted        ; try to find entered filename, and confirm to mark deleted
-                    RET
+                    JP   FindToMarkDeleted        ; try to find entered filename, and confirm to mark deleted
 ; *************************************************************************************
 
 
@@ -132,8 +131,9 @@ Module DeleteFile
 
 
 ; *************************************************************************************
-.ConfirmDelete
-                    ld   de,buffer
+; DE = pointer to buffer to store compressed filename
+;
+.DispBoldFilename
                     call CompressedFileEntryName  ; get compressed filename from file entry (BHL) to (DE)
 
                     push bc
@@ -144,6 +144,19 @@ Module DeleteFile
                     call_oz GN_sop                ; display filename (may have been compressed..)
                     ld   hl, post_filename
                     call_oz GN_sop                ; display filename in Bold, followed by newline
+                    pop  hl
+                    pop  bc                       ; restored BHL = file entry
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+.ConfirmDelete
+                    push bc
+                    push hl
+
+                    ld   de,buffer
+                    call DispBoldFilename
 
                     ld   hl, disp_markdel_prompt
                     ld   de, no_msg               ; default to no
@@ -179,15 +192,13 @@ Module DeleteFile
                     JR   C, delfile_failed
                     LD   HL,filedel_msg
                     CALL DispErrMsg
-                    CALL FileEpromStatistics      ; update save/deleted file counters in right hand side window
-                    RET
+                    JP   FileEpromStatistics      ; update save/deleted file counters in right hand side window
 .delfile_failed
                     LD   HL,markdelete_failed
                     CALL DispErrMsg
 .delfile_notfound
                     LD   HL,delfile_err_msg
-                    CALL DispErrMsg
-                    RET
+                    JP   DispErrMsg
 ; *************************************************************************************
 
 

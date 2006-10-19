@@ -392,8 +392,7 @@ Module FileAreaStatistics
                     djnz barmiddleloop
 
                     ld   c, @00000001             ; right side of bar
-                    call DispBarChar
-                    ret
+                    jp   DispBarChar
 
 ; HL = pointer to base of VDU char
 ; C = 5 pixel line 'middle'
