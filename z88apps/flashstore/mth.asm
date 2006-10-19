@@ -177,7 +177,7 @@
                     DEFM "File Area Copy", 0
                     DEFB (cmd_fc_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fc_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
-                    DEFB @00000000                                              ; command has help page
+                    DEFB @00010000                                              ; command has help page
                     DEFB cmd_fc_end - cmd_fc                                    ; length of command definition
 .cmd_fc_end
 
@@ -188,7 +188,7 @@
                     DEFM "Format File Area", 0
                     DEFB (cmd_ffa_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_ffa_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
-                    DEFB @00010000                                              ; command has help page, new column, safe
+                    DEFB @00010000                                              ; command has help page
                     DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
 .cmd_ffa_end
 
@@ -199,7 +199,7 @@
                     DEFM "Toggle File View", 0
                     DEFB (cmd_tfv_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_tfv_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
-                    DEFB @00010001                                              ; command has help page
+                    DEFB @00010001                                              ; command has help page, new column, safe
                     DEFB cmd_tfv_end - cmd_tfv                                  ; length of command definition
 .cmd_tfv_end
 
