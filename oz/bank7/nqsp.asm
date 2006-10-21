@@ -836,7 +836,7 @@ xref    Keymap_FI
         inc     hl
         inc     hl
         djnz    SearchKeymap
-        ld      hl, KeymapTable+1                 ; use default (first) if not found
+        ld      hl, KeymapTable+1               ; use default (first) if not found
 .KeymapFound
         inc     hl
         ld      h, (hl)                         ; keymap page
@@ -867,9 +867,19 @@ xref    Keymap_FI
         ret
 
 .KeymapTable
-        defb    5                               ; number of keymaps
-        defb    'U',>Keymap_UK                  ; UK/US (default)
+        defb    $0E                             ; number of keymaps
+        defb    'U',>Keymap_UK                  ; UK (default)
         defb    'F',>Keymap_FR                  ; FR
-        defb    'D',>Keymap_DK                  ; DK/NO
-        defb    'S',>Keymap_FI                  ; SE/FI
-        defb    'G',>Keymap_DE                  ; DK
+        defb    'D',>Keymap_DK                  ; DK
+        defb    'S',>Keymap_FI                  ; SE (=FI)
+        defb    'L',>Keymap_FI                  ; FI
+        defb    'G',>Keymap_DE                  ; DE ... to be verified
+        defb    'A',>Keymap_UK                  ; US (=UK)
+        defb    'P',>Keymap_UK                  ; SP ... to be implemented
+        defb    'I',>Keymap_UK                  ; IT ... to be implemented
+        defb    'N',>Keymap_DK                  ; NO (=DK)
+        defb    'W',>Keymap_UK                  ; CH ... to be implemented
+        defb    'C',>Keymap_UK                  ; IC ... to be implemented (old ROM required)
+        defb    'J',>Keymap_UK                  ; JP (=UK not implementable)
+        defb    'T',>Keymap_UK                  ; TU (=UK not implementable)
+        

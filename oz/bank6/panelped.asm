@@ -320,7 +320,6 @@ enddef
         call    GetComboBoxBuf
         call    FindComboByChar
         call    GetNextComboOption
-        ld      a, (hl)
 
 .hcb_set
         ld      hl, (p_pMem_Buffer_100)         ; set new selection and loop
@@ -331,7 +330,7 @@ enddef
 
 ;       ----
 
-;IN:    B=pageID, C=entryID
+;IN:    -
 ;OUT:   A=optionChar, IX=savedEntry
 
 .GetComboBoxBuf
@@ -343,8 +342,8 @@ enddef
         ld      c, (hl)
         inc     c
         dec     c
-        ret     z
-        ld      a, c
+        ret     z                               ; use default entry is empty
+        call    SearchUpper                     ; get OptionChar
         ret
 
 ;       ----
@@ -353,13 +352,13 @@ enddef
 ;OUT:   A=optionChar, HL=IX=optionList
 
 .GetComboBox
-        call    GetEntryData                    ; just for e
-        push    af                              ; save Fc from FindSetting()
+        call    GetEntryData                    ; for E(flags 0-3) and IX(saved data i.e. the 5 bytes settings)
+        push    af                              ; save Fc (Fc=1 if eof i.e. entry does not exist)
 
         ld      d, 0
-        ld      hl, ComboBox_tbl
-        add     hl, de
-        ld      e, (hl)
+        ld      hl, ComboBox_tbl                ; the option list pointers
+        add     hl, de                          ; +0, +2, +4, +6, +8, +10
+        ld      e, (hl)                 
         inc     hl
         ld      d, (hl)
         ex      de, hl                          ; HL=option list
@@ -376,31 +375,40 @@ enddef
 
 ;       ----
 
-;IN:    A=optionChar, IX=optionList
+;IN:    A=optionChar, IX=optionList (each entry is defined by its first upper char)
 ;OUT:   Fc=0, HL=optionText
 ;       Fc=1 if not found
 
 .FindComboByChar
-        call    ToUpper
+        call    ToUpper                         ; upper char is the entry def in list
         push    ix
-        pop     hl
-        ld      c, a
+        pop     hl                              ; list in hl
+        ld      c, a                            ; the upper option char
 
 .fcc_1
-        ld      a, c
-        cp      (hl)
-        ret     z                               ; first char matches? return
-
+        push    hl                              ; save entry start
 .fcc_2
-        inc     hl                              ; skip current entry
         ld      a, (hl)
-        cp      -1
-        scf
-        ret     z                               ; end of list? error
         or      a
-        jr      nz, fcc_2
-        inc     hl
+        jr      z, fcc_next                     ; separator found, skip to next
+        cp      -1
+        jr      z, fcc_not_found                ; end of list, ret with error
+        cp      c
+        jr      z, fcc_found                    ; upper char matches, ret
+        inc     hl                              ; test next char in entry
+        jr      fcc_2
+
+.fcc_next
+        inc     sp                              ; destroy hl
+        inc     sp
+        inc     hl                              ; skip zero separator
         jr      fcc_1
+        
+.fcc_not_found
+        scf
+.fcc_found
+        pop     hl                              ; entry start
+        ret
 
 ;       ----
 
@@ -767,7 +775,7 @@ enddef
 ;       ----
 
 ;IN:    HL=optionText, IX=optionList
-;OUT:   HL=optionText
+;OUT:   HL=optionText, A=optionChar
 
 .GetNextComboOption
 
@@ -780,13 +788,45 @@ enddef
         inc     hl
         ld      a, (hl)
         cp      -1
-        ret     nz
-
+        jr      nz, SearchUpper                 ; else ret default
 .gnco_2
         push    ix
+        pop     hl                              ; and get OptionChar
+        
+        
+;       ----
+
+;IN:    HL=optionText
+;OUT:   HL=optionText, A=optionChar
+
+.SearchUpper
+        push    hl
+        dec     hl
+
+.gu_loop
+        inc     hl
+        ld      a, (hl)
+        or      a
+        jr      z, gu_default                   ; ret if separator
+        cp      -1
+        jr      z, gu_default                   ; ret if end of table
+        call    IsNum
+        jr      c, gu_x                         ; ret if number
+        call    IsAlpha
+        jr      nc, gu_x                        ; ret if not alpha
+        cp      '['
+        jr      nc, gu_loop                     ; loop if not upper
+
+.gu_x
         pop     hl
         ret
 
+.gu_default
+        pop     hl
+        ld      a, (hl)                         ; ret with first char as OptionChar
+        ret
+        
+        
 ;       ----
 
 .CmdNew
@@ -1631,7 +1671,7 @@ enddef
         push    hl
         ld      a, (hl)                         ; x
         inc     a
-        push    af                              ; -1? Fz=1
+        push    af                              ; -1? Fz=1 and Fc=1
         inc     hl
         inc     hl
         ld      d, (hl)                         ; field width
@@ -1774,7 +1814,7 @@ enddef
 
 ;       ----
 
-;IN:    B=pageID, C=entryID
+;IN:    B=pageID, C=entryID, HL
 ;OUT:   DE=prev, HL=data
 ;       Fc=1 if not found
 
@@ -2508,7 +2548,7 @@ enddef
 ;       b6      combo
 ;       b5      has placeholder? (only for reasons PA_OnX+3)
 ;       b4      string
-;       b3-b0   combo type 0:[Y|N],2:[Ins|Ovr],4:[Eur|Am],6:[N|S|M|O|E],8:[Baud rates]
+;       b3-b0   combo type 0:[Y|N],2:[Ins|Ovr],4:[Eur|Am],6:[N|S|M|O|E],8:[Baud rates],10:[Localization]
 ;04     OS_Sp reason code low byte
 
 
@@ -2795,9 +2835,18 @@ enddef
         defm    -1
 
 .Keymap_tbl
-        defm    "UK/US",0
-        defm    "France",0
-        defm    "Denmark/Norway",0
-        defm    "Sweden/Finland",0
-        defm    "Germany",0
+        defm    "Uk",0                          ; U
+        defm    "France",0                      ; F
+        defm    "Denmark",0                     ; D
+        defm    "Sweden",0                      ; S
+        defm    "finLand",0                     ; L
+        defm    "Germany",0                     ; G
+        defm    "usA",0                         ; A
+        defm    "sPain",0                       ; P
+        defm    "Italy",0                       ; I
+        defm    "Norway",0                      ; N
+        defm    "sWitzerland",0                 ; W
+        defm    "iCeland",0                     ; C
+        defm    "Japan",0                       ; J
+        defm    "Turkey"                        ; T
         defm    -1

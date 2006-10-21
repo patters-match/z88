@@ -347,17 +347,17 @@ xdef    PanelDOR
         defb    0
 .PanelCommands
         defb    0
-        defb    8,$26,$4A,0,$97,$EC,0,8
-        defb    7,$0D,$E1,0,$D2,0,7
-        defb    7,$1B,$1B,0,$B1,0,7
+        defb    8,$26,$4A,0,$97,$EC,0,8                                 ; <>J Next Option
+        defb    7,$0D,$E1,0,$D2,0,7                                     ; ENTER
+        defb    7,$1B,$1B,0,$B1,0,7                                     ; ESC
         defb    7,$FD,$FD,0,$A7,1,7                                     ; Cursor LRUD
         defb    7,$FC,$FC,0,$A8,0,7
         defb    7,$24,$FF,0,$DA,0,7
         defb    7,$25,$FE,0,$DB,0,7
         defb    1
-        defb    8,$29,$46,$4C,0,$E1,0,8
-        defb    9,$2A,$46,$53,0,$BD,$65,0,9
-        defb    12,$2C,$46,$4E,$45,$57,0,$4E,$65,$77,0,12
+        defb    8,$29,$46,$4C,0,$E1,0,8                                 ; <>FL
+        defb    9,$2A,$46,$53,0,$BD,$65,0,9                             ; <>FS
+        defb    12,$2C,$46,$4E,$45,$57,0,$4E,$65,$77,0,12               ; <>FNEW
         defb    0
 .PanelHelp
         defm    $7F
