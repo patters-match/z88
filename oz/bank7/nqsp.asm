@@ -833,11 +833,19 @@ xref    Keymap_FI
 .SearchKeymap
         cp      (hl)
         jr      z, KeymapFound
+        inc     hl                              ; 2 bytes for country id
         inc     hl
+        inc     hl                              ; 2 bytes for keymap pointers
         inc     hl
         djnz    SearchKeymap
         ld      hl, KeymapTable+1               ; use default (first) if not found
 .KeymapFound
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      e,(hl)
+        ld      (km_country), de                ; set country id for the OZ window
+
         inc     hl
         ld      h, (hl)                         ; keymap page
         ld      b, KEYMAP_BANK                  ; bind keymap bank
@@ -868,18 +876,18 @@ xref    Keymap_FI
 
 .KeymapTable
         defb    $0E                             ; number of keymaps
-        defb    'U',>Keymap_UK                  ; UK (default)
-        defb    'F',>Keymap_FR                  ; FR
-        defb    'D',>Keymap_DK                  ; DK
-        defb    'S',>Keymap_FI                  ; SE (=FI)
-        defb    'L',>Keymap_FI                  ; FI
-        defb    'G',>Keymap_DE                  ; DE ... to be verified
-        defb    'A',>Keymap_UK                  ; US (=UK)
-        defb    'P',>Keymap_UK                  ; SP ... to be implemented
-        defb    'I',>Keymap_UK                  ; IT ... to be implemented
-        defb    'N',>Keymap_DK                  ; NO (=DK)
-        defb    'W',>Keymap_UK                  ; CH ... to be implemented
-        defb    'C',>Keymap_UK                  ; IC ... to be implemented (old ROM required)
-        defb    'J',>Keymap_UK                  ; JP (=UK not implementable)
-        defb    'T',>Keymap_UK                  ; TU (=UK not implementable)
+        defm    'U',$80|'U',$80|'K',>Keymap_UK  ; UK (default)
+        defm    'F',$80|'F',$80|'R',>Keymap_FR  ; FR
+        defm    'D',$80|'D',$80|'K',>Keymap_DK  ; DK
+        defm    'S',$80|'S',$80|'E',>Keymap_FI  ; SE (=FI)
+        defm    'L',$80|'F',$80|'I',>Keymap_FI  ; FI
+        defm    'G',$80|'D',$80|'E',>Keymap_DE  ; DE ... to be verified
+        defm    'A',$80|'U',$80|'S',>Keymap_UK  ; US (=UK)
+        defm    'P',$80|'S',$80|'P',>Keymap_UK  ; SP ... to be implemented
+        defm    'I',$80|'I',$80|'T',>Keymap_UK  ; IT ... to be implemented
+        defm    'N',$80|'N',$80|'O',>Keymap_DK  ; NO (=DK)
+        defm    'W',$80|'C',$80|'H',>Keymap_UK  ; CH ... to be implemented
+        defm    'C',$80|'I',$80|'S',>Keymap_UK  ; IS ... to be implemented (old ROM required)
+        defm    'J',$80|'J',$80|'P',>Keymap_UK  ; JP (=UK not implementable)
+        defm    'T',$80|'T',$80|'R',>Keymap_UK  ; TR (=UK not implementable)
         

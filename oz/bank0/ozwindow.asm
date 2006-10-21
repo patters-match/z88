@@ -110,6 +110,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
         res     ITSK_B_OZWINDOW, (hl)
 
         call    OZwd_oz
+        call    OZwd_loc
         call    OZwd_bell
         call    OZwd_cli
         call    OZwd_batlow
@@ -120,8 +121,6 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
         ld      a,$a0                           ; default char is a space in OZ font (8 bits width)
 .droz_1
         ld      c,  a
-
-;.droz_1
         call    OZcmdActive
         jr      c, droz_2
 
@@ -129,7 +128,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
         ld      c, $91                          ; '[]'
         bit     SF1_B_OZSQUARE, (hl)
         jr      nz, droz_2
-        ld      c, $90                          ; '<>'  !! dec c
+        dec     c                               ; '<>'  (was ld c, $90)
 
 .droz_2
         ld      hl, LCD_ozrow5
@@ -158,7 +157,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
 .droz_4
         call    ScreenClose
 
-        or      a                               ; Fc=0 !! why?
+        or      a                               ; Fc=0, why?
         ret
 
 ;       ----
@@ -172,8 +171,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
         scf
         ld      a, LCDA_HIRES|LCDA_UNDERLINE|LCDA_CH8
         ret     z                               ; Fc=1 if no command
-        ld      a, LCDA_HIRES|LCDA_GREY|LCDA_UNDERLINE|LCDA_CH8 ; !! do this with 'or LCDA_GREY', eliminates 'or a'
-        or      a                               ; Fc=0 if command
+        or      LCDA_GREY                       ; Fc=0 if command
         ret
 
 ;       ----
@@ -253,30 +251,14 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
 .ozcli_1
         jr      ozbell_1
 
-;.OZwd_loc
-;        ld      hl, loc_hires_table
-;        ld      a, (ubCountry)
-;        or      $xx letter to number
-;        add     a, l
-;        ld      l, a
-;        ld      b, (hl)
-;        inc     hl
-;        ld      c, (hl)
-;        ld      hl, LCD_ozrow2
-;        ld      a, LCDA_HIRES|LCDA_GREY|LCDA_UNDERLINE|LCDA_CH8
-;        jr      VDUputBCA
+        
+;       ----
 
-;.loc_hires_table
-;        defb $80+'U',$80+'K'    ; 0
-;        defb $80+'F',$80+'R'    ; 1
-;        defb $80+'D',$80+'E'    ; 2
-;        defb $80+'D',$80+'K'    ; 3
-;        defb $80+'S',$80+'E'    ; 4
-;        defb $80+'N',$80+'O'    ; 5
-;        defb $80+'F',$80+'I'    ; 6
-;        defb $80+'C',$80+'H'    ; 7
-;        defb $80+'S',$80+'P'    ; 8
-;        defb $80+'I',$80+'T'    ; 9
+.OZwd_loc
+        ld      bc, (km_country)
+        ld      hl, LCD_ozrow2
+        ld      a, LCDA_HIRES|LCDA_GREY|LCDA_UNDERLINE|LCDA_CH8
+        jr      VDUputBCA
 
 ;       ----
 
