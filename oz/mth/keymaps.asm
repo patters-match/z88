@@ -261,7 +261,7 @@ xdef    Keymap_DE
 .DeadTable_FR
         defb    (deadkey1 - DeadTable_FR - 1)/2
         defb    $AE,deadkey1 & 255
-        defb    $AF,deadkey1 & 255
+        defb    $AF,deadkey2 & 255
 .deadkey1
         defb    $de                             ; ^ (hires)
         defb    5
