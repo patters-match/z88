@@ -46,7 +46,7 @@
 
 ;        include "../bank2/pedtrtbl.def"
 
-        org     $c000
+        org     $C000
 
 
 ;       !! get rid of IY-based variables, use absolute addressing
@@ -475,15 +475,17 @@ enddef
 .CmdEnter
         call    IsPanel                         ; panel? handle as escape
         jr      nz, CmdDown                     ; else handle as cursor down
+        call    CmdUpdate                       ; apply and exit if panel
+.ce_x
+        jp      Exit
 
 ;       ----
 
 .CmdEscape
         call    ClearEsc
-        call    IsPanel                         ; panel? apply and exit
+        call    IsPanel                         ; panel? exit
         ret     nz
-        call    CmdUpdate
-        jp      Exit
+        jr      ce_x
 
 ;       ----
 
@@ -1157,7 +1159,7 @@ enddef
 
 ;       ----
 
-.loc_0_C582
+.ClearEscLdEsc
         call    ClearEsc
         ld      a, ESC
         or      a
@@ -1172,7 +1174,7 @@ enddef
         cp      RC_Quit
         jr      z, Exit
         cp      RC_Esc
-        jr      z, loc_0_C582
+        jr      z, ClearEscLdEsc
         cp      RC_Susp
         jr      z, mrd_1
         cp      RC_Draw
@@ -1250,7 +1252,7 @@ enddef
 ;       ----
 
 .PrintSysError
-        ld      a, 0                            ; !! xor a
+        xor     a
 
 ;       ----
 
@@ -1716,7 +1718,7 @@ enddef
         inc     b
         ld      c, $20                          ; first entry
         ld      a, b
-        cp      PRED_PAGE3+1                            ; wrap to PrEdPg1? set Z
+        cp      PRED_PAGE3+1                    ; wrap to PrEdPg1? set Z
         scf
         ret
 
@@ -2000,11 +2002,11 @@ enddef
         call    IsPanel
         jr      nz, cu_6                        ; not panel? jump
         rl      c
-        jr      c, cu_2                         ;no saved data? skip
+        jr      c, cu_2                         ; no saved data? skip
 
         FPP     FP_VAL                          ; str->num
         FPP     FP_ABS
-        FPP     FP_FIX                          ; fix(abs(val(str))) !! might use int() instedad of fix()
+        FPP     FP_FIX                          ; fix(abs(val(str))) !! might use int() instead of fix()
         exx
         ex      de, hl
         ld      hl, (p_pPrinterName_20)
