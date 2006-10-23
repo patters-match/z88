@@ -95,15 +95,26 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
-echo compiling bank 3
-cd bank3
+echo compiling GN system calls
+cd gn
 . bank3.sh $ozlocale
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
-  cat bank3/*.err
+  cat gn/*.err
   echo Script aborted.
   exit 1
 fi
+
+echo compiling Calculator popdown
+cd apps/calculator
+. bank3.sh $ozlocale
+cd ../..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat apps/calculator/*.err
+  echo Script aborted.
+  exit 1
+fi
+
 
 # -------------------------------------------------------------------------------------------------
 echo compiling bank 6

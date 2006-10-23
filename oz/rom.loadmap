@@ -41,9 +41,9 @@ bank2/fpp.bin 021800                            ; $D800: Floating point Package
 bank2/terminal.bin 0227f0                       ; $E7F0: Terminal Application
 bank2/filer.bin 022ab1                          ; $EAB1: Filer Popdown
 
-; GN system calls, Calculator popdown
-bank3/gn.bin 030000                             ; $C000: GN_ system calls
-bank3/calc.bin 033300                           ; $F300: Calculator popdown
+; GN system calls, Calculator popdown, located in bank 3
+gn/gn.bin 030000                                ; $C000: GN_ system calls
+apps/calculator/calc.bin 033300                 ; $F300: Calculator popdown
 
 ; PipeDream (32K app)
 apps/pipedream/pipedream.bn0 040000

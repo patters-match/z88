@@ -93,18 +93,28 @@ echo compiling bank 2
 cd bank2
 call bank2 2>nul >nul
 cd ..
-dir bank2\*.err 2>nul >nul || goto COMPILE_BANK3
+dir bank2\*.err 2>nul >nul || goto COMPILE_GNCALLS
 type bank2\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
-:COMPILE_BANK3
-echo compiling bank 3
-cd bank3
+:COMPILE_GNCALLS
+echo compiling GN System calls
+cd gn
 call bank3 %ozlocale% 2>nul >nul
 cd ..
-dir bank3\*.err 2>nul >nul || goto COMPILE_BANK6
-type bank3\*.err
+dir gn\*.err 2>nul >nul || goto COMPILE_CALCULATOR
+type gn\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_CALCULATOR
+echo compiling Calculator popdown
+cd apps\calculator
+call bank3 %ozlocale% 2>nul >nul
+cd ..\..
+dir apps\calculator\*.err 2>nul >nul || goto COMPILE_BANK6
+type apps\calculator\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
