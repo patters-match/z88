@@ -24,27 +24,27 @@
 @echo off
 
 :COMPILE_KEYMAPS
-..\..\tools\mpm\mpm -bg -I..\sysdef keymaps.asm
+..\..\tools\mpm\mpm -bg -I..\def keymaps.asm
 dir *.err 2>nul >nul || goto COMPILE_LORES1
 goto COMPILE_ERROR
 
 :COMPILE_LORES1
-..\..\tools\mpm\mpm -bg -I..\sysdef lores1.asm
+..\..\tools\mpm\mpm -bg -I..\def lores1.asm
 dir *.err 2>nul >nul || goto COMPILE_HIRES1
 goto COMPILE_ERROR
 
 :COMPILE_HIRES1
-..\..\tools\mpm\mpm -bg -I..\sysdef hires1.asm
+..\..\tools\mpm\mpm -bg -I..\def hires1.asm
 dir *.err 2>nul >nul || goto COMPILE_MTH
 goto COMPILE_ERROR
 
 :COMPILE_MTH
-..\..\tools\mpm\mpm -bg -I..\sysdef @mth.prj
+..\..\tools\mpm\mpm -bg -I..\def @mth.prj
 dir *.err 2>nul >nul || goto COMPILE_ROMHDR
 goto COMPILE_ERROR
 
 :COMPILE_ROMHDR
-..\..\tools\mpm\mpm -b -I..\sysdef romhdr.asm
+..\..\tools\mpm\mpm -b -I..\def romhdr.asm
 dir *.err 2>nul >nul || goto END
 goto COMPILE_ERROR
 

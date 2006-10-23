@@ -22,4 +22,4 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/romcombiner
 
 rm -f *.obj *.bin *.map
-../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib romcombiner.asm
+../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib romcombiner.asm

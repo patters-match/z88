@@ -19,4 +19,4 @@
 :: (this compile script is located in /z88apps/epfetch)
 
 del *.obj *.bin *.map
-..\..\tools\mpm\mpm -b -I..\..\oz\sysdef epfetch2
+..\..\tools\mpm\mpm -b -I..\..\oz\def epfetch2

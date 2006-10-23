@@ -23,4 +23,4 @@ cd ..\z88apps\eazylink
 
 :: compile EazyLink application (debug-version) from scratch
 del *.obj *.bin *.map *.63 *.epr
-..\..\tools\mpm\mpm -b -DDEBUGGING -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @eazylink
+..\..\tools\mpm\mpm -b -DDEBUGGING -I..\..\oz\def -l..\..\stdlib\standard.lib @eazylink

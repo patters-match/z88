@@ -26,27 +26,27 @@
 
 COMPILE_ERROR=0
 
-  ../../tools/mpm/mpm -b -I../sysdef indexdc.asm
+  ../../tools/mpm/mpm -b -I../def indexdc.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef fpp.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef terminal.asm
+  ../../tools/mpm/mpm -b -I../def fpp.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef filer.asm
+  ../../tools/mpm/mpm -b -I../def terminal.asm
+fi
+if test `find . -name '*.err' | wc -l` != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" -eq 0; then
+  ../../tools/mpm/mpm -b -I../def filer.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1

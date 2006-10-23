@@ -22,7 +22,7 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/romupdate
 
 rm -f *.obj *.bin *.map romupdate.epr
-../../tools/mpm/mpm -b -oromupdate.bin -DPOPDOWN -I../../oz/sysdef -l../../stdlib/standard.lib @romupdate.popdown.prj
+../../tools/mpm/mpm -b -oromupdate.bin -DPOPDOWN -I../../oz/def -l../../stdlib/standard.lib @romupdate.popdown.prj
 ../../tools/mpm/mpm -b romhdr
 if test `find . -name '*.err' | wc -l` != 0; then
     cat *.err

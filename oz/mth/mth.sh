@@ -23,35 +23,35 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -bg -I../sysdef keymaps.asm
+../../tools/mpm/mpm -bg -I../def keymaps.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -I../sysdef hires1.asm
+../../tools/mpm/mpm -bg -I../def hires1.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -I../sysdef lores1.asm
+../../tools/mpm/mpm -bg -I../def lores1.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -I../sysdef @mth.prj
+../../tools/mpm/mpm -bg -I../def @mth.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -b -I../sysdef romhdr.asm
+../../tools/mpm/mpm -b -I../def romhdr.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.

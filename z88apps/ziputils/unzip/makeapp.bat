@@ -19,5 +19,5 @@
 
 del *.obj *.bin *.map
 
-..\..\..\tools\mpm\mpm -b -I..\..\..\oz\sysdef crctable.asm
-..\..\..\tools\mpm\mpm -b -I..\..\..\oz\sysdef @unzip.prj
+..\..\..\tools\mpm\mpm -b -I..\..\..\oz\def crctable.asm
+..\..\..\tools\mpm\mpm -b -I..\..\..\oz\def @unzip.prj

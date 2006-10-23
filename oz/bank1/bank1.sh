@@ -26,20 +26,20 @@
 
 COMPILE_ERROR=0
 
-../../tools/mpm/mpm -b -I../sysdef diary.asm
+../../tools/mpm/mpm -b -I../def diary.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../sysdef -DKB"$1" clcalalm.asm
+  ../../tools/mpm/mpm -b -I../def -DKB"$1" clcalalm.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -bg -I../sysdef impexp.asm
+  ../../tools/mpm/mpm -bg -I../def impexp.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1

@@ -24,7 +24,7 @@ cd ..\z88apps\eazylink
 :: compile EazyLink application from scratch
 :: (this compile script is located in /z88apps/eazylink)
 del *.obj *.bin *.map *.63 *.epr
-..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @eazylink
+..\..\tools\mpm\mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @eazylink
 ..\..\tools\mpm\mpm -b romhdr
 
 :: produce bank to be blown by RomCombiner, Zprom or RomUpdate on real cards

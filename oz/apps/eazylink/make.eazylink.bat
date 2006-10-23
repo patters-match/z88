@@ -23,4 +23,4 @@ cd ..\oz\apps\eazylink
 
 :: compile EazyLink application from scratch
 :: (this compile script is located in /z88apps/eazylink)
-..\..\..\tools\mpm\mpm -b -I..\..\sysdef -l..\..\..\stdlib\standard.lib @eazylink
+..\..\..\tools\mpm\mpm -b -I..\..\def -l..\..\..\stdlib\standard.lib @eazylink

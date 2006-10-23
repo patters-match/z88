@@ -26,7 +26,7 @@
 
 COMPILE_ERROR=0
 
-../../tools/mpm/mpm -b -I../sysdef panelped.asm
+../../tools/mpm/mpm -b -I../def panelped.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi

@@ -23,7 +23,7 @@ call makelib.bat
 cd ..\z88apps\romupdate
 
 del *.obj *.bin *.map romupdate.epr
-..\..\tools\mpm\mpm -b -oromupdate.bin -DPOPDOWN -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @romupdate.popdown.prj
+..\..\tools\mpm\mpm -b -oromupdate.bin -DPOPDOWN -I..\..\oz\def -l..\..\stdlib\standard.lib @romupdate.popdown.prj
 ..\..\tools\mpm\mpm -b romhdr
 dir *.err 2>nul >nul || goto CREATE_EPR
 goto LIST_ERRORS

@@ -24,4 +24,4 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/intuition
 # compile Intuition code from scratch
 # Intuition uses segment 3 for bank switching (Intuition is located at $4000 - segment 1)
 rm -f *.def *.obj *.bin *.map
-../../tools/mpm/mpm -b -DSEGMENT3 -r4000 -odebugS01.bin -I../../oz/sysdef -l../../stdlib/standard.lib @debug
+../../tools/mpm/mpm -b -DSEGMENT3 -r4000 -odebugS01.bin -I../../oz/def -l../../stdlib/standard.lib @debug

@@ -22,5 +22,5 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\tools\mpm\mpm -b -I..\sysdef -DKB%1 @gn.prj
-..\..\tools\mpm\mpm -b -I..\sysdef calc.asm
+..\..\tools\mpm\mpm -b -I..\def -DKB%1 @gn.prj
+..\..\tools\mpm\mpm -b -I..\def calc.asm

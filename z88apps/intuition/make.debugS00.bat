@@ -24,8 +24,8 @@ cd ..\z88apps\intuition
 :: compile Intuition code from scratch
 :: Intuition uses segment 3 for bank switching (Intuition is located at $2000 - upper 8K of segment 0)
 del *.def *.obj *.bin *.map
-..\..\tools\mpm\mpm -b -g -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @debug0b
-..\..\tools\mpm\mpm -b -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @debug0a
+..\..\tools\mpm\mpm -b -g -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\def -l..\..\stdlib\standard.lib @debug0b
+..\..\tools\mpm\mpm -b -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\def -l..\..\stdlib\standard.lib @debug0a
 
 :: combine the two images as a single 16K executable, to be executed at $2000 in upper 8K segment 0
 :: 'debug0a.bin' is the bootstrap and the core instruction debugger

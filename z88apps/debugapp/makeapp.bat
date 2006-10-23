@@ -16,4 +16,4 @@
 ::
 :: *************************************************************************************
 
-..\..\tools\mpm\mpm -I..\..\oz\sysdef -tb debugapp.asm
+..\..\tools\mpm\mpm -I..\..\oz\def -tb debugapp.asm

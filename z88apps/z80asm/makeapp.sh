@@ -37,10 +37,10 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/z80asm
 rm -f *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?
 
 # Compile the MTH, application code and rom header
-../../tools/mpm/mpm -b -I../../oz/sysdef tokens
-../../tools/mpm/mpm -bg -I../../oz/sysdef mth
-../../tools/mpm/mpm -bc -I../../oz/sysdef -l../../stdlib/standard.lib @z80asm
-../../tools/mpm/mpm -b -I../../oz/sysdef romhdr
+../../tools/mpm/mpm -b -I../../oz/def tokens
+../../tools/mpm/mpm -bg -I../../oz/def mth
+../../tools/mpm/mpm -bc -I../../oz/def -l../../stdlib/standard.lib @z80asm
+../../tools/mpm/mpm -b -I../../oz/def romhdr
 
 # Create an image with Z80asm application
 ../../tools/makeapp/makeapp.sh -f z80asm.loadmap

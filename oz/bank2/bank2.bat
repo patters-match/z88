@@ -22,7 +22,7 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\tools\mpm\mpm -b -I..\sysdef indexdc.asm
-..\..\tools\mpm\mpm -b -I..\sysdef fpp.asm
-..\..\tools\mpm\mpm -b -I..\sysdef terminal.asm
-..\..\tools\mpm\mpm -b -I..\sysdef filer.asm
+..\..\tools\mpm\mpm -b -I..\def indexdc.asm
+..\..\tools\mpm\mpm -b -I..\def fpp.asm
+..\..\tools\mpm\mpm -b -I..\def terminal.asm
+..\..\tools\mpm\mpm -b -I..\def filer.asm

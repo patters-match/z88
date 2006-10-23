@@ -23,13 +23,13 @@ cd ..\z88apps\zprom
 
 :: Compile the MTH and the application code
 del *.obj *.bin *.map zprom.epr
-..\..\tools\mpm\mpm -b -I..\..\oz\sysdef tokens
-..\..\tools\mpm\mpm -bg -I..\..\oz\sysdef mthzprom
-..\..\tools\mpm\mpm -b -I..\..\oz\sysdef -l..\..\stdlib\standard.lib @zprom
-..\..\tools\mpm\mpm -b -I..\..\oz\sysdef romhdr
+..\..\tools\mpm\mpm -b -I..\..\oz\def tokens
+..\..\tools\mpm\mpm -bg -I..\..\oz\def mthzprom
+..\..\tools\mpm\mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zprom
+..\..\tools\mpm\mpm -b -I..\..\oz\def romhdr
 
 :: Compile FlashTest to reside at $EB00 in bank $3F
-..\..\tools\mpm\mpm -rEB00 -I..\..\oz\sysdef -l..\..\stdlib\standard.lib -b ..\flashtest\fltest.asm
+..\..\tools\mpm\mpm -rEB00 -I..\..\oz\def -l..\..\stdlib\standard.lib -b ..\flashtest\fltest.asm
 
 :: Create a 32K Rom Card with Zprom and FlashTest ($3E contains MTH, $3F contains application code for Zprom and FlashTest)
 ..\..\tools\makeapp\makeapp.bat -f zprom+flashtest.loadmap

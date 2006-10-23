@@ -22,7 +22,7 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/flashstore
 
 rm -f *.obj *.bin *.map flashstore.epr
-../../tools/mpm/mpm -b -I../../oz/sysdef -l../../stdlib/standard.lib @flashstore
+../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib @flashstore
 ../../tools/mpm/mpm -b romhdr
 
 # Create a 16K Rom Card with FlashStore

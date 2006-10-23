@@ -22,4 +22,4 @@
 cd ../../../stdlib; ./makelib.sh; cd ../oz/apps/eazylink
 
 # compile EazyLink application from scratch
-../../../tools/mpm/mpm -b -I../../sysdef -l../../../stdlib/standard.lib @eazylink
+../../../tools/mpm/mpm -b -I../../def -l../../../stdlib/standard.lib @eazylink

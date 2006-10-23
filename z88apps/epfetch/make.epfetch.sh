@@ -19,4 +19,4 @@
 
 # compile EazyLink application from scratch
 rm -f *.obj *.bin *.map
-../../tools/mpm/mpm -b -I../../oz/sysdef epfetch2
+../../tools/mpm/mpm -b -I../../oz/def epfetch2
