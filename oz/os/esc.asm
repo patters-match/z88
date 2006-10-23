@@ -9,7 +9,7 @@
         include "error.def"
         include "stdio.def"
         include "sysvar.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    OSEsc
 xdef    TestEsc

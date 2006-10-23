@@ -79,12 +79,12 @@ goto COMPILE_ERROR
 :COMPILE_KERNEL
 echo compiling kernel banks 0 and 7
 call kernel %ozlocale% 2>nul >nul
-dir bank0\*.err 2>nul >nul || goto CHECK_KERNEL7_ERRORS
-type bank0\*.err
+dir os\*.err 2>nul >nul || goto CHECK_KERNEL7_ERRORS
+type os\*.err
 goto COMPILE_ERROR
 :CHECK_KERNEL7_ERRORS
-dir bank7\*.err 2>nul >nul || goto COMPILE_BANK2
-type bank7\*.err
+dir os\*.err 2>nul >nul || goto COMPILE_BANK2
+type os\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

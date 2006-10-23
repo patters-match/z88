@@ -78,8 +78,7 @@ fi
 echo compiling kernel banks 0 and 7
 . kernel.sh $ozlocale
 if test `find . -name '*.err' | wc -l` != 0; then
-  cat bank0/*.err
-  cat bank7/*.err
+  cat os/*.err
   echo Script aborted.
   exit 1
 fi

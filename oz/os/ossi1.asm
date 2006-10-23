@@ -39,7 +39,7 @@
         include "syspar.def"
         include "sysvar.def"
         include "serintfc.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    OSSiHrd1
 xdef    OSSiSft1
@@ -65,7 +65,7 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
         pop     bc
         jr      c, hrst_1
 
-        ld      (SerRXHandle), ix               ; save handle in 
+        ld      (SerRXHandle), ix               ; save handle in
         ld      (ix+shnd_RxBuf), c
         ld      (ix+shnd_RxBuf+1), b
         ld      (ix+shnd_TxBuf), e

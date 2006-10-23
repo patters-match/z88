@@ -36,7 +36,7 @@
         include "blink.def"
         include "serintfc.def"
         include "sysvar.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    INTEntry
 xdef    IntSecond

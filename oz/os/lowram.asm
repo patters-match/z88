@@ -39,8 +39,8 @@
         include "sysvar.def"
 
 IF COMPILE_BINARY
-        include "../bank0/kernel0.def"          ; get bank 0 kernel address references
-        include "../bank0/ostables.def"         ; get bank 0 kernel OS systm base lookup table address
+        include "kernel0.def"                   ; get bank 0 kernel address references
+        include "ostables.def"                  ; get bank 0 kernel OS systm base lookup table address
 ELSE
         xref    INTEntry                        ; pretend references to be external for pre-compile...
         xref    NMIEntry
@@ -116,7 +116,7 @@ xdef    MemDefBank, MemGetBank
                                                 ; a DI is not necessary at the start of OZ_INT
                                                 ; since IFF1 and IFF2 are automaticly cleared
                                                 ; when accepting an INT
-                                                
+
         defs    $0048-$PC  ($ff)                ; address align
 
 ;       ----
@@ -142,7 +142,7 @@ xdef    MemDefBank, MemGetBank
         ei
         ret                                     ; RETI is not necessary since there is no Z80 PIO
                                                 ; RET is faster (10T vs 14T)
-                                                
+
         defs     $0066-$PC  ($ff)               ; address align for RST 66H, Blink NMI entry point
 
 ;       ----

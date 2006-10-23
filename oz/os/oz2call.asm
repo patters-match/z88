@@ -36,7 +36,7 @@
         include "director.def"
         include "memory.def"
         include "sysvar.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    CallDC
 xdef    CallGN

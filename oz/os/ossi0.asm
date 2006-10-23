@@ -40,7 +40,7 @@
         include "syspar.def"
         include "sysvar.def"
         include "serintfc.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    OSSi
 xdef    OSSiInt                                 ; called by int.asm (replace IntUART)

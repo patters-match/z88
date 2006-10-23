@@ -35,7 +35,7 @@
         include "blink.def"
         include "misc.def"
         include "sysvar.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    Beep_X
 xdef    CallFuncDE

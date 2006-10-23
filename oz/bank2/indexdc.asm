@@ -46,7 +46,7 @@
         include "time.def"
         include "sysvar.def"
 
-        include "../bank7/lowram.def"
+        include "../os/lowram.def"
 
         org     $c000
 

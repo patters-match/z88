@@ -44,8 +44,6 @@
         include "syspar.def"
         include "sysvar.def"
 
-;        include "../bank2/pedtrtbl.def"
-
         org     $C000
 
 
@@ -358,7 +356,7 @@ enddef
         ld      d, 0
         ld      hl, ComboBox_tbl                ; the option list pointers
         add     hl, de                          ; +0, +2, +4, +6, +8, +10
-        ld      e, (hl)                 
+        ld      e, (hl)
         inc     hl
         ld      d, (hl)
         ex      de, hl                          ; HL=option list
@@ -403,7 +401,7 @@ enddef
         inc     sp
         inc     hl                              ; skip zero separator
         jr      fcc_1
-        
+
 .fcc_not_found
         scf
 .fcc_found
@@ -794,8 +792,8 @@ enddef
 .gnco_2
         push    ix
         pop     hl                              ; and get OptionChar
-        
-        
+
+
 ;       ----
 
 ;IN:    HL=optionText
@@ -827,8 +825,8 @@ enddef
         pop     hl
         ld      a, (hl)                         ; ret with first char as OptionChar
         ret
-        
-        
+
+
 ;       ----
 
 .CmdNew

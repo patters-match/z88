@@ -40,7 +40,7 @@
         include "memory.def"
         include "stdio.def"
         include "sysvar.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    FollowPageN
 xdef    InitRAM
@@ -2260,7 +2260,7 @@ defc    DM_RAM                  =$81
         out     (BL_SR2), a                     ; WE CANT USE MS2BankA (no stack when called from boot)
         ld      hl, ($bffe)                     ; last word
 
-        ld      d, BU_EPR                       ; 
+        ld      d, BU_EPR                       ;
         ld      bc, 'z'<<8|'o'
         sbc     hl, bc
         add     hl, bc
@@ -2289,7 +2289,7 @@ defc    DM_RAM                  =$81
 .vst_2
         ld      d, BU_NOT                       ; nothing inthe bank
         ret
-        
+
 .MountAllRAM
         call    MS2BankK1
         ld      hl, RAMDORtable

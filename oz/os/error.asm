@@ -35,7 +35,7 @@
 
         include "error.def"
         include "sysvar.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    CallErrorHandler
 xdef    OSErc

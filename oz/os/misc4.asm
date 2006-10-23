@@ -8,7 +8,7 @@
 
         include "blink.def"
         include "sysvar.def"
-        include "../bank7/lowram.def"
+        include "lowram.def"
 
 xdef    OSFramePush
 xdef    OSFramePushMain
@@ -153,7 +153,7 @@ xref    MS1BankA                                ; bank0/misc5.asm
         call    MS1BankA
         ex      af, af'
         ret
-        
+
 ; -----------------------------------------------------------------------------
 ;
 ;       OSBoxS1 Replacement of OSBox for the kernel
@@ -170,4 +170,3 @@ xref    MS1BankA                                ; bank0/misc5.asm
         call    MS1BankA
         ex      af, af'
         ret
-        

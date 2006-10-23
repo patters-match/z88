@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Kernel (banks 0,7) compilation script for Unix.
+# Kernel compilation script for Unix.
 # This script is called with country localisation argument ('UK', 'DK', 'FR', 'FI' or 'SE').
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
@@ -27,9 +27,8 @@
 COMPILE_ERROR=0
 
 # create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
-cd bank0
+cd os
 ../../tools/mpm/mpm -g ostables.asm
-cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
@@ -37,9 +36,7 @@ fi
 # create lowram.def and keymap.def (address pre-compilation) for kernel0.prj and kernel7.prj compilation
 # (argument $1 contains the country localisation)
 if test "$COMPILE_ERROR" -eq 0; then
-  cd bank7
   ../../tools/mpm/mpm -g -I../def lowram.asm
-  cd ..
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -47,9 +44,7 @@ fi
 
 # pre-compile kernel in bank 0 to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
-  cd bank0
   ../../tools/mpm/mpm -g -I../def @kernel0.prj
-  cd ..
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -57,9 +52,7 @@ fi
 
 # create final lowram binary with correct addresses from bank 0 kernel
 if test "$COMPILE_ERROR" -eq 0; then
-  cd bank7
   ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../def lowram.asm
-  cd ..
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -67,9 +60,7 @@ fi
 
 # compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
 if test "$COMPILE_ERROR" -eq 0; then
-  cd bank7
   ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -I../def @kernel7.prj
-  cd ..
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -77,8 +68,8 @@ fi
 
 # compile final kernel binary with OS tables for bank 0 using correct bank 7 references
 if test "$COMPILE_ERROR" -eq 0; then
-  cd bank0
   ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../def @kernel0.prj
   ../../tools/mpm/mpm -b -DCOMPILE_BINARY ostables.asm
-  cd ..
 fi
+
+cd ..
