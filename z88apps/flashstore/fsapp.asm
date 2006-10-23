@@ -210,6 +210,8 @@
 
                     CALL GetDefaultPanelRamDev    ; Get the default RAM device slot number from the system Panel
                     CALL greyscr
+                    LD   A,3
+                    LD   (curslot),A         ; define default slot
 
                     CALL PollFileEproms      ; user selects a File Eprom Area in one of the ext. slots.
                     JP   C, suicide          ; no File Area available, or Flash didn't have write support in found slot

@@ -96,6 +96,8 @@ Module SelectCard
 ; IN: HL = Window Banner Title
 ;
 .SelectFileArea
+                    LD   A,(curslot)
+                    LD   (dstslot),A         ; remember current slot selection
                     CALL greyscr
 
                     push hl
@@ -269,7 +271,7 @@ Module SelectCard
                     ld   (curslot),a
 .select_slot_loop
                     call UserMenu
-                    ret  c                        ; user aborted selection
+                    jr   c, abort_selection       ; user aborted selection
                     ld   hl, availslots+1
                     ld   b,0
                     call GetCurrentSlot           ; C = (curslot)
@@ -280,6 +282,10 @@ Module SelectCard
                     call InitFirstFileBar         ; initialize File Bar cursor for new slot..
                     call PollFileCardWatermark    ; auto-poll watermark in file header for selected slot
                     cp   a                        ; indicate slot was successfully selected
+                    ret
+.abort_selection
+                    ld   a,(dstslot)
+                    ld   (curslot),a              ; restore previous slot selection...
                     ret
 
 .check_empty_flcard
