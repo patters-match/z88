@@ -123,18 +123,8 @@ echo compiling Filer popdown
 cd apps\filer
 call bank2 2>nul >nul
 cd ..\..
-dir apps\filer\*.err 2>nul >nul || goto COMPILE_BANK2
+dir apps\filer\*.err 2>nul >nul || goto COMPILE_GNCALLS
 type apps\filer\*.err
-goto COMPILE_ERROR
-
-:: -------------------------------------------------------------------------------------------------
-:COMPILE_BANK2
-echo compiling bank 2
-cd bank2
-call bank2 2>nul >nul
-cd ..
-dir bank2\*.err 2>nul >nul || goto COMPILE_GNCALLS
-type bank2\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

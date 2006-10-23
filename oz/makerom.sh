@@ -128,17 +128,6 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
-echo compiling bank 2
-cd bank2
-. bank2.sh
-cd ..
-if test `find . -name '*.err' | wc -l` != 0; then
-  cat bank2/*.err
-  echo Script aborted.
-  exit 1
-fi
-
-# -------------------------------------------------------------------------------------------------
 echo compiling GN system calls
 cd gn
 . bank3.sh $ozlocale
