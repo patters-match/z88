@@ -77,14 +77,54 @@ goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_KERNEL
-echo compiling kernel banks 0 and 7
+echo compiling OZ kernel
 call kernel %ozlocale% 2>nul >nul
 dir os\*.err 2>nul >nul || goto CHECK_KERNEL7_ERRORS
 type os\*.err
 goto COMPILE_ERROR
 :CHECK_KERNEL7_ERRORS
-dir os\*.err 2>nul >nul || goto COMPILE_BANK2
+dir os\*.err 2>nul >nul || goto COMPILE_DCCALLS
 type os\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_DCCALLS
+echo compiling Index popdown / DC System calls
+cd dc
+call bank2 2>nul >nul
+cd ..
+dir dc\*.err 2>nul >nul || goto COMPILE_FPP
+type dc\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_FPP
+echo compiling Floating Point Package
+cd fpp
+call bank2 2>nul >nul
+cd ..
+dir fpp\*.err 2>nul >nul || goto COMPILE_TERMINAL
+type fpp\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_TERMINAL
+echo compiling Terminal popdown
+cd apps\terminal
+call bank2 2>nul >nul
+cd ..\..
+dir apps\terminal\*.err 2>nul >nul || goto COMPILE_FILER
+type apps\terminal\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_FILER
+echo compiling Filer popdown
+cd apps\filer
+call bank2 2>nul >nul
+cd ..\..
+dir apps\filer\*.err 2>nul >nul || goto COMPILE_BANK2
+type apps\filer\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

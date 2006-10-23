@@ -75,10 +75,54 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
-echo compiling kernel banks 0 and 7
+echo compiling OZ kernel
 . kernel.sh $ozlocale
 if test `find . -name '*.err' | wc -l` != 0; then
   cat os/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
+echo compiling Index popdown / DC System calls
+cd dc
+. bank2.sh
+cd ..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat dc/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
+echo compiling Floating Point Package
+cd fpp
+. bank2.sh
+cd ..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat fpp/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
+echo compiling compiling Terminal popdown
+cd apps/terminal
+. bank2.sh
+cd ..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat apps/terminal/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
+echo compiling Filer popdown
+cd apps/filer
+. bank2.sh
+cd ../..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat apps/filer/*.err
   echo Script aborted.
   exit 1
 fi

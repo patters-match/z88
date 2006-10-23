@@ -36,10 +36,10 @@ bank1/clcalalm.bin 0127ee                       ; $E7EE: Clock, Calendar & Alarm
 bank1/impexp.bin 013ab1                         ; $FAB1: Imp/export popdown
 
 ; Bank2: Index, Filer, Terminal, Floating Point Package and serial port driver.
-bank2/indexdc.bin 020000                        ; $C000: Index popdown (and DC_ system calls)
-bank2/fpp.bin 021800                            ; $D800: Floating point Package
-bank2/terminal.bin 0227f0                       ; $E7F0: Terminal Application
-bank2/filer.bin 022ab1                          ; $EAB1: Filer Popdown
+dc/indexdc.bin 020000                           ; $C000: Index popdown (and DC_ system calls)
+fpp/fpp.bin 021800                              ; $D800: Floating point Package
+apps/terminal/terminal.bin 0227f0               ; $E7F0: Terminal Application
+apps/filer/filer.bin 022ab1                     ; $EAB1: Filer Popdown
 
 ; GN system calls, Calculator popdown, located in bank 3
 gn/gn.bin 030000                                ; $C000: GN_ system calls

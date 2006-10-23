@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Bank 2 compilation script for Unix.
-# (Index, Filer, Terminal, Floating Point Package, PrinterEd tables & serial port driver)
+# Floating Point Package compilation script for Unix.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -24,30 +23,4 @@
 # $Id$
 # ***************************************************************************************************
 
-COMPILE_ERROR=0
-
-  ../../tools/mpm/mpm -b -I../def indexdc.asm
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../def fpp.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../def terminal.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
-
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -I../def filer.asm
-fi
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
+../../tools/mpm/mpm -b -I../def fpp.asm

@@ -1,6 +1,5 @@
 :: **************************************************************************************************
-:: Bank 2 compilation script for Windows/DOS.
-:: (Index, Filer, Terminal, Floating Point Package, PrinterEd tables & serial port driver)
+:: Index / DC system calls compilation script for Windows/DOS.
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,6 +22,3 @@
 :: ***************************************************************************************************
 
 ..\..\tools\mpm\mpm -b -I..\def indexdc.asm
-..\..\tools\mpm\mpm -b -I..\def fpp.asm
-..\..\tools\mpm\mpm -b -I..\def terminal.asm
-..\..\tools\mpm\mpm -b -I..\def filer.asm
