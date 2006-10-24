@@ -23,6 +23,6 @@ del standard.lib
 ::
 :: The standard library is located in /stdlib
 :: The Z80 assembler is located in /tools/mpm
-:: The OZ Manifests are located in /oz/sysdef
+:: The OZ Manifests are located in /oz/def
 
-..\tools\mpm\mpm -I..\oz\sysdef -d -xstandard.lib @standard
+..\tools\mpm\mpm -I..\oz\def -d -xstandard.lib @standard
