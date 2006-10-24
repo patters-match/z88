@@ -62,9 +62,9 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         push    bc
         ld      c, a
 
-        ld      a, ($4d2)                       ; remember S2
+        ld      a, (BLSC_SR2)                       ; remember S2
         push    af
-        ld      a, (km_bank)                    ; bind in keymap data
+        ld      a, (ubKmBank)                    ; bind in keymap data
         call    MS2BankA
 
         ld      a, (hl)                         ; get function in HL
@@ -363,7 +363,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         cp      KMT_CAPS                        ; =2
         jr      c, gkp_1
 
-        ld      hl, km_bank                     ; start of keymap table pointers
+        ld      hl, ubKmBank                    ; start of keymap table pointers
         add     a, l
         ld      l, a
         ld      l, (hl)
@@ -376,7 +376,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         ld      l, a
 
 .gkp_x
-        ld      a, (km_page)
+        ld      a, (ubKmPage)
         ld      h, a
         ret
 
@@ -583,7 +583,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         ld      a, KMT_DEADKEY
         call    GetKbdPtr
 
-        ld      a, (km_deadsub)                 ; deadkey active?
+        ld      a, (ubKmDeadsub)                ; deadkey active?
         or      a
         jr      z, d_not
 
@@ -621,7 +621,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         jr      nz, dead_tr
 
         ld      a, (hl)                         ; get char
-        ld      (km_deadchar), a                ; for OZ window
+        ld      (ubKmDeadchar), a               ; for OZ window
         inc     hl
         ld      a, l
         jr      d_x                             ; store subtable ptr
@@ -641,8 +641,8 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
 
 .d_cancel
         xor     a                               ; cancel deadkey
-        ld      (km_deadchar),a                 ; will be a space char in OZ window
-.d_x    ld      (km_deadsub), a
+        ld      (ubKmDeadchar),a                ; will be a space char in OZ window
+.d_x    ld      (ubKmDeadsub), a
 
         push    bc
         call    DrawOZWd

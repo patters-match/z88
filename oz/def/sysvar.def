@@ -51,7 +51,7 @@ lstoff
 
 defc    OZVERSION               = $42
 
-;       01E0-01FF       Preserved system area (32 bytes preserved over a soft reset)
+; Preserved system area (32 bytes preserved over a soft reset)
 defvars $01E0
         ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
         ubTIM0_A                ds.b    1       ; buffer A : TIM0-4 (was $00A1-$00A5)
@@ -68,21 +68,19 @@ defvars $01E0
         uwSysDateMid            ds.w    1
         uwSysDateHigh           ds.w    1
         SysTimeBuffer           ds.b    5
-enddef                                          ; 10 bytes are left in this area
+        free_free               ds.b    10      ; 10 bytes are left in this area
 
-;       0200-020A       Preserved panel system area (11 bytes preserved over a soft reset)
-defvars $0200
+; Preserved panel system area (11 bytes preserved over a soft reset)
         ubResetType             ds.b    1       ; $00 hard / $FF soft
         ubTimeout               ds.b    1       ; panel system parameters
         ubRepeat                ds.b    1       ; "
         cKeyclick               ds.b    1       ; "
         cSound                  ds.b    1       ; "
         ubBadSize               ds.b    1       ; "
-        ubCountry               ds.b    1       ; country code
+        cCountry                ds.b    1       ; country code
 enddef                                          ; 4 more bytes are left here
 
-;       020B-03FF           System variable area
-
+; System variable area
 defc    ubScreenBase            =$020b
 defc    KbdData                 =$0216          ; data on both negative and positive side
 defc    SerTXHandle             =$0229          ; on negative side!
@@ -174,45 +172,45 @@ defc    ubSlotRamSize           =$03fc
 defc    ubSlotRAMoffset         =$03f8
 
 defvars $0400
-;                       Random
+; Random
         ubRandomPtr             ds.b    1
         uwRandom1               ds.w    1
         uwRandom2               ds.w    1
 
-;                       Keymaps
-        km_bank                 ds.b    1       ; memory bank where tables are, bound in S2
-        km_page                 ds.b    1       ; high byte of address
-        km_caps                 ds.b    1       ; low byte of CAPS translation table address
-        km_diamond              ds.b    1       ; low byte of <> translation table address
-        km_square               ds.b    1       ; low byte of [] translation table address
-        km_deadkey              ds.b    1       ; low byte of deadkey table address
-        km_deadchar             ds.b    1       ; char displayed in OZ window
-        km_deadsub              ds.b    1       ; offset to list for current deadkey
-        km_country              ds.w    1       ; country id for OZ window
+; Keymaps
+        ubKmBank                ds.b    1       ; memory bank where tables are, bound in S2
+        ubKmPage                ds.b    1       ; high byte of address
+        ubKmCaps                ds.b    1       ; low byte of CAPS translation table address
+        ubKmDiamond             ds.b    1       ; low byte of <> translation table address
+        ubKmSquare              ds.b    1       ; low byte of [] translation table address
+        ubKmDeadkey             ds.b    1       ; low byte of deadkey table address
+        ubKmDeadchar            ds.b    1       ; char displayed in OZ window
+        ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
+        aKmCountry              ds.w    1       ; country id for OZ window
         
         free_free_free          ds.b    49      ; (040F-043F) 49 bytes free
 
-;                       Keyboard buffer
+; Keyboard buffer
         KbdBuffer               ds.b    32      ; $0440-£045F
 
-;                       Hardware port softcopies
+; Hardware port softcopies
         BlinkPortSoftCopies     ds.b    160     ; $0460-$04FF
 
-;                       Handles
-        HANDLES                 ds.b    16*96   ; HNDLEN * NUMHANDLE
+; Handles
+        Handles                 ds.b    16*96   ; HNDLEN * NUMHANDLE
 
-;                      Serial interface buffers
+; Serial interface buffers
         SerTXBuffer             ds.b    128     ; $0B00-$0B7F
         SerRXBuffer             ds.b    128     ; $0B80-$0BFF
 enddef        
 
-;       0c00            NMI/wait
+; NMI/wait
 
 defc    uwTimecounter           =$0c00
 defc    ubTimecounterSoft       =$0c02
 defc    NMIStackTop             =$0c33
 
-;       0db8-0dc2       EPROM
+; EPROM
 defvars $0db8
         ubEpr_SubType           ds.b    1       
         ubEpr_FREE_0            ds.b    1       ; ($0db9) 1 byte free
@@ -224,7 +222,7 @@ defvars $0db8
         pEpr_FileHandle         ds.w    1
 enddef                                          ; ($0dc3-$0dcf) 13 bytes free
         
-;       0dd0-0e07       Printer
+; Printer
 defvars $0dd0
         StackBufPtr             ds.w    1
         CtrlBuf                 ds.w    1

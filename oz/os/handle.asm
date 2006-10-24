@@ -80,7 +80,7 @@ xref    PutOSFrame_HL                           ; bank0/misc5.asm
 
 
 .ResetHandles
-        ld      ix, HANDLES                     ; handles in $0500-$0bff
+        ld      ix, Handles                     ; handles in $0500-$0bff
         ld      b, NUMHANDLES                   ; 96 handles (6 pages of 16 handles)
 .rsthn_1
         ld      de, (pFirstHandle)              ; get previous handle  !! use registers insde loop

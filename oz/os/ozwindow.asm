@@ -115,7 +115,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
         call    OZwd_cli
         call    OZwd_batlow
         call    OZwd_caps
-        ld      a, (km_deadchar)
+        ld      a, (ubKmDeadchar)
         or      a
         jr      nz,droz_1
         ld      a,$a0                           ; default char is a space in OZ font (8 bits width)
@@ -255,7 +255,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
 ;       ----
 
 .OZwd_loc
-        ld      bc, (km_country)
+        ld      bc, (aKmCountry)
         ld      hl, LCD_ozrow2
         ld      a, LCDA_HIRES|LCDA_GREY|LCDA_UNDERLINE|LCDA_CH8
         jr      VDUputBCA
