@@ -59,7 +59,7 @@ xref    MATPtrToPagePtr                         ; bank0/memory.asm
 xref    PageNToPagePtr                          ; bank0/memory.asm
 xref    fsMS2BankB                              ; bank0/filesys3.asm
 xref    fsRestoreS2                             ; bank0/filesys3.asm
-xref    GetAppDOR                               ; bank0/mth2.asm
+xref    GetAppDOR                               ; mth0.asm
 xref    OSBixS1                                 ; bank0/misc4.asm
 xref    OSBoxS1                                 ; bank0/misc4.asm
 xref    MS1BankA                                ; bank0/misc5.asm

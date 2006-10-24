@@ -45,7 +45,7 @@ int.asm
 random.asm
 kbd.asm
 memory.asm
-mth2.asm
+mth0.asm
 token.asm
 osin.asm
 spnq0.asm

@@ -101,33 +101,33 @@ IF COMPILE_BINARY
         xdef    OZwd_card                       ; bank0/ozwindow.asm
         xdef    OZwd_index                      ; bank0/ozwindow.asm
 
-        xdef    ChgHelpFile                     ; bank0/mth2.asm
-        xdef    CopyAppPointers                 ; bank0/mth2.asm
-        xdef    DrawCmdHelpWd                   ; bank0/mth2.asm
-        xdef    DrawMenuWd                      ; bank0/mth2.asm
-        xdef    DrawTopicHelpWd                 ; bank0/mth2.asm
-        xdef    FilenameDOR                     ; bank0/mth2.asm
-        xdef    GetAppDOR                       ; bank0/mth2.asm
-        xdef    GetHlpHelp                      ; bank0/mth2.asm
-        xdef    GetHlp_sub                      ; bank0/mth2.asm
-        xdef    InputEmpty                      ; bank0/mth2.asm
-        xdef    MTHPrint                        ; bank0/mth2.asm
-        xdef    MTHPrintKeycode                 ; bank0/mth2.asm
-        xdef    MTHPrintTokenized               ; bank0/mth2.asm
-        xdef    MayMTHPrint                     ; bank0/mth2.asm
-        xdef    NextAppDOR                      ; bank0/mth2.asm
-        xdef    PrevAppDOR                      ; bank0/mth2.asm
-        xdef    PrintTopic                      ; bank0/mth2.asm
-        xdef    PrntAppname                     ; bank0/mth2.asm
-        xdef    SetActiveAppDOR                 ; bank0/mth2.asm
-        xdef    SetHlpAppChgFile                ; bank0/mth2.asm
-        xdef    aRom_Help                       ; bank0/mth2.asm
-        xdef    GetAttr                         ; bank0/mth2.asm
-        xdef    GetHlpCommands                  ; bank0/mth2.asm
-        xdef    GetCmdTopicByNum                ; bank0/mth2.asm
-        xdef    GetRealCmdPosition              ; bank0/mth2.asm
-        xdef    GetHlpTopics                    ; bank0/mth2.asm
-        xdef    SkipNtopics                     ; bank0/mth2.asm
+        xdef    ChgHelpFile                     ; mth0.asm
+        xdef    CopyAppPointers                 ; mth0.asm
+        xdef    DrawCmdHelpWd                   ; mth0.asm
+        xdef    DrawMenuWd                      ; mth0.asm
+        xdef    DrawTopicHelpWd                 ; mth0.asm
+        xdef    FilenameDOR                     ; mth0.asm
+        xdef    GetAppDOR                       ; mth0.asm
+        xdef    GetHlpHelp                      ; mth0.asm
+        xdef    GetHlp_sub                      ; mth0.asm
+        xdef    InputEmpty                      ; mth0.asm
+        xdef    MTHPrint                        ; mth0.asm
+        xdef    MTHPrintKeycode                 ; mth0.asm
+        xdef    MTHPrintTokenized               ; mth0.asm
+        xdef    MayMTHPrint                     ; mth0.asm
+        xdef    NextAppDOR                      ; mth0.asm
+        xdef    PrevAppDOR                      ; mth0.asm
+        xdef    PrintTopic                      ; mth0.asm
+        xdef    PrntAppname                     ; mth0.asm
+        xdef    SetActiveAppDOR                 ; mth0.asm
+        xdef    SetHlpAppChgFile                ; mth0.asm
+        xdef    aRom_Help                       ; mth0.asm
+        xdef    GetAttr                         ; mth0.asm
+        xdef    GetHlpCommands                  ; mth0.asm
+        xdef    GetCmdTopicByNum                ; mth0.asm
+        xdef    GetRealCmdPosition              ; mth0.asm
+        xdef    GetHlpTopics                    ; mth0.asm
+        xdef    SkipNtopics                     ; mth0.asm
 
         xdef    InitHlpActiveCmd                ; bank0/process3.asm
         xdef    InitHlpActiveHelp               ; bank0/process3.asm

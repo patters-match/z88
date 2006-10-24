@@ -16,8 +16,8 @@ xdef    OSWrt
 
 xref    PutOSFrame_BHL                          ; bank0/misc5.asm
 xref    FixPtr                                  ; bank0/misc5.asm
-xref    GetHlpTokens                            ; bank0/mth2.asm
-xref    PrintChar                               ; bank0/mth2.asm
+xref    GetHlpTokens                            ; mth0.asm
+xref    PrintChar                               ; mth0.asm
 xref    fsMS2BankB                              ; bank0/filesys3.asm
 xref    fsRestoreS2                             ; bank0/filesys3.asm
 

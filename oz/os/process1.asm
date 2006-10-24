@@ -16,7 +16,7 @@ xdef    ChkStkLimits
 xdef    Mailbox2Stack
 xdef    OSNqProcess
 
-xref    GetAppDOR                               ; bank0/mth2.asm
+xref    GetAppDOR                               ; mth0.asm
 xref    NQAin                                   ; bank0/process2.asm
 xref    PutOSFrame_BC                           ; bank0/misc5.asm
 xref    CopyMemBHL_DE                           ; bank0/misc5.asm

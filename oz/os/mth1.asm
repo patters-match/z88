@@ -32,31 +32,31 @@ xdef    Get2ndTopicHelp
 xdef    GetTpcAttrByNum
 xdef    MTHPrintKeycode
 
-xref    aRom_Help                               ; bank0/mth2.asm
-xref    ChgHelpFile                             ; bank0/mth2.asm
-xref    CopyAppPointers                         ; bank0/mth2.asm
-xref    DrawCmdHelpWd                           ; bank0/mth2.asm
-xref    DrawTopicHelpWd                         ; bank0/mth2.asm
-xref    FilenameDOR                             ; bank0/mth2.asm
-xref    GetAttr                                 ; bank0/mth2.asm
-xref    GetCmdTopicByNum                        ; bank0/mth2.asm
-xref    GetHlp_sub                              ; bank0/mth2.asm
-xref    GetHlpHelp                              ; bank0/mth2.asm
-xref    GetHlpCommands                          ; bank0/mth2.asm
-xref    GetHlpTopics                            ; bank0/mth2.asm
-xref    GetRealCmdPosition                      ; bank0/mth2.asm
-xref    InputEmpty                              ; bank0/mth2.asm
-xref    DrawMenuWd                              ; bank0/mth2.asm
-xref    MayMTHPrint                             ; bank0/mth2.asm
-xref    MTHPrint                                ; bank0/mth2.asm
-xref    MTHPrintTokenized                       ; bank0/mth2.asm
-xref    NextAppDOR                              ; bank0/mth2.asm
-xref    PrevAppDOR                              ; bank0/mth2.asm
-xref    PrintTopic                              ; bank0/mth2.asm
-xref    PrntAppname                             ; bank0/mth2.asm
-xref    SetActiveAppDOR                         ; bank0/mth2.asm
-xref    SetHlpAppChgFile                        ; bank0/mth2.asm
-xref    SkipNTopics                             ; bank0/mth2.asm
+xref    aRom_Help                               ; mth0.asm
+xref    ChgHelpFile                             ; mth0.asm
+xref    CopyAppPointers                         ; mth0.asm
+xref    DrawCmdHelpWd                           ; mth0.asm
+xref    DrawTopicHelpWd                         ; mth0.asm
+xref    FilenameDOR                             ; mth0.asm
+xref    GetAttr                                 ; mth0.asm
+xref    GetCmdTopicByNum                        ; mth0.asm
+xref    GetHlp_sub                              ; mth0.asm
+xref    GetHlpHelp                              ; mth0.asm
+xref    GetHlpCommands                          ; mth0.asm
+xref    GetHlpTopics                            ; mth0.asm
+xref    GetRealCmdPosition                      ; mth0.asm
+xref    InputEmpty                              ; mth0.asm
+xref    DrawMenuWd                              ; mth0.asm
+xref    MayMTHPrint                             ; mth0.asm
+xref    MTHPrint                                ; mth0.asm
+xref    MTHPrintTokenized                       ; mth0.asm
+xref    NextAppDOR                              ; mth0.asm
+xref    PrevAppDOR                              ; mth0.asm
+xref    PrintTopic                              ; mth0.asm
+xref    PrntAppname                             ; mth0.asm
+xref    SetActiveAppDOR                         ; mth0.asm
+xref    SetHlpAppChgFile                        ; mth0.asm
+xref    SkipNTopics                             ; mth0.asm
 
 xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
 xref    Beep_X                                  ; bank0/scrdrv4.asm

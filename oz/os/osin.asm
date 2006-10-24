@@ -68,7 +68,7 @@ xref    BfGbt                                   ; bank0/buffer.asm
 xref    BfPur                                   ; bank0/buffer.asm
 xref    DoAlarms                                ; bank0/osalm0.asm
 xref    DrawOZwd                                ; bank0/ozwindow.asm
-xref    FindCmd                                 ; bank0/mth2.asm
+xref    FindCmd                                 ; mth0.asm
 xref    MaySetEsc                               ; bank0/esc.asm
 xref    TestEsc                                 ; bank0/esc.asm
 xref    UpdateRnd                               ; bank0/random.asm

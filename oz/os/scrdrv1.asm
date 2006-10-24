@@ -88,7 +88,6 @@ xref    ToggleScrDrvFlags                       ; bank0/scrdrv4.asm
 xref    Chk128KB                                ; bank0/resetx.asm
 xref    InitWindowFrame                         ; bank0/scrdrv3.asm
 xref    ResetWdAttrs                            ; bank0/scrdrv3.asm
-;xref    TogglePrFilter                          ; bank0/pfilter0.asm
 
 xref    VDU2Chr_tbl                             ;bank7/key2chrt.asm
 xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm

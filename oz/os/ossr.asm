@@ -30,7 +30,7 @@ xref    PutOSFrame_DE                           ; bank0/misc5.asm
 xref    FreeMemData0                            ; bank0/filesys3.asm
 xref    InitMemHandle                           ; bank0/filesys3.asm
 xref    RewindFile                              ; bank0/filesys3.asm
-xref    MTHPrint                                ; bank0/mth2.asm
+xref    MTHPrint                                ; mth0.asm
 xref    RestoreScreen                           ; bank0/scrdrv4.asm
 xref    SaveScreen                              ; bank0/scrdrv4.asm
 

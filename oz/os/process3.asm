@@ -74,7 +74,7 @@ xref    MS2BankK1                               ; bank0/misc5.asm
 xref    PutOSFrame_BHL                          ; bank0/misc5.asm
 xref    OSFramePush                             ; bank0/misc4.asm
 xref    OSFramePop                              ; bank0/misc4.asm
-xref    SetActiveAppDOR                         ; bank0/mth2.asm
+xref    SetActiveAppDOR                         ; mth0.asm
 
 xref    ChkStkLimits                            ; bank7/process1.asm
 xref    ClearMemDE_HL                           ; bank7/process1.asm
