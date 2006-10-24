@@ -173,15 +173,13 @@ defc    ubIntStatus             =$03f7
 defc    ubSlotRamSize           =$03fc
 defc    ubSlotRAMoffset         =$03f8
 
-defc    RandomPointers          =$0400
-defvars RandomPointers
+defvars $0400
+;                       Random
         ubRandomPtr             ds.b    1
         uwRandom1               ds.w    1
         uwRandom2               ds.w    1
-enddef
 
-defc    KeymapTblPtrs           =$0405
-defvars KeymapTblPtrs
+;                       Keymaps
         km_bank                 ds.b    1       ; memory bank where tables are, bound in S2
         km_page                 ds.b    1       ; high byte of address
         km_caps                 ds.b    1       ; low byte of CAPS translation table address
@@ -191,20 +189,22 @@ defvars KeymapTblPtrs
         km_deadchar             ds.b    1       ; char displayed in OZ window
         km_deadsub              ds.b    1       ; offset to list for current deadkey
         km_country              ds.w    1       ; country id for OZ window
-enddef
+        
+        free_free_free          ds.b    49      ; (040F-043F) 49 bytes free
 
-defc    KbdBuffer               =$0440          ; ends at $045F
+;                       Keyboard buffer
+        KbdBuffer               ds.b    32      ; $0440-£045F
 
-;       0460-04ff       hardware ports (see blink.def)
+;                       Hardware port softcopies
+        BlinkPortSoftCopies     ds.b    160     ; $0460-$04FF
 
-;       0500-0aff       handles
+;                       Handles
+        HANDLES                 ds.b    16*96   ; HNDLEN * NUMHANDLE
 
-defc    HANDLES                 =$0500
-
-;       0b00-0bff       Serial interface buffers
-
-defc    SerTXBuffer             =$0b00
-defc    SerRXBuffer             =$0b80
+;                      Serial interface buffers
+        SerTXBuffer             ds.b    128     ; $0B00-$0B7F
+        SerRXBuffer             ds.b    128     ; $0B80-$0BFF
+enddef        
 
 ;       0c00            NMI/wait
 
@@ -213,36 +213,37 @@ defc    ubTimecounterSoft       =$0c02
 defc    NMIStackTop             =$0c33
 
 ;       0db8-0dc2       EPROM
-
-defc    ubEpr_SubType           =$0db8
-                                                ; $0db9 unused
-defc    ubEpr_FirstBank         =$0dba          ; relative to end
-defc    ubEpr_NameLen           =$0dbb
-defc    ubEpr_Fstype            =$0dbc
-defc    pEpr_PrgTable           =$0dbd
-defc    pEpr_Parsedname         =$0dbf
-defc    pEpr_FileHandle         =$0dc1
-
+defvars $0db8
+        ubEpr_SubType           ds.b    1       
+        ubEpr_FREE_0            ds.b    1       ; ($0db9) 1 byte free
+        ubEpr_FirstBank         ds.b    1
+        ubEpr_NameLen           ds.b    1
+        ubEpr_Fstype            ds.b    1
+        pEpr_PrgTable           ds.w    1
+        pEpr_Parsedname         ds.w    1
+        pEpr_FileHandle         ds.w    1
+enddef                                          ; ($0dc3-$0dcf) 13 bytes free
+        
 ;       0dd0-0e07       Printer
 defvars $0dd0
-        StackBufPtr     ds.w    1
-        CtrlBuf         ds.w    1
-        CtrlLen         ds.b    1
-        prtInChar       ds.b    1
-        Translations    ds.b    37
-        PlaceHolderChar ds.b    1
-        PendingSpaces   ds.b    1
-        Rows            ds.b    1
-        PageLen         ds.b    1
-        Flags           ds.b    1
-        AttrUnderline   ds.b    1
-        AttrBold        ds.b    1
-        AttrExtended    ds.b    1
-        AttrItalics     ds.b    1
-        AttrSubscript   ds.b    1
-        AttrSuperscript ds.b    1
-        AttrAltfont     ds.b    1
-        AttrUserdef     ds.b    1
+        StackBufPtr             ds.w    1
+        CtrlBuf                 ds.w    1
+        CtrlLen                 ds.b    1
+        prtInChar               ds.b    1
+        Translations            ds.b    37
+        PlaceHolderChar         ds.b    1
+        PendingSpaces           ds.b    1
+        Rows                    ds.b    1
+        PageLen                 ds.b    1
+        Flags                   ds.b    1
+        AttrUnderline           ds.b    1
+        AttrBold                ds.b    1
+        AttrExtended            ds.b    1
+        AttrItalics             ds.b    1
+        AttrSubscript           ds.b    1
+        AttrSuperscript         ds.b    1
+        AttrAltfont             ds.b    1
+        AttrUserdef             ds.b    1
 enddef
 
 ;       0E10-0EC5       Index

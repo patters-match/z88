@@ -363,7 +363,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         cp      KMT_CAPS                        ; =2
         jr      c, gkp_1
 
-        ld      hl, KeymapTblPtrs
+        ld      hl, km_bank                     ; start of keymap table pointers
         add     a, l
         ld      l, a
         ld      l, (hl)

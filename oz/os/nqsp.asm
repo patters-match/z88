@@ -855,10 +855,10 @@ xref    Keymap_FI
         push    bc                              ; preserve previous binding
         res     6, h                            ; assume page mask is in s2
         set     7, h
-        ld      (KeymapTblPtrs), hl             ; store +0=bank, +1=page   ($01E0)
+        ld      (km_bank), hl                   ; store +0=bank, +1=page   ($01E0)
                                                 ; $page00 is matrix, $page40 is shift table
 
-        ld      de, KeymapTblPtrs+KMT_CAPS      ; +2
+        ld      de, km_bank+KMT_CAPS            ; +2
         set     6, h                            ; assume page mask is in s1
         res     7, h
         ld      l, $40                          ; ShiftTable start=length of shift table
