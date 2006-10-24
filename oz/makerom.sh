@@ -52,6 +52,28 @@ fi
 . cleanup.sh
 
 # -------------------------------------------------------------------------------------------------
+echo compiling Diary application
+cd apps/diary
+. bank1.sh $ozlocale
+cd ../..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat apps/diary/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
+echo compiling Imp/Export popdown
+cd apps/impexport
+. bank1.sh $ozlocale
+cd ../..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat apps/impexport/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
 echo compiling bank 1
 cd bank1
 . bank1.sh $ozlocale

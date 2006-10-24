@@ -36,8 +36,8 @@
         include "dor.def"
         include "sysvar.def"
 
-        include "../bank1/impexp.inc"
-        include "../bank1/impexp.def"
+        include "../apps/impexport/impexp.inc"
+        include "../apps/impexport/impexp.def"
         include "../apps/eazylink/rtmvars.def"
 
 xref    SysTokenBase

@@ -56,6 +56,26 @@ if "%ozlocale%"=="FI" ECHO Compiling Finnish Z88 ROM
 call cleanup
 
 :: -------------------------------------------------------------------------------------------------
+echo compiling Diary application
+cd apps\diary
+call bank1 %ozlocale% 2>nul >nul
+cd ..\..
+dir apps\diary\*.err 2>nul >nul || goto COMPILE_IMPEXP
+type apps\diary\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_IMPEXP
+echo compiling Imp/Export popdown
+cd apps\impexport
+call bank1 %ozlocale% 2>nul >nul
+cd ..\..
+dir apps\impexport\*.err 2>nul >nul || goto COMPILE_BANK1
+type apps\impexport\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_BANK1
 echo compiling bank 1
 cd bank1
 call bank1 %ozlocale% 2>nul >nul
