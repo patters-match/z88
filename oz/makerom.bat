@@ -70,18 +70,18 @@ echo compiling Imp/Export popdown
 cd apps\impexport
 call bank1 %ozlocale% 2>nul >nul
 cd ..\..
-dir apps\impexport\*.err 2>nul >nul || goto COMPILE_BANK1
+dir apps\impexport\*.err 2>nul >nul || goto COMPILE_CLCALALM
 type apps\impexport\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
-:COMPILE_BANK1
-echo compiling bank 1
-cd bank1
+:COMPILE_CLCALALM
+echo compiling Clock, Alarm and Calendar popdowns
+cd apps\clock
 call bank1 %ozlocale% 2>nul >nul
-cd ..
-dir bank1\*.err 2>nul >nul || goto COMPILE_MTH
-type bank1\*.err
+cd ..\..
+dir apps\clock\*.err apps\alarm\*.err apps\calendar\*.err 2>nul >nul || goto COMPILE_MTH
+type apps\clock\*.err apps\alarm\*.err apps\calendar\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

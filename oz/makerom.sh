@@ -74,12 +74,12 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
-echo compiling bank 1
-cd bank1
+echo compiling Clock, Alarm & Calendar popdowns
+cd apps/clock
 . bank1.sh $ozlocale
-cd ..
+cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
-  cat bank1/*.err
+  cat apps/clock/*.err apps/alarm/*.err apps/calendar/*.err
   echo Script aborted.
   exit 1
 fi

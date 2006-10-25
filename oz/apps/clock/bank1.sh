@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Bank 1 compilation script for Unix.
-# (Clock, Calendar & Alarm popdowns)
+# Clock, Calendar & Alarm popdown compilation script for Unix.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -24,4 +23,4 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -b -I../def -DKB"$1" clcalalm.asm
+../../../tools/mpm/mpm -b -I../../def -DKB"$1" @clcalalm.prj
