@@ -26,44 +26,44 @@ outputfile oz.bin
 size 512
 romupdate oz.0
 
-; kernel upper part (addressed from $C000 upwards) OS system calls
+; Bank 0: Kernel upper part (addressed from $C000 upwards), OS system calls
 os/kernel0.bin 000000                           ; first part of kernel OS
 os/ostables.bin 003f00
 
-; Bank 1: Diary app, Calendar, Clock, Alarm & Imp/Export popdowns
+; Bank 1: Diary, Calendar, Clock, Alarm & Imp/Export
 apps/diary/diary.bin 010000                     ; $C000: Diary application
 apps/clock/clcalalm.bin 0127ee                  ; $E7EE: Clock, Calendar & Alarm popdowns
 apps/impexport/impexp.bin 013ab1                ; $FAB1: Imp/export popdown
 
-; Bank2: Index, Filer, Terminal, Floating Point Package and serial port driver.
+; Bank 2: Index, Filer, Terminal, Floating Point Package
 dc/indexdc.bin 020000                           ; $C000: Index popdown (and DC_ system calls)
-fpp/fpp.bin 021800                              ; $D800: Floating point Package
+fpp/fpp.bin 021800                              ; $D800: Floating Point Package
 apps/terminal/terminal.bin 0227f0               ; $E7F0: Terminal Application
 apps/filer/filer.bin 022ab1                     ; $EAB1: Filer Popdown
 
-; GN system calls, Calculator popdown, located in bank 3
+; Bank 3: GN system calls, Calculator popdown
 gn/gn.bin 030000                                ; $C000: GN_ system calls
 apps/calculator/calc.bin 033300                 ; $F300: Calculator popdown
 
-; PipeDream (32K app)
+; Bank 4,5: PipeDream (32K app)
 apps/pipedream/pipedream.bn0 040000
 apps/pipedream/pipedream.bn1 050000
 
-; PrinterEd, Panel
+; Bank 6: PrinterEd, Panel
 bank6/panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
 
-; kernel lower part (addressed from $8000 upwards)
+; Bank 7: kernel lower part (addressed from $8000 upwards)
 os/kernel7.bin 070000                           ; second part of kernel OS
 
-; MTH and other static structures in last ROM bank
+; Bank 8: MTH and other static structures in last ROM bank
 mth/keymaps.bin 080000                          ; keyboard maps for UK, FR, DK, FI/SE & DE
 mth/hires1.bin 080800                           ; the HIRES1 font bitmap (OZ window symbols) 0E00-0FFF is free due to granularity
 mth/lores1.bin 081000                           ; the LORES1 font bitmap (Normal, Bold, Tiny, Symbol)
 mth/mth.bin 082000                              ; the System Token Table, MTH static structures and application DORs
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
 
-; BBC Basic application
+; Bank 9: BBC Basic application
 apps/bbcbasic/basic.dat 091200                  ; $D200: BBC BASIC application
 
-; EazyLink
+; Bank 10: EazyLink
 apps/eazylink/eazylink.bin 0a0000               ; $8000: EazyLink popdown
