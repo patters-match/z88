@@ -49,7 +49,7 @@ ELSE
         xref    OZCallTable
 ENDIF
 
-
+xdef    LowRAMcode, LowRAMcode_end
 xdef    DefErrHandler
 xdef    FPP_RET
 xdef    INTReturn
@@ -66,6 +66,7 @@ xdef    OZCallReturn3
 xdef    ExtCall
 xdef    MemDefBank, MemGetBank
 
+.LowRAMcode
 
 ;       ----
 ;       RESTARTS
@@ -478,3 +479,5 @@ xdef    MemDefBank, MemGetBank
         and     @11000000                       ; and return only the slot mask
         ret
 ;***************************************************************************************************
+
+.LowRAMcode_end

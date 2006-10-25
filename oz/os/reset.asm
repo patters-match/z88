@@ -40,6 +40,7 @@
         include "serintfc.def"
         include "syspar.def"
         include "time.def"
+        include "lowram.def"
 
 xdef    Reset                                   ; bank0/boot.asm
 xdef    ExpandMachine                           ; bank0/cardmgr.asm
@@ -62,8 +63,6 @@ xref    RAMxDOR                                 ; bank7/misc1.asm
 xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
 xref    InitKbdPtrs                             ; bank7/nqsp.asm
 xref    InitData                                ; bank7/initdata.asm
-xref    LowRAMcode                              ; bank7/lowram0.asm
-xref    LowRAMcode_e                            ; bank7/lowram0.asm
 xref    TimeReset                               ; bank7/timeres.asm
 
 ;       ----
@@ -124,17 +123,22 @@ xref    TimeReset                               ; bank7/timeres.asm
         ld      (bc), a
         jr      rst2_2
 
-;       copy low RAM code
-
+;       copy low RAM code and install it in lower 8K of segment 0
 .rst2_3
-        ld      bc, #LowRAMcode_e-LowRAMcode
+        ld      a, OZBANK_MTH
+        out     (BL_SR3), a                     ; bind MTH bank into S3
+        ld      bc, #LowRAMcode_end - LowRAMcode
+        ld      hl, LOWRAM_CODE                 ; and copy LOWRAM code into
         ld      de, $4000                       ; destination b20 in S1
         ldir
+        ld      a, OZBANK_KNL0
+        out     (BL_SR3), a                     ; restore KNL0 bank
+
         ld      a, 1
         ld      ($4000+ubAppCallLevel), a
         ld      a, BM_COMRAMS|BM_COMLCDON
         ld      ($4000+BLSC_COM), a
-        out     (BL_COM), a
+        out     (BL_COM), a                     ; install LOWRAM in lower 8K of segment 0
         ld      sp, $2000                       ; init stack
         call    ResetHandles
 
@@ -237,7 +241,7 @@ xref    TimeReset                               ; bank7/timeres.asm
         jr      infinity
 
 ; *** Reset subroutines ***
-        
+
 .ExpandMachine
         call    Chk128KB
         ret     c                               ; not expanded? exit

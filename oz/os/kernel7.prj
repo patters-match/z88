@@ -38,7 +38,6 @@ memory1.asm
 mth1.asm
 nqsp.asm
 initdata.asm
-lowram0.asm
 scrdrv1.asm
 ossr.asm
 key2chrt.asm

@@ -187,7 +187,7 @@ defvars $0400
         ubKmDeadchar            ds.b    1       ; char displayed in OZ window
         ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
         aKmCountry              ds.w    1       ; country id for OZ window
-        
+
         free_free_free          ds.b    49      ; (040F-043F) 49 bytes free
 
 ; Keyboard buffer
@@ -202,7 +202,7 @@ defvars $0400
 ; Serial interface buffers
         SerTXBuffer             ds.b    128     ; $0B00-$0B7F
         SerRXBuffer             ds.b    128     ; $0B80-$0BFF
-enddef        
+enddef
 
 ; NMI/wait
 
@@ -212,7 +212,7 @@ defc    NMIStackTop             =$0c33
 
 ; EPROM
 defvars $0db8
-        ubEpr_SubType           ds.b    1       
+        ubEpr_SubType           ds.b    1
         ubEpr_FREE_0            ds.b    1       ; ($0db9) 1 byte free
         ubEpr_FirstBank         ds.b    1
         ubEpr_NameLen           ds.b    1
@@ -221,7 +221,7 @@ defvars $0db8
         pEpr_Parsedname         ds.w    1
         pEpr_FileHandle         ds.w    1
 enddef                                          ; ($0dc3-$0dcf) 13 bytes free
-        
+
 ; Printer
 defvars $0dd0
         StackBufPtr             ds.w    1
@@ -941,7 +941,7 @@ defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
 defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
 defc    FPPCALLTBL              =$D800
-
+defc    LOWRAM_CODE             =$C600          ; LOWRAM code stored in MTH static data bank at offset $0600
 
 
 ; **************************************************************************************************
@@ -997,7 +997,5 @@ defc    PRT_B_ENABLED   =1                      ; output enabled?
 
 defc    PRT_ALLOWLF     =1
 defc    PRT_ENABLED     =2
-
-
 
 lston
