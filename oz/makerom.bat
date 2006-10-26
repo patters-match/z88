@@ -120,11 +120,11 @@ goto COMPILE_ERROR
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_FPP
 echo compiling Floating Point Package
-cd fpp
+cd fp
 call bank2 2>nul >nul
 cd ..
-dir fpp\*.err 2>nul >nul || goto COMPILE_TERMINAL
-type fpp\*.err
+dir fp\*.err 2>nul >nul || goto COMPILE_TERMINAL
+type fp\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

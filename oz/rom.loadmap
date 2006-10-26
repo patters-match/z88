@@ -37,7 +37,7 @@ apps/impexport/impexp.bin 013ab1                ; $FAB1: Imp/export popdown
 
 ; Bank 2: Index, Filer, Terminal, Floating Point Package
 dc/indexdc.bin 020000                           ; $C000: Index popdown (and DC_ system calls)
-fpp/fpp.bin 021800                              ; $D800: Floating Point Package
+fp/fpp.bin 021800                               ; $D800: Floating Point Package
 apps/terminal/terminal.bin 0227f0               ; $E7F0: Terminal Application
 apps/filer/filer.bin 022ab1                     ; $EAB1: Filer Popdown
 
