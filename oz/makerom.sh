@@ -74,7 +74,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
-echo compiling Clock, Alarm & Calendar popdowns
+echo compiling Clock, Alarm and Calendar popdowns
 cd apps/clock
 . bank1.sh $ozlocale
 cd ../..
@@ -118,7 +118,7 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 echo compiling Floating Point Package
-cd fpp
+cd fp
 . bank2.sh
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
@@ -131,7 +131,7 @@ fi
 echo compiling compiling Terminal popdown
 cd apps/terminal
 . bank2.sh
-cd ..
+cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/terminal/*.err
   echo Script aborted.
