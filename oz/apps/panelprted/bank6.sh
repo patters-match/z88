@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Bank 6 compilation script for Unix.
-# (Panel & PrinterEd applications, Calendar & Clock DORs)
+# Panel & PrinterEd application compilation script for Unix.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -24,9 +23,4 @@
 # $Id$
 # ***************************************************************************************************
 
-COMPILE_ERROR=0
-
-../../tools/mpm/mpm -b -I../def panelped.asm
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
+../../../tools/mpm/mpm -b -I../../def panelped.asm

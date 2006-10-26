@@ -163,18 +163,18 @@ echo compiling Calculator popdown
 cd apps\calculator
 call bank3 %ozlocale% 2>nul >nul
 cd ..\..
-dir apps\calculator\*.err 2>nul >nul || goto COMPILE_BANK6
+dir apps\calculator\*.err 2>nul >nul || goto COMPILE_PNLPRED
 type apps\calculator\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
-:COMPILE_BANK6
-echo compiling bank 6
-cd bank6
+:COMPILE_PNLPRED
+echo compiling Panel and PrinterEd applications
+cd apps\panelprted
 call bank6 2>nul >nul
-cd ..
-dir bank6\*.err 2>nul >nul || goto COMPILE_EAZYLINK
-type bank6\*.err
+cd ..\..
+dir apps\panelprted\*.err 2>nul >nul || goto COMPILE_EAZYLINK
+type apps\panelprted\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

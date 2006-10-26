@@ -1,6 +1,5 @@
 :: **************************************************************************************************
-:: Bank 6 compilation script for Windows/DOS.
-:: (Panel & PrinterEd applications, Calendar & Clock DORs)
+:: Panel & PrinterEd application compilation script for Windows/DOS.
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,4 +21,4 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\tools\mpm\mpm -b -I..\def panelped.asm
+..\..\..\tools\mpm\mpm -b -I..\..\def panelped.asm

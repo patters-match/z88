@@ -170,14 +170,13 @@ if test `find . -name '*.err' | wc -l` != 0; then
   exit 1
 fi
 
-
 # -------------------------------------------------------------------------------------------------
-echo compiling bank 6
-cd bank6
+echo compiling Panel and PrinterEd applications
+cd apps/panelprted
 . bank6.sh
-cd ..
+cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
-  cat bank6/*.err
+  cat apps/panelprted/*.err
   echo Script aborted.
   exit 1
 fi

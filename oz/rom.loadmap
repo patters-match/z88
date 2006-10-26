@@ -50,7 +50,7 @@ apps/pipedream/pipedream.bn0 040000
 apps/pipedream/pipedream.bn1 050000
 
 ; Bank 6: PrinterEd, Panel
-bank6/panelped.bin 060000                       ; $C000: Panel popdown & PrinterEd application
+apps/panelprted/panelped.bin 060000             ; $C000: Panel popdown & PrinterEd application
 
 ; Bank 7: kernel lower part (addressed from $8000 upwards)
 os/kernel7.bin 070000                           ; second part of kernel OS
