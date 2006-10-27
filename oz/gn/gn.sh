@@ -24,5 +24,13 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -b -I../def -DKB"$1" @gn.prj
+COMPILE_ERROR=0
 
+../../tools/mpm/mpm -b -I../def -DKB"$1" @gn.prj
+if test `find . -name '*.err' | wc -l` != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" -eq 0; then
+  ../../tools/mpm/mpm -b -I../def calc.asm
+fi

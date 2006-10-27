@@ -58,7 +58,7 @@ call cleanup
 :: -------------------------------------------------------------------------------------------------
 echo compiling Diary application
 cd apps\diary
-call bank1 %ozlocale% 2>nul >nul
+call makeapp %ozlocale% 2>nul >nul
 cd ..\..
 dir apps\diary\*.err 2>nul >nul || goto COMPILE_IMPEXP
 type apps\diary\*.err
@@ -68,7 +68,7 @@ goto COMPILE_ERROR
 :COMPILE_IMPEXP
 echo compiling Imp/Export popdown
 cd apps\impexport
-call bank1 %ozlocale% 2>nul >nul
+call makeapp %ozlocale% 2>nul >nul
 cd ..\..
 dir apps\impexport\*.err 2>nul >nul || goto COMPILE_CLCALALM
 type apps\impexport\*.err
@@ -78,7 +78,7 @@ goto COMPILE_ERROR
 :COMPILE_CLCALALM
 echo compiling Clock, Alarm and Calendar popdowns
 cd apps\clock
-call bank1 %ozlocale% 2>nul >nul
+call makeapp %ozlocale% 2>nul >nul
 cd ..\..
 dir apps\clock\*.err apps\alarm\*.err apps\calendar\*.err 2>nul >nul || goto COMPILE_MTH
 type apps\clock\*.err apps\alarm\*.err apps\calendar\*.err
@@ -111,7 +111,7 @@ goto COMPILE_ERROR
 :COMPILE_DCCALLS
 echo compiling Index popdown / DC System calls
 cd dc
-call bank2 2>nul >nul
+call makeapp 2>nul >nul
 cd ..
 dir dc\*.err 2>nul >nul || goto COMPILE_FPP
 type dc\*.err
@@ -121,7 +121,7 @@ goto COMPILE_ERROR
 :COMPILE_FPP
 echo compiling Floating Point Package
 cd fp
-call bank2 2>nul >nul
+call fpp 2>nul >nul
 cd ..
 dir fp\*.err 2>nul >nul || goto COMPILE_TERMINAL
 type fp\*.err
@@ -131,7 +131,7 @@ goto COMPILE_ERROR
 :COMPILE_TERMINAL
 echo compiling Terminal popdown
 cd apps\terminal
-call bank2 2>nul >nul
+call makeapp 2>nul >nul
 cd ..\..
 dir apps\terminal\*.err 2>nul >nul || goto COMPILE_FILER
 type apps\terminal\*.err
@@ -141,7 +141,7 @@ goto COMPILE_ERROR
 :COMPILE_FILER
 echo compiling Filer popdown
 cd apps\filer
-call bank2 2>nul >nul
+call makeapp 2>nul >nul
 cd ..\..
 dir apps\filer\*.err 2>nul >nul || goto COMPILE_GNCALLS
 type apps\filer\*.err
@@ -151,7 +151,7 @@ goto COMPILE_ERROR
 :COMPILE_GNCALLS
 echo compiling GN System calls
 cd gn
-call bank3 %ozlocale% 2>nul >nul
+call gn %ozlocale% 2>nul >nul
 cd ..
 dir gn\*.err 2>nul >nul || goto COMPILE_CALCULATOR
 type gn\*.err
@@ -161,7 +161,7 @@ goto COMPILE_ERROR
 :COMPILE_CALCULATOR
 echo compiling Calculator popdown
 cd apps\calculator
-call bank3 %ozlocale% 2>nul >nul
+call makeapp %ozlocale% 2>nul >nul
 cd ..\..
 dir apps\calculator\*.err 2>nul >nul || goto COMPILE_PNLPRED
 type apps\calculator\*.err
@@ -171,7 +171,7 @@ goto COMPILE_ERROR
 :COMPILE_PNLPRED
 echo compiling Panel and PrinterEd applications
 cd apps\panelprted
-call bank6 2>nul >nul
+call makeapp 2>nul >nul
 cd ..\..
 dir apps\panelprted\*.err 2>nul >nul || goto COMPILE_EAZYLINK
 type apps\panelprted\*.err
@@ -181,7 +181,7 @@ goto COMPILE_ERROR
 :COMPILE_EAZYLINK
 echo compiling EazyLink
 cd apps\eazylink
-call make.eazylink.bat
+call makeapp.bat
 cd ..\..
 dir apps\eazylink\*.err 2>nul >nul || goto COMBINE_BANKS
 type apps\eazylink\*.err

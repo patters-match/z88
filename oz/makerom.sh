@@ -54,7 +54,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Diary application
 cd apps/diary
-. bank1.sh $ozlocale
+. makeapp.sh $ozlocale
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/diary/*.err
@@ -65,7 +65,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Imp/Export popdown
 cd apps/impexport
-. bank1.sh $ozlocale
+. makeapp.sh $ozlocale
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/impexport/*.err
@@ -76,7 +76,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Clock, Alarm and Calendar popdowns
 cd apps/clock
-. bank1.sh $ozlocale
+. makeapp.sh $ozlocale
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/clock/*.err apps/alarm/*.err apps/calendar/*.err
@@ -108,7 +108,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Index popdown / DC System calls
 cd dc
-. bank2.sh
+. makeapp.sh
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat dc/*.err
@@ -119,7 +119,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Floating Point Package
 cd fp
-. bank2.sh
+. fpp.sh
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat fpp/*.err
@@ -130,7 +130,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling compiling Terminal popdown
 cd apps/terminal
-. bank2.sh
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/terminal/*.err
@@ -141,7 +141,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Filer popdown
 cd apps/filer
-. bank2.sh
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/filer/*.err
@@ -152,7 +152,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling GN system calls
 cd gn
-. bank3.sh $ozlocale
+. gn.sh $ozlocale
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat gn/*.err
@@ -162,7 +162,7 @@ fi
 
 echo compiling Calculator popdown
 cd apps/calculator
-. bank3.sh $ozlocale
+. makeapp.sh $ozlocale
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/calculator/*.err
@@ -173,7 +173,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Panel and PrinterEd applications
 cd apps/panelprted
-. bank6.sh
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/panelprted/*.err
@@ -184,7 +184,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling EazyLink
 cd apps/eazylink
-. make.eazylink.sh
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/eazylink/*.err
