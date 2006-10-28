@@ -24,6 +24,10 @@
 # $Id$
 # ***************************************************************************************************
 
+# ensure that we have an up-to-date standard library 
+# (NB: this is done temporarily while integrating Flash / File Area standard libraries into OZ)
+cd ../stdlib; ./makelib.sh; cd ../oz
+
 COMPILE_ERROR=0
 
 # create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
@@ -60,7 +64,7 @@ fi
 
 # compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -I../def @kernel7.prj
+  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -l../../stdlib/standard.lib -I../def @kernel7.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1

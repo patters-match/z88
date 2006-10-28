@@ -21,6 +21,12 @@
 :: $Id$
 :: ***************************************************************************************************
 
+:: ensure that we have an up-to-date standard library
+:: (NB: this is done temporarily while integrating Flash / File Area standard libraries into OZ)
+cd ..\stdlib
+call makelib.bat
+cd ..\oz
+
 :: create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
 cd os
 ..\..\tools\mpm\mpm -g ostables.asm
@@ -47,7 +53,7 @@ goto COMPILE_ERROR
 
 :: compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
 :COMPILE_KERNEL7
-..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DKB%1 -I..\def @kernel7.prj
+..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DKB%1 -I..\def -l..\..\stdlib\standard.lib @kernel7.prj
 dir *.err 2>nul >nul || goto COMPILE_KERNEL0
 goto COMPILE_ERROR
 
