@@ -4292,9 +4292,9 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         defm    "CARDS"
         defm    1,"2JN"
         defm    1,"3@",$20+17,$20+1
-        defm    "ROM"
-        defm    1,"2X",$20+25
-        defm    "EPROM"
+        defm    "APPS"
+        defm    1,"2X",$20+26
+        defm    "FILES"
         defm    1,"2X",$20+37
         defm    "RAM"
         defm    1,"3@",$20+0,$20+0
@@ -4305,16 +4305,12 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
         defm    1,"2A",$20+46
         defm    1,"U"
         defm    1,"3@",$20+0,$20+3
-        defm    " CARD 1",13,10
-        defm    " CARD 2",13,10
-        defm    " CARD 3"
+        defm    " SLOT 1",13,10
+        defm    " SLOT 2",13,10
+        defm    " SLOT 3"
         defm    1,"3@",$20+0,$20+7
         defm    1,"2JC"
-        defm    "PRESS "
-        defm    1,"R"
-        defm    " ESC "
-        defm    1,"R"
-        defm    " TO RESUME"
+        defm    "PRESS ", 1, SD_ESC, " TO RESUME"
         defm    1,"2JN"
         defm    1,"T"
         defm    0

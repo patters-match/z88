@@ -27,7 +27,7 @@
 # get rid of previous generated ROM bank files
 rm -f oz.?? romupdate.cfg
 
-# delete all compile output files in bank0 - bank7
+# delete all compile output files
 find . -name "*.bin" | xargs rm -f
 find . -name "*.map" | xargs rm -f
 find . -name "*.err" | xargs rm -f
@@ -36,10 +36,7 @@ find . -name "*.lst" | xargs rm -f
 find . -name "*.err" | xargs rm -f
 find . -name "*.sym" | xargs rm -f
 
-# only delete *.def files for rom banks (preserve /sysdef!)
-find ./bank0 -name "*.def" | xargs rm -f
-find ./bank1 -name "*.def" | xargs rm -f
-find ./bank2 -name "*.def" | xargs rm -f
-find ./bank7 -name "*.def" | xargs rm -f
+# only delete *.def files for OZ rom (preserve /def!)
+find ./os -name "*.def" | xargs rm -f
 find ./mth -name "*.def" | xargs rm -f
 
