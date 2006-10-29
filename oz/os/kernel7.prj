@@ -24,7 +24,8 @@
 kernel7.asm
 osscitable.asm
 clitables.asm
-osepr/eprom.asm
+osepr/osepr.asm
+osfep/osfep.asm
 osfep/fepblera.asm
 osfep/fepcdera.asm
 osfep/fepcpyblk.asm

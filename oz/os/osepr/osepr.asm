@@ -55,6 +55,9 @@ xdef    OSEpr
         ld      hl, OSEprTable
         add     a, l                            ; add reason
         ld      l, a
+        jr      nc,exec_epr_reason
+        inc     h                               ; adjust for page crossing.
+.exec_epr_reason
         ex      (sp), hl                        ; restore hl and push address
         ret                                     ; goto reason
 

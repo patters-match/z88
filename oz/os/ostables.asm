@@ -101,7 +101,8 @@ ELSE
         xref    OSWrt                           ; bank0/token.asm
         xref    OSWtb                           ; bank0/token.asm
 
-        xref    OSEpr                           ; bank7/eprom.asm
+        xref    OSEpr                           ; os/osepr/os.asm
+        xref    OSFep                           ; os/osfep/osfep.asm
         xref    OSMap                           ; bank7/osmap.asm
         xref    OSDel                           ; bank7/filesys1.asm
         xref    OSRen                           ; bank7/filesys1.asm
@@ -159,8 +160,8 @@ ENDIF
         jp      OSCli
         jp      OSDor
         jp      OSFc
-        jp      OSSi
-        jp      OzCallInvalid
+        jp      OSSi                            ; $8D
+        jp      OSFep                           ; $90
         jp      OzCallInvalid
         jp      OzCallInvalid
         jp      OzCallInvalid
