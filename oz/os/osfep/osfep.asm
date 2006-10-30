@@ -55,4 +55,4 @@
         ret                                     ; goto reason
 
 .OSFepTable
-        jp      FlashEprCardId                  ; reason code FEP_CRDID
+        jp      FlashEprCardId                  ; reason code $00 for FEP_CRDID

@@ -37,6 +37,7 @@
         include "blink.def"
         include "error.def"
         include "sysvar.def"
+        include "flashepr.def"
 
 IF COMPILE_BINARY
         include "kernel0.def"                   ; get bank 0 kernel address references
@@ -65,6 +66,7 @@ xdef    OZCallReturn2
 xdef    OZCallReturn3
 xdef    ExtCall
 xdef    MemDefBank, MemGetBank
+xdef    Poll_I28Fx_ChipId, Poll_AM29Fx_ChipId
 
 .LowRAMcode
 
@@ -325,6 +327,7 @@ xdef    MemDefBank, MemGetBank
         ret     c                               ; ints were disabled? exit
         ei
         ret
+        
 
 
 ; ***************************************************************************************************
@@ -478,6 +481,104 @@ xdef    MemDefBank, MemGetBank
         ld      a,(bc)                          ; get current bank binding of executing code
         and     @11000000                       ; and return only the slot mask
         ret
-;***************************************************************************************************
+; ***************************************************************************************************
 
+
+
+; ***************************************************************************************************
+; Poll for I28F0xxxx (INTEL) Flash Memory Chip ID.
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       HL points into bound bank of potential Flash Memory
+; Out:
+;       H = manufacturer code (at $00 0000 on chip)
+;       L = device code (at $00 0001 on chip)
+;
+; Registers changed on return:
+;    AFBCDE../IXIY same
+;    ......HL/.... different
+;
+.Poll_I28Fx_ChipId
+        push    de                                   
+        ld      (hl), $90                       ; get INTELligent identification code (manufacturer and device)
+        ld      d,(hl)                          ; D = Manufacturer Code (at $00 0000)
+        inc     hl                              
+        ld      e,(hl)                          ; E = Device Code (at $00 0001)
+        ld      (hl), $ff                       ; Reset Flash Memory Chip to read array mode
+        ex      de,hl
+        pop     de
+        ret
+; ***************************************************************************************************
+
+
+
+; ***************************************************************************************************
+; Execute AM29F0xxx / ST29F0xxx (AMD/STM) Flash Memory Chip Command
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       A = AMD/STM Command code
+; Out:
+;       -
+;
+; Registers changed on return:
+;    AF....../IXIY same
+;    ..BCDEHL/.... different
+;
+.AM29Fx_CmdMode
+        push    af
+        ld      bc,$aa55                        ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
+        ld      a,h                             
+        and     @11000000                       
+        ld      d,a                             
+        or      $05                             
+        ld      h,a                             
+        ld      l,c                             ; HL = address $x555
+        set     1,d                             
+        ld      e,b                             ; DE = address $x2AA
+                                                
+        ld      a,c                             
+        ld      (hl),b                          ; AA -> (X555), First Unlock Cycle
+        ld      (de),a                          ; 55 -> (X2AA), Second Unlock Cycle
+        pop     af
+        ld      (hl),a                          ; A -> (X555), send command
+        ret
+; ***************************************************************************************************
+
+
+
+; ***************************************************************************************************
+; Polling code for AM29F0xxx / ST29F0xxx (AMD/STM) Flash Memory Chip ID
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       HL = points into bound bank of potential Flash Memory (defined by OS_Fep sub function)
+; Out:
+;       H = manufacturer code (at $00 xxx0 on chip)
+;       L = device code (at $00 xxx1 on chip)
+;
+; Registers changed on return:
+;    AF..DE../IXIY same
+;    ..BC..HL/.... different
+;
+.Poll_AM29Fx_ChipId
+        push    af
+        push    de
+                
+        ld      a,$90                           ; autoselect mode (to get ID)
+        call    AM29Fx_CmdMode
+                                                
+        ld      l,0                             
+        ld      d,(hl)                          ; Manufacturer Code (at XX00)
+        inc     hl                              
+        ld      e,(hl)                          ; Device Code (at XX01)
+        ld      (hl),$f0                        ; F0 -> (XXXXX), set Flash Memory to Read Array Mode
+        ex      de,hl                           ; H = Manufacturer Code, L = Device Code
+                
+        pop     de
+        pop     af
+        ret
+; ***************************************************************************************************
+        
 .LowRAMcode_end
