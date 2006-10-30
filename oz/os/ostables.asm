@@ -160,8 +160,8 @@ ENDIF
         jp      OSCli
         jp      OSDor
         jp      OSFc
-        jp      OSSi                            ; $8D
-        jp      OSFep                           ; $90
+        jp      OSSi
+        jp      OzCallInvalid
         jp      OzCallInvalid
         jp      OzCallInvalid
         jp      OzCallInvalid
@@ -169,10 +169,10 @@ ENDIF
 
 ; ***** FREE SPACE *****                        ; some code was here and removed for clarity
 
-        defs    $2B ($FF)                       ; $3FCA - $3FB1
+        defs    $29 ($FF)                       ; $3FC8 - $3FB1
 
-; 2-byte calls, OSFrame set up already          ; start at $003FCA
-
+; 2-byte calls, OSFrame set up already          ; start at $003FC8
+        defw    OSFep
         defw    OSWtb
         defw    OSWrt
         defw    OSWsq

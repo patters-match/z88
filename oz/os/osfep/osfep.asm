@@ -36,24 +36,22 @@
 ; ***************************************************************************************************
 ;
 ; OS_Fep, Flash Eprom interface
-; RST 20H, DEFB $90
+; RST 20H, DEFB $C806
+;
+; On entry, OSFrame is established.
 ;
 ; Reason code in A
-;    Arguments in BC, DE, HL, IY
+;    Arguments in BC, DE, HL, IX
 ;
 .OSFep
-        ld      hl, OZCallReturn1
-        push    hl                              ; stack the RETurn to OZ register restore & return to caller of OS_Fep
-
+        push    hl
         ld      hl, OSFepTable
-        ex      af,af'                          ; get reason code
         add     a, l
         ld      l, a
         jr      nc,exec_fep_reason
         inc     h                               ; adjust for page crossing.
 .exec_fep_reason
-        push    hl
-        exx                                     ; install main registers (API arguments)
+        ex      (sp), hl                        ; restore hl and push address
         ret                                     ; goto reason
 
 .OSFepTable
