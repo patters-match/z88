@@ -23,13 +23,10 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprCardErase
+        xdef FlashEprCardErase
 
-     XREF FlashEprCardId         ; Identify Flash Memory Chip in slot C
-     XREF FlashEprSectorErase    ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
-
-     INCLUDE "flashepr.def"
-     INCLUDE "memory.def"
+        xref FlashEprCardId         ; Identify Flash Memory Chip in slot C
+        xref FlashEprSectorErase    ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
 
 
 ; ***************************************************************************************************
@@ -76,24 +73,24 @@
 ; ---------------------------------------------------------------
 ;
 .FlashEprCardErase
-                    PUSH BC
-                    PUSH HL
+        push bc
+        push hl
 
-                    CALL FlashEprCardId                 ; poll for card information in slot C (returns B = total banks of card)
-                    JR   C, exit_FlashEprCardErase
+        call FlashEprCardId                     ; poll for card information in slot C (returns B = total banks of card)
+        jr   c, exit_FlashEprCardErase
 
-                    RRC  B                              ; Erase the individual sectors, one at a time
-                    RRC  B                              ; total of 16K banks on card -> total of 64K sectors on card.
-                    DEC  B                              ; sectors, from (total sectors-1) downwards and including 0
+        rrc  b                                  ; Erase the individual sectors, one at a time
+        rrc  b                                  ; total of 16K banks on card -> total of 64K sectors on card.
+        dec  b                                  ; sectors, from (total sectors-1) downwards and including 0
 .erase_2xF_card_blocks
-                    CALL FlashEprSectorErase            ; erase top sector of card, and downwards...
-                    JR   C, exit_FlashEprCardErase
-                    DEC  B
-                    LD   A,B
-                    CP   -1
-                    JR   NZ, erase_2xF_card_blocks
+        call FlashEprSectorErase                ; erase top sector of card, and downwards...
+        jr   c, exit_FlashEprCardErase
+        dec  b
+        ld   a,b
+        cp   -1
+        jr   nz, erase_2xF_card_blocks
 
 .exit_FlashEprCardErase
-                    POP  HL
-                    POP  BC
-                    RET
+        pop  hl
+        pop  bc
+        ret
