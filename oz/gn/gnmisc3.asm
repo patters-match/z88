@@ -15,7 +15,7 @@
         include "stdio.def"
 
         include "sysvar.def"
-        include "../os/kernel7.def"
+        include "../os/kernel1.def"
 
 ;       ----
 

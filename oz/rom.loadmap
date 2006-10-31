@@ -53,7 +53,7 @@ apps/pipedream/pipedream.bn1 050000
 apps/panelprted/panelped.bin 060000             ; $C000: Panel popdown & PrinterEd application
 
 ; Bank 7: kernel lower part (addressed from $8000 upwards)
-os/kernel7.bin 070000                           ; second part of kernel OS
+os/kernel1.bin 070000                           ; second part of kernel OS
 
 ; Bank 8: MTH and other static structures in last ROM bank
 mth/keymaps.bin 080000                          ; keyboard maps for UK, FR, DK, FI/SE & DE

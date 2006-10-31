@@ -99,10 +99,10 @@ goto COMPILE_ERROR
 :COMPILE_KERNEL
 echo compiling OZ kernel
 call kernel %ozlocale% 2>nul >nul
-dir os\*.err 2>nul >nul || goto CHECK_KERNEL7_ERRORS
+dir os\*.err 2>nul >nul || goto CHECK_KERNEL1_ERRORS
 type os\*.err
 goto COMPILE_ERROR
-:CHECK_KERNEL7_ERRORS
+:CHECK_KERNEL1_ERRORS
 dir os\*.err 2>nul >nul || goto COMPILE_DCCALLS
 type os\*.err
 goto COMPILE_ERROR

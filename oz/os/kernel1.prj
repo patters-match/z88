@@ -21,7 +21,7 @@
 ; $Id$
 ;***************************************************************************************************
 
-kernel7.asm
+kernel1.asm
 osscitable.asm
 clitables.asm
 osepr/osepr.asm

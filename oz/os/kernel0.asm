@@ -31,89 +31,89 @@
         org $C000
 
 IF COMPILE_BINARY
-        xdef    Reset                           ; bank7/reset.asm
-        xdef    ExpandMachine                   ; bank7/reset.asm
+        xdef    Reset                           ; [Kernel1]/reset.asm
+        xdef    ExpandMachine                   ; [Kernel1]/reset.asm
 
-        xdef    OSAlmMain                       ; bank7/osalm.asm
+        xdef    OSAlmMain                       ; [Kernel1]/osalm.asm
 
-        xdef    RstRdPanelAttrs                 ; bank7/nqsp.asm
-        xdef    OSNqMain                        ; bank7/nqsp.asm
-        xdef    OSSpMain                        ; bank7/nqsp.asm
+        xdef    RstRdPanelAttrs                 ; [Kernel1]/nqsp.asm
+        xdef    OSNqMain                        ; [Kernel1]/nqsp.asm
+        xdef    OSSpMain                        ; [Kernel1]/nqsp.asm
 
-        xdef    OSSr_Fus                        ; bank7/ossr.asm
-        xdef    FreeMemHandle                   ; bank7/ossr.asm
-        xdef    OSSR_main                       ; bank7/ossr.asm
+        xdef    OSSr_Fus                        ; [Kernel1]/ossr.asm
+        xdef    FreeMemHandle                   ; [Kernel1]/ossr.asm
+        xdef    OSSR_main                       ; [Kernel1]/ossr.asm
 
-        xdef    OSEpr                           ; bank7/eprom.asm
+        xdef    OSEpr                           ; [Kernel1]/eprom.asm
 
-        xdef    OSIsq                           ; bank7/scrdrv1.asm
-        xdef    OSWsq                           ; bank7/scrdrv1.asm
-        xdef    OSOutMain                       ; bank7/scrdrv1.asm
-        xdef    StorePrefixed                   ; bank7/scrdrv1.asm
-        xdef    InitUserAreaGrey                ; bank7/scrdrv1.asm
-        xdef    Chr2ScreenCode                  ; bank7/scrdrv1.asm
-        xdef    ScrDrvAttrTable                 ; bank7/scrdrv1.asm
-        xdef    GetCrsrYX                       ; bank7/scrdrv1.asm
-        xdef    GetWindowNum                    ; bank7/scrdrv1.asm
-        xdef    VDU2ChrCode                     ; bank7/scrdrv1.asm
-        xdef    Zero_ctrlprefix                 ; bank7/scrdrv1.asm
-        xdef    ScrD_GetNewXY                   ; bank7/scrdrv1.asm
-        xdef    ScrD_PutChar                    ; bank7/scrdrv1.asm
-        xdef    ScrD_PutByte                    ; bank7/scrdrv1.asm
+        xdef    OSIsq                           ; [Kernel1]/scrdrv1.asm
+        xdef    OSWsq                           ; [Kernel1]/scrdrv1.asm
+        xdef    OSOutMain                       ; [Kernel1]/scrdrv1.asm
+        xdef    StorePrefixed                   ; [Kernel1]/scrdrv1.asm
+        xdef    InitUserAreaGrey                ; [Kernel1]/scrdrv1.asm
+        xdef    Chr2ScreenCode                  ; [Kernel1]/scrdrv1.asm
+        xdef    ScrDrvAttrTable                 ; [Kernel1]/scrdrv1.asm
+        xdef    GetCrsrYX                       ; [Kernel1]/scrdrv1.asm
+        xdef    GetWindowNum                    ; [Kernel1]/scrdrv1.asm
+        xdef    VDU2ChrCode                     ; [Kernel1]/scrdrv1.asm
+        xdef    Zero_ctrlprefix                 ; [Kernel1]/scrdrv1.asm
+        xdef    ScrD_GetNewXY                   ; [Kernel1]/scrdrv1.asm
+        xdef    ScrD_PutChar                    ; [Kernel1]/scrdrv1.asm
+        xdef    ScrD_PutByte                    ; [Kernel1]/scrdrv1.asm
 
-        xdef    CopyMTHApp_Help                 ; bank7/mth1.asm
-        xdef    CopyMTHHelp_App                 ; bank7/mth1.asm
-        xdef    DrawTopicWd                     ; bank7/mth1.asm
-        xdef    DrawMenuWd2                     ; bank7/mth1.asm
-        xdef    DoHelp                          ; bank7/mth1.asm
-        xdef    Help2Wd_bottom                  ; bank7/mth1.asm
-        xdef    Help2Wd_Top                     ; bank7/mth1.asm
-        xdef    InitHelpWd                      ; bank7/mth1.asm
-        xdef    OpenAppHelpFile                 ; bank7/mth1.asm
-        xdef    GetFirstCmdHelp                 ; bank7/mth1.asm
-        xdef    Get2ndCmdHelp                   ; bank7/mth1.asm
-        xdef    Get2ndTopicHelp                 ; bank7/mth1.asm
-        xdef    GetTpcAttrByNum                 ; bank7/mth1.asm
+        xdef    CopyMTHApp_Help                 ; [Kernel1]/mth1.asm
+        xdef    CopyMTHHelp_App                 ; [Kernel1]/mth1.asm
+        xdef    DrawTopicWd                     ; [Kernel1]/mth1.asm
+        xdef    DrawMenuWd2                     ; [Kernel1]/mth1.asm
+        xdef    DoHelp                          ; [Kernel1]/mth1.asm
+        xdef    Help2Wd_bottom                  ; [Kernel1]/mth1.asm
+        xdef    Help2Wd_Top                     ; [Kernel1]/mth1.asm
+        xdef    InitHelpWd                      ; [Kernel1]/mth1.asm
+        xdef    OpenAppHelpFile                 ; [Kernel1]/mth1.asm
+        xdef    GetFirstCmdHelp                 ; [Kernel1]/mth1.asm
+        xdef    Get2ndCmdHelp                   ; [Kernel1]/mth1.asm
+        xdef    Get2ndTopicHelp                 ; [Kernel1]/mth1.asm
+        xdef    GetTpcAttrByNum                 ; [Kernel1]/mth1.asm
         xdef    MTHPrintKeycode
 
-        xdef    ChkStkLimits                    ; bank7/process1.asm
-        xdef    ClearMemDE_HL                   ; bank7/process1.asm
-        xdef    ClearUnsafeArea                 ; bank7/process1.asm
-        xdef    Mailbox2Stack                   ; bank7/process1.asm
-        xdef    OSPoll                          ; bank7/process1.asm
+        xdef    ChkStkLimits                    ; [Kernel1]/process1.asm
+        xdef    ClearMemDE_HL                   ; [Kernel1]/process1.asm
+        xdef    ClearUnsafeArea                 ; [Kernel1]/process1.asm
+        xdef    Mailbox2Stack                   ; [Kernel1]/process1.asm
+        xdef    OSPoll                          ; [Kernel1]/process1.asm
 
-        xdef    ChkCardChange                   ; bank7/card1.asm
-        xdef    StoreCardIDs                    ; bank7/card1.asm
+        xdef    ChkCardChange                   ; [Kernel1]/card1.asm
+        xdef    StoreCardIDs                    ; [Kernel1]/card1.asm
 
-        xdef    InitHandle                      ; bank7/misc1.asm
-        xdef    RAMxDOR                         ; bank7/misc1.asm
+        xdef    InitHandle                      ; [Kernel1]/misc1.asm
+        xdef    RAMxDOR                         ; [Kernel1]/misc1.asm
 
-        xdef    FileNameDate                    ; bank7/filesys1.asm
-        xdef    IsSpecialHandle                 ; bank7/filesys1.asm
-        xdef    OpenMem                         ; bank7/filesys1.asm
-        xdef    OSDel                           ; bank7/filesys1.asm
-        xdef    OSRen                           ; bank7/filesys1.asm
+        xdef    FileNameDate                    ; [Kernel1]/filesys1.asm
+        xdef    IsSpecialHandle                 ; [Kernel1]/filesys1.asm
+        xdef    OpenMem                         ; [Kernel1]/filesys1.asm
+        xdef    OSDel                           ; [Kernel1]/filesys1.asm
+        xdef    OSRen                           ; [Kernel1]/filesys1.asm
 
-        xdef    MemCallAttrVerify               ; bank7/memory1.asm
+        xdef    MemCallAttrVerify               ; [Kernel1]/memory1.asm
 
-        xdef    Key2Chr_tbl                     ; bank7/key2chrt.asm
+        xdef    Key2Chr_tbl                     ; [Kernel1]/key2chrt.asm
 
-        xdef    OSMap                           ; bank7/osmap.asm
+        xdef    OSMap                           ; [Kernel1]/osmap.asm
 
-        xdef    OSSci                           ; bank7/ossci.asm
+        xdef    OSSci                           ; [Kernel1]/ossci.asm
 
-        xdef    OSCli                           ; bank7/oscli.asm
+        xdef    OSCli                           ; [Kernel1]/oscli.asm
 
-        xdef    OSSiHrd1                        ; bank7/ossi1.asm
-        xdef    OSSiSft1                        ; bank7/ossi1.asm
-        xdef    OSSiEnq1                        ; bank7/ossi1.asm
-        xdef    OSSiFtx1                        ; bank7/ossi1.asm
-        xdef    OSSiFrx1                        ; bank7/ossi1.asm
-        xdef    OSSiTmo1                        ; bank7/ossi1.asm
+        xdef    OSSiHrd1                        ; [Kernel1]/ossi1.asm
+        xdef    OSSiSft1                        ; [Kernel1]/ossi1.asm
+        xdef    OSSiEnq1                        ; [Kernel1]/ossi1.asm
+        xdef    OSSiFtx1                        ; [Kernel1]/ossi1.asm
+        xdef    OSSiFrx1                        ; [Kernel1]/ossi1.asm
+        xdef    OSSiTmo1                        ; [Kernel1]/ossi1.asm
 
-        xdef    OSPrtInit                       ; bank7/printer.asm
-        xdef    OSPrtPrint                      ; bank7/printer.asm
+        xdef    OSPrtInit                       ; [Kernel1]/printer.asm
+        xdef    OSPrtPrint                      ; [Kernel1]/printer.asm
 
-        include "kernel7.def"                   ; get kernel references from bank 7 and map them into bank 0 project...
+        include "kernel1.def"                   ; get upper kernel references and map them into lower kernel project...
 
 ENDIF

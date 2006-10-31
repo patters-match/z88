@@ -37,8 +37,8 @@
 xdef    OZCallTable
 
 IF COMPILE_BINARY
-        include "kernel0.def"                   ; get bank 0 kernel address references
-        include "kernel7.def"                   ; get bank 7 kernel address references
+        include "kernel0.def"                   ; get lower kernel address references
+        include "kernel1.def"                   ; get upper kernel address references
 ELSE
         xref    OSDly                           ; bank0/osin.asm
         xref    OSPur                           ; bank0/osin.asm

@@ -24,7 +24,7 @@
 # $Id$
 # ***************************************************************************************************
 
-# ensure that we have an up-to-date standard library 
+# ensure that we have an up-to-date standard library
 # (NB: this is done temporarily while integrating Flash / File Area standard libraries into OZ)
 cd ../stdlib; ./makelib.sh; cd ../oz
 
@@ -37,7 +37,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-# create lowram.def and keymap.def (address pre-compilation) for kernel0.prj and kernel7.prj compilation
+# create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 # (argument $1 contains the country localisation)
 if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -g -I../def lowram.asm
@@ -46,7 +46,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-# pre-compile kernel in bank 0 to resolve labels for lowram.asm
+# pre-compile (lower) kernel to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -g -I../def @kernel0.prj
 fi
@@ -54,7 +54,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-# create final lowram binary with correct addresses from bank 0 kernel
+# create final lowram binary with correct addresses from lower kernel
 if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../def lowram.asm
 fi
@@ -62,15 +62,15 @@ if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-# compile final kernel binary for bank 7 with correct lowram code and correct bank 0 references
+# compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -l../../stdlib/standard.lib -I../def @kernel7.prj
+  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -l../../stdlib/standard.lib -I../def @kernel1.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
 
-# compile final kernel binary with OS tables for bank 0 using correct bank 7 references
+# compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../def @kernel0.prj
   ../../tools/mpm/mpm -b -DCOMPILE_BINARY ostables.asm
