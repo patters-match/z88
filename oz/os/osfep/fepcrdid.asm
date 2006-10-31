@@ -23,16 +23,16 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprCardId
+     xdef FlashEprCardId
 
-     LIB DisableBlinkInt      ; No interrupts get out of Blink
-     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
+     lib DisableBlinkInt      ; No interrupts get out of Blink
+     lib EnableBlinkInt       ; Allow interrupts to get out of Blink
 
-     XREF FlashEprCardData    ; get data about Flash type & size
+     xref FlashEprCardData    ; get data about Flash type & size
 
-     INCLUDE "flashepr.def"
-     INCLUDE "lowram.def"
-     INCLUDE "memory.def"
+     include "flashepr.def"
+     include "lowram.def"
+     include "memory.def"
 
 
 ; ***************************************************************************************
@@ -64,41 +64,41 @@
 ; ---------------------------------------------------------------------------------------
 ;
 .FlashEprCardId
-                    PUSH IY
-                    PUSH DE
-                    PUSH BC
-                    CALL DisableBlinkInt     ; no interrupts get out of Blink...
+        push    iy
+        push    de
+        push    bc
+        call    DisableBlinkInt                 ; no interrupts get out of Blink...
 
-                    LD   A,C
-                    AND  @00000011           ; only slots 0, 1, 2 or 3 possible
-                    LD   E,A                 ; preserve a copy of slot argument in E
-                    RRCA
-                    RRCA                     ; Converted to Slot mask $40, $80 or $C0
-                    LD   B,A
-                    LD   C,MS_S1        
-                    LD   HL,$4000            ; use segment 1 (not this executing segment which is MS_S2)
+        ld      a,c
+        and     @00000011                       ; only slots 0, 1, 2 or 3 possible
+        ld      e,a                             ; preserve a copy of slot argument in E
+        rrca
+        rrca                                    ; Converted to Slot mask $40, $80 or $C0
+        ld      b,a
+        ld      c,MS_S1
+        ld      hl,$4000                        ; use segment 1 (not this executing segment which is MS_S2)
 
-                    CALL CheckRam
-                    JR   C, unknown_flashmem ; abort, if RAM card was found in slot C...
+        call    CheckRam
+        jr      c, unknown_flashmem             ; abort, if RAM card was found in slot C...
 
-                    CALL FetchCardID         ; get info of Flash Memory chip in HL (if avail in slot C)...
-                    JR   C, unknown_flashmem ; no ID's were polled from a (potential FE card)
+        call    FetchCardID                     ; get info of Flash Memory chip in HL (if avail in slot C)...
+        jr      c, unknown_flashmem             ; no ID's were polled from a (potential FE card)
 
-                    CALL FlashEprCardData    ; verify Flash Memory ID with known Manufacturer & Device Codes
-                    JR   C, unknown_flashmem
-                                             ; H = Manufacturer Code, L = Device Code
-                    POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
-                    LD   C,E                 ; original C restored
+        call    FlashEprCardData                ; verify Flash Memory ID with known Manufacturer & Device Codes
+        jr      c, unknown_flashmem
+                                                ; H = Manufacturer Code, L = Device Code
+        pop     de                              ; B = banks on card, A = chip series (28F or 29F)
+        ld      c,e                             ; original C restored
 .end_FlashEprCardId
-                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
-                    POP  DE                  ; original DE restored
-                    POP  IY
-                    RET                      ; Fc = 0, Fz = 1
+        call    EnableBlinkInt                  ; interrupts are again allowed to get out of Blink
+        pop     de                              ; original DE restored
+        pop     iy
+        ret                                     ; Fc = 0, Fz = 1
 .unknown_flashmem
-                    LD   A, RC_NFE
-                    SCF                      ; signal error...
-                    POP  BC
-                    JR   end_FlashEprCardId
+        ld      a, RC_NFE
+        scf                                     ; signal error...
+        pop     bc
+        jr      end_FlashEprCardId
 
 
 ; ***************************************************************
@@ -115,6 +115,8 @@
 ; The core polling routines are available in OZ LOWRAM.
 ;
 ; In:
+;     B = lowest Bank (number) of slot where to poll for Card ID
+;     C = MS_S1 (segment 1 specifier)
 ;    HL = points into bound bank of potential Flash Memory
 ;     E = API slot number
 ;
@@ -129,51 +131,51 @@
 ;    .FBC..HL/..IY ..bcdehl different
 ;
 .FetchCardID
-                    PUSH AF
-                    PUSH DE
-                    PUSH IX
+        push    af
+        push    de
+        push    ix
 
-                    LD   A,E                 ; slot number supplied to this library from outside caller...
-                    RST  OZ_MPB              ; Get bottom Bank of slot C into segment 1
-                    PUSH BC                  ; old bank binding in BC...
+        ld      a,e                             ; slot number supplied to this library from outside caller...
+        rst     OZ_MPB                          ; Get bottom Bank of slot C into segment 1
+        push    bc                              ; old bank binding in BC...
 
-                    PUSH HL
-                    POP  IY                  ; preserve pointer to Flash Memory segment
+        push    hl
+        pop     iy                              ; preserve pointer to Flash Memory segment
 
-                    LD   D,(HL)
-                    INC  HL                  ; get a copy into DE of the slot contents at the location
-                    LD   E,(HL)              ; where the ID is fetched (through the FE command interface)
-                    DEC  HL                  ; back at $00 0000
+        ld      d,(hl)
+        inc     hl                              ; get a copy into DE of the slot contents at the location
+        ld      e,(hl)                          ; where the ID is fetched (through the FE command interface)
+        dec     hl                              ; back at $00 0000
 
-                    CALL Poll_I28Fx_ChipId   ; run INTEL card ID routine in LOWRAM
-                    PUSH HL
-                    CP   A                   ; Fc = 0
-                    SBC  HL,DE               ; Assume that no INTEL Flash Memory ID is stored at that location!
-                    POP  HL                  ; if the ID in HL is different from DE
-                    JR   NZ, found_CrdID     ; then an ID was fetched from an INTEL FlashFile Memory...
+        call    Poll_I28Fx_ChipId               ; run INTEL card ID routine in LOWRAM
+        push    hl
+        cp      a                               ; Fc = 0
+        sbc     hl,de                           ; Assume that no INTEL Flash Memory ID is stored at that location!
+        pop     hl                              ; if the ID in HL is different from DE
+        jr      nz, found_CrdID                 ; then an ID was fetched from an INTEL FlashFile Memory...
 
-                    PUSH IY
-                    POP  HL                  ; pointer to Flash Memory segment
-                    CALL Poll_AM29Fx_ChipId  ; run AMD/STM card ID routine in LOWRAM
+        push    iy
+        pop     hl                              ; pointer to Flash Memory segment
+        call    Poll_AM29Fx_ChipId              ; run AMD/STM card ID routine in LOWRAM
 
-                    PUSH HL
-                    CP   A                   ; Fc = 0
-                    SBC  HL,DE
-                    POP  HL
-                    JR   NZ, found_CrdID     ; if the ID in HL is equal to DE
-                    SCF                      ; then no AMD/STM Flash Memory responded to the ID request...
-                    JR   exit_FetchCardID
+        push    hl
+        cp      a                               ; Fc = 0
+        sbc     hl,de
+        pop     hl
+        jr      nz, found_CrdID                 ; if the ID in HL is equal to DE
+        scf                                     ; then no AMD/STM Flash Memory responded to the ID request...
+        jr      exit_FetchCardID
 .found_CrdID
-                    CP   A
+        cp      a
 .exit_FetchCardID
-                    POP  BC
-                    RST  OZ_MPB              ; restore original bank in segment 1 (defined in BC)
+        pop     bc
+        rst     OZ_MPB                          ; restore original bank in segment 1 (defined in BC)
 
-                    POP  IX
-                    POP  DE
-                    POP  BC                  ; get preserved AF
-                    LD   A,B                 ; restore original A
-                    RET
+        pop     ix
+        pop     de
+        pop     bc                              ; get preserved AF
+        ld      a,b                             ; restore original A
+        ret
 
 
 ; ***************************************************************
@@ -183,6 +185,8 @@
 ; verify that it was properly written)
 ;
 ; IN:
+;     B = lowest Bank (number) of slot where to poll for Card ID
+;     C = MS_S1 (segment 1 specifier)
 ;    HL points into bank of potential Flash Memory or RAM
 ;
 ; OUT:
@@ -194,28 +198,28 @@
 ;   .F....../.... different
 ;
 .CheckRam
-                    PUSH BC
-                    RST  OZ_MPB              ; Get bottom Bank of slot C into segment 1
-                    PUSH BC                  ; old bank binding in BC...
-                    PUSH AF
+        push    bc
+        rst     OZ_MPB                          ; Get bottom Bank of slot C into segment 1
+        push    bc                              ; old bank binding in BC...
+        push    af
 
-                    LD   B,(HL)              ; preserve the original byte (needs to be restored)
-                    LD   A,1                 ; initial test bit pattern (bit 0 set)
+        ld      b,(hl)                          ; preserve the original byte (needs to be restored)
+        ld      a,1                             ; initial test bit pattern (bit 0 set)
 .test_ram_loop
-                    LD   (HL),A              ; write bit pattern to card at bottom location
-                    CP   (HL)                ; and check whether it was written
-                    JR   NZ, not_written     ; bit pattern wasn't written...
-                    RLCA                     ; check that all bits are written properly
-                    JR   NC, test_ram_loop
-.exit_CheckRam                               ; this is a RAM card!  (Fc = 1)
-                    LD   (HL),B              ; restore original byte at RAM location
-                    POP  BC
-                    LD   A,B                 ; restore original A
-                    POP  BC
-                    RST  OZ_MPB              ; restore original bank in segment 1 (defined in BC)
+        ld      (hl),a                          ; write bit pattern to card at bottom location
+        cp      (hl)                            ; and check whether it was written
+        jr      nz, not_written                 ; bit pattern wasn't written...
+        rlca                                    ; check that all bits are written properly
+        jr      nc, test_ram_loop
+.exit_CheckRam                                  ; this is a RAM card!  (Fc = 1)
+        ld      (hl),b                          ; restore original byte at RAM location
+        pop     bc
+        ld      a,b                             ; restore original A
+        pop     bc
+        rst     OZ_MPB                          ; restore original bank in segment 1 (defined in BC)
 
-                    POP  BC
-                    RET
+        pop     bc
+        ret
 .not_written
-                    CP   A                   ; Fc = 0, this is not a RAM card
-                    JR   exit_CheckRam
+        cp      a                               ; Fc = 0, this is not a RAM card
+        jr      exit_checkram
