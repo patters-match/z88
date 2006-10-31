@@ -29,7 +29,7 @@
      LIB OZSlotPoll
 
      XREF FlashEprCardId
-     XREF FlashEprBlockErase
+     XREF FlashEprSectorErase
      XREF FlashEprStdFileHeader
 
      include "flashepr.def"
@@ -126,7 +126,7 @@
                     RRCA                          ; bankNo/4
                     AND  @00001111
                     LD   B,A                      ; (bank no. -> sector no.)
-                    CALL FlashEprBlockErase       ; erase sector B in slot C (containg the file area header)
+                    CALL FlashEprSectorErase      ; erase sector B in slot C (containg the file area header)
                     POP  BC                       ; (restore bank no. of old header, and slot no. in C)
                     POP  HL                       ; total no. of sectors to shrink in H
                     JR   C, reduce_fa_error       ; Ouch, problems with erasing sector!

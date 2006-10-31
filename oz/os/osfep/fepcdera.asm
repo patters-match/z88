@@ -26,7 +26,7 @@
      XDEF FlashEprCardErase
 
      XREF FlashEprCardId         ; Identify Flash Memory Chip in slot C
-     XREF FlashEprBlockErase     ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
+     XREF FlashEprSectorErase    ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -86,7 +86,7 @@
                     RRC  B                              ; total of 16K banks on card -> total of 64K sectors on card.
                     DEC  B                              ; sectors, from (total sectors-1) downwards and including 0
 .erase_2xF_card_blocks
-                    CALL FlashEprBlockErase             ; erase top sector of card, and downwards...
+                    CALL FlashEprSectorErase            ; erase top sector of card, and downwards...
                     JR   C, exit_FlashEprCardErase
                     DEC  B
                     LD   A,B

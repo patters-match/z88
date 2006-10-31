@@ -30,7 +30,7 @@
      LIB OZSlotPoll, SetBlinkScreen
 
      XREF FlashEprCardId
-     XREF FlashEprBlockErase
+     XREF FlashEprSectorErase
      XREF FlashEprStdFileHeader
      XREF FlashEprWriteBlock
      XREF FlashEprPollSectorSize
@@ -267,7 +267,7 @@
                     SRL  B
                     SRL  B                        ; begin to erase top sector (bank of header/4), then downwards..
 .erase_sector_loop
-                    CALL FlashEprBlockErase       ; format sector B of partition in slot C
+                    CALL FlashEprSectorErase      ; format sector B of partition in slot C
                     JR   C, exit_ErasePtBlocks    ; get out if an error occurred...
                     DEC  B                        ; next (lower) sector to erase
                     DEC  D

@@ -26,7 +26,7 @@ osscitable.asm
 clitables.asm
 osepr/osepr.asm
 osfep/osfep.asm
-osfep/fepblera.asm
+osfep/fepsecera.asm
 osfep/fepcdera.asm
 osfep/fepcpyblk.asm
 osfep/fepcrddata.asm

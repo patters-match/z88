@@ -27,7 +27,7 @@
         module OS_Fep
 
         xdef    OSFep
-        xref    FlashEprCardId
+        xref    FlashEprCardId, FlashEprSectorErase
 
         include "flashepr.def"
         include "lowram.def"
@@ -56,3 +56,4 @@
 
 .OSFepTable
         jp      FlashEprCardId                  ; reason code $00 for FEP_CRDID
+        jp      FlashEprSectorErase             ; reason code $03 for FEP_SECER
