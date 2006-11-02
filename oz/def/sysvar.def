@@ -941,7 +941,7 @@ defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
 defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
 defc    FPPCALLTBL              =$D800
-defc    LOWRAM_CODE             =$C600          ; LOWRAM code stored in MTH static data bank at offset $0600
+defc    LOWRAM_CODE             =$FDD0          ; LOWRAM code stored in MTH static data bank at offset $3dd0
 
 
 ; **************************************************************************************************

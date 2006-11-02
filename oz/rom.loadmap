@@ -57,10 +57,10 @@ os/kernel1.bin 070000                           ; second part of kernel OS
 
 ; Bank 8: MTH and other static structures in last ROM bank
 mth/keymaps.bin 080000                          ; keyboard maps for UK, FR, DK, FI/SE & DE
-os/lowram.bin 080600                            ; LOWRAM code (RST routines, etc) to be installed during reset
 mth/hires1.bin 080800                           ; the HIRES1 font bitmap (OZ window symbols) 0E00-0FFF is free due to granularity
 mth/lores1.bin 081000                           ; the LORES1 font bitmap (Normal, Bold, Tiny, Symbol)
 mth/mth.bin 082000                              ; the System Token Table, MTH static structures and application DORs
+os/lowram.bin 083dd0                            ; LOWRAM code (RST routines, etc) to be installed during reset
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
 
 ; Bank 9: BBC Basic application
