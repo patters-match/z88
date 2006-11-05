@@ -29,6 +29,7 @@
      lib EnableBlinkInt       ; Allow interrupts to get out of Blink
 
      xref FlashEprCardData    ; get data about Flash type & size
+     xref AM29Fx_InitCmdMode  ; prepare for AMD Chip command mode
 
      include "flashepr.def"
      include "lowram.def"
@@ -147,7 +148,9 @@
         ld      e,(hl)                          ; where the ID is fetched (through the FE command interface)
         dec     hl                              ; back at $00 0000
 
-        call    Poll_I28Fx_ChipId               ; run INTEL card ID routine in LOWRAM
+        push    de
+        call    I28Fx_PollChipId                ; run INTEL card ID routine in LOWRAM
+        pop     de
         push    hl
         cp      a                               ; Fc = 0
         sbc     hl,de                           ; Assume that no INTEL Flash Memory ID is stored at that location!
@@ -156,7 +159,11 @@
 
         push    iy
         pop     hl                              ; pointer to Flash Memory segment
-        call    Poll_AM29Fx_ChipId              ; run AMD/STM card ID routine in LOWRAM
+        push    de
+        call    AM29Fx_InitCmdMode
+        call    AM29Fx_PollChipId               ; run AMD/STM card ID routine in LOWRAM
+        ex      de,hl                           ; H = Manufacturer Code, L = Device Code
+        pop     de
 
         push    hl
         cp      a                               ; Fc = 0

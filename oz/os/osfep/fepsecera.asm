@@ -26,28 +26,19 @@
         xdef FlashEprSectorErase
 
         lib SafeBHLSegment                      ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
-        lib ExecRoutineOnStack                  ; Clone small subroutine on system stack and execute it
         lib DisableBlinkInt                     ; No interrupts get out of Blink
         lib EnableBlinkInt                      ; Allow interrupts to get out of Blink
 
         xref FlashEprCardId                     ; Identify Flash Memory Chip in slot C
         xref FlashEprPollSectorSize             ; Poll for Flash chip sector size.
+        xref FEP_VppError, FEP_EraseError       ; Fc = 1, A = Error Code
+        xref AM29Fx_InitCmdMode                 ; prepare for AMD Chip command mode
 
         include "flashepr.def"
         include "blink.def"
         include "memory.def"
         include "lowram.def"
 
-
-; =================================================================================================
-; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
-
-DEFC FE_RST = $FF           ; reset chip in read array mode
-DEFC FE_RSR = $70           ; read status register
-DEFC FE_CSR = $50           ; clear status register
-DEFC FE_ERA = $20           ; erase sector (64Kb) command
-DEFC FE_CON = $D0           ; confirm erasure
-; =================================================================================================
 
 
 ;***************************************************************************************************
@@ -172,27 +163,11 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock
-        cp      FE_28F
-        jr      z, erase_28F_block
-.erase_29F_block
-        ld      ix, FEP_EraseBlock_29F
-        exx
-        ld      bc, end_FEP_EraseBlock_29F - FEP_EraseBlock_29F
-        exx
-        jp      ExecRoutineOnStack
-.erase_28F_block
+        cp      FE_29F
+        jr      z, FEP_EraseBlock_29F           ; execute AMD/STM sector erasure in LOWRAM, return error in AF...
         ld      a,3
         cp      e                               ; when chip is FE_28F series, we need to be in slot 3
-        jr      z,_erase_28F_block              ; to make a successful sector erase
-        scf
-        ld      a, RC_BER                       ; Ups, not in slot 3, signal error!
-        ret
-._erase_28F_block
-        ld      ix, FEP_EraseBlock_28F
-        exx
-        ld      bc, end_FEP_EraseBlock_28F - FEP_EraseBlock_28F
-        exx
-        jp      ExecRoutineOnStack
+        jp      nz, FEP_EraseError              ; Ups, not in slot 3, signal error!
 
 
 ; ***************************************************************
@@ -222,96 +197,22 @@ DEFC FE_CON = $D0           ; confirm erasure
         set     BB_COMLCDON,a                   ; Force Screen enabled (don't push 21V to Intel flash!)...
         ld      (bc),a
         out     (c),a                           ; signal to HW
-
-        ld      (hl), FE_ERA
-        ld      (hl), FE_CON
-.erase_28f_busy_loop
-        ld      (hl), FE_RSR                    ; (R)equest for (S)tatus (R)egister
-        ld      a,(hl)
-        bit     7,a
-        jr      z,erase_28f_busy_loop           ; Chip still erasing the sector...
-
+        cp      a                               ; Fc = 0
+        call    I28Fx_EraseSector               ; execute Erasure of sector in LOWRAM...
         bit     3,a
-        jr      nz,vpp_error
+        call    nz, FEP_VppError                ; chip didn't detect VPP pin ...
+        jr      c, exit_EraseBlock_28F
         bit     5,a
-        jr      nz,erase_error
-        cp      a                               ; Sector successfully erased, Fc = 0
-
-        ld      (hl), FE_CSR                    ; Clear Status Register
-        ld      (hl), FE_RST                    ; Reset Flash Memory to Read Array Mode
-.exit_FEP_EraseBlock_28F
+        call    nz, FEP_EraseError              ; chip could erase sector...
+.exit_EraseBlock_28F
         ex      af,af'
         ld      a,(bc)
         res     BB_COMVPPON,a                   ; Vpp Off
         ld      (bc),a
-        out     (c),a                           ; Signal to hw
-        ex      af,af'
+        out     (c),a                           ; Signal to HW
+        ex      af,af'                          ; return error status from chip sector erasure
         ret
-.vpp_error
-        ld      a, RC_VPL
-        scf
-        jr      exit_FEP_EraseBlock_28F
-.erase_error
-        ld      a, RC_BER
-        scf
-        jr      exit_FEP_EraseBlock_28F
-.end_FEP_EraseBlock_28F
 
-
-; ***************************************************************
-;
-; Erase block on an AMD 29Fxxxx (or compatible) Flash Memory,
-; which is bound into segment x that HL points into.
-;
-; In:
-;    HL = points into bound Flash Memory sector
-; Out:
-;    Success:
-;        Fc = 0
-;        A = undefined
-;    Failure:
-;        Fc = 1
-;        A = RC_BER (block/sector was not erased)
-;
-; Registers changed after return:
-;    ......../IXIY same
-;    AFBCDEHL/.... different
-;
 .FEP_EraseBlock_29F
-        ld      bc,$aa55                        ; B = Unlock cycle #1, C = Unlock cycle #2
-        ld      a,h
-        and     @11000000
-        ld      d,a
-        or      $05
-        ld      h,a
-        ld      l,c                             ; HL = address $x555
-        set     1,d
-        ld      e,b                             ; DE = address $x2AA
-
-        ld      a,c
-        ld      (hl),b                          ; AA -> (XX555), First Unlock Cycle
-        ld      (de),a                          ; 55 -> (XX2AA), Second Unlock Cycle
-        ld      (hl),$80                        ; 80 -> (XX555), Erase Mode
-                                                ; sub command...
-        ld      (hl),b                          ; AA -> (XX555), First Unlock Cycle
-        ld      (de),a                          ; 55 -> (XX2AA), Second Unlock Cycle
-        ld      (hl),$30                        ; 30 -> (XXXXX), begin format of sector...
-.toggle_wait_loop
-        ld      a,(hl)                          ; get first DQ6 programming status
-        ld      c,a                             ; get a copy programming status (that is not XOR'ed)...
-        xor     (hl)                            ; get second DQ6 programming status
-        bit     6,a                             ; toggling?
-        ret     z                               ; no, erasing the sector completed successfully (also back in Read Array Mode)!
-        bit     5,c                             ;
-        jr      z, toggle_wait_loop             ; we're toggling with no error signal and waiting to complete...
-
-        ld      a,(hl)                          ; DQ5 went high, we need to get two successive status
-        xor     (hl)                            ; toggling reads to determine if we're still toggling
-        bit     6,a                             ; which then indicates a sector erase error...
-        ret     z                               ; we're back in Read Array Mode, sector successfully erased!
-.erase_err_29f                                           ; damn, sector was NOT erased!
-        ld      (hl),$f0                        ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
-        scf
-        ld      a, RC_BER                       ; signal sector erase error to application
-        ret
-.end_FEP_EraseBlock_29F
+        call    AM29Fx_InitCmdMode
+        jp      AM29Fx_EraseSector

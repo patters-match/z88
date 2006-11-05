@@ -66,7 +66,9 @@ xdef    OZCallReturn2
 xdef    OZCallReturn3
 xdef    ExtCall
 xdef    MemDefBank, MemGetBank
-xdef    Poll_I28Fx_ChipId, Poll_AM29Fx_ChipId
+xdef    I28Fx_PollChipId, I28Fx_BlowByte, I28Fx_EraseSector
+xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
+
 
 .LowRAMcode
 
@@ -327,7 +329,7 @@ xdef    Poll_I28Fx_ChipId, Poll_AM29Fx_ChipId
         ret     c                               ; ints were disabled? exit
         ei
         ret
-        
+
 
 
 ; ***************************************************************************************************
@@ -496,54 +498,94 @@ xdef    Poll_I28Fx_ChipId, Poll_AM29Fx_ChipId
 ;       L = device code (at $00 0001 on chip)
 ;
 ; Registers changed on return:
-;    AFBCDE../IXIY same
-;    ......HL/.... different
+;    AFBC..../IXIY same
+;    ....DEHL/.... different
 ;
-.Poll_I28Fx_ChipId
-        push    de                                   
+.I28Fx_PollChipId
         ld      (hl), $90                       ; get INTELligent identification code (manufacturer and device)
         ld      d,(hl)                          ; D = Manufacturer Code (at $00 0000)
-        inc     hl                              
+        inc     hl
         ld      e,(hl)                          ; E = Device Code (at $00 0001)
         ld      (hl), $ff                       ; Reset Flash Memory Chip to read array mode
         ex      de,hl
-        pop     de
         ret
 ; ***************************************************************************************************
 
 
 
 ; ***************************************************************************************************
-; Execute AM29F0xxx / ST29F0xxx (AMD/STM) Flash Memory Chip Command
+; Erase sector in I28F0xxxx (INTEL) Flash Memory Chip, identified by executing chip command
+; in bank of sector to be erased.
 ; (Internal service routine in LOWRAM for OS_Fep system call)
 ;
 ; In:
-;       A = AMD/STM Command code
+;       HL points into bound bank of Flash Memory sector to be erased
 ; Out:
-;       -
+;       A = Chip Status Register
+;               (bit 3 enabled indicates missing VPP pin during erase)
+;               (bit 5 enabled indicates erase sector failure)
 ;
 ; Registers changed on return:
-;    AF....../IXIY same
-;    ..BCDEHL/.... different
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
 ;
-.AM29Fx_CmdMode
-        push    af
-        ld      bc,$aa55                        ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
-        ld      a,h                             
-        and     @11000000                       
-        ld      d,a                             
-        or      $05                             
-        ld      h,a                             
-        ld      l,c                             ; HL = address $x555
-        set     1,d                             
-        ld      e,b                             ; DE = address $x2AA
-                                                
-        ld      a,c                             
-        ld      (hl),b                          ; AA -> (X555), First Unlock Cycle
-        ld      (de),a                          ; 55 -> (X2AA), Second Unlock Cycle
-        pop     af
-        ld      (hl),a                          ; A -> (X555), send command
+.I28Fx_EraseSector
+        ld      (hl), $20                       ; erase sector command
+        ld      (hl), $D0                       ; confirm erasure
+        call    I28Fx_ExeCommand
+.I28Fx_ReadArrayMode
+        ld      (hl), $50                       ; Clear Status Register
+        ld      (hl), $ff                       ; Reset Flash Memory to Read Array Mode
         ret
+; ***************************************************************************************************
+
+
+
+; ***************************************************************************************************
+; Blow byte in I28F0xxxx (INTEL) Flash Memory Chip, identified by executing chip command
+; at (HL) in bound bank.
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       HL points into bound bank of Flash Memory sector of byte to be blown
+; Out:
+;       A = Chip Status Register
+;               (bit 3 enabled indicates missing VPP pin)
+;               (bit 4 enabled indicates blow byte failure)
+;
+; Registers changed on return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.I28Fx_BlowByte
+        ld   (hl),$40                           ; Byte Write Command
+        ld   (hl),a                             ; to blow the byte at address...
+        call I28Fx_ExeCommand
+        jr   I28Fx_ReadArrayMode                ; get back to Read Array Mode and return Status Register
+; ***************************************************************************************************
+
+
+
+; ***************************************************************************************************
+; Wait for I28F0xxxx (INTEL) Flash Memory Chip command to finish.
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       HL points into bound bank of potential Flash Memory
+; Out:
+;       A = Chip Status Register
+;       Fz = 0, Command has been executed
+;
+; Registers changed on return:
+;    ..BCDEHL/IXIY same
+;    AF....../.... different
+;
+.I28Fx_ExeCommand
+        ld      (hl), $70                       ; Read Status Register
+        ld      a,(hl)
+        bit     7,a
+        ret     nz
+        jr      I28Fx_ExeCommand                ; Chip still executing command...
 ; ***************************************************************************************************
 
 
@@ -555,30 +597,150 @@ xdef    Poll_I28Fx_ChipId, Poll_AM29Fx_ChipId
 ; In:
 ;       HL = points into bound bank of potential Flash Memory (defined by OS_Fep sub function)
 ; Out:
-;       H = manufacturer code (at $00 xxx0 on chip)
-;       L = device code (at $00 xxx1 on chip)
+;       D = manufacturer code (at $00 xxx0 on chip)
+;       E = device code (at $00 xxx1 on chip)
 ;
 ; Registers changed on return:
-;    AF..DE../IXIY same
-;    ..BC..HL/.... different
+;    AF....../IXIY same
+;    ..BCDEHL/.... different
 ;
-.Poll_AM29Fx_ChipId
+.AM29Fx_PollChipId
         push    af
-        push    de
-                
+
         ld      a,$90                           ; autoselect mode (to get ID)
         call    AM29Fx_CmdMode
-                                                
-        ld      l,0                             
-        ld      d,(hl)                          ; Manufacturer Code (at XX00)
-        inc     hl                              
-        ld      e,(hl)                          ; Device Code (at XX01)
+
+        ld      l,0
+        ld      d,(hl)                          ; get Manufacturer Code (at XX00)
+        inc     hl
+        ld      e,(hl)                          ; get Device Code (at XX01)
         ld      (hl),$f0                        ; F0 -> (XXXXX), set Flash Memory to Read Array Mode
-        ex      de,hl                           ; H = Manufacturer Code, L = Device Code
-                
-        pop     de
-        pop     af
+
+        pop     af                              ; D = Manufacturer Code, E = Device Code
         ret
 ; ***************************************************************************************************
-        
+
+
+
+; ***************************************************************************************************
+; Erase block on an AMD 29Fxxxx (or compatible) Flash Memory, which is bound into segment x
+; that HL points into.
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       BC = $aa55
+;       DE = address $x2AA  (points into bound Flash Memory sector)
+;       HL = address $x555
+; Out:
+;    Success:
+;        Fz = 1
+;        A = undefined
+;    Failure:
+;        Fz = 0 (sector not erased)
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+.AM29Fx_EraseSector
+        ld      a,$80                           ; Execute main Erase Mode
+        call    AM29Fx_CmdMode
+                                                ; then sub command...
+        ld      (hl),b                          ; AA -> (XX555), First Unlock Cycle
+        ld      (de),a                          ; 55 -> (XX2AA), Second Unlock Cycle
+        ld      (hl),$30                        ; 30 -> (XXXXX), begin format of sector...
+
+
+; ***************************************************************************************************
+; Wait for AM29F0xxx (AMD) Flash Memory Chip command to finish.
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       HL points into bound bank of potential Flash Memory
+; Out:
+;       A = undefined
+;       Fz = 1, Command has been executed successfully
+;       Fz = 0, Command execution failed
+;
+; Registers changed on return:
+;    ..B.DEHL/IXIY same
+;    AF.C..../.... different
+;
+.AM29Fx_ExeCommand
+        ld      a,(hl)                          ; get first DQ6 programming status
+        ld      c,a                             ; get a copy programming status (that is not XOR'ed)...
+        xor     (hl)                            ; get second DQ6 programming status
+        bit     6,a                             ; toggling?
+        ret     z                               ; no, command completed successfully (Read Array Mode active)!
+        bit     5,c                             ;
+        jr      z, AM29Fx_ExeCommand            ; we're toggling with no error signal and waiting to complete...
+
+        ld      a,(hl)                          ; DQ5 went high, we need to get two successive status
+        xor     (hl)                            ; toggling reads to determine if we're still toggling
+        bit     6,a                             ; which then indicates a command error...
+        ret     z                               ; we're back in Read Array Mode, command completed successfully!
+        ld      (hl),$f0                        ; command failed! F0 -> (XXXXX), force Flash Memory to Read Array Mode
+        ret
+; ***************************************************************************************************
+
+
+
+; ***************************************************************************************************
+; Blow byte in AM29F0xxx / ST29F0xxx (AMD/STM) Flash Memory Chip, identified by executing chip
+; command at (HL) in bound bank.
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       A = byte to blow
+;       BC = $aa55
+;       DE = address $x2AA
+;       HL = address $x555
+;       hl' = points into bound bank of Flash Memory sector to blow byte
+; Out:
+;       A = Chip Status Register
+;       B = A(in)
+;
+; Registers changed on return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+.AM29Fx_BlowByte
+        push    af
+        ld      a,$A0                           ; Byte Program Mode
+        call    AM29Fx_CmdMode
+        pop     af
+        ld      b,a
+        exx
+        ld      (hl),a                          ; program byte to flash memory address
+        jr      AM29Fx_ExeCommand
+; ***************************************************************************************************
+
+
+
+; ***************************************************************************************************
+; Execute AM29F0xxx / ST29F0xxx (AMD/STM) Flash Memory Chip Command
+; (Internal service routine in LOWRAM for OS_Fep system call)
+;
+; In:
+;       A = AMD/STM Command code
+;       BC = $aa55
+;       DE = address $x2AA
+;       HL = address $x555
+; Out:
+;       -
+;
+; Registers changed on return:
+;    AF....../IXIY same
+;    ..BCDEHL/.... different
+;
+.AM29Fx_CmdMode
+        push    af
+        ld      a,c
+        ld      (hl),b                          ; AA -> (X555), First Unlock Cycle
+        ld      (de),a                          ; 55 -> (X2AA), Second Unlock Cycle
+        pop     af
+        ld      (hl),a                          ; A -> (X555), send command
+        ret
+; ***************************************************************************************************
+
 .LowRAMcode_end
