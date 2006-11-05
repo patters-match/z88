@@ -812,17 +812,16 @@ xref    Keymap_FI
 
 ;       ----
 ;
-; read PA_Gfi - PA_Bad into $0201-0205
+; read PA_Gfi - PA_Bad into Panel preserved area.
 ;
 ;
 .RstRdPanelAttrs
         ld      bc, PA_Loc
-        ld      d, >ubResetType                 ; store at $02xx (cf. sysvar.def)
-
+        ld      de, cCountry                    ; start with PA_Loc ($06) then downward
 .rrpa_1
         ld      a, 1                            ; length is 1 byte for each value
-        ld      e, c                            ; start with PA_Loc ($06) then downward
         OZ      OS_Nq                           ; enquire (fetch) parameter
+        dec     de
         dec     c
         jr      nz, rrpa_1
 
@@ -890,4 +889,3 @@ xref    Keymap_FI
         defm    'C',$80|'I',$80|'S',>Keymap_UK  ; IS ... to be implemented (old ROM required)
         defm    'J',$80|'J',$80|'P',>Keymap_UK  ; JP (=UK not implementable)
         defm    'T',$80|'T',$80|'R',>Keymap_UK  ; TR (=UK not implementable)
-        

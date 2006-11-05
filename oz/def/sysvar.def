@@ -51,36 +51,9 @@ lstoff
 
 defc    OZVERSION               = $42
 
-; Preserved system area (32 bytes preserved over a soft reset)
-defvars $01E0
-        ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
-        ubTIM0_A                ds.b    1       ; buffer A : TIM0-4 (was $00A1-$00A5)
-        ubTIM1_A                ds.b    1
-        ubTIM2_A                ds.b    1
-        ubTIM3_A                ds.b    1
-        ubTIM4_A                ds.b    1
-        ubTIM0_B                ds.b    1       ; buffer B : TIM0-4 (was $00A6-$00AA)
-        ubTIM1_B                ds.b    1
-        ubTIM2_B                ds.b    1
-        ubTIM3_B                ds.b    1
-        ubTIM4_B                ds.b    1
-        uwSysDateLow            ds.w    1       ; 11 bytes buffer for system time
-        uwSysDateMid            ds.w    1
-        uwSysDateHigh           ds.w    1
-        SysTimeBuffer           ds.b    5
-        free_free               ds.b    10      ; 10 bytes are left in this area
-
-; Preserved panel system area (11 bytes preserved over a soft reset)
-        ubResetType             ds.b    1       ; $00 hard / $FF soft
-        ubTimeout               ds.b    1       ; panel system parameters
-        ubRepeat                ds.b    1       ; "
-        cKeyclick               ds.b    1       ; "
-        cSound                  ds.b    1       ; "
-        ubBadSize               ds.b    1       ; "
-        cCountry                ds.b    1       ; country code
-enddef                                          ; 4 more bytes are left here
 
 ; System variable area
+defc    sysvar_area = $020b
 defc    ubScreenBase            =$020b
 defc    KbdData                 =$0216          ; data on both negative and positive side
 defc    SerTXHandle             =$0229          ; on negative side!
@@ -188,7 +161,38 @@ defvars $0400
         ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
         aKmCountry              ds.w    1       ; country id for OZ window
 
-        free_free_free          ds.b    49      ; (040F-043F) 49 bytes free
+; Preserved system area (32 bytes preserved over a soft reset)
+; (040F-042E)
+        sysvar_area_presv
+        ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
+        ubTIM0_A                ds.b    1       ; buffer A : TIM0-4
+        ubTIM1_A                ds.b    1
+        ubTIM2_A                ds.b    1
+        ubTIM3_A                ds.b    1
+        ubTIM4_A                ds.b    1
+        ubTIM0_B                ds.b    1       ; buffer B : TIM0-4
+        ubTIM1_B                ds.b    1
+        ubTIM2_B                ds.b    1
+        ubTIM3_B                ds.b    1
+        ubTIM4_B                ds.b    1
+        uwSysDateLow            ds.w    1       ; 11 bytes buffer for system time
+        uwSysDateMid            ds.w    1
+        uwSysDateHigh           ds.w    1
+        SysTimeBuffer           ds.b    5
+        free_free               ds.b    10      ; 10 bytes are left in this area
+
+; Preserved panel system area (11 bytes preserved over a soft reset)
+; 042F-0435
+        panel_area_presv
+        ubResetType             ds.b    1       ; $00 hard / $FF soft
+        ubTimeout               ds.b    1       ; panel system parameters
+        ubRepeat                ds.b    1       ; "
+        cKeyclick               ds.b    1       ; "
+        cSound                  ds.b    1       ; "
+        ubBadSize               ds.b    1       ; "
+        cCountry                ds.b    1       ; country code
+        sysvar_area_presv_end
+        free_free_free          ds.b    10      ; (0436-043F) 10 bytes free
 
 ; Keyboard buffer
         KbdBuffer               ds.b    32      ; $0440-£045F

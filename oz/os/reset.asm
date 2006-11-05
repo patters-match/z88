@@ -86,23 +86,32 @@ xref    TimeReset                               ; bank7/timeres.asm
         scf
         ex      af, af'
 
-        dec     a                               ; only clear b20
-        ld      bc, $3DF4                       ; from 020B-3FFF
-        ld      de, $420C                       ; 0000-01DF is overwritten by lowram.bin
-        ld      hl, $420B                       ; 01E0-020A is preserved area
-        jr      b20_reset
+.soft_reset                                     ; On soft reset, only reset B20, but preserve [040F-043F]
+        dec     a
+        out     (BL_SR1), a
+        ld      bc, [sysvar_area_presv-sysvar_area-1]
+        ld      de, $4000 | sysvar_area+1       ; [0000-sysvar_area] is overwritten by lowram.bin
+        ld      hl, $4000 | sysvar_area
+        ld      (hl), 0
+        ldir
+        ld      bc, [$3FFF-sysvar_area_presv_end]
+        ld      de, $4000 | sysvar_area_presv_end+1
+        ld      hl, $4000 | sysvar_area_presv_end
+        ld      (hl), 0
+        ldir
+        jr      continue_reset
+
 .b20_hard_reset
         ld      bc, $3FFF                       ; fill bank with 00
         ld      de, $4001
         ld      hl, $4000
-.b20_reset
         out     (BL_SR1), a                     ; bind A into S1
         ld      (hl), 0
         ldir
         dec     a
         cp      $20
         jr      z, b20_hard_reset               ; loop if hard reset
-
+.continue_reset
         ex      af, af'
         ld      ($4000+ubResetType), a
 
@@ -276,12 +285,12 @@ xref    TimeReset                               ; bank7/timeres.asm
 .PreserveSystemPanel
         push    bc
         ld      bc, PA_Loc
-        ld      h, 2                            ; preserved parameters are at $0201-$0206
+        ld      hl, cCountry
 
-.psp_1
+.psp_1                                          ; start with PA_Loc ($06) then downward
         ld      a, 1                            ; length is 1 byte for each value
-        ld      l, c                            ; start with PA_Loc ($06) then downward
         OZ      OS_Sp                           ; specify parameter
+        dec     hl
         dec     c
         jr      nz, psp_1
         pop     bc
