@@ -121,6 +121,7 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("m - View memory at PC");
 		displayCmdOutput("m [local address | extended address] - View memory at	address");
 		displayCmdOutput("bp - List breakpoints");
+		displayCmdOutput("bpcl - Clear all breakpoints");
 		displayCmdOutput("bl - Display Blink register contents");
 		displayCmdOutput("bp <extended address>	- Toggle stop breakpoint");
 		displayCmdOutput("bpd <extended	address> - Toggle display breakpoint");
@@ -340,6 +341,12 @@ public class CommandLine implements KeyListener {
 			}
 		}
 
+		if (cmdLineTokens[0].compareToIgnoreCase("bpcl") == 0) {
+				breakPointManager.clearBreakpoints();
+				breakPointManager.removeBreakPoints();
+				displayCmdOutput("All breakpoints cleared.");
+		}
+		
 		if (cmdLineTokens[0].compareToIgnoreCase("bpd")	== 0) {
 			try {
 				bpdCommandline(cmdLineTokens);
