@@ -23,7 +23,7 @@
 ; $Id$
 ; ***************************************************************************************************
 
-        xdef FlashEprWriteByte
+        xdef FlashEprWriteByte, FEP_ExecBlowbyte_29F
 
         lib DisableBlinkInt                     ; No interrupts get out of Blink
         lib EnableBlinkInt                      ; Allow interrupts to get out of Blink
@@ -233,6 +233,8 @@
 ;    A = byte to blow
 ;    HL = pointer to memory location in Flash Memory
 ; Out:
+;    B = A(in)
+;
 ;    Fc = 0 & Fz = 0,
 ;        byte successfully blown to Flash Memory
 ;    Fc = 1,
