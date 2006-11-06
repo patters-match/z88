@@ -159,7 +159,7 @@ public class CommandLine implements KeyListener {
 	}
 	
 	public void parseCommandLine(String cmdLineText) {
-		String[] cmdLineTokens = cmdLineTokens = cmdLineText.split(" ");
+		String[] cmdLineTokens = cmdLineText.split(" ");
 		int arg;
 
 		if (cmdLineTokens[0].compareToIgnoreCase("help") == 0) {

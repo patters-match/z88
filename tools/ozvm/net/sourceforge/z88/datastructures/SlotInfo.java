@@ -75,7 +75,7 @@ public class SlotInfo {
 		
 		// point to watermark in top bank of slot, offset 0x3Fxx
 		if (slotNo == 0) 
-			bankNo = bankNo = 0x1F;	// top bank of slot 0 512K ROM Area
+			bankNo = 0x1F;	// top bank of slot 0 512K ROM Area
 		else
 			bankNo = ((slotNo & 3) << 6) | 0x3F;
 		

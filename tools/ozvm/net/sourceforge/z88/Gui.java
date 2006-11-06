@@ -31,28 +31,21 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyEvent;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Time;
-import java.sql.Timestamp;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ButtonGroup;
-
-import com.imagero.util.ThreadManager;
 
 import net.sourceforge.z88.screen.Z88display;
 
