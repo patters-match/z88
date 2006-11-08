@@ -40,18 +40,18 @@ xref    RestoreActiveWd                         ; bank7/mth1.asm
         djnz    osmap_def
         push    hl                              ; write a line to the map
         ex      af, af'
-        call    ScreenOpen
+        call    ScreenOpen                      ; get access to window data in segment 1, returns old bank binding in A
         ex      af, af'
-        call    GetWindowFrame
+        call    GetWindowFrame                  ; setup IX to point at base of Window frame (in segment 1)
         ld      b, 0                            ; BC=(rmargin+1)&$fffe
         ld      c, (ix+wdf_rmargin)
         inc     bc
-        res     0, c
+        res     0, c                            ; BC = width of map in pixels (always even numbered)
         ex      af, af'
-        call    ScreenClose
+        call    ScreenClose                     ; restore previous bank binding of segment 1
         ex      af, af'
         jr      c, osmap_3                      ; GetWindowFrame failed? exit
-        ld      a, e                            ; mask row to 6 bits
+        ld      a, e                            ; mask row number to 6 bits (only allow values 0-63)
         and     $3F
         ld      hl, 8                           ; prepare for entry
         sbc     hl, bc
@@ -78,22 +78,22 @@ xref    RestoreActiveWd                         ; bank7/mth1.asm
         add     hl, hl
         add     hl, hl
         add     hl, hl
-        ld      b, h
-        pop     hl
+        ld      b, h                            ; no of bytes in pixel line to write to map
+        pop     hl                              ; HL = pointer to pixel line data to write
 .osmap_2
-        push    bc
-        call    PeekHLinc
+        push    bc                              ; plot pixel line of B bytes to 
+        call    PeekHLinc                       ; get byte from pixel line data (in caller address space)
         ex      de, hl
         push    af
         ld      a, (BLSC_PB2H)
         rra
         ld      a, (BLSC_PB2L)
         rra
-        ld      b, a
+        ld      b, a                            ; get bank of HIRES0, the PipeDream Map Area
         pop     af
-        call    PokeBHL
+        call    PokeBHL                         ; plot 8 pixels at address pixel line in HL
         ld      bc, 8
-        add     hl, bc
+        add     hl, bc                          ; point to next adjacent 8 bits in current pixel map line
         ex      de, hl
         pop     bc
         djnz    osmap_2
