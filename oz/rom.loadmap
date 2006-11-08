@@ -64,7 +64,7 @@ os/lowram.bin 083dd0                            ; LOWRAM code (RST routines, etc
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
 
 ; Bank 9: BBC Basic application
-apps/bbcbasic/basic.dat 091200                  ; $D200: BBC BASIC application
+apps/bbcbasic/basic.dat 090000                  ; $0000: BBC BASIC application bank
 
 ; Bank 10: EazyLink
 apps/eazylink/eazylink.bin 0a0000               ; $8000: EazyLink popdown

@@ -523,7 +523,7 @@ xdef    PanelDOR
         defp    0,0                             ; no token base
 
         defb    'N',BasicDORe-$PC-1             ; name, length
-        defm    "BASIC",0
+        defm    "BBC Basic",0
 .BasicDORe
         defb    $FF                             ; terminate
 
