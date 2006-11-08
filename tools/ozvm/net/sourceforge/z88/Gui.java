@@ -503,7 +503,7 @@ public class Gui extends JFrame {
 			ukLayoutMenuItem.setText("US/UK Layout");
 			ukLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_EN);
+					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
 					getZ88Display().grabFocus();
 				}
 			});
@@ -926,7 +926,7 @@ public class Gui extends JFrame {
 
 		// pre-select the keyboard layout Menu Item
 		switch(Z88.getInstance().getKeyboard().getKeyboardLayout()) {
-			case Z88Keyboard.COUNTRY_EN:
+			case Z88Keyboard.COUNTRY_UK:
 			case Z88Keyboard.COUNTRY_US:
 				getUkLayoutMenuItem().setSelected(true);
 				break;			

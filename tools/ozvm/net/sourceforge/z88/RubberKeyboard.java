@@ -2159,7 +2159,7 @@ public class RubberKeyboard extends JPanel {
 				Hashtable keyIcons;
 				
 				switch(kbl) {
-					case Z88Keyboard.COUNTRY_EN:
+					case Z88Keyboard.COUNTRY_UK:
 					case Z88Keyboard.COUNTRY_US:
 						keyIcons = kbLanguageIconsUk;
 						break;

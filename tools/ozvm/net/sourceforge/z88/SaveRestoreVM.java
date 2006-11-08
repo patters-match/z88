@@ -382,7 +382,7 @@ public class SaveRestoreVM {
         if (properties.getProperty("Z88KbLayout") != null) {
         	int kbLayoutCountryCode = Integer.parseInt(properties.getProperty("Z88KbLayout"));
         	switch(kbLayoutCountryCode) {
-        		case Z88Keyboard.COUNTRY_EN:
+        		case Z88Keyboard.COUNTRY_UK:
         			OZvm.getInstance().getGui().getUkLayoutMenuItem().doClick();
         			break;
         		case Z88Keyboard.COUNTRY_DK:
