@@ -1720,8 +1720,8 @@ public class Z88Keyboard {
 							}
 						}						
 					} else {
-						if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
-							releaseZ88key(z88RshKey);
+						if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {							
+							releaseZ88key(z88LshKey); releaseZ88key(z88RshKey);
 							kp = getZ88Key('£');
 						} else if(e.getKeyChar() == '"') {
 							// for PC UK/DK/SE, SHIFT has been pressed on 2
