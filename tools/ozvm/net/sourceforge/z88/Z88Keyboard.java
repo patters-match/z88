@@ -1646,11 +1646,32 @@ public class Z88Keyboard {
 					}
 					break;
 
+				// The single letter key press '#' is possible on UK PC keyboards...
 				case KeyEvent.VK_NUMBER_SIGN:
-					pressZ88key(z88RshKey);
-					pressZ88key(getZ88Key(KeyEvent.VK_3));
+					if (e.getKeyChar() == '#') {
+						pressZ88key(z88RshKey);
+						pressZ88key(getZ88Key(KeyEvent.VK_3));
+					}
+					if (e.getKeyChar() == '~') {
+						pressZ88key(z88RshKey);
+						pressZ88key(getZ88Key('£'));
+					}
 					break;
 									
+				case KeyEvent.VK_QUOTE:
+					if (e.getKeyChar() == '\'') {
+						pressZ88key(getZ88Key(KeyEvent.VK_QUOTE));
+					}
+					if (e.getKeyChar() == '@') {
+						// PC UK keyboard has pressed SHIFT (so shift already pressed on Z88)
+						pressZ88key(getZ88Key(KeyEvent.VK_2));
+					}
+					if (e.getKeyChar() == '*') {
+						// PC DK keyboard has released SHIFT (so shift already released on Z88)
+						pressZ88key(getZ88Key(KeyEvent.VK_8));
+					}								
+					break;
+					
 				default:
 					// All other keypresses are available in keyboard map layout			
 					
@@ -1699,11 +1720,14 @@ public class Z88Keyboard {
 							}
 						}						
 					} else {
-						if (e.getKeyChar() == '£') {
+						if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
 							releaseZ88key(z88RshKey);
 							kp = getZ88Key('£');
+						} else if(e.getKeyChar() == '"') {
+							// for PC UK/DK/SE, SHIFT has been pressed on 2
+							kp = getZ88Key(KeyEvent.VK_QUOTE);
 						} else
-							kp = getZ88Key(e.getKeyCode());
+							kp = getZ88Key(e.getKeyCode());						
 					}
 					
 					if (kp != null) {
@@ -1915,8 +1939,28 @@ public class Z88Keyboard {
 					break;
 					
 				case KeyEvent.VK_NUMBER_SIGN:
-					releaseZ88key(z88RshKey);
-					releaseZ88key(getZ88Key(KeyEvent.VK_3));
+					if (e.getKeyChar() == '#') {
+						releaseZ88key(z88RshKey);
+						releaseZ88key(getZ88Key(KeyEvent.VK_3));
+					}
+					if (e.getKeyChar() == '~') {
+						releaseZ88key(z88RshKey);
+						releaseZ88key(getZ88Key('£'));
+					}
+					break;
+
+				case KeyEvent.VK_QUOTE:
+					if (e.getKeyChar() == '\'') {
+						releaseZ88key(getZ88Key(KeyEvent.VK_QUOTE));
+					}
+					if (e.getKeyChar() == '@') {
+						// PC UK keyboard has released SHIFT (so shift already released on Z88)
+						releaseZ88key(getZ88Key(KeyEvent.VK_2));
+					}			
+					if (e.getKeyChar() == '*') {
+						// PC DK keyboard has released SHIFT (so shift already released on Z88)
+						releaseZ88key(getZ88Key(KeyEvent.VK_8));
+					}			
 					break;
 
 				default:
@@ -1958,9 +2002,12 @@ public class Z88Keyboard {
 							}
 						}
 					} else {
-						if (e.getKeyChar() == '£') {
+						if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
 							kp = getZ88Key('£');
-						} else						
+						} else if(e.getKeyChar() == '"') {
+							// for PC UK/DK, SHIFT has been released on 2
+							kp = getZ88Key(KeyEvent.VK_QUOTE);
+						} else
 							kp = getZ88Key(e.getKeyCode());
 					}
 				
