@@ -1442,7 +1442,7 @@ public class Z88Keyboard {
 		public void keyPressed(KeyEvent e) {
 			KeyPress kp = null;
 
-			System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+			// System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 			switch(e.getKeyCode()) {								
 				case KeyEvent.VK_SHIFT:
@@ -1744,7 +1744,7 @@ public class Z88Keyboard {
 		public void keyReleased(KeyEvent e) {
 			KeyPress kp = null;
 
-			System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
+			// System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
 			switch(e.getKeyCode()) {			
 				case KeyEvent.VK_SHIFT:
