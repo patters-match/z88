@@ -26,7 +26,6 @@
      XDEF FlashEprFileFormat
 
      LIB FileEprRequest
-     LIB SafeBHLSegment
      LIB OZSlotPoll, SetBlinkScreen
 
      XREF FlashEprCardId
@@ -313,9 +312,8 @@
                     PUSH IY
 
                     LD   B,$C0               ; file area was just formatted successfully, so the Intel
-                    LD   HL,0                ; chip is located in slot 3 - blow null file at bottom of card
+                    LD   HL,$4000            ; chip is in slot 3 - blow file at bottom of card (using segment 1)
                     LD   DE, nullfile
-                    CALL SafeBHLSegment      ; use a safe segment outside this bank to blow the bytes...
                     LD   IY,6                ; Initial File Entry is 6 bytes long...
                     LD   A,FE_28F            ; use Intel flash chip type...
                     CALL FlashEprWriteBlock
