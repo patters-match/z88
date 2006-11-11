@@ -500,7 +500,7 @@ public class Gui extends JFrame {
 	public JCheckBoxMenuItem getUkLayoutMenuItem() {
 		if (ukLayoutMenuItem == null) {
 			ukLayoutMenuItem = new JCheckBoxMenuItem();
-			ukLayoutMenuItem.setText("US/UK Layout");
+			ukLayoutMenuItem.setText("English Layout");
 			ukLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
