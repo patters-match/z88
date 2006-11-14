@@ -31,7 +31,7 @@
         xdef    AM29Fx_InitCmdMode
 
         xref    FlashEprCardId, FlashEprSectorErase, FlashEprCardErase
-        xref    FlashEprWriteByte
+        xref    FlashEprWriteByte, FlashEprCardData
 
         include "flashepr.def"
         include "lowram.def"
@@ -59,10 +59,11 @@
         ret                                     ; goto reason
 
 .OSFepTable
-        jp      FlashEprCardId                  ; reason code $00 for FEP_CRDID
-        jp      FlashEprSectorErase             ; reason code $03 for FEP_SECER
-        jp      FlashEprCardErase               ; reason code $06 for FEP_CRDER
-        jp      FlashEprWriteByte               ; reason code $06 for FEP_WRBYT
+        jp      FlashEprCardId                  ; reason code $00 for FEP_CDID
+        jp      FlashEprCardData                ; reason code $03 for FEP_CDDT
+        jp      FlashEprSectorErase             ; reason code $06 for FEP_SCER
+        jp      FlashEprCardErase               ; reason code $09 for FEP_CDER
+        jp      FlashEprWriteByte               ; reason code $0c for FEP_WRBT
 
 
 

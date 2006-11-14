@@ -1,4 +1,4 @@
-     MODULE FlashEprCardData
+        module FlashEprCardData
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
@@ -23,15 +23,16 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprCardData
+        xdef    FlashEprCardData
 
-     INCLUDE "flashepr.def"
+        include "sysvar.def"
+        include "flashepr.def"
 
-;***************************************************************************************************
+; ***************************************************************************************************
 ; Get Flash Card Data.
 ;
 ; IN:
-;    HL = Polled from potential Flash Memory Chip (see FlashEprCardId):
+;    HL = Polled from Flash Memory Chip (see FlashEprCardId):
 ;         Manufacturer & Device Code
 ;
 ; OUT:
@@ -39,96 +40,103 @@
 ;       ID was found (verified):
 ;       A = chip generation (FE_28F or FE_29F)
 ;       B = total of 16K banks on Flash Memory
-;       DE = pointer to null-terminated string description of chip
+;       CDE = extended pointer to null-terminated string description of chip
 ;    Fc = 1
 ;      ID was not found
 ;
 ; Registers changed on return:
-;   ...C..HL/IXIY same
-;   AFB.DE../.... different
+;   ......HL/IXIY same
+;   AFBCDE../.... different
 ;
 ; ---------------------------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, Aug 2006
+;    Gunther Strube, Aug 2006, Nov 2006
 ; ---------------------------------------------------------------------------------------------
 ;
-.FlashEprCardData   PUSH HL
+.FlashEprCardData
+        push    hl
 
-                    EX   DE,HL
-                    LD   HL, DeviceCodeTable
-                    LD   B,(HL)                   ; no. of Flash Memory ID's in table
-                    INC  HL
-                    LD   A,E
-.find_loop          CP   (HL)                     ; Device Code found?
-                    INC  HL                       ; points at Manufacturer Code
-                    JR   NZ, get_next0
-                         LD   A,D
-                         CP   (HL)                ; Manufacturer Code found?
-                         INC  HL                  ; points at no of banks of Flash Memory
-                         JR   NZ, get_next1
-                         LD   B,(HL)              ; B = total of 16K banks on Flash Eprom
-                         INC  HL
-                         LD   A,(HL)              ; A = chip generation
-                         INC  HL
-                         LD   E,(HL)
-                         INC  HL
-                         LD   D,(HL)              ; DE points at chip description string
-                         JR   verified_id         ; Fc = 0, Flash Eprom data returned...
-.get_next0          INC  HL                       ; points at no of banks
-.get_next1          INC  HL                       ; points at chip generation
-                    INC  HL                       ; point mnemonic low byte
-                    INC  HL                       ; point mnemonic high byte
-                    INC  HL                       ; point at next entry
-                    DJNZ find_loop                ; and check for new Device Code
+        ex      de,hl
+        ld      hl, DeviceCodeTable
+        ld      b,(hl)                          ; no. of Flash Memory ID's in table
+        inc     hl
+        ld      a,e
+.find_loop
+        cp      (hl)                            ; Device Code found?
+        inc     hl                              ; points at Manufacturer Code
+        jr      nz, get_next0
 
-                    SCF                           ; Manufacturer and Device Code wasn't verified, indicate error
-.verified_id        POP  HL                       ; return FE_28F or FE29F in A (if device was successfully verified)
-                    RET
+        ld      a,d
+        cp      (hl)                            ; Manufacturer Code found?
+        inc     hl                              ; points at no of banks of Flash Memory
+        jr      nz, get_next1
+        ld      b,(hl)                          ; B = total of 16K banks on Flash Eprom
+        inc     hl
+        ld      a,(hl)                          ; A = chip generation
+        inc     hl
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)                          ; DE points at chip description string
+        ld      c,OZBANK_KNL1                   ; C = bank that contains this string
+        jr      verified_id                     ; Fc = 0, Flash Eprom data returned...
+.get_next0
+        inc     hl                              ; points at no of banks
+.get_next1
+        inc     hl                              ; points at chip generation
+        inc     hl                              ; point mnemonic low byte
+        inc     hl                              ; point mnemonic high byte
+        inc     hl                              ; point at next entry
+        djnz    find_loop                       ; and check for new Device Code
+
+        scf                                     ; Manufacturer and Device Code wasn't verified, indicate error
+.verified_id
+        pop     hl                              ; return FE_28F or FE29F in A (if device was successfully verified)
+        ret
 
 .DeviceCodeTable
-                    DEFB 9
+                defb 9
 
-                    DEFW FE_I28F004S5             ; Intel flash
-                    DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-                    DEFW mnem_i004
+                defw FE_I28F004S5               ; Intel flash
+                defb 32, FE_28F                 ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                defw mnem_i004
 
-                    DEFW FE_I28F008SA             ; Intel flash
-                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    DEFW mnem_i8s5                ; appear like I28F008S5
+                defw FE_I28F008SA               ; Intel flash
+                defb 64, FE_28F                 ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
+                defw mnem_i8s5                  ; appears like I28F008S5
 
-                    DEFW FE_I28F008S5             ; Intel flash
-                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    DEFW mnem_i8s5
+                defw FE_I28F008S5               ; Intel flash
+                defb 64, FE_28F                 ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
+                defw mnem_i8s5
 
-                    DEFW FE_AM29F010B             ; Amd flash
-                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
-                    DEFW mnem_am010b
+                defw FE_AM29F010B               ; Amd flash
+                defb 8, FE_29F                  ; 8 x 16K sectors / 8 x 16K banks (128Kb)
+                defw mnem_am010b
 
-                    DEFW FE_ST29F010B             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
-                    DEFW mnem_st010b
+                defw FE_ST29F010B               ; STMicroelectronics flash (Amd compatible)
+                defb 8, FE_29F                  ; 8 x 16K sectors / 8 x 16K banks (128Kb)
+                defw mnem_st010b
 
-                    DEFW FE_AM29F040B             ; Amd flash
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-                    DEFW mnem_am040b
+                defw FE_AM29F040B               ; Amd flash
+                defb 32, FE_29F                 ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                defw mnem_am040b
 
-                    DEFW FE_ST29F040B             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-                    DEFW mnem_st040b
+                defw FE_ST29F040B               ; STMicroelectronics flash (Amd compatible)
+                defb 32, FE_29F                 ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                defw mnem_st040b
 
-                    DEFW FE_AM29F080B             ; Amd flash
-                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    DEFW mnem_am080b
+                defw FE_AM29F080B               ; Amd flash
+                defb 64, FE_29F                 ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
+                defw mnem_am080b
 
-                    DEFW FE_ST29F080D             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    DEFW mnem_st080d
+                defw FE_ST29F080D               ; STMicroelectronics flash (Amd compatible)
+                defb 64, FE_29F                 ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
+                defw mnem_st080d
 
-.mnem_i004          DEFM "I28F004S5 (512K)", 0
-.mnem_i8S5          DEFM "I28F008S5 (1Mb)", 0
-.mnem_am010b        DEFM "AM29F010B (128K)", 0
-.mnem_am040b        DEFM "AM29F040B (512K)", 0
-.mnem_am080b        DEFM "AM29F080B (1Mb)", 0
-.mnem_st010b        DEFM "ST29F010B (128K)", 0
-.mnem_st040b        DEFM "ST29F040B (512K)", 0
-.mnem_st080d        DEFM "ST29F080D (1Mb)", 0
+.mnem_i004      defm "I28F004S5 (512K)", 0
+.mnem_i8S5      defm "I28F008S5 (1Mb)", 0
+.mnem_am010b    defm "AM29F010B (128K)", 0
+.mnem_am040b    defm "AM29F040B (512K)", 0
+.mnem_am080b    defm "AM29F080B (1Mb)", 0
+.mnem_st010b    defm "ST29F010B (128K)", 0
+.mnem_st040b    defm "ST29F040B (512K)", 0
+.mnem_st080d    defm "ST29F080D (1Mb)", 0
