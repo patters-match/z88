@@ -25,12 +25,10 @@
 
      XDEF FlashEprFileDelete
 
-     LIB ApplEprType
      LIB FileEprFileEntryInfo
      LIB PointerNextByte
      LIB OZSlotPoll, SetBlinkScreen
 
-     XREF FlashEprCardId
      XREF FlashEprWriteByte
      XREF SetBlinkScreenOn
 
@@ -108,8 +106,8 @@
                     CALL NZ,SetBlinkScreen        ; yes, blowing byte in OZ ROM (slot 0 or 1) requires LCD turned off
 .blow_zero_byte
                     XOR  A
-                    EX   AF,AF'                   ; A' = 0, blow byte to either INTEL or AMD chip
-                    XOR  A                        ; indicate file deleted (0)
+                    LD   C,A                      ; indicate file deleted (0)
+                    LD   E,A                      ; E = 0, blow byte to either INTEL or AMD chip
                     CALL FlashEprWriteByte        ; mark file as deleted with 0 byte
                     JR   C, err_delfile
 

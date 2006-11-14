@@ -43,22 +43,20 @@
 ; ***************************************************************************
 ;
 ; -----------------------------------------------------------------------
-; Write a byte (in A) to the Flash Memory Card in slot x, at address BHL.
+; Write a byte (in C) to the Flash Memory Card in slot x, at address BHL.
 ; -----------------------------------------------------------------------
 ;
 ; BHL points to a bank, offset (which is part of the slot that the Flash
 ; Memory Card have been inserted into).
 ;
 ; The routine can be told which programming algorithm to use (by specifying
-; the FE_28F or FE_29F mnemonic in A'); these parameters can be fetched when
+; the FE_28F or FE_29F mnemonic in E); these parameters can be fetched when
 ; investigated which Flash Memory chip is available in the slot, using the
 ; FlashEprCardId routine that reports these constants back to the caller.
 ;
-; However, if neither of the constants are provided in A', the routine can
-; be specified with A' = 0 which internally polls the Flash Memory for
+; However, if neither of the constants are provided in E, the routine can
+; be specified with E = 0 which internally polls the Flash Memory for
 ; identification and intelligently use the correct programming algorithm.
-; The identified FE_28F or FE_29F constant is returned to the caller in A'
-; for future reference (when the byte was successfully programmed to the card).
 ;
 ; Important:
 ; INTEL I28Fxxxx series Flash chips require the 12V VPP pin in slot 3
@@ -71,14 +69,14 @@
 ; this type of unnecessary error can be avoided.
 ;
 ; In:
-;         A = byte to blow at address
-;         A' = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
+;         C = byte to blow at address
+;         E = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
 ;         BHL = pointer to Flash Memory address (B=00h-FFh, HL=0000h-3FFFh)
 ;               (bits 7,6 of B is the slot mask)
 ; Out:
 ;         Success:
 ;              Fc = 0
-;              A' = FE_28F or FE_29F (depending on Flash Memory type in slot)
+;              A = byte successfully blown to Flash Memory
 ;         Failure:
 ;              Fc = 1
 ;              A = RC_BWR (programming of byte failed)
@@ -101,6 +99,7 @@
         push    hl                              ; preserve original pointer
         push    ix
 
+        ld      a,c
         ld      c, MS_S1
         res     7,h
         set     6,h                             ; use segment 1 to write byte to flash..
@@ -125,12 +124,13 @@
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
-;    A = byte to blow, A' = chip type
+;    A = byte to blow
 ;    D = bank of pointer
+;    E = chip type FE_28F, FE_29F or 0
 ;    HL = pointer to memory location in Flash Memory
 ; Out:
 ;    Fc = 0,
-;        byte blown successfully to the Flash Memory
+;        A = byte blown successfully to the Flash Memory
 ;    Fc = 1,
 ;        A = RC_ error code, byte not blown
 ;
@@ -139,15 +139,14 @@
 ;    .F....../.... different
 ;
 .FEP_Blowbyte
-        push    af
+        ex      af,af'
         ld      a,d                             ; no predefined programming was specified, let's find out...
         and     @11000000
         rlca
         rlca
         ld      c,a                             ; Flash Memory is in slot C (derived from original bank B)
-        pop     af
 
-        ex      af,af'                          ; check for pre-defined Flash Memory programming (type in A')...
+        ld      a,e                             ; check for pre-defined Flash Memory programming
         cp      FE_28F
         jr      z, check_slot3                  ; Intel flash programming specified, are we in slot3?
         cp      FE_29F
@@ -160,7 +159,7 @@
 
 .poll_chip_programming
         ex      de,hl                           ; preserve HL (pointer to write byte)
-        call    FlashEprCardId
+        call    FlashEprCardId                  ; return chip ID in HL, FE_x programming type in A
         ex      de,hl
         ret     c                               ; Fc = 1, A = RC error code (Flash Memory not found)
 
@@ -190,7 +189,7 @@
 ;    HL = pointer to memory location in Flash Memory
 ; Out:
 ;    Fc = 0 & Fz = 0,
-;        byte successfully blown to Flash Memory
+;        A = byte successfully blown to Flash Memory
 ;    Fc = 1,
 ;        A = RC_BWR, byte not blown
 ;
@@ -236,7 +235,7 @@
 ;    B = A(in)
 ;
 ;    Fc = 0 & Fz = 0,
-;        byte successfully blown to Flash Memory
+;        A = byte successfully blown to Flash Memory
 ;    Fc = 1,
 ;        A = RC_BWR, byte not blown
 ;
