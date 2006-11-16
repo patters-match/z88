@@ -1,4 +1,4 @@
-     MODULE FlashEprSectorErase
+        module FlashEprSectorErase
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.

@@ -1,4 +1,4 @@
-     MODULE FlashEprSaveRamFile
+        module FlashEprSaveRamFile
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
@@ -23,32 +23,31 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprSaveRamFile
+        xdef FlashEprSaveRamFile
 
-     LIB FileEprAllocFilePtr, FileEprFreeSpace
-     LIB SafeBHLSegment
-     LIB OZSlotPoll, SetBlinkScreen
+        lib FileEprAllocFilePtr, FileEprFreeSpace
+        lib SafeBHLSegment
+        lib OZSlotPoll, SetBlinkScreen
 
-     XREF FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
-     XREF SetBlinkScreenOn
+        xref FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
+        xref SetBlinkScreenOn
+
+        include "error.def"
+        include "fileio.def"
+        include "memory.def"
 
 
-     include "error.def"
-     include "fileio.def"
-     include "memory.def"
+        defc SizeOfWorkSpace = 256         ; size of Workspace on stack, IY points at base...
 
-
-     DEFC SizeOfWorkSpace = 256         ; size of Workspace on stack, IY points at base...
-
-     ; Relative offset definitions for allocated work buffer on stack
-     DEFVARS 0
-          IObuffer  ds.w 1              ; Pointer to I/O buffer
-          IObufSize ds.w 1              ; Size of I/O buffer
-          Fhandle   ds.w 1              ; Handle of openend file
-          FileEntry ds.p 1              ; pointer to File Entry
-          CardSlot  ds.b 1              ; slot number of File Eprom Card
-          Heap                          ; Internal Workspace
-     ENDDEF
+        ; Relative offset definitions for allocated work buffer on stack
+        defvars 0
+             IObuffer  ds.w 1              ; Pointer to I/O buffer
+             IObufSize ds.w 1              ; Size of I/O buffer
+             Fhandle   ds.w 1              ; Handle of openend file
+             FileEntry ds.p 1              ; pointer to File Entry
+             CardSlot  ds.b 1              ; slot number of File Eprom Card
+             Heap                          ; Internal Workspace
+        enddef
 
 
 ; **************************************************************************
@@ -117,136 +116,139 @@
 ;    AFB...HL/.... different
 ;
 ; -------------------------------------------------------------------------
-; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sep 2004, Aug 2006
+; Design & Programming
+;       Gunther Strube, Dec 1997-Apr 1998, Sep 2004, Aug 2006, Nov 2006
 ; -------------------------------------------------------------------------
 ;
 .FlashEprSaveRamFile
-                    PUSH IX                       ; preserve IX
-                    PUSH DE
-                    PUSH BC                       ; preserve CDE
+        push    ix                              ; preserve IX
+        push    de
+        push    bc                              ; preserve CDE
 
 
-.process_file       PUSH IY                       ; preserve original IY
-                    EXX                           ; use alternate registers temporarily
-                    LD   HL,0
-                    ADD  HL,SP
-                    LD   IY, -SizeOfWorkSpace     ; create temporary work buffer on stack
-                    ADD  IY,SP
-                    LD   SP,IY
-                    PUSH HL                       ; preserve a copy of original SP on return
-                    EXX
+.process_file
+        push    iy                              ; preserve original IY
+        exx                                     ; use alternate registers temporarily
+        ld      hl,0
+        add     hl,sp
+        ld      iy, -SizeOfWorkSpace            ; create temporary work buffer on stack
+        add     iy,sp
+        ld      sp,iy
+        push    hl                              ; preserve a copy of original SP on return
+        exx
 
-                    AND  @00000011
-                    LD   (IY + CardSlot),A        ; preserve slot number of File Eprom Card
-                    LD   (IY + IObuffer),E
-                    LD   (IY + IObuffer+1),D      ; preserve pointer to external IO buffer
-                    LD   (IY + IObufSize),C
-                    LD   (IY + IObufSize+1),B     ; preserve size of external IO buffer
+        and     @00000011
+        ld      (iy + CardSlot),a               ; preserve slot number of File Eprom Card
+        ld      (iy + IObuffer),e
+        ld      (iy + IObuffer+1),d             ; preserve pointer to external IO buffer
+        ld      (iy + IObufSize),c
+        ld      (iy + IObufSize+1),b            ; preserve size of external IO buffer
 
-                    PUSH HL                       ; preserve ptr. to filename...
-                    PUSH IY
-                    POP  HL
-                    LD   BC,Heap                  ; B = 0, C = size of heap
-                    ADD  HL,BC                    ; point at workspace for File Entry Header...
-                    LD   D,H
-                    LD   E,L                      ; DE points at space for File Entry
-                    EX   (SP),HL                  ; preserve pointer to File Entry
-                    LD   C, SizeOfWorkSpace-Heap-16 ; B=0 (local ptr), C = max. size of exp. filename
-                    LD   A, OP_IN                 ; HL = ptr. to filename...
-                    CALL_OZ(GN_Opf)               ; open file for input...
-                    POP  HL                       ; ptr. to expanded filename
-                    JP   C, end_filesave          ; Ups - system error, return back to caller...
+        push    hl                              ; preserve ptr. to filename...
+        push    iy
+        pop     hl
+        ld      bc,Heap                         ; B = 0, C = size of heap
+        add     hl,bc                           ; point at workspace for File Entry Header...
+        ld      d,h
+        ld      e,l                             ; DE points at space for File Entry
+        ex      (sp),hl                         ; preserve pointer to File Entry
+        ld      c, SizeOfWorkSpace-Heap-16      ; B=0 (local ptr), C = max. size of exp. filename
+        ld      a, OP_IN                        ; HL = ptr. to filename...
+        oz      GN_Opf                          ; open file for input...
+        pop     hl                              ; ptr. to expanded filename
+        jp      c, end_filesave                 ; Ups - system error, return back to caller...
 
-                    LD   DE,5
-                    ADD  HL,DE                    ; point at character before "/" (device skipped)
-                    PUSH HL                       ; (length byte) - This is start of File Entry Header...
+        ld      de,5
+        add     hl,de                           ; point at character before "/" (device skipped)
+        push    hl                              ; (length byte) - This is start of File Entry Header...
 
-                    LD   A,C
-                    SUB  7                        ; length of filename excl. device name...
-                    LD   (HL),A
-                    PUSH AF                       ; preserve length of filename
-                    INC  A
-                    LD   E,A
-                    ADD  HL,DE                    ; point at beyond last character of filename...
+        ld      a,c
+        sub     7                               ; length of filename excl. device name...
+        ld      (hl),a
+        push    af                              ; preserve length of filename
+        inc     a
+        ld      e,a
+        add     hl,de                           ; point at beyond last character of filename...
 
-                    LD   A, FA_EXT
-                    LD   DE,0
-                    CALL_OZ(OS_Frm)               ; get size of file image in DEBC (32bit integer)
-                    LD   (HL),C
-                    INC  HL
-                    LD   (HL),B
-                    INC  HL
-                    LD   (HL),E
-                    INC  HL
-                    LD   (HL),D                   ; File Entry now ready...
+        ld      a, FA_EXT
+        ld      de,0
+        oz      OS_Frm                          ; get size of file image in DEBC (32bit integer)
+        ld      (hl),c
+        inc     hl
+        ld      (hl),b
+        inc     hl
+        ld      (hl),e
+        inc     hl
+        ld      (hl),d                          ; File Entry now ready...
 
-                    POP  AF                       ; length of filename (excl. device)
-                    ADD  A,4+1                    ; total size = length of filename + 1 + file length
-                    LD   H,0                      ;                                       (4 bytes)
-                    LD   L,A
-                    ADD  HL,BC
-                    LD   B,H
-                    LD   C,L
-                    LD   HL,0
-                    ADC  HL,DE
-                    PUSH HL
-                    PUSH BC
+        pop     af                              ; length of filename (excl. device)
+        add     a,4+1                           ; total size = length of filename + 1 + file length
+        ld      h,0                             ;                                       (4 bytes)
+        ld      l,a
+        add     hl,bc
+        ld      b,h
+        ld      c,l
+        ld      hl,0
+        adc     hl,de
+        push    hl
+        push    bc
 
-                    LD   C,(IY + CardSlot)        ; scan File Eprom in slot X for free space
-                    CALL FileEprFreeSpace         ; returned in DEBC (Fc = 0, Eprom available...)
+        ld      c,(iy + CardSlot)               ; scan File Eprom in slot X for free space
+        call    FileEprFreeSpace                ; returned in DEBC (Fc = 0, Eprom available...)
 
-                    LD   H,B
-                    LD   L,C                      ; HL = low word of 32bit free space...
-                    POP  BC
-                    SBC  HL,BC
-                    EX   DE,HL                    ; HL = high word of 32bit free space...
-                    POP  DE                       ; DE = high word of file size
-                    SBC  HL,DE
-                    JR   C, no_room               ; file size (incl. File Entry Header) > free space...
+        ld      h,b
+        ld      l,c                             ; HL = low word of 32bit free space...
+        pop     bc
+        sbc     hl,bc
+        ex      de,hl                           ; HL = high word of 32bit free space...
+        pop     de                              ; DE = high word of file size
+        sbc     hl,de
+        jr      c, no_room                      ; file size (incl. File Entry Header) > free space...
 
-                    LD   C,(IY + CardSlot)
-                    CALL OZSlotPoll               ; is OZ running in slot C?
-                    CALL NZ,SetBlinkScreen        ; yes, saving file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
+        ld      c,(iy + CardSlot)
+        call    OZSlotPoll                      ; is OZ running in slot C?
+        call    nz,SetBlinkScreen               ; yes, saving file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
 
-                    PUSH IX
-                    POP  BC
-                    LD   (IY + Fhandle),C
-                    LD   (IY + Fhandle+1),B       ; preserve file handle
+        push    ix
+        pop     bc
+        ld      (iy + Fhandle),C
+        ld      (iy + Fhandle+1),B              ; preserve file handle
 
-                    POP  HL                       ; ptr. to File Entry
-                    CALL SaveToFlashEpr           ; Now, blow file to Flash Eprom...
+        pop     hl                              ; ptr. to File Entry
+        call    SaveToFlashEpr                  ; Now, blow file to Flash Eprom...
 
-                    CALL SetBlinkScreenOn         ; always turn on screen after save file operation
+        call    SetBlinkScreenOn                ; always turn on screen after save file operation
 
-                    PUSH AF                       ; preserve error status...
-                    LD   C,(IY + Fhandle)
-                    LD   B,(IY + Fhandle+1)
-                    PUSH BC
-                    POP  IX                       ; get file handle of open file
-                    CALL_OZ(Gn_Cl)                ; close file
-                    POP  AF
+        push    af                              ; preserve error status...
+        ld      c,(iy + Fhandle)
+        ld      b,(iy + Fhandle+1)
+        push    bc
+        POP     IX                              ; get file handle of open file
+        oz      Gn_Cl                           ; close file
+        pop     af
 
-                    LD   L,(IY + FileEntry)
-                    LD   H,(IY + FileEntry+1)
-                    LD   B,(IY + FileEntry+2)     ; return pointer to new File Entry...
+        ld      l,(iy + FileEntry)
+        ld      h,(iy + FileEntry+1)
+        ld      b,(iy + FileEntry+2)            ; return pointer to new File Entry...
 .end_filesave
-                    EXX
-                    POP  HL
-                    LD   SP,HL                    ; install original SP
-                    EXX
-                    POP  IY                       ; original IY restored
+        exx
+        pop     hl
+        ld      sp,hl                           ; install original SP
+        exx
+        pop     iy                              ; original IY restored
 
-                    POP  DE
-                    LD   C,E                      ; original C restored
-                    POP  DE
-                    POP  IX
-                    RET
+        pop     de
+        ld      c,e                             ; original C restored
+        pop     de
+        pop     ix
+        ret
 
-.no_room            POP  HL                       ; remove redundant pointer to File Entry in buffer...
-                    CALL_OZ(Gn_Cl)                ; close file (not going to be saved...)
-                    LD   A, RC_Room
-                    SCF                           ; indicate "No Room in Flash Eprom"...
-                    JR   end_filesave
+.no_room
+        pop     hl                              ; remove redundant pointer to File Entry in buffer...
+        oz      Gn_Cl                           ; close file (not going to be saved...)
+        ld      a, RC_Room
+        scf                                     ; indicate "No Room in Flash Eprom"...
+        jr      end_filesave
 
 
 ; **************************************************************************
@@ -255,26 +257,26 @@
 ;    HL = pointer to File Entry
 ;
 .SaveToFlashEpr
-                    PUSH HL
-                    LD   C,(IY + CardSlot)
-                    CALL FileEprAllocFilePtr      ; BHL = ptr. to free file space on File Eprom Card
-                    LD   (IY + FileEntry),L
-                    LD   (IY + FileEntry+1),H
-                    LD   (IY + FileEntry+2),B     ; preserve pointer to new File Entry
-                    POP  DE
-                    CALL SaveFileEntry
-                    RET  C                        ; saving of File Entry failed...
-.save_file_loop                                   ; A = chip type to blow data
-                    CALL LoadBuffer               ; Load block of bytes from file into external buffer
-                    RET  Z                        ; EOF reached...
+        push    hl
+        ld      c,(iy + CardSlot)
+        call    FileEprAllocFilePtr             ; BHL = ptr. to free file space on File Eprom Card
+        ld      (iy + FileEntry),L
+        ld      (iy + FileEntry+1),H
+        ld      (iy + FileEntry+2),B            ; preserve pointer to new File Entry
+        pop     de
+        call    SaveFileEntry
+        ret     c                               ; saving of File Entry failed...
+.save_file_loop                                          ; A = chip type to blow data
+        call    LoadBuffer                      ; Load block of bytes from file into external buffer
+        ret     z                               ; EOF reached...
 
-                    PUSH IY
-                    PUSH IX
-                    POP  IY
-                    CALL FlashEprWriteBlock       ; blow buffer to Flash Eprom at BHL...
-                    POP  IY                       ; restore base pointer to local stack variables...
-                    JR   C,MarkDeleted            ; exit saving, File was not blown properly (try to mark it as deleted)...
-                    JR   save_file_loop
+        push    iy
+        push    ix
+        pop     iy
+        call    FlashEprWriteBlock              ; blow buffer to Flash Eprom at BHL...
+        pop     iy                              ; restore base pointer to local stack variables...
+        jr      c,MarkDeleted                   ; exit saving, File was not blown properly (try to mark it as deleted)...
+        jr      save_file_loop
 
 
 ; **************************************************************************
@@ -297,22 +299,23 @@
 ;    ....DE../IXIY same
 ;    AFBC..HL/.... different
 ;
-.SaveFileEntry      PUSH IY
-                    PUSH BC
-                    LD   A,(DE)                   ; length of filename
-                    ADD  A,4+1                    ; total size = length of filename + 1 (file length byte)
-                    LD   B,0                      ;              + 4 (32bit file length)
-                    LD   C,A
-                    PUSH BC                       ; DE = ptr. to File Entry
-                    POP  IY                       ; length of File Entry in IY
-                    POP  BC                       ; BHL = pointer to free space on Eprom
-                    CALL SafeBHLSegment           ; get a safe segment (not this executing segment!) to blow bytes...
-                    XOR  A                        ; flash chip type to be detected dynamically...
-                    CALL FlashEprWriteBlock       ; blow File Entry to Flash Eprom
-                    POP  IY
-                    RET  NC                       ; Fc = 0, A = FE_xx chip type
+.SaveFileEntry
+        push    iy
+        push    bc
+        ld      a,(de)                          ; length of filename
+        add     a,4+1                           ; total size = length of filename + 1 (file length byte)
+        ld      b,0                             ;              + 4 (32bit file length)
+        ld      c,a
+        push    bc                              ; DE = ptr. to File Entry
+        pop     iy                              ; length of File Entry in IY
+        pop     bc                              ; BHL = pointer to free space on Eprom
+        call    SafeBHLSegment                  ; get a safe segment (not this executing segment!) to blow bytes...
+        xor     a                               ; flash chip type to be detected dynamically...
+        call    FlashEprWriteBlock              ; blow File Entry to Flash Eprom
+        pop     iy
+        ret     nc                              ; Fc = 0, A = FE_xx chip type
 
-                    ; File Entry was not blown properly, mark it as 'deleted'...
+        ; File Entry was not blown properly, mark it as 'deleted'...
 
 
 ; **************************************************************************
@@ -330,13 +333,13 @@
 ;    ..B...HL/.... different
 ;
 .MarkDeleted
-                    PUSH AF
-                    LD   L,(IY + FileEntry)
-                    LD   H,(IY + FileEntry+1)
-                    LD   B,(IY + FileEntry+2)     ; return pointer to new File Entry...
-                    CALL FlashEprFileDelete       ; mark entry as deleted
-                    POP  AF
-                    RET
+        push    af
+        ld      l,(iy + FileEntry)
+        ld      h,(iy + FileEntry+1)
+        ld      b,(iy + FileEntry+2)            ; return pointer to new File Entry...
+        call    FlashEprFileDelete              ; mark entry as deleted
+        pop     af
+        ret
 
 
 ; *****************************************************************************
@@ -358,36 +361,36 @@
 ;    .F..DE../IX.. different
 ;
 .LoadBuffer
-                    PUSH BC
-                    PUSH AF
-                    PUSH HL
+        push    bc
+        push    af
+        push    hl
 
-                    LD   C,(IY + Fhandle)
-                    LD   B,(IY + Fhandle+1)
-                    PUSH BC
-                    POP  IX                       ; get file handle of open file
-                    LD   A,FA_EOF
-                    LD   DE,0
-                    CALL_OZ (Os_Frm)
-                    JR   Z, exit_loadbuffer       ; EOF!
+        ld      c,(iy + Fhandle)
+        ld      b,(iy + Fhandle+1)
+        push    bc
+        pop     ix                              ; get file handle of open file
+        ld      a,FA_EOF
+        ld      de,0
+        oz      Os_Frm
+        jr      z, exit_loadbuffer              ; EOF!
 
-                    LD   C,(IY + IObufsize)
-                    LD   B,(IY + IObufsize+1)     ; Buffer Size
-                    PUSH BC
-                    LD   E,(IY + IObuffer)
-                    LD   D,(IY + IObuffer+1)      ; Pointer to Buffer Start
-                    PUSH DE
-                    LD   HL,0
-                    CALL_OZ (Os_Mv)               ; load max. BC bytes of file into buffer
-                    POP  DE
-                    CP   A                        ; Fc = 0
-                    POP  HL
-                    SBC  HL,BC                    ; BC = possible bytes read past EOF (or none)
-                    PUSH HL                       ; Fz = 1, indicates EOF!
-                    POP  IX                       ; actual size of buffer
+        ld      c,(iy + IObufsize)
+        ld      b,(iy + IObufsize+1)            ; Buffer Size
+        push    bc
+        ld      e,(iy + IObuffer)
+        ld      d,(iy + IObuffer+1)             ; Pointer to Buffer Start
+        push    de
+        ld      hl,0
+        oz      Os_Mv                           ; load max. BC bytes of file into buffer
+        pop     de
+        cp      a                               ; Fc = 0
+        pop     hl
+        sbc     hl,bc                           ; BC = possible bytes read past EOF (or none)
+        push    hl                              ; Fz = 1, indicates EOF!
+        pop     ix                              ; actual size of buffer
 .exit_loadbuffer
-                    POP  HL
-                    POP  BC
-                    LD   A,B                      ; restore original A
-                    POP  BC
-                    RET
+        pop     hl
+        pop     bc
+        ld      a,b                             ; restore original A
+        pop     bc
+        ret

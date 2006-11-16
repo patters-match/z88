@@ -1,4 +1,4 @@
-     MODULE FlashEprCopyFileEntry
+        module FlashEprCopyFileEntry
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
@@ -23,33 +23,33 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprCopyFileEntry
+        xdef FlashEprCopyFileEntry
 
-     LIB FileEprAllocFilePtr
-     LIB FileEprFreeSpace
-     LIB FileEprFileEntryInfo
-     LIB SafeBHLSegment
-     LIB FileEprTransferBlockSize
-     LIB OZSlotPoll, SetBlinkScreen
+        lib FileEprAllocFilePtr
+        lib FileEprFreeSpace
+        lib FileEprFileEntryInfo
+        lib SafeBHLSegment
+        lib FileEprTransferBlockSize
+        lib OZSlotPoll, SetBlinkScreen
 
-     XREF FlashEprCardId
-     XREF FlashEprFileDelete
-     XREF FlashEprCopyBlock
-     XREF SetBlinkScreenOn
+        xref FlashEprCardId
+        xref FlashEprFileDelete
+        xref FlashEprCopyBlock
+        xref SetBlinkScreenOn
 
-     include "error.def"
-     include "memory.def"
+        include "error.def"
+        include "memory.def"
 
 
-     ; IY points at base of stack workspace
-     DEFVARS 0
-          SrcFileEntry ds.p 1           ; pointer to source File Entry (to be copied)
-          DstFileEntry ds.p 1           ; pointer to destination File Entry
-          SrcFileSize  ds.b 3           ; 24bit total file size of entry (header + image)
-          CardSlot     ds.b 1           ; slot number of destination Flash Card
-          FepType      ds.b 1           ; Flash Eprom type in Slot C
-          SizeOfWorkSpace               ; size of Workspace on stack
-     ENDDEF
+        ; IY points at base of stack workspace
+        defvars 0
+             SrcFileEntry ds.p 1           ; pointer to source File Entry (to be copied)
+             DstFileEntry ds.p 1           ; pointer to destination File Entry
+             SrcFileSize  ds.b 3           ; 24bit total file size of entry (header + image)
+             CardSlot     ds.b 1           ; slot number of destination Flash Card
+             FepType      ds.b 1           ; Flash Eprom type in Slot C
+             SizeOfWorkSpace               ; size of Workspace on stack
+        enddef
 
 
 ; ***************************************************************************************************
@@ -110,133 +110,133 @@
 ; -------------------------------------------------------------------------
 ;
 .FlashEprCopyFileEntry
-                    push ix                       ; preserve IX
-                    push hl
-                    push de
-                    push bc                       ; preserve CDE
-                    push iy                       ; preserve original IY
+        push    ix                              ; preserve IX
+        push    hl
+        push    de
+        push    bc                              ; preserve CDE
+        push    iy                              ; preserve original IY
 
-                    exx                           ; use alternate registers temporarily
-                    ld   hl,0
-                    add  hl,sp
-                    ld   iy, -SizeOfWorkSpace     ; create temporary work buffer on stack
-                    add  iy,sp
-                    ld   sp,iy
-                    push hl                       ; preserve a copy of original SP on return
-                    exx
+        exx                                     ; use alternate registers temporarily
+        ld      hl,0
+        add     hl,sp
+        ld      iy, -SizeOfWorkSpace            ; create temporary work buffer on stack
+        add     iy,sp
+        ld      sp,iy
+        push    hl                              ; preserve a copy of original SP on return
+        exx
 
-                    ld   (iy + CardSlot),c        ; preserve slot number of File Eprom Card
-                    res  7,h
-                    res  6,h                      ; discard segment mask, if any...
-                    ld   (iy + SrcFileEntry),l
-                    ld   (iy + SrcFileEntry+1),h
-                    ld   (iy + SrcFileEntry+2),b  ; preserve pointer to source File Entry...
+        ld      (iy + CardSlot),c               ; preserve slot number of File Eprom Card
+        res     7,h
+        res     6,h                             ; discard segment mask, if any...
+        ld      (iy + SrcFileEntry),l
+        ld      (iy + SrcFileEntry+1),h
+        ld      (iy + SrcFileEntry+2),b         ; preserve pointer to source File Entry...
 
-                    call FileEprFileEntryInfo     ; return CDE = file image size, A = length of entry filename
-                    jr   c, exit_FlashEprCopyFileEntry ; File entry not recognised, exit with error...
+        call    FileEprFileEntryInfo            ; return CDE = file image size, A = length of entry filename
+        jr      c, exit_FlashEprCopyFileEntry   ; File entry not recognised, exit with error...
 
-                    ex   de,hl
-                    add  a,4+1                    ; file entry header size = length of filename + 1 + file length (4 bytes)
-                    ld   d,0
-                    ld   e,a
-                    add  hl,de                    ; total size of file entry = header + image
-                    jr   nc,preserve_entrysize
-                    inc  c                        ; total file size > 64K, adjust 24bit high byte
+        ex      de,hl
+        add     a,4+1                           ; file entry header size = length of filename + 1 + file length (4 bytes)
+        ld      d,0
+        ld      e,a
+        add     hl,de                           ; total size of file entry = header + image
+        jr      nc,preserve_entrysize
+        inc     c                               ; total file size > 64K, adjust 24bit high byte
 .preserve_entrysize
-                    ld   (iy + SrcFileSize),l
-                    ld   (iy + SrcFileSize+1),h
-                    ld   (iy + SrcFileSize+2),c
-                    ld   b,0
-                    push bc                       ; high word of file entry size
-                    push hl                       ; low word of file entry size
+        ld      (iy + SrcFileSize),l
+        ld      (iy + SrcFileSize+1),h
+        ld      (iy + SrcFileSize+2),c
+        ld      b,0
+        push    bc                              ; high word of file entry size
+        push    hl                              ; low word of file entry size
 
-                    ld   c,(iy + CardSlot)        ; scan File Eprom in slot X for free space
-                    call FileEprFreeSpace         ; returned in DEBC (Fc = 0, File area is available from FileEprFileEntryInfo...)
+        ld      c,(iy + CardSlot)               ; scan File Eprom in slot X for free space
+        call    FileEprFreeSpace                ; returned in DEBC (Fc = 0, File area is available from FileEprFileEntryInfo...)
 
-                    ld   h,b
-                    ld   l,c                      ; HL = low word of 32bit free space...
-                    pop  bc
-                    sbc  hl,bc
-                    ex   de,hl                    ; HL = high word of 32bit free space...
-                    pop  de                       ; DE = high word of file size
-                    sbc  hl,de
-                    jr   nc, copy_fileentry       ; there's room for file in slot C, start to copy...
-                    ld   a, RC_Room
-                    scf                           ; file size (incl. File Entry Header) > free space, don't copy...
-                    jr   exit_FlashEprCopyFileEntry
+        ld      h,b
+        ld      l,c                             ; HL = low word of 32bit free space...
+        pop     bc
+        sbc     hl,bc
+        ex      de,hl                           ; HL = high word of 32bit free space...
+        pop     de                              ; DE = high word of file size
+        sbc     hl,de
+        jr      nc, copy_fileentry              ; there's room for file in slot C, start to copy...
+        ld      a, RC_Room
+        scf                                     ; file size (incl. File Entry Header) > free space, don't copy...
+        jr      exit_FlashEprCopyFileEntry
 .copy_fileentry
-                    ld   c,(iy + CardSlot)
-                    call FlashEprCardId           ; make sure that a flash card is available in slot C..
-                    ld   (iy + FepType),a         ; yes, remember flash type for later
-                    jr   c, exit_FlashEprCopyFileEntry ; no flash card - no copying...
+        ld      c,(iy + CardSlot)
+        call    FlashEprCardId                  ; make sure that a flash card is available in slot C..
+        ld      (iy + FepType),a                ; yes, remember flash type for later
+        jr      c, exit_FlashEprCopyFileEntry   ; no flash card - no copying...
 
-                    call OZSlotPoll               ; is OZ running in slot C?
-                    call nz,SetBlinkScreen        ; yes, copying file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
-                    call CopyFileEntry            ; Now, copy source file entry to file area in slot C...
-                    call SetBlinkScreenOn         ; always turn on screen after copy file operation
+        call    OZSlotPoll                      ; is OZ running in slot C?
+        call    nz,SetBlinkScreen               ; yes, copying file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
+        call    CopyFileEntry                   ; Now, copy source file entry to file area in slot C...
+        call    SetBlinkScreenOn                ; always turn on screen after copy file operation
 
 .exit_FlashEprCopyFileEntry
-                    pop  hl
-                    ld   sp,hl                    ; restore original SP
-                    pop  iy                       ;                  IY
+        pop     hl
+        ld      sp,hl                           ; restore original SP
+        pop     iy                              ;                  IY
 
-                    pop  bc                       ; and the usual gang...
-                    pop  de
-                    pop  hl
-                    pop  ix
-                    ret
+        pop     bc                              ; and the usual gang...
+        pop     de
+        pop     hl
+        pop     ix
+        ret
 
 
 ; **************************************************************************
 .CopyFileEntry
-                    call FileEprAllocFilePtr      ; BHL = pointer to free file space on File Eprom Card
-                    ret  c                        ; no file area recognized in slot C!
-                    ex   de,hl
-                    ld   c,b
-                    ld   (iy + DstFileEntry),e
-                    ld   (iy + DstFileEntry+1),d  ; preserve destination File Entry pointer if copy fails..
-                    ld   (iy + DstFileEntry+2),c  ; (and needs to marked as deleted)
-                    ld   l,(iy + SrcFileEntry)
-                    ld   h,(iy + SrcFileEntry+1)
-                    ld   b,(iy + SrcFileEntry+2)  ; BHL = pointer to source File Entry...
-                    exx
-                    ld   e,(iy + SrcFileSize)
-                    ld   d,(iy + SrcFileSize+1)
-                    ld   c,(iy + SrcFileSize+2)   ; total file size to copy to slot C...
-                    exx
+        call    FileEprAllocFilePtr             ; BHL = pointer to free file space on File Eprom Card
+        ret     c                               ; no file area recognized in slot C!
+        ex      de,hl
+        ld      c,b
+        ld      (iy + DstFileEntry),e
+        ld      (iy + DstFileEntry+1),d         ; preserve destination File Entry pointer if copy fails..
+        ld      (iy + DstFileEntry+2),c         ; (and needs to marked as deleted)
+        ld      l,(iy + SrcFileEntry)
+        ld      h,(iy + SrcFileEntry+1)
+        ld      b,(iy + SrcFileEntry+2)         ; BHL = pointer to source File Entry...
+        exx
+        ld      e,(iy + SrcFileSize)
+        ld      d,(iy + SrcFileSize+1)
+        ld      c,(iy + SrcFileSize+2)          ; total file size to copy to slot C...
+        exx
 .copy_file_loop
-                    exx                           ; file size = 0?
-                    ld   a,d
-                    or   e
-                    exx
-                    jr   nz, copy_file_block      ; No, bytes still left to copy...
-                    exx
-                    xor  a
-                    or   c
-                    exx
-                    ret  z                        ; File entry was successfully copied to file area!
+        exx                                     ; file size = 0?
+        ld      a,d
+        or      e
+        exx
+        jr      nz, copy_file_block             ; No, bytes still left to copy...
+        exx
+        xor     a
+        or      c
+        exx
+        ret     z                               ; File entry was successfully copied to file area!
 .copy_file_block
-                    call FileEprTransferBlockSize ; get block size in hl' based on current BHL pointer & file size in cde'
-                    ld   a,(iy + FepType)         ; get chip programming type FE_xxx
-                    push iy                       ; preserve base pointer to local stack variables
-                    exx
-                    push bc
-                    push de                       ; preserve remaining file size
-                    push hl
-                    pop  iy                       ; size of block to copy
-                    exx
-                    call FlashEprCopyBlock        ; copy file entry from BHL to Flash Card at CDE, block size IY
-                    exx
-                    pop  de
-                    pop  bc                       ; restore remaining file size = CDE
-                    exx
-                    pop  iy                       ; restore base pointer to local stack variables...
-                    jr   nc,copy_file_loop        ; if block successfully blown (Fc = 0), then get next block from source file
+        call    FileEprTransferBlockSize        ; get block size in hl' based on current BHL pointer & file size in cde'
+        ld      a,(iy + FepType)                ; get chip programming type FE_xxx
+        push    iy                              ; preserve base pointer to local stack variables
+        exx
+        push    bc
+        push    de                              ; preserve remaining file size
+        push    hl
+        pop     iy                              ; size of block to copy
+        exx
+        call    FlashEprCopyBlock               ; copy file entry from BHL to Flash Card at CDE, block size IY
+        exx
+        pop     de
+        pop     bc                              ; restore remaining file size = CDE
+        exx
+        pop     iy                              ; restore base pointer to local stack variables...
+        jr      nc,copy_file_loop               ; if block successfully blown (Fc = 0), then get next block from source file
 
-                    push af                       ; write block failure!
-                    ld   l,(iy + DstFileEntry)
-                    ld   h,(iy + DstFileEntry+1)
-                    ld   b,(iy + DstFileEntry+2)
-                    call FlashEprFileDelete       ; mark Destination File Entry as deleted, if possible.
-                    pop  af                       ; and exit with error code from FlashEprCopyBlock
-                    ret
+        push    af                              ; write block failure!
+        ld      l,(iy + DstFileEntry)
+        ld      h,(iy + DstFileEntry+1)
+        ld      b,(iy + DstFileEntry+2)
+        call    FlashEprFileDelete              ; mark Destination File Entry as deleted, if possible.
+        pop     af                              ; and exit with error code from FlashEprCopyBlock
+        ret

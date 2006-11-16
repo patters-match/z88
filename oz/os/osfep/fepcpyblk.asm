@@ -1,4 +1,4 @@
-     MODULE FlashEprCopyBlock
+        module FlashEprCopyBlock
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
@@ -23,17 +23,17 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprCopyBlock
+        xdef FlashEprCopyBlock
 
-     LIB MemDefBank             ; Bind bank, defined in B, into segment C. Return old bank binding in B
-     LIB ApplSegmentMask        ; Get segment mask (MM_Sx) of this executing code)
-     LIB SafeSegmentMask        ; Get a 'safe' segment mask outside the current executing code
+        lib ApplSegmentMask        ; Get segment mask (MM_Sx) of this executing code)
+        lib SafeSegmentMask        ; Get a 'safe' segment mask outside the current executing code
 
-     XREF FlashEprWriteBlock    ; Write a block of bytes to Flash memory, from DE to BHL of block size IY.
+        xref FlashEprWriteBlock    ; Write a block of bytes to Flash memory, from DE to BHL of block size IY.
 
-     INCLUDE "flashepr.def"
-     INCLUDE "memory.def"
-     INCLUDE "error.def"
+        include "flashepr.def"
+        include "memory.def"
+        include "error.def"
+        include "lowram.def"
 
 
 ;***************************************************************************************************
@@ -99,65 +99,65 @@
 ; ---------------------------------------------------------------------------------------------
 ;
 .FlashEprCopyBlock
-                    push iy
-                    push bc
+        push    iy
+        push    bc
 
-                    ex   af,af'                        ; preserve FE Programming type in A'
-                    call SafeSegmentMask               ; get safe segments for BHL & CDE pointers (outside executing PC segment)
-                    push af
-                    res  7,h
-                    res  6,h
-                    or   h
-                    ld   h,a                           ; HL[sgmask]
-                    call ApplSegmentMask               ; PC[sgmask]
-                    ex   (sp),hl
-                    xor  h
-                    res  7,d
-                    res  6,d
-                    or   d
-                    ld   d,a                           ; DE[sgmask] = PC[sgmask] XOR HL[sgmask]
-                    pop  hl
+        ex      af,af'                          ; preserve FE Programming type in A'
+        call    SafeSegmentMask                 ; get safe segments for BHL & CDE pointers (outside executing PC segment)
+        push    af
+        res     7,h
+        res     6,h
+        or      h
+        ld      h,a                             ; HL[sgmask]
+        call    ApplSegmentMask                 ; PC[sgmask]
+        ex      (sp),hl
+        xor     h
+        res     7,d
+        res     6,d
+        or      d
+        ld      d,a                             ; DE[sgmask] = PC[sgmask] XOR HL[sgmask]
+        pop     hl
 
-                    push bc
-                    ld   a,h
-                    exx
-                    pop  bc
-                    rlca
-                    rlca
-                    ld   c,a                           ; C = MS_Sx of BHL source data block
-                    call MemDefBank                    ; Bind bank of source data into segment C
-                    push bc                            ; preserve old bank binding of segment C
-                    exx
-                    
-                    ex   de,hl
-                    ld   b,c                           ; BHL <- CDE
-                    ex   af,af'                        ; FE Programming type
-                    call FlashEprWriteBlock            ; DE now source block in current address space, BHL destination pointer
-                    ex   af,af'                        ; preserve error status ...
+        push    bc
+        ld      a,h
+        exx
+        pop     bc
+        rlca
+        rlca
+        ld      c,a                             ; C = MS_Sx of BHL source data block
+        rst     OZ_MPB                          ; Bind bank of source data into segment C
+        push    bc                              ; preserve old bank binding of segment C
+        exx
 
-                    exx
-                    pop  bc
-                    call MemDefBank                    ; restore old segment C bank binding of BHL source data block
-                    exx
+        ex      de,hl
+        ld      b,c                             ; BHL <- CDE
+        ex      af,af'                          ; FE Programming type
+        call    FlashEprWriteBlock              ; DE now source block in current address space, BHL destination pointer
+        ex      af,af'                          ; preserve error status ...
 
-                    res  7,d
-                    res  6,d                           
-                    add  iy,de                         ; block size + offset = updated block pointer (installed in HL below)
-                    push iy                            
-                    
-                    ex   de,hl
-                    ld   c,b                           
-                    res  7,d
-                    res  6,d                           ; return updated CDE destination pointer to caller
+        exx
+        pop     bc
+        rst     OZ_MPB                          ; restore old segment C bank binding of BHL source data block
+        exx
 
-                    pop  hl                            ; HL = updated byte beyond source block offset
-                    pop  af                            
-                    ld   b,a                           ; original B restored
-                    bit  6,h                           ; source pointer crossed bank boundary?
-                    jr   z,exit_FlashEprCopyBlock      ; nope (withing 16k offset)
-                    inc  b
-                    res  6,h                           ; source block copy reached boundary of bank...
-.exit_FlashEprCopyBlock                    
-                    pop  iy                            ; restored original IY
-                    ex   af,af'
-                    ret                                ; return A = FE Programming type, or error condition in AF
+        res     7,d
+        res     6,d
+        add     iy,de                           ; block size + offset = updated block pointer (installed in HL below)
+        push    iy
+
+        ex      de,hl
+        ld      c,b
+        res     7,d
+        res     6,d                             ; return updated CDE destination pointer to caller
+
+        pop     hl                              ; HL = updated byte beyond source block offset
+        pop     af
+        ld      b,a                             ; original B restored
+        bit     6,h                             ; source pointer crossed bank boundary?
+        jr      z,exit_FlashEprCopyBlock        ; nope (withing 16k offset)
+        inc     b
+        res     6,h                             ; source block copy reached boundary of bank...
+.exit_FlashEprCopyBlock
+        pop     iy                              ; restored original IY
+        ex      af,af'
+        ret                                     ; return A = FE Programming type, or error condition in AF

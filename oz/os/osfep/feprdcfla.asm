@@ -1,4 +1,4 @@
-     MODULE FlashEprReduceFileArea
+        module FlashEprReduceFileArea
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
@@ -23,17 +23,18 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprReduceFileArea
+        xdef FlashEprReduceFileArea
 
-     LIB FileEprFreeSpace, FileEprRequest
-     LIB OZSlotPoll
+        lib FileEprFreeSpace, FileEprRequest
+        lib OZSlotPoll
 
-     XREF FlashEprCardId
-     XREF FlashEprSectorErase
-     XREF FlashEprStdFileHeader
+        xref FlashEprCardId
+        xref FlashEprSectorErase
+        xref FlashEprStdFileHeader
 
-     include "flashepr.def"
-     include "error.def"
+        include "flashepr.def"
+        include "error.def"
+
 
 ; ************************************************************************
 ;
@@ -91,71 +92,71 @@
 ; ----------------------------------------------------------------------
 ;
 .FlashEprReduceFileArea
-                    PUSH DE
-                    PUSH BC
-                    PUSH HL
+        push    de
+        push    bc
+        push    hl
 
-                    CALL OZSlotPoll               ; is OZ running in slot C?
-                    JR   Z, no_oz
-                    LD   A,RC_ONF
-                    JR   reduce_fa_error          ; Yes, file area cannot be shrinked in OZ ROM...
+        call    OZSlotPoll                      ; is OZ running in slot C?
+        jr      z, no_oz
+        ld      a,RC_ONF
+        jr      reduce_fa_error                 ; Yes, file area cannot be shrinked in OZ ROM...
 .no_oz
-                    LD   E,B                      ; (preserve sector number)
-                    CALL FlashEprCardId           ; Flash Card available in slot C?
-                    JR   C, reduce_fa_error       ; apparently not...
-                    PUSH BC                       ; preserve total size of card (in B)
+        ld      e,b                             ; (preserve sector number)
+        call    FlashEprCardId                  ; Flash Card available in slot C?
+        jr      c, reduce_fa_error              ; apparently not...
+        push    bc                              ; preserve total size of card (in B)
 
-                    LD   H,0
-                    LD   L,E                      ; total no. of sectors to reduce file area..
-                    LD   B,E
-                    PUSH BC
-                    CALL FileEprFreeSpace         ; return free space of file area in DEBC (DE = most significant word..)
-                    POP  BC                       ; restore slot no. in C (less significant word of free space is not used here)
-                    JR   C, reduce_fa_error       ; unable to get file area info...
-                    SBC  HL,DE                    ; the file area must have more than L * 64K (65536 bytes free), to be reduced
-                    JR   C, reduce_fa             ; free space > 64K in file area, it's shrinkable..
-                    JR   NZ, reduce_no_room       ; free space < 64K...
+        ld      h,0
+        ld      l,e                             ; total no. of sectors to reduce file area..
+        ld      b,e
+        push    bc
+        call    FileEprFreeSpace                ; return free space of file area in DEBC (DE = most significant word..)
+        pop     bc                              ; restore slot no. in C (less significant word of free space is not used here)
+        jr      c, reduce_fa_error              ; unable to get file area info...
+        sbc     hl,de                           ; the file area must have more than L * 64K (65536 bytes free), to be reduced
+        jr      c, reduce_fa                    ; free space > 64K in file area, it's shrinkable..
+        jr      nz, reduce_no_room              ; free space < 64K...
 .reduce_fa
-                    PUSH BC                       ; preserve B (no. of sectors to reduce file area)
-                    LD   E,C
-                    CALL FileEprRequest           ; get bank B(HL) of current "oz" file header in slot C
-                    LD   C,E                      ; (slot no. in C restored)
-                    PUSH BC                       ; (remember bank no of. file header)
-                    LD   A,B
-                    RRCA
-                    RRCA                          ; bankNo/4
-                    AND  @00001111
-                    LD   B,A                      ; (bank no. -> sector no.)
-                    CALL FlashEprSectorErase      ; erase sector B in slot C (containg the file area header)
-                    POP  BC                       ; (restore bank no. of old header, and slot no. in C)
-                    POP  HL                       ; total no. of sectors to shrink in H
-                    JR   C, reduce_fa_error       ; Ouch, problems with erasing sector!
+        push    bc                              ; preserve B (no. of sectors to reduce file area)
+        ld      e,c
+        call    FileEprRequest                  ; get bank B(HL) of current "oz" file header in slot C
+        ld      c,e                             ; (slot no. in C restored)
+        push    bc                              ; (remember bank no of. file header)
+        ld      a,b
+        rrca
+        rrca                                    ; bankNo/4
+        and     @00001111
+        ld      b,a                             ; (bank no. -> sector no.)
+        call    FlashEprSectorErase             ; erase sector B in slot C (containg the file area header)
+        pop     bc                              ; (restore bank no. of old header, and slot no. in C)
+        pop     hl                              ; total no. of sectors to shrink in H
+        jr      c, reduce_fa_error              ; Ouch, problems with erasing sector!
 
-                    SLA  H
-                    SLA  H                        ; total sectors to shrink -> banks
-                    LD   A,B
-                    SUB  H                        ; (old bank of file header) - (reduced file area in banks) = new bank of header
-                    LD   B,A                      ; Absolute bank of new file area header
-                    POP  AF
-                    LD   C,A                      ; C = total size of flash card in 16K banks.
-                    XOR  A                        ; poll for programming algorithm..
-                    LD   HL,0                     ; signal to create a new file header...
-                    CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
-                    JR   C, exit_ReduceFileArea
+        sla     h
+        sla     h                               ; total sectors to shrink -> banks
+        ld      a,b
+        sub     h                               ; (old bank of file header) - (reduced file area in banks) = new bank of header
+        ld      b,a                             ; Absolute bank of new file area header
+        pop     af
+        ld      c,a                             ; C = total size of flash card in 16K banks.
+        xor     a                               ; poll for programming algorithm..
+        ld      hl,0                            ; signal to create a new file header...
+        call    FlashEprStdFileHeader           ; Create "oz" File Eprom Header in absolute bank B
+        jr      c, exit_ReduceFileArea
 
-                    LD   HL,$3FC0                 ; return BHL = absolute pointer to new "oz" header in slot C
-                    CP   A                        ; Fc = 0, C = Number of 16K banks of File Area
-                    POP  DE                       ; ignore old HL
-                    POP  DE                       ; ignore old BC
-                    POP  DE                       ; original DE restored
-                    RET
+        ld      hl,$3fc0                        ; return BHL = absolute pointer to new "oz" header in slot C
+        cp      a                               ; Fc = 0, C = Number of 16K banks of File Area
+        pop     de                              ; ignore old HL
+        pop     de                              ; ignore old BC
+        pop     de                              ; original DE restored
+        ret
 .reduce_no_room
-                    LD   A, RC_ROOM               ; Files are occupying the sector(s) that could have reduced the file area
+        ld      a, RC_ROOM                      ; Files are occupying the sector(s) that could have reduced the file area
 .reduce_fa_error
-                    SCF
-                    POP  BC
+        scf
+        pop     bc
 .exit_ReduceFileArea
-                    POP  HL
-                    POP  BC
-                    POP  DE
-                    RET
+        pop     hl
+        pop     bc
+        pop     de
+        ret

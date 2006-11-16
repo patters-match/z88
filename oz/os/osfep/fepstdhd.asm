@@ -1,4 +1,4 @@
-     MODULE FlashEprStdFileHeader
+        module FlashEprStdFileHeader
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
@@ -23,13 +23,13 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     XDEF FlashEprStdFileHeader
+        xdef FlashEprStdFileHeader
 
-     LIB SafeBHLSegment, Divu8
-     XREF FlashEprWriteBlock
+        lib SafeBHLSegment, Divu8
+        xref FlashEprWriteBlock
 
-     INCLUDE "saverst.def"
-     INCLUDE "memory.def"
+        include "saverst.def"
+        include "memory.def"
 
 
 ;***************************************************************************************************
@@ -63,7 +63,7 @@
 ; 00003fc0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
 ; 00003fd0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
 ; 00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
-; 00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s�<.~oz
+; 00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s?<.~oz
 ; ------------------------------------------------------------------------------
 ;
 ; Important:
@@ -110,107 +110,109 @@
 ; ------------------------------------------------------------------------
 ;
 .FlashEprStdFileHeader
-                    PUSH DE
-                    PUSH BC
-                    PUSH AF
-                    PUSH HL
-                    PUSH IX
+        push    de
+        push    bc
+        push    af
+        push    hl
+        push    ix
 
-                    PUSH HL                       ; preserve local pointer to file area header
-                    EXX
-                    POP  HL
-                    EXX
+        push    hl                              ; preserve local pointer to file area header
+        exx
+        pop     hl
+        exx
 
-                    LD   HL,0
-                    ADD  HL,SP
-                    LD   IX,-66
-                    ADD  IX,SP                    ; IX points at start of buffer
-                    LD   SP,IX                    ; 64 byte buffer created...
-                    PUSH HL                       ; preserve original SP
-                    PUSH AF                       ; preserve FE_xx flash chip programming algorithm
+        ld      hl,0
+        add     hl,sp
+        ld      ix,-66
+        add     ix,sp                           ; IX points at start of buffer
+        ld      sp,ix                           ; 64 byte buffer created...
+        push    hl                              ; preserve original SP
+        push    af                              ; preserve FE_xx flash chip programming algorithm
 
-                    EXX
-                    LD   A,H
-                    OR   L
-                    EXX
-                    JR   Z,create_new_header      ; HL function argument = 0, create a new File Area Header...
-                    EXX
-                    LD   BC,64
-                    PUSH IX
-                    POP  DE
-                    LDIR                          ; copy prepared 64 byte file area header into stack buffer
-                    EXX
-                    JR   blow_header
+        exx
+        ld      a,h
+        or      l
+        exx
+        jr      z,create_new_header             ; HL function argument = 0, create a new File Area Header...
+        exx
+        ld      bc,64
+        push    ix
+        pop     de
+        ldir                                    ; copy prepared 64 byte file area header into stack buffer
+        exx
+        jr      blow_header
 .create_new_header
-                    PUSH BC                       ; preserve B = bank to blow header, C = total banks on card
+        push    bc                              ; preserve B = bank to blow header, C = total banks on card
 
-                    PUSH IX
-                    POP  HL
-                    LD   B,$37                    ; 55 bytes of $00 from $3FC0
-                    XOR  A
-.wri0_loop          LD   (HL),A
-                    INC  HL
-                    DJNZ wri0_loop
+        push    ix
+        pop     hl
+        ld      b,$37                           ; 55 bytes of $00 from $3FC0
+        xor     a
+.wri0_loop
+        ld      (hl),a
+        inc     hl
+        djnz    wri0_loop
 
-                    LD   (HL),1
-                    INC  HL
+        ld      (hl),1
+        inc     hl
 
-                    PUSH HL
-                    LD   A,sr_rnd
-                    CALL_OZ OS_SR
-                    POP  HL
-                    LD   (HL),E
-                    INC  HL
-                    LD   (HL),D                   ; low word random ID...
-                    INC  HL
+        push    hl
+        ld      a,sr_rnd
+        oz      OS_SR
+        pop     hl
+        ld      (hl),e
+        inc     hl
+        ld      (hl),d                          ; low word random ID...
+        inc     hl
 
-                    LD   BC,6
-                    EX   DE,HL
-                    LD   HL, stdromhdr
-                    LDIR
-                    POP  HL                       ; H = blow header at bank, L = total of banks on Flash Memory Card
-                    LD   B,H                      ; B = blow header at bank
-                    LD   C,L
-                    RES  7,H
-                    RES  6,H
-                    INC  H
-                    CALL Divu8                    ; get true file eprom size, no matter where bank header is blown
-                    INC  L
-                    DEC  L
-                    JR   Z, whole_card
-                    LD   (IX + $3C),L             ; File Eprom area smaller than card size
-                    JR   blow_header
+        ld      bc,6
+        ex      de,hl
+        ld      hl, stdromhdr
+        ldir
+        pop     hl                              ; H = blow header at bank, L = total of banks on Flash Memory Card
+        ld      b,h                             ; B = blow header at bank
+        ld      c,l
+        res     7,h
+        res     6,h
+        inc     h
+        call    Divu8                           ; get true file eprom size, no matter where bank header is blown
+        inc     l
+        dec     l
+        jr      z, whole_card
+        ld      (ix + $3C),l                    ; File Eprom area smaller than card size
+        jr      blow_header
 .whole_card
-                    LD   (IX + $3C),C             ; File Eprom area uses whole card
+        ld      (ix + $3c),c                    ; File Eprom area uses whole card
 .blow_header
-                    POP  AF                       ; use FE_xx chip type to program File Card header
-                    PUSH IX
-                    POP  DE                       ; start of File Eprom Header
-                    LD   HL, $3FC0                ; blow at address B,$3FC0
-                    CALL SafeBHLSegment           ; get a safe segment in C (not this executing segment!) to blow bytes
-                    PUSH IY                       ; (preserve IY)
-                    LD   IY, 64                   ; of size
-                    CALL FlashEprWriteBlock       ; blow header...
-                    POP  IY
+        pop     af                              ; use FE_xx chip type to program File Card header
+        push    ix
+        pop     de                              ; start of File Eprom Header
+        ld      hl, $3fc0                       ; blow at address B,$3FC0
+        call    SafeBHLSegment                  ; get a safe segment in C (not this executing segment!) to blow bytes
+        push    iy                              ; (preserve IY)
+        ld      iy, 64                          ; of size
+        call    FlashEprWriteBlock              ; blow header...
+        pop     iy
 
-                    LD   C,(IX + $3C)             ; return size of File Eprom Area
-                    POP  HL
-                    LD   SP,HL                    ; restore original Stack Pointer
-                    JR   C, err_FlashEprStdFileHeader
+        ld      c,(ix + $3c)                    ; return size of File Eprom Area
+        pop     hl
+        ld      sp,hl                           ; restore original Stack Pointer
+        jr      c, err_FlashEprStdFileHeader
 
-                    POP  IX                       ; restore registers...
-                    POP  HL
-                    POP  DE                       ; original AF..
-                    LD   A,D                      ; A restored
-                    POP  DE
-                    LD   B,D                      ; original B restored (return C)
-                    POP  DE                       ; original DE restored
-                    RET
+        pop     ix                              ; restore registers...
+        pop     hl
+        pop     de                              ; original AF..
+        ld      a,d                             ; A restored
+        pop     de
+        ld      b,d                             ; original B restored (return C)
+        pop     de                              ; original DE restored
+        ret
 .err_FlashEprStdFileHeader
-                    POP  IX                       ; restore registers...
-                    POP  HL
-                    POP  BC                       ; return error code in AF...
-                    POP  BC
-                    POP  DE
-                    RET
-.stdromhdr          DEFB $01, $80, $40, $7C, $6F, $7A
+        pop     ix                              ; restore registers...
+        pop     hl
+        pop     bc                              ; return error code in AF...
+        pop     bc
+        pop     de
+        ret
+.stdromhdr
+        defb $01, $80, $40, $7c, $6f, $7a

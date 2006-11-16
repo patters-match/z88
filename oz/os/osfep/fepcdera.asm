@@ -1,4 +1,4 @@
-     MODULE FlashEprCardErase
+        module FlashEprCardErase
 
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
@@ -73,24 +73,24 @@
 ; ---------------------------------------------------------------
 ;
 .FlashEprCardErase
-        push bc
-        push hl
+        push    bc
+        push    hl
 
-        call FlashEprCardId                     ; poll for card information in slot C (returns B = total banks of card)
-        jr   c, exit_FlashEprCardErase
+        call    FlashEprCardId                  ; poll for card information in slot C (returns B = total banks of card)
+        jr      c, exit_FlashEprCardErase
 
-        rrc  b                                  ; Erase the individual sectors, one at a time
-        rrc  b                                  ; total of 16K banks on card -> total of 64K sectors on card.
-        dec  b                                  ; sectors, from (total sectors-1) downwards and including 0
+        rrc     b                               ; Erase the individual sectors, one at a time
+        rrc     b                               ; total of 16K banks on card -> total of 64K sectors on card.
+        dec     b                               ; sectors, from (total sectors-1) downwards and including 0
 .erase_2xF_card_blocks
-        call FlashEprSectorErase                ; erase top sector of card, and downwards...
-        jr   c, exit_FlashEprCardErase
-        dec  b
-        ld   a,b
-        cp   -1
-        jr   nz, erase_2xF_card_blocks
+        call    FlashEprSectorErase             ; erase top sector of card, and downwards...
+        jr      c, exit_FlashEprCardErase
+        dec     b
+        ld      a,b
+        cp      -1
+        jr      nz, erase_2xF_card_blocks
 
 .exit_FlashEprCardErase
-        pop  hl
-        pop  bc
+        pop     hl
+        pop     bc
         ret
