@@ -32,6 +32,7 @@
      xref AM29Fx_InitCmdMode  ; prepare for AMD Chip command mode
 
      include "flashepr.def"
+     include "error.def"
      include "lowram.def"
      include "memory.def"
 

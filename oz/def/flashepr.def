@@ -2,7 +2,7 @@ lstoff
 
 ; Flash Eprom System Constant Definitions
 ; (C) Zlab (Thierry Peycru) 1995-97, 2004
-; - edited by Gunther Strube, Aug 2004, Mar 2006
+; - edited by Gunther Strube, Aug 2004, Mar 2006, Nov 2006
 
 
 DEFC FE_28F = $02           ; second generation Flash chips (available Z88 Flash Cards are using the Intel I28Fxxx chip)
@@ -38,16 +38,5 @@ DEFC FE_AM29F080B = $01D5   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K ba
 DEFC FE_ST29F080D = $20F1   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
 ; ==========================================================================================
 
-
-; ==========================================================================================
-; Flash Eprom Error Return codes
-
-DEFC RC_VPL = $70           ; Vpp Low Error
-DEFC RC_BWR = $71           ; Byte Write Error
-DEFC RC_BER = $72           ; Block Erasure Error
-DEFC RC_BES = $73           ; block erasure suspended
-DEFC RC_NFE = $80           ; not a flash eprom
-DEFC RC_NOZ = $81           ; not an oz formatted eprom
-; ==========================================================================================
 
 lston

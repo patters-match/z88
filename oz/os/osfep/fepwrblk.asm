@@ -53,14 +53,14 @@
 ; -------------------------------------------------------------------------
 ;
 ; The routine can be told which programming algorithm to use (by specifying
-; the FE_28F or FE_29F mnemonic in A); these parameters can be fetched when
+; the FE_28F or FE_29F mnemonic in C); these parameters can be fetched when
 ; investigating which Flash Memory chip is available in the slot, using the
 ; FlashEprCardId routine that reports these constants.
 ;
 ; However, if neither of the constants are provided in A, the routine can
-; be specified with A = 0 which internally polls the Flash Memory for
+; be specified with C = 0 which internally polls the Flash Memory for
 ; identification and intelligently use the correct programming algorithm.
-; The identified FE_28F or FE_29F constant is returned to the caller in A
+; The identified FE_28F or FE_29F constant is returned to the caller in C
 ; for future reference (when the block was successfully programmed to the card).
 ;
 ; Uses the segment mask of HL(where BHL memory will be bound into the Z80
@@ -84,7 +84,7 @@
 ; this type of unnecessary error can be avoided.
 ;
 ; In :
-;         A = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
+;         C = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
 ;         DE = local pointer to start of block (located in current address space)
 ;         BHL = extended address to start of destination (pointer into card)
 ;              (bits 7,6 of B is the slot mask)
@@ -93,7 +93,7 @@
 ; Out:
 ;         Success:
 ;              Fc = 0
-;              A = FE_28F or FE_29F (depending on found card)
+;              C = FE_28F or FE_29F (depending on found card)
 ;              BHL updated
 ;         Failure:
 ;              Fc = 1
@@ -102,8 +102,8 @@
 ;              A = RC_UNK (chip type is unknown: use only FE_28F, FE_29F or 0)
 ;
 ; Registers changed on return:
-;    ...CDE../IXIY ........ same
-;    AFB...HL/.... afbcdehl different
+;    ....DE../IXIY ........ same
+;    AFBC..HL/.... afbcdehl different
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
@@ -115,6 +115,7 @@
         push    ix
         push    de                            ; preserve DE
         push    bc                            ; preserve C
+        ld      a,c
         ex      af,af'                        ; preserve FE Programming type in A'
 
         ld      a,b
@@ -141,6 +142,7 @@
         pop     bc
         rst     OZ_MPB                        ; restore old segment C bank binding
         ld      b,d
+        ld      c,a                           ; return updated FEP_xxx type, if C(in) were 0...
 
         pop     de
         ld      c,e                           ; original C register restored...

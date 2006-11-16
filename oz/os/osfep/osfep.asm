@@ -33,7 +33,7 @@
         xref    FlashEprCardId, FlashEprSectorErase, FlashEprCardErase
         xref    FlashEprWriteByte, FlashEprCardData
 
-        include "flashepr.def"
+        include "error.def"
         include "lowram.def"
 
 

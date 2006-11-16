@@ -36,6 +36,7 @@
         xref SetBlinkScreenOn
 
         include "memory.def"
+        include "error.def"
         include "flashepr.def"
 
 ;***************************************************************************************************
