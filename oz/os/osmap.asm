@@ -80,18 +80,18 @@ xref    RestoreActiveWd                         ; bank7/mth1.asm
         add     hl, hl
         ld      b, h                            ; no of bytes in pixel line to write to map
         pop     hl                              ; HL = pointer to pixel line data to write
-.osmap_2
-        push    bc                              ; plot pixel line of B bytes to 
-        call    PeekHLinc                       ; get byte from pixel line data (in caller address space)
-        ex      de, hl
-        push    af
+
         ld      a, (BLSC_PB2H)
         rra
         ld      a, (BLSC_PB2L)
         rra
-        ld      b, a                            ; get bank of HIRES0, the PipeDream Map Area
-        pop     af
-        call    PokeBHL                         ; plot 8 pixels at address pixel line in HL
+        ld      c,a                             ; C = bank of HIRES0, the PipeDream Map Area
+.osmap_2
+        push    bc                              ; plot pixel line of B bytes to
+        call    PeekHLinc                       ; A = byte from pixel line data (in caller address space)
+        ex      de, hl
+        ld      b, c
+        call    PokeBHL                         ; plot 8 pixels in A at address pixel line at BHL, the PipeDream Map Area
         ld      bc, 8
         add     hl, bc                          ; point to next adjacent 8 bits in current pixel map line
         ex      de, hl
