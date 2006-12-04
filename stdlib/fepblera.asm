@@ -27,6 +27,7 @@
 
 
      INCLUDE "flashepr.def"
+     INCLUDE "error.def"
      INCLUDE "blink.def"
      INCLUDE "memory.def"
 

@@ -26,6 +26,7 @@
      LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
 
      INCLUDE "flashepr.def"
+     INCLUDE "error.def"
      INCLUDE "memory.def"
 
 ; ==========================================================================================
