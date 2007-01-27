@@ -278,7 +278,7 @@ xdef    SysTokenBase
 .tokenB9
         defm "Up"
 .tokenBA
-        defm $A6, $8B
+        defm $A6, $8B                           ; "File"
 .tokenBB
         defm $9E, " "
 .tokenBC

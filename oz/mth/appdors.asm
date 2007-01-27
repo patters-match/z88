@@ -78,13 +78,13 @@ xdef    PanelDOR
 
 .PipeDreamTopics
         defb    0
-        defb    5,$C5,$73,0,5
-        defb    4,$DC,0,4
-        defb    6,$45,$64,$FC,1,6
-        defb    4,$FD,0,4
-        defb    8,$4C,$FB,$6F,$75,$74,0,8
-        defb    5,$EC,$73,0,5
-        defb    4,$FE,0,4
+        defb    5,$C5,$73,0,5                   ; "Block"
+        defb    4,$DC,0,4                       ; "Cursor"
+        defb    6,$45,$64,$FC,1,6               ; "Edit"
+        defb    4,$FD,0,4                       ; "Files"
+        defb    8,$4C,$FB,$6F,$75,$74,0,8       ; "Layout"
+        defb    5,$EC,$73,0,5                   ; "Options"
+        defb    4,$FE,0,4                       ; "Print"
         defb    0
 .PipeDreamCommands
         defb    0
