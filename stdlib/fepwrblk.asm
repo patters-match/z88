@@ -20,8 +20,6 @@
      LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
      LIB MemGetCurrentSlot    ; Get current slot number of this executing library routine in C
      LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
-     LIB DisableBlinkInt      ; No interrupts get out of Blink
-     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
      LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
 
      INCLUDE "flashepr.def"
@@ -135,7 +133,9 @@ DEFC FE_WRI = $40           ; byte write command
                     PUSH BC                            ; preserve old bank binding of segment C
                     LD   B,A                           ; but use current bank as reference...
 
+                    DI                                 ; no maskable interrupts allowed while doing flash hardware commands...
                     CALL FEP_WriteBlock
+                    EI                                 ; maskable interrupts allowed again
 
                     LD   D,B                           ; preserve current Bank number of pointer...
                     POP  BC
@@ -212,7 +212,6 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   A, RC_BWR                     ; Ups, not in slot 3, signal error!
                     RET
 .write_28F_block
-                    CALL DisableBlinkInt               ; no interrupts get out of Blink (while blowing to flash chip)...
                     CALL MemGetCurrentSlot             ; get specified slot number in C for this executing library routine
                     CP   C
                     EXX
@@ -226,7 +225,6 @@ DEFC FE_WRI = $40           ; byte write command
                     EXX
                     CALL ExecRoutineOnStack
 .exit_blowblock
-                    CALL EnableBlinkInt                ; interrupts are again allowed to get out of Blink
                     EX   AF,AF'
                     POP  AF                            ; get chip type
                     EX   AF,AF'
@@ -235,7 +233,6 @@ DEFC FE_WRI = $40           ; byte write command
                     OR   A                             ; Fc = 0 (signal successfull operation)
                     RET
 .write_29F_block
-                    CALL DisableBlinkInt               ; no interrupts get out of Blink (while blowing to flash chip)...
                     PUSH AF                            ; remember FE_29F chip type
                     EXX
                     LD   A,C

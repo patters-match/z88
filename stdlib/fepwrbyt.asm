@@ -21,8 +21,6 @@
      LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
      LIB MemGetCurrentSlot    ; Get current slot number of this executing library routine in C
      LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
-     LIB DisableBlinkInt      ; No interrupts get out of Blink
-     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
      LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
 
      INCLUDE "flashepr.def"
@@ -107,7 +105,9 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   D,B                 ; copy of bank number
                     CALL MemDefBank          ; bind bank B into segment...
                     PUSH BC
+                    DI                       ; no maskable interrupts allowed while doing flash hardware commands...
                     CALL FEP_BlowByte        ; blow byte in A to (BHL) address
+                    EI                       ; maskable interrupts allowed again
                     POP  BC
                     CALL MemDefBank          ; restore original bank binding
 
@@ -162,10 +162,6 @@ DEFC FE_WRI = $40           ; byte write command
                     CALL FlashEprCardId
                     EX   DE,HL
                     RET  C                   ; Fc = 1, A = RC error code (Flash Memory not found)
-
-                    LD   DE, EnableBlinkInt
-                    PUSH DE                  ; enable Blink Int's after blowing byte to 28F or 29F Flash and RETurn
-                    CALL DisableBlinkInt     ; no interrupts get out of Blink (while blowing to flash chip)...
 
                     CP   FE_28F              ; now, we've got the chip series
                     JR   NZ, use_29F_programming ; and this one may be programmed in any slot...

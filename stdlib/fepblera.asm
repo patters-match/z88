@@ -20,8 +20,6 @@
      LIB SafeBHLSegment       ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
      LIB MemDefBank           ; Bind bank, defined in B, into segment C. Return old bank binding in B
      LIB ExecRoutineOnStack   ; Clone small subroutine on system stack and execute it
-     LIB DisableBlinkInt      ; No interrupts get out of Blink
-     LIB EnableBlinkInt       ; Allow interrupts to get out of Blink
      LIB FlashEprCardId       ; Identify Flash Memory Chip in slot C
      LIB FlashEprPollSectorSize ; Poll for Flash chip sector size.
 
@@ -126,9 +124,9 @@ DEFC FE_CON = $D0           ; confirm erasure
                     PUSH BC                  ; preserve old bank binding
 
                     EX   AF,AF'              ; FE Programming type in A
-                    CALL DisableBlinkInt     ; no interrupts get out of Blink
+                    DI                       ; no maskable interrupts allowed while doing flash hardware commands...
                     CALL FEP_EraseBlock      ; erase sector in slot C
-                    CALL EnableBlinkInt      ; interrupts are again allowed to get out of Blink
+                    EI                       ; maskable interrupts allowed again
                                              ; return AF error status of sector erasing...
                     POP  BC
                     CALL MemDefBank          ; Restore previous Bank bindings
