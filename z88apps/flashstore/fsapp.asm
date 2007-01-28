@@ -51,6 +51,7 @@
      xref MoveToFirstFile          ; browse.asm
      xref MoveToLastFile           ; browse.asm
      xref DispFilesWindow          ; browse.asm
+     xref DispBrowseHelp           ; browse.asm
      xref CopyFileAreaCommand      ; copyfiles.asm
      xref QuickCopyFileCommand     ; copyfiles.asm
      xref GetDefaultPanelRamDev    ; defaultram.asm
@@ -318,6 +319,7 @@
                     JR   Z, selectFiles
                     XOR  A
                     LD   (barMode),A                   ; indicate that cursor has moved to menu window
+                    CALL FileEpromStatistics           ; right hand side window displays File Card stats
                     JP   inp_main
 .selectFiles
                     call GetCursorFilePtr              ; (A)BHL <-- (CursorFilePtr)
@@ -326,6 +328,7 @@
                     jp   z, inp_main                   ; no files to browse...
                     ld   a,-1
                     LD  (barMode),A                    ; indicate that cursor has moved to file window
+                    call DispBrowseHelp                ; right hand side window displays Browse help
                     JP   inp_main
 .MVFirstFile
                     CALL CheckBarMode

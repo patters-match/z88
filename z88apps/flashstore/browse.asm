@@ -20,7 +20,7 @@ Module BrowseFiles
 
 ; This module contains the file navigation functionality in the File Area Window.
 
-     xdef DispFilesWindow, DispFiles, FilesAvailable
+     xdef DispFilesWindow, DispFiles, DispBrowseHelp, FilesAvailable
      xdef ResetFilesWindow, PollFileCardWatermark, ResetWatermark
      xdef StoreCursorFilePtr, GetCursorFilePtr
      xdef CompressedFileEntryName
@@ -56,7 +56,7 @@ Module BrowseFiles
      xref disp_no_filearea_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
      xref IntAscii                 ; filestat.asm
-     xref VduCursor                ; selectcard.asm
+     xref VduCursor, DispHelpText  ; selectcard.asm
 
      ; system definitions
      include "stdio.def"
@@ -114,6 +114,15 @@ Module BrowseFiles
 .dispsq             push af
                     CALL_OZ gn_sop
                     pop  af
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+.DispBrowseHelp     push hl
+                    ld   hl, browsehelp
+                    Call DispHelpText           ; display help text window
+                    pop  hl
                     ret
 ; *************************************************************************************
 
@@ -902,13 +911,25 @@ Module BrowseFiles
 ; *************************************************************************************
 ; constants
 ;
-.filearea_banner    DEFM "FILE AREA [VIEW/FETCH/DELETE "
-.allfiles_banner    DEFM "SAVED & DELETED FILES]"
-.savedfiles_banner  DEFM "ONLY SAVED FILES]"
+.browsehelp         defm 1, "2JC", 1,"3-SC"
+                    defm 1, "TFILE BROWSING KEYS", 1, "T", 13, 10, 13, 10
+                    defm     "Single File   ", 1, SD_ODWN, 1, SD_OUP, 13, 10
+                    defm     "Page       ", 1, '-', 1, SD_ODWN, 1, SD_OUP, 13, 10
+                    defm     "First, Last  ", 1, '+', 1, SD_ODWN, 1, SD_OUP, 13, 10
+                    defm     "Fetch to RAM  ", 1, SD_ENT, 1, "BF", 1, "B",  13, 10
+                    defm     "Mark deleted  ", 1, MU_DEL, 1, "BD", 1, "B",  13, 10
+                    defm     "Copy to slot X   ", 1, "BC", 1, "B",  13, 10
 
-.norm_sq            DEFM 1,"3-GT",1,"2+BF",1,"2-B ",0
-.tiny_sq            DEFM 1,"5+TGRUD",1,"4-GRU ", 0
+                    defb 0
+                    defm 1, SD_ENT, " to select", 0
 
-.endf_msg           DEFM 1,"2-G",1,"4+TUR END ",1,"4-TUR",0
-.scroll_up          DEFM 1, SD_UP, 0
-.scroll_down        DEFM 1, SD_DWN, 0
+.filearea_banner    defm "FILE AREA [VIEW/FETCH/DELETE "
+.allfiles_banner    defm "SAVED & DELETED FILES]"
+.savedfiles_banner  defm "ONLY SAVED FILES]"
+
+.norm_sq            defm 1,"3-GT",1,"2+BF",1,"2-B ",0
+.tiny_sq            defm 1,"5+TGRUD",1,"4-GRU ", 0
+
+.endf_msg           defm 1,"2-G",1,"4+TUR END ",1,"4-TUR",0
+.scroll_up          defm 1, SD_UP, 0
+.scroll_down        defm 1, SD_DWN, 0

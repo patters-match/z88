@@ -22,7 +22,7 @@ Module SelectCard
 ; window and cursor movement
 
      XDEF SelectFileArea, SelectCardCommand, SelectDefaultSlot, PollSlots, VduCursor
-     XDEF selslot_banner, epromdev, DispSlotSize
+     XDEF selslot_banner, epromdev, DispSlotSize, DispHelpText
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib RamDevFreeSpace           ; Get free space on RAM device
@@ -101,12 +101,8 @@ Module SelectCard
                     CALL greyscr
 
                     push hl
-                    ld   a, 64 | '3'
-                    ld   bc,$004B
-                    ld   de,$0812
-                    call CreateWindow
                     ld   hl, selectdevhelp
-                    call_oz GN_Sop           ; Display small help text in right side window
+                    Call DispHelpText        ; display help text window
 
                     ld   a, 128 | '2'
                     ld   bc, $0010
@@ -774,6 +770,21 @@ Module SelectCard
                     POP  HL
                     POP  AF
                     RET
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Create help window in right side of screen and display help text string by HL
+;
+.DispHelpText
+                    push hl
+                    ld   a, 64 | '3'
+                    ld   bc,$004B
+                    ld   de,$0812
+                    call CreateWindow
+                    pop  hl
+                    call_oz GN_Sop           ; Display small help text in right side window
+                    ret
 ; *************************************************************************************
 
 
