@@ -912,13 +912,13 @@ Module BrowseFiles
 ; constants
 ;
 .browsehelp         defm 1, "2JC", 1,"3-SC"
-                    defm 1, "TFILE BROWSING KEYS", 1, "T", 13, 10, 13, 10
-                    defm     "Single file   ", 1, SD_ODWN, 1, SD_OUP, 13, 10
-                    defm     "Page", 1, "3N", 32+7, ' ', 1, '-', 1, SD_ODWN, 1, SD_OUP, 13, 10
-                    defm     "First, Last  ", 1, '+', 1, SD_ODWN, 1, SD_OUP, 13, 10
+                    defb 13, 10
+                    defm     "Previous,Next ", 1, SD_OUP, 1, SD_ODWN, 13, 10
+                    defm     "Page", 1, "3N", 32+7, ' ', 1, '-', 1, SD_OUP, 1, SD_ODWN, 13, 10
+                    defm     "First,Last   ", 1, '+', 1, SD_OUP, 1, SD_ODWN, 13, 10, 13, 10
                     defm     "Fetch to RAM  ", 1, SD_ENT, 1, "BF", 1, "B",  13, 10
-                    defm     "Mark deleted  ", 1, MU_DEL, 1, "BD", 1, "B",  13, 10
-                    defm     "Copy to slot X   ", 1, "BC", 1, "B",  13, 10
+                    defm     "Mark Deleted  ", 1, MU_DEL, 1, "BD", 1, "B",  13, 10
+                    defm     "Copy to Slot     ", 1, "BC", 1, "B",  13, 10
                     defb 0
 
 .filearea_banner    defm "FILE AREA [VIEW/FETCH/DELETE "
