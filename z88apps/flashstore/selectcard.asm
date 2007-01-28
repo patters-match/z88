@@ -392,20 +392,18 @@ Module SelectCard
                INC  A
                LD   (HL),A                        ; update new m.bar position
                JR   menu_loop                     ; display new m.bar position
-
-.Mbar_rightwrap LD   A,0
-               LD   (HL),A
+.Mbar_rightwrap
+               LD   (HL),0
                JR   menu_loop
-
-.MVbar_left    LD   A,(HL)
+.MVbar_left
+               LD   A,(HL)
                CP   0                             ; has m.bar already reached left edge?
                JR   Z,Mbar_leftwrap
                DEC  A
                LD   (HL),A                        ; update new m.bar position
                JR   menu_loop
-
-.Mbar_leftwrap LD   A,3
-               LD   (HL),A
+.Mbar_leftwrap
+               LD   (HL),3
                JR   menu_loop
 ; *************************************************************************************
 

@@ -229,11 +229,11 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM 12, "FlashStore V1.9 RC3 (Oct 2006)", $7F, $7F
-                    DEFM "Backup/restore files between Rakewell Flash Cards and RAM.", $7F, $7F
-                    DEFM "Developed by T.Peycru & G.Strube, (C) 1997-2006, GPL licence", $7F
-                    DEFM "User Interface design & testing: V.Gerhardi", $7F
-                    DEFM "Get updates from http://z88.sf.net or http://www.rakewell.com", 0
+                    DEFM 12, "FlashStore V1.9 RC4 (Jan 2007)", $7F, $7F
+                    DEFM "Manage files on Rakewell Flash Cards and RAM.", $7F, $7F
+                    DEFM "Developed by", $7F
+                    DEFM "T.Peycru & G.Strube & V.Gerhardi, (C) 1997-2007, GPL licence", $7F, $7F
+                    DEFM "Get updates from ", 1, "Bz88.sf.net", 1, "B or ", 1, "Bwww.rakewell.com", 1, "B", 0
 
 .cmd_sc_help
                     DEFM $7F
@@ -241,45 +241,43 @@
                     DEFB 0
 .cmd_cf_help
                     DEFM $7F
-                    DEFM "Lists filenames on file card area to a PipeDream file."
+                    DEFM "Lists filenames on file card area to PipeDream file."
                     DEFB 0
 .cmd_sv_help
                     DEFM $7F
-                    DEFM "Changes the default RAM device for this session."
+                    DEFM "Changes default RAM device for this session."
                     DEFB 0
 .cmd_fs_help
                     DEFM $7F
-                    DEFM "Saves files from the RAM device to the file card area."
+                    DEFM "Saves files from RAM device to file card area."
                     DEFB 0
 .cmd_fl_help
                     DEFM $7F
-                    DEFM "Fetches a file from the file card area to the RAM device."
+                    DEFM "Fetches a file from file card area to RAM device."
                     DEFB 0
 .cmd_fe_help
                     DEFM $7F
-                    DEFM "Marks a file in the file card area as deleted."
+                    DEFM "Marks a file in file card area as deleted."
                     DEFB 0
 .cmd_bf_help
                     DEFM $7F
-                    DEFM "Saves all the files from the RAM device", $7F
-                    DEFM "to the file card area."
+                    DEFM "Saves all files from RAM device to file card area."
                     DEFB 0
 .cmd_rf_help
                     DEFM $7F
-                    DEFM "Fetches all the files from the file card area", $7F
-                    DEFM "to the RAM device."
+                    DEFM "Fetches all files from file card area to RAM device."
                     DEFB 0
 .cmd_ffa_help
                     DEFM $7F
-                    DEFM "Formats and erases the complete file card area."
+                    DEFM "Formats and erases complete file card area."
                     DEFB 0
 .cmd_tfv_help
                     DEFM $7F
                     DEFM "Changes between browsing only saved files or", $7F
-                    DEFM "browsing all files (both saved and marked as deleted)."
+                    DEFM "also files marked as deleted."
                     DEFB 0
 .cmd_fc_help
                     DEFM $7F
                     DEFM "Copy saved files in current file card area to", $7F
-                    DEFM "another file card area in a different slot."
+                    DEFM "another flash card in a different slot."
                     DEFB 0

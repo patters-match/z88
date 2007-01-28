@@ -37,7 +37,7 @@ Module FileAreaStatistics
      XREF VduCursor                ; selectcard.asm
      XREF DispSlotSize, epromdev   ; selectcard.asm
      XREF centerjustify, tinyfont  ; fsapp.asm
-     XREF nocursor                 ; fsapp.asm
+     XREF nocursor, sopnln         ; fsapp.asm
      xref GetCurrentSlot           ; fsapp.asm
      XREF CheckFlashCardID         ; format.asm
      XREF FilesAvailable           ; browse.asm
@@ -173,8 +173,7 @@ Module FileAreaStatistics
                     CALL_OZ(Gn_Nln)
                     JR   disp_eprsize
 .disp_flash
-                    CALL_OZ(GN_Sop)
-                    CALL_OZ(Gn_Nln)
+                    CALL sopnln
 .disp_eprsize
                     CALL DisplayEpromSize
 
@@ -189,8 +188,7 @@ Module FileAreaStatistics
                     call DispInt
                     CALL_OZ gn_sop
                     ld   hl,bfre_msg
-                    CALL_OZ gn_sop                ; "xxxx free"
-                    CALL_OZ(Gn_Nln)
+                    call sopnln                   ; "xxxx free"
 
                     ld   hl,(file)
                     ld   de,(fdel)
@@ -203,16 +201,14 @@ Module FileAreaStatistics
                     call DispInt
                     CALL_OZ gn_sop
                     ld   hl,bused_msg
-                    CALL_OZ gn_sop                ; "xxxx used"
-                    CALL_OZ(Gn_Nln)
+                    call sopnln                   ; "xxxx used"
 
                     ld   bc,(file)
                     ld   hl,2
                     call IntAscii                 ; convert 16bit integer in BC to Ascii...
                     CALL_OZ gn_sop
                     ld   hl,fisa_msg
-                    CALL_OZ gn_sop
-                    CALL_OZ(Gn_Nln)
+                    call sopnln
 
                     ld   bc,(fdel)
                     ld   hl,2
