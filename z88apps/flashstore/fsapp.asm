@@ -239,10 +239,10 @@
 .mainmenu
                     CALL DispCmdWindow
                     CALL DispFilesWindow
-                    CALL FileEpromStatistics      ; parse for free space and total of files...
+                    CALL FileEpromStatistics
 
                     LD   HL, mainmenu
-                    PUSH HL                       ; return address for functions...
+                    PUSH HL                             ; return address for functions...
 .inp_main
                     CALL DisplBar
                     CALL rdch
@@ -394,7 +394,6 @@
                     PUSH AF
                     CALL DispFilesWindow               ; Refresh file area contents.
                     POP  AF
-                    CALL NZ,FileEpromStatistics        ; refresh file area statistics, if file were marked as deleted...
                     JP   inp_main
 
 .execute_command    CALL CheckBarMode                  ; cursor browsing files or at left side menu?

@@ -191,8 +191,7 @@ Module DeleteFile
                     CALL FlashEprFileDelete       ; User pressed Y (for Yes)
                     JR   C, delfile_failed
                     LD   HL,filedel_msg
-                    CALL DispErrMsg
-                    JP   FileEpromStatistics      ; update save/deleted file counters in right hand side window
+                    JP   DispErrMsg
 .delfile_failed
                     LD   HL,markdelete_failed
                     CALL DispErrMsg
