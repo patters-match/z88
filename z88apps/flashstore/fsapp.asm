@@ -239,10 +239,14 @@
 .mainmenu
                     CALL DispCmdWindow
                     CALL DispFilesWindow
-                    CALL FileEpromStatistics
+                    CALL CheckBarMode
+                    PUSH AF
+                    CALL Z,FileEpromStatistics         ; cursor in menu window: right hand side window displays File statistics
+                    POP  AF
+                    CALL NZ,DispBrowseHelp             ; cursor in file window: right hand side window displays Browse help
 
                     LD   HL, mainmenu
-                    PUSH HL                             ; return address for functions...
+                    PUSH HL                            ; return address for functions...
 .inp_main
                     CALL DisplBar
                     CALL rdch
