@@ -25,9 +25,6 @@
 
         xdef FlashEprWriteByte, FEP_ExecBlowbyte_29F
 
-        lib DisableBlinkInt                     ; No interrupts get out of Blink
-        lib EnableBlinkInt                      ; Allow interrupts to get out of Blink
-
         xref FlashEprCardId                     ; Identify Flash Memory Chip in slot C
         xref AM29Fx_InitCmdMode                 ; prepare for AMD Chip command mode
         xref FEP_WriteError                     ; Error: byte wasn't blown properly
@@ -107,7 +104,9 @@
         ld      d,b                             ; copy of bank number
         rst     OZ_MPB                          ; bind bank B into segment...
         push    bc
+        di                                      ; no maskable interrupts allowed while doing flash hardware commands...
         call    FEP_BlowByte                    ; blow byte in A to (BHL) address
+        ei                                      ; maskable interrupts allowed again
         pop     bc
         rst     OZ_MPB                          ; restore original bank binding
 
@@ -162,10 +161,6 @@
         call    FlashEprCardId                  ; return chip ID in HL, FE_x programming type in A
         ex      de,hl
         ret     c                               ; Fc = 1, A = RC error code (Flash Memory not found)
-
-        ld      de, EnableBlinkInt
-        push    de                              ; enable Blink Int's after blowing byte to 28F or 29F Flash and RETurn
-        call    DisableBlinkInt                 ; no interrupts get out of Blink (while blowing to flash chip)...
 
         cp      FE_28F                          ; now, we've got the chip series
         jr      nz, use_29F_programming         ; and this one may be programmed in any slot...

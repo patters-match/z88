@@ -26,8 +26,6 @@
         xdef FlashEprSectorErase
 
         lib SafeBHLSegment                      ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
-        lib DisableBlinkInt                     ; No interrupts get out of Blink
-        lib EnableBlinkInt                      ; Allow interrupts to get out of Blink
 
         xref FlashEprCardId                     ; Identify Flash Memory Chip in slot C
         xref FlashEprPollSectorSize             ; Poll for Flash chip sector size.
@@ -125,9 +123,9 @@
         push    bc                              ; preserve old bank binding
 
         ex      af,af'                          ; FE Programming type in A
-        call    DisableBlinkInt                 ; no interrupts get out of Blink
+        di                                      ; no maskable interrupts allowed while doing flash hardware commands...
         call    FEP_EraseBlock                  ; erase sector in slot C
-        call    EnableBlinkInt                  ; interrupts are again allowed to get out of Blink
+        ei                                      ; maskable interrupts allowed again
                                                 ; return AF error status of sector erasing...
         pop     bc
         rst     OZ_MPB                          ; Restore previous Bank bindings

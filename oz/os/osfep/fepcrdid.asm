@@ -25,9 +25,6 @@
 
      xdef FlashEprCardId
 
-     lib DisableBlinkInt      ; No interrupts get out of Blink
-     lib EnableBlinkInt       ; Allow interrupts to get out of Blink
-
      xref FlashEprCardData    ; get data about Flash type & size
      xref AM29Fx_InitCmdMode  ; prepare for AMD Chip command mode
 
@@ -69,7 +66,7 @@
         push    iy
         push    de
         push    bc
-        call    DisableBlinkInt                 ; no interrupts get out of Blink...
+        di                                      ; no maskable interrupts allowed while doing flash hardware commands...
 
         ld      a,c
         and     @00000011                       ; only slots 0, 1, 2 or 3 possible
@@ -92,7 +89,7 @@
         pop     de                              ; B = banks on card, A = chip series (28F or 29F)
         ld      c,e                             ; original C restored
 .end_FlashEprCardId
-        call    EnableBlinkInt                  ; interrupts are again allowed to get out of Blink
+        ei                                      ; maskable interrupts allowed again
         pop     de                              ; original DE restored
         pop     iy
         ret                                     ; Fc = 0, Fz = 1
