@@ -170,11 +170,11 @@
 .cmd_rf_end
 
 
-; <>FC File Area Copy
+; <>FC Copy all files to Card
 .cmd_fc             DEFB cmd_fc_end - cmd_fc                                    ; length of command definition
                     DEFB FlashStore_CC_fc                                       ; command code
                     DEFM "FC", 0                                                ; keyboard sequence
-                    DEFM "File Area Copy", 0
+                    DEFM "Copy all files to Card", 0
                     DEFB (cmd_fc_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fc_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -224,15 +224,16 @@
                     DEFB @00010000                                              ; command has help page
                     DEFB cmd_delete_end - cmd_delete                            ; length of command definition
 .cmd_delete_end
+
                     DEFB 0                                                      ; end of commands
 
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM 12, "FlashStore V1.9 RC4 (Jan 2007)", $7F, $7F
+                    DEFM 12, "FlashStore V1.9 RC5 (Jan 2007)", $7F, $7F
                     DEFM "Manage files on Rakewell Flash Cards and RAM.", $7F, $7F
                     DEFM "Developed by", $7F
-                    DEFM "T.Peycru & G.Strube & V.Gerhardi, (C) 1997-2007, GPL licence", $7F, $7F
+                    DEFM "T.Peycru, G.Strube & V.Gerhardi, (C) 1997-2007, GPL licence", $7F, $7F
                     DEFM "Get updates from ", 1, "Bz88.sf.net", 1, "B or ", 1, "Bwww.rakewell.com", 1, "B", 0
 
 .cmd_sc_help

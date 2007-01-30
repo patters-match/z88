@@ -73,7 +73,7 @@ Module BrowseFiles
 ;
 .DispFilesWindow
                     ld   hl, filearea_banner
-                    ld   bc, 29
+                    ld   bc, 27
                     call FileAreaBannerText       ; HL = banner for file area window
                     call DispMainWindow
 
@@ -128,26 +128,26 @@ Module BrowseFiles
 
 
 ; *************************************************************************************
-; Make the banner for the file area window.
-; Depending on the current view settings, the banner text is dynamically created
-; as follows:
-;    "FILE AREA [VIEW SAVED & DELETED FILES]" or
-;    "FILE AREA [VIEW ONLY SAVED FILES]"
+; Make the banner for the card file area window.
+; Depending on the current view state, the banner text is dynamically created
+; as defined in .filearea_banner .allfiles_banner .savedfiles_banner
+;    "CARD FILE AREA - CURSOR SELECTS SAVED & DELETED FILES" or
+;    "CARD FILE AREA - CURSOR SELECTS ONLY SAVED FILES"
 ;
 ; IN:
 ;       HL = Base banner text
-;       BC = length of banner text
+;       C  = length of banner text
 ;
 .FileAreaBannerText
                     ld   de, buf3
                     push de
                     ldir
                     ld   hl, allfiles_banner
-                    ld   c, 22
+                    ld   c, 21
                     bit  dspdelfiles,(iy+0)
                     jr   nz, append_viewtypetext  ; all files are displayed
                     ld   hl, savedfiles_banner
-                    ld   c, 17                    ; only saved files displayed
+                    ld   c, 16                    ; only saved files displayed
 .append_viewtypetext
                     ldir
                     xor  a
@@ -916,14 +916,14 @@ Module BrowseFiles
                     defm     "Previous,Next ", 1, SD_OUP, 1, SD_ODWN, 13, 10
                     defm     "Page", 1, "3N", 32+7, ' ', 1, '-', 1, SD_OUP, 1, SD_ODWN, 13, 10
                     defm     "First,Last   ", 1, '+', 1, SD_OUP, 1, SD_ODWN, 13, 10, 13, 10
-                    defm     "Fetch to RAM  ", 1, SD_ENT, 1, "BF", 1, "B",  13, 10
-                    defm     "Mark Deleted  ", 1, MU_DEL, 1, "BD", 1, "B",  13, 10
-                    defm     "Copy to Slot     ", 1, "BC", 1, "B",  13, 10
+                    defm     "  Fetch File  ", 1, SD_ENT, 1, "BF", 1, "B",  13, 10
+                    defm     " Delete File  ", 1, MU_DEL, 1, "BD", 1, "B",  13, 10
+                    defm     "Copy to Card     ", 1, "BC", 1, "B",  13, 10
                     defb 0
 
-.filearea_banner    defm "FILE AREA [VIEW/FETCH/DELETE "
-.allfiles_banner    defm "SAVED & DELETED FILES]"
-.savedfiles_banner  defm "ONLY SAVED FILES]"
+.filearea_banner    defm "FILE AREA - CURSOR SELECTS "
+.allfiles_banner    defm "SAVED & DELETED FILES"
+.savedfiles_banner  defm "ONLY SAVED FILES"
 
 .norm_sq            defm 1,"3-GT",1,"2+BF",1,"2-B ",0
 .tiny_sq            defm 1,"5+TGRUD",1,"4-GRU ", 0
