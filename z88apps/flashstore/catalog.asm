@@ -64,7 +64,7 @@ Module CatalogFiles
 ;
 .CatalogCommand
                     ld   hl, catlg_banner
-                    ld   bc, 17
+                    ld   bc, catlg_banner_end-catlg_banner
                     call FileAreaBannerText
                     call DispMainWindow
 
@@ -210,6 +210,7 @@ Module CatalogFiles
 
 ; *************************************************************************************
 .catlg_banner       defm "CATALOGUE FILES [", 0
+.catlg_banner_end
 .catlg_msg          defm 13, 10, " List Catalogue to PipeDream file.",0
 .filename_msg       defm 1,"2+C Filename: ",0
 .catend_msg         defm " Catalogue written to file.", 0
