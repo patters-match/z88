@@ -73,7 +73,7 @@ Module BrowseFiles
 ;
 .DispFilesWindow
                     ld   hl, filearea_banner
-                    ld   bc, 27
+                    ld   bc, filearea_banner_end-filearea_banner
                     call FileAreaBannerText       ; HL = banner for file area window
                     call DispMainWindow
 
@@ -143,11 +143,11 @@ Module BrowseFiles
                     push de
                     ldir
                     ld   hl, allfiles_banner
-                    ld   c, 21
+                    ld   c, allfiles_banner_end-allfiles_banner
                     bit  dspdelfiles,(iy+0)
                     jr   nz, append_viewtypetext  ; all files are displayed
-                    ld   hl, savedfiles_banner
-                    ld   c, 16                    ; only saved files displayed
+                    ld   hl, savedfiles_banner    ; only saved files displayed
+                    ld   c, savedfiles_banner_end-savedfiles_banner
 .append_viewtypetext
                     ldir
                     xor  a
@@ -922,8 +922,11 @@ Module BrowseFiles
                     defb 0
 
 .filearea_banner    defm "FILE AREA - CURSOR SELECTS "
+.filearea_banner_end
 .allfiles_banner    defm "SAVED & DELETED FILES"
+.allfiles_banner_end
 .savedfiles_banner  defm "ONLY SAVED FILES"
+.savedfiles_banner_end
 
 .norm_sq            defm 1,"3-GT",1,"2+BF",1,"2-B ",0
 .tiny_sq            defm 1,"5+TGRUD",1,"4-GRU ", 0
