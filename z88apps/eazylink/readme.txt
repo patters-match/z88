@@ -38,6 +38,7 @@ then select the "Switch" command and enter the tag url.
 * The following releases are available (shown as complete tag URL's):               *
 *                                                                                   *
 *      https://z88.svn.sourceforge.net/svnroot/z88/tags/z88apps/eazylink/V5.0.4     *
+*      https://z88.svn.sourceforge.net/svnroot/z88/tags/z88apps/eazylink/V5.0.5     *
 *                                                                                   *
 *************************************************************************************
 
