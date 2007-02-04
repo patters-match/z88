@@ -61,10 +61,15 @@ mth/hires1.bin 080800                           ; the HIRES1 font bitmap (OZ win
 mth/lores1.bin 081000                           ; the LORES1 font bitmap (Normal, Bold, Tiny, Symbol)
 mth/mth.bin 082000                              ; the System Token Table, MTH static structures and application DORs
 os/lowram.bin 083dd0                            ; LOWRAM code (RST routines, etc) to be installed during reset
-mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
 
 ; Bank 9: BBC Basic application
 apps/bbcbasic/basic.dat 090000                  ; $0000: BBC BASIC application bank
 
 ; Bank 10: EazyLink
 apps/eazylink/eazylink.bin 0a0000               ; $8000: EazyLink popdown
+
+; Bank 11: FlashStore
+apps/flashstore/fsapp.bin 0b0000
+
+; ROM header at top of 512K address space
+mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code

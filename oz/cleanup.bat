@@ -29,4 +29,4 @@ del /Q oz.?? romupdate.cfg
 del /S /Q *.bin *.map *.obj *.lst *.err *.wrn *.sym 2>nul >nul
 
 :: only delete *.def files for OZ ROM (preserve \def!)
-del /Q mth\*.def os\*.def 2>nul >nul
+del /Q os\*.def 2>nul >nul

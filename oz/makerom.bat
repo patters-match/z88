@@ -183,8 +183,18 @@ echo compiling EazyLink
 cd apps\eazylink
 call makeapp.bat
 cd ..\..
-dir apps\eazylink\*.err 2>nul >nul || goto COMBINE_BANKS
+dir apps\eazylink\*.err 2>nul >nul || goto COMPILE_FLASHSTORE
 type apps\eazylink\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_FLASHSTORE
+echo compiling Flashstore
+cd apps\flashstore
+call makeapp.bat
+cd ..\..
+dir apps\flashstore\*.err 2>nul >nul || goto COMBINE_BANKS
+type apps\flashstore\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

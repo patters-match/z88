@@ -38,5 +38,4 @@ find . -name "*.sym" | xargs rm -f
 
 # only delete *.def files for OZ rom (preserve /def!)
 find ./os -name "*.def" | xargs rm -f
-find ./mth -name "*.def" | xargs rm -f
 

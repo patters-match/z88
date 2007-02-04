@@ -760,7 +760,7 @@ xdef    PanelDOR
 
 .EasyLinkDOR
         defp    0, 0                            ; parent
-        defp    0, 0                            ; brother (this is last application)
+        defp    FlashstoreDOR,OZBANK_MTH        ; brother, EazyLink
         defp    0, 0                            ; son
         defb    DM_ROM                          ; DOR type - application ROM
         defb    EasyLinkDORe-$PC                ; total length of DOR
@@ -795,3 +795,6 @@ xdef    PanelDOR
         DEFM    "Fast Client/Server Remote File Management,", $7F
         DEFM    "including support for PC-LINK II clients."
         DEFB    0
+
+
+        include "mth-flashstore.asm"
