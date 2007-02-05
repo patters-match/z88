@@ -47,10 +47,10 @@
                     DEFB 0                        ; no caps lock on activation
 .InfoEnd0           DEFB 'H'                      ; Key to help section
                     DEFB 12                       ; total length of help
-                    DEFP FlashStoreTopics, OZBANK_MTH   ; point to topics (none)
-                    DEFP FlashStoreCommands, OZBANK_MTH ; point to commands (none)
-                    DEFP FlashStoreHelp, OZBANK_MTH     ; point to help (none)
-                    DEFP FlashstoreDOR, OZBANK_MTH      ; point to token base (none)
+                    DEFP FlashStoreTopics, OZBANK_MTH   ; point to topics
+                    DEFP FlashStoreCommands, OZBANK_MTH ; point to commands
+                    DEFP FlashStoreHelp, OZBANK_MTH     ; point to help
+                    DEFP SysTokenBase, OZBANK_MTH       ; point to token base
                     DEFB 'N'                      ; Key to name section
                     DEFB NameEnd0-NameStart0      ; length of name
 .NameStart0         DEFM "FlashStore",0
@@ -66,7 +66,7 @@
 
 ; 'COMMANDS' topic
 .topic_cmds         DEFB topic_cmds_end - topic_cmds                            ; length of topic definition
-                    DEFM "Commands", 0                                          ; name terminated by high byte
+                    DEFM $D8, 0                                                 ; "Commands", name terminated by high byte
                     DEFB 0                                                      ; high byte of rel. pointer
                     DEFB 0                                                      ; low byte of rel. pointer
                     DEFB @00000000
@@ -83,7 +83,7 @@
 .cmd_sc             DEFB cmd_sc_end - cmd_sc                                    ; length of command definition
                     DEFB FlashStore_CC_sc                                       ; command code
                     DEFM "SC", 0                                                ; keyboard sequence
-                    DEFM "Select Card", 0
+                    DEFM $E3, "Card", 0                                         ; "Select Card"
                     DEFB (cmd_sc_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_sc_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -94,7 +94,7 @@
 .cmd_cf             DEFB cmd_cf_end - cmd_cf                                    ; length of command definition
                     DEFB FlashStore_CC_cf                                       ; command code
                     DEFM "CF", 0                                                ; keyboard sequence
-                    DEFM "Catalogue Card Files", 0
+                    DEFM "Catalogue Card ", $FD, 0                              ; "Catalogue Card Files"
                     DEFB (cmd_cf_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_cf_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -116,7 +116,7 @@
 .cmd_sv             DEFB cmd_sv_end - cmd_sv                                    ; length of command definition
                     DEFB FlashStore_CC_sv                                       ; command code
                     DEFM "SV", 0                                                ; keyboard sequence
-                    DEFM "Select RAM Device", 0
+                    DEFM $E3, "RAM Device", 0                                   ; "Select RAM Device"
                     DEFB (cmd_sv_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_sv_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -127,7 +127,7 @@
 .cmd_fe             DEFB cmd_fe_end - cmd_fe                                    ; length of command definition
                     DEFB FlashStore_CC_fe                                       ; command code
                     DEFM "FE", 0                                                ; keyboard sequence
-                    DEFM "Erase file from Card", 0
+                    DEFM "Erase ", $BA, " from Card", 0                         ; "Erase File from Card", 0
                     DEFB (cmd_fe_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fe_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010001                                              ; command has help page
@@ -149,7 +149,7 @@
 .cmd_fs             DEFB cmd_fs_end - cmd_fs                                    ; length of command definition
                     DEFB FlashStore_CC_fs                                       ; command code
                     DEFM "FS", 0                                                ; keyboard sequence
-                    DEFM "Save files to Card", 0
+                    DEFM $BD, $82, $FD, " to Card", 0                           ; "Save Files to Card"
                     DEFB (cmd_fs_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fs_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page, new column
@@ -160,7 +160,7 @@
 .cmd_fl             DEFB cmd_fl_end - cmd_fl                                    ; length of command definition
                     DEFB FlashStore_CC_fl                                       ; command code
                     DEFM "FL", 0                                                ; keyboard sequence
-                    DEFM "Fetch file from Card", 0
+                    DEFM "Fetch ", $BA, " from Card", 0                         ; "Fetch file from Card"
                     DEFB (cmd_fl_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fl_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -182,7 +182,7 @@
 .cmd_bf             DEFB cmd_bf_end - cmd_bf                                    ; length of command definition
                     DEFB FlashStore_CC_bf                                       ; command code
                     DEFM "BF", 0                                                ; keyboard sequence
-                    DEFM "Backup files from RAM", 0
+                    DEFM "Backup ", $FD, " from RAM", 0                         ; "Backup files from RAM"
                     DEFB (cmd_bf_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_bf_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -193,7 +193,7 @@
 .cmd_rf             DEFB cmd_rf_end - cmd_rf                                    ; length of command definition
                     DEFB FlashStore_CC_rf                                       ; command code
                     DEFM "RF", 0                                                ; keyboard sequence
-                    DEFM "Restore files to RAM", 0
+                    DEFM "Restore ", $FD, " to RAM", 0                          ; "Restore files to RAM"
                     DEFB (cmd_rf_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_rf_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -205,7 +205,7 @@
 .cmd_fc             DEFB cmd_fc_end - cmd_fc                                    ; length of command definition
                     DEFB FlashStore_CC_fc                                       ; command code
                     DEFM "FC", 0                                                ; keyboard sequence
-                    DEFM "Copy all files to Card", 0
+                    DEFM $DE, " all ", $FD, " to Card", 0                       ; "Copy all files to Card"
                     DEFB (cmd_fc_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fc_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -216,7 +216,7 @@
 .cmd_ffa            DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
                     DEFB FlashStore_CC_ffa                                      ; command code
                     DEFM "FFA", 0                                               ; keyboard sequence
-                    DEFM "Format File Area", 0
+                    DEFM "Format ", $BA, " Area", 0                             ; "Format File Area"
                     DEFB (cmd_ffa_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_ffa_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -227,7 +227,7 @@
 .cmd_tfv            DEFB cmd_tfv_end - cmd_tfv                                  ; length of command definition
                     DEFB FlashStore_CC_tfv                                      ; command code
                     DEFM "TFV", 0                                               ; keyboard sequence
-                    DEFM "Toggle File View", 0
+                    DEFM "Toggle ", $BA, " View", 0                             ; "Toggle File View"
                     DEFB (cmd_tfv_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_tfv_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
                     DEFB @00010001                                              ; command has help page, new column, safe
@@ -238,7 +238,7 @@
 .cmd_fetch          DEFB cmd_fetch_end - cmd_fetch                              ; length of command definition
                     DEFB 13                                                     ; command code
                     DEFM MU_ENT, 0                                              ; keyboard sequence
-                    DEFM "Fetch File at Cursor", 0
+                    DEFM "Fetch ", $BA, " at ", $DC, 0                          ; "Fetch File at Cursor"
                     DEFB 0                                                      ; no help
                     DEFB 0                                                      ;
                     DEFB @00010000                                              ; command has help page
@@ -249,7 +249,7 @@
 .cmd_delete         DEFB cmd_delete_end - cmd_delete                            ; length of command definition
                     DEFB IN_DEL                                                 ; command code
                     DEFM MU_DEL, 0                                              ; keyboard sequence
-                    DEFM "Delete File at Cursor", 0
+                    DEFM $96, $BA, " at ", $DC, 0                               ; "Delete File at Cursor"
                     DEFB 0                                                      ; no help
                     DEFB 0                                                      ;
                     DEFB @00010000                                              ; command has help page
@@ -262,10 +262,10 @@
 ;
 .FlashStoreHelp
                     DEFM 12, "FlashStore V1.9", $7F, $7F
-                    DEFM "Manage files on Rakewell Flash Cards and RAM.", 0
+                    DEFM "Manage ", $FD, " on Rakewell Flash Cards and RAM.", 0
 .cmd_sc_help
                     DEFM $7F
-;                    DEFM "Selects which file card to use when you have more than one."
+                    DEFM "Selects which file card to use when you have more than one."
                     DEFB 0
 .cmd_cf_help
                     DEFM $7F

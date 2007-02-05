@@ -164,7 +164,7 @@ xdef    SysTokenBase
 .token80
         defm $01, "T"
 .token81
-        defm "Cursor "
+        defm $DC, " "                           ; "Cursor "
 .token82
         defm "e "
 .token83
@@ -198,41 +198,41 @@ xdef    SysTokenBase
 .token91
         defm "at"
 .token92
-        defm $88, $82
+        defm $88, $82                           ; "the "
 .token93
-        defm "an"
+        defm "an"                               ; "and " = $93 + $B2
 .token94
         defm $8E, "Limited 1987,88", $7F, "Copyr", $90, "h", $84, "(C) "
 .token95
         defm "al"
 .token96
-        defm "De", $8B, "t", $82
+        defm "De", $8B, "t", $82                ; "Delete "
 .token97
-        defm "Nex", $84
+        defm "Nex", $84                         ; "Next "
 .token98
-        defm "P", $8D, "viou", $8E
+        defm "P", $8D, "viou", $8E              ; "Previous "
 .token99
-        defm "h", $8C, "act", $86
+        defm "h", $8C, "act", $86               ; "haracter"
 .token9A
         defm ".", $7F
 .token9B
-        defm "Ins", $86
+        defm "Ins", $86                         ; "Inser"
 .token9C
-        defm "Func", $87
+        defm "Func", $87                        ; "Function"
 .token9D
         defm "ow"
 .token9E
         defm "to"
 .token9F
-        defm "radi", $93, "s"
+        defm "radi", $93, "s"                   ; "radians"
 .tokenA0
         defm "list"
 .tokenA1
-        defm "numb", $86, " "
+        defm "numb", $86, " "                   ; "number "
 .tokenA2
         defm "en"
 .tokenA3
-        defm $85, " "
+        defm $85, " "                           ; "in "
 .tokenA4
         defm ", "
 .tokenA5
@@ -240,19 +240,19 @@ xdef    SysTokenBase
 .tokenA6
         defm "Fi"
 .tokenA7
-        defm $81, "R", $90, "ht"
+        defm $81, "R", $90, "ht"                ; "Cursor Right"
 .tokenA8
-        defm $81, "Left"
+        defm $81, "Left"                        ; "Cursor Left"
 .tokenA9
-        defm "L", $85, "e"
+        defm "L", $85, "e"                      ; "Line"
 .tokenAA
         defm ": "
 .tokenAB
         defm "Co"
 .tokenAC
-        defm "D", $9D, "n"
+        defm "D", $9D, "n"                      ; "Down"
 .tokenAD
-        defm "Activ", $82, "Day"
+        defm "Activ", $82, "Day"                ; "Active Day"
 .tokenAE
         defm ")", $83, $92
 .tokenAF
@@ -264,57 +264,57 @@ xdef    SysTokenBase
 .tokenB2
         defm "d "
 .tokenB3
-        defm "v", $95, "u"
+        defm "v", $95, "u"                      ; "valu"
 .tokenB4
         defm "ch"
 .tokenB5
-        defm "C", $8A
+        defm "C", $8A                           ; "Column"
 .tokenB6
-        defm "Di", $8D, "ct", $8F, "y"
+        defm "Di", $8D, "ct", $8F, "y"          ; "Directory"
 .tokenB7
-        defm " i", $8E
+        defm " i", $8E                          ; " is "
 .tokenB8
-        defm "Logic", $95, " "
+        defm "Logic", $95, " "                  ; "Logical "
 .tokenB9
         defm "Up"
 .tokenBA
         defm $A6, $8B                           ; "File"
 .tokenBB
-        defm $9E, " "
+        defm $9E, " "                           ; "to "
 .tokenBC
         defm "on"
 .tokenBD
-        defm "Sav"
+        defm "Sav"                              ; "Save " = $BD + $82
 .tokenBE
-        defm $82, "Posi", $87
+        defm $82, "Posi", $87                   ; "e Position"
 .tokenBF
         defm "Op"
 .tokenC0
-        defm $85, "g "
+        defm $85, "g "                          ; "ing "
 .tokenC1
         defm "(n"
 .tokenC2
         defm $89, '"', "n"
 .tokenC3
-        defm $91, "e"
+        defm $91, "e"                           ; "ate"
 .tokenC4
         defm $AB, "l", $9E, "n Softw", $8C, $82, "Limi", $AF
 .tokenC5
-        defm "B", $A5, "ck"
+        defm "B", $A5, "ck"                     ; "Block"
 .tokenC6
         defm "ur"
 .tokenC7
-        defm "e", $8B
+        defm "e", $8B                           ; "ele"
 .tokenC8
         defm "Re"
 .tokenC9
         defm "ce"
 .tokenCA
-        defm "s", $84
+        defm "s", $84                           ; "st "
 .tokenCB
-        defm $9B, $84
+        defm $9B, $84                           ; "Insert "
 .tokenCC
-        defm $90, "h"
+        defm $90, "h"                           ; "igh"
 .tokenCD
         defm "cos", $85, "e", $A4, "s", $85, $82, $8F, " t", $93, "g", $A2, $84
 .tokenCE
@@ -324,35 +324,35 @@ xdef    SysTokenBase
 .tokenD0
         defm " ", $A1, $A3, "whi", $B4, " i", $84, "i", $8E, "e", $B3, $C3, "d"
 .tokenD1
-        defm "Al", $90, "n"
+        defm "Al", $90, "n"                     ; "Align"
 .tokenD2
         defm "ENTER"
 .tokenD3
-        defm "W", $8F, "d"
+        defm "W", $8F, "d"                      ; "Word"
 .tokenD4
-        defm "Sc", $8D, $A2, " "
+        defm "Sc", $8D, $A2, " "                ; "Screen "
 .tokenD5
-        defm "qu", $95, " ", $9E
+        defm "qu", $95, " ", $9E                ; "qual to"
 .tokenD6
         defm "y "
 .tokenD7
         defm "m "
 .tokenD8
-        defm $AB, "mm", $93, "ds"
+        defm $AB, "mm", $93, "ds"               ; "Commands"
 .tokenD9
         defm "pl"
 .tokenDA
-        defm $81, $B9
+        defm $81, $B9                           ; "Cursor Up"
 .tokenDB
-        defm $81, $AC
+        defm $81, $AC                           ; "Cursor Down"
 .tokenDC
-        defm "C", $C6, "s", $8F
+        defm "C", $C6, "s", $8F                 ; "Cursor"
 .tokenDD
-        defm "M", $8C
+        defm "M", $8C                           ; "Mar"
 .tokenDE
-        defm $AB, "py"
+        defm $AB, "py"                          ; "Copy"
 .tokenDF
-        defm "En", $B2, $89
+        defm "En", $B2, $89                     ; "End of "
 .tokenE0
         defm "Rubout"
 .tokenE1
@@ -360,35 +360,35 @@ xdef    SysTokenBase
 .tokenE2
         defm "ra"
 .tokenE3
-        defm "S", $C7, "c", $84
+        defm "S", $C7, "c", $84                 ; "Select "
 .tokenE4
         defm "de"
 .tokenE5
         defm "(", $A0, ")"
 .tokenE6
-        defm $B3, $82
+        defm $B3, $82                           ; "value "
 .tokenE7
-        defm "r", $93, "ge"
+        defm "r", $93, "ge"                     ; "range"
 .tokenE8
         defm "Ex"
 .tokenE9
-        defm "C", $99
+        defm "C", $99                           ; "Character"
 .tokenEA
-        defm $9B, "t/Ov", $86, "type"
+        defm $9B, "t/Ov", $86, "type"           ; "Insert/Overtype"
 .tokenEB
         defm "se"
 .tokenEC
-        defm $BF, $87
+        defm $BF, $87                           ; "Option"
 .tokenED
         defm "am"
 .tokenEE
         defm "EPROM"
 .tokenEF
-        defm $86, " "
+        defm $86, " "                           ; "er "
 .tokenF0
-        defm $7F, $8D, "t", $C6, "n"
+        defm $7F, $8D, "t", $C6, "n"            ; "return"
 .tokenF1
-        defm $E4, "g", $8D, "es"
+        defm $E4, "g", $8D, "es"                ; "degrees"
 .tokenF2
         defm '"', " c", $BC, "v", $86, $AF, $B2, $85, $BB
 .tokenF3
@@ -396,25 +396,25 @@ xdef    SysTokenBase
 .tokenF4
         defm $A3, '"'
 .tokenF5
-        defm "d", $C3
+        defm "d", $C3                           ; "date"
 .tokenF6
-        defm $BF, $86, $91, $8F, "s"
+        defm $BF, $86, $91, $8F, "s"            ; "Operators"
 .tokenF7
-        defm "M", $91, $B4
+        defm "M", $91, $B4                      ; "March"
 .tokenF8
-        defm $A6, "r", $CA
+        defm $A6, "r", $CA                      ; "First "
 .tokenF9
-        defm "(", $9F, ")"
+        defm "(", $9F, ")"                      ; "(radians)"
 .tokenFA
-        defm "S", $A5, "t"
+        defm "S", $A5, "t"                      ; "Slot"
 .tokenFB
         defm "ay"
 .tokenFC
         defm "it"
 .tokenFD
-        defm $BA, "s"
+        defm $BA, "s"                           ; "Files"
 .tokenFE
-        defm "Pr", $85, "t"
+        defm "Pr", $85, "t"                     ; "Print"
 .tokenFF
-        defm "Swap Ca", $EB
+        defm "Swap Ca", $EB                     ; "Swap Case"
 .end_tokens
