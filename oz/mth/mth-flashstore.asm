@@ -265,47 +265,47 @@
                     DEFM "Manage ", $FD, " on Rakewell Flash Cards and RAM.", 0
 .cmd_sc_help
                     DEFM $7F
-                    DEFM "Selects which file card to use when you have more than one."
+                    DEFM "Selects which ", $BA, " Card to use when you have more than one."
                     DEFB 0
 .cmd_cf_help
                     DEFM $7F
-;                    DEFM "Lists filenames on file card area to PipeDream file."
+                    DEFM "Lists filenames on ", $BA, " Card area to PipeDream file."
                     DEFB 0
 .cmd_sv_help
                     DEFM $7F
-;                    DEFM "Changes default RAM device for this session."
+                    DEFM "Changes default RAM device for this session."
                     DEFB 0
 .cmd_fs_help
                     DEFM $7F
-;                    DEFM "Saves files from RAM device to file card area."
+                    DEFM "Saves files from RAM device to ", $BA, " Card Area."
                     DEFB 0
 .cmd_fl_help
                     DEFM $7F
-;                    DEFM "Fetches a file from file card area to RAM device."
+                    DEFM "Fetches a ", $BA, " from ", $BA, " Card Area to RAM device."
                     DEFB 0
 .cmd_fe_help
                     DEFM $7F
-;                    DEFM "Marks a file in file card area as deleted."
+                    DEFM "Marks a ", $BA, " in ", $BA, " Card Area as deleted."
                     DEFB 0
 .cmd_bf_help
                     DEFM $7F
-;                    DEFM "Saves all files from RAM device to file card area."
+                    DEFM "Saves all files from RAM device to ", $BA, " Card Area."
                     DEFB 0
 .cmd_rf_help
                     DEFM $7F
-;                    DEFM "Fetches all files from file card area to RAM device."
+                    DEFM "Fetches all files from ", $BA, " Card Area to RAM device."
                     DEFB 0
 .cmd_ffa_help
                     DEFM $7F
-;                    DEFM "Formats and erases complete file card area."
+                    DEFM "Formats and erases complete ", $BA, " Card Area."
                     DEFB 0
 .cmd_tfv_help
                     DEFM $7F
-;                    DEFM "Changes between browsing only saved files or", $7F
-;                    DEFM "also files marked as deleted."
+                    DEFM "Changes between browsing only saved files or", $7F
+                    DEFM "also files marked as deleted."
                     DEFB 0
 .cmd_fc_help
                     DEFM $7F
-;                    DEFM "Copy saved files in current file card area to", $7F
-;                    DEFM "another flash card in a different slot."
+                    DEFM "Copy saved files in current ", $BA, " Card Area to", $7F
+                    DEFM "another flash card in a different ", $FA, "."
                     DEFB 0

@@ -71,10 +71,10 @@ xdef    PanelDOR
         defb    0
 .IndexHelp
         defm    $7F, "All insertion and removal of cards must be done from", $7F
-        defm    "the INDEX. Do not remove any RAM card, or a ROM card", $7F
+        defm    $92, "INDEX. Do not remove any RAM card, or a ROM card", $7F
         defm    "which is in use. A continuous tone asks for a ROM", $7F
-        defm    "card to be reinserted into its original slot.", $7F
-        defm    "A ", 1,"TFAIL", 1, "T message requires the machine to be reset."
+        defm    "card to be reinserted into its original ", $FA, ".", $7F
+        defm    "A ", 1,"TFAIL", 1, "T message requires ", $92, "machine to be reset."
 
 .PipeDreamTopics
         defb    0
@@ -195,17 +195,17 @@ xdef    PanelDOR
         defb    0
 .PipeDreamHelp
         defm    $7F
-        defm    "PipeDream is a combined Word-processor, Spreadsheet", $7F
-        defm    "and Database application. Use the HELP key and browse the", $7F
+        defm    "PipeDream is a combined ", $D3, "-processor, Spreadsheet", $7F
+        defm    "and Database application. Use ", $92, "HELP key and browse the", $7F
         defm    "INFO topics to view PipeDreams mathematical functions.", 0
 
 .BasicHelp
         defm    $7F
-        defm    "Develop your own BBC BASIC programs, store them in the RAM", $7F
+        defm    "Develop your own BBC BASIC programs, store them in ", $92, "RAM", $7F
         defm    "filing system as files and RUN them inside one or several", $7F
         defm    "BBC BASIC applications. A built-in Z80 assembler enables", $7F
         defm    "you to compile and embed machine code inside your programs", $7F
-        defm    "that may access advanced features of the operating system.",0
+        defm    "that may access advanced features of ", $92, "operating system.",0
 
 .CalculatorHelp
         defm    $7F
@@ -216,26 +216,26 @@ xdef    PanelDOR
         defm    $7F
         defm    "This 'Julian proleptic' calendar starts from 4712 BC and is", $7F
         defm    "year 2000 compliant. To manually jump to a date, press the", $7F
-        defm    "ENTER key and edit the 'Look for' date. Use the cursor keys", $7F
-        defm    "together with the shift and diamond keys to navigate through", $7F
+        defm    $D2," key and edit ", $92, "'Look for' date. Use ", $92, $DC, " keys", $7F
+        defm    "together with ", $92, "shift and diamond keys to navigate through", $7F
         defm    "days months and years. A mark on a day indicates an entry is", $7F
-        defm    "made on that date in the Diary.", 0
+        defm    "made on that date in ", $92, "Diary.", 0
 
 .ImpExpHelp
         defm    $7F
-        defm    "This file transfer program allows files to be shared with", $7F
-        defm    "other computers. Serial port speed is set in the Panel.", 0
+        defm    "This ", $BA, " Transfer Program allows files to be shared with", $7F
+        defm    "other computers. Serial port speed is set in ", $92, "Panel.", 0
 
 .AlarmHelp
         defm    $7F
         defm    "Set either single or repeating alarm events", $7F
-        defm    "to sound the bell or execute commands to launch", $7F
+        defm    "to sound ", $92, "bell or execute commands to launch", $7F
         defm    "system applications or resources.", 0
 
 .ClockHelp
         defm    $7F
-        defm    "Displays the current Day, Date and Time.", $7F
-        defm    "Set the current Date and Time here to ensure that alarm", $7F
+        defm    "Displays ", $92, "current Day, Date and Time.", $7F
+        defm    "Set ", $92, "current Date and Time here to ensure that alarm", $7F
         defm    "events execute on time and applications use correct data.", 0
 
 .DiaryTopics
@@ -305,7 +305,7 @@ xdef    PanelDOR
         defm    $7F
         defm    "This is a 'Page a Day' diary. Multiple diary", $7F
         defm    "applications may be used for example for work and home.", $7F
-        defm    "The Calendar popdown when selected from the Diary", $7F
+        defm    "The Calendar popdown when selected from ", $92, "Diary", $7F
         defm    "can be used to view active days and navigate around."
 
 .PrinterEdTopics
@@ -336,9 +336,9 @@ xdef    PanelDOR
         defm    $7F
         defm    "The Printer Editor allows different printer commands to", $7F
         defm    "be defined, saved, loaded and used. The default printer", $7F
-        defm    "commands are the Epson FX80 or FX (ESC/P) or ESC/P2.", $7F
-        defm    "Remember to use the File Update command to update the", $7F
-        defm    "settings after loading or changing the definitions."
+        defm    "commands are ", $92, "Epson FX80 or FX (ESC/P) or ESC/P2.", $7F
+        defm    "Remember to use ", $92, $BA, " Update command to update the", $7F
+        defm    "settings after loading or changing ", $92, "definitions."
 
 .PanelTopics
         defb    0
@@ -361,7 +361,7 @@ xdef    PanelDOR
         defb    0
 .PanelHelp
         defm    $7F
-        defm    "Use the Panel for start up settings that Applications use.", $7F
+        defm    "Use ", $92, "Panel for start up settings that Applications use.", $7F
         defm    "Keyboard settings & country layout selection, Serial Port", $7F
         defm    "speed for printing and file transfer, User preferences,", $7F
         defm    "Default Devices and Directories settings are here."
@@ -399,10 +399,10 @@ xdef    PanelDOR
         defm    $7F
         defm    "The Filer is used to manage stored files generated from", $7F
         defm    "Applications in RAM, EPROM or FLASH cards.", $7F
-        defm    "When the Filer is selected from inside an application", $7F
-        defm    "File Load command, a file can be marked with the ENTER key", $7F
-        defm    "followed by the ESC key to save typing in the file name", $7F
-        defm    "to be loaded in the application."
+        defm    "When ", $92, "Filer is selected from inside an application", $7F
+        defm    $BA, " Load command, a file can be marked with ", $92, $D2, " key", $7F
+        defm    "followed by ", $92, $B1, " key to save typing in ", $92, "file name", $7F
+        defm    "to be loaded in ", $92, "application."
 
 .TerminalTopics
         defb    0
@@ -425,7 +425,7 @@ xdef    PanelDOR
 .TerminalHelp
         defm    $7F
         defm    "The Terminal allows simple VT-52 communication", $7F
-        defm    "to another computer using the Serial Port."
+        defm    "to another computer using ", $92, "Serial Port."
 
 .IndexDOR
         defp    0,0                                             ; parent
@@ -520,7 +520,7 @@ xdef    PanelDOR
         defp    BasicDOR,OZBANK_MTH             ; no topics
         defp    BasicDOR,OZBANK_MTH             ; no commands
         defp    BasicHelp,OZBANK_MTH            ; introductory help page
-        defp    0,0                             ; no token base
+        defp    SysTokenBase,OZBANK_MTH         ; use system token table
 
         defb    'N',BasicDORe-$PC-1             ; name, length
         defm    "BBC Basic",0
@@ -545,7 +545,7 @@ xdef    PanelDOR
         defp    CalculatorDOR,OZBANK_MTH        ; no topics
         defp    CalculatorDOR,OZBANK_MTH        ; no commands
         defp    CalculatorHelp,OZBANK_MTH       ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    SysTokenBase,OZBANK_MTH         ; use system token table
 
         defb    'N',CalculatorDORe-$PC-1        ; name, length
         defm    "Calculator",0
@@ -571,7 +571,7 @@ xdef    PanelDOR
         defp    CalendarDOR,OZBANK_MTH          ; no topics
         defp    CalendarDOR,OZBANK_MTH          ; no commands
         defp    CalendarHelp,OZBANK_MTH         ; introductory help page
-        defp    0,0                             ; no token base
+        defp    SysTokenBase,OZBANK_MTH         ; use system token table
 
         defb    'N',CalendarDORe-$PC-1          ; name, length
         defm    "Calendar",0
@@ -596,7 +596,7 @@ xdef    PanelDOR
         defp    ClockDOR,OZBANK_MTH             ; no topics
         defp    ClockDOR,OZBANK_MTH             ; no commands
         defp    ClockHelp,OZBANK_MTH            ; introductory help page
-        defp    0,0                             ; no token base
+        defp    SysTokenBase,OZBANK_MTH         ; use system token table
 
         defb    'N',ClockDORe-$PC-1             ; name, length
         defm    "Clock",0
@@ -750,7 +750,7 @@ xdef    PanelDOR
         defp    ImpExpDOR,OZBANK_MTH            ; no topics
         defp    ImpExpDOR,OZBANK_MTH            ; no commands
         defp    ImpExpHelp,OZBANK_MTH           ; introductory help page
-        defp    0,0                             ; no token base
+        defp    SysTokenBase,OZBANK_MTH         ; use system token table
 
         defb    DT_NAM, ImpExpDORe-$PC-1
         defm    "Imp-Export",0                  ; name, length
@@ -782,7 +782,7 @@ xdef    PanelDOR
         defp    EasyLinkDOR,OZBANK_MTH          ; no topics
         defp    EasyLinkDOR,OZBANK_MTH          ; no commands
         defp    EazyLinkHelp,OZBANK_MTH         ; introductory help page
-        defp    0, 0                            ; no token base
+        defp    SysTokenBase,OZBANK_MTH         ; use System token base
         defb    DT_NAM, EasyLinkDORe-$PC-1      ; Name section, length
         defm    "EazyLink", 0
         defb    $FF
@@ -792,7 +792,7 @@ xdef    PanelDOR
         DEFB    12
         DEFM    "EazyLink V5.0.5", $7F
         DEFB    $7F
-        DEFM    "Fast Client/Server Remote File Management,", $7F
+        DEFM    "Fast Client/Server Remote ", $BA, " Management,", $7F
         DEFM    "including support for PC-LINK II clients."
         DEFB    0
 
