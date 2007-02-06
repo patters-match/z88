@@ -442,11 +442,9 @@ endif
                     LD   IY, 512
                     LD   A,(flashtype)       ; use the correct Flash Card type...
                     CALL FlashEprWriteBlock
-                    POP  BC
+                    POP  BC                  ; HL updated to point at next block...
                     CALL C, SetErrorFlag
                     CALL C, AddrProgErrorMsg ; display address of programming error
-                    LD   DE, 1024
-                    ADD  HL,DE               ; ready for next block address on bank
 
                     POP  DE
                     DEC  E
