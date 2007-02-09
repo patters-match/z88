@@ -2081,7 +2081,7 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
                 defw    $2003           ; app ID
                 defb    5               ; country (se)
                 defb    $80             ; app
-                defb    2               ; 32KB
+                defb    1               ; 16KB
                 defb    0               ; subtype
                 defm    "OZ"
 
