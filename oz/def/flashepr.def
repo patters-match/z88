@@ -1,9 +1,26 @@
 lstoff
 
-; Flash Eprom System Constant Definitions
-; (C) Zlab (Thierry Peycru) 1995-97, 2004
-; - edited by Gunther Strube, Aug 2004, Mar 2006, Nov 2006
+; Standard Z88 Operating System manifests:
 
+; Implemented by Zlab (Thierry Peycru) 1995-97, 2004
+;                Gunther Strube, Aug 2004, Mar 2006, Nov 2006, Feb 2007
+
+
+; ==========================================================================================
+; New OZ system call interface (introduced in 4.2) to Handle Intel, Amd & Stm Flash memory
+
+DEFC  OS_Fep  = $C806
+        ; Reason code in A, arguments in BC, DE, HL, IX
+
+        DEFC FEP_CDID = $00 ; Identify Flash Memory Chip in slot
+        DEFC FEP_CDDT = $03 ; Get Flash Card Data
+        DEFC FEP_SCER = $06 ; Erase sector in Flash Memory
+        DEFC FEP_CDER = $09 ; Erase entire Flash Memory
+        DEFC FEP_WRBT = $0C ; Write byte to the Flash Memory
+
+
+; ==========================================================================================
+; Flash Memory types
 
 DEFC FE_28F = $02           ; second generation Flash chips (available Z88 Flash Cards are using the Intel I28Fxxx chip)
 DEFC FE_29F = $03           ; third generation Flash chips (available Z88 Flash Cards are using the Amd AM29Fxxx chip)

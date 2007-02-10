@@ -18,8 +18,8 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; (C) Thierry Peycru (pek@users.sf.net), 1997-2006
-; (C) Gunther Strube (gbs@users.sf.net), 1997-2006
+; (C) Thierry Peycru (pek@users.sf.net), 1997-2007
+; (C) Gunther Strube (gbs@users.sf.net), 1997-2007
 ;
 ; $Id$
 ; ***************************************************************************************************
