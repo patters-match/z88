@@ -23,7 +23,7 @@ Module DefaultRamDevice
 
      lib RamDevFreeSpace                     ; Get free space on RAM device.
 
-     XREF cls, rdch, pwait, DispMainWindow   ; fsapp.asm
+     XREF rdch, pwait, DispMainWindow        ; fsapp.asm
      XREF sopnln                             ; fsapp.asm
      XREF VduCursor                          ; selectcard.asm
 

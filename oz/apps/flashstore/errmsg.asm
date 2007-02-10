@@ -85,34 +85,26 @@ Module ErrorMessages
 
 
 ; *************************************************************************************
-.NoAppFileAreaMsg   PUSH HL
+.NoAppFileAreaMsg
                     LD   HL, no_appflarea_msgs
-                    CALL DispSlotErrorMsg
-                    POP  HL
-                    RET
+                    JP   DispSlotErrorMsg
 ; *************************************************************************************
 
 
 ; *************************************************************************************
 .disp_empty_flcard_msg
-                    PUSH HL
                     LD   HL, empty_flcard_msgs
-                    CALL DispSlotErrorMsg
-                    POP  HL
-                    RET
+                    JP   DispSlotErrorMsg
 ; *************************************************************************************
 
 
 ; *************************************************************************************
 .disp_no_filearea_msg
-                    PUSH HL
                     LD   HL, nofilearea_msgs
                     CALL DispSlotErrorMsg
 
                     CALL DispCmdWindow       ; Update the command window (Grey out)
-                    CALL FileEpromStatistics ; Update the File Area Statistics window
-                    POP  HL
-                    RET
+                    JP   FileEpromStatistics ; Update the File Area Statistics window
 ; *************************************************************************************
 
 
@@ -163,12 +155,10 @@ Module ErrorMessages
 ;
 .DispErrMsgNoWait
                     PUSH AF                  ; preserve error status...
-                    PUSH HL
                     CALL_OZ GN_Nln
                     CALL VduEnableCentreJustify
                     CALL sopnln
                     CALL VduEnableNormalJustify
-                    POP  HL
                     POP  AF
                     RET
 ; *************************************************************************************
@@ -183,7 +173,6 @@ Module ErrorMessages
 ;    ......../.... different
 ;
 .DispErrMsg
-                    PUSH HL
                     PUSH AF                  ; preserve error status...
 
                     CALL_OZ GN_Nln
@@ -194,13 +183,11 @@ Module ErrorMessages
                     CP   IN_ESC
                     JR   NZ, space_pressed
                     POP  HL                  ; ignore old AF...
-                    POP  HL
                     LD   A,RC_ESC            ; override the error status with RC_ESC
                     SCF
                     RET
 .space_pressed
                     POP  AF
-                    POP  HL
                     RET
 ; *************************************************************************************
 
@@ -210,7 +197,7 @@ Module ErrorMessages
 
 .no_appflarea_msgs  DEFW no_appflarea1_msg
                     DEFW no_appflarea2_msg
-.no_appflarea1_msg  DEFM 13, 10, 1,"BNo File Area available on Application Card in slot ",0
+.no_appflarea1_msg  DEFM 13, 10, 1,"BNo File Area available on Card in slot ",0
 .no_appflarea2_msg  DEFM ".",1,"B",0
 
 .empty_flcard_msgs  DEFW empty_flcard1_msg
