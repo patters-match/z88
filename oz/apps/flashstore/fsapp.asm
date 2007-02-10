@@ -63,10 +63,7 @@
      xref SelectDefaultSlot        ; selectcard.asm
      xref VduCursor                ; selectcard.asm
      xref FileEpromStatistics      ; filestat.asm
-     xref disp_no_filearea_msg     ; errmsg.asm
      xref ReportStdError           ; errmsg.asm
-     xref NoAppFileAreaMsg         ; errmsg.asm
-     xref disp_empty_flcard_msg    ; errmsg.asm
      xref Disp_reformat_msg        ; errmsg.asm
      xref disp_filefmt_ask_msg     ; errmsg.asm
      xref no_files                 ; errmsg.asm
@@ -515,19 +512,10 @@
 ; IN:
 ;    HL = pointer to banner
 .DispMainWindow
-                    push af
-                    push bc
-                    push de
-
                     ld   a,'2' | 128
                     ld   bc,$0013
                     ld   de,$0835
-                    call CreateWindow
-
-                    pop  de
-                    pop  bc
-                    pop  af
-                    ret
+                    jp   CreateWindow
 ; *************************************************************************************
 
 
@@ -562,10 +550,8 @@
 ;
 .sopnln
                     PUSH AF
-                    PUSH HL
                     CALL_OZ gn_sop
                     CALL_OZ gn_nln
-                    POP  HL
                     POP  AF
                     RET
 ; *************************************************************************************
@@ -597,12 +583,8 @@
 ;
 .cls
                     PUSH AF
-                    PUSH HL
-
                     LD   HL, clsvdu
                     CALL_OZ Gn_Sop
-
-                    POP  HL
                     POP  AF
                     RET
 ; *************************************************************************************
