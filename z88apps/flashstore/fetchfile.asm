@@ -46,7 +46,7 @@ Module FetchFile
      xref disp_exis_msg            ; restorefiles.asm
      xref GetDefaultRamDevice      ; defaultram.asm
      xref DispMainWindow, sopnln   ; fsapp.asm
-     xref cls, failed_msg          ; fsapp.asm
+     xref failed_msg               ; fsapp.asm
      xref GetCurrentSlot           ; fsapp.asm
      xref fnam_msg                 ; savefiles.asm
      xref CompressRamFileName      ; savefiles.asm

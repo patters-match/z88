@@ -36,7 +36,7 @@ Module CatalogFiles
      xref CompressedFileEntryName  ; browse.asm
      xref endf_msg                 ; browse.asm
      xref FileAreaBannerText       ; browse.asm
-     xref cls, yesno, no_msg       ; fsapp.asm
+     xref yesno, no_msg            ; fsapp.asm
      xref sopnln, pwait, ResSpace  ; fsapp.asm
      xref DispMainWindow           ; fsapp.asm
      xref GetCurrentSlot           ; fsapp.asm

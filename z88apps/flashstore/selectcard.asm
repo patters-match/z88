@@ -33,7 +33,7 @@ Module SelectCard
 
      XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
      XREF greyscr, greyfont, nocursor   ; fsapp.asm
-     XREF nogreyfont, notinyfont, cls   ; fsapp.asm
+     XREF nogreyfont, notinyfont        ; fsapp.asm
      xref GetCurrentSlot, DispMainWindow; fsapp.asm
      XREF PollFileFormatSlots           ; format.asm
      XREF FlashWriteSupport             ; format.asm
@@ -314,9 +314,7 @@ Module SelectCard
                     INC  C
                     CALL CacheVduCursor
                     CALL CacheVduString         ; display device name (in HL)...
-                    LD   A,(free)
-                    call DispSlotSize           ; C = size of slot in 16K banks
-                    RET
+                    LD   A,(free)               ; A = size of slot in 16K banks
 .DispSlotSize
                     push bc
                     push de
@@ -430,21 +428,17 @@ Module SelectCard
 
 ; *************************************************************************************
 ;
-.ShowMenuBar   PUSH HL
+.ShowMenuBar
                LD   HL,MenuBarOn
-               CALL DisplMenuBar
-               POP  HL
-               RET
+               JR   DisplMenuBar
 ; *************************************************************************************
 
 
 ; *************************************************************************************
 ;
-.RemoveMenuBar PUSH HL
+.RemoveMenuBar
                LD   HL,MenuBarOff
-               CALL DisplMenuBar
-               POP  HL
-               RET
+               JR   DisplMenuBar
 ; *************************************************************************************
 
 

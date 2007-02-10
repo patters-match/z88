@@ -110,7 +110,8 @@ Module FileAreaFormat
                               CALL disp_empty_flcard_msg  ; "Empty Flash Card in slot x"
                               JR   ackn_format
 .area_found
-                         CALL Disp_reformat_msg    ; "Re-format File Area (All data will be lost)."
+                         LD   HL, reformat_msgs
+                         CALL DispSlotErrorMsg     ; "Re-format File Area (All data will be lost)."
 .ackn_format
                     ld   hl,disp_filefmt_ask_msg
                     ld   de,no_msg
@@ -302,16 +303,6 @@ Module FileAreaFormat
 .no_flash_found     ld   hl,-1
                     ld   (flashid),hl
                     ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-.disp_reformat_msg
-                    PUSH HL
-                    LD   HL, reformat_msgs
-                    CALL DispSlotErrorMsg
-                    POP  HL
-                    RET
 ; *************************************************************************************
 
 
