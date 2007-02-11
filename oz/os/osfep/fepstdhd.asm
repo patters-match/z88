@@ -25,7 +25,7 @@
 
         xdef FlashEprStdFileHeader
 
-        lib SafeBHLSegment, Divu8
+        lib Divu8
         xref FlashEprWriteBlock
 
         include "saverst.def"
@@ -105,7 +105,7 @@
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, Dec 1997 - Aug 1998, July 2006, Aug-Oct 2006
+;    Gunther Strube, Dec 1997-Aug 1998, July '06, Aug-Oct '06, Feb '07
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ------------------------------------------------------------------------
 ;
@@ -187,8 +187,8 @@
         pop     af                              ; use FE_xx chip type to program File Card header
         push    ix
         pop     de                              ; start of File Eprom Header
-        ld      hl, $3fc0                       ; blow at address B,$3FC0
-        call    SafeBHLSegment                  ; get a safe segment in C (not this executing segment!) to blow bytes
+        ld      c, MS_S1
+        ld      hl, $7fc0                       ; blow bytes at address B,$3FC0 (in segment 1)
         push    iy                              ; (preserve IY)
         ld      iy, 64                          ; of size
         call    FlashEprWriteBlock              ; blow header...

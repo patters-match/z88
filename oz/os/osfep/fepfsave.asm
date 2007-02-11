@@ -26,7 +26,6 @@
         xdef FlashEprSaveRamFile
 
         lib FileEprAllocFilePtr, FileEprFreeSpace
-        lib SafeBHLSegment
         lib OZSlotPoll, SetBlinkScreen
 
         xref FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
@@ -309,8 +308,9 @@
         push    bc                              ; DE = ptr. to File Entry
         pop     iy                              ; length of File Entry in IY
         pop     bc                              ; BHL = pointer to free space on Eprom
-        call    SafeBHLSegment                  ; get a safe segment (not this executing segment!) to blow bytes...
-        xor     a                               ; flash chip type to be detected dynamically...
+        ld      c, 0                            ; flash chip type to be detected dynamically...
+        res     7,h
+        set     6,h                             ; use segment 1 to blow bytes...
         call    FlashEprWriteBlock              ; blow File Entry to Flash Eprom
         pop     iy
         ret     nc                              ; Fc = 0, A = FE_xx chip type

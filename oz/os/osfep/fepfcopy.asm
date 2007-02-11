@@ -28,7 +28,6 @@
         lib FileEprAllocFilePtr
         lib FileEprFreeSpace
         lib FileEprFileEntryInfo
-        lib SafeBHLSegment
         lib FileEprTransferBlockSize
         lib OZSlotPoll, SetBlinkScreen
 
