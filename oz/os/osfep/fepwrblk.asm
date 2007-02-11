@@ -204,8 +204,8 @@
         ld      a,3
         exx
         cp      c                               ; when chip is FE_28F series, we need to be in slot 3
-        jr      z,write_28F_block               ; to make a successful "write" of the byte...
         exx
+        jr      z,write_28F_block               ; to make a successful "write" of the byte...
         pop     af
         jp      FEP_WriteError                  ; Ups, not in slot 3, signal write error!
 .write_29F_block
@@ -215,7 +215,9 @@
         pop     ix
         jr      exit_blowblock
 .write_28F_block
+        push    ix
         call    FEP_ExecWriteBlock_28F
+        pop     ix
 .exit_blowblock
         ex      af,af'
         pop     af                              ; get chip type
@@ -245,16 +247,14 @@
         set     BB_COMLCDON,A                   ; Force Screen enabled...
         ld      (bc),a
         out     (c),a                           ; signal to HW
-
-        push    ix
-        pop     hl                              ; use HL as 16bit decrement counter
         exx
-
 .WriteBlockLoop
         exx
+        push    ix
+        pop     hl                              ; use HL as 16bit decrement counter
         ld      a,h
         or      l
-        dec     hl
+        dec     ix
         exx
         jr      z, exit_write_block             ; block written successfully (Fc = 0)
         push    bc
