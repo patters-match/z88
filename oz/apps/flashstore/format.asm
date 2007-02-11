@@ -24,7 +24,6 @@ Module FileAreaFormat
      xdef PollFileFormatSlots
      xdef noformat_msg
 
-     lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib ApplEprType               ; check for presence of application card in slot
 
@@ -122,8 +121,9 @@ Module FileAreaFormat
                     ld   hl,ffm2_msg
                     CALL_OZ GN_Sop
 
-                    call GetCurrentSlot           ; C = (curslot)
-                    CALL FlashEprFileFormat       ; erase blocks of file area & blow "oz" header at top
+                    ld   a,FEP_FFMT
+                    call GetCurrentSlot           ; C = current slot
+                    oz   OS_Fep                   ; erase blocks of file area in slot C, and blow "oz" header at top
 
                     push af
                     call PollFileArea             ; reset file area information
