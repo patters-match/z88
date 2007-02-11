@@ -210,7 +210,9 @@
         jp      FEP_WriteError                  ; Ups, not in slot 3, signal write error!
 .write_29F_block
         push    af                              ; remember FE_29F chip type
+        push    ix
         call    FEP_ExecWriteBlock_29F
+        pop     ix
         jr      exit_blowblock
 .write_28F_block
         call    FEP_ExecWriteBlock_28F
@@ -322,16 +324,13 @@
 ;       IX = size of data
 ;
 .FEP_ExecWriteBlock_29F
+.WriteBlockLoop_29F
         exx
         push    ix
         pop     bc                              ; install block size.
-        exx
-
-.WriteBlockLoop_29F
-        exx
         ld      a,b
         or      c
-        dec     bc
+        dec     ix
         exx
         ret     z                               ; block written successfully (Fc = 0)
 

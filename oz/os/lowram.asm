@@ -698,7 +698,6 @@ xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
 ;       hl' = points into bound bank of Flash Memory sector to blow byte
 ; Out:
 ;       A = Chip Status Register
-;       B = A(in)
 ;
 ; Registers changed on return:
 ;    ......../IXIY same
@@ -709,7 +708,6 @@ xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
         ld      a,$A0                           ; Byte Program Mode
         call    AM29Fx_CmdMode
         pop     af
-        ld      b,a
         exx
         ld      (hl),a                          ; program byte to flash memory address
         jr      AM29Fx_ExeCommand

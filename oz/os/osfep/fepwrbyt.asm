@@ -240,8 +240,5 @@
         pop     hl
         exx
         call    AM29Fx_BlowByte
-        jp      nz, FEP_WriteError
-        ld      a,(hl)                          ; we're back in Read Array Mode
-        cp      b                               ; verify programmed byte (just in case!)
-        ret     z                               ; byte was successfully programmed!
+        ret     z                               ; we're back in Read Array Mode, byte was successfully programmed!
         jp      FEP_WriteError
