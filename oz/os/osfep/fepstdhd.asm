@@ -184,15 +184,15 @@
 .whole_card
         ld      (ix + $3c),c                    ; File Eprom area uses whole card
 .blow_header
-        pop     af                              ; use FE_xx chip type to program File Card header
+        pop     af
+        ld      c, a                            ; use FE_xx chip type to program File Card header
         push    ix
         pop     de                              ; start of File Eprom Header
-        ld      c, MS_S1
         ld      hl, $7fc0                       ; blow bytes at address B,$3FC0 (in segment 1)
-        push    iy                              ; (preserve IY)
-        ld      iy, 64                          ; of size
+        push    ix
+        ld      ix, 64                          ; of size
         call    FlashEprWriteBlock              ; blow header...
-        pop     iy
+        pop     ix
 
         ld      c,(ix + $3c)                    ; return size of File Eprom Area
         pop     hl

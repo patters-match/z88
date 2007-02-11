@@ -40,7 +40,7 @@
 ; ***************************************************************************
 ;
 ; Write a block of bytes to the Flash Eprom Card, from address
-; DE to BHL of block size IY. If a block will cross a bank boundary, it is
+; DE to BHL of block size IX. If a block will cross a bank boundary, it is
 ; automatically continued on the next adjacent bank of the card.
 ; On return, BHL points at the byte after the last written byte.
 ;
@@ -86,7 +86,7 @@
 ;         BHL = extended address to start of destination (pointer into card)
 ;              (bits 7,6 of B is the slot mask)
 ;              (bits 7,6 of H = MM_Sx segment mask for BHL)
-;         IY = size of block (at DE) to blow
+;         IX = size of block (at DE) to blow
 ; Out:
 ;         Success:
 ;              Fc = 0
@@ -104,12 +104,11 @@
 ;
 ; --------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005, Aug-Nov 2006
+;    Gunther Strube, Dec 97, Jan-Apr 98, Aug '04, Oct '05, Aug-Nov '06, Feb '07
 ;    Thierry Peycru, Zlab, Dec 1997
 ; --------------------------------------------------------------------------
 ;
 .FlashEprWriteBlock
-        push    ix
         push    de                            ; preserve DE
         push    bc                            ; preserve C
         ld      a,c
@@ -146,13 +145,12 @@
         pop     de
         ld      c,e                           ; original C register restored...
         pop     de
-        pop     ix
         ret
 
 
 ; ***************************************************************
 ;
-; Write Block to BHL already bound, in slot x, of IY length.
+; Write Block to BHL already bound, in slot x, of IX length.
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
@@ -161,7 +159,7 @@
 ;         C  = MS_Sx segment specifier
 ;         DE = local pointer to start of block (available in current address space)
 ;         BHL = extended address to start of destination (pointer into card)
-;         IY = size of block to blow
+;         IX = size of block to blow
 ; Out:
 ;    Fc = 0, block blown successfully to the Flash Card
 ;         A = FE_28F or FE_29F, depending on found chip type
@@ -235,7 +233,7 @@
 ;       BHL = pointer to blow data
 ;       C = MS_Sx segment specifier
 ;       DE = pointer to source data
-;       IY = size of data
+;       IX = size of data
 ;
 .FEP_ExecWriteBlock_28F
         exx
@@ -246,7 +244,7 @@
         ld      (bc),a
         out     (c),a                           ; signal to HW
 
-        push    iy
+        push    ix
         pop     hl                              ; use HL as 16bit decrement counter
         exx
 
@@ -321,11 +319,11 @@
 ;       BHL = pointer to blow data
 ;       C = MS_Sx segment specifier
 ;       DE = pointer to source data
-;       IY = size of data
+;       IX = size of data
 ;
 .FEP_ExecWriteBlock_29F
         exx
-        push    iy
+        push    ix
         pop     bc                              ; install block size.
         exx
 

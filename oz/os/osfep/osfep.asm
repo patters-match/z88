@@ -30,14 +30,17 @@
         xdef    FEP_VppError, FEP_EraseError, FEP_WriteError
         xdef    AM29Fx_InitCmdMode
 
-        xref    FlashEprCardId                  ; fepcrdid.asm
-        xref    FlashEprSectorErase             ;
-        xref    FlashEprCardErase               ;
-        xref    FlashEprWriteByte               ;
-        xref    FlashEprCardData                ; fepcrddata.asm
+        xref    FlashEprCardId                  ; osfep/fepcrdid.asm
+        xref    FlashEprCardData                ; osfep/fepcrddata.asm
+        xref    FlashEprSectorErase             ; osfep/fepsecera.asm
+        xref    FlashEprCardErase               ; osfep/fepcdera.asm
+        xref    FlashEprFileFormat              ; osfep/fepflfmt.asm
+        xref    FlashEprWriteByte               ; osfep/fepwrbyt.asm
+        xref    FlashEprWriteBlock              ; osfep/fepwrblk.asm
         xref    PutOSFrame_BHL                  ; misc5.asm
         xref    PutOSFrame_BC                   ; misc5.asm
         xref    PutOSFrame_DE                   ; misc5.asm
+        xref    PutOSFrame_HL                   ; misc5.asm
 
         include "error.def"
         include "lowram.def"
@@ -63,15 +66,19 @@
         inc     h                               ; adjust for page crossing.
 .exec_fep_reason
         ex      (sp), hl                        ; restore hl and push address
-        ret                                     ; goto reason
+        ret                                     ; execute subroutine defined by reason code
 
 .OSFepTable
         jp      ozFlashEprCardId                ; reason code $00 for FEP_CDID
         jp      ozFlashEprCardData              ; reason code $03 for FEP_CDDT
-        jp      FlashEprSectorErase             ; reason code $06 for FEP_SCER
-        jp      FlashEprCardErase               ; reason code $09 for FEP_CDER
-        jp      FlashEprWriteByte               ; reason code $0c for FEP_WRBT
+        jp      FlashEprSectorErase             ; reason code $06 for FEP_SCER  (returns only error status in AF)
+        jp      FlashEprCardErase               ; reason code $09 for FEP_CDER  (returns only error status in AF)
+        jp      ozFlashEprFileFormat            ; reason code $0C for FEP_FFMT
+        jp      FlashEprWriteByte               ; reason code $0F for FEP_WRBT  (returns only error status in AF)
+        jp      ozFlashEprWriteBlock            ; reason code $12 for FEP_WRBL
 
+
+; ***************************************************************************************************
 .ozFlashEprCardId                               ; IN: C = slot number (0, 1, 2 or 3)
         call    FlashEprCardId
         ret     c                               ; return error condition
@@ -80,6 +87,8 @@
         ld      (iy+OSFrame_A),A                ; return H = Manufacturer Code, L = Device Code
         ret                                     ; return A = FE_28F or FE_29F, defining the Flash Memory chip generation
 
+
+; ***************************************************************************************************
 .ozFlashEprCardData                             ; IN: HL = (Flash Memory Chip Manufacturer & Device Code)
         call    FlashEprCardData
         ret     c                               ; return error condition
@@ -88,6 +97,25 @@
         call    PutOSFrame_DE                   ; return CDE = extended pointer to null-terminated string description of chip
         ld      (iy+OSFrame_A),A                ; return A = FE_28F or FE_29F, defining the Flash Memory chip generation
         ret
+
+
+; ***************************************************************************************************
+.ozFlashEprFileFormat                           ; IN: C = slot number (0, 1, 2 or 3) of Flash Memory Card
+        call    FlashEprFileFormat
+        ret     c                               ; return error condition
+
+        call    PutOSFrame_BC                   ; return C = Number of 16K banks of File Eprom Area
+        jp      PutOSFrame_HL                   ; return BHL = absolute pointer to "oz" header in card
+
+
+; ***************************************************************************************************
+.ozFlashEprWriteBlock
+        call    FlashEprWriteBlock
+        ret     c                               ; return error condition
+
+        call    PutOSFrame_BC                   ; return C = FE_28F or FE_29F (depending on found card)
+        jp      PutOSFrame_HL                   ; return BHL = updated to pointer after block
+
 
 
 ; ***************************************************************************************************

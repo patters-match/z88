@@ -305,21 +305,21 @@
 ;    HL = Card ID
 ;
 .SaveNullFile
-        ld      a,$89                           ; Check for Intel Manufacturer code
+        ld      a,FE_INTEL_MFCD                 ; Check for Intel Manufacturer code
         cp      h
         ret     nz                              ; it was not an Intel chip - the null file is not necessary...
 
         push    bc                              ; preserve top of file area bank in B
-        push    iy
+        push    ix
 
         ld      b,$c0                           ; file area was just formatted successfully, so the Intel
-        ld      hl,$4000                        ; chip is in slot 3 - blow file at bottom of card (using segment 1)
+        ld      hl, MM_S1 << 8                  ; chip is in slot 3 - blow file at bottom of card (using segment 1)
         ld      de, nullfile
-        ld      iy,6                            ; Initial File Entry is 6 bytes long...
-        ld      a,FE_28F                        ; use Intel flash chip type...
+        ld      ix,6                            ; Initial File Entry is 6 bytes long...
+        ld      c,FE_28F                        ; use Intel flash chip type...
         call    FlashEprWriteBlock
 
-        pop     iy
+        pop     ix
         pop     bc                              ; restored Bank number...
         ret
 .nullfile

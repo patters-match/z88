@@ -16,7 +16,9 @@ DEFC  OS_Fep  = $C806
         DEFC FEP_CDDT = $03 ; Get Flash Card Data
         DEFC FEP_SCER = $06 ; Erase sector in Flash Memory
         DEFC FEP_CDER = $09 ; Erase entire Flash Memory
-        DEFC FEP_WRBT = $0C ; Write byte to the Flash Memory
+        DEFC FEP_FFMT = $0C ; Flash Memory File Area Formatting
+        DEFC FEP_WRBT = $0F ; Write byte to the Flash Memory
+        DEFC FEP_WRBL = $12 ; Write a block of bytes to Flash Memory
 
 
 ; ==========================================================================================

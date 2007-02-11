@@ -222,7 +222,7 @@
         ld      c,(iy + Fhandle)
         ld      b,(iy + Fhandle+1)
         push    bc
-        POP     IX                              ; get file handle of open file
+        pop     ix                              ; get file handle of open file
         oz      Gn_Cl                           ; close file
         pop     af
 
@@ -269,11 +269,8 @@
         call    LoadBuffer                      ; Load block of bytes from file into external buffer
         ret     z                               ; EOF reached...
 
-        push    iy
         push    ix
-        pop     iy
         call    FlashEprWriteBlock              ; blow buffer to Flash Eprom at BHL...
-        pop     iy                              ; restore base pointer to local stack variables...
         jr      c,MarkDeleted                   ; exit saving, File was not blown properly (try to mark it as deleted)...
         jr      save_file_loop
 
@@ -299,20 +296,18 @@
 ;    AFBC..HL/.... different
 ;
 .SaveFileEntry
-        push    iy
         push    bc
         ld      a,(de)                          ; length of filename
         add     a,4+1                           ; total size = length of filename + 1 (file length byte)
         ld      b,0                             ;              + 4 (32bit file length)
         ld      c,a
         push    bc                              ; DE = ptr. to File Entry
-        pop     iy                              ; length of File Entry in IY
+        pop     ix                              ; length of File Entry in IY
         pop     bc                              ; BHL = pointer to free space on Eprom
         ld      c, 0                            ; flash chip type to be detected dynamically...
         res     7,h
         set     6,h                             ; use segment 1 to blow bytes...
         call    FlashEprWriteBlock              ; blow File Entry to Flash Eprom
-        pop     iy
         ret     nc                              ; Fc = 0, A = FE_xx chip type
 
         ; File Entry was not blown properly, mark it as 'deleted'...

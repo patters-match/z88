@@ -28,7 +28,7 @@
         lib ApplSegmentMask        ; Get segment mask (MM_Sx) of this executing code)
         lib SafeSegmentMask        ; Get a 'safe' segment mask outside the current executing code
 
-        xref FlashEprWriteBlock    ; Write a block of bytes to Flash memory, from DE to BHL of block size IY.
+        xref FlashEprWriteBlock    ; Write a block of bytes to Flash memory, from DE to BHL of block size IX.
 
         include "flashepr.def"
         include "memory.def"
@@ -38,9 +38,9 @@
 
 ;***************************************************************************************************
 ;
-; Copy a block of bytes to the Flash Card, from address BHL to CDE of block size IY. If a block
+; Copy a block of bytes to the Flash Card, from address BHL to CDE of block size IX. If a block
 ; on the destination will cross a bank boundary, it is automatically continued on the next adjacent
-; bank of the card. Block at BHL+IY must be within the bank boundary because source and destination
+; bank of the card. Block at BHL+IX must be within the bank boundary because source and destination
 ; pointers are bound into unique segments in the address space temporarily.
 ;
 ; BHL points to an absolute bank of the source block.
@@ -77,7 +77,7 @@
 ;              (bits 7,6 of B is the slot mask)
 ;         CDE = extended address to start of destination (pointer into flash card)
 ;              (bits 7,6 of C is the slot mask)
-;         IY = size of block (at BHL) to copy (blow) to CDE (must be within bank boundary)
+;         IX = size of block (at BHL) to copy (blow) to CDE (must be within bank boundary)
 ; Out:
 ;         Success:
 ;              Fc = 0
@@ -95,11 +95,11 @@
 ;
 ; ---------------------------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, October 2006
+;    Gunther Strube, Oct 2006, Feb 2007
 ; ---------------------------------------------------------------------------------------------
 ;
 .FlashEprCopyBlock
-        push    iy
+        push    ix
         push    bc
 
         ex      af,af'                          ; preserve FE Programming type in A'
@@ -142,8 +142,8 @@
 
         res     7,d
         res     6,d
-        add     iy,de                           ; block size + offset = updated block pointer (installed in HL below)
-        push    iy
+        add     ix,de                           ; block size + offset = updated block pointer (installed in HL below)
+        push    ix
 
         ex      de,hl
         ld      c,b
@@ -158,6 +158,6 @@
         inc     b
         res     6,h                             ; source block copy reached boundary of bank...
 .exit_FlashEprCopyBlock
-        pop     iy                              ; restored original IY
+        pop     ix                              ; restored original IX
         ex      af,af'
         ret                                     ; return A = FE Programming type, or error condition in AF
