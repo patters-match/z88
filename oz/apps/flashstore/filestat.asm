@@ -31,7 +31,6 @@ Module FileAreaStatistics
      lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
      lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
      lib FlashEprCardData          ; Return data about Flash type & size & description
-     lib MemDefBank                ; Fast bank switching
      lib divu8                     ; Unsigned 8bit integer division
 
      XREF VduCursor                ; selectcard.asm
@@ -51,6 +50,7 @@ Module FileAreaStatistics
      include "fileio.def"
      include "integer.def"
      include "screen.def"
+     include "memory.def"
 
      ; FlashStore popdown variables
      include "fsapp.def"
@@ -354,15 +354,15 @@ Module FileAreaStatistics
                     set  6,h                      ; modify offset pointer to use segment 1.
                     ld   (FreeSpaceBar),hl        ; HL is base pointer at first UDG character, 'Q'
 
-                    ld   c,1
-                    call MemDefBank               ; bind LORES font memory into segment 1 ($4000-$7FFF)
+                    ld   c,MS_S1
+                    rst  OZ_MPB                   ; bind LORES font memory into segment 1 ($4000-$7FFF)
                     push bc                       ; preserve old bank binding
 
                     call ResetFreeSpaceBar        ; Initialize (reset) the horisontal bar
                     call FillFreeSpaceBar         ; fill bar with information about deleted and active file space
 
                     pop  bc
-                    call MemDefBank               ; restore old bank binding in segment 1.
+                    rst  OZ_MPB                   ; restore old bank binding in segment 1.
 
                     ld   hl, spacebar
                     CALL_OZ GN_Sop                ; display the free space graphic bar in file statistics window

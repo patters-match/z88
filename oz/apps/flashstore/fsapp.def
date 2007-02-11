@@ -18,8 +18,7 @@
 
 DEFC BufferSize = 1024                  ; buffer for file I/O at $2000
 
-DEFVARS $2000
-{
+DEFVARS $2000                           ; base of runtime variables
      buffer         ds.b BufferSize
      buf1           ds.b 128
      buf2           ds.b 128            ; filename buffer...
@@ -54,7 +53,7 @@ DEFVARS $2000
      watermark      ds.b 5              ; the current File Area watermark (File Header Ramdom ID & size of banks)
      ramdevno       ds.b 1              ; the default Ascii RAM Device slot number ('0' - '3').
      vdubufptr      ds.w 1              ; VDU buffer pointer for accumulated VDU sequenses (buid up VDU codes, ending with GN_Sop)
-}
+ENDDEF
 
 ; Status flags
 DEFC dspdelfiles = 0
