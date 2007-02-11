@@ -131,7 +131,8 @@
 
         ex      de,hl
         ld      b,c                             ; BHL <- CDE
-        ex      af,af'                          ; FE Programming type
+        ex      af,af'
+        ld      c,a                             ; FE Programming type
         call    FlashEprWriteBlock              ; DE now source block in current address space, BHL destination pointer
         ex      af,af'                          ; preserve error status ...
 
