@@ -73,7 +73,6 @@
 ; Out:
 ;         Success:
 ;              Fc = 0
-;              A = byte successfully blown to Flash Memory
 ;         Failure:
 ;              Fc = 1
 ;              A = RC_BWR (programming of byte failed)
