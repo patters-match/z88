@@ -30,11 +30,16 @@
         xdef    FEP_VppError, FEP_EraseError, FEP_WriteError
         xdef    AM29Fx_InitCmdMode
 
-        xref    FlashEprCardId, FlashEprSectorErase, FlashEprCardErase
-        xref    FlashEprWriteByte, FlashEprCardData
+        xref    FlashEprCardId                  ; fepcrdid.asm
+        xref    FlashEprSectorErase             ;
+        xref    FlashEprCardErase               ;
+        xref    FlashEprWriteByte               ;
+        xref    FlashEprCardData                ;
+        xref    PutOSFrame_BHL                  ; misc5.asm
 
         include "error.def"
         include "lowram.def"
+        include "sysvar.def"
 
 
 ; ***************************************************************************************************
@@ -59,12 +64,19 @@
         ret                                     ; goto reason
 
 .OSFepTable
-        jp      FlashEprCardId                  ; reason code $00 for FEP_CDID
+        jp      ozFlashEprCardId                ; reason code $00 for FEP_CDID
         jp      FlashEprCardData                ; reason code $03 for FEP_CDDT
         jp      FlashEprSectorErase             ; reason code $06 for FEP_SCER
         jp      FlashEprCardErase               ; reason code $09 for FEP_CDER
         jp      FlashEprWriteByte               ; reason code $0c for FEP_WRBT
 
+.ozFlashEprCardId
+        call    FlashEprCardId
+        ret     c                               ; return error condition
+
+        call    PutOSFrame_BHL                  ; return B = total of 16K banks on Flash Memory Chip
+        ld      (iy+OSFrame_A),A                ; return H = Manufacturer Code, L = Device Code
+        ret                                     ; return A = FE_28F or FE_29F, defining the Flash Memory chip generation
 
 
 ; ***************************************************************************************************

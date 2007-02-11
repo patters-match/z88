@@ -58,7 +58,7 @@
 ;
 ; ---------------------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005, Aug 2006, Oct-Nov 2006
+;    Gunther Strube, Dec '97-Apr '98, Jul-Sep 2004, Sep 2005, Aug-Oct-Nov 2006, Feb 2007
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------------------------------
 ;

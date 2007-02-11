@@ -29,7 +29,6 @@ Module SelectCard
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
      lib ApplEprType               ; check for presence of application card in slot
-     lib FlashEprCardId            ; Return Intel Flash Eprom Device Code (if card available)
 
      XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
      XREF greyscr, greyfont, nocursor   ; fsapp.asm

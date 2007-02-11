@@ -25,7 +25,6 @@ Module FileAreaFormat
      xdef noformat_msg
 
      lib FlashEprFileFormat        ; Create "oz" File Eprom or area on application card
-     lib FlashEprCardId            ; Return Intel Flash Eprom Device Code (if card available)
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib ApplEprType               ; check for presence of application card in slot
 
@@ -296,7 +295,8 @@ Module FileAreaFormat
 ;    (flashid) variable updated: FFFF = no Flash Card found, otherwise HL -> (flashid)
 ;
 .CheckFlashCardID
-                    call FlashEprCardId
+                    ld   a, FEP_CDID
+                    oz   OS_Fep
                     jr   c, no_flash_found
                     ld   (flashid),hl
                     ret
