@@ -25,8 +25,6 @@
 
         xdef FlashEprSectorErase
 
-        lib SafeBHLSegment                      ; Prepare BHL pointer to be bound into a safe segment outside this executing bank
-
         xref FlashEprCardId                     ; Identify Flash Memory Chip in slot C
         xref FlashEprPollSectorSize             ; Poll for Flash chip sector size.
         xref FEP_VppError, FEP_EraseError       ; Fc = 1, A = Error Code
@@ -74,11 +72,11 @@
 ;    ..BCDEHL/IXIY ........ same
 ;    AF....../.... afbcdehl different
 ;
-; ---------------------------------------------------------------
+; ------------------------------------------------------------------------------------------
 ; Design & programming by:
-;    Gunther Strube, Dec 1997-Apr 1998, Aug 2004, Aug 2006, Oct-Nov 2006
+;    Gunther Strube, Dec 97-Apr 98, Aug '04, Aug '06, Oct-Nov '06, Feb '07
 ;    Thierry Peycru, Zlab, Dec 1997
-; ---------------------------------------------------------------
+; ------------------------------------------------------------------------------------------
 ;
 .FlashEprSectorErase
         push    bc
@@ -116,9 +114,9 @@
         ld      a,RC_BER                        ; Fc = 1, sector not available (could not erase block/sector)
         jr      exit_FlashEprBlockErase
 .sector_exists
-        ld      b,d                             ; bind sector to segment x
-        ld      hl,0
-        call    SafeBHLSegment                  ; get a safe segment in C, HL points into segment (not this executing segment!)
+        ld      b,d                             ; bind sector to
+        ld      c, MS_S1                        ; segment 1 (segment 2 & 3 contains OZ kernel banks)
+        ld      hl,MM_S1 << 8                   ; HL points into segment
         rst     OZ_MPB
         push    bc                              ; preserve old bank binding
 
@@ -214,4 +212,4 @@
 
 .FEP_EraseBlock_29F
         call    AM29Fx_InitCmdMode
-        jp      AM29Fx_EraseSector
+        jp      AM29Fx_EraseSector              ; Erase sector in LOWRAM, then use RET in LOWRAM to get back to caller
