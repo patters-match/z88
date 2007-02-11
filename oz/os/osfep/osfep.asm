@@ -34,8 +34,10 @@
         xref    FlashEprSectorErase             ;
         xref    FlashEprCardErase               ;
         xref    FlashEprWriteByte               ;
-        xref    FlashEprCardData                ;
+        xref    FlashEprCardData                ; fepcrddata.asm
         xref    PutOSFrame_BHL                  ; misc5.asm
+        xref    PutOSFrame_BC                   ; misc5.asm
+        xref    PutOSFrame_DE                   ; misc5.asm
 
         include "error.def"
         include "lowram.def"
@@ -65,18 +67,27 @@
 
 .OSFepTable
         jp      ozFlashEprCardId                ; reason code $00 for FEP_CDID
-        jp      FlashEprCardData                ; reason code $03 for FEP_CDDT
+        jp      ozFlashEprCardData              ; reason code $03 for FEP_CDDT
         jp      FlashEprSectorErase             ; reason code $06 for FEP_SCER
         jp      FlashEprCardErase               ; reason code $09 for FEP_CDER
         jp      FlashEprWriteByte               ; reason code $0c for FEP_WRBT
 
-.ozFlashEprCardId
+.ozFlashEprCardId                               ; IN: C = slot number (0, 1, 2 or 3)
         call    FlashEprCardId
         ret     c                               ; return error condition
 
         call    PutOSFrame_BHL                  ; return B = total of 16K banks on Flash Memory Chip
         ld      (iy+OSFrame_A),A                ; return H = Manufacturer Code, L = Device Code
         ret                                     ; return A = FE_28F or FE_29F, defining the Flash Memory chip generation
+
+.ozFlashEprCardData                             ; IN: HL = (Flash Memory Chip Manufacturer & Device Code)
+        call    FlashEprCardData
+        ret     c                               ; return error condition
+
+        call    PutOSFrame_BC                   ; return B = total of 16K banks on Flash Memory Chip
+        call    PutOSFrame_DE                   ; return CDE = extended pointer to null-terminated string description of chip
+        ld      (iy+OSFrame_A),A                ; return A = FE_28F or FE_29F, defining the Flash Memory chip generation
+        ret
 
 
 ; ***************************************************************************************************

@@ -30,7 +30,6 @@ Module FileAreaStatistics
      lib FileEprCntFiles           ; Return total of active and deleted files
      lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
      lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
-     lib FlashEprCardData          ; Return data about Flash type & size & description
      lib divu8                     ; Unsigned 8bit integer division
 
      XREF VduCursor                ; selectcard.asm
@@ -161,19 +160,19 @@ Module FileAreaStatistics
                     CALL_OZ gn_sop
 
                     call GetCurrentSlot           ; C = (curslot)
-                    push bc
                     CALL FlashEprInfo
-                    pop  bc
                     JR   NC, disp_flash
                     LD   HL, epromdev
                     CALL_OZ(GN_Sop)
+                    call GetCurrentSlot           ; C = (curslot)
                     CALL FileEprRequest
                     LD   A,D
                     CALL DispSlotSize
                     CALL_OZ(Gn_Nln)
                     JR   disp_eprsize
 .disp_flash
-                    CALL sopnln
+                    OZ   GN_Soe                  ; display string at BHL
+                    OZ   GN_Nln
 .disp_eprsize
                     CALL DisplayEpromSize
 
@@ -317,18 +316,19 @@ Module FileAreaStatistics
 ;    C = Slot Number
 ;
 ; OUT:
-;    Fc = 0, Flash Eprom Recognized in slot 3
-;         B = total of Blocks on Flash Eprom
-;         HL = pointer to flash Card text
+;    Fc = 0, Flash Eprom Recognized in slot C
+;         BHL = pointer to flash Card text
 ;    Fc = 1, Flash Eprom not found in slot X, or Device code not found
 ;
 .FlashEprInfo
-                    CALL CheckFlashCardID
-                    RET  C
+                    call CheckFlashCardID
+                    ret  c
 
-                    CALL FlashEprCardData
-                    EX   DE,HL                    ; HL = chip description text
-                    RET
+                    ld   a, FEP_CDDT
+                    oz   OS_Fep                   ; get Flash card data
+                    ld   b,c
+                    ex   de,hl                    ; return BHL = chip description text string
+                    ret
 ; *************************************************************************************
 
 
