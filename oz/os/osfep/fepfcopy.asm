@@ -217,19 +217,17 @@
 .copy_file_block
         call    FileEprTransferBlockSize        ; get block size in hl' based on current BHL pointer & file size in cde'
         ld      a,(iy + FepType)                ; get chip programming type FE_xxx
-        push    iy                              ; preserve base pointer to local stack variables
         exx
         push    bc
         push    de                              ; preserve remaining file size
         push    hl
-        pop     iy                              ; size of block to copy
+        pop     ix                              ; size of block to copy
         exx
         call    FlashEprCopyBlock               ; copy file entry from BHL to Flash Card at CDE, block size IY
         exx
         pop     de
         pop     bc                              ; restore remaining file size = CDE
         exx
-        pop     iy                              ; restore base pointer to local stack variables...
         jr      nc,copy_file_loop               ; if block successfully blown (Fc = 0), then get next block from source file
 
         push    af                              ; write block failure!
