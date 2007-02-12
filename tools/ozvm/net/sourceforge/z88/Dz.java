@@ -3861,6 +3861,7 @@ public class Dz {
 		"OZ   UNKNOWN" };
 
 	private static final String ozos2StrMnem[] = {
+		"OZ   OS_FEP", /* E7 C806 */
 		"OZ   OS_WTB", /* E7 CA06 */
 		"OZ   OS_WRT", /* E7 CC06 */
 		"OZ   OS_WSQ", /* E7 CE06 */
@@ -4216,8 +4217,8 @@ public class Dz {
 					case 6 : /* OS 2 byte low level calls */
 						strMnem = ozos2StrMnem;
 						i = opcode[instrOpcodeOffset++];
-						if ((i % 2 == 0) && (i >= 0xca && i <= 0xfe))
-							i = (i / 2) - 101;
+						if ((i % 2 == 0) && (i >= 0xc8 && i <= 0xfe))
+							i = (i / 2) - 100;
 						else
 							i = strMnem.length - 1; /* unknown parameter */
 						break;
