@@ -93,7 +93,6 @@
         push    bc
         push    de
         push    hl                              ; preserve original pointer
-        push    ix
 
         ld      a,c
         ld      c, MS_S1
@@ -109,7 +108,6 @@
         pop     bc
         rst     OZ_MPB                          ; restore original bank binding
 
-        pop     ix
         pop     hl
         pop     de
         pop     bc

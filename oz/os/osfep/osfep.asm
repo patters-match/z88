@@ -37,6 +37,9 @@
         xref    FlashEprFileFormat              ; osfep/fepflfmt.asm
         xref    FlashEprWriteByte               ; osfep/fepwrbyt.asm
         xref    FlashEprWriteBlock              ; osfep/fepwrblk.asm
+        xref    FlashEprCopyFileEntry           ; osfep/fepfcopy.asm
+        xref    FlashEprSaveRamFile             ; osfep/fepfsave.asm
+        xref    FlashEprFileDelete              ; osfep/fepfdel.asm
         xref    PutOSFrame_BHL                  ; misc5.asm
         xref    PutOSFrame_BC                   ; misc5.asm
         xref    PutOSFrame_DE                   ; misc5.asm
@@ -76,13 +79,16 @@
         jp      ozFlashEprFileFormat            ; reason code $0C for FEP_FFMT
         jp      FlashEprWriteByte               ; reason code $0F for FEP_WRBT  (returns only error status in AF)
         jp      ozFlashEprWriteBlock            ; reason code $12 for FEP_WRBL
+        jp      FlashEprCopyFileEntry           ; reason code $15 for FEP_CPFL  (returns only error status in AF)
+        jp      ozFlashEprSaveRamFile           ; reason code $18 for FEP_SVFL
+        jp      FlashEprFileDelete              ; reason code $1b for FEP_DLFL  (returns only error status in AF)
+
 
 
 ; ***************************************************************************************************
 .ozFlashEprCardId                               ; IN: C = slot number (0, 1, 2 or 3)
         call    FlashEprCardId
         ret     c                               ; return error condition
-
         call    PutOSFrame_BHL                  ; return B = total of 16K banks on Flash Memory Chip
         ld      (iy+OSFrame_A),A                ; return H = Manufacturer Code, L = Device Code
         ret                                     ; return A = FE_28F or FE_29F, defining the Flash Memory chip generation
@@ -92,7 +98,6 @@
 .ozFlashEprCardData                             ; IN: HL = (Flash Memory Chip Manufacturer & Device Code)
         call    FlashEprCardData
         ret     c                               ; return error condition
-
         call    PutOSFrame_BC                   ; return B = total of 16K banks on Flash Memory Chip
         call    PutOSFrame_DE                   ; return CDE = extended pointer to null-terminated string description of chip
         ld      (iy+OSFrame_A),A                ; return A = FE_28F or FE_29F, defining the Flash Memory chip generation
@@ -103,7 +108,6 @@
 .ozFlashEprFileFormat                           ; IN: C = slot number (0, 1, 2 or 3) of Flash Memory Card
         call    FlashEprFileFormat
         ret     c                               ; return error condition
-
         call    PutOSFrame_BC                   ; return C = Number of 16K banks of File Eprom Area
         jp      PutOSFrame_HL                   ; return BHL = absolute pointer to "oz" header in card
 
@@ -112,10 +116,15 @@
 .ozFlashEprWriteBlock
         call    FlashEprWriteBlock
         ret     c                               ; return error condition
-
         call    PutOSFrame_BC                   ; return C = FE_28F or FE_29F (depending on found card)
         jp      PutOSFrame_HL                   ; return BHL = updated to pointer after block
 
+
+; ***************************************************************************************************
+.ozFlashEprSaveRamFile
+        call    FlashEprSaveRamFile
+        ret     c                               ; return error condition
+        jp      PutOSFrame_BHL                  ; return pointer to created File Entry in slot.
 
 
 ; ***************************************************************************************************

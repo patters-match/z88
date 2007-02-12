@@ -75,7 +75,7 @@
         rrca                                    ; Converted to Slot mask $40, $80 or $C0
         ld      b,a
         ld      c,MS_S1
-        ld      hl,$4000                        ; use segment 1 (not this executing segment which is MS_S2)
+        ld      hl,MM_S1 << 8                   ; use segment 1 (not this executing segment which is MS_S2)
 
         call    CheckRam
         jr      c, unknown_flashmem             ; abort, if RAM card was found in slot C...

@@ -102,7 +102,7 @@
 .blow_zero_byte
         xor     a
         ld      c,a                             ; indicate file deleted (0)
-        ld      e,a                             ; E = 0, blow byte to either INTEL or AMD chip
+        ld      e,a                             ; E = 0, blow byte to either INTEL or AMD/STM chip
         call    FlashEprWriteByte               ; mark file as deleted with 0 byte
         jr      c, err_delfile
 

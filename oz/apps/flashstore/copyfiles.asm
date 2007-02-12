@@ -25,7 +25,6 @@ Module CopyFiles
      lib FileEprFirstFile          ; Get first file entry in file area in slot C
      lib FileEprNextFile           ; Get next file entry, based on current entry in BHL
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
-     lib FlashEprCopyFileEntry     ; copy BHL file entry to slot C
      lib FileEprRequest            ; check file area status in slot C
 
      xref FilesAvailable           ; browse.asm
@@ -62,6 +61,7 @@ Module CopyFiles
      include "stdio.def"
      include "error.def"
      include "syspar.def"
+     include "flashepr.def"
 
      ; FlashStore popdown variables
      include "fsapp.def"
@@ -252,7 +252,8 @@ Module CopyFiles
 
                     ld   a,(dstslot)
                     ld   c,a                      ; copy to slot X
-                    call FlashEprCopyFileEntry    ; copy file at BHL to slot C
+                    ld   a,FEP_CPFL
+                    oz   OS_Fep                   ; copy file at BHL to slot C
                     ret  c
                     jp   DeleteOldFile            ; mark old file entry at destination as deleted, if new copy was made...
 ; *************************************************************************************

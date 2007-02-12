@@ -31,8 +31,6 @@ Module SaveFiles
      xdef disp_flcovwrite_msg
 
      lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
-     lib FlashEprSaveRamFile       ; Save RAM file to Flash Eprom
-     lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
      xref InitFirstFileBar         ; browse.asm
@@ -321,11 +319,12 @@ Module SaveFiles
                     LD   HL, saving_msg
                     CALL_OZ(Gn_Sop)
 .save_file_to_card
-                    ld   a,(curslot)
-                    ld   bc, BufferSize
+                    call GetCurrentSlot                ; C = (curslot)
+                    ld   ix, BufferSize
                     ld   de, buffer                    ; use 1K RAM buffer to blow file hdr + image
                     ld   hl,buf2                       ; the partial expanded RAM filename at buf2 (< 255 char length)...
-                    call FlashEprSaveRamFile
+                    ld   a,FEP_SVFL
+                    oz   OS_Fep                        ; save RAM file to file area in slot C
                     jr   c, filesave_err               ; write error or no room for file...
 
                     CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...
@@ -463,7 +462,8 @@ Module SaveFiles
                     OR   L                        ; Valid pointer to File Entry?
                     JR   Z, exit_DeleteOldFile    ; no, no file entry to be marked as deleted
 
-                    CALL FlashEprFileDelete       ; Mark old File Entry as deleted
+                    LD   A,FEP_DLFL
+                    OZ   OS_Fep                   ; Mark old File Entry as deleted
 .exit_DeleteOldFile
                     POP  HL
                     POP  BC

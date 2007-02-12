@@ -53,7 +53,7 @@
 ;
 ; Standard Z88 File Eprom Format (stored on Flash Memory).
 ;
-; Save single RAM file to Flash Memory file area in slot A.
+; Save RAM file to Flash Memory file area in slot C.
 ;
 ; The routine does NOT handle automatical "deletion" of existing files
 ; that matches the filename (excl. device). This must be used by a call
@@ -86,15 +86,14 @@
 ; this type of unnecessary error can be avoided.
 ;
 ; IN:
-;          A = slot number (0, 1, 2 or 3)
+;          C = slot number (0, 1, 2 or 3)
+;         IX = size of I/O buffer.
 ;         DE = pointer to I/O buffer, in segment 0.
-;         BC = size of I/O buffer.
-;
 ;         HL = pointer to filename string (null-terminated), in segment 0.
 ;              Filename may contain wildcards (to find first match)
 ; OUT:
 ;         Fc = 0, File successfully saved to Flash File Eprom.
-;              BHL = pointer to created File Entry in slot A.
+;              BHL = pointer to created File Entry in slot C.
 ;
 ;         Fc = 1,
 ;              File (Flash) Eprom not available in slot A:
@@ -137,9 +136,11 @@
         exx
 
         and     @00000011
-        ld      (iy + CardSlot),a               ; preserve slot number of File Eprom Card
+        ld      (iy + CardSlot),c               ; preserve slot number of File Eprom Card
         ld      (iy + IObuffer),e
         ld      (iy + IObuffer+1),d             ; preserve pointer to external IO buffer
+        push    ix
+        pop     bc
         ld      (iy + IObufSize),c
         ld      (iy + IObufSize+1),b            ; preserve size of external IO buffer
 
@@ -210,8 +211,8 @@
 
         push    ix
         pop     bc
-        ld      (iy + Fhandle),C
-        ld      (iy + Fhandle+1),B              ; preserve file handle
+        ld      (iy + Fhandle),c
+        ld      (iy + Fhandle+1),b              ; preserve file handle
 
         pop     hl                              ; ptr. to File Entry
         call    SaveToFlashEpr                  ; Now, blow file to Flash Eprom...
@@ -259,9 +260,9 @@
         push    hl
         ld      c,(iy + CardSlot)
         call    FileEprAllocFilePtr             ; BHL = ptr. to free file space on File Eprom Card
-        ld      (iy + FileEntry),L
-        ld      (iy + FileEntry+1),H
-        ld      (iy + FileEntry+2),B            ; preserve pointer to new File Entry
+        ld      (iy + FileEntry),l
+        ld      (iy + FileEntry+1),h
+        ld      (iy + FileEntry+2),b            ; preserve pointer to new File Entry
         pop     de
         call    SaveFileEntry
         ret     c                               ; saving of File Entry failed...
@@ -269,7 +270,6 @@
         call    LoadBuffer                      ; Load block of bytes from file into external buffer
         ret     z                               ; EOF reached...
 
-        push    ix
         call    FlashEprWriteBlock              ; blow buffer to Flash Eprom at BHL...
         jr      c,MarkDeleted                   ; exit saving, File was not blown properly (try to mark it as deleted)...
         jr      save_file_loop

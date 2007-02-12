@@ -10,7 +10,7 @@ lstoff
 ; New OZ system call interface (introduced in 4.2) to Handle Intel, Amd & Stm Flash memory
 
 DEFC  OS_Fep  = $C806
-        ; Reason code in A, arguments in BC, DE, HL, IX
+        ; Reason code in A, arguments in BC, DE, HL & IX
 
         DEFC FEP_CDID = $00 ; Identify Flash Memory Chip in slot
         DEFC FEP_CDDT = $03 ; Get Flash Card Data
@@ -19,13 +19,16 @@ DEFC  OS_Fep  = $C806
         DEFC FEP_FFMT = $0C ; Flash Memory File Area Formatting
         DEFC FEP_WRBT = $0F ; Write byte to the Flash Memory
         DEFC FEP_WRBL = $12 ; Write a block of bytes to Flash Memory
+        DEFC FEP_CPFL = $15 ; Copy file entry between two File Areas
+        DEFC FEP_SVFL = $18 ; Save RAM file to Flash Memory File Area
+        DEFC FEP_DLFL = $1B ; Mark File Entry as deleted File Area
 
 
 ; ==========================================================================================
 ; Flash Memory types
 
 DEFC FE_28F = $02           ; second generation Flash chips (available Z88 Flash Cards are using the Intel I28Fxxx chip)
-DEFC FE_29F = $03           ; third generation Flash chips (available Z88 Flash Cards are using the Amd AM29Fxxx chip)
+DEFC FE_29F = $03           ; third generation Flash chips (available Z88 Flash Cards are using the Amd/STM 29Fxxx chip)
 
 ; ==========================================================================================
 ; INTEL Flash Memory constants:

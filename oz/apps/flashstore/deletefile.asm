@@ -22,7 +22,6 @@ Module DeleteFile
      lib FileEprFileStatus         ; Return deleted / active file status
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFilename           ; get filename at (DE) from current file entry
-     lib FlashEprFileDelete        ; Mark file as deleted on Flash Eprom
 
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
      xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
@@ -44,6 +43,7 @@ Module DeleteFile
      ; system definitions
      include "stdio.def"
      include "error.def"
+     include "flashepr.def"
 
      ; FlashStore popdown variables
      include "fsapp.def"
@@ -188,7 +188,8 @@ Module DeleteFile
                     call ConfirmDelete            ; file found, confirm to mark as deleted.
                     ret  nz                       ; User aborted...
 .exec_delete
-                    CALL FlashEprFileDelete       ; User pressed Y (for Yes)
+                    LD   A,FEP_DLFL               ; user pressed Y...
+                    OZ   OS_Fep                   ; Mark File Entry as deleted
                     JR   C, delfile_failed
                     LD   HL,filedel_msg
                     JP   DispErrMsg
