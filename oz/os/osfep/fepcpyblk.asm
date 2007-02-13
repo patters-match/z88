@@ -25,9 +25,6 @@
 
         xdef FlashEprCopyBlock
 
-        lib ApplSegmentMask        ; Get segment mask (MM_Sx) of this executing code)
-        lib SafeSegmentMask        ; Get a 'safe' segment mask outside the current executing code
-
         xref FlashEprWriteBlock    ; Write a block of bytes to Flash memory, from DE to BHL of block size IX.
 
         include "flashepr.def"
@@ -103,28 +100,15 @@
         push    bc
 
         ex      af,af'                          ; preserve FE Programming type in A'
-        call    SafeSegmentMask                 ; get safe segments for BHL & CDE pointers (outside executing PC segment)
-        push    af
         res     7,h
-        res     6,h
-        or      h
-        ld      h,a                             ; HL[sgmask]
-        call    ApplSegmentMask                 ; PC[sgmask]
-        ex      (sp),hl
-        xor     h
-        res     7,d
-        res     6,d
-        or      d
-        ld      d,a                             ; DE[sgmask] = PC[sgmask] XOR HL[sgmask]
-        pop     hl
+        set     6,h                             ; bind BHL to segment 1
+        set     7,d
+        set     6,d                             ; bind CDE to segment 3 (this code executes in segment 2)
 
         push    bc
-        ld      a,h
         exx
         pop     bc
-        rlca
-        rlca
-        ld      c,a                             ; C = MS_Sx of BHL source data block
+        ld      c,MS_S1
         rst     OZ_MPB                          ; Bind bank of source data into segment C
         push    bc                              ; preserve old bank binding of segment C
         exx
@@ -151,7 +135,7 @@
         res     7,d
         res     6,d                             ; return updated CDE destination pointer to caller
 
-        pop     hl                              ; HL = updated byte beyond source block offset
+        pop     hl                              ; HL = updated to byte beyond source block offset
         pop     af
         ld      b,a                             ; original B restored
         bit     6,h                             ; source pointer crossed bank boundary?
