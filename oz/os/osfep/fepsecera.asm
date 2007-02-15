@@ -82,7 +82,6 @@
         push    bc
         push    de
         push    hl
-        push    ix
 
         ld      a,b
         and     @00001111                       ; sector number range is only 0 - 15...
@@ -129,7 +128,6 @@
         rst     OZ_MPB                          ; Restore previous Bank bindings
 
 .exit_FlashEprBlockErase
-        pop     ix
         pop     hl
         pop     de
         pop     bc
@@ -140,7 +138,6 @@
 ;
 ; Erase block, identified by bank A, using segment x, which
 ; HL points into.
-; This routine will clone itself on the stack and execute there.
 ;
 ; In:
 ;    A = FE_28F or FE_29F (depending on Flash Memory type in slot)
@@ -210,6 +207,27 @@
         ex      af,af'                          ; return error status from chip sector erasure
         ret
 
+
+; ***************************************************************
+;
+; Erase block on an AMD 29Fxxxx Flash Memory, which is bound
+; into segment x that HL points into.
+;
+; In:
+;    HL = points into bound Flash Memory sector
+; Out:
+;    Success:
+;        Fc = 0
+;        A = undefined
+;    Failure:
+;        Fc = 1
+;        A = RC_BER (error occurred when erasing block/sector)
+;        A = RC_VPL (Vpp Low Error)
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
 .FEP_EraseBlock_29F
         call    AM29Fx_InitCmdMode
         jp      AM29Fx_EraseSector              ; Erase sector in LOWRAM, then use RET in LOWRAM to get back to caller

@@ -645,10 +645,8 @@ xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
 .AM29Fx_EraseSector
         ld      a,$80                           ; Execute main Erase Mode
         call    AM29Fx_CmdMode
-                                                ; then sub command...
-        ld      (hl),b                          ; AA -> (XX555), First Unlock Cycle
-        ld      (de),a                          ; 55 -> (XX2AA), Second Unlock Cycle
-        ld      (hl),$30                        ; 30 -> (XXXXX), begin format of sector...
+        ld      a,$30                           ; then sub command...
+        call    AM29Fx_CmdMode
 
 
 ; ***************************************************************************************************
@@ -728,17 +726,17 @@ xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
 ;       -
 ;
 ; Registers changed on return:
-;    AF....../IXIY same
-;    ..BCDEHL/.... different
+;    AFBCDEHL/IXIY same
+;    ......../.... different
 ;
 .AM29Fx_CmdMode
-        push    af
-        ld      a,c
         ld      (hl),b                          ; AA -> (X555), First Unlock Cycle
-        ld      (de),a                          ; 55 -> (X2AA), Second Unlock Cycle
-        pop     af
+        ex      de,hl
+        ld      (hl),c                          ; 55 -> (X2AA), Second Unlock Cycle
+        ex      de,hl
         ld      (hl),a                          ; A -> (X555), send command
         ret
+
 ; ***************************************************************************************************
 
 .LowRAMcode_end
