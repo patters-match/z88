@@ -219,7 +219,7 @@ xdef    OSEpr
 
 ; read file from Eprom
 ;
-;IN:    HL = source filename
+;IN:    BHL = source filename
 ;       IX = output handle
 ;OUT:   Fc=0, file read successfully
 ;       Fc=1, A=error if fail
@@ -229,7 +229,6 @@ xdef    OSEpr
         ld      b, 0                            ; bind source in
         OZ      OS_Bix
         push    de                              ; remember S1/S2
-        ld      (pEpr_FileHandle), ix           ; and file handle
 
         call    IsEPROM
         jr      c, ld_4                         ; not EPROM? exit
@@ -238,69 +237,7 @@ xdef    OSEpr
 
         call    FindFile
         jr      c, ld_4                         ; not found? exit
-
-        call    GetFileSize                     ; size into CDE
-
-.ld_1
-        ld      a, c
-        or      d
-        or      e
-        jr      z, ld_4                         ; size is 0? we're done
-
-        push    bc                              ; bind BHL into S1
-        ld      c, MS_S1
-        rst     OZ_MPB
-        pop     bc
-
-        ld      a, h                            ; point HL into S1
-        and     $3F
-        or      $40
-        ld      h, a
-
-        push    de
-
-        ld      a, c
-        or      a
-        jr      nz, ld_2
-
-        push    hl                              ; write DE bytes or until bank boundary
-        add     hl, de
-        dec     hl
-        ld      a, h
-        pop     hl
-        jr      c, ld_2
-        cp      $80
-        jr      c, ld_3
-
-.ld_2
-        ex      de, hl                          ; write until end of bank
-        ld      hl, $8000
-        or      a
-        sbc     hl, de
-        ex      de, hl
-
-.ld_3
-        push    bc
-        push    de
-
-        ld      b, d                            ; BC=DE
-        ld      c, e
-        ld      de, 0
-        OZ      OS_Mv                           ; write to file
-        pop     de
-        pop     bc
-        pop     hl
-        jr      c, ld_4                         ; file error? exit
-
-        ld      a, c                            ; DE-=bytes_written
-        sbc     hl, de
-        sbc     a, 0
-        ld      c, a
-        ex      de, hl
-        ld      hl, $4000                       ; now at beginning of bank
-        inc     b                               ; bump bank and go back
-        jr      ld_1
-
+        call    FileEprFetchFile
 .ld_4
         pop     de                              ; restore S1/S2
         push    af
