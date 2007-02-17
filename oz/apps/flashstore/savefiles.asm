@@ -30,7 +30,6 @@ Module SaveFiles
      xdef DeleteOldFile
      xdef disp_flcovwrite_msg
 
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
 
      xref InitFirstFileBar         ; browse.asm
@@ -60,6 +59,7 @@ Module SaveFiles
      ; system definitions
      include "stdio.def"
      include "fileio.def"
+     include "eprom.def"
      include "dor.def"
      include "error.def"
 
@@ -223,7 +223,8 @@ Module SaveFiles
                     jp   c,DispIntelSlotErr
                     jp   nz,DispIntelSlotErr
 
-                    call FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr                        ; check if there's a File Card in slot C
                     ret  z                             ; File Area header was found..
                     jp   disp_no_filearea_msg
 

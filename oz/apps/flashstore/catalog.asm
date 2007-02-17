@@ -22,7 +22,6 @@ Module CatalogFiles
 
      xdef CatalogCommand
 
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
      lib FileEprNextFile           ; Return pointer to next File Entry on File Eprom
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry

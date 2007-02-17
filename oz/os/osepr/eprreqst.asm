@@ -79,7 +79,7 @@
 ;
 ;    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;    Optional file area at top card, above application area:
-;    $3FEC         x               Size of file areain banks, eg. $02 for a 32K size
+;    $3FEC         x               Size of file area in banks, eg. $02 for a 32K size
 ;    $3FED         $00             64K Reclaim Sector (0=not used)
 ;    $3FEE         'oz'            Application/ROM Card holds file area
 ;    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

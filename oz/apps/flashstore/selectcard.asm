@@ -26,7 +26,6 @@ Module SelectCard
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib RamDevFreeSpace           ; Get free space on RAM device
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
      lib ApplEprType               ; check for presence of application card in slot
 
@@ -49,6 +48,7 @@ Module SelectCard
      include "integer.def"
      include "fsapp.def"
      include "flashepr.def"
+     include "eprom.def"
 
 
 ; *************************************************************************************
@@ -158,7 +158,8 @@ Module SelectCard
                          CALL CacheVduCursor
                          push bc
                          call GetCurrentSlot      ; C = (curslot)
-                         call FileEprRequest
+                         ld   a,EP_Req
+                         oz   OS_Epr              ; check if there's a File Card in slot C
                          ld   a,c
                          pop  bc
                          jr   c, eprom_nofiles    ; the Eprom Application Card had no file area...
@@ -173,7 +174,8 @@ Module SelectCard
                          jp   nextline
 .poll_for_eprom_card
                     ld   c,h                      ; poll slot C...
-                    call FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in slot C
                     jr   c, empty_slot
                     jr   nz, empty_slot
                          ld   hl, epromdev        ; C = size of File Area in 16K banks (if Fz = 1)
@@ -239,7 +241,8 @@ Module SelectCard
                     CALL CacheVduCursor
                     push bc
                     call GetCurrentSlot           ; C = (curslot)
-                    call FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in slot C
                     ld   a,c
                     pop  bc
                     jr   c, flash_nofiles
@@ -456,7 +459,8 @@ Module SelectCard
                     ld   e,0                 ; counter of available file eproms
 .poll_loop
                     push bc                  ; preserve slot number...
-                    call FileEprRequest      ; File Eprom Card or area available in slot C?
+                    ld   a,EP_Req
+                    oz   OS_Epr              ; File Eprom Card or area available in slot C?
                     ld   a,c
                     pop  bc
                     jr   c, no_fileepr

@@ -24,7 +24,6 @@ Module FileAreaFormat
      xdef PollFileFormatSlots
      xdef noformat_msg
 
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib ApplEprType               ; check for presence of application card in slot
 
      xref PollFileArea             ; browse.asm
@@ -45,6 +44,7 @@ Module FileAreaFormat
      include "memory.def"
      include "error.def"
      include "flashepr.def"
+     include "eprom.def"
 
      ; FlashStore popdown variables
      include "fsapp.def"
@@ -95,7 +95,8 @@ Module FileAreaFormat
 
                     call GetCurrentSlot           ; C = (curslot)
                     PUSH BC
-                    CALL FileEprRequest           ; C = slot number...
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in slot C
                     POP  BC
                     JR   Z, area_found
                          PUSH BC
@@ -166,7 +167,8 @@ Module FileAreaFormat
                     ld   e,0                 ; counter of available file eproms
 .poll_format_loop
                     push bc                  ; preserve slot number...
-                    call FileEprRequest      ; File Eprom Card or area available in slot C?
+                    ld   a,EP_Req
+                    oz   OS_Epr              ; check if there's a File Card in slot C
                     ld   a,c
                     pop  bc
                     jr   c, check_empty_fep

@@ -18,7 +18,6 @@
 
 Module DeleteFile
 
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFileStatus         ; Return deleted / active file status
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFilename           ; get filename at (DE) from current file entry
@@ -44,6 +43,7 @@ Module DeleteFile
      include "stdio.def"
      include "error.def"
      include "flashepr.def"
+     include "eprom.def"
 
      ; FlashStore popdown variables
      include "fsapp.def"
@@ -76,7 +76,8 @@ Module DeleteFile
                     ret  nz                       ; (and flash chip was not found in slot!)
 
                     push bc
-                    call FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in slot C
                     pop  bc
                     jr   z, check_deletable_files
                     jp   disp_no_filearea_msg

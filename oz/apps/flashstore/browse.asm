@@ -35,7 +35,6 @@ Module BrowseFiles
      xdef endf_msg
      xdef LeftJustifyText, RightJustifyText
 
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
      lib FileEprLastFile           ; Return poiter to last File Entry on File Eprom
      lib FileEprNextFile           ; Return pointer to next File Entry on File Eprom

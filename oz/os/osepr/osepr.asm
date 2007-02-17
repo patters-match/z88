@@ -43,7 +43,8 @@
         include "sysvar.def"
         include "lowram.def"
 
-        xref FileEprRequest
+        xref PutOSFrame_BHL                     ; misc5.asm
+        xref FileEprRequest                     ; osepr/eprreqst.asm
 
 xdef    OSEpr
 
@@ -66,7 +67,7 @@ xdef    OSEpr
 .OSEprTable
         jp      EprSave                         ; 00
         jp      EprLoad                         ; 03
-        jp      FileEprRequest                  ; 06
+        jp      ozFileEprRequest                ; 06
         nop
         or      a                               ; 09
         ret
@@ -80,8 +81,21 @@ xdef    OSEpr
         nop
 
 
-;       ----
+;***************************************************************************************************
+.ozFileEprRequest
+        call    FileEprRequest
+        ret     c
+        ld      (iy+OSFrame_A),A                ; return "oz" File Eprom sub type (if file header found)
+        call    PutOSFrame_BHL                  ; return BHL = pointer to File Header for slot C (B = absolute bank of slot)
+        ld      (iy+OSFrame_C),C                ; return C = size of File Eprom Area in 16K banks
+        push    af
+        pop     bc
+        ld      (iy+OSFrame_F),C                ; return Fz (status of "oz" file header found or not)
+        ret
 
+
+
+;***************************************************************************************************
 ;       most of this code is unnecessary - all EPROM access is done in S1
 
 ;       increment BHL and read byte

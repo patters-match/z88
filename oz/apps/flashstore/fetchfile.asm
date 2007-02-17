@@ -29,7 +29,6 @@ Module FetchFile
      xdef DispCompletedMsg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFetchFile          ; Fetch file image from File Area, and store it to RAM file
@@ -60,6 +59,7 @@ Module FetchFile
      include "syspar.def"
      include "integer.def"
      include "fileio.def"
+     include "eprom.def"
      include "error.def"
 
      ; FlashStore popdown variables
@@ -77,7 +77,8 @@ Module FetchFile
                     call DispMainWindow
 
                     call GetCurrentSlot           ; C = (curslot)
-                    call FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in slot C
                     jr   z, check_fetchable_files ; File Area found.
                     jp   disp_no_filearea_msg
 .check_fetchable_files

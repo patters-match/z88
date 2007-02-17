@@ -24,7 +24,6 @@ Module FileAreaStatistics
      XDEF ksize_txt
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprTotalSpace         ; Return amount of active and deleted file space (in bytes)
      lib FileEprCntFiles           ; Return total of active and deleted files
@@ -41,10 +40,9 @@ Module FileAreaStatistics
      XREF FilesAvailable           ; browse.asm
      XREF DispInt                  ; fetchfile.asm
 
-     ; flash card library definitions
-     include "flashepr.def"
-
      ; system definitions
+     include "flashepr.def"
+     include "eprom.def"
      include "stdio.def"
      include "fileio.def"
      include "integer.def"
@@ -119,7 +117,8 @@ Module FileAreaStatistics
 
                     call GetCurrentSlot           ; C = (curslot)
                     push bc
-                    call FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in slot C
                     jr   z, cont_statistics
                          pop  bc
 
@@ -165,7 +164,8 @@ Module FileAreaStatistics
                     LD   HL, epromdev
                     CALL_OZ(GN_Sop)
                     call GetCurrentSlot           ; C = (curslot)
-                    CALL FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in slot C
                     LD   A,D
                     CALL DispSlotSize
                     CALL_OZ(Gn_Nln)
@@ -231,7 +231,8 @@ Module FileAreaStatistics
                     CALL VduCursor           ; VDU Cursor at (1,1)
 
                     call GetCurrentSlot      ; C = (curslot)
-                    CALL FileEprRequest
+                    ld   a,EP_Req
+                    oz   OS_Epr              ; check if there's a File Card in slot C
                     ld   a,c
                     ld   (bytesperline),a    ; remember size of file area in 16K banks
 

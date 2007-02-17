@@ -25,7 +25,6 @@ Module RestoreFiles
      xdef disp_exis_msg, saving_msg, no_active_files
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib FileEprRequest            ; Check for presence of Standard File Eprom Card or Area in slot
      lib FileEprPrevFile           ; Return pointer to previous File Entry on File Eprom
      lib FileEprLastFile           ; Return pointer to last File Entry on File Eprom
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry

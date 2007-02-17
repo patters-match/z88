@@ -25,7 +25,6 @@ Module CopyFiles
      lib FileEprFirstFile          ; Get first file entry in file area in slot C
      lib FileEprNextFile           ; Get next file entry, based on current entry in BHL
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
-     lib FileEprRequest            ; check file area status in slot C
 
      xref FilesAvailable           ; browse.asm
      xref CompressedFileEntryName  ; browse.asm
@@ -59,6 +58,7 @@ Module CopyFiles
 
      ; system definitions
      include "stdio.def"
+     include "eprom.def"
      include "error.def"
      include "syspar.def"
      include "flashepr.def"
@@ -423,7 +423,8 @@ Module CopyFiles
 .CheckFileCard
                     push bc                       ; preserve VDU X,Y cursor...
                     ld   c,a
-                    call FileEprRequest           ; check if there's a File Card in selected slot
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; check if there's a File Card in selected slot
                     pop  bc
                     ret
 ; *************************************************************************************
