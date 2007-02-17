@@ -31,7 +31,6 @@ Module FetchFile
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
-     lib FileEprFetchFile          ; Fetch file image from File Area, and store it to RAM file
      lib FileEprFileName           ; get a copy of the file name from the file entry.
      lib FileEprFileStatus         ; get deleted (or active) status of file entry
      lib RamDevFreeSpace           ; Get free space on RAM device
@@ -224,7 +223,8 @@ Module FetchFile
                     LD   A,(fbnk)
                     LD   B,A
                     LD   HL,(fadr)
-                    CALL FileEprFetchFile    ; fetch file from current File Eprom
+                    LD   A,EP_Fetch
+                    OZ   OS_Epr              ; fetch file from current File Area
                     PUSH AF                  ; to RAM file, identified by IX handle
                     CALL_OZ(Gn_Cl)           ; then, close file.
                     POP  AF

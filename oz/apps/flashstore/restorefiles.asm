@@ -29,7 +29,6 @@ Module RestoreFiles
      lib FileEprLastFile           ; Return pointer to last File Entry on File Eprom
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
-     lib FileEprFetchFile          ; Fetch file image from File Eprom, and store it to RAM file
      lib RamDevFreeSpace           ; Get free space on RAM device.
 
      xref FilesAvailable           ; browse.asm
@@ -52,6 +51,7 @@ Module RestoreFiles
      include "stdio.def"
      include "integer.def"
      include "fileio.def"
+     include "eprom.def"
      include "error.def"
 
      ; FlashStore popdown variables
@@ -193,7 +193,8 @@ Module RestoreFiles
                     POP  BC                  ; restore pointer to current File Entry
                     JR   C, filecreerr       ; not possible to create file, exit restore...
 
-                    CALL FileEprFetchFile    ; fetch file from File Eprom
+                    LD   A,EP_Fetch
+                    OZ   OS_Epr              ; fetch file from File Area
                     PUSH AF                  ; to RAM file, identified by IX handle
                     CALL_OZ(Gn_Cl)           ; then, close file.
                     POP  AF
