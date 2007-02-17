@@ -45,6 +45,8 @@
 
         xref PutOSFrame_BHL                     ; misc5.asm
         xref FileEprRequest                     ; osepr/eprreqst.asm
+        xref FileEprFetchFile                   ; osepr/eprfetch.asm
+
 
 xdef    OSEpr
 
@@ -65,17 +67,14 @@ xdef    OSEpr
         ret                                     ; goto reason
 
 .OSEprTable
-        jp      EprSave                         ; 00
-        jp      EprLoad                         ; 03
-        jp      ozFileEprRequest                ; 06
-        nop
-        or      a                               ; 09
+        jp      EprSave                         ; 00, EP_Save
+        jp      EprLoad                         ; 03, EP_Load
+        jp      ozFileEprRequest                ; 06, EP_Req   (OZ 4.2 and newer)
+        jp      FileEprFetchFile                ; 09, EP_Fetch (OZ 4.2 and newer)
+        nop                                     ; 0C
+        or      a
         ret
-        nop
-        or      a                               ; 0C
-        ret
-        nop
-        jp      EprDir                          ; 0F
+        jp      EprDir                          ; 0f, EP_Dir
         or      a                               ; 12
         ret
         nop

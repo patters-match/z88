@@ -8,8 +8,9 @@ lstoff
 
           ; arguments:
           DEFC  EP_Save = $00      ; blow RAM file to EPROM
-          DEFC  EP_Load = $03      ; load file from EPROM (save to RAM file)
-          DEFC  EP_Req  = $06      ; Check for "oz" File Eprom or File Area in slot C (OZ 4.2)
+          DEFC  EP_Load = $03      ; copy file from File Area, as RAM file
+          DEFC  EP_Req  = $06      ; Check for "oz" File Eprom or File Area in slot C   (OZ 4.2 and newer)
+          DEFC  EP_Fetch = $09     ; copy file from File Area, as RAM file              (OZ 4.2 and newer)
           DEFC  EP_Dir  = $15      ; return next filename (starting with first)
                                    ; (all files must be read until RC_EOF)
 
