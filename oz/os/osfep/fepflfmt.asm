@@ -25,7 +25,6 @@
 
         xdef FlashEprFileFormat
 
-        lib FileEprRequest
         lib OZSlotPoll, SetBlinkScreen
 
         xref FlashEprCardId
@@ -33,6 +32,7 @@
         xref FlashEprStdFileHeader
         xref FlashEprWriteBlock
         xref FlashEprPollSectorSize
+        xref FileEprRequest
         xref SetBlinkScreenOn
 
         include "memory.def"

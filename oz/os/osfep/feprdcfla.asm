@@ -25,12 +25,14 @@
 
         xdef FlashEprReduceFileArea
 
-        lib FileEprFreeSpace, FileEprRequest
+        lib FileEprFreeSpace
         lib OZSlotPoll
 
         xref FlashEprCardId
         xref FlashEprSectorErase
         xref FlashEprStdFileHeader
+        xref FileEprRequest
+
 
         include "flashepr.def"
         include "error.def"
