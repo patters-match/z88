@@ -43,6 +43,8 @@
         include "sysvar.def"
         include "lowram.def"
 
+        xref FileEprRequest
+
 xdef    OSEpr
 
 ;       !! completely separate module, all system calls done thru OZ calls
@@ -64,8 +66,7 @@ xdef    OSEpr
 .OSEprTable
         jp      EprSave                         ; 00
         jp      EprLoad                         ; 03
-        or      a                               ; 06
-        ret
+        jp      FileEprRequest                  ; 06
         nop
         or      a                               ; 09
         ret

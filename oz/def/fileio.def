@@ -60,17 +60,4 @@ lstoff
           DEFC  GN_Wfn = $5609     ; get next filename match from wc.handler
           DEFC  GN_Wsm = $5C09     ; match filename segment to wildcard string
 
-
-     ; File Eprom Interface:
-     ; (deleted/old files are ignored, they can only be fetched by using
-     ; EPROM file format information)
-
-          DEFC  OS_Epr = $F006     ; File Eprom Manipulation Interface
-
-          ; arguments:
-          DEFC  EP_Save = $00      ; blow RAM file to EPROM
-          DEFC  EP_Load = $03      ; load file from EPROM (save to RAM file)
-          DEFC  EP_Dir  = $15      ; return next filename (starting with first)
-                                   ; (all files must be read until RC_EOF)
-
 lston

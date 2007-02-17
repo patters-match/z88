@@ -37,6 +37,7 @@
         include "director.def"
         include "error.def"
         include "fileio.def"
+        include "eprom.def"
         include "integer.def"
         include "memory.def"
         include "misc.def"

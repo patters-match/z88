@@ -25,6 +25,7 @@ kernel1.asm
 osscitable.asm
 clitables.asm
 osepr/osepr.asm
+osepr/eprreqst.asm
 osfep/osfep.asm
 osfep/fepsecera.asm
 osfep/fepcdera.asm
