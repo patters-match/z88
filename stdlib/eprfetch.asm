@@ -17,7 +17,7 @@
 ;
 ;***************************************************************************************************
 
-     LIB FileEprRequest, FileEprFileImage, FileEprFileSize, FileEprTransferBlockSize
+     LIB FileEprFileImage, FileEprFileSize, FileEprTransferBlockSize
      LIB SafeBHLSegment, MemDefBank
 
      INCLUDE "fileio.def"
