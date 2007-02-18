@@ -87,9 +87,8 @@ xdef    OSEpr
         ld      (iy+OSFrame_A),A                ; return "oz" File Eprom sub type (if file header found)
         call    PutOSFrame_BHL                  ; return BHL = pointer to File Header for slot C (B = absolute bank of slot)
         ld      (iy+OSFrame_C),C                ; return C = size of File Eprom Area in 16K banks
-        push    af
-        pop     bc
-        ld      (iy+OSFrame_F),C                ; return Fz (status of "oz" file header found or not)
+        ret     nz                              ; Fz = 0, no header found, F already 0 in (iy+OSFrame_F)
+        set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1 (status of "oz" file header found)
         ret
 
 
