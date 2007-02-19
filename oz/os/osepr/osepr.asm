@@ -46,6 +46,7 @@
         xref PutOSFrame_BHL                     ; misc5.asm
         xref FileEprRequest                     ; osepr/eprreqst.asm
         xref FileEprFetchFile                   ; osepr/eprfetch.asm
+        xref FileEprFindFile                    ; osepr/eprfndfl.asm
 
 
 xdef    OSEpr
@@ -71,13 +72,11 @@ xdef    OSEpr
         jp      EprLoad                         ; 03, EP_Load
         jp      ozFileEprRequest                ; 06, EP_Req   (OZ 4.2 and newer)
         jp      FileEprFetchFile                ; 09, EP_Fetch (OZ 4.2 and newer)
-        nop                                     ; 0C
-        or      a
-        ret
+        jp      ozFileEprFindFile               ; 0c, EP_Find  (OZ 4.2 and newer)
         jp      EprDir                          ; 0f, EP_Dir
+        nop
         or      a                               ; 12
         ret
-        nop
 
 
 ;***************************************************************************************************
@@ -89,6 +88,15 @@ xdef    OSEpr
         ld      (iy+OSFrame_C),C                ; return C = size of File Eprom Area in 16K banks
         ret     nz                              ; Fz = 0, no header found, F already 0 in (iy+OSFrame_F)
         set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1 (status of "oz" file header found)
+        ret
+
+;***************************************************************************************************
+.ozFileEprFindFile
+        call    FileEprFindFile
+        ret     c
+        call    PutOSFrame_BHL                  ; return BHL = pointer to found File entry or pointer to free byte in File area
+        ret     nz
+        set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1 (file entry found)
         ret
 
 
@@ -234,8 +242,11 @@ xdef    OSEpr
 
         OZ      GN_Pfs                          ; parse filename segment
 
-        call    FindFile
-        jr      c, ld_4                         ; not found? exit
+        ex      de,hl
+        ld      c,3                             ; EP_LOAD always in slot 3
+        call    FileEprFindFile
+        jr      c, ld_4                         ; no file area? exit
+        jr      nz, ld_4                        ; file not found...
         call    FileEprFetchFile
 .ld_4
         pop     de                              ; restore S1/S2
@@ -333,7 +344,9 @@ xdef    OSEpr
         ld      sp, hl
         exx
 
-        call    FindFile                        ; find earlier version to delete
+        ex      de,hl
+        ld      c,3                             ; EP_SAVE always in slot 3
+        call    FileEprFindFile                 ; find earlier version to delete
         push    af                              ; and remember it
         push    bc
         push    hl
@@ -467,7 +480,8 @@ xdef    OSEpr
         push    de
         pop     af
         ccf
-        jr      nc, sv_10                       ; no earlier version? exit
+        jr      nc, sv_10                       ; no file area? exit
+        jr      nz, sv_10                       ; no earlier version? exit
 
         call    IncBHL                          ; delete old file
         push    iy
@@ -820,96 +834,6 @@ xdef    OSEpr
 
 ;       ----
 
-;       find file in card
-;IN:    HL=name
-;OUT:   Fc=0, BHL=pointer to file
-;       Fc=1, A=error if not found
-;chg:   AFBCDEHL/....
-
-.FindFile
-        ld      d, h                            ; remember name
-        ld      e, l
-
-        ld      c, 0                            ; get filename length
-.ff_1
-        ld      a, (hl)
-        cp      $21
-        jr      c, ff_2                         ; space/ctrl char? end of name
-        inc     c
-        inc     hl
-        jr      ff_1
-
-.ff_2
-        ld      a, c
-        ld      (ubEpr_NameLen), a
-
-        ld      a, (ubEpr_FirstBank)            ; start scanning at card start
-        ld      b, a
-        ld      hl, 0
-
-.ff_3
-        call    ChkFormattedByte
-        jr      z, ff_10                        ; unformatted? end of files
-
-        push    bc                              ; remember EPROM pointer
-        push    hl
-
-        call    GetHeaderByte                   ; name length into C
-        ld      a, (ubEpr_NameLen)
-        cp      c
-        jr      z, ff_4                         ; length matches? compare names
-        scf
-        jr      ff_9                            ; skip this file
-
-
-.ff_4
-        push    de                              ; remember name
-
-.ff_5
-        ld      a, (de)                         ; uppercase searched name char
-        inc     de
-        cp      $21                             ; !! use 'ccf; jr nc,...' for clarity
-        jr      c, ff_8                         ; name end? found file
-        OZ      GN_Cls
-        jr      nc, ff_6                        ; not alpha
-        and     $df                             ; upper()
-.ff_6
-        ld      c, a
-
-        call    PeekBHL                         ; uppercase EPROM name char
-        call    IncBHL
-        OZ      GN_Cls
-        jr      nc, ff_7                        ; not alpha
-        and     $df                             ; upper()
-
-.ff_7
-        cp      c
-        jr      z, ff_5                         ; match, continue compare
-
-        or      a                               ; Fc=1 after ccf !! scf for clarity
-
-.ff_8
-        ccf
-        pop     de                              ; restore name
-
-.ff_9
-        pop     hl                              ; restore EPROM pointer
-        pop     bc
-        jr      nc, ff_11                       ; no error? exit
-
-        push    de                              ; else skip file and check next
-        call    SkipFile
-        pop     de
-        jr      nc, ff_3
-
-.ff_10
-        ld      a, RC_Onf                       ; object not found
-        scf
-
-.ff_11
-        ret
-
-;       ----
 
 ;       check EPROM position for $FF
 ;

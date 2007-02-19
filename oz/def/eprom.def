@@ -11,6 +11,7 @@ lstoff
           DEFC  EP_Load = $03      ; copy file from File Area, as RAM file
           DEFC  EP_Req  = $06      ; Check for "oz" File Eprom or File Area in slot C   (OZ 4.2 and newer)
           DEFC  EP_Fetch = $09     ; copy file from File Area, as RAM file              (OZ 4.2 and newer)
+          DEFC  EP_Find = $0c      ; Find active File(name) in File Area in slot C      (OZ 4.2 and newer)
           DEFC  EP_Dir  = $15      ; return next filename (starting with first)
                                    ; (all files must be read until RC_EOF)
 

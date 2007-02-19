@@ -27,6 +27,10 @@ clitables.asm
 osepr/osepr.asm
 osepr/eprreqst.asm
 osepr/eprfetch.asm
+osepr/eprfinfo.asm
+osepr/eprfndfl.asm
+osepr/eprfnext.asm
+osepr/eprfstat.asm
 osfep/osfep.asm
 osfep/fepsecera.asm
 osfep/fepcdera.asm
