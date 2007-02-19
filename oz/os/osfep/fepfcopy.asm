@@ -27,13 +27,13 @@
 
         lib FileEprAllocFilePtr
         lib FileEprFreeSpace
-        lib FileEprFileEntryInfo
         lib FileEprTransferBlockSize
         lib OZSlotPoll, SetBlinkScreen
 
         xref FlashEprCardId
         xref FlashEprFileDelete
         xref FlashEprCopyBlock
+        xref FileEprFileEntryInfo
         xref SetBlinkScreenOn
 
         include "error.def"

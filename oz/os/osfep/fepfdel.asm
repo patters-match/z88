@@ -25,11 +25,11 @@
 
         xdef FlashEprFileDelete
 
-        lib  FileEprFileEntryInfo
         lib  PointerNextByte
         lib  OZSlotPoll, SetBlinkScreen
 
         xref FlashEprWriteByte
+        xref FileEprFileEntryInfo
         xref SetBlinkScreenOn
 
 ; ***************************************************************************************************
