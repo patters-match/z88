@@ -29,7 +29,10 @@ osepr/eprreqst.asm
 osepr/eprfetch.asm
 osepr/eprfinfo.asm
 osepr/eprfndfl.asm
+osepr/eprffrst.asm
+osepr/eprfprev.asm
 osepr/eprfnext.asm
+osepr/eprflast.asm
 osepr/eprfstat.asm
 osfep/osfep.asm
 osfep/fepsecera.asm

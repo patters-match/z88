@@ -22,13 +22,13 @@
 ; Additional development improvements, comments, definitions and new implementations by
 ; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005
-; (C) Gunther Strube (gbs@users.sf.net), 2005
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
 ;
 ; Copyright of original (binary) implementation, V4.0:
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-;***************************************************************************************************
+; ***************************************************************************************************
 
         Module  EPROM
 
@@ -47,6 +47,10 @@
         xref FileEprRequest                     ; osepr/eprreqst.asm
         xref FileEprFetchFile                   ; osepr/eprfetch.asm
         xref FileEprFindFile                    ; osepr/eprfndfl.asm
+        xref FileEprFirstFile                   ; osepr/eprffrst.asm
+        xref FileEprPrevFile                    ; osepr/eprfprev.asm
+        xref FileEprNextFile                    ; osepr/eprfnext.asm
+        xref FileEprLastFile                    ; osepr/eprflast.asm
 
 
 xdef    OSEpr
@@ -74,31 +78,54 @@ xdef    OSEpr
         jp      FileEprFetchFile                ; 09, EP_Fetch (OZ 4.2 and newer)
         jp      ozFileEprFindFile               ; 0c, EP_Find  (OZ 4.2 and newer)
         jp      EprDir                          ; 0f, EP_Dir
-        nop
-        or      a                               ; 12
-        ret
+        jp      ozFileEprFirstFile              ; 12, EP_First (OZ 4.2 and newer)
+        jp      ozFileEprPrevFile               ; 15, EP_Prev  (OZ 4.2 and newer)
+        jp      ozFileEprNextFile               ; 18, EP_Next  (OZ 4.2 and newer)
+        jp      ozFileEprLastFile               ; 1b, EP_Last  (OZ 4.2 and newer)
 
 
-;***************************************************************************************************
+; ***************************************************************************************************
 .ozFileEprRequest
         call    FileEprRequest
         ret     c
         ld      (iy+OSFrame_A),A                ; return "oz" File Eprom sub type (if file header found)
-        call    PutOSFrame_BHL                  ; return BHL = pointer to File Header for slot C (B = absolute bank of slot)
         ld      (iy+OSFrame_C),C                ; return C = size of File Eprom Area in 16K banks
-        ret     nz                              ; Fz = 0, no header found, F already 0 in (iy+OSFrame_F)
-        set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1 (status of "oz" file header found)
-        ret
+        jr      ret_bhl_fz                      ; return BHL = pointer to File Header for slot C (B = absolute bank of slot)
+                                                ; Fz = 0, no header found, F already 0 in (iy+OSFrame_F), otherwise header found.
 
-;***************************************************************************************************
+; ***************************************************************************************************
 .ozFileEprFindFile
         call    FileEprFindFile
         ret     c
+.ret_bhl_fz
         call    PutOSFrame_BHL                  ; return BHL = pointer to found File entry or pointer to free byte in File area
         ret     nz
         set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1 (file entry found)
         ret
 
+; ***************************************************************************************************
+.ozFileEprFirstFile
+        call    FileEprFirstFile
+        ret     c                               ; return BHL = pointer to first file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
+        jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
+
+; ***************************************************************************************************
+.ozFileEprPrevFile
+        call    FileEprPrevFile
+        ret     c                               ; return BHL = pointer to previous file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
+        jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
+
+; ***************************************************************************************************
+.ozFileEprNextFile
+        call    FileEprNextFile
+        ret     c                               ; return BHL = pointer to next file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
+        jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
+
+; ***************************************************************************************************
+.ozFileEprLastFile
+        call    FileEprLastFile
+        ret     c                               ; return BHL = pointer to last file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
+        jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
 
 
 ;***************************************************************************************************
