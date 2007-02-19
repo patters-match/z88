@@ -29,7 +29,6 @@ Module FetchFile
      xdef DispCompletedMsg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFileName           ; get a copy of the file name from the file entry.
      lib FileEprFileStatus         ; get deleted (or active) status of file entry
@@ -142,7 +141,8 @@ Module FetchFile
 .FindFileToFetch
                     call GetCurrentSlot      ; C = (curslot)
                     LD   DE,buffer
-                    CALL FileEprFindFile     ; search for <buf1> filename on File Eprom...
+                    LD   A,EP_Find
+                    OZ   OS_Epr              ; search for <buf1> filename on File Eprom...
                     JP   C, not_found_err    ; File Eprom or File Entry was not available
                     JP   NZ, not_found_err   ; File Entry was not found...
 

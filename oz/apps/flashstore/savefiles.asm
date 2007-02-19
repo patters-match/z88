@@ -30,8 +30,6 @@ Module SaveFiles
      xdef DeleteOldFile
      xdef disp_flcovwrite_msg
 
-     lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
-
      xref InitFirstFileBar         ; browse.asm
      xref FilesAvailable           ; browse.asm
      xref FlashWriteSupport        ; format.asm
@@ -430,7 +428,8 @@ Module SaveFiles
                     LD   (flentry),HL
                     LD   (flentry+2),A                 ; preset found File Entry to <None>...
 
-                    CALL FileEprFindFile               ; search for filename on File Eprom...
+                    LD   A,EP_Find
+                    OZ   OS_Epr                        ; search for filename on File Eprom...
                     JR   C, exit_FindFile              ; File Eprom or File Entry was not available
                     JR   NZ, exit_FindFile             ; File Entry was not found...
 

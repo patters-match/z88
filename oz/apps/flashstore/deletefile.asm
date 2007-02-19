@@ -19,7 +19,6 @@
 Module DeleteFile
 
      lib FileEprFileStatus         ; Return deleted / active file status
-     lib FileEprFindFile           ; Find File Entry using search string (of null-term. filename)
      lib FileEprFilename           ; get filename at (DE) from current file entry
 
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
@@ -177,7 +176,8 @@ Module DeleteFile
 .FindToMarkDeleted
                     call GetCurrentSlot           ; C = (curslot)
                     LD   DE,buffer
-                    CALL FileEprFindFile          ; search for <buffer> filename on File Eprom...
+                    LD   A,EP_Find
+                    OZ   OS_Epr                   ; search for <buffer> filename on File Eprom...
                     JR   C, delfile_notfound      ; File Eprom or File Entry was not available
                     JR   NZ, delfile_notfound     ; File Entry was not found...
 
