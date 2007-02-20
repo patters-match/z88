@@ -27,7 +27,6 @@ Module FileAreaStatistics
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprTotalSpace         ; Return amount of active and deleted file space (in bytes)
      lib FileEprCntFiles           ; Return total of active and deleted files
-     lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
      lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
      lib divu8                     ; Unsigned 8bit integer division
 

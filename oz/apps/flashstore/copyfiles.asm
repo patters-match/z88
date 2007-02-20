@@ -22,8 +22,6 @@ Module CopyFiles
 
      xdef CopyFileAreaCommand, QuickCopyFileCommand
 
-     lib FileEprFirstFile          ; Get first file entry in file area in slot C
-     lib FileEprNextFile           ; Get next file entry, based on current entry in BHL
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
 
      xref FilesAvailable           ; browse.asm
@@ -107,7 +105,8 @@ Module CopyFiles
                     call_oz GN_nln
 
                     call GetCurrentSlot           ; C = (curslot)
-                    call FileEprFirstFile         ; get BHL pointer to first file on Eprom
+                    ld   a,EP_First
+                    oz   OS_Epr                   ; get BHL pointer to first file on Eprom
 .copy_loop
                     jr   c, copy_completed        ; all file entries copied...
                     jr   z, fetch_next            ; File Entry marked as deleted, get next...
@@ -125,7 +124,8 @@ Module CopyFiles
                     call CountFileSaved
                     call_oz GN_Nln
 .fetch_next                                       ; BHL = current File Entry
-                    call FileEprNextFile          ; get pointer to next File Entry...
+                    ld   a,EP_Next
+                    oz   OS_Epr                   ; get pointer to next File Entry...
                     jr   nc, copy_loop
 .copy_completed
                     jp   DispFilesSaved

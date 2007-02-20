@@ -35,10 +35,6 @@ Module BrowseFiles
      xdef endf_msg
      xdef LeftJustifyText, RightJustifyText
 
-     lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
-     lib FileEprLastFile           ; Return poiter to last File Entry on File Eprom
-     lib FileEprNextFile           ; Return pointer to next File Entry on File Eprom
-     lib FileEprPrevFile           ; Return pointer to previous File Entry on File Eprom
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprCntFiles           ; Return total of active and deleted files
@@ -60,6 +56,7 @@ Module BrowseFiles
      ; system definitions
      include "stdio.def"
      include "fileio.def"
+     include "eprom.def"
      include "error.def"
 
      ; FlashStore popdown variables
@@ -364,7 +361,13 @@ Module BrowseFiles
 ;         BHL = pointer to first file entry
 ;
 .GetFirstFilePtr
-                    call FileEprFirstFile
+                    push de
+                    push af
+                    ld   a,EP_First
+                    oz   OS_epr
+                    pop  de
+                    ld   a,d
+                    pop  de
                     ret  c
                     ret  nz                       ; an active file entry was found...
 .found_delfile
@@ -388,7 +391,13 @@ Module BrowseFiles
 ;
 .GetNextFilePtr
 .fetch_next_loop
-                    call FileEprNextFile
+                    push de
+                    push af
+                    ld   a,EP_Next
+                    oz   OS_Epr
+                    pop  de
+                    ld   a,d
+                    pop  de
                     ret  c
                     ret  nz                       ; an active file entry was found...
 
@@ -412,7 +421,13 @@ Module BrowseFiles
 ;
 .GetPrevFilePtr
 .fetch_prev_loop
-                    call FileEprPrevFile
+                    push de
+                    push af
+                    ld   a,EP_Prev
+                    oz   OS_Epr
+                    pop  de
+                    ld   a,d
+                    pop  de
                     ret  c
                     ret  nz                       ; an active file entry was found...
 

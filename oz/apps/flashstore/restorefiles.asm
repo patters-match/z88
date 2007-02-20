@@ -25,8 +25,6 @@ Module RestoreFiles
      xdef disp_exis_msg, saving_msg, no_active_files
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib FileEprPrevFile           ; Return pointer to previous File Entry on File Eprom
-     lib FileEprLastFile           ; Return pointer to last File Entry on File Eprom
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib RamDevFreeSpace           ; Get free space on RAM device.
@@ -126,7 +124,8 @@ Module RestoreFiles
                     CALL_OZ GN_nln
 
                     call GetCurrentSlot      ; C = (curslot)
-                    CALL FileEprLastFile     ; get pointer to last file on Eprom
+                    ld   a,EP_Last
+                    oz   OS_Epr              ; get pointer to last file on Eprom
                     JP   C, no_files         ; Ups - the card was empty or not present...
 .restore_loop                                ; BHL points at current file entry
                     CALL FileEprFilename     ; get filename at (DE)
@@ -202,8 +201,9 @@ Module RestoreFiles
                     CALL CountFileSaved
                     CALL_OZ GN_Nln
 .fetch_next                                  ; BHL = current File Entry
-                    CALL FileEprPrevFile     ; get pointer to previous File Entry...
-                    JR   NC, restore_loop
+                    LD   A,EP_Prev
+                    OZ   OS_Epr              ; get pointer to previous File Entry...
+                    JP   NC, restore_loop
 .restore_completed
                     JP   DispFilesSaved
 .no_room

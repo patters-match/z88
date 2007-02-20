@@ -22,8 +22,6 @@ Module CatalogFiles
 
      xdef CatalogCommand
 
-     lib FileEprFirstFile          ; Return pointer to first File Entry on File Eprom
-     lib FileEprNextFile           ; Return pointer to next File Entry on File Eprom
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFileStatus         ; Return Active/Deleted status of file entry
