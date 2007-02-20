@@ -68,6 +68,7 @@
         jr      c, no_entry                     ; No files are present on File Eprom...
 
         call    FileEprFileStatus               ; check file status of next file
+        jr      c, no_entry                     ; next file does not exist
 
         ld      a,b                             ; returned BHL is next file entry...
         pop     bc                              ; original C register restored
