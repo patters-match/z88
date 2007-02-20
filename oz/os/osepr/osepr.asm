@@ -85,6 +85,17 @@ xdef    OSEpr
 
 
 ; ***************************************************************************************************
+; EP_Req interface:
+;
+; In:
+;       C = poll for file header in slot number 0, 1, 2 or 3
+; Out:
+;       BHL = pointer to File Header for slot C (B = absolute bank of slot).
+;             (or pointer to free space in potential new File Area).
+;         C = size of File Eprom Area in 16K banks
+;       Fz = 1, File Header found
+;            A = "oz" File Eprom sub type
+;
 .ozFileEprRequest
         call    FileEprRequest
         ret     c
