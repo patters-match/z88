@@ -26,7 +26,6 @@ Module SelectCard
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib RamDevFreeSpace           ; Get free space on RAM device
-     lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
      lib ApplEprType               ; check for presence of application card in slot
 
      XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
