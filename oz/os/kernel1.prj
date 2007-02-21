@@ -34,6 +34,8 @@ osepr/eprfprev.asm
 osepr/eprfnext.asm
 osepr/eprflast.asm
 osepr/eprfstat.asm
+osepr/eprtotsp.asm
+osepr/epractsp.asm
 osfep/osfep.asm
 osfep/fepsecera.asm
 osfep/fepcdera.asm

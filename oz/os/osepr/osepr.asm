@@ -44,6 +44,7 @@
         include "lowram.def"
 
         xref PutOSFrame_BHL                     ; misc5.asm
+        xref PutOSFrame_CDE                     ; misc5.asm
         xref FileEprRequest                     ; osepr/eprreqst.asm
         xref FileEprFetchFile                   ; osepr/eprfetch.asm
         xref FileEprFindFile                    ; osepr/eprfndfl.asm
@@ -51,6 +52,8 @@
         xref FileEprPrevFile                    ; osepr/eprfprev.asm
         xref FileEprNextFile                    ; osepr/eprfnext.asm
         xref FileEprLastFile                    ; osepr/eprflast.asm
+        xref FileEprTotalSpace                  ; osepr/eprtotsp.asm
+        xref FileEprActiveSpace                 ; osepr/epractsp.asm
 
 
 xdef    OSEpr
@@ -82,6 +85,8 @@ xdef    OSEpr
         jp      ozFileEprPrevFile               ; 15, EP_Prev  (OZ 4.2 and newer)
         jp      ozFileEprNextFile               ; 18, EP_Next  (OZ 4.2 and newer)
         jp      ozFileEprLastFile               ; 1b, EP_Last  (OZ 4.2 and newer)
+        jp      ozFileEprTotalSpace             ; 1e, EP_TotSp (OZ 4.2 and newer)
+        jp      ozFileEprActiveSpace            ; 21, EP_ActSp (OZ 4.2 and newer)
 
 
 ; ***************************************************************************************************
@@ -114,11 +119,13 @@ xdef    OSEpr
         set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1 (file entry found)
         ret
 
+
 ; ***************************************************************************************************
 .ozFileEprFirstFile
         call    FileEprFirstFile
         ret     c                               ; return BHL = pointer to first file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
         jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
+
 
 ; ***************************************************************************************************
 .ozFileEprPrevFile
@@ -126,17 +133,38 @@ xdef    OSEpr
         ret     c                               ; return BHL = pointer to previous file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
         jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
 
+
 ; ***************************************************************************************************
 .ozFileEprNextFile
         call    FileEprNextFile
         ret     c                               ; return BHL = pointer to next file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
         jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
 
+
 ; ***************************************************************************************************
 .ozFileEprLastFile
         call    FileEprLastFile
         ret     c                               ; return BHL = pointer to last file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
         jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
+
+
+; ***************************************************************************************************
+.ozFileEprTotalSpace
+        call    FileEprTotalSpace
+        ret     c
+        call    PutOSFrame_BHL                  ; return BHL = Amount of active file space in bytes (24bit integer, B = MSB)
+.ret_cde
+        call    PutOSFrame_CDE                  ; return CDE = Amount of deleted file space in bytes (24bit integer, C = MSB)
+        ret
+
+
+; ***************************************************************************************************
+.ozFileEprActiveSpace
+        call    FileEprActiveSpace
+        ret     c
+        ld      (iy+OSFrame_C),b
+        jr      ret_cde                         ; return DEBC = Active space (visible files) (DE=high, BC=low)
+
 
 
 ;***************************************************************************************************

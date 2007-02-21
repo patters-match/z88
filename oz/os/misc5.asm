@@ -42,6 +42,7 @@ xdef    PokeHL
 xdef    PokeHLinc
 xdef    PutOSFrame_BC
 xdef    PutOSFrame_BHL
+xdef    PutOSFrame_CDE
 xdef    PutOSFrame_DE
 xdef    PutOSFrame_HL
 xdef    ReserveStkBuf
@@ -87,7 +88,8 @@ xref    FreeHandle                              ; bank0/handle.asm
         ld      (iy+OSFrame_C), c
         ret
 
-
+.PutOSFrame_CDE
+        ld      (iy+OSFrame_C), c
 .PutOSFrame_DE
         ld      (iy+OSFrame_D), d
         ld      (iy+OSFrame_E), e

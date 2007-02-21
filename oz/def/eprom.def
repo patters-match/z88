@@ -18,5 +18,7 @@ lstoff
           DEFC  EP_Prev  = $15     ; Return previous file entry in File Area            (OZ 4.2 and newer)
           DEFC  EP_Next  = $18     ; Return next file entry in File Area                (OZ 4.2 and newer)
           DEFC  EP_Last  = $1b     ; Return last file entry in File Area in slot C      (OZ 4.2 and newer)
+          DEFC  EP_TotSp = $1e     ; Return amount of used file space in slot C         (OZ 4.2 and newer)
+          DEFC  EP_ActSp = $21     ; Return active file space in slot C                 (OZ 4.2 and newer)
 
 lston

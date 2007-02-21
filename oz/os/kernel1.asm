@@ -73,6 +73,7 @@ IF COMPILE_BINARY
         xdef    PutOSFrame_DE                   ; [Kernel0]/misc5.asm
         xdef    PutOSFrame_HL                   ; [Kernel0]/misc5.asm
         xdef    PutOSFrame_BHL                  ; [Kernel0]/misc5.asm
+        xdef    PutOSFrame_CDE                  ; [Kernel0]/misc5.asm
         xdef    ReserveStkBuf                   ; [Kernel0]/misc5.asm
         xdef    S2VerifySlotType                ; [Kernel0]/misc5.asm
         xdef    ScrDrv_SOH_A
