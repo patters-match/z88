@@ -338,7 +338,8 @@ Module SelectCard
                     push bc
                     push hl
                     call GetCurrentSlot         ; C = (curslot)
-                    call FileEprFreeSpace
+                    ld   a,EP_FreSp
+                    oz   OS_Epr
                     push bc
                     pop  hl
                     ld   b,e                    ; DEBC -> BHL

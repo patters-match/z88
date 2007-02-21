@@ -2,15 +2,13 @@ lstoff
 
 ; Standard Z88 Operating System manifests:
 
-     ; File Eprom Interface:
-
-          DEFC  OS_Epr = $F006     ; File Eprom Manipulation Interface
+          DEFC  OS_Epr = $F006     ; File (Eprom) Area Management Interface
 
           ; arguments:
           DEFC  EP_Save = $00      ; blow RAM file to EPROM
           DEFC  EP_Load = $03      ; copy file from File Area, as RAM file
           DEFC  EP_Req  = $06      ; Check for "oz" File Eprom or File Area in slot C   (OZ 4.2 and newer)
-          DEFC  EP_Fetch = $09     ; copy file from File Area, as RAM file              (OZ 4.2 and newer)
+          DEFC  EP_Fetch = $09     ; copy file entry from File Area, as RAM file        (OZ 4.2 and newer)
           DEFC  EP_Find = $0c      ; Find active File(name) in File Area in slot C      (OZ 4.2 and newer)
           DEFC  EP_Dir  = $0f      ; return next filename (starting with first)
                                    ; (all files must be read until RC_EOF)
@@ -20,5 +18,7 @@ lstoff
           DEFC  EP_Last  = $1b     ; Return last file entry in File Area in slot C      (OZ 4.2 and newer)
           DEFC  EP_TotSp = $1e     ; Return amount of used file space in slot C         (OZ 4.2 and newer)
           DEFC  EP_ActSp = $21     ; Return active file space in slot C                 (OZ 4.2 and newer)
+          DEFC  EP_FreSp = $24     ; Return free file space in slot C                   (OZ 4.2 and newer)
+          DEFC  EP_Stat  = $27     ; Return active & deleted files in File Area slot C  (OZ 4.2 and newer)
 
 lston

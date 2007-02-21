@@ -45,6 +45,7 @@
 
         xref PutOSFrame_BHL                     ; misc5.asm
         xref PutOSFrame_CDE                     ; misc5.asm
+        xref PutOSFrame_DE, PutOSFrame_HL       ; misc5.asm
         xref FileEprRequest                     ; osepr/eprreqst.asm
         xref FileEprFetchFile                   ; osepr/eprfetch.asm
         xref FileEprFindFile                    ; osepr/eprfndfl.asm
@@ -54,6 +55,8 @@
         xref FileEprLastFile                    ; osepr/eprflast.asm
         xref FileEprTotalSpace                  ; osepr/eprtotsp.asm
         xref FileEprActiveSpace                 ; osepr/epractsp.asm
+        xref FileEprFreeSpace                   ; osepr/eprfresp.asm
+        xref FileEprCntFiles                    ; osepr/eprcntfl.asm
 
 
 xdef    OSEpr
@@ -87,6 +90,8 @@ xdef    OSEpr
         jp      ozFileEprLastFile               ; 1b, EP_Last  (OZ 4.2 and newer)
         jp      ozFileEprTotalSpace             ; 1e, EP_TotSp (OZ 4.2 and newer)
         jp      ozFileEprActiveSpace            ; 21, EP_ActSp (OZ 4.2 and newer)
+        jp      ozFileEprFreeSpace              ; 24, EP_FreSp (OZ 4.2 and newer)
+        jp      ozFileEprCntFiles               ; 27, EP_Stat  (OZ 4.2 and newer)
 
 
 ; ***************************************************************************************************
@@ -154,16 +159,31 @@ xdef    OSEpr
         ret     c
         call    PutOSFrame_BHL                  ; return BHL = Amount of active file space in bytes (24bit integer, B = MSB)
 .ret_cde
-        call    PutOSFrame_CDE                  ; return CDE = Amount of deleted file space in bytes (24bit integer, C = MSB)
-        ret
+        jp      PutOSFrame_CDE                  ; return CDE = Amount of deleted file space in bytes (24bit integer, C = MSB)
 
 
 ; ***************************************************************************************************
 .ozFileEprActiveSpace
         call    FileEprActiveSpace
         ret     c
-        ld      (iy+OSFrame_C),b
+.ret_bcde
+        ld      (iy+OSFrame_B),b
         jr      ret_cde                         ; return DEBC = Active space (visible files) (DE=high, BC=low)
+
+
+; ***************************************************************************************************
+.ozFileEprFreeSpace
+        call    FileEprFreeSpace
+        ret     c
+        jr      ret_bcde                        ; return DEBC = Free space (DE=high, BC=low)
+
+
+; ***************************************************************************************************
+.ozFileEprCntFiles
+        call    FileEprCntFiles
+        ret     c
+        call    PutOSFrame_DE
+        jp      PutOSFrame_HL                   ; return HL = total of active files, DE = total of deleted files
 
 
 

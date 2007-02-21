@@ -37,7 +37,6 @@ Module BrowseFiles
 
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
-     lib FileEprCntFiles           ; Return total of active and deleted files
      lib FileEprFileStatus         ; Return Active/Deleted status of file entry
      lib FileEprRandomID           ; Return File Eprom "oz" Header Random ID
 
@@ -650,7 +649,8 @@ Module BrowseFiles
                     ld   (fdel),hl                ;       deleted
 
                     call GetCurrentSlot           ; C = (curslot)
-                    call FileEprCntFiles          ; any files available in File Area?
+                    ld   a,EP_Stat
+                    oz   OS_Epr                   ; any files available in File Area?
                     jr   c, exit_checkfiles       ; no file area!
                     ld   (file),hl                ; update active files count
                     ld   (fdel),de                ;        deleted

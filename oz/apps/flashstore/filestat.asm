@@ -25,9 +25,6 @@ Module FileAreaStatistics
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
-     lib FileEprTotalSpace         ; Return amount of active and deleted file space (in bytes)
-     lib FileEprCntFiles           ; Return total of active and deleted files
-     lib FileEprFreeSpace          ; Return amount of deleted file space (in bytes)
      lib divu8                     ; Unsigned 8bit integer division
 
      XREF VduCursor                ; selectcard.asm
@@ -131,11 +128,13 @@ Module FileAreaStatistics
 .getfreesp
                     pop  bc                       ; c = slot number...
                     push bc
-                    call FileEprFreeSpace         ; get free space on current File Eprom
+                    ld   a,EP_FreSp
+                    oz   OS_Epr                   ; get free space on current File Eprom
                     ld   (free),bc
                     ld   (free+2),de
                     pop  bc
-                    call FileEprTotalSpace        ; get total used space on current File Eprom (active & deleted)
+                    ld   a,EP_TotSp
+                    oz   OS_Epr                   ; get total used space on current File Eprom (active & deleted)
                     ld   (active),hl
                     ld   a,b
                     ld   (active+2),a             ; remember total active file space
