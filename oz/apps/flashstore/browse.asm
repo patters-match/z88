@@ -38,7 +38,7 @@ Module BrowseFiles
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFileStatus         ; Return Active/Deleted status of file entry
-     lib FileEprRandomID           ; Return File Eprom "oz" Header Random ID
+     lib MemReadLong               ; Read 32bit int at (BHL)
 
      xref DispMainWindow, cls      ; fsapp.asm
      xref DispCmdWindow            ; fsapp.asm
@@ -513,7 +513,13 @@ Module BrowseFiles
                     jr   exit_PollFileCardWatermark
 .getRandomId
                     call GetCurrentSlot           ; C = (curslot)
-                    call FileEprRandomID
+                    ld   a,EP_Req
+                    oz   OS_Epr                   ; BHL points to File Area header
+                    ld   a,c
+                    push af
+                    ld   a,$38                    ; BHL + $38, position of Random ID is 3ff8h...
+                    call MemReadLong
+                    pop  af                       ; A = total banks in file area
                     ret
 .ResetWatermark
                     ld   a,0
