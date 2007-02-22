@@ -26,7 +26,6 @@
         xdef FlashEprCopyFileEntry
 
         lib FileEprAllocFilePtr
-        lib FileEprFreeSpace
         lib FileEprTransferBlockSize
         lib OZSlotPoll, SetBlinkScreen
 
@@ -34,6 +33,7 @@
         xref FlashEprFileDelete
         xref FlashEprCopyBlock
         xref FileEprFileEntryInfo
+        xref FileEprFreeSpace
         xref SetBlinkScreenOn
 
         include "error.def"

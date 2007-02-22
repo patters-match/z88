@@ -25,10 +25,11 @@
 
         xdef FlashEprSaveRamFile
 
-        lib FileEprAllocFilePtr, FileEprFreeSpace
+        lib FileEprAllocFilePtr
         lib OZSlotPoll, SetBlinkScreen
 
         xref FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
+        xref FileEprFreeSpace
         xref SetBlinkScreenOn
 
         include "error.def"
