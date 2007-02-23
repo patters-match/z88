@@ -370,49 +370,6 @@ xdef    OSEpr
         jp      c, sv_11                        ; error? exit
         jr      check_fepr
 .found_fepr
-        ld      a, (ubEpr_Fstype)               ; check it's filing EPROM
-        cp      1
-        jr      z, sv_1
-        ld      a, RC_Ftm                       ; file type mismatch
-        scf
-        jp      sv_11
-
-.sv_1
-        push    iy
-        push    hl
-        ld      iy, (pEpr_PrgTable)
-
-        ld      b, $FF                          ; check for unformatted ID
-        ld      hl, $3FFC
-        ld      c, 4
-.sv_2
-        dec     hl
-        call    PeekBHL
-        cp      b
-        scf                                     ; Fc=0 for later check
-        ccf                                     ; !! use 'cpl; or a; jr nz,...'
-        jr      nz, sv_3                        ; not FF? skip ID writing
-        dec     c
-        jr      nz, sv_2                        ; loop for 4 bytes
-
-        ld      a, SR_RND                       ; write random ID
-        OZ      OS_Sr
-        push    de
-        push    bc
-        ex      de, hl
-        ld      hl, 0
-        add     hl, sp
-        ex      de, hl
-        ld      bc, $FF04                       ; last bank, 4 bytes
-        call    BlowMem
-        pop     hl                              ; purge stack
-        pop     hl
-
-.sv_3
-        pop     hl
-        pop     iy
-        jp      c, sv_11                        ; error? exit
-
         ld      a, OP_IN
         ld      bc, 255                         ; bufsize=255
         ld      de, 3                           ; ignore filename
@@ -710,7 +667,7 @@ xdef    OSEpr
 
 ;       ----
 
-;       check if card in slot 3 is EPROM
+;       check if card in slot 3 contains a file area
 ;
 ;OUT:   Fc=0 if success
 ;       Fc=1, A=error if fail
@@ -720,36 +677,13 @@ xdef    OSEpr
         push    hl
         push    de
         push    bc
-        ld      hl, $3FFD                       ; try poking subtype to see if it's RAM
-        ld      b, $FF
-        call    PeekBHL
-        ld      e, a                            ; store old value
-        cpl
-        ld      d, a
-        call    PokeBHL_epr
-        call    PeekBHL
-        cp      d
-        ld      a, e
-        jr      nz, ise_1                       ; not changed, ROM or EPROM
 
-        call    PokeBHL_epr                     ; put original value back and exit
-        jr      ise_5
+        ld      c,3
+        call    FileEprRequest                  ; poll for file area in slot 3
+        jr      c, ise_5                        ; no "oz" header found
+        jr      nz, ise_5                       ; no header found but BHL points to potential header
 
-.ise_1
-        cp      b
-        jr      z, ise_5                        ; unformatted?
-
-        ld      d, a                            ; store subtype
-        dec     hl
-        call    PeekBHL
-        ld      c, a                            ; store size
-        xor     a
-        sub     c
-        ld      b, a                            ; -size, first bank
-        jp      p, ise_5                        ; 2MB card?  not likely...
-
-        ld      a, d                            ; find subtype in programming table
-        ld      hl, EpromTypes
+        ld      hl, EpromTypes                  ; find subtype in programming table
 .ise_2
         bit     0, (hl)
         jr      nz, ise_5                       ; end? unknown type
@@ -758,14 +692,11 @@ xdef    OSEpr
         ld      de, 7                           ; otherwise try next
         add     hl, de
         jr      ise_2
-
 .ise_4
-        or      a                               ; !! unnecessary
         ld      (ubEpr_SubType), a              ; store EPROM variables
         ld      (pEpr_PrgTable), hl
         ld      hl, $3FF7                       ; filing EPROM/application ROM
-        ld      b, $FF
-        call    PeekBHL
+        call    PeekBHL                         ; get file system type at B 3FF7
         ld      (ubEpr_Fstype), a
         or      a                               ; Fc=0
         jr      ise_6
@@ -807,7 +738,6 @@ xdef    OSEpr
 .fmt_2
         ld      a, b                            ; !! A=$FF-$40=$3F
         sub     c
-
 .fmt_3
         rrc     c                               ; try mirroring at 512/256/128/64/32 KB
         jr      c, fmt_5
@@ -818,11 +748,9 @@ xdef    OSEpr
         jr      nz, fmt_4
         ld      a, b                            ; mirrored, loop
         jr      fmt_3
-
 .fmt_4
         ld      a, b                            ; get last mirrored bank
         sub     c
-
 .fmt_5
         rlc     c                               ; size in banks
         inc     a                               ; first bank
@@ -846,9 +774,33 @@ xdef    OSEpr
         ld      a, 'z'
         call    BlowByte
         jr      c, fmt_7
-        ld      hl, $3FF7                       ; file system identifier !! just 'ld l,$f7'
+
+        ld      l, $F7                          ; file system identifier at $3ff7
         ld      a, 1
         call    BlowByte
+        jr      c, fmt_7
+
+        ld      a, SR_RND
+        OZ      OS_Sr
+        push    de
+        push    bc
+        ld      hl, 0
+        add     hl, sp
+        ex      de, hl
+        ld      bc, $FF04                       ; blow 4 byte random ID
+        ld      hl, $3ff8                       ; at FF 3FF8
+.blow_randomid
+        ld      a,(de)
+        call    BlowByte
+        jr      c, rid_err
+        inc     de
+        inc     hl
+        dec     c
+        jr      nz,blow_randomid
+        cp      a                               ; Fc = 0
+.rid_err
+        pop     hl                              ; purge stack
+        pop     hl
         jr      c, fmt_7
 
         ld      hl, $3FF7                       ; fill 3fc0-3ff6 with zero
@@ -862,8 +814,6 @@ xdef    OSEpr
         jr      c, fmt_7
         dec     c
         jr      nz, fmt_6
-        dec     hl                              ; !! unnecessary
-
 .fmt_7
         pop     bc
         jr      c, fmt_8                        ; error? exit
