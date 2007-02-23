@@ -195,7 +195,7 @@ defvars $0400
         free_free_free          ds.b    10      ; (0436-043F) 10 bytes free
 
 ; Keyboard buffer
-        KbdBuffer               ds.b    32      ; $0440-£045F
+        KbdBuffer               ds.b    32      ; $0440-045F
 
 ; Hardware port softcopies
         BlinkPortSoftCopies     ds.b    160     ; $0460-$04FF
@@ -217,8 +217,8 @@ defc    NMIStackTop             =$0c33
 ; EPROM
 defvars $0db8
         ubEpr_SubType           ds.b    1
-        ubEpr_FREE_0            ds.b    1       ; ($0db9) 1 byte free
-        ubEpr_FirstBank         ds.b    1
+        __ubEpr_FREE_0          ds.b    1       ; NOT USED
+        __ubEpr_FirstBank       ds.b    1       ; NOT USED ANYMORE (due to new File Eprom management routines)
         ubEpr_NameLen           ds.b    1
         ubEpr_Fstype            ds.b    1
         pEpr_PrgTable           ds.w    1

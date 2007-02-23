@@ -453,7 +453,15 @@ xdef    OSEpr
 .sv_4
         push    bc
         push    de
-        call    GotoEnd                         ; skip all files
+        ld      c,3
+        call    FileEprFirstFile                ; return BHL to first file entry in slot 3
+.ge_1                                           ; skip all files
+        call    ChkFormattedByte
+        jr      z, ge_2                         ; unformatted? exit
+        call    SkipFile
+        jr      nc, ge_1                        ; skip next !! should this report error instead of Fc=0
+.ge_2
+        or      a                               ; Fc=0
 
         pop     de
         ld      a, e
@@ -628,11 +636,9 @@ xdef    OSEpr
         OZ      OS_Fn
         jr      c, dir_6                        ; error? exit
 
-        ld      a, (ubEpr_FirstBank)
-        ld      b, a                            ; rewind to start
-        ld      hl, 0
+        ld      c,3                             ; EP_Dir always reads from slot 3
+        call    FileEprFirstFile                ; return BHL to first file entry in slot
         jr      dir_3
-
 .dir_1
         ld      a, FN_VH                        ; verify handle
         ld      b, HND_TEMP
@@ -757,8 +763,6 @@ xdef    OSEpr
         or      a                               ; !! unnecessary
         ld      (ubEpr_SubType), a              ; store EPROM variables
         ld      (pEpr_PrgTable), hl
-        ld      a, b
-        ld      (ubEpr_FirstBank), a
         ld      hl, $3FF7                       ; filing EPROM/application ROM
         ld      b, $FF
         call    PeekBHL
@@ -1088,24 +1092,6 @@ xdef    OSEpr
 
 ;       ----
 
-;       go to   end of used area
-;
-;chg:   AFB...HL/....
-
-.GotoEnd
-        ld      a, (ubEpr_FirstBank)            ; start from beginning
-        ld      b, a
-        ld      hl, 0
-.ge_1
-        call    ChkFormattedByte
-        jr      z, ge_2                         ; unformatted? exit
-        call    SkipFile
-        jr      nc, ge_1                        ; skip next !! should this report error instead of Fc=0
-.ge_2
-        or      a                               ; Fc=0
-        ret
-
-;       ----
 
 .EpromTypes
         defb $7E                                ; subtype
