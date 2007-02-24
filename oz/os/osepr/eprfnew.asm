@@ -24,11 +24,10 @@
 ;
 ; ***************************************************************************************************
 
-     xdef FileEprNewFileEntry
-     xref FileEprRequest, FileEprFileEntryInfo
+        xdef FileEprNewFileEntry
+        xref FileEprRequest, FileEprFileEntryInfo
 
-     lib ConvPtrToAddr, ConvAddrToPtr
-
+        lib ConvPtrToAddr, ConvAddrToPtr
 
 
 ; ***************************************************************************************************
@@ -36,16 +35,15 @@
 ; Standard Z88 File Eprom Format, including support for sub File Eprom
 ; area in application cards (below application banks in first free 64K boundary)
 ;
-; Return BHL pointer to free space in File Eprom Area, inserted in slot C.
-; (B=00h-FFh, HL=0000h-3FFFh).
+; Return BHL pointer to new file entry (also first byte of free space in File
+; Eprom Area, inserted in slot C).
 ;
 ; IN:
 ;    C = slot number containing File Eprom Area
 ;
 ; OUT:
 ;    Fc = 0, File Eprom available
-;         BHL = pointer to first byte of free space
-;         (B = absolute bank of slot C)
+;         BHL = pointer to first byte of free space (B = absolute bank of slot C)
 ;
 ;    Fc = 1, File Area was not found in slot C
 ;
@@ -58,36 +56,36 @@
 ; ------------------------------------------------------------------------
 ;
 .FileEprNewFileEntry
-                    PUSH BC
-                    PUSH DE
+        push    bc
+        push    de
 
-                    LD   E,C                           ; preserve slot number
-                    CALL FileEprRequest                ; check for presence of "oz" File Eprom Area in slot
-                    JR   C,err_FileEprNewFileEntry
-                    JR   NZ,err_FileEprNewFileEntry    ; File Area not available in slot...
+        ld      e,c                             ; preserve slot number
+        call    FileEprRequest                  ; check for presence of "oz" File Eprom Area in slot
+        jr      c,err_FileEprNewFileEntry
+        jr      nz,err_FileEprNewFileEntry      ; File Area not available in slot...
 
-                    LD   A,E
-                    AND  @00000011                     ; slots (0), 1, 2 or 3 possible
-                    RRCA
-                    RRCA                               ; converted to Slot mask $40, $80 or $C0
-                    OR   B
-                    SUB  C                             ; C = total banks of File Eprom Area
-                    INC  A
-                    LD   B,A                           ; B is now bottom bank of File Eprom
-                    LD   HL,$0000                      ; BHL points at first File Entry...
+        ld      a,e
+        and     @00000011                       ; slots (0), 1, 2 or 3 possible
+        rrca
+        rrca                                    ; converted to Slot mask $40, $80 or $C0
+        or      b
+        sub     c                               ; C = total banks of File Eprom Area
+        inc     a
+        ld      b,a                             ; B is now bottom bank of File Eprom
+        ld      hl,$0000                        ; BHL points at first File Entry...
 .scan_eprom
-                    CALL FileEprFileEntryInfo          ; scan all file entries, to point at first free byte
-                    JR   NC, scan_eprom
-                    CP   A                             ; reached pointer to new file entry, don't return Fc = 1
-                    JR   exit_FileEprNewFileEntry
+        call    FileEprFileEntryInfo            ; scan all file entries, to point at first free byte
+        jr      nc, scan_eprom
+        cp      a                               ; reached pointer to new file entry, don't return Fc = 1
+        jr      exit_FileEprNewFileEntry
 .err_FileEprNewFileEntry
-                    SCF
+        scf
 .exit_FileEprNewFileEntry
-                    POP  DE
-                    LD   A,B
-                    POP  BC
-                    LD   B,A                           ; BHL points at first free byte...
+        pop     de
+        ld      a,b
+        pop     bc
+        ld      b,a                             ; BHL points at first free byte...
 
-                    RES  7,H
-                    RES  6,H                           ; strip segment attributes of bank offset, if any...
-                    RET
+        res     7,h
+        res     6,h                             ; strip segment attributes of bank offset, if any...
+        ret
