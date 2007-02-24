@@ -520,6 +520,9 @@ Module BrowseFiles
                     ld   a,$38                    ; BHL + $38, position of Random ID is 3ff8h...
                     call MemReadLong
                     pop  af                       ; A = total banks in file area
+                    push hl
+                    exx                           ; return Random IF in BCDE
+                    pop  hl
                     ret
 .ResetWatermark
                     ld   a,0
