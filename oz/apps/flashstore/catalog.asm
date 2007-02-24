@@ -24,7 +24,6 @@ Module CatalogFiles
 
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
-     lib FileEprFileStatus         ; Return Active/Deleted status of file entry
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
 
      xref GetFirstFilePtr          ; browse.asm
@@ -48,6 +47,7 @@ Module CatalogFiles
      include "stdio.def"
      include "fileio.def"
      include "integer.def"
+     include "eprom.def"
      include "error.def"
 
      ; FlashStore popdown variables
@@ -111,7 +111,8 @@ Module CatalogFiles
 .cat_main_loop
                     ld   de, buffer+2            ; write filename at (DE), null-terminated
                     call CompressedFileEntryName ; copy filename from current file entry
-                    call FileEprFileStatus
+                    ld   a,EP_Stat
+                    oz   OS_Epr
                     call CatalogueFile           ; catalogue current file
                     call GetNextFilePtr          ; get pointer to next File Entry in BHL...
                     jr   nc,cat_main_loop

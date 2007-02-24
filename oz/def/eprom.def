@@ -19,6 +19,7 @@ lstoff
           DEFC  EP_TotSp = $1e     ; Return amount of used file space in slot C         (OZ 4.2 and newer)
           DEFC  EP_ActSp = $21     ; Return active file space in slot C                 (OZ 4.2 and newer)
           DEFC  EP_FreSp = $24     ; Return free file space in slot C                   (OZ 4.2 and newer)
-          DEFC  EP_Stat  = $27     ; Return active & deleted files in File Area slot C  (OZ 4.2 and newer)
+          DEFC  EP_Count = $27     ; Return number of files in File Area slot C         (OZ 4.2 and newer)
+          DEFC  EP_Stat  = $2a     ; Return file entry status (active or deleted)       (OZ 4.2 and newer)
 
 lston

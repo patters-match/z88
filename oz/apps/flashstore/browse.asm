@@ -37,7 +37,6 @@ Module BrowseFiles
 
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
-     lib FileEprFileStatus         ; Return Active/Deleted status of file entry
      lib MemReadLong               ; Read 32bit int at (BHL)
 
      xref DispMainWindow, cls      ; fsapp.asm
@@ -540,7 +539,8 @@ Module BrowseFiles
 ; window, as defined by file entry BHL.
 ;
 .DisplayFile
-                    call FileEprFileStatus
+                    ld   a,EP_Stat
+                    oz   OS_Epr
                     jr   c, end_cat             ; Ups - last file(name) has been displayed...
                     jr   nz, disp_filename      ; active file, display...
 
@@ -658,7 +658,7 @@ Module BrowseFiles
                     ld   (fdel),hl                ;       deleted
 
                     call GetCurrentSlot           ; C = (curslot)
-                    ld   a,EP_Stat
+                    ld   a,EP_Count
                     oz   OS_Epr                   ; any files available in File Area?
                     jr   c, exit_checkfiles       ; no file area!
                     ld   (file),hl                ; update active files count
@@ -740,7 +740,8 @@ Module BrowseFiles
                     scf                         ; nothing to update!
                     ret
 .check_entrystat
-                    call FileEprFileStatus
+                    ld   a,EP_Stat
+                    oz   OS_Epr
                     ret  nz                     ; top window line is an active file, no adjustment needed
 
                     bit  dspdelfiles,(iy+0)

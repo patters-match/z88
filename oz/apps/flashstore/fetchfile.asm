@@ -31,7 +31,6 @@ Module FetchFile
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFileName           ; get a copy of the file name from the file entry.
-     lib FileEprFileStatus         ; get deleted (or active) status of file entry
      lib RamDevFreeSpace           ; Get free space on RAM device
 
      xref FilesAvailable           ; browse.asm
@@ -126,7 +125,8 @@ Module FetchFile
                     call FileEprFileName
                     ld   (linecnt),a         ; size of input
 
-                    call FileEprFileStatus   ; is file marked as deleted?
+                    ld   a,EP_Stat
+                    oz   OS_Epr              ; check file entry status...
                     jr   nz, get_name        ; no...
 
                     call_oz GN_Nln

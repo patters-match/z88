@@ -18,7 +18,6 @@
 
 Module DeleteFile
 
-     lib FileEprFileStatus         ; Return deleted / active file status
      lib FileEprFilename           ; get filename at (DE) from current file entry
 
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
@@ -112,7 +111,8 @@ Module DeleteFile
 ;
 .QuickDeleteFile
                     call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry
-                    call FileEprFileStatus        ; check file entry status...
+                    ld   a,EP_Stat
+                    oz   OS_Epr                   ; check file entry status...
                     ret  c                        ; no file area...
                     ret  z
 

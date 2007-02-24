@@ -34,7 +34,6 @@
 
      ; Library references
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
-     lib FileEprFileStatus         ; get deleted (or active) status of file entry
      lib ToLower                   ; convert Ascii character to lower case
 
      ; external functionality in other modules

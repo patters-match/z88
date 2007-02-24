@@ -57,6 +57,7 @@
         xref FileEprActiveSpace                 ; osepr/epractsp.asm
         xref FileEprFreeSpace                   ; osepr/eprfresp.asm
         xref FileEprCntFiles                    ; osepr/eprcntfl.asm
+        xref FileEprFileStatus                   ; osepr/eprfstat.asm
 
 
 xdef    OSEpr
@@ -91,7 +92,8 @@ xdef    OSEpr
         jp      ozFileEprTotalSpace             ; 1e, EP_TotSp (OZ 4.2 and newer)
         jp      ozFileEprActiveSpace            ; 21, EP_ActSp (OZ 4.2 and newer)
         jp      ozFileEprFreeSpace              ; 24, EP_FreSp (OZ 4.2 and newer)
-        jp      ozFileEprCntFiles               ; 27, EP_Stat  (OZ 4.2 and newer)
+        jp      ozFileEprCntFiles               ; 27, EP_Count (OZ 4.2 and newer)
+        jp      ozFileEprFileStatus             ; 2a, EP_Stat  (OZ 4.2 and newer)
 
 
 ; ***************************************************************************************************
@@ -120,8 +122,9 @@ xdef    OSEpr
         ret     c
 .ret_bhl_fz
         call    PutOSFrame_BHL                  ; return BHL = pointer to found File entry or pointer to free byte in File area
-        ret     nz
-        set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1 (file entry found)
+.ret_fz
+        ret     nz                              ; Fz = 0 is returned by default in OS_Epr interface...
+        set     Z80F_B_Z,(iy+OSFrame_F)         ; return Fz = 1
         ret
 
 
@@ -185,6 +188,12 @@ xdef    OSEpr
         call    PutOSFrame_DE
         jp      PutOSFrame_HL                   ; return HL = total of active files, DE = total of deleted files
 
+
+; ***************************************************************************************************
+.ozFileEprFileStatus
+        call    FileEprFileStatus
+        ret     c
+        jr      ret_fz                          ; return Fz status (if file entry is marked as deleted or not)
 
 
 ;***************************************************************************************************
