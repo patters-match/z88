@@ -24,6 +24,7 @@
 ;
 ; ***************************************************************************************************
 
+        xdef FileEprFileStatus
         lib MemReadByte, PointerNextByte
 
         include "error.def"
