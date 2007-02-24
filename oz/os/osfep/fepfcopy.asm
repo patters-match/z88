@@ -25,7 +25,6 @@
 
         xdef FlashEprCopyFileEntry
 
-        lib FileEprAllocFilePtr
         lib FileEprTransferBlockSize
         lib OZSlotPoll, SetBlinkScreen
 
@@ -34,6 +33,7 @@
         xref FlashEprCopyBlock
         xref FileEprFileEntryInfo
         xref FileEprFreeSpace
+        xref FileEprNewFileEntry
         xref SetBlinkScreenOn
 
         include "error.def"
@@ -188,7 +188,7 @@
 
 ; **************************************************************************
 .CopyFileEntry
-        call    FileEprAllocFilePtr             ; BHL = pointer to free file space on File Eprom Card
+        call    FileEprNewFileEntry             ; BHL = pointer to free file space on File Eprom Card
         ret     c                               ; no file area recognized in slot C!
         ex      de,hl
         ld      c,b

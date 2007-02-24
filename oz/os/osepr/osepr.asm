@@ -57,7 +57,9 @@
         xref FileEprActiveSpace                 ; osepr/epractsp.asm
         xref FileEprFreeSpace                   ; osepr/eprfresp.asm
         xref FileEprCntFiles                    ; osepr/eprcntfl.asm
-        xref FileEprFileStatus                   ; osepr/eprfstat.asm
+        xref FileEprFileStatus                  ; osepr/eprfstat.asm
+        xref FileEprNewFileEntry                ; osepr/eprfnew.asm
+
 
 
 xdef    OSEpr
@@ -94,6 +96,8 @@ xdef    OSEpr
         jp      ozFileEprFreeSpace              ; 24, EP_FreSp (OZ 4.2 and newer)
         jp      ozFileEprCntFiles               ; 27, EP_Count (OZ 4.2 and newer)
         jp      ozFileEprFileStatus             ; 2a, EP_Stat  (OZ 4.2 and newer)
+        jp      ozFileEprNewFileEntry           ; 2d, EP_New   (OZ 4.2 and newer)
+
 
 
 ; ***************************************************************************************************
@@ -194,6 +198,13 @@ xdef    OSEpr
         call    FileEprFileStatus
         ret     c
         jr      ret_fz                          ; return Fz status (if file entry is marked as deleted or not)
+
+
+; ***************************************************************************************************
+.ozFileEprNewFileEntry
+        call    FileEprNewFileEntry
+        ret     c
+        jr      ret_bhl_fz                      ; return BHL that is pointer to potential new file entry 
 
 
 ;***************************************************************************************************

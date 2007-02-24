@@ -38,6 +38,7 @@ osepr/eprtotsp.asm
 osepr/epractsp.asm
 osepr/eprfresp.asm
 osepr/eprcntfl.asm
+osepr/eprfnew.asm
 osfep/osfep.asm
 osfep/fepsecera.asm
 osfep/fepcdera.asm

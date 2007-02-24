@@ -25,11 +25,11 @@
 
         xdef FlashEprSaveRamFile
 
-        lib FileEprAllocFilePtr
         lib OZSlotPoll, SetBlinkScreen
 
         xref FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
         xref FileEprFreeSpace
+        xref FileEprNewFileEntry
         xref SetBlinkScreenOn
 
         include "error.def"
@@ -260,7 +260,7 @@
 .SaveToFlashEpr
         push    hl
         ld      c,(iy + CardSlot)
-        call    FileEprAllocFilePtr             ; BHL = ptr. to free file space on File Eprom Card
+        call    FileEprNewFileEntry             ; BHL = ptr. to free file space on File Eprom Card
         ld      (iy + FileEntry),l
         ld      (iy + FileEntry+1),h
         ld      (iy + FileEntry+2),b            ; preserve pointer to new File Entry

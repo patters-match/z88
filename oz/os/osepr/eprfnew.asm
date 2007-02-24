@@ -1,29 +1,37 @@
-     XLIB FileEprAllocFilePtr
+        module FileEprNewFileEntry
 
 ; **************************************************************************************************
-; This file is part of the Z88 Standard Library.
+; File Area functionality.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
-; the terms of the GNU General Public License as published by the Free Software Foundation;
-; either version 2, or (at your option) any later version.
-; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with the
-; Z88 Standard Library; see the file COPYING. If not, write to the
-; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
 ;
 ; $Id$
 ;
-;***************************************************************************************************
+; ***************************************************************************************************
 
-     LIB FileEprRequest
-     LIB FileEprFileEntryInfo
-     LIB ConvPtrToAddr, ConvAddrToPtr
+     xdef FileEprNewFileEntry
+     xref FileEprRequest, FileEprFileEntryInfo
+
+     lib ConvPtrToAddr, ConvAddrToPtr
 
 
 
-; ************************************************************************
+; ***************************************************************************************************
 ;
 ; Standard Z88 File Eprom Format, including support for sub File Eprom
 ; area in application cards (below application banks in first free 64K boundary)
@@ -39,7 +47,7 @@
 ;         BHL = pointer to first byte of free space
 ;         (B = absolute bank of slot C)
 ;
-;    Fc = 1, File Eprom was not found in slot C
+;    Fc = 1, File Area was not found in slot C
 ;
 ; Registers changed after return:
 ;    ...CDE../IXIY same
@@ -49,14 +57,14 @@
 ; Design & programming by Gunther Strube, InterLogic, Dec 1997 - Aug 1998
 ; ------------------------------------------------------------------------
 ;
-.FileEprAllocFilePtr
+.FileEprNewFileEntry
                     PUSH BC
                     PUSH DE
 
                     LD   E,C                           ; preserve slot number
-                    CALL FileEprRequest                ; check for presence of "oz" File Eprom in slot
-                    JR   C,err_FileEprAllocFilePtr
-                    JR   NZ,err_FileEprAllocFilePtr    ; File Eprom not available in slot...
+                    CALL FileEprRequest                ; check for presence of "oz" File Eprom Area in slot
+                    JR   C,err_FileEprNewFileEntry
+                    JR   NZ,err_FileEprNewFileEntry    ; File Area not available in slot...
 
                     LD   A,E
                     AND  @00000011                     ; slots (0), 1, 2 or 3 possible
@@ -71,10 +79,10 @@
                     CALL FileEprFileEntryInfo          ; scan all file entries, to point at first free byte
                     JR   NC, scan_eprom
                     CP   A                             ; reached pointer to new file entry, don't return Fc = 1
-                    JR   exit_FileEprAllocFilePtr
-.err_FileEprAllocFilePtr
+                    JR   exit_FileEprNewFileEntry
+.err_FileEprNewFileEntry
                     SCF
-.exit_FileEprAllocFilePtr
+.exit_FileEprNewFileEntry
                     POP  DE
                     LD   A,B
                     POP  BC
