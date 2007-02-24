@@ -25,11 +25,10 @@
 ; ***************************************************************************************************
 
         xdef FileEprFindFile
-        xref FileEprRequest
+        xref FileEprRequest, FileEprNextFile
 
         lib MemReadByte, FileEprReadByte
         lib PointerNextByte
-        lib FileEprNextFile
         lib ToUpper
 
         include "error.def"
