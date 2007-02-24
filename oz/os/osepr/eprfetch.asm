@@ -26,7 +26,8 @@
 
         xdef FileEprFetchFile
 
-        lib FileEprFileImage, FileEprFileSize, FileEprTransferBlockSize
+        lib FileEprFileImage, FileEprTransferBlockSize
+        xref FileEprFileSize
 
         include "fileio.def"
         include "error.def"
