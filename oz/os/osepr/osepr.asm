@@ -204,7 +204,7 @@ xdef    OSEpr
 .ozFileEprNewFileEntry
         call    FileEprNewFileEntry
         ret     c
-        jr      ret_bhl_fz                      ; return BHL that is pointer to potential new file entry 
+        jr      ret_bhl_fz                      ; return BHL that is pointer to potential new file entry
 
 
 ;***************************************************************************************************
@@ -429,17 +429,9 @@ xdef    OSEpr
 
 .sv_4
         push    bc
-        push    de
+        push    de                              ; preserve file size (returned from OS_Frm)
         ld      c,3
-        call    FileEprFirstFile                ; return BHL to first file entry in slot 3
-.ge_1                                           ; skip all files
-        call    ChkFormattedByte
-        jr      z, ge_2                         ; unformatted? exit
-        call    SkipFile
-        jr      nc, ge_1                        ; skip next !! should this report error instead of Fc=0
-.ge_2
-        or      a                               ; Fc=0
-
+        call    FileEprNewFileEntry             ; return BHL to new file entry in slot 3
         pop     de
         ld      a, e
         pop     de
