@@ -24,7 +24,6 @@ Module FileAreaStatistics
      XDEF ksize_txt
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
-     lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib divu8                     ; Unsigned 8bit integer division
 
      XREF VduCursor                ; selectcard.asm

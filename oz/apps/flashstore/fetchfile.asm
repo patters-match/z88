@@ -29,7 +29,6 @@ Module FetchFile
      xdef DispCompletedMsg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib FileEprFileName           ; get a copy of the file name from the file entry.
      lib RamDevFreeSpace           ; Get free space on RAM device
 
@@ -301,7 +300,8 @@ Module FetchFile
                     push bc
                     push hl                       ; preserve File entry pointer
 
-                    call FileEprFileSize          ; get file entry size in CDE
+                    ld   a,EP_Size
+                    oz   OS_Epr                   ; get file entry size in CDE
                     ld   b,0
                     ld   (free),de
                     ld   (free+2),bc              ; store file size for CheckFreeRam routine

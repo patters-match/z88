@@ -59,6 +59,7 @@
         xref FileEprCntFiles                    ; osepr/eprcntfl.asm
         xref FileEprFileStatus                  ; osepr/eprfstat.asm
         xref FileEprNewFileEntry                ; osepr/eprfnew.asm
+        xref FileEprFileSize                    ; osepr/eprfsize.asm
 
 
 
@@ -96,7 +97,8 @@ xdef    OSEpr
         jp      ozFileEprFreeSpace              ; 24, EP_FreSp (OZ 4.2 and newer)
         jp      ozFileEprCntFiles               ; 27, EP_Count (OZ 4.2 and newer)
         jp      ozFileEprFileStatus             ; 2a, EP_Stat  (OZ 4.2 and newer)
-        jp      ozFileEprNewFileEntry           ; 2d, EP_New   (OZ 4.2 and newer)
+        jp      ozFileEprFileSize               ; 2d, EP_Size  (OZ 4.2 and newer)
+        jp      ozFileEprNewFileEntry           ; 30, EP_New   (OZ 4.2 and newer)
 
 
 
@@ -205,6 +207,14 @@ xdef    OSEpr
         call    FileEprNewFileEntry
         ret     c
         jr      ret_bhl_fz                      ; return BHL that is pointer to potential new file entry
+
+
+; ***************************************************************************************************
+.ozFileEprFileSize
+        call    FileEprFileSize
+        ret     c
+        call    PutOSFrame_CDE                  ; return file entry size in CDE
+        jr      ret_fz                          ; return File status (active/deleted) in Fz
 
 
 ;***************************************************************************************************

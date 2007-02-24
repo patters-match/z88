@@ -23,7 +23,6 @@ Module CatalogFiles
      xdef CatalogCommand
 
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
-     lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
 
      xref GetFirstFilePtr          ; browse.asm
@@ -129,7 +128,8 @@ Module CatalogFiles
 
                     push bc
                     push hl
-                    call FileEprFileSize          ; get size of File Entry in CDE
+                    ld   a,EP_Size
+                    oz   OS_Epr                   ; get size of File Entry in CDE
                     ld   (flen),de
                     ld   b,0
                     ld   (flen+2),bc

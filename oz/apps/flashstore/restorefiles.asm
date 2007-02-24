@@ -26,7 +26,6 @@ Module RestoreFiles
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
      lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
-     lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib RamDevFreeSpace           ; Get free space on RAM device.
 
      xref FilesAvailable           ; browse.asm
@@ -129,13 +128,15 @@ Module RestoreFiles
                     JP   C, no_files         ; Ups - the card was empty or not present...
 .restore_loop                                ; BHL points at current file entry
                     CALL FileEprFilename     ; get filename at (DE)
-                    JR   C, restore_completed; all file entries scanned...
+                    JP   C, restore_completed; all file entries scanned...
                     JR   Z, fetch_next       ; File Entry marked as deleted, get next...
 
                     ADD  A,6                 ; add length of device name
                     PUSH DE                  ; preserve local ptr to filename buffer...
                     PUSH AF                  ; preserve length of explicit RAM file name
-                    CALL FileEprFileSize
+
+                    ld   a,EP_Size
+                    oz   OS_Epr              ; get file entry size in CDE
                     LD   (free),DE
                     LD   A,C
                     LD   (free+2),A
