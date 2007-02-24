@@ -263,13 +263,6 @@ xdef    OSEpr
         ex      af, af'
         ret
 
-;       increment BHL and write byte !! unused
-.IncPokeBHL
-        inc     hl                              ; !! 'call IncBHL'
-        bit     6, h
-        jr      z, PokeBHL_epr
-        res     6, h
-        inc     b
 
 ;       write byte at (BHL)
 .PokeBHL_epr
