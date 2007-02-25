@@ -15,14 +15,12 @@
 ; 
 ; $Id$  
 ;
-;***************************************************************************************************
+; ***************************************************************************************************
 
      LIB FileEprFileEntryInfo
 
-     INCLUDE "error.def"
 
-
-; ************************************************************************
+; ***************************************************************************************************
 ;
 ; Standard Z88 File Eprom Format, including support for sub File Eprom
 ; Area in application cards (below application banks in first free 64K boundary)
@@ -44,29 +42,19 @@
 ;         File Eprom was not found in slot, or File Entry not available
 ;
 ; Registers changed after return:
-;    A.B...HL/IXIY same
-;    .F.CDE../.... different
+;    ..B...HL/IXIY same
+;    AF.CDE../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004, Feb 2007
 ; ------------------------------------------------------------------------
 ;
 .FileEprFileSize    PUSH HL
-                    PUSH AF
                     PUSH BC                       ; preserve pointer
 
-                    CALL FileEprFileEntryInfo     ; filename size in A, file status (Fz)
-                    JR   C, err_fileepr
-                    
-                    POP  HL                       ; length of file in CDE
-                    LD   B,H
-                    POP  HL
-                    LD   A,H                      ; original A restored
-                    POP  HL                       ; original pointer restored
-                    RET                           ; filestatus (Fz) and error status (Fc)
-.err_fileepr
-                    LD   A, RC_ONF
-                    POP  BC                       ; original BC restored
-                    POP  HL                       ; ignore old AF
-                    POP  HL                       ; original HL restored
-                    RET
+                    CALL FileEprFileEntryInfo     ; get size in CDE, file status (Fz)
+
+                    POP  HL                       ; if Fc = 1, then A = RC_Onf, CDE is random 
+                    LD   B,H                      ; if Fc = 0, then CDE contains file entry image size.
+                    POP  HL                       ; BHL restored
+                    RET                           ; return filestatus (Fz) (or possibly error status, Fc)
