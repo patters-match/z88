@@ -27,8 +27,6 @@
         xdef FileEprFileSize
         xref FileEprFileEntryInfo
 
-        include "error.def"
-
 
 ; ***************************************************************************************************
 ;
@@ -52,30 +50,20 @@
 ;         File Eprom was not found in slot, or File Entry not available
 ;
 ; Registers changed after return:
-;    A.B...HL/IXIY same
-;    .F.CDE../.... different
+;    ..B...HL/IXIY same
+;    AF.CDE../.... different
 ;
-; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004
-; ------------------------------------------------------------------------
+; ----------------------------------------------------------------------------------------------------
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004, Feb 2007
+; ----------------------------------------------------------------------------------------------------
 ;
 .FileEprFileSize
         push    hl
-        push    af
         push    bc                              ; preserve pointer
 
         call    FileEprFileEntryInfo            ; filename size in A, file status (Fz)
-        jr      c, err_fileepr
-
-        pop     hl                              ; length of file in CDE
+                                                ; if Fc = 1, then A = RC_Onf (and CDE will be random)
+        pop     hl                              ; if Fc = 0, length of file in CDE
         ld      b,h
-        pop     hl
-        ld      a,h                             ; original A restored
-        pop     hl                              ; original pointer restored
-        ret                                     ; filestatus (Fz) and error status (Fc)
-.err_fileepr
-        ld      a, RC_ONF
-        pop     bc                              ; original BC restored
-        pop     hl                              ; ignore old AF
-        pop     hl                              ; original HL restored
-        ret
+        pop     hl                              ; BHL restored
+        ret                                     ; return filestatus (Fz) or error status (Fc)
