@@ -620,11 +620,9 @@ xdef    OSEpr
         ld      b, (ix+8)                       ; get EPROM pointer
         ld      h, (ix+9)
         ld      l, (ix+10)
-
 .dir_2
-        call    SkipFile                        ; skip  current file
+        call    FileEprNextFile
         jr      c, dir_5                        ; error? EOF
-
 .dir_3
         call    ChkFormattedByte
         jr      z, dir_5                        ; unformatted? EOF
@@ -945,52 +943,6 @@ xdef    OSEpr
 
 ;       ----
 
-;       skip file name and return file size
-;
-;IN:    BHL=EPROM pointer
-;OUT:
-;chg
-
-.GetFileSize
-        ld      a, (ubEpr_Fstype)
-        bit     0, a
-        jr      z, gfs_1                        ; use 3-byte header format
-
-        call    PeekBHL                         ; name length
-        inc     a                               ; + delete byte
-        ld      e, a
-        ld      d, 0                            ; !! should zero C too
-        call    AddBHL_CDE                      ; skip name
-
-        call    PeekBHL                         ; get file size into CDE
-        ld      e, a
-        call    IncPeekBHL
-        ld      d, a
-        call    IncPeekBHL
-        ld      c, a
-        call    IncBHL
-        jr      IncBHL                          ; skip one byte and exit
-
-.gfs_1
-        call    PeekBHL                         ; get file size into DE
-        ld      e, a
-        call    IncPeekBHL
-        ld      d, a
-
-        call    IncPeekBHL                      ; get name length
-        call    IncBHL                          ; skip delete byte !! why not 'inc a'
-        push    de                              ; remember size
-        ld      e, a
-        ld      d, 0
-        ld      c, d
-        call    AddBHL_CDE                      ; skip file name
-
-        pop     de                              ; restore length !! ld c,d before pop
-        ld      c, 0
-        ret
-
-;       ----
-
 ;       increment BHL, handle bank change
 
 .IncBHL
@@ -1002,12 +954,6 @@ xdef    OSEpr
         ret
 ;       ----
 
-;       skip file data
-
-.SkipFile
-        call    GetFileSize
-
-;       ----
 
 ;       BHL+=CDE, handle bank crossing
 
