@@ -2,11 +2,6 @@ lstoff
 
 ; Standard Z88 Operating System manifests:
 
-; The information below is defined in developers Notes, release 3.00
-; (c) Cambridge Computer 1989-95
-
-; v1.11 (02.08.99)
-
 ; Director/CLI low level access:
 
      DEFC Dc_Alt = $1A0C           ; Pass an alternative character
@@ -73,31 +68,33 @@ lstoff
      ; arguments:
           DEFC WT_ANY = $FF        ; infinite
 
-     DEFC Os_Fth = $DE06           ; Free tri-handle (internal)
-     DEFC Os_Gth = $E206           ; Allocate tri-handle (internal)
-     DEFC Os_Vth = $E006           ; Verify tri-handle (internal)
-     ; arguments for all three handle calls:
-          DEFC TH_FILT = $F0       ; verify filter handle
-          DEFC TH_WMG  = $F1       ; verify wildcard manager handle
-          DEFC TH_ALM  = $F2       ; verify alarm handle
-
 ; Application Type manifests 1 (type byte1 in Application DOR):
 
-     DEFC AT_Good = 1     ; (BIT 0) well behaved
-     DEFC AT_Bad  = 2     ; (BIT 1) not well behaved, not killed on pre-emption
-     DEFC AT_Ugly = 4     ; (BIT 2) not well behaved, killed on pre-emption
-     DEFC AT_Popd = 8     ; (BIT 3) popdown (if not set then an application)
-     DEFC AT_Ones = 16    ; (BIT 4) only one application instance allowed
-     DEFC AT_Draw = 32    ; (BIT 5) OZ to redraw screen is possible (2K file)
-     DEFC AT_Film = 64    ; (BIT 6) File Manager Application (internal usage)
-     DEFC AT_Boot = 128   ; (BIT 7) Application Auto Boot (after soft reset)
+     DEFC AT_Good = 1              ; (BIT 0) well behaved
+     DEFC AT_Bad  = 2              ; (BIT 1) not well behaved, not killed on pre-emption
+     DEFC AT_Ugly = 4              ; (BIT 2) not well behaved, killed on pre-emption
+     DEFC AT_Popd = 8              ; (BIT 3) popdown (if not set then an application)
+     DEFC AT_Ones = 16             ; (BIT 4) only one application instance allowed
+     DEFC AT_Draw = 32             ; (BIT 5) OZ to redraw screen is possible (2K file)
+     DEFC AT_Film = 64             ; (BIT 6) File Manager Application (internal usage)
+     DEFC AT_Boot = 128            ; (BIT 7) Application Auto Boot (after soft reset)
 
 
 ; Application Type manifests 2 (type byte2 in Application DOR):
 ; (Bits 3 - 6 are ignored - should be reset)
 
-     DEFC AT2_Cl  = 1     ; (BIT 0) Set Caps Lock on creation entry
-     DEFC AT2_Icl = 2     ; (BIT 1) Set 'inverted' Caps Lock on creation entry
-     DEFC AT2_Ie  = 128   ; (BIT 7) Ignore error returns (should be avoided).
+     DEFC AT2_Cl  = 1              ; (BIT 0) Set Caps Lock on creation entry
+     DEFC AT2_Icl = 2              ; (BIT 1) Set 'inverted' Caps Lock on creation entry
+     DEFC AT2_Ie  = 128            ; (BIT 7) Ignore error returns (should be avoided).
+
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+
+; Index internal flags:
+
+     defc IDXF1_INSIDEOZ = $01     ; inside OS_In
+     defc IDXF1_INIT     = $02     ; need init
+
+     defc IDXF1_B_INSIDEOZ = 0
+     defc IDXF1_B_INIT     = 1
 
 lston

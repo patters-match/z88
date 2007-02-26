@@ -45,6 +45,7 @@
         include "stdio.def"
         include "syspar.def"
         include "time.def"
+        include "printer.def"
         include "sysvar.def"
 
         include "../os/lowram.def"

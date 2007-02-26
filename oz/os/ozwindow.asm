@@ -43,6 +43,7 @@
         module  OZWindow
 
         include "sysvar.def"
+        include "interrpt.def"
 
 xdef    OZwd_card
 xdef    OZwd_index

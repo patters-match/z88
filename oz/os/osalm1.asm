@@ -33,9 +33,11 @@
         Module OSAlm1
 
         include "error.def"
-        include "misc.def"
+        include "stdio.def"
         include "time.def"
+        include "handle.def"
         include "sysvar.def"
+        include "interrpt.def"
 
 
 xdef    OSAlmMain
@@ -155,7 +157,7 @@ xref    MaySetPendingAlmTask                    ; bank0/int.asm
         ld      (ix+ahnd_NextAlarmH), b
         push    de
         pop     ix
-        bit     ALMF_B_ACTIVE, (ix+ahnd_Flags)
+        bit     AHNF_B_ACTIVE, (ix+ahnd_Flags)
         call    nz, DecActiveAlm                ; decrement active count and remove pending alarm task if needed
         call    SetNextAlmTime
         pop     de
@@ -305,7 +307,7 @@ xref    MaySetPendingAlmTask                    ; bank0/int.asm
         jr      z, st_5                         ; if alarm is active immediately
         push    hl
         pop     ix
-        bit     ALMF_B_ACTIVE, (ix+ahnd_Flags)
+        bit     AHNF_B_ACTIVE, (ix+ahnd_Flags)
         jr      nz, st_1                        ; active? skip
         ld      hl, ubIntStatus
 
@@ -326,7 +328,7 @@ xref    MaySetPendingAlmTask                    ; bank0/int.asm
         ld      hl, ubIntStatus
         di
         jr      nc, st_4                        ; not elapsed
-        set     ALMF_B_ACTIVE, (ix+ahnd_Flags)
+        set     AHNF_B_ACTIVE, (ix+ahnd_Flags)
         call    IncActiveAlm                    ; increment active count, set pending alarm task
         jr      st_1
 

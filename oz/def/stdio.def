@@ -2,20 +2,18 @@ lstoff
 
 ; Standard Z88 Operating System manifests:
 
-; The information below is defined in Developers Notes, release 3.00
-; (c) Cambridge Computer 1989
+; Standard I/O calls:
 
      DEFC  OS_In     = $2A         ; read a byte from std. input (keyboard)
      DEFC  OS_Tin    = $2D         ; read a byte from std. input, with timeout
      DEFC  OS_Out    = $27         ; write a byte to std. output
      DEFC  OS_Xin    = $30         ; examine input (e.g. check for pre-emption)
-
      DEFC  GN_Nln    = $2E09       ; send newline (CR/LF) to std. output
      DEFC  GN_Sop    = $3A09       ; write string to std. output
      DEFC  GN_Soe    = $3C09       ; write string from extended address
      DEFC  GN_Sip    = $3809       ; system input line routine
-
      DEFC  OS_Pur    = $33         ; purge keyboard buffer (and reset timeout)
+     DEFC  OS_Blp  = $D806         ; Bleep
 
 ; Standard input key definitions (Returned by OS_IN, OS_TIN, GN_SIP)
 ;

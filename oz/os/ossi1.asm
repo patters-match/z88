@@ -40,6 +40,7 @@
         include "sysvar.def"
         include "serintfc.def"
         include "lowram.def"
+        include "interrpt.def"
 
 xdef    OSSiHrd1
 xdef    OSSiSft1
@@ -59,7 +60,7 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
         push    bc
         push    de
         ld      a,FN_AH
-        ld      b,HN_SER
+        ld      b,HND_SER
         OZ      OS_Fn                           ; allocate serial handle
         pop     de
         pop     bc

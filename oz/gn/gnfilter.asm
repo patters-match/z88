@@ -8,7 +8,7 @@
 
         org $cb95                               ; 939 bytes
 
-        include "director.def"
+        include "handle.def"
         include "error.def"
         include "memory.def"
         include "sysvar.def"

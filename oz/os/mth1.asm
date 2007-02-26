@@ -12,7 +12,7 @@
         include "saverst.def"
         include "syspar.def"
         include "sysvar.def"
-
+        include "interrpt.def"
 
 xdef    DoHelp
 xdef    CopyMTHApp_Help

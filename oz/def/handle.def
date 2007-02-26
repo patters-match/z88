@@ -1,27 +1,28 @@
 lstoff
 
-; HANDLE.DEF
-; v1.0 - 30 june 1999
 ; Z88 Operating System manifests
-; by Thierry Peycru
 
-;common
-     defc HN_LEN    =    $10       ;a hn is 16 bytes
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
-;handle types
-     defc HN_FREE   =    $00       ;free handle type
-     defc HN_DEV    =    $01       ;device
-     defc HN_FILE   =    $02       ;file/directory
-     defc HN_MEM    =    $03       ;memory
-     defc HN_PROC   =    $04       ;process
-     defc HN_ALM    =    $05       ;alarm
-     defc HN_TRI    =    $06       ;tri-handle
-     defc HN_TEMP   =    $FA       ;temporary data
-     defc HN_SER    =    $FB       ;serial port
+; handle functions:
+     DEFC Os_Fn  = $7B             ; Miscellaneous OS functions (internal)
 
-;tri-handle subtypes
+          DEFC FN_AH = $01         ; allocate handle
+          DEFC FN_VH = $02         ; verify handle
+          DEFC FN_FH = $03         ; free handle
+
+; tri-handle calls:
+     DEFC Os_Fth = $DE06           ; Free tri-handle (internal)
+     DEFC Os_Gth = $E206           ; Allocate tri-handle (internal)
+     DEFC Os_Vth = $E006           ; Verify tri-handle (internal)
+
+; tri-handle subtypes:
      defc TH_FILT   =    $F0       ;filter
      defc TH_WMG    =    $F1       ;wildcard
      defc TH_ALM    =    $F2       ;alarm
+
+; structure:
+     defc NUMHANDLES = $60         ; 96 handles starting at 'Handles' in sysvar.def
+     defc hnd_SIZEOF = $10         ; each handle is 16 bytes length
 
 lston

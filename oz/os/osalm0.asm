@@ -30,11 +30,12 @@
 ; $Id$
 ;***************************************************************************************************
 
-        Module Alarm2
+        Module Alarm0
 
         include "alarm.def"
         include "sysvar.def"
         include "interrpt.def"
+        include "lowram.def"
 
 xdef    OSAlm
 xdef    DoAlarms

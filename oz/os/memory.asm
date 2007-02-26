@@ -39,6 +39,7 @@
         include "error.def"
         include "memory.def"
         include "stdio.def"
+        include "handle.def"
         include "sysvar.def"
         include "lowram.def"
 

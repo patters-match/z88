@@ -9,6 +9,7 @@
         include "blink.def"
         include "error.def"
         include "sysvar.def"
+        include "interrpt.def"
 
 xdef    OSHt
 xdef    ReadRTC

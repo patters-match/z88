@@ -4,13 +4,15 @@
 ; $Id$
 ; -----------------------------------------------------------------------------
 
-        Module MTH2
+        Module MTH0
 
         include "dor.def"
         include "error.def"
         include "fileio.def"
         include "stdio.def"
+        include "handle.def"
         include "sysvar.def"
+        include "interrpt.def"
         include "../mth/mth.def"
 
 

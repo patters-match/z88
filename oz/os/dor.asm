@@ -35,6 +35,7 @@
 
         include "dor.def"
         include "error.def"
+        include "handle.def"
         include "sysvar.def"
 
 xdef    DORHandleFree                           ; get rid of these two stubs
@@ -158,7 +159,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         call    VerifyHandleBank
         ret     c                               ; bad handle? exit
 
-        bit     HNDF_B_DEV, (ix+hnd_Flags)     ; !! reorder code to save one jr
+        bit     HND_B_DEV, (ix+hnd_Flags)     ; !! reorder code to save one jr
         jr      nz, dorsib_1                    ; device? change type
 
         ld      bc, DOR_BROTHER                 ; DOR_BROTHER
@@ -209,7 +210,7 @@ xref    InitHandle                              ; bank7/misc1.asm
         call    PutHandleBHL_S2                 ; put BHL, fix for S2 addressing
 
         call    MS2HandleBank
-        res     HNDF_B_DEV, (ix+hnd_Flags)      ; not device
+        res     HND_B_DEV, (ix+hnd_Flags)      ; not device
         ld      bc, DOR_TYPE
         add     hl, bc
         ld      a, (hl)

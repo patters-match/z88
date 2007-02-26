@@ -33,6 +33,7 @@
         module  Printer
 
         include "ctrlchar.def"
+        include "printer.def"
         include "fileio.def"
         include "memory.def"
         include "serintfc.def"

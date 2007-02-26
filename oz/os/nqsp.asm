@@ -37,6 +37,7 @@
         include "syspar.def"
         include "sysvar.def"
         include "memory.def"
+        include "interrpt.def"
 
 xdef    OSSpMain
 xdef    OSNqMain

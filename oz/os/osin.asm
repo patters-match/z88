@@ -40,6 +40,7 @@
         include "stdio.def"
         include "sysvar.def"
         include "lowram.def"
+        include "interrpt.def"
 
 xdef    OSIn
 xdef    OSTin
@@ -224,7 +225,7 @@ xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
         push    ix
         push    iy
         ld      (pAppStackPtr), sp              ; remember SP
-        ld      hl, BLSC_SR0                    ; rememer bindings
+        ld      hl, BLSC_SR0                    ; remember bindings
         ld      de, ubAppBindings
         ld      bc, 3
         ldir

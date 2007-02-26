@@ -36,6 +36,7 @@
         include "error.def"
         include "sysvar.def"
         include "lowram.def"
+        include "interrpt.def"
 
 
 xdef    BothShifts

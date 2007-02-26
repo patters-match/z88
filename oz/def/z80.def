@@ -1,0 +1,21 @@
+lstoff
+
+; Z80 flags SZ-H-PNC
+
+defc    Z80F_B_C                =0
+defc    Z80F_B_N                =1
+defc    Z80F_B_V                =2
+defc    Z80F_B_P                =2
+defc    Z80F_B_H                =4
+defc    Z80F_B_Z                =6
+defc    Z80F_B_S                =7
+
+defc    Z80F_C                  =$01
+defc    Z80F_N                  =$02
+defc    Z80F_V                  =$04
+defc    Z80F_P                  =$04
+defc    Z80F_H                  =$10
+defc    Z80F_Z                  =$40
+defc    Z80F_S                  =$80
+
+lston

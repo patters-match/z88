@@ -45,7 +45,8 @@
         include "saverst.def"
         include "stdio.def"
         include "syspar.def"
-        include "time.def
+        include "time.def"
+        include "printer.def"
         include "sysvar.def"
 
 defc    dix_eCurrentDatePrev    =$00

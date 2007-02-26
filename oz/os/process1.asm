@@ -7,6 +7,7 @@
         Module Process1
 
         include "error.def"
+        include "saverst.def"
         include "sysvar.def"
 
 xdef    OSPoll

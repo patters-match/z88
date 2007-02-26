@@ -7,6 +7,7 @@
         Module Handle
 
         include "error.def"
+        include "handle.def"
         include "sysvar.def"
 
 xdef    OSGth
@@ -83,7 +84,7 @@ xref    PutOSFrame_HL                           ; bank0/misc5.asm
         ld      ix, Handles                     ; handles in $0500-$0bff
         ld      b, NUMHANDLES                   ; 96 handles (6 pages of 16 handles)
 .rsthn_1
-        ld      de, (pFirstHandle)              ; get previous handle  !! use registers insde loop
+        ld      de, (pFirstHandle)              ; get previous handle  !! use registers inside loop
         ld      (ix+hnd_Next), e                ; link this to prev
         ld      (ix+hnd_Next+1), d
         xor     a

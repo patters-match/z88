@@ -10,6 +10,7 @@
         include "stdio.def"
         include "sysvar.def"
         include "lowram.def"
+        include "interrpt.def"
 
 xdef    OSEsc
 xdef    TestEsc

@@ -1,0 +1,40 @@
+lstoff
+
+; Standard Z88 Operating System manifests:
+
+; Printer filter call:
+
+     DEFC Os_Prt  = $24            ; Send character directly to printer filter (low level)
+
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+
+; Sequences: (in screen base file)
+
+     DEFC Os_Isq  = $D006          ; Initialize prefix sequence (internal)
+     DEFC Os_Wsq  = $CE06          ; Write to prefix sequence (internal)
+
+     defc PrtSeqPrefix = $7EE9
+     defc PrtSequence  = $7EEA
+     defc PrtSeqBuf    = $7EEC
+
+; Printer attributes:
+
+     defc PRA_B_ON          = 0    ; state
+     defc PRA_B_PENDING     = 1    ; changed but not yet printed
+     defc PRA_B_PLACEHOLDER = 2    ;
+     defc PRA_B_RESETCR     = 7    ; reset at CR?
+
+     defc PRA_ON            = $01
+     defc PRA_PENDING       = $02
+     defc PRA_PLACEHOLDER   = $04
+     defc PRA_RESETCR       = $80
+
+; Printer flags:
+
+     defc PRT_B_ALLOWLF     = 0    ; LF after CR?
+     defc PRT_B_ENABLED     = 1    ; output enabled?
+
+     defc PRT_ALLOWLF       = $01
+     defc PRT_ENABLED       = $02
+
+lston

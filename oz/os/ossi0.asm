@@ -41,6 +41,7 @@
         include "sysvar.def"
         include "serintfc.def"
         include "lowram.def"
+        include "interrpt.def"
 
 xdef    OSSi
 xdef    OSSiInt                                 ; called by int.asm (replace IntUART)

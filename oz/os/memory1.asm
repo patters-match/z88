@@ -7,6 +7,7 @@
         Module Memory1
 
         include "error.def"
+        include "handle.def"
         include "sysvar.def"
 
 xdef    MemCallAttrVerify

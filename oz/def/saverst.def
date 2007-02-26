@@ -2,14 +2,12 @@ lstoff
 
 ; Standard Z88 Operating System manifests:
 
-; The information below is defined in Developers Notes, release 3.00
-; (c) Cambridge Computer 1989
-
 ; Save / Restore manipulation:
 ; (screen, application mailbox, Page wait & Application card management)
 
      DEFC Os_Sr  = $6C             ; Save & Restore
-     ; arguments:
+
+; arguments:
      DEFC SR_SUS = $01             ; Save user screen
      DEFC SR_RUS = $02             ; Restore user screen
      DEFC SR_WPD = $03             ; Write parameter data (mailbox)
@@ -19,5 +17,12 @@ lstoff
      DEFC SR_CIN = $07             ; Insert card  (not implemented)
      DEFC SR_PWT = $08             ; Page wait
      DEFC SR_RND = $09             ; Occasionally a random number (system use)
+
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+
+; Mailbox settings:
+     defc MBOXNAMEMAXLEN = $11
+     defc MAILBOXMAXLEN  = $40
+     defc MAILBOXID      = $AA
 
 lston

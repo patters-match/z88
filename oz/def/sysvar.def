@@ -24,8 +24,8 @@ lstoff
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ;
 ; Additional improvements, comments, definitions and new implementations by
-; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
 ;
 ; $Id$
 ;***************************************************************************************************
@@ -49,8 +49,8 @@ lstoff
 ;
 ; Constants are all uppercase
 
-defc    OZVERSION               = $42
-
+        include "kernel.def"
+        include "z80.def"
 
 ; System variable area
 defc    sysvar_area = $020b
@@ -325,32 +325,6 @@ defc    unk_1864                =$1864          ; ???
 ;
 ; **************************************************************************************************
 
-
-
-; **************************************************************************************************
-;       MAILBOX
-; **************************************************************************************************
-
-defc    MBOXNAMEMAXLEN          =17
-defc    MAILBOXMAXLEN           =64
-defc    MAILBOXID               =$aa
-
-
-
-; **************************************************************************************************
-;       INDEX / DC
-; **************************************************************************************************
-
-;       ubIdxPubFlags
-
-defc    IDXF1_B_INSIDEOZ        =0              ; inside OS_In
-defc    IDXF1_B_INIT            =1              ; need init
-
-defc    IDXF1_INSIDEOS          =$01
-defc    IDXF1_INIT              =$02
-
-
-
 ; **************************************************************************************************
 ;       KEYBOARD
 ; **************************************************************************************************
@@ -444,61 +418,6 @@ defc    IN_MEN                  =$E5
 defc    IN_IDX                  =$E6
 defc    IN_HLP                  =$E7
 defc    IN_CAPS                 =$E8
-
-
-
-; **************************************************************************************************
-;       INT / NMI
-; **************************************************************************************************
-
-;       ubIntStatus
-
-defc    IST_B_CLISHIFT          =0
-defc    IST_B_CLIDMND           =1
-defc    IST_B_2                 =2              ; selects which prefs pointer to use
-defc    IST_B_HASPREFS          =3
-defc    IST_B_ALARM             =4
-defc    IST_B_ALMTIMEOK         =5              ; time until next alarm is valid
-defc    IST_B_BATLOW            =6              ; show 'bat low' indicator
-
-defc    IST_CLISHIFT            =$01
-defc    IST_CLIDMND             =$02
-defc    IST_ALARM               =$10
-defc    IST_ALMTIMEOK           =$20
-defc    IST_BATLOW              =$40
-
-;       ubIntTaskToDo
-
-defc    ITSK_B_BUFFER           =0
-defc    ITSK_B_TIMER            =1
-defc    ITSK_B_SHUTDOWN         =2
-defc    ITSK_B_PREEMPTION       =3
-defc    ITSK_B_ESC              =4
-defc    ITSK_B_ALARM            =5
-defc    ITSK_B_OZWINDOW         =7
-
-defc    ITSK_BUFFER             =$01
-defc    ITSK_TIMER              =$02
-defc    ITSK_SHUTDOWN           =$04
-defc    ITSK_PREEMPTION         =$08
-defc    ITSK_ESC                =$10
-defc    ITSK_ALARM              =$20
-defc    ITSK_OZWINDOW           =$80
-
-;       ubSysFlags1
-
-defc    SF1_B_0                 =0
-defc    SF1_B_1                 =1
-defc    SF1_B_INPUTPENDING      =2
-defc    SF1_B_XTNDCHAR          =3
-defc    SF1_B_OZDMND            =4
-defc    SF1_B_OZSQUARE          =5
-defc    SF1_B_6                 =6
-defc    SF1_B_NOTOKENS          =7
-
-defc    SF1_OZDMND              =$10
-defc    SF1_OZSQUARE            =$20
-
 
 ; **************************************************************************************************
 ;       SCREEN / WINDOW
@@ -693,66 +612,23 @@ defc    CMDF_B_HELP             =4
 
 defc    CMDF_HELP               =$10
 
-
-; **************************************************************************************************
-;       PUSHFRAME / CPU
-; **************************************************************************************************
-
-;       OS pushframe
-
-defvars 0
-        OSFrame_IY              ds.w    1       ; $00
-        OSFrame_S2              ds.b    1       ; $02
-        OSFrame_S3              ds.b    1       ; $03
-        OSFrame_OZCall          ds.w    1       ; $04
-        OSFrame_F               ds.b    1       ; $06
-        OSFrame_A               ds.b    1       ; $07
-        OSFrame_C               ds.b    1       ; $08
-        OSFrame_B               ds.b    1       ; $09
-        OSFrame_E               ds.b    1       ; $0A
-        OSFrame_D               ds.b    1       ; $0B
-        OSFrame_L               ds.b    1       ; $0C
-        OSFrame_H               ds.b    1       ; $0D
-        OSFrame__S2             ds.b    1       ; $0E
-        OSFrame__S3             ds.b    1       ; $0F
-enddef
-
-; Z80 flags SZ-H-PNC
-
-defc    Z80F_B_C                =0
-defc    Z80F_B_N                =1
-defc    Z80F_B_V                =2
-defc    Z80F_B_P                =2
-defc    Z80F_B_H                =4
-defc    Z80F_B_Z                =6
-defc    Z80F_B_S                =7
-
-defc    Z80F_C                  =$01
-defc    Z80F_N                  =$02
-defc    Z80F_V                  =$04
-defc    Z80F_P                  =$04
-defc    Z80F_H                  =$10
-defc    Z80F_Z                  =$40
-defc    Z80F_S                  =$80
-
-
 ; **************************************************************************************************
 ;       HANDLE
 ; **************************************************************************************************
 
-;       number of handles
+; handle types:
 
-defc    NUMHANDLES              =6*16
+     defc HND_DEV  = $01           ;device 
+     defc HND_FILE = $02           ;file/directory
+     defc HND_MEM  = $03           ;memory 
+     defc HND_PROC = $04           ;process
+     defc HND_ALRM = $05           ;alarm
+     defc HND_TRHN = $06           ;tri-handle
+     defc HND_TEMP = $FA           ;temporary
+     defc HND_SER  = $FB           ;serial port
 
-;       handle types
+     defc HND_B_DEV = 0
 
-defc    HND_DEV                 =1
-defc    HND_FILE                =2
-defc    HND_MEM                 =3
-defc    HND_PROC                =4
-defc    HND_ALRM                =5
-defc    HND_TRHN                =6
-defc    HND_TEMP                =250
 
 ;       generic handle
 
@@ -763,9 +639,6 @@ defc    hnd_Flags               =$0a            ; 0A-0D semi-standard
 defc    hnd_L                   =$0b
 defc    hnd_H                   =$0c
 defc    hnd_Bank                =$0d
-defc    hnd_SIZEOF              =$10
-
-defc    HNDF_B_DEV              =0
 
 ;       device handle
 
@@ -823,7 +696,7 @@ defc    ahnd_TimeM              =$0B
 defc    ahnd_TimeH              =$0C
 defc    ahnd_Func               =$0D            ; BHL
 
-defc    ALMF_B_ACTIVE           =7
+defc    AHNF_B_ACTIVE           =7
 
 ;       serial handle
 
@@ -837,169 +710,5 @@ defc    thnd_Segment            =$04
 defc    thnd_AddrH              =$05
 defc    thnd_Bank               =$06
 defc    thnd_SubType            =$07
-
-
-
-; **************************************************************************************************
-;       ALARM
-; **************************************************************************************************
-
-;       alarm frame structure
-
-defvars 0
-        alm_Next                ds.p    1       ; $00
-        alm_Time                ds.b    3       ; $03
-        alm_Date                ds.b    3       ; $06
-        alm_Reason              ds.b    24      ; $09
-        alm_RepeatDays          ds.b    3       ; $21
-        alm_RepeatTime          ds.b    3       ; $24
-        alm_RepeatNum           ds.w    1       ; $27
-        alm_RepeatFlags         ds.b    1       ; $29
-        alm_Flags               ds.b    1       ; $2a
-        alm_Handle              ds.w    1       ; $2b
-        alm_ID                  ds.w    1       ; $2d
-        alm_SIZEOF              ds.b    1       ; $2f
-enddef
-
-;       !! WARNING !!   ALMF already used for alarm handle
-;                       need to rename one or other
-
-defc    ALMF_B_BELL             =0
-defc    ALMF_B_EXECUTE          =1
-defc    ALMF_B_SHOWBELL         =2
-defc    ALMF_B_ADDED            =3
-
-defc    ALMF_BELL               =$01
-defc    ALMF_EXECUTE            =$02
-defc    ALMF_SHOWBELL           =$04
-defc    ALMF_ADDED              =$08
-
-defc    ALRF_B_SEC              =0
-defc    ALRF_B_MIN              =1
-defc    ALRF_B_HOUR             =2
-defc    ALRF_B_DAY              =3
-defc    ALRF_B_WEEK             =4
-defc    ALRF_B_MONTH            =5
-defc    ALRF_B_YEAR             =6
-defc    ALRF_B_NEVER            =7
-
-defc    ALRF_SEC                =$01
-defc    ALRF_MIN                =$02
-defc    ALRF_HOUR               =$04
-defc    ALRF_DAY                =$08
-defc    ALRF_WEEK               =$10
-defc    ALRF_MONTH              =$20
-defc    ALRF_YEAR               =$40
-defc    ALRF_NEVER              =$80
-
-
-
-; **************************************************************************************************
-;       MEMORY
-; **************************************************************************************************
-
-;       out-of-memory flags
-
-defc    OOM_B_NORMAL            =0
-defc    OOM_B_FIXED             =1
-
-defc    OOM_NORMAL              =$01
-defc    OOM_FIXED               =$02
-
-;       MAT entry flags
-
-defc    MAT_B_SYSTEM            =0              ; this 'flag' in low byte!
-defc    MAT_B_LAST              =4
-defc    MAT_B_FULL              =5
-defc    MAT_B_ALLOCFIXED        =6
-defc    MAT_B_SWAP              =7
-defc    MAT_SYSTEM              =$01            ; this 'flag' in low byte!
-defc    MAT_LAST                =$10
-defc    MAT_FULL                =$20
-defc    MAT_ALLOCFIXED          =$40
-defc    MAT_SWAP                =$80
-
-;       allocation flag bit defines - should be in memory.def
-
-defc    MM_B_FIX                =1
-defc    MM_B_SLT                =2
-defc    MM_B_MUL                =5
-
-
-
-; **************************************************************************************************
-;       KERNEL
-; **************************************************************************************************
-
-defc    ROMSIZE                 =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
-defc    FILEAREASIZE            =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
-
-defc    OZBANK_KNL0             =$00            ; kernel bank 0
-defc    OZBANK_DC               =$02
-defc    OZBANK_FPP              =$02
-defc    OZBANK_GN               =$03
-defc    OZBANK_KNL1             =$07            ; kernel bank 1
-defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap, keymaps)
-
-defc    OZCALLTBL               =$ff00
-defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
-defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
-defc    FPPCALLTBL              =$D800
-defc    LOWRAM_CODE             =$FDD0          ; LOWRAM code stored in MTH static data bank at offset $3dd0
-
-
-; **************************************************************************************************
-;       SERIAL INTERFACE
-; **************************************************************************************************
-
-;       ubSerFlowControl        =$0ffd
-
-defc    FLOW_B_XONXOFF          =0
-defc    FLOW_B_TXSTOP           =1
-
-defc    FLOW_XONXOFF            =1
-defc    FLOW_TXSTOP             =2
-
-;       cSerXonXoffChar         =$0ffe
-
-;       NUL, XON or XOFF
-
-defc    TDRH_B_START            =0
-defc    TDRH_B_STOP             =1
-defc    TDRH_B_STOP2            =2
-
-defc    TDRH_START              =1
-
-
-
-; **************************************************************************************************
-;       PRINTER FILTER
-; **************************************************************************************************
-
-;       Sequences (in SBF)
-
-defc    PrtSeqPrefix            =$7ee9
-defc    PrtSequence             =$7eea
-defc    PrtSeqBuf               =$7eec
-
-;       PrinterAttrs
-
-defc    PRA_B_ON                =0              ; state
-defc    PRA_B_PENDING           =1              ; changed but not yet printed
-defc    PRA_B_PLACEHOLDER       =2              ;
-defc    PRA_B_RESETCR           =7              ; reset at CR?
-
-defc    PRA_ON                  =1
-defc    PRA_PENDING             =2
-defc    PRA_PLACEHOLDER         =4
-defc    PRA_RESETCR             =128
-
-;       PrtFlags
-
-defc    PRT_B_ALLOWLF   =0                      ; LF after CR?
-defc    PRT_B_ENABLED   =1                      ; output enabled?
-
-defc    PRT_ALLOWLF     =1
-defc    PRT_ENABLED     =2
 
 lston

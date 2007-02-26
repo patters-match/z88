@@ -2,19 +2,19 @@ lstoff
 
 ; Standard Z88 Operating System manifests:
 
-; The information below is defined in Developers Notes, release 3.00
-; (c) Cambridge Computer 1989-95
-
 ; Alarm manipulation:
 
      DEFC Gn_Aab  = $6809          ; Allocate alarm block
      DEFC Gn_Fab  = $6A09          ; Free alarm block
      DEFC Gn_Lab  = $6C09          ; Link alarm block in chain
      DEFC Gn_Uab  = $6E09          ; Unlink alarm block
-     DEFC Gn_Alp  = $7009          ; Process an expired alarm (OZ usage)
+
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+
+     DEFC Gn_Alp  = $7009          ; Process an expired alarm
 
 ; Low level alarm call definitions:
-     DEFC Os_Alm  = $81            ; Alarm manipulation (OZ usage)
+     DEFC Os_Alm  = $81            ; Alarm manipulation
      ; arguments:
           DEFC AH_SUSP = $01       ; suspendalarm
           DEFC AH_REV  = $02       ; revive alarms
@@ -30,5 +30,49 @@ lstoff
           DEFC AH_ADEC = $0C       ; action count decrement
           DEFC AH_ARES = $0D       ; action count reset
 
+; Alarm frame structure:
+
+defvars 0
+        alm_Next                ds.p    1       ; $00
+        alm_Time                ds.b    3       ; $03
+        alm_Date                ds.b    3       ; $06
+        alm_Reason              ds.b    24      ; $09
+        alm_RepeatDays          ds.b    3       ; $21
+        alm_RepeatTime          ds.b    3       ; $24
+        alm_RepeatNum           ds.w    1       ; $27
+        alm_RepeatFlags         ds.b    1       ; $29
+        alm_Flags               ds.b    1       ; $2a
+        alm_Handle              ds.w    1       ; $2b
+        alm_ID                  ds.w    1       ; $2d
+        alm_SIZEOF              ds.b    1       ; $2f
+enddef
+
+defc    ALMF_B_BELL             =0
+defc    ALMF_B_EXECUTE          =1
+defc    ALMF_B_SHOWBELL         =2
+defc    ALMF_B_ADDED            =3
+
+defc    ALMF_BELL               =$01
+defc    ALMF_EXECUTE            =$02
+defc    ALMF_SHOWBELL           =$04
+defc    ALMF_ADDED              =$08
+
+defc    ALRF_B_SEC              =0
+defc    ALRF_B_MIN              =1
+defc    ALRF_B_HOUR             =2
+defc    ALRF_B_DAY              =3
+defc    ALRF_B_WEEK             =4
+defc    ALRF_B_MONTH            =5
+defc    ALRF_B_YEAR             =6
+defc    ALRF_B_NEVER            =7
+
+defc    ALRF_SEC                =$01
+defc    ALRF_MIN                =$02
+defc    ALRF_HOUR               =$04
+defc    ALRF_DAY                =$08
+defc    ALRF_WEEK               =$10
+defc    ALRF_MONTH              =$20
+defc    ALRF_YEAR               =$40
+defc    ALRF_NEVER              =$80
 
 lston

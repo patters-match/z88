@@ -2,13 +2,59 @@ lstoff
 
 ; Standard Z88 Operating System manifests:
 
-; The information below is defined in Developers Notes, release 3.00
-; (c) Cambridge Computer 1989-95
+; Interrupt calls: (performed as CALL OZ_DI or CALL OZ_EI)
 
-; Interrupt calls:
-; (performed as CALL OZ_DI or CALL OZ_EI)
+;     DEFC OZ_DI = $0051       ; Disable IM 1 interrupts
+;     DEFC OZ_EI = $0054       ; Enable IM 1 interrupts
 
-     DEFC OZ_DI = $0051       ; Disable IM 1 interrupts
-     DEFC OZ_EI = $0054       ; Enable IM 1 interrupts
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+ 
+; status:
 
+defc    IST_B_CLISHIFT          =0
+defc    IST_B_CLIDMND           =1
+defc    IST_B_2                 =2              ; selects which prefs pointer to use
+defc    IST_B_HASPREFS          =3
+defc    IST_B_ALARM             =4
+defc    IST_B_ALMTIMEOK         =5              ; time until next alarm is valid
+defc    IST_B_BATLOW            =6              ; show 'bat low' indicator
+
+defc    IST_CLISHIFT            =$01
+defc    IST_CLIDMND             =$02
+defc    IST_ALARM               =$10
+defc    IST_ALMTIMEOK           =$20
+defc    IST_BATLOW              =$40
+
+; task flags:
+
+defc    ITSK_B_BUFFER           =0
+defc    ITSK_B_TIMER            =1
+defc    ITSK_B_SHUTDOWN         =2
+defc    ITSK_B_PREEMPTION       =3
+defc    ITSK_B_ESC              =4
+defc    ITSK_B_ALARM            =5
+defc    ITSK_B_OZWINDOW         =7
+
+defc    ITSK_BUFFER             =$01
+defc    ITSK_TIMER              =$02
+defc    ITSK_SHUTDOWN           =$04
+defc    ITSK_PREEMPTION         =$08
+defc    ITSK_ESC                =$10
+defc    ITSK_ALARM              =$20
+defc    ITSK_OZWINDOW           =$80
+
+; system flags 1:
+
+defc    SF1_B_0                 =0
+defc    SF1_B_1                 =1
+defc    SF1_B_INPUTPENDING      =2
+defc    SF1_B_XTNDCHAR          =3
+defc    SF1_B_OZDMND            =4
+defc    SF1_B_OZSQUARE          =5
+defc    SF1_B_6                 =6
+defc    SF1_B_NOTOKENS          =7
+
+defc    SF1_OZDMND              =$10
+defc    SF1_OZSQUARE            =$20
+   
 lston

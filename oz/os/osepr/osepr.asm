@@ -37,7 +37,7 @@
         include "error.def"
         include "fileio.def"
         include "memory.def"
-        include "misc.def"
+        include "handle.def"
         include "saverst.def"
         include "time.def"
         include "sysvar.def"

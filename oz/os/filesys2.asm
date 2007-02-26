@@ -10,11 +10,13 @@
         include "dor.def"
         include "error.def"
         include "fileio.def"
+        include "handle.def"
         include "memory.def"
         include "misc.def"
         include "serintfc.def"
         include "stdio.def"
         include "syspar.def"
+        include "printer.def"
         include "sysvar.def"
         include "lowram.def"
 

@@ -9,6 +9,7 @@
         include "blink.def"
         include "error.def"
         include "fileio.def"
+        include "handle.def"
         include "memory.def"
         include "syspar.def"
         include "sysvar.def"

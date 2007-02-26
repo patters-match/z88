@@ -9,6 +9,7 @@
         include "dor.def"
         include "time.def"
         include "sysvar.def"
+        include "handle.def"
 
 xdef    IsSpecialHandle
 xdef    OpenMem

@@ -35,6 +35,7 @@ include "blink.def"
 include "stdio.def"
 include "sysvar.def"
 include "memory.def"
+include "interrpt.def"
 
 xdef    ExtKbMain                               ; was KbMain
 xdef    ExtQualifiers                           ; was ApplyQualifiers

@@ -33,6 +33,7 @@
         Module Buffer
 
         include "buffer.def"
+        include "interrpt.def"
         include "director.def"
         include "error.def"
         include "sysvar.def"

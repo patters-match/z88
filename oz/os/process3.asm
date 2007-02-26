@@ -39,6 +39,7 @@
         include "syspar.def"
         include "sysvar.def"
         include "lowram.def"
+        include "printer.def"
 
 xdef    ApplCaps
 xdef    InitHlpActiveCmd

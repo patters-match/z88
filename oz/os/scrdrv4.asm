@@ -33,9 +33,10 @@
         Module ScrDrv4
 
         include "blink.def"
-        include "misc.def"
+        include "stdio.def"
         include "sysvar.def"
         include "lowram.def"
+        include "interrpt.def"
 
 xdef    Beep_X
 xdef    CallFuncDE

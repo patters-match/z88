@@ -9,6 +9,8 @@
         include "error.def"
         include "memory.def"
         include "stdio.def"
+        include "saverst.def"
+        include "handle.def"
         include "sysvar.def"
 
 xdef    OSSR_main

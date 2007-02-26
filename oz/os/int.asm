@@ -37,6 +37,7 @@
         include "serintfc.def"
         include "sysvar.def"
         include "lowram.def"
+        include "interrpt.def"
 
 xdef    INTEntry
 xdef    IntSecond
@@ -375,7 +376,7 @@ xref    ReadRTC                                 ; bank0/time.asm
 .intsec_1
         res     IST_B_ALARM, (hl)
         ld      ix, (pNextAlmHandle)
-        set     ALMF_B_ACTIVE, (ix+ahnd_Flags)
+        set     AHNF_B_ACTIVE, (ix+ahnd_Flags)
 
 .IncActiveAlm
         ld      hl, ubNumActiveAlm

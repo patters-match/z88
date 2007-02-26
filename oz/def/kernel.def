@@ -1,0 +1,44 @@
+lstoff
+
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+
+; version:
+defc    OZVERSION               = $42
+
+; rom layout:
+defc    ROMSIZE                 =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
+defc    FILEAREASIZE            =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
+
+defc    OZBANK_KNL0             =$00            ; kernel bank 0
+defc    OZBANK_DC               =$02
+defc    OZBANK_FPP              =$02
+defc    OZBANK_GN               =$03
+defc    OZBANK_KNL1             =$07            ; kernel bank 1
+defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap, keymaps)
+
+defc    OZCALLTBL               =$ff00
+defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
+defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
+defc    FPPCALLTBL              =$D800
+defc    LOWRAM_CODE             =$FDD0          ; LOWRAM code stored in MTH static data bank at offset $3dd0
+
+; OS pushframe:
+
+defvars 0
+        OSFrame_IY              ds.w    1       ; $00
+        OSFrame_S2              ds.b    1       ; $02
+        OSFrame_S3              ds.b    1       ; $03
+        OSFrame_OZCall          ds.w    1       ; $04
+        OSFrame_F               ds.b    1       ; $06
+        OSFrame_A               ds.b    1       ; $07
+        OSFrame_C               ds.b    1       ; $08
+        OSFrame_B               ds.b    1       ; $09
+        OSFrame_E               ds.b    1       ; $0A
+        OSFrame_D               ds.b    1       ; $0B
+        OSFrame_L               ds.b    1       ; $0C
+        OSFrame_H               ds.b    1       ; $0D
+        OSFrame__S2             ds.b    1       ; $0E
+        OSFrame__S3             ds.b    1       ; $0F
+enddef
+
+lston
