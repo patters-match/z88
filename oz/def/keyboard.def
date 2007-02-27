@@ -1,0 +1,71 @@
+lstoff
+
+; Standard Z88 Operating System manifests:
+
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+
+; qualifiers:
+
+defc    QUAL_B_SHIFT            =0              ; use these instead of CLM_xxx as these are global
+defc    QUAL_B_CTRL             =1
+defc    QUAL_B_ALT              =2
+defc    QUAL_B_SPECIAL          =3
+
+defc    QUAL_SHIFT              =$01
+defc    QUAL_CTRL               =$02
+defc    QUAL_ALT                =$04
+defc    QUAL_SPECIAL            =$08
+
+; strucure and flags:
+
+defvars 0
+        kbd_rawkey              ds.b    1       ; current key, internal code
+        kbd_rlscnt              ds.b    1       ; release counter
+        kbd_keyflags            ds.b    1       ; state bits: KB_xxx
+        kbd_prevkey             ds.b    1       ; as above for previous key
+        kbd_prevrlscnt          ds.b    1
+        kbd_prevflags           ds.b    1
+        kbd_repeatcnt           ds.b    1       ; repeat counter (bit 7: 0 enabled, 1 disabled)
+        kbd_flags               ds.b    1
+        kbd_lastkey             ds.b    1       ; used in dead-key handling
+        kbd_SIZEOF              ds.b    1
+enddef
+
+defc    KBF_B_CAPSE             =0              ; 1-CAPS enable
+defc    KBF_B_CAPS              =1              ; 1-caps 0-CAPS
+defc    KBF_B_SCAN              =2              ; 1-keybard scan active
+defc    KBF_B_BEEP              =3              ; 1-do keyclick
+defc    KBF_B_DMND              =4              ; 1-<> down
+defc    KBF_B_KEY               =5              ; 1-any (not <>/[]) key down
+defc    KBF_B_SQR               =6              ; 1-[] down
+defc    KBF_B_LOCKED            =7              ; 1-locked
+
+defc    KMT_MATRIX              =0
+defc    KMT_SHIFT               =1
+defc    KMT_CAPS                =2
+defc    KMT_DIAMOND             =3
+defc    KMT_SQUARE              =4
+defc    KMT_DEADKEY             =5
+
+defc    QB_SHIFT                =0              ; qualifier bits from GetQual()
+defc    QB_DIAMOND              =1
+defc    QB_SQUARE               =2
+
+defc    KB_ACTIVE               =0              ; kbd_keyflags / kbd_prevflags bits
+defc    KB_HOLD                 =1
+defc    KB_RELEASE              =2
+
+defc    K_ACTIVE                =1
+defc    K_HOLD                  =2
+defc    K_RELEASE               =4
+
+defc    KBF_CAPSE               =$01
+defc    KBF_CAPS                =$02
+defc    KBF_SCAN                =$04
+defc    KBF_BEEP                =$08
+defc    KBF_DMND                =$10
+defc    KBF_KEY                 =$20
+defc    KBF_SQR                 =$40
+defc    KBF_LOCKED              =$80
+
+lston
