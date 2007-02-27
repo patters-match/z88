@@ -22,7 +22,7 @@
 
         module  structures
 
-include "director.def"
+include "dor.def"
 include "data.def"
 
         xref    in_entry
