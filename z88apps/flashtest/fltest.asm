@@ -31,6 +31,7 @@
      include "flashepr.def"
      include "integer.def"
      include "director.def"
+     include "dor.def"
      include "memory.def"
      include "error.def"
      include "time.def"
