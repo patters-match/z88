@@ -326,100 +326,6 @@ defc    unk_1864                =$1864          ; ???
 ; **************************************************************************************************
 
 ; **************************************************************************************************
-;       KEYBOARD
-; **************************************************************************************************
-
-defc    KEYMAP_BANK             =$08            ; at KeymapTable
-
-;       qualifiers
-
-defc    QUAL_B_SHIFT            =0              ; use these instead of CLM_xxx as these are global
-defc    QUAL_B_CTRL             =1
-defc    QUAL_B_ALT              =2
-defc    QUAL_B_SPECIAL          =3
-
-defc    QUAL_SHIFT              =$01
-defc    QUAL_CTRL               =$02
-defc    QUAL_ALT                =$04
-defc    QUAL_SPECIAL            =$08
-
-;       keyboard
-defvars 0
-        kbd_rawkey              ds.b    1       ; current key, internal code
-        kbd_rlscnt              ds.b    1       ; release counter
-        kbd_keyflags            ds.b    1       ; state bits: KB_xxx
-        kbd_prevkey             ds.b    1       ; as above for previous key
-        kbd_prevrlscnt          ds.b    1
-        kbd_prevflags           ds.b    1
-        kbd_repeatcnt           ds.b    1       ; repeat counter (bit 7: 0 enabled, 1 disabled)
-        kbd_flags               ds.b    1
-        kbd_lastkey             ds.b    1       ; used in dead-key handling
-        kbd_SIZEOF              ds.b    1
-enddef
-
-defc    KBF_B_CAPSE             =0              ; 1-CAPS enable
-defc    KBF_B_CAPS              =1              ; 1-caps 0-CAPS
-defc    KBF_B_SCAN              =2              ; 1-keybard scan active
-defc    KBF_B_BEEP              =3              ; 1-do keyclick
-defc    KBF_B_DMND              =4              ; 1-<> down
-defc    KBF_B_KEY               =5              ; 1-any (not <>/[]) key down
-defc    KBF_B_SQR               =6              ; 1-[] down
-defc    KBF_B_LOCKED            =7              ; 1-locked
-
-defc    KMT_MATRIX              =0
-defc    KMT_SHIFT               =1
-defc    KMT_CAPS                =2
-defc    KMT_DIAMOND             =3
-defc    KMT_SQUARE              =4
-defc    KMT_DEADKEY             =5
-
-defc    QB_SHIFT                =0              ; qualifier bits from GetQual()
-defc    QB_DIAMOND              =1
-defc    QB_SQUARE               =2
-
-defc    KB_ACTIVE               =0              ; kbd_keyflags / kbd_prevflags bits
-defc    KB_HOLD                 =1
-defc    KB_RELEASE              =2
-
-defc    K_ACTIVE                =1
-defc    K_HOLD                  =2
-defc    K_RELEASE               =4
-
-defc    KBF_CAPSE               =$01
-defc    KBF_CAPS                =$02
-defc    KBF_SCAN                =$04
-defc    KBF_BEEP                =$08
-defc    KBF_DMND                =$10
-defc    KBF_KEY                 =$20
-defc    KBF_SQR                 =$40
-defc    KBF_LOCKED              =$80
-
-defc    IN_ASPC                 =$B0            ; redundant...
-defc    IN_AESC                 =$B4            ; to be erased...
-defc    IN_AMEN                 =$B5            ; but some of them are different
-defc    IN_AIDX                 =$B6            ; and have to be renamed
-defc    IN_AHEL                 =$B7
-defc    IN_SQU                  =$B8
-defc    IN_DSPC                 =$C0
-defc    IN_DESC                 =$C4
-defc    IN_DMEN                 =$C5
-defc    IN_DIDX                 =$C6
-defc    IN_DHEL                 =$C7
-defc    IN_DIA                  =$C8
-defc    IN_SESC                 =$D4
-defc    IN_SMEN                 =$D5
-defc    IN_SIDX                 =$D6
-defc    IN_SHEL                 =$D7
-defc    IN_SHI                  =$D8
-defc    IN_ENTER                =$E1            ; !!
-defc    IN_TAB0                 =$E2
-defc    IN_DELX                 =$E3
-defc    IN_MEN                  =$E5
-defc    IN_IDX                  =$E6
-defc    IN_HLP                  =$E7
-defc    IN_CAPS                 =$E8
-
-; **************************************************************************************************
 ;       SCREEN / WINDOW
 ; **************************************************************************************************
 
@@ -557,14 +463,6 @@ defc    LCDA_TINY               =$80    ; software flag
 defc    LCDA_SPECMASK           =$3C
 defc    LCDA_NULLCHAR           =$34
 defc    LCDA_LORESCURSOR        =$38
-
-
-
-; **************************************************************************************************
-;       DOR
-; **************************************************************************************************
-
-
 
 ; **************************************************************************************************
 ;       HANDLE

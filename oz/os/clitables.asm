@@ -1,6 +1,6 @@
 module CLITables
 
-include "sysvar.def"
+include "keyboard.def"
 
 xdef    Key2MetaTable                           ; this one must be in the same page
 xdef    CLI2KeyTable

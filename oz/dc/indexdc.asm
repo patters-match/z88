@@ -47,6 +47,7 @@
         include "time.def"
         include "printer.def"
         include "sysvar.def"
+        include "keyboard.def"
 
         include "../os/lowram.def"
 

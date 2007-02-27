@@ -41,6 +41,7 @@
         include "sysvar.def"
         include "lowram.def"
         include "interrpt.def"
+        include "keyboard.def"
 
 xdef    OSIn
 xdef    OSTin

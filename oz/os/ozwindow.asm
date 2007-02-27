@@ -44,6 +44,7 @@
 
         include "sysvar.def"
         include "interrpt.def"
+        include "keyboard.def"
 
 xdef    OZwd_card
 xdef    OZwd_index

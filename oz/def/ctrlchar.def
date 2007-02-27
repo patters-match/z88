@@ -1,10 +1,8 @@
 lstoff
 
-; CTRLCHAR.DEF - ASCII Control characters
-; v1.0 - 30 june 1999
 ; Z88 Operating System manifests
-; The information below is defined in Developers Notes, release 3.00
-; (c) Cambridge Computer 1989
+
+; ASCII control characters:
 
      DEFC NUL  = 0
      DEFC SOH  = 1

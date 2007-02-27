@@ -13,28 +13,42 @@ lstoff
      DEFC  GN_Soe    = $3C09       ; write string from extended address
      DEFC  GN_Sip    = $3809       ; system input line routine
      DEFC  OS_Pur    = $33         ; purge keyboard buffer (and reset timeout)
-     DEFC  OS_Blp  = $D806         ; Bleep
+     DEFC  OS_Blp    = $D806       ; Bleep
 
 ; Standard input key definitions (Returned by OS_IN, OS_TIN, GN_SIP)
 ;
 ; The following codes are NOT zero prefixed:
 ; IN_ESC, IN_ENT, IN_TAB, IN_SPC & IN_DEL
 
-     DEFC IN_ESC = $1B
+     defc IN_SHI  = $D8
+     defc IN_DIA  = $C8
+     defc IN_SQU  = $B8
+     defc IN_CAPS = $E8
 
 ;         ENTER          TAB            DELETE
-
      DEFC IN_ENT  = $0D, IN_TAB  = $09, IN_DEL  = $7F
-     DEFC IN_SENT = $D1, IN_STAB = $D2, IN_SDEL = $D3  ; SHIFT
-     DEFC IN_DENT = $C1, IN_DTAB = $C2, IN_DDEL = $C3  ; DIAMOND
-     DEFC IN_AENT = $B1, IN_ATAB = $B2, IN_ADEL = $B3  ; SQUARE
-     DEFC IN_SPC  = 32
+     DEFC IN_SENT = $D1, IN_STAB = $D2, IN_SDEL = $D3                   ; SHIFT
+     DEFC IN_DENT = $C1, IN_DTAB = $C2, IN_DDEL = $C3                   ; DIAMOND
+     DEFC IN_AENT = $B1, IN_ATAB = $B2, IN_ADEL = $B3                   ; SQUARE
+     DEFC IN_ENTER= $E1, IN_TAB0 = $E2, IN_DELX = $E3                   ; used in MTH routines
 
 ;         LEFT           RIGHT          DOWN           UP
      DEFC IN_LFT  = $FC, IN_RGT  = $FD, IN_DWN  = $FE, IN_UP   = $FF
-     DEFC IN_SLFT = $F8, IN_SRGT = $F9, IN_SDWN = $FA, IN_SUP  = $FB  ; SHIFT
-     DEFC IN_DLFT = $F4, IN_DRGT = $F5, IN_DDWN = $F6, IN_DUP  = $F7  ; DIAMOND
-     DEFC IN_ALFT = $F0, IN_ARGT = $F1, IN_ADWN = $F2, IN_AUP  = $F3  ; SQUARE
+     DEFC IN_SLFT = $F8, IN_SRGT = $F9, IN_SDWN = $FA, IN_SUP  = $FB    ; SHIFT
+     DEFC IN_DLFT = $F4, IN_DRGT = $F5, IN_DDWN = $F6, IN_DUP  = $F7    ; DIAMOND
+     DEFC IN_ALFT = $F0, IN_ARGT = $F1, IN_ADWN = $F2, IN_AUP  = $F3    ; SQUARE
+
+;         SPACE          ESCAPE
+     defc IN_SPC  = $20, IN_ESC  = $1B    
+     defc IN_SSPC = $D0, IN_SESC = $D4                                  ; SHIFT
+     defc IN_DSPC = $C0, IN_DESC = $C4                                  ; DIAMOND
+     defc IN_ASPC = $B0, IN_AESC = $B4                                  ; SQUARE
+
+;         MENU           INDEX          HELP
+     defc IN_MEN  = $E5, IN_IDX  = $E6, IN_HLP  = $E7
+     defc IN_SMEN = $D5, IN_SIDX = $D6, IN_SHEL = $D7                   ; SHIFT
+     defc IN_DMEN = $C5, IN_DIDX = $C6, IN_DHEL = $C7                   ; DIAMOND
+     defc IN_AMEN = $B5, IN_AIDX = $B6, IN_AHEL = $B7                   ; SQUARE
 
 ; the control character definitions:
 include "ctrlchar.def"

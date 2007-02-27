@@ -1,5 +1,7 @@
 lstoff
 
+; Standard Z88 Operating System manifests:
+
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
 ; version:
@@ -14,7 +16,8 @@ defc    OZBANK_DC               =$02
 defc    OZBANK_FPP              =$02
 defc    OZBANK_GN               =$03
 defc    OZBANK_KNL1             =$07            ; kernel bank 1
-defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap, keymaps)
+defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap)
+defc    OZBANK_KEYMAP           =$08            ; localisation keymap tables
 
 defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,

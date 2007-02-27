@@ -38,6 +38,8 @@
         include "sysvar.def"
         include "memory.def"
         include "interrpt.def"
+        ;include "kernel.def"
+        include "keyboard.def"
 
 xdef    OSSpMain
 xdef    OSNqMain
@@ -848,7 +850,7 @@ xref    Keymap_FI
 
         inc     hl
         ld      h, (hl)                         ; keymap page
-        ld      b, KEYMAP_BANK                  ; bind keymap bank
+        ld      b, OZBANK_KEYMAP                ; bind keymap bank
         ld      l, b                            ; for storing below
         ld      c, 1                            ; in s1
         rst     OZ_MPB

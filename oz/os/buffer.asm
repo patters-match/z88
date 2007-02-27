@@ -37,6 +37,7 @@
         include "director.def"
         include "error.def"
         include "sysvar.def"
+        include "keyboard.def"
         include "lowram.def"
 
 xdef    BfGbt
