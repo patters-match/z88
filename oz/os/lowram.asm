@@ -50,6 +50,7 @@ ELSE
         xref    OZCallTable
 ENDIF
 
+
 xdef    LowRAMcode, LowRAMcode_end
 xdef    DefErrHandler
 xdef    FPP_RET
@@ -132,9 +133,9 @@ xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
         jp      OZCallReturn0                   ; 004B
 ;FREE
         defs     3 ($ff)                        ; 004E
-.OZ_DI
+.OZ_INT_DI
         jp      OZDImain                        ; 0051
-.OZ_EI
+.OZ_INT_EI
         jp      OZEImain                        ; 0054
 .OZ_MGB
         jp      MemGetBank                      ; 0057 (V4.1) Fast Bank binding status (OS_MGB functionality)
