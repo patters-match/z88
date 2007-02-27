@@ -1,5 +1,7 @@
 lstoff
+
 ; **************************************************************************************************
+; Standard Z88 Operating System Manifests.
 ; Low level buffer i/o definitions.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
@@ -24,8 +26,8 @@ lstoff
 ; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
 ;
 ; $Id$
-;***************************************************************************************************
-; BUFFER.DEF
+; ***************************************************************************************************
+
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
