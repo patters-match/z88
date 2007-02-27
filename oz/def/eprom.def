@@ -31,12 +31,12 @@ lstoff
           DEFC  OS_Epr = $F006     ; File (Eprom) Area Management Interface
 
           ; arguments:
-          DEFC  EP_Save  = $00     ; Blow RAM file to EPROM
-          DEFC  EP_Load  = $03     ; Copy file from File Area, as RAM file
+          DEFC  EP_Save  = $00     ; Blow RAM file to EPROM                             (standard OZ, only slot 3)
+          DEFC  EP_Load  = $03     ; Copy file from File Area, as RAM file              (standard OZ, only slot 3)
           DEFC  EP_Req   = $06     ; Check for "oz" File Eprom or File Area in slot C   (OZ 4.2 and newer)
-          DEFC  EP_Fetch = $09     ; Copy file entry from File Area, as RAM file        (OZ 4.2 and newer)
+          DEFC  EP_Fetch = $09     ; Copy saved/deleted file from File Area to RAM      (OZ 4.2 and newer)
           DEFC  EP_Find  = $0c     ; Find active File(name) in File Area in slot C      (OZ 4.2 and newer)
-          DEFC  EP_Dir   = $0f     ; Return next filename (starting with first)
+          DEFC  EP_Dir   = $0f     ; Return next filename (starting with first)         (standard OZ, only slot 3)
                                    ; (all files must be read until RC_EOF)
           DEFC  EP_First = $12     ; Return first file entry in File Area in slot C     (OZ 4.2 and newer)
           DEFC  EP_Prev  = $15     ; Return previous file entry in File Area            (OZ 4.2 and newer)
