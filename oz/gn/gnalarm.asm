@@ -9,7 +9,7 @@
         org $e4da                               ; 871 bytes
 
         include "alarm.def"
-        include "ctrlchar.def"
+        include "stdio.def"
         include "director.def"
         include "error.def"
         include "memory.def"

@@ -33,7 +33,7 @@
 
         include "blink.def"
         include "buffer.def"
-        include "ctrlchar.def"
+        include "stdio.def"
         include "handle.def"
         include "syspar.def"
         include "sysvar.def"

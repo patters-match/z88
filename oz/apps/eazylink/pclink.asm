@@ -45,7 +45,7 @@
     INCLUDE "rtmvars.def"
     INCLUDE "fileio.def"
     INCLUDE "dor.def"
-    INCLUDE "ctrlchar.def"
+    INCLUDE "stdio.def"
     INCLUDE "error.def"
 
 
