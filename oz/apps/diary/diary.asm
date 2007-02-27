@@ -41,7 +41,6 @@
         include "fileio.def"
         include "integer.def"
         include "memory.def"
-        include "misc.def"
         include "saverst.def"
         include "stdio.def"
         include "syspar.def"

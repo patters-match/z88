@@ -40,7 +40,6 @@
         include "eprom.def"
         include "integer.def"
         include "memory.def"
-        include "misc.def"
         include "serintfc.def"
         include "stdio.def"
         include "syspar.def"

@@ -35,7 +35,6 @@
         include "buffer.def"
         include "ctrlchar.def"
         include "handle.def"
-        include "misc.def"
         include "syspar.def"
         include "sysvar.def"
         include "serintfc.def"
