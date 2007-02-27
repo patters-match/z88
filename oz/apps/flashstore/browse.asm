@@ -35,8 +35,6 @@ Module BrowseFiles
      xdef endf_msg
      xdef LeftJustifyText, RightJustifyText
 
-     lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
-     lib FileEprFileSize           ; Return file size of current File Entry on File Eprom
      lib MemReadLong               ; Read 32bit int at (BHL)
 
      xref DispMainWindow, cls      ; fsapp.asm
@@ -565,7 +563,8 @@ Module BrowseFiles
                     pop  bc
                     push bc
                     push hl
-                    call FileEprFileSize        ; get size of File Entry in CDE
+                    ld   a,EP_Size
+                    oz   OS_Epr                 ; get size of File Entry in CDE
                     ld   (flen),de
                     ld   b,0
                     ld   (flen+2),bc
@@ -606,7 +605,9 @@ Module BrowseFiles
                     push bc
                     push hl
                                                 ; write filename at (DE), null-terminated
-                    call FileEprFilename        ; copy filename from current file entry at (DE)
+                    ld   a,EP_Name
+                    ld   c,0                    ; local pointer to filename
+                    oz   OS_Epr                 ; copy filename from current file entry at (DE)
                     jr   c, end_GetCompressedFilename
                     cp   42
                     jr   c, end_GetCompressedFilename  ; complete filename fits within 43 characters

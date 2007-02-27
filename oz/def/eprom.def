@@ -48,6 +48,7 @@ lstoff
           DEFC  EP_Count = $27     ; Return number of files in File Area slot C         (OZ 4.2 and newer)
           DEFC  EP_Stat  = $2a     ; Return file entry status (active or deleted)       (OZ 4.2 and newer)
           DEFC  EP_Size  = $2d     ; Return file size in CDE of File Entry at BHL       (OZ 4.2 and newer)
-          DEFC  EP_New   = $30     ; Return pointer to future new entry in File Area    (OZ 4.2 and newer)
+          DEFC  EP_Name  = $30     ; Copy File entry name to buffer at (CDE)            (OZ 4.2 and newer)
+          DEFC  EP_New   = $33     ; Return pointer to future new entry in File Area    (OZ 4.2 and newer)
 
 lston
