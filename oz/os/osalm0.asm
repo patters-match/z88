@@ -36,6 +36,8 @@
         include "sysvar.def"
         include "interrpt.def"
         include "lowram.def"
+        include "handle.def"
+        ;include "z80.def"
 
 xdef    OSAlm
 xdef    DoAlarms

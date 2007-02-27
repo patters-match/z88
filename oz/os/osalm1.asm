@@ -38,6 +38,7 @@
         include "handle.def"
         include "sysvar.def"
         include "interrpt.def"
+        ;include "z80.def"
 
 
 xdef    OSAlmMain

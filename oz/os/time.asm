@@ -10,6 +10,7 @@
         include "error.def"
         include "sysvar.def"
         include "interrpt.def"
+        ;include "z80.def"
 
 xdef    OSHt
 xdef    ReadRTC

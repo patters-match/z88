@@ -42,6 +42,7 @@
         include "lowram.def"
         include "interrpt.def"
         include "keyboard.def"
+        ;include "z80.def"
 
 xdef    OSIn
 xdef    OSTin

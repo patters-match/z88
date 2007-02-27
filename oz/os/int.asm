@@ -39,6 +39,7 @@
         include "lowram.def"
         include "interrpt.def"
         include "keyboard.def"
+        include "handle.def"
 
 xdef    INTEntry
 xdef    IntSecond

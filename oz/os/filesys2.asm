@@ -18,6 +18,7 @@
         include "printer.def"
         include "sysvar.def"
         include "lowram.def"
+        ;include "z80.def"
 
 xdef    _MS2BankA
 xdef    MS2HandleBank

@@ -43,6 +43,7 @@
         include "printer.def"
         include "keyboard.def"
         include "screen.def"
+        include "handle.def"
 
 xdef    ApplCaps
 xdef    InitHlpActiveCmd

@@ -10,6 +10,7 @@
         include "error.def"
         include "memory.def"
         include "sysvar.def"
+        include "handle.def"
 
 xdef    InitHandle                              ; OSDor, E9E8+D
 xdef    RAMxDOR                                 ; MountAllRAM
