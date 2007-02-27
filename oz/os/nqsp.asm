@@ -40,6 +40,7 @@
         include "interrpt.def"
         ;include "kernel.def"
         include "keyboard.def"
+        include "screen.def"
 
 xdef    OSSpMain
 xdef    OSNqMain

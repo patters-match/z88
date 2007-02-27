@@ -37,6 +37,7 @@
         include "sysvar.def"
         include "lowram.def"
         include "interrpt.def"
+        include "screen.def"
 
 xdef    Beep_X
 xdef    CallFuncDE

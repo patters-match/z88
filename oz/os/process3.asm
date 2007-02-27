@@ -42,6 +42,7 @@
         include "lowram.def"
         include "printer.def"
         include "keyboard.def"
+        include "screen.def"
 
 xdef    ApplCaps
 xdef    InitHlpActiveCmd

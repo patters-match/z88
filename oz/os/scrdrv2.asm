@@ -8,6 +8,7 @@
 
         include "error.def"
         include "sysvar.def"
+        include "screen.def"
 
 xdef    GetWindowFrame
 xdef    NqRDS

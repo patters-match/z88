@@ -7,6 +7,7 @@
         Module ScrDrv3
 
         include "sysvar.def"
+        include "screen.def"
 
 xdef    InitApplWd
 xdef    InitSBF

@@ -21,6 +21,7 @@ TODO (with priorities):
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2
 - Remove hardcoded IN keys in SpecInternal and IsForeignKey (kbd.asm) P2
+- Remove MU_*** in stdio.def they already exist with IN_*** P2
 
 - Move lowram image in mth bank and modifiy reset routine. P3
 - Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3

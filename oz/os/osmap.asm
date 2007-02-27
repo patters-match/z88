@@ -33,6 +33,7 @@
 
         Module OSMap
 
+        include "screen.def"
         include "blink.def"
         include "error.def"
         include "stdio.def"

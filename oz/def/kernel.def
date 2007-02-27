@@ -50,6 +50,24 @@ defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if change
 defc    FPPCALLTBL              =$D800
 defc    LOWRAM_CODE             =$FDD0          ; LOWRAM code stored in MTH static data bank at offset $3dd0
 
+defc    LORES0_BANK_UNEXP       =$21
+defc    LORES0_PAGE_UNEXP       =$22
+;       LORES0_BANK_EXP         =$24 or $43     ; calculated by the routine
+defc    LORES0_PAGE_EXP         =$08
+
+defc    LORES1_BANK             =$08
+defc    LORES1_PAGE             =$10
+
+defc    HIRES0_BANK_UNEXP       =$21
+defc    HIRES0_PAGE_UNEXP       =$20
+;       HIRES0_BANK_EXP         =$24 or $43     ; calculated by the routine
+defc    HIRES0_PAGE_EXP         =$00
+
+defc    HIRES1_BANK             =$08
+defc    HIRES1_PAGE             =$08            ; cross LORES1 because first $400 is empty
+                                                ; starts really at $1400 (first hires char is number $80)
+defc    SBF_BANK                =$20            ; to be renamed ($21 in reality)
+
 ; OS pushframe:
 
 defvars 0

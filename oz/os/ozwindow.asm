@@ -42,6 +42,7 @@
 
         module  OZWindow
 
+        include "screen.def"
         include "sysvar.def"
         include "interrpt.def"
         include "keyboard.def"
