@@ -34,6 +34,7 @@
         Module  Process2
 
         include "director.def"
+        include "dor.def"        
         include "error.def"
         include "memory.def"
         include "sysvar.def"

@@ -34,6 +34,7 @@
 
         include "blink.def"
         include "director.def"
+        include "dor.def"
         include "error.def"
         include "fileio.def"
         include "syspar.def"

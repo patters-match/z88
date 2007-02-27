@@ -564,53 +564,7 @@ defc    LCDA_LORESCURSOR        =$38
 ;       DOR
 ; **************************************************************************************************
 
-;       application DOR offsets
 
-defvars 0
-        DOR_PARENT              ds.p    1       ; $00
-        DOR_BROTHER             ds.p    1       ; $03
-        DOR_SON                 ds.p    1       ; $06
-        DOR_TYPE                ds.b    1       ; $09
-        DOR_LENGTH              ds.b    1       ; $0a
-        ADOR_INFOTYPE           ds.b    1       ; $0b
-        ADOR_INFOLENGTH         ds.b    1       ; $0c
-        ADOR_RESERVED           ds.b    2       ; $0d
-        ADOR_APPKEY             ds.b    1       ; $0f
-        ADOR_BADSIZE            ds.b    1       ; $10
-        ADOR_ENVSIZE            ds.w    1       ; $11
-        ADOR_UNSAFE             ds.w    1       ; $13
-        ADOR_SAFE               ds.w    1       ; $15
-        ADOR_ENTRY              ds.w    1       ; $17
-        ADOR_BINDINGS           ds.b    4       ; $19
-        ADOR_FLAGS              ds.b    1       ; $1d
-        ADOR_FLAGS2             ds.b    1       ; $1e
-        ADOR_HELPTYPE           ds.b    1       ; $1f
-        ADOR_HELPLENGTH         ds.b    1       ; $20
-        ADOR_TOPICS             ds.p    1       ; $21
-        ADOR_COMMANDS           ds.p    1       ; $24
-        ADOR_HELP               ds.p    1       ; $27
-        ADOR_TOKENS             ds.p    1       ; $2a
-        ADOR_NAMETYPE           ds.b    1       ; $2d
-        ADOR_NAMELENGTH         ds.b    1       ; $2e
-        ADOR_NAME               ds.b    1       ; $2f
-enddef
-
-;       application type
-
-defc    AT_B_Boot               =7
-defc    AT_B_Draw               =5
-defc    AT_B_Popd               =3
-
-;       mth
-
-defc    CMDF_B_COLUMN           =0
-defc    TPCF_B_AN               =0              ; unused? if so, there's error in docs
-defc    TPCF_B_INFO             =1
-defc    CMDF_B_HIDDEN           =2
-defc    CMDF_B_SAFE             =3
-defc    CMDF_B_HELP             =4
-
-defc    CMDF_HELP               =$10
 
 ; **************************************************************************************************
 ;       HANDLE

@@ -35,6 +35,7 @@
         include "blink.def"
         include "char.def"
         include "director.def"
+        include "dor.def"
         include "error.def"
         include "fileio.def"
         include "eprom.def"

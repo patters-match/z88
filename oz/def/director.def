@@ -68,24 +68,7 @@ lstoff
      ; arguments:
           DEFC WT_ANY = $FF        ; infinite
 
-; Application Type manifests 1 (type byte1 in Application DOR):
 
-     DEFC AT_Good = 1              ; (BIT 0) well behaved
-     DEFC AT_Bad  = 2              ; (BIT 1) not well behaved, not killed on pre-emption
-     DEFC AT_Ugly = 4              ; (BIT 2) not well behaved, killed on pre-emption
-     DEFC AT_Popd = 8              ; (BIT 3) popdown (if not set then an application)
-     DEFC AT_Ones = 16             ; (BIT 4) only one application instance allowed
-     DEFC AT_Draw = 32             ; (BIT 5) OZ to redraw screen is possible (2K file)
-     DEFC AT_Film = 64             ; (BIT 6) File Manager Application (internal usage)
-     DEFC AT_Boot = 128            ; (BIT 7) Application Auto Boot (after soft reset)
-
-
-; Application Type manifests 2 (type byte2 in Application DOR):
-; (Bits 3 - 6 are ignored - should be reset)
-
-     DEFC AT2_Cl  = 1              ; (BIT 0) Set Caps Lock on creation entry
-     DEFC AT2_Icl = 2              ; (BIT 1) Set 'inverted' Caps Lock on creation entry
-     DEFC AT2_Ie  = 128            ; (BIT 7) Ignore error returns (should be avoided).
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
