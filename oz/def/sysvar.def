@@ -30,6 +30,10 @@ lstoff
 ; $Id$
 ;***************************************************************************************************
 ;
+; ***************************************************************************************************
+; ***                             INTERNAL OPERATING SYSTEM USAGE ONLY                            ***
+; ***************************************************************************************************
+;
 ;
 ;       variable prefix:
 ;
@@ -49,8 +53,8 @@ lstoff
 ;
 ; Constants are all uppercase
 
-        include "kernel.def"
-        include "z80.def"
+include "kernel.def"                            ; to be removed (and renamed oz.def)
+include "z80.def"                               ; to be removed and inlined in each file
 
 ; System variable area
 defc    sysvar_area = $020b
@@ -60,7 +64,7 @@ defc    SerTXHandle             =$0229          ; on negative side!
 defc    SerRXHandle             =$0233          ; on negative side!
 defc    ubFsTemp                =$0237
 defc    uwSmallTimer            =$0238
-defc    uwSlotAvailFsBlocks     =$023a          ; ds.b 4*2
+defc    uwSlotAvailFsBlocks     =$023a          ; ds.b 5*2
 defc    pFsMemPool              =$0244
 defc    uwFsAvailBlock          =$0246
 defc    word_024A               =$024a          ; used in nqsp.asm
@@ -214,20 +218,17 @@ defc    uwTimecounter           =$0c00
 defc    ubTimecounterSoft       =$0c02
 defc    NMIStackTop             =$0c33
 
-; EPROM
-defvars $0db8
+
+defvars $0DB8
+
+; EPROM:
         ubEpr_SubType           ds.b    1
-        __ubEpr_FREE_0          ds.b    1       ; NOT USED
-        __ubEpr_FirstBank       ds.b    1       ; NOT USED ANYMORE (due to new File Eprom management routines)
         ubEpr_NameLen           ds.b    1
-        __ubEpr_Fstype          ds.b    1       ; NOT USED ANYMORE (due to new File Eprom management routines)
         pEpr_PrgTable           ds.w    1
         pEpr_Parsedname         ds.w    1
         pEpr_FileHandle         ds.w    1
-enddef                                          ; ($0dc3-$0dcf) 13 bytes free
 
-; Printer
-defvars $0dd0
+; Printer:
         StackBufPtr             ds.w    1
         CtrlBuf                 ds.w    1
         CtrlLen                 ds.b    1
@@ -246,10 +247,8 @@ defvars $0dd0
         AttrSuperscript         ds.b    1
         AttrAltfont             ds.b    1
         AttrUserdef             ds.b    1
-enddef
 
-;       0E10-0EC5       Index
-defvars $0E10
+; Index:
         ubIdxPubFlags           ds.b    1
         ubIdxFlags2             ds.b    1
         ubIdxTopProcess         ds.b    1
@@ -274,18 +273,24 @@ defvars $0E10
         IdxKeyTable             ds.b    50
         IdxZKeyTable            ds.b    50
         IdxZZKeyTable           ds.b    50
-enddef                                          ; free at $0ec6, 8 bytes free here
 
-;$0ece-0fa6     GN calls
+; GN calls:
+        uwGnDateLow             ds.w    1
+        uwGnDateMid             ds.w    1
+        uwGnDateHigh            ds.w    1
+        GnHwTimeBuf             ds.b    5
+        GnFnameBuf              ds.b    206
+        pAlarmList              ds.p    1       ; badly named (eAlarmList)
+        uwNextAlarmID           ds.w    1
 
-defc    uwGnDateLow             =$0ece
-defc    uwGnDateMid             =$0ed0
-defc    uwGnDateHigh            =$0ed2
-defc    GnHwTimeBuf             =$0ed4          ; 5 bytes
-defc    GnFnameBuf              =$0ed9          ; 206 bytes
-defc    pAlarmList              =$0fa7
-                                                ; $0faa-$0fab unused?
-defc    uwNextAlarmID           =$0fac
+; Serial interface flow:
+        ubSerParity             ds.b    1
+        ubSerFlowControl        ds.b    1
+        cSerXonXoffChar         ds.b    1
+
+enddef
+
+; lots of bytes saved here...
 
 ;$0fae-$0fb4    Alarm app data - shouldn't be here
 
@@ -299,20 +304,20 @@ defc    ubTopVisibleAlarm       =$0fb4
 ;               Note that calculator memories are persistant (because of static permanent sysvars)
 
 
-defc    ubSerParity             =$0ffc          ; move with the others one SI above
-defc    ubSerFlowControl        =$0ffd
-defc    cSerXonXoffChar         =$0ffe
-
+; Mailbox:
 defc    MailBoxName             =$1800          ; max 17 bytes
 defc    ubMailboxLength         =$1811
 defc    MailboxData             =$1812          ; max 64 bytes
 defc    ubMailBoxID             =$1852
 
+; Process:
 defc    word_1853               =$1853          ; ???
+;                                               ; 2 bytes free here ?
+defc    pStkEntUsedStkBottom    =$1857
 defc    uwStkEntUsedStkSize     =$1859
 defc    pStkTempStkTop          =$185b
 defc    stkBottom               =$185d
-defc    pStkEntUsedStkBottom    =$1857
+;                                               ; 5 bytes here ?
 defc    unk_1864                =$1864          ; ???
 
 lston
