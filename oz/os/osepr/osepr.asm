@@ -684,10 +684,6 @@ xdef    OSEpr
 .ise_4
         ld      (ubEpr_SubType), a              ; store EPROM variables
         ld      (pEpr_PrgTable), hl
-        ld      hl, $3FF7                       ; filing EPROM/application ROM
-        call    PeekBHL                         ; get file system type at B 3FF7
-        ld      (ubEpr_Fstype), a
-        or      a                               ; Fc=0
         jr      ise_6
 .ise_5
         ld      a, RC_Fail
@@ -859,62 +855,6 @@ xdef    OSEpr
 .ict_3
         pop     de
         pop     bc
-        ret
-
-;       ----
-
-
-;       check EPROM position for $FF
-;
-;IN:    BHL=EPROM pointer
-;OUT:   Fz=0 if byte not $FF
-;       Fz=1 if it is $FF, unformatted
-;chg:   AF....../....
-
-.ChkFormattedByte
-        call    PeekBHL
-        inc     a
-        ret     nz                              ; not FF? exit with Fz=0
-
-        ld      a, (ubEpr_Fstype)
-        bit     0, a
-        jr      z, cfb_1                        ; use 3-byte header format
-        xor     a                               ; Fz=1
-        ret
-
-.cfb_1
-        push    bc
-        push    hl
-        call    IncBHL                          ; skip two bytes and try again
-        call    IncPeekBHL
-        pop     hl
-        pop     bc
-        ret     z                               ; !! bug: Peek doesn't return meaningful flags
-        inc     a                               ; Fz=1 if $FF
-        ret
-
-;       ----
-
-;       gets header byte, handles 3-byte header format
-;
-;IN:    BHL=EPROM pointer
-;OUT:   A=C=byte
-;chg:   AF.C..../....
-
-.GetHeaderByte
-        ld      a, (ubEpr_Fstype)
-        bit     0, a
-        jr      z, ghb_1                        ; not filing EPROM? use 3-byte header
-        call    PeekBHL
-        jr      ghb_2
-
-.ghb_1
-        call    IncBHL                          ; skip 2 bytes before reading byte
-        call    IncPeekBHL
-
-.ghb_2
-        call    IncBHL                          ; bump pointer
-        ld      c, a
         ret
 
 ;       ----
