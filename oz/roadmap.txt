@@ -17,6 +17,7 @@ TODO (with priorities):
 - Add Select EPROM device command in Filer. P1
 - Rewrite buffer interface to speedup serial routines. P1
 - Modify NMI to allow use of RETN
+- Rename nqsp.asm in spnq1.asm and move pagfi.asm into spnq1.asm P1
 
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2

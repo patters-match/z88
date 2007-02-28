@@ -446,7 +446,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         inc     b                               ; handle B=0
         jr      bufi_2
 .bufi_1
-        ld      (ix+0), 0                       ; clear data afteer (IX)
+        ld      (ix+0), 0                       ; clear data after (IX)
         inc     ix
 .bufi_2
         djnz    bufi_1

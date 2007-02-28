@@ -9,7 +9,7 @@
         org     $f8fa                           ; 18 bytes
 
         include "serintfc.def"
-        include "sysvar.def"
+        include "kernel.def"
 
 xdef    OSSp_PAGfi
 
