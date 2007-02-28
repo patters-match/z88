@@ -22,8 +22,6 @@ Module CopyFiles
 
      xdef CopyFileAreaCommand, QuickCopyFileCommand
 
-     lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
-
      xref FilesAvailable           ; browse.asm
      xref CompressedFileEntryName  ; browse.asm
      xref GetCursorFilePtr         ; browse.asm
@@ -204,8 +202,10 @@ Module CopyFiles
 ; Copy file entry BHL to slot defined in (dstslot)
 ;
 .CopyFileEntry
+                    ld   c,0                      ; local pointer to filename
                     ld   de,buf3
-                    call FileEprFilename          ; copy filename from current file entry at (DE)
+                    ld   a,EP_Name
+                    oz   OS_Epr                   ; copy filename from current file entry at (DE)
 
                     push bc
                     push hl                       ; preserve file entry pointer temporarily...

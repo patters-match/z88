@@ -22,7 +22,6 @@ Module CatalogFiles
 
      xdef CatalogCommand
 
-     lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
 
      xref GetFirstFilePtr          ; browse.asm

@@ -18,8 +18,6 @@
 
 Module DeleteFile
 
-     lib FileEprFilename           ; get filename at (DE) from current file entry
-
      xdef DeleteFileCommand        ; Mark as Deleted command, <>ER
      xdef QuickDeleteFile          ; interactive command, DEL key on current file in file area window
      xdef DispBoldFilename

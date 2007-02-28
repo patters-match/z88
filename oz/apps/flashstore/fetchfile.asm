@@ -29,7 +29,6 @@ Module FetchFile
      xdef DispCompletedMsg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib FileEprFileName           ; get a copy of the file name from the file entry.
      lib RamDevFreeSpace           ; Get free space on RAM device
 
      xref FilesAvailable           ; browse.asm
@@ -120,9 +119,11 @@ Module FetchFile
 
                     call DisplayFileSize     ; display size of file right-justified
 
+                    ld   c,0                 ; local pointer to filename
                     ld   de,buffer
-                    call FileEprFileName
-                    ld   (linecnt),a         ; size of input
+                    ld   a,EP_Name
+                    oz   OS_Epr              ; copy filename from current file entry to (DE)
+                    ld   (linecnt),a         ; size of filename
 
                     ld   a,EP_Stat
                     oz   OS_Epr              ; check file entry status...

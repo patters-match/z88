@@ -25,7 +25,6 @@ Module RestoreFiles
      xdef disp_exis_msg, saving_msg, no_active_files
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib FileEprFilename           ; Copy filename into buffer (null-term.) from cur. File Entry
      lib RamDevFreeSpace           ; Get free space on RAM device.
 
      xref FilesAvailable           ; browse.asm
@@ -127,7 +126,9 @@ Module RestoreFiles
                     oz   OS_Epr              ; get pointer to last file on Eprom
                     JP   C, no_files         ; Ups - the card was empty or not present...
 .restore_loop                                ; BHL points at current file entry
-                    CALL FileEprFilename     ; get filename at (DE)
+                    ld   c,0                 ; local pointer to filename
+                    ld   a,EP_Name
+                    oz   OS_Epr              ; copy filename from current file entry to (DE)
                     JP   C, restore_completed; all file entries scanned...
                     JR   Z, fetch_next       ; File Entry marked as deleted, get next...
 
