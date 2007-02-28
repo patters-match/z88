@@ -601,90 +601,57 @@ xdef    OSEpr
 
 .EprDir
         call    IsEPROM
-        jr      c, dir_7                        ; not EPROM? exit
+        ret     c                               ; not EPROM? exit
 
         push    bc
-        push    hl
+        push    hl                              ; preserve BHL buffer pointer
 
         push    ix
         pop     de
         ld      a, d
         or      e
-        jr      nz, dir_1                       ; IX not 0? continue
+        jr      nz, check_handle                ; IX not 0? continue
 
         ld      a, FN_AH                        ; allocate temp handle
         ld      b, HND_TEMP
         OZ      OS_Fn
-        jr      c, dir_6                        ; error? exit
+        jr      c, exit_EprDir                  ; error? exit
 
         ld      c,3                             ; EP_Dir always reads from slot 3
         call    FileEprFirstFile                ; return BHL to first file entry in slot
-        jr      dir_3
-.dir_1
+        jr      z, get_next_fe                  ; deleted file entry? then get next entry
+        jr      update_handle_ptr
+.check_handle
         ld      a, FN_VH                        ; verify handle
         ld      b, HND_TEMP
         OZ      OS_Fn
-        jr      c, dir_6                        ; error? exit
+        jr      c, exit_EprDir                  ; error? exit
 
-        ld      b, (ix+8)                       ; get EPROM pointer
+        ld      b, (ix+8)                       ; get current File Entry pointer through handle
         ld      h, (ix+9)
         ld      l, (ix+10)
-.dir_2
-        call    FileEprNextFile
-        jr      c, dir_5                        ; error? EOF
-.dir_3
-        call    ChkFormattedByte
-        jr      z, dir_5                        ; unformatted? EOF
-
-        push    bc
-        push    hl
-        call    GetHeaderByte
-        call    PeekBHL                         ; first byte of filename
-        pop     hl                              ; rewind position
-        pop     bc
-        or      a
-        jr      z, dir_2                        ; deleted? get next
-
-        ld      (ix+8), b                       ; store EPROM pointer
-        ld      (ix+9), h
+.get_next_fe
+        call    FileEprNextFile                 ; get pointer to next file entry in BHL
+        jr      c, free_temp_handle             ; error? EOF
+        jr      z, get_next_fe                  ; deleted file entry? skip this one and get next entry
+.update_handle_ptr
+        ld      (ix+8), b                       ; store File Entry pointer for next EP_Dir
+        ld      (ix+9), h                       ; in allocated handle memory
         ld      (ix+10), l
 
-        call    GetHeaderByte                   ; filename length in C
-        pop     de                              ; original BHL in ADE
+        pop     de
         pop     af
-
-.dir_4
-        push    bc
-        push    af
-        ld      c, a
-        call    PeekBHL
-        ld      b, c
-        OZ      GN_Wbe                          ; write A to BDE
-        inc     de                              ; bump buffer position, no bank bump!
-        pop     af
-        pop     bc
-
-        call    IncBHL                          ; bump EPROM pointer
-        dec     c
-        jr      nz, dir_4                       ; loop until filename done
-
-        ld      b, a                            ; write trailing NULL
-        xor     a
-        OZ      GN_Wbe
-        jr      dir_7                           ; exit
-
-.dir_5
+        ld      c,a                             ; CDE is pointer to buffer
+        jp      FileEprFileName                 ; get filename from file entry into buffer and exit EP_Dir
+.free_temp_handle
         ld      a, FN_FH                        ; free handle
         ld      b, HND_TEMP
         OZ      OS_Fn
         scf
         ld      a, RC_Eof
-
-.dir_6
+.exit_EprDir
         pop     de                              ; fix stack
         pop     de
-
-.dir_7
         ret
 
 ;       ----
