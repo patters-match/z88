@@ -55,8 +55,8 @@
 ;         File Eprom was not found in slot, or File Entry not available
 ;
 ; Registers changed after return:
-;    A..CDE../IXIY same
-;    .FB...HL/.... different
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004, July 2005
@@ -64,7 +64,6 @@
 ;
 .FileEprFirstFile
         push    de
-        push    af
         push    bc                              ; preserve CDE
 
         ld      e,c                             ; preserve slot number
@@ -96,14 +95,11 @@
         pop     de                              ; BHL = pointer to first File Entry
         ld      c,e                             ; original C restored
         pop     de
-        ld      a,d                             ; original A restored
-        pop     de
         ret
 .no_entry
         scf
         ld      a, RC_Onf                       ; "Object not found"
         pop     de
         ld      c,e                             ; original C register restored
-        pop     de                              ; ignore original AF...
         pop     de
         ret

@@ -27,8 +27,6 @@
         xdef FileEprLastFile
         xref FileEprFirstFile, FileEprNextFile, FileEprFileStatus
 
-        include "error.def"
-
 
 ; ***************************************************************************************************
 ;
@@ -51,8 +49,8 @@
 ;         File Eprom was not found in slot, or File Entry not available
 ;
 ; Registers changed after return:
-;    A..CDE../IXIY same
-;    .FB...HL/.... different
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, Dec 2004
@@ -60,11 +58,10 @@
 ;
 .FileEprLastFile
         push    de
-        push    af
         push    bc                              ; preserve CDE
 
         call    FileEprFirstFile                ; Get first file entry in File Area
-        jr      c,no_entry
+        jr      c,exit_FileEprLastFile          ; no file area found...
 .scan_filearea                                  ; scan the File Area until last File Entry found...
         ld      c,b
         ld      d,h
@@ -80,18 +77,8 @@
         ex      af,af'                          ; file status of last file entry restored.
         ld      b,c
         ex      de,hl                           ; BHL = pointer to last File Entry
-
+.exit_FileEprLastFile
         pop     de
         ld      c,e                             ; original C restored
-        pop     de
-        ld      a,d                             ; original A restored
-        pop     de                              ; original DE restored
-        ret
-.no_entry
-        scf
-        ld      a, RC_Onf                       ; "Object not found"
-        pop     de
-        ld      c,e                             ; original C register restored
-        pop     de                              ; ignore original AF...
         pop     de                              ; original DE restored
         ret
