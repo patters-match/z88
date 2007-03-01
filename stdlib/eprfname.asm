@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,8 +12,8 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -30,11 +30,11 @@
 ; area in application cards (below application banks in first free 64K boundary)
 ;
 ; Return file name of File Entry at BHL
-; (B=00h-FFh embedded slot mask, HL=0000h-3FFFh bank offset) 
+; (B=00h-FFh embedded slot mask, HL=0000h-3FFFh bank offset)
 ;
 ; IN:
 ;    DE = buffer to hold returned filename
-;    BHL = pointer to Eprom File Entry in card at slot 
+;    BHL = pointer to Eprom File Entry in card at slot
 ;
 ; OUT:
 ;    Fc = 0, File Eprom available
@@ -66,16 +66,10 @@
                     POP  HL
                     POP  DE
                     POP  BC
-                    JR   C, no_entry              ; No files are present on File Eprom...
+                    JR   C, end_FileEprFileName   ; No files are present on File Eprom, A = RC_xx error...
 
                     CALL FetchFilename            ; copy filename into local buffer, null-terminated
-
-                    POP  BC
-                    POP  HL                       ; original pointer restored
-                    POP  DE                       ; original buffer pointer restored
-                    RET
-
-.no_entry           LD   A, RC_Onf
+.end_FileEprFileName
                     POP  BC
                     POP  HL                       ; original pointer restored
                     POP  DE                       ; original buffer pointer restored
