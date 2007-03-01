@@ -15,6 +15,8 @@ TODO (with priorities):
 - Rewrite EPROM interface with Flash handling. P1
 - Add Flash EPROM Format command in Filer. P1
 - Add Select EPROM device command in Filer. P1
+- Implement new OS_Epr API with stdlib Epr* functionaility. P1
+- Rewrite/optimize current OS_Epr with new Epr* functionaility from stdlib. P1
 - Rewrite buffer interface to speedup serial routines. P1
 - Modify NMI to allow use of RETN
 - Rename nqsp.asm in spnq1.asm and move pagfi.asm into spnq1.asm P1
@@ -24,7 +26,6 @@ TODO (with priorities):
 - Remove hardcoded IN keys in SpecInternal and IsForeignKey (kbd.asm) P2
 - Remove MU_*** in stdio.def they already exist with IN_*** P2
 
-- Move lowram image in mth bank and modifiy reset routine. P3
 - Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3
 - Test A=0 in OSSci. P3
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes). P3
@@ -72,6 +73,8 @@ DONE
 - Implemented 1K File I/O buffer for file copy functionality in Filer, drastically speeding up file copying (16K in 2 secs!) (GBS).
 - EazyLink is new standard popdown for easy remote file management (GBS).
 - After reset, try to execute global RAM "Boot.cli" (anywhere in any RAM), if /Boot.cli was not found in slot 3 File Eprom. (GBS)
+- Move lowram image to MTH bank and modifiy reset routine. (GBS)
+- Current OS_Epr should be sub file-area aware in slot 3. (GBS)
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0
