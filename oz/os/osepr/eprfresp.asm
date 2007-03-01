@@ -50,8 +50,8 @@
 ;         A = RC_ONF
 ;
 ; Registers changed after (successful) return:
-;    A.....HL/IXIY same
-;    .FBCDE../.... different
+;    ......HL/IXIY same
+;    AFBCDE../.... different
 ;
 ; ------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, Dec '97-Aug '98, July '05, Feb '07
@@ -59,7 +59,6 @@
 ;
 .FileEprFreeSpace
         push    hl
-        push    af
 
         ld      e,c                             ; preserve slot number
         call    FileEprRequest                  ; check for presence of "oz" File Eprom in slot
@@ -92,12 +91,9 @@
         sbc     hl,de
         ex      de,hl                           ; return free space of File Eprom in DEBC
 .exit_freespace
-        pop     hl
-        ld      a,h                             ; restored original A
         pop     hl                              ; restored original HL
         ret
 .err_FileEprFreeSpace
-        pop     hl                              ; ignore old AF
         scf
         ld      a, RC_ONF
         pop     hl                              ; restored original HL

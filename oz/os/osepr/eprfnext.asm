@@ -27,8 +27,6 @@
         xdef FileEprNextFile
         xref FileEprFileEntryInfo, FileEprFileStatus
 
-        include "error.def"
-
 
 ; ***************************************************************************************************
 ;
@@ -52,35 +50,24 @@
 ;         File Eprom was not found in slot, or File Entry not available
 ;
 ; Registers changed after return:
-;    A..CDE../IXIY same
-;    .FB...HL/.... different
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
 ;
 ; -----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004, Mar 2007
 ; -----------------------------------------------------------------------
 ;
 .FileEprNextFile
         push    de
-        push    af
         push    bc
 
         call    FileEprFileEntryInfo
-        jr      c, no_entry                     ; No files are present on File Eprom...
+        jr      c, end_FileEprNextFile          ; No files are present on File Eprom...
 
         call    FileEprFileStatus               ; check file status of next file
-        jr      c, no_entry                     ; next file does not exist
-
-        ld      a,b                             ; returned BHL is next file entry...
+.end_FileEprNextFile
+        ld      d,b                             ; returned BHL is next file entry, or Fc = 1, A = RC_Onf if End Of List
         pop     bc                              ; original C register restored
-        ld      b,a
-        pop     de
-        ld      a,d                             ; original A restored...
-        pop     de                              ; original DE register restored
-        ret
-.no_entry
-        scf
-        ld      a, RC_Onf
-        pop     de
-        pop     de                              ; ignore old AF
+        ld      b,d
         pop     de                              ; original DE register restored
         ret
