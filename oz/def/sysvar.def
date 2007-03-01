@@ -222,7 +222,6 @@ defc    NMIStackTop             =$0c33
 defvars $0DB8
 
 ; EPROM:
-        ubEpr_SubType           ds.b    1
         ubEpr_NameLen           ds.b    1
         pEpr_PrgTable           ds.w    1
         pEpr_Parsedname         ds.w    1

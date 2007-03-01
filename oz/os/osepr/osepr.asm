@@ -674,7 +674,6 @@ xdef    OSEpr
         add     hl, de
         jr      ise_2
 .ise_4
-        ld      (ubEpr_SubType), a              ; store EPROM variables
         ld      (pEpr_PrgTable), hl
         jr      ise_6
 .ise_5
@@ -700,7 +699,7 @@ xdef    OSEpr
         ld      hl, $3FFD
         ld      iy, EpromTypes
         call    IdentifyCardType                ; !! doesn't return B
-        jp      c, fmt_8
+        jp      c, fmt_9
         ld      e, a                            ; remember type
 
         ld      a, b                            ; find out card size
@@ -793,19 +792,11 @@ xdef    OSEpr
         jr      nz, fmt_6
 .fmt_7
         pop     bc
-        jr      c, fmt_8                        ; error? exit
+        jr      c, fmt_9                        ; error? exit
 
         ld      a, e                            ; subtype
         push    iy
         pop     hl                              ; programming model
-        jr      fmt_9
-
-.fmt_8
-        push    af                              ; in case of error clear subtype
-        xor     a
-        ld      (ubEpr_SubType), a
-        pop     af
-
 .fmt_9
         pop     iy
         ret
