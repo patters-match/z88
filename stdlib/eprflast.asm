@@ -15,15 +15,13 @@
 ;
 ; $Id$
 ;
-;***************************************************************************************************
+; ***************************************************************************************************
 
      LIB FileEprFirstFile, FileEprNextFile
      LIB FileEprFileStatus
 
-     INCLUDE "error.def"
 
-
-; ************************************************************************
+; ***************************************************************************************************
 ;
 ; Standard Z88 File Eprom Format, including support for sub File Eprom
 ; area in application cards (below application banks in first free 64K boundary)
@@ -44,19 +42,18 @@
 ;         File Eprom was not found in slot, or File Entry not available
 ;
 ; Registers changed after return:
-;    A..CDE../IXIY same
-;    .FB...HL/.... different
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 2004
+; Design & programming by Gunther Strube, Dec 2004, Mar 2007
 ; ------------------------------------------------------------------------
 ;
 .FileEprLastFile    PUSH DE
-                    PUSH AF
                     PUSH BC                       ; preserve CDE
 
                     CALL FileEprFirstFile         ; Get first file entry in File Area
-                    JR   C,no_entry
+                    JR   C,exit_FileEprLastFile
 .scan_filearea                                    ; scan the File Area until last File Entry found...
                     LD   C,B
                     LD   D,H
@@ -72,18 +69,8 @@
                     EX   AF,AF'                   ; file status of last file entry restored.
                     LD   B,C
                     EX   DE,HL                    ; BHL = pointer to last File Entry
-
+.exit_FileEprLastFile
                     POP  DE
                     LD   C,E                      ; original C restored
-                    POP  DE
-                    LD   A,D                      ; original A restored
-                    POP  DE                       ; original DE restored
-                    RET
-
-.no_entry           SCF
-                    LD   A, RC_Onf                ; "Object not found"
-                    POP  DE
-                    LD   C,E                      ; original C register restored
-                    POP  DE                       ; ignore original AF...
                     POP  DE                       ; original DE restored
                     RET
