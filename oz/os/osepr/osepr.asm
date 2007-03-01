@@ -152,8 +152,7 @@ xdef    OSEpr
 
 ; ***************************************************************************************************
 .ozFileEprNextFile
-        call    FileEprNextFile
-        ret     c                               ; return BHL = pointer to next file entry in slot (B=00h-FFh, HL=0000h-3FFFh).
+        call    FileEprNextFile                 ; return BHL = pointer to next file entry or first byte of empty space
         jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
 
 
