@@ -34,11 +34,11 @@
 ;    BHL = pointer to File Entry
 ;
 ; OUT:
+;    BHL = pointer to next file entry on File Eprom in slot, or first byte of empty space
+;
 ;    Fc = 0, File Eprom available
 ;         Fz = 1, File Entry marked as deleted
 ;         Fz = 0, File Entry is active.
-;         BHL = pointer to next file entry on File Eprom in slot
-;
 ;    Fc = 1,
 ;         A = RC_Onf
 ;         File Eprom was not found in slot, or File Entry not available
