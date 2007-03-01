@@ -338,17 +338,17 @@ xdef    OSEpr
 ;
 ;IN:    BHL = source filename
 ;       IX = output handle
-;OUT:   Fc=0, file read successfully
+;OUT:   Fc=0, file fetched successfully to RAM file
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/....
 
 .EprLoad
+        call    IsEPROM
+        ret     c                               ; not EPROM? exit
+
         ld      b, 0                            ; bind source in
         OZ      OS_Bix
         push    de                              ; remember S1/S2
-
-        call    IsEPROM
-        jr      c, ld_4                         ; not EPROM? exit
 
         OZ      GN_Pfs                          ; parse filename segment
 
