@@ -229,14 +229,6 @@ xdef    OSEpr
 ;***************************************************************************************************
 ;       most of this code is unnecessary - all EPROM access is done in S1
 
-;       increment BHL and read byte
-.IncPeekBHL
-        inc     hl                              ; !! call IncBHL
-        bit     6, h                            ; if HL=$4000 then reset it and increment bank
-        jr      z, PeekBHL
-        res     6, h
-        inc     b
-
 ;       read byte at (BHL)
 .PeekBHL
         inc     b
