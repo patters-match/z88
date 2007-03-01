@@ -72,8 +72,10 @@ DONE
 - 'CLI' symbol in right hand side now flashes while CLI is active (TP).
 - Implemented 1K File I/O buffer for file copy functionality in Filer, drastically speeding up file copying (16K in 2 secs!) (GBS).
 - EazyLink is new standard popdown for easy remote file management (GBS).
+- FlashStore integrated as standard Flash card management popdown. Uses new OS_Fep & OS_Epr interface instead of stdlib routines (GBS).
 - After reset, try to execute global RAM "Boot.cli" (anywhere in any RAM), if /Boot.cli was not found in slot 3 File Eprom. (GBS)
 - Move lowram image to MTH bank and modifiy reset routine. (GBS)
+- New OS_Fep system call implemented to handle flash card hardware. (GBS)
 - Current OS_Epr should be sub file-area aware in slot 3. (GBS)
 
 FIXED KERNEL BINARIES FOR COMPILATION
