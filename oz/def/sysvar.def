@@ -111,43 +111,45 @@ defc    pOSEntHandle            =$02ad
                                                 ; $02af-$03af is a system page
 
 ;       uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
-
-defc    uwAppStaticHnd          =$03b0
-defc    ubAppDynID              =$03b2
-defc    ubAppResCycle           =$03b3
-defc    pAppEntrypoint          =$03b4
-defc    ubAppDORFlags           =$03b6
-defc    ubAppDORFlags2          =$03b7
-defc    uwAppEnvOverhead        =$03b8
-defc    pAppStackPtr            =$03ba
-defc    pAppUnSafeArea          =$03bc
-defc    pAppBadMemTable         =$03be
-defc    pAppBadMemHandle        =$03c0
-defc    ubAppContRAM            =$03c2
-defc    ubAppBindings           =$03c3
-defc    ubAppKbdBits            =$03c7
-defc    pMailbox                =$03c8
-defc    ubMailboxSize           =$03ca
-defc    pAppErrorHandler        =$03cc
-defc    ubAppLastError          =$03ce
-defc    ubAppCallLevel          =$03cf
-defc    ubOldCallLevel          =$03d0
-defc    pAppHelpHandle          =$03d1
-defc    ubAppHelpBank           =$03d3
-defc    eAppDOR_2               =$03d4
-defc    eAppTopics_2            =$03d7
-defc    eAppCommands_2          =$03da
-defc    eAppHelp_2              =$03dd
-defc    eAppTokens_2            =$03e0
-
-defc    pAppEnvHandle           =$03f0
-defc    uwFreeRAMPages          =$03f2
-defc    pFirstHandle            =$03f4
-defc    ubIntTaskToDo           =$03f6
-defc    ubIntStatus             =$03f7
-defc    ubSlotRAMoffset         =$03f8
-defc    ubSlotRamSize           =$03fc
-
+defvars $03b0
+    uwAppStaticHnd              ds.w    1
+    ubAppDynID                  ds.b    1
+    ubAppResCycle               ds.b    1
+    pAppEntrypoint              ds.w    1
+    ubAppDORFlags               ds.b    1
+    ubAppDORFlags2              ds.b    1
+    uwAppEnvOverhead            ds.w    1
+    pAppStackPtr                ds.w    1
+    pAppUnSafeArea              ds.w    1
+    pAppBadMemTable             ds.w    1
+    pAppBadMemHandle            ds.w    1
+    ubAppContRAM                ds.b    1
+    ubAppBindings               ds.b    4
+    ubAppKbdBits                ds.b    1
+    pMailbox                    ds.w    1
+    ubMailboxSize               ds.b    2       ; 1 more, try to remove...
+    pAppErrorHandler            ds.w    1
+    ubAppLastError              ds.b    1
+    ubAppCallLevel              ds.b    1
+    ubOldCallLevel              ds.b    1
+    pAppHelpHandle              ds.w    1
+    ubAppHelpBank               ds.b    1
+    eAppDOR_2                   ds.p    1
+    eAppTopics_2                ds.p    1
+    eAppCommands_2              ds.p    1
+    eAppHelp_2                  ds.p    1
+    eAppTokens_2                ds.p    1
+enddef                                          ; at 03E2 (free from E2-EF)
+    
+defvars $03f0
+        pAppEnvHandle           ds.w    1
+        uwFreeRAMPages          ds.w    1
+        pFirstHandle            ds.w    1
+        ubIntTaskToDo           ds.b    1
+        ubIntStatus             ds.b    1
+        ubSlotRAMoffset         ds.b    4
+        ubSlotRamSize           ds.b    4
+enddef        
 
 defvars $0400
 ; Random
