@@ -41,9 +41,6 @@
         include "stdio.def"
         include "time.def"
 
-        include "clcalalm.def"
-
-
         xdef CalendarMain
 
         ; defined in clalalm.asm
@@ -53,6 +50,26 @@
         xref DisplayTime, KeyJump, KeyJump0, TableJump, tj_2, GetTableEntry, NavigateTable
         xref AskDate, AskTime, TestKeys, GetOutHandle
 
+
+defc    CAL_UNSAFE_WS      = 40                 ; defined in appdors.asm
+defc    CAL_UNSAFE_START   = $1FFE - CAL_UNSAFE_WS
+
+defvars CAL_UNSAFE_START
+        CurrentDay              ds.b    3
+        OrigDiaryEntry          ds.b    3
+        MonthStart              ds.b    3
+        NextMonthStart          ds.b    3
+        DrawnMonthStart         ds.b    3
+        NextDiaryDay            ds.b    3
+        SearchDay               ds.b    3
+        DiaryEntry              ds.b    3
+        NextDiaryEntry          ds.b    3
+        ubDay                   ds.b    1
+        ubMonth                 ds.b    1
+        ubNMonthDays            ds.b    1
+        ubWeekday               ds.b    1
+        swYear                  ds.w    1
+enddef
 
 .CalendarMain
         ld      a, SC_ENA

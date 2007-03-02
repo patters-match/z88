@@ -150,7 +150,7 @@ defc    FREE_THIS       =7
 .acr_4
         ld      (ubAppContRAM), a
         add     a, 8*4                          ; 8K more
-        ld      ($1855), a
+        ld      (ubBadInfoEndPage), a
 
 ;       set bindings as needed
 
@@ -455,7 +455,7 @@ defc    FREE_THIS       =7
 
 .CopyPageToAH0
         scf
-.copy   ld      de, ($185B)
+.copy   ld      de, (pStkTempStkTop)
 
 ; copy 256 bytes
 ;

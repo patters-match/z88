@@ -145,8 +145,9 @@ defc    uwFreeRAMPages          =$03f2
 defc    pFirstHandle            =$03f4
 defc    ubIntTaskToDo           =$03f6
 defc    ubIntStatus             =$03f7
-defc    ubSlotRamSize           =$03fc
 defc    ubSlotRAMoffset         =$03f8
+defc    ubSlotRamSize           =$03fc
+
 
 defvars $0400
 ; Random
@@ -205,21 +206,17 @@ defvars $0400
         BlinkPortSoftCopies     ds.b    160     ; $0460-$04FF
 
 ; Handles
-        Handles                 ds.b    16*96   ; HNDLEN * NUMHANDLE
+        Handles                 ds.b    16*96   ; $0500-$0AFF HNDLEN * NUMHANDLE
 
 ; Serial interface buffers
         SerTXBuffer             ds.b    128     ; $0B00-$0B7F
         SerRXBuffer             ds.b    128     ; $0B80-$0BFF
-enddef
 
 ; NMI/wait
-
-defc    uwTimecounter           =$0c00
-defc    ubTimecounterSoft       =$0c02
-defc    NMIStackTop             =$0c33
-
-
-defvars $0DB8
+        uwTimecounter           ds.w    1       ; $0C00
+        ubTimecounterSoft       ds.b    1
+        NMIStackBottom          ds.b    48
+        NMIStackTop             ds.w    1       ; $0C33
 
 ; EPROM:
         ubEpr_NameLen           ds.b    1
@@ -289,34 +286,32 @@ defvars $0DB8
 
 enddef
 
-; lots of bytes saved here...
-
-;$0fae-$0fb4    Alarm app data - shouldn't be here
-
-defc    MailDate                =$0fae
-defc    ubAlmActiveButton       =$0fb1
-defc    ubSelectedAlmPos        =$0fb2
-defc    ubNumVisibleAlarms      =$0fb3
-defc    ubTopVisibleAlarm       =$0fb4
-
 ;$0fbf-$0ffb    Calculator app data - shouldn't be here
 ;               Note that calculator memories are persistant (because of static permanent sysvars)
 
+; APPLICATION PROCESS AREA
+
+defvars $1800
 
 ; Mailbox:
-defc    MailBoxName             =$1800          ; max 17 bytes
-defc    ubMailboxLength         =$1811
-defc    MailboxData             =$1812          ; max 64 bytes
-defc    ubMailBoxID             =$1852
+        MailBoxName             ds.b    17
+        ubMailboxLength         ds.b    1       ; $1811
+        MailboxData             ds.b    64
+        ubMailBoxID             ds.b    1       ; $1852
 
 ; Process:
-defc    word_1853               =$1853          ; ???
-;                                               ; 2 bytes free here ?
-defc    pStkEntUsedStkBottom    =$1857
-defc    uwStkEntUsedStkSize     =$1859
-defc    pStkTempStkTop          =$185b
-defc    stkBottom               =$185d
+        ubBadInfoBlock          ds.b    1       ; $1853 (info block length always $03, the three follwing bytes)
+        ubBadInfoStartPage      ds.b    1       ; bad application start page (always $20)
+        ubBadInfoEndPage        ds.b    1       ; set by AllocBadRAM1
+        ubBadInfoReserved       ds.b    1       ; unused (always 00 set in process3.asm/osent_16)
+        pStkEntUsedStkBottom    ds.w    1       ; $1857
+        uwStkEntUsedStkSize     ds.w    1       ; $1859
+        pStkTempStkTop          ds.w    1       ; $185b
+        stkBottom                               ; $185d
 ;                                               ; 5 bytes here ?
+
+enddef
+
 defc    unk_1864                =$1864          ; ???
 
 lston

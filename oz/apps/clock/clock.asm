@@ -39,8 +39,6 @@
         include "stdio.def"
         include "time.def"
 
-        include "clcalalm.def"
-
         xdef ClockMain
 
         ; defined in clalalm.asm

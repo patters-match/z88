@@ -41,8 +41,6 @@
         include "integer.def"
         include "sysvar.def"
 
-        include "clcalalm.def"
-
         xdef AlarmMain
 
         ; defined in clalalm.asm
@@ -52,6 +50,16 @@
         xref DisplayTime, KeyJump, KeyJump0, TableJump, NavigateTable
         xref AskDate, AskTime, TestKeys, GetOutHandle
 
+defc    ALM_UNSAFE_WS       = 16                ; defined in appdors.asm
+defc    ALM_UNSAFE_START    = $1FFE - ALM_UNSAFE_WS
+
+defvars ALM_UNSAFE_START
+        MailDate                ds.b    3
+        ubAlmActiveButton       ds.b    1
+        ubSelectedAlmPos        ds.b    1
+        ubNumVisibleAlarms      ds.b    1
+        ubTopVisibleAlarm       ds.b    1
+enddef
 
 .AlarmMain
         ld      a, SC_ENA

@@ -41,8 +41,6 @@
         include "syspar.def"
         include "time.def"
 
-        include "clcalalm.def"
-
         xdef Exit, MoveToXb, MoveToXYbc
         xdef ApplyToggles, JustifyC, JustifyN, ToggleTR, ToggleRvrs, ToggleTiny
         xdef ClrScr, ToggleCrsr, ClrEOL, PrntString

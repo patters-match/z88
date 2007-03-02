@@ -150,7 +150,8 @@ defc    CLIS_PRTTOPEN           =4
 defc    CLIS_OUTTOPEN           =2
 defc    CLIS_INTOPEN            =1
 
-defc    mem_1fd6                =$1fd6          ; 3*12 bytes
+defc    UNSAFE_WS               = $28                    ; defined in application DOR
+defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 
 .IndexEntry
         jp      Index
@@ -4118,11 +4119,11 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 ;       ----
 
 .cmd_card
-        ld      hl, mem_1fd6
+        ld      hl, UNSAFE_START
         ld      b, 36
         call    ZeroMem
         ld      d, 3                            ; slot #
-        ld      iy, mem_1fd6+3*12
+        ld      iy, UNSAFE_START+3*12
 
 .crd_1                                          ; slot loop
         ld      bc, -12
@@ -4273,7 +4274,7 @@ defc    mem_1fd6                =$1fd6          ; 3*12 bytes
 ;       point IY to data of card A
 
 .GetCardData
-        ld      iy, mem_1fd6-12
+        ld      iy, UNSAFE_START-12
         inc     a
         ld      bc, 12
         ld      d, 0

@@ -361,10 +361,10 @@ xref    OSSr_Fus                                ; bank7/ossr.asm
         ld      (pOSEntHandle), hl
         ld      de, unk_1864
         exx
-        call    OSFramePush
+        call    OSFramePush                     
         ld      ix, OSFramePop                  ; for the return
         push    ix
-        ld      hl, word_1853
+        ld      hl, ubBadInfoBlock
         push    hl
         ld      (hl), 3                         ; 03 20 .. 00
         inc     hl
