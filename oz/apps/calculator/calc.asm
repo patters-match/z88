@@ -40,6 +40,17 @@
 
         org     $f300
 
+defc    CALC_UNSAFE_WS          = 128
+defc    CALC_UNSAFE_START       = $1FFE - CALC_UNSAFE_WS
+        
+defvars CALC_UNSAFE_START
+        Float1                  ds.b    5
+        Float2                  ds.b    5
+        Memories                ds.b    10*5
+        varFix                  ds.b    1
+        CALC_UNSAFE_WS2
+enddef
+
 defvars 0
         calc_ActiveCol          ds.b    1
         calc_ActiveRow          ds.b    1
@@ -56,14 +67,7 @@ defvars 0
         calc_CvtActiveRow       ds.b    1
         calc_PrevCvtActCol      ds.b    1
         calc_PrevCvtActRow      ds.b    1
-        calc_StrBuffer          ds.b    1
-enddef
-
-defvars $0fbf                                   ; !! should use named mem later
-        Float1                  ds.b    5
-        Float2                  ds.b    5
-        Memories                ds.b    10*5
-        varFix                  ds.b    1
+        calc_StrBuffer          ds.b    32
 enddef
 
 ;       Flags
@@ -83,7 +87,6 @@ defc    CF_Symbol               = 32
 defc    CF_Command              = 64
 defc    CF_HasNumBuf            = 128
 
-
 ;       CalcOp
 defc    OP_ADD                  = 0
 defc    OP_SUB                  = 1
@@ -97,9 +100,8 @@ defc    CC_RCLM                 = 2
 defc    CC_FIX                  = 3
 
 
-
 .Calculator
-        ld      iy, $1FAC
+        ld      iy, CALC_UNSAFE_WS2
         ld      a, 5
         OZ      OS_Esc                          ; Examine special condition
 

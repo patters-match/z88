@@ -28,7 +28,7 @@ lstoff
 ; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
 ;
 ; $Id$
-;***************************************************************************************************
+; ***************************************************************************************************
 ;
 ; ***************************************************************************************************
 ; ***                             INTERNAL OPERATING SYSTEM USAGE ONLY                            ***
@@ -286,27 +286,24 @@ defvars $0400
 
 enddef
 
-;$0fbf-$0ffb    Calculator app data - shouldn't be here
-;               Note that calculator memories are persistant (because of static permanent sysvars)
-
 ; APPLICATION PROCESS AREA
 
 defvars $1800
 
 ; Mailbox:
         MailBoxName             ds.b    17
-        ubMailboxLength         ds.b    1       ; $1811
+        ubMailboxLength         ds.b    1
         MailboxData             ds.b    64
-        ubMailBoxID             ds.b    1       ; $1852
+        ubMailBoxID             ds.b    1
 
 ; Process:
-        ubBadInfoBlock          ds.b    1       ; $1853 (info block length always $03, the three follwing bytes)
+        ubBadInfoBlock          ds.b    1       ; info block length (always $03, the three follwing bytes)
         ubBadInfoStartPage      ds.b    1       ; bad application start page (always $20)
         ubBadInfoEndPage        ds.b    1       ; set by AllocBadRAM1
         ubBadInfoReserved       ds.b    1       ; unused (always 00 set in process3.asm/osent_16)
-        pStkEntUsedStkBottom    ds.w    1       ; $1857
-        uwStkEntUsedStkSize     ds.w    1       ; $1859
-        pStkTempStkTop          ds.w    1       ; $185b
+        pStkEntUsedStkBottom    ds.w    1
+        uwStkEntUsedStkSize     ds.w    1
+        pStkTempStkTop          ds.w    1
         stkBottom                               ; $185d
 ;                                               ; 5 bytes here ?
 
