@@ -58,6 +58,10 @@ include "z80.def"                               ; to be removed and inlined in e
 
 ; System variable area
 defc    SYSVAR_AREA             = $020B
+;defc    APPVAR_AREA             = $03B0
+;defc    SYSVAR_PRESERVED        = $
+;defc    PANEL_PRESERVED         =
+
 
 defvars SYSVAR_AREA
         ubScreenBase            ds.b    1
@@ -84,9 +88,6 @@ defvars SYSVAR_AREA
         ubSysFlags1             ds.b    1       ; $0258
         cExtendedChar           ds.b    1       ; $0259
         OZcmdBuf                ds.b    6       ; $025a
-enddef
-
-defvars $0260
         pNMIStackPtr            ds.w    1       ; $0260
         ubWaitCount1            ds.b    1       ; $0262
         ubWaitCount2            ds.b    1       ; $0263
@@ -109,53 +110,53 @@ defvars $0260
         ulSlot1ID               ds.l    1       ; $027b
         ulSlot2ID               ds.l    1       ; $027f
         ulSlot3ID               ds.l    1       ; $0283
+        ubHlpActiveCmd          ds.b    1       ; $0287
+        ubHlpActiveTpc          ds.b    1       ; $0288
+        ubHlpActiveHelp         ds.b    1       ; $0289
+        ubHlpActiveApp          ds.b    1       ; $028a
+        _u_5                    ds.b    1
+        eHlpAppDOR              ds.p    1       ; $028c
+        eHlpTopics              ds.p    1       ; $028f
+        eHlpCommands            ds.p    1       ; $0292
+        eHlpHelp                ds.p    1       ; $0295
+        eHlpTokens              ds.p    1       ; $0298
+        ActiveAppHandle         ds.b    16      ; $029b actual handle structure
+        uwOSTinTimeout          ds.w    1       ; $02ab
+        pOSEntHandle            ds.w    1       ; $02ad
+                                ds.b    256     ; $02af-$03af is a system page
 enddef
-        
-defc    ubHlpActiveCmd          =$0287
-defc    ubHlpActiveTpc          =$0288
-defc    ubHlpActiveHelp         =$0289
-defc    ubHlpActiveApp          =$028a
-defc    eHlpAppDOR              =$028c
-defc    eHlpTopics              =$028f
-defc    eHlpCommands            =$0292
-defc    eHlpHelp                =$0295
-defc    eHlpTokens              =$0298
-defc    ActiveAppHandle         =$029b          ; actual handle structure
-defc    uwOSTinTimeout          =$02ab
-defc    pOSEntHandle            =$02ad
-                                                ; $02af-$03af is a system page
 
 ;       uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
 defvars $03b0
-    uwAppStaticHnd              ds.w    1
-    ubAppDynID                  ds.b    1
-    ubAppResCycle               ds.b    1
-    pAppEntrypoint              ds.w    1
-    ubAppDORFlags               ds.b    1
-    ubAppDORFlags2              ds.b    1
-    uwAppEnvOverhead            ds.w    1
-    pAppStackPtr                ds.w    1
-    pAppUnSafeArea              ds.w    1
-    pAppBadMemTable             ds.w    1
-    pAppBadMemHandle            ds.w    1
-    ubAppContRAM                ds.b    1
-    ubAppBindings               ds.b    4
-    ubAppKbdBits                ds.b    1
-    pMailbox                    ds.w    1
-    ubMailboxSize               ds.b    2       ; 1 more, try to remove...
-    pAppErrorHandler            ds.w    1
-    ubAppLastError              ds.b    1
-    ubAppCallLevel              ds.b    1
-    ubOldCallLevel              ds.b    1
-    pAppHelpHandle              ds.w    1
-    ubAppHelpBank               ds.b    1
-    eAppDOR_2                   ds.p    1
-    eAppTopics_2                ds.p    1
-    eAppCommands_2              ds.p    1
-    eAppHelp_2                  ds.p    1
-    eAppTokens_2                ds.p    1
-enddef                                          ; at 03E2 (free from E2-EF)
-    
+        uwAppStaticHnd          ds.w    1       ; $03B0
+        ubAppDynID              ds.b    1
+        ubAppResCycle           ds.b    1
+        pAppEntrypoint          ds.w    1
+        ubAppDORFlags           ds.b    1
+        ubAppDORFlags2          ds.b    1
+        uwAppEnvOverhead        ds.w    1
+        pAppStackPtr            ds.w    1
+        pAppUnSafeArea          ds.w    1
+        pAppBadMemTable         ds.w    1
+        pAppBadMemHandle        ds.w    1       ; $03C0
+        ubAppContRAM            ds.b    1
+        ubAppBindings           ds.b    4
+        ubAppKbdBits            ds.b    1
+        pMailbox                ds.w    1
+        ubMailboxSize           ds.b    2       ; 1 more, try to remove...
+        pAppErrorHandler        ds.w    1
+        ubAppLastError          ds.b    1
+        ubAppCallLevel          ds.b    1
+        ubOldCallLevel          ds.b    1       ; $03D0
+        pAppHelpHandle          ds.w    1
+        ubAppHelpBank           ds.b    1
+        eAppDOR_2               ds.p    1
+        eAppTopics_2            ds.p    1
+        eAppCommands_2          ds.p    1
+        eAppHelp_2              ds.p    1
+        eAppTokens_2            ds.p    1       ; $03E0
+enddef                                          ; free from $03E3-$03EF
+
 defvars $03f0
         pAppEnvHandle           ds.w    1
         uwFreeRAMPages          ds.w    1
@@ -316,7 +317,7 @@ defvars $1800
 ; Process:
         ubBadInfoBlock          ds.b    1       ; info block length (always $03, the three follwing bytes)
         ubBadInfoStartPage      ds.b    1       ; bad application start page (always $20)
-        ubBadInfoEndPage        ds.b    1       ; set by AllocBadRAM1
+        ubBadInfoEndPage        ds.b    1       ; bad application end page set by AllocBadRAM1
         ubBadInfoReserved       ds.b    1       ; unused (always 00 set in process3.asm/osent_16)
         pStkEntUsedStkBottom    ds.w    1
         uwStkEntUsedStkSize     ds.w    1
