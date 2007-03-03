@@ -79,7 +79,7 @@ defvars SYSVAR_AREA
         uwFsAvailBlock          ds.w    1       ; $0246
         _another_1              ds.w    1       ; $0248
         word_024A               ds.w    1       ; $024a used in nqsp.asm
-        _another_2              ds.w    1
+        _another_2              ds.w    1       ; $024c
         pMTHScreenSave          ds.w    1       ; $024e
         pMTHHelpHandle          ds.w    1       ; $0250
         word_0252               ds.w    1       ; $0252 used in nqsp.asm
@@ -87,41 +87,44 @@ defvars SYSVAR_AREA
         ubSysFlags1             ds.b    1       ; $0258
         cExtendedChar           ds.b    1       ; $0259
         OZcmdBuf                ds.b    6       ; $025a
-enddef
 
-defc    pNMIStackPtr            =$0260
-defc    ubWaitCount1            =$0262
-defc    ubWaitCount2            =$0263
-defc    ubTimeoutCnt            =$0264
-defc    ubCLIActiveCnt          =$0265
-defc    ubNextAlmSeconds        =$0266
-defc    uwNextAlmMinutes        =$0267
-defc    ubNextAlmMinutesB       =$0269
-defc    ubSoundActive           =$026a
-defc    ubSoundCount            =$026b
-defc    ubAlmDisableCnt         =$026e
-defc    ubAlmDisplayCnt         =$026f
-defc    ubNumActiveAlm          =$0270
-defc    ubAlmActionCnt          =$0271
-defc    pFirstAlarm             =$0272
-defc    pNextAlmHandle          =$0274
-defc    pPrefs1                 =$0276
-defc    pPrefs2                 =$0278
-defc    ulSlot1ID               =$027b
-defc    ulSlot2ID               =$027f
-defc    ulSlot3ID               =$0283
-defc    ubHlpActiveCmd          =$0287
-defc    ubHlpActiveTpc          =$0288
-defc    ubHlpActiveHelp         =$0289
-defc    ubHlpActiveApp          =$028a
-defc    eHlpAppDOR              =$028c
-defc    eHlpTopics              =$028f
-defc    eHlpCommands            =$0292
-defc    eHlpHelp                =$0295
-defc    eHlpTokens              =$0298
-defc    ActiveAppHandle         =$029b          ; actual handle structure
-defc    uwOSTinTimeout          =$02ab
-defc    pOSEntHandle            =$02ad
+
+        pNMIStackPtr            ds.w    1       ; $0260
+        ubWaitCount1            ds.b    1       ; $0262
+        ubWaitCount2            ds.b    1       ; $0263
+        ubTimeoutCnt            ds.b    1       ; $0264
+        ubCLIActiveCnt          ds.b    1       ; $0265
+        ubNextAlmSeconds        ds.b    1       ; $0266
+        uwNextAlmMinutes        ds.w    1       ; $0267
+        ubNextAlmMinutesB       ds.b    1       ; $0269
+        ubSoundActive           ds.b    1       ; $026a
+        ubSoundCount            ds.b    1       ; $026b
+                                ds.w    1
+        ubAlmDisableCnt         ds.b    1       ; $026e
+        ubAlmDisplayCnt         ds.b    1       ; $026f
+        ubNumActiveAlm          ds.b    1       ; $0270
+        ubAlmActionCnt          ds.b    1       ; $0271
+        pFirstAlarm             ds.w    1       ; $0272
+        pNextAlmHandle          ds.w    1       ; $0274
+        pPrefs1                 ds.w    1       ; $0276
+        pPrefs2                 ds.w    1       ; $0278
+                                ds.b    1       
+        ulSlot1ID               ds.l    1       ; $027b
+        ulSlot2ID               ds.l    1       ; $027f
+        ulSlot3ID               ds.l    1       ; $0283
+        ubHlpActiveCmd          ds.b    1       ; $0287
+        ubHlpActiveTpc          ds.b    1       ; $0288
+        ubHlpActiveHelp         ds.b    1       ; $0289
+        ubHlpActiveApp          ds.b    1       ; $028a
+        eHlpAppDOR              ds.p    1       ; $028c
+        eHlpTopics              ds.p    1       ; $028f
+        eHlpCommands            ds.p    1       ; $0292
+        eHlpHelp                ds.p    1       ; $0295
+        eHlpTokens              ds.p    1       ; $0298
+        ActiveAppHandle         ds.b    16      ; $029b actual handle structure
+        uwOSTinTimeout          ds.w    1       ; $02ab
+        pOSEntHandle            ds.w    1       ; $02ad
+enddef
                                                 ; $02af-$03af is a system page
 
 ;       uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
