@@ -61,28 +61,34 @@ defc    sysvar_area = $020b
 
 defvars SYSVAR_AREA
         ubScreenBase            ds.b    1
-        _KbdData                ds.b    10      ; $020C
+                                ds.b    10      ; $020C
         KbdData                 ds.b    10      ; $0216 data on both negative and positive side
-        _SerTxHandle            ds.b    10      ; $021F
+                                ds.b    10      ; $021F
         SerTXHandle                             ; $0229 on negative side!
-        _SerRXHandle            ds.b    10
+                                ds.b    10
         SerRXHandle                             ; $0233 on negative side!
-        _unused                 ds.b    4
+        _unused                 ds.b    4       ; can be removed (tested)
+
+
+        ubFsTemp                ds.b    1       ; $0237
+        uwSmallTimer            ds.w    1       ; $0238
+        uwSlotAvailFsBlocks     ds.w    5       ; $023a why 5 and not 4 ?
+
+
+        pFsMemPool              ds.w    1       ; $0244
+        uwFsAvailBlock          ds.w    1       ; $0246
+        _another_1              ds.w    1       ; $0248
+        word_024A               ds.w    1       ; $024a used in nqsp.asm
+        _another_2              ds.w    1
+        pMTHScreenSave          ds.w    1       ; $024e
+        pMTHHelpHandle          ds.w    1       ; $0250
+        word_0252               ds.w    1       ; $0252 used in nqsp.asm
+        uwPanelFilePtr          ds.w    1       ; $0256
+        ubSysFlags1             ds.b    1       ; $0258
+        cExtendedChar           ds.b    1       ; $0259
+        OZcmdBuf                ds.b    6       ; $025a
 enddef
 
-defc    ubFsTemp                =$0237
-defc    uwSmallTimer            =$0238
-defc    uwSlotAvailFsBlocks     =$023a          ; ds.b 5*2
-defc    pFsMemPool              =$0244
-defc    uwFsAvailBlock          =$0246
-defc    word_024A               =$024a          ; used in nqsp.asm
-defc    pMTHScreenSave          =$024e
-defc    pMTHHelpHandle          =$0250
-defc    word_0252               =$0252          ; used in nqsp.asm
-defc    uwPanelFilePtr          =$0256
-defc    ubSysFlags1             =$0258
-defc    cExtendedChar           =$0259
-defc    OZcmdBuf                =$025a
 defc    pNMIStackPtr            =$0260
 defc    ubWaitCount1            =$0262
 defc    ubWaitCount2            =$0263
