@@ -58,10 +58,18 @@ include "z80.def"                               ; to be removed and inlined in e
 
 ; System variable area
 defc    sysvar_area = $020b
-defc    ubScreenBase            =$020b
-defc    KbdData                 =$0216          ; data on both negative and positive side
-defc    SerTXHandle             =$0229          ; on negative side!
-defc    SerRXHandle             =$0233          ; on negative side!
+
+defvars SYSVAR_AREA
+        ubScreenBase            ds.b    1
+        _KbdData                ds.b    10      ; $020C
+        KbdData                 ds.b    10      ; $0216 data on both negative and positive side
+        _SerTxHandle            ds.b    10      ; $021F
+        SerTXHandle                             ; $0229 on negative side!
+        _SerRXHandle            ds.b    10
+        SerRXHandle                             ; $0233 on negative side!
+        _unused                 ds.b    4
+enddef
+
 defc    ubFsTemp                =$0237
 defc    uwSmallTimer            =$0238
 defc    uwSlotAvailFsBlocks     =$023a          ; ds.b 5*2
