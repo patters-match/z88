@@ -61,6 +61,7 @@
         xref FileEprNewFileEntry                ; osepr/eprfnew.asm
         xref FileEprFileSize                    ; osepr/eprfsize.asm
         xref FileEprFilename                    ; osepr/eprfname.asm
+        xref FileEprFileImage                   ; osepr/eprfimage.asm
 
 
 
@@ -100,7 +101,8 @@ xdef    OSEpr
         jp      ozFileEprFileStatus             ; 2a, EP_Stat  (OZ 4.2 and newer)
         jp      ozFileEprFileSize               ; 2d, EP_Size  (OZ 4.2 and newer)
         jp      ozFileEprFilename               ; 30, EP_Name  (OZ 4.2 and newer)
-        jp      ozFileEprNewFileEntry           ; 33, EP_New   (OZ 4.2 and newer)
+        jp      ozFileEprFileImage              ; 33, EP_Name  (OZ 4.2 and newer)
+        jp      ozFileEprNewFileEntry           ; 36, EP_New   (OZ 4.2 and newer)
 
 
 
@@ -217,12 +219,20 @@ xdef    OSEpr
         call    PutOSFrame_CDE                  ; return file entry size in CDE
         jr      ret_fz                          ; return File status (active/deleted) in Fz
 
+
 ; ***************************************************************************************************
 .ozFileEprFilename
         call    FileEprFilename
         ret     c
         ld      (iy+OSFrame_A),a                ; return length of copied filename
         jr      ret_fz                          ; return File status (active/deleted) in Fz
+
+
+; ***************************************************************************************************
+.ozFileEprFileImage
+        call    FileEprFileImage
+        ret     c
+        jr      ret_bhl_fz                      ; return BHL that is pointer to file entry image (contents)
 
 
 ;***************************************************************************************************

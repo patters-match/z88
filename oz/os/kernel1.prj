@@ -36,6 +36,7 @@ osepr/eprflast.asm
 osepr/eprfstat.asm
 osepr/eprfsize.asm
 osepr/eprfname.asm
+osepr/eprfimage.asm
 osepr/eprtotsp.asm
 osepr/epractsp.asm
 osepr/eprfresp.asm
