@@ -43,7 +43,7 @@ xdef    OSIsq                                   ; Printer driver
 xdef    OSWsq
 xdef    StorePrefixed                           ; Printer driver
 xdef    InitUserAreaGrey                        ; MTH, OS_Ent
-xdef    ScrD_GetMargins                         ; NqSp
+xdef    ScrD_GetMargins                         ; SpNq1
 
 xdef    VDU2ChrCode                             ; NqRDS    all these are screen related code in b00
 xdef    GetCrsrYX                               ; NqRDS

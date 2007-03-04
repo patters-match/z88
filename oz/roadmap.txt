@@ -19,7 +19,6 @@ TODO (with priorities):
 - Rewrite/optimize current OS_Epr with new Epr* functionaility from stdlib. P1
 - Rewrite buffer interface to speedup serial routines. P1
 - Modify NMI to allow use of RETN
-- Rename nqsp.asm in spnq1.asm and move pagfi.asm into spnq1.asm P1
 
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2
@@ -34,6 +33,8 @@ TODO (with priorities):
 - Add a character table or implement a []+XXX interface to access all the ISO characters. P3
 
 DONE
+- Rename nqsp.asm in spnq1.asm and move pagfi.asm into spnq1.asm P1
+- Clean sysvar.def
 - Move printer interface code in kernel. P2
 - Clean misc2.asm, lots of space and speed to gain. P2
 - Clean OSAlm. P2

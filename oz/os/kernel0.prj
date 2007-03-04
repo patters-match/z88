@@ -51,7 +51,6 @@ osin.asm
 spnq0.asm
 scrdrv2.asm
 filesys3.asm
-pagfi.asm
 scrdrv3.asm
 ozwindow.asm
 scrdrv4.asm

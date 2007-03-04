@@ -60,8 +60,8 @@ xref    OSSp_PAGfi                              ; bank0/pagfi.asm
 xref    IntSecond                               ; bank0/int.asm
 
 xref    RAMxDOR                                 ; bank7/misc1.asm
-xref    RstRdPanelAttrs                         ; bank7/nqsp.asm
-xref    InitKbdPtrs                             ; bank7/nqsp.asm
+xref    RstRdPanelAttrs                         ; bank7/spnq1.asm
+xref    InitKbdPtrs                             ; bank7/spnq1.asm
 xref    InitData                                ; bank7/initdata.asm
 xref    TimeReset                               ; bank7/timeres.asm
 
