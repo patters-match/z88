@@ -27,7 +27,7 @@
 ; Copyright of original (binary) implementation, V4.0:
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
-; $Id: nqsp.asm 2842 2007-02-27 21:58:21Z pek $
+; $Id$
 ;***************************************************************************************************
 
         Module SpNq1
