@@ -252,8 +252,8 @@ xref    OSSr_Fus                                ; bank7/ossr.asm
         scf
         jr      nz, osent_8                     ; OS_Exit? return with Fc=1
 
-        push    bc                              ; clear 64 bytes of app variables
-        ld      bc, $3F
+        push    bc                              ; clear active app variables area
+        ld      bc, pAppEnvHandle-uwAppStaticHnd-1
         ld      de, uwAppStaticHnd+1
         ld      hl, uwAppStaticHnd
         ld      (hl), 0                         ; !! ld (hl), b

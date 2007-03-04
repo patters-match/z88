@@ -56,14 +56,18 @@ lstoff
 include "kernel.def"                            ; to be removed (and renamed oz.def)
 include "z80.def"                               ; to be removed and inlined in each file
 
-; System variable area
-defc    SYSVAR_AREA             = $020B
-;defc    APPVAR_AREA             = $03B0
-;defc    SYSVAR_PRESERVED        = $
-;defc    PANEL_PRESERVED         =
 
+defc    SYSVAR_AREA             = $020B
+defc    PRESERVED_AREA          = $0400
+defc    HARDWARE_AREA           = $0460
+defc    SYS_2_AREA              = $0500
+defc    PROCESS_AREA            = $1800
+
+; System variable area
 
 defvars SYSVAR_AREA
+
+; System:
         ubScreenBase            ds.b    1
                                 ds.b    10      ; $020C
         KbdData                 ds.b    9       ; $0216 data on both negative and positive side
@@ -119,16 +123,13 @@ defvars SYSVAR_AREA
         eHlpTopics              ds.p    1       ; $028f
         eHlpCommands            ds.p    1       ; $0292
         eHlpHelp                ds.p    1       ; $0295
-        eHlpTokens              ds.p    1       ; $0298
-        ActiveAppHandle         ds.b    16      ; $029b actual handle structure
-        uwOSTinTimeout          ds.w    1       ; $02ab
-        pOSEntHandle            ds.w    1       ; $02ad
-                                ds.b    256     ; $02af-$03af is a system page
-enddef
+        eHlpTokens              ds.p    1
+        ActiveAppHandle         ds.b    16      ; actual handle structure
+        uwOSTinTimeout          ds.w    1
+        pOSEntHandle            ds.w    1
 
-;       uwAppStaticHnd-(pAppEnvHandle-1) is cleared when new app is created
-defvars $03b0
-        uwAppStaticHnd          ds.w    1       ; $03B0
+; Active application (51):
+        uwAppStaticHnd          ds.w    1       ; pAppEnvHandle - uwAppStaticHnd - 1 is cleared when new app is created
         ubAppDynID              ds.b    1
         ubAppResCycle           ds.b    1
         pAppEntrypoint          ds.w    1
@@ -138,7 +139,7 @@ defvars $03b0
         pAppStackPtr            ds.w    1
         pAppUnSafeArea          ds.w    1
         pAppBadMemTable         ds.w    1
-        pAppBadMemHandle        ds.w    1       ; $03C0
+        pAppBadMemHandle        ds.w    1
         ubAppContRAM            ds.b    1
         ubAppBindings           ds.b    4
         ubAppKbdBits            ds.b    1
@@ -147,17 +148,16 @@ defvars $03b0
         pAppErrorHandler        ds.w    1
         ubAppLastError          ds.b    1
         ubAppCallLevel          ds.b    1
-        ubOldCallLevel          ds.b    1       ; $03D0
+        ubOldCallLevel          ds.b    1
         pAppHelpHandle          ds.w    1
         ubAppHelpBank           ds.b    1
         eAppDOR_2               ds.p    1
         eAppTopics_2            ds.p    1
         eAppCommands_2          ds.p    1
         eAppHelp_2              ds.p    1
-        eAppTokens_2            ds.p    1       ; $03E0
-enddef                                          ; free from $03E3-$03EF
+        eAppTokens_2            ds.p    1
 
-defvars $03f0
+; System (16):
         pAppEnvHandle           ds.w    1
         uwFreeRAMPages          ds.w    1
         pFirstHandle            ds.w    1
@@ -165,15 +165,19 @@ defvars $03f0
         ubIntStatus             ds.b    1
         ubSlotRAMoffset         ds.b    4
         ubSlotRamSize           ds.b    4
-enddef        
 
-defvars $0400
-; Random
+; Random (5):
         ubRandomPtr             ds.b    1
         uwRandom1               ds.w    1
         uwRandom2               ds.w    1
 
-; Keymaps
+; NMI/wait (53):
+        uwTimecounter           ds.w    1
+        ubTimecounterSoft       ds.b    1
+        NMIStackBottom          ds.b    48
+        NMIStackTop             ds.w    1
+
+; Keymaps (10):
         ubKmBank                ds.b    1       ; memory bank where tables are, bound in S2
         ubKmPage                ds.b    1       ; high byte of address
         ubKmCaps                ds.b    1       ; low byte of CAPS translation table address
@@ -184,8 +188,13 @@ defvars $0400
         ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
         aKmCountry              ds.w    1       ; country id for OZ window
 
-; Preserved system area (32 bytes preserved over a soft reset)
-; (040F-042E)
+enddef        
+
+
+
+defvars PRESERVED_AREA
+
+; Preserved clocks (22):
         sysvar_area_presv
         ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
         ubTIM0_A                ds.b    1       ; buffer A : TIM0-4
@@ -202,11 +211,8 @@ defvars $0400
         uwSysDateMid            ds.w    1
         uwSysDateHigh           ds.w    1
         SysTimeBuffer           ds.b    5
-        free_free               ds.b    10      ; 10 bytes are left in this area
 
-; Preserved panel system area (11 bytes preserved over a soft reset)
-; 042F-0435
-        panel_area_presv
+; Preserved panel (7):
         ubResetType             ds.b    1       ; $00 hard / $FF soft
         ubTimeout               ds.b    1       ; panel system parameters
         ubRepeat                ds.b    1       ; "
@@ -215,13 +221,22 @@ defvars $0400
         ubBadSize               ds.b    1       ; "
         cCountry                ds.b    1       ; country code
         sysvar_area_presv_end
-        free_free_free          ds.b    10      ; (0436-043F) 10 bytes free
 
+enddef
+
+defvars HARDWARE_AREA
+
+; Screen softcopies:
+                                ds.b    32
+                                
 ; Keyboard buffer
-        KbdBuffer               ds.b    32      ; $0440-045F
+        KbdBuffer               ds.b    48
 
-; Hardware port softcopies
-        BlinkPortSoftCopies     ds.b    160     ; $0460-$04FF
+; Other blink port softcopies:
+                                ds.b    64
+
+; User port softcopies:
+                                ds.b    16      ; free
 
 ; Handles
         Handles                 ds.b    16*96   ; $0500-$0AFF HNDLEN * NUMHANDLE
@@ -229,12 +244,6 @@ defvars $0400
 ; Serial interface buffers
         SerTXBuffer             ds.b    128     ; $0B00-$0B7F
         SerRXBuffer             ds.b    128     ; $0B80-$0BFF
-
-; NMI/wait
-        uwTimecounter           ds.w    1       ; $0C00
-        ubTimecounterSoft       ds.b    1
-        NMIStackBottom          ds.b    48
-        NMIStackTop             ds.w    1       ; $0C33
 
 ; EPROM:
         ubEpr_NameLen           ds.b    1
@@ -304,9 +313,11 @@ defvars $0400
 
 enddef
 
+; ------------------------
 ; APPLICATION PROCESS AREA
+; ------------------------
 
-defvars $1800
+defvars PROCESS_AREA
 
 ; Mailbox:
         MailBoxName             ds.b    17
