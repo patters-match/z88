@@ -102,7 +102,7 @@ defvars SYSVAR_AREA
         ubNextAlmMinutesB       ds.b    1       ; $0269
         ubSoundActive           ds.b    1       ; $026a
         ubSoundCount            ds.b    1       ; $026b
-        _u_4                    ds.w    1       
+        _u_4                    ds.w    1
         ubAlmDisableCnt         ds.b    1       ; $026e
         ubAlmDisplayCnt         ds.b    1       ; $026f
         ubNumActiveAlm          ds.b    1       ; $0270
@@ -188,7 +188,7 @@ defvars SYSVAR_AREA
         ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
         aKmCountry              ds.w    1       ; country id for OZ window
 
-enddef        
+enddef
 
 
 
@@ -228,7 +228,7 @@ defvars HARDWARE_AREA
 
 ; Screen softcopies:
                                 ds.b    32
-                                
+
 ; Keyboard buffer
         KbdBuffer               ds.b    48
 
@@ -245,7 +245,7 @@ defvars HARDWARE_AREA
         SerTXBuffer             ds.b    128     ; $0B00-$0B7F
         SerRXBuffer             ds.b    128     ; $0B80-$0BFF
 
-; EPROM:
+; OS_Epr variables:
         ubEpr_NameLen           ds.b    1
         pEpr_PrgTable           ds.w    1
         pEpr_Parsedname         ds.w    1
