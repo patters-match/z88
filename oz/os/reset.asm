@@ -89,9 +89,9 @@ xref    TimeReset                               ; bank7/timeres.asm
 .soft_reset                                     ; On soft reset, only reset B20, but preserve [040F-043F]
         dec     a
         out     (BL_SR1), a
-        ld      bc, [sysvar_area_presv-sysvar_area-1]
-        ld      de, $4000 | sysvar_area+1       ; [0000-sysvar_area] is overwritten by lowram.bin
-        ld      hl, $4000 | sysvar_area
+        ld      bc, [sysvar_area_presv-1]
+        ld      de, $4001                       ; [0000-sysvar_area] is overwritten by lowram.bin
+        ld      hl, $4000
         ld      (hl), 0
         ldir
         ld      bc, [$3FFF-sysvar_area_presv_end]

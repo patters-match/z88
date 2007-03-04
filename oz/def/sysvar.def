@@ -56,73 +56,81 @@ lstoff
 include "kernel.def"                            ; to be removed (and renamed oz.def)
 include "z80.def"                               ; to be removed and inlined in each file
 
+; --------------------
+; FIRST 8K RAM MAPPING
+; --------------------
 
-defc    SYSVAR_AREA             = $020B
-defc    PRESERVED_AREA          = $0400
-defc    HARDWARE_AREA           = $0460
-defc    SYS_2_AREA              = $0500
-defc    PROCESS_AREA            = $1800
+; $0000-$027F is low ram routines
+defc    SV_KERNEL_RAM          = $0280          ;  384 bytes, 364 used
+defc    SV_PRESERVED_RAM       = $0400          ;   96 bytes,  22 used
+defc    SV_HARDWARE_RAM        = $0460          ;  160 bytes, all used
+defc    SV_STRUCT_RAM          = $0500          ; 1792 bytes, all used
+defc    SV_EXTERN_RAM          = $0C00          ; 1024 bytes, 406 used
+; $1000-$17FF is swap ram
+defc    SV_PROCESS_RAM         = $1800
 
-; System variable area
+; --------------------
+; KERNEL VARIABLE AREA
+; --------------------
 
-defvars SYSVAR_AREA
+defvars SV_KERNEL_RAM
 
-; System:
+; System (163):
         ubScreenBase            ds.b    1
-                                ds.b    10      ; $020C
-        KbdData                 ds.b    9       ; $0216 data on both negative and positive side
-                                ds.b    10      ; $021F
-        SerTXHandle                             ; $0229 on negative side
                                 ds.b    10
-        SerRXHandle                             ; $0233 on negative side
-        _u_0                    ds.b    4
-        ubFsTemp                ds.b    1       ; $0237
-        uwSmallTimer            ds.w    1       ; $0238
-        uwSlotAvailFsBlocks     ds.w    5       ; $023a ds.b 5*2
-        pFsMemPool              ds.w    1       ; $0244
-        uwFsAvailBlock          ds.w    1       ; $0246
+        KbdData                 ds.b    9       ; data on both negative and positive side
+                                ds.b    10
+        SerTXHandle                             ; on negative side
+                                ds.b    10
+        SerRXHandle                             ; on negative side
+        _u_0                    ds.b    4       ; ? (can be removed)
+        ubFsTemp                ds.b    1
+        uwSmallTimer            ds.w    1
+        uwSlotAvailFsBlocks     ds.w    5       ; why 5 ?
+        pFsMemPool              ds.w    1
+        uwFsAvailBlock          ds.w    1
         _u_1                    ds.w    1
-        word_024A               ds.w    1       ; $024a used in nqsp.asm
-        _u_2                    ds.w    1
-        pMTHScreenSave          ds.w    1       ; $024e
-        pMTHHelpHandle          ds.w    1       ; $0250
-        word_0252               ds.w    1       ; $0252 used in nqsp.asm
-        _u_3                    ds.w    1
-        uwPanelFilePtr          ds.w    1       ; $0256
-        ubSysFlags1             ds.b    1       ; $0258
-        cExtendedChar           ds.b    1       ; $0259
-        OZcmdBuf                ds.b    6       ; $025a
-        pNMIStackPtr            ds.w    1       ; $0260
-        ubWaitCount1            ds.b    1       ; $0262
-        ubWaitCount2            ds.b    1       ; $0263
-        ubTimeoutCnt            ds.b    1       ; $0264
-        ubCLIActiveCnt          ds.b    1       ; $0265
-        ubNextAlmSeconds        ds.b    1       ; $0266
-        uwNextAlmMinutes        ds.w    1       ; $0267
-        ubNextAlmMinutesB       ds.b    1       ; $0269
-        ubSoundActive           ds.b    1       ; $026a
-        ubSoundCount            ds.b    1       ; $026b
-        _u_4                    ds.w    1
-        ubAlmDisableCnt         ds.b    1       ; $026e
-        ubAlmDisplayCnt         ds.b    1       ; $026f
-        ubNumActiveAlm          ds.b    1       ; $0270
-        ubAlmActionCnt          ds.b    1       ; $0271
-        pFirstAlarm             ds.w    1       ; $0272
-        pNextAlmHandle          ds.w    1       ; $0274
-        pPrefs1                 ds.w    1       ; $0276
-        pPrefs2                 ds.w    1       ; $0278
-        ulSlot1ID               ds.l    1       ; $027b
-        ulSlot2ID               ds.l    1       ; $027f
-        ulSlot3ID               ds.l    1       ; $0283
-        ubHlpActiveCmd          ds.b    1       ; $0287
-        ubHlpActiveTpc          ds.b    1       ; $0288
-        ubHlpActiveHelp         ds.b    1       ; $0289
-        ubHlpActiveApp          ds.b    1       ; $028a
-        _u_5                    ds.b    1
-        eHlpAppDOR              ds.p    1       ; $028c
-        eHlpTopics              ds.p    1       ; $028f
-        eHlpCommands            ds.p    1       ; $0292
-        eHlpHelp                ds.p    1       ; $0295
+        word_024A               ds.w    1       ; to be renamed (used in nqsp.asm)
+        _u_2                    ds.w    1       ; ?
+        pMTHScreenSave          ds.w    1
+        pMTHHelpHandle          ds.w    1
+        word_0252               ds.w    1       ; to be renamed (used in nqsp.asm)
+        _u_3                    ds.w    1       ; ?
+        uwPanelFilePtr          ds.w    1
+        ubSysFlags1             ds.b    1
+        cExtendedChar           ds.b    1
+        OZcmdBuf                ds.b    6
+        pNMIStackPtr            ds.w    1
+        ubWaitCount1            ds.b    1
+        ubWaitCount2            ds.b    1
+        ubTimeoutCnt            ds.b    1
+        ubCLIActiveCnt          ds.b    1
+        ubNextAlmSeconds        ds.b    1
+        uwNextAlmMinutes        ds.w    1
+        ubNextAlmMinutesB       ds.b    1
+        ubSoundActive           ds.b    1
+        ubSoundCount            ds.b    1
+        _u_4                    ds.w    1       ; ?
+        ubAlmDisableCnt         ds.b    1
+        ubAlmDisplayCnt         ds.b    1
+        ubNumActiveAlm          ds.b    1
+        ubAlmActionCnt          ds.b    1
+        pFirstAlarm             ds.w    1
+        pNextAlmHandle          ds.w    1
+        pPrefs1                 ds.w    1
+        pPrefs2                 ds.w    1
+        ulSlot1ID               ds.l    1
+        ulSlot2ID               ds.l    1
+        ulSlot3ID               ds.l    1
+        ubHlpActiveCmd          ds.b    1
+        ubHlpActiveTpc          ds.b    1
+        ubHlpActiveHelp         ds.b    1
+        ubHlpActiveApp          ds.b    1
+        _u_5                    ds.b    1       ; ?
+        eHlpAppDOR              ds.p    1
+        eHlpTopics              ds.p    1
+        eHlpCommands            ds.p    1
+        eHlpHelp                ds.p    1
         eHlpTokens              ds.p    1
         ActiveAppHandle         ds.b    16      ; actual handle structure
         uwOSTinTimeout          ds.w    1
@@ -188,11 +196,45 @@ defvars SYSVAR_AREA
         ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
         aKmCountry              ds.w    1       ; country id for OZ window
 
-enddef
+; Serial interface flow (3):
+        ubSerParity             ds.b    1
+        ubSerFlowControl        ds.b    1
+        cSerXonXoffChar         ds.b    1
+
+; EPROM interface (7):
+        ubEpr_NameLen           ds.b    1
+        pEpr_PrgTable           ds.w    1
+        pEpr_Parsedname         ds.w    1
+        pEpr_FileHandle         ds.w    1
+
+; Printer (56):
+        StackBufPtr             ds.w    1
+        CtrlBuf                 ds.w    1
+        CtrlLen                 ds.b    1
+        prtInChar               ds.b    1
+        Translations            ds.b    37
+        PlaceHolderChar         ds.b    1
+        PendingSpaces           ds.b    1
+        Rows                    ds.b    1
+        PageLen                 ds.b    1
+        Flags                   ds.b    1
+        AttrUnderline           ds.b    1
+        AttrBold                ds.b    1
+        AttrExtended            ds.b    1
+        AttrItalics             ds.b    1
+        AttrSubscript           ds.b    1
+        AttrSuperscript         ds.b    1
+        AttrAltfont             ds.b    1
+        AttrUserdef             ds.b    1
+
+enddef        
 
 
+; --------------
+; PRESERVED AREA
+; --------------
 
-defvars PRESERVED_AREA
+defvars SV_PRESERVED_RAM
 
 ; Preserved clocks (22):
         sysvar_area_presv
@@ -224,54 +266,51 @@ defvars PRESERVED_AREA
 
 enddef
 
-defvars HARDWARE_AREA
+
+; -------------
+; HARDWARE AREA
+; -------------
+
+defvars SV_HARDWARE_RAM
 
 ; Screen softcopies:
                                 ds.b    32
 
-; Keyboard buffer
+; Keyboard buffer:
         KbdBuffer               ds.b    48
 
 ; Other blink port softcopies:
                                 ds.b    64
 
-; User port softcopies:
-                                ds.b    16      ; free
+; User port softcopies (unused):
+                                ds.b    16
 
-; Handles
-        Handles                 ds.b    16*96   ; $0500-$0AFF HNDLEN * NUMHANDLE
+enddef
 
-; Serial interface buffers
-        SerTXBuffer             ds.b    128     ; $0B00-$0B7F
-        SerRXBuffer             ds.b    128     ; $0B80-$0BFF
 
-; OS_Epr variables:
-        ubEpr_NameLen           ds.b    1
-        pEpr_PrgTable           ds.w    1
-        pEpr_Parsedname         ds.w    1
-        pEpr_FileHandle         ds.w    1
+; ---------------
+; STRUCTURES AREA
+; ---------------
 
-; Printer:
-        StackBufPtr             ds.w    1
-        CtrlBuf                 ds.w    1
-        CtrlLen                 ds.b    1
-        prtInChar               ds.b    1
-        Translations            ds.b    37
-        PlaceHolderChar         ds.b    1
-        PendingSpaces           ds.b    1
-        Rows                    ds.b    1
-        PageLen                 ds.b    1
-        Flags                   ds.b    1
-        AttrUnderline           ds.b    1
-        AttrBold                ds.b    1
-        AttrExtended            ds.b    1
-        AttrItalics             ds.b    1
-        AttrSubscript           ds.b    1
-        AttrSuperscript         ds.b    1
-        AttrAltfont             ds.b    1
-        AttrUserdef             ds.b    1
+defvars SV_STRUCT_RAM
 
-; Index:
+; Handles:
+        Handles                 ds.b    16*96   ; HNDLEN * NUMHANDLE
+
+; Serial interface buffers:
+        SerTXBuffer             ds.b    128
+        SerRXBuffer             ds.b    128
+
+enddef
+
+
+; --------------------
+; EXTERNAL SYSTEM AREA
+; --------------------
+
+defvars SV_EXTERN_RAM
+
+; Index (184):
         ubIdxPubFlags           ds.b    1
         ubIdxFlags2             ds.b    1
         ubIdxTopProcess         ds.b    1
@@ -297,7 +336,7 @@ defvars HARDWARE_AREA
         IdxZKeyTable            ds.b    50
         IdxZZKeyTable           ds.b    50
 
-; GN calls:
+; GN calls (222):
         uwGnDateLow             ds.w    1
         uwGnDateMid             ds.w    1
         uwGnDateHigh            ds.w    1
@@ -306,27 +345,23 @@ defvars HARDWARE_AREA
         pAlarmList              ds.p    1       ; badly named (eAlarmList)
         uwNextAlarmID           ds.w    1
 
-; Serial interface flow:
-        ubSerParity             ds.b    1
-        ubSerFlowControl        ds.b    1
-        cSerXonXoffChar         ds.b    1
-
 enddef
+
 
 ; ------------------------
 ; APPLICATION PROCESS AREA
 ; ------------------------
 
-defvars PROCESS_AREA
+defvars SV_PROCESS_RAM
 
-; Mailbox:
+; Mailbox (83):
         MailBoxName             ds.b    17
         ubMailboxLength         ds.b    1
         MailboxData             ds.b    64
         ubMailBoxID             ds.b    1
 
-; Process:
-        ubBadInfoBlock          ds.b    1       ; info block length (always $03, the three follwing bytes)
+; Process (10):
+        ubBadInfoBlock          ds.b    1       ; info block length (always $03, the three following bytes)
         ubBadInfoStartPage      ds.b    1       ; bad application start page (always $20)
         ubBadInfoEndPage        ds.b    1       ; bad application end page set by AllocBadRAM1
         ubBadInfoReserved       ds.b    1       ; unused (always 00 set in process3.asm/osent_16)
@@ -338,6 +373,6 @@ defvars PROCESS_AREA
 
 enddef
 
-defc    unk_1864                =$1864          ; ???
+defc    unk_1864                =$1864          ; ?
 
 lston
