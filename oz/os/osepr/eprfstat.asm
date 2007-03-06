@@ -25,9 +25,7 @@
 ; ***************************************************************************************************
 
         xdef FileEprFileStatus
-        xref IncBHL
-
-        lib MemReadByte
+        xref IncBHL, PeekBHL
 
         include "error.def"
 
@@ -63,8 +61,7 @@
 ; --------------------------------------------------------------------------
 ;
 .FileEprFileStatus
-        xor     a
-        call    MemReadByte                     ; Read first byte of File Entry
+        call    PeekBHL                         ; Read first byte of File Entry
         cp      $ff
         jr      z, exit_eprfile                 ; previous File Entry was last in File Eprom...
         cp      $00
@@ -74,8 +71,7 @@
         push    hl
 
         call    IncBHL
-        xor     a
-        call    MemReadByte                     ; get first char of filename
+        call    PeekBHL                         ; get first char of filename
         or      a                               ; Fc=0, Fz=1 (marked as "deleted"), Fz=0 ('/' character)
 
         pop     hl
