@@ -46,7 +46,7 @@
         xref PutOSFrame_BHL                     ; misc5.asm
         xref PutOSFrame_CDE                     ; misc5.asm
         xref PutOSFrame_DE, PutOSFrame_HL       ; misc5.asm
-        xref IncBHL                             ; misc5.asm
+        xref PeekBHL, IncBHL                    ; misc5.asm
         xref FileEprRequest                     ; osepr/eprreqst.asm
         xref FileEprFetchFile                   ; osepr/eprfetch.asm
         xref FileEprFindFile                    ; osepr/eprfndfl.asm
@@ -235,54 +235,6 @@ xdef    OSEpr
         ret     c
         jr      ret_bhl_fz                      ; return BHL that is pointer to file entry image (contents)
 
-
-;***************************************************************************************************
-;       most of this code is unnecessary - all EPROM access is done in S1
-
-;       read byte at (BHL)
-.PeekBHL
-        inc     b
-        dec     b
-        jr      nz, peek2                       ; not local
-
-        ld      a, (hl)                         ; read byte for easy cases
-        bit     7, h                            ; if HL<$C000 then we're done
-        ret     z                               ; !! shouldn't we test for S2 as well?
-        bit     6, h
-        ret     z
-
-        ld      a, (BLSC_SR1)                   ; remember S1
-        ex      af, af'
-        ld      a, (iy+OSFrame_S3)              ; bind caller S3 in S1 and read from there
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-
-        res     7, h                            ; fix HL into S1
-        ld      a, (hl)
-        set     7, h                            ; restore HL
-
-        ex      af, af'                         ; restore S1
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-        ex      af, af'
-        ret
-
-.peek2
-        ld      a, (BLSC_SR1)                   ; bind B in S1 and read from there
-        ex      af, af'
-        res     7, h                            ; fix HL into S1
-        set     6, h
-        ld      a, b
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-        ld      a, (hl)
-        res     6, h                            ; normalize HL
-
-        ex      af, af'                         ; restore S1
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-        ex      af, af'
-        ret
 
 
 ;       write byte at (BHL)
