@@ -40,15 +40,16 @@
         include "keyboard.def"
         include "lowram.def"
 
+xdef    BfSta, BfSta4I
+xdef    BfPur
+xdef    BufWrite, BufWrite4I
+xdef    BufRead, BufRead4I
 xdef    BfGbt
 xdef    BfPbt
-xdef    BfPur
-xdef    BfSta
-xdef    BufRead
-xdef    BufWrite
 xdef    InitBufKBD_RX_TX
 
-xref    OSWaitMain                              ; bank0/nmi.asm
+xref    OSWaitMain                              ; K0/nmi.asm
+
 
 
 ; ---------------------------------------------------------------------------------------------
@@ -56,34 +57,30 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ;
 ;IN:    IX = buffer
 ;OUT:   H = number of databytes in buffer
-;       L = number of free bytes in buffer
-;chg:   ......HL/....
+;       A = L = number of free bytes in buffer
+;       Fz = 1, buffer full
+;       Fc = 0, always
+;CHG:   AF....HL/....
 
 .BfSta
-        call    OZ_DI
-        call    BfSTAMain
-        call    OZ_EI
-        or      a
+        di
+        call    BfSta4I
+        ei
         ret
 
-.BfSTAMain
-        push    af
-        ld      a, (ix+buf_end)
-        sub     (ix+buf_start)
-        ld      l, a                            ; bufsize
-
-        ld      a, (ix+buf_wrpos)               ; used=wrpos-rdpos
+.BfSta4I                                        ; for use in interruption "4I"
+        ld      l, (ix+buf_lenght)              ; lenght
+        ld      a, (ix+buf_wrpos)
         sub     (ix+buf_rdpos)
-        jr      nc, bfsta_1                     ; handle buffer wrap
+        jr      nc, sta_no_wrap                 ; handle buffer wrap
         add     a, l
-
-.bfsta_1
-        ld      h, a                            ; used bytes
+.sta_no_wrap        
+        ld      h, a                            ; used = wrpos - rdpos
         ld      a, l                            ; free=bufsize-used-1
         sub     h
         dec     a
         ld      l, a
-        pop     af
+        or      a                               ; Fc=0, Fz kept
         ret
 
 
@@ -92,42 +89,85 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ;
 ;IN:    IX = buffer
 ;OUT:   Fc=0
-;chg:   F
+;CHG:   AF....../....
 
 .BfPur
-        call    OZ_DI
-        ex      af, af'
+        di
         ld      a, (ix+buf_rdpos)
         ld      (ix+buf_wrpos), a
-        ex      af, af'
-        call    OZ_EI
+        ei
         or      a
         ret
 
 
 ; ---------------------------------------------------------------------------------------------
-; Check if there's data in buffer
+; Write byte to buffer
 ;
-;IN:    IX = buffer
-;       HL = ubIntTaskToDo
-;OUT:   Fc=0 if data is ready
-;       Fc=1 if buffer is empty or there's pending escape condition
-;
-;chg:   AF
+;IN :   IX = buffer
+;       A = byte to be written
+;OUT:   Fc=0, success
+;       Fc=1, failure and A = Rc_Eof
+;CHG:   AF.C..HL/....
 
-.BfCheck
-        call    OZ_DI
-        ex      af, af'
-        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
+.BufWrite
+        di
+        call    BufWrite4I
+        ei
+        ret
+
+.BufWrite4I                                     ; 4I = for interruption routine (respect DI state)
+        ld      c,a
+        ld      a,(ix+buf_wrpos)
+        ld      l,a
+        inc     a
+        and     (ix+buf_mask)
+        cp      (ix+buf_rdpos)
+        jr      z, eof_ret
+        ld      h, (ix+buf_page)
+        ld      (hl), c
+        ld      (ix+buf_wrpos), a
+        
+        ld      hl, ubIntTaskToDo
+        set     ITSK_B_BUFFER, (hl)             ; there is something
+
+        ret
+        
+.eof_ret        
+        ld      a, RC_Eof
         scf
-        jr      nz, bfchk_1
-        ld      a, (ix+buf_wrpos)               ; this is *NOT* necessarily #data bytes,
-        sub     (ix+buf_rdpos)                  ; buffer wrap isn't handled
-        cp      1                               ; Fc=1 if buffer empty
-.bfchk_1
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
+        ret
+
+
+; ---------------------------------------------------------------------------------------------
+; Read byte from buffer
+;
+;IN :   IX = buffer
+;OUT:   Fc=0, success and A = byte read
+;       Fc=1, failure and A = Rc_Eof
+;CHG:   AF.C..HL/....
+
+.BufRead
+        di
+        call    BufRead4I
+        ei
+        ret
+        
+.BufRead4I
+        ld      a, (ix+buf_rdpos)
+        cp      (ix+buf_wrpos)
+        jr      z, eof_ret
+        ld      h, (ix+buf_page)
+        ld      l, a
+        ld      c, (hl)
+        
+        inc     a
+        and     (ix+buf_mask)
+        ld      (ix+buf_rdpos), a
+        
+        ld      hl, ubIntTaskToDo
+        res     ITSK_B_BUFFER, (hl)             ; data have been read
+        
+        ld      a, c
         ret
 
 
@@ -141,9 +181,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ;chg:   AFBC..HL/....
 
 .BfGbt
-        call    OZ_DI
-        push    af
-        ei
         push    de
 
         ld      de, 0
@@ -175,15 +212,9 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      c, bfgbt_9                      ; error, wait for more
 
 .bfgbt_x
-        push    hl                              ; save BfSta for other routines
         ld      hl, ubIntTaskToDo
         res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
-        pop     hl
         pop     de
-        ex      af, af'
-        pop     af
-        call    OZ_EI
-        ex      af, af'
         ld      bc, (uwSmallTimer)
         ret
 
@@ -218,22 +249,24 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 
 
 ; ---------------------------------------------------------------------------------------------
-; Check if buffer has room for one more byte
+; Check if there's data in buffer
 ;
 ;IN:    IX = buffer
-;OUT:   Fc=0, A=free space if room
-;       Fc=1, A=0 if buffer full
-;chg:   AF....HL/....
+;       HL = ubIntTaskToDo
+;OUT:   Fc=0 if data is ready
+;       Fc=1 if buffer is empty or there's pending escape condition
+;chg:   AF....../....
 
-.BufHasRoom
-        call    OZ_DI
-        ex      af, af'
-        call    BfSTAMain
-        ld      a, l
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
-        cp      1                               ; Fc=1 if buffer full
+.BfCheck
+        di
+        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
+        scf
+        jr      nz, bfchk_x
+        ld      a, (ix+buf_wrpos)               ; this is *NOT* necessarily #data bytes,
+        sub     (ix+buf_rdpos)                  ; buffer wrap isn't handled
+        cp      1                               ; Fc=1 if buffer empty
+.bfchk_x
+        ei
         ret
 
 
@@ -248,11 +281,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ;cfg:   AFBC
 
 .BfPbt
-        ex      af, af'
-        call    OZ_DI
-        push    af
-        ei
-        ex      af, af'
         push    de
         push    af                              ; save data
 
@@ -262,7 +290,8 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         res     ITSK_B_TIMER, (hl)
         ld      (uwSmallTimer), bc
 
-        call    BufHasRoom
+        call    BfSta
+        cp      1                               ; a=free slots, buf has room ?
         jr      nc, bfpbt_put                   ; there's room, just put byte
 
         ld      hl, ubIntTaskToDo
@@ -288,7 +317,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      c, bfpbt_9                      ; error? wait more
 
 .bfpbt_x
-        pop     de                              ; get rid of data in stack
+        pop     de                              ; was af, get rid of data in stack
         jp      bfgbt_x                         ; exit thru BfGbt code
 
 .bfpbt_esc
@@ -304,7 +333,8 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 
 .bfpbt_8
         res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
-        call    BufHasRoom
+        call    BfSta
+        cp      1                               ; a=free slots, buf has room ?
         jr      nc, bfpbt_put                   ; try to put data if room in buffer
 
 .bfpbt_9
@@ -322,99 +352,24 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 
 
 ; ---------------------------------------------------------------------------------------------
-; write byte into buffer
+; Initialize OZ buffers at reset
 ;
-;IN:    IX = buffer
-;       A  = byte
-;OUT:   Fc=0, H=#bytes in buffer, L=#free bytes in buffer, Fz=1 if buffer full after write
-;       Fc=1, A=error if fail
-;chg:   AF.C..HL/....
+.InitBufKBD_RX_TX
+        ld      ix, KbdData                     ; KBD buffer
+        ld      b, kbd_SIZEOF                   ; clear kbd data
+        ld      c, KB_BUF_LEN
+        ld      de, KbdBuffer
+        call    BufInit
 
-.BufWrite
-        ld      c, a
-        call    OZ_DI
-        ex      af, af'
+        ld      ix, SerTXHandle                 ; TX buffer
+        ld      c, TX_BUF_LEN
+        ld      de, SerTXBuffer
+        call    BufInit0
 
-        ld      a, (ix+buf_wrpos)               ; bump wrpos, handle wrap
-        ld      l, a
-        inc     a
-        cp      (ix+buf_end)
-        jr      nz, bufw_1
-        ld      a, (ix+buf_start)
-.bufw_1
-        cp      (ix+buf_rdpos)
-        jr      nz, bufw_2                      ; if not rdpos we can put byte
-
-        ld      a, RC_Eof                       ; oherwise error
-        scf
-        jr      bufw_4
-
-.bufw_2
-        ld      h, (ix+buf_bufpage)             ; put bute into buffer
-        ld      (hl), c
-        ld      (ix+buf_wrpos), a               ; store new pointer
-
-        inc     a                               ; bump wrpos, handle wrap
-        cp      (ix+buf_end)
-        jr      nz, bufw_3
-        ld      a, (ix+buf_start)
-.bufw_3
-        cp      (ix+buf_rdpos)                  ; Fz=1 if buffer full at exit
-        scf                                     ; Fc=0
-        ccf
-        ld      hl, ubIntTaskToDo                 ; signal any OS_Wait
-        set     ITSK_B_BUFFER, (hl)
-
-.bufw_4
-        call    BfSTAMain                       ; get buffer status
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
-        ret
-
-
-; ---------------------------------------------------------------------------------------------
-; read byte from buffer
-;
-;IN:    IX = buffer
-;OUT:   Fc=0, A=C=data , H=#data bytes in buffer, L=#free bytes in buffer
-;       Fc=1, A=error if fail
-;chg:   AF.C..HL/....
-;
-.BufRead
-        call    OZ_DI
-        ex      af, af'
-        ld      a, (ix+buf_rdpos)               ; EOF if rdpos=wrpos
-        cp      (ix+buf_wrpos)
-        jr      nz, bufr_1
-        ld      a, RC_Eof
-        scf
-        jr      bufr_3
-
-.bufr_1
-        ld      h, (ix+buf_bufpage)             ; get byte from buffer
-        ld      l, a
-        ld      c, (hl)
-
-        inc     a                               ; bump rdpos, handle wrap
-        cp      (ix+buf_end)
-        jr      nz, bufr_2
-        ld      a, (ix+buf_start)
-.bufr_2
-        ld      (ix+buf_rdpos), a               ; write pointer back
-
-        or      a                               ; Fc=0
-        ld      hl, ubIntTaskToDo
-        set     ITSK_B_BUFFER, (hl)             ; cancel buffer task
-
-.bufr_3
-        call    BfSTAMain                       ; get buffer status
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
-        ret     c                               ; Fc=1? return error code
-        ld      a, c                            ; otherwise byte from buffer
-        ret
+        ld      ix, SerRXHandle                 ; RX buffer
+        ld      c, RX_BUF_LEN
+        ld      de, SerRXBuffer
+        jp      BufInit0
 
 
 ; ---------------------------------------------------------------------------------------------
@@ -422,26 +377,23 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 
 .BufInit0
         ld      b, 0
-        ld      h, b
-        ld      l, b
 
-; init buffer
+; Initialize buffer
 ;
 ;IN:    IX = buffer
 ;       B  = data area to clear, starting at (IX)
-;       C  = end of circular buffer +1, low byte
+;       C  = circular buffer lenght
 ;       DE = circular buffer
-;       HL = buffer function, not used?
 
 .BufInit
         push    ix
         ld      (ix+buf_wrpos), e
         ld      (ix+buf_rdpos), e
-        ld      (ix+buf_start), e
-        ld      (ix+buf_end), c
-        ld      (ix+buf_bufpage), d
-        ld      (ix+buf_func), l
-        ld      (ix+buf_func+1), h
+        ld      (ix+buf_page), d
+        ld      (ix+buf_lenght), c
+        ld      a, c
+        cpl
+        ld      (ix+buf_mask), a
 
         inc     b                               ; handle B=0
         jr      bufi_2
@@ -452,25 +404,3 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         djnz    bufi_1
         pop     ix
         ret
-
-
-; ---------------------------------------------------------------------------------------------
-; init OZ buffers at reset
-;
-.InitBufKBD_RX_TX
-        ld      ix, KbdData                     ; KBD buffer
-        ld      b, kbd_SIZEOF                   ; clear kbd data
-        ld      c, <(KbdBuffer+KB_BUF_LEN)
-        ld      de, KbdBuffer
-        ld      hl, 0                           ; unused
-        call    BufInit                         ;
-
-        ld      ix, SerTXHandle                 ; TX buffer
-        ld      c, <(SerTXBuffer+TX_BUF_LEN)
-        ld      de, SerTXBuffer
-        call    BufInit0
-
-        ld      ix, SerRXHandle                 ; RX buffer
-        ld      c, <(SerRXBuffer+RX_BUF_LEN)
-        ld      de, SerRXBuffer
-        jp      BufInit0

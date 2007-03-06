@@ -1,0 +1,26 @@
+Notes about OZ interruption:
+
+OZ_DI/OZ_EI
+-----------
+Pushing/poping IFF state has just been done because some part of code are generic and common between interruption et serial interface.
+It shouldnt been required at all because:
+An INT cant occur into a NMI
+An INT cant occur into an INT
+Those call spend a lot of CPU time.
+    OZ_DI take at least 116 T states
+    OZ_EI at least 46
+    instead of 4 T states for EI/DI instructions
+Simply, routines (buffer ones) have to be oriented for interruptions or not.
+Users should be allowed to use EI/DI.
+
+NMI
+---
+Return from a NMI shouldnt store IFF and ret according, there is no IFF bug in CMOS Z80.
+In lowram, OZNMI, remove the DI and the end is POP AF/POP AF/RETN
+Some changes have to be done in NMIMain which is called by NMIentry and card manager.
+    Remove the OZ_DI/PUSH AF and the end POP AF... in NMIMain
+    It should work without problem with IntFlap from cardmanager called from int.
+    But there is a DI in nmi5
+    And I register seems to store machine state.
+
+

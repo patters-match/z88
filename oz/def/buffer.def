@@ -31,21 +31,17 @@ lstoff
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
-; buffer lenght
-     defc KB_BUF_LEN    = $20
-     defc RX_BUF_LEN    = $80
-     defc TX_BUF_LEN    = $80
+; buffer lenght (8, 16, 32, 64, 128, 256)
+     defc KB_BUF_LEN    = 32
+     defc RX_BUF_LEN    = 128
+     defc TX_BUF_LEN    = 128
 
 ; buffer data structure
-; on negative side of the handle number (see sysvar.def)
-defvars -10
-        buf_f6                  ds.b    1       ; $F6
-        buf_func                ds.b    1       ; $F7
-        buf_funcH               ds.w    1       ; $F8
-        buf_end                 ds.b    1       ; $FA
-        buf_start               ds.b    1       ; $FB
-        buf_bufpage             ds.b    1       ; $FC
-        buf_fd                  ds.b    1       ; $FD unused
+; on negative side of the handle number
+defvars -5
+        buf_mask                ds.b    1       ; $FB
+        buf_lenght              ds.b    1       ; $FC
+        buf_page                ds.b    1       ; $FD
         buf_wrpos               ds.b    1       ; $FE
         buf_rdpos               ds.b    1       ; $FF
 enddef

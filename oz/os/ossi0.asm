@@ -50,17 +50,19 @@ xdef    WrRxC
 xdef    EI_TDRE
 xdef    OSSiGbt, OSSiPbt
 
-xref    BufWrite                                ; bank0/buffer.asm
-xref    BufRead                                 ; bank0/buffer.asm
-xref    BfPbt                                   ; bank0/buffer.asm
-xref    BfGbt                                   ; bank0/buffer.asm
+xref    BufWrite4I                              ; K0/buffer.asm
+xref    BufRead4I                               ; K0/buffer.asm
+xref    BfSta4I                                 ; K0/buffer.asm
+xref    BfPbt                                   ; K0/buffer.asm
+xref    BfGbt                                   ; K0/buffer.asm
+xref    BfSta                                   ; K0/buffer.asm
 
-xref    OSSiHrd1                                ; bank7/ossi1.asm
-xref    OSSiSft1                                ; bank7/ossi1.asm
-xref    OSSiEnq1                                ; bank7/ossi1.asm
-xref    OSSiFtx1                                ; bank7/ossi1.asm
-xref    OSSiFrx1                                ; bank7/ossi1.asm
-xref    OSSiTmo1                                ; bank7/ossi1.asm
+xref    OSSiHrd1                                ; K1/ossi1.asm
+xref    OSSiSft1                                ; K1/ossi1.asm
+xref    OSSiEnq1                                ; K1/ossi1.asm
+xref    OSSiFtx1                                ; K1/ossi1.asm
+xref    OSSiFrx1                                ; K1/ossi1.asm
+xref    OSSiTmo1                                ; K1/ossi1.asm
 
 
 ; -----------------------------------------------------------------------------
@@ -81,7 +83,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         ld      a, l                            ; OS_SI reason code
         add     a, OSSITBL%256
         ld      l, a
-        ld      a, OSSITBL/256
+        ld      a, OSSITBL/256                  ; code shouldnt be aware of page crossing,compiler should do
         adc     a, 0                            ; take care of page address crossing...
         ld      h, a                            ; h is unused and always destroyed by OSSi
         ex      af, af'                         ; restore af (used in OSSiPbt)
@@ -180,7 +182,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         ld      a, (ubSerFlowControl)           ; allow sending
         res     FLOW_B_TXSTOP, a                ; !! 'ld a, FLOW_XONXOFF'
         ld      (ubSerFlowControl), a
-        call    EI_TDRE                         ; enable TDRE int
+        call    EI_TDRE_4I                      ; enable TDRE int
         jr      rx_x                            ; and exit
 
 .rx_2
@@ -197,7 +199,8 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .rx_3
         push    ix                              ; write byte to buffer
         call    Ld_IX_RxBuf
-        call    BufWrite
+        call    BufWrite4I
+        call    BfSta4I                         ; get used/free slots
         pop     ix
 
         ld      a, h                            ; #chars in buffer
@@ -225,7 +228,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
         ld      a, XOFF                         ; send XOFF
         ld      (cSerXonXoffChar), a
-        call    EI_TDRE                         ; enable TDRE int
+        call    EI_TDRE_4I                      ; enable TDRE int
 
 .rx_x
         pop     af
@@ -258,7 +261,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
         push    ix                              ; read byte from TxBuf
         call    Ld_IX_TxBuf
-        call    BufRead
+        call    BufRead4I
         pop     ix
         jr      nc, tx_2                        ; buffer not empty? send byte
 
@@ -364,15 +367,14 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ;       ----
 
 .OSSiGbt
-        call    OZ_DI
-        push    af                              ; get byte with timeout
         call    Ld_IX_RxBuf
         call    BfGbt
-        jr      c, gb_2                         ; error? exit
+        ret     c                               ; error? exit
         ld      e, a
 
 ;       unblock sender if buffer less than half full
 
+        call    BfSta                           ; get used/free slots in hl
         ld      a, h                            ; #bytes in buffer
         add     a, l                            ; + free space = buf size
         srl     a                               ; /2
@@ -394,24 +396,18 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         call    EI_TDRE
 
 .gb_1
-        or      a                               ; Fc=0
-
-.gb_2
-        pop     hl                              ; !! use separate error exit
-        push    af                              ; !! for speed
-        push    hl
-        pop     af
-        call    OZ_EI
-        pop     af
-        ret     c
         ld      a, e
         ret
 
 ;       ----
 
 .EI_TDRE
-        call    OZ_DI
-        ex      af, af'
+        di
+        call    EI_TDRE_4I
+        ei
+        ret
+        
+.EI_TDRE_4I        
         ld      a, (BLSC_UMK)
         bit     BB_UMKTDRE, a
         jr      nz, eitdre_x                    ; TDRE enabled already
@@ -421,8 +417,6 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         out     (BL_UMK), a
 
 .eitdre_x
-        ex      af, af'
-        call    OZ_EI
         xor     a
         ret
 
