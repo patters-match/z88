@@ -29,8 +29,6 @@
         xref FileEprRequest, FileEprFileEntryInfo
         lib AddPointerDistance
 
-        include "error.def"
-
 
 ; ***************************************************************************************************
 ;
