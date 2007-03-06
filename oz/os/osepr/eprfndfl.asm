@@ -25,10 +25,10 @@
 ; ***************************************************************************************************
 
         xdef FileEprFindFile
-        xref FileEprRequest, FileEprNextFile
-        xref IncBHL
 
-        lib MemReadByte, FileEprReadByte
+        xref FileEprRequest, FileEprNextFile
+        xref IncBHL, PeekBHL, PeekBHLinc
+
         lib ToUpper
 
         include "error.def"
@@ -89,8 +89,7 @@
         ld      hl, $0000                       ; BHL points at first File Entry
 
 .find_file
-        xor     a
-        call    MemReadByte
+        call    PeekBHL
         cp      $ff
         jr      z, finished                     ; last File Entry was searched in File Eprom
         cp      $00
@@ -148,7 +147,7 @@
 
         ld      c,a                             ; length of filename on Eprom...
 .cmp_strings
-        call    FileEprReadByte                 ; get char from string <b>, BHL++
+        call    PeekBHLinc                      ; get char from string <b>, BHL++
         push    bc
         call    ToUpper                         ; Convert to Upper Case
         ld      c,a                             ;

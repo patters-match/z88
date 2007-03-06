@@ -66,7 +66,7 @@ IF COMPILE_BINARY
         xdef    KPrint                          ; [Kernel0]/misc5.asm
         xdef    MS1BankA                        ; [Kernel0]/misc5.asm
         xdef    MTH_ToggleLT                    ; [Kernel0]/misc5.asm
-        xdef    PeekBHL, PeekHLinc              ; [Kernel0]/misc5.asm
+        xdef    PeekBHL, PeekBHLinc, PeekHLinc  ; [Kernel0]/misc5.asm
         xdef    IncBHL                          ; [Kernel0]/misc5.asm
         xdef    PokeBHL                         ; [Kernel0]/misc5.asm
         xdef    PokeHLinc                       ; [Kernel0]/misc5.asm

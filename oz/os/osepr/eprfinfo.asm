@@ -25,10 +25,8 @@
 ; ***************************************************************************************************
 
         xdef FileEprFileEntryInfo
-        xref IncBHL
+        xref IncBHL, PeekBHL, PeekBHLinc
 
-        lib MemReadByte
-        lib FileEprReadByte
         lib AddPointerDistance
 
         include "error.def"
@@ -64,20 +62,18 @@
 ;    AFBCDEHL/.... different
 ;
 ; --------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 1997
+; Design & programming by Gunther Strube, Dec 1997, Mar 2007
 ; --------------------------------------------------------------------------
 ;
 .FileEprFileEntryInfo
-        xor     a
-        call    MemReadByte                     ; Read first byte of File Entry
+        call    PeekBHL                         ; Read first byte of File Entry
         cp      $FF
         jr      z, exit_eprfile                 ; previous File Entry was last in File Eprom
         cp      $00
         jr      z, exit_eprfile                 ; pointing at start of ROM header!
         call    IncBHL
         ld      c,a                             ; preserve length of string
-        xor     a
-        call    MemReadByte                     ; get first char of filename
+        call    PeekBHL                         ; get first char of filename
         or      a                               ; Fc = 0, Fz = 1, if file marked as "deleted" (0)
         ld      a,c                             ; Fz = 0, if '/' character...
         push    af                              ; preserve length of filename, status
@@ -87,11 +83,11 @@
         ld      e,a
         call    AddPointerDistance              ; skip filename, point at length of file...
 
-        call    FileEprReadByte
+        call    PeekBHLinc
         ld      e,a
-        call    FileEprReadByte
+        call    PeekBHLinc
         ld      d,a
-        call    FileEprReadByte
+        call    PeekBHLinc
         ld      c,a                             ; CDE is length of file
         call    IncBHL                          ; point at beginning of file image
         call    AddPointerDistance              ; BHL points at next File Entry (or none)

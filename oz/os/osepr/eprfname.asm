@@ -28,8 +28,7 @@
 
         xref FileEprRequest, FileEprFileEntryInfo
         xref IncBHL, PokeBHL
-
-        lib  MemReadByte, FileEprReadByte
+        xref PeekBHL, PeekBHLinc
 
 
 ; ***************************************************************************************************
@@ -60,7 +59,7 @@
 ;    AF...../.... different
 ;
 ; ------------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004, Feb 2007
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004, Feb-Mar 2007
 ; ------------------------------------------------------------------------
 ;
 .FileEprFileName
@@ -118,7 +117,7 @@
 
 .flnm_loop
         push    af
-        call    FileEprReadByte                 ; BHL++
+        call    PeekBHLinc                      ; BHL++
         call    copy_flnm
         pop     af
         dec     a                               ; flnmlength--

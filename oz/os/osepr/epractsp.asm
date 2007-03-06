@@ -27,7 +27,6 @@
         xdef FileEprActiveSpace
         xref FileEprTotalSpace
 
-        include "error.def"
 
 ; ***************************************************************************************************
 ;
