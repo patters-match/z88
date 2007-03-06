@@ -67,6 +67,7 @@ IF COMPILE_BINARY
         xdef    MS1BankA                        ; [Kernel0]/misc5.asm
         xdef    MTH_ToggleLT                    ; [Kernel0]/misc5.asm
         xdef    PeekHLinc                       ; [Kernel0]/misc5.asm
+        xdef    IncBHL                          ; [Kernel0]/misc5.asm
         xdef    PokeBHL                         ; [Kernel0]/misc5.asm
         xdef    PokeHLinc                       ; [Kernel0]/misc5.asm
         xdef    PutOSFrame_BC                   ; [Kernel0]/misc5.asm

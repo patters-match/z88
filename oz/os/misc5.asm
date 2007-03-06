@@ -395,13 +395,6 @@ xref    FreeHandle                              ; bank0/handle.asm
         inc     hl
         jr      PeekHL
 
-.PeekBHLinc
-        call    PeekBHL
-        jr      IncBHL
-
-;       !! unused
-
-        call    IncBHL
 
 ;       ----
 
@@ -458,6 +451,10 @@ xref    FreeHandle                              ; bank0/handle.asm
         ret
 
 ;       ----
+
+.PeekBHLinc
+        call    PeekBHL
+
 
 ;       increment BHL, handle bank change
 

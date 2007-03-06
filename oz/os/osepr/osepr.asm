@@ -46,6 +46,7 @@
         xref PutOSFrame_BHL                     ; misc5.asm
         xref PutOSFrame_CDE                     ; misc5.asm
         xref PutOSFrame_DE, PutOSFrame_HL       ; misc5.asm
+        xref IncBHL                             ; misc5.asm
         xref FileEprRequest                     ; osepr/eprreqst.asm
         xref FileEprFetchFile                   ; osepr/eprfetch.asm
         xref FileEprFindFile                    ; osepr/eprfndfl.asm
@@ -850,18 +851,6 @@ xdef    OSEpr
         ret
 
 ;       ----
-
-;       increment BHL, handle bank change
-
-.IncBHL
-        inc     hl
-        bit     6, h
-        ret     z
-        res     6, h
-        inc     b
-        ret
-;       ----
-
 
 ;       BHL+=CDE, handle bank crossing
 
