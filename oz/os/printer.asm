@@ -40,7 +40,7 @@
         include "syspar.def"
         include "sysvar.def"
 
-        
+
 xdef    OSPrtInit                               ; bank0/pagfi.asm
 xdef    OSPrtPrint                              ; bank0/misc2.asm
 
@@ -592,7 +592,7 @@ xref    StorePrefixed                           ; bank7/scrdrv1.asm
 .PrntStackBuffer
         ld      b, a
         call    GetCOM
-        ld      a, b                            ; lenght=0, exit
+        ld      a, b                            ; length = 0, exit
         or      a
         ret     z
 

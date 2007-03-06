@@ -31,7 +31,7 @@ lstoff
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
-; buffer lenght (8, 16, 32, 64, 128, 256)
+; buffer length (8, 16, 32, 64, 128, 256)
      defc KB_BUF_LEN    = 32
      defc RX_BUF_LEN    = 128
      defc TX_BUF_LEN    = 128
@@ -40,7 +40,7 @@ lstoff
 ; on negative side of the handle number
 defvars -5
         buf_mask                ds.b    1       ; $FB
-        buf_lenght              ds.b    1       ; $FC
+        buf_length              ds.b    1       ; $FC
         buf_page                ds.b    1       ; $FD
         buf_wrpos               ds.b    1       ; $FE
         buf_rdpos               ds.b    1       ; $FF

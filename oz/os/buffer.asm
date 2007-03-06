@@ -69,12 +69,12 @@ xref    OSWaitMain                              ; K0/nmi.asm
         ret
 
 .BfSta4I                                        ; for use in interruption "4I"
-        ld      l, (ix+buf_lenght)              ; lenght
+        ld      l, (ix+buf_length)              ; length
         ld      a, (ix+buf_wrpos)
         sub     (ix+buf_rdpos)
         jr      nc, sta_no_wrap                 ; handle buffer wrap
         add     a, l
-.sta_no_wrap        
+.sta_no_wrap
         ld      h, a                            ; used = wrpos - rdpos
         ld      a, l                            ; free=bufsize-used-1
         sub     h
@@ -126,13 +126,13 @@ xref    OSWaitMain                              ; K0/nmi.asm
         ld      h, (ix+buf_page)
         ld      (hl), c
         ld      (ix+buf_wrpos), a
-        
+
         ld      hl, ubIntTaskToDo
         set     ITSK_B_BUFFER, (hl)             ; there is something
 
         ret
-        
-.eof_ret        
+
+.eof_ret
         ld      a, RC_Eof
         scf
         ret
@@ -151,7 +151,7 @@ xref    OSWaitMain                              ; K0/nmi.asm
         call    BufRead4I
         ei
         ret
-        
+
 .BufRead4I
         ld      a, (ix+buf_rdpos)
         cp      (ix+buf_wrpos)
@@ -159,14 +159,14 @@ xref    OSWaitMain                              ; K0/nmi.asm
         ld      h, (ix+buf_page)
         ld      l, a
         ld      c, (hl)
-        
+
         inc     a
         and     (ix+buf_mask)
         ld      (ix+buf_rdpos), a
-        
+
         ld      hl, ubIntTaskToDo
         res     ITSK_B_BUFFER, (hl)             ; data have been read
-        
+
         ld      a, c
         ret
 
@@ -382,7 +382,7 @@ xref    OSWaitMain                              ; K0/nmi.asm
 ;
 ;IN:    IX = buffer
 ;       B  = data area to clear, starting at (IX)
-;       C  = circular buffer lenght
+;       C  = circular buffer length
 ;       DE = circular buffer
 
 .BufInit
@@ -390,7 +390,7 @@ xref    OSWaitMain                              ; K0/nmi.asm
         ld      (ix+buf_wrpos), e
         ld      (ix+buf_rdpos), e
         ld      (ix+buf_page), d
-        ld      (ix+buf_lenght), c
+        ld      (ix+buf_length), c
         ld      a, c
         cpl
         ld      (ix+buf_mask), a
