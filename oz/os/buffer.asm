@@ -175,7 +175,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      c, bfgbt_9                      ; error, wait for more
 
 .bfgbt_x
-        push    hl                              ; !! unnecessary, HL already lost
+        push    hl                              ; save BfSta for other routines
         ld      hl, ubIntTaskToDo
         res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
         pop     hl
