@@ -25,13 +25,11 @@
 ; ***************************************************************************************************
 
         xdef FileEprFileName
+
         xref FileEprRequest, FileEprFileEntryInfo
-        xref IncBHL
+        xref IncBHL, PokeBHL
 
         lib  MemReadByte, FileEprReadByte
-
-        include "error.def"
-        include "memory.def"
 
 
 ; ***************************************************************************************************
@@ -133,7 +131,9 @@
 .copy_flnm                                      ; A -> (CDE)
         push    bc
         ld      b,c
-        oz      GN_Wbe
-        inc     de
+        ex      de,hl
+        call    PokeBHL
+        inc     hl
+        ex      de,hl
         pop     bc
         ret
