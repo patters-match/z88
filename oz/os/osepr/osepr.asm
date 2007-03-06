@@ -46,7 +46,7 @@
         xref PutOSFrame_BHL                     ; misc5.asm
         xref PutOSFrame_CDE                     ; misc5.asm
         xref PutOSFrame_DE, PutOSFrame_HL       ; misc5.asm
-        xref PeekBHL, IncBHL                    ; misc5.asm
+        xref PeekBHL, PokeBHL, IncBHL           ; misc5.asm
         xref FileEprRequest                     ; osepr/eprreqst.asm
         xref FileEprFetchFile                   ; osepr/eprfetch.asm
         xref FileEprFindFile                    ; osepr/eprfndfl.asm
@@ -68,11 +68,7 @@
 
 xdef    OSEpr
 
-;       !! completely separate module, all system calls done thru OZ calls
-;       !! can be relocated if more kernel space needed
-;       Eprom Interface
-;       we have OSFrame so remembering S2 is unnecessary, as is remembering IY
-
+;       On entry: we have OSFrame so remembering S2 is unnecessary, as is remembering IY
 .OSEpr
         push    hl
         ld      hl, OSEprTable
@@ -237,65 +233,7 @@ xdef    OSEpr
 
 
 
-;       write byte at (BHL)
-.PokeBHL_epr
-        inc     b
-        dec     b
-        jr      nz, poke_2                      ; not local
-
-        bit     7, h                            ; if not S3 then just poke it
-        jr      z, poke_1                       ; !! shouldn't we test for S2 as well?
-        bit     6, h
-        jr      z, poke_1
-
-        ex      af, af'
-        ld      a, (BLSC_SR1)                   ; remember S1
-        push    af
-
-        ld      a, (iy+OSFrame_S3)              ; bind caller S3 in S1 and write there
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-
-        res     7, h                            ; fix HL into S1
-        ex      af, af'
-        ld      (hl), a
-        ex      af, af'
-        set     7, h                            ; restore HL
-
-        pop     af                              ; restore S1
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-        ex      af, af'
-        ret
-
-.poke_1
-        ld      (hl), a                         ; easy...
-        ret
-
-.poke_2
-        ex      af, af'
-        ld      a, (BLSC_SR1)                   ; remember S1
-        push    af
-        res     7, h                            ; fix HL into S1
-        set     6, h
-
-        ld      a, b                            ; bind B into S1
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-        ex      af, af'
-        ld      (hl), a
-        ex      af, af'
-        res     6, h                            ; restore HL
-
-        pop     af                              ; restore S1
-        ld      (BLSC_SR1), a
-        out     (BL_SR1), a
-
-        ex      af, af'
-        ret
-
-;       ----
-
+; ***************************************************************************************************
 ; read file from Eprom
 ;
 ;IN:    BHL = source filename
@@ -327,8 +265,8 @@ xdef    OSEpr
         pop     af
         ret
 
-;       ----
 
+; ***************************************************************************************************
 ; write file to EPROM
 ;
 ;IN:    HL=filename
@@ -543,8 +481,8 @@ xdef    OSEpr
         pop     ix
         ret
 
-;       ----
 
+; ***************************************************************************************************
 ; get next filename from EPROM
 ;
 ;IN:    BHL=buffer
@@ -608,8 +546,8 @@ xdef    OSEpr
         pop     de
         ret
 
-;       ----
 
+; ***************************************************************************************************
 ;       check if card in slot 3 contains a file area
 ;
 ;OUT:   Fc=0 if success
@@ -647,8 +585,8 @@ xdef    OSEpr
         pop     hl
         ret
 
-;       ----
 
+; ***************************************************************************************************
 ;       find out programming model for this card
 ;
 ;OUT:   Fc=0, A=subtype, HL=programming model if ok
@@ -763,8 +701,8 @@ xdef    OSEpr
         pop     iy
         ret
 
-;       ----
 
+; ***************************************************************************************************
 ;       identify empty EPROM
 ;
 ;IN:    BHL=test address ($FF:3FFD, subtype)
@@ -802,10 +740,9 @@ xdef    OSEpr
         pop     bc
         ret
 
-;       ----
 
+; ***************************************************************************************************
 ;       BHL+=CDE, handle bank crossing
-
 .AddBHL_CDE
         ld      a, h
         and     $3F
@@ -850,38 +787,9 @@ xdef    OSEpr
         ld      a, RC_Room
         ret
 
-;       ----
 
 
-.EpromTypes
-        defb $7E                                ; subtype
-        defb PD_312us|BM_EPRSE3D                ; BL_EPR before data byte, prefixed by following
-        defb BM_COMOVERP|BM_COMPROGRAM          ; ORed into BL_COM
-        defb 0                                  ; BL_EPR after data byte, prefixed by following
-        defb 0                                  ; ORed into BL_COM
-        defb PD_312us|BM_EPRSE3D                ; BL_EPR before overwrite, prefixed by following
-        defb BM_COMOVERP|BM_COMPROGRAM          ; ORed into BL_COM
-
-        defb $7C
-        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
-        defb BM_COMPROGRAM
-        defb 0
-        defb 0
-        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
-        defb BM_COMPROGRAM
-
-        defb $7A
-        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
-        defb BM_COMOVERP|BM_COMPROGRAM
-        defb 0
-        defb 0
-        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
-        defb BM_COMOVERP|BM_COMPROGRAM
-
-        defb 1
-
-;       ----
-
+; ***************************************************************************************************
 ;       write memory to EPROM
 ;
 ;IN:    C=number of bytes to write
@@ -918,8 +826,8 @@ xdef    OSEpr
         pop     iy
         ret
 
-;       ----
 
+; ***************************************************************************************************
 ;       write byte to EPROM
 ;
 ;IN:    A=byte
@@ -949,7 +857,7 @@ xdef    OSEpr
         out     (BL_EPR), a
 
         ld      a, d                            ; write data
-        call    PokeBHL_epr
+        call    PokeBHL
 
         ld      a, BM_COMOVERP|BM_COMPROGRAM|BM_COMVPPON
         call    AndCom
@@ -997,7 +905,7 @@ xdef    OSEpr
 .blow_4
         ld      a, d                            ; write data C times
 .blow_5
-        call    PokeBHL_epr
+        call    PokeBHL
         dec     c
         jr      nz, blow_5
 
@@ -1010,10 +918,8 @@ xdef    OSEpr
         pop     bc
         ret
 
-;       ----
-
+; ***************************************************************************************************
 ;       set/reset bits in BL_COM
-
 .OrCom
         push    bc
         call    chgcom_1                        ; get old bits
@@ -1040,3 +946,32 @@ xdef    OSEpr
         ex      af, af'
         ld      a, (BLSC_COM)                   ; old bits into A
         ret
+
+
+; ***************************************************************************************************
+.EpromTypes
+        defb $7E                                ; subtype
+        defb PD_312us|BM_EPRSE3D                ; BL_EPR before data byte, prefixed by following
+        defb BM_COMOVERP|BM_COMPROGRAM          ; ORed into BL_COM
+        defb 0                                  ; BL_EPR after data byte, prefixed by following
+        defb 0                                  ; ORed into BL_COM
+        defb PD_312us|BM_EPRSE3D                ; BL_EPR before overwrite, prefixed by following
+        defb BM_COMOVERP|BM_COMPROGRAM          ; ORed into BL_COM
+
+        defb $7C
+        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
+        defb BM_COMPROGRAM
+        defb 0
+        defb 0
+        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
+        defb BM_COMPROGRAM
+
+        defb $7A
+        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
+        defb BM_COMOVERP|BM_COMPROGRAM
+        defb 0
+        defb 0
+        defb PD_312us|BM_EPRPGMD|BM_EPRSE3D|BM_EPRSE3P
+        defb BM_COMOVERP|BM_COMPROGRAM
+
+        defb 1
