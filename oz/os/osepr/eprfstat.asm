@@ -25,7 +25,9 @@
 ; ***************************************************************************************************
 
         xdef FileEprFileStatus
-        lib MemReadByte, PointerNextByte
+        xref IncBHL
+
+        lib MemReadByte
 
         include "error.def"
 
@@ -71,7 +73,7 @@
         push    bc
         push    hl
 
-        call    PointerNextByte
+        call    IncBHL
         xor     a
         call    MemReadByte                     ; get first char of filename
         or      a                               ; Fc=0, Fz=1 (marked as "deleted"), Fz=0 ('/' character)

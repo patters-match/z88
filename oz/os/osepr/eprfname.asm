@@ -26,7 +26,9 @@
 
         xdef FileEprFileName
         xref FileEprRequest, FileEprFileEntryInfo
-        lib  PointerNextByte, MemReadByte, FileEprReadByte
+        xref IncBHL
+
+        lib  MemReadByte, FileEprReadByte
 
         include "error.def"
         include "memory.def"
@@ -113,8 +115,8 @@
         ld      a,'/'
         call    copy_flnm                       ; begin filename with '/'
         pop     af
-        call    PointerNextByte                 ; point at start of filename (of A length)
-        call    PointerNextByte                 ; point at first real character of filename
+        call    IncBHL                          ; point at start of filename (of A length)
+        call    IncBHL                          ; point at first real character of filename
 
 .flnm_loop
         push    af

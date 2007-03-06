@@ -25,12 +25,13 @@
 
         xdef FlashEprFileDelete
 
-        lib  PointerNextByte
         lib  OZSlotPoll, SetBlinkScreen
 
         xref FlashEprWriteByte
         xref FileEprFileEntryInfo
         xref SetBlinkScreenOn
+        xref IncBHL
+
 
 ; ***************************************************************************************************
 ;
@@ -91,7 +92,7 @@
         pop     hl
         pop     bc
         jr      c, err_delfile                  ; File Entry was not found...
-        call    PointerNextByte                 ; point at start of filename, "/"
+        call    IncBHL                          ; point at start of filename, "/"
 
         ld      a,b
         rlca

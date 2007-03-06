@@ -26,9 +26,9 @@
 
         xdef FileEprFindFile
         xref FileEprRequest, FileEprNextFile
+        xref IncBHL
 
         lib MemReadByte, FileEprReadByte
-        lib PointerNextByte
         lib ToUpper
 
         include "error.def"
@@ -97,7 +97,7 @@
         jr      z, finished                     ; pointing at start of ROM header!
         push    bc
         push    hl
-        call    PointerNextByte                 ; BHL = beginning of filename
+        call    IncBHL                          ; BHL = beginning of filename
         call    CompareFilenames                ; found file in File Eprom?
         pop     hl
         pop     bc

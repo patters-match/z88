@@ -25,10 +25,10 @@
 ; ***************************************************************************************************
 
         xdef FileEprFileEntryInfo
+        xref IncBHL
 
         lib MemReadByte
         lib FileEprReadByte
-        lib PointerNextByte
         lib AddPointerDistance
 
         include "error.def"
@@ -74,7 +74,7 @@
         jr      z, exit_eprfile                 ; previous File Entry was last in File Eprom
         cp      $00
         jr      z, exit_eprfile                 ; pointing at start of ROM header!
-        call    PointerNextByte
+        call    IncBHL
         ld      c,a                             ; preserve length of string
         xor     a
         call    MemReadByte                     ; get first char of filename
@@ -93,7 +93,7 @@
         ld      d,a
         call    FileEprReadByte
         ld      c,a                             ; CDE is length of file
-        call    PointerNextByte                 ; point at beginning of file image
+        call    IncBHL                          ; point at beginning of file image
         call    AddPointerDistance              ; BHL points at next File Entry (or none)
 
         pop     af
