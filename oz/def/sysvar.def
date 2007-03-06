@@ -77,11 +77,11 @@ defvars SV_KERNEL_RAM
 
 ; System (163):
         ubScreenBase            ds.b    1
-                                ds.b    10
+                                ds.b    5
         KbdData                 ds.b    9       ; data on both negative and positive side
-                                ds.b    10
+                                ds.b    5
         SerTXHandle                             ; on negative side
-                                ds.b    10
+                                ds.b    5
         SerRXHandle                             ; on negative side
         _u_0                    ds.b    4       ; ? (can be removed)
         ubFsTemp                ds.b    1
