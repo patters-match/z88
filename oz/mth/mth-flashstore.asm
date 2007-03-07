@@ -261,7 +261,7 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM 12, "FlashStore V1.9", $7F, $7F
+                    DEFM 12, "FlashStore", $7F, $7F
                     DEFM "Manage ", $FD, " on Rakewell Flash Cards and RAM.", 0
 .cmd_sc_help
                     DEFM $7F

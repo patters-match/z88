@@ -790,7 +790,7 @@ xdef    PanelDOR
 
 .EazyLinkHelp
         DEFB    12
-        DEFM    "EazyLink V5.0.5", $7F
+        DEFM    "EazyLink", $7F
         DEFB    $7F
         DEFM    "Fast Client/Server Remote ", $BA, " Management,", $7F
         DEFM    "including support for PC-LINK II clients."
