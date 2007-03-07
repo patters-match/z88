@@ -50,8 +50,8 @@ defc    TH_WMG                  =$F1            ; wildcard
 defc    TH_ALM                  =$F2            ; alarm
 
 ; Structure:
-defc    NUMHANDLES              =$60            ; 96 handles starting at 'Handles' in sysvar.def
-defc    hnd_SIZEOF              =$10            ; each handle is 16 bytes length
+defc    NUMHANDLES              = 96            ; 96 handles starting at 'Handles' in sysvar.def
+defc    hnd_SIZEOF              = 16            ; each handle is 16 bytes length
 
 ; handle types:
 defc    HND_DEV                 =$01           ; device 
