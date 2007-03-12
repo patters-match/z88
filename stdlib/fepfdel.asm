@@ -20,7 +20,7 @@
      LIB FlashEprCardId
      LIB ApplEprType
      LIB FlashEprWriteByte
-     LIB FileEprFileEntryInfo
+     LIB FileEprFileStatus
      LIB PointerNextByte
      LIB OZSlotPoll, SetBlinkScreen
 
@@ -75,7 +75,7 @@
 ;    .F....../.... different
 ;
 ; --------------------------------------------------------------------------
-; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sept 2004
+; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sept 2004, Mar 2007
 ; --------------------------------------------------------------------------
 ;
 .FlashEprFileDelete
@@ -84,11 +84,7 @@
                     PUSH BC                       ; preserve CDE
                     PUSH AF                       ; preserve AF, if possible
 
-                    PUSH BC
-                    PUSH HL                       ; preserve File Entry pointer...
-                    CALL FileEprFileEntryInfo
-                    POP  HL
-                    POP  BC
+                    CALL FileEprFileStatus
                     JR   C, err_delfile           ; File Entry was not found...
                     CALL PointerNextByte          ; point at start of filename, "/"
 
