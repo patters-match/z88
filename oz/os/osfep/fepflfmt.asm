@@ -34,6 +34,7 @@
         xref FlashEprPollSectorSize
         xref FileEprRequest
         xref SetBlinkScreenOn
+        xref GetSlotNo
 
         include "memory.def"
         include "error.def"
@@ -249,11 +250,7 @@
         push    bc                              ; use Top Bank & total banks as quick fetch stack fetch
         ld      d,c                             ; D = banks of file area
 
-        ld      a,b
-        and     @11000000
-        rlca
-        rlca
-        ld      c,a                             ; slot C (of bank B)
+        call    GetSlotNo                       ; slot C (of bank B)
         ld      a,b
         dec     e
         and     e

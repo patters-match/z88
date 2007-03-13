@@ -57,7 +57,7 @@
 ;    AF....../.... different
 ;
 ; --------------------------------------------------------------------------
-; Design & programming by Gunther Strube, InterLogic, Dec 2004
+; Design & programming by Gunther Strube, InterLogic, Dec 2004, Mar 2007
 ; --------------------------------------------------------------------------
 ;
 .FileEprFileStatus

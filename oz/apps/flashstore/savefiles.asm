@@ -322,8 +322,8 @@ Module SaveFiles
                     ld   ix, BufferSize
                     ld   de, buffer                    ; use 1K RAM buffer to blow file hdr + image
                     ld   hl,buf2                       ; the partial expanded RAM filename at buf2 (< 255 char length)...
-                    ld   a,FEP_SVFL
-                    oz   OS_Fep                        ; save RAM file to file area in slot C
+                    ld   a,EP_SVFL
+                    oz   OS_Epr                        ; save RAM file to file area in slot C
                     jr   c, filesave_err               ; write error or no room for file...
 
                     CALL DeleteOldFile                 ; mark previous file as deleted, if it was previously found...
@@ -462,8 +462,8 @@ Module SaveFiles
                     OR   L                        ; Valid pointer to File Entry?
                     JR   Z, exit_DeleteOldFile    ; no, no file entry to be marked as deleted
 
-                    LD   A,FEP_DLFL
-                    OZ   OS_Fep                   ; Mark old File Entry as deleted
+                    LD   A,EP_Delete
+                    OZ   OS_Epr                   ; Mark old File Entry as deleted
 .exit_DeleteOldFile
                     POP  HL
                     POP  BC

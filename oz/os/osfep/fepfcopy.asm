@@ -29,7 +29,7 @@
         lib OZSlotPoll, SetBlinkScreen
 
         xref FlashEprCardId
-        xref FlashEprFileDelete
+        xref FileEprDeleteFile
         xref FlashEprCopyBlock
         xref FileEprFileEntryInfo
         xref FileEprFreeSpace
@@ -234,6 +234,6 @@
         ld      l,(iy + DstFileEntry)
         ld      h,(iy + DstFileEntry+1)
         ld      b,(iy + DstFileEntry+2)
-        call    FlashEprFileDelete              ; mark Destination File Entry as deleted, if possible.
+        call    FileEprDeleteFile               ; mark Destination File Entry as deleted, if possible.
         pop     af                              ; and exit with error code from FlashEprCopyBlock
         ret

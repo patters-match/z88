@@ -187,8 +187,8 @@ Module DeleteFile
                     call ConfirmDelete            ; file found, confirm to mark as deleted.
                     ret  nz                       ; User aborted...
 .exec_delete
-                    LD   A,FEP_DLFL               ; user pressed Y...
-                    OZ   OS_Fep                   ; Mark File Entry as deleted
+                    LD   A,EP_Delete              ; user pressed Y...
+                    OZ   OS_Epr                   ; Mark File Entry as deleted
                     JR   C, delfile_failed
                     LD   HL,filedel_msg
                     JP   DispErrMsg

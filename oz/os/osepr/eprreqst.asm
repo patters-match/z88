@@ -34,6 +34,7 @@
 
         include "error.def"
         include "memory.def"
+        include "flashepr.def"
 
 
 ; ***************************************************************************************************
@@ -59,7 +60,7 @@
 ;    $3FF7       $01
 ;    $3FF8       4 byte random id
 ;    $3FFC       size of card in banks (2=32K, 8=128K, 16=256K, 64=1Mb)
-;    $3FFD       sub-type, $7E for 32K cards, and $7C for 128K (or larger) cards
+;    $3FFD       sub-type: $7E, $7C, $7A for UV 32K, 128K & 256K cards. $77, $6F for Intel and Amd Flash
 ;    $3FFE       'o'
 ;    $3FFF       'z' (file eprom identifier, lower case 'oz')
 ;    ------------------------------------------------------------------------------
@@ -67,7 +68,7 @@
 ;    00003fc0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
 ;    00003fd0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
 ;    00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
-;    00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s—K<.~oz
+;    00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........sÔøΩ<.~oz
 ;    ------------------------------------------------------------------------------
 ;
 ; B) A sub-standard 'oz' header is recognized at offset $3FEE inside an application 'OZ' header that
@@ -101,9 +102,9 @@
 ;    ------------------------------------------------------------------------------
 ;    in hex dump (example):
 ;    00003fc0h: 00 00 00 00 00 00 48 25 08 13 08 4E 05 41 50 50 ; ......H%...N.APP
-;    00003fd0h: 4C 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 ; L.ˇ.............
+;    00003fd0h: 4C 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 ; L..............
 ;    00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 14 00 6F 7A ; ..............oz
-;    00003ff0h: 00 00 00 00 00 00 00 00 54 43 4C 81 20 00 4F 5A ; ........TCLÅ .OZ
+;    00003ff0h: 00 00 00 00 00 00 00 00 54 43 4C 81 20 00 4F 5A ; ........TCL .OZ
 ;    ------------------------------------------------------------------------------
 ;
 ; On partial success, if a Header is not found, Fz = 0 and the returned BHL pointer indicates
@@ -208,7 +209,7 @@
 ; OUT:
 ;         Fc = 0 (success),
 ;              Fz = 1, Header found
-;                   A = sub type of File Eprom
+;                   A = sub type of File Eprom or File Flash Card
 ;                   C = size of File Eprom Area in 16K banks
 ;              Fz = 0, Header not found
 ;                   A undefined
@@ -226,24 +227,40 @@
         push    bc
         push    hl
         call    FlashEprCardId                  ; poll for known flash card types
+        ld      d,a                             ; preserve chip type (FE_28F or FE_29F)...
         ld      a,b                             ; if flash card was found, then B contains physical size in 16K banks
         pop     hl                              ; (this overrules the card size supplied to this routine)
         pop     bc
         jr      c, epr_filearea                 ; there's no Flash Card, so check top bank below app area
         sub     b                               ; <Total banks> - <ROM banks> = lowest bank of ROM area
         cp      3                               ;
-        jr      z, appcard_no_room              ; Application card uses banks
-        jr      c, exit_DefHdrPos               ; in lowest 64K block of card...
+        call    z, appcard_no_room              ; Application card uses banks
+        call    c, appcard_no_room              ; in lowest 64K block of card...
+        jr      c, exit_DefHeaderPosition
         and     @11111100                       ; File area are only found in Flash Card sector (64K) boundaries
-        jr      checkfhdr
-.epr_filearea
+        call    checkfhdr
+        jr      c,exit_DefHeaderPosition
+        jr      nz,exit_DefHeaderPosition
+        ld      a,d
+        pop     de
+        cp      FE_28F
+        ld      a,$77                           ; if Intel Flash was found then the sub type is always $77
+        ret     z
+        ld      a,$6F                           ; if Amd/Stm Flash was found then the sub type is always $6F
+        cp      a
+        ret
+.epr_filearea                                   ; normal UV Eprom found
         ld      a,e                             ; use supplied card size in E
         sub     b                               ; <Total banks> - <ROM banks> = lowest bank of ROM area
+        call    checkfhdr
+.exit_DefHeaderPosition
+        pop     de
+        ret
 .checkfhdr
         dec     a                               ; A = Top Bank of File Area
         ld      b,a                             ; B = relative bank number of "oz" header (or potential), C = slot number
         call    CheckFileEprHeader
-        jr      nc,exit_DefHdrPos               ; header found, at absolute bank B, C = File Area in banks
+        ret     nc                              ; header found, at absolute bank B, C = File Area in banks
         ex      af,af'
         ld      a,c
         ld      c,b
@@ -255,16 +272,14 @@
         ex      af,af'
         jr      c, new_filearea                 ; "oz" File Eprom Header not found, but potential area...
         cp      a                               ; B = absolute bank of "oz" Header, C = size of File Area in banks
-.exit_Defhdrpos
-        pop     de
         ret                                     ; return flag status = found!
 .new_filearea
         or      b                               ; Fc = 0, Fz = 0, indicate potential file area
-        jr      exit_DefHdrPos
+        ret
 .appcard_no_room
         ld      a,RC_ROOM
         scf
-        jr      exit_DefHdrPos
+        ret
 
 
 ; ************************************************************************

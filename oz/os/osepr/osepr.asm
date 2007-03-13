@@ -63,10 +63,14 @@
         xref FileEprFileSize                    ; osepr/eprfsize.asm
         xref FileEprFilename                    ; osepr/eprfname.asm
         xref FileEprFileImage                   ; osepr/eprfimage.asm
+        xref FileEprSaveRamFile                 ; osepr/eprfsave.asm
+        xref FileEprDeleteFile                  ; osepr/eprfdel.asm
 
 
 
-xdef    OSEpr
+        xdef OSEpr
+        xdef GetSlotNo
+
 
 ;       On entry: we have OSFrame so remembering S2 is unnecessary, as is remembering IY
 .OSEpr
@@ -83,23 +87,26 @@ xdef    OSEpr
 .OSEprTable
         jp      EprSave                         ; 00, EP_Save
         jp      EprLoad                         ; 03, EP_Load
-        jp      ozFileEprRequest                ; 06, EP_Req   (OZ 4.2 and newer)
-        jp      FileEprFetchFile                ; 09, EP_Fetch (OZ 4.2 and newer)
-        jp      ozFileEprFindFile               ; 0c, EP_Find  (OZ 4.2 and newer)
+        jp      ozFileEprRequest                ; 06, EP_Req    (OZ 4.2 and newer)
+        jp      FileEprFetchFile                ; 09, EP_Fetch  (OZ 4.2 and newer)
+        jp      ozFileEprFindFile               ; 0c, EP_Find   (OZ 4.2 and newer)
         jp      EprDir                          ; 0f, EP_Dir
-        jp      ozFileEprFirstFile              ; 12, EP_First (OZ 4.2 and newer)
-        jp      ozFileEprPrevFile               ; 15, EP_Prev  (OZ 4.2 and newer)
-        jp      ozFileEprNextFile               ; 18, EP_Next  (OZ 4.2 and newer)
-        jp      ozFileEprLastFile               ; 1b, EP_Last  (OZ 4.2 and newer)
-        jp      ozFileEprTotalSpace             ; 1e, EP_TotSp (OZ 4.2 and newer)
-        jp      ozFileEprActiveSpace            ; 21, EP_ActSp (OZ 4.2 and newer)
-        jp      ozFileEprFreeSpace              ; 24, EP_FreSp (OZ 4.2 and newer)
-        jp      ozFileEprCntFiles               ; 27, EP_Count (OZ 4.2 and newer)
-        jp      ozFileEprFileStatus             ; 2a, EP_Stat  (OZ 4.2 and newer)
-        jp      ozFileEprFileSize               ; 2d, EP_Size  (OZ 4.2 and newer)
-        jp      ozFileEprFilename               ; 30, EP_Name  (OZ 4.2 and newer)
-        jp      ozFileEprFileImage              ; 33, EP_Name  (OZ 4.2 and newer)
-        jp      ozFileEprNewFileEntry           ; 36, EP_New   (OZ 4.2 and newer)
+        jp      ozFileEprFirstFile              ; 12, EP_First  (OZ 4.2 and newer)
+        jp      ozFileEprPrevFile               ; 15, EP_Prev   (OZ 4.2 and newer)
+        jp      ozFileEprNextFile               ; 18, EP_Next   (OZ 4.2 and newer)
+        jp      ozFileEprLastFile               ; 1b, EP_Last   (OZ 4.2 and newer)
+        jp      ozFileEprTotalSpace             ; 1e, EP_TotSp  (OZ 4.2 and newer)
+        jp      ozFileEprActiveSpace            ; 21, EP_ActSp  (OZ 4.2 and newer)
+        jp      ozFileEprFreeSpace              ; 24, EP_FreSp  (OZ 4.2 and newer)
+        jp      ozFileEprCntFiles               ; 27, EP_Count  (OZ 4.2 and newer)
+        jp      ozFileEprFileStatus             ; 2a, EP_Stat   (OZ 4.2 and newer)
+        jp      ozFileEprFileSize               ; 2d, EP_Size   (OZ 4.2 and newer)
+        jp      ozFileEprFilename               ; 30, EP_Name   (OZ 4.2 and newer)
+        jp      ozFileEprFileImage              ; 33, EP_Image  (OZ 4.2 and newer)
+        jp      ozFileEprNewFileEntry           ; 36, EP_New    (OZ 4.2 and newer)
+        jp      ozFileEprSaveRamFile            ; 39, EP_SvFl   (OZ 4.2 and newer)
+        jp      FileEprDeleteFile               ; 3c, EP_Delete (OZ 4.2 and newer)
+
 
 
 
@@ -118,8 +125,9 @@ xdef    OSEpr
 .ozFileEprRequest
         call    FileEprRequest
         ret     c
-        ld      (iy+OSFrame_A),A                ; return "oz" File Eprom sub type (if file header found)
+        ld      (iy+OSFrame_A),A                ; return "oz" File Area sub type (if file header found)
         ld      (iy+OSFrame_C),C                ; return C = size of File Eprom Area in 16K banks
+        ld      (iy+OSFrame_D),D                ; return D = size of physical card in 16K banks
         jr      ret_bhl_fz                      ; return BHL = pointer to File Header for slot C (B = absolute bank of slot)
                                                 ; Fz = 0, no header found, F already 0 in (iy+OSFrame_F), otherwise header found.
 
@@ -231,6 +239,35 @@ xdef    OSEpr
         ret     c
         jr      ret_bhl_fz                      ; return BHL that is pointer to file entry image (contents)
 
+
+; ***************************************************************************************************
+.ozFileEprSaveRamFile
+        call    FileEprSaveRamFile
+        ret     c
+        jr      ret_bhl_fz                      ; return BHL pointer to file entry
+
+
+; ***************************************************************************************************
+; Get slot number C (embedded in Bank number B).
+;
+; In:
+;       B = absolute bank number
+; Out:
+;       C = slot number which bank B is part of
+;
+; Registers changed after return:
+;    AFB.DEHL/IXIY same
+;    AF.C..../.... different
+;
+.GetSlotNo
+        push    af
+        ld      a,b
+        and     @11000000
+        rlca
+        rlca
+        ld      c,a                             ; slot C (of bank B)
+        pop     af
+        ret
 
 
 ; ***************************************************************************************************
@@ -564,7 +601,7 @@ xdef    OSEpr
         jr      c, ise_5                        ; no "oz" header found
         jr      nz, ise_5                       ; no header found but BHL points to potential header
 
-        ld      hl, EpromTypes                  ; find subtype in programming table
+        ld      hl, UvEpromTypes                ; find subtype in programming table
 .ise_2
         bit     0, (hl)
         jr      nz, ise_5                       ; end? unknown type
@@ -597,7 +634,7 @@ xdef    OSEpr
         push    iy
         ld      b, $FF                          ; subtype
         ld      hl, $3FFD
-        ld      iy, EpromTypes
+        ld      iy, UvEpromTypes
         call    IdentifyCardType                ; !! doesn't return B
         jp      c, fmt_9
         ld      e, a                            ; remember type
@@ -949,7 +986,15 @@ xdef    OSEpr
 
 
 ; ***************************************************************************************************
-.EpromTypes
+; Sub types, used to define UV programming method in slot 3:
+;        7E: 32K               01111110
+;        7C: 128K, 256K        01111100
+;        7A: Unknown           01111010
+; Flash sub types, only used to differentiate that it is not an UV Eprom
+;        77: Intel Flash       01110111
+;        6F: AMD Flash         01101111
+;
+.UvEpromTypes
         defb $7E                                ; subtype
         defb PD_312us|BM_EPRSE3D                ; BL_EPR before data byte, prefixed by following
         defb BM_COMOVERP|BM_COMPROGRAM          ; ORed into BL_COM

@@ -38,8 +38,6 @@
         xref    FlashEprWriteByte               ; osfep/fepwrbyt.asm
         xref    FlashEprWriteBlock              ; osfep/fepwrblk.asm
         xref    FlashEprCopyFileEntry           ; osfep/fepfcopy.asm
-        xref    FlashEprSaveRamFile             ; osfep/fepfsave.asm
-        xref    FlashEprFileDelete              ; osfep/fepfdel.asm
         xref    PutOSFrame_BHL                  ; misc5.asm
         xref    PutOSFrame_BC                   ; misc5.asm
         xref    PutOSFrame_DE                   ; misc5.asm
@@ -80,8 +78,6 @@
         jp      FlashEprWriteByte               ; reason code $0F for FEP_WRBT  (returns only error status in AF)
         jp      ozFlashEprWriteBlock            ; reason code $12 for FEP_WRBL
         jp      FlashEprCopyFileEntry           ; reason code $15 for FEP_CPFL  (returns only error status in AF)
-        jp      ozFlashEprSaveRamFile           ; reason code $18 for FEP_SVFL
-        jp      FlashEprFileDelete              ; reason code $1b for FEP_DLFL  (returns only error status in AF)
 
 
 
@@ -118,13 +114,6 @@
         ret     c                               ; return error condition
         call    PutOSFrame_BC                   ; return C = FE_28F or FE_29F (depending on found card)
         jp      PutOSFrame_HL                   ; return BHL = updated to pointer after block
-
-
-; ***************************************************************************************************
-.ozFlashEprSaveRamFile
-        call    FlashEprSaveRamFile
-        ret     c                               ; return error condition
-        jp      PutOSFrame_BHL                  ; return pointer to created File Entry in slot.
 
 
 ; ***************************************************************************************************

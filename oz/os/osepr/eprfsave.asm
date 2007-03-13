@@ -1,7 +1,7 @@
-        module FlashEprSaveRamFile
+        module FileEprSaveRamFile
 
 ; **************************************************************************************************
-; OZ Flash Memory Management.
+; File Area functionality.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,11 +23,11 @@
 ; $Id$
 ; ***************************************************************************************************
 
-        xdef FlashEprSaveRamFile
+        xdef FileEprSaveRamFile
 
         lib OZSlotPoll, SetBlinkScreen
 
-        xref FlashEprCardId, FlashEprFileDelete, FlashEprWriteBlock
+        xref FlashEprCardId, FileEprDeleteFile, FlashEprWriteBlock
         xref FileEprFreeSpace
         xref FileEprNewFileEntry
         xref SetBlinkScreenOn
@@ -52,9 +52,9 @@
 
 ; **************************************************************************
 ;
-; Standard Z88 File Eprom Format (stored on Flash Memory).
+; Standard Z88 File Eprom Format.
 ;
-; Save RAM file to Flash Memory file area in slot C.
+; Save RAM file to Flash Memory or UV Eprom file area in slot C.
 ;
 ; The routine does NOT handle automatical "deletion" of existing files
 ; that matches the filename (excl. device). This must be used by a call
@@ -86,6 +86,10 @@
 ; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
 ; this type of unnecessary error can be avoided.
 ;
+; Equally, the application should evaluate that saving to a file are on an 
+; UV Eprom only can be performed in slot 3. This routine will report failure
+; if saving a file to slots 0, 1 or 2.
+;
 ; IN:
 ;          C = slot number (0, 1, 2 or 3)
 ;         IX = size of I/O buffer.
@@ -116,10 +120,10 @@
 ;
 ; -------------------------------------------------------------------------
 ; Design & Programming
-;       Gunther Strube, Dec 1997-Apr 1998, Sep 2004, Aug 2006, Nov 2006
+;       Gunther Strube, Dec 1997-Apr 1998, Sep 2004, Aug 2006, Nov 2006, Mar 2007
 ; -------------------------------------------------------------------------
 ;
-.FlashEprSaveRamFile
+.FileEprSaveRamFile
         push    ix                              ; preserve IX
         push    de
         push    bc                              ; preserve CDE
@@ -333,7 +337,7 @@
         ld      l,(iy + FileEntry)
         ld      h,(iy + FileEntry+1)
         ld      b,(iy + FileEntry+2)            ; return pointer to new File Entry...
-        call    FlashEprFileDelete              ; mark entry as deleted
+        call    FileEprDeleteFile               ; mark entry as deleted
         pop     af
         ret
 

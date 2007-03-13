@@ -1,7 +1,7 @@
-     MODULE FlashEprFileDelete
+     module FileEprDeleteFile
 
 ; **************************************************************************************************
-; OZ Flash Memory Management.
+; File Area functionality.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,13 +23,14 @@
 ; $Id$
 ; ***************************************************************************************************
 
-        xdef FlashEprFileDelete
+        xdef FileEprDeleteFile
 
         lib  OZSlotPoll, SetBlinkScreen
 
-        xref FlashEprWriteByte
-        xref FileEprFileEntryInfo
+        xref FlashEprCardId, FlashEprWriteByte
+        xref FileEprFileStatus
         xref SetBlinkScreenOn
+        xref GetSlotNo
         xref IncBHL
 
 
@@ -37,7 +38,7 @@
 ;
 ; Standard Z88 File Eprom Format (using Flash Eprom Card).
 ;
-; Mark File Entry as deleted on File Eprom Card, identified by BHL pointer,
+; Mark File Entry as deleted in file area located on Flash or UV Eprom Card, identified by BHL pointer,
 ; B=00h-FFh (bits 7,6 is the slot mask), HL=0000h-3FFFh is the bank offset.
 ;
 ; --------------------------------------------------------------------------------------------------
@@ -76,34 +77,29 @@
 ;    A.BCDEHL/IXIY same
 ;    .F....../.... different
 ;
-; --------------------------------------------------------------------------
-; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sept 2004, Nov 2006
-; --------------------------------------------------------------------------
+; ----------------------------------------------------------------------------------------------
+; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sept 2004, Nov 2006, Mar 2007
+; ----------------------------------------------------------------------------------------------
 ;
-.FlashEprFileDelete
+.FileEprDeleteFile
         push    hl
         push    de
         push    bc                              ; preserve CDE
         push    af                              ; preserve AF, if possible
 
-        push    bc
-        push    hl                              ; preserve File Entry pointer...
-        call    FileEprFileEntryInfo
-        pop     hl
-        pop     bc
+        call    FileEprFileStatus
         jr      c, err_delfile                  ; File Entry was not found...
         call    IncBHL                          ; point at start of filename, "/"
 
-        ld      a,b
-        rlca
-        rlca
-        ld      c,a                             ; BHL pointer is in slot C
+        call    GetSlotNo                       ; BHL pointer is in slot C
+        call    FlashEprCardId                  ; is file entry located on a flash card?
+        jr      c, uveprom                      ; no, it's an UV Eprom...
+
         call    OZSlotPoll                      ; is OZ running in slot of BHL?
         call    NZ,SetBlinkScreen               ; yes, blowing byte in OZ ROM (slot 0 or 1) requires LCD turned off
 .blow_zero_byte
-        xor     a
-        ld      c,a                             ; indicate file deleted (0)
-        ld      e,a                             ; E = 0, blow byte to either INTEL or AMD/STM chip
+        ld      c,0                             ; indicate file deleted (0)
+        ld      e,a                             ; blow byte to specified chip type
         call    FlashEprWriteByte               ; mark file as deleted with 0 byte
         jr      c, err_delfile
 
@@ -118,3 +114,6 @@
 .err_delfile
         pop     bc                              ; remove old AF, use new AF (error code and Fc = 1)
         jr      exit_delfile
+
+.uveprom
+        ret

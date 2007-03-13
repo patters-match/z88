@@ -42,6 +42,8 @@ osepr/epractsp.asm
 osepr/eprfresp.asm
 osepr/eprcntfl.asm
 osepr/eprfnew.asm
+osepr/eprfsave.asm
+osepr/eprfdel.asm
 osfep/osfep.asm
 osfep/fepsecera.asm
 osfep/fepcdera.asm
@@ -49,9 +51,7 @@ osfep/fepcpyblk.asm
 osfep/fepcrddata.asm
 osfep/fepcrdid.asm
 osfep/fepfcopy.asm
-osfep/fepfdel.asm
 osfep/fepflfmt.asm
-osfep/fepfsave.asm
 osfep/fepplsize.asm
 osfep/feprdcfla.asm
 osfep/fepstdhd.asm

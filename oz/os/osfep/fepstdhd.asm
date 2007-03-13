@@ -26,10 +26,13 @@
         xdef FlashEprStdFileHeader
 
         lib Divu8
-        xref FlashEprWriteBlock
+        xref GetSlotNo                          ; osepr/osepr.asm
+        xref FlashEprCardId                     ; osfep/fepcrdid.asm
+        xref FlashEprWriteBlock                 ; osfep/fepwrblk.asm
 
         include "saverst.def"
         include "memory.def"
+        include "flashepr.def"
 
 
 ;***************************************************************************************************
@@ -55,7 +58,7 @@
 ; $3FF7       $01
 ; $3FF8       4 byte random id
 ; $3FFC       size of card in banks (2=32K, 8=128K, 16=256K, 64=1Mb)
-; $3FFD       sub-type, $7E for 32K cards, and $7C for 128K (or larger) cards
+; $3FFD       sub-type
 ; $3FFE       'o'
 ; $3FFF       'z' (file eprom identifier, lower case 'oz')
 ; ------------------------------------------------------------------------------
@@ -65,6 +68,11 @@
 ; 00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
 ; 00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s?<.~oz
 ; ------------------------------------------------------------------------------
+;
+; The sub type identifies type of card hardware. Known sub types are:
+;        $7E, $7C, $7A   UV EPROM (32K, 128K, 256K)
+;        $77             Intel Flash
+;        $6F             Amd/Stm Flash
 ;
 ; Important:
 ; Third generation AMD Flash Memory chips may be programmed in all available slots (1-3).
@@ -81,7 +89,7 @@
 ; FlashEprFileFormat and FlashEprReduceFileArea.
 ;
 ; In:
-;    A = FE_28F, FE_29F programming algorithm (or 0 to poll for programming)
+;    A = FE_28F, FE_29F or 0 (poll card for blowing algorithm)
 ;    B = Absolute Bank (00h - FFh) where to blow header (at offset $3FC0)
 ;        (bits 7,6 is the slot mask)
 ;    HL <> 0, use 64 byte header, located current address space at (HL)
@@ -116,6 +124,17 @@
         push    hl
         push    ix
 
+        or      a
+        call    z,GetFlashChipType
+        cp      FE_28F
+        ex      af,af'
+        ld      a,$77                           ; sub-type for Intel Flash
+        ex      af,af'
+        jr      z, preserve_locptr
+        ex      af,af'
+        ld      a,$6f                           ; sub-type for Amd/Stm Flash
+        ex      af,af'
+.preserve_locptr
         push    hl                              ; preserve local pointer to file area header
         exx
         pop     hl
@@ -169,6 +188,9 @@
         ex      de,hl
         ld      hl, stdromhdr
         ldir
+        ex      af,af'
+        ld      (ix + $3d),a                    ; define Flash sub-type
+
         pop     hl                              ; H = blow header at bank, L = total of banks on Flash Memory Card
         ld      b,h                             ; B = blow header at bank
         ld      c,l
@@ -179,7 +201,7 @@
         inc     l
         dec     l
         jr      z, whole_card
-        ld      (ix + $3C),l                    ; File Eprom area smaller than card size
+        ld      (ix + $3c),l                    ; File Eprom area smaller than card size
         jr      blow_header
 .whole_card
         ld      (ix + $3c),c                    ; File Eprom area uses whole card
@@ -214,5 +236,15 @@
         pop     bc
         pop     de
         ret
+
+.GetFlashChipType
+        push    bc
+        push    hl
+        call    GetSlotNo                       ; get slot C of bank B
+        call    FlashEprCardId                  ; return A = FE_ chip type
+        pop     hl
+        pop     bc
+        ret
+
 .stdromhdr
-        defb $01, $80, $40, $7c, $6f, $7a
+        defb $01, $80, $40, $ff, $6f, $7a
