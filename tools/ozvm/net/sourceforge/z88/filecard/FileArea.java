@@ -883,12 +883,16 @@ public class FileArea {
 			int fileAreaSize = (bankNo & (memory.getExternalCardSize(slotNo) - 1)) + 1;
 			memory.setByte(0x3FFC, bankNo, fileAreaSize);
 
-			if ((bank instanceof EpromBank == true)
-					& (memory.getExternalCardSize(slotNo) == 2))
-				memory.setByte(0x3FFD, bankNo, 0x7E); // a 32K Eprom was
-			// identified...
-			else
-				memory.setByte(0x3FFD, bankNo, 0x7C); // all other cards get $7C
+			if ((bank instanceof EpromBank == true))
+				if (memory.getExternalCardSize(slotNo) == 2)
+					// a 32K Eprom was identified...
+					memory.setByte(0x3FFD, bankNo, 0x7E); 
+				else
+					memory.setByte(0x3FFD, bankNo, 0x7C); // all other UV cards get $7C
+			if ((bank instanceof GenericAmdFlashBank == true))
+				memory.setByte(0x3FFD, bankNo, 0x6F);	// Define an AMD or STM sub type
+			if ((bank instanceof IntelFlashBank == true))
+				memory.setByte(0x3FFD, bankNo, 0x77);	// Define an INTEL sub type
 
 			memory.setByte(0x3FFE, bankNo, 'o');
 			memory.setByte(0x3FFF, bankNo, 'z');
