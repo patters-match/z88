@@ -73,10 +73,10 @@ lstoff
      DEFC RC_Quit   = $67     ; Request application to quit  *
      DEFC RC_Susp   = $69     ; Suspicion of pre-emption
 
-     ; Flash Eprom Error Return codes (used by Standard Library and OZ 4.2 and newer)
+     ; Flash and UV Eprom Error Return codes (used by Standard Library and OZ 4.2 and newer)
 
      DEFC RC_VPL    = $70     ; Vpp Low Error
-     DEFC RC_BWR    = $71     ; Flash (byte) Write Error
+     DEFC RC_BWR    = $71     ; Write (byte) Error (Flash or UV Eprom)
      DEFC RC_BER    = $72     ; Flash Sector/Block Erasure Error
      DEFC RC_NFE    = $80     ; Flash not recognized
      DEFC RC_NOZ    = $81     ; Flash contains OZ ROM, cannot be erased

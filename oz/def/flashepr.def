@@ -44,8 +44,6 @@ DEFC  OS_Fep  = $C806
         DEFC FEP_WRBT = $0F ; Write byte to the Flash Memory
         DEFC FEP_WRBL = $12 ; Write a block of bytes to Flash Memory
         DEFC FEP_CPFL = $15 ; Copy file entry between two File Areas
-        DEFC FEP_SVFL = $18 ; Save RAM file to Flash Memory File Area
-        DEFC FEP_DLFL = $1B ; Mark File Entry as deleted File Area
 
 
 ; ==========================================================================================
