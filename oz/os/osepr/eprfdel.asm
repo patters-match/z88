@@ -106,7 +106,7 @@
         ld      e,a                             ; blow byte to specified chip type
         call    FlashEprWriteByte               ; mark file as deleted with 0 byte
         jr      c, err_delfile
-
+.blown_successfully
         pop     af
         cp      a                               ; Fc = 0, Fz = 1
 .exit_delfile
@@ -133,4 +133,4 @@
         xor     a
         call    BlowByte                        ; mark file as deleted in UV Eprom.
         jr      c,blow_failed
-        jr      exit_delfile
+        jr      blown_successfully
