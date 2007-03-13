@@ -66,10 +66,10 @@
         xref FileEprSaveRamFile                 ; osepr/eprfsave.asm
         xref FileEprDeleteFile                  ; osepr/eprfdel.asm
 
-
-
         xdef OSEpr
         xdef GetSlotNo
+        xdef GetUvProgMode
+        xdef BlowByte, BlowMem
 
 
 ;       On entry: we have OSFrame so remembering S2 is unnecessary, as is remembering IY
@@ -379,6 +379,7 @@
         ld      c, a                            ; CDE=size
 
         jr      c, sv_9                         ; error? exit
+        call    GetUvProgMode                   ; get IY to point at current UV Eprom programming settings
 
         push    hl                              ; check if there's room for file
         push    de
@@ -487,13 +488,7 @@
         jr      nc, sv_10                       ; no file area? exit
         jr      nz, sv_10                       ; no earlier version? exit
 
-        call    IncBHL                          ; delete old file
-        push    iy
-        ld      iy, (pEpr_PrgTable)
-        xor     a
-        call    BlowByte
-        pop     iy
-
+        call    FileEprDeleteFile               ; mark old file entry as deleted (in BHL)
 .sv_10
         ex      af, af'
         ld      hl, 256                         ; restore stack
@@ -504,7 +499,6 @@
         ld      ix, (pEpr_FileHandle)           ; close infile
         OZ      OS_Cl
         pop     af
-
 .sv_11
         ex      af, af'
 
@@ -592,31 +586,52 @@
 ;chg:   AF....../....
 
 .IsEPROM
+        push    iy
+        call    GetUvProgMode
+        jr      c, exit_IsEPROM
+.exit_IsEPROM
+        pop     iy
+        ret
+
+
+; ***************************************************************************************************
+; Get pointer to UV Eprom programming mode settings for current UV Eprom in slot 3.
+;
+; In:
+;         None
+; Out:
+;         Fc = 0,
+;               Success, return IY to point at UV programming settings (found sub type):
+;         Fc = 1,
+;               A = RC_Fail. "oz" file header not found in slot
+;
+; Registers changed after return:
+;    AFBCDEHL/IX.. same
+;    ......../..IY different
+;
+.GetUvProgMode
         push    hl
         push    de
         push    bc
 
         ld      c,3
         call    FileEprRequest                  ; poll for file area in slot 3
-        jr      c, ise_5                        ; no "oz" header found
+        jr      c, exit_GetUvProgMode           ; no "oz" header found
         jr      nz, ise_5                       ; no header found but BHL points to potential header
 
-        ld      hl, UvEpromTypes                ; find subtype in programming table
+        ld      de, 7                           ; each entry is 7 bytes...
+        ld      iy, UvEpromTypes                ; find subtype in programming table
 .ise_2
-        bit     0, (hl)
+        bit     0, (iy+0)
         jr      nz, ise_5                       ; end? unknown type
-        cp      (hl)
-        jr      z, ise_4                        ; match? go on
-        ld      de, 7                           ; otherwise try next
-        add     hl, de
+        cp      (iy+0)
+        jr      z, exit_GetUvProgMode           ; match? go on
+        add     iy, de
         jr      ise_2
-.ise_4
-        ld      (pEpr_PrgTable), hl
-        jr      ise_6
 .ise_5
         ld      a, RC_Fail
         scf
-.ise_6
+.exit_GetUvProgMode
         pop     bc
         pop     de
         pop     hl
@@ -831,16 +846,15 @@
 ;
 ;IN:    C=number of bytes to write
 ;       DE=source address
+;       IY = pointer to programming settings
 ;       BHL=EPROM pointer
 ;OUT:   Fc=0 if success
 ;       Fc=1, A=error if fail
 ;chg:   AFBC..HL/....
 
 .BlowMem
-        push    iy
         push    de
 
-        ld      iy, (pEpr_PrgTable)
         ld      a, BM_COMLCDON                  ; turn LCD off
         call    AndCom
 
@@ -860,7 +874,6 @@
         call    OrCom
         pop     af
         pop     de
-        pop     iy
         ret
 
 
@@ -954,6 +967,7 @@
         pop     de
         pop     bc
         ret
+
 
 ; ***************************************************************************************************
 ;       set/reset bits in BL_COM

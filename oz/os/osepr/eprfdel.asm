@@ -32,6 +32,9 @@
         xref SetBlinkScreenOn
         xref GetSlotNo
         xref IncBHL
+        xref GetUvProgMode, BlowByte
+
+        include "error.def"
 
 
 ; ***************************************************************************************************
@@ -71,7 +74,7 @@
 ;
 ;         Fc = 1,
 ;              A = RC_Onf, File (Flash) Eprom or File Entry not found in slot
-;              A = RC_VPL, RC_BWR, Flash Eprom Write Error
+;              A = RC_VPL, RC_BWR, Flash/UV Eprom  Write Error
 ;
 ; Registers changed on return:
 ;    A.BCDEHL/IXIY same
@@ -82,6 +85,7 @@
 ; ----------------------------------------------------------------------------------------------
 ;
 .FileEprDeleteFile
+        push    iy
         push    hl
         push    de
         push    bc                              ; preserve CDE
@@ -91,7 +95,7 @@
         jr      c, err_delfile                  ; File Entry was not found...
         call    IncBHL                          ; point at start of filename, "/"
 
-        call    GetSlotNo                       ; BHL pointer is in slot C
+        call    GetSlotNo                       ; get slot C derived from BHL pointer
         call    FlashEprCardId                  ; is file entry located on a flash card?
         jr      c, uveprom                      ; no, it's an UV Eprom...
 
@@ -110,10 +114,23 @@
         pop     bc                              ; (turning screen on, with screen already on has no effect...)
         pop     de
         pop     hl
+        pop     iy
         ret
 .err_delfile
         pop     bc                              ; remove old AF, use new AF (error code and Fc = 1)
         jr      exit_delfile
-
-.uveprom
-        ret
+.uveprom                                        ; try to mark file as deleted on an UV Eprom, but only if
+        ld      a,3
+        cp      c                               ; file entry is in slot 3?
+        jr      z, mark_uvepr_file
+.blow_failed
+        ld      a, RC_BWR                       ; No, file entry can only be marked as deleted in slot 3 
+        scf                                     ; hardware for UV Eproms
+        jr      err_delfile
+.mark_uvepr_file
+        call    GetUvProgMode                   ; IY points at UV program settings for current EPROM in slot 3
+        jr      c, err_delfile                  ; no "oz" header found
+        xor     a
+        call    BlowByte                        ; mark file as deleted in UV Eprom.
+        jr      c,blow_failed
+        jr      exit_delfile

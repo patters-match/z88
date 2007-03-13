@@ -203,7 +203,6 @@ defvars SV_KERNEL_RAM
 
 ; EPROM interface (7):
         ubEpr_NameLen           ds.b    1
-        pEpr_PrgTable           ds.w    1
         pEpr_Parsedname         ds.w    1
         pEpr_FileHandle         ds.w    1
 
@@ -227,7 +226,7 @@ defvars SV_KERNEL_RAM
         AttrAltfont             ds.b    1
         AttrUserdef             ds.b    1
 
-enddef        
+enddef
 
 
 ; --------------
