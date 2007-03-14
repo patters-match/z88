@@ -85,7 +85,7 @@
 ; ----------------------------------------------------------------------------------------------
 ;
 .FileEprDeleteFile
-        push    iy
+        push    ix
         push    hl
         push    de
         push    bc                              ; preserve CDE
@@ -114,7 +114,7 @@
         pop     bc                              ; (turning screen on, with screen already on has no effect...)
         pop     de
         pop     hl
-        pop     iy
+        pop     ix
         ret
 .err_delfile
         pop     bc                              ; remove old AF, use new AF (error code and Fc = 1)
@@ -124,13 +124,13 @@
         cp      c                               ; file entry is in slot 3?
         jr      z, mark_uvepr_file
 .blow_failed
-        ld      a, RC_BWR                       ; No, file entry can only be marked as deleted in slot 3 
+        ld      a, RC_BWR                       ; No, file entry can only be marked as deleted in slot 3
         scf                                     ; hardware for UV Eproms
         jr      err_delfile
 .mark_uvepr_file
-        call    GetUvProgMode                   ; IY points at UV program settings for current EPROM in slot 3
+        call    GetUvProgMode                   ; return IX handle to UV program settings for current EPROM in slot 3
         jr      c, err_delfile                  ; no "oz" header found
         xor     a
         call    BlowByte                        ; mark file as deleted in UV Eprom.
-        jr      c,blow_failed
+        jr      c, blow_failed
         jr      blown_successfully

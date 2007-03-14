@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OS_EPR System Call (File (UV) Eprom functionality).
+; OS_EPR System Call (File Area functionality on UV Eprom or Flash).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -30,10 +30,9 @@
 ; $Id$
 ; ***************************************************************************************************
 
-        Module  EPROM
+        Module  OS_EPR
 
         include "blink.def"
-        include "char.def"
         include "error.def"
         include "fileio.def"
         include "memory.def"
@@ -257,7 +256,7 @@
 ;
 ; Registers changed after return:
 ;    AFB.DEHL/IXIY same
-;    AF.C..../.... different
+;    ...C..../.... different
 ;
 .GetSlotNo
         push    af
@@ -271,10 +270,10 @@
 
 
 ; ***************************************************************************************************
-; read file from Eprom
+; Read file from File Area in slot 3
 ;
 ;IN:    BHL = source filename
-;       IX = output handle
+;       IX = output file handle
 ;OUT:   Fc=0, file fetched successfully to RAM file
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/....
@@ -304,7 +303,7 @@
 
 
 ; ***************************************************************************************************
-; write file to EPROM
+; Write file to File Area in slot 3
 ;
 ;IN:    HL=filename
 ;OUT:   Fc=0, success
@@ -314,6 +313,7 @@
 .EprSave
         ld      b, 0
         push    ix
+
         OZ      OS_Bix                          ; bind in HL
         push    de                              ; remember S1/S2
 
@@ -367,7 +367,6 @@
         ld      a, RC_Room
         scf
         jp      sv_9
-
 .sv_4
         push    bc
         push    de                              ; preserve file size (returned from OS_Frm)
@@ -378,8 +377,8 @@
         pop     de
         ld      c, a                            ; CDE=size
 
-        jr      c, sv_9                         ; error? exit
-        call    GetUvProgMode                   ; get IY to point at current UV Eprom programming settings
+        jp      c, sv_9                         ; error? exit
+        call    GetUvProgMode                   ; get IX to point at current UV Eprom programming settings
 
         push    hl                              ; check if there's room for file
         push    de
@@ -429,7 +428,6 @@
         pop     hl
         add     a, 5                            ; write namelen+5 bytes
         jr      sv_8                            ; followed by data from file
-
 .sv_6
         push    de
         push    hl                              ; remember BHL
@@ -437,7 +435,10 @@
         push    af
         ld      bc, 64                          ; read 64 bytes into stack buffer
         ld      hl, 0
+        push    ix
+        ld      ix,(pEpr_FileHandle)
         OZ      OS_Mv
+        pop     ix
         pop     hl                              ; restore BL
         ld      b, h
         pop     hl
@@ -447,12 +448,10 @@
         cp      RC_Eof
         scf
         jr      nz, sv_9
-
 .sv_7
         ld      a, 64
         sub     c
         jr      z, sv_9                         ; got zero bytes? exit
-
 .sv_8
         ld      c, a
         call    BlowMem                         ; write c bytes from BHL
@@ -475,7 +474,6 @@
         OZ      OS_Ust                          ; next underflow in 2.5 seconds
         pop     bc
         jr      sv_6
-
 .sv_9
         pop     hl                              ; pop earlier version info
         pop     bc
@@ -514,7 +512,7 @@
 
 
 ; ***************************************************************************************************
-; get next filename from EPROM
+; Get next filename from File Area
 ;
 ;IN:    BHL=buffer
 ;       IX=temp handle, if 0 then start at beginning
@@ -579,35 +577,33 @@
 
 
 ; ***************************************************************************************************
-;       check if card in slot 3 contains a file area
+; Check if card in slot 3 contains a File Area
 ;
 ;OUT:   Fc=0 if success
 ;       Fc=1, A=error if fail
 ;chg:   AF....../....
 
 .IsEPROM
-        push    iy
+        push    ix
         call    GetUvProgMode
-        jr      c, exit_IsEPROM
-.exit_IsEPROM
-        pop     iy
+        pop     ix
         ret
 
 
 ; ***************************************************************************************************
-; Get pointer to UV Eprom programming mode settings for current UV Eprom in slot 3.
+; Get "handle" to UV Eprom programming mode settings for current UV Eprom in slot 3.
 ;
 ; In:
 ;         None
 ; Out:
 ;         Fc = 0,
-;               Success, return IY to point at UV programming settings (found sub type):
+;               Success, return IX as "handle" (to point at UV programming) settings of sub type:
 ;         Fc = 1,
-;               A = RC_Fail. "oz" file header not found in slot
+;               A = RC_Onf. "oz" sub type not found in list of know types
 ;
 ; Registers changed after return:
-;    AFBCDEHL/IX.. same
-;    ......../..IY different
+;    AFBCDEHL/..IY same
+;    ......../IX.. different
 ;
 .GetUvProgMode
         push    hl
@@ -620,16 +616,16 @@
         jr      nz, ise_5                       ; no header found but BHL points to potential header
 
         ld      de, 7                           ; each entry is 7 bytes...
-        ld      iy, UvEpromTypes                ; find subtype in programming table
+        ld      ix, UvEpromTypes                ; find subtype in programming table
 .ise_2
-        bit     0, (iy+0)
+        bit     0, (ix+0)
         jr      nz, ise_5                       ; end? unknown type
-        cp      (iy+0)
+        cp      (ix+0)
         jr      z, exit_GetUvProgMode           ; match? go on
-        add     iy, de
+        add     ix, de
         jr      ise_2
 .ise_5
-        ld      a, RC_Fail
+        ld      a, RC_Onf
         scf
 .exit_GetUvProgMode
         pop     bc
@@ -639,17 +635,17 @@
 
 
 ; ***************************************************************************************************
-;       find out programming model for this card
+; Identify programming model for this UV Eprom card (in slot 3)
 ;
 ;OUT:   Fc=0, A=subtype, HL=programming model if ok
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/....
 
 .FormatCard
-        push    iy
+        push    ix
         ld      b, $FF                          ; subtype
         ld      hl, $3FFD
-        ld      iy, UvEpromTypes
+        ld      ix, UvEpromTypes
         call    IdentifyCardType                ; !! doesn't return B
         jp      c, fmt_9
         ld      e, a                            ; remember type
@@ -747,28 +743,27 @@
         jr      c, fmt_9                        ; error? exit
 
         ld      a, e                            ; subtype
-        push    iy
+        push    ix
         pop     hl                              ; programming model
 .fmt_9
-        pop     iy
+        pop     ix
         ret
 
 
 ; ***************************************************************************************************
-;       identify empty EPROM
+; Identify empty UV EPROM by trying to blow the sub type of the File Area header.
 ;
 ;IN:    BHL=test address ($FF:3FFD, subtype)
-;       IY=programming model table
-;OUT:   Fc=0, A=type, IY=programmin model if success
+;       IX = handle to UV Eprom programming setings
+;OUT:   Fc=0, A=type, IX = handle to UV EProm programming settings
 ;       Fc=1, A=error if fail
-;chg:   AF....../..IY
+;chg:   AF....../IX..
 
 .IdentifyCardType
         push    bc
         push    de
-
 .ict_1
-        bit     0, (iy+0)
+        bit     0, (ix+0)
         ld      a, RC_Fail
         scf
         jr      nz, ict_3                       ; end of table? exit
@@ -777,16 +772,14 @@
         call    BlowByte
         jr      nc, ict_2                       ; success, write type
         ld      de, 7                           ; try next type
-        add     iy, de
+        add     ix, de
         jr      ict_1
-
 .ict_2
-        ld      a, (iy+0)                       ; subtype
+        ld      a, (ix+0)                       ; subtype
         ld      e, a
         call    BlowByte
         jr      c, ict_3                        ; error, exit
         ld      a, e                            ; return subtype
-
 .ict_3
         pop     de
         pop     bc
@@ -794,7 +787,8 @@
 
 
 ; ***************************************************************************************************
-;       BHL+=CDE, handle bank crossing
+; BHL+=CDE, handle bank crossing
+;
 .AddBHL_CDE
         ld      a, h
         and     $3F
@@ -820,7 +814,6 @@
         res     6, h
         add     a, 1
         jr      c, add_4
-
 .add_2
         add     a, b
         jr      c, add_4
@@ -831,7 +824,6 @@
         ld      a, h                            ; error if last page
         cp      $3F
         ccf
-
 .add_3
         ret     nc
 
@@ -842,11 +834,11 @@
 
 
 ; ***************************************************************************************************
-;       write memory to EPROM
+; Write memory block to UV EPROM
 ;
 ;IN:    C=number of bytes to write
 ;       DE=source address
-;       IY = pointer to programming settings
+;       IX = handle to UV Eprom programming settings
 ;       BHL=EPROM pointer
 ;OUT:   Fc=0 if success
 ;       Fc=1, A=error if fail
@@ -857,7 +849,6 @@
 
         ld      a, BM_COMLCDON                  ; turn LCD off
         call    AndCom
-
 .blowm_1
         ld      a, (de)                         ; write byte to EPROM
         inc     de
@@ -867,7 +858,6 @@
         dec     c
         jr      nz, blowm_1                     ; bytes left? loop
         or      a                               ; Fc=0
-
 .blowm_2
         push    af
         ld      a, BM_COMLCDON                  ; turn LCD on
@@ -878,14 +868,15 @@
 
 
 ; ***************************************************************************************************
-;       write byte to EPROM
+; Write byte to UV EPROM
 ;
 ;IN:    A=byte
 ;       BHL=EPROM pointer
+;       IX = handle to UV Eprom programming settings
 ;OUT:   Fc=0 if write succesfull
 ;       Fc=1, A=error if fail
 ;chg:   AF....../....
-
+;
 .BlowByte
         push    bc
         push    de
@@ -896,14 +887,13 @@
         jr      z, blow_6                       ; already there? exit
 
         ld      c, 24                           ; 24 attempts
-
 .blow_1
         ld      a, BM_COMOVERP|BM_COMPROGRAM
         call    AndCom
-        ld      a, (iy+2)                       ; pre-data parameters
+        ld      a, (ix+2)                       ; pre-data parameters
         or      BM_COMVPPON
         call    OrCom
-        ld      a, (iy+1)
+        ld      a, (ix+1)
         out     (BL_EPR), a
 
         ld      a, d                            ; write data
@@ -911,9 +901,9 @@
 
         ld      a, BM_COMOVERP|BM_COMPROGRAM|BM_COMVPPON
         call    AndCom
-        ld      a, (iy+4)                       ; post-data parameters
+        ld      a, (ix+4)                       ; post-data parameters
         call    OrCom
-        ld      a, (iy+3)
+        ld      a, (ix+3)
         out     (BL_EPR), a
 
         call    PeekBHL                         ; verify data
@@ -928,30 +918,27 @@
         scf
         ld      a, RC_Fail
         jr      blow_7
-
 .blow_2
         ld      a, BM_COMOVERP|BM_COMPROGRAM|BM_COMVPPON
         call    AndCom
-        ld      a, (iy+6)                       ; overwrite parameters
+        ld      a, (ix+6)                       ; overwrite parameters
         or      BM_COMVPPON
         call    OrCom
-        ld      a, (iy+5)
+        ld      a, (ix+5)
         out     (BL_EPR), a
 
         ld      a, 25
         sub     c
         ld      c, a                            ; used this many tries
-        bit     BB_COMOVERP, (iy+2)
+        bit     BB_COMOVERP, (ix+2)
         jr      z, blow_3                       ; overprogramming? use three times that many
         sla     a
         add     a, c
         ld      c, a
         jr      blow_4
-
 .blow_3
         ld      a, BM_COMOVERP                  ; force overprogramming
         call    OrCom
-
 .blow_4
         ld      a, d                            ; write data C times
 .blow_5
@@ -1004,7 +991,8 @@
 ;        7E: 32K               01111110
 ;        7C: 128K, 256K        01111100
 ;        7A: Unknown           01111010
-; Flash sub types, only used to differentiate that it is not an UV Eprom
+; Flash sub types (returned as abstractions in OS_Epr, EP_Req), only used to differentiate that it
+; is not an UV Eprom (not in this table for UV Eprom only):
 ;        77: Intel Flash       01110111
 ;        6F: AMD Flash         01101111
 ;
