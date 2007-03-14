@@ -637,17 +637,20 @@
 ; ***************************************************************************************************
 ; Identify programming model for this UV Eprom card (in slot 3)
 ;
-;OUT:   Fc=0, A=subtype, HL=programming model if ok
+; IN:   None.
+;OUT:   Fc=0, A=subtype, IX = handle to UV EProm programming settings for this card
 ;       Fc=1, A=error if fail
-;chg:   AFBCDEHL/....
+;chg:   AFBCDEHL/IX..
 
 .FormatCard
-        push    ix
-        ld      b, $FF                          ; subtype
-        ld      hl, $3FFD
+        ld      c,3
+        call    FileEprRequest                  ; poll for potential file area in slot 3
+        ret     c                               ; file header is not possible to be created in slot 3
+
+        ld      hl, $3FFD                       ; point at sub type byte in potential header
         ld      ix, UvEpromTypes
         call    IdentifyCardType                ; !! doesn't return B
-        jp      c, fmt_9
+        ret     c
         ld      e, a                            ; remember type
 
         ld      a, b                            ; find out card size
@@ -740,13 +743,9 @@
         jr      nz, fmt_6
 .fmt_7
         pop     bc
-        jr      c, fmt_9                        ; error? exit
+        ret     c                               ; error? exit
 
-        ld      a, e                            ; subtype
-        push    ix
-        pop     hl                              ; programming model
-.fmt_9
-        pop     ix
+        ld      a, e                            ; return A = subtype, IX = UV programming handle
         ret
 
 
