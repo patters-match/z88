@@ -39,12 +39,9 @@
         include "saverst.def"
         include "sysvar.def"
 
-;       ----
 
 xdef    GNErr
 xdef    GNEsp
-
-;       ----
 
 xref    GN_ret1a
 xref    PrintStr
@@ -457,7 +454,7 @@ xref    PutOsf_HL
 .VppLow_Err
         defm    "Flash VPP low",0
 .FlashWrite_Err
-        defm    "Flash Write error",0
+        defm    "Flash/UV Eprom Write error",0
 .FlashErase_Err
         defm    "Flash Erase error",0
 .FlashNotRecgn_Err

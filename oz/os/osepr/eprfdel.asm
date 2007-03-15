@@ -96,8 +96,12 @@
         call    IncBHL                          ; point at start of filename, "/"
 
         call    GetSlotNo                       ; get slot C derived from BHL pointer
+        push    bc
+        push    hl                              ; preserve BHL entry pointer while polling for flash hardware...
         call    FlashEprCardId                  ; is file entry located on a flash card?
-        jr      c, uveprom                      ; no, it's an UV Eprom...
+        pop     hl
+        pop     bc
+        jr      c, uveprom                      ; no Flash, but an UV Eprom...
 
         call    OZSlotPoll                      ; is OZ running in slot of BHL?
         call    NZ,SetBlinkScreen               ; yes, blowing byte in OZ ROM (slot 0 or 1) requires LCD turned off

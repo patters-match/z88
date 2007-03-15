@@ -317,12 +317,6 @@
         OZ      OS_Bix                          ; bind in HL
         push    de                              ; remember S1/S2
 
-        call    OZ_DI
-        push    af
-        ei
-
-        ld      bc, 250
-        OZ      OS_Ust                          ; timer underflow in 2.5 secs
 .check_fepr
         call    IsEPROM
         jr      nc, found_fepr                  ; File EPROM identified
@@ -331,177 +325,53 @@
         jp      c, sv_11                        ; error? exit
         jr      check_fepr
 .found_fepr
-        ld      a, OP_IN
-        ld      bc, 255                         ; bufsize=255
-        ld      de, 3                           ; ignore filename
-        OZ      GN_Opf                          ; open file
-        ld      (pEpr_FileHandle), ix
-        jp      c, sv_11                        ; error? exit
+        exx                                     ; reserve 256 bytes from stack for I/O buffer
+        ld      hl, -256
+        add     hl, sp
+        ld      sp, hl
+        push    hl
+        exx
+        pop     iy                              ; IY points at base of buffer
+
+        push    hl
+        pop     ix                              ; pointer to original filename
 
         ld      b, 0
         OZ      GN_Pfs                          ; skip path
-        ld      (pEpr_Parsedname), hl
-
-        exx                                     ; reserve 256 bytes from stack
-        ld      hl, -256                        ; !! should get 5 bytes more
-        add     hl, sp
-        ld      sp, hl
-        exx
 
         ex      de,hl
         ld      c,3                             ; EP_SAVE always in slot 3
         call    FileEprFindFile                 ; find earlier version to delete
-        push    af                              ; and remember it
+        push    af                              ; and remember found status
         push    bc
         push    hl
 
-        ld      a, FA_EXT                       ; get file size into DEBC
-        ld      de, 0
-        OZ      OS_Frm
-        jp      c, sv_9                         ; error? exit
-
-        ld      a, d
-        or      a
-        jr      z, sv_4                         ; smaller than 16MB? continue
-
-        ld      a, RC_Room
-        scf
-        jp      sv_9
-.sv_4
-        push    bc
-        push    de                              ; preserve file size (returned from OS_Frm)
-        ld      c,3
-        call    FileEprNewFileEntry             ; return BHL to new file entry in slot 3
-        pop     de
-        ld      a, e
-        pop     de
-        ld      c, a                            ; CDE=size
-
-        jp      c, sv_9                         ; error? exit
-        call    GetUvProgMode                   ; get IX to point at current UV Eprom programming settings
-
-        push    hl                              ; check if there's room for file
-        push    de
-        push    bc
-        inc     d                               ; CDE+=256
-        jr      nz, sv_5
-        inc     c
-.sv_5
-        call    AddBHL_CDE
-        pop     bc
-        pop     de
-        pop     hl
-        jr      c, sv_9                         ; too big for remaining space? error
-
-        exx                                     ; point HL to stack buffer
-        ld      hl, 6
-        add     hl, sp
-        push    hl
-        exx
-        ex      (sp), hl
-
-        ld      a, (ubEpr_NameLen)              ; name length to buffer
-        ld      (hl), a
-        inc     hl
-        push    de
-        push    bc
-        ld      c, a                            ; copy filename to stack buffer (starts with '/')
-        ld      b, 0                            ; !! if filename is longer than 251 bytes then
-        ex      de, hl                          ; !! this corrupts stack!
-        ld      hl, (pEpr_Parsedname)
-        ldir
-        pop     bc
-        pop     hl
-        ex      de, hl
-        ld      (hl), e                         ; put 32-bit size into buffer
-        inc     hl
-        ld      (hl), d
-        inc     hl
-        ld      (hl), c
-        inc     hl
-        ld      (hl), 0
-
-        ld      hl, 8                           ; point DE to stack buffer
-        add     hl, sp
-        ex      de, hl
-
-        pop     hl
-        add     a, 5                            ; write namelen+5 bytes
-        jr      sv_8                            ; followed by data from file
-.sv_6
-        push    de
-        push    hl                              ; remember BHL
-        push    bc
-        ld      bc, 64                          ; read 64 bytes into stack buffer
-        ld      hl, 0
+        ld      c,3                             ; blow file to slot 3
         push    ix
-        ld      ix,(pEpr_FileHandle)
-        OZ      OS_Mv
-        pop     ix
-        pop     hl                              ; restore BL
-        ld      b, h
-        pop     hl
-        pop     de
+        pop     hl                              ; pointer to RAM filename to blow to file area)
+        push    iy
+        pop     de                              ; pointer to base of I/O buffer
+        ld      ix,256                          ; size of I/O buffer
+        call    FileEprSaveRamFile
 
-        jr      nc, sv_7                        ; any other error than EOF? exit
-        cp      RC_Eof
-        scf
-        jr      nz, sv_9
-.sv_7
-        ld      a, 64
-        sub     c
-        jr      z, sv_9                         ; got zero bytes? exit
-.sv_8
-        ld      c, a
-        call    BlowMem                         ; write c bytes from BHL
-        jr      c, sv_9                         ; error? exit
-
-        push    bc
-        OZ      OS_Ust                          ; get timer value
-        push    af
-        OZ      OS_Ust                          ; and write it back
-        pop     af
-        pop     bc
-        jr      nz, sv_6                        ; no timer  underflow? write more
-
-        push    bc
-        ld      a, SC_ACK
-        OZ      OS_Esc                          ; reset timeout
-        ld      bc, 50
-        OZ      OS_Dly                          ; delay half a second
-        ld      bc, 250
-        OZ      OS_Ust                          ; next underflow in 2.5 seconds
-        pop     bc
-        jr      sv_6
-.sv_9
-        pop     hl                              ; pop earlier version info
+        pop     hl                              ; get old file entry (if prev. found)
         pop     bc
         pop     de
-        jr      c, sv_10                        ; error? exit
+        jr      c, sv_10                        ; error writing new file?
 
         push    de
         pop     af
-        ccf
-        jr      nc, sv_10                       ; no file area? exit
         jr      nz, sv_10                       ; no earlier version? exit
 
-        call    FileEprDeleteFile               ; mark old file entry as deleted (in BHL)
+        call    FileEprDeleteFile               ; new version saved, mark old file entry as deleted (in BHL)
+        or      a
 .sv_10
         ex      af, af'
         ld      hl, 256                         ; restore stack
         add     hl, sp
         ld      sp, hl
         ex      af, af'
-        push    af
-        ld      ix, (pEpr_FileHandle)           ; close infile
-        OZ      OS_Cl
-        pop     af
 .sv_11
-        ex      af, af'
-
-        pop     af
-        call    OZ_EI
-        ex      af, af'
         pop     de                              ; restore S1/S2
         push    af
         OZ      OS_Box
@@ -583,9 +453,16 @@
 ;chg:   AF....../....
 
 .IsEPROM
-        push    ix
-        call    GetUvProgMode
-        pop     ix
+        push    hl
+        push    de
+        push    bc
+
+        ld      c,3
+        call    FileEprRequest                  ; poll for file area in slot 3
+
+        pop     bc
+        pop     de
+        pop     hl
         ret
 
 
@@ -598,7 +475,7 @@
 ;         Fc = 0,
 ;               Success, return IX as "handle" (to point at UV programming) settings of sub type:
 ;         Fc = 1,
-;               A = RC_Onf. "oz" sub type not found in list of know types
+;               A = RC_Onf. Sub type not recognized for UV Eprom
 ;
 ; Registers changed after return:
 ;    AFBCDEHL/..IY same
@@ -609,8 +486,7 @@
         push    de
         push    bc
 
-        ld      c,3
-        call    FileEprRequest                  ; poll for file area in slot 3
+        call    IsEPROM                         ; poll for file area in slot 3
         jr      c, exit_GetUvProgMode           ; no "oz" header found
         jr      nz, ise_5                       ; no header found but BHL points to potential header
 
@@ -785,56 +661,9 @@
 
 
 ; ***************************************************************************************************
-; BHL+=CDE, handle bank crossing
-;
-.AddBHL_CDE
-        ld      a, h
-        and     $3F
-        ld      h, a
-        xor     a
-        add     hl, de
-        adc     a, c
-        jr      c, add_4                        ; overflow? error
-
-        rlca                                    ; A*4 for bank
-        jr      c, add_4
-        rlca
-        jr      c, add_4
-
-        bit     7, h                            ; add HL high bits to A
-        jr      z, add_1
-        res     7, h
-        add     a, 2
-        jr      c, add_4
-.add_1
-        bit     6, h
-        jr      z, add_2
-        res     6, h
-        add     a, 1
-        jr      c, add_4
-.add_2
-        add     a, b
-        jr      c, add_4
-        ld      b, a
-        inc     a
-        jr      nz, add_3                       ; not last bank? exit
-
-        ld      a, h                            ; error if last page
-        cp      $3F
-        ccf
-.add_3
-        ret     nc
-
-.add_4
-        ld      a, RC_Room
-        ret
-
-
-
-; ***************************************************************************************************
 ; Write memory block to UV EPROM
 ;
-;IN:    C=number of bytes to write
+;IN:    BC'=number of bytes to write
 ;       DE=source address
 ;       IX = handle to UV Eprom programming settings
 ;       BHL=EPROM pointer
@@ -853,9 +682,12 @@
         call    BlowByte
         jr      c, blowm_2                      ; error? exit
         call    IncBHL
-        dec     c
+        exx
+        dec     bc
+        ld      a,b
+        or      c
+        exx
         jr      nz, blowm_1                     ; bytes left? loop
-        or      a                               ; Fc=0
 .blowm_2
         push    af
         ld      a, BM_COMLCDON                  ; turn LCD on
@@ -914,7 +746,7 @@
         ld      a, BM_COMOVERP|BM_COMPROGRAM|BM_COMVPPON
         call    AndCom
         scf
-        ld      a, RC_Fail
+        ld      a, RC_BWR
         jr      blow_7
 .blow_2
         ld      a, BM_COMOVERP|BM_COMPROGRAM|BM_COMVPPON

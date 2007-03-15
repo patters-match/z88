@@ -201,11 +201,6 @@ defvars SV_KERNEL_RAM
         ubSerFlowControl        ds.b    1
         cSerXonXoffChar         ds.b    1
 
-; EPROM interface (7):
-        ubEpr_NameLen           ds.b    1
-        pEpr_Parsedname         ds.w    1
-        pEpr_FileHandle         ds.w    1
-
 ; Printer (56):
         StackBufPtr             ds.w    1
         CtrlBuf                 ds.w    1

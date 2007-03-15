@@ -29,7 +29,7 @@
 
         xref FlashEprCardId, FlashEprWriteBlock
         xref FileEprFreeSpace, FileEprDeleteFile, FileEprNewFileEntry, GetUvProgMode
-        xref SetBlinkScreenOn
+        xref SetBlinkScreenOn, BlowMem
 
         include "error.def"
         include "fileio.def"
@@ -54,6 +54,7 @@
 ; Standard Z88 File Eprom Format.
 ;
 ; Save RAM file to Flash Memory or UV Eprom file area in slot C.
+; (files to UV Eprom only in slot 3)
 ;
 ; The routine does NOT handle automatical "deletion" of existing files
 ; that matches the filename (excl. device). This must be used by a call
@@ -85,7 +86,7 @@
 ; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
 ; this type of unnecessary error can be avoided.
 ;
-; Equally, the application should evaluate that saving to a file are on an
+; Equally, the application should evaluate that saving to a file that is on an
 ; UV Eprom only can be performed in slot 3. This routine will report failure
 ; if saving a file to slots 0, 1 or 2.
 ;
@@ -106,7 +107,7 @@
 ;                   A = RC_Room
 ;              Flash Eprom Write Errors:
 ;                   If possible, the new File Entry is marked as deleted.
-;                   A = RC_VPL, RC_BWR (see "flashepr.def" for details)
+;                   A = RC_VPL, RC_BWR (see "error.def" for details)
 ;
 ;              RAM File was not found, or other filename related problems:
 ;                   A = RC_Onf
@@ -239,9 +240,7 @@
         oz      Gn_Cl                           ; close file
         pop     af
 
-        ld      l,(iy + FileEntry)
-        ld      h,(iy + FileEntry+1)
-        ld      b,(iy + FileEntry+2)            ; return pointer to new File Entry...
+        call    GetFileEntry                    ; BHL <- (IY + FileEntry)
 .end_filesave
         exx
         pop     hl
@@ -282,8 +281,8 @@
         or      (iy + CardType)
         jr      z, save_uvfile                  ; card type indicates that file is to be blown on UV Eprom...
 
-        call    SaveFlashFileEntry              ; Blow File Entry Header to Flash
-        ret     c                               ; saving of File Entry header failed...
+        call    SaveFlashFileEntry              ; Blow File Entry Header of C length to Flash
+        ret     c                               ; Ups, saving of File Entry header failed...
 .save_flash_file_loop                           ; A = chip type to blow data
         call    LoadBuffer                      ; Load block of bytes from file into external buffer
         ret     z                               ; EOF reached...
@@ -293,7 +292,25 @@
         jr      save_flash_file_loop
 
 .save_uvfile
-        ret
+        call    GetUVhandle
+        ld      a,c
+        exx
+        ld      b,0
+        ld      c,a
+        exx
+        call    BlowMem                         ; Blow File Entry Header of C length to UV Eprom at (BHL)
+        jr      c,MarkDeleted
+.save_uv_file_loop
+        call    LoadBuffer                      ; Load block of bytes from file into external buffer
+        ret     z                               ; EOF reached...
+        exx
+        push    ix
+        pop     bc
+        exx
+        call    GetUVhandle
+        call    BlowMem                         ; Blow buffer of BC' length to UV Eprom at (BHL)
+        jr      c,MarkDeleted                   ; exit saving, File was not blown properly (try to mark it as deleted)...
+        jr      save_uv_file_loop
 
 
 ; **************************************************************************
@@ -346,9 +363,7 @@
 ;
 .MarkDeleted
         push    af
-        ld      l,(iy + FileEntry)
-        ld      h,(iy + FileEntry+1)
-        ld      b,(iy + FileEntry+2)            ; return pointer to new File Entry...
+        call    GetFileEntry                    ; BHL <- (IY + FileEntry)
         call    FileEprDeleteFile               ; mark entry as deleted
         pop     af
         ret
@@ -411,4 +426,25 @@
         ld      b,(iy + Fhandle+1)
         push    bc
         pop     ix                              ; get file handle of open file
+        ret
+
+; *****************************************************************************
+; IX <- (IY + UvHandle)
+;
+.GetUVhandle
+        push    bc
+        ld      c,(iy + UvHandle)
+        ld      b,(iy + UvHandle+1)             ; get UV Eprom programming handle for this UV Eprom
+        push    bc
+        pop     ix
+        pop     bc
+        ret
+
+; *****************************************************************************
+; BHL <- (IY + FileEntry)
+;
+.GetFileEntry
+        ld      l,(iy + FileEntry)
+        ld      h,(iy + FileEntry+1)
+        ld      b,(iy + FileEntry+2)            ; get File Entry pointer
         ret
