@@ -431,8 +431,7 @@
 .sv_6
         push    de
         push    hl                              ; remember BHL
-        ld      a, b                            ; !! push bc
-        push    af
+        push    bc
         ld      bc, 64                          ; read 64 bytes into stack buffer
         ld      hl, 0
         push    ix

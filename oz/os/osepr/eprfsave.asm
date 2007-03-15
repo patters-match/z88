@@ -27,15 +27,13 @@
 
         lib OZSlotPoll, SetBlinkScreen
 
-        xref FlashEprCardId, FileEprDeleteFile, FlashEprWriteBlock
-        xref FileEprFreeSpace
-        xref FileEprNewFileEntry
+        xref FlashEprCardId, FlashEprWriteBlock
+        xref FileEprFreeSpace, FileEprDeleteFile, FileEprNewFileEntry, GetUvProgMode
         xref SetBlinkScreenOn
 
         include "error.def"
         include "fileio.def"
         include "memory.def"
-
 
         defc SizeOfWorkSpace = 256         ; size of Workspace on stack, IY points at base...
 
@@ -44,6 +42,8 @@
              IObuffer  ds.w 1              ; Pointer to I/O buffer
              IObufSize ds.w 1              ; Size of I/O buffer
              Fhandle   ds.w 1              ; Handle of openend file
+             CardType  ds.b 1              ; card/chip type (FE_28F, Fe_29F or 0 for UV Eprom)
+             UvHandle  ds.w 1              ; Handle for UV Eprom programming settings
              FileEntry ds.p 1              ; pointer to File Entry
              CardSlot  ds.b 1              ; slot number of File Eprom Card
              Heap                          ; Internal Workspace
@@ -51,7 +51,6 @@
 
 
 ; **************************************************************************
-;
 ; Standard Z88 File Eprom Format.
 ;
 ; Save RAM file to Flash Memory or UV Eprom file area in slot C.
@@ -86,15 +85,15 @@
 ; user that an INTEL Flash Memory Card requires the Z88 slot 3 hardware, so
 ; this type of unnecessary error can be avoided.
 ;
-; Equally, the application should evaluate that saving to a file are on an 
+; Equally, the application should evaluate that saving to a file are on an
 ; UV Eprom only can be performed in slot 3. This routine will report failure
 ; if saving a file to slots 0, 1 or 2.
 ;
 ; IN:
 ;          C = slot number (0, 1, 2 or 3)
 ;         IX = size of I/O buffer.
-;         DE = pointer to I/O buffer, in segment 0.
-;         HL = pointer to filename string (null-terminated), in segment 0.
+;         DE = pointer to I/O buffer, in segment 0/1.
+;         HL = pointer to filename string (null-terminated), in segment 0/1.
 ;              Filename may contain wildcards (to find first match)
 ; OUT:
 ;         Fc = 0, File successfully saved to Flash File Eprom.
@@ -127,7 +126,6 @@
         push    ix                              ; preserve IX
         push    de
         push    bc                              ; preserve CDE
-
 
 .process_file
         push    iy                              ; preserve original IY
@@ -198,7 +196,25 @@
         push    hl
         push    bc
 
+        push    ix
+        pop     bc
+        ld      (iy + Fhandle),c
+        ld      (iy + Fhandle+1),b              ; preserve IX handle of open file
+
         ld      c,(iy + CardSlot)               ; scan File Eprom in slot X for free space
+        call    FlashEprCardId
+        jr      nc, get_freespace
+        ld      a,3                             ; Flash card not found in slot C...
+        cp      c
+        jr      nz, get_freespace               ; and we're not in slot 3 (saving file will fail...)
+        call    GetUvProgMode                   ; IX = handle to UV Eprom programming settings in slot 3
+        push    ix
+        pop     hl
+        ld      (iy + UvHandle),l
+        ld      (iy + UvHandle+1),h             ; preserve UV Eprom programming handle
+        xor     a                               ; identify UV Eprom as Card type 0
+.get_freespace
+        ld      (IY + CardType),A               ; preserve card type of chip in slot C
         call    FileEprFreeSpace                ; returned in DEBC (Fc = 0, Eprom available...)
 
         ld      h,b
@@ -214,21 +230,12 @@
         call    OZSlotPoll                      ; is OZ running in slot C?
         call    nz,SetBlinkScreen               ; yes, saving file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
 
-        push    ix
-        pop     bc
-        ld      (iy + Fhandle),c
-        ld      (iy + Fhandle+1),b              ; preserve file handle
-
         pop     hl                              ; ptr. to File Entry
-        call    SaveToFlashEpr                  ; Now, blow file to Flash Eprom...
-
-        call    SetBlinkScreenOn                ; always turn on screen after save file operation
+        call    BlowFileEntry                   ; Now, blow file to Flash or UV Eprom...
+        call    SetBlinkScreenOn                ; then always turn on screen after save file operation
 
         push    af                              ; preserve error status...
-        ld      c,(iy + Fhandle)
-        ld      b,(iy + Fhandle+1)
-        push    bc
-        pop     ix                              ; get file handle of open file
+        call    GetFhandle                      ; get file handle of open file
         oz      Gn_Cl                           ; close file
         pop     af
 
@@ -247,7 +254,6 @@
         pop     de
         pop     ix
         ret
-
 .no_room
         pop     hl                              ; remove redundant pointer to File Entry in buffer...
         oz      Gn_Cl                           ; close file (not going to be saved...)
@@ -257,11 +263,10 @@
 
 
 ; **************************************************************************
-;
 ; IN:
 ;    HL = pointer to File Entry
 ;
-.SaveToFlashEpr
+.BlowFileEntry
         push    hl
         ld      c,(iy + CardSlot)
         call    FileEprNewFileEntry             ; BHL = ptr. to free file space on File Eprom Card
@@ -269,22 +274,33 @@
         ld      (iy + FileEntry+1),h
         ld      (iy + FileEntry+2),b            ; preserve pointer to new File Entry
         pop     de
-        call    SaveFileEntry
-        ret     c                               ; saving of File Entry failed...
-.save_file_loop                                          ; A = chip type to blow data
+        ld      a,(de)                          ; length of filename
+        add     a,4+1                           ; total size = length of filename + 1 (file length byte)
+        ld      c,a                             ;                                 + 4 (32bit file length)
+
+        xor     a
+        or      (iy + CardType)
+        jr      z, save_uvfile                  ; card type indicates that file is to be blown on UV Eprom...
+
+        call    SaveFlashFileEntry              ; Blow File Entry Header to Flash
+        ret     c                               ; saving of File Entry header failed...
+.save_flash_file_loop                           ; A = chip type to blow data
         call    LoadBuffer                      ; Load block of bytes from file into external buffer
         ret     z                               ; EOF reached...
 
         call    FlashEprWriteBlock              ; blow buffer to Flash Eprom at BHL...
         jr      c,MarkDeleted                   ; exit saving, File was not blown properly (try to mark it as deleted)...
-        jr      save_file_loop
+        jr      save_flash_file_loop
+
+.save_uvfile
+        ret
 
 
 ; **************************************************************************
-;
-; Save File Entry to Flash File Eprom at BHL
+; Save File Entry to File Area in Flash card at BHL
 ;
 ; IN:
+;    C = length of file entry header
 ;    DE = (local) pointer to File Entry
 ;    BHL = pointer to free space on File Eprom
 ;
@@ -300,16 +316,13 @@
 ;    ....DE../IXIY same
 ;    AFBC..HL/.... different
 ;
-.SaveFileEntry
+.SaveFlashFileEntry
         push    bc
-        ld      a,(de)                          ; length of filename
-        add     a,4+1                           ; total size = length of filename + 1 (file length byte)
-        ld      b,0                             ;              + 4 (32bit file length)
-        ld      c,a
+        ld      b,0
         push    bc                              ; DE = ptr. to File Entry
-        pop     ix                              ; length of File Entry in IY
+        pop     ix                              ; length of File Entry in IX
         pop     bc                              ; BHL = pointer to free space on Eprom
-        ld      c, 0                            ; flash chip type to be detected dynamically...
+        ld      c,(IY + CardType)               ; flash chip card type...
         res     7,h
         set     6,h                             ; use segment 1 to blow bytes...
         call    FlashEprWriteBlock              ; blow File Entry to Flash Eprom
@@ -319,7 +332,6 @@
 
 
 ; **************************************************************************
-;
 ; Mark File Entry as deleted, if possible
 ;
 ; IN:
@@ -343,7 +355,6 @@
 
 
 ; *****************************************************************************
-;
 ; Load a chunk from the file into buffer of <BufferSize> bytes
 ;
 ; IN:
@@ -365,10 +376,7 @@
         push    af
         push    hl
 
-        ld      c,(iy + Fhandle)
-        ld      b,(iy + Fhandle+1)
-        push    bc
-        pop     ix                              ; get file handle of open file
+        call    GetFhandle                      ; get IX file handle of open file
         ld      a,FA_EOF
         ld      de,0
         oz      Os_Frm
@@ -393,4 +401,14 @@
         pop     bc
         ld      a,b                             ; restore original A
         pop     bc
+        ret
+
+; *****************************************************************************
+; IX <- (IY + Fhandle)
+;
+.GetFhandle
+        ld      c,(iy + Fhandle)
+        ld      b,(iy + Fhandle+1)
+        push    bc
+        pop     ix                              ; get file handle of open file
         ret
