@@ -214,9 +214,7 @@
                     CALL_OZ(Gn_Cl)                ; close file
                     POP  AF
 
-                    LD   L,(IY + FileEntry)
-                    LD   H,(IY + FileEntry+1)
-                    LD   B,(IY + FileEntry+2)     ; return pointer to new File Entry...
+                    CALL GetFileEntry             ; return pointer to new File Entry...
 .end_filesave
                     EXX
                     POP  HL
@@ -319,9 +317,7 @@
 ;
 .MarkDeleted
                     PUSH AF
-                    LD   L,(IY + FileEntry)
-                    LD   H,(IY + FileEntry+1)
-                    LD   B,(IY + FileEntry+2)     ; return pointer to new File Entry...
+                    CALL GetFileEntry             ; return pointer to old File Entry...
                     CALL FlashEprFileDelete       ; mark entry as deleted
                     POP  AF
                     RET
@@ -385,4 +381,13 @@
                     LD   B,(IY + Fhandle+1)
                     PUSH BC
                     POP  IX
+                    RET
+
+; *****************************************************************************
+; BHL <- (IY + FileEntry)
+;
+.GetFileEntry
+                    LD   L,(IY + FileEntry)
+                    LD   H,(IY + FileEntry+1)
+                    LD   B,(IY + FileEntry+2)     ; get File Entry pointer
                     RET
