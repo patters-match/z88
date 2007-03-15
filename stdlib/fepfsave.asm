@@ -117,7 +117,6 @@
                     PUSH DE
                     PUSH BC                       ; preserve CDE
 
-
 .process_file       PUSH IY                       ; preserve original IY
                     EXX                           ; use alternate registers temporarily
                     LD   HL,0
@@ -211,10 +210,7 @@
                     CALL SetBlinkScreenOn         ; always turn on screen after save file operation
 
                     PUSH AF                       ; preserve error status...
-                    LD   C,(IY + Fhandle)
-                    LD   B,(IY + Fhandle+1)
-                    PUSH BC
-                    POP  IX                       ; get file handle of open file
+                    CALL GetFhandle               ; get file handle of open file
                     CALL_OZ(Gn_Cl)                ; close file
                     POP  AF
 
@@ -354,10 +350,7 @@
                     PUSH AF
                     PUSH HL
 
-                    LD   C,(IY + Fhandle)
-                    LD   B,(IY + Fhandle+1)
-                    PUSH BC
-                    POP  IX                       ; get file handle of open file
+                    CALL GetFhandle               ; get file handle of open file
                     LD   A,FA_EOF
                     LD   DE,0
                     CALL_OZ (Os_Frm)
@@ -382,4 +375,14 @@
                     POP  BC
                     LD   A,B                      ; restore original A
                     POP  BC
+                    RET
+
+; *****************************************************************************
+; IX <- (IY + Fhandle)
+;
+.GetFhandle
+                    LD   C,(IY + Fhandle)
+                    LD   B,(IY + Fhandle+1)
+                    PUSH BC
+                    POP  IX
                     RET
