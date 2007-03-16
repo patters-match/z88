@@ -64,6 +64,7 @@
         xref FileEprFileImage                   ; osepr/eprfimage.asm
         xref FileEprSaveRamFile                 ; osepr/eprfsave.asm
         xref FileEprDeleteFile                  ; osepr/eprfdel.asm
+        xref FlashEprFileFormat                 ; osfep/fepflfmt.asm
 
         xdef OSEpr
         xdef GetSlotNo
@@ -321,7 +322,9 @@
         call    IsEPROM
         jr      nc, found_fepr                  ; File EPROM identified
 
+        push    hl                              ; (preserve filename pointer while formatting header)
         call    FormatCard                      ; no File header found, try to create file header in slot 3
+        pop     hl
         jp      c, sv_11                        ; error? exit
         jr      check_fepr
 .found_fepr
@@ -348,13 +351,13 @@
 
         ld      c,3                             ; blow file to slot 3
         push    ix
-        pop     hl                              ; pointer to RAM filename to blow to file area)
+        pop     hl                              ; pointer to RAM filename (to blow to file area)
         push    iy
         pop     de                              ; pointer to base of I/O buffer
         ld      ix,256                          ; size of I/O buffer
         call    FileEprSaveRamFile
 
-        pop     hl                              ; get old file entry (if prev. found)
+        pop     hl                              ; get old file entry (if previously found)
         pop     bc
         pop     de
         jr      c, sv_10                        ; error writing new file?
@@ -482,13 +485,13 @@
 ;    ......../IX.. different
 ;
 .GetUvProgMode
+        call    IsEPROM                         ; poll for file area in slot 3
+        ret     c                               ; no "oz" header found
+        jr      nz, ise_5                       ; no header found but BHL points to potential header
+
         push    hl
         push    de
         push    bc
-
-        call    IsEPROM                         ; poll for file area in slot 3
-        jr      c, exit_GetUvProgMode           ; no "oz" header found
-        jr      nz, ise_5                       ; no header found but BHL points to potential header
 
         ld      de, 7                           ; each entry is 7 bytes...
         ld      ix, UvEpromTypes                ; find subtype in programming table
@@ -520,13 +523,21 @@
 .FormatCard
         ld      c,3
         call    FileEprRequest                  ; poll for potential file area in slot 3
-        ret     c                               ; file header is not possible to be created in slot 3
+        ret     z                               ; "oz" file header was found, no need to format anything...
 
-        ld      hl, $3FFD                       ; point at sub type byte in potential header
+        call    FlashEprFileFormat              ; first try to format a file area, assuming a flash card is inserted in slot 3
+        ret     nc                              ; flash card formatted with an "oz" file header!
+
+        ld      c,3
+        call    FileEprRequest                  ; poll for potential file area in slot 3
+        jr      nc, create_uv_hdr               ; create a sub file area (below application area)
+        ld      b,$ff                           ; card is empty, create file header at top of card
+.create_uv_hdr
+        ld      hl, $3FFD                       ; point at sub type byte in potential header (B points at bank)
         ld      ix, UvEpromTypes
-        call    IdentifyCardType                ; !! doesn't return B
+        call    IdentifyCardType                ; try to blow bytes to UV Eprom to identify type
         ret     c
-        ld      e, a                            ; remember type
+        ld      e, a                            ; a byte was blown successfully to UV Eprom, remember returned type
 
         ld      a, b                            ; find out card size
         sub     $C0                             ; !! as B is still $FF much of this is unnecessary
@@ -628,7 +639,7 @@
 ; Identify empty UV EPROM by trying to blow the sub type of the File Area header.
 ;
 ;IN:    BHL=test address ($FF:3FFD, subtype)
-;       IX = handle to UV Eprom programming setings
+;       IX = handle to UV Eprom programming settings
 ;OUT:   Fc=0, A=type, IX = handle to UV EProm programming settings
 ;       Fc=1, A=error if fail
 ;chg:   AF....../IX..

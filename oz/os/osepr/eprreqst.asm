@@ -165,7 +165,6 @@
                                                 ; B = app card banks, C = total size of card in banks
         ld      e,c                             ; preserve card size in E
         ld      c,d                             ; C = slot number
-
         call    DefHeaderPosition               ; locate and validate File Eprom Header
         jr      c, no_filespace                 ; whole card used for Applications...
         pop     hl                              ; old DE

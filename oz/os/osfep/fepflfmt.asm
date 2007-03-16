@@ -106,8 +106,12 @@
 ; OUT:
 ;    Success:
 ;         Fc = 0,
-;         BHL = absolute pointer to "oz" header in card
-;         C = Number of 16K banks of File Eprom Area
+;              BHL = pointer to File Header for slot C (B = absolute bank of slot).
+;                    (or pointer to free space in potential new File Area).
+;                C = size of File Eprom Area in 16K banks
+;              Fz = 1, File Header available
+;                   A = "oz" File Eprom sub type
+;                   D = size of card in 16K banks (0 - 64)
 ;
 ;         All sectors erased and a new header blown.
 ;
@@ -121,18 +125,15 @@
 ;             A = RC_VPL (Vpp Low Error)
 ;
 ; Registers changed after return:
-;    ....DE../IXIY same
-;    AFBC..HL/.... different
+;    ......../IXIY same
+;    AFBCDEHL/.... different
 ;
 ; --------------------------------------------------------------------------------------------------
 ; Design & programming by Gunther Strube,
-;       Dec 1997-Apr 1998, Aug 2004, July 2005, July 2006, Aug-Oct,Nov 2006
+;       Dec 1997-Apr 1998, Aug 2004, July 2005, July 2006, Aug-Oct-Nov 2006, Mar 2007
 ; --------------------------------------------------------------------------------------------------
 ;
 .FlashEprFileFormat
-        push    de
-        push    bc
-        push    hl
         call    FlashEprCardId
         jr      c, format_error
 
@@ -151,19 +152,11 @@
         jr      c,format_error
         call    SaveNullFile                    ; blow a NULL file (6 bytes long), but only on Intel Flash Cards...
         jr      c,format_error                  ; NULL file wasn't created!
-.exit_feformat
         call    SetBlinkScreenOn                ; always turn on screen after format operation
-        ld      hl,$3FC0                        ; BHL = absolute pointer to "oz" header in slot
-        cp      a                               ; Fc = 0, C = Number of 16K banks of File Area
-        pop     de                              ; ignore old HL
-        pop     de                              ; ignore old BC
-        pop     de                              ; original DE restored
-        ret
+        call    GetSlotNo                       ; get slot number in C from bank B
+        jp      FileEprRequest                  ; return "oz" header information
 .format_error
         call    SetBlinkScreenOn
-        pop     hl
-        pop     bc
-        pop     de
         ret
 ; when no file area was found, we format the complete card as a file area
 .no_filearea
