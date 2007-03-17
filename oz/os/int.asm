@@ -94,7 +94,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         bit     BB_TACKTICK, a
         jr      z, int_RTCS                     ; no TICK? skip
 
-;       TICK handles beeper, updates smaal timer and does keyboard scan
+;       TICK handles beeper, updates small timer and does keyboard scan
 
         ld      a, BM_TACKTICK
         out     (BL_TACK), a                    ; ack TICK

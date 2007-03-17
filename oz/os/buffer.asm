@@ -105,222 +105,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 
 
 ; ---------------------------------------------------------------------------------------------
-; Check if there's data in buffer
-;
-;IN:    IX = buffer
-;       HL = ubIntTaskToDo
-;OUT:   Fc=0 if data is ready
-;       Fc=1 if buffer is empty or there's pending escape condition
-;
-;chg:   AF
-
-.BfCheck
-        call    OZ_DI
-        ex      af, af'
-        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
-        scf
-        jr      nz, bfchk_1
-        ld      a, (ix+buf_wrpos)               ; this is *NOT* necessarily #data bytes,
-        sub     (ix+buf_rdpos)                  ; buffer wrap isn't handled
-        cp      1                               ; Fc=1 if buffer empty
-.bfchk_1
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
-        ret
-
-
-; ---------------------------------------------------------------------------------------------
-; Get byte with timeout
-;
-;IN:    BC = timeout, $FFFF for default
-;       IX = buffer
-;OUT:   Fc=0, A=data, BC=remaining time if success
-;       Fc=1, A=error if fail
-;chg:   AFBC..HL/....
-
-.BfGbt
-        call    OZ_DI
-        push    af
-        ei
-        push    de
-
-        ld      de, 0
-        ld      hl, ubIntTaskToDo
-        ld      (uwSmallTimer), de              ; zero timer, then disable it, then write new value
-        res     ITSK_B_TIMER, (hl)
-        ld      (uwSmallTimer), bc
-
-        call    BfCheck
-        jr      nc, bfgbt_get                   ; if there's data we can exit right away
-
-        bit     ITSK_B_PREEMPTION, (hl)
-        jr      nz, bfgbt_susp0                 ; pre-empted? exit
-        bit     ITSK_B_ESC, (hl)
-        jr      nz, bfgbt_esc                   ; ESC pending? exit
-
-        ld      a, b                            ; wait if timeout not 0
-        or      c
-        jr      nz, bfgbt_9
-
-.bfgbt_to
-        ld      a, RC_Time
-.bfgbt_err
-        scf
-        jr      bfgbt_x
-
-.bfgbt_get
-        call    BufRead
-        jr      c, bfgbt_9                      ; error, wait for more
-
-.bfgbt_x
-;        push    hl                              ; save BfSta for other routines
-        ld      hl, ubIntTaskToDo
-        res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
-;        pop     hl
-        pop     de
-        ex      af, af'
-        pop     af
-        call    OZ_EI
-        ex      af, af'
-        ld      bc, (uwSmallTimer)
-        ret
-
-.bfgbt_esc
-        ld      a, RC_Esc
-        jr      bfgbt_err
-
-.bfgbt_susp0
-        res     ITSK_B_PREEMPTION, (hl)         ; cancel buffer task
-
-.bfgbt_susp
-        ld      a, RC_Susp
-        jr      bfgbt_err
-
-.bfgbt_8
-        res     ITSK_B_BUFFER, (hl)             ; if there's data in buffer go and get it
-        call    BfCheck
-        jr      nc, bfgbt_get
-
-.bfgbt_9
-        call    OSWaitMain                      ; wait for data
-
-        bit     ITSK_B_PREEMPTION, a
-        jr      nz, bfgbt_susp0                 ; pre-empted? cancel buffer task and exit
-        bit     ITSK_B_ESC, a
-        jr      nz, bfgbt_esc                   ; ESC pending? exit
-        bit     ITSK_B_BUFFER, a
-        jr      nz, bfgbt_8                     ; buffer job?  check for data
-        bit     ITSK_B_TIMER, a
-        jr      nz, bfgbt_to                    ; timeout? exit
-        jr      bfgbt_susp                      ; otherwise exit with pre-emption
-
-
-; ---------------------------------------------------------------------------------------------
-; Check if buffer has room for one more byte
-;
-;IN:    IX = buffer
-;OUT:   Fc=0, A=free space if room
-;       Fc=1, A=0 if buffer full
-;chg:   AF....HL/....
-
-.BufHasRoom
-        call    OZ_DI
-        ex      af, af'
-        call    BfSta4I
-        ld      a, l
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
-        cp      1                               ; Fc=1 if buffer full
-        ret
-
-
-; ---------------------------------------------------------------------------------------------
-; Put byte with timeout
-;
-;IN:    IX = buffer
-;       A  = data
-;       BC = timeout
-;OUT:   Fc=0, BC=remaining time if success
-;       Fc=1, A=error if fail
-;cfg:   AFBC
-
-.BfPbt
-        ex      af, af'
-        call    OZ_DI
-        push    af
-        ei
-        ex      af, af'
-        push    de
-        push    af                              ; save data
-
-        ld      de, 0                           ; reset timer, disable it, then set new value
-        ld      hl, ubIntTaskToDo
-        ld      (uwSmallTimer), de
-        res     ITSK_B_TIMER, (hl)
-        ld      (uwSmallTimer), bc
-
-        call    BufHasRoom
-        jr      nc, bfpbt_put                   ; there's room, just put byte
-
-        ld      hl, ubIntTaskToDo
-        bit     ITSK_B_PREEMPTION, (hl)
-        jr      nz, bfpbt_susp0                 ; pre-empted? cancel buffer task and exit
-        bit     ITSK_B_ESC, (hl)
-        jr      nz, bfpbt_esc                   ; ESC pending? exit
-
-        ld      a, b                            ; if timeout not zero go wait
-        or      c
-        jr      nz, bfpbt_9
-
-.bfpbt_to
-        ld      a, RC_Time
-.bfpbt_err
-        scf
-        jr      bfpbt_x
-
-.bfpbt_put
-        pop     af                              ; write data into buffer
-        push    af
-        call    BufWrite
-        jr      c, bfpbt_9                      ; error? wait more
-
-.bfpbt_x
-        pop     de                              ; get rid of data in stack
-        jp      bfgbt_x                         ; exit thru BfGbt code
-
-.bfpbt_esc
-        ld      a, RC_Esc
-        jr      bfpbt_err
-
-.bfpbt_susp0
-        res     ITSK_B_PREEMPTION, (hl)         ; cancel buffer task
-
-.bfpbt_susp
-        ld      a, RC_Susp
-        jr      bfpbt_err
-
-.bfpbt_8
-        res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
-        call    BufHasRoom
-        jr      nc, bfpbt_put                   ; try to put data if room in buffer
-
-.bfpbt_9
-        call    OSWaitMain                      ; wait for buffer task
-
-        bit     ITSK_B_PREEMPTION, a
-        jr      nz, bfpbt_susp0                 ; pre-emped? exit
-        bit     ITSK_B_ESC, a
-        jr      nz, bfpbt_esc                   ; ESC pending? exit
-        bit     ITSK_B_BUFFER, a
-        jr      nz, bfpbt_8                     ; buffer task? try to put byte
-        bit     ITSK_B_TIMER, a
-        jr      nz, bfpbt_to                    ; timeout? exit
-        jr      bfpbt_susp                      ; otherwise exit with pre-emption
-
-
-; ---------------------------------------------------------------------------------------------
 ; Write byte to buffer
 ;
 ;IN :   IX = buffer
@@ -345,6 +129,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         ld      l,a
         inc     a
         and     (ix+buf_mask)
+        or      (ix+buf_length)
         cp      (ix+buf_rdpos)
         jr      z, eof_ret
         ld      h, (ix+buf_page)
@@ -390,14 +175,166 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         
         inc     a
         and     (ix+buf_mask)
+        or      (ix+buf_length)
         ld      (ix+buf_rdpos), a
         
         ld      hl, ubIntTaskToDo
-        res     ITSK_B_BUFFER, (hl)             ; data have been read
+        set     ITSK_B_BUFFER, (hl)             ; data have been read
         
         ld      a, c
         or      a
         ret
+
+
+; ---------------------------------------------------------------------------------------------
+; Put byte with timeout
+;
+;IN:    IX = buffer
+;       A  = data
+;       BC = timeout
+;OUT:   Fc=0, BC=remaining time if success
+;       Fc=1, A=error if fail
+;CHG:   AFBCDEHL/....
+
+.BfPbt
+        ex      af, af'
+        call    OZ_DI                           ; save int status
+        push    af
+        ei                                      ; force int enabled
+        ex      af, af'
+
+        push    af                              ; save byte to put
+        
+        ld      hl, ubIntTaskToDo
+        res     ITSK_B_TIMER, (hl)
+        ld      (uwSmallTimer), bc
+        bit     ITSK_B_PREEMPTION, (hl)
+        jr      nz, bfpbt_susp0                 ; pre-empted? ack susp and exit
+        bit     ITSK_B_ESC, (hl)
+        jr      nz, bfpbt_esc                   ; ESC pending? exit
+
+.bfpbt_put
+        call    BufWrite
+        jr      c, bfpbt_wait                   ; RC_Eof, buffer full, wait
+
+.bfpbt_x
+        ex      af, af'
+        pop     af                              ; was af on entry
+        pop     af                              ; previous int status
+        call    OZ_EI
+        ex      af, af'
+        ld      bc, (uwSmallTimer)
+        ret
+
+.bfpbt_to
+        ld      a, RC_Time
+.bfpbt_err
+        scf
+        jr      bfpbt_x
+
+.bfpbt_esc
+        ld      a, RC_Esc
+        jr      bfpbt_err
+
+.bfpbt_susp0
+        res     ITSK_B_PREEMPTION, (hl)         ; ack preemption
+
+.bfpbt_susp
+        ld      a, RC_Susp
+        jr      bfpbt_err
+
+.bfpbt_again
+;        res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
+        pop     af                              ; restore byte to put
+        push    af
+        jr      bfpbt_put                       ; try to put data if room in buffer
+
+.bfpbt_wait
+;        ld      bc, (uwSmallTimer)
+;        ld      a, b
+;        or      c
+;        jr      z, bfpbt_to
+
+        call    OSWaitMain                      ; wait for buffer task
+
+        bit     ITSK_B_PREEMPTION, a
+        jr      nz, bfpbt_susp0                 ; pre-emped? exit
+        bit     ITSK_B_ESC, a
+        jr      nz, bfpbt_esc                   ; ESC pending? exit
+        bit     ITSK_B_BUFFER, a
+        jr      nz, bfpbt_again                  ; (was NZ) buffer task? try to put byte
+        bit     ITSK_B_TIMER, a
+        jr      nz, bfpbt_to                    ; timeout? exit
+        jr      bfpbt_susp                      ; otherwise exit with pre-emption
+
+
+; ---------------------------------------------------------------------------------------------
+; Get byte with timeout
+;
+;IN:    BC = timeout, $FFFF for default
+;       IX = buffer
+;OUT:   Fc=0, A=data, BC=remaining time if success
+;       Fc=1, A=error if fail
+;CHG:   AFBCDEHL/....
+
+.BfGbt
+        call    OZ_DI                           ; save int status
+        push    af
+        ei                                      ; force int enabled
+        
+        ld      hl, ubIntTaskToDo
+        res     ITSK_B_TIMER, (hl)              ; 
+        ld      (uwSmallTimer), bc
+        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
+        jr      nz, bfgbt_esc
+        bit     ITSK_B_PREEMPTION, (hl)
+        jr      nz, bfgbt_susp0                 ; pre-empted? exit
+.bfgbt_get
+        call    BufRead
+        jr      c, bfgbt_wait                   ; RC_Eof, buffer is empty, wait
+
+.bfgbt_x
+        ex      af, af'                         ; preserve af
+        pop     af
+        call    OZ_EI
+        ex      af, af'
+        ld      bc, (uwSmallTimer)
+        ret
+
+.bfgbt_to
+        ld      a, RC_Time
+.bfgbt_err
+        scf
+        jr      bfgbt_x
+
+.bfgbt_esc
+        ld      a, RC_Esc
+        jr      bfgbt_err
+
+.bfgbt_susp0
+        res     ITSK_B_PREEMPTION, (hl)         ; acknowledge preemption
+
+.bfgbt_susp
+        ld      a, RC_Susp
+        jr      bfgbt_err
+
+.bfgbt_wait
+;        ld      bc, (uwSmallTimer)
+;        ld      a, b
+;        or      c
+;        jr      z, bfgbt_to
+
+        call    OSWaitMain                      ; wait for data
+
+        bit     ITSK_B_PREEMPTION, a
+        jr      nz, bfgbt_susp0                 ; pre-empted? cancel buffer task and exit
+        bit     ITSK_B_ESC, a
+        jr      nz, bfgbt_esc                   ; ESC pending? exit
+        bit     ITSK_B_BUFFER, a
+        jr      nz, bfgbt_get                   ; buffer job?  check for data
+        bit     ITSK_B_TIMER, a
+        jr      nz, bfgbt_to                    ; timeout? exit
+        jr      bfgbt_susp                      ; otherwise exit with pre-emption
 
 
 ; ---------------------------------------------------------------------------------------------
