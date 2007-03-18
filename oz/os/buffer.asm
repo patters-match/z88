@@ -71,16 +71,13 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 
 .BfSta4I                                        ; for use in interruption
         push    af
-        ld      l, (ix+buf_length)              ; lenght
         ld      a, (ix+buf_wrpos)
         sub     (ix+buf_rdpos)
         jr      nc, sta_no_wrap                 ; handle buffer wrap
-        add     a, l
+        cpl
 .sta_no_wrap        
         ld      h, a                            ; used = wrpos - rdpos
-        ld      a, l                            ; free=bufsize-used-1
-        sub     h
-        dec     a
+        cpl                                     ; free=bufsize-used-1
         ld      l, a
         pop     af
         ret
@@ -123,25 +120,21 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         ex      af, af'
         ret
 
-.BufWrite4I                                     ; 4I = for interruption routine (respect DI state)
-        ld      c,a
+.BufWrite4I
+        ld      h,a
         ld      a,(ix+buf_wrpos)
         ld      l,a
         inc     a
-        and     (ix+buf_mask)
-        or      (ix+buf_length)
         cp      (ix+buf_rdpos)
         jr      z, eof_ret
+        ld      a, h
         ld      h, (ix+buf_page)
-        ld      (hl), c
-        ld      (ix+buf_wrpos), a
+        ld      (hl), a
+        inc     (ix+buf_wrpos)
         or      a                               ; reset Fc
-        
         ld      hl, ubIntTaskToDo
-        set     ITSK_B_BUFFER, (hl)             ; there is something
-
+        set     ITSK_B_BUFFER, (hl)             ; buffer task
         ret
-        
 .eof_ret        
         ld      a, RC_Eof
         scf
@@ -171,18 +164,11 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      z, eof_ret
         ld      h, (ix+buf_page)
         ld      l, a
-        ld      c, (hl)
-        
-        inc     a
-        and     (ix+buf_mask)
-        or      (ix+buf_length)
-        ld      (ix+buf_rdpos), a
-        
+        ld      a, (hl)
+        inc     (ix+buf_rdpos)
+        or      a                               ; reset Fc
         ld      hl, ubIntTaskToDo
-        set     ITSK_B_BUFFER, (hl)             ; data have been read
-        
-        ld      a, c
-        or      a
+        set     ITSK_B_BUFFER, (hl)             ; buffer task
         ret
 
 
@@ -244,7 +230,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      bfpbt_err
 
 .bfpbt_again
-;        res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
+        res     ITSK_B_BUFFER, (hl)             ; cancel buffer task
         pop     af                              ; restore byte to put
         push    af
         jr      bfpbt_put                       ; try to put data if room in buffer

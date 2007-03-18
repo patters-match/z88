@@ -271,7 +271,8 @@ defvars SV_HARDWARE_RAM
                                 ds.b    32
 
 ; Keyboard buffer:
-        KbdBuffer               ds.b    48
+;        KbdBuffer               ds.b    48
+                                ds.b    48
 
 ; Other blink port softcopies:
                                 ds.b    64
@@ -289,11 +290,12 @@ enddef
 defvars SV_STRUCT_RAM
 
 ; Handles:
-        Handles                 ds.b    16*96   ; HNDLEN * NUMHANDLE
+        Handles                 ds.b    16*64   ; HNDLEN * NUMHANDLE
 
 ; Serial interface buffers:
-        SerTXBuffer             ds.b    128
-        SerRXBuffer             ds.b    128
+        KbdBuffer               ds.b    256
+        SerTXBuffer             ds.b    256
+        SerRXBuffer             ds.b    256
 
 enddef
 

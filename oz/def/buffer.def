@@ -39,8 +39,8 @@ lstoff
 ; buffer data structure
 ; on negative side of the handle number
 defvars -5
-        buf_mask                ds.b    1       ; $FB
-        buf_length              ds.b    1       ; $FC
+        buf_mask                ds.b    1
+        buf_length              ds.b    1
         buf_page                ds.b    1       ; $FD
         buf_wrpos               ds.b    1       ; $FE
         buf_rdpos               ds.b    1       ; $FF
