@@ -20,7 +20,7 @@ Module FileAreaFormat
 
 ; This module contains functionality to format the file area on Flash Cards.
 
-     xdef FormatCommand, execute_format, FlashWriteSupport, CheckFlashCardID
+     xdef FormatCommand, execute_format, SlotWriteSupport, CheckFlashCardID
      xdef PollFileFormatSlots
      xdef noformat_msg
 
@@ -79,8 +79,10 @@ Module FileAreaFormat
                     CALL SelectFileArea           ; several file areas can be formatted, select one...
                     ret  c                        ; user aborted selection
                     call GetCurrentSlot           ; C = (curslot)
-                    CALL FlashWriteSupport
+                    CALL SlotWriteSupport
                     ret  c                        ; user selected a non-formattable file-area...
+                    ret  nz                       ; User cannot re-format an UV Eprom
+
                     LD   HL, ffm1_bnr
                     CALL DispMainWindow           ; redraw main catalogue window for format command interaction...
                     JR   execute_format
@@ -172,7 +174,7 @@ Module FileAreaFormat
                     ld   a,c
                     pop  bc
                     jr   c, check_empty_fep
-                         call FlashWriteSupport ; active or potential file area found, check if there's format support
+                         call SlotWriteSupport ; active or potential file area found, check if there's format support
                          jr   c, no_feprformat
 .found_feprformat        inc  e              ; Formatable Flash Card found in slot
                          pop  hl
@@ -181,7 +183,7 @@ Module FileAreaFormat
                          push hl
                          jr   next_feprslot
 .check_empty_fep
-                         call FlashWriteSupport
+                         call SlotWriteSupport
                          jr   c, no_feprformat
                          jr   nz, no_feprformat
                          ld   a,b            ; empty, formattable flash card has B banks available...
@@ -225,11 +227,15 @@ Module FileAreaFormat
 
 ; *************************************************************************************
 ;
-; Validate the Flash Card erase/write functionality in the specified slot.
-; If the Flash Card in the specified slot contains an Intel chip, the
-; slot must be 3 for format, save and delete functionality.
+; Validate the Flash Card/UV Eprom erase/write functionality in the specified slot.
+; If the Card in the specified slot contains an Intel chip, the slot must be 3 for format,
+; save and delete functionality.
+; If the Card in the specified slot contains an UV Eprom, the slot must be 3 for erasing,
+; saving files and creating file header.
 ; Report an error to the caller with Fc = 1, if an Intel Flash chip was recognized
 ; in all slots except 3.
+; Report an error if to the caller with Fc = 1, if an UV Eprom (with a file area) was
+; recognized in all slots except 3.
 ;
 ; (This routine is called by format, save & delete functionality in FlashStore)
 ;
@@ -245,16 +251,34 @@ Module FileAreaFormat
 ;    A..CDEHL/IXIY same
 ;    .FB...../.... different
 ;
-.FlashWriteSupport
+.SlotWriteSupport
                     push hl
                     push de
                     push bc
                     push af
                     call CheckFlashCardID
                     jr   nc, flashcard_found
+                    ld   a,EP_Req
+                    oz   OS_Epr
+                    jr   z, fa_epr_found
                     or   c                   ; Fz = 0, indicate no Flash Card available in slot
                     scf                      ; Fc = 1, indicate no erase/write support either...
                     jr   exit_chckflsupp
+.fa_epr_found                                ; File area found on UV Eprom in slot C
+                    pop  af
+                    pop  bc
+                    ld   a,c
+                    cp   3                   ; is UV Eprom in slot 3?
+                    jr   nz,no_uv_write
+                    or   c                   ; Fz = 0, indicate UV Eprom
+                    jr   exit_uv_epr         ; Fc = 0, write/erase files supported
+.no_uv_write
+                    or   c                   ; Fz = 0, indicate UV Eprom
+                    scf                      ; Fc = 1, no erase/write support
+.exit_uv_epr
+                    pop  de
+                    pop  hl
+                    ret
 .flashcard_found
                     ld   a,c
                     cp   3

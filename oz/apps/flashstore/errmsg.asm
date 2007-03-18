@@ -123,7 +123,7 @@ Module ErrorMessages
 
 
 ; *************************************************************************************
-; Fz & Fc flags are set according to FlashWriteSupport routine.
+; Fz & Fc flags are set according to SlotWriteSupport routine.
 ;
 .DispIntelSlotErr
                     push af

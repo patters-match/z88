@@ -49,7 +49,7 @@ Module CopyFiles
      xref disp16bitInt             ; fetchfile.asm
      xref DisplayFileSize          ; fetchfile.asm
      xref DispCompletedMsg         ; fetchfile.asm
-     xref FlashWriteSupport        ; format.asm
+     xref SlotWriteSupport        ; format.asm
      xref disp_exis_msg
 
      ; system definitions
@@ -141,7 +141,7 @@ Module CopyFiles
 .CheckDestSlotWriteSupport
                     ld   a,(dstslot)
                     ld   c,a
-                    call FlashWriteSupport
+                    call SlotWriteSupport
                     ret  nc
                     call GetCurrentSlot
                     push bc

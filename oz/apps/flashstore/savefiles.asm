@@ -32,7 +32,7 @@ Module SaveFiles
 
      xref InitFirstFileBar         ; browse.asm
      xref FilesAvailable           ; browse.asm
-     xref FlashWriteSupport        ; format.asm
+     xref SlotWriteSupport        ; format.asm
      xref PromptOverWrite          ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref no_active_files          ; restorefiles.asm
@@ -217,7 +217,7 @@ Module SaveFiles
                     RET
 .CheckFileArea
                     call GetCurrentSlot                ; C = (curslot)
-                    call FlashWriteSupport             ; check if Flash Card in current slot supports saveing files?
+                    call SlotWriteSupport             ; check if Flash Card in current slot supports saveing files?
                     jp   c,DispIntelSlotErr
                     jp   nz,DispIntelSlotErr
 

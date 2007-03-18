@@ -28,7 +28,7 @@ Module DeleteFile
      xref MoveToFirstFile, GetNextFilePtr         ; browse.asm
      xref DispErrMsg, disp_no_filearea_msg        ; errmsg.asm
      xref DispIntelSlotErr, no_files              ; errmsg.asm
-     xref FlashWriteSupport                       ; format.asm
+     xref SlotWriteSupport                       ; format.asm
      xref InputFileName, exct_msg                 ; fetchfile.asm
      xref fnam_msg                                ; savefiles.asm
      xref FileEpromStatistics                     ; filestat.asm
@@ -54,7 +54,7 @@ Module DeleteFile
                     call DispMainWindow
 
                     call GetCurrentSlot           ; C = (curslot)
-                    call FlashWriteSupport        ; check if Flash Card in current slot supports saveing files?
+                    call SlotWriteSupport        ; check if Flash Card in current slot supports saveing files?
                     jp   c,DispIntelSlotErr
                     ret
 ; *************************************************************************************

@@ -33,7 +33,7 @@ Module SelectCard
      XREF nogreyfont, notinyfont        ; fsapp.asm
      xref GetCurrentSlot, DispMainWindow; fsapp.asm
      XREF PollFileFormatSlots           ; format.asm
-     XREF FlashWriteSupport             ; format.asm
+     XREF SlotWriteSupport             ; format.asm
      XREF execute_format, noformat_msg  ; format.asm
      XREF CheckFlashCardID              ; format.asm
      XREF FileEpromStatistics           ; filestat.asm
@@ -78,7 +78,7 @@ Module SelectCard
                     call FilesAvailable
                     ret  nc                       ; file area found, let user select it...
                     call GetCurrentSlot           ; C = (curslot)
-                    call FlashWriteSupport        ; is this an empty flash card with write/format support?
+                    call SlotWriteSupport        ; is this an empty flash card with write/format support?
                     ret  c                        ; no flash write/format support for this slot.
                     jp   execute_format           ; prompt the user to format the flash card.
 .user_aborted
@@ -116,7 +116,7 @@ Module SelectCard
                     ld   (vdubufptr),hl      ; use 16K buffer for temporary VDU sequence caching
 
                     ld   c,a
-                    call FlashWriteSupport
+                    call SlotWriteSupport
                     jp   z, flashcard_detected
 .poll_for_ram_card
                     call RamDevFreeSpace
@@ -145,7 +145,12 @@ Module SelectCard
                     jr   c, poll_for_eprom_card
                          ld   hl, epromdev
                          ld   (free),bc           ; C = size of physical card
-                         ld   a,4                 ; display PadLock (FlashStore does not support write to Eprom)
+                         ld   a,(curslot)
+                         cp   3
+                         ld   a,4                 ; display PadLock (FlashStore only supports Eprom writing in slot 3)
+                         jr   nz,disp_rom_card
+                         xor  a
+.disp_rom_card
                          call DisplayCard         ; display size of card as defined by ROM header
                          dec  c
                          inc  b
@@ -180,7 +185,12 @@ Module SelectCard
                          ld   hl, epromdev        ; C = size of File Area in 16K banks (if Fz = 1)
                          ld   a,d                 ; D = size of card in 16K banks
                          ld   (free),a
-                         ld   a,4                 ; display PadLock (FlashStore does not support write to Eprom)
+                         ld   a,(curslot)
+                         cp   3
+                         ld   a,4                 ; display PadLock (FlashStore only supports Eprom writing in slot 3)
+                         jr   nz,disp_epr_card
+                         xor  a
+.disp_epr_card
                          call DisplayCard         ; display size of card as defined by ROM header
                          dec  c
                          inc  b
@@ -286,7 +296,7 @@ Module SelectCard
                     ret
 
 .check_empty_flcard
-                    call FlashWriteSupport
+                    call SlotWriteSupport
                     jr   nz, select_slot_loop     ; no Flash Card in slot...
                     jp   nc, execute_format       ; empty flash card in slot (no file area, and erase/write support)
 

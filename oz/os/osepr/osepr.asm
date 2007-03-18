@@ -106,7 +106,8 @@
         jp      ozFileEprNewFileEntry           ; 36, EP_New    (OZ 4.2 and newer)
         jp      ozFileEprSaveRamFile            ; 39, EP_SvFl   (OZ 4.2 and newer)
         jp      FileEprDeleteFile               ; 3c, EP_Delete (OZ 4.2 and newer)
-
+        jp      FormatCard                      ; 3f, EP_Format (OZ 4.2 and newer)
+        jp      ozBlowMem                       ; 42, EP_WrBlk  (OZ 4.2 and newer)
 
 
 
@@ -248,6 +249,39 @@
 
 
 ; ***************************************************************************************************
+; Blow block of data to UV Eprom in slot 3.
+;
+; IN:
+;       C = Blowing algorithm context (also known as File Area sub type)
+;       DE = source address (in segment 0/1)
+;       IX = length of block
+;       BHL = destination address in slot 3
+; OUT:
+;       Fc = 0 (block blown successfully to UV Eprom)
+;               BHL updated
+;       Fc = 1,
+;               A = RC_BWR (write error)
+;               A = RC_Onf (unknown blowing algorithm context)
+;
+; Registers changed after return:
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
+;
+.ozBlowMem
+        push    ix                              ; preserve IX
+        push    ix
+        exx
+        pop     bc
+        exx
+        ld      a,c
+        call    GetUvProgHandle
+        pop     ix
+        ret     c                               ; unknown blowing algorithm context
+        call    BlowMem
+        jr      ret_bhl_fz                      ; return updated BHL pointer (end of block +1) or error status
+
+
+; ***************************************************************************************************
 ; Get slot number C (embedded in Bank number B).
 ;
 ; In:
@@ -310,7 +344,8 @@
 ;OUT:   Fc=0, success
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/....
-
+;
+defc    IObuffer = 256
 .EprSave
         ld      b, 0
         push    ix
@@ -328,10 +363,14 @@
         jp      c, sv_11                        ; error? exit
         jr      check_fepr
 .found_fepr
-        exx                                     ; reserve 256 bytes from stack for I/O buffer
-        ld      hl, -256
+        exx
+        ld      hl, 0                           ; reserve 256 bytes from stack for I/O buffer
+        add     hl, sp
+        ex      de, hl                          ; current SP in DE...
+        ld      hl, -IObuffer
         add     hl, sp
         ld      sp, hl
+        push    de                              ; preserve old SP
         push    hl
         exx
         pop     iy                              ; IY points at base of buffer
@@ -344,7 +383,7 @@
 
         ex      de,hl
         ld      c,3                             ; EP_SAVE always in slot 3
-        call    FileEprFindFile                 ; find earlier version to delete
+        call    FileEprFindFile                 ; find earlier version (to be marked as deleted later)
         push    af                              ; and remember found status
         push    bc
         push    hl
@@ -354,7 +393,7 @@
         pop     hl                              ; pointer to RAM filename (to blow to file area)
         push    iy
         pop     de                              ; pointer to base of I/O buffer
-        ld      ix,256                          ; size of I/O buffer
+        ld      ix,IObuffer                     ; size of I/O buffer
         call    FileEprSaveRamFile
 
         pop     hl                              ; get old file entry (if previously found)
@@ -362,18 +401,14 @@
         pop     de
         jr      c, sv_10                        ; error writing new file?
 
-        push    de
-        pop     af
-        jr      nz, sv_10                       ; no earlier version? exit
+        bit     Z80F_B_Z,E
+        jr      z, sv_10                        ; no earlier version (Fz = 0)?
 
         call    FileEprDeleteFile               ; new version saved, mark old file entry as deleted (in BHL)
         or      a
 .sv_10
-        ex      af, af'
-        ld      hl, 256                         ; restore stack
-        add     hl, sp
-        ld      sp, hl
-        ex      af, af'
+        pop     hl
+        ld      sp, hl                          ; restore stack
 .sv_11
         pop     de                              ; restore S1/S2
         push    af
@@ -470,7 +505,8 @@
 
 
 ; ***************************************************************************************************
-; Get "handle" to UV Eprom programming mode settings for current UV Eprom in slot 3.
+; Get "handle" to UV Eprom programming mode settings for current UV Eprom, fetching
+; sub type from File Area in slot 3.
 ;
 ; In:
 ;         None
@@ -481,14 +517,35 @@
 ;               A = RC_Onf. Sub type not recognized for UV Eprom
 ;
 ; Registers changed after return:
-;    AFBCDEHL/..IY same
-;    ......../IX.. different
+;    ..BCDEHL/..IY same
+;    AF....../IX.. different
 ;
 .GetUvProgMode
         call    IsEPROM                         ; poll for file area in slot 3
         ret     c                               ; no "oz" header found
-        jr      nz, ise_5                       ; no header found but BHL points to potential header
+        jr      z, GetUvProgHandle              ; header found, A = sub type...
+        ld      a, RC_Onf
+        scf
+        ret
 
+
+; ***************************************************************************************************
+; Get "handle" to UV Eprom programming mode settings for current UV Eprom, by specifying
+; sub type ($7E, $7C or $7A).
+;
+; In:
+;         A = sub type
+; Out:
+;         Fc = 0,
+;               Success, return IX as "handle" (to point at UV programming) settings of sub type:
+;         Fc = 1,
+;               A = RC_Onf. Sub type not recognized for UV Eprom
+;
+; Registers changed after return:
+;    ..BCDEHL/..IY same
+;    AF....../IX.. different
+;
+.GetUvProgHandle
         push    hl
         push    de
         push    bc
@@ -499,7 +556,7 @@
         bit     0, (ix+0)
         jr      nz, ise_5                       ; end? unknown type
         cp      (ix+0)
-        jr      z, exit_GetUvProgMode           ; match? go on
+        jr      z, exit_GetUvProgMode           ; match?
         add     ix, de
         jr      ise_2
 .ise_5
@@ -513,13 +570,15 @@
 
 
 ; ***************************************************************************************************
-; Identify programming model for this UV Eprom card (in slot 3)
+; Create file area header in UV Eprom card (or Flash card, if available) in slot 3.
+; On UV Eprom, on the header is created - on Flash, the complete file area is formatted.
+; Use OS_Fep, FEP_FFMT to format a file area in slots 0-2.
 ;
 ; IN:   None.
-;OUT:   Fc=0, A=subtype, IX = handle to UV EProm programming settings for this card
+;OUT:   Fc=0, File Area formatted (either Flash or UV Eprom) in slot 3.
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/IX..
-
+;
 .FormatCard
         ld      c,3
         call    FileEprRequest                  ; poll for potential file area in slot 3

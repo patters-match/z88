@@ -69,7 +69,7 @@
      xref DispIntelSlotErr         ; errmsg.asm
      xref FormatCommand            ; format.asm
      xref execute_format           ; format.asm
-     xref FlashWriteSupport        ; format.asm
+     xref SlotWriteSupport        ; format.asm
      xref SaveFilesCommand         ; savefiles.asm
      xref fnam_msg, fsok_msg       ; savefiles.asm
      xref BackupRamCommand         ; savefiles.asm
@@ -394,7 +394,7 @@
 
 .InitFormatCommand
                     call GetCurrentSlot           ; C = (curslot)
-                    CALL FlashWriteSupport
+                    CALL SlotWriteSupport
                     JP   C, DispIntelSlotErr
                     JP   Z, FormatCommand
                     JP   inp_main
@@ -454,7 +454,7 @@
                     call_oz(Gn_Sop)
 
                     call GetCurrentSlot           ; C = (curslot)
-                    call FlashWriteSupport
+                    call SlotWriteSupport
                     ret  nc                       ; flash supports write/erase in slot.
 
                     ld   hl, grey_wrercmds        ; grey out commands that has no effect in current slot
