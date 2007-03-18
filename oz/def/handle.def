@@ -50,7 +50,7 @@ defc    TH_WMG                  =$F1            ; wildcard
 defc    TH_ALM                  =$F2            ; alarm
 
 ; Structure:
-defc    NUMHANDLES              = 96            ; 96 handles starting at 'Handles' in sysvar.def
+defc    NUMHANDLES              = 64            ; 96 handles starting at 'Handles' in sysvar.def
 defc    hnd_SIZEOF              = 16            ; each handle is 16 bytes length
 
 ; handle types:
@@ -66,7 +66,6 @@ defc    HND_SER                 =$FB           ; serial port
 defc    HND_B_DEV               =0
 
 ; generic handle:
-
 defc    hnd_Next                =$00            ; 00-03 always same
 defc    hnd_Type                =$02
 defc    hnd_DynID               =$03

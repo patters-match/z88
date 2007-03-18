@@ -86,7 +86,7 @@ xref    TimeReset                               ; bank7/timeres.asm
         scf
         ex      af, af'
 
-.soft_reset                                     ; On soft reset, only reset B20, but preserve [040F-043F]
+.soft_reset                                     ; On soft reset, only reset B20
         dec     a
         out     (BL_SR1), a
         ld      bc, [sysvar_area_presv-1]

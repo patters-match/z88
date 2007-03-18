@@ -74,10 +74,10 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         ld      a, (ix+buf_wrpos)
         sub     (ix+buf_rdpos)
         jr      nc, sta_no_wrap                 ; handle buffer wrap
-        cpl
+        neg                                     ; buffer length is a page
 .sta_no_wrap        
         ld      h, a                            ; used = wrpos - rdpos
-        cpl                                     ; free=bufsize-used-1
+        neg                                     ; free=bufsize-used-1
         ld      l, a
         pop     af
         ret
@@ -108,7 +108,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ;       A = byte to be written
 ;OUT:   Fc=0, success
 ;       Fc=1, failure and A = Rc_Eof
-;CHG:   AF.C..HL/....
+;CHG:   AF....HL/....
 
 .BufWrite
         ex      af, af'
@@ -327,20 +327,19 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ; Initialize OZ buffers at reset
 ;
 .InitBufKBD_RX_TX
+        ld      e, 0                            ; 1 page for each buffer
+
         ld      ix, KbdData                     ; KBD buffer
         ld      b, kbd_SIZEOF                   ; clear kbd data
-        ld      c, KB_BUF_LEN
-        ld      de, KbdBuffer
+        ld      d, >KbdBuffer
         call    BufInit
 
         ld      ix, SerTXHandle                 ; TX buffer
-        ld      c, TX_BUF_LEN
-        ld      de, SerTXBuffer
+        ld      d, >SerTXBuffer
         call    BufInit0
 
         ld      ix, SerRXHandle                 ; RX buffer
-        ld      c, RX_BUF_LEN
-        ld      de, SerRXBuffer
+        ld      d, >SerRXBuffer
         jp      BufInit0
 
 
@@ -354,7 +353,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 ;
 ;IN:    IX = buffer
 ;       B  = data area to clear, starting at (IX)
-;       C  = circular buffer lenght
 ;       DE = circular buffer
 
 .BufInit
@@ -362,11 +360,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         ld      (ix+buf_wrpos), e
         ld      (ix+buf_rdpos), e
         ld      (ix+buf_page), d
-        ld      (ix+buf_length), c
-        ld      a, c
-        cpl
-        ld      (ix+buf_mask), a
-
         inc     b                               ; handle B=0
         jr      bufi_2
 .bufi_1

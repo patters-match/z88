@@ -64,7 +64,8 @@ include "z80.def"                               ; to be removed and inlined in e
 defc    SV_KERNEL_RAM          = $0280          ;  384 bytes, 364 used
 defc    SV_PRESERVED_RAM       = $0400          ;   96 bytes,  22 used
 defc    SV_HARDWARE_RAM        = $0460          ;  160 bytes, all used
-defc    SV_STRUCT_RAM          = $0500          ; 1792 bytes, all used
+defc    SV_BUFFER_RAM          = $0500          ;  768 bytes, all used
+defc    SV_HANDLE_RAM          = $0800          ; 1024 bytes, all used
 defc    SV_EXTERN_RAM          = $0C00          ; 1024 bytes, 406 used
 ; $1000-$17FF is swap ram
 defc    SV_PROCESS_RAM         = $1800
@@ -77,13 +78,13 @@ defvars SV_KERNEL_RAM
 
 ; System (163):
         ubScreenBase            ds.b    1
-                                ds.b    5
+                                ds.b    3
         KbdData                 ds.b    9       ; data on both negative and positive side
-                                ds.b    5
+                                ds.b    3
         SerTXHandle                             ; on negative side
-                                ds.b    5
-        SerRXHandle                             ; on negative side
-        _u_0                    ds.b    4       ; ? (can be removed)
+                                ds.b    3
+        SerRXHandle             ds.b    2       ; on negative side, an han
+        _u_0                    ds.b    2       ; ? (can be removed)
         ubFsTemp                ds.b    1
         uwSmallTimer            ds.w    1
         uwSlotAvailFsBlocks     ds.w    5       ; why 5 ?
@@ -270,8 +271,7 @@ defvars SV_HARDWARE_RAM
 ; Screen softcopies:
                                 ds.b    32
 
-; Keyboard buffer:
-;        KbdBuffer               ds.b    48
+; Unused zone:
                                 ds.b    48
 
 ; Other blink port softcopies:
@@ -283,19 +283,26 @@ defvars SV_HARDWARE_RAM
 enddef
 
 
-; ---------------
-; STRUCTURES AREA
-; ---------------
+; ------------
+; BUFFERS AREA
+; ------------
 
-defvars SV_STRUCT_RAM
+defvars SV_BUFFER_RAM
 
-; Handles:
-        Handles                 ds.b    16*64   ; HNDLEN * NUMHANDLE
-
-; Serial interface buffers:
         KbdBuffer               ds.b    256
         SerTXBuffer             ds.b    256
         SerRXBuffer             ds.b    256
+
+enddef
+
+
+; ------------
+; HANDLES AREA
+; ------------
+
+defvars SV_HANDLE_RAM
+
+        Handles                 ds.b    16*64   ; HNDLEN * NUMHANDLE
 
 enddef
 
