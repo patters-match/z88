@@ -77,7 +77,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         neg                                     ; buffer length is a page
 .sta_no_wrap        
         ld      h, a                            ; used = wrpos - rdpos
-        neg                                     ; free=bufsize-used-1
+        cpl                                     ; free=bufsize-used-1 (neg + dec a = cpl !)
         ld      l, a
         pop     af
         ret
@@ -204,6 +204,8 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      c, bfpbt_wait                   ; RC_Eof, buffer full, wait
 
 .bfpbt_x
+        ld      hl, ubIntTaskToDo
+        res     ITSK_B_BUFFER, (hl)
         ex      af, af'
         pop     af                              ; was af on entry
         pop     af                              ; previous int status
@@ -236,10 +238,10 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      bfpbt_put                       ; try to put data if room in buffer
 
 .bfpbt_wait
-;        ld      bc, (uwSmallTimer)
-;        ld      a, b
-;        or      c
-;        jr      z, bfpbt_to
+        ld      bc, (uwSmallTimer)
+        ld      a, b
+        or      c
+        jr      z, bfpbt_to
 
         call    OSWaitMain                      ; wait for buffer task
 
@@ -248,7 +250,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         bit     ITSK_B_ESC, a
         jr      nz, bfpbt_esc                   ; ESC pending? exit
         bit     ITSK_B_BUFFER, a
-        jr      nz, bfpbt_again                  ; (was NZ) buffer task? try to put byte
+        jr      nz, bfpbt_again                 ; (was NZ) buffer task? try to put byte
         bit     ITSK_B_TIMER, a
         jr      nz, bfpbt_to                    ; timeout? exit
         jr      bfpbt_susp                      ; otherwise exit with pre-emption
@@ -271,15 +273,13 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         ld      hl, ubIntTaskToDo
         res     ITSK_B_TIMER, (hl)              ; 
         ld      (uwSmallTimer), bc
-        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
-        jr      nz, bfgbt_esc
-        bit     ITSK_B_PREEMPTION, (hl)
-        jr      nz, bfgbt_susp0                 ; pre-empted? exit
 .bfgbt_get
         call    BufRead
         jr      c, bfgbt_wait                   ; RC_Eof, buffer is empty, wait
 
 .bfgbt_x
+        ld      hl, ubIntTaskTodo
+        res     ITSK_B_BUFFER, (hl)
         ex      af, af'                         ; preserve af
         pop     af
         call    OZ_EI
@@ -303,12 +303,22 @@ xref    OSWaitMain                              ; bank0/nmi.asm
 .bfgbt_susp
         ld      a, RC_Susp
         jr      bfgbt_err
+        
+.bfgbt_again
+        res     ITSK_B_BUFFER, (hl)
+        jr      bfgbt_get
 
 .bfgbt_wait
-;        ld      bc, (uwSmallTimer)
-;        ld      a, b
-;        or      c
-;        jr      z, bfgbt_to
+        ld      hl, ubIntTaskTodo
+        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
+        jr      nz, bfgbt_esc
+        bit     ITSK_B_PREEMPTION, (hl)
+        jr      nz, bfgbt_susp0                 ; pre-empted? exit
+
+        ld      bc, (uwSmallTimer)
+        ld      a, b
+        or      c
+        jr      z, bfgbt_to
 
         call    OSWaitMain                      ; wait for data
 
@@ -317,7 +327,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         bit     ITSK_B_ESC, a
         jr      nz, bfgbt_esc                   ; ESC pending? exit
         bit     ITSK_B_BUFFER, a
-        jr      nz, bfgbt_get                   ; buffer job?  check for data
+        jr      nz, bfgbt_again                 ; buffer job?  check for data
         bit     ITSK_B_TIMER, a
         jr      nz, bfgbt_to                    ; timeout? exit
         jr      bfgbt_susp                      ; otherwise exit with pre-emption

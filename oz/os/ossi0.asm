@@ -204,10 +204,11 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         call    BfSta4I                         ; get used/free slots in buffers
         pop     ix
 
-        ld      a, h                            ; #chars in buffer
-        add     a, l                            ; +free space = bufsize
-        srl     a
-        srl     a                               ; bufsize/4
+;        ld      a, h                            ; #chars in buffer
+;        add     a, l                            ; +free space = bufsize
+;        srl     a
+;        srl     a                               ; bufsize/4
+        ld      a, 31
         cp      l
         jr      c, rx_x                         ; more than 25% free? exit
 
@@ -378,9 +379,10 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
 ;       unblock sender if buffer less than half full
 
-        ld      a, h                            ; #bytes in buffer
-        add     a, l                            ; + free space = buf size
-        srl     a                               ; /2
+;        ld      a, h                            ; #bytes in buffer
+;        add     a, l                            ; + free space = buf size
+;        srl     a                               ; /2
+        ld      a, 63
         cp      l
         jr      nc, gb_1                        ; less than 50% free? skip
 
