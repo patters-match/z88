@@ -381,7 +381,7 @@ DEFC BLSC_UMK  =    $04E5               ; its softcopy
      DEFC BM_UMKCTS      =    $20       ; If set, CTS interrupts are enabled
      DEFC BM_UMKTDRE     =    $10       ; If set, Transmit Data Register Empty Interrupt enabled
      ; bit 3                  -
-     DEFC BM_UMKRDRF     =    $02       ; If set, Receive Data Register Empty Interrupt enabled
+     DEFC BM_UMKRDRF     =    $04       ; If set, Receive Data Register Empty Interrupt enabled
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------

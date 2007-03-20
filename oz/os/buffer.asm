@@ -73,9 +73,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         push    af
         ld      a, (ix+buf_wrpos)
         sub     (ix+buf_rdpos)
-        jr      nc, sta_no_wrap                 ; handle buffer wrap
-        neg                                     ; buffer length is a page
-.sta_no_wrap        
         ld      h, a                            ; used = wrpos - rdpos
         cpl                                     ; free=bufsize-used-1 (neg + dec a = cpl !)
         ld      l, a
@@ -273,6 +270,10 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         ld      hl, ubIntTaskToDo
         res     ITSK_B_TIMER, (hl)              ; 
         ld      (uwSmallTimer), bc
+        bit     ITSK_B_PREEMPTION, (hl)
+        jr      nz, bfgbt_susp0                 ; pre-empted? exit
+        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
+        jr      nz, bfgbt_esc
 .bfgbt_get
         call    BufRead
         jr      c, bfgbt_wait                   ; RC_Eof, buffer is empty, wait
@@ -309,12 +310,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      bfgbt_get
 
 .bfgbt_wait
-        ld      hl, ubIntTaskTodo
-        bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
-        jr      nz, bfgbt_esc
-        bit     ITSK_B_PREEMPTION, (hl)
-        jr      nz, bfgbt_susp0                 ; pre-empted? exit
-
         ld      bc, (uwSmallTimer)
         ld      a, b
         or      c

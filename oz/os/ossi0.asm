@@ -204,11 +204,11 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         call    BfSta4I                         ; get used/free slots in buffers
         pop     ix
 
-;        ld      a, h                            ; #chars in buffer
-;        add     a, l                            ; +free space = bufsize
-;        srl     a
-;        srl     a                               ; bufsize/4
-        ld      a, 31
+        ld      a, h                            ; #chars in buffer
+        add     a, l                            ; +free space = bufsize
+        srl     a
+        srl     a                               ; bufsize/4
+;        ld      a, 31
         cp      l
         jr      c, rx_x                         ; more than 25% free? exit
 
@@ -337,29 +337,29 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ;       ----
 
 .DcdInt
-        ex      af, af'
-
-        ld      a, (BLSC_UMK)                   ; toggle TDRE
-        xor     BB_UMKTDRE
+        ld      a, (BLSC_UMK)                   ; invert RDRF int
+        xor     BM_UMKRDRF
         ld      (BLSC_UMK), a
         out     (BL_UMK), a
-
-        ld      a, (BLSC_TXC)                   ; toggle DCDI
+        ld      a, (BLSC_TXC)                   ; invert DCDI int
         xor     BM_TXCDCDI
         ld      (BLSC_TXC), a
         out     (BL_TXC), a
-
         ld      a, BM_UAKDCD                    ; ack DCD
         out     (BL_UAK), a
-
-        ex      af, af'
         ret
 
 ;       ----
 
 .OSSiPbt
         push    af
-        call    MayGetTimeout                   ; get default timeout if BC = -1
+        ld      a, b
+        and     c
+        inc     a
+        jr      nz, sipbt_2
+        ld      b, (ix+shnd_Timeout+1)          ; use this if BC(in) = -1
+        ld      c, (ix+shnd_Timeout)            ; get default timeout if BC = -1
+.sipbt_2
         call    Ld_IX_TxBuf
         pop     af
         call    BfPbt                           ; put byte with timeout
@@ -379,18 +379,18 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
 ;       unblock sender if buffer less than half full
 
-;        ld      a, h                            ; #bytes in buffer
-;        add     a, l                            ; + free space = buf size
-;        srl     a                               ; /2
-        ld      a, 63
+        ld      a, h                            ; #bytes in buffer
+        add     a, l                            ; + free space = buf size
+        srl     a                               ; /2
+;        ld      a, 63
         cp      l
         jr      nc, gb_1                        ; less than 50% free? skip
 
         ld      a, (BLSC_RXC)
-        bit     BB_RXCIRTS, a                   ; IRTS? skip
-        jr      nz, gb_1
+        bit     BB_RXCIRTS, a                   ; invert RTS? skip
+        jr      nz, gb_1                        ; RTS inversion already done
 
-        or      BM_RXCIRTS                      ; set IRTS
+        or      BM_RXCIRTS                      ; set IRTS (inverse RTS level)
         call    WrRxC
 
         ld      a, (ubSerFlowControl)           ; if Xon/Xoff send XON
@@ -418,17 +418,17 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
 .EI_TDRE
         call    OZ_DI
-        ex      af, af'
+        push    af
         ld      a, (BLSC_UMK)
         bit     BB_UMKTDRE, a
-        jr      nz, eitdre_x                    ; TDRE enabled already
+        jr      nz, eitdre_x                    ; TDRE int already enabled 
 
-        or      BM_UMKTDRE
+        or      BM_UMKTDRE                      ; enable TDRE int
         ld      (BLSC_UMK), a
         out     (BL_UMK), a
 
 .eitdre_x
-        ex      af, af'
+        pop     af
         call    OZ_EI
         xor     a
         ret
@@ -457,14 +457,3 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         ret
 
 ;       ----
-
-;       get timeout from handle if it's -1
-
-.MayGetTimeout
-        ld      a, b
-        and     c
-        inc     a
-        ret     nz
-        ld      b, (ix+shnd_Timeout+1)          ; use this if BC(in) = -1
-        ld      c, (ix+shnd_Timeout)
-        ret
