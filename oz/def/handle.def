@@ -61,7 +61,6 @@ defc    HND_PROC                =$04           ; process
 defc    HND_ALRM                =$05           ; alarm
 defc    HND_TRHN                =$06           ; tri-handle
 defc    HND_TEMP                =$FA           ; temporary
-defc    HND_SER                 =$FB           ; serial port
 
 defc    HND_B_DEV               =0
 
@@ -127,11 +126,6 @@ defc    ahnd_TimeH              =$0C
 defc    ahnd_Func               =$0D            ; BHL
 
 defc    AHNF_B_ACTIVE           =7
-
-; serial handle:
-defc    shnd_RxBuf              =$08
-defc    shnd_TxBuf              =$0a
-defc    shnd_Timeout            =$0c
 
 ; TriHandle:
 defc    thnd_Segment            =$04

@@ -50,27 +50,10 @@ xdef    OSSiTmo1
 
 xref    BfSta                                   ; bank0/buffer.asm
 xref    BfPur                                   ; bank0/buffer.asm
-xref    Ld_IX_RxBuf                             ; bank0/ossi0.asm
-xref    Ld_IX_TxBuf                             ; bank0/ossi0.asm
 xref    WrRxc                                   ; bank0/ossi0.asm
 xref    EI_TDRE                                 ; bank0/ossi0.asm
 
 .OSSiHrd1
-        push    bc
-        push    de
-        ld      a,FN_AH
-        ld      b,HND_SER
-        OZ      OS_Fn                           ; allocate serial handle
-        pop     de
-        pop     bc
-        jr      c, hrst_1
-
-        ld      (SerRXHandle), ix               ; save handle in
-        ld      (ix+shnd_RxBuf), c
-        ld      (ix+shnd_RxBuf+1), b
-        ld      (ix+shnd_TxBuf), e
-        ld      (ix+shnd_TxBuf+1), d
-
         ld      a, $FF
         out     (BL_TXD), a                     ; clear TDRE int
 
@@ -103,25 +86,21 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
         ld      (BLSC_INT), a
         out     (BL_INT), a
 
-        or      a                               ; Fc=0 !! unnecessary
-
-.hrst_1
+        or      a                               ; Fc=0
         ret
 
 ;       ----
 
 .OSSiSft1
-        ld      (ix+shnd_Timeout), <60000       ; !! default timeout 600.00 seconds
-        ld      (ix+shnd_Timeout+1), >60000
+        ld      bc, 60000
+        call    OSSiTmo1                        ; default timeout 600.00 seconds
         call    OSSiFtx1
         call    OSSiFrx1
 
         ld      bc, PA_Rxb                      ; get receive speed
         call    EnquireParam
         call    BaudToReg
-        ld      b, a                            ; !! 'or BM_RXCSHTW|BM_RXCIRTS'
-        ld      a, BM_RXCSHTW|BM_RXCIRTS
-        or      b
+        or      BM_RXCSHTW|BM_RXCIRTS
         call    WrRxC
 
         ld      bc, PA_Txb                      ; get transmit speed
@@ -228,23 +207,15 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
 ;       ----
 
 .OSSiEnq1
-        call    OZ_DI                           ; !! 'push/pop IX' at start/end to
-        push    af                              ; !! eliminate one 'push/pop' pair
         push    ix
-        call    Ld_IX_TxBuf                     ; get TxBuf status
+        ld      ix, SerTXHandle                 ; get TxBuf status
         call    BfSta
-        pop     ix
         push    hl
-
-        push    ix
-        call    Ld_IX_RxBuf                     ; get RxBuf status
+        ld      ix, SerRXHandle                 ; get RxBuf status
         call    BfSta
         pop     ix
-
         ex      de, hl                          ; DE=RxStatus
         pop     bc                              ; BC=TxStatus
-        pop     af
-        call    OZ_EI
         in      a, (BL_UIT)                     ; A=int status
         or      a
         ret
@@ -252,22 +223,21 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
 ;       ----
 
 .OSSiTmo1
-        ld      (ix+shnd_Timeout), c
-        ld      (ix+shnd_Timeout+1), b
+        ld      (SerTimeout), bc
         ret
 
 ;       ----
 
 .OSSiFtx1
         push    ix
-        call    Ld_IX_TxBuf
+        ld      ix, SerTXHandle
         jr      FlushBuf
 
 ;       ----
 
 .OSSiFrx1
         push    ix
-        call    Ld_IX_RxBuf
+        ld      ix, SerRXHandle
 
 .FlushBuf
         call    BfPur

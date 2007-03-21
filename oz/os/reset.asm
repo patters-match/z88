@@ -235,8 +235,6 @@ xref    TimeReset                               ; bank7/timeres.asm
         ld      a, SC_SBR
         OZ      OS_Sci                          ; SBF at 21:7800-7FFF
 
-        ld      bc, SerRXHandle
-        ld      de, SerTXHandle
         ld      l, SI_HRD
         OZ      OS_Si                           ; hard reset serial interface
 

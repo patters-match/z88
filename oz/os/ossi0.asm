@@ -44,8 +44,6 @@
 
 xdef    OSSi
 xdef    OSSiInt                                 ; called by int.asm (replace IntUART)
-xdef    Ld_IX_TxBuf
-xdef    Ld_IX_RxBuf
 xdef    WrRxC
 xdef    EI_TDRE
 xdef    OSSiGbt, OSSiPbt
@@ -77,7 +75,6 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ; -----------------------------------------------------------------------------
 .OSSi
         push    ix
-        ld      ix, (SerRXHandle)
         ld      hl, OSSiRet
         push    hl                              ; stack the ret
         exx                                     ; restore main registers
@@ -138,14 +135,11 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ; UART interrupt was recognized from the BLINK.
 ;
 .OSSiInt
-        push    ix                              ; allows to be call directly from int
-        ld      ix, (SerRXHandle)
         ld      c, BL_UIT                       ; interrupt status
         in      a, (c)
         ld      c, a
         ld      a, (BLSC_UMK)                   ; interrupt mask
         and     c
-
         bit     BB_UITTDRE, a
         call    nz, TxInt
         bit     BB_UITRDRF, a
@@ -153,7 +147,6 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         bit     BB_UITDCDI, a
         call    nz, DcdInt
         or      a
-        pop     ix
         ret
 
 ; ----------------------------------------------------------------------------------
@@ -171,35 +164,20 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ;       clear parity bit, check for XON/XOFF if needed
 
         bit     PAR_B_PARITY, l
-        jr      z, rx_1                         ; no parity? 8-bit data
-        and     $7f                             ; else clear parity bit
-.rx_1
+        jr      nz, rx_parity
         bit     FLOW_B_XONXOFF, h
-        jr      z, rx_3                         ; no flow control? write char
+        jr      z, rx_BfPb                      ; no flow control? write char
 
         cp      XON                             ; !! 'jr z' both XON/XOFF to
-        jr      nz, rx_2                        ; !! speed up normal chars
-
-        ld      a, (ubSerFlowControl)           ; allow sending
-        res     FLOW_B_TXSTOP, a                ; !! 'ld a, FLOW_XONXOFF'
-        ld      (ubSerFlowControl), a
-        call    EI_TDRE                         ; enable TDRE int
-        jr      rx_x                            ; and exit
-
-.rx_2
+        jr      z, rx_xon                       ; !! speed up normal chars
         cp      XOFF
-        jr      nz, rx_3
-
-        ld      a, (ubSerFlowControl)           ; disable sending
-        set     FLOW_B_TXSTOP, a                ; !! 'ld a, FLOW_XONXOFF|FLOW_TXSTOP'
-        ld      (ubSerFlowControl), a
-        jr      rx_x                            ; and exit
+        jr      z, rx_xoff
 
 ;       save char, block sender if buffer 75% full
 
-.rx_3
+.rx_BfPb
         push    ix                              ; write byte to buffer
-        call    Ld_IX_RxBuf
+        ld      ix, SerRXHandle
         call    BufWrite4I
         call    BfSta4I                         ; get used/free slots in buffers
         pop     ix
@@ -208,7 +186,6 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         add     a, l                            ; +free space = bufsize
         srl     a
         srl     a                               ; bufsize/4
-;        ld      a, 31
         cp      l
         jr      c, rx_x                         ; more than 25% free? exit
 
@@ -236,6 +213,23 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         pop     af
         ret
 
+.rx_parity                                      ; could be more serious
+        and     $7f                             ; clear parity bit
+        jr      rx_BfPb                         ; continue
+
+.rx_xon
+        ld      hl, ubSerFlowControl            ; allow sending
+        res     FLOW_B_TXSTOP, (hl)
+        call    EI_TDRE                         ; enable TDRE int
+        pop     af
+        ret
+
+.rx_xoff
+        ld      hl, ubSerFlowControl            ; disable sending
+        set     FLOW_B_TXSTOP, (hl)
+        pop     af
+        ret
+
 ;       ----
 
 .TxInt
@@ -243,13 +237,9 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
 ;       check if we need to send XON/XOFF
 
-;       !! 'ld hl, cSerXonXoffChar; ld a, (hl); ld (hl), 0; or a' 31 cycles
-
-        ld      a, (cSerXonXoffChar)            ; save, clear and check Xon/Xoff
-        push    af
-        xor     a
-        ld      (cSerXonXoffChar), a
-        pop     af
+        ld      hl, cSerXonXoffChar
+        ld      a, (hl)                         ; if zero, nothing to send
+        ld      (hl), 0
         or      a
         jr      nz, tx_2                        ; need to send XON/XOFF
 
@@ -262,7 +252,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ;       get data from buffer, send if buffer not empty
 
         push    ix                              ; read byte from TxBuf
-        call    Ld_IX_TxBuf
+        ld      ix, SerTXHandle
         call    BufRead
         pop     ix
         jr      nc, tx_2                        ; buffer not empty? send byte
@@ -357,10 +347,9 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         and     c
         inc     a
         jr      nz, sipbt_2
-        ld      b, (ix+shnd_Timeout+1)          ; use this if BC(in) = -1
-        ld      c, (ix+shnd_Timeout)            ; get default timeout if BC = -1
+        ld      bc, (SerTimeout)                ; get default timeout if BC = -1
 .sipbt_2
-        call    Ld_IX_TxBuf
+        ld      ix, SerTXHandle
         pop     af
         call    BfPbt                           ; put byte with timeout
         call    nc, EI_TDRE                     ; enable TDRE if succesful
@@ -371,7 +360,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .OSSiGbt
         call    OZ_DI
         push    af                              ; get byte with timeout
-        call    Ld_IX_RxBuf
+        ld      ix, SerRXHandle
         call    BfGbt
         call    BfSta4I                         ; int are disabled and AF have to be preserved
         jr      c, gb_2                         ; error? exit
@@ -382,7 +371,6 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         ld      a, h                            ; #bytes in buffer
         add     a, l                            ; + free space = buf size
         srl     a                               ; /2
-;        ld      a, 63
         cp      l
         jr      nc, gb_1                        ; less than 50% free? skip
 
@@ -422,31 +410,13 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         ld      a, (BLSC_UMK)
         bit     BB_UMKTDRE, a
         jr      nz, eitdre_x                    ; TDRE int already enabled 
-
         or      BM_UMKTDRE                      ; enable TDRE int
         ld      (BLSC_UMK), a
         out     (BL_UMK), a
-
 .eitdre_x
         pop     af
         call    OZ_EI
         xor     a
-        ret
-
-;       ----
-
-.Ld_IX_TxBuf
-        ld      l, (ix+shnd_TxBuf)
-        ld      h, (ix+shnd_TxBuf+1)
-        jr      Ld_IX_HL
-
-.Ld_IX_RxBuf
-        ld      l, (ix+shnd_RxBuf)
-        ld      h, (ix+shnd_RxBuf+1)
-
-.Ld_IX_HL
-        push    hl
-        pop     ix
         ret
 
 ;       ----

@@ -188,8 +188,6 @@ IF COMPILE_BINARY
         xdef    SetScrAttr                      ; [Kernel0]/scrdrv4.asm
         xdef    ToggleScrDrvFlags               ; [Kernel0]/scrdrv4.asm
 
-        xdef    Ld_IX_RxBuf                     ; [Kernel0]/ossi0.asm
-        xdef    Ld_IX_TxBuf                     ; [Kernel0]/ossi0.asm
         xdef    WrRxc                           ; [Kernel0]/ossi0.asm
         xdef    EI_TDRE                         ; [Kernel0]/ossi0.asm
 
