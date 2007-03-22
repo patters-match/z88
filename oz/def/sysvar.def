@@ -27,7 +27,7 @@ lstoff
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
 ; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
 ;
-; $Id$
+;
 ; ***************************************************************************************************
 ;
 ; ***************************************************************************************************
@@ -60,14 +60,169 @@ include "z80.def"                               ; to be removed and inlined in e
 ; FIRST 8K RAM MAPPING
 ; --------------------
 
-;       low ram code           = $0000          ; 1024 bytes
+; $0000-$027F is low ram routines
+defc    SV_KERNEL_RAM          = $0280          ;  384 bytes, 364 used
 defc    SV_PRESERVED_RAM       = $0400          ;   96 bytes,  22 used
 defc    SV_HARDWARE_RAM        = $0460          ;  160 bytes, all used
 defc    SV_BUFFER_RAM          = $0500          ;  768 bytes, all used
 defc    SV_HANDLE_RAM          = $0800          ; 1024 bytes, all used
-defc    SV_KERNEL_RAM          = $0C00          ; 1024 bytes, 740 used
-;       swap ram (unexpanded)  = $1000          ; 2048 bytes, unused on expanded machine
-defc    SV_PROCESS_RAM         = $1800          ; 2048 bytes, all used
+defc    SV_EXTERN_RAM          = $0C00          ; 1024 bytes, 406 used
+; $1000-$17FF is swap ram
+defc    SV_PROCESS_RAM         = $1800
+
+; --------------------
+; KERNEL VARIABLE AREA
+; --------------------
+
+defvars SV_KERNEL_RAM
+
+; System (163):
+        ubScreenBase            ds.b    1
+                                ds.b    3
+        KbdData                 ds.b    9       ; data on both negative and positive side
+                                ds.b    3
+        SerTXHandle                             ; on negative side
+                                ds.b    3
+        SerRXHandle             ds.b    2       ; on negative side, an han
+        uwSerTimeout            ds.b    2       ;
+        ubFsTemp                ds.b    1
+        uwSmallTimer            ds.w    1
+        uwSlotAvailFsBlocks     ds.w    5       ; why 5 ?
+        pFsMemPool              ds.w    1
+        uwFsAvailBlock          ds.w    1
+        _u_1                    ds.w    1
+        word_024A               ds.w    1       ; to be renamed (used in nqsp.asm)
+        _u_2                    ds.w    1       ; ?
+        pMTHScreenSave          ds.w    1
+        pMTHHelpHandle          ds.w    1
+        word_0252               ds.w    1       ; to be renamed (used in nqsp.asm)
+        _u_3                    ds.w    1       ; ?
+        uwPanelFilePtr          ds.w    1
+        ubSysFlags1             ds.b    1
+        cExtendedChar           ds.b    1
+        OZcmdBuf                ds.b    6
+        pNMIStackPtr            ds.w    1
+        ubWaitCount1            ds.b    1
+        ubWaitCount2            ds.b    1
+        ubTimeoutCnt            ds.b    1
+        ubCLIActiveCnt          ds.b    1
+        ubNextAlmSeconds        ds.b    1
+        uwNextAlmMinutes        ds.w    1
+        ubNextAlmMinutesB       ds.b    1
+        ubSoundActive           ds.b    1
+        ubSoundCount            ds.b    1
+        _u_4                    ds.w    1       ; ?
+        ubAlmDisableCnt         ds.b    1
+        ubAlmDisplayCnt         ds.b    1
+        ubNumActiveAlm          ds.b    1
+        ubAlmActionCnt          ds.b    1
+        pFirstAlarm             ds.w    1
+        pNextAlmHandle          ds.w    1
+        pPrefs1                 ds.w    1
+        pPrefs2                 ds.w    1
+        ulSlot1ID               ds.l    1
+        ulSlot2ID               ds.l    1
+        ulSlot3ID               ds.l    1
+        ubHlpActiveCmd          ds.b    1
+        ubHlpActiveTpc          ds.b    1
+        ubHlpActiveHelp         ds.b    1
+        ubHlpActiveApp          ds.b    1
+        _u_5                    ds.b    1       ; ?
+        eHlpAppDOR              ds.p    1
+        eHlpTopics              ds.p    1
+        eHlpCommands            ds.p    1
+        eHlpHelp                ds.p    1
+        eHlpTokens              ds.p    1
+        ActiveAppHandle         ds.b    16      ; actual handle structure
+        uwOSTinTimeout          ds.w    1
+        pOSEntHandle            ds.w    1
+
+; Active application (51):
+        uwAppStaticHnd          ds.w    1       ; pAppEnvHandle - uwAppStaticHnd - 1 is cleared when new app is created
+        ubAppDynID              ds.b    1
+        ubAppResCycle           ds.b    1
+        pAppEntrypoint          ds.w    1
+        ubAppDORFlags           ds.b    1
+        ubAppDORFlags2          ds.b    1
+        uwAppEnvOverhead        ds.w    1
+        pAppStackPtr            ds.w    1
+        pAppUnSafeArea          ds.w    1
+        pAppBadMemTable         ds.w    1
+        pAppBadMemHandle        ds.w    1
+        ubAppContRAM            ds.b    1
+        ubAppBindings           ds.b    4
+        ubAppKbdBits            ds.b    1
+        pMailbox                ds.w    1
+        ubMailboxSize           ds.b    2       ; 1 more, try to remove...
+        pAppErrorHandler        ds.w    1
+        ubAppLastError          ds.b    1
+        ubAppCallLevel          ds.b    1
+        ubOldCallLevel          ds.b    1
+        pAppHelpHandle          ds.w    1
+        ubAppHelpBank           ds.b    1
+        eAppDOR_2               ds.p    1
+        eAppTopics_2            ds.p    1
+        eAppCommands_2          ds.p    1
+        eAppHelp_2              ds.p    1
+        eAppTokens_2            ds.p    1
+
+; System (16):
+        pAppEnvHandle           ds.w    1
+        uwFreeRAMPages          ds.w    1
+        pFirstHandle            ds.w    1
+        ubIntTaskToDo           ds.b    1
+        ubIntStatus             ds.b    1
+        ubSlotRAMoffset         ds.b    4
+        ubSlotRamSize           ds.b    4
+
+; Random (5):
+        ubRandomPtr             ds.b    1
+        uwRandom1               ds.w    1
+        uwRandom2               ds.w    1
+
+; NMI/wait (53):
+        uwTimecounter           ds.w    1
+        ubTimecounterSoft       ds.b    1
+        NMIStackBottom          ds.b    48
+        NMIStackTop             ds.w    1
+
+; Keymaps (10):
+        ubKmBank                ds.b    1       ; memory bank where tables are, bound in S2
+        ubKmPage                ds.b    1       ; high byte of address
+        ubKmCaps                ds.b    1       ; low byte of CAPS translation table address
+        ubKmDiamond             ds.b    1       ; low byte of <> translation table address
+        ubKmSquare              ds.b    1       ; low byte of [] translation table address
+        ubKmDeadkey             ds.b    1       ; low byte of deadkey table address
+        ubKmDeadchar            ds.b    1       ; char displayed in OZ window
+        ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
+        aKmCountry              ds.w    1       ; country id for OZ window
+
+; Serial interface flow (3):
+        ubSerParity             ds.b    1
+        ubSerFlowControl        ds.b    1
+        cSerXonXoffChar         ds.b    1
+
+; Printer (56):
+        StackBufPtr             ds.w    1
+        CtrlBuf                 ds.w    1
+        CtrlLen                 ds.b    1
+        prtInChar               ds.b    1
+        Translations            ds.b    37
+        PlaceHolderChar         ds.b    1
+        PendingSpaces           ds.b    1
+        Rows                    ds.b    1
+        PageLen                 ds.b    1
+        Flags                   ds.b    1
+        AttrUnderline           ds.b    1
+        AttrBold                ds.b    1
+        AttrExtended            ds.b    1
+        AttrItalics             ds.b    1
+        AttrSubscript           ds.b    1
+        AttrSuperscript         ds.b    1
+        AttrAltfont             ds.b    1
+        AttrUserdef             ds.b    1
+
+enddef
 
 
 ; --------------
@@ -78,7 +233,7 @@ defvars SV_PRESERVED_RAM
 
 ; Preserved clocks (22):
         sysvar_area_presv
-        ubTimeBufferSelect      ds.b    1       ; select time buffer A or B
+        ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
         ubTIM0_A                ds.b    1       ; buffer A : TIM0-4
         ubTIM1_A                ds.b    1
         ubTIM2_A                ds.b    1
@@ -153,156 +308,10 @@ enddef
 
 
 ; --------------------
-; KERNEL VARIABLE AREA
+; EXTERNAL SYSTEM AREA
 ; --------------------
 
-defvars SV_KERNEL_RAM
-
-; System (120):
-        ubScreenBase            ds.b    1
-        ubFsTemp                ds.b    1
-        uwSmallTimer            ds.w    1
-        uwSlotAvailFsBlocks     ds.w    5       ; why 5 ?
-        pFsMemPool              ds.w    1
-        uwFsAvailBlock          ds.w    1
-        _u_1                    ds.w    1
-        word_024A               ds.w    1       ; to be renamed (used in nqsp.asm)
-        _u_2                    ds.w    1       ; ?
-        pMTHScreenSave          ds.w    1
-        pMTHHelpHandle          ds.w    1
-        word_0252               ds.w    1       ; to be renamed (used in nqsp.asm)
-        _u_3                    ds.w    1       ; ?
-        uwPanelFilePtr          ds.w    1
-        ubSysFlags1             ds.b    1
-        cExtendedChar           ds.b    1
-        OZcmdBuf                ds.b    6
-        pNMIStackPtr            ds.w    1
-        ubWaitCount1            ds.b    1
-        ubWaitCount2            ds.b    1
-        ubTimeoutCnt            ds.b    1
-        ubCLIActiveCnt          ds.b    1
-        ubNextAlmSeconds        ds.b    1
-        uwNextAlmMinutes        ds.w    1
-        ubNextAlmMinutesB       ds.b    1
-        ubSoundActive           ds.b    1
-        ubSoundCount            ds.b    1
-        _u_4                    ds.w    1       ; ?
-        ubAlmDisableCnt         ds.b    1
-        ubAlmDisplayCnt         ds.b    1
-        ubNumActiveAlm          ds.b    1
-        ubAlmActionCnt          ds.b    1       ; 60
-        pFirstAlarm             ds.w    1
-        pNextAlmHandle          ds.w    1
-        pPrefs1                 ds.w    1
-        pPrefs2                 ds.w    1
-        ulSlot1ID               ds.l    1
-        ulSlot2ID               ds.l    1
-        ulSlot3ID               ds.l    1
-        ubHlpActiveCmd          ds.b    1
-        ubHlpActiveTpc          ds.b    1
-        ubHlpActiveHelp         ds.b    1
-        ubHlpActiveApp          ds.b    1
-        _u_5                    ds.b    1       ; ?
-        eHlpAppDOR              ds.p    1
-        eHlpTopics              ds.p    1
-        eHlpCommands            ds.p    1
-        eHlpHelp                ds.p    1
-        eHlpTokens              ds.p    1
-        ActiveAppHandle         ds.b    16      ; actual handle structure
-        uwOSTinTimeout          ds.w    1
-        pOSEntHandle            ds.w    1
-
-; Active application (51):
-        uwAppStaticHnd          ds.w    1       ; pAppEnvHandle - uwAppStaticHnd - 1 is cleared when new app is created
-        ubAppDynID              ds.b    1
-        ubAppResCycle           ds.b    1
-        pAppEntrypoint          ds.w    1
-        ubAppDORFlags           ds.b    1
-        ubAppDORFlags2          ds.b    1
-        uwAppEnvOverhead        ds.w    1
-        pAppStackPtr            ds.w    1
-        pAppUnSafeArea          ds.w    1
-        pAppBadMemTable         ds.w    1
-        pAppBadMemHandle        ds.w    1
-        ubAppContRAM            ds.b    1
-        ubAppBindings           ds.b    4
-        ubAppKbdBits            ds.b    1
-        pMailbox                ds.w    1
-        ubMailboxSize           ds.b    2       ; 1 more, try to remove...
-        pAppErrorHandler        ds.w    1
-        ubAppLastError          ds.b    1
-        ubAppCallLevel          ds.b    1
-        ubOldCallLevel          ds.b    1
-        pAppHelpHandle          ds.w    1
-        ubAppHelpBank           ds.b    1
-        eAppDOR_2               ds.p    1
-        eAppTopics_2            ds.p    1
-        eAppCommands_2          ds.p    1
-        eAppHelp_2              ds.p    1
-        eAppTokens_2            ds.p    1
-
-; System (16):
-        pAppEnvHandle           ds.w    1
-        uwFreeRAMPages          ds.w    1
-        pFirstHandle            ds.w    1
-        ubIntTaskToDo           ds.b    1
-        ubIntStatus             ds.b    1
-        ubSlotRAMoffset         ds.b    4
-        ubSlotRamSize           ds.b    4
-
-; Random (5):
-        ubRandomPtr             ds.b    1
-        uwRandom1               ds.w    1
-        uwRandom2               ds.w    1
-
-; NMI/wait (53):
-        uwTimecounter           ds.w    1
-        ubTimecounterSoft       ds.b    1
-        NMIStackBottom          ds.b    48
-        NMIStackTop             ds.w    1
-
-; Keymaps (22):
-        ubKmBank                ds.b    1       ; memory bank where tables are, bound in S2
-        ubKmPage                ds.b    1       ; high byte of address
-        ubKmCaps                ds.b    1       ; low byte of CAPS translation table address
-        ubKmDiamond             ds.b    1       ; low byte of <> translation table address
-        ubKmSquare              ds.b    1       ; low byte of [] translation table address
-        ubKmDeadkey             ds.b    1       ; low byte of deadkey table address
-        ubKmDeadchar            ds.b    1       ; char displayed in OZ window
-        ubKmDeadsub             ds.b    1       ; offset to list for current deadkey
-        aKmCountry              ds.w    1       ; country id for OZ window
-                                ds.b    3       ; keyboard buffer handle
-        KbdData                 ds.b    9       ; data on both negative and positive side
-
-; Serial interface (11):
-                                ds.b    3       ; TX buffer handle
-        SerTXHandle                             ; on negative side
-                                ds.b    3       ; RX buffer handle
-        SerRXHandle                             ; on negative side
-        uwSerTimeout            ds.w    1       ; serial port timeout (milliseconds)
-        ubSerParity             ds.b    1       ; flags in 'serintfc.def'
-        ubSerFlowControl        ds.b    1       ; flags in 'serintfc.def'
-        cSerXonXoffChar         ds.b    1       ; zero/XON/XOFF
-
-; Printer (56):
-        StackBufPtr             ds.w    1
-        CtrlBuf                 ds.w    1
-        CtrlLen                 ds.b    1
-        prtInChar               ds.b    1
-        Translations            ds.b    37
-        PlaceHolderChar         ds.b    1
-        PendingSpaces           ds.b    1
-        Rows                    ds.b    1
-        PageLen                 ds.b    1
-        Flags                   ds.b    1
-        AttrUnderline           ds.b    1
-        AttrBold                ds.b    1
-        AttrExtended            ds.b    1
-        AttrItalics             ds.b    1
-        AttrSubscript           ds.b    1
-        AttrSuperscript         ds.b    1
-        AttrAltfont             ds.b    1
-        AttrUserdef             ds.b    1
+defvars SV_EXTERN_RAM
 
 ; Index (184):
         ubIdxPubFlags           ds.b    1
