@@ -35,31 +35,35 @@ goto COMPILE_ERROR
 
 :: create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 :PRECOMPILE_LOWRAM
-..\..\tools\mpm\mpm -g -I..\def lowram.asm
+cd lowram
+..\..\..\tools\mpm\mpm -g -I..\..\def @lowram.prj
 dir *.err 2>nul >nul || goto PRECOMPILE_KERNEL0
 goto COMPILE_ERROR
 
 :: pre-compile (lower) kernel to resolve labels for lowram.asm
 :PRECOMPILE_KERNEL0
-..\..\tools\mpm\mpm -g -I..\def @kernel0.prj
+cd ..
+..\..\tools\mpm\mpm -g -I..\def -Ilowram @kernel0.prj
 dir *.err 2>nul >nul || goto COMPILE_LOWRAM
 goto COMPILE_ERROR
 
 :: create final lowram binary with correct addresses from lower kernel
 :COMPILE_LOWRAM
-..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\def lowram.asm
+cd lowram
+..\..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\..\def @lowram.prj
 dir *.err 2>nul >nul || goto COMPILE_KERNEL1
 goto COMPILE_ERROR
 
 :: compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 :COMPILE_KERNEL1
-..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DKB%1 -I..\def -l..\..\stdlib\standard.lib @kernel1.prj
+cd ..
+..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DKB%1 -I..\def -Ilowram -l..\..\stdlib\standard.lib @kernel1.prj
 dir *.err 2>nul >nul || goto COMPILE_KERNEL0
 goto COMPILE_ERROR
 
 :: compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 :COMPILE_KERNEL0
-..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\def @kernel0.prj
+..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\def -Ilowram @kernel0.prj
 ..\..\tools\mpm\mpm -b -DCOMPILE_BINARY ostables.asm
 
 :COMPILE_ERROR

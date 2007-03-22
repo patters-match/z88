@@ -44,8 +44,8 @@
         include "stdio.def"
 
 IF COMPILE_BINARY
-        include "kernel0.def"                   ; get bank 0 kernel address references
-        include "ostables.def"                  ; get bank 0 kernel OS system base lookup table address
+        include "../kernel0.def"                ; get bank 0 kernel address references
+        include "../ostables.def"               ; get bank 0 kernel OS system base lookup table address
 ELSE
         xref    INTEntry                        ; pretend references to be external for pre-compile...
         xref    NMIEntry
@@ -807,7 +807,7 @@ xdef    IntUART
         ld      hl, ubIntTaskToDo
         set     ITSK_B_BUFFER, (hl)             ; buffer task
         ret
-.eof_ret        
+.eof_ret
         ld      a, RC_Eof
         scf
         ret
@@ -829,7 +829,7 @@ xdef    IntUART
         call    OZEImain
         ex      af, af'
         ret
-        
+
 .BfGb2
         ld      a, (ix+buf_rdpos)
         cp      (ix+buf_wrpos)
@@ -929,7 +929,7 @@ xdef    IntUART
 .rx_ei_tdre
         ld      a, (BLSC_UMK)                   ; enable TDRE int
         bit     BB_UMKTDRE, a
-        jr      nz, rx_x                        ; TDRE int already enabled 
+        jr      nz, rx_x                        ; TDRE int already enabled
         or      BM_UMKTDRE                      ; enable TDRE int
         ld      (BLSC_UMK), a
         out     (BL_UMK), a

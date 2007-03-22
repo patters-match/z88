@@ -49,7 +49,7 @@
         include "sysvar.def"
         include "keyboard.def"
 
-        include "../os/lowram.def"
+        include "../os/lowram/lowram.def"
 
         org     $c000
 

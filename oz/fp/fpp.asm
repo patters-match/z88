@@ -37,7 +37,7 @@
         include "error.def"
         include "sysvar.def"
 
-        include "../os/lowram.def"
+        include "../os/lowram/lowram.def"
 
         org     $d800                           ; $d800-$e4ff
 

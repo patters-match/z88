@@ -71,7 +71,7 @@ apps/eazylink/eazylink.bin 0a0000               ; $8000: EazyLink popdown
 apps/flashstore/fsapp.bin 0b0000
 
 ; Bank 12: LOWRAM code
-os/lowram.bin 0c0000                            ; LOWRAM code (RST routines, etc) to be installed during reset
+os/lowram/lowram.bin 0c0000                     ; LOWRAM code (RST routines, etc) to be installed during reset
 
 ; ROM header at top of 512K address space
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code

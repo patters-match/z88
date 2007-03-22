@@ -39,19 +39,20 @@
         include "syspar.def"
         include "sysvar.def"
         include "serintfc.def"
-        include "lowram.def"
         include "interrpt.def"
+
+        include "lowram.def"
 
 xdef    OSSi
 xdef    WrRxC
 xdef    EI_TDRE
 xdef    OSSiGbt, OSSiPbt
 
-;xref    BfPb                                    ; bank0/lowram.asm
-;xref    BfGb                                    ; bank0/lowram.asm
-;xref    BfPb2                                   ; bank0/lowram.asm
-;xref    BfGb2                                   ; bank0/lowram.asm
-;xref    BfSta2                                  ; bank0/lowram.asm
+;xref    BfPb                                    ; bank0/lowram.def.asm
+;xref    BfGb                                    ; bank0/lowram.def.asm
+;xref    BfPb2                                   ; bank0/lowram.def.asm
+;xref    BfGb2                                   ; bank0/lowram.def.asm
+;xref    BfSta2                                  ; bank0/lowram.def.asm
 xref    BfPbt                                   ; bank0/buffer.asm
 xref    BfGbt                                   ; bank0/buffer.asm
 
@@ -93,7 +94,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .OSSITBL
         jp      OSSiHrd
         jp      OSSiSft
-        jp      IntUART                         ; in LOWRAM for speed
+        jp      IntUART                         ; in lowram.def for speed
         jp      OSSiGbt                         ; in K0 for speed
         jp      OSSiPbt                         ; in K0 for speed
         jp      OSSiEnq
@@ -195,7 +196,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         push    af
         ld      a, (BLSC_UMK)
         bit     BB_UMKTDRE, a
-        jr      nz, eitdre_x                    ; TDRE int already enabled 
+        jr      nz, eitdre_x                    ; TDRE int already enabled
         or      BM_UMKTDRE                      ; enable TDRE int
         ld      (BLSC_UMK), a
         out     (BL_UMK), a

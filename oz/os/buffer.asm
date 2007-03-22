@@ -38,6 +38,7 @@
         include "error.def"
         include "sysvar.def"
         include "keyboard.def"
+
         include "lowram.def"
 
 xdef    BfGbt
@@ -86,7 +87,7 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
         ex      af, af'
 
         push    af                              ; save byte to put
-        
+
         ld      hl, ubIntTaskToDo
         res     ITSK_B_TIMER, (hl)
         ld      (uwSmallTimer), bc
@@ -165,9 +166,9 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
         call    OZ_DI                           ; save int status
         push    af
         ei                                      ; force int enabled
-        
+
         ld      hl, ubIntTaskToDo
-        res     ITSK_B_TIMER, (hl)              ; 
+        res     ITSK_B_TIMER, (hl)              ;
         ld      (uwSmallTimer), bc
         bit     ITSK_B_PREEMPTION, (hl)
         jr      nz, bfgbt_susp0                 ; pre-empted? exit
@@ -203,7 +204,7 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
 .bfgbt_susp
         ld      a, RC_Susp
         jr      bfgbt_err
-        
+
 .bfgbt_again
         res     ITSK_B_BUFFER, (hl)
         jr      bfgbt_get

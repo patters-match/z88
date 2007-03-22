@@ -30,8 +30,9 @@
 
      include "flashepr.def"
      include "error.def"
-     include "lowram.def"
      include "memory.def"
+
+     include "lowram.def"
 
 
 ; ***************************************************************************************
@@ -111,7 +112,7 @@
 ; Flash Memory chips and return the appropriate ID, if a card
 ; is recognized.
 ;
-; The core polling routines are available in OZ LOWRAM.
+; The core polling routines are available in OZ lowram.def.
 ;
 ; In:
 ;     B = lowest Bank (number) of slot where to poll for Card ID
@@ -147,7 +148,7 @@
         dec     hl                              ; back at $00 0000
 
         push    de
-        call    I28Fx_PollChipId                ; run INTEL card ID routine in LOWRAM
+        call    I28Fx_PollChipId                ; run INTEL card ID routine in lowram.def
         pop     de
         push    hl
         cp      a                               ; Fc = 0
@@ -159,7 +160,7 @@
         pop     hl                              ; pointer to Flash Memory segment
         push    de
         call    AM29Fx_InitCmdMode
-        call    AM29Fx_PollChipId               ; run AMD/STM card ID routine in LOWRAM
+        call    AM29Fx_PollChipId               ; run AMD/STM card ID routine in lowram.def
         ex      de,hl                           ; H = Manufacturer Code, L = Device Code
         pop     de
 

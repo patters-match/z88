@@ -35,9 +35,10 @@
         include "blink.def"
         include "error.def"
         include "sysvar.def"
-        include "lowram.def"
         include "interrpt.def"
         include "keyboard.def"
+
+        include "lowram.def"
 
 
 xdef    BothShifts

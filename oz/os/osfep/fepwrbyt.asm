@@ -30,10 +30,11 @@
         xref FEP_WriteError                     ; Error: byte wasn't blown properly
 
         include "flashepr.def"
-        include "lowram.def"
         include "memory.def"
         include "blink.def"
         include "error.def"
+
+        include "lowram.def"
 
 
 

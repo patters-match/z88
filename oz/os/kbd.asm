@@ -37,13 +37,14 @@ include "sysvar.def"
 include "memory.def"
 include "interrpt.def"
 include "keyboard.def"
+
 include "lowram.def"
 
 xdef    ExtKbMain                               ; was KbMain
 xdef    ExtQualifiers                           ; was ApplyQualifiers
 xdef    IsForeignKey                            ; is char capsable
 
-;xref    BfPb                                    ; bank0/lowram.asm
+;xref    BfPb                                    ; bank0/lowram.def.asm
 xref    SwitchOff                               ; bank0/nmi.asm
 xref    MaySetEsc                               ; bank0/esc.asm
 xref    MS2BankA                                ; bank0/misc5.asm
@@ -76,7 +77,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         ld      l, a
 
         ld      a, c
-        call    jpHL                            ; and call it with AB intact (in lowram)
+        call    jpHL                            ; and call it with AB intact (in lowram.def)
 
         push    af
         pop     bc
@@ -404,7 +405,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         call    TranslateKey
         pop     bc
         ret
-        
+
 .TranslateKey
         ld      b, (hl)                         ; table length
         inc     b                               ; take care of empty table

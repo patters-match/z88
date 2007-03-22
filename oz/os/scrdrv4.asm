@@ -35,9 +35,10 @@
         include "blink.def"
         include "stdio.def"
         include "sysvar.def"
-        include "lowram.def"
         include "interrpt.def"
         include "screen.def"
+
+        include "lowram.def"
 
 xdef    Beep_X
 xdef    CallFuncDE

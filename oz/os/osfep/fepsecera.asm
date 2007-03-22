@@ -34,6 +34,7 @@
         include "error.def"
         include "blink.def"
         include "memory.def"
+
         include "lowram.def"
 
 
@@ -158,7 +159,7 @@
 ;
 .FEP_EraseBlock
         cp      FE_29F
-        jr      z, FEP_EraseBlock_29F           ; execute AMD/STM sector erasure in LOWRAM, return error in AF...
+        jr      z, FEP_EraseBlock_29F           ; execute AMD/STM sector erasure in lowram.def, return error in AF...
         ld      a,3
         cp      e                               ; when chip is FE_28F series, we need to be in slot 3
         jp      nz, FEP_EraseError              ; Ups, not in slot 3, signal error!
@@ -192,7 +193,7 @@
         ld      (bc),a
         out     (c),a                           ; signal to HW
         cp      a                               ; Fc = 0
-        call    I28Fx_EraseSector               ; execute Erasure of sector in LOWRAM...
+        call    I28Fx_EraseSector               ; execute Erasure of sector in lowram.def...
         bit     3,a
         call    nz, FEP_VppError                ; chip didn't detect VPP pin ...
         jr      c, exit_EraseBlock_28F
@@ -230,4 +231,4 @@
 ;
 .FEP_EraseBlock_29F
         call    AM29Fx_InitCmdMode
-        jp      AM29Fx_EraseSector              ; Erase sector in LOWRAM, then use RET in LOWRAM to get back to caller
+        jp      AM29Fx_EraseSector              ; Erase sector in lowram.def, then use RET in lowram.def to get back to caller

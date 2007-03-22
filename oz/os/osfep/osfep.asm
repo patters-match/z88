@@ -44,8 +44,9 @@
         xref    PutOSFrame_HL                   ; misc5.asm
 
         include "error.def"
-        include "lowram.def"
         include "sysvar.def"
+
+        include "lowram.def"
 
 
 ; ***************************************************************************************************

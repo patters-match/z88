@@ -36,10 +36,11 @@
         include "blink.def"
         include "serintfc.def"
         include "sysvar.def"
-        include "lowram.def"
         include "interrpt.def"
         include "keyboard.def"
         include "handle.def"
+
+        include "lowram.def"
 
 xdef    INTEntry
 xdef    IntSecond
@@ -55,7 +56,7 @@ xref    IntFlap                                 ; bank0/cardmgr.asm
 xref    ReadRTC                                 ; bank0/time.asm
 
 
-.INTEntry                                       ; Entry of IM 1 Interrupt Handler (called from 0038H in LOWRAM)
+.INTEntry                                       ; Entry of IM 1 Interrupt Handler (called from 0038H in lowram.def)
         push    bc
         push    de
         push    hl
@@ -260,7 +261,7 @@ xref    ReadRTC                                 ; bank0/time.asm
         pop     hl
         pop     de
         pop     bc
-        jp      INTReturn                       ; get out of IM 1 Interrupt handler - restore bindings in LOWRAM.
+        jp      INTReturn                       ; get out of IM 1 Interrupt handler - restore bindings in lowram.def.
 
 ;       ----
 

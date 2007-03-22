@@ -39,12 +39,14 @@ fi
 
 # create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 # (argument $1 contains the country localisation)
+cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -g -I../def lowram.asm
+  ../../../tools/mpm/mpm -g -I../../def @lowram.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
+cd ..
 
 # pre-compile (lower) kernel to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
@@ -55,12 +57,14 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # create final lowram binary with correct addresses from lower kernel
+cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../def lowram.asm
+  ../../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../../def @lowram.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
+cd ..
 
 # compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 if test "$COMPILE_ERROR" -eq 0; then

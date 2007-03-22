@@ -38,8 +38,9 @@
         include "syspar.def"
         include "sysvar.def"
         include "serintfc.def"
-        include "lowram.def"
         include "interrpt.def"
+
+        include "lowram.def"
 
 xdef    OSSiHrd1
 xdef    OSSiSft1

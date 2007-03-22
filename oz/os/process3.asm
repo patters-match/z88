@@ -39,11 +39,12 @@
         include "fileio.def"
         include "syspar.def"
         include "sysvar.def"
-        include "lowram.def"
         include "printer.def"
         include "keyboard.def"
         include "screen.def"
         include "handle.def"
+
+        include "lowram.def"
 
 xdef    ApplCaps
 xdef    InitHlpActiveCmd
@@ -361,7 +362,7 @@ xref    OSSr_Fus                                ; bank7/ossr.asm
         ld      (pOSEntHandle), hl
         ld      de, unk_1864
         exx
-        call    OSFramePush                     
+        call    OSFramePush
         ld      ix, OSFramePop                  ; for the return
         push    ix
         ld      hl, ubBadInfoBlock
