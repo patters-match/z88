@@ -58,7 +58,7 @@ xref    GetHandlePtr                            ; bank0/dor.asm
 xref    VerifyHandleBank                        ; bank0/dor.asm
 
 xref    RdKbBuffer                              ; bank0/osin.asm
-xref    BfSta                                   ; bank0/buffer.asm
+;xref    BfSta                                   ; bank0/buffer.asm
 
 xref    OSFramePop                              ; bank0/misc4.asm
 xref    OSFramePush                             ; bank0/misc4.asm
@@ -473,10 +473,7 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         cp      e
         jr      nz, check_rd_kb
 
-        push    ix                              ; 5 - read byte from serial port
-        ld      ix, (SerRXHandle)
-        call    OSSiGbt
-        pop     ix
+        call    OSSiGbt                         ; 5 - read byte from serial port
         ret
 
 .check_rd_kb
@@ -562,10 +559,7 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         jr      nz, check_wr_kb
 
         ld      a, (iy+OSFrame_A)
-        push    ix                              ; 5 - write byte to serial port
-        ld      ix, (SerRXHandle)
-        call    OSSiPbt
-        pop     ix
+        call    OSSiPbt                         ; 5 - write byte to serial port
         ret
 
 .check_wr_kb

@@ -42,13 +42,14 @@ defc    OZBANK_FPP              =$02
 defc    OZBANK_GN               =$03
 defc    OZBANK_KNL1             =$07            ; kernel bank 1
 defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap)
+defc    OZBANK_LOWRAM           =$0C            ; LOWRAM code to be installed during reset  
 defc    OZBANK_KEYMAP           =$08            ; localisation keymap tables
 
 defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
 defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
 defc    FPPCALLTBL              =$D800
-defc    LOWRAM_CODE             =$FDD0          ; LOWRAM code stored in MTH static data bank at offset $3dd0
+defc    LOWRAM_CODE             =$C000          ; LOWRAM code stored in MTH static data bank at offset $3dd0
 
 defc    LORES0_BANK_UNEXP       =$21
 defc    LORES0_PAGE_UNEXP       =$22

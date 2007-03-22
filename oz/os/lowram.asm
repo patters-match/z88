@@ -38,6 +38,10 @@
         include "error.def"
         include "sysvar.def"
         include "flashepr.def"
+        include "interrpt.def"
+        include "buffer.def"
+        include "serintfc.def"
+        include "stdio.def"
 
 IF COMPILE_BINARY
         include "kernel0.def"                   ; get bank 0 kernel address references
@@ -69,7 +73,10 @@ xdef    ExtCall
 xdef    MemDefBank, MemGetBank
 xdef    I28Fx_PollChipId, I28Fx_BlowByte, I28Fx_EraseSector
 xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
-
+xdef    BfSta, BfSta2
+xdef    BfPb, BfPb2
+xdef    BfGb, BfGb2
+xdef    IntUART
 
 .LowRAMcode
 
@@ -739,5 +746,320 @@ xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
         ret
 
 ; ***************************************************************************************************
+
+; ---------------------------------------------------------------------------------------------
+; Get buffer status
+;
+;IN:    IX = buffer handle
+;OUT:   H = number of databytes in buffer
+;       L = number of free bytes in buffer
+;chg:   ......HL/....
+
+.BfSta
+        call    OZDImain
+        call    BfSta2
+        call    OZEIMain
+        or      a
+        ret
+
+.BfSta2                                         ; for use in interruption
+        push    af
+        ld      a, (ix+buf_wrpos)
+        sub     (ix+buf_rdpos)
+        ld      h, a                            ; used = wrpos - rdpos
+        cpl                                     ; free=bufsize-used-1 (neg + dec a = cpl !)
+        ld      l, a
+        pop     af
+        ret
+
+
+; ---------------------------------------------------------------------------------------------
+; Write byte to buffer
+;
+;IN :   IX = buffer handle
+;       A = byte to be written
+;OUT:   Fc=0, success
+;       Fc=1, failure and A = Rc_Eof
+;CHG:   AF....HL/....
+
+.BfPb
+        ex      af, af'
+        call    OZDImain
+        ex      af, af'
+        call    BfPb2
+        ex      af, af'
+        call    OZEImain
+        ex      af, af'
+        ret
+
+.BfPb2
+        ld      h,a
+        ld      a,(ix+buf_wrpos)
+        ld      l,a
+        inc     a
+        cp      (ix+buf_rdpos)
+        jr      z, eof_ret
+        ld      a, h
+        ld      h, (ix+buf_page)
+        ld      (hl), a
+        inc     (ix+buf_wrpos)
+        or      a                               ; reset Fc
+        ld      hl, ubIntTaskToDo
+        set     ITSK_B_BUFFER, (hl)             ; buffer task
+        ret
+.eof_ret        
+        ld      a, RC_Eof
+        scf
+        ret
+
+
+; ---------------------------------------------------------------------------------------------
+; Read byte from buffer
+;
+;IN :   IX = buffer handle
+;OUT:   Fc=0, success and A = byte read
+;       Fc=1, failure and A = Rc_Eof
+;CHG:   AF.C..HL/....
+
+.BfGb
+        call    OZDImain
+        ex      af, af'
+        call    BfGb2
+        ex      af, af'
+        call    OZEImain
+        ex      af, af'
+        ret
+        
+.BfGb2
+        ld      a, (ix+buf_rdpos)
+        cp      (ix+buf_wrpos)
+        jr      z, eof_ret
+        ld      h, (ix+buf_page)
+        ld      l, a
+        ld      a, (hl)
+        inc     (ix+buf_rdpos)
+        or      a                               ; reset Fc
+        ld      hl, ubIntTaskToDo
+        set     ITSK_B_BUFFER, (hl)             ; buffer task
+        ret
+
+
+; -----------------------------------------------------------------------------------------
+; Main Serial Interface Interrupt handler that manages bytes received and sent through
+; the serial port hardware and updating of the serial receive and transmit buffers.
+;
+; This routine is executed from the IM 1 interrupt handler (INTEntry, int.asm), when an
+; UART interrupt was recognized from the BLINK.
+;
+.IntUART
+        ld      c, BL_UIT                       ; interrupt status
+        in      a, (c)
+        ld      c, a
+        ld      a, (BLSC_UMK)                   ; interrupt mask
+        and     c
+        bit     BB_UITTDRE, a
+        call    nz, TxInt
+        bit     BB_UITRDRF, a
+        call    nz, RxInt
+        bit     BB_UITDCDI, a
+        call    nz, DcdInt
+        or      a
+        ret
+
+; ----------------------------------------------------------------------------------
+; BLINK has received a byte from the serial port hardware; grab it and put
+; it in the serial port receive buffer.
+.RxInt
+        push    af
+
+;       get char from serial port
+
+        ld      hl, (ubSerParity)               ; L=parity, H=flow control
+        in      a, (BL_RXE)                     ; !! probably need to read this too
+        in      a, (BL_RXD)                     ; read serial data
+
+;       clear parity bit, check for XON/XOFF if needed
+
+        bit     PAR_B_PARITY, l
+        jr      nz, rx_parity
+        bit     FLOW_B_XONXOFF, h
+        jr      z, rx_BfPb                      ; no flow control? write char
+
+        cp      XON                             ; !! 'jr z' both XON/XOFF to
+        jr      z, rx_xon                       ; !! speed up normal chars
+        cp      XOFF
+        jr      z, rx_xoff
+
+;       save char, block sender if buffer 75% full
+
+.rx_BfPb
+        push    ix                              ; write byte to buffer
+        ld      ix, SerRXHandle
+        call    BfPb2
+        call    BfSta2                          ; get used/free slots in buffers
+        pop     ix
+
+        ld      a, h                            ; #chars in buffer
+        add     a, l                            ; +free space = bufsize
+        srl     a
+        srl     a                               ; bufsize/4
+        cp      l
+        jr      c, rx_x                         ; more than 25% free? exit
+
+        ld      a, (BLSC_RXC)                   ; IRTS? hold sender
+        bit     BB_RXCIRTS, a
+        jr      nz, rx_4
+
+        ld      a, 15
+        cp      l
+        jr      c, rx_x                         ; more than 15 byte free? exit
+
+        ld      a, (BLSC_RXC)                   ; !! use a' above
+.rx_4
+        and     ~(BM_RXCARTS|BM_RXCIRTS)        ; disable ARTS/IRTS
+        ld      (BLSC_RXC), a
+        out     (BL_RXC), a
+
+        ld      a, (ubSerFlowControl)           ; no flow control? exit
+        bit     FLOW_B_XONXOFF, a
+        jr      z, rx_x
+
+        ld      a, XOFF                         ; send XOFF
+        ld      (cSerXonXoffChar), a
+.rx_ei_tdre
+        ld      a, (BLSC_UMK)                   ; enable TDRE int
+        bit     BB_UMKTDRE, a
+        jr      nz, rx_x                        ; TDRE int already enabled 
+        or      BM_UMKTDRE                      ; enable TDRE int
+        ld      (BLSC_UMK), a
+        out     (BL_UMK), a
+.rx_x
+        pop     af
+        ret
+
+.rx_parity                                      ; could be more serious
+        and     $7f                             ; clear parity bit
+        jr      rx_BfPb                         ; continue
+
+.rx_xon
+        ld      hl, ubSerFlowControl            ; allow sending
+        res     FLOW_B_TXSTOP, (hl)
+        jr      rx_ei_tdre
+
+.rx_xoff
+        ld      hl, ubSerFlowControl            ; disable sending
+        set     FLOW_B_TXSTOP, (hl)
+        pop     af
+        ret
+
+;       ----
+
+.TxInt
+        push    af
+
+;       check if we need to send XON/XOFF
+
+        ld      hl, cSerXonXoffChar
+        ld      a, (hl)                         ; if zero, nothing to send
+        ld      (hl), 0
+        or      a
+        jr      nz, tx_2                        ; need to send XON/XOFF
+
+;       receiver sent XOFF?
+
+        ld      a, (ubSerFlowControl)           ; need to stop transmitting?
+        bit     FLOW_B_TXSTOP, a
+        jr      nz, tx_1
+
+;       get data from buffer, send if buffer not empty
+
+        push    ix                              ; read byte from TxBuf
+        ld      ix, SerTXHandle
+        call    BfGb2
+        pop     ix
+        jr      nc, tx_2                        ; buffer not empty? send byte
+
+.tx_1
+        ld      a, (BLSC_UMK)                   ; disable TDRE
+        and     ~BM_UMKTDRE
+        ld      (BLSC_UMK), a
+        out     (BL_UMK), a
+        jr      tx_x                            ; and exit
+
+;       send char in A !! rearrange parity bits and use af' for speed
+
+.tx_2
+        ld      bc, (ubSerParity)               ; parity inC
+        ld      b, ~TDRH_START
+
+        bit     PAR_B_9BIT, c                   ; nine bit data? clear 1st stop bit (bit8)
+        jr      z, tx_3
+        res     TDRH_B_STOP, b
+
+.tx_3
+        bit     PAR_B_PARITY, c                 ; no parity? we're done
+        jr      z, tx_send
+
+        and     $7F                             ; clear parity bit
+        bit     PAR_B_STICKY, c
+        jr      z, tx_4                         ; even/odd
+
+        bit     PAR_B_MARK, c
+        jr      z, tx_send                      ; space - cleared parity already
+
+        set     7, a                            ; mark - set high bit
+        jr      tx_send
+
+;       calculate parity bit
+
+.tx_4
+        ex      af, af'                         ; !! test this bit separately
+        bit     PAR_B_ODD, c                    ; !! saves several 'ex af's
+        ex      af, af'
+        and     a                               ; test parity
+        jp      pe, tx_even
+
+;       A has odd parity
+
+        ex      af, af'
+        jr      z, tx_7                         ; want even parity? set bit
+        jr      tx_6                            ; else done
+
+;       A has even parity
+
+.tx_even
+        ex      af, af'
+        jr      nz, tx_7                        ; want odd parity? set bit
+.tx_6
+        ex      af, af'
+        jr      tx_send
+
+.tx_7
+        ex      af, af'
+        xor     $80
+
+.tx_send
+        ld      c, BL_TXD
+        out     (c), a                          ; puts B into A8-A15
+
+.tx_x
+        pop     af
+        ret
+
+;       ----
+
+.DcdInt
+        ld      a, (BLSC_UMK)                   ; invert RDRF int
+        xor     BM_UMKRDRF
+        ld      (BLSC_UMK), a
+        out     (BL_UMK), a
+        ld      a, (BLSC_TXC)                   ; invert DCDI int
+        xor     BM_TXCDCDI
+        ld      (BLSC_TXC), a
+        out     (BL_TXC), a
+        ld      a, BM_UAKDCD                    ; ack DCD
+        out     (BL_UAK), a
+        ret
+
 
 .LowRAMcode_end

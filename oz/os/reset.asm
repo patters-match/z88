@@ -134,7 +134,7 @@ xref    TimeReset                               ; bank7/timeres.asm
 
 ;       copy low RAM code and install it in lower 8K of segment 0
 .rst2_3
-        ld      a, OZBANK_MTH
+        ld      a, OZBANK_LOWRAM
         out     (BL_SR3), a                     ; bind MTH bank into S3
         ld      bc, #LowRAMcode_end - LowRAMcode
         ld      hl, LOWRAM_CODE                 ; and copy LOWRAM code into

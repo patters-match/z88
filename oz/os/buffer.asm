@@ -43,41 +43,11 @@
 xdef    BfGbt
 xdef    BfPbt
 xdef    BfPur
-xdef    BfSta
-xdef    BufRead
-xdef    BufWrite
-xdef    BfSta4I
-xdef    BufRead4I
-xdef    BufWrite4I
 xdef    InitBufKBD_RX_TX
 
-xref    OSWaitMain                              ; bank0/nmi.asm
-
-
-; ---------------------------------------------------------------------------------------------
-; Get buffer status
-;
-;IN:    IX = buffer
-;OUT:   H = number of databytes in buffer
-;       L = number of free bytes in buffer
-;chg:   ......HL/....
-
-.BfSta
-        call    OZ_DI
-        call    BfSta4I
-        call    OZ_EI
-        or      a
-        ret
-
-.BfSta4I                                        ; for use in interruption
-        push    af
-        ld      a, (ix+buf_wrpos)
-        sub     (ix+buf_rdpos)
-        ld      h, a                            ; used = wrpos - rdpos
-        cpl                                     ; free=bufsize-used-1 (neg + dec a = cpl !)
-        ld      l, a
-        pop     af
-        ret
+;xref    BfGb
+;xref    BfPb
+xref    OSWaitMain                              ; [kernel0]/nmi.asm
 
 
 ; ---------------------------------------------------------------------------------------------
@@ -95,77 +65,6 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         ex      af, af'
         call    OZ_EI
         or      a
-        ret
-
-
-; ---------------------------------------------------------------------------------------------
-; Write byte to buffer
-;
-;IN :   IX = buffer
-;       A = byte to be written
-;OUT:   Fc=0, success
-;       Fc=1, failure and A = Rc_Eof
-;CHG:   AF....HL/....
-
-.BufWrite
-        ex      af, af'
-        call    OZ_DI
-        ex      af, af'
-        call    BufWrite4I
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
-        ret
-
-.BufWrite4I
-        ld      h,a
-        ld      a,(ix+buf_wrpos)
-        ld      l,a
-        inc     a
-        cp      (ix+buf_rdpos)
-        jr      z, eof_ret
-        ld      a, h
-        ld      h, (ix+buf_page)
-        ld      (hl), a
-        inc     (ix+buf_wrpos)
-        or      a                               ; reset Fc
-        ld      hl, ubIntTaskToDo
-        set     ITSK_B_BUFFER, (hl)             ; buffer task
-        ret
-.eof_ret        
-        ld      a, RC_Eof
-        scf
-        ret
-
-
-; ---------------------------------------------------------------------------------------------
-; Read byte from buffer
-;
-;IN :   IX = buffer
-;OUT:   Fc=0, success and A = byte read
-;       Fc=1, failure and A = Rc_Eof
-;CHG:   AF.C..HL/....
-
-.BufRead
-        call    OZ_DI
-        ex      af, af'
-        call    BufRead4I
-        ex      af, af'
-        call    OZ_EI
-        ex      af, af'
-        ret
-        
-.BufRead4I
-        ld      a, (ix+buf_rdpos)
-        cp      (ix+buf_wrpos)
-        jr      z, eof_ret
-        ld      h, (ix+buf_page)
-        ld      l, a
-        ld      a, (hl)
-        inc     (ix+buf_rdpos)
-        or      a                               ; reset Fc
-        ld      hl, ubIntTaskToDo
-        set     ITSK_B_BUFFER, (hl)             ; buffer task
         ret
 
 
@@ -197,7 +96,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         jr      nz, bfpbt_esc                   ; ESC pending? exit
 
 .bfpbt_put
-        call    BufWrite
+        call    BfPb
         jr      c, bfpbt_wait                   ; RC_Eof, buffer full, wait
 
 .bfpbt_x
@@ -275,7 +174,7 @@ xref    OSWaitMain                              ; bank0/nmi.asm
         bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
         jr      nz, bfgbt_esc
 .bfgbt_get
-        call    BufRead
+        call    BfGb
         jr      c, bfgbt_wait                   ; RC_Eof, buffer is empty, wait
 
 .bfgbt_x

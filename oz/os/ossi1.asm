@@ -48,7 +48,7 @@ xdef    OSSiFtx1
 xdef    OSSiFrx1
 xdef    OSSiTmo1
 
-xref    BfSta                                   ; bank0/buffer.asm
+;xref    BfSta                                   ; bank0/buffer.asm
 xref    BfPur                                   ; bank0/buffer.asm
 xref    WrRxc                                   ; bank0/ossi0.asm
 xref    EI_TDRE                                 ; bank0/ossi0.asm
@@ -223,7 +223,7 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
 ;       ----
 
 .OSSiTmo1
-        ld      (SerTimeout), bc
+        ld      (uwSerTimeout), bc
         ret
 
 ;       ----

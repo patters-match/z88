@@ -43,18 +43,17 @@
         include "interrpt.def"
 
 xdef    OSSi
-xdef    OSSiInt                                 ; called by int.asm (replace IntUART)
 xdef    WrRxC
 xdef    EI_TDRE
 xdef    OSSiGbt, OSSiPbt
 
-xref    BufWrite                                ; bank0/buffer.asm
-xref    BufRead                                 ; bank0/buffer.asm
+;xref    BfPb                                    ; bank0/lowram.asm
+;xref    BfGb                                    ; bank0/lowram.asm
+;xref    BfPb2                                   ; bank0/lowram.asm
+;xref    BfGb2                                   ; bank0/lowram.asm
+;xref    BfSta2                                  ; bank0/lowram.asm
 xref    BfPbt                                   ; bank0/buffer.asm
 xref    BfGbt                                   ; bank0/buffer.asm
-xref    BufWrite4I
-xref    BufRead4I
-xref    BfSta4I
 
 xref    OSSiHrd1                                ; bank7/ossi1.asm
 xref    OSSiSft1                                ; bank7/ossi1.asm
@@ -94,7 +93,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .OSSITBL
         jp      OSSiHrd
         jp      OSSiSft
-        jp      OSSiInt                         ; in K0 for speed
+        jp      IntUART                         ; in LOWRAM for speed
         jp      OSSiGbt                         ; in K0 for speed
         jp      OSSiPbt                         ; in K0 for speed
         jp      OSSiEnq
@@ -126,219 +125,6 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         extcall OSSiTmo1, OZBANK_KNL1
         ret
 
-
-; -----------------------------------------------------------------------------------------
-; Main Serial Interface Interrupt handler that manages bytes received and sent through
-; the serial port hardware and updating of the serial receive and transmit buffers.
-;
-; This routine is executed from the IM 1 interrupt handler (INTEntry, int.asm), when an
-; UART interrupt was recognized from the BLINK.
-;
-.OSSiInt
-        ld      c, BL_UIT                       ; interrupt status
-        in      a, (c)
-        ld      c, a
-        ld      a, (BLSC_UMK)                   ; interrupt mask
-        and     c
-        bit     BB_UITTDRE, a
-        call    nz, TxInt
-        bit     BB_UITRDRF, a
-        call    nz, RxInt
-        bit     BB_UITDCDI, a
-        call    nz, DcdInt
-        or      a
-        ret
-
-; ----------------------------------------------------------------------------------
-; BLINK has received a byte from the serial port hardware; grab it and put
-; it in the serial port receive buffer.
-.RxInt
-        push    af
-
-;       get char from serial port
-
-        ld      hl, (ubSerParity)               ; L=parity, H=flow control
-        in      a, (BL_RXE)                     ; !! probably need to read this too
-        in      a, (BL_RXD)                     ; read serial data
-
-;       clear parity bit, check for XON/XOFF if needed
-
-        bit     PAR_B_PARITY, l
-        jr      nz, rx_parity
-        bit     FLOW_B_XONXOFF, h
-        jr      z, rx_BfPb                      ; no flow control? write char
-
-        cp      XON                             ; !! 'jr z' both XON/XOFF to
-        jr      z, rx_xon                       ; !! speed up normal chars
-        cp      XOFF
-        jr      z, rx_xoff
-
-;       save char, block sender if buffer 75% full
-
-.rx_BfPb
-        push    ix                              ; write byte to buffer
-        ld      ix, SerRXHandle
-        call    BufWrite4I
-        call    BfSta4I                         ; get used/free slots in buffers
-        pop     ix
-
-        ld      a, h                            ; #chars in buffer
-        add     a, l                            ; +free space = bufsize
-        srl     a
-        srl     a                               ; bufsize/4
-        cp      l
-        jr      c, rx_x                         ; more than 25% free? exit
-
-        ld      a, (BLSC_RXC)                   ; IRTS? hold sender
-        bit     BB_RXCIRTS, a
-        jr      nz, rx_4
-
-        ld      a, 15
-        cp      l
-        jr      c, rx_x                         ; more than 15 byte free? exit
-
-        ld      a, (BLSC_RXC)                   ; !! use a' above
-.rx_4
-        and     ~(BM_RXCARTS|BM_RXCIRTS)        ; disable ARTS/IRTS
-        call    WrRxC
-        ld      a, (ubSerFlowControl)           ; no flow control? exit
-        bit     FLOW_B_XONXOFF, a
-        jr      z, rx_x
-
-        ld      a, XOFF                         ; send XOFF
-        ld      (cSerXonXoffChar), a
-        call    EI_TDRE                         ; enable TDRE int
-
-.rx_x
-        pop     af
-        ret
-
-.rx_parity                                      ; could be more serious
-        and     $7f                             ; clear parity bit
-        jr      rx_BfPb                         ; continue
-
-.rx_xon
-        ld      hl, ubSerFlowControl            ; allow sending
-        res     FLOW_B_TXSTOP, (hl)
-        call    EI_TDRE                         ; enable TDRE int
-        pop     af
-        ret
-
-.rx_xoff
-        ld      hl, ubSerFlowControl            ; disable sending
-        set     FLOW_B_TXSTOP, (hl)
-        pop     af
-        ret
-
-;       ----
-
-.TxInt
-        push    af
-
-;       check if we need to send XON/XOFF
-
-        ld      hl, cSerXonXoffChar
-        ld      a, (hl)                         ; if zero, nothing to send
-        ld      (hl), 0
-        or      a
-        jr      nz, tx_2                        ; need to send XON/XOFF
-
-;       receiver sent XOFF?
-
-        ld      a, (ubSerFlowControl)           ; need to stop transmitting?
-        bit     FLOW_B_TXSTOP, a
-        jr      nz, tx_1
-
-;       get data from buffer, send if buffer not empty
-
-        push    ix                              ; read byte from TxBuf
-        ld      ix, SerTXHandle
-        call    BufRead
-        pop     ix
-        jr      nc, tx_2                        ; buffer not empty? send byte
-
-.tx_1
-        ld      a, (BLSC_UMK)                   ; disable TDRE
-        and     ~BM_UMKTDRE
-        ld      (BLSC_UMK), a
-        out     (BL_UMK), a
-        jr      tx_x                            ; and exit
-
-;       send char in A !! rearrange parity bits and use af' for speed
-
-.tx_2
-        ld      bc, (ubSerParity)               ; parity inC
-        ld      b, ~TDRH_START
-
-        bit     PAR_B_9BIT, c                   ; nine bit data? clear 1st stop bit (bit8)
-        jr      z, tx_3
-        res     TDRH_B_STOP, b
-
-.tx_3
-        bit     PAR_B_PARITY, c                 ; no parity? we're done
-        jr      z, tx_send
-
-        and     $7F                             ; clear parity bit
-        bit     PAR_B_STICKY, c
-        jr      z, tx_4                         ; even/odd
-
-        bit     PAR_B_MARK, c
-        jr      z, tx_send                      ; space - cleared parity already
-
-        set     7, a                            ; mark - set high bit
-        jr      tx_send
-
-;       calculate parity bit
-
-.tx_4
-        ex      af, af'                         ; !! test this bit separately
-        bit     PAR_B_ODD, c                    ; !! saves several 'ex af's
-        ex      af, af'
-        and     a                               ; test parity
-        jp      pe, tx_even
-
-;       A has odd parity
-
-        ex      af, af'
-        jr      z, tx_7                         ; want even parity? set bit
-        jr      tx_6                            ; else done
-
-;       A has even parity
-
-.tx_even
-        ex      af, af'
-        jr      nz, tx_7                        ; want odd parity? set bit
-.tx_6
-        ex      af, af'
-        jr      tx_send
-
-.tx_7
-        ex      af, af'
-        xor     $80
-
-.tx_send
-        ld      c, BL_TXD
-        out     (c), a                          ; puts B into A8-A15
-
-.tx_x
-        pop     af
-        ret
-
-;       ----
-
-.DcdInt
-        ld      a, (BLSC_UMK)                   ; invert RDRF int
-        xor     BM_UMKRDRF
-        ld      (BLSC_UMK), a
-        out     (BL_UMK), a
-        ld      a, (BLSC_TXC)                   ; invert DCDI int
-        xor     BM_TXCDCDI
-        ld      (BLSC_TXC), a
-        out     (BL_TXC), a
-        ld      a, BM_UAKDCD                    ; ack DCD
-        out     (BL_UAK), a
-        ret
-
 ;       ----
 
 .OSSiPbt
@@ -347,7 +133,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         and     c
         inc     a
         jr      nz, sipbt_2
-        ld      bc, (SerTimeout)                ; get default timeout if BC = -1
+        ld      bc, (uwSerTimeout)              ; get default timeout if BC = -1
 .sipbt_2
         ld      ix, SerTXHandle
         pop     af
@@ -362,7 +148,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         push    af                              ; get byte with timeout
         ld      ix, SerRXHandle
         call    BfGbt
-        call    BfSta4I                         ; int are disabled and AF have to be preserved
+        call    BfSta2                          ; int are disabled and AF have to be preserved
         jr      c, gb_2                         ; error? exit
         ld      e, a
 

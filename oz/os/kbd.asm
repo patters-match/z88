@@ -37,12 +37,13 @@ include "sysvar.def"
 include "memory.def"
 include "interrpt.def"
 include "keyboard.def"
+include "lowram.def"
 
 xdef    ExtKbMain                               ; was KbMain
 xdef    ExtQualifiers                           ; was ApplyQualifiers
 xdef    IsForeignKey                            ; is char capsable
 
-xref    BufWrite                                ; bank0/buffer.asm
+;xref    BfPb                                    ; bank0/lowram.asm
 xref    SwitchOff                               ; bank0/nmi.asm
 xref    MaySetEsc                               ; bank0/esc.asm
 xref    MS2BankA                                ; bank0/misc5.asm
@@ -75,7 +76,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         ld      l, a
 
         ld      a, c
-        call    jpHL                            ; and call it with AB intact
+        call    jpHL                            ; and call it with AB intact (in lowram)
 
         push    af
         pop     bc
@@ -89,7 +90,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         pop     hl
         ret
 
-.jpHL   jp      (HL)
+;.jpHL   jp      (HL)
 
 
 ; Main keyboard routine
@@ -300,7 +301,7 @@ xref    DrawOZWd                                ; bank0/ozwindow.asm
         ret     c                               ; exit if key swallowed
         di                                      ; put key into buffer
         set     KBF_B_KEY,(ix+kbd_flags)
-        call    BufWrite
+        call    BfPb
         ei
         ret
 
