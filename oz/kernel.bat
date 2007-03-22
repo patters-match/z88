@@ -36,7 +36,7 @@ goto COMPILE_ERROR
 :: create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 :PRECOMPILE_LOWRAM
 cd lowram
-..\..\..\tools\mpm\mpm -g -I..\..\def @lowram.prj
+..\..\..\tools\mpm\mpm -g -I..\..\def lowram.asm
 dir *.err 2>nul >nul || goto PRECOMPILE_KERNEL0
 goto COMPILE_ERROR
 
@@ -50,7 +50,7 @@ goto COMPILE_ERROR
 :: create final lowram binary with correct addresses from lower kernel
 :COMPILE_LOWRAM
 cd lowram
-..\..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\..\def @lowram.prj
+..\..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -I..\..\def lowram.asm
 dir *.err 2>nul >nul || goto COMPILE_KERNEL1
 goto COMPILE_ERROR
 

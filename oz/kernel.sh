@@ -41,7 +41,7 @@ fi
 # (argument $1 contains the country localisation)
 cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -g -I../../def @lowram.prj
+  ../../../tools/mpm/mpm -g -I../../def lowram.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -50,7 +50,7 @@ cd ..
 
 # pre-compile (lower) kernel to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -g -I../def @kernel0.prj
+  ../../tools/mpm/mpm -g -I../def -Ilowram @kernel0.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -59,7 +59,7 @@ fi
 # create final lowram binary with correct addresses from lower kernel
 cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../../def @lowram.prj
+  ../../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../../def lowram.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -68,7 +68,7 @@ cd ..
 
 # compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -l../../stdlib/standard.lib -I../def @kernel1.prj
+  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DKB"$1" -l../../stdlib/standard.lib -I../def -Ilowram @kernel1.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -76,7 +76,7 @@ fi
 
 # compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../def @kernel0.prj
+  ../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../def -Ilowram @kernel0.prj
   ../../tools/mpm/mpm -b -DCOMPILE_BINARY ostables.asm
 fi
 
