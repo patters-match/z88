@@ -64,14 +64,12 @@ mth/mth.bin 082000                              ; the System Token Table, MTH st
 ; Bank 9: BBC Basic application
 apps/bbcbasic/basic.dat 090000                  ; $0000: BBC BASIC application bank
 
-; Bank 10: EazyLink
+; Bank 10: EazyLink & LOWRAM
 apps/eazylink/eazylink.bin 0a0000               ; $8000: EazyLink popdown
+os/lowram/lowram.bin 0a3d00                     ; LOWRAM code (RST routines, etc) to be installed during reset
 
 ; Bank 11: FlashStore
 apps/flashstore/fsapp.bin 0b0000
-
-; Bank 12: LOWRAM code
-os/lowram/lowram.bin 0a3d00                     ; LOWRAM code (RST routines, etc) to be installed during reset
 
 ; ROM header at top of 512K address space
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code
