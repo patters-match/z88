@@ -38,43 +38,42 @@
         include "sysvar.def"
         include "memory.def"
         include "interrpt.def"
-        ;include "kernel.def"
         include "keyboard.def"
         include "screen.def"
 
 xdef    OSSpMain
 xdef    OSNqMain
-xdef    RstRdPanelAttrs
-xdef    InitKbdPtrs
 
-xref    ClearMemHL_A                            ; bank0/misc5.asm
-xref    CopyMemDE_HL                            ; bank0/misc5.asm
-xref    GetOSFrame_DE                           ; bank0/misc5.asm
-xref    GetOSFrame_HL                           ; bank0/misc5.asm
-xref    PeekHLinc                               ; bank0/misc5.asm
-xref    PokeHLinc                               ; bank0/misc5.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    PutOSFrame_DE                           ; bank0/misc5.asm
-xref    PutOSFrame_HL                           ; bank0/misc5.asm
+xref    ClearMemHL_A                            ; [K0]/misc5.asm
+xref    CopyMemDE_HL                            ; [K0]/misc5.asm
+xref    GetOSFrame_DE                           ; [K0]/misc5.asm
+xref    GetOSFrame_HL                           ; [K0]/misc5.asm
+xref    PeekHLinc                               ; [K0]/misc5.asm
+xref    PokeHLinc                               ; [K0]/misc5.asm
+xref    PutOSFrame_BC                           ; [K0]/misc5.asm
+xref    PutOSFrame_DE                           ; [K0]/misc5.asm
+xref    PutOSFrame_HL                           ; [K0]/misc5.asm
 
-xref    FreeMemData                             ; bank0/filesys3.asm
-xref    InitFsMemHandle                         ; bank0/filesys3.asm
-xref    RdFileByte                              ; bank0/filesys3.asm
-xref    SetMemHandlePos                         ; bank0/filesys3.asm
-xref    WrFileByte                              ; bank0/filesys3.asm
-xref    GetWdStartXY                            ; bank0/scrdrv4.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
-xref    GetWindowFrame                          ; bank0/scrdrv2.asm
-xref    NqRDS                                   ; bank0/scrdrv2.asm
-xref    NqSp_ret                                ; bank0/spnq0.asm
-xref    OSNqMemory                              ; bank0/memory.asm
-xref    OSSp_89                                 ; bank0/memory.asm
-xref    OSSp_PAGfi                              ; bank0/pagfi.asm
+xref    FreeMemData                             ; [K0]/filesys3.asm
+xref    InitFsMemHandle                         ; [K0]/filesys3.asm
+xref    RdFileByte                              ; [K0]/filesys3.asm
+xref    SetMemHandlePos                         ; [K0]/filesys3.asm
+xref    WrFileByte                              ; [K0]/filesys3.asm
+xref    GetWdStartXY                            ; [K0]/scrdrv4.asm
+xref    ScreenClose                             ; [K0]/scrdrv4.asm
+xref    ScreenOpen                              ; [K0]/scrdrv4.asm
+xref    GetWindowFrame                          ; [K0]/scrdrv2.asm
+xref    NqRDS                                   ; [K0]/scrdrv2.asm
+xref    NqSp_ret                                ; [K0]/spnq0.asm
+xref    OSNqMemory                              ; [K0]/memory.asm
+xref    OSSp_89                                 ; [K0]/memory.asm
 
-xref    ScrD_GetMargins                         ; bank7/scrdrv1.asm
-xref    GetCrsrYX                               ; bank7/scrdrv1.asm
-xref    OSNqProcess                             ; bank7/process1.asm
+xref    ScrD_GetMargins                         ; [K1]/scrdrv1.asm
+xref    GetCrsrYX                               ; [K1]/scrdrv1.asm
+xref    OSNqProcess                             ; [K1]/process1.asm
+
+xref    OSSiSft1                                ;[K1]/ossi1.asm
+xref    OSPrtInit                               ;[K1]/printer.asm
 
 xref    Keymap_UK
 xref    Keymap_FR
@@ -533,7 +532,7 @@ xref    Keymap_FI
 .spp_9
         push    bc
         call    PeekHLinc                       ; read data
-        call    WrFileByte                          ; write to file
+        call    WrFileByte                      ; write to file
         pop     bc
         jr      c, spp_11
         djnz    spp_9                           ; until all done
@@ -814,9 +813,24 @@ xref    Keymap_FI
  ELSE
  ENDIF
 
+
 ;       ----
 ;
-; read PA_Gfi - PA_Bad into Panel preserved area.
+; apply panel settings, reset serial port, printer
+;
+;
+.OSSp_PAGfi
+        push    ix
+        call    RstRdPanelAttrs                 ; store panel and init keymap
+        call    OSSiSft1                        ; reset serial port and apply settings
+        call    OSPrtInit                       ; init printer filter
+        pop     ix
+        or      a
+        ret
+
+;       ----
+;
+; read PA_Mct - PA_Loc into Panel preserved area.
 ;
 ;
 .RstRdPanelAttrs

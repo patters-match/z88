@@ -43,28 +43,24 @@
 
         include "lowram.def"
 
-xdef    Reset                                   ; bank0/boot.asm
-xdef    ExpandMachine                           ; bank0/cardmgr.asm
+xdef    Reset                                   ; [K0]/boot.asm
+xdef    ExpandMachine                           ; [K0]/cardmgr.asm
 
-xref    InitBufKBD_RX_TX                        ; bank0/buffer.asm
-xref    MS1BankA                                ; bank0/misc5.asm
-xref    KPrint                                  ; bank0/misc5.asm
-xref    ResetHandles                            ; bank0/handle.asm
-xref    ResetTimeout                            ; bank0/nmi.asm
-xref    InitRAM                                 ; bank0/memory.asm
-xref    MarkSwapRAM                             ; bank0/memory.asm
-xref    MarkSystemRAM                           ; bank0/memory.asm
-xref    MountAllRAM                             ; bank0/memory.asm
-xref    Chk128KB                                ; bank0/memory.asm
-xref    FirstFreeRAM                            ; bank0/memory.asm
-xref    OSSp_PAGfi                              ; bank0/pagfi.asm
-xref    IntSecond                               ; bank0/int.asm
+xref    InitBufKBD_RX_TX                        ; [K0]/buffer.asm
+xref    MS1BankA                                ; [K0]/misc5.asm
+xref    KPrint                                  ; [K0]/misc5.asm
+xref    ResetHandles                            ; [K0]/handle.asm
+xref    ResetTimeout                            ; [K0]/nmi.asm
+xref    InitRAM                                 ; [K0]/memory.asm
+xref    MarkSwapRAM                             ; [K0]/memory.asm
+xref    MarkSystemRAM                           ; [K0]/memory.asm
+xref    MountAllRAM                             ; [K0]/memory.asm
+xref    Chk128KB                                ; [K0]/memory.asm
+xref    FirstFreeRAM                            ; [K0]/memory.asm
+xref    IntSecond                               ; [K0]/int.asm
 
-xref    RAMxDOR                                 ; bank7/misc1.asm
-xref    RstRdPanelAttrs                         ; bank7/spnq1.asm
-xref    InitKbdPtrs                             ; bank7/spnq1.asm
-xref    InitData                                ; bank7/initdata.asm
-xref    TimeReset                               ; bank7/timeres.asm
+xref    InitData                                ; [K1]/initdata.asm
+xref    TimeReset                               ; [K1]/timeres.asm
 
 ;       ----
 
@@ -239,7 +235,9 @@ xref    TimeReset                               ; bank7/timeres.asm
         ld      l, SI_HRD
         OZ      OS_Si                           ; hard reset serial interface
 
-        call    OSSp_PAGfi                      ; initialize panel values and keymap then serial port
+        ld      bc, PA_Gfi
+        OZ      OS_Sp                           ; initialize panel, serial port and printer
+
         ei
 
 .infinity
