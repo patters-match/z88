@@ -137,7 +137,7 @@ defvars SV_KERNEL_RAM
         uwOSTinTimeout          ds.w    1
         pOSEntHandle            ds.w    1
 
-; Active application (51):
+; Active application (64):
         uwAppStaticHnd          ds.w    1       ; pAppEnvHandle - uwAppStaticHnd - 1 is cleared when new app is created
         ubAppDynID              ds.b    1
         ubAppResCycle           ds.b    1
@@ -165,7 +165,8 @@ defvars SV_KERNEL_RAM
         eAppCommands_2          ds.p    1
         eAppHelp_2              ds.p    1
         eAppTokens_2            ds.p    1
-
+                                ds.b    13      ; panel bug if removed (try to reduce and define correctly length to erase)
+                                
 ; System (16):
         pAppEnvHandle           ds.w    1
         uwFreeRAMPages          ds.w    1

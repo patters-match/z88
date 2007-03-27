@@ -254,10 +254,10 @@ xref    OSSr_Fus                                ; bank7/ossr.asm
         jr      nz, osent_8                     ; OS_Exit? return with Fc=1
 
         push    bc                              ; clear active app variables area
-        ld      bc, pAppEnvHandle-uwAppStaticHnd-1
-        ld      de, uwAppStaticHnd+1
+        ld      bc, $3F                         ; pAppEnvHandle-uwAppStaticHnd-1
+        ld      de, uwAppStaticHnd+1            ; !!! PANEL bug if less than $3F...
         ld      hl, uwAppStaticHnd
-        ld      (hl), 0                         ; !! ld (hl), b
+        ld      (hl), b
         ldir
         pop     bc
 
