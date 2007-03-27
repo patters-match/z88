@@ -49,7 +49,6 @@ xdef    OSSiFtx1
 xdef    OSSiFrx1
 xdef    OSSiTmo1
 
-;xref    BfSta                                   ; bank0/buffer.asm
 xref    BfPur                                   ; bank0/buffer.asm
 xref    WrRxc                                   ; bank0/ossi0.asm
 xref    EI_TDRE                                 ; bank0/ossi0.asm
@@ -208,13 +207,11 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
 ;       ----
 
 .OSSiEnq1
-        push    ix
         ld      ix, SerTXHandle                 ; get TxBuf status
         call    BfSta
         push    hl
         ld      ix, SerRXHandle                 ; get RxBuf status
         call    BfSta
-        pop     ix
         ex      de, hl                          ; DE=RxStatus
         pop     bc                              ; BC=TxStatus
         in      a, (BL_UIT)                     ; A=int status
@@ -230,17 +227,14 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
 ;       ----
 
 .OSSiFtx1
-        push    ix
         ld      ix, SerTXHandle
         jr      FlushBuf
 
 ;       ----
 
 .OSSiFrx1
-        push    ix
         ld      ix, SerRXHandle
 
 .FlushBuf
         call    BfPur
-        pop     ix
         ret
