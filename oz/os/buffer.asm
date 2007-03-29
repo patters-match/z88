@@ -135,19 +135,13 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
         jr      bfpbt_put                       ; try to put data if room in buffer
 
 .bfpbt_wait
-        ld      bc, (uwSmallTimer)
-        ld      a, b
-        or      c
-        jr      z, bfpbt_to
-
-        call    OSWaitMain                      ; wait for buffer task
-
+        call    OSWaitMain                      ; wait for event, returns ITSK in A
         bit     ITSK_B_PREEMPTION, a
         jr      nz, bfpbt_susp0                 ; pre-emped? exit
         bit     ITSK_B_ESC, a
         jr      nz, bfpbt_esc                   ; ESC pending? exit
         bit     ITSK_B_BUFFER, a
-        jr      nz, bfpbt_again                 ; (was NZ) buffer task? try to put byte
+        jr      nz, bfpbt_again                 ; buffer task? try again
         bit     ITSK_B_TIMER, a
         jr      nz, bfpbt_to                    ; timeout? exit
         jr      bfpbt_susp                      ; otherwise exit with pre-emption
@@ -210,13 +204,7 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
         jr      bfgbt_get
 
 .bfgbt_wait
-        ld      bc, (uwSmallTimer)
-        ld      a, b
-        or      c
-        jr      z, bfgbt_to
-
-        call    OSWaitMain                      ; wait for data
-
+        call    OSWaitMain                      ; wait for event, returns ITSK in A
         bit     ITSK_B_PREEMPTION, a
         jr      nz, bfgbt_susp0                 ; pre-empted? cancel buffer task and exit
         bit     ITSK_B_ESC, a

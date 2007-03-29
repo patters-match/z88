@@ -302,9 +302,9 @@ defc    NMI_B_HALT      =0
 .OSWait
         call    OSFramePush
         call    OSWaitMain
-        ld      hl, ubIntTaskToDo
+        ld      hl, ubIntTaskToDo              ; ack buffer task
         res     ITSK_B_BUFFER, (hl)
-        jp      osfpop_1
+        jp      osfpop_1                        ; pop without error
 
 ;       ----
 
