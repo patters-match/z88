@@ -111,7 +111,7 @@ defc    NMI_B_HALT      =0
 
 ;       ----
 
-;       snooze until next TICK (maybe   other ints in H) and return keyboard status
+;       snooze until next TICK (maybe other ints in H) and return keyboard status
 ;       Fz=1 if no keys
 
 .SnoozeTICK

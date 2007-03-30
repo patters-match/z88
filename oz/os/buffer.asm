@@ -80,35 +80,25 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
 ;CHG:   AFBCDEHL/....
 
 .BfPbt
-        ex      af, af'
-        call    OZ_DI                           ; save int status
-        push    af
-        ei                                      ; force int enabled
-        ex      af, af'
-
+        ei                                      ; force int enabled (for RTC)
         push    af                              ; save byte to put
-
         ld      hl, ubIntTaskToDo
-        res     ITSK_B_TIMER, (hl)
-        ld      (uwSmallTimer), bc
+        res     ITSK_B_TIMER, (hl)              ; reset timeout flag
+        ld      (uwSmallTimer), bc              ; small timer counts timeout
         bit     ITSK_B_PREEMPTION, (hl)
         jr      nz, bfpbt_susp0                 ; pre-empted? ack susp and exit
         bit     ITSK_B_ESC, (hl)
         jr      nz, bfpbt_esc                   ; ESC pending? exit
 
 .bfpbt_put
-        call    BfPb
+        call    BfPb                            ; put byte in buffer
         jr      c, bfpbt_wait                   ; RC_Eof, buffer full, wait
 
 .bfpbt_x
-        ld      hl, ubIntTaskToDo
+        ld      hl, ubIntTaskToDo               ; buffer task done
         res     ITSK_B_BUFFER, (hl)
-        ex      af, af'
-        pop     af                              ; was af on entry
-        pop     af                              ; previous int status
-        call    OZ_EI
-        ex      af, af'
-        ld      bc, (uwSmallTimer)
+        pop     hl                              ; balance stack, was af on entry
+        ld      bc, (uwSmallTimer)              ; time remaining
         ret
 
 .bfpbt_to
@@ -157,29 +147,22 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
 ;CHG:   AFBCDEHL/....
 
 .BfGbt
-        call    OZ_DI                           ; save int status
-        push    af
-        ei                                      ; force int enabled
-
+        ei                                      ; force int enabled (for RTC)
         ld      hl, ubIntTaskToDo
-        res     ITSK_B_TIMER, (hl)              ;
-        ld      (uwSmallTimer), bc
+        res     ITSK_B_TIMER, (hl)              ; reset timeout flag
+        ld      (uwSmallTimer), bc              ; small timer counts timeout
         bit     ITSK_B_PREEMPTION, (hl)
         jr      nz, bfgbt_susp0                 ; pre-empted? exit
         bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
         jr      nz, bfgbt_esc
 .bfgbt_get
-        call    BfGb
+        call    BfGb                            ; read buffer
         jr      c, bfgbt_wait                   ; RC_Eof, buffer is empty, wait
 
 .bfgbt_x
-        ld      hl, ubIntTaskTodo
+        ld      hl, ubIntTaskTodo               ; buffer task done
         res     ITSK_B_BUFFER, (hl)
-        ex      af, af'                         ; preserve af
-        pop     af
-        call    OZ_EI
-        ex      af, af'
-        ld      bc, (uwSmallTimer)
+        ld      bc, (uwSmallTimer)              ; time remaining
         ret
 
 .bfgbt_to

@@ -212,8 +212,8 @@ xref    EI_TDRE                                 ; bank0/ossi0.asm
         push    hl
         ld      ix, SerRXHandle                 ; get RxBuf status
         call    BfSta
-        ex      de, hl                          ; DE=RxStatus
-        pop     bc                              ; BC=TxStatus
+        ex      de, hl                          ; DE=RxStatus (D used, E free)
+        pop     bc                              ; BC=TxStatus (B used, C free)
         in      a, (BL_UIT)                     ; A=int status
         or      a
         ret

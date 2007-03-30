@@ -38,6 +38,7 @@
         include "fileio.def"
         include "stdio.def"
         include "syspar.def"
+        include "serintfc.def"
 
         org     $e7f0
 
@@ -48,20 +49,17 @@
         ld      hl, aVt52                       ; "VT52"
         OZ      DC_Nam                          ; Name current application
 
-        ld      bc, NQ_Chn                      ; get :COM handle
-        OZ      OS_Nq                           ; enquire (fetch) parameter
-
         ld      iy, $1FF4
 
 ; loop to handle keyboard input
 
 .loop
-        ld      bc, 0
+        ld      bc, 1
         OZ      OS_Tin                          ; read a byte from std. input, with timeout
         jr      nc, t_1
 
 .error
-        cp      RC_Time                         ; Timeout
+        cp      RC_Time                         ; Timeout (never reached if bc=0)
         jr      z, serial                       ; go handle serial input
         cp      RC_Susp                         ; Suspicion of pre-emption
         jr      z, loop
@@ -103,7 +101,7 @@
         jr      nc, loop
         ld      c, a
         ld      b, 0
-        ld      hl, abcdpqrs_txt ; udrl, sh-udrl
+        ld      hl, abcdpqrs_txt                ; udrl, sh-udrl
         add     hl, bc
         ld      a, ESC
         call    putkey
@@ -114,8 +112,11 @@
         jr      loop
 
 .putkey
-        ld      bc, 0
-        OZ      OS_Pbt                          ; write byte A to handle IX, BC=timeout
+        push    hl
+        ld  l, SI_Pbt
+        ld  bc, 0
+        oz  OS_Si
+        pop hl
         ret     nc
 
         cp      RC_Time                         ; Timeout
@@ -129,34 +130,36 @@
 ; serial input
 
 .serial
-        ld      a, 4                            ; get buffer status
-        OZ      OS_Frm
-
-        ld      a, h
+        ld      l, SI_Enq
+        oz      OS_Si
+        ld      a, d                            ; Rx buffer used slots 
         or      a
-        jr      z, ser_2                        ; no  bytes in receive queue
+        jr      z, ser_2                        ; no bytes in receive queue
 
-        ld      b, a
-        ld      a, 0                            ; test  for ESC
+        ld      b, a                            ; number of byte to get from serial port
+        ld      a, SC_Bit                       ; test for ESC
         OZ      OS_Esc                          ; Examine special condition
 
 .ser_1
         push    bc
-        call    sub_0_E884
+        call    getkey
         pop     bc
         jr      c, loop
         djnz    ser_1
         jr      loop
 
 .ser_2
-        ld      a, $FF
+        ld      a, $FF                          ; WT_ANY
         ld      bc, 0
         OZ      OS_Wait                         ; Wait for event
-        jr      loop
+        jp      loop
 
-.sub_0_E884
+.getkey
+        push    hl
+        ld      l, SI_Gbt
         ld      bc, 0
-        OZ      OS_Gbt                          ; get byte with timeout
+        oz      OS_Si
+        pop     hl
         ret     c
 
         call    loc_0_E88F

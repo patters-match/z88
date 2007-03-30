@@ -88,7 +88,7 @@ defc    AKBD_B_ESCENABLED       =7
 .osexc_bit
         call    ResetTimeout                    ; test for Escape
         bit     ITSK_B_ESC, (hl)
-        jp      z, OZCallReturn2                ; !! jr z,OSEsc_x
+        jr      z, OSEsc_x
 
         ld      a, RC_Esc
 .osesc_err
