@@ -140,14 +140,12 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         ld      ix, SerTXHandle
         pop     af
         call    BfPbt                           ; put byte with timeout
-        call    nc, EI_TDRE                     ; enable TDRE if succesful
-        ret
+        ret     c
+        jp      EI_TDRE                         ; enable TDRE if succesful
 
 ;       ----
 
 .OSSiGbt
-        call    OZ_DI
-        push    af                              ; get byte with timeout
         ld      ix, SerRXHandle
         call    BfGbt
         call    BfSta2                          ; int are disabled and AF have to be preserved
@@ -180,12 +178,6 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         or      a                               ; Fc=0
 
 .gb_2
-        pop     hl                              ; !! use separate error exit
-        push    af                              ; !! for speed
-        push    hl
-        pop     af
-        call    OZ_EI
-        pop     af
         ret     c
         ld      a, e
         ret
@@ -193,18 +185,12 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ;       ----
 
 .EI_TDRE
-        call    OZ_DI
-        push    af
         ld      a, (BLSC_UMK)
         bit     BB_UMKTDRE, a
-        jr      nz, eitdre_x                    ; TDRE int already enabled
+        ret     nz                              ; TDRE int already enabled
         or      BM_UMKTDRE                      ; enable TDRE int
         ld      (BLSC_UMK), a
         out     (BL_UMK), a
-.eitdre_x
-        pop     af
-        call    OZ_EI
-        xor     a
         ret
 
 ;       ----
