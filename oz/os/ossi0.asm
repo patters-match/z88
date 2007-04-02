@@ -51,9 +51,7 @@ xdef    OSSiGbt, OSSiPbt
 
 ;xref    BfPb                                    ; bank0/lowram.def.asm
 ;xref    BfGb                                    ; bank0/lowram.def.asm
-;xref    BfPb2                                   ; bank0/lowram.def.asm
-;xref    BfGb2                                   ; bank0/lowram.def.asm
-;xref    BfSta2                                  ; bank0/lowram.def.asm
+;xref    BfSta                                   ; bank0/lowram.def.asm
 xref    BfPbt                                   ; bank0/buffer.asm
 xref    BfGbt                                   ; bank0/buffer.asm
 
@@ -148,15 +146,13 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .OSSiGbt
         ld      ix, SerRXHandle
         call    BfGbt
-        call    BfSta2                          ; int are disabled and AF have to be preserved
+        call    BfSta                           ; int are disabled and AF have to be preserved
         jr      c, gb_2                         ; error? exit
         ld      e, a
 
 ;       unblock sender if buffer less than half full
 
-        ld      a, h                            ; #bytes in buffer
-        add     a, l                            ; + free space = buf size
-        srl     a                               ; /2
+        ld      a, 127                          ; bufsize/2-1
         cp      l
         jr      nc, gb_1                        ; less than 50% free? skip
 
@@ -253,16 +249,11 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 ;       save char, block sender if buffer 75% full
 
 .rx_BfPb
-        push    ix                              ; write byte to buffer
-        ld      ix, SerRXHandle
-        call    BfPb2
-        call    BfSta2                          ; get used/free slots in buffers
-        pop     ix
+        ld      ix, SerRXHandle                 ; write byte to buffer
+        call    BfPb
+        call    BfSta                           ; get used/free slots in buffers
 
-        ld      a, h                            ; #chars in buffer
-        add     a, l                            ; +free space = bufsize
-        srl     a
-        srl     a                               ; bufsize/4
+        ld      a, 63                           ; bufsize/4-1
         cp      l
         jr      c, rx_x                         ; more than 25% free? exit
 
@@ -333,10 +324,8 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 
 ;       get data from buffer, send if buffer not empty
 
-        push    ix                              ; read byte from TxBuf
-        ld      ix, SerTXHandle
-        call    BfGb2
-        pop     ix
+        ld      ix, SerTXHandle                 ; read byte from TxBuf
+        call    BfGb
         jr      nc, tx_2                        ; buffer not empty? send byte
 
 .tx_1

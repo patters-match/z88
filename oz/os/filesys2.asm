@@ -715,14 +715,24 @@ xref    OSOutMain                               ; bank7/scrdrv1.asm
         scf
         ret     nz                              ; not serial? exit
 
-        ld      ix, SerTXHandle
-        call    BfSta                           ; get buffer status
-        ex      de, hl
-        call    PutOSFrame_DE                   ; TX status in DE
-        ld      ix, SerRXHandle
-        call    BfSta                           ; get buffer status
-        or      a
-        jp      PutOSFrame_HL                   ; RX status in HL
+;
+ld  l,Si_Enq
+oz  OS_Si
+ret c
+ex de, hl
+call putosframe_hl
+ld d, b
+ld e, c
+jp putosframe_de
+
+;        ld      ix, SerTXHandle
+;        call    BfSta                           ; get buffer status
+;        ex      de, hl
+;        call    PutOSFrame_DE                   ; TX status in DE
+;        ld      ix, SerRXHandle
+;        call    BfSta                           ; get buffer status
+;        or      a
+;        jp      PutOSFrame_HL                   ; RX status in HL
 
 .osfrm_err
         ld      a, RC_Unk

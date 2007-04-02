@@ -40,13 +40,6 @@
 ;chg:   ......HL/....
 
 .BfSta
-        call    OZDImain
-        call    BfSta2
-        call    OZEIMain
-        or      a
-        ret
-
-.BfSta2                                         ; for use in interruption
         push    af
         ld      a, (ix+buf_wrpos)
         sub     (ix+buf_rdpos)
@@ -65,18 +58,10 @@
 ;OUT:   Fc=0, success
 ;       Fc=1, failure and A = Rc_Eof
 ;CHG:   AF....HL/....
+;
+; Always called when interrupts are disabled
 
 .BfPb
-        ex      af, af'
-        call    OZDImain
-        ex      af, af'
-        call    BfPb2
-        ex      af, af'
-        call    OZEImain
-        ex      af, af'
-        ret
-
-.BfPb2
         ld      h,a
         ld      a,(ix+buf_wrpos)
         ld      l,a
@@ -103,18 +88,11 @@
 ;IN :   IX = buffer handle
 ;OUT:   Fc=0, success and A = byte read
 ;       Fc=1, failure and A = Rc_Eof
-;CHG:   AF.C..HL/....
+;CHG:   AF....HL/....
+;
+; Always called when interrupts are disabled
 
 .BfGb
-        call    OZDImain
-        ex      af, af'
-        call    BfGb2
-        ex      af, af'
-        call    OZEImain
-        ex      af, af'
-        ret
-
-.BfGb2
         ld      a, (ix+buf_rdpos)
         cp      (ix+buf_wrpos)
         jr      z, eof_ret

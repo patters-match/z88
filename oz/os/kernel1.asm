@@ -31,7 +31,7 @@ IF COMPILE_BINARY
         xdef    ResetTimeout                    ; [Kernel0]/nmi.asm
 
         xdef    InitBufKBD_RX_TX                ; [Kernel0]/buffer.asm
-        xdef    BfSta                           ; [Kernel0]/buffer.asm
+;        xdef    BfSta                           ; [Kernel0]/buffer.asm
         xdef    BfPur                           ; [Kernel0]/buffer.asm
 
         xdef    NQAin                           ; [Kernel0]/process2.asm

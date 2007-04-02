@@ -59,12 +59,10 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
 ;chg:   F
 
 .BfPur
-        call    OZ_DI
-        ex      af, af'
+        di        
         ld      a, (ix+buf_rdpos)
         ld      (ix+buf_wrpos), a
-        ex      af, af'
-        call    OZ_EI
+        ei
         or      a
         ret
 
@@ -91,7 +89,9 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
         jr      nz, bfpbt_esc                   ; ESC pending? exit
 
 .bfpbt_put
+        di
         call    BfPb                            ; put byte in buffer
+        ei        
         jr      c, bfpbt_wait                   ; RC_Eof, buffer full, wait
 
 .bfpbt_x
@@ -156,7 +156,9 @@ xref    OSWaitMain                              ; [kernel0]/nmi.asm
         bit     ITSK_B_ESC, (hl)                ; Fc=1 if ESC pending
         jr      nz, bfgbt_esc
 .bfgbt_get
+        di
         call    BfGb                            ; read buffer
+        ei        
         jr      c, bfgbt_wait                   ; RC_Eof, buffer is empty, wait
 
 .bfgbt_x

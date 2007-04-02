@@ -73,10 +73,7 @@ xdef    ExtCall
 xdef    MemDefBank, MemGetBank
 xdef    I28Fx_PollChipId, I28Fx_BlowByte, I28Fx_EraseSector
 xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
-xdef    BfSta, BfSta2
-xdef    BfPb, BfPb2
-xdef    BfGb, BfGb2
-xdef    IntUART
+xdef    BfSta, BfPb, BfGb
 
 .LowRAMcode
 
