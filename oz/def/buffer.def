@@ -39,4 +39,6 @@ defvars -3
         buf_rdpos               ds.b    1       ; $FF
 enddef
 
+defc    BF_SIZE                 = $FF           ; 1 page -1
+
 lston

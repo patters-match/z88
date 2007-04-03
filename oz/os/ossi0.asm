@@ -146,36 +146,29 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
 .OSSiGbt
         ld      ix, SerRXHandle
         call    BfGbt
-        call    BfSta                           ; int are disabled and AF have to be preserved
-        jr      c, gb_2                         ; error? exit
-        ld      e, a
+        ret     c
+        call    BfSta                           ; af is preserved
+        ld      h, a                            ; save byte in h
 
 ;       unblock sender if buffer less than half full
 
-        ld      a, 127                          ; bufsize/2-1
-        cp      l
+        ld      a, BF_SIZE/2                    ; 127 (to be explored if less is better)
+        cp      l                               ; free slots
         jr      nc, gb_1                        ; less than 50% free? skip
-
         ld      a, (BLSC_RXC)
         bit     BB_RXCIRTS, a                   ; invert RTS? skip
         jr      nz, gb_1                        ; RTS inversion already done
-
         or      BM_RXCIRTS                      ; set IRTS (inverse RTS level)
         call    WrRxC
-
         ld      a, (ubSerFlowControl)           ; if Xon/Xoff send XON
         bit     FLOW_B_XONXOFF, a
         jr      z, gb_1
         ld      a, XON
         ld      (cSerXonXoffChar), a
         call    EI_TDRE
-
 .gb_1
+        ld      a, h                            ; restore byte read from h
         or      a                               ; Fc=0
-
-.gb_2
-        ret     c
-        ld      a, e
         ret
 
 ;       ----
@@ -253,7 +246,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         call    BfPb
         call    BfSta                           ; get used/free slots in buffers
 
-        ld      a, 63                           ; bufsize/4-1
+        ld      a, BF_SIZE/4                    ; 63 (to be explored)
         cp      l
         jr      c, rx_x                         ; more than 25% free? exit
 
@@ -261,7 +254,7 @@ xref    OSSiTmo1                                ; bank7/ossi1.asm
         bit     BB_RXCIRTS, a
         jr      nz, rx_4
 
-        ld      a, 15
+        ld      a, BF_SIZE/16                   ; 15
         cp      l
         jr      c, rx_x                         ; more than 15 byte free? exit
 
