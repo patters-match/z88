@@ -24,41 +24,13 @@
 
 @echo off
 
-:: get OZ localisation compilation directive (first command line argument)
-set ozlocale=%1
-
-:: convert lower case argument to upper case ...
-if "%ozlocale%"=="uk" set ozlocale=UK
-if "%ozlocale%"=="fr" set ozlocale=FR
-if "%ozlocale%"=="dk" set ozlocale=DK
-if "%ozlocale%"=="fi" set ozlocale=FI
-if "%ozlocale%"=="se" set ozlocale=SE
-
-:: compile known localisations
-if "%ozlocale%"=="UK" goto COMPILE_OZ
-if "%ozlocale%"=="FR" goto COMPILE_OZ
-if "%ozlocale%"=="DK" goto COMPILE_OZ
-if "%ozlocale%"=="FI" goto COMPILE_OZ
-if "%ozlocale%"=="SE" goto COMPILE_OZ
-
-:: if no (or unknown) locale is specified, use default UK
-ECHO Unknown or no locale argument specified
-set ozlocale=UK
-
-:COMPILE_OZ
-if "%ozlocale%"=="UK" ECHO Compiling English Z88 ROM
-if "%ozlocale%"=="DK" ECHO Compiling Danish Z88 ROM
-if "%ozlocale%"=="FR" ECHO Compiling French Z88 ROM
-if "%ozlocale%"=="SE" ECHO Compiling Swedish Z88 ROM
-if "%ozlocale%"=="FI" ECHO Compiling Finnish Z88 ROM
-
 :: delete previous compiled files...
 call cleanup
 
 :: -------------------------------------------------------------------------------------------------
 echo compiling Diary application
 cd apps\diary
-call makeapp %ozlocale% 2>nul >nul
+call makeapp 2>nul >nul
 cd ..\..
 dir apps\diary\*.err 2>nul >nul || goto COMPILE_IMPEXP
 type apps\diary\*.err
@@ -68,7 +40,7 @@ goto COMPILE_ERROR
 :COMPILE_IMPEXP
 echo compiling Imp/Export popdown
 cd apps\impexport
-call makeapp %ozlocale% 2>nul >nul
+call makeapp 2>nul >nul
 cd ..\..
 dir apps\impexport\*.err 2>nul >nul || goto COMPILE_CLCALALM
 type apps\impexport\*.err
@@ -78,7 +50,7 @@ goto COMPILE_ERROR
 :COMPILE_CLCALALM
 echo compiling Clock, Alarm and Calendar popdowns
 cd apps\clock
-call makeapp %ozlocale% 2>nul >nul
+call makeapp 2>nul >nul
 cd ..\..
 dir apps\clock\*.err apps\alarm\*.err apps\calendar\*.err 2>nul >nul || goto COMPILE_MTH
 type apps\clock\*.err apps\alarm\*.err apps\calendar\*.err
@@ -89,7 +61,7 @@ goto COMPILE_ERROR
 :COMPILE_MTH
 echo compiling MTH structures
 cd mth
-call mth %ozlocale% 2>nul >nul
+call mth 2>nul >nul
 cd ..
 dir mth\*.err 2>nul >nul || goto COMPILE_KERNEL
 type mth\*.err
@@ -98,7 +70,7 @@ goto COMPILE_ERROR
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_KERNEL
 echo compiling OZ kernel
-call kernel %ozlocale% 2>nul >nul
+call kernel 2>nul >nul
 dir os\*.err 2>nul >nul || goto CHECK_KERNEL1_ERRORS
 type os\*.err
 goto COMPILE_ERROR
@@ -151,7 +123,7 @@ goto COMPILE_ERROR
 :COMPILE_GNCALLS
 echo compiling GN System calls
 cd gn
-call gn %ozlocale% 2>nul >nul
+call gn 2>nul >nul
 cd ..
 dir gn\*.err 2>nul >nul || goto COMPILE_CALCULATOR
 type gn\*.err
@@ -161,7 +133,7 @@ goto COMPILE_ERROR
 :COMPILE_CALCULATOR
 echo compiling Calculator popdown
 cd apps\calculator
-call makeapp %ozlocale% 2>nul >nul
+call makeapp 2>nul >nul
 cd ..\..
 dir apps\calculator\*.err 2>nul >nul || goto COMPILE_PNLPRED
 type apps\calculator\*.err

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Bank 3 compilation script for Unix.
-# (GN_ system calls & Calculator popdown)
+# GN_ system calls compilation script for Unix.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -24,5 +23,4 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -b -I../def -DKB"$1" @gn.prj
-
+../../tools/mpm/mpm -b -I../def @gn.prj

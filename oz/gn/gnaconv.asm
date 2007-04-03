@@ -1664,7 +1664,6 @@ if KBFR
         defm    4,"D",$e9,"c",        2,$EC
 ENDIF
 
-if !KBFI & !KBSE & !KBFR & !KBDK
         defw    end_DateFilter-DateFilter
         defb    $20,$80
         defm    7,"Monday",           2,$81
@@ -1711,5 +1710,4 @@ if !KBFI & !KBSE & !KBFR & !KBDK
         defm    4,"Nov",              2,$EB
         defm    9,"December",         2,$CC
         defm    4,"Dec",              2,$EC
-ENDIF
 .end_DateFilter

@@ -24,37 +24,13 @@
 # $Id$
 # ***************************************************************************************************
 
-# get OZ localisation compilation directive (first command line argument)
-if test $# -eq 0; then
-  echo no locale argument specified, use default UK
-  ozlocale="UK"
-else
-  ozlocale="`echo $1 | tr a-z A-Z`"
-fi
-
-if test "$ozlocale" = "FR"; then
-  echo Compiling French Z88 ROM
-elif test "$ozlocale" = "UK"; then
-  echo Compiling English Z88 ROM
-elif test "$ozlocale" = "DK"; then
-  echo Compiling Danish Z88 ROM
-elif test "$ozlocale" = "SE"; then
-  echo Compiling Swedish Z88 ROM
-elif test "$ozlocale" = "FI"; then
-  echo Compiling Finnish Z88 ROM
-else
-  echo Unknown locale specified - using default UK
-  ozlocale="UK"
-fi
-
-
 # delete previous compiled files (incl error and warning files)...
 . cleanup.sh
 
 # -------------------------------------------------------------------------------------------------
 echo compiling Diary application
 cd apps/diary
-. makeapp.sh $ozlocale
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/diary/*.err
@@ -65,7 +41,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Imp/Export popdown
 cd apps/impexport
-. makeapp.sh $ozlocale
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/impexport/*.err
@@ -76,7 +52,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Clock, Alarm and Calendar popdowns
 cd apps/clock
-. makeapp.sh $ozlocale
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/clock/*.err apps/alarm/*.err apps/calendar/*.err
@@ -88,7 +64,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling MTH structures
 cd mth
-. mth.sh $ozlocale
+. mth.sh
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat mth/*.err
@@ -98,7 +74,7 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 echo compiling OZ kernel
-. kernel.sh $ozlocale
+. kernel.sh
 if test `find . -name '*.err' | wc -l` != 0; then
   cat os/*.err
   echo Script aborted.
@@ -152,7 +128,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling GN system calls
 cd gn
-. gn.sh $ozlocale
+. gn.sh
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat gn/*.err
@@ -162,7 +138,7 @@ fi
 
 echo compiling Calculator popdown
 cd apps/calculator
-. makeapp.sh $ozlocale
+. makeapp.sh
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/calculator/*.err

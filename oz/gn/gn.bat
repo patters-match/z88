@@ -1,6 +1,5 @@
 :: **************************************************************************************************
-:: Bank 3 compilation script for Windows/DOS.
-:: (GN_ system calls & Calculator popdown)
+:: GN_ system calls compilation script for for Windows/DOS.
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,5 +21,4 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\tools\mpm\mpm -b -I..\def -DKB%1 @gn.prj
-..\..\tools\mpm\mpm -b -I..\def calc.asm
+..\..\tools\mpm\mpm -b -I..\def @gn.prj
