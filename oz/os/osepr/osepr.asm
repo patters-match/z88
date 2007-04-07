@@ -250,10 +250,11 @@
 
 ; ***************************************************************************************************
 ; Blow block of data to UV Eprom in slot 3.
+; Screen will be switched off during operation.
 ;
 ; IN:
 ;       C = Blowing algorithm context (also known as File Area sub type)
-;       DE = source address (in segment 0/1)
+;       DE = source address (local address space pointer)
 ;       IX = length of block
 ;       BHL = destination address in slot 3
 ; OUT:
@@ -747,9 +748,14 @@ defc    IObuffer = 256
         ld      a, BM_COMLCDON                  ; turn LCD off
         call    AndCom
 .blowm_1
-        ld      a, (de)                         ; write byte to EPROM
-        inc     de
-        call    BlowByte
+        push    bc
+        ld      b,0                             ; (local source pointer)
+        ex      de,hl
+        call    PeekBHL                         ; get byte from (DE)
+        inc     hl
+        ex      de,hl
+        pop     bc
+        call    BlowByte                        ; to be written to EPROM at (BHL)
         jr      c, blowm_2                      ; error? exit
         call    IncBHL
         exx
