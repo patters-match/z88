@@ -879,15 +879,13 @@ defc    IObuffer = 256
 .chgcom_x
         ld      (BLSC_COM), a
         out     (BL_COM), a
-        ex      af, af'
-        call    OZ_EI
+        ei
         pop     bc
         ret
 
 .chgcom_1
         ld      b, a                            ; new bits into B
-        call    OZ_DI
-        ex      af, af'
+        di                                      ; avoid slot polling during blowing of byte
         ld      a, (BLSC_COM)                   ; old bits into A
         ret
 
