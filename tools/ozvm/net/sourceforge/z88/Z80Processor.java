@@ -283,12 +283,8 @@ public class Z80Processor extends Z80 implements Runnable {
 				blink.setBlinkInt(outByte);
 				break;
 
-			case 0xB3 : // EPR, Eprom programming (not yet implemented)
-//				if (OZvm.debugMode == true) {
-//					displayRtmMessage("WARNING:\n" +
-//									   (new DisplayStatus(this)).dzPcStatus(getInstrPC()) + "\n" +
-//									   "Eprom programming emulation not yet implemented.", true);
-//				}
+			case 0xB3 : // EPR, Eprom Programming Register
+				blink.setBlinkEpr(outByte);
 				break;
 
 			case 0xB4 : // TACK, Set Timer Interrupt Acknowledge

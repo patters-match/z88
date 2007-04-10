@@ -214,6 +214,31 @@ public final class Blink {
 	public static final int BM_COMLCDON = 0x01; // Bit 0, LCDON
 	
 	/**
+	 * BLINK Eprom Programming Register.
+	 *
+	 * <PRE>
+	 *	Bit	 7, PD1
+	 *	Bit	 6, PD0
+	 *	Bit	 5, PGMD
+	 *	Bit	 4, EOED
+	 *	Bit	 3, SE3D
+	 *	Bit	 2, PGMP
+	 *	Bit	 1, EOEP
+	 *	Bit	 0, SE3P
+	 * </PRE>
+	 */
+	private int EPR;
+
+	public static final int BM_EPRPD1 = 0x80; // Bit 7, PD1 
+	public static final int BM_EPRPD0 = 0x40; // Bit 6, PD0 
+	public static final int BM_EPRPGMD = 0x20; // Bit 5, PGMD
+	public static final int BM_EPREOED = 0x10; // Bit 4, EOED
+	public static final int BM_EPRSE3D = 0x08; // Bit 3, SE3D
+	public static final int BM_EPRPGMP = 0x04; // Bit 2, PGMP
+	public static final int BM_EPREOEP = 0x02; // Bit 1, EOEP
+	public static final int BM_EPRSE3P = 0x01; // Bit 0, SE3P
+	
+	/**
 	 * Blink class default constructor.
 	 */
 	public Blink() {
@@ -1054,6 +1079,43 @@ public final class Blink {
 		return COM;
 	}
 
+	/**
+	 * Get Blink Eprom Programming Register, port $B3
+	 *
+	 * <PRE>
+	 *	Bit	 7, PD1
+	 *	Bit	 6, PD0
+	 *	Bit	 5, PGMD
+	 *	Bit	 4, EOED
+	 *	Bit	 3, SE3D
+	 *	Bit	 2, PGMP
+	 *	Bit	 1, EOEP
+	 *	Bit	 0, SE3P
+	 * </PRE>
+	 */
+	public int getBlinkEpr() {
+		return EPR;
+	}
+
+
+	/**
+	 * Set Blink Eprom Programming Register, port $B3
+	 *
+	 * <PRE>
+	 *	Bit	 7, PD1
+	 *	Bit	 6, PD0
+	 *	Bit	 5, PGMD
+	 *	Bit	 4, EOED
+	 *	Bit	 3, SE3D
+	 *	Bit	 2, PGMP
+	 *	Bit	 1, EOEP
+	 *	Bit	 0, SE3P
+	 * </PRE>
+	 */
+	public void setBlinkEpr(int epr) {
+		EPR = epr;
+	}
+	
 	public void startInterrupts() {
 		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) {
 			adjustLostTime();
