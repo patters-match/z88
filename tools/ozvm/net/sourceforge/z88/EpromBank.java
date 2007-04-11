@@ -60,7 +60,7 @@ public final class EpromBank extends Bank {
 
 	/**
 	 * Write byte <b> to EPROM bank. <addr> is a 16bit word
-	 * that points into the 16K address space of the RAM bank.
+	 * that points into the 16K address space of the Eprom bank.
 	 * 
 	 * Simple processor write byte has no effect on EPROM hardware.
 	 * Writing (Eprom programming) requires Blink Hardware 
