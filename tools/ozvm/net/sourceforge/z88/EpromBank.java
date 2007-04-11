@@ -74,26 +74,21 @@ public final class EpromBank extends Bank {
 		if (((com & Blink.BM_COMLCDON) == 0) && ((com & Blink.BM_COMVPPON) != 0) && 
 			((com & Blink.BM_COMPROGRAM) != 0) || ((com & Blink.BM_COMOVERP) != 0)) {
 			// LCD turned off, VPP enabled and either programming or overprogramming enabled for slot 3...
-			
+
 			switch(eprType) {
 				case VPP32KB:
-					if (epr == 0x48) {
-						if ((b & getByte(addr)) == b) {
-							// the byte can be blown (Eprom memory bit pattern can be changed from 1 to 0)
-							setByte(addr, b);
-						}
-					}
+					if (epr != 0x48) 
+						return; // Epr setting doesn't fit; byte cannot be blown on 32K Eprom
 					break;
 					
 				case VPP128KB:
-					if (epr == 0x69) {
-						if ((b & getByte(addr)) == b) {
-							// the byte can be blown (Eprom memory bit pattern can be changed from 1 to 0)
-							setByte(addr, b);
-						}
-					}
+					if (epr != 0x69) 
+						return; // Epr setting doesn't fit; byte cannot be blown on 128K/256K Eprom
 					break;
-			}		    	 
+			}
+
+			// blow byte according to Eprom hardware rule (Eprom memory bit pattern can be changed from 1 to 0)
+			setByte(addr, b & getByte(addr));
 		}
 	}
 	
