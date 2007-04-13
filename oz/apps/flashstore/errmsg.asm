@@ -214,8 +214,8 @@ Module ErrorMessages
 .epromslot_msgs     DEFW epromslot_err1_msg
                     DEFW epromslot_err2_msg
 .epromslot_err1_msg DEFM 13, 10, 1,"BEPROM found in slot ",0
-.epromslot_err2_msg DEFM ".",1,"B", 13, 10, "Use the Filer to save files in slot 3.", 13, 10
-                    DEFM "Files or EPROMs cannot be erased in the Z88.", 13, 10, 0
+.epromslot_err2_msg DEFM ".",1,"B", 13, 10, "You can only save files to Eprom in slot 3.", 13, 10
+                    DEFM "Further, files or EPROMs cannot be erased in the Z88.", 13, 10, 0
 
 .nofilearea_msgs    DEFW nofilearea1_msg
                     DEFW nofilearea2_msg

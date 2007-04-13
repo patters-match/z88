@@ -32,7 +32,7 @@ Module SaveFiles
 
      xref InitFirstFileBar         ; browse.asm
      xref FilesAvailable           ; browse.asm
-     xref SlotWriteSupport        ; format.asm
+     xref SlotWriteSupport         ; format.asm
      xref PromptOverWrite          ; restorefiles.asm
      xref PromptOverWrFile         ; restorefiles.asm
      xref no_active_files          ; restorefiles.asm
@@ -217,9 +217,8 @@ Module SaveFiles
                     RET
 .CheckFileArea
                     call GetCurrentSlot                ; C = (curslot)
-                    call SlotWriteSupport             ; check if Flash Card in current slot supports saveing files?
-                    jp   c,DispIntelSlotErr
-                    jp   nz,DispIntelSlotErr
+                    call SlotWriteSupport              ; check if Card in current slot supports saving files?
+                    jp   c,DispIntelSlotErr            ; Flash or UV Eprom Card was found...
 
                     ld   a,EP_Req
                     oz   OS_Epr                        ; check if there's a File Card in slot C
