@@ -39,7 +39,7 @@
 
         include "../os/lowram/lowram.def"
 
-        org     $d800                           ; $d800-$e4ff
+        org     FPPCALLTBL
 
         cp      a                               ; Fc=0 Fz=1
 .FPret

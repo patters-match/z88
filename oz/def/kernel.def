@@ -48,7 +48,7 @@ defc    OZBANK_KEYMAP           =$08            ; localisation keymap tables
 defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
 defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
-defc    FPPCALLTBL              =$D800
+defc    FPPCALLTBL              =$DA00
 defc    LOWRAM_CODE             =$FD00          ; LOWRAM code stored in EazyLink bank at offset $3d00
 
 defc    LORES0_BANK_UNEXP       =$21

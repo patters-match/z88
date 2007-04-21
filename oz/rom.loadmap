@@ -37,8 +37,7 @@ apps/impexport/impexp.bin 013ab1                ; $FAB1: Imp/export popdown
 
 ; Bank 2: Index, Filer, Terminal, Floating Point Package
 dc/indexdc.bin 020000                           ; $C000: Index popdown (and DC_ system calls)
-fp/fpp.bin 021800                               ; $D800: Floating Point Package
-apps/terminal/terminal.bin 0227f0               ; $E7F0: Terminal Application
+fp/fpp.bin 021a00                               ; $DA00: Floating Point Package
 apps/filer/filer.bin 022ab1                     ; $EAB1: Filer Popdown
 
 ; Bank 3: GN system calls, Calculator popdown
@@ -51,6 +50,7 @@ apps/pipedream/pipedream.bn1 050000
 
 ; Bank 6: PrinterEd, Panel
 apps/panelprted/panelped.bin 060000             ; $C000: Panel popdown & PrinterEd application
+apps/terminal/terminal.bin 061400               ; $D400: Terminal Application
 
 ; Bank 7: kernel lower part (addressed from $8000 upwards)
 os/kernel1.bin 070000                           ; second part of kernel OS

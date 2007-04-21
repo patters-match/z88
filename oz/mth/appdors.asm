@@ -716,8 +716,8 @@ xdef    PanelDOR
         defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
         defb    'V',0                           ; application key letter, bad app RAM
         defw    $744,0,$A                       ; env. size, unsafe and safe workspace
-        defw    $E7F0                           ; entry point
-        defb    0,0,0,2                         ; bindings
+        defw    $d400                           ; entry point
+        defb    0,0,0,6                         ; bindings
         defb    AT_Good|AT_Ones|AT_Draw         ; appl type
         defb    AT2_Ie                          ; appl type 2
 

@@ -40,7 +40,7 @@
         include "syspar.def"
         include "serintfc.def"
 
-        org     $e7f0
+        org     $d400
 
 .Terminal
         ld      hl, WndwInit_txt
