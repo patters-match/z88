@@ -32,7 +32,7 @@
 
         Module Filer
 
-        org $eab1
+        org $e800
 
         include "blink.def"
         include "char.def"

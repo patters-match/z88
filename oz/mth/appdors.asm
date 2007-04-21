@@ -639,7 +639,7 @@ xdef    PanelDOR
         defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
         defb    'F',0                           ; application key letter, bad app RAM
         defw    0,$230,0                        ; env. size, unsafe and safe workspace
-        defw    $EAB1                           ; entry point
+        defw    $E800                           ; entry point
         defb    0,0,0,2                         ; bindings
         defb    AT_Good|AT_Popd|AT_Film         ; appl type
         defb    0                               ; appl type 2
