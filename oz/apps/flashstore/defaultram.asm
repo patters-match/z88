@@ -21,8 +21,6 @@ Module DefaultRamDevice
      XDEF DefaultRamCommand, SelectRamDevice, GetDefaultRamDevice, GetDefaultPanelRamDev
      XDEF selctram_msg, selectdev_msg
 
-     lib RamDevFreeSpace                     ; Get free space on RAM device.
-
      XREF rdch, pwait, DispMainWindow        ; fsapp.asm
      XREF sopnln                             ; fsapp.asm
      XREF VduCursor                          ; selectcard.asm
@@ -132,10 +130,10 @@ Module DefaultRamDevice
                     LD   A,(buf1+5)               ; return Ascii Slot Number of RAM Device
                     RET
 .CheckRamDevice
-                    PUSH BC                       ; preserve VDU X,Y cursor...
-                    LD   C,A
-                    CALL RamDevFreeSpace          ; check if there's a RAM card in selected slot
-                    POP  BC
+                    push bc                       ; preserve VDU X,Y cursor...
+                    ld   bc,Nq_Mfp
+                    oz   OS_Nq                    ; check if there's a RAM card in selected slot A
+                    pop  bc
                     RET
 ; *************************************************************************************
 

@@ -25,7 +25,6 @@ Module RestoreFiles
      xdef disp_exis_msg, saving_msg, no_active_files
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib RamDevFreeSpace           ; Get free space on RAM device.
 
      xref FilesAvailable           ; browse.asm
      xref GetDefaultRamDevice      ; defaultram.asm

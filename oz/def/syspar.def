@@ -52,6 +52,7 @@ lstoff
 
      DEFC NQ_Mfs   = $8900    ; read free space information
      DEFC NQ_Slt   = $8903    ; read slot type information
+     DEFC Nq_Mfp   = $8906    ; read free RAM space for specified slot, in pages, where 1 page = 256 bytes  (OZ 4.2 and newer) 
 
      DEFC NQ_Dev   = $8C00    ; fetch current device
      DEFC NQ_Dir   = $8C03    ; fetch current directory

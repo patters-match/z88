@@ -2178,16 +2178,19 @@ defc    DM_RAM                  =$81
         or      a                               ; Fc=0
         ret
 
-;       ----
+; ***************************************************************************************
+; OS_NQ, NQ_Mfs ($8900), NQ_Slt ($8903) & NQ_Mfp ($8906)
 
 .OSNqMemory
-        cp      6                               ; function range test
+        cp      9                               ; function range test
         ccf
         ld      a, RC_Unk
         ret     c
         ld      a, c
-        or      a
-        jr      nz, NqSlt
+        cp      6
+        jr      z, NqMfp
+        cp      3
+        jr      z, NqSlt
 
 ;       return amount of free RAM
 ;IX->ABC, DE=0
@@ -2239,6 +2242,96 @@ defc    DM_RAM                  =$81
 .slt_3
         call    VerifySlotType
         jr      slt_2
+
+
+; ********************************************************************
+; NQ_Mfp ($8906), Get total of free RAM pages in slot A
+;
+; IN:
+;    A = slot number (0 for internal)
+;
+; OUT:
+;    Fc = 0, it is a RAM device
+;         A = total number of banks in Ram Card ($40 for 1MB)
+;         DE = free pages (1 page = 256 bytes)
+;
+;    Fc = 1, it is not a RAM device
+;         A = RC_ONF (Object not found)
+;
+;    Registers changed after return:
+;         ..BC..HL/IXIY same
+;         AF..DE../...  different
+;
+; ---------------------------------------------------------------------------------
+; Original code from RamDevFreeSpace library, designed by Thierry Peycru, Zlab, May 1998
+; Modified for OZ by Gunther Strube, Apr 2007
+; ---------------------------------------------------------------------------------
+.NqMfp
+        ld      a,(iy+OSFrame_A)
+        rrca                                    ; first, get the first device bank
+        rrca
+        and     @11000000
+        jr      nz,not_internal
+        ld      a,$21                           ; header of internal slot is in $21
+.not_internal
+        ld      b,a                             ; first bank of RAM slot
+        ld      hl,$4000                        ; start of bank in hl 
+        ld      c,MS_S1                         ; (in segment 1)
+        rst     OZ_MPB
+        push    bc                              ; preserve original bank binding status
+
+        ld      e,(hl)                          ; should be $5A
+        inc     hl
+        ld      d,(hl)                          ; should be $A5
+        inc     hl
+        ex      de,hl
+        ld      bc,$A55A                        ; RAM device header
+        cp      a
+        sbc     hl,bc
+        jr      nz,not_ram_device
+        ex      de,hl
+
+        ld      a,(hl)                          ; number of banks in RAM Card
+        inc     a                               ; even if internal (-1 for the system bank $20)
+        and     @01111110                       ; from 2 (32K) to 64 (1024K)
+        ld      b,a                             ; actual number of banks
+        push    bc                              ; save it for exit
+
+        xor     a
+        inc     h                               ; data start at $0100
+        ld      l,a
+        ld      d,a                             ; free pages in DE
+        ld      e,a
+
+        ld      c,b                             ; parse table of B(anks) * 64 pages
+.device_scan_loop
+        ld      b,64                            ; total of pages in a bank...
+.bank_scan_loop
+        ld      a,(hl)
+        inc     hl
+        or      (hl)                            ; must be 00 if free
+        inc     hl
+        jr      nz,page_used
+        inc     de
+.page_used
+        djnz    bank_scan_loop
+        dec     c
+        jr      nz, device_scan_loop
+
+        pop     af
+        cp      a                               ; signal success (Fc = 0)
+        ld      (iy+OSFrame_A), a               ; return number of banks in RAM Card
+        call    PutOSFrame_DE                   ; return number of free RAM pages in DE
+
+.exit_NqMfp
+        pop     bc                              ; restore original bank binding
+        rst     OZ_MPB
+        ret
+.not_ram_device
+        ld      a,RC_ONF                        ; RAM device not found
+        scf                                     ; signal failure...
+        jr      exit_NqMfp
+
 
 ;       ----
 

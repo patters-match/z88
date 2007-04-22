@@ -29,7 +29,6 @@ Module FetchFile
      xdef DispCompletedMsg
 
      lib CreateFilename            ; Create file(name) (OP_OUT) with path
-     lib RamDevFreeSpace           ; Get free space on RAM device
 
      xref FilesAvailable           ; browse.asm
      xref DispFiles                ; browse.asm
@@ -337,7 +336,10 @@ Module FetchFile
                     ld   a,c
                     cp   4
                     ret  z                        ; only three slots in Z88...
-                    call RamDevFreeSpace
+                    push bc                       ; preserve VDU X,Y cursor...
+                    ld   bc,Nq_Mfp
+                    oz   OS_Nq                    ; check if there's a RAM card in selected slot A
+                    pop  bc
                     jr   c, disp_freeram_loop     ; no Ram device in slot C...
                     push bc                       ; preserve slot number
 

@@ -25,7 +25,6 @@ Module SelectCard
      XDEF selslot_banner, epromdev, DispSlotSize, DispHelpText
 
      lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
-     lib RamDevFreeSpace           ; Get free space on RAM device
      lib ApplEprType               ; check for presence of application card in slot
 
      XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
@@ -45,6 +44,7 @@ Module SelectCard
 
      include "stdio.def"
      include "integer.def"
+     include "syspar.def"
      include "fsapp.def"
      include "flashepr.def"
      include "eprom.def"
@@ -119,7 +119,10 @@ Module SelectCard
                     call SlotWriteSupport
                     jp   z, flashcard_detected
 .poll_for_ram_card
-                    call RamDevFreeSpace
+                    push bc
+                    ld   bc,Nq_Mfp
+                    oz   OS_Nq
+                    pop  bc
                     jr   c, poll_for_rom_card
                          LD   (free),A       ; A = size of RAM card in 16K banks, DE = free 256 byte pages
                          LD   HL,ramdev
