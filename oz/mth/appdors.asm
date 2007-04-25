@@ -536,8 +536,8 @@ xdef    PanelDOR
         defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
         defb    'R',0                           ; application key letter, bad app RAM
         defw    0,$80,0                         ; env. size, unsafe and safe workspace
-        defw    $F300                           ; entry point
-        defb    0,0,0,3                         ; bindings
+        defw    $d600                           ; entry point
+        defb    0,0,0,6                         ; bindings
         defb    AT_Good|AT_Popd                 ; appl type
         defb    0                               ; appl type 2
 

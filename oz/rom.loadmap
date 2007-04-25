@@ -42,7 +42,6 @@ apps/filer/filer.bin 022800                     ; $E800: Filer Popdown
 
 ; Bank 3: GN system calls, Calculator popdown
 gn/gn.bin 030000                                ; $C000: GN_ system calls
-apps/calculator/calc.bin 033300                 ; $F300: Calculator popdown
 
 ; Bank 4,5: PipeDream (32K app)
 apps/pipedream/pipedream.bn0 040000
@@ -51,6 +50,7 @@ apps/pipedream/pipedream.bn1 050000
 ; Bank 6: PrinterEd, Panel
 apps/panelprted/panelped.bin 060000             ; $C000: Panel popdown & PrinterEd application
 apps/terminal/terminal.bin 061400               ; $D400: Terminal Application
+apps/calculator/calc.bin 061600                 ; $D600: Calculator popdown
 
 ; Bank 7: kernel lower part (addressed from $8000 upwards)
 os/kernel1.bin 070000                           ; second part of kernel OS

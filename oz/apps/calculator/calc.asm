@@ -38,7 +38,7 @@
         include "fpp.def"
         include "stdio.def"
 
-        org     $f300
+        org     $d600
 
 defc    CALC_UNSAFE_WS          = 128
 defc    CALC_UNSAFE_START       = $1FFE - CALC_UNSAFE_WS
