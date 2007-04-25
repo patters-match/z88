@@ -135,7 +135,6 @@
 
      LIB CreateWindow
      LIB CreateDirectory
-     LIB RamDevFreeSpace
      LIB createfilename
 
      XREF LoadTranslations
@@ -1531,8 +1530,11 @@
                CP   '-'
                JR   Z, global_free_space     ; request for global free space
 
-               SUB  48
-               CALL RamDevFreeSpace
+               SUB  48                       ; slot number 0 - 3
+               push bc
+               ld   bc,Nq_Mfp
+               oz   OS_Nq
+               pop  bc
                JR   C, no_Ram_Device         ; RAM device not available...
                JR   send_free_bytes
 
@@ -1556,7 +1558,10 @@
                LD   HL,0
 .scan_ram_loop
                LD   A,C
-               CALL RamDevFreeSpace
+               push bc
+               ld   bc,Nq_Mfp
+               oz   OS_Nq
+               pop  bc
                JR   C, scan_next_Ram
                ADD  HL,DE                         ; add pages to sum of all pages
                INC  C
