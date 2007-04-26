@@ -173,7 +173,7 @@ goto COMPILE_ERROR
 :: ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 :COMBINE_BANKS
 echo Compiled Z88 ROM, and combined into "oz.bin" file.
-call ..\tools\makeapp\makeapp -f rom.loadmap
+..\tools\makeapp\makeapp.bat -f rom.loadmap
 goto END
 
 :COMPILE_ERROR
