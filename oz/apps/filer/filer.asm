@@ -32,8 +32,6 @@
 
         Module Filer
 
-        org $e800
-
         include "blink.def"
         include "char.def"
         include "director.def"
@@ -48,6 +46,9 @@
         include "syspar.def"
         include "time.def"
         include "sysvar.def"
+        include "sysapps.def"
+
+        org ORG_FILER
 
 defc    f_Vars          = $1dce
 defc    NBUFSIZE        = 240

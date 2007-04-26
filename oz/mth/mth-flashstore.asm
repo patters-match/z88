@@ -1,5 +1,5 @@
 ; *************************************************************************************
-; FlashStore
+; FlashStore MTH definitions.
 ; (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2006
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
@@ -38,11 +38,11 @@
                     DEFW 0                        ;
                     DEFW 0                        ; Unsafe workspace
                     DEFW 0                        ; Safe workspace
-                    DEFW $C000                    ; Entry point of code in seg. 3
+                    DEFW ORG_FLASHSTORE           ; Entry point of code in seg. 3
                     DEFB 0                        ; bank binding to segment 0 (none)
                     DEFB 0                        ; bank binding to segment 1 (none)
                     DEFB 0                        ; bank binding to segment 2 (none)
-                    DEFB $0B                      ; bank binding to segment 3
+                    DEFB OZBANK_FLASHSTORE        ; bind bank of FlashStore popdown to segment 3
                     DEFB AT_Ugly | AT_Popd        ; Ugly popdown
                     DEFB 0                        ; no caps lock on activation
 .InfoEnd0           DEFB 'H'                      ; Key to help section

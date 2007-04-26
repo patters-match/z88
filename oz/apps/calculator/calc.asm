@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Calculator popdown (Bank 3, addressed for segment 3).
+; Calculator popdown
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -37,12 +37,14 @@
         include "error.def"
         include "fpp.def"
         include "stdio.def"
+        include "sysapps.def"
 
-        org     $d600
+        org ORG_CALCULATOR
+
 
 defc    CALC_UNSAFE_WS          = 128
 defc    CALC_UNSAFE_START       = $1FFE - CALC_UNSAFE_WS
-        
+
 defvars CALC_UNSAFE_START
         Float1                  ds.b    5
         Float2                  ds.b    5

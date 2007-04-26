@@ -153,7 +153,7 @@ goto COMPILE_ERROR
 :COMPILE_EAZYLINK
 echo compiling EazyLink
 cd apps\eazylink
-call makeapp.bat
+call makeapp
 cd ..\..
 dir apps\eazylink\*.err 2>nul >nul || goto COMPILE_FLASHSTORE
 type apps\eazylink\*.err
@@ -163,17 +163,17 @@ goto COMPILE_ERROR
 :COMPILE_FLASHSTORE
 echo compiling Flashstore
 cd apps\flashstore
-call makeapp.bat
+call makeapp
 cd ..\..
 dir apps\flashstore\*.err 2>nul >nul || goto COMBINE_BANKS
 type apps\flashstore\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
-:: ROM was compiled successfully, combine the compiled 16K banks into a complete 256K binary
+:: ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 :COMBINE_BANKS
 echo Compiled Z88 ROM, and combined into "oz.bin" file.
-..\tools\makeapp\makeapp.bat -f rom.loadmap
+call ..\tools\makeapp\makeapp -f rom.loadmap
 goto END
 
 :COMPILE_ERROR

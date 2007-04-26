@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Clock, Alarm & Calendar popdown main source file (Bank 1, addressed for segment 3).
+; Clock, Alarm & Calendar popdown main source file (addressed for segment 3).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -48,16 +48,6 @@
 
         xdef DisplayTime, KeyJump, KeyJump0, TableJump, tj_2, GetTableEntry, NavigateTable
         xdef AskDate, AskTime, TestKeys, GetOutHandle
-
-        xref ClockMain, CalendarMain, AlarmMain
-
-
-.Clock
-        jp      ClockMain
-.Calendar
-        jp      CalendarMain
-.Alarm
-        jp      AlarmMain
 
 
 

@@ -32,8 +32,6 @@
 
         Module Diary
 
-        org $C000
-
         include "blink.def"
         include "char.def"
         include "director.def"
@@ -47,6 +45,9 @@
         include "time.def"
         include "printer.def"
         include "sysvar.def"
+        include "sysapps.def"
+
+        org ORG_DIARY
 
 defc    dix_eCurrentDatePrev    =$00
 defc    dix_eCurrentDate        =$03

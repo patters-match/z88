@@ -41,9 +41,9 @@
         include "stdio.def"
         include "time.def"
 
-        xdef CalendarMain
+        xdef ORG_CALENDAR
 
-        ; defined in clalalm.asm
+        ; defined in /oz/apps/clock/clalalm.asm
         xref Exit, MoveToXb, MoveToXYbc
         xref ApplyToggles, JustifyC, JustifyN, ToggleTR, ToggleRvrs, ToggleTiny
         xref ClrScr, ToggleCrsr, ClrEOL, PrntString, DATE_txt
@@ -71,7 +71,7 @@ defvars CAL_UNSAFE_START
         swYear                  ds.w    1
 enddef
 
-.CalendarMain
+.ORG_CALENDAR
         ld      a, SC_ENA
         OZ      OS_Esc
 
@@ -136,7 +136,7 @@ enddef
         jr      nc, cal_4
 
         cp      RC_Draw
-        jp      z, CalendarMain                 ; redraw
+        jp      z, ORG_CALENDAR                 ; redraw
 
 .cal_4
         jp      Exit

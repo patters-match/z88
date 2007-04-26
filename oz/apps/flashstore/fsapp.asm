@@ -93,12 +93,13 @@
      include "fileio.def"
      include "flashepr.def"
      include "dor.def"
+     include "sysapps.def"
 
      ; FlashStore variables
      include "fsapp.def"
      include "../../mth/mth-flashstore.def"
 
-     ORG $C000
+     ORG ORG_FLASHSTORE
 
 
 ; *************************************************************************************

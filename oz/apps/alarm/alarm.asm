@@ -41,7 +41,7 @@
         include "integer.def"
         include "sysvar.def"
 
-        xdef AlarmMain
+        xdef ORG_ALARM
 
         ; defined in clalalm.asm
         xref Exit, MoveToXb, MoveToXYbc
@@ -61,7 +61,7 @@ defvars ALM_UNSAFE_START
         ubTopVisibleAlarm       ds.b    1
 enddef
 
-.AlarmMain
+.ORG_ALARM
         ld      a, SC_ENA
         OZ      OS_Esc
         ld      a, AH_SUSP                      ; disable alarms while in app

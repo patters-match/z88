@@ -33,7 +33,6 @@
 
         Module  ImpExp
 
-        org     $fab1
 
         include "director.def"
         include "dor.def"
@@ -44,8 +43,10 @@
         include "stdio.def"
         include "syspar.def"
         include "serintfc.def"
-
+        include "sysapps.def"
         include "impexp.inc"
+
+        org     ORG_IMPEXPORT
 
 xdef    Imp_Export
 

@@ -39,8 +39,9 @@
         include "stdio.def"
         include "syspar.def"
         include "serintfc.def"
+        include "sysapps.def"
 
-        org     $d400
+        org ORG_TERMINAL
 
 .Terminal
         ld      hl, WndwInit_txt

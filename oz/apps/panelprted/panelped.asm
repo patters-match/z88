@@ -43,8 +43,7 @@
         include "stdio.def"
         include "syspar.def"
         include "sysvar.def"
-
-        org     $C000
+        include "sysapps.def"
 
 
 ;       !! get rid of IY-based variables, use absolute addressing
@@ -70,7 +69,6 @@ defc    ERR_StringTooLong       =5
 defc    ERR_BadValue            =6
 defc    ERR_BadName             =7
 
-
 defvars p_Vars
         p_ubEntryID             ds.b    1
         p_ubPageID              ds.b    1
@@ -83,6 +81,8 @@ defvars p_Vars
         p_pPrinterName_20       ds.w    1
         p_ubFlags               ds.b    1
 enddef
+
+        org ORG_PRINTERED
 
 .PrinterEd
         ld      iy, p_ubEntryID

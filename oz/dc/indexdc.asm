@@ -47,11 +47,12 @@
         include "time.def"
         include "printer.def"
         include "sysvar.def"
+        include "sysapps.def"
         include "keyboard.def"
 
         include "../os/lowram/lowram.def"
 
-        org     $c000
+        org     ORG_INDEX
 
 
 ; ubIdxFlags2

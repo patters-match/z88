@@ -1,0 +1,65 @@
+lstoff
+
+; **************************************************************************************************
+; OZ standard application bank and address origin definitions.
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+;
+; $Id$
+; ***************************************************************************************************
+
+; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
+
+defc    OZBANK_INDEX       = $02                ; Bank of Index popdown entry
+defc    OZBANK_DIARY       = $01                ; Bank of Diary application entry
+defc    OZBANK_PIPEDREAM   = $04                ; Bank of Pipedream application entry
+defc    OZBANK_BBCBASIC    = $09                ; Bank of BBC BASIC application entry
+defc    OZBANK_CALCULATOR  = $06                ; Bank of Calculator popdown entry
+defc    OZBANK_CALENDAR    = $01                ; Bank of Calendar popdown entry
+defc    OZBANK_CLOCK       = $01                ; Bank of Clock popdown entry
+defc    OZBANK_ALARM       = $01                ; Bank of Alarm popdown entry
+defc    OZBANK_FILER       = $02                ; Bank of Filer popdown entry
+defc    OZBANK_PRINTERED   = $06                ; Bank of PrinterEd application entry
+defc    OZBANK_PANEL       = $06                ; Bank of Panel popdown entry
+defc    OZBANK_TERMINAL    = $06                ; Bank of Terminal application entry
+defc    OZBANK_IMPEXPORT   = $01                ; Bank of Imp/Export popdown entry
+defc    OZBANK_EAZYLINK    = $0A                ; Bank of EazyLink popdown entry
+defc    OZBANK_FLASHSTORE  = $0B                ; Bank of FlashStore popdown entry
+
+defc    ORG_INDEX          = $C000              ; Address entry of Index popdown (segment 3)
+defc    ORG_DIARY          = $C000              ; Address entry of Diary application (segment 3)
+defc    ORG_PIPEDREAM      = $8000              ; Address entry of PipeDream application (segment 2)
+defc    ORG_BBCBASIC       = $D200              ; Address entry of BBC BASIC application (segment 3)
+defc    ORG_CALCULATOR     = $D600              ; Address entry of Calculator popdown (segment 3)
+
+; ORG_CALENDAR: Calendar entry point (in segment 3) is based on compilation (please refer to auto-generated "/oz/apps/clock/clcalalm.def")
+; ORG_CLOCK: Clock entry point (in segment 3) is based on compilation (please refer to auto-generated "/oz/apps/clock/clcalalm.def")
+; ORG_ALARM: Alarm entry point (in segment 3) is based on compilation (please refer to auto-generated "/oz/apps/clock/clcalalm.def")
+
+defc    ORG_FILER          = $E800              ; Address entry of Filer popdown (segment 3)
+defc    ORG_PRINTERED      = $C000              ; Address entry of PrinterEd application (segment 3)
+defc    ORG_PANEL          = ORG_PRINTERED+10   ; Address entry of Panel popdown (segment 3)
+defc    ORG_TERMINAL       = $D400              ; Address entry of Terminal application (segment 3)
+defc    ORG_IMPEXPORT      = $FAB1              ; Address entry of Imp/Export popdown (segment 3)
+defc    ORG_EAZYLINK       = $8000              ; Address entry of EazyLink popdown (segment 3)
+defc    ORG_FLASHSTORE     = $C000              ; Address entry of FlashStore popdown (segment 3)
+
+lston

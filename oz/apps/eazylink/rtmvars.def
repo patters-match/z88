@@ -22,7 +22,6 @@
 DEFC TotalOfCmds = 33
 
 DEFC EasyLinkRamPages = 9          ; allocate 9 * 256 (2K) bytes contigous memory from $2000...
-DEFC EasyLinkEntry = $8000
 DEFC EazyLinkWorkspace = 384
 DEFC SerportXonXoffMode = 1        ; Parity No, Xon/Xoff Yes (serial port software handshake)
 DEFC SerportHardwareMode = 2       ; Parity No, Xon/Xoff No (serial port hardware handshake)

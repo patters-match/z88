@@ -121,7 +121,6 @@
 
     ; Various constant & operating system definitions...
 
-     INCLUDE "rtmvars.def"
      INCLUDE "stdio.def"
      INCLUDE "error.def"
      INCLUDE "integer.def"
@@ -132,6 +131,9 @@
      INCLUDE "serintfc.def"
      INCLUDE "director.def"
      INCLUDE "screen.def"
+     INCLUDE "sysapps.def"
+
+     INCLUDE "rtmvars.def"
 
      LIB CreateWindow
      LIB CreateDirectory
@@ -177,7 +179,7 @@
      XDEF UseHardwareHandshaking, UseSoftwareHandshaking
 
 
-     ORG EasyLinkEntry
+     ORG ORG_EAZYLINK
 
 
 ; ***************************************************************************************************

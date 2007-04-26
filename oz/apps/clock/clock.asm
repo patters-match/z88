@@ -32,14 +32,12 @@
 
         Module  Clock
 
-        org     $e7ee
-
         include "alarm.def"
         include "error.def"
         include "stdio.def"
         include "time.def"
 
-        xdef ClockMain
+        xdef ORG_CLOCK
 
         ; defined in clalalm.asm
         xref Exit, MoveToXb, MoveToXYbc
@@ -48,7 +46,7 @@
         xref DisplayTime, KeyJump, KeyJump0, TableJump, NavigateTable, AskDate, AskTime
 
 
-.ClockMain
+.ORG_CLOCK
         ld      a, SC_ENA
         OZ      OS_Esc
 
