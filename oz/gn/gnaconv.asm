@@ -1,12 +1,10 @@
 ; -----------------------------------------------------------------------------
-; Bank 3 @ S3           ROM offset $0c108
+; Bank 3 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
 
         Module GNAConv
-
-        org $c108                               ; 1929 bytes
 
         include "error.def"
         include "filter.def"
@@ -1481,10 +1479,10 @@ if KBDK
         defm    4,"Tor",              2,$A4
         defm    7,"Fredag",           2,$85
         defm    4,"Fre",              2,$A5
-        defm    7,"L",$f8,"rdag",     2,$86     ; Lørdag (Saturday)
-        defm    4,"L",$f8,"r",        2,$A6     ; Lør (Sat)
-        defm    7,"S",$f8,"ndag",     2,$87     ; Søndag (Sunday)
-        defm    4,"S",$f8,"n",        2,$A7     ; Søn (Sun)
+        defm    7,"L",$f8,"rdag",     2,$86     ; Lï¿½rdag (Saturday)
+        defm    4,"L",$f8,"r",        2,$A6     ; Lï¿½r (Sat)
+        defm    7,"S",$f8,"ndag",     2,$87     ; Sï¿½ndag (Sunday)
+        defm    4,"S",$f8,"n",        2,$A7     ; Sï¿½n (Sun)
         defm    2,".",                2,$88     ; (danish don't use 'first', but '.')
         defm    2,".",                2,$89     ; (danish don't use '2nd', but '.')
         defm    2,".",                2,$8A     ; (danish don't use '3rd', but '.')
@@ -1520,8 +1518,8 @@ ENDIF
 if KBSE
         defw    end_DateFilter-DateFilter
         defb    128+32+16,$80                   ; Left side contains ISO chars, Alpha & punctuation
-        defm    7,"M",$E5,"ndag",     2,$81     ; Måndag
-        defm    4,"M",$E5,"n",        2,$A1     ; Mån
+        defm    7,"M",$E5,"ndag",     2,$81     ; Mï¿½ndag
+        defm    4,"M",$E5,"n",        2,$A1     ; Mï¿½n
         defm    7,"Tisdag",           2,$82
         defm    4,"Tis",              2,$A2
         defm    7,"Onsdag",           2,$83
@@ -1530,10 +1528,10 @@ if KBSE
         defm    4,"Tor",              2,$A4
         defm    7,"Fredag",           2,$85
         defm    4,"Fre",              2,$A5
-        defm    7,"L",$f6,"rdag",     2,$86     ; Lördag (Saturday)
-        defm    4,"L",$f6,"r",        2,$A6     ; Lör (Sat)
-        defm    7,"S",$f6,"ndag",     2,$87     ; Söndag (Sunday)
-        defm    4,"S",$f6,"n",        2,$A7     ; Sön (Sun)
+        defm    7,"L",$f6,"rdag",     2,$86     ; Lï¿½rdag (Saturday)
+        defm    4,"L",$f6,"r",        2,$A6     ; Lï¿½r (Sat)
+        defm    7,"S",$f6,"ndag",     2,$87     ; Sï¿½ndag (Sunday)
+        defm    4,"S",$f6,"n",        2,$A7     ; Sï¿½n (Sun)
         defm    2,".",                2,$88     ; (swedish don't use 'first', but '.')
         defm    2,".",                2,$89     ; (swedish don't use '2nd', but '.')
         defm    2,".",                2,$8A     ; (swedish don't use '3rd', but '.')

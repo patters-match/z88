@@ -1,12 +1,10 @@
 ; -----------------------------------------------------------------------------
-; Bank 3 @ S3           ROM offset $ecd1
+; Bank 3 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
 
         Module GNMisc3
-
-        org $ecd1                               ; 707 bytes
 
 
         include "fileio.def"
@@ -560,15 +558,15 @@ xref    Ld_DE_A
         cp      '{'
         jr      c, cls_lower                    ; alpha:    'a' to 'z'
         cp      $C0
-        jr      c, cls_1                        ; symbols:  '{' to '¿'
+        jr      c, cls_1                        ; symbols:  '{' to 'ï¿½'
 
         call    ValidateIsoChar                 ; Validate defined ISO alpha chars in C0 - FF range
         jr      nz, cls_1                       ; ISO character not recognised, identify as neither alphabetic nor numeric...
 
         cp      $DF
-        jr      c, cls_upper                    ; upper case alpha:    'À' to 'Þ'
+        jr      c, cls_upper                    ; upper case alpha:    'ï¿½' to 'ï¿½'
         cp      $FF
-        jr      c, cls_lower                    ; lower case alpha:    'à' to 'þ'
+        jr      c, cls_lower                    ; lower case alpha:    'ï¿½' to 'ï¿½'
 .cls_1
         or      a                               ; Fc=0
         push    af

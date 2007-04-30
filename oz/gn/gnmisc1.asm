@@ -1,16 +1,14 @@
 ; -----------------------------------------------------------------------------
-; Bank 3 @ S3           ROM offset $0c000
+; Bank 3 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
 
         Module GNMisc1
 
-        org $c000                               ; 264 bytes
-
         include "blink.def"
-
         include "sysvar.def"
+        include "../os/lowram/lowram.def"
 
 ;       ----
 
@@ -20,10 +18,6 @@ xdef    GN_ret1c
 xdef    Ld_A_HL
 xdef    Ld_DE_A
 
-defc    OZ_RET1 =$0048
-defc    OZ_RET0 =$004b
-
-;       ----
 
 xref    GNAab
 xref    GNAlp
