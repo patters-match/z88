@@ -65,10 +65,8 @@ xref    PrintStr
 
         ld      d, h                            ; DE=HL(in)
         ld      e, l
-        ld      a, h                            ; S1 fix HL
-        and     $3F
-        or      $40
-        ld      h, a
+        res     7, h                            ; adjust HL ptr to segment 1
+        set     6, h
         call    PrintStr
         ld      (iy+OSFrame_H), d               ; return ptr to null
         ld      (iy+OSFrame_L), e               ; !! no bank change
