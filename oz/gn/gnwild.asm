@@ -204,12 +204,9 @@ xref    PutOsf_Err
         rst     OZ_MPB
 
         OZ      OS_Mcl                          ; close mempool, free all memory
-        jr      nc, wcl_4
-
+        ret     nc
 .wcl_err
-        call    PutOsf_Err
-.wcl_4
-        ret
+        jp      PutOsf_Err
 
 ;       ----
 
