@@ -46,15 +46,12 @@ xdef    PrntAppname
 xdef    SetActiveAppDOR
 xdef    SetHlpAppChgFile
 xdef    SkipNTopics
+xdef    ScrDrv_SOH_A
 
 xref    OSBixS1                                 ; bank0/misc4.asm
 xref    OSBoxS1                                 ; bank0/misc4.asm
 xref    AtoN_upper                              ; bank0/misc5.asm
-xref    KPrint                                  ; bank0/misc5.asm
 xref    MS2BankK1                               ; bank0/misc5.asm
-xref    MTH_ToggleLT                            ; bank0/misc5.asm
-xref    ResetToggles                            ; bank0/misc5.asm
-xref    ScrDrv_SOH_A                            ; bank0/misc5.asm
 xref    fsMS2BankB                              ; bank0/filesys3.asm
 xref    fsRestoreS2                             ; bank0/filesys3.asm
 xref    GetHandlePtr                            ; bank0/dor.asm
@@ -72,6 +69,7 @@ xref    Get2ndCmdHelp                           ; bank7/mth1.asm
 xref    Get2ndTopicHelp                         ; bank7/mth1.asm
 xref    GetFirstCmdHelp                         ; bank7/mth1.asm
 xref    GetTpcAttrByNum                         ; bank7/mth1.asm
+xref    MTH_ToggleLT                            ; bank7/mth1.asm
 
 xref    InitHandle                              ; bank7/misc1.asm
 
@@ -245,6 +243,19 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
 
 .dth_2
         jp      Help2Wd_bottom
+
+;       ----
+
+.ResetToggles
+        ld      a, SD_DTS
+
+.ScrDrv_SOH_A
+        push    af
+        ld      a, SOH
+        OZ      OS_Out
+        pop     af
+        OZ      OS_Out
+        ret
 
 ;       ----
 
@@ -926,7 +937,7 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
 ;       ----
 
 .DrawMenuWd
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"6#6",$20+0,$20+0,$20+94,$20+8
         defm    1, "2C6"
         defm    0
@@ -1062,7 +1073,7 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
         ld      a, $75
 .imc_2
         push    af
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"7#6",0
         pop     af
         OZ      OS_Out                          ; x
@@ -1072,7 +1083,7 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
         add     a, $20
         OZ      OS_Out                          ; w
 
-        call    KPrint
+        OZ      OS_Pout
         defm    $20+8,$81
         defm    1,"2C6"
         defm    0
@@ -1117,8 +1128,10 @@ xref    PutOZwdBuf                              ; bank0/osin.asm
         jr      nz, pcs_2
 
 .pcs_3
-        call    KPrint
+        push    af
+        OZ      OS_Pout
         defm    " ",13,10,0
+        pop     af
 
         pop     hl
         pop     de

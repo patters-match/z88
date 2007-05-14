@@ -34,6 +34,7 @@
 
         include "blink.def"
         include "memory.def"
+        include "stdio.def"
         include "screen.def"
         include "sysvar.def"
         include "director.def"
@@ -48,7 +49,6 @@ xdef    ExpandMachine                           ; [K0]/cardmgr.asm
 
 xref    InitBufKBD_RX_TX                        ; [K0]/buffer.asm
 xref    MS1BankA                                ; [K0]/misc5.asm
-xref    KPrint                                  ; [K0]/misc5.asm
 xref    ResetHandles                            ; [K0]/handle.asm
 xref    ResetTimeout                            ; [K0]/nmi.asm
 xref    InitRAM                                 ; [K0]/memory.asm
@@ -178,18 +178,18 @@ xref    TimeReset                               ; [K1]/timeres.asm
         or      a
         jr      nz, rst2_4
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"B"
         defm    "HARD",0
         jr      rst2_5
 
 .rst2_4
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"T"
         defm    "SOFT",0
 
 .rst2_5
-        call    KPrint
+        OZ      OS_Pout
         defm    " RESET ...",0
 
         ld      a, MM_S2|MM_MUL|MM_FIX

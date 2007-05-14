@@ -168,7 +168,7 @@ Module FileAreaStatistics
                     CALL_OZ(Gn_Nln)
                     JR   disp_eprsize
 .disp_flash
-                    OZ   GN_Soe                  ; display string at BHL
+                    OZ   OS_Bout                  ; display string at BHL
                     OZ   GN_Nln
 .disp_eprsize
                     CALL DisplayEpromSize

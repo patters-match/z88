@@ -159,7 +159,7 @@ xref    MS1BankA                                ; bank0/misc5.asm
 ;
 ;       OSBoxS1 Replacement of OSBox for the kernel
 ;               can be called from S2 and faster
-;       IN : D previous binding retruned by OSBixS1
+;       IN : D previous binding returned by OSBixS1
 ;       OUT: -
 ;
 ;       ......../....  different

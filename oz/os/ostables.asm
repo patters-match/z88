@@ -96,6 +96,8 @@ ELSE
         xref    OSOff                           ; bank0/nmi.asm
         xref    OSWait                          ; bank0/nmi.asm
         xref    OSOut                           ; bank0/osout.asm
+        xref    OSBout                          ; bank0/osout.asm
+        xref    OSPout                          ; bank0/osout.asm
         xref    OSSi                            ; bank0/ossi.asm
         xref    OSUst                           ; bank0/osust.asm
         xref    OSWrt                           ; bank0/token.asm
@@ -159,10 +161,10 @@ ENDIF
         jp      OSAlm
         jp      OSCli
         jp      OSDor
-        jp      OSFc
-        jp      OSSi
-        jp      OzCallInvalid
-        jp      OzCallInvalid
+        jp      OSFc                            ; $8A
+        jp      OSSi                            ; $8D
+        jp      OSBout                          ; $90
+        jp      OSPout                          ; $93
         jp      OzCallInvalid
         jp      OzCallInvalid
         jp      OzCallInvalid                   ; end at $003F9E

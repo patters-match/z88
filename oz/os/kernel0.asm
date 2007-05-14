@@ -74,7 +74,8 @@ IF COMPILE_BINARY
         xdef    Get2ndCmdHelp                   ; [Kernel1]/mth1.asm
         xdef    Get2ndTopicHelp                 ; [Kernel1]/mth1.asm
         xdef    GetTpcAttrByNum                 ; [Kernel1]/mth1.asm
-        xdef    MTHPrintKeycode
+        xdef    MTHPrintKeycode                 ; [Kernel1]/mth1.asm
+        xdef    MTH_ToggleLT                    ; [Kernel1]/mth1.asm
 
         xdef    ChkStkLimits                    ; [Kernel1]/process1.asm
         xdef    ClearMemDE_HL                   ; [Kernel1]/process1.asm

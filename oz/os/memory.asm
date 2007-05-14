@@ -72,7 +72,6 @@ xdef    Chk128KBslot0                           ; bank0/process2.asm
 xdef    FirstFreeRAM                            ; bank0/process2.asm
 xdef    MountAllRAM                             ; bank0/cardmgr.asm, bank7/misc1.asm
 
-xref    KPrint                                  ; bank0/misc5.asm
 xref    MS2BankK1                               ; bank0/misc5.asm
 xref    MS1BankA                                ; bank0/misc5.asm
 xref    MS2BankA                                ; bank0/misc5.asm
@@ -1468,7 +1467,7 @@ defc    DM_RAM                  =$81
 
 .RebuildFsError
 
-        call    KPrint
+        OZ      OS_Pout
         defb    13, 10, 7
         defm    "Error ",0
         pop     hl

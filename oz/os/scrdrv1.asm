@@ -57,7 +57,6 @@ xdef    ScrDrvAttrTable                         ; screen driver code reference
 
 xref    AtoN_upper                              ; bank0/misc5.asm
 xref    CopyMemDE_BHL                           ; bank0/misc5.asm
-xref    KPrint                                  ; bank0/misc5.asm
 
 xref    CallFuncDE                              ; bank0/scrdrv4.asm
 xref    ClearCarry                              ; bank0/scrdrv4.asm
@@ -765,12 +764,6 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
 .InitUserAreaGrey
         push    af
         ld      a, '+'
-;        jr      iuag_1
-
-;        push    af                              ; !! unused
-;        ld      a, '-'
-
-;.iuag_1
         push    bc
         push    de
         push    hl
@@ -779,7 +772,7 @@ xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
         ex      af, af'
         ld      de, (sbf_ActiveWd)              ; remember active window
         push    de
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
         defm    1,"2H8"
         defm    1,"2G",0

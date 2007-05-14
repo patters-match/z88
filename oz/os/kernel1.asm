@@ -65,7 +65,6 @@ IF COMPILE_BINARY
         xdef    GetOSFrame_HL                   ; [Kernel0]/misc5.asm
         xdef    KPrint                          ; [Kernel0]/misc5.asm
         xdef    MS1BankA                        ; [Kernel0]/misc5.asm
-        xdef    MTH_ToggleLT                    ; [Kernel0]/misc5.asm
         xdef    PeekBHL, PeekBHLinc, PeekHLinc  ; [Kernel0]/misc5.asm
         xdef    IncBHL                          ; [Kernel0]/misc5.asm
         xdef    PokeBHL                         ; [Kernel0]/misc5.asm
@@ -131,6 +130,7 @@ IF COMPILE_BINARY
         xdef    GetRealCmdPosition              ; mth0.asm
         xdef    GetHlpTopics                    ; mth0.asm
         xdef    SkipNtopics                     ; mth0.asm
+        xdef    MTH_ToggleLT                    ; mth1.asm
 
         xdef    InitHlpActiveCmd                ; [Kernel0]/process3.asm
         xdef    InitHlpActiveHelp               ; [Kernel0]/process3.asm

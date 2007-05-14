@@ -31,6 +31,7 @@ xdef    GetFirstCmdHelp
 xdef    Get2ndTopicHelp
 xdef    GetTpcAttrByNum
 xdef    MTHPrintKeycode
+xdef    MTH_ToggleLT
 
 xref    aRom_Help                               ; mth0.asm
 xref    ChgHelpFile                             ; mth0.asm
@@ -57,6 +58,7 @@ xref    PrntAppname                             ; mth0.asm
 xref    SetActiveAppDOR                         ; mth0.asm
 xref    SetHlpAppChgFile                        ; mth0.asm
 xref    SkipNTopics                             ; mth0.asm
+xref    ScrDrv_SOH_A                            ; bank0/mth0.asm
 
 xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
 xref    Beep_X                                  ; bank0/scrdrv4.asm
@@ -66,9 +68,6 @@ xref    InitHlpActiveHelp                       ; bank0/process3.asm
 xref    SetHlpActiveHelp                        ; bank0/process3.asm
 xref    OSBixS1                                 ; bank0/misc4.asm
 xref    OSBoxS1                                 ; bank0/misc4.asm
-xref    KPrint                                  ; bank0/misc5.asm
-xref    ScrDrv_SOH_A                            ; bank0/misc5.asm
-xref    MTH_ToggleLT                            ; bank0/misc5.asm
 xref    ReserveStkBuf                           ; bank0/misc5.asm
 xref    RdStdinNoTO                             ; bank0/osin.asm
 xref    sub_EF92                                ; bank0/osin.asm
@@ -232,7 +231,7 @@ xref    sub_EFBB                                ; bank0/osin.asm
         ld      a, (hl)                         ; get symbol
         call    dmwd_2                          ; 1. line - advance/browse
 
-        call    KPrint                          ; 4. line - resume
+        OZ      OS_Pout                         ; 4. line - resume
         defm    11, 11, 11
         defm    SOH,SD_ESC,10
         defm    "RESUME",10,10,10, 0
@@ -241,7 +240,7 @@ xref    sub_EFBB                                ; bank0/osin.asm
         or      a
         jr      z, dmwd_3                       ; memory low? can't select/action
 
-        call    KPrint                          ; 2. line - select
+        OZ      OS_Pout                         ; 2. line - select
         defm    SOH,SD_OLFT
         defm    SOH,SD_ORGT
         defm    SOH,SD_ODWN
@@ -251,12 +250,12 @@ xref    sub_EFBB                                ; bank0/osin.asm
 
         ld      a, IN_ENTER
 .dmwd_2
-        call    MTHPrintKeycode                   ; 3. line - action/detail
+        call    MTHPrintKeycode                 ; 3. line - action/detail
         inc     hl
         OZ      GN_Sop                          ; write string to std. output
         ret
 .dmwd_3
-        call    KPrint
+        OZ      OS_Pout
         defm    10,"MEMORY",10,"LOW", 0
         ret
 
@@ -678,7 +677,7 @@ xref    sub_EFBB                                ; bank0/osin.asm
         call    sub_A517
         call    DrawMenuWd
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"6#6",$20+1,$20+0,$20+92,$20+8, 0
 
         ld      a, (ubHlpActiveCmd)
@@ -993,7 +992,7 @@ xref    sub_EFBB                                ; bank0/osin.asm
 ;       ----
 
 .MTHHighlight
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"R"
         defm    1,"2E",$20+27
         defm    1,"R",0
@@ -1039,8 +1038,10 @@ xref    sub_EFBB                                ; bank0/osin.asm
 
 .RestoreActiveWd
         pop     hl                              ; pop return address
-        call    KPrint
+        push    af
+        OZ      OS_Pout
         defm    1,"2H",0                        ; select & hold, window # comes below
+        pop     af
 
         pop     ix                              ; get wd frame
         ex      (sp), hl                        ; push ret PC, pop wd
@@ -1110,7 +1111,7 @@ xref    sub_EFBB                                ; bank0/osin.asm
         sub     b
         OZ      OS_Out                          ; write a byte to std. output
 
-        call    KPrint                          ; clear EOL
+        OZ      OS_Pout                         ; clear EOL
         defm    1,"2C",$FD,0
 
         ld      a, c
@@ -1127,7 +1128,14 @@ xref    sub_EFBB                                ; bank0/osin.asm
         call    RestoreActiveWd
         ret
 
-;       ----
+
+.MTH_ToggleLT
+        push    af
+        OZ      OS_Pout
+        defm    1,"L",1,"T",0
+        pop     af
+        ret
+
 
 .InitTopicWd
         call    GetCurrentWdInfo

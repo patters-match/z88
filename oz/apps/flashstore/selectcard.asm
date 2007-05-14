@@ -267,8 +267,9 @@ Module SelectCard
                          ld   hl, nofilestxt
                          CALL CacheVduString
 .nextline
+                    ld   b,0
                     ld   hl, buffer
-                    call_oz(Gn_Sop)              ; display cached VDU sequences (the current card box)
+                    call_oz OS_Bout               ; display cached VDU sequences (the current card box)
 
                     ld   a,(curslot)
                     dec  a

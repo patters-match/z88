@@ -44,7 +44,6 @@ xdef    OSMap
 
 xref    Chk128KB                                ; bank0/resetx.asm
 xref    GetWindowFrame                          ; bank0/scrdrv2.asm
-xref    KPrint                                  ; bank0/misc5.asm
 xref    PeekHLinc                               ; bank0/misc5.asm
 xref    PokeBHL                                 ; bank0/misc5.asm
 xref    PutOSFrame_BC                           ; bank0/misc5.asm
@@ -141,7 +140,7 @@ xref    RestoreActiveWd                         ; bank7/mth1.asm
         jr      c, osmap_6
         push    bc
         push    de
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"7#",0
         ld      a, (iy+OSFrame_A) ; window A
         OZ      OS_Out
@@ -154,7 +153,7 @@ xref    RestoreActiveWd                         ; bank7/mth1.asm
         OZ      OS_Out
         call    GetCurrentWdInfo
 
-        call    KPrint
+        OZ      OS_Pout
         defm    "(",$60
         defm    1,"2C",0
 

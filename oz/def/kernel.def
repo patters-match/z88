@@ -86,6 +86,7 @@ defvars 0
         OSFrame_H               ds.b    1       ; $0D
         OSFrame__S2             ds.b    1       ; $0E
         OSFrame__S3             ds.b    1       ; $0F
+        OSFrame_OZPC            ds.w    1       ; RET address on SP back to address location of the OZ call
 enddef
 
 

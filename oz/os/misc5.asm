@@ -47,9 +47,6 @@ xdef    PutOSFrame_DE
 xdef    PutOSFrame_HL
 xdef    ReserveStkBuf
 xdef    S2VerifySlotType
-xdef    ResetToggles
-xdef    ScrDrv_SOH_A
-xdef    MTH_ToggleLT
 xdef    FixPtr
 
 xref    FilePtr2MemPtr                          ; bank0/filesys3.asm
@@ -193,44 +190,6 @@ xref    FreeHandle                              ; bank0/handle.asm
 .a2nu_2
         xor     $20                             ; upper(), Fc=0, Fz=0
 .a2nu_3
-        ret
-
-;       ----
-
-; print string at PC
-
-.KPrint
-        ex      (sp), hl
-        push    af
-        jr      kpr_2
-.kpr_1
-        OZ      OS_Out
-.kpr_2
-        ld      a, (hl)
-        inc     hl
-        or      a
-        jr      nz, kpr_1
-        pop     af
-        ex      (sp), hl
-        ret
-
-;       ----
-
-.MTH_ToggleLT
-        call    KPrint
-        defm    1,"L",1,"T",0
-        ret
-
-
-.ResetToggles
-        ld      a, SD_DTS
-
-.ScrDrv_SOH_A
-        push    af
-        ld      a, SOH
-        OZ      OS_Out
-        pop     af
-        OZ      OS_Out
         ret
 
 ;       ----

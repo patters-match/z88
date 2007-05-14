@@ -33,6 +33,8 @@ lstoff
      DEFC  OS_In     = $2A         ; read a byte from std. input (keyboard)
      DEFC  OS_Tin    = $2D         ; read a byte from std. input, with timeout
      DEFC  OS_Out    = $27         ; write a byte to std. output
+     DEFC  OS_Bout   = $90         ; send a block of bytes from local or extended address to std. output (OZ 4.2 or newer)
+     DEFC  OS_Pout   = $93         ; send embedded string at (PC) to std. output (OZ 4.2 or newer)
      DEFC  OS_Xin    = $30         ; examine input (e.g. check for pre-emption)
      DEFC  GN_Nln    = $2E09       ; send newline (CR/LF) to std. output
      DEFC  GN_Sop    = $3A09       ; write string to std. output

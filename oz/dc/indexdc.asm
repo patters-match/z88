@@ -383,7 +383,7 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         jr      nc, kl_1
         ld      (ubIdxSelectorPos), a
 .kl_1
-        ld      hl, Init2_txt                   ; select & init wd2
+        call    prt_selinit_wd2                 ; select & init wd2
         jr      klr_2
 
 ;       ----
@@ -412,10 +412,8 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         jr      nc, kr_1
         ld      (ubIdxSelectorPos), a
 .kr_1
-        ld      hl, Init3_txt                   ; select & init wd3
-
+        call    prt_selinit_wd3                 ; select & init wd3
 .klr_2
-        OZ      GN_Sop                          ; write string to std. output
         call    DrawHighlight
 
 .GoMainLoop
@@ -548,12 +546,12 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 ; Scroll window down and clear first line
 
 .ScrollDown
-        ld      hl, ScrollDown_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,$FE,0
         ld      bc, 0
         call    MoveXY_BC
-        ld      hl, ClrEOL_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"2C",$FD,0
         ret
 
 ;       ----
@@ -597,8 +595,7 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         call    GetProcessByNum                 ; get next proc
         jr      c, dn_3                         ; no more, redraw from top
 
-        ld      hl, ScrollUp_txt
-        OZ      GN_Sop
+        call    prt_scrollup
         ld      a, (ubIdxTopProcess)            ; increment top process
         inc     a
         ld      (ubIdxTopProcess), a
@@ -628,8 +625,7 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         call    GetAppByNum                     ; get next appl
         jr      c, dn_5                         ; no more, redraw from top
 
-        ld      hl, ScrollUp_txt
-        OZ      GN_Sop
+        call    prt_scrollup
         ld      a, (ubIdxTopApplication)        ; increment top application
         inc     a
         ld      (ubIdxTopApplication), a
@@ -782,10 +778,48 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         cp      2
         jp      z, DrawCardWd                   ; card display
 
-        ld      hl, ApplWD_txt
-        OZ      GN_Sop                          ; init application window
-        ld      hl, ActWd_txt
-        OZ      GN_Sop                          ; init process window
+        OZ      OS_Pout                         ; init application window
+        defm    1,"7#4",$20+1,$20+0,$20+18,$20+8,$83
+        defm    1,"2C4"
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    "APPLICATIONS"
+        defm    1,"2JN"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"R"
+        defm    1,"2A",$20+18
+        defm    1,"R"
+        defm    " NAME         KEY"
+        defm    1,"3@",$20+0,$20+1
+        defm    1,"U"
+        defm    1,"2A",$20+18
+        defm    1,"U"
+        defm    1,"T"
+        defm    1,"6#2",$20+1,$20+2,$20+18,$20+6
+        defm    1,"2C2"
+        defm    0
+
+        OZ      OS_Pout                         ; init process window
+        defm    1,"7#4",$20+21,$20,$20+56,$20+8,$83
+        defm    1,"2C4"
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    "SUSPENDED ACTIVITIES"
+        defm    1,"2JN"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"R"
+        defm    1,"2A",$20+56
+        defm    1,"R"
+        defm    "YOUR REF.        APPLICATION  ---WHEN SUSPENDED--- CARDS"
+        defm    1,"3@",$20+0,$20+1
+        defm    1,"U"
+        defm    1,"2A",$20+56
+        defm    1,"U"
+        defm    1,"T"
+        defm    1,"6#3",$20+21,$20+2,$20+56,$20+6
+        defm    1,"2C3"
+        defm    0
+
         call    DrawAppWindow
         call    DrawProcWindow
 
@@ -812,19 +846,15 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         or      a
         jr      nz, dwd_2
 
-        ld      hl, Init2_txt                   ; select application window
-        OZ      GN_Sop
-
+        call    prt_selinit_wd2                 ; select application window
 .dwd_2
         jp      DrawHighlight
 
 ;       ----
 
 .DrawAppWindow
-        ld      hl, Init2_txt                   ; select & init appl window
-        OZ      GN_Sop
-        ld      hl, Cls_txt
-        OZ      GN_Sop
+        call    prt_selinit_wd2                 ; select & init appl window
+        call    prt_cls
 
         ld      b, 6                            ; lines to print
         ld      a, (ubIdxTopApplication)
@@ -861,11 +891,8 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 ;       ----
 
 .DrawProcWindow
-        ld      hl, Init3_txt
-        OZ      GN_Sop                          ; select & init proc window
-        ld      hl, Cls_txt
-        OZ      GN_Sop
-
+        call    prt_selinit_wd3                 ; select & init proc window
+        call    prt_cls
 .actw_1
         ld      a, (ubIdxTopProcess)
         call    GetProcessByNum
@@ -900,8 +927,14 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         ld      (ubIdxNProcDisplayed), a
         ret     nz
 
-        ld      hl, None_txt                    ; no procs, display "NONE"
-        OZ      GN_Sop
+        OZ      OS_Pout                         ; no procs, display "NONE"
+        defm    1,"3@",$20+0,$20+2
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    "NONE"
+        defm    1,"T"
+        defm    1,"2JN"
+        defm    0
         ret
 
 ;       ----
@@ -942,7 +975,6 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         jr      z, gna_1                        ; Index, ignore
 
         or      a                               ; Fc=0
-
 .gna_2
         pop     de
         ret
@@ -1044,7 +1076,7 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         pop     ix
         ld      bc, NQ_Ain
         OZ      OS_Nq                           ; get application name
-        OZ      GN_Soe                          ; print it
+        OZ      OS_Bout                         ; print it
 
         ld      a, 30
         call    MoveX_A
@@ -1098,10 +1130,10 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 .PrintApp
         ld      a, ' '
         OZ      OS_Out
-        OZ      GN_Soe                          ; print appl name
+        OZ      OS_Bout                         ; print appl name in BHL
 
-        ld      hl, JustifyR_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"2JR",0
 
         ld      a, c                            ; command key
         cp      'A'                             ; done if not A-Y
@@ -1133,8 +1165,8 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         jr      nz, prapp_4                     ; not found, exit
 
 .prapp_1
-        ld      hl, Square_txt
-        OZ      GN_Sop                          ; print []
+        OZ      OS_Pout
+        defm    1,"*",0                         ; print []
 
         ld      a, b                            ; check if Zs to print
         or      a                               ; !! just jr to djnz
@@ -1281,8 +1313,8 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 ;       ----
 
 .MoveXY_BC
-        ld      hl, MoveXY_txt
-        OZ      GN_Sop                          ; 1,"3@"
+        OZ      OS_Pout
+        defm    1,"3@",0
         ld      a, $20
         add     a, b
         OZ      OS_Out                          ; X pos
@@ -1294,128 +1326,60 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 ;       ----
 
 .MoveX_A
-        push    hl
         push    af
-        ld      hl, MoveX_txt                   ; 1,"2X"
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"2X",0
         pop     af
         add     a, $20
         OZ      OS_Out
-        pop     hl
         ret
-
-        call    prt_reverse                     ; !! unused
 
 ;       ----
 
 .prt_tiny
-        ld      hl, Tiny_txt
-        jr      PrntStr
+        OZ      OS_Pout
+        defm    1,"T",0
+        ret
 
 .prt_reverse
-        ld      hl, Reverse_txt
-        jr      PrntStr
+        OZ      OS_Pout
+        defm    1,"R",0
+        ret
 
 .prt_justifyN
-        ld      hl, JustifyN_txt
+        OZ      OS_Pout
+        defm    1,"2JN",0
+        ret
 
-.PrntStr
-        OZ      GN_Sop
+.prt_cls
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"2C",$FE,0
+        ret
+
+.prt_selinit_wd2
+        OZ      OS_Pout
+        defm    1,"2I2",0
+        ret
+
+.prt_selinit_wd3
+        OZ      OS_Pout
+        defm    1,"2I3",0
+        ret
+
+.prt_scrollup
+        OZ      OS_Pout
+        defm    1,$FF,0
         ret
 
 .ApplyA
         push    af
-        ld      hl, Apply_txt                   ; 1,"2A"
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"2A",0
         pop     af
         OZ      OS_Out
         ret
 
-.ApplWD_txt
-        defm    1,"7#4",$20+1,$20+0,$20+18,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "APPLICATIONS"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"2A",$20+18
-        defm    1,"R"
-        defm    " NAME         KEY"
-        defm    1,"3@",$20+0,$20+1
-        defm    1,"U"
-        defm    1,"2A",$20+18
-        defm    1,"U"
-        defm    1,"T"
-        defm    1,"6#2",$20+1,$20+2,$20+18,$20+6
-        defm    1,"2C2"
-        defm    0
-
-.ActWd_txt
-        defm    1,"7#4",$20+21,$20,$20+56,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "SUSPENDED ACTIVITIES"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"2A",$20+56
-        defm    1,"R"
-        defm    "YOUR REF.        APPLICATION  ---WHEN SUSPENDED--- CARDS"
-        defm    1,"3@",$20+0,$20+1
-        defm    1,"U"
-        defm    1,"2A",$20+56
-        defm    1,"U"
-        defm    1,"T"
-        defm    1,"6#3",$20+21,$20+2,$20+56,$20+6
-        defm    1,"2C3"
-        defm    0
-
-.Init2_txt
-        defm    1,"2I2",0
-.Init3_txt
-        defm    1,"2I3",0
-
-.None_txt
-        defm    1,"3@",$20+0,$20+2
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "NONE"
-        defm    1,"T"
-        defm    1,"2JN"
-        defm    0
-
-.ScrollUp_txt
-        defm    1,$FF,0
-.ScrollDown_txt
-        defm    1,$FE,0
-
-.Tiny_txt
-        defm    1,"T",0
-.MoveXY_txt
-        defm    1,"3@",0
-.MoveX_txt
-        defm    1,"2X",0
-.ClrEOL_txt
-        defm    1,"2C",$FD,0
-
-.Cls_txt
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2C",$FE,0
-
-.JustifyN_txt
-        defm    1,"2JN",0
-.JustifyR_txt
-        defm    1,"2JR",0
-        defm    1,"2JC",0
-.Reverse_txt
-        defm    1,"R",0
-.Apply_txt
-        defm    1,"2A",0
-.Square_txt
-        defm    1,"*",0
 
 ;       ----
 
@@ -1922,8 +1886,9 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 
 .dcent_2
         ld      sp, $1FFE
-        ld      hl, DotOpen_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"2.[",0
+
         call    GetProcEnvIDHandle
         ld      (pIdxCurrentProcHandle), de
 
@@ -1964,8 +1929,6 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 .dcent_7
         jr      dcent_7                         ; crash
 
-.DotOpen_txt
-        defm    1,"2.[",0
 
 ;       ----
 
@@ -4179,8 +4142,40 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
 ;       ----
 
 .DrawCardWd
-        ld      hl, CardsWd_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
+        defm    1,"2H8"
+        defm    1,"2G+"
+        defm    1,"7#4",$20+9,$20+0,$20+46,$20+8,$83
+        defm    1,"2C4"
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    "CARDS"
+        defm    1,"2JN"
+        defm    1,"3@",$20+17,$20+1
+        defm    "APPS"
+        defm    1,"2X",$20+26
+        defm    "FILES"
+        defm    1,"2X",$20+37
+        defm    "RAM"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"R"
+        defm    1,"2A",$20+46
+        defm    1,"R"
+        defm    1,"U"
+        defm    1,"2A",$20+46
+        defm    1,"U"
+        defm    1,"3@",$20+0,$20+3
+        defm    " SLOT 1",13,10
+        defm    " SLOT 2",13,10
+        defm    " SLOT 3"
+        defm    1,"3@",$20+0,$20+7
+        defm    1,"2JC"
+        defm    "PRESS ", 1, SD_ESC, " TO RESUME"
+        defm    1,"2JN"
+        defm    1,"T"
+        defm    0
+
         call    DisplayCards
         jp      MainLoop
 
@@ -4252,23 +4247,18 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         ld      a, b
         or      c
         jr      nz, pcs_1
-        ld      hl, asc_D74A                    ; "   -"
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    "   -",0
         jr      pcs_2
-
 .pcs_1
         ld      hl, 2
         ld      a, $40
         OZ      GN_Pdn                          ; BC to ASCII, 4 chars
         ld      a, 'K'
         OZ      OS_Out
-
 .pcs_2
         pop     de
         ret
-
-.asc_D74A
-        defm    "   -",0
 
 ;       ----
 
@@ -4286,36 +4276,3 @@ defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12
         jr      nz, gcd_1
         ret
 
-.CardsWd_txt
-        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
-        defm    1,"2H8"
-        defm    1,"2G+"
-        defm    1,"7#4",$20+9,$20+0,$20+46,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "CARDS"
-        defm    1,"2JN"
-        defm    1,"3@",$20+17,$20+1
-        defm    "APPS"
-        defm    1,"2X",$20+26
-        defm    "FILES"
-        defm    1,"2X",$20+37
-        defm    "RAM"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"2A",$20+46
-        defm    1,"R"
-        defm    1,"U"
-        defm    1,"2A",$20+46
-        defm    1,"U"
-        defm    1,"3@",$20+0,$20+3
-        defm    " SLOT 1",13,10
-        defm    " SLOT 2",13,10
-        defm    " SLOT 3"
-        defm    1,"3@",$20+0,$20+7
-        defm    1,"2JC"
-        defm    "PRESS ", 1, SD_ESC, " TO RESUME"
-        defm    1,"2JN"
-        defm    1,"T"
-        defm    0

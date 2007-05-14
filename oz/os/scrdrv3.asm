@@ -8,6 +8,8 @@
 
         include "sysvar.def"
         include "screen.def"
+        include "stdio.def"
+
 
 xdef    InitApplWd
 xdef    InitSBF
@@ -15,21 +17,19 @@ xdef    InitWindowFrame
 xdef    ResetWdAttrs
 
 xref    DrawOZwd                                        ; bank0/ozwindow.asm
-xref    KPrint                                          ; bank0/misc5.asm
-
 xref    Zero_ctrlprefix                                 ; bank7/scrdrv1.asm
 
 
 
 .InitOZwd
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"7#8",$80+104,$20+0,$20+4,$20+8,$40   ; window 8 @+104,0 4x8 $40
         defm    1,"2C8"                                 ; select & clear 8
         defm    1,"6#7",$80+0,$20+0,$20+10,$20+8        ; window 7 @+0,0 10x8
         defm    0
 
 .InitApplWd
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"6#1",$80+10,$20+0,$20+94,$20+8       ; window 1 @abs10,0 94x8
         defm    1,"2I1"                                 ; select & init 1
         defm    0
@@ -40,7 +40,7 @@ xref    Zero_ctrlprefix                                 ; bank7/scrdrv1.asm
         ld      (sbf_ActiveWd), hl
         call    Zero_ctrlprefix
         call    InitOZwd
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"3+CS"
         defm    0
         jp      DrawOZwd
