@@ -1,0 +1,130 @@
+; **************************************************************************************************
+; Constant defintions for Index popdown and DC system call API.
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2005
+; (C) Gunther Strube (gbs@users.sf.net), 2005
+;
+; Copyright of original (binary) implementation, V4.0:
+; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
+;
+; $Id$
+; ***************************************************************************************************
+
+; ubIdxFlags2
+
+defc    IDXF2_B_REENTRY         =7                      ; index already run
+defc    IDXF2_B_6               =6                      ; appl first run - needs further analysis
+defc    IDXF2_B_KILL            =5                      ; kill application
+defc    IDXF2_B_ERROR           =4                      ; error in application
+defc    IDXF2_B_ALTPLUS         =3                      ; []+
+defc    IDXF2_B_ALTMINUS        =2                      ; []-
+
+defc    IDXF2_REENTRY           =128
+defc    IDXF2_6                 =64
+defc    IDXF2_KILL              =32
+defc    IDXF2_ERROR             =16
+defc    IDXF2_ALTPLUS           =8
+defc    IDXF2_ALTMINUS          =4
+defc    IDXF2_ZCOUNT            =3
+
+
+defvars 0               ; Process
+     prc_link                ds.p    1
+     prc_flags               ds.b    1
+     prc_assoclen            ds.b    1
+     prc_dynid               ds.b    1
+     prc_stkProcEnv          ds.p    1
+     prc_hndl                ds.w    1
+     prc_time                ds.b    3
+     prc_date                ds.b    3
+     prc_assocptr            ds.p    1
+     prc_dev                 ds.b    18
+     prc_matchstring         ds.b    1
+     prc_dir                 ds.b    16
+     prc_Name                ds.b    17
+     prc_SIZEOF              ds.b    1
+enddef
+
+;prc_flags
+
+defc    PRCF_B_ISINDEX          =3                      ; is Index
+defc    PRCF_ISINDEX            =8
+defc    CLI_LINEBUFSIZE         = $CF
+
+defvars 0               ; CLI
+     cli_link                ds.p    1
+     cli_Flags               ds.b    1
+     cli_StreamFlags         ds.b    1
+     cli_bytesleft           ds.b    1
+     cli_instream            ds.w    1
+     cli_outstream           ds.w    1
+     cli_prtstream           ds.w    1
+     cli_instreamT           ds.w    1
+     cli_outstreamT          ds.w    1
+     cli_prtstreamT          ds.w    1
+     cli_argC                ds.b    1
+     cli_argB                ds.b    1
+     cli_outprefix           ds.b    1
+     cli_PrefixBuffer        ds.b    22
+     cli_LineBuffer          ds.b    CLI_LINEBUFSIZE
+     cli_SIZEOF              ds.b    1
+enddef
+
+; cli_Flags
+
+defc    CLIF_B_FILLALL          =7                      ; fill CLI input buffer until EOL
+defc    CLIF_B_DISABLEPRT       =6                      ; Dc_Gen ] - needs verification
+defc    CLIF_B_IGNOREMETA       =5                      ; .J
+defc    CLIF_B_NOTBOL           =4                      ; not_beginning_of_line
+defc    CLIF_B_META             =3                      ; got ~ other meta keys
+defc    CLIF_B_SQUARE           =2                      ; got # []
+defc    CLIF_B_DIAMOND          =1                      ; got | <>
+defc    CLIF_B_SHIFT            =0                      ; has shift
+
+defc    CLIF_FILLALL            =128
+defc    CLIF_DISABLEPRT         =64
+defc    CLIF_IGNOREMETA         =32
+defc    CLIF_NOTBOL             =16
+defc    CLIF_META               =8
+defc    CLIF_SQUARE             =4
+defc    CLIF_DIAMOND            =2
+defc    CLIF_SHIFT              =1
+
+; cli_StreamFlags
+
+defc    CLIS_B_PRTOPEN          =5                      ; prtstream open
+defc    CLIS_B_OUTOPEN          =4                      ; outstream open
+defc    CLIS_B_INOPEN           =3                      ; instream open
+defc    CLIS_B_PRTTOPEN         =2                      ; prtstreamT open
+defc    CLIS_B_OUTTOPEN         =1                      ; outstreamT open
+defc    CLIS_B_INTOPEN          =0                      ; instreamT open
+
+defc    CLIS_PRTOPEN            =32
+defc    CLIS_OUTOPEN            =16
+defc    CLIS_INOPEN             =8
+defc    CLIS_PRTTOPEN           =4
+defc    CLIS_OUTTOPEN           =2
+defc    CLIS_INTOPEN            =1
+
+defc    UNSAFE_WS               = $28                    ; defined in application DOR
+defc    UNSAFE_START            = $1FFE - UNSAFE_WS      ; $01FD6 : 3*12

@@ -84,7 +84,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Index popdown / DC System calls
 cd dc
-. makeapp.sh
+. dc.sh
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat dc/*.err
