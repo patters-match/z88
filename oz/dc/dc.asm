@@ -30,7 +30,7 @@
 ; $Id$
 ; ***************************************************************************************************
 
-        Module Index
+        Module DC_Calls
 
         include "blink.def"
         include "char.def"
