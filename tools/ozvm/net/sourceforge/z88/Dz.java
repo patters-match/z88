@@ -3858,6 +3858,8 @@ public class Dz {
 		"OZ   OS_DOR", /* E7 87 */
 		"OZ   OS_FC", /* E7 8A */
 		"OZ   OS_SI", /* E7 8D */
+		"OZ   OS_BOUT", /* E7 90 */
+		"OZ   OS_POUT", /* E7 93 */
 		"OZ   UNKNOWN" };
 
 	private static final String ozos2StrMnem[] = {
@@ -4101,9 +4103,9 @@ public class Dz {
 	 * @return int offset of following instruction in bank
 	 */
 	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispAddr, boolean dispOpcode) {
-		offset += dzInstrAscii(mnemonic, offset, getInstrOpcode(offset, bank), dispAddr, dispOpcode);
+		dzInstrAscii(mnemonic, offset, getInstrOpcode(offset, bank), dispAddr, dispOpcode);
 
-		return offset;
+		return getNextInstrAddress(offset, bank);
 	}
 
 
@@ -4125,7 +4127,7 @@ public class Dz {
 	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispAddr, boolean dispOpcode) {
 		pc += dzInstrAscii(mnemonic, pc, getInstrOpcode(pc), dispAddr, dispOpcode);
 
-		return pc;
+		return getNextInstrAddress(pc);
 	}
 
 	/**
@@ -4243,7 +4245,7 @@ public class Dz {
 
 					default : /* OS 1 byte low level calls */
 						strMnem = ozos1StrMnem;
-						if ((i % 3 == 0) && (i >= 0x21 && i <= 0x8d))
+						if ((i % 3 == 0) && (i >= 0x21 && i <= 0x93))
 							i = (i / 3) - 11;
 						else
 							i = strMnem.length - 1; /* unknown parameter */
@@ -4361,7 +4363,14 @@ public class Dz {
 	 * @return int address of following instruction (offset in bank)
 	 */
 	public final int getNextInstrAddress(int offset, int bank) {
-		offset += calcInstrOpcodeSize(getInstrOpcode(offset, bank));
+		Memory mem = Z88.getInstance().getMemory();
+		if ( (mem.getByte(offset,bank) == 0xe7) & (mem.getByte(offset+1,bank) == 0x93) ) {
+			// OS_Pout has embedded null-terminated string appended after the opcode
+			offset += 2;
+			while (mem.getByte(offset++,bank) != 0);
+		} else {
+			offset += calcInstrOpcodeSize(getInstrOpcode(offset, bank));
+		}
 
 		return offset;
 	}
@@ -4422,8 +4431,20 @@ public class Dz {
 	 * @param pc the current address (Program Counter of Z80 instruction
 	 * @return address of following instruction
 	 */
-	public final int getNextInstrAddress(int pc) {				
-		pc += calcInstrOpcodeSize(getInstrOpcode(pc));
+	public final int getNextInstrAddress(int pc) {		
+		Memory mem = Z88.getInstance().getMemory();
+		int extAddr = Z88.getInstance().getBlink().decodeLocalAddress(pc);
+		int offset = extAddr & 0x3FFF;
+		int bank = extAddr >>> 16;
+
+		if ( (mem.getByte(offset,bank) == 0xe7) & (mem.getByte(offset+1,bank) == 0x93) ) {
+			// OS_Pout has embedded null-terminated string appended after the opcode
+			offset += 2; pc += 3;
+			while (mem.getByte(offset++, bank) != 0)
+				pc++;
+		} else {
+			pc += calcInstrOpcodeSize(getInstrOpcode(pc));
+		}
 		
 		return pc;
 	}
