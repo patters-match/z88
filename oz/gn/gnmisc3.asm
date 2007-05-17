@@ -10,8 +10,6 @@
         include "fileio.def"
         include "filter.def"
         include "memory.def"
-        include "stdio.def"
-
         include "sysvar.def"
         include "../os/kernel1.def"
 
@@ -729,17 +727,6 @@ xref    Ld_DE_A
         ld      b, a                            ; hlBHL
         pop     ix
         ret
-
-;       ----
-
-.PrintStr
-        ld      a, (hl)
-        or      a
-        ret     z
-        inc     de
-        inc     hl
-        OZ      OS_Out
-        jr      nc, PrintStr
 
 ;       ----
 

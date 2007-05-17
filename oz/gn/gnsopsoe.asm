@@ -8,6 +8,7 @@
 
 
         include "memory.def"
+        include "stdio.def"
         include "sysvar.def"
 
 ;       ----
@@ -17,9 +18,6 @@ xdef    GNSop
 
 ;       ----
 
-xref    PrintStr
-
-;       ----
 
 ;       write local string to standard output
 ;
@@ -35,11 +33,7 @@ xref    PrintStr
         ex      de, hl                          ; DE=HL(in)
         ex      (sp), hl
         ex      de, hl
-
         call    PrintStr
-        ld      (iy+OSFrame_H), d               ; return ptr to null
-        ld      (iy+OSFrame_L), e
-
         pop     de                              ; restore binding
         OZ      OS_Box
         ret
@@ -68,11 +62,23 @@ xref    PrintStr
         res     7, h                            ; adjust HL ptr to segment 1
         set     6, h
         call    PrintStr
-        ld      (iy+OSFrame_H), d               ; return ptr to null
-        ld      (iy+OSFrame_L), e               ; !! no bank change
 
         pop     bc                              ; restore S2
         rst     OZ_MPB
         pop     bc                              ; restore S1
         rst     OZ_MPB
+        ret
+
+
+.PrintStr
+        ld      a, (hl)
+        or      a
+        jr      z,null_reached
+        inc     de
+        inc     hl
+        OZ      OS_Out
+        jr      PrintStr
+.null_reached
+        ld      (iy+OSFrame_H), d               ; return ptr to null
+        ld      (iy+OSFrame_L), e
         ret
