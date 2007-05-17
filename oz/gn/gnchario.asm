@@ -36,10 +36,8 @@ xref    UngetOsfHL
 ;CHG:   AF....../....
 
 .GNNln
-        ld      a, CR
-        OZ      OS_Out
-        ld      a, LF
-        OZ      OS_Out
+        OZ      OS_Pout
+        defb    CR, LF, 0 
         ret
 
 ;       ----

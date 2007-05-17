@@ -516,8 +516,10 @@ xref    ldIX_DE
         jr      nz, dcbye_3
 
 .dcbye_2
-        ld      hl, wd_8def_txt                 ; clear screen and start Index
-        OZ      GN_Sop
+        OZ      OS_Pout                         ; clear screen and start Index
+        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
+        defm    1,"2C8", 0
+
         ld      b, 0
         ld      ix, (pIdxMyProcHandle)
         jr      dcbye_4
@@ -549,11 +551,6 @@ xref    ldIX_DE
 
 .dcbye_4
         OZ      DC_Ent                          ; Enter new application
-
-.wd_8def_txt
-        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
-        defm    1,"2C8"
-        defm    0
 
 ;       ----
 

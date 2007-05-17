@@ -23,7 +23,6 @@ xdef    GNSip
 xref    GetOsf_DE
 xref    Ld_A_HL
 xref    Ld_DE_A
-xref    PrintStr
 xref    PutOsf_ABC
 
 ;       ----
@@ -73,7 +72,7 @@ xref    PutOsf_ABC
         ld      c, b                            ; BC=offset to  buffer end
         ld      b, 0
         add     hl, bc
-        ld      (hl), 0                         ; zero  terminate
+        ld      (hl), 0                         ; zero terminate
 
 ;       set margins if single line lock
 
@@ -86,18 +85,19 @@ xref    PutOsf_ABC
         add     a, c                            ; + cursor x
         ld      b, a
         call    SetMargins                      ; margins at c,b-1
-        ld      hl, HScroll_txt                 ; and force scroll
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"W",0
+
 
 ;       reverse display if needed
 
 .sip_2
         bit     6, (iy+OSFrame_A)               ; reverse?
         jr      z, sip_5
-        ld      hl, RvrsOn_txt
-        call    PrintStr
-        ld      hl, SDApply_txt
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"2+R",0
+        OZ      OS_Pout
+        defm    1,"2A",0
         ld      a, (iy+OSFrame_B)               ; use buffer width
         bit     5, (iy+OSFrame_A)               ; single line lock?
         jr      z, sip_3
@@ -147,7 +147,7 @@ xref    PutOsf_ABC
 
         bit     0, (iy+OSFrame_A)               ; buffer has data?
         jr      nz, sip_8
-        xor     a                               ; zero  the first byte in buffer
+        xor     a                               ; zero the first byte in buffer
         ld      b, a                            ; !! unnecessary
         call    Ld_DE_A
 
@@ -276,8 +276,8 @@ xref    PutOsf_ABC
         ld      b, c
         ld      c, 0
         call    SetMargins
-        ld      hl, HScroll_txt
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"W",0
 
 .sip_22
         pop     de
@@ -789,15 +789,15 @@ xref    PutOsf_ABC
 
 .SetMargins
         push    bc
-        ld      hl, LMargin_txt
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"2L",0                        ; Set left margin
         pop     bc
         push    bc
         ld      a, $20
         add     a, c
         OZ      OS_Out
-        ld      hl, RMargin_txt
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"2R",0                        ; Set right margin
         pop     bc
         ld      a, $20-1
         add     a, b
@@ -831,16 +831,6 @@ xref    PutOsf_ABC
 
 ;       ----
 
-.RvrsOn_txt
-        defm    1,"2+R",0
-.LMargin_txt
-        defm    1,"2L",0
-.RMargin_txt
-        defm    1,"2R",0
-.HScroll_txt
-        defm    1,"W",0
-.SDApply_txt
-        defm    1,"2A",0
 
 .SipExtended_tbl
         defb    IN_LFT

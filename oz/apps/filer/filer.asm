@@ -273,8 +273,15 @@ enddef
         inc     hl
         push    hl
 
-        ld      hl, Wd43def_txt                 ; init window
-        OZ      GN_Sop
+        OZ      OS_Pout                         ; init window
+        defm    1,"7#4",$20+1,$20+0,$20+80,$20+8,$83
+        defm    1,"6#3",$20+1,$20+1,$20+80,$20+7
+        defm    1,"2C3"
+        defm    1,"2-C"
+        defm    1,"2+S"
+        defm    1,"2C4"
+        defb    0
+
         ld      hl, JustifyC_txt
         OZ      GN_Sop
 
@@ -332,8 +339,14 @@ enddef
         jr      nz, loc_EC60
 
 .loc_EC58
-        ld      hl, Selected_txt                ; use selected files as source
-        OZ      GN_Sop
+        OZ      OS_Pout                         ; use selected files as source
+        defm    1,"3@",$20+21,$20+1
+        defm    1,"T"
+        defm    1,"R"
+        defm    " SELECTED FILES "
+        defm    1,"T"
+        defm    1,"R"
+        defb    0
         jr      loc_EC76
 
 .loc_EC60
@@ -1126,16 +1139,37 @@ enddef
         call    Move_XY_BC
         pop     bc
         ret
-;----
+
 .InitDisplay
         call    GetMatchString
         xor     a
         ld      (f_NumDirEntries), a
 
-        ld      hl, Wd41def_txt
-        OZ      GN_Sop
-        ld      hl, Wd42def_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"7#4",$20+1,$20+0,$20+24,$20+8,$83
+        defm    1,"2C4"
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    "COMMANDS"
+        defm    1,"2JN"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"R"
+        defm    1,"U"
+        defm    1,"2A",$20+24
+        defm    1,"R"
+        defm    1,"U"
+        defm    1,"T"
+        defm    1,"6#1",$20+1,$20+1,$20+24,$20+7
+        defm    1,"2C1"
+        defb    0
+
+        OZ      OS_Pout
+        defm    1,"7#4",$20+27,$20+0,$20+54,$20+8,$83
+        defm    1,"6#2",$20+27,$20+1,$20+54,$20+7
+        defm    1,"2C2"
+        defm    1,"2C4"
+        defb    0
+
         ld      bc, 0
         call    Move_XY_BC
         call    PrntTinyCaps
@@ -2085,48 +2119,7 @@ enddef
         defm    " to ",0
 .Questionmark_txt defm  " ? ",0
 
-.Selected_txt
-        defm    1,"3@",$20+21,$20+1
-        defm    1,"T"
-        defm    1,"R"
-        defm    " SELECTED FILES "
-        defm    1,"T"
-        defm    1,"R"
-        defb    0
 
-.Wd41def_txt
-        defm    1,"7#4",$20+1,$20+0,$20+24,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "COMMANDS"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"U"
-        defm    1,"2A",$20+24
-        defm    1,"R"
-        defm    1,"U"
-        defm    1,"T"
-        defm    1,"6#1",$20+1,$20+1,$20+24,$20+7
-        defm    1,"2C1"
-        defb    0
-
-.Wd42def_txt
-        defm    1,"7#4",$20+27,$20+0,$20+54,$20+8,$83
-        defm    1,"6#2",$20+27,$20+1,$20+54,$20+7
-        defm    1,"2C2"
-        defm    1,"2C4"
-        defb    0
-
-.Wd43def_txt
-        defm    1,"7#4",$20+1,$20+0,$20+80,$20+8,$83
-        defm    1,"6#3",$20+1,$20+1,$20+80,$20+7
-        defm    1,"2C3"
-        defm    1,"2-C"
-        defm    1,"2+S"
-        defm    1,"2C4"
-        defb    0
 
 .Init1_txt
         defm    1,"2I1",0
@@ -2427,12 +2420,12 @@ enddef
         cp      9
         scf
         ret     nz
-        ld      hl, aEnd                        ; "*END*"
-        OZ      GN_Sop                          ; write string to std. output
-        jp      PntLF_pagewait
-.aEnd
+
+        OZ      OS_Pout                         ; write string to std. output
         defm    "*END*",0
+        jp      PntLF_pagewait
 ; End of function CatalogueEPROM
+
 ;----
 .Save
         call    CloseSource

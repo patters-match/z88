@@ -50,8 +50,10 @@
         ld      a, SC_ENA
         OZ      OS_Esc
 
-        ld      hl, ClockWinDef_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"7#5",$20+50,$20+0,$20+16,$20+8,$83
+        defm    1,"2C5"
+        defm    1,"3-SC", 0
 
         ld      ix, -7
         add     ix, sp
@@ -60,8 +62,21 @@
 
 .clk_1
         call    ClrScr
-        ld      hl, Clock_txt
-        OZ      GN_Sop
+
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    1,"R"
+        defm    "CLOCK"
+        defm    1,"2JN"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"2A",$20+16
+        defm    1,"R"
+        defm    1,"3@",$20+0,$20+7
+        defm    "  EXIT     SET  "
+        defm    1,"T", 0
+
         call    ClkHighlight1
 
         ld      hl, -35                         ; reserve 38 bytes from stack,
@@ -141,7 +156,7 @@
         OZ      GN_Gmt
         jr      z, clk_8                        ; time consistent? continue
         pop     bc
-        jr      clk_1                           ; else read date again
+        jp      clk_1                           ; else read date again
 
 .clk_8
         push    af                              ; push ABC
@@ -265,8 +280,17 @@
 ;       ----
 
 .Cl_Set
-        ld      hl, ClockSet_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+1
+        defm    1,"2C",$FE
+        defm    1,"3@",$20+2,$20+1
+        defm    1,"T"
+        defm    1,"R"
+        defm    "  NEW DATE  "
+        defm    1,"3@",$20+2,$20+5
+        defm    "  NEW TIME  "
+        defm    1,"R"
+        defm    1,"T", 0
 
         push    ix
         pop     de
@@ -332,33 +356,3 @@
         defw    Exit
         defw    Cl_Set
 
-.ClockWinDef_txt
-        defm    1,"7#5",$20+50,$20+0,$20+16,$20+8,$83
-        defm    1,"2C5"
-        defm    1,"3-SC", 0
-
-.Clock_txt
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    1,"R"
-        defm    "CLOCK"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2A",$20+16
-        defm    1,"R"
-        defm    1,"3@",$20+0,$20+7
-        defm    "  EXIT     SET  "
-        defm    1,"T", 0
-
-.ClockSet_txt
-        defm    1,"3@",$20+0,$20+1
-        defm    1,"2C",$FE
-        defm    1,"3@",$20+2,$20+1
-        defm    1,"T"
-        defm    1,"R"
-        defm    "  NEW DATE  "
-        defm    1,"3@",$20+2,$20+5
-        defm    "  NEW TIME  "
-        defm    1,"R"
-        defm    1,"T", 0

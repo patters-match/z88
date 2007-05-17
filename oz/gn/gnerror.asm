@@ -44,8 +44,7 @@ xdef    GNErr
 xdef    GNEsp
 
 xref    GN_ret1a
-xref    PrintStr
-xref    PutOsf_HL
+xref    PutOsf_BHL
 
 ;       ----
 
@@ -76,20 +75,38 @@ xref    PutOsf_HL
         ld      bc, 5<<8|10
         OZ      OS_Blp
 
-        ld      hl, ErrWd_txt
-        call    PrintStr
-        ld      hl, MoveTo0_3_txt               ; !! concat this to above string
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
+        defm    1,"2H8"
+        defm    1,"2G+"
+        defm    1,"7#8",$20+20,$20+0,$20+45,$20+8,$83
+        defm    1,"2C8"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"2C",$FD
+        defm    1,"2JC"
+        defm    1,"T","ERROR",1,"T"
+        defm    1,"2JN"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"R",1,"U"
+        defm    1,"2A",$20+45
+        defm    1,"U",1,"R"
+        defm    1,"3@",$20+0,$20+3
+        defm    1,"2JC"
+        defm    1,"3@",$20+0,$20+3,0
 
         ld      a, (iy+OSFrame_A)               ; get error string
         OZ      GN_Esp
         push    af
-        call    PrintStr                        ; and print it
+        OZ      OS_Bout                         ; and print it
         pop     af
         jr      nz, err_3                       ; non-fatal? handle it
 
-        ld      hl, Fatal_txt
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+7
+        defm    1,"2C",$FD
+        defm    1,"2JC"
+        defm    1,"T","PRESS ",1,"R"," Q ",1,"R"," TO QUIT - FATAL ERROR",1,"T"
+        defm    1,"2JN",0
 .err_1
         ld      bc, -1                          ; wait infinitely
         ld      a, CL_RIM                       ; raw input
@@ -117,8 +134,13 @@ xref    PutOsf_HL
         jr      err_7                           ; exit
 
 .err_3
-        ld      hl, Nonfatal_txt
-        call    PrintStr
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+7
+        defm    1,"2C",$FD
+        defm    1,"2JC"
+        defm    1,"T","PRESS ",1,"R"," ESC ",1,"R"," TO RESUME",1,"T"
+        defm    1,"2JN",0
+
 
 ;       !! re-use code - have code to accept either 'Q' or ESC
 
@@ -172,41 +194,6 @@ xref    PutOsf_HL
         pop     ix
         jp      GN_ret1a
 
-.Nonfatal_txt
-        defm    1,"3@",$20+0,$20+7
-        defm    1,"2C",$FD
-        defm    1,"2JC"
-        defm    1,"T","PRESS ",1,"R"," ESC ",1,"R"," TO RESUME",1,"T"
-        defm    1,"2JN",0
-
-.Fatal_txt
-        defm    1,"3@",$20+0,$20+7
-        defm    1,"2C",$FD
-        defm    1,"2JC"
-        defm    1,"T","PRESS ",1,"R"," Q ",1,"R"," TO QUIT - FATAL ERROR",1,"T"
-        defm    1,"2JN",0
-
-.MoveTo0_3_txt
-        defm    1,"3@",$20+0,$20+3,0
-
-.ErrWd_txt
-        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
-        defm    1,"2H8"
-        defm    1,"2G+"
-        defm    1,"7#8",$20+20,$20+0,$20+45,$20+8,$83
-        defm    1,"2C8"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2C",$FD
-        defm    1,"2JC"
-        defm    1,"T","ERROR",1,"T"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R",1,"U"
-        defm    1,"2A",$20+45
-        defm    1,"U",1,"R"
-        defm    1,"3@",$20+0,$20+3
-        defm    1,"2JC",0
-
 ;       ----
 
 ;       return extended pointer to system error message
@@ -223,9 +210,8 @@ xref    PutOsf_HL
         call    FindErrStr
         ld      (iy+OSFrame_F), a               ; set flags
 .esp_1
-        ld      (iy+OSFrame_B), 3               ; string in bank 3 !! 'ld b, 3: call PutOsf_BHL'
-        call    PutOsf_HL
-        ret
+        ld      b, OZBANK_GN
+        jp      PutOsf_BHL
 
 ;       ----
 
