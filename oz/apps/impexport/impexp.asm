@@ -72,7 +72,7 @@ enddef
         ld      a, SC_ACK
         OZ      OS_Esc
 
-        call    KPrint
+        OZ      OS_Pout
         defm    "B)atch receive, E)nd batch, R)eceive file or S)end file? ",0
 
         xor     a
@@ -384,11 +384,11 @@ enddef
         ld      (FileHandle), ix
         call    GetName
         jr      z, rcv_3
-        call    KPrint
+        OZ      OS_Pout
         defm    "Using supplied name: ",0
         jr      rcv_4
 .rcv_3
-        call    KPrint
+        OZ      OS_Pout
         defm    "Using remote name: ",0
 .rcv_4
         ld      a, (hl)
@@ -656,7 +656,7 @@ enddef
 ;       Fc=1 if error, FZ=1 if ESC (ESC never returned, so checking it is unnecessary)
 
 .AskFilename
-        call    KPrint
+        OZ      OS_Pout
         defm    "Filename? ",0
         xor     a
         ld      c, a
@@ -697,7 +697,7 @@ enddef
 ;       ----
 
 .InitWd
-        call    KPrint
+        OZ      OS_Pout
         defb    1, $37, $23,    $31, $21, $20, $7C, $28, $81
         defb    1, $32, $43,    $31
         defb    1, $32, $2B,    $43
@@ -782,8 +782,7 @@ enddef
 ;       ----
 
 .PrntCRLF
-        call    KPrint
-        defm    13,10,0
+        OZ     GN_Nln
         ret
 
 ;       ----
@@ -792,22 +791,6 @@ enddef
         ld      a, 7
         OZ      OS_Out
         ret
-
-;       ----
-.KPrint
-        ex      (sp), hl
-.kpr_1
-        ld      a, (hl)
-        inc     hl
-        or      a
-        jr      z, kpr_2
-        OZ      OS_Out
-        jr      kpr_1
-.kpr_2
-        ex      (sp), hl
-        ret
-
-;       ----
 
 .Backspace_C
         push    af

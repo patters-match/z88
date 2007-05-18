@@ -68,8 +68,29 @@ enddef
         OZ      OS_Alm
 
 .alm_1
-        ld      hl, AlmListWd
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"7#6",$20+20,$20+0,$20+54,$20+8,$83
+        defm    1,"2C6"
+        defm    1,"3-SC"
+        defm    1,"R"
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    "ALARMS"
+        defm    1,"R"
+        defm    1,"2JN"
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"R"
+        defm    1,"2A",$20+54
+        defm    1,"R"
+        defm    "---DATE---     --TIME--  REASON/COMMAND"
+        defm    1,"U"
+        defm    13
+        defm    1,"2A",$20+54
+        defm    1,"U"
+        defm    1,"T"
+        defm    1,"6#5",$20+20,$20+2,$20+54,$20+6
+        defm    1,"2C5"
+        defm    1,"3-SC", 0
 
         xor     a
         ld      b, 7
@@ -94,7 +115,7 @@ enddef
         call    KeyJump0
         jr      nc, AlmExit                     ; ok? exit
         cp      RC_Draw
-        jr      z, alm_1                        ; redraw
+        jp      z, alm_1                        ; redraw
 
 .AlmExit
         ld      a, AH_REV                       ; re-enable alars
@@ -174,8 +195,9 @@ enddef
         or      a
         jr      z, almu_2                       ; we're on first alarm? go to last one
 
-        ld      hl, ScrollUp_txt                ; !! this causes visual bug on last line
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    SOH,SD_UP, 0                    ; !! this causes visual bug on last line
+
         call    DrawAlmWdBottom
         ld      bc, 0<<8|0
         call    MoveToXYbc
@@ -185,8 +207,6 @@ enddef
         call    GetAlarmByNum
         call    PrintAlarm
         jr      almu_6
-.ScrollUp_txt
-        defm    SOH,SD_UP, 0
 
 .almu_2
         xor     a
@@ -255,8 +275,8 @@ enddef
         call    GetAlarmByNum
         jr      c, almd_2                       ; no more alarms? go to top
 
-        ld      hl, ScrollDown_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    SOH,SD_DWN, 0
         ld      a, (ubTopVisibleAlarm)
         inc     a
         ld      (ubTopVisibleAlarm), a
@@ -265,8 +285,6 @@ enddef
         call    PrintAlarm
         call    DrawAlmWdBottom
         jr      almd_3
-.ScrollDown_txt
-        defm    SOH,SD_DWN, 0
 
 .almd_2
         xor     a                               ; move to first alarm
@@ -316,11 +334,20 @@ enddef
         ld      a, (ubSelectedAlmPos)
         add     a, b
         call    GetAlarmByNum                   ; get alarm to view
-
         call    ViewSingleAlarm
 
-        ld      hl, PressEsc_txt
-        OZ      GN_Sop
+.PressEsc_txt
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+5
+        defm    1,"2JC"
+        defm    1,"T"
+        defm    "PRESS "
+        defm    1,"R"
+        defm    " ESC "
+        defm    1,"R"
+        defm    " WHEN READY"
+        defm    1,"T"
+        defm    1,"2JN", 0
 
 .av_1
         OZ      OS_In
@@ -456,11 +483,13 @@ enddef
         and     $fc
         ld      (ubAlmActiveButton), a
 
-
 .DrawAlmWdBottom
-        ld      hl, AlmListWdBottom
-        OZ      GN_Sop
-
+        OZ      OS_Pout
+        defm    1,"3@",$20+1,$20+5              ; !!start from column 0 with space to fix scroll_up bug
+        defm    1,"2C",$fd
+        defm    1,"T"
+        defm    "    EXIT      SET ALARM   CLEAR ALARM   VIEW ALARM  "
+        defm    1,"T" ,0
 
 .AlmHighlightButton
         call    ToggleTiny
@@ -568,8 +597,11 @@ enddef
         call    MoveToXb
         bit     ALMF_B_SHOWBELL, (ix+alm_Flags)
         jr      z, pa_1
-        ld      hl, FlashBell_txt
-        OZ      GN_Sop
+
+        OZ      OS_Pout
+        defm    1,"F"
+        defm    SOH,SD_BLL
+        defm    1,"F", 0
 
 .pa_1
         pop     bc
@@ -592,8 +624,19 @@ enddef
         call    MoveToXYbc
         call    PrintAlarm
 
-        ld      hl, AlmSetWd_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"3@",$20+4,$20+3
+        defm    1,"T"
+        defm    1,"R"
+        defm    " BELL"
+        defm    1,$7c
+        defm    "ALARM TYPE"
+        defm    1,$7c
+        defm    " REPEAT EVERY"
+        defm    1,$7c
+        defm    "No.OF TIMES"
+        defm    1,"R"
+        defm    1,"T", 0
 
         call    ToggleTiny
         call    AlmShowBell
@@ -1295,68 +1338,6 @@ enddef
         defw    AlmSet
         defw    AlmClear
         defw    AlmView
-
-.AlmListWd
-        defm    1,"7#6",$20+20,$20+0,$20+54,$20+8,$83
-        defm    1,"2C6"
-        defm    1,"3-SC"
-        defm    1,"R"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "ALARMS"
-        defm    1,"R"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"2A",$20+54
-        defm    1,"R"
-        defm    "---DATE---     --TIME--  REASON/COMMAND"
-        defm    1,"U"
-        defm    13
-        defm    1,"2A",$20+54
-        defm    1,"U"
-        defm    1,"T"
-        defm    1,"6#5",$20+20,$20+2,$20+54,$20+6
-        defm    1,"2C5"
-        defm    1,"3-SC", 0
-
-.AlmListWdBottom
-        defm    1,"3@",$20+1,$20+5              ; !!start from column 0 with space to fix scroll_up bug
-        defm    1,"2C",$fd
-        defm    1,"T"
-        defm    "    EXIT      SET ALARM   CLEAR ALARM   VIEW ALARM  "
-        defm    1,"T" ,0
-
-.FlashBell_txt
-        defm    1,"F"
-        defm    SOH,SD_BLL
-        defm    1,"F", 0
-
-.AlmSetWd_txt
-        defm    1,"3@",$20+4,$20+3
-        defm    1,"T"
-        defm    1,"R"
-        defm    " BELL"
-        defm    1,$7c
-        defm    "ALARM TYPE"
-        defm    1,$7c
-        defm    " REPEAT EVERY"
-        defm    1,$7c
-        defm    "No.OF TIMES"
-        defm    1,"R"
-        defm    1,"T", 0
-
-.PressEsc_txt
-        defm    1,"3@",$20+0,$20+5
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "PRESS "
-        defm    1,"R"
-        defm    " ESC "
-        defm    1,"R"
-        defm    " WHEN READY"
-        defm    1,"T"
-        defm    1,"2JN", 0
 
 .On_txt
         defm    "  ON ",0

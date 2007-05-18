@@ -44,8 +44,10 @@
         org ORG_TERMINAL
 
 .Terminal
-        ld      hl, WndwInit_txt
-        OZ      GN_Sop                          ; write string to std. output
+        OZ      OS_Pout
+        defb    1,$37,$23,$31,$21,$20,$70,$28,$81
+        defb    1,$32,$43,$31
+        defb    1,$33,$2B,$53,$43
 
         ld      hl, aVt52                       ; "VT52"
         OZ      DC_Nam                          ; Name current application
@@ -133,7 +135,7 @@
 .serial
         ld      l, SI_Enq
         oz      OS_Si
-        ld      a, d                            ; Rx buffer used slots 
+        ld      a, d                            ; Rx buffer used slots
         or      a
         jr      z, ser_2                        ; no bytes in receive queue
 
@@ -310,12 +312,6 @@
 
 .abcdpqrs_txt
         defm    "ABCDPQRS"
-
-.WndwInit_txt
-        defb    1,$37,$23,$31,$21,$20,$70,$28,$81
-        defb    1,$32,$43,$31
-        defb    1,$33,$2B,$53,$43
-        defb    0
 
 .MoveTo_txt
         defm    1,"3@",0

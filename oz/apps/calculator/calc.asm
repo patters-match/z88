@@ -116,7 +116,7 @@ defc    CC_FIX                  = 3
         pop     hl
         call    ZeroMem
 
-        call    KPrint                          ; init calculator window
+        OZ      OS_Pout                         ; init calculator window
         defm    1,"7#5",$20+10,$20+0,$20+33,$20+8,$83
         defm    1,"2I5",0
 
@@ -136,7 +136,7 @@ defc    CC_FIX                  = 3
         cp      5
         jr      nz, calc_1
 
-        call    KPrint                          ; init convert window
+        OZ      OS_Pout                         ; init convert window
         defm    1,"7#4",$20+46,$20+0,$20+22,$20+8,$83
         defm    1,"2I4",0
 
@@ -146,7 +146,7 @@ defc    CC_FIX                  = 3
         ld      b, 0
         call    MoveXY_AB
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2JC"
         defm    1,"T"
         defm    "CONVERT"
@@ -177,7 +177,7 @@ defc    CC_FIX                  = 3
         cp      7
         jr      nz, calc_2
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2I5",0
 
 .Main
@@ -521,7 +521,7 @@ defc    CC_FIX                  = 3
         call    sub_FBA0
         set     CF_B_Convert, (iy+calc_Flags)
         call    UpdButton
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2I4",0
 
 .UnitLoop
@@ -554,7 +554,7 @@ defc    CC_FIX                  = 3
         res     CF_B_Convert, (iy+calc_Flags)
         call    UpdConvButton
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2I5",0
 
         call    UpdButton
@@ -580,10 +580,10 @@ defc    CC_FIX                  = 3
         call    key_DotE
 
 .ckey_numdot
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2I5",0
         call    PrintStatusRow
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2I4",0
         ret
 
@@ -779,7 +779,7 @@ defc    CC_FIX                  = 3
         pop     bc
         push    bc
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"T",0
 
         ld      a, (iy+calc_Flags)
@@ -816,7 +816,7 @@ defc    CC_FIX                  = 3
         call    z, PrntReverse                  ; active
         pop     bc
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"T",0
 
         inc     b
@@ -831,12 +831,12 @@ defc    CC_FIX                  = 3
         or      a
         jr      z, loc_F806
 
-        call    KPrint
+        OZ      OS_Pout
         defm    "->",0
 
         ret
 .loc_F806
-        call    KPrint
+        OZ      OS_Pout
         defm    "<-",0
 
         ret
@@ -1296,7 +1296,7 @@ defc    CC_FIX                  = 3
         ld      c, 0
         bit     CF_B_Command, (iy+calc_Flags)
         jr      z, loc_FBE0
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"T",0
         ld      de, calc_CmdBuffer
         push    iy
@@ -1325,7 +1325,7 @@ defc    CC_FIX                  = 3
         ld      a, '?'
         OZ      OS_Out                          ; write a byte to std. output
         inc     c
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"T",0
 .loc_FBE0
         ld      a, (iy+calc_StatusLineLen)
@@ -1431,9 +1431,8 @@ defc    CC_FIX                  = 3
         bit     CF_B_Constant, (iy+calc_Flags)
         jp      z, PrntSpace
 
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"T","K",1,"T",0
-
         ret
 
 ;       ----
@@ -1446,7 +1445,7 @@ defc    CC_FIX                  = 3
 ;       ----
 
 .InitCalcWd
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2JC"
         defm    1,"T"
         defm    "CALCULATOR"
@@ -1463,20 +1462,20 @@ defc    CC_FIX                  = 3
         ld      b, 1
         ld      a, 6
         call    MoveXY_AB
-        call    KPrint
+        OZ      OS_Pout
         defb    0
         call    PrntVBar
         ld      a, 26
         call    MoveXY_AB
         call    PrntVBar
-        call    KPrint
+        OZ      OS_Pout
         defb    0
         ret
 
 ;       ----
 
 .PrntVBar
-        call    KPrint
+        OZ      OS_Pout
         defm    1,$7C,0
         ret
 
@@ -1560,28 +1559,28 @@ defc    CC_FIX                  = 3
         call    nz, PrntVBar                    ; not last col
         pop     af
         call    nz, PrntTiny                    ; not last col
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2-U",0
         ret
 
 ;       ----
 
 .PrntUnderlineOn
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"2+U",0
         ret
 
 ;       ----
 
 .PrntUnderline
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"U",0
         ret
 
 ;       ----
 
 .PrntTiny
-        call    KPrint
+        OZ      OS_Pout
         defm    1,"T",0
         ret
 
@@ -1928,12 +1927,6 @@ defc    CC_FIX                  = 3
         cp      'z'+1
         ret
 
-;       !! unused
-
-        call    KPrint
-        defm    1,"2C",$FD,0
-        ret
-
 ;       ----
 
 .PrntChar_0C
@@ -1952,21 +1945,10 @@ defc    CC_FIX                  = 3
 
 .PrntReverse
         push    af
-        ld      a, 1
-        OZ      OS_Out
-        ld      a, 'R'
-        OZ      OS_Out
+        OZ      OS_Pout
+        defb    1,'R',0
         pop     af
         ret
-
-
-;       !! unused!
-
-        push    bc
-        ld      c, '-'
-        jr      loc_FFAA
-        push    bc
-        ld      c, '+'
 
 .loc_FFAA
         push    af
@@ -1983,34 +1965,8 @@ defc    CC_FIX                  = 3
         ret
 ;       ----
 
-.sub_FFBD
-        cp      13                              ; expand CR to LF+CL
-        jr      nz, PrntChar
-        ld      a, 10
-        call    PrntChar
-        ld      a, 13
-
-;       ----
-
 .PrntChar
         OZ      OS_Out                          ; write a byte to std. output
-        ret
-
-;       ----
-
-.KPrint
-        ex      (sp), hl
-
-.kpr_1
-        ld      a, (hl)
-        inc     hl
-        or      a
-        jr      z, kpr_2
-        call    sub_FFBD                        ;expand CR into CD+LF
-        jr      kpr_1
-
-.kpr_2
-        ex      (sp), hl
         ret
 
 ;       ----
@@ -2019,12 +1975,8 @@ defc    CC_FIX                  = 3
         or      a
         ret     z
         push    af
-        ld      a, 1
-        OZ      OS_Out
-        ld      a, '3'
-        OZ      OS_Out
-        ld      a, 'N'
-        OZ      OS_Out
+        OZ      OS_Pout
+        defb    1,'3','N',0
         pop     af
         add     a, $20
         OZ      OS_Out
