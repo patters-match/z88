@@ -12,11 +12,8 @@ GBS = Gunther Strube (gbs@users.sf.net)
 TODO (with priorities):
 - Localize day/month lists. P1
 - Choose day/month localization in the panel. P1
-- Rewrite EPROM interface with Flash handling. P1
 - Add Flash EPROM Format command in Filer. P1
 - Add Select EPROM device command in Filer. P1
-- Implement new OS_Epr API with stdlib Epr* functionaility. P1
-- Rewrite/optimize current OS_Epr with new Epr* functionaility from stdlib. P1
 - Rewrite buffer interface to speedup serial routines. P1
 - Modify NMI to allow use of RETN
 
@@ -73,13 +70,18 @@ DONE
 - Added Main help pages for all applications and popdowns (GBS).
 - 'CLI' symbol in right hand side now flashes while CLI is active (TP).
 - Implemented 1K File I/O buffer for file copy functionality in Filer, drastically speeding up file copying (16K in 2 secs!) (GBS).
+- BBC BASIC integrated with Patch (Richard Russel).
 - EazyLink is new standard popdown for easy remote file management (GBS).
 - FlashStore integrated as standard Flash card management popdown. Uses new OS_Fep & OS_Epr interface instead of stdlib routines (GBS).
 - After reset, try to execute global RAM "Boot.cli" (anywhere in any RAM), if /Boot.cli was not found in slot 3 File Eprom. (GBS)
 - Move lowram image to MTH bank and modifiy reset routine. (GBS)
 - New OS_Fep system call implemented to handle flash card hardware. (GBS)
 - Current OS_Epr should be sub file-area aware in slot 3. (GBS)
+- Implement new OS_Epr API with stdlib Epr* functionaility. (GBS)
+- Rewrite/optimize current OS_Epr with new Epr* functionaility from stdlib. (GBS)
+- Rewrite EPROM interface with Flash handling. (GBS)
 - Faster GN_Sop/GN_Soe, implemented new OS_Bout/OS_Pout, and many OS_Pout optimisations in OZ & apps (GBS)
+- Reorganized ROM application code to allow for new features in Index and Filer binaries. (GBS)
 
 
 FIXED KERNEL BINARIES FOR COMPILATION
