@@ -252,7 +252,8 @@ xref    sub_EFBB                                ; bank0/osin.asm
 .dmwd_2
         call    MTHPrintKeycode                 ; 3. line - action/detail
         inc     hl
-        OZ      GN_Sop                          ; write string to std. output
+        OZ      OS_Bout
+;        OZ      GN_Sop                          ; write string to std. output
         ret
 .dmwd_3
         OZ      OS_Pout

@@ -100,6 +100,7 @@ xref    OSOutMain                               ; scrdrv1.asm
         ld      l,(iy + OSFrame_OZPC)
         ld      h,(iy + OSFrame_OZPC+1)         ; pointer to start of string at OZ call
         call    BankDispString
+                                                ; HL points at Z80 instruction after null-terminator
         res     6,h                             ; strip segment mask (if any)
         ld      a,(iy + OSFrame_OZPC+1)
         and     @11000000
@@ -118,6 +119,7 @@ xref    OSOutMain                               ; scrdrv1.asm
         jr      nz,bind_bhl_str                 ; bind BHL pointer to segment 1 and send string to OS_Out
         call    BankDispString
 .upd_hlptr
+        dec     hl                              ; point at null-terminator
         res     6,h                             ; strip segment mask (if any)
         ld      a, (iy+OSFrame_H)
         and     @11000000
@@ -146,8 +148,7 @@ xref    OSOutMain                               ; scrdrv1.asm
 
 
 .OSOutString
-        ld      a,(hl)
-        inc     hl
+        call    PeekHLinc                       ; if HL is crossing from S1 to S2, then get char from pointer in bank in (OSFrame_S2)
         or      a
         ret     z                               ; null-terminator reached, string was sent to screen driver...
         push    hl
