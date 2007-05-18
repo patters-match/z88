@@ -61,23 +61,10 @@ directory.
                                      -  *  -
 
 You've now ready to compile the Z88 rom! Just execute the rom.bat script (or rom.sh for Unix
-developers) and you will have the latest OZ rom compiled from SVN. Default rom is UK.
-You can specify the following country codes to get a localised Z88 ROM:
+developers) and you will have the latest OZ rom compiled from SVN.
 
-        DK      Denmark
-        FR      France
-        SE      Swedish/Finish
-        FI      Swedish/Finish
-
-Command line example:
-        rom DK       (Windows/DOS)
-        rom dk       (Windows/DOS)
-        ./rom.sh dk  (Unix)
-
-all variations will compile a danish Z88 rom, and stored as 'oz.bin' in the current directory
-of the rom compile scripts. You can install/run the rom binary in the Z88 emulator, OZvm
-(in /tools/ozvm), or using a conventional Eprom programmer and re-blow your 128K or larger chip
-to be inserted into a real Z88.
+You can install/run the rom binary in the Z88 emulator, OZvm (in /tools/ozvm), or using a conventional
+Eprom programmer and re-blow your 128K or larger chip to be inserted into a real Z88.
 
 Important:
 The rom script only works with Mpm Assembler V1.2 build 7 or later.

@@ -31,6 +31,7 @@ TODO (with priorities):
 - Preset default RAM device in Panel to expanded RAM card when identified by OZ. P3
 - Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ. P3
 - Add a character table or implement a []+XXX interface to access all the ISO characters. P3
+- Free RAM display in Index <>CARD display. P3.
 
 DONE
 - Rename nqsp.asm in spnq1.asm and move pagfi.asm into spnq1.asm P1
@@ -78,6 +79,8 @@ DONE
 - Move lowram image to MTH bank and modifiy reset routine. (GBS)
 - New OS_Fep system call implemented to handle flash card hardware. (GBS)
 - Current OS_Epr should be sub file-area aware in slot 3. (GBS)
+- Faster GN_Sop/GN_Soe, implemented new OS_Bout/OS_Pout, and many OS_Pout optimisations in OZ & apps (GBS)
+
 
 FIXED KERNEL BINARIES FOR COMPILATION
 ostables.asm @ $3F00 in bank 0
