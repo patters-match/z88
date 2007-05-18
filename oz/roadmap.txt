@@ -14,8 +14,6 @@ TODO (with priorities):
 - Choose day/month localization in the panel. P1
 - Add Flash EPROM Format command in Filer. P1
 - Add Select EPROM device command in Filer. P1
-- Rewrite buffer interface to speedup serial routines. P1
-- Modify NMI to allow use of RETN
 
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2
@@ -31,6 +29,8 @@ TODO (with priorities):
 - Free RAM display in Index <>CARD display. P3.
 
 DONE
+- Modify NMI to allow use of RETN (it is impossible... INT and NMI are mixed together for hibernating)
+- Rewrite buffer interface to speedup serial routines. P1
 - Rename nqsp.asm in spnq1.asm and move pagfi.asm into spnq1.asm P1
 - Clean sysvar.def
 - Move printer interface code in kernel. P2
