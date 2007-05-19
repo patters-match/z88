@@ -197,9 +197,9 @@ DEFC BLSC_EPR  =    $04B3
      DEFC PD_10ms        =    $C0       ; 10 ms
 
      ; EPROM standard types
-     DEFC EP_32K         =    $48
-     DEFC EP_128K        =    $69
-     DEFC EP_256K        =    $69
+     DEFC EP_32K         =    PD_312us | BM_EPRSE3D                             ; $48
+     DEFC EP_128K        =    PD_312us | BM_EPRPGMD | BM_EPRSE3D | BM_EPRSE3P   ; $69
+     DEFC EP_256K        =    PD_312us | BM_EPRPGMD | BM_EPRSE3D | BM_EPRSE3P   ; $69
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------
