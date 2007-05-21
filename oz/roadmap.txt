@@ -80,6 +80,7 @@ DONE
 - Implement new OS_Epr API with stdlib Epr* functionaility. (GBS)
 - Rewrite/optimize current OS_Epr with new Epr* functionaility from stdlib. (GBS)
 - Rewrite EPROM interface with Flash handling. (GBS)
+- New free RAM status system call: OS_NQ, NQ_Mfp. (GBS)
 - Faster GN_Sop/GN_Soe, implemented new OS_Bout/OS_Pout, and many OS_Pout optimisations in OZ & apps (GBS)
 - Reorganized ROM application code to allow for new features in Index and Filer binaries. (GBS)
 
