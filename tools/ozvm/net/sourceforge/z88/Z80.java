@@ -19,6 +19,10 @@
 
 package net.sourceforge.z88;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * The Z80 class emulates the Zilog Z80 microprocessor. Optimized and added with
  * new features for Z88 virtual machine.
@@ -36,6 +40,80 @@ package net.sourceforge.z88;
  */
 public abstract class Z80 {
 
+	private final class LogZ80 {
+		private static final int BUFSIZE = 100000;
+		
+		private long timeStamp[];
+		private int pcAddressCache[];
+		private int registerCache[][];
+		private int index;
+		private int logFileCounter;
+		
+		public LogZ80() {
+			timeStamp = new long[BUFSIZE];
+			pcAddressCache = new int[BUFSIZE];
+			registerCache = new int[BUFSIZE][7];			
+		}
+		
+		public void logInstruction() {
+			if (index == BUFSIZE) {
+				// dump cache to log file in a thread...
+				dumpCache();
+				index = 0;
+			} else {
+				timeStamp[index] = System.nanoTime();
+				pcAddressCache[index] = (getPcAddress() & 0xFF0000) | PC();
+				
+				registerCache[index][0] = AF();
+				registerCache[index][1] = BC();
+				registerCache[index][2] = DE();
+				registerCache[index][3] = HL();
+				registerCache[index][4] = IX();
+				registerCache[index][5] = IY();
+				registerCache[index][6] = SP();
+			}
+
+			index++;
+		}
+		
+		/**
+		 * Dump executed instruction cache to log file in a background thread..
+		 */
+		private void dumpCache() {
+			long cpyTimeStamp[] = new long[BUFSIZE];
+			int cpyPcAddressCache[] = new int[BUFSIZE];
+			int cpyRegisterCache[][] = new int[BUFSIZE][7];
+						
+			System.arraycopy(timeStamp, 0, cpyTimeStamp, 0, timeStamp.length);
+			System.arraycopy(pcAddressCache, 0, cpyPcAddressCache, 0, pcAddressCache.length);
+			System.arraycopy(registerCache, 0, cpyRegisterCache, 0, registerCache.length);
+			
+			Thread thread = new Thread() {
+				public void run() {
+					Dz dz = Dz.getInstance();
+					
+					try {
+						BufferedWriter out = new BufferedWriter(new FileWriter("z80_" + logFileCounter++ + ".log"));
+						StringBuffer dzLine = new StringBuffer(64);
+						for (int i=0; i<BUFSIZE; i++) {
+							int dzBank = (pcAddressCache[i] >>> 16) & 0xFF;
+							int dzAddr = pcAddressCache[i] & 0xFFFF;	// bank	offset (with simulated segment addressing)
+
+							dz.getInstrAscii(dzLine, dzAddr, dzBank, false, true);
+							out.write(Dz.extAddrToHex(pcAddressCache[i], false) + " " + dzLine + "\n");
+							out.flush();
+				        }
+				    	out.close();
+					        
+				    } catch (IOException e) {
+				    }
+				}
+			};
+			
+			thread.start();
+		}
+	}
+	
 	public Z80() {
 		tstatesCounter = 0;
 
@@ -50,6 +128,7 @@ public abstract class Z80 {
 			parity[i] = p;
 		}
 
+		lgZ80 = new LogZ80();
 		reset();
 	}
 
@@ -65,6 +144,8 @@ public abstract class Z80 {
 		return c;
 	}
 
+	private LogZ80 lgZ80;
+	
 	private boolean externIntSignal = false;
 
 	private boolean z80Stopped = false;
@@ -436,6 +517,10 @@ public abstract class Z80 {
 	/** External implemenation of Write Word to the Z80 virtual memory model */
 	public abstract void writeWord(final int addr, final int w);
 
+	/** External implemenation getting current physical PC address 
+	 * @return extended PC address */
+	public abstract int getPcAddress();
+	
 	/**
 	 * External implemenation of action to be taken when a breakpoint is
 	 * encountered
@@ -575,7 +660,7 @@ public abstract class Z80 {
 	}
 
 	/** Z80 fetch/execute loop, engine full throttle ahead.. */
-	public void decode(boolean debugMode) {
+	public void decode(boolean debugMode, boolean logExecution) {
 		z80Stopped = false;
 
 		do {
@@ -586,6 +671,10 @@ public abstract class Z80 {
 				return;
 			}
 
+			if (logExecution == true) {
+				lgZ80.logInstruction();
+			}
+				
 			if ((debugMode == false) & IFF1() == true && interruptTriggered() == true) {
 				// a maskable interrupt want's to be executed...
 				execInterrupt();
@@ -3209,7 +3298,7 @@ public abstract class Z80 {
 				case 251: /* EI */{
 					tstatesCounter += 4;
 					if (debugMode == false)
-						decode(true); // execute a single instruction after EI...
+						decode(true, logExecution); // execute a single instruction after EI...
 					IFF1(true); // open up for interrupts again...
 					IFF2(true);
 					break;

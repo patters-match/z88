@@ -31,9 +31,9 @@ public final class Blink {
 
 	/** Blink Snooze state */
 	public boolean snooze;
-	
+
 	/** Blink Coma state */
-	public boolean coma;    
+	public boolean coma;
 
 	/**
 	 * Access to the Z88 Memory Model
@@ -50,11 +50,6 @@ public final class Blink {
 	 * The Real Time Clock (RTC) inside the BLINK.
 	 */
 	private Rtc rtc;
-	
-	private DataBus[] addressSpace;
-	private LowerSegment0 segm00addrSpace;
-	private UpperSegment0 segm01addrSpace;
-	private Segments1To3 segm13addrSpace;
 
 	/**
 	 * Main Blink Interrrupts (INT).
@@ -109,7 +104,7 @@ public final class Blink {
 	 * Acknowledge Main Blink Interrrupts (INT):
 	 * Bit 0, TIME   Acknowledge TIME interrupt
 	 */
-	public static final int BM_ACKTIME = 0x01; 
+	public static final int BM_ACKTIME = 0x01;
 
 	/**
 	 * Main Blink Interrupt Status (STA)
@@ -212,7 +207,7 @@ public final class Blink {
 	public static final int BM_COMRAMS = 0x04; // Bit 2, RAMS
 	public static final int BM_COMVPPON = 0x02; // Bit 1, VPPON
 	public static final int BM_COMLCDON = 0x01; // Bit 0, LCDON
-	
+
 	/**
 	 * BLINK Eprom Programming Register.
 	 *
@@ -229,39 +224,29 @@ public final class Blink {
 	 */
 	private int EPR;
 
-	public static final int BM_EPRPD1 = 0x80; // Bit 7, PD1 
-	public static final int BM_EPRPD0 = 0x40; // Bit 6, PD0 
+	public static final int BM_EPRPD1 = 0x80; // Bit 7, PD1
+	public static final int BM_EPRPD0 = 0x40; // Bit 6, PD0
 	public static final int BM_EPRPGMD = 0x20; // Bit 5, PGMD
 	public static final int BM_EPREOED = 0x10; // Bit 4, EOED
 	public static final int BM_EPRSE3D = 0x08; // Bit 3, SE3D
 	public static final int BM_EPRPGMP = 0x04; // Bit 2, PGMP
 	public static final int BM_EPREOEP = 0x02; // Bit 1, EOEP
 	public static final int BM_EPRSE3P = 0x01; // Bit 0, SE3P
-	
+
 	/**
 	 * Blink class default constructor.
 	 */
 	public Blink() {
 		super();
 
-		snooze = false;		
-		coma = false;    
-		
+		snooze = false;
+		coma = false;
+
 		memory = Z88.getInstance().getMemory();	// access to Z88 memory model (4Mb)
 		RAMS = memory.getBank(0); // point at ROM bank 0 (null at the moment)
 
 		// the segment register SR0 - SR3
 		sR = new int[4];
-
-		segm00addrSpace = new LowerSegment0();
-		segm01addrSpace = new UpperSegment0();
-		segm13addrSpace = new Segments1To3();
-		addressSpace = new DataBus[] {
-					segm00addrSpace, segm00addrSpace, segm01addrSpace, segm01addrSpace,
-					segm13addrSpace, segm13addrSpace, segm13addrSpace, segm13addrSpace,
-					segm13addrSpace, segm13addrSpace, segm13addrSpace, segm13addrSpace,
-					segm13addrSpace, segm13addrSpace, segm13addrSpace, segm13addrSpace
-				};
 
 		timerDaemon = new Timer(true);
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
@@ -269,112 +254,13 @@ public final class Blink {
 		resetBlinkRegisters();
 	}
 
-	
-	/**
-	 * The Z80 databus methods for getting/writing bytes
-	 * to/from the memory system through the 64K Z80 address
-	 * space (and the segment bindings to the extended
-	 * memory model of the Z88).
-	 */
-	private interface DataBus {
-		public int readByte(final int addr);
-		public int readWord(final int addr);
-		public void writeByte(final int addr, final int b);
-		public void writeWord(final int addr, final int b);
-	}
 
-	/**
-	 * The databus read/write methods for lower 8K of segment 0
-	 * (Access through RAMS register)
-	 */
-	private final class LowerSegment0 implements DataBus {
-		public final int readByte(final int addr) {
-			return RAMS.readByte(addr);
-		}
 
-		public final void writeByte(final int addr, final int b) {
-			RAMS.writeByte(addr, b);
-		}
-
-		public final int readWord(final int addr) {
-			return RAMS.readByte(addr) | (RAMS.readByte(addr+1) << 8);
-		}
-
-		public final void writeWord(final int addr, final int w) {
-			RAMS.writeByte(addr, w);
-			RAMS.writeByte(addr+1, w >>> 8);
-		}
-	}
-
-	/**
-	 * The databus read/write methods for upper 8K of segment 0
-	 * (Only even banks are mapped into this segment, where bit 0
-	 * of the bank number identifies whether the upper 8K or the
-	 * lower 8K of the bank are bound into the upper 8K of
-	 * segment 0)
-	 * Read/write occurs in address range 2000h-3FFFh of the 64K
-	 * Z80 address space.
-	 */
-	private final class UpperSegment0 implements DataBus {
-		public final int readByte(final int addr) {
-			return memory.getBank(sR[0] & 0xFE).readByte( ((sR[0] & 1) << 13) | (addr & 0x1FFF) );
-		}
-
-		public final void writeByte(final int addr, final int b) {
-			memory.getBank(sR[0] & 0xFE).writeByte( ((sR[0] & 1) << 13) | (addr & 0x1FFF), b);
-		}
-
-		public final int readWord(int addr) {
-			Bank b = memory.getBank(sR[0] & 0xFE);
-			addr = ((sR[0] & 1) << 13) | (addr & 0x1FFF);
-
-			return b.readByte(addr) | (b.readByte(addr+1) << 8);
-		}
-
-		public final void writeWord(int addr, final int w) {
-			Bank b = memory.getBank(sR[0] & 0xFE);
-			addr = ((sR[0] & 1) << 13) | (addr & 0x1FFF);
-
-			b.writeByte(addr, w);
-			b.writeByte(addr+1, w >>> 8);
-		}
-	}
-
-	/**
-	 * The databus read/write methods for segments 1 - 3.
-	 *
-	 * Read/write occurs in address range 4000h-FFFFh of the 64K
-	 * Z80 address space.
-	 */
-	private final class Segments1To3 implements DataBus {
-		public final int readByte(final int addr) {
-			return memory.getBank(sR[(addr >>> 14) & 3]).readByte(addr);
-		}
-
-		public final void writeByte(final int addr, final int b) {
-			memory.getBank(sR[(addr >>> 14) & 3]).writeByte(addr, b);
-		}
-
-		public final int readWord(final int addr) {
-			Bank b = memory.getBank(sR[(addr >>> 14) & 3]);
-
-			return b.readByte(addr) | (b.readByte(addr+1) << 8);
-		}
-
-		public final void writeWord(final int addr, final int w) {
-			Bank b = memory.getBank(sR[(addr >>> 14) & 3]);
-
-			b.writeByte(addr, w);
-			b.writeByte(addr+1, w >>> 8);
-		}
-	}
-
-	
 	public Timer getTimerDaemon() {
 		return timerDaemon;
 	}
 
-	
+
 	/**
 	 * Reset Blink Registers to Power-On-State.
 	 */
@@ -445,7 +331,7 @@ public final class Blink {
 	 * @param bits
 	 */
 	public void setBlinkAck(int bits) {
-		if ((STA & (bits & 0xFF)) == 0) 
+		if ((STA & (bits & 0xFF)) == 0)
 			STA &= ~(bits & 0xff);	// Acknowledge (and clear) occurred STA interrupts (NAND)
 	}
 
@@ -526,7 +412,7 @@ public final class Blink {
 	 */
 	public void setBlinkTack(int bits) {
 		if ((rtc.TSTA & (bits & 0xff)) != 0 )
-			rtc.TSTA &= ~(bits & 0xff);		// reset TSTA interrupt 
+			rtc.TSTA &= ~(bits & 0xff);		// reset TSTA interrupt
 	}
 
 	/**
@@ -779,16 +665,16 @@ public final class Blink {
 		return (extAddressBank | extAddressOffset) << 8;
 	}
 
-	
+
 	/**
 	 * Signal to the Blink that a key was pressed.
-	 * The internal state machine inside the Blink resolves the 
-	 * snooze state and fires KEY interrupts, if enabled. 
+	 * The internal state machine inside the Blink resolves the
+	 * snooze state and fires KEY interrupts, if enabled.
 	 */
 	public void signalKeyPressed() {
 		// processor snooze always awakes on a key press (even if INT.GINT = 0)
-		snooze = false; 
-		
+		snooze = false;
+
 		if ( (INT & Blink.BM_INTKEY) == Blink.BM_INTKEY & ((STA & BM_STAKEY) == 0)) {
 			// If keyboard interrupts are enabled, then signal that a key was pressed.
 
@@ -800,8 +686,8 @@ public final class Blink {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Fetch a keypress from the specified row(s) matrix, or 0 for all rows.<br>
 	 * Interface call for IN r,(B2h).<br>
@@ -812,26 +698,19 @@ public final class Blink {
 	public int getBlinkKbd(int row) {
 		if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
 			snooze = true;
-			boolean threadSleep = true;
-			
+
 			while( snooze == true & Z88.getInstance().getProcessor().isZ80running() == true) {
 				try {
-					// The processor is set into snooze mode when INT.KWAIT is enabled 
+					// The processor is set into snooze mode when INT.KWAIT is enabled
 					// and the hardware keyboard matrix is scanned.
 					// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
-					// (or if the Z80 engine is stopped by F5 or debug 'stop' command) 
-					if (threadSleep == true) {
-						Thread.sleep(0,1);
-						threadSleep = false;
-					} else {
-						Thread.yield();
-						threadSleep = true;
-					}	
+					// (or if the Z80 engine is stopped by F5 or debug 'stop' command)
+					Thread.sleep(0,1);
 				} catch (InterruptedException e) {
 				}
 			}
-		}		
-		
+		}
+
 		return Z88.getInstance().getKeyboard().scanKeyRow(row);
 	}
 
@@ -928,7 +807,61 @@ public final class Blink {
 	 * @return byte at bank, mapped into segment for specified address
 	 */
 	public final int readByte(final int addr) {
-		return addressSpace[ (addr & 0xF000) >>> 12].readByte(addr);
+		if (addr > 0x3FFF) {
+			return memory.getBank(sR[addr >>> 14]).readByte(addr);
+		} else {
+			if (addr < 0x2000)
+				// return lower 8K Bank binding
+				// Lower 8K is System Bank 0x00 (ROM on hard reset)
+				// or 0x20 (RAM for Z80 stack and system variables)
+				return RAMS.readByte(addr);
+			else {
+				if ((sR[0] & 1) == 0)
+					// lower 8K of even bank bound into upper 8K of segment 0
+					return memory.getBank(sR[0] & 0xFE).readByte(addr & 0x1FFF);
+				else
+					// upper 8K of even bank bound into upper 8K of segment 0
+					// addr <= 0x3FFF...
+					return memory.getBank(sR[0] & 0xFE).readByte(addr);
+			}
+		}
+	}
+
+	/**
+	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
+	 * that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 *
+	 * Please refer to hardware section of the Developer's Notes.
+	 *
+	 * @param addr 16bit word that points into Z80 64K Address Space
+	 * @param b byte to be written into Z80 64K Address Space
+	 */
+	public final void writeByte(final int addr, final int b) {
+		if (addr > 0x3FFF) {
+			// write byte to segments 1 - 3
+			memory.getBank(sR[addr >>> 14]).writeByte(addr, b);
+		} else {
+			if (addr < 0x2000) {
+				// return lower 8K Bank binding
+				// Lower 8K is System Bank 0x00 (ROM on hard reset)
+				// or 0x20 (RAM for Z80 stack and system variables)
+				RAMS.writeByte(addr, b);
+			} else {
+				Bank bank = memory.getBank(sR[0] & 0xFE);
+				if ((sR[0] & 1) == 0) {
+					// lower 8K of even bank bound into upper 8K of segment 0
+					bank.writeByte(addr & 0x1FFF, b);
+				} else {
+					// upper 8K of even bank bound into upper 8K of segment 0
+					// addr <= 0x3FFF...
+					bank.writeByte(addr, b);
+				}
+			}
+		}
 	}
 
 	/**
@@ -947,24 +880,7 @@ public final class Blink {
 	 * @return word at bank, mapped into segment for specified address
 	 */
 	public final int readWord(int addr) {
-		return addressSpace[ (addr & 0xF000) >>> 12].readWord(addr);
-	}
-
-	/**
-	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
-	 * that points into the Z80 64K address space.
-	 *
-	 * On the Z88, the 64K is split into 4 sections of 16K segments.
-	 * Any of the 256 16K banks can be bound into the address space
-	 * on the Z88. Bank 0 is special, however.
-	 *
-	 * Please refer to hardware section of the Developer's Notes.
-	 *
-	 * @param addr 16bit word that points into Z80 64K Address Space
-	 * @param b byte to be written into Z80 64K Address Space
-	 */
-	public final void writeByte(final int addr, final int b) {
-		addressSpace[ (addr & 0xF000) >>> 12].writeByte(addr, b);
+		return (readByte(addr+1) << 8) | readByte(addr);
 	}
 
 	/**
@@ -982,8 +898,10 @@ public final class Blink {
 	 * @param w word to be written into Z80 64K Address Space
 	 */
 	public final void writeWord(int addr, final int w) {
-		addressSpace[ (addr & 0xF000) >>> 12].writeWord(addr, w);
+		writeByte(addr, w);
+		writeByte(addr+1, w >>> 8);
 	}
+
 
 	/**
 	 * Add the lost time to TIMx registers, which means
@@ -1115,7 +1033,7 @@ public final class Blink {
 	public void setBlinkEpr(int epr) {
 		EPR = epr;
 	}
-	
+
 	public void startInterrupts() {
 		if ( (getBlinkCom() & Blink.BM_COMRESTIM) == 0 ) {
 			adjustLostTime();
@@ -1213,16 +1131,16 @@ public final class Blink {
 			 */
 			public void run() {
 				boolean signalTimeInterrupt = false;
-				
+
 				if (++tick > 1) {
 					// 1/100 second has passed (two 5ms ticks..)
 					tick = 0;
 					if ((TMK & BM_TMKTICK) == BM_TMKTICK ) {
 						// TMK.TICK interrupts are enabled, signal that a tick occurred only if it not already signaled
-						TSTA = BM_TSTATICK; 
-						
+						TSTA = BM_TSTATICK;
+
 						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
-							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
+							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1
 							signalTimeInterrupt = true;
 						}
 					}
@@ -1237,7 +1155,7 @@ public final class Blink {
 						TSTA = BM_TSTASEC; // only signal one TSTA interrupt at a time, SEC > TICK...
 
 						if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
-							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
+							// INT.TIME interrupts are enabled, and Blink may signal it as IM 1
 							signalTimeInterrupt = true;
 						}
 					}
@@ -1245,13 +1163,13 @@ public final class Blink {
 					if (++TIM1 > 59) {
 						// 1 minute has passed
 						TIM1 = 0;
-						
+
 						if ((TMK & BM_TMKMIN) == BM_TMKMIN & ((TSTA & BM_TSTAMIN) == 0)) {
 							// TMK.MIN interrupts are enabled, signal that a minute occurred only if it not already signaled
 							TSTA = BM_TSTAMIN;  // only signal one TSTA interrupt at a time, MIN > SEC > TICK...
-							
+
 							if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
-								// INT.TIME interrupts are enabled, and Blink may signal it as IM 1 
+								// INT.TIME interrupts are enabled, and Blink may signal it as IM 1
 								signalTimeInterrupt = true;
 							}
 						}
@@ -1265,9 +1183,9 @@ public final class Blink {
 								}
 							}
 						}
-					}					
+					}
 				}
-				
+
 				if (signalTimeInterrupt == true) {
 					// fire a single interrupt for one or several TIMx registers,
 					// but only if the flap is closed (the Blink doesn't emit
@@ -1279,7 +1197,7 @@ public final class Blink {
 						STA |= BM_STATIME;
 						Z88.getInstance().getProcessor().setInterruptSignal(false);
 					}
-				}				
+				}
 			}
 		}
 
@@ -1338,7 +1256,7 @@ public final class Blink {
 	}
 
 	/**
-	 * The Blink only fires an IM 1 interrupt when the flap is opened 
+	 * The Blink only fires an IM 1 interrupt when the flap is opened
 	 * and when INT.FLAP is enabled. Both STA.FLAPOPEN and STA.FLAP is
 	 * set at the time of the interrupt. As long as the flap is open,
 	 * no STA.TIME interrupts gets out of the Blink (even though INT.TIME
@@ -1346,7 +1264,7 @@ public final class Blink {
 	 * The Flap interrupt is only fired once; when the flap is closed, and
 	 * then opened. STA.FLAPOPEN remains enabled as long as the flap is open;
 	 * when the flap is closed, NO interrupt is fired - only STA.FLAPOPEN is
-	 * set to 0. 
+	 * set to 0.
 	 */
 	public void signalFlapOpened() {
 		if (((INT & BM_INTFLAP) == BM_INTFLAP) & ((INT & BM_INTGINT) == BM_INTGINT)) {
@@ -1366,14 +1284,14 @@ public final class Blink {
 			public void run() {
 				try { Thread.sleep(100);
 				} catch (InterruptedException e1) {}
-				
-				// delay the flap close 0.1 sec (after this method was executed) 
+
+				// delay the flap close 0.1 sec (after this method was executed)
 				// this is to ensure that a flap is never closed too fast
 				// after a previous insert or remove card in slot
-				STA &= ~BM_STAFLAPOPEN; 				
+				STA &= ~BM_STAFLAPOPEN;
 			}
 		};
-		
-		thread.start();		
+
+		thread.start();
 	}
 }
