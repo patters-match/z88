@@ -752,7 +752,7 @@ public final class Blink {
 		int bankno;
 
 		if (pc > 0x3FFF) {
-			bankno = sR[(pc >>> 14) & 0x03];
+			bankno = sR[pc >>> 14];
 		} else {
 			if (pc < 0x2000)
 				// return lower 8K Bank binding
