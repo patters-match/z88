@@ -26,8 +26,6 @@ public class Z80Processor extends Z80 implements Runnable {
 	private Blink blink;
 	private Breakpoints breakpoints;
     private boolean singleStepping;
-    //private boolean logZ80instructions = true;
-    private boolean logZ80instructions;
 	private long z88StoppedAtTime;
 	private boolean interrupts;
 	private int oneStopBreakpoint;
@@ -49,7 +47,7 @@ public class Z80Processor extends Z80 implements Runnable {
 	 */
 	public void singleStepZ80() {
 		singleStepping = true;
-		decode(true, logZ80instructions);
+		decode(true);
 	}
 
 	/**
@@ -58,7 +56,7 @@ public class Z80Processor extends Z80 implements Runnable {
 	 */
     public void execZ80() {
     	singleStepping = false;
-    	decode(false, logZ80instructions);			// run until we drop dread!
+    	decode(false);			// run until we drop dread!
     }
 
     /**
@@ -242,7 +240,7 @@ public class Z80Processor extends Z80 implements Runnable {
 
 		int z80Opcode = getBreakpoints().getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
 		memory.setByte(bpAddress, z80Opcode); // patch the original opcode back into memory (temporarily)
-		decode(true, logZ80instructions); // execute the original instruction at display breakpoint
+		decode(true); // execute the original instruction at display breakpoint
 		memory.setByte(bpAddress, bpOpcode);  // re-patch the breakpoint opcode, for future encounter
 	}
 
@@ -448,14 +446,6 @@ public class Z80Processor extends Z80 implements Runnable {
 
 	public void setOneStopBreakpoint(int oneStopBreakpoint) {
 		this.oneStopBreakpoint = oneStopBreakpoint;
-	}
-
-	public boolean isLogZ80instructions() {
-		return logZ80instructions;
-	}
-
-	public void setLogZ80instructions(boolean logZ80instructions) {
-		this.logZ80instructions = logZ80instructions;
 	}
 
 	public int getPcAddress() {

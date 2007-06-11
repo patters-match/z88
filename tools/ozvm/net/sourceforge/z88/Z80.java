@@ -43,25 +43,26 @@ public abstract class Z80 {
 	private final class LogZ80 {
 		private static final int BUFSIZE = 100000;
 		
-		private long timeStamp[];
 		private int pcAddressCache[];
 		private int registerCache[][];
 		private int index;
 		private int logFileCounter;
 		
 		public LogZ80() {
-			timeStamp = new long[BUFSIZE];
 			pcAddressCache = new int[BUFSIZE];
 			registerCache = new int[BUFSIZE][7];			
 		}
 		
-		public void logInstruction() {
+		private boolean isCacheAvailable() {
+			return index != 0;
+		}
+		
+		private void logInstruction() {
 			if (index == BUFSIZE) {
 				// dump cache to log file in a thread...
-				dumpCache();
+				flushCache();
 				index = 0;
 			} else {
-				timeStamp[index] = System.nanoTime();
 				pcAddressCache[index] = (getPcAddress() & 0xFF0000) | PC();
 				
 				registerCache[index][0] = AF();
@@ -79,12 +80,10 @@ public abstract class Z80 {
 		/**
 		 * Dump executed instruction cache to log file in a background thread..
 		 */
-		private void dumpCache() {
-			long cpyTimeStamp[] = new long[BUFSIZE];
+		private void flushCache() {
 			int cpyPcAddressCache[] = new int[BUFSIZE];
 			int cpyRegisterCache[][] = new int[BUFSIZE][7];
 						
-			System.arraycopy(timeStamp, 0, cpyTimeStamp, 0, timeStamp.length);
 			System.arraycopy(pcAddressCache, 0, cpyPcAddressCache, 0, pcAddressCache.length);
 			System.arraycopy(registerCache, 0, cpyRegisterCache, 0, registerCache.length);
 			
@@ -95,16 +94,33 @@ public abstract class Z80 {
 					try {
 						BufferedWriter out = new BufferedWriter(new FileWriter("z80_" + logFileCounter++ + ".log"));
 						StringBuffer dzLine = new StringBuffer(64);
+						StringBuffer dzBuf = new StringBuffer(128);
 						for (int i=0; i<BUFSIZE; i++) {
 							int dzBank = (pcAddressCache[i] >>> 16) & 0xFF;
 							int dzAddr = pcAddressCache[i] & 0xFFFF;	// bank	offset (with simulated segment addressing)
 
 							dz.getInstrAscii(dzLine, dzAddr, dzBank, false, true);
-							out.write(Dz.extAddrToHex(pcAddressCache[i], false) + " " + dzLine + "\n");
-							out.flush();
+							dzBuf.append(Dz.extAddrToHex(pcAddressCache[i], false));
+							dzBuf.append(" ");
+							dzBuf.append(dzLine);
+							for(int space=31 - dzLine.length(); space>0; space--) dzBuf.append(" ");
+							dzBuf.append(									
+									Z88Info.quickZ80Dump(
+															registerCache[i][0], // AF
+															registerCache[i][1], // BC
+															registerCache[i][2], // DE
+															registerCache[i][3], // HL
+															registerCache[i][4], // SP
+															registerCache[i][5], // IX
+															registerCache[i][6]) // IY
+											);
+							dzBuf.append(System.getProperty("line.separator"));
+							out.write(dzBuf.toString());
+							
+							dzBuf.delete(0,127);
 				        }
 				    	out.close();
-					        
+
 				    } catch (IOException e) {
 				    }
 				}
@@ -112,6 +128,20 @@ public abstract class Z80 {
 			
 			thread.start();
 		}
+	}
+	
+	public void flushZ80LogCache() {
+		if (lgZ80.isCacheAvailable() == true) {
+			lgZ80.flushCache();
+		}
+	}
+
+	public void setZ80Logging(boolean logState) {
+		logZ80instructions = logState;		
+	}
+
+	public boolean izZ80Logged() {
+		return logZ80instructions;		
 	}
 	
 	public Z80() {
@@ -145,6 +175,7 @@ public abstract class Z80 {
 	}
 
 	private LogZ80 lgZ80;
+	private boolean logZ80instructions;
 	
 	private boolean externIntSignal = false;
 
@@ -156,21 +187,21 @@ public abstract class Z80 {
 
 	private static final int IM2 = 2;
 
-	private static final int F_C = 0x01;
+	public static final int F_C = 0x01;
 
-	private static final int F_N = 0x02;
+	public static final int F_N = 0x02;
 
-	private static final int F_PV = 0x04;
+	public static final int F_PV = 0x04;
 
-	private static final int F_3 = 0x08;
+	public static final int F_3 = 0x08;
 
-	private static final int F_H = 0x10;
+	public static final int F_H = 0x10;
 
-	private static final int F_5 = 0x20;
+	public static final int F_5 = 0x20;
 
-	private static final int F_Z = 0x40;
+	public static final int F_Z = 0x40;
 
-	private static final int F_S = 0x80;
+	public static final int F_S = 0x80;
 
 	private final boolean parity[];
 
@@ -660,9 +691,9 @@ public abstract class Z80 {
 	}
 
 	/** Z80 fetch/execute loop, engine full throttle ahead.. */
-	public void decode(boolean debugMode, boolean logExecution) {
+	public void decode(boolean debugMode) {
 		z80Stopped = false;
-
+		
 		do {
 			instrPC = _PC; // define origin PC of current instruction
 
@@ -671,13 +702,17 @@ public abstract class Z80 {
 				return;
 			}
 
-			if (logExecution == true) {
+			if (logZ80instructions == true) {
 				lgZ80.logInstruction();
 			}
 				
 			if ((debugMode == false) & IFF1() == true && interruptTriggered() == true) {
 				// a maskable interrupt want's to be executed...
-				execInterrupt();
+				if (execInterrupt() == true) {
+					if (logZ80instructions == true) {
+						lgZ80.logInstruction();
+					}					
+				}
 			}
 
 			REFRESH(1);
@@ -3298,7 +3333,7 @@ public abstract class Z80 {
 				case 251: /* EI */{
 					tstatesCounter += 4;
 					if (debugMode == false)
-						decode(true, logExecution); // execute a single instruction after EI...
+						decode(true); // execute a single instruction after EI...
 					IFF1(true); // open up for interrupts again...
 					IFF2(true);
 					break;

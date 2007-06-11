@@ -79,6 +79,31 @@ public class Z88Info {
 		return dzBuffer.toString();
 	}
 
+	public static StringBuffer quickZ80Dump(int af, int bc, int de, int hl, int ix, int iy, int sp ) {
+		int a = af >>> 8;
+		int f = af & 0xff;
+		StringBuffer dzRegisters = new StringBuffer(128);
+
+		dzRegisters.append(Dz.byteToHex(a, false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(bc, false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(de, false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(hl, false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(sp, false)).append(" ");			
+		dzRegisters.append(Dz.addrToHex(ix, false)).append(" ");
+		dzRegisters.append(Dz.addrToHex(iy ,false)).append(" ");
+
+		dzRegisters.append( (f & Z80.F_S) != 0 ? "S" : ".");
+		dzRegisters.append( (f & Z80.F_Z) != 0 ? "Z" : ".");
+		dzRegisters.append( (f & Z80.F_5) != 0 ? "5" : ".");
+		dzRegisters.append( (f & Z80.F_H) != 0 ? "H" : ".");
+		dzRegisters.append( (f & Z80.F_3) != 0 ? "3" : ".");
+		dzRegisters.append( (f & Z80.F_PV) != 0 ? "V" : ".");
+		dzRegisters.append( (f & Z80.F_N) != 0 ? "N" : ".");
+		dzRegisters.append( (f & Z80.F_C) != 0 ? "C" : ".");
+		
+		return dzRegisters;		
+	}
+	
 	/**
 	 * Current main purpose Z80 Registers and Flags as a one-liner string
 	 */
@@ -142,6 +167,7 @@ public class Z88Info {
 
         return blinkTimers.toString();
     }
+
 
 	public static StringBuffer z80Flags() {
 		StringBuffer dzFlags = new StringBuffer(8);

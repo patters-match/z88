@@ -45,6 +45,7 @@ public class CommandLine implements KeyListener {
 	private static final String illegalArgumentMessage = "Illegal Argument";
 	
 	private	DebugGui debugGui;
+    private boolean logZ80instructions;	
 	private	Blink blink;	
 	private	Z80Processor z80;
 
@@ -110,10 +111,11 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("\nUse	F12 to toggle keyboard focus between debug command line	and Z88	window.");
 		displayCmdOutput("All arguments	are in Hex: Local address = 64K	address	space,\nExtended address = 24bit address, eg. 073800 (bank 07h,	offset 3800h)");
 		displayCmdOutput("Commands:");
-		displayCmdOutput("run -	execute	virtual	Z88 from PC");
-		displayCmdOutput("stop - stop virtual Z88 (or press F5 when Z88	window has focus)");
+		displayCmdOutput("run -	Execute	virtual	Z88 from PC");
+		displayCmdOutput("stop - Stop virtual Z88 (or press F5 when Z88	window has focus)");
+		displayCmdOutput("log - Toggle logging of Z80 instruction execution to file");
 		displayCmdOutput("ldc filename <extended address> - Load file binary at	address");
-		displayCmdOutput("z - trace (subroutine) code at PC and break at next instruction");
+		displayCmdOutput("z - Trace (subroutine) code at PC and break at next instruction");
 		displayCmdOutput(". - Single step instruction at PC");
 		displayCmdOutput("dz - Disassembly at PC");
 		displayCmdOutput("dz [local address | extended address]	- Disassemble at address");
@@ -272,6 +274,20 @@ public class CommandLine implements KeyListener {
 			Z88.getInstance().getProcessor().stopZ80Execution();
 		}
 
+		if (cmdLineTokens[0].compareToIgnoreCase("log") == 0) {
+			Z80Processor z80 = Z88.getInstance().getProcessor();
+			if (z80.izZ80Logged() == true) {
+				logZ80instructions = false;
+				z80.setZ80Logging(logZ80instructions);
+				z80.flushZ80LogCache(); // flush the Z80 instruction log cache, if there's anything in it.
+				displayCmdOutput("Z80 Instruction logging disabled.");
+			} else {
+				logZ80instructions = true;
+				z80.setZ80Logging(logZ80instructions);
+				displayCmdOutput("Z80 Instruction logging enabled.");				
+			}
+		}		
+		
 		if (cmdLineTokens[0].compareTo(".") == 0) {
 			if (Z88.getInstance().getProcessorThread() != null) {
 				displayCmdOutput("Z88 is already running.");
