@@ -15058,6 +15058,7 @@
         cp      $0D
         jr      nz,L_F020
         oz      GN_Nln
+        ret
 .L_F020
         oz      Os_out
         ret
