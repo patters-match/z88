@@ -28,12 +28,23 @@
 call cleanup
 
 :: -------------------------------------------------------------------------------------------------
+:COMPILE_DIARY
 echo compiling Diary application
 cd apps\diary
 call makeapp 2>nul >nul
 cd ..\..
-dir apps\diary\*.err 2>nul >nul || goto COMPILE_IMPEXP
+dir apps\diary\*.err 2>nul >nul || goto COMPILE_PIPEDREAM
 type apps\diary\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_PIPEDREAM
+echo compiling PipeDream application
+cd apps\pipedream
+call makeapp 2>nul >nul
+cd ..\..
+dir apps\pipedream\*.err 2>nul >nul || goto COMPILE_IMPEXP
+type apps\pipedream\*.err
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

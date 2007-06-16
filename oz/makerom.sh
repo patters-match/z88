@@ -39,6 +39,17 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
+echo compiling PipeDream application
+cd apps/pipedream
+. makeapp.sh
+cd ../..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat apps/pipedream/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
 echo compiling Imp/Export popdown
 cd apps/impexport
 . makeapp.sh
