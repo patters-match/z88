@@ -39,14 +39,13 @@ extern struct opcode os2[];	/* Z88 OS low level 2 byte argument call mnemonics *
 extern struct opcode gn[];	/* Z88 OS general 2 byte argument call mnemonics */
 extern struct opcode fpp[];	/* Z88 OS floating point call mnemonics	*/
 
-char			*gIncludeFiles[] = { "none", "stdio", "fileio", "director", "memory",
-					   "dor", "syspar", "saverst", "fpp", "integer",
-					   "serintfc", "screen", "time", "char", "error",
-					   "map", "alarm", "filter", "tokens", "misc", "interrpt" };
+char			*gIncludeFiles[] = { "none", "stdio", "fileio", "director", "memory", "dor", "syspar", "saverst",
+                                             "fpp", "integer", "serintfc", "screen", "time", "char", "error", "map",
+                                             "alarm", "filter", "tokens", "interrpt", "printer", "handle" };
 
 enum truefalse		gIncludeList[] = { false, false, false, false, false, false, false, false,
 					  false, false,	false, false, false, false, false, false,
-					  false, false,	false, false, false };
+					  false, false,	false, false, false, false};
 
 avltree				*VisitedAddresses;	/* collection of parsed label adresses during a pp command session */
 
@@ -1246,6 +1245,7 @@ long	ParseArea(long pc)
 {
     unsigned char	i;
     long		label;
+    long                start, end;
 
     while(pc <=	gEndOfCode) {
 
@@ -1413,7 +1413,6 @@ long	ParseArea(long pc)
 				    case    JP_m_opcode:
 				    case    JP_pe_opcode:
 				    case    JP_po_opcode:
-				    case    CALL_opcode:
 				    case    CALL_nz_opcode:
 				    case    CALL_z_opcode:
 				    case    CALL_nc_opcode:
@@ -1421,6 +1420,7 @@ long	ParseArea(long pc)
 				    case    CALL_p_opcode:
 				    case    CALL_m_opcode:
 				    case    CALL_pe_opcode:
+				    case    CALL_opcode:
 				    case    CALL_po_opcode:
 						    label = (unsigned char) GetByte(pc++);
 						    label += (unsigned short) (256 * GetByte(pc++));

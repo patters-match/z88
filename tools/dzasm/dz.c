@@ -48,583 +48,583 @@ int			CmpConstant2(long *key, GlobalConstant *node);
 void			LabelAddr(char *operand, long pc, long addr, enum truefalse dispaddr);
 
 struct opcode mn[] =
-{ 	"NOP",			0, none,		/* 00 */
-	"LD     BC,%s",		2, none,		/* 01 */
-	"LD     (BC),A",	0, none,		/* 02 */
-	"INC    BC",		0, none,		/* 03 */
-	"INC    B",		0, none,		/* 04 */
-	"DEC    B",		0, none,		/* 05 */
-	"LD     B,%s",		1, none,		/* 06 */
-	"RLCA",			0, none,		/* 07 */
+{ 	"nop",			0, none,		/* 00 */
+	"ld      bc,%s",	2, none,		/* 01 */
+	"ld      (bc),a",	0, none,		/* 02 */
+	"inc     bc",		0, none,		/* 03 */
+	"inc     b",		0, none,		/* 04 */
+	"dec     b",		0, none,		/* 05 */
+	"ld      b,%s",		1, none,		/* 06 */
+	"rlca",			0, none,		/* 07 */
 
-	"EX     AF,AF'",	0, none,		/* 08 */
-	"ADD    HL,BC",		0, none,		/* 09 */
-	"LD     A,(BC)",	0, none,		/* 0A */
-	"DEC    BC",		0, none,		/* 0B */
-	"INC    C",		0, none,		/* 0C */
-	"DEC    C",		0, none,		/* 0D */
-	"LD     C,%s",		1, none,		/* 0E */
-	"RRCA",			0, none,		/* 0F */
+	"ex      af,af'",	0, none,		/* 08 */
+	"add     hl,bc",	0, none,		/* 09 */
+	"ld      a,(bc)",	0, none,		/* 0A */
+	"dec     bc",		0, none,		/* 0B */
+	"inc     c",		0, none,		/* 0C */
+	"dec     c",		0, none,		/* 0D */
+	"ld      c,%s",		1, none,		/* 0E */
+	"rrca",	 		0, none,		/* 0F */
 
-	"DJNZ   %s",		-1, none,		/* 10 */
-	"LD     DE,%s",		2, none,		/* 11 */
-	"LD     (DE),A",	0, none,		/* 12 */
-	"INC    DE",		0, none,		/* 13 */
-	"INC    D",		0, none,		/* 14 */
-	"DEC    D",		0, none,		/* 15 */
-	"LD     D,%s",		1, none,		/* 16 */
-	"RLA",			0, none,		/* 17 */
+	"djnz    %s",		-1, none,		/* 10 */
+	"ld      de,%s",	2, none,		/* 11 */
+	"ld      (de),a",	0, none,		/* 12 */
+	"inc     de",		0, none,		/* 13 */
+	"inc     d",		0, none,		/* 14 */
+	"dec     d",		0, none,		/* 15 */
+	"ld      d,%s",		1, none,		/* 16 */
+	"rla",	 		0, none,		/* 17 */
 
-	"JR     %s",		-1, none,		/* 18 */
-	"ADD    HL,DE",		0, none,		/* 19 */
-	"LD     A,(DE)",	0, none,		/* 1A */
-	"DEC    DE",		0, none,		/* 1B */
-	"INC    E",		0, none,		/* 1C */
-	"DEC    E",		0, none,		/* 1D */
-	"LD     E,%s",		1, none,		/* 1E */
-	"RRA",			0, none,		/* 1F */
+	"jr      %s",		-1, none,		/* 18 */
+	"add     hl,de",	0, none,		/* 19 */
+	"ld      a,(de)",	0, none,		/* 1A */
+	"dec     de",		0, none,		/* 1B */
+	"inc     e",		0, none,		/* 1C */
+	"dec     e",		0, none,		/* 1D */
+	"ld      e,%s",		1, none,		/* 1E */
+	"rra",	 		0, none,		/* 1F */
 
-	"JR     NZ,%s",		-1, none,		/* 20 */
-	"LD     HL,%s",		2, none,		/* 21 */
-	"LD     (%s),HL",	2, none,	       /* 22 */
-	"INC    HL",		0, none,		/* 23 */
-	"INC    H",		0, none,		/* 24 */
-	"DEC    H",		0, none,		/* 25 */
-	"LD     H,%s",		1, none,		/* 26 */
-	"DAA",			0, none,		/* 27 */
+	"jr      nz,%s",	-1, none,		/* 20 */
+	"ld      hl,%s",	2, none,		/* 21 */
+	"ld      (%s),hl",	2, none,	       /* 22 */
+	"inc     hl",		0, none,		/* 23 */
+	"inc     h",		0, none,		/* 24 */
+	"dec     h",		0, none,		/* 25 */
+	"ld      h,%s",		1, none,		/* 26 */
+	"daa",	 		0, none,		/* 27 */
 
-	"JR     Z,%s",		-1, none,		/* 28 */
-	"ADD    HL,HL",		0, none,		/* 29 */
-	"LD     HL,(%s)",	2, none,	       /* 2A */
-	"DEC    HL",		0, none,		/* 2B */
-	"INC    L",		0, none,		/* 2C */
-	"DEC    L",		0, none,		/* 2D */
-	"LD     L,%s",		1, none,		/* 2E */
-	"CPL",			0, none,		/* 2F */
+	"jr      z,%s",		-1, none,		/* 28 */
+	"add     hl,hl",	0, none,		/* 29 */
+	"ld      hl,(%s)",	2, none,	       /* 2A */
+	"dec     hl",		0, none,		/* 2B */
+	"inc     l",		0, none,		/* 2C */
+	"dec     l",		0, none,		/* 2D */
+	"ld      l,%s",		1, none,		/* 2E */
+	"cpl",	 		0, none,		/* 2F */
 
-	"JR     NC,%s",		-1, none,		/* 30 */
-	"LD     SP,%s",		2, none,	       /* 31 */
-	"LD     (%s),A",	2, none,	       /* 32 */
-	"INC    SP",		0, none,		/* 33 */
-	"INC    (HL)",		0, none,		/* 34 */
-	"DEC    (HL)",		0, none,		/* 35 */
-	"LD     (HL),%s",	1, none,		/* 36 */
-	"SCF",			0, none,		/* 37 */
+	"jr      nc,%s",	-1, none,		/* 30 */
+	"ld      sp,%s",	2, none,	       /* 31 */
+	"ld      (%s),a",	2, none,	       /* 32 */
+	"inc     sp",		0, none,		/* 33 */
+	"inc     (hl)",		0, none,		/* 34 */
+	"dec     (hl)",		0, none,		/* 35 */
+	"ld      (hl),%s",	1, none,		/* 36 */
+	"scf",	 		0, none,		/* 37 */
 
-	"JR     C,%s",		-1, none,		/* 38 */
-	"ADD    HL,SP",		0, none,		/* 39 */
-	"LD     A,(%s)",	2, none,	       /* 3A */
-	"DEC    SP",		0, none,		/* 3B */
-	"INC    A",		0, none,		/* 3C */
-	"DEC    A",		0, none,		/* 3D */
-	"LD     A,%s",		1, none,		/* 3E */
-	"CCF",			0, none,		/* 3F */
+	"jr      c,%s",		-1, none,		/* 38 */
+	"add     hl,sp",	0, none,		/* 39 */
+	"ld      a,(%s)",	2, none,	       /* 3A */
+	"dec     sp",		0, none,		/* 3B */
+	"inc     a",		0, none,		/* 3C */
+	"dec     a",		0, none,		/* 3D */
+	"ld      a,%s",		1, none,		/* 3E */
+	"ccf",	 		0, none,		/* 3F */
 
-	"LD     B,B",		0, none,		/* 40 */
-	"LD     B,C",		0, none,		/* 41 */
-	"LD     B,D",		0, none,		/* 42 */
-	"LD     B,E",		0, none,		/* 43 */
-	"LD     B,H",		0, none,		/* 44 */
-	"LD     B,L",		0, none,		/* 45 */
-	"LD     B,(HL)",	0, none,		/* 46 */
-	"LD     B,A",		0, none,		/* 47 */
+	"ld      b,b",		0, none,		/* 40 */
+	"ld      b,c",		0, none,		/* 41 */
+	"ld      b,d",		0, none,		/* 42 */
+	"ld      b,e",		0, none,		/* 43 */
+	"ld      b,h",		0, none,		/* 44 */
+	"ld      b,l",		0, none,		/* 45 */
+	"ld      b,(hl)",	0, none,		/* 46 */
+	"ld      b,a",		0, none,		/* 47 */
 
-	"LD     C,B",		0, none,		/* 48 */
-	"LD     C,C",		0, none,		/* 49 */
-	"LD     C,D",		0, none,		/* 4A */
-	"LD     C,E",		0, none,		/* 4B */
-	"LD     C,H",		0, none,		/* 4C */
-	"LD     C,L",		0, none,		/* 4D */
-	"LD     C,(HL)",	0, none,		/* 4E */
-	"LD     C,A",		0, none,		/* 4F */
+	"ld      c,b",		0, none,		/* 48 */
+	"ld      c,c",		0, none,		/* 49 */
+	"ld      c,d",		0, none,		/* 4A */
+	"ld      c,e",		0, none,		/* 4B */
+	"ld      c,h",		0, none,		/* 4C */
+	"ld      c,l",		0, none,		/* 4D */
+	"ld      c,(hl)",	0, none,		/* 4E */
+	"ld      c,a",		0, none,		/* 4F */
 
-	"LD     D,B",		0, none,		/* 50 */
-	"LD     D,C",		0, none,		/* 51 */
-	"LD     D,D",		0, none,		/* 52 */
-	"LD     D,E",		0, none,		/* 53 */
-	"LD     D,H",		0, none,		/* 54 */
-	"LD     D,L",		0, none,		/* 55 */
-	"LD     D,(HL)",	0, none,		/* 56 */
-	"LD     D,A",		0, none,		/* 57 */
+	"ld      d,b",		0, none,		/* 50 */
+	"ld      d,c",		0, none,		/* 51 */
+	"ld      d,d",		0, none,		/* 52 */
+	"ld      d,e",		0, none,		/* 53 */
+	"ld      d,h",		0, none,		/* 54 */
+	"ld      d,l",		0, none,		/* 55 */
+	"ld      d,(hl)",	0, none,		/* 56 */
+	"ld      d,a",		0, none,		/* 57 */
 
-	"LD     E,B",		0, none,		/* 58 */
-	"LD     E,C",		0, none,		/* 59 */
-	"LD     E,D",		0, none,		/* 5A */
-	"LD     E,E",		0, none,		/* 5B */
-	"LD     E,H",		0, none,		/* 5C */
-	"LD     E,L",		0, none,		/* 5D */
-	"LD     E,(HL)",	0, none,		/* 5E */
-	"LD     E,A",		0, none,		/* 5F */
+	"ld      e,b",		0, none,		/* 58 */
+	"ld      e,c",		0, none,		/* 59 */
+	"ld      e,d",		0, none,		/* 5A */
+	"ld      e,e",		0, none,		/* 5B */
+	"ld      e,h",		0, none,		/* 5C */
+	"ld      e,l",		0, none,		/* 5D */
+	"ld      e,(hl)",	0, none,		/* 5E */
+	"ld      e,a",		0, none,		/* 5F */
 
-	"LD     H,B",		0, none,		/* 60 */
-	"LD     H,C",		0, none,		/* 61 */
-	"LD     H,D",		0, none,		/* 62 */
-	"LD     H,E",		0, none,		/* 63 */
-	"LD     H,H",		0, none,		/* 64 */
-	"LD     H,L",		0, none,		/* 65 */
-	"LD     H,(HL)",	0, none,		/* 66 */
-	"LD     H,A",		0, none,		/* 67 */
+	"ld      h,b",		0, none,		/* 60 */
+	"ld      h,c",		0, none,		/* 61 */
+	"ld      h,d",		0, none,		/* 62 */
+	"ld      h,e",		0, none,		/* 63 */
+	"ld      h,h",		0, none,		/* 64 */
+	"ld      h,l",		0, none,		/* 65 */
+	"ld      h,(hl)",	0, none,		/* 66 */
+	"ld      h,a",		0, none,		/* 67 */
 
-	"LD     L,B",		0, none,		/* 68 */
-	"LD     L,C",		0, none,		/* 69 */
-	"LD     L,D",		0, none,		/* 6A */
-	"LD     L,E",		0, none,		/* 6B */
-	"LD     L,H",		0, none,		/* 6C */
-	"LD     L,L",		0, none,		/* 6D */
-	"LD     L,(HL)",	0, none,		/* 6E */
-	"LD     L,A",		0, none,		/* 6F */
+	"ld      l,b",		0, none,		/* 68 */
+	"ld      l,c",		0, none,		/* 69 */
+	"ld      l,d",		0, none,		/* 6A */
+	"ld      l,e",		0, none,		/* 6B */
+	"ld      l,h",		0, none,		/* 6C */
+	"ld      l,l",		0, none,		/* 6D */
+	"ld      l,(hl)",	0, none,		/* 6E */
+	"ld      l,a",		0, none,		/* 6F */
 
-	"LD     (HL),B",	0, none,		/* 70 */
-	"LD     (HL),C",	0, none,		/* 71 */
-	"LD     (HL),D",	0, none,		/* 72 */
-	"LD     (HL),E",	0, none,		/* 73 */
-	"LD     (HL),H",	0, none,		/* 74 */
-	"LD     (HL),L",	0, none,		/* 75 */
-	"HALT",			0, none,		/* 76 */
-	"LD     (HL),A",	0, none,		/* 77 */
+	"ld      (hl),b",	0, none,		/* 70 */
+	"ld      (hl),c",	0, none,		/* 71 */
+	"ld      (hl),d",	0, none,		/* 72 */
+	"ld      (hl),e",	0, none,		/* 73 */
+	"ld      (hl),h",	0, none,		/* 74 */
+	"ld      (hl),l",	0, none,		/* 75 */
+	"halt",	 		0, none,		/* 76 */
+	"ld      (hl),a",	0, none,		/* 77 */
 
-	"LD     A,B",		0, none,		/* 78 */
-	"LD     A,C",		0, none,		/* 79 */
-	"LD     A,D",		0, none,		/* 7A */
-	"LD     A,E",		0, none,		/* 7B */
-	"LD     A,H",		0, none,		/* 7C */
-	"LD     A,L",		0, none,		/* 7D */
-	"LD     A,(HL)",	0, none,		/* 7E */
-	"LD     A,A",		0, none,		/* 7F */
+	"ld      a,b",		0, none,		/* 78 */
+	"ld      a,c",		0, none,		/* 79 */
+	"ld      a,d",		0, none,		/* 7A */
+	"ld      a,e",		0, none,		/* 7B */
+	"ld      a,h",		0, none,		/* 7C */
+	"ld      a,l",		0, none,		/* 7D */
+	"ld      a,(hl)",	0, none,		/* 7E */
+	"ld      a,a",		0, none,		/* 7F */
 
-	"ADD    A,B",		0, none,		/* 80 */
-	"ADD    A,C",		0, none,		/* 81 */
-	"ADD    A,D",		0, none,		/* 82 */
-	"ADD    A,E",		0, none,		/* 83 */
-	"ADD    A,H",		0, none,		/* 84 */
-	"ADD    A,L",		0, none,		/* 85 */
-	"ADD    A,(HL)",	0, none,		/* 86 */
-	"ADD    A,A",		0, none,		/* 87 */
+	"add     a,b",		0, none,		/* 80 */
+	"add     a,c",		0, none,		/* 81 */
+	"add     a,d",		0, none,		/* 82 */
+	"add     a,e",		0, none,		/* 83 */
+	"add     a,h",		0, none,		/* 84 */
+	"add     a,l",		0, none,		/* 85 */
+	"add     a,(hl)",	0, none,		/* 86 */
+	"add     a,a",		0, none,		/* 87 */
 
-	"ADC    A,B",		0, none,		/* 88 */
-	"ADC    A,C",		0, none,		/* 89 */
-	"ADC    A,D",		0, none,		/* 8A */
-	"ADC    A,E",		0, none,		/* 8B */
-	"ADC    A,H",		0, none,		/* 8C */
-	"ADC    A,L",		0, none,		/* 8D */
-	"ADC    A,(HL)",	0, none,		/* 8E */
-	"ADC    A,A",		0, none,		/* 8F */
+	"adc     a,b",		0, none,		/* 88 */
+	"adc     a,c",		0, none,		/* 89 */
+	"adc     a,d",		0, none,		/* 8A */
+	"adc     a,e",		0, none,		/* 8B */
+	"adc     a,h",		0, none,		/* 8C */
+	"adc     a,l",		0, none,		/* 8D */
+	"adc     a,(hl)",	0, none,		/* 8E */
+	"adc     a,a",		0, none,		/* 8F */
 
-	"SUB    B",		0, none,		/* 90 */
-	"SUB    C",		0, none,		/* 91 */
-	"SUB    D",		0, none,		/* 92 */
-	"SUB    E",		0, none,		/* 93 */
-	"SUB    H",		0, none,		/* 94 */
-	"SUB    L",		0, none,		/* 95 */
-	"SUB    (HL)",		0, none,		/* 96 */
-	"SUB    A",		0, none,		/* 97 */
+	"sub     b",		0, none,		/* 90 */
+	"sub     c",		0, none,		/* 91 */
+	"sub     d",		0, none,		/* 92 */
+	"sub     e",		0, none,		/* 93 */
+	"sub     h",		0, none,		/* 94 */
+	"sub     l",		0, none,		/* 95 */
+	"sub     (hl)",		0, none,		/* 96 */
+	"sub     a",		0, none,		/* 97 */
 
-	"SBC    A,B",		0, none,		/* 98 */
-	"SBC    A,C",		0, none,		/* 99 */
-	"SBC    A,D",		0, none,		/* 9A */
-	"SBC    A,E",		0, none,		/* 9B */
-	"SBC    A,H",		0, none,		/* 9C */
-	"SBC    A,L",		0, none,		/* 9D */
-	"SBC    A,(HL)",	0, none,		/* 9E */
-	"SBC    A,A",		0, none,		/* 9F */
+	"sbc     a,b",		0, none,		/* 98 */
+	"sbc     a,c",		0, none,		/* 99 */
+	"sbc     a,d",		0, none,		/* 9A */
+	"sbc     a,e",		0, none,		/* 9B */
+	"sbc     a,h",		0, none,		/* 9C */
+	"sbc     a,l",		0, none,		/* 9D */
+	"sbc     a,(hl)",	0, none,		/* 9E */
+	"sbc     a,a",		0, none,		/* 9F */
 
-	"AND    B",		0, none,		/* A0 */
-	"AND    C",		0, none,		/* A1 */
-	"AND    D",		0, none,		/* A2 */
-	"AND    E",		0, none,		/* A3 */
-	"AND    H",		0, none,		/* A4 */
-	"AND    L",		0, none,		/* A5 */
-	"AND    (HL)",		0, none,		/* A6 */
-	"AND    A",		0, none,		/* A7 */
+	"and     b",		0, none,		/* A0 */
+	"and     c",		0, none,		/* A1 */
+	"and     d",		0, none,		/* A2 */
+	"and     e",		0, none,		/* A3 */
+	"and     h",		0, none,		/* A4 */
+	"and     l",		0, none,		/* A5 */
+	"and     (hl)",		0, none,		/* A6 */
+	"and     a",		0, none,		/* A7 */
 
-	"XOR    B",		0, none,		/* A8 */
-	"XOR    C",		0, none,		/* A9 */
-	"XOR    D",		0, none,		/* AA */
-	"XOR    E",		0, none,		/* AB */
-	"XOR    H",		0, none,		/* AC */
-	"XOR    L",		0, none,		/* AD */
-	"XOR    (HL)",		0, none,		/* AE */
-	"XOR    A",		0, none,		/* AF */
+	"xor     b",		0, none,		/* A8 */
+	"xor     c",		0, none,		/* A9 */
+	"xor     d",		0, none,		/* AA */
+	"xor     e",		0, none,		/* AB */
+	"xor     h",		0, none,		/* AC */
+	"xor     l",		0, none,		/* AD */
+	"xor     (hl)",		0, none,		/* AE */
+	"xor     a",		0, none,		/* AF */
 
-	"OR     B",		0, none,		/* B0 */
-	"OR     C",		0, none,		/* B1 */
-	"OR     D",		0, none,		/* B2 */
-	"OR     E",		0, none,		/* B3 */
-	"OR     H",		0, none,		/* B4 */
-	"OR     L",		0, none,		/* B5 */
-	"OR     (HL)",		0, none,		/* B6 */
-	"OR     A",		0, none,		/* B7 */
+	"or      b",		0, none,		/* B0 */
+	"or      c",		0, none,		/* B1 */
+	"or      d",		0, none,		/* B2 */
+	"or      e",		0, none,		/* B3 */
+	"or      h",		0, none,		/* B4 */
+	"or      l",		0, none,		/* B5 */
+	"or      (hl)",		0, none,		/* B6 */
+	"or      a",		0, none,		/* B7 */
 
-	"CP     B",		0, none,		/* B8 */
-	"CP     C",		0, none,		/* B9 */
-	"CP     D",		0, none,		/* BA */
-	"CP     E",		0, none,		/* BB */
-	"CP     H",		0, none,		/* BC */
-	"CP     L",		0, none,		/* BD */
-	"CP     (HL)",		0, none,		/* BE */
-	"CP     A",		0, none,		/* BF */
+	"cp      b",		0, none,		/* B8 */
+	"cp      c",		0, none,		/* B9 */
+	"cp      d",		0, none,		/* BA */
+	"cp      e",		0, none,		/* BB */
+	"cp      h",		0, none,		/* BC */
+	"cp      l",		0, none,		/* BD */
+	"cp      (hl)",		0, none,		/* BE */
+	"cp      a",		0, none,		/* BF */
 
-	"RET    NZ",		0, none,		/* C0 */
-	"POP    BC",		0, none,		/* C1 */
-	"JP     NZ,%s",		2, none,		/* C2 */
-	"JP     %s",		2, none,		/* C3 */
-	"CALL   NZ,%s",		2, none,		/* C4 */
-	"PUSH   BC",		0, none,		/* C5 */
-	"ADD    A,%s",		1, none,		/* C6 */
-	"RST    0",		0, none,		/* C7 */
+	"ret     nz",		0, none,		/* C0 */
+	"pop     bc",		0, none,		/* C1 */
+	"jp      nz,%s",	2, none,		/* C2 */
+	"jp      %s",		2, none,		/* C3 */
+	"call    nz,%s",	2, none,		/* C4 */
+	"push    bc",		0, none,		/* C5 */
+	"add     a,%s",		1, none,		/* C6 */
+	"rst     0",		0, none,		/* C7 */
 
-	"RET    Z",		0, none,		/* C8 */
-	"RET",			0, none,		/* C9 */
-	"JP     Z,%s",		2, none,		/* CA */
-	0,			0, none,		/* CB ,	BIT MANIPULATION OPCODES */
-	"CALL   Z,%s",		2, none,		/* CC */
-	"CALL   %s",		2, none,		/* CD */
-	"ADC    A,%s",		1, none,		/* CE */
-	"RST    $08",		0, none,		/* CF */
+	"ret     z",		0, none,		/* C8 */
+	"ret",	 		0, none,		/* C9 */
+	"jp      z,%s",		2, none,		/* CA */
+	0,	 		0, none,		/* CB ,	BIT MANIPULATION OPCODES */
+	"call    z,%s",		2, none,		/* CC */
+	"call    %s",		2, none,		/* CD */
+	"adc     a,%s",		1, none,		/* CE */
+	"rst     $08",		0, none,		/* CF */
 
-	"RET    NC",		0, none,		/* D0 */
-	"POP    DE",		0, none,		/* D1 */
-	"JP     NC,%s",		2, none,		/* D2 */
-	"OUT    (%s),A",	1, none,		/* D3 */
-	"CALL   NC,%s",		2, none,		/* D4 */
-	"PUSH   DE",		0, none,		/* D5 */
-	"SUB    %s",		1, none,		/* D6 */
-	"RST    $10",		0, none,		/* D7 */
+	"ret     nc",		0, none,		/* D0 */
+	"pop     de",		0, none,		/* D1 */
+	"jp      nc,%s",	2, none,		/* D2 */
+	"out     (%s),a",	1, none,		/* D3 */
+	"call    nc,%s",	2, none,		/* D4 */
+	"push    de",		0, none,		/* D5 */
+	"sub     %s",		1, none,		/* D6 */
+	"rst     $10",		0, none,		/* D7 */
 
-	"RET    C",		0, none,		/* D8 */
-	"EXX",			0, none,		/* D9 */
-	"JP     C,%s",		2, none,		/* DA */
-	"IN     A,(%s)",	1, none,		/* DB */
-	"CALL   C,%s",		2, none,		/* DC */
-	0,			0, none,		/* DD ,	IX  none,OPCODES */
-	"SBC    A,%s",		1, none,		/* DE */
-	"RST    $18",		0, none,		/* DF */
+	"ret     c",		0, none,		/* D8 */
+	"exx",	 		0, none,		/* D9 */
+	"jp      c,%s",		2, none,		/* DA */
+	"in      a,(%s)",	1, none,		/* DB */
+	"call    c,%s",		2, none,		/* DC */
+	0,	 		0, none,		/* DD ,	IX  none,OPCODES */
+	"sbc     a,%s",		1, none,		/* DE */
+	"rst     $18",		0, none,		/* DF */
 
-	"RET    PO",		0, none,		/* E0 */
-	"POP    HL",		0, none,		/* E1 */
-	"JP     PO,%s",		2, none,		/* E2 */
-	"EX     (SP),HL",	0, none,		/* E3 */
-	"CALL   PO,%s",		2, none,		/* E4 */
-	"PUSH   HL",		0, none,		/* E5 */
-	"AND    %s",		1, none,		/* E6 */
-	"RST    $20",		0, none,		/* E7 */
-	"RET    PE",		0, none,		/* E8 */
+	"ret     po",		0, none,		/* E0 */
+	"pop     hl",		0, none,		/* E1 */
+	"jp      po,%s",	2, none,		/* E2 */
+	"ex      (sp),hl",	0, none,		/* E3 */
+	"call    po,%s",	2, none,		/* E4 */
+	"push    hl",		0, none,		/* E5 */
+	"and     %s",		1, none,		/* E6 */
+	"rst     $20",		0, none,		/* E7 */
+	"ret     pe",		0, none,		/* E8 */
 
-	"JP     (HL)",		0, none,		/* E9 */
-	"JP     PE,%s",		2, none,		/* EA */
-	"EX     DE,HL",		0, none,		/* EB */
-	"CALL   PE,%s",		2, none,		/* EC */
-	0,			0, none,		/* ED OPCODES */
-	"XOR    %s",		1, none,		/* EE */
-	"RST    $28",		0, none,		/* EF */
+	"jp      (hl)",		0, none,		/* E9 */
+	"jp      pe,%s",	2, none,		/* EA */
+	"ex      de,hl",	0, none,		/* EB */
+	"call    pe,%s",	2, none,		/* EC */
+	0,	 		0, none,		/* ED OPCODES */
+	"xor     %s",		1, none,		/* EE */
+	"rst     $28",		0, none,		/* EF */
 
-	"RET    P",		0, none,		/* F0 */
-	"POP    AF",		0, none,		/* F1 */
-	"JP     P,%s",		2, none,		/* F2 */
-	"DI",			0, none,		/* F3 */
-	"CALL   P,%s",		2, none,		/* F4 */
-	"PUSH   AF",		0, none,		/* F5 */
-	"OR     %s",		1, none,		/* F6 */
-	"RST    $30",		0, none,		/* F7 */
+	"ret     p",		0, none,		/* F0 */
+	"pop     af",		0, none,		/* F1 */
+	"jp      p,%s",		2, none,		/* F2 */
+	"di",	 		0, none,		/* F3 */
+	"call    p,%s",		2, none,		/* F4 */
+	"push    af",		0, none,		/* F5 */
+	"or      %s",		1, none,		/* F6 */
+	"rst     $30",		0, none,		/* F7 */
 
-	"RET    M",		0, none,		/* F8 */
-	"LD     SP,HL",		0, none,		/* F9 */
-	"JP     M,%s",		2, none,		/* FA */
-	"EI",			0, none,		/* FB */
-	"CALL   M,%s",		2, none,		/* FC */
-	0,			0, none,		/* FD, IY  none,OPCODES	*/
-	"CP     %s",		1, none,		/* FE */
-	"RST    $38",		0, none			/* FF */
+	"ret     m",		0, none,		/* F8 */
+	"ld      sp,hl",	0, none,		/* F9 */
+	"jp      m,%s",		2, none,		/* FA */
+	"ei",	 		0, none,		/* FB */
+	"call    m,%s",		2, none,		/* FC */
+	0,	 		0, none,		/* FD, IY  none,OPCODES	*/
+	"cp      %s",		1, none,		/* FE */
+	"rst     $38",		0, none			/* FF */
 };
 
 struct opcode cb[] = {
-	"RLC    B",		0, none,		/* CB00	*/
-	"RLC    C",		0, none,		/* CB01	*/
-	"RLC    D",		0, none,		/* CB02	*/
-	"RLC    E",		0, none,		/* CB03	*/
-	"RLC    H",		0, none,		/* CB04	*/
-	"RLC    L",		0, none,		/* CB05	*/
-	"RLC    (HL)",		0, none,		/* CB06	*/
-	"RLC    A",		0, none,		/* CB07	*/
+	"rlc     b",		0, none,		/* CB00	*/
+	"rlc     c",		0, none,		/* CB01	*/
+	"rlc     d",		0, none,		/* CB02	*/
+	"rlc     e",		0, none,		/* CB03	*/
+	"rlc     h",		0, none,		/* CB04	*/
+	"rlc     l",		0, none,		/* CB05	*/
+	"rlc     (hl)",		0, none,		/* CB06	*/
+	"rlc     a",		0, none,		/* CB07	*/
 
-	"RRC    B",		0, none,		/* CB08	*/
-	"RRC    C",		0, none,		/* CB09	*/
-	"RRC    D",		0, none,		/* CB0A	*/
-	"RRC    E",		0, none,		/* CB0B	*/
-	"RRC    H",		0, none,		/* CB0C	*/
-	"RRC    L",		0, none,		/* CB0D	*/
-	"RRC    (HL)",		0, none,		/* CB0E	*/
-	"RRC    A",		0, none,		/* CB0F	*/
+	"rrc     b",		0, none,		/* CB08	*/
+	"rrc     c",		0, none,		/* CB09	*/
+	"rrc     d",		0, none,		/* CB0A	*/
+	"rrc     e",		0, none,		/* CB0B	*/
+	"rrc     h",		0, none,		/* CB0C	*/
+	"rrc     l",		0, none,		/* CB0D	*/
+	"rrc     (hl)",		0, none,		/* CB0E	*/
+	"rrc     a",		0, none,		/* CB0F	*/
 
-	"RL     B",		0, none,		/* CB10	*/
-	"RL     C",		0, none,		/* CB11	*/
-	"RL     D",		0, none,		/* CB12	*/
-	"RL     E",		0, none,		/* CB13	*/
-	"RL     H",		0, none,		/* CB14	*/
-	"RL     L",		0, none,		/* CB15	*/
-	"RL     (HL)",		0, none,		/* CB16	*/
-	"RL     A",		0, none,		/* CB17	*/
+	"rl      b",		0, none,		/* CB10	*/
+	"rl      c",		0, none,		/* CB11	*/
+	"rl      d",		0, none,		/* CB12	*/
+	"rl      e",		0, none,		/* CB13	*/
+	"rl      h",		0, none,		/* CB14	*/
+	"rl      l",		0, none,		/* CB15	*/
+	"rl      (hl)",		0, none,		/* CB16	*/
+	"rl      a",		0, none,		/* CB17	*/
 
-	"RR     B",		0, none,		/* CB18	*/
-	"RR     C",		0, none,		/* CB19	*/
-	"RR     D",		0, none,		/* CB1A	*/
-	"RR     E",		0, none,		/* CB1B	*/
-	"RR     H",		0, none,		/* CB1C	*/
-	"RR     L",		0, none,		/* CB1D	*/
-	"RR     (HL)",		0, none,		/* CB1E	*/
-	"RR     A",		0, none,		/* CB1F	*/
+	"rr      b",		0, none,		/* CB18	*/
+	"rr      c",		0, none,		/* CB19	*/
+	"rr      d",		0, none,		/* CB1A	*/
+	"rr      e",		0, none,		/* CB1B	*/
+	"rr      h",		0, none,		/* CB1C	*/
+	"rr      l",		0, none,		/* CB1D	*/
+	"rr      (hl)",		0, none,		/* CB1E	*/
+	"rr      a",		0, none,		/* CB1F	*/
 
-	"SLA    B",		0, none,		/* CB20	*/
-	"SLA    C",		0, none,		/* CB21	*/
-	"SLA    D",		0, none,		/* CB22	*/
-	"SLA    E",		0, none,		/* CB23	*/
-	"SLA    H",		0, none,		/* CB24	*/
-	"SLA    L",		0, none,		/* CB25	*/
-	"SLA    (HL)",		0, none,		/* CB26	*/
-	"SLA    A",		0, none,		/* CB27	*/
+	"sla     b",		0, none,		/* CB20	*/
+	"sla     c",		0, none,		/* CB21	*/
+	"sla     d",		0, none,		/* CB22	*/
+	"sla     e",		0, none,		/* CB23	*/
+	"sla     h",		0, none,		/* CB24	*/
+	"sla     l",		0, none,		/* CB25	*/
+	"sla     (hl)",		0, none,		/* CB26	*/
+	"sla     a",		0, none,		/* CB27	*/
 
-	"SRA    B",		0, none,		/* CB28	*/
-	"SRA    C",		0, none,		/* CB29	*/
-	"SRA    D",		0, none,		/* CB2A	*/
-	"SRA    E",		0, none,		/* CB2B	*/
-	"SRA    H",		0, none,		/* CB2C	*/
-	"SRA    L",		0, none,		/* CB2D	*/
-	"SRA    (HL)",		0, none,		/* CB2E	*/
-	"SRA    A",		0, none,		/* CB2F	*/
+	"sra     b",		0, none,		/* CB28	*/
+	"sra     c",		0, none,		/* CB29	*/
+	"sra     d",		0, none,		/* CB2A	*/
+	"sra     e",		0, none,		/* CB2B	*/
+	"sra     h",		0, none,		/* CB2C	*/
+	"sra     l",		0, none,		/* CB2D	*/
+	"sra     (hl)",		0, none,		/* CB2E	*/
+	"sra     a",		0, none,		/* CB2F	*/
 
-	"SLL    B",		0, none,		/* CB30, undocumented */
-	"SLL    C",		0, none,		/* CB31, undocumented */
-	"SLL    D",		0, none,		/* CB32, undocumented */
-	"SLL    E",		0, none,		/* CB33, undocumented */
-	"SLL    H",		0, none,		/* CB34, undocumented */
-	"SLL    L",		0, none,		/* CB35, undocumented */
-	"SLL    (HL)",		0, none,		/* CB36, undocumented */
-	"SLL    A",		0, none,		/* CB37, undocumented */
+	"sll     b",		0, none,		/* CB30, undocumented */
+	"sll     c",		0, none,		/* CB31, undocumented */
+	"sll     d",		0, none,		/* CB32, undocumented */
+	"sll     e",		0, none,		/* CB33, undocumented */
+	"sll     h",		0, none,		/* CB34, undocumented */
+	"sll     l",		0, none,		/* CB35, undocumented */
+	"sll     (hl)",		0, none,		/* CB36, undocumented */
+	"sll     a",		0, none,		/* CB37, undocumented */
 
-	"SRL    B",		0, none,		/* CB38	*/
-	"SRL    C",		0, none,		/* CB39	*/
-	"SRL    D",		0, none,		/* CB3A	*/
-	"SRL    E",		0, none,		/* CB3B	*/
-	"SRL    H",		0, none,		/* CB3C	*/
-	"SRL    L",		0, none,		/* CB3D	*/
-	"SRL    (HL)",		0, none,		/* CB3E	*/
-	"SRL    A",		0, none,		/* CB3F	*/
+	"srl     b",		0, none,		/* CB38	*/
+	"srl     c",		0, none,		/* CB39	*/
+	"srl     d",		0, none,		/* CB3A	*/
+	"srl     e",		0, none,		/* CB3B	*/
+	"srl     h",		0, none,		/* CB3C	*/
+	"srl     l",		0, none,		/* CB3D	*/
+	"srl     (hl)",		0, none,		/* CB3E	*/
+	"srl     a",		0, none,		/* CB3F	*/
 
-	"BIT    0,B",		0, none,		/* CB40	*/
-	"BIT    0,C",		0, none,		/* CB41	*/
-	"BIT    0,D",		0, none,		/* CB42	*/
-	"BIT    0,E",		0, none,		/* CB43	*/
-	"BIT    0,H",		0, none,		/* CB44	*/
-	"BIT    0,L",		0, none,		/* CB45	*/
-	"BIT    0,(HL)",	0, none,		/* CB46	*/
-	"BIT    0,A",		0, none,		/* CB47	*/
+	"bit     0,b",		0, none,		/* CB40	*/
+	"bit     0,c",		0, none,		/* CB41	*/
+	"bit     0,d",		0, none,		/* CB42	*/
+	"bit     0,e",		0, none,		/* CB43	*/
+	"bit     0,h",		0, none,		/* CB44	*/
+	"bit     0,l",		0, none,		/* CB45	*/
+	"bit     0,(hl)",	0, none,		/* CB46	*/
+	"bit     0,a",		0, none,		/* CB47	*/
 
-	"BIT    1,B",		0, none,		/* CB48	*/
-	"BIT    1,C",		0, none,		/* CB49	*/
-	"BIT    1,D",		0, none,		/* CB4A	*/
-	"BIT    1,E",		0, none,		/* CB4B	*/
-	"BIT    1,H",		0, none,		/* CB4C	*/
-	"BIT    1,L",		0, none,		/* CB4D	*/
-	"BIT    1,(HL)",	0, none,		/* CB4E	*/
-	"BIT    1,A",		0, none,		/* CB4F	*/
+	"bit     1,b",		0, none,		/* CB48	*/
+	"bit     1,c",		0, none,		/* CB49	*/
+	"bit     1,d",		0, none,		/* CB4A	*/
+	"bit     1,e",		0, none,		/* CB4B	*/
+	"bit     1,h",		0, none,		/* CB4C	*/
+	"bit     1,l",		0, none,		/* CB4D	*/
+	"bit     1,(hl)",	0, none,		/* CB4E	*/
+	"bit     1,a",		0, none,		/* CB4F	*/
 
-	"BIT    2,B",		0, none,		/* CB50	*/
-	"BIT    2,C",		0, none,		/* CB51	*/
-	"BIT    2,D",		0, none,		/* CB52	*/
-	"BIT    2,E",		0, none,		/* CB53	*/
-	"BIT    2,H",		0, none,		/* CB54	*/
-	"BIT    2,L",		0, none,		/* CB55	*/
-	"BIT    2,(HL)",	0, none,		/* CB56	*/
-	"BIT    2,A",		0, none,		/* CB57	*/
+	"bit     2,b",		0, none,		/* CB50	*/
+	"bit     2,c",		0, none,		/* CB51	*/
+	"bit     2,d",		0, none,		/* CB52	*/
+	"bit     2,e",		0, none,		/* CB53	*/
+	"bit     2,h",		0, none,		/* CB54	*/
+	"bit     2,l",		0, none,		/* CB55	*/
+	"bit     2,(hl)",	0, none,		/* CB56	*/
+	"bit     2,a",		0, none,		/* CB57	*/
 
-	"BIT    3,B",		0, none,		/* CB58	*/
-	"BIT    3,C",		0, none,		/* CB59	*/
-	"BIT    3,D",		0, none,		/* CB5A	*/
-	"BIT    3,E",		0, none,		/* CB5B	*/
-	"BIT    3,H",		0, none,		/* CB5C	*/
-	"BIT    3,L",		0, none,		/* CB5D	*/
-	"BIT    3,(HL)",	0, none,		/* CB5E	*/
-	"BIT    3,A",		0, none,		/* CB5F	*/
+	"bit     3,b",		0, none,		/* CB58	*/
+	"bit     3,c",		0, none,		/* CB59	*/
+	"bit     3,d",		0, none,		/* CB5A	*/
+	"bit     3,e",		0, none,		/* CB5B	*/
+	"bit     3,h",		0, none,		/* CB5C	*/
+	"bit     3,l",		0, none,		/* CB5D	*/
+	"bit     3,(hl)",	0, none,		/* CB5E	*/
+	"bit     3,a",		0, none,		/* CB5F	*/
 
-	"BIT    4,B",		0, none,		/* CB60	*/
-	"BIT    4,C",		0, none,		/* CB61	*/
-	"BIT    4,D",		0, none,		/* CB62	*/
-	"BIT    4,E",		0, none,		/* CB63	*/
-	"BIT    4,H",		0, none,		/* CB64	*/
-	"BIT    4,L",		0, none,		/* CB65	*/
-	"BIT    4,(HL)",	0, none,		/* CB66	*/
-	"BIT    4,A",		0, none,		/* CB67	*/
+	"bit     4,b",		0, none,		/* CB60	*/
+	"bit     4,c",		0, none,		/* CB61	*/
+	"bit     4,d",		0, none,		/* CB62	*/
+	"bit     4,e",		0, none,		/* CB63	*/
+	"bit     4,h",		0, none,		/* CB64	*/
+	"bit     4,l",		0, none,		/* CB65	*/
+	"bit     4,(hl)",	0, none,		/* CB66	*/
+	"bit     4,a",		0, none,		/* CB67	*/
 
-	"BIT    5,B",		0, none,		/* CB68	*/
-	"BIT    5,C",		0, none,		/* CB69	*/
-	"BIT    5,D",		0, none,		/* CB6A	*/
-	"BIT    5,E",		0, none,		/* CB6B	*/
-	"BIT    5,H",		0, none,		/* CB6C	*/
-	"BIT    5,L",		0, none,		/* CB6D	*/
-	"BIT    5,(HL)",	0, none,		/* CB6E	*/
-	"BIT    5,A",		0, none,		/* CB6F	*/
+	"bit     5,b",		0, none,		/* CB68	*/
+	"bit     5,c",		0, none,		/* CB69	*/
+	"bit     5,d",		0, none,		/* CB6A	*/
+	"bit     5,e",		0, none,		/* CB6B	*/
+	"bit     5,h",		0, none,		/* CB6C	*/
+	"bit     5,l",		0, none,		/* CB6D	*/
+	"bit     5,(hl)",	0, none,		/* CB6E	*/
+	"bit     5,a",		0, none,		/* CB6F	*/
 
-	"BIT    6,B",		0, none,		/* CB70	*/
-	"BIT    6,C",		0, none,		/* CB71	*/
-	"BIT    6,D",		0, none,		/* CB72	*/
-	"BIT    6,E",		0, none,		/* CB73	*/
-	"BIT    6,H",		0, none,		/* CB74	*/
-	"BIT    6,L",		0, none,		/* CB75	*/
-	"BIT    6,(HL)",	0, none,		/* CB76	*/
-	"BIT    6,A",		0, none,		/* CB77	*/
+	"bit     6,b",		0, none,		/* CB70	*/
+	"bit     6,c",		0, none,		/* CB71	*/
+	"bit     6,d",		0, none,		/* CB72	*/
+	"bit     6,e",		0, none,		/* CB73	*/
+	"bit     6,h",		0, none,		/* CB74	*/
+	"bit     6,l",		0, none,		/* CB75	*/
+	"bit     6,(hl)",	0, none,		/* CB76	*/
+	"bit     6,a",		0, none,		/* CB77	*/
 
-	"BIT    7,B",		0, none,		/* CB78	*/
-	"BIT    7,C",		0, none,		/* CB79	*/
-	"BIT    7,D",		0, none,		/* CB7A	*/
-	"BIT    7,E",		0, none,		/* CB7B	*/
-	"BIT    7,H",		0, none,		/* CB7C	*/
-	"BIT    7,L",		0, none,		/* CB7D	*/
-	"BIT    7,(HL)",	0, none,		/* CB7E	*/
-	"BIT    7,A",		0, none,		/* CB7F	*/
+	"bit     7,b",		0, none,		/* CB78	*/
+	"bit     7,c",		0, none,		/* CB79	*/
+	"bit     7,d",		0, none,		/* CB7A	*/
+	"bit     7,e",		0, none,		/* CB7B	*/
+	"bit     7,h",		0, none,		/* CB7C	*/
+	"bit     7,l",		0, none,		/* CB7D	*/
+	"bit     7,(hl)",	0, none,		/* CB7E	*/
+	"bit     7,a",		0, none,		/* CB7F	*/
 
-	"RES    0,B",		0, none,		/* CB80	*/
-	"RES    0,C",		0, none,		/* CB81	*/
-	"RES    0,D",		0, none,		/* CB82	*/
-	"RES    0,E",		0, none,		/* CB83	*/
-	"RES    0,H",		0, none,		/* CB84	*/
-	"RES    0,L",		0, none,		/* CB85	*/
-	"RES    0,(HL)",	0, none,		/* CB86	*/
-	"RES    0,A",		0, none,		/* CB87	*/
+	"res     0,b",		0, none,		/* CB80	*/
+	"res     0,c",		0, none,		/* CB81	*/
+	"res     0,d",		0, none,		/* CB82	*/
+	"res     0,e",		0, none,		/* CB83	*/
+	"res     0,h",		0, none,		/* CB84	*/
+	"res     0,l",		0, none,		/* CB85	*/
+	"res     0,(hl)",	0, none,		/* CB86	*/
+	"res     0,a",		0, none,		/* CB87	*/
 
-	"RES    1,B",		0, none,		/* CB88	*/
-	"RES    1,C",		0, none,		/* CB89	*/
-	"RES    1,D",		0, none,		/* CB8A	*/
-	"RES    1,E",		0, none,		/* CB8B	*/
-	"RES    1,H",		0, none,		/* CB8C	*/
-	"RES    1,L",		0, none,		/* CB8D	*/
-	"RES    1,(HL)",	0, none,		/* CB8E	*/
-	"RES    1,A",		0, none,		/* CB8F	*/
+	"res     1,b",		0, none,		/* CB88	*/
+	"res     1,c",		0, none,		/* CB89	*/
+	"res     1,d",		0, none,		/* CB8A	*/
+	"res     1,e",		0, none,		/* CB8B	*/
+	"res     1,h",		0, none,		/* CB8C	*/
+	"res     1,l",		0, none,		/* CB8D	*/
+	"res     1,(hl)",	0, none,		/* CB8E	*/
+	"res     1,a",		0, none,		/* CB8F	*/
 
-	"RES    2,B",		0, none,		/* CB90	*/
-	"RES    2,C",		0, none,		/* CB91	*/
-	"RES    2,D",		0, none,		/* CB92	*/
-	"RES    2,E",		0, none,		/* CB93	*/
-	"RES    2,H",		0, none,		/* CB94	*/
-	"RES    2,L",		0, none,		/* CB95	*/
-	"RES    2,(HL)",	0, none,		/* CB96	*/
-	"RES    2,A",		0, none,		/* CB97	*/
+	"res     2,b",		0, none,		/* CB90	*/
+	"res     2,c",		0, none,		/* CB91	*/
+	"res     2,d",		0, none,		/* CB92	*/
+	"res     2,e",		0, none,		/* CB93	*/
+	"res     2,h",		0, none,		/* CB94	*/
+	"res     2,l",		0, none,		/* CB95	*/
+	"res     2,(hl)",	0, none,		/* CB96	*/
+	"res     2,a",		0, none,		/* CB97	*/
 
-	"RES    3,B",		0, none,		/* CB98	*/
-	"RES    3,C",		0, none,		/* CB99	*/
-	"RES    3,D",		0, none,		/* CB9A	*/
-	"RES    3,E",		0, none,		/* CB9B	*/
-	"RES    3,H",		0, none,		/* CB9C	*/
-	"RES    3,L",		0, none,		/* CB9D	*/
-	"RES    3,(HL)",	0, none,		/* CB9E	*/
-	"RES    3,A",		0, none,		/* CB9F	*/
+	"res     3,b",		0, none,		/* CB98	*/
+	"res     3,c",		0, none,		/* CB99	*/
+	"res     3,d",		0, none,		/* CB9A	*/
+	"res     3,e",		0, none,		/* CB9B	*/
+	"res     3,h",		0, none,		/* CB9C	*/
+	"res     3,l",		0, none,		/* CB9D	*/
+	"res     3,(hl)",	0, none,		/* CB9E	*/
+	"res     3,a",		0, none,		/* CB9F	*/
 
-	"RES    4,B",		0, none,		/* CBA0	*/
-	"RES    4,C",		0, none,		/* CBA1	*/
-	"RES    4,D",		0, none,		/* CBA2	*/
-	"RES    4,E",		0, none,		/* CBA3	*/
-	"RES    4,H",		0, none,		/* CBA4	*/
-	"RES    4,L",		0, none,		/* CBA5	*/
-	"RES    4,(HL)",	0, none,		/* CBA6	*/
-	"RES    4,A",		0, none,		/* CBA7	*/
+	"res     4,b",		0, none,		/* CBA0	*/
+	"res     4,c",		0, none,		/* CBA1	*/
+	"res     4,d",		0, none,		/* CBA2	*/
+	"res     4,e",		0, none,		/* CBA3	*/
+	"res     4,h",		0, none,		/* CBA4	*/
+	"res     4,l",		0, none,		/* CBA5	*/
+	"res     4,(hl)",	0, none,		/* CBA6	*/
+	"res     4,a",		0, none,		/* CBA7	*/
 
-	"RES    5,B",		0, none,		/* CBA8	*/
-	"RES    5,C",		0, none,		/* CBA9	*/
-	"RES    5,D",		0, none,		/* CBAA	*/
-	"RES    5,E",		0, none,		/* CBAB	*/
-	"RES    5,H",		0, none,		/* CBAC	*/
-	"RES    5,L",		0, none,		/* CBAD	*/
-	"RES    5,(HL)",	0, none,		/* CBAE	*/
-	"RES    5,A",		0, none,		/* CBAF	*/
+	"res     5,b",		0, none,		/* CBA8	*/
+	"res     5,c",		0, none,		/* CBA9	*/
+	"res     5,d",		0, none,		/* CBAA	*/
+	"res     5,e",		0, none,		/* CBAB	*/
+	"res     5,h",		0, none,		/* CBAC	*/
+	"res     5,l",		0, none,		/* CBAD	*/
+	"res     5,(hl)",	0, none,		/* CBAE	*/
+	"res     5,a",		0, none,		/* CBAF	*/
 
-	"RES    6,B",		0, none,		/* CBB0	*/
-	"RES    6,C",		0, none,		/* CBB1	*/
-	"RES    6,D",		0, none,		/* CBB2	*/
-	"RES    6,E",		0, none,		/* CBB3	*/
-	"RES    6,H",		0, none,		/* CBB4	*/
-	"RES    6,L",		0, none,		/* CBB5	*/
-	"RES    6,(HL)",	0, none,		/* CBB6	*/
-	"RES    6,A",		0, none,		/* CBB7	*/
+	"res     6,b",		0, none,		/* CBB0	*/
+	"res     6,c",		0, none,		/* CBB1	*/
+	"res     6,d",		0, none,		/* CBB2	*/
+	"res     6,e",		0, none,		/* CBB3	*/
+	"res     6,h",		0, none,		/* CBB4	*/
+	"res     6,l",		0, none,		/* CBB5	*/
+	"res     6,(hl)",	0, none,		/* CBB6	*/
+	"res     6,a",		0, none,		/* CBB7	*/
 
-	"RES    7,B",		0, none,		/* CBB8	*/
-	"RES    7,C",		0, none,		/* CBB9	*/
-	"RES    7,D",		0, none,		/* CBBA	*/
-	"RES    7,E",		0, none,		/* CBBB	*/
-	"RES    7,H",		0, none,		/* CBBC	*/
-	"RES    7,L",		0, none,		/* CBBD	*/
-	"RES    7,(HL)",	0, none,		/* CBBE	*/
-	"RES    7,A",		0, none,		/* CBBF	*/
+	"res     7,b",		0, none,		/* CBB8	*/
+	"res     7,c",		0, none,		/* CBB9	*/
+	"res     7,d",		0, none,		/* CBBA	*/
+	"res     7,e",		0, none,		/* CBBB	*/
+	"res     7,h",		0, none,		/* CBBC	*/
+	"res     7,l",		0, none,		/* CBBD	*/
+	"res     7,(hl)",	0, none,		/* CBBE	*/
+	"res     7,a",		0, none,		/* CBBF	*/
 
-	"SET    0,B",		0, none,		/* CBC0	*/
-	"SET    0,C",		0, none,		/* CBC1	*/
-	"SET    0,D",		0, none,		/* CBC2	*/
-	"SET    0,E",		0, none,		/* CBC3	*/
-	"SET    0,H",		0, none,		/* CBC4	*/
-	"SET    0,L",		0, none,		/* CBC5	*/
-	"SET    0,(HL)",	0, none,		/* CBC6	*/
-	"SET    0,A",		0, none,		/* CBC7	*/
+	"set     0,b",		0, none,		/* CBC0	*/
+	"set     0,c",		0, none,		/* CBC1	*/
+	"set     0,d",		0, none,		/* CBC2	*/
+	"set     0,e",		0, none,		/* CBC3	*/
+	"set     0,h",		0, none,		/* CBC4	*/
+	"set     0,l",		0, none,		/* CBC5	*/
+	"set     0,(hl)",	0, none,		/* CBC6	*/
+	"set     0,a",		0, none,		/* CBC7	*/
 
-	"SET    1,B",		0, none,		/* CBC8	*/
-	"SET    1,C",		0, none,		/* CBC9	*/
-	"SET    1,D",		0, none,		/* CBCA	*/
-	"SET    1,E",		0, none,		/* CBCB	*/
-	"SET    1,H",		0, none,		/* CBCC	*/
-	"SET    1,L",		0, none,		/* CBCD	*/
-	"SET    1,(HL)",	0, none,		/* CBCE	*/
-	"SET    1,A",		0, none,		/* CBCF	*/
+	"set     1,b",		0, none,		/* CBC8	*/
+	"set     1,c",		0, none,		/* CBC9	*/
+	"set     1,d",		0, none,		/* CBCA	*/
+	"set     1,e",		0, none,		/* CBCB	*/
+	"set     1,h",		0, none,		/* CBCC	*/
+	"set     1,l",		0, none,		/* CBCD	*/
+	"set     1,(hl)",	0, none,		/* CBCE	*/
+	"set     1,a",		0, none,		/* CBCF	*/
 
-	"SET    2,B",		0, none,		/* CBD0	*/
-	"SET    2,C",		0, none,		/* CBD1	*/
-	"SET    2,D",		0, none,		/* CBD2	*/
-	"SET    2,E",		0, none,		/* CBD3	*/
-	"SET    2,H",		0, none,		/* CBD4	*/
-	"SET    2,L",		0, none,		/* CBD5	*/
-	"SET    2,(HL)",	0, none,		/* CBD6	*/
-	"SET    2,A",		0, none,		/* CBD7	*/
+	"set     2,b",		0, none,		/* CBD0	*/
+	"set     2,c",		0, none,		/* CBD1	*/
+	"set     2,d",		0, none,		/* CBD2	*/
+	"set     2,e",		0, none,		/* CBD3	*/
+	"set     2,h",		0, none,		/* CBD4	*/
+	"set     2,l",		0, none,		/* CBD5	*/
+	"set     2,(hl)",	0, none,		/* CBD6	*/
+	"set     2,a",		0, none,		/* CBD7	*/
 
-	"SET    3,B",		0, none,		/* CBD8	*/
-	"SET    3,C",		0, none,		/* CBD9	*/
-	"SET    3,D",		0, none,		/* CBDA	*/
-	"SET    3,E",		0, none,		/* CBDB	*/
-	"SET    3,H",		0, none,		/* CBDC	*/
-	"SET    3,L",		0, none,		/* CBDD	*/
-	"SET    3,(HL)",	0, none,		/* CBDE	*/
-	"SET    3,A",		0, none,		/* CBDF	*/
+	"set     3,b",		0, none,		/* CBD8	*/
+	"set     3,c",		0, none,		/* CBD9	*/
+	"set     3,d",		0, none,		/* CBDA	*/
+	"set     3,e",		0, none,		/* CBDB	*/
+	"set     3,h",		0, none,		/* CBDC	*/
+	"set     3,l",		0, none,		/* CBDD	*/
+	"set     3,(hl)",	0, none,		/* CBDE	*/
+	"set     3,a",		0, none,		/* CBDF	*/
 
-	"SET    4,B",		0, none,		/* CBE0	*/
-	"SET    4,C",		0, none,		/* CBE1	*/
-	"SET    4,D",		0, none,		/* CBE2	*/
-	"SET    4,E",		0, none,		/* CBE3	*/
-	"SET    4,H",		0, none,		/* CBE4	*/
-	"SET    4,L",		0, none,		/* CBE5	*/
-	"SET    4,(HL)",	0, none,		/* CBE6	*/
-	"SET    4,A",		0, none,		/* CBE7	*/
+	"set     4,b",		0, none,		/* CBE0	*/
+	"set     4,c",		0, none,		/* CBE1	*/
+	"set     4,d",		0, none,		/* CBE2	*/
+	"set     4,e",		0, none,		/* CBE3	*/
+	"set     4,h",		0, none,		/* CBE4	*/
+	"set     4,l",		0, none,		/* CBE5	*/
+	"set     4,(hl)",	0, none,		/* CBE6	*/
+	"set     4,a",		0, none,		/* CBE7	*/
 
-	"SET    5,B",		0, none,		/* CBE8	*/
-	"SET    5,C",		0, none,		/* CBE9	*/
-	"SET    5,D",		0, none,		/* CBEA	*/
-	"SET    5,E",		0, none,		/* CBEB	*/
-	"SET    5,H",		0, none,		/* CBEC	*/
-	"SET    5,L",		0, none,		/* CBED	*/
-	"SET    5,(HL)",	0, none,		/* CBEE	*/
-	"SET    5,A",		0, none,		/* CBEF	*/
+	"set     5,b",		0, none,		/* CBE8	*/
+	"set     5,c",		0, none,		/* CBE9	*/
+	"set     5,d",		0, none,		/* CBEA	*/
+	"set     5,e",		0, none,		/* CBEB	*/
+	"set     5,h",		0, none,		/* CBEC	*/
+	"set     5,l",		0, none,		/* CBED	*/
+	"set     5,(hl)",	0, none,		/* CBEE	*/
+	"set     5,a",		0, none,		/* CBEF	*/
 
-	"SET    6,B",		0, none,		/* CBF0	*/
-	"SET    6,C",		0, none,		/* CBF1	*/
-	"SET    6,D",		0, none,		/* CBF2	*/
-	"SET    6,E",		0, none,		/* CBF3	*/
-	"SET    6,H",		0, none,		/* CBF4	*/
-	"SET    6,L",		0, none,		/* CBF5	*/
-	"SET    6,(HL)",	0, none,		/* CBF6	*/
-	"SET    6,A",		0, none,		/* CBF7	*/
+	"set     6,b",		0, none,		/* CBF0	*/
+	"set     6,c",		0, none,		/* CBF1	*/
+	"set     6,d",		0, none,		/* CBF2	*/
+	"set     6,e",		0, none,		/* CBF3	*/
+	"set     6,h",		0, none,		/* CBF4	*/
+	"set     6,l",		0, none,		/* CBF5	*/
+	"set     6,(hl)",	0, none,		/* CBF6	*/
+	"set     6,a",		0, none,		/* CBF7	*/
 
-	"SET    7,B",		0, none,		/* CBF8	*/
-	"SET    7,C",		0, none,		/* CBF9	*/
-	"SET    7,D",		0, none,		/* CBFA	*/
-	"SET    7,E",		0, none,		/* CBFB	*/
-	"SET    7,H",		0, none,		/* CBFC	*/
-	"SET    7,L",		0, none,		/* CBFD	*/
-	"SET    7,(HL)",	0, none,		/* CBFE	*/
-	"SET    7,A",		0, none			/* CBFF	*/
+	"set     7,b",		0, none,		/* CBF8	*/
+	"set     7,c",		0, none,		/* CBF9	*/
+	"set     7,d",		0, none,		/* CBFA	*/
+	"set     7,e",		0, none,		/* CBFB	*/
+	"set     7,h",		0, none,		/* CBFC	*/
+	"set     7,l",		0, none,		/* CBFD	*/
+	"set     7,(hl)",	0, none,		/* CBFE	*/
+	"set     7,a",		0, none			/* CBFF	*/
 };
 
 
@@ -635,7 +635,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB03 */
 	undocumented,		0, none,		/* DDCB04 */
 	undocumented,		0, none,		/* DDCB05 */
-	"RLC    (IX%s)",	-2, none,		/* DDCB06 */
+	"rlc     (ix%s)",	-2, none,		/* DDCB06 */
 	undocumented,		0, none,		/* DDCB07 */
 
 	undocumented,		0, none,		/* DDCB08 */
@@ -644,7 +644,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB0B */
 	undocumented,		0, none,		/* DDCB0C */
 	undocumented,		0, none,		/* DDCB0D */
-	"RRC    (IX%s)",	-2, none,		/* DDCB0E */
+	"rrc     (ix%s)",	-2, none,		/* DDCB0E */
 	undocumented,		0, none,		/* DDCB0F */
 
 	undocumented,		0, none,		/* DDCB10 */
@@ -653,7 +653,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB13 */
 	undocumented,		0, none,		/* DDCB14 */
 	undocumented,		0, none,		/* DDCB15 */
-	"RL     (IX%s)",	-2, none,		/* DDCB16 */
+	"rl      (ix%s)",	-2, none,		/* DDCB16 */
 	undocumented,		0, none,		/* DDCB17 */
 
 	undocumented,		0, none,		/* DDCB18 */
@@ -662,7 +662,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB1B */
 	undocumented,		0, none,		/* DDCB1C */
 	undocumented,		0, none,		/* DDCB1D */
-	"RR     (IX%s)",	-2, none,		/* DDCB1E */
+	"rr      (ix%s)",	-2, none,		/* DDCB1E */
 	undocumented,		0, none,		/* DDCB1F */
 
 	undocumented,		0, none,		/* DDCB20 */
@@ -671,7 +671,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB23 */
 	undocumented,		0, none,		/* DDCB24 */
 	undocumented,		0, none,		/* DDCB25 */
-	"SLA    (IX%s)",	-2, none,		/* DDCB26 */
+	"sla     (ix%s)",	-2, none,		/* DDCB26 */
 	undocumented,		0, none,		/* DDCB27 */
 
 	undocumented,		0, none,		/* DDCB28 */
@@ -680,7 +680,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB2B */
 	undocumented,		0, none,		/* DDCB2C */
 	undocumented,		0, none,		/* DDCB2D */
-	"SRA    (IX%s)",	-2, none,		/* DDCB2E */
+	"sra     (ix%s)",	-2, none,		/* DDCB2E */
 	undocumented,		0, none,		/* DDCB2F */
 
 	undocumented,		0, none,		/* DDCB30 */
@@ -689,7 +689,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB33 */
 	undocumented,		0, none,		/* DDCB34 */
 	undocumented,		0, none,		/* DDCB35 */
-	"SLL    (IX%s)",	-2, none,		/* DDCB36, undocumented	*/
+	"sll     (ix%s)",	-2, none,		/* DDCB36, undocumented	*/
 	undocumented,		0, none,		/* DDCB37 */
 
 	undocumented,		0, none,		/* DDCB38 */
@@ -698,7 +698,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB3B */
 	undocumented,		0, none,		/* DDCB3C */
 	undocumented,		0, none,		/* DDCB3D */
-	"SRL    (IX%s)",	-2, none,		/* DDCB3E */
+	"srl     (ix%s)",	-2, none,		/* DDCB3E */
 	undocumented,		0, none,		/* DDCB3F */
 
 	undocumented,		0, none,		/* DDCB40 */
@@ -707,7 +707,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB43 */
 	undocumented,		0, none,		/* DDCB44 */
 	undocumented,		0, none,		/* DDCB45 */
-	"BIT    0,(IX%s)",	-2, none,		/* DDCB46 */
+	"bit     0,(ix%s)",	-2, none,		/* DDCB46 */
 	undocumented,		0, none,		/* DDCB47 */
 
 	undocumented,		0, none,		/* DDCB48 */
@@ -716,7 +716,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB4B */
 	undocumented,		0, none,		/* DDCB4C */
 	undocumented,		0, none,		/* DDCB4D */
-	"BIT    1,(IX%s)",	-2, none,		/* DDCB4E */
+	"bit     1,(ix%s)",	-2, none,		/* DDCB4E */
 	undocumented,		0, none,		/* DDCB4F */
 
 	undocumented,		0, none,		/* DDCB50 */
@@ -725,7 +725,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB53 */
 	undocumented,		0, none,		/* DDCB54 */
 	undocumented,		0, none,		/* DDCB55 */
-	"BIT    2,(IX%s)",	-2, none,		/* DDCB56 */
+	"bit     2,(ix%s)",	-2, none,		/* DDCB56 */
 	undocumented,		0, none,		/* DDCB57 */
 
 	undocumented,		0, none,		/* DDCB58 */
@@ -734,7 +734,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB5B */
 	undocumented,		0, none,		/* DDCB5C */
 	undocumented,		0, none,		/* DDCB5D */
-	"BIT    3,(IX%s)",	-2, none,		/* DDCB5E */
+	"bit     3,(ix%s)",	-2, none,		/* DDCB5E */
 	undocumented,		0, none,		/* DDCB5F */
 
 	undocumented,		0, none,		/* DDCB60 */
@@ -743,7 +743,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB63 */
 	undocumented,		0, none,		/* DDCB64 */
 	undocumented,		0, none,		/* DDCB65 */
-	"BIT    4,(IX%s)",	-2, none,		/* DDCB66 */
+	"bit     4,(ix%s)",	-2, none,		/* DDCB66 */
 	undocumented,		0, none,		/* DDCB67 */
 
 	undocumented,		0, none,		/* DDCB68 */
@@ -752,7 +752,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB6B */
 	undocumented,		0, none,		/* DDCB6C */
 	undocumented,		0, none,		/* DDCB6D */
-	"BIT    5,(IX%s)",	-2, none,		/* DDCB6E */
+	"bit     5,(ix%s)",	-2, none,		/* DDCB6E */
 	undocumented,		0, none,		/* DDCB6F */
 
 	undocumented,		0, none,		/* DDCB70 */
@@ -761,7 +761,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB73 */
 	undocumented,		0, none,		/* DDCB74 */
 	undocumented,		0, none,		/* DDCB75 */
-	"BIT    6,(IX%s)",	-2, none,		/* DDCB76 */
+	"bit     6,(ix%s)",	-2, none,		/* DDCB76 */
 	undocumented,		0, none,		/* DDCB77 */
 
 	undocumented,		0, none,		/* DDCB78 */
@@ -770,7 +770,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB7B */
 	undocumented,		0, none,		/* DDCB7C */
 	undocumented,		0, none,		/* DDCB7D */
-	"BIT    7,(IX%s)",	-2, none,		/* DDCB7E */
+	"bit     7,(ix%s)",	-2, none,		/* DDCB7E */
 	undocumented,		0, none,		/* DDCB7F */
 
 	undocumented,		0, none,		/* DDCB80 */
@@ -779,7 +779,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB83 */
 	undocumented,		0, none,		/* DDCB84 */
 	undocumented,		0, none,		/* DDCB85 */
-	"RES    0,(IX%s)",	-2, none,		/* DDCB86 */
+	"res     0,(ix%s)",	-2, none,		/* DDCB86 */
 	undocumented,		0, none,		/* DDCB87 */
 
 	undocumented,		0, none,		/* DDCB88 */
@@ -788,7 +788,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB8B */
 	undocumented,		0, none,		/* DDCB8C */
 	undocumented,		0, none,		/* DDCB8D */
-	"RES    1,(IX%s)",	-2, none,		/* DDCB8E */
+	"res     1,(ix%s)",	-2, none,		/* DDCB8E */
 	undocumented,		0, none,		/* DDCB8F */
 
 	undocumented,		0, none,		/* DDCB90 */
@@ -797,7 +797,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB93 */
 	undocumented,		0, none,		/* DDCB94 */
 	undocumented,		0, none,		/* DDCB95 */
-	"RES    2,(IX%s)",	-2, none,		/* DDCB96 */
+	"res     2,(ix%s)",	-2, none,		/* DDCB96 */
 	undocumented,		0, none,		/* DDCB97 */
 
 	undocumented,		0, none,		/* DDCB98 */
@@ -806,7 +806,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCB9B */
 	undocumented,		0, none,		/* DDCB9C */
 	undocumented,		0, none,		/* DDCB9D */
-	"RES    3,(IX%s)",	-2, none,		/* DDCB9E */
+	"res     3,(ix%s)",	-2, none,		/* DDCB9E */
 	undocumented,		0, none,		/* DDCB9F */
 
 	undocumented,		0, none,		/* DDCBA0 */
@@ -815,7 +815,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBA3 */
 	undocumented,		0, none,		/* DDCBA4 */
 	undocumented,		0, none,		/* DDCBA5 */
-	"RES    4,(IX%s)",	-2, none,		/* DDCBA6 */
+	"res     4,(ix%s)",	-2, none,		/* DDCBA6 */
 	undocumented,		0, none,		/* DDCBA7 */
 
 	undocumented,		0, none,		/* DDCBA8 */
@@ -824,7 +824,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBAB */
 	undocumented,		0, none,		/* DDCBAC */
 	undocumented,		0, none,		/* DDCBAD */
-	"RES    5,(IX%s)",	-2, none,		/* DDCBAE */
+	"res     5,(ix%s)",	-2, none,		/* DDCBAE */
 	undocumented,		0, none,		/* DDCBAF */
 
 	undocumented,		0, none,		/* DDCBB0 */
@@ -833,7 +833,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBB3 */
 	undocumented,		0, none,		/* DDCBB4 */
 	undocumented,		0, none,		/* DDCBB5 */
-	"RES    6,(IX%s)",	-2, none,		/* DDCBB6 */
+	"res     6,(ix%s)",	-2, none,		/* DDCBB6 */
 	undocumented,		0, none,		/* DDCBB7 */
 
 	undocumented,		0, none,		/* DDCBB8 */
@@ -842,7 +842,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBBB */
 	undocumented,		0, none,		/* DDCBBC */
 	undocumented,		0, none,		/* DDCBBD */
-	"RES    7,(IX%s)",	-2, none,		/* DDCBBE */
+	"res     7,(ix%s)",	-2, none,		/* DDCBBE */
 	undocumented,		0, none,		/* DDCBBF */
 
 	undocumented,		0, none,		/* DDCBC0 */
@@ -851,7 +851,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBC3 */
 	undocumented,		0, none,		/* DDCBC4 */
 	undocumented,		0, none,		/* DDCBC5 */
-	"SET    0,(IX%s)",	-2, none,		/* DDCBC6 */
+	"set     0,(ix%s)",	-2, none,		/* DDCBC6 */
 	undocumented,		0, none,		/* DDCBC7 */
 
 	undocumented,		0, none,		/* DDCBC8 */
@@ -860,7 +860,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBCB */
 	undocumented,		0, none,		/* DDCBCC */
 	undocumented,		0, none,		/* DDCBCD */
-	"SET    1,(IX%s)",	-2, none,		/* DDCBCE */
+	"set     1,(ix%s)",	-2, none,		/* DDCBCE */
 	undocumented,		0, none,		/* DDCBCF */
 
 	undocumented,		0, none,		/* DDCBD0 */
@@ -869,7 +869,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBD3 */
 	undocumented,		0, none,		/* DDCBD4 */
 	undocumented,		0, none,		/* DDCBD5 */
-	"SET    2,(IX%s)",	-2, none,		/* DDCBD6 */
+	"set     2,(ix%s)",	-2, none,		/* DDCBD6 */
 	undocumented,		0, none,		/* DDCBD7 */
 
 	undocumented,		0, none,		/* DDCBD8 */
@@ -878,7 +878,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBDB */
 	undocumented,		0, none,		/* DDCBDC */
 	undocumented,		0, none,		/* DDCBDD */
-	"SET    3,(IX%s)",	-2, none,		/* DDCBDE */
+	"set     3,(ix%s)",	-2, none,		/* DDCBDE */
 	undocumented,		0, none,		/* DDCBDF */
 
 	undocumented,		0, none,		/* DDCBE0 */
@@ -887,7 +887,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBE3 */
 	undocumented,		0, none,		/* DDCBE4 */
 	undocumented,		0, none,		/* DDCBE5 */
-	"SET    4,(IX%s)",	-2, none,		/* DDCBE6 */
+	"set     4,(ix%s)",	-2, none,		/* DDCBE6 */
 	undocumented,		0, none,		/* DDCBE7 */
 
 	undocumented,		0, none,		/* DDCBE8 */
@@ -896,7 +896,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBEB */
 	undocumented,		0, none,		/* DDCBEC */
 	undocumented,		0, none,		/* DDCBED */
-	"SET    5,(IX%s)",	-2, none,		/* DDCBEE */
+	"set     5,(ix%s)",	-2, none,		/* DDCBEE */
 	undocumented,		0, none,		/* DDCBEF */
 
 	undocumented,		0, none,		/* DDCBF0 */
@@ -905,7 +905,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBF3 */
 	undocumented,		0, none,		/* DDCBF4 */
 	undocumented,		0, none,		/* DDCBF5 */
-	"SET    6,(IX%s)",	-2, none,		/* DDCBF6 */
+	"set     6,(ix%s)",	-2, none,		/* DDCBF6 */
 	undocumented,		0, none,		/* DDCBF7 */
 
 	undocumented,		0, none,		/* DDCBF8 */
@@ -914,7 +914,7 @@ struct opcode ddcb[] = {
 	undocumented,		0, none,		/* DDCBFB */
 	undocumented,		0, none,		/* DDCBFC */
 	undocumented,		0, none,		/* DDCBFD */
-	"SET    7,(IX%s)",	-2, none,		/* DDCBFE */
+	"set     7,(ix%s)",	-2, none,		/* DDCBFE */
 	undocumented,		0, none			/* DDCBFF */
 };
 
@@ -925,7 +925,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB03 */
 	undocumented,		0, none,		/* FDCB04 */
 	undocumented,		0, none,		/* FDCB05 */
-	"RLC    (IY%s)",	-2, none,		/* FDCB06 */
+	"rlc     (iy%s)",	-2, none,		/* FDCB06 */
 	undocumented,		0, none,		/* FDCB07 */
 
 	undocumented,		0, none,		/* FDCB08 */
@@ -934,7 +934,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB0B */
 	undocumented,		0, none,		/* FDCB0C */
 	undocumented,		0, none,		/* FDCB0D */
-	"RRC    (IY%s)",	-2, none,		/* FDCB0E */
+	"rrc     (iy%s)",	-2, none,		/* FDCB0E */
 	undocumented,		0, none,		/* FDCB0F */
 
 	undocumented,		0, none,		/* FDCB10 */
@@ -943,7 +943,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB13 */
 	undocumented,		0, none,		/* FDCB14 */
 	undocumented,		0, none,		/* FDCB15 */
-	"RL     (IY%s)",	-2, none,		/* FDCB16 */
+	"rl      (iy%s)",	-2, none,		/* FDCB16 */
 	undocumented,		0, none,		/* FDCB17 */
 
 	undocumented,		0, none,		/* FDCB18 */
@@ -952,7 +952,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB1B */
 	undocumented,		0, none,		/* FDCB1C */
 	undocumented,		0, none,		/* FDCB1D */
-	"RR     (IY%s)",	-2, none,		/* FDCB1E */
+	"rr      (iy%s)",	-2, none,		/* FDCB1E */
 	undocumented,		0, none,		/* FDCB1F */
 
 	undocumented,		0, none,		/* FDCB20 */
@@ -961,7 +961,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB23 */
 	undocumented,		0, none,		/* FDCB24 */
 	undocumented,		0, none,		/* FDCB25 */
-	"SLA    (IY%s)",	-2, none,		/* FDCB26 */
+	"sla     (iy%s)",	-2, none,		/* FDCB26 */
 	undocumented,		0, none,		/* FDCB27 */
 
 	undocumented,		0, none,		/* FDCB28 */
@@ -970,7 +970,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB2B */
 	undocumented,		0, none,		/* FDCB2C */
 	undocumented,		0, none,		/* FDCB2D */
-	"SRA    (IY%s)",	-2, none,		/* FDCB2E */
+	"sra     (iy%s)",	-2, none,		/* FDCB2E */
 	undocumented,		0, none,		/* FDCB2F */
 
 	undocumented,		0, none,		/* FDCB30 */
@@ -979,7 +979,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB33 */
 	undocumented,		0, none,		/* FDCB34 */
 	undocumented,		0, none,		/* FDCB35 */
-	"SLL    (IY%s)",	-2, none,		/* FDCB36, undocumented	*/
+	"sll     (iy%s)",	-2, none,		/* FDCB36, undocumented	*/
 	undocumented,		0, none,		/* FDCB37 */
 
 	undocumented,		0, none,		/* FDCB38 */
@@ -988,7 +988,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB3B */
 	undocumented,		0, none,		/* FDCB3C */
 	undocumented,		0, none,		/* FDCB3D */
-	"SRL    (IY%s)",	-2, none,		/* FDCB3E */
+	"srl     (iy%s)",	-2, none,		/* FDCB3E */
 	undocumented,		0, none,		/* FDCB3F */
 
 	undocumented,		0, none,		/* FDCB40 */
@@ -997,7 +997,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB43 */
 	undocumented,		0, none,		/* FDCB44 */
 	undocumented,		0, none,		/* FDCB45 */
-	"BIT    0,(IY%s)",	-2, none,		/* FDCB46 */
+	"bit     0,(iy%s)",	-2, none,		/* FDCB46 */
 	undocumented,		0, none,		/* FDCB47 */
 
 	undocumented,		0, none,		/* FDCB48 */
@@ -1006,7 +1006,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB4B */
 	undocumented,		0, none,		/* FDCB4C */
 	undocumented,		0, none,		/* FDCB4D */
-	"BIT    1,(IY%s)",	-2, none,		/* FDCB4E */
+	"bit     1,(iy%s)",	-2, none,		/* FDCB4E */
 	undocumented,		0, none,		/* FDCB4F */
 
 	undocumented,		0, none,		/* FDCB50 */
@@ -1015,7 +1015,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB53 */
 	undocumented,		0, none,		/* FDCB54 */
 	undocumented,		0, none,		/* FDCB55 */
-	"BIT    2,(IY%s)",	-2, none,		/* FDCB56 */
+	"bit     2,(iy%s)",	-2, none,		/* FDCB56 */
 	undocumented,		0, none,		/* FDCB57 */
 
 	undocumented,		0, none,		/* FDCB58 */
@@ -1024,7 +1024,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB5B */
 	undocumented,		0, none,		/* FDCB5C */
 	undocumented,		0, none,		/* FDCB5D */
-	"BIT    3,(IY%s)",	-2, none,		/* FDCB5E */
+	"bit     3,(iy%s)",	-2, none,		/* FDCB5E */
 	undocumented,		0, none,		/* FDCB5F */
 
 	undocumented,		0, none,		/* FDCB60 */
@@ -1033,7 +1033,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB63 */
 	undocumented,		0, none,		/* FDCB64 */
 	undocumented,		0, none,		/* FDCB65 */
-	"BIT    4,(IY%s)",	-2, none,		/* FDCB66 */
+	"bit     4,(iy%s)",	-2, none,		/* FDCB66 */
 	undocumented,		0, none,		/* FDCB67 */
 
 	undocumented,		0, none,		/* FDCB68 */
@@ -1042,7 +1042,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB6B */
 	undocumented,		0, none,		/* FDCB6C */
 	undocumented,		0, none,		/* FDCB6D */
-	"BIT    5,(IY%s)",	-2, none,		/* FDCB6E */
+	"bit     5,(iy%s)",	-2, none,		/* FDCB6E */
 	undocumented,		0, none,		/* FDCB6F */
 
 	undocumented,		0, none,		/* FDCB70 */
@@ -1051,7 +1051,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB73 */
 	undocumented,		0, none,		/* FDCB74 */
 	undocumented,		0, none,		/* FDCB75 */
-	"BIT    6,(IY%s)",	-2, none,		/* FDCB76 */
+	"bit     6,(iy%s)",	-2, none,		/* FDCB76 */
 	undocumented,		0, none,		/* FDCB77 */
 
 	undocumented,		0, none,		/* FDCB78 */
@@ -1060,7 +1060,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB7B */
 	undocumented,		0, none,		/* FDCB7C */
 	undocumented,		0, none,		/* FDCB7D */
-	"BIT    7,(IY%s)",	-2, none,		/* FDCB7E */
+	"bit     7,(iy%s)",	-2, none,		/* FDCB7E */
 	undocumented,		0, none,		/* FDCB7F */
 
 	undocumented,		0, none,		/* FDCB80 */
@@ -1069,7 +1069,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB83 */
 	undocumented,		0, none,		/* FDCB84 */
 	undocumented,		0, none,		/* FDCB85 */
-	"RES    0,(IY%s)",	-2, none,		/* FDCB86 */
+	"res     0,(iy%s)",	-2, none,		/* FDCB86 */
 	undocumented,		0, none,		/* FDCB87 */
 
 	undocumented,		0, none,		/* FDCB88 */
@@ -1078,7 +1078,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB8B */
 	undocumented,		0, none,		/* FDCB8C */
 	undocumented,		0, none,		/* FDCB8D */
-	"RES    1,(IY%s)",	-2, none,		/* FDCB8E */
+	"res     1,(iy%s)",	-2, none,		/* FDCB8E */
 	undocumented,		0, none,		/* FDCB8F */
 
 	undocumented,		0, none,		/* FDCB90 */
@@ -1087,7 +1087,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB93 */
 	undocumented,		0, none,		/* FDCB94 */
 	undocumented,		0, none,		/* FDCB95 */
-	"RES    2,(IY%s)",	-2, none,		/* FDCB96 */
+	"res     2,(iy%s)",	-2, none,		/* FDCB96 */
 	undocumented,		0, none,		/* FDCB97 */
 
 	undocumented,		0, none,		/* FDCB98 */
@@ -1096,7 +1096,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCB9B */
 	undocumented,		0, none,		/* FDCB9C */
 	undocumented,		0, none,		/* FDCB9D */
-	"RES    3,(IY%s)",	-2, none,		/* FDCB9E */
+	"res     3,(iy%s)",	-2, none,		/* FDCB9E */
 	undocumented,		0, none,		/* FDCB9F */
 
 	undocumented,		0, none,		/* FDCBA0 */
@@ -1105,7 +1105,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBA3 */
 	undocumented,		0, none,		/* FDCBA4 */
 	undocumented,		0, none,		/* FDCBA5 */
-	"RES    4,(IY%s)",	-2, none,		/* FDCBA6 */
+	"res    4,(iy%s)",	-2, none,		/* FDCBA6 */
 	undocumented,		0, none,		/* FDCBA7 */
 
 	undocumented,		0, none,		/* FDCBA8 */
@@ -1114,7 +1114,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBAB */
 	undocumented,		0, none,		/* FDCBAC */
 	undocumented,		0, none,		/* FDCBAD */
-	"RES    5,(IY%s)",	-2, none,		/* FDCBAE */
+	"res     5,(iy%s)",	-2, none,		/* FDCBAE */
 	undocumented,		0, none,		/* FDCBAF */
 
 	undocumented,		0, none,		/* FDCBB0 */
@@ -1123,7 +1123,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBB3 */
 	undocumented,		0, none,		/* FDCBB4 */
 	undocumented,		0, none,		/* FDCBB5 */
-	"RES    6,(IY%s)",	-2, none,		/* FDCBB6 */
+	"res     6,(iy%s)",	-2, none,		/* FDCBB6 */
 	undocumented,		0, none,		/* FDCBB7 */
 
 	undocumented,		0, none,		/* FDCBB8 */
@@ -1132,7 +1132,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBBB */
 	undocumented,		0, none,		/* FDCBBC */
 	undocumented,		0, none,		/* FDCBBD */
-	"RES    7,(IY%s)",	-2, none,		/* FDCBBE */
+	"res     7,(iy%s)",	-2, none,		/* FDCBBE */
 	undocumented,		0, none,		/* FDCBBF */
 
 	undocumented,		0, none,		/* FDCBC0 */
@@ -1141,7 +1141,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBC3 */
 	undocumented,		0, none,		/* FDCBC4 */
 	undocumented,		0, none,		/* FDCBC5 */
-	"SET    0,(IY%s)",	-2, none,		/* FDCBC6 */
+	"set     0,(iy%s)",	-2, none,		/* FDCBC6 */
 	undocumented,		0, none,		/* FDCBC7 */
 
 	undocumented,		0, none,		/* FDCBC8 */
@@ -1150,7 +1150,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBCB */
 	undocumented,		0, none,		/* FDCBCC */
 	undocumented,		0, none,		/* FDCBCD */
-	"SET    1,(IY%s)",	-2, none,		/* FDCBCE */
+	"set     1,(iy%s)",	-2, none,		/* FDCBCE */
 	undocumented,		0, none,		/* FDCBCF */
 
 	undocumented,		0, none,		/* FDCBD0 */
@@ -1159,7 +1159,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBD3 */
 	undocumented,		0, none,		/* FDCBD4 */
 	undocumented,		0, none,		/* FDCBD5 */
-	"SET    2,(IY%s)",	-2, none,		/* FDCBD6 */
+	"set     2,(iy%s)",	-2, none,		/* FDCBD6 */
 	undocumented,		0, none,		/* FDCBD7 */
 
 	undocumented,		0, none,		/* FDCBD8 */
@@ -1168,7 +1168,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBDB */
 	undocumented,		0, none,		/* FDCBDC */
 	undocumented,		0, none,		/* FDCBDD */
-	"SET    3,(IY%s)",	-2, none,		/* FDCBDE */
+	"set     3,(iy%s)",	-2, none,		/* FDCBDE */
 	undocumented,		0, none,		/* FDCBDF */
 
 	undocumented,		0, none,		/* FDCBE0 */
@@ -1177,7 +1177,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBE3 */
 	undocumented,		0, none,		/* FDCBE4 */
 	undocumented,		0, none,		/* FDCBE5 */
-	"SET    4,(IY%s)",	-2, none,		/* FDCBE6 */
+	"set     4,(iy%s)",	-2, none,		/* FDCBE6 */
 	undocumented,		0, none,		/* FDCBE7 */
 
 	undocumented,		0, none,		/* FDCBE8 */
@@ -1186,7 +1186,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBEB */
 	undocumented,		0, none,		/* FDCBEC */
 	undocumented,		0, none,		/* FDCBED */
-	"SET    5,(IY%s)",	-2, none,		/* FDCBEE */
+	"set     5,(iy%s)",	-2, none,		/* FDCBEE */
 	undocumented,		0, none,		/* FDCBEF */
 
 	undocumented,		0, none,		/* FDCBF0 */
@@ -1195,7 +1195,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBF3 */
 	undocumented,		0, none,		/* FDCBF4 */
 	undocumented,		0, none,		/* FDCBF5 */
-	"SET    6,(IY%s)",	-2, none,		/* FDCBF6 */
+	"set     6,(iy%s)",	-2, none,		/* FDCBF6 */
 	undocumented,		0, none,		/* FDCBF7 */
 
 	undocumented,		0, none,		/* FDCBF8 */
@@ -1204,7 +1204,7 @@ struct opcode fdcb[] = {
 	undocumented,		0, none,		/* FDCBFB */
 	undocumented,		0, none,		/* FDCBFC */
 	undocumented,		0, none,		/* FDCBFD */
-	"SET    7,(IY%s)",	-2, none,		/* FDCBFE */
+	"set     7,(iy%s)",	-2, none,		/* FDCBFE */
 	undocumented,		0, none			/* FDCBFF */
 };
 
@@ -1220,7 +1220,7 @@ struct opcode dd[] = {
 	undocumented,		0, none,		/* DD07	*/
 
 	undocumented,		0, none,		/* DD08	*/
-	"ADD    IX,BC",		0, none,		/* DD09	*/
+	"add     ix,bc",	0, none,		/* DD09	*/
 	undocumented,		0, none,		/* DD0A	*/
 	undocumented,		0, none,		/* DD0B	*/
 	undocumented,		0, none,		/* DD0C	*/
@@ -1238,7 +1238,7 @@ struct opcode dd[] = {
 	undocumented,		0, none,		/* DD17	*/
 
 	undocumented,		0, none,		/* DD18	*/
-	"ADD    IX,DE",		0, none,		/* DD19	*/
+	"add     ix,de",	0, none,		/* DD19	*/
 	undocumented,		0, none,		/* DD1A	*/
 	undocumented,		0, none,		/* DD1B	*/
 	undocumented,		0, none,		/* DD1C	*/
@@ -1247,34 +1247,34 @@ struct opcode dd[] = {
 	undocumented,		0, none,		/* DD1F	*/
 
 	undocumented,		0, none,		/* DD20	*/
-	"LD     IX,%s",		2, none,		/* DD21	*/
-	"LD     (%s),IX",	2, none,		/* DD22	*/
-	"INC    IX",		0, none,		/* DD23	*/
-	"INC    IXH",		0, none,		/* DD24, undocumented */
-	"DEC    IXH",		0, none,		/* DD25, undocumented */
-	"LD     IXH,%s",	1, none,		/* DD26, undocumented */
+	"ld      ix,%s",	2, none,		/* DD21	*/
+	"ld      (%s),ix",	2, none,		/* DD22	*/
+	"inc     ix",		0, none,		/* DD23	*/
+	"inc     ixh",		0, none,		/* DD24, undocumented */
+	"dec     ixh",		0, none,		/* DD25, undocumented */
+	"ld      ixh,%s",	1, none,		/* DD26, undocumented */
 	undocumented,		0, none,		/* DD27	*/
 
 	undocumented,		0, none,		/* DD28	*/
-	"ADD    IX,IX",		0, none,		/* DD29	*/
-	"LD     IX,(%s)",	2, none,		/* DD2A	*/
-	"DEC    IX",		0, none,		/* DD2B	*/
-	"INC    IXL",		0, none,		/* DD24, undocumented */
-	"DEC    IXL",		0, none,		/* DD25, undocumented */
-	"LD     IXL,%s",	1, none,		/* DD26, undocumented */
+	"add     ix,ix",	0, none,		/* DD29	*/
+	"ld      ix,(%s)",	2, none,		/* DD2A	*/
+	"dec     ix",		0, none,		/* DD2B	*/
+	"inc     ixl",		0, none,		/* DD24, undocumented */
+	"dec     ixl",		0, none,		/* DD25, undocumented */
+	"ld      ixl,%s",	1, none,		/* DD26, undocumented */
 	undocumented,		0, none,		/* DD2F	*/
 
 	undocumented,		0, none,		/* DD30	*/
 	undocumented,		0, none,		/* DD31	*/
 	undocumented,		0, none,		/* DD32	*/
 	undocumented,		0, none,		/* DD33	*/
-	"INC    (IX%s)",	-4, none,		/* DD34	*/
-	"DEC    (IX%s)",	-4, none,		/* DD35	*/
-	"LD     (IX%s),%s",	-3, none,		/* DD36	*/
+	"inc     (ix%s)",	-4, none,		/* DD34	*/
+	"dec     (ix%s)",	-4, none,		/* DD35	*/
+	"ld      (ix%s),%s",	-3, none,		/* DD36	*/
 	undocumented,		0, none,		/* DD37	*/
 
 	undocumented,		0, none,		/* DD38	*/
-	"ADD    IX,SP",		0, none,		/* DD39	*/
+	"add     ix,sp",	0, none,		/* DD39	*/
 	undocumented,		0, none,		/* DD3A	*/
 	undocumented,		0, none,		/* DD3B	*/
 	undocumented,		0, none,		/* DD3C	*/
@@ -1286,144 +1286,144 @@ struct opcode dd[] = {
 	undocumented,		0, none,		/* DD41	*/
 	undocumented,		0, none,		/* DD42	*/
 	undocumented,		0, none,		/* DD43	*/
-	"LD     B,IXH",		0, none,		/* DD44, undocumented */
-	"LD     B,IXL",		0, none,		/* DD45, undocumented */
-	"LD     B,(IX%s)",	-4, none,		/* DD46	*/
+	"ld      b,ixh",	0, none,		/* DD44, undocumented */
+	"ld      b,ixl",	0, none,		/* DD45, undocumented */
+	"ld      b,(ix%s)",	-4, none,		/* DD46	*/
 	undocumented,		0, none,		/* DD47	*/
 
 	undocumented,		0, none,		/* DD48	*/
 	undocumented,		0, none,		/* DD49	*/
 	undocumented,		0, none,		/* DD4A	*/
 	undocumented,		0, none,		/* DD4B	*/
-	"LD     C,IXH",		0, none,		/* DD4C, undocumented */
-	"LD     C,IXL",		0, none,		/* DD4D, undocumented */
-	"LD     C,(IX%s)",	-4, none,		/* DD4E	*/
+	"ld      c,ixh",	0, none,		/* DD4C, undocumented */
+	"ld      c,ixl",	0, none,		/* DD4D, undocumented */
+	"ld      c,(ix%s)",	-4, none,		/* DD4E	*/
 	undocumented,		0, none,		/* DD4F	*/
 
 	undocumented,		0, none,		/* DD50	*/
 	undocumented,		0, none,		/* DD51	*/
 	undocumented,		0, none,		/* DD52	*/
 	undocumented,		0, none,		/* DD53	*/
-	"LD     D,IXH",		0, none,		/* DD54, undocumented */
-	"LD     D,IXL",		0, none,		/* DD55, undocumented */
-	"LD     D,(IX%s)",	-4, none,		/* DD56	*/
+	"ld      d,ixh",	0, none,		/* DD54, undocumented */
+	"ld      d,ixl",	0, none,		/* DD55, undocumented */
+	"ld      d,(ix%s)",	-4, none,		/* DD56	*/
 	undocumented,		0, none,		/* DD57	*/
 
 	undocumented,		0, none,		/* DD58	*/
 	undocumented,		0, none,		/* DD59	*/
 	undocumented,		0, none,		/* DD5A	*/
 	undocumented,		0, none,		/* DD5B	*/
-	"LD     E,IXH",		0, none,		/* DD5C, undocumented */
-	"LD     E,IXL",		0, none,		/* DD5D, undocumented */
-	"LD     E,(IX%s)",	-4, none,		/* DD5E	*/
+	"ld      e,ixh",	0, none,		/* DD5C, undocumented */
+	"ld      e,ixl",	0, none,		/* DD5D, undocumented */
+	"ld      e,(ix%s)",	-4, none,		/* DD5E	*/
 	undocumented,		0, none,		/* DD5F	*/
 
-	"LD     IXH,B",		0, none,		/* DD60, undocumented */
-	"LD     IXH,C",		0, none,		/* DD61, undocumented */
-	"LD     IXH,D",		0, none,		/* DD62, undocumented */
-	"LD     IXH,E",		0, none,		/* DD63, undocumented */
-	"LD     IXH,IXH",	0, none,		/* DD64, undocumented */
-	"LD     IXH,IXL",	0, none,		/* DD65, undocumented */
-	"LD     H,(IX%s)",	-4, none,		/* DD66	*/
-	"LD     IXH,A",		0, none,		/* DD67, undocumented */
+	"ld      ixh,b",	0, none,		/* DD60, undocumented */
+	"ld      ixh,c",	0, none,		/* DD61, undocumented */
+	"ld      ixh,d",	0, none,		/* DD62, undocumented */
+	"ld      ixh,e",	0, none,		/* DD63, undocumented */
+	"ld      ixh,ixh",	0, none,		/* DD64, undocumented */
+	"ld      ixh,ixl",	0, none,		/* DD65, undocumented */
+	"ld      h,(ix%s)",	-4, none,		/* DD66	*/
+	"ld      ixh,a",	0, none,		/* DD67, undocumented */
 
-	"LD     IXL,B",		0, none,		/* DD68, undocumented */
-	"LD     IXL,C",		0, none,		/* DD69, undocumented */
-	"LD     IXL,D",		0, none,		/* DD6A, undocumented */
-	"LD     IXL,E",		0, none,		/* DD6B, undocumented */
-	"LD     IXL,IXH",	0, none,		/* DD6C, undocumented */
-	"LD     IXL,IXL",	0, none,		/* DD6D, undocumented */
-	"LD     L,(IX%s)",	-4, none,		/* DD6E	*/
-	"LD     IXL,A",		0, none,		/* DD6F, undocumented */
+	"ld      ixl,b",	0, none,		/* DD68, undocumented */
+	"ld      ixl,c",	0, none,		/* DD69, undocumented */
+	"ld      ixl,d",	0, none,		/* DD6A, undocumented */
+	"ld      ixl,e",	0, none,		/* DD6B, undocumented */
+	"ld      ixl,ixh",	0, none,		/* DD6C, undocumented */
+	"ld      ixl,ixl",	0, none,		/* DD6D, undocumented */
+	"ld      l,(ix%s)",	-4, none,		/* DD6E	*/
+	"ld      ixl,a",	0, none,		/* DD6F, undocumented */
 
-	"LD     (IX%s),B",	-4, none,		/* DD70	*/
-	"LD     (IX%s),C",	-4, none,		/* DD71	*/
-	"LD     (IX%s),D",	-4, none,		/* DD72	*/
-	"LD     (IX%s),E",	-4, none,		/* DD73	*/
-	"LD     (IX%s),H",	-4, none,		/* DD74	*/
-	"LD     (IX%s),L",	-4, none,		/* DD75	*/
+	"ld      (ix%s),b",	-4, none,		/* DD70	*/
+	"ld      (ix%s),c",	-4, none,		/* DD71	*/
+	"ld      (ix%s),d",	-4, none,		/* DD72	*/
+	"ld      (ix%s),e",	-4, none,		/* DD73	*/
+	"ld      (ix%s),h",	-4, none,		/* DD74	*/
+	"ld      (ix%s),l",	-4, none,		/* DD75	*/
 	undocumented,		0, none,		/* DD76	*/
-	"LD     (IX%s),A",	-4, none,		/* DD77	*/
+	"ld      (ix%s),a",	-4, none,		/* DD77	*/
 
 	undocumented,		0, none,		/* DD78	*/
 	undocumented,		0, none,		/* DD79	*/
 	undocumented,		0, none,		/* DD7A	*/
 	undocumented,		0, none,		/* DD7B	*/
-	"LD     A,IXH",		0, none,		/* DD7C, undocumented */
-	"LD     A,IXL",		0, none,		/* DD7D, undocumented */
-	"LD     A,(IX%s)",	-4, none,		/* DD7E	*/
+	"ld      a,ixh",	0, none,		/* DD7C, undocumented */
+	"ld      a,ixl",	0, none,		/* DD7D, undocumented */
+	"ld      a,(ix%s)",	-4, none,		/* DD7E	*/
 	undocumented,		0, none,		/* DD7F	*/
 
 	undocumented,		0, none,		/* DD80	*/
 	undocumented,		0, none,		/* DD81	*/
 	undocumented,		0, none,		/* DD82	*/
 	undocumented,		0, none,		/* DD83	*/
-	"ADD    A,IXH",		0, none,		/* DD84, undocumented */
-	"ADD    A,IXL",		0, none,		/* DD85, undocumented */
-	"ADD    A,(IX%s)",	-4, none,		/* DD86	*/
+	"add     a,ixh",	0, none,		/* DD84, undocumented */
+	"add     a,ixl",	0, none,		/* DD85, undocumented */
+	"add     a,(ix%s)",	-4, none,		/* DD86	*/
 	undocumented,		0, none,		/* DD87	*/
 
 	undocumented,		0, none,		/* DD88	*/
 	undocumented,		0, none,		/* DD89	*/
 	undocumented,		0, none,		/* DD8A	*/
 	undocumented,		0, none,		/* DD8B	*/
-	"ADC    A,IXH",		0, none,		/* DD8D, undocumented */
-	"ADC    A,IXL",		0, none,		/* DD8E, undocumented */
-	"ADC    A,(IX%s)",	-4, none,		/* DD8E	*/
+	"adc     a,ixh",	0, none,		/* DD8D, undocumented */
+	"adc     a,ixl",	0, none,		/* DD8E, undocumented */
+	"adc     a,(ix%s)",	-4, none,		/* DD8E	*/
 	undocumented,		0, none,		/* DD8F	*/
 
 	undocumented,		0, none,		/* DD90	*/
 	undocumented,		0, none,		/* DD91	*/
 	undocumented,		0, none,		/* DD92	*/
 	undocumented,		0, none,		/* DD93	*/
-	"SUB    IXH",		0, none,		/* DD94, undocumented */
-	"SUB    IXL",		0, none,		/* DD95, undocumented */
-	"SUB    (IX%s)",	-4, none,		/* DD96	*/
+	"sub     ixh",		0, none,		/* DD94, undocumented */
+	"sub     ixl",		0, none,		/* DD95, undocumented */
+	"sub     (ix%s)",	-4, none,		/* DD96	*/
 	undocumented,		0, none,		/* DD97	*/
 
 	undocumented,		0, none,		/* DD98	*/
 	undocumented,		0, none,		/* DD99	*/
 	undocumented,		0, none,		/* DD9A	*/
 	undocumented,		0, none,		/* DD9B	*/
-	"SBC    A,IXH",		0, none,		/* DD9C, undocumented */
-	"SBC    A,IXL",		0, none,		/* DD9D, undocumented */
-	"SBC    A,(IX%s)",	-4, none,		/* DD9E	*/
+	"sbc     a,ixh",	0, none,		/* DD9C, undocumented */
+	"sbc     a,ixl",	0, none,		/* DD9D, undocumented */
+	"sbc     a,(ix%s)",	-4, none,		/* DD9E	*/
 	undocumented,		0, none,		/* DD9F	*/
 
 	undocumented,		0, none,		/* DDA0	*/
 	undocumented,		0, none,		/* DDA1	*/
 	undocumented,		0, none,		/* DDA2	*/
 	undocumented,		0, none,		/* DDA3	*/
-	"AND    IXH",		0, none,		/* DDA4, undocumented */
-	"AND    IXL",		0, none,		/* DDA5, undocumented */
-	"AND    (IX%s)",	-4, none,		/* DDA6	*/
+	"and     ixh",		0, none,		/* DDA4, undocumented */
+	"and     ixl",		0, none,		/* DDA5, undocumented */
+	"and     (ix%s)",	-4, none,		/* DDA6	*/
 	undocumented,		0, none,		/* DDA7	*/
 
 	undocumented,		0, none,		/* DDA8	*/
 	undocumented,		0, none,		/* DDA9	*/
 	undocumented,		0, none,		/* DDAA	*/
 	undocumented,		0, none,		/* DDAB	*/
-	"XOR    IXH",		0, none,		/* DDAC, undocumented */
-	"XOR    IXL",		0, none,		/* DDAD, undocumented */
-	"XOR    (IX%s)",	-4, none,		/* DDAE	*/
+	"xor     ixh",		0, none,		/* DDAC, undocumented */
+	"xor     ixl",		0, none,		/* DDAD, undocumented */
+	"xor     (ix%s)",	-4, none,		/* DDAE	*/
 	undocumented,		0, none,		/* DDAF	*/
 
 	undocumented,		0, none,		/* DDB0	*/
 	undocumented,		0, none,		/* DDB1	*/
 	undocumented,		0, none,		/* DDB2	*/
 	undocumented,		0, none,		/* DDB3	*/
-	"OR     IXH",		0, none,		/* DDB4, undocumented */
-	"OR     IXL",		0, none,		/* DDB5, undocumented */
-	"OR     (IX%s)",	-4, none,		/* DDB6	*/
+	"or      ixh",		0, none,		/* DDB4, undocumented */
+	"or      ixl",		0, none,		/* DDB5, undocumented */
+	"or      (ix%s)",	-4, none,		/* DDB6	*/
 	undocumented,		0, none,		/* DDB7	*/
 
 	undocumented,		0, none,		/* DDB8	*/
 	undocumented,		0, none,		/* DDB9	*/
 	undocumented,		0, none,		/* DDBA	*/
 	undocumented,		0, none,		/* DDBB	*/
-	"CP     IXH",		0, none,		/* DDBC, undocumented */
-	"CP     IXL",		0, none,		/* DDBD, undocumented */
-	"CP     (IX%s)",	-4, none,		/* DDBE	*/
+	"cp      ixh",		0, none,		/* DDBC, undocumented */
+	"cp      ixl",		0, none,		/* DDBD, undocumented */
+	"cp      (ix%s)",	-4, none,		/* DDBE	*/
 	undocumented,		0, none,		/* DDBF	*/
 
 	undocumented,		0, none,		/* DDC0	*/
@@ -1463,16 +1463,16 @@ struct opcode dd[] = {
 	undocumented,		0, none,		/* DDDF	*/
 
 	undocumented,		0, none,		/* DDE0	*/
-	"POP    IX",		0, none,		/* DDE1	*/
+	"pop     ix",		0, none,		/* DDE1	*/
 	undocumented,		0, none,		/* DDE2	*/
-	"EX     (SP),IX",	0, none,		/* DDE3	*/
+	"ex      (sp),ix",	0, none,		/* DDE3	*/
 	undocumented,		0, none,		/* DDE4	*/
-	"PUSH   IX",		0, none,		/* DDE5	*/
+	"push   ix",		0, none,		/* DDE5	*/
 	undocumented,		0, none,		/* DDE6	*/
 	undocumented,		0, none,		/* DDE7	*/
 
 	undocumented,		0, none,		/* DDE8	*/
-	"JP     (IX)",		0, none,		/* DDE9	*/
+	"jp      (ix)",		0, none,		/* DDE9	*/
 	undocumented,		0, none,		/* DDEA	*/
 	undocumented,		0, none,		/* DDEB	*/
 	undocumented,		0, none,		/* DDEC	*/
@@ -1490,7 +1490,7 @@ struct opcode dd[] = {
 	undocumented,		0, none,		/* DDF7	*/
 
 	undocumented,		0, none,		/* DDF8	*/
-	"LD     SP,IX",		0, none,		/* DDF9	*/
+	"ld      sp,ix",	0, none,		/* DDF9	*/
 	undocumented,		0, none,		/* DDFA	*/
 	undocumented,		0, none,		/* DDFB	*/
 	undocumented,		0, none,		/* DDFC	*/
@@ -1511,7 +1511,7 @@ struct opcode fd[] = {
 	undocumented,		0, none,		/* FD07	*/
 
 	undocumented,		0, none,		/* FD08	*/
-	"ADD    IY,BC",		0, none,		/* FD09	*/
+	"add     iy,bc",	0, none,		/* FD09	*/
 	undocumented,		0, none,		/* FD0A	*/
 	undocumented,		0, none,		/* FD0B	*/
 	undocumented,		0, none,		/* FD0C	*/
@@ -1529,7 +1529,7 @@ struct opcode fd[] = {
 	undocumented,		0, none,		/* FD17	*/
 
 	undocumented,		0, none,		/* FD18	*/
-	"ADD    IY,DE",		0, none,		/* FD19	*/
+	"add     iy,de",	0, none,		/* FD19	*/
 	undocumented,		0, none,		/* FD1A	*/
 	undocumented,		0, none,		/* FD1B	*/
 	undocumented,		0, none,		/* FD1C	*/
@@ -1538,34 +1538,34 @@ struct opcode fd[] = {
 	undocumented,		0, none,		/* FD1F	*/
 
 	undocumented,		0, none,		/* FD20	*/
-	"LD     IY,%s",		2, none,		/* FD21	*/
-	"LD     (%s),IY",	2, none,		/* FD22	*/
-	"INC    IY",		0, none,		/* FD23	*/
-	"INC    IYH",		0, none,		/* FD24, undocumented */
-	"DEC    IYH",		0, none,		/* FD25, undocumented */
-	"LD     IYH,%s",	1, none,		/* FD26, undocumented */
+	"ld      iy,%s",	2, none,		/* FD21	*/
+	"ld      (%s),iy",	2, none,		/* FD22	*/
+	"inc     iy",		0, none,		/* FD23	*/
+	"inc     iyh",		0, none,		/* FD24, undocumented */
+	"dec     iyh",		0, none,		/* FD25, undocumented */
+	"ld      iyh,%s",	1, none,		/* FD26, undocumented */
 	undocumented,		0, none,		/* FD27	*/
 
 	undocumented,		0, none,		/* FD28	*/
-	"ADD    IY,IY",		0, none,		/* FD29	*/
-	"LD     IY,(%s)",	2, none,		/* FD2A	*/
-	"DEC    IY",		0, none,		/* FD2B	*/
-	"INC    IYL",		0, none,		/* FD24, undocumented */
-	"DEC    IYL",		0, none,		/* FD25, undocumented */
-	"LD     IYL,%s",	1, none,		/* FD26, undocumented */
+	"add     iy,iy",	0, none,		/* FD29	*/
+	"ld      iy,(%s)",	2, none,		/* FD2A	*/
+	"dec     iy",		0, none,		/* FD2B	*/
+	"inc     iyl",		0, none,		/* FD24, undocumented */
+	"dec     iyl",		0, none,		/* FD25, undocumented */
+	"ld      iyl,%s",	1, none,		/* FD26, undocumented */
 	undocumented,		0, none,		/* FD2F	*/
 
 	undocumented,		0, none,		/* FD30	*/
 	undocumented,		0, none,		/* FD31	*/
 	undocumented,		0, none,		/* FD32	*/
 	undocumented,		0, none,		/* FD33	*/
-	"INC    (IY%s)",	-4, none,		/* FD34	*/
-	"DEC    (IY%s)",	-4, none,		/* FD35	*/
-	"LD     (IY%s),%s",	-3, none,		/* FD36	*/
+	"inc     (iy%s)",	-4, none,		/* FD34	*/
+	"dec     (iy%s)",	-4, none,		/* FD35	*/
+	"ld      (iy%s),%s",	-3, none,		/* FD36	*/
 	undocumented,		0, none,		/* FD37	*/
 
 	undocumented,		0, none,		/* FD38	*/
-	"ADD    IY,SP",		0, none,		/* FD39	*/
+	"add     iy,sp",	0, none,		/* FD39	*/
 	undocumented,		0, none,		/* FD3A	*/
 	undocumented,		0, none,		/* FD3B	*/
 	undocumented,		0, none,		/* FD3C	*/
@@ -1577,144 +1577,144 @@ struct opcode fd[] = {
 	undocumented,		0, none,		/* FD41	*/
 	undocumented,		0, none,		/* FD42	*/
 	undocumented,		0, none,		/* FD43	*/
-	"LD     B,IYH",		0, none,		/* FD44, undocumented */
-	"LD     B,IYL",		0, none,		/* FD45, undocumented */
-	"LD     B,(IY%s)",	-4, none,		/* FD46	*/
+	"ld      b,iyh",	0, none,		/* FD44, undocumented */
+	"ld      b,iyl",	0, none,		/* FD45, undocumented */
+	"ld      b,(iy%s)",	-4, none,		/* FD46	*/
 	undocumented,		0, none,		/* FD47	*/
 
 	undocumented,		0, none,		/* FD48	*/
 	undocumented,		0, none,		/* FD49	*/
 	undocumented,		0, none,		/* FD4A	*/
 	undocumented,		0, none,		/* FD4B	*/
-	"LD     C,IYH",		0, none,		/* FD4C, undocumented */
-	"LD     C,IYL",		0, none,		/* FD4D, undocumented */
-	"LD     C,(IY%s)",	-4, none,		/* FD4E	*/
+	"ld      c,iyh",	0, none,		/* FD4C, undocumented */
+	"ld      c,iyl",	0, none,		/* FD4D, undocumented */
+	"ld      c,(iy%s)",	-4, none,		/* FD4E	*/
 	undocumented,		0, none,		/* FD4F	*/
 
 	undocumented,		0, none,		/* FD50	*/
 	undocumented,		0, none,		/* FD51	*/
 	undocumented,		0, none,		/* FD52	*/
 	undocumented,		0, none,		/* FD53	*/
-	"LD     D,IYH",		0, none,		/* FD54, undocumented */
-	"LD     D,IYL",		0, none,		/* FD55, undocumented */
-	"LD     D,(IY%s)",	-4, none,		/* FD56	*/
+	"ld      d,iyh",	0, none,		/* FD54, undocumented */
+	"ld      d,iyl",	0, none,		/* FD55, undocumented */
+	"ld      d,(iy%s)",	-4, none,		/* FD56	*/
 	undocumented,		0, none,		/* FD57	*/
 
 	undocumented,		0, none,		/* FD58	*/
 	undocumented,		0, none,		/* FD59	*/
 	undocumented,		0, none,		/* FD5A	*/
 	undocumented,		0, none,		/* FD5B	*/
-	"LD     E,IYH",		0, none,		/* FD5C, undocumented */
-	"LD     E,IYL",		0, none,		/* FD5D, undocumented */
-	"LD     E,(IY%s)",	-4, none,		/* FD5E	*/
+	"ld      e,iyh",	0, none,		/* FD5C, undocumented */
+	"ld      e,iyl",	0, none,		/* FD5D, undocumented */
+	"ld      e,(iy%s)",	-4, none,		/* FD5E	*/
 	undocumented,		0, none,		/* FD5F	*/
 
-	"LD     IYH,B",		0, none,		/* FD60, undocumented */
-	"LD     IYH,C",		0, none,		/* FD61, undocumented */
-	"LD     IYH,D",		0, none,		/* FD62, undocumented */
-	"LD     IYH,E",		0, none,		/* FD63, undocumented */
-	"LD     IYH,IYH",	0, none,		/* FD64, undocumented */
-	"LD     IYH,IYL",	0, none,		/* FD65, undocumented */
-	"LD     H,(IY%s)",	-4, none,		/* FD66	*/
-	"LD     IYH,A",		0, none,		/* FD67, undocumented */
+	"ld      iyh,b",	0, none,		/* FD60, undocumented */
+	"ld      iyh,c",	0, none,		/* FD61, undocumented */
+	"ld      iyh,d",	0, none,		/* FD62, undocumented */
+	"ld      iyh,e",	0, none,		/* FD63, undocumented */
+	"ld      iyh,iyh",	0, none,		/* FD64, undocumented */
+	"ld      iyh,iyl",	0, none,		/* FD65, undocumented */
+	"ld      h,(iy%s)",	-4, none,		/* FD66	*/
+	"ld      iyh,a",	0, none,		/* FD67, undocumented */
 
-	"LD     IYL,B",		0, none,		/* FD68, undocumented */
-	"LD     IYL,C",		0, none,		/* FD69, undocumented */
-	"LD     IYL,D",		0, none,		/* FD6A, undocumented */
-	"LD     IYL,E",		0, none,		/* FD6B, undocumented */
-	"LD     IYL,IYH",	0, none,		/* FD6C, undocumented */
-	"LD     IYL,IYL",	0, none,		/* FD6D, undocumented */
-	"LD     L,(IY%s)",	-4, none,		/* FD6E	*/
-	"LD     IYL,A",		0, none,		/* FD6F, undocumented */
+	"ld      iyl,b",	0, none,		/* FD68, undocumented */
+	"ld      iyl,c",	0, none,		/* FD69, undocumented */
+	"ld      iyl,d",	0, none,		/* FD6A, undocumented */
+	"ld      iyl,e",	0, none,		/* FD6B, undocumented */
+	"ld      iyl,iyh",	0, none,		/* FD6C, undocumented */
+	"ld      iyl,iyl",	0, none,		/* FD6D, undocumented */
+	"ld      l,(iy%s)",	-4, none,		/* FD6E	*/
+	"ld      iyl,a",	0, none,		/* FD6F, undocumented */
 
-	"LD     (IY%s),B",	-4, none,		/* FD70	*/
-	"LD     (IY%s),C",	-4, none,		/* FD71	*/
-	"LD     (IY%s),D",	-4, none,		/* FD72	*/
-	"LD     (IY%s),E",	-4, none,		/* FD73	*/
-	"LD     (IY%s),H",	-4, none,		/* FD74	*/
-	"LD     (IY%s),L",	-4, none,		/* FD75	*/
+	"ld      (iy%s),b",	-4, none,		/* FD70	*/
+	"ld      (iy%s),c",	-4, none,		/* FD71	*/
+	"ld      (iy%s),d",	-4, none,		/* FD72	*/
+	"ld      (iy%s),e",	-4, none,		/* FD73	*/
+	"ld      (iy%s),h",	-4, none,		/* FD74	*/
+	"ld      (iy%s),l",	-4, none,		/* FD75	*/
 	undocumented,		0, none,		/* FD76	*/
-	"LD     (IY%s),A",	-4, none,		/* FD77	*/
+	"ld      (iy%s),a",	-4, none,		/* FD77	*/
 
 	undocumented,		0, none,		/* FD78	*/
 	undocumented,		0, none,		/* FD79	*/
 	undocumented,		0, none,		/* FD7A	*/
 	undocumented,		0, none,		/* FD7B	*/
-	"LD     A,IYH",		0, none,		/* FD7C, undocumented */
-	"LD     A,IYL",		0, none,		/* FD7D, undocumented */
-	"LD     A,(IY%s)",	-4, none,		/* FD7E	*/
+	"ld      a,iyh",	0, none,		/* FD7C, undocumented */
+	"ld      a,iyl",	0, none,		/* FD7D, undocumented */
+	"ld      a,(iy%s)",	-4, none,		/* FD7E	*/
 	undocumented,		0, none,		/* FD7F	*/
 
 	undocumented,		0, none,		/* FD80	*/
 	undocumented,		0, none,		/* FD81	*/
 	undocumented,		0, none,		/* FD82	*/
 	undocumented,		0, none,		/* FD83	*/
-	"ADD    A,IYH",		0, none,		/* FD84, undocumented */
-	"ADD    A,IYL",		0, none,		/* FD85, undocumented */
-	"ADD    A,(IY%s)",	-4, none,		/* FD86	*/
+	"add     a,iyh",	0, none,		/* FD84, undocumented */
+	"add     a,iyl",	0, none,		/* FD85, undocumented */
+	"add     a,(iy%s)",	-4, none,		/* FD86	*/
 	undocumented,		0, none,		/* FD87	*/
 
 	undocumented,		0, none,		/* FD88	*/
 	undocumented,		0, none,		/* FD89	*/
 	undocumented,		0, none,		/* FD8A	*/
 	undocumented,		0, none,		/* FD8B	*/
-	"ADC    A,IYH",		0, none,		/* FD8D, undocumented */
-	"ADC    A,IYL",		0, none,		/* FD8E, undocumented */
-	"ADC    A,(IY%s)",	-4, none,		/* FD8E	*/
+	"adc     a,iyh",	0, none,		/* FD8D, undocumented */
+	"adc     a,iyl",	0, none,		/* FD8E, undocumented */
+	"adc     a,(iy%s)",	-4, none,		/* FD8E	*/
 	undocumented,		0, none,		/* FD8F	*/
 
 	undocumented,		0, none,		/* FD90	*/
 	undocumented,		0, none,		/* FD91	*/
 	undocumented,		0, none,		/* FD92	*/
 	undocumented,		0, none,		/* FD93	*/
-	"SUB    IYH",		0, none,		/* FD94, undocumented */
-	"SUB    IYL",		0, none,		/* FD95, undocumented */
-	"SUB    (IY%s)",	-4, none,		/* FD96	*/
+	"sub     iyh",		0, none,		/* FD94, undocumented */
+	"sub     iyl",		0, none,		/* FD95, undocumented */
+	"sub     (iy%s)",	-4, none,		/* FD96	*/
 	undocumented,		0, none,		/* FD97	*/
 
 	undocumented,		0, none,		/* FD98	*/
 	undocumented,		0, none,		/* FD99	*/
 	undocumented,		0, none,		/* FD9A	*/
 	undocumented,		0, none,		/* FD9B	*/
-	"SBC    A,IYH",		0, none,		/* FD9C, undocumented */
-	"SBC    A,IYL",		0, none,		/* FD9D, undocumented */
-	"SBC    A,(IY%s)",	-4, none,		/* FD9E	*/
+	"sbc     a,iyh",	0, none,		/* FD9C, undocumented */
+	"sbc     a,iyl",	0, none,		/* FD9D, undocumented */
+	"sbc     a,(iy%s)",	-4, none,		/* FD9E	*/
 	undocumented,		0, none,		/* FD9F	*/
 
 	undocumented,		0, none,		/* FDA0	*/
 	undocumented,		0, none,		/* FDA1	*/
 	undocumented,		0, none,		/* FDA2	*/
 	undocumented,		0, none,		/* FDA3	*/
-	"AND    IYH",		0, none,		/* FDA4, undocumented */
-	"AND    IYL",		0, none,		/* FDA5, undocumented */
-	"AND    (IY%s)",	-4, none,		/* FDA6	*/
+	"and     iyh",		0, none,		/* FDA4, undocumented */
+	"and     iyl",		0, none,		/* FDA5, undocumented */
+	"and     (iy%s)",	-4, none,		/* FDA6	*/
 	undocumented,		0, none,		/* FDA7	*/
 
 	undocumented,		0, none,		/* FDA8	*/
 	undocumented,		0, none,		/* FDA9	*/
 	undocumented,		0, none,		/* FDAA	*/
 	undocumented,		0, none,		/* FDAB	*/
-	"XOR    IYH",		0, none,		/* FDAC, undocumented */
-	"XOR    IYL",		0, none,		/* FDAD, undocumented */
-	"XOR    (IY%s)",	-4, none,		/* FDAE	*/
+	"xor     iyh",		0, none,		/* FDAC, undocumented */
+	"xor     iyl",		0, none,		/* FDAD, undocumented */
+	"xor     (iy%s)",	-4, none,		/* FDAE	*/
 	undocumented,		0, none,		/* FDAF	*/
 
 	undocumented,		0, none,		/* FDB0	*/
 	undocumented,		0, none,		/* FDB1	*/
 	undocumented,		0, none,		/* FDB2	*/
 	undocumented,		0, none,		/* FDB3	*/
-	"OR     IYH",		0, none,		/* FDB4, undocumented */
-	"OR     IYL",		0, none,		/* FDB5, undocumented */
-	"OR     (IY%s)",	-4, none,		/* FDB6	*/
+	"or      iyh",		0, none,		/* FDB4, undocumented */
+	"or      iyl",		0, none,		/* FDB5, undocumented */
+	"or      (iy%s)",	-4, none,		/* FDB6	*/
 	undocumented,		0, none,		/* FDB7	*/
 
 	undocumented,		0, none,		/* FDB8	*/
 	undocumented,		0, none,		/* FDB9	*/
 	undocumented,		0, none,		/* FDBA	*/
 	undocumented,		0, none,		/* FDBB	*/
-	"CP     IYH",		0, none,		/* FDBC, undocumented */
-	"CP     IYL",		0, none,		/* FDBD, undocumented */
-	"CP     (IY%s)",	-4, none,		/* FDBE	*/
+	"cp      iyh",		0, none,		/* FDBC, undocumented */
+	"cp      iyl",		0, none,		/* FDBD, undocumented */
+	"cp      (iy%s)",	-4, none,		/* FDBE	*/
 	undocumented,		0, none,		/* FDBF	*/
 
 	undocumented,		0, none,		/* FDC0	*/
@@ -1754,16 +1754,16 @@ struct opcode fd[] = {
 	undocumented,		0, none,		/* FDDF	*/
 
 	undocumented,		0, none,		/* FDE0	*/
-	"POP    IY",		0, none,		/* FDE1	*/
+	"pop     iy",		0, none,		/* FDE1	*/
 	undocumented,		0, none,		/* FDE2	*/
-	"EX     (SP),IY",	0, none,		/* FDE3	*/
+	"ex      (sp),iy",	0, none,		/* FDE3	*/
 	undocumented,		0, none,		/* FDE4	*/
-	"PUSH   IY",		0, none,		/* FDE5	*/
+	"push    iy",		0, none,		/* FDE5	*/
 	undocumented,		0, none,		/* FDE6	*/
 	undocumented,		0, none,		/* FDE7	*/
 
 	undocumented,		0, none,		/* FDE8	*/
-	"JP     (IY)",		0, none,		/* FDE9	*/
+	"jp      (iy)",		0, none,		/* FDE9	*/
 	undocumented,		0, none,		/* FDEA	*/
 	undocumented,		0, none,		/* FDEB	*/
 	undocumented,		0, none,		/* FDEC	*/
@@ -1781,7 +1781,7 @@ struct opcode fd[] = {
 	undocumented,		0, none,		/* FDF7	*/
 
 	undocumented,		0, none,		/* FDF8	*/
-	"LD     SP,IY",		0, none,		/* FDF9	*/
+	"ld      sp,iy",	0, none,		/* FDF9	*/
 	undocumented,		0, none,		/* FDFA	*/
 	undocumented,		0, none,		/* FDFB	*/
 	undocumented,		0, none,		/* FDFC	*/
@@ -1863,73 +1863,73 @@ struct opcode ed[] = {
 	undocumented,		0, none,		/* ED3E	*/
 	undocumented,		0, none,		/* ED3F	*/
 
-	"IN     B,(C)",		0, none,		/* ED40	*/
-	"OUT    (C),B",		0, none,		/* ED41	*/
-	"SBC    HL,BC",		0, none,		/* ED42	*/
-	"LD     (%s),BC",	2, none,	       /* ED43 */
-	"NEG",			0, none,		/* ED44	*/
-	"RETN",			0, none,		/* ED45	*/
-	"IM     0",		0, none,		/* ED46	*/
-	"LD     I,A",		0, none,		/* ED47	*/
+	"in      b,(c)",	0, none,		/* ED40	*/
+	"out     (c),b",	0, none,		/* ED41	*/
+	"sbc     hl,bc",	0, none,		/* ED42	*/
+	"ld      (%s),bc",	2, none,	       /* ED43 */
+	"neg",			0, none,		/* ED44	*/
+	"retn",			0, none,		/* ED45	*/
+	"im      0",		0, none,		/* ED46	*/
+	"ld      i,a",		0, none,		/* ED47	*/
 
-	"IN     C,(C)",		0, none,		/* ED48	*/
-	"OUT    (C),C",		0, none,		/* ED49	*/
-	"ADC    HL,BC",		0, none,		/* ED4A	*/
-	"LD     BC,(%s)",	2, none,	       /* ED4B */
+	"in      c,(c)",	0, none,		/* ED48	*/
+	"out     (c),c",	0, none,		/* ED49	*/
+	"adc     hl,bc",	0, none,		/* ED4A	*/
+	"ld      bc,(%s)",	2, none,	       /* ED4B */
 	undocumented,		0, none,		/* ED4C	*/
-	"RETI",			0, none,		/* ED4D	*/
+	"reti",			0, none,		/* ED4D	*/
 	undocumented,		0, none,		/* ED4E	*/
-	"LD     R,A",		0, none,		/* ED4F	*/
+	"ld      r,a",		0, none,		/* ED4F	*/
 
-	"IN     D,(C)",		0, none,		/* ED50	*/
-	"OUT    (C),D",		0, none,		/* ED51	*/
-	"SBC    HL,DE",		0, none,		/* ED52	*/
-	"LD     (%s),DE",	2, none,	       /* ED53 */
+	"in      d,(c)",	0, none,		/* ED50	*/
+	"out     (c),d",	0, none,		/* ED51	*/
+	"sbc     hl,de",	0, none,		/* ED52	*/
+	"ld      (%s),de",	2, none,	       /* ED53 */
 	undocumented,		0, none,		/* ED54	*/
 	undocumented,		0, none,		/* ED55	*/
-	"IM     1",		0, none,		/* ED56	*/
-	"LD     A,I",		0, none,		/* ED57	*/
+	"im      1",		0, none,		/* ED56	*/
+	"ld      a,i",		0, none,		/* ED57	*/
 
-	"IN     E,(C)",		0, none,		/* ED58	*/
-	"OUT    (C),E",		0, none,		/* ED59	*/
-	"ADC    HL,DE",		0, none,		/* ED5A	*/
-	"LD     DE,(%s)",	2, none,	       /* ED5B */
+	"in      e,(c)",	0, none,		/* ED58	*/
+	"out     (c),e",	0, none,		/* ED59	*/
+	"adc     hl,de",	0, none,		/* ED5A	*/
+	"ld      de,(%s)",	2, none,	       /* ED5B */
 	undocumented,		0, none,		/* ED5C	*/
 	undocumented,		0, none,		/* ED5D	*/
-	"IM     2",		0, none,		/* ED5E	*/
-	"LD     A,R",		0, none,		/* ED5F	*/
+	"im      2",		0, none,		/* ED5E	*/
+	"ld      a,r",		0, none,		/* ED5F	*/
 
-	"IN     H,(C)",		0, none,		/* ED60	*/
-	"OUT    (C),H",		0, none,		/* ED61	*/
-	"SBC    HL,HL",		0, none,		/* ED62	*/
+	"in      h,(c)",	0, none,		/* ED60	*/
+	"out     (c),h",	0, none,		/* ED61	*/
+	"sbc     hl,hl",	0, none,		/* ED62	*/
 	undocumented,		0, none,		/* ED63	*/
 	undocumented,		0, none,		/* ED64	*/
 	undocumented,		0, none,		/* ED65	*/
 	undocumented,		0, none,		/* ED66	*/
-	"RRD",			0, none,		/* ED67	*/
+	"rrd",			0, none,		/* ED67	*/
 
-	"IN     L,(C)",		0, none,		/* ED68	*/
-	"OUT    (C),L",		0, none,		/* ED69	*/
-	"ADC    HL,HL",		0, none,		/* ED6A	*/
+	"in      l,(c)",	0, none,		/* ED68	*/
+	"out     (c),l",	0, none,		/* ED69	*/
+	"adc     hl,hl",	0, none,		/* ED6A	*/
 	undocumented,		0, none,		/* ED6B	*/
 	undocumented,		0, none,		/* ED6C	*/
 	undocumented,		0, none,		/* ED6D	*/
 	undocumented,		0, none,		/* ED6E	*/
-	"RLD",			0, none,		/* ED6F	*/
+	"rld",			0, none,		/* ED6F	*/
 
-	"IN     F,(C)",		0, none,		/* ED70	*/
+	"in      f,(c)",	0, none,		/* ED70	*/
 	undocumented,		0, none,		/* ED71	*/
-	"SBC    HL,SP",		0, none,		/* ED72	*/
-	"LD     (%s),SP",	2, none,	       /* ED73 */
+	"sbc     hl,sp",	0, none,		/* ED72	*/
+	"ld      (%s),sp",	2, none,	       /* ED73 */
 	undocumented,		0, none,		/* ED74	*/
 	undocumented,		0, none,		/* ED75	*/
 	undocumented,		0, none,		/* ED76	*/
 	undocumented,		0, none,		/* ED77	*/
 
-	"IN     A,(C)",		0, none,		/* ED78	*/
-	"OUT    (C),A",		0, none,		/* ED79	*/
-	"ADC    HL,SP",		0, none,		/* ED7A	*/
-	"LD     SP,(%s)",	2, none,	       /* ED7B */
+	"in      a,(c)",	0, none,		/* ED78	*/
+	"out     (c),a",	0, none,		/* ED79	*/
+	"adc     hl,sp",	0, none,		/* ED7A	*/
+	"ld      sp,(%s)",	2, none,	       /* ED7B */
 	undocumented,		0, none,		/* ED7C	*/
 	undocumented,		0, none,		/* ED7D	*/
 	undocumented,		0, none,		/* ED7E	*/
@@ -1971,37 +1971,37 @@ struct opcode ed[] = {
 	undocumented,		0, none,		/* ED9E	*/
 	undocumented,		0, none,		/* ED9F	*/
 
-	"LDI",			0, none,		/* EDA0	*/
-	"CPI",			0, none,		/* EDA1	*/
-	"INI",			0, none,		/* EDA2	*/
-	"OUTI",			0, none,		/* EDA3	*/
+	"ldi",			0, none,		/* EDA0	*/
+	"cpi",			0, none,		/* EDA1	*/
+	"ini",			0, none,		/* EDA2	*/
+	"outi",			0, none,		/* EDA3	*/
 	undocumented,		0, none,		/* EDA4	*/
 	undocumented,		0, none,		/* EDA5	*/
 	undocumented,		0, none,		/* EDA6	*/
 	undocumented,		0, none,		/* EDA7	*/
 
-	"LDD",			0, none,		/* EDA8	*/
-	"CPD",			0, none,		/* EDA9	*/
-	"IND",			0, none,		/* EDAA	*/
-	"OUTD",			0, none,		/* EDAB	*/
+	"ldd",			0, none,		/* EDA8	*/
+	"cpd",			0, none,		/* EDA9	*/
+	"ind",			0, none,		/* EDAA	*/
+	"outd",			0, none,		/* EDAB	*/
 	undocumented,		0, none,		/* EDAC	*/
 	undocumented,		0, none,		/* EDAD	*/
 	undocumented,		0, none,		/* EDAE	*/
 	undocumented,		0, none,		/* EDAF	*/
 
-	"LDIR",			0, none,		/* EDB0	*/
-	"CPIR",			0, none,		/* EDB1	*/
-	"INIR",			0, none,		/* EDB2	*/
-	"OTIR",			0, none,		/* EDB3	*/
+	"ldir",			0, none,		/* EDB0	*/
+	"cpir",			0, none,		/* EDB1	*/
+	"inir",			0, none,		/* EDB2	*/
+	"otir",			0, none,		/* EDB3	*/
 	undocumented,		0, none,		/* EDB4	*/
 	undocumented,		0, none,		/* EDB5	*/
 	undocumented,		0, none,		/* EDB6	*/
 	undocumented,		0, none,		/* EDB7	*/
 
-	"LDDR",			0, none,		/* EDB8	*/
-	"CPDR",			0, none,		/* EDB9	*/
-	"INDR",			0, none,		/* EDBA	*/
-	"OTDR",			0, none,		/* EDBB	*/
+	"lddr",			0, none,		/* EDB8	*/
+	"cpdr",			0, none,		/* EDB9	*/
+	"indr",			0, none,		/* EDBA	*/
+	"otdr",			0, none,		/* EDBB	*/
 	undocumented,		0, none,		/* EDBC	*/
 	undocumented,		0, none,		/* EDBD	*/
 	undocumented,		0, none,		/* EDBE	*/
@@ -2081,205 +2081,205 @@ struct opcode ed[] = {
 };
 
 struct opcode dc[] = {
-	"OZ     DC_INI",	0, director,	/* 060C	*/
-	"OZ     DC_BYE",	0, director,	/* 080C	*/
-	"OZ     DC_ENT",	0, director,	/* 0A0C	*/
-	"OZ     DC_NAM",	0, director,	/* 0C0C	*/
-	"OZ     DC_IN",	0, director,	/* 0E0C	*/
-	"OZ     DC_OUT",	0, director,	/* 100C	*/
-	"OZ     DC_PRT",	0, director,	/* 120C	*/
-	"OZ     DC_ICL",	0, director,	/* 140C	*/
-	"OZ     DC_NQ",	0, director,	/* 160C	*/
-	"OZ     DC_SP",	0, director,	/* 180C	*/
-	"OZ     DC_ALT",	0, director,	/* 1A0C	*/
-	"OZ     DC_RBD",	0, director,	/* 1C0C	*/
-	"OZ     DC_XIN",	0, director,	/* 1E0C	*/
-	"OZ     DC_GEN",	0, director,	/* 200C	*/
-	"OZ     DC_POL",	0, director,	/* 220C	*/
-	"OZ     DC_SCN",	0, director,	/* 240C	*/
-	"OZ     UNKNOWN",	0, none
+	"oz      Dc_ini",	0, director,	/* 060C	*/
+	"oz      Dc_bye",	0, director,	/* 080C	*/
+	"oz      Dc_ent",	0, director,	/* 0A0C	*/
+	"oz      Dc_nam",	0, director,	/* 0C0C	*/
+	"oz      Dc_in",	0, director,	/* 0E0C	*/
+	"oz      Dc_out",	0, director,	/* 100C	*/
+	"oz      Dc_prt",	0, director,	/* 120C	*/
+	"oz      Dc_icl",	0, director,	/* 140C	*/
+	"oz      Dc_nq",	0, director,	/* 160C	*/
+	"oz      Dc_sp",	0, director,	/* 180C	*/
+	"oz      Dc_alt",	0, director,	/* 1A0C	*/
+	"oz      Dc_rbd",	0, director,	/* 1C0C	*/
+	"oz      Dc_xin",	0, director,	/* 1E0C	*/
+	"oz      Dc_gen",	0, director,	/* 200C	*/
+	"oz      Dc_pol",	0, director,	/* 220C	*/
+	"oz      Dc_scn",	0, director,	/* 240C	*/
+	"oz      unknown",	0, none
 };
 
 struct opcode os1[] = {
-	"OZ     OS_BYE",	0, director,	/* 21 */
-	"OZ     OS_PRT",	0, misc,	/* 24 */
-	"OZ     OS_OUT",	0, stdio,	/* 27 */
-	"OZ     OS_IN",	0, stdio,	/* 2A */
-	"OZ     OS_TIN",	0, stdio,	/* 2D */
-	"OZ     OS_XIN",	0, stdio,	/* 30 */
-	"OZ     OS_PUR",	0, stdio,	/* 33 */
-	"OZ     OS_UGB",	0, fileio,	/* 36 */
-	"OZ     OS_GB",	0, fileio,	/* 39 */
-	"OZ     OS_PB",	0, fileio,	/* 3C */
-	"OZ     OS_GBT",	0, fileio,	/* 3F */
-	"OZ     OS_PBT",	0, fileio,	/* 42 */
-	"OZ     OS_MV",	0, fileio,	/* 45 */
-	"OZ     OS_FRM",	0, fileio,	/* 48 */
-	"OZ     OS_FWM",	0, fileio,	/* 4B */
-	"OZ     OS_MOP",	0, memory,	/* 4E */
-	"OZ     OS_MCL",	0, memory,	/* 51 */
-	"OZ     OS_MAL",	0, memory,	/* 54 */
-	"OZ     OS_MFR",	0, memory,	/* 57 */
-	"OZ     OS_MGB",	0, memory,	/* 5A */
-	"OZ     OS_MPB",	0, memory,	/* 5D */
-	"OZ     OS_BIX",	0, memory,	/* 60 */
-	"OZ     OS_BOX",	0, memory,	/* 63 */
-	"OZ     OS_NQ",	0, syspar,	/* 66 */
-	"OZ     OS_SP",	0, syspar,	/* 69 */
-	"OZ     OS_SR",	0, saverestore,	/* 6C */
-	"OZ     OS_ESC",	0, error,	/* 6F */
-	"OZ     OS_ERC",	0, error,	/* 72 */
-	"OZ     OS_ERH",	0, error,	/* 75 */
-	"OZ     OS_UST",	0, timedate,	/* 78 */
-	"OZ     OS_FN",	0, misc,	/* 7B */
-	"OZ     OS_WAIT",	0, director,	/* 7E */
-	"OZ     OS_ALM",	0, alarm,	/* 81 */
-	"OZ     OS_CLI",	0, director,	/* 84 */
-	"OZ     OS_DOR",	0, dor,		/* 87 */
-	"OZ     OS_FC",	0, memory,	/* 8A */
-	"OZ     OS_SI",	0, serinterface,/* 8D */
-	"OZ     UNKNOWN)",	0, none
+	"oz      Os_bye",	0, director,	/* 21 */
+	"oz      Os_prt",	0, printer,	/* 24 */
+	"oz      Os_out",	0, stdio,	/* 27 */
+	"oz      Os_in",	0, stdio,	/* 2A */
+	"oz      Os_tin",	0, stdio,	/* 2D */
+	"oz      Os_xin",	0, stdio,	/* 30 */
+	"oz      Os_pur",	0, stdio,	/* 33 */
+	"oz      Os_ugb",	0, fileio,	/* 36 */
+	"oz      Os_gb",	0, fileio,	/* 39 */
+	"oz      Os_pb",	0, fileio,	/* 3C */
+	"oz      Os_gbt",	0, fileio,	/* 3F */
+	"oz      Os_pbt",	0, fileio,	/* 42 */
+	"oz      Os_mv",	0, fileio,	/* 45 */
+	"oz      Os_frm",	0, fileio,	/* 48 */
+	"oz      Os_fwm",	0, fileio,	/* 4B */
+	"oz      Os_mop",	0, memory,	/* 4E */
+	"oz      Os_mcl",	0, memory,	/* 51 */
+	"oz      Os_mal",	0, memory,	/* 54 */
+	"oz      Os_mfr",	0, memory,	/* 57 */
+	"oz      Os_mgb",	0, memory,	/* 5A */
+	"oz      Os_mpb",	0, memory,	/* 5D */
+	"oz      Os_bix",	0, memory,	/* 60 */
+	"oz      Os_box",	0, memory,	/* 63 */
+	"oz      Os_nq",	0, syspar,	/* 66 */
+	"oz      Os_sp",	0, syspar,	/* 69 */
+	"oz      Os_sr",	0, saverestore,	/* 6C */
+	"oz      Os_esc",	0, error,	/* 6F */
+	"oz      Os_erc",	0, error,	/* 72 */
+	"oz      Os_erh",	0, error,	/* 75 */
+	"oz      Os_ust",	0, timedate,	/* 78 */
+	"oz      Os_fn",	0, handle,	/* 7B */
+	"oz      Os_wait",	0, director,	/* 7E */
+	"oz      Os_alm",	0, alarm,	/* 81 */
+	"oz      Os_cli",	0, director,	/* 84 */
+	"oz      Os_dor",	0, dor,		/* 87 */
+	"oz      Os_fc",	0, memory,	/* 8A */
+	"oz      Os_si",	0, serinterface,/* 8D */
+	"oz      unknown)",	0, none
 };
 
 struct opcode os2[] = {
-	"OZ     OS_WTB",	0, tokens,	/* CA06	*/
-	"OZ     OS_WRT",	0, tokens,	/* CC06	*/
-	"OZ     OS_WSQ",	0, misc,	/* CE06	*/
-	"OZ     OS_ISQ",	0, misc,	/* D006	*/
-	"OZ     OS_AXP",	0, memory,	/* D206	*/
-	"OZ     OS_SCI",	0, screen,	/* D406	*/
-	"OZ     OS_DLY",	0, timedate,	/* D606	*/
-	"OZ     OS_BLP",	0, misc,	/* D806	*/
-	"OZ     OS_BDE",	0, memory,	/* DA06	*/
-	"OZ     OS_BHL",	0, memory,	/* DC06	*/
-	"OZ     OS_FTH",	0, director,	/* DE06	*/
-	"OZ     OS_VTH",	0, director,	/* E006	*/
-	"OZ     OS_GTH",	0, director,	/* E206	*/
-	"OZ     OS_REN",	0, fileio,	/* E406	*/
-	"OZ     OS_DEL",	0, fileio,	/* E606	*/
-	"OZ     OS_CL",	0, fileio,	/* E806	*/
-	"OZ     OS_OP",	0, fileio,	/* EA06	*/
-	"OZ     OS_OFF",	0, screen,	/* EC06	*/
-	"OZ     OS_USE",	0, director,	/* EE06	*/
-	"OZ     OS_EPR",	0, fileio,	/* F006	*/
-	"OZ     OS_HT",	0, timedate,	/* F206	*/
-	"OZ     OS_MAP",	0, map,		/* F406	*/
-	"OZ     OS_EXIT",	0, director,	/* F606	*/
-	"OZ     OS_STK",	0, director,	/* F806	*/
-	"OZ     OS_ENT",	0, director,	/* FA06	*/
-	"OZ     OS_POLL",	0, director,	/* FC06	*/
-	"OZ     OS_DOM",	0, director,	/* FE06	*/
-	"OZ     UNKNOWN",	0, none
+	"oz      Os_wtb",	0, tokens,	/* CA06	*/
+	"oz      Os_wrt",	0, tokens,	/* CC06	*/
+	"oz      Os_wsq",	0, printer,	/* CE06	*/
+	"oz      Os_isq",	0, printer,	/* D006	*/
+	"oz      Os_axp",	0, memory,	/* D206	*/
+	"oz      Os_sci",	0, screen,	/* D406	*/
+	"oz      Os_dly",	0, timedate,	/* D606	*/
+	"oz      Os_blp",	0, stdio,	/* D806	*/
+	"oz      Os_bde",	0, memory,	/* DA06	*/
+	"oz      Os_bhl",	0, memory,	/* DC06	*/
+	"oz      Os_fth",	0, director,	/* DE06	*/
+	"oz      Os_vth",	0, director,	/* E006	*/
+	"oz      Os_gth",	0, director,	/* E206	*/
+	"oz      Os_ren",	0, fileio,	/* E406	*/
+	"oz      Os_del",	0, fileio,	/* E606	*/
+	"oz      Os_cl",	0, fileio,	/* E806	*/
+	"oz      Os_op",	0, fileio,	/* EA06	*/
+	"oz      Os_off",	0, screen,	/* EC06	*/
+	"oz      Os_use",	0, director,	/* EE06	*/
+	"oz      Os_epr",	0, fileio,	/* F006	*/
+	"oz      Os_ht",	0, timedate,	/* F206	*/
+	"oz      Os_map",	0, map,		/* F406	*/
+	"oz      Os_exit",	0, director,	/* F606	*/
+	"oz      Os_stk",	0, director,	/* F806	*/
+	"oz      Os_ent",	0, director,	/* FA06	*/
+	"oz      Os_poll",	0, director,	/* FC06	*/
+	"oz      Os_dom",	0, director,	/* FE06	*/
+	"oz      unknown",	0, none
 };
 
 struct opcode gn[] = {
-	"OZ     GN_GDT",	0, timedate,	/* 0609	*/
-	"OZ     GN_PDT",	0, timedate,	/* 0809	*/
-	"OZ     GN_GTM",	0, timedate,	/* 0A09	*/
-	"OZ     GN_PTM",	0, timedate,	/* 0C09	*/
-	"OZ     GN_SDO",	0, timedate,	/* 0E09	*/
-	"OZ     GN_GDN",	0, integer,	/* 1009	*/
-	"OZ     GN_PDN",	0, integer,	/* 1209	*/
-	"OZ     GN_DIE",	0, timedate,	/* 1409	*/
-	"OZ     GN_DEI",	0, timedate,	/* 1609	*/
-	"OZ     GN_GMD",	0, timedate,	/* 1809	*/
-	"OZ     GN_GMT",	0, timedate,	/* 1A09	*/
-	"OZ     GN_PMD",	0, timedate,	/* 1C09	*/
-	"OZ     GN_PMT",	0, timedate,	/* 1E09	*/
-	"OZ     GN_MSC",	0, timedate,	/* 2009	*/
-	"OZ     GN_FLO",	0, filter,	/* 2209	*/
-	"OZ     GN_FLC",	0, filter,	/* 2409	*/
-	"OZ     GN_FLW",	0, filter,	/* 2609	*/
-	"OZ     GN_FLR",	0, filter,	/* 2809	*/
-	"OZ     GN_FLF",	0, filter,	/* 2A09	*/
-	"OZ     GN_FPB",	0, filter,	/* 2C09	*/
-	"OZ     GN_NLN",	0, stdio,	/* 2E09	*/
-	"OZ     GN_CLS",	0, chars,	/* 3009	*/
-	"OZ     GN_SKC",	0, chars,	/* 3209	*/
-	"OZ     GN_SKD",	0, chars,	/* 3409	*/
-	"OZ     GN_SKT",	0, chars,	/* 3609	*/
-	"OZ     GN_SIP",	0, stdio,	/* 3809	*/
-	"OZ     GN_SOP",	0, stdio,	/* 3A09	*/
-	"OZ     GN_SOE",	0, stdio,	/* 3C09	*/
-	"OZ     GN_RBE",	0, memory,	/* 3E09	*/
-	"OZ     GN_WBE",	0, memory,	/* 4009	*/
-	"OZ     GN_CME",	0, memory,	/* 4209	*/
-	"OZ     GN_XNX",	0, memory,	/* 4409	*/
-	"OZ     GN_XIN",	0, memory,	/* 4609	*/
-	"OZ     GN_XDL",	0, memory,	/* 4809	*/
-	"OZ     GN_ERR",	0, error,	/* 4A09	*/
-	"OZ     GN_ESP",	0, error,	/* 4C09	*/
-	"OZ     GN_FCM",	0, fileio,	/* 4E09	*/
-	"OZ     GN_FEX",	0, fileio,	/* 5009	*/
-	"OZ     GN_OPW",	0, fileio,	/* 5209	*/
-	"OZ     GN_WCL",	0, fileio,	/* 5409	*/
-	"OZ     GN_WFN",	0, fileio,	/* 5609	*/
-	"OZ     GN_PRS",	0, fileio,	/* 5809	*/
-	"OZ     GN_PFS",	0, fileio,	/* 5A09	*/
-	"OZ     GN_WSM",	0, fileio,	/* 5C09	*/
-	"OZ     GN_ESA",	0, fileio,	/* 5E09	*/
-	"OZ     GN_OPF",	0, fileio,	/* 6009	*/
-	"OZ     GN_CL",	0, fileio,	/* 6209	*/
-	"OZ     GN_DEL",	0, fileio,	/* 6409	*/
-	"OZ     GN_REN",	0, fileio,	/* 6609	*/
-	"OZ     GN_AAB",	0, alarm,	/* 6809	*/
-	"OZ     GN_FAB",	0, alarm,	/* 6A09	*/
-	"OZ     GN_LAB",	0, alarm,	/* 6C09	*/
-	"OZ     GN_UAB",	0, alarm,	/* 6E09	*/
-	"OZ     GN_ALP",	0, alarm,	/* 7009	*/
-	"OZ     GN_M16",	0, integer,	/* 7209	*/
-	"OZ     GN_D16",	0, integer,	/* 7409	*/
-	"OZ     GN_M24",	0, integer,	/* 7609	*/
-	"OZ     GN_D24",	0, integer,	/* 7809	*/
-	"OZ     UNKNOWN",	0, none
+	"oz      Gn_gdt",	0, timedate,	/* 0609	*/
+	"oz      Gn_pdt",	0, timedate,	/* 0809	*/
+	"oz      Gn_gtm",	0, timedate,	/* 0A09	*/
+	"oz      Gn_ptm",	0, timedate,	/* 0C09	*/
+	"oz      Gn_sdo",	0, timedate,	/* 0E09	*/
+	"oz      Gn_gdn",	0, integer,	/* 1009	*/
+	"oz      Gn_pdn",	0, integer,	/* 1209	*/
+	"oz      Gn_die",	0, timedate,	/* 1409	*/
+	"oz      Gn_dei",	0, timedate,	/* 1609	*/
+	"oz      Gn_gmd",	0, timedate,	/* 1809	*/
+	"oz      Gn_gmt",	0, timedate,	/* 1A09	*/
+	"oz      Gn_pmd",	0, timedate,	/* 1C09	*/
+	"oz      Gn_pmt",	0, timedate,	/* 1E09	*/
+	"oz      Gn_msc",	0, timedate,	/* 2009	*/
+	"oz      Gn_flo",	0, filter,	/* 2209	*/
+	"oz      Gn_flc",	0, filter,	/* 2409	*/
+	"oz      Gn_flw",	0, filter,	/* 2609	*/
+	"oz      Gn_flr",	0, filter,	/* 2809	*/
+	"oz      Gn_flf",	0, filter,	/* 2A09	*/
+	"oz      Gn_fpb",	0, filter,	/* 2C09	*/
+	"oz      Gn_nln",	0, stdio,	/* 2E09	*/
+	"oz      Gn_cls",	0, chars,	/* 3009	*/
+	"oz      Gn_skc",	0, chars,	/* 3209	*/
+	"oz      Gn_skd",	0, chars,	/* 3409	*/
+	"oz      Gn_skt",	0, chars,	/* 3609	*/
+	"oz      Gn_sip",	0, stdio,	/* 3809	*/
+	"oz      Gn_sop",	0, stdio,	/* 3A09	*/
+	"oz      Gn_soe",	0, stdio,	/* 3C09	*/
+	"oz      Gn_rbe",	0, memory,	/* 3E09	*/
+	"oz      Gn_wbe",	0, memory,	/* 4009	*/
+	"oz      Gn_cme",	0, memory,	/* 4209	*/
+	"oz      Gn_xnx",	0, memory,	/* 4409	*/
+	"oz      Gn_xin",	0, memory,	/* 4609	*/
+	"oz      Gn_xdl",	0, memory,	/* 4809	*/
+	"oz      Gn_err",	0, error,	/* 4A09	*/
+	"oz      Gn_esp",	0, error,	/* 4C09	*/
+	"oz      Gn_fcm",	0, fileio,	/* 4E09	*/
+	"oz      Gn_fex",	0, fileio,	/* 5009	*/
+	"oz      Gn_opw",	0, fileio,	/* 5209	*/
+	"oz      Gn_wcl",	0, fileio,	/* 5409	*/
+	"oz      Gn_wfn",	0, fileio,	/* 5609	*/
+	"oz      Gn_prs",	0, fileio,	/* 5809	*/
+	"oz      Gn_pfs",	0, fileio,	/* 5A09	*/
+	"oz      Gn_wsm",	0, fileio,	/* 5C09	*/
+	"oz      Gn_esa",	0, fileio,	/* 5E09	*/
+	"oz      Gn_opf",	0, fileio,	/* 6009	*/
+	"oz      Gn_cl",	0, fileio,	/* 6209	*/
+	"oz      Gn_del",	0, fileio,	/* 6409	*/
+	"oz      Gn_ren",	0, fileio,	/* 6609	*/
+	"oz      Gn_aab",	0, alarm,	/* 6809	*/
+	"oz      Gn_fab",	0, alarm,	/* 6A09	*/
+	"oz      Gn_lab",	0, alarm,	/* 6C09	*/
+	"oz      Gn_uab",	0, alarm,	/* 6E09	*/
+	"oz      Gn_alp",	0, alarm,	/* 7009	*/
+	"oz      Gn_m16",	0, integer,	/* 7209	*/
+	"oz      Gn_d16",	0, integer,	/* 7409	*/
+	"oz      Gn_m24",	0, integer,	/* 7609	*/
+	"oz      Gn_d24",	0, integer,	/* 7809	*/
+	"oz      unknown",	0, none
 };
 
 struct opcode fpp[] = {
-	"FPP    FP_AND",		0, floatp,	   /* 21 */
-	"FPP    FP_IDV",		0, floatp,	   /* 24 */
-	"FPP    FP_EOR",		0, floatp,	   /* 27 */
-	"FPP    FP_MOD",		0, floatp,	   /* 2A */
-	"FPP    FP_OR",		0, floatp,	   /* 2D */
-	"FPP    FP_LEQ",		0, floatp,	   /* 30 */
-	"FPP    FP_NEQ",		0, floatp,	   /* 33 */
-	"FPP    FP_GEQ",		0, floatp,	   /* 36 */
-	"FPP    FP_LT",		0, floatp,	   /* 39 */
-	"FPP    FP_EQ",		0, floatp,	   /* 3C */
-	"FPP    FP_MUL",		0, floatp,	   /* 3F */
-	"FPP    FP_ADD",		0, floatp,	   /* 42 */
-	"FPP    FP_GT",		0, floatp,	   /* 45 */
-	"FPP    FP_SUB",		0, floatp,	   /* 48 */
-	"FPP    FP_PWR",		0, floatp,	   /* 4B */
-	"FPP    FP_DIV",		0, floatp,	   /* 4E */
-	"FPP    FP_ABS",		0, floatp,	   /* 51 */
-	"FPP    FP_ACS",		0, floatp,	   /* 54 */
-	"FPP    FP_ASN",		0, floatp,	   /* 57 */
-	"FPP    FP_ATN",		0, floatp,	   /* 5A */
-	"FPP    FP_COS",		0, floatp,	   /* 5D */
-	"FPP    FP_DEG",		0, floatp,	   /* 60 */
-	"FPP    FP_EXP",		0, floatp,	   /* 63 */
-	"FPP    FP_INT",		0, floatp,	   /* 66 */
-	"FPP    FP_LN",		0, floatp,	   /* 69 */
-	"FPP    FP_LOG",		0, floatp,	   /* 6C */
-	"FPP    FP_NOT",		0, floatp,	   /* 6F */
-	"FPP    FP_RAD",		0, floatp,	   /* 72 */
-	"FPP    FP_SGN",		0, floatp,	   /* 75 */
-	"FPP    FP_SIN",		0, floatp,	   /* 78 */
-	"FPP    FP_SQR",		0, floatp,	   /* 7B */
-	"FPP    FP_TAN",		0, floatp,	   /* 7E */
-	"FPP    FP_ZER",		0, floatp,	   /* 81 */
-	"FPP    FP_ONE",		0, floatp,	   /* 84 */
-	"FPP    FP_TRU",		0, floatp,	   /* 87 */
-	"FPP    FP_PI",		0, floatp,	   /* 8A */
-	"FPP    FP_VAL",		0, floatp,	   /* 8D */
-	"FPP    FP_STR",		0, floatp,	   /* 90 */
-	"FPP    FP_FIX",		0, floatp,	   /* 93 */
-	"FPP    FP_FLT",		0, floatp,	   /* 96 */
-	"FPP    FP_TST",		0, floatp,	   /* 99 */
-	"FPP    FP_CMP",		0, floatp,	   /* 9C */
-	"FPP    FP_NEG",		0, floatp,	   /* 9F */
-	"FPP    FP_BAS",		0, floatp,	   /* A2 */
-	"FPP    UNKNOWN",		0, none
+	"fpp     Fp_and",	0, floatp,	   /* 21 */
+	"fpp     Fp_idv",	0, floatp,	   /* 24 */
+	"fpp     Fp_eor",	0, floatp,	   /* 27 */
+	"fpp     Fp_mod",	0, floatp,	   /* 2A */
+	"fpp     Fp_or",	0, floatp,	   /* 2D */
+	"fpp     Fp_leq",	0, floatp,	   /* 30 */
+	"fpp     Fp_neq",	0, floatp,	   /* 33 */
+	"fpp     Fp_geq",	0, floatp,	   /* 36 */
+	"fpp     Fp_lt",	0, floatp,	   /* 39 */
+	"fpp     Fp_eq",	0, floatp,	   /* 3C */
+	"fpp     Fp_mul",	0, floatp,	   /* 3F */
+	"fpp     Fp_add",	0, floatp,	   /* 42 */
+	"fpp     Fp_gt",	0, floatp,	   /* 45 */
+	"fpp     Fp_sub",	0, floatp,	   /* 48 */
+	"fpp     Fp_pwr",	0, floatp,	   /* 4B */
+	"fpp     Fp_div",	0, floatp,	   /* 4E */
+	"fpp     Fp_abs",	0, floatp,	   /* 51 */
+	"fpp     Fp_acs",	0, floatp,	   /* 54 */
+	"fpp     Fp_asn",	0, floatp,	   /* 57 */
+	"fpp     Fp_atn",	0, floatp,	   /* 5A */
+	"fpp     Fp_cos",	0, floatp,	   /* 5D */
+	"fpp     Fp_deg",	0, floatp,	   /* 60 */
+	"fpp     Fp_exp",	0, floatp,	   /* 63 */
+	"fpp     Fp_int",	0, floatp,	   /* 66 */
+	"fpp     Fp_ln",	0, floatp,	   /* 69 */
+	"fpp     Fp_log",	0, floatp,	   /* 6C */
+	"fpp     Fp_not",	0, floatp,	   /* 6F */
+	"fpp     Fp_rad",	0, floatp,	   /* 72 */
+	"fpp     Fp_sgn",	0, floatp,	   /* 75 */
+	"fpp     Fp_sin",	0, floatp,	   /* 78 */
+	"fpp     Fp_sqr",	0, floatp,	   /* 7B */
+	"fpp     Fp_tan",	0, floatp,	   /* 7E */
+	"fpp     Fp_zer",	0, floatp,	   /* 81 */
+	"fpp     Fp_one",	0, floatp,	   /* 84 */
+	"fpp     Fp_tru",	0, floatp,	   /* 87 */
+	"fpp     Fp_pi",	0, floatp,	   /* 8A */
+	"fpp     Fp_val",	0, floatp,	   /* 8D */
+	"fpp     Fp_str",	0, floatp,	   /* 90 */
+	"fpp     Fp_fix",	0, floatp,	   /* 93 */
+	"fpp     Fp_flt",	0, floatp,	   /* 96 */
+	"fpp     Fp_tst",	0, floatp,	   /* 99 */
+	"fpp     Fp_cmp",	0, floatp,	   /* 9C */
+	"fpp     Fp_neg",	0, floatp,	   /* 9F */
+	"fpp     Fp_bas",	0, floatp,	   /* A2 */
+	"fpp     unknown",	0, none
 };
 
 

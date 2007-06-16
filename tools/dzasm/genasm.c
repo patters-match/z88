@@ -89,14 +89,14 @@ void	DZpass2(void)
 
 	fprintf(asmfile, "\nORG $%04lX\n\n", Org);
 
-	for (ifile = stdio; ifile <= intrrupt;	ifile++) {
+	for (ifile = stdio; ifile <= handle; ifile++) {
 		if (gIncludeList[ifile]	== true)
-			fprintf(asmfile, "\tINCLUDE \"%s.def\"\n", gIncludeFiles[ifile]);
+			fprintf(asmfile, "        include \"%s.def\"\n", gIncludeFiles[ifile]);
 	}
 
 	curIncludeFile = gIncludeFilenames;
 	while(curIncludeFile != NULL) {
-		fprintf(asmfile, "\tINCLUDE \"%s\"\n", curIncludeFile->filename);
+		fprintf(asmfile, "        include \"%s\"\n", curIncludeFile->filename);
 		curIncludeFile = curIncludeFile->next;
 	}
 	fputc('\n', asmfile);
@@ -168,7 +168,7 @@ void	VoidOutput(long	 pc, long  endarea)
 			}
 
 			if (column == 0)
-				fprintf(asmfile, "\t\tDEFB $%02X", GetByte(pc));
+				fprintf(asmfile, "        defb    $%02X", GetByte(pc));
 			else
 				fprintf(asmfile, ",$%02X", GetByte(pc +	column));
 		}
@@ -228,11 +228,11 @@ void	DefbOutput(long	 pc, long  endarea)
 
 					} else {
 						if (defbline == true)
-							fprintf(asmfile, "\t\tDEFB $%02X", GetByte(offset));
+							fprintf(asmfile, "        defb    $%02X", GetByte(offset));
 						else
 							fprintf(asmfile, ",$%02X", GetByte(offset));
 
-						fprintf(asmfile, "\t\t; %s", curline->line);
+						fprintf(asmfile, "        ; %s", curline->line);
 						pc = offset+1;
 						break;
 					}
@@ -241,7 +241,7 @@ void	DefbOutput(long	 pc, long  endarea)
 
 			if (defbline == true) {
 				defbline = false;
-				fprintf(asmfile, "\t\tDEFB $%02X", GetByte(offset));
+				fprintf(asmfile, "        defb    $%02X", GetByte(offset));
 			} else
 				fprintf(asmfile, ",$%02X", GetByte(offset));
 		}
@@ -267,7 +267,7 @@ void	DefStorageOutput(long pc, long  endarea)
 			fprintf(asmfile, ".L_%04lX\n", foundlabel->addr);
 	}
 
-	fprintf(asmfile, "\t\tDEFS %ld\t; %04lXh - %04lXh\n\n", endarea-pc+1, pc, endarea);
+	fprintf(asmfile, "       defs    %ld\t; %04lXh - %04lXh\n\n", endarea-pc+1, pc, endarea);
 }
 
 
@@ -316,14 +316,14 @@ void	DefwOutput(long	 pc, long  endarea)
 						curline = curline->next;
 					}
 
-					fprintf(asmfile, "\t\tDEFW %s\n", operand);
+					fprintf(asmfile, "        defw    %s\n", operand);
 				} else {
-					fprintf(asmfile, "\t\tDEFW %s", operand);
-					fprintf(asmfile, "\t\t; %s", curline->line);
+					fprintf(asmfile, "        defw    %s", operand);
+					fprintf(asmfile, "        ; %s", curline->line);
 				}
 			}
 		} else {
-			fprintf(asmfile, "\t\tDEFW %s\n", operand);
+			fprintf(asmfile, "        defw    %s\n", operand);
 		}
 
 		pc += 2;
@@ -384,7 +384,7 @@ void	DefmOutput(long	 pc, long  endarea)
 
 		if (startline == true) {
 			strsize = 0;
-			fprintf(asmfile,"\t\tDEFM ");
+			fprintf(asmfile,"        defm    ");
 		}
 
 		byte = GetByte(pc++);
@@ -393,7 +393,7 @@ void	DefmOutput(long	 pc, long  endarea)
 				if (byte != '"')
 					fputc(byte, asmfile);
 				else
-					fprintf(asmfile, "\" & '\"' & \"", byte);
+					fprintf(asmfile, "\", '\"', \"", byte);
 			else {
 				asciistring = true;
 				if (startline == true) {
@@ -406,9 +406,10 @@ void	DefmOutput(long	 pc, long  endarea)
 				}
 				else {
 					if (byte == '"') {
-						fprintf(asmfile, " & '\"'");
+						fprintf(asmfile, ", '\"'");
+						asciistring = false;
 					} else {
-						fprintf(asmfile, " & \"%c", byte);
+						fprintf(asmfile, ", \"%c", byte);
 					}
 				}
 			}
@@ -420,9 +421,9 @@ void	DefmOutput(long	 pc, long  endarea)
 				/* put it on a new line */
 				if (asciistring	== true) {
 					asciistring = false;
-					fprintf(asmfile,"\"\n\t\tDEFM ");
+					fprintf(asmfile,"\"\n        defm    ");
 				} else {
-					fprintf(asmfile,"\n\t\tDEFM ");
+					fprintf(asmfile,"\n        defm    ");
 				}
 				startline = true;
 				strsize = 0;
@@ -430,7 +431,7 @@ void	DefmOutput(long	 pc, long  endarea)
 
 			if (asciistring	== true) {
 				asciistring = false;
-				fprintf(asmfile, "\" & $%02X", byte);
+				fprintf(asmfile, "\", $%02X", byte);
 			}
 			else {
 				if (startline == true) {
@@ -438,7 +439,7 @@ void	DefmOutput(long	 pc, long  endarea)
 					fprintf(asmfile, "$%02X", byte);
 				}
 				else
-					fprintf(asmfile, " & $%02X", byte);
+					fprintf(asmfile, ", $%02X", byte);
 			}
 
 			if (byte == 0) {
@@ -604,7 +605,7 @@ void	Z80Asm(long pc, long  endarea)
 
 		pc0 = pc;
 		pc = Disassemble(mnemonic, pc, false);
-		strcpy(ident,"\t\t");
+		strcpy(ident,"        ");
 		strcat(ident, mnemonic);
 		DisplayMnemonic(asmfile, pc0, ident);
 	}

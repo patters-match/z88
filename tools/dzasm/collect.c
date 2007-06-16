@@ -613,7 +613,7 @@ void	GetIncludeFiles(void)
 
 	while(GetSym() != lcurly);	/* Get to start	of Include file	references */
 
-	for (i = 1; i<=20; i++)	{
+	for (i = 1; i<=21; i++)	{
 		if (GetSym() ==	rcurly)
 			break;
 		else {
