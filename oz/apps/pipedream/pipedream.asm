@@ -1306,7 +1306,7 @@
         call    L_EED0
         ex      de,hl
         call    L_EE7C
-        call    L_F030
+        oz      Os_Pout
         defm    " words", $00
 
         ld      (iy-84),$0B
@@ -3260,7 +3260,7 @@
         jp      L_A093
 .L_98DC
         call    L_B2C2
-        call    L_F030
+        oz      Os_Pout
         defm    "Overwrite text?", $00
 
         call    L_E006
@@ -4292,7 +4292,7 @@
         ld      l,(iy+30)
         ld      h,(iy+31)
         call    L_EE7C
-        call    L_F030
+        oz      Os_Pout
         defm    " found", $00
 
         ld      (iy-84),$0B
@@ -4428,7 +4428,7 @@
         jr      z,L_A3AD
         call    L_E0A7
         call    L_B2C2
-        call    L_F030
+        oz      Os_Pout
         defm    "Replace: N, Y?", $00
 
         call    L_E09F
@@ -5725,13 +5725,13 @@
         jr      z,L_ACFE
         call    L_ED5B
         call    L_B2C2
-        call    L_F030
+        oz      Os_Pout
         defm    "Page ", $00
 
         ld      l,(iy-91)
         ld      h,(iy-90)
         call    L_EE7C
-        call    L_F030
+        oz      Os_Pout
         defm    "..", $00
 
         call    L_E006
@@ -8874,7 +8874,7 @@
         ld      a,$06
         call    c,L_C5EA
         call    L_EFEF
-        call    L_F030
+        oz      Os_Pout
         defm    " End of text ", $00
 
         call    L_EFEF
@@ -9517,7 +9517,7 @@
         pop     af
         push    bc
         push    af
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "6#3", $00
 
         call    L_D5A7
@@ -9536,19 +9536,19 @@
         sub     b
         add     a,$40
         oz      Os_out
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "2H3", $00
 
         ld      a,$01
         oz      Os_out
         pop     af
         oz      Os_out
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "2H", $00
 
         pop     af
         oz      Os_out
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "2D3", $00
 
         ret
@@ -12181,7 +12181,7 @@
         call    L_DBC8
 .L_D9D4
         push    bc
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "7#2* ", $00
 
         ld      a,$5C
@@ -12444,7 +12444,7 @@
         ret
 .L_DBB4
         call    L_E0D4
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "2D2", $00
 
         call    L_B411
@@ -12623,12 +12623,12 @@
         dec     b
         call    L_DCEF
         jr      nz,L_DCE0
-        call    L_F030
+        oz      Os_Pout
         defm    "No ", $00
 
         jr      L_DCE7
 .L_DCE0
-        call    L_F030
+        oz      Os_Pout
         defm    "Yes", $00
 
 .L_DCE7
@@ -13227,7 +13227,7 @@
         call    nz,L_E0FC
         pop     af
         call    z,L_E0EA
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "6#1  ", $00
 
         ld      a,(iy-81)
@@ -13953,7 +13953,7 @@
         ld      a,$38
         ld      b,$01
         call    L_EEE4
-        call    L_F030
+        oz      Os_Pout
         defm    "File ", $00
 
         bit     3,(iy-71)
@@ -13984,7 +13984,7 @@
         call    L_F03D
         jr      L_E669
 .L_E65E
-        call    L_F030
+        oz      Os_Pout
         defm    "No File", $00
 
 .L_E669
@@ -13993,12 +13993,12 @@
         call    L_EEE4
         bit     2,(iy-71)
         jr      nz,L_E682
-        call    L_F030
+        oz      Os_Pout
         defm    "Insert", $00
 
         jr      L_E68E
 .L_E682
-        call    L_F030
+        oz      Os_Pout
         defm    "Overtype", $00
 
 .L_E68E
@@ -14007,14 +14007,14 @@
         call    L_EEE4
         bit     4,(iy-70)
         jr      z,L_E6A9
-        call    L_F030
+        oz      Os_Pout
         defm    "Microspace", $00
 
 .L_E6A9
         ld      a,$38
         ld      b,$02
         call    L_EEE4
-        call    L_F030
+        oz      Os_Pout
         defm    "Page ", $00
 
         ld      ix,($1D63)
@@ -14031,7 +14031,7 @@
         ld      a,$38
         ld      b,$03
         call    L_EEE4
-        call    L_F030
+        oz      Os_Pout
         defm    "Free ", $00
 
         ld      bc, NQ_Out
@@ -14488,7 +14488,7 @@
         ld      hl,$1FAA
         call    L_F03D
         push    bc
-        call    L_F030
+        oz      Os_Pout
         defm    " not found", $00
 
         pop     bc
@@ -14942,7 +14942,7 @@
         jr      nz,L_EF8E
         set     7,(iy+6)
         call    L_EEDD
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "F", $01, "R ", $00
 
         ld      e,(iy+6)
@@ -14963,7 +14963,7 @@
         ld      a,d
         add     a,$05
         ld      (iy-84),a
-        call    L_F030
+        oz      Os_Pout
         defm    "ing ", $01, "F", $01, "R", $00
 
 .L_EF7B
@@ -15014,7 +15014,7 @@
         ld      b,$00
         call    L_EEE4
 .L_EFDC
-        call    L_F030
+        oz      Os_Pout
         defm    $01, "2C", $FD, $00
 
         ret
@@ -15057,9 +15057,7 @@
 .L_F015
         cp      $0D
         jr      nz,L_F020
-        ld      a,$0A
-        call    L_F020
-        ld      a,$0D
+        oz      GN_Nln
 .L_F020
         oz      Os_out
         ret
@@ -15075,18 +15073,7 @@
         pop     af
         scf
         ret
-.L_F030
-        ex      (sp),hl
-.L_F031
-        ld      a,(hl)
-        inc     hl
-        or      a
-        jr      z,L_F03B
-        call    L_F015
-        jr      L_F031
-.L_F03B
-        ex      (sp),hl
-        ret
+
 .L_F03D
         ld      c,$00
 .L_F03F
@@ -17271,15 +17258,3 @@
         dec     e
         jr      nz,L_FFA0
         ret
-
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        defb    $FF,$FF,$FF,$FF,$FF
