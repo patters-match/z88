@@ -2682,7 +2682,7 @@
         call    L_985D
 .L_945F
         call    L_D77E
-        ld      a,$00
+        xor     a                               ; A = 0
         call    L_EF80
         ld      (iy+2),$00
         call    L_9EE7
@@ -5486,7 +5486,7 @@
         cp      $2D
         ccf
         ret     c
-        ld      a,$00
+        xor     a                               ; A = 0
 .L_AA85
         push    de
         push    hl
@@ -6865,7 +6865,7 @@
         inc     hl
         ld      (hl),b
         pop     bc
-        ld      a,$00
+        xor     a                               ; A = 0
         jr      L_B5EA
 .L_B5DE
         ld      a,b
@@ -9505,8 +9505,8 @@
         dec     (iy-36)
         ret
 .L_C866
-        ld      a,$00
-        ld      b,$00
+        xor     a                               ; A = B = 0
+        ld      b,a
         call    L_EEE4
         ld      de,L_BC17
         ld      ($1D4B),de
@@ -9517,7 +9517,7 @@
         jp      L_C5EA
 .L_C884
         push    af
-        ld      a,$00                           ; get current window information
+        xor     a                               ; A = 0, get current window information
         ld      bc,NQ_WBOX
         oz      Os_nq
         ld      b,a
@@ -13223,7 +13223,7 @@
         ld      a,c
         jp      L_EEE4
 .L_E0A7
-        ld      a,$00
+        xor     a                               ; A = 0, get current window information
         ld      bc,NQ_WCUR
         oz      Os_nq
         ld      ($1D7D),bc
@@ -14926,8 +14926,8 @@
         ret
 .L_EEFE
         push    bc
+        xor     a                               ; A = 0, get current window information
         ld      bc, NQ_WBOX
-        ld      a,$00                           ; get current window information  !! xor a
         oz      Os_nq
         ld      a,c
         pop     bc
