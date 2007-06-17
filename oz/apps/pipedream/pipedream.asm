@@ -2605,7 +2605,7 @@
         call    nz,L_ED2A
         ret
 
-.L_937B
+.LoadFilePrompt
         defm    $04, "AName of file to load", $00
         defm    $00
         defm    $82, "Insert at slot", $00
@@ -2613,11 +2613,11 @@
         defm    $82, $84, "Load as plain text", $00
         defm    $84, $00
 
-.L_93D3
+.LoadFile
         call    L_B398
         ld      hl,$1FAA
         ld      (hl),$00
-        ld      hl,L_937B
+        ld      hl,LoadFilePrompt
         call    L_D98A
         ret     c
         ld      (iy-102),a
@@ -13625,7 +13625,7 @@
         defw    L_960E                          ; 54 ($36)
         defw    L_8455                          ; 55 ($37)
         defw    L_B4A6                          ; 56 ($38)
-        defw    L_93D3                          ; 57 ($39)
+        defw    LoadFile                        ; 57 ($39), <>FL, Load file
         defw    L_9980                          ; 58 ($3A)
         defw    L_9343                          ; 59 ($3B)
         defw    L_9C49                          ; 60 ($3C)
