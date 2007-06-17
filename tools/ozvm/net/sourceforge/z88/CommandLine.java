@@ -274,6 +274,30 @@ public class CommandLine implements KeyListener {
 			Z88.getInstance().getProcessor().stopZ80Execution();
 		}
 
+		if (cmdLineTokens[0].compareToIgnoreCase("di") == 0) {
+			if (Z88.getInstance().getProcessorThread() != null) {
+				displayCmdOutput("Interrupt state cannot be	edited while Z88 is running.");
+				return;
+			} else {
+				Z80Processor z80 = Z88.getInstance().getProcessor();
+				z80.IFF1(false);
+				z80.IFF2(false);
+				displayCmdOutput("Maskable interrupts disabled.");
+			}
+		}
+
+		if (cmdLineTokens[0].compareToIgnoreCase("ei") == 0) {
+			if (Z88.getInstance().getProcessorThread() != null) {
+				displayCmdOutput("Interrupt state cannot be	edited while Z88 is running.");
+				return;
+			} else {
+				Z80Processor z80 = Z88.getInstance().getProcessor();
+				z80.IFF1(true);
+				z80.IFF2(true);
+				displayCmdOutput("Maskable interrupts enabled.");
+			}
+		}
+		
 		if (cmdLineTokens[0].compareToIgnoreCase("log") == 0) {
 			Z80Processor z80 = Z88.getInstance().getProcessor();
 			if (z80.izZ80Logged() == true) {

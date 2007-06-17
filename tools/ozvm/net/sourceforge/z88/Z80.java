@@ -57,11 +57,19 @@ public abstract class Z80 {
 			return index != 0;
 		}
 		
+		private int getCacheIndex() {
+			return index;
+		}
+
+		private void resetCacheIndex() {
+			index = 0;
+		}
+		
 		private void logInstruction() {
 			if (index == BUFSIZE) {
 				// dump cache to log file in a thread...
-				flushCache();
-				index = 0;
+				flushCache(index);
+				resetCacheIndex();
 			} else {
 				pcAddressCache[index] = (getPcAddress() & 0xFF0000) | PC();
 				
@@ -80,7 +88,7 @@ public abstract class Z80 {
 		/**
 		 * Dump executed instruction cache to log file in a background thread..
 		 */
-		private void flushCache() {
+		private void flushCache(final int index) {
 			int cpyPcAddressCache[] = new int[BUFSIZE];
 			int cpyRegisterCache[][] = new int[BUFSIZE][7];
 						
@@ -95,7 +103,7 @@ public abstract class Z80 {
 						BufferedWriter out = new BufferedWriter(new FileWriter("z80_" + logFileCounter++ + ".log"));
 						StringBuffer dzLine = new StringBuffer(64);
 						StringBuffer dzBuf = new StringBuffer(128);
-						for (int i=0; i<BUFSIZE; i++) {
+						for (int i=0; i<index; i++) {
 							int dzBank = (pcAddressCache[i] >>> 16) & 0xFF;
 							int dzAddr = pcAddressCache[i] & 0xFFFF;	// bank	offset (with simulated segment addressing)
 
@@ -132,7 +140,9 @@ public abstract class Z80 {
 	
 	public void flushZ80LogCache() {
 		if (lgZ80.isCacheAvailable() == true) {
-			lgZ80.flushCache();
+			int cacheIndex = lgZ80.getCacheIndex();
+			lgZ80.flushCache(cacheIndex);
+			lgZ80.resetCacheIndex();
 		}
 	}
 
