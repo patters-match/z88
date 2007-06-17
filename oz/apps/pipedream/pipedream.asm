@@ -5865,14 +5865,14 @@
         ld      a,$01
         jp      L_AD1B
 
-.L_ADC3
+.SortColumnPrompt
         defm    $03, $0A, "Sort on column", $00
         defm    $00
         defm    $84, "Sort in reverse order", $00
         defm    $82, $84, "Don't update references", $00
         defm    $81, $00
 
-.L_AE08
+.SortBlock
         call    L_B398
         call    L_9250
         ld      a,(iy-58)
@@ -5893,7 +5893,7 @@
         cp      (iy-55)
         jr      z,L_AE11
         jr      c,L_AE11
-        ld      hl,L_ADC3
+        ld      hl, SortColumnPrompt
         call    L_D98A
         ret     c
         ld      (iy-44),a
@@ -5978,6 +5978,7 @@
         jr      nz,L_AE6A
         call    L_8FC4
         jp      L_EFBB
+
 .L_AEEA
         call    L_D24C
         jp      c,L_F9B7
@@ -5993,6 +5994,7 @@
         or      a
 .L_AF05
         jp      L_F994
+
 .L_AF08
         ld      c,(iy-28)
         ld      b,(iy-27)
@@ -13572,7 +13574,7 @@
         defw    L_8F33                          ; 3  ($03)
         defw    L_8EB8                          ; 4  ($04)
         defw    L_8F9B                          ; 5  ($05)
-        defw    L_AE08                          ; 6  ($06)
+        defw    SortBlock                       ; 6  ($06), <>BSO, Sort block
         defw    L_A154                          ; 7  ($07)
         defw    L_A166                          ; 8  ($08)
         defw    L_A26B                          ; 9  ($09)
