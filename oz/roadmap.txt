@@ -27,6 +27,7 @@ TODO (with priorities):
 - Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ. P3
 - Add a character table or implement a []+XXX interface to access all the ISO characters. P3
 - Free RAM display in Index <>CARD display. P3.
+- PipeDream <>BSO (Sort Block) command should order ISO Latin 1 according to country specific convention. P3
 
 DONE
 - Modify NMI to allow use of RETN (it is impossible... INT and NMI are mixed together for hibernating)
@@ -83,6 +84,9 @@ DONE
 - New free RAM status system call: OS_NQ, NQ_Mfp. (GBS)
 - Faster GN_Sop/GN_Soe, implemented new OS_Bout/OS_Pout, and many OS_Pout optimisations in OZ & apps (GBS)
 - Reorganized ROM application code to allow for new features in Index and Filer binaries. (GBS)
+- Reversed PipeDream binary to source code, and
+        1) implemented fast OS_Pout for static string display (reduces overall application code size),
+        2) Iso Latin 1 alpha characters now case invertable with <>S command.
 
 
 FIXED KERNEL BINARIES FOR COMPILATION
