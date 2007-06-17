@@ -39,6 +39,7 @@
         include "director.def"
         include "memory.def"
         include "syspar.def"
+        include "char.def"
         include "saverst.def"
         include "fpp.def"
         include "integer.def"
@@ -84,7 +85,7 @@
         call    L_80BE
         jr      L_8070
 .L_806D
-        call    L_E320
+        call    MthKeyAction
 .L_8070
         ld      e,(iy-72)
         ld      a,e
@@ -769,7 +770,8 @@
         ld      a,(iy-34)
         ld      (hl),a
         call    L_8687
-.L_8532
+
+.MthKey_CursorRight
         bit     7,(iy-72)
         jr      z,L_8543
         ld      a,(iy-87)
@@ -937,19 +939,21 @@
         or      a
         jr      nz,L_864D
         jr      L_8687
-.L_8656
+
+.SwapCase
         call    L_8690
         call    L_857F
         ld      a,(hl)
         or      a
-        ret     z
-        call    L_EE1B
-        jr      nc,L_866A
-        xor     $20
+        ret     z                               ; end of line reached...
+        oz      GN_Cls                          ; validate type of character
+        jr      nc,move_cursor                  ; skip, not classified as an alpha character...
+        xor     $20                             ; invert character case
         ld      (hl),a
         call    L_8687
-.L_866A
-        jp      L_8532
+.move_cursor
+        jp      MthKey_CursorRight              ; move cursor one character to the right
+
 .L_866D
         call    L_857F
         bit     7,(iy-72)
@@ -1940,7 +1944,8 @@
         call    L_D8D1
         call    L_B79B
         jp      L_879F
-.L_8E1A
+
+.MthKey_Enter
         bit     6,(iy-71)
         jr      z,L_8E3F
         call    L_B41A
@@ -12318,7 +12323,7 @@
         pop     bc
         jr      c,L_DA5F
         push    bc
-        call    L_E320
+        call    MthKeyAction
         pop     bc
         jp      L_DA0E
 .L_DAE1
@@ -13545,10 +13550,11 @@
 .L_E31D
         oz      Os_xin
         ret
-.L_E320
+
+.MthKeyAction
         cp      $5F
-        ret     nc
-        ld      hl,L_E330
+        ret     nc                              ; this is not an MTH key press..
+        ld      hl,MthKeyJmpTable
         add     a,a
         ld      e,a
         ld      d,$00
@@ -13559,72 +13565,72 @@
         ld      l,a
         jp      (hl)
 
-.L_E330
-        defw    L_8A03
-        defw    L_89F8
-        defw    L_B103
-        defw    L_8F33
-        defw    L_8EB8
-        defw    L_8F9B
-        defw    L_AE08
-        defw    L_A154
-        defw    L_A166
-        defw    L_A26B
-        defw    L_88F1
-        defw    L_931E
-        defw    L_9298
-        defw    L_8D04
-        defw    L_8560
-        defw    L_8568
-        defw    L_8CEC
-        defw    L_8CE1
-        defw    L_8E1A
-        defw    L_8D62
-        defw    L_8D4D
-        defw    L_8532
-        defw    L_8E97
-        defw    L_8E62
-        defw    L_8E81
-        defw    L_861F
-        defw    L_85BD
-        defw    L_8E71
-        defw    L_8E78
-        defw    L_8EB1
-        defw    L_8543
-        defw    L_8D21
-        defw    L_EB05
-        defw    L_8D19
-        defw    L_858A
-        defw    L_85A7
-        defw    L_846F
-        defw    L_8640
-        defw    L_866D
-        defw    L_8A48
-        defw    L_8A30
-        defw    L_8D8D
-        defw    L_8A5C
-        defw    L_845E
-        defw    L_8BC0
-        defw    L_8C0E
-        defw    L_8BF4
-        defw    L_8DDE
-        defw    L_8C25
-        defw    L_854B
-        defw    L_826F
-        defw    L_925B
-        defw    L_8656
-        defw    L_8E2A
-        defw    L_960E
-        defw    L_8455
-        defw    L_B4A6
-        defw    L_93D3
-        defw    L_9980
-        defw    L_9343
-        defw    L_9C49
-        defw    L_9C1D
-        defw    L_9C3C
-        defw    L_9C0D
-        defw    L_874B
+.MthKeyJmpTable
+        defw    L_8A03                          ; 0  ($00), <>Z, Mark block
+        defw    L_89F8                          ; 1  ($01)
+        defw    L_B103                          ; 2  ($02)
+        defw    L_8F33                          ; 3  ($03)
+        defw    L_8EB8                          ; 4  ($04)
+        defw    L_8F9B                          ; 5  ($05)
+        defw    L_AE08                          ; 6  ($06)
+        defw    L_A154                          ; 7  ($07)
+        defw    L_A166                          ; 8  ($08)
+        defw    L_A26B                          ; 9  ($09)
+        defw    L_88F1                          ; 10 ($0A)
+        defw    L_931E                          ; 11 ($0B)
+        defw    L_9298                          ; 12 ($0C)
+        defw    L_8D04                          ; 13 ($0D)
+        defw    L_8560                          ; 14 ($0E)
+        defw    L_8568                          ; 15 ($0F)
+        defw    L_8CEC                          ; 16 ($10)
+        defw    L_8CE1                          ; 17 ($11)
+        defw    MthKey_Enter                    ; 18 ($12), ENTER
+        defw    L_8D62                          ; 19 ($13)
+        defw    L_8D4D                          ; 20 ($14)
+        defw    MthKey_CursorRight              ; 21 ($15), Cursor Right
+        defw    L_8E97                          ; 22 ($16), Cursor Left
+        defw    L_8E62                          ; 23 ($17), Cursor Down
+        defw    L_8E81                          ; 24 ($18), Cursor Up
+        defw    L_861F                          ; 25 ($19)
+        defw    L_85BD                          ; 26 ($1A)
+        defw    L_8E71                          ; 27 ($1B)
+        defw    L_8E78                          ; 28 ($1C)
+        defw    L_8EB1                          ; 29 ($1D)
+        defw    L_8543                          ; 30 ($1E)
+        defw    L_8D21                          ; 31 ($1F)
+        defw    L_EB05                          ; 32 ($20)
+        defw    L_8D19                          ; 33 ($21)
+        defw    L_858A                          ; 34 ($22)
+        defw    L_85A7                          ; 35 ($23)
+        defw    L_846F                          ; 36 ($24)
+        defw    L_8640                          ; 37 ($25)
+        defw    L_866D                          ; 38 ($26)
+        defw    L_8A48                          ; 39 ($27)
+        defw    L_8A30                          ; 40 ($28)
+        defw    L_8D8D                          ; 41 ($29)
+        defw    L_8A5C                          ; 42 ($2A)
+        defw    L_845E                          ; 43 ($2B)
+        defw    L_8BC0                          ; 44 ($2C)
+        defw    L_8C0E                          ; 45 ($2D)
+        defw    L_8BF4                          ; 46 ($2E)
+        defw    L_8DDE                          ; 47 ($2F)
+        defw    L_8C25                          ; 48 ($30)
+        defw    L_854B                          ; 49 ($31)
+        defw    L_826F                          ; 50 ($32)
+        defw    L_925B                          ; 51 ($33)
+        defw    SwapCase                        ; 52 ($34), <>S, Swap Case
+        defw    L_8E2A                          ; 53 ($35)
+        defw    L_960E                          ; 54 ($36)
+        defw    L_8455                          ; 55 ($37)
+        defw    L_B4A6                          ; 56 ($38)
+        defw    L_93D3                          ; 57 ($39)
+        defw    L_9980                          ; 58 ($3A)
+        defw    L_9343                          ; 59 ($3B)
+        defw    L_9C49                          ; 60 ($3C)
+        defw    L_9C1D                          ; 61 ($3D)
+        defw    L_9C3C                          ; 62 ($3E)
+        defw    L_9C0D                          ; 63 ($3F)
+        defw    L_874B                          ; 64 ($40)
         defw    L_8744
         defw    L_898E
         defw    L_894F
@@ -13740,7 +13746,7 @@
         push    af
         ld      a,b
         and     $7F
-        call    L_E320
+        call    MthKeyAction
         pop     af
         ld      (iy-44),a
         pop     bc
