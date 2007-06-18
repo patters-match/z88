@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $2789
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -48,32 +48,32 @@ xdef    SetHlpAppChgFile
 xdef    SkipNTopics
 xdef    ScrDrv_SOH_A
 
-xref    OSBixS1                                 ; bank0/misc4.asm
-xref    OSBoxS1                                 ; bank0/misc4.asm
-xref    AtoN_upper                              ; bank0/misc5.asm
-xref    MS2BankK1                               ; bank0/misc5.asm
-xref    fsMS2BankB                              ; bank0/filesys3.asm
-xref    fsRestoreS2                             ; bank0/filesys3.asm
-xref    GetHandlePtr                            ; bank0/dor.asm
-xref    MayWrt                                  ; bank0/token.asm
-xref    OSWrt                                   ; bank0/token.asm
-xref    ZeroHandleIX                            ; bank0/handle.asm
+xref    OSBixS1                                 ; [Kernel0]/misc4.asm
+xref    OSBoxS1                                 ; [Kernel0]/misc4.asm
+xref    AtoN_upper                              ; [Kernel0]/misc5.asm
+xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    fsMS2BankB                              ; [Kernel0]/filesys3.asm
+xref    fsRestoreS2                             ; [Kernel0]/filesys3.asm
+xref    GetHandlePtr                            ; [Kernel0]/dor.asm
+xref    MayWrt                                  ; [Kernel0]/token.asm
+xref    OSWrt                                   ; [Kernel0]/token.asm
+xref    ZeroHandleIX                            ; [Kernel0]/handle.asm
 
-xref    MTHPrintKeycode                         ; bank7/mth1.asm
-xref    DrawMenuWd2                             ; bank7/mth1.asm
-xref    Help2Wd_bottom                          ; bank7/mth1.asm
-xref    Help2Wd_Top                             ; bank7/mth1.asm
-xref    InitHelpWd                              ; bank7/mth1.asm
-xref    OpenAppHelpFile                         ; bank7/mth1.asm
-xref    Get2ndCmdHelp                           ; bank7/mth1.asm
-xref    Get2ndTopicHelp                         ; bank7/mth1.asm
-xref    GetFirstCmdHelp                         ; bank7/mth1.asm
-xref    GetTpcAttrByNum                         ; bank7/mth1.asm
-xref    MTH_ToggleLT                            ; bank7/mth1.asm
+xref    MTHPrintKeycode                         ; [Kernel1]/mth1.asm
+xref    DrawMenuWd2                             ; [Kernel1]/mth1.asm
+xref    Help2Wd_bottom                          ; [Kernel1]/mth1.asm
+xref    Help2Wd_Top                             ; [Kernel1]/mth1.asm
+xref    InitHelpWd                              ; [Kernel1]/mth1.asm
+xref    OpenAppHelpFile                         ; [Kernel1]/mth1.asm
+xref    Get2ndCmdHelp                           ; [Kernel1]/mth1.asm
+xref    Get2ndTopicHelp                         ; [Kernel1]/mth1.asm
+xref    GetFirstCmdHelp                         ; [Kernel1]/mth1.asm
+xref    GetTpcAttrByNum                         ; [Kernel1]/mth1.asm
+xref    MTH_ToggleLT                            ; [Kernel1]/mth1.asm
 
-xref    InitHandle                              ; bank7/misc1.asm
+xref    InitHandle                              ; [Kernel1]/misc1.asm
 
-xref    PutOZwdBuf                              ; bank0/osin.asm
+xref    PutOZwdBuf                              ; [Kernel0]/osin.asm
 
 ;       print MTH string, expand $7f-codes
 

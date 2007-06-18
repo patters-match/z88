@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1df4c
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -58,20 +58,20 @@ xref    PrntAppname                             ; mth0.asm
 xref    SetActiveAppDOR                         ; mth0.asm
 xref    SetHlpAppChgFile                        ; mth0.asm
 xref    SkipNTopics                             ; mth0.asm
-xref    ScrDrv_SOH_A                            ; bank0/mth0.asm
+xref    ScrDrv_SOH_A                            ; [Kernel0]/mth0.asm
 
-xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
-xref    Beep_X                                  ; bank0/scrdrv4.asm
-xref    DORHandleFree                           ; bank0/dor.asm
-xref    InitHlpActiveCmd                        ; bank0/process3.asm
-xref    InitHlpActiveHelp                       ; bank0/process3.asm
-xref    SetHlpActiveHelp                        ; bank0/process3.asm
-xref    OSBixS1                                 ; bank0/misc4.asm
-xref    OSBoxS1                                 ; bank0/misc4.asm
-xref    ReserveStkBuf                           ; bank0/misc5.asm
-xref    RdStdinNoTO                             ; bank0/osin.asm
-xref    sub_EF92                                ; bank0/osin.asm
-xref    sub_EFBB                                ; bank0/osin.asm
+xref    InitUserAreaGrey                        ; [Kernel1]/scrdrv1.asm
+xref    Beep_X                                  ; [Kernel0]/scrdrv4.asm
+xref    DORHandleFree                           ; [Kernel0]/dor.asm
+xref    InitHlpActiveCmd                        ; [Kernel0]/process3.asm
+xref    InitHlpActiveHelp                       ; [Kernel0]/process3.asm
+xref    SetHlpActiveHelp                        ; [Kernel0]/process3.asm
+xref    OSBixS1                                 ; [Kernel0]/misc4.asm
+xref    OSBoxS1                                 ; [Kernel0]/misc4.asm
+xref    ReserveStkBuf                           ; [Kernel0]/misc5.asm
+xref    RdStdinNoTO                             ; [Kernel0]/osin.asm
+xref    sub_EF92                                ; [Kernel0]/osin.asm
+xref    sub_EFBB                                ; [Kernel0]/osin.asm
 
 ;       ----
 

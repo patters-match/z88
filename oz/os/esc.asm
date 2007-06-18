@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $10cc
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ xdef    OSEsc
 xdef    TestEsc
 xdef    MaySetEsc
 
-xref    ResetTimeout                            ; bank0/nmi.asm
+xref    ResetTimeout                            ; [Kernel0]/nmi.asm
 
 
 defc    AKBD_ESCENABLED         =$80

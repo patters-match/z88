@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $1555
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -20,10 +20,10 @@ xdef    OSBix
 xdef    OSBixS1
 xdef    OSBoxS1
 
-xref    MS2BankK1                               ; bank0/misc5.asm
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    MS12BankCB                              ; bank0/misc5.asm
-xref    MS1BankA                                ; bank0/misc5.asm
+xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    MS12BankCB                              ; [Kernel0]/misc5.asm
+xref    MS1BankA                                ; [Kernel0]/misc5.asm
 
 
 .OSFramePush

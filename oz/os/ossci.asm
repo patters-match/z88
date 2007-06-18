@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1d500
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -12,11 +12,11 @@
 
 xdef    OsSci
 
-xref    InitSBF                                 ; bank0/scrdrv3.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
+xref    InitSBF                                 ; [Kernel0]/scrdrv3.asm
+xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
+xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
 
-xref    OSSciTable                              ; bank7/osscitable.asm
+xref    OSSciTable                              ; [Kernel1]/osscitable.asm
 
 ; alter screen information
 ;

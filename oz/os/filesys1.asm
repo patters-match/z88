@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1dcdd
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -17,18 +17,18 @@ xdef    OSRen
 xdef    OSDel
 xdef    FileNameDate
 
-xref    CopyMemHL_DE                            ; bank0/misc5.asm
-xref    GetOSFrame_HL                           ; bank0/misc5.asm
-xref    DORHandleFree                           ; bank0/dor.asm
-xref    DORHandleFreeDirect                     ; bank0/dor.asm
-xref    DORHandleInUse                          ; bank0/dor.asm
-xref    InitMemHandle                           ; bank0/filesys3.asm
-xref    RewindFile                              ; bank0/filesys3.asm
-xref    MvToFile                                ; bank0/filesys3.asm
-xref    AllocHandle                             ; bank0/handle.asm
-xref    VerifyHandle                            ; bank0/handle.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
+xref    DORHandleFree                           ; [Kernel0]/dor.asm
+xref    DORHandleFreeDirect                     ; [Kernel0]/dor.asm
+xref    DORHandleInUse                          ; [Kernel0]/dor.asm
+xref    InitMemHandle                           ; [Kernel0]/filesys3.asm
+xref    RewindFile                              ; [Kernel0]/filesys3.asm
+xref    MvToFile                                ; [Kernel0]/filesys3.asm
+xref    AllocHandle                             ; [Kernel0]/handle.asm
+xref    VerifyHandle                            ; [Kernel0]/handle.asm
 
-xref    FreeMemHandle                           ; bank7/ossr.asm
+xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
 
 
 ;       ----

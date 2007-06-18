@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $31bf
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -13,18 +13,16 @@
 xdef    GetWindowFrame
 xdef    NqRDS
 
-;       bank 0
+xref    CursorRight                             ; [Kernel0]/scrdrv4.asm
+xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
+xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
+xref    GetOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
+xref    PokeHLinc                               ; [Kernel0]/misc5.asm
 
-xref    CursorRight                             ; bank0/scrdrv4.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
-xref    GetOSFrame_DE                           ; bank0/misc5.asm
-xref    GetOSFrame_HL                           ; bank0/misc5.asm
-xref    PokeHLinc                               ; bank0/misc5.asm
-
-xref    GetCrsrYX                               ; bank7/scrdrv1.asm
-xref    GetWindowNum                            ; bank7/scrdrv1.asm
-xref    VDU2ChrCode                             ; bank7/scrdrv1.asm
+xref    GetCrsrYX                               ; [Kernel1]/scrdrv1.asm
+xref    GetWindowNum                            ; [Kernel1]/scrdrv1.asm
+xref    VDU2ChrCode                             ; [Kernel1]/scrdrv1.asm
 
 
 

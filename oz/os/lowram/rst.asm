@@ -37,7 +37,7 @@
         di
         xor     a
         out     (BL_COM), a                     ; bind b00 into low 2KB
-        ; code continues to execute in bank 0 in ROM (see bank0/boot.asm)...
+        ; code continues to execute in bank 0 in ROM (see [kernel0]/boot.asm)...
         defs    $0008-$PC   ($ff)               ; address align for RST 08H
 
 .rst08                                          ; FREE

@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Screen driver functionality. The routines are located in Bank 0.
+; Screen driver functionality. The routines are located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -71,20 +71,20 @@ xdef    ScrollUp
 xdef    SetScrAttr
 xdef    ToggleScrDrvFlags
 
-xref    AtoN_upper                              ; bank0/misc5.asm
-xref    MS1BankA                                ; bank0/misc5.asm
-xref    Delay300Kclocks                         ; bank0/boot.asm
-xref    DrawOZwd                                ; bank0/ozwindow.asm
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    RdHeaderedData                          ; bank0/filesys3.asm
-xref    WrHeaderedData                          ; bank0/filesys3.asm
+xref    AtoN_upper                              ; [Kernel0]/misc5.asm
+xref    MS1BankA                                ; [Kernel0]/misc5.asm
+xref    Delay300Kclocks                         ; [Kernel0]/boot.asm
+xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    RdHeaderedData                          ; [Kernel0]/filesys3.asm
+xref    WrHeaderedData                          ; [Kernel0]/filesys3.asm
 
-xref    OSSR_main                               ; bank7/ossr.asm
-xref    ScrD_GetNewXY                           ; bank7/scrdrv1.asm
-xref    ScrD_PutByte                            ; bank7/scrdrv1.asm
-xref    ScrDrvAttrTable                         ; bank7/scrdrv1.asm
-xref    Zero_ctrlprefix                         ; bank7/scrdrv1.asm
+xref    OSSR_main                               ; [Kernel1]/ossr.asm
+xref    ScrD_GetNewXY                           ; [Kernel1]/scrdrv1.asm
+xref    ScrD_PutByte                            ; [Kernel1]/scrdrv1.asm
+xref    ScrDrvAttrTable                         ; [Kernel1]/scrdrv1.asm
+xref    Zero_ctrlprefix                         ; [Kernel1]/scrdrv1.asm
 
 
 

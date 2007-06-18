@@ -44,8 +44,8 @@
         include "stdio.def"
 
 IF COMPILE_BINARY
-        include "../kernel0.def"                ; get bank 0 kernel address references
-        include "../ostables.def"               ; get bank 0 kernel OS system base lookup table address
+        include "../kernel0.def"                ; get kernel 0 kernel address references
+        include "../ostables.def"               ; get kernel 0 OS system base lookup table address
 ELSE
         xref    INTEntry                        ; pretend references to be external for pre-compile...
         xref    NMIEntry

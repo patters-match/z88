@@ -38,9 +38,9 @@
 
 xdef    OSPrt
 
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    OSPrtPrint                              ; bank7/printer.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    OSPrtPrint                              ; [Kernel1]/printer.asm
 
 ;       send character directly to printer filter
 

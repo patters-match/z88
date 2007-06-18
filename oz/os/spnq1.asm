@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OS_NQ/SP functionality. The routines are located in Bank 7.
+; OS_NQ/SP functionality. The routines are located in Kernel 1.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ

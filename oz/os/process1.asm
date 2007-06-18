@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1daeb
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -17,10 +17,10 @@ xdef    ChkStkLimits
 xdef    Mailbox2Stack
 xdef    OSNqProcess
 
-xref    GetAppDOR                               ; mth0.asm
-xref    NQAin                                   ; bank0/process2.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    CopyMemBHL_DE                           ; bank0/misc5.asm
+xref    GetAppDOR                               ; [Kernel0]/mth0.asm
+xref    NQAin                                   ; [Kernel0]/process2.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    CopyMemBHL_DE                           ; [Kernel0]/misc5.asm
 
 
 ;       ----

@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; The OS_In/OS_Tin main entry. The routines are located in Bank 0 and compiled for segment 3.
+; The OS_In/OS_Tin main entry. The routines are located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -59,26 +59,26 @@ xdef    RdStdinNoTO
 xdef    sub_EF92
 xdef    sub_EFBB
 
-xref    ResetTimeout                            ; bank0/nmi.asm
-xref    ExtQualifiers                           ; bank0/kbd.asm
-xref    IsForeignKey                            ; bank0/kbd.asm
-xref    MayDrawOZwd                             ; bank0/misc3.asm
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    AtoN_upper                              ; bank0/misc5.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    BfGbt                                   ; bank0/buffer.asm
-xref    BfPur                                   ; bank0/buffer.asm
-xref    DoAlarms                                ; bank0/osalm0.asm
-xref    DrawOZwd                                ; bank0/ozwindow.asm
-xref    FindCmd                                 ; mth0.asm
-xref    MaySetEsc                               ; bank0/esc.asm
-xref    TestEsc                                 ; bank0/esc.asm
-xref    UpdateRnd                               ; bank0/random.asm
+xref    ResetTimeout                            ; [Kernel0]/nmi.asm
+xref    ExtQualifiers                           ; [Kernel0]/kbd.asm
+xref    IsForeignKey                            ; [Kernel0]/kbd.asm
+xref    MayDrawOZwd                             ; [Kernel0]/misc3.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    AtoN_upper                              ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    BfGbt                                   ; [Kernel0]/buffer.asm
+xref    BfPur                                   ; [Kernel0]/buffer.asm
+xref    DoAlarms                                ; [Kernel0]/osalm0.asm
+xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
+xref    FindCmd                                 ; [Kernel0]/mth0.asm
+xref    MaySetEsc                               ; [Kernel0]/esc.asm
+xref    TestEsc                                 ; [Kernel0]/esc.asm
+xref    UpdateRnd                               ; [Kernel0]/random.asm
 
-xref    Chr2ScreenCode                          ; bank7/scrdrv1.asm
-xref    DoHelp                                  ; bank7/mth1.asm
-xref    Key2Chr_tbl                             ; bank7/key2chrt.asm
+xref    Chr2ScreenCode                          ; [Kernel1]/scrdrv1.asm
+xref    DoHelp                                  ; [Kernel1]/mth1.asm
+xref    Key2Chr_tbl                             ; [Kernel1]/key2chrt.asm
 
 
 

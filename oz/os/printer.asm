@@ -41,13 +41,13 @@
         include "sysvar.def"
 
 
-xdef    OSPrtInit                               ; bank0/pagfi.asm
-xdef    OSPrtPrint                              ; bank0/misc2.asm
+xdef    OSPrtInit                               ; [Kernel0]/pagfi.asm
+xdef    OSPrtPrint                              ; [Kernel0]/misc2.asm
 
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    OSIsq                                   ; bank7/scrdrv1.asm
-xref    StorePrefixed                           ; bank7/scrdrv1.asm
+xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
+xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
+xref    OSIsq                                   ; [Kernel1]/scrdrv1.asm
+xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
 
 
 ; -----------------------------------------------------------------------------

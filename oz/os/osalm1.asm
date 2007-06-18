@@ -43,13 +43,13 @@
 
 xdef    OSAlmMain
 
-xref    AllocHandle                             ; bank0/handle.asm
-xref    FreeHandle                              ; bank0/handle.asm
-xref    CopyMemHL_DE                            ; bank0/misc5.asm
-xref    GetOSFrame_HL                           ; bank0/misc5.asm
-xref    DecActiveAlm                            ; bank0/int.asm
-xref    IncActiveAlm                            ; bank0/int.asm
-xref    MaySetPendingAlmTask                    ; bank0/int.asm
+xref    AllocHandle                             ; [Kernel0]/handle.asm
+xref    FreeHandle                              ; [Kernel0]/handle.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
+xref    DecActiveAlm                            ; [Kernel0]/int.asm
+xref    IncActiveAlm                            ; [Kernel0]/int.asm
+xref    MaySetPendingAlmTask                    ; [Kernel0]/int.asm
 
 ;       ----
 

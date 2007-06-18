@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Main Screen driver functionality. The routines are located in Bank 7.
+; Main Screen driver functionality. The routines are located in Kernel 1.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -55,41 +55,41 @@ xdef    GetWindowNum                            ; screen driver code reference
 xdef    ScrDrvAttrTable                         ; screen driver code reference
 
 
-xref    AtoN_upper                              ; bank0/misc5.asm
-xref    CopyMemDE_BHL                           ; bank0/misc5.asm
+xref    AtoN_upper                              ; [Kernel0]/misc5.asm
+xref    CopyMemDE_BHL                           ; [Kernel0]/misc5.asm
 
-xref    CallFuncDE                              ; bank0/scrdrv4.asm
-xref    ClearCarry                              ; bank0/scrdrv4.asm
-xref    ClearEOL                                ; bank0/scrdrv4.asm
-xref    ClearEOW                                ; bank0/scrdrv4.asm
-xref    ClearScr                                ; bank0/scrdrv4.asm
-xref    CursorDown                              ; bank0/scrdrv4.asm
-xref    CursorLeft                              ; bank0/scrdrv4.asm
-xref    CursorRight                             ; bank0/scrdrv4.asm
-xref    CursorUp                                ; bank0/scrdrv4.asm
-xref    MoveToXY                                ; bank0/scrdrv4.asm
-xref    NewXValid                               ; bank0/scrdrv4.asm
-xref    NewYValid                               ; bank0/scrdrv4.asm
-xref    OSBlp                                   ; bank0/scrdrv4.asm
-xref    PutBoxChar                              ; bank0/scrdrv4.asm
-xref    ResetScrAttr                            ; bank0/scrdrv4.asm
-xref    ScrDrvGetAttrBits                       ; bank0/scrdrv4.asm
-xref    ScreenBL                                ; bank0/scrdrv4.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    ScreenCR                                ; bank0/scrdrv4.asm
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
-xref    ScrollDown                              ; bank0/scrdrv4.asm
-xref    ScrollUp                                ; bank0/scrdrv4.asm
-xref    SetScrAttr                              ; bank0/scrdrv4.asm
-xref    FindSDCmd                               ; bank0/scrdrv4.asm
-xref    ToggleScrDrvFlags                       ; bank0/scrdrv4.asm
+xref    CallFuncDE                              ; [Kernel0]/scrdrv4.asm
+xref    ClearCarry                              ; [Kernel0]/scrdrv4.asm
+xref    ClearEOL                                ; [Kernel0]/scrdrv4.asm
+xref    ClearEOW                                ; [Kernel0]/scrdrv4.asm
+xref    ClearScr                                ; [Kernel0]/scrdrv4.asm
+xref    CursorDown                              ; [Kernel0]/scrdrv4.asm
+xref    CursorLeft                              ; [Kernel0]/scrdrv4.asm
+xref    CursorRight                             ; [Kernel0]/scrdrv4.asm
+xref    CursorUp                                ; [Kernel0]/scrdrv4.asm
+xref    MoveToXY                                ; [Kernel0]/scrdrv4.asm
+xref    NewXValid                               ; [Kernel0]/scrdrv4.asm
+xref    NewYValid                               ; [Kernel0]/scrdrv4.asm
+xref    OSBlp                                   ; [Kernel0]/scrdrv4.asm
+xref    PutBoxChar                              ; [Kernel0]/scrdrv4.asm
+xref    ResetScrAttr                            ; [Kernel0]/scrdrv4.asm
+xref    ScrDrvGetAttrBits                       ; [Kernel0]/scrdrv4.asm
+xref    ScreenBL                                ; [Kernel0]/scrdrv4.asm
+xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
+xref    ScreenCR                                ; [Kernel0]/scrdrv4.asm
+xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
+xref    ScrollDown                              ; [Kernel0]/scrdrv4.asm
+xref    ScrollUp                                ; [Kernel0]/scrdrv4.asm
+xref    SetScrAttr                              ; [Kernel0]/scrdrv4.asm
+xref    FindSDCmd                               ; [Kernel0]/scrdrv4.asm
+xref    ToggleScrDrvFlags                       ; [Kernel0]/scrdrv4.asm
 
-xref    Chk128KB                                ; bank0/resetx.asm
-xref    InitWindowFrame                         ; bank0/scrdrv3.asm
-xref    ResetWdAttrs                            ; bank0/scrdrv3.asm
+xref    Chk128KB                                ; [Kernel0]/resetx.asm
+xref    InitWindowFrame                         ; [Kernel0]/scrdrv3.asm
+xref    ResetWdAttrs                            ; [Kernel0]/scrdrv3.asm
 
-xref    VDU2Chr_tbl                             ;bank7/key2chrt.asm
-xref    Chr2VDU_tbl                             ;bank7/key2chrt.asm
+xref    VDU2Chr_tbl                             ; [Kernel1]/key2chrt.asm
+xref    Chr2VDU_tbl                             ; [Kernel1]/key2chrt.asm
 
 
 ;       ----

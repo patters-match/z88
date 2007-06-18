@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1dbbe
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -13,13 +13,13 @@
 xdef    StoreCardIDs
 xdef    ChkCardChange
 
-xref    AddRAMCard                              ; bank0/cardmgr.asm
-xref    MS1BankA                                ; bank0/misc5.asm
-xref    S2VerifySlotType                        ; bank0/misc5.asm
-xref    DrawOZwd                                ; bank0/ozwindow.asm
-xref    OZwd__fail                              ; bank0/ozwindow.asm
-xref    OZwd_card                               ; bank0/ozwindow.asm
-xref    OZwd_index                              ; bank0/ozwindow.asm
+xref    AddRAMCard                              ; [Kernel0]/cardmgr.asm
+xref    MS1BankA                                ; [Kernel0]/misc5.asm
+xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
+xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
+xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
+xref    OZwd_card                               ; [Kernel0]/ozwindow.asm
+xref    OZwd_index                              ; [Kernel0]/ozwindow.asm
 
 
 ;       ----

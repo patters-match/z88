@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -15,17 +15,17 @@
 
 xdef    OSCli
 
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    AtoN_upper                              ; bank0/misc5.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    PutOSFrame_DE                           ; bank0/misc5.asm
-xref    SetPendingOZwd                          ; bank0/misc3.asm
-xref    RdKbBuffer                              ; bank0/osin.asm
-xref    ExtQualifiers                           ; bank0/kbd.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    AtoN_upper                              ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    SetPendingOZwd                          ; [Kernel0]/misc3.asm
+xref    RdKbBuffer                              ; [Kernel0]/osin.asm
+xref    ExtQualifiers                           ; [Kernel0]/kbd.asm
 
-xref    CLI2KeyTable                            ; bank7/clitables.asm
-xref    Key2MetaTable                           ; bank7/clitables.asm
+xref    CLI2KeyTable                            ; [Kernel1]/clitables.asm
+xref    Key2MetaTable                           ; [Kernel1]/clitables.asm
 
 .OSCli
         ex      af, af'

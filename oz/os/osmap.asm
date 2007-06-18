@@ -42,16 +42,16 @@
 
 xdef    OSMap
 
-xref    Chk128KB                                ; bank0/resetx.asm
-xref    GetWindowFrame                          ; bank0/scrdrv2.asm
-xref    PeekHLinc                               ; bank0/misc5.asm
-xref    PokeBHL                                 ; bank0/misc5.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
+xref    Chk128KB                                ; [Kernel0]/resetx.asm
+xref    GetWindowFrame                          ; [Kernel0]/scrdrv2.asm
+xref    PeekHLinc                               ; [Kernel0]/misc5.asm
+xref    PokeBHL                                 ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
+xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
 
-xref    GetCurrentWdInfo                        ; bank7/mth1.asm
-xref    RestoreActiveWd                         ; bank7/mth1.asm
+xref    GetCurrentWdInfo                        ; [Kernel1]/mth1.asm
+xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 
 
 

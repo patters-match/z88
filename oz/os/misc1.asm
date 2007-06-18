@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1d670
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -15,8 +15,8 @@
 xdef    InitHandle                              ; OSDor, E9E8+D
 xdef    RAMxDOR                                 ; MountAllRAM
 
-xref    GetDORType                              ; bank0/dor.asm
-xref    S2VerifySlotType                        ; bank0/misc5.asm
+xref    GetDORType                              ; [Kernel0]/dor.asm
+xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
 
 
 

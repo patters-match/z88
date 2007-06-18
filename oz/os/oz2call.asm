@@ -45,11 +45,11 @@ xdef    CallOS2byte
 
 xdef    OzCallInvalid
 
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    MS2BankK1                               ; bank0/misc5.asm
-xref    OSFramePushMain                         ; bank0/misc4.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    OSFramePushMain                         ; [Kernel0]/misc4.asm
 
-xref    OSPrtPrint                              ; bank7/printer.asm
+xref    OSPrtPrint                              ; [Kernel1]/printer.asm
 
 ;       all 2-byte calls use OSframe
 

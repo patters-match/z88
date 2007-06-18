@@ -1,6 +1,6 @@
 ; **************************************************************************************************
 ; DOR Interface.
-; The routines are located in Bank 0.
+; The routines are located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -47,29 +47,29 @@ xdef    OSDor
 xdef    VerifyHandleBank
 
 
-xref    _MS2BankA                               ; bank0/filesys2.asm
-xref    MS2HandleBank                           ; bank0/filesys2.asm
-xref    AddAvailableFsBlock                     ; bank0/filesys3.asm
-xref    AllocHandleBlock                        ; bank0/filesys3.asm
-xref    FreeMemData                             ; bank0/filesys3.asm
-xref    MemPtr2FilePtr                          ; bank0/filesys3.asm
-xref    AllocHandle                             ; bank0/handle.asm
-xref    FindHandle                              ; bank0/handle.asm
-xref    FreeHandle                              ; bank0/handle.asm
-xref    VerifyHandle                            ; bank0/handle.asm
-xref    ClearMemHL_A                            ; bank0/misc5.asm
-xref    CopyMemDE_HL                            ; bank0/misc5.asm
-xref    CopyMemHL_DE                            ; bank0/misc5.asm
-xref    GetOSFrame_DE                           ; bank0/misc5.asm
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    MS2BankB                                ; bank0/misc5.asm
-xref    PeekHL                                  ; bank0/misc5.asm
-xref    PeekHLinc                               ; bank0/misc5.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSFramePush                             ; bank0/misc4.asm
+xref    _MS2BankA                               ; [Kernel0]/filesys2.asm
+xref    MS2HandleBank                           ; [Kernel0]/filesys2.asm
+xref    AddAvailableFsBlock                     ; [Kernel0]/filesys3.asm
+xref    AllocHandleBlock                        ; [Kernel0]/filesys3.asm
+xref    FreeMemData                             ; [Kernel0]/filesys3.asm
+xref    MemPtr2FilePtr                          ; [Kernel0]/filesys3.asm
+xref    AllocHandle                             ; [Kernel0]/handle.asm
+xref    FindHandle                              ; [Kernel0]/handle.asm
+xref    FreeHandle                              ; [Kernel0]/handle.asm
+xref    VerifyHandle                            ; [Kernel0]/handle.asm
+xref    ClearMemHL_A                            ; [Kernel0]/misc5.asm
+xref    CopyMemDE_HL                            ; [Kernel0]/misc5.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
+xref    GetOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankB                                ; [Kernel0]/misc5.asm
+xref    PeekHL                                  ; [Kernel0]/misc5.asm
+xref    PeekHLinc                               ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
 
-xref    InitHandle                              ; bank7/misc1.asm
+xref    InitHandle                              ; [Kernel1]/misc1.asm
 
 
 

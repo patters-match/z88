@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OZ Process functionality. The routines are located in Bank 0.
+; OZ Process functionality. The routines are located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -56,41 +56,41 @@ xdef    OSExit
 xdef    OSStk
 xdef    OSUse
 
-xref    AllocBadRAM1                            ; bank0/process2.asm
-xref    BadAllocAndSwap                         ; bank0/process2.asm
-xref    BadSwapAndFree                          ; bank0/process2.asm
-xref    FreeBadRAM                              ; bank0/process2.asm
-xref    IsBadUgly                               ; bank0/process2.asm
-xref    sub_C2F3                                ; bank0/process2.asm
-xref    sub_C39F                                ; bank0/process2.asm
+xref    AllocBadRAM1                            ; [Kernel0]/process2.asm
+xref    BadAllocAndSwap                         ; [Kernel0]/process2.asm
+xref    BadSwapAndFree                          ; [Kernel0]/process2.asm
+xref    FreeBadRAM                              ; [Kernel0]/process2.asm
+xref    IsBadUgly                               ; [Kernel0]/process2.asm
+xref    sub_C2F3                                ; [Kernel0]/process2.asm
+xref    sub_C39F                                ; [Kernel0]/process2.asm
 
-xref    AllocMemFile_SizeHL                     ; bank0/filesys3.asm
-xref    GetFileSize                             ; bank0/filesys3.asm
-xref    RestoreAllAppData                       ; bank0/filesys3.asm
-xref    SaveAllAppData                          ; bank0/filesys3.asm
-xref    CancelOZcmd                             ; bank0/osin.asm
-xref    ostin_4                                 ; bank0/osin.asm
-xref    DORHandleFreeDirect                     ; bank0/dor.asm
-xref    DrawOZwd                                ; bank0/ozwindow.asm
-xref    InitApplWd                              ; bank0/scrdrv3.asm
-xref    ScreenClose                             ; bank0/scrdrv4.asm
-xref    ScreenOpen                              ; bank0/scrdrv4.asm
-xref    MS1BankB                                ; bank0/misc5.asm
-xref    MS2BankK1                               ; bank0/misc5.asm
-xref    PutOSFrame_BHL                          ; bank0/misc5.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    SetActiveAppDOR                         ; mth0.asm
+xref    AllocMemFile_SizeHL                     ; [Kernel0]/filesys3.asm
+xref    GetFileSize                             ; [Kernel0]/filesys3.asm
+xref    RestoreAllAppData                       ; [Kernel0]/filesys3.asm
+xref    SaveAllAppData                          ; [Kernel0]/filesys3.asm
+xref    CancelOZcmd                             ; [Kernel0]/osin.asm
+xref    ostin_4                                 ; [Kernel0]/osin.asm
+xref    DORHandleFreeDirect                     ; [Kernel0]/dor.asm
+xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
+xref    InitApplWd                              ; [Kernel0]/scrdrv3.asm
+xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
+xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
+xref    MS1BankB                                ; [Kernel0]/misc5.asm
+xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    SetActiveAppDOR                         ; [Kernel0]/mth0.asm
 
-xref    ChkStkLimits                            ; bank7/process1.asm
-xref    ClearMemDE_HL                           ; bank7/process1.asm
-xref    ClearUnsafeArea                         ; bank7/process1.asm
-xref    Mailbox2Stack                           ; bank7/process1.asm
-xref    CopyMTHHelp_App                         ; bank7/mth1.asm
-xref    DrawTopicWd                             ; bank7/mth1.asm
-xref    OpenAppHelpFile                         ; bank7/mth1.asm
-xref    InitUserAreaGrey                        ; bank7/scrdrv1.asm
-xref    OSSr_Fus                                ; bank7/ossr.asm
+xref    ChkStkLimits                            ; [Kernel1]/process1.asm
+xref    ClearMemDE_HL                           ; [Kernel1]/process1.asm
+xref    ClearUnsafeArea                         ; [Kernel1]/process1.asm
+xref    Mailbox2Stack                           ; [Kernel1]/process1.asm
+xref    CopyMTHHelp_App                         ; [Kernel1]/mth1.asm
+xref    DrawTopicWd                             ; [Kernel1]/mth1.asm
+xref    OpenAppHelpFile                         ; [Kernel1]/mth1.asm
+xref    InitUserAreaGrey                        ; [Kernel1]/scrdrv1.asm
+xref    OSSr_Fus                                ; [Kernel1]/ossr.asm
 
 
 ;       ----

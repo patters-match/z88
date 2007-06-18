@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1f1a2
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -19,27 +19,27 @@ xdef    OSSr_Fus                                ; OS_Ent
 xdef    FreeMemHandle                           ; OpenMem, sub_F669
 
 
-xref    AllocHandle                             ; bank0/handle.asm
-xref    FreeHandle                              ; bank0/handle.asm
-xref    VerifyHandle                            ; bank0/handle.asm
+xref    AllocHandle                             ; [Kernel0]/handle.asm
+xref    FreeHandle                              ; [Kernel0]/handle.asm
+xref    VerifyHandle                            ; [Kernel0]/handle.asm
 
-xref    FixPtr                                  ; bank0/misc5.asm
-xref    CopyMemBHL_DE                           ; bank0/misc5.asm
-xref    CopyMemDE_BHL                           ; bank0/misc5.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    PutOSFrame_DE                           ; bank0/misc5.asm
+xref    FixPtr                                  ; [Kernel0]/misc5.asm
+xref    CopyMemBHL_DE                           ; [Kernel0]/misc5.asm
+xref    CopyMemDE_BHL                           ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
 
-xref    FreeMemData0                            ; bank0/filesys3.asm
-xref    InitMemHandle                           ; bank0/filesys3.asm
-xref    RewindFile                              ; bank0/filesys3.asm
-xref    MTHPrint                                ; mth0.asm
-xref    RestoreScreen                           ; bank0/scrdrv4.asm
-xref    SaveScreen                              ; bank0/scrdrv4.asm
+xref    FreeMemData0                            ; [Kernel0]/filesys3.asm
+xref    InitMemHandle                           ; [Kernel0]/filesys3.asm
+xref    RewindFile                              ; [Kernel0]/filesys3.asm
+xref    RestoreScreen                           ; [Kernel0]/scrdrv4.asm
+xref    SaveScreen                              ; [Kernel0]/scrdrv4.asm
+xref    MTHPrint                                ; [Kernel0]/mth0.asm
 
-xref    DrawTopicWd                             ; bank7/mth1.asm
-xref    GetCurrentWdInfo                        ; bank7/mth1.asm
-xref    InitTopicWd                             ; bank7/mth1.asm
-xref    RestoreActiveWd                         ; bank7/mth1.asm
+xref    DrawTopicWd                             ; [Kernel1]/mth1.asm
+xref    GetCurrentWdInfo                        ; [Kernel1]/mth1.asm
+xref    InitTopicWd                             ; [Kernel1]/mth1.asm
+xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 
 
 ;       ----

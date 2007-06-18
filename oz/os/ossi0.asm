@@ -49,18 +49,18 @@ xdef    WrRxC
 xdef    EI_TDRE
 xdef    OSSiGbt, OSSiPbt
 
-;xref    BfPb                                    ; bank0/lowram.def.asm
-;xref    BfGb                                    ; bank0/lowram.def.asm
-;xref    BfSta                                   ; bank0/lowram.def.asm
-xref    BfPbt                                   ; bank0/buffer.asm
-xref    BfGbt                                   ; bank0/buffer.asm
+;xref    BfPb                                    ; [Kernel0]/lowram.def.asm
+;xref    BfGb                                    ; [Kernel0]/lowram.def.asm
+;xref    BfSta                                   ; [Kernel0]/lowram.def.asm
+xref    BfPbt                                   ; [Kernel0]/buffer.asm
+xref    BfGbt                                   ; [Kernel0]/buffer.asm
 
-xref    OSSiHrd1                                ; bank7/ossi1.asm
-xref    OSSiSft1                                ; bank7/ossi1.asm
-xref    OSSiEnq1                                ; bank7/ossi1.asm
-xref    OSSiFtx1                                ; bank7/ossi1.asm
-xref    OSSiFrx1                                ; bank7/ossi1.asm
-xref    OSSiTmo1                                ; bank7/ossi1.asm
+xref    OSSiHrd1                                ; [Kernel1]/ossi1.asm
+xref    OSSiSft1                                ; [Kernel1]/ossi1.asm
+xref    OSSiEnq1                                ; [Kernel1]/ossi1.asm
+xref    OSSiFtx1                                ; [Kernel1]/ossi1.asm
+xref    OSSiFrx1                                ; [Kernel1]/ossi1.asm
+xref    OSSiTmo1                                ; [Kernel1]/ossi1.asm
 
 
 ; -----------------------------------------------------------------------------

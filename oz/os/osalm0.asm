@@ -42,12 +42,12 @@
 xdef    OSAlm
 xdef    DoAlarms
 
-xref    OSOff                                   ; bank0/nmi.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    osfpop_1                                ; bank0/misc4.asm
+xref    OSOff                                   ; [Kernel0]/nmi.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    osfpop_1                                ; [Kernel0]/misc4.asm
 
-xref    OSAlmMain                               ; bank7/osalm.asm
-xref    SetPendingOZwd                          ; bank0/ozwindow.asm
+xref    OSAlmMain                               ; [Kernel1]/osalm.asm
+xref    SetPendingOZwd                          ; [Kernel0]/ozwindow.asm
 
 .OSAlm
         call    OSFramePush

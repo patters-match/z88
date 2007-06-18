@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Mpm Assembly Project for Bank 0, starting at address $C000.
+; Mpm Assembly Project for Kernel 0, starting at address $C000.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ

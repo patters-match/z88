@@ -1,6 +1,6 @@
 ; **************************************************************************************************
 ; ROM Boot sequence, executed when reset button pressed or first cold start of machine.
-; Code resides at start of Bank 0.
+; Code resides at start of Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -43,11 +43,11 @@
 xdef    Halt
 xdef    Delay300Kclocks
 
-xref    nmi_5                                   ; bank0/nmi.asm
-xref    HW_NMI2                                 ; bank0/nmi.asm
-xref    VerifySlotType                          ; bank0/memory.asm
+xref    nmi_5                                   ; [Kernel0]/nmi.asm
+xref    HW_NMI2                                 ; [Kernel0]/nmi.asm
+xref    VerifySlotType                          ; [Kernel0]/memory.asm
 
-xref    Reset                                   ; bank7/reset.asm
+xref    Reset                                   ; [Kernel1]/reset.asm
 
 
 ; reset code at $0000

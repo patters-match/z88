@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $3222
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -45,17 +45,17 @@ xdef    SetMemHandlePos
 xdef    WrFileByte
 xdef    WrHeaderedData
 
-xref    AllocHandle                             ; bank0/handle.asm
-xref    FPtr2MemPtrBindS2                       ; bank0/misc5.asm
-xref    MS12BankCB                              ; bank0/misc5.asm
-xref    MS1BankA                                ; bank0/misc5.asm
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    MS2BankB                                ; bank0/misc5.asm
-xref    OZwd__fail                              ; bank0/ozwindow.asm
-xref    RestoreScreen                           ; bank0/scrdrv4.asm
-xref    SaveScreen                              ; bank0/scrdrv4.asm
+xref    AllocHandle                             ; [Kernel0]/handle.asm
+xref    FPtr2MemPtrBindS2                       ; [Kernel0]/misc5.asm
+xref    MS12BankCB                              ; [Kernel0]/misc5.asm
+xref    MS1BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankB                                ; [Kernel0]/misc5.asm
+xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
+xref    RestoreScreen                           ; [Kernel0]/scrdrv4.asm
+xref    SaveScreen                              ; [Kernel0]/scrdrv4.asm
 
-xref    FreeMemHandle                           ; bank7/ossr.asm
+xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
 
 
 .SetMemHandlePos

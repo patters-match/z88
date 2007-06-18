@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Error Handler Interface, located in Bank 0.
+; Error Handler Interface, located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ

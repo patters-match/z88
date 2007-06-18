@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $15d1
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -21,7 +21,7 @@ xdef    FindHandle
 xdef    ChgHandleType
 xdef    VerifyHandle
 
-xref    PutOSFrame_HL                           ; bank0/misc5.asm
+xref    PutOSFrame_HL                           ; [Kernel0]/misc5.asm
 
 
 ;       allocate tri-handle

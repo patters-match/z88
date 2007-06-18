@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 7 @ S2           ROM offset $1df23
+; Kernel 1 @ S2
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 
 xdef    MemCallAttrVerify
 
-xref    VerifyHandle                            ; bank0/handle.asm
+xref    VerifyHandle                            ; [Kernel0]/handle.asm
 
 
 .MemCallAttrVerify

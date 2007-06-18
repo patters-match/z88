@@ -52,11 +52,11 @@ xdef    nmi_5
 xdef    HW_NMI2
 xdef    NMIEntry
 
-xref    DrawOZwd                                ; bank0/ozwindow.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    osfpop_1                                ; bank0/misc4.asm
-xref    MayDrawOZwd                             ; bank0/misc3.asm
-xref    Halt                                    ; bank0/boot.asm
+xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    osfpop_1                                ; [Kernel0]/misc4.asm
+xref    MayDrawOZwd                             ; [Kernel0]/misc3.asm
+xref    Halt                                    ; [Kernel0]/boot.asm
 
 
 defc    NMI_HALT        =1

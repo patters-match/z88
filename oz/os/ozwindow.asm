@@ -55,8 +55,8 @@ xdef    DrawOZwd
 xdef    MayDrawOZwd
 xdef    SetPendingOZwd
 
-xref    ScreenOpen                              ; bank0/srcdrv4.asm
-xref    ScreenClose                             ; bank0/srcdrv4.asm
+xref    ScreenOpen                              ; [Kernel0]/srcdrv4.asm
+xref    ScreenClose                             ; [Kernel0]/srcdrv4.asm
 
 
 
@@ -254,7 +254,7 @@ xref    ScreenClose                             ; bank0/srcdrv4.asm
 .ozcli_1
         jr      ozbell_1
 
-        
+
 ;       ----
 
 .OZwd_loc

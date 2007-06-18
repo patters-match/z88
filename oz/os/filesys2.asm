@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -32,54 +32,54 @@ xdef    OSOp
 xdef    OSPb
 xdef    OSPbt
 
-xref    AllocFirstBlock                         ; bank0/filesys3.asm
-xref    FreeMemData0                            ; bank0/filesys3.asm
-xref    GetFileEOF                              ; bank0/filesys3.asm
-xref    GetFilePos                              ; bank0/filesys3.asm
-xref    GetFileSize                             ; bank0/filesys3.asm
-xref    MvFromFile                              ; bank0/filesys3.asm
-xref    MvToFile                                ; bank0/filesys3.asm
-xref    RdFileByte                              ; bank0/filesys3.asm
-xref    RewindFile                              ; bank0/filesys3.asm
-xref    SeekFileMayExpand                       ; bank0/filesys3.asm
-xref    SetFileSize                             ; bank0/filesys3.asm
-xref    WrFileByte                              ; bank0/filesys3.asm
+xref    AllocFirstBlock                         ; [Kernel0]/filesys3.asm
+xref    FreeMemData0                            ; [Kernel0]/filesys3.asm
+xref    GetFileEOF                              ; [Kernel0]/filesys3.asm
+xref    GetFilePos                              ; [Kernel0]/filesys3.asm
+xref    GetFileSize                             ; [Kernel0]/filesys3.asm
+xref    MvFromFile                              ; [Kernel0]/filesys3.asm
+xref    MvToFile                                ; [Kernel0]/filesys3.asm
+xref    RdFileByte                              ; [Kernel0]/filesys3.asm
+xref    RewindFile                              ; [Kernel0]/filesys3.asm
+xref    SeekFileMayExpand                       ; [Kernel0]/filesys3.asm
+xref    SetFileSize                             ; [Kernel0]/filesys3.asm
+xref    WrFileByte                              ; [Kernel0]/filesys3.asm
 
-xref    OSSiPbt, OSSiGbt                        ; bank0/ossi0.asm
+xref    OSSiPbt, OSSiGbt                        ; [Kernel0]/ossi0.asm
 
-xref    ChgHandleType                           ; bank0/handle.asm
-xref    FindHandle                              ; bank0/handle.asm
-xref    VerifyHandle                            ; bank0/handle.asm
+xref    ChgHandleType                           ; [Kernel0]/handle.asm
+xref    FindHandle                              ; [Kernel0]/handle.asm
+xref    VerifyHandle                            ; [Kernel0]/handle.asm
 
-xref    Chk128KB                                ; bank0/memory.asm
+xref    Chk128KB                                ; [Kernel0]/memory.asm
 
-xref    DORHandleFreeDirect                     ; bank0/dor.asm
-xref    GetHandlePtr                            ; bank0/dor.asm
-xref    VerifyHandleBank                        ; bank0/dor.asm
+xref    DORHandleFreeDirect                     ; [Kernel0]/dor.asm
+xref    GetHandlePtr                            ; [Kernel0]/dor.asm
+xref    VerifyHandleBank                        ; [Kernel0]/dor.asm
 
-xref    RdKbBuffer                              ; bank0/osin.asm
-;xref    BfSta                                   ; bank0/buffer.asm
+xref    RdKbBuffer                              ; [Kernel0]/osin.asm
+;xref    BfSta                                   ; [Kernel0]/buffer.asm
 
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSFramePush                             ; bank0/misc4.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
 
-xref    CopyMemHL_DE                            ; bank0/misc5.asm
-xref    GetOSFrame_DE                           ; bank0/misc5.asm
-xref    GetOSFrame_HL                           ; bank0/misc5.asm
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    MS2BankK1                               ; bank0/misc5.asm
-xref    PeekHLinc                               ; bank0/misc5.asm
-xref    PokeHLinc                               ; bank0/misc5.asm
-xref    PutOSFrame_BC                           ; bank0/misc5.asm
-xref    PutOSFrame_DE                           ; bank0/misc5.asm
-xref    PutOSFrame_HL                           ; bank0/misc5.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
+xref    GetOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    PeekHLinc                               ; [Kernel0]/misc5.asm
+xref    PokeHLinc                               ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    PutOSFrame_HL                           ; [Kernel0]/misc5.asm
 
-xref    OSPrtPrint                              ; bank7/printer.asm
-xref    FileNameDate                            ; bank7/filesys1.asm
-xref    IsSpecialHandle                         ; bank7/filesys1.asm
-xref    OpenMem                                 ; bank7/filesys1.asm
-xref    OSDel                                   ; bank7/filesys1.asm
-xref    OSOutMain                               ; bank7/scrdrv1.asm
+xref    OSPrtPrint                              ; [Kernel1]/printer.asm
+xref    FileNameDate                            ; [Kernel1]/filesys1.asm
+xref    IsSpecialHandle                         ; [Kernel1]/filesys1.asm
+xref    OpenMem                                 ; [Kernel1]/filesys1.asm
+xref    OSDel                                   ; [Kernel1]/filesys1.asm
+xref    OSOutMain                               ; [Kernel1]/scrdrv1.asm
 
 
 

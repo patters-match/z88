@@ -1,6 +1,6 @@
 ; **************************************************************************************************
 ; External Card Management (in slots 1-3).
-; The routines are located in Bank 0.
+; The routines are located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -39,16 +39,16 @@
 xdef    AddRAMCard
 xdef    IntFlap
 
-xref    Delay300Kclocks                         ; bank0/boot.asm
-xref    ExpandMachine                           ; bank0/reset13.asm
-xref    InitSlotRAM                             ; bank0/memory.asm
-xref    MountAllRAM                             ; bank0/resetx.asm
-xref    MS12BankCB                              ; bank0/misc5.asm
-xref    MS2BankK1                               ; bank0/misc5.asm
-xref    NMIMain                                 ; bank0/nmi.asm
+xref    Delay300Kclocks                         ; [Kernel0]/boot.asm
+xref    ExpandMachine                           ; [Kernel0]/reset13.asm
+xref    InitSlotRAM                             ; [Kernel0]/memory.asm
+xref    MountAllRAM                             ; [Kernel0]/resetx.asm
+xref    MS12BankCB                              ; [Kernel0]/misc5.asm
+xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    NMIMain                                 ; [Kernel0]/nmi.asm
 
-xref    ChkCardChange                           ; bank7/card1.asm
-xref    StoreCardIDs                            ; bank7/card1.asm
+xref    ChkCardChange                           ; [Kernel1]/card1.asm
+xref    StoreCardIDs                            ; [Kernel1]/card1.asm
 
 
 .IntFlap

@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OZ kernel in Bank 7, starting at address $8000.
+; OZ Kernel 1, starting at address $8000.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -31,7 +31,6 @@ IF COMPILE_BINARY
         xdef    ResetTimeout                    ; [Kernel0]/nmi.asm
 
         xdef    InitBufKBD_RX_TX                ; [Kernel0]/buffer.asm
-;        xdef    BfSta                           ; [Kernel0]/buffer.asm
         xdef    BfPur                           ; [Kernel0]/buffer.asm
 
         xdef    NQAin                           ; [Kernel0]/process2.asm
@@ -103,34 +102,34 @@ IF COMPILE_BINARY
         xdef    OZwd_card                       ; [Kernel0]/ozwindow.asm
         xdef    OZwd_index                      ; [Kernel0]/ozwindow.asm
 
-        xdef    ChgHelpFile                     ; mth0.asm
-        xdef    CopyAppPointers                 ; mth0.asm
-        xdef    DrawCmdHelpWd                   ; mth0.asm
-        xdef    DrawMenuWd                      ; mth0.asm
-        xdef    DrawTopicHelpWd                 ; mth0.asm
-        xdef    FilenameDOR                     ; mth0.asm
-        xdef    GetAppDOR                       ; mth0.asm
-        xdef    GetHlpHelp                      ; mth0.asm
-        xdef    GetHlp_sub                      ; mth0.asm
-        xdef    InputEmpty                      ; mth0.asm
-        xdef    MTHPrint                        ; mth0.asm
-        xdef    MTHPrintKeycode                 ; mth0.asm
-        xdef    MTHPrintTokenized               ; mth0.asm
-        xdef    MayMTHPrint                     ; mth0.asm
-        xdef    NextAppDOR                      ; mth0.asm
-        xdef    PrevAppDOR                      ; mth0.asm
-        xdef    PrintTopic                      ; mth0.asm
-        xdef    PrntAppname                     ; mth0.asm
-        xdef    SetActiveAppDOR                 ; mth0.asm
-        xdef    SetHlpAppChgFile                ; mth0.asm
-        xdef    aRom_Help                       ; mth0.asm
-        xdef    GetAttr                         ; mth0.asm
-        xdef    GetHlpCommands                  ; mth0.asm
-        xdef    GetCmdTopicByNum                ; mth0.asm
-        xdef    GetRealCmdPosition              ; mth0.asm
-        xdef    GetHlpTopics                    ; mth0.asm
-        xdef    SkipNtopics                     ; mth0.asm
-        xdef    MTH_ToggleLT                    ; mth1.asm
+        xdef    ChgHelpFile                     ; [Kernel0]/mth0.asm
+        xdef    CopyAppPointers                 ; [Kernel0]/mth0.asm
+        xdef    DrawCmdHelpWd                   ; [Kernel0]/mth0.asm
+        xdef    DrawMenuWd                      ; [Kernel0]/mth0.asm
+        xdef    DrawTopicHelpWd                 ; [Kernel0]/mth0.asm
+        xdef    FilenameDOR                     ; [Kernel0]/mth0.asm
+        xdef    GetAppDOR                       ; [Kernel0]/mth0.asm
+        xdef    GetHlpHelp                      ; [Kernel0]/mth0.asm
+        xdef    GetHlp_sub                      ; [Kernel0]/mth0.asm
+        xdef    InputEmpty                      ; [Kernel0]/mth0.asm
+        xdef    MTHPrint                        ; [Kernel0]/mth0.asm
+        xdef    MTHPrintKeycode                 ; [Kernel0]/mth0.asm
+        xdef    MTHPrintTokenized               ; [Kernel0]/mth0.asm
+        xdef    MayMTHPrint                     ; [Kernel0]/mth0.asm
+        xdef    NextAppDOR                      ; [Kernel0]/mth0.asm
+        xdef    PrevAppDOR                      ; [Kernel0]/mth0.asm
+        xdef    PrintTopic                      ; [Kernel0]/mth0.asm
+        xdef    PrntAppname                     ; [Kernel0]/mth0.asm
+        xdef    SetActiveAppDOR                 ; [Kernel0]/mth0.asm
+        xdef    SetHlpAppChgFile                ; [Kernel0]/mth0.asm
+        xdef    aRom_Help                       ; [Kernel0]/mth0.asm
+        xdef    GetAttr                         ; [Kernel0]/mth0.asm
+        xdef    GetHlpCommands                  ; [Kernel0]/mth0.asm
+        xdef    GetCmdTopicByNum                ; [Kernel0]/mth0.asm
+        xdef    GetRealCmdPosition              ; [Kernel0]/mth0.asm
+        xdef    GetHlpTopics                    ; [Kernel0]/mth0.asm
+        xdef    SkipNtopics                     ; [Kernel0]/mth0.asm
+        xdef    MTH_ToggleLT                    ; [Kernel1]/mth1.asm
 
         xdef    InitHlpActiveCmd                ; [Kernel0]/process3.asm
         xdef    InitHlpActiveHelp               ; [Kernel0]/process3.asm
@@ -197,6 +196,6 @@ IF COMPILE_BINARY
         xdef    Keymap_DK
         xdef    Keymap_FI
 
-        include "kernel0.def"                   ; get bank 0 references and map them into bank 7 project...
-        include "../mth/keymaps.def"            ; get references for keymaps in MTH bank and bind them into bank 7 project...
+        include "kernel0.def"                   ; get kernel 0 references and map them into kernel 1 project...
+        include "../mth/keymaps.def"            ; get references for keymaps in MTH bank and bind them into kernel 1 project...
 ENDIF

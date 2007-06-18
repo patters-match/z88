@@ -1,6 +1,6 @@
 ; **************************************************************************************************
 ; Key Code Mapping Table, used by screen driver for keyboard -> screen conversion.
-; The table is located in Bank 7, bound with the keyboard and screen driver functionality.
+; The table is located in Kernel 1, bound with the keyboard and screen driver functionality.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ

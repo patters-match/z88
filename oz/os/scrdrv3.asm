@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $390c
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -16,8 +16,8 @@ xdef    InitSBF
 xdef    InitWindowFrame
 xdef    ResetWdAttrs
 
-xref    DrawOZwd                                        ; bank0/ozwindow.asm
-xref    Zero_ctrlprefix                                 ; bank7/scrdrv1.asm
+xref    DrawOZwd                                        ; [Kernel0]/ozwindow.asm
+xref    Zero_ctrlprefix                                 ; [Kernel1]/scrdrv1.asm
 
 
 

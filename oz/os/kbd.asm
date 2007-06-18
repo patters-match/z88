@@ -44,12 +44,12 @@ xdef    ExtKbMain                               ; was KbMain
 xdef    ExtQualifiers                           ; was ApplyQualifiers
 xdef    IsForeignKey                            ; is char capsable
 
-;xref    BfPb                                    ; bank0/lowram.def.asm
-xref    SwitchOff                               ; bank0/nmi.asm
-xref    MaySetEsc                               ; bank0/esc.asm
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    UpdateRnd                               ; bank0/random.asm
-xref    DrawOZWd                                ; bank0/ozwindow.asm
+;xref    BfPb                                    ; [Kernel0]/lowram.def.asm
+xref    SwitchOff                               ; [Kernel0]/nmi.asm
+xref    MaySetEsc                               ; [Kernel0]/esc.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    UpdateRnd                               ; [Kernel0]/random.asm
+xref    DrawOZWd                                ; [Kernel0]/ozwindow.asm
 
 ;       Stubs to bind keyboard data in/out S1
 

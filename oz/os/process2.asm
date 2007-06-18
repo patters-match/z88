@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OZ Process functionality. The routines are located in Bank 0.
+; OZ Process functionality. The routines are located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -34,7 +34,7 @@
         Module  Process2
 
         include "director.def"
-        include "dor.def"        
+        include "dor.def"
         include "error.def"
         include "memory.def"
         include "sysvar.def"
@@ -51,24 +51,24 @@ xdef    OSDom
 xdef    sub_C2F3
 xdef    sub_C39F
 
-xref    Chk128KB                                ; bank0/resetx.asm
-xref    Chk128KBslot0                           ; bank0/resetx.asm
-xref    FirstFreeRAM                            ; bank0/resetx.asm
-xref    FollowPageN                             ; bank0/memory.asm
-xref    MarkPageAsAllocated                     ; bank0/memory.asm
-xref    MATPtrToPagePtr                         ; bank0/memory.asm
-xref    PageNToPagePtr                          ; bank0/memory.asm
-xref    fsMS2BankB                              ; bank0/filesys3.asm
-xref    fsRestoreS2                             ; bank0/filesys3.asm
-xref    GetAppDOR                               ; mth0.asm
-xref    OSBixS1                                 ; bank0/misc4.asm
-xref    OSBoxS1                                 ; bank0/misc4.asm
-xref    MS1BankA                                ; bank0/misc5.asm
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    PutOSFrame_BHL                          ; bank0/misc5.asm
-xref    PutOSFrame_DE                           ; bank0/misc5.asm
+xref    Chk128KB                                ; [Kernel0]/reset.asm
+xref    Chk128KBslot0                           ; [Kernel0]/reset.asm
+xref    FirstFreeRAM                            ; [Kernel0]/reset.asm
+xref    FollowPageN                             ; [Kernel0]/memory.asm
+xref    MarkPageAsAllocated                     ; [Kernel0]/memory.asm
+xref    MATPtrToPagePtr                         ; [Kernel0]/memory.asm
+xref    PageNToPagePtr                          ; [Kernel0]/memory.asm
+xref    fsMS2BankB                              ; [Kernel0]/filesys3.asm
+xref    fsRestoreS2                             ; [Kernel0]/filesys3.asm
+xref    GetAppDOR                               ; [Kernel0]/mth0.asm
+xref    OSBixS1                                 ; [Kernel0]/misc4.asm
+xref    OSBoxS1                                 ; [Kernel0]/misc4.asm
+xref    MS1BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
 
-xref    CopyMTHApp_Help                         ; bank7/mth1.asm
+xref    CopyMTHApp_Help                         ; [Kernel1]/mth1.asm
 
 defc    FREE_THIS       =7
 

@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $2dbd
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -14,12 +14,12 @@ xdef    OSWtb
 xdef    MayWrt
 xdef    OSWrt
 
-xref    PutOSFrame_BHL                          ; bank0/misc5.asm
-xref    FixPtr                                  ; bank0/misc5.asm
-xref    GetHlpTokens                            ; mth0.asm
-xref    PrintChar                               ; mth0.asm
-xref    fsMS2BankB                              ; bank0/filesys3.asm
-xref    fsRestoreS2                             ; bank0/filesys3.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
+xref    FixPtr                                  ; [Kernel0]/misc5.asm
+xref    GetHlpTokens                            ; [Kernel0]/mth0.asm
+xref    PrintChar                               ; [Kernel0]/mth0.asm
+xref    fsMS2BankB                              ; [Kernel0]/filesys3.asm
+xref    fsRestoreS2                             ; [Kernel0]/filesys3.asm
 
 
 

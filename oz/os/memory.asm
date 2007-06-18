@@ -1,6 +1,6 @@
 ; **************************************************************************************************
 ; Memory Management Interface.
-; The routines are located in Bank 0.
+; The routines are located in Kernel 0.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -67,28 +67,28 @@ xdef    OSNqMemory
 xdef    OSSp_89
 xdef    PageNToPagePtr
 xdef    VerifySlotType
-xdef    Chk128KB                                ; bank0/filesys2.asm, process2.asm, bank7/osmap.asm, scrdrv1.asm
-xdef    Chk128KBslot0                           ; bank0/process2.asm
-xdef    FirstFreeRAM                            ; bank0/process2.asm
-xdef    MountAllRAM                             ; bank0/cardmgr.asm, bank7/misc1.asm
+xdef    Chk128KB                                ; [Kernel0]/filesys2.asm, process2.asm, [Kernel1]/osmap.asm, scrdrv1.asm
+xdef    Chk128KBslot0                           ; [Kernel0]/process2.asm
+xdef    FirstFreeRAM                            ; [Kernel0]/process2.asm
+xdef    MountAllRAM                             ; [Kernel0]/cardmgr.asm, [Kernel1]/misc1.asm
 
-xref    MS2BankK1                               ; bank0/misc5.asm
-xref    MS1BankA                                ; bank0/misc5.asm
-xref    MS2BankA                                ; bank0/misc5.asm
-xref    PutOSFrame_BHL                          ; bank0/misc5.asm
-xref    PutOSFrame_DE                           ; bank0/misc5.asm
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    AllocHandle                             ; bank0/handle.asm
-xref    FreeHandle                              ; bank0/handle.asm
-xref    VerifyHandle                            ; bank0/handle.asm
-xref    AddAvailableFsBlock                     ; bank0/filesys3.asm
-xref    FilePtr2MemPtr                          ; bank0/filesys3.asm
-xref    MemPtr2FilePtr                          ; bank0/filesys3.asm
-xref    OZwd__fail                              ; bank0/ozwindow.asm
+xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    MS1BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    AllocHandle                             ; [Kernel0]/handle.asm
+xref    FreeHandle                              ; [Kernel0]/handle.asm
+xref    VerifyHandle                            ; [Kernel0]/handle.asm
+xref    AddAvailableFsBlock                     ; [Kernel0]/filesys3.asm
+xref    FilePtr2MemPtr                          ; [Kernel0]/filesys3.asm
+xref    MemPtr2FilePtr                          ; [Kernel0]/filesys3.asm
+xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
 
-xref    MemCallAttrVerify                       ; bank7/memory1.asm
-xref    RAMxDOR                                 ; bank7/misc1.asm
+xref    MemCallAttrVerify                       ; [Kernel1]/memory1.asm
+xref    RAMxDOR                                 ; [Kernel1]/misc1.asm
 
 
 defc    DM_RAM                  =$81
@@ -2274,7 +2274,7 @@ defc    DM_RAM                  =$81
         ld      a,$21                           ; header of internal slot is in $21
 .not_internal
         ld      b,a                             ; first bank of RAM slot
-        ld      hl,$4000                        ; start of bank in hl 
+        ld      hl,$4000                        ; start of bank in hl
         ld      c,MS_S1                         ; (in segment 1)
         rst     OZ_MPB
         push    bc                              ; preserve original bank binding status

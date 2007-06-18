@@ -49,9 +49,9 @@ xdef    OSSiFtx1
 xdef    OSSiFrx1
 xdef    OSSiTmo1
 
-xref    BfPur                                   ; bank0/buffer.asm
-xref    WrRxc                                   ; bank0/ossi0.asm
-xref    EI_TDRE                                 ; bank0/ossi0.asm
+xref    BfPur                                   ; [Kernel0]/buffer.asm
+xref    WrRxc                                   ; [Kernel0]/ossi0.asm
+xref    EI_TDRE                                 ; [Kernel0]/ossi0.asm
 
 .OSSiHrd1
         ld      a, $FF

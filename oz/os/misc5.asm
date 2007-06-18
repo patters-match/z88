@@ -1,5 +1,5 @@
 ; -----------------------------------------------------------------------------
-; Bank 0 @ S3           ROM offset $16d7
+; Kernel 0 @ S3
 ;
 ; $Id$
 ; -----------------------------------------------------------------------------
@@ -49,13 +49,13 @@ xdef    ReserveStkBuf
 xdef    S2VerifySlotType
 xdef    FixPtr
 
-xref    FilePtr2MemPtr                          ; bank0/filesys3.asm
-xref    VerifySlotType                          ; bank0/memory.asm
-xref    OSFramePush                             ; bank0/misc4.asm
-xref    OSFramePop                              ; bank0/misc4.asm
-xref    AllocHandle                             ; bank0/handle.asm
-xref    VerifyHandle                            ; bank0/handle.asm
-xref    FreeHandle                              ; bank0/handle.asm
+xref    FilePtr2MemPtr                          ; [Kernel0]/filesys3.asm
+xref    VerifySlotType                          ; [Kernel0]/memory.asm
+xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    AllocHandle                             ; [Kernel0]/handle.asm
+xref    VerifyHandle                            ; [Kernel0]/handle.asm
+xref    FreeHandle                              ; [Kernel0]/handle.asm
 
 
 .GetOSFrame_BC

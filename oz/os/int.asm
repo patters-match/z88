@@ -48,12 +48,12 @@ xdef    IncActiveAlm
 xdef    DecActiveAlm
 xdef    MaySetPendingAlmTask
 
-xref    ResetTimeout                            ; bank0/nmi.asm
-xref    BothShifts                              ; bank0/nmi.asm
-xref    ExtKbMain                               ; bank0/kbd.asm
-xref    OSSiInt                                 ; bank0/ossi0.asm
-xref    IntFlap                                 ; bank0/cardmgr.asm
-xref    ReadRTC                                 ; bank0/time.asm
+xref    ResetTimeout                            ; [Kernel0]/nmi.asm
+xref    BothShifts                              ; [Kernel0]/nmi.asm
+xref    ExtKbMain                               ; [Kernel0]/kbd.asm
+xref    OSSiInt                                 ; [Kernel0]/ossi0.asm
+xref    IntFlap                                 ; [Kernel0]/cardmgr.asm
+xref    ReadRTC                                 ; [Kernel0]/time.asm
 
 
 .INTEntry                                       ; Entry of IM 1 Interrupt Handler (called from 0038H in lowram.def)
