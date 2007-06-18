@@ -39,7 +39,7 @@
 xdef    AddRAMCard
 xdef    IntFlap
 
-xref    Delay300Kclocks                         ; bank0/misc3.asm
+xref    Delay300Kclocks                         ; bank0/boot.asm
 xref    ExpandMachine                           ; bank0/reset13.asm
 xref    InitSlotRAM                             ; bank0/memory.asm
 xref    MountAllRAM                             ; bank0/resetx.asm

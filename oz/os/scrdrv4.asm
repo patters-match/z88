@@ -73,7 +73,7 @@ xdef    ToggleScrDrvFlags
 
 xref    AtoN_upper                              ; bank0/misc5.asm
 xref    MS1BankA                                ; bank0/misc5.asm
-xref    Delay300Kclocks                         ; bank0/misc3.asm
+xref    Delay300Kclocks                         ; bank0/boot.asm
 xref    DrawOZwd                                ; bank0/ozwindow.asm
 xref    OSFramePop                              ; bank0/misc4.asm
 xref    OSFramePush                             ; bank0/misc4.asm

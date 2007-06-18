@@ -41,8 +41,8 @@
         org     $c000
 
 xdef    Halt
+xdef    Delay300Kclocks
 
-xref    Delay300Kclocks                         ; bank0/misc3.asm
 xref    nmi_5                                   ; bank0/nmi.asm
 xref    HW_NMI2                                 ; bank0/nmi.asm
 xref    VerifySlotType                          ; bank0/memory.asm
@@ -71,7 +71,8 @@ xref    Reset                                   ; bank7/reset.asm
         di
         xor     a
         out     (BL_COM), a                     ; reset command register
-        out     (BL_SR0), a                     ; bind b00 into all segments
+        ld      a, OZBANK_KNL0
+        out     (BL_SR0), a                     ; bind KERNEL0 into all segments
         out     (BL_SR1), a
         out     (BL_SR2), a
         out     (BL_SR3), a
@@ -90,22 +91,23 @@ xref    Reset                                   ; bank7/reset.asm
 .rint_0
         di
         ld      sp, ROMstack & $3fff            ; read return PC from ROM
-        call    Delay300Kclocks                 ; ret to Reset1
+        jr      Delay300Kclocks                 ; ret to Reset1
 
 ; for the ret in ROM
         defw    Reset1
 .ROMstack
         defw     Bootstrap2
-        defb    $ff
+        defs    ($0038-$PC) ($ff)               ; pad FFh's until 0038H (Z80 INT vector)
+
 
 
 ; hardware IM1 INT at $0038
 
 .HW_INT
-        xor     a
+        ld      a, OZBANK_KNL0
         out     (BL_SR3), a                     ; MS3b00
         ld      a, i
-        jr      z, rint_0                       ; I=0? from reset (save 1 byte with jr)
+        jr      z, rint_0                       ; I=0? from reset
         scf
         jp      nmi_5
 .Reset1
@@ -137,6 +139,19 @@ xref    Reset                                   ; bank7/reset.asm
         inc     h
         dec     h
         jr      z, Reset0                       ; reset if SP=$00xx
-        xor     a
+        ld      a, OZBANK_KNL0
         out     (BL_SR3), a                     ; MS3b00
         jp      HW_NMI2                         ; into ROM code
+
+
+;       delay ~300 000 clock cycles
+
+.Delay300Kclocks
+        ld      hl, 10000                       ; 10 000*30 cycles
+        ld      b, $ff
+.dlay_1
+        ld      c, $ff                          ; 7+11+12 cycles
+        add     hl, bc
+        jr      c, dlay_1
+        ret
+

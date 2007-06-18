@@ -14,7 +14,6 @@
 
 xdef    OSHt
 xdef    ReadRTC
-xdef    Delay300Kclocks
 xdef    OSUst
 
 xref    OSFramePush                             ; bank0/misc4.asm
@@ -133,21 +132,8 @@ xref    PokeHLinc                               ; bank0/misc5.asm
         srl     a                               ; /2 to make it 0.01s clock
         ret
 
-;       ----
 
-;       delay ~300 000 clock cycles
-
-.Delay300Kclocks
-        ld      hl, 10000                       ; 10 000*30 cycles
-        ld      b, $ff
-.dlay_1
-        ld      c, $ff                          ; 7+11+12 cycles
-        add     hl, bc
-        jr      c, dlay_1
-        ret
-
-;       ----
-
+;       -------------------------------------------------------------------
 ;       update small timer
 ;
 ;       old timer(BC)=new timer(BC)
