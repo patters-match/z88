@@ -74,15 +74,13 @@ ELSE
         defb    5                               ; length of name and terminator
         defm    "APPL", 0
         defb    $FF                             ; end of application front DOR
-        defs    25                              ; blanks to fill-out space.
-
-        defb    FILEAREASIZE, $00               ; $3FEC, file area size in 16K banks, reclaim sector (0=not used)
-        defm    "oz"                            ; $3FEE, 'oz' file area watermark.
+        defs    29                              ; blanks to fill-out space.
 
 .boot_slot1_kernel
         ld      a, OZBANK_KNL0
         out     (BL_SR3), a                     ; map KERNEL0 to segment 3
         jp      Boot_reset                      ; and continue reset in new kernel
+        defb    0
 
 .eprom_header
         jr      boot_slot1_kernel               ; $3FF8, Hook jump address from bank 0 OZ ROM (this gets executed in segment 2 at $BFF8)
