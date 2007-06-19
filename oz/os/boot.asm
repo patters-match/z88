@@ -41,6 +41,7 @@
         org     $c000
 
 xdef    Halt
+xdef    Boot_reset
 xdef    Delay300Kclocks
 
 xref    nmi_5                                   ; [Kernel0]/nmi.asm
@@ -95,7 +96,7 @@ xref    Reset                                   ; [Kernel1]/reset.asm
         defw    Reset1
 .ROMstack
 IF OZ_SLOT1
-        defw     rst1_2                         ; OZ ROM in slot 1 just continues the reset
+        defw     Boot_reset                     ; OZ ROM in slot 1 just continues the reset
 ELSE
         defw     Bootstrap2                     ; if OZ ROM is in slot 0, then poll for OZ in slot 1,,,
 ENDIF
@@ -113,16 +114,18 @@ ENDIF
         jp      nmi_5
 .Reset1
         ld      de, 1<<8 | $3f                  ; check slot 1, max size 63 banks
-        jp      VerifySlotType                  ; ret to Bootstrap2
+        jp      VerifySlotType                  ; ret at ROMstack
 
+IF !OZ_SLOT1
 .Bootstrap2
         bit     BU_B_ROM, d                     ; check for bootable ROM in slot 1
-        jr      z, rst1_2                       ; not application ROM? skip
+        jr      z, Boot_reset                   ; not application ROM? skip
         ld      a, ($bffd)                      ; subtype
         cp      'Z'
         jp      z, $bff8                        ; enter ROM
+ENDIF
 
-.rst1_2
+.Boot_reset
         ld      a, OZBANK_KNL1
         out     (BL_SR2), a                     ; get kernel 1 into segment 2
         jp      Reset                           ; init internal RAM, blink and low-ram code and set SP

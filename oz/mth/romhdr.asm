@@ -21,36 +21,78 @@
 ; $Id$
 ; ***************************************************************************************************
 
-    MODULE RomHeader
-
-    ORG $3FC0
+        module RomHeader
 
 ; Application front DOR, in top bank of ROM, starting at $3FC0
 
-     include "mth.def"
-     include "sysvar.def"
+        org $3FC0
+
+        include "mth.def"
+        include "sysvar.def"
+
+IF !OZ_SLOT1
+; ---------------------------------------------------------------------------------------------------
+; ROM header for slot 0
 
 .appl_front_dor                                 ; $3FC0
-        defp 0, 0                               ; no link to parent ...
-        defp 0, 0                               ; no help DOR
-        defp IndexDor,OZBANK_MTH                ; link to first application DOR
-        defb $13                                ; DOR type - ROM front DOR
-        defb 8                                  ; length of DOR
-        defb 'N'
-        defb 5                                  ; length of name and terminator
-        defm "APPL", 0
-        defb $FF                                ; end of application front DOR
-        defs 25                                 ; blanks to fill-out space.
+        defp    0, 0                            ; no link to parent ...
+        defp    0, 0                            ; no help DOR
+        defp    IndexDor,OZBANK_MTH             ; link to first application DOR
+        defb    $13                             ; DOR type - ROM front DOR
+        defb    8                               ; length of DOR
+        defb    'N'
+        defb    5                               ; length of name and terminator
+        defm    "APPL", 0
+        defb    $FF                             ; end of application front DOR
+        defs    25                              ; blanks to fill-out space.
 
-        defb FILEAREASIZE, $00                  ; $3FEC, file area size in 16K banks, reclaim sector (0=not used)
-        defm "oz"                               ; $3FEE, 'oz' file area watermark.
+        defb    FILEAREASIZE, $00               ; $3FEC, file area size in 16K banks, reclaim sector (0=not used)
+        defm    "oz"                            ; $3FEE, 'oz' file area watermark.
 
-        defs 8                                  ; blanks to fill-out space.
+        defs    8                               ; blanks to fill-out space.
 .eprom_header
-        defb $54,$43,$4C                        ; $3FF8, card ID "TCL"
-        defb $81                                ; $3FFB, external app would be $80
-        defb ROMSIZE                            ; $3FFC, size of ROM in banks
-        defb 0                                  ; $3FFD, subtype
+        defb    $54,$43,$4C                     ; $3FF8, card ID "TCL"
+        defb    $81                             ; $3FFB, external app would be $80
+        defb    ROMSIZE                         ; $3FFC, size of ROM in banks
+        defb    0                               ; $3FFD, subtype
 .oz_watermark
-        defm "OZ"                               ; $3FFE card is an application EPROM
+        defm    "OZ"                            ; $3FFE card is an application EPROM
+
+ELSE
+; ---------------------------------------------------------------------------------------------------
+; ROM header for slot 1
+        include "kernel.def"                    ; get bank number of KERNEL0
+        include "../kernel0.def"                ; get kernel 0 kernel address references
+
+.appl_front_dor                                 ; $3FC0
+        defp    0, 0                            ; no link to parent ...
+        defp    0, 0                            ; no help DOR
+        defp    IndexDor,OZBANK_MTH             ; link to first application DOR
+        defb    $13                             ; DOR type - ROM front DOR
+        defb    8                               ; length of DOR
+        defb    'N'
+        defb    5                               ; length of name and terminator
+        defm    "APPL", 0
+        defb    $FF                             ; end of application front DOR
+        defs    25                              ; blanks to fill-out space.
+
+        defb    FILEAREASIZE, $00               ; $3FEC, file area size in 16K banks, reclaim sector (0=not used)
+        defm    "oz"                            ; $3FEE, 'oz' file area watermark.
+
+.boot_slot1_kernel
+        ld      a, OZBANK_KNL0
+        out     (BL_SR3), a                     ; map KERNEL0 to segment 3
+        jp      Boot_reset                      ; and continue reset in new kernel
+
+.eprom_header
+        jr      boot_slot1_kernel               ; $3FF8, Hook jump address from bank 0 OZ ROM (this gets executed in segment 2 at $BFF8)
+
+        defb    0
+        defb    $81                             ; $3FFB, external app would be $80
+        defb    ROMSIZE                         ; $3FFC, size of ROM in banks
+        defb    'Z'                             ; $3FFD, indicate external OZ in slot 1
+.oz_watermark
+        defm    "OZ"                            ; $3FFE card contains OZ with applications
+ENDIF
+
 .RomTop

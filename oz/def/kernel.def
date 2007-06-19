@@ -33,17 +33,37 @@ lstoff
 defc    OZVERSION               = $42
 
 ; rom layout:
-defc    ROMSIZE                 =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
-defc    FILEAREASIZE            =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
 
-defc    OZBANK_KNL0             =$00            ; kernel bank 0
-defc    OZBANK_DC               =$02
-defc    OZBANK_FPP              =$02
-defc    OZBANK_GN               =$03
-defc    OZBANK_KNL1             =$07            ; kernel bank 1
-defc    OZBANK_MTH              =$08            ; OZ static structures (DOR's, MTH, Font bitmap)
-defc    OZBANK_LOWRAM           =$0A            ; LOWRAM code to be installed during reset (located in EazyLink bank)
-defc    OZBANK_KEYMAP           =$08            ; localisation keymap tables
+IF OZ_SLOT1
+        defc ROMSIZE            =13             ; OZ is located at top 13 banks in slot 1 on a 1Mb AMD 29F080B Flash Card
+
+        defc OZBANK_LOWRAM      =$74            ; LOWRAM code to be installed during reset (located in EazyLink bank)
+        defc OZBANK_GN          =$7B
+        defc OZBANK_DC          =$7C
+        defc OZBANK_FPP         =$7C
+        defc OZBANK_KNL1        =$7D            ; kernel bank 1 (lower)
+        defc OZBANK_KNL0        =$7E            ; kernel bank 0 (upper)
+        defc OZBANK_MTH         =$7F            ; OZ static structures (DOR's, MTH, Font bitmap)
+        defc OZBANK_KEYMAP      =$7F            ; localisation keymap tables
+        defc LORES0_PAGE_EXP    =$7F
+        defc LORES1_BANK        =$7F
+        defc HIRES1_BANK        =$7F
+ELSE
+        defc ROMSIZE            =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
+        defc FILEAREASIZE       =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
+
+        defc OZBANK_KNL0        =$00            ; kernel bank 0
+        defc OZBANK_DC          =$02
+        defc OZBANK_FPP         =$02
+        defc OZBANK_GN          =$03
+        defc OZBANK_KNL1        =$07            ; kernel bank 1
+        defc OZBANK_MTH         =$08            ; OZ static structures (DOR's, MTH, Font bitmap)
+        defc OZBANK_KEYMAP      =$08            ; localisation keymap tables
+        defc LORES0_PAGE_EXP    =$08
+        defc LORES1_BANK        =$08
+        defc HIRES1_BANK        =$08
+        defc OZBANK_LOWRAM      =$0A            ; LOWRAM code to be installed during reset (located in EazyLink bank)
+ENDIF
 
 defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
@@ -54,17 +74,13 @@ defc    LOWRAM_CODE             =$FD00          ; LOWRAM code stored in EazyLink
 defc    LORES0_BANK_UNEXP       =$21
 defc    LORES0_PAGE_UNEXP       =$22
 ;       LORES0_BANK_EXP         =$24 or $43     ; calculated by the routine
-defc    LORES0_PAGE_EXP         =$08
-
-defc    LORES1_BANK             =$08
-defc    LORES1_PAGE             =$10
 
 defc    HIRES0_BANK_UNEXP       =$21
 defc    HIRES0_PAGE_UNEXP       =$20
 ;       HIRES0_BANK_EXP         =$24 or $43     ; calculated by the routine
 defc    HIRES0_PAGE_EXP         =$00
 
-defc    HIRES1_BANK             =$08
+defc    LORES1_PAGE             =$10
 defc    HIRES1_PAGE             =$08            ; cross LORES1 because first $400 is empty
                                                 ; starts really at $1400 (first hires char is number $80)
 defc    SBF_BANK                =$20            ; to be renamed ($21 in reality)
