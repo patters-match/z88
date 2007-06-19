@@ -72,10 +72,8 @@ xref    Reset                                   ; [Kernel1]/reset.asm
         xor     a
         out     (BL_COM), a                     ; reset command register
         ld      a, OZBANK_KNL0
-        out     (BL_SR0), a                     ; bind KERNEL0 into all segments
-        out     (BL_SR1), a
         out     (BL_SR2), a
-        out     (BL_SR3), a
+        out     (BL_SR3), a                     ; preset kernel banks
         ld      a, l                            ; enable and ack RTC interrupts
         out     (BL_TMK), a
         out     (BL_TACK), a
@@ -96,9 +94,12 @@ xref    Reset                                   ; [Kernel1]/reset.asm
 ; for the ret in ROM
         defw    Reset1
 .ROMstack
-        defw     Bootstrap2
+IF OZ_SLOT1
+        defw     rst1_2                         ; OZ ROM in slot 1 just continues the reset
+ELSE
+        defw     Bootstrap2                     ; if OZ ROM is in slot 0, then poll for OZ in slot 1,,,
+ENDIF
         defs    ($0038-$PC) ($ff)               ; pad FFh's until 0038H (Z80 INT vector)
-
 
 
 ; hardware IM1 INT at $0038
