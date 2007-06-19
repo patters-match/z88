@@ -1,0 +1,81 @@
+; **************************************************************************************************
+; Z88 512K 'OZ' slot 1 ROM loadmap for MakeApp utility.
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; $Id$
+;***************************************************************************************************
+
+; generate a 512K ROM image, also as 16K bank files
+outputfile oz.bin
+size 512
+romupdate oz.1
+
+; OZ ROM in slot 1 is located at the top half of the 1Mb address space, beginning
+; at bank $73 upwards until $7F (top of slot)
+;
+; The remaining empty space towards the bottom may be exploited by FlashStore
+; as an "Eprom" filing system (on first 64K boundary below OZ ROM).
+
+; Bank $73: Kernel upper part (addressed from $C000 upwards), OS system calls
+os/kernel0.bin 730000                           ; first part of kernel OS
+os/ostables.bin 733f00
+
+; Bank $74: Diary, Calendar, Clock, Alarm & Imp/Export
+apps/diary/diary.bin 740000                     ; $C000: Diary application
+apps/clock/clcalalm.bin 7427ee                  ; $E7EE: Clock, Calendar & Alarm popdowns
+apps/impexport/impexp.bin 743ab1                ; $FAB1: Imp/export popdown
+
+; Bank $75: Index, Filer, Terminal, Floating Point Package
+dc/dc.bin 750000                                ; $C000: Index popdown (and DC_ system calls)
+fp/fpp.bin 751a00                               ; $DA00: Floating Point Package
+apps/filer/filer.bin 752800                     ; $E800: Filer Popdown
+
+; Bank $76: GN system calls, Calculator popdown
+gn/gn.bin 760000                                ; $C000: GN_ system calls
+
+; Bank $77,$78: PipeDream (32K app)
+apps/pipedream/pipedream.bn0 770000
+apps/pipedream/pipedream.bn1 780000
+
+; Bank $79: PrinterEd, Panel
+apps/panelprted/panelped.bin 790000             ; $C000: Panel popdown & PrinterEd application
+apps/terminal/terminal.bin 791400               ; $D400: Terminal Application
+apps/calculator/calc.bin 791600                 ; $D600: Calculator popdown
+
+; Bank $7A: kernel lower part (addressed from $8000 upwards)
+os/kernel1.bin 7A0000                           ; second part of kernel OS
+
+; Bank $7B: MTH and other static structures in last ROM bank
+mth/keymaps.bin 7B0000                          ; keyboard maps for UK, FR, DK, FI/SE & DE
+mth/hires1.bin 7B0800                           ; the HIRES1 font bitmap (OZ window symbols) 0E00-0FFF is free due to granularity
+mth/lores1.bin 7B1000                           ; the LORES1 font bitmap (Normal, Bold, Tiny, Symbol)
+mth/mth.bin 7B2000                              ; the System Token Table, MTH static structures and application DORs
+
+; Bank $7C: BBC Basic application
+apps/bbcbasic/basic.dat 7C0000                  ; $0000: BBC BASIC application bank
+
+; Bank $7D: EazyLink & LOWRAM
+apps/eazylink/eazylink.bin 7D0000               ; $8000: EazyLink popdown
+os/lowram/lowram.bin 7D3d00                     ; LOWRAM code (RST routines, etc) to be installed during reset
+
+; Bank $7E: FlashStore
+apps/flashstore/fsapp.bin 7E0000
+
+; Bank $7F: ROM header at top of 1Mb address space
+mth/romhdr.bin 7F3fc0                           ; Front DOR and 'OZ' header at top of ROM code

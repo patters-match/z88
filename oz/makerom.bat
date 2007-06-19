@@ -1,6 +1,6 @@
 :: **************************************************************************************************
-:: OZ ROM compilation script for Windows/DOS
-:: (C) Gunther Strube (gbs@users.sf.net) 2005
+:: OZ ROM slot 0/1 compilation script for Windows/DOS
+:: (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,6 +23,21 @@
 :: ***************************************************************************************************
 
 @echo off
+
+:: OZ ROM slot directive (first command line argument)
+set ozslot=%1
+
+if "%ozslot%"=="0" set ozslot=0
+if "%ozslot%"=="1" set ozslot=1
+
+if "%ozslot%"=="0" goto COMPILE_OZ
+if "%ozslot%"=="1" goto COMPILE_OZ
+
+:: if no (or unknown) slot directive is specified, compile ROM for slot 0
+set ozslot=0
+
+:COMPILE_OZ
+ECHO Compiling OZ ROM for slot %ozslot%
 
 :: delete previous compiled files...
 call cleanup
@@ -81,7 +96,7 @@ goto COMPILE_ERROR
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_KERNEL
 echo compiling OZ kernel
-call kernel 2>nul >nul
+call kernel %ozslot% 2>nul >nul
 dir os\*.err 2>nul >nul || goto CHECK_KERNEL1_ERRORS
 type os\*.err
 goto COMPILE_ERROR
@@ -184,7 +199,7 @@ goto COMPILE_ERROR
 :: ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 :COMBINE_BANKS
 echo Compiled Z88 ROM, and combined into "oz.bin" file.
-..\tools\makeapp\makeapp.bat -f rom.loadmap
+..\tools\makeapp\makeapp.bat -f rom.slot%ozslot%.loadmap
 goto END
 
 :COMPILE_ERROR

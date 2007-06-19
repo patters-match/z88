@@ -24,6 +24,13 @@
 # $Id$
 # ***************************************************************************************************
 
+if test $# -eq 0; then
+  # no slot directive is specified, compile ROM for slot 0
+  ozslot=0
+else
+  ozslot=$1
+fi
+
 # delete previous compiled files (incl error and warning files)...
 . cleanup.sh
 
@@ -85,7 +92,7 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 echo compiling OZ kernel
-. kernel.sh
+. kernel.sh $ozslot
 if test `find . -name '*.err' | wc -l` != 0; then
   cat os/*.err
   echo Script aborted.
@@ -193,4 +200,4 @@ fi
 # -------------------------------------------------------------------------------------------------
 # ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 echo Compiled Z88 ROM, now being combined into "oz.bin" file.
-../tools/makeapp/makeapp.sh -f rom.loadmap
+../tools/makeapp/makeapp.sh -f rom.slot$ozslot.loadmap
