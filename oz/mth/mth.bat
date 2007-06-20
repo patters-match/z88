@@ -40,11 +40,6 @@ goto COMPILE_ERROR
 
 :COMPILE_MTH
 ..\..\tools\mpm\mpm -bg -I..\def @mth.prj
-dir *.err 2>nul >nul || goto COMPILE_ROMHDR
-goto COMPILE_ERROR
-
-:COMPILE_ROMHDR
-..\..\tools\mpm\mpm -b -I..\def romhdr.asm
 dir *.err 2>nul >nul || goto END
 goto COMPILE_ERROR
 

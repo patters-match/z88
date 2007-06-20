@@ -191,8 +191,17 @@ echo compiling Flashstore
 cd apps\flashstore
 call makeapp
 cd ..\..
-dir apps\flashstore\*.err 2>nul >nul || goto COMBINE_BANKS
+dir apps\flashstore\*.err 2>nul >nul || goto COMPILE_ROMHDR
 type apps\flashstore\*.err
+goto COMPILE_ERROR
+
+:: -------------------------------------------------------------------------------------------------
+:COMPILE_ROMHDR
+echo compiling OZ ROM Header
+cd mth
+..\..\tools\mpm\mpm -b -DOZ_SLOT%ozslot% -I..\def romhdr.asm
+cd ..
+dir mth\*.err 2>nul >nul || goto COMBINE_BANKS
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------

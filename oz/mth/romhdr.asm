@@ -61,8 +61,8 @@ IF !OZ_SLOT1
 ELSE
 ; ---------------------------------------------------------------------------------------------------
 ; ROM header for slot 1
-        include "kernel.def"                    ; get bank number of KERNEL0
-        include "../kernel0.def"                ; get kernel 0 kernel address references
+        include "blink.def"
+        include "../os/kernel0.def"             ; get kernel 0 kernel address references
 
 .appl_front_dor                                 ; $3FC0
         defp    0, 0                            ; no link to parent ...

@@ -198,6 +198,17 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
+echo compiling OZ ROM Header
+cd mth
+../../tools/mpm/mpm -b -DOZ_SLOT$ozslot -I../def romhdr.asm
+cd ..
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat mth/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
 # ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 echo Compiled Z88 ROM, now being combined into "oz.bin" file.
 ../tools/makeapp/makeapp.sh -f rom.slot$ozslot.loadmap
