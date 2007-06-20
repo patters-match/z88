@@ -67,7 +67,7 @@ ELSE
 .appl_front_dor                                 ; $3FC0
         defp    0, 0                            ; no link to parent ...
         defp    0, 0                            ; no help DOR
-        defp    IndexDor,OZBANK_MTH             ; link to first application DOR
+        defp    IndexDor,OZBANK_MTH & $3F       ; link to first application DOR
         defb    $13                             ; DOR type - ROM front DOR
         defb    8                               ; length of DOR
         defb    'N'

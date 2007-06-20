@@ -53,7 +53,6 @@ xdef    IndexDOR
 xdef    PrEdDOR
 xdef    PanelDOR
 
-
 .IndexTopics
         defb    0
         defb    4,$D8,0,4
@@ -430,7 +429,7 @@ xdef    PanelDOR
 
 .IndexDOR
         defp    0,0                             ; parent
-        defp    DiaryDOR,OZBANK_MTH             ; brother
+        defp    DiaryDOR,OZBANK_MTH & $3F       ; brother
         defp    0,0                             ; son
         defb    DM_ROM,IndexDORe-$PC            ; DOR type, sizeof
 
@@ -443,10 +442,10 @@ xdef    PanelDOR
         defb    0                               ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    IndexTopics,OZBANK_MTH          ; topics
-        defp    IndexCommands,OZBANK_MTH        ; commands
-        defp    IndexHelp,OZBANK_MTH            ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    IndexTopics,OZBANK_MTH & $3F    ; topics
+        defp    IndexCommands,OZBANK_MTH & $3F  ; commands
+        defp    IndexHelp,OZBANK_MTH & $3F      ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; token base
 
         defb    'N',IndexDORe-$PC-1             ; name, length
         defm    "Index",0
@@ -455,7 +454,7 @@ xdef    PanelDOR
 
 .DiaryDOR
         defp    0,0                             ; parent
-        defp    PipeDreamDOR,OZBANK_MTH         ; brother
+        defp    PipeDreamDOR,OZBANK_MTH & $3F   ; brother
         defp    0,0                             ; son
         defb    $83,DiaryDORe-$PC               ; DOR type, sizeof
 
@@ -468,10 +467,10 @@ xdef    PanelDOR
         defb    0                               ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    DiaryTopics,OZBANK_MTH          ; topics
-        defp    DiaryCommands,OZBANK_MTH        ; commands
-        defp    DiaryHelp,OZBANK_MTH            ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    DiaryTopics,OZBANK_MTH & $3F    ; topics
+        defp    DiaryCommands,OZBANK_MTH & $3F  ; commands
+        defp    DiaryHelp,OZBANK_MTH & $3F      ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; token base
 
         defb    'N',DiaryDORe-$PC-1             ; name, length
         defm    "Diary",0
@@ -480,7 +479,7 @@ xdef    PanelDOR
 
 .PipeDreamDOR
         defp    0,0                             ; parent
-        defp    BasicDOR,OZBANK_MTH               ; brother
+        defp    BasicDOR,OZBANK_MTH & $3F       ; brother
         defp    0,0                             ; son
         defb    $83,PipeDreamDORe-$PC           ; DOR type, sizeof
 
@@ -493,10 +492,10 @@ xdef    PanelDOR
         defb    0                               ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    PipeDreamTopics,OZBANK_MTH      ; topics
-        defp    PipeDreamCommands,OZBANK_MTH    ; commands
-        defp    PipeDreamHelp,OZBANK_MTH        ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    PipeDreamTopics,OZBANK_MTH & $3F      ; topics
+        defp    PipeDreamCommands,OZBANK_MTH & $3F    ; commands
+        defp    PipeDreamHelp,OZBANK_MTH & $3F        ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F         ; token base
 
         defb    'N',PipeDreamDORe-$PC-1         ; name, length
         defm    "PipeDream",0
@@ -505,7 +504,7 @@ xdef    PanelDOR
 
 .BasicDOR
         defp    0,0                             ; parent
-        defp    CalculatorDOR,OZBANK_MTH          ; brother
+        defp    CalculatorDOR,OZBANK_MTH & $3F  ; brother
         defp    0,0                             ; son
         defb    $83,BasicDORe-$PC               ; DOR type, sizeof
 
@@ -518,10 +517,10 @@ xdef    PanelDOR
         defb    AT2_Cl                          ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    BasicDOR,OZBANK_MTH             ; no topics
-        defp    BasicDOR,OZBANK_MTH             ; no commands
-        defp    BasicHelp,OZBANK_MTH            ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; use system token table
+        defp    BasicDOR,OZBANK_MTH & $3F       ; no topics
+        defp    BasicDOR,OZBANK_MTH & $3F       ; no commands
+        defp    BasicHelp,OZBANK_MTH & $3F      ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; use system token table
 
         defb    'N',BasicDORe-$PC-1             ; name, length
         defm    "BBC Basic",0
@@ -530,7 +529,7 @@ xdef    PanelDOR
 
 .CalculatorDOR
         defp    0,0                             ; parent
-        defp    CalendarDOR,OZBANK_MTH          ; brother
+        defp    CalendarDOR,OZBANK_MTH & $3F    ; brother
         defp    0,0                             ; son
         defb    $83,CalculatorDORe-$PC          ; DOR type, sizeof
 
@@ -543,10 +542,10 @@ xdef    PanelDOR
         defb    0                               ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    CalculatorDOR,OZBANK_MTH        ; no topics
-        defp    CalculatorDOR,OZBANK_MTH        ; no commands
-        defp    CalculatorHelp,OZBANK_MTH       ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; use system token table
+        defp    CalculatorDOR,OZBANK_MTH & $3F  ; no topics
+        defp    CalculatorDOR,OZBANK_MTH & $3F  ; no commands
+        defp    CalculatorHelp,OZBANK_MTH & $3F ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; use system token table
 
         defb    'N',CalculatorDORe-$PC-1        ; name, length
         defm    "Calculator",0
@@ -556,7 +555,7 @@ xdef    PanelDOR
 
 .CalendarDOR
         defp    0,0                             ; parent
-        defp    ClockDOR,OZBANK_MTH             ; brother
+        defp    ClockDOR,OZBANK_MTH & $3F       ; brother
         defp    0,0                             ; son
         defb    $83, CalendarDORe-$PC           ; DOR type, sizeof
 
@@ -569,10 +568,10 @@ xdef    PanelDOR
         defb    AT2_Ie                          ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    CalendarDOR,OZBANK_MTH          ; no topics
-        defp    CalendarDOR,OZBANK_MTH          ; no commands
-        defp    CalendarHelp,OZBANK_MTH         ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; use system token table
+        defp    CalendarDOR,OZBANK_MTH & $3F    ; no topics
+        defp    CalendarDOR,OZBANK_MTH & $3F    ; no commands
+        defp    CalendarHelp,OZBANK_MTH & $3F   ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; use system token table
 
         defb    'N',CalendarDORe-$PC-1          ; name, length
         defm    "Calendar",0
@@ -581,7 +580,7 @@ xdef    PanelDOR
 
 .ClockDOR
         defp    0,0                             ; parent
-        defp    AlarmDOR,OZBANK_MTH             ; brother
+        defp    AlarmDOR,OZBANK_MTH & $3F       ; brother
         defp    0,0                             ; son
         defb    $83, ClockDORe-$PC              ; DOR type, sizeof
 
@@ -594,10 +593,10 @@ xdef    PanelDOR
         defb    AT2_Ie                          ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    ClockDOR,OZBANK_MTH             ; no topics
-        defp    ClockDOR,OZBANK_MTH             ; no commands
-        defp    ClockHelp,OZBANK_MTH            ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; use system token table
+        defp    ClockDOR,OZBANK_MTH & $3F       ; no topics
+        defp    ClockDOR,OZBANK_MTH & $3F       ; no commands
+        defp    ClockHelp,OZBANK_MTH & $3F      ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; use system token table
 
         defb    'N',ClockDORe-$PC-1             ; name, length
         defm    "Clock",0
@@ -607,7 +606,7 @@ xdef    PanelDOR
 
 .AlarmDOR
         defp    0,0                             ; parent
-        defp    FilerDor,OZBANK_MTH             ; brother
+        defp    FilerDor,OZBANK_MTH & $3F       ; brother
         defp    0,0                             ; son
         defb    $83,AlarmDORe-$PC               ; DOR type, sizeof
 
@@ -620,10 +619,10 @@ xdef    PanelDOR
         defb    AT2_Ie                          ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    AlarmDOR,OZBANK_MTH             ; topics
-        defp    AlarmDOR,OZBANK_MTH             ; commands
-        defp    AlarmHelp,OZBANK_MTH            ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    AlarmDOR,OZBANK_MTH & $3F       ; topics
+        defp    AlarmDOR,OZBANK_MTH & $3F       ; commands
+        defp    AlarmHelp,OZBANK_MTH & $3F      ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; token base
 
         defb    'N',AlarmDORe-$PC-1             ; name, length
         defm    "Alarm",0
@@ -633,7 +632,7 @@ xdef    PanelDOR
 
 .FilerDOR
         defp    0,0                             ; parent
-        defp    PrEdDOR,OZBANK_MTH              ; brother
+        defp    PrEdDOR,OZBANK_MTH & $3F        ; brother
         defp    0,0                             ; son
         defb    $83,FilerDORe-$PC               ; DOR type, sizeof
 
@@ -646,10 +645,10 @@ xdef    PanelDOR
         defb    0                               ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    FilerTopics,OZBANK_MTH          ; topics
-        defp    FilerCommands,OZBANK_MTH        ; commands
-        defp    FilerHelp,OZBANK_MTH            ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    FilerTopics,OZBANK_MTH & $3F    ; topics
+        defp    FilerCommands,OZBANK_MTH & $3F  ; commands
+        defp    FilerHelp,OZBANK_MTH & $3F      ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; token base
         defb    'N',FilerDORe-$PC-1             ; name, length
         defm    "Filer",0
 .FilerDORe
@@ -658,7 +657,7 @@ xdef    PanelDOR
 
 .PrEdDOR
         defp    0,0                             ; parent
-        defp    PanelDOR,OZBANK_MTH             ; brother
+        defp    PanelDOR,OZBANK_MTH & $3F       ; brother
         defp    0,0                             ; son
         defb    DM_ROM, PrEdDORe-$PC            ; DOR type, sizeof
 
@@ -671,10 +670,10 @@ xdef    PanelDOR
         defb    0                               ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    PrinterEdTopics,OZBANK_MTH      ; topics
-        defp    PrinterEdCommands,OZBANK_MTH    ; commands
-        defp    PrinterEdHelp,OZBANK_MTH        ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    PrinterEdTopics,OZBANK_MTH & $3F      ; topics
+        defp    PrinterEdCommands,OZBANK_MTH & $3F    ; commands
+        defp    PrinterEdHelp,OZBANK_MTH & $3F        ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F         ; token base
 
         defb    'N',PrEdDORe-$PC-1              ; name, length
         defm    "PrinterEd",0
@@ -684,7 +683,7 @@ xdef    PanelDOR
 
 .PanelDOR
         defp    0,0                             ; parent
-        defp    TerminalDOR,OZBANK_MTH          ; brother
+        defp    TerminalDOR,OZBANK_MTH & $3F    ; brother
         defp    0,0                             ; son
         defb    $83, PanelDORe-$PC              ; DOR type, sizeof
 
@@ -697,10 +696,10 @@ xdef    PanelDOR
         defb    0                               ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    PanelTopics,OZBANK_MTH          ; topics
-        defp    PanelCommands,OZBANK_MTH        ; commands
-        defp    PanelHelp,OZBANK_MTH            ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    PanelTopics,OZBANK_MTH & $3F    ; topics
+        defp    PanelCommands,OZBANK_MTH & $3F  ; commands
+        defp    PanelHelp,OZBANK_MTH & $3F      ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; token base
 
         defb    'N',PanelDORe-$PC-1             ; name, length
         defm    "Panel",0
@@ -710,7 +709,7 @@ xdef    PanelDOR
 
 .TerminalDOR
         defp    0,0                             ; parent
-        defp    ImpExpDOR,OZBANK_MTH            ; brother
+        defp    ImpExpDOR,OZBANK_MTH & $3F      ; brother
         defp    0,0                             ; son
         defb    $83,TerminalDORe-$PC            ; DOR type, sizeof
 
@@ -723,10 +722,10 @@ xdef    PanelDOR
         defb    AT2_Ie                          ; appl type 2
 
         defb    'H',12                          ; help, sizeof
-        defp    TerminalTopics,OZBANK_MTH       ; topics
-        defp    TerminalCommands,OZBANK_MTH     ; commands
-        defp    TerminalHelp,OZBANK_MTH         ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; token base
+        defp    TerminalTopics,OZBANK_MTH & $3F       ; topics
+        defp    TerminalCommands,OZBANK_MTH & $3F     ; commands
+        defp    TerminalHelp,OZBANK_MTH & $3F         ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F         ; token base
 
         defb    'N',TerminalDORe-$PC-1          ; name, length
         defm    "Terminal",0
@@ -736,7 +735,7 @@ xdef    PanelDOR
 
 .ImpExpDOR
         defp    0,0                             ; parent
-        defp    EasyLinkDOR,OZBANK_MTH          ; brother, EazyLink
+        defp    EasyLinkDOR,OZBANK_MTH & $3F    ; brother, EazyLink
         defp    0,0                             ; son
         defb    DM_ROM, ImpExpDORe-$PC          ; DOR type, sizeof
         defb    DT_INF, 18
@@ -748,10 +747,10 @@ xdef    PanelDOR
         defb    0,0,0,OZBANK_IMPEXPORT          ; bind bank of Imp/Export popdown to segment 3
         defb    AT_Good|AT_Popd,0               ; appl type
         defb    DT_HLP,12                       ; help, sizeof
-        defp    ImpExpDOR,OZBANK_MTH            ; no topics
-        defp    ImpExpDOR,OZBANK_MTH            ; no commands
-        defp    ImpExpHelp,OZBANK_MTH           ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; use system token table
+        defp    ImpExpDOR,OZBANK_MTH & $3F      ; no topics
+        defp    ImpExpDOR,OZBANK_MTH & $3F      ; no commands
+        defp    ImpExpHelp,OZBANK_MTH & $3F     ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; use system token table
 
         defb    DT_NAM, ImpExpDORe-$PC-1
         defm    "Imp-Export",0                  ; name, length
@@ -761,7 +760,7 @@ xdef    PanelDOR
 
 .EasyLinkDOR
         defp    0, 0                            ; parent
-        defp    FlashstoreDOR,OZBANK_MTH        ; brother, EazyLink
+        defp    FlashstoreDOR,OZBANK_MTH & $3F  ; brother, EazyLink
         defp    0, 0                            ; son
         defb    DM_ROM                          ; DOR type - application ROM
         defb    EasyLinkDORe-$PC                ; total length of DOR
@@ -780,10 +779,10 @@ xdef    PanelDOR
         defb    AT_Ugly | AT_Popd               ; Ugly popdown
         defb    0                               ; no caps lock
         defb    DT_HLP,12                       ; Help section, length
-        defp    EasyLinkDOR,OZBANK_MTH          ; no topics
-        defp    EasyLinkDOR,OZBANK_MTH          ; no commands
-        defp    EazyLinkHelp,OZBANK_MTH         ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH         ; use System token base
+        defp    EasyLinkDOR,OZBANK_MTH & $3F    ; no topics
+        defp    EasyLinkDOR,OZBANK_MTH & $3F    ; no commands
+        defp    EazyLinkHelp,OZBANK_MTH & $3F   ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F   ; use System token base
         defb    DT_NAM, EasyLinkDORe-$PC-1      ; Name section, length
         defm    "EazyLink", 0
         defb    $FF
