@@ -90,7 +90,7 @@ xref    Reset                                   ; [Kernel1]/reset.asm
 .rint_0
         di
         ld      sp, ROMstack & $3fff            ; read return PC from ROM
-        jr      Delay300Kclocks                 ; ret to Reset1
+        call    Delay300Kclocks                 ; ret to Reset1
 
 ; for the ret in ROM
         defw    Reset1
