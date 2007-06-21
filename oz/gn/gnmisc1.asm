@@ -237,7 +237,7 @@ xref    GNXnx
         pop     bc
         pop     de
         pop     hl
-        jp      OZ_RET1
+        jp      OZCallReturn1
 
 .GN_ret1c
         exx
@@ -253,7 +253,7 @@ xref    GNXnx
         pop     bc
         pop     bc
         exx
-        jp      OZ_RET1
+        jp      OZCallReturn1
 
 .GN_ret0
         pop     bc
@@ -267,7 +267,7 @@ xref    GNXnx
         pop     bc
         pop     de
         pop     hl
-        jp      OZ_RET0
+        jp      OZCallReturn0
 
 ;       ----
 
