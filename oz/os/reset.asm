@@ -44,7 +44,7 @@
 
         include "lowram.def"
 
-xdef    Reset                                   ; [K0]/boot.asm
+xdef    Reset                                   ;
 xdef    ExpandMachine                           ; [K0]/cardmgr.asm
 
 xref    InitBufKBD_RX_TX                        ; [K0]/buffer.asm

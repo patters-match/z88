@@ -41,7 +41,7 @@ fi
 # (argument $1 contains the country localisation)
 cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -g -I../../def lowram.asm
+  ../../../tools/mpm/mpm -g -DOZ_SLOT"$1" -I../../def lowram.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -59,7 +59,7 @@ fi
 # create final lowram binary with correct addresses from lower kernel
 cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -b -DCOMPILE_BINARY -I../../def lowram.asm
+  ../../../tools/mpm/mpm -b -DOZ_SLOT"$1" -DCOMPILE_BINARY -I../../def lowram.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
