@@ -223,28 +223,36 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defb    $FF
 
 .Rom0_dor
-        defb    0,0,0, 0,0,0, $C0,$BF,$1F       ; Use last bank of slot 0 ($1F)
-        defb    DM_ROM, 9                       ; this allow to use larger ROM than 128K
-        defb    DT_NAM, 6                       ; up to 512K is allowed
+        defp    0, 0                            ; Use last bank of slot 0 ($1F), this allow to use larger ROM than 128K
+        defp    0, 0                            ; (up to 512K is allowed)
+        defp    $BFC0, $1F                      ; (point at ROM Front DOR in top of bottom half of slot 0)
+        defb    DM_ROM, 9
+        defb    DT_NAM, 6
         defm    "ROM.0",0
         defb    $FF
 
 .Rom1_dor
-        defb    0,0,0, 0,0,0, $C0,$BF,$7F
+        defp    0, 0
+        defp    0, 0
+        defp    $BFC0, $7F                      ; (point at ROM Front DOR in top of slot 1)
         defb    DM_ROM, 9
         defb    DT_NAM, 6
         defm    "ROM.1",0
         defb    $FF
 
 .Rom2_dor
-        defb    0,0,0, 0,0,0, $C0,$BF,$BF
+        defp    0, 0
+        defp    0, 0
+        defp    $BFC0, $BF                      ; (point at ROM Front DOR in top of slot 2)
         defb    DM_ROM, 9
         defb    DT_NAM, 6
         defm    "ROM.2",0
         defb    $FF
 
 .Rom3_dor
-        defb    0,0,0, 0,0,0, $C0,$BF,$FF
+        defp    0, 0
+        defp    0, 0
+        defp    $BFC0, $FF                      ; (point at ROM Front DOR in top of slot 3)
         defb    DM_ROM, 9
         defb    DT_NAM, 6
         defm    "ROM.3",0
