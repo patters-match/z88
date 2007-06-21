@@ -146,6 +146,10 @@ xref    TimeReset                               ; [K1]/timeres.asm
         ld      ($4000+BLSC_COM), a
         out     (BL_COM), a                     ; install LOWRAM in lower 8K of segment 0
         ld      sp, $2000                       ; init stack
+
+        ld      bc, OZBANK_KNL0<<8 | OZBANK_KNL1; define soft copy of current kernel bank bindings
+        ld      (BLSC_SR2),bc                   ; because they are used by OZ call interface..
+
         call    ResetHandles
 
 ;       init screen file for unexpanded machine
