@@ -437,7 +437,7 @@ xdef    PanelDOR
         defb    'I',0                           ; application key letter, bad app RAM
         defw    0,$28,0                         ; env. size, unsafe and safe workspace
         defw    ORG_INDEX                       ; entry point
-        defb    0,0,0,OZBANK_INDEX              ; bind bank of Index popdown to segment 3
+        defb    0,0,0,OZBANK_INDEX & $3F        ; bind bank of Index popdown to segment 3
         defb    AT_Good|AT_Popd|AT_Ones         ; appl type
         defb    0                               ; appl type 2
 
@@ -462,7 +462,7 @@ xdef    PanelDOR
         defb    'D',0                           ; application key letter, bad app RAM
         defw    $26C,0,$20                      ; env. size, unsafe and safe workspace
         defw    ORG_DIARY                       ; entry point
-        defb    0,0,0,OZBANK_DIARY              ; bind bank of Diary application to segment 3
+        defb    0,0,0,OZBANK_DIARY & $3F        ; bind bank of Diary application to segment 3
         defb    AT_Good                         ; appl type mutiple diaries (was AT_Good|AT_Ones)
         defb    0                               ; appl type 2
 
@@ -487,7 +487,9 @@ xdef    PanelDOR
         defb    'P',0                           ; application key letter, bad app RAM
         defw    $4D8,$268,$60                   ; env. size, unsafe and safe workspace
         defw    ORG_PIPEDREAM                   ; entry point
-        defb    0,0,OZBANK_PIPEDREAM,OZBANK_PIPEDREAM+1  ; bind banks of PipeDream to segment 2 & 3
+        defb    0,0
+        defb    OZBANK_PIPEDREAM & $3F
+        defb    (OZBANK_PIPEDREAM+1) & $3F        ; bind banks of PipeDream to segment 2 & 3
         defb    AT_Good                         ; appl type
         defb    0                               ; appl type 2
 
@@ -512,7 +514,7 @@ xdef    PanelDOR
         defb    'B',0                           ; application key letter, bad app RAM
         defw    $9B0,$3E,$C0                    ; env. size, unsafe and safe workspace
         defw    ORG_BBCBASIC                    ; entry point
-        defb    0,0,0,OZBANK_BBCBASIC           ; bind bank of BBC Basic application to segment 3
+        defb    0,0,0,OZBANK_BBCBASIC & $3F     ; bind bank of BBC Basic application to segment 3
         defb    AT_Bad|AT_Draw                  ; appl type
         defb    AT2_Cl                          ; appl type 2
 
@@ -537,7 +539,7 @@ xdef    PanelDOR
         defb    'R',0                           ; application key letter, bad app RAM
         defw    0,$80,0                         ; env. size, unsafe and safe workspace
         defw    ORG_CALCULATOR                  ; entry point
-        defb    0,0,0,OZBANK_CALCULATOR         ; bind bank of Calculator popdown to segment 3
+        defb    0,0,0,OZBANK_CALCULATOR & $3F   ; bind bank of Calculator popdown to segment 3
         defb    AT_Good|AT_Popd                 ; appl type
         defb    0                               ; appl type 2
 
@@ -563,7 +565,7 @@ xdef    PanelDOR
         defb    'C',0                           ; application key letter, bad app RAM
         defw    0,40,0                          ; env. size, unsafe and safe workspace
         defw    ORG_CALENDAR                    ; entry point
-        defb    0,0,0,OZBANK_CALENDAR           ; bind bank of Calendar popdown to segment 3
+        defb    0,0,0,OZBANK_CALENDAR & $3F     ; bind bank of Calendar popdown to segment 3
         defb    AT_Good|AT_Popd                 ; appl type
         defb    AT2_Ie                          ; appl type 2
 
@@ -588,7 +590,7 @@ xdef    PanelDOR
         defb    'T',0                           ; application key letter, bad app RAM
         defw    0,0,0                           ; env. size, unsafe and safe workspace
         defw    ORG_CLOCK                       ; entry point
-        defb    0,0,0,OZBANK_CLOCK              ; bind bank of Clock popdown to segment 3
+        defb    0,0,0,OZBANK_CLOCK & $3F        ; bind bank of Clock popdown to segment 3
         defb    AT_Good|AT_Popd                 ; appl type
         defb    AT2_Ie                          ; appl type 2
 
@@ -614,7 +616,7 @@ xdef    PanelDOR
         defb    'A',0                           ; application key letter, bad app RAM
         defw    0,$10,0                         ; env. size, unsafe and safe workspace
         defw    ORG_ALARM                       ; entry point
-        defb    0,0,0,OZBANK_ALARM              ; bind bank of Alarm popdown to segment 3
+        defb    0,0,0,OZBANK_ALARM & $3F        ; bind bank of Alarm popdown to segment 3
         defb    AT_Good|AT_Popd                 ; appl type
         defb    AT2_Ie                          ; appl type 2
 
@@ -640,7 +642,7 @@ xdef    PanelDOR
         defb    'F',0                           ; application key letter, bad app RAM
         defw    0,$230,0                        ; env. size, unsafe and safe workspace
         defw    ORG_FILER                       ; entry point
-        defb    0,0,0,OZBANK_FILER              ; bind bank of Filer popdown to segment 3
+        defb    0,0,0,OZBANK_FILER & $3F        ; bind bank of Filer popdown to segment 3
         defb    AT_Good|AT_Popd|AT_Film         ; appl type
         defb    0                               ; appl type 2
 
@@ -665,7 +667,7 @@ xdef    PanelDOR
         defb    'E',0                           ; application key letter, bad app RAM
         defw    $26c,0,$20                      ; env. size, unsafe and safe workspace
         defw    ORG_PRINTERED                   ; entry point
-        defb    0,0,0,OZBANK_PRINTERED          ; bind bank of Printered application to segment 3
+        defb    0,0,0,OZBANK_PRINTERED & $3F    ; bind bank of Printered application to segment 3
         defb    AT_Good|AT_Ones                 ; appl type
         defb    0                               ; appl type 2
 
@@ -691,7 +693,7 @@ xdef    PanelDOR
         defb    'S',0                           ; application key letter, bad app RAM
         defw    0,0,$20                         ; env. size, unsafe and safe workspace
         defw    ORG_PANEL                       ; entry point !! absolute
-        defb    0,0,0,OZBANK_PANEL              ; bind bank of Panel popdown to segment 3
+        defb    0,0,0,OZBANK_PANEL & $3F        ; bind bank of Panel popdown to segment 3
         defb    AT_Good|AT_Popd                 ; appl type
         defb    0                               ; appl type 2
 
@@ -717,7 +719,7 @@ xdef    PanelDOR
         defb    'V',0                           ; application key letter, bad app RAM
         defw    $744,0,$A                       ; env. size, unsafe and safe workspace
         defw    ORG_TERMINAL                    ; entry point
-        defb    0,0,0,OZBANK_TERMINAL           ; bind bank of Terminal application to segment 3
+        defb    0,0,0,OZBANK_TERMINAL & $3F     ; bind bank of Terminal application to segment 3
         defb    AT_Good|AT_Ones|AT_Draw         ; appl type
         defb    AT2_Ie                          ; appl type 2
 
@@ -744,7 +746,7 @@ xdef    PanelDOR
         defb    0
         defw    0,0,SAFESIZE                    ; env. size, unsafe and safe workspace
         defw    ORG_IMPEXPORT                   ; entry point
-        defb    0,0,0,OZBANK_IMPEXPORT          ; bind bank of Imp/Export popdown to segment 3
+        defb    0,0,0,OZBANK_IMPEXPORT & $3F    ; bind bank of Imp/Export popdown to segment 3
         defb    AT_Good|AT_Popd,0               ; appl type
         defb    DT_HLP,12                       ; help, sizeof
         defp    ImpExpDOR,OZBANK_MTH & $3F      ; no topics
@@ -774,7 +776,7 @@ xdef    PanelDOR
         defw    ORG_EAZYLINK                    ; Entry point of code in start of segment 2
         defb    0                               ; no bank binding to segment 0
         defb    0                               ; no bank binding to segment 1
-        defb    OZBANK_EAZYLINK                 ; bind bank of EazyLink popdown to segment 2
+        defb    OZBANK_EAZYLINK & $3F           ; bind bank of EazyLink popdown to segment 2
         defb    0                               ; no bank binding to segment 3
         defb    AT_Ugly | AT_Popd               ; Ugly popdown
         defb    0                               ; no caps lock
