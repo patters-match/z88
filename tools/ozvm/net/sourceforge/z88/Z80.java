@@ -89,8 +89,8 @@ public abstract class Z80 {
 		 * Dump executed instruction cache to log file in a background thread..
 		 */
 		private void flushCache(final int index) {
-			int cpyPcAddressCache[] = new int[BUFSIZE];
-			int cpyRegisterCache[][] = new int[BUFSIZE][7];
+			final int cpyPcAddressCache[] = new int[BUFSIZE];
+			final int cpyRegisterCache[][] = new int[BUFSIZE][7];
 						
 			System.arraycopy(pcAddressCache, 0, cpyPcAddressCache, 0, pcAddressCache.length);
 			System.arraycopy(registerCache, 0, cpyRegisterCache, 0, registerCache.length);
@@ -104,23 +104,23 @@ public abstract class Z80 {
 						StringBuffer dzLine = new StringBuffer(64);
 						StringBuffer dzBuf = new StringBuffer(128);
 						for (int i=0; i<index; i++) {
-							int dzBank = (pcAddressCache[i] >>> 16) & 0xFF;
-							int dzAddr = pcAddressCache[i] & 0xFFFF;	// bank	offset (with simulated segment addressing)
+							int dzBank = (cpyPcAddressCache[i] >>> 16) & 0xFF;
+							int dzAddr = cpyPcAddressCache[i] & 0xFFFF;	// bank	offset (with simulated segment addressing)
 
 							dz.getInstrAscii(dzLine, dzAddr, dzBank, false, true);
-							dzBuf.append(Dz.extAddrToHex(pcAddressCache[i], false));
+							dzBuf.append(Dz.extAddrToHex(cpyPcAddressCache[i], false));
 							dzBuf.append(" ");
 							dzBuf.append(dzLine);
 							for(int space=31 - dzLine.length(); space>0; space--) dzBuf.append(" ");
 							dzBuf.append(									
 									Z88Info.quickZ80Dump(
-															registerCache[i][0], // AF
-															registerCache[i][1], // BC
-															registerCache[i][2], // DE
-															registerCache[i][3], // HL
-															registerCache[i][4], // SP
-															registerCache[i][5], // IX
-															registerCache[i][6]) // IY
+											cpyRegisterCache[i][0], // AF
+											cpyRegisterCache[i][1], // BC
+											cpyRegisterCache[i][2], // DE
+											cpyRegisterCache[i][3], // HL
+											cpyRegisterCache[i][4], // SP
+											cpyRegisterCache[i][5], // IX
+											cpyRegisterCache[i][6]) // IY
 											);
 							dzBuf.append(System.getProperty("line.separator"));
 							out.write(dzBuf.toString());
