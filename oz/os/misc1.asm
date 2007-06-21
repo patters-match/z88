@@ -63,11 +63,20 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
 ;       defp    DOR address in S2
 
 .DevTable
-        defb    1, $80,$80,$21                  ; RAM.-
-        defb    2, $40,$80,$40                  ; RAM.1
-        defb    3, $40,$80,$80                  ; RAM.2
-        defb    4, $40,$80,$C0                  ; RAM.3
-        defb    5, $40,$80,$21                  ; RAM.0
+        defb    1
+        defp    $8080,$21                       ; RAM.-
+
+        defb    2
+        defp    $8040,$40                       ; RAM.1
+
+        defb    3
+        defp    $8040,$80                       ; RAM.2
+
+        defb    4
+        defp    $8040,$C0                       ; RAM.3
+
+        defb    5
+        defp    $8040,$21                       ; RAM.0
 
         defb    6                               ; SCR.0
         defp    Scr_dor, OZBANK_KNL1
