@@ -319,12 +319,8 @@ xref    PutOZwdBuf                              ; [Kernel0]/osin.asm
         ld      bc, ADOR_NAME                   ; skip to DOR name
         add     hl, bc
 
-.pan_1
-        ld      a, (hl)                         ; print string
-        inc     hl
-        OZ      OS_Out
-        or      a
-        jr      nz, pan_1
+        ld      b,0
+        oz      OS_Bout                         ; print string
 
         call    OSBoxS1
         ret
