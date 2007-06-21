@@ -61,8 +61,8 @@ xdef    FPP_RET
 xdef    INTReturn
 xdef    JpAHL
 xdef    JpHL
-xdef    OZ_RET1
-xdef    OZ_RET0
+xdef    OZ_RET1, OZCallReturn1
+xdef    OZ_RET0, OZCallReturn0
 xdef    OZ_DI
 xdef    OZ_EI
 xdef    OZCallJump
