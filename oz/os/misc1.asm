@@ -70,34 +70,34 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defb    5, $40,$80,$21                  ; RAM.0
 
         defb    6                               ; SCR.0
-        defp    Scr_dor,7
+        defp    Scr_dor, OZBANK_KNL1
 
         defb    7
-        defp    Prt_dor,7
+        defp    Prt_dor, OZBANK_KNL1
 
         defb    8
-        defp    Com_dor,7
+        defp    Com_dor, OZBANK_KNL1
 
         defb    9
-        defp    Nul_dor,7
+        defp    Nul_dor, OZBANK_KNL1
 
         defb    10
-        defp    Inp_dor,7
+        defp    Inp_dor, OZBANK_KNL1
 
         defb    11
-        defp    Out_dor,7
+        defp    Out_dor, OZBANK_KNL1
 
         defb    $81
-        defp    Rom0_dor,7
+        defp    Rom0_dor, OZBANK_KNL1
 
         defb    $82
-        defp    Rom1_dor,7
+        defp    Rom1_dor, OZBANK_KNL1
 
         defb    $83
-        defp    Rom2_dor,7
+        defp    Rom2_dor, OZBANK_KNL1
 
         defb    $84
-        defp    Rom3_dor,7
+        defp    Rom3_dor, OZBANK_KNL1
 
         defb    0
 
