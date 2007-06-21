@@ -70,17 +70,17 @@ public abstract class Z80 {
 				// dump cache to log file in a thread...
 				flushCache(index);
 				resetCacheIndex();
-			} else {
-				pcAddressCache[index] = (getPcAddress() & 0xFF0000) | PC();
-				
-				registerCache[index][0] = AF();
-				registerCache[index][1] = BC();
-				registerCache[index][2] = DE();
-				registerCache[index][3] = HL();
-				registerCache[index][4] = IX();
-				registerCache[index][5] = IY();
-				registerCache[index][6] = SP();
-			}
+			} 
+
+			pcAddressCache[index] = (getPcAddress() & 0xFF0000) | PC();
+			
+			registerCache[index][0] = AF();
+			registerCache[index][1] = BC();
+			registerCache[index][2] = DE();
+			registerCache[index][3] = HL();
+			registerCache[index][4] = IX();
+			registerCache[index][5] = IY();
+			registerCache[index][6] = SP();
 
 			index++;
 		}
