@@ -27,7 +27,7 @@ size 512
 romupdate oz.1
 
 ; OZ ROM in slot 1 is located at the top half of the 1Mb address space, beginning
-; at bank $73 upwards until $7F (top of slot)
+; at bank $74 upwards until $7F (top of slot)
 ;
 ; The remaining empty space towards the bottom may be exploited by FlashStore
 ; as an "Eprom" filing system (on first 64K boundary below OZ ROM).
