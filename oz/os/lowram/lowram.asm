@@ -66,7 +66,6 @@ xdef    OZ_RET0, OZCallReturn0
 xdef    OZ_DI
 xdef    OZ_EI
 xdef    OZCallJump
-xdef    OZCallReturn1
 xdef    OZCallReturn2
 xdef    OZCallReturn3
 xdef    ExtCall
