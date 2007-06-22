@@ -96,8 +96,13 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defb    11
         defp    Out_dor, OZBANK_KNL1
 
+; IF !OZ_SLOT1
+; ROM.0 application DOR's only exist when compiling OZ for slot 0
+; - booting OZ in slot 1 must ignore all applications in slot 0 due conflict with same applications in slot 1
+
         defb    $81
         defp    Rom0_dor, OZBANK_KNL1
+; ENDIF
 
         defb    $82
         defp    Rom1_dor, OZBANK_KNL1
@@ -231,6 +236,10 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defm    "OUT.0",0
         defb    $FF
 
+; IF !OZ_SLOT1
+; ROM.0 application DOR's only exist when compiling OZ for slot 0
+; - booting OZ in slot 1 must ignore all applications in slot 0 due conflict with same in slot 1
+
 .Rom0_dor
         defp    0, 0                            ; Use last bank of slot 0 ($1F), this allow to use larger ROM than 128K
         defp    0, 0                            ; (up to 512K is allowed)
@@ -239,6 +248,7 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defb    DT_NAM, 6
         defm    "ROM.0",0
         defb    $FF
+; ENDIF
 
 .Rom1_dor
         defp    0, 0
