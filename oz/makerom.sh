@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# OZ ROM compilation script for Unix.
+# OZ ROM slot 0/1 compilation script for Unix.
 # (C) Gunther Strube (gbs@users.sf.net) 2005
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
@@ -30,6 +30,8 @@ if test $# -eq 0; then
 else
   ozslot=$1
 fi
+
+echo compiling OZ ROM for slot $ozslot 
 
 # delete previous compiled files (incl error and warning files)...
 . cleanup.sh
