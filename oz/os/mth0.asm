@@ -58,6 +58,7 @@ xref    GetHandlePtr                            ; [Kernel0]/dor.asm
 xref    MayWrt                                  ; [Kernel0]/token.asm
 xref    OSWrt                                   ; [Kernel0]/token.asm
 xref    ZeroHandleIX                            ; [Kernel0]/handle.asm
+xref    PutOZwdBuf                              ; [Kernel0]/osin.asm
 
 xref    MTHPrintKeycode                         ; [Kernel1]/mth1.asm
 xref    DrawMenuWd2                             ; [Kernel1]/mth1.asm
@@ -70,10 +71,8 @@ xref    Get2ndTopicHelp                         ; [Kernel1]/mth1.asm
 xref    GetFirstCmdHelp                         ; [Kernel1]/mth1.asm
 xref    GetTpcAttrByNum                         ; [Kernel1]/mth1.asm
 xref    MTH_ToggleLT                            ; [Kernel1]/mth1.asm
-
 xref    InitHandle                              ; [Kernel1]/misc1.asm
 
-xref    PutOZwdBuf                              ; [Kernel0]/osin.asm
 
 ;       print MTH string, expand $7f-codes
 
@@ -318,10 +317,7 @@ xref    PutOZwdBuf                              ; [Kernel0]/osin.asm
         call    OSBixS1
         ld      bc, ADOR_NAME                   ; skip to DOR name
         add     hl, bc
-
-        ld      b,0
         oz      OS_Bout                         ; print string
-
         call    OSBoxS1
         ret
 
