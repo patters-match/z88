@@ -182,10 +182,10 @@ xref    PutOSFrame_HL                           ; [Kernel0]/misc5.asm
         push    bc
         inc     hl                              ; skip link, clear rest of handle
         inc     hl
-        ld      b, 16-2                         ; !! ld bc,14; ld (hl),c
-        or      a                               ; Fc=0
+        ld      bc, [16-2] << 8
+        or      a                               ; Fc=0, but A unchanged
 .zhnd_1
-        ld      (hl), 0
+        ld      (hl), c
         inc     hl
         djnz    zhnd_1
         pop     bc
