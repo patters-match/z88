@@ -1,8 +1,8 @@
 /*
  * Dz.java
  * This file is part of OZvm.
- * 
- * OZvm is free software; you can redistribute it and/or modify it under the terms of the 
+ *
+ * OZvm is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation;
  * either version 2, or (at your option) any later version.
  * OZvm is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -11,9 +11,9 @@
  * You should have received a copy of the GNU General Public License along with OZvm;
  * see the file COPYING. If not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * 
+ *
  * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
- * $Id$  
+ * $Id$
  *
  */
 
@@ -25,10 +25,10 @@ package net.sourceforge.z88;
  * improved from C source, as part of the DZasm V0.22 utility.
  *
  * All 'undocumented' Z80 instructions are recognized, eg. SLL or LD  ixh,ixl.
- * 
+ *
  */
 public class Dz {
-	
+
 	private static final char[] hexcodes =
 		{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -4002,14 +4002,14 @@ public class Dz {
 		"FPP  UNKNOWN" };
 
 	private static final class singletonContainer {
-		static final Dz singleton = new Dz();  
+		static final Dz singleton = new Dz();
 	}
-	
+
 	public static Dz getInstance() {
 		return singletonContainer.singleton;
 	}
 
-	private Dz() {		
+	private Dz() {
 	}
 
 	/**
@@ -4037,9 +4037,9 @@ public class Dz {
 	 */
 	public static final String byteToBin(final int b, final boolean binTrailer) {
 		StringBuffer binString = new StringBuffer(9);
-		
+
 		for (int bit=7; bit>=0; bit--) {
-			if ((b & (1 << bit)) == 0) 
+			if ((b & (1 << bit)) == 0)
 				binString.append("0");
 			else
 				binString.append("1");
@@ -4047,8 +4047,8 @@ public class Dz {
 		if (binTrailer == true) binString.append('b');
 
 		return binString.toString();
-	}	
-	
+	}
+
 	/**
 	 * Return Hex 16bit address string in XXXXh zero prefixed format.
 	 *
@@ -4261,12 +4261,12 @@ public class Dz {
 		if (argsMnem != null) {
 			int replaceMacro = mnemonic.indexOf("{0}");
 			int addr;
-			
+
 			switch (argsMnem[i]) {
 				case 3 :
 					addr = opcode[instrOpcodeOffset];
 					addr += 256 * opcode[instrOpcodeOffset+1];
-	
+
 					int bank = opcode[instrOpcodeOffset+2];
 					mnemonic.replace(replaceMacro, replaceMacro+3, addrToHex(addr, true));
 					int replaceBankMacro = mnemonic.indexOf("{1}");
@@ -4334,10 +4334,10 @@ public class Dz {
 		}
 
 		if (dispAddr == true) {
-			// display address, before instruction mnemonic...			
+			// display address, before instruction mnemonic...
 			mnemonic.insert(0, addrToHex(origPc, false) + " ");
 		}
-		if (dispOpcode == true) {		
+		if (dispOpcode == true) {
 			// display opcodes, before instruction mnemonic...
 			StringBuffer instrBytes = new StringBuffer(24);
 
@@ -4377,24 +4377,24 @@ public class Dz {
 
 	/**
 	 * Get a complete 4-byte instruction opcode sequense, packed into MSB order
-	 * at specified extended address in the Z88 4Mb memory model. 
-	 * The current breakpoints are examined, so that the instruction opcode sequence 
-	 * contains the true opcode and not a mix of the breakpoint instructions 
-	 * LD B,B or LD C,C. 
-	 * 
+	 * at specified extended address in the Z88 4Mb memory model.
+	 * The current breakpoints are examined, so that the instruction opcode sequence
+	 * contains the true opcode and not a mix of the breakpoint instructions
+	 * LD B,B or LD C,C.
+	 *
 	 * @param pc
-	 * @return 4 byte packed MSB instruction opcode 
+	 * @return 4 byte packed MSB instruction opcode
 	 */
 	public int getInstrOpcode(int offset, int bank) {
-		offset &= 0x3FFF;		
+		offset &= 0x3FFF;
 		Breakpoints bp = Z88.getInstance().getProcessor().getBreakpoints();
 		Memory mem = Z88.getInstance().getMemory();
-		
+
 		int opcode3 = 	mem.getByte(offset+3,bank) << 24 |
 						mem.getByte(offset+2,bank) << 16 |
 						mem.getByte(offset+1,bank) << 8;
 		int opcode = mem.getByte(offset,bank);
-		
+
 		if (opcode == 64 | opcode == 73) {
 			// The opcode at specifified address might be a runtime breakpoint:
 			// LD B,B or LD C,C
@@ -4403,26 +4403,26 @@ public class Dz {
 				opcode = bp.getOrigZ80Opcode((bank << 16) | offset);
 			}
 		}
-		
+
 		return opcode3 | opcode;
 	}
-	
+
 	/**
 	 * Get a complete 4-byte instruction opcode sequense, packed into MSB order
-	 * at specified local (16bit) address in the current 64K address space 
-	 * (defined by Blink). The current breakpoints are examined, so that the 
-	 * instruction opcode sequence contains the true opcode and not a mix of 
-	 * the breakpoint instructions LD B,B or LD C,C. 
-	 * 
+	 * at specified local (16bit) address in the current 64K address space
+	 * (defined by Blink). The current breakpoints are examined, so that the
+	 * instruction opcode sequence contains the true opcode and not a mix of
+	 * the breakpoint instructions LD B,B or LD C,C.
+	 *
 	 * @param pc
-	 * @return 4 byte packed MSB instruction opcode 
+	 * @return 4 byte packed MSB instruction opcode
 	 */
 	public int getInstrOpcode(final int pc) {
 		int extAddr = Z88.getInstance().getBlink().decodeLocalAddress(pc);
-		
+
 		return getInstrOpcode(extAddr & 0x3FFF, extAddr >>> 16);
 	}
-	
+
 	/**
 	 * Decode Z80 instruction at address pc in local 64K address space, as
 	 * defined by the current bank bindings for segments 0 - 3 and
@@ -4431,7 +4431,7 @@ public class Dz {
 	 * @param pc the current address (Program Counter of Z80 instruction
 	 * @return address of following instruction
 	 */
-	public final int getNextInstrAddress(int pc) {		
+	public final int getNextInstrAddress(int pc) {
 		Memory mem = Z88.getInstance().getMemory();
 		int extAddr = Z88.getInstance().getBlink().decodeLocalAddress(pc);
 		int offset = extAddr & 0x3FFF;
@@ -4445,7 +4445,7 @@ public class Dz {
 		} else {
 			pc += calcInstrOpcodeSize(getInstrOpcode(pc));
 		}
-		
+
 		return pc;
 	}
 
@@ -4461,7 +4461,7 @@ public class Dz {
 	public static String getNextStepCommand() {
 		Z80Processor z80 = Z88.getInstance().getProcessor();
 		Breakpoints bp = Z88.getInstance().getProcessor().getBreakpoints();
-		
+
 		int instrOpcode	= z80.readByte(z80.PC());	// get current instruction opcode (to be executed)
 		if (instrOpcode == 64 | instrOpcode == 73) {
 			// The opcode at specifified address might be a runtime breakpoint:
@@ -4503,7 +4503,7 @@ public class Dz {
 				return "."; // suggest a single	step
 		}
 	}
-	
+
 	/**
 	 * Decode Z80 instruction and return size of instruction opcode.
 	 * The instrOpcode contains a 4 byte sequense (MSB format) which contains
@@ -4542,24 +4542,24 @@ public class Dz {
 					instrOpcodeOffset++;
 				} else {
 					argsMnem = ddArgsMnem;
-					i = opcode[instrOpcodeOffset++];
+					i = opcode[instrOpcodeOffset];
 				}
 				break;
 
 			case 253 : /* FD CB opcode strMnem */
-				i = opcode[instrOpcodeOffset];
+				i = opcode[instrOpcodeOffset++];
 				if (i == 203) {
 					argsMnem = fdcbArgsMnem;
 					i = opcode[instrOpcodeOffset+1];
 					instrOpcodeOffset++;
 				} else {
 					argsMnem = fdArgsMnem;
-					i = opcode[instrOpcodeOffset++];
+					i = opcode[instrOpcodeOffset];
 				}
 				break;
 
 			case 0xD7: /* RST 10h, ExtCall interface 1 byte opcode + 24bit address (OZ 4.1 or newer) */
-				return 4; 
+				return 4;
 			case 223 : /* RST 18h, FPP interface */
 				return ++instrOpcodeOffset;
 
