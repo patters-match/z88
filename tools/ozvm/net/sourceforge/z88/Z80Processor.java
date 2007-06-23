@@ -322,11 +322,6 @@ public class Z80Processor extends Z80 implements Runnable {
 			case 0xE2 : // RXC, Receiver Control (not yet implemented)
 			case 0xE3 : // TXD, Transmit Data (not yet implemented)
 			case 0xE4 : // TXC, Transmit Control (not yet implemented)
-				if (OZvm.getInstance().getDebugMode() == true) {
-					OZvm.displayRtmMessage("WARNING:\n" +
-										Z88Info.dzPcStatus(getInstrPC()) + "\n" +
-										"UART Serial Port emulation not yet implemented.");
-				}
 				break;
 			case 0xE5 : // UMK, UART int. mask (not yet implemented)
 			case 0xE6 : // UAK, UART acknowledge int. mask (not yet implemented)
