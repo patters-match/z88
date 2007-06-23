@@ -543,9 +543,10 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
 .GetAppDOR
         ld      b, OZBANK_KNL1                  ; bind in other part of kernel
         call    fsMS2BankB                      ; remembers S2
+
+.GetAppDORr
         push    de
         push    ix
-
         ld      e, a                            ; remember A
         and     $3F                             ; mask out slot
         jr      nz, appdor_3                    ; #app not 0? it's ok
@@ -554,14 +555,14 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
 .appdor_1
         ld      d, a                            ; remember #app
         inc     a
-        call    GetAppDOR
+        call    GetAppDORr
         jr      c, appdor_2                     ; end of list
         cp      e
         jr      c, appdor_1                     ; loop until E passed
         jr      z, appdor_1
 .appdor_2
         ld      a, d
-        call    GetAppDOR
+        call    GetAppDORr
         jr      appdor_10
 
 .appdor_3
