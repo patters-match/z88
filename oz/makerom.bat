@@ -87,7 +87,7 @@ goto COMPILE_ERROR
 :COMPILE_MTH
 echo compiling MTH structures
 cd mth
-call mth 2>nul >nul
+call mth %ozslot% 2>nul >nul
 cd ..
 dir mth\*.err 2>nul >nul || goto COMPILE_KERNEL
 type mth\*.err

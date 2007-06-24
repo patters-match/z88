@@ -31,7 +31,7 @@ else
   ozslot=$1
 fi
 
-echo compiling OZ ROM for slot $ozslot 
+echo compiling OZ ROM for slot $ozslot
 
 # delete previous compiled files (incl error and warning files)...
 . cleanup.sh
@@ -84,7 +84,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling MTH structures
 cd mth
-. mth.sh
+. mth.sh $ozslot
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat mth/*.err

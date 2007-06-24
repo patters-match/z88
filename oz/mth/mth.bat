@@ -39,7 +39,7 @@ dir *.err 2>nul >nul || goto COMPILE_MTH
 goto COMPILE_ERROR
 
 :COMPILE_MTH
-..\..\tools\mpm\mpm -bg -I..\def @mth.prj
+..\..\tools\mpm\mpm -bg -DOZ_SLOT%1 -I..\def @mth.prj
 dir *.err 2>nul >nul || goto END
 goto COMPILE_ERROR
 

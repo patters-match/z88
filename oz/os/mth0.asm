@@ -481,8 +481,10 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
         pop     af
         ret
 
-;       ----
 
+; --------------------------------------------------------------------------------------
+; Return DOR handle in (ActiveAppHandle) to first application in slot A (0-3)
+;
 .GetSlotApp
         ld      ix, ActiveAppHandle
         call    ZeroHandleIX
@@ -542,13 +544,13 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
 
 .GetAppDOR
         ld      b, OZBANK_KNL1                  ; bind in other part of kernel
-        call    fsMS2BankB                      ; remembers S2
+        call    fsMS2BankB                      ; remembers old S2 bank binding on stack, returns also B = old bank binding
 
 .GetAppDORr
+        push    ix                              ; routine uses IX for temporary DOR handle processing, preserve call IX register...
         push    de
-        push    ix
         ld      e, a                            ; remember A
-        and     $3F                             ; mask out slot
+        and     $3f                             ; mask out slot
         jr      nz, appdor_3                    ; #app not 0? it's ok
 
         dec     e                               ; last app in prev slot
@@ -556,30 +558,30 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
         ld      d, a                            ; remember #app
         inc     a
         call    GetAppDORr
-        jr      c, appdor_2                     ; end of list
+        jr      c, appdor_2                     ; end of list reached, exit to return the last Application DOR pointer to caller
         cp      e
         jr      c, appdor_1                     ; loop until E passed
         jr      z, appdor_1
 .appdor_2
-        ld      a, d
-        call    GetAppDORr
+        ld      a, d                            ; the previous application ID was the end of the list -
+        call    GetAppDORr                      ; return pointer to last application DOR
         jr      appdor_10
 
 .appdor_3
         ld      a, e                            ; restore A
 .appdor_4
         push    af
-        and     $3F
-        ld      c, a                            ; app#
+        and     $3f
+        ld      c, a                            ; application number without slot mask
         pop     af
-        and     $c0                             ; !! xor c
-        ld      b, a                            ; slot
+        xor     c
+        ld      b, a                            ; slot mask (without application number)
         rlca
-        rlca
+        rlca                                    ; A = slot number 0-3
         push    bc
-        call    GetSlotApp
+        call    GetSlotApp                      ; return IX = ActiveAppHandle of first Application DOR in slot
         pop     bc
-        jr      c, appdor_5                     ; no apps in slot? skip
+        jr      c, appdor_5                     ; no apps in slot? go into next slot and get first App DOR
         ld      a, b
         xor     (ix+dhnd_AppSlot)
         and     $c0
@@ -587,9 +589,9 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
 .appdor_5
         ld      a, b
         and     $c0
-        add     a, $40                          ; next slot
-        jr      z, appdor_8
-        inc     a                               ; xx000001 - first app in this slot
+        add     a, $40                          ; next slot mask, (and top of slot)
+        jr      z, appdor_8                     ; wrapped slot 3, back to slot 0
+        inc     a                               ; xx00 0001 - get first app handle in slot
         jr      appdor_4
 
 .appdor_6
@@ -602,19 +604,19 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
         dec     c                               ; dec count
         jr      nz, appdor_6
 
-        ld      a, b                            ; a=#app
-        or      a                               ; Fc=0
+        ld      a, b                            ; return original application ID, but with possible different slot mask
+        or      a                               ; Fc=0 to indicate successfull fetch of DOR pointer
         jr      appdor_9
 
 .appdor_8
         xor     a
-        call    GetSlotApp
-        ld      a, RC_Esc
-        scf
+        call    GetSlotApp                      ; return first app handle in previous slot
+        ld      a, RC_Esc                       ; and indicate not found for original application ID
+        scf                                     ; (probably for another slot than originally specified on entry of this call)
 
 .appdor_9
         push    af
-        call    GetHandlePtr
+        call    GetHandlePtr                    ; validate device handle before fetching pointer to DOR
         ld      (eHlpAppDOR+2), a
         ld      (eHlpAppDOR), hl
         ld      bc, ADOR_TOPICS
@@ -625,11 +627,11 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
         call    MS2BankK1
         pop     af
 .appdor_10
-        pop     ix
         pop     de
+        pop     ix
         call    fsRestoreS2
-        ld      hl, [eHlpAppDOR+2]
-        jr      GetBHLBackw
+        ld      hl, eHlpAppDOR+2                ; point at bank of fetched application DOR pointer
+        jr      GetBHLBackw                     ; read it into BHL and return back to caller
 
 ;       ----
 

@@ -44,7 +44,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -I../def @mth.prj
+../../tools/mpm/mpm -bg -DOZ_SLOT"$1" -I../def @mth.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.

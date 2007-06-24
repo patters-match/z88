@@ -12,7 +12,7 @@
         include "sysvar.def"
         include "handle.def"
 
-xdef    InitHandle                              ; OSDor, E9E8+D
+xdef    InitHandle
 xdef    RAMxDOR                                 ; MountAllRAM
 
 xref    GetDORType                              ; [Kernel0]/dor.asm
@@ -96,13 +96,13 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defb    11
         defp    Out_dor, OZBANK_KNL1
 
-; IF !OZ_SLOT1
+IF !OZ_SLOT1
 ; ROM.0 application DOR's only exist when compiling OZ for slot 0
 ; - booting OZ in slot 1 must ignore all applications in slot 0 due conflict with same applications in slot 1
 
         defb    $81
         defp    Rom0_dor, OZBANK_KNL1
-; ENDIF
+ENDIF
 
         defb    $82
         defp    Rom1_dor, OZBANK_KNL1
@@ -236,7 +236,7 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defm    "OUT.0",0
         defb    $FF
 
-; IF !OZ_SLOT1
+IF !OZ_SLOT1
 ; ROM.0 application DOR's only exist when compiling OZ for slot 0
 ; - booting OZ in slot 1 must ignore all applications in slot 0 due conflict with same in slot 1
 
@@ -248,7 +248,7 @@ xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
         defb    DT_NAM, 6
         defm    "ROM.0",0
         defb    $FF
-; ENDIF
+ENDIF
 
 .Rom1_dor
         defp    0, 0

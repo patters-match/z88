@@ -246,7 +246,11 @@ xref    TimeReset                               ; [K1]/timeres.asm
 
 .infinity
         ld      b, 0                            ; time to enter new Index process!
+IF !OZ_SLOT1
         ld      ix, 1                           ; first handle
+ELSE
+        ld      ix, $41                         ; first handle (in slot 1, identified with slot mask)
+ENDIF
         OZ      OS_Ent                          ; enter an application
         jr      infinity
 
