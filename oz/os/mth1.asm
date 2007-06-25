@@ -1164,7 +1164,7 @@ xref    sub_EFBB                                ; [Kernel0]/osin.asm
         ld      hl, ubSysFlags1
         set     SF1_B_NOTOKENS, (hl)            ; use default tokens
         push    hl
-        ld      b, 7
+        ld      b, OZBANK_KNL1
         ld      hl, CopyrightMsg
         call    MTHPrintTokenized
         pop     hl

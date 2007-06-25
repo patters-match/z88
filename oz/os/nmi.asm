@@ -425,7 +425,7 @@ defc    NMI_B_HALT      =0
         ld      a, l
         out     (BL_TMK), a
 
-        xor     a                               ; b00 into all segments
+        ld      a, OZBANK_KNL0                  ; KERNEL0 into all segments
         out     (BL_SR0), a
         out     (BL_SR1), a
         out     (BL_SR2), a

@@ -40,7 +40,7 @@ IF OZ_SLOT1
         defc OZBANK_FILER       = $7C & $3F     ; Bank of Filer popdown entry
         defc OZBANK_PRINTERED   = $7A & $3F     ; Bank of PrinterEd application entry
         defc OZBANK_PANEL       = $7A & $3F     ; Bank of Panel popdown entry
-        defc OZBANK_TERMINAL    = $7C & $3F     ; Bank of Terminal application entry
+        defc OZBANK_TERMINAL    = $7A & $3F     ; Bank of Terminal application entry
         defc OZBANK_IMPEXPORT   = $77 & $3F     ; Bank of Imp/Export popdown entry
         defc OZBANK_EAZYLINK    = $74 & $3F     ; Bank of EazyLink popdown entry
         defc OZBANK_FLASHSTORE  = $75 & $3F     ; Bank of FlashStore popdown entry

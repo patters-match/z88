@@ -35,6 +35,13 @@ xref    CopyMemBHL_DE                           ; [Kernel0]/misc5.asm
         push    ix
         pop     bc
         ld      a, c
+IF OZ_SLOT1
+        or      b
+        ld      a, c
+        jr      nz,next_app_id
+        or      $40                             ; first app is in slot 1...
+.next_app_id
+ENDIF
         inc     a                               ; next application
         call    GetAppDOR                       ; go find it
         ld      c, a
