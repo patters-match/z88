@@ -654,12 +654,12 @@ defc    DM_RAM                  =$81
 
 ;       ----
 
-;       init all RAM, called from Reset3
+;       init all RAM, called from Reset
 
 .InitRAM
         ld      c, 2
-        call    OZ_MGB                          ; save S2
-        push    bc
+        call    OZ_MGB
+        push    bc                              ; remember current S2 binding
         ld      a, $21                          ; start with first RAM bank (skip system bank)
 .ir_1
         call    InitSlotRAM                     ; init one slot
@@ -667,7 +667,7 @@ defc    DM_RAM                  =$81
         add     a, $40                          ; advance to next
         jr      nz, ir_1                        ; and init if not done yet
         pop     bc
-        rst     OZ_MPB                          ;restore S2
+        rst     OZ_MPB                          ; restore S2 binding
         ret
 
 ;       ----
@@ -698,7 +698,7 @@ defc    DM_RAM                  =$81
         jr      z, initsl_1                     ; hard reset, force init
 
         call    MS2BankA                        ; bank into S2
-        ld      hl, ($8000)                     ; if tagged as RAM, leave alone
+        ld      hl, (MM_S2 << 8)                ; if tagged as RAM, leave alone
         ld      bc, $A55A
         or      a
         sbc     hl, bc
@@ -714,23 +714,23 @@ defc    DM_RAM                  =$81
         push    af
         call    MS2BankA
         ex      af, af'
-        ld      ($8002), a                      ; store size
+        ld      (MM_S2 << 8 | $02), a           ; store size
 
 .initsl_2
-        ld      a, ($8002)
+        ld      a, (MM_S2 << 8 | $02)
         ld      (ix+4), a                       ; RAM size
         inc     a                               ; A=(A*PAGES_PER_BANK*2)/256 - MAT size in pages
         srl     a
         push    af
         ld      b, a                            ; clear MAT
         ld      c, 0
-        ld      de, $8101
-        ld      hl, $8100
+        ld      de, MM_S2 << 8 | $101
+        ld      hl, MM_S2 << 8 | $100
         ld      (hl), c
         dec     bc
         ldir
 
-        ld      hl, $8000
+        ld      hl, MM_S2 << 8
         ld      a, (ubResetType)
         and     (hl)                            ; Fz=1 if hard reset or non-tagged RAM
         pop     hl                              ; H=MAT size in pages
@@ -755,7 +755,7 @@ defc    DM_RAM                  =$81
         ld      a, (ix+4)                       ; RAM size
         neg                                     ; clear out_of_memory flags
         ld      l, a
-        ld      h, $80                          ; end of first page
+        ld      h, MM_S2                        ; end of first page
         xor     a
 .initsl_4
         ld      (hl), a
@@ -804,7 +804,7 @@ defc    DM_RAM                  =$81
 ;       Find RAM size in slot
 ;
 ;IN:    A=first bank
-;OUT:   A=number        of RAM banks
+;OUT:   A=number of RAM banks
 
 .SlotRAMSize
 
@@ -816,7 +816,7 @@ defc    DM_RAM                  =$81
 
         ld      d, b                            ; remember first bank
         ld      a, $CA
-        ld      ($8000), a                      ; mark with $CA
+        ld      (MM_S2 << 8), a                 ; mark with $CA
 
 .srsz_1
         inc     c                               ; bump size
@@ -831,7 +831,7 @@ defc    DM_RAM                  =$81
 
         ld      a, d                            ; see if first bank was overwritten
         call    MS2BankA
-        ld      a, ($8000)
+        ld      a, (MM_S2 << 8)
         sub     $CA
         jr      z, srsz_1                       ; no, loop back
 
@@ -858,7 +858,7 @@ defc    DM_RAM                  =$81
 ; this check only necessary for internal RAM
 
         ld      a, ($0000)                      ; remember byte at $0000
-        ld      hl, $8000
+        ld      hl, MM_S2 << 8
         ld      (hl), 0                         ; reset byte at $8000
         ld      bc, ($0000)                     ; read back from $0000
         ld      ($0000), a                      ; restore $0000
@@ -868,7 +868,7 @@ defc    DM_RAM                  =$81
         jr      z, zram_0                       ; mirrored, not RAM
 
         ld      bc, $3FFF                       ; clear bank by copying 0 from
-        ld      de, $8001                       ; the first byte onward
+        ld      de, MM_S2 << 8 | $01            ; the first byte onward
         ldir
 
         or      a                               ; bank OK
@@ -889,7 +889,7 @@ defc    DM_RAM                  =$81
 
         call    MS2BankA
 
-        ld      hl, $8000
+        ld      hl, MM_S2 << 8
         ld      a, (hl)                         ; get byte and save it
         ld      e, a
         cpl
@@ -1344,7 +1344,7 @@ defc    DM_RAM                  =$81
         ld      a, h                            ; 00hhhhll, bank & $3f
         cpl                                     ; from top of first page
         ld      l, a
-        ld      h, $80
+        ld      h, MM_S2
 
         ld      a, (hl)                         ; clear out-of-memory flags !! ld (hl),0
         and     ~(OOM_NORMAL|OOM_FIXED)
@@ -1568,7 +1568,7 @@ defc    DM_RAM                  =$81
         and     $FE
         ld      d, a                            ; DE=FsPtr
         ld      e, c
-        ld      hl, $8100                       ; MAT start
+        ld      hl, MM_S2 << 8 | $100           ; MAT start
 
 .afsb_1
         ld      a, (hl)
@@ -2361,7 +2361,7 @@ defc    DM_RAM                  =$81
         jr      z, vst_1                        ; "oz" found
 
         inc     d                               ; BU_ROM
-        ld      bc, 'Z'<<8|'O'
+        ld      bc, 'Z' << 8 | 'O'
         or      a
         sbc     hl, bc
         jr      nz, vst_2                       ; "OZ" not found

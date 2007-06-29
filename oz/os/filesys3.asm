@@ -154,7 +154,7 @@ xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
         inc     l
         ld      (hl), $de
         inc     l
-        ld      (hl), $ad
+        ld      (hl), $ad                       ; 'dead'!
         ret
 
 ;       ----
@@ -385,11 +385,11 @@ xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
         inc     l                               ; this is to avoid expensive FindPrevBlock
         ld      a, (hl)
         cp      $de
-        jr      nz, aab_1                       ; no DEAD? in use
+        jr      nz, aab_1                       ; not DEAD? in use
         inc     l
         ld      a, (hl)
         cp      $ad
-        jr      nz, aab_1                       ; no DEAD? in use
+        jr      nz, aab_1                       ; not DEAD? in use
         call    FindPrevBlock                   ; BC=fsPtr of block pointing to first block on same page as DE
         jr      c, aab_1                        ; this block not in chain? in use
 
@@ -670,9 +670,6 @@ xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
 
 .MvToFile
         scf
-._MoveToFromFile
-        call    MoveToFromFile                  ; !! just drop thru
-        ret
 
 ;       ----
 
@@ -956,7 +953,7 @@ xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
 
 .MvFromFile
         or      a
-        jp      _MoveToFromFile                 ; !! jp directly to MoveToFromFile
+        jp      MoveToFromFile
 
 ;       ----
 
@@ -1061,51 +1058,6 @@ xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
         ld      bc, $40
         ld      hl, uwAppStaticHnd
         jp      RdHeaderedData
-
-;       ----
-
-; save data from $78d8-78ff to 7dd8-7dff  !! unused
-
-.Save78d8_data
-        ld      h, $78
-        ld      b, 6
-        ld      e, $E0
-.loc_F72B
-        push    bc
-        push    hl
-        ld      l, $D8                          ; from 7xd8-7xff
-        ld      bc, $28
-        ld      d, 0                            ; !! unnecessary
-        ld      a, e
-        call    WrHeaderedData
-        pop     hl
-        pop     bc
-        ret     c
-        inc     h
-        inc     e
-        djnz    loc_F72B
-        ret
-
-; read data from $78d8-78ff to 7dd8-7dff  !! unused
-
-.Load78d8_data
-        ld      h, $78
-        ld      b, 6
-        ld      e, $E0
-.loc_F746
-        push    bc
-        push    hl
-        ld      a, e                            ; E0-E6 - SBF extra
-        ld      bc, $28
-        ld      l, $D8
-        call    RdHeaderedData
-        pop     hl
-        pop     bc
-        ret     c
-        inc     h
-        inc     e
-        djnz    loc_F746
-        ret
 
 ;       ----
 

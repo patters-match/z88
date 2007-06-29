@@ -72,7 +72,7 @@ xref    TimeReset                               ; [K1]/timeres.asm
         jr      nz, b20_hard_reset              ; flap? hard reset
 
         out     (BL_SR1), a                     ; b21 into S1
-        ld      hl, ($4000)
+        ld      hl, (MM_S1 << 8)
         ld      bc, $A55A                       ; RAM tag
         or      a
         sbc     hl, bc
@@ -87,21 +87,21 @@ xref    TimeReset                               ; [K1]/timeres.asm
         dec     a
         out     (BL_SR1), a
         ld      bc, [sysvar_area_presv-1]
-        ld      de, $4001                       ; [0000-sysvar_area] is overwritten by lowram.bin
-        ld      hl, $4000
+        ld      de, MM_S1 << 8 | $01            ; [0000-sysvar_area] is overwritten by lowram.bin
+        ld      hl, MM_S1 << 8
         ld      (hl), 0
         ldir
         ld      bc, [$3FFF-sysvar_area_presv_end]
-        ld      de, $4000 | sysvar_area_presv_end+1
-        ld      hl, $4000 | sysvar_area_presv_end
+        ld      de, MM_S1 << 8 | sysvar_area_presv_end+1
+        ld      hl, MM_S1 << 8 | sysvar_area_presv_end
         ld      (hl), 0
         ldir
         jr      continue_reset
 
 .b20_hard_reset
         ld      bc, $3FFF                       ; fill bank with 00
-        ld      de, $4001
-        ld      hl, $4000
+        ld      de, MM_S1 << 8 | $01
+        ld      hl, MM_S1 << 8
         out     (BL_SR1), a                     ; bind A into S1
         ld      (hl), 0
         ldir
@@ -110,7 +110,7 @@ xref    TimeReset                               ; [K1]/timeres.asm
         jr      z, b20_hard_reset               ; loop if hard reset
 .continue_reset
         ex      af, af'
-        ld      ($4000+ubResetType), a
+        ld      (MM_S1 << 8 + ubResetType), a
 
 ;       init BLINK
 
@@ -135,7 +135,7 @@ xref    TimeReset                               ; [K1]/timeres.asm
         out     (BL_SR3), a                     ; bind MTH bank into S3
         ld      bc, #LowRAMcode_end - LowRAMcode
         ld      hl, LOWRAM_CODE                 ; and copy LOWRAM code into
-        ld      de, $4000                       ; destination b20 in S1
+        ld      de, MM_S1 << 8                  ; destination b20 in S1
         ldir
         ld      a, OZBANK_KNL0
         out     (BL_SR3), a                     ; restore KNL0 bank
@@ -143,7 +143,7 @@ xref    TimeReset                               ; [K1]/timeres.asm
         ld      a, 1
         ld      ($4000+ubAppCallLevel), a
         ld      a, BM_COMRAMS|BM_COMLCDON
-        ld      ($4000+BLSC_COM), a
+        ld      (MM_S1 << 8 + BLSC_COM), a
         out     (BL_COM), a                     ; install LOWRAM in lower 8K of segment 0
         ld      sp, $2000                       ; init stack
 
@@ -196,7 +196,7 @@ xref    TimeReset                               ; [K1]/timeres.asm
         OZ      OS_Pout
         defm    " RESET ...",0
 
-        ld      a, MM_S2|MM_MUL|MM_FIX
+        ld      a, MM_S2 | MM_MUL | MM_FIX
         ld      bc, 0
         OZ      OS_Mop                          ; allocate memory pool, A=mask
 .rst2_6
@@ -245,13 +245,13 @@ xref    TimeReset                               ; [K1]/timeres.asm
         ei
 
 .infinity
-        ld      b, 0                            ; time to enter new Index process!
+        ld      b, 0                            ; time to enter new application
 IF !OZ_SLOT1
-        ld      ix, 1                           ; first handle
+        ld      ix, $01                         ; first handle (in slot 0, identified with slot mask $00)
 ELSE
-        ld      ix, $41                         ; first handle (in slot 1, identified with slot mask)
+        ld      ix, $41                         ; first handle (in slot 1, identified with slot mask $40)
 ENDIF
-        OZ      OS_Ent                          ; enter an application
+        OZ      OS_Ent                          ; enter new Index process!
         jr      infinity
 
 ; *** Reset subroutines ***
