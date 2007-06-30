@@ -53,10 +53,10 @@ ELSE
         defc FILEAREASIZE       =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
 
         defc OZBANK_KNL0        =$00            ; kernel bank 0
+        defc OZBANK_KNL1        =$01            ; kernel bank 1
         defc OZBANK_DC          =$02
         defc OZBANK_FPP         =$02
         defc OZBANK_GN          =$03
-        defc OZBANK_KNL1        =$07            ; kernel bank 1
         defc OZBANK_MTH         =$08            ; OZ static structures (DOR's, MTH, Font bitmap)
         defc OZBANK_KEYMAP      =$08            ; localisation keymap tables
         defc LORES0_PAGE_EXP    =$08

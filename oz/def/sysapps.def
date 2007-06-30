@@ -46,18 +46,18 @@ IF OZ_SLOT1
         defc OZBANK_FLASHSTORE  = $75 & $3F     ; Bank of FlashStore popdown entry
 ELSE
         defc OZBANK_INDEX       = $02           ; Bank of Index popdown entry
-        defc OZBANK_DIARY       = $01           ; Bank of Diary application entry
-        defc OZBANK_PIPEDREAM   = $04           ; Bank of Pipedream application entry
+        defc OZBANK_DIARY       = $04           ; Bank of Diary application entry
+        defc OZBANK_PIPEDREAM   = $05           ; Bank of Pipedream application entry
         defc OZBANK_BBCBASIC    = $09           ; Bank of BBC BASIC application entry
-        defc OZBANK_CALCULATOR  = $06           ; Bank of Calculator popdown entry
-        defc OZBANK_CALENDAR    = $01           ; Bank of Calendar popdown entry
-        defc OZBANK_CLOCK       = $01           ; Bank of Clock popdown entry
-        defc OZBANK_ALARM       = $01           ; Bank of Alarm popdown entry
+        defc OZBANK_CALCULATOR  = $07           ; Bank of Calculator popdown entry
+        defc OZBANK_CALENDAR    = $04           ; Bank of Calendar popdown entry
+        defc OZBANK_CLOCK       = $04           ; Bank of Clock popdown entry
+        defc OZBANK_ALARM       = $04           ; Bank of Alarm popdown entry
         defc OZBANK_FILER       = $02           ; Bank of Filer popdown entry
-        defc OZBANK_PRINTERED   = $06           ; Bank of PrinterEd application entry
-        defc OZBANK_PANEL       = $06           ; Bank of Panel popdown entry
-        defc OZBANK_TERMINAL    = $06           ; Bank of Terminal application entry
-        defc OZBANK_IMPEXPORT   = $01           ; Bank of Imp/Export popdown entry
+        defc OZBANK_PRINTERED   = $07           ; Bank of PrinterEd application entry
+        defc OZBANK_PANEL       = $07           ; Bank of Panel popdown entry
+        defc OZBANK_TERMINAL    = $07           ; Bank of Terminal application entry
+        defc OZBANK_IMPEXPORT   = $04           ; Bank of Imp/Export popdown entry
         defc OZBANK_EAZYLINK    = $0A           ; Bank of EazyLink popdown entry
         defc OZBANK_FLASHSTORE  = $0B           ; Bank of FlashStore popdown entry
 ENDIF

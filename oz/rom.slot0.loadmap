@@ -30,12 +30,10 @@ romupdate oz.0
 os/kernel0.bin 000000                           ; first part of kernel OS
 os/ostables.bin 003f00
 
-; Bank 1: Diary, Calendar, Clock, Alarm & Imp/Export
-apps/diary/diary.bin 010000                     ; $C000: Diary application
-apps/clock/clcalalm.bin 0127ee                  ; $E7EE: Clock, Calendar & Alarm popdowns
-apps/impexport/impexp.bin 013ab1                ; $FAB1: Imp/export popdown
+; Bank 1: kernel lower part (addressed from $8000 upwards)
+os/kernel1.bin 010000                           ; second part of kernel OS
 
-; Bank 2: Index, Filer, Terminal, Floating Point Package
+; Bank 2: Index, Filer, Floating Point Package
 dc/dc.bin 020000                                ; $C000: Index popdown (and DC_ system calls)
 fp/fpp.bin 021a00                               ; $DA00: Floating Point Package
 apps/filer/filer.bin 022800                     ; $E800: Filer Popdown
@@ -43,17 +41,19 @@ apps/filer/filer.bin 022800                     ; $E800: Filer Popdown
 ; Bank 3: GN system calls
 gn/gn.bin 030000                                ; $C000: GN_ system calls
 
-; Bank 4,5: PipeDream (32K app)
-apps/pipedream/pipedream.bn0 040000
-apps/pipedream/pipedream.bn1 050000
+; Bank 4: Diary, Calendar, Clock, Alarm & Imp/Export
+apps/diary/diary.bin 040000                     ; $C000: Diary application
+apps/clock/clcalalm.bin 0427ee                  ; $E7EE: Clock, Calendar & Alarm popdowns
+apps/impexport/impexp.bin 043ab1                ; $FAB1: Imp/export popdown
 
-; Bank 6: PrinterEd, Panel, Calculator popdown
-apps/panelprted/panelped.bin 060000             ; $C000: Panel popdown & PrinterEd application
-apps/terminal/terminal.bin 061400               ; $D400: Terminal Application
-apps/calculator/calc.bin 061600                 ; $D600: Calculator popdown
+; Bank 5,6: PipeDream (32K app)
+apps/pipedream/pipedream.bn0 050000
+apps/pipedream/pipedream.bn1 060000
 
-; Bank 7: kernel lower part (addressed from $8000 upwards)
-os/kernel1.bin 070000                           ; second part of kernel OS
+; Bank 7: PrinterEd & Terminal applications, Panel & Calculator popdowns
+apps/panelprted/panelped.bin 070000             ; $C000: Panel popdown & PrinterEd application
+apps/terminal/terminal.bin 071400               ; $D400: Terminal Application
+apps/calculator/calc.bin 071600                 ; $D600: Calculator popdown
 
 ; Bank 8: MTH and other static structures in last ROM bank
 mth/keymaps.bin 080000                          ; keyboard maps for UK, FR, DK, FI/SE & DE
