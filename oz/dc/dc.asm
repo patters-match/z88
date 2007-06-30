@@ -973,11 +973,10 @@ xref    ldIX_DE
         or      b
         jr      nz, retBHL
 
-        ld      b, 2                            ; copy zero from following byte
-        ld      hl, byte_CCAB
+        ld      b, OZBANK_DC                    ; return BHL that points to a null-terminator (see below)
+        ld      hl, zero_byte
         jr      retBHL
-
-.byte_CCAB
+.zero_byte
         defb 0
 
 ;       ----

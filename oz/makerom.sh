@@ -104,7 +104,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Index popdown / DC System calls
 cd dc
-. dc.sh
+. dc.sh $ozslot
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat dc/*.err

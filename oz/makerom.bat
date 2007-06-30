@@ -109,7 +109,7 @@ goto COMPILE_ERROR
 :COMPILE_DCCALLS
 echo compiling Index popdown / DC System calls
 cd dc
-call dc 2>nul >nul
+call dc %ozslot% 2>nul >nul
 cd ..
 dir dc\*.err apps\index\*.err 2>nul >nul || goto COMPILE_FPP
 type dc\*.err apps\index\*.err
