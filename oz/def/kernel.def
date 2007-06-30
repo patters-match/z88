@@ -35,7 +35,7 @@ defc    OZVERSION               = $42
 ; rom layout:
 
 IF OZ_SLOT1
-        defc ROMSIZE            =13             ; OZ is located at top 13 banks in slot 1 on a 1Mb AMD 29F080B Flash Card
+        defc ROMSIZE            =12             ; OZ is located at top 13 banks in slot 1 on a 1Mb AMD 29F080B Flash Card
 
         defc OZBANK_LOWRAM      =$74            ; LOWRAM code to be installed during reset (located in EazyLink bank)
         defc OZBANK_GN          =$7B
