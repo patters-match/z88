@@ -22,7 +22,7 @@
 ;***************************************************************************************************
 
 ; generate a 512K ROM image, also as 16K bank files
-outputfile oz.bin
+outputfile oz.epr
 size 512
 romupdate oz.1
 
