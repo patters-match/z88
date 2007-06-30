@@ -73,10 +73,8 @@ xref    PutOsf_Err
         pop     de                              ; length to DE
         jr      c, opw_1                        ; no mem?
 
-        ld      a, h                            ; S2 fix
-        and     $3F                             ; !! 'set 7,h; res 6,h'
-        or      $80
-        ld      h, a
+        set     7,h
+        res     6,h                             ; S2 fix
         push    ix
         ld      a, TH_WMG
         OZ      OS_Gth                          ; allocate wildcard handle
