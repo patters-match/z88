@@ -1,6 +1,6 @@
 :: **************************************************************************************************
 :: OZ ROM compilation cleanup script for Windows/DOS.
-:: (C) Gunther Strube (gbs@users.sf.net) 2005
+:: (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -26,7 +26,7 @@
 
 :: delete all compile output files in bank0 - bank7
 del /Q oz.?? romupdate.cfg
-del /S /Q *.bin *.map *.obj *.lst *.err *.wrn *.sym 2>nul >nul
+del /S /Q *.bin *.epr *.map *.obj *.lst *.err *.wrn *.sym 2>nul >nul
 
 :: only delete *.def files for OZ ROM (preserve \def!)
 del /Q os\*.def 2>nul >nul

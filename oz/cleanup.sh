@@ -2,7 +2,7 @@
 
 # **************************************************************************************************
 # OZ ROM compilation cleanup script for Unix.
-# (C) Gunther Strube (gbs@users.sf.net) 2005
+# (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -29,6 +29,7 @@ rm -f oz.?? romupdate.cfg
 
 # delete all compile output files
 find . -name "*.bin" | xargs rm -f
+find . -name "*.epr" | xargs rm -f
 find . -name "*.map" | xargs rm -f
 find . -name "*.err" | xargs rm -f
 find . -name "*.obj" | xargs rm -f
