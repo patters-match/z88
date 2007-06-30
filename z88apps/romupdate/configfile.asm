@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -25,6 +25,7 @@
      xref ValidateBankFile, OpenBankFile
 
      include "sysvar.def"
+     include "handle.def"
      include "stdio.def"
      include "fileio.def"
      include "fpp.def"
@@ -60,9 +61,15 @@
                     sbc  hl,de
                     pop  hl
                     jr   z,parse_cfgfile_lines          ; Allow "V1" config file format
+                    push hl
                     ld   d,'2'
                     sbc  hl,de
-                    jp   nz,ErrMsgCfgSyntax             ; Allow "V2" config file format
+                    pop  hl
+                    jp   z,parse_cfgfile_lines          ; Allow "V2" config file format
+                    ld   d,'3'
+                    sbc  hl,de
+                    jp   nz,ErrMsgCfgSyntax             ; Allow "V3" config file format
+
 .parse_cfgfile_lines
                     call FetchLine                      ; fetch line containing command specification
                     jp   z,ErrMsgCfgSyntax              ; premature EOF!
@@ -93,16 +100,30 @@
 
 ; *************************************************************************************
 ; Update OZ ROM image to slot 0 or 1. Parse entries in the configuration file:
-; 'OZ',<total banks>
+; 'OZ',<total banks> (default slot 0)  or  'OZ.x',<total banks> (specified slot number)
 ; "<bank file>",<crc>,<destination bank>
 ; ...
 ;
 .parse_ozrom_info
+                    xor  a                              ; update OZ bank files to slot 0 (default)
+                    ld   (oz_slot),a
+
                     call GetSym
-                    cp   sym_comma                      ; skip comma...
-                    jp   nz,ErrMsgCfgSyntax
+                    cp   sym_fullstop                   ; "OZ." (part of V3 format)
+                    jr   nz, check_comma                ; no '.', this means default slot 0
+
                     call GetSym
                     call GetConstant                    ; get total no of ROM banks to update ..
+                    jp   nz,ErrMsgCfgSyntax             ; OZ slot number specification value was illegal...
+                    exx
+                    ld   a,c
+                    ld   (oz_slot),a
+                    call GetSym                         ; after "OZ.x" a "," must appear...
+.check_comma
+                    cp   sym_comma                      ; fetch comma...
+                    jp   nz,ErrMsgCfgSyntax             ; not found - signal syntax error...
+                    call GetSym
+                    call GetConstant                    ; a constant after comma identifies total no of ROM banks to update ..
                     jp   nz,ErrMsgCfgSyntax             ; specified destination bank value was illegal...
 
                     exx

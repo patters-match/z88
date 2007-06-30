@@ -35,25 +35,25 @@
 
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
-     xref BlowBufferToBank
+     xref BlowBufferToBank, MsgUpdOzRom
 
 
 ; *************************************************************************************
-; Update OZ ROM to slot 0
+; Update OZ ROM to slot X
 ;
 .Update_OzRom
-                    ld   c,0                            ; make sure that we have an AMD/STM 512K flash chip in slot 0
+                    ld   a,(oz_slot)
+                    ld   c,a                            ; make sure that we have an AMD/STM 512K flash chip in slot X
                     call FlashWriteSupport
                     jr   nc, flash_found
-                    xor  a
-                    ld   (dorbank),a
-                    jp   ErrMsgOzRom                    ; "OZ ROM cannot be updated. 512K Flash was not found in slot 0"
+                    jp   ErrMsgOzRom                    ; "OZ ROM cannot be updated. 512K Flash was not found in slot X"
 
 .flash_found
-                    ld   hl, updoz_msg                  ; "Updating OZ ROM - please wait..." (flashing)
-                    oz   GN_Sop                         ; "Z88 will automatically hard reset when updating has completed."
+                    call MsgUpdOzRom                    ; "Updating OZ ROM in slot X - please wait..." (flashing)
+                                                        ; "Z88 will automatically hard reset when updating has completed."
+
                     ; ----------------------------------------------------------------------------------------------------------------------
-                    ; before erasing slot 0 (wiping out the current OZ ROM code) and programming the bank files to slot 0, patch the
+                    ; before erasing slot X (wiping out the current OZ ROM code) and programming the bank files to slot X, patch the
                     ; RST 38H and RST 66H interrupt vectors in lower 8K RAM to return immediately (executing no functionality).
                     ; This prevents any accidental interrupt being executed into a non-existing OZ ROM - or even worse - Flash memory
                     ; that is not in Read Array Mode!
@@ -120,11 +120,12 @@ IF BBCBASIC
                     oz   Os_Sci                         ; re-assign HIRES1 base address to point in RAM
                     ; ----------------------------------------------------------------------------------------------------------------------
 ENDIF
-                    ld   c,0
+                    ld   a,(oz_slot)
+                    ld   c,a
                     call FlashEprCardErase              ; bye, bye OZ!
 
                     ld   iy,ozbanks                     ; get ready for first oz bank entry of [total_ozbanks]
-                    ld   b,(iy-1)                       ; total of banks to update to slot 0...
+                    ld   b,(iy-1)                       ; total of banks to update to slot X...
 .update_ozrom_loop
                     push bc
 
@@ -254,5 +255,4 @@ endif
                     ret
 ; *************************************************************************************
 
-.updoz_msg          defm 1, "FUpdating OZ ROM - please wait...", 1, "F", 13, 10
-                    defm "Z88 will automatically HARD RESET when updating has been completed", 0
+

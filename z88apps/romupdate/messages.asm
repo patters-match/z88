@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -31,7 +31,7 @@
      include "romupdate.def"
 
      xdef bbcbas_progversion, progversion_banner
-     xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile
+     xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile, MsgUpdOzRom
      xdef ReportStdError, DispErrMsg
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
@@ -199,10 +199,32 @@
                     oz   GN_Sop
                     ld   hl,inslot_msg                  ; "in slot "
                     oz   GN_Sop
-                    call DispSlotNo
+                    ld   a,(oz_slot)
+                    ld   b,0
+                    ld   c,a
+                    call DispNumber
+                    oz   GN_nln
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
                     jp   suicide                        ; perform suicide with application KILL request
 ; *************************************************************************************
+
+
+; *************************************************************************************
+; 'Updating OZ ROM in slot X - please wait'
+;
+.MsgUpdOzRom
+                    ld   hl,updoz1_msg
+                    oz   GN_Sop
+                    ld   hl,inslot_msg                  ; "in slot "
+                    oz   GN_Sop
+                    ld   a,(oz_slot)
+                    ld   b,0
+                    ld   c,a
+                    call DispNumber
+
+                    ld   hl,updoz2_msg
+                    oz   GN_Sop
+                    ret
 
 
 ; *************************************************************************************
@@ -712,7 +734,7 @@
 ; *************************************************************************************
 ; constants
 .bbcbas_progversion defm 12                   ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.7 beta", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.8 beta", 1,"B", 0
 
 .centerjustify      defm 1, "2JC", 0
 .leftjustify        defm 1, "2JN", 0
@@ -768,3 +790,7 @@
 .reset2_msg         defm $0D, $0A, $0D, $0A, "Go to Index, remove card, close flap and re-insert card to install application", 0
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
+
+.updoz1_msg         defm 1, "FUpdating OZ ROM", 0
+.updoz2_msg         defm " - please wait...", 1, "F", 13, 10
+                    defm "Z88 will automatically HARD RESET when updating has been completed", 0
