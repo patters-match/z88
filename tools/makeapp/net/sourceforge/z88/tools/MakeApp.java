@@ -206,10 +206,14 @@ public class MakeApp {
 	}
 
 	/**
-	 * Create "romupdate.cfg" file for OZ ROM in slot 0.
+	 * Create "romupdate.cfg" file for OZ ROM in slot 0 or 1.
 	 */
-	private void createRomUpdCfgFile_OzSlot0() {
+	private void createRomUpdCfgFile_OzSlot(int slotNo) {
 		int totalBanks = 0;
+		int base_slot_bank = 0;
+		
+		if (slotNo == 1)
+			base_slot_bank = 64-appCardBanks;
 
 		for (int b=0; b<appCardBanks; b++) {
 			if (banks[b].isEmpty() == false)
@@ -218,16 +222,17 @@ public class MakeApp {
 
 		try {
 			RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
-			cardFile.writeBytes("CFG.V2\n");
+			cardFile.writeBytes("CFG.V3\n");
 			cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
-			cardFile.writeBytes("OZ," + totalBanks + "\n");
-			cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot 0).\n");
+
+			cardFile.writeBytes("OZ." + slotNo + "," + totalBanks + "\n");
+			cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot " + slotNo + ").\n");
 
 			for (int b=0; b<appCardBanks; b++) {
 				if (banks[b].isEmpty() == false) {
 					cardFile.writeBytes("\"" + banks[b].getBankFileName() + "\",");
 					cardFile.writeBytes("$" + Long.toHexString(banks[b].getCRC32()) + ",");
-					cardFile.writeBytes("$" + byteToHex(b, false) + "\n");
+					cardFile.writeBytes("$" + byteToHex( (slotNo << 6) | (base_slot_bank + b), false) + "\n");
 				}
 			}
 			cardFile.close();
@@ -256,11 +261,11 @@ public class MakeApp {
 			break;
 		case 2:
 			// OZ ROM for slot 0
-			createRomUpdCfgFile_OzSlot0();
+			createRomUpdCfgFile_OzSlot(0);
 			break;
 		case 3:
 			// OZ ROM for slot 1 (not yet implemented)
-			System.err.println("RomUpdate.cfg file not yet implemented for OZ ROM in slot 1.");
+			createRomUpdCfgFile_OzSlot(1);
 			break;
 		}
 	}
@@ -370,6 +375,8 @@ public class MakeApp {
 	        	if (directive[0].length() > 0 ) {
 	        		if (directive[0].compareToIgnoreCase("romupdate") == 0) {
 	        			splitBanks = true;
+	        			if (directive[1].compareToIgnoreCase("oz.1") == 0)
+	        				romUpdateConfigFileType = 3;
 	        			if (directive[1].compareToIgnoreCase("oz.0") == 0)
 	        				romUpdateConfigFileType = 2;
 	        			if (directive[1].compareToIgnoreCase("app") == 0)
