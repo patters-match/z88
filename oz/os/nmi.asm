@@ -39,6 +39,7 @@
         include "keyboard.def"
 
         include "lowram.def"
+        include "boot.def"
 
 
 xdef    BothShifts
@@ -56,7 +57,6 @@ xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
 xref    OSFramePush                             ; [Kernel0]/misc4.asm
 xref    osfpop_1                                ; [Kernel0]/misc4.asm
 xref    MayDrawOZwd                             ; [Kernel0]/misc3.asm
-xref    Halt                                    ; [Kernel0]/boot.asm
 
 
 defc    NMI_HALT        =1
@@ -411,13 +411,13 @@ defc    NMI_B_HALT      =0
         ld      (BLSC_COM), a
 
 .nmi_3
-        res     BB_COMRAMS, a                   ; Bank 0 in lower 8K of S0
         res     BB_COMVPPON, a                  ; VPP off
+        out     (BL_COM), a
+        call    setComaInts                     ; patch INT 38H and NMI 66H vectors in LOWRAM to HW_INT and HW_NMI
 
         ld      bc, (ubTimecounterSoft-1)       ; ld b,(ubTimecounterSoft)
         ld      de, (uwTimecounter)
         ld      c, 0
-        out     (BL_COM), a
         jp      nz, nmi2_2                      ; NMI_B_HALT set? halt
 
         ld      a, h
@@ -444,6 +444,7 @@ defc    NMI_B_HALT      =0
         di
         ld      a, BM_COMRAMS|BM_COMLCDON
         out     (BL_COM), a                     ; LCD on, RAM at $0000
+        call    setAwakeInts                    ; restore INT 38H and NMI 66H vectors in LOWRAM to LOWRAM_INT and LOWRAM_NMI
 
         ld      (uwTimecounter), de             ; store BDE into time counter
         ld      a, b
@@ -529,6 +530,9 @@ defc    NMI_B_HALT      =0
         ld      hl, [BM_INTTIME|BM_INTGINT]<<8|[BM_TACKTICK]
 
 .nmi2_2
+        ld      a, BM_COMRAMS
+        out     (BL_COM), a                     ; reset command register (but keep bank $20 in lower 8K)
+
         ld      a, $3F
         ld      i, a
         jp      Halt
@@ -569,4 +573,24 @@ defc    NMI_B_HALT      =0
         cp      3                               ; wrap soft tcnt if necessary
         ret     c
         xor     a
+        ret
+
+; Patch LOWRAM INT (0038H) and NMI (0066H) vectors in LOWRAM with subroutines to be used during coma state...
+.setComaInts
+        push    hl
+        ld      hl,HW_INT
+        ld      ($0038+1),hl
+        ld      hl,HW_NMI
+        ld      ($0066+1),hl
+        pop     hl
+        ret
+
+; Patch (restore) LOWRAM INT (0038H) and NMI (0066H) vectors in LOWRAM with subroutines to be used during awake state...
+.setAwakeInts
+        push    hl
+        ld      hl,LOWRAM_INT
+        ld      ($0038+1),hl
+        ld      hl,LOWRAM_NMI
+        ld      ($0066+1),hl
+        pop     hl
         ret

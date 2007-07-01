@@ -33,6 +33,7 @@ COMPILE_ERROR=0
 # create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
 cd os
 ../../tools/mpm/mpm -g ostables.asm
+../../tools/mpm/mpm -g -I../def boot.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi

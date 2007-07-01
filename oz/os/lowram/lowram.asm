@@ -56,6 +56,7 @@ ENDIF
 
 
 xdef    LowRAMcode, LowRAMcode_end
+xdef    OZ_INT, OZ_NMI, LOWRAM_INT, LOWRAM_NMI
 xdef    DefErrHandler
 xdef    FPP_RET
 xdef    INTReturn

@@ -43,6 +43,7 @@
 xdef    Halt
 xdef    Boot_reset
 xdef    Delay300Kclocks
+xdef    HW_INT, HW_NMI
 
 xref    nmi_5                                   ; [Kernel0]/nmi.asm
 xref    HW_NMI2                                 ; [Kernel0]/nmi.asm
@@ -63,6 +64,8 @@ xref    Reset                                   ; [Kernel1]/reset.asm
         in      a, (BL_STA)                     ; remember interrupt status
         ex      af, af'
         ld      hl, [BM_INTTIME|BM_INTGINT]<<8 | BM_TMKTICK
+        xor     a
+        out     (BL_COM), a                     ; reset command register
 
 ; snooze on coma and wait for interrupt
 ;
@@ -70,8 +73,6 @@ xref    Reset                                   ; [Kernel1]/reset.asm
 
 .Halt
         di
-        xor     a
-        out     (BL_COM), a                     ; reset command register
         ld      a, OZBANK_KNL0
         out     (BL_SR2), a
         out     (BL_SR3), a                     ; preset kernel banks

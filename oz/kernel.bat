@@ -30,6 +30,7 @@ cd ..\oz
 :: create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
 cd os
 ..\..\tools\mpm\mpm -g ostables.asm
+..\..\tools\mpm\mpm -g -I..\def boot.asm
 dir *.err 2>nul >nul || goto PRECOMPILE_LOWRAM
 goto COMPILE_ERROR
 

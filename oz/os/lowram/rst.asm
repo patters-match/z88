@@ -71,7 +71,9 @@
         jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality with RST 30H)
         defs    $0038-$PC  ($ff)                ; address align for RST 38H, Blink INT entry point
 
-.OZ_INT                                         ; OZ_INT
+.OZ_INT
+        jp      LOWRAM_INT                      ; patch vector for interrupts during coma
+.LOWRAM_INT
         push    af
         ld      a, (BLSC_SR3)                   ; remember S3
         push    af
@@ -112,7 +114,9 @@
 
 ;       ----
 ;       Non Maskable interrupt entry
-.OZNMI
+.OZ_NMI
+        jp      LOWRAM_NMI                      ; patch vector for interrupts during coma
+.LOWRAM_NMI
         push    af
         ld      a, BM_COMRAMS                   ; bind bank $20 into lowest 8KB of segment 0
         out     (BL_COM), a
