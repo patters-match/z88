@@ -61,6 +61,7 @@ xref    IntSecond                               ; [K0]/int.asm
 
 xref    InitData                                ; [K1]/initdata.asm
 xref    TimeReset                               ; [K1]/timeres.asm
+xref    defDev                                  ; [K1]/spnq1.asm
 
 ;       ----
 
@@ -239,6 +240,27 @@ xref    TimeReset                               ; [K1]/timeres.asm
         ld      l, SI_HRD
         OZ      OS_Si                           ; hard reset serial interface
 
+        ld      hl,defDev
+        ld      de,$1800                        ; use bottom of stack for temp. work space...
+        push    de
+        ld      bc,6
+        ldir
+        dec     de                              ; point at device number
+
+        call    Chk128KB                        ; get bottom bank of expanded RAM card..
+        pop     hl
+        jr      c, install_panel_defaults       ; no expanded RAM were found
+        and     $c0
+        rlca
+        rlca
+        or      $30
+        ld      (de),a                          ; define default expanded RAM card slot number
+
+        ld      a,6
+        ld      bc,PA_Dev
+        oz      os_sp                           ; install new default RAM device
+
+.install_panel_defaults
         ld      bc, PA_Gfi
         OZ      OS_Sp                           ; initialize panel, serial port and printer
 

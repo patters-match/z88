@@ -43,6 +43,7 @@
 
 xdef    OSSpMain
 xdef    OSNqMain
+xdef    defDev
 
 xref    ClearMemHL_A                            ; [K0]/misc5.asm
 xref    CopyMemDE_HL                            ; [K0]/misc5.asm
