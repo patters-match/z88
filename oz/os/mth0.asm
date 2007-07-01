@@ -528,7 +528,6 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
 .PrevAppDOR
         ld      a, (ubHlpActiveApp)
         dec     a
-
 .AppDOR_sub
         call    GetAppDOR
         ld      (ubHlpActiveApp), a
@@ -546,7 +545,6 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
         ld      b, OZBANK_KNL1                  ; bind in other part of kernel
         call    fsMS2BankB                      ; remembers old S2 bank binding on stack, returns also B = old bank binding
 
-.GetAppDORr
         push    ix                              ; routine uses IX for temporary DOR handle processing, preserve call IX register...
         push    de
         ld      e, a                            ; remember A
@@ -557,14 +555,14 @@ xref    InitHandle                              ; [Kernel1]/misc1.asm
 .appdor_1
         ld      d, a                            ; remember #app
         inc     a
-        call    GetAppDORr
+        call    GetAppDOR
         jr      c, appdor_2                     ; end of list reached, exit to return the last Application DOR pointer to caller
         cp      e
         jr      c, appdor_1                     ; loop until E passed
         jr      z, appdor_1
 .appdor_2
         ld      a, d                            ; the previous application ID was the end of the list -
-        call    GetAppDORr                      ; return pointer to last application DOR
+        call    GetAppDOR                       ; return pointer to last application DOR
         jr      appdor_10
 
 .appdor_3
