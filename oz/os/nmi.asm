@@ -407,11 +407,11 @@ defc    NMI_B_HALT      =0
         bit     NMI_B_HALT, h
         set     BB_INTGINT, h
         jr      z, nmi_3                        ; bit0 was zero? leave speaker alone
-        res     7, a                            ; speaker=SBIT
+        res     BB_COMSRUN, a                   ; speaker=SBIT
         ld      (BLSC_COM), a
 
 .nmi_3
-        res     BB_COMRAMS, a                   ; B0 at $0000
+        res     BB_COMRAMS, a                   ; Bank 0 in lower 8K of S0
         res     BB_COMVPPON, a                  ; VPP off
 
         ld      bc, (ubTimecounterSoft-1)       ; ld b,(ubTimecounterSoft)
@@ -425,8 +425,8 @@ defc    NMI_B_HALT      =0
         ld      a, l
         out     (BL_TMK), a
 
-        ld      a, OZBANK_KNL0                  ; KERNEL0 into all segments
-        out     (BL_SR0), a
+        ld      a, OZBANK_KNL0
+        out     (BL_SR0), a                     ; KERNEL0 in 2000 - 3FFF (upper 8K of S0)!
         out     (BL_SR1), a
         out     (BL_SR2), a
         out     (BL_SR3), a
@@ -468,8 +468,7 @@ defc    NMI_B_HALT      =0
         dec     c
         call    nz, NMI_Off                     ; C<>0, switch off
 
-        ld      b, BLSC_PAGE                    ; bind S1-S3 after softcopies  !! ld bc
-        ld      c, BL_SR3
+        ld      bc, BLSC_PAGE << 8 | BL_SR3     ; bind S1-S3 after softcopies
 .nmi_7
         ld      a, (bc)
         out     (c), a
@@ -536,8 +535,7 @@ defc    NMI_B_HALT      =0
 
 ;       ----
 
-;       from low-RAM NMI stub
-
+;       Entry point of NMI (executed from LOWRAM RST 66H)
 .NMIEntry
         push    bc
         push    de

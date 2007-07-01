@@ -36,8 +36,9 @@
 .rst00                                          ; RESET
         di
         xor     a
-        out     (BL_COM), a                     ; bind b00 into low 2KB
+        out     (BL_COM), a                     ; bind b00 into low 8K of segment 0
         ; code continues to execute in bank 0 in ROM (see [kernel0]/boot.asm)...
+
         defs    $0008-$PC   ($ff)               ; address align for RST 08H
 
 .rst08                                          ; FREE
@@ -46,9 +47,9 @@
         defs    $0010-$PC  ($ff)                ; address align for RST 10H
 
 .rst10                                          ; EXTCALL
-        jp      ExtCall                         ; OZ V4.1: EXTCALL interface
-
+        jp      ExtCall                         ; OZ V4.1 (and newer): EXTCALL interface
         defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
+
 .rst18                                          ; FPP
         jp      FPPmain
         defb    0,0
@@ -72,9 +73,9 @@
 
 .OZ_INT                                         ; OZ_INT
         push    af
-        ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
+        ld      a, (BLSC_SR3)                   ; remember S3
         push    af
-        call    MS3Kernel0
+        call    MS3Kernel0                      ; and bind in KERNEL0
         jp      INTEntry
                                                 ; IMPORTANT NOTE :
                                                 ; a DI is not necessary at the start of OZ_INT
@@ -128,10 +129,10 @@
         push    af
 
         di                                      ; nested NMIs won't enable interrupts
-        ld      a, (BLSC_SR3)                   ; remember S3 and bind in b00
+        ld      a, (BLSC_SR3)                   ; remember S3
         push    af
-        call    MS3Kernel0
-        call    NMIEntry                        ; call NMI handler in kernel bank 0
+        call    MS3Kernel0                      ; and bind in KERNEL0
+        call    NMIEntry                        ; call NMI handler in KERNEL0
 
         pop     af                              ; restore S3
         call    MS3BankA
