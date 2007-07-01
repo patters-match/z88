@@ -42,7 +42,7 @@
 
 xdef    OSMap
 
-xref    Chk128KB                                ; [Kernel0]/resetx.asm
+xref    Chk128KB                                ; [Kernel0]/memory.asm
 xref    GetWindowFrame                          ; [Kernel0]/scrdrv2.asm
 xref    PeekHLinc                               ; [Kernel0]/misc5.asm
 xref    PokeBHL                                 ; [Kernel0]/misc5.asm

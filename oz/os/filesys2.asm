@@ -691,11 +691,11 @@ xref    OSOutMain                               ; [Kernel1]/scrdrv1.asm
         call    GetFileEOF
         ret     nc
 .frmeof_1
-        set    Z80F_B_Z, (iy+OSFrame_F)          ; Fz=1, EOF
+        set    Z80F_B_Z, (iy+OSFrame_F)         ; Fz=1, EOF, indicate expanded machine
         or      a
         ret
 .frmeof_2
-        call    Chk128KB
+        call    Chk128KB                        ; check for RAM card size of 128K or bigger in slot 0, 1 or 2
         jr      nc, frmeof_1                    ; set Fz
         or      a
         ret

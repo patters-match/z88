@@ -89,7 +89,6 @@ IF COMPILE_BINARY
         xdef    MarkSystemRAM                   ; [Kernel0]/memory.asm
         xdef    Chk128KB                        ; [Kernel0]/memory.asm
         xdef    Chk128KBslot0                   ; [Kernel0]/memory.asm
-        xdef    FirstFreeRAM                    ; [Kernel0]/memory.asm
         xdef    MountAllRAM                     ; [Kernel0]/memory.asm
 
         xdef    GetDORType                      ; [Kernel0]/dor.asm

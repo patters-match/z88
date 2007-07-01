@@ -84,7 +84,7 @@ xref    SetScrAttr                              ; [Kernel0]/scrdrv4.asm
 xref    FindSDCmd                               ; [Kernel0]/scrdrv4.asm
 xref    ToggleScrDrvFlags                       ; [Kernel0]/scrdrv4.asm
 
-xref    Chk128KB                                ; [Kernel0]/resetx.asm
+xref    Chk128KB                                ; [Kernel0]/memory.asm
 xref    InitWindowFrame                         ; [Kernel0]/scrdrv3.asm
 xref    ResetWdAttrs                            ; [Kernel0]/scrdrv3.asm
 

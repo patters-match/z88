@@ -51,9 +51,8 @@ xdef    OSDom
 xdef    sub_C2F3
 xdef    sub_C39F
 
-xref    Chk128KB                                ; [Kernel0]/reset.asm
-xref    Chk128KBslot0                           ; [Kernel0]/reset.asm
-xref    FirstFreeRAM                            ; [Kernel0]/reset.asm
+xref    Chk128KB                                ; [Kernel0]/memory.asm
+xref    Chk128KBslot0                           ; [Kernel0]/memory.asm
 xref    FollowPageN                             ; [Kernel0]/memory.asm
 xref    MarkPageAsAllocated                     ; [Kernel0]/memory.asm
 xref    MATPtrToPagePtr                         ; [Kernel0]/memory.asm
@@ -138,7 +137,7 @@ defc    FREE_THIS       =7
 
 .acr_3
         ld      b, a                            ; remember size
-        call    FirstFreeRAM
+        call    Chk128KB
         ld      c, a                            ; remember bank
 
         call    Chk128KB                        ; limit size to 32 pages on unexpanded machine
@@ -354,7 +353,6 @@ defc    FREE_THIS       =7
         dec     c
         jr      nz, abr2_5                      ; not zero? skip
 
- IF OZ40001=0
         push    af
         ld      a, (ubAppContRAM)
         sub     b
@@ -366,9 +364,6 @@ defc    FREE_THIS       =7
 .abr2_4
         ld      c, a
         pop     af
- ELSE
-        ld      c, e
- ENDIF
 .abr2_5
         push    bc
         push    de
@@ -548,8 +543,8 @@ defc    FREE_THIS       =7
         cp      $40
         jr      c, badv_1                       ; still in b20 SWAP area? skip
 
-        call    FirstFreeRAM                    ; bind first RAM bank in S2
-        call    MS2BankA
+        call    Chk128KB
+        call    MS2BankA                        ; bind first RAM bank in S2
         cp      $40
         jr      z, badv_1                       ; slot 1
         ld      a, l

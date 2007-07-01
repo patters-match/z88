@@ -259,13 +259,11 @@ ENDIF
 .ExpandMachine
         call    Chk128KB
         ret     c                               ; not expanded? exit
-
-        call    FirstFreeRAM                    ; b21/b40 for un-/expanded machine
-        add     a, 3                            ; b24/b43
+        add     a, 3                            ; b24/b43/b83
         ld      d,a
         push    de
         ld      bc, $0A
-        call    MarkSystemRAM                   ; b24/b43, 0000-09ff - Hires0+Lores0
+        call    MarkSystemRAM                   ; b24/b43/b83, 0000-09ff - Hires0+Lores0
 
         pop     bc                              ; B=bank, use C to keep bank through Os_Sci
         ld      c,b

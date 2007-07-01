@@ -67,9 +67,8 @@ xdef    OSNqMemory
 xdef    OSSp_89
 xdef    PageNToPagePtr
 xdef    VerifySlotType
-xdef    Chk128KB                                ; [Kernel0]/filesys2.asm, process2.asm, [Kernel1]/osmap.asm, scrdrv1.asm
-xdef    Chk128KBslot0                           ; [Kernel0]/process2.asm
-xdef    FirstFreeRAM                            ; [Kernel0]/process2.asm
+xdef    Chk128KB
+xdef    Chk128KBslot0
 xdef    MountAllRAM                             ; [Kernel0]/cardmgr.asm, [Kernel1]/misc1.asm
 
 xref    MS2BankK1                               ; [Kernel0]/misc5.asm
@@ -2445,22 +2444,24 @@ defc    DM_RAM                  =$81
         defb    $C0,$40,'3'
         defb    0
 
-;       ----
 
+; *****************************************************************************************************
+; Return Fc = 1, if less than 128K RAM was found in slot 0, 1 or 2.
+; If expanded RAM was found (>=128K), then return Fc = 0, A = bottom bank of found RAM card.
+;
 .Chk128KB
-        ld      a, (ubSlotRamSize+1)            ; RAM in slot1
+        ld      a, (ubSlotRamSize+2)            ; RAM in slot 2
         cp      128/16
+        ld      a, $80
+        ret     nc
+
+        ld      a, (ubSlotRamSize+1)            ; RAM in slot 1
+        cp      128/16
+        ld      a, $40
         ret     nc
 
 .Chk128KBslot0
-        ld      a, (ubSlotRamSize)              ; RAM in slot0
-        cp      128/16                          ; Fc=1 if less than 128KB
-        ret
-
-.FirstFreeRAM
-        call    Chk128KBslot0
+        ld      a, (ubSlotRamSize)              ; RAM in slot 0
+        cp      128/16
         ld      a, $21
-        ret     nc
-        ld      a, $40
-.ffr_1
         ret
