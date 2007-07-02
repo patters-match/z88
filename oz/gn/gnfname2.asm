@@ -550,28 +550,6 @@ xref    WriteOsfDE
 
 ;       ----
 
-; !! unused
-.sub_E129
-        call    IsSegSeparator
-        ret     nz
-        inc     hl
-        dec     b
-        ret
-
-;       ----
-
-; !! unused
-.sub_E130
-        ld      a, (de)
-        call    FilenameCls
-        jr      c, loc_E137
-        ret     nz
-.loc_E137
-        inc     de
-        jr      sub_E130
-
-;       ----
-
 ;       read & write filename segments
 ;
 ;IN:    A=command (A7=0: read, A7=1: write, A0=0: name, A1=1: extension)
@@ -615,7 +593,7 @@ xref    WriteOsfDE
         jp      p, esa_2
         add     a, b                            ; + #segments
         jr      c, esa_2
-        ccf                                     ; !! scf
+        scf
         ld      a, RC_Bad
         jp      esa_err
 
@@ -796,7 +774,7 @@ xref    WriteOsfDE
         OZ      OS_Dor                          ; get brother
         call    LdFsnDOR_IX
 .fmn_5
-        jr      c, fmn_6                        ; !! jr directly to 'pop ix'
+        jr      c, fmn_8
         ld      (iy+fsn_ubType), a
         jr      fmn_2                           ; test brother
 
@@ -1101,7 +1079,7 @@ xref    WriteOsfDE
         ld      a, b
         or      h
         or      l
-        jr      z, ftfsn_x                      ; !! ret z
+        ret     z
 
         ld      e, b                            ; bind node in S1
         ld      c, MS_S1
@@ -1125,7 +1103,6 @@ xref    WriteOsfDE
         OZ      OS_Mfr
         pop     ix
         dec     (ix+wc_NodeCount)
-.ftfsn_x
         ret
 
 ;       ----
@@ -1233,11 +1210,9 @@ xref    WriteOsfDE
         cp      '-'
         ret     z                               ; Fc=0, Fz=1 - numeric
         cp      $c0                             ; !! used by filter?
-        jr      c, fncls_1                      ; !! 'jp c, GnClsMain'
+        jp      c, GnClsMain
         cp      a                               ; Fc=0, Fz=1 - numeric
         ret
-.fncls_1
-        jp      GnClsMain
 
 ;       ----
 
@@ -1248,4 +1223,3 @@ xref    WriteOsfDE
         ret     z
         cp      ':'
         ret
-
