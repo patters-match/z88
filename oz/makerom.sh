@@ -148,7 +148,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling GN system calls
 cd gn
-. gn.sh
+. gn.sh $ozslot
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat gn/*.err

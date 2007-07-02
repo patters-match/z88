@@ -93,7 +93,7 @@ xref    PutOsf_BHL
         defm    1,"3@",$20+0,$20+3
         defm    1,"2JC"
         defm    1,"3@",$20+0,$20+3,0
-
+.get_errstr
         ld      a, (iy+OSFrame_A)               ; get error string
         OZ      GN_Esp
         push    af

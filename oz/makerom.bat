@@ -149,7 +149,7 @@ goto COMPILE_ERROR
 :COMPILE_GNCALLS
 echo compiling GN System calls
 cd gn
-call gn 2>nul >nul
+call gn %ozslot% 2>nul >nul
 cd ..
 dir gn\*.err 2>nul >nul || goto COMPILE_CALCULATOR
 type gn\*.err
