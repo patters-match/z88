@@ -27,14 +27,11 @@
 :: OZ ROM slot directive (first command line argument)
 set ozslot=%1
 
-if "%ozslot%"=="0" set ozslot=0
-if "%ozslot%"=="1" set ozslot=1
-
 if "%ozslot%"=="0" goto COMPILE_OZ
 if "%ozslot%"=="1" goto COMPILE_OZ
 
-:: if no (or unknown) slot directive is specified, compile ROM for slot 0
-set ozslot=0
+:: if no (or unknown) slot directive is specified, compile ROM for slot 1
+set ozslot=1
 
 :COMPILE_OZ
 ECHO Compiling OZ ROM for slot %ozslot%
@@ -46,7 +43,7 @@ call cleanup
 :COMPILE_DIARY
 echo compiling Diary application
 cd apps\diary
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\diary\*.err 2>nul >nul || goto COMPILE_PIPEDREAM
 type apps\diary\*.err
@@ -56,7 +53,7 @@ goto COMPILE_ERROR
 :COMPILE_PIPEDREAM
 echo compiling PipeDream application
 cd apps\pipedream
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\pipedream\*.err 2>nul >nul || goto COMPILE_IMPEXP
 type apps\pipedream\*.err
@@ -66,7 +63,7 @@ goto COMPILE_ERROR
 :COMPILE_IMPEXP
 echo compiling Imp/Export popdown
 cd apps\impexport
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\impexport\*.err 2>nul >nul || goto COMPILE_CLCALALM
 type apps\impexport\*.err
@@ -76,7 +73,7 @@ goto COMPILE_ERROR
 :COMPILE_CLCALALM
 echo compiling Clock, Alarm and Calendar popdowns
 cd apps\clock
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\clock\*.err apps\alarm\*.err apps\calendar\*.err 2>nul >nul || goto COMPILE_MTH
 type apps\clock\*.err apps\alarm\*.err apps\calendar\*.err
@@ -119,7 +116,7 @@ goto COMPILE_ERROR
 :COMPILE_FPP
 echo compiling Floating Point Package
 cd fp
-call fpp 2>nul >nul
+call fpp %ozslot% 2>nul >nul
 cd ..
 dir fp\*.err 2>nul >nul || goto COMPILE_TERMINAL
 type fp\*.err
@@ -129,7 +126,7 @@ goto COMPILE_ERROR
 :COMPILE_TERMINAL
 echo compiling Terminal popdown
 cd apps\terminal
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\terminal\*.err 2>nul >nul || goto COMPILE_FILER
 type apps\terminal\*.err
@@ -139,7 +136,7 @@ goto COMPILE_ERROR
 :COMPILE_FILER
 echo compiling Filer popdown
 cd apps\filer
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\filer\*.err 2>nul >nul || goto COMPILE_GNCALLS
 type apps\filer\*.err
@@ -159,7 +156,7 @@ goto COMPILE_ERROR
 :COMPILE_CALCULATOR
 echo compiling Calculator popdown
 cd apps\calculator
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\calculator\*.err 2>nul >nul || goto COMPILE_PNLPRED
 type apps\calculator\*.err
@@ -169,7 +166,7 @@ goto COMPILE_ERROR
 :COMPILE_PNLPRED
 echo compiling Panel and PrinterEd applications
 cd apps\panelprted
-call makeapp 2>nul >nul
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\panelprted\*.err 2>nul >nul || goto COMPILE_EAZYLINK
 type apps\panelprted\*.err
@@ -179,7 +176,7 @@ goto COMPILE_ERROR
 :COMPILE_EAZYLINK
 echo compiling EazyLink
 cd apps\eazylink
-call makeapp
+call makeapp %ozslot%
 cd ..\..
 dir apps\eazylink\*.err 2>nul >nul || goto COMPILE_FLASHSTORE
 type apps\eazylink\*.err
@@ -189,7 +186,7 @@ goto COMPILE_ERROR
 :COMPILE_FLASHSTORE
 echo compiling Flashstore
 cd apps\flashstore
-call makeapp
+call makeapp %ozslot%
 cd ..\..
 dir apps\flashstore\*.err 2>nul >nul || goto COMPILE_ROMHDR
 type apps\flashstore\*.err

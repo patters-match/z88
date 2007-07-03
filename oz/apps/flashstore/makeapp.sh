@@ -21,4 +21,4 @@
 # ensure that we have an up-to-date standard library
 cd ../../../stdlib; ./makelib.sh; cd ../oz/apps/flashstore
 
-../../../tools/mpm/mpm -b -I../../def -l../../../stdlib/standard.lib @flashstore
+../../../tools/mpm/mpm -b -DOZ_SLOT$1 -I../../def -l../../../stdlib/standard.lib @flashstore

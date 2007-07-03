@@ -2,7 +2,7 @@
 
 # **************************************************************************************************
 # OZ ROM slot 0/1 compilation script for Unix.
-# (C) Gunther Strube (gbs@users.sf.net) 2005
+# (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -25,21 +25,24 @@
 # ***************************************************************************************************
 
 if test $# -eq 0; then
-  # no slot directive is specified, compile ROM for slot 0
-  ozslot=0
+  # no slot directive is specified, compile ROM for slot 1 as default
+  ozslot=1
+elif (test $1 != "0") && (test $1 != "1"); then
+  # illegal parameters are ignored and preset with slot 1
+  ozslot=1
 else
   ozslot=$1
 fi
 
 echo compiling OZ ROM for slot $ozslot
 
-# delete previous compiled files (incl error and warning files)...
+# delete previous compiled files (incl. error and warning files)...
 . cleanup.sh
 
 # -------------------------------------------------------------------------------------------------
 echo compiling Diary application
 cd apps/diary
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/diary/*.err
@@ -50,7 +53,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling PipeDream application
 cd apps/pipedream
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/pipedream/*.err
@@ -61,7 +64,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Imp/Export popdown
 cd apps/impexport
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/impexport/*.err
@@ -72,7 +75,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Clock, Alarm and Calendar popdowns
 cd apps/clock
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/clock/*.err apps/alarm/*.err apps/calendar/*.err
@@ -115,7 +118,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Floating Point Package
 cd fp
-. fpp.sh
+. fpp.sh $ozslot
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat fpp/*.err
@@ -126,7 +129,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling compiling Terminal popdown
 cd apps/terminal
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/terminal/*.err
@@ -137,7 +140,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Filer popdown
 cd apps/filer
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/filer/*.err
@@ -158,7 +161,7 @@ fi
 
 echo compiling Calculator popdown
 cd apps/calculator
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/calculator/*.err
@@ -169,7 +172,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Panel and PrinterEd applications
 cd apps/panelprted
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/panelprted/*.err
@@ -180,7 +183,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling EazyLink
 cd apps/eazylink
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/eazylink/*.err
@@ -191,7 +194,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Flashstore
 cd apps/flashstore
-. makeapp.sh
+. makeapp.sh $ozslot
 cd ../..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/flashstore/*.err

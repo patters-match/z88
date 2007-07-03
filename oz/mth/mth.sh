@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# UNIX compilation script for MTH, keymaps, font bitmaps and OZ ROM header.
+# UNIX compilation script for MTH, keymaps and font bitmaps.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,28 +23,28 @@
 # $Id$
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -bg -I../def keymaps.asm
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def keymaps.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -I../def hires1.asm
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def hires1.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -I../def lores1.asm
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def lores1.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -bg -DOZ_SLOT"$1" -I../def @mth.prj
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def @mth.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
