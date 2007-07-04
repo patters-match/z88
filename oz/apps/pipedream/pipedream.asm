@@ -2575,15 +2575,15 @@
         call    L_D749
         jp      L_CA8D
 
-.L_932E
+.NameFilePrompt
         defm    $01, $01, "New name of file", $00
         defm    $00
         defm    $00
 
-.L_9343
+.NameFile
         call    L_B398
         call    L_936E
-        ld      hl,L_932E
+        ld      hl,NameFilePrompt
         call    L_D98A
         ret     c
         ld      hl,$1FAA
@@ -3281,7 +3281,7 @@
         inc     a
         ret
 
-.L_9905
+.SaveFilePrompt
         defm    $05, $01, "Name of file to save", $00
         defm    $00
         defm    $85, "Save only range of columns", $00
@@ -3295,12 +3295,12 @@
         ret     nz
         or      $40
         ret
-.L_9980
+.SaveFile
         call    L_B398
         call    L_936E
         bit     3,(iy-70)
         call    nz,L_A01D
-        ld      hl,L_9905
+        ld      hl,SaveFilePrompt
         call    L_D98A
         ret     c
         call    L_99AF
@@ -5517,15 +5517,15 @@
         ret     z
         jp      L_EE09
 
-.L_AAAD
+.PrintPrompt
         defm    $03, $85, "Print only range of columns", $00
         defm    $81, $86, "Select rows to print", $00
         defm    $82, $84, "Wait between pages", $00
         defm    $84, $00
 
-.L_AAF9
+.PrintCommand
         call    L_B398
-        ld      hl,L_AAAD
+        ld      hl,PrintPrompt
         call    L_D98A
         ret     c
         call    L_B2CC
@@ -13626,8 +13626,8 @@
         defw    L_8455                          ; 55 ($37)
         defw    L_B4A6                          ; 56 ($38)
         defw    LoadFile                        ; 57 ($39), <>FL, Load file
-        defw    L_9980                          ; 58 ($3A)
-        defw    L_9343                          ; 59 ($3B)
+        defw    SaveFile                        ; 58 ($3A), <>FS, Save file
+        defw    NameFile                        ; 59 ($3B), <>FC, Name file
         defw    L_9C49                          ; 60 ($3C)
         defw    L_9C1D                          ; 61 ($3D)
         defw    L_9C3C                          ; 62 ($3E)
@@ -13650,7 +13650,7 @@
         defw    L_87E0
         defw    L_87D1
         defw    L_E3EE
-        defw    L_AAF9
+        defw    PrintCommand                    ; <>PO, Print
         defw    L_86E1
         defw    L_8483
         defw    L_8487
@@ -14653,10 +14653,10 @@
         ldir
         ret
 .L_ED3F
-        ld      hl,($1D75)
+        ld      hl,($1D75)                      ; filename
         xor     a                               ; read filename
-        ld      bc,L_FF32
-        ld      de,$1FAA
+        ld      bc,$FF32                        ; start at the filename (B=-1), buffer space of $32
+        ld      de,$1FAA                        ; destination buffer
         oz      Gn_esa
         ld      hl,$1FAA
         oz      Dc_nam
