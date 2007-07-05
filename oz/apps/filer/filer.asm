@@ -65,7 +65,6 @@ defvars f_Vars
      f_ActiveWd              ds.b    1
      f_SelectorPos           ds.b    1       ; $1dd8
      f_SelectedCmd           ds.b    1
-     f_LastCmdRow            ds.b    1       ; !! not used
      f_NumDirEntries         ds.b    1       ; visible entries
      f_Flags2                ds.b    1
      f_SavedCmdPos           ds.b    1
@@ -132,7 +131,7 @@ enddef
 .loc_EAF5
         cp      RC_Esc
         jr      nz, MainLoop
-        ld      a, SC_ACK                       ; !! SC_ACK=RC_Esc, this ld is unnecessary
+        ld      a, SC_ACK                       ; SC_ACK=RC_Esc this line is not necessary
         OZ      OS_Esc                          ; Examine special condition
         jr      ExitFiler
 
@@ -1264,15 +1263,11 @@ enddef
         pop     af
         inc     a
         cp      13
-        jr      z, loc_F1F2
+        ret z
         djnz    loc_F1E0
-
-.loc_F1F2
-        ld      a, 7
-        sub     b
-        ld      (f_LastCmdRow), a
         ret
-; End of function DrawCmdWindow
+
+
 ;----
 
 .DrawDirWindow
@@ -1371,14 +1366,16 @@ enddef
         ld      b, a
         pop     af
         ret
-;----
-
-;               Print until ctrl char, max 16 bytes, fill rest with blanks
-
-
+;------------------------------------------------------------------------------
+;
+; Print until ctrl char, max 16 bytes, fill rest with blanks
+;
+; IN : hl = string
+; OUT: hl = end of string
+;
+;------------------------------------------------------------------------------
 .PrntStr16
         ld      b, 16
-
 .pr16_1
         ld      a, (hl)
         inc     hl
@@ -1394,8 +1391,8 @@ enddef
         djnz    pr16_3
         ret
 
-;----
-
+;------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
 .SkipBCMatches
         push    bc
         call    TstIX
@@ -1486,9 +1483,20 @@ enddef
         ld      de, f_MatchString
         jp      CopyExtended
 
-;----
+
+
+
+
+;------------------------------------------------------------------------------
+;
+; Get command data
+;
+; IN : a = command
+; OUT: hl = command block address (flags byte, code word, name string)
+;
+;------------------------------------------------------------------------------
 .GetCmdData
-        ld      hl, CmdTable                    ; CmdTable+2A
+        ld      hl, CmdTable                    ; CmdTable+2*a
         add     a, a
         add     a, l
         ld      l, a
@@ -1500,7 +1508,17 @@ enddef
         ld      h, (hl)
         ld      l, a
         ret
-;----
+
+
+
+;------------------------------------------------------------------------------
+;
+; Print command string (in command window)
+;
+; IN : hl = command block
+; OUT: hl = next command block
+;
+;------------------------------------------------------------------------------
 .PrntCmdString
         ld      a, ' '
         OZ      OS_Out                          ; write a byte to std. output
@@ -1510,11 +1528,14 @@ enddef
         inc     hl
         OZ      GN_Sop                          ; write string to std. output
         jp      PrntTinyCaps
+
+
+;----
 .ApplyReverse
         call    PrntReverse
         call    RemoveHighlight
         jp      PrntReverse
-; End of function PrntCmdString
+
 ;----
 .RemoveHighlight
         ld      a, (f_ActiveWd)
@@ -2145,7 +2166,7 @@ enddef
         defm    1,"U",0
 .MoveXY_txt
         defm    1,"3@",0
-        defm    1,"2X",0                        ; !! unused $f74f
+;        defm    1,"2X",0                        ; !! unused $f74f
 .ClearEOL_txt
         defm    1,"2C",$FD,0
 .Cls_txt
@@ -3185,7 +3206,7 @@ enddef
         jr      z, mpw_2                        ; no pw for this command
 
 .mpw_1
-        ld      a, 8
+        ld      a, SR_PWT
         OZ      OS_Sr                           ; Page wait
         jr      nc, mpw_2
         cp      RC_Susp                         ; Suspicion of pre-emption
@@ -3374,8 +3395,14 @@ enddef
         OZ      OS_Nq                           ; get current directory
         ld      de, f_SourceName
 
-;       copy data from (BHL) to (DE) until control char
-
+;------------------------------------------------------------------------------
+;
+; Copy extended : copy data from (BHL) to (DE) until control char
+;
+; IN : bhl = source, de = destination buffer
+; OUT: -
+;
+;------------------------------------------------------------------------------
 .CopyExtended
         OZ      GN_Rbe                          ; Read byte at extended address
         ld      (de), a
@@ -3385,10 +3412,15 @@ enddef
         inc     hl
         inc     de
         jr      CopyExtended
-;----
 
-;       copy (HL) into (DE) until control char, return # bytes copied
-
+;------------------------------------------------------------------------------
+;
+; Copy filename : copy (HL) into (DE) until control char, return # bytes copied
+;
+; IN : hl = source, de = destination buffer
+; OUT: c = number of bytes copied
+;
+;------------------------------------------------------------------------------
 .CopyFName
         ld      c, 0
 .cfn_1
