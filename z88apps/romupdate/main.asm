@@ -24,6 +24,7 @@
      include "memory.def"
      include "fileio.def"
      include "romupdate.def"
+     include "flashepr.def"
 
      lib RamDevFreeSpace, FlashEprCardId
      lib CreateWindow
@@ -227,6 +228,7 @@ endif
 ; OUT:
 ;    Fz = 1, if a Flash Card is available in the current slot (Fz = 0, no Flash Card available!)
 ;         B = size of card in 16K banks
+;         (flash_algorithm) = FE_28F or FE_29F)
 ;    Fc = 1, if no erase/write support is available for current slot.
 ;
 ; Registers changed after return:
@@ -244,15 +246,18 @@ endif
                     scf                      ; Fc = 1, indicate no erase/write support either...
                     jr   exit_chckflsupp
 .flashcard_found
+                    ld   (flash_algorithm),a ; remember FE_29F or FE_28F
                     ld   a,c
                     cp   3
                     jr   z, end_chckflsupp   ; erase/write works for all flash cards in slot 3 (Fc=0, Fz=1)
-                    ld   a,$01
+                    ld   a,FE_INTEL_MFCD
                     cp   h                   ; Intel flash chip in slot 0,1 or 2?
-                    jr   z, end_chckflsupp   ; No, we wound an AMD Flash chip (erase/write allowed, Fc=0, Fz=1)
+                    jr   nz, end_chckflsupp  ; No, we wound an AMD/STM Flash chip (erase/write allowed, Fc=0, Fz=1)
                     cp   a                   ; (Fz=1, indicate that Flash is available..)
                     scf                      ; no erase/write support in slot 0,1 or 2 with Intel Flash...
+                    jr   exit_chckflsupp
 .end_chckflsupp
+                    cp   a
                     pop  de
                     ld   a,d                 ; A restored (f changed)
                     pop  de

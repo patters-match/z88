@@ -99,7 +99,7 @@
 
 
 ; *************************************************************************************
-; Update OZ ROM image to slot 0 or 1. Parse entries in the configuration file:
+; Update OZ ROM image to slot x. Parse entries in the configuration file:
 ; 'OZ',<total banks> (default slot 0)  or  'OZ.x',<total banks> (specified slot number)
 ; "<bank file>",<crc>,<destination bank>
 ; ...

@@ -32,12 +32,13 @@
 
      xdef bbcbas_progversion, progversion_banner
      xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile, MsgUpdOzRom
-     xdef ReportStdError, DispErrMsg
+     xdef ReportStdError, DispErrMsg, MsgOZUpdated
      xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
      xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
      xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea, ErrMsgOzRom
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
+     xdef hrdreset_msg, removecrd_msg
 
      xref suicide, GetSlotNo, GetSectorNo
 
@@ -66,6 +67,20 @@
                     ld   hl,completed_msg               ; " was successfully "
                     oz   GN_Sop
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Display "<AppName> was successfully updated in slot X",
+; prompt for key press, then exit program by KILL request.
+;
+.MsgOZUpdated
+                    call VduEnableCentreJustify
+                    ld   hl,removecrd_msg               ; "Insert flash Card with OZ in slot 1 and hard reset Z88."
+                    oz   GN_Sop
+                    oz   GN_nln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
 ; *************************************************************************************
 
 
@@ -734,7 +749,7 @@
 ; *************************************************************************************
 ; constants
 .bbcbas_progversion defm 12                   ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.8 beta", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.8.1 beta", 1,"B", 0
 
 .centerjustify      defm 1, "2JC", 0
 .leftjustify        defm 1, "2JN", 0
@@ -792,5 +807,7 @@
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
 
 .updoz1_msg         defm 1, "FUpdating OZ ROM", 0
-.updoz2_msg         defm " - please wait...", 1, "F", 13, 10
-                    defm "Z88 will automatically HARD RESET when updating has been completed", 0
+.updoz2_msg         defm " - please wait...", 1, "F", 13, 10, 0
+
+.hrdreset_msg       defm "Z88 will automatically HARD RESET when updating has been completed", 0
+.removecrd_msg      defm 12, "Insert flash Card with OZ in slot 1 and hard reset Z88.", 0

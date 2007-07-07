@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2006
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -36,10 +36,13 @@
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
+     xref hrdreset_msg, MsgOZUpdated
 
 
 ; *************************************************************************************
 ; Update OZ ROM to slot X
+; The system will be hard reset for slot 0 and 1,
+; for slots 2 and 3, the card will just be updated without affecting the system
 ;
 .Update_OzRom
                     ld   a,(oz_slot)
@@ -49,25 +52,40 @@
                     jp   ErrMsgOzRom                    ; "OZ ROM cannot be updated. 512K Flash was not found in slot X"
 
 .flash_found
-                    call MsgUpdOzRom                    ; "Updating OZ ROM in slot X - please wait..." (flashing)
-                                                        ; "Z88 will automatically hard reset when updating has completed."
+                    or   a
+                    jr   z, upd_slot01                  ; update OZ to slot 0
+                    cp   1
+                    jr   z, upd_slot01                  ; when updating slot 0 or 1, the complete machine needs to be hard reset after update
 
-                    ; ----------------------------------------------------------------------------------------------------------------------
-                    ; before erasing slot X (wiping out the current OZ ROM code) and programming the bank files to slot X, patch the
-                    ; RST 38H and RST 66H interrupt vectors in lower 8K RAM to return immediately (executing no functionality).
-                    ; This prevents any accidental interrupt being executed into a non-existing OZ ROM - or even worse - Flash memory
-                    ; that is not in Read Array Mode!
-                    ; ----------------------------------------------------------------------------------------------------------------------
+                    call MsgUpdOzRom                    ; "Updating OZ ROM in slot X - please wait..." (flashing)
+                    call EraseOzFlashCard               ; erase card
+                    call InstallOZ                      ; then blow OZ banks on it.
+                    jp   MsgOZUpdated                   ; OZ done, instruct user to insert card in slot 1 and hard reset..
+
+; ----------------------------------------------------------------------------------------------------------------------
+; Core routine to update OZ in slot 0 or 1 (where OZ is possibly already running)
+.upd_slot01
+                    call MsgUpdOzRom                    ; "Updating OZ ROM in slot X - please wait..." (flashing)
+                    ld   hl, hrdreset_msg               ; "Z88 will automatically hard reset when updating has completed."
+                    oz   GN_Sop
+                    oz   GN_nln
+
+; ----------------------------------------------------------------------------------------------------------------------
+; before erasing slot X (wiping out the current OZ ROM code) and programming the bank files to slot X, patch the
+; RST 38H and RST 66H interrupt vectors in lower 8K RAM to return immediately (executing no functionality).
+; This prevents any accidental interrupt being executed into a non-existing OZ ROM - or even worse - Flash memory
+; that is not in Read Array Mode!
+; ----------------------------------------------------------------------------------------------------------------------
                     call DisableBlinkInt                ; don't let any interrupts out of Blink while we patch...
                     ld   hl, 0038H
                     ld   (hl),$C9                       ; patch RST 38H maskable interrupt vector with an immediate RET instruction
                     ld   hl, 0066H
                     ld   (hl),$C9                       ; patch RST 66H non-maskable interrupt vector with an immediate RET instruction
                     call EnableBlinkInt                 ; the low ram interrupt vector code from OZ is automatically restored during reset...
-IF BBCBASIC
-                    ; ----------------------------------------------------------------------------------------------------------------------
-                    ; just before we wipe out the OZ rom, move the font bitmaps to RAM
-                    ; copy the LORES1 font bitmaps to RAM to use the new location
+
+; ----------------------------------------------------------------------------------------------------------------------
+; just before we wipe out the OZ rom, move the font bitmaps to RAM
+; copy the LORES1 font bitmaps to RAM to use the new location
                     ld   sp,ozstack                     ; move system stack just below segment 2 (moved from $1FFE area)
                     ld   a,SC_LR1
                     ld   b,0
@@ -86,9 +104,9 @@ IF BBCBASIC
                     pop  hl
                     oz   Os_Sci                         ; set new BHL address of LORES1 font bitmap that is now available at $20 1000
 
-                    ; ----------------------------------------------------------------------------------------------------------------------
-                    ; copy the HIRES1 font bitmap to RAM (in HIRES0) and re-assign to use as new HIRES1 font
-                    ; (HIRES0 is not used at this point, and we need to re-locate the HIRES1 to a 2K RAM buffer - HIRES0 is 2K...)
+; ----------------------------------------------------------------------------------------------------------------------
+; copy the HIRES1 font bitmap to RAM (in HIRES0) and re-assign to use as new HIRES1 font
+; (HIRES0 is not used at this point, and we need to re-locate the HIRES1 to a 2K RAM buffer - HIRES0 is 2K...)
                     ld   a,SC_HR1
                     ld   b,0
                     oz   Os_Sci                         ; get HIRES1 font bitmap address in BHL inside current OZ ROM
@@ -118,12 +136,34 @@ IF BBCBASIC
                     pop  hl
                     pop  bc
                     oz   Os_Sci                         ; re-assign HIRES1 base address to point in RAM
-                    ; ----------------------------------------------------------------------------------------------------------------------
-ENDIF
+
+                    call EraseOzFlashCard               ; Prepare FlashCard for OZ
+                    call InstallOZ
+
+; ----------------------------------------------------------------------------------------------------------------------
+; OZ ROM banks have been programmed successfully to slot 0 or 1.
+; Finally, it's time to issue a hard reset to start up a clean machine with the updated OZ ROM.
+; ----------------------------------------------------------------------------------------------------------------------
+                    ld   a, $21                         ; RAM bank $21 (:RAM.0 filing system)
+                    out  (BL_SR2), a                    ; b21 into Segment 2 (which has no executing code by RomUpdate popdown nor BBC BASIC)
+                    ld   hl,0
+                    ld   ($8000),hl                     ; remove RAM filing system tag $A55A in start of bank $21 that forces OZ to HARD RESET
+                    jp   (hl)                           ; execute the hard reset..
+
+
+; ----------------------------------------------------------------------------------------------------------------------
+; Erase complete flash card for OZ
+.EraseOzFlashCard
                     ld   a,(oz_slot)
                     ld   c,a
-                    call FlashEprCardErase              ; bye, bye OZ!
+                    call FlashEprCardErase
+                    ret
 
+
+; ----------------------------------------------------------------------------------------------------------------------
+; install OZ banks on Card, identified by ozbanks[] array.
+;
+.InstallOZ
                     ld   iy,ozbanks                     ; get ready for first oz bank entry of [total_ozbanks]
                     ld   b,(iy-1)                       ; total of banks to update to slot X...
 .update_ozrom_loop
@@ -131,7 +171,7 @@ ENDIF
 
                     call CopyRamFile2Buffer             ; copy RAM bank file contents (IY points to bank file entry) to 16K RomUpdate buffer...
                     ld   b,(iy+2)                       ; destination bank number to slot 0
-                    ld   a,FE_29F                       ; use AMD/STM programming algorithm to blow bank to slot 0
+                    ld   a,(flash_algorithm)            ; use programming algorithm to blow bank to slot X
                     call BlowBufferToBank               ; action! NB: error trapping makes no sense, because the OZ ROM has been wiped out!
 
                     inc  iy
@@ -139,18 +179,8 @@ ENDIF
                     inc  iy                             ; point at next bank data entry
                     pop  bc
                     djnz update_ozrom_loop              ; blow bank to slot 0...
+                    ret
 
-                    ; ----------------------------------------------------------------------------------------------------------------------
-                    ; OZ ROM banks have been programmed successfully to slot 0.
-                    ; Finally, it's time to issue a hard reset to start up a clean machine with the updated OZ ROM.
-                    ; ----------------------------------------------------------------------------------------------------------------------
-                    ld   a, $21                         ; RAM bank $21 (:RAM.0 filing system)
-                    out  (BL_SR2), a                    ; b21 into Segment 2 (which has no executing code by RomUpdate popdown nor BBC BASIC)
-                    ld   hl,0
-                    ld   ($8000),hl                     ; remove RAM filing system tag $A55A in start of bank $21 that forces OZ to HARD RESET
-                    jp   (hl)                           ; execute the hard reset..
-                    ; ----------------------------------------------------------------------------------------------------------------------
-; *************************************************************************************
 
 
 ; *************************************************************************************
@@ -254,5 +284,3 @@ endif
                     rr   l                               ; ee000000
                     ret
 ; *************************************************************************************
-
-
