@@ -10,6 +10,7 @@ GBS = Gunther Strube (gbs@users.sf.net)
 
 
 TODO (with priorities):
+- Update OZ Developers Notes to reflect new APIs. P1
 - Free RAM display in Index <>CARD display. P1
 - Add Flash EPROM Format command in Filer. P1
 - Add Select EPROM device command in Filer. P1
