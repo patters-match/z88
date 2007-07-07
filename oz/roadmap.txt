@@ -10,10 +10,11 @@ GBS = Gunther Strube (gbs@users.sf.net)
 
 
 TODO (with priorities):
-- Localize day/month lists. P1
-- Choose day/month localization in the panel. P1
+- Free RAM display in Index <>CARD display. P1
 - Add Flash EPROM Format command in Filer. P1
 - Add Select EPROM device command in Filer. P1
+- Localize day/month lists. P2
+- Choose day/month localization in the panel. P2
 
 - Transform OSSci to be page independant (OSSciTable). P2
 - Transform OSCli to be page independant (Key2Meta routine). P2
@@ -22,11 +23,9 @@ TODO (with priorities):
 
 - Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3
 - Test A=0 in OSSci. P3
-- Fixes of known OZ bugs (a good bunch of small stuff all around - see ref section in Dev Notes). P3
-- Preset default RAM device in Panel to expanded RAM card when identified by OZ. P3
+- Fixes of known OZ bugs (a good bunch of small stuff all around - see reference section in Dev Notes). P3
 - Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ. P3
 - Add a character table or implement a []+XXX interface to access all the ISO characters. P3
-- Free RAM display in Index <>CARD display. P3.
 - PipeDream <>BSO (Sort Block) command should order ISO Latin 1 according to country specific convention. P3
 
 DONE
@@ -87,6 +86,9 @@ DONE
 - Reversed PipeDream binary to source code, and
         1) implemented fast OS_Pout for static string display (reduces overall application code size),
         2) Iso Latin 1 alpha characters now case invertable with <>S command.
+- Ported OZ to slot 1 (using hook code): No :ROM.0/* apps, expanded Z88 when RAM in slot 2, NMI/COMA handled in LOWRAM. (GBS)
+        (sources finally removed with hard coded bank reference constants, all handled in /oz/def/kernel.def and sysapps.def)
+- Preset default RAM device in Panel to expanded RAM card when identified by OZ. (GBS)
 
 
 FIXED KERNEL BINARIES FOR COMPILATION
