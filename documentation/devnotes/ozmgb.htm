@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+
+   
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   
+  <meta name="GENERATOR" content="Mozilla/4.06 [fr]C-CCK-MCD   (Win95; I) [Netscape]">
+
+   
+  <title>System Calls Reference</title>
+</head>
+
+
+<body>
+
+&nbsp;
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+  <tbody>
+    <tr>
+
+      <th colspan="3">Z88 Developers' Notes</th>
+
+    </tr>
+
+
+    <tr>
+
+      <td valign="bottom" width="10%"><a href="index.htm">Contents</a></td>
+
+
+      <td align="center" valign="bottom" width="80%">&nbsp;</td>
+
+
+      <td align="right" nowrap="nowrap" valign="bottom" width="10%"><a href="sysref.htm">Contents
+of System Calls</a></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+<hr>
+<p><b><font size="+1">OZ_Mgb, get memory binding</font></b>
+</p>
+<p><tt>CALL $0057</tt>
+</p>
+<p><tt>IN:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+C = MS_Sx</tt></p>
+<p><span style="font-family: monospace;"></span><tt>OUT:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B = bank</tt>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></p>
+<p><tt>Registers changed after return:</tt>
+<br>
+<tt style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</tt><span style="font-family: monospace;">AF.CDEHL/IXIY same</span><tt style="font-family: monospace;"></tt><br style="font-family: monospace;">
+<tt style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</tt><span style="font-family: monospace;"> ..B...../.... different</span></p>
+<p style="font-family: monospace;">Notes:</p>
+<p style="font-family: monospace;">New API introduced in OZ V4.1<br>
+Get current Bank binding for specified segment MS_Sx, defined in C.<br>
+This is the functional equivalent of OS_MGB, but much faster.</p>
+<br>
+</body>
+</html>

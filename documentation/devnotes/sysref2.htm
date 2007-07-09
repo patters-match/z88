@@ -1,204 +1,341 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
-   <META NAME="GENERATOR" CONTENT="Mozilla/4.06 [fr]C-CCK-MCD   (Win95; I) [Netscape]">
-   <TITLE>System Calls Quick Reference</TITLE>
-</HEAD>
-<BODY>
+<html>
+<head>
+
+
+   
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+
+   
+  
+  <meta name="GENERATOR" content="Mozilla/4.06 [fr]C-CCK-MCD   (Win95; I) [Netscape]">
+
+
+   
+  
+  <title>System Calls Quick Reference</title>
+</head>
+
+
+<body>
+
+
 &nbsp;
-<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-<TR>
-<TH ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</TH>
-</TR>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
 
-<TR>
-<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><A HREF="index.htm">Contents</A></TD>
-</TR>
-</TABLE>
 
-<HR WIDTH="100%">
-<TABLE WIDTH="100%" >
-<TR>
-<TD></TD>
+  <tbody>
 
-<TD>
-<CENTER><BR><B>Quick System Calls Reference</B><P></CENTER>
-</TD>
+    <tr>
 
-<TD></TD>
-</TR>
 
-<TR>
-<TD></TD>
+      <th colspan="3" align="center">Z88 Developers' Notes</th>
 
-<TD ALIGN=LEFT WIDTH="60%"><TT><A HREF="dcalt.htm">DC_Alt</A>,
-<A HREF="dcbye.htm">DC_Bye</A>,
-<A HREF="dcent.htm">DC_Ent</A>,
-<A HREF="dcgen.htm">DC_Gen</A>,
-<A HREF="dcicl.htm">DC_Icl</A>,
-<A HREF="dcin.htm">DC_In</A>,
-<A HREF="dcini.htm">DC_Ini</A>,
-<A HREF="dcnam.htm">DC_nam</A>,</TT>
-<BR><TT><A HREF="dcnq.htm">DC_Nq</A>,&nbsp;
-<A HREF="dcout.htm">DC_Out</A>,
-<A HREF="dcpol.htm">DC_Pol</A>,
-<A HREF="dcprt.htm">DC_Prt</A>,
-<A HREF="dcrbd.htm">DC_Rbd</A>,
-<A HREF="dcscn.htm">DC_Scn</A>,
-<A HREF="dcsp.htm">DC_Sp</A>,
-<A HREF="dcxin.htm">DC_Xin</A></TT>
-<P><TT><A HREF="gnaab.htm">GN_Aab</A>,
-<A HREF="gnalp.htm">GN_Alp</A>,
-<A HREF="gncl.htm">GN_Cl</A>,
-<A HREF="gncls.htm">GN_Cls</A>,
-<A HREF="gncme.htm">GN_Cme</A>,
-<A HREF="gnd16.htm">GN_D16</A>,
-<A HREF="gnd24.htm">GN_D24</A>,
-<A HREF="gndei.htm">GN_Dei</A>,</TT>
-<BR><TT><A HREF="gndel.htm">GN_Del</A>,
-<A HREF="gndie.htm">GN_Die</A>,
-<A HREF="gnerr.htm">GN_Err</A>,
-<A HREF="gnesa.htm">GN_Esa</A>,
-<A HREF="gnesp.htm">GN_Esp</A>,
-<A HREF="gnfab.htm">GN_Fab</A>,
-<A HREF="gnfcm.htm">GN_Fcm</A>,
-<A HREF="gnfex.htm">GN_Fex</A>,</TT>
-<BR><TT><A HREF="gnflc.htm">GN_Flc</A>,
-<A HREF="gnflf.htm">GN_Flf</A>,
-<A HREF="gnflo.htm">GN_Flo</A>,
-<A HREF="gnflr.htm">GN_Flr</A>,
-<A HREF="gnflw.htm">GN_Flw</A>,
-<A HREF="gnfpb.htm">GN_Fpb</A>,
-<A HREF="gngdn.htm">GN_Gdn</A>,
-<A HREF="gngdt.htm">GN_Gdt</A>,</TT>
-<BR><TT><A HREF="gngmd.htm">GN_Gmd</A>,
-<A HREF="gngmt.htm">GN_Gmt</A>,
-<A HREF="gngtm.htm">GN_Gtm</A>,
-<A HREF="gnlab.htm">GN_Lab</A>,
-<A HREF="gnm16.htm">GN_M16</A>,
-<A HREF="gnm24.htm">GN_M24</A>,
-<A HREF="gnmsc.htm">GN_Msc</A>,
-<A HREF="gnnln.htm">GN_Nln</A>,</TT>
-<BR><TT><A HREF="gnopf.htm">GN_Opf</A>,
-<A HREF="gnopw.htm">GN_Opw</A>,
-<A HREF="gnpdn.htm">GN_Pdn</A>,
-<A HREF="gnpdt.htm">GN_Pdt</A>,
-<A HREF="gnpfs.htm">GN_Pfs</A>,
-<A HREF="gnpmd.htm">GN_Pmd</A>,
-<A HREF="gnpmt.htm">GN_Pmt</A>,
-<A HREF="gnprs.htm">GN_Prs</A>,</TT>
-<BR><TT><A HREF="gnptm.htm">GN_Ptm</A>,
-<A HREF="gnrbe.htm">GN_Rbe</A>,
-<A HREF="gnren.htm">GN_Ren</A>,
-<A HREF="gnsdo.htm">GN_Sdo</A>,
-<A HREF="gnsip.htm">GN_Sip</A>,
-<A HREF="gnskc.htm">GN_Skc</A>,
-<A HREF="gnskd.htm">GN_Skd</A>,
-<A HREF="gnskt.htm">GN_Skt</A>,</TT>
-<BR><TT><A HREF="gnsoe.htm">GN_Soe</A>,
-<A HREF="gnsop.htm">GN_Sop</A>,
-<A HREF="gnuab.htm">GN_Uab</A>,
-<A HREF="gnwbe.htm">GN_Wbe</A>,
-<A HREF="gnwcl.htm">GN_Wcl</A>,
-<A HREF="gnwfn.htm">GN_Wfn</A>,
-<A HREF="gnwsm.htm">GN_Wsm</A>,
-<A HREF="gnxdl.htm">GN_Xdl</A>,</TT>
-<BR><TT><A HREF="gnxin.htm">GN_Xin</A>,
-<A HREF="gnxnx.htm">GN_Xnx</A></TT>
 
-<P>
-<TT><A HREF="osalm.htm">OS_Alm</A>,
-<A HREF="osaxp.htm">OS_Axp</A>,
-<A HREF="osbde.htm">OS_Bde</A>,
-<A HREF="osbhl.htm">OS_Bhl</A>,
-<A HREF="osbix.htm">OS_Bix</A>,
-<A HREF="osblp.htm">OS_Blp</A>,
-<A HREF="osbox.htm">OS_Box</A>,
-<A HREF="osbye.htm">OS_Bye</A>,</TT>
-<BR><TT><A HREF="oscl.htm">OS_Cl</A>,&nbsp;
-<A HREF="oscli.htm">OS_Cli</A>,
-<A HREF="osdel.htm">OS_Del</A>,
-<A HREF="osdly.htm">OS_Dly</A>,
-<A HREF="osdom.htm">OS_Dom</A>,
-<A HREF="osdor.htm">OS_Dor</A>,
-<A HREF="osent.htm">OS_Ent</A>,
-<A HREF="osepr.htm">OS_Epr</A>,</TT>
-<BR><TT><A HREF="oserc.htm">OS_Erc</A>,
-<A HREF="oserh.htm">OS_Erh</A>,
-<A HREF="osesc.htm">OS_Esc</A>,
-<A HREF="osexit.htm">OS_Exit</A>
-<A HREF="osfc.htm">OS_Fc</A>,&nbsp;
-<A HREF="osfn.htm">OS_Fn</A>,&nbsp;
-<A HREF="osfrm.htm">OS_Frm</A>,
-<A HREF="osfth.htm">OS_Fth</A>,</TT>
-<BR><TT><A HREF="osfwm.htm">OS_Fwm</A>,
-<A HREF="osgb.htm">OS_Gb</A>,&nbsp;
-<A HREF="osgbt.htm">OS_Gbt</A>,
-<A HREF="osgth.htm">OS_Gth</A>,
-<A HREF="osht.htm">OS_Ht</A>,&nbsp;
-<A HREF="osin.htm">OS_In</A>,&nbsp;
-<A HREF="osisq.htm">OS_Isq</A>,
-<A HREF="osmal.htm">OS_Mal</A>,</TT>
-<BR><TT><A HREF="osmap.htm">OS_Map</A>,
-<A HREF="osmcl.htm">OS_Mcl</A>,
-<A HREF="osmfr.htm">OS_Mfr</A>,
-<A HREF="osmgb.htm">OS_Mgb</A>,
-<A HREF="osmop.htm">OS_Mop</A>,
-<A HREF="osmpb.htm">OS_Mpb</A>,
-<A HREF="osmv.htm">OS_Mv</A>,&nbsp;
-<A HREF="osnq.htm">OS_Nq</A>,</TT>
-<BR><TT><A HREF="osoff.htm">OS_Off</A>,
-<A HREF="osop.htm">OS_Op</A>,&nbsp;
-<A HREF="osout.htm">OS_Out</A>,
-<A HREF="ospb.htm">OS_Pb</A>,&nbsp;
-<A HREF="ospbt.htm">OS_Pbt</A>,
-<A HREF="ospoll.htm">OS_Poll</A>
-<A HREF="osprt.htm">OS_Prt</A>,
-<A HREF="ospur.htm">OS_Pur</A>,</TT>
-<BR><TT><A HREF="osren.htm">OS_Ren</A>,
-<A HREF="ossci.htm">OS_Sci</A>,
-<A HREF="ossi.htm">OS_Si</A>,&nbsp;
-<A HREF="ossp.htm">OS_Sp</A>,&nbsp;
-<A HREF="ossr.htm">OS_Sr</A>,&nbsp;
-<A HREF="osstk.htm">OS_Stk</A>,
-<A HREF="ostin.htm">OS_Tin</A>,
-<A HREF="osuse.htm">OS_Use</A>,</TT>
-<BR><TT><A HREF="osust.htm">OS_Ust</A>,
-<A HREF="osvth.htm">OS_Vth</A>,
-<A HREF="oswait.htm">OS_Wait</A>
-<A HREF="oswrt.htm">OS_Wrt</A>,
-<A HREF="oswsq.htm">OS_Wsq</A>,
-<A HREF="oswtb.htm">OS_Wtb</A>,
-<A HREF="osxin.htm">OS_Xin</A></TT>
+    </tr>
 
-<P>
-<TT>
-<A HREF="ozbuff.htm">OZ_Buff</A>
-<A HREF="ozdi.htm">OZ_Di</A>,
-<A HREF="ozei.htm">OZ_Ei</A></TT>
 
-</TD>
 
-<TD></TD>
-</TR>
+    <tr>
 
-<TR>
-<TD></TD>
 
-<TD></TD>
+      <td align="center" valign="bottom" width="80%"><a href="index.htm">Contents</a></td>
 
-<TD></TD>
-</TR>
-</TABLE>
 
-<P>
-<HR WIDTH="100%">
-<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-<TR>
-<TD ALIGN=CENTER VALIGN=TOP WIDTH="34%"><A HREF="index.htm">Contents</A></TD>
-</TR>
-</TABLE>
+    </tr>
 
-</BODY>
-</HTML>
+
+  
+  </tbody>
+</table>
+
+
+
+<hr width="100%">
+<table width="100%">
+
+
+  <tbody>
+
+    <tr>
+
+
+      <td></td>
+
+
+
+      <td>
+      
+      <center><br>
+
+      <b>Quick System Calls Reference</b>
+      
+      <p></p>
+
+      </center>
+
+
+      </td>
+
+
+
+      <td></td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+      <td></td>
+
+
+
+      <td align="left" width="60%"><tt><a href="dcalt.htm">DC_Alt</a>,
+      <a href="dcbye.htm">DC_Bye</a>,
+      <a href="dcent.htm">DC_Ent</a>,
+      <a href="dcgen.htm">DC_Gen</a>,
+      <a href="dcicl.htm">DC_Icl</a>,
+      <a href="dcin.htm">DC_In</a>,
+      <a href="dcini.htm">DC_Ini</a>,
+      <a href="dcnam.htm">DC_nam</a>,</tt>
+      <br>
+
+      <tt><a href="dcnq.htm">DC_Nq</a>,&nbsp;
+      <a href="dcout.htm">DC_Out</a>,
+      <a href="dcpol.htm">DC_Pol</a>,
+      <a href="dcprt.htm">DC_Prt</a>,
+      <a href="dcrbd.htm">DC_Rbd</a>,
+      <a href="dcscn.htm">DC_Scn</a>,
+      <a href="dcsp.htm">DC_Sp</a>,
+      <a href="dcxin.htm">DC_Xin</a></tt>
+      
+      <p><tt><a href="gnaab.htm">GN_Aab</a>,
+      <a href="gnalp.htm">GN_Alp</a>,
+      <a href="gncl.htm">GN_Cl</a>,
+      <a href="gncls.htm">GN_Cls</a>,
+      <a href="gncme.htm">GN_Cme</a>,
+      <a href="gnd16.htm">GN_D16</a>,
+      <a href="gnd24.htm">GN_D24</a>,
+      <a href="gndei.htm">GN_Dei</a>,</tt>
+      <br>
+
+      <tt><a href="gndel.htm">GN_Del</a>,
+      <a href="gndie.htm">GN_Die</a>,
+      <a href="gnerr.htm">GN_Err</a>,
+      <a href="gnesa.htm">GN_Esa</a>,
+      <a href="gnesp.htm">GN_Esp</a>,
+      <a href="gnfab.htm">GN_Fab</a>,
+      <a href="gnfcm.htm">GN_Fcm</a>,
+      <a href="gnfex.htm">GN_Fex</a>,</tt>
+      <br>
+
+      <tt><a href="gnflc.htm">GN_Flc</a>,
+      <a href="gnflf.htm">GN_Flf</a>,
+      <a href="gnflo.htm">GN_Flo</a>,
+      <a href="gnflr.htm">GN_Flr</a>,
+      <a href="gnflw.htm">GN_Flw</a>,
+      <a href="gnfpb.htm">GN_Fpb</a>,
+      <a href="gngdn.htm">GN_Gdn</a>,
+      <a href="gngdt.htm">GN_Gdt</a>,</tt>
+      <br>
+
+      <tt><a href="gngmd.htm">GN_Gmd</a>,
+      <a href="gngmt.htm">GN_Gmt</a>,
+      <a href="gngtm.htm">GN_Gtm</a>,
+      <a href="gnlab.htm">GN_Lab</a>,
+      <a href="gnm16.htm">GN_M16</a>,
+      <a href="gnm24.htm">GN_M24</a>,
+      <a href="gnmsc.htm">GN_Msc</a>,
+      <a href="gnnln.htm">GN_Nln</a>,</tt>
+      <br>
+
+      <tt><a href="gnopf.htm">GN_Opf</a>,
+      <a href="gnopw.htm">GN_Opw</a>,
+      <a href="gnpdn.htm">GN_Pdn</a>,
+      <a href="gnpdt.htm">GN_Pdt</a>,
+      <a href="gnpfs.htm">GN_Pfs</a>,
+      <a href="gnpmd.htm">GN_Pmd</a>,
+      <a href="gnpmt.htm">GN_Pmt</a>,
+      <a href="gnprs.htm">GN_Prs</a>,</tt>
+      <br>
+
+      <tt><a href="gnptm.htm">GN_Ptm</a>,
+      <a href="gnrbe.htm">GN_Rbe</a>,
+      <a href="gnren.htm">GN_Ren</a>,
+      <a href="gnsdo.htm">GN_Sdo</a>,
+      <a href="gnsip.htm">GN_Sip</a>,
+      <a href="gnskc.htm">GN_Skc</a>,
+      <a href="gnskd.htm">GN_Skd</a>,
+      <a href="gnskt.htm">GN_Skt</a>,</tt>
+      <br>
+
+      <tt><a href="gnsoe.htm">GN_Soe</a>,
+      <a href="gnsop.htm">GN_Sop</a>,
+      <a href="gnuab.htm">GN_Uab</a>,
+      <a href="gnwbe.htm">GN_Wbe</a>,
+      <a href="gnwcl.htm">GN_Wcl</a>,
+      <a href="gnwfn.htm">GN_Wfn</a>,
+      <a href="gnwsm.htm">GN_Wsm</a>,
+      <a href="gnxdl.htm">GN_Xdl</a>,</tt>
+      <br>
+
+      <tt><a href="gnxin.htm">GN_Xin</a>,
+      <a href="gnxnx.htm">GN_Xnx</a></tt>
+
+      </p>
+
+      
+      <p>
+      <tt><a href="osalm.htm">OS_Alm</a>,
+      <a href="osaxp.htm">OS_Axp</a>,
+      <a href="osbde.htm">OS_Bde</a>,
+      <a href="osbhl.htm">OS_Bhl</a>,
+      <a href="osbix.htm">OS_Bix</a>,
+      <a href="osblp.htm">OS_Blp</a>,
+      <a href="osbox.htm">OS_Box</a>,
+      <a href="osbye.htm">OS_Bye</a>,</tt>
+      <br>
+
+      <tt><a href="oscl.htm">OS_Cl</a>,&nbsp;
+      <a href="oscli.htm">OS_Cli</a>,
+      <a href="osdel.htm">OS_Del</a>,
+      <a href="osdly.htm">OS_Dly</a>,
+      <a href="osdom.htm">OS_Dom</a>,
+      <a href="osdor.htm">OS_Dor</a>,
+      <a href="osent.htm">OS_Ent</a>,
+      <a href="osepr.htm">OS_Epr</a>,</tt>
+      <br>
+
+      <tt><a href="oserc.htm">OS_Erc</a>,
+      <a href="oserh.htm">OS_Erh</a>,
+      <a href="osesc.htm">OS_Esc</a>,
+      <a href="osexit.htm">OS_Exit</a>
+      <a href="osfc.htm">OS_Fc</a>,&nbsp;
+      <a href="osfn.htm">OS_Fn</a>,&nbsp;
+      <a href="osfrm.htm">OS_Frm</a>,
+      <a href="osfth.htm">OS_Fth</a>,</tt>
+      <br>
+
+      <tt><a href="osfwm.htm">OS_Fwm</a>,
+      <a href="osgb.htm">OS_Gb</a>,&nbsp;
+      <a href="osgbt.htm">OS_Gbt</a>,
+      <a href="osgth.htm">OS_Gth</a>,
+      <a href="osht.htm">OS_Ht</a>,&nbsp;
+      <a href="osin.htm">OS_In</a>,&nbsp;
+      <a href="osisq.htm">OS_Isq</a>,
+      <a href="osmal.htm">OS_Mal</a>,</tt>
+      <br>
+
+      <tt><a href="osmap.htm">OS_Map</a>,
+      <a href="osmcl.htm">OS_Mcl</a>,
+      <a href="osmfr.htm">OS_Mfr</a>,
+      <a href="osmgb.htm">OS_Mgb</a>,
+      <a href="osmop.htm">OS_Mop</a>,
+      <a href="osmpb.htm">OS_Mpb</a>,
+      <a href="osmv.htm">OS_Mv</a>,&nbsp;
+      <a href="osnq.htm">OS_Nq</a>,</tt>
+      <br>
+
+      <tt><a href="osoff.htm">OS_Off</a>,
+      <a href="osop.htm">OS_Op</a>,&nbsp;
+      <a href="osout.htm">OS_Out</a>,
+      <a href="ospb.htm">OS_Pb</a>,&nbsp;
+      <a href="ospbt.htm">OS_Pbt</a>,
+      <a href="ospoll.htm">OS_Poll</a>
+      <a href="osprt.htm">OS_Prt</a>,
+      <a href="ospur.htm">OS_Pur</a>,</tt>
+      <br>
+
+      <tt><a href="osren.htm">OS_Ren</a>,
+      <a href="ossci.htm">OS_Sci</a>,
+      <a href="ossi.htm">OS_Si</a>,&nbsp;
+      <a href="ossp.htm">OS_Sp</a>,&nbsp;
+      <a href="ossr.htm">OS_Sr</a>,&nbsp;
+      <a href="osstk.htm">OS_Stk</a>,
+      <a href="ostin.htm">OS_Tin</a>,
+      <a href="osuse.htm">OS_Use</a>,</tt>
+      <br>
+
+      <tt><a href="osust.htm">OS_Ust</a>,
+      <a href="osvth.htm">OS_Vth</a>,
+      <a href="oswait.htm">OS_Wait</a>
+      <a href="oswrt.htm">OS_Wrt</a>,
+      <a href="oswsq.htm">OS_Wsq</a>,
+      <a href="oswtb.htm">OS_Wtb</a>,
+      <a href="osxin.htm">OS_Xin</a></tt>
+
+      </p>
+
+      
+      <p>
+      <tt>
+      <a href="ozdi.htm">OZ_Di</a>,&nbsp;
+      <a href="ozei.htm">OZ_Ei</a></tt><span style="font-family: monospace;">,&nbsp;&nbsp;</span><tt><a href="ozmgb.htm">OZ_Mgb</a></tt><a href="ozmgb.htm"><span style="font-family: monospace;"></span></a>
+
+      </p>
+
+      </td>
+
+
+
+      <td></td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+      <td></td>
+
+
+
+      <td></td>
+
+
+
+      <td></td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+
+<p>
+</p>
+
+<hr width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+
+  <tbody>
+
+    <tr>
+
+
+      <td align="center" valign="top" width="34%"><a href="index.htm">Contents</a></td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+
+</body>
+</html>
