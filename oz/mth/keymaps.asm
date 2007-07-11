@@ -146,7 +146,7 @@ xdef    Keymap_DE
         defb    0
 ; ------------------------------------------------------------------------------------------------------
 
-        defs $100-$PC ($ff)                             ; make sure that next keymap is on page boundary.
+        defs ($100-$PC) ($ff)                           ; make sure that next keymap is on page boundary.
 
 
 
@@ -284,7 +284,7 @@ xdef    Keymap_DE
         defb    $75,$DC                         ; u ü
 ; ------------------------------------------------------------------------------------------------------
 
-        defs $300-$PC ($ff)                             ; make sure that next keymap is on page boundary.
+        defs ($300-$PC) ($ff)                           ; make sure that next keymap is on page boundary.
 
 
 ; ------------------------------------------------------------------------------------------------------
@@ -357,7 +357,7 @@ xdef    Keymap_DE
         defb    0
 ; ------------------------------------------------------------------------------------------------------
 
-        defs $400-$PC ($ff)                             ; make sure that next keymap is on page boundary.
+        defs ($400-$PC) ($ff)                           ; make sure that next keymap is on page boundary.
 
 
 ; ------------------------------------------------------------------------------------------------------
@@ -431,7 +431,7 @@ xdef    Keymap_DE
         defb    0
 ; ------------------------------------------------------------------------------------------------------
 
-        defs $500-$PC ($ff)                             ; make sure that next keymap is on page boundary.
+        defs ($500-$PC) ($ff)                           ; make sure that next keymap is on page boundary.
 
 
 ; ------------------------------------------------------------------------------------------------------

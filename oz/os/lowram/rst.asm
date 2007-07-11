@@ -39,37 +39,37 @@
         out     (BL_COM), a                     ; bind b00 into low 8K of segment 0
         ; code continues to execute in bank 0 in ROM (see [kernel0]/boot.asm)...
 
-        defs    $0008-$PC   ($ff)               ; address align for RST 08H
+        defs    ($0008-$PC) ($ff)               ; address align for RST 08H
 
 .rst08                                          ; FREE
         scf
         ret
-        defs    $0010-$PC  ($ff)                ; address align for RST 10H
+        defs    ($0010-$PC) ($ff)               ; address align for RST 10H
 
 .rst10                                          ; EXTCALL
         jp      ExtCall                         ; OZ V4.1 (and newer): EXTCALL interface
-        defs    $0018-$PC  ($ff)                ; address align for RST 18H (OZ Floating Point Package)
+        defs    ($0018-$PC) ($ff)               ; address align for RST 18H (OZ Floating Point Package)
 
 .rst18                                          ; FPP
         jp      FPPmain
         defb    0,0
 .FPP_RET
         jp      OZCallReturnFP                  ; 001d, called from FPP
-        defs    $0020-$PC  ($ff)                ; address align for RST 20H (OZ System Call Interface)
+        defs    ($0020-$PC) ($ff)               ; address align for RST 20H (OZ System Call Interface)
 
 .rst20                                          ; OZ call
         jp      CallOZMain                      ; 0020
-        defs    $0028-$PC  ($ff)                ; address align for RST 28H
+        defs    ($0028-$PC) ($ff)               ; address align for RST 28H
 
 .rst28                                          ; FREE
         scf
         ret
-        defs    $0030-$PC  ($ff)                ; address align for RST 30H
+        defs    ($0030-$PC) ($ff)               ; address align for RST 30H
 
 .rst30                                          ; OZ_MPB
 .OZ_MPB
         jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality with RST 30H)
-        defs    $0038-$PC  ($ff)                ; address align for RST 38H, Blink INT entry point
+        defs    ($0038-$PC) ($ff)               ; address align for RST 38H, Blink INT entry point
 
 .OZ_INT
         jp      LOWRAM_INT                      ; patch vector for interrupts during coma
@@ -84,7 +84,7 @@
                                                 ; since IFF1 and IFF2 are automaticly cleared
                                                 ; when accepting an INT
 
-        defs    $0048-$PC  ($ff)                ; address align
+        defs    ($0048-$PC) ($ff)               ; address align
 
 ;       ----
 ;       OZ low level jump table
@@ -110,7 +110,7 @@
         ret                                     ; RETI is not necessary since there is no Z80 PIO
                                                 ; RET is faster (10T vs 14T)
 
-        defs     $0066-$PC  ($ff)               ; address align for RST 66H, Blink NMI entry point
+        defs    ($0066-$PC) ($ff)               ; address align for RST 66H, Blink NMI entry point
 
 ;       ----
 ;       Non Maskable interrupt entry
