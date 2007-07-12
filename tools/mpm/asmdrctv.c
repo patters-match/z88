@@ -1547,11 +1547,11 @@ AsmSymLinkAddr (void *label)
 
   linkaddr = moduleptr->origin;
   while (moduleptr != CURRENTMODULE)
-    {
-      linkaddr += moduleptr->startoffset;	/* get accumulated ORG, defined by each code size of modules in list */
-      moduleptr = moduleptr->nextmodule;
-    }
-  linkaddr += labelptr->symvalue;		/* finally, add the label offset address from the current module */
+    moduleptr = moduleptr->nextmodule;
+
+  linkaddr += moduleptr->startoffset;	       /* get accumulated ORG, defined by each code size of modules in list */
+  linkaddr += labelptr->symvalue;              /* finally, add the label offset address from the current module */
+
   linkaddrptr = DefineSymbol (linkaddrname, linkaddr, SYMTOUCHED);
 
   return linkaddrptr;
