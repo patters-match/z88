@@ -1509,7 +1509,6 @@ symbol_t *
 AsmSymLinkAddr (void *label)
 {
   unsigned long linkaddr;
-  module_t *moduleptr;
   symbol_t *labelptr, *linkaddrptr;
   char     linkaddrname[256];
 
@@ -1538,18 +1537,14 @@ AsmSymLinkAddr (void *label)
       return NULL;
     }
 
-  moduleptr = modulehdr->first;
-  if (moduleptr->origin == 0xFFFFFFFF)
+  if (modulehdr->first->origin == 0xFFFFFFFF)
     {
       ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_OrgNotDefined);
       return NULL;
     }
 
-  linkaddr = moduleptr->origin;
-  while (moduleptr != CURRENTMODULE)
-    moduleptr = moduleptr->nextmodule;
-
-  linkaddr += moduleptr->startoffset;	       /* get accumulated ORG, defined by each code size of modules in list */
+  linkaddr = modulehdr->first->origin;         /* first module ORG */
+  linkaddr += CURRENTMODULE->startoffset;      /* then added with accumulated module codesizes in list */
   linkaddr += labelptr->symvalue;              /* finally, add the label offset address from the current module */
 
   linkaddrptr = DefineSymbol (linkaddrname, linkaddr, SYMTOUCHED);
