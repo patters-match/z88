@@ -31,6 +31,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <time.h>
 #include <limits.h>
 #include "config.h"
 #include "datastructs.h"
@@ -43,7 +44,8 @@
 
 
 /* local functions */
-static int idcmp (const char *idptr, const identfunc_t *symptr);
+static int identcmp (const char *idptr, const identfunc_t *symptr);
+static int asmfunccmp (const char *idptr, const exprfunc_t *symptr);
 static void AdjustLabelAddresses(unsigned long OrigPC, unsigned long PC);
 static long Evallogexpr (void);
 static long Parsedefvarsize (long offset);
@@ -54,10 +56,6 @@ static void AlignAddress(long adj);
 static void Ifstatement (enum flag interpret);
 static int DEFSP (void);
 
-
-/* externally defined variables, assembler specific, <processor>_asmdrctv.c */
-extern identfunc_t directives[];          /* points at table of directive identifiers for this assembler */
-extern size_t totaldirectives;            /* total number of directive identifiers for this assembler */
 
 /* externally defined variables */
 extern FILE *srcasmfile, *listfile;
@@ -72,8 +70,8 @@ extern int ASSEMBLE_ERROR;
 extern int sourcefile_open;
 extern labels_t *addresses;
 extern pathlist_t *gIncludePath;
-extern size_t totalmpmid;
-extern identfunc_t mpmident[];
+extern avltree_t *globalroot;
+extern symbol_t *gAsmpcPtr;
 
 /* global variables */
 short clineno = 0;
@@ -82,13 +80,202 @@ short clineno = 0;
 static char stringconst[255];
 
 
+/* pre-defined assembler functions, defined here for quick validation with SearchAsmFunction () */
+static size_t total_asmvar = 8;
+static exprfunc_t asmfunctionlist[] = {
+  {"$DAY",  (symbol_t *(*)(void *)) AsmSymDay},
+  {"$HOUR", (symbol_t *(*)(void *)) AsmSymHour},
+  {"$LINKADDR", AsmSymLinkAddr},
+  {"$MINUTE", (symbol_t *(*)(void *)) AsmSymMinute},
+  {"$MONTH", (symbol_t *(*)(void *)) AsmSymMonth},
+  {"$PC", (symbol_t *(*)(void *)) AsmSymAssemblerPC},
+  {"$SECOND", (symbol_t *(*)(void *)) AsmSymSecond},
+  {"$YEAR", (symbol_t *(*)(void *)) AsmSymYear}
+};
+
+
+/* Directive names, as defined for Zilog Z80 standard conventions, including a few 'additions'
+ * A lot of these are going to be carved out once macros have been implemented!
+ */
+static size_t totaldirectives = 57;
+static identfunc_t directives[] = {
+ {"ALIGN", ALIGN},
+ {"ASCII", DEFM},
+ {"ASCIIZ", DEFMZ},
+ {"BINARY", BINARY},
+ {"BYTE", DEFB},
+ {"CALL_OZ", CALLOZ},
+ {"CALL_PKG", CALLPKG},
+ {"DB", DEFB},
+ {"DC", DEFC},
+ {"DEFB", DEFB},
+ {"DEFC", DEFC},
+ {"DEFGROUP", DEFGROUP},
+ {"DEFINE", DefSym},
+ {"DEFL", DEFL},
+ {"DEFM", DEFM},
+ {"DEFMZ", DEFMZ},
+ {"DEFP", DEFP},
+ {"DEFS", DEFS},
+ {"DEFSYM", DefSym},
+ {"DEFVARS", DEFVARS},
+ {"DEFW", DEFW},
+ {"DL", DEFL},
+ {"DM", DEFM},
+ {"DMZ", DEFM},
+ {"DP", DEFP},
+ {"DS", DEFS},
+ {"DV", DEFVARS},
+ {"DW", DEFW},
+ {"ELSE", ELSEstat},
+ {"ENDDEF", ENDDEFstat},
+ {"ENDIF", ENDIFstat},
+ {"ENUM", DEFGROUP},
+ {"ERROR", ERROR},
+ {"EXTCALL", EXTCALL},
+ {"EXTERN", DeclExternIdent},
+ {"FPP", FPP},
+ {"GLOBAL", DeclGlobalIdent},
+ {"IF", IFstat},
+ {"INCLUDE", IncludeFile},
+ {"INVOKE", INVOKE},
+ {"LIB", DeclLibIdent},
+ {"LIBRARY", DeclLibIdent},
+ {"LINE", LINE},
+ {"LONG", DEFL},
+ {"LSTOFF", ListingOff},
+ {"LSTON", ListingOn},
+ {"MODULE", DeclModule},
+ {"ORG", ORG},
+ {"OZ", CALLOZ},
+ {"SPACE", DEFS},
+ {"STRING", DEFS},
+ {"UNDEFINE", UnDefineSym},
+ {"VARAREA", DEFVARS},
+ {"WORD", DEFW},
+ {"XDEF", DeclGlobalIdent},
+ {"XLIB", DeclGlobalLibIdent},
+ {"XREF", DeclExternIdent}
+};
+
+
+/* ------------------------------------------------------------------------------
+   Pre-sorted array of Z80 instruction mnemonics.
+   Remember to update totalmpmid when adding new mnemonics!!!
+   Pre-sorting is necessary, otherwise bsearch() won't Find the correct entry!
+   ------------------------------------------------------------------------------ */
+static size_t totalmpmid = 68;
+static identfunc_t mpmident[] = {
+ {"ADC", ADC},
+ {"ADD", ADD},
+ {"AND", AND},
+ {"BIT", BIT},
+ {"CALL", CALL},
+ {"CCF", CCF},
+ {"CP", CP},
+ {"CPD", CPD},
+ {"CPDR", CPDR},
+ {"CPI", CPI},
+ {"CPIR", CPIR},
+ {"CPL", CPL},
+ {"DAA", DAA},
+ {"DEC", DEC},
+ {"DI", DI},
+ {"DJNZ", DJNZ},
+ {"EI", EI},
+ {"EX", EX},
+ {"EXX", EXX},
+ {"HALT", HALT},
+ {"IM", IM},
+ {"IN", IN},
+ {"INC", INC},
+ {"IND", IND},
+ {"INDR", INDR},
+ {"INI", INI},
+ {"INIR", INIR},
+ {"JP", JP},
+ {"JR", JR},
+ {"LD", LD},
+ {"LDD", LDD},
+ {"LDDR", LDDR},
+ {"LDI", LDI},
+ {"LDIR", LDIR},
+ {"NEG", NEG},
+ {"NOP", NOP},
+ {"OR", OR},
+ {"OTDR", OTDR},
+ {"OTIR", OTIR},
+ {"OUT", OUT},
+ {"OUTD", OUTD},
+ {"OUTI", OUTI},
+ {"POP", POP},
+ {"PUSH", PUSH},
+ {"RES", RES},
+ {"RET", RET},
+ {"RETI", RETI},
+ {"RETN", RETN},
+ {"RL", RL},
+ {"RLA", RLA},
+ {"RLC", RLC},
+ {"RLCA", RLCA},
+ {"RLD", RLD},
+ {"RR", RR},
+ {"RRA", RRA},
+ {"RRC", RRC},
+ {"RRCA", RRCA},
+ {"RRD", RRD},
+ {"RST", RST},
+ {"SBC", SBC},
+ {"SCF", SCF},
+ {"SET", SET},
+ {"SLA", SLA},
+ {"SLL", SLL},
+ {"SRA", SRA},
+ {"SRL", SRL},
+ {"SUB", SUB},
+ {"XOR", XOR}
+};
+
+
+ptrfunc
+SearchDirective (const char *identifier, identfunc_t asmident[], size_t totalid)
+{
+  identfunc_t *foundsym;
+
+  if (sym == name)
+    {
+      foundsym = (identfunc_t *) bsearch (identifier, asmident, totalid, sizeof (identfunc_t), (fptr) identcmp);
+      if (foundsym == NULL)
+        return NULL;
+      else
+        return foundsym->asm_func;
+   }
+  else
+    {
+      /* all directives are names, therefore nothing would be found anyway... */
+      return NULL;
+    }
+}
+
+symfunc
+SearchAsmFunction (const char *fnname)
+{
+  exprfunc_t *foundsym;
+
+  foundsym = (exprfunc_t *) bsearch (fnname, asmfunctionlist, total_asmvar, sizeof (exprfunc_t), (fptr) asmfunccmp);
+  if (foundsym == NULL)
+    return NULL;
+  else
+    return foundsym->asm_func;
+}
+
 
 void
 ParseDirectives (enum flag interpret)
 {
   ptrfunc function;
 
-  if ((function = SearchFunction (directives, totaldirectives)) == NULL)
+  if ((function = SearchDirective (ident, directives, totaldirectives)) == NULL)
     {
       if (interpret == ON) ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_UnknownIdent);
       SkipLine (srcasmfile);
@@ -120,7 +307,7 @@ ParseMpmIdent (enum flag interpret)
 {
   ptrfunc function;
 
-  if ((function = SearchFunction (mpmident, totalmpmid)) == NULL)
+  if ((function = SearchDirective (ident, mpmident, totalmpmid)) == NULL)
     {
        /* Mnemonic was not found, try to execute a directive... */
        ParseDirectives (interpret);
@@ -134,31 +321,17 @@ ParseMpmIdent (enum flag interpret)
 
 
 static int
-idcmp (const char *idptr, const identfunc_t *symptr)
+identcmp (const char *idptr, const identfunc_t *symptr)
 {
   return strcmp (idptr, symptr->asm_mnem);
 }
 
-
-ptrfunc
-SearchFunction (identfunc_t asmident[], size_t totalid)
+static int
+asmfunccmp (const char *idptr, const exprfunc_t *symptr)
 {
-  identfunc_t *foundsym;
-
-  if (sym == name)
-    {
-      foundsym = (identfunc_t *) bsearch (ident, asmident, totalid, sizeof (identfunc_t), (fptr) idcmp);
-      if (foundsym == NULL)
-        return NULL;
-      else
-        return foundsym->asm_func;
-   }
-  else
-    {
-      /* all directives are names, therefore nothing would be found anyway... */
-      return NULL;
-    }
+  return strcmp (idptr, symptr->asm_mnem);
 }
+
 
 
 void
@@ -575,7 +748,7 @@ DEFVARS (void)
 
   /* skip anything until we meet a name - but also allow for an empty DEFVARS */
   while (!feof (srcasmfile) && sym != name && (sym != rcurly &&
-         SearchFunction (directives, totaldirectives) != ENDDEFstat))
+         SearchDirective (ident, directives, totaldirectives) != ENDDEFstat))
     {
       SkipLine (srcasmfile);
 
@@ -586,7 +759,7 @@ DEFVARS (void)
 
   /* found a name definition - parse variable area definition until } or ENDDEF */
   while (!feof (srcasmfile) && (sym != rcurly &&
-         SearchFunction (directives, totaldirectives) != ENDDEFstat) )
+         SearchDirective (ident, directives, totaldirectives) != ENDDEFstat) )
     {
       if (EOL == ON)
         {
@@ -620,7 +793,7 @@ DEFGROUP (void)
     }
 
   while (!feof (srcasmfile) && (sym != rcurly &&
-         SearchFunction (directives, totaldirectives) != ENDDEFstat) )
+         SearchDirective (ident, directives, totaldirectives) != ENDDEFstat) )
     {
       if (EOL == ON)
         {
@@ -1329,4 +1502,160 @@ AdjustLabelAddresses(unsigned long OrigPC, unsigned long NewPC)
         else
           break;  /* this label address were smaller than OrigPC */
       }           /* (declared two or more times before previous label definition */
+}
+
+
+symbol_t *
+AsmSymLinkAddr (void *label)
+{
+  unsigned long linkaddr;
+  module_t *moduleptr;
+  symbol_t *labelptr, *linkaddrptr;
+  char     linkaddrname[256];
+
+  if (label == NULL)
+    {
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_SymNotDefined);
+      return NULL;
+    }
+
+  /* define complete assembler function name as a searchable result */
+  linkaddrname[0] = 0;
+  strcat(linkaddrname, "$LINKADDR(");
+  strcat(linkaddrname, label);
+  strcat(linkaddrname, ")");
+
+  /* was assembler function previously evaluated? */
+  linkaddrptr = FindSymbol (linkaddrname, CURRENTMODULE->localroot);
+
+  if (linkaddrptr != NULL)
+    return linkaddrptr;  /* Mission completed: return previously calculated address (always the same...) */
+
+  labelptr = FindSymbol (label, CURRENTMODULE->localroot);
+  if (labelptr == NULL)
+    {
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_SymNotDefined);
+      return NULL;
+    }
+
+  moduleptr = modulehdr->first;
+  if (moduleptr->origin == 0xFFFFFFFF)
+    {
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_OrgNotDefined);
+      return NULL;
+    }
+
+  linkaddr = moduleptr->origin;
+  while (moduleptr != CURRENTMODULE)
+    {
+      linkaddr += moduleptr->startoffset;	/* get accumulated ORG, defined by each code size of modules in list */
+      moduleptr = moduleptr->nextmodule;
+    }
+  linkaddr += labelptr->symvalue;		/* finally, add the label offset address from the current module */
+  linkaddrptr = DefineSymbol (linkaddrname, linkaddr, SYMTOUCHED);
+
+  return linkaddrptr;
+}
+
+
+symbol_t *
+AsmSymDay (void)
+{
+  time_t asmtime;
+  struct tm *localtm;
+  symbol_t *symptr;
+
+  time(&asmtime);
+  localtm = localtime(&asmtime);
+  symptr = FindSymbol ("$DAY", globalroot);
+  symptr->symvalue = localtm->tm_mday;
+
+  return symptr;
+}
+
+
+symbol_t *
+AsmSymHour (void)
+{
+  time_t asmtime;
+  struct tm *localtm;
+  symbol_t *symptr;
+
+  time(&asmtime);
+  localtm = localtime(&asmtime);
+  symptr = FindSymbol ("$HOUR", globalroot);
+  symptr->symvalue = localtm->tm_hour;
+
+  return symptr;
+}
+
+
+symbol_t *
+AsmSymMinute (void)
+{
+  time_t asmtime;
+  struct tm *localtm;
+  symbol_t *symptr;
+
+  time(&asmtime);
+  localtm = localtime(&asmtime);
+  symptr = FindSymbol ("$MINUTE", globalroot);
+  symptr->symvalue = localtm->tm_min;
+
+  return symptr;
+}
+
+
+symbol_t *
+AsmSymSecond (void)
+{
+  time_t asmtime;
+  struct tm *localtm;
+  symbol_t *symptr;
+
+  time(&asmtime);
+  localtm = localtime(&asmtime);
+  symptr = FindSymbol ("$SECOND", globalroot);
+  symptr->symvalue = localtm->tm_sec;
+
+  return symptr;
+}
+
+
+symbol_t *
+AsmSymMonth (void)
+{
+  time_t asmtime;
+  struct tm *localtm;
+  symbol_t *symptr;
+
+  time(&asmtime);
+  localtm = localtime(&asmtime);
+  symptr = FindSymbol ("$MONTH", globalroot);
+  symptr->symvalue = localtm->tm_mon+1;
+
+  return symptr;
+}
+
+
+symbol_t *
+AsmSymYear (void)
+{
+  time_t asmtime;
+  struct tm *localtm;
+  symbol_t *symptr;
+
+  time(&asmtime);
+  localtm = localtime(&asmtime);
+  symptr = FindSymbol ("$YEAR", globalroot);
+  symptr->symvalue = localtm->tm_year+1900;
+
+  return symptr;
+}
+
+
+symbol_t *
+AsmSymAssemblerPC (void)
+{
+  return gAsmpcPtr;
 }

@@ -29,23 +29,16 @@
 
 #include "avltree.h"    /* base symbol data structures and routines that manages a symbol table */
 
-typedef void (*ptrfunc) (void);                           /* ptr to function returning void */
-typedef int (*fptr) (const void *, const void *);
-
-typedef
-struct asmsym       { char *asm_mnem;           /* identifier definition & function implementation */
-                      ptrfunc asm_func;
-                    } identfunc_t;
-
 /* Structured data types : */
+typedef long symvalue_t;                                  /* symbol value is a 32bit integer */
 
 enum flag           { OFF, ON };
 
-enum symbols        { space, bin_and, dquote, squote, semicolon, comma, fullstop, lparen, lcurly, lexpr, rexpr, rcurly, rparen,
-                      plus, minus, multiply, divi, mod, bin_xor, assign, bin_or, bin_nor, colon = bin_nor, bin_not, less,
-                      mod256 = less, greater, div256 = greater, log_not, constexpr, newline, power, lshift, rshift,
+enum symbols        { space, bin_and, dquote, squote, semicolon, comma, fullstop, strconq = fullstop, lparen, lcurly, lexpr,
+                      rexpr, rcurly, rparen, plus, minus, multiply, divi, mod, bin_xor, assign, bin_or, bin_nor, colon = bin_nor,
+                      bin_not, less, mod256 = less, greater, div256 = greater, log_not, constexpr, newline, power, lshift, rshift,
                       lessequal, greatequal, notequal, name, number, decmconst, hexconst, binconst, charconst, registerid,
-                      strconq = fullstop, negated, nil, ifstatm, elsestatm, endifstatm, enddefstatm, label
+                      negated, nil, ifstatm, elsestatm, endifstatm, enddefstatm, label, asmfnname
                     };
 
 typedef
@@ -131,8 +124,6 @@ struct symref       { pagereference_t    *firstref;         /* Pointer to first 
                       pagereference_t    *lastref;          /* Pointer to last/current page number reference */
                     } pagereferences_t;                     /* NB: First reference defines creation of symbol */
 
-typedef long symvalue_t;                                    /* symbol value is a 32bit integer */
-
 typedef
 struct node         { unsigned long      type;              /* type of symbol */
                       char               *symname;          /* pointer to symbol identifier */
@@ -140,6 +131,21 @@ struct node         { unsigned long      type;              /* type of symbol */
                       pagereferences_t   *references;       /* pointer to all found page references of symbol */
                       module_t           *owner;            /* pointer to module which owns symbol */
                     } symbol_t;
+
+typedef void (*ptrfunc) (void);                             /* ptr to function returning void */
+typedef int (*fptr) (const void *, const void *);
+
+typedef
+struct asmsym       { char *asm_mnem;                       /* identifier definition & function implementation */
+                      ptrfunc asm_func;
+                    } identfunc_t;
+
+typedef symbol_t * (*symfunc) (void *);                     /* ptr to symbol function returning pointer to symbol node */
+
+typedef
+struct asmsymfunc   { char *asm_mnem;                       /* assembler inline function definition & implementation */
+                      symfunc asm_func;
+                    } exprfunc_t;
 
 typedef
 struct labels       { struct labels      *prevlabel;        /* pointer to previous label occurence on stack */
@@ -194,6 +200,7 @@ struct linkmodlist  { tracedmodule_t    *firstlink;         /* pointer to first 
 #define SYMLOCAL        0x10000000                          /* bitmask 00010000 00000000 00000000 00000000 */
 #define SYMXDEF         0x20000000                          /* bitmask 00100000 00000000 00000000 00000000 */
 #define SYMXREF         0x40000000                          /* bitmask 01000000 00000000 00000000 00000000 */
+#define SYMFUNC         0x80000000                          /* bitmask 10000000 00000000 00000000 00000000 */
 
 
 /* #define SYM_BASE32      0x00000100                        symbol value is defined as 32bit native integer (long) */

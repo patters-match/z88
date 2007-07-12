@@ -59,122 +59,6 @@ extern module_t *CURRENTMODULE;
 extern enum flag BIGENDIAN, USEBIGENDIAN;
 
 
-/* local functions */
-static void ArithLog8_instr (int opcode);
-static void ExtAccumulator (int opcode);
-static void JP_instr (int opc0, int opc);
-static void Subroutine_addr (int opc0, int opc);
-static void JP_instr (int opc0, int opc);
-static void PushPop_instr (int opcode);
-static void RotShift_instr (int opcode);
-static void BitTest_instr (int opcode);
-static void IncDec_8bit_instr (int opcode);
-static void LD_HL8bit_indrct (void);
-static void LD_16bit_reg (void);
-static void LD_index8bit_indrct (int reg);
-static void LD_address_indrct (long exprptr);
-static void LD_r_8bit_indrct (int reg);
-
-static void LD (void);
-static void ADC (void), ADD (void), DEC (void), IM (void), IN (void), INC (void);
-static void JR (void), LD (void), OUT (void), RET (void), SBC (void);
-static void RST (void);
-static void AND (void), BIT (void), CALL (void), CCF (void), CP (void), CPD (void);
-static void CPDR (void), CPI (void), CPIR (void), CPL (void), DAA (void);
-static void DI (void), DJNZ (void);
-static void EI (void), EX (void), EXX (void), HALT (void);
-static void IND (void), INDR (void), INI (void), INIR (void), JP (void);
-static void LDD (void), LDDR (void);
-static void LDI (void), LDIR (void), NEG (void), NOP (void), OR (void), OTDR (void), OTIR (void);
-static void OUTD (void), OUTI (void), POP (void), PUSH (void), RES (void);
-static void RETI (void), RETN (void);
-static void RL (void), RLA (void), RLC (void), RLCA (void), RLD (void), RR (void), RRA (void), RRC (void);
-static void RRCA (void), RRD (void);
-static void SCF (void), SET (void), SLA (void), SLL (void), SRA (void);
-static void SRL (void), SUB (void), XOR (void);
-
-
-
-/* ------------------------------------------------------------------------------
-   Pre-sorted array of Z80 instruction mnemonics.
-   Remember to update totalmpmid when adding new mnemonics!!!
-   Pre-sorting is necessary, otherwise bsearch() won't Find the correct entry!
-   ------------------------------------------------------------------------------ */
-identfunc_t mpmident[] = {
- {"ADC", ADC},
- {"ADD", ADD},
- {"AND", AND},
- {"BIT", BIT},
- {"CALL", CALL},
- {"CCF", CCF},
- {"CP", CP},
- {"CPD", CPD},
- {"CPDR", CPDR},
- {"CPI", CPI},
- {"CPIR", CPIR},
- {"CPL", CPL},
- {"DAA", DAA},
- {"DEC", DEC},
- {"DI", DI},
- {"DJNZ", DJNZ},
- {"EI", EI},
- {"EX", EX},
- {"EXX", EXX},
- {"HALT", HALT},
- {"IM", IM},
- {"IN", IN},
- {"INC", INC},
- {"IND", IND},
- {"INDR", INDR},
- {"INI", INI},
- {"INIR", INIR},
- {"JP", JP},
- {"JR", JR},
- {"LD", LD},
- {"LDD", LDD},
- {"LDDR", LDDR},
- {"LDI", LDI},
- {"LDIR", LDIR},
- {"NEG", NEG},
- {"NOP", NOP},
- {"OR", OR},
- {"OTDR", OTDR},
- {"OTIR", OTIR},
- {"OUT", OUT},
- {"OUTD", OUTD},
- {"OUTI", OUTI},
- {"POP", POP},
- {"PUSH", PUSH},
- {"RES", RES},
- {"RET", RET},
- {"RETI", RETI},
- {"RETN", RETN},
- {"RL", RL},
- {"RLA", RLA},
- {"RLC", RLC},
- {"RLCA", RLCA},
- {"RLD", RLD},
- {"RR", RR},
- {"RRA", RRA},
- {"RRC", RRC},
- {"RRCA", RRCA},
- {"RRD", RRD},
- {"RST", RST},
- {"SBC", SBC},
- {"SCF", SCF},
- {"SET", SET},
- {"SLA", SLA},
- {"SLL", SLL},
- {"SRA", SRA},
- {"SRL", SRL},
- {"SUB", SUB},
- {"XOR", XOR}
-};
-
-size_t totalmpmid = 68;
-
-
-
 void
 LD (void)
 {
@@ -1637,34 +1521,32 @@ JR (void)
   expression_t *postfixexpr;
   long constant;
 
-  if (GetSym () == name)
-    {
-      switch (constant = CheckCondition ())
-        {           /* check for a condition */
-          case 0:
-          case 1:
-          case 2:
-          case 3:
-            *codeptr++ = 32 + constant * 8;
-            if (GetSym () == comma)
-              GetSym ();    /* point at start of address expression */
-            else
-              {
-                ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);   /* comma missing */
-                return;
-              }
-            break;
-
-          case -1:
-            *codeptr++ = 24;  /* opcode for JR  e */
-            break;        /* identifier not a condition id - check for legal expression */
-
-          default:
-            ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);   /* illegal condition, syntax
-                                           * error  */
-            return;
+  GetSym ();
+  switch (constant = CheckCondition ())
+  {           /* check for a condition */
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      *codeptr++ = 32 + constant * 8;
+      if (GetSym () == comma)
+        GetSym ();    /* point at start of address expression */
+      else
+        {
+          ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);   /* comma missing */
+          return;
         }
-    }
+      break;
+
+    case -1:
+      *codeptr++ = 24;  /* opcode for JR  e */
+      break;        /* identifier not a condition id - check for legal expression */
+
+    default:
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_Syntax);   /* illegal condition, syntax
+                                     * error  */
+      return;
+  }
 
   PC += 2;          /* assembler PC points at next instruction */
   if ((postfixexpr = ParseNumExpr ()) != NULL)

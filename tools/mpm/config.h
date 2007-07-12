@@ -32,7 +32,7 @@
 /* Z80 specific assembler definitions and constants                                          */
 #ifdef MPM_Z80
 
-#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2 dev.build 7"
+#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2 dev.build 8"
 
 /* Z80asm object & library file watermark V1 series must both have always same length */
 #define Z80ASMOBJHDR  "Z80RMF01"

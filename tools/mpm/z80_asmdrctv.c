@@ -48,89 +48,15 @@
 #include "z80_prsline.h"
 
 
-/* Z80 specific functions */
-static void CALLOZ (void);
-static void EXTCALL (void);
-static void CALLPKG (void);
-static void FPP (void);
-static void INVOKE (void); /* ported from z80asm for Ti83/Ti83Plus target */
-
 /* externally defined variables */
-extern char ident[], line[];
-extern unsigned char *codeptr;
 extern module_t *CURRENTMODULE;
 extern unsigned char *codeptr;
 extern unsigned long PC;
 extern enum symbols sym;
 extern enum flag ti83plus;
 
-/* Directive names, as defined for Zilog Z80 standard conventions, including a few 'additions'
- * A lot of these are going to be carved out once macros have been implemented!
- */
-identfunc_t directives[] = {
- {"ALIGN", ALIGN},
- {"ASCII", DEFM},
- {"ASCIIZ", DEFMZ},
- {"BINARY", BINARY},
- {"BYTE", DEFB},
- {"CALL_OZ", CALLOZ},
- {"CALL_PKG", CALLPKG},
- {"DB", DEFB},
- {"DC", DEFC},
- {"DEFB", DEFB},
- {"DEFC", DEFC},
- {"DEFGROUP", DEFGROUP},
- {"DEFINE", DefSym},
- {"DEFL", DEFL},
- {"DEFM", DEFM},
- {"DEFMZ", DEFMZ},
- {"DEFP", DEFP},
- {"DEFS", DEFS},
- {"DEFSYM", DefSym},
- {"DEFVARS", DEFVARS},
- {"DEFW", DEFW},
- {"DL", DEFL},
- {"DM", DEFM},
- {"DMZ", DEFM},
- {"DP", DEFP},
- {"DS", DEFS},
- {"DV", DEFVARS},
- {"DW", DEFW},
- {"ELSE", ELSEstat},
- {"ENDDEF", ENDDEFstat},
- {"ENDIF", ENDIFstat},
- {"ENUM", DEFGROUP},
- {"ERROR", ERROR},
- {"EXTCALL", EXTCALL},
- {"EXTERN", DeclExternIdent},
- {"FPP", FPP},
- {"GLOBAL", DeclGlobalIdent},
- {"IF", IFstat},
- {"INCLUDE", IncludeFile},
- {"INVOKE", INVOKE},
- {"LIB", DeclLibIdent},
- {"LIBRARY", DeclLibIdent},
- {"LINE", LINE},
- {"LONG", DEFL},
- {"LSTOFF", ListingOff},
- {"LSTON", ListingOn},
- {"MODULE", DeclModule},
- {"ORG", ORG},
- {"OZ", CALLOZ},
- {"SPACE", DEFS},
- {"STRING", DEFS},
- {"UNDEFINE", UnDefineSym},
- {"VARAREA", DEFVARS},
- {"WORD", DEFW},
- {"XDEF", DeclGlobalIdent},
- {"XLIB", DeclGlobalLibIdent},
- {"XREF", DeclExternIdent}
-};
 
-size_t totaldirectives = 57;
-
-
-static void
+void
 CALLOZ (void)
 {
   long constant;
@@ -177,7 +103,7 @@ CALLOZ (void)
 
 
 /* New Z88 operating system 24bit CALL instruction */
-static void
+void
 EXTCALL (void)
 {
   if ((PC+4) > MAXCODESIZE)
@@ -209,7 +135,7 @@ EXTCALL (void)
 }
 
 /* Z88 Operating system vector call for package management, implemented by Garry Lancaster */
-static void
+void
 CALLPKG (void)
 {
   long constant;
@@ -251,7 +177,7 @@ CALLPKG (void)
 
 
 
-static void
+void
 FPP (void)
 {
   long constant;

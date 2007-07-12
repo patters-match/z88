@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=mpm - Win32 Release
+CFG=mpm - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE
@@ -39,7 +39,6 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir ""
 # PROP Intermediate_Dir ""
-# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "MPM_Z80" /D "MSDOS" /YX /FD /c
@@ -68,7 +67,7 @@ LINK32=link.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
 # ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "MPM_Z80" /D "MSDOS" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x406 /d "_DEBUG"
-# ADD RSC /l 0x406 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -92,6 +91,10 @@ SOURCE=.\asmdrctv.c
 # Begin Source File
 
 SOURCE=.\avltree.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\crc32.c
 # End Source File
 # Begin Source File
 
@@ -139,10 +142,6 @@ SOURCE=.\z80_prsline.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\crc32.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\z80_relocate.c
 # End Source File
 # End Group
@@ -160,6 +159,10 @@ SOURCE=.\avltree.h
 # Begin Source File
 
 SOURCE=.\config.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\crc32.h
 # End Source File
 # Begin Source File
 
@@ -196,10 +199,6 @@ SOURCE=.\symtables.h
 # Begin Source File
 
 SOURCE=.\z80_prsline.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\crc32.h
 # End Source File
 # Begin Source File
 

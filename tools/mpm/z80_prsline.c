@@ -74,20 +74,6 @@ enum symbols sym, ssym[] =
 char separators[] = " &\"\';,.({[]})+-*/%^=|:~<>!#";
 char ident[255];
 
-
-/* pre-defined assembler variables, defined here for quick validation with SearchFunction () */
-identfunc_t asmvariables[] = {
-  {"$DAY", DEFC},
-  {"$HOUR", DEFC},
-  {"$MINUTE", DEFC},
-  {"$MONTH", DEFC},
-  {"$PC", DEFC},
-  {"$SECOND", DEFC},
-  {"$YEAR", DEFC}
-};
-
-static size_t total_asmvar = 7;
-
 void
 ParseLine (enum flag interpret)
 {
@@ -155,6 +141,7 @@ GetSym (void)
 {
   char *instr;
   int c, chcount = 0;
+  long fptr;
 
   ident[0] = '\0';
 
@@ -361,11 +348,34 @@ GetSym (void)
                   ident[chcount] = '\0';
                   if (sym == hexconst)
                     {
-                      sym = name; /* temporarily assume that we have found an assembler variable */
-                      if (SearchFunction (asmvariables, total_asmvar) == NULL)
+                      if (SearchAsmFunction (ident) != NULL)
                         {
-                          /* we didn't find a reserved Mpm $name variable - most likely it's a hex constant */
-                          sym = hexconst;
+                          fptr = ftell (srcasmfile);
+                          /* a assembler function name was recognized */
+                          /* include function body as part of name, if it is specified */
+                          sym = asmfnname;
+
+                          /* skip white space until first real character after function name.. */
+                          /* check if a () is placed after the function name, and read it as part of the name.. */
+                          while ( ((c = GetChar (srcasmfile)) != EOF) && isspace(c) );
+
+                          if (c == '(')
+                            {
+                              ident[chcount++] = c;
+
+                              /* read function body, collect all valid chars and skip all white spaces until ')' */
+                              while ( ((c = GetChar (srcasmfile)) != EOF) && (c != ')'))
+                                {
+                                  if (!iscntrl(c) && !isspace(c))
+                                    ident[chcount++] = (char) toupper (c);
+                                }
+                              ident[chcount++] = (char) ')';
+                            }
+                          else
+                            {
+                              /* optional function body was not specified */
+                              fseek (srcasmfile, fptr, SEEK_SET);   /* resume file position, just at byte after function name */
+                            }
                         }
                     }
                   break;
@@ -374,8 +384,8 @@ GetSym (void)
         }
     }
 
-  /* validate if ident might be a number constant with a trailing h, d or b */
-  chcount = CheckBaseType(chcount);
+  if (sym != asmfnname)
+    chcount = CheckBaseType(chcount);  /* validate if ident might be a number constant with a trailing h, d or b */
 
   ident[chcount] = '\0';
   return sym;

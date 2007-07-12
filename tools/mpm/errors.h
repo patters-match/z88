@@ -60,8 +60,9 @@
 #define Err_Libfile 30             /* "Not a library file" */
 #define Err_EnvVariable 31         /* "Environment variable not defined" */
 #define Err_IncludeFile 32         /* "Cannot include file recursively" */
-#define Warn_Status 33             /* "warnings occurred during assembly" */
-#define Warn_OffsetBoundary 34     /* "offset reaches beyond 16K boundary" */
+#define Err_OrgNotDefined 33       /* "ORG address not yet defined for project" */
+#define Warn_Status 34             /* "warnings occurred during assembly" */
+#define Warn_OffsetBoundary 35     /* "offset reaches beyond 16K boundary" */
 
 void ReportWarning (char *filename, short lineno, int warnno);
 void ReportAsmMessage (char *filename, short lineno, char *message);

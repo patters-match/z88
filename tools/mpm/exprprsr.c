@@ -42,7 +42,7 @@
 #include "modules.h"
 #include "pass.h"
 #include "z80_prsline.h"
-
+#include "asmdrctv.h"
 
 /* local functions */
 static void PushItem (long oprconst, pfixstack_t **stackpointer);
@@ -727,10 +727,64 @@ Factor (expression_t *pfixexpr)
   long constant;
   symbol_t *symptr;
   char eval_err;
+  char *asmfuncArg, *asmfuncEndBracket;
   int c;
+  symfunc AsmFunction;
 
   switch (sym)
     {
+    case asmfnname:
+      asmfuncArg = strchr (ident, '(');
+      if (asmfuncArg != NULL)
+        *asmfuncArg = '\0';  /* temporarily cut function name and argument, to find base function name */
+
+      AsmFunction = SearchAsmFunction(ident);
+      if (asmfuncArg != NULL)
+        *asmfuncArg++ = '('; /* restore complete identifier, and point to first char of function argument text */
+
+      if (AsmFunction != NULL)
+        {
+           asmfuncEndBracket = strrchr (ident, ')');
+           if (asmfuncEndBracket != NULL)
+             *asmfuncEndBracket = '\0';
+
+          symptr = AsmFunction(asmfuncArg);
+
+          if (asmfuncEndBracket != NULL)
+             *asmfuncEndBracket = ')';
+
+          if (symptr != NULL)
+            {
+              if (symptr->type & SYMDEFINED)
+                {
+                  pfixexpr->rangetype |= (symptr->type & SYMTYPE);  /* Copy appropriate type bits */
+                  NewPfixSymbol (pfixexpr, symptr->symvalue, number, NULL, symptr->type);
+                }
+              else
+                {
+                  pfixexpr->rangetype |= ((symptr->type & SYMTYPE) | NOTEVALUABLE);
+                  /* Copy appropriate declaration bits */
+
+                  NewPfixSymbol (pfixexpr, 0, number, ident, symptr->type);
+                  /* symbol only declared, store symbol name */
+                }
+            }
+          else
+            {
+              pfixexpr->rangetype |= NOTEVALUABLE;  /* expression not evaluable */
+              NewPfixSymbol (pfixexpr, 0, number, ident, SYM_NOTDEFINED);   /* symbol not found */
+            }
+        }
+      else
+        {
+          pfixexpr->rangetype |= NOTEVALUABLE;  /* expression not evaluable */
+          NewPfixSymbol (pfixexpr, 0, number, ident, SYM_NOTDEFINED);   /* symbol not found */
+        }
+      AddStringToInfixExpr(pfixexpr, ident);
+
+      GetSym ();
+      break;
+
     case name:
       symptr = GetSymPtr (ident);
       if (symptr != NULL)
@@ -887,7 +941,6 @@ Factor (expression_t *pfixexpr)
 static int
 Pterm (expression_t *pfixexpr)
 {
-
   if (!Factor (pfixexpr))
     return (0);
 

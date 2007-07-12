@@ -82,8 +82,9 @@ static char *errmsg[] = {
  "Mpm library file not recognized",                              /* 30 */
  "Environment variable not defined",                             /* 31 */
  "Cannot include file recursively",                              /* 32 */
- "warnings occurred during assembly",                            /* 33 */
- "Warning: bank offset reaches beyond 16K boundary"              /* 34 */
+ "ORG address not yet defined for project",                      /* 33 */
+ "warnings occurred during assembly",                            /* 34 */
+ "Warning: bank offset reaches beyond 16K boundary"              /* 35 */
 
 };
 
