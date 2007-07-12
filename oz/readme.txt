@@ -80,7 +80,7 @@ You can install/run the rom binary in the Z88 emulator, OZvm (in /tools/ozvm), o
 Eprom programmer and re-blow your 128K or larger chip to be inserted into a real Z88.
 
 Important:
-The rom script only works with Mpm Assembler V1.2 build 7 or later.
+The rom script only works with Mpm Assembler V1.2 build 8 or later.
 (You will have a fully working version, if you are using the latest sources from the SVN checkout)
 
 
