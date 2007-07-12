@@ -77,12 +77,10 @@ xref    OSSiTmo1                                ; [Kernel1]/ossi1.asm
         ld      hl, OSSiRet
         push    hl                              ; stack the ret
         exx                                     ; restore main registers
+        ld      h, OSSITBL/256
         ld      a, l                            ; OS_SI reason code
         add     a, OSSITBL%256
         ld      l, a
-        ld      a, OSSITBL/256
-        adc     a, 0                            ; take care of page address crossing...
-        ld      h, a                            ; h is unused and always destroyed by OSSi
         ex      af, af'                         ; restore af (used in OSSiPbt)
         jp      (hl)                            ; jump to routine
 
@@ -100,6 +98,11 @@ xref    OSSiTmo1                                ; [Kernel1]/ossi1.asm
         jp      OSSiFtx
         jp      OSSiFrx
         jp      OSSiTmo
+.OSSITBL_end
+
+IF ($linkaddr(OSSITBL) / 256) <> ($linkaddr(OSSITBL_end) / 256)
+        ERROR "OS_SI lookup table crosses address page boundary!"
+ENDIF
 
 .OSSiHrd
         extcall OSSiHrd1, OZBANK_KNL1
