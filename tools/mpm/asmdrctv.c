@@ -1525,12 +1525,11 @@ AsmSymLinkAddr (void *label)
   strcat(linkaddrname, ")");
 
   /* was assembler function previously evaluated? */
-  linkaddrptr = FindSymbol (linkaddrname, CURRENTMODULE->localroot);
-
+  linkaddrptr = GetSymPtr (linkaddrname);
   if (linkaddrptr != NULL)
     return linkaddrptr;  /* Mission completed: return previously calculated address (always the same...) */
 
-  labelptr = FindSymbol (label, CURRENTMODULE->localroot);
+  labelptr = GetSymPtr (label);
   if (labelptr == NULL)
     {
       ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_SymNotDefined);
