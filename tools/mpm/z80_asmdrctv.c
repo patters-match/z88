@@ -89,7 +89,7 @@ CALLOZ (void)
             }
           else if ((constant > 255) && (constant <= 65535))
             {
-              *codeptr++ = constant & 255;  /* 2 byte OZ parameter */
+              *codeptr++ = (unsigned char) (constant & 255);  /* 2 byte OZ parameter */
               *codeptr++ = (unsigned char) (constant >> 8);
               PC += 2;
             }
@@ -163,8 +163,8 @@ CALLPKG (void)
           constant = EvalPfixExpr (postfixexpr);
           if ((constant >= 0) && (constant <= 65535))
             {
-              *codeptr++ = constant % 256;
-              *codeptr++ = constant / 256;
+              *codeptr++ = (unsigned char) (constant % 256);
+              *codeptr++ = (unsigned char) (constant / 256);
               PC += 2;
             }
           else
@@ -242,8 +242,8 @@ INVOKE (void)
           constant = EvalPfixExpr (postfixexpr);
           if ((constant >= 0) && (constant <= 65535))
             {
-              *codeptr++ = constant % 256;      /* 2 byte parameter always */
-              *codeptr++ = constant / 256;
+              *codeptr++ = (unsigned char) (constant % 256);      /* 2 byte parameter always */
+              *codeptr++ = (unsigned char) (constant / 256);
               PC += 2;
             }
           else

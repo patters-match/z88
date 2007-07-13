@@ -1155,7 +1155,7 @@ RET (void)
     {
       case name:
         if ((constant = CheckCondition ()) != -1)
-          *codeptr++ = 192 + constant * 8;    /* RET <cc> instruction opcode */
+          *codeptr++ = 192 + (unsigned char) (constant * 8);    /* RET <cc> instruction opcode */
         else
           ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_IllegalIdent);
         break;
@@ -1283,7 +1283,7 @@ OUT (void)
 
                     default:
                       *codeptr++ = 237;
-                      *codeptr++ = 65 + reg * 8;  /* OUT (C),r  */
+                      *codeptr++ = 65 + (unsigned char) (reg * 8);  /* OUT (C),r  */
                       PC += 2;
                       break;
                   }
@@ -1351,7 +1351,7 @@ IN (void)
               {
                 case 1:
                   *codeptr++ = 237;
-                  *codeptr++ = 64 + inreg * 8;  /* IN r,(C) */
+                  *codeptr++ = 64 + (unsigned char) (inreg * 8);  /* IN r,(C) */
                   PC += 2;
                   break;
 
@@ -1453,7 +1453,7 @@ Subroutine_addr (int opcode0, int opcode)
   GetSym ();
   if ((constant = CheckCondition ()) != -1)
     {               /* check for a condition */
-      *codeptr++ = opcode + constant * 8;   /* get instruction opcode */
+      *codeptr++ = opcode + (unsigned char) (constant * 8);   /* get instruction opcode */
       if (GetSym () == comma)
         GetSym ();
       else
@@ -1528,7 +1528,7 @@ JR (void)
     case 1:
     case 2:
     case 3:
-      *codeptr++ = 32 + constant * 8;
+      *codeptr++ = 32 + (unsigned char) (constant * 8);
       if (GetSym () == comma)
         GetSym ();    /* point at start of address expression */
       else
@@ -1954,19 +1954,19 @@ IncDec_8bit_instr (int opcode)
           case 12:
           case 13:
             *codeptr++ = 221;
-            *codeptr++ = (reg & 7) * 8 + opcode;  /* INC/DEC  ixh,ixl */
+            *codeptr++ = (unsigned char) (reg & 7) * 8 + opcode;  /* INC/DEC  ixh,ixl */
             PC += 2;
             break;
 
           case 20:
           case 21:
             *codeptr++ = 253;
-            *codeptr++ = (reg & 7) * 8 + opcode;  /* INC/DEC  iyh,iyl */
+            *codeptr++ = (unsigned char) (reg & 7) * 8 + opcode;  /* INC/DEC  iyh,iyl */
             PC += 2;
             break;
 
           default:
-            *codeptr++ = reg * 8 + opcode;    /* INC/DEC  r */
+            *codeptr++ = (unsigned char) reg * 8 + opcode;    /* INC/DEC  r */
             ++PC;
             break;
         }
@@ -2001,7 +2001,7 @@ BitTest_instr (int opcode)
                         {
                           case 2:
                             *codeptr++ = 203; /* (HL)  */
-                            *codeptr++ = opcode + bitnumber * 8 + 6;
+                            *codeptr++ = opcode + (unsigned char) (bitnumber * 8 + 6);
                             PC += 2;
                             break;
 
@@ -2013,7 +2013,7 @@ BitTest_instr (int opcode)
                               *codeptr++ = 253;
                             *codeptr++ = 203;
                             ExprSigned8 (2);
-                            *codeptr++ = opcode + bitnumber * 8 + 6;
+                            *codeptr++ = opcode + (unsigned char) (bitnumber * 8 + 6);
                             PC += 4;
                             break;
 
