@@ -101,6 +101,10 @@ xref    StoreCardIDs                            ; [Kernel1]/card1.asm
         call    MS2BankK1
         pop     af
         cp      $40
+        push    af
         call    z, ExpandMachine                ; slot1? expand if 128KB or more
+        pop     af
+        cp      $80
+        call    z, ExpandMachine                ; slot2? expand if 128KB or more
         call    MountAllRAM
         jp      MS2BankK1                       ; restore S2 before returning there

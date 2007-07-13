@@ -44,8 +44,8 @@
 
         include "lowram.def"
 
-xdef    Reset                                   ;
-xdef    ExpandMachine                           ; [K0]/cardmgr.asm
+xdef    Reset
+xdef    ExpandMachine
 
 xref    InitBufKBD_RX_TX                        ; [K0]/buffer.asm
 xref    MS1BankA                                ; [K0]/misc5.asm
