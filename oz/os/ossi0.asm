@@ -100,7 +100,7 @@ xref    OSSiTmo1                                ; [Kernel1]/ossi1.asm
         jp      OSSiTmo
 .OSSITBL_end
 
-IF ($linkaddr(OSSITBL) / 256) <> ($linkaddr(OSSITBL_end) / 256)
+IF (>$linkaddr(OSSITBL)) <> (>$linkaddr(OSSITBL_end))
         ERROR "OS_SI lookup table crosses address page boundary!"
 ENDIF
 

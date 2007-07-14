@@ -46,7 +46,11 @@ xdef    CLI2KeyTable
 
 .a      defb    0                               ; alt
         defm    "A"
+.Key2MetaTable_end
 
+IF (>$linkaddr(Key2MetaTable)) <> (>$linkaddr(Key2MetaTable_end))
+        ERROR "OS_CLI key to meta conversion table crosses address page boundary!"
+ENDIF
 
 .CLI2keyTable
         defb    2*12                            ; table length
