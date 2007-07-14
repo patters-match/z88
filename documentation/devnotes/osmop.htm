@@ -1,80 +1,107 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
-   <title>System Calls Reference</title>
+
+   
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   
+  <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+
+   
+  <title>System Calls Reference</title>
 </head>
+
+
 <body>
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
-<tr>
-<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
-</tr>
-<tr>
-<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.htm">Contents</a></td>
-<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
-<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
-</tr>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+  <tbody>
+    <tr>
+
+      <th colspan="3" align="center">Z88 Developers' Notes</th>
+
+    </tr>
+
+    <tr>
+
+      <td align="left" valign="bottom" width="10%"><a href="index.htm">Contents</a></td>
+
+      <td align="center" valign="bottom" width="80%">&nbsp;</td>
+
+      <td align="right" valign="bottom" width="10%"><a href="sysref.htm">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+
+    </tr>
+
+  </tbody>
 </table>
 
-<hr WIDTH="100%">
+
+<hr width="100%">
 <p>
 
-<b><font size=+1>OS_Mop, open memory (allocate memory
+<b><font size="+1">OS_Mop, open memory (allocate memory
 pool)</font></b>
+</p>
 <p><tt>RST 20H, DEFB $4E</tt>
+</p>
 <p>IN:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; A = memory mask arguments (several arguments OR'ed together):
+</p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; A = memory mask arguments (several arguments OR'ed together):<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Destination segment (allocated memory addressed for segment):<br></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S0 ($00), segment 0<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S1 ($40), segment 1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S2 ($80), segment 2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S3 ($C0), segment 3<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Source of memory (to be allocated):<br></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_FIX ($02), fixed workspace (not subject to swapping)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>or<br></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_SLT ($04), explicit slot usage, mask also following:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_CI ($10), internal memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_C1 ($01), card 1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_C2 ($02), card 2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_C3 ($03), card 3<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Allocation variations</i>:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_EXC ($10), exclusive use of bank<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_MUL ($20), use multiple banks<br><br>&nbsp;&nbsp;&nbsp;&nbsp; BC = 0, always</pre>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Destination segment (allocated memory addressed for segment):
-</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S0 ($00), segment 0
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S1 ($40), segment 1
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S2 ($80), segment 2
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_S3 ($C0), segment 3
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Source of memory (to be allocated):
-</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_FIX ($02), fixed workspace (not subject to swapping)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>or
-</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_SLT ($04), explicit slot usage, mask also following:
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_CI ($10), internal memory
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_C1 ($01), card 1
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_C2 ($02), card 2
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MC_C3 ($03), card 3
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Allocation variations</i>:
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_EXC ($10), exclusive use of bank
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MM_MUL ($20), use multiple banks
-
-&nbsp;&nbsp;&nbsp;&nbsp; BC = 0, always</pre>
 OUT, if call successful:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0
-&nbsp;&nbsp;&nbsp;&nbsp; IX = memory pool handle</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0<br>&nbsp;&nbsp;&nbsp;&nbsp; IX = memory pool handle</pre>
+
 OUT, if call failed:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1
-&nbsp;&nbsp;&nbsp;&nbsp; A = error code:
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_NA ($06), handle not available
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_ROOM ($07), no room</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1<br>&nbsp;&nbsp;&nbsp;&nbsp; A = error code:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_NA ($06), handle not available<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RC_ROOM ($07), no room</pre>
+
 Registers changed after return:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; A.FBCDEHL/..IY same
-&nbsp;&nbsp;&nbsp;&nbsp; .F......./IX.. different</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; A.FBCDEHL/..IY same<br>&nbsp;&nbsp;&nbsp;&nbsp; .F......./IX.. different</pre>
+
 Notes:
 <blockquote>MM_EXC and MC_CI use the same argument bit. We don't know why,
 but believe its the same function (Internal &amp; Explicit slot usage).
-<p>If only the memory segment mask are specified, it is probably default'ed
+  <p>If only the memory segment mask are specified, it is probably default'ed
 to MM_MUL - for the rest of the arguments, we don't know.
-<p>MM_FIX is probably an internal usage.
-<br>&nbsp;</blockquote>
+  </p>
+  <p>MM_FIX is probably an internal usage.
+  <br>
+&nbsp;</p>
+</blockquote>
+
 Bugs:
-<br>&nbsp;
+<br>
+&nbsp;
 <p>Related calls:
-<blockquote><a href='osbix.htm'>OS_Bix</a>, bind in extended address
-<br><a href='osbox.htm'>OS_Box</a>, restore bindings after <a href='osbix.htm'>OS_Bix</a>
-<br><a href='osfc.htm'>OS_Fc</a>, select fast code (fast bank switching)
-<br><a href='osmal.htm'>OS_Mal</a>, allocate memory
-<br><a href='osmcl.htm'>OS_Mcl</a>, close memory (free memory pool)
-<br><a href='osmfr.htm'>OS_Mfr</a>, free (previously allocated block) memory
-<br><a href='osmgb.htm'>OS_Mgb</a>, get current bank binding in segment
-<br><a href='osmpb.htm'>OS_Mpb</a>, set new bank binding in segment</blockquote>
+</p>
+<blockquote><a href="osbix.htm">OS_Bix</a>, Bind in extended address
+  <br>
+
+  <a href="osbox.htm">OS_Box</a>, restore bindings after <a href="osbix.htm">OS_Bix</a>
+  <br>
+
+  <a href="osfc.htm">OS_Fc</a>, select fast code (fast bank switching)
+  <br>
+
+  <a href="osmal.htm">OS_Mal</a>, allocate memory
+  <br>
+
+  <a href="osmcl.htm">OS_Mcl</a>, close memory (free memory pool)
+  <br>
+
+  <a href="osmfr.htm">OS_Mfr</a>, free (previously allocated block) memory
+  <br>
+
+  <a href="osmgb.htm">OS_Mgb</a>, get current bank binding in segment
+  <br>
+
+  <a href="file:///H:/SVN/documentation/devnotes/osmop.htm"></a><a href="osmpb.htm">OS_Mpb</a>, set new bank binding in segment<br>
+
+  <a href="ozmgb.htm">OZ_Mgb</a>, get current bank binding in segment<br>
+
+  <a href="ozmpb.htm">OZ_Mpb</a>, set new bank binding in segment</blockquote>
+
 
 </body>
 </html>
