@@ -202,7 +202,7 @@ ELSE
                DEFB EasyLinkRamPages                 ; contiguous RAM
                DEFW 0                                ;
                DEFW 0                                ; Unsafe workspace
-               DEFW EazyLinkWorkspace                ; Safe workspace
+               DEFW 0                                ; Safe workspace
                DEFW EasyLink_entry                   ; Entry point of code in seg. 3
                DEFB 0                                ; bank binding to segment 0
                DEFB 0                                ; bank binding to segment 1
