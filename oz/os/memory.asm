@@ -63,7 +63,6 @@ xdef    OSMgb
 xdef    OSMop
 xdef    OSMopMain
 xdef    OSMpb
-xdef    OSNqMemory
 xdef    OSSp_89
 xdef    PageNToPagePtr
 xdef    VerifySlotType
@@ -88,7 +87,6 @@ xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
 
 xref    MemCallAttrVerify                       ; [Kernel1]/memory1.asm
 xref    RAMxDOR                                 ; [Kernel1]/misc1.asm
-
 
 defc    DM_RAM                  =$81
 
@@ -2169,171 +2167,15 @@ defc    DM_RAM                  =$81
         add     hl, bc
         jp      (hl)
 
-
 .ossp89_1
         jp      ossp89_2
 .ossp89_2
         or      a                               ; Fc=0
         ret
 
-; ***************************************************************************************
-; OS_NQ, NQ_Mfs ($8900), NQ_Slt ($8903) & NQ_Mfp ($8906)
 
-.OSNqMemory
-        cp      9                               ; function range test
-        ccf
-        ld      a, RC_Unk
-        ret     c
-        ld      a, c
-        cp      6
-        jr      z, NqMfp
-        cp      3
-        jr      z, NqSlt
-
-;       return amount of free RAM
-;IX->ABC, DE=0
-
-.NqMfs
-        ld      a, HND_MEM
-        call    VerifyHandle
-        ret     c                               ; not memhandle? error
-
-        xor     a
-        ld      hl, (uwFreeRAMPages)
-        ld      (iy+OSFrame_A), h
-        ld      (iy+OSFrame_B), l
-        ld      (iy+OSFrame_C), a
-        ld      d, a
-        ld      e, a
-        jp      PutOSFrame_DE
-
-;       Return slot/bank type
-
-.NqSlt
-        ld      c, d                            ; check if there's RAM in slot D
-        ld      b, 0
-        ld      hl, ubSlotRamSize
-        add     hl, bc
-        ld      a, (hl)
-        or      a
-        jr      z, slt_3                        ; not RAM? test ROM/EPROM
-
-        inc     e
-        dec     e
-        jr      z, slt_1                        ; no bank? return FIX
-
-        dec     a
-        cp      e
-        jr      c, slt_3                        ; bank above RAM part? test ROM/EPROM
-
-        ld      d, BU_FRE|BU_WRK
-        jr      slt_2
-
-.slt_1
-        ld      d, BU_FIX
-
-.slt_2
-        ld      (iy+OSFrame_A), d
-        or      a
-        ret
-
-.slt_3
-        call    VerifySlotType
-        jr      slt_2
-
-
-; ********************************************************************
-; NQ_Mfp ($8906), Get total of free RAM pages in slot A
-;
-; IN:
-;    A = slot number (0 for internal)
-;
-; OUT:
-;    Fc = 0, it is a RAM device
-;         A = total number of banks in Ram Card ($40 for 1MB)
-;         DE = free pages (1 page = 256 bytes)
-;
-;    Fc = 1, it is not a RAM device
-;         A = RC_ONF (Object not found)
-;
-;    Registers changed after return:
-;         ..BC..HL/IXIY same
-;         AF..DE../...  different
-;
-; ---------------------------------------------------------------------------------
-; Original code from RamDevFreeSpace library, designed by Thierry Peycru, Zlab, May 1998
-; Modified for OZ by Gunther Strube, Apr 2007
-; ---------------------------------------------------------------------------------
-.NqMfp
-        ld      a,(iy+OSFrame_A)
-        rrca                                    ; first, get the first device bank
-        rrca
-        and     @11000000
-        jr      nz,not_internal
-        ld      a,$21                           ; header of internal slot is in $21
-.not_internal
-        ld      b,a                             ; first bank of RAM slot
-        ld      hl,$4000                        ; start of bank in hl
-        ld      c,MS_S1                         ; (in segment 1)
-        rst     OZ_MPB
-        push    bc                              ; preserve original bank binding status
-
-        ld      e,(hl)                          ; should be $5A
-        inc     hl
-        ld      d,(hl)                          ; should be $A5
-        inc     hl
-        ex      de,hl
-        ld      bc,$A55A                        ; RAM device header
-        cp      a
-        sbc     hl,bc
-        jr      nz,not_ram_device
-        ex      de,hl
-
-        ld      a,(hl)                          ; number of banks in RAM Card
-        inc     a                               ; even if internal (-1 for the system bank $20)
-        and     @01111110                       ; from 2 (32K) to 64 (1024K)
-        ld      b,a                             ; actual number of banks
-        push    bc                              ; save it for exit
-
-        xor     a
-        inc     h                               ; data start at $0100
-        ld      l,a
-        ld      d,a                             ; free pages in DE
-        ld      e,a
-
-        ld      c,b                             ; parse table of B(anks) * 64 pages
-.device_scan_loop
-        ld      b,64                            ; total of pages in a bank...
-.bank_scan_loop
-        ld      a,(hl)
-        inc     hl
-        or      (hl)                            ; must be 00 if free
-        inc     hl
-        jr      nz,page_used
-        inc     de
-.page_used
-        djnz    bank_scan_loop
-        dec     c
-        jr      nz, device_scan_loop
-
-        pop     af
-        cp      a                               ; signal success (Fc = 0)
-        ld      (iy+OSFrame_A), a               ; return number of banks in RAM Card
-        call    PutOSFrame_DE                   ; return number of free RAM pages in DE
-
-.exit_NqMfp
-        pop     bc                              ; restore original bank binding
-        rst     OZ_MPB
-        ret
-.not_ram_device
-        ld      a,RC_ONF                        ; RAM device not found
-        scf                                     ; signal failure...
-        jr      exit_NqMfp
-
-
-;       ----
-
-;       Verify ROM/EPROMcard
+; ****************************************************************************************************** 
+; Verify ROM/EPROMcard
 ;
 ;IN:    D=slot in low bits
 ;       E=bank to test
@@ -2341,9 +2183,8 @@ defc    DM_RAM                  =$81
 ;
 ; *** IMPORTANT NOTE ***
 ; This call must not use any stack related instruction
-; It is called on boot when there is still no stack set
+; It is also called on boot when there is still no stack set
 ;
-
 .VerifySlotType
         ld      a, d                            ; get last bank in slot
         rrca
@@ -2364,8 +2205,6 @@ defc    DM_RAM                  =$81
         or      a
         sbc     hl, bc
         jr      nz, vst_2                       ; "OZ" not found
-
-
 .vst_1
         ld      hl, ($bffe)                     ; verify read
         sbc     hl, bc
@@ -2382,6 +2221,7 @@ defc    DM_RAM                  =$81
 .vst_2
         ld      d, BU_NOT                       ; nothing inthe bank
         ret
+
 
 .MountAllRAM
         call    MS2BankK1

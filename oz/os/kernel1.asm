@@ -82,7 +82,6 @@ IF COMPILE_BINARY
         xdef    VerifyHandle                    ; [Kernel0]/handle.asm
         xdef    ResetHandles                    ; [Kernel0]/handle.asm
 
-        xdef    OSNqMemory                      ; [Kernel0]/memory.asm
         xdef    OSSp_89                         ; [Kernel0]/memory.asm
         xdef    InitRAM                         ; [Kernel0]/memory.asm
         xdef    MarkSwapRAM                     ; [Kernel0]/memory.asm
@@ -90,7 +89,8 @@ IF COMPILE_BINARY
         xdef    Chk128KB                        ; [Kernel0]/memory.asm
         xdef    Chk128KBslot0                   ; [Kernel0]/memory.asm
         xdef    MountAllRAM                     ; [Kernel0]/memory.asm
-
+        xdef    VerifySlotType                  ; [Kernel0]/memory.asm
+        
         xdef    GetDORType                      ; [Kernel0]/dor.asm
         xdef    DORHandleFreeDirect             ; [Kernel0]/dor.asm
         xdef    DORHandleFree                   ; [Kernel0]/dor.asm

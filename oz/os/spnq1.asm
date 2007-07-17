@@ -39,6 +39,7 @@
         include "memory.def"
         include "interrpt.def"
         include "keyboard.def"
+        include "handle.def"
         include "screen.def"
 
 xdef    OSSpMain
@@ -54,6 +55,7 @@ xref    PokeHLinc                               ; [K0]/misc5.asm
 xref    PutOSFrame_BC                           ; [K0]/misc5.asm
 xref    PutOSFrame_DE                           ; [K0]/misc5.asm
 xref    PutOSFrame_HL                           ; [K0]/misc5.asm
+xref    S2VerifySlotType                        ; [K0]/misc5.asm
 
 xref    FreeMemData                             ; [K0]/filesys3.asm
 xref    InitFsMemHandle                         ; [K0]/filesys3.asm
@@ -66,15 +68,15 @@ xref    ScreenOpen                              ; [K0]/scrdrv4.asm
 xref    GetWindowFrame                          ; [K0]/scrdrv2.asm
 xref    NqRDS                                   ; [K0]/scrdrv2.asm
 xref    NqSp_ret                                ; [K0]/spnq0.asm
-xref    OSNqMemory                              ; [K0]/memory.asm
 xref    OSSp_89                                 ; [K0]/memory.asm
+xref    VerifyHandle                            ; [K0]/handle.asm
 
 xref    ScrD_GetMargins                         ; [K1]/scrdrv1.asm
 xref    GetCrsrYX                               ; [K1]/scrdrv1.asm
 xref    OSNqProcess                             ; [K1]/process1.asm
 
-xref    OSSiSft1                                ;[K1]/ossi1.asm
-xref    OSPrtInit                               ;[K1]/printer.asm
+xref    OSSiSft1                                ; [K1]/ossi1.asm
+xref    OSPrtInit                               ; [K1]/printer.asm
 
 xref    Keymap_UK
 xref    Keymap_FR
@@ -187,8 +189,8 @@ xref    Keymap_FI
         jp      Sp_nop
         jp      Sp_nop
         jp      OSSp_89
-;        jp      OSSp_DC                        ; 3 bytes gained
-;.OSSp_DC
+
+;OSSp_DC
         push    iy
         pop     hl
         OZ      DC_Sp                           ; Handle Director/CLI settings
@@ -343,6 +345,161 @@ xref    Keymap_FI
         ld      c, a
         ld      a, RC_Eof
         ret
+
+
+; ***************************************************************************************
+; OS_NQ, NQ_Mfs ($8900), NQ_Slt ($8903) & NQ_Mfp ($8906)
+
+.OSNqMemory
+        cp      9                               ; function range test
+        ccf
+        ld      a, RC_Unk
+        ret     c
+        ld      a, c
+        cp      6
+        jr      z, NqMfp
+        cp      3
+        jr      z, NqSlt
+
+;       return amount of free RAM
+;IX->ABC, DE=0
+
+.NqMfs
+        ld      a, HND_MEM
+        call    VerifyHandle
+        ret     c                               ; not memhandle? error
+
+        xor     a
+        ld      hl, (uwFreeRAMPages)
+        ld      (iy+OSFrame_A), h
+        ld      (iy+OSFrame_B), l
+        ld      (iy+OSFrame_C), a
+        ld      d, a
+        ld      e, a
+        jp      PutOSFrame_DE
+
+;       Return slot/bank type
+
+.NqSlt
+        ld      c, d                            ; check if there's RAM in slot D
+        ld      b, 0
+        ld      hl, ubSlotRamSize
+        add     hl, bc
+        ld      a, (hl)
+        or      a
+        jr      z, slt_3                        ; not RAM? test ROM/EPROM
+
+        inc     e
+        dec     e
+        jr      z, slt_1                        ; no bank? return FIX
+
+        dec     a
+        cp      e
+        jr      c, slt_3                        ; bank above RAM part? test ROM/EPROM
+
+        ld      d, BU_FRE|BU_WRK
+        jr      slt_2
+
+.slt_1
+        ld      d, BU_FIX
+
+.slt_2
+        ld      (iy+OSFrame_A), d
+        or      a
+        ret
+.slt_3
+        call    S2VerifySlotType
+        jr      slt_2
+
+
+; ********************************************************************
+; NQ_Mfp ($8906), Get total of free RAM pages in slot A
+;
+; IN:
+;    A = slot number (0 for internal)
+;
+; OUT:
+;    Fc = 0, it is a RAM device
+;         A = total number of banks in Ram Card ($40 for 1MB)
+;         DE = free pages (1 page = 256 bytes)
+;
+;    Fc = 1, it is not a RAM device
+;         A = RC_ONF (Object not found)
+;
+;    Registers changed after return:
+;         ..BC..HL/IXIY same
+;         AF..DE../...  different
+;
+; ---------------------------------------------------------------------------------
+; Original code from RamDevFreeSpace library, designed by Thierry Peycru, Zlab, May 1998
+; Modified for OZ by Gunther Strube, Apr 2007
+; ---------------------------------------------------------------------------------
+.NqMfp
+        ld      a,(iy+OSFrame_A)
+        rrca                                    ; first, get the first device bank
+        rrca
+        and     @11000000
+        jr      nz,not_internal
+        ld      a,$21                           ; header of internal slot is in $21
+.not_internal
+        ld      b,a                             ; first bank of RAM slot
+        ld      hl,$4000                        ; start of bank in hl
+        ld      c,MS_S1                         ; (in segment 1)
+        rst     OZ_MPB
+        push    bc                              ; preserve original bank binding status
+
+        ld      e,(hl)                          ; should be $5A
+        inc     hl
+        ld      d,(hl)                          ; should be $A5
+        inc     hl
+        ex      de,hl
+        ld      bc,$A55A                        ; RAM device header
+        cp      a
+        sbc     hl,bc
+        jr      nz,not_ram_device
+        ex      de,hl
+
+        ld      a,(hl)                          ; number of banks in RAM Card
+        inc     a                               ; even if internal (-1 for the system bank $20)
+        and     @01111110                       ; from 2 (32K) to 64 (1024K)
+        ld      b,a                             ; actual number of banks
+        push    bc                              ; save it for exit
+
+        xor     a
+        inc     h                               ; data start at $0100
+        ld      l,a
+        ld      d,a                             ; free pages in DE
+        ld      e,a
+
+        ld      c,b                             ; parse table of B(anks) * 64 pages
+.device_scan_loop
+        ld      b,64                            ; total of pages in a bank...
+.bank_scan_loop
+        ld      a,(hl)
+        inc     hl
+        or      (hl)                            ; must be 00 if free
+        inc     hl
+        jr      nz,page_used
+        inc     de
+.page_used
+        djnz    bank_scan_loop
+        dec     c
+        jr      nz, device_scan_loop
+
+        pop     af
+        cp      a                               ; signal success (Fc = 0)
+        ld      (iy+OSFrame_A), a               ; return number of banks in RAM Card
+        call    PutOSFrame_DE                   ; return number of free RAM pages in DE
+
+.exit_NqMfp
+        pop     bc                              ; restore original bank binding
+        rst     OZ_MPB
+        ret
+.not_ram_device
+        ld      a,RC_ONF                        ; RAM device not found
+        scf                                     ; signal failure...
+        jr      exit_NqMfp
+
 
 ;       ----
 
