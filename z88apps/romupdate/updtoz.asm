@@ -31,12 +31,15 @@
      lib DisableBlinkInt                                ; No interrupts get out of Blink
      lib EnableBlinkInt                                 ; Allow interrupts to get out of Blink again
      lib FlashEprCardErase                              ; erase complete Flash chip to FFs
+     lib FlashEprBlockErase                             ; erase specified block on Flash chip
      lib MemDefBank                                     ; Bind bank, defined in B, into segment C. Return old bank binding in B
+     lib ApplEprType                                    ; poll slot for application card type
 
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
      xref hrdreset_msg, MsgOZUpdated
+     xref SopNln
 
 
 ; *************************************************************************************
@@ -67,8 +70,7 @@
 .upd_slot01
                     call MsgUpdOzRom                    ; "Updating OZ ROM in slot X - please wait..." (flashing)
                     ld   hl, hrdreset_msg               ; "Z88 will automatically hard reset when updating has completed."
-                    oz   GN_Sop
-                    oz   GN_nln
+                    call SopNln
 
 ; ----------------------------------------------------------------------------------------------------------------------
 ; before erasing slot X (wiping out the current OZ ROM code) and programming the bank files to slot X, patch the
@@ -152,10 +154,40 @@
 
 
 ; ----------------------------------------------------------------------------------------------------------------------
-; Erase complete flash card for OZ
+; Erase flash card (or part of card) to prepare for new OZ code.
+;   Complete chip is erased in slot 0 (file area between header and OZ), or any other card in external slot X without OZ ROM
+;   - If an OZ ROM is recognized in external slot X, then only the OZ area (top of card) is erased.
+;     This allows any file area below the OZ ROM area to be preserved during update.
+;
+;   TODO: Move File area downwards if possible, when new OZ binary update is bigger than OZ on card in slot X
+;
 .EraseOzFlashCard
                     ld   a,(oz_slot)
                     ld   c,a
+                    push bc
+                    or   a
+                    jr   z, erase_chip
+                    call ApplEprType
+                    cp   $81
+                    jr   nz,erase_chip                   ; erase complete card for everything except for OZ ROM
+
+                    srl  b
+                    srl  b
+                    ld   d,b                             ; D = number of blocks to erase
+                    srl  c
+                    srl  c
+                    dec  c                               ; converted total size of card to top block number to erase
+                    ld   a,c
+                    pop  bc                              ; erase blocks in slot C
+                    ld   b,a                             ; begin with top block on card
+.erase_ozarea
+                    call FlashEprBlockErase
+                    dec  b                               ; next block number is below the block just erased...
+                    dec  d
+                    jr   nz, erase_ozarea                ; erase top area of card for OZ
+                    ret
+.erase_chip
+                    pop  bc                              ; erase entire card in slot C
                     call FlashEprCardErase
                     ret
 
