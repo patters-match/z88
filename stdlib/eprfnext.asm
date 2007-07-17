@@ -48,30 +48,19 @@
 ;    .FB...HL/.... different
 ;
 ; -----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004
+; Design & programming by Gunther Strube, Dec 1997-Aug 1998, Sep 2004, July 2007
 ; -----------------------------------------------------------------------
 ;
 .FileEprNextFile    PUSH DE
-                    PUSH AF
                     PUSH BC
 
                     CALL FileEprFileEntryInfo
                     JR   C, no_entry              ; No files are present on File Eprom...
 
                     CALL FileEprFileStatus        ; check file status of next file
-                    JR   C, no_entry              ; there was no next file...
-
-                    LD   A,B                      ; returned BHL is next file entry...
-                    POP  BC                       ; original C register restored
-                    LD   B,A
-                    POP  DE
-                    LD   A,D                      ; original A restored...
-                    POP  DE                       ; original DE register restored
-                    RET
 .no_entry
-                    SCF
-                    LD   A, RC_Onf
-                    POP  BC
-                    POP  DE                       ; ignore old AF
+                    LD   D,B                      ; returned BHL is next file entry...
+                    POP  BC                       ; original C register restored
+                    LD   B,D
                     POP  DE                       ; original DE register restored
                     RET
