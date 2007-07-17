@@ -71,7 +71,7 @@
 .no_entry
                     SCF
                     LD   A, RC_Onf
-                    POP  DE
+                    POP  BC
                     POP  DE                       ; ignore old AF
                     POP  DE                       ; original DE register restored
                     RET
