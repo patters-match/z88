@@ -223,10 +223,13 @@
                LD   A,SC_ACK                      ; acknowledge ESC detection
                CALL_OZ(OS_Esc)
 .Kill
+
                CALL Close_serialport              ; close streams to serial port...
                CALL Close_file                    ; close any opened/created file
                CALL Restore_PanelSettings         ; restore original Panel Settings
                CALL_OZ(OS_pur)                    ; purge keyboard buffer
+               LD   A,SC_SET                      ; ESC pressed.
+               CALL_OZ(OS_Esc)
                XOR  A                             ; no error messages on quit
                CALL_OZ(OS_Bye)                    ; perform suicide, focus to Index...
 

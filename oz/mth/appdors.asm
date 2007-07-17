@@ -772,7 +772,7 @@ xdef    PanelDOR
         defb    EasyLinkRamPages                ; contiguous RAM for EazyLink
         defw    0                               ;
         defw    0                               ; Unsafe workspace
-        defw    EazyLinkWorkspace               ; Safe workspace
+        defw    0                               ; Safe workspace
         defw    ORG_EAZYLINK                    ; Entry point of code in start of segment 2
         defb    0                               ; no bank binding to segment 0
         defb    0                               ; no bank binding to segment 1
