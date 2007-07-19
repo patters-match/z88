@@ -328,7 +328,11 @@
         ld      c,3                             ; EP_LOAD always in slot 3
         call    FileEprFindFile
         jr      c, ld_4                         ; no file area? exit
-        jr      nz, ld_4                        ; file not found...
+        jr      z, ld_5
+        ld      a,RC_Onf                        ; "file not found"
+        scf
+        jr      ld_4
+.ld_5
         call    FileEprFetchFile
 .ld_4
         pop     de                              ; restore S1/S2
