@@ -2450,32 +2450,31 @@ enddef
 ;----
 .Save
         call    CloseSource
-        jr      c, save_x
+        ret     c
         ld      b, 0
         ld      hl, f_SourceName
         ld      de, 3
         ld      a, OP_DOR
         OZ      GN_Opf                          ; get DOR information
-        jr      c, save_x
+        ret     c
         push    af
         call    FreeDOR
         pop     af
         cp      $11
         scf
         ld      a, RC_Ftm                       ; File Type Mismatch
-        jr      nz, save_x
+        ret     nz
         ld      b, 0
         ld      hl, f_SourceName
-        ld      a, 0
+        ld      a, EP_Save
         OZ      OS_Epr                          ; blow RAM file to Eprom
-.save_x
         ret
 ; End of function Save
 ;----
 .Fetch
         call    PrntSrcDest
         call    InputSrcName
-        jr      c, fetch_x
+        ret     c
         ld      hl, f_SourceName                ; copy src to dest
         ld      de, f_DestName
         push    de
@@ -2483,20 +2482,19 @@ enddef
         pop     de
         ld      bc, $1503
         call    InputLine
-        jr      c, fetch_x
+        ret     c
         ld      de, f_SourceName
         call    ExpandFname
-        jr      c, fetch_x
+        ret     c
         ld      a, OP_OUT
         ld      hl, f_DestName
         call    OpenFile                        ; write
         ld      (f_DestHandle), ix
-        jr      c, fetch_x
+        ret     c
         ld      b, 0
         ld      hl, f_SourceName
-        ld      a, 3
+        ld      a, EP_Load
         OZ      OS_Epr                          ; read file from Eprom into RAM file
-.fetch_x
         ret
 ; End of function Fetch
 ;----
