@@ -41,6 +41,7 @@
         include "time.def"
         include "sysvar.def"
         include "interrpt.def"
+        include "card.def"
 
         xref PutOSFrame_BHL                     ; misc5.asm
         xref PutOSFrame_CDE                     ; misc5.asm
