@@ -79,14 +79,22 @@ lstoff
      DEFC PA_Snd   = $8004    ; Sound 'Y' or 'N'
      DEFC PA_Bad   = $8005    ; Default bad process size in K
      DEFC PA_Loc   = $8006    ; Country keyboard letter
-                              ; 'U' UK/US
-                              ; 'F' FR
-                              ; 'D' DK/NO
-                              ; 'G' DE
-                              ; 'S' SE/FI
-                              ; 'E' SP
-                              ; 'I' IT
-                              ; 'C' CH
+
+		DEFC CL_US = 'A'	  ; United states
+		DEFC CL_FR = 'F'	  ; France
+		DEFC CL_DE = 'G'	  ; Germany
+		DEFC CL_UK = 'U'	  ; England
+		DEFC CL_DK = 'D'	  ; Denmark
+		DEFC CL_SE = 'S'	  ; Sweden
+		DEFC CL_IT = 'I'	  ; Italy
+		DEFC CL_SP = 'P'	  ; Spain
+		DEFC CL_JP = 'J'	  ; Japan
+		DEFC CL_IS = 'C'	  ; Iceland
+		DEFC CL_NO = 'N'	  ; Norway
+		DEFC CL_CH = 'W'	  ; Chweiss
+		DEFC CL_TR = 'T'	  ; Turkey
+		DEFC CL_FI = 'L'	  ; Finland
+                              
      DEFC PA_Iov   = $8010    ; Insert/Overtype 'I' or 'O'
      DEFC PA_Dat   = $8011    ; Date format 'E' or 'A'
      DEFC PA_Map   = $8012    ; PipeDream map 'Y' or 'N'
