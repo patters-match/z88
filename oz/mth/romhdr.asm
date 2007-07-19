@@ -27,6 +27,7 @@
 
         org $3FC0
 
+        include "card.def"
         include "mth.def"
         include "sysvar.def"
 
@@ -47,16 +48,16 @@ IF !OZ_SLOT1
         defs    25                              ; blanks to fill-out space.
 
         defb    FILEAREASIZE, $00               ; $3FEC, file area size in 16K banks, reclaim sector (0=not used)
-        defm    "oz"                            ; $3FEE, 'oz' file area watermark.
+        defw    CT_EPR                          ; $3FEE, 'oz' file area watermark.
 
         defs    8                               ; blanks to fill-out space.
 .eprom_header
         defb    $54,$43,$4C                     ; $3FF8, card ID "TCL"
-        defb    $81                             ; $3FFB, external app would be $80
+        defb    CX_OS                           ; $3FFB, this is an operating system card, otherwise CX_APL for external application card
         defb    ROMSIZE                         ; $3FFC, size of ROM in banks
-        defb    0                               ; $3FFD, subtype
+        defb    CB_APL                          ; $3FFD, subtype
 .oz_watermark
-        defm    "OZ"                            ; $3FFE card is an application EPROM
+        defw    CT_ROM                          ; $3FFE card contains an "OZ" operating system
 
 ELSE
 ; ---------------------------------------------------------------------------------------------------
@@ -86,11 +87,11 @@ ELSE
         jr      boot_slot1_kernel               ; $3FF8, Hook jump address from bank 0 OZ ROM (this gets executed in segment 2 at $BFF8)
 
         defb    0
-        defb    $81                             ; $3FFB, external app would be $80
+        defb    CX_OS                           ; $3FFB, this is an operating system card, otherwise CX_APL for external application card
         defb    ROMSIZE                         ; $3FFC, size of ROM in banks
-        defb    'Z'                             ; $3FFD, indicate external OZ in slot 1
+        defb    CB_OS1                          ; $3FFD, indicate external OZ in slot 1
 .oz_watermark
-        defm    "OZ"                            ; $3FFE card contains OZ with applications
+        defw    CT_ROM                          ; $3FFE card contains OZ with applications
 ENDIF
 
 .RomTop
