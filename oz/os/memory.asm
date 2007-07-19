@@ -41,6 +41,7 @@
         include "stdio.def"
         include "handle.def"
         include "sysvar.def"
+        include "card.def"
 
         include "lowram.def"
 
@@ -2174,7 +2175,7 @@ defc    DM_RAM                  =$81
         ret
 
 
-; ****************************************************************************************************** 
+; ******************************************************************************************************
 ; Verify ROM/EPROMcard
 ;
 ;IN:    D=slot in low bits
@@ -2195,13 +2196,13 @@ defc    DM_RAM                  =$81
         ld      hl, ($bffe)                     ; last word
 
         ld      d, BU_EPR                       ;
-        ld      bc, 'z'<<8|'o'
+        ld      bc, CT_EPR
         sbc     hl, bc
         add     hl, bc
         jr      z, vst_1                        ; "oz" found
 
         inc     d                               ; BU_ROM
-        ld      bc, 'Z' << 8 | 'O'
+        ld      bc, CT_ROM
         or      a
         sbc     hl, bc
         jr      nz, vst_2                       ; "OZ" not found
@@ -2264,7 +2265,7 @@ defc    DM_RAM                  =$81
         ldir
         cp      '-'                             ; tag RAM if not RAM.-
         jr      z, maram_4
-        ld      bc, $a55a
+        ld      bc, CT_RAM
         ld      ($4000), bc
 .maram_4
         pop     hl

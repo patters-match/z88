@@ -24,34 +24,34 @@ lstoff
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
 ; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
 ;
-; $Id: card.def pek $
+; $Id$
 ; ***************************************************************************************************
 
 ; Card header
 
-	CH_TAG		=	$3FFE						; card header tag
-		CT_ROM	=	"OZ"						; application ROM
-		CT_EPR	=	"oz"						; storage EPROM
-		CT_RAM	=	$A55A						; RAM memory card (at $0000)
-	
-	CH_SUB		=	$3FFD						; card subtype
-		CB_APL	=	0							; application card subtype
-		CB_OS1	=	'Z'							; operating system in slot 1 subtype
-		CB_EP1	=	$7E							; UVEPROM subtype 1 (32K)
-		CB_EP2	=	$7C							; UVEPROM subtype 2 (128K or more)
-				
-	CH_SIZ		=	$3FFC						; size of card in 16K banks
-		CZ_32	=	2							; 32K
-		CZ_128	=	8							; 128K
-		CZ_256	=	16							; 256K
-		CZ_512	=	32							; 512K
-		CZ_1M	=	64							; 1024K
-		
-	CH_ID		=	$3FF8						; 24 bits unique ID for application card
-												; 32 bits random ID for storage card
+        DEFC CH_TAG          =  $3FFE           ; card header tag
+                DEFC CT_ROM  =  'Z'<<8 | 'O'    ; "OZ" application ROM watermark
+                DEFC CT_EPR  =  'z'<<8 | 'o'    ; "oz" storage EPROM watermark
+                DEFC CT_RAM  =  $A55A           ; RAM memory card (at $0000)
 
-	CH_EXT		=	$3FFB						; external ID for application card
-		CX_APL	=	$80							; external application ID
-		CX_OS	=	$81							; operating system
-		
+        DEFC CH_SUB          =  $3FFD           ; card subtype
+                DEFC CB_APL  =  0                       ; application card subtype
+                DEFC CB_OS1  =  'Z'                     ; operating system in slot 1 subtype
+                DEFC CB_EP1  =  $7E                     ; UVEPROM subtype 1 (32K)
+                DEFC CB_EP2  =  $7C                     ; UVEPROM subtype 2 (128K or more)
+
+        DEFC CH_SIZ          =  $3FFC           ; size of card in 16K banks
+                DEFC CZ_32   =  2                       ; 32K
+                DEFC CZ_128  =  8                       ; 128K
+                DEFC CZ_256  =  16                      ; 256K
+                DEFC CZ_512  =  32                      ; 512K
+                DEFC CZ_1M   =  64                      ; 1024K
+
+        DEFC CH_ID           =  $3FF8           ; 24 bits unique ID for application card
+                                                           ; 32 bits random ID for storage card
+
+        DEFC CH_EXT          =  $3FFB           ; external ID for application card
+                DEFC CX_APL  =  $80                     ; external application ID
+                DEFC CX_OS   =  $81                     ; operating system
+
 lston

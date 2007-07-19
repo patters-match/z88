@@ -643,7 +643,7 @@ defc    IObuffer = 256
         call    BlowByte
         jr      c, fmt_7                        ; error? exit
 
-        ld      hl, $3FFE                       ; "oz" identifier
+        ld      hl, CH_TAG                      ; "oz" identifier
         ld      a, 'o'
         call    BlowByte
         jr      c, fmt_7
