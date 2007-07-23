@@ -31,11 +31,11 @@
     XDEF serial_port, ramdev_wildcard
     XDEF pclink_synch, extended_synch
     XDEF menu_banner
-    XDEF Message1, Message2, Message3, Message4, Message5, Message6, Message7, Message8
+    XDEF Message1, Message2, Message3, Message8
     XDEF Message9, Message10, Message11, Message12, Message13, Message14, Message15
-    XDEF Message16, Message17, Message18, Message19, Message20, Message21, Message22
-    XDEF Message23, Message24, Message25, Message26, Message27, Message28
-    XDEF Message29, Message30, Message31, Message32, Message33, Message34
+    XDEF Message16, Message17, Message18, Message19, Message20
+    XDEF Message26, Message27, Message28
+    XDEF Message29, Message32
     XDEF Message35, Message36
     XDEF Error_Message0, Error_Message1, Error_Message2, Error_Message3
     XDEF Error_Message4, Error_Message5
@@ -63,40 +63,27 @@
 
 .menu_banner        DEFM "EazyLink", 0
 .command_banner     DEFM "Commands", 0
-.message1           DEFM "Running",    0
+.message1           DEFM "Running", 0
 .message2           DEFM "Waiting...", 0
 .message3           DEFM "Hello", 0
-.message4           DEFM "Quit...",    0
-.message5           DEFM "Devices",    0
-.message6           DEFM "Directories", 0
-.message7           DEFM "Files", 0
 .message8           DEFM "Receive files", 0
-.message9           DEFM "Send file"   , 0
-.message10          DEFM "Auto Translation ON"   , 0
+.message9           DEFM "Send file", 0
+.message10          DEFM "Auto Translation ON", 0
 .message11          DEFM "Auto Translation OFF", 0
 .message12          DEFM "Auto CRLF Conversion ON", 0
-.message13          DEFM "Auto CRLF Conversion OFF"   , 0
+.message13          DEFM "Auto CRLF Conversion OFF", 0
 .message14          DEFM "ImpExp Receive Files", 0
-.message15          DEFM "ImpExp Send Files",    0
-.message16          DEFM "ImpExp Backup Files"   , 0
+.message15          DEFM "ImpExp Send Files", 0
+.message16          DEFM "ImpExp Backup Files", 0
 .message17          DEFM "Sending ", 0
 .message18          DEFM "Searching for directories...", 0
-.Message19          DEFM "Using translations from file"   , 0
-.message20          DEFM "Using ISO translations",    0
-.message21          DEFM "EazyLink Release, Protocol Version", 0
-.message22          DEFM "File Size", 0
-.message23          DEFM "File Date Stamp", 0
-.message24          DEFM "File exist?", 0
-.message25          DEFM "Set File Date Stamp", 0
+.Message19          DEFM "Using translations from file", 0
+.message20          DEFM "Using ISO translations", 0
 .message26          DEFM "Update Translation Table", 0
 .message27          DEFM "Delete file/dir ", 0
 .message28          DEFM "Create dir ", 0
 .message29          DEFM "Rename file ", 0
-.message30          DEFM "Get default device/dir", 0
-.message31          DEFM "Get Estimated Free Memory", 0
 .message32          DEFM "Set System Clock", 0
-.message33          DEFM "Get System Clock", 0
-.message34          DEFM "Get Explicit Free Memory", 0
 .message35          DEFM "Switching to Xon/Xoff serial port handshake", 0
 .message36          DEFM "Switching to Hardware serial port handshake", 0
 

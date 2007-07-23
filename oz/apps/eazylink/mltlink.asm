@@ -29,7 +29,7 @@
     XREF Write_buffer, Load_Buffer
     XREF Write_Message, Msg_Command_aborted, Msg_Protocol_error, Msg_File_aborted
     XREF Msg_No_Room, Msg_file_open_error, System_Error
-    XREF Message3, Message4, Message5, Message6, Message7, Message14, Message15, Message16
+    XREF Message3, Message7, Message14, Message15, Message16
     XREF Message17, Message18
     XREF Set_Traflag, Restore_Traflag, Def_RamDev_wildc, SearchFileSystem, Get_directories
     XREF Open_Serialport, Calc_hexnibble
@@ -67,8 +67,7 @@
 ; ***********************************************************************
 ; Send Z88 Devices, extended protocol
 ;
-.ESC_H_cmd2       LD   HL,message5                   ; 'Devices'
-                  CALL Write_message
+.ESC_H_cmd2       
                   LD   A, Dm_Dev
                   LD   (file_type),A
                   LD   A, 0                          ; wildcard search specifier...
@@ -91,17 +90,14 @@
 
 
 ; ***********************************************************************
-; send directory names, extended protocol
+; Send directory names, extended protocol
 ;
-.ESC_D_cmd2       LD   HL,message6
-                  CALL Write_message                 ; 'Directories'
+.ESC_D_cmd2       
                   CALL Set_Traflag                   ; translation ON temporarily
                   CALL Fetch_pathname
                   JR   C, esc_d2_aborted
                   JR   Z, esc_d2_aborted
 
-                  LD   HL,filename_buffer            ; display pathname
-                  CALL Write_message
                   PUSH HL
                   LD   HL, Current_dir               ; Send "."
                   CALL SendString
@@ -141,13 +137,9 @@
 ; ***********************************************************************
 .ESC_N_cmd2                                          ; send file names
                   CALL Set_Traflag
-                  LD   HL,message7
-                  CALL Write_message                  ; 'File names'
                   CALL Fetch_pathname                ; load pathname into filename_buffer
                   JR   C, esc_n2_aborted
                   JR   Z, esc_n2_aborted             ; timeout - communication stopped
-                  LD   HL,filename_buffer
-                  CALL Write_message
 
                   LD   A,dn_fil
                   LD   (file_type),A                 ; signal filenames to be found
@@ -193,8 +185,6 @@
                   CALL SendString                    ; return Yes...
                   JR   C, esc_q2_aborted
                   JR   Z, esc_q2_aborted
-                  LD   HL,message4                   ; 'Quit...'
-                  CALL Write_message
                   SET  0,A                           ; Zero = 0, signal 'Quit'...
                   OR   A
                   RET

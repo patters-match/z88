@@ -143,9 +143,9 @@
      XREF menu_banner, Command_banner
      XREF extended_synch, pclink_Synch, EscCommands, Subroutines
      XREF msg_serdmpfile_enable, msg_serdmpfile_disable
-     XREF Message1, Message2, Message10, Message11, Message12, Message13, Message21, Message22
-     XREF Message23, Message24, Message25, Message26, Message27, Message28
-     XREF Message29, Message30, Message31, Message32, Message33, Message34, Message35, Message36
+     XREF Message1, Message2, Message10, Message11, Message12, Message13
+     XREF Message26, Message27, Message28
+     XREF Message29, Message32, Message35, Message36
      XREF Error_Message0, Error_Message1, Error_Message2, Error_Message3
      XREF Error_Message4, Error_Message5, Error_Message6
      XREF Serial_port, BaudRate, No_parameter, Yes_Parameter, EasyLinkVersion
@@ -774,9 +774,7 @@
 ;
 ; Server:      ESC "N" <Version> ESC "Z"
 ;
-.ESC_V_cmd     LD   HL,message21
-               CALL Write_message
-
+.ESC_V_cmd     
                LD   HL,ESC_N
                CALL SendString
                JR   C, esc_v_aborted
@@ -810,10 +808,6 @@
                CALL Restore_TraFlag
                JR   C,esc_x_aborted
                JR   Z,esc_x_aborted               ; timeout - communication stopped
-               LD   HL, Message22
-               CALL Write_message                 ; "Get size of file."
-               LD   HL,filename_buffer
-               CALL Write_message                 ; write filename to screen
 
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
@@ -874,10 +868,6 @@
                CALL Restore_TraFlag
                JP   C,esc_u_aborted
                JP   Z,esc_u_aborted               ; timeout - communication stopped
-               LD   HL, Message23
-               CALL Write_message                  ; "Get date stamps"
-               LD   HL,filename_buffer
-               CALL Write_message                  ; write filename to screen
 
                LD   DE,creation_date
                LD   H,dr_rd
@@ -965,8 +955,6 @@
                CALL Restore_TraFlag
                JR   C,esc_u_aborted
                JR   Z,esc_u_aborted               ; timeout - communication stopped
-               LD   HL, Message25
-               CALL Write_message                 ; "Set Date Stamp."
 
                LD   HL,file_buffer                ; get create date stamp
 .date1_loop    CALL Getbyte
@@ -997,19 +985,6 @@
                JR   C,esc_u_aborted
                JR   Z,esc_u_aborted               ; timeout - communication stopped
                LD   (HL), 0                       ; Null-terminate received date stamp.
-
-               LD   HL,filename_buffer
-               CALL_OZ(Gn_Sop)                    ; Filename...
-               LD   HL, comma
-               CALL_OZ(Gn_Sop)
-               CALL_OZ(Gn_Nln)
-               LD   HL, file_buffer
-               CALL_OZ(Gn_sop)                    ; Create date stamp
-               LD   HL, comma
-               CALL_OZ(Gn_Sop)
-               LD   HL, DirName_stack
-               CALL_OZ(Gn_sop)                    ; Update Date Stamp
-               CALL Write_Message
 
                ld   hl, file_buffer               ; convert ASCII date Stamp to internal format
                ld   de, Creation_date+3           ; result at (de)
@@ -1141,9 +1116,7 @@
 ;              ESC "N" <System Clock Time>
 ;              ESC "Z"
 ;
-.ESC_E_cmd     LD   HL, Message33
-               CALL Write_message                 ; "Get System Clock"
-
+.ESC_E_cmd     
                LD   DE, creation_date
                CALL_OZ(Gn_Gmd)                    ; store machine date at (DE)
 
@@ -1207,16 +1180,12 @@
 ; Server:      ESC "Y"                  (File found)
 ;              ESC "Z"                  (File not found)
 ;
-.ESC_F_cmd     LD   HL, Message24
-               CALL Write_message                 ; "File exist?"
+.ESC_F_cmd     
                CALL Set_TraFlag
                CALL Fetch_pathname                ; load filename into filename_buffer
                CALL Restore_TraFlag
                JR   C,esc_f_aborted
                JR   Z,esc_f_aborted               ; timeout - communication stopped
-
-               LD   HL,filename_buffer
-               CALL Write_message                 ; write filename to screen
 
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
@@ -1408,9 +1377,7 @@
 ;              ESC "N" <Default Directory>   (Panel Default Directory)
 ;              ESC "Z"
 ;
-.ESC_G_cmd2    LD   HL, Message30
-               Call Write_message                 ; "Get Default Dev/Dir"
-
+.ESC_G_cmd2    
                LD    A, 255
                LD   BC, PA_Dev                    ; Read default device
                LD   DE, file_buffer               ; buffer for device name
@@ -1471,8 +1438,7 @@
 ; Server:      ESC "N" <FreeMemory>          (Estimated free memory in bytes)
 ;              ESC "Z"
 ;
-.ESC_M_cmd     LD   HL, Message31
-               Call Write_message                 ; "Get Estimated Free RAM"
+.ESC_M_cmd     
 .global_free_space
                CALL TotalFreeSpace                ; return DE = free pages in system
 .send_free_bytes
@@ -1524,9 +1490,7 @@
 ;                                  or
 ;              ESC "Z"                       (RAM device not found)
 ;
-.ESC_M_cmd2    LD   HL, Message34
-               Call Write_message            ; "Get Explicit Free RAM"
-
+.ESC_M_cmd2    
                CALL Fetch_pathname           ; fetch RAM device number
                JR   C,esc_m_aborted
                JR   Z,esc_m_aborted          ; timeout - communication stopped
