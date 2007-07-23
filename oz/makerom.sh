@@ -34,6 +34,12 @@ else
   ozslot=$1
 fi
 
+if (test $ozslot == "0"); then
+  os_bin="oz.bin"
+else
+  os_bin="oz.epr"
+fi
+
 echo compiling OZ ROM for slot $ozslot
 
 # delete previous compiled files (incl. error and warning files)...
@@ -215,5 +221,5 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 # ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
-echo Compiled Z88 ROM, now being combined into "oz.bin" file.
+echo Compiled Z88 ROM, now being combined into $os_bin file.
 ../tools/makeapp/makeapp.sh -f rom.slot$ozslot.loadmap

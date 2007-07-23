@@ -27,11 +27,17 @@
 :: OZ ROM slot directive (first command line argument)
 set ozslot=%1
 
-if "%ozslot%"=="0" goto COMPILE_OZ
-if "%ozslot%"=="1" goto COMPILE_OZ
+if "%ozslot%"=="0" goto COMPILE_OZ_SLOT0
+if "%ozslot%"=="1" goto COMPILE_OZ_SLOT1
 
 :: if no (or unknown) slot directive is specified, compile ROM for slot 1
+:COMPILE_OZ_SLOT1
 set ozslot=1
+set oz_bin="oz.epr"
+goto COMPILE_OZ
+
+:COMPILE_OZ_SLOT0
+set oz_bin="oz.bin"
 
 :COMPILE_OZ
 ECHO Compiling OZ ROM for slot %ozslot%
@@ -204,7 +210,7 @@ goto COMPILE_ERROR
 :: -------------------------------------------------------------------------------------------------
 :: ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 :COMBINE_BANKS
-echo Compiled Z88 ROM, and combined into "oz.bin" file.
+echo Compiled Z88 ROM, and combined into %oz_bin% file.
 ..\tools\makeapp\makeapp.bat -f rom.slot%ozslot%.loadmap
 goto END
 
