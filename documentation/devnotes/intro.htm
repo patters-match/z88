@@ -4,21 +4,27 @@
 
 
 
+
    
+  
   
   
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
 
 
+
    
+  
   
   
   <meta name="GENERATOR" content="Mozilla/4.06 [fr] (Win95; I) [Netscape]">
 
 
 
+
    
+  
   
   
   <title>Introduction</title>
@@ -29,18 +35,23 @@
 
 
 
+
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
+
 
 
 
   <tbody>
 
 
+
     <tr>
 
 
 
+
       <th colspan="3" align="center">Z88 Developers' Notes</th>
+
 
 
 
@@ -49,11 +60,14 @@
 
 
 
+
     <tr>
 
 
 
+
       <td align="left" valign="bottom" width="10%"><a href="index.htm">Previous</a></td>
+
 
 
 
@@ -63,7 +77,9 @@
 
 
 
+
       <td align="right" valign="bottom" width="10%"><a href="overview.htm">Next</a></td>
+
 
 
 
@@ -71,6 +87,8 @@
 
 
 
+
+  
   
   
   </tbody>
@@ -79,17 +97,21 @@
 
 
 
+
 <hr width="100%">
 <br>
+
 
 
 <b><font size="+1">Introduction</font></b>
 <br>
 
 
+
 &nbsp;
 <p><b>Preamble</b>
 </p>
+
 
 
 <p>The aim of these notes is to provide a comprehensive description of
@@ -104,12 +126,15 @@ filing system, printer driver, etc.
 <br>
 
 
+
 &nbsp;
 </p>
 
 
+
 <p><b>Who these notes are for</b>
 </p>
+
 
 
 <p>These notes are primarily targeted at the software author interested
@@ -119,6 +144,7 @@ are destined for application cards, but a programmer using BASIC and needing
 to exploit the facilities of the operating system will find what he or
 she needs here.
 </p>
+
 
 
 <p>The notes assumes the reader is reasonably familiar with the Z88, and
@@ -132,6 +158,7 @@ information for customising a compiler if this is the preferred route.
 </p>
 
 
+
 <p>We would anticipate that most developers would use a Z80 assembler running
 on a different machine, and would blow EPROM's from that machine to test
 in the Z88. Alternatively EPROM's can be blown from the Z88 itself. There
@@ -142,11 +169,11 @@ Assembler" section of these notes.
 </p>
 
 
-<p>The open source software package, Z88 Assembler Workbench,
-which can be downloaded from the "Z88 Forever" Web Homepage,&nbsp;
-<a href="http://www.zxplus3e.plus.com/z88forever/">http://www.zxplus3e.plus.com/z88forever/</a> (site is maintained by Garry Lancaster). Here you can find everything about the
+
+<p>Apart from development software you can download lots of nice applications from the "Z88 Forever" Web Homepage,&nbsp;&nbsp;<a href="http://www.worldofspectrum.org/z88forever/">http://www.worldofspectrum.org/z88forever/</a> (site is maintained by Garry Lancaster). Here you can find everything about the
 Z88 portable computer that is worth knowing.
 </p>
+
 
 
 <p>The Z88 Assembler Workbench is a complete developers package that has
@@ -158,17 +185,20 @@ compile Z80 Assembler source files on ordinary workstation computers.
 </p>
 
 
+
 <p>All the assembler examples in these notes have been written in the format
 used by the Z80 Cross Assembler <span style="font-weight: bold;">Mpm</span>, which is used as the standard tool for OZ development.
 </p>
+
 
 
 <p>The latest addition to Z88 software development is new new project at SourceForge,
 <a href="http://z88.sf.net">http://z88.sf.net</a>, which takes the Z88 to another level;
 the development team are developing new tools (cross assembler &amp; Z88 emulator / debugger),
 better system documentation and are working on a new, much improved OZ operating system.
-The good part is that all source code is publicly available in <a href="https://sourceforge.net/svn/?group_id=69038">Sourceforge's Subversion repository</a> (including OZ ROM), and under GPL license. You can browse the repository online clicking on <a href="http://svn.sourceforge.net/viewcvs.cgi/z88/">this link</a> (using ViewCV).
+The good part is that all source code is publicly available in <a href="https://sourceforge.net/svn/?group_id=69038">Sourceforge's Subversion repository</a> (including OZ ROM), and under GPL license. You can browse the repository online clicking on <a href="http://z88.svn.sourceforge.net/viewcvs.cgi/z88/">this link</a> (using ViewCV).
 </p>
+
 
 
 <p>Dominic Morris has over the years worked on a Z88 Development Kit which consists
@@ -179,23 +209,28 @@ several Z80 based systems, including Sinclair Spectrum clones.
 </p>
 
 
+
 <p>For the latest release, point your browser to <a href="http://www.z88dk.org/">http://www.z88dk.org/</a>
 </p>
 
 
+
 <p>An alternative high-level development environment is Z88 CamelForth
 by Garry Lancaster. This also allows
-for full application development. You can find the latest version at&nbsp; <a href="http://www.zxplus3e.plus.com/z88forever/camelforth/rom-camel.html">http://www.zxplus3e.plus.com/z88forever/camelforth/rom-camel.html</a>
+for full application development. You can find the latest version at&nbsp;&nbsp;<a href="http://www.worldofspectrum.org/z88forever/camelforth/rom-camel.html">http://www.worldofspectrum.org/z88forever/camelforth/rom-camel.html</a>
 .
 <br>
+
 
 
 &nbsp;
 </p>
 
 
+
 <p><b>Structure of these notes</b>
 </p>
+
 
 
 <p>The notes begins with a general overview of the Z88. It is important
@@ -217,9 +252,11 @@ management routines are explained.
 </p>
 
 
+
 <p>Understanding the memory organisation is the key to successful application
 writing, so this section needs to be studied with care.
 </p>
+
 
 
 <p>Following from this material individual calls can be discussed in some
@@ -231,12 +268,15 @@ and other general information. A glossary and index is provided.
 <br>
 
 
+
 &nbsp;
 </p>
 
 
+
 <p><b>Important notice</b>
 </p>
+
 
 
 <p>lf you write an application which contains bugs or tries to circumnavigate
@@ -250,12 +290,15 @@ all the rules and use no 'back door' techniques.
 <br>
 
 
+
 &nbsp;
 </p>
 
 
+
 <p><b>Disclaimer</b>
 </p>
+
 
 
 <p>The authors will not in any event be liable for any loss, including
@@ -264,27 +307,32 @@ including but not limited to loss of profit or loss of contracts.
 <br>
 
 
+
 &nbsp;
 </p>
 
 
-<p><b>Release information, March 2004</b>
+
+<p><b>Release information, September 2007</b>
 </p>
 
 
-<p>These pages are gradually being improved into and would best be identified as V3.3.
-Many small improvements have been made over the years since V3.2.
+
+<p>This is the third major release of these notes and follow the latest OZ V4.2 release, identified with the same release number.
 </p>
+
 
 
 <p><b>Release information, October 1999</b>
 </p>
 
 
+
 <p>This is the second edition of the third release of the Developers Notes,
 identified as V3.2 . Many things have been changed and added since version
 2, especially the conversion from PipeDream format to HTML.
 </p>
+
 
 
 <p>The new V4 of the operating system was released long after the V2 notes.
@@ -296,22 +344,27 @@ system.
 </p>
 
 
+
 <p>If you find any inaccuracies or inconsistencies, or if you have any
 comments on the style and presentation of these documents, then please
 pass these on in writing to:
 </p>
 
 
+
 <p><i>Gunther Strube, Denmark, email <a href="mailto:gbs@users.sf.net">gbs@users.sf.net</a></i>
 <br>
+
 
 
 <i>Thierry Peycru, France, email <a href="mailto:pek@users.sf.net">pek@users.sf.net</a></i>
 <br>
 
 
+
 <i>Dennis Gr&ouml;ning, Sweden, homepage <a href="http://www.algonet.se/%7Edennisgr/z88.htm">www.algonet.se/~dennisgr/z88.htm</a></i>
 </p>
+
 
 
 <p>Finally, many thanks to Vic Gerhardi, <a href="http://www.rakewell.com/">Rakewell
@@ -321,20 +374,25 @@ birth of the OZ operating system in the early days.
 </p>
 
 
+
 <p>Z88 forever!
 </p>
+
 
 
 <p>The Authors..
 <br>
 
 
+
 &nbsp;
 </p>
 
 
+
 <p>
 </p>
+
 
 
 <hr width="100%">
@@ -342,14 +400,18 @@ birth of the OZ operating system in the early days.
 
 
 
+
   <tbody>
+
 
 
     <tr>
 
 
 
+
       <td align="left" valign="top" width="33%"><a href="index.htm">Previous</a></td>
+
 
 
 
@@ -359,7 +421,9 @@ birth of the OZ operating system in the early days.
 
 
 
+
       <td align="right" valign="top" width="33%"><a href="overview.htm">Next</a></td>
+
 
 
 
@@ -368,11 +432,14 @@ birth of the OZ operating system in the early days.
 
 
 
+
     <tr>
 
 
 
+
       <td align="left" valign="top" width="33%">Contents</td>
+
 
 
 
@@ -382,7 +449,9 @@ birth of the OZ operating system in the early days.
 
 
 
+
       <td align="right" valign="top" width="33%">Z88 Overview</td>
+
 
 
 
@@ -390,10 +459,13 @@ birth of the OZ operating system in the early days.
 
 
 
+
+  
   
   
   </tbody>
 </table>
+
 
 
 
