@@ -3,7 +3,7 @@
 <head>
 
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>System Calls Reference</title>
+  <title>OS_Epr, File Eprom Interface</title>
 
 
 </head>
@@ -49,79 +49,102 @@ Interface</font></b>
 = reason code:<br>
 
 <br>
+
 <a href="#EP_SAVE">
 EP_Save = $00</a> &nbsp; Blow RAM file to UV Eprom <br>
 
-<a href="#EP_LOAD">EP_Load = $03</a> &nbsp; Copy file from File Area, as RAM file <br>
+<a href="#EP_LOAD">EP_Load = $03</a> &nbsp; Copy
+file from File Area, as RAM file <br>
 
-<a href="#EP_REQ">EP_Req = $06</a> &nbsp;&nbsp; Check for "oz" File Eprom or File
+<a href="#EP_REQ">EP_Req = $06</a>
+&nbsp;&nbsp; Check for "oz" File Eprom or File
 Area in slot C &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_Fetch">EP_Fetch = $09</a> &nbsp;Copy saved/deleted file from File Area to
+<a href="#EP_Fetch">EP_Fetch = $09</a>
+&nbsp;Copy saved/deleted file from File Area to
 RAM&nbsp; &nbsp;&nbsp;&nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_Find">EP_Find = $0c</a> &nbsp; Find active File(name) in File Area in slot C
+<a href="#EP_Find">EP_Find = $0c</a> &nbsp; Find
+active File(name) in File Area in slot C
 &nbsp;&nbsp;&nbsp;&nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_DIR">EP_Dir = $0f</a> &nbsp; &nbsp;Return next filename (starting with
+<a href="#EP_DIR">EP_Dir = $0f</a> &nbsp;
+&nbsp;Return next filename (starting with
 first) <br>
 
-<a href="#EP_First">EP_First = $12</a> &nbsp;Return first file entry in File Area in slot C
+<a href="#EP_First">EP_First = $12</a>
+&nbsp;Return first file entry in File Area in slot C
 &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_Prev">EP_Prev = $15</a> &nbsp; Return previous file entry in File Area
+<a href="#EP_Prev">EP_Prev = $15</a> &nbsp;
+Return previous file entry in File Area
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (OZ 4.2 and
 newer)<br>
 
-<a href="#EP_Next">EP_Next = $18</a> &nbsp; Return next file entry in File Area &nbsp;
+<a href="#EP_Next">EP_Next = $18</a> &nbsp;
+Return next file entry in File Area &nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (OZ
 4.2 and newer)<br>
 
-<a href="#EP_Last">EP_Last = $1b</a> &nbsp; Return last file entry in File Area in slot C
+<a href="#EP_Last">EP_Last = $1b</a> &nbsp;
+Return last file entry in File Area in slot C
 &nbsp; &nbsp; (OZ 4.2 and newer)<br>
 
-<a href="#EP_TotSp">EP_TotSp = $1e</a> &nbsp;Return amount of used file space in slot C
+<a href="#EP_TotSp">EP_TotSp = $1e</a>
+&nbsp;Return amount of used file space in slot C
 &nbsp; &nbsp; &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_ActSp">EP_ActSp = $21</a> &nbsp;Return active file space in slot C &nbsp;
+<a href="#EP_ActSp">EP_ActSp = $21</a>
+&nbsp;Return active file space in slot C &nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_FreSp">EP_FreSp = $24</a> &nbsp;Return free file space in slot C &nbsp;
+<a href="#EP_FreSp">EP_FreSp = $24</a>
+&nbsp;Return free file space in slot C &nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_Count">EP_Count = $27</a> &nbsp;Return number of files in File Area slot C
+<a href="#EP_Count">EP_Count = $27</a>
+&nbsp;Return number of files in File Area slot C
 &nbsp; &nbsp; &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_Stat">EP_Stat = $2a</a> &nbsp; Return file entry status (active or deleted)
+<a href="#EP_Stat">EP_Stat = $2a</a> &nbsp;
+Return file entry status (active or deleted)
 &nbsp; &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_Size">EP_Size = $2d</a> &nbsp; Return file size of File Entry &nbsp;
+<a href="#EP_Size">EP_Size = $2d</a> &nbsp;
+Return file size of File Entry &nbsp;
 &nbsp; &nbsp;&nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (OZ
 4.2 and newer)<br>
 
-<a href="#EP_Name">EP_Name = $30</a> &nbsp; Copy File entry name to buffer at (CDE)
+<a href="#EP_Name">EP_Name = $30</a> &nbsp; Copy
+File entry name to buffer at (CDE)
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (OZ 4.2 and
 newer)<br>
 
-<a href="#EP_Image">EP_Image = $33</a> &nbsp;Return pointer to start of file contents
+<a href="#EP_Image">EP_Image = $33</a>
+&nbsp;Return pointer to start of file contents
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_New">EP_New = $36</a> &nbsp; &nbsp;Return pointer to future new entry in
+<a href="#EP_New">EP_New = $36</a> &nbsp;
+&nbsp;Return pointer to future new entry in
 File Area &nbsp;&nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_SvFl">EP_SvFl = $39</a> &nbsp; Save RAM file to Flash or UV Eprom to slot C
+<a href="#EP_SvFl">EP_SvFl = $39</a> &nbsp; Save
+RAM file to Flash or UV Eprom to slot C
 &nbsp; &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_Delete">EP_Delete = $3c</a> Mark File Entry as deleted on Flash or UV Eprom
+<a href="#EP_Delete">EP_Delete = $3c</a> Mark File
+Entry as deleted on Flash or UV Eprom
 &nbsp; (OZ 4.2 and newer)<br>
 
-<a href="#EP_Format">EP_Format = $3f</a> Create File Area in slot 3 (Eprom or Flash
+<a href="#EP_Format">EP_Format = $3f</a> Create File
+Area in slot 3 (Eprom or Flash
 Card)&nbsp;&nbsp;(OZ 4.2 and newer)<br>
 
-<a href="#EP_WrBlk">EP_WrBlk = $42</a> &nbsp;Write a block of bytes to UV Eprom in slot 3
+<a href="#EP_WrBlk">EP_WrBlk = $42</a>
+&nbsp;Write a block of bytes to UV Eprom in slot 3
 &nbsp; &nbsp; &nbsp;(OZ 4.2 and newer)<br>
 
 <br>
@@ -151,7 +174,7 @@ after return depends on individual API call.</span><br style="font-family: monos
 
 <span style="font-family: monospace;"></span><span style="font-weight: bold;"><br>
 
-</span>All OS_Epr mnemonic defintion are found in the <span style="font-family: monospace;">"eprom.def"</span>
+</span>All OS_Epr mnemonic defintion are found in the "eprom.def"
 file. All new API entries in OS_Epr of the OZ V4.2 release is a
 reflection of the implementations done in the standard library. All are
 used in FlashStore which were the original basis to create these
@@ -162,7 +185,8 @@ OZ V4.2.<br>
 
 <hr style="width: 100%; height: 2px;"><br>
 
-<a name="EP_SAVE"></a><b>EP_SAVE ($00) - blow RAM file to Eprom in slot 3.</b>
+<a name="EP_SAVE"></a><b>EP_SAVE ($00) - blow
+RAM file to Eprom in slot 3.</b>
 <pre>IN:&nbsp; BHL = pointer to filename, (B=0 means local pointer)<br><br>OUT: Fc = 0, file successfully blown on File EPROM.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file couldn't be blown on EPROM.</pre>
 
 Notes:<br>
@@ -181,7 +205,8 @@ operating system automatically handles the underlying hardware
 
 <hr style="width: 100%; height: 2px;"><br>
 
-<a name="EP_LOAD"></a><b>EP_LOAD ($03) - read file from Eprom in slot 3 into RAM file.</b>
+<a name="EP_LOAD"></a><b>EP_LOAD ($03) - read
+file from Eprom in slot 3 into RAM file.</b>
 <pre>IN:&nbsp; BHL = pointer to filename (to be found on EPROM)<br>&nbsp;&nbsp;&nbsp;&nbsp; IX = output file handle (to store contents of file on EPROM)<br><br><br>OUT: Fc = 0, file successfully moved to RAM filing system.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file EPROM not available.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_ROOM ($07), no room in filing system for data from EPROM.</pre>
 
 Notes:<br>
@@ -205,7 +230,9 @@ OZ V4.2 and newer).<br>
 
 <hr style="width: 100%; height: 2px;"><br>
 
-<a name="EP_REQ"></a><b>EP_REQ ($06) -&nbsp;</b><span style="font-weight: bold;">Check for "oz" File Eprom or File
+<a name="EP_REQ"></a><b>EP_REQ ($06)
+-&nbsp;</b><span style="font-weight: bold;">Check
+for "oz" File Eprom or File
 Area in slot C&nbsp; (OZ 4.2 and newer)</span><br>
 
 <b><br>
@@ -629,7 +656,8 @@ AF....../.... different</span><br>
 
 <hr style="width: 100%; height: 2px;"><span style="font-weight: bold;"><br>
 
-<a name="EP_Find"></a>EP_Find ($0C) -&nbsp;Find active File(name) in File Area in slot
+<a name="EP_Find"></a>EP_Find ($0C) -&nbsp;Find
+active File(name) in File Area in slot
 C&nbsp;&nbsp;(OZ 4.2 and newer)</span><br>
 
 <br>
@@ -690,7 +718,8 @@ A..CDE../IXIY same</span><br style="font-family: monospace;">
 
 <hr style="width: 100%; height: 2px;"><br>
 
-<a name="EP_DIR"></a><b>EP_DIR ($0F) - Fetch filename from Eprom in slot 3:</b>
+<a name="EP_DIR"></a><b>EP_DIR ($0F) - Fetch
+filename from Eprom in slot 3:</b>
 <pre>IN:&nbsp; BHL = pointer to store returned filename (B=0 means local pointer).<br><br>OUT: Fc = 0:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Filename returned at (HL), null-terminated.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_EOF ($09), no more filenames on File EPROM.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), File EPROM not available.</pre>
 
 Notes:
@@ -718,7 +747,8 @@ application card in slot 3 - implemented in OZ V4.2 and newer).</div>
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_First"></a>EP_First ($12) -&nbsp;Return first file entry in File Area in slot
+<a name="EP_First"></a>EP_First ($12)
+-&nbsp;Return first file entry in File Area in slot
 C&nbsp;&nbsp;(OZ 4.2 and newer)<br>
 
 <br>
@@ -779,7 +809,8 @@ AFB...HL/.... different</span><br style="font-family: monospace;">
 Notes:
 <br>
 
-<div style="margin-left: 40px;">Due to a strange side effect with Intel
+<div style="margin-left: 40px;">Due to a strange side
+effect with Intel
 Flash Chips, a special "NULL" file is saved as the first file to the
 Card. These bytes occupies the first bytes that otherwise could be
 interpreted as a random boot command for the Intel chip - the behaviour
@@ -796,7 +827,8 @@ when the card has been inserted into a Z88 slot.<br>
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_Prev"></a>EP_Prev ($15) - Return previous file entry in File Area&nbsp; (OZ
+<a name="EP_Prev"></a>EP_Prev ($15) - Return
+previous file entry in File Area&nbsp; (OZ
 4.2 and
 newer)</span><br>
 
@@ -927,7 +959,8 @@ AFB...HL/.... different</span><br style="font-family: monospace;">
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_Last"></a>EP_Last ($1B) - Return last file entry in File Area in slot C
+<a name="EP_Last"></a>EP_Last ($1B) - Return last
+file entry in File Area in slot C
 &nbsp; &nbsp; (OZ 4.2 and newer)<br>
 
 <span style="font-weight: bold;"><br>
@@ -990,7 +1023,8 @@ AFB...HL/.... different</span><br style="font-family: monospace;">
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_TotSp"></a>EP_TotSp ($1E) -&nbsp;Return amount of used file space in slot C
+<a name="EP_TotSp"></a>EP_TotSp ($1E)
+-&nbsp;Return amount of used file space in slot C
 &nbsp;(OZ 4.2 and newer)</span><br>
 
 <br>
@@ -1046,7 +1080,8 @@ AFBCDEHL/.... different</span><br>
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_ActSp"></a>EP_ActSp ($21) -&nbsp;Return active file space in slot
+<a name="EP_ActSp"></a>EP_ActSp ($21)
+-&nbsp;Return active file space in slot
 C&nbsp;&nbsp;(OZ 4.2 and newer)</span><br>
 
 <br>
@@ -1103,7 +1138,8 @@ A.....HL/IXIY same</span><br style="font-family: monospace;">
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_FreSp"></a>EP_FreSp ($24) -&nbsp;Return free file space in slot C
+<a name="EP_FreSp"></a>EP_FreSp ($24)
+-&nbsp;Return free file space in slot C
 &nbsp;(OZ 4.2 and newer)</span><br>
 
 <br>
@@ -1156,7 +1192,8 @@ AFBCDE../.... different</span><br style="font-family: monospace;">
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_Count"></a>EP_Count ($27) -&nbsp;Return number of files in File Area slot C
+<a name="EP_Count"></a>EP_Count ($27)
+-&nbsp;Return number of files in File Area slot C
 &nbsp;(OZ 4.2 and newer)</span><br>
 
 <br>
@@ -1208,7 +1245,8 @@ AF..DEHL/.... different</span><br style="font-family: monospace;">
 Notes:
 <br>
 
-<div style="margin-left: 40px;">Due to a strange side effect with Intel Flash Chips, a special "NULL"
+<div style="margin-left: 40px;">Due to a strange side
+effect with Intel Flash Chips, a special "NULL"
 file is saved as the first file to the Card. These bytes occupies the
 first bytes that otherwise could be interpreted as a random boot
 command for the Intel chip - the behaviour is an Intel chip suddenly
@@ -1465,7 +1503,8 @@ AFB...HL/.... different</span><br>
 <br>
 
 <span style="font-weight: bold;">
-<a name="EP_SvFl"></a>EP_SvFl ($39) -&nbsp;Save RAM file to Flash or UV Eprom to slot C
+<a name="EP_SvFl"></a>EP_SvFl ($39) -&nbsp;Save
+RAM file to Flash or UV Eprom to slot C
 &nbsp;(OZ 4.2 and newer)</span><br>
 
 <br>
@@ -1747,7 +1786,8 @@ A.BCDEHL/IXIY same</span><br style="font-family: monospace;">
 <hr style="width: 100%; height: 2px;">
 <br>
 
-<span style="font-weight: bold;"><a name="EP_Format"></a>EP_Format ($3f) - Create
+<span style="font-weight: bold;"><a name="EP_Format"></a>EP_Format
+($3f) - Create
 File Area&nbsp;in slot 3, on UV Eprom or Flash Card
 &nbsp;(OZ 4.2 and newer)</span><br>
 
@@ -1796,28 +1836,67 @@ A.BCDEHL/IXIY same</span><br style="font-family: monospace;">
 <hr style="width: 100%; height: 2px;">
 <br>
 
-<span style="font-weight: bold;"><a name="EP_WrBlk"></a>EP_WrBlk ($42) -&nbsp;Write a block of bytes to UV Eprom in slot 3
+<span style="font-weight: bold;"><a name="EP_WrBlk"></a>EP_WrBlk
+($42) -&nbsp;Write a block of bytes to UV Eprom in slot 3
 &nbsp;(OZ 4.2 and newer)</span><br>
+
 <br>
-Blow block of data to UV Eprom in slot 3. Screen will be switched off during operation.<br>
+
+Blow block of data to UV Eprom in slot 3. Screen will be switched off
+during operation.<br>
+
 <br>
+
 <span style="font-family: monospace;">IN:</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C = Blowing algorithm context (also known as File Area sub type)</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DE = source address (local address space pointer)</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IX = length of block</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BHL = destination address in slot 3</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+C = Blowing algorithm context (also known as File Area sub type)</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DE = source address (local address space pointer)</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IX = length of block</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+BHL = destination address in slot 3</span><br style="font-family: monospace;">
+
 <span style="font-family: monospace;">OUT:</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0 (block blown successfully to UV Eprom)</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BHL updated</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1,</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_BWR (write error)</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_Onf (unknown blowing algorithm context)</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fc = 0 (block blown successfully to UV Eprom)</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+BHL updated</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fc = 1,</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A = RC_BWR (write error)</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A = RC_Onf (unknown blowing algorithm context)</span><br style="font-family: monospace;">
+
 <br style="font-family: monospace;">
-<span style="font-family: monospace;">Registers changed after return:</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp; ...CDE../IXIY same</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp; AFB...HL/.... different</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">Registers changed
+after return:</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;
+...CDE../IXIY same</span><br style="font-family: monospace;">
+
+<span style="font-family: monospace;">&nbsp;&nbsp;
+AFB...HL/.... different</span><br style="font-family: monospace;">
+
 <br>
+
 Notes:<br>
-<div style="margin-left: 40px;">The blowing algorithm context is found in the "card.def" definition file; <span style="font-family: monospace;">CB_EP1</span> (32K) or <span style="font-family: monospace;">CB_EP2</span> (128K or more). </div>
+
+<div style="margin-left: 40px;">The blowing algorithm
+context is found in the "card.def" definition file; <span style="font-family: monospace;">CB_EP1</span> (32K) or
+<span style="font-family: monospace;">CB_EP2</span>
+(128K or more). </div>
+
 </body>
 </html>
