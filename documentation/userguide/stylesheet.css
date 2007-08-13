@@ -1,12 +1,12 @@
 ﻿body
 {
     background-color: #ffffff;
-    font-size: 17px;
+    font-size: 14px;
     font-family: Arial;
 }
 H1
 {
-    font-size: 35px;
+    font-size: 30px;
     font-family: Arial;
     border-top: black 2px solid;
     border-bottom: black 2px solid;
@@ -17,7 +17,7 @@ H1
 }
 H2
 {
-    font-size: 25px;
+    font-size: 20px;
     font-family: Arial;
     border-top: black 2px solid;
     padding-top: 14px;
@@ -26,7 +26,7 @@ H2
 }
 H3
 {
-    font-size: 18px;
+    font-size: 16px;
     font-family: Arial;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -54,7 +54,7 @@ IMG
 	padding-right: 1px;
 	border-top: #000000 1px solid;
 	padding-left: 1px;
-	font-size: 14px;
+	font-size: 13px;
 	border-left: #000000 1px solid;
 	border-bottom: #000000 1px solid;
 	font-family: 'arial';
