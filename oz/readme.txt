@@ -62,19 +62,26 @@ directory.
 
 You've now ready to compile the Z88 rom! Just execute the makerom.bat script (or makerom.sh for Unix
 developers) and you will have the latest OZ rom compiled from SVN, that can be installed as a binary
-for slot 0, if you have a 512K flash AMD chip configured on the original motherboard.
+for slot 0 or slot 1. 
 
-OZ has been ported to slot 1 as well, which enables you to blow the code to a 1MB flash card and get it
-booted automatically by the built-in ROM. To compile it, simply
+To use slot 0 you need to have a 512K flash AMD chip fitted onto the original motherboard.
 
-        makerom.bat 1   (DOS)
+To use slot 1 you just need a 1MB flash card in slot 1. OZ gets booted automatically by the built-in ROM 
+and using an external card saves modifying the original Z88 altogether.
+
+OZ has been ported to slots 0 and 1, which enables you to blow the code to a either slot. To compile it, use
+the following commands.
+
+        makerom.bat 0   (DOS Slot 0)
+        makerom.bat 1   (DOS slot 1)
 or
-        ./makerom.sh 1  (UNIX)
+        ./makerom.sh 0  (UNIX slot 0)
+        ./makerom.sh 1  (UNIX slot 1)
 
 You use RomUpdate (/z88apps/romupdate) to actually blow the bank binaries to the flash card.
 Upload "romupdate.bas", "romupdate.crc", and the generated "romupdate.cfg" file with the
 oz.* bank files to your Z88. Start a BBC BASIC application and RUN"romupdate.bas". The flash card will
-be cleared and the binaries blown; finally the Z88 is hard reset and OZ is booted in slot 1.
+be cleared and the binaries blown; finally the Z88 is hard reset and OZ is booted from either slot 0 or 1.
 
 You can install/run the rom binary in the Z88 emulator, OZvm (in /tools/ozvm), or using a conventional
 Eprom programmer and re-blow your 128K or larger chip to be inserted into a real Z88.
