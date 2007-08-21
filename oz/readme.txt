@@ -69,7 +69,7 @@ To use slot 0 you need to have a 512K flash AMD chip fitted onto the original mo
 To use slot 1 you just need a 1MB flash card in slot 1. OZ gets booted automatically by the built-in ROM 
 and using an external card saves modifying the original Z88 altogether.
 
-OZ has been ported to slots 0 and 1, which enables you to blow the code to a either slot. To compile it, use
+OZ has been ported to slots 0 and 1, which enables you to blow the code to either slot. To compile it, use
 the following commands.
 
         makerom.bat 0   (DOS Slot 0)
