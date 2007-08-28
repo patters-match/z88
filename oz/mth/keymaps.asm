@@ -71,6 +71,7 @@ xdef    Keymap_DE
 ;^MTDE  enter tab del esc       e1 e2 e3 e4
 ;#MIH   menu index help         e5 e6 e7
 ;!DSLRC <> [] ls rs cl          c8 b8 aa a9 a8
+;deadk  ^  ¨					ae af
 ; ------------------------------------------------------------------------------------------------------
 
 
@@ -79,6 +80,11 @@ xdef    Keymap_DE
 ; British keymap
 ;
 .KeyMap_UK
+
+IF (<$linkaddr(KeyMap_UK)) <> 0
+        ERROR "UK Keymap table must start a page at $00!"
+ENDIF
+
         defb    $38,$37,$6E,$68,$79,$36,$E1,$E3     ; 8  7  n  h  y  6  ^M ^D
         defb    $69,$75,$62,$67,$74,$35,$FF,$5C     ; i  u  b  g  t  5  *U \
         defb    $6F,$6A,$76,$66,$72,$34,$FE,$3D     ; o  j  v  f  r  4  *D =

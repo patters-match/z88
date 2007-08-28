@@ -56,6 +56,9 @@ xdef    VDU2Chr_tbl
         defb            $1F,$00                 ; Lores low byte, high byte in the font
         defb    $91,$A1,$86,$00                 ; ¡
         defb    $92,$BF,$87,$00                 ; ¿
+        defb    $93,$E1,$80,$00                 ; á
+        defb    $94,$ED,$81,$00                 ; í
+        defb    $95,$F3,$82,$00                 ; ó
         defb    $A1,$A7,$01,$00                 ; §
         defb    $A2,$B0,$02,$00                 ; °
         defb    $A4,$80,$7F,$00                 ; €
@@ -63,9 +66,6 @@ xdef    VDU2Chr_tbl
         defb    $A6,$E4,$0F,$00                 ; ä
         defb    $AB,$D6,$0B,$00                 ; Ö
         defb    $AC,$C4,$08,$00                 ; Ä
-        defb    $AD,$E1,$80,$00                 ; á
-        defb    $AE,$ED,$81,$00                 ; í
-        defb    $AF,$F3,$82,$00                 ; ó
         defb    $B9,$E0,$0D,$00                 ; à
         defb    $BA,$E2,$0E,$00                 ; â
         defb    $BB,$E8,$13,$00                 ; è

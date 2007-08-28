@@ -1,0 +1,23 @@
+England and United-states(UK/US)
+£ €
+
+France (FR)
+é è ç à â ê î ô û ë ï ù § °
+
+Denmark and Norway (DK/NO)
+Å Æ Ø å æ ø
+
+Finland and Sweden (FI/SE)
+Å Ä Ö å ä ö
+
+Germany (DE)
+Ä Ö Ü ä ö ü ß § °
+
+Swiss (CH)
+â ê î ô û Ä Ë Ö Ç ä ë ï ö ü à è é ç ù
+
+Italy (IT)
+à è ì ò ù é
+
+Spain (SP)
+à è ì ò ù ñ Ñ á é í ó ú ç Ç â ê î ô û ¡ ¿
