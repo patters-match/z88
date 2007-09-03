@@ -1,7 +1,15 @@
 
-Z88transfer v2.3
+Z88transfer v3.0
 
-To install Z88transfer on Linux, just run the script 'install.sh'.
+To install Z88transfer on Linux, just run the script
+'install.sh' as root ('sudo ./install.sh').
+
+You can run Z88Transfer from the same directory, without
+installing it in your system ('./z88transfer.py').
+
+For windows, install first all the required runtime files (see
+the documentation), and then run 'z88transfer.py'.
 
 You have full documentation (in HTML format) in the DOCS folder, or
 (after installation on Linux) at /usr/share/doc/z88transfer.
+

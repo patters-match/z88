@@ -1,1189 +1,1338 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# Copyright 2005 (C) Raster Software Vigo (Sergio Costas)
-
-# This program is free software; you can redistribute it and/or
+# Copyright 2005-2007 (C) Raster Software Vigo (Sergio Costas)
+#
+# This file is part of Z88Transfer
+#
+# Z88Transfer is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
+# as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
 
-# This program is distributed in the hope that it will be useful,
+# Z88Transfer is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import os
+import dircache
+import StringIO
+import time
+import gettext
+import locale
+
 import pygtk # for testing GTK version number
 pygtk.require ('2.0')
 import gtk
 import gtk.glade
 import struct
 import gobject
-import dircache
-import StringIO
-import time
 
-import pipex
-import z88access
+try:
+	import psyco
+	psyco.full()
+except ImportError:
+	print 'Psyco not installed, the program will just run slower'
 
-def set_status(text):
-	global status
+gladepath=""
+textpath=""
 
-	status.set_text(text)
-	while gtk.events_pending():
-		gtk.main_iteration()
-
-def fill_paths(args="",doz88=True):
-	"""Reads the files in the current paths and fills both GtkTreeView widgets"""
-	global listz88
-	global listPC
-	global z88path
-	global pcpath
-	global z88
-	global arbol
-	global status
-	global main
-	global windows
-
-	set_status("Reading directory")
-	if doz88:
-		listz88.clear()
-	listPC.clear()
-
-	if doz88:
-		content=z88.get_content(z88path)
-		if content!=[]:
-			if (z88path!="")&(z88path!="/"):
-				entrada=listz88.insert_before(None,None)
-				listz88.set_value(entrada,1,"../")
-			for elemento in content:
-				if (elemento[0]=="") | (elemento[0]=="./") | (elemento[0]==".")|(elemento[0][:2]==".."):
-					continue
-				nombre=elemento[0]
-				if (elemento[1]=="DIR")|(elemento[1]=="DEV"):
-					nombre=nombre+"/"
-				entrada=listz88.insert_before(None,None)
-				listz88.set_value(entrada,1,nombre)
-
-	if windows and (len(pcpath)>1):
-		if pcpath[0]=="/":
-			pcpath=pcpath[1:]
-		
-
-	if(pcpath=="") | (pcpath[-1]!="/"):
-		pcpath+="/"
-	
-	if pcpath!="/":
-		entrada=listPC.insert_before(None,None)
-		listPC.set_value(entrada,1,"../")
-		
-	foldererror=False
+if sys.platform!="win32":
 	try:
-		content2=dircache.listdir(pcpath)
-	except OSError:
-		foldererror=True
-	
-	foldererror=False
-	
+		f=open("/usr/share/z88transfer/z88transfer.glade","r")
+		f.close()
+		gladepath="/usr/share/z88transfer/"
+		textpath="/usr/share/locale/"
+	except:
+		pass
+
 	try:
-		content2=dircache.listdir(pcpath)
-	except OSError:
-		foldererror=True
+		f=open("/usr/local/share/z88transfer/z88transfer.glade","r")
+		f.close()
+		gladepath="/usr/local/share/z88transfer/"
+		textpath="/usr/share/locale/"
+	except:
+		pass
+
+	if gladepath!="":
+		sys.path.append(gladepath)
+
+try:
+	current=os.getcwd()
+	if current[-1]!=os.sep:
+		current+=os.sep
+	f=open(current+"files"+os.sep+"z88transfer.glade","r")
+	f.close()
+	gladepath=current+"files"+os.sep
+	textpath=current
+	textpath+="po"+os.sep
+except:
+	pass
+
+if (gladepath=="") or (textpath==""):
+	print "Can't find the base files. Aborting."
+	sys.exit(1)
+
+import z88_pipex
+import z88_access
+
+gettext.bindtextdomain('z88transfer',textpath)
+locale.setlocale(locale.LC_ALL,"")
+gettext.textdomain('z88transfer')
+gettext.install("z88transfer",localedir=textpath)
+_ = gettext.gettext
+
+gtk.glade.bindtextdomain("z88transfer",textpath)
+
+class copy_base:
 	
-	if foldererror==False:
-		content=content2[:] # we must copy it to ensure that ANNOTATE works fine and don't add more than one /
-		dircache.annotate(pcpath,content)
-	
-		if (pcpath=="/") and windows:
-			for letra in "ACDEFGHIJKLMNOPQRSTUVWXYZ":
-				foldererror=False
-				try:
-					content2=dircache.listdir(letra+":\\")
-				except OSError:
-					foldererror=True
-	
-				if foldererror==False:
-					entrada=listPC.insert_before(None,None)
-					listPC.set_value(entrada,1,letra+":/")
-		else:
-			for elemento in content:
-				if (elemento[0]=="") | (elemento[0]=="./") | (elemento[0]==".")|(elemento[0][:2]==".."):
-					continue
-				entrada=listPC.insert_before(None,None)
-				listPC.set_value(entrada,1,elemento)
-
-	if doz88:
-		thepathz88=arbol.get_widget("z88path")
-		thepathz88.set_text(z88path)
-	thepathpc=arbol.get_widget("pcpath")
-	thepathpc.set_text(pcpath)
-	set_status("idle")
-
-def search_upper_path(path):
-
-	global windows
-
-	if (path=="")|(path=="/"):
-		return ("/")
-
-	if windows and (len(path)==3):
-		return "/"
-
-	if(path[-1]=="/"):
-		path=path[:-1]
-	if (path[0]!="/") and (windows):
-		path="/"+path
-	position=-1
-	pos2=0;
-	while(pos2!=-1):
-		pos2=path.find("/",pos2+1)
-		if pos2!=-1:
-			position=pos2
-	if(position==-1):
-		return "/"
-	else:
-		return path[:position+1]
+	def __init__(self,gladepath,nfiles,z88transfer,z88path,pcpath,exporting,translator_dictionary,pseudospanish):
 		
-
-def z88click(view,button):
-	global viewz88
-	global z88path
-
-	if button.type!=gtk.gdk._2BUTTON_PRESS:
-		return
-
-	tree,iter=viewz88.get_selection().get_selected()
-	entrada=tree.get_value(iter,1)
-
-	if z88path=="":
-		z88path="/"
-
-	if z88path[-1]!="/":
-		z88path+="/"
-
-	if (entrada[-1]=="/"):
-		if (entrada=="../"):
-			z88path=search_upper_path(z88path)
-		else:
-			z88path+=entrada
-		fill_paths()
+		self.gladepath = gladepath
+		self.z88 = z88transfer
+		self.z88path = z88path
+		self.pcpath = pcpath
+		self.nfiles = nfiles
+		self.exporting = exporting
+		self.translator_dictionary = translator_dictionary
+		self.pseudospanish = pseudospanish
 		
-
-def pcclick(view,button):
-	global viewPC
-	global pcpath
-	global windows
-
-	if button.type!=gtk.gdk._2BUTTON_PRESS:
-		return
-
-	tree,iter=viewPC.get_selection().get_selected()
-	entrada=tree.get_value(iter,1)
-	if pcpath=="":
-		pcpath="/"
-	
-	if pcpath[-1]!="/":
-		pcpath+="/"
+		self.arbol = gtk.glade.XML(self.gladepath+"z88transfer.glade","transfer_window",domain="z88transfer")
+		self.arbol.signal_autoconnect(self)
+		self.main_window = self.arbol.get_widget("transfer_window")
+		self.main_window.show()
 		
-	if windows:
-		if pcpath=="/":
-			pcpath=""
-		else:
-			if pcpath[0]=="/":
-				pcpath=pcpath[1:]
-
-	if (entrada[-1]=="/"):
-		if (entrada=="../"):
-			pcpath=search_upper_path(pcpath)
-		else:
-			pcpath+=entrada
-		fill_paths("",False)
-
-def getfile(arg,whatdo=""):
-
-	global warning
-	global ask_label
-	global ask
-	global viewz88
-	global z88path
-	global pcpath
-	global answer
-	global callback_yes
-	global callback_no
-	global z88
-	global pseudospanish
-	global exporting
-	global translator_dictionary
-
-	z88.disable_conversion()
-
-	if pseudospanish=="yes":
-		allok,frompipe,topipe=pipex.read_translations(translator_dictionary)
-		if allok==False:
-			show_error("Error reading translation file\n"+translator_dictionary+"\nAborting")
-			return
-	else:
-		frompipe={}
-		topipe={}
-
-	if (z88.protocol=="IMP-EXPORT"):
-		set_status("Waiting for file")
-		entrada=z88.receive_file("")
-		if entrada=="":
-			set_status("Idle")
-			show_error("Timeout while waiting for Z88 to start transmision")
-			
-			return
-		entrada2=search_upper_path(entrada)
-		if entrada2[0]=="/":
-			entrada2=entrada2[1:]
-		if entrada2[-1]!="/":
-			entrada2+="/"
-		name=entrada[len(entrada2):]
-		nficheror=pcpath
-		if nficheror[-1]!="/":
-			nficheror+="/"
-		nficheror+=name
-	else:
-		tree,iter=viewz88.get_selection().get_selected()
-		entrada=tree.get_value(iter,1)
-		entradapc=entrada
-
-		if entrada[-1]=="/":
-			show_error("Can't download directories")
-			
-			return
-
-		content2=dircache.listdir(pcpath)
-		content=content2[:]
-		dircache.annotate(pcpath,content)
-
-		if exporting=="abiword":
-			if (".ppd"==entradapc[-4:].lower()) | (".pdd"==entradapc[-4:].lower()):
-				entradapc=(entradapc[:-4]+".abw")
-
-		if exporting=="rtf":
-			if (".ppd"==entradapc[-4:].lower()) | (".pdd"==entradapc[-4:].lower()):
-				entradapc=(entradapc[:-4]+".rtf")
-
-		if (whatdo=="") | (whatdo=="N"):
-			for element in content:
-				if entradapc==element:
-					ask_label.set_text("File already exists.\nOverwrite?")
-					ask.show()
-					callback_yes=getfile
-					callback_no=stub
-					return
-	
-		if z88path[-1]=="/":
-			nfichero=z88path+entrada
-		else:
-			nfichero=z88path+"/"+entrada
-	
-		if nfichero[0]=="/":
-			nfichero=nfichero[1:]
-	
-		if -1==z88.receive_file(nfichero):
-			show_error("Can't connect to the Z88")
-			
-			return
-	
-		if pcpath[-1]=="/":
-			nficheror=pcpath+entrada
-		else:
-			nficheror=pcpath+"/"+entrada
-
-	doexport=False
-	if exporting=="abiword":
-		if (".ppd"==nficheror[-4:].lower()) | (".pdd"==nficheror[-4:].lower()):
-			nficheror=(nficheror[:-4]+".abw")
-			doexport=True
-	
-	if exporting=="rtf":
-		if (".ppd"==nficheror[-4:].lower()) | (".pdd"==nficheror[-4:].lower()):
-			nficheror=(nficheror[:-4]+".rtf")
-			doexport=True
-	
-	if doexport:
-		if exporting=="abiword":
-			fichero=pipex.abiword(nficheror,"w",pseudospanish,frompipe)
-		else:
-			fichero=pipex.rtf(nficheror,"w",pseudospanish,frompipe)
-	else:
-		fichero=open(nficheror,"w")
-
-	contador=0
-	while True:
-		if 0==(contador%24):
-			set_status("Downloaded "+str(contador)+"bytes")
-			while gtk.events_pending():
-				gtk.main_iteration()
-		contador+=1
-		nerr,charac=z88.receive_byte_file()		
-		if nerr==-1: # error
-			fichero.close()
-			show_error("An error occurred during the transfer")
-			fill_paths()
-			
-			set_status("Idle")
-			return
-		if charac=="":
-			fichero.close()
-			show_error("File transferred successfully")
-			fill_paths()
-			
-			set_status("Idle")
-			return
-		fichero.write(charac)
-			
-
-def sendfile(arg,whatdo=""):
-
-	global warning
-	global ask_label
-	global ask
-	global viewz88
-	global z88path
-	global pcpath
-	global answer
-	global callback_yes
-	global callback_no
-	global z88
-	global allowed_letters
-	global pseudospanish
-	global exporting
-	global translator_dictionary
-	global warning_label
-
-	z88.disable_conversion()
-
-	if pseudospanish=="yes":
-		allok,frompipe,topipe=pipex.read_translations(translator_dictionary)
-		if allok==False:
-			show_error("Error reading translation file\n"+translator_dictionary+"\nAborting")
-			
-			return
-	else:
-		frompipe={}
-		topipe={}
-
-	tree,iter=viewPC.get_selection().get_selected()
-	entrada=tree.get_value(iter,1)
-
-	if entrada[-1]=="/":
-		show_error("Can't send directories")
+		self.filename_label = self.arbol.get_widget("transfer_filename")
 		
-		return
-
-	if len(entrada)>16:
-		show_error("File name too long")
+		self.counter = 0
 		
-		return
+		self.partial = self.arbol.get_widget("transfer_partial")
+		self.total = self.arbol.get_widget("transfer_total")
 		
-	for letra in entrada.lower():
-		if -1==allowed_letters.find(letra):
-			show_error("File name contains invalid characters")
-			
-			return
+		self.total.set_text("0/"+str(self.nfiles))
 
-	if pcpath[-1]=="/":
-		nficheror=pcpath+entrada
-	else:
-		nficheror=pcpath+"/"+entrada
+		self.refresh = (self.z88.speed / 100)
+		if self.z88.protocol == "PCLINK":
+			self.refresh /= 2
+		
+		self.cancel_transfer = False
 
-	usexport=False
-	if exporting=="abiword": # if we want to translate with Abiword converter
-		if ".abw"==(entrada[-4:]).lower(): # if extension is .ABW
-			abiclass=pipex.abiword(nficheror,"r",pseudospanish,topipe)
-			if 0==abiclass.export():
-				entrada=entrada[:-4]+".pdd"
-				usexport=True
-			else:
-				show_error("File "+nfichero+" isn't a valid Abiword file. Aborting")
-				return
-
-	elif exporting=="rtf": # if we want to translate with RTF converter
-		if ".rtf"==(entrada[-4:]).lower(): # if extension is .RTF
-			abiclass=pipex.rtf(nficheror,"r",pseudospanish,topipe)
-			if 0==abiclass.export():
-				entrada=entrada[:-4]+".pdd"
-				usexport=True
-			else:
-				show_error("File "+nfichero+" isn't a valid RTF file. Aborting")
-				return
-
-	if (z88.protocol=="IMP-EXPORT"):
-		nfichero=entrada
-	else:
-		content=z88.get_content(z88path)
-	
-		if content==[]:
-			show_error("Can't connect to Z88")
-			
-			return
-	
-		if (whatdo=="") | (whatdo=="N"):
-			for element in content:
-				if entrada.lower()==(element[0]).lower():
-					ask_label.set_text("File already exists.\nOverwrite?")
-					ask.show()
-					callback_yes=sendfile
-					callback_no=stub
-					return
-	
-		if z88path[-1]=="/":
-			nfichero=z88path+entrada
+		self.trans_error = False		
+		if self.pseudospanish=="yes":
+			allok,self.frompipe,self.topipe=z88_pipex.read_translations(self.translator_dictionary)
+			if allok==False:
+				self.trans_error = True
 		else:
-			nfichero=z88path+"/"+entrada
-	
-		if nfichero[0]=="/":
-			nfichero=nfichero[1:]
-	
-	if -1==z88.send_file(nfichero):
-		show_error("Can't connect to the Z88")
+			self.frompipe={}
+			self.topipe={}
 		
-		return
+	
+	def on_cancel_clicked(self,widget):
+		
+		self.cancel_transfer = True
+		self.filename_label.set_text(_("Aborting"))
 
 
-	if usexport:
-		fichero=StringIO.StringIO(abiclass.text) # emulate a file with converted text
-	else:
-		fichero=open(nficheror,"r")
-	contador=0
-	while True:
-		if 0==(contador%24):
-			set_status("Uploaded "+str(contador)+"bytes")
-			while gtk.events_pending():
-				gtk.main_iteration()
-		contador+=1
-		charac=fichero.read(1)
-		nerr=z88.send_byte_file(charac)
-		if nerr==-1: # error
-			fichero.close()
-			show_error("An error occurred during the transfer")
-			fill_paths()
+	def next_file(self):
+		
+		self.counter += 1
+		self.total.set_fraction((float(self.counter)) / (float(self.nfiles)))
+		self.total.set_text(str(self.counter)+"/"+str(self.nfiles))
+
+
+	def destroy(self):
+
+		self.main_window.hide()
+		self.main_window.destroy()
+		self.main_window = None
+		self.arbol = None
+
+
+class copy_z88(copy_base):
+	
+	def __init__(self,gladepath,nfiles,z88transfer,z88path,pcpath,exporting,translator_dictionary,pseudospanish):
+		
+		copy_base.__init__(self,gladepath,nfiles,z88transfer,z88path,pcpath,exporting,translator_dictionary,pseudospanish)
+
+
+	def receive_filename(self,filename):
+		
+		if self.z88.protocol!="IMP-EXPORT":
+			self.filename = self.z88path+filename
+		else:
+			self.filename = self.z88.receive_file("")
 			
-			set_status("Idle")
-			return
-		if charac=="":
-			fichero.close()
-			show_error("File transferred successfully")
-			fill_paths()
-			
-			set_status("Idle")
-			return
-
-def show_error(message):
-	global warning_label
-	global warning
-	
-	warning_label.set_text(message)
-	warning.show()
-
-def asked_yes(args):
-	global answer
-	global ask
-	global callback_yes
-
-	answer="Y"
-	ask.hide()
-	callback_yes("","Y")
-
-def asked_no(args):
-	global answer
-	global ask
-	global callback_no
-
-	answer="N"
-	ask.hide()
-	callback_no("","N")
-
-
-def hide_warning(args=""):
-	global warning
-
-	warning.hide()
-
-def stub(args="",param=""):
-
-	h=5
-
-def save_config():
-
-	global serial_speed
-	global serial_port
-	global serial_protocol
-	global exporting
-	global pseudospanish
-	global translator_dictionary
-	global windows
-	global instaldir
-
-	if windows:
-		nfile=instaldir
-	else:
-		nfile=os.environ.get("HOME")
-	if nfile[-1]!="/":
-		nfile+="/"
-	nfile+=".z88transfer"
-	conffile=open(nfile,"w")
-	conffile.write("speed "+str(serial_speed)+"\n")
-	conffile.write("port "+serial_port+"\n")
-	conffile.write("protocol "+serial_protocol+"\n")
-	conffile.write("exporting "+exporting+"\n")
-	conffile.write("pseudospanish "+pseudospanish+"\n")
-	conffile.write("translatefile "+translator_dictionary+"\n")
-	conffile.close()
-	show_params()
-
-def read_config():
-
-	global serial_speed
-	global serial_port
-	global serial_protocol
-	global exporting
-	global pseudospanish
-	global z88
-	global translator_dictionary
-	global windows
-	global instaldir
-
-	if windows:
-		nfile=instaldir
-	else:
-		nfile=os.environ.get("HOME")
-	if nfile[-1]!="/":
-		nfile+="/"
-	nfile+=".z88transfer"
-	try:
-		conffile=open(nfile,"r")
-	except IOError:
-		show_params()
-		return
-
-	while True:
-		linea=conffile.readline()
-		if linea=="":
-			break
-		if linea[-1]=="\n":
-			linea=linea[:-1]
-		pos=linea.find(" ")
-		if linea[:pos]=="speed":
-			serial_speed=int(linea[pos+1:])
-		elif linea[:pos]=="port":
-			serial_port=linea[pos+1:]
-		elif linea[:pos]=="protocol":
-			serial_protocol=linea[pos+1:]
-		elif linea[:pos]=="exporting":
-			exporting=linea[pos+1:]
-		elif linea[:pos]=="pseudospanish":
-			pseudospanish=linea[pos+1:]
-		elif linea[:pos]=="translatefile":
-			translator_dictionary=linea[pos+1:]
-	conffile.close()
-	z88.set_params(serial_speed,serial_port,serial_protocol)
-	show_params()
-
-def configure(args):
-	global preferences
-	global serial_speed
-	global serial_port
-	global serial_protocol
-	global exporting
-	global pseudospanish
-	global arbol
-	global translator_dictionary
-
-	speed=arbol.get_widget("entry_speed").child
-	port=arbol.get_widget("entry_port")
-	protocol=arbol.get_widget("entry_protocol").child
-	pseudo=arbol.get_widget("pseudospanish")
-	export=arbol.get_widget("abiword")
-	export2=arbol.get_widget("rtfconv")
-	entry=arbol.get_widget("transentry")
-	
-	entry.set_filename(translator_dictionary)
-	entry.set_filename(translator_dictionary)
-	
-	port.set_text(serial_port)
-	speed.set_editable(False)
-	protocol.set_editable(False)
-	speed.set_text(str(serial_speed))
-	protocol.set_text(serial_protocol)
-	
-	if pseudospanish=="yes":
-		pseudo.set_active(True)
-	else:
-		pseudo.set_active(False)
-	
-	if exporting=="abiword":
-		export.set_active(True)
-		pseudo.set_sensitive(True)
-	elif exporting=="rtf":
-		export2.set_active(True)
-		pseudo.set_sensitive(True)
-	else:
-		export.set_active(False)
-		pseudo.set_sensitive(False)
-	
-	preferences.show()	
-
-def pref_ok(args):
-	global preferences
-	global serial_speed
-	global serial_port
-	global serial_protocol
-	global arbol
-	global z88
-	global exporting
-	global pseudospanish
-	global translator_dictionary
-
-	print translator_dictionary
-
-	speed=arbol.get_widget("entry_speed").child
-	port=arbol.get_widget("entry_port")
-	protocol=arbol.get_widget("entry_protocol").child
-	pseudo=arbol.get_widget("pseudospanish")
-	export=arbol.get_widget("abiword")
-	export2=arbol.get_widget("rtfconv")
-	entry=arbol.get_widget("transentry")
-	
-	translator_dictionary=entry.get_filename()
-
-	serial_port=port.get_text()
-	serial_protocol=protocol.get_text()
-	serial_speed=int(speed.get_text())
-	
-	if export.get_active():
-		exporting="abiword"
-	elif export2.get_active():
-		exporting="rtf"
-	else:
-		exporting="disabled"
-	
-	if pseudo.get_active():
-		pseudospanish="yes"
-	else:
-		pseudospanish="no"
-
-	z88.set_params(serial_speed,serial_port,serial_protocol)
-	save_config()
-	preferences.hide()
-
-
-def pref_cancel(args):
-	global preferences
-
-	preferences.hide()
-
-def show_params():
-	global arbol
-	global z88
-	global exporting
-	global pseudospanish
-	global translator_dictionary
-	
-	port=arbol.get_widget("label_port")
-	speed=arbol.get_widget("label_speed")
-	protocol=arbol.get_widget("label_protocol")
-	export=arbol.get_widget("importexport")
-	
-	speed.set_text(str(z88.speed))
-	port.set_text(z88.serial_dev)
-	protocol.set_text(z88.protocol)
-	
-	if exporting=="abiword":
-		if pseudospanish=="no":
-			export.set_text("Abiword")
-		else:
-			export.set_text("Abiword (pseudotranslation)")
-	elif exporting=="rtf":
-		if pseudospanish=="no":
-			export.set_text("RTF")
-		else:
-			export.set_text("RTF (pseudotranslation)")
-	else:
-		export.set_text("None")
+		if self.filename == "":
+			return None
 		
-	setclock=arbol.get_widget("setclock")
-	freemem=arbol.get_widget("freemem")
-	z88_newfolder=arbol.get_widget("z88_newfolder")
-	z88_deletefile=arbol.get_widget("z88_deletefile")
-	z88_renamefile=arbol.get_widget("z88_renamefile")
-	
-	if z88.protocol=="EAZYLINK":
-		setmode=True
-	else:
-		setmode=False
-	setclock.set_sensitive(setmode)
-	freemem.set_sensitive(setmode)
-	z88_newfolder.set_sensitive(setmode)
-	z88_deletefile.set_sensitive(setmode)
-	z88_renamefile.set_sensitive(setmode)
-		
-	while gtk.events_pending():
-		gtk.main_iteration()
-
-def about_p(args):
-	global arbol
-	
-	about_w=arbol.get_widget("about_window")
-	about_w.show()
-	
-def close_about(args):
-	about_w=arbol.get_widget("about_window")
-	about_w.hide()
-
-def set_clock(args="",params=""):
-
-	global z88
-	global ask
-	global ask_label
-	global callback_no
-	global callback_yes
-	global warning_label
-	global warning
-	
-	fecha=time.localtime()
-	if fecha[2]<10:
-		mydate="0"
-	else:
-		mydate=""
-	mydate+=str(fecha[2])+"/"
-	if fecha[1]<10:
-		mydate+="0"
-	mydate+=str(fecha[1])+"/"+str(fecha[0])
-	if fecha[3]<10:
-		mytime="0"
-	else:
-		mytime=""
-	mytime+=str(fecha[3])+":"
-	if fecha[4]<10:
-		mytime+="0"
-	mytime+=str(fecha[4])+":"
-	if fecha[5]<10:
-		mytime+="0"
-	mytime+=str(fecha[5])
-	if params=="":
-		ask_label.set_text("Set clock to\n"+mydate+"\n"+mytime)
-		ask.show()
-		callback_yes=set_clock
-		callback_no=stub
-	else:
-		if 0==z88.setclock(mydate,mytime):
-			cadena="Clock set"
-		else:
-			cadena="Couldn't set clock"
-		warning_label.set_text(cadena)
-		warning.show()
-	return
-
-	
-	
-def free_mem(args):
-
-	global z88
-	global arbol
-	global warning_label
-	global warning
-	
-	mem0=z88.get_free_mem("0")
-	if mem0!=-1:
-		mem1=z88.get_free_mem("1")
-		mem2=z88.get_free_mem("2")
-		mem3=z88.get_free_mem("3")
-		memv=z88.get_free_mem("-")
-		salida="Available memory:\nRAM.0: "+str(mem0)
-		if mem1!=-1:
-			salida+="\nRAM.1: "+str(mem1)
-		if mem2!=-1:
-			salida+="\nRAM.2: "+str(mem2)
-		if mem3!=-1:
-			salida+="\nRAM.3: "+str(mem3)
-		if memv!=-1:
-			salida+="\nRAM.-: "+str(memv)
-	else:
-		salida="No Z88 found"
-	warning_label.set_text(salida)
-	warning.show()
-	
-	
-
-def z88newfolder(args="",other=""):
-
-	global z88
-	global askdata
-	global namelabel
-	global nameentry
-	global callback_yes
-	global callback_no
-	global z88path
-	global pcpath
-	global warning
-	global warning_label
-	
-	if z88path=="/":
-		warning_label.set_text("Can't create a folder at root level")
-		warning.show()
-		return
-	
-	if other!="Y":
-		nameentry.set_text("")
-		namelabel.set_text("Type a name for new folder")
-		callback_yes=z88newfolder
-		callback_no=stub
-		askdata.show()
-	else:
-		path=z88path[:]
-		if path[0]=="/":
-			path=path[1:]
-		if path[-1]!="/":
-			path=path+"/"
-		if -1==z88.create_folder(path+nameentry.get_text()):
-			warning_label.set_text("Error creating folder")
-			warning.show()
-	fill_paths()
-	set_status("Idle")
-	
-	
-def z88erasefile(args="",other=""):
-	
-	global z88
-	global viewz88
-	global ask
-	global ask_label
-	global callback_yes
-	global callback_no
-	
-	tree,iter=viewz88.get_selection().get_selected()
-	entrada=tree.get_value(iter,1)
-	
-	if (entrada=="") or (entrada=="../"):
-			return
-	
-	if z88path=="/":
-		warning_label.set_text("Can't delete a drive")
-		warning.show()
-		return
-	
-	if other=="":
-		if entrada[-1]=="/":
-			texto="Delete folder:\n"
-			entrada=entrada[:-1]
-		else:
-			texto="Delete file:\n"
-		ask_label.set_text(texto+entrada)
-		ask.show()
-		callback_yes=z88erasefile
-		callback_no=stub
-		return
-	else:
-		path=z88path[:]
-		if path[0]=="/":
-			path=path[1:]
-		if path[-1]!="/":
-			path=path+"/"
-		path=path+entrada
-		if -1==z88.delete_file(path):
-			warning_label.set_text("Error deleting file/folder")
-			warning.show()
-	fill_paths()
-	set_status("Idle")
-		
-def z88rename_file(args="",other=""):
-
-	global z88
-	global viewz88
-	global askdata
-	global namelabel
-	global nameentry
-	global callback_yes
-	global callback_no
-	global z88path
-	global pcpath
-	global warning
-	global warning_label
-	global filename_memorized
-	
-	if other!="Y":
-		tree,iter=viewz88.get_selection().get_selected()
-		entrada=tree.get_value(iter,1)
-	
-		if (entrada=="") or (entrada=="../"):
-			return
-	
-	if z88path=="/":
-		warning_label.set_text("Can't rename a drive")
-		warning.show()
-		return
-	
-	if other!="Y":
-		nameentry.set_text("")
-		namelabel.set_text("Type a new name for file\n"+entrada)
-		callback_yes=z88rename_file
-		callback_no=stub
-		askdata.show()
-		filename_memorized=entrada
-	else:
-		path=z88path[:]
-		if path[0]=="/":
-			path=path[1:]
-		if path[-1]!="/":
-			path=path+"/"
-		if -1==z88.rename_file(path+filename_memorized,nameentry.get_text()):
-			warning_label.set_text("Error renaming file")
-			warning.show()
-	fill_paths()
-	set_status("Idle")
-	
-def name_yes(args):
-	global answer
-	global askdata
-	global callback_yes
-
-	answer="Y"
-	askdata.hide()
-	callback_yes("","Y")
-
-def name_no(args):
-	global answer
-	global askdata
-	global callback_no
-
-	answer="N"
-	askdata.hide()
-	callback_no("","N")
-
-def init_all():
-	global listz88
-	global listPC
-	global z88path
-	global pcpath
-	global z88
-	global arbol
-	global status
-	global main
-	global warning
-	global ask
-	global preferences
-	global askdata
-
-	main.connect('destroy',gtk.main_quit)
-	
-	ok=arbol.get_widget("mok")
-	ok.connect("clicked",hide_warning)
-
-	about=arbol.get_widget("about")
-	about.connect("clicked",about_p)
-	about_ok=arbol.get_widget("about_ok")
-	about_ok.connect("clicked",close_about)
-	
-	setclock=arbol.get_widget("setclock")
-	setclock.connect("clicked",set_clock)
-
-	freemem=arbol.get_widget("freemem")
-	freemem.connect("clicked",free_mem)
-	
-	z88_newfolder=arbol.get_widget("z88_newfolder")
-	z88_newfolder.connect("clicked",z88newfolder)
-	#pc_newfolder=arbol.get_widget("pc_newfolder")
-	#pc_newfolder.connect("clicked",pcnewfolder)
-	
-	z88_erasefile=arbol.get_widget("z88_deletefile")
-	z88_erasefile.connect("clicked",z88erasefile)
-	#pc_erasefile=arbol.get_widget("pc_deletefile")
-	#pc_erasefile.connect("clicked",pcerasefile)
-
-	z88_renamefile=arbol.get_widget("z88_renamefile")
-	z88_renamefile.connect("clicked",z88rename_file)
-
-	yes=arbol.get_widget("askyes")
-	yes.connect("clicked",asked_yes)
-	no=arbol.get_widget("askno")
-	no.connect("clicked",asked_no)
-	
-	nameyes=arbol.get_widget("nameyes")
-	nameyes.connect("clicked",name_yes)
-	nameno=arbol.get_widget("nameno")
-	nameno.connect("clicked",name_no)
-	
-	config=arbol.get_widget("preferences_buton")
-	config.connect("clicked",configure)
-
-	prefcancel=arbol.get_widget("prefcancel")
-	prefcancel.connect("clicked",pref_cancel)
-	prefok=arbol.get_widget("prefok")
-	prefok.connect("clicked",pref_ok)
-
-	viewz88.set_model(listz88)
-	viewPC.set_model(listPC)
-	
-	rendererz88 = gtk.CellRendererText()
-	columnz88 = gtk.TreeViewColumn("File", rendererz88, text=1)
-	viewz88.append_column(columnz88)
-	
-	rendererpc = gtk.CellRendererText()
-	columnpc = gtk.TreeViewColumn("File", rendererpc, text=1)
-	viewPC.append_column(columnpc)
-	freload=arbol.get_widget("reload")
-	freload.connect("clicked",fill_paths)
-
-	viewz88.connect("button_press_event",z88click)
-	viewPC.connect("button_press_event",pcclick)
-	set_status("idle")
-	get=arbol.get_widget("getz88")
-	send=arbol.get_widget("sendz88")
-	get.connect("clicked",getfile)
-	send.connect("clicked",sendfile)
-	
-	export=arbol.get_widget("notrans")
-	export.connect("toggled",notrans_toggled)
-
-def notrans_toggled(args):
-
-	global arbol
-	
-	pseudo=arbol.get_widget("pseudospanish")
-	export=arbol.get_widget("notrans")
-	
-	if (export.get_active()):
-		pseudo.set_sensitive(False)
-	else:
-		pseudo.set_sensitive(True)
-		
-
-def find_drive():
-	
-	letters="CDEFGHIJKLMNOPQRSTUVWXYZ"
-	found_drive=""
-	for letra in letters:
-	
-		foldererror=False
-		try:
-			content2=dircache.listdir(letra+":\\")
-		except OSError:
-			foldererror=True
-	
-		if foldererror==False:
-			content=content2[:] # we must copy it to ensure that ANNOTATE works fine and don't add more than one /
-			dircache.annotate(letra+":\\",content)
-	
-			for elemento in content:
-				if (elemento[0]=="") | (elemento[0]=="./") | (elemento[0]==".")|(elemento[0][:2]==".."):
-					continue
-				if elemento.lower()=="z88transfer/":
-					found_drive=letra
-					break
-			
-			if found_drive!="":
+		while True:
+			pos = self.filename.find("/")
+			if (pos == -1):
 				break
+			self.filename = self.filename[pos+1:]
+
+		self.filename_z88 = self.filename
 		
-	if found_drive!="":
-		return (found_drive+":/z88transfer")
-	else:
-		return ""
+		self.filename_label.set_text(self.filename)
 
-allowed_letters="abcdefghijklmnopqrstuvwxyz0123456789."
+		self.doexport = False
+		if self.exporting == "abiword":
+			if (".ppd"==self.filename[-4:]) | (".pdd"==self.filename[-4:]):
+				self.filename = self.filename[:-3]+"abw"
+				self.doexport = True
+				
+		if self.exporting == "rtf":
+			if (".ppd"==self.filename[-4:]) | (".pdd"==self.filename[-4:]):
+				self.filename = self.filename[:-3]+"rtf"
+				self.doexport = True
 
-listz88=gtk.TreeStore(gobject.TYPE_PYOBJECT,gobject.TYPE_STRING)
-listPC=gtk.TreeStore(gobject.TYPE_PYOBJECT,gobject.TYPE_STRING)
-debug=False
-local=False
-windows=False
+		return self.filename
 
-if len(sys.argv)==2:
-	if sys.argv[1]=="debug":
-		debug=True
-	elif sys.argv[1]=="local":
-		local=True
-	elif sys.argv[1]=="windows":
-		windows=True
-	else:
-		print "Usage: z88transfer.py [local|windows]"
-elif len(sys.argv)!=1:
-	print "Usage: z88transfer.py [local|windows]"
 
-if windows:
-	serial_port="com1"
-else:
-	serial_port="/dev/ttyS0"
+	def do_copy(self):
 
-z88=z88access.z88access(device=serial_port)
+		self.z88.disable_conversion()
 
-if windows:
-        home=find_drive()
-        if home=="":
-        	print "Can't find program's directory. Aborting"
-        	sys.exit(1)
-else:
-        home=os.environ.get("HOME")
+		filesize=self.z88.file_size(self.z88path+self.filename_z88)
 
-if home[-1]!="/":
-	home+="/"
-
-translator_dictionary="/usr/share/z88transfer/pseudotranslation"
-if debug:
-	arbol=gtk.glade.XML("./z88transfer.glade")
-elif local:
-	arbol=gtk.glade.XML(home+".bin/z88transfer.glade")
-	translator_dictionary=home+".bin/pseudotranslation"
-elif windows:
-	instaldir2=home
-	if (instaldir2[-1]!="/") and (instaldir2[-1]!="\\"):
-		instaldir2+="/"
-	instaldir=""
-	for letra in instaldir2:
-		if letra!="/":
-			instaldir+=letra
+		if self.z88.protocol != "IMP-EXPORT":
+			self.handler = self.z88.receive_file(self.z88path+self.filename_z88)
+			if self.handler == -1:
+				return -1
+		
+		if self.doexport:
+			if self.pseudospanish=="no":
+				use_pseudo = "n"
+			else:
+				use_pseudo = "y"
+			if self.exporting == "abiword":
+				fichero = z88_pipex.abiword(self.pcpath+self.filename,"w",use_pseudo,self.frompipe)
+			else:
+				fichero = z88_pipex.rtf(self.pcpath+self.filename,"w",use_pseudo,self.frompipe)
 		else:
-			instaldir+="\\"
-	arbol=gtk.glade.XML(instaldir+"z88transfer.glade")
-	translator_dictionary=instaldir+"pseudotranslation"
-else:
-	arbol=gtk.glade.XML("/usr/share/z88transfer/z88transfer.glade")
+			fichero = open(self.pcpath+self.filename,"w")
 
-viewz88=arbol.get_widget("treez88")
-viewPC=arbol.get_widget("treepc")
-status=arbol.get_widget("status")
-main=arbol.get_widget("main")
-warning=arbol.get_widget("warning")
-warning_label=arbol.get_widget("warning_label")
-ask=arbol.get_widget("asking")
-ask_label=arbol.get_widget("ask_label")
-preferences=arbol.get_widget("preferences")
-askdata=arbol.get_widget("data")
-namelabel=arbol.get_widget("namelabel")
-nameentry=arbol.get_widget("nameentry")
+		counter = 0.0
+		while True:
+			if 0 == (counter%self.refresh):
+				self.partial.set_text(_("Downloaded %(bytes)d bytes") % {"bytes":counter})
+				if (filesize <= 0):
+					self.partial.pulse()
+				else:
+					self.partial.set_fraction(counter/(float(filesize)))
+				while gtk.events_pending():
+					gtk.main_iteration()
 
-serial_speed=9600
+			counter += 1.0
+			nerr,charac=self.z88.receive_byte_file()		
+			if nerr == -1: # error
+				fichero.close()
+				return -2
 
-serial_protocol="PCLINK"
-pseudospanish="no"
-exporting="disabled"
+			if charac == "":
+				fichero.close()
+				if self.cancel_transfer:
+					return -3
+				else:
+					return 0
+			fichero.write(charac)
 
-read_config()
 
-callback_yes=stub
-callback_no=stub
+class copy_pc(copy_base):
+	
+	def __init__(self,gladepath,nfiles,z88transfer,z88path,pcpath,exporting,translator_dictionary,pseudospanish):
+		
+		copy_base.__init__(self,gladepath,nfiles,z88transfer,z88path,pcpath,exporting,translator_dictionary,pseudospanish)
+	
+	
+	def send_filename(self,filename):
+		
+		self.filename = filename
 
-answer=""
+		if self.filename == "":
+			return None
+		
+		self.filename_z88 = self.z88path+self.filename
+		
+		self.filename_label.set_text(self.filename)
 
-init_all()
+		self.doexport = False
+		
+		if self.exporting == "abiword": # if we want to translate with Abiword converter
+			if ".abw" == (self.filename[-4:]).lower(): # if extension is .ABW
+				self.abiclass = z88_pipex.abiword(self.pcpath+filename,"r",self.pseudospanish,self.topipe)
+				if 0==self.abiclass.export():
+					self.filename_z88 = self.filename_z88[:-3]+"pdd"
+					self.doexport=True
+				else:
+					return -1
 
-z88path="/"
-if windows:
-	pcpath="/"
-else:
-	pcpath=os.environ.get("HOME")
-fill_paths()
+		elif self.exporting=="rtf": # if we want to translate with RTF converter
+			if ".rtf" == (self.filename[-4:]).lower(): # if extension is .RTF
+				self.abiclass = z88_pipex.rtf(self.pcpath+filename,"r",self.pseudospanish,self.topipe)
+				if 0==self.abiclass.export():
+					self.filename_z88 = self.filename_z88[:-3]+"pdd"
+					self.doexport=True
+				else:
+					return -2
+		return 0
+		
+
+	def do_copy(self):
+		
+		self.z88.disable_conversion()
+		filesize=os.stat(self.pcpath+self.filename)[6]
+
+		nfichero=self.filename_z88
+
+		if -1==self.z88.send_file(nfichero):
+			return -1
+
+		if self.doexport:
+			fichero=StringIO.StringIO(self.abiclass.text) # emulate a file with converted text
+		else:
+			fichero=open(self.pcpath+self.filename,"r")		
+		
+		counter = 0.0
+		while True:
+			if 0 == (counter%self.refresh):
+				self.partial.set_text(_("Uploaded %(bytes)d bytes") % {"bytes":counter})
+				if (filesize <= 0):
+					self.partial.pulse()
+				else:
+					self.partial.set_fraction(counter/(float(filesize)))
+				while gtk.events_pending():
+					gtk.main_iteration()
+
+			counter += 1.0
+			charac=fichero.read(1)
+			nerr=self.z88.send_byte_file(charac)
+			if nerr!=0:
+				print "Error "+str(nerr)
+			if nerr == -1: # error
+				fichero.close()
+				return -2
+			if charac == "":
+				fichero.close()
+				if self.cancel_transfer:
+					return -3
+				else:
+					return 0
+
+
+class ask_window:
+	
+	def __init__(self,gladepath,text,title=""):
+		
+		self.gladepath=gladepath
+		self.arbol = gtk.glade.XML(self.gladepath+"z88transfer.glade","data_dialog",domain="z88transfer")
+		self.arbol.signal_autoconnect(self)
+		self.main_window = self.arbol.get_widget("data_dialog")
+		self.main_window.show()
+		
+		self.arbol.get_widget("data_ok").set_sensitive(False)
+		
+		self.arbol.get_widget("data_label").set_text(text)
+		self.status=False
+		
+		if (title != ""):
+			self.main_window.set_title(title)
+
+	
+	def run(self):
+		
+		retval = self.main_window.run()
+		self.value = self.arbol.get_widget("data_entry").get_text()
+		return retval
+
+		
+	def destroy(self):
+		
+		self.main_window.hide()
+		self.main_window.destroy()
+		self.main_window = None
+		self.arbol = None
+		self.gladepath = None
+
+		
+	def on_data_entry_changed(self,widget):
+		
+		if widget.get_text() == "":
+			self.arbol.get_widget("data_ok").set_sensitive(False)
+			self.status = False
+		else:
+			self.arbol.get_widget("data_ok").set_sensitive(True)
+			self.status = True
+			
+			
+	def on_data_entry_activate(self,widget):
+		
+		if self.status:
+			self.main_window.response(-5)
+
+
+class pref_window:
+	
+	def __init__(self,z88,gladepath,serial_port,serial_protocol,serial_speed,exporting,pseudospanish,dictionary):
+		
+		self.gladepath = gladepath
+		self.serial_port = serial_port
+		self.serial_protocol = serial_protocol
+		self.serial_speed = serial_speed
+		self.exporting = exporting
+		self.pseudospanish = pseudospanish
+		self.dictionary = dictionary
+		
+		self.arbol = gtk.glade.XML(self.gladepath+"z88transfer.glade","pref_dialog",domain="z88transfer")
+		self.arbol.signal_autoconnect(self)
+		self.main_window = self.arbol.get_widget("pref_dialog")
+		self.main_window.show()
+		
+		self.port = self.arbol.get_widget("entry_serial_port")
+		self.speed = self.arbol.get_widget("serial_speed_entry")
+		self.protocol = self.arbol.get_widget("serial_protocol_entry")
+		self.pseudo = self.arbol.get_widget("pseudospanish")
+		self.export = self.arbol.get_widget("abiword")
+		self.export2 = self.arbol.get_widget("rtfconv")
+		self.export3 = self.arbol.get_widget("notrans")
+		self.entry = self.arbol.get_widget("transentry")
+	
+		self.entry.set_filename(self.dictionary)
+
+		self.port.set_text(self.serial_port)
+		self.speed.set_editable(False)
+		self.speed.set_text(str(serial_speed))
+		self.protocol.set_editable(False)
+		self.protocol.set_text(serial_protocol)
+	
+		if self.pseudospanish == "yes":
+			self.pseudo.set_active(True)
+		else:
+			self.pseudo.set_active(False)
+	
+		if exporting == "abiword":
+			self.export.set_active(True)
+			self.pseudo.set_sensitive(True)
+			self.entry.set_sensitive(True)
+		elif exporting == "rtf":
+			self.export2.set_active(True)
+			self.pseudo.set_sensitive(True)
+			self.entry.set_sensitive(True)
+		else:
+			self.export3.set_active(True)
+			self.pseudo.set_sensitive(False)
+			self.entry.set_sensitive(False)
+	
+		self.main_window.show()
+		
+		
+	def run(self):
+		
+		retval = self.main_window.run()
+		self.serial_port = self.port.get_text()
+		self.serial_speed = int(self.speed.get_text())
+		self.serial_protocol = self.protocol.get_text()
+		if self.pseudo.get_active():
+			self.pseudospanish = "yes"
+		else:
+			self.pseudospanish = "no"
+			
+		if self.export.get_active():
+			self.exporting = "abiword"
+		elif self.export2.get_active():
+			self.exporting = "rtf"
+		else:
+			self.exporting = "disabled"
+
+		self.dictionary = self.entry.get_filename()
+		return retval
+			
+		
+	def destroy(self):
+		
+		self.main_window.hide()
+		self.main_window.destroy()
+		self.main_window = None
+		self.arbol = None
+		self.gladepath = None
+
+
+	def on_group_changed(self,widget):
+
+		if (self.export.get_active()) or (self.export2.get_active()):
+			self.pseudo.set_sensitive(True)
+			self.entry.set_sensitive(True)
+		else:
+			self.pseudo.set_active(False)
+			self.pseudo.set_sensitive(False)
+			self.entry.set_sensitive(False)
+			
+
+class main_window:
+	
+	def get_home(self):
+
+		if sys.platform == "win32":
+			return os.getcwd()
+		else:
+			return os.environ.get("HOME")
+
+
+	def save_config(self):
+
+		if sys.platform == "win32":
+			nfile = os.getcwd()
+		else:
+			nfile = os.environ.get("HOME")
+			
+		if nfile[-1] != os.sep:
+			nfile += os.sep
+		
+		nfile += ".config_z88transfer"
+		conffile = open(nfile,"w")
+		conffile.write("speed "+str(self.serial_speed)+"\n")
+		conffile.write("port "+self.serial_port+"\n")
+		conffile.write("protocol "+self.serial_protocol+"\n")
+		conffile.write("exporting "+self.exporting+"\n")
+		conffile.write("pseudospanish "+self.pseudospanish+"\n")
+		conffile.write("translatefile "+self.translator_dictionary+"\n")
+		conffile.close()
+		
+
+	def read_config(self):
+		
+		if sys.platform == "win32":
+			self.serial_port = "com1"
+		else:
+			self.serial_port = "/dev/ttyS0"
+
+		self.serial_speed = 9600
+		self.serial_protocol = "PCLINK"
+		self.pseudospanish = "no"
+		self.exporting = "disabled"
+		self.translator_dictionary = self.glade_path+"pseudotranslation"
+		
+		if sys.platform == "win32":
+			nfile = os.getcwd()
+		else:
+			nfile = os.environ.get("HOME")
+		
+		if nfile[-1] != os.sep:
+			nfile += os.sep
+		nfile += ".config_z88transfer"
+		
+		try:
+			conffile = open(nfile,"r")
+		except IOError:
+			return
+
+		while True:
+			linea = conffile.readline()
+			if linea == "":
+				break
+			if linea[-1] == "\n":
+				linea = linea[:-1]
+			pos = linea.find(" ")
+			if linea[:pos] == "speed":
+				self.serial_speed = int(linea[pos+1:])
+			elif linea[:pos] == "port":
+				self.serial_port = linea[pos+1:]
+			elif linea[:pos] == "protocol":
+				self.serial_protocol = linea[pos+1:]
+			elif linea[:pos] == "exporting":
+				self.exporting = linea[pos+1:]
+			elif linea[:pos] == "pseudospanish":
+				self.pseudospanish = linea[pos+1:]
+			elif linea[:pos] == "translatefile":
+				self.translator_dictionary = linea[pos+1:]
+		conffile.close()
+
+
+	def __init__(self,glade_path):
+
+		self.glade_path = glade_path
+			
+		self.read_config()
+		self.z88 = z88_access.z88access(device=self.serial_port)
+		self.z88.set_params(self.serial_speed,self.serial_port,self.serial_protocol)
+		
+		self.z88path = "/"
+		self.pcpath = self.get_home()
+		if self.pcpath == "":
+			print "Can't find program's directory. Aborting"
+			sys.exit(1)
+
+		if self.pcpath[-1] != os.sep:
+			self.pcpath += os.sep
+
+		self.arbol = gtk.glade.XML(self.glade_path+"z88transfer.glade","main_window",domain="z88transfer")
+		self.arbol.signal_autoconnect(self)
+		self.main_window = self.arbol.get_widget("main_window")
+		self.main_window.show()
+		
+		self.show_params()
+
+		self.pc_model = gtk.ListStore (gobject.TYPE_STRING)
+		self.z88model = gtk.ListStore (gobject.TYPE_STRING)
+
+		self.pc_tree = self.arbol.get_widget("pctree")
+		self.z88tree = self.arbol.get_widget("z88tree")
+		self.pc_tree.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+		self.z88tree.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+		self.pc_tree.set_model(self.pc_model)
+		self.z88tree.set_model(self.z88model)
+		pc_column = gtk.TreeViewColumn(_("Filename"),gtk.CellRendererText(),text=0)
+		z88column = gtk.TreeViewColumn(_("Filename"),gtk.CellRendererText(),text=0)
+		self.pc_tree.append_column(pc_column)
+		self.z88tree.append_column(z88column)
+
+		self.z88files = []
+		self.z88folders = []
+		self.pcfiles = []
+		self.pcfolders = []
+
+		self.fill_paths()
+
+
+	def set_status(self,text):
+
+		self.arbol.get_widget("status").set_text(text)
+		while gtk.events_pending():
+			gtk.main_iteration()
+		while gtk.events_pending():
+			gtk.main_iteration()
+
+
+	def on_about_clicked(self,widget):
+		
+		new_arbol = gtk.glade.XML(self.glade_path+"z88transfer.glade","about_dialog",domain="z88transfer")
+		w = new_arbol.get_widget("about_dialog")
+		w.show()
+		w.run()
+		w.hide()
+		w.destroy()
+		w = None
+		new_arbol = None
+
+
+	def do_question(self,question_text,question_title=""):
+		
+		new_arbol = gtk.glade.XML(self.glade_path+"z88transfer.glade","question_dialog",domain="z88transfer")
+		w = new_arbol.get_widget("question_dialog")
+		label = new_arbol.get_widget("question_label")
+		label.set_text(question_text)
+		if question_title != "":
+			w.set_title(question_title)
+		w.show()
+		retval = w.run()
+		label = None
+		w.hide()
+		w.destroy()
+		w = None
+		new_arbol = None
+		return retval
+
+
+	def show_message(self,message_text,message_title=""):
+		
+		new_arbol = gtk.glade.XML(self.glade_path+"z88transfer.glade","message_dialog",domain="z88transfer")
+		w = new_arbol.get_widget("message_dialog")
+		label = new_arbol.get_widget("message_label")
+		label.set_text(message_text)
+		if message_title != "":
+			w.set_title(message_title)
+		w.show()
+		w.run()
+		label = None
+		w.hide()
+		w.destroy()
+		w = None
+		new_arbol = None
+
+
+	def on_preferences_clicked(self,widget):
+		
+		pref = pref_window(self.z88,self.glade_path,self.serial_port,self.serial_protocol,self.serial_speed,self.exporting,self.pseudospanish,self.translator_dictionary)
+		ret_val = pref.run()
+		if ret_val == -5:
+			self.serial_port = pref.serial_port
+			self.serial_protocol = pref.serial_protocol
+			self.serial_speed = pref.serial_speed
+			self.exporting = pref.exporting
+			self.pseudospanish = pref.pseudospanish
+			self.translator_dictionary = pref.dictionary
+			self.z88=z88_access.z88access(device=self.serial_port)
+			self.z88.set_params(self.serial_speed,self.serial_port,self.serial_protocol)
+			self.show_params()
+			self.save_config()
+		pref.destroy()
+		pref = None
+		
+
+	def on_setclock_clicked(self,widget):
+		
+		current_date = time.localtime()
+		if current_date[2] < 10:
+			mydate = "0"
+		else:
+			mydate = ""
+		mydate += str(current_date[2])+"/"
+		if current_date[1] < 10:
+			mydate += "0"
+		mydate += str(current_date[1])+"/"+str(current_date[0])
+		if current_date[3] < 10:
+			mytime = "0"
+		else:
+			mytime = ""
+		mytime += str(current_date[3])+":"
+		if current_date[4] < 10:
+			mytime += "0"
+		mytime += str(current_date[4])+":"
+		if current_date[5] < 10:
+			mytime += "0"
+		mytime += str(current_date[5])
+		
+		if 0 == self.z88.setclock(mydate,mytime):
+			self.show_message(_("The clock has been set"),_("Clock set"))
+		else:
+			self.show_message(_("Couldn't set clock. Please, try again."),_("Error"))
+
+
+	def on_main_window_delete_event(self,widget,event):
+		
+		retval = self.do_question(_("Exit Z88Transfer?"),_("Exit?"))
+		if retval == -5: # OK
+			self.z88.quit()
+			gtk.main_quit()
+			return False
+		return True
+
+
+	def on_freemem_clicked(self,widget):
+		
+		mem0 = self.z88.get_free_mem("0")
+		if mem0 != -1:
+			mem1 = self.z88.get_free_mem("1")
+			mem2 = self.z88.get_free_mem("2")
+			mem3 = self.z88.get_free_mem("3")
+			memv = self.z88.get_free_mem("-")
+			output = _("The available memory is:\n")
+			output += "RAM.0: "+str(mem0)
+			if mem1 != -1:
+				output += "\nRAM.1: "+str(mem1)
+			if mem2 != -1:
+				output += "\nRAM.2: "+str(mem2)
+			if mem3 != -1:
+				output += "\nRAM.3: "+str(mem3)
+			if memv != -1:
+				output += "\nRAM.-: "+str(memv)
+			self.show_message(output, _("Available memory"))
+		else:
+			self.show_message(_("Can't connect to the Z88"),_("Error"))
+
+
+	def on_reload_clicked(self,widget):
+		
+		self.fill_paths(True)
+
+
+	def on_z88_newfolder_clicked(self,widget):
+		
+		if self.z88path == "/":
+			return
+		
+		ask = ask_window(self.glade_path,_("Name for the new folder?"),_("New folder"))
+		retval = ask.run()
+		name = ask.value
+		ask.destroy()
+		ask = None
+		
+		if retval != -5:
+			return
+		
+		if self.z88.check_name(name):
+			self.show_message(_("The folder name contains invalid characters"),_("Error"))
+			return
+
+		if self.z88.create_folder(self.z88path+name) != 0:
+			self.show_message(_("Failed to create the folder"),_("Error"))
+		else:
+			self.fill_paths()
+
+
+	def on_z88_renamefile_clicked(self,widget):
+		
+		if self.z88path == "/":
+			return
+		
+		files = self.get_z88_marked()
+		if len(files) == 0:
+			return
+		
+		if len(files) > 1:
+			self.show_message(_("Select only one file/folder"), _("Error"))
+			return
+	
+		file_name = files[0]
+		if file_name[-1] == "/":
+			file_name = file_name[:-1]
+
+		ask = ask_window(self.glade_path,_('New name for file or folder "%(filename)s"?') % {'filename':file_name},_("Rename file/folder"))
+		retval = ask.run()
+		name = ask.value
+		ask.destroy()
+		
+		ask = None
+		
+		if retval != -5:
+			return
+		
+		if self.z88.check_name(name):
+			self.show_message(_("The new name contains invalid characters"),_("Error"))
+			return
+
+		if self.z88.rename_file(self.z88path+file_name,name) != 0:
+			self.show_message(_("Failed to rename the file/folder"),_("Error"))
+		else:
+			self.fill_paths()
+		
+
+	def on_z88_deletefile_clicked(self,widget):
+		
+		if self.z88path == "/":
+			return
+		
+		files = self.get_z88_marked()
+		if len(files) == 0:
+			return
+		
+		retval = self.do_question(_("Delete the marked files/folders?"),_("Delete files"))
+		if retval != -5:
+			return
+		
+		failed = False
+		for nfile in files:
+			if self.z88.delete_file(nfile) == -1:
+				failed = True
+				
+		if failed:
+			self.show_message(_("Failed to delete all files/folders"),_("Error"))
+			
+		self.fill_paths()
+
+
+	def on_copy_from_z88_clicked(self,widget):
+		
+		files = self.get_z88_marked()
+
+		if (self.z88.protocol=="IMP-EXPORT"):
+			files = [""]
+			impexp = True
+		else:
+			impexp = False
+
+		if (len(files) == 0) or ((self.z88path == "/") and (impexp == False)):
+			return
+		
+		mode = "ask"
+		
+		copyclass = copy_z88(self.glade_path,len(files),self.z88,self.z88path,self.pcpath,self.exporting,self.translator_dictionary,self.pseudospanish)
+		if copyclass.trans_error:
+			self.show_message(_("Can't load the file with the rules for the pseudotranslation. Aborting."), _("Error"))
+			return
+		
+		had_error = False
+		for element in files:
+			if element[-1]=="/":
+				continue
+			filename = copyclass.receive_filename(element)
+			errorm = False
+			for item in self.pcfolders:
+				if item == filename:
+					self.show_message(_("Skipping the file %(filename)s because there's a folder with that name.") % {"filename":filename},_("Error"))
+					copyclass.next_file()
+					errorm = True
+					break
+			if errorm:
+				continue
+			
+			errorm = False
+			
+			if mode !="overwrite":
+				for item in self.pcfiles:
+					if item == filename:
+						errorm = True
+						if mode != "skip":
+							retval = self.ask_overwrite(filename)
+							# retval:
+							# 1 = overwrite this one
+							# 2 = overwrite all
+							# 3 = skip all
+							# other = skip this one
+							
+							if retval == 1: # overwrite this
+								errorm = False
+							elif retval == 2: # overwrite all
+								errorm = False
+								mode = "overwrite"
+							elif retval == 3: # skip all
+								mode = "skip"
+						break
+			if errorm:
+				copyclass.next_file()
+				continue
+
+			retval = copyclass.do_copy()
+			copyclass.next_file()
+			if retval == -1:
+				self.show_message(_("Failed to connect with the Z88. Aborted"), _("Error"))
+				had_error = True
+				break
+			elif retval == -2:
+				self.show_message(_("An error ocurred during transfer. Aborted."), _("Error"))
+				had_error = True
+				break
+			elif retval == -3:
+				self.show_message(_("Aborted by the user"), _("Aborted"))
+				had.error = True
+				break
+				
+		if had_error == False:
+			self.show_message(_("All files copied sucesfully"),_("Job done"))
+
+		copyclass.destroy()
+		self.fill_paths(False)
+
+
+	def on_copy_to_z88_clicked(self,widget):
+		
+		files = self.get_pc_marked()
+
+		if (self.z88.protocol=="IMP-EXPORT"):
+			if len(files)>1:
+				self.show_message(_("With IMP-EXPORT protocol you can't select more than one file"),_("Error"))
+				return
+
+		if (len(files) == 0) or (self.z88path == "/"):
+			return
+		
+		files2 = []
+		for element in files:
+			if element[-1] == os.sep:
+				continue
+			if self.z88.check_name(element.lower()):
+				self.show_message(_("There are filenames with no valid characters. Aborting."),_("Error"))
+				return
+			else:
+				files2.append(element.lower())
+
+		if len(files2) == 0:
+			return
+
+		copyclass = copy_pc(self.glade_path,len(files),self.z88,self.z88path,self.pcpath,self.exporting,self.translator_dictionary,self.pseudospanish)
+		if copyclass.trans_error:
+			self.show_message(_("Can't load the file with the rules for the pseudotranslation. Aborting."), _("Error"))
+			return
+
+		mode = "ask"
+
+		for filename in files2:
+			
+			had_error = False
+			if len(filename) > 16:
+				self.show_message(_("Skipping the file %(filename)s because the filename is too long.") % {"filename":filename},_("Error"))
+				had_error = True
+				continue
+			
+			errorm = False
+			for item in self.z88folders:
+				if item == filename:
+					self.show_message(_("Skipping the file %(filename)s because there's a folder with that name.") % {"filename":filename},_("Error"))
+					errorm = True
+					break
+			if errorm:
+				continue
+			
+			retval = copyclass.send_filename(filename)
+			if retval == -1:
+				self.show_message(_("%(filename)s is not a valid AbiWord file. Skipping.") % {"filename":filename}, _("Warning"))
+				continue
+			elif retval == -2:
+				self.show_message(_("%(filename)s is not a valid RTF file. Skipping.") % {"filename":filename}, _("Warning"))
+				continue
+			
+			errorm = False
+			
+			if mode !="overwrite":
+				for item in self.z88files:
+					if item.lower() == filename:
+						errorm = True
+						if mode != "skip":
+							retval = self.ask_overwrite(filename)
+							# retval:
+							# 1 = overwrite this one
+							# 2 = overwrite all
+							# 3 = skip all
+							# other = skip this one
+							
+							if retval == 1: # overwrite this
+								errorm = False
+							elif retval == 2: # overwrite all
+								errorm = False
+								mode = "overwrite"
+							elif retval == 3: # skip all
+								mode = "skip"
+						break
+			if errorm:
+				continue
+
+			retval = copyclass.do_copy()
+			copyclass.next_file()
+			if retval == -1:
+				self.show_message(_("Failed to connect with the Z88. Aborted"), _("Error"))
+				had_error = True
+				break
+			elif retval == -2:
+				self.show_message(_("An error ocurred during transfer. Aborted."), _("Error"))
+				had_error = True
+				break
+			elif retval == -3:
+				self.show_message(_("Aborted by the user"), _("Aborted"))
+				had.error = True
+				break
+				
+		if had_error == False:
+			self.show_message(_("All files copied sucesfully"),_("Job done"))
+
+		copyclass.destroy()
+		self.fill_paths(True)
+
+
+	def ask_overwrite(self,filename):
+		
+		new_arbol = gtk.glade.XML(self.glade_path+"z88transfer.glade","overwrite_dialog",domain="z88transfer")
+		w = new_arbol.get_widget("overwrite_dialog")
+		label = new_arbol.get_widget("overwrite_label")
+		label.set_text(_("The file %(filename)s already exists. What should I do?"))
+		w.show()
+		retval = w.run()
+		label = None
+		w.hide()
+		w.destroy()
+		w = None
+		new_arbol = None
+		return retval
+
+
+	def fill_paths(self,doz88=True):
+		
+		""" Fills the paths in the main window """
+		
+		self.set_status("Reading directory")
+		
+		if doz88:
+			self.z88model.clear()
+			self.z88files = []
+			self.z88folders = []
+		self.pc_model.clear()
+		self.pcfiles = []
+		self.pcfolders = []
+
+		show_hidden = False
+
+		if doz88:
+			content = self.z88.get_content(self.z88path)
+			if (len(content) == 0) or (self.z88path == "/") or (self.z88.protocol != "EAZYLINK"):
+				status = False
+			else:
+				status = True
+				
+			self.arbol.get_widget("z88_newfolder").set_sensitive(status)
+			self.arbol.get_widget("z88_deletefile").set_sensitive(status)
+			self.arbol.get_widget("z88_renamefile").set_sensitive(status)
+				
+			if len(content) != 0:
+				counter = 0
+				if (self.z88path != "") and (self.z88path != "/"):
+					iterator = self.z88model.insert(counter)
+					self.z88model.set_value(iterator,0,"../")
+					counter += 1
+				lpaths = []
+				lfiles = []
+				for element in content:
+					if (element[0] == "") or (element[0] == "./") or (element[0] == ".") or (element[0][:2] == ".."):
+						continue
+					name = element[0]
+					if (element[1] == "DIR") or (element[1] == "DEV"):
+						name = name+"/"
+						lpaths.append(name)
+					else:
+						lfiles.append(name)
+				
+				lpaths.sort(key=str.lower)
+				lfiles.sort(key=str.lower)
+				
+				for element in lpaths:
+					iterator = self.z88model.insert(counter)
+					self.z88model.set_value(iterator,0,element)
+					self.z88folders.append(element[:-1])
+					counter += 1
+				for element in lfiles:
+					iterator = self.z88model.insert(counter)
+					self.z88model.set_value(iterator,0,element)
+					self.z88files.append(element)
+					counter += 1
+
+		if (sys.platform == "win32") and (len(self.pcpath) > 1):
+			if self.pcpath[0] == os.sep:
+				self.pcpath = self.pcpath[1:]
+
+		if(self.pcpath == "") or (self.pcpath[-1] != os.sep):
+			self.pcpath += os.sep
+	
+		counter=0
+		if self.pcpath != os.sep:
+			iterator = self.pc_model.insert(counter)
+			self.pc_model.set_value(iterator,0,".."+os.sep)
+			counter += 1
+
+		foldererror = False
+		try:
+			content2 = dircache.listdir(self.pcpath)
+		except OSError:
+			foldererror = True
+	
+		if foldererror == False:
+			content2 = content2[:] # we must copy it to ensure that ANNOTATE works fine and don't add more than one /
+			dircache.annotate(self.pcpath,content2)
+			if sys.platform == "win32":
+				content = []
+				for element in content2:
+					if element[-1] == "/":
+						content.append(element[:-1]+os.sep)
+					else:
+						content.append(element)
+			else:
+				content = content2
+			lpaths = []
+			lfiles = []
+
+			if (self.pcpath == os.sep) and (sys.platform=="win32"):
+				for letra in "ACDEFGHIJKLMNOPQRSTUVWXYZ":
+					foldererror = False
+					try:
+						content2 = dircache.listdir(letra+":\\")
+					except OSError:
+						foldererror = True
+	
+					if foldererror == False:
+						iterator = self.pc_model.insert(counter)
+						self.pc_model.set_value(iterator,0,letra+":"+os.sep)
+						counter += 1
+			else:
+				for element in content:
+					if (element == "") or (element == "."+os.sep) or (element == ".") or (element[:2] == ".."):
+						continue
+					if (show_hidden == False) and (element[0] == "."):
+						continue
+
+					if (element[-1] == os.sep):
+						lpaths.append(element)
+					else:
+						lfiles.append(element)
+				
+				lpaths.sort(key=str.lower)
+				lfiles.sort(key=str.lower)
+				
+				for element in lpaths:
+					iterator = self.pc_model.insert(counter)
+					self.pc_model.set_value(iterator,0,element)
+					self.pcfolders.append(element[:-1])
+					counter += 1
+				for element in lfiles:
+					iterator = self.pc_model.insert(counter)
+					self.pc_model.set_value(iterator,0,element)
+					self.pcfiles.append(element)
+					counter += 1
+
+		if doz88:
+			thepathz88 = self.arbol.get_widget("z88path")
+			thepathz88.set_text(self.z88path)
+		thepathpc = self.arbol.get_widget("pcpath")
+		thepathpc.set_text(self.pcpath)
+		self.set_status("idle")
+
+
+	def z88click(self,view,button):
+		
+		if button.type != gtk.gdk._2BUTTON_PRESS:
+			return
+
+		entrada = self.get_z88_marked()
+		if len(entrada) == 0:
+			return
+
+		if self.z88path == "":
+			self.z88path = "/"
+
+		if self.z88path[-1] != "/":
+			self.z88path += "/"
+
+		if (entrada[0][-1] == "/"):
+			if (entrada[0] == "../"):
+				self.z88path = self.search_upper_path_z88(self.z88path)
+			else:
+				self.z88path += entrada[0]
+		
+		if (len(self.z88path) > 1) and (self.z88path[0] == "/"):
+			self.z88path = self.z88path[1:]
+		
+		self.fill_paths()
+		
+
+	def pcclick(self,view,button):
+
+		if button.type != gtk.gdk._2BUTTON_PRESS:
+			return
+
+		entrada = self.get_pc_marked()
+
+		if len(entrada) == 0:
+			return
+
+		if self.pcpath == "":
+			self.pcpath = os.sep
+	
+		if self.pcpath[-1] != os.sep:
+			self.pcpath += os.sep
+		
+		if sys.platform == "win32":
+			if self.pcpath == os.sep:
+				self.pcpath = ""
+			else:
+				if self.pcpath[0] == os.sep:
+					self.pcpath = self.pcpath[1:]
+
+		if (entrada[0][-1] == os.sep):
+			if (entrada[0] == ".."+os.sep):
+				self.pcpath = self.search_upper_path_pc(self.pcpath)
+			else:
+				self.pcpath += entrada[0]
+		self.fill_paths(False)
+
+
+	def get_z88_marked(self):
+		
+		tree,iter = self.z88tree.get_selection().get_selected_rows()
+		if iter == None:
+			return []
+
+		ret = []
+		for item in iter:
+			ret.append(tree.get_value(tree.get_iter(item),0))
+		return ret
+
+
+	def get_pc_marked(self):
+		
+		tree,iter = self.pc_tree.get_selection().get_selected_rows()
+		if iter == None:
+			return []
+
+		ret = []
+		for item in iter:
+			ret.append(tree.get_value(tree.get_iter(item),0))
+		return ret
+
+
+	def search_upper_path_z88(self,path):
+
+		if (path == "") or (path == "/"):
+			return "/"
+
+		comps = path.split("/")
+
+		while comps[-1] == "":
+			comps = comps[:-1]
+		
+		out = ""
+		for item in comps[:-1]:
+			out += item+"/"
+			
+		if out=="":
+			out = "/"
+		return out
+	
+
+	def search_upper_path_pc(self,path):
+
+		if (path == "") or (path == os.sep):
+			return sep
+
+		if (sys.platform == "win32") and (len(path) == 3):
+			return os.sep
+
+		comps = path.split(os.sep)
+		while comps[-1] == "":
+			comps = comps[:-1]
+
+		out = ""
+		for item in comps[:-1]:
+			out += item+os.sep
+			
+		if out=="":
+			out = os.sep
+			
+		return out
+
+
+	def show_params(self):
+		
+		port = self.arbol.get_widget("label_port")
+		speed = self.arbol.get_widget("label_speed")
+		protocol = self.arbol.get_widget("label_protocol")
+		export = self.arbol.get_widget("importexport")
+	
+		speed.set_text(str(self.z88.speed))
+		port.set_text(self.z88.serial_dev)
+		protocol.set_text(self.z88.protocol)
+	
+		if self.exporting == "abiword":
+			if self.pseudospanish == "no":
+				export.set_text(_("Abiword"))
+			else:
+				export.set_text(_("Abiword (pseudotranslation)"))
+		elif self.exporting == "rtf":
+			if self.pseudospanish == "no":
+				export.set_text(_("RTF"))
+			else:
+				export.set_text(_("RTF (pseudotranslation)"))
+		else:
+			export.set_text(_("No conversion"))
+		
+		setclock = self.arbol.get_widget("setclock")
+		freemem = self.arbol.get_widget("freemem")
+		z88_newfolder = self.arbol.get_widget("z88_newfolder")
+		z88_deletefile = self.arbol.get_widget("z88_deletefile")
+		z88_renamefile = self.arbol.get_widget("z88_renamefile")
+	
+		if self.z88.protocol == "EAZYLINK":
+			setmode = True
+		else:
+			setmode = False
+		
+		setclock.set_sensitive(setmode)
+		freemem.set_sensitive(setmode)
+		z88_newfolder.set_sensitive(setmode)
+		z88_deletefile.set_sensitive(setmode)
+		z88_renamefile.set_sensitive(setmode)
+
+
+mwindow = main_window(gladepath)
 
 gtk.main()
-
-z88.quit()

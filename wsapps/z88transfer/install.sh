@@ -1,15 +1,14 @@
 #!/bin/bash
 
-/usr/bin/install z88transfer.py /usr/bin/
-chmod 755 /usr/bin/z88transfer.py
-/usr/bin/install -d /usr/share/z88transfer/
-/usr/bin/install -d /usr/share/doc/z88transfer
-/usr/bin/install z88transfer.glade /usr/share/z88transfer/z88transfer.glade
-/usr/bin/install z88.png /usr/share/pixmaps/
-/usr/bin/install pseudotranslation /usr/share/z88transfer/pseudotranslation
-/usr/bin/install z88transfer.desktop /usr/share/applications/z88transfer.desktop
-/usr/bin/install docs/* /usr/share/doc/z88transfer/
-/usr/bin/install pixmaps/* /usr/share/z88transfer/
-./setup.py install
-rm -rf build
-rm *.pyc
+./uninstall.sh > /dev/null 2>&1
+
+install z88transfer.py /usr/local/bin/
+chmod 755 /usr/local/bin/z88transfer.py
+install -d /usr/local/share/z88transfer/
+install -d /usr/local/share/doc/z88transfer
+install z88_*.py /usr/local/share/z88transfer/
+install other/z88.png /usr/local/share/pixmaps/
+install files/* /usr/local/share/z88transfer/
+install other/z88transfer.desktop /usr/share/applications/z88transfer.desktop
+install docs/* /usr/local/share/doc/z88transfer/
+

@@ -16,8 +16,7 @@
 <p></p>
 
 
-<p>Current version: 2.3</p>
-
+<p>Current version: 3.0</p>
 
 <p></p>
 <h2>WHAT IS IT?</h2>
@@ -30,7 +29,7 @@ Windows. It should work fine under MacOS X with very little (if any)
 modifications.
 
 <p>It's main advantage over other programs is that it can import and
-export transparently from Abiword to Pipedream, and vice-versa, during
+export transparently from Abiword or RTF files to Pipedream, and vice-versa, during
 the transfer itself. This is: if you send an Abiword file from your PC,
 your Z88 will receive it converted to PipeDream format, and if you send
 a PipeDream file from your Z88, your PC will receive it converted to
@@ -39,88 +38,76 @@ without worrying about having to convert it to and from PipeDream
 format.</p>
 
 
-<p>It can emulate foreign characters (like &aacute;, &ntilde; and so
-on) from an english keyboard too, and convert them into true characters
-when the file is exported to Abiword. This is called
+<p>It can emulate foreign characters (like &aacute;, &ntilde; and so on) from an english keyboard too,
+and convert them into true characters when the file is exported to Abiword. This is called
 "Pseudotranslation".</p>
 
 
 <p></p>
 <h2>DISCLAIMER</h2>
-This software is distributed as is, under the <a href="gpl.html">GPL license</a> (v2 or later), and without warranty of any kind. Use it at your own risk. Press <a href="gpl.html">here</a> to read it.
-
+<p>This software is distributed as is, under the <a href="gpl.html">GPL license</a> (version 3 or later),
+and without warranty of any kind. Use it at your own risk. Press <a href="gpl.html">here</a> to read it.</p>
 
 <p></p>
 <h2>INSTALLING Z88TRANSFER</h2>
-There are three possibilities: System-wide linux installation, local linux installation, and windows installation
+<p>There are three possibilities: System-wide linux installation, local linux installation, and windows installation.</p>
 
 <p></p>
-<h3>Linux installation</h3>
-To be able to run Z88transfer, you must have installed in your computer:
+<h3>Linux</h3>
+<p>To be able to run Z88transfer, you must have installed in your computer:</p>
 <ul>
 
   <li>The Python interpreter</li>
 
   <li>The GTK and PyGTK libraries</li>
 
-  <li>The libglade library</li>
-
   <li>The PySerial library</li>
 
 </ul>
-All theses components are GPL, so it's very probable that you can find
-them in your Linux's installation CDs. Just be sure that all are
-installed, and go ahead, or simply try to run Z88transfer from a
-command line, and, if something isn't installed, you will receive an
-explanatory error.
+<p>All theses components are GPL, so it's very probable that you can find them in your Linux's installation
+CDs or repositories. Just be sure that all are installed and go ahead, or simply try to run <b>z88transfer.py</b>
+from a command line (after installing the program, of course) and, if something isn't installed, you will
+receive an explanatory error.</p>
 
-<p>To install the program itself in the system, just enter as root and run the script file <b>install.sh</b>.
-This will create the directories and copy all the files in the right
-place. It should create even an entry in your
-Gnome/KDE/freedesktop-compatible-windowmanager menu.</p>
+<p>To install the program itself in the system, just enter as root and run the script file <b>install.sh</b>
+(you can use sudo too, just with <b>sudo ./install.sh</b>). This will uninstall all old versions,
+create the directories and copy all the files in the right place. It should create even an entry in your
+Gnome/KDE/freedesktop-compatible-windowmanager menu, in the <b>Accesories</b> part.</p>
 
+<p>If you can't (or don't want) to install Z88Transfer in your system, you can run it from the uncompressed
+folder. As you can see in the next picture, you just have to open the folder and double-click in the file
+<b>z88transfer.py</b>.</p>
 
-<p>You can install Z88Transfer in your HOME folder too (this is useful
-when you want to use Z88Transfer in a computer without root access). To
-do this, just run the script file <b>install-local.sh</b>. This script will install Z88Transfer in your HOME directory, under the directory <b>~/.bin</b>, and will put all the documentation under the directory <b>~/.bin/doc</b>. To run the program, you must use the <b>local</b> parameter, like this:</p>
-
-<p align="center">~/.bin/z88transfer.py local</p>
-
+<p><center><img src="local_run.png"></center></p>
 
 <p></p>
-<h3>Windows installation</h3>
-To be able to run z88transfer under windows, you must install some
-components in your system. This is the list, with the internet URL
-where you can download them. You must install them in this order.
-<ul>
+<h3>Windows</h3>
+<p>To be able to run z88transfer under windows, you must install some components in your system. This is
+the list, with the internet URL where you can download them. You must install them in this order.</p>
 
-</ul>
 <ol>
   <li>The Python interpreter <a href="http://www.python.org/download/">(http://www.python.org/download/)</a></li>
   <li>GTK for Windows <a href="http://gladewin32.sourceforge.net/">http://gladewin32.sourceforge.net/</a></li>
-  <li>PyGTK for windows <a href="http://www.pcpm.ucl.ac.be/%7Egustin/win32_ports/pygtk.html">(http://www.pcpm.ucl.ac.be/~gustin/win32_ports/pygtk.html</a>, or search for "PyGTK windows" with google).</li>
+  <li>PyGTK for windows <a href="http://www.pcpm.ucl.ac.be/~gustin/win32_ports/">(http://www.pcpm.ucl.ac.be/~gustin/win32_ports/</a>, or search for "PyGTK windows" with google). You must install <b>pygtk</b>, <b>pyobject</b> and <b>pycairo</b>.</li>
   <li>PyWin32 component <a href="http://sourceforge.net/projects/pywin32/">(http://sourceforge.net/projects/pywin32/)</a>.</li>
   <li>PySerial for windows <a href="http://sourceforge.net/projects/pyserial/">http://sourceforge.net/projects/pyserial/</a>.</li>
 </ol>
-<ul>
 
-</ul>
-After installing all these components, just run the BAT script file <b>install-windows.bat</b>,
-followed by the drive letter where you want to install Z88Transfer.
-Example: if you want to install it in the drive C, just run:
-<p align="center">install-windows.bat C:</p>
+<p>Be sure to install the packages for the right version of python (current it's 2.5).</p>
 
-<p>You will find all the files at <b>&lt;drive-letter&gt;:\z88transfer</b>. To run the program, just use the Z88TRANSFER.BAT file. You can create a link at your desktop.
+<p>To simplify this task, I created a ZIP file with all the right files. You can download it from the
+Z88Transfer's homepage (<a href="http://www.rastersoft.com/programas/z88transfer.html">http://www.rastersoft.com/programas/z88transfer.html</a>).</p>
 
-<p>You can launch z88transfer from a command line just this way, too:</p>
-<p><center>&lt;drive-letter&gt;:\z88transfer\z88transfer.py windows</center></p>
+<p>After installing all this packages, just uncompress the ZIP file with Z88Transfer and run the file
+<b>z88transfer.py</b>, as you can see in this picture:</p>
 
-<p></p>
+<p><center><img src="windows_run.png"></center></p>
+
 <h2>Description of the interface</h2>
 When you launch Z88transfer, you will see a window like this:
 <p></p>
-<center><img src="main_window.png"></center>
-<p></p>
+
+<p><center><img src="main_window.png"></center></p>
 
 <p>This window is divided in these parts:</p>
 
@@ -143,9 +130,7 @@ the Z88. If there's a file with the same name at the destination
 directory, you will be asked if you want to overwrite it or abort the
 transfer (except if you are using the IMP-EXPORT protocol).</p>
 
-<p><b>5</b> is the status bar. It shows the current activity. If you
-are transferring a file, you will see there how many bytes has been
-sent.</p>
+<p><b>5</b> is the status bar. It shows the current activity.</p>
 
 <p><b>6</b> shows the current configuration (serial port, speed and protocol). You can change it by pressing the button <b>9</b>. Your new preferences will be stored in your hard disk.</p>
 
@@ -163,7 +148,8 @@ available only if you select <b>EazyLink</b> protocol.</p>
 
 <p></p>
 <h2>Configuring</h2>
-The first thing you must do is to configure Z88transfer. To do so, just run it and press the "Preferences" icon (button <b>9</b>). Doing so will show this window:
+The first thing you must do is to configure Z88transfer. To do so, just run it and press the "Preferences"
+icon (button <b>9</b>). Doing so will show this window:
 <p></p>
 <center><img src="config_window.png"></center>
 <p></p>
@@ -311,27 +297,26 @@ n&ntilde;<br>
 
 !&iexcl;</p>
 
-<p>This file is stored by default at <i>/usr/share/z88transfer/pseudotranslation</i>, but you can change the location.</p>
+<p>This file is stored by default at <i>/usr/local/share/z88transfer/pseudotranslation</i> if you install
+Z88Transfer in Linux, or in the folder <b>files</b> if you are running it under windows or locally in linux,
+but you can change the location.</p>
 
-<p>With this mode active, to type a "'" character, just use it twice
+<p>With this mode active, to type a "'" character in the document, just use it twice
 (this is, just press "''"). Really, prefixed characters not included in
 the table will be shown "as is", so if you write 'W at the Z88, you
 will get W at Abiword.</p>
 
-
-
 <p>If this option isn't selected, then Z88transfer will simply convert
 between Latin1 codes (used on Z88) and UTF-8 (used on Abiword).</p>
 
-
 <p>It's important to note that the pseudotranslation is done ONLY with
 AbiWord/RTF/PipeDream files, and ONLY if the automagic conversion is
-active.</p>
-
+active. To know if a file is from Abiword, Z88transfer will look for the extension <b>.abw</b>. For
+RTF files, <b>.rtf</b>, and for PipeDream files, <b>.pdd</b> or <b>.ppd</b>.</p>
 
 <p></p>
 <h3>Some details about the ABIWORD/RTF&lt;-&gt;PIPEDREAM conversion</h3>
-The import and export functions are limited to theses capabilities:
+<p>The import and export functions are limited to theses capabilities:</p>
 <ul>
 
   <li>Bold, italic and underline fonts (you can combine them, using bold and italic, or bold and underline...)</li>
@@ -353,37 +338,46 @@ carriage returns and will delete the other 98. It will delete the
 spaces at the begining of each paragraph too.</p>
 
 
-<p></p>
 <h3>Some details about the IMP-EXPORT transfer</h3>
-IMP-EXPORT protocol is very simple, so the options for using it are
+<p>IMP-EXPORT protocol is very simple, so the options for using it are
 very limited. When using IMP-EXPORT you won't be able to see in <b>1</b>
 the current files in your Z88. To transfer a file from the Z88 to the
-PC you must press first the right arrow, and then choose the option <b>Send file</b>
-in your Z88. You have 30 seconds before Z88transfer aborts. You will
-not be warned if there's a file in the PC with the same name, so be
-carefull.
-<p>Sending files to the Z88 is the same: just choose first <b>receive file</b> in your Z88, when asked for the filename press <b>Return</b>, and then select the file in <b>2</b>
+PC you must choose the option <b>Send file</b> in your Z88 and then
+press first the right arrow in Z88Transfer. You have 30 seconds before your Z88 aborts. You will
+be warned if there's a file in the PC with the same name.</p>
+<p>Sending files to the Z88 is the same: just choose first <b>receive file</b> in your Z88, when
+asked for the filename press <b>Return</b>, and then select the file in <b>2</b>
 and press the left arrow. The file will be transferred to the Z88 and,
 if there was another file with the same name, it will be overwritten.</p>
 
-<p>The files in this mode are stored in the default device (you can change it in the <b>panel</b>, in your Z88).</p>
+<p>The files in this mode are stored in the default device (you can change it in the <b>panel</b>, in your
+Z88).</p>
 
 
-<p></p>
 <h2>FAQ</h2>
-<b>The program doesn't work. What's happening?</b>
-<p>Be sure that you have all the modules needed: Python, PyGTK, GTK and GDK, libglade and PySerial. The same for windows.</p>
+<p><b>The program doesn't work. What's happening?</b></p>
+<p>Be sure that you have all the modules needed: Python, PyGTK, GTK and GDK, libglade and PySerial. The
+same for windows.</p>
 
 <p>If the program runs, but you are unable to connect to your Z88,
 check that you have access to your serial ports. Normally, you will
 have to add your user to the serial-port group (the exact group's name
 should be <b>dialout</b>, at least in Debian).</p>
 
-<p>Finally, be sure that you are launching Z88Transfer with the right parameters. You MUST put <b>local</b> after the command if you have installed Z88Transfer locally under Linux, or <b>windows</b> if you are using Z88Transfer under Microsoft Windows.</p>
+<p><b>How can I send more than one file each time I press the arrow?</b></p>
+<p>You can mark multiple files just using the Ctrl key.</p>
 
-
-<p></p>
 <h2>History of versions</h2>
+
+<b>Version 3.0</b>
+
+<ul>
+<li>Big code refactory and cleanup.</li>
+<li>Allows to transfer more than one file each time.</li>
+<li>Better checking to avoid overwriting files when there's a file with the same name.</li>
+<li>Simplified use under windows</li>
+</ul>
+
 <b>Version 2.3</b>
 <ul>
 
