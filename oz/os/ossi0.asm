@@ -334,7 +334,7 @@ ENDIF
 ;       send char in A !! rearrange parity bits and use af' for speed
 
 .tx_2
-        ld      bc, (ubSerParity)               ; parity inC
+        ld      bc, (ubSerParity)               ; parity in C
         ld      b, ~TDRH_START
 
         bit     PAR_B_9BIT, c                   ; nine bit data? clear 1st stop bit (bit8)

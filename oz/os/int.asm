@@ -249,7 +249,7 @@ xref    ReadRTC                                 ; [Kernel0]/time.asm
 
 .int_12
         ld      hl, 0
-        ld      (ubWaitCount1), hl              ; ubWaitCount1, ubWaitCount1
+        ld      (ubWaitCount1), hl              ; ubWaitCount1, ubWaitCount2
         call    ResetTimeout
 
 .int_x
@@ -261,7 +261,7 @@ xref    ReadRTC                                 ; [Kernel0]/time.asm
         pop     hl
         pop     de
         pop     bc
-        jp      INTReturn                       ; get out of IM 1 Interrupt handler - restore bindings in lowram.def.
+        jp      INTReturn                       ; get out of IM 1 Interrupt handler - restore bindings in lowram.
 
 ;       ----
 
