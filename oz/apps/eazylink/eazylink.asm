@@ -808,6 +808,7 @@
                CALL Restore_TraFlag
                JR   C,esc_x_aborted
                JR   Z,esc_x_aborted               ; timeout - communication stopped
+               LD   HL,filename_buffer
 
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
@@ -1187,6 +1188,7 @@
                JR   C,esc_f_aborted
                JR   Z,esc_f_aborted               ; timeout - communication stopped
 
+               LD   HL,filename_buffer
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
                LD   E,L                           ; (explicit filename overwrite original fname)

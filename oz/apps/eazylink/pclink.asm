@@ -105,6 +105,7 @@
                   CALL Fetch_pathname_ackn
                   JR   C, esc_d1_aborted
                   JR   Z, esc_d1_aborted
+                  LD   HL,filename_buffer            ; display pathname
                   PUSH HL
                   LD   HL, Current_dir               ; Send "."
                   CALL SendString_ackn

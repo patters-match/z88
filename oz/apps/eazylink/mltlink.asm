@@ -98,6 +98,7 @@
                   JR   C, esc_d2_aborted
                   JR   Z, esc_d2_aborted
 
+                  LD   HL,filename_buffer            ; display pathname
                   PUSH HL
                   LD   HL, Current_dir               ; Send "."
                   CALL SendString
