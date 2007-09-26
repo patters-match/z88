@@ -213,7 +213,7 @@ NEW
  1820 IF numcards=1 AND FNGetc$(&3FF6)+FNGetc$(&3FF7)="oz" THEN EPFS$="Y"
  1830 REPEAT
  1840   IF numapps=maxapps THEN PROCErrMsg("Too many applications!"):END
- 1850   ABank=(ABank MOD CardSize(numcards-1))+64-CardSize(numcards-1)
+ 1850   REM ABank=(ABank MOD CardSize(numcards-1))+64-CardSize(numcards-1)
  1860   PROCload(FNbankfile$(N$,ABank),bank%)
  1870   IF FNGetb(AAdd+9)<>&83 THEN PROCErrMsg("Invalid Application DOR!"):END
  1880   AppCard(numapps)=numcards-1

@@ -1,3 +1,16 @@
+ROMCombiner v2.03 - What's New?
+===============================
+
+Use new API of FlashEprWriteBlock library routine.
+Also changed Chip type selection user interaction method when blowing 
+banks to just hit '1', '2', '3' or 'F' for 128K, 256K, 32K or Flash.
+
+ROMCombiner contained a bug that prevented it from adding OZ image
+and other multiple bank applications.
+
+Gunther Strube, 26th September 2007
+
+
 ROMCombiner v2.02 - What's New?
 ===============================
 
