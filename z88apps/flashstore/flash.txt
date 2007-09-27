@@ -2,7 +2,7 @@
               FlashStore Application Version 1.9
 *********************************************************************
 
-User Manual 4th edition, updated 21st August 2007.
+User Manual 5th edition, updated 27th September 2007.
 (Revised from 1st edition, Paris, 29 September 1997)
 
 
@@ -20,6 +20,15 @@ FAST ERASING - takes less than ten seconds to erase 1024K bytes.
 FAST SAVING  - takes three seconds to save a 20K file.
 LOW POWER    - takes a tenth of the power used by a standard EPROM.
 
+
+OZ 4.2
+======
+
+The flash card can be supplied with OZ 4.2 on it. If you have this you 
+need to put the flash card in slot 1, any memory you might have in slot 
+2 and give the Z88 a HARD RESET. You should then be running the new OZ 
+which can be checked by pressing the HELP key and then pressing the 
+left cursor key a few times.
 
 FLASH CARDS AND EPROMS
 ----------------------
