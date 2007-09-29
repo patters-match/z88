@@ -133,7 +133,7 @@ NEW
 
  1100 DEF PROCDispTitle
  1110 CLS
- 1120 PRINT r1$;"  RomCombiner v2.03 (c) Garry Lancaster, 2000-2006  ";r0$;
+ 1120 PRINT r1$;"  RomCombiner v2.03 (c) Garry Lancaster, 2000-2007  ";r0$;
  1130 PRINT "  Pause mode ";
  1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
  1150 PRINT "  Display mode ";
