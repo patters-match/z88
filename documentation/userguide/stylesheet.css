@@ -31,12 +31,12 @@ TABLE.illustration TD
 	vertical-align: top;
 	width: 25%;
 }
-TABLE.transperant
+TABLE.transperent
 {
 	width: 100%;
 	border-collapse: collapse;
 }
-TABLE.transperant TD 
+TABLE.transperent TD 
 {
 	vertical-align: top;
 	border: none;
