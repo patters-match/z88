@@ -28,9 +28,5 @@ del *.def *.obj *.bin *.map *.epr
 ..\..\tools\mpm\mpm -b -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib @debugapl
 ..\..\tools\mpm\mpm -b -DSEGMENT2 romhdr
 
-:: produce individual banks to be blown by RomCombiner or Zprom on real cards
-..\..\tools\makeapp\makeapp.bat intuition.62 mthdbg.bin 0000
-..\..\tools\makeapp\makeapp.bat intuition.63 debugger.bin 0000 romhdr.bin 3fc0
-
-:: produce a complete 32K card image for OZvm
-..\..\tools\makeapp\makeapp.bat -sz 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
+:: produce a complete 32K card image for OZvm, and make individual banks for RomCombiner.
+..\..\tools\makeapp\makeapp.bat -szc 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
