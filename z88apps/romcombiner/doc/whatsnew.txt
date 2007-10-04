@@ -1,3 +1,13 @@
+ROMCombiner v2.04 - What's New?
+===============================
+
+A nasty bug has been lurking for years inside Romcombiner:
+When blowing bytes to UV Eproms, interrupts wasn't disabled, which
+would create havoc on the operating system.
+
+Gunther Strube, 4th October 2007
+
+
 ROMCombiner v2.03 - What's New?
 ===============================
 

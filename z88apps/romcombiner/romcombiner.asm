@@ -44,6 +44,7 @@
      xor  a
      cp   c              ; is it a FLASH eprom?
      jr   z,blowflash    ; move on if so
+     di
      ld   hl,$c000
      ld   a,($4D3)
      push af
@@ -90,6 +91,7 @@
      pop  af
      ld   ($4D3),a
      out  ($D3),a
+     ei
      ret
 
 .blowflash
