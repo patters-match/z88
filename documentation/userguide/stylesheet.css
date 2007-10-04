@@ -1,13 +1,13 @@
 ﻿body
 {
-    background-color: #ffffff;
-    font-size: 14px;
-    font-family: Arial;
+	background-color: #ffffff;
+	font-size: 14px;
+	font-family: Arial;
 }
 TABLE.frames
 {
-	width: 100%;
-	border-collapse: collapse;
+	width: 640px;
+	border-collapse: collapse;	
 }
 TABLE.frames TD
 {
@@ -33,7 +33,7 @@ TABLE.illustration TD
 }
 TABLE.transperent
 {
-	width: 100%;
+	width: 640px;
 	border-collapse: collapse;
 }
 TABLE.transperent TD 
