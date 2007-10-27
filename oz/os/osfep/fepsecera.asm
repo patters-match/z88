@@ -75,7 +75,7 @@
 ;
 ; ------------------------------------------------------------------------------------------
 ; Design & programming by:
-;    Gunther Strube, Dec 97-Apr 98, Aug '04, Aug '06, Oct-Nov '06, Feb '07
+;    Gunther Strube, Dec 97-Apr 98, Aug '04, Aug '06, Oct-Nov '06, Feb '07, Oct '07
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ------------------------------------------------------------------------------------------
 ;
@@ -98,17 +98,28 @@
         add     a,a                             ; (convert to first bank no of sector)
         ld      d,a
 ._16K_block_fe
+        dec     b                               ; B = size of card, decrease 1 to get relative top bank number..
         ld      a,c
         and     @00000011                       ; only slots 0, 1, 2 or 3 possible
+        jr      z, calc_bankno                  ; we're in slot 0, so flash chip can only be in lower 512K of slot 0
+        bit     5,b                             
+        jr      nz,calc_bankno                  ; bank no of sector is on lower 512K address (128K or 512K chip), 
+        set     5,d                             ; then use upper 512K address lines (to be compatible with hybrid card)
+.calc_bankno     
         rrca
         rrca                                    ; Converted to Slot mask $40, $80 or $C0
         or      d                               ; the absolute bank which is the bottom of the sector
         ld      d,a                             ; preserve a copy of bank number in D
 
         and     @00111111
-        inc     a                               ; this is the X'th bank of the card..
         ld      c,a
-        ld      a,b                             ; make sure that the Flash Memory Card (B = total 16K banks on Card)
+        bit     5,b    
+        jr      nz,check_size
+        res     5,c                             ; Card < 1Mb: for calculation, adjust bank number within size of card...
+.check_size                    
+        inc     c                               ; this is the X'th bank of the card..
+        ld      a,b                             
+        inc     a                               ; make sure that the Flash Memory Card (A = total 16K banks on Card)
         sub     c                               ; contains the sector (to be erased)
         jr      nc, sector_exists               ; (total_banks_on_card - sector_bank < 0) ...
         ld      a,RC_BER                        ; Fc = 1, sector not available (could not erase block/sector)

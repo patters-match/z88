@@ -59,7 +59,7 @@
 ;
 ; ---------------------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, Dec '97-Apr '98, Jul-Sep 2004, Sep 2005, Aug-Oct-Nov 2006, Feb 2007
+;    Gunther Strube, Dec '97-Apr '98, Jul-Sep '04, Sep '05, Aug-Oct-Nov 06, Feb 07, Oct 07
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------------------------------
 ;
@@ -78,12 +78,29 @@
         ld      c,MS_S1
         ld      hl,MM_S1 << 8                   ; use segment 1 (not this executing segment which is MS_S2)
 
+        push    bc                              ; check for hybrid hardware; 512K RAM (bottom) and 512K Flash (top)
+        ld      a,b                             
+        or      $3f                             
+        ld      b,a                             ; point at top of bank of slot
+
         call    CheckRam
+        ld      a,b
+        pop     bc
         jr      c, unknown_flashmem             ; abort, if RAM card was found in slot C...
 
-        call    FetchCardID                     ; get info of Flash Memory chip in HL (if avail in slot C)...
-        jr      c, unknown_flashmem             ; no ID's were polled from a (potential FE card)
+        push    bc
+        ld      b,a
+        CALL    NC,FetchCardID                  ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...
+        pop     bc
+        jr      nc, get_crddata                 ; AMD flash found, get card ID data...
 
+        ld      hl,MM_S1 << 8                   ; use segment 1 (not this executing segment which is MS_S2)
+        call    CheckRam
+        jr      c, unknown_flashmem             ; abort, if RAM card was found in bottom of slot C...
+                            
+        call    FetchCardID                     ; get info of intel Flash Memory at bottom of chip in HL (if avail in slot C)...
+        jr      c, unknown_flashmem             ; no ID's were polled from a (potential FE card)
+.get_crddata
         call    FlashEprCardData                ; verify Flash Memory ID with known Manufacturer & Device Codes
         jr      c, unknown_flashmem
                                                 ; H = Manufacturer Code, L = Device Code
