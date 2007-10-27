@@ -80,6 +80,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   HL,0
                     CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
 
+                    INC  E
+                    DEC  E
+                    JR   Z, check_flashchip  ; skip RAM check for upper 512K in slot 0 (always available!)
+
                     PUSH BC                  ; check for hybrid hardware; 512K RAM (bottom) and 512K Flash (top)
                     LD   A,B
                     OR   $3F
@@ -89,6 +93,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   A,B
                     POP  BC
                     JR   C, unknown_flashmem ; abort, if RAM card was found in top of slot C...
+.check_flashchip
                     PUSH BC
                     LD   B,A
                     CALL NC,FetchCardID      ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...

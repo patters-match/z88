@@ -78,6 +78,10 @@
         ld      c,MS_S1
         ld      hl,MM_S1 << 8                   ; use segment 1 (not this executing segment which is MS_S2)
 
+        inc     e
+        dec     e
+        jr      z, check_flashchip              ; skip RAM check for upper 512K in slot 0 (always available)
+        
         push    bc                              ; check for hybrid hardware; 512K RAM (bottom) and 512K Flash (top)
         ld      a,b                             
         or      $3f                             
@@ -87,7 +91,7 @@
         ld      a,b
         pop     bc
         jr      c, unknown_flashmem             ; abort, if RAM card was found in slot C...
-
+.check_flashchip
         push    bc
         ld      b,a
         CALL    NC,FetchCardID                  ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...
