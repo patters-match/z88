@@ -269,10 +269,15 @@
                     POP  BC                       ; top bank for header in formatted file area...
                     POP  DE
                     LD   A,D                      ; A = FE_28F / FE_29F
-                    LD   C,E                      ; C = Total of 16K banks on Flash Card
+                    LD   C,E                      ; C = Total of 16K banks on Flash Card                    
                     PUSH IX
                     POP  HL                       ; create a new file header, or use header at (HL)
                     JR   C, restore_regs0         ; error occurred during erase, skip create header...
+                    DEC  E
+                    BIT  5,E                      
+                    JR   NZ,blow_hdr              ; adjust Bank no to upper 512K address space if chip is < 1Mb
+                    SET  5,B                      ; (because hybrid card have flash in upper 512k of address space)  
+.blow_hdr                    
                     CALL FlashEprStdFileHeader    ; Create "oz" File Area Header in absolute bank B
 .restore_regs0
                     EX   AF,AF'                   ; preserve return status

@@ -61,7 +61,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;
 ; ---------------------------------------------------------------------------------------
 ; Design & programming by
-;    Gunther Strube, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005, Aug 2006
+;    Gunther Strube, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005, Aug 2006, Oct 2007
 ;    Thierry Peycru, Zlab, Dec 1997
 ; ---------------------------------------------------------------------------------------
 ;
@@ -80,12 +80,29 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   HL,0
                     CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
 
+										PUSH BC                  ; check for hybrid hardware; 512K RAM (bottom) and 512K Flash (top)
+										LD   A,B
+										OR   $3F
+										LD   B,A								 ; point at top of bank of slot
+
                     CALL CheckRam
-                    JR   C, unknown_flashmem ; abort, if RAM card was found in slot C...
+                    LD   A,B
+                    POP  BC
+                    JR   C, unknown_flashmem ; abort, if RAM card was found in top of slot C...
+										PUSH BC
+                    LD   B,A
+                    CALL NC,FetchCardID      ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...
+                    POP  BC
+                    JR   NC, get_crddata     ; AMD flash found, get card ID data...
 
-                    CALL FetchCardID         ; get info of Flash Memory chip in HL (if avail in slot C)...
+                    LD   HL,0
+                    CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
+                    CALL CheckRam
+                    JR   C, unknown_flashmem ; abort, if RAM card was found in bottom of slot C...
+										
+                    CALL FetchCardID         ; get info of intel Flash Memory at bottom of chip in HL (if avail in slot C)...
                     JR   C, unknown_flashmem ; no ID's were polled from a (potential FE card)
-
+.get_crddata
                     CALL FlashEprCardData    ; verify Flash Memory ID with known Manufacturer & Device Codes
                     JR   C, unknown_flashmem
                                              ; H = Manufacturer Code, L = Device Code
