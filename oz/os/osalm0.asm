@@ -44,7 +44,7 @@ xdef    DoAlarms
 
 xref    OSOff                                   ; [Kernel0]/nmi.asm
 xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    osfpop_1                                ; [Kernel0]/misc4.asm
+xref    OSFramePopX                             ; [Kernel0]/misc4.asm
 
 xref    OSAlmMain                               ; [Kernel1]/osalm.asm
 xref    SetPendingOZwd                          ; [Kernel0]/ozwindow.asm
@@ -66,7 +66,7 @@ xref    SetPendingOZwd                          ; [Kernel0]/ozwindow.asm
         call    OZ_EI
 
         call    SetPendingOZwd                  ; request OZ window redraw
-        jp      osfpop_1
+        jp      OSFramePopX                     ; pop OS frame without error
 
 ;       ----
 

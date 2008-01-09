@@ -14,7 +14,7 @@
 xdef    OSFramePush
 xdef    OSFramePushMain
 xdef    OSFramePop
-xdef    osfpop_1
+xdef    OSFramePopX
 xdef    OSBox
 xdef    OSBix
 xdef    OSBixS1
@@ -66,7 +66,7 @@ xref    MS1BankA                                ; [Kernel0]/misc5.asm
 .OSFramePop
         jr      c, OSFramePopError
 
-.osfpop_1
+.OSFramePopX                                    ; pop OSFrame without error
         pop     iy                              ; 00 - IY
         pop     bc                              ; 02 - S2S3
         ld      a, c

@@ -55,7 +55,7 @@ xdef    NMIEntry
 
 xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
 xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    osfpop_1                                ; [Kernel0]/misc4.asm
+xref    OSFramePopX                             ; [Kernel0]/misc4.asm
 xref    MayDrawOZwd                             ; [Kernel0]/misc3.asm
 
 
@@ -304,7 +304,7 @@ defc    NMI_B_HALT      =0
         call    OSWaitMain
         ld      hl, ubIntTaskToDo              ; ack buffer task
         res     ITSK_B_BUFFER, (hl)
-        jp      osfpop_1                        ; pop without error
+        jp      OSFramePopX                    ; pop without error
 
 ;       ----
 

@@ -39,7 +39,7 @@
 xdef    OSOut, OSBout, OSPout, OsOutKernel
 
 xref    OSFramePush                             ; misc4.asm
-xref    osfpop_1                                ; misc4.asm
+xref    OSFramePopX                             ; misc4.asm
 xref    OSBixS1, OSBoxS1                        ; misc4.asm
 xref    GetOSFrame_HL, PutOSFrame_HL, PeekHLinc ; misc5.asm
 xref    OSOutMain                               ; scrdrv1.asm
@@ -59,7 +59,7 @@ xref    OSOutMain                               ; scrdrv1.asm
 .OSOut
         call    OSFramePush
         call    OsOutKernel                     ; write char to screen driver
-        jp      osfpop_1
+        jp      OSFramePopX
 
 
 ; *************************************************************************************
@@ -78,7 +78,7 @@ xref    OSOutMain                               ; scrdrv1.asm
 .OSBout
         call    OSFramePush
         call    OsBoutKernel                    ; write string at (B)HL to screen driver
-        jp      osfpop_1
+        jp      OSFramePopX
 
 
 ; *************************************************************************************
@@ -107,7 +107,7 @@ xref    OSOutMain                               ; scrdrv1.asm
         or      h
         ld      (iy + OSFrame_OZPC),l
         ld      (iy + OSFrame_OZPC+1),a         ; updated OZ caller return address to instruction following the null-terminator
-        jp      osfpop_1
+        jp      OSFramePopX
 
 
 ; OsBoutKernel, used only within kernel that has already established the register stack frame
