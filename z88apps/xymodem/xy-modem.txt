@@ -1,0 +1,58 @@
+
+Cambridge Computer Z88 popdown XY-Modem Version 1.1, 26 December 1999
+---------------------------------------------------------------------
+
+Overview 
+--------
+A Z88 popdown application for transfering files using the Xmodem and 
+Ymodem protocols. Transfer speed around 3300 cps at 38400 bps using 1K 
+blocks. Currently supported features are checksum and crc error 
+detection, 128 byte and 1K blocksize in any combination, streaming -G 
+mode (only for sending). Mailbox function to send a file marked in 
+Filer. Batch sending with wildcards. Use :*//* to send all files in all 
+directories on all :RAM devices. Ymodem preserves name, size and 
+modification date/time of transfered files. User interface similar to 
+[]X Imp-Export. 
+
+
+Installation on EPROM
+---------------------
+Load XY-Modem.ap0 in top bank at offset 32D4 (hex) on any size eprom 
+or other bank if application front dor is changed accordingly. 
+Garry Lancaster's RomCombiner could probably be used. 
+
+
+Using 
+-----
+Press the X key to select Xmodem and the Y key to select Ymodem. 
+Press the C key to toggle between Checksum and CRC error checking mode. 
+The receiving program controls the type of error checking to be used in 
+a transfer. CRC provides better protection against errors in received 
+files. Please note that Xmodem -1K often implies use of CRC. 
+
+Press the K key to toggle between 128 byte and 1K blocksizes. 
+The sending program controls the blocksize to be used in a transfer. 
+1K blocks are faster to transfer. 
+
+The remote receiving program controls if the streaming -G mode should 
+be used for sending from XY-Modem. 
+
+An X- or Ymodem program receiving or sending, or trying to, can be 
+stopped by sending at least two CAN characters from the remote 
+computer. I.e. to stop Z88 XY-Modem, hold the Ctrl key and press X 
+several times in the remote terminal window. To stop a remote X- or 
+Ymodem program, goto Terminal []V, hold the diamond <> key and press X 
+until the transfer is stopped. 
+
+Unsuccessful transfers can be aborted by pressing Esc. 
+
+Note that proper X- and Ymodem programs expect the sending side to be 
+started first and then the receiving side. Else you have to wait up to 
+ten seconds for the receiver to timeout and retry.
+
+The XY-Modem program is closed by pressing Shift+Enter like in []V 
+Terminal. 
+
+
+Dennis Groning
+dennisgr@algonet.se
