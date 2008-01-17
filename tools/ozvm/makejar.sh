@@ -31,7 +31,7 @@ mkdir ../ozvm-builddir
 
 # compile the java classes of the project
 echo compiling java classes
-java -jar ../jdk/ecj.jar -d ../ozvm-builddir -nowarn -g:none -source 1.4 -target 1.4 com net
+java -jar ../jdk/ecj.jar -d ../ozvm-builddir -nowarn -g:none -source 1.4 -target 1.4 src/com src/net
 
 # copy the remaining application files 
 echo building executable jar
@@ -44,7 +44,7 @@ find ../ozvm-builddir -name '.svn' | xargs rm -fR
 
 # finally, build the executable jar
 cd ../ozvm-builddir
-java -jar ../jdk/makejar.jar -cm ../ozvm/z88.jar ../ozvm/META-INF/MANIFEST.MF .
+java -jar ../jdk/makejar.jar -cm ../ozvm/z88.jar ../ozvm/src/META-INF/MANIFEST.MF .
 
 # clean up the temp build stuff
 cd ../ozvm

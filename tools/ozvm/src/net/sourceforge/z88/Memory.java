@@ -519,7 +519,35 @@ public final class Memory {
 			return false;
 		}
 	}
+
 	
+	/**
+	 * Insert hybrid 512K RAM / 512K AMD card in slots 1 - 3.
+
+	 * Slot 1 (1Mb):   banks 40 - 7F
+	 * Slot 2 (1Mb):   banks 80 - BF
+	 * Slot 3 (1Mb):   banks C0 - FF
+	 *
+	 * @param slot number which Card will be inserted into
+	 * @return true, if card was inserted, false, if illegal size and type
+	 */
+	public boolean insertRamAmdCard(int slot) {
+		slot %= 4; // allow only slots 0 - 3 range.
+		Bank ramBanks[] = createCard(512, SlotInfo.RamCard);
+		Bank amdBanks[] = createCard(512, SlotInfo.AmdFlashCard);
+		
+		Bank cardBanks[] = new Bank[64];
+		System.arraycopy(ramBanks, 0, cardBanks, 0, ramBanks.length);
+		System.arraycopy(amdBanks, 0, cardBanks, ramBanks.length, amdBanks.length);
+		
+		if (ramBanks != null & amdBanks != null) {
+			insertCard(cardBanks, slot); // insert the physical card into Z88 memory
+			return true;
+		} else { 
+			return false;
+		}
+	}
+
 
 	/**
 	 * Insert empty File Card (file header automatically created) into

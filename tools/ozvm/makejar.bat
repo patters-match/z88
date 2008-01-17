@@ -30,7 +30,7 @@ mkdir ..\ozvm-builddir >nul
 
 :: compile the java classes of the project
 echo compiling java classes
-java -jar ..\jdk\ecj.jar -d ..\ozvm-builddir -nowarn -g:none -source 1.4 -target 1.4 com net
+java -jar ..\jdk\ecj.jar -d ..\ozvm-builddir -nowarn -g:none -source 1.4 -target 1.4 src\com src\net
 
 :: copy the application files to included in JAR (without hidden files)
 echo building executable jar
@@ -43,7 +43,7 @@ del /S /Q ..\ozvm-builddir\.svn 2>nul >nul
 
 :: finally, build the executable jar
 cd ..\ozvm-builddir >nul
-java -jar ..\jdk\makejar.jar -cm ..\ozvm\z88.jar ..\ozvm\META-INF\MANIFEST.MF .  >nul
+java -jar ..\jdk\makejar.jar -cm ..\ozvm\z88.jar ..\ozvm\src\META-INF\MANIFEST.MF .  >nul
 
 :: clean up the temp build stuff
 cd ..\ozvm

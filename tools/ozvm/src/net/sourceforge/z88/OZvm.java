@@ -383,6 +383,11 @@ public class OZvm {
 				displayRtmMessage("RAM0 set	to default 128K.");
 				memory.insertRamCard(128, 0);	// no RAM specified for	slot 0,	set to default 128K RAM...
 			}
+/*			
+			if (loadedSnapshot == false && memory.isSlotEmpty(1) == true) {
+				memory.insertRamAmdCard(1);
+			}
+ */
 		} catch	(FileNotFoundException e) {
 			System.out.println("Couldn't load ROM/EPROM image:\n" +	e.getMessage());
 			return false;
