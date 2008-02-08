@@ -267,7 +267,7 @@ void	DefStorageOutput(long pc, long  endarea)
 			fprintf(asmfile, ".L_%04lX\n", foundlabel->addr);
 	}
 
-	fprintf(asmfile, "       defs    %ld\t; %04lXh - %04lXh\n\n", endarea-pc+1, pc, endarea);
+	fprintf(asmfile, "        defs    %ld ($ff)\t; %04lXh - %04lXh\n\n", endarea-pc+1, pc, endarea);
 }
 
 
