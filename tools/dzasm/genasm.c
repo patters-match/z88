@@ -52,6 +52,7 @@ void			XrefAddrItem(LabelRef  *itemptr);
 void			XrefDataItem(LabelRef  *itemptr);
 void			DisplayMnemonic(FILE *out, long addr, char *mnemonic);
 void			DefbOutput(long	 pc, long  endarea);
+void			RomHdrOutput(long	 pc, long  endarea);
 void			DefStorageOutput(long pc, long  endarea);
 int             CmpAddrRef2(long *key, LabelRef *node);
 int			    CmpCommentRef2(long *key, Remark *node);
@@ -127,6 +128,8 @@ void	DZpass2(void)
 			case	string:
 					DefmOutput(currarea->start, currarea->end);
 					break;
+			case	romhdr:
+					RomHdrOutput(currarea->start, currarea->end);
 		}
 
 		currarea = currarea->nextarea;
@@ -458,6 +461,13 @@ void	DefmOutput(long	 pc, long  endarea)
 		fprintf(asmfile, "\"\n");
 	else
 		fputs("\n", asmfile);
+}
+
+
+void	RomHdrOutput(long	 pc, long  endarea)
+{
+	DefbOutput(pc, endarea-2);
+	DefwOutput(endarea-1, endarea);
 }
 
 

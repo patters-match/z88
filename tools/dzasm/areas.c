@@ -28,7 +28,7 @@ extern DZarea		*gAreas;		/* list	of areas currently examined */
 extern enum truefalse	collectfile_changed;
 
 char			*gAreaTypes[] =	{ 	"void", "program", "addrtable", "defw", "defb", "defs",
-						"string", "nop", "romdor", "appldor", "helpdor", "appltopic",
+						"string", "nop", "romhdr", "frontdor", "appldor", "helpdor", "appltopic",
 						"infotopic", "mthcommands", "mthhelp", "mthtokens"
 					};
 

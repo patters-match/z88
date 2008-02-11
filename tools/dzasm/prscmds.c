@@ -83,6 +83,7 @@ void		DefProgArea(void);
 void		DefMemAddrArea(void);
 void		DefMemStrArea(void);
 void		DefineLabel(void);
+void		CreateLabel(long addr, char	*label);
 void		DefStorageArea(void);
 void		ClearDataStructs(void);
 void		DefMemProgArea(void);
@@ -96,6 +97,7 @@ void		GenCollectFile(void);
 void		DefMemByteArea(void);
 void		DefineConstant(void);
 void 		ParseMth(void);
+void		ParseRomDor(void);
 void 		quit(void);
 unsigned char	GetByte(long pc);
 IncludeFile	*AllocIncludeFile(void);
@@ -185,10 +187,9 @@ void	help(void)
 	puts("pp adr\t\t\tParse program from <adr> and forward.");
 	puts("pl adr1 adr2\t\tParse subroutines via lookup table [adr1;adr2].");
 	puts("pv adr\t\t\tParse JP instruction vector table at <adr> and forward.");
-	puts("mth type addr bank\tParse Application, Menu, Topic, Help data structures.");
-	puts("\t\t\t<bank> identifies the current 16K memory area");
-	puts("\t\t\twhich <addr> is part of. Types are: romdor,apldor,");
-	puts("\t\t\thlpdor,apltpc,inftpc,mthcmd,mthhlp,mthtkn.");
+	puts("mth type addr\tParse Application, Menu, Topic, Help data structures.");
+  puts("\t\t\tTypes are: romhdr,frontdor,appldor,hlpdor,mth");
+	puts("\t\t\tMTH structures are automaticaly parsed through Appl DOR.");
 	puts("ca\t\t\tCreate assembler source file in current directory.");
 	puts("q\t\t\tQuit current sub command or DZasm.");
 }
@@ -196,6 +197,39 @@ void	help(void)
 
 void 	ParseMth(void)
 {
+	if (cmdlGetSym() != name) {
+ 		puts("MTH type wasn't specified.");
+ 		return;
+	}
+	
+	if (strcmp(ident, "romhdr") == 0)
+		ParseRomDor();
+}
+
+
+void	ParseRomDor(void)
+{
+	if (Codesize != 16384) {
+ 		puts("OZ static structures can only be parsed in 16K bank files.");
+ 		return;
+	}
+	
+	if (GetByte(gEndOfCode-1) != 'O' && GetByte(gEndOfCode) != 'Z') {
+ 		puts("ROM Header not found at top of bank.");
+ 		return;		
+	}
+	
+	puts("Parsing ROM header..");
+	CreateLabel(gEndOfCode-7,"romhdr");
+	AddRemark(gEndOfCode-7, '>', "Low byte Card ID");
+	AddRemark(gEndOfCode-6, '>', "High byte Card ID");
+	AddRemark(gEndOfCode-5, '>', "4 bit Country code");
+	AddRemark(gEndOfCode-4, '>', "External application ($80) / OZ ROM ($81)");
+	AddRemark(gEndOfCode-3, '>', "Size of card in 16K banks");
+	AddRemark(gEndOfCode-2, '>', "Subtype of card");
+	CreateLabel(gEndOfCode-1,"romhdr_oz");
+	AddRemark(gEndOfCode-1, '>', "'OZ'");
+	InsertArea(&gAreas, gEndOfCode-7,	gEndOfCode, romhdr);
 }
 
 

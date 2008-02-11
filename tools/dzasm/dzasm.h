@@ -19,7 +19,7 @@ Copyright (C) Gunther Strube, InterLogic 1996-99
 
 enum atype              {
 				vacuum, program, addrtable, defw, defb, defs, string, nop,
-				romdor, apldor, hlpdor, apltpc, inftpc, mthcmd, mthhlp, mthtkn,
+				romhdr, frontdor, appldor, hlpdor, apltpc, inftpc, mthcmd, mthhlp, mthtkn,
 				notfound
 			};
                         	/* NB: remember to update mnemonic table in 'areas.c' */

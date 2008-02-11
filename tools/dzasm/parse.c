@@ -71,6 +71,7 @@ enum symbols			cmdlGetSym(void);
 enum truefalse			LocalLabel(long  pc);
 enum truefalse			AddressVisited(long pc);
 void				DefineLabel(void);
+void		    CreateLabel(long addr, char	*label);
 char				*AllocLabelname(char *name);
 long				GetConstant(void);
 void				CreateLabelRef(avltree	**avlptr, long	labeladdr, char *labelname, enum truefalse  scope);
@@ -1660,6 +1661,32 @@ void		DefineScope(void)
 	}
 }
 
+void		CreateLabel(long addr, char	*label)
+{
+	long		tmp;
+	char		*newlabel;
+	LabelRef	*foundref;
+	enum truefalse	local;
+	
+	foundref = find(gLabelRef, &addr, (int (*)()) CmpAddrRef2);
+	if (foundref != NULL) {
+		/* add/replace label name to address */
+		newlabel = AllocLabelname(label);
+		if (newlabel != NULL) strcpy(newlabel, label);
+
+		if (foundref->name != NULL) free(foundref->name);
+		foundref->name = newlabel;
+		collectfile_changed = true;
+	} else {
+		/* create new label */
+		if (SearchArea(gExtern, addr) != notfound)
+			local = false;		/* address not within range of loaded code... */
+		else
+			local = true;
+
+		CreateLabelRef(&gLabelRef, addr, label, local);
+	}
+}
 
 void		DefineLabel(void)
 {
@@ -1681,24 +1708,7 @@ void		DefineLabel(void)
 		return;
 	}
 
-	foundref = find(gLabelRef, &addr, (int (*)()) CmpAddrRef2);
-	if (foundref != NULL) {
-		/* add/replace label name to address */
-		newlabel = AllocLabelname(ident);
-		if (newlabel != NULL) strcpy(newlabel, ident);
-
-		if (foundref->name != NULL) free(foundref->name);
-		foundref->name = newlabel;
-		collectfile_changed = true;
-	} else {
-		/* create new label */
-		if (SearchArea(gExtern, addr) != notfound)
-			local = false;		/* address not within range of loaded code... */
-		else
-			local = true;
-
-		CreateLabelRef(&gLabelRef, addr, ident, local);
-	}
+	CreateLabel(addr, ident);
 }
 
 
