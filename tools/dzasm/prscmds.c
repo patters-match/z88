@@ -76,6 +76,7 @@ void		DispVoidAreas(FILE *out, DZarea *arealist);
 void		DispUnknownAreas(void);
 void		ParseDZ(void);
 void		ParseLookupTable(void);
+void		ParsePointerTable(void);
 void		ParseVectorTable(void);
 void		FindCode(void);
 void		DefineMemory(void);
@@ -98,7 +99,12 @@ void		DefMemByteArea(void);
 void		DefineConstant(void);
 void 		ParseMth(void);
 void		ParseRomDor(void);
+void		ParseFrontDor(void);
+void		ParseApplDOR(long address);
 void 		quit(void);
+enum truefalse   isNullPointer(long address);
+int         getPointer(long address);
+unsigned char	*DecodeAddress(long pc, unsigned char *segm, unsigned short *offset);
 unsigned char	GetByte(long pc);
 IncludeFile	*AllocIncludeFile(void);
 IncludeFile	*AddIncludeFile(char *inclflnm);
@@ -133,13 +139,14 @@ struct dzcmd dzcommands[] = {
  {"mv", SampleMemory},
  {"pl", ParseLookupTable},
  {"pp", ParseDZ},
+ {"ppt", ParsePointerTable},
  {"pv", ParseVectorTable},
  {"q", quit},
  {"rc", ReloadCollectFile},
  {"rem", RemarkOutput}
 };
 
-size_t totaldzcmds = 22;
+size_t totaldzcmds = 23;
 
 
 void 	quit(void)
@@ -195,6 +202,51 @@ void	help(void)
 }
 
 
+/* read 24bit pointer at address */
+int   getPointer(long address)
+{
+    int p;
+    
+    p = GetByte(address);
+    p |= (GetByte(address+1) >> 8);
+    p |= (GetByte(address+2) >> 16);
+    	
+	return p;
+}
+
+
+/* return pointer to null-terminated application name in DOR */
+char *getApplDorName(long dorAddress)
+{
+    long            nextsection;
+	unsigned char	segm;
+	unsigned short 	offset;
+    
+    if (GetByte(dorAddress+9) != 0x83 && GetByte(dorAddress+11) != '@') 
+        return NULL;    /* Application DOR wasn't recognized */
+
+    nextsection = dorAddress + 13 + GetByte(dorAddress+12); /* skip Info section, and go to Help section */
+    nextsection = nextsection + 2 + GetByte(nextsection+1); /* skip Help section, and go to Name section */
+
+	return (char *) DecodeAddress(nextsection+2, &segm, &offset); /* 3rd byte in Name section is first char of appl name */
+}
+
+
+/* is 24bit pointer at address = 0? */
+enum truefalse   isNullPointer(long address)
+{
+    int b;
+    
+	for (b=(int) address; b<(address+3); b++) {
+	    if (GetByte(b) != 0) {
+	        return false;
+	    }
+	}
+	
+	return true;
+}
+
+
 void 	ParseMth(void)
 {
 	if (cmdlGetSym() != name) {
@@ -204,6 +256,72 @@ void 	ParseMth(void)
 	
 	if (strcmp(ident, "romhdr") == 0)
 		ParseRomDor();
+	if (strcmp(ident, "frontdor") == 0)
+		ParseFrontDor();
+}
+
+
+void	ParseApplDOR(long dorAddress)
+{
+    printf("Parsing %s application DOR\n", getApplDorName(dorAddress));
+}
+
+
+/* Front DOR is located at $3FC0 in top bank of application card */
+void	ParseFrontDor(void)
+{
+    long pc = Org + 0x3fc0;
+    long frontDor = pc;
+    int applDor;
+    char *applName;
+    char applLabelName[32];
+    
+	if (Codesize != 16384) {
+ 		puts("OZ static structures can only be parsed in 16K bank files.");
+ 		return;
+	}
+	
+	if (GetByte(gEndOfCode-1) != 'O' && GetByte(gEndOfCode) != 'Z') {
+ 		puts("ROM Header not found at top of bank.");
+ 		return;		
+	}
+	
+    puts("Parsing Front DOR..");
+
+	/* first 3 bytes of Front DOR is always zero */
+	if (isNullPointer(pc) == false) {
+        puts("Front DOR wasn't recognized. Aborted parsing.");
+        return;
+	}
+
+	pc += 3;
+	if (isNullPointer(pc) == false) {
+	    /* TODO: Pointer to Help Front DOR available, parse Help structures */
+	} 
+
+	pc += 3;
+	applDor = getPointer(pc);
+	
+	applDor &= 0x3FFF; /* preserve only the 14bit offset of the DOR pointer */
+	applDor |= (Org & 0xC000); /* and mask the segment of the ORG segment */
+	
+	pc += 3; /* point at DOR type */
+    if (GetByte(pc++) != 0x13) {
+        puts("Front DOR wasn't recognized. Aborted parsing.");
+        return;        
+    }
+	CreateLabel(frontDor,"frontdor");
+
+    strcpy(applLabelName, "applDor_");
+    strcat(applLabelName, getApplDorName(applDor));    
+    CreateLabel(applDor,applLabelName);
+    
+    pc += GetByte(pc); /* the DOR length is added to point at last byte of Front DOR) */
+    InsertArea(&gAreas, frontDor, pc, frontdor);
+    CreateLabel(pc+1,"frontdor_end");
+
+    InsertArea(&gAreas, pc+1, gEndOfCode-8, defb); /* resolve area between Front DOR and ROM header */
+    ParseApplDOR(applDor);
 }
 
 
@@ -221,15 +339,8 @@ void	ParseRomDor(void)
 	
 	puts("Parsing ROM header..");
 	CreateLabel(gEndOfCode-7,"romhdr");
-	AddRemark(gEndOfCode-7, '>', "Low byte Card ID");
-	AddRemark(gEndOfCode-6, '>', "High byte Card ID");
-	AddRemark(gEndOfCode-5, '>', "4 bit Country code");
-	AddRemark(gEndOfCode-4, '>', "External application ($80) / OZ ROM ($81)");
-	AddRemark(gEndOfCode-3, '>', "Size of card in 16K banks");
-	AddRemark(gEndOfCode-2, '>', "Subtype of card");
-	CreateLabel(gEndOfCode-1,"romhdr_oz");
-	AddRemark(gEndOfCode-1, '>', "'OZ'");
-	InsertArea(&gAreas, gEndOfCode-7,	gEndOfCode, romhdr);
+	InsertArea(&gAreas, gEndOfCode-7, gEndOfCode, romhdr);
+	ParseFrontDor();
 }
 
 
@@ -258,6 +369,38 @@ void	ParseLookupTable(void)
 		PushItem(pointer, &gParseAddress);	/* first address to parse */
 		StoreAddrRef(pointer);			/* define pointer as a label */
 		DZpass1();				/* Parse areas from pc onwards */
+	}
+
+	InsertArea(&gAreas, startrange,	endrange, addrtable);
+
+	printf("\n\n%-3.2f%% resolved.\n", ResolvedAreas());
+}
+
+
+void	ParsePointerTable(void)
+{
+	long	startrange, endrange, pc, offset;
+
+	/* fetch address constant for start range */
+	cmdlGetSym();
+	if ((pc=GetConstant()) == -1) {
+		puts("Start range Address not legal.");
+		return;
+	}
+	/* fetch address constant for end range */
+	cmdlGetSym();
+	if ((endrange=GetConstant()) == -1) {
+		puts("End Range Address not legal.");
+		return;
+	}
+
+	startrange = pc;
+	StoreDataRef(pc);			/* Define beginning of table as	label... */
+	while(pc < endrange) {
+		offset	= (unsigned char) GetByte(pc++);
+		offset	+= (unsigned short) (256 * GetByte(pc++));
+		pc++; /* skip bank number, not used here... */
+		StoreAddrRef(offset);	/* define pointer as a label */
 	}
 
 	InsertArea(&gAreas, startrange,	endrange, addrtable);

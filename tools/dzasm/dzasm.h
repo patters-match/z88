@@ -18,11 +18,11 @@ Copyright (C) Gunther Strube, InterLogic 1996-99
 /* $Id$ */
 
 enum atype              {
-				vacuum, program, addrtable, defw, defb, defs, string, nop,
+				vacuum, program, addrtable, defp, defw, defb, defs, string, nop,
 				romhdr, frontdor, appldor, hlpdor, apltpc, inftpc, mthcmd, mthhlp, mthtkn,
 				notfound
 			};
-                        	/* NB: remember to update mnemonic table in 'areas.c' */
+                        	/* NB: remember to update gAreaTypes table in 'areas.c' */
 enum files              {
 				none, stdio, fileio, director, memory, dor, syspar, saverestore,
               	                floatp, integer, serinterface, screen, timedate, chars, error, map,

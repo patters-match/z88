@@ -53,10 +53,14 @@ void			XrefDataItem(LabelRef  *itemptr);
 void			DisplayMnemonic(FILE *out, long addr, char *mnemonic);
 void			DefbOutput(long	 pc, long  endarea);
 void			RomHdrOutput(long	 pc, long  endarea);
+void			FrontDOROutput(long	 pc, long  endarea);
 void			DefStorageOutput(long pc, long  endarea);
 int             CmpAddrRef2(long *key, LabelRef *node);
 int			    CmpCommentRef2(long *key, Remark *node);
 void			LabelAddr(char *operand, long pc, long addr, enum truefalse dispaddr);
+int             getPointer(long address);
+
+
 
 /* Create assembler source (with labels) from program and data areas */
 void	DZpass2(void)
@@ -128,8 +132,14 @@ void	DZpass2(void)
 			case	string:
 					DefmOutput(currarea->start, currarea->end);
 					break;
+					
 			case	romhdr:
 					RomHdrOutput(currarea->start, currarea->end);
+					break;
+					
+			case	frontdor:
+					FrontDOROutput(currarea->start, currarea->end);
+					break;
 		}
 
 		currarea = currarea->nextarea;
@@ -466,8 +476,63 @@ void	DefmOutput(long	 pc, long  endarea)
 
 void	RomHdrOutput(long	 pc, long  endarea)
 {
-	DefbOutput(pc, endarea-2);
-	DefwOutput(endarea-1, endarea);
+	LabelRef		*foundlabel;
+	int             ptr, applDor;
+	unsigned char	segm;
+	unsigned short 	offset;
+
+	foundlabel = find(gLabelRef, &pc, (int (*)()) CmpAddrRef2);
+	if (foundlabel != NULL)	{
+		if (foundlabel->name != NULL)
+			fprintf(asmfile, ".%s\n", foundlabel->name);
+		else
+			fprintf(asmfile, ".L_%04lX\n", foundlabel->addr);
+	}
+
+    fprintf(asmfile, "        defb    $%02x\t; Low byte Card ID\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; High byte Card ID\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; 4 bit Country code\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; External application ($80) / OZ ROM ($81)\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Size of card in 16K banks\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Subtype of card\n", GetByte(pc++));
+    DefmOutput(pc, endarea);
+}
+
+
+void    FrontDOROutput(long	 pc, long  endarea)
+{
+	LabelRef		*foundlabel;
+	int             ptr, applDor;
+	unsigned char	segm;
+	unsigned short 	offset;
+
+	foundlabel = find(gLabelRef, &pc, (int (*)()) CmpAddrRef2);
+	if (foundlabel != NULL)	{
+		if (foundlabel->name != NULL)
+			fprintf(asmfile, ".%s\n", foundlabel->name);
+		else
+			fprintf(asmfile, ".L_%04lX\n", foundlabel->addr);
+	}
+    
+    fprintf(asmfile, "        defp    0,0\n");
+    pc += 3;
+    fprintf(asmfile, "        defp    0,0\n"); /* TODO: implement Help Front DOR, if available */
+    pc += 3;
+    ptr = getPointer(pc);
+    
+    applDor = ptr;
+	applDor &= 0x3FFF;          /* preserve only the 14bit offset of the DOR pointer */
+	applDor |= (Org & 0xC000);  /* and mask the segment of the ORG segment */
+    
+    foundlabel = find(gLabelRef, &applDor, (int (*)()) CmpAddrRef2);
+    fprintf(asmfile, "        defp    %s,$%02x\t; Pointer to first application DOR\n", foundlabel->name, GetByte(pc+2));
+    pc += 3;
+    fprintf(asmfile, "        defb    $%02x\t; DOR type = ROM Front DOR\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; DOR length\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    '%c'\t; Name section\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Length of name\n", GetByte(pc++));
+    fprintf(asmfile, "        defm    '%s',0\t\n", DecodeAddress(pc, &segm, &offset));
+    fprintf(asmfile, "        defb    $%02x\t; DOR Terminator\n", GetByte(pc+6));
 }
 
 

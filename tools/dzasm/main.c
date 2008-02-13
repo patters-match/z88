@@ -69,7 +69,7 @@ void			AllocZ80Space(void);
 void			ParseCommands(void);
 void			DeleteIncludeFiles(void);
 void			ReadFileBinary(FILE *infile, long Org);
-unsigned char		*DecodeAddress(long pc, unsigned char *segm, unsigned short *offset);
+unsigned char	*DecodeAddress(long pc, unsigned char *segm, unsigned short *offset);
 
 
 
