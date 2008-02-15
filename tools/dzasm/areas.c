@@ -28,8 +28,8 @@ extern DZarea		*gAreas;		/* list	of areas currently examined */
 extern enum truefalse	collectfile_changed;
 
 char			*gAreaTypes[] =	{ 	"void", "program", "addrtable", "defp", "defw", "defb", "defs",
-						"string", "nop", "romhdr", "frontdor", "appldor", "helpdor", "appltopic",
-						"infotopic", "mthcommands", "mthhelp", "mthtokens"
+						"string", "nop", "romhdr", "frontdor", "appldor", "helpdor", 
+						"mthtopics", "mthcmnds", "mthhelp", "mthtokens", "notfound"
 					};
 
 DZarea			*InitArea(long	startaddr, long	 endaddr, enum atype  t);

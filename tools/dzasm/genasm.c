@@ -54,12 +54,15 @@ void			DisplayMnemonic(FILE *out, long addr, char *mnemonic);
 void			DefbOutput(long	 pc, long  endarea);
 void			RomHdrOutput(long	 pc, long  endarea);
 void			FrontDOROutput(long	 pc, long  endarea);
+void			ApplDOROutput(long	 pc, long  endarea);
 void			DefStorageOutput(long pc, long  endarea);
 int             CmpAddrRef2(long *key, LabelRef *node);
 int			    CmpCommentRef2(long *key, Remark *node);
 void			LabelAddr(char *operand, long pc, long addr, enum truefalse dispaddr);
 int             getPointer(long address);
-
+int             getPointerOffset(long address);
+enum truefalse  isNullPointer(long address);
+unsigned char	*DecodeAddress(long pc, unsigned char *segm, unsigned short *offset);
 
 
 /* Create assembler source (with labels) from program and data areas */
@@ -140,6 +143,32 @@ void	DZpass2(void)
 			case	frontdor:
 					FrontDOROutput(currarea->start, currarea->end);
 					break;
+
+			case	appldor:
+					ApplDOROutput(currarea->start, currarea->end);
+					break;
+
+			case	helpdor:
+					DefbOutput(currarea->start, currarea->end);
+					break;
+
+			case	mthtpc:
+					DefbOutput(currarea->start, currarea->end);
+					break;
+
+			case	mthcmd:
+					DefbOutput(currarea->start, currarea->end);
+					break;
+
+			case	mthhlp:
+					DefbOutput(currarea->start, currarea->end);
+					break;
+
+			case	mthtkn:
+					DefbOutput(currarea->start, currarea->end);
+					break;
+		    default:
+		        printf("Unknown area type: %d!\n", currarea->areatype);
 		}
 
 		currarea = currarea->nextarea;
@@ -502,7 +531,7 @@ void	RomHdrOutput(long	 pc, long  endarea)
 void    FrontDOROutput(long	 pc, long  endarea)
 {
 	LabelRef		*foundlabel;
-	int             ptr, applDor;
+	int             applDor;
 	unsigned char	segm;
 	unsigned short 	offset;
 
@@ -518,21 +547,108 @@ void    FrontDOROutput(long	 pc, long  endarea)
     pc += 3;
     fprintf(asmfile, "        defp    0,0\n"); /* TODO: implement Help Front DOR, if available */
     pc += 3;
-    ptr = getPointer(pc);
-    
-    applDor = ptr;
-	applDor &= 0x3FFF;          /* preserve only the 14bit offset of the DOR pointer */
-	applDor |= (Org & 0xC000);  /* and mask the segment of the ORG segment */
-    
+    applDor = getPointerOffset(pc);
+        
     foundlabel = find(gLabelRef, &applDor, (int (*)()) CmpAddrRef2);
-    fprintf(asmfile, "        defp    %s,$%02x\t; Pointer to first application DOR\n", foundlabel->name, GetByte(pc+2));
+    fprintf(asmfile, "        defp    %s & $3fff,$%02x\t; Pointer to first application DOR\n", foundlabel->name, GetByte(pc+2));
     pc += 3;
     fprintf(asmfile, "        defb    $%02x\t; DOR type = ROM Front DOR\n", GetByte(pc++));
     fprintf(asmfile, "        defb    $%02x\t; DOR length\n", GetByte(pc++));
     fprintf(asmfile, "        defb    '%c'\t; Name section\n", GetByte(pc++));
     fprintf(asmfile, "        defb    $%02x\t; Length of name\n", GetByte(pc++));
-    fprintf(asmfile, "        defm    '%s',0\t\n", DecodeAddress(pc, &segm, &offset));
+    fprintf(asmfile, "        defm    \"%s\",0\t\n", DecodeAddress(pc, &segm, &offset));
     fprintf(asmfile, "        defb    $%02x\t; DOR Terminator\n", GetByte(pc+6));
+}
+
+
+void    ApplDOROutput(long	 pc, long  endarea)
+{
+	LabelRef		*lr, *applDorBaseLabel, *nextApplDorLabel;
+	int             applDorOffset, lengthByte, mthTopics, mthCommands, mthHelp, mthTokens;
+	unsigned char	segm;
+	unsigned short 	offset;
+	char            dorStartName[32], dorEndName[32];
+    char            applStartName[32], applEndName[32];
+    
+    /* Label is always defined for start of DOR by parser */
+	applDorBaseLabel = find(gLabelRef, &pc, (int (*)()) CmpAddrRef2);
+	fprintf(asmfile, ".%s\n", applDorBaseLabel->name);
+    
+    fprintf(asmfile, "        defp    0,0\n");
+    pc += 3;
+    applDorOffset = getPointerOffset(pc);
+    
+    if (isNullPointer(pc) == false) {
+        nextApplDorLabel = find(gLabelRef, &applDorOffset, (int (*)()) CmpAddrRef2);
+        fprintf(asmfile, "        defp    %s & $3fff,$%02x\t; Pointer to next application DOR\n", nextApplDorLabel->name, GetByte(pc+2));
+    } else {
+        fprintf(asmfile, "        defp    0,0\t; Pointer to next application DOR (None)\n");
+    }
+    pc += 3;
+    fprintf(asmfile, "        defp    0,0\t; Link to Son (always 0)\n");
+    pc += 3;
+    fprintf(asmfile, "        defb    $%02x\t; DOR type = Application ROM\n", GetByte(pc++));
+    pc++; /* skip DOR length byte, use label distance expression instead */
+
+    strcpy(dorStartName, applDorBaseLabel->name);
+    strcat(dorStartName, "_Start");
+    strcpy(dorEndName, applDorBaseLabel->name);
+    strcat(dorEndName, "_End");
+    
+    fprintf(asmfile, "        defb    %s-%s\t; DOR length\n", dorEndName, dorStartName);
+    fprintf(asmfile, ".%s\n", dorStartName);    
+    fprintf(asmfile, "        defb    '%c'\t; Info section\n", GetByte(pc++));       
+    fprintf(asmfile, "        defb    $%02x\t; Length of info section\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x,$%02x\t; Future expansion\n", GetByte(pc++), GetByte(pc++));
+    fprintf(asmfile, "        defb    '%c'\t; Application key letter\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; continuous RAM size in 256-byte pages\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x,$%02x\t; estimate of environment overhead\n", GetByte(pc++), GetByte(pc++));
+    fprintf(asmfile, "        defw    $%04x\t; Unsafe workspace\n", GetByte(pc++) + 256 * GetByte(pc++));
+    fprintf(asmfile, "        defw    $%04x\t; Safe workspace\n", GetByte(pc++) + 256 * GetByte(pc++));
+    fprintf(asmfile, "        defw    $%04x\t; Entry point for application code\n", GetByte(pc++) + 256 * GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Segment 0 entry bank binding\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Segment 1 entry bank binding\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Segment 2 entry bank binding\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Segment 3 entry bank binding\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Application type byte 1\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Application type byte 2\n", GetByte(pc++));
+
+    fprintf(asmfile, "        defb    '%c'\t; Help section\n", GetByte(pc++));
+    fprintf(asmfile, "        defb    $%02x\t; Length of section\n", GetByte(pc++));
+   	mthTopics = getPointerOffset(pc);
+    lr = find(gLabelRef, &mthTopics, (int (*)()) CmpAddrRef2);
+    fprintf(asmfile, "        defp    %s & $3fff,$%02x\t; Pointer to Topics\n", lr->name, GetByte(pc+2));
+    pc += 3;
+
+   	mthCommands = getPointerOffset(pc);
+    lr = find(gLabelRef, &mthCommands, (int (*)()) CmpAddrRef2);
+    fprintf(asmfile, "        defp    %s & $3fff,$%02x\t; Pointer to Commands\n", lr->name, GetByte(pc+2));
+    pc += 3;
+
+   	mthHelp = getPointerOffset(pc);
+    lr = find(gLabelRef, &mthHelp, (int (*)()) CmpAddrRef2);
+    fprintf(asmfile, "        defp    %s & $3fff,$%02x\t; Pointer to Help\n", lr->name, GetByte(pc+2));
+    pc += 3;
+    
+   	mthTokens = getPointerOffset(pc);
+    lr = find(gLabelRef, &mthTokens, (int (*)()) CmpAddrRef2);
+    fprintf(asmfile, "        defp    %s & $3fff,$%02x\t; Pointer to Token Base\n", lr->name, GetByte(pc+2));
+    pc += 3;
+
+    fprintf(asmfile, "        defb    '%c'\t; Name section\n", GetByte(pc++));
+    lengthByte = GetByte(pc++); /* get length byte of Application Name */
+
+    strcpy(applStartName, applDorBaseLabel->name);
+    strcat(applStartName, "_Name");
+    strcpy(applEndName, applDorBaseLabel->name);
+    strcat(applEndName, "_NameEnd");
+
+    fprintf(asmfile, "        defb    %s-%s\t; Length of name\n", applEndName, applStartName);
+    fprintf(asmfile, ".%s\n", applStartName);    
+    fprintf(asmfile, "        defm    \"%s\",0\t\n", DecodeAddress(pc, &segm, &offset));
+    fprintf(asmfile, ".%s\n", applEndName);    
+    fprintf(asmfile, "        defb    $%02x\t; DOR Terminator\n", GetByte(pc+lengthByte));
+    fprintf(asmfile, ".%s\n\n", dorEndName);    
 }
 
 

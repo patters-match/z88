@@ -19,7 +19,7 @@ Copyright (C) Gunther Strube, InterLogic 1996-99
 
 enum atype              {
 				vacuum, program, addrtable, defp, defw, defb, defs, string, nop,
-				romhdr, frontdor, appldor, hlpdor, apltpc, inftpc, mthcmd, mthhlp, mthtkn,
+				romhdr, frontdor, appldor, helpdor, mthtpc, mthcmd, mthhlp, mthtkn,
 				notfound
 			};
                         	/* NB: remember to update gAreaTypes table in 'areas.c' */
