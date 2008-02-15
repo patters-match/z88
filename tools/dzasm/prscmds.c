@@ -277,7 +277,7 @@ void 	ParseMth(void)
 void	ParseApplDOR(long dorAddress)
 {
     long helpSection, endAddress;
-    int applDor, nextApplDor, mthTopics, mthCommands, mthHelp, mthTokens;
+    int applDor, applEntry, nextApplDor, mthTopics, mthCommands, mthHelp, mthTokens;
     char applLabelName[32];
     LabelRef *lr;
         
@@ -306,6 +306,11 @@ void	ParseApplDOR(long dorAddress)
         strcat(applLabelName, getApplDorName(nextApplDor));    
         CreateLabel(nextApplDor,applLabelName);
 	}
+	
+	applEntry = GetByte(dorAddress + 13 + 10) + 256 * GetByte(dorAddress + 13 + 10 + 1);
+    strcpy(applLabelName, getApplDorName(dorAddress));    	
+    strcat(applLabelName, "_entry");            
+    CreateLabel(applEntry, applLabelName);
 	
 	helpSection = dorAddress + 13 + GetByte(dorAddress+12); /* point at start of Help section */
 	helpSection += 2; /* point at pointer to MTH Topics */

@@ -564,7 +564,7 @@ void    FrontDOROutput(long	 pc, long  endarea)
 void    ApplDOROutput(long	 pc, long  endarea)
 {
 	LabelRef		*lr, *applDorBaseLabel, *nextApplDorLabel;
-	int             applDorOffset, lengthByte, mthTopics, mthCommands, mthHelp, mthTokens;
+	int             applDorOffset, applEntry, lengthByte, mthTopics, mthCommands, mthHelp, mthTokens;
 	unsigned char	segm;
 	unsigned short 	offset;
 	char            dorStartName[32], dorEndName[32];
@@ -605,7 +605,11 @@ void    ApplDOROutput(long	 pc, long  endarea)
     fprintf(asmfile, "        defb    $%02x,$%02x\t; estimate of environment overhead\n", GetByte(pc++), GetByte(pc++));
     fprintf(asmfile, "        defw    $%04x\t; Unsafe workspace\n", GetByte(pc++) + 256 * GetByte(pc++));
     fprintf(asmfile, "        defw    $%04x\t; Safe workspace\n", GetByte(pc++) + 256 * GetByte(pc++));
-    fprintf(asmfile, "        defw    $%04x\t; Entry point for application code\n", GetByte(pc++) + 256 * GetByte(pc++));
+    
+    applEntry = GetByte(pc++) + 256 * GetByte(pc++);
+    lr = find(gLabelRef, &applEntry, (int (*)()) CmpAddrRef2);
+    fprintf(asmfile, "        defw    %s\t; Entry point for application code\n", lr->name);
+    
     fprintf(asmfile, "        defb    $%02x\t; Segment 0 entry bank binding\n", GetByte(pc++));
     fprintf(asmfile, "        defb    $%02x\t; Segment 1 entry bank binding\n", GetByte(pc++));
     fprintf(asmfile, "        defb    $%02x\t; Segment 2 entry bank binding\n", GetByte(pc++));
