@@ -77,7 +77,7 @@ unsigned char	*DecodeAddress(long pc, unsigned char *segm, unsigned short *offse
 unsigned char	GetByte(long pc)
 {
 	unsigned short 	offset;
-	unsigned char	segm, *segment;
+	unsigned char	segm;
 
 	if ((pc < 0) || (pc > (MAXCODESIZE-1))) {
 		puts("PC out of 64K address space!");

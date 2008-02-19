@@ -207,7 +207,6 @@ void	help(void)
 int   getPointer(long address)
 {
     unsigned char b0,b1,b2;
-    int p;
     
     b0 = GetByte(address);
     b1 = GetByte(address+1);
@@ -277,7 +276,7 @@ void 	ParseMth(void)
 void	ParseApplDOR(long dorAddress)
 {
     long helpSection, endAddress;
-    int applDor, applEntry, nextApplDor, mthTopics, mthCommands, mthHelp, mthTokens;
+    int applEntry, nextApplDor, mthTopics, mthCommands, mthHelp, mthTokens;
     char applLabelName[32];
     LabelRef *lr;
         
@@ -405,7 +404,6 @@ void	ParseFrontDor(void)
     long pc = Org + 0x3fc0;
     long frontDor = pc;
     int applDor;
-    char *applName;
     char applLabelName[32];
     
 	if (Codesize != 16384) {
@@ -962,7 +960,7 @@ void	AddGlobalConstant(long constant, char *conststr)
 
 void	DefMemStrArea(void)
 {
-	long	start, end, table;
+	long	start, end;
 
 	/* fetch address constant for start range */
 	cmdlGetSym();
@@ -1055,7 +1053,7 @@ void	DefineMemory(void)
 
 void	DefStorageArea(void)
 {
-	long		start, end, table, pointer;
+	long		start, end;
 
 	/* fetch address constant for start range */
 	cmdlGetSym();
@@ -1085,7 +1083,7 @@ void	DefStorageArea(void)
 
 void	DefMemByteArea(void)
 {
-	long		start, end, table, pointer;
+	long		start, end;
 
 	/* fetch address constant for start range */
 	cmdlGetSym();

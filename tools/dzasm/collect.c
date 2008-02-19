@@ -251,7 +251,7 @@ void	ReadCollectFile(void)
 {
 	FILE		*infile = NULL;
 	char		*cptr;
-	long		c;
+	int			c;
 
 	collect	= fopen(collectfilename, "rb");
 	if (collect == NULL) {
@@ -264,7 +264,7 @@ void	ReadCollectFile(void)
 	cptr = ident;
 	while(GetSym() != lcurly);		/* Get to start	of name	*/
 	while((c=fgetc(collect)) != '}') {      /* read filename of collect file */
-		*cptr++	= c;
+		*cptr++	= (char) c;
 	}
 	*cptr =	'\0';
 	printf("Filename: %s\n", ident);

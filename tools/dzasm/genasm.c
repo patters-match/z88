@@ -181,11 +181,9 @@ void	DZpass2(void)
 
 void	VoidOutput(long	 pc, long  endarea)
 {
-	Remark			*foundcomment;
-	Commentline		*curline;
 	long			column,	offset;
-	enum truefalse		exitdump;
-	LabelRef	       *foundlabel;
+	enum truefalse	exitdump;
+	LabelRef	    *foundlabel;
 
 	exitdump = false;
 	fprintf(asmfile, "; %04lXh\n", pc);
@@ -506,9 +504,6 @@ void	DefmOutput(long	 pc, long  endarea)
 void	RomHdrOutput(long	 pc, long  endarea)
 {
 	LabelRef		*foundlabel;
-	int             ptr, applDor;
-	unsigned char	segm;
-	unsigned short 	offset;
 
 	foundlabel = find(gLabelRef, &pc, (int (*)()) CmpAddrRef2);
 	if (foundlabel != NULL)	{
@@ -784,7 +779,6 @@ void	XrefDataItem(LabelRef  *itemptr)
 /* generate Z80	assembler code,	based on parsed	areas and label	references */
 void	Z80Asm(long pc, long  endarea)
 {
-	enum truefalse		linefeed;
 	LabelRef		*foundlabel;
 	char			mnemonic[64];
 	long			pc0;

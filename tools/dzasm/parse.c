@@ -1246,7 +1246,6 @@ long	ParseArea(long pc)
 {
     unsigned char	i;
     long		label;
-    long                start, end;
 
     while(pc <=	gEndOfCode) {
 
@@ -1663,7 +1662,6 @@ void		DefineScope(void)
 
 void		CreateLabel(long addr, char	*label)
 {
-	long		tmp;
 	char		*newlabel;
 	LabelRef	*foundref;
 	enum truefalse	local;
@@ -1692,9 +1690,6 @@ void		DefineLabel(void)
 {
 	long		addr;
 	long		tmp;
-	char		*newlabel;
-	LabelRef	*foundref;
-	enum truefalse	local;
 
 	cmdlGetSym();
 	if ((tmp=GetConstant()) == -1) {
