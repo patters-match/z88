@@ -11,7 +11,7 @@
     DDDDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ     AAAA      AAAA           SSSSS   MMMM       MMMM
     DDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ      AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
 
-Copyright (C) Gunther Strube, InterLogic 1996-99
+Copyright (C) Gunther Strube, 1996-2008
 
 */
 
