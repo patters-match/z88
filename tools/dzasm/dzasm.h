@@ -48,6 +48,11 @@ typedef struct area {
         void 			*attributes;		/* Pointer to area specific attributes */
 } DZarea;
 
+typedef struct mthinfo {
+        long  			dorAddress;			/* DOR base address for this MTH area */
+		long			mthHelp;			/* MTH Help pointer for this MTH area, or 0 if not defined */
+} MthPointers;
+
 struct  PrsAddrStack {
         long          		labeladdr;
         struct PrsAddrStack *previtem;

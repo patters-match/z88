@@ -55,6 +55,7 @@ void			DefbOutput(long	 pc, long  endarea);
 void			RomHdrOutput(long	 pc, long  endarea);
 void			FrontDOROutput(long	 pc, long  endarea);
 void			ApplDOROutput(long	 pc, long  endarea);
+void			MthTopicOutput(DZarea *currarea, long pc, long endarea);
 void			DefStorageOutput(long pc, long  endarea);
 int             CmpAddrRef2(long *key, LabelRef *node);
 int			    CmpCommentRef2(long *key, Remark *node);
@@ -63,6 +64,7 @@ int             getPointer(long address);
 int             getPointerOffset(long address);
 enum truefalse  isNullPointer(long address);
 unsigned char	*DecodeAddress(long pc, unsigned char *segm, unsigned short *offset);
+char			*getApplDorName(long dorAddress);
 
 
 /* Create assembler source (with labels) from program and data areas */
@@ -153,7 +155,7 @@ void	DZpass2(void)
 					break;
 
 			case	mthtpc:
-					DefbOutput(currarea->start, currarea->end);
+					MthTopicOutput(currarea, currarea->start, currarea->end);
 					break;
 
 			case	mthcmd:
@@ -161,7 +163,7 @@ void	DZpass2(void)
 					break;
 
 			case	mthhlp:
-					DefbOutput(currarea->start, currarea->end);
+					DefmOutput(currarea->start, currarea->end);
 					break;
 
 			case	mthtkn:
@@ -428,7 +430,7 @@ void	DefmOutput(long	 pc, long  endarea)
 		}
 
 		byte = GetByte(pc++);
-		if (byte >= 32 && byte <= 127) {
+		if (byte >= 32 && byte < 127) {
 			if (asciistring == true)
 				if (byte != '"')
 					fputc(byte, asmfile);
@@ -648,6 +650,59 @@ void    ApplDOROutput(long	 pc, long  endarea)
     fprintf(asmfile, ".%s\n", applEndName);    
     fprintf(asmfile, "        defb    $%02x\t; DOR Terminator\n", GetByte(pc+lengthByte));
     fprintf(asmfile, ".%s\n\n", dorEndName);    
+}
+
+
+void MthTopicOutput(DZarea *currarea, long pc, long endarea)
+{
+	long tpcptr = pc;
+	long tpcEnd, tpcHelp, tpcHelpOffset;
+	int tpclength, tpcno = 1;
+	LabelRef *lr;
+	char tpcLabelName[32], mthHelpLabelName[32];
+	MthPointers	*mthp = (MthPointers *) currarea->attributes;
+	long dorAddress = mthp->dorAddress;
+	long mthHelp = mthp->mthHelp;
+
+	lr = find(gLabelRef, &pc, (int (*)()) CmpAddrRef2);
+	fprintf(asmfile, ".%s\n", lr->name);
+	fprintf(asmfile, "        defb    0\t; Start topic marker\n");
+
+	if (mthHelp != 0) {
+		lr = find(gLabelRef, &mthHelp, (int (*)()) CmpAddrRef2);
+		sprintf(mthHelpLabelName,"%s", lr->name);
+	}
+
+	/* Scan Topics area until 0 byte end-marker */
+	tpcptr++; /* point at length byte of first topic entry */
+
+	while(tpcptr != endarea) {
+		lr = find(gLabelRef, &tpcptr, (int (*)()) CmpAddrRef2);
+		sprintf(tpcLabelName,"%s", lr->name);
+		
+		fprintf(asmfile, ".%s\n", tpcLabelName);
+		fprintf(asmfile, "        defb    %s_end-%s+1\t; Length of topic\n", tpcLabelName, tpcLabelName);
+
+		tpclength = GetByte(tpcptr);
+		tpcEnd = tpcptr + tpclength - 1;
+		DefmOutput(tpcptr+1, tpcEnd-4);
+
+		tpcHelpOffset = GetByte(tpcEnd-3) * 256 + GetByte(tpcEnd-2);
+		if (tpcHelpOffset != 0 && mthHelp != 0) {
+			tpcHelp = mthHelp+tpcHelpOffset;
+			lr = find(gLabelRef, &tpcHelp, (int (*)()) CmpAddrRef2);
+			fprintf(asmfile, "        defb    (%s-%s) / 256\t; high byte of help offset\n", lr->name, mthHelpLabelName);
+			fprintf(asmfile, "        defb    (%s-%s) %% 256\t; low byte of help offset\n", lr->name, mthHelpLabelName);
+		} else {
+			fprintf(asmfile, "        defw    0\t; No help page\n");
+		}
+		fprintf(asmfile, "        defb    $%02x\t; Topic attribute\n", GetByte(tpcEnd-1));
+		fprintf(asmfile, ".%s_end\n", tpcLabelName);
+		fprintf(asmfile, "        defb    %s_end-%s+1\n", tpcLabelName, tpcLabelName);
+
+		tpcptr += tpclength; /* point at next topic */
+	}
+	fprintf(asmfile, "        defb    0\t; End topic marker\n");
 }
 
 

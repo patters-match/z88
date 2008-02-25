@@ -105,6 +105,7 @@ void 		quit(void);
 enum truefalse   isNullPointer(long address);
 int         getPointer(long address);
 int         getPointerOffset(long address);
+void		ParseMthTopics(long dorAddress, long mthTopics, long mthHelp);
 unsigned char	*DecodeAddress(long pc, unsigned char *segm, unsigned short *offset);
 unsigned char	GetByte(long pc);
 IncludeFile	*AllocIncludeFile(void);
@@ -115,6 +116,7 @@ Commentline	*AllocCommentline(void);
 Commentline	*AddCommentline(Remark *entity, char *commentstr);
 Expression	*AllocMnemExpr(void);
 GlobalConstant	*AllocGlobalConstant(void);
+MthPointers	*AllocMthPointers(void);
 char		*AllocLabelname(char *name);
 float		ResolvedAreas(void);
 enum symbols	cmdlGetSym(void);
@@ -149,6 +151,7 @@ struct dzcmd dzcommands[] = {
 
 size_t totaldzcmds = 23;
 
+int helpPageNoIndex = 1;
 
 void 	quit(void)
 {
@@ -273,6 +276,66 @@ void 	ParseMth(void)
 }
 
 
+void	ParseMthTopics(long dorAddress, long mthTopics, long mthHelp)
+{
+	long tpcptr = mthTopics, hlpPagePtr;
+	int tpclength, topicNoIndex = 1;
+	LabelRef *lr;
+	char tpcLabelName[32], hlpLabelName[32];
+	DZarea *mthTpcArea;
+	char *applName = getApplDorName(dorAddress);
+	MthPointers *mthp;
+
+	if (isNullPointer(mthTopics) == true) 
+		return; /* points at three 0's - no topics */
+
+	if (isNullPointer(mthHelp) == true)
+		mthHelp = 0; /* no Help pages available for Topics */
+
+	if (GetByte(mthTopics) != 0) 
+		return; /* topics area not recognized */
+
+	sprintf(tpcLabelName,"%s_topics", applName);
+	CreateLabel(mthTopics, tpcLabelName);
+
+	/* Scan Topics area until 0 byte end-marker */
+	tpcptr++;
+
+	while(GetByte(tpcptr) != 0) {
+		tpclength = GetByte(tpcptr);
+
+		sprintf(tpcLabelName,"%s_tpc%d", applName, topicNoIndex);
+		CreateLabel(tpcptr,tpcLabelName);
+		sprintf(tpcLabelName,"%s_tpc%d_end", applName, topicNoIndex);
+		CreateLabel(tpcptr+tpclength-1,tpcLabelName);
+
+		if (mthHelp != 0) {
+			/* Help pages are defined for application, check if topics reference them */
+			hlpPagePtr = GetByte(tpcptr+tpclength - 3) + GetByte(tpcptr+tpclength - 4) * 256;
+			if (hlpPagePtr != 0) {
+				/* get absolute pointer to help page of this topic */
+				hlpPagePtr += mthHelp;
+
+				/* create a label name reference for topic help page */
+				lr = find(gLabelRef, &mthHelp, (int (*)()) CmpAddrRef2);
+				sprintf(hlpLabelName,"%s_page%d", lr->name, helpPageNoIndex++);
+				CreateLabel(hlpPagePtr, hlpLabelName);
+			}
+		}
+
+		topicNoIndex++;
+		tpcptr += tpclength; /* point at next topic */
+	}
+
+	/* tpcptr now points at the end marker of the topics area */
+	mthTpcArea = InsertArea(&gAreas, mthTopics, tpcptr, mthtpc); /* Define area of Application MTH Topics */
+	mthp = AllocMthPointers();
+	mthp->dorAddress = dorAddress;
+	mthp->mthHelp = mthHelp;	
+	mthTpcArea->attributes = mthp; /* remember MTH base info for source code generator */
+}
+
+
 void	ParseApplDOR(long dorAddress)
 {
     long helpSection, endAddress;
@@ -301,90 +364,84 @@ void	ParseApplDOR(long dorAddress)
     if (isNullPointer(dorAddress+3) == false) {
         nextApplDor = getPointerOffset(dorAddress+3);
 
-        strcpy(applLabelName, "applDor_");
-        strcat(applLabelName, getApplDorName(nextApplDor));    
+		sprintf(applLabelName,"applDor_%s", getApplDorName(nextApplDor));
         CreateLabel(nextApplDor,applLabelName);
 	}
 	
 	applEntry = GetByte(dorAddress + 13 + 10) + 256 * GetByte(dorAddress + 13 + 10 + 1);
-    strcpy(applLabelName, getApplDorName(dorAddress));    	
-    strcat(applLabelName, "_entry");            
+	sprintf(applLabelName,"%s_entry", getApplDorName(dorAddress));
     CreateLabel(applEntry, applLabelName);
 	
 	helpSection = dorAddress + 13 + GetByte(dorAddress+12); /* point at start of Help section */
 	helpSection += 2; /* point at pointer to MTH Topics */
 
-    strcpy(applLabelName, getApplDorName(dorAddress));    	
 	mthTopics = getPointerOffset(helpSection);    
     if (isNullPointer(mthTopics) == false) {
         /* topics pointer points at real MTH */
    	    lr = find(gLabelRef, &mthTopics, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_topics");            
+			sprintf(applLabelName,"%s_topics", getApplDorName(dorAddress));
             CreateLabel(mthTopics,applLabelName);
         }
    	} else {
    	    /* Topics pointer contains 0 - no MTH topics defined for application */
    	    lr = find(gLabelRef, &mthTopics, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_no_topics");            
+			sprintf(applLabelName,"%s_no_topics", getApplDorName(dorAddress));
             CreateLabel(mthTopics,applLabelName);
         }   	    
    	}
     helpSection += 3;
 
-    strcpy(applLabelName, getApplDorName(dorAddress));    
 	mthCommands = getPointerOffset(helpSection);
     if (isNullPointer(mthCommands) == false) {
         /* Commands pointer points at real MTH */
    	    lr = find(gLabelRef, &mthCommands, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_commands");            
+			sprintf(applLabelName,"%s_commands", getApplDorName(dorAddress));
             CreateLabel(mthCommands,applLabelName);
         }
    	} else {
    	    /* Commands pointer contains 0 - no MTH commands defined for application */
    	    lr = find(gLabelRef, &mthCommands, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_no_commands");            
+			sprintf(applLabelName,"%s_no_commands", getApplDorName(dorAddress));
             CreateLabel(mthCommands,applLabelName);
         }   	    
    	}
     helpSection += 3;
 
-    strcpy(applLabelName, getApplDorName(dorAddress));    
 	mthHelp = getPointerOffset(helpSection);
     if (isNullPointer(mthHelp) == false) {
         /* Help pointer points at real MTH */
    	    lr = find(gLabelRef, &mthHelp, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_help");            
+			sprintf(applLabelName,"%s_help", getApplDorName(dorAddress));
             CreateLabel(mthHelp,applLabelName);
         }
    	} else {
    	    /* Help pointer contains 0 - no MTH Help defined for application */
    	    lr = find(gLabelRef, &mthHelp, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_no_help");            
+			sprintf(applLabelName,"%s_no_help", getApplDorName(dorAddress));
             CreateLabel(mthHelp,applLabelName);
         }   	    
    	}
     helpSection += 3;
 	
-    strcpy(applLabelName, getApplDorName(dorAddress));    
 	mthTokens = getPointerOffset(helpSection);
     if (isNullPointer(mthTokens) == false) {
         /* Tokens pointer points at real MTH */
    	    lr = find(gLabelRef, &mthTokens, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_tokens");            
+			sprintf(applLabelName,"%s_tokens", getApplDorName(dorAddress));
             CreateLabel(mthTokens,applLabelName);
         }
    	} else {
    	    /* Tokens pointer contains 0 - no Tokens defined for application */
    	    lr = find(gLabelRef, &mthTokens, (int (*)()) CmpAddrRef2);
    	    if (lr == NULL) {
-            strcat(applLabelName, "_no_tokens");            
+			sprintf(applLabelName,"%s_no_tokens", getApplDorName(dorAddress));
             CreateLabel(mthTokens,applLabelName);
         }   	    
    	}
@@ -392,6 +449,10 @@ void	ParseApplDOR(long dorAddress)
 	
     endAddress = dorAddress + 10 + GetByte(dorAddress+10); 
     InsertArea(&gAreas, dorAddress, endAddress, appldor); /* Define area of Application DOR */    
+
+	/* Parse application MTH pointers */
+	ParseMthTopics(dorAddress, mthTopics, mthHelp);
+
     if (isNullPointer(dorAddress+3) == false) {
         ParseApplDOR(nextApplDor); /* a brother pointer exists to the next application (DOR) */
     }
@@ -406,6 +467,9 @@ void	ParseFrontDor(void)
     int applDor;
     char applLabelName[32];
     
+	/* Reset MTH Help Page Index Counter for DOR scanning */
+	helpPageNoIndex = 1;
+
 	if (Codesize != 16384) {
  		puts("OZ static structures can only be parsed in 16K bank files.");
  		return;
@@ -442,8 +506,7 @@ void	ParseFrontDor(void)
     }
 	CreateLabel(frontDor,"frontdor");
 
-    strcpy(applLabelName, "applDor_");
-    strcat(applLabelName, getApplDorName(applDor));    
+	sprintf(applLabelName,"applDor_%s", getApplDorName(applDor));
     CreateLabel(applDor,applLabelName);
     
     pc += GetByte(pc); /* the DOR length is added to point at last byte of Front DOR) */
@@ -1450,3 +1513,10 @@ IncludeFile	*AllocIncludeFile(void)
 {
 	return (IncludeFile *) malloc(sizeof(IncludeFile));
 }
+
+
+MthPointers	*AllocMthPointers(void)
+{
+	return (MthPointers	*) malloc(sizeof(MthPointers));
+}
+

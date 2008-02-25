@@ -36,6 +36,7 @@ DZarea			*InitArea(long	startaddr, long	 endaddr, enum atype  t);
 DZarea			*NewArea(void);
 void			JoinAreas(DZarea  *currarea);
 enum atype		SearchArea(DZarea  *currarea, long  pc);
+DZarea			*GetArea(DZarea  *currarea, long  pc);
 DZarea			*InsertArea(struct area **arealist, long startrange, long  endrange, enum atype	t);
 void			DispAreas(FILE *out, DZarea *arealist);
 void			ValidateAreas(DZarea  *currarea);
@@ -111,6 +112,8 @@ enum atype	SearchArea(DZarea  *currarea, long  pc)
 }
 
 
+
+
 /* insert area (program	or data) into an area list */
 DZarea	*InsertArea(DZarea **arealist, long  startrange, long  endrange, enum atype t)
 {
@@ -165,6 +168,7 @@ DZarea	*InsertArea(DZarea **arealist, long  startrange, long  endrange, enum aty
 								currarea->end =	startrange - 1;
 								currarea->nextarea->start = startrange;
 								free(newarea);		/* remove redundant area */
+								newarea = currarea;
 							}
 							else {
 								currarea->end =	startrange - 1;
@@ -194,8 +198,8 @@ DZarea	*InsertArea(DZarea **arealist, long  startrange, long  endrange, enum aty
 				else {
 					if (newarea->start == currarea->start) {
 						if (newarea->end == currarea->end) {
-							/* area	size matches, newarea redundant	*/
-							free(newarea);
+							free(newarea); 			/* area	size matches, newarea redundant	*/
+							newarea = currarea;
 							currarea->areatype = t;
 						}
 						else {
@@ -223,13 +227,16 @@ DZarea	*InsertArea(DZarea **arealist, long  startrange, long  endrange, enum aty
 									else
 										*arealist = currarea->nextarea;
 									free(currarea);
+									currarea = NULL;
 									free(newarea);		/* remove redundant area */
+									newarea = currarea->nextarea;
 								}
 								else {
 									currarea->end =	endrange;
 									currarea->areatype = t;
 									currarea->nextarea->start = endrange+1;
-									free(newarea);
+									free(newarea);		/* remove redundant area */
+									newarea=currarea;
 								}
 							}
 						}
