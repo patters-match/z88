@@ -56,6 +56,7 @@ void			RomHdrOutput(long	 pc, long  endarea);
 void			FrontDOROutput(long	 pc, long  endarea);
 void			ApplDOROutput(long	 pc, long  endarea);
 void			MthTopicOutput(DZarea *currarea, long pc, long endarea);
+void			MthCommandOutput(DZarea *currarea, long pc, long endarea);
 void			DefStorageOutput(long pc, long  endarea);
 int             CmpAddrRef2(long *key, LabelRef *node);
 int			    CmpCommentRef2(long *key, Remark *node);
@@ -159,7 +160,7 @@ void	DZpass2(void)
 					break;
 
 			case	mthcmd:
-					DefbOutput(currarea->start, currarea->end);
+					MthCommandOutput(currarea, currarea->start, currarea->end);
 					break;
 
 			case	mthhlp:
@@ -210,9 +211,9 @@ void	VoidOutput(long	 pc, long  endarea)
 			}
 
 			if (column == 0)
-				fprintf(asmfile, "        defb    $%02X", GetByte(pc));
+				fprintf(asmfile, "        defb    $%02x", GetByte(pc));
 			else
-				fprintf(asmfile, ",$%02X", GetByte(pc +	column));
+				fprintf(asmfile, ",$%02x", GetByte(pc +	column));
 		}
 		if (exitdump ==	false) {
 			VoidAsciiOutput(pc);
@@ -270,9 +271,9 @@ void	DefbOutput(long	 pc, long  endarea)
 
 					} else {
 						if (defbline == true)
-							fprintf(asmfile, "        defb    $%02X", GetByte(offset));
+							fprintf(asmfile, "        defb    $%02x", GetByte(offset));
 						else
-							fprintf(asmfile, ",$%02X", GetByte(offset));
+							fprintf(asmfile, ",$%02x", GetByte(offset));
 
 						fprintf(asmfile, "        ; %s", curline->line);
 						pc = offset+1;
@@ -283,9 +284,9 @@ void	DefbOutput(long	 pc, long  endarea)
 
 			if (defbline == true) {
 				defbline = false;
-				fprintf(asmfile, "        defb    $%02X", GetByte(offset));
+				fprintf(asmfile, "        defb    $%02x", GetByte(offset));
 			} else
-				fprintf(asmfile, ",$%02X", GetByte(offset));
+				fprintf(asmfile, ",$%02x", GetByte(offset));
 		}
 
 		pc += column;
@@ -473,15 +474,15 @@ void	DefmOutput(long	 pc, long  endarea)
 
 			if (asciistring	== true) {
 				asciistring = false;
-				fprintf(asmfile, "\", $%02X", byte);
+				fprintf(asmfile, "\", $%02x", byte);
 			}
 			else {
 				if (startline == true) {
 					startline = false;
-					fprintf(asmfile, "$%02X", byte);
+					fprintf(asmfile, "$%02x", byte);
 				}
 				else
-					fprintf(asmfile, ", $%02X", byte);
+					fprintf(asmfile, ", $%02x", byte);
 			}
 
 			if (byte == 0) {
@@ -656,12 +657,11 @@ void    ApplDOROutput(long	 pc, long  endarea)
 void MthTopicOutput(DZarea *currarea, long pc, long endarea)
 {
 	long tpcptr = pc;
-	long tpcEnd, tpcHelp, tpcHelpOffset;
+	long tpcEnd, tpcHelp, tpcHelpOffset, tpcName, tpcNameEnd;
 	int tpclength, tpcno = 1;
 	LabelRef *lr;
 	char tpcLabelName[32], mthHelpLabelName[32];
 	MthPointers	*mthp = (MthPointers *) currarea->attributes;
-	long dorAddress = mthp->dorAddress;
 	long mthHelp = mthp->mthHelp;
 
 	lr = find(gLabelRef, &pc, (int (*)()) CmpAddrRef2);
@@ -685,17 +685,28 @@ void MthTopicOutput(DZarea *currarea, long pc, long endarea)
 
 		tpclength = GetByte(tpcptr);
 		tpcEnd = tpcptr + tpclength - 1;
-		DefmOutput(tpcptr+1, tpcEnd-4);
 
-		tpcHelpOffset = GetByte(tpcEnd-3) * 256 + GetByte(tpcEnd-2);
-		if (tpcHelpOffset != 0 && mthHelp != 0) {
-			tpcHelp = mthHelp+tpcHelpOffset;
-			lr = find(gLabelRef, &tpcHelp, (int (*)()) CmpAddrRef2);
-			fprintf(asmfile, "        defb    (%s-%s) / 256\t; high byte of help offset\n", lr->name, mthHelpLabelName);
-			fprintf(asmfile, "        defb    (%s-%s) %% 256\t; low byte of help offset\n", lr->name, mthHelpLabelName);
+		tpcNameEnd = tpcName = tpcptr+1;
+		/* topic name can be just before attribute byte (no help offset) */
+		while ( (GetByte(tpcNameEnd) > 0x1f) && (tpcNameEnd<=tpcEnd-1) ) tpcNameEnd++;
+
+		if ( tpcNameEnd==tpcEnd-1 ) {
+			/* no help pointer (optional) */
+			DefmOutput(tpcName, tpcNameEnd-1); /* generate source code for topic name */
 		} else {
-			fprintf(asmfile, "        defw    0\t; No help page\n");
+			DefmOutput(tpcName, tpcEnd-4);
+
+			tpcHelpOffset = GetByte(tpcEnd-3) * 256 + GetByte(tpcEnd-2);
+			if (tpcHelpOffset != 0 && mthHelp != 0) {
+				tpcHelp = mthHelp+tpcHelpOffset;
+				lr = find(gLabelRef, &tpcHelp, (int (*)()) CmpAddrRef2);
+				fprintf(asmfile, "        defb    (%s-%s) / 256\t; high byte of help offset\n", lr->name, mthHelpLabelName);
+				fprintf(asmfile, "        defb    (%s-%s) %% 256\t; low byte of help offset\n", lr->name, mthHelpLabelName);
+			} else {
+				fprintf(asmfile, "        defw    0\t; No help page\n");
+			}
 		}
+
 		fprintf(asmfile, "        defb    $%02x\t; Topic attribute\n", GetByte(tpcEnd-1));
 		fprintf(asmfile, ".%s_end\n", tpcLabelName);
 		fprintf(asmfile, "        defb    %s_end-%s+1\n", tpcLabelName, tpcLabelName);
@@ -703,6 +714,80 @@ void MthTopicOutput(DZarea *currarea, long pc, long endarea)
 		tpcptr += tpclength; /* point at next topic */
 	}
 	fprintf(asmfile, "        defb    0\t; End topic marker\n");
+}
+
+
+void MthCommandOutput(DZarea *currarea, long pc, long endarea)
+{
+	long cmdptr = pc, cmdEnd;
+	long cmdShortcut, cmdShortcutEnd, cmdName, cmdNameEnd, cmdHelp, cmdHelpOffset;
+	int cmdlength, cmdno = 1;
+	LabelRef *lr;
+	char cmdLabelName[32], mthHelpLabelName[32];
+	MthPointers	*mthp = (MthPointers *) currarea->attributes;
+	long mthHelp = mthp->mthHelp;
+
+	lr = find(gLabelRef, &pc, (int (*)()) CmpAddrRef2);
+	fprintf(asmfile, ".%s\n", lr->name);
+	fprintf(asmfile, "        defb    0\t; Start command marker\n");
+
+	if (mthHelp != 0) {
+		lr = find(gLabelRef, &mthHelp, (int (*)()) CmpAddrRef2);
+		sprintf(mthHelpLabelName,"%s", lr->name);
+	}
+
+	/* Scan Commands area until 0 byte end-marker */
+	cmdptr++; /* point at length byte of first topic entry */
+
+	while(cmdptr != endarea) {
+	    if (GetByte(cmdptr) == 1) {
+		    fprintf(asmfile, "        defb    1\t; Command topic separator\n");
+		    cmdptr++;
+	    }
+	        
+		lr = find(gLabelRef, &cmdptr, (int (*)()) CmpAddrRef2);
+		sprintf(cmdLabelName,"%s", lr->name);
+		
+		fprintf(asmfile, ".%s\n", cmdLabelName);
+		fprintf(asmfile, "        defb    %s_end-%s+1\t; Length of command\n", cmdLabelName, cmdLabelName);
+
+		cmdlength = GetByte(cmdptr);
+		cmdEnd = cmdptr + cmdlength - 1; /* pointer to last byte of command entry */
+
+		fprintf(asmfile, "        defb    $%02x\t; command code\n", GetByte(cmdptr+1));
+
+		cmdShortcut = cmdShortcutEnd = cmdptr+2;
+		while (GetByte(cmdShortcutEnd) != 0) cmdShortcutEnd++;
+
+        DefmOutput(cmdShortcut, cmdShortcutEnd); /* generate source code for command shortcut sequense */
+
+		cmdNameEnd = cmdName = cmdShortcutEnd+1;
+		/* command name can be just before attribute byte (no help offset) */
+		while ( (GetByte(cmdNameEnd) > 0x1f) && (cmdNameEnd<=cmdEnd-1) ) cmdNameEnd++;
+
+		if ( cmdNameEnd==cmdEnd-1 ) {
+			/* no help pointer (optional) */
+			DefmOutput(cmdName, cmdNameEnd-1); /* generate source code for command name */
+		} else {
+		    DefmOutput(cmdName, cmdEnd-4);		/* command name ends just before 2 byte help pointer offset */
+    		cmdHelpOffset = GetByte(cmdEnd-3) * 256 + GetByte(cmdEnd-2);
+    		if (cmdHelpOffset != 0 && mthHelp != 0) {
+    			cmdHelp = mthHelp+cmdHelpOffset;
+    			lr = find(gLabelRef, &cmdHelp, (int (*)()) CmpAddrRef2);
+    			fprintf(asmfile, "        defb    (%s-%s) / 256\t; high byte of help offset\n", lr->name, mthHelpLabelName);
+    			fprintf(asmfile, "        defb    (%s-%s) %% 256\t; low byte of help offset\n", lr->name, mthHelpLabelName);
+    		} else {
+    			fprintf(asmfile, "        defw    0\t; No help page\n");
+    		}
+    	}
+    	
+		fprintf(asmfile, "        defb    $%02x\t; Command attribute\n", GetByte(cmdEnd-1));
+		fprintf(asmfile, ".%s_end\n", cmdLabelName);
+		fprintf(asmfile, "        defb    %s_end-%s+1\n", cmdLabelName, cmdLabelName);
+
+		cmdptr += cmdlength; /* point at next topic */
+	}
+	fprintf(asmfile, "        defb    0\t; End command marker\n");
 }
 
 

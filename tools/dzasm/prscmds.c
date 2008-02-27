@@ -106,6 +106,7 @@ enum truefalse   isNullPointer(long address);
 int         getPointer(long address);
 int         getPointerOffset(long address);
 void		ParseMthTopics(long dorAddress, long mthTopics, long mthHelp);
+void		ParseMthCommands(long dorAddress, long mthCommands, long mthHelp);
 unsigned char	*DecodeAddress(long pc, unsigned char *segm, unsigned short *offset);
 unsigned char	GetByte(long pc);
 IncludeFile	*AllocIncludeFile(void);
@@ -336,6 +337,69 @@ void	ParseMthTopics(long dorAddress, long mthTopics, long mthHelp)
 }
 
 
+void	ParseMthCommands(long dorAddress, long mthCommands, long mthHelp)
+{
+	long cmdptr = mthCommands, hlpPagePtr;
+	int cmdlength, cmdNoIndex = 1;
+	LabelRef *lr;
+	char cmdLabelName[32], hlpLabelName[32];
+	DZarea *mthCmdArea;
+	char *applName = getApplDorName(dorAddress);
+	MthPointers *mthp;
+
+	if (isNullPointer(mthCommands) == true) 
+		return; /* points at three 0's - no commands */
+
+	if (isNullPointer(mthHelp) == true)
+		mthHelp = 0; /* no Help pages available for Commands */
+
+	if (GetByte(mthCommands) != 0) 
+		return; /* commands area not recognized */
+
+	sprintf(cmdLabelName,"%s_commands", applName);
+	CreateLabel(mthCommands, cmdLabelName);
+
+	/* Scan Command area until 0 byte end-marker */
+	cmdptr++;
+
+	while(GetByte(cmdptr) != 0) {
+		if (GetByte(cmdptr) == 1) 
+			cmdptr++; /* skip topic separator byte and get ready for MTH command entry */
+
+		cmdlength = GetByte(cmdptr);
+
+		sprintf(cmdLabelName,"%s_cmd%d", applName, cmdNoIndex);
+		CreateLabel(cmdptr,cmdLabelName);
+		sprintf(cmdLabelName,"%s_cmd%d_end", applName, cmdNoIndex);
+		CreateLabel(cmdptr+cmdlength-1,cmdLabelName);
+
+		if (mthHelp != 0) {
+			/* Help pages are defined for application, check if commands reference them */
+			hlpPagePtr = GetByte(cmdptr+cmdlength - 3) + GetByte(cmdptr+cmdlength - 4) * 256;
+			if (hlpPagePtr != 0) {
+				/* get absolute pointer to help page of this command */
+				hlpPagePtr += mthHelp;
+
+				/* create a label name reference for command help page */
+				lr = find(gLabelRef, &mthHelp, (int (*)()) CmpAddrRef2);
+				sprintf(hlpLabelName,"%s_page%d", lr->name, helpPageNoIndex++);
+				CreateLabel(hlpPagePtr, hlpLabelName);
+			}
+		}
+
+		cmdNoIndex++;
+		cmdptr += cmdlength; /* point at next command */
+	}
+
+	/* cmdptr now points at the end marker of the commands area */
+	mthCmdArea = InsertArea(&gAreas, mthCommands, cmdptr, mthcmd); /* Define area of Application MTH Commands */
+	mthp = AllocMthPointers();
+	mthp->dorAddress = dorAddress;
+	mthp->mthHelp = mthHelp;	
+	mthCmdArea->attributes = mthp; /* remember MTH base info for source code generator */
+}
+
+
 void	ParseApplDOR(long dorAddress)
 {
     long helpSection, endAddress;
@@ -450,8 +514,11 @@ void	ParseApplDOR(long dorAddress)
     endAddress = dorAddress + 10 + GetByte(dorAddress+10); 
     InsertArea(&gAreas, dorAddress, endAddress, appldor); /* Define area of Application DOR */    
 
-	/* Parse application MTH pointers */
+	/* Parse application MTH topic area */
 	ParseMthTopics(dorAddress, mthTopics, mthHelp);
+
+	/* Parse application MTH command area */
+	ParseMthCommands(dorAddress, mthCommands, mthHelp);
 
     if (isNullPointer(dorAddress+3) == false) {
         ParseApplDOR(nextApplDor); /* a brother pointer exists to the next application (DOR) */
