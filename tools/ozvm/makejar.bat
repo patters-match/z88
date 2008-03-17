@@ -34,9 +34,9 @@ java -jar ..\jdk\ecj.jar -d ..\ozvm-builddir -nowarn -g:none -source 1.4 -target
 
 :: copy the application files to included in JAR (without hidden files)
 echo building executable jar
-xcopy pixel ..\ozvm-builddir\pixel /S /Y /I /Q >nul
-xcopy .\ozvm-manual.html ..\ozvm-builddir /Q >nul
-xcopy .\Z88.rom ..\ozvm-builddir /Q >nul
+xcopy src\pixel ..\ozvm-builddir\pixel /S /Y /I /Q >nul
+xcopy src\ozvm-manual.html ..\ozvm-builddir /Q >nul
+xcopy src\Z88.rom ..\ozvm-builddir /Q >nul
 
 :: JAR file only needs (compiled) class files and other embedded resources
 del /S /Q ..\ozvm-builddir\.svn 2>nul >nul

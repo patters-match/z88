@@ -35,9 +35,9 @@ java -jar ../jdk/ecj.jar -d ../ozvm-builddir -nowarn -g:none -source 1.4 -target
 
 # copy the remaining application files 
 echo building executable jar
-cp -fR pixel ../ozvm-builddir
-cp -f ./ozvm-manual.html ../ozvm-builddir
-cp -f ./Z88.rom ../ozvm-builddir
+cp -fR src/pixel ../ozvm-builddir
+cp -f src/ozvm-manual.html ../ozvm-builddir
+cp -f src/Z88.rom ../ozvm-builddir
 
 # JAR file only needs (compiled) class files and other embedded resources
 find ../ozvm-builddir -name '.svn' | xargs rm -fR
