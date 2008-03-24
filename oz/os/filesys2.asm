@@ -473,7 +473,9 @@ xref    OSOutMain                               ; [Kernel1]/scrdrv1.asm
         cp      e
         jr      nz, check_rd_kb
 
+        push    ix    
         call    OSSiGbt                         ; 5 - read byte from serial port
+        pop     ix
         ret
 
 .check_rd_kb
@@ -559,7 +561,9 @@ xref    OSOutMain                               ; [Kernel1]/scrdrv1.asm
         jr      nz, check_wr_kb
 
         ld      a, (iy+OSFrame_A)
+        push    ix
         call    OSSiPbt                         ; 5 - write byte to serial port
+        pop     ix
         ret
 
 .check_wr_kb
