@@ -469,7 +469,7 @@ xref    OSOutMain                               ; [Kernel1]/scrdrv1.asm
         call    IsSpecialHandle                 ; examine if handle in IX < 9, returns E = low byte of IX handle
         jr      c, validate_rd_handle           ; handle was not special. Examine file handle, then process byte through file handle
 
-        ld      a,5                             ; get byte from special handle 1 - 8...
+        ld      a,phnd_Com                      ; get byte from special process handle...
         cp      e
         jr      nz, check_rd_kb
 
@@ -556,7 +556,7 @@ xref    OSOutMain                               ; [Kernel1]/scrdrv1.asm
         call    IsSpecialHandle
         jr      c, validate_wr_handle
 
-        ld      a,5
+        ld      a,phnd_Com
         cp      e
         jr      nz, check_wr_kb
 

@@ -113,6 +113,16 @@ defc    mhnd_Slot1              =$0A
 defc    mhnd_Slot2              =$0C
 defc    mhnd_Slot3              =$0E
 
+; Process handle:
+defc    phnd_Khn                =$01            ; keyboard handle
+defc    phnd_Shn                =$02            ; screen handle
+defc    phnd_Phn                =$03            ; indirect printer handle
+defc    phnd_Nhn                =$04            ; null handle
+defc    phnd_Com                =$05            ; Comms handle
+defc    phnd_Ihn                =$06            ; IN handle
+defc    phnd_Ohn                =$07            ; OUT handle
+defc    phnd_Rhn                =$08            ; direct printer handle
+
 ; alarm handle:
 defc    ahnd_NextAlarmL         =$04
 defc    ahnd_NextAlarmH         =$05

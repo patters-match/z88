@@ -9,6 +9,7 @@
         include "error.def"
         include "saverst.def"
         include "sysvar.def"
+        include "handle.def"
 
 xdef    OSPoll
 xdef    ClearUnsafeArea
@@ -162,44 +163,44 @@ ENDIF
         jp      NQOhn
         jp      NQRhn
 
-;       read keyboard   handle
+;       read keyboard handle
 .NQKhn
-        ld      ix, 1
+        ld      ix, phnd_Khn
         ret
 
 ;       read screen handle
 .NQShn
-        ld      ix, 2
+        ld      ix, phnd_Shn
         ret
 
 ;       read printer indirected handle
 .NQPhn
-        ld      ix, 3
+        ld      ix, phnd_Phn
         ret
 
 ;       read null handle
 .NQNhn
-        ld      ix, 4
+        ld      ix, phnd_Nhn
         ret
 
 ;       read comms handle
 .NQCom
-        ld      ix, 5
+        ld      ix, phnd_Com
         ret
 
 ;       read IN handle
 .NQIhn
-        ld      ix, 6
+        ld      ix, phnd_Ihn
         ret
 
 ;       read OUT handle
 .NQOhn
-        ld      ix, 7
+        ld      ix, phnd_Ohn
         ret
 
 ;       read direct printer handle
 .NQRhn
-        ld      ix, 8
+        ld      ix, phnd_Rhn
         ret
 
 ;       Who am I?
