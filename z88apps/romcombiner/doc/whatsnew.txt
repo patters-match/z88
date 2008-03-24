@@ -1,3 +1,13 @@
+ROMCombiner v2.05 - What's New?
+===============================
+
+Only patch a OZ ROM header (type $81) with bank card size and pointer to first
+application.
+
+Gunther Strube, 24th March 2008
+
+
+
 ROMCombiner v2.04 - What's New?
 ===============================
 
