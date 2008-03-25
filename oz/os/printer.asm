@@ -37,6 +37,7 @@
         include "fileio.def"
         include "memory.def"
         include "serintfc.def"
+        include "handle.def"
         include "syspar.def"
         include "sysvar.def"
 
