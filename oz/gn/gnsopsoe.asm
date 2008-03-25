@@ -118,7 +118,7 @@
         and     @11000000
         or      h
         ld      h,a                             ; restored original segment mask of pointer
-        jp      PutOsf_HL                       ; return pointer to null (bank unchanged)
+        call    PutOsf_HL                       ; return pointer to null (bank unchanged)
 
         pop     bc                              ; restore S1 bank binding
         rst     OZ_MPB
