@@ -232,7 +232,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ld      (StackBufPtr), hl
 
         ld      (prtInChar), a
-        call    GetCOM
+        ld      ix, phnd_Com
         call    PrntCharMain2
         jr      PrntExit
 
@@ -489,7 +489,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
 ;       $ - output hex char
 
 .SendHex
-        call    GetCOM
+        ld      ix, phnd_Com
         ld      hl, (CtrlBuf)
         inc     hl                              ; skip '$'
 
@@ -591,7 +591,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
 
 .PrntStackBuffer
         ld      b, a
-        call    GetCOM
+        ld      ix, phnd_Com
         ld      a, b                            ; length = 0, exit
         or      a
         ret     z
@@ -714,7 +714,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         push    bc
         ld      b, a
         ld      a, ' '
-        call    GetCOM
+        ld      ix, phnd_Com
 
 .spc_1
         call    PutChar
@@ -731,14 +731,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
 
 ;       ----
 
-.GetCOM
-        push    bc
-        ld      bc, NQ_Com                      ; get COM handle
-        OZ      OS_Nq
-        pop     bc
-        ret
-
-;       ----
 
 .DoOSNq
         ld      de, 2
