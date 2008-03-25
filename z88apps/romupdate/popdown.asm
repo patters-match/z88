@@ -98,4 +98,6 @@
                     LD   A,$07               ; return to Index
                     CALL_OZ(Os_Bye)
 
-include "crctable.asm"
+                    DEFS $100-($PC%$100)     ; adjust code to position tables at xx00 address
+
+                    INCLUDE "crctable.asm"

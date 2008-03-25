@@ -44,4 +44,6 @@ defs $2C0 - $PC                              ; fill space until we reach the exe
                     call app_main
                     jr   app_start           ; paranoia... (this shouldn't get executed anyway...)
 
-include "crctable.asm"
+                    DEFS $100-($PC%$100)     ; adjust code to position tables at xx00 address
+
+                    include "crctable.asm"

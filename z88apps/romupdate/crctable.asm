@@ -23,7 +23,6 @@
 ;
 ; CRC table from UnZip, by Garry Lancaster, Copyright 1999, released as GPL.
 ;
-                    DEFS $100-($PC%$100)            ; adjust code to position tables at xx00 address
 .crctable
                     defl $00000000, $77073096, $ee0e612c, $990951ba
                     defl $076dc419, $706af48f, $e963a535, $9e6495a3
