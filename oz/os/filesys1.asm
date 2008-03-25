@@ -33,12 +33,12 @@ xref    FreeMemHandle                           ; [Kernel1]/ossr.asm
 
 ;       ----
 
-;       check that IX is in range 0-8
+;       check that IX is a process handle
 
 .IsSpecialHandle
         push    ix
         pop     hl
-        ld      de, -9
+        ld      de, ~phnd_Rhn
         add     hl, de
         ret     c                               ; Fc = 1, if Handle > 8
         sbc     hl, de
