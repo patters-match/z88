@@ -1,32 +1,24 @@
----------------------------------------------------------------------------------------------------------------
-Roadmap for 4.2 OZ release:
-
-$Id$
----------------------------------------------------------------------------------------------------------------
-
 Developer abbreviations:
 TP = Thierry Peycru (pek@users.sf.net)
 GBS = Gunther Strube (gbs@users.sf.net)
 
+---------------------------------------------------------------------------------------------------------------
+Roadmap for 4.2 OZ release:
+---------------------------------------------------------------------------------------------------------------
 
 TODO (with priorities):
 - Update OZ Developers Notes to reflect new APIs. P1
 - Free RAM display in Index <>CARD display. P1
 - Add Flash EPROM Format command in Filer. P1
 - Add Select EPROM device command in Filer. P1
-- Localize day/month lists. P2
-- Choose day/month localization in the panel. P2
 
-- Transform OSSci to be page independant (OSSciTable). P2
-- Transform OSCli to be page independant (Key2Meta routine). P2
+- Transform OSSci to be page independent (OSSciTable). P2
+- Transform OSCli to be page independent (Key2Meta routine). P2
 - Remove hardcoded IN keys in SpecInternal and IsForeignKey (kbd.asm) P2
 
-- Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3
 - Test A=0 in OSSci. P3
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see reference section in Dev Notes). P3
 - Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ. P3
-- Add a character table or implement a []+XXX interface to access all the ISO characters. P3
-- PipeDream <>BSO (Sort Block) command should order ISO Latin 1 according to country specific convention. P3
 
 DONE
 - Modify NMI to allow use of RETN (it is impossible... INT and NMI are mixed together for hibernating)
@@ -83,15 +75,33 @@ DONE
 - New free RAM status system call: OS_NQ, NQ_Mfp. (GBS)
 - Faster GN_Sop/GN_Soe, implemented new OS_Bout/OS_Pout, and many OS_Pout optimisations in OZ & apps (GBS)
 - Reorganized ROM application code to allow for new features in Index and Filer binaries. (GBS)
-- Reversed PipeDream binary to source code, and
+- Reverse engineered PipeDream binary to source code, and
         1) implemented fast OS_Pout for static string display (reduces overall application code size),
         2) Iso Latin 1 alpha characters now case invertable with <>S command.
 - Ported OZ to slot 1 (using hook code): No :ROM.0/* apps, expanded Z88 when RAM in slot 2, NMI/COMA handled in LOWRAM. (GBS)
         (sources finally removed with hard coded bank reference constants, all handled in /oz/def/kernel.def and sysapps.def)
 - Preset default RAM device in Panel to expanded RAM card when identified by OZ. (GBS)
 
+- Fixed kernel binaries for compilation
+	ostables.asm @ $3F00 in bank 0
+	osclitables @ same page
+	osscitable @ same page 
 
-FIXED KERNEL BINARIES FOR COMPILATION
-ostables.asm @ $3F00 in bank 0
-osclitables @ same page (to be modified)
-osscitable @ same page (to be modified)
+
+
+---------------------------------------------------------------------------------------------------------------
+Roadmap for 4.3 OZ release:
+---------------------------------------------------------------------------------------------------------------
+
+TODO (with priorities):
+- Localize day/month lists. P2
+- Choose day/month localization in the panel. P2
+- Add a character table or implement a []+XXX interface to access all the ISO characters. P3
+- PipeDream <>BSO (Sort Block) command should order ISO Latin 1 according to country specific convention. P3
+- Add ISO printer codes to PrinterEd from original localised V3.x ROMs. P3
+
+
+
+
+---------------------------------------------------------------------------------------------------------------
+This file was Last updated: $Id$
