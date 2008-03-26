@@ -33,8 +33,11 @@ xref    OSSciTable                              ; [Kernel1]/osscitable.asm
 ;chg:   AFBCDEHL/....
 
 .OSSci
-        cp      6                               ; !! should check for reason 0
-        jr      nc, ossci_4                     ; bad reason
+        or      a
+        jr      z, ossci_4                      ; A = 0, bad reason
+        cp      6                               
+        jr      nc, ossci_4                     ; A > 5, bad reason
+        
         ld      d, >OSSciTable                  ; !! use 'ld de,Table; add a, e' for clarity
         add     a, <OSSciTable
         ld      e, a

@@ -16,11 +16,11 @@ TODO (with priorities):
 - Transform OSCli to be page independent (Key2Meta routine). P2
 - Remove hardcoded IN keys in SpecInternal and IsForeignKey (kbd.asm) P2
 
-- Test A=0 in OSSci. P3
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see reference section in Dev Notes). P3
 - Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ. P3
 
 DONE
+- Test A=0 in OSSci. P3
 - Modify NMI to allow use of RETN (it is impossible... INT and NMI are mixed together for hibernating)
 - Rewrite buffer interface to speedup serial routines. P1
 - Rename nqsp.asm in spnq1.asm and move pagfi.asm into spnq1.asm P1
