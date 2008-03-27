@@ -12,8 +12,6 @@ TODO (with priorities):
 - Add Flash EPROM Format command in Filer. P1
 - Add Select EPROM device command in Filer. P1
 
-- Transform OSSci to be page independent (OSSciTable). P2
-- Transform OSCli to be page independent (Key2Meta routine). P2
 - Remove hardcoded IN keys in SpecInternal and IsForeignKey (kbd.asm) P2
 
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see reference section in Dev Notes). P3
@@ -81,11 +79,12 @@ DONE
 - Ported OZ to slot 1 (using hook code): No :ROM.0/* apps, expanded Z88 when RAM in slot 2, NMI/COMA handled in LOWRAM. (GBS)
         (sources finally removed with hard coded bank reference constants, all handled in /oz/def/kernel.def and sysapps.def)
 - Preset default RAM device in Panel to expanded RAM card when identified by OZ. (GBS)
-
 - Fixed kernel binaries for compilation
 	ostables.asm @ $3F00 in bank 0
 	osclitables @ same page
-	osscitable @ same page 
+	osscitable @ same page
+- Transform OSSci to be page independent (OSSciTable). P2
+- Transform OSCli to be page independent (Key2Meta routine). P2
 
 
 
