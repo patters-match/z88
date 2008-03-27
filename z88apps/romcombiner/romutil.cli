@@ -19,26 +19,28 @@
 .J
 NEW
    10 *NAME RomCombiner
-   20 HIMEM=&BA00
+   20 HIMEM=&B500
    30 DIM bank% 16383
    40 DIM fname 255
    50 DIM inbuffer 255
-   70 blowbank=&BA00:checkbank=&BA03:readbank=&BA06:eraseflash=&BA09
+   70 blowbank=&B900:checkbank=&B903:readbank=&B906:eraseflash=&B909:crc32bank=&B90C
   140 WaitLS%=W%:ShowApps%=S%
   150 $inbuffer=""
   160 r1$=CHR$(1)+"2+R":r0$=CHR$(1)+"2-R"
   170 b1$=CHR$(1)+"2+B":b0$=CHR$(1)+"2-B"
-  180 PROCload(":*//RomCombiner.bin",blowbank)
+  175 IF F%=6 THEN ozromfn$=$HIMEM
+  180 PROCload(":*//RomCombiner.bin",&B500)
   190 IF F%=1 THEN PROCBlowROM
   200 IF F%=2 THEN PROCFlashErase
   210 IF F%=3 THEN PROCEprConvert
   220 IF F%=4 THEN PROCReadROM
   230 IF F%=5 THEN PROCVerify
+  235 IF F%=6 THEN PROCRomUpdateCfg(ozromfn$)
   240 RUN ":*//RomCombiner.bas"
 
  1100 DEF PROCDispTitle
  1110 CLS
- 1120 PRINT r1$;"  RomCombiner v2.05 (c) Garry Lancaster, 2000-2008  ";r0$;
+ 1120 PRINT r1$;"  RomCombiner v2.06 (c) Garry Lancaster, 2000-2008  ";r0$;
  1130 PRINT "  Pause mode ";
  1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
  1150 PRINT "  Display mode ";
@@ -243,4 +245,27 @@ NEW
  5140 IF I%>=100 THEN PROCErrMsg("Incomplete!") ELSE PROCErrMsg("Completed!")
  5150 CLOSE#X%
  5160 ENDPROC
+ 
+ 5200 DEF PROCRomUpdateCfg(romflnm$)
+ 5205 LOCAL X%
+ 5210 X%=OPENOUT("romupdate.cfg")
+ 5220 PROCload(FNbankfile$(romflnm$,63),bank%)
+ 5230 CS%=FNGetb(&3FFC)
+ 5240 PRINT#X%,"CFG.V3"
+ 5250 PRINT#X%,"OZ.1,"+STR$(CS%)
+ 5260 FOR I%=64-CS% TO 63
+ 5270   PRINT "Calculating CRC32 for "+FNbankfile$(romflnm$,I%)
+ 5280   IF FNmissing(FNbankfile$(romflnm$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 5500
+ 5290   PROCload(FNbankfile$(romflnm$,I%),bank%)
+ 5300   H%=bank% DIV 256:L%=bank% MOD 256: B%=16384 DIV 256: C%=16384 MOD 256
+ 5310   CRC32%=USR(crc32bank)
+ 5320   PRINT#X%,CHR$(&22)+FNbankfile$(romflnm$,I%)+CHR$(&22)+",$"+STR$~(CRC32%)+",$"+STR$~(&7F-(63-I%))
+ 5500 NEXT I%
+ 5890 CLOSE#X%
+ 5895 PRINT "OZ ROM bank files have been completed."
+ 5900 PRINT "'romupdate.cfg' file was also created for OZ ROM bank files."
+ 5910 PRINT "Use RomUpdate.bas to blow new OZ ROM to slot 1."
+ 5920 PRINT "Press any key to continue"+CHR$(7)
+ 5930 K=GET
+ 5940 ENDPROC
 SA."RomUtil.bas"

@@ -20,7 +20,10 @@
 
      module romcode
 
-     org $ba00
+     xdef crctable
+     xref CrcBuffer
+     
+     org $b500
 
      ; These libraries refer to V0.8 of stdlib:
      lib FlashEprCardID, FlashEprCardErase, FlashEprBlockErase, FlashEprWriteBlock
@@ -28,12 +31,14 @@
      include "flashepr.def"
      include "memory.def"
 
-; Jump sub routine table (to define nice, static CALL addresses in BBC BASIC)
-     jp   blowbank      ; $BA00
-     jp   checkbank     ; $BA03
-     jp   readbank      ; $BA06
-     jp   eraseflash    ; $BA09
+     include "../romupdate/crctable.asm"
 
+; Jump sub routine table (to define nice, static CALL addresses in BBC BASIC)
+     jp   blowbank      ; $B900
+     jp   checkbank     ; $B903
+     jp   readbank      ; $B906
+     jp   eraseflash    ; $B909
+     jp   crc32bank     ; $B90C
 
 ; The BLOWBANK routine blows page B (00-3f) to standard EPROM type C,
 ; with data stored at DE. On exit, HL=0 if successful, or address
@@ -174,3 +179,18 @@
 .eraseerr
      ld   hl,$ffff
      ret
+
+; This routine is called from BBC BASIC with 
+;   HL = pointer to bank buffer
+;   BC = size of bank   
+; the CRC32 is returned back to BBC BASIC in HL H'L' (high word, low word)
+;
+.crc32bank
+     call CrcBuffer     ; this routine returns CRC32 in DEHL
+     ex   de,hl         ; HL is now high word
+     push de
+     exx
+     pop  hl            ; H'L' is low word
+     exx
+     ret
+     

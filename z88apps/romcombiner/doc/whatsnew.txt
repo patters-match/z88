@@ -1,3 +1,14 @@
+ROMCombiner v2.06 - What's New?
+===============================
+
+When combining the OZ ROM and other applications for slot 1, the "romupdate.cfg" file
+is automatically created. That makes it very easy to blow an customized update of
+the OZ ROM to a flash card in slot 1 using RomUpdate.bas.
+
+Gunther Strube, 27th March 2008
+
+
+
 ROMCombiner v2.05 - What's New?
 ===============================
 
